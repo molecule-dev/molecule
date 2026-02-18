@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Amharic. */
+export const am: IdeTranslations = {
+  'ide.chat.title': 'ውይይት',
+  'ide.chat.placeholder': 'መልእክት ይላኩ...',
+  'ide.chat.emptyState': 'ምን መገንባት እንደሚፈልጉ ይግለጹ...',
+  'ide.chat.you': 'እርስዎ',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'አቁም',
+  'ide.chat.send': 'ላክ',
+  'ide.editor.title': 'አርታዒ',
+  'ide.editor.emptyState': 'ለማርትዕ ፋይል ይክፈቱ',
+  'ide.files.empty': 'ምንም ፋይሎች የሉም',
+  'ide.preview.title': 'ቅድመ ዕይታ',
+  'ide.preview.refresh': 'ቅድመ ዕይታን ያድሱ',
+  'ide.preview.openNewTab': 'በአዲስ ትር ይክፈቱ',
+  'ide.preview.livePreview': 'ቀጥታ ቅድመ ዕይታ',
+  'ide.preview.starting': 'ቅድመ ዕይታ በመጀመር ላይ...',
+  'ide.preview.noPreview': 'ምንም ቅድመ ዕይታ አይገኝም',
+  'ide.device.label': 'የመሣሪያ ክፈፍ',
+  'ide.device.responsive': 'ምላሽ ሰጪ',
+  'ide.device.desktop': 'ዴስክቶፕ',
+  'ide.device.tablet': 'ታብሌት',
+  'ide.device.mobile': 'ሞባይል',
+  'ide.toolCall.running': 'በመስራት ላይ...',
+  'ide.toolCall.input': 'ግብዓት',
+  'ide.toolCall.output': 'ውጤት',
+  'ide.tabs.close': '{{fileName}}ን ዝጋ',
+}

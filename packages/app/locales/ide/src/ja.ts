@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Japanese. */
+export const ja: IdeTranslations = {
+  'ide.chat.title': 'チャット',
+  'ide.chat.placeholder': 'メッセージを送信...',
+  'ide.chat.emptyState': '作りたいものを説明してください...',
+  'ide.chat.you': 'あなた',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': '停止',
+  'ide.chat.send': '送信',
+  'ide.editor.title': 'エディター',
+  'ide.editor.emptyState': 'ファイルを開いて編集を始めましょう',
+  'ide.files.empty': 'ファイルがありません',
+  'ide.preview.title': 'プレビュー',
+  'ide.preview.refresh': 'プレビューを更新',
+  'ide.preview.openNewTab': '新しいタブで開く',
+  'ide.preview.livePreview': 'ライブプレビュー',
+  'ide.preview.starting': 'プレビューを開始中...',
+  'ide.preview.noPreview': 'プレビューはありません',
+  'ide.device.label': 'デバイスフレーム',
+  'ide.device.responsive': 'レスポンシブ',
+  'ide.device.desktop': 'デスクトップ',
+  'ide.device.tablet': 'タブレット',
+  'ide.device.mobile': 'モバイル',
+  'ide.toolCall.running': '実行中...',
+  'ide.toolCall.input': '入力',
+  'ide.toolCall.output': '出力',
+  'ide.tabs.close': '{{fileName}}を閉じる',
+}

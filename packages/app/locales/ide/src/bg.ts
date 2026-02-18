@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Bulgarian. */
+export const bg: IdeTranslations = {
+  'ide.chat.title': 'Чат',
+  'ide.chat.placeholder': 'Изпратете съобщение...',
+  'ide.chat.emptyState': 'Опишете какво искате да създадете...',
+  'ide.chat.you': 'Вие',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Спиране',
+  'ide.chat.send': 'Изпращане',
+  'ide.editor.title': 'Редактор',
+  'ide.editor.emptyState': 'Отворете файл, за да започнете редактиране',
+  'ide.files.empty': 'Няма файлове',
+  'ide.preview.title': 'Визуализация',
+  'ide.preview.refresh': 'Обновяване на визуализацията',
+  'ide.preview.openNewTab': 'Отваряне в нов раздел',
+  'ide.preview.livePreview': 'Визуализация на живо',
+  'ide.preview.starting': 'Стартиране на визуализация...',
+  'ide.preview.noPreview': 'Няма налична визуализация',
+  'ide.device.label': 'Рамка на устройство',
+  'ide.device.responsive': 'Адаптивен',
+  'ide.device.desktop': 'Десктоп',
+  'ide.device.tablet': 'Таблет',
+  'ide.device.mobile': 'Мобилен',
+  'ide.toolCall.running': 'изпълнява се...',
+  'ide.toolCall.input': 'Вход',
+  'ide.toolCall.output': 'Изход',
+  'ide.tabs.close': 'Затваряне на {{fileName}}',
+}

@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Afrikaans. */
+export const af: IdeTranslations = {
+  'ide.chat.title': 'Klets',
+  'ide.chat.placeholder': "Stuur 'n boodskap...",
+  'ide.chat.emptyState': 'Beskryf wat jy wil bou...',
+  'ide.chat.you': 'Jy',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Stop',
+  'ide.chat.send': 'Stuur',
+  'ide.editor.title': 'Redigeerder',
+  'ide.editor.emptyState': "Maak 'n lêer oop om te begin redigeer",
+  'ide.files.empty': 'Geen lêers nie',
+  'ide.preview.title': 'Voorskou',
+  'ide.preview.refresh': 'Herlaai voorskou',
+  'ide.preview.openNewTab': 'Maak in nuwe oortjie oop',
+  'ide.preview.livePreview': 'Lewendige Voorskou',
+  'ide.preview.starting': 'Begin voorskou...',
+  'ide.preview.noPreview': 'Geen voorskou beskikbaar nie',
+  'ide.device.label': 'Toestellraam',
+  'ide.device.responsive': 'Responsief',
+  'ide.device.desktop': 'Rekenaar',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'Selfoon',
+  'ide.toolCall.running': 'loop...',
+  'ide.toolCall.input': 'Invoer',
+  'ide.toolCall.output': 'Uitvoer',
+  'ide.tabs.close': 'Sluit {{fileName}}',
+}

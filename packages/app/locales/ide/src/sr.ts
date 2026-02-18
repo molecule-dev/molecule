@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Serbian. */
+export const sr: IdeTranslations = {
+  'ide.chat.title': 'Ћаскање',
+  'ide.chat.placeholder': 'Пошаљите поруку...',
+  'ide.chat.emptyState': 'Опишите шта желите да направите...',
+  'ide.chat.you': 'Ви',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Заустави',
+  'ide.chat.send': 'Пошаљи',
+  'ide.editor.title': 'Уређивач',
+  'ide.editor.emptyState': 'Отворите датотеку да бисте започели уређивање',
+  'ide.files.empty': 'Нема датотека',
+  'ide.preview.title': 'Преглед',
+  'ide.preview.refresh': 'Освежи преглед',
+  'ide.preview.openNewTab': 'Отвори у новом табу',
+  'ide.preview.livePreview': 'Преглед уживо',
+  'ide.preview.starting': 'Покретање прегледа...',
+  'ide.preview.noPreview': 'Преглед није доступан',
+  'ide.device.label': 'Оквир уређаја',
+  'ide.device.responsive': 'Респонзиван',
+  'ide.device.desktop': 'Десктоп',
+  'ide.device.tablet': 'Таблет',
+  'ide.device.mobile': 'Мобилни',
+  'ide.toolCall.running': 'извршава се...',
+  'ide.toolCall.input': 'Улаз',
+  'ide.toolCall.output': 'Излаз',
+  'ide.tabs.close': 'Затвори {{fileName}}',
+}

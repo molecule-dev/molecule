@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Galician. */
+export const gl: IdeTranslations = {
+  'ide.chat.title': 'Chat',
+  'ide.chat.placeholder': 'Envíe unha mensaxe...',
+  'ide.chat.emptyState': 'Describa o que desexa crear...',
+  'ide.chat.you': 'Ti',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Deter',
+  'ide.chat.send': 'Enviar',
+  'ide.editor.title': 'Editor',
+  'ide.editor.emptyState': 'Abra un ficheiro para comezar a editar',
+  'ide.files.empty': 'Sen ficheiros',
+  'ide.preview.title': 'Vista previa',
+  'ide.preview.refresh': 'Actualizar vista previa',
+  'ide.preview.openNewTab': 'Abrir nunha nova pestana',
+  'ide.preview.livePreview': 'Vista previa en directo',
+  'ide.preview.starting': 'Iniciando vista previa...',
+  'ide.preview.noPreview': 'Non hai vista previa dispoñible',
+  'ide.device.label': 'Marco do dispositivo',
+  'ide.device.responsive': 'Adaptable',
+  'ide.device.desktop': 'Escritorio',
+  'ide.device.tablet': 'Tableta',
+  'ide.device.mobile': 'Móbil',
+  'ide.toolCall.running': 'executando...',
+  'ide.toolCall.input': 'Entrada',
+  'ide.toolCall.output': 'Saída',
+  'ide.tabs.close': 'Pechar {{fileName}}',
+}

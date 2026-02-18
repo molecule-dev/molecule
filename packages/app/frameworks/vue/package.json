@@ -1,0 +1,58 @@
+{
+  "name": "@molecule/app-vue",
+  "version": "1.0.0",
+  "description": "Vue framework bindings for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "author": "molecule.dev",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@molecule/app-auth": "^1.0.0",
+    "@molecule/app-device": "^1.0.0",
+    "@molecule/app-forms": "^1.0.0",
+    "@molecule/app-http": "^1.0.0",
+    "@molecule/app-i18n": "^1.0.0",
+    "@molecule/app-logger": "^1.0.0",
+    "@molecule/app-platform": "^1.0.0",
+    "@molecule/app-push": "^1.0.0",
+    "@molecule/app-routing": "^1.0.0",
+    "@molecule/app-state": "^1.0.0",
+    "@molecule/app-storage": "^1.0.0",
+    "@molecule/app-theme": "^1.0.0",
+    "@molecule/app-ui": "^1.0.0",
+    "@molecule/app-utilities": "^1.0.0",
+    "@molecule/app-version": "^1.0.0",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@molecule/app-utilities": "1.0.0",
+    "@types/node": "25.2.3",
+    "@vue/test-utils": "2.4.6",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18",
+    "vue": "3.5.28"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/frameworks/vue"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/frameworks/vue",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

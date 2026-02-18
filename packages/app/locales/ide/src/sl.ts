@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Slovenian. */
+export const sl: IdeTranslations = {
+  'ide.chat.title': 'Klepet',
+  'ide.chat.placeholder': 'Pošljite sporočilo...',
+  'ide.chat.emptyState': 'Opišite, kaj želite zgraditi...',
+  'ide.chat.you': 'Vi',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Ustavi',
+  'ide.chat.send': 'Pošlji',
+  'ide.editor.title': 'Urejevalnik',
+  'ide.editor.emptyState': 'Odprite datoteko za začetek urejanja',
+  'ide.files.empty': 'Ni datotek',
+  'ide.preview.title': 'Predogled',
+  'ide.preview.refresh': 'Osveži predogled',
+  'ide.preview.openNewTab': 'Odpri v novem zavihku',
+  'ide.preview.livePreview': 'Predogled v živo',
+  'ide.preview.starting': 'Zaganjanje predogleda...',
+  'ide.preview.noPreview': 'Predogled ni na voljo',
+  'ide.device.label': 'Okvir naprave',
+  'ide.device.responsive': 'Odziven',
+  'ide.device.desktop': 'Namizje',
+  'ide.device.tablet': 'Tablica',
+  'ide.device.mobile': 'Mobilni',
+  'ide.toolCall.running': 'se izvaja...',
+  'ide.toolCall.input': 'Vnos',
+  'ide.toolCall.output': 'Izhod',
+  'ide.tabs.close': 'Zapri {{fileName}}',
+}

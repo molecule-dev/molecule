@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for French. */
+export const fr: IdeTranslations = {
+  'ide.chat.title': 'Discussion',
+  'ide.chat.placeholder': 'Envoyez un message...',
+  'ide.chat.emptyState': 'Décrivez ce que vous voulez créer...',
+  'ide.chat.you': 'Vous',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Arrêter',
+  'ide.chat.send': 'Envoyer',
+  'ide.editor.title': 'Éditeur',
+  'ide.editor.emptyState': 'Ouvrez un fichier pour commencer à éditer',
+  'ide.files.empty': 'Aucun fichier',
+  'ide.preview.title': 'Aperçu',
+  'ide.preview.refresh': "Rafraîchir l'aperçu",
+  'ide.preview.openNewTab': 'Ouvrir dans un nouvel onglet',
+  'ide.preview.livePreview': 'Aperçu en direct',
+  'ide.preview.starting': "Démarrage de l'aperçu...",
+  'ide.preview.noPreview': 'Aucun aperçu disponible',
+  'ide.device.label': "Cadre de l'appareil",
+  'ide.device.responsive': 'Adaptatif',
+  'ide.device.desktop': 'Bureau',
+  'ide.device.tablet': 'Tablette',
+  'ide.device.mobile': 'Mobile',
+  'ide.toolCall.running': 'en cours...',
+  'ide.toolCall.input': 'Entrée',
+  'ide.toolCall.output': 'Sortie',
+  'ide.tabs.close': 'Fermer {{fileName}}',
+}

@@ -1,0 +1,55 @@
+import type { UserTranslations } from './types.js'
+
+/** User translations for Malayalam. */
+export const ml: UserTranslations = {
+  'user.error.badRequest': 'മോശം അഭ്യർത്ഥന.',
+  'user.error.notFound': 'കണ്ടെത്തിയില്ല.',
+  'user.error.failedToCreateSession': 'സെഷൻ സൃഷ്‌ടിക്കുന്നതിൽ പരാജയപ്പെട്ടു.',
+  'user.error.usernameRequired': 'ഉപയോക്തൃനാമം ആവശ്യമാണ്.',
+  'user.error.passwordRequired': 'പാസ്‌വേഡ് ആവശ്യമാണ്.',
+  'user.error.emailInvalid': 'ഇമെയിൽ അസാധുവാണ്.',
+  'user.error.usernameUnavailable': 'ഉപയോക്തൃനാമം ലഭ്യമല്ല.',
+  'user.error.emailAlreadyRegistered': 'ഇമെയിൽ ഇതിനകം രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട്.',
+  'user.error.failedToHashPassword': 'പാസ്‌വേഡ് ഹാഷ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
+  'user.error.invalidCredentials': 'അസാധുവായ ക്രെഡൻഷ്യലുകൾ.',
+  'user.error.invalidTwoFactorToken': 'അസാധുവായ ടു-ഫാക്ടർ ടോക്കൺ.',
+  'user.error.twoFactorVerificationUnavailable': 'ടു-ഫാക്ടർ സ്ഥിരീകരണം ലഭ്യമല്ല.',
+  'user.error.loginFailed': 'ലോഗിൻ പരാജയപ്പെട്ടു.',
+  'user.notification.newLogin': 'പുതിയ ലോഗിൻ',
+  'user.notification.newLoginBody': '{{deviceName}} ൽ നിന്ന് പുതിയ ലോഗിൻ.',
+  'user.error.usernameCannotBeEmpty': 'ഉപയോക്തൃനാമം ശൂന്യമാകരുത്.',
+  'user.error.failedToUpdateUser': 'ഉപയോക്താവിനെ അപ്‌ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
+  'user.error.failedToDeleteUser': 'ഉപയോക്താവിനെ ഇല്ലാതാക്കുന്നതിൽ പരാജയപ്പെട്ടു.',
+  'user.error.failedToReadUser': 'ഉപയോക്താവിനെ വായിക്കുന്നതിൽ പരാജയപ്പെട്ടു.',
+  'user.error.emailRequired': 'ഇമെയിൽ ആവശ്യമാണ്.',
+  'user.email.passwordResetSubject': '{{appName}} - പാസ്‌വേഡ് റീസെറ്റ്',
+  'user.email.passwordResetText': 'നിങ്ങളുടെ പാസ്‌വേഡ് റീസെറ്റ് ടോക്കൺ: {{token}}',
+  'user.email.passwordResetLink': 'ഇവിടെ നിങ്ങളുടെ പാസ്‌വേഡ് റീസെറ്റ് ചെയ്യുക: {{url}}',
+  'user.email.passwordResetHtml':
+    '<p>നിങ്ങളുടെ പാസ്‌വേഡ് റീസെറ്റ് ടോക്കൺ: <strong>{{token}}</strong></p>',
+  'user.email.passwordResetHtmlLink':
+    '<p><a href="{{url}}">നിങ്ങളുടെ പാസ്‌വേഡ് റീസെറ്റ് ചെയ്യുക</a></p>',
+  'user.error.failedToProcessPasswordReset':
+    'പാസ്‌വേഡ് റീസെറ്റ് പ്രോസസ്സ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
+  'user.error.newPasswordRequired': 'പുതിയ പാസ്‌വേഡ് ആവശ്യമാണ്.',
+  'user.error.currentPasswordRequired': 'നിലവിലെ പാസ്‌വേഡ് ആവശ്യമാണ്.',
+  'user.error.currentPasswordIncorrect': 'നിലവിലെ പാസ്‌വേഡ് തെറ്റാണ്.',
+  'user.error.failedToUpdatePassword': 'പാസ്‌വേഡ് അപ്‌ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
+  'user.error.planKeyRequired': 'planKey ആവശ്യമാണ്.',
+  'user.error.invalidPlan': 'അസാധുവായ പ്ലാൻ.',
+  'user.error.failedToUpdateSubscription': 'സബ്‌സ്‌ക്രിപ്ഷൻ അപ്‌ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
+  'user.error.failedToUpdatePlan': 'പ്ലാൻ അപ്‌ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
+  'user.error.twoFactorNotAvailable': 'ടു-ഫാക്ടർ ഓതന്റിക്കേഷൻ ലഭ്യമല്ല.',
+  'user.error.tokenRequired': 'ടോക്കൺ ആവശ്യമാണ്.',
+  'user.error.noPendingTwoFactorSetup':
+    'തീർപ്പാകാത്ത ടു-ഫാക്ടർ സെറ്റപ്പ് ഇല്ല. ആദ്യം "setup" ആക്ഷൻ ഉപയോഗിച്ച് വിളിക്കുക.',
+  'user.error.invalidToken': 'അസാധുവായ ടോക്കൺ.',
+  'user.error.twoFactorNotEnabled': 'ടു-ഫാക്ടർ സജീവമല്ല.',
+  'user.error.invalidAction':
+    'അസാധുവായ ആക്ഷൻ. "setup", "enable", അല്ലെങ്കിൽ "disable" ഉപയോഗിക്കുക.',
+  'user.error.twoFactorOperationFailed': 'ടു-ഫാക്ടർ ഓപ്പറേഷൻ പരാജയപ്പെട്ടു.',
+  'user.error.oauthServerNotConfigured': 'OAuth സെർവർ "{{server}}" കോൺഫിഗർ ചെയ്തിട്ടില്ല.',
+  'user.error.oauthVerificationFailed': 'OAuth സ്ഥിരീകരണം പരാജയപ്പെട്ടു.',
+  'user.error.failedToCreateUser': 'ഉപയോക്താവിനെ സൃഷ്‌ടിക്കുന്നതിൽ പരാജയപ്പെട്ടു.',
+  'user.error.oauthLoginFailed': 'OAuth ലോഗിൻ പരാജയപ്പെട്ടു.',
+}

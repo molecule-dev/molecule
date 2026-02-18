@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Korean. */
+export const ko: IdeTranslations = {
+  'ide.chat.title': '채팅',
+  'ide.chat.placeholder': '메시지를 보내세요...',
+  'ide.chat.emptyState': '만들고 싶은 것을 설명하세요...',
+  'ide.chat.you': '나',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': '중지',
+  'ide.chat.send': '보내기',
+  'ide.editor.title': '편집기',
+  'ide.editor.emptyState': '파일을 열어 편집을 시작하세요',
+  'ide.files.empty': '파일 없음',
+  'ide.preview.title': '미리보기',
+  'ide.preview.refresh': '미리보기 새로고침',
+  'ide.preview.openNewTab': '새 탭에서 열기',
+  'ide.preview.livePreview': '실시간 미리보기',
+  'ide.preview.starting': '미리보기 시작 중...',
+  'ide.preview.noPreview': '미리보기 없음',
+  'ide.device.label': '기기 프레임',
+  'ide.device.responsive': '반응형',
+  'ide.device.desktop': '데스크톱',
+  'ide.device.tablet': '태블릿',
+  'ide.device.mobile': '모바일',
+  'ide.toolCall.running': '실행 중...',
+  'ide.toolCall.input': '입력',
+  'ide.toolCall.output': '출력',
+  'ide.tabs.close': '{{fileName}} 닫기',
+}

@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Punjabi. */
+export const pa: IdeTranslations = {
+  'ide.chat.title': 'ਚੈਟ',
+  'ide.chat.placeholder': 'ਸੁਨੇਹਾ ਭੇਜੋ...',
+  'ide.chat.emptyState': 'ਦੱਸੋ ਕਿ ਤੁਸੀਂ ਕੀ ਬਣਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ...',
+  'ide.chat.you': 'ਤੁਸੀਂ',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'ਰੋਕੋ',
+  'ide.chat.send': 'ਭੇਜੋ',
+  'ide.editor.title': 'ਐਡੀਟਰ',
+  'ide.editor.emptyState': 'ਸੰਪਾਦਨ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਫਾਈਲ ਖੋਲ੍ਹੋ',
+  'ide.files.empty': 'ਕੋਈ ਫਾਈਲਾਂ ਨਹੀਂ',
+  'ide.preview.title': 'ਪ੍ਰੀਵਿਊ',
+  'ide.preview.refresh': 'ਪ੍ਰੀਵਿਊ ਰਿਫ੍ਰੈਸ਼ ਕਰੋ',
+  'ide.preview.openNewTab': 'ਨਵੀਂ ਟੈਬ ਵਿੱਚ ਖੋਲ੍ਹੋ',
+  'ide.preview.livePreview': 'ਲਾਈਵ ਪ੍ਰੀਵਿਊ',
+  'ide.preview.starting': 'ਪ੍ਰੀਵਿਊ ਸ਼ੁਰੂ ਹੋ ਰਿਹਾ ਹੈ...',
+  'ide.preview.noPreview': 'ਕੋਈ ਪ੍ਰੀਵਿਊ ਉਪਲਬਧ ਨਹੀਂ',
+  'ide.device.label': 'ਡਿਵਾਈਸ ਫ੍ਰੇਮ',
+  'ide.device.responsive': 'ਰਿਸਪੌਂਸਿਵ',
+  'ide.device.desktop': 'ਡੈਸਕਟੌਪ',
+  'ide.device.tablet': 'ਟੈਬਲੈੱਟ',
+  'ide.device.mobile': 'ਮੋਬਾਈਲ',
+  'ide.toolCall.running': 'ਚੱਲ ਰਿਹਾ ਹੈ...',
+  'ide.toolCall.input': 'ਇਨਪੁੱਟ',
+  'ide.toolCall.output': 'ਆਊਟਪੁੱਟ',
+  'ide.tabs.close': '{{fileName}} ਬੰਦ ਕਰੋ',
+}

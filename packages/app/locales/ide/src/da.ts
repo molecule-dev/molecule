@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Danish. */
+export const da: IdeTranslations = {
+  'ide.chat.title': 'Chat',
+  'ide.chat.placeholder': 'Send en besked...',
+  'ide.chat.emptyState': 'Beskriv hvad du vil bygge...',
+  'ide.chat.you': 'Dig',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Stop',
+  'ide.chat.send': 'Send',
+  'ide.editor.title': 'Editor',
+  'ide.editor.emptyState': 'Åbn en fil for at begynde at redigere',
+  'ide.files.empty': 'Ingen filer',
+  'ide.preview.title': 'Forhåndsvisning',
+  'ide.preview.refresh': 'Opdater forhåndsvisning',
+  'ide.preview.openNewTab': 'Åbn i ny fane',
+  'ide.preview.livePreview': 'Live forhåndsvisning',
+  'ide.preview.starting': 'Starter forhåndsvisning...',
+  'ide.preview.noPreview': 'Ingen forhåndsvisning tilgængelig',
+  'ide.device.label': 'Enhedsramme',
+  'ide.device.responsive': 'Responsiv',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'Mobil',
+  'ide.toolCall.running': 'kører...',
+  'ide.toolCall.input': 'Input',
+  'ide.toolCall.output': 'Output',
+  'ide.tabs.close': 'Luk {{fileName}}',
+}

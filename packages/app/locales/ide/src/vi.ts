@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Vietnamese. */
+export const vi: IdeTranslations = {
+  'ide.chat.title': 'Trò chuyện',
+  'ide.chat.placeholder': 'Gửi tin nhắn...',
+  'ide.chat.emptyState': 'Mô tả những gì bạn muốn xây dựng...',
+  'ide.chat.you': 'Bạn',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Dừng',
+  'ide.chat.send': 'Gửi',
+  'ide.editor.title': 'Trình soạn thảo',
+  'ide.editor.emptyState': 'Mở tệp để bắt đầu chỉnh sửa',
+  'ide.files.empty': 'Không có tệp',
+  'ide.preview.title': 'Xem trước',
+  'ide.preview.refresh': 'Làm mới xem trước',
+  'ide.preview.openNewTab': 'Mở trong tab mới',
+  'ide.preview.livePreview': 'Xem trước trực tiếp',
+  'ide.preview.starting': 'Đang bắt đầu xem trước...',
+  'ide.preview.noPreview': 'Không có bản xem trước',
+  'ide.device.label': 'Khung thiết bị',
+  'ide.device.responsive': 'Đáp ứng',
+  'ide.device.desktop': 'Máy tính',
+  'ide.device.tablet': 'Máy tính bảng',
+  'ide.device.mobile': 'Di động',
+  'ide.toolCall.running': 'đang chạy...',
+  'ide.toolCall.input': 'Đầu vào',
+  'ide.toolCall.output': 'Đầu ra',
+  'ide.tabs.close': 'Đóng {{fileName}}',
+}

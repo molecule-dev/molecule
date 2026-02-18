@@ -1,0 +1,50 @@
+{
+  "name": "@molecule/api-ci-github-actions",
+  "version": "1.0.0",
+  "description": "GitHub Actions CI/CD templates and utilities for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./workflows": {
+      "types": "./dist/workflows/index.d.ts",
+      "import": "./dist/workflows/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "keywords": [
+    "molecule",
+    "ci",
+    "cd",
+    "github-actions",
+    "workflows"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "25.2.3",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/ci/github-actions"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/ci/github-actions",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

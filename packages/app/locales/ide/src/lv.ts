@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Latvian. */
+export const lv: IdeTranslations = {
+  'ide.chat.title': 'Tērzēšana',
+  'ide.chat.placeholder': 'Sūtīt ziņojumu...',
+  'ide.chat.emptyState': 'Aprakstiet, ko vēlaties izveidot...',
+  'ide.chat.you': 'Jūs',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Apturēt',
+  'ide.chat.send': 'Sūtīt',
+  'ide.editor.title': 'Redaktors',
+  'ide.editor.emptyState': 'Atveriet failu, lai sāktu rediģēt',
+  'ide.files.empty': 'Nav failu',
+  'ide.preview.title': 'Priekšskatījums',
+  'ide.preview.refresh': 'Atjaunināt priekšskatījumu',
+  'ide.preview.openNewTab': 'Atvērt jaunā cilnē',
+  'ide.preview.livePreview': 'Tiešais Priekšskatījums',
+  'ide.preview.starting': 'Sāk priekšskatījumu...',
+  'ide.preview.noPreview': 'Priekšskatījums nav pieejams',
+  'ide.device.label': 'Ierīces rāmis',
+  'ide.device.responsive': 'Adaptīvs',
+  'ide.device.desktop': 'Galddators',
+  'ide.device.tablet': 'Planšetdators',
+  'ide.device.mobile': 'Mobilais',
+  'ide.toolCall.running': 'darbojas...',
+  'ide.toolCall.input': 'Ievade',
+  'ide.toolCall.output': 'Izvade',
+  'ide.tabs.close': 'Aizvērt {{fileName}}',
+}

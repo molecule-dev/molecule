@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Slovak. */
+export const sk: IdeTranslations = {
+  'ide.chat.title': 'Chat',
+  'ide.chat.placeholder': 'Odoslať správu...',
+  'ide.chat.emptyState': 'Opíšte, čo chcete vytvoriť...',
+  'ide.chat.you': 'Vy',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Zastaviť',
+  'ide.chat.send': 'Odoslať',
+  'ide.editor.title': 'Editor',
+  'ide.editor.emptyState': 'Otvorte súbor a začnite upravovať',
+  'ide.files.empty': 'Žiadne súbory',
+  'ide.preview.title': 'Náhľad',
+  'ide.preview.refresh': 'Obnoviť náhľad',
+  'ide.preview.openNewTab': 'Otvoriť v novej karte',
+  'ide.preview.livePreview': 'Živý náhľad',
+  'ide.preview.starting': 'Spúšťanie náhľadu...',
+  'ide.preview.noPreview': 'Náhľad nie je k dispozícii',
+  'ide.device.label': 'Rám zariadenia',
+  'ide.device.responsive': 'Responzívny',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'Mobil',
+  'ide.toolCall.running': 'beží...',
+  'ide.toolCall.input': 'Vstup',
+  'ide.toolCall.output': 'Výstup',
+  'ide.tabs.close': 'Zavrieť {{fileName}}',
+}

@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Igbo. */
+export const ig: IdeTranslations = {
+  'ide.chat.title': 'Nkata',
+  'ide.chat.placeholder': 'Zipu ozi...',
+  'ide.chat.emptyState': 'Kọwaa ihe ị chọrọ iwu...',
+  'ide.chat.you': 'Gị',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Kwụsị',
+  'ide.chat.send': 'Zipu',
+  'ide.editor.title': 'Ndezi',
+  'ide.editor.emptyState': 'Mepee faịlụ ka ịmalite ndezi',
+  'ide.files.empty': 'Enweghị faịlụ',
+  'ide.preview.title': 'Nlele tupu oge',
+  'ide.preview.refresh': 'Mee nlele ọhụrụ',
+  'ide.preview.openNewTab': 'Mepee na taabụ ọhụrụ',
+  'ide.preview.livePreview': 'Nlele dị ndụ',
+  'ide.preview.starting': 'Na-amalite nlele...',
+  'ide.preview.noPreview': 'Enweghị nlele',
+  'ide.device.label': 'Fréémụ ngwaọrụ',
+  'ide.device.responsive': 'Nzaghachi',
+  'ide.device.desktop': 'Desktọpụ',
+  'ide.device.tablet': 'Taabletị',
+  'ide.device.mobile': 'Ekwentị',
+  'ide.toolCall.running': 'na-agba ọsọ...',
+  'ide.toolCall.input': 'Ntinye',
+  'ide.toolCall.output': 'Nsoputạ',
+  'ide.tabs.close': 'Mechie {{fileName}}',
+}

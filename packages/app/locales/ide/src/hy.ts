@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Armenian. */
+export const hy: IdeTranslations = {
+  'ide.chat.title': 'Zruyc',
+  'ide.chat.placeholder': 'Ugharkeq haxordagirq...',
+  'ide.chat.emptyState': 'Nkarageq inch eq uzum kareq...',
+  'ide.chat.you': 'Duq',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Kangeq',
+  'ide.chat.send': 'Ugharkeq',
+  'ide.editor.title': 'Khmbagriq',
+  'ide.editor.emptyState': 'Baceq fayl khmbagrman skselu hamar',
+  'ide.files.empty': 'Fayler chkan',
+  'ide.preview.title': 'Nakhatesq',
+  'ide.preview.refresh': 'Tarmacneq nakhatesqy',
+  'ide.preview.openNewTab': 'Baceq nor ners',
+  'ide.preview.livePreview': 'Sharzhunak Nakhatesq',
+  'ide.preview.starting': 'Nakhatesqi skizb...',
+  'ide.preview.noPreview': 'Nakhatesq hasa che',
+  'ide.device.label': 'Sarqi shrtjanak',
+  'ide.device.responsive': 'Hartsvoghayin',
+  'ide.device.desktop': 'Hamakargich',
+  'ide.device.tablet': 'Planshet',
+  'ide.device.mobile': 'Bjjayin',
+  'ide.toolCall.running': 'ashxatum e...',
+  'ide.toolCall.input': 'Mutq',
+  'ide.toolCall.output': 'Elq',
+  'ide.tabs.close': 'Pakeq {{fileName}}',
+}

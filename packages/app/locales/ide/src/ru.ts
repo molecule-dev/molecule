@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Russian. */
+export const ru: IdeTranslations = {
+  'ide.chat.title': 'Чат',
+  'ide.chat.placeholder': 'Отправить сообщение...',
+  'ide.chat.emptyState': 'Опишите, что вы хотите создать...',
+  'ide.chat.you': 'Вы',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Остановить',
+  'ide.chat.send': 'Отправить',
+  'ide.editor.title': 'Редактор',
+  'ide.editor.emptyState': 'Откройте файл, чтобы начать редактирование',
+  'ide.files.empty': 'Нет файлов',
+  'ide.preview.title': 'Предпросмотр',
+  'ide.preview.refresh': 'Обновить предпросмотр',
+  'ide.preview.openNewTab': 'Открыть в новой вкладке',
+  'ide.preview.livePreview': 'Предпросмотр в реальном времени',
+  'ide.preview.starting': 'Запуск предпросмотра...',
+  'ide.preview.noPreview': 'Предпросмотр недоступен',
+  'ide.device.label': 'Рамка устройства',
+  'ide.device.responsive': 'Адаптивный',
+  'ide.device.desktop': 'Настольный',
+  'ide.device.tablet': 'Планшет',
+  'ide.device.mobile': 'Мобильный',
+  'ide.toolCall.running': 'выполняется...',
+  'ide.toolCall.input': 'Ввод',
+  'ide.toolCall.output': 'Вывод',
+  'ide.tabs.close': 'Закрыть {{fileName}}',
+}

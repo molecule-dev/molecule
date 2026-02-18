@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Hausa. */
+export const ha: IdeTranslations = {
+  'ide.chat.title': 'Hira',
+  'ide.chat.placeholder': 'Aika saƙo...',
+  'ide.chat.emptyState': 'Bayyana abin da kuke son ginawa...',
+  'ide.chat.you': 'Kai',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Tsaya',
+  'ide.chat.send': 'Aika',
+  'ide.editor.title': 'Edita',
+  'ide.editor.emptyState': 'Buɗe fayil don fara gyarawa',
+  'ide.files.empty': 'Babu fayiloli',
+  'ide.preview.title': 'Duba',
+  'ide.preview.refresh': 'Sabunta duba',
+  'ide.preview.openNewTab': 'Buɗe a sabon shafi',
+  'ide.preview.livePreview': 'Duba kai tsaye',
+  'ide.preview.starting': 'Ana fara duba...',
+  'ide.preview.noPreview': 'Babu duba',
+  'ide.device.label': "Firam ɗin na'ura",
+  'ide.device.responsive': 'Mai amsawa',
+  'ide.device.desktop': 'Kwamfuta',
+  'ide.device.tablet': 'Kwamfutar hannu',
+  'ide.device.mobile': 'Wayar hannu',
+  'ide.toolCall.running': 'ana aiki...',
+  'ide.toolCall.input': 'Shigarwa',
+  'ide.toolCall.output': 'Fitarwa',
+  'ide.tabs.close': 'Rufe {{fileName}}',
+}

@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Georgian. */
+export const ka: IdeTranslations = {
+  'ide.chat.title': 'Chati',
+  'ide.chat.placeholder': 'Gagzavnet shektyoba...',
+  'ide.chat.emptyState': 'Agtseret ra ginda aasheno...',
+  'ide.chat.you': 'Tqven',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Sheacheret',
+  'ide.chat.send': 'Gagzavna',
+  'ide.editor.title': 'Redaktori',
+  'ide.editor.emptyState': 'Gakhsnit paili redaqtirebis dasakheblad',
+  'ide.files.empty': 'Pailebi ar aris',
+  'ide.preview.title': 'Tsinstsari',
+  'ide.preview.refresh': 'Ganakhlet tsinstsari',
+  'ide.preview.openNewTab': 'Gakhnit akhali tabship',
+  'ide.preview.livePreview': 'Tskhoveli Tsinstsari',
+  'ide.preview.starting': 'Tsinstsari ikhsneba...',
+  'ide.preview.noPreview': 'Tsinstsari ar aris khelmisamisvdomia',
+  'ide.device.label': 'Motsqobilobis charchoa',
+  'ide.device.responsive': 'Adaptiri',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tableti',
+  'ide.device.mobile': 'Mobiluri',
+  'ide.toolCall.running': 'mushavdeba...',
+  'ide.toolCall.input': 'Shetani',
+  'ide.toolCall.output': 'Gamosavali',
+  'ide.tabs.close': 'Dakhurva {{fileName}}',
+}

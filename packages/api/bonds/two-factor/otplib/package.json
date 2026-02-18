@@ -1,0 +1,53 @@
+{
+  "name": "@molecule/api-two-factor-otplib",
+  "version": "1.0.0",
+  "description": "Two-factor authentication provider using otplib for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "two-factor",
+    "otplib",
+    "totp",
+    "provider"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "otplib": "13.3.0",
+    "qrcode": "1.5.4"
+  },
+  "peerDependencies": {
+    "@molecule/api-two-factor": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-two-factor": "1.0.0",
+    "@types/qrcode": "1.5.6",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/two-factor/otplib"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/two-factor/otplib",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Yoruba. */
+export const yo: IdeTranslations = {
+  'ide.chat.title': 'Ìjíròrò',
+  'ide.chat.placeholder': 'Fi ìfiránṣẹ́ ránṣẹ́...',
+  'ide.chat.emptyState': 'Ṣàpèjúwe ohun tí o fẹ́ kọ́...',
+  'ide.chat.you': 'Ìwọ',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Dúró',
+  'ide.chat.send': 'Firánṣẹ́',
+  'ide.editor.title': 'Olóòtú',
+  'ide.editor.emptyState': 'Ṣí fáìlì kan láti bẹ̀rẹ̀ àtúnṣe',
+  'ide.files.empty': 'Kò sí fáìlì',
+  'ide.preview.title': 'Ìwòye',
+  'ide.preview.refresh': 'Mú ìwòye dàrà',
+  'ide.preview.openNewTab': 'Ṣí ní táábu tuntun',
+  'ide.preview.livePreview': 'Ìwòye àgbéyẹ̀wò',
+  'ide.preview.starting': 'Ìbẹ̀rẹ̀ ìwòye...',
+  'ide.preview.noPreview': 'Kò sí ìwòye',
+  'ide.device.label': 'Fíréèmù ẹ̀rọ',
+  'ide.device.responsive': 'Ìdáhùn',
+  'ide.device.desktop': 'Kọ̀ǹpútà',
+  'ide.device.tablet': 'Tábùlẹ́ẹ̀tì',
+  'ide.device.mobile': 'Fóònù',
+  'ide.toolCall.running': 'ń ṣiṣẹ́...',
+  'ide.toolCall.input': 'Ìṣàfihàn',
+  'ide.toolCall.output': 'Àbájáde',
+  'ide.tabs.close': 'Pa {{fileName}} dé',
+}

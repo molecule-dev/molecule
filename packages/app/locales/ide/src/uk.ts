@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Ukrainian. */
+export const uk: IdeTranslations = {
+  'ide.chat.title': 'Чат',
+  'ide.chat.placeholder': 'Надішліть повідомлення...',
+  'ide.chat.emptyState': 'Опишіть, що ви хочете створити...',
+  'ide.chat.you': 'Ви',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Зупинити',
+  'ide.chat.send': 'Надіслати',
+  'ide.editor.title': 'Редактор',
+  'ide.editor.emptyState': 'Відкрийте файл, щоб почати редагування',
+  'ide.files.empty': 'Немає файлів',
+  'ide.preview.title': 'Попередній перегляд',
+  'ide.preview.refresh': 'Оновити попередній перегляд',
+  'ide.preview.openNewTab': 'Відкрити в новій вкладці',
+  'ide.preview.livePreview': 'Попередній перегляд наживо',
+  'ide.preview.starting': 'Запуск попереднього перегляду...',
+  'ide.preview.noPreview': 'Попередній перегляд недоступний',
+  'ide.device.label': 'Рамка пристрою',
+  'ide.device.responsive': 'Адаптивний',
+  'ide.device.desktop': 'Настільний',
+  'ide.device.tablet': 'Планшет',
+  'ide.device.mobile': 'Мобільний',
+  'ide.toolCall.running': 'виконується...',
+  'ide.toolCall.input': 'Введення',
+  'ide.toolCall.output': 'Виведення',
+  'ide.tabs.close': 'Закрити {{fileName}}',
+}

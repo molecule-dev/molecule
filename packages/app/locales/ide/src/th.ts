@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Thai. */
+export const th: IdeTranslations = {
+  'ide.chat.title': 'แชท',
+  'ide.chat.placeholder': 'ส่งข้อความ...',
+  'ide.chat.emptyState': 'อธิบายสิ่งที่คุณต้องการสร้าง...',
+  'ide.chat.you': 'คุณ',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'หยุด',
+  'ide.chat.send': 'ส่ง',
+  'ide.editor.title': 'ตัวแก้ไข',
+  'ide.editor.emptyState': 'เปิดไฟล์เพื่อเริ่มแก้ไข',
+  'ide.files.empty': 'ไม่มีไฟล์',
+  'ide.preview.title': 'ตัวอย่าง',
+  'ide.preview.refresh': 'รีเฟรชตัวอย่าง',
+  'ide.preview.openNewTab': 'เปิดในแท็บใหม่',
+  'ide.preview.livePreview': 'ตัวอย่างสด',
+  'ide.preview.starting': 'กำลังเริ่มตัวอย่าง...',
+  'ide.preview.noPreview': 'ไม่มีตัวอย่างที่พร้อมใช้งาน',
+  'ide.device.label': 'กรอบอุปกรณ์',
+  'ide.device.responsive': 'ตอบสนอง',
+  'ide.device.desktop': 'เดสก์ท็อป',
+  'ide.device.tablet': 'แท็บเล็ต',
+  'ide.device.mobile': 'มือถือ',
+  'ide.toolCall.running': 'กำลังทำงาน...',
+  'ide.toolCall.input': 'อินพุต',
+  'ide.toolCall.output': 'เอาต์พุต',
+  'ide.tabs.close': 'ปิด {{fileName}}',
+}

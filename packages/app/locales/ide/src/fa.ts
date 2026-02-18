@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Persian. */
+export const fa: IdeTranslations = {
+  'ide.chat.title': 'گفتگو',
+  'ide.chat.placeholder': 'پیامی ارسال کنید...',
+  'ide.chat.emptyState': 'آنچه می‌خواهید بسازید را توصیف کنید...',
+  'ide.chat.you': 'شما',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'توقف',
+  'ide.chat.send': 'ارسال',
+  'ide.editor.title': 'ویرایشگر',
+  'ide.editor.emptyState': 'برای شروع ویرایش یک فایل باز کنید',
+  'ide.files.empty': 'فایلی موجود نیست',
+  'ide.preview.title': 'پیش‌نمایش',
+  'ide.preview.refresh': 'بازآوری پیش‌نمایش',
+  'ide.preview.openNewTab': 'باز کردن در تب جدید',
+  'ide.preview.livePreview': 'پیش‌نمایش زنده',
+  'ide.preview.starting': 'شروع پیش‌نمایش...',
+  'ide.preview.noPreview': 'پیش‌نمایشی موجود نیست',
+  'ide.device.label': 'قاب دستگاه',
+  'ide.device.responsive': 'واکنش‌گرا',
+  'ide.device.desktop': 'دسکتاپ',
+  'ide.device.tablet': 'تبلت',
+  'ide.device.mobile': 'موبایل',
+  'ide.toolCall.running': 'در حال اجرا...',
+  'ide.toolCall.input': 'ورودی',
+  'ide.toolCall.output': 'خروجی',
+  'ide.tabs.close': 'بستن {{fileName}}',
+}

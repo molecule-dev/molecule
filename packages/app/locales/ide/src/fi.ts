@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Finnish. */
+export const fi: IdeTranslations = {
+  'ide.chat.title': 'Keskustelu',
+  'ide.chat.placeholder': 'Lähetä viesti...',
+  'ide.chat.emptyState': 'Kuvaile, mitä haluat rakentaa...',
+  'ide.chat.you': 'Sinä',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Pysäytä',
+  'ide.chat.send': 'Lähetä',
+  'ide.editor.title': 'Editori',
+  'ide.editor.emptyState': 'Avaa tiedosto aloittaaksesi muokkauksen',
+  'ide.files.empty': 'Ei tiedostoja',
+  'ide.preview.title': 'Esikatselu',
+  'ide.preview.refresh': 'Päivitä esikatselu',
+  'ide.preview.openNewTab': 'Avaa uudessa välilehdessä',
+  'ide.preview.livePreview': 'Live-esikatselu',
+  'ide.preview.starting': 'Käynnistetään esikatselua...',
+  'ide.preview.noPreview': 'Esikatselu ei ole saatavilla',
+  'ide.device.label': 'Laitteen kehys',
+  'ide.device.responsive': 'Responsiivinen',
+  'ide.device.desktop': 'Työpöytä',
+  'ide.device.tablet': 'Tabletti',
+  'ide.device.mobile': 'Mobiili',
+  'ide.toolCall.running': 'käynnissä...',
+  'ide.toolCall.input': 'Syöte',
+  'ide.toolCall.output': 'Tuloste',
+  'ide.tabs.close': 'Sulje {{fileName}}',
+}

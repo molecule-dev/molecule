@@ -1,0 +1,50 @@
+{
+  "name": "@molecule/api-password-bcrypt",
+  "version": "1.0.0",
+  "description": "Password hashing provider using bcryptjs for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "password",
+    "bcrypt",
+    "provider"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "3.0.3"
+  },
+  "peerDependencies": {
+    "@molecule/api-password": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-password": "1.0.0",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/password/bcrypt"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/password/bcrypt",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

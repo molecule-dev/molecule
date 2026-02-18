@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Maltese. */
+export const mt: IdeTranslations = {
+  'ide.chat.title': 'Chat',
+  'ide.chat.placeholder': 'Ibghat messaGG...',
+  'ide.chat.emptyState': "Iddeskrivi x'trid tibni...",
+  'ide.chat.you': 'Inti',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Ieqaf',
+  'ide.chat.send': 'Ibghat',
+  'ide.editor.title': 'Editur',
+  'ide.editor.emptyState': 'Iftah fajl biex tibda teditja',
+  'ide.files.empty': 'Ebda fajls',
+  'ide.preview.title': 'Previżjoni',
+  'ide.preview.refresh': 'Aggorna l-previżjoni',
+  'ide.preview.openNewTab': "Iftah f'tab gdid",
+  'ide.preview.livePreview': 'Previżjoni Hajja',
+  'ide.preview.starting': 'Qed tibda l-previżjoni...',
+  'ide.preview.noPreview': 'Ebda previżjoni disponibbli',
+  'ide.device.label': 'Qafas tal-apparat',
+  'ide.device.responsive': 'Responsiv',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'Mowbajl',
+  'ide.toolCall.running': 'qed jahdem...',
+  'ide.toolCall.input': 'Input',
+  'ide.toolCall.output': 'Output',
+  'ide.tabs.close': 'Aghlaq {{fileName}}',
+}

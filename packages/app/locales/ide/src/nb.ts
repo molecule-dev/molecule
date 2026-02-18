@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Norwegian Bokmål. */
+export const nb: IdeTranslations = {
+  'ide.chat.title': 'Chat',
+  'ide.chat.placeholder': 'Send en melding...',
+  'ide.chat.emptyState': 'Beskriv hva du vil bygge...',
+  'ide.chat.you': 'Deg',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Stopp',
+  'ide.chat.send': 'Send',
+  'ide.editor.title': 'Editor',
+  'ide.editor.emptyState': 'Åpne en fil for å begynne å redigere',
+  'ide.files.empty': 'Ingen filer',
+  'ide.preview.title': 'Forhåndsvisning',
+  'ide.preview.refresh': 'Oppdater forhåndsvisning',
+  'ide.preview.openNewTab': 'Åpne i ny fane',
+  'ide.preview.livePreview': 'Direktevisning',
+  'ide.preview.starting': 'Starter forhåndsvisning...',
+  'ide.preview.noPreview': 'Ingen forhåndsvisning tilgjengelig',
+  'ide.device.label': 'Enhetsramme',
+  'ide.device.responsive': 'Responsiv',
+  'ide.device.desktop': 'Skrivebord',
+  'ide.device.tablet': 'Nettbrett',
+  'ide.device.mobile': 'Mobil',
+  'ide.toolCall.running': 'kjører...',
+  'ide.toolCall.input': 'Inndata',
+  'ide.toolCall.output': 'Utdata',
+  'ide.tabs.close': 'Lukk {{fileName}}',
+}

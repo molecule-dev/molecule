@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Greek. */
+export const el: IdeTranslations = {
+  'ide.chat.title': 'Συνομιλία',
+  'ide.chat.placeholder': 'Στείλτε ένα μήνυμα...',
+  'ide.chat.emptyState': 'Περιγράψτε τι θέλετε να δημιουργήσετε...',
+  'ide.chat.you': 'Εσείς',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Διακοπή',
+  'ide.chat.send': 'Αποστολή',
+  'ide.editor.title': 'Επεξεργαστής',
+  'ide.editor.emptyState': 'Ανοίξτε ένα αρχείο για να ξεκινήσετε την επεξεργασία',
+  'ide.files.empty': 'Δεν υπάρχουν αρχεία',
+  'ide.preview.title': 'Προεπισκόπηση',
+  'ide.preview.refresh': 'Ανανέωση προεπισκόπησης',
+  'ide.preview.openNewTab': 'Άνοιγμα σε νέα καρτέλα',
+  'ide.preview.livePreview': 'Ζωντανή Προεπισκόπηση',
+  'ide.preview.starting': 'Εκκίνηση προεπισκόπησης...',
+  'ide.preview.noPreview': 'Δεν υπάρχει διαθέσιμη προεπισκόπηση',
+  'ide.device.label': 'Πλαίσιο συσκευής',
+  'ide.device.responsive': 'Προσαρμοστικό',
+  'ide.device.desktop': 'Επιτραπέζιο',
+  'ide.device.tablet': 'Τάμπλετ',
+  'ide.device.mobile': 'Κινητό',
+  'ide.toolCall.running': 'εκτελείται...',
+  'ide.toolCall.input': 'Είσοδος',
+  'ide.toolCall.output': 'Έξοδος',
+  'ide.tabs.close': 'Κλείσιμο {{fileName}}',
+}

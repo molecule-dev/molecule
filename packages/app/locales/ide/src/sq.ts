@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Albanian. */
+export const sq: IdeTranslations = {
+  'ide.chat.title': 'Bisede',
+  'ide.chat.placeholder': 'Dergoni nje mesazh...',
+  'ide.chat.emptyState': 'Pershkruani cfare deshironi te ndertoni...',
+  'ide.chat.you': 'Ju',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Ndalo',
+  'ide.chat.send': 'Dergo',
+  'ide.editor.title': 'Redaktori',
+  'ide.editor.emptyState': 'Hapni nje skedar per te filluar redaktimin',
+  'ide.files.empty': 'Nuk ka skedare',
+  'ide.preview.title': 'Parashikimi',
+  'ide.preview.refresh': 'Rifresko parashikimin',
+  'ide.preview.openNewTab': 'Hap ne skedën e re',
+  'ide.preview.livePreview': 'Parashikim i Drejtperdrejte',
+  'ide.preview.starting': 'Po fillon parashikimi...',
+  'ide.preview.noPreview': 'Nuk ka parashikim te disponueshem',
+  'ide.device.label': 'Korniza e pajisjes',
+  'ide.device.responsive': 'Reagues',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'Celular',
+  'ide.toolCall.running': 'po ekzekutohet...',
+  'ide.toolCall.input': 'Hyrja',
+  'ide.toolCall.output': 'Dalja',
+  'ide.tabs.close': 'Mbyll {{fileName}}',
+}

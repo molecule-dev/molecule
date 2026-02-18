@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Kannada. */
+export const kn: IdeTranslations = {
+  'ide.chat.title': 'ಚಾಟ್',
+  'ide.chat.placeholder': 'ಸಂದೇಶ ಕಳುಹಿಸಿ...',
+  'ide.chat.emptyState': 'ನೀವು ಏನು ನಿರ್ಮಿಸಲು ಬಯಸುತ್ತೀರಿ ಎಂಬುದನ್ನು ವಿವರಿಸಿ...',
+  'ide.chat.you': 'ನೀವು',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'ನಿಲ್ಲಿಸಿ',
+  'ide.chat.send': 'ಕಳುಹಿಸಿ',
+  'ide.editor.title': 'ಎಡಿಟರ್',
+  'ide.editor.emptyState': 'ಸಂಪಾದನೆ ಪ್ರಾರಂಭಿಸಲು ಫೈಲ್ ತೆರೆಯಿರಿ',
+  'ide.files.empty': 'ಯಾವುದೇ ಫೈಲ್‌ಗಳಿಲ್ಲ',
+  'ide.preview.title': 'ಪ್ರಿವ್ಯೂ',
+  'ide.preview.refresh': 'ಪ್ರಿವ್ಯೂ ರಿಫ್ರೆಶ್ ಮಾಡಿ',
+  'ide.preview.openNewTab': 'ಹೊಸ ಟ್ಯಾಬ್‌ನಲ್ಲಿ ತೆರೆಯಿರಿ',
+  'ide.preview.livePreview': 'ಲೈವ್ ಪ್ರಿವ್ಯೂ',
+  'ide.preview.starting': 'ಪ್ರಿವ್ಯೂ ಪ್ರಾರಂಭವಾಗುತ್ತಿದೆ...',
+  'ide.preview.noPreview': 'ಯಾವುದೇ ಪ್ರಿವ್ಯೂ ಲಭ್ಯವಿಲ್ಲ',
+  'ide.device.label': 'ಡಿವೈಸ್ ಫ್ರೇಮ್',
+  'ide.device.responsive': 'ರೆಸ್ಪಾನ್ಸಿವ್',
+  'ide.device.desktop': 'ಡೆಸ್ಕ್‌ಟಾಪ್',
+  'ide.device.tablet': 'ಟ್ಯಾಬ್ಲೆಟ್',
+  'ide.device.mobile': 'ಮೊಬೈಲ್',
+  'ide.toolCall.running': 'ಚಾಲನೆಯಲ್ಲಿದೆ...',
+  'ide.toolCall.input': 'ಇನ್‌ಪುಟ್',
+  'ide.toolCall.output': 'ಔಟ್‌ಪುಟ್',
+  'ide.tabs.close': '{{fileName}} ಮುಚ್ಚಿ',
+}

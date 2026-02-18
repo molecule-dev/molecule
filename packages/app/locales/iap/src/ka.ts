@@ -1,0 +1,38 @@
+import type { IapTranslations } from './types.js'
+
+/** Iap translations for Georgian. */
+export const ka: IapTranslations = {
+  'iap.error.E_UNKNOWN': 'Uchnobi shetsdoma mookherkhda.',
+  'iap.error.E_SETUP': 'In-app shedzienebi daqeneba ver mokherkhda.',
+  'iap.error.E_LOAD': 'Produktebi chatvirtkhva ver mokherkhda.',
+  'iap.error.E_PURCHASE': 'Shedzena ver mokherkhda.',
+  'iap.error.E_CANCELLED': 'Shedzena gaauqmes.',
+  'iap.error.E_FINISH': 'Tranzaqtsiis dasruleba ver mokherkhda.',
+  'iap.error.E_VERIFICATION': 'Shedzienis veripikacia ver mokherkhda.',
+  'iap.error.E_RESTORE': 'Shedzienebi aghhdgena ver mokherkhda.',
+  'iap.error.E_NOT_AVAILABLE': 'In-app shedzienebi ar aris khelmisamisvdomia.',
+  'iap.error.E_ALREADY_OWNED': 'Tqven ukve phlobt am nivershs.',
+  'iap.error.E_NOT_OWNED': 'Tqven ar phlobt am nivershs.',
+  'iap.error.E_DEFERRED': 'Shedzena motkhovna dasturi.',
+  'iap.error.E_INVALID_PRODUCT': 'Aratsvalidi produkti.',
+  'iap.error.E_NETWORK': 'Kseluri shetsdoma.',
+  'iap.error.0': 'Uchnobi shetsdoma mookherkhda.',
+  'iap.error.E_CLIENT_INVALID': 'Klients ar aqvs uplebamosileba motkhovna.',
+  'iap.error.E_PAYMENT_CANCELLED': 'Momkhmarebelma gaauqma motkhovna.',
+  'iap.error.E_PAYMENT_INVALID': 'Shedzienis identipikatori aratsvalidi ikho.',
+  'iap.error.E_PAYMENT_NOT_ALLOWED': 'Motsqobilobas ar aqvs shedzienebi uplebamosileba.',
+  'iap.error.E_STORE_PRODUCT_NOT_AVAILABLE':
+    'Produkti ar aris khelmisamisvdomia mimdinare maghaziaship.',
+  'iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED': 'Ghrubelis servisit nebartva uarqopilia.',
+  'iap.error.E_CLOUD_SERVICE_NETWORK_CONNECTION_FAILED': 'Ghrubelis servisit kseli ver mokherkhda.',
+  'iap.error.E_CLOUD_SERVICE_REVOKED': 'Ghrubelis servisi gauqmebilia.',
+  'iap.error.-1': 'Servisi gathishuli.',
+  'iap.error.1': 'Momkhmarebelma gauqma.',
+  'iap.error.2': 'Servisi ar aris khelmisamisvdomia.',
+  'iap.error.3': 'Billing ar aris khelmisamisvdomia.',
+  'iap.error.4': 'Nivershi ar aris khelmisamisvdomia.',
+  'iap.error.5': 'Developeris shetsdoma.',
+  'iap.error.6': 'Shetsdoma.',
+  'iap.error.7': 'Nivershi ukve sashuleblia.',
+  'iap.error.8': 'Nivershi ar aris sashuleblia.',
+}

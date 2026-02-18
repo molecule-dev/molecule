@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Malayalam. */
+export const ml: IdeTranslations = {
+  'ide.chat.title': 'ചാറ്റ്',
+  'ide.chat.placeholder': 'ഒരു സന്ദേശം അയയ്ക്കുക...',
+  'ide.chat.emptyState': 'നിങ്ങൾ എന്ത് നിർമ്മിക്കാൻ ആഗ്രഹിക്കുന്നു എന്ന് വിവരിക്കുക...',
+  'ide.chat.you': 'നിങ്ങൾ',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'നിർത്തുക',
+  'ide.chat.send': 'അയയ്ക്കുക',
+  'ide.editor.title': 'എഡിറ്റർ',
+  'ide.editor.emptyState': 'എഡിറ്റിംഗ് ആരംഭിക്കാൻ ഒരു ഫയൽ തുറക്കുക',
+  'ide.files.empty': 'ഫയലുകൾ ഇല്ല',
+  'ide.preview.title': 'പ്രിവ്യൂ',
+  'ide.preview.refresh': 'പ്രിവ്യൂ റിഫ്രഷ് ചെയ്യുക',
+  'ide.preview.openNewTab': 'പുതിയ ടാബിൽ തുറക്കുക',
+  'ide.preview.livePreview': 'ലൈവ് പ്രിവ്യൂ',
+  'ide.preview.starting': 'പ്രിവ്യൂ ആരംഭിക്കുന്നു...',
+  'ide.preview.noPreview': 'പ്രിവ്യൂ ലഭ്യമല്ല',
+  'ide.device.label': 'ഉപകരണ ഫ്രെയിം',
+  'ide.device.responsive': 'റെസ്‌പോൺസീവ്',
+  'ide.device.desktop': 'ഡെസ്‌ക്ടോപ്പ്',
+  'ide.device.tablet': 'ടാബ്‌ലെറ്റ്',
+  'ide.device.mobile': 'മൊബൈൽ',
+  'ide.toolCall.running': 'പ്രവർത്തിക്കുന്നു...',
+  'ide.toolCall.input': 'ഇൻപുട്ട്',
+  'ide.toolCall.output': 'ഔട്ട്‌പുട്ട്',
+  'ide.tabs.close': '{{fileName}} അടയ്ക്കുക',
+}

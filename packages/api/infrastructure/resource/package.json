@@ -1,0 +1,67 @@
+{
+  "name": "@molecule/api-resource",
+  "version": "1.0.0",
+  "description": "Resource CRUD operations and utilities for molecule.dev.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
+    },
+    "./schema": {
+      "types": "./dist/schema.d.ts",
+      "import": "./dist/schema.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "resource",
+    "crud"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "uuid": "13.0.0",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-database": "1.0.0",
+    "@molecule/api-locales-resource": "1.0.0",
+    "@molecule/api-utilities-validation": "1.0.0",
+    "@types/node": "25.2.3",
+    "@types/uuid": "10.0.0",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-database": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-locales-resource": "^1.0.0",
+    "@molecule/api-utilities-validation": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/infrastructure/resource"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/infrastructure/resource",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

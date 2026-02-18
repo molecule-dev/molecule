@@ -1,0 +1,38 @@
+import type { IapTranslations } from './types.js'
+
+/** Iap translations for Hausa. */
+export const ha: IapTranslations = {
+  'iap.error.E_UNKNOWN': 'An sami kuskure da ba a sani ba.',
+  'iap.error.E_SETUP': 'An kasa saita sayayya a cikin manhaja.',
+  'iap.error.E_LOAD': 'An kasa loda kayayyaki.',
+  'iap.error.E_PURCHASE': 'Sayayya ta kasa.',
+  'iap.error.E_CANCELLED': 'An soke sayayya.',
+  'iap.error.E_FINISH': 'An kasa kammala ciniki.',
+  'iap.error.E_VERIFICATION': 'An kasa tabbatar da sayayya.',
+  'iap.error.E_RESTORE': 'An kasa dawo da sayayya.',
+  'iap.error.E_NOT_AVAILABLE': 'Sayayya a cikin manhaja ba ta samuwa.',
+  'iap.error.E_ALREADY_OWNED': 'Kuna da wannan abu tuni.',
+  'iap.error.E_NOT_OWNED': 'Ba ku da wannan abu.',
+  'iap.error.E_DEFERRED': 'Sayayya tana buƙatar amincewar.',
+  'iap.error.E_INVALID_PRODUCT': 'Kaya mara inganci.',
+  'iap.error.E_NETWORK': 'Kuskuren hanyar sadarwa.',
+  'iap.error.0': 'An sami kuskure da ba a sani ba.',
+  'iap.error.E_CLIENT_INVALID': 'Ba a yarda abokin ciniki ya yi buƙatar ba.',
+  'iap.error.E_PAYMENT_CANCELLED': 'Mai amfani ya soke buƙatar.',
+  'iap.error.E_PAYMENT_INVALID': 'Makullin sayayya bai dace ba.',
+  'iap.error.E_PAYMENT_NOT_ALLOWED': "Ba a yarda na'ura ta yi sayayya ba.",
+  'iap.error.E_STORE_PRODUCT_NOT_AVAILABLE': 'Kaya ba ya samuwa a shagon yanzu.',
+  'iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED': 'An hana izinin sabis na gajimare.',
+  'iap.error.E_CLOUD_SERVICE_NETWORK_CONNECTION_FAILED':
+    'Hanyar sadarwa ta sabis na gajimare ta kasa.',
+  'iap.error.E_CLOUD_SERVICE_REVOKED': 'An soke sabis na gajimare.',
+  'iap.error.-1': 'An yanke sabis.',
+  'iap.error.1': 'Mai amfani ya soke.',
+  'iap.error.2': 'Sabis ba ya samuwa.',
+  'iap.error.3': 'Biyan kuɗi ba ya samuwa.',
+  'iap.error.4': 'Abu ba ya samuwa.',
+  'iap.error.5': 'Kuskuren mai haɓakawa.',
+  'iap.error.6': 'Kuskure.',
+  'iap.error.7': 'An riga an mallaki abu.',
+  'iap.error.8': 'Ba a mallaki abu ba.',
+}

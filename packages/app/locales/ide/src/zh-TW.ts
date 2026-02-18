@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Chinese (Traditional). */
+export const zhTW: IdeTranslations = {
+  'ide.chat.title': '聊天',
+  'ide.chat.placeholder': '傳送訊息...',
+  'ide.chat.emptyState': '描述您想要建立的內容...',
+  'ide.chat.you': '你',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': '停止',
+  'ide.chat.send': '傳送',
+  'ide.editor.title': '編輯器',
+  'ide.editor.emptyState': '開啟檔案以開始編輯',
+  'ide.files.empty': '沒有檔案',
+  'ide.preview.title': '預覽',
+  'ide.preview.refresh': '重新整理預覽',
+  'ide.preview.openNewTab': '在新分頁中開啟',
+  'ide.preview.livePreview': '即時預覽',
+  'ide.preview.starting': '正在啟動預覽...',
+  'ide.preview.noPreview': '無可用預覽',
+  'ide.device.label': '裝置外框',
+  'ide.device.responsive': '響應式',
+  'ide.device.desktop': '桌面',
+  'ide.device.tablet': '平板',
+  'ide.device.mobile': '手機',
+  'ide.toolCall.running': '執行中...',
+  'ide.toolCall.input': '輸入',
+  'ide.toolCall.output': '輸出',
+  'ide.tabs.close': '關閉 {{fileName}}',
+}

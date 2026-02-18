@@ -1,0 +1,29 @@
+# dependencies
+node_modules
+
+# build output
+dist
+*.tsbuildinfo
+*.js.map
+*.d.ts
+*.d.ts.map
+
+# compiled JS from TypeScript (keep hand-written .js like eslint.config.js)
+packages/**/src/**/*.js
+packages/**/vitest.config.js
+vitest.workspace.js
+
+# testing
+coverage
+
+# misc
+.DS_Store
+.env*
+.vscode
+
+# logs
+*.log
+npm-debug.log*
+
+# keys
+.keys

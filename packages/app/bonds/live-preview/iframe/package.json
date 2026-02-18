@@ -1,0 +1,53 @@
+{
+  "name": "@molecule/app-live-preview-iframe",
+  "version": "1.0.0",
+  "description": "Iframe-based live preview provider",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "preview",
+    "iframe",
+    "live"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@molecule/app-live-preview": "1.0.0",
+    "@types/node": "25.2.3",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "@molecule/app-live-preview": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/app-live-preview": {
+      "optional": true
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/live-preview/iframe"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/live-preview/iframe",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

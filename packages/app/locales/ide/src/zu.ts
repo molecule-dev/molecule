@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Zulu. */
+export const zu: IdeTranslations = {
+  'ide.chat.title': 'Ingxoxo',
+  'ide.chat.placeholder': 'Thumela umlayezo...',
+  'ide.chat.emptyState': 'Chaza ofuna ukukwakha...',
+  'ide.chat.you': 'Wena',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Misa',
+  'ide.chat.send': 'Thumela',
+  'ide.editor.title': 'Umhleli',
+  'ide.editor.emptyState': 'Vula ifayela ukuqala ukuhlela',
+  'ide.files.empty': 'Akukho amafayela',
+  'ide.preview.title': 'Ukubuka Kuqala',
+  'ide.preview.refresh': 'Vuselela ukubuka kuqala',
+  'ide.preview.openNewTab': 'Vula kuthebhu entsha',
+  'ide.preview.livePreview': 'Ukubuka Kuqala Okubukhoma',
+  'ide.preview.starting': 'Iqala ukubuka kuqala...',
+  'ide.preview.noPreview': 'Akukho ukubuka kuqala okutholakalayo',
+  'ide.device.label': 'Uhlaka lwedivayisi',
+  'ide.device.responsive': 'Ephendulayo',
+  'ide.device.desktop': 'Idesktophu',
+  'ide.device.tablet': 'Ithebhulethi',
+  'ide.device.mobile': 'Imobhayili',
+  'ide.toolCall.running': 'iyasebenza...',
+  'ide.toolCall.input': 'Okufakwayo',
+  'ide.toolCall.output': 'Okukhiphayo',
+  'ide.tabs.close': 'Vala {{fileName}}',
+}

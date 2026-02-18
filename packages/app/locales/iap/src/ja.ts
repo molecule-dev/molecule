@@ -1,0 +1,38 @@
+import type { IapTranslations } from './types.js'
+
+/** Iap translations for Japanese. */
+export const ja: IapTranslations = {
+  'iap.error.E_UNKNOWN': '不明なエラーが発生しました。',
+  'iap.error.E_SETUP': 'アプリ内課金の設定に失敗しました。',
+  'iap.error.E_LOAD': '商品の読み込みに失敗しました。',
+  'iap.error.E_PURCHASE': '購入に失敗しました。',
+  'iap.error.E_CANCELLED': '購入がキャンセルされました。',
+  'iap.error.E_FINISH': '取引の完了に失敗しました。',
+  'iap.error.E_VERIFICATION': '購入の確認に失敗しました。',
+  'iap.error.E_RESTORE': '購入の復元に失敗しました。',
+  'iap.error.E_NOT_AVAILABLE': 'アプリ内課金は利用できません。',
+  'iap.error.E_ALREADY_OWNED': 'このアイテムはすでに所有しています。',
+  'iap.error.E_NOT_OWNED': 'このアイテムを所有していません。',
+  'iap.error.E_DEFERRED': '購入には承認が必要です。',
+  'iap.error.E_INVALID_PRODUCT': '無効な商品です。',
+  'iap.error.E_NETWORK': 'ネットワークエラーです。',
+  'iap.error.0': '不明なエラーが発生しました。',
+  'iap.error.E_CLIENT_INVALID': 'クライアントはこのリクエストを発行できません。',
+  'iap.error.E_PAYMENT_CANCELLED': 'ユーザーがリクエストをキャンセルしました。',
+  'iap.error.E_PAYMENT_INVALID': '購入IDが無効です。',
+  'iap.error.E_PAYMENT_NOT_ALLOWED': 'このデバイスでは購入が許可されていません。',
+  'iap.error.E_STORE_PRODUCT_NOT_AVAILABLE': '現在のストアでは商品が利用できません。',
+  'iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED': 'クラウドサービスの権限が拒否されました。',
+  'iap.error.E_CLOUD_SERVICE_NETWORK_CONNECTION_FAILED':
+    'クラウドサービスのネットワーク接続に失敗しました。',
+  'iap.error.E_CLOUD_SERVICE_REVOKED': 'クラウドサービスが取り消されました。',
+  'iap.error.-1': 'サービスが切断されました。',
+  'iap.error.1': 'ユーザーがキャンセルしました。',
+  'iap.error.2': 'サービスが利用できません。',
+  'iap.error.3': '課金が利用できません。',
+  'iap.error.4': 'アイテムが利用できません。',
+  'iap.error.5': '開発者エラーです。',
+  'iap.error.6': 'エラーです。',
+  'iap.error.7': 'アイテムはすでに所有しています。',
+  'iap.error.8': 'アイテムを所有していません。',
+}

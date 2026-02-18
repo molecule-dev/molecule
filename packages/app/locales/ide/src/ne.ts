@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Nepali. */
+export const ne: IdeTranslations = {
+  'ide.chat.title': 'च्याट',
+  'ide.chat.placeholder': 'सन्देश पठाउनुहोस्...',
+  'ide.chat.emptyState': 'तपाईं के निर्माण गर्न चाहनुहुन्छ वर्णन गर्नुहोस्...',
+  'ide.chat.you': 'तपाईं',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'रोक्नुहोस्',
+  'ide.chat.send': 'पठाउनुहोस्',
+  'ide.editor.title': 'सम्पादक',
+  'ide.editor.emptyState': 'सम्पादन सुरु गर्न फाइल खोल्नुहोस्',
+  'ide.files.empty': 'कुनै फाइलहरू छैनन्',
+  'ide.preview.title': 'प्रिभ्यू',
+  'ide.preview.refresh': 'प्रिभ्यू रिफ्रेश गर्नुहोस्',
+  'ide.preview.openNewTab': 'नयाँ ट्याबमा खोल्नुहोस्',
+  'ide.preview.livePreview': 'लाइभ प्रिभ्यू',
+  'ide.preview.starting': 'प्रिभ्यू सुरु हुँदैछ...',
+  'ide.preview.noPreview': 'कुनै प्रिभ्यू उपलब्ध छैन',
+  'ide.device.label': 'यन्त्र फ्रेम',
+  'ide.device.responsive': 'रेस्पोन्सिभ',
+  'ide.device.desktop': 'डेस्कटप',
+  'ide.device.tablet': 'ट्याब्लेट',
+  'ide.device.mobile': 'मोबाइल',
+  'ide.toolCall.running': 'चलिरहेको छ...',
+  'ide.toolCall.input': 'इनपुट',
+  'ide.toolCall.output': 'आउटपुट',
+  'ide.tabs.close': '{{fileName}} बन्द गर्नुहोस्',
+}

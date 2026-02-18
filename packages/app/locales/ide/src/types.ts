@@ -1,0 +1,30 @@
+/** Translation keys for the ide locale package. */
+export type IdeTranslationKey =
+  | 'ide.chat.title'
+  | 'ide.chat.placeholder'
+  | 'ide.chat.emptyState'
+  | 'ide.chat.you'
+  | 'ide.chat.molecule'
+  | 'ide.chat.stop'
+  | 'ide.chat.send'
+  | 'ide.editor.title'
+  | 'ide.editor.emptyState'
+  | 'ide.files.empty'
+  | 'ide.preview.title'
+  | 'ide.preview.refresh'
+  | 'ide.preview.openNewTab'
+  | 'ide.preview.livePreview'
+  | 'ide.preview.starting'
+  | 'ide.preview.noPreview'
+  | 'ide.device.label'
+  | 'ide.device.responsive'
+  | 'ide.device.desktop'
+  | 'ide.device.tablet'
+  | 'ide.device.mobile'
+  | 'ide.toolCall.running'
+  | 'ide.toolCall.input'
+  | 'ide.toolCall.output'
+  | 'ide.tabs.close'
+
+/** Translation record mapping ide keys to translated strings. */
+export type IdeTranslations = Record<IdeTranslationKey, string>

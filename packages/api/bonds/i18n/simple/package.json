@@ -1,0 +1,48 @@
+{
+  "name": "@molecule/api-i18n-simple",
+  "version": "1.0.0",
+  "description": "Simple i18n provider for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "MOLECULE.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "molecule",
+    "i18n",
+    "simple",
+    "translations"
+  ],
+  "author": "Molecule",
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-i18n": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-i18n": "1.0.0",
+    "typescript": "5.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/i18n/simple"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/i18n/simple",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

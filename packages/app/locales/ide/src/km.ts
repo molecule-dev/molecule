@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Khmer. */
+export const km: IdeTranslations = {
+  'ide.chat.title': 'ជជែក',
+  'ide.chat.placeholder': 'ផ្ញើសារ...',
+  'ide.chat.emptyState': 'ពណ៌នាអ្វីដែលអ្នកចង់បង្កើត...',
+  'ide.chat.you': 'អ្នក',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'ឈប់',
+  'ide.chat.send': 'ផ្ញើ',
+  'ide.editor.title': 'កម្មវិធីកែសម្រួល',
+  'ide.editor.emptyState': 'បើកឯកសារដើម្បីចាប់ផ្តើមកែសម្រួល',
+  'ide.files.empty': 'គ្មានឯកសារ',
+  'ide.preview.title': 'មើលជាមុន',
+  'ide.preview.refresh': 'ផ្ទុកមើលជាមុនឡើងវិញ',
+  'ide.preview.openNewTab': 'បើកក្នុងផ្ទាំងថ្មី',
+  'ide.preview.livePreview': 'មើលជាមុនផ្ទាល់',
+  'ide.preview.starting': 'កំពុងចាប់ផ្តើមមើលជាមុន...',
+  'ide.preview.noPreview': 'គ្មានការមើលជាមុនអាចប្រើបាន',
+  'ide.device.label': 'ស៊ុមឧបករណ៍',
+  'ide.device.responsive': 'ឆ្លើយតប',
+  'ide.device.desktop': 'កុំព្យូទ័រ',
+  'ide.device.tablet': 'ថេប្លេត',
+  'ide.device.mobile': 'ទូរសព្ទ',
+  'ide.toolCall.running': 'កំពុងដំណើរការ...',
+  'ide.toolCall.input': 'បញ្ចូល',
+  'ide.toolCall.output': 'លទ្ធផល',
+  'ide.tabs.close': 'បិទ {{fileName}}',
+}

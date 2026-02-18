@@ -1,0 +1,47 @@
+{
+  "name": "@molecule/api-logger-console",
+  "version": "1.0.0",
+  "description": "Console logger provider for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "MOLECULE.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "molecule",
+    "logger",
+    "console"
+  ],
+  "author": "Molecule",
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-logger": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-logger": "1.0.0",
+    "typescript": "5.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/logger/console"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/logger/console",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

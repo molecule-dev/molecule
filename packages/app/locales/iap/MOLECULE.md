@@ -1,0 +1,62 @@
+# @molecule/app-locales-iap
+
+Translations for molecule in-app purchase components in 79 languages
+
+## Purpose
+
+Provides translations for the `@molecule/app-iap` package which has 32 translation keys.
+
+## Languages
+
+79 languages supported: af, am, ar, az, be, bg, bn, bs, ca, cs, cy, da, de, el, en, es, et, eu, fa, fi, fil, fr, ga, gl, gu, ha, he, hi, hr, hu, hy, id, ig, is, it, ja, ka, kk, km, kn, ko, ky, lo, lt, lv, mk, ml, mn, mr, ms, mt, my, nb, ne, nl, pa, pl, pt, ro, ru, si, sk, sl, sq, sr, sv, sw, ta, te, th, tr, uk, ur, uz, vi, yo, zh, zh-TW, zu.
+
+## Usage
+
+```typescript
+import { af, am, ar } from '@molecule/app-locales-iap'
+import type { IapTranslationKey, IapTranslations } from '@molecule/app-locales-iap'
+```
+
+## Translation Keys
+
+| Key | English |
+|-----|---------|
+| `iap.error.E_UNKNOWN` | An unknown error occurred. |
+| `iap.error.E_SETUP` | Failed to set up in-app purchases. |
+| `iap.error.E_LOAD` | Failed to load products. |
+| `iap.error.E_PURCHASE` | Purchase failed. |
+| `iap.error.E_CANCELLED` | Purchase was cancelled. |
+| `iap.error.E_FINISH` | Failed to finish transaction. |
+| `iap.error.E_VERIFICATION` | Failed to verify purchase. |
+| `iap.error.E_RESTORE` | Failed to restore purchases. |
+| `iap.error.E_NOT_AVAILABLE` | In-app purchases are not available. |
+| `iap.error.E_ALREADY_OWNED` | You already own this item. |
+| `iap.error.E_NOT_OWNED` | You do not own this item. |
+| `iap.error.E_DEFERRED` | Purchase requires approval. |
+| `iap.error.E_INVALID_PRODUCT` | Invalid product. |
+| `iap.error.E_NETWORK` | Network error. |
+| `iap.error.0` | An unknown error occurred. |
+| `iap.error.E_CLIENT_INVALID` | Client is not allowed to issue the request. |
+| `iap.error.E_PAYMENT_CANCELLED` | User cancelled the request. |
+| `iap.error.E_PAYMENT_INVALID` | The purchase identifier was invalid. |
+| `iap.error.E_PAYMENT_NOT_ALLOWED` | Device not allowed to make purchases. |
+| `iap.error.E_STORE_PRODUCT_NOT_AVAILABLE` | Product not available in current store. |
+| `iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED` | Cloud service permission denied. |
+| `iap.error.E_CLOUD_SERVICE_NETWORK_CONNECTION_FAILED` | Cloud service network failed. |
+| `iap.error.E_CLOUD_SERVICE_REVOKED` | Cloud service was revoked. |
+| `iap.error.-1` | Service disconnected. |
+| `iap.error.1` | User cancelled. |
+| `iap.error.2` | Service unavailable. |
+| `iap.error.3` | Billing unavailable. |
+| `iap.error.4` | Item unavailable. |
+| `iap.error.5` | Developer error. |
+| `iap.error.6` | Error. |
+| `iap.error.7` | Item already owned. |
+| `iap.error.8` | Item not owned. |
+
+## Metadata
+
+- **Type:** locales
+- **Category:** i18n
+- **Stack:** app
+- **Translates:** `@molecule/app-iap`

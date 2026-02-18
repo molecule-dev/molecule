@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Indonesian. */
+export const id: IdeTranslations = {
+  'ide.chat.title': 'Obrolan',
+  'ide.chat.placeholder': 'Kirim pesan...',
+  'ide.chat.emptyState': 'Jelaskan apa yang ingin Anda bangun...',
+  'ide.chat.you': 'Anda',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Berhenti',
+  'ide.chat.send': 'Kirim',
+  'ide.editor.title': 'Editor',
+  'ide.editor.emptyState': 'Buka file untuk mulai mengedit',
+  'ide.files.empty': 'Tidak ada file',
+  'ide.preview.title': 'Pratinjau',
+  'ide.preview.refresh': 'Segarkan pratinjau',
+  'ide.preview.openNewTab': 'Buka di tab baru',
+  'ide.preview.livePreview': 'Pratinjau Langsung',
+  'ide.preview.starting': 'Memulai pratinjau...',
+  'ide.preview.noPreview': 'Tidak ada pratinjau tersedia',
+  'ide.device.label': 'Bingkai perangkat',
+  'ide.device.responsive': 'Responsif',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'Ponsel',
+  'ide.toolCall.running': 'berjalan...',
+  'ide.toolCall.input': 'Masukan',
+  'ide.toolCall.output': 'Keluaran',
+  'ide.tabs.close': 'Tutup {{fileName}}',
+}

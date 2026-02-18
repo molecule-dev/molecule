@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Catalan. */
+export const ca: IdeTranslations = {
+  'ide.chat.title': 'Xat',
+  'ide.chat.placeholder': 'Envieu un missatge...',
+  'ide.chat.emptyState': 'Descriviu el que voleu crear...',
+  'ide.chat.you': 'Tu',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Atura',
+  'ide.chat.send': 'Envia',
+  'ide.editor.title': 'Editor',
+  'ide.editor.emptyState': 'Obriu un fitxer per començar a editar',
+  'ide.files.empty': 'Sense fitxers',
+  'ide.preview.title': 'Previsualització',
+  'ide.preview.refresh': 'Actualitza la previsualització',
+  'ide.preview.openNewTab': 'Obre en una pestanya nova',
+  'ide.preview.livePreview': 'Previsualització en directe',
+  'ide.preview.starting': 'Iniciant la previsualització...',
+  'ide.preview.noPreview': 'No hi ha previsualització disponible',
+  'ide.device.label': 'Marc del dispositiu',
+  'ide.device.responsive': 'Responsiu',
+  'ide.device.desktop': 'Escriptori',
+  'ide.device.tablet': 'Tauleta',
+  'ide.device.mobile': 'Mòbil',
+  'ide.toolCall.running': 'executant...',
+  'ide.toolCall.input': 'Entrada',
+  'ide.toolCall.output': 'Sortida',
+  'ide.tabs.close': 'Tanca {{fileName}}',
+}

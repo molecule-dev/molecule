@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Burmese. */
+export const my: IdeTranslations = {
+  'ide.chat.title': 'ချတ်',
+  'ide.chat.placeholder': 'မက်ဆေ့ချ် ပို့ပါ...',
+  'ide.chat.emptyState': 'သင်တည်ဆောက်လိုသည့်အရာကို ဖော်ပြပါ...',
+  'ide.chat.you': 'သင်',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'ရပ်',
+  'ide.chat.send': 'ပို့',
+  'ide.editor.title': 'တည်းဖြတ်',
+  'ide.editor.emptyState': 'တည်းဖြတ်ရန် ဖိုင်တစ်ခု ဖွင့်ပါ',
+  'ide.files.empty': 'ဖိုင်များ မရှိပါ',
+  'ide.preview.title': 'အစမ်းကြည့်',
+  'ide.preview.refresh': 'အစမ်းကြည့် ပြန်တင်ပါ',
+  'ide.preview.openNewTab': 'Tab အသစ်တွင် ဖွင့်ပါ',
+  'ide.preview.livePreview': 'တိုက်ရိုက် အစမ်းကြည့်',
+  'ide.preview.starting': 'အစမ်းကြည့် စတင်နေသည်...',
+  'ide.preview.noPreview': 'အစမ်းကြည့် မရရှိနိုင်ပါ',
+  'ide.device.label': 'ကိရိယာ ဘောင်',
+  'ide.device.responsive': 'တုံ့ပြန်မှု',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'မိုဘိုင်း',
+  'ide.toolCall.running': 'လုပ်ဆောင်နေသည်...',
+  'ide.toolCall.input': 'ထည့်သွင်းမှု',
+  'ide.toolCall.output': 'ထွက်ရှိမှု',
+  'ide.tabs.close': '{{fileName}} ကို ပိတ်ပါ',
+}

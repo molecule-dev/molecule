@@ -1,0 +1,54 @@
+{
+  "name": "@molecule/api-uploads-filesystem",
+  "version": "1.0.0",
+  "description": "File system upload provider for molecule.dev.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "uploads",
+    "filesystem",
+    "files"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "uuid": "13.0.0"
+  },
+  "devDependencies": {
+    "@types/busboy": "1.5.4",
+    "@types/node": "25.2.3",
+    "@types/uuid": "10.0.0",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-uploads": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/uploads/filesystem"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/uploads/filesystem",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

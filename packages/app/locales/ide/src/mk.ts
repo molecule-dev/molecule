@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Macedonian. */
+export const mk: IdeTranslations = {
+  'ide.chat.title': 'Чат',
+  'ide.chat.placeholder': 'Испратете порака...',
+  'ide.chat.emptyState': 'Опишете што сакате да изградите...',
+  'ide.chat.you': 'Вие',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Стоп',
+  'ide.chat.send': 'Испрати',
+  'ide.editor.title': 'Уредувач',
+  'ide.editor.emptyState': 'Отворете датотека за да започнете со уредување',
+  'ide.files.empty': 'Нема датотеки',
+  'ide.preview.title': 'Преглед',
+  'ide.preview.refresh': 'Освежи преглед',
+  'ide.preview.openNewTab': 'Отвори во нов таб',
+  'ide.preview.livePreview': 'Преглед во живо',
+  'ide.preview.starting': 'Започнување на преглед...',
+  'ide.preview.noPreview': 'Нема достапен преглед',
+  'ide.device.label': 'Рамка на уред',
+  'ide.device.responsive': 'Прилагодливо',
+  'ide.device.desktop': 'Десктоп',
+  'ide.device.tablet': 'Таблет',
+  'ide.device.mobile': 'Мобилен',
+  'ide.toolCall.running': 'се извршува...',
+  'ide.toolCall.input': 'Влез',
+  'ide.toolCall.output': 'Излез',
+  'ide.tabs.close': 'Затвори {{fileName}}',
+}

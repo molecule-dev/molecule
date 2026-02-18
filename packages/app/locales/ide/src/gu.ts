@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Gujarati. */
+export const gu: IdeTranslations = {
+  'ide.chat.title': 'ચેટ',
+  'ide.chat.placeholder': 'સંદેશ મોકલો...',
+  'ide.chat.emptyState': 'તમે શું બનાવવા માંગો છો તે વર્ણવો...',
+  'ide.chat.you': 'તમે',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'રોકો',
+  'ide.chat.send': 'મોકલો',
+  'ide.editor.title': 'એડિટર',
+  'ide.editor.emptyState': 'સંપાદન શરૂ કરવા ફાઇલ ખોલો',
+  'ide.files.empty': 'કોઈ ફાઇલો નથી',
+  'ide.preview.title': 'પ્રિવ્યૂ',
+  'ide.preview.refresh': 'પ્રિવ્યૂ રિફ્રેશ કરો',
+  'ide.preview.openNewTab': 'નવી ટેબમાં ખોલો',
+  'ide.preview.livePreview': 'લાઇવ પ્રિવ્યૂ',
+  'ide.preview.starting': 'પ્રિવ્યૂ શરૂ થઈ રહ્યું છે...',
+  'ide.preview.noPreview': 'કોઈ પ્રિવ્યૂ ઉપલબ્ધ નથી',
+  'ide.device.label': 'ડિવાઇસ ફ્રેમ',
+  'ide.device.responsive': 'રિસ્પોન્સિવ',
+  'ide.device.desktop': 'ડેસ્કટોપ',
+  'ide.device.tablet': 'ટેબ્લેટ',
+  'ide.device.mobile': 'મોબાઇલ',
+  'ide.toolCall.running': 'ચાલી રહ્યું છે...',
+  'ide.toolCall.input': 'ઇનપુટ',
+  'ide.toolCall.output': 'આઉટપુટ',
+  'ide.tabs.close': '{{fileName}} બંધ કરો',
+}

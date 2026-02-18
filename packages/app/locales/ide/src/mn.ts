@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Mongolian. */
+export const mn: IdeTranslations = {
+  'ide.chat.title': 'Чат',
+  'ide.chat.placeholder': 'Зурвас илгээх...',
+  'ide.chat.emptyState': 'Юу бүтээхийг хүсч байгаагаа тайлбарлана уу...',
+  'ide.chat.you': 'Та',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Зогсоох',
+  'ide.chat.send': 'Илгээх',
+  'ide.editor.title': 'Засварлагч',
+  'ide.editor.emptyState': 'Засварлахын тулд файл нээнэ үү',
+  'ide.files.empty': 'Файл байхгүй',
+  'ide.preview.title': 'Урьдчилан харах',
+  'ide.preview.refresh': 'Урьдчилан харахыг шинэчлэх',
+  'ide.preview.openNewTab': 'Шинэ табд нээх',
+  'ide.preview.livePreview': 'Шууд урьдчилан харах',
+  'ide.preview.starting': 'Урьдчилан харахыг эхлүүлж байна...',
+  'ide.preview.noPreview': 'Урьдчилан харах боломжгүй',
+  'ide.device.label': 'Төхөөрөмжийн хүрээ',
+  'ide.device.responsive': 'Уян хариу',
+  'ide.device.desktop': 'Ширээний',
+  'ide.device.tablet': 'Таблет',
+  'ide.device.mobile': 'Гар утас',
+  'ide.toolCall.running': 'ажиллаж байна...',
+  'ide.toolCall.input': 'Оролт',
+  'ide.toolCall.output': 'Гаралт',
+  'ide.tabs.close': '{{fileName}} хаах',
+}

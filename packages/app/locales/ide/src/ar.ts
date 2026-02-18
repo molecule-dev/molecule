@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Arabic. */
+export const ar: IdeTranslations = {
+  'ide.chat.title': 'محادثة',
+  'ide.chat.placeholder': 'أرسل رسالة...',
+  'ide.chat.emptyState': 'صِف ما تريد بناءه...',
+  'ide.chat.you': 'أنت',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'إيقاف',
+  'ide.chat.send': 'إرسال',
+  'ide.editor.title': 'المحرر',
+  'ide.editor.emptyState': 'افتح ملفًا لبدء التحرير',
+  'ide.files.empty': 'لا توجد ملفات',
+  'ide.preview.title': 'معاينة',
+  'ide.preview.refresh': 'تحديث المعاينة',
+  'ide.preview.openNewTab': 'فتح في علامة تبويب جديدة',
+  'ide.preview.livePreview': 'معاينة مباشرة',
+  'ide.preview.starting': 'جارٍ بدء المعاينة...',
+  'ide.preview.noPreview': 'لا تتوفر معاينة',
+  'ide.device.label': 'إطار الجهاز',
+  'ide.device.responsive': 'متجاوب',
+  'ide.device.desktop': 'سطح المكتب',
+  'ide.device.tablet': 'جهاز لوحي',
+  'ide.device.mobile': 'هاتف محمول',
+  'ide.toolCall.running': 'قيد التشغيل...',
+  'ide.toolCall.input': 'الإدخال',
+  'ide.toolCall.output': 'الإخراج',
+  'ide.tabs.close': 'إغلاق {{fileName}}',
+}

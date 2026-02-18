@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Tamil. */
+export const ta: IdeTranslations = {
+  'ide.chat.title': 'அரட்டை',
+  'ide.chat.placeholder': 'செய்தி அனுப்பு...',
+  'ide.chat.emptyState': 'நீங்கள் என்ன உருவாக்க விரும்புகிறீர்கள் என்பதை விவரிக்கவும்...',
+  'ide.chat.you': 'நீங்கள்',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'நிறுத்து',
+  'ide.chat.send': 'அனுப்பு',
+  'ide.editor.title': 'எடிட்டர்',
+  'ide.editor.emptyState': 'திருத்தத்தைத் தொடங்க கோப்பைத் திறக்கவும்',
+  'ide.files.empty': 'கோப்புகள் இல்லை',
+  'ide.preview.title': 'முன்னோட்டம்',
+  'ide.preview.refresh': 'முன்னோட்டத்தை புதுப்பிக்கவும்',
+  'ide.preview.openNewTab': 'புதிய தாவலில் திறக்கவும்',
+  'ide.preview.livePreview': 'நேரடி முன்னோட்டம்',
+  'ide.preview.starting': 'முன்னோட்டம் தொடங்குகிறது...',
+  'ide.preview.noPreview': 'முன்னோட்டம் கிடைக்கவில்லை',
+  'ide.device.label': 'சாதன சட்டம்',
+  'ide.device.responsive': 'பதிலளிப்பு',
+  'ide.device.desktop': 'டெஸ்க்டாப்',
+  'ide.device.tablet': 'டேப்லெட்',
+  'ide.device.mobile': 'மொபைல்',
+  'ide.toolCall.running': 'இயங்குகிறது...',
+  'ide.toolCall.input': 'உள்ளீடு',
+  'ide.toolCall.output': 'வெளியீடு',
+  'ide.tabs.close': '{{fileName}} மூடு',
+}

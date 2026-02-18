@@ -1,0 +1,51 @@
+{
+  "name": "@molecule/app-maps",
+  "version": "1.0.0",
+  "description": "Map interface and utilities for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "maps",
+    "geolocation",
+    "mapbox",
+    "google-maps"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@molecule/app-bond": "1.0.0",
+    "@types/node": "25.2.3",
+    "happy-dom": "20.6.1",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "@molecule/app-bond": "^1.0.0",
+    "@molecule/app-i18n": "1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/features/maps"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/features/maps",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

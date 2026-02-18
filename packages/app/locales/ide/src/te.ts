@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Telugu. */
+export const te: IdeTranslations = {
+  'ide.chat.title': 'చాట్',
+  'ide.chat.placeholder': 'సందేశం పంపండి...',
+  'ide.chat.emptyState': 'మీరు ఏమి నిర్మించాలనుకుంటున్నారో వివరించండి...',
+  'ide.chat.you': 'మీరు',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'ఆపు',
+  'ide.chat.send': 'పంపు',
+  'ide.editor.title': 'ఎడిటర్',
+  'ide.editor.emptyState': 'సవరణ ప్రారంభించడానికి ఫైల్ తెరవండి',
+  'ide.files.empty': 'ఫైల్‌లు లేవు',
+  'ide.preview.title': 'ప్రివ్యూ',
+  'ide.preview.refresh': 'ప్రివ్యూ రిఫ్రెష్ చేయండి',
+  'ide.preview.openNewTab': 'కొత్త ట్యాబ్‌లో తెరవండి',
+  'ide.preview.livePreview': 'లైవ్ ప్రివ్యూ',
+  'ide.preview.starting': 'ప్రివ్యూ ప్రారంభమవుతోంది...',
+  'ide.preview.noPreview': 'ప్రివ్యూ అందుబాటులో లేదు',
+  'ide.device.label': 'పరికర ఫ్రేమ్',
+  'ide.device.responsive': 'రెస్పాన్సివ్',
+  'ide.device.desktop': 'డెస్క్‌టాప్',
+  'ide.device.tablet': 'ట్యాబ్లెట్',
+  'ide.device.mobile': 'మొబైల్',
+  'ide.toolCall.running': 'నడుస్తోంది...',
+  'ide.toolCall.input': 'ఇన్‌పుట్',
+  'ide.toolCall.output': 'అవుట్‌పుట్',
+  'ide.tabs.close': '{{fileName}} మూసివేయి',
+}

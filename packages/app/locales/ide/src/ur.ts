@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Urdu. */
+export const ur: IdeTranslations = {
+  'ide.chat.title': 'چیٹ',
+  'ide.chat.placeholder': 'پیغام بھیجیں...',
+  'ide.chat.emptyState': 'بیان کریں کہ آپ کیا بنانا چاہتے ہیں...',
+  'ide.chat.you': 'آپ',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'روکیں',
+  'ide.chat.send': 'بھیجیں',
+  'ide.editor.title': 'ایڈیٹر',
+  'ide.editor.emptyState': 'ترمیم شروع کرنے کے لیے فائل کھولیں',
+  'ide.files.empty': 'کوئی فائلیں نہیں',
+  'ide.preview.title': 'پیش نظارہ',
+  'ide.preview.refresh': 'پیش نظارہ ریفریش کریں',
+  'ide.preview.openNewTab': 'نئے ٹیب میں کھولیں',
+  'ide.preview.livePreview': 'لائیو پیش نظارہ',
+  'ide.preview.starting': 'پیش نظارہ شروع ہو رہا ہے...',
+  'ide.preview.noPreview': 'کوئی پیش نظارہ دستیاب نہیں',
+  'ide.device.label': 'آلے کا فریم',
+  'ide.device.responsive': 'ریسپانسو',
+  'ide.device.desktop': 'ڈیسک ٹاپ',
+  'ide.device.tablet': 'ٹیبلٹ',
+  'ide.device.mobile': 'موبائل',
+  'ide.toolCall.running': 'چل رہا ہے...',
+  'ide.toolCall.input': 'ان پٹ',
+  'ide.toolCall.output': 'آؤٹ پٹ',
+  'ide.tabs.close': '{{fileName}} بند کریں',
+}

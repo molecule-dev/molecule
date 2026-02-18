@@ -1,0 +1,26 @@
+import type { UiTranslations } from './types.js'
+
+/** Ui translations for Mongolian. */
+export const mn: UiTranslations = {
+  'ui.modal.close': '\u0425\u0430\u0430\u0445',
+  'ui.toast.close': '\u0425\u0430\u0430\u0445',
+  'ui.alert.dismiss': '\u0425\u044d\u0440\u044d\u0433\u0441\u044d\u0445\u0433\u04af\u0439',
+  'ui.input.clear': '\u0426\u044d\u0432\u044d\u0440\u043b\u044d\u0445',
+  'ui.pagination.nav': '\u0425\u0443\u0443\u0434\u0430\u0441\u043b\u0430\u043b\u0442',
+  'ui.pagination.first':
+    '\u042d\u0445\u043d\u0438\u0439 \u0445\u0443\u0443\u0434\u0430\u0441 \u0440\u0443\u0443 \u043e\u0447\u0438\u0445',
+  'ui.pagination.previous':
+    '\u04e8\u043c\u043d\u04e9\u0445 \u0445\u0443\u0443\u0434\u0430\u0441 \u0440\u0443\u0443 \u043e\u0447\u0438\u0445',
+  'ui.pagination.next':
+    '\u0414\u0430\u0440\u0430\u0430\u0445 \u0445\u0443\u0443\u0434\u0430\u0441 \u0440\u0443\u0443 \u043e\u0447\u0438\u0445',
+  'ui.pagination.last':
+    '\u0421\u04af\u04af\u043b\u0438\u0439\u043d \u0445\u0443\u0443\u0434\u0430\u0441 \u0440\u0443\u0443 \u043e\u0447\u0438\u0445',
+  'ui.pagination.goToPage':
+    '{{page}} \u0445\u0443\u0443\u0434\u0430\u0441 \u0440\u0443\u0443 \u043e\u0447\u0438\u0445',
+  'ui.table.empty':
+    '\u04e8\u0433\u04e9\u0433\u0434\u04e9\u043b \u0431\u0430\u0439\u0445\u0433\u04af\u0439',
+  'ui.avatar.alt': '\u0410\u0432\u0430\u0442\u0430\u0440',
+  'ui.spinner.loading': '\u0410\u0447\u0430\u0430\u043b\u0436 \u0431\u0430\u0439\u043d\u0430',
+  'ui.radioGroup.label': 'Радио бүлэг',
+  'ui.progress.label': 'Явц',
+}

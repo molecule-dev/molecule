@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Marathi. */
+export const mr: IdeTranslations = {
+  'ide.chat.title': 'चॅट',
+  'ide.chat.placeholder': 'संदेश पाठवा...',
+  'ide.chat.emptyState': 'तुम्हाला काय तयार करायचे आहे ते वर्णन करा...',
+  'ide.chat.you': 'तुम्ही',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'थांबा',
+  'ide.chat.send': 'पाठवा',
+  'ide.editor.title': 'एडिटर',
+  'ide.editor.emptyState': 'संपादन सुरू करण्यासाठी फाइल उघडा',
+  'ide.files.empty': 'कोणत्याही फाइल्स नाहीत',
+  'ide.preview.title': 'प्रीव्ह्यू',
+  'ide.preview.refresh': 'प्रीव्ह्यू रिफ्रेश करा',
+  'ide.preview.openNewTab': 'नवीन टॅबमध्ये उघडा',
+  'ide.preview.livePreview': 'लाइव्ह प्रीव्ह्यू',
+  'ide.preview.starting': 'प्रीव्ह्यू सुरू होत आहे...',
+  'ide.preview.noPreview': 'कोणताही प्रीव्ह्यू उपलब्ध नाही',
+  'ide.device.label': 'डिव्हाइस फ्रेम',
+  'ide.device.responsive': 'रिस्पॉन्सिव्ह',
+  'ide.device.desktop': 'डेस्कटॉप',
+  'ide.device.tablet': 'टॅबलेट',
+  'ide.device.mobile': 'मोबाइल',
+  'ide.toolCall.running': 'चालू आहे...',
+  'ide.toolCall.input': 'इनपुट',
+  'ide.toolCall.output': 'आउटपुट',
+  'ide.tabs.close': '{{fileName}} बंद करा',
+}

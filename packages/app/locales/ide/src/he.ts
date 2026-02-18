@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Hebrew. */
+export const he: IdeTranslations = {
+  'ide.chat.title': "צ'אט",
+  'ide.chat.placeholder': 'שלח הודעה...',
+  'ide.chat.emptyState': 'תאר מה ברצונך לבנות...',
+  'ide.chat.you': 'אתה',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'עצור',
+  'ide.chat.send': 'שלח',
+  'ide.editor.title': 'עורך',
+  'ide.editor.emptyState': 'פתח קובץ כדי להתחיל לערוך',
+  'ide.files.empty': 'אין קבצים',
+  'ide.preview.title': 'תצוגה מקדימה',
+  'ide.preview.refresh': 'רענן תצוגה מקדימה',
+  'ide.preview.openNewTab': 'פתח בלשונית חדשה',
+  'ide.preview.livePreview': 'תצוגה מקדימה חיה',
+  'ide.preview.starting': 'מתחיל תצוגה מקדימה...',
+  'ide.preview.noPreview': 'אין תצוגה מקדימה זמינה',
+  'ide.device.label': 'מסגרת מכשיר',
+  'ide.device.responsive': 'רספונסיבי',
+  'ide.device.desktop': 'שולחן עבודה',
+  'ide.device.tablet': 'טאבלט',
+  'ide.device.mobile': 'נייד',
+  'ide.toolCall.running': 'פועל...',
+  'ide.toolCall.input': 'קלט',
+  'ide.toolCall.output': 'פלט',
+  'ide.tabs.close': 'סגור {{fileName}}',
+}

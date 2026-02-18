@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Dutch. */
+export const nl: IdeTranslations = {
+  'ide.chat.title': 'Chat',
+  'ide.chat.placeholder': 'Stuur een bericht...',
+  'ide.chat.emptyState': 'Beschrijf wat u wilt bouwen...',
+  'ide.chat.you': 'U',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Stop',
+  'ide.chat.send': 'Verzenden',
+  'ide.editor.title': 'Editor',
+  'ide.editor.emptyState': 'Open een bestand om te beginnen met bewerken',
+  'ide.files.empty': 'Geen bestanden',
+  'ide.preview.title': 'Voorbeeld',
+  'ide.preview.refresh': 'Voorbeeld vernieuwen',
+  'ide.preview.openNewTab': 'Openen in nieuw tabblad',
+  'ide.preview.livePreview': 'Live voorbeeld',
+  'ide.preview.starting': 'Voorbeeld starten...',
+  'ide.preview.noPreview': 'Geen voorbeeld beschikbaar',
+  'ide.device.label': 'Apparaatframe',
+  'ide.device.responsive': 'Responsief',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'Mobiel',
+  'ide.toolCall.running': 'wordt uitgevoerd...',
+  'ide.toolCall.input': 'Invoer',
+  'ide.toolCall.output': 'Uitvoer',
+  'ide.tabs.close': '{{fileName}} sluiten',
+}

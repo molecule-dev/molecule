@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Bosnian. */
+export const bs: IdeTranslations = {
+  'ide.chat.title': 'Chat',
+  'ide.chat.placeholder': 'Pošaljite poruku...',
+  'ide.chat.emptyState': 'Opišite šta želite izgraditi...',
+  'ide.chat.you': 'Vi',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Zaustavi',
+  'ide.chat.send': 'Pošalji',
+  'ide.editor.title': 'Uređivač',
+  'ide.editor.emptyState': 'Otvorite datoteku za početak uređivanja',
+  'ide.files.empty': 'Nema datoteka',
+  'ide.preview.title': 'Pregled',
+  'ide.preview.refresh': 'Osvježi pregled',
+  'ide.preview.openNewTab': 'Otvori u novom tabu',
+  'ide.preview.livePreview': 'Pregled uživo',
+  'ide.preview.starting': 'Pokretanje pregleda...',
+  'ide.preview.noPreview': 'Pregled nije dostupan',
+  'ide.device.label': 'Okvir uređaja',
+  'ide.device.responsive': 'Responzivno',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'Mobilni',
+  'ide.toolCall.running': 'izvršava se...',
+  'ide.toolCall.input': 'Ulaz',
+  'ide.toolCall.output': 'Izlaz',
+  'ide.tabs.close': 'Zatvori {{fileName}}',
+}

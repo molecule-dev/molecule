@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Sinhala. */
+export const si: IdeTranslations = {
+  'ide.chat.title': 'කතාබහ',
+  'ide.chat.placeholder': 'පණිවිඩයක් යවන්න...',
+  'ide.chat.emptyState': 'ඔබට ගොඩනැගීමට අවශ්‍ය දේ විස්තර කරන්න...',
+  'ide.chat.you': 'ඔබ',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'නවත්වන්න',
+  'ide.chat.send': 'යවන්න',
+  'ide.editor.title': 'සංස්කාරකය',
+  'ide.editor.emptyState': 'සංස්කරණය ආරම්භ කිරීමට ගොනුවක් විවෘත කරන්න',
+  'ide.files.empty': 'ගොනු නැත',
+  'ide.preview.title': 'පෙරදසුන',
+  'ide.preview.refresh': 'පෙරදසුන නැවුම් කරන්න',
+  'ide.preview.openNewTab': 'නව ටැබ් එකක විවෘත කරන්න',
+  'ide.preview.livePreview': 'සජීවී පෙරදසුන',
+  'ide.preview.starting': 'පෙරදසුන ආරම්භ වෙමින්...',
+  'ide.preview.noPreview': 'පෙරදසුනක් නොමැත',
+  'ide.device.label': 'උපකරණ රාමුව',
+  'ide.device.responsive': 'ප්‍රතිචාරාත්මක',
+  'ide.device.desktop': 'ඩෙස්ක්ටොප්',
+  'ide.device.tablet': 'ටැබ්ලට්',
+  'ide.device.mobile': 'ජංගම',
+  'ide.toolCall.running': 'ක්‍රියාත්මක වෙමින්...',
+  'ide.toolCall.input': 'ආදානය',
+  'ide.toolCall.output': 'ප්‍රතිදානය',
+  'ide.tabs.close': '{{fileName}} වසන්න',
+}

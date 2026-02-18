@@ -1,0 +1,55 @@
+import type { UserTranslations } from './types.js'
+
+/** User translations for Zulu. */
+export const zu: UserTranslations = {
+  'user.error.badRequest': 'Isicelo esingalungile.',
+  'user.error.notFound': 'Ayitholakali.',
+  'user.error.failedToCreateSession': 'Yehlulekile ukwakha iseshini.',
+  'user.error.usernameRequired': 'Igama lomsebenzisi liyadingeka.',
+  'user.error.passwordRequired': 'Iphasiwedi iyadingeka.',
+  'user.error.emailInvalid': 'I-imeyili ayilungile.',
+  'user.error.usernameUnavailable': 'Igama lomsebenzisi alitholakali.',
+  'user.error.emailAlreadyRegistered': 'I-imeyili isivele ibhaliswe.',
+  'user.error.failedToHashPassword': 'Yehlulekile ukusimba iphasiwedi.',
+  'user.error.invalidCredentials': 'Iziqinisekiso ezingavumelekile.',
+  'user.error.invalidTwoFactorToken': 'Ithokheni yezinyathelo ezimbili engavumelekile.',
+  'user.error.twoFactorVerificationUnavailable':
+    'Ukuqinisekiswa kwezinyathelo ezimbili akutholakali.',
+  'user.error.loginFailed': 'Ukungena kuhlulekile.',
+  'user.notification.newLogin': 'Ukungena Okusha',
+  'user.notification.newLoginBody': 'Ukungena okusha kusuka ku-{{deviceName}}.',
+  'user.error.usernameCannotBeEmpty': 'Igama lomsebenzisi alikwazi ukuba ngeze.',
+  'user.error.failedToUpdateUser': 'Yehlulekile ukubuyekeza umsebenzisi.',
+  'user.error.failedToDeleteUser': 'Yehlulekile ukususa umsebenzisi.',
+  'user.error.failedToReadUser': 'Yehlulekile ukufunda umsebenzisi.',
+  'user.error.emailRequired': 'I-imeyili iyadingeka.',
+  'user.email.passwordResetSubject': '{{appName}} - Ukusetha Kabusha Iphasiwedi',
+  'user.email.passwordResetText': 'Ithokheni yakho yokusetha kabusha iphasiwedi: {{token}}',
+  'user.email.passwordResetLink': 'Setha kabusha iphasiwedi yakho ku: {{url}}',
+  'user.email.passwordResetHtml':
+    '<p>Ithokheni yakho yokusetha kabusha iphasiwedi: <strong>{{token}}</strong></p>',
+  'user.email.passwordResetHtmlLink': '<p><a href="{{url}}">Setha kabusha iphasiwedi yakho</a></p>',
+  'user.error.failedToProcessPasswordReset':
+    'Yehlulekile ukucubungula ukusetha kabusha iphasiwedi.',
+  'user.error.newPasswordRequired': 'Iphasiwedi entsha iyadingeka.',
+  'user.error.currentPasswordRequired': 'Iphasiwedi yamanje iyadingeka.',
+  'user.error.currentPasswordIncorrect': 'Iphasiwedi yamanje ayilungile.',
+  'user.error.failedToUpdatePassword': 'Yehlulekile ukubuyekeza iphasiwedi.',
+  'user.error.planKeyRequired': 'i-planKey iyadingeka.',
+  'user.error.invalidPlan': 'Uhlelo olungavumelekile.',
+  'user.error.failedToUpdateSubscription': 'Yehlulekile ukubuyekeza isithangami.',
+  'user.error.failedToUpdatePlan': 'Yehlulekile ukubuyekeza uhlelo.',
+  'user.error.twoFactorNotAvailable': 'Ukuqinisekiswa kwezinyathelo ezimbili akutholakali.',
+  'user.error.tokenRequired': 'Ithokheni iyadingeka.',
+  'user.error.noPendingTwoFactorSetup':
+    'Akukho ukumiswa kwezinyathelo ezimbili okulindile. Shayela ngesenzo se-"setup" kuqala.',
+  'user.error.invalidToken': 'Ithokheni engavumelekile.',
+  'user.error.twoFactorNotEnabled': 'Izinyathelo ezimbili azivulwanga.',
+  'user.error.invalidAction':
+    'Isenzo esingavumelekile. Sebenzisa "setup", "enable", noma "disable".',
+  'user.error.twoFactorOperationFailed': 'Umsebenzi wezinyathelo ezimbili uhlulekile.',
+  'user.error.oauthServerNotConfigured': 'Iseva ye-OAuth "{{server}}" ayimisekanga.',
+  'user.error.oauthVerificationFailed': 'Ukuqinisekiswa kwe-OAuth kuhlulekile.',
+  'user.error.failedToCreateUser': 'Yehlulekile ukwakha umsebenzisi.',
+  'user.error.oauthLoginFailed': 'Ukungena nge-OAuth kuhlulekile.',
+}

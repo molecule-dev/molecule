@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Turkish. */
+export const tr: IdeTranslations = {
+  'ide.chat.title': 'Sohbet',
+  'ide.chat.placeholder': 'Mesaj gönderin...',
+  'ide.chat.emptyState': 'Ne oluşturmak istediğinizi açıklayın...',
+  'ide.chat.you': 'Siz',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Durdur',
+  'ide.chat.send': 'Gönder',
+  'ide.editor.title': 'Düzenleyici',
+  'ide.editor.emptyState': 'Düzenlemeye başlamak için bir dosya açın',
+  'ide.files.empty': 'Dosya yok',
+  'ide.preview.title': 'Önizleme',
+  'ide.preview.refresh': 'Önizlemeyi yenile',
+  'ide.preview.openNewTab': 'Yeni sekmede aç',
+  'ide.preview.livePreview': 'Canlı Önizleme',
+  'ide.preview.starting': 'Önizleme başlatılıyor...',
+  'ide.preview.noPreview': 'Önizleme mevcut değil',
+  'ide.device.label': 'Cihaz çerçevesi',
+  'ide.device.responsive': 'Duyarlı',
+  'ide.device.desktop': 'Masaüstü',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'Mobil',
+  'ide.toolCall.running': 'çalışıyor...',
+  'ide.toolCall.input': 'Girdi',
+  'ide.toolCall.output': 'Çıktı',
+  'ide.tabs.close': '{{fileName}} kapat',
+}

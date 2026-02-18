@@ -1,0 +1,69 @@
+{
+  "name": "@molecule/api-testing",
+  "version": "1.0.0",
+  "description": "Testing utilities for molecule.dev API packages",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./mocks": {
+      "types": "./dist/mocks/index.d.ts",
+      "import": "./dist/mocks/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "testing",
+    "mocks",
+    "vitest"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-database": "^1.0.0",
+    "@molecule/api-cache": "^1.0.0",
+    "@molecule/api-queue": "^1.0.0",
+    "@molecule/api-emails": "^1.0.0",
+    "@molecule/api-logger": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/api-database": {
+      "optional": true
+    },
+    "@molecule/api-cache": {
+      "optional": true
+    },
+    "@molecule/api-queue": {
+      "optional": true
+    },
+    "@molecule/api-emails": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "25.2.3",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/testing"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/testing",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

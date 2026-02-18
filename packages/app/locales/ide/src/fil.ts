@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Filipino. */
+export const fil: IdeTranslations = {
+  'ide.chat.title': 'Chat',
+  'ide.chat.placeholder': 'Magpadala ng mensahe...',
+  'ide.chat.emptyState': 'Ilarawan kung ano ang gusto mong buuin...',
+  'ide.chat.you': 'Ikaw',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Ihinto',
+  'ide.chat.send': 'Ipadala',
+  'ide.editor.title': 'Editor',
+  'ide.editor.emptyState': 'Magbukas ng file para magsimulang mag-edit',
+  'ide.files.empty': 'Walang mga file',
+  'ide.preview.title': 'Preview',
+  'ide.preview.refresh': 'I-refresh ang preview',
+  'ide.preview.openNewTab': 'Buksan sa bagong tab',
+  'ide.preview.livePreview': 'Live Preview',
+  'ide.preview.starting': 'Sinisimulan ang preview...',
+  'ide.preview.noPreview': 'Walang available na preview',
+  'ide.device.label': 'Device frame',
+  'ide.device.responsive': 'Responsive',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'Mobile',
+  'ide.toolCall.running': 'tumatakbo...',
+  'ide.toolCall.input': 'Input',
+  'ide.toolCall.output': 'Output',
+  'ide.tabs.close': 'Isara ang {{fileName}}',
+}

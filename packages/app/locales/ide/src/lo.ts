@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Lao. */
+export const lo: IdeTranslations = {
+  'ide.chat.title': 'ສົນທະນາ',
+  'ide.chat.placeholder': 'ສົ່ງຂໍ້ຄວາມ...',
+  'ide.chat.emptyState': 'ອະທິບາຍສິ່ງທີ່ທ່ານຕ້ອງການສ້າງ...',
+  'ide.chat.you': 'ທ່ານ',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'ຢຸດ',
+  'ide.chat.send': 'ສົ່ງ',
+  'ide.editor.title': 'ຕົວແກ້ໄຂ',
+  'ide.editor.emptyState': 'ເປີດໄຟລ໌ເພື່ອເລີ່ມແກ້ໄຂ',
+  'ide.files.empty': 'ບໍ່ມີໄຟລ໌',
+  'ide.preview.title': 'ສະແດງຕົວຢ່າງ',
+  'ide.preview.refresh': 'ໂຫຼດຕົວຢ່າງໃໝ່',
+  'ide.preview.openNewTab': 'ເປີດໃນແທັບໃໝ່',
+  'ide.preview.livePreview': 'ສະແດງຕົວຢ່າງສົດ',
+  'ide.preview.starting': 'ກຳລັງເລີ່ມສະແດງຕົວຢ່າງ...',
+  'ide.preview.noPreview': 'ບໍ່ມີຕົວຢ່າງທີ່ພ້ອມໃຊ້ງານ',
+  'ide.device.label': 'ກອບອຸປະກອນ',
+  'ide.device.responsive': 'ຕອບສະໜອງ',
+  'ide.device.desktop': 'ຄອມພິວເຕີ',
+  'ide.device.tablet': 'ແທັບເລັດ',
+  'ide.device.mobile': 'ມືຖື',
+  'ide.toolCall.running': 'ກຳລັງດຳເນີນການ...',
+  'ide.toolCall.input': 'ຂໍ້ມູນເຂົ້າ',
+  'ide.toolCall.output': 'ຜົນໄດ້ຮັບ',
+  'ide.tabs.close': 'ປິດ {{fileName}}',
+}

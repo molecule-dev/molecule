@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Hindi. */
+export const hi: IdeTranslations = {
+  'ide.chat.title': 'चैट',
+  'ide.chat.placeholder': 'संदेश भेजें...',
+  'ide.chat.emptyState': 'बताएँ कि आप क्या बनाना चाहते हैं...',
+  'ide.chat.you': 'आप',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'रोकें',
+  'ide.chat.send': 'भेजें',
+  'ide.editor.title': 'एडिटर',
+  'ide.editor.emptyState': 'संपादन शुरू करने के लिए फ़ाइल खोलें',
+  'ide.files.empty': 'कोई फ़ाइलें नहीं',
+  'ide.preview.title': 'प्रीव्यू',
+  'ide.preview.refresh': 'प्रीव्यू रिफ़्रेश करें',
+  'ide.preview.openNewTab': 'नए टैब में खोलें',
+  'ide.preview.livePreview': 'लाइव प्रीव्यू',
+  'ide.preview.starting': 'प्रीव्यू शुरू हो रहा है...',
+  'ide.preview.noPreview': 'कोई प्रीव्यू उपलब्ध नहीं',
+  'ide.device.label': 'डिवाइस फ़्रेम',
+  'ide.device.responsive': 'रेस्पॉन्सिव',
+  'ide.device.desktop': 'डेस्कटॉप',
+  'ide.device.tablet': 'टैबलेट',
+  'ide.device.mobile': 'मोबाइल',
+  'ide.toolCall.running': 'चल रहा है...',
+  'ide.toolCall.input': 'इनपुट',
+  'ide.toolCall.output': 'आउटपुट',
+  'ide.tabs.close': '{{fileName}} बंद करें',
+}

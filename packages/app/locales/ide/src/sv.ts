@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Swedish. */
+export const sv: IdeTranslations = {
+  'ide.chat.title': 'Chatt',
+  'ide.chat.placeholder': 'Skicka ett meddelande...',
+  'ide.chat.emptyState': 'Beskriv vad du vill bygga...',
+  'ide.chat.you': 'Du',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Stoppa',
+  'ide.chat.send': 'Skicka',
+  'ide.editor.title': 'Redigerare',
+  'ide.editor.emptyState': 'Öppna en fil för att börja redigera',
+  'ide.files.empty': 'Inga filer',
+  'ide.preview.title': 'Förhandsgranskning',
+  'ide.preview.refresh': 'Uppdatera förhandsgranskning',
+  'ide.preview.openNewTab': 'Öppna i ny flik',
+  'ide.preview.livePreview': 'Direktförhandsvisning',
+  'ide.preview.starting': 'Startar förhandsgranskning...',
+  'ide.preview.noPreview': 'Ingen förhandsgranskning tillgänglig',
+  'ide.device.label': 'Enhetsram',
+  'ide.device.responsive': 'Responsiv',
+  'ide.device.desktop': 'Dator',
+  'ide.device.tablet': 'Surfplatta',
+  'ide.device.mobile': 'Mobil',
+  'ide.toolCall.running': 'körs...',
+  'ide.toolCall.input': 'Indata',
+  'ide.toolCall.output': 'Utdata',
+  'ide.tabs.close': 'Stäng {{fileName}}',
+}

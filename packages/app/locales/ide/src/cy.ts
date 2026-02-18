@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Welsh. */
+export const cy: IdeTranslations = {
+  'ide.chat.title': 'Sgwrs',
+  'ide.chat.placeholder': 'Anfon neges...',
+  'ide.chat.emptyState': 'Disgrifiwch beth rydych am ei adeiladu...',
+  'ide.chat.you': 'Chi',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Stopio',
+  'ide.chat.send': 'Anfon',
+  'ide.editor.title': 'Golygydd',
+  'ide.editor.emptyState': 'Agorwch ffeil i ddechrau golygu',
+  'ide.files.empty': 'Dim ffeiliau',
+  'ide.preview.title': 'Rhagolwg',
+  'ide.preview.refresh': 'Adnewyddu rhagolwg',
+  'ide.preview.openNewTab': 'Agor mewn tab newydd',
+  'ide.preview.livePreview': 'Rhagolwg Byw',
+  'ide.preview.starting': 'Cychwyn rhagolwg...',
+  'ide.preview.noPreview': 'Dim rhagolwg ar gael',
+  'ide.device.label': 'Ffrâm ddyfais',
+  'ide.device.responsive': 'Ymatebol',
+  'ide.device.desktop': 'Bwrdd gwaith',
+  'ide.device.tablet': 'Tabled',
+  'ide.device.mobile': 'Symudol',
+  'ide.toolCall.running': 'yn rhedeg...',
+  'ide.toolCall.input': 'Mewnbwn',
+  'ide.toolCall.output': 'Allbwn',
+  'ide.tabs.close': 'Cau {{fileName}}',
+}

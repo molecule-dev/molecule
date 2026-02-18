@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Hungarian. */
+export const hu: IdeTranslations = {
+  'ide.chat.title': 'Csevegés',
+  'ide.chat.placeholder': 'Üzenet küldése...',
+  'ide.chat.emptyState': 'Írja le, mit szeretne építeni...',
+  'ide.chat.you': 'Ön',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Leállítás',
+  'ide.chat.send': 'Küldés',
+  'ide.editor.title': 'Szerkesztő',
+  'ide.editor.emptyState': 'Nyisson meg egy fájlt a szerkesztés megkezdéséhez',
+  'ide.files.empty': 'Nincsenek fájlok',
+  'ide.preview.title': 'Előnézet',
+  'ide.preview.refresh': 'Előnézet frissítése',
+  'ide.preview.openNewTab': 'Megnyitás új lapon',
+  'ide.preview.livePreview': 'Élő Előnézet',
+  'ide.preview.starting': 'Előnézet indítása...',
+  'ide.preview.noPreview': 'Nincs elérhető előnézet',
+  'ide.device.label': 'Eszköz keret',
+  'ide.device.responsive': 'Reszponzív',
+  'ide.device.desktop': 'Asztali',
+  'ide.device.tablet': 'Táblagép',
+  'ide.device.mobile': 'Mobil',
+  'ide.toolCall.running': 'fut...',
+  'ide.toolCall.input': 'Bemenet',
+  'ide.toolCall.output': 'Kimenet',
+  'ide.tabs.close': 'Bezárás: {{fileName}}',
+}

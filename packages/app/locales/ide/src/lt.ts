@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Lithuanian. */
+export const lt: IdeTranslations = {
+  'ide.chat.title': 'Pokalbis',
+  'ide.chat.placeholder': 'Siųsti žinutę...',
+  'ide.chat.emptyState': 'Aprašykite, ką norite sukurti...',
+  'ide.chat.you': 'Jūs',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Stabdyti',
+  'ide.chat.send': 'Siųsti',
+  'ide.editor.title': 'Redaktorius',
+  'ide.editor.emptyState': 'Atidarykite failą, kad pradėtumėte redaguoti',
+  'ide.files.empty': 'Nėra failų',
+  'ide.preview.title': 'Peržiūra',
+  'ide.preview.refresh': 'Atnaujinti peržiūrą',
+  'ide.preview.openNewTab': 'Atidaryti naujame skirtuke',
+  'ide.preview.livePreview': 'Gyva Peržiūra',
+  'ide.preview.starting': 'Pradedama peržiūra...',
+  'ide.preview.noPreview': 'Peržiūra nepasiekiama',
+  'ide.device.label': 'Įrenginio rėmas',
+  'ide.device.responsive': 'Reaguojantis',
+  'ide.device.desktop': 'Stalinis',
+  'ide.device.tablet': 'Planšetė',
+  'ide.device.mobile': 'Mobilusis',
+  'ide.toolCall.running': 'vykdoma...',
+  'ide.toolCall.input': 'Įvestis',
+  'ide.toolCall.output': 'Išvestis',
+  'ide.tabs.close': 'Uždaryti {{fileName}}',
+}

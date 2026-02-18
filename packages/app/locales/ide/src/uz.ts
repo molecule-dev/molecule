@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Uzbek. */
+export const uz: IdeTranslations = {
+  'ide.chat.title': 'Suhbat',
+  'ide.chat.placeholder': 'Xabar yuboring...',
+  'ide.chat.emptyState': 'Nima yaratmoqchi ekanligingizni tasvirlab bering...',
+  'ide.chat.you': 'Siz',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': "To'xtatish",
+  'ide.chat.send': 'Yuborish',
+  'ide.editor.title': 'Muharrir',
+  'ide.editor.emptyState': 'Tahrirlashni boshlash uchun fayl oching',
+  'ide.files.empty': "Fayllar yo'q",
+  'ide.preview.title': "Oldindan ko'rish",
+  'ide.preview.refresh': "Oldindan ko'rishni yangilash",
+  'ide.preview.openNewTab': 'Yangi tabda ochish',
+  'ide.preview.livePreview': "Jonli oldindan ko'rish",
+  'ide.preview.starting': "Oldindan ko'rish boshlanmoqda...",
+  'ide.preview.noPreview': "Oldindan ko'rish mavjud emas",
+  'ide.device.label': 'Qurilma ramkasi',
+  'ide.device.responsive': 'Moslashuvchan',
+  'ide.device.desktop': 'Ish stoli',
+  'ide.device.tablet': 'Planshet',
+  'ide.device.mobile': 'Mobil',
+  'ide.toolCall.running': 'bajarilmoqda...',
+  'ide.toolCall.input': 'Kirish',
+  'ide.toolCall.output': 'Chiqish',
+  'ide.tabs.close': '{{fileName}} yopish',
+}

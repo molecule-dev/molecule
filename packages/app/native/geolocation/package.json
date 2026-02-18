@@ -1,0 +1,48 @@
+{
+  "name": "@molecule/app-geolocation",
+  "version": "1.0.0",
+  "description": "Geolocation interface for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "geolocation",
+    "gps",
+    "location"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-bond": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-bond": "1.0.0",
+    "@types/node": "25.2.3",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/native/geolocation"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/native/geolocation",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

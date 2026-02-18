@@ -1,0 +1,52 @@
+{
+  "name": "@molecule/api-middleware-body-parser-express",
+  "version": "1.0.0",
+  "description": "Express body parser provider for molecule.dev (JSON and multipart)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "author": "molecule.dev",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-middleware-body-parser": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0",
+    "express": "^5.0.0"
+  },
+  "dependencies": {
+    "connect-busboy": "1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-middleware-body-parser": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
+    "@types/busboy": "1.5.4",
+    "@types/connect-busboy": "1.0.3",
+    "@types/express": "5.0.6",
+    "@types/node": "25.2.3",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/middleware/body-parser-express"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/middleware/body-parser-express",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

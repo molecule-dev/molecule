@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Kazakh. */
+export const kk: IdeTranslations = {
+  'ide.chat.title': 'Чат',
+  'ide.chat.placeholder': 'Хабарлама жіберіңіз...',
+  'ide.chat.emptyState': 'Не құрғыңыз келетінін сипаттаңыз...',
+  'ide.chat.you': 'Сіз',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Тоқтату',
+  'ide.chat.send': 'Жіберу',
+  'ide.editor.title': 'Редактор',
+  'ide.editor.emptyState': 'Өңдеуді бастау үшін файл ашыңыз',
+  'ide.files.empty': 'Файлдар жоқ',
+  'ide.preview.title': 'Алдын ала қарау',
+  'ide.preview.refresh': 'Алдын ала қарауды жаңарту',
+  'ide.preview.openNewTab': 'Жаңа қойындыда ашу',
+  'ide.preview.livePreview': 'Тікелей алдын ала қарау',
+  'ide.preview.starting': 'Алдын ала қарау басталуда...',
+  'ide.preview.noPreview': 'Алдын ала қарау қолжетімсіз',
+  'ide.device.label': 'Құрылғы жақтауы',
+  'ide.device.responsive': 'Бейімді',
+  'ide.device.desktop': 'Жұмыс үстелі',
+  'ide.device.tablet': 'Планшет',
+  'ide.device.mobile': 'Мобильді',
+  'ide.toolCall.running': 'орындалуда...',
+  'ide.toolCall.input': 'Кіріс',
+  'ide.toolCall.output': 'Шығыс',
+  'ide.tabs.close': '{{fileName}} жабу',
+}

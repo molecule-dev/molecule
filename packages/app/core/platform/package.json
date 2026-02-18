@@ -1,0 +1,52 @@
+{
+  "name": "@molecule/app-platform",
+  "version": "1.0.0",
+  "description": "Platform detection and abstraction for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "platform",
+    "capacitor",
+    "react-native",
+    "web"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-lifecycle": "^1.0.0",
+    "@molecule/app-logger": "^1.0.0",
+    "@molecule/app-push": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-lifecycle": "1.0.0",
+    "@molecule/app-push": "1.0.0",
+    "@types/node": "25.2.3",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/core/platform"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/core/platform",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Irish. */
+export const ga: IdeTranslations = {
+  'ide.chat.title': 'Comhrá',
+  'ide.chat.placeholder': 'Seol teachtaireacht...',
+  'ide.chat.emptyState': 'Déan cur síos ar a bhfuil uait a thógáil...',
+  'ide.chat.you': 'Tusa',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Stop',
+  'ide.chat.send': 'Seol',
+  'ide.editor.title': 'Eagarthóir',
+  'ide.editor.emptyState': 'Oscail comhad chun tosú ag eagarthóireacht',
+  'ide.files.empty': 'Gan comhaid',
+  'ide.preview.title': 'Réamhamharc',
+  'ide.preview.refresh': 'Athnuaigh réamhamharc',
+  'ide.preview.openNewTab': 'Oscail i gcluaisín nua',
+  'ide.preview.livePreview': 'Réamhamharc Beo',
+  'ide.preview.starting': 'Ag tosú réamhamhairc...',
+  'ide.preview.noPreview': 'Gan réamhamharc ar fáil',
+  'ide.device.label': 'Fráma gléis',
+  'ide.device.responsive': 'Freagrach',
+  'ide.device.desktop': 'Deisce',
+  'ide.device.tablet': 'Táibléad',
+  'ide.device.mobile': 'Soghluaiste',
+  'ide.toolCall.running': 'ag rith...',
+  'ide.toolCall.input': 'Ionchur',
+  'ide.toolCall.output': 'Aschur',
+  'ide.tabs.close': 'Dún {{fileName}}',
+}

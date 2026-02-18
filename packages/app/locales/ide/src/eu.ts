@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Basque. */
+export const eu: IdeTranslations = {
+  'ide.chat.title': 'Txata',
+  'ide.chat.placeholder': 'Bidali mezu bat...',
+  'ide.chat.emptyState': 'Deskribatu zer eraiki nahi duzun...',
+  'ide.chat.you': 'Zu',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Gelditu',
+  'ide.chat.send': 'Bidali',
+  'ide.editor.title': 'Editorea',
+  'ide.editor.emptyState': 'Ireki fitxategi bat editatzen hasteko',
+  'ide.files.empty': 'Fitxategirik ez',
+  'ide.preview.title': 'Aurrebista',
+  'ide.preview.refresh': 'Freskatu aurrebista',
+  'ide.preview.openNewTab': 'Ireki fitxa berrian',
+  'ide.preview.livePreview': 'Zuzeneko aurrebista',
+  'ide.preview.starting': 'Aurrebista abiarazten...',
+  'ide.preview.noPreview': 'Aurrebistarik ez dago erabilgarri',
+  'ide.device.label': 'Gailu-markoa',
+  'ide.device.responsive': 'Moldagarria',
+  'ide.device.desktop': 'Mahaigaina',
+  'ide.device.tablet': 'Tableta',
+  'ide.device.mobile': 'Mugikorra',
+  'ide.toolCall.running': 'exekutatzen...',
+  'ide.toolCall.input': 'Sarrera',
+  'ide.toolCall.output': 'Irteera',
+  'ide.tabs.close': 'Itxi {{fileName}}',
+}

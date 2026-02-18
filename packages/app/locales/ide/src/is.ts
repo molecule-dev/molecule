@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Icelandic. */
+export const is: IdeTranslations = {
+  'ide.chat.title': 'Spjall',
+  'ide.chat.placeholder': 'Sendu skilaboð...',
+  'ide.chat.emptyState': 'Lýstu því sem þú vilt smíða...',
+  'ide.chat.you': 'Þú',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Stöðva',
+  'ide.chat.send': 'Senda',
+  'ide.editor.title': 'Ritill',
+  'ide.editor.emptyState': 'Opnaðu skrá til að byrja að breyta',
+  'ide.files.empty': 'Engar skrár',
+  'ide.preview.title': 'Forskoðun',
+  'ide.preview.refresh': 'Endurnýja forskoðun',
+  'ide.preview.openNewTab': 'Opna í nýjum flipa',
+  'ide.preview.livePreview': 'Lifandi forskoðun',
+  'ide.preview.starting': 'Ræsi forskoðun...',
+  'ide.preview.noPreview': 'Engin forskoðun tiltæk',
+  'ide.device.label': 'Tækjarammi',
+  'ide.device.responsive': 'Sveigjanleg',
+  'ide.device.desktop': 'Skjáborð',
+  'ide.device.tablet': 'Spjaldtölva',
+  'ide.device.mobile': 'Farsími',
+  'ide.toolCall.running': 'keyrir...',
+  'ide.toolCall.input': 'Inntak',
+  'ide.toolCall.output': 'Úttak',
+  'ide.tabs.close': 'Loka {{fileName}}',
+}

@@ -1,0 +1,54 @@
+{
+  "name": "@molecule/api-resource-payment",
+  "version": "1.0.0",
+  "description": "Payment resource with subscription plan management",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "setup"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-locales-payment": "1.0.0",
+    "@molecule/api-payments": "1.0.0",
+    "@types/node": "25.2.3",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-database": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-locales-payment": "^1.0.0",
+    "@molecule/api-logger": "^1.0.0",
+    "@molecule/api-payments": "^1.0.0",
+    "@molecule/api-resource": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/resources/payment"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/payment",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

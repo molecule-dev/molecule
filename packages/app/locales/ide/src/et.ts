@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Estonian. */
+export const et: IdeTranslations = {
+  'ide.chat.title': 'Vestlus',
+  'ide.chat.placeholder': 'Saada sõnum...',
+  'ide.chat.emptyState': 'Kirjeldage, mida soovite ehitada...',
+  'ide.chat.you': 'Teie',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Peata',
+  'ide.chat.send': 'Saada',
+  'ide.editor.title': 'Redaktor',
+  'ide.editor.emptyState': 'Avage fail redigeerimise alustamiseks',
+  'ide.files.empty': 'Faile pole',
+  'ide.preview.title': 'Eelvaade',
+  'ide.preview.refresh': 'Värskenda eelvaadet',
+  'ide.preview.openNewTab': 'Ava uuel vahekaardil',
+  'ide.preview.livePreview': 'Reaalajas Eelvaade',
+  'ide.preview.starting': 'Eelvaate käivitamine...',
+  'ide.preview.noPreview': 'Eelvaade pole saadaval',
+  'ide.device.label': 'Seadme raam',
+  'ide.device.responsive': 'Kohanduv',
+  'ide.device.desktop': 'Lauaarvuti',
+  'ide.device.tablet': 'Tahvelarvuti',
+  'ide.device.mobile': 'Mobiil',
+  'ide.toolCall.running': 'käivitub...',
+  'ide.toolCall.input': 'Sisend',
+  'ide.toolCall.output': 'Väljund',
+  'ide.tabs.close': 'Sulge {{fileName}}',
+}

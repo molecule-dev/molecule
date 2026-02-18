@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Malay. */
+export const ms: IdeTranslations = {
+  'ide.chat.title': 'Sembang',
+  'ide.chat.placeholder': 'Hantar mesej...',
+  'ide.chat.emptyState': 'Terangkan apa yang anda mahu bina...',
+  'ide.chat.you': 'Anda',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Berhenti',
+  'ide.chat.send': 'Hantar',
+  'ide.editor.title': 'Editor',
+  'ide.editor.emptyState': 'Buka fail untuk mula mengedit',
+  'ide.files.empty': 'Tiada fail',
+  'ide.preview.title': 'Pratonton',
+  'ide.preview.refresh': 'Muat semula pratonton',
+  'ide.preview.openNewTab': 'Buka dalam tab baharu',
+  'ide.preview.livePreview': 'Pratonton Langsung',
+  'ide.preview.starting': 'Memulakan pratonton...',
+  'ide.preview.noPreview': 'Tiada pratonton tersedia',
+  'ide.device.label': 'Bingkai peranti',
+  'ide.device.responsive': 'Responsif',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'Mudah Alih',
+  'ide.toolCall.running': 'berjalan...',
+  'ide.toolCall.input': 'Input',
+  'ide.toolCall.output': 'Output',
+  'ide.tabs.close': 'Tutup {{fileName}}',
+}

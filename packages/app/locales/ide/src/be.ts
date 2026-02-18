@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Belarusian. */
+export const be: IdeTranslations = {
+  'ide.chat.title': 'Чат',
+  'ide.chat.placeholder': 'Адправіць паведамленне...',
+  'ide.chat.emptyState': 'Апішыце, што вы хочаце стварыць...',
+  'ide.chat.you': 'Вы',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Спыніць',
+  'ide.chat.send': 'Адправіць',
+  'ide.editor.title': 'Рэдактар',
+  'ide.editor.emptyState': 'Адкрыйце файл, каб пачаць рэдагаванне',
+  'ide.files.empty': 'Няма файлаў',
+  'ide.preview.title': 'Папярэдні прагляд',
+  'ide.preview.refresh': 'Абнавіць прагляд',
+  'ide.preview.openNewTab': 'Адкрыць у новай укладцы',
+  'ide.preview.livePreview': 'Жывы прагляд',
+  'ide.preview.starting': 'Запуск прагляду...',
+  'ide.preview.noPreview': 'Прагляд недаступны',
+  'ide.device.label': 'Рамка прылады',
+  'ide.device.responsive': 'Адаптыўны',
+  'ide.device.desktop': 'Настольны',
+  'ide.device.tablet': 'Планшэт',
+  'ide.device.mobile': 'Мабільны',
+  'ide.toolCall.running': 'выконваецца...',
+  'ide.toolCall.input': 'Уваход',
+  'ide.toolCall.output': 'Выхад',
+  'ide.tabs.close': 'Закрыць {{fileName}}',
+}

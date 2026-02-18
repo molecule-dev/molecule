@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Bengali. */
+export const bn: IdeTranslations = {
+  'ide.chat.title': 'চ্যাট',
+  'ide.chat.placeholder': 'একটি বার্তা পাঠান...',
+  'ide.chat.emptyState': 'আপনি কী তৈরি করতে চান তা বর্ণনা করুন...',
+  'ide.chat.you': 'আপনি',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'থামুন',
+  'ide.chat.send': 'পাঠান',
+  'ide.editor.title': 'এডিটর',
+  'ide.editor.emptyState': 'সম্পাদনা শুরু করতে একটি ফাইল খুলুন',
+  'ide.files.empty': 'কোনো ফাইল নেই',
+  'ide.preview.title': 'প্রিভিউ',
+  'ide.preview.refresh': 'প্রিভিউ রিফ্রেশ করুন',
+  'ide.preview.openNewTab': 'নতুন ট্যাবে খুলুন',
+  'ide.preview.livePreview': 'লাইভ প্রিভিউ',
+  'ide.preview.starting': 'প্রিভিউ শুরু হচ্ছে...',
+  'ide.preview.noPreview': 'কোনো প্রিভিউ উপলব্ধ নেই',
+  'ide.device.label': 'ডিভাইস ফ্রেম',
+  'ide.device.responsive': 'রেসপন্সিভ',
+  'ide.device.desktop': 'ডেস্কটপ',
+  'ide.device.tablet': 'ট্যাবলেট',
+  'ide.device.mobile': 'মোবাইল',
+  'ide.toolCall.running': 'চলছে...',
+  'ide.toolCall.input': 'ইনপুট',
+  'ide.toolCall.output': 'আউটপুট',
+  'ide.tabs.close': '{{fileName}} বন্ধ করুন',
+}

@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Azerbaijani. */
+export const az: IdeTranslations = {
+  'ide.chat.title': 'Söhbət',
+  'ide.chat.placeholder': 'Mesaj göndərin...',
+  'ide.chat.emptyState': 'Nə qurmaq istədiyinizi təsvir edin...',
+  'ide.chat.you': 'Siz',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Dayandır',
+  'ide.chat.send': 'Göndər',
+  'ide.editor.title': 'Redaktor',
+  'ide.editor.emptyState': 'Redaktə etmək üçün fayl açın',
+  'ide.files.empty': 'Fayl yoxdur',
+  'ide.preview.title': 'Önizləmə',
+  'ide.preview.refresh': 'Önizləməni yenilə',
+  'ide.preview.openNewTab': 'Yeni tabda aç',
+  'ide.preview.livePreview': 'Canlı Önizləmə',
+  'ide.preview.starting': 'Önizləmə başlayır...',
+  'ide.preview.noPreview': 'Önizləmə mövcud deyil',
+  'ide.device.label': 'Cihaz çərçivəsi',
+  'ide.device.responsive': 'Adaptiv',
+  'ide.device.desktop': 'Masaüstü',
+  'ide.device.tablet': 'Planşet',
+  'ide.device.mobile': 'Mobil',
+  'ide.toolCall.running': 'işləyir...',
+  'ide.toolCall.input': 'Giriş',
+  'ide.toolCall.output': 'Çıxış',
+  'ide.tabs.close': '{{fileName}} bağla',
+}

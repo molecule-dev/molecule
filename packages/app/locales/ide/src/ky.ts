@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Kyrgyz. */
+export const ky: IdeTranslations = {
+  'ide.chat.title': 'Чат',
+  'ide.chat.placeholder': 'Билдирүү жөнөтүү...',
+  'ide.chat.emptyState': 'Эмнени куруп чыгууну каалаганыңызды сүрөттөңүз...',
+  'ide.chat.you': 'Сиз',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Токтотуу',
+  'ide.chat.send': 'Жөнөтүү',
+  'ide.editor.title': 'Редактор',
+  'ide.editor.emptyState': 'Түзөтүүнү баштоо үчүн файлды ачыңыз',
+  'ide.files.empty': 'Файлдар жок',
+  'ide.preview.title': 'Алдын ала көрүү',
+  'ide.preview.refresh': 'Алдын ала көрүүнү жаңылоо',
+  'ide.preview.openNewTab': 'Жаңы өтмөктө ачуу',
+  'ide.preview.livePreview': 'Түз көрсөтүү',
+  'ide.preview.starting': 'Алдын ала көрүү башталууда...',
+  'ide.preview.noPreview': 'Алдын ала көрүү жок',
+  'ide.device.label': 'Түзмөк рамкасы',
+  'ide.device.responsive': 'Жооптуу',
+  'ide.device.desktop': 'Иш такта',
+  'ide.device.tablet': 'Планшет',
+  'ide.device.mobile': 'Мобилдик',
+  'ide.toolCall.running': 'иштеп жатат...',
+  'ide.toolCall.input': 'Киргизүү',
+  'ide.toolCall.output': 'Чыгаруу',
+  'ide.tabs.close': '{{fileName}} жабуу',
+}

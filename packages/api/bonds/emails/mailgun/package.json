@@ -1,0 +1,55 @@
+{
+  "name": "@molecule/api-emails-mailgun",
+  "version": "1.0.0",
+  "description": "Mailgun email provider for molecule.dev.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "email",
+    "mailgun",
+    "nodemailer"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "nodemailer": "8.0.1",
+    "nodemailer-mailgun-transport": "2.1.5"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@types/node": "25.2.3",
+    "@types/nodemailer": "7.0.10",
+    "@types/nodemailer-mailgun-transport": "1.4.6",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-emails": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/emails/mailgun"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/emails/mailgun",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

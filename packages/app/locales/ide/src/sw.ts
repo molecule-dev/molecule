@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Swahili. */
+export const sw: IdeTranslations = {
+  'ide.chat.title': 'Mazungumzo',
+  'ide.chat.placeholder': 'Tuma ujumbe...',
+  'ide.chat.emptyState': 'Eleza unachotaka kujenga...',
+  'ide.chat.you': 'Wewe',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Simama',
+  'ide.chat.send': 'Tuma',
+  'ide.editor.title': 'Kihariri',
+  'ide.editor.emptyState': 'Fungua faili ili kuanza kuhariri',
+  'ide.files.empty': 'Hakuna faili',
+  'ide.preview.title': 'Hakikisho',
+  'ide.preview.refresh': 'Onyesha upya hakikisho',
+  'ide.preview.openNewTab': 'Fungua katika kichupo kipya',
+  'ide.preview.livePreview': 'Hakikisho la Moja kwa Moja',
+  'ide.preview.starting': 'Inaanzisha hakikisho...',
+  'ide.preview.noPreview': 'Hakuna hakikisho linalopatikana',
+  'ide.device.label': 'Fremu ya kifaa',
+  'ide.device.responsive': 'Inayojibu',
+  'ide.device.desktop': 'Kompyuta ya Mezani',
+  'ide.device.tablet': 'Kompyuta Kibao',
+  'ide.device.mobile': 'Simu ya Mkononi',
+  'ide.toolCall.running': 'inafanya kazi...',
+  'ide.toolCall.input': 'Ingizo',
+  'ide.toolCall.output': 'Tokeo',
+  'ide.tabs.close': 'Funga {{fileName}}',
+}

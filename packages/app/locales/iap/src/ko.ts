@@ -1,0 +1,38 @@
+import type { IapTranslations } from './types.js'
+
+/** Iap translations for Korean. */
+export const ko: IapTranslations = {
+  'iap.error.E_UNKNOWN': '알 수 없는 오류가 발생했습니다.',
+  'iap.error.E_SETUP': '인앱 구매 설정에 실패했습니다.',
+  'iap.error.E_LOAD': '상품 로드에 실패했습니다.',
+  'iap.error.E_PURCHASE': '구매에 실패했습니다.',
+  'iap.error.E_CANCELLED': '구매가 취소되었습니다.',
+  'iap.error.E_FINISH': '거래 완료에 실패했습니다.',
+  'iap.error.E_VERIFICATION': '구매 확인에 실패했습니다.',
+  'iap.error.E_RESTORE': '구매 복원에 실패했습니다.',
+  'iap.error.E_NOT_AVAILABLE': '인앱 구매를 사용할 수 없습니다.',
+  'iap.error.E_ALREADY_OWNED': '이미 소유한 항목입니다.',
+  'iap.error.E_NOT_OWNED': '소유하지 않은 항목입니다.',
+  'iap.error.E_DEFERRED': '구매에 승인이 필요합니다.',
+  'iap.error.E_INVALID_PRODUCT': '유효하지 않은 상품입니다.',
+  'iap.error.E_NETWORK': '네트워크 오류입니다.',
+  'iap.error.0': '알 수 없는 오류가 발생했습니다.',
+  'iap.error.E_CLIENT_INVALID': '클라이언트가 요청을 발행할 수 없습니다.',
+  'iap.error.E_PAYMENT_CANCELLED': '사용자가 요청을 취소했습니다.',
+  'iap.error.E_PAYMENT_INVALID': '구매 식별자가 유효하지 않습니다.',
+  'iap.error.E_PAYMENT_NOT_ALLOWED': '이 기기에서는 구매가 허용되지 않습니다.',
+  'iap.error.E_STORE_PRODUCT_NOT_AVAILABLE': '현재 스토어에서 상품을 사용할 수 없습니다.',
+  'iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED': '클라우드 서비스 권한이 거부되었습니다.',
+  'iap.error.E_CLOUD_SERVICE_NETWORK_CONNECTION_FAILED':
+    '클라우드 서비스 네트워크 연결에 실패했습니다.',
+  'iap.error.E_CLOUD_SERVICE_REVOKED': '클라우드 서비스가 취소되었습니다.',
+  'iap.error.-1': '서비스 연결이 끊어졌습니다.',
+  'iap.error.1': '사용자가 취소했습니다.',
+  'iap.error.2': '서비스를 사용할 수 없습니다.',
+  'iap.error.3': '결제를 사용할 수 없습니다.',
+  'iap.error.4': '항목을 사용할 수 없습니다.',
+  'iap.error.5': '개발자 오류입니다.',
+  'iap.error.6': '오류입니다.',
+  'iap.error.7': '이미 소유한 항목입니다.',
+  'iap.error.8': '소유하지 않은 항목입니다.',
+}

@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Czech. */
+export const cs: IdeTranslations = {
+  'ide.chat.title': 'Chat',
+  'ide.chat.placeholder': 'Odeslat zprávu...',
+  'ide.chat.emptyState': 'Popište, co chcete vytvořit...',
+  'ide.chat.you': 'Vy',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Zastavit',
+  'ide.chat.send': 'Odeslat',
+  'ide.editor.title': 'Editor',
+  'ide.editor.emptyState': 'Otevřete soubor a začněte upravovat',
+  'ide.files.empty': 'Žádné soubory',
+  'ide.preview.title': 'Náhled',
+  'ide.preview.refresh': 'Obnovit náhled',
+  'ide.preview.openNewTab': 'Otevřít v nové záložce',
+  'ide.preview.livePreview': 'Živý náhled',
+  'ide.preview.starting': 'Spouštění náhledu...',
+  'ide.preview.noPreview': 'Náhled není k dispozici',
+  'ide.device.label': 'Rám zařízení',
+  'ide.device.responsive': 'Responzivní',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tablet',
+  'ide.device.mobile': 'Mobil',
+  'ide.toolCall.running': 'běží...',
+  'ide.toolCall.input': 'Vstup',
+  'ide.toolCall.output': 'Výstup',
+  'ide.tabs.close': 'Zavřít {{fileName}}',
+}

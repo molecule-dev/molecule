@@ -1,0 +1,30 @@
+import type { IdeTranslations } from './types.js'
+
+/** Ide translations for Romanian. */
+export const ro: IdeTranslations = {
+  'ide.chat.title': 'Chat',
+  'ide.chat.placeholder': 'Trimiteți un mesaj...',
+  'ide.chat.emptyState': 'Descrieți ce doriți să creați...',
+  'ide.chat.you': 'Tu',
+  'ide.chat.molecule': 'Molecule',
+  'ide.chat.stop': 'Oprire',
+  'ide.chat.send': 'Trimite',
+  'ide.editor.title': 'Editor',
+  'ide.editor.emptyState': 'Deschideți un fișier pentru a începe editarea',
+  'ide.files.empty': 'Niciun fișier',
+  'ide.preview.title': 'Previzualizare',
+  'ide.preview.refresh': 'Reîmprospătare previzualizare',
+  'ide.preview.openNewTab': 'Deschide într-o filă nouă',
+  'ide.preview.livePreview': 'Previzualizare în direct',
+  'ide.preview.starting': 'Se pornește previzualizarea...',
+  'ide.preview.noPreview': 'Nicio previzualizare disponibilă',
+  'ide.device.label': 'Cadrul dispozitivului',
+  'ide.device.responsive': 'Responsiv',
+  'ide.device.desktop': 'Desktop',
+  'ide.device.tablet': 'Tabletă',
+  'ide.device.mobile': 'Mobil',
+  'ide.toolCall.running': 'se execută...',
+  'ide.toolCall.input': 'Intrare',
+  'ide.toolCall.output': 'Ieșire',
+  'ide.tabs.close': 'Închide {{fileName}}',
+}

@@ -1,0 +1,38 @@
+import type { IapTranslations } from './types.js'
+
+/** Iap translations for Armenian. */
+export const hy: IapTranslations = {
+  'iap.error.E_UNKNOWN': 'Anhayt skhalmunk teghi unetsav.',
+  'iap.error.E_SETUP': 'Havelvacneri gnumneri kargavorumy dzakhogvec.',
+  'iap.error.E_LOAD': 'Artadranqneri berumny dzakhogvec.',
+  'iap.error.E_PURCHASE': 'Gnumy dzakhogvec.',
+  'iap.error.E_CANCELLED': 'Gnumy chegnarkvel e.',
+  'iap.error.E_FINISH': 'Gortarqn avartely dzakhogvec.',
+  'iap.error.E_VERIFICATION': 'Gnumy stugely dzakhogvec.',
+  'iap.error.E_RESTORE': 'Gnumnery verakangely dzakhogvec.',
+  'iap.error.E_NOT_AVAILABLE': 'Havelvacneri gnumnery hasa chen.',
+  'iap.error.E_ALREADY_OWNED': 'Ays iretsy arten Dzer sephakanutyunn e.',
+  'iap.error.E_NOT_OWNED': 'Ays iretsy Dzer sephakanutyuny che.',
+  'iap.error.E_DEFERRED': 'Gnumy hastavutyun e pashanjum.',
+  'iap.error.E_INVALID_PRODUCT': 'Anvaverakan artadranq.',
+  'iap.error.E_NETWORK': 'Cancanyi skhalmunk.',
+  'iap.error.0': 'Anhayt skhalmunk teghi unetsav.',
+  'iap.error.E_CLIENT_INVALID': 'Hajarordy iravunk chuni hartsy unakel.',
+  'iap.error.E_PAYMENT_CANCELLED': 'Ogtvecy chegnarkec hartsy.',
+  'iap.error.E_PAYMENT_INVALID': 'Gnumi identifikatorn anvaverakan er.',
+  'iap.error.E_PAYMENT_NOT_ALLOWED': 'Sarqin tuyltvac che gnumner katarely.',
+  'iap.error.E_STORE_PRODUCT_NOT_AVAILABLE': 'Artadranqn hasa che aynteghi xanutyunum.',
+  'iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED': 'Ampayin tsarrayutyuny tuyltvutyuny merjvac e.',
+  'iap.error.E_CLOUD_SERVICE_NETWORK_CONNECTION_FAILED':
+    'Ampayin tsarrayutyuny cancanyi dzakhoghutyun.',
+  'iap.error.E_CLOUD_SERVICE_REVOKED': 'Ampayin tsarrayutyuny herkvel e.',
+  'iap.error.-1': 'Tsarrayutyuny anjatvac e.',
+  'iap.error.1': 'Ogtvecy chegnarkec.',
+  'iap.error.2': 'Tsarrayutyuny hasa che.',
+  'iap.error.3': 'Hashvarcumy hasa che.',
+  'iap.error.4': 'Iretsy hasa che.',
+  'iap.error.5': 'Mshaki skhalmunk.',
+  'iap.error.6': 'Skhalmunk.',
+  'iap.error.7': 'Iretsy arten sephakanutyun e.',
+  'iap.error.8': 'Iretsy sephakanutyun che.',
+}
