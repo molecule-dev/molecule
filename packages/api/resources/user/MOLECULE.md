@@ -287,13 +287,17 @@ const verifyTwoFactorSecretPropsSchema: z.ZodObject<{ pendingTwoFactorSecret: z.
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
-- `@molecule/api-resource` ^1.0.0
+- `@molecule/api-config` ^1.0.0
 - `@molecule/api-database` ^1.0.0
-- `@molecule/api-jwt` ^1.0.0
-- `@molecule/api-password` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+- `@molecule/api-jwt` ^1.0.0
 - `@molecule/api-locales-user` ^1.0.0
 - `@molecule/api-locales-user-payments` ^1.0.0
+- `@molecule/api-password` ^1.0.0
+- `@molecule/api-payments` ^1.0.0
+- `@molecule/api-push-notifications` ^1.0.0
+- `@molecule/api-resource` ^1.0.0
+- `@molecule/api-two-factor` ^1.0.0
 
 ### Environment Variables
 

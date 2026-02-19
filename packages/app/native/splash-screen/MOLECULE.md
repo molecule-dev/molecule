@@ -292,6 +292,7 @@ function showForMinDuration(minDuration: number, task: () => Promise<T>, options
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+- `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 
 ## Translations

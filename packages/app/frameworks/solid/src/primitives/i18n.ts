@@ -60,11 +60,13 @@ export function createI18n(): {
 
   const [locale, setLocaleSignal] = createSignal<string>(provider.getLocale())
   const [isReady, setIsReady] = createSignal<boolean>(provider.isReady?.() ?? true)
+  const [translationVersion, setTranslationVersion] = createSignal(0)
 
   // Subscribe to locale changes
   createEffect(() => {
     const unsubscribe = provider.onLocaleChange((newLocale: string) => {
       setLocaleSignal(newLocale)
+      setTranslationVersion((v) => v + 1)
     })
 
     onCleanup(unsubscribe)
@@ -84,8 +86,9 @@ export function createI18n(): {
     values?: InterpolationValues,
     options?: TranslateOptions,
   ) => {
-    // Re-run when locale changes
+    // Re-run when locale or translations change
     locale()
+    translationVersion()
     return provider.t(key, values, options)
   }
 
@@ -251,10 +254,12 @@ export function createI18nFromProvider(provider: I18nProvider): {
 } {
   const [locale, setLocaleSignal] = createSignal<string>(provider.getLocale())
   const [isReady, setIsReady] = createSignal<boolean>(provider.isReady?.() ?? true)
+  const [translationVersion, setTranslationVersion] = createSignal(0)
 
   createEffect(() => {
     const unsubscribe = provider.onLocaleChange((newLocale: string) => {
       setLocaleSignal(newLocale)
+      setTranslationVersion((v) => v + 1)
     })
 
     onCleanup(unsubscribe)
@@ -274,6 +279,7 @@ export function createI18nFromProvider(provider: I18nProvider): {
     options?: TranslateOptions,
   ) => {
     locale()
+    translationVersion()
     return provider.t(key, values, options)
   }
 

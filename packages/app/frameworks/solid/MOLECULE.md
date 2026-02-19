@@ -680,6 +680,14 @@ interface I18nProvider {
      * Registers a callback for when the provider is ready.
      */
     onReady?(callback: () => void): () => void;
+    /**
+     * Registers a lazily-loaded content module for automatic reload on locale changes.
+     * All registered content is reloaded during `setLocale()` before listeners fire,
+     * ensuring content is available on the first re-render with no flash.
+     *
+     * Idempotent: registering the same module name twice is a no-op.
+     */
+    registerContent?(module: string, loader: (locale: string) => Promise<void>): void;
 }
 ```
 
@@ -1281,7 +1289,7 @@ function createAuthGuard(redirectTo: string): Accessor<boolean>
 Creates a auth helpers.
 
 ```typescript
-function createAuthHelpers(): { login: (credentials: LoginCredentials) => Promise<void>; logout: () => Promise<void>; register: (data: RegisterData) => Promise<void>; refresh: () => Promise<void>; getUser: () => T | null; getToken: () => string | null; isAuthenticated: () => boolean; }
+function createAuthHelpers(): { login: (credentials: LoginCredentials) => Promise<AuthResult<T>>; logout: () => Promise<void>; register: (data: RegisterData) => Promise<AuthResult<T>>; refresh: () => Promise<AuthResult<T>>; getUser: () => T | null; getToken: () => string | null; isAuthenticated: () => boolean; }
 ```
 
 **Returns:** The created result.
@@ -1414,7 +1422,7 @@ function createHttpHelpers(): { get: <T>(url: string, config?: RequestConfig) =>
 Creates a i18n.
 
 ```typescript
-function createI18n(): { t: TranslateFunction; locale: Accessor<string>; setLocale: (newLocale: string) => Promise<void>; isReady: Accessor<boolean>; getLocales: () => string[]; hasKey: (key: string) => boolean; }
+function createI18n(): { t: TranslateFunction; locale: Accessor<string>; setLocale: (newLocale: string) => Promise<void>; isReady: Accessor<boolean>; getLocales: () => LocaleConfig[]; hasKey: (key: string) => boolean; }
 ```
 
 **Returns:** The created result.
@@ -1424,7 +1432,7 @@ function createI18n(): { t: TranslateFunction; locale: Accessor<string>; setLoca
 Creates a i18n from provider.
 
 ```typescript
-function createI18nFromProvider(provider: I18nProvider): { t: TranslateFunction; locale: Accessor<string>; setLocale: (newLocale: string) => Promise<void>; isReady: Accessor<boolean>; getLocales: () => string[]; hasKey: (key: string) => boolean; }
+function createI18nFromProvider(provider: I18nProvider): { t: TranslateFunction; locale: Accessor<string>; setLocale: (newLocale: string) => Promise<void>; isReady: Accessor<boolean>; getLocales: () => LocaleConfig[]; hasKey: (key: string) => boolean; }
 ```
 
 - `provider` — The provider implementation.
@@ -1436,7 +1444,7 @@ function createI18nFromProvider(provider: I18nProvider): { t: TranslateFunction;
 Creates a i18n helpers.
 
 ```typescript
-function createI18nHelpers(): { t: TranslateFunction; getLocale: () => string; setLocale: (locale: string) => Promise<void>; getLocales: () => string[]; hasKey: (key: string) => boolean; isReady: () => boolean; }
+function createI18nHelpers(): { t: TranslateFunction; getLocale: () => string; setLocale: (locale: string) => Promise<void>; getLocales: () => LocaleConfig[]; hasKey: (key: string) => boolean; isReady: () => boolean; }
 ```
 
 **Returns:** The created result.
@@ -2032,19 +2040,20 @@ function useTranslation(key: string, values?: InterpolationValues, options?: Tra
 
 Peer dependencies:
 - `@molecule/app-auth` ^1.0.0
+- `@molecule/app-device` ^1.0.0
 - `@molecule/app-forms` ^1.0.0
 - `@molecule/app-http` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
+- `@molecule/app-platform` ^1.0.0
+- `@molecule/app-push` ^1.0.0
 - `@molecule/app-routing` ^1.0.0
 - `@molecule/app-state` ^1.0.0
 - `@molecule/app-storage` ^1.0.0
 - `@molecule/app-theme` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
+- `@molecule/app-utilities` ^1.0.0
 - `@molecule/app-version` ^1.0.0
-- `@molecule/app-device` ^1.0.0
-- `@molecule/app-platform` ^1.0.0
-- `@molecule/app-push` ^1.0.0
 - `solid-js` ^1.8.0
 
 ## Translations

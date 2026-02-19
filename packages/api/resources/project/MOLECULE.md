@@ -150,6 +150,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/projects"; r
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-project` ^1.0.0

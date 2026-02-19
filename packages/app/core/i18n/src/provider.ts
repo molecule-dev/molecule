@@ -37,6 +37,9 @@ export const createSimpleI18nProvider = (
   const listeners = new Set<(locale: string) => void>()
   const loadedLoaders = new Set<string>()
 
+  // Registry of lazily-loaded content modules for auto-reload on locale change
+  const contentLoaders = new Map<string, (locale: string) => Promise<void>>()
+
   // Add initial locales
   for (const config of initialLocales) {
     locales.set(config.code, { ...config, translations: config.translations ?? {} })
@@ -75,6 +78,12 @@ export const createSimpleI18nProvider = (
         const loaded = await config.loader()
         config.translations = { ...config.translations, ...loaded }
         loadedLoaders.add(locale)
+      }
+
+      // Reload all registered content modules for the new locale
+      if (contentLoaders.size > 0) {
+        logger.debug('Reloading content modules', contentLoaders.size, locale)
+        await Promise.all(Array.from(contentLoaders.values()).map((loader) => loader(locale)))
       }
 
       currentLocale = locale
@@ -231,6 +240,12 @@ export const createSimpleI18nProvider = (
     getDirection(): 'ltr' | 'rtl' {
       const config = locales.get(currentLocale)
       return config?.direction || 'ltr'
+    },
+
+    registerContent(module: string, loader: (locale: string) => Promise<void>): void {
+      if (contentLoaders.has(module)) return
+      contentLoaders.set(module, loader)
+      logger.debug('Registered content module', module)
     },
   }
 }

@@ -10,7 +10,7 @@
 import i18next, { type i18n as I18nInstance, type InitOptions } from 'i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
-import { error } from '@molecule/app-logger'
+import { error, getLogger } from '@molecule/app-logger'
 
 import type {
   DateFormatOptions,
@@ -49,11 +49,16 @@ export const createI18nextProvider = (
     localeConfigs.set(locale.code, locale)
   }
 
+  const logger = getLogger('i18n')
+
   // Create i18next instance
   const i18n = i18next.createInstance()
 
   // Track which lazy locales have been loaded
   const loadedLocales = new Set<string>()
+
+  // Registry of lazily-loaded content modules for auto-reload on locale change
+  const contentLoaders = new Map<string, (locale: string) => Promise<void>>()
 
   // Initialize flag
   let initialized = false
@@ -121,6 +126,14 @@ export const createI18nextProvider = (
         loadedLocales.add(locale)
       }
 
+      // Reload all registered content modules for the new locale.
+      // This happens BEFORE changeLanguage so content keys are available
+      // when the languageChanged event fires and UI components re-render.
+      if (contentLoaders.size > 0) {
+        logger.debug('Reloading content modules', contentLoaders.size, locale)
+        await Promise.all(Array.from(contentLoaders.values()).map((loader) => loader(locale)))
+      }
+
       await i18n.changeLanguage(locale)
     },
 
@@ -143,6 +156,12 @@ export const createI18nextProvider = (
           ...existing.translations,
           ...translations,
         }
+      }
+
+      // Notify listeners when translations are added for the active locale
+      // so that UI components re-render with the new content.
+      if (locale === i18n.language) {
+        listeners.forEach((listener) => listener(locale))
       }
     },
 
@@ -244,6 +263,12 @@ export const createI18nextProvider = (
       const locale = i18n.language
       const config = localeConfigs.get(locale)
       return config?.direction || 'ltr'
+    },
+
+    registerContent(module: string, loader: (locale: string) => Promise<void>): void {
+      if (contentLoaders.has(module)) return
+      contentLoaders.set(module, loader)
+      logger.debug('Registered content module', module)
     },
   }
 }

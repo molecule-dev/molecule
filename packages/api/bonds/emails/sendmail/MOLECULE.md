@@ -172,4 +172,5 @@ Implements `@molecule/api-emails` interface.
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-bond` ^1.0.0
 - `@molecule/api-emails` ^1.0.0

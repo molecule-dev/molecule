@@ -272,4 +272,6 @@ function resetPlatformCache(): void
 ### Requirements
 
 Peer dependencies:
+- `@molecule/app-lifecycle` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
+- `@molecule/app-push` ^1.0.0

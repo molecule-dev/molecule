@@ -308,6 +308,7 @@ function syncBadge(getValue: () => number | Promise<number>, interval?: number):
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+- `@molecule/app-i18n` ^1.0.0
 
 ## Translations
 

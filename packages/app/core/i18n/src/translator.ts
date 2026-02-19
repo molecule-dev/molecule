@@ -159,3 +159,17 @@ export const formatRelativeTime = (value: Date | number): string =>
  */
 export const onLocaleChange = (listener: (locale: string) => void): (() => void) =>
   getProvider().onLocaleChange(listener)
+
+/**
+ * Registers a lazily-loaded content module for automatic reload on locale changes.
+ * All registered content is reloaded during `setLocale()` before listeners fire.
+ *
+ * @param module - Unique content module identifier (e.g. `'privacyPolicy'`).
+ * @param loader - Function that loads and merges translations for a given locale.
+ */
+export const registerContent = (
+  module: string,
+  loader: (locale: string) => Promise<void>,
+): void => {
+  getProvider().registerContent?.(module, loader)
+}

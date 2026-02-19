@@ -58,6 +58,11 @@ export function useTranslation(): UseTranslationReturn {
   const currentDirection = ref<'ltr' | 'rtl'>(provider.getDirection())
   const currentLocales = ref(provider.getLocales())
 
+  // Version counter incremented on every notification (including translation
+  // additions for the current locale). Reading it inside t() establishes a
+  // Vue reactive dependency so the template re-renders when translations change.
+  const translationVersion = ref(0)
+
   // Subscribe to locale changes
   let unsubscribe: (() => void) | null = null
 
@@ -66,6 +71,7 @@ export function useTranslation(): UseTranslationReturn {
       currentLocale.value = provider.getLocale()
       currentDirection.value = provider.getDirection()
       currentLocales.value = provider.getLocales()
+      translationVersion.value++
     })
   })
 
@@ -78,8 +84,11 @@ export function useTranslation(): UseTranslationReturn {
   const direction = computed(() => currentDirection.value)
   const locales = computed(() => currentLocales.value)
 
-  // Translation function (reactive - will re-render on locale change)
-  const t = (key: string, values?: InterpolationValues): string => provider.t(key, values)
+  // Translation function (reactive - will re-render on locale or translation change)
+  const t = (key: string, values?: InterpolationValues): string => {
+    void translationVersion.value
+    return provider.t(key, values)
+  }
 
   // Actions
   const setLocale: I18nProvider['setLocale'] = (locale) => provider.setLocale(locale)

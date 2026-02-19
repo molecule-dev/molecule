@@ -181,8 +181,10 @@ const updatePropsSchema: z.ZodObject<{ data: z.ZodOptional<z.ZodOptional<z.ZodRe
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-payment` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
+- `@molecule/api-payments` ^1.0.0
 - `@molecule/api-resource` ^1.0.0

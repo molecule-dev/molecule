@@ -74,6 +74,7 @@ Implements `@molecule/api-ai` interface.
 
 Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
+- `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
 ### Environment Variables

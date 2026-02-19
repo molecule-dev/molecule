@@ -442,7 +442,8 @@ describe('I18n stores', () => {
     const { createI18nStoresFromProvider } = await getI18nModule()
     const result = createI18nStoresFromProvider(mockI18nProvider)
 
-    const translated = result.t('hello.world', { name: 'Test' })
+    const tFn = getValue(result.t)
+    const translated = tFn('hello.world', { name: 'Test' })
     expect(mockI18nProvider.t).toHaveBeenCalledWith('hello.world', { name: 'Test' })
     expect(translated).toBe('translated:hello.world')
   })

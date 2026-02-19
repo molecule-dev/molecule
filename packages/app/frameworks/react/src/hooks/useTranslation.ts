@@ -62,12 +62,16 @@ export function useTranslation(): UseTranslationResult {
   const [locale, setLocaleState] = useState(() => provider.getLocale())
   const [direction, setDirection] = useState(() => provider.getDirection())
   const [locales, setLocales] = useState(() => provider.getLocales())
+  const [, forceUpdate] = useState({})
 
   useEffect(() => {
     const unsubscribe = provider.onLocaleChange(() => {
       setLocaleState(provider.getLocale())
       setDirection(provider.getDirection())
       setLocales(provider.getLocales())
+      // Force re-render even when locale string is unchanged (e.g. when
+      // addTranslations adds new keys for the current locale).
+      forceUpdate({})
     })
     return unsubscribe
   }, [provider])

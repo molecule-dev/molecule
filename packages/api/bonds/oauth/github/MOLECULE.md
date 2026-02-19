@@ -96,6 +96,7 @@ Implements `@molecule/api-oauth` interface.
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-bond` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-oauth` ^1.0.0
 

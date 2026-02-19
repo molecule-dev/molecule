@@ -294,6 +294,7 @@ const socialUrls: { readonly twitter: (text: string, url?: string) => string; re
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+- `@molecule/app-i18n` ^1.0.0
 
 ## Translations
 

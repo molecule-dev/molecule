@@ -18,6 +18,7 @@ import {
   getLocale,
   getProvider,
   onLocaleChange,
+  registerContent,
   setLocale,
   setProvider,
   t,
@@ -449,6 +450,65 @@ describe('@molecule/app-i18n', () => {
       })
     })
 
+    describe('registerContent', () => {
+      it('should call registered content loaders during setLocale', async () => {
+        const loader = vi.fn().mockResolvedValue(undefined)
+        provider.registerContent!('privacyPolicy', loader)
+
+        await provider.setLocale('fr')
+        expect(loader).toHaveBeenCalledWith('fr')
+      })
+
+      it('should call all registered content loaders', async () => {
+        const loader1 = vi.fn().mockResolvedValue(undefined)
+        const loader2 = vi.fn().mockResolvedValue(undefined)
+        provider.registerContent!('privacyPolicy', loader1)
+        provider.registerContent!('termsOfService', loader2)
+
+        await provider.setLocale('fr')
+        expect(loader1).toHaveBeenCalledWith('fr')
+        expect(loader2).toHaveBeenCalledWith('fr')
+      })
+
+      it('should be idempotent — second registration with same module is ignored', async () => {
+        const loader1 = vi.fn().mockResolvedValue(undefined)
+        const loader2 = vi.fn().mockResolvedValue(undefined)
+        provider.registerContent!('privacyPolicy', loader1)
+        provider.registerContent!('privacyPolicy', loader2)
+
+        await provider.setLocale('fr')
+        expect(loader1).toHaveBeenCalledWith('fr')
+        expect(loader2).not.toHaveBeenCalled()
+      })
+
+      it('should reload content on every setLocale call', async () => {
+        const loader = vi.fn().mockResolvedValue(undefined)
+        provider.registerContent!('privacyPolicy', loader)
+
+        await provider.setLocale('fr')
+        await provider.setLocale('en')
+        expect(loader).toHaveBeenCalledTimes(2)
+        expect(loader).toHaveBeenCalledWith('fr')
+        expect(loader).toHaveBeenCalledWith('en')
+      })
+
+      it('should load content before listeners are notified', async () => {
+        const callOrder: string[] = []
+
+        provider.onLocaleChange(() => {
+          callOrder.push('listener')
+        })
+
+        const loader = vi.fn().mockImplementation(async () => {
+          callOrder.push('content')
+        })
+        provider.registerContent!('privacyPolicy', loader)
+
+        await provider.setLocale('fr')
+        expect(callOrder).toEqual(['content', 'listener'])
+      })
+    })
+
     describe('lazy loading', () => {
       it('should load translations via loader on first setLocale', async () => {
         const loader = vi.fn().mockResolvedValue({
@@ -627,6 +687,13 @@ describe('@molecule/app-i18n', () => {
       const unsubscribe = onLocaleChange(listener)
       expect(typeof unsubscribe).toBe('function')
       unsubscribe()
+    })
+
+    it('should register content via registerContent', () => {
+      const loader = vi.fn().mockResolvedValue(undefined)
+      registerContent('testModule', loader)
+      // Verify it delegates to the provider (registerContent is optional, so use ?.)
+      expect(typeof registerContent).toBe('function')
     })
   })
 

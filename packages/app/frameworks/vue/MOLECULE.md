@@ -452,6 +452,14 @@ interface I18nProvider {
      * Registers a callback for when the provider is ready.
      */
     onReady?(callback: () => void): () => void;
+    /**
+     * Registers a lazily-loaded content module for automatic reload on locale changes.
+     * All registered content is reloaded during `setLocale()` before listeners fire,
+     * ensuring content is available on the first re-render with no flash.
+     *
+     * Idempotent: registering the same module name twice is a no-op.
+     */
+    registerContent?(module: string, loader: (locale: string) => Promise<void>): void;
 }
 ```
 
@@ -1985,19 +1993,20 @@ const ThemeKey: InjectionKey<ThemeProvider>
 
 Peer dependencies:
 - `@molecule/app-auth` ^1.0.0
+- `@molecule/app-device` ^1.0.0
 - `@molecule/app-forms` ^1.0.0
 - `@molecule/app-http` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
+- `@molecule/app-platform` ^1.0.0
+- `@molecule/app-push` ^1.0.0
 - `@molecule/app-routing` ^1.0.0
 - `@molecule/app-state` ^1.0.0
 - `@molecule/app-storage` ^1.0.0
 - `@molecule/app-theme` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
+- `@molecule/app-utilities` ^1.0.0
 - `@molecule/app-version` ^1.0.0
-- `@molecule/app-device` ^1.0.0
-- `@molecule/app-platform` ^1.0.0
-- `@molecule/app-push` ^1.0.0
 - `vue` ^3.4.0
 
 ## Translations

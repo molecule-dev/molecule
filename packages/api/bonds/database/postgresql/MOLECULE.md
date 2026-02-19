@@ -84,6 +84,7 @@ Implements `@molecule/api-database` interface.
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 
 ### Environment Variables

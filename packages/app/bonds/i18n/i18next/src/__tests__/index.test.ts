@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Mock i18next before importing modules
+// Mock i18next before importing modules.
+// NOTE: `listeners` and `resources` are module-level state shared across all
+// tests. `vi.clearAllMocks()` resets call history but NOT these structures, so
+// event handlers from earlier tests accumulate. Use relative ordering assertions
+// (indexOf) rather than exact array equality when testing listener call order.
 vi.mock('i18next', () => {
   const listeners = new Map<string, Set<(...args: unknown[]) => void>>()
   let currentLanguage = 'en'
@@ -396,6 +400,22 @@ describe('@molecule/app-i18n-i18next', () => {
         expect(english?.translations!.greeting).toBe('Hello')
         expect(english?.translations!.anotherKey).toBe('Another value')
       })
+
+      it('should notify listeners when translations are added for the current locale', () => {
+        const listener = vi.fn()
+        testProvider.onLocaleChange(listener)
+
+        testProvider.addTranslations('en', { content: 'New content' })
+        expect(listener).toHaveBeenCalledWith('en')
+      })
+
+      it('should not notify listeners when translations are added for a different locale', () => {
+        const listener = vi.fn()
+        testProvider.onLocaleChange(listener)
+
+        testProvider.addTranslations('fr', { content: 'Contenu' })
+        expect(listener).not.toHaveBeenCalled()
+      })
     })
 
     describe('t (translate)', () => {
@@ -632,6 +652,68 @@ describe('@molecule/app-i18n-i18next', () => {
         await testProvider.setLocale('fr')
         expect(listener1).toHaveBeenCalledWith('fr')
         expect(listener2).toHaveBeenCalledWith('fr')
+      })
+    })
+
+    describe('registerContent', () => {
+      it('should call registered content loaders during setLocale', async () => {
+        const loader = vi.fn().mockResolvedValue(undefined)
+        testProvider.registerContent('privacyPolicy', loader)
+
+        await testProvider.setLocale('fr')
+        expect(loader).toHaveBeenCalledWith('fr')
+      })
+
+      it('should call all registered content loaders', async () => {
+        const loader1 = vi.fn().mockResolvedValue(undefined)
+        const loader2 = vi.fn().mockResolvedValue(undefined)
+        testProvider.registerContent('privacyPolicy', loader1)
+        testProvider.registerContent('termsOfService', loader2)
+
+        await testProvider.setLocale('fr')
+        expect(loader1).toHaveBeenCalledWith('fr')
+        expect(loader2).toHaveBeenCalledWith('fr')
+      })
+
+      it('should be idempotent — second registration with same module is ignored', async () => {
+        const loader1 = vi.fn().mockResolvedValue(undefined)
+        const loader2 = vi.fn().mockResolvedValue(undefined)
+        testProvider.registerContent('privacyPolicy', loader1)
+        testProvider.registerContent('privacyPolicy', loader2)
+
+        await testProvider.setLocale('fr')
+        expect(loader1).toHaveBeenCalledWith('fr')
+        expect(loader2).not.toHaveBeenCalled()
+      })
+
+      it('should reload content on every setLocale call', async () => {
+        const loader = vi.fn().mockResolvedValue(undefined)
+        testProvider.registerContent('privacyPolicy', loader)
+
+        await testProvider.setLocale('fr')
+        await testProvider.setLocale('en')
+        expect(loader).toHaveBeenCalledTimes(2)
+        expect(loader).toHaveBeenCalledWith('fr')
+        expect(loader).toHaveBeenCalledWith('en')
+      })
+
+      it('should load content before changeLanguage fires', async () => {
+        const callOrder: string[] = []
+
+        // Track when onLocaleChange listener fires (triggered by changeLanguage)
+        testProvider.onLocaleChange(() => {
+          callOrder.push('listener')
+        })
+
+        // Track when content loader is called
+        const loader = vi.fn().mockImplementation(async () => {
+          callOrder.push('content')
+        })
+        testProvider.registerContent('privacyPolicy', loader)
+
+        await testProvider.setLocale('fr')
+        // Content must be loaded before any listener fires
+        expect(callOrder.indexOf('content')).toBeLessThan(callOrder.indexOf('listener'))
       })
     })
 

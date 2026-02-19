@@ -4,7 +4,7 @@
  * @module
  */
 
-import { type Readable, readable } from 'svelte/store'
+import { derived, type Readable, readable } from 'svelte/store'
 
 import type {
   DateFormatOptions,
@@ -23,8 +23,8 @@ interface I18nStores {
   locale: Readable<string>
   direction: Readable<'ltr' | 'rtl'>
   locales: Readable<LocaleConfig[]>
-  t: (key: string, values?: InterpolationValues) => string
-  setLocale: (code: string) => void
+  t: Readable<(key: string, values?: InterpolationValues) => string>
+  setLocale: (code: string) => Promise<void>
   formatNumber: (value: number, options?: NumberFormatOptions) => string
   formatDate: (value: Date | number | string, options?: DateFormatOptions) => string
 }
@@ -53,62 +53,25 @@ interface I18nStores {
 export function createI18nStores(): I18nStores {
   const provider = getI18nProvider()
 
-  // Locale store
-  const locale: Readable<string> = readable(
-    provider.getLocale(),
-    (set: (value: string) => void) => {
-      return provider.onLocaleChange(() => {
-        set(provider.getLocale())
-      })
-    },
-  )
-
-  // Direction store
-  const direction: Readable<'ltr' | 'rtl'> = readable(
-    provider.getDirection(),
-    (set: (value: 'ltr' | 'rtl') => void) => {
-      return provider.onLocaleChange(() => {
-        set(provider.getDirection())
-      })
-    },
-  )
-
-  // Locales store
-  const locales: Readable<LocaleConfig[]> = readable(
-    provider.getLocales(),
-    (set: (value: LocaleConfig[]) => void) => {
-      return provider.onLocaleChange(() => {
-        set(provider.getLocales())
-      })
-    },
-  )
-
-  // Translation function (not a store, but reactive when locale changes)
-  const t = (key: string, values?: InterpolationValues): string => {
-    return provider.t(key, values)
-  }
-
-  // Actions
-  const setLocale = (code: string): void => {
-    provider.setLocale(code)
-  }
-
-  const formatNumber = (value: number, options?: NumberFormatOptions): string => {
-    return provider.formatNumber(value, options)
-  }
-
-  const formatDate = (value: Date | number | string, options?: DateFormatOptions): string => {
-    return provider.formatDate(value, options)
-  }
+  // Internal version counter — bumps on every locale or translation change
+  const _version: Readable<number> = readable(0, (set) => {
+    let v = 0
+    return provider.onLocaleChange(() => set(++v))
+  })
 
   return {
-    locale,
-    direction,
-    locales,
-    t,
-    setLocale,
-    formatNumber,
-    formatDate,
+    locale: derived(_version, () => provider.getLocale()),
+    direction: derived(_version, () => provider.getDirection()),
+    locales: derived(_version, () => provider.getLocales()),
+    t: derived(
+      _version,
+      () => (key: string, values?: InterpolationValues) => provider.t(key, values),
+    ),
+    setLocale: (code: string) => provider.setLocale(code),
+    formatNumber: (value: number, options?: NumberFormatOptions) =>
+      provider.formatNumber(value, options),
+    formatDate: (value: Date | number | string, options?: DateFormatOptions) =>
+      provider.formatDate(value, options),
   }
 }
 
@@ -119,25 +82,19 @@ export function createI18nStores(): I18nStores {
  * @returns I18n stores and actions
  */
 export function createI18nStoresFromProvider(provider: I18nProvider): I18nStores {
-  const locale: Readable<string> = readable(
-    provider.getLocale(),
-    (set: (value: string) => void) => {
-      return provider.onLocaleChange(() => set(provider.getLocale()))
-    },
-  )
-
-  const direction: Readable<'ltr' | 'rtl'> = readable(
-    provider.getDirection(),
-    (set: (value: 'ltr' | 'rtl') => void) => {
-      return provider.onLocaleChange(() => set(provider.getDirection()))
-    },
-  )
+  const _version: Readable<number> = readable(0, (set) => {
+    let v = 0
+    return provider.onLocaleChange(() => set(++v))
+  })
 
   return {
-    locale,
-    direction,
-    locales: readable(provider.getLocales()),
-    t: (key: string, values?: InterpolationValues) => provider.t(key, values),
+    locale: derived(_version, () => provider.getLocale()),
+    direction: derived(_version, () => provider.getDirection()),
+    locales: derived(_version, () => provider.getLocales()),
+    t: derived(
+      _version,
+      () => (key: string, values?: InterpolationValues) => provider.t(key, values),
+    ),
     setLocale: (code: string) => provider.setLocale(code),
     formatNumber: (value: number, options?: NumberFormatOptions) =>
       provider.formatNumber(value, options),

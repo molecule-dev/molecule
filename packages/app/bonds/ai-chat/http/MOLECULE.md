@@ -67,3 +67,4 @@ Implements `@molecule/app-ai-chat` interface.
 
 Peer dependencies:
 - `@molecule/app-ai-chat` ^1.0.0
+- `@molecule/app-i18n` ^1.0.0

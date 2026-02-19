@@ -152,6 +152,15 @@ interface I18nProvider {
    * Registers a callback for when the provider is ready.
    */
   onReady?(callback: () => void): () => void
+
+  /**
+   * Registers a lazily-loaded content module for automatic reload on locale changes.
+   * All registered content is reloaded during `setLocale()` before listeners fire,
+   * ensuring content is available on the first re-render with no flash.
+   *
+   * Idempotent: registering the same module name twice is a no-op.
+   */
+  registerContent?(module: string, loader: (locale: string) => Promise<void>): void
 }
 ```
 
@@ -462,6 +471,18 @@ function onLocaleChange(listener: (locale: string) => void): () => void
 - `listener` — Callback invoked with the new locale code.
 
 **Returns:** An unsubscribe function.
+
+#### `registerContent(module, loader)`
+
+Registers a lazily-loaded content module for automatic reload on locale changes.
+All registered content is reloaded during `setLocale()` before listeners fire.
+
+```typescript
+function registerContent(module: string, loader: (locale: string) => Promise<void>): void
+```
+
+- `module` — Unique content module identifier (e.g. `'privacyPolicy'`).
+- `loader` — Function that loads and merges translations for a given locale.
 
 #### `registerLocaleModule(moduleExports)`
 
