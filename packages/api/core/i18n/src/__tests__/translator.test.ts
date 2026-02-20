@@ -68,6 +68,18 @@ describe('@molecule/api-i18n', () => {
       addTranslations('en', { count: 'You have {{count}} items' })
       expect(t('count', { count: 42 })).toBe('You have 42 items')
     })
+
+    it('should interpolate variables in defaultValue fallback', () => {
+      expect(
+        t(
+          'missing.key',
+          { name: 'Alice', count: 3 },
+          {
+            defaultValue: 'Hello {{name}}, you have {{count}} items',
+          },
+        ),
+      ).toBe('Hello Alice, you have 3 items')
+    })
   })
 
   describe('addTranslations', () => {

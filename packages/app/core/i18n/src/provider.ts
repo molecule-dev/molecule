@@ -130,7 +130,8 @@ export const createSimpleI18nProvider = (
     ): string {
       const config = locales.get(currentLocale)
       if (!config) {
-        return options?.defaultValue || key
+        const fallback = options?.defaultValue || key
+        return values ? interpolate(fallback, values) : fallback
       }
 
       let text = getNestedValue(config.translations ?? {}, key)
@@ -147,7 +148,10 @@ export const createSimpleI18nProvider = (
         if (!options?.defaultValue) {
           logger.debug('Missing translation key', key, currentLocale)
         }
-        return options?.defaultValue || key
+        const fallback = options?.defaultValue || key
+        const allValues =
+          options?.count !== undefined ? { count: options.count, ...values } : values
+        return allValues ? interpolate(fallback, allValues) : fallback
       }
 
       // Add count to values for interpolation

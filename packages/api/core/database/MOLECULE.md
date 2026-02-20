@@ -593,6 +593,7 @@ function updateMany(table: string, where: WhereCondition[], data: Record<string,
 |----------|---------|
 | MySQL | `@molecule/api-database-mysql` |
 | PostgreSQL | `@molecule/api-database-postgresql` |
+| SQLite | `@molecule/api-database-sqlite` |
 
 ## Injection Notes
 

@@ -20,6 +20,7 @@ import type {
   NumberFormatOptions,
   Translations,
 } from './types.js'
+import { interpolate } from './utilities.js'
 
 const BOND_TYPE = 'i18n'
 
@@ -127,7 +128,8 @@ export const t = (
 ): string => {
   const provider = bondGet<I18nProvider>(BOND_TYPE)
   if (!provider) {
-    return options?.defaultValue || key
+    const fallback = options?.defaultValue || key
+    return values ? interpolate(fallback, values) : fallback
   }
   return provider.t(key, values, options)
 }
