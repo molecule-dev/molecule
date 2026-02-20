@@ -146,8 +146,7 @@ packages/
 ├── api/
 │   ├── core/           # Abstract interfaces (database, emails, cache, ai, etc.)
 │   ├── bonds/          # Provider implementations, grouped by category
-│   │   ├── database/   #   postgresql/, mysql/
-│   │   ├── emails/     #   mailgun/, sendgrid/, ses/
+│   │   ├── database/   #   e.g. postgresql/, mysql/
 │   │   └── ...
 │   ├── infrastructure/ # bond (wiring), resource (base resource)
 │   ├── resources/      # Typed resources (user, project, device, etc.)

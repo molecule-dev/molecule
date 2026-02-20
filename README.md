@@ -27,71 +27,25 @@ This pattern applies everywhere: backend services, frontend UI, state management
 
 ## Packages
 
+All packages follow the naming convention `@molecule/api-*` (backend) and `@molecule/app-*` (frontend). Browse the `packages/` directory or any package's `MOLECULE.md` for full API documentation.
+
 ### Backend (`@molecule/api-*`)
 
-**Core Interfaces** — abstract contracts with zero implementation dependencies:
+Core interfaces with swappable provider bonds for: AI, analytics, cache, code sandboxing, configuration, database, emails, HTTP, i18n, JWT, logging, OAuth, password hashing, payments, push notifications, queues, secrets management, two-factor auth, file uploads, and more.
 
-| Interface | Package | Providers |
-|-----------|---------|-----------|
-| AI | `@molecule/api-ai` | Anthropic |
-| Analytics | `@molecule/api-analytics` | Mixpanel, PostHog |
-| Cache | `@molecule/api-cache` | Redis, Memcached, Memory |
-| Code Sandbox | `@molecule/api-code-sandbox` | Docker |
-| Config | `@molecule/api-config` | Environment Variables |
-| Database | `@molecule/api-database` | PostgreSQL, MySQL |
-| Emails | `@molecule/api-emails` | Mailgun, Sendgrid, SES, Sendmail |
-| HTTP Client | `@molecule/api-http` | Axios, Fetch |
-| i18n | `@molecule/api-i18n` | Simple |
-| JWT | `@molecule/api-jwt` | jsonwebtoken |
-| Logger | `@molecule/api-logger` | Pino, Winston, Loglevel, Console |
-| OAuth | `@molecule/api-oauth` | GitHub, GitLab, Google, Twitter |
-| Password | `@molecule/api-password` | bcrypt |
-| Payments | `@molecule/api-payments` | Stripe, Apple, Google |
-| Push Notifications | `@molecule/api-push-notifications` | Web Push |
-| Queue | `@molecule/api-queue` | RabbitMQ, Redis, SQS |
-| Secrets | `@molecule/api-secrets` | Environment, Doppler |
-| Two-Factor | `@molecule/api-two-factor` | otplib |
-| Uploads | `@molecule/api-uploads` | S3, Filesystem |
-
-Plus: **5 typed resources** (user, project, device, conversation, payment), **4 middleware** packages, **infrastructure** (bond wiring, base resource), **validation**, **testing** utilities, and **24+ locale** translation packages.
+Additional package types: typed resources, middleware, infrastructure (bond wiring, base resource), validation, testing utilities, and locale translation packages.
 
 ### Frontend (`@molecule/app-*`)
 
-**Core Interfaces:**
+Core interfaces with swappable provider bonds for: AI chat, analytics, code editing, forms, HTTP, i18n, IDE, live preview, routing, state management, storage, styling, theming, UI components, and more.
 
-| Interface | Package | Providers |
-|-----------|---------|-----------|
-| AI Chat | `@molecule/app-ai-chat` | HTTP |
-| Code Editor | `@molecule/app-code-editor` | Monaco |
-| Forms | `@molecule/app-forms` | — |
-| HTTP Client | `@molecule/app-http` | Axios |
-| i18n | `@molecule/app-i18n` | i18next, react-i18next |
-| IDE | `@molecule/app-ide` | Default |
-| Live Preview | `@molecule/app-live-preview` | iframe |
-| Routing | `@molecule/app-routing` | React Router, Vue Router, Next.js |
-| State | `@molecule/app-state` | Zustand, Redux, Jotai |
-| Storage | `@molecule/app-storage` | localStorage |
-| Styling | `@molecule/app-styling` | Tailwind |
-| Theme | `@molecule/app-theme` | CSS Variables |
-| UI | `@molecule/app-ui` | Tailwind |
+**Three-layer architecture** enables full framework and library swapping:
 
-Plus: **auth**, **analytics**, **device**, **logger**, **platform**, **icons**, **fonts**, **utilities**, **version**, and more core packages.
+- **Layer 1**: Framework-agnostic interfaces (e.g., `@molecule/app-ui`)
+- **Layer 2**: Framework bindings (React, Vue, Svelte, Solid, Angular — each with hooks + UI components)
+- **Layer 3**: Library providers (e.g., ClassMap bonds for styling)
 
-**Frameworks** — each with hooks and UI bindings:
-
-| Framework | Hooks | UI Components |
-|-----------|-------|---------------|
-| React | `@molecule/app-react` | `@molecule/app-react-ui` |
-| Vue | `@molecule/app-vue` | `@molecule/app-vue-ui` |
-| Svelte | `@molecule/app-svelte` | `@molecule/app-svelte-ui` |
-| Solid | `@molecule/app-solid` | `@molecule/app-solid-ui` |
-| Angular | `@molecule/app-angular` | `@molecule/app-angular-ui` |
-
-**Features:** Charts, In-App Purchases, IDE, Maps, Rich Text, Video
-
-**Native Capabilities** (23 packages): Badge, Battery, Biometrics, Bluetooth, Brightness, Calendar, Camera, Clipboard, Contacts, Filesystem, Geolocation, Haptics, Health, Keyboard, Lifecycle, Motion, Network, NFC, Push, Screen Orientation, Share, Splash Screen, Status Bar
-
-**Locale Packages:** 70+ translation packages providing i18n support in 75+ languages.
+Additional package types: features (charts, maps, rich text, video, etc.), native device capabilities (camera, biometrics, geolocation, NFC, etc.), and locale translation packages.
 
 ## Quick Start
 
@@ -149,4 +103,4 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## License
 
-[Apache-2.0](LICENSE) — Copyright 2025 molecule.dev
+[Apache-2.0](LICENSE) — Copyright 2026 molecule.dev
