@@ -4,19 +4,29 @@
  * @module
  */
 
-import type { AsyncStorageStatic } from '@react-native-async-storage/async-storage'
-
 import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
 import type { StorageProvider } from '@molecule/app-storage'
 
 import type { AsyncStorageConfig } from './types.js'
 
+/** Minimal interface matching @react-native-async-storage/async-storage's API surface. */
+interface AsyncStorageAPI {
+  getItem(key: string): Promise<string | null>
+  setItem(key: string, value: string): Promise<void>
+  removeItem(key: string): Promise<void>
+  getAllKeys(): Promise<readonly string[]>
+  multiGet(keys: readonly string[]): Promise<readonly [string, string | null][]>
+  multiSet(pairs: readonly [string, string][]): Promise<void>
+  multiRemove(keys: readonly string[]): Promise<void>
+  clear(): Promise<void>
+}
+
 /**
  * Lazily resolved AsyncStorage instance.
  * Uses dynamic import to avoid hard compile-time dependency on the React Native runtime.
  */
-let resolvedAsyncStorage: AsyncStorageStatic | undefined
+let resolvedAsyncStorage: AsyncStorageAPI | undefined
 
 /**
  * Gets the AsyncStorage instance, importing it lazily on first use.
@@ -24,16 +34,20 @@ let resolvedAsyncStorage: AsyncStorageStatic | undefined
  * @returns The AsyncStorage instance.
  * @throws {Error} If `@react-native-async-storage/async-storage` is not installed.
  */
-async function getAsyncStorage(): Promise<AsyncStorageStatic> {
+async function getAsyncStorage(): Promise<AsyncStorageAPI> {
   if (resolvedAsyncStorage) {
     return resolvedAsyncStorage
   }
 
   try {
-    // Dynamic import returns the module namespace; `.default` holds the AsyncStorageStatic instance.
+    // Dynamic import returns the module namespace; `.default` holds the AsyncStorage instance.
     // CJS interop may nest the default export, so we resolve both shapes.
-    const mod = await import('@react-native-async-storage/async-storage')
-    const storage = (mod.default ?? mod) as unknown as AsyncStorageStatic
+    // @ts-expect-error — runtime-only RN dependency, not available at compile time
+    const mod = (await import('@react-native-async-storage/async-storage')) as Record<
+      string,
+      unknown
+    >
+    const storage = (mod.default ?? mod) as AsyncStorageAPI
     resolvedAsyncStorage = storage
     return storage
   } catch {
