@@ -81,7 +81,7 @@ function serializeEnvFile(values: Record<string, string>): string {
  */
 export interface EnvProviderOptions {
   /**
-   * Path to the .env file.
+   * Path to the .env file. Ignored when `layers` is provided.
    * @default '.env'
    */
   path?: string
@@ -97,6 +97,19 @@ export interface EnvProviderOptions {
    * @default false
    */
   override?: boolean
+
+  /**
+   * Array of `.env` file paths to load in order. Later files override
+   * earlier ones. When provided, `path` is ignored.
+   *
+   * @example
+   * ```typescript
+   * createEnvProvider({
+   *   layers: ['.env', '.env.staging', '.env.staging.feat-login'],
+   * })
+   * ```
+   */
+  layers?: string[]
 }
 
 /**
@@ -106,26 +119,34 @@ export interface EnvProviderOptions {
  * @returns A `SecretsProvider` backed by `.env` files and `process.env`.
  */
 export function createEnvProvider(options: EnvProviderOptions = {}): SecretsProvider {
-  const envPath = options.path ?? '.env'
+  const layers = options.layers ?? [options.path ?? '.env']
+  const envPath = layers[layers.length - 1]
   const override = options.override ?? false
 
   let envFileCache: Record<string, string> | null = null
   let loaded = false
 
   /**
-   * Loads and caches the `.env` file contents. Returns the cached result on subsequent calls.
-   * @returns The parsed key-value pairs from the `.env` file, or an empty record if the file doesn't exist.
+   * Loads and caches the merged `.env` file contents from all layers.
+   * Later layers override earlier ones. Returns the cached result on subsequent calls.
+   * @returns The merged key-value pairs from all `.env` layers, or an empty record if none exist.
    */
   async function loadEnvFile(): Promise<Record<string, string>> {
     if (envFileCache !== null) return envFileCache
 
-    try {
-      const content = await readFile(envPath, 'utf-8')
-      envFileCache = parseEnvFile(content)
-    } catch {
-      envFileCache = {}
+    const merged: Record<string, string> = {}
+
+    for (const layerPath of layers) {
+      try {
+        const content = await readFile(layerPath, 'utf-8')
+        const parsed = parseEnvFile(content)
+        Object.assign(merged, parsed)
+      } catch {
+        // Layer file doesn't exist — skip silently
+      }
     }
 
+    envFileCache = merged
     return envFileCache
   }
 

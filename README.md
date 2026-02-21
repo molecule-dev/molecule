@@ -166,6 +166,8 @@ Also:
 - Infrastructure
 - Validation
 - Testing utilities
+- CI/CD (GitHub Actions workflow generation)
+- Staging (ephemeral branch-per-feature environments with Docker Compose)
 - Locale packages
 
 ### Frontend (`@molecule/app-*`)

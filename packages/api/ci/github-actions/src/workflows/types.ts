@@ -32,6 +32,7 @@ export interface WorkflowTrigger {
     >
   }
   schedule?: Array<{ cron: string }>
+  delete?: Record<string, never>
 }
 
 /**

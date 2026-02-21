@@ -154,6 +154,7 @@ packages/
 │   ├── utilities/      # Validation, JWT, password, etc.
 │   ├── testing/        # Mock implementations and test helpers
 │   ├── ci/             # CI integration packages
+│   ├── staging/        # Staging driver implementations
 │   └── locales/        # i18n translation packages
 ├── app/
 │   ├── core/           # Abstract interfaces (ui, routing, state, etc.)

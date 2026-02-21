@@ -55,6 +55,28 @@ export const commonSteps = {
       'restore-keys': '${{ runner.os }}-node-',
     },
   }),
+
+  /**
+   * Step that deploys a staging environment for the current branch.
+   *
+   * @param driver - Staging driver to use (default: `'docker-compose'`).
+   * @returns A workflow step that runs `npx mlcl stage up`.
+   */
+  stageUp: (driver?: string): WorkflowStep => ({
+    name: 'Deploy staging environment',
+    run: `npx mlcl stage up --branch \${{ github.ref_name }}${driver ? ` --driver ${driver}` : ''}`,
+  }),
+
+  /**
+   * Step that tears down a staging environment.
+   *
+   * @returns A workflow step that runs `npx mlcl stage down --force`.
+   */
+  stageDown: (): WorkflowStep => ({
+    name: 'Tear down staging environment',
+    run: 'npx mlcl stage down --branch ${{ github.head_ref || github.event.ref }} --force',
+    'continue-on-error': true,
+  }),
 }
 
 /**
@@ -200,6 +222,87 @@ export const workflows = {
             name: 'Run integration tests',
             run: 'npm run test:integration',
           },
+        ],
+      },
+    },
+  }),
+
+  /**
+   * Staging deploy workflow triggered on pushes to non-main branches.
+   * Builds the project and deploys an ephemeral staging environment.
+   * Uses concurrency groups to cancel outdated deployments.
+   *
+   * @param options - Optional driver and branch filtering.
+   * @returns A workflow config for ephemeral staging deployment.
+   */
+  stagingDeploy: (options?: { driver?: string; excludeBranches?: string[] }): WorkflowConfig => ({
+    name: 'Staging Deploy',
+    on: {
+      push: {
+        branches: ['**'],
+        'paths-ignore': ['docs/**', '*.md'],
+      },
+    },
+    concurrency: {
+      group: 'staging-${{ github.ref_name }}',
+      'cancel-in-progress': true,
+    },
+    jobs: {
+      deploy: {
+        'runs-on': 'ubuntu-latest',
+        if: "github.ref != 'refs/heads/main'",
+        steps: [
+          commonSteps.checkout(),
+          commonSteps.setupNode(),
+          commonSteps.npmInstall(),
+          commonSteps.npmBuild(),
+          commonSteps.stageUp(options?.driver),
+          {
+            name: 'Comment PR with staging URL',
+            if: "github.event_name == 'pull_request'",
+            uses: 'actions/github-script@v7',
+            with: {
+              script: [
+                "const fs = require('fs');",
+                'try {',
+                "  const state = JSON.parse(fs.readFileSync('.molecule/staging.json', 'utf-8'));",
+                "  const slug = process.env.GITHUB_REF_NAME.replace(/[^a-z0-9-]/gi, '-').toLowerCase();",
+                '  const env = state.environments[slug];',
+                '  if (env) {',
+                "    const body = `## Staging Environment\\n\\n- API: ${env.urls.api || 'N/A'}\\n- App: ${env.urls.app || 'N/A'}`;",
+                '    await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });',
+                '  }',
+                "} catch (e) { console.log('No staging state found'); }",
+              ].join('\n'),
+            },
+          },
+        ],
+      },
+    },
+  }),
+
+  /**
+   * Staging teardown workflow triggered on PR close and branch deletion.
+   * Cleans up the ephemeral staging environment for the closed/deleted branch.
+   *
+   * @returns A workflow config for staging environment teardown.
+   */
+  stagingTeardown: (): WorkflowConfig => ({
+    name: 'Staging Teardown',
+    on: {
+      pull_request: {
+        types: ['closed'],
+      },
+      delete: {},
+    },
+    jobs: {
+      teardown: {
+        'runs-on': 'ubuntu-latest',
+        steps: [
+          commonSteps.checkout(),
+          commonSteps.setupNode(),
+          commonSteps.npmInstall(),
+          commonSteps.stageDown(),
         ],
       },
     },
