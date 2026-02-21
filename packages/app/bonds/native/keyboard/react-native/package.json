@@ -1,0 +1,56 @@
+{
+  "name": "@molecule/app-keyboard-react-native",
+  "version": "1.0.0",
+  "description": "React Native keyboard provider for molecule.dev (Keyboard API)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "keyboard",
+    "react-native"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@molecule/app-i18n": "1.0.0",
+    "@molecule/app-keyboard": "1.0.0",
+    "@molecule/app-logger": "1.0.0",
+    "@types/node": "25.2.3",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "@molecule/app-i18n": "^1.0.0",
+    "@molecule/app-keyboard": "^1.0.0",
+    "@molecule/app-logger": "^1.0.0",
+    "react-native": ">=0.72.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/app-i18n": {
+      "optional": true
+    },
+    "@molecule/app-keyboard": {
+      "optional": true
+    },
+    "@molecule/app-logger": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
+  }
+}

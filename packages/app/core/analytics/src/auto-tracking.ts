@@ -1,13 +1,18 @@
 /**
- * Automatic analytics tracking for auth, routing, and HTTP events.
+ * Automatic analytics tracking for auth, routing, HTTP, and mobile events.
  *
  * Uses minimal interfaces so there's no hard dependency on
- * `@molecule/app-auth`, `@molecule/app-routing`, or `@molecule/app-http`.
+ * `@molecule/app-auth`, `@molecule/app-routing`, `@molecule/app-http`,
+ * `@molecule/app-lifecycle`, or `@molecule/app-push`.
  *
  * @module
  */
 
 import { getProvider } from './provider.js'
+
+// ============================================================================
+// Minimal interfaces — web
+// ============================================================================
 
 /**
  * Minimal auth event shape (mirrors `@molecule/app-auth` AuthEvent).
@@ -57,37 +62,110 @@ interface HttpClientLike {
   addErrorInterceptor(interceptor: (error: HttpErrorLike) => HttpErrorLike): () => void
 }
 
+// ============================================================================
+// Minimal interfaces — mobile
+// ============================================================================
+
 /**
- * Auto-tracking options.
+ * Minimal app state change shape (mirrors `@molecule/app-lifecycle` AppStateChange).
  */
-export interface AutoTrackingOptions {
-  authClient?: AuthClientLike
-  router?: RouterLike
-  httpClient?: HttpClientLike
+interface AppStateChangeLike {
+  current: string
+  previous: string
 }
 
 /**
- * Sets up automatic analytics tracking for auth events, route changes, and HTTP errors.
+ * Minimal lifecycle client interface for auto-tracking app foreground/background
+ * transitions and deep link opens.
+ */
+interface LifecycleClientLike {
+  onAppStateChange(listener: (change: AppStateChangeLike) => void): () => void
+  onUrlOpen(listener: (url: string) => void): () => void
+}
+
+/**
+ * Minimal push notification shape for auto-tracking.
+ */
+interface PushNotificationLike {
+  id: string
+  title: string
+}
+
+/**
+ * Minimal notification received event shape (mirrors `@molecule/app-push` NotificationReceivedEvent).
+ */
+interface NotificationReceivedEventLike {
+  notification: PushNotificationLike
+  foreground: boolean
+}
+
+/**
+ * Minimal notification action event shape (mirrors `@molecule/app-push` NotificationActionEvent).
+ */
+interface NotificationActionEventLike {
+  notification: PushNotificationLike
+  actionId?: string
+}
+
+/**
+ * Minimal push client interface for auto-tracking notification events.
+ */
+interface PushClientLike {
+  onNotificationReceived(listener: (event: NotificationReceivedEventLike) => void): () => void
+  onNotificationAction(listener: (event: NotificationActionEventLike) => void): () => void
+}
+
+// ============================================================================
+// Options
+// ============================================================================
+
+/**
+ * Auto-tracking options. Pass any combination of sources — only provided
+ * sources are tracked. Works for both web and mobile apps.
+ */
+export interface AutoTrackingOptions {
+  /** Auth client for login/logout/register/error events. */
+  authClient?: AuthClientLike
+  /** Router for page view tracking. */
+  router?: RouterLike
+  /** HTTP client for error tracking. */
+  httpClient?: HttpClientLike
+  /** Lifecycle client for app foreground/background and deep link tracking. */
+  lifecycleClient?: LifecycleClientLike
+  /** Push client for notification received/tapped tracking. */
+  pushClient?: PushClientLike
+}
+
+/**
+ * Sets up automatic analytics tracking for auth events, route changes,
+ * HTTP errors, app lifecycle transitions, push notifications, and deep links.
  * Returns a cleanup function that removes all subscriptions.
+ *
+ * Pass any combination of sources — only provided sources are tracked.
  *
  * @example
  * ```typescript
- * import { setupAutoTracking } from '`@molecule/app-analytics`'
- * import { getClient } from '`@molecule/app-auth`'
- * import { getRouter } from '`@molecule/app-routing`'
- * import { getClient as getHttp } from '`@molecule/app-http`'
- *
+ * // Web app
  * const cleanup = setupAutoTracking({
  *   authClient: getClient(),
  *   router: getRouter(),
  *   httpClient: getHttp(),
  * })
  *
+ * // Mobile app (React Native) — add lifecycle and push
+ * const cleanup = setupAutoTracking({
+ *   authClient: getClient(),
+ *   router: getRouter(),
+ *   httpClient: getHttp(),
+ *   lifecycleClient: getLifecycleProvider(),
+ *   pushClient: getPushProvider(),
+ * })
+ *
  * // Later, to remove all listeners:
  * cleanup()
  * ```
  *
- * @param options - Sources to auto-track (auth client, router, HTTP client).
+ * @param options - Sources to auto-track.
  * @returns A cleanup function that removes all event subscriptions.
  */
 export const setupAutoTracking = (options: AutoTrackingOptions): (() => void) => {
@@ -170,6 +248,69 @@ export const setupAutoTracking = (options: AutoTrackingOptions): (() => void) =>
       return error
     })
     cleanups.push(removeInterceptor)
+  }
+
+  // App lifecycle (foreground/background transitions + deep links)
+  if (options.lifecycleClient) {
+    const removeStateListener = options.lifecycleClient.onAppStateChange((change) => {
+      if (change.current === 'active' && change.previous !== 'active') {
+        analytics
+          .track({
+            name: 'app.foreground',
+            properties: { previous: change.previous },
+          })
+          .catch(() => {})
+      } else if (change.current === 'background' && change.previous !== 'background') {
+        analytics
+          .track({
+            name: 'app.background',
+            properties: { previous: change.previous },
+          })
+          .catch(() => {})
+      }
+    })
+    cleanups.push(removeStateListener)
+
+    const removeUrlListener = options.lifecycleClient.onUrlOpen((url) => {
+      analytics
+        .track({
+          name: 'deeplink.open',
+          properties: { url },
+        })
+        .catch(() => {})
+    })
+    cleanups.push(removeUrlListener)
+  }
+
+  // Push notifications (received + tapped)
+  if (options.pushClient) {
+    const removeReceivedListener = options.pushClient.onNotificationReceived((event) => {
+      analytics
+        .track({
+          name: 'push.received',
+          properties: {
+            id: event.notification.id,
+            title: event.notification.title,
+            foreground: event.foreground,
+          },
+        })
+        .catch(() => {})
+    })
+    cleanups.push(removeReceivedListener)
+
+    const removeActionListener = options.pushClient.onNotificationAction((event) => {
+      analytics
+        .track({
+          name: 'push.tapped',
+          properties: {
+            id: event.notification.id,
+            title: event.notification.title,
+            actionId: event.actionId,
+          },
+        })
+        .catch(() => {})
+    })
+    cleanups.push(removeActionListener)
   }
 
   return () => {

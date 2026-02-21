@@ -1,0 +1,56 @@
+{
+  "name": "@molecule/app-clipboard-react-native",
+  "version": "1.0.0",
+  "description": "React Native clipboard provider for molecule.dev (@react-native-clipboard/clipboard)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "clipboard",
+    "react-native"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@molecule/app-clipboard": "1.0.0",
+    "@molecule/app-i18n": "1.0.0",
+    "@molecule/app-logger": "1.0.0",
+    "@types/node": "25.2.3",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "@molecule/app-clipboard": "^1.0.0",
+    "@molecule/app-i18n": "^1.0.0",
+    "@molecule/app-logger": "^1.0.0",
+    "@react-native-clipboard/clipboard": ">=1.13.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/app-clipboard": {
+      "optional": true
+    },
+    "@molecule/app-i18n": {
+      "optional": true
+    },
+    "@molecule/app-logger": {
+      "optional": true
+    },
+    "@react-native-clipboard/clipboard": {
+      "optional": true
+    }
+  }
+}

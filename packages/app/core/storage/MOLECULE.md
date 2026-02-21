@@ -172,6 +172,7 @@ function setProvider(provider: StorageProvider): void
 
 | Provider | Package |
 |----------|---------|
+| AsyncStorage | `@molecule/app-storage-async-storage` |
 | localStorage | `@molecule/app-storage-localstorage` |
 
 ## Injection Notes

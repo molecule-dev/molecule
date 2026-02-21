@@ -77,5 +77,6 @@ Implements `@molecule/api-monitoring` interface.
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-monitoring` ^1.0.0

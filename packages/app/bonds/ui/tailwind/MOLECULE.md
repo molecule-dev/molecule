@@ -104,6 +104,22 @@ The accordion trigger base.
 const accordionTriggerBase: "w-full text-left"
 ```
 
+#### `actionSheet`
+
+Action sheet: bottom-anchored panel for pickers and action menus.
+
+```typescript
+const actionSheet: "fixed bottom-0 left-0 right-0 z-modal bg-surface rounded-t-2xl max-h-[50vh] overflow-hidden"
+```
+
+#### `actionSheetHeader`
+
+Action sheet header with bottom border.
+
+```typescript
+const actionSheetHeader: "flex-shrink-0 px-4 py-3 border-b border-border"
+```
+
 #### `alert`
 
 Alert component classes with variant support (default, info, success, warning, error).

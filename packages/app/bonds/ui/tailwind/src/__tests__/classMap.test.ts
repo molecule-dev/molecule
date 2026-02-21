@@ -379,6 +379,8 @@ describe('classMap', () => {
       'dialogTitle',
       'dialogDescription',
       'dialogClose',
+      'actionSheet',
+      'actionSheetHeader',
       'dropdownContent',
       'dropdownItem',
       'dropdownSeparator',

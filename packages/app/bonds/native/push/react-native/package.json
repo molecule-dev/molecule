@@ -1,0 +1,58 @@
+{
+  "name": "@molecule/app-push-react-native",
+  "version": "1.0.0",
+  "description": "React Native push notifications provider for molecule.dev (expo-notifications)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "push",
+    "notifications",
+    "react-native",
+    "expo-notifications"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@molecule/app-i18n": "1.0.0",
+    "@molecule/app-logger": "1.0.0",
+    "@molecule/app-push": "1.0.0",
+    "@types/node": "25.2.3",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "@molecule/app-i18n": "^1.0.0",
+    "@molecule/app-logger": "^1.0.0",
+    "@molecule/app-push": "^1.0.0",
+    "expo-notifications": ">=0.20.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/app-i18n": {
+      "optional": true
+    },
+    "@molecule/app-logger": {
+      "optional": true
+    },
+    "@molecule/app-push": {
+      "optional": true
+    },
+    "expo-notifications": {
+      "optional": true
+    }
+  }
+}

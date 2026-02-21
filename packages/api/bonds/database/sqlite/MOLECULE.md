@@ -31,6 +31,8 @@ setStore(store)
 
 #### `ProcessEnv`
 
+Environment variables consumed by the SQLite database provider.
+
 ```typescript
 interface ProcessEnv {
   SQLITE_PATH?: string
@@ -103,6 +105,8 @@ const pool: DatabasePool
 ```
 
 #### `store`
+
+Default DataStore proxy backed by the lazily-initialized default pool.
 
 ```typescript
 const store: DataStore

@@ -1,6 +1,4 @@
-import { defineProjects } from 'vitest/config'
-
-export default defineProjects([
+export default [
   // API packages
   'packages/api/core/*/vitest.config.ts',
   'packages/api/bonds/*/*/vitest.config.ts',
@@ -14,9 +12,10 @@ export default defineProjects([
   // App packages
   'packages/app/core/*/vitest.config.ts',
   'packages/app/bonds/*/*/vitest.config.ts',
+  'packages/app/bonds/native/*/*/vitest.config.ts',
   'packages/app/features/*/vitest.config.ts',
   'packages/app/native/*/vitest.config.ts',
 
   // App framework packages
   'packages/app/frameworks/*/vitest.config.ts',
-])
+]

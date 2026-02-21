@@ -158,6 +158,7 @@ interface WorkflowTrigger {
     >
   }
   schedule?: Array<{ cron: string }>
+  delete?: Record<string, never>
 }
 ```
 
@@ -209,7 +210,7 @@ Reusable step factory functions for common CI operations. Each method
 returns a `WorkflowStep` that can be included in any workflow job's `steps` array.
 
 ```typescript
-const commonSteps: { checkout: (options?: { "fetch-depth"?: number; }) => WorkflowStep; setupNode: (version?: string) => WorkflowStep; npmInstall: () => WorkflowStep; npmBuild: () => WorkflowStep; npmTest: () => WorkflowStep; npmLint: () => WorkflowStep; cacheNodeModules: () => WorkflowStep; }
+const commonSteps: { checkout: (options?: { "fetch-depth"?: number; }) => WorkflowStep; setupNode: (version?: string) => WorkflowStep; npmInstall: () => WorkflowStep; npmBuild: () => WorkflowStep; npmTest: () => WorkflowStep; npmLint: () => WorkflowStep; cacheNodeModules: () => WorkflowStep; stageUp: (driver?: string) => WorkflowStep; stageDown: () => WorkflowStep; }
 ```
 
 #### `workflows`
@@ -218,5 +219,5 @@ Pre-built workflow template factories. Each method returns a complete
 `WorkflowConfig` ready to pass to `generateWorkflow()` and write to disk.
 
 ```typescript
-const workflows: { ci: () => WorkflowConfig; ciMatrix: (nodeVersions?: string[]) => WorkflowConfig; release: () => WorkflowConfig; integrationTests: () => WorkflowConfig; }
+const workflows: { ci: () => WorkflowConfig; ciMatrix: (nodeVersions?: string[]) => WorkflowConfig; release: () => WorkflowConfig; integrationTests: () => WorkflowConfig; stagingDeploy: (options?: { driver?: string; excludeBranches?: string[]; }) => WorkflowConfig; stagingTeardown: () => WorkflowConfig; }
 ```

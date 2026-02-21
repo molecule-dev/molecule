@@ -115,8 +115,8 @@ Nothing proprietary. Same tools and processes professional teams already use:
 - **npm workspaces** — monorepo, `npm install` from root
 - **ESM** — `.js` extensions, no CommonJS
 - **Express** — API layer, with framework abstraction
-- **Any frontend framework** — React, Vue, Svelte, Solid, Angular, and more
-- **Vite** — frontend builds with HMR
+- **Any frontend framework** — React, Vue, Svelte, Solid, Angular, React Native, and more
+- **Vite** — frontend builds with HMR (Metro for React Native)
 - **Vitest** — testing, per-package test suites
 - **ESLint + Prettier** — automated code style
 - **Husky** — pre-commit hooks
@@ -200,7 +200,7 @@ Core interfaces + provider bonds for:
 
 Also:
 
-- Framework bindings for every major frontend framework
+- Framework bindings for every major frontend framework (including React Native for mobile)
 - Features (charts, maps, rich text, video)
 - Native device capabilities (camera, biometrics, geolocation, NFC)
 - Locale translations in dozens of languages

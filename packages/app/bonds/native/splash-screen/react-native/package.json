@@ -1,0 +1,57 @@
+{
+  "name": "@molecule/app-splash-screen-react-native",
+  "version": "1.0.0",
+  "description": "React Native splash screen provider for molecule.dev (expo-splash-screen)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "splash-screen",
+    "react-native",
+    "expo-splash-screen"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@molecule/app-i18n": "1.0.0",
+    "@molecule/app-logger": "1.0.0",
+    "@molecule/app-splash-screen": "1.0.0",
+    "@types/node": "25.2.3",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "@molecule/app-i18n": "^1.0.0",
+    "@molecule/app-logger": "^1.0.0",
+    "@molecule/app-splash-screen": "^1.0.0",
+    "expo-splash-screen": ">=0.20.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/app-i18n": {
+      "optional": true
+    },
+    "@molecule/app-logger": {
+      "optional": true
+    },
+    "@molecule/app-splash-screen": {
+      "optional": true
+    },
+    "expo-splash-screen": {
+      "optional": true
+    }
+  }
+}

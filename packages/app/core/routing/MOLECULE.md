@@ -501,6 +501,7 @@ function stringifyQuery(params: QueryParams): string
 | Provider | Package |
 |----------|---------|
 | Next.js | `@molecule/app-routing-next` |
+| React Navigation | `@molecule/app-routing-react-navigation` |
 | React Router | `@molecule/app-routing-react-router` |
 | Vue Router | `@molecule/app-routing-vue-router` |
 

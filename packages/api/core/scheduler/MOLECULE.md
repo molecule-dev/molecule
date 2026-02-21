@@ -114,6 +114,16 @@ interface TaskStatus {
   isRunning: boolean
   /** Error message from the last failed execution, if any. */
   lastError: string | null
+  /** Duration in milliseconds of the last execution, or null if not yet run. */
+  durationMs: number | null
+  /** Total number of completed executions (both success and failure). */
+  totalRuns: number
+  /** Total number of failed executions. */
+  totalFailures: number
+  /** ISO 8601 timestamp of the last successful execution, or null. */
+  lastSuccessAt: string | null
+  /** Whether this task is enabled. */
+  enabled: boolean
 }
 ```
 
@@ -126,6 +136,8 @@ Returns the runtime status of all scheduled tasks.
 ```typescript
 function getAllStatuses(): TaskStatus[]
 ```
+
+**Returns:** An array of TaskStatus for every registered task.
 
 #### `getOptionalProvider()`
 

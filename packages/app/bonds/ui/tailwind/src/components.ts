@@ -379,6 +379,12 @@ export const dialogWrapper = 'fixed inset-0 z-modal flex items-center justify-ce
  */
 export const dialogBody = 'flex-1 min-h-0 overflow-y-auto pl-6 py-6 *:pr-6'
 
+/** Action sheet: bottom-anchored panel for pickers and action menus. */
+export const actionSheet =
+  'fixed bottom-0 left-0 right-0 z-modal bg-surface rounded-t-2xl max-h-[50vh] overflow-hidden'
+/** Action sheet header with bottom border. */
+export const actionSheetHeader = 'flex-shrink-0 px-4 py-3 border-b border-border'
+
 /** Dropdown menu content container classes. */
 export const dropdownContent =
   'z-dropdown min-w-[8rem] overflow-hidden rounded-md border bg-surface p-1 text-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95'

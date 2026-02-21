@@ -123,13 +123,21 @@ interface AnalyticsUserProps {
 
 #### `AutoTrackingOptions`
 
-Auto-tracking options.
+Auto-tracking options. Pass any combination of sources — only provided
+sources are tracked. Works for both web and mobile apps.
 
 ```typescript
 interface AutoTrackingOptions {
+  /** Auth client for login/logout/register/error events. */
   authClient?: AuthClientLike
+  /** Router for page view tracking. */
   router?: RouterLike
+  /** HTTP client for error tracking. */
   httpClient?: HttpClientLike
+  /** Lifecycle client for app foreground/background and deep link tracking. */
+  lifecycleClient?: LifecycleClientLike
+  /** Push client for notification received/tapped tracking. */
+  pushClient?: PushClientLike
 }
 ```
 
@@ -225,14 +233,17 @@ function setProvider(provider: AnalyticsProvider): void
 
 #### `setupAutoTracking(options)`
 
-Sets up automatic analytics tracking for auth events, route changes, and HTTP errors.
+Sets up automatic analytics tracking for auth events, route changes,
+HTTP errors, app lifecycle transitions, push notifications, and deep links.
 Returns a cleanup function that removes all subscriptions.
+
+Pass any combination of sources — only provided sources are tracked.
 
 ```typescript
 function setupAutoTracking(options: AutoTrackingOptions): () => void
 ```
 
-- `options` — Sources to auto-track (auth client, router, HTTP client).
+- `options` — Sources to auto-track.
 
 **Returns:** A cleanup function that removes all event subscriptions.
 

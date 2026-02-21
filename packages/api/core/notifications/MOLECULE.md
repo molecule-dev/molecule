@@ -56,6 +56,10 @@ interface NotificationResult {
   success: boolean
   /** Error message if the send failed. */
   error?: string
+  /** Channel name this result came from (populated by notifyAll). */
+  channel?: string
+  /** ISO 8601 timestamp of the send attempt (populated by notifyAll). */
+  sentAt?: string
 }
 ```
 

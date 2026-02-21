@@ -1919,6 +1919,10 @@ export interface UIClassMap {
   dialogWrapper: string
   /** Modal scrollable body area with padding. */
   dialogBody: string
+  /** Bottom-anchored sheet panel for pickers and action menus (mobile pattern). */
+  actionSheet: string
+  /** Header section of an action sheet with bottom border. */
+  actionSheetHeader: string
   dropdownContent: string
   dropdownItem: string
   dropdownSeparator: string

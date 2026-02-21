@@ -55,7 +55,10 @@ interface StatusDashboardProvider {
   fetchStatus(config: StatusDashboardConfig): Promise<SystemStatus>
 
   /** Fetches recent incidents. */
-  fetchIncidents(config: StatusDashboardConfig, options?: { status?: IncidentStatus; limit?: number }): Promise<StatusIncident[]>
+  fetchIncidents(
+    config: StatusDashboardConfig,
+    options?: { status?: IncidentStatus; limit?: number },
+  ): Promise<StatusIncident[]>
 
   /** Fetches uptime data for all services. */
   fetchUptime(config: StatusDashboardConfig, serviceId?: string): Promise<ServiceUptime[]>

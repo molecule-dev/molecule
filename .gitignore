@@ -6,6 +6,7 @@ dist
 *.tsbuildinfo
 *.js.map
 *.d.ts
+!packages/app/frameworks/react-native-ui/src/react-native.d.ts
 *.d.ts.map
 
 # compiled JS from TypeScript (keep hand-written .js like eslint.config.js)

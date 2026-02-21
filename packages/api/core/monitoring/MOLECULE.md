@@ -193,6 +193,8 @@ function createBondCheck(bondType: string, name?: string, category?: string): He
 - `name` — Check name. Defaults to `bond:{bondType}`.
 - `category` — Check category. Defaults to 'bonds'.
 
+**Returns:** A HealthCheck that verifies the bond is registered.
+
 #### `createCacheCheck(name, category)`
 
 Creates a health check that probes the cache bond.
@@ -207,6 +209,8 @@ function createCacheCheck(name?: string, category?: string): HealthCheck
 - `name` — Check name. Defaults to 'cache'.
 - `category` — Check category. Defaults to 'infrastructure'.
 
+**Returns:** A HealthCheck that probes the cache bond.
+
 #### `createCustomCheck(name, fn, category)`
 
 Creates a custom health check from a user-provided async function.
@@ -218,6 +222,8 @@ function createCustomCheck(name: string, fn: () => Promise<CheckResult>, categor
 - `name` — Unique check name.
 - `fn` — Async function returning a CheckResult.
 - `category` — Check category. Defaults to 'custom'.
+
+**Returns:** A HealthCheck wrapping the user-provided function.
 
 #### `createDatabaseCheck(name, category)`
 
@@ -232,6 +238,8 @@ function createDatabaseCheck(name?: string, category?: string): HealthCheck
 
 - `name` — Check name. Defaults to 'database'.
 - `category` — Check category. Defaults to 'infrastructure'.
+
+**Returns:** A HealthCheck that probes the database bond.
 
 #### `createHttpCheck(url, options)`
 
@@ -248,6 +256,8 @@ function createHttpCheck(url: string, options?: HttpCheckOptions): HealthCheck
 - `url` — The URL to probe.
 - `options` — Optional configuration.
 
+**Returns:** A HealthCheck that performs an HTTP GET probe.
+
 #### `getLatest()`
 
 Returns the most recently computed SystemHealth, or null if runAll()
@@ -256,6 +266,8 @@ has not been called yet.
 ```typescript
 function getLatest(): SystemHealth | null
 ```
+
+**Returns:** The most recent SystemHealth snapshot, or null.
 
 #### `getOptionalProvider()`
 

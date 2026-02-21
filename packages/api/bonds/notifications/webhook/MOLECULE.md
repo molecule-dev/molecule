@@ -27,6 +27,8 @@ setProvider('webhook', provider)
 
 #### `ProcessEnv`
 
+Environment variables consumed by the webhook notifications provider.
+
 ```typescript
 interface ProcessEnv {
   NOTIFICATIONS_WEBHOOK_URL: string

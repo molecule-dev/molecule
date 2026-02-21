@@ -233,6 +233,8 @@ export const workflows = {
    * Uses concurrency groups to cancel outdated deployments.
    *
    * @param options - Optional driver and branch filtering.
+   * @param options.driver - Staging driver to use (e.g. `'docker-compose'`).
+   * @param options.excludeBranches - Branch patterns to exclude from staging deploys.
    * @returns A workflow config for ephemeral staging deployment.
    */
   stagingDeploy: (options?: { driver?: string; excludeBranches?: string[] }): WorkflowConfig => ({

@@ -27,6 +27,8 @@ setProvider('slack', provider)
 
 #### `ProcessEnv`
 
+Environment variables consumed by the Slack notifications provider.
+
 ```typescript
 interface ProcessEnv {
   NOTIFICATIONS_SLACK_WEBHOOK_URL: string

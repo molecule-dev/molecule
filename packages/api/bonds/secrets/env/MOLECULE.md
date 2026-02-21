@@ -32,7 +32,7 @@ Options for env provider.
 ```typescript
 interface EnvProviderOptions {
   /**
-   * Path to the .env file.
+   * Path to the .env file. Ignored when `layers` is provided.
    * @default '.env'
    */
   path?: string
@@ -48,6 +48,19 @@ interface EnvProviderOptions {
    * @default false
    */
   override?: boolean
+
+  /**
+   * Array of `.env` file paths to load in order. Later files override
+   * earlier ones. When provided, `path` is ignored.
+   *
+   * @example
+   * ```typescript
+   * createEnvProvider({
+   *   layers: ['.env', '.env.staging', '.env.staging.feat-login'],
+   * })
+   * ```
+   */
+  layers?: string[]
 }
 ```
 

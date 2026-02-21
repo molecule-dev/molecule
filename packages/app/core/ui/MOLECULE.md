@@ -1835,6 +1835,10 @@ interface UIClassMap {
   dialogWrapper: string
   /** Modal scrollable body area with padding. */
   dialogBody: string
+  /** Bottom-anchored sheet panel for pickers and action menus (mobile pattern). */
+  actionSheet: string
+  /** Header section of an action sheet with bottom border. */
+  actionSheetHeader: string
   dropdownContent: string
   dropdownItem: string
   dropdownSeparator: string
@@ -2667,7 +2671,9 @@ function setProvider(provider: UIProvider): void
 | Provider | Package |
 |----------|---------|
 | Angular UI | `@molecule/app-ui-angular` |
+| NativeWind | `@molecule/app-ui-nativewind` |
 | React UI | `@molecule/app-ui-react` |
+| React Native UI | `@molecule/app-ui-react-native` |
 | Solid UI | `@molecule/app-ui-solid` |
 | Svelte UI | `@molecule/app-ui-svelte` |
 | Tailwind UI | `@molecule/app-ui-tailwind` |
