@@ -8,6 +8,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
+  inject,
   Input,
   type OnChanges,
   type OnDestroy,
@@ -15,6 +16,7 @@ import {
   Output,
   type SimpleChanges,
 } from '@angular/core'
+import { DomSanitizer, type SafeHtml } from '@angular/platform-browser'
 
 import { t } from '@molecule/app-i18n'
 import type { ModalSize, UIClassMap } from '@molecule/app-ui'
@@ -174,12 +176,14 @@ export class MoleculeModal implements OnInit, OnDestroy, OnChanges {
     return this.cm.dialogClose
   }
 
+  private sanitizer = inject(DomSanitizer)
+
   /**
    * Generates the SVG markup for the close button icon.
-   * @returns The SVG string for the close icon.
+   * @returns The sanitized SVG for the close icon.
    */
-  get closeIconSvg(): string {
-    return getIconSvg('x-mark', this.cm.iconMd)
+  get closeIconSvg(): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(getIconSvg('x-mark', this.cm.iconMd))
   }
 
   /**

@@ -10,7 +10,7 @@ import { t } from '@molecule/app-i18n'
 import type { InputProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { renderIcon } from '../utilities/renderIcon.js'
+import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /**
  * Renders the Input component.

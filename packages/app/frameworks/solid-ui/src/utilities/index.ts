@@ -4,4 +4,4 @@
  * @module
  */
 
-export * from './renderIcon.js'
+export * from './renderIcon.jsx'

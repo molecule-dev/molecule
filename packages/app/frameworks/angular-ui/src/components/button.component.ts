@@ -16,6 +16,7 @@ import { getClassMap } from '@molecule/app-ui'
   selector: 'mol-button',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { style: 'display: contents' },
   template: `
     <button
       [type]="type"

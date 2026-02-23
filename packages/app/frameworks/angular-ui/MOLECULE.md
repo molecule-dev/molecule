@@ -1431,3 +1431,4 @@ Peer dependencies:
 - `@molecule/app-icons` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@angular/core` ^18.0.0 || ^19.0.0 || ^20.0.0 || ^21.0.0
+- `@angular/platform-browser` ^18.0.0 || ^19.0.0 || ^20.0.0 || ^21.0.0

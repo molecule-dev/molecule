@@ -19,7 +19,7 @@ import { t } from '@molecule/app-i18n'
 import type { AccordionItem as AccordionItemType,AccordionProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { renderIcon } from '../utilities/renderIcon.js'
+import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /**
  * Context for accordion state.

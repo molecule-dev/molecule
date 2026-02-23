@@ -10,7 +10,7 @@ import { t } from '@molecule/app-i18n'
 import type { PaginationProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { renderIcon } from '../utilities/renderIcon.js'
+import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /**
  * Generate pagination range with ellipsis.

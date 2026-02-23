@@ -3,24 +3,19 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "dist",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "experimentalDecorators": true
-  },
-  "angularCompilerOptions": {
-    "compilationMode": "full"
+    "lib": [
+      "ES2022"
+    ]
   },
   "include": [
     "src/**/*"
@@ -28,6 +23,7 @@
   "exclude": [
     "node_modules",
     "dist",
+    "**/__tests__/**",
     "src/**/__tests__/**"
   ]
 }

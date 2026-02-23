@@ -2686,7 +2686,6 @@ function setProvider(provider: UIProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
-- `react` >=18.0.0
 
 ## Translations
 

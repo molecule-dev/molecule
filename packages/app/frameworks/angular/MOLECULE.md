@@ -1195,6 +1195,17 @@ Wraps molecule theme provider and exposes state as RxJS observables.
 
 ### Functions
 
+#### `bumpLocaleVersion()`
+
+Bump the locale version signal, causing all template bindings that use
+the reactive `t()` to re-evaluate on the next change detection cycle.
+
+Called automatically by the `ENVIRONMENT_INITIALIZER` in `provideMolecule`.
+
+```typescript
+function bumpLocaleVersion(): void
+```
+
 #### `createAsyncState(initialState)`
 
 Creates an async-capable state manager.
@@ -1441,6 +1452,25 @@ function provideTheme(provider: ThemeProvider): EnvironmentProviders
 - `provider` — Theme provider
 
 **Returns:** Environment providers
+
+#### `t(key, values, options)`
+
+Translate a key using the current locale.
+
+This is a signal-aware wrapper around `@molecule/app-i18n`'s `t()`.
+Reading the internal locale signal establishes an Angular reactivity
+dependency, so template bindings that call this function will be
+re-evaluated when the locale changes.
+
+```typescript
+function t(key: string, values?: InterpolationValues, options?: { defaultValue?: string; count?: number; }): string
+```
+
+- `key` — Translation key
+- `values` — Interpolation values
+- `options` — Options (defaultValue, count)
+
+**Returns:** Translated string
 
 ### Constants
 

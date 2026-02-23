@@ -1,7 +1,7 @@
 {
-  "name": "@molecule/app-ui",
+  "name": "@molecule/app-ui-showcase",
   "version": "1.0.0",
-  "description": "UI component interfaces for molecule.dev",
+  "description": "Component showcase specifications for cross-framework visual regression testing",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,16 +22,15 @@
   "keywords": [
     "molecule",
     "ui",
-    "components",
-    "interfaces"
+    "showcase",
+    "visual-testing"
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@molecule/app-bond": "^1.0.0",
-    "@molecule/app-i18n": "^1.0.0"
+    "@molecule/app-ui": "^1.0.0"
   },
   "devDependencies": {
-    "@molecule/app-bond": "1.0.0",
+    "@molecule/app-ui": "1.0.0",
     "@types/node": "25.2.3",
     "typescript": "5.9.3",
     "vitest": "4.0.18"
@@ -39,9 +38,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/app/core/ui"
+    "directory": "packages/app/core/ui-showcase"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/core/ui",
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/core/ui-showcase",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

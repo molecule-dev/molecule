@@ -10,7 +10,7 @@ import { t } from '@molecule/app-i18n'
 import type { AvatarProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { renderIcon } from '../utilities/renderIcon.js'
+import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /**
  * Get initials from a name.

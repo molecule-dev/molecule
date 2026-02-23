@@ -10,7 +10,7 @@ import type { StorageProvider } from '@molecule/app-storage'
 
 import type { AsyncStorageConfig } from './types.js'
 
-/** Minimal interface matching @react-native-async-storage/async-storage's API surface. */
+/** Minimal interface matching `@react-native-async-storage/async-storage`'s API surface. */
 interface AsyncStorageAPI {
   getItem(key: string): Promise<string | null>
   setItem(key: string, value: string): Promise<void>

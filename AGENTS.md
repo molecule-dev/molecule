@@ -94,7 +94,7 @@ Never hardcode user-visible strings (labels, placeholders, messages, aria-labels
 t('key', values, { defaultValue: 'English fallback' })
 ```
 
-Translations live in **companion locale bond packages** (`@molecule/{stack}-locales-{name}`), NOT embedded in feature packages. Each locale bond provides type-safe translations in 75+ languages.
+Translations live in **companion locale bond packages** (`@molecule/{stack}-locales-{name}`), NOT embedded in feature packages. Each locale bond provides type-safe translations in 79 languages.
 
 ### 9. Exact Dependency Pinning
 
@@ -223,7 +223,7 @@ Swap entire framework by changing Layers 2+3.
 
 ### Locale Bonds
 
-Every package with user-facing text has a companion locale bond (`@molecule/{stack}-locales-{name}`) providing translations in 75+ languages. Feature packages use `t(key, values, { defaultValue })` with English inline fallbacks. Locale bonds are pure data — swap one to override all translations for that feature.
+Every package with user-facing text has a companion locale bond (`@molecule/{stack}-locales-{name}`) providing translations in 79 languages. Feature packages use `t(key, values, { defaultValue })` with English inline fallbacks. Locale bonds are pure data — swap one to override all translations for that feature.
 
 ---
 

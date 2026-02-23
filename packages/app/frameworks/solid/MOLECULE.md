@@ -1808,6 +1808,16 @@ function createWatchSignal(controller: FormController<T>, name: K): Accessor<T[K
 
 **Returns:** Accessor for the field value
 
+#### `getAuthClient()`
+
+Get the auth client from context.
+
+```typescript
+function getAuthClient(): AuthClient<T>
+```
+
+**Returns:** The auth client instance.
+
 #### `getChildLogger(name, context)`
 
 Create a child logger with additional context.
@@ -1821,6 +1831,26 @@ function getChildLogger(name: string, context: Record<string, unknown>): Logger
 
 **Returns:** Child logger instance
 
+#### `getHttpClient()`
+
+Get the HTTP client from context.
+
+```typescript
+function getHttpClient(): HttpClient
+```
+
+**Returns:** The HTTP client instance.
+
+#### `getI18nProvider()`
+
+Get the i18n provider from context.
+
+```typescript
+function getI18nProvider(): I18nProvider
+```
+
+**Returns:** The i18n provider instance.
+
 #### `getLogger(name)`
 
 Get a logger instance.
@@ -1833,6 +1863,16 @@ function getLogger(name?: string): Logger
 
 **Returns:** Logger instance
 
+#### `getLoggerProvider()`
+
+Get the logger provider from context.
+
+```typescript
+function getLoggerProvider(): LoggerProvider
+```
+
+**Returns:** The logger provider instance.
+
 #### `getRootLogger()`
 
 Get the root logger.
@@ -1842,6 +1882,46 @@ function getRootLogger(): Logger
 ```
 
 **Returns:** Root logger instance
+
+#### `getRouter()`
+
+Get the router from context.
+
+```typescript
+function getRouter(): Router
+```
+
+**Returns:** The router instance.
+
+#### `getStateProvider()`
+
+Get the state provider from context.
+
+```typescript
+function getStateProvider(): StateProvider
+```
+
+**Returns:** The state provider instance.
+
+#### `getStorageProvider()`
+
+Get the storage provider from context.
+
+```typescript
+function getStorageProvider(): StorageProvider
+```
+
+**Returns:** The storage provider instance.
+
+#### `getThemeProvider()`
+
+Get the theme provider from context.
+
+```typescript
+function getThemeProvider(): ThemeProvider
+```
+
+**Returns:** The theme provider instance.
 
 #### `useComponentLogger(componentName)`
 
@@ -2033,6 +2113,58 @@ function useTranslation(key: string, values?: InterpolationValues, options?: Tra
 - `options` — Translation options
 
 **Returns:** Accessor for translated string
+
+### Constants
+
+#### `AuthContext`
+
+```typescript
+const AuthContext: Context<AuthClient<unknown> | undefined>
+```
+
+#### `HttpContext`
+
+```typescript
+const HttpContext: Context<HttpClient | undefined>
+```
+
+#### `I18nContext`
+
+```typescript
+const I18nContext: Context<I18nProvider | undefined>
+```
+
+#### `LoggerContext`
+
+```typescript
+const LoggerContext: Context<LoggerProvider | undefined>
+```
+
+#### `RouterContext`
+
+```typescript
+const RouterContext: Context<Router | undefined>
+```
+
+#### `StateContext`
+
+Internal contexts for molecule providers.
+
+```typescript
+const StateContext: Context<StateProvider | undefined>
+```
+
+#### `StorageContext`
+
+```typescript
+const StorageContext: Context<StorageProvider | undefined>
+```
+
+#### `ThemeContext`
+
+```typescript
+const ThemeContext: Context<ThemeProvider | undefined>
+```
 
 ## Injection Notes
 

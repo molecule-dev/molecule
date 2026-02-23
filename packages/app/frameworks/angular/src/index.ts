@@ -52,6 +52,7 @@
  * @module
  */
 
+export * from './i18n-reactive.js'
 export * from './providers.js'
 export * from './services/index.js'
 export * from './tokens.js'

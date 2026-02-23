@@ -18,8 +18,10 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "useDefineForClassFields": false
+  },
+  "angularCompilerOptions": {
+    "compilationMode": "full"
   },
   "include": [
     "src/**/*"

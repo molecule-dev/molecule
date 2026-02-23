@@ -45,4 +45,5 @@
 
 export * from './context.js'
 export * from './primitives/index.js'
+export * from './provider.jsx'
 export * from './types.js'

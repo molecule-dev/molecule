@@ -10,8 +10,8 @@ import { t } from '@molecule/app-i18n'
 import type { TableColumn,TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { renderIcon } from '../utilities/renderIcon.js'
-import { Spinner } from './Spinner.js'
+import { renderIcon } from '../utilities/renderIcon.jsx'
+import { Spinner } from './Spinner.jsx'
 
 /**
  * Table component.

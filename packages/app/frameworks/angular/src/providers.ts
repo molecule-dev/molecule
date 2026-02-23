@@ -5,7 +5,7 @@
  */
 
 import type { EnvironmentProviders, Provider } from '@angular/core'
-import { makeEnvironmentProviders } from '@angular/core'
+import { ENVIRONMENT_INITIALIZER, makeEnvironmentProviders } from '@angular/core'
 
 import type { AuthClient } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
@@ -16,6 +16,7 @@ import type { StateProvider } from '@molecule/app-state'
 import type { StorageProvider } from '@molecule/app-storage'
 import type { ThemeProvider } from '@molecule/app-theme'
 
+import { bumpLocaleVersion } from './i18n-reactive.js'
 import {
   AUTH_CLIENT,
   HTTP_CLIENT,
@@ -148,6 +149,18 @@ export function provideMolecule(config: MoleculeModuleConfig): EnvironmentProvid
   }
   if (config.i18n) {
     providers.push({ provide: I18N_PROVIDER, useValue: config.i18n })
+    // Bump the reactive locale signal on locale changes so that Angular
+    // template bindings using the signal-aware `t()` from this package
+    // automatically re-evaluate. No zone or tick hacks needed — signals
+    // handle change detection scheduling natively.
+    const i18nProvider = config.i18n
+    providers.push({
+      provide: ENVIRONMENT_INITIALIZER,
+      multi: true,
+      useValue: () => {
+        i18nProvider.onLocaleChange(() => bumpLocaleVersion())
+      },
+    })
   }
   if (config.http) {
     providers.push({ provide: HTTP_CLIENT, useValue: config.http })

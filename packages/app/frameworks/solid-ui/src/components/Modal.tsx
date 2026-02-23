@@ -18,7 +18,7 @@ import { t } from '@molecule/app-i18n'
 import type { ModalProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { renderIcon } from '../utilities/renderIcon.js'
+import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /**
  * Renders the Modal component.

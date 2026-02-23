@@ -9,7 +9,7 @@ import { type Component, type JSX, Show, splitProps } from 'solid-js'
 import type { ButtonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-import { Spinner } from './Spinner.js'
+import { Spinner } from './Spinner.jsx'
 
 /**
  * Renders the Button component.

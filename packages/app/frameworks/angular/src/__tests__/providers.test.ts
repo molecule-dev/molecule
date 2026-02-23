@@ -10,9 +10,21 @@ vi.mock('@angular/core', () => ({
       this._desc = desc
     }
   },
+  ENVIRONMENT_INITIALIZER: Symbol('ENVIRONMENT_INITIALIZER'),
   makeEnvironmentProviders: function mockMakeEnvProviders(providers: unknown[]) {
     makeEnvProvidersCalls.push(providers)
     return { _providers: providers, ɵproviders: providers }
+  },
+  signal: (initial: unknown) => {
+    let value = initial
+    const s = () => value
+    s.set = (v: unknown) => {
+      value = v
+    }
+    s.update = (fn: (v: unknown) => unknown) => {
+      value = fn(value)
+    }
+    return s
   },
 }))
 
@@ -155,7 +167,7 @@ describe('providers', () => {
         auth: { login: vi.fn() } as unknown,
         theme: { getTheme: vi.fn() } as unknown,
         router: { navigate: vi.fn() } as unknown,
-        i18n: { t: vi.fn() } as unknown,
+        i18n: { t: vi.fn(), onLocaleChange: vi.fn() } as unknown,
         http: { get: vi.fn() } as unknown,
         storage: { get: vi.fn() } as unknown,
         logger: { getLogger: vi.fn() } as unknown,
@@ -165,7 +177,8 @@ describe('providers', () => {
 
       expect(makeEnvProvidersCalls).toHaveLength(1)
       const providersArg = makeEnvProvidersCalls[0]
-      expect(providersArg).toHaveLength(8)
+      // 8 value providers + 1 ENVIRONMENT_INITIALIZER for i18n locale reactivity
+      expect(providersArg).toHaveLength(9)
       expect(providersArg).toContainEqual({ provide: STATE_PROVIDER, useValue: config.state })
       expect(providersArg).toContainEqual({ provide: AUTH_CLIENT, useValue: config.auth })
       expect(providersArg).toContainEqual({ provide: THEME_PROVIDER, useValue: config.theme })
