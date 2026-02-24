@@ -21,6 +21,7 @@ jobs:
           key: build-${{ hashFiles('packages/**/src/**', 'packages/**/tsconfig.json') }}
           restore-keys: build-
       - run: npm ci
+      - run: npm run check:lockfile
       - run: npm run build
       - run: npm test
 

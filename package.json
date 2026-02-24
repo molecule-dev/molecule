@@ -34,6 +34,8 @@
     "format:check": "prettier --check 'packages/**/*.ts' --ignore-path .prettierignore",
     "changeset": "changeset",
     "version": "changeset version",
+    "check:lockfile": "node scripts/check-lockfile.js",
+    "sync:lockfile": "node scripts/sync-lockfile.js",
     "release": "npm run build && changeset publish",
     "prepare": "husky"
   },
