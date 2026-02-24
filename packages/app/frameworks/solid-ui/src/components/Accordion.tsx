@@ -16,7 +16,7 @@ import {
 } from 'solid-js'
 
 import { t } from '@molecule/app-i18n'
-import type { AccordionItem as AccordionItemType,AccordionProps } from '@molecule/app-ui'
+import type { AccordionItem as AccordionItemType, AccordionProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { renderIcon } from '../utilities/renderIcon.jsx'
@@ -35,7 +35,11 @@ const AccordionContext = createContext<AccordionContextValue>()
 const useAccordionContext = (): AccordionContextValue => {
   const context = useContext(AccordionContext)
   if (!context) {
-    throw new Error(t('solid.error.useAccordionOutsideProvider', undefined, { defaultValue: 'Accordion components must be used within an Accordion' }))
+    throw new Error(
+      t('solid.error.useAccordionOutsideProvider', undefined, {
+        defaultValue: 'Accordion components must be used within an Accordion',
+      }),
+    )
   }
   return context
 }
@@ -56,10 +60,7 @@ const AccordionItemComponent: Component<{
   const triggerId = createUniqueId()
 
   return (
-    <div
-      class={cm.cn(cm.accordionItem, props.class)}
-      data-state={isExpanded() ? 'open' : 'closed'}
-    >
+    <div class={cm.cn(cm.accordionItem, props.class)} data-state={isExpanded() ? 'open' : 'closed'}>
       <button
         id={triggerId}
         type="button"
@@ -161,10 +162,12 @@ export const Accordion: Component<AccordionProps<string>> = (props) => {
 
   return (
     <AccordionContext.Provider value={{ expandedItems, toggleItem, multiple: multiple() }}>
-      <div class={cm.cn(cm.accordionRoot, local.className)} style={local.style} data-testid={local.testId}>
-        <For each={local.items}>
-          {(item) => <AccordionItemComponent item={item} />}
-        </For>
+      <div
+        class={cm.cn(cm.accordionRoot, local.className)}
+        style={local.style}
+        data-testid={local.testId}
+      >
+        <For each={local.items}>{(item) => <AccordionItemComponent item={item} />}</For>
       </div>
     </AccordionContext.Provider>
   )

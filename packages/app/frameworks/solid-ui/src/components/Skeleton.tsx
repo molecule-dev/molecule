@@ -72,9 +72,7 @@ export const SkeletonText: Component<{ lines?: number; class?: string }> = (prop
   return (
     <div class={cm.cn(cm.skeletonTextContainer, props.class)}>
       <For each={Array.from({ length: lines() })}>
-        {(_, i) => (
-          <Skeleton height={16} width={i() === lines() - 1 ? '60%' : '100%'} />
-        )}
+        {(_, i) => <Skeleton height={16} width={i() === lines() - 1 ? '60%' : '100%'} />}
       </For>
     </div>
   )

@@ -19,7 +19,11 @@ import type { ResizeHandleProps } from '../types.js'
  * @param root0.className - Optional CSS class name for the handle.
  * @returns The rendered resize handle element.
  */
-export function ResizeHandle({ onResize, direction = 'horizontal', className }: ResizeHandleProps): JSX.Element {
+export function ResizeHandle({
+  onResize,
+  direction = 'horizontal',
+  className,
+}: ResizeHandleProps): JSX.Element {
   const cm = getClassMap()
   const startRef = useRef<number>(0)
   const activeRef = useRef(false)

@@ -16,7 +16,7 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import type { DropdownItem,DropdownProps } from '@molecule/app-ui'
+import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 interface Position {
@@ -277,11 +277,7 @@ export const Dropdown: Component<DropdownProps<string>> = (props) => {
           >
             <For each={local.items}>
               {(item, _index) => (
-                <DropdownMenuItem
-                  item={item}
-                  onSelect={handleSelect}
-                  onClose={handleClose}
-                />
+                <DropdownMenuItem item={item} onSelect={handleSelect} onClose={handleClose} />
               )}
             </For>
           </div>

@@ -46,7 +46,7 @@ export const Modal: React.FC<ModalProps> = ({
       testID={testId}
     >
       <Pressable className={cm.dialogOverlay} onPress={onClose} accessibilityRole="none">
-        <View className={cm.dialogWrapper}>
+        <View className={cm.cn(cm.dialogWrapper, 'pointer-events-auto')}>
           <Pressable className={contentClasses} onPress={(e) => e.stopPropagation()}>
             <View className={cm.dialogHeader}>
               {!!title && <Text className={cm.dialogTitle}>{title as React.ReactNode}</Text>}

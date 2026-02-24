@@ -4,7 +4,7 @@
  * @module
  */
 
-import React, { forwardRef, useCallback,useEffect } from 'react'
+import React, { forwardRef, useCallback, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
 import { t } from '@molecule/app-i18n'
@@ -80,10 +80,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
         <div className={cm.dialogOverlay} aria-hidden="true" />
 
         {/* Centering wrapper */}
-        <div
-          className={cm.dialogWrapper}
-          onClick={handleOverlayClick}
-        >
+        <div className={cm.dialogWrapper} onClick={handleOverlayClick}>
           {/* Content */}
           <div
             ref={ref}
@@ -95,24 +92,33 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
             data-testid={testId}
             onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
-          {(title || showCloseButton) && (
-            <div className={cm.dialogHeader}>
-              {title ? (
-                <h2 id="modal-title" className={cm.dialogTitle}>
-                  {title as React.ReactNode}
-                </h2>
-              ) : <div />}
-              {showCloseButton && (
-                <button type="button" onClick={onClose} className={cm.dialogClose} aria-label={closeLabel ?? t('ui.modal.close', undefined, { defaultValue: 'Close' })}>
-                  {renderIcon('x-mark', cm.iconMd)}
-                </button>
-              )}
-            </div>
-          )}
+            {(title || showCloseButton) && (
+              <div className={cm.dialogHeader}>
+                {title ? (
+                  <h2 id="modal-title" className={cm.dialogTitle}>
+                    {title as React.ReactNode}
+                  </h2>
+                ) : (
+                  <div />
+                )}
+                {showCloseButton && (
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className={cm.dialogClose}
+                    aria-label={
+                      closeLabel ?? t('ui.modal.close', undefined, { defaultValue: 'Close' })
+                    }
+                  >
+                    {renderIcon('x-mark', cm.iconMd)}
+                  </button>
+                )}
+              </div>
+            )}
 
-          <div className={cm.dialogBody}>{children as React.ReactNode}</div>
+            <div className={cm.dialogBody}>{children as React.ReactNode}</div>
 
-          {!!footer && <div className={cm.dialogFooter}>{footer as React.ReactNode}</div>}
+            {!!footer && <div className={cm.dialogFooter}>{footer as React.ReactNode}</div>}
           </div>
         </div>
       </>

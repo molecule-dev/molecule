@@ -19,7 +19,7 @@ import {
 import { Portal } from 'solid-js/web'
 
 import { t } from '@molecule/app-i18n'
-import type { ColorVariant,ToastProps } from '@molecule/app-ui'
+import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { renderIcon } from '../utilities/renderIcon.jsx'
@@ -40,7 +40,6 @@ const statusIconMap: Record<string, string> = {
   warning: 'exclamation-triangle',
   error: 'x-circle',
 }
-
 
 /**
  * Single Toast component.
@@ -65,7 +64,8 @@ export const Toast: Component<ToastProps> = (props) => {
 
   const cm = getClassMap()
   const [isVisible, setIsVisible] = createSignal(true)
-  const variant = (): 'default' | 'success' | 'warning' | 'error' | 'info' => statusVariantMap[local.status || 'info'] || 'default'
+  const variant = (): 'default' | 'success' | 'warning' | 'error' | 'info' =>
+    statusVariantMap[local.status || 'info'] || 'default'
   const iconName = (): string | undefined => statusIconMap[variant()]
   const duration = (): number => local.duration ?? 5000
   const dismissible = (): boolean => local.dismissible ?? true
@@ -95,9 +95,7 @@ export const Toast: Component<ToastProps> = (props) => {
         data-testid={local.testId}
       >
         <Show when={iconName()}>
-          <span class={cm.toastIconWrapper}>
-            {renderIcon(iconName()!, cm.iconMd)}
-          </span>
+          <span class={cm.toastIconWrapper}>{renderIcon(iconName()!, cm.iconMd)}</span>
         </Show>
         <div class={cm.toastContentWrapper}>
           <Show when={local.title}>
@@ -114,7 +112,9 @@ export const Toast: Component<ToastProps> = (props) => {
             type="button"
             onClick={handleDismiss}
             class={cm.toastClose}
-            aria-label={local.closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' })}
+            aria-label={
+              local.closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' })
+            }
           >
             {renderIcon('x-mark', cm.iconSm)}
           </button>
@@ -139,12 +139,7 @@ export const ToastContainer: Component<{
 
   return (
     <Portal>
-      <div
-        class={cm.cn(
-          cm.toastContainer({ position: position() }),
-          props.class,
-        )}
-      >
+      <div class={cm.cn(cm.toastContainer({ position: position() }), props.class)}>
         {props.children}
       </div>
     </Portal>
@@ -169,7 +164,11 @@ const ToastContext = createContext<ToastContextValue>()
 export const useToast = (): ToastContextValue => {
   const context = useContext(ToastContext)
   if (!context) {
-    throw new Error(t('solid.error.useToastOutsideProvider', undefined, { defaultValue: 'useToast must be used within a ToastProvider' }))
+    throw new Error(
+      t('solid.error.useToastOutsideProvider', undefined, {
+        defaultValue: 'useToast must be used within a ToastProvider',
+      }),
+    )
   }
   return context
 }

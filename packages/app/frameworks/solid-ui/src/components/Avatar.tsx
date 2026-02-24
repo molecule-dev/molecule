@@ -4,7 +4,7 @@
  * @module
  */
 
-import { type Component, createSignal,type JSX, Show, splitProps } from 'solid-js'
+import { type Component, createSignal, type JSX, Show, splitProps } from 'solid-js'
 
 import { t } from '@molecule/app-i18n'
 import type { AvatarProps } from '@molecule/app-ui'
@@ -59,7 +59,9 @@ export const Avatar: Component<AvatarProps> = (props) => {
     )
 
   const customSize = (): { width: string; height: string } | undefined =>
-    typeof local.size === 'number' ? { width: `${local.size}px`, height: `${local.size}px` } : undefined
+    typeof local.size === 'number'
+      ? { width: `${local.size}px`, height: `${local.size}px` }
+      : undefined
 
   return (
     <div
@@ -74,10 +76,7 @@ export const Avatar: Component<AvatarProps> = (props) => {
             <Show
               when={local.fallback}
               fallback={
-                <Show
-                  when={local.name}
-                  fallback={renderIcon('user', cm.avatarFallbackIcon)}
-                >
+                <Show when={local.name} fallback={renderIcon('user', cm.avatarFallbackIcon)}>
                   <span class={cm.avatarInitials}>{getInitials(local.name!)}</span>
                 </Show>
               }

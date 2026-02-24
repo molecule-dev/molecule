@@ -21,7 +21,13 @@ import type { TabBarProps } from '../types.js'
  * @param root0.className - Optional CSS class name for the tab bar.
  * @returns The rendered tab bar element, or null if no tabs are open.
  */
-export function TabBar({ tabs, activeFile, onSelect, onClose, className }: TabBarProps): JSX.Element | null {
+export function TabBar({
+  tabs,
+  activeFile,
+  onSelect,
+  onClose,
+  className,
+}: TabBarProps): JSX.Element | null {
   const cm = getClassMap()
 
   if (tabs.length === 0) return null
@@ -59,10 +65,7 @@ export function TabBar({ tabs, activeFile, onSelect, onClose, className }: TabBa
               isActive && cm.borderBPrimary,
             )}
           >
-            <span
-              onClick={() => onSelect(tab.path)}
-              style={{ cursor: 'pointer' }}
-            >
+            <span onClick={() => onSelect(tab.path)} style={{ cursor: 'pointer' }}>
               {fileName}
               {tab.isDirty && <span className={cm.textWarning}> {'\u2022'}</span>}
             </span>

@@ -7,7 +7,7 @@
 import { type Component, For, type JSX, Show, splitProps } from 'solid-js'
 
 import { t } from '@molecule/app-i18n'
-import type { TableColumn,TableProps } from '@molecule/app-ui'
+import type { TableColumn, TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { renderIcon } from '../utilities/renderIcon.jsx'
@@ -60,7 +60,8 @@ export const Table: Component<TableProps<Record<string, unknown>>> = (props) => 
     local.onSort(key, newDirection)
   }
 
-  const tableClasses = (): string => cm.cn(cm.table, local.bordered && cm.tableBordered, local.className)
+  const tableClasses = (): string =>
+    cm.cn(cm.table, local.bordered && cm.tableBordered, local.className)
 
   return (
     <div class={cm.tableWrapper}>
@@ -81,7 +82,9 @@ export const Table: Component<TableProps<Record<string, unknown>>> = (props) => 
                     column.align === 'right' && cm.textRight,
                     column.sortable && cm.tableHeadSortable,
                   )}
-                  style={{ width: typeof column.width === 'number' ? `${column.width}px` : column.width }}
+                  style={{
+                    width: typeof column.width === 'number' ? `${column.width}px` : column.width,
+                  }}
                   onClick={() => column.sortable && handleSort(column)}
                 >
                   <div class={cm.tableSortWrapper}>
@@ -107,11 +110,9 @@ export const Table: Component<TableProps<Record<string, unknown>>> = (props) => 
             when={local.data.length > 0}
             fallback={
               <tr>
-                <td
-                  colSpan={local.columns.length}
-                  class={cm.tableEmptyCell}
-                >
-                  {(local.emptyContent as JSX.Element) || t('ui.table.empty', undefined, { defaultValue: 'No data available' })}
+                <td colSpan={local.columns.length} class={cm.tableEmptyCell}>
+                  {(local.emptyContent as JSX.Element) ||
+                    t('ui.table.empty', undefined, { defaultValue: 'No data available' })}
                 </td>
               </tr>
             }

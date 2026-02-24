@@ -39,12 +39,7 @@ export const Switch: Component<SwitchProps> = (props) => {
   }
 
   return (
-    <label
-      class={cm.cn(
-        cm.controlLabel,
-        local.disabled && cm.controlDisabled,
-      )}
-    >
+    <label class={cm.cn(cm.controlLabel, local.disabled && cm.controlDisabled)}>
       <button
         type="button"
         role="switch"

@@ -5,7 +5,7 @@
  */
 
 import type { JSX } from 'react'
-import { useCallback,useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
@@ -102,23 +102,14 @@ export function FileExplorer({ files, onFileSelect, className }: FileExplorerPro
   const cm = getClassMap()
 
   return (
-    <div
-      className={cm.cn(cm.sp('py', 1), className)}
-      style={{ overflowY: 'auto' }}
-      role="tree"
-    >
+    <div className={cm.cn(cm.sp('py', 1), className)} style={{ overflowY: 'auto' }} role="tree">
       {files.length === 0 && (
         <div className={cm.cn(cm.textMuted, cm.textSize('sm'), cm.sp('p', 3))}>
           {t('ide.files.empty')}
         </div>
       )}
       {files.map((node) => (
-        <FileTreeItem
-          key={node.path}
-          node={node}
-          depth={0}
-          onFileSelect={onFileSelect}
-        />
+        <FileTreeItem key={node.path} node={node} depth={0} onFileSelect={onFileSelect} />
       ))}
     </div>
   )

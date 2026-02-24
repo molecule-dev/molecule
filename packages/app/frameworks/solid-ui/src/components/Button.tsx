@@ -65,9 +65,7 @@ export const Button: Component<ButtonProps> = (props) => {
       <Show when={!local.loading && !!local.leftIcon}>
         <span class={cm.buttonIconLeft}>{local.leftIcon as JSX.Element}</span>
       </Show>
-      {local.loading && local.loadingText
-        ? local.loadingText
-        : (local.children as JSX.Element)}
+      {local.loading && local.loadingText ? local.loadingText : (local.children as JSX.Element)}
       <Show when={!local.loading && !!local.rightIcon}>
         <span class={cm.buttonIconRight}>{local.rightIcon as JSX.Element}</span>
       </Show>

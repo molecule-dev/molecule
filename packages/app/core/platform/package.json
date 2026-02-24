@@ -35,7 +35,7 @@
   "devDependencies": {
     "@molecule/app-lifecycle": "1.0.0",
     "@molecule/app-push": "1.0.0",
-    "@types/node": "25.2.3",
+    "@types/node": "25.3.0",
     "typescript": "5.9.3",
     "vitest": "4.0.18"
   },

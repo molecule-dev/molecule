@@ -4,13 +4,13 @@
  * @module
  */
 
-import React, { createContext, type ReactNode,useContext, useEffect, useMemo } from 'react'
+import React, { createContext, type ReactNode, useContext, useEffect, useMemo } from 'react'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { t } from '@molecule/app-i18n'
 
 import { createReactRouter } from './provider.js'
-import type { QueryParams,RouteDefinition, Router } from './types.js'
+import type { QueryParams, RouteDefinition, Router } from './types.js'
 
 /**
  * Context for the molecule Router.
@@ -120,7 +120,11 @@ export function MoleculeRouterProvider({
 export function useMoleculeRouter(): Router {
   const router = useContext(MoleculeRouterContext)
   if (!router) {
-    throw new Error(t('routing.error.useMoleculeRouterOutsideProvider', undefined, { defaultValue: 'useMoleculeRouter must be used within a MoleculeRouterProvider' }))
+    throw new Error(
+      t('routing.error.useMoleculeRouterOutsideProvider', undefined, {
+        defaultValue: 'useMoleculeRouter must be used within a MoleculeRouterProvider',
+      }),
+    )
   }
   return router
 }

@@ -7,9 +7,9 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { AuthClient, AuthState } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
-import type { Logger,LoggerProvider as LoggerProviderType } from '@molecule/app-logger'
-import type { RouteLocation,Router } from '@molecule/app-routing'
-import type { StateProvider as StateProviderType,Store } from '@molecule/app-state'
+import type { Logger, LoggerProvider as LoggerProviderType } from '@molecule/app-logger'
+import type { RouteLocation, Router } from '@molecule/app-routing'
+import type { StateProvider as StateProviderType, Store } from '@molecule/app-state'
 import type { StorageProvider as StorageProviderType } from '@molecule/app-storage'
 import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 
@@ -219,24 +219,20 @@ function createMockRouter(): Router {
  */
 function createMockHttpClient(): HttpClient {
   return {
-    get: vi
-      .fn()
-      .mockResolvedValue({
-        data: { id: 1 },
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-        config: {},
-      }),
-    post: vi
-      .fn()
-      .mockResolvedValue({
-        data: { id: 1 },
-        status: 201,
-        statusText: 'Created',
-        headers: {},
-        config: {},
-      }),
+    get: vi.fn().mockResolvedValue({
+      data: { id: 1 },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {},
+    }),
+    post: vi.fn().mockResolvedValue({
+      data: { id: 1 },
+      status: 201,
+      statusText: 'Created',
+      headers: {},
+      config: {},
+    }),
     put: vi.fn(),
     patch: vi.fn(),
     delete: vi.fn(),

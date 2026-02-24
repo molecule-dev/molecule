@@ -2105,7 +2105,7 @@ function useWorkspaceProvider(): WorkspaceProvider
 Provider for IDE workspace.
 
 ```typescript
-function WorkspaceProvider({ provider, children }: WorkspaceProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function WorkspaceProvider({ provider, children, }: WorkspaceProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `root0` — The component props.

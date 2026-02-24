@@ -73,7 +73,9 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(
             type="button"
             onClick={onDismiss}
             className={cm.alertDismiss}
-            aria-label={dismissLabel ?? t('ui.alert.dismiss', undefined, { defaultValue: 'Dismiss' })}
+            aria-label={
+              dismissLabel ?? t('ui.alert.dismiss', undefined, { defaultValue: 'Dismiss' })
+            }
           >
             {renderIcon('x-mark', cm.iconSm)}
           </button>

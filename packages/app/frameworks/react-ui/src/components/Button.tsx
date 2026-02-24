@@ -52,9 +52,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
       >
         {loading && <Spinner size="sm" className={cm.buttonIconLeft} />}
-        {!loading && !!leftIcon && <span className={cm.buttonIconLeft}>{leftIcon as React.ReactNode}</span>}
+        {!loading && !!leftIcon && (
+          <span className={cm.buttonIconLeft}>{leftIcon as React.ReactNode}</span>
+        )}
         {loading && loadingText ? loadingText : (children as React.ReactNode)}
-        {!loading && !!rightIcon && <span className={cm.buttonIconRight}>{rightIcon as React.ReactNode}</span>}
+        {!loading && !!rightIcon && (
+          <span className={cm.buttonIconRight}>{rightIcon as React.ReactNode}</span>
+        )}
       </button>
     )
   },

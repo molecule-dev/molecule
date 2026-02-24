@@ -14,7 +14,18 @@ import { getClassMap } from '@molecule/app-ui'
  */
 export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
   (
-    { items, value, defaultValue, onChange, variant: _variant, size: _size, fitted, className, style, testId },
+    {
+      items,
+      value,
+      defaultValue,
+      onChange,
+      variant: _variant,
+      size: _size,
+      fitted,
+      className,
+      style,
+      testId,
+    },
     ref,
   ) => {
     const [internalValue, setInternalValue] = useState(defaultValue || items[0]?.value)
@@ -48,7 +59,9 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
                 onClick={() => handleTabClick(item.value)}
                 className={cm.cn(cm.tabsTrigger, fitted && cm.tabTriggerFitted)}
               >
-                {!!item.icon && <span className={cm.tabTriggerIcon}>{item.icon as React.ReactNode}</span>}
+                {!!item.icon && (
+                  <span className={cm.tabTriggerIcon}>{item.icon as React.ReactNode}</span>
+                )}
                 {item.label as React.ReactNode}
               </button>
             )

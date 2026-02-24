@@ -5,7 +5,7 @@
  */
 
 import type { JSX } from 'react'
-import { useEffect,useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { useEditor } from '@molecule/app-react'
@@ -36,7 +36,7 @@ export function EditorPanel({ className }: EditorPanelProps): JSX.Element {
 
     // Handle both sync and async mount
     if (result && typeof (result as Promise<void>).then === 'function') {
-      (result as Promise<void>).catch(() => {
+      ;(result as Promise<void>).catch(() => {
         mountedRef.current = false
       })
     }
@@ -48,14 +48,7 @@ export function EditorPanel({ className }: EditorPanelProps): JSX.Element {
   }, [mount, dispose])
 
   return (
-    <div
-      className={cm.cn(
-        cm.flex({ direction: 'col' }),
-        cm.h('full'),
-        cm.surface,
-        className,
-      )}
-    >
+    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, className)}>
       {/* Header */}
       <div
         className={cm.cn(
@@ -72,12 +65,7 @@ export function EditorPanel({ className }: EditorPanelProps): JSX.Element {
       </div>
 
       {/* Tab bar */}
-      <TabBar
-        tabs={tabs}
-        activeFile={activeFile}
-        onSelect={setActiveTab}
-        onClose={closeFile}
-      />
+      <TabBar tabs={tabs} activeFile={activeFile} onSelect={setActiveTab} onClose={closeFile} />
 
       {/* Editor container */}
       <div
@@ -92,11 +80,7 @@ export function EditorPanel({ className }: EditorPanelProps): JSX.Element {
       {/* Empty state */}
       {tabs.length === 0 && (
         <div
-          className={cm.cn(
-            cm.textMuted,
-            cm.textSize('sm'),
-            cm.textCenter,
-          )}
+          className={cm.cn(cm.textMuted, cm.textSize('sm'), cm.textCenter)}
           style={{
             position: 'absolute',
             top: '50%',

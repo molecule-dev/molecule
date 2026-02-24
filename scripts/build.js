@@ -98,15 +98,17 @@ function isUpToDate(pkgDir) {
 }
 
 /**
- * Build a single package by spawning tsc in its directory.
+ * Build a single package using its configured build command (tsc, ngc, etc.).
  *
  * @param name - Package name.
  * @param pkgDir - Package root directory.
  * @returns Promise that resolves on success, rejects on failure.
  */
 function buildOne(name, pkgDir) {
+  const pkg = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf-8'))
+  const cmd = pkg.scripts?.build || 'tsc'
   return new Promise((resolve, reject) => {
-    const child = spawn('npx', ['tsc'], {
+    const child = spawn('npx', [cmd], {
       cwd: pkgDir,
       stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env },

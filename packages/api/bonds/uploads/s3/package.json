@@ -28,13 +28,13 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@aws-sdk/client-s3": "3.991.0",
-    "@aws-sdk/lib-storage": "3.991.0",
+    "@aws-sdk/client-s3": "3.997.0",
+    "@aws-sdk/lib-storage": "3.997.0",
     "uuid": "13.0.0"
   },
   "devDependencies": {
     "@types/busboy": "1.5.4",
-    "@types/node": "25.2.3",
+    "@types/node": "25.3.0",
     "@types/uuid": "10.0.0",
     "typescript": "5.9.3",
     "vitest": "4.0.18"

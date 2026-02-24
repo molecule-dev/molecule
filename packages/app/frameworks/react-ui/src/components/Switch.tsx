@@ -14,7 +14,18 @@ import { getClassMap } from '@molecule/app-ui'
  */
 export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
   (
-    { label, checked, size = 'md', color: _color, className, style, testId, disabled, onChange, ...rest },
+    {
+      label,
+      checked,
+      size = 'md',
+      color: _color,
+      className,
+      style,
+      testId,
+      disabled,
+      onChange,
+      ...rest
+    },
     ref,
   ) => {
     const cm = getClassMap()
@@ -29,12 +40,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
     }
 
     return (
-      <label
-        className={cm.cn(
-          cm.controlLabel,
-          disabled && cm.controlDisabled,
-        )}
-      >
+      <label className={cm.cn(cm.controlLabel, disabled && cm.controlDisabled)}>
         <button
           ref={ref}
           type="button"

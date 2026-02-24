@@ -230,7 +230,10 @@ export function ChatProvider({ provider, children }: ChatProviderProps): React.R
  * @param root0.children - The child elements to render.
  * @returns The rendered workspace provider element.
  */
-export function WorkspaceProvider({ provider, children }: WorkspaceProviderProps): React.ReactElement {
+export function WorkspaceProvider({
+  provider,
+  children,
+}: WorkspaceProviderProps): React.ReactElement {
   return <WorkspaceContext.Provider value={provider}>{children}</WorkspaceContext.Provider>
 }
 

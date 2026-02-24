@@ -6,9 +6,8 @@
 
 import { type Component, type JSX, splitProps } from 'solid-js'
 
-import type { ContainerProps, FlexProps, GridProps, Size,SpacerProps } from '@molecule/app-ui'
+import type { ContainerProps, FlexProps, GridProps, Size, SpacerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
-
 
 /**
  * Container component.
@@ -74,13 +73,19 @@ export const Flex: Component<FlexProps> = (props) => {
   const flexClasses = (): string =>
     cm.cn(
       cm.flex({
-        direction: local.direction === 'column' ? 'col'
-          : local.direction === 'column-reverse' ? 'col-reverse'
-          : local.direction as 'row' | 'row-reverse' | undefined,
+        direction:
+          local.direction === 'column'
+            ? 'col'
+            : local.direction === 'column-reverse'
+              ? 'col-reverse'
+              : (local.direction as 'row' | 'row-reverse' | undefined),
         align: local.align,
         justify: local.justify,
         wrap: local.wrap,
-        gap: typeof local.gap === 'string' ? local.gap as 'xs' | 'sm' | 'md' | 'lg' | 'xl' : undefined,
+        gap:
+          typeof local.gap === 'string'
+            ? (local.gap as 'xs' | 'sm' | 'md' | 'lg' | 'xl')
+            : undefined,
       }),
       local.className,
     )
@@ -130,7 +135,10 @@ export const Grid: Component<GridProps> = (props) => {
     cm.cn(
       cm.grid({
         cols: typeof local.columns === 'number' ? local.columns : undefined,
-        gap: typeof local.gap === 'string' ? local.gap as 'xs' | 'sm' | 'md' | 'lg' | 'xl' : undefined,
+        gap:
+          typeof local.gap === 'string'
+            ? (local.gap as 'xs' | 'sm' | 'md' | 'lg' | 'xl')
+            : undefined,
       }),
       typeof local.rows === 'number' && cm.gridRows(local.rows as number),
       local.className,
@@ -143,7 +151,8 @@ export const Grid: Component<GridProps> = (props) => {
     gap:
       typeof local.gap === 'number'
         ? `${local.gap}px`
-        : typeof local.gap === 'string' && !['xs', 'sm', 'md', 'lg', 'xl', 'none'].includes(local.gap)
+        : typeof local.gap === 'string' &&
+            !['xs', 'sm', 'md', 'lg', 'xl', 'none'].includes(local.gap)
           ? local.gap
           : undefined,
     'column-gap':
@@ -182,7 +191,11 @@ export const Spacer: Component<SpacerProps> = (props) => {
     const s = size()
     const isNamedSize = typeof s === 'string' && ['xs', 'sm', 'md', 'lg', 'xl'].includes(s)
     return cm.cn(
-      isNamedSize ? cm.spacer({ size: s as Size, horizontal: local.horizontal }) : (local.horizontal ? cm.displayInlineBlock : cm.displayBlock),
+      isNamedSize
+        ? cm.spacer({ size: s as Size, horizontal: local.horizontal })
+        : local.horizontal
+          ? cm.displayInlineBlock
+          : cm.displayBlock,
       local.className,
     )
   }

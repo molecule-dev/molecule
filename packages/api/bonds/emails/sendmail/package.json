@@ -31,8 +31,8 @@
   },
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",
-    "@types/node": "25.2.3",
-    "@types/nodemailer": "7.0.10",
+    "@types/node": "25.3.0",
+    "@types/nodemailer": "7.0.11",
     "typescript": "5.9.3",
     "vitest": "4.0.18"
   },

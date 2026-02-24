@@ -4,7 +4,7 @@
  * @module
  */
 
-import { type Component, createMemo,For, Show, splitProps } from 'solid-js'
+import { type Component, createMemo, For, Show, splitProps } from 'solid-js'
 
 import { t } from '@molecule/app-i18n'
 import type { PaginationProps } from '@molecule/app-ui'
@@ -114,7 +114,9 @@ export const Pagination: Component<PaginationProps> = (props) => {
   return (
     <nav
       role="navigation"
-      aria-label={local.labels?.nav ?? t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' })}
+      aria-label={
+        local.labels?.nav ?? t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' })
+      }
       class={cm.cn(cm.paginationRoot, local.className)}
       style={local.style}
       data-testid={local.testId}
@@ -128,7 +130,10 @@ export const Pagination: Component<PaginationProps> = (props) => {
               class={buttonClasses(false)}
               onClick={() => handlePageChange(1)}
               disabled={local.page === 1 || local.disabled}
-              aria-label={local.labels?.first ?? t('ui.pagination.first', undefined, { defaultValue: 'Go to first page' })}
+              aria-label={
+                local.labels?.first ??
+                t('ui.pagination.first', undefined, { defaultValue: 'Go to first page' })
+              }
             >
               {renderIcon('chevrons-left', cm.iconSm)}
             </button>
@@ -143,7 +148,10 @@ export const Pagination: Component<PaginationProps> = (props) => {
               class={buttonClasses(false)}
               onClick={() => handlePageChange(local.page - 1)}
               disabled={local.page === 1 || local.disabled}
-              aria-label={local.labels?.previous ?? t('ui.pagination.previous', undefined, { defaultValue: 'Go to previous page' })}
+              aria-label={
+                local.labels?.previous ??
+                t('ui.pagination.previous', undefined, { defaultValue: 'Go to previous page' })
+              }
             >
               {renderIcon('chevron-left', cm.iconSm)}
             </button>
@@ -169,7 +177,14 @@ export const Pagination: Component<PaginationProps> = (props) => {
                   class={buttonClasses((item as number) === local.page)}
                   onClick={() => handlePageChange(item as number)}
                   disabled={local.disabled}
-                  aria-label={local.labels?.goToPage?.(item as number) ?? t('ui.pagination.goToPage', { page: item as number }, { defaultValue: 'Go to page {{page}}' })}
+                  aria-label={
+                    local.labels?.goToPage?.(item as number) ??
+                    t(
+                      'ui.pagination.goToPage',
+                      { page: item as number },
+                      { defaultValue: 'Go to page {{page}}' },
+                    )
+                  }
                   aria-current={(item as number) === local.page ? 'page' : undefined}
                 >
                   {item as number}
@@ -187,7 +202,10 @@ export const Pagination: Component<PaginationProps> = (props) => {
               class={buttonClasses(false)}
               onClick={() => handlePageChange(local.page + 1)}
               disabled={local.page === local.totalPages || local.disabled}
-              aria-label={local.labels?.next ?? t('ui.pagination.next', undefined, { defaultValue: 'Go to next page' })}
+              aria-label={
+                local.labels?.next ??
+                t('ui.pagination.next', undefined, { defaultValue: 'Go to next page' })
+              }
             >
               {renderIcon('chevron-right', cm.iconSm)}
             </button>
@@ -202,7 +220,10 @@ export const Pagination: Component<PaginationProps> = (props) => {
               class={buttonClasses(false)}
               onClick={() => handlePageChange(local.totalPages)}
               disabled={local.page === local.totalPages || local.disabled}
-              aria-label={local.labels?.last ?? t('ui.pagination.last', undefined, { defaultValue: 'Go to last page' })}
+              aria-label={
+                local.labels?.last ??
+                t('ui.pagination.last', undefined, { defaultValue: 'Go to last page' })
+              }
             >
               {renderIcon('chevrons-right', cm.iconSm)}
             </button>

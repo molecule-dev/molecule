@@ -26,10 +26,10 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "posthog-node": "5.24.15"
+    "posthog-node": "5.25.0"
   },
   "devDependencies": {
-    "@types/node": "25.2.3",
+    "@types/node": "25.3.0",
     "typescript": "5.9.3",
     "vitest": "4.0.18"
   },

@@ -4,7 +4,7 @@
  * @module
  */
 
-import { type Component, createEffect,type JSX, Show, splitProps } from 'solid-js'
+import { type Component, createEffect, type JSX, Show, splitProps } from 'solid-js'
 
 import type { TextareaProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -62,7 +62,8 @@ export const Textarea: Component<TextareaProps> = (props) => {
     autoResizeTextarea()
   })
 
-  const textareaClasses = (): string => cm.cn(cm.textarea({ error: !!local.error }), local.className)
+  const textareaClasses = (): string =>
+    cm.cn(cm.textarea({ error: !!local.error }), local.className)
 
   return (
     <div class={cm.inputWrapper}>
@@ -85,11 +86,7 @@ export const Textarea: Component<TextareaProps> = (props) => {
         rows={local.rows || minRows()}
         aria-invalid={!!local.error}
         aria-describedby={
-          local.error
-            ? `${textareaId()}-error`
-            : local.hint
-              ? `${textareaId()}-hint`
-              : undefined
+          local.error ? `${textareaId()}-error` : local.hint ? `${textareaId()}-hint` : undefined
         }
         class={textareaClasses()}
         style={local.style}

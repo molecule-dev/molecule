@@ -67,9 +67,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className={cm.inputInner}>
           {!!leftElement && (
-            <div className={cm.inputLeftElement}>
-              {leftElement as React.ReactNode}
-            </div>
+            <div className={cm.inputLeftElement}>{leftElement as React.ReactNode}</div>
           )}
           <input
             ref={ref}
@@ -98,7 +96,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                   type="button"
                   onClick={onClear}
                   className={cm.inputClearButton}
-                  aria-label={clearLabel ?? t('ui.input.clear', undefined, { defaultValue: 'Clear' })}
+                  aria-label={
+                    clearLabel ?? t('ui.input.clear', undefined, { defaultValue: 'Clear' })
+                  }
                 >
                   {renderIcon('x-mark', cm.iconSm)}
                 </button>

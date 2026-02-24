@@ -22,20 +22,28 @@ import type { ToolCallCardProps } from '../types.js'
  * @param root0.className - Optional CSS class name for the card.
  * @returns The rendered tool call card element.
  */
-export function ToolCallCard({ name, input, output, status, className }: ToolCallCardProps): JSX.Element {
+export function ToolCallCard({
+  name,
+  input,
+  output,
+  status,
+  className,
+}: ToolCallCardProps): JSX.Element {
   const cm = getClassMap()
   const [expanded, setExpanded] = useState(false)
 
-  const statusIcon = status === 'running' || status === 'pending'
-    ? '\u25CB'
-    : status === 'done'
-      ? '\u2713'
-      : '\u2717'
-  const statusColorClass = status === 'running' || status === 'pending'
-    ? cm.textWarning
-    : status === 'done'
-      ? cm.textSuccess
-      : cm.textError
+  const statusIcon =
+    status === 'running' || status === 'pending'
+      ? '\u25CB'
+      : status === 'done'
+        ? '\u2713'
+        : '\u2717'
+  const statusColorClass =
+    status === 'running' || status === 'pending'
+      ? cm.textWarning
+      : status === 'done'
+        ? cm.textSuccess
+        : cm.textError
 
   return (
     <div
@@ -69,17 +77,22 @@ export function ToolCallCard({ name, input, output, status, className }: ToolCal
             </span>
           )}
         </span>
-        <span style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 150ms' }}>
+        <span
+          style={{
+            transform: expanded ? 'rotate(180deg)' : 'rotate(0)',
+            transition: 'transform 150ms',
+          }}
+        >
           {'\u25BC'}
         </span>
       </button>
       {expanded && (
-        <div
-          className={cm.cn(cm.sp('p', 3), cm.textSize('xs'), cm.surface, cm.borderT)}
-        >
+        <div className={cm.cn(cm.sp('p', 3), cm.textSize('xs'), cm.surface, cm.borderT)}>
           {input !== undefined && (
             <div className={cm.sp('mb', 2)}>
-              <div className={cm.cn(cm.textMuted, cm.fontWeight('medium'), cm.sp('mb', 1))}>{t('ide.toolCall.input')}</div>
+              <div className={cm.cn(cm.textMuted, cm.fontWeight('medium'), cm.sp('mb', 1))}>
+                {t('ide.toolCall.input')}
+              </div>
               <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
                 {typeof input === 'string' ? input : JSON.stringify(input, null, 2)}
               </pre>
@@ -87,7 +100,9 @@ export function ToolCallCard({ name, input, output, status, className }: ToolCal
           )}
           {output !== undefined && (
             <div>
-              <div className={cm.cn(cm.textMuted, cm.fontWeight('medium'), cm.sp('mb', 1))}>{t('ide.toolCall.output')}</div>
+              <div className={cm.cn(cm.textMuted, cm.fontWeight('medium'), cm.sp('mb', 1))}>
+                {t('ide.toolCall.output')}
+              </div>
               <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
                 {typeof output === 'string' ? output : JSON.stringify(output, null, 2)}
               </pre>

@@ -40,11 +40,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps<string>>(
     const cm = getClassMap()
     const selectId = id || name
 
-    const selectClasses = cm.cn(
-      cm.select({ error: !!error, size }),
-      cm.selectNative,
-      className,
-    )
+    const selectClasses = cm.cn(cm.select({ error: !!error, size }), cm.selectNative, className)
 
     // Group options by group property
     const groupedOptions = options.reduce<Record<string, typeof options>>((acc, option) => {

@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 
-import { act,renderHook } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import React from 'react'
-import { beforeEach,describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { AuthClient, AuthState } from '@molecule/app-auth'
 
@@ -200,7 +200,11 @@ describe('useSignup', () => {
     })
 
     await act(async () => {
-      await result.current.signup({ email: 'new@example.com', password: 'password123', name: 'New User' })
+      await result.current.signup({
+        email: 'new@example.com',
+        password: 'password123',
+        name: 'New User',
+      })
     })
 
     expect(result.current.status).toBe('resolved')
@@ -398,9 +402,7 @@ describe('useOAuth', () => {
       { wrapper: createWrapper(client) },
     )
 
-    expect(result.current.getOAuthUrl('github')).toBe(
-      'https://api.example.com/auth/oauth/github',
-    )
+    expect(result.current.getOAuthUrl('github')).toBe('https://api.example.com/auth/oauth/github')
   })
 
   it('should use default oauth endpoint', () => {

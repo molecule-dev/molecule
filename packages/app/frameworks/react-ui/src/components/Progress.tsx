@@ -7,7 +7,7 @@
 import React, { forwardRef } from 'react'
 
 import { t } from '@molecule/app-i18n'
-import type { BaseProps, ColorVariant,Size } from '@molecule/app-ui'
+import type { BaseProps, ColorVariant, Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -76,13 +76,16 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
     const percentage = Math.min(Math.max((value / max) * 100, 0), 100)
 
     return (
-      <div ref={ref} className={cm.cn(cm.progressWrapper, className)} style={style} data-testid={testId}>
+      <div
+        ref={ref}
+        className={cm.cn(cm.progressWrapper, className)}
+        style={style}
+        data-testid={testId}
+      >
         {(label || showValue) && (
           <div className={cm.progressLabelContainer}>
             {label && <span className={cm.progressLabelText}>{label}</span>}
-            {showValue && (
-              <span className={cm.progressLabelText}>{Math.round(percentage)}%</span>
-            )}
+            {showValue && <span className={cm.progressLabelText}>{Math.round(percentage)}%</span>}
           </div>
         )}
         <div

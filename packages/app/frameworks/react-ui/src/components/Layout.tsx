@@ -6,7 +6,7 @@
 
 import React, { forwardRef } from 'react'
 
-import type { ContainerProps, FlexProps, GridProps, Size,SpacerProps } from '@molecule/app-ui'
+import type { ContainerProps, FlexProps, GridProps, Size, SpacerProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 // spacerSizeMap removed — use cm.spacer({ size, horizontal }) instead
@@ -15,7 +15,10 @@ import { getClassMap } from '@molecule/app-ui'
  * Container component.
  */
 export const Container = forwardRef<HTMLDivElement, ContainerProps>(
-  ({ children, maxWidth = 'lg', centered = true, paddingX: _paddingX, className, style, testId }, ref) => {
+  (
+    { children, maxWidth = 'lg', centered = true, paddingX: _paddingX, className, style, testId },
+    ref,
+  ) => {
     const cm = getClassMap()
     const containerClasses = cm.cn(
       cm.container({ size: maxWidth as 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' }),
@@ -53,9 +56,10 @@ export const Flex = forwardRef<HTMLDivElement, FlexProps>(
     const cmDirection = dirMap[direction] || 'row'
 
     // Map gap to classMap accepted values
-    const cmGap = typeof gap === 'string' && ['none', 'xs', 'sm', 'md', 'lg', 'xl'].includes(gap)
-      ? (gap as 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl')
-      : undefined
+    const cmGap =
+      typeof gap === 'string' && ['none', 'xs', 'sm', 'md', 'lg', 'xl'].includes(gap)
+        ? (gap as 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl')
+        : undefined
 
     const flexClasses = cm.cn(
       cm.flex({
@@ -69,11 +73,12 @@ export const Flex = forwardRef<HTMLDivElement, FlexProps>(
     )
 
     // If gap is a number or non-standard string, use inline style
-    const gapStyle = typeof gap === 'number'
-      ? { gap }
-      : typeof gap === 'string' && !['none', 'xs', 'sm', 'md', 'lg', 'xl'].includes(gap)
+    const gapStyle =
+      typeof gap === 'number'
         ? { gap }
-        : undefined
+        : typeof gap === 'string' && !['none', 'xs', 'sm', 'md', 'lg', 'xl'].includes(gap)
+          ? { gap }
+          : undefined
 
     return (
       <div
@@ -99,14 +104,12 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>(
     const cm = getClassMap()
 
     const cmCols = typeof columns === 'number' ? columns : undefined
-    const cmGap = typeof gap === 'string' && ['none', 'xs', 'sm', 'md', 'lg', 'xl'].includes(gap)
-      ? (gap as 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl')
-      : undefined
+    const cmGap =
+      typeof gap === 'string' && ['none', 'xs', 'sm', 'md', 'lg', 'xl'].includes(gap)
+        ? (gap as 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl')
+        : undefined
 
-    const gridClasses = cm.cn(
-      cm.grid({ cols: cmCols, gap: cmGap }),
-      className,
-    )
+    const gridClasses = cm.cn(cm.grid({ cols: cmCols, gap: cmGap }), className)
 
     const gridStyle: React.CSSProperties = {
       ...style,
@@ -124,12 +127,7 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>(
           : typeof columnGap === 'string'
             ? columnGap
             : undefined,
-      rowGap:
-        typeof rowGap === 'number'
-          ? rowGap
-          : typeof rowGap === 'string'
-            ? rowGap
-            : undefined,
+      rowGap: typeof rowGap === 'number' ? rowGap : typeof rowGap === 'string' ? rowGap : undefined,
     }
 
     return (
@@ -152,7 +150,11 @@ export const Spacer = forwardRef<HTMLDivElement, SpacerProps>(
     const isNamedSize = typeof size === 'string' && ['xs', 'sm', 'md', 'lg', 'xl'].includes(size)
 
     const spacerClasses = cm.cn(
-      isNamedSize ? cm.spacer({ size: size as Size, horizontal: !!horizontal }) : (horizontal ? cm.displayInlineBlock : cm.displayBlock),
+      isNamedSize
+        ? cm.spacer({ size: size as Size, horizontal: !!horizontal })
+        : horizontal
+          ? cm.displayInlineBlock
+          : cm.displayBlock,
       className,
     )
 

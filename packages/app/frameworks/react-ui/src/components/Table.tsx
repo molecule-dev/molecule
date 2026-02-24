@@ -7,7 +7,7 @@
 import React, { forwardRef } from 'react'
 
 import { t } from '@molecule/app-i18n'
-import type { TableColumn,TableProps } from '@molecule/app-ui'
+import type { TableColumn, TableProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -110,11 +110,9 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
           <tbody className={cm.tableBody}>
             {data.length === 0 ? (
               <tr>
-                <td
-                  colSpan={columns.length}
-                  className={cm.tableEmptyCell}
-                >
-                  {(emptyContent as React.ReactNode) || t('ui.table.empty', undefined, { defaultValue: 'No data available' })}
+                <td colSpan={columns.length} className={cm.tableEmptyCell}>
+                  {(emptyContent as React.ReactNode) ||
+                    t('ui.table.empty', undefined, { defaultValue: 'No data available' })}
                 </td>
               </tr>
             ) : (

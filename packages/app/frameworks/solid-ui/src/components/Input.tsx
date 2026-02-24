@@ -58,18 +58,13 @@ export const Input: Component<InputProps> = (props) => {
   return (
     <div class={cm.inputWrapper}>
       <Show when={local.label}>
-        <label
-          for={inputId()}
-          class={cm.cn(cm.label({ required: local.required }), cm.labelBlock)}
-        >
+        <label for={inputId()} class={cm.cn(cm.label({ required: local.required }), cm.labelBlock)}>
           {local.label}
         </label>
       </Show>
       <div class={cm.inputInner}>
         <Show when={!!local.leftElement}>
-          <div class={cm.inputLeftElement}>
-            {local.leftElement as JSX.Element}
-          </div>
+          <div class={cm.inputLeftElement}>{local.leftElement as JSX.Element}</div>
         </Show>
         <input
           type={local.type || 'text'}
@@ -81,11 +76,7 @@ export const Input: Component<InputProps> = (props) => {
           required={local.required}
           aria-invalid={!!local.error}
           aria-describedby={
-            local.error
-              ? `${inputId()}-error`
-              : local.hint
-                ? `${inputId()}-hint`
-                : undefined
+            local.error ? `${inputId()}-error` : local.hint ? `${inputId()}-hint` : undefined
           }
           class={inputClasses()}
           style={local.style}
@@ -99,17 +90,15 @@ export const Input: Component<InputProps> = (props) => {
           <div class={cm.inputRightElement}>
             <Show
               when={local.clearable && local.value}
-              fallback={
-                <span class={cm.textMuted}>
-                  {local.rightElement as JSX.Element}
-                </span>
-              }
+              fallback={<span class={cm.textMuted}>{local.rightElement as JSX.Element}</span>}
             >
               <button
                 type="button"
                 onClick={local.onClear}
                 class={cm.inputClearButton}
-                aria-label={local.clearLabel ?? t('ui.input.clear', undefined, { defaultValue: 'Clear' })}
+                aria-label={
+                  local.clearLabel ?? t('ui.input.clear', undefined, { defaultValue: 'Clear' })
+                }
               >
                 {renderIcon('x-mark', cm.iconSm)}
               </button>

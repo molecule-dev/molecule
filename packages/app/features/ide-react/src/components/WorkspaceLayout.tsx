@@ -5,7 +5,7 @@
  */
 
 import type { JSX } from 'react'
-import { Children, isValidElement,useCallback } from 'react'
+import { Children, isValidElement, useCallback } from 'react'
 
 import { useWorkspace } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -44,7 +44,8 @@ export function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): 
       const config = panelConfigs[index]
       if (config) {
         const currentSize = config.defaultSize || Math.floor(100 / panelConfigs.length)
-        const containerWidth = document.querySelector('[data-workspace-layout]')?.clientWidth || 1000
+        const containerWidth =
+          document.querySelector('[data-workspace-layout]')?.clientWidth || 1000
         const percentDelta = (delta / containerWidth) * 100
         const newSize = Math.max(10, Math.min(80, currentSize + percentDelta))
         resizePanel(config.id, newSize)
@@ -56,12 +57,7 @@ export function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): 
   return (
     <div
       data-workspace-layout=""
-      className={cm.cn(
-        cm.flex({ direction: 'row' }),
-        cm.w('full'),
-        cm.h('full'),
-        className,
-      )}
+      className={cm.cn(cm.flex({ direction: 'row' }), cm.w('full'), cm.h('full'), className)}
       style={{
         overflow: 'hidden',
         minHeight: 0,
@@ -82,10 +78,7 @@ export function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): 
         >
           {panel}
           {i < panels.length - 1 && (
-            <ResizeHandle
-              direction="horizontal"
-              onResize={(delta) => handleResize(i, delta)}
-            />
+            <ResizeHandle direction="horizontal" onResize={(delta) => handleResize(i, delta)} />
           )}
         </div>
       ))}

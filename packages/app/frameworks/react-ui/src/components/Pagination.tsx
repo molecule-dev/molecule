@@ -113,16 +113,15 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
     }
 
     const buttonClasses = (isActive: boolean): string =>
-      cm.cn(
-        cm.pagination({ active: isActive, size }),
-        cm.paginationInteractive,
-      )
+      cm.cn(cm.pagination({ active: isActive, size }), cm.paginationInteractive)
 
     return (
       <nav
         ref={ref}
         role="navigation"
-        aria-label={labels?.nav ?? t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' })}
+        aria-label={
+          labels?.nav ?? t('ui.pagination.nav', undefined, { defaultValue: 'Pagination' })
+        }
         className={cm.cn(cm.paginationRoot, className)}
         style={style}
         data-testid={testId}
@@ -136,7 +135,10 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
                 className={buttonClasses(false)}
                 onClick={() => handlePageChange(1)}
                 disabled={page === 1 || disabled}
-                aria-label={labels?.first ?? t('ui.pagination.first', undefined, { defaultValue: 'Go to first page' })}
+                aria-label={
+                  labels?.first ??
+                  t('ui.pagination.first', undefined, { defaultValue: 'Go to first page' })
+                }
               >
                 {renderIcon('chevrons-left', cm.iconSm)}
               </button>
@@ -151,7 +153,10 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
                 className={buttonClasses(false)}
                 onClick={() => handlePageChange(page - 1)}
                 disabled={page === 1 || disabled}
-                aria-label={labels?.previous ?? t('ui.pagination.previous', undefined, { defaultValue: 'Go to previous page' })}
+                aria-label={
+                  labels?.previous ??
+                  t('ui.pagination.previous', undefined, { defaultValue: 'Go to previous page' })
+                }
               >
                 {renderIcon('chevron-left', cm.iconSm)}
               </button>
@@ -171,7 +176,14 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
                   className={buttonClasses(item === page)}
                   onClick={() => handlePageChange(item)}
                   disabled={disabled}
-                  aria-label={labels?.goToPage?.(item) ?? t('ui.pagination.goToPage', { page: item }, { defaultValue: 'Go to page {{page}}' })}
+                  aria-label={
+                    labels?.goToPage?.(item) ??
+                    t(
+                      'ui.pagination.goToPage',
+                      { page: item },
+                      { defaultValue: 'Go to page {{page}}' },
+                    )
+                  }
                   aria-current={item === page ? 'page' : undefined}
                 >
                   {item}
@@ -188,7 +200,10 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
                 className={buttonClasses(false)}
                 onClick={() => handlePageChange(page + 1)}
                 disabled={page === totalPages || disabled}
-                aria-label={labels?.next ?? t('ui.pagination.next', undefined, { defaultValue: 'Go to next page' })}
+                aria-label={
+                  labels?.next ??
+                  t('ui.pagination.next', undefined, { defaultValue: 'Go to next page' })
+                }
               >
                 {renderIcon('chevron-right', cm.iconSm)}
               </button>
@@ -203,7 +218,10 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
                 className={buttonClasses(false)}
                 onClick={() => handlePageChange(totalPages)}
                 disabled={page === totalPages || disabled}
-                aria-label={labels?.last ?? t('ui.pagination.last', undefined, { defaultValue: 'Go to last page' })}
+                aria-label={
+                  labels?.last ??
+                  t('ui.pagination.last', undefined, { defaultValue: 'Go to last page' })
+                }
               >
                 {renderIcon('chevrons-right', cm.iconSm)}
               </button>

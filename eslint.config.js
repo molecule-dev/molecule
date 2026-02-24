@@ -39,10 +39,7 @@ export default tseslint.config(
       'jsdoc/require-param-description': 'warn',
       'jsdoc/require-returns': 'warn',
       'jsdoc/require-returns-description': 'warn',
-      'jsdoc/check-tag-names': [
-        'warn',
-        { definedTags: ['module', 'remarks'] },
-      ],
+      'jsdoc/check-tag-names': ['warn', { definedTags: ['module', 'remarks'] }],
       'jsdoc/check-param-names': 'warn',
       'jsdoc/tag-lines': 'off',
       'jsdoc/require-throws-type': 'warn',
@@ -156,6 +153,8 @@ export default tseslint.config(
       'packages/**/dist/',
       'packages/**/node_modules/',
       'packages/**/*.d.ts',
+      'packages/**/*.js',
+      'packages/**/*.js.map',
     ],
   },
 )

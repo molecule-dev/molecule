@@ -4,10 +4,10 @@
  * @module
  */
 
-import React, { createContext, forwardRef, useCallback, useContext, useId,useState } from 'react'
+import React, { createContext, forwardRef, useCallback, useContext, useId, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
-import type { AccordionItem as AccordionItemType,AccordionProps } from '@molecule/app-ui'
+import type { AccordionItem as AccordionItemType, AccordionProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -26,7 +26,11 @@ const AccordionContext = createContext<AccordionContextValue | null>(null)
 const useAccordionContext = (): AccordionContextValue => {
   const context = useContext(AccordionContext)
   if (!context) {
-    throw new Error(t('react.error.useAccordionOutsideProvider', undefined, { defaultValue: 'Accordion components must be used within an Accordion' }))
+    throw new Error(
+      t('react.error.useAccordionOutsideProvider', undefined, {
+        defaultValue: 'Accordion components must be used within an Accordion',
+      }),
+    )
   }
   return context
 }
@@ -149,7 +153,12 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps<string>>(
 
     return (
       <AccordionContext.Provider value={{ expandedItems, toggleItem, multiple }}>
-        <div ref={ref} className={cm.cn(cm.accordionRoot, className)} style={style} data-testid={testId}>
+        <div
+          ref={ref}
+          className={cm.cn(cm.accordionRoot, className)}
+          style={style}
+          data-testid={testId}
+        >
           {items.map((item) => (
             <AccordionItemComponent key={item.value} item={item} />
           ))}

@@ -38,7 +38,11 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
     const showFallback = !src || imageError
 
     const avatarSize = typeof size === 'number' ? undefined : size
-    const containerClasses = cm.cn(cm.avatar({ size: avatarSize }), !rounded && cm.avatarSquare, className)
+    const containerClasses = cm.cn(
+      cm.avatar({ size: avatarSize }),
+      !rounded && cm.avatarSquare,
+      className,
+    )
 
     const customSize = typeof size === 'number' ? { width: size, height: size } : undefined
 

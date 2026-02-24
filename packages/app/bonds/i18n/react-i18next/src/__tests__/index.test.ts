@@ -126,9 +126,9 @@ describe('@molecule/app-i18n-react-i18next', () => {
     })
 
     it('should apply the initReactI18next plugin', async () => {
-      const i18next = await import('i18next')
-      const mockI18n = i18next.default
-      vi.clearAllMocks()
+      const { initReactI18next } = await import('react-i18next')
+      // Clear any calls from previous tests or module-level provider initialization
+      ;(initReactI18next.init as ReturnType<typeof vi.fn>).mockClear()
 
       const testProvider = createReactI18nextProvider({
         defaultLocale: 'en',
@@ -136,9 +136,9 @@ describe('@molecule/app-i18n-react-i18next', () => {
       })
       await testProvider.initialize()
 
-      // initReactI18next should have been passed to i18n.use()
-      const { initReactI18next } = await import('react-i18next')
-      expect(mockI18n.use).toHaveBeenCalledWith(initReactI18next)
+      // During initialization, i18next calls plugin.init() on registered plugins.
+      // The mocked initReactI18next.init should have been called.
+      expect(initReactI18next.init).toHaveBeenCalled()
     })
 
     it('should accept ReactI18nextProviderConfig type', () => {

@@ -28,14 +28,14 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@aws-sdk/client-ses": "3.991.0",
-    "@aws-sdk/credential-provider-node": "3.972.9",
+    "@aws-sdk/client-ses": "3.997.0",
+    "@aws-sdk/credential-provider-node": "3.972.12",
     "nodemailer": "8.0.1"
   },
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",
-    "@types/node": "25.2.3",
-    "@types/nodemailer": "7.0.10",
+    "@types/node": "25.3.0",
+    "@types/nodemailer": "7.0.11",
     "typescript": "5.9.3",
     "vitest": "4.0.18"
   },

@@ -85,7 +85,7 @@ export const Select: React.FC<SelectProps> = ({
         onRequestClose={() => setIsOpen(false)}
       >
         <Pressable className={cm.dialogOverlay} onPress={() => setIsOpen(false)}>
-          <View className={cm.actionSheet}>
+          <View className={cm.cn(cm.actionSheet, 'pointer-events-auto')}>
             <View className={cm.actionSheetHeader}>
               <Text className={cm.dialogTitle}>
                 {label || t('ui.select.title', undefined, { defaultValue: 'Select' })}

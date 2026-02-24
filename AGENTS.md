@@ -162,7 +162,7 @@ packages/
 │   ├── infrastructure/ # bond (wiring)
 │   ├── features/       # IDE, charts, maps, rich-text, video
 │   ├── native/         # Device capabilities (camera, biometrics, etc.)
-│   ├── frameworks/     # Framework bindings + UI (react, vue, svelte, solid, angular)
+│   ├── frameworks/     # Framework bindings + UI (react, vue, svelte, solid, angular, react-native)
 │   └── locales/        # i18n translation packages
 ```
 

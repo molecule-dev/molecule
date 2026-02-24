@@ -15,7 +15,7 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import type { TooltipPlacement,TooltipProps } from '@molecule/app-ui'
+import type { TooltipPlacement, TooltipProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 interface Position {

@@ -4,10 +4,10 @@
  * @module
  */
 
-import React, { forwardRef, useCallback, useEffect,useRef, useState } from 'react'
+import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-import type { TooltipPlacement,TooltipProps } from '@molecule/app-ui'
+import type { TooltipPlacement, TooltipProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 interface Position {
@@ -76,7 +76,16 @@ function calculatePosition(
  */
 export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
   (
-    { content, children, placement = 'top', delay = 0, hasArrow: _hasArrow, className, style, testId },
+    {
+      content,
+      children,
+      placement = 'top',
+      delay = 0,
+      hasArrow: _hasArrow,
+      className,
+      style,
+      testId,
+    },
     _ref,
   ) => {
     const [isVisible, setIsVisible] = useState(false)

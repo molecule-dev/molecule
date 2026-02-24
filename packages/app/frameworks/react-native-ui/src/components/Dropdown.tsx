@@ -45,7 +45,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         onRequestClose={() => setIsOpen(false)}
       >
         <Pressable className={cm.dialogOverlay} onPress={() => setIsOpen(false)}>
-          <View className={cm.actionSheet}>
+          <View className={cm.cn(cm.actionSheet, 'pointer-events-auto')}>
             <FlatList
               data={items}
               keyExtractor={(item, index) => String(item.value ?? index)}

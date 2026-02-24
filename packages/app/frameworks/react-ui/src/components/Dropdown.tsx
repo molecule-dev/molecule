@@ -4,10 +4,10 @@
  * @module
  */
 
-import React, { forwardRef, useCallback, useEffect,useRef, useState } from 'react'
+import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-import type { DropdownItem,DropdownProps } from '@molecule/app-ui'
+import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 interface Position {
@@ -115,9 +115,7 @@ const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({ item, onSelect, onC
     >
       {!!item.icon && <span className={cm.dropdownItemIcon}>{item.icon as React.ReactNode}</span>}
       <span className={cm.dropdownItemLabel}>{item.label as React.ReactNode}</span>
-      {item.shortcut && (
-        <span className={cm.dropdownItemShortcut}>{item.shortcut}</span>
-      )}
+      {item.shortcut && <span className={cm.dropdownItemShortcut}>{item.shortcut}</span>}
     </div>
   )
 }
@@ -305,9 +303,7 @@ export const DropdownSeparator = forwardRef<HTMLDivElement, { className?: string
   ({ className }, ref) => {
     const cm = getClassMap()
 
-    return (
-      <div ref={ref} className={cm.cn(cm.dropdownSeparator, className)} role="separator" />
-    )
+    return <div ref={ref} className={cm.cn(cm.dropdownSeparator, className)} role="separator" />
   },
 )
 

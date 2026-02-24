@@ -74,7 +74,11 @@ export const Progress: Component<ProgressProps> = (props) => {
   const percentage = (): number => Math.min(Math.max((local.value / max()) * 100, 0), 100)
 
   return (
-    <div class={cm.cn(cm.progressWrapper, local.className)} style={local.style} data-testid={local.testId}>
+    <div
+      class={cm.cn(cm.progressWrapper, local.className)}
+      style={local.style}
+      data-testid={local.testId}
+    >
       <Show when={local.label || local.showValue}>
         <div class={cm.progressLabelContainer}>
           <Show when={local.label}>

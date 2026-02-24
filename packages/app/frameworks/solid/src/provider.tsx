@@ -51,12 +51,16 @@ export const MoleculeProvider: ParentComponent<{ config: MoleculeConfig }> = (pr
 
   if (props.config.logger) {
     const inner = render
-    render = () => <LoggerContext.Provider value={props.config.logger!}>{inner()}</LoggerContext.Provider>
+    render = () => (
+      <LoggerContext.Provider value={props.config.logger!}>{inner()}</LoggerContext.Provider>
+    )
   }
 
   if (props.config.storage) {
     const inner = render
-    render = () => <StorageContext.Provider value={props.config.storage!}>{inner()}</StorageContext.Provider>
+    render = () => (
+      <StorageContext.Provider value={props.config.storage!}>{inner()}</StorageContext.Provider>
+    )
   }
 
   if (props.config.http) {
@@ -71,12 +75,16 @@ export const MoleculeProvider: ParentComponent<{ config: MoleculeConfig }> = (pr
 
   if (props.config.router) {
     const inner = render
-    render = () => <RouterContext.Provider value={props.config.router!}>{inner()}</RouterContext.Provider>
+    render = () => (
+      <RouterContext.Provider value={props.config.router!}>{inner()}</RouterContext.Provider>
+    )
   }
 
   if (props.config.theme) {
     const inner = render
-    render = () => <ThemeContext.Provider value={props.config.theme!}>{inner()}</ThemeContext.Provider>
+    render = () => (
+      <ThemeContext.Provider value={props.config.theme!}>{inner()}</ThemeContext.Provider>
+    )
   }
 
   if (props.config.auth) {
@@ -86,7 +94,9 @@ export const MoleculeProvider: ParentComponent<{ config: MoleculeConfig }> = (pr
 
   if (props.config.state) {
     const inner = render
-    render = () => <StateContext.Provider value={props.config.state!}>{inner()}</StateContext.Provider>
+    render = () => (
+      <StateContext.Provider value={props.config.state!}>{inner()}</StateContext.Provider>
+    )
   }
 
   return render()

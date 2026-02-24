@@ -6,7 +6,7 @@
 
 import React, { forwardRef } from 'react'
 
-import type { FormFieldProps,FormProps } from '@molecule/app-ui'
+import type { FormFieldProps, FormProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -73,7 +73,12 @@ export const FormField = forwardRef<HTMLDivElement, FormFieldProps>(
     const cm = getClassMap()
 
     return (
-      <div ref={ref} className={cm.cn(cm.inputWrapper, cm.sp('mb', 4), className)} style={style} data-testid={testId}>
+      <div
+        ref={ref}
+        className={cm.cn(cm.inputWrapper, cm.sp('mb', 4), className)}
+        style={style}
+        data-testid={testId}
+      >
         {label && (
           <label
             htmlFor={name}

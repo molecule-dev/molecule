@@ -40,11 +40,7 @@ export const Select: Component<SelectProps<string>> = (props) => {
   const selectId = (): string | undefined => local.id || local.name
 
   const selectClasses = (): string =>
-    cm.cn(
-      cm.select({ error: !!local.error, size: local.size }),
-      cm.selectNative,
-      local.className,
-    )
+    cm.cn(cm.select({ error: !!local.error, size: local.size }), cm.selectNative, local.className)
 
   // Group options by group property
   const groupedOptions = (): Record<string, typeof local.options> => {
@@ -88,11 +84,7 @@ export const Select: Component<SelectProps<string>> = (props) => {
           required={local.required}
           aria-invalid={!!local.error}
           aria-describedby={
-            local.error
-              ? `${selectId()}-error`
-              : local.hint
-                ? `${selectId()}-hint`
-                : undefined
+            local.error ? `${selectId()}-error` : local.hint ? `${selectId()}-hint` : undefined
           }
           class={selectClasses()}
           style={{

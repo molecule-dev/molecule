@@ -45,10 +45,10 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
         role="radiogroup"
         aria-label={label ?? t('ui.radioGroup.label', undefined, { defaultValue: 'Radio group' })}
       >
-        {label && <div className={cm.cn(cm.label({ required: false }), cm.sp('mb', 2))}>{label}</div>}
-        <div
-          className={cm.radioGroupLayout(direction)}
-        >
+        {label && (
+          <div className={cm.cn(cm.label({ required: false }), cm.sp('mb', 2))}>{label}</div>
+        )}
+        <div className={cm.radioGroupLayout(direction)}>
           {options.map((option) => {
             const isChecked = value === option.value
             const isDisabled = disabled || option.disabled
@@ -56,10 +56,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
             return (
               <label
                 key={option.value}
-                className={cm.cn(
-                  cm.controlLabel,
-                  isDisabled && cm.controlDisabled,
-                )}
+                className={cm.cn(cm.controlLabel, isDisabled && cm.controlDisabled)}
               >
                 <input
                   type="radio"

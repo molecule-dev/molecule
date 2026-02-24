@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useRef } from 'react'
-import { Animated, View,type ViewStyle } from 'react-native'
+import { Animated, View, type ViewStyle } from 'react-native'
 
 import type { SkeletonProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'

@@ -20,7 +20,11 @@ import type { DeviceFrameSelectorProps } from '../types.js'
  * @param root0.className - Optional CSS class name for the container.
  * @returns The rendered device frame selector element.
  */
-export function DeviceFrameSelector({ current, onChange, className }: DeviceFrameSelectorProps): JSX.Element {
+export function DeviceFrameSelector({
+  current,
+  onChange,
+  className,
+}: DeviceFrameSelectorProps): JSX.Element {
   const cm = getClassMap()
 
   const devices: { frame: DeviceFrame; label: string }[] = [
@@ -32,10 +36,7 @@ export function DeviceFrameSelector({ current, onChange, className }: DeviceFram
 
   return (
     <div
-      className={cm.cn(
-        cm.flex({ direction: 'row', align: 'center', gap: 'xs' }),
-        className,
-      )}
+      className={cm.cn(cm.flex({ direction: 'row', align: 'center', gap: 'xs' }), className)}
       role="radiogroup"
       aria-label={t('ide.device.label')}
     >

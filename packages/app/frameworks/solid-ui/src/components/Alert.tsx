@@ -50,7 +50,8 @@ export const Alert: Component<AlertProps> = (props) => {
   ])
 
   const cm = getClassMap()
-  const cmVariant = (): 'default' | 'info' | 'success' | 'warning' | 'error' => statusVariantMap[local.status || 'info'] || 'default'
+  const cmVariant = (): 'default' | 'info' | 'success' | 'warning' | 'error' =>
+    statusVariantMap[local.status || 'info'] || 'default'
   const iconName = (): string | undefined => statusIconMap[cmVariant()]
 
   const alertClasses = (): string => cm.cn(cm.alert({ variant: cmVariant() }), local.className)
@@ -75,7 +76,9 @@ export const Alert: Component<AlertProps> = (props) => {
           type="button"
           onClick={local.onDismiss}
           class={cm.alertDismiss}
-          aria-label={local.dismissLabel ?? t('ui.alert.dismiss', undefined, { defaultValue: 'Dismiss' })}
+          aria-label={
+            local.dismissLabel ?? t('ui.alert.dismiss', undefined, { defaultValue: 'Dismiss' })
+          }
         >
           {renderIcon('x-mark', cm.iconSm)}
         </button>

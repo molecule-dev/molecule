@@ -172,6 +172,7 @@ interface Pool extends Connection {
 interface PoolConnection extends Connection {
   release(): void;
   connection: Connection;
+  [Symbol.asyncDispose](): Promise<void>;
 }
 ```
 

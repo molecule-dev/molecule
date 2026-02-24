@@ -6,7 +6,7 @@
 
 import { type Component, type JSX, Show, splitProps } from 'solid-js'
 
-import type { FormFieldProps,FormProps } from '@molecule/app-ui'
+import type { FormFieldProps, FormProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
@@ -82,7 +82,11 @@ export const FormField: Component<FormFieldProps> = (props) => {
   const cm = getClassMap()
 
   return (
-    <div class={cm.cn(cm.formField, local.className)} style={local.style} data-testid={local.testId}>
+    <div
+      class={cm.cn(cm.formField, local.className)}
+      style={local.style}
+      data-testid={local.testId}
+    >
       <Show when={local.label}>
         <label
           for={local.name}
@@ -119,10 +123,7 @@ export const Label: Component<{
 }> = (props) => {
   const cm = getClassMap()
   return (
-    <label
-      for={props.for}
-      class={cm.cn(cm.label({ required: props.required }), props.class)}
-    >
+    <label for={props.for} class={cm.cn(cm.label({ required: props.required }), props.class)}>
       {props.children}
     </label>
   )

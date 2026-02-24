@@ -16,14 +16,7 @@ import { getClassMap } from '@molecule/app-ui'
  * @returns The rendered spinner JSX.
  */
 export const Spinner: Component<SpinnerProps> = (props) => {
-  const [local] = splitProps(props, [
-    'size',
-    'color',
-    'label',
-    'className',
-    'style',
-    'testId',
-  ])
+  const [local] = splitProps(props, ['size', 'color', 'label', 'className', 'style', 'testId'])
 
   const cm = getClassMap()
   const classes = (): string => cm.cn(cm.spinner({ size: local.size }), local.className)

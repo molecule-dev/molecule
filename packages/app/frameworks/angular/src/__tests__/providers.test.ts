@@ -11,13 +11,13 @@ vi.mock('@angular/core', () => ({
     }
   },
   ENVIRONMENT_INITIALIZER: Symbol('ENVIRONMENT_INITIALIZER'),
-  makeEnvironmentProviders: function mockMakeEnvProviders(providers: unknown[]) {
+  makeEnvironmentProviders: function mockMakeEnvProviders(providers: unknown[]): unknown {
     makeEnvProvidersCalls.push(providers)
     return { _providers: providers, ɵproviders: providers }
   },
   signal: (initial: unknown) => {
     let value = initial
-    const s = () => value
+    const s = (): unknown => value
     s.set = (v: unknown) => {
       value = v
     }

@@ -43,7 +43,7 @@
     "@angular/compiler-cli": "21.1.5",
     "@angular/core": "21.1.5",
     "@molecule/app-utilities": "1.0.0",
-    "@types/node": "25.2.3",
+    "@types/node": "25.3.0",
     "rxjs": "7.8.2",
     "typescript": "5.9.3",
     "vitest": "4.0.18"

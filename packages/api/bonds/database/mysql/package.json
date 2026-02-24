@@ -27,14 +27,14 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "mysql2": "3.17.2"
+    "mysql2": "3.18.0"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
     "@molecule/api-database": "^1.0.0"
   },
   "devDependencies": {
-    "@types/node": "25.2.3",
+    "@types/node": "25.3.0",
     "typescript": "5.9.3",
     "vitest": "4.0.18"
   },

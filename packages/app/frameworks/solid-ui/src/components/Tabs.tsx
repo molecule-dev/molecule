@@ -4,7 +4,7 @@
  * @module
  */
 
-import { type Component, createSignal,For, type JSX, Show, splitProps } from 'solid-js'
+import { type Component, createSignal, For, type JSX, Show, splitProps } from 'solid-js'
 
 import type { TabsProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -32,7 +32,8 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
   const [internalValue, setInternalValue] = createSignal(
     local.defaultValue || local.items[0]?.value,
   )
-  const activeValue = (): string | undefined => (local.value !== undefined ? local.value : internalValue())
+  const activeValue = (): string | undefined =>
+    local.value !== undefined ? local.value : internalValue()
 
   const handleTabClick = (tabValue: string): void => {
     if (local.value === undefined) {
@@ -41,7 +42,8 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
     local.onChange?.(tabValue)
   }
 
-  const activeItem = (): (typeof local.items)[number] | undefined => local.items.find((item) => item.value === activeValue())
+  const activeItem = (): (typeof local.items)[number] | undefined =>
+    local.items.find((item) => item.value === activeValue())
 
   return (
     <div class={local.className} style={local.style} data-testid={local.testId}>

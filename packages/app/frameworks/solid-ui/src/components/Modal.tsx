@@ -4,14 +4,7 @@
  * @module
  */
 
-import {
-  type Component,
-  createEffect,
-  type JSX,
-  onCleanup,
-  Show,
-  splitProps,
-} from 'solid-js'
+import { type Component, createEffect, type JSX, onCleanup, Show, splitProps } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { t } from '@molecule/app-i18n'
@@ -88,10 +81,7 @@ export const Modal: Component<ModalProps> = (props) => {
         <div class={cm.dialogOverlay} aria-hidden="true" />
 
         {/* Centering wrapper */}
-        <div
-          class={cm.dialogWrapper}
-          onClick={handleOverlayClick}
-        >
+        <div class={cm.dialogWrapper} onClick={handleOverlayClick}>
           {/* Content */}
           <div
             role="dialog"
@@ -102,35 +92,40 @@ export const Modal: Component<ModalProps> = (props) => {
             data-testid={local.testId}
             onClick={(e: MouseEvent) => e.stopPropagation()}
           >
-          <Show when={local.title || showCloseButton()}>
-            <div class={cm.dialogHeader}>
-              <Show when={local.title} fallback={
-                <Show when={showCloseButton()}>
-                  <div></div>
-                </Show>
-              }>
-                <h2 id="modal-title" class={cm.dialogTitle}>
-                  {local.title}
-                </h2>
-              </Show>
-              <Show when={showCloseButton()}>
-                <button
-                  type="button"
-                  onClick={() => local.onClose()}
-                  class={cm.dialogClose}
-                  aria-label={local.closeLabel ?? t('ui.modal.close', undefined, { defaultValue: 'Close' })}
+            <Show when={local.title || showCloseButton()}>
+              <div class={cm.dialogHeader}>
+                <Show
+                  when={local.title}
+                  fallback={
+                    <Show when={showCloseButton()}>
+                      <div></div>
+                    </Show>
+                  }
                 >
-                  {renderIcon('x-mark', cm.iconMd)}
-                </button>
-              </Show>
-            </div>
-          </Show>
+                  <h2 id="modal-title" class={cm.dialogTitle}>
+                    {local.title}
+                  </h2>
+                </Show>
+                <Show when={showCloseButton()}>
+                  <button
+                    type="button"
+                    onClick={() => local.onClose()}
+                    class={cm.dialogClose}
+                    aria-label={
+                      local.closeLabel ?? t('ui.modal.close', undefined, { defaultValue: 'Close' })
+                    }
+                  >
+                    {renderIcon('x-mark', cm.iconMd)}
+                  </button>
+                </Show>
+              </div>
+            </Show>
 
-          <div class={cm.dialogBody}>{local.children as JSX.Element}</div>
+            <div class={cm.dialogBody}>{local.children as JSX.Element}</div>
 
-          <Show when={!!local.footer}>
-            <div class={cm.dialogFooter}>{local.footer as JSX.Element}</div>
-          </Show>
+            <Show when={!!local.footer}>
+              <div class={cm.dialogFooter}>{local.footer as JSX.Element}</div>
+            </Show>
           </div>
         </div>
       </Portal>

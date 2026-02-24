@@ -15,7 +15,7 @@ import React, {
 import { createPortal } from 'react-dom'
 
 import { t } from '@molecule/app-i18n'
-import type { ColorVariant,ToastProps } from '@molecule/app-ui'
+import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { renderIcon } from '../utilities/renderIcon.js'
@@ -100,11 +100,18 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
         <div className={cm.toastContentWrapper}>
           {title && <div className={cm.toastTitle}>{title}</div>}
           {!!(description || children) && (
-            <div className={cm.toastDescription}>{(description as React.ReactNode) || (children as React.ReactNode)}</div>
+            <div className={cm.toastDescription}>
+              {(description as React.ReactNode) || (children as React.ReactNode)}
+            </div>
           )}
         </div>
         {dismissible && (
-          <button type="button" onClick={handleDismiss} className={cm.toastClose} aria-label={closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' })}>
+          <button
+            type="button"
+            onClick={handleDismiss}
+            className={cm.toastClose}
+            aria-label={closeLabel ?? t('ui.toast.close', undefined, { defaultValue: 'Close' })}
+          >
             {renderIcon('x-mark', cm.iconSm)}
           </button>
         )}
@@ -135,13 +142,7 @@ export const ToastContainer = forwardRef<HTMLDivElement, ToastContainerProps>(
     const cm = getClassMap()
 
     const container = (
-      <div
-        ref={ref}
-        className={cm.cn(
-          cm.toastContainer({ position }),
-          className,
-        )}
-      >
+      <div ref={ref} className={cm.cn(cm.toastContainer({ position }), className)}>
         {children}
       </div>
     )
@@ -171,7 +172,11 @@ const ToastContext = createContext<ToastContextValue | null>(null)
 export const useToast = (): ToastContextValue => {
   const context = useContext(ToastContext)
   if (!context) {
-    throw new Error(t('react.error.useToastOutsideProvider', undefined, { defaultValue: 'useToast must be used within a ToastProvider' }))
+    throw new Error(
+      t('react.error.useToastOutsideProvider', undefined, {
+        defaultValue: 'useToast must be used within a ToastProvider',
+      }),
+    )
   }
   return context
 }

@@ -43,26 +43,21 @@ export const RadioGroup: Component<RadioGroupProps<string>> = (props) => {
       style={local.style}
       data-testid={local.testId}
       role="radiogroup"
-      aria-label={local.label ?? t('ui.radioGroup.label', undefined, { defaultValue: 'Radio group' })}
+      aria-label={
+        local.label ?? t('ui.radioGroup.label', undefined, { defaultValue: 'Radio group' })
+      }
     >
       <Show when={local.label}>
         <div class={cm.cn(cm.label({}), cm.radioGroupLabel)}>{local.label}</div>
       </Show>
-      <div
-        class={cm.radioGroupLayout(direction())}
-      >
+      <div class={cm.radioGroupLayout(direction())}>
         <For each={local.options}>
           {(option) => {
             const isChecked = (): boolean => local.value === option.value
             const isDisabled = (): boolean | undefined => local.disabled || option.disabled
 
             return (
-              <label
-                class={cm.cn(
-                  cm.controlLabel,
-                  isDisabled() && cm.controlDisabled,
-                )}
-              >
+              <label class={cm.cn(cm.controlLabel, isDisabled() && cm.controlDisabled)}>
                 <input
                   type="radio"
                   name={local.label}

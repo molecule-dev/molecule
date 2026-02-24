@@ -5,7 +5,7 @@
  */
 
 import type { JSX } from 'react'
-import { useCallback,useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { useChat } from '@molecule/app-react'
@@ -59,14 +59,7 @@ export function ChatPanel({ projectId, endpoint, className }: ChatPanelProps): J
   )
 
   return (
-    <div
-      className={cm.cn(
-        cm.flex({ direction: 'col' }),
-        cm.h('full'),
-        cm.surface,
-        className,
-      )}
-    >
+    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, className)}>
       {/* Header */}
       <div
         className={cm.cn(
@@ -83,10 +76,7 @@ export function ChatPanel({ projectId, endpoint, className }: ChatPanelProps): J
       </div>
 
       {/* Messages */}
-      <div
-        className={cm.cn(cm.sp('p', 3))}
-        style={{ flex: 1, overflowY: 'auto' }}
-      >
+      <div className={cm.cn(cm.sp('p', 3))} style={{ flex: 1, overflowY: 'auto' }}>
         {messages.length === 0 && (
           <div className={cm.cn(cm.textMuted, cm.textSize('sm'), cm.textCenter)}>
             {t('ide.chat.emptyState')}
@@ -94,10 +84,7 @@ export function ChatPanel({ projectId, endpoint, className }: ChatPanelProps): J
         )}
 
         {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={cm.sp('mb', 3)}
-          >
+          <div key={msg.id} className={cm.sp('mb', 3)}>
             <div
               className={cm.cn(
                 cm.textSize('xs'),
@@ -133,7 +120,13 @@ export function ChatPanel({ projectId, endpoint, className }: ChatPanelProps): J
 
         {error && (
           <div
-            className={cm.cn(cm.textSize('sm'), cm.sp('p', 2), cm.sp('mb', 2), cm.bgErrorSubtle, cm.textError)}
+            className={cm.cn(
+              cm.textSize('sm'),
+              cm.sp('p', 2),
+              cm.sp('mb', 2),
+              cm.bgErrorSubtle,
+              cm.textError,
+            )}
             style={{ borderRadius: '6px' }}
           >
             {error}
@@ -144,10 +137,7 @@ export function ChatPanel({ projectId, endpoint, className }: ChatPanelProps): J
       </div>
 
       {/* Input */}
-      <form
-        onSubmit={handleSubmit}
-        className={cm.cn(cm.sp('p', 3), cm.shrink0, cm.borderT)}
-      >
+      <form onSubmit={handleSubmit} className={cm.cn(cm.sp('p', 3), cm.shrink0, cm.borderT)}>
         <div className={cm.flex({ direction: 'row', align: 'end', gap: 'sm' })}>
           <textarea
             value={inputValue}
@@ -166,11 +156,7 @@ export function ChatPanel({ projectId, endpoint, className }: ChatPanelProps): J
             }}
           />
           {isLoading ? (
-            <button
-              type="button"
-              onClick={abort}
-              className={cm.button({ color: 'error' })}
-            >
+            <button type="button" onClick={abort} className={cm.button({ color: 'error' })}>
               {t('ide.chat.stop')}
             </button>
           ) : (

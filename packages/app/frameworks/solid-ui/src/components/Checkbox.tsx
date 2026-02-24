@@ -4,7 +4,7 @@
  * @module
  */
 
-import { type Component, createEffect,type JSX, Show, splitProps } from 'solid-js'
+import { type Component, createEffect, type JSX, Show, splitProps } from 'solid-js'
 
 import type { CheckboxProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -42,7 +42,8 @@ export const Checkbox: Component<CheckboxProps> = (props) => {
     }
   })
 
-  const checkboxClasses = (): string => cm.cn(cm.checkbox({ error: !!local.error }), local.className)
+  const checkboxClasses = (): string =>
+    cm.cn(cm.checkbox({ error: !!local.error }), local.className)
 
   return (
     <div class={cm.formFieldWrapper}>

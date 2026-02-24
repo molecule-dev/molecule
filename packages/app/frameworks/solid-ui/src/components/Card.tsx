@@ -33,7 +33,8 @@ export const Card: Component<CardProps> = (props) => {
   ])
 
   const cm = getClassMap()
-  const cmVariant = (): 'default' | 'elevated' | 'outline' | 'ghost' => variantMap[local.variant || 'elevated'] || 'default'
+  const cmVariant = (): 'default' | 'elevated' | 'outline' | 'ghost' =>
+    variantMap[local.variant || 'elevated'] || 'default'
 
   const cardClasses = (): string =>
     cm.cn(

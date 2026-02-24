@@ -15,19 +15,14 @@ import { getClassMap } from '@molecule/app-ui'
  * @returns The rendered separator JSX.
  */
 export const Separator: Component<SeparatorProps> = (props) => {
-  const [local] = splitProps(props, [
-    'orientation',
-    'decorative',
-    'className',
-    'style',
-    'testId',
-  ])
+  const [local] = splitProps(props, ['orientation', 'decorative', 'className', 'style', 'testId'])
 
   const cm = getClassMap()
   const orientation = (): 'horizontal' | 'vertical' => local.orientation || 'horizontal'
   const decorative = (): boolean => local.decorative ?? true
 
-  const separatorClasses = (): string => cm.cn(cm.separator({ orientation: orientation() }), local.className)
+  const separatorClasses = (): string =>
+    cm.cn(cm.separator({ orientation: orientation() }), local.className)
 
   return (
     <div
