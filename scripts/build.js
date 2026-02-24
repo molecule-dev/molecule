@@ -113,7 +113,11 @@ function buildOne(name, pkgDir) {
       stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env },
     })
+    let stdout = ''
     let stderr = ''
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk
+    })
     child.stderr.on('data', (chunk) => {
       stderr += chunk
     })
@@ -121,7 +125,8 @@ function buildOne(name, pkgDir) {
       if (code === 0) {
         resolve()
       } else {
-        reject(new Error(`${name} failed:\n${stderr}`))
+        const output = [stdout, stderr].filter(Boolean).join('\n')
+        reject(new Error(`${name} failed:\n${output}`))
       }
     })
   })
