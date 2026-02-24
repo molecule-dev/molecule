@@ -6,15 +6,26 @@ vi.mock('i18next', () => {
   let currentLanguage = 'en'
   const resources: Record<string, Record<string, unknown>> = {}
 
+  const plugins: Array<{ init?: (...args: unknown[]) => void }> = []
+
   const mockI18n = {
     language: currentLanguage,
     createInstance: vi.fn(() => mockI18n),
-    use: vi.fn(() => mockI18n),
+    use: vi.fn((plugin: { init?: (...args: unknown[]) => void }) => {
+      plugins.push(plugin)
+      return mockI18n
+    }),
     init: vi.fn(async (options: { lng?: string; resources?: Record<string, unknown> }) => {
       currentLanguage = options.lng || 'en'
       mockI18n.language = currentLanguage
       if (options.resources) {
         Object.assign(resources, options.resources)
+      }
+      // Simulate i18next calling plugin.init() on registered plugins
+      for (const plugin of plugins) {
+        if (typeof plugin.init === 'function') {
+          plugin.init(mockI18n, options)
+        }
       }
       return mockI18n
     }),
