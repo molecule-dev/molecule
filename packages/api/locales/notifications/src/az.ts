@@ -2,5 +2,6 @@ import type { NotificationsTranslations } from './types.js'
 
 /** Notifications translations for Azerbaijani. */
 export const az: NotificationsTranslations = {
-  'notifications.warn.noProviders': 'No notification providers configured. Notification not sent.',
+  'notifications.warn.noProviders':
+    'Heç bir bildiriş provayderi konfiqurasiya edilməyib. Bildiriş göndərilmədi.',
 }

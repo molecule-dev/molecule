@@ -2,5 +2,5 @@ import type { SchedulerTranslations } from './types.js'
 
 /** Scheduler translations for Arabic. */
 export const ar: SchedulerTranslations = {
-  'scheduler.error.noProvider': 'Scheduler provider not configured. Call setProvider() first.',
+  'scheduler.error.noProvider': 'لم يتم تكوين مزود المجدول. قم باستدعاء setProvider() أولاً.',
 }

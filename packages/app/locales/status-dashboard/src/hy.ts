@@ -2,19 +2,28 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for Armenian. */
 export const hy: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Status dashboard provider not configured.',
-  'statusDashboard.error.fetchFailed': 'Failed to fetch status: HTTP {{status}}',
-  'statusDashboard.label.allOperational': 'All Systems Operational',
-  'statusDashboard.label.someIssues': 'Some Systems Experiencing Issues',
-  'statusDashboard.label.majorOutage': 'Major System Outage',
-  'statusDashboard.label.operational': 'Operational',
-  'statusDashboard.label.degraded': 'Degraded',
-  'statusDashboard.label.down': 'Down',
-  'statusDashboard.label.unknown': 'Unknown',
-  'statusDashboard.label.services': 'Services',
-  'statusDashboard.label.incidents': 'Incidents',
-  'statusDashboard.label.uptime': 'Uptime',
-  'statusDashboard.label.lastChecked': 'Last checked {{time}}',
+  'statusDashboard.error.noProvider':
+    '\u053F\u0561\u0580\u0563\u0561\u057E\u056B\u0573\u0561\u056F\u056B \u057E\u0561\u0570\u0561\u0576\u0561\u056F\u056B \u0574\u0561\u057F\u0561\u056F\u0561\u0580\u0561\u0580\u0568 \u056F\u0561\u0580\u0563\u0561\u057E\u0578\u0580\u057E\u0561\u056E \u0579\u0567:',
+  'statusDashboard.error.fetchFailed':
+    '\u0549\u0570\u0561\u057B\u0578\u0572\u057E\u0565\u0581 \u057D\u057F\u0561\u0576\u0561\u056C \u056F\u0561\u0580\u0563\u0561\u057E\u056B\u0573\u0561\u056F\u0568: HTTP {{status}}',
+  'statusDashboard.label.allOperational':
+    '\u0532\u0578\u056C\u0578\u0580 \u0570\u0561\u0574\u0561\u056F\u0561\u0580\u0563\u0565\u0580\u0568 \u0563\u0578\u0580\u056E\u0578\u0582\u0574 \u0565\u0576',
+  'statusDashboard.label.someIssues':
+    '\u0548\u0580\u0578\u0577 \u0570\u0561\u0574\u0561\u056F\u0561\u0580\u0563\u0565\u0580 \u056D\u0576\u0564\u056B\u0580\u0576\u0565\u0580 \u0578\u0582\u0576\u0565\u0576',
+  'statusDashboard.label.majorOutage':
+    '\u0540\u0561\u0574\u0561\u056F\u0561\u0580\u0563\u056B \u056C\u0578\u0582\u0580\u057B \u056D\u0561\u0583\u0561\u0576\u0578\u0582\u0574',
+  'statusDashboard.label.operational': '\u0533\u0578\u0580\u056E\u0578\u0582\u0574 \u0567',
+  'statusDashboard.label.degraded': '\u054E\u0561\u057F\u0569\u0561\u0580\u0561\u0581\u0561\u056E',
+  'statusDashboard.label.down': '\u0549\u056B \u0563\u0578\u0580\u056E\u0578\u0582\u0574',
+  'statusDashboard.label.unknown': '\u0531\u0576\u0570\u0561\u0575\u057F',
+  'statusDashboard.label.services':
+    '\u053E\u0561\u057C\u0561\u0575\u0578\u0582\u0569\u0575\u0578\u0582\u0576\u0576\u0565\u0580',
+  'statusDashboard.label.incidents': '\u0544\u056B\u057B\u0561\u0564\u0565\u057A\u0565\u0580',
+  'statusDashboard.label.uptime':
+    '\u0531\u0577\u056D\u0561\u057F\u0561\u0576\u0584\u056B \u056A\u0561\u0574\u0561\u0576\u0561\u056F',
+  'statusDashboard.label.lastChecked':
+    '\u054E\u0565\u0580\u057B\u056B\u0576 \u057D\u057F\u0578\u0582\u0563\u057E\u0565\u056C \u0567 {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
-  'statusDashboard.label.noIncidents': 'No incidents reported.',
+  'statusDashboard.label.noIncidents':
+    '\u0544\u056B\u057B\u0561\u0564\u0565\u057A\u0565\u0580 \u0579\u0565\u0576 \u0563\u0580\u0561\u0576\u0581\u057E\u0565\u056C:',
 }

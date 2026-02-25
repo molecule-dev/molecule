@@ -2,19 +2,20 @@ import type { StatusDashboardTranslations } from './types.js'
 
 /** Status dashboard translations for French. */
 export const fr: StatusDashboardTranslations = {
-  'statusDashboard.error.noProvider': 'Status dashboard provider not configured.',
-  'statusDashboard.error.fetchFailed': 'Failed to fetch status: HTTP {{status}}',
-  'statusDashboard.label.allOperational': 'All Systems Operational',
-  'statusDashboard.label.someIssues': 'Some Systems Experiencing Issues',
-  'statusDashboard.label.majorOutage': 'Major System Outage',
-  'statusDashboard.label.operational': 'Operational',
-  'statusDashboard.label.degraded': 'Degraded',
-  'statusDashboard.label.down': 'Down',
-  'statusDashboard.label.unknown': 'Unknown',
+  'statusDashboard.error.noProvider':
+    "Le fournisseur du tableau de bord d'état n'est pas configuré.",
+  'statusDashboard.error.fetchFailed': "Échec de la récupération de l'état : HTTP {{status}}",
+  'statusDashboard.label.allOperational': 'Tous les systèmes sont opérationnels',
+  'statusDashboard.label.someIssues': 'Certains systèmes rencontrent des problèmes',
+  'statusDashboard.label.majorOutage': 'Panne majeure du système',
+  'statusDashboard.label.operational': 'Opérationnel',
+  'statusDashboard.label.degraded': 'Dégradé',
+  'statusDashboard.label.down': 'Hors service',
+  'statusDashboard.label.unknown': 'Inconnu',
   'statusDashboard.label.services': 'Services',
   'statusDashboard.label.incidents': 'Incidents',
-  'statusDashboard.label.uptime': 'Uptime',
-  'statusDashboard.label.lastChecked': 'Last checked {{time}}',
+  'statusDashboard.label.uptime': 'Disponibilité',
+  'statusDashboard.label.lastChecked': 'Dernière vérification {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
-  'statusDashboard.label.noIncidents': 'No incidents reported.',
+  'statusDashboard.label.noIncidents': 'Aucun incident signalé.',
 }

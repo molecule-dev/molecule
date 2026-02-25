@@ -2,5 +2,6 @@ import type { SchedulerTranslations } from './types.js'
 
 /** Scheduler translations for Catalan. */
 export const ca: SchedulerTranslations = {
-  'scheduler.error.noProvider': 'Scheduler provider not configured. Call setProvider() first.',
+  'scheduler.error.noProvider':
+    'El proveïdor del planificador no està configurat. Crideu primer setProvider().',
 }

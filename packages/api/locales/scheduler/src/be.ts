@@ -2,5 +2,6 @@ import type { SchedulerTranslations } from './types.js'
 
 /** Scheduler translations for Belarusian. */
 export const be: SchedulerTranslations = {
-  'scheduler.error.noProvider': 'Scheduler provider not configured. Call setProvider() first.',
+  'scheduler.error.noProvider':
+    'Пастаўшчык планіроўшчыка не наладжаны. Спачатку выклічце setProvider().',
 }
