@@ -71,7 +71,7 @@ function mockRes(): any {
   return res
 }
 
-describe('@molecule/api-resource-conversation handlers', () => {
+describe('@molecule/api-resource-ai-conversation handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

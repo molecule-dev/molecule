@@ -5,7 +5,7 @@
  */
 
 import { registerLocaleModule } from '@molecule/api-i18n'
-import * as locales from '@molecule/api-locales-conversation'
+import * as locales from '@molecule/api-locales-ai-conversation'
 
 registerLocaleModule(locales)
 

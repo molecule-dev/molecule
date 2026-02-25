@@ -1,10 +1,10 @@
-# @molecule/api-locales-conversation
+# @molecule/api-locales-ai-conversation
 
 Translations for molecule conversation resource in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/api-conversation` package which has 5 translation keys.
+Provides translations for the `@molecule/api-ai-conversation` package which has 5 translation keys.
 
 ## Languages
 
@@ -13,8 +13,8 @@ Provides translations for the `@molecule/api-conversation` package which has 5 t
 ## Usage
 
 ```typescript
-import { af, am, ar } from '@molecule/api-locales-conversation'
-import type { ConversationTranslationKey, ConversationTranslations } from '@molecule/api-locales-conversation'
+import { af, am, ar } from '@molecule/api-locales-ai-conversation'
+import type { ConversationTranslationKey, ConversationTranslations } from '@molecule/api-locales-ai-conversation'
 ```
 
 ## Translation Keys
@@ -32,4 +32,4 @@ import type { ConversationTranslationKey, ConversationTranslations } from '@mole
 - **Type:** locales
 - **Category:** i18n
 - **Stack:** api
-- **Translates:** `@molecule/api-conversation`
+- **Translates:** `@molecule/api-ai-conversation`

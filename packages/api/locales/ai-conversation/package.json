@@ -1,5 +1,5 @@
 {
-  "name": "@molecule/api-locales-status",
+  "name": "@molecule/api-locales-ai-conversation",
   "version": "1.0.0",
   "type": "module",
   "main": "dist/index.js",
@@ -23,15 +23,5 @@
   "devDependencies": {
     "typescript": "5.9.3",
     "vitest": "4.0.18"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/api/locales/status"
-  },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/locales/status",
-  "bugs": "https://github.com/molecule-dev/molecule/issues",
-  "publishConfig": {
-    "access": "public"
   }
 }

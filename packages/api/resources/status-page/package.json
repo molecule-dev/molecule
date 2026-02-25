@@ -1,7 +1,7 @@
 {
-  "name": "@molecule/api-resource-conversation",
+  "name": "@molecule/api-resource-status-page",
   "version": "1.0.0",
-  "description": "AI conversation history for projects",
+  "description": "System status page resource for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,51 +17,53 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "setup"
   ],
   "keywords": [
     "molecule",
-    "conversation",
-    "chat",
-    "ai"
+    "resource",
+    "status",
+    "monitoring"
   ],
   "license": "MIT",
+  "dependencies": {
+    "zod": "4.3.6"
+  },
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",
-    "@molecule/api-locales-conversation": "1.0.0",
     "@types/node": "25.3.0",
     "typescript": "5.9.3",
-    "vitest": "4.0.18"
+    "vitest": "4.0.18",
+    "@molecule/api-locales-status-page": "1.0.0"
   },
   "peerDependencies": {
-    "@molecule/api-ai": "^1.0.0",
     "@molecule/api-bond": "^1.0.0",
     "@molecule/api-database": "^1.0.0",
     "@molecule/api-i18n": "^1.0.0",
-    "@molecule/api-locales-conversation": "^1.0.0",
-    "@molecule/api-logger": "^1.0.0",
-    "@molecule/api-resource": "^1.0.0"
+    "@molecule/api-monitoring": "^1.0.0",
+    "@molecule/api-notifications": "^1.0.0",
+    "@molecule/api-resource": "^1.0.0",
+    "@molecule/api-scheduler": "^1.0.0",
+    "@molecule/api-locales-status-page": "^1.0.0"
   },
   "peerDependenciesMeta": {
-    "@molecule/api-ai": {
+    "@molecule/api-monitoring": {
       "optional": true
     },
-    "@molecule/api-resource": {
+    "@molecule/api-notifications": {
       "optional": true
     },
-    "@molecule/api-database": {
-      "optional": true
-    },
-    "@molecule/api-logger": {
+    "@molecule/api-scheduler": {
       "optional": true
     }
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/api/resources/conversation"
+    "directory": "packages/api/resources/status-page"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/conversation",
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/status-page",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

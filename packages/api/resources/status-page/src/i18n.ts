@@ -7,7 +7,7 @@
 import { registerLocaleModule } from '@molecule/api-i18n'
 
 try {
-  const locales = await import('@molecule/api-locales-status')
+  const locales = await import('@molecule/api-locales-status-page')
   registerLocaleModule(locales)
 } catch {
   // Locale package not available (not built or not installed).

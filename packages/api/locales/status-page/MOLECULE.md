@@ -1,10 +1,10 @@
-# @molecule/api-locales-status
+# @molecule/api-locales-status-page
 
 Translations for molecule status resource in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/api-status` package which has 13 translation keys.
+Provides translations for the `@molecule/api-status-page` package which has 13 translation keys.
 
 ## Languages
 
@@ -13,8 +13,8 @@ Provides translations for the `@molecule/api-status` package which has 13 transl
 ## Usage
 
 ```typescript
-import { af, am, ar } from '@molecule/api-locales-status'
-import type { StatusTranslationKey, StatusTranslations } from '@molecule/api-locales-status'
+import { af, am, ar } from '@molecule/api-locales-status-page'
+import type { StatusTranslationKey, StatusTranslations } from '@molecule/api-locales-status-page'
 ```
 
 ## Translation Keys
@@ -38,6 +38,6 @@ import type { StatusTranslationKey, StatusTranslations } from '@molecule/api-loc
 ## Metadata
 
 - **Type:** locales
-- **Category:** i18n
+- **Category:** status-page
 - **Stack:** api
-- **Translates:** `@molecule/api-status`
+- **Translates:** `@molecule/api-status-page`

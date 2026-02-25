@@ -1,7 +1,7 @@
 {
-  "name": "@molecule/api-resource-status",
+  "name": "@molecule/api-resource-ai-conversation",
   "version": "1.0.0",
-  "description": "Status page resource for molecule.dev.",
+  "description": "AI conversation history for projects",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,53 +17,51 @@
     }
   },
   "files": [
-    "dist",
-    "setup"
+    "dist"
   ],
   "keywords": [
     "molecule",
-    "resource",
-    "status",
-    "monitoring"
+    "conversation",
+    "chat",
+    "ai"
   ],
   "license": "MIT",
-  "dependencies": {
-    "zod": "4.3.6"
-  },
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",
-    "@molecule/api-locales-status": "1.0.0",
     "@types/node": "25.3.0",
     "typescript": "5.9.3",
-    "vitest": "4.0.18"
+    "vitest": "4.0.18",
+    "@molecule/api-locales-ai-conversation": "1.0.0"
   },
   "peerDependencies": {
+    "@molecule/api-ai": "^1.0.0",
     "@molecule/api-bond": "^1.0.0",
     "@molecule/api-database": "^1.0.0",
     "@molecule/api-i18n": "^1.0.0",
-    "@molecule/api-locales-status": "^1.0.0",
-    "@molecule/api-monitoring": "^1.0.0",
-    "@molecule/api-notifications": "^1.0.0",
+    "@molecule/api-logger": "^1.0.0",
     "@molecule/api-resource": "^1.0.0",
-    "@molecule/api-scheduler": "^1.0.0"
+    "@molecule/api-locales-ai-conversation": "^1.0.0"
   },
   "peerDependenciesMeta": {
-    "@molecule/api-monitoring": {
+    "@molecule/api-ai": {
       "optional": true
     },
-    "@molecule/api-notifications": {
+    "@molecule/api-resource": {
       "optional": true
     },
-    "@molecule/api-scheduler": {
+    "@molecule/api-database": {
+      "optional": true
+    },
+    "@molecule/api-logger": {
       "optional": true
     }
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/api/resources/status"
+    "directory": "packages/api/resources/ai-conversation"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/status",
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/ai-conversation",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"
