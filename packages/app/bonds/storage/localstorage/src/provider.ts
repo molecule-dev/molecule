@@ -4,7 +4,7 @@
  * @module
  */
 
-import { t } from '@molecule/app-i18n'
+import { I18nError } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
 import type { StorageProvider } from '@molecule/app-storage'
 
@@ -122,13 +122,11 @@ export function createLocalStorageProvider(config: LocalStorageConfig = {}): Sto
         // Handle quota exceeded errors
         if (error instanceof Error && error.name === 'QuotaExceededError') {
           logger.warn('Storage quota exceeded', key)
-          throw new Error(
-            t(
-              'storage.error.quotaExceeded',
-              { key },
-              { defaultValue: `Storage quota exceeded when setting key "${key}"` },
-            ),
-            { cause: error },
+          throw new I18nError(
+            'storage.error.quotaExceeded',
+            { key },
+            `Storage quota exceeded when setting key "${key}"`,
+            error,
           )
         }
         throw error

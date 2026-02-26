@@ -7,6 +7,7 @@
  * @module
  */
 
+export * from './error.js'
 export * from './plural.js'
 export * from './provider.js'
 export * from './translator.js'

@@ -37,8 +37,8 @@ function getLazyCors(): ReturnType<typeof createCors> {
       origin: [
         process.env.APP_ORIGIN,
         process.env.SITE_ORIGIN,
-        `https://localhost`,
-        `http://localhost`,
+        // Allow any localhost port (e.g. :3000, :5173, :5174) for local dev
+        /^https?:\/\/localhost(:\d+)?$/,
         `capacitor://localhost`,
         `capacitor-electron://-`,
         `${process.env.APP_URL_SCHEME}://-`,

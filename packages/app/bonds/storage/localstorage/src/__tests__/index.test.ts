@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { I18nError } from '@molecule/app-i18n'
+
 // -------------------------------------------------------------------
 // Mock @molecule/app-storage to provide the StorageProvider type
 // -------------------------------------------------------------------
@@ -180,6 +182,26 @@ describe('@molecule/app-storage-localstorage', () => {
         await expect(storage.set('key', 'value')).rejects.toThrow(
           'Storage quota exceeded when setting key "key"',
         )
+      })
+
+      it('should throw I18nError with storage.error.quotaExceeded key on QuotaExceededError', async () => {
+        const quotaError = new Error('Storage full')
+        quotaError.name = 'QuotaExceededError'
+
+        const errorStorage = createMockStorage()
+        const originalSetItem = errorStorage.setItem as ReturnType<typeof vi.fn>
+        originalSetItem.mockImplementation((key: string, _value: string) => {
+          if (key === '__storage_test__') return
+          throw quotaError
+        })
+
+        const storage = createLocalStorageProvider({ storage: errorStorage })
+
+        const error = await storage.set('myKey', 'value').catch((e: unknown) => e)
+        expect(error).toBeInstanceOf(I18nError)
+        expect((error as I18nError).i18nKey).toBe('storage.error.quotaExceeded')
+        expect((error as I18nError).i18nValues).toEqual({ key: 'myKey' })
+        expect((error as I18nError).cause).toBe(quotaError)
       })
 
       it('should re-throw non-quota errors', async () => {

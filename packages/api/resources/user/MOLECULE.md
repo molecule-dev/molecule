@@ -141,7 +141,7 @@ Creates a full schema for user props.
 OAuth servers and plan keys can be constrained by passing them as options.
 
 ```typescript
-function createSchema(options?: { oauthServers?: OAuthServers; planKeys?: PlanKeys; }): z.ZodObject<{ id: z.ZodString; createdAt: z.ZodString; updatedAt: z.ZodString; username: z.ZodString; name: z.ZodOptional<z.ZodString>; email: z.ZodOptional<z.ZodNullable<z.ZodString>>; twoFactorEnabled: z.ZodOptional<z.ZodBoolean>; oauthServer: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{ [k in keyof { [k in NonNullable<OAuthServers>[number]]: k; }]: { [k in NonNullable<OAuthServers>[number]]: k; }[k]; }>>; oauthId: z.ZodOptional<z.ZodString>; oauthData: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; planKey: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{ [k in keyof { [k in NonNullable<PlanKeys>[number]]: k; }]: { [k in NonNullable<PlanKeys>[number]]: k; }[k]; }>>; planExpiresAt: z.ZodOptional<z.ZodString>; planAutoRenews: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+function createSchema(options?: { oauthServers?: OAuthServers; planKeys?: PlanKeys; }): z.ZodObject<{ id: z.ZodString; createdAt: z.ZodString; updatedAt: z.ZodString; username: z.ZodOptional<z.ZodString>; name: z.ZodOptional<z.ZodString>; email: z.ZodOptional<z.ZodNullable<z.ZodEmail>>; twoFactorEnabled: z.ZodOptional<z.ZodBoolean>; oauthServer: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{ [k in keyof { [k in NonNullable<OAuthServers>[number]]: k; }]: { [k in NonNullable<OAuthServers>[number]]: k; }[k]; }>>; oauthId: z.ZodOptional<z.ZodString>; oauthData: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; planKey: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{ [k in keyof { [k in NonNullable<PlanKeys>[number]]: k; }]: { [k in NonNullable<PlanKeys>[number]]: k; }[k]; }>>; planExpiresAt: z.ZodOptional<z.ZodString>; planAutoRenews: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
 ```
 
 - `options` — Optional configuration.
@@ -157,15 +157,15 @@ function createSchema(options?: { oauthServers?: OAuthServers; planKeys?: PlanKe
 Schema for creating a user via OAuth.
 
 ```typescript
-const createOAuthPropsSchema: z.ZodObject<{ username: z.ZodString; name: z.ZodOptional<z.ZodString>; email: z.ZodOptional<z.ZodNullable<z.ZodString>>; oauthServer: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>; oauthId: z.ZodOptional<z.ZodString>; oauthData: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; }, z.core.$strip>
+const createOAuthPropsSchema: z.ZodObject<{ username: z.ZodOptional<z.ZodString>; name: z.ZodOptional<z.ZodString>; email: z.ZodOptional<z.ZodNullable<z.ZodEmail>>; oauthServer: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>; oauthId: z.ZodOptional<z.ZodString>; oauthData: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; }, z.core.$strip>
 ```
 
 #### `createPropsSchema`
 
-Schema for creating a user.
+Schema for creating a user via password. Email is required as the primary identity.
 
 ```typescript
-const createPropsSchema: z.ZodObject<{ username: z.ZodString; name: z.ZodOptional<z.ZodString>; email: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
+const createPropsSchema: z.ZodObject<{ username: z.ZodOptional<z.ZodString>; name: z.ZodOptional<z.ZodString>; email: z.ZodEmail; }, z.core.$strip>
 ```
 
 #### `createSecretPropsSchema`
@@ -189,7 +189,7 @@ const i18nRegistered: true
 Default schema for user props.
 
 ```typescript
-const propsSchema: z.ZodObject<{ id: z.ZodString; createdAt: z.ZodString; updatedAt: z.ZodString; username: z.ZodString; name: z.ZodOptional<z.ZodString>; email: z.ZodOptional<z.ZodNullable<z.ZodString>>; twoFactorEnabled: z.ZodOptional<z.ZodBoolean>; oauthServer: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>; oauthId: z.ZodOptional<z.ZodString>; oauthData: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; planKey: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>; planExpiresAt: z.ZodOptional<z.ZodString>; planAutoRenews: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const propsSchema: z.ZodObject<{ id: z.ZodString; createdAt: z.ZodString; updatedAt: z.ZodString; username: z.ZodOptional<z.ZodString>; name: z.ZodOptional<z.ZodString>; email: z.ZodOptional<z.ZodNullable<z.ZodEmail>>; twoFactorEnabled: z.ZodOptional<z.ZodBoolean>; oauthServer: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>; oauthId: z.ZodOptional<z.ZodString>; oauthData: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; planKey: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>; planExpiresAt: z.ZodOptional<z.ZodString>; planAutoRenews: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
 ```
 
 #### `resource`
@@ -248,7 +248,7 @@ const updatePlanPropsSchema: z.ZodObject<{ planKey: z.ZodOptional<z.ZodOptional<
 Schema for updating a user (partial username, name, email).
 
 ```typescript
-const updatePropsSchema: z.ZodObject<{ username: z.ZodOptional<z.ZodString>; name: z.ZodOptional<z.ZodOptional<z.ZodString>>; email: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; }, z.core.$strip>
+const updatePropsSchema: z.ZodObject<{ username: z.ZodOptional<z.ZodOptional<z.ZodString>>; name: z.ZodOptional<z.ZodOptional<z.ZodString>>; email: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodEmail>>>; }, z.core.$strip>
 ```
 
 #### `verifyTwoFactorPropsSchema`

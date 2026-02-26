@@ -12,7 +12,7 @@ import type {
   InterpolationValues,
   NumberFormatOptions,
 } from '@molecule/app-i18n'
-import { t } from '@molecule/app-i18n'
+import { I18nError, t } from '@molecule/app-i18n'
 
 import { I18nContext } from '../contexts.js'
 import type { UseTranslationResult } from '../types.js'
@@ -138,4 +138,24 @@ export function useLocale(): string {
 export function useDirection(): 'ltr' | 'rtl' {
   const { direction } = useTranslation()
   return direction
+}
+
+/**
+ * Translates an error at render time so the displayed message updates automatically
+ * when the locale changes.
+ *
+ * **Always use this hook to display errors in React components** — accessing
+ * `error.message` directly bypasses re-translation and leaves stale text after a
+ * locale switch. If `error` is an `I18nError` (thrown via `throw new I18nError(key)`),
+ * its key is translated using the current locale. For plain `Error` instances,
+ * `error.message` is returned unchanged.
+ *
+ * @param error - The error to translate, or `null`/`undefined`.
+ * @returns The translated error string, or `null` if no error.
+ */
+export function useI18nError(error: Error | null | undefined): string | null {
+  const { t } = useTranslation()
+  if (!error) return null
+  if (error instanceof I18nError) return t(error.i18nKey, error.i18nValues)
+  return error.message
 }

@@ -58,6 +58,7 @@ export const usePromise = <T extends (...args: any[]) => Promise<any>>(
   const cancelledRef = useRef(false)
 
   useEffect(() => {
+    isUnmounted.current = false
     return () => {
       isUnmounted.current = true
     }

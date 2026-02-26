@@ -466,11 +466,8 @@ Creates a simple JWT-based auth client.
 This is a basic implementation that can be extended or replaced
 with more sophisticated auth providers.
 
-When `config.t` is provided, error messages will be passed through
-it for i18n support.
-
 ```typescript
-function createJWTAuthClient(config?: AuthClientConfig & { t?: TranslateFn; }): AuthClient<T>
+function createJWTAuthClient(config?: AuthClientConfig): AuthClient<T>
 ```
 
 - `config` — Auth client configuration including endpoints, storage, and refresh settings.
@@ -620,6 +617,7 @@ function setClient(client: AuthClient<UserProfile>): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+- `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 
 ## Translations

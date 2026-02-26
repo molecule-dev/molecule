@@ -28,10 +28,12 @@
   "license": "MIT",
   "peerDependencies": {
     "@molecule/app-bond": "^1.0.0",
+    "@molecule/app-i18n": "^1.0.0",
     "@molecule/app-logger": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/app-bond": "1.0.0",
+    "@molecule/app-i18n": "1.0.0",
     "@molecule/app-logger": "1.0.0",
     "@types/node": "25.3.0",
     "typescript": "5.9.3",

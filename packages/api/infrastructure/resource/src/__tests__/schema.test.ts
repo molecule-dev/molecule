@@ -211,7 +211,7 @@ describe('partial', () => {
   it('should create a partial schema', () => {
     const schema = z.object({
       name: z.string(),
-      email: z.string().email(),
+      email: z.email(),
     })
 
     const partialSchema = partial(schema)
@@ -233,7 +233,7 @@ describe('pick', () => {
     const schema = z.object({
       id: z.string(),
       name: z.string(),
-      email: z.string().email(),
+      email: z.email(),
     })
 
     const pickSchema = pick(schema, ['name', 'email'] as const)

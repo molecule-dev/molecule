@@ -51,14 +51,6 @@ export const create = ({ name, tableName, schema: _schema }: types.Resource) => 
       if (props.username) {
         // Limit username to 255 alphanumeric characters.
         props.username = props.username.replace(/[^a-zA-Z0-9]/g, '').substring(0, 255)
-      } else {
-        return {
-          statusCode: 400,
-          body: {
-            error: t('user.error.usernameRequired'),
-            errorKey: 'user.error.usernameRequired',
-          },
-        }
       }
 
       if (!body.password) {

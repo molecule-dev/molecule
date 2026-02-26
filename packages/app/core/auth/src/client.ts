@@ -6,6 +6,7 @@
  * @module
  */
 
+import { I18nError } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
 
 import { createTokenStorage, getTokenExpiration, isTokenExpired } from './token.js'
@@ -24,28 +25,16 @@ import type {
 } from './types.js'
 
 /**
- * Translation function signature compatible with `@molecule/app-i18n`.
- */
-type TranslateFn = (
-  key: string,
-  values?: Record<string, unknown>,
-  options?: { defaultValue?: string },
-) => string
-
-/**
  * Creates a simple JWT-based auth client.
  *
  * This is a basic implementation that can be extended or replaced
  * with more sophisticated auth providers.
  *
- * When `config.t` is provided, error messages will be passed through
- * it for i18n support.
- *
  * @param config - Auth client configuration including endpoints, storage, and refresh settings.
  * @returns A fully configured `AuthClient` instance.
  */
 export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
-  config: AuthClientConfig & { t?: TranslateFn } = {},
+  config: AuthClientConfig = {},
 ): AuthClient<T> => {
   const {
     baseURL = '',
@@ -61,11 +50,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     storage = 'memory',
     autoRefresh = true,
     refreshBuffer = 60,
-    t,
   } = config
-
-  const msg = (key: string, defaultValue: string): string =>
-    t ? t(key, undefined, { defaultValue }) : defaultValue
 
   const logger = getLogger('auth')
   const tokenStorage = createTokenStorage(storage, storagePrefix)
@@ -136,12 +121,10 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     })
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        error: msg('auth.error.requestFailed', 'Request failed'),
-      }))
-      throw new Error(
-        error.error || error.message || msg('auth.error.requestFailed', 'Request failed'),
-      )
+      const body = await response.json().catch(() => ({}))
+      const key = body.errorKey ?? 'auth.error.requestFailed'
+      const fallback = body.error ?? body.message ?? 'Request failed'
+      throw new I18nError(key, undefined, fallback)
     }
 
     return response.json()
@@ -183,8 +166,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
 
         return result
       } catch (err) {
-        const error =
-          err instanceof Error ? err.message : msg('auth.error.loginFailed', 'Login failed')
+        const error = err instanceof Error ? err.message : 'Login failed'
         setState({ loading: false, error })
         emitEvent({ type: 'error', error })
         throw err
@@ -242,10 +224,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
 
         return result
       } catch (err) {
-        const error =
-          err instanceof Error
-            ? err.message
-            : msg('auth.error.registrationFailed', 'Registration failed')
+        const error = err instanceof Error ? err.message : 'Registration failed'
         setState({ loading: false, error })
         emitEvent({ type: 'error', error })
         throw err
@@ -255,7 +234,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     async refresh(): Promise<AuthResult<T>> {
       const refreshToken = tokenStorage.getRefreshToken()
       if (!refreshToken) {
-        throw new Error(msg('auth.error.noRefreshToken', 'No refresh token available'))
+        throw new I18nError('auth.error.noRefreshToken', undefined, 'No refresh token available')
       }
 
       const result = await fetchAPI<AuthResult<T>>(refreshEndpoint, {

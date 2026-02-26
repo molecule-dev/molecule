@@ -314,6 +314,22 @@ Options for the translate function (default value, pluralization count).
 type TranslateOptions = { defaultValue?: string; count?: number }
 ```
 
+### Classes
+
+#### `I18nError`
+
+An error that stores an i18n key instead of a pre-translated string.
+
+**Always throw this instead of `new Error(t('key'))`.**
+The plain-Error form translates at throw-time, permanently freezing the message
+in whatever locale was active — switching languages later has no effect.
+`I18nError` preserves the key so `useI18nError` (from `@molecule/app-react`)
+can re-translate at render time, making displayed errors update automatically
+when the locale changes.
+
+The `fallback` argument (English text) becomes `error.message` for non-React
+consumers such as loggers and unit tests.
+
 ### Functions
 
 #### `addLocale(config)`

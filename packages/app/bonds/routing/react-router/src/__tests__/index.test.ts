@@ -20,6 +20,8 @@ vi.mock('react', () => ({
   useEffect: vi.fn(),
 }))
 
+import { I18nError } from '@molecule/app-i18n'
+
 import type { RouteDefinition, RouteLocation } from '../index.js'
 import {
   createReactRouter,
@@ -409,6 +411,22 @@ describe('@molecule/app-routing-react-router', () => {
 
         expect(() => router.navigateTo('unknown')).toThrow('Route "unknown" not found')
       })
+
+      it('should throw I18nError with routing.error.routeNotFound key for unknown route', () => {
+        const router = createReactRouter({
+          routes: [{ path: '/products', name: 'products' }],
+        })
+
+        let caught: unknown
+        try {
+          router.navigateTo('unknown')
+        } catch (err) {
+          caught = err
+        }
+        expect(caught).toBeInstanceOf(I18nError)
+        expect((caught as I18nError).i18nKey).toBe('routing.error.routeNotFound')
+        expect((caught as I18nError).i18nValues).toEqual({ name: 'unknown' })
+      })
     })
 
     describe('back and forward', () => {
@@ -698,6 +716,20 @@ describe('@molecule/app-routing-react-router', () => {
         const router = createReactRouter({ routes: [] })
 
         expect(() => router.generatePath('unknown')).toThrow('Route "unknown" not found')
+      })
+
+      it('should throw I18nError with routing.error.routeNotFound key for unknown generatePath route', () => {
+        const router = createReactRouter({ routes: [] })
+
+        let caught: unknown
+        try {
+          router.generatePath('missing')
+        } catch (err) {
+          caught = err
+        }
+        expect(caught).toBeInstanceOf(I18nError)
+        expect((caught as I18nError).i18nKey).toBe('routing.error.routeNotFound')
+        expect((caught as I18nError).i18nValues).toEqual({ name: 'missing' })
       })
     })
 
@@ -1109,6 +1141,18 @@ describe('@molecule/app-routing-react-router', () => {
 
       it('should throw for missing required param', () => {
         expect(() => generatePath('/products/:id', {})).toThrow('Missing required param "id"')
+      })
+
+      it('should throw I18nError with routing.error.missingParam key for missing param', () => {
+        let caught: unknown
+        try {
+          generatePath('/products/:id', {})
+        } catch (err) {
+          caught = err
+        }
+        expect(caught).toBeInstanceOf(I18nError)
+        expect((caught as I18nError).i18nKey).toBe('routing.error.missingParam')
+        expect((caught as I18nError).i18nValues).toEqual({ name: 'id', pattern: '/products/:id' })
       })
 
       it('should encode param values', () => {

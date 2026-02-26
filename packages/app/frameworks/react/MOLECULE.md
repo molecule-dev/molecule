@@ -1421,6 +1421,25 @@ function useHttpClient(): HttpClient
 
 **Returns:** The HTTP client from context
 
+#### `useI18nError(error)`
+
+Translates an error at render time so the displayed message updates automatically
+when the locale changes.
+
+**Always use this hook to display errors in React components** — accessing
+`error.message` directly bypasses re-translation and leaves stale text after a
+locale switch. If `error` is an `I18nError` (thrown via `throw new I18nError(key)`),
+its key is translated using the current locale. For plain `Error` instances,
+`error.message` is returned unchanged.
+
+```typescript
+function useI18nError(error: Error | null | undefined): string | null
+```
+
+- `error` — The error to translate, or `null`/`undefined`.
+
+**Returns:** The translated error string, or `null` if no error.
+
 #### `useI18nProvider()`
 
 Hook to access the i18n provider from context.

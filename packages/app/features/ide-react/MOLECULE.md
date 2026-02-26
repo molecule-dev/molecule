@@ -33,6 +33,8 @@ Properties for chat panel.
 interface ChatPanelProps {
   projectId: string
   endpoint?: string
+  /** If provided, auto-send this message once on mount (e.g., prompt from landing page). */
+  initialMessage?: string
   className?: string
 }
 ```

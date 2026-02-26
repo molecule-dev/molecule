@@ -290,7 +290,7 @@ describe('@molecule/api-utilities-validation', () => {
       it('should include field path in error message', () => {
         const schema = z.object({
           profile: z.object({
-            email: z.string().email(),
+            email: z.email(),
           }),
         })
 
@@ -394,7 +394,7 @@ describe('@molecule/api-utilities-validation', () => {
       })
 
       it('should validate email fields', () => {
-        const schema = z.object({ email: z.string().email() })
+        const schema = z.object({ email: z.email() })
         const result = getValidProps({
           name: 'Test',
           schema,
@@ -471,7 +471,7 @@ describe('@molecule/api-utilities-validation', () => {
         const schema = z.object({
           name: z.string(),
           age: z.number(),
-          email: z.string().email(),
+          email: z.email(),
         })
 
         try {
@@ -637,7 +637,7 @@ describe('@molecule/api-utilities-validation', () => {
 
       it('should include error details', () => {
         const schema = z.object({
-          email: z.string().email(),
+          email: z.email(),
         })
 
         const result = safeParse(schema, { email: 'invalid' })
@@ -751,7 +751,7 @@ describe('@molecule/api-utilities-validation', () => {
 
       it('should throw error with proper structure', () => {
         const schema = z.object({
-          email: z.string().email(),
+          email: z.email(),
         })
 
         try {
@@ -833,7 +833,7 @@ describe('@molecule/api-utilities-validation', () => {
       it('should validate a complete User resource', () => {
         const userSchema = z.object({
           id: z.string().uuid(),
-          email: z.string().email(),
+          email: z.email(),
           name: z.string().min(1).max(100),
           role: z.enum(['admin', 'user', 'guest']).default('user'),
           createdAt: z.string().datetime().optional(),
@@ -913,7 +913,7 @@ describe('@molecule/api-utilities-validation', () => {
 
         // Then validate with schema
         const schema = z.object({
-          email: z.string().email(),
+          email: z.email(),
         })
 
         const result = safeParse(schema, { email })

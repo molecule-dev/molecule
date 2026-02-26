@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { I18nError } from '@molecule/app-i18n'
+
 import {
   createJWTAuthClient,
   createTokenStorage,
@@ -593,6 +595,37 @@ describe('JWT Auth Client', () => {
       expect(client.getState().error).toBeTruthy()
     })
 
+    it('should throw I18nError with auth.error.requestFailed key on failed API response', async () => {
+      mockFetch.mockImplementation(() => createMockResponse({ error: 'Invalid credentials' }, 401))
+
+      const client = createJWTAuthClient()
+
+      const error = await client
+        .login({ email: 'test@example.com', password: 'wrong' })
+        .catch((e: unknown) => e)
+      expect(error).toBeInstanceOf(I18nError)
+      expect((error as I18nError).i18nKey).toBe('auth.error.requestFailed')
+      expect((error as I18nError).message).toBe('Invalid credentials')
+    })
+
+    it('should use errorKey from response body when present', async () => {
+      mockFetch.mockImplementation(() =>
+        createMockResponse(
+          { errorKey: 'auth.error.invalidCredentials', error: 'Bad password' },
+          401,
+        ),
+      )
+
+      const client = createJWTAuthClient()
+
+      const error = await client
+        .login({ email: 'test@example.com', password: 'wrong' })
+        .catch((e: unknown) => e)
+      expect(error).toBeInstanceOf(I18nError)
+      expect((error as I18nError).i18nKey).toBe('auth.error.invalidCredentials')
+      expect((error as I18nError).message).toBe('Bad password')
+    })
+
     it('should emit error event on login failure', async () => {
       mockFetch.mockImplementation(() => createMockResponse({ error: 'Invalid credentials' }, 401))
 
@@ -849,6 +882,14 @@ describe('JWT Auth Client', () => {
       const client = createJWTAuthClient()
 
       await expect(client.refresh()).rejects.toThrow('No refresh token available')
+    })
+
+    it('should throw I18nError with auth.error.noRefreshToken key when no refresh token', async () => {
+      const client = createJWTAuthClient()
+
+      const error = await client.refresh().catch((e: unknown) => e)
+      expect(error).toBeInstanceOf(I18nError)
+      expect((error as I18nError).i18nKey).toBe('auth.error.noRefreshToken')
     })
 
     it('should emit refresh event on success', async () => {

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { I18nError } from '../error.js'
 import type {
   DateFormatOptions,
   I18nProvider,
@@ -702,6 +703,77 @@ describe('@molecule/app-i18n', () => {
       const provider = createSimpleI18nProvider()
       expect(provider.getLocale()).toBe('en')
       expect(provider.getLocales().map((l) => l.code)).toContain('en')
+    })
+  })
+
+  describe('I18nError', () => {
+    it('should set i18nKey from constructor', () => {
+      const error = new I18nError('some.translation.key')
+      expect(error.i18nKey).toBe('some.translation.key')
+    })
+
+    it('should use key as message when no fallback provided', () => {
+      const error = new I18nError('some.translation.key')
+      expect(error.message).toBe('some.translation.key')
+    })
+
+    it('should use fallback as message when provided', () => {
+      const error = new I18nError('some.key', undefined, 'Human readable fallback')
+      expect(error.message).toBe('Human readable fallback')
+    })
+
+    it('should set i18nValues when provided', () => {
+      const values = { name: 'Alice', count: 3 }
+      const error = new I18nError('some.key', values, 'fallback')
+      expect(error.i18nValues).toEqual({ name: 'Alice', count: 3 })
+    })
+
+    it('should leave i18nValues undefined when not provided', () => {
+      const error = new I18nError('some.key')
+      expect(error.i18nValues).toBeUndefined()
+    })
+
+    it('should set name to I18nError', () => {
+      const error = new I18nError('some.key')
+      expect(error.name).toBe('I18nError')
+    })
+
+    it('should be an instance of Error', () => {
+      const error = new I18nError('some.key')
+      expect(error).toBeInstanceOf(Error)
+    })
+
+    it('should be an instance of I18nError', () => {
+      const error = new I18nError('some.key')
+      expect(error).toBeInstanceOf(I18nError)
+    })
+
+    it('should preserve cause when provided', () => {
+      const cause = new Error('original error')
+      const error = new I18nError('some.key', undefined, 'fallback', cause)
+      expect(error.cause).toBe(cause)
+    })
+
+    it('should not set cause when omitted', () => {
+      const error = new I18nError('some.key', undefined, 'fallback')
+      expect(error.cause).toBeUndefined()
+    })
+
+    it('should be throwable and catchable', () => {
+      expect(() => {
+        throw new I18nError('auth.error.invalidCredentials', undefined, 'Invalid credentials')
+      }).toThrow('Invalid credentials')
+    })
+
+    it('should be identifiable by instanceof after catch', () => {
+      let caught: unknown
+      try {
+        throw new I18nError('auth.error.invalidCredentials', undefined, 'Invalid credentials')
+      } catch (err) {
+        caught = err
+      }
+      expect(caught).toBeInstanceOf(I18nError)
+      expect((caught as I18nError).i18nKey).toBe('auth.error.invalidCredentials')
     })
   })
 })

@@ -31,7 +31,7 @@ export const createSchema = <
     /**
      * An alphanumeric username.
      */
-    username: z.string(),
+    username: z.string().optional(),
     /**
      * The user's given name.
      */
@@ -39,7 +39,7 @@ export const createSchema = <
     /**
      * The user's email address.
      */
-    email: z.string().email().nullable().optional(),
+    email: z.email().nullable().optional(),
     /**
      * Whether two-factor authentication is enabled.
      */
@@ -119,13 +119,16 @@ export const secretPropsSchema = z.object({
 export type SecretProps = z.infer<typeof secretPropsSchema>
 
 /**
- * Schema for creating a user.
+ * Schema for creating a user via password. Email is required as the primary identity.
  */
-export const createPropsSchema = propsSchema.pick({
-  username: true,
-  name: true,
-  email: true,
-})
+export const createPropsSchema = propsSchema
+  .pick({
+    username: true,
+    name: true,
+  })
+  .extend({
+    email: z.email(),
+  })
 
 /**
  * Create Props type.

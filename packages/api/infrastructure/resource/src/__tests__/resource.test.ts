@@ -54,7 +54,7 @@ const testSchema = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   name: z.string().min(1),
-  email: z.string().email(),
+  email: z.email(),
 })
 
 type TestProps = z.infer<typeof testSchema>

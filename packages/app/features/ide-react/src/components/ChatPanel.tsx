@@ -19,10 +19,11 @@ import { ToolCallCard } from './ToolCallCard.js'
  * @param root0 - The component props.
  * @param root0.projectId - The project ID for the chat session.
  * @param root0.endpoint - Optional custom chat API endpoint URL.
+ * @param root0.initialMessage - Optional initial message to pre-populate the input.
  * @param root0.className - Optional CSS class name for the container.
  * @returns The rendered chat panel element.
  */
-export function ChatPanel({ projectId, endpoint, className }: ChatPanelProps): JSX.Element {
+export function ChatPanel({ projectId, endpoint, initialMessage, className }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
   const chatEndpoint = endpoint || `/projects/${projectId}/chat`
   const { messages, isLoading, error, sendMessage, abort } = useChat({
@@ -31,11 +32,20 @@ export function ChatPanel({ projectId, endpoint, className }: ChatPanelProps): J
   })
   const [inputValue, setInputValue] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const sentInitialRef = useRef(false)
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // Auto-send initial message once on mount (e.g., prompt from landing page)
+  useEffect(() => {
+    if (initialMessage && !sentInitialRef.current && !isLoading) {
+      sentInitialRef.current = true
+      sendMessage(initialMessage)
+    }
+  }, [initialMessage, isLoading, sendMessage])
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
