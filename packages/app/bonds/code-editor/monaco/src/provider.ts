@@ -604,6 +604,7 @@ export class MonacoEditorProvider implements EditorProvider {
   /**
    * Opens a side-by-side diff view, replacing the normal editor temporarily.
    * The normal editor is hidden (not disposed) and restored when `closeDiff()` is called.
+   * @param file
    */
   openDiff(file: DiffFile): void {
     if (!this.monaco || !this.containerElement) return
@@ -733,7 +734,10 @@ export class MonacoEditorProvider implements EditorProvider {
     )
   }
 
-  /** Configures TypeScript/JavaScript language defaults (compiler options, diagnostics). */
+  /**
+   * Configures TypeScript/JavaScript language defaults (compiler options, diagnostics).
+   * @param monaco
+   */
   private configureTypeScript(monaco: MonacoModule): void {
     const compilerOptions: Record<string, unknown> = {
       target: 99, // ESNext
@@ -764,7 +768,10 @@ export class MonacoEditorProvider implements EditorProvider {
     monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(diagOptions)
   }
 
-  /** Subscribes to Monaco marker changes and updates tab diagnostics. */
+  /**
+   * Subscribes to Monaco marker changes and updates tab diagnostics.
+   * @param monaco
+   */
   private wireMarkerListener(monaco: MonacoModule): void {
     this.markerDisposable?.dispose()
     this.markerDisposable = monaco.editor.onDidChangeMarkers(() => {
@@ -843,6 +850,10 @@ export class MonacoEditorProvider implements EditorProvider {
     })
   }
 
+  /**
+   *
+   * @param path
+   */
   markSaved(path: string): void {
     const tab = this.tabs.get(path)
     if (tab && tab.isDirty) {

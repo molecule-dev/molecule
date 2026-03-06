@@ -347,12 +347,18 @@ class DockerSandboxProvider implements SandboxProvider {
   // Volume management
   // ---------------------------------------------------------------------------
 
-  /** Create a named Docker volume. No-op if it already exists. */
+  /**
+   * Create a named Docker volume. No-op if it already exists.
+   * @param name
+   */
   async createVolume(name: string): Promise<void> {
     await this.dockerApi('/volumes/create', 'POST', { Name: name })
   }
 
-  /** Remove a named Docker volume. Silently succeeds if already removed. */
+  /**
+   * Remove a named Docker volume. Silently succeeds if already removed.
+   * @param name
+   */
   async removeVolume(name: string): Promise<void> {
     try {
       await this.dockerApi(`/volumes/${name}`, 'DELETE')
@@ -361,7 +367,10 @@ class DockerSandboxProvider implements SandboxProvider {
     }
   }
 
-  /** Check if a named Docker volume exists. */
+  /**
+   * Check if a named Docker volume exists.
+   * @param name
+   */
   async volumeExists(name: string): Promise<boolean> {
     try {
       await this.dockerApi(`/volumes/${name}`)
@@ -421,6 +430,9 @@ class DockerSandboxProvider implements SandboxProvider {
   /**
    * Like `dockerApi` but returns the raw response Buffer without parsing.
    * Used for exec start responses which return a multiplexed binary stream.
+   * @param path
+   * @param method
+   * @param body
    */
   private async dockerApiRaw(path: string, method = 'GET', body?: unknown): Promise<Buffer> {
     return new Promise((resolve, reject) => {

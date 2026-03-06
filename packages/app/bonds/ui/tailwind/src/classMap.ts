@@ -382,6 +382,11 @@ const SPACING_CSS_PROP: Partial<Record<string, string>> = {
 }
 function sp(property: SpacingProperty, scale: SpacingScale): string
 function sp(overrides: SpacingOverrides): Record<string, string>
+/**
+ *
+ * @param propertyOrOverrides
+ * @param scale
+ */
 function sp(
   propertyOrOverrides: SpacingProperty | SpacingOverrides,
   scale?: SpacingScale,
@@ -442,6 +447,9 @@ function sp(
   return result
 }
 
+/**
+ *
+ */
 export const classMap: UIClassMap = {
   cn(...classes: ClassMapValue[]): string {
     return cn(...(classes as Parameters<typeof cn>))

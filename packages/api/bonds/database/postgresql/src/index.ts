@@ -68,6 +68,7 @@ let _pool: DatabasePool | null = null
  * Returns the lazily-initialized default pool, creating it from
  * `DATABASE_URL` env var on first access.
  *
+ * @param url
  * @returns The shared `DatabasePool` instance.
  */
 function isLocalUrl(url: string): boolean {
@@ -79,6 +80,9 @@ function isLocalUrl(url: string): boolean {
   )
 }
 
+/**
+ *
+ */
 function getPoolInstance(): DatabasePool {
   if (!_pool) {
     const url = process.env.DATABASE_URL
