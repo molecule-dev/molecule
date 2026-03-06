@@ -2190,6 +2190,12 @@ interface UIClassMap {
    */
   sp(property: SpacingProperty, scale: SpacingScale): string
   /**
+   * Returns a style object resolved from a compound spacing spec.
+   * Use on the `style` prop — avoids CSS class ordering conflicts entirely.
+   * More specific properties override less specific ones (e.g. `pr` overrides `px` overrides `p`).
+   */
+  sp(overrides: SpacingOverrides): Record<string, string>
+  /**
    * Returns vertical space-between class (e.g. `space-y-*` in Tailwind).
    */
   stack(scale: SpacingScale): string
@@ -2506,6 +2512,21 @@ Standard size scale used across all molecule UI components (buttons, inputs, bad
 
 ```typescript
 type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+```
+
+#### `SpacingOverrides`
+
+Compound spacing specification for conflict-free overrides.
+
+Pass to `sp()` to get a style object (for use on the `style` prop).
+More specific properties override less specific ones:
+`pr` overrides `px` overrides `p` (same cascade as CSS shorthand).
+
+Returns `Record<string, string>` so it is compatible with any framework's
+inline style API without requiring a React-specific import.
+
+```typescript
+type SpacingOverrides = Partial<Record<SpacingProperty, SpacingScale>>
 ```
 
 #### `SpacingProperty`

@@ -26,6 +26,12 @@ export interface ChatPanelProps {
   endpoint?: string
   /** If provided, auto-send this message once on mount (e.g., prompt from landing page). */
   initialMessage?: string
+  /** Called when a filename in a tool call is clicked — should open the file as a preview tab. */
+  onFileOpen?: (path: string) => void
+  /** Called when a filename in a tool call is double-clicked — should pin the tab. */
+  onFileDoubleClick?: (path: string) => void
+  /** Called when a file in the uncommitted list is clicked for diff view. */
+  onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
   className?: string
 }
 
@@ -34,6 +40,14 @@ export interface ChatPanelProps {
  */
 export interface EditorPanelProps {
   className?: string
+  /** Called whenever the active file changes (tab switch, file open, file close). */
+  onActiveFileChange?: (path: string | null) => void
+  /** Called once after the editor is fully mounted and ready to accept files. */
+  onEditorReady?: () => void
+  /** Called whenever the open tab list changes (file opened or closed). */
+  onTabsChange?: (paths: string[]) => void
+  /** Maps file path to git status for coloring tab filenames. */
+  fileStatuses?: Record<string, string>
 }
 
 /**
@@ -51,6 +65,9 @@ export interface TabBarProps {
   activeFile: string | null
   onSelect: (path: string) => void
   onClose: (path: string) => void
+  onDoubleClick?: (path: string) => void
+  /** Maps file path to git status for coloring tab filenames. */
+  fileStatuses?: Record<string, string>
   className?: string
 }
 
@@ -60,7 +77,15 @@ export interface TabBarProps {
 export interface FileExplorerProps {
   files: FileNode[]
   onFileSelect: (path: string) => void
+  onFileDoubleClick?: (path: string) => void
+  onDirExpand?: (path: string) => void
   className?: string
+  /** localStorage key for persisting expand/collapse state across reloads. */
+  persistKey?: string
+  /** Path of the currently active file — highlighted in the tree. */
+  activeFile?: string | null
+  /** Maps file path to git status — used to color directory names by highest-priority child status. */
+  fileStatuses?: Record<string, string>
 }
 
 /**
@@ -71,6 +96,8 @@ export interface FileNode {
   path: string
   type: 'file' | 'directory'
   children?: FileNode[]
+  isDimmed?: boolean
+  gitStatus?: 'modified' | 'added' | 'deleted' | 'untracked'
 }
 
 /**
@@ -100,6 +127,14 @@ export interface ToolCallCardProps {
   input?: unknown
   output?: unknown
   status: 'pending' | 'running' | 'done' | 'error'
+  /** Snapshot of original/modified file content captured at tool-call time. */
+  fileDiff?: { original: string; modified: string }
+  /** Called when a filename in the card is clicked — should open the file as a preview tab. */
+  onFileOpen?: (path: string) => void
+  /** Called when a filename in the card is double-clicked — should pin the tab. */
+  onFileDoubleClick?: (path: string) => void
+  /** Called when a file-changing card is clicked — should open the file diff in the editor. */
+  onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
   className?: string
 }
 

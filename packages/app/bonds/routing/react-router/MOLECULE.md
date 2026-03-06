@@ -494,6 +494,19 @@ const provider: Router
 ## Core Interface
 Implements `@molecule/app-routing` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setRouter } from '@molecule/app-routing'
+import { provider } from '@molecule/app-routing-react-router'
+
+export function setupRoutingReactRouter(): void {
+  setRouter(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

@@ -54,6 +54,19 @@ function provider(req: unknown, res: unknown, next: (err?: unknown) => void): vo
 ## Core Interface
 Implements `@molecule/api-middleware-cors` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setCors, setCorsFactory } from '@molecule/api-middleware-cors'
+import { corsFactory } from '@molecule/api-middleware-cors-express'
+
+export function setupMiddlewareCorsExpress(): void {
+  setCorsFactory(corsFactory)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

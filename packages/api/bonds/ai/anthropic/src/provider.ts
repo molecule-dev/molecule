@@ -50,23 +50,42 @@ class AnthropicAIProvider implements AIProvider {
     }
 
     if (params.system) body.system = params.system
-    if (params.temperature !== undefined) body.temperature = params.temperature
     if (params.tools?.length) body.tools = this.formatTools(params.tools)
     if (params.stream !== false) body.stream = true
 
+    // Thinking requires temperature=1 (default); skip any explicit temperature override
+    if (params.thinking) {
+      body.thinking = { type: 'enabled', budget_tokens: params.thinking.budgetTokens }
+    } else if (params.temperature !== undefined) {
+      body.temperature = params.temperature
+    }
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'x-api-key': this.apiKey,
+      'anthropic-version': '2023-06-01',
+    }
+    if (params.thinking) {
+      headers['anthropic-beta'] = 'interleaved-thinking-2025-05-14'
+    }
+
     const response = await fetch(`${this.baseUrl}/v1/messages`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': this.apiKey,
-        'anthropic-version': '2023-06-01',
-      },
+      headers,
       body: JSON.stringify(body),
     })
 
     if (!response.ok) {
-      await response.text()
-      yield { type: 'error', message: t('ai.error.apiError'), errorKey: 'ai.error.apiError' }
+      const errorBody = await response.text()
+      let detail = `HTTP ${response.status}`
+      try {
+        const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
+        if (parsed.error?.message) detail = parsed.error.message
+      } catch {
+        if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
+      }
+      logger.error('Anthropic API error', { status: response.status, detail })
+      yield { type: 'error', message: detail, errorKey: 'ai.error.apiError' }
       return
     }
 
@@ -166,6 +185,10 @@ class AnthropicAIProvider implements AIProvider {
     let inputTokens = 0
     let outputTokens = 0
 
+    // Track pending content blocks to accumulate streamed deltas
+    let pendingTool: { id: string; name: string; inputJson: string } | null = null
+    let pendingThinking: string | null = null
+
     try {
       while (true) {
         const { done, value } = await reader.read()
@@ -188,18 +211,45 @@ class AnthropicAIProvider implements AIProvider {
               const delta = event.delta as Record<string, unknown>
               if (delta.type === 'text_delta') {
                 yield { type: 'text', content: delta.text as string }
-              } else if (delta.type === 'input_json_delta') {
-                // Tool input streaming — accumulate but don't yield partial
+              } else if (delta.type === 'input_json_delta' && pendingTool) {
+                pendingTool.inputJson += delta.partial_json as string
+              } else if (delta.type === 'thinking_delta' && pendingThinking !== null) {
+                pendingThinking += delta.thinking as string
               }
             } else if (eventType === 'content_block_start') {
               const block = event.content_block as Record<string, unknown>
               if (block.type === 'tool_use') {
-                yield {
-                  type: 'tool_use',
+                pendingTool = {
                   id: block.id as string,
                   name: block.name as string,
-                  input: block.input ?? {},
+                  inputJson: '',
                 }
+              } else if (block.type === 'thinking') {
+                pendingThinking = ''
+              }
+            } else if (eventType === 'content_block_stop') {
+              // Emit completed tool_use with accumulated input
+              if (pendingTool) {
+                let input: unknown = {}
+                try {
+                  input = JSON.parse(pendingTool.inputJson)
+                } catch {
+                  // Fall back to empty object if JSON is malformed
+                }
+                yield {
+                  type: 'tool_use',
+                  id: pendingTool.id,
+                  name: pendingTool.name,
+                  input,
+                }
+                pendingTool = null
+              }
+              // Emit completed thinking block
+              if (pendingThinking !== null) {
+                if (pendingThinking.length > 0) {
+                  yield { type: 'thinking', content: pendingThinking }
+                }
+                pendingThinking = null
               }
             } else if (eventType === 'message_delta') {
               const usage = event.usage as { output_tokens?: number } | undefined

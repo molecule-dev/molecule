@@ -77,6 +77,19 @@ const provider: DefaultWorkspaceProvider
 ## Core Interface
 Implements `@molecule/app-ide` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-ide'
+import { provider } from '@molecule/app-ide-default'
+
+export function setupIdeDefault(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

@@ -44,9 +44,6 @@ export function PreviewPanel({ className }: PreviewPanelProps): JSX.Element {
           cm.borderB,
         )}
       >
-        <span className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}>
-          {t('ide.preview.title')}
-        </span>
         <div className={cm.flex({ direction: 'row', align: 'center', gap: 'sm' })}>
           <DeviceFrameSelector current={state.device} onChange={setDevice} />
           <button

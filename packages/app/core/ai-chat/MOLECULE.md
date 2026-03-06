@@ -43,8 +43,15 @@ interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
   content: string
   timestamp: number
+  /** Ordered sequence of text and tool-call blocks, preserving interleaved order. */
+  blocks?: MessageBlock[]
   toolCalls?: ToolCall[]
   isStreaming?: boolean
+  /** Set when the user aborted the response mid-stream. */
+  aborted?: boolean
+  /** Persisted commit record for display in conversation history. */
+  commitRecord?: { message: string; files: string[] }
+  commitSuggestion?: CommitSuggestion
 }
 ```
 
@@ -85,6 +92,18 @@ interface ChatState {
 }
 ```
 
+#### `CommitSuggestion`
+
+A suggested git commit after file changes, shown to the user for one-click committing.
+
+```typescript
+interface CommitSuggestion {
+  files: string[]
+  message?: string
+  status: 'pending' | 'committing' | 'committed' | 'error'
+}
+```
+
 #### `ToolCall`
 
 A tool invocation within an assistant message, tracking its lifecycle
@@ -119,10 +138,24 @@ and errors.
 ```typescript
 type ChatStreamEvent =
   | { type: 'text'; content: string }
+  | { type: 'thinking'; content: string }
   | { type: 'tool_use'; id: string; name: string; input: unknown }
   | { type: 'tool_result'; id: string; output: unknown }
+  | { type: 'commit_suggestion'; files: string[] }
   | { type: 'done'; usage?: { inputTokens: number; outputTokens: number } }
   | { type: 'error'; message: string }
+```
+
+#### `MessageBlock`
+
+An ordered block within an assistant message, preserving the interleaved
+sequence of text chunks and tool calls as they were received from the stream.
+
+```typescript
+type MessageBlock =
+  | { type: 'text'; content: string }
+  | { type: 'tool_call'; id: string }
+  | { type: 'thinking'; content: string }
 ```
 
 ### Functions

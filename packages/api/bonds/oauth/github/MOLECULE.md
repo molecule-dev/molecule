@@ -91,6 +91,19 @@ const serverName: "github"
 ## Core Interface
 Implements `@molecule/api-oauth` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the bond system:
+
+```typescript
+import { bond } from '@molecule/api-bond'
+import { serverName, verify } from '@molecule/api-oauth-github'
+
+export function setupOauthGithub(): void {
+  bond('oauth', serverName, { serverName, verify })
+}
+```
+
 ## Injection Notes
 
 ### Requirements

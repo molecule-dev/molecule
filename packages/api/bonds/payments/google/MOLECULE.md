@@ -217,6 +217,19 @@ const paymentProvider: PaymentProviderInterface
 ## Core Interface
 Implements `@molecule/api-payments` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the bond system:
+
+```typescript
+import { bond } from '@molecule/api-bond'
+import { paymentProvider } from '@molecule/api-payments-google'
+
+export function setupPaymentsGoogle(): void {
+  bond('payments', 'google', paymentProvider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

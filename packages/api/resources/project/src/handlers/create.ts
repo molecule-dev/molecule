@@ -29,7 +29,9 @@ function slugify(name: string): string {
  * @param res - The response object for sending the created project or error.
  */
 export async function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
-  const userId = (req.body as Record<string, unknown>).userId as string
+  const userId =
+    (res.locals.session as { userId?: string } | undefined)?.userId ??
+    ((req.body as Record<string, unknown>).userId as string | undefined)
   const input = req.body as CreateProjectInput
 
   if (!input.name || !input.projectType) {

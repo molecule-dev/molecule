@@ -98,6 +98,8 @@ interface SandboxConfig {
   projectId: string
   image?: string
   env?: Record<string, string>
+  /** Docker volume name to mount at /sandbox/project for persistent storage. */
+  volumeName?: string
   resources?: {
     cpu: number
     memoryMB: number
@@ -121,6 +123,13 @@ interface SandboxProvider {
   get(id: string): Promise<Sandbox | null>
   list(userId: string): Promise<Sandbox[]>
   destroy(id: string): Promise<void>
+
+  /** Create a named volume for persistent sandbox storage. Optional — not all providers support volumes. */
+  createVolume?(name: string): Promise<void>
+  /** Remove a named volume. Optional. */
+  removeVolume?(name: string): Promise<void>
+  /** Check if a named volume exists. Optional. */
+  volumeExists?(name: string): Promise<boolean>
 }
 ```
 

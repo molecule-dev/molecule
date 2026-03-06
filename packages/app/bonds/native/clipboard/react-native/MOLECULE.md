@@ -64,6 +64,19 @@ const provider: ClipboardProvider
 ## Core Interface
 Implements `@molecule/app-clipboard` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-clipboard'
+import { provider } from '@molecule/app-clipboard-react-native'
+
+export function setupNativeClipboardReactNative(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

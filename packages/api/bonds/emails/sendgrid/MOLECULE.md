@@ -147,6 +147,19 @@ const sgClient: sgMail.MailService
 ## Core Interface
 Implements `@molecule/api-emails` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setTransport } from '@molecule/api-emails'
+import { provider } from '@molecule/api-emails-sendgrid'
+
+export function setupEmailsSendgrid(): void {
+  setTransport(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

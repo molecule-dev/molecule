@@ -6,7 +6,7 @@
 
 import { useCallback, useContext, useEffect, useState } from 'react'
 
-import type { EditorFile, EditorProvider, EditorTab } from '@molecule/app-code-editor'
+import type { DiffFile, EditorFile, EditorProvider, EditorTab } from '@molecule/app-code-editor'
 import { t } from '@molecule/app-i18n'
 
 import { EditorContext } from '../contexts.js'
@@ -94,6 +94,31 @@ export function useEditor(): UseEditorResult {
   const dispose = useCallback(() => provider.dispose(), [provider])
   const focus = useCallback(() => provider.focus(), [provider])
 
+  const openDiff = useCallback(
+    (file: DiffFile) => {
+      provider.openDiff?.(file)
+    },
+    [provider],
+  )
+  const closeDiff = useCallback(() => {
+    provider.closeDiff?.()
+  }, [provider])
+
+  const pinTab = useCallback(
+    (path: string) => {
+      provider.pinTab?.(path)
+      setTabs(provider.getTabs())
+    },
+    [provider],
+  )
+
+  const addExtraLib = useCallback(
+    (content: string, filePath: string) => {
+      provider.addExtraLib?.(content, filePath)
+    },
+    [provider],
+  )
+
   return {
     tabs,
     activeFile,
@@ -105,5 +130,9 @@ export function useEditor(): UseEditorResult {
     mount,
     dispose,
     focus,
+    openDiff,
+    closeDiff,
+    pinTab,
+    addExtraLib,
   }
 }

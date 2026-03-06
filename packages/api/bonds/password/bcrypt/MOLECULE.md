@@ -25,6 +25,19 @@ const provider: PasswordProvider
 ## Core Interface
 Implements `@molecule/api-password` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-password'
+import { provider } from '@molecule/api-password-bcrypt'
+
+export function setupPasswordBcrypt(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

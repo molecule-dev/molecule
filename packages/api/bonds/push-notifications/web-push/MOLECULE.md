@@ -40,6 +40,19 @@ const provider: PushNotificationProvider
 ## Core Interface
 Implements `@molecule/api-push-notifications` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-push-notifications'
+import { provider } from '@molecule/api-push-notifications-web-push'
+
+export function setupPushNotificationsWebPush(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

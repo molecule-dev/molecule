@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { androidpublisher_v3 } from 'googleapis'
+import type { androidpublisher_v3 } from '@googleapis/androidpublisher'
 
 import { getLogger } from '@molecule/api-bond'
 const logger = getLogger()

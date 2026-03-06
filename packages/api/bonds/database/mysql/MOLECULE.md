@@ -296,6 +296,19 @@ const pool: DatabasePool
 ## Core Interface
 Implements `@molecule/api-database` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setPool, setStore } from '@molecule/api-database'
+import { pool } from '@molecule/api-database-mysql'
+
+export function setupDatabaseMysql(): void {
+  setPool(pool)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

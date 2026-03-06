@@ -10,6 +10,8 @@
 export interface MonacoConfig {
   /** Theme for the editor. Defaults to 'vs-dark'. */
   theme?: string
+  /** Default font family. */
+  fontFamily?: string
   /** Default font size. */
   fontSize?: number
   /** Default tab size. */

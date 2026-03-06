@@ -179,6 +179,19 @@ const uploadPath: string
 ## Core Interface
 Implements `@molecule/api-uploads` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-uploads'
+import { provider } from '@molecule/api-uploads-filesystem'
+
+export function setupUploadsFilesystem(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

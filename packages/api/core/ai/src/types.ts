@@ -28,6 +28,7 @@ export type ContentBlock =
  */
 export type ChatEvent =
   | { type: 'text'; content: string }
+  | { type: 'thinking'; content: string }
   | { type: 'tool_use'; id: string; name: string; input: unknown }
   | { type: 'done'; usage: TokenUsage }
   | { type: 'error'; message: string; errorKey?: string }
@@ -74,6 +75,8 @@ export interface ChatParams {
   maxTokens?: number
   temperature?: number
   model?: string
+  /** Enable extended thinking. Only supported by Sonnet/Opus models. */
+  thinking?: { type: 'enabled'; budgetTokens: number }
 }
 
 /**

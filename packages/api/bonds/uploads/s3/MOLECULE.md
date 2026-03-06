@@ -175,6 +175,19 @@ const s3Client: S3Client
 ## Core Interface
 Implements `@molecule/api-uploads` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-uploads'
+import { provider } from '@molecule/api-uploads-s3'
+
+export function setupUploadsS3(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

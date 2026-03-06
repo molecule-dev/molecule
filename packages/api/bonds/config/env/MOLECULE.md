@@ -42,6 +42,19 @@ const provider: ConfigProvider
 ## Core Interface
 Implements `@molecule/api-config` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-config'
+import { provider } from '@molecule/api-config-env'
+
+export function setupConfigEnv(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

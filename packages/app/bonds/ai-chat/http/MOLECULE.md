@@ -61,6 +61,19 @@ const provider: HttpChatProvider
 ## Core Interface
 Implements `@molecule/app-ai-chat` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-ai-chat'
+import { provider } from '@molecule/app-ai-chat-http'
+
+export function setupAiChatHttp(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

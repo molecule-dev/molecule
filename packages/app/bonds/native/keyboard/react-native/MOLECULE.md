@@ -58,6 +58,19 @@ const provider: KeyboardProvider
 ## Core Interface
 Implements `@molecule/app-keyboard` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider, setResizeMode, setStyle, setAccessoryBar, setScroll } from '@molecule/app-keyboard'
+import { provider } from '@molecule/app-keyboard-react-native'
+
+export function setupNativeKeyboardReactNative(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

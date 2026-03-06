@@ -205,6 +205,17 @@ const webPushSubscriptionSchema: z.ZodObject<{ endpoint: z.ZodOptional<z.ZodStri
 
 #### `z`
 
+## Services
+
+This package exports services that should be registered with the bond system:
+
+```typescript
+import { bond } from '@molecule/api-bond'
+import { deviceService } from '@molecule/api-resource-device'
+
+bond('device', deviceService)
+```
+
 ## Injection Notes
 
 ### Requirements

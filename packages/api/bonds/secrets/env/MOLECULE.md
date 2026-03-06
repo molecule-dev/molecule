@@ -92,6 +92,19 @@ const provider: SecretsProvider
 ## Core Interface
 Implements `@molecule/api-secrets` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider, registerProvisioner, registerSecret, registerSecrets } from '@molecule/api-secrets'
+import { provider } from '@molecule/api-secrets-env'
+
+export function setupSecretsEnv(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

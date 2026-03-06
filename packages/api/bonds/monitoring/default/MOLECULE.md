@@ -72,6 +72,19 @@ const provider: MonitoringProvider
 ## Core Interface
 Implements `@molecule/api-monitoring` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-monitoring'
+import { provider } from '@molecule/api-monitoring-default'
+
+export function setupMonitoringDefault(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

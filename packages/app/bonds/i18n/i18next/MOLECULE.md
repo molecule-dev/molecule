@@ -355,6 +355,19 @@ const provider: I18nProvider & { i18n: I18nInstance; initialize: () => Promise<v
 ## Core Interface
 Implements `@molecule/app-i18n` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider, setLocale, registerLocaleModule, registerContent } from '@molecule/app-i18n'
+import { provider } from '@molecule/app-i18n-i18next'
+
+export function setupI18nI18next(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

@@ -115,6 +115,20 @@ const store: DataStore
 ## Core Interface
 Implements `@molecule/api-database` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setPool, setStore } from '@molecule/api-database'
+import { pool, store } from '@molecule/api-database-sqlite'
+
+export function setupDatabaseSqlite(): void {
+  setPool(pool)
+  setStore(store)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

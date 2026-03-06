@@ -176,6 +176,18 @@ const updatePropsSchema: z.ZodObject<{ data: z.ZodOptional<z.ZodOptional<z.ZodRe
 
 #### `types`
 
+## Services
+
+This package exports services that should be registered with the bond system:
+
+```typescript
+import { bond } from '@molecule/api-bond'
+import { planService, paymentRecordService } from '@molecule/api-resource-payment'
+
+bond('plans', planService)
+bond('paymentRecords', paymentRecordService)
+```
+
 ## Injection Notes
 
 ### Requirements

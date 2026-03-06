@@ -77,8 +77,12 @@ export function useTranslation(): UseTranslationResult {
   }, [provider])
 
   // Memoized translation function
-  const t = useCallback(
-    (key: string, values?: InterpolationValues) => provider.t(key, values),
+  const t: I18nProvider['t'] = useCallback(
+    (
+      key: string,
+      values?: InterpolationValues,
+      options?: { defaultValue?: string; count?: number },
+    ) => provider.t(key, values, options),
     [provider, locale],
   )
 
@@ -112,12 +116,16 @@ export function useTranslation(): UseTranslationResult {
  *
  * @returns The translation function
  */
-export function useT(): (key: string, values?: InterpolationValues) => string {
+export function useT(): I18nProvider['t'] {
   const provider = useI18nProvider()
   return useCallback(
-    (key: string, values?: InterpolationValues) => provider.t(key, values),
+    (
+      key: string,
+      values?: InterpolationValues,
+      options?: { defaultValue?: string; count?: number },
+    ) => provider.t(key, values, options),
     [provider],
-  )
+  ) as I18nProvider['t']
 }
 
 /**

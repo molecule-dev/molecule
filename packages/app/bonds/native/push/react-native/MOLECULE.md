@@ -68,6 +68,19 @@ const provider: PushProvider
 ## Core Interface
 Implements `@molecule/app-push` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider, setBadge } from '@molecule/app-push'
+import { provider } from '@molecule/app-push-react-native'
+
+export function setupNativePushReactNative(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

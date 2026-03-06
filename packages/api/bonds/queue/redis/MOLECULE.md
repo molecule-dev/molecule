@@ -262,6 +262,19 @@ const provider: QueueProvider
 ## Core Interface
 Implements `@molecule/api-queue` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-queue'
+import { provider } from '@molecule/api-queue-redis'
+
+export function setupQueueRedis(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

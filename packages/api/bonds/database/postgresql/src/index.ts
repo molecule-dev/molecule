@@ -70,14 +70,24 @@ let _pool: DatabasePool | null = null
  *
  * @returns The shared `DatabasePool` instance.
  */
+function isLocalUrl(url: string): boolean {
+  return (
+    url.includes('localhost') ||
+    url.includes('127.0.0.1') ||
+    url.startsWith('postgres:///') ||
+    url.startsWith('postgresql:///')
+  )
+}
+
 function getPoolInstance(): DatabasePool {
   if (!_pool) {
+    const url = process.env.DATABASE_URL
     _pool = wrapPool(
-      !process.env.DATABASE_URL
+      !url
         ? new pg.Pool()
         : new pg.Pool({
-            connectionString: process.env.DATABASE_URL,
-            ssl: { rejectUnauthorized: false },
+            connectionString: url,
+            ssl: isLocalUrl(url) ? false : { rejectUnauthorized: false },
           }),
     )
   }

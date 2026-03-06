@@ -7,6 +7,8 @@
  * @module
  */
 
+import http from 'http'
+
 import { getLogger } from '@molecule/api-bond'
 import type {
   DirEntry,
@@ -62,18 +64,28 @@ class DockerSandboxProvider implements SandboxProvider {
 
     const env = Object.entries(config.env ?? {}).map(([k, v]) => `${k}=${v}`)
 
+    const labels: Record<string, string> = {
+      [`${this.labelPrefix}.projectId`]: config.projectId,
+      [`${this.labelPrefix}.managed`]: 'true',
+    }
+
+    const hostConfig: Record<string, unknown> = {
+      NanoCPUs: cpu * 1e9,
+      Memory: memoryMB * 1024 * 1024,
+      PublishAllPorts: true,
+    }
+
+    // Mount a named Docker volume at /sandbox/project for persistent storage
+    if (config.volumeName) {
+      labels[`${this.labelPrefix}.volumeName`] = config.volumeName
+      hostConfig.Binds = [`${config.volumeName}:/sandbox/project`]
+    }
+
     const body = {
       Image: image,
       Env: env,
-      Labels: {
-        [`${this.labelPrefix}.projectId`]: config.projectId,
-        [`${this.labelPrefix}.managed`]: 'true',
-      },
-      HostConfig: {
-        NanoCPUs: cpu * 1e9,
-        Memory: memoryMB * 1024 * 1024,
-        PublishAllPorts: true,
-      },
+      Labels: labels,
+      HostConfig: hostConfig,
       ExposedPorts: {
         '4000/tcp': {},
         '5173/tcp': {},
@@ -126,14 +138,39 @@ class DockerSandboxProvider implements SandboxProvider {
   }
 
   /**
-   * Force-removes a Docker container by ID. Silently succeeds if already removed.
+   * Force-removes a Docker container by ID and its associated volume (if any).
+   * Silently succeeds if already removed.
    * @param id - The Docker container ID to destroy.
    */
   async destroy(id: string): Promise<void> {
+    // Read volume name from container labels before removing
+    let volumeName: string | undefined
+    try {
+      const info = (await this.dockerApi(`/containers/${id}/json`)) as {
+        Config: { Labels: Record<string, string> }
+      }
+      volumeName = info.Config.Labels[`${this.labelPrefix}.volumeName`]
+    } catch {
+      // Container may already be gone
+    }
+
     try {
       await this.dockerApi(`/containers/${id}?force=true`, 'DELETE')
     } catch (error) {
       logger.debug('Failed to destroy sandbox container (may already be removed)', { id, error })
+    }
+
+    // Clean up the associated volume
+    if (volumeName) {
+      try {
+        await this.dockerApi(`/volumes/${volumeName}`, 'DELETE')
+        logger.debug('Removed sandbox volume', { volumeName })
+      } catch (error) {
+        logger.debug('Failed to remove sandbox volume (may already be removed)', {
+          volumeName,
+          error,
+        })
+      }
     }
   }
 
@@ -178,22 +215,41 @@ class DockerSandboxProvider implements SandboxProvider {
           Cmd: ['sh', '-c', command],
           AttachStdout: true,
           AttachStderr: true,
-          WorkingDir: opts?.cwd ?? '/app',
+          WorkingDir: opts?.cwd ?? '/workspace',
           Env: opts?.env ? Object.entries(opts.env).map(([k, v]) => `${k}=${v}`) : undefined,
         })) as { Id: string }
 
-        const output = (await provider.dockerApi(`/exec/${execCreate.Id}/start`, 'POST', {
+        const rawBuf = await provider.dockerApiRaw(`/exec/${execCreate.Id}/start`, 'POST', {
           Detach: false,
           Tty: false,
-        })) as string
+        })
+
+        // Docker multiplexed stream: each frame has an 8-byte header
+        // [stream_type(1), 0, 0, 0, size(4 bytes big-endian)] + payload
+        const stdoutChunks: Buffer[] = []
+        const stderrChunks: Buffer[] = []
+        let offset = 0
+        while (offset + 8 <= rawBuf.length) {
+          const streamType = rawBuf[offset]
+          const frameSize = rawBuf.readUInt32BE(offset + 4)
+          offset += 8
+          const end = Math.min(offset + frameSize, rawBuf.length)
+          const payload = rawBuf.subarray(offset, end)
+          if (streamType === 2) {
+            stderrChunks.push(payload)
+          } else {
+            stdoutChunks.push(payload)
+          }
+          offset = end
+        }
 
         const inspectRes = (await provider.dockerApi(`/exec/${execCreate.Id}/json`)) as {
           ExitCode: number
         }
 
         return {
-          stdout: output,
-          stderr: '',
+          stdout: Buffer.concat(stdoutChunks).toString(),
+          stderr: Buffer.concat(stderrChunks).toString(),
           exitCode: inspectRes.ExitCode,
         }
       },
@@ -227,8 +283,10 @@ class DockerSandboxProvider implements SandboxProvider {
       },
 
       async readDir(path: string): Promise<DirEntry[]> {
+        // Append trailing slash so ls follows symlinks (e.g. /workspace -> /sandbox/project)
+        const dirPath = path.endsWith('/') ? path : `${path}/`
         const result = await this.exec(
-          `ls -la --time-style=+%s ${JSON.stringify(path)} | tail -n +2`,
+          `ls -la --time-style=+%s ${JSON.stringify(dirPath)} | tail -n +2`,
         )
         if (result.exitCode !== 0) return []
 
@@ -236,6 +294,11 @@ class DockerSandboxProvider implements SandboxProvider {
           .trim()
           .split('\n')
           .filter(Boolean)
+          .filter((line) => {
+            // Skip . and .. entries
+            const name = line.split(/\s+/).slice(6).join(' ')
+            return name !== '.' && name !== '..'
+          })
           .map((line) => {
             const parts = line.split(/\s+/)
             const isDir = line.startsWith('d')
@@ -280,43 +343,121 @@ class DockerSandboxProvider implements SandboxProvider {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Volume management
+  // ---------------------------------------------------------------------------
+
+  /** Create a named Docker volume. No-op if it already exists. */
+  async createVolume(name: string): Promise<void> {
+    await this.dockerApi('/volumes/create', 'POST', { Name: name })
+  }
+
+  /** Remove a named Docker volume. Silently succeeds if already removed. */
+  async removeVolume(name: string): Promise<void> {
+    try {
+      await this.dockerApi(`/volumes/${name}`, 'DELETE')
+    } catch (error) {
+      logger.debug('Failed to remove volume', { name, error })
+    }
+  }
+
+  /** Check if a named Docker volume exists. */
+  async volumeExists(name: string): Promise<boolean> {
+    try {
+      await this.dockerApi(`/volumes/${name}`)
+      return true
+    } catch {
+      return false
+    }
+  }
+
   /**
-   * Makes an HTTP request to the Docker Engine API (v1.43) via the Unix socket.
+   * Makes an HTTP request to the Docker Engine API via the Unix socket.
    * @param path - The API endpoint path (e.g. `/containers/create`).
    * @param method - The HTTP method (defaults to `'GET'`).
    * @param body - Optional JSON request body.
    * @returns The parsed JSON response, or raw text for non-JSON responses.
    */
   private async dockerApi(path: string, method = 'GET', body?: unknown): Promise<unknown> {
-    const url = `http://localhost/v1.43${path}`
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    }
+    return new Promise((resolve, reject) => {
+      const opts: http.RequestOptions = {
+        socketPath: this.socketPath,
+        path: `/v1.44${path}`,
+        method,
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      }
 
-    const response = await fetch(url, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-      // @ts-expect-error -- Node fetch supports unix socket via undici
-      dispatcher: undefined,
+      const req = http.request(opts, (res) => {
+        const chunks: Buffer[] = []
+        res.on('data', (chunk: Buffer) => chunks.push(chunk))
+        res.on('end', () => {
+          const text = Buffer.concat(chunks).toString()
+          if (res.statusCode && res.statusCode >= 400) {
+            reject(
+              new Error(
+                t(
+                  'codeSandbox.docker.error.apiError',
+                  { method, path, status: String(res.statusCode), error: text },
+                  { defaultValue: `Docker API ${method} ${path}: ${res.statusCode} ${text}` },
+                ),
+              ),
+            )
+            return
+          }
+          try {
+            resolve(JSON.parse(text))
+          } catch {
+            resolve(text)
+          }
+        })
+        res.on('error', reject)
+      })
+      req.on('error', reject)
+      if (body) req.write(JSON.stringify(body))
+      req.end()
     })
+  }
 
-    if (!response.ok) {
-      const text = await response.text()
-      throw new Error(
-        t(
-          'codeSandbox.docker.error.apiError',
-          { method, path, status: String(response.status), error: text },
-          { defaultValue: `Docker API ${method} ${path}: ${response.status} ${text}` },
-        ),
-      )
-    }
+  /**
+   * Like `dockerApi` but returns the raw response Buffer without parsing.
+   * Used for exec start responses which return a multiplexed binary stream.
+   */
+  private async dockerApiRaw(path: string, method = 'GET', body?: unknown): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      const opts: http.RequestOptions = {
+        socketPath: this.socketPath,
+        path: `/v1.44${path}`,
+        method,
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      }
 
-    const contentType = response.headers.get('content-type') ?? ''
-    if (contentType.includes('application/json')) {
-      return response.json()
-    }
-    return response.text()
+      const req = http.request(opts, (res) => {
+        const chunks: Buffer[] = []
+        res.on('data', (chunk: Buffer) => chunks.push(chunk))
+        res.on('end', () => {
+          const buf = Buffer.concat(chunks)
+          if (res.statusCode && res.statusCode >= 400) {
+            reject(
+              new Error(
+                t(
+                  'codeSandbox.docker.error.apiError',
+                  { method, path, status: String(res.statusCode), error: buf.toString() },
+                  {
+                    defaultValue: `Docker API ${method} ${path}: ${res.statusCode} ${buf.toString()}`,
+                  },
+                ),
+              ),
+            )
+            return
+          }
+          resolve(buf)
+        })
+        res.on('error', reject)
+      })
+      req.on('error', reject)
+      if (body) req.write(JSON.stringify(body))
+      req.end()
+    })
   }
 }
 

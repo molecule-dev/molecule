@@ -375,6 +375,19 @@ const useTranslation: UseTranslationLegacy
 ## Core Interface
 Implements `@molecule/app-i18n` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider, setLocale, registerLocaleModule, registerContent } from '@molecule/app-i18n'
+import { provider } from '@molecule/app-i18n-react-i18next'
+
+export function setupI18nReactI18next(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

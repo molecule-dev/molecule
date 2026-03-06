@@ -4,84 +4,295 @@
  * @module
  */
 
+import { getIcon } from 'material-file-icons'
 import type { JSX } from 'react'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { FileExplorerProps, FileNode } from '../types.js'
 
-interface FileTreeItemProps {
-  node: FileNode
-  depth: number
-  onFileSelect: (path: string) => void
+// Git status → filename color (matches VSCode palette)
+const GIT_STATUS_COLORS: Record<string, string> = {
+  modified: '#e2c08d',
+  added: '#73c991',
+  untracked: '#73c991',
+  deleted: '#c74e39',
+}
+
+// Priority order for propagating the most important status to parent directories
+const STATUS_PRIORITY: Record<string, number> = {
+  deleted: 3,
+  modified: 2,
+  added: 1,
+  untracked: 1,
 }
 
 /**
- * Renders a single file or directory node in the tree view.
- * @param root0 - The component props.
- * @param root0.node - The file system node to render.
- * @param root0.depth - The nesting depth for indentation.
- * @param root0.onFileSelect - Callback invoked when a file node is clicked.
- * @returns The rendered tree item element.
+ * Compute the highest-priority git status color for a directory by checking
+ * all entries in fileStatuses whose paths start with the directory path.
+ * @param dirPath
+ * @param fileStatuses
  */
-function FileTreeItem({ node, depth, onFileSelect }: FileTreeItemProps): JSX.Element {
+function getDirColor(dirPath: string, fileStatuses: Record<string, string>): string | undefined {
+  let bestPriority = 0
+  let bestStatus: string | undefined
+  const prefix = dirPath + '/'
+  for (const [path, status] of Object.entries(fileStatuses)) {
+    if (path.startsWith(prefix)) {
+      const p = STATUS_PRIORITY[status] ?? 0
+      if (p > bestPriority) {
+        bestPriority = p
+        bestStatus = status
+      }
+    }
+  }
+  return bestStatus ? GIT_STATUS_COLORS[bestStatus] : undefined
+}
+
+// ---------------------------------------------------------------------------
+// Expand state — persisted to localStorage
+// ---------------------------------------------------------------------------
+
+interface ExpandState {
+  expanded: Set<string>
+  collapsed: Set<string>
+}
+
+/**
+ *
+ * @param persistKey
+ */
+function loadExpandState(persistKey: string): ExpandState {
+  try {
+    const raw = localStorage.getItem(persistKey)
+    if (raw) {
+      const parsed = JSON.parse(raw) as { expanded: string[]; collapsed: string[] }
+      return { expanded: new Set(parsed.expanded), collapsed: new Set(parsed.collapsed) }
+    }
+  } catch { /* ignored */ }
+  return { expanded: new Set(), collapsed: new Set() }
+}
+
+/**
+ *
+ * @param persistKey
+ * @param state
+ */
+function saveExpandState(persistKey: string, state: ExpandState): void {
+  try {
+    localStorage.setItem(
+      persistKey,
+      JSON.stringify({ expanded: [...state.expanded], collapsed: [...state.collapsed] }),
+    )
+  } catch { /* ignored */ }
+}
+
+/**
+ *
+ * @param state
+ * @param path
+ * @param depth
+ */
+function isExpandedFromState(state: ExpandState, path: string, depth: number): boolean {
+  if (state.expanded.has(path)) return true
+  if (state.collapsed.has(path)) return false
+  return depth < 1
+}
+
+/**
+ * Returns the ancestor directory paths for a given file path (e.g. "a/b/c.ts" → ["a", "a/b"]).
+ * @param filePath
+ */
+function getAncestorPaths(filePath: string): string[] {
+  const parts = filePath.split('/')
+  const ancestors: string[] = []
+  for (let i = 1; i < parts.length; i++) {
+    ancestors.push(parts.slice(0, i).join('/'))
+  }
+  return ancestors
+}
+
+// ---------------------------------------------------------------------------
+// Icons
+// ---------------------------------------------------------------------------
+
+/**
+ * Chevron icon — points right when collapsed, down when expanded.
+ * @param root0
+ * @param root0.isOpen
+ */
+function ChevronIcon({ isOpen }: { isOpen: boolean }): JSX.Element {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      width="16"
+      height="16"
+      style={{
+        display: 'block',
+        flexShrink: 0,
+        transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+        transition: 'transform 100ms',
+        opacity: 0.65,
+      }}
+    >
+      {/* Right-pointing chevron (V rotated): collapses/expands via CSS rotation */}
+      <polyline points="6,4 10,8 6,12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+/**
+ * File icon resolved from material-file-icons based on the filename.
+ * @param root0
+ * @param root0.name
+ */
+function FileTypeIcon({ name }: { name: string }): JSX.Element {
+  const { svg } = getIcon(name)
+  return (
+    <span
+      style={{ display: 'inline-flex', flexShrink: 0, width: '16px', height: '16px' }}
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  )
+}
+
+// ---------------------------------------------------------------------------
+// FileTreeItem
+// ---------------------------------------------------------------------------
+
+interface FileTreeItemProps {
+  node: FileNode
+  depth: number
+  isExpanded: boolean
+  activeFile?: string | null
+  onFileSelect: (path: string) => void
+  onFileDoubleClick?: (path: string) => void
+  onDirExpand?: (path: string) => void
+  onTogglePath: (path: string, nowExpanded: boolean) => void
+  expandState: ExpandState
+  fileStatuses?: Record<string, string>
+}
+
+/**
+ *
+ * @param root0
+ * @param root0.node
+ * @param root0.depth
+ * @param root0.isExpanded
+ * @param root0.activeFile
+ * @param root0.onFileSelect
+ * @param root0.onFileDoubleClick
+ * @param root0.onDirExpand
+ * @param root0.onTogglePath
+ * @param root0.expandState
+ * @param root0.fileStatuses
+ */
+function FileTreeItem({
+  node,
+  depth,
+  isExpanded,
+  activeFile,
+  onFileSelect,
+  onFileDoubleClick,
+  onDirExpand,
+  onTogglePath,
+  expandState,
+  fileStatuses,
+}: FileTreeItemProps): JSX.Element {
   const cm = getClassMap()
-  const [expanded, setExpanded] = useState(depth < 1)
   const isDir = node.type === 'directory'
+
+  // Load children whenever this dir is expanded but hasn't been fetched yet.
+  // `undefined` means not yet loaded; `[]` means loaded but empty — only fetch
+  // for the former to avoid infinite loops on empty/errored directories.
+  useEffect(() => {
+    if (isExpanded && isDir && node.children === undefined && onDirExpand) {
+      onDirExpand(node.path)
+    }
+  }, [isExpanded, isDir, node.children, node.path, onDirExpand])
 
   const toggle = useCallback(() => {
     if (isDir) {
-      setExpanded((prev) => !prev)
+      onTogglePath(node.path, !isExpanded)
+      // onDirExpand is handled by the effect above when isExpanded becomes true
     } else {
       onFileSelect(node.path)
     }
-  }, [isDir, node.path, onFileSelect])
+  }, [isDir, isExpanded, node.path, onFileSelect, onTogglePath])
+
+  // Directories before files, each group sorted alphabetically
+  const sortedChildren = node.children
+    ? [...node.children].sort((a, b) => {
+        if (a.type !== b.type) return a.type === 'directory' ? -1 : 1
+        return a.name.localeCompare(b.name)
+      })
+    : undefined
 
   return (
     <div>
       <button
         type="button"
         onClick={toggle}
-        className={cm.cn(
-          cm.w('full'),
-          cm.flex({ direction: 'row', align: 'center', gap: 'xs' }),
-          cm.sp('py', 1),
-          cm.textSize('sm'),
-        )}
+        onDoubleClick={() => { if (!isDir && onFileDoubleClick) onFileDoubleClick(node.path) }}
+        data-explorer-path={node.path}
+        className={cm.w('full')}
         style={{
-          paddingLeft: `${depth * 16 + 8}px`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          paddingLeft: `${depth * 12}px`,
+          paddingTop: '1px',
+          paddingBottom: '1px',
+          paddingRight: '6px',
           border: 'none',
-          background: 'transparent',
+          background: node.path === activeFile ? 'rgba(128,128,128,0.15)' : 'transparent',
           color: 'inherit',
           cursor: 'pointer',
           textAlign: 'left',
+          opacity: node.isDimmed ? 0.35 : 1,
+          fontSize: '13px',
+          lineHeight: '22px',
         }}
       >
-        {isDir && (
-          <span
-            style={{
-              display: 'inline-block',
-              width: '12px',
-              transform: expanded ? 'rotate(90deg)' : 'rotate(0)',
-              transition: 'transform 100ms',
-            }}
-          >
-            \u25B6
-          </span>
-        )}
-        {!isDir && <span style={{ display: 'inline-block', width: '12px' }} />}
-        <span>{node.name}</span>
+        {/* Icon column — chevron for dirs, file-type icon for files; always 16px so names align */}
+        <span style={{ display: 'flex', alignItems: 'center', width: '16px', flexShrink: 0 }}>
+          {isDir ? <ChevronIcon isOpen={isExpanded} /> : <FileTypeIcon name={node.name} />}
+        </span>
+
+        {/* Label */}
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: isDir ? (fileStatuses ? getDirColor(node.path, fileStatuses) : undefined) : (node.gitStatus ? GIT_STATUS_COLORS[node.gitStatus] : undefined) }}>
+          {node.name}
+        </span>
       </button>
-      {isDir && expanded && node.children && (
-        <div>
-          {node.children.map((child) => (
+
+      {isDir && isExpanded && sortedChildren && (
+        <div style={{ position: 'relative' }}>
+          {/* Guide line — 1px at center of parent chevron (paddingLeft + half icon width) */}
+          <span style={{
+            position: 'absolute',
+            left: `${depth * 12 + 8}px`,
+            top: 0,
+            bottom: 0,
+            width: '1px',
+            background: 'rgba(128,128,128,0.15)',
+            pointerEvents: 'none',
+          }} />
+          {sortedChildren.map((child) => (
             <FileTreeItem
               key={child.path}
               node={child}
               depth={depth + 1}
+              isExpanded={isExpandedFromState(expandState, child.path, depth + 1)}
+              activeFile={activeFile}
               onFileSelect={onFileSelect}
+              onFileDoubleClick={onFileDoubleClick}
+              onDirExpand={onDirExpand}
+              onTogglePath={onTogglePath}
+              expandState={expandState}
+              fileStatuses={fileStatuses}
             />
           ))}
         </div>
@@ -90,26 +301,126 @@ function FileTreeItem({ node, depth, onFileSelect }: FileTreeItemProps): JSX.Ele
   )
 }
 
+// ---------------------------------------------------------------------------
+// FileExplorer
+// ---------------------------------------------------------------------------
+
 /**
  * Tree-view file explorer component for browsing project files.
  * @param root0 - The component props.
  * @param root0.files - The root file nodes to display.
  * @param root0.onFileSelect - Callback invoked when a file is selected.
+ * @param root0.onFileDoubleClick
+ * @param root0.onDirExpand - Callback invoked when a directory is expanded.
  * @param root0.className - Optional CSS class name for the container.
+ * @param root0.persistKey - localStorage key for persisting expand/collapse state.
+ * @param root0.activeFile
+ * @param root0.fileStatuses
  * @returns The rendered file explorer element.
  */
-export function FileExplorer({ files, onFileSelect, className }: FileExplorerProps): JSX.Element {
+export function FileExplorer({
+  files,
+  onFileSelect,
+  onFileDoubleClick,
+  onDirExpand,
+  className,
+  persistKey,
+  activeFile,
+  fileStatuses,
+}: FileExplorerProps): JSX.Element {
   const cm = getClassMap()
+  const containerRef = useRef<HTMLDivElement>(null)
+  // When set, the next render after DOM update will scroll this path into view
+  const scrollTargetRef = useRef<string | null>(null)
+
+  const [expandState, setExpandState] = useState<ExpandState>(() =>
+    persistKey ? loadExpandState(persistKey) : { expanded: new Set(), collapsed: new Set() },
+  )
+
+  // When activeFile changes, expand all ancestor directories and queue a scroll
+  useEffect(() => {
+    if (!activeFile) return
+    const ancestors = getAncestorPaths(activeFile)
+    if (ancestors.length > 0) {
+      setExpandState((prev) => {
+        const needsUpdate = ancestors.some((p) => !prev.expanded.has(p))
+        if (!needsUpdate) return prev
+        const next: ExpandState = {
+          expanded: new Set(prev.expanded),
+          collapsed: new Set(prev.collapsed),
+        }
+        for (const ancestor of ancestors) {
+          next.expanded.add(ancestor)
+          next.collapsed.delete(ancestor)
+        }
+        if (persistKey) saveExpandState(persistKey, next)
+        return next
+      })
+    }
+    scrollTargetRef.current = activeFile
+  }, [activeFile, persistKey])
+
+  // After every render, attempt the pending scroll (retries until element is in the DOM)
+  useEffect(() => {
+    if (!scrollTargetRef.current || !containerRef.current) return
+    const target = scrollTargetRef.current
+    const el = Array.from(containerRef.current.querySelectorAll<HTMLElement>('[data-explorer-path]')).find(
+      (e) => e.dataset.explorerPath === target,
+    )
+    if (el) {
+      scrollTargetRef.current = null
+      el.scrollIntoView({ block: 'nearest' })
+    }
+  })
+
+  const handleTogglePath = useCallback(
+    (path: string, nowExpanded: boolean) => {
+      setExpandState((prev) => {
+        const next: ExpandState = {
+          expanded: new Set(prev.expanded),
+          collapsed: new Set(prev.collapsed),
+        }
+        if (nowExpanded) {
+          next.expanded.add(path)
+          next.collapsed.delete(path)
+        } else {
+          next.collapsed.add(path)
+          next.expanded.delete(path)
+        }
+        if (persistKey) saveExpandState(persistKey, next)
+        return next
+      })
+    },
+    [persistKey],
+  )
+
+  // Sort root-level entries: directories first, then files, alphabetically
+  const sortedFiles = [...files].sort((a, b) => {
+    if (a.type !== b.type) return a.type === 'directory' ? -1 : 1
+    return a.name.localeCompare(b.name)
+  })
 
   return (
-    <div className={cm.cn(cm.sp('py', 1), className)} style={{ overflowY: 'auto' }} role="tree">
+    <div ref={containerRef} className={cm.cn(cm.sp('py', 1), cm.sp('pl', 1), className)} style={{ overflowY: 'auto' }} role="tree">
       {files.length === 0 && (
         <div className={cm.cn(cm.textMuted, cm.textSize('sm'), cm.sp('p', 3))}>
           {t('ide.files.empty')}
         </div>
       )}
-      {files.map((node) => (
-        <FileTreeItem key={node.path} node={node} depth={0} onFileSelect={onFileSelect} />
+      {sortedFiles.map((node) => (
+        <FileTreeItem
+          key={node.path}
+          node={node}
+          depth={0}
+          isExpanded={isExpandedFromState(expandState, node.path, 0)}
+          activeFile={activeFile}
+          onFileSelect={onFileSelect}
+          onFileDoubleClick={onFileDoubleClick}
+          onDirExpand={onDirExpand}
+          onTogglePath={handleTogglePath}
+          expandState={expandState}
+          fileStatuses={fileStatuses}
+        />
       ))}
     </div>
   )

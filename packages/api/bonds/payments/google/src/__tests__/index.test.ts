@@ -4,31 +4,31 @@
  * @module
  */
 
-import type { androidpublisher_v3 } from 'googleapis'
+import type { androidpublisher_v3 } from '@googleapis/androidpublisher'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Mock googleapis
+// Mock @googleapis/androidpublisher and google-auth-library
 const mockSubscriptionsV2Get = vi.fn()
 const mockProductsGet = vi.fn()
 const mockSubscriptionsAcknowledge = vi.fn()
 const mockProductsAcknowledge = vi.fn()
 
-vi.mock('googleapis', () => ({
-  google: {
-    auth: {
-      JWT: vi.fn(function () {
-        return {}
-      }),
-    },
-    androidpublisher: vi.fn(function () {
-      return {
-        purchases: {
-          subscriptionsv2: { get: mockSubscriptionsV2Get },
-          products: { get: mockProductsGet, acknowledge: mockProductsAcknowledge },
-          subscriptions: { acknowledge: mockSubscriptionsAcknowledge },
-        },
-      }
-    }),
+const mockJWT = vi.fn(function () {
+  return {}
+})
+
+vi.mock('@googleapis/androidpublisher', () => ({
+  androidpublisher: vi.fn(function () {
+    return {
+      purchases: {
+        subscriptionsv2: { get: mockSubscriptionsV2Get },
+        products: { get: mockProductsGet, acknowledge: mockProductsAcknowledge },
+        subscriptions: { acknowledge: mockSubscriptionsAcknowledge },
+      },
+    }
+  }),
+  auth: {
+    JWT: mockJWT,
   },
 }))
 
@@ -396,11 +396,11 @@ describe('Google Auth', () => {
       vi.resetModules()
 
       const { getAuthClient } = await import('../auth.js')
-      const { google } = await import('googleapis')
+      const { auth: googleAuth } = await import('@googleapis/androidpublisher')
 
       getAuthClient()
 
-      expect(google.auth.JWT).toHaveBeenCalledWith({
+      expect(googleAuth.JWT).toHaveBeenCalledWith({
         email: 'test@example.iam.gserviceaccount.com',
         key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----\n',
         scopes: ['https://www.googleapis.com/auth/androidpublisher'],

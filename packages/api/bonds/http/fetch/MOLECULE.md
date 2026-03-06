@@ -42,6 +42,19 @@ const provider: HttpClient
 ## Core Interface
 Implements `@molecule/api-http` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setClient } from '@molecule/api-http'
+import { provider } from '@molecule/api-http-fetch'
+
+export function setupHttpFetch(): void {
+  setClient(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

@@ -22,6 +22,8 @@ Configuration for monaco.
 interface MonacoConfig {
   /** Theme for the editor. Defaults to 'vs-dark'. */
   theme?: string
+  /** Default font family. */
+  fontFamily?: string
   /** Default font size. */
   fontSize?: number
   /** Default tab size. */
@@ -71,6 +73,19 @@ const provider: MonacoEditorProvider
 
 ## Core Interface
 Implements `@molecule/app-code-editor` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-code-editor'
+import { provider } from '@molecule/app-code-editor-monaco'
+
+export function setupCodeEditorMonaco(): void {
+  setProvider(provider)
+}
+```
 
 ## Injection Notes
 

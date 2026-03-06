@@ -25,6 +25,19 @@ const provider: TwoFactorProvider
 ## Core Interface
 Implements `@molecule/api-two-factor` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-two-factor'
+import { provider } from '@molecule/api-two-factor-otplib'
+
+export function setupTwoFactorOtplib(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

@@ -77,6 +77,19 @@ const provider: LifecycleProvider
 ## Core Interface
 Implements `@molecule/app-lifecycle` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-lifecycle'
+import { provider } from '@molecule/app-lifecycle-react-native'
+
+export function setupNativeLifecycleReactNative(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

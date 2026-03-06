@@ -809,6 +809,10 @@ interface UseEditorResult {
   mount: EditorProvider['mount']
   dispose: () => void
   focus: () => void
+  openDiff: (file: DiffFile) => void
+  closeDiff: () => void
+  pinTab: (path: string) => void
+  addExtraLib: (content: string, filePath: string) => void
 }
 ```
 
@@ -1810,7 +1814,7 @@ function useStoreAction(store: Store<T>, action: (setState: Store<T>["setState"]
 Hook to get just the translation function.
 
 ```typescript
-function useT(): (key: string, values?: InterpolationValues) => string
+function useT(): (key: string, values?: InterpolationValues, options?: { defaultValue?: string; count?: number; }) => string
 ```
 
 **Returns:** The translation function

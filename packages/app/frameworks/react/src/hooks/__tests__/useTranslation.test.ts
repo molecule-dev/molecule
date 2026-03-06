@@ -60,7 +60,7 @@ describe('useI18nError', () => {
     const { result } = renderHook(() => useI18nError(error), {
       wrapper: createWrapper(createMockProvider(tFn)),
     })
-    expect(tFn).toHaveBeenCalledWith('some.error.key', undefined)
+    expect(tFn).toHaveBeenCalledWith('some.error.key', undefined, undefined)
     expect(result.current).toBe('Translated message')
   })
 
@@ -71,7 +71,7 @@ describe('useI18nError', () => {
     const { result } = renderHook(() => useI18nError(error), {
       wrapper: createWrapper(createMockProvider(tFn)),
     })
-    expect(tFn).toHaveBeenCalledWith('greeting.key', values)
+    expect(tFn).toHaveBeenCalledWith('greeting.key', values, undefined)
     expect(result.current).toBe('Hello Alice')
   })
 

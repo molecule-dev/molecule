@@ -8,7 +8,7 @@ import type { ReactNode } from 'react'
 
 import type { ChatMessage, ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, AuthState } from '@molecule/app-auth'
-import type { EditorFile, EditorProvider, EditorTab } from '@molecule/app-code-editor'
+import type { DiffFile, EditorFile, EditorProvider, EditorTab } from '@molecule/app-code-editor'
 import type { FormController, FormOptions } from '@molecule/app-forms'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
@@ -251,6 +251,10 @@ export interface UseEditorResult {
   mount: EditorProvider['mount']
   dispose: () => void
   focus: () => void
+  openDiff: (file: DiffFile) => void
+  closeDiff: () => void
+  pinTab: (path: string) => void
+  addExtraLib: (content: string, filePath: string) => void
 }
 
 /**

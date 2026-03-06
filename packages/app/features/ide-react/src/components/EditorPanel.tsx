@@ -6,8 +6,8 @@
 
 import type { JSX } from 'react'
 import { useEffect, useRef } from 'react'
+import { useCallback } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import { useEditor } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -18,13 +18,38 @@ import { TabBar } from './TabBar.js'
  * Code editor panel with tab bar and Monaco integration.
  * @param root0 - The component props.
  * @param root0.className - Optional CSS class name for the container.
+ * @param root0.onActiveFileChange
+ * @param root0.onEditorReady
+ * @param root0.onTabsChange
+ * @param root0.fileStatuses
  * @returns The rendered editor panel element.
  */
-export function EditorPanel({ className }: EditorPanelProps): JSX.Element {
+export function EditorPanel({ className, onActiveFileChange, onEditorReady, onTabsChange, fileStatuses }: EditorPanelProps): JSX.Element {
   const cm = getClassMap()
-  const { tabs, activeFile, closeFile, setActiveTab, mount, dispose } = useEditor()
+  const { tabs, activeFile, closeFile, setActiveTab, pinTab, mount, dispose } = useEditor()
   const containerRef = useRef<HTMLDivElement>(null)
   const mountedRef = useRef(false)
+  // Use a ref so onEditorReady never needs to be in the mount effect's dep array
+  const onEditorReadyRef = useRef(onEditorReady)
+  onEditorReadyRef.current = onEditorReady
+
+  // Notify parent whenever the active file changes (tab switch, open, close)
+  useEffect(() => {
+    onActiveFileChange?.(activeFile)
+  }, [activeFile, onActiveFileChange])
+
+  // Notify parent whenever the tab list changes (file opened or closed)
+  useEffect(() => {
+    onTabsChange?.(tabs.map((t) => t.path))
+  }, [tabs, onTabsChange])
+
+  const handleTabSelect = useCallback(
+    (path: string) => {
+      setActiveTab(path)
+      onActiveFileChange?.(path)
+    },
+    [setActiveTab, onActiveFileChange],
+  )
 
   // Mount the editor when the container is ready
   useEffect(() => {
@@ -36,9 +61,11 @@ export function EditorPanel({ className }: EditorPanelProps): JSX.Element {
 
     // Handle both sync and async mount
     if (result && typeof (result as Promise<void>).then === 'function') {
-      ;(result as Promise<void>).catch(() => {
-        mountedRef.current = false
-      })
+      ;(result as Promise<void>)
+        .then(() => { onEditorReadyRef.current?.() })
+        .catch(() => { mountedRef.current = false })
+    } else {
+      onEditorReadyRef.current?.()
     }
 
     return () => {
@@ -49,49 +76,19 @@ export function EditorPanel({ className }: EditorPanelProps): JSX.Element {
 
   return (
     <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, className)}>
-      {/* Header */}
-      <div
-        className={cm.cn(
-          cm.flex({ direction: 'row', align: 'center' }),
-          cm.sp('px', 3),
-          cm.sp('py', 2),
-          cm.shrink0,
-          cm.fontWeight('medium'),
-          cm.textSize('sm'),
-          cm.borderB,
-        )}
-      >
-        {t('ide.editor.title')}
-      </div>
-
       {/* Tab bar */}
-      <TabBar tabs={tabs} activeFile={activeFile} onSelect={setActiveTab} onClose={closeFile} />
+      <TabBar tabs={tabs} activeFile={activeFile} onSelect={handleTabSelect} onClose={closeFile} onDoubleClick={pinTab} fileStatuses={fileStatuses} />
 
-      {/* Editor container */}
+      {/* Editor container — hidden when no tabs to avoid showing a blank editor */}
       <div
         ref={containerRef}
         style={{
           flex: 1,
           minHeight: 0,
           overflow: 'hidden',
+          visibility: tabs.length === 0 ? 'hidden' : 'visible',
         }}
       />
-
-      {/* Empty state */}
-      {tabs.length === 0 && (
-        <div
-          className={cm.cn(cm.textMuted, cm.textSize('sm'), cm.textCenter)}
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            pointerEvents: 'none',
-          }}
-        >
-          {t('ide.editor.emptyState')}
-        </div>
-      )}
     </div>
   )
 }

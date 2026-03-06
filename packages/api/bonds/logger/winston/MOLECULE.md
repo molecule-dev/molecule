@@ -112,6 +112,19 @@ const transports: winston.transports.Transports
 ## Core Interface
 Implements `@molecule/api-logger` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setLogger } from '@molecule/api-logger'
+import { provider } from '@molecule/api-logger-winston'
+
+export function setupLoggerWinston(): void {
+  setLogger(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

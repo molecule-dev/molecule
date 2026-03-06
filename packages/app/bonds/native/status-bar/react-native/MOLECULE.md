@@ -69,6 +69,19 @@ const provider: StatusBarProvider
 ## Core Interface
 Implements `@molecule/app-status-bar` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider, setBackgroundColor, setStyle, setOverlaysWebView, setLightTheme, setDarkTheme } from '@molecule/app-status-bar'
+import { provider } from '@molecule/app-status-bar-react-native'
+
+export function setupNativeStatusBarReactNative(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

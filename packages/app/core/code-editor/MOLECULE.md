@@ -14,6 +14,20 @@ npm install @molecule/app-code-editor
 
 ### Interfaces
 
+#### `DiffFile`
+
+A file diff with original (committed) and modified (current) content,
+used to drive a side-by-side diff view in the editor.
+
+```typescript
+interface DiffFile {
+  path: string
+  originalContent: string
+  modifiedContent: string
+  language?: string
+}
+```
+
 #### `EditorChangeEvent`
 
 Event emitted when file content changes in the editor.
@@ -33,6 +47,7 @@ Editor display and behavior configuration options.
 ```typescript
 interface EditorConfig {
   theme?: string
+  fontFamily?: string
   fontSize?: number
   tabSize?: number
   wordWrap?: boolean
@@ -51,6 +66,7 @@ interface EditorFile {
   content: string
   language?: string
   isDirty?: boolean
+  isPreview?: boolean
 }
 ```
 
@@ -86,6 +102,14 @@ interface EditorProvider {
   getTabs(): EditorTab[]
   setActiveTab(path: string): void
   updateConfig(config: Partial<EditorConfig>): void
+  /** Open a side-by-side diff view for a file. Optional — providers may not support this. */
+  openDiff?(file: DiffFile): void
+  /** Close the diff view and restore the normal editor. */
+  closeDiff?(): void
+  /** Promote a preview tab to a permanent tab. */
+  pinTab?(path: string): void
+  /** Add a type definition or virtual file for module resolution. */
+  addExtraLib?(content: string, filePath: string): void
 }
 ```
 
@@ -123,6 +147,8 @@ interface EditorTab {
   label: string
   isDirty: boolean
   isActive: boolean
+  isPreview?: boolean
+  diagnostics?: { errors: number; warnings: number }
 }
 ```
 

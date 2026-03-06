@@ -130,6 +130,19 @@ const provider: ThemeProvider
 ## Core Interface
 Implements `@molecule/app-theme` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-theme'
+import { provider } from '@molecule/app-theme-css-variables'
+
+export function setupThemeCssVariables(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

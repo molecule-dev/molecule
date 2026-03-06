@@ -1616,6 +1616,25 @@ export type SpacingProperty =
   | 'mr'
 
 /**
+ * Compound spacing specification for conflict-free overrides.
+ *
+ * Pass to `sp()` to get a style object (for use on the `style` prop).
+ * More specific properties override less specific ones:
+ * `pr` overrides `px` overrides `p` (same cascade as CSS shorthand).
+ *
+ * Returns `Record<string, string>` so it is compatible with any framework's
+ * inline style API without requiring a React-specific import.
+ *
+ * @example
+ * ```tsx
+ * <div style={cm.sp({ p: 3, pr: 2 })} />
+ * // → { paddingTop: '0.75rem', paddingBottom: '0.75rem',
+ * //     paddingLeft: '0.75rem', paddingRight: '0.5rem' }
+ * ```
+ */
+export type SpacingOverrides = Partial<Record<SpacingProperty, SpacingScale>>
+
+/**
  * Text size scale from extra-small to 4xl.
  */
 export type TextScale = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl'
@@ -2273,6 +2292,12 @@ export interface UIClassMap {
    * Returns a spacing class for the given property and scale.
    */
   sp(property: SpacingProperty, scale: SpacingScale): string
+  /**
+   * Returns a style object resolved from a compound spacing spec.
+   * Use on the `style` prop — avoids CSS class ordering conflicts entirely.
+   * More specific properties override less specific ones (e.g. `pr` overrides `px` overrides `p`).
+   */
+  sp(overrides: SpacingOverrides): Record<string, string>
   /**
    * Returns vertical space-between class (e.g. `space-y-*` in Tailwind).
    */

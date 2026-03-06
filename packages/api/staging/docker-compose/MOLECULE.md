@@ -85,6 +85,19 @@ const provider: StagingDriver
 ## Core Interface
 Implements `@molecule/api-staging` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-staging'
+import { provider } from '@molecule/api-staging-docker-compose'
+
+export function setupStagingDockerCompose(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

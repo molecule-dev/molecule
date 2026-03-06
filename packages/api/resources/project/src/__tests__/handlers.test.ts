@@ -61,6 +61,7 @@ function mockRes(): any {
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
     end: vi.fn(),
+    locals: {},
   }
   return res
 }

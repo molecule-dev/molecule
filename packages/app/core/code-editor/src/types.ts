@@ -12,6 +12,7 @@ export interface EditorFile {
   content: string
   language?: string
   isDirty?: boolean
+  isPreview?: boolean
 }
 
 /**
@@ -39,6 +40,10 @@ export interface EditorTab {
   label: string
   isDirty: boolean
   isActive: boolean
+  isPreview?: boolean
+  /** Diff tabs show a side-by-side comparison and cannot be pinned. */
+  isDiff?: boolean
+  diagnostics?: { errors: number; warnings: number }
 }
 
 /**
@@ -46,6 +51,7 @@ export interface EditorTab {
  */
 export interface EditorConfig {
   theme?: string
+  fontFamily?: string
   fontSize?: number
   tabSize?: number
   wordWrap?: boolean
@@ -72,6 +78,17 @@ export interface EditorChangeEvent {
 }
 
 /**
+ * A file diff with original (committed) and modified (current) content,
+ * used to drive a side-by-side diff view in the editor.
+ */
+export interface DiffFile {
+  path: string
+  originalContent: string
+  modifiedContent: string
+  language?: string
+}
+
+/**
  * Code editor provider interface that all editor bond packages must implement.
  * Provides mounting, file management, cursor control, and change subscription.
  */
@@ -90,4 +107,14 @@ export interface EditorProvider {
   getTabs(): EditorTab[]
   setActiveTab(path: string): void
   updateConfig(config: Partial<EditorConfig>): void
+  /** Open a side-by-side diff view for a file. Optional — providers may not support this. */
+  openDiff?(file: DiffFile): void
+  /** Close the diff view and restore the normal editor. */
+  closeDiff?(): void
+  /** Clear the dirty flag on a tab after a successful save. */
+  markSaved?(path: string): void
+  /** Promote a preview tab to a permanent tab. */
+  pinTab?(path: string): void
+  /** Add a type definition or virtual file for module resolution. */
+  addExtraLib?(content: string, filePath: string): void
 }

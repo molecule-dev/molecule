@@ -167,6 +167,19 @@ const provider: CacheProvider
 ## Core Interface
 Implements `@molecule/api-cache` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-cache'
+import { provider } from '@molecule/api-cache-redis'
+
+export function setupCacheRedis(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

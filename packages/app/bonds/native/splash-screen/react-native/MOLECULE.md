@@ -59,6 +59,19 @@ const provider: SplashScreenProvider
 ## Core Interface
 Implements `@molecule/app-splash-screen` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-splash-screen'
+import { provider } from '@molecule/app-splash-screen-react-native'
+
+export function setupNativeSplashScreenReactNative(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

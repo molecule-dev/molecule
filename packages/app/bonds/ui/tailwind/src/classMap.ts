@@ -34,6 +34,7 @@ import type {
   SelectClassOptions,
   SeparatorClassOptions,
   Size,
+  SpacingOverrides,
   SpacingProperty,
   SpacingScale,
   SpinnerClassOptions,
@@ -327,6 +328,120 @@ const badgeColorMap: Record<
  * setClassMap(classMap)
  * ```
  */
+
+/**
+ * Resolves spacing utilities from the UIClassMap.
+ *
+ * **Two-argument form** — returns a Tailwind class string:
+ * ```ts
+ * cm.sp('p', 3)   // → 'p-3'
+ * cm.sp('pr', 2)  // → 'pr-2'
+ * ```
+ * Use this in `className` for a single spacing rule. The resulting class must
+ * exist somewhere as a literal string for Tailwind's scanner to include it;
+ * all valid combinations are safelisted in `index.css` via `@source inline(...)`.
+ *
+ * **Object (compound) form** — returns a `Record<string, string>` style object:
+ * ```ts
+ * // BAD — className="p-3 pr-2" doesn't work reliably:
+ * //   cn() is not tailwind-merge, CSS file order determines winner
+ * <div className={cn(cm.sp('p', 3), cm.sp('pr', 2))}>
+ *
+ * // GOOD — spread into style prop, inline styles always win:
+ * <div className={cm.sp('p', 3)} style={{ ...cm.sp({ pr: 2 }) }}>
+ * ```
+ * The compound form converts each side to a camelCase CSS property name +
+ * a rem/px value, so it bypasses Tailwind's class scanner entirely and is
+ * immune to class-ordering conflicts.
+ *
+ * Standalone function so TypeScript can verify each overload independently
+ * — object method shorthand doesn't support overload declarations.
+ */
+const SPACING_SCALE: Record<SpacingScale, string> = {
+  0: '0px',
+  1: '0.25rem',
+  2: '0.5rem',
+  3: '0.75rem',
+  4: '1rem',
+  5: '1.25rem',
+  6: '1.5rem',
+  8: '2rem',
+  10: '2.5rem',
+  12: '3rem',
+  16: '4rem',
+}
+const SPACING_CSS_PROP: Partial<Record<string, string>> = {
+  pt: 'paddingTop',
+  pb: 'paddingBottom',
+  pl: 'paddingLeft',
+  pr: 'paddingRight',
+  mt: 'marginTop',
+  mb: 'marginBottom',
+  ml: 'marginLeft',
+  mr: 'marginRight',
+}
+function sp(property: SpacingProperty, scale: SpacingScale): string
+function sp(overrides: SpacingOverrides): Record<string, string>
+function sp(
+  propertyOrOverrides: SpacingProperty | SpacingOverrides,
+  scale?: SpacingScale,
+): string | Record<string, string> {
+  if (typeof propertyOrOverrides === 'string') {
+    if (scale === 0) return `${propertyOrOverrides}-0`
+    return `${propertyOrOverrides}-${scale}`
+  }
+  const o = propertyOrOverrides
+  const sides: Partial<Record<string, SpacingScale>> = {}
+  if (o.p !== undefined) {
+    sides.pt = sides.pb = sides.pl = sides.pr = o.p
+  }
+  if (o.px !== undefined) {
+    sides.pl = sides.pr = o.px
+  }
+  if (o.py !== undefined) {
+    sides.pt = sides.pb = o.py
+  }
+  if (o.pt !== undefined) {
+    sides.pt = o.pt
+  }
+  if (o.pb !== undefined) {
+    sides.pb = o.pb
+  }
+  if (o.pl !== undefined) {
+    sides.pl = o.pl
+  }
+  if (o.pr !== undefined) {
+    sides.pr = o.pr
+  }
+  if (o.m !== undefined) {
+    sides.mt = sides.mb = sides.ml = sides.mr = o.m
+  }
+  if (o.mx !== undefined) {
+    sides.ml = sides.mr = o.mx
+  }
+  if (o.my !== undefined) {
+    sides.mt = sides.mb = o.my
+  }
+  if (o.mt !== undefined) {
+    sides.mt = o.mt
+  }
+  if (o.mb !== undefined) {
+    sides.mb = o.mb
+  }
+  if (o.ml !== undefined) {
+    sides.ml = o.ml
+  }
+  if (o.mr !== undefined) {
+    sides.mr = o.mr
+  }
+  const result: Record<string, string> = {}
+  for (const [side, s] of Object.entries(sides)) {
+    const cssProp = SPACING_CSS_PROP[side]
+    if (cssProp && s !== undefined) result[cssProp] = SPACING_SCALE[s as SpacingScale]
+  }
+  return result
+}
+
 export const classMap: UIClassMap = {
   cn(...classes: ClassMapValue[]): string {
     return cn(...(classes as Parameters<typeof cn>))
@@ -745,10 +860,7 @@ export const classMap: UIClassMap = {
 
   // ---- Spacing utilities ----
 
-  sp(property: SpacingProperty, scale: SpacingScale): string {
-    if (scale === 0) return `${property}-0`
-    return `${property}-${scale}`
-  },
+  sp,
 
   stack(scale: SpacingScale): string {
     if (scale === 0) return 'space-y-0'

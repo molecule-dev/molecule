@@ -289,6 +289,19 @@ const provider: HttpClient
 ## Core Interface
 Implements `@molecule/api-http` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setClient } from '@molecule/api-http'
+import { provider } from '@molecule/api-http-axios'
+
+export function setupHttpAxios(): void {
+  setClient(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

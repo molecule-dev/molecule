@@ -139,6 +139,19 @@ const serverName: "twitter"
 ## Core Interface
 Implements `@molecule/api-oauth` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the bond system:
+
+```typescript
+import { bond } from '@molecule/api-bond'
+import { serverName, verify } from '@molecule/api-oauth-twitter'
+
+export function setupOauthTwitter(): void {
+  bond('oauth', serverName, { serverName, verify })
+}
+```
+
 ## Injection Notes
 
 ### Requirements

@@ -25,6 +25,19 @@ const provider: JwtProvider
 ## Core Interface
 Implements `@molecule/api-jwt` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-jwt'
+import { provider } from '@molecule/api-jwt-jsonwebtoken'
+
+export function setupJwtJsonwebtoken(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

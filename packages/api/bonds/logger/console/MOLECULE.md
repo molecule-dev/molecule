@@ -42,6 +42,19 @@ const provider: Logger
 ## Core Interface
 Implements `@molecule/api-logger` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setLogger } from '@molecule/api-logger'
+import { provider } from '@molecule/api-logger-console'
+
+export function setupLoggerConsole(): void {
+  setLogger(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

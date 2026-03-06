@@ -94,6 +94,19 @@ const provider: SandboxProvider
 ## Core Interface
 Implements `@molecule/api-code-sandbox` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-code-sandbox'
+import { provider } from '@molecule/api-code-sandbox-docker'
+
+export function setupCodeSandboxDocker(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

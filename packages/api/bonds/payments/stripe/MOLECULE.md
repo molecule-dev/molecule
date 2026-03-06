@@ -290,6 +290,19 @@ const paymentProvider: PaymentProviderInterface
 ## Core Interface
 Implements `@molecule/api-payments` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the bond system:
+
+```typescript
+import { bond } from '@molecule/api-bond'
+import { paymentProvider } from '@molecule/api-payments-stripe'
+
+export function setupPaymentsStripe(): void {
+  bond('payments', 'stripe', paymentProvider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

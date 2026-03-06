@@ -153,6 +153,19 @@ const provider: AnalyticsProvider
 ## Core Interface
 Implements `@molecule/app-analytics` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-analytics'
+import { provider } from '@molecule/app-analytics-mixpanel'
+
+export function setupAnalyticsMixpanel(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

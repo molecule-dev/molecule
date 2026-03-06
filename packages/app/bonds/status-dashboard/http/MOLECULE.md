@@ -61,6 +61,19 @@ const provider: HttpStatusDashboardProvider
 ## Core Interface
 Implements `@molecule/app-status-dashboard` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-status-dashboard'
+import { provider } from '@molecule/app-status-dashboard-http'
+
+export function setupStatusDashboardHttp(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

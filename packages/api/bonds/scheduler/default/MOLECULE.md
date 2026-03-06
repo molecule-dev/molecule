@@ -67,6 +67,19 @@ const provider: SchedulerProvider
 ## Core Interface
 Implements `@molecule/api-scheduler` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-scheduler'
+import { provider } from '@molecule/api-scheduler-default'
+
+export function setupSchedulerDefault(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

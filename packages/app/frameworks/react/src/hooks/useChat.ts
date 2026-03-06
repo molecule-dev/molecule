@@ -6,7 +6,13 @@
 
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 
-import type { ChatConfig, ChatMessage, ChatProvider, ChatStreamEvent } from '@molecule/app-ai-chat'
+import type {
+  ChatConfig,
+  ChatMessage,
+  ChatProvider,
+  ChatStreamEvent,
+  MessageBlock,
+} from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
 
 import { ChatContext } from '../contexts.js'
@@ -93,6 +99,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       const assistantId = `assistant-${++idCounterRef.current}`
       let assistantText = ''
       const toolCalls: ChatMessage['toolCalls'] = []
+      const blocks: MessageBlock[] = []
 
       const assistantMsg: ChatMessage = {
         id: assistantId,
@@ -100,6 +107,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         content: '',
         timestamp: Date.now(),
         isStreaming: true,
+        blocks: [],
       }
 
       setMessages((prev) => [...prev, assistantMsg])
@@ -108,12 +116,21 @@ export function useChat(options: UseChatOptions): UseChatResult {
         if (!mountedRef.current) return
 
         switch (event.type) {
-          case 'text':
+          case 'text': {
             assistantText += event.content
+            const last = blocks[blocks.length - 1]
+            if (last?.type === 'text') {
+              last.content += event.content
+            } else {
+              blocks.push({ type: 'text', content: event.content })
+            }
             setMessages((prev) =>
-              prev.map((m) => (m.id === assistantId ? { ...m, content: assistantText } : m)),
+              prev.map((m) =>
+                m.id === assistantId ? { ...m, content: assistantText, blocks: [...blocks] } : m,
+              ),
             )
             break
+          }
           case 'tool_use':
             toolCalls!.push({
               id: event.id,
@@ -121,8 +138,13 @@ export function useChat(options: UseChatOptions): UseChatResult {
               input: event.input,
               status: 'running',
             })
+            blocks.push({ type: 'tool_call', id: event.id })
             setMessages((prev) =>
-              prev.map((m) => (m.id === assistantId ? { ...m, toolCalls: [...toolCalls!] } : m)),
+              prev.map((m) =>
+                m.id === assistantId
+                  ? { ...m, toolCalls: [...toolCalls!], blocks: [...blocks] }
+                  : m,
+              ),
             )
             break
           case 'tool_result':
@@ -137,6 +159,38 @@ export function useChat(options: UseChatOptions): UseChatResult {
               prev.map((m) => (m.id === assistantId ? { ...m, toolCalls: [...toolCalls!] } : m)),
             )
             break
+          case 'file_diff': {
+            // Attach snapshot to the matching running tool call (for persistent diff review)
+            const match = [...(toolCalls ?? [])]
+              .reverse()
+              .find(
+                (t) =>
+                  (t.name === 'write_file' || t.name === 'edit_file') &&
+                  (t.input as { path?: string })?.path === event.path,
+              )
+            if (match) {
+              match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
+              setMessages((prev) =>
+                prev.map((m) => (m.id === assistantId ? { ...m, toolCalls: [...toolCalls!] } : m)),
+              )
+            }
+            break
+          }
+          case 'commit_suggestion':
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? {
+                      ...m,
+                      commitSuggestion: {
+                        files: event.files,
+                        status: 'pending' as const,
+                      },
+                    }
+                  : m,
+              ),
+            )
+            break
           case 'done':
             setMessages((prev) =>
               prev.map((m) => (m.id === assistantId ? { ...m, isStreaming: false } : m)),
@@ -149,6 +203,20 @@ export function useChat(options: UseChatOptions): UseChatResult {
               prev.map((m) => (m.id === assistantId ? { ...m, isStreaming: false } : m)),
             )
             setIsLoading(false)
+            break
+          case 'thinking': {
+            const lastBlock = blocks[blocks.length - 1]
+            if (lastBlock?.type === 'thinking') {
+              lastBlock.content += event.content
+            } else {
+              blocks.push({ type: 'thinking', content: event.content })
+            }
+            setMessages((prev) =>
+              prev.map((m) => (m.id === assistantId ? { ...m, blocks: [...blocks] } : m)),
+            )
+            break
+          }
+          default:
             break
         }
       }
@@ -175,6 +243,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
   const abort = useCallback(() => {
     provider.abort()
     setIsLoading(false)
+    setMessages((prev) =>
+      prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false, aborted: true } : m)),
+    )
   }, [provider])
 
   const clearHistory = useCallback(async () => {

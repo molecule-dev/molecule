@@ -514,15 +514,6 @@ const checkbox: (props?: ({ variant?: "default" | "error" | undefined; } & { cla
 
 #### `classMap`
 
-Tailwind CSS UIClassMap implementation.
-
-Wire at app startup:
-```typescript
-import { setClassMap } from '`@molecule/app-ui`'
-import { classMap } from '`@molecule/app-ui-tailwind`'
-setClassMap(classMap)
-```
-
 ```typescript
 const classMap: UIClassMap
 ```

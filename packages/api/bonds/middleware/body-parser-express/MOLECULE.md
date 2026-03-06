@@ -57,6 +57,19 @@ function provider(req: unknown, res: unknown, next: (err?: unknown) => void): vo
 ## Core Interface
 Implements `@molecule/api-middleware-body-parser` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setBodyParser, setJsonParserFactory } from '@molecule/api-middleware-body-parser'
+import { jsonParserFactory } from '@molecule/api-middleware-body-parser-express'
+
+export function setupMiddlewareBodyParserExpress(): void {
+  setJsonParserFactory(jsonParserFactory)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

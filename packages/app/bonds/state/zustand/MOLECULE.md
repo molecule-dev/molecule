@@ -277,6 +277,19 @@ const provider: StateProvider
 ## Core Interface
 Implements `@molecule/app-state` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-state'
+import { provider } from '@molecule/app-state-zustand'
+
+export function setupStateZustand(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

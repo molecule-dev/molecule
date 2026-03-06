@@ -446,6 +446,19 @@ const quillToolbars: Record<string, ToolbarConfig>
 ## Core Interface
 Implements `@molecule/app-rich-text` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-rich-text'
+import { provider } from '@molecule/app-rich-text-quill'
+
+export function setupRichTextQuill(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

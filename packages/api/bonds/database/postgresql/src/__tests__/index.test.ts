@@ -108,7 +108,7 @@ describe('@molecule/api-database-postgresql', () => {
 
       expect(pg.Pool).toHaveBeenCalledWith({
         connectionString: 'postgres://localhost:5432/test',
-        ssl: { rejectUnauthorized: false },
+        ssl: false,
       })
     })
   })

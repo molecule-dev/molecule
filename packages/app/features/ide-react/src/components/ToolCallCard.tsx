@@ -1,111 +1,730 @@
 /**
- * Tool call display card with collapsible details.
+ * Tool call display row — compact, Claude Code-style.
+ *
+ * Shows a colored status dot, a human-readable action label, and a
+ * one-line result summary. Expands on click to reveal formatted IN / OUT
+ * sections: diffs for file edits, terminal output for commands, etc.
  *
  * @module
  */
 
-import type { JSX } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
-import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ToolCallCardProps } from '../types.js'
 
+// ---------------------------------------------------------------------------
+// Label + summary helpers
+// ---------------------------------------------------------------------------
+
+type Inp = Record<string, unknown>
+type Out = Record<string, unknown> | string | null | undefined
+
 /**
- * Collapsible card displaying a tool call's name, status, input, and output.
- * @param root0 - The component props.
- * @param root0.name - The name of the tool that was called.
- * @param root0.input - The input data sent to the tool.
- * @param root0.output - The output data returned by the tool.
- * @param root0.status - The current execution status of the tool call.
- * @param root0.className - Optional CSS class name for the card.
- * @returns The rendered tool call card element.
+ *
+ * @param path
+ */
+function basename(path: string | undefined): string {
+  if (!path) return ''
+  return path.split('/').pop() ?? path
+}
+
+/**
+ * Human-readable label for a tool call (e.g. "Edit `ChatPanel.tsx`").
+ * @param name
+ * @param input
+ */
+function toolLabel(name: string, input: unknown): string {
+  const inp = (input ?? {}) as Inp
+  const path = inp.path as string | undefined
+  const cmd = inp.command as string | undefined
+  const pattern = inp.pattern as string | undefined
+  const url = inp.url as string | undefined
+
+  switch (name) {
+    case 'list_files':
+      return `List \`${basename(path) || 'project'}\``
+    case 'read_file':
+      return `Read \`${basename(path)}\``
+    case 'write_file':
+      return `Write \`${basename(path)}\``
+    case 'edit_file':
+      return `Edit \`${basename(path)}\``
+    case 'search_files':
+      return `Search \`${pattern ?? ''}\``
+    case 'create_directory':
+      return `Create dir \`${basename(path)}\``
+    case 'rename_file':
+      return `Rename \`${basename(inp.old_path as string | undefined)}\``
+    case 'delete_file':
+      return `Delete \`${basename(path)}\``
+    case 'find_files':
+      return `Find \`${pattern ?? ''}\``
+    case 'web_fetch': {
+      try {
+        return `Fetch ${new URL(url ?? '').hostname}`
+      } catch {
+        return `Fetch ${url ?? ''}`
+      }
+    }
+    case 'exec_command': {
+      const short = (cmd ?? '').slice(0, 60)
+      return `Bash \`${short}${(cmd ?? '').length > 60 ? '…' : ''}\``
+    }
+    default:
+      return name.replace(/_/g, ' ')
+  }
+}
+
+/**
+ * One-line result summary shown beneath the label.
+ * @param name
+ * @param output
+ * @param status
+ */
+function toolSummary(name: string, output: Out, status: string): string {
+  if (status === 'pending') return ''
+  if (status === 'running') return 'Running…'
+
+  const out = output as Inp | undefined
+  const hasError = typeof out === 'object' && out !== null && 'error' in out
+
+  if (hasError) {
+    const msg = ((out as { error: string }).error ?? '').toLowerCase()
+    if (msg.includes('not found') || msg.includes('no such file')) return 'Not found'
+    if (msg.includes('permission') || msg.includes('access denied')) return 'Permission denied'
+    return 'Failed'
+  }
+
+  switch (name) {
+    case 'write_file': {
+      const diff = (out as { diff?: { type: string; linesAdded: number; linesRemoved: number } })
+        ?.diff
+      if (!diff) return ''
+      if (diff.type === 'unchanged') return 'Unchanged'
+      return ''
+    }
+    case 'edit_file':
+      return ''
+    case 'list_files': {
+      const entries = (out as { entries?: unknown[] })?.entries
+      return entries != null ? `${entries.length} entries` : ''
+    }
+    case 'read_file':
+      return ''
+    case 'search_files': {
+      const matches = (out as { matches?: unknown[] })?.matches
+      return matches != null ? `${matches.length} match${matches.length === 1 ? '' : 'es'}` : ''
+    }
+    case 'find_files': {
+      const files = (out as { files?: unknown[] })?.files
+      return files != null ? `${files.length} file${files.length === 1 ? '' : 's'}` : ''
+    }
+    case 'create_directory':
+      return ''
+    case 'rename_file':
+      return ''
+    case 'delete_file':
+      return ''
+    case 'web_fetch': {
+      const status_ = (out as { status?: number })?.status
+      if (status_ == null) return ''
+      if (status_ >= 200 && status_ < 300) return ''
+      if (status_ === 404) return 'Not found'
+      if (status_ >= 400 && status_ < 500) return 'Failed'
+      if (status_ >= 500) return 'Server error'
+      return ''
+    }
+    case 'exec_command': {
+      const exitCode = (out as { exitCode?: number })?.exitCode
+      return exitCode != null && exitCode !== 0 ? 'Failed' : ''
+    }
+    default:
+      return ''
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Label renderer — turns `backtick` segments into inline <code> spans
+// ---------------------------------------------------------------------------
+
+const CODE_STYLE: React.CSSProperties = {
+  fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
+  fontSize: 'inherit',
+}
+
+/**
+ * Clickable filename code — single click opens preview, double click pins tab.
+ * @param root0
+ * @param root0.filePath
+ * @param root0.onFileOpen
+ * @param root0.onFileDoubleClick
+ * @param root0.children
+ */
+function FileCodeLink({ filePath, onFileOpen, onFileDoubleClick, children }: {
+  filePath: string
+  onFileOpen: (path: string) => void
+  onFileDoubleClick?: (path: string) => void
+  children: React.ReactNode
+}): JSX.Element {
+  return (
+    <code
+      style={{ ...CODE_STYLE, cursor: 'pointer', opacity: 0.75, transition: 'opacity 100ms' }}
+      onClick={(e) => { e.stopPropagation(); onFileOpen(filePath) }}
+      onDoubleClick={(e) => { e.stopPropagation(); onFileDoubleClick?.(filePath) }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.75' }}
+    >
+      {children}
+    </code>
+  )
+}
+
+/**
+ *
+ * @param name
+ * @param input
+ * @param filePath
+ * @param onFileOpen
+ * @param onFileDoubleClick
+ */
+function renderLabel(
+  name: string,
+  input: unknown,
+  filePath: string | null,
+  onFileOpen?: (path: string) => void,
+  onFileDoubleClick?: (path: string) => void,
+): ReactNode {
+  const text = toolLabel(name, input)
+  const parts = text.split(new RegExp('`([^`]+)`'))
+  if (parts.length === 1) return text
+  return (
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 0 ? part : (
+          filePath && onFileOpen ? (
+            <FileCodeLink key={i} filePath={filePath} onFileOpen={onFileOpen} onFileDoubleClick={onFileDoubleClick}>{part}</FileCodeLink>
+          ) : (
+            <code key={i} style={{ ...CODE_STYLE, opacity: 0.75 }}>{part}</code>
+          )
+        ),
+      )}
+    </>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Detail renderers — IN and OUT panes
+// ---------------------------------------------------------------------------
+
+const PRE: React.CSSProperties = {
+  margin: 0,
+  whiteSpace: 'pre',
+  overflowX: 'auto',
+  fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
+  fontSize: '11px',
+  lineHeight: 1.5,
+}
+
+/**
+ * Render the input section for a tool call.
+ * @param name
+ * @param input
+ */
+function renderIn(name: string, input: unknown): ReactNode {
+  const inp = (input ?? {}) as Inp
+
+  switch (name) {
+    case 'exec_command':
+      return <pre style={PRE}><span style={{ opacity: 0.5 }}>$ </span>{inp.command as string ?? ''}</pre>
+
+    case 'write_file':
+      // Full file content is too noisy — show only the path
+      return <pre style={PRE}>{inp.path as string ?? ''}</pre>
+
+    case 'edit_file': {
+      const replacements = Array.isArray(inp.replacements)
+        ? (inp.replacements as Array<{ old_string: string; new_string: string }>)
+        : []
+      const nodes: React.ReactNode[] = []
+      replacements.forEach((r, i) => {
+        if (i > 0) nodes.push('\n\n')
+        r.old_string.split('\n').forEach((line, li) => {
+          if (li > 0) nodes.push('\n')
+          nodes.push(<span key={`r${i}-${li}`} style={{ color: '#f47067', fontFamily: 'inherit' }}>{'- '}{line}</span>)
+        })
+        nodes.push('\n')
+        r.new_string.split('\n').forEach((line, li) => {
+          if (li > 0) nodes.push('\n')
+          nodes.push(<span key={`a${i}-${li}`} style={{ color: '#57ab5a', fontFamily: 'inherit' }}>{'+ '}{line}</span>)
+        })
+      })
+      return <pre style={PRE}>{nodes}</pre>
+    }
+
+    case 'search_files':
+      return (
+        <pre style={PRE}>
+          {`/${inp.pattern as string ?? ''}/`}
+          {inp.path ? ` in ${inp.path}` : ''}
+          {inp.include ? ` (${inp.include})` : ''}
+        </pre>
+      )
+
+    case 'find_files':
+      return (
+        <pre style={PRE}>
+          {inp.pattern as string ?? ''}
+          {inp.path ? ` in ${inp.path}` : ''}
+        </pre>
+      )
+
+    case 'read_file':
+    case 'delete_file':
+    case 'list_files':
+    case 'create_directory':
+      return <pre style={PRE}>{inp.path as string ?? ''}</pre>
+
+    case 'rename_file':
+      return <pre style={PRE}>{inp.old_path as string ?? ''} → {inp.new_path as string ?? ''}</pre>
+
+    case 'web_fetch':
+      return <pre style={PRE}>{inp.method as string ?? 'GET'} {inp.url as string ?? ''}</pre>
+
+    default:
+      return <pre style={PRE}>{JSON.stringify(input, null, 2)}</pre>
+  }
+}
+
+/**
+ * Render the output section for a tool call.
+ * @param name
+ * @param output
+ */
+function renderOut(name: string, output: unknown): ReactNode {
+  const out = (output ?? {}) as Inp
+
+  if (typeof out === 'object' && out !== null && 'error' in out) {
+    return <pre style={{ ...PRE, color: '#f47067' }}>{out.error as string}</pre>
+  }
+
+  switch (name) {
+    case 'exec_command': {
+      const stdout = (out.stdout as string ?? '').trimEnd()
+      const stderr = (out.stderr as string ?? '').trimEnd()
+      const exitCode = out.exitCode as number | undefined
+      return (
+        <div>
+          {stdout && <pre style={PRE}>{stdout}</pre>}
+          {stderr && <pre style={{ ...PRE, color: '#f47067', marginTop: stdout ? '4px' : 0 }}>{stderr}</pre>}
+          {exitCode != null && exitCode !== 0 && (
+            <div style={{ marginTop: '4px', color: '#f47067', fontSize: '10px' }}>
+              exit code {exitCode}
+            </div>
+          )}
+          {!stdout && !stderr && <span style={{ opacity: 0.5 }}>(no output)</span>}
+        </div>
+      )
+    }
+
+    case 'write_file': {
+      const diff = out.diff as { type: string; linesAdded: number; linesRemoved: number } | undefined
+      if (!diff) return <span style={{ opacity: 0.6 }}>Written</span>
+      if (diff.type === 'unchanged') return <span style={{ opacity: 0.6 }}>Unchanged</span>
+      return (
+        <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px' }}>
+          {diff.type === 'new' && (
+            <div style={{ color: '#57ab5a' }}>new file, {diff.linesAdded} lines</div>
+          )}
+          {diff.type === 'modified' && (
+            <>
+              {diff.linesAdded > 0 && <div style={{ color: '#57ab5a' }}>+{diff.linesAdded} lines</div>}
+              {diff.linesRemoved > 0 && <div style={{ color: '#f47067' }}>−{diff.linesRemoved} lines</div>}
+            </>
+          )}
+        </div>
+      )
+    }
+
+    case 'edit_file': {
+      const n = out.replacementsApplied as number | undefined
+      return (
+        <span style={{ opacity: 0.6, fontSize: '11px' }}>
+          {n != null ? `${n} change${n === 1 ? '' : 's'} applied` : 'Applied'}
+        </span>
+      )
+    }
+
+    case 'read_file': {
+      const content = out.content as string | undefined
+      if (!content) return <span style={{ opacity: 0.5 }}>(empty)</span>
+      const truncated = content.length > 3000
+      return (
+        <pre style={PRE}>
+          {truncated ? content.slice(0, 3000) + '\n… (truncated)' : content}
+        </pre>
+      )
+    }
+
+    case 'list_files': {
+      const entries = out.entries as Array<{ name: string; type: string }> | undefined
+      if (!entries?.length) return <span style={{ opacity: 0.5 }}>(empty)</span>
+      return (
+        <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px', lineHeight: 1.6 }}>
+          {entries.map((e, i) => (
+            <div key={i} style={{ display: 'flex', gap: '6px' }}>
+              <span style={{ opacity: 0.4, width: '10px', flexShrink: 0 }}>
+                {e.type === 'directory' ? '▶' : ''}
+              </span>
+              <span>{e.name}{e.type === 'directory' ? '/' : ''}</span>
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    case 'find_files': {
+      const files = out.files as string[] | undefined
+      if (!files?.length) return <span style={{ opacity: 0.5 }}>No files found</span>
+      return (
+        <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px', lineHeight: 1.6 }}>
+          {files.map((f, i) => <div key={i}>{f}</div>)}
+        </div>
+      )
+    }
+
+    case 'search_files': {
+      const matches = out.matches as Array<{ file: string; line: number; content: string }> | undefined
+      if (!matches?.length) return <span style={{ opacity: 0.5 }}>No matches</span>
+      return (
+        <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px', lineHeight: 1.6 }}>
+          {matches.slice(0, 30).map((m, i) => (
+            <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '2px' }}>
+              <span style={{ opacity: 0.5, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                {basename(m.file)}:{m.line}
+              </span>
+              <span style={{ whiteSpace: 'pre' }}>{m.content.trim()}</span>
+            </div>
+          ))}
+          {matches.length > 30 && (
+            <div style={{ opacity: 0.5, marginTop: '4px' }}>… and {matches.length - 30} more</div>
+          )}
+        </div>
+      )
+    }
+
+    case 'web_fetch': {
+      const status = out.status as number | undefined
+      const body = out.body as string | undefined
+      const ok = status != null && status >= 200 && status < 300
+      return (
+        <div>
+          {status != null && (
+            <div style={{ color: ok ? '#57ab5a' : '#f47067', marginBottom: body ? '4px' : 0, fontSize: '11px' }}>
+              HTTP {status}
+            </div>
+          )}
+          {body && (
+            <pre style={PRE}>
+              {body.length > 2000 ? body.slice(0, 2000) + '\n… (truncated)' : body}
+            </pre>
+          )}
+        </div>
+      )
+    }
+
+    default:
+      return <pre style={PRE}>{JSON.stringify(output, null, 2)}</pre>
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
+/**
+ * Compact tool-call row with a colored status dot, human-readable label,
+ * result summary, and expandable detail pane with smart per-tool rendering.
+ * @param root0 - Component props.
+ * @param root0.name - Tool name (e.g. `write_file`).
+ * @param root0.input - Raw tool input.
+ * @param root0.output - Raw tool output.
+ * @param root0.status - Execution status.
+ * @param root0.className - Optional CSS class.
+ * @returns Rendered tool call row.
+ */
+/**
+ * Count truly added/removed lines between two line arrays using LCS.
+ * @param oldLines
+ * @param newLines
+ */
+function diffLineCount(oldLines: string[], newLines: string[]): { added: number; removed: number } {
+  const n = oldLines.length
+  const m = newLines.length
+  const dp: number[][] = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0) as number[])
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      dp[i][j] = oldLines[i - 1] === newLines[j - 1]
+        ? dp[i - 1][j - 1] + 1
+        : Math.max(dp[i - 1][j], dp[i][j - 1])
+    }
+  }
+  const common = dp[n][m]
+  return { added: m - common, removed: n - common }
+}
+
+/**
+ * Compute lines added/removed from a file-changing tool call.
+ * @param name
+ * @param input
+ * @param output
+ */
+function fileDiffStats(name: string, input: unknown, output: unknown): { added: number; removed: number } | null {
+  if (name === 'edit_file') {
+    const inp = (input ?? {}) as Inp
+    const replacements = Array.isArray(inp.replacements)
+      ? (inp.replacements as Array<{ old_string: string; new_string: string }>)
+      : []
+    if (replacements.length === 0) return null
+    let added = 0
+    let removed = 0
+    for (const r of replacements) {
+      const d = diffLineCount(r.old_string.split('\n'), r.new_string.split('\n'))
+      added += d.added
+      removed += d.removed
+    }
+    return { added, removed }
+  }
+  if (name === 'write_file') {
+    const diff = (output as Inp)?.diff as { type: string; linesAdded: number; linesRemoved: number } | undefined
+    if (!diff || diff.type === 'unchanged') return null
+    if (diff.type === 'new') return { added: diff.linesAdded, removed: 0 }
+    return { added: diff.linesAdded, removed: diff.linesRemoved }
+  }
+  return null
+}
+
+/**
+ * Extracts the primary file path from a tool's input, if it operates on a single file.
+ * @param name
+ * @param input
+ */
+function extractFilePath(name: string, input: unknown): string | null {
+  const inp = (input ?? {}) as Record<string, unknown>
+  switch (name) {
+    case 'read_file':
+    case 'write_file':
+    case 'edit_file':
+      return (inp.path as string) || null
+    case 'rename_file':
+      return (inp.new_path as string) || null
+    default:
+      return null
+  }
+}
+
+/**
+ *
+ * @param root0
+ * @param root0.name
+ * @param root0.input
+ * @param root0.output
+ * @param root0.status
+ * @param root0.fileDiff
+ * @param root0.onFileOpen
+ * @param root0.onFileDoubleClick
+ * @param root0.onFileDiff
+ * @param root0.className
  */
 export function ToolCallCard({
   name,
   input,
   output,
   status,
+  fileDiff,
+  onFileOpen,
+  onFileDoubleClick,
+  onFileDiff,
   className,
 }: ToolCallCardProps): JSX.Element {
   const cm = getClassMap()
   const [expanded, setExpanded] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
 
-  const statusIcon =
-    status === 'running' || status === 'pending'
-      ? '\u25CB'
-      : status === 'done'
-        ? '\u2713'
-        : '\u2717'
-  const statusColorClass =
-    status === 'running' || status === 'pending'
-      ? cm.textWarning
-      : status === 'done'
-        ? cm.textSuccess
-        : cm.textError
+  const hasError = (() => {
+    if (status === 'error') return true
+    if (typeof output !== 'object' || output === null) return false
+    const out = output as Record<string, unknown>
+    if ('error' in out) return true
+    if (name === 'exec_command') {
+      const exitCode = out.exitCode as number | undefined
+      return exitCode != null && exitCode !== 0
+    }
+    if (name === 'web_fetch') {
+      const s = out.status as number | undefined
+      return s != null && s >= 400
+    }
+    return false
+  })()
+
+  // gray → orange → green or red
+  const dotColor =
+    status === 'pending'
+      ? '#888888'
+      : status === 'running'
+        ? '#e8a000'
+        : hasError
+          ? '#f04040'
+          : '#3fb950'
+
+  const summary = toolSummary(name, output as Out, status)
+
+  // File path for the clickable filename <code> in the label.
+  const filePath = extractFilePath(name, input)
+
+  // New files open directly (no diff to show); edits/modifications open the diff viewer.
+  const isNewFile = name === 'write_file' && ((output as Inp)?.diff as { type?: string })?.type === 'new'
+  const isFileDiff = !isNewFile && (name === 'edit_file' || name === 'write_file') && filePath != null && onFileDiff != null
+
+  // Tools that expand to show details inline.
+  const EXPANDABLE = new Set(['exec_command', 'web_fetch', 'rename_file', 'list_files', 'find_files', 'search_files'])
+  const hasDetails = EXPANDABLE.has(name) && (input !== undefined || output !== undefined)
+
+  // Only exec_command and web_fetch get the labeled IN / OUT pane treatment.
+  const showInOut = name === 'exec_command' || name === 'web_fetch'
+  const inContent = showInOut && input !== undefined ? renderIn(name, input) : null
+  const outContent = showInOut && output !== undefined ? renderOut(name, output) : null
+
+  const handleClick = isNewFile && filePath && onFileOpen
+    ? () => { onFileOpen(filePath) }
+    : isFileDiff
+      ? () => { onFileDiff!(filePath!, fileDiff) }
+      : hasDetails
+        ? () => { setExpanded((e) => !e) }
+      : undefined
 
   return (
-    <div
-      className={cm.cn(cm.sp('my', 2), cm.borderAll, className)}
-      style={{ borderRadius: '6px', overflow: 'hidden' }}
-    >
+    <div className={className} style={{ marginBottom: '4px' }}>
       <button
         type="button"
-        onClick={() => setExpanded(!expanded)}
-        className={cm.cn(
-          cm.w('full'),
-          cm.flex({ direction: 'row', align: 'center', justify: 'between' }),
-          cm.sp('px', 3),
-          cm.sp('py', 2),
-          cm.textSize('sm'),
-          cm.surfaceSecondary,
-          cm.cursorPointer,
-        )}
+        onClick={handleClick}
+        onDoubleClick={isNewFile && filePath && onFileDoubleClick ? () => { onFileDoubleClick(filePath) } : undefined}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '8px',
+          background: 'none',
           border: 'none',
+          cursor: handleClick ? 'pointer' : 'default',
           color: 'inherit',
           textAlign: 'left',
+          padding: '2px 0',
+          width: '100%',
         }}
       >
-        <span className={cm.flex({ direction: 'row', align: 'center', gap: 'sm' })}>
-          <span className={statusColorClass}>{statusIcon}</span>
-          <span className={cm.fontWeight('medium')}>{name}</span>
-          {status === 'running' && (
-            <span className={cm.textMuted} style={{ animation: 'pulse 2s infinite' }}>
-              {t('ide.toolCall.running')}
+        {/* Colored status dot */}
+        <span style={{ color: dotColor, fontSize: '11px', marginTop: '3px', flexShrink: 0 }}>
+          ●
+        </span>
+
+        {/* Label + one-line summary */}
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ fontSize: '13px' }}>{renderLabel(name, input, filePath, onFileOpen, onFileDoubleClick)}</span>
+          {summary && (
+            <span
+              className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+              style={{ display: 'block', marginTop: '1px' }}
+            >
+              {summary}
             </span>
           )}
         </span>
-        <span
+
+        {/* Line diff stats for file-changing tools */}
+        {(() => {
+          const diff = fileDiffStats(name, input, output)
+          if (!diff) return null
+          return (
+            <span style={{ display: 'flex', gap: '4px', flexShrink: 0, marginTop: '6px', marginRight: '-2px', fontSize: '11px', fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace', opacity: isHovered ? 1 : 0.6, transition: 'opacity 100ms' }}>
+              {diff.added > 0 && <span style={{ color: '#57ab5a' }}>+{diff.added}</span>}
+              {diff.removed > 0 && <span style={{ color: '#f47067' }}>-{diff.removed}</span>}
+            </span>
+          )
+        })()}
+
+        {/* Expand / open chevron */}
+        {(hasDetails || isFileDiff || (isNewFile && filePath && onFileOpen)) && (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            width="14"
+            height="14"
+            style={{
+              display: 'block',
+              flexShrink: 0,
+              marginTop: '7px',
+              transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+              transition: 'transform 150ms, opacity 100ms',
+              opacity: isHovered ? 0.85 : 0.35,
+            }}
+          >
+            <polyline points="6,4 10,8 6,12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+      </button>
+
+      {/* Expanded detail */}
+      {expanded && hasDetails && (
+        <div
+          className={cm.surfaceSecondary}
           style={{
-            transform: expanded ? 'rotate(180deg)' : 'rotate(0)',
-            transition: 'transform 150ms',
+            marginLeft: '14px',
+            marginTop: '4px',
+            marginBottom: '4px',
+            borderRadius: '4px',
+            overflowX: 'auto',
           }}
         >
-          {'\u25BC'}
-        </span>
-      </button>
-      {expanded && (
-        <div className={cm.cn(cm.sp('p', 3), cm.textSize('xs'), cm.surface, cm.borderT)}>
-          {input !== undefined && (
-            <div className={cm.sp('mb', 2)}>
-              <div className={cm.cn(cm.textMuted, cm.fontWeight('medium'), cm.sp('mb', 1))}>
-                {t('ide.toolCall.input')}
-              </div>
-              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
-                {typeof input === 'string' ? input : JSON.stringify(input, null, 2)}
-              </pre>
-            </div>
-          )}
-          {output !== undefined && (
-            <div>
-              <div className={cm.cn(cm.textMuted, cm.fontWeight('medium'), cm.sp('mb', 1))}>
-                {t('ide.toolCall.output')}
-              </div>
-              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
-                {typeof output === 'string' ? output : JSON.stringify(output, null, 2)}
-              </pre>
+          {showInOut ? (
+            <>
+              {inContent && (
+                <div style={{ padding: '6px 10px' }}>
+                  <div
+                    className={cm.textMuted}
+                    style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px', fontWeight: 600 }}
+                  >
+                    IN
+                  </div>
+                  {inContent}
+                </div>
+              )}
+              {outContent && (
+                <div style={{ padding: '6px 10px', borderTop: inContent ? '1px solid rgba(128,128,128,0.15)' : undefined }}>
+                  <div
+                    className={cm.textMuted}
+                    style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px', fontWeight: 600 }}
+                  >
+                    OUT
+                  </div>
+                  {outContent}
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={{ padding: '6px 10px' }}>
+              {/* rename_file: show old → new path */}
+              {name === 'rename_file' && (
+                <pre style={PRE}>
+                  {((input ?? {}) as Inp).old_path as string ?? ''}{' → '}{((input ?? {}) as Inp).new_path as string ?? ''}
+                </pre>
+              )}
+
+              {/* Listing / search tools: show output results */}
+              {(name === 'list_files' || name === 'find_files' || name === 'search_files') && output !== undefined && renderOut(name, output)}
             </div>
           )}
         </div>

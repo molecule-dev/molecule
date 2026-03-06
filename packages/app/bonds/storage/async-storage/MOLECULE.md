@@ -136,6 +136,19 @@ const provider: StorageProvider
 ## Core Interface
 Implements `@molecule/app-storage` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-storage'
+import { provider } from '@molecule/app-storage-async-storage'
+
+export function setupStorageAsyncStorage(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

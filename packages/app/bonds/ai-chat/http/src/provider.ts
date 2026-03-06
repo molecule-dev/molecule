@@ -38,50 +38,57 @@ export class HttpChatProvider implements ChatProvider {
    * @param onEvent - Callback invoked for each SSE event (content chunks, errors, done signals).
    */
   async sendMessage(message: string, config: ChatConfig, onEvent: ChatEventHandler): Promise<void> {
+    // Abort any previous in-flight request before starting a new one.
+    // Prevents stale streaming events from corrupting state when called concurrently
+    // (e.g., React StrictMode double-mount or rapid message sends).
+    this.abortController?.abort()
     this.abortController = new AbortController()
     const url = `${this.config.baseUrl ?? ''}${config.endpoint}`
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...this.config.headers,
-      },
-      body: JSON.stringify({
-        message,
-        model: config.model,
-      }),
-      signal: this.abortController.signal,
-    })
-
-    if (!response.ok) {
-      const text = await response
-        .text()
-        .catch(() => t('chat.error.unknownError', undefined, { defaultValue: 'Unknown error' }))
-      onEvent({
-        type: 'error',
-        message: t(
-          'chat.error.httpError',
-          { status: response.status, text },
-          { defaultValue: 'HTTP {{status}}: {{text}}' },
-        ),
-      })
-      return
-    }
-
-    if (!response.body) {
-      onEvent({
-        type: 'error',
-        message: t('chat.error.noResponseBody', undefined, { defaultValue: 'No response body' }),
-      })
-      return
-    }
-
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
-
+    // Single try-catch wraps everything including the initial fetch so that
+    // AbortErrors thrown at any stage (fetch, response.text(), reader.read())
+    // are all handled uniformly rather than propagating to the caller.
     try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.config.headers,
+        },
+        body: JSON.stringify({
+          message,
+          model: config.model,
+        }),
+        signal: this.abortController.signal,
+      })
+
+      if (!response.ok) {
+        const text = await response
+          .text()
+          .catch(() => t('chat.error.unknownError', undefined, { defaultValue: 'Unknown error' }))
+        onEvent({
+          type: 'error',
+          message: t(
+            'chat.error.httpError',
+            { status: response.status, text },
+            { defaultValue: 'HTTP {{status}}: {{text}}' },
+          ),
+        })
+        return
+      }
+
+      if (!response.body) {
+        onEvent({
+          type: 'error',
+          message: t('chat.error.noResponseBody', undefined, { defaultValue: 'No response body' }),
+        })
+        return
+      }
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
@@ -117,7 +124,9 @@ export class HttpChatProvider implements ChatProvider {
         }
       }
     } catch (err) {
-      if (err instanceof DOMException && err.name === 'AbortError') {
+      // AbortError can be a DOMException or a plain Error depending on the environment.
+      // Silently return — this request was superseded by a newer one.
+      if (err instanceof Error && err.name === 'AbortError') {
         return
       }
       const message =
@@ -161,14 +170,46 @@ export class HttpChatProvider implements ChatProvider {
 
     if (!response.ok) return []
 
-    const data = (await response.json()) as { messages?: ChatMessage[] }
-    return (data.messages ?? []).map((m, i) => ({
-      id: m.id ?? `msg-${i}`,
-      role: m.role,
-      content: m.content,
-      timestamp: m.timestamp ?? Date.now(),
-      toolCalls: m.toolCalls,
-    }))
+    const data = (await response.json()) as { messages?: Record<string, unknown>[] }
+    return (data.messages ?? []).map((m, i) => {
+      // Backend stores timestamps as ISO strings; frontend needs numbers
+      const raw = m.timestamp
+      const timestamp =
+        typeof raw === 'number'
+          ? raw
+          : typeof raw === 'string'
+            ? new Date(raw).getTime()
+            : Date.now()
+
+      const toolCalls = (m.toolCalls as ChatMessage['toolCalls'])?.map((tc) => ({
+        ...tc,
+        status:
+          typeof tc.output === 'object' && tc.output !== null && 'error' in tc.output
+            ? ('error' as const)
+            : ('done' as const),
+      }))
+
+      // Reconstruct blocks from toolCalls when blocks aren't stored (legacy messages).
+      // This ensures tool call cards render correctly from history.
+      let blocks = m.blocks as ChatMessage['blocks']
+      if (!blocks && ((m.content as string) || toolCalls?.length)) {
+        blocks = []
+        if (m.content) blocks.push({ type: 'text', content: m.content as string })
+        if (toolCalls) {
+          for (const tc of toolCalls) blocks.push({ type: 'tool_call', id: tc.id })
+        }
+      }
+
+      return {
+        id: (m.id as string) ?? `msg-${i}`,
+        role: m.role as ChatMessage['role'],
+        content: (m.content as string) ?? '',
+        timestamp,
+        blocks,
+        toolCalls,
+        commitRecord: m.commitRecord as ChatMessage['commitRecord'],
+      }
+    })
   }
 }
 

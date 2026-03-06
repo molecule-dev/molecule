@@ -64,6 +64,19 @@ const provider: NetworkProvider
 ## Core Interface
 Implements `@molecule/app-network` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-network'
+import { provider } from '@molecule/app-network-react-native'
+
+export function setupNativeNetworkReactNative(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements
