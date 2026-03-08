@@ -48,6 +48,14 @@ export interface EditorPanelProps {
   onTabsChange?: (paths: string[]) => void
   /** Maps file path to git status for coloring tab filenames. */
   fileStatuses?: Record<string, string>
+  /** Path of the file currently being formatted, for visual indicator. */
+  formattingFile?: string | null
+  /** Path of the file with an active save debounce countdown. */
+  countdownFile?: string | null
+  /** Incremented each keystroke to restart the countdown animation. */
+  countdownKey?: number
+  /** Estimated format duration in ms (rolling average, default 2000). */
+  formatEstimate?: number
 }
 
 /**

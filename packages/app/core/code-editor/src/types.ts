@@ -100,6 +100,8 @@ export interface EditorProvider {
   closeFile(path: string): void
   getContent(): string | null
   setContent(path: string, content: string): void
+  /** Silently update file content without firing change events or marking dirty. Preserves cursor position. */
+  setContentSilent?(path: string, content: string): void
   getCursorPosition(): EditorPosition | null
   setCursorPosition(position: EditorPosition): void
   focus(): void
@@ -117,4 +119,14 @@ export interface EditorProvider {
   pinTab?(path: string): void
   /** Add a type definition or virtual file for module resolution. */
   addExtraLib?(content: string, filePath: string): void
+  /** Remove all registered extra libs. */
+  clearExtraLibs?(): void
+  /** Connect to an LSP server for language intelligence. */
+  connectLsp?(wsUrl: string): Promise<void>
+  /** Disconnect from the LSP server. */
+  disconnectLsp?(): void
+  /** Set a file resolver for Go to Definition / Peek Definition cross-file navigation. */
+  setFileResolver?(
+    resolver: (path: string) => Promise<{ content: string; language?: string } | null>,
+  ): void
 }

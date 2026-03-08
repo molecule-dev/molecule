@@ -17,6 +17,12 @@ import type {
   EditorTab,
 } from '@molecule/app-code-editor'
 
+import {
+  LspClient,
+  type LspMonacoModule,
+  type LspProviderOptions,
+  registerLspProviders,
+} from './lsp-client.js'
 import type { MonacoConfig } from './types.js'
 
 /** Minimal Monaco types to avoid importing the full package at compile time. */
@@ -53,6 +59,7 @@ interface MonacoDiffEditor {
 interface MonacoLanguageDefaults {
   setCompilerOptions(options: Record<string, unknown>): void
   setDiagnosticsOptions(options: Record<string, unknown>): void
+  setModeConfiguration?(options: Record<string, boolean>): void
   addExtraLib(content: string, filePath?: string): { dispose(): void }
 }
 
@@ -64,6 +71,13 @@ interface MonacoModule {
     getModel(uri: unknown): MonacoModel | null
     getModelMarkers(filter: { resource?: unknown }): MonacoMarker[]
     onDidChangeMarkers(listener: (uris: unknown[]) => void): { dispose(): void }
+    registerEditorOpener?(opener: {
+      openCodeEditor(
+        source: unknown,
+        resource: unknown,
+        selectionOrPosition?: unknown,
+      ): boolean | Promise<boolean>
+    }): { dispose(): void }
   }
   Uri: {
     parse(uri: string): unknown
@@ -111,6 +125,20 @@ export class MonacoEditorProvider implements EditorProvider {
   private diffContainerEl: HTMLElement | null = null
   /** Disposable for the onDidChangeMarkers listener. */
   private markerDisposable: { dispose(): void } | null = null
+  /** Map of filePath → disposable for registered extra libs. */
+  private extraLibDisposables: Map<string, { dispose(): void }> = new Map()
+  /** Active LSP client for remote language intelligence. */
+  private lspClient: LspClient | null = null
+  /** Disposable for LSP-registered Monaco language providers. */
+  private lspProviders: { dispose(): void } | null = null
+  /** LSP document version counters keyed by file path. */
+  private documentVersions: Map<string, number> = new Map()
+  /** Callback to fetch file content by path — used for Go to Definition cross-file navigation. */
+  private fileResolver:
+    | ((path: string) => Promise<{ content: string; language?: string } | null>)
+    | null = null
+  /** Disposable for the editor opener registration. */
+  private editorOpenerDisposable: { dispose(): void } | null = null
 
   constructor(config: MonacoConfig = {}) {
     this.config = {
@@ -207,11 +235,13 @@ export class MonacoEditorProvider implements EditorProvider {
       minimap: { enabled: mergedConfig.minimap ?? true },
       readOnly: mergedConfig.readOnly ?? false,
       automaticLayout: true,
+      fixedOverflowWidgets: true,
     } as Record<string, unknown>)
 
     this.wireChangeListener()
     this.configureTypeScript(monaco)
     this.wireMarkerListener(monaco)
+    this.registerEditorOpener(monaco)
     console.debug('[Monaco] mount() complete, editor created', { activeFile: this.activeFile })
 
     // If we have an active file, create its model if needed (handles race condition
@@ -252,10 +282,14 @@ export class MonacoEditorProvider implements EditorProvider {
     // Clean up diff editor if open
     this.closeDiff()
 
+    this.disconnectLsp()
+    this.editorOpenerDisposable?.dispose()
+    this.editorOpenerDisposable = null
     this.changeDisposable?.dispose()
     this.changeDisposable = null
     this.markerDisposable?.dispose()
     this.markerDisposable = null
+    this.clearExtraLibs()
 
     for (const model of this.monacoModels.values()) {
       model.dispose()
@@ -386,6 +420,16 @@ export class MonacoEditorProvider implements EditorProvider {
       console.debug('[Monaco] monaco not loaded yet — model will be set when mount() completes')
     }
 
+    // Notify LSP server of opened document
+    if (this.lspClient?.isConnected()) {
+      const uri = this.lspClient.toLspUri(file.path)
+      const version = (this.documentVersions.get(file.path) ?? 0) + 1
+      this.documentVersions.set(file.path, version)
+      if (!this.lspClient.isOpen(uri)) {
+        this.lspClient.didOpen(uri, this.getLspLanguageId(file.path), version, file.content)
+      }
+    }
+
     // Notify change listeners so useEditor hooks in other components (e.g. EditorPanel)
     // update their tabs/activeFile state
     this.versionCounter++
@@ -416,6 +460,12 @@ export class MonacoEditorProvider implements EditorProvider {
     if (model) {
       model.dispose()
       this.monacoModels.delete(path)
+    }
+
+    // Notify LSP server
+    if (this.lspClient?.isConnected()) {
+      this.lspClient.didClose(this.lspClient.toLspUri(path))
+      this.documentVersions.delete(path)
     }
 
     if (this.activeFile === path) {
@@ -485,6 +535,42 @@ export class MonacoEditorProvider implements EditorProvider {
       version: this.versionCounter,
     }
     this.changeListeners.forEach((cb) => cb(event))
+  }
+
+  /**
+   * Silently updates file content without firing change events or marking dirty.
+   * Preserves cursor position. Used for format-on-save results that should not re-trigger auto-save.
+   * @param path - The file path to update.
+   * @param content - The new formatted content.
+   */
+  setContentSilent(path: string, content: string): void {
+    const stored = this.fileContents.get(path)
+    if (stored) {
+      stored.content = content
+    }
+
+    const model = this.monacoModels.get(path)
+    if (!model) return
+
+    // Save cursor position for the active file
+    let savedPosition: { lineNumber: number; column: number } | null = null
+    if (path === this.activeFile && this.editor) {
+      savedPosition = this.editor.getPosition()
+    }
+
+    // Suppress change listener during setValue (same pattern as openFile)
+    this.changeDisposable?.dispose()
+    model.setValue(content)
+    this.wireChangeListener()
+
+    // Restore cursor, clamped to valid bounds
+    if (savedPosition && this.editor && path === this.activeFile) {
+      const lines = content.split('\n')
+      const line = Math.min(savedPosition.lineNumber, lines.length)
+      const maxCol = (lines[line - 1]?.length ?? 0) + 1
+      const col = Math.min(savedPosition.column, maxCol)
+      this.editor.setPosition({ lineNumber: line, column: col })
+    }
   }
 
   /**
@@ -742,7 +828,7 @@ export class MonacoEditorProvider implements EditorProvider {
     const compilerOptions: Record<string, unknown> = {
       target: 99, // ESNext
       module: 99, // ESNext
-      moduleResolution: 100, // Bundler
+      moduleResolution: 2, // Node (Classic=1, Node=2, Bundler=100) — Node is most reliable with Monaco extra libs
       jsx: 4, // react-jsx
       strict: true,
       skipLibCheck: true,
@@ -752,6 +838,13 @@ export class MonacoEditorProvider implements EditorProvider {
       resolveJsonModule: true,
       isolatedModules: true,
       noEmit: true,
+      // Tell the TS worker where @types/* packages live in the virtual filesystem.
+      // Without this, the default typeRoots ("./node_modules/@types") resolves relative
+      // to an unknown root and the worker can't find @types packages in extra libs.
+      typeRoots: [
+        'file:///workspace/node_modules/@types',
+        'file:///workspace/app/node_modules/@types',
+      ],
       ...this.config.tsCompilerOptions,
     }
 
@@ -806,13 +899,227 @@ export class MonacoEditorProvider implements EditorProvider {
 
   /**
    * Adds a type definition or virtual file for module resolution.
+   * Tracks the disposable so repeated calls for the same path replace the previous registration.
    * @param content - The file content (e.g. `.d.ts` declarations).
    * @param filePath - The virtual file path for module resolution.
    */
   addExtraLib(content: string, filePath: string): void {
     if (!this.monaco) return
-    this.monaco.languages.typescript.typescriptDefaults.addExtraLib(content, filePath)
-    this.monaco.languages.typescript.javascriptDefaults.addExtraLib(content, filePath)
+
+    // Dispose previous registration for this path (prevents duplicate entries)
+    const existing = this.extraLibDisposables.get(filePath)
+    if (existing) existing.dispose()
+
+    const tsDisposable = this.monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      content,
+      filePath,
+    )
+    const jsDisposable = this.monaco.languages.typescript.javascriptDefaults.addExtraLib(
+      content,
+      filePath,
+    )
+
+    this.extraLibDisposables.set(filePath, {
+      dispose() {
+        tsDisposable.dispose()
+        jsDisposable.dispose()
+      },
+    })
+  }
+
+  /** Removes all registered extra libs. Called during cleanup/dispose. */
+  clearExtraLibs(): void {
+    for (const d of this.extraLibDisposables.values()) d.dispose()
+    this.extraLibDisposables.clear()
+  }
+
+  /**
+   * Sets a file resolver used by Go to Definition / Peek Definition to fetch
+   * content for files not yet opened in the editor.
+   * @param resolver
+   */
+  setFileResolver(
+    resolver: (path: string) => Promise<{ content: string; language?: string } | null>,
+  ): void {
+    this.fileResolver = resolver
+  }
+
+  /**
+   * Registers a Monaco editor opener that intercepts cross-file navigation
+   * (Go to Definition, Cmd+Click) and opens the target file in the editor.
+   * @param monaco
+   */
+  private registerEditorOpener(monaco: MonacoModule): void {
+    this.editorOpenerDisposable?.dispose()
+    if (!monaco.editor.registerEditorOpener) return
+
+    this.editorOpenerDisposable = monaco.editor.registerEditorOpener({
+      openCodeEditor: async (
+        _source: unknown,
+        resource: unknown,
+        selectionOrPosition?: unknown,
+      ): Promise<boolean> => {
+        const uri = resource as { toString(): string; path?: string }
+        const uriStr = uri.toString()
+
+        // Only handle file:// URIs
+        if (!uriStr.startsWith('file://')) return false
+
+        // Extract path from URI (e.g. file:///workspace/app/src/App.tsx → /workspace/app/src/App.tsx)
+        const filePath = uri.path ?? uriStr.replace(/^file:\/\//, '')
+
+        // If file is already open as a tab, just switch to it
+        const existingTab = this.tabs.get(filePath)
+        if (existingTab) {
+          this.setActiveTab(filePath)
+        } else {
+          // Fetch content via resolver and open as preview tab
+          if (!this.fileResolver) return false
+          const resolved = await this.fileResolver(filePath)
+          if (!resolved) return false
+          this.openFile({
+            path: filePath,
+            content: resolved.content,
+            language: resolved.language,
+            isPreview: true,
+          })
+        }
+
+        // Set cursor position from the selection/position argument
+        if (selectionOrPosition && this.editor) {
+          const sel = selectionOrPosition as {
+            startLineNumber?: number
+            startColumn?: number
+            lineNumber?: number
+            column?: number
+          }
+          const line = sel.startLineNumber ?? sel.lineNumber ?? 1
+          const column = sel.startColumn ?? sel.column ?? 1
+          this.editor.setPosition({ lineNumber: line, column })
+          this.editor.focus()
+        }
+
+        return true
+      },
+    })
+  }
+
+  /**
+   * Connects to an LSP server over WebSocket and registers Monaco language providers.
+   * Disables built-in TS diagnostics in favour of LSP-provided ones.
+   * @param wsUrl
+   */
+  async connectLsp(wsUrl: string): Promise<void> {
+    if (this.lspClient) this.disconnectLsp()
+
+    const client = new LspClient(wsUrl)
+    await client.connect()
+    this.lspClient = client
+
+    if (this.monaco) {
+      // Disable built-in TS language features — LSP server provides them
+      const diagOptions = {
+        noSemanticValidation: true,
+        noSyntaxValidation: false,
+        noSuggestionDiagnostics: true,
+      }
+      const modeOff = {
+        completionItems: false,
+        hovers: false,
+        definitions: false,
+        signatureHelp: false,
+        diagnostics: false,
+      }
+      for (const defaults of [
+        this.monaco.languages.typescript.typescriptDefaults,
+        this.monaco.languages.typescript.javascriptDefaults,
+      ]) {
+        defaults.setDiagnosticsOptions(diagOptions)
+        defaults.setModeConfiguration?.(modeOff)
+      }
+
+      // Build resolveModel callback for Peek Definition — lazily creates Monaco
+      // models for files that aren't open yet by fetching via the file resolver.
+      const lspOptions: LspProviderOptions = {}
+      if (this.fileResolver) {
+        const resolver = this.fileResolver
+        const monaco = this.monaco
+        lspOptions.resolveModel = async (uriStr: string): Promise<boolean> => {
+          const filePath = uriStr.replace(/^file:\/\//, '')
+          const resolved = await resolver(filePath)
+          if (!resolved) return false
+          const uri = monaco.Uri.parse(uriStr)
+          if (!monaco.editor.getModel(uri)) {
+            monaco.editor.createModel(resolved.content, resolved.language, uri)
+          }
+          return true
+        }
+      }
+      this.lspProviders = registerLspProviders(
+        this.monaco as unknown as LspMonacoModule,
+        client,
+        lspOptions,
+      )
+    }
+
+    // Send didOpen for all currently open files
+    for (const [path, stored] of this.fileContents) {
+      const uri = client.toLspUri(path)
+      const version = 1
+      this.documentVersions.set(path, version)
+      client.didOpen(uri, this.getLspLanguageId(path), version, stored.content)
+    }
+
+    console.debug('[Monaco] LSP connected', wsUrl)
+  }
+
+  /** Disconnects from the LSP server and re-enables built-in TS diagnostics. */
+  disconnectLsp(): void {
+    this.lspProviders?.dispose()
+    this.lspProviders = null
+    this.lspClient?.disconnect()
+    this.lspClient = null
+    this.documentVersions.clear()
+
+    // Re-enable built-in TS language features as fallback
+    if (this.monaco) {
+      const diagOptions = {
+        noSemanticValidation: false,
+        noSyntaxValidation: false,
+        noSuggestionDiagnostics: false,
+      }
+      const modeOn = {
+        completionItems: true,
+        hovers: true,
+        definitions: true,
+        signatureHelp: true,
+        diagnostics: true,
+      }
+      for (const defaults of [
+        this.monaco.languages.typescript.typescriptDefaults,
+        this.monaco.languages.typescript.javascriptDefaults,
+      ]) {
+        defaults.setDiagnosticsOptions(diagOptions)
+        defaults.setModeConfiguration?.(modeOn)
+      }
+    }
+
+    console.debug('[Monaco] LSP disconnected')
+  }
+
+  /**
+   * Maps file extension to LSP language identifier.
+   * @param path
+   */
+  private getLspLanguageId(path: string): string {
+    if (path.endsWith('.tsx')) return 'typescriptreact'
+    if (path.endsWith('.ts')) return 'typescript'
+    if (path.endsWith('.jsx')) return 'javascriptreact'
+    if (path.endsWith('.js') || path.endsWith('.mjs') || path.endsWith('.cjs')) return 'javascript'
+    if (path.endsWith('.json')) return 'json'
+    if (path.endsWith('.css')) return 'css'
+    if (path.endsWith('.html')) return 'html'
+    return 'plaintext'
   }
 
   /** Attaches a Monaco `onDidChangeModelContent` listener that fires change events and marks tabs dirty. */
@@ -828,6 +1135,14 @@ export class MonacoEditorProvider implements EditorProvider {
       // Update internal content store
       const stored = this.fileContents.get(this.activeFile)
       if (stored) stored.content = content
+
+      // Notify LSP server of content change
+      if (this.lspClient?.isConnected() && this.activeFile) {
+        const uri = this.lspClient.toLspUri(this.activeFile)
+        const docVersion = (this.documentVersions.get(this.activeFile) ?? 0) + 1
+        this.documentVersions.set(this.activeFile, docVersion)
+        this.lspClient.didChange(uri, docVersion, content)
+      }
 
       // Mark tab dirty and promote preview tabs on edit
       const tab = this.tabs.get(this.activeFile)

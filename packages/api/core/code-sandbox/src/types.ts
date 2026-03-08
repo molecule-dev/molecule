@@ -42,6 +42,22 @@ export interface ExecOptions {
 }
 
 /**
+ * Handle to a spawned long-running process with streaming I/O.
+ */
+export interface SpawnHandle {
+  /** Write data to the process's stdin. */
+  write(data: string): void
+  /** Register a callback for stdout data. */
+  onStdout(cb: (data: string) => void): void
+  /** Register a callback for stderr data. */
+  onStderr(cb: (data: string) => void): void
+  /** Register a callback for when the process exits. */
+  onClose(cb: () => void): void
+  /** Kill the spawned process. */
+  kill(): void
+}
+
+/**
  * Directory entry from readDir.
  */
 export interface DirEntry {
@@ -72,6 +88,10 @@ export interface Sandbox {
   wake(): Promise<void>
 
   exec(command: string, opts?: ExecOptions): Promise<ExecResult>
+
+  /** Spawn a persistent process with streaming I/O. Optional — not all providers support this. */
+  spawn?(command: string, opts?: ExecOptions): Promise<SpawnHandle>
+
   readFile(path: string): Promise<string>
   writeFile(path: string, content: string): Promise<void>
   readDir(path: string): Promise<DirEntry[]>

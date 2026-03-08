@@ -18,15 +18,62 @@ import type {
   Sandbox,
   SandboxConfig,
   SandboxProvider,
+  SpawnHandle,
 } from '@molecule/api-code-sandbox'
 import { t } from '@molecule/api-i18n'
 
 const logger = getLogger()
 
+import type { Socket } from 'net'
+
 import type { DockerConfig } from './types.js'
 
 const DEFAULT_IMAGE = 'node:22-slim'
 const LABEL_PREFIX = 'molecule-sandbox'
+
+/**
+ * Parses Docker's multiplexed binary stream from a raw socket.
+ * Each frame: 8-byte header [streamType(1), 0, 0, 0, size(4 BE uint32)] + payload.
+ * Buffers partial frames across data events.
+ */
+class DockerMuxParser {
+  private buffer = Buffer.alloc(0)
+  private stdoutCb: ((data: string) => void) | null = null
+  private stderrCb: ((data: string) => void) | null = null
+
+  /**
+   *
+   * @param cb
+   */
+  onStdout(cb: (data: string) => void): void {
+    this.stdoutCb = cb
+  }
+
+  /**
+   *
+   * @param cb
+   */
+  onStderr(cb: (data: string) => void): void {
+    this.stderrCb = cb
+  }
+
+  /**
+   *
+   * @param chunk
+   */
+  feed(chunk: Buffer): void {
+    this.buffer = Buffer.concat([this.buffer, chunk])
+    while (this.buffer.length >= 8) {
+      const streamType = this.buffer[0]
+      const frameSize = this.buffer.readUInt32BE(4)
+      if (this.buffer.length < 8 + frameSize) break
+      const payload = this.buffer.subarray(8, 8 + frameSize).toString('utf-8')
+      this.buffer = this.buffer.subarray(8 + frameSize)
+      if (streamType === 1) this.stdoutCb?.(payload)
+      else if (streamType === 2) this.stderrCb?.(payload)
+    }
+  }
+}
 
 /**
  * Docker-based implementation of `SandboxProvider`. Each sandbox runs as an isolated
@@ -75,10 +122,11 @@ class DockerSandboxProvider implements SandboxProvider {
       PublishAllPorts: true,
     }
 
-    // Mount a named Docker volume at /sandbox/project for persistent storage
+    // Mount a named Docker volume at /workspace for persistent storage.
+    // Docker copies image contents (molecule/, node_modules/) into empty volumes.
     if (config.volumeName) {
       labels[`${this.labelPrefix}.volumeName`] = config.volumeName
-      hostConfig.Binds = [`${config.volumeName}:/sandbox/project`]
+      hostConfig.Binds = [`${config.volumeName}:/workspace`]
     }
 
     const body = {
@@ -328,6 +376,47 @@ class DockerSandboxProvider implements SandboxProvider {
         return provider.previewUrlTemplate.replace('{port}', String(port ?? 5173))
       },
 
+      async spawn(command: string, opts?: ExecOptions): Promise<SpawnHandle> {
+        const execCreate = (await provider.dockerApi(`/containers/${containerId}/exec`, 'POST', {
+          Cmd: ['sh', '-c', command],
+          AttachStdin: true,
+          AttachStdout: true,
+          AttachStderr: true,
+          Tty: false,
+          WorkingDir: opts?.cwd ?? '/workspace',
+          Env: opts?.env ? Object.entries(opts.env).map(([k, v]) => `${k}=${v}`) : undefined,
+        })) as { Id: string }
+
+        const socket = await provider.dockerExecUpgrade(execCreate.Id)
+        const parser = new DockerMuxParser()
+        let closeCb: (() => void) | null = null
+
+        socket.on('data', (chunk: Buffer) => parser.feed(chunk))
+        socket.on('close', () => closeCb?.())
+        socket.on('error', (err: Error) => {
+          logger.debug('Spawn socket error', { error: err.message })
+          closeCb?.()
+        })
+
+        return {
+          write(data: string): void {
+            if (!socket.destroyed) socket.write(data)
+          },
+          onStdout(cb: (data: string) => void): void {
+            parser.onStdout(cb)
+          },
+          onStderr(cb: (data: string) => void): void {
+            parser.onStderr(cb)
+          },
+          onClose(cb: () => void): void {
+            closeCb = cb
+          },
+          kill(): void {
+            if (!socket.destroyed) socket.destroy()
+          },
+        }
+      },
+
       onFileChange(_cb: (event: FileChangeEvent) => void): () => void {
         let active = true
         const poll = async (): Promise<void> => {
@@ -468,6 +557,47 @@ class DockerSandboxProvider implements SandboxProvider {
       })
       req.on('error', reject)
       if (body) req.write(JSON.stringify(body))
+      req.end()
+    })
+  }
+
+  /**
+   * Starts a Docker exec instance and upgrades the HTTP connection to a raw
+   * bidirectional socket. Docker hijacks the connection (101 Switching Protocols)
+   * when stdin is attached, giving us a raw TCP socket for streaming I/O.
+   * @param execId - The exec instance ID from the create step.
+   * @returns The raw socket for stdin writes and multiplexed stdout/stderr reads.
+   */
+  private dockerExecUpgrade(execId: string): Promise<Socket> {
+    return new Promise((resolve, reject) => {
+      const body = JSON.stringify({ Detach: false, Tty: false })
+      const req = http.request(
+        {
+          socketPath: this.socketPath,
+          path: `/v1.44/exec/${execId}/start`,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Connection: 'Upgrade',
+            Upgrade: 'tcp',
+          },
+        },
+        (res) => {
+          // Fallback: if Docker doesn't upgrade (e.g. old version), reject
+          reject(new Error(`Expected 101 upgrade, got ${res.statusCode}`))
+        },
+      )
+
+      req.on('upgrade', (_res, socket: Socket, head) => {
+        // Process any initial data that arrived with the upgrade response
+        if (head.length > 0) {
+          socket.unshift(head)
+        }
+        resolve(socket)
+      })
+
+      req.on('error', reject)
+      req.write(body)
       req.end()
     })
   }
