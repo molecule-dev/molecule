@@ -78,6 +78,36 @@ export interface EditorChangeEvent {
 }
 
 /**
+ * A single diagnostic (error, warning, etc.) reported by the editor's language service.
+ */
+export interface EditorDiagnostic {
+  message: string
+  severity: 'error' | 'warning' | 'info' | 'hint'
+  startLine: number
+  startColumn: number
+  endLine: number
+  endColumn: number
+  source?: string
+}
+
+/**
+ * Request to interact with AI about code, triggered from the editor's lightbulb quick fix
+ * or right-click context menu.
+ */
+export interface FixWithAIRequest {
+  /** File path of the file containing the code. */
+  path: string
+  /** Diagnostics (errors/warnings) at the target location, if any. */
+  diagnostics: EditorDiagnostic[]
+  /** Source code surrounding the target location for context. */
+  codeContext?: string
+  /** Exact text the user had selected, if any. */
+  selectedCode?: string
+  /** Line number where the cursor or selection starts. */
+  line?: number
+}
+
+/**
  * A file diff with original (committed) and modified (current) content,
  * used to drive a side-by-side diff view in the editor.
  */
@@ -129,4 +159,6 @@ export interface EditorProvider {
   setFileResolver?(
     resolver: (path: string) => Promise<{ content: string; language?: string } | null>,
   ): void
+  /** Register a callback for "Fix with AI" requests from the editor (lightbulb quick fix or context menu). Returns an unsubscribe function. */
+  onFixWithAI?(callback: (request: FixWithAIRequest) => void): () => void
 }

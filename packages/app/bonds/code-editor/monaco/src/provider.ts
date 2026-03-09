@@ -11,11 +11,15 @@ import type {
   DiffFile,
   EditorChangeEvent,
   EditorConfig,
+  EditorDiagnostic,
   EditorFile,
   EditorPosition,
   EditorProvider,
   EditorTab,
+  FixWithAIRequest,
 } from '@molecule/app-code-editor'
+
+import { t } from '@molecule/app-i18n'
 
 import {
   LspClient,
@@ -36,6 +40,21 @@ interface MonacoEditor {
   focus(): void
   updateOptions(options: Record<string, unknown>): void
   onDidChangeModelContent(listener: () => void): { dispose(): void }
+  addAction(descriptor: {
+    id: string
+    label: string
+    contextMenuGroupId?: string
+    contextMenuOrder?: number
+    precondition?: string
+    run: (editor: MonacoEditor) => void
+  }): { dispose(): void }
+  addCommand(keybinding: number, handler: (...args: unknown[]) => void): string | null
+  getSelection(): {
+    startLineNumber: number
+    startColumn: number
+    endLineNumber: number
+    endColumn: number
+  } | null
 }
 
 interface MonacoModel {
@@ -43,11 +62,32 @@ interface MonacoModel {
   setValue(value: string): void
   dispose(): void
   uri: unknown
+  getLineContent(lineNumber: number): string
+  getLineCount(): number
 }
 
 /** Minimal marker type from Monaco's marker service. */
 interface MonacoMarker {
   severity: number // 1=Hint, 2=Info, 4=Warning, 8=Error
+  message: string
+  startLineNumber: number
+  startColumn: number
+  endLineNumber: number
+  endColumn: number
+  source?: string
+}
+
+/** Minimal code action type returned by code action providers. */
+interface MonacoCodeAction {
+  title: string
+  kind?: string
+  diagnostics?: MonacoMarker[]
+  isPreferred?: boolean
+  command?: {
+    id: string
+    title: string
+    arguments?: unknown[]
+  }
 }
 
 interface MonacoDiffEditor {
@@ -87,6 +127,17 @@ interface MonacoModule {
       typescriptDefaults: MonacoLanguageDefaults
       javascriptDefaults: MonacoLanguageDefaults
     }
+    registerCodeActionProvider(
+      languageSelector: string,
+      provider: {
+        provideCodeActions(
+          model: MonacoModel,
+          range: unknown,
+          context: { markers: MonacoMarker[] },
+          token: unknown,
+        ): { actions: MonacoCodeAction[]; dispose(): void }
+      },
+    ): { dispose(): void }
   }
   MarkerSeverity: {
     Hint: number
@@ -139,6 +190,10 @@ export class MonacoEditorProvider implements EditorProvider {
     | null = null
   /** Disposable for the editor opener registration. */
   private editorOpenerDisposable: { dispose(): void } | null = null
+  /** Callbacks for "Fix with AI" requests from the editor. */
+  private fixWithAIListeners: Set<(request: FixWithAIRequest) => void> = new Set()
+  /** Disposables for Fix with AI registrations (code action provider + context menu action). */
+  private fixWithAIDisposables: { dispose(): void }[] = []
 
   constructor(config: MonacoConfig = {}) {
     this.config = {
@@ -242,6 +297,7 @@ export class MonacoEditorProvider implements EditorProvider {
     this.configureTypeScript(monaco)
     this.wireMarkerListener(monaco)
     this.registerEditorOpener(monaco)
+    this.registerFixWithAI(monaco)
     console.debug('[Monaco] mount() complete, editor created', { activeFile: this.activeFile })
 
     // If we have an active file, create its model if needed (handles race condition
@@ -285,6 +341,8 @@ export class MonacoEditorProvider implements EditorProvider {
     this.disconnectLsp()
     this.editorOpenerDisposable?.dispose()
     this.editorOpenerDisposable = null
+    for (const d of this.fixWithAIDisposables) d.dispose()
+    this.fixWithAIDisposables = []
     this.changeDisposable?.dispose()
     this.changeDisposable = null
     this.markerDisposable?.dispose()
@@ -1163,6 +1221,203 @@ export class MonacoEditorProvider implements EditorProvider {
       )
       this.changeListeners.forEach((cb) => cb(event))
     })
+  }
+
+  /**
+   * Registers a callback for "Fix with AI" requests triggered from the editor's
+   * lightbulb quick fix menu or right-click context menu.
+   * @param callback - Called with diagnostic and code context when the user selects "Fix with AI".
+   * @returns An unsubscribe function.
+   */
+  onFixWithAI(callback: (request: FixWithAIRequest) => void): () => void {
+    this.fixWithAIListeners.add(callback)
+    return () => {
+      this.fixWithAIListeners.delete(callback)
+    }
+  }
+
+  /**
+   * Fires the "Fix with AI" callback with diagnostic info and surrounding code context.
+   * Works with or without markers — when no markers are present, uses the editor's
+   * current selection or cursor position for context.
+   * @param markers - Monaco markers (diagnostics) at the target location, may be empty.
+   */
+  private fireFixWithAI(markers: MonacoMarker[]): void {
+    if (this.fixWithAIListeners.size === 0 || !this.activeFile || !this.monaco) return
+
+    const diagnostics: EditorDiagnostic[] = markers.map((m) => ({
+      message: m.message,
+      severity: this.mapMarkerSeverity(m.severity),
+      startLine: m.startLineNumber,
+      startColumn: m.startColumn,
+      endLine: m.endLineNumber,
+      endColumn: m.endColumn,
+      source: m.source,
+    }))
+
+    const model = this.editor?.getModel()
+    let codeContext: string | undefined
+    let selectedCode: string | undefined
+    let line: number | undefined
+
+    if (model) {
+      if (markers.length > 0) {
+        // Use marker range for context (±2 lines)
+        const firstLine = Math.max(1, Math.min(...markers.map((m) => m.startLineNumber)) - 2)
+        const lastLine = Math.min(
+          model.getLineCount(),
+          Math.max(...markers.map((m) => m.endLineNumber)) + 2,
+        )
+        line = markers[0].startLineNumber
+        const lines: string[] = []
+        for (let i = firstLine; i <= lastLine; i++) {
+          lines.push(model.getLineContent(i))
+        }
+        codeContext = lines.join('\n')
+      } else {
+        // No markers — use selection or cursor position for context
+        const selection = this.editor?.getSelection()
+        const hasSelection =
+          selection &&
+          (selection.startLineNumber !== selection.endLineNumber ||
+            selection.startColumn !== selection.endColumn)
+
+        if (hasSelection && selection) {
+          // User has selected text
+          const firstLine = Math.max(1, selection.startLineNumber - 2)
+          const lastLine = Math.min(model.getLineCount(), selection.endLineNumber + 2)
+          line = selection.startLineNumber
+          const lines: string[] = []
+          for (let i = firstLine; i <= lastLine; i++) {
+            lines.push(model.getLineContent(i))
+          }
+          codeContext = lines.join('\n')
+          // Extract exact selected text
+          const selLines: string[] = []
+          for (let i = selection.startLineNumber; i <= selection.endLineNumber; i++) {
+            const content = model.getLineContent(i)
+            if (i === selection.startLineNumber && i === selection.endLineNumber) {
+              selLines.push(content.substring(selection.startColumn - 1, selection.endColumn - 1))
+            } else if (i === selection.startLineNumber) {
+              selLines.push(content.substring(selection.startColumn - 1))
+            } else if (i === selection.endLineNumber) {
+              selLines.push(content.substring(0, selection.endColumn - 1))
+            } else {
+              selLines.push(content)
+            }
+          }
+          selectedCode = selLines.join('\n')
+        } else {
+          // Just cursor — use ±3 lines for context
+          const pos = this.editor?.getPosition()
+          if (pos) {
+            line = pos.lineNumber
+            const firstLine = Math.max(1, pos.lineNumber - 3)
+            const lastLine = Math.min(model.getLineCount(), pos.lineNumber + 3)
+            const lines: string[] = []
+            for (let i = firstLine; i <= lastLine; i++) {
+              lines.push(model.getLineContent(i))
+            }
+            codeContext = lines.join('\n')
+          }
+        }
+      }
+    }
+
+    const request: FixWithAIRequest = {
+      path: this.activeFile,
+      diagnostics,
+      codeContext,
+      selectedCode,
+      line,
+    }
+    this.fixWithAIListeners.forEach((cb) => cb(request))
+  }
+
+  /**
+   * Maps Monaco MarkerSeverity numbers to EditorDiagnostic severity strings.
+   * @param severity - Monaco marker severity number.
+   * @returns Human-readable severity string.
+   */
+  private mapMarkerSeverity(severity: number): EditorDiagnostic['severity'] {
+    if (!this.monaco) return 'error'
+    if (severity === this.monaco.MarkerSeverity.Error) return 'error'
+    if (severity === this.monaco.MarkerSeverity.Warning) return 'warning'
+    if (severity === this.monaco.MarkerSeverity.Info) return 'info'
+    return 'hint'
+  }
+
+  /**
+   * Registers "Fix with AI" in the editor's lightbulb quick fix menu and right-click
+   * context menu. Both trigger the `onFixWithAI` callback with diagnostic details.
+   * @param monaco - The Monaco module instance.
+   */
+  private registerFixWithAI(monaco: MonacoModule): void {
+    for (const d of this.fixWithAIDisposables) d.dispose()
+    this.fixWithAIDisposables = []
+    if (!this.editor) return
+
+    const fixLabel = t('editor.fixWithAI', undefined, { defaultValue: 'Fix with AI' })
+    const askLabel = t('editor.askAI', undefined, { defaultValue: 'Ask AI' })
+
+    // Register a command that the code action provider can reference.
+    // addCommand returns the command ID; handler receives (accessor, ...args).
+    const cmdId = this.editor.addCommand(0, (...args: unknown[]) => {
+      const markers = args[1] as MonacoMarker[] | undefined
+      if (markers && markers.length > 0) {
+        this.fireFixWithAI(markers)
+      }
+    })
+
+    // Context menu action — sends code context (with any diagnostics) to AI
+    const actionDisposable = this.editor.addAction({
+      id: 'molecule.askAI',
+      label: askLabel,
+      contextMenuGroupId: '1_modification',
+      contextMenuOrder: 0,
+      run: () => {
+        const position = this.editor?.getPosition()
+        const model = this.editor?.getModel()
+        if (!position || !model) return
+        const markers = monaco.editor.getModelMarkers({ resource: model.uri })
+        // Include diagnostics at cursor if any exist, otherwise pass empty array
+        const atCursor = markers.filter(
+          (m) => position.lineNumber >= m.startLineNumber && position.lineNumber <= m.endLineNumber,
+        )
+        this.fireFixWithAI(atCursor)
+      },
+    })
+    this.fixWithAIDisposables.push(actionDisposable)
+
+    // Code action provider — shows "Fix with AI" in the lightbulb quick fix menu
+    // when hovering over diagnostics (red/yellow squiggles)
+    const codeActionDisposable = monaco.languages.registerCodeActionProvider('*', {
+      provideCodeActions: (
+        _model: MonacoModel,
+        _range: unknown,
+        context: { markers: MonacoMarker[] },
+      ) => {
+        if (context.markers.length === 0) return { actions: [], dispose() {} }
+
+        const action: MonacoCodeAction = {
+          title: fixLabel,
+          kind: 'quickfix',
+          diagnostics: context.markers,
+          ...(cmdId
+            ? {
+                command: {
+                  id: cmdId,
+                  title: fixLabel,
+                  arguments: [context.markers],
+                },
+              }
+            : {}),
+        }
+
+        return { actions: [action], dispose() {} }
+      },
+    })
+    this.fixWithAIDisposables.push(codeActionDisposable)
   }
 
   /**

@@ -56,6 +56,7 @@ export function EditorPanel({
   countdownFile,
   countdownKey,
   formatEstimate = 2000,
+  onFixWithAI,
 }: EditorPanelProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
@@ -112,6 +113,16 @@ export function EditorPanel({
 
   // Countdown progress bar visible for the active file
   const showCountdown = !!(countdownFile && countdownFile === activeFile)
+
+  // Wire Fix with AI callback — subscribe to the editor provider's onFixWithAI
+  const onFixWithAIRef = useRef(onFixWithAI)
+  onFixWithAIRef.current = onFixWithAI
+  useEffect(() => {
+    if (!editorProvider.onFixWithAI) return
+    return editorProvider.onFixWithAI((request) => {
+      onFixWithAIRef.current?.(request)
+    })
+  }, [editorProvider])
 
   // Notify parent whenever the active file changes (tab switch, open, close)
   useEffect(() => {

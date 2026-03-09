@@ -6,7 +6,13 @@
 
 import { useCallback, useContext, useEffect, useState } from 'react'
 
-import type { DiffFile, EditorFile, EditorProvider, EditorTab } from '@molecule/app-code-editor'
+import type {
+  DiffFile,
+  EditorFile,
+  EditorProvider,
+  EditorTab,
+  FixWithAIRequest,
+} from '@molecule/app-code-editor'
 import { t } from '@molecule/app-i18n'
 
 import { EditorContext } from '../contexts.js'
@@ -119,6 +125,13 @@ export function useEditor(): UseEditorResult {
     [provider],
   )
 
+  const onFixWithAI = useCallback(
+    (callback: (request: FixWithAIRequest) => void) => {
+      return provider.onFixWithAI?.(callback) ?? (() => {})
+    },
+    [provider],
+  )
+
   return {
     tabs,
     activeFile,
@@ -134,5 +147,6 @@ export function useEditor(): UseEditorResult {
     closeDiff,
     pinTab,
     addExtraLib,
+    onFixWithAI,
   }
 }
