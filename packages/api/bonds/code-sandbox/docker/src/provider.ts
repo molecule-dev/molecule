@@ -95,7 +95,7 @@ class DockerSandboxProvider implements SandboxProvider {
     this.labelPrefix = config.labelPrefix ?? LABEL_PREFIX
     this.previewUrlTemplate = config.previewUrlTemplate ?? 'http://localhost:{port}'
     this.defaultCpu = config.defaultCpu ?? 1
-    this.defaultMemoryMB = config.defaultMemoryMB ?? 512
+    this.defaultMemoryMB = config.defaultMemoryMB ?? 1024
   }
 
   /**
@@ -120,6 +120,7 @@ class DockerSandboxProvider implements SandboxProvider {
       NanoCPUs: cpu * 1e9,
       Memory: memoryMB * 1024 * 1024,
       PublishAllPorts: true,
+      Init: true, // Use tini init to reap zombie processes
     }
 
     // Mount a named Docker volume at /workspace for persistent storage.
