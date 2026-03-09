@@ -8,7 +8,7 @@ import type { JSX } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { useCallback } from 'react'
 
-import { useEditor, useTranslation } from '@molecule/app-react'
+import { useEditor, useEditorProvider, useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { EditorPanelProps } from '../types.js'
@@ -59,6 +59,8 @@ export function EditorPanel({
 }: EditorPanelProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
+  const editorProvider = useEditorProvider()
+  const themeMode = useThemeMode()
   const { tabs, activeFile, closeFile, setActiveTab, pinTab, mount, dispose } = useEditor()
   const containerRef = useRef<HTMLDivElement>(null)
   const mountedRef = useRef(false)
@@ -70,6 +72,12 @@ export function EditorPanel({
   useEffect(() => {
     injectCountdownStyle()
   }, [])
+
+  // Sync Monaco editor theme with app theme mode — runs before mount too,
+  // so the stored config has the correct theme when the editor is created.
+  useEffect(() => {
+    editorProvider.updateConfig({ theme: themeMode === 'light' ? 'vs' : 'vs-dark' })
+  }, [themeMode, editorProvider])
 
   // Formatting toast: visible tracks whether the toast is in the DOM,
   // animatingIn controls the CSS transition state (false = slide down / fade out).
@@ -163,7 +171,7 @@ export function EditorPanel({
       />
 
       {/* Editor container — hidden when no tabs to avoid showing a blank editor */}
-      <div style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <div
           ref={containerRef}
           style={{
@@ -201,7 +209,7 @@ export function EditorPanel({
               padding: '6px 12px',
               fontSize: 13,
               lineHeight: '22px',
-              backgroundColor: 'rgba(30, 30, 46, 0.92)',
+              backgroundColor: 'var(--color-surface, #151515)',
               color: 'inherit',
               border: '1px solid rgba(128, 128, 128, 0.15)',
               borderRadius: 6,

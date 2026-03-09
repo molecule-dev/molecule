@@ -9,36 +9,60 @@ import type { JSX } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import { useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TabBarProps } from '../types.js'
 
 // ---------------------------------------------------------------------------
-// Status colors — matches VSCode's palette
+// Status colors — dark/light variants for readability
 // ---------------------------------------------------------------------------
 
-const STATUS_COLORS: Record<string, string> = {
+const DARK_STATUS_COLORS: Record<string, string> = {
   modified: '#e2c08d',
   added: '#73c991',
   untracked: '#73c991',
   deleted: '#c74e39',
 }
 
+const LIGHT_STATUS_COLORS: Record<string, string> = {
+  modified: '#8a6010',
+  added: '#1a7030',
+  untracked: '#1a7030',
+  deleted: '#a03020',
+}
+
+const DARK_DIAGNOSTIC: Record<string, string> = {
+  error: '#f14c4c',
+  deleted: '#c74e39',
+  warning: '#cca700',
+}
+
+const LIGHT_DIAGNOSTIC: Record<string, string> = {
+  error: '#c02020',
+  deleted: '#a03020',
+  warning: '#806000',
+}
+
 /**
  * Resolve filename color based on diagnostics (highest priority) then git status.
+ * @param statusColors
+ * @param diagnosticColors
  * @param diagnostics
  * @param diagnostics.errors
  * @param diagnostics.warnings
  * @param gitStatus
  */
 function resolveFileColor(
+  statusColors: Record<string, string>,
+  diagnosticColors: Record<string, string>,
   diagnostics?: { errors: number; warnings: number },
   gitStatus?: string,
 ): string | undefined {
-  if (diagnostics?.errors) return '#f14c4c'
-  if (gitStatus === 'deleted') return '#c74e39'
-  if (diagnostics?.warnings) return '#cca700'
-  if (gitStatus) return STATUS_COLORS[gitStatus]
+  if (diagnostics?.errors) return diagnosticColors.error
+  if (gitStatus === 'deleted') return diagnosticColors.deleted
+  if (diagnostics?.warnings) return diagnosticColors.warning
+  if (gitStatus) return statusColors[gitStatus]
   return undefined
 }
 
@@ -75,6 +99,8 @@ interface TabItemProps {
   onSelect: (path: string) => void
   onClose: (path: string) => void
   onDoubleClick?: (path: string) => void
+  statusColors: Record<string, string>
+  diagnosticColors: Record<string, string>
 }
 
 /**
@@ -90,11 +116,11 @@ interface TabItemProps {
  * @param root0.onClose
  * @param root0.onDoubleClick
  */
-function TabItem({ path, isDirty, isActive, isPreview, gitStatus, diagnostics, onSelect, onClose, onDoubleClick }: TabItemProps): JSX.Element {
+function TabItem({ path, isDirty, isActive, isPreview, gitStatus, diagnostics, onSelect, onClose, onDoubleClick, statusColors, diagnosticColors }: TabItemProps): JSX.Element {
   const cm = getClassMap()
   const [isHovered, setIsHovered] = useState(false)
   const fileName = path.split('/').pop() || path
-  const fileColor = resolveFileColor(diagnostics, gitStatus)
+  const fileColor = resolveFileColor(statusColors, diagnosticColors, diagnostics, gitStatus)
 
   return (
     <div
@@ -185,6 +211,9 @@ export function TabBar({
   className,
 }: TabBarProps): JSX.Element | null {
   const cm = getClassMap()
+  const isLight = useThemeMode() === 'light'
+  const statusColors = isLight ? LIGHT_STATUS_COLORS : DARK_STATUS_COLORS
+  const diagnosticColors = isLight ? LIGHT_DIAGNOSTIC : DARK_DIAGNOSTIC
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Scroll the active tab into view whenever it changes
@@ -221,6 +250,8 @@ export function TabBar({
           onSelect={onSelect}
           onClose={onClose}
           onDoubleClick={onDoubleClick}
+          statusColors={statusColors}
+          diagnosticColors={diagnosticColors}
         />
       ))}
     </div>

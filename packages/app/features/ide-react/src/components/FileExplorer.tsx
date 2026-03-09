@@ -9,16 +9,23 @@ import type { JSX } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import { useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { FileExplorerProps, FileNode } from '../types.js'
 
-// Git status → filename color (matches VSCode palette)
-const GIT_STATUS_COLORS: Record<string, string> = {
+// Git status → filename color — dark/light variants for readability
+const DARK_GIT_COLORS: Record<string, string> = {
   modified: '#e2c08d',
   added: '#73c991',
   untracked: '#73c991',
   deleted: '#c74e39',
+}
+const LIGHT_GIT_COLORS: Record<string, string> = {
+  modified: '#8a6010',
+  added: '#1a7030',
+  untracked: '#1a7030',
+  deleted: '#a03020',
 }
 
 // Priority order for propagating the most important status to parent directories
@@ -35,7 +42,7 @@ const STATUS_PRIORITY: Record<string, number> = {
  * @param dirPath
  * @param fileStatuses
  */
-function getDirColor(dirPath: string, fileStatuses: Record<string, string>): string | undefined {
+function getDirColor(dirPath: string, fileStatuses: Record<string, string>, colors: Record<string, string>): string | undefined {
   let bestPriority = 0
   let bestStatus: string | undefined
   const prefix = dirPath + '/'
@@ -48,7 +55,7 @@ function getDirColor(dirPath: string, fileStatuses: Record<string, string>): str
       }
     }
   }
-  return bestStatus ? GIT_STATUS_COLORS[bestStatus] : undefined
+  return bestStatus ? colors[bestStatus] : undefined
 }
 
 // ---------------------------------------------------------------------------
@@ -174,6 +181,7 @@ interface FileTreeItemProps {
   onTogglePath: (path: string, nowExpanded: boolean) => void
   expandState: ExpandState
   fileStatuses?: Record<string, string>
+  gitColors: Record<string, string>
 }
 
 /**
@@ -201,6 +209,7 @@ function FileTreeItem({
   onTogglePath,
   expandState,
   fileStatuses,
+  gitColors,
 }: FileTreeItemProps): JSX.Element {
   const cm = getClassMap()
   const isDir = node.type === 'directory'
@@ -263,7 +272,7 @@ function FileTreeItem({
         </span>
 
         {/* Label */}
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: isDir ? (fileStatuses ? getDirColor(node.path, fileStatuses) : undefined) : (node.gitStatus ? GIT_STATUS_COLORS[node.gitStatus] : undefined) }}>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: isDir ? (fileStatuses ? getDirColor(node.path, fileStatuses, gitColors) : undefined) : (node.gitStatus ? gitColors[node.gitStatus] : undefined) }}>
           {node.name}
         </span>
       </button>
@@ -293,6 +302,7 @@ function FileTreeItem({
               onTogglePath={onTogglePath}
               expandState={expandState}
               fileStatuses={fileStatuses}
+              gitColors={gitColors}
             />
           ))}
         </div>
@@ -329,6 +339,7 @@ export function FileExplorer({
   fileStatuses,
 }: FileExplorerProps): JSX.Element {
   const cm = getClassMap()
+  const gitColors = useThemeMode() === 'light' ? LIGHT_GIT_COLORS : DARK_GIT_COLORS
   const containerRef = useRef<HTMLDivElement>(null)
   // When set, the next render after DOM update will scroll this path into view
   const scrollTargetRef = useRef<string | null>(null)
@@ -420,6 +431,7 @@ export function FileExplorer({
           onTogglePath={handleTogglePath}
           expandState={expandState}
           fileStatuses={fileStatuses}
+          gitColors={gitColors}
         />
       ))}
     </div>
