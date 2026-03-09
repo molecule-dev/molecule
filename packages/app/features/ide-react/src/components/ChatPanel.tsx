@@ -24,6 +24,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { ChatPanelProps } from '../types.js'
 import { MarkdownContent } from './MarkdownContent.js'
+import { StreamingIndicator } from './StreamingIndicator.js'
 import { ToolCallCard } from './ToolCallCard.js'
 
 // ---------------------------------------------------------------------------
@@ -834,7 +835,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
                   {msg.isStreaming &&
                     (!msg.blocks || msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
                     !msg.content && (
-                      <span style={{ animation: 'mol-cursor-blink 1s step-start infinite' }}>{'\u2588'}</span>
+                      <StreamingIndicator />
                     )}
 
                   {msg.blocks && msg.blocks.length > 0
@@ -871,11 +872,10 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
                               onFileDoubleClick={onFileDoubleClick}
                               onFileDiff={onFileDiff}
                               onFileRevert={handleFileRevert}
+                              onAskUserResponse={sendMessage}
                             />
                             {isLast && msg.isStreaming && (
-                              <span style={{ animation: 'mol-cursor-blink 1s step-start infinite' }}>
-                                {'\u2588'}
-                              </span>
+                              <StreamingIndicator />
                             )}
                           </div>
                         )
@@ -900,6 +900,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
                         onFileDoubleClick={onFileDoubleClick}
                         onFileDiff={onFileDiff}
                         onFileRevert={handleFileRevert}
+                        onAskUserResponse={sendMessage}
                       />
                     ))}
 
@@ -907,6 +908,46 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
                     <span className={cm.cn(cm.textMuted, cm.textSize('xs'))} style={{ display: 'block', marginTop: 4, fontStyle: 'italic' }}>
                       {t('ide.chat.responseStopped', undefined, { defaultValue: 'Response stopped' })}
                     </span>
+                  )}
+
+                  {msg.loopLimitReached && !msg.isStreaming && (
+                    <div
+                      className={cm.surfaceSecondary}
+                      style={{
+                        marginTop: '8px',
+                        padding: '10px 12px',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                      }}
+                    >
+                      <span style={{ opacity: 0.8 }}>
+                        {t('ide.chat.loopLimitReached', { max: msg.loopLimitReached }, {
+                          defaultValue: `Reached the maximum of ${msg.loopLimitReached} tool iterations.`,
+                        })}
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button
+                          type="button"
+                          className={cm.button({ color: 'primary', size: 'sm' })}
+                          disabled={isLoading}
+                          onClick={() => void sendMessage(
+                            t('ide.chat.continuePrompt', undefined, {
+                              defaultValue: 'Continue implementing from where you left off.',
+                            }),
+                          )}
+                        >
+                          {t('ide.chat.continueButton', undefined, { defaultValue: 'Continue' })}
+                        </button>
+                        <span className={cm.textMuted} style={{ fontSize: '12px' }}>
+                          {t('ide.chat.loopLimitHint', undefined, {
+                            defaultValue: 'Tip: try a more capable model, or increase the iteration limit in project settings.',
+                          })}
+                        </span>
+                      </div>
+                    </div>
                   )}
                 </div>
               )}

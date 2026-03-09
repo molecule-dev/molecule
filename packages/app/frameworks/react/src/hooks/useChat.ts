@@ -206,6 +206,13 @@ export function useChat(options: UseChatOptions): UseChatResult {
               ),
             )
             break
+          case 'loop_limit_reached':
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId ? { ...m, loopLimitReached: event.maxLoops } : m,
+              ),
+            )
+            break
           case 'done':
             setMessages((prev) =>
               prev.map((m) => (m.id === assistantId ? { ...m, isStreaming: false } : m)),

@@ -13,6 +13,8 @@ import { useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+import { StreamingIndicator } from './StreamingIndicator.js'
+
 // ---------------------------------------------------------------------------
 // Segmentation — split on fenced code blocks first
 // ---------------------------------------------------------------------------
@@ -287,9 +289,7 @@ export function MarkdownContent({ text, isStreaming }: MarkdownContentProps): JS
   if (!text) {
     return (
       <>
-        {isStreaming && (
-          <span style={{ animation: 'mol-cursor-blink 1s step-start infinite' }}>{'█'}</span>
-        )}
+        {isStreaming && <StreamingIndicator inline />}
       </>
     )
   }
@@ -305,9 +305,7 @@ export function MarkdownContent({ text, isStreaming }: MarkdownContentProps): JS
           <Prose key={i} content={seg.content} segIdx={i} />
         ),
       )}
-      {isStreaming && (
-        <span style={{ animation: 'mol-cursor-blink 1s step-start infinite' }}>{'█'}</span>
-      )}
+      {isStreaming && <StreamingIndicator inline />}
     </div>
   )
 }

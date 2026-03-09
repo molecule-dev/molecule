@@ -54,6 +54,8 @@ export interface ChatMessage {
   isStreaming?: boolean
   /** Set when the user aborted the response mid-stream. */
   aborted?: boolean
+  /** Set when the agentic loop hit its iteration limit before finishing. */
+  loopLimitReached?: number
   /** Persisted commit record for display in conversation history. */
   commitRecord?: { message: string; files: string[] }
   commitSuggestion?: CommitSuggestion
@@ -127,6 +129,7 @@ export type ChatStreamEvent =
   | { type: 'tool_result'; id: string; output: unknown }
   | { type: 'file_diff'; path: string; oldContent: string | null; newContent: string }
   | { type: 'commit_suggestion'; files: string[] }
+  | { type: 'loop_limit_reached'; maxLoops: number }
   | { type: 'done'; usage?: { inputTokens: number; outputTokens: number } }
   | { type: 'error'; message: string }
 
