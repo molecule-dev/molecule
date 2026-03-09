@@ -9,8 +9,10 @@
  */
 
 import type { JSX, ReactNode } from 'react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
+import { t } from '@molecule/app-i18n'
+import { useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ToolCallCardProps } from '../types.js'
@@ -536,6 +538,7 @@ function extractFilePath(name: string, input: unknown): string | null {
  * @param root0.onFileOpen
  * @param root0.onFileDoubleClick
  * @param root0.onFileDiff
+ * @param root0.onFileRevert
  * @param root0.className
  */
 export function ToolCallCard({
@@ -547,11 +550,15 @@ export function ToolCallCard({
   onFileOpen,
   onFileDoubleClick,
   onFileDiff,
+  onFileRevert,
   className,
 }: ToolCallCardProps): JSX.Element {
   const cm = getClassMap()
+  const isLight = useThemeMode() === 'light'
   const [expanded, setExpanded] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
+  const [isUndone, setIsUndone] = useState(false)
+  const [isReverting, setIsReverting] = useState(false)
 
   const hasError = (() => {
     if (status === 'error') return true
@@ -587,6 +594,25 @@ export function ToolCallCard({
   // New files open directly (no diff to show); edits/modifications open the diff viewer.
   const isNewFile = name === 'write_file' && ((output as Inp)?.diff as { type?: string })?.type === 'new'
   const isFileDiff = !isNewFile && (name === 'edit_file' || name === 'write_file') && filePath != null && onFileDiff != null
+
+  // Undo/redo: available for file modifications (not new files) when a snapshot exists.
+  const canRevert = !isNewFile && (name === 'edit_file' || name === 'write_file') && filePath != null && fileDiff != null && onFileRevert != null
+
+  const handleRevert = useCallback(
+    async (e: React.MouseEvent) => {
+      e.stopPropagation()
+      if (!canRevert || isReverting) return
+      const content = isUndone ? fileDiff!.modified : fileDiff!.original
+      setIsReverting(true)
+      try {
+        await onFileRevert!(filePath!, content)
+        setIsUndone((v) => !v)
+      } finally {
+        setIsReverting(false)
+      }
+    },
+    [canRevert, isReverting, isUndone, fileDiff, filePath, onFileRevert],
+  )
 
   // Tools that expand to show details inline.
   const EXPANDABLE = new Set(['exec_command', 'web_fetch', 'rename_file', 'list_files', 'find_files', 'search_files'])
@@ -631,9 +657,46 @@ export function ToolCallCard({
           ●
         </span>
 
-        {/* Label + one-line summary */}
+        {/* Label + undo icon + one-line summary */}
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ fontSize: '13px' }}>{renderLabel(name, input, filePath, onFileOpen, onFileDoubleClick)}</span>
+          <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {renderLabel(name, input, filePath, onFileOpen, onFileDoubleClick)}
+            </span>
+            {canRevert && (
+              <span
+                role="button"
+                tabIndex={0}
+                title={isUndone
+                  ? t('ide.chat.redoChange', undefined, { defaultValue: 'Re-apply this change' })
+                  : t('ide.chat.undoChange', undefined, { defaultValue: 'Undo this change' })}
+                onClick={handleRevert}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleRevert(e as unknown as React.MouseEvent) } }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(128,128,128,0.2)'; e.currentTarget.style.opacity = '1' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.opacity = '' }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 20,
+                  height: 20,
+                  borderRadius: 4,
+                  flexShrink: 0,
+                  cursor: isReverting ? 'wait' : 'pointer',
+                  opacity: isReverting ? 0.3 : isHovered ? 0.6 : 0,
+                  transition: 'opacity 100ms, background 100ms',
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+                  {isUndone ? (
+                    <path d="M14.78 6.28a.749.749 0 0 0 0-1.06l-3.5-3.5a.749.749 0 1 0-1.06 1.06L12.439 5H5.251l-.001.007L5.251 5a.8.8 0 0 0-.171.019A4.501 4.501 0 0 0 5.5 14h1.704a.75.75 0 0 0 0-1.5H5.5a3 3 0 1 1 0-6h6.939L10.22 8.72a.749.749 0 1 0 1.06 1.06l3.5-3.5Z" />
+                  ) : (
+                    <path d="M1.22 6.28a.749.749 0 0 1 0-1.06l3.5-3.5a.749.749 0 1 1 1.06 1.06L3.561 5h7.188l.001.007L10.749 5c.058 0 .116.007.171.019A4.501 4.501 0 0 1 10.5 14H8.796a.75.75 0 0 1 0-1.5H10.5a3 3 0 1 0 0-6H3.561L5.78 8.72a.749.749 0 1 1-1.06 1.06l-3.5-3.5Z" />
+                  )}
+                </svg>
+              </span>
+            )}
+          </span>
           {summary && (
             <span
               className={cm.cn(cm.textMuted, cm.textSize('xs'))}
@@ -649,9 +712,9 @@ export function ToolCallCard({
           const diff = fileDiffStats(name, input, output)
           if (!diff) return null
           return (
-            <span style={{ display: 'flex', gap: '4px', flexShrink: 0, marginTop: '6px', marginRight: '-2px', fontSize: '11px', fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace', opacity: isHovered ? 1 : 0.6, transition: 'opacity 100ms' }}>
-              {diff.added > 0 && <span style={{ color: '#57ab5a' }}>+{diff.added}</span>}
-              {diff.removed > 0 && <span style={{ color: '#f47067' }}>-{diff.removed}</span>}
+            <span style={{ display: 'flex', gap: '4px', flexShrink: 0, marginTop: '2px', marginRight: '-2px', fontSize: '11px', fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace', opacity: isHovered ? 1 : 0.6, transition: 'opacity 100ms' }}>
+              {diff.added > 0 && <span style={{ color: isUndone ? (isLight ? '#cf222e' : '#f47067') : (isLight ? '#1a7f37' : '#57ab5a'), textDecoration: isUndone ? 'line-through' : undefined }}>+{diff.added}</span>}
+              {diff.removed > 0 && <span style={{ color: isUndone ? (isLight ? '#1a7f37' : '#57ab5a') : (isLight ? '#cf222e' : '#f47067'), textDecoration: isUndone ? 'line-through' : undefined }}>-{diff.removed}</span>}
             </span>
           )
         })()}
@@ -666,7 +729,7 @@ export function ToolCallCard({
             style={{
               display: 'block',
               flexShrink: 0,
-              marginTop: '7px',
+              marginTop: '3px',
               transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
               transition: 'transform 150ms, opacity 100ms',
               opacity: isHovered ? 0.85 : 0.35,
