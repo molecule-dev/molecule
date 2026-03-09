@@ -75,6 +75,8 @@ function toolLabel(name: string, input: unknown): string {
       const short = (cmd ?? '').slice(0, 60)
       return `Bash \`${short}${(cmd ?? '').length > 60 ? '…' : ''}\``
     }
+    case 'ask_user':
+      return (inp.question as string) ?? 'Question'
     default:
       return name.replace(/_/g, ' ')
   }
@@ -142,6 +144,12 @@ function toolSummary(name: string, output: Out, status: string): string {
     case 'exec_command': {
       const exitCode = (out as { exitCode?: number })?.exitCode
       return exitCode != null && exitCode !== 0 ? 'Failed' : ''
+    }
+    case 'ask_user': {
+      if (typeof out === 'string') return out
+      const askOut = out as { status?: string } | undefined
+      if (askOut?.status === 'awaiting_response') return ''
+      return ''
     }
     default:
       return ''
@@ -551,6 +559,7 @@ export function ToolCallCard({
   onFileDoubleClick,
   onFileDiff,
   onFileRevert,
+  onAskUserResponse,
   className,
 }: ToolCallCardProps): JSX.Element {
   const cm = getClassMap()
@@ -630,6 +639,170 @@ export function ToolCallCard({
       : hasDetails
         ? () => { setExpanded((e) => !e) }
       : undefined
+
+  // ── ask_user: render interactive option list instead of a normal tool card ──
+  if (name === 'ask_user') {
+    const askInput = (input ?? {}) as { question?: string; options?: string[]; allowFreeText?: boolean }
+    const askOutput = output as { status?: string } | string | undefined
+    const isAwaiting = typeof askOutput === 'object' && askOutput?.status === 'awaiting_response'
+    const isResponded = typeof askOutput === 'string'
+    const [freeText, setFreeText] = useState('')
+    const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+
+    const borderClr = isLight ? '#d0d7de' : '#3d444d'
+    const labelChar = (i: number) => String.fromCharCode(65 + i) // A, B, C, …
+
+    return (
+      <div
+        className={className}
+        style={{
+          marginBottom: '8px',
+          marginTop: '8px',
+          borderRadius: '8px',
+          border: `1px solid ${borderClr}`,
+          background: isLight ? '#f6f8fa' : 'rgba(255,255,255,0.04)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Question header */}
+        <div style={{
+          padding: '10px 12px',
+          fontSize: '13px',
+          fontWeight: 600,
+          borderBottom: `1px solid ${borderClr}`,
+        }}>
+          {askInput.question}
+        </div>
+
+        {/* Full-width option rows */}
+        {askInput.options?.map((option, i) => {
+          const isSelected = isResponded && askOutput === option
+          const isFaded = isResponded && !isSelected
+          const isHover = isAwaiting && hoveredIdx === i
+
+          return (
+            <button
+              key={i}
+              type="button"
+              disabled={!isAwaiting}
+              onClick={() => { onAskUserResponse?.(option) }}
+              onMouseEnter={() => { if (isAwaiting) setHoveredIdx(i) }}
+              onMouseLeave={() => setHoveredIdx(null)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                width: '100%',
+                padding: '8px 12px',
+                border: 'none',
+                borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
+                background: isSelected
+                  ? (isLight ? '#dbeafe' : 'rgba(59,130,246,0.2)')
+                  : isHover
+                    ? (isLight ? '#eaeef2' : 'rgba(255,255,255,0.06)')
+                    : 'transparent',
+                color: 'inherit',
+                cursor: isAwaiting ? 'pointer' : 'default',
+                textAlign: 'left',
+                fontSize: '13px',
+                opacity: isFaded ? 0.4 : 1,
+                transition: 'background 80ms, opacity 80ms',
+              }}
+            >
+              {/* Letter badge */}
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 22,
+                height: 22,
+                borderRadius: '5px',
+                border: `1px solid ${isSelected ? (isLight ? '#93c5fd' : '#3b82f6') : borderClr}`,
+                background: isSelected
+                  ? (isLight ? '#3b82f6' : '#2563eb')
+                  : (isLight ? '#fff' : 'rgba(255,255,255,0.08)'),
+                color: isSelected ? '#fff' : (isLight ? '#57606a' : '#848d97'),
+                fontSize: '11px',
+                fontWeight: 600,
+                flexShrink: 0,
+                fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
+              }}>
+                {labelChar(i)}
+              </span>
+
+              {/* Option text */}
+              <span style={{ flex: 1 }}>{option}</span>
+
+              {/* Checkmark for selected */}
+              {isSelected && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill={isLight ? '#2563eb' : '#60a5fa'}>
+                  <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
+                </svg>
+              )}
+            </button>
+          )
+        })}
+
+        {/* Free text input (optional) */}
+        {isAwaiting && askInput.allowFreeText && (
+          <div style={{
+            display: 'flex',
+            gap: '4px',
+            padding: '8px 12px',
+            borderTop: `1px solid ${borderClr}`,
+          }}>
+            <input
+              type="text"
+              value={freeText}
+              onChange={(e) => setFreeText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && freeText.trim()) { onAskUserResponse?.(freeText.trim()); setFreeText('') } }}
+              placeholder={t('ide.chat.askUserPlaceholder', undefined, { defaultValue: 'Or type your own…' })}
+              style={{
+                flex: 1,
+                padding: '5px 8px',
+                borderRadius: '5px',
+                border: `1px solid ${borderClr}`,
+                background: 'transparent',
+                color: 'inherit',
+                fontSize: '12px',
+                outline: 'none',
+              }}
+            />
+            <button
+              type="button"
+              disabled={!freeText.trim()}
+              onClick={() => { if (freeText.trim()) { onAskUserResponse?.(freeText.trim()); setFreeText('') } }}
+              style={{
+                padding: '5px 12px',
+                borderRadius: '5px',
+                border: 'none',
+                background: freeText.trim() ? (isLight ? '#2563eb' : '#3b82f6') : 'transparent',
+                color: freeText.trim() ? '#fff' : 'inherit',
+                cursor: freeText.trim() ? 'pointer' : 'default',
+                fontSize: '12px',
+                fontWeight: 500,
+                opacity: freeText.trim() ? 1 : 0.3,
+              }}
+            >
+              {t('ide.chat.askUserSubmit', undefined, { defaultValue: 'Send' })}
+            </button>
+          </div>
+        )}
+
+        {/* Show free-text response if it wasn't one of the preset options */}
+        {isResponded && !askInput.options?.includes(askOutput as string) && (
+          <div style={{
+            padding: '8px 12px',
+            borderTop: `1px solid ${borderClr}`,
+            fontSize: '12px',
+            fontStyle: 'italic',
+          }}>
+            {askOutput as string}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className={className} style={{ marginBottom: '4px' }}>

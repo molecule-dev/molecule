@@ -7,7 +7,7 @@
 import type { ReactNode } from 'react'
 
 import type { ChatMessage } from '@molecule/app-ai-chat'
-import type { EditorTab } from '@molecule/app-code-editor'
+import type { EditorTab, FixWithAIRequest } from '@molecule/app-code-editor'
 import type { DeviceFrame } from '@molecule/app-live-preview'
 
 /**
@@ -36,6 +36,10 @@ export interface ChatPanelProps {
   onFileRevert?: (path: string, content: string) => Promise<void>
   /** Called when the AI creates or modifies a file — should refresh the editor if the file is open. */
   onFileChange?: (path: string, content: string) => void
+  /** Message to auto-send (e.g. from "Fix with AI"). Sent when pendingMessageKey changes. */
+  pendingMessage?: string
+  /** Incremented to trigger sending pendingMessage. */
+  pendingMessageKey?: number
   className?: string
 }
 
@@ -60,6 +64,8 @@ export interface EditorPanelProps {
   countdownKey?: number
   /** Estimated format duration in ms (rolling average, default 2000). */
   formatEstimate?: number
+  /** Called when the user triggers "Fix with AI" from the editor's lightbulb or context menu. */
+  onFixWithAI?: (request: FixWithAIRequest) => void
 }
 
 /**
@@ -151,6 +157,8 @@ export interface ToolCallCardProps {
   onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
   /** Called to undo/redo a file change — writes the given content to the file path. */
   onFileRevert?: (path: string, content: string) => Promise<void>
+  /** Called when the user responds to an `ask_user` tool call (clicks an option or submits free text). */
+  onAskUserResponse?: (response: string) => void
   className?: string
 }
 

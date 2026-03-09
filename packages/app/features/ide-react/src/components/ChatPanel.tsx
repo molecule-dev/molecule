@@ -318,6 +318,8 @@ interface ChatInnerProps {
   onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
   onFileRevert?: (path: string, content: string) => Promise<void>
   onFileChange?: (path: string, content: string) => void
+  pendingMessage?: string
+  pendingMessageKey?: number
 }
 
 /**
@@ -331,7 +333,7 @@ interface ChatInnerProps {
  * @param root0.onFileDiff
  * @param root0.onFileRevert
  */
-function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange }: ChatInnerProps): JSX.Element {
+function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, pendingMessage, pendingMessageKey }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
   const themeMode = useThemeMode()
   const http = useHttpClient()
@@ -411,6 +413,16 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
       sendMessage(initialMessage)
     }
   }, [initialMessage, sendMessage])
+
+  // ── Auto-send pending message (e.g. "Fix with AI") ────────────────────────
+  // Initialize ref with current key so remounting (conversation switch) won't re-send.
+  const lastPendingKeyRef = useRef(pendingMessageKey)
+  useEffect(() => {
+    if (pendingMessage && pendingMessageKey !== undefined && pendingMessageKey !== lastPendingKeyRef.current) {
+      lastPendingKeyRef.current = pendingMessageKey
+      sendMessage(pendingMessage)
+    }
+  }, [pendingMessage, pendingMessageKey, sendMessage])
 
   // ── Commit ─────────────────────────────────────────────────────────────────
   const handleCommit = useCallback(async () => {
@@ -1408,6 +1420,8 @@ export function ChatPanel({
   onFileDiff,
   onFileRevert,
   onFileChange,
+  pendingMessage,
+  pendingMessageKey,
   className,
 }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
@@ -1663,6 +1677,8 @@ export function ChatPanel({
         onFileDiff={onFileDiff}
         onFileRevert={onFileRevert}
         onFileChange={onFileChange}
+        pendingMessage={pendingMessage}
+        pendingMessageKey={pendingMessageKey}
       />
     </div>
   )
