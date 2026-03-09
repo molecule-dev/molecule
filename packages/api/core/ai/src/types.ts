@@ -17,9 +17,17 @@ export interface ChatMessage {
 
 /**
  * Rich content block within a message.
+ *
+ * Includes text, tool interactions, and file attachments (images, documents,
+ * audio, video). Provider bonds map these generic blocks to their native API
+ * format (e.g., Anthropic base64 source, OpenAI image_url, etc.).
  */
 export type ContentBlock =
   | { type: 'text'; text: string }
+  | { type: 'image'; mediaType: string; data: string }
+  | { type: 'document'; mediaType: string; data: string; filename?: string }
+  | { type: 'audio'; mediaType: string; data: string }
+  | { type: 'video'; mediaType: string; data: string }
   | { type: 'tool_use'; id: string; name: string; input: unknown }
   | { type: 'tool_result'; tool_use_id: string; content: string | unknown }
 

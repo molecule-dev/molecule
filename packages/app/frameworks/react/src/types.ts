@@ -6,7 +6,7 @@
 
 import type { ReactNode } from 'react'
 
-import type { ChatMessage, ChatProvider } from '@molecule/app-ai-chat'
+import type { ChatAttachment, ChatMessage, ChatProvider } from '@molecule/app-ai-chat'
 import type { AuthClient, AuthState } from '@molecule/app-auth'
 import type { DiffFile, EditorFile, EditorProvider, EditorTab } from '@molecule/app-code-editor'
 import type { FormController, FormOptions } from '@molecule/app-forms'
@@ -210,6 +210,8 @@ export interface UseChatOptions {
   projectId?: string
   /** Load history on mount. */
   loadOnMount?: boolean
+  /** Called when a file is created or modified by a tool call (path + new content). */
+  onFileChange?: (path: string, content: string) => void
 }
 
 /**
@@ -219,7 +221,7 @@ export interface UseChatResult {
   messages: ChatMessage[]
   isLoading: boolean
   error: string | null
-  sendMessage: (message: string) => Promise<void>
+  sendMessage: (message: string, attachments?: ChatAttachment[]) => Promise<void>
   abort: () => void
   clearHistory: () => Promise<void>
 }

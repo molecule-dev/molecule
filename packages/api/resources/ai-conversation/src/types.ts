@@ -16,6 +16,8 @@ export interface ChatMessage {
     input: unknown
     output?: unknown
   }>
+  /** File attachment metadata (no base64 data — for display in history). */
+  attachments?: Array<{ filename: string; mediaType: string; size: number }>
   timestamp: string
 }
 
@@ -41,9 +43,23 @@ export interface Conversation {
 }
 
 /**
+ * A file attachment sent with a chat message.
+ */
+export interface ChatAttachment {
+  /** MIME type (e.g., 'image/jpeg', 'application/pdf'). */
+  mediaType: string
+  /** Base64-encoded file data (no data-URL prefix). */
+  data: string
+  /** Original filename for display. */
+  filename?: string
+}
+
+/**
  * Input payload for sending a message to a conversation (message text and optional model override).
  */
 export interface SendMessageInput {
   message: string
   model?: string
+  /** File attachments (images, PDFs, audio, video) to include with the message. */
+  attachments?: ChatAttachment[]
 }

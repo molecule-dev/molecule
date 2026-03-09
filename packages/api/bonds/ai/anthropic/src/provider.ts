@@ -6,7 +6,14 @@
  * @module
  */
 
-import type { AIProvider, AITool, ChatEvent, ChatMessage, ChatParams } from '@molecule/api-ai'
+import type {
+  AIProvider,
+  AITool,
+  ChatEvent,
+  ChatMessage,
+  ChatParams,
+  ContentBlock,
+} from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
@@ -103,6 +110,7 @@ class AnthropicAIProvider implements AIProvider {
   /**
    * Converts internal `ChatMessage` objects to the Anthropic API message format,
    * filtering out system messages (handled separately via the `system` parameter).
+   * Maps generic `ContentBlock` attachment types to Anthropic's native format.
    * @param messages - The chat messages to format.
    * @returns The formatted messages array for the Anthropic API.
    */
@@ -111,8 +119,49 @@ class AnthropicAIProvider implements AIProvider {
       .filter((m) => m.role !== 'system')
       .map((m) => ({
         role: m.role,
-        content: m.content,
+        content:
+          typeof m.content === 'string'
+            ? m.content
+            : (m.content as ContentBlock[]).map((block) => this.formatBlock(block)),
       }))
+  }
+
+  /**
+   * Maps a generic `ContentBlock` to the Anthropic API content block format.
+   * @param block - The content block to format.
+   * @returns The Anthropic-native block representation.
+   */
+  private formatBlock(block: ContentBlock): Record<string, unknown> {
+    switch (block.type) {
+      case 'text':
+        return { type: 'text', text: block.text }
+      case 'image':
+        return {
+          type: 'image',
+          source: { type: 'base64', media_type: block.mediaType, data: block.data },
+        }
+      case 'document':
+        return {
+          type: 'document',
+          source: { type: 'base64', media_type: block.mediaType, data: block.data },
+        }
+      case 'audio':
+        return {
+          type: 'text',
+          text: `[Audio attachment (${block.mediaType}) — not supported by this provider]`,
+        }
+      case 'video':
+        return {
+          type: 'text',
+          text: `[Video attachment (${block.mediaType}) — not supported by this provider]`,
+        }
+      case 'tool_use':
+        return { type: 'tool_use', id: block.id, name: block.name, input: block.input }
+      case 'tool_result':
+        return { type: 'tool_result', tool_use_id: block.tool_use_id, content: block.content }
+      default:
+        return block as Record<string, unknown>
+    }
   }
 
   /**

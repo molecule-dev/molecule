@@ -32,6 +32,10 @@ export interface ChatPanelProps {
   onFileDoubleClick?: (path: string) => void
   /** Called when a file in the uncommitted list is clicked for diff view. */
   onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
+  /** Called to undo/redo a file change — writes the given content to the file path. */
+  onFileRevert?: (path: string, content: string) => Promise<void>
+  /** Called when the AI creates or modifies a file — should refresh the editor if the file is open. */
+  onFileChange?: (path: string, content: string) => void
   className?: string
 }
 
@@ -143,6 +147,8 @@ export interface ToolCallCardProps {
   onFileDoubleClick?: (path: string) => void
   /** Called when a file-changing card is clicked — should open the file diff in the editor. */
   onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
+  /** Called to undo/redo a file change — writes the given content to the file path. */
+  onFileRevert?: (path: string, content: string) => Promise<void>
   className?: string
 }
 

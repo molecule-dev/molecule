@@ -42,7 +42,11 @@ const STATUS_PRIORITY: Record<string, number> = {
  * @param dirPath
  * @param fileStatuses
  */
-function getDirColor(dirPath: string, fileStatuses: Record<string, string>, colors: Record<string, string>): string | undefined {
+function getDirColor(
+  dirPath: string,
+  fileStatuses: Record<string, string>,
+  colors: Record<string, string>,
+): string | undefined {
   let bestPriority = 0
   let bestStatus: string | undefined
   const prefix = dirPath + '/'
@@ -78,7 +82,9 @@ function loadExpandState(persistKey: string): ExpandState {
       const parsed = JSON.parse(raw) as { expanded: string[]; collapsed: string[] }
       return { expanded: new Set(parsed.expanded), collapsed: new Set(parsed.collapsed) }
     }
-  } catch { /* ignored */ }
+  } catch {
+    /* ignored */
+  }
   return { expanded: new Set(), collapsed: new Set() }
 }
 
@@ -93,7 +99,9 @@ function saveExpandState(persistKey: string, state: ExpandState): void {
       persistKey,
       JSON.stringify({ expanded: [...state.expanded], collapsed: [...state.collapsed] }),
     )
-  } catch { /* ignored */ }
+  } catch {
+    /* ignored */
+  }
 }
 
 /**
@@ -146,7 +154,14 @@ function ChevronIcon({ isOpen }: { isOpen: boolean }): JSX.Element {
       }}
     >
       {/* Right-pointing chevron (V rotated): collapses/expands via CSS rotation */}
-      <polyline points="6,4 10,8 6,12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline
+        points="6,4 10,8 6,12"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
@@ -245,7 +260,9 @@ function FileTreeItem({
       <button
         type="button"
         onClick={toggle}
-        onDoubleClick={() => { if (!isDir && onFileDoubleClick) onFileDoubleClick(node.path) }}
+        onDoubleClick={() => {
+          if (!isDir && onFileDoubleClick) onFileDoubleClick(node.path)
+        }}
         data-explorer-path={node.path}
         className={cm.w('full')}
         style={{
@@ -272,7 +289,20 @@ function FileTreeItem({
         </span>
 
         {/* Label */}
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: isDir ? (fileStatuses ? getDirColor(node.path, fileStatuses, gitColors) : undefined) : (node.gitStatus ? gitColors[node.gitStatus] : undefined) }}>
+        <span
+          style={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            color: isDir
+              ? fileStatuses
+                ? getDirColor(node.path, fileStatuses, gitColors)
+                : undefined
+              : node.gitStatus
+                ? gitColors[node.gitStatus]
+                : undefined,
+          }}
+        >
           {node.name}
         </span>
       </button>
@@ -280,15 +310,17 @@ function FileTreeItem({
       {isDir && isExpanded && sortedChildren && (
         <div style={{ position: 'relative' }}>
           {/* Guide line — 1px at center of parent chevron (paddingLeft + half icon width) */}
-          <span style={{
-            position: 'absolute',
-            left: `${depth * 12 + 8}px`,
-            top: 0,
-            bottom: 0,
-            width: '1px',
-            background: 'rgba(128,128,128,0.15)',
-            pointerEvents: 'none',
-          }} />
+          <span
+            style={{
+              position: 'absolute',
+              left: `${depth * 12 + 8}px`,
+              top: 0,
+              bottom: 0,
+              width: '1px',
+              background: 'rgba(128,128,128,0.15)',
+              pointerEvents: 'none',
+            }}
+          />
           {sortedChildren.map((child) => (
             <FileTreeItem
               key={child.path}
@@ -375,9 +407,9 @@ export function FileExplorer({
   useEffect(() => {
     if (!scrollTargetRef.current || !containerRef.current) return
     const target = scrollTargetRef.current
-    const el = Array.from(containerRef.current.querySelectorAll<HTMLElement>('[data-explorer-path]')).find(
-      (e) => e.dataset.explorerPath === target,
-    )
+    const el = Array.from(
+      containerRef.current.querySelectorAll<HTMLElement>('[data-explorer-path]'),
+    ).find((e) => e.dataset.explorerPath === target)
     if (el) {
       scrollTargetRef.current = null
       el.scrollIntoView({ block: 'nearest' })
@@ -412,7 +444,12 @@ export function FileExplorer({
   })
 
   return (
-    <div ref={containerRef} className={cm.cn(cm.sp('py', 1), cm.sp('pl', 1), className)} style={{ overflowY: 'auto' }} role="tree">
+    <div
+      ref={containerRef}
+      className={cm.cn(cm.sp('py', 1), cm.sp('pl', 1), className)}
+      style={{ overflowY: 'auto' }}
+      role="tree"
+    >
       {files.length === 0 && (
         <div className={cm.cn(cm.textMuted, cm.textSize('sm'), cm.sp('p', 3))}>
           {t('ide.files.empty')}

@@ -19,7 +19,7 @@ import type { JSX } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
-import { useChat, useHttpClient } from '@molecule/app-react'
+import { useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ChatPanelProps } from '../types.js'
@@ -37,7 +37,18 @@ interface FileEntry {
 }
 
 interface AttachedFile {
-  path: string // absolute within sandbox, e.g. /app/src/App.tsx
+  /** Sandbox file path for @-mentioned text files. */
+  path?: string
+  /** Browser File object for drag-dropped/pasted/picked binary files. */
+  file?: File
+  /** Display name. */
+  filename: string
+  /** MIME type. */
+  mediaType: string
+  /** File size in bytes. */
+  size: number
+  /** Object URL for image thumbnail preview (revoked on removal). */
+  previewUrl?: string
 }
 
 interface FilePicker {
@@ -87,6 +98,40 @@ function relativeTime(iso: string): string {
   if (h < 24) return `${h}h ago`
   const d = Math.floor(h / 24)
   return `${d}d ago`
+}
+
+/** Maximum file size for attachments (20 MB). */
+const MAX_ATTACHMENT_SIZE = 20 * 1024 * 1024
+
+/** MIME types accepted by the file input for AI provider attachments. */
+const ACCEPTED_FILE_TYPES = 'image/jpeg,image/png,image/gif,image/webp,image/svg+xml,application/pdf,audio/mpeg,audio/wav,audio/ogg,audio/flac,audio/webm,video/mp4,video/webm'
+
+/**
+ * Reads a File as base64 (without data-URL prefix).
+ * @param file - The file to encode.
+ * @returns Base64-encoded string.
+ */
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      resolve(result.split(',')[1])
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+/**
+ * Formats a byte count as a human-readable size string.
+ * @param bytes - The size in bytes.
+ * @returns Formatted string (e.g., "1.2MB").
+ */
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes}B`
+  if (bytes < 1048576) return `${Math.round(bytes / 1024)}KB`
+  return `${(bytes / 1048576).toFixed(1)}MB`
 }
 
 // ---------------------------------------------------------------------------
@@ -269,7 +314,9 @@ interface ChatInnerProps {
   initialMessage?: string
   onFileOpen?: (path: string) => void
   onFileDoubleClick?: (path: string) => void
-  onFileDiff?: (path: string) => void
+  onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
+  onFileRevert?: (path: string, content: string) => Promise<void>
+  onFileChange?: (path: string, content: string) => void
 }
 
 /**
@@ -281,14 +328,17 @@ interface ChatInnerProps {
  * @param root0.onFileOpen
  * @param root0.onFileDoubleClick
  * @param root0.onFileDiff
+ * @param root0.onFileRevert
  */
-function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoubleClick, onFileDiff }: ChatInnerProps): JSX.Element {
+function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
+  const themeMode = useThemeMode()
   const http = useHttpClient()
   const { messages, isLoading, error, sendMessage, abort, clearHistory } = useChat({
     endpoint,
     projectId,
     loadOnMount: !initialMessage,
+    onFileChange,
   })
 
   // ── Commit ─────────────────────────────────────────────────────────────────
@@ -308,6 +358,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
   const [filePicker, setFilePicker] = useState<FilePicker | null>(null)
   const [mentionStart, setMentionStart] = useState(0)
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([])
+  const [attachmentError, setAttachmentError] = useState<string | null>(null)
 
   // ── Command menu ───────────────────────────────────────────────────────────
   const [commandMenu, setCommandMenu] = useState<CommandMenu | null>(null)
@@ -328,13 +379,24 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
   }, [inputValue])
 
   // ── Git status ─────────────────────────────────────────────────────────────
+  const [gitStatusTick, setGitStatusTick] = useState(0)
+  const refreshGitStatus = useCallback(() => setGitStatusTick((n) => n + 1), [])
   useEffect(() => {
     if (isLoading) return
     http
-      .get<{ files: { path: string; status: string }[] }>(`/projects/${projectId}/git-status`)
+      .get<{ files: { path: string; status: string; additions?: number; deletions?: number }[] }>(`/projects/${projectId}/git-status`)
       .then((res) => setPendingFiles(res.data.files.length > 0 ? res.data.files : null))
       .catch(() => setPendingFiles(null))
-  }, [isLoading, projectId])
+  }, [isLoading, projectId, gitStatusTick])
+
+  // Wrap onFileRevert so undo/redo also refreshes git status
+  const handleFileRevert = useCallback(
+    async (path: string, content: string) => {
+      await onFileRevert?.(path, content)
+      refreshGitStatus()
+    },
+    [onFileRevert, refreshGitStatus],
+  )
 
   // ── Auto-scroll ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -407,7 +469,14 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
         void openFilePicker(filePicker?.query ?? '', entryPath)
       } else {
         setAttachedFiles((prev) =>
-          prev.some((f) => f.path === entryPath) ? prev : [...prev, { path: entryPath }],
+          prev.some((f) => f.path === entryPath)
+            ? prev
+            : [...prev, {
+                path: entryPath,
+                filename: entry.name,
+                mediaType: 'text/plain',
+                size: entry.size ?? 0,
+              }],
         )
         setInputValue((prev) => {
           const before = prev.slice(0, mentionStart)
@@ -420,9 +489,82 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
     [filePicker, mentionStart, openFilePicker],
   )
 
-  const removeAttachment = useCallback((path: string) => {
-    setAttachedFiles((prev) => prev.filter((f) => f.path !== path))
+  const removeAttachment = useCallback((key: string) => {
+    setAttachedFiles((prev) => {
+      const removed = prev.find((f) => (f.path ?? f.filename) === key)
+      if (removed?.previewUrl) URL.revokeObjectURL(removed.previewUrl)
+      return prev.filter((f) => (f.path ?? f.filename) !== key)
+    })
   }, [])
+
+  // ── File attachment handlers ──────────────────────────────────────────────
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const addFileAttachments = useCallback((files: File[]) => {
+    setAttachmentError(null)
+    for (const file of files) {
+      if (file.size > MAX_ATTACHMENT_SIZE) {
+        setAttachmentError(t('ide.chat.fileTooLarge', { maxSize: '20' }, { defaultValue: 'File is too large. Maximum size is {{maxSize}}MB.' }))
+        continue
+      }
+      const attachment: AttachedFile = {
+        file,
+        filename: file.name,
+        mediaType: file.type || 'application/octet-stream',
+        size: file.size,
+        previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+      }
+      setAttachedFiles((prev) => [...prev, attachment])
+    }
+  }, [])
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    addFileAttachments(Array.from(e.target.files ?? []))
+    e.target.value = ''
+  }, [addFileAttachments])
+
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    const items = Array.from(e.clipboardData.items)
+    const fileItems = items.filter((item) => item.kind === 'file')
+    if (fileItems.length === 0) return
+
+    e.preventDefault()
+    const files: File[] = []
+    for (const item of fileItems) {
+      const file = item.getAsFile()
+      if (file) files.push(file)
+    }
+    addFileAttachments(files)
+  }, [addFileAttachments])
+
+  const [isDragOver, setIsDragOver] = useState(false)
+
+  const dragCounterRef = useRef(0)
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+  }, [])
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    dragCounterRef.current++
+    setIsDragOver(true)
+  }, [])
+
+  const handleDragLeave = useCallback(() => {
+    dragCounterRef.current--
+    if (dragCounterRef.current === 0) {
+      setIsDragOver(false)
+    }
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    dragCounterRef.current = 0
+    setIsDragOver(false)
+    addFileAttachments(Array.from(e.dataTransfer.files))
+  }, [addFileAttachments])
 
   // ── Input change ───────────────────────────────────────────────────────────
   const handleInputChange = useCallback(
@@ -468,26 +610,45 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
     if ((!trimmed && attachedFiles.length === 0) || isLoading) return
 
     let message = trimmed
+    const chatAttachments: Array<{
+      mediaType: string
+      data: string
+      filename: string
+      size: number
+    }> = []
+
     if (attachedFiles.length > 0) {
-      const fileContexts = await Promise.all(
-        attachedFiles.map(async (f) => {
+      for (const f of attachedFiles) {
+        if (f.path && !f.file) {
+          // @-mentioned sandbox text file — fetch and embed inline
           try {
             const res = await http.get<{ content: string }>(
               `/projects/${projectId}/files${f.path}`,
             )
             const ext = f.path.split('.').pop() ?? ''
-            return `<file path="${f.path}">\n\`\`\`${ext}\n${res.data.content}\n\`\`\`\n</file>`
+            message = (message ? `${message}\n\n` : '') +
+              `<file path="${f.path}">\n\`\`\`${ext}\n${res.data.content}\n\`\`\`\n</file>`
           } catch {
-            return `<file path="${f.path}">[Could not read file]</file>`
+            message = (message ? `${message}\n\n` : '') +
+              `<file path="${f.path}">[Could not read file]</file>`
           }
-        }),
-      )
-      message = (message ? `${message}\n\n` : '') + fileContexts.join('\n\n')
+        } else if (f.file) {
+          // Binary file attachment — encode as base64
+          const data = await fileToBase64(f.file)
+          chatAttachments.push({
+            mediaType: f.mediaType,
+            data,
+            filename: f.filename,
+            size: f.size,
+          })
+        }
+      }
     }
 
     setInputValue('')
     setAttachedFiles([])
-    sendMessage(message)
+    setAttachmentError(null)
+    sendMessage(message, chatAttachments.length > 0 ? chatAttachments : undefined)
   }, [attachedFiles, http, inputValue, isLoading, projectId, sendMessage])
 
   // ── Keyboard ───────────────────────────────────────────────────────────────
@@ -579,7 +740,39 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <>
+    <div
+      style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* Drag overlay — covers entire chat area */}
+      {isDragOver && (
+        <div
+          style={{
+            position: 'absolute', inset: 0, zIndex: 60,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(64,112,224,0.08)', border: '2px dashed rgba(64,112,224,0.5)',
+            borderRadius: '6px', pointerEvents: 'none',
+          }}
+        >
+          <span
+            className={cm.textSize('sm')}
+            style={{
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              background: themeMode === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.75)',
+              color: themeMode === 'dark' ? '#1a1a1a' : '#fff',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
+            }}
+          >
+            {t('ide.chat.dropFilesHere', undefined, { defaultValue: 'Drop files here' })}
+          </span>
+        </div>
+      )}
+
       {/* ── Messages ── */}
       <div className={cm.sp('p', 3)} style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'thin', ...cm.sp({ pr: 1 }) }}>
         {timeline.map((item) => {
@@ -611,6 +804,21 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
                   }}
                 >
                   {msg.content}
+                  {msg.attachments && msg.attachments.length > 0 && (
+                    <div style={{ marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                      {msg.attachments.map((att, ai) => (
+                        <span
+                          key={ai}
+                          className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}
+                        >
+                          {att.mediaType.startsWith('image/') ? '\uD83D\uDDBC\uFE0F' : att.mediaType.startsWith('audio/') ? '\uD83C\uDFB5' : att.mediaType.startsWith('video/') ? '\uD83C\uDFA5' : '\uD83D\uDCC4'}
+                          {' '}{att.filename}
+                          <span style={{ fontSize: 10, opacity: 0.7 }}>({formatSize(att.size)})</span>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div style={{ paddingLeft: sameRoleAsPrev ? '0' : '0' }}>
@@ -662,6 +870,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
                               onFileOpen={onFileOpen}
                               onFileDoubleClick={onFileDoubleClick}
                               onFileDiff={onFileDiff}
+                              onFileRevert={handleFileRevert}
                             />
                             {isLast && msg.isStreaming && (
                               <span style={{ animation: 'mol-cursor-blink 1s step-start infinite' }}>
@@ -690,6 +899,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
                         onFileOpen={onFileOpen}
                         onFileDoubleClick={onFileDoubleClick}
                         onFileDiff={onFileDiff}
+                        onFileRevert={handleFileRevert}
                       />
                     ))}
 
@@ -722,27 +932,64 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
         className={cm.cn(cm.shrink0, cm.borderT)}
         style={{ position: 'relative' }}
       >
-        {/* File attachment chips */}
-        {attachedFiles.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '6px' }}>
-            {attachedFiles.map((f) => (
-              <span
-                key={f.path}
-                className={cm.cn(cm.surfaceSecondary, cm.textSize('xs'))}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', borderRadius: '4px', padding: '2px 6px' }}
-              >
-                <span style={{ fontFamily: 'monospace', opacity: 0.85 }}>{f.path.split('/').pop()}</span>
-                <button
-                  type="button"
-                  onClick={() => removeAttachment(f.path)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', opacity: 0.5, lineHeight: 1, padding: 0, fontSize: '13px' }}
-                >
-                  ×
-                </button>
-              </span>
-            ))}
+        {/* Attachment error */}
+        {attachmentError && (
+          <div
+            className={cm.cn(cm.textSize('xs'), cm.textError)}
+            style={{ padding: '4px 10px' }}
+          >
+            {attachmentError}
           </div>
         )}
+
+        {/* File attachment chips */}
+        {attachedFiles.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', padding: '6px 10px 0' }}>
+            {attachedFiles.map((f) => {
+              const key = f.path ?? f.filename
+              return (
+                <span
+                  key={key}
+                  className={cm.cn(cm.surfaceSecondary, cm.textSize('xs'))}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', borderRadius: '4px', padding: '2px 6px' }}
+                >
+                  {f.previewUrl && (
+                    <img
+                      src={f.previewUrl}
+                      alt={f.filename}
+                      style={{ width: 18, height: 18, objectFit: 'cover', borderRadius: 2 }}
+                    />
+                  )}
+                  <span style={{ fontFamily: 'monospace', opacity: 0.85 }}>
+                    {f.path ? f.path.split('/').pop() : f.filename}
+                  </span>
+                  {f.size > 0 && (
+                    <span className={cm.textMuted} style={{ fontSize: 10 }}>
+                      {formatSize(f.size)}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeAttachment(key)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', opacity: 0.5, lineHeight: 1, padding: 0, fontSize: '13px' }}
+                  >
+                    ×
+                  </button>
+                </span>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Hidden file input for the attachment button */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept={ACCEPTED_FILE_TYPES}
+          style={{ display: 'none' }}
+          onChange={handleFileSelect}
+        />
 
         {/* Command menu popup */}
         {commandMenu && filteredCmds.length > 0 && (
@@ -886,11 +1133,58 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
                     className={cm.textMuted}
                   >
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.path}</span>
-                    {(f.additions != null || f.deletions != null) && (
+                    {(!!f.additions || !!f.deletions) && (
                       <span style={{ marginLeft: 'auto', flexShrink: 0, fontSize: 10, opacity: 0.8 }}>
-                        {f.additions != null && <span style={{ color: '#3fb950' }}>+{f.additions}</span>}
-                        {f.additions != null && f.deletions != null && ' '}
-                        {f.deletions != null && <span style={{ color: '#f85149' }}>-{f.deletions}</span>}
+                        {!!f.additions && <span style={{ color: '#3fb950' }}>+{f.additions}</span>}
+                        {!!f.additions && !!f.deletions && ' '}
+                        {!!f.deletions && <span style={{ color: '#f85149' }}>-{f.deletions}</span>}
+                      </span>
+                    )}
+                    {onFileRevert && (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        title={t('ide.chat.revertFile', undefined, { defaultValue: 'Revert to last commit' })}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          // Revert file to last committed state (handles modified, new, and deleted files)
+                          http
+                            .post(`/projects/${projectId}/git-revert`, { path: f.path })
+                            .then(() => {
+                              refreshGitStatus()
+                              // Refresh editor if the file is open — fetch fresh content for modified/restored,
+                              // or close if it was a new file that got deleted
+                              if (f.status === 'untracked' || f.status === 'added') {
+                                onFileChange?.(f.path, '')
+                              } else {
+                                // Re-fetch file content from sandbox to update editor
+                                http
+                                  .get<{ content: string }>(`/projects/${projectId}/files/${f.path}`)
+                                  .then((res) => onFileChange?.(f.path, res.data.content))
+                                  .catch(() => {/* ignore */})
+                              }
+                            })
+                            .catch(() => {/* ignore */})
+                        }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') e.currentTarget.click() }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(128,128,128,0.2)'; e.currentTarget.style.opacity = '1' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.opacity = '0.5' }}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 18,
+                          height: 18,
+                          borderRadius: 3,
+                          flexShrink: 0,
+                          cursor: 'pointer',
+                          opacity: 0.5,
+                          transition: 'opacity 100ms, background 100ms',
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                          <path d="M1.22 6.28a.749.749 0 0 1 0-1.06l3.5-3.5a.749.749 0 1 1 1.06 1.06L3.561 5h7.188l.001.007L10.749 5c.058 0 .116.007.171.019A4.501 4.501 0 0 1 10.5 14H8.796a.75.75 0 0 1 0-1.5H10.5a3 3 0 1 0 0-6H3.561L5.78 8.72a.749.749 0 1 1-1.06 1.06l-3.5-3.5Z" />
+                        </svg>
                       </span>
                     )}
                   </button>
@@ -924,6 +1218,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
             value={inputValue}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder={t('ide.chat.placeholder')}
@@ -995,6 +1290,30 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
                 {sym}
               </button>
             ))}
+            {/* Attachment button */}
+            <button
+              type="button"
+              className={cm.textSize('xs')}
+              onClick={() => fileInputRef.current?.click()}
+              title={t('ide.chat.attachFile', undefined, { defaultValue: 'Attach file' })}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'inherit',
+                opacity: 0.4,
+                padding: '2px 5px',
+                borderRadius: '3px',
+                fontFamily: 'inherit',
+                transition: 'opacity 100ms',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.4' }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" style={{ display: 'block' }}>
+                <path d="M14 5.5L7.5 12a3.54 3.54 0 01-5-5L9 .5a2.12 2.12 0 013 3l-6.5 6.5a.71.71 0 01-1-1L11 2.5" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
             <div style={{ marginLeft: '4px' }}>
               {isLoading ? (
                 <button type="button" onClick={abort} className={cm.button({ color: 'error', size: 'sm' })}>
@@ -1018,7 +1337,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -1035,6 +1354,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
  * @param root0.onFileOpen
  * @param root0.onFileDoubleClick
  * @param root0.onFileDiff
+ * @param root0.onFileRevert
  * @param root0.className - Optional CSS class name for the container.
  * @returns The rendered chat panel element.
  */
@@ -1045,6 +1365,8 @@ export function ChatPanel({
   onFileOpen,
   onFileDoubleClick,
   onFileDiff,
+  onFileRevert,
+  onFileChange,
   className,
 }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
@@ -1298,6 +1620,8 @@ export function ChatPanel({
         onFileOpen={onFileOpen}
         onFileDoubleClick={onFileDoubleClick}
         onFileDiff={onFileDiff}
+        onFileRevert={onFileRevert}
+        onFileChange={onFileChange}
       />
     </div>
   )

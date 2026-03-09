@@ -7,6 +7,7 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 
 import type {
+  ChatAttachment,
   ChatConfig,
   ChatMessage,
   ChatProvider,
@@ -46,7 +47,7 @@ export function useChatProvider(): ChatProvider {
  */
 export function useChat(options: UseChatOptions): UseChatResult {
   const provider = useChatProvider()
-  const { endpoint, projectId, loadOnMount = true } = options
+  const { endpoint, projectId, loadOnMount = true, onFileChange } = options
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -81,7 +82,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
   }, [endpoint])
 
   const sendMessage = useCallback(
-    async (message: string) => {
+    async (message: string, attachments?: ChatAttachment[]) => {
       if (!mountedRef.current) return
 
       const userMsg: ChatMessage = {
@@ -89,6 +90,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
         role: 'user',
         content: message,
         timestamp: Date.now(),
+        ...(attachments?.length
+          ? {
+              attachments: attachments.map((a) => ({
+                filename: a.filename,
+                mediaType: a.mediaType,
+                size: a.size,
+              })),
+            }
+          : {}),
       }
 
       setMessages((prev) => [...prev, userMsg])
@@ -161,12 +171,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
             break
           case 'file_diff': {
             // Attach snapshot to the matching running tool call (for persistent diff review)
+            // Normalize paths — strip /workspace/ prefix so resolved and raw paths match
+            const normalizePath = (p: string) => p.replace(/^\/workspace\//, '')
             const match = [...(toolCalls ?? [])]
               .reverse()
               .find(
                 (t) =>
                   (t.name === 'write_file' || t.name === 'edit_file') &&
-                  (t.input as { path?: string })?.path === event.path,
+                  normalizePath((t.input as { path?: string })?.path ?? '') ===
+                    normalizePath(event.path),
               )
             if (match) {
               match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
@@ -174,6 +187,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 prev.map((m) => (m.id === assistantId ? { ...m, toolCalls: [...toolCalls!] } : m)),
               )
             }
+            // Notify host so open editor tabs can be refreshed
+            onFileChange?.(event.path, event.newContent)
             break
           }
           case 'commit_suggestion':
@@ -222,7 +237,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       }
 
       try {
-        await provider.sendMessage(message, config, onEvent)
+        await provider.sendMessage(message, config, onEvent, attachments)
       } catch (err) {
         if (mountedRef.current) {
           const msg =

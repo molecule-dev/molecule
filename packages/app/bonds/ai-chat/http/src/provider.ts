@@ -8,6 +8,7 @@
  */
 
 import type {
+  ChatAttachment,
   ChatConfig,
   ChatEventHandler,
   ChatMessage,
@@ -36,8 +37,14 @@ export class HttpChatProvider implements ChatProvider {
    * @param message - The user message text.
    * @param config - Chat configuration including the API endpoint and model.
    * @param onEvent - Callback invoked for each SSE event (content chunks, errors, done signals).
+   * @param attachments - Optional file attachments (images, PDFs, audio, video) as base64.
    */
-  async sendMessage(message: string, config: ChatConfig, onEvent: ChatEventHandler): Promise<void> {
+  async sendMessage(
+    message: string,
+    config: ChatConfig,
+    onEvent: ChatEventHandler,
+    attachments?: ChatAttachment[],
+  ): Promise<void> {
     // Abort any previous in-flight request before starting a new one.
     // Prevents stale streaming events from corrupting state when called concurrently
     // (e.g., React StrictMode double-mount or rapid message sends).
@@ -58,6 +65,7 @@ export class HttpChatProvider implements ChatProvider {
         body: JSON.stringify({
           message,
           model: config.model,
+          ...(attachments?.length ? { attachments } : {}),
         }),
         signal: this.abortController.signal,
       })
@@ -208,6 +216,7 @@ export class HttpChatProvider implements ChatProvider {
         blocks,
         toolCalls,
         commitRecord: m.commitRecord as ChatMessage['commitRecord'],
+        attachments: m.attachments as ChatMessage['attachments'],
       }
     })
   }

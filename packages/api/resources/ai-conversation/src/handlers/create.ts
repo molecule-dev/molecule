@@ -1,4 +1,4 @@
-import type { ChatMessage as AIChatMessage, ChatParams } from '@molecule/api-ai'
+import type { ChatMessage as AIChatMessage, ChatParams, ContentBlock } from '@molecule/api-ai'
 import { getProvider as getAIProvider } from '@molecule/api-ai'
 import { getAnalytics } from '@molecule/api-bond'
 import { create as dbCreate, findOne, updateById } from '@molecule/api-database'
@@ -8,7 +8,7 @@ import { logger } from '@molecule/api-logger'
 const analytics = getAnalytics()
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import type { ChatMessage, Conversation, SendMessageInput } from '../types.js'
+import type { ChatAttachment, ChatMessage, Conversation, SendMessageInput } from '../types.js'
 
 /**
  * Sends a message to a conversation and streams the AI response via SSE.
@@ -89,6 +89,19 @@ export async function chat(req: MoleculeRequest, res: MoleculeResponse): Promise
     content: m.content,
   }))
 
+  // Convert attachments on the current user message to ContentBlock[]
+  if (input.attachments?.length) {
+    const lastMsg = aiMessages[aiMessages.length - 1]
+    const blocks: ContentBlock[] = []
+    if (lastMsg.content) {
+      blocks.push({ type: 'text', text: lastMsg.content as string })
+    }
+    for (const att of input.attachments) {
+      blocks.push(attachmentToBlock(att))
+    }
+    lastMsg.content = blocks
+  }
+
   const chatParams: ChatParams = {
     messages: aiMessages,
     system: conversation.aiContext?.system,
@@ -161,4 +174,25 @@ export async function chat(req: MoleculeRequest, res: MoleculeResponse): Promise
     res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`)
     res.end()
   }
+}
+
+/**
+ * Maps a chat attachment to the appropriate `ContentBlock` type based on MIME type.
+ * @param att - The attachment to convert.
+ * @returns A typed content block for the AI provider.
+ */
+function attachmentToBlock(att: ChatAttachment): ContentBlock {
+  if (att.mediaType.startsWith('image/')) {
+    return { type: 'image', mediaType: att.mediaType, data: att.data }
+  }
+  if (att.mediaType === 'application/pdf') {
+    return { type: 'document', mediaType: att.mediaType, data: att.data, filename: att.filename }
+  }
+  if (att.mediaType.startsWith('audio/')) {
+    return { type: 'audio', mediaType: att.mediaType, data: att.data }
+  }
+  if (att.mediaType.startsWith('video/')) {
+    return { type: 'video', mediaType: att.mediaType, data: att.data }
+  }
+  return { type: 'text', text: `[Unsupported attachment: ${att.filename ?? att.mediaType}]` }
 }

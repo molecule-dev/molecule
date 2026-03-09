@@ -171,7 +171,16 @@ export function EditorPanel({
       />
 
       {/* Editor container — hidden when no tabs to avoid showing a blank editor */}
-      <div style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          position: 'relative',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <div
           ref={containerRef}
           style={{

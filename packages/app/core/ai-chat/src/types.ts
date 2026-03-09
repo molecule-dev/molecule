@@ -14,6 +14,32 @@ export type MessageBlock =
   | { type: 'thinking'; content: string }
 
 /**
+ * A file attachment sent with a chat message.
+ */
+export interface ChatAttachment {
+  /** MIME type (e.g., 'image/jpeg', 'application/pdf'). */
+  mediaType: string
+  /** Base64-encoded file data (no data-URL prefix). */
+  data: string
+  /** Original filename for display. */
+  filename: string
+  /** File size in bytes (for validation and display). */
+  size: number
+}
+
+/**
+ * Attachment metadata stored in message history (no base64 data).
+ */
+export interface AttachmentMeta {
+  /** Original filename. */
+  filename: string
+  /** MIME type. */
+  mediaType: string
+  /** File size in bytes. */
+  size: number
+}
+
+/**
  * A single message in a chat conversation, including role, content,
  * and optional tool-call metadata.
  */
@@ -31,6 +57,8 @@ export interface ChatMessage {
   /** Persisted commit record for display in conversation history. */
   commitRecord?: { message: string; files: string[] }
   commitSuggestion?: CommitSuggestion
+  /** File attachments sent with this message (metadata only — no base64 data in history). */
+  attachments?: AttachmentMeta[]
 }
 
 /**
@@ -110,7 +138,12 @@ export interface ChatProvider {
   readonly name: string
 
   /** Sends a message and streams the response via the event handler. */
-  sendMessage(message: string, config: ChatConfig, onEvent: ChatEventHandler): Promise<void>
+  sendMessage(
+    message: string,
+    config: ChatConfig,
+    onEvent: ChatEventHandler,
+    attachments?: ChatAttachment[],
+  ): Promise<void>
 
   /** Aborts the current streaming response. */
   abort(): void
