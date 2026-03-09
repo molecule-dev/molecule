@@ -79,7 +79,13 @@ function FileTypeIcon({ name }: { name: string }): JSX.Element {
   const { svg } = getIcon(name)
   return (
     <span
-      style={{ display: 'inline-block', width: '14px', height: '14px', flexShrink: 0, verticalAlign: 'middle' }}
+      style={{
+        display: 'inline-block',
+        width: '14px',
+        height: '14px',
+        flexShrink: 0,
+        verticalAlign: 'middle',
+      }}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   )
@@ -116,7 +122,19 @@ interface TabItemProps {
  * @param root0.onClose
  * @param root0.onDoubleClick
  */
-function TabItem({ path, isDirty, isActive, isPreview, gitStatus, diagnostics, onSelect, onClose, onDoubleClick, statusColors, diagnosticColors }: TabItemProps): JSX.Element {
+function TabItem({
+  path,
+  isDirty,
+  isActive,
+  isPreview,
+  gitStatus,
+  diagnostics,
+  onSelect,
+  onClose,
+  onDoubleClick,
+  statusColors,
+  diagnosticColors,
+}: TabItemProps): JSX.Element {
   const cm = getClassMap()
   const [isHovered, setIsHovered] = useState(false)
   const fileName = path.split('/').pop() || path
@@ -134,6 +152,7 @@ function TabItem({ path, isDirty, isActive, isPreview, gitStatus, diagnostics, o
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      style={{ userSelect: 'none' }}
       className={cm.cn(
         cm.flex({ direction: 'row', align: 'center', gap: 'xs' }),
         cm.sp('px', 3),
