@@ -110,6 +110,8 @@ export interface FileNode {
   children?: FileNode[]
   isDimmed?: boolean
   gitStatus?: 'modified' | 'added' | 'deleted' | 'untracked'
+  /** If this entry is a symlink, the target it points to. */
+  symlinkTarget?: string
 }
 
 /**

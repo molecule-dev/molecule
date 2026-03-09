@@ -64,6 +64,8 @@ export interface DirEntry {
   name: string
   type: 'file' | 'directory'
   size?: number
+  /** If this entry is a symlink, the target path it points to. */
+  symlinkTarget?: string
 }
 
 /**

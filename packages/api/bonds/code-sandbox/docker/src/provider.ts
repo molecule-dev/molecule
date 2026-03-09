@@ -351,12 +351,19 @@ class DockerSandboxProvider implements SandboxProvider {
           .map((line) => {
             const parts = line.split(/\s+/)
             const isDir = line.startsWith('d')
+            const isSymlink = line.startsWith('l')
             const size = parseInt(parts[4] ?? '0', 10)
-            const name = parts.slice(6).join(' ')
+            const rawName = parts.slice(6).join(' ')
+            // Symlinks show as "name -> target" in ls -la
+            const arrowIdx = rawName.indexOf(' -> ')
+            const name = isSymlink && arrowIdx !== -1 ? rawName.slice(0, arrowIdx) : rawName
+            const symlinkTarget =
+              isSymlink && arrowIdx !== -1 ? rawName.slice(arrowIdx + 4) : undefined
             return {
               name,
               type: isDir ? ('directory' as const) : ('file' as const),
               size: isDir ? undefined : size,
+              ...(symlinkTarget ? { symlinkTarget } : {}),
             }
           })
       },

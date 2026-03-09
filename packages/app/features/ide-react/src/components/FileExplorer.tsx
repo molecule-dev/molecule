@@ -129,6 +129,58 @@ function getAncestorPaths(filePath: string): string[] {
   return ancestors
 }
 
+/**
+ * Find a node and its depth in the file tree by path.
+ * @param nodes
+ * @param targetPath
+ * @param depth
+ */
+function findNodeByPath(
+  nodes: FileNode[],
+  targetPath: string,
+  depth = 0,
+): { node: FileNode; depth: number } | null {
+  for (const node of nodes) {
+    if (node.path === targetPath) return { node, depth }
+    if (node.children) {
+      const found = findNodeByPath(node.children, targetPath, depth + 1)
+      if (found) return found
+    }
+  }
+  return null
+}
+
+/**
+ * Resolve a symlink target to an absolute path relative to the symlink's parent directory.
+ * @param symlinkPath
+ * @param target
+ */
+function resolveSymlinkTarget(symlinkPath: string, target: string): string {
+  if (target.startsWith('/')) return target
+  const parentDir = symlinkPath.slice(0, symlinkPath.lastIndexOf('/'))
+  return `${parentDir}/${target}`
+}
+
+/**
+ * Scroll to and briefly highlight a tree item by path.
+ * @param container
+ * @param path
+ */
+function scrollAndHighlight(container: HTMLElement | null, path: string): void {
+  if (!container) return
+  const el = Array.from(
+    container.querySelectorAll<HTMLElement>('[data-explorer-path]'),
+  ).find((e) => e.dataset.explorerPath === path)
+  if (!el) return
+  el.scrollIntoView({ block: 'nearest' })
+  el.style.transition = 'background 0s'
+  el.style.background = 'rgba(128,128,128,0.25)'
+  requestAnimationFrame(() => {
+    el.style.transition = 'background 600ms ease-out'
+    el.style.background = ''
+  })
+}
+
 // ---------------------------------------------------------------------------
 // Icons
 // ---------------------------------------------------------------------------
@@ -194,6 +246,7 @@ interface FileTreeItemProps {
   onFileDoubleClick?: (path: string) => void
   onDirExpand?: (path: string) => void
   onTogglePath: (path: string, nowExpanded: boolean) => void
+  onSymlinkClick?: (symlinkPath: string, target: string) => void
   expandState: ExpandState
   fileStatuses?: Record<string, string>
   gitColors: Record<string, string>
@@ -210,6 +263,7 @@ interface FileTreeItemProps {
  * @param root0.onFileDoubleClick
  * @param root0.onDirExpand
  * @param root0.onTogglePath
+ * @param root0.onSymlinkClick
  * @param root0.expandState
  * @param root0.fileStatuses
  */
@@ -222,6 +276,7 @@ function FileTreeItem({
   onFileDoubleClick,
   onDirExpand,
   onTogglePath,
+  onSymlinkClick,
   expandState,
   fileStatuses,
   gitColors,
@@ -239,13 +294,17 @@ function FileTreeItem({
   }, [isExpanded, isDir, node.children, node.path, onDirExpand])
 
   const toggle = useCallback(() => {
+    if (node.symlinkTarget && onSymlinkClick) {
+      onSymlinkClick(node.path, node.symlinkTarget)
+      return
+    }
     if (isDir) {
       onTogglePath(node.path, !isExpanded)
       // onDirExpand is handled by the effect above when isExpanded becomes true
     } else {
       onFileSelect(node.path)
     }
-  }, [isDir, isExpanded, node.path, onFileSelect, onTogglePath])
+  }, [isDir, isExpanded, node.path, node.symlinkTarget, onFileSelect, onTogglePath, onSymlinkClick])
 
   // Directories before files, each group sorted alphabetically
   const sortedChildren = node.children
@@ -301,9 +360,13 @@ function FileTreeItem({
               : node.gitStatus
                 ? gitColors[node.gitStatus]
                 : undefined,
+            opacity: node.symlinkTarget ? 0.55 : undefined,
           }}
         >
           {node.name}
+          {node.symlinkTarget && (
+            ' \u2192 ' + node.symlinkTarget.split('/').pop()
+          )}
         </span>
       </button>
 
@@ -332,6 +395,7 @@ function FileTreeItem({
               onFileDoubleClick={onFileDoubleClick}
               onDirExpand={onDirExpand}
               onTogglePath={onTogglePath}
+              onSymlinkClick={onSymlinkClick}
               expandState={expandState}
               fileStatuses={fileStatuses}
               gitColors={gitColors}
@@ -375,6 +439,8 @@ export function FileExplorer({
   const containerRef = useRef<HTMLDivElement>(null)
   // When set, the next render after DOM update will scroll this path into view
   const scrollTargetRef = useRef<string | null>(null)
+  // When set, briefly flash a highlight on this path after scrolling
+  const highlightTargetRef = useRef<string | null>(null)
 
   const [expandState, setExpandState] = useState<ExpandState>(() =>
     persistKey ? loadExpandState(persistKey) : { expanded: new Set(), collapsed: new Set() },
@@ -407,12 +473,18 @@ export function FileExplorer({
   useEffect(() => {
     if (!scrollTargetRef.current || !containerRef.current) return
     const target = scrollTargetRef.current
+    const shouldHighlight = highlightTargetRef.current === target
     const el = Array.from(
       containerRef.current.querySelectorAll<HTMLElement>('[data-explorer-path]'),
     ).find((e) => e.dataset.explorerPath === target)
     if (el) {
       scrollTargetRef.current = null
-      el.scrollIntoView({ block: 'nearest' })
+      if (shouldHighlight) {
+        highlightTargetRef.current = null
+        scrollAndHighlight(containerRef.current, target)
+      } else {
+        el.scrollIntoView({ block: 'nearest' })
+      }
     }
   })
 
@@ -435,6 +507,42 @@ export function FileExplorer({
       })
     },
     [persistKey],
+  )
+
+  const handleSymlinkClick = useCallback(
+    (symlinkPath: string, target: string) => {
+      const resolvedPath = resolveSymlinkTarget(symlinkPath, target)
+      const found = findNodeByPath(files, resolvedPath)
+
+      if (found && found.node.type === 'directory') {
+        // Ensure ancestors are expanded so the target is visible
+        const ancestors = getAncestorPaths(resolvedPath)
+        setExpandState((prev) => {
+          const needsUpdate = ancestors.some((p) => !prev.expanded.has(p))
+          if (!needsUpdate) {
+            // Already visible — scroll and highlight directly
+            scrollAndHighlight(containerRef.current, resolvedPath)
+            return prev
+          }
+          const next: ExpandState = {
+            expanded: new Set(prev.expanded),
+            collapsed: new Set(prev.collapsed),
+          }
+          for (const a of ancestors) {
+            next.expanded.add(a)
+            next.collapsed.delete(a)
+          }
+          if (persistKey) saveExpandState(persistKey, next)
+          return next
+        })
+        scrollTargetRef.current = resolvedPath
+        highlightTargetRef.current = resolvedPath
+      } else {
+        // File symlink (or target not in tree) — select the real file
+        onFileSelect(resolvedPath)
+      }
+    },
+    [files, persistKey, onFileSelect],
   )
 
   // Sort root-level entries: directories first, then files, alphabetically
@@ -466,6 +574,7 @@ export function FileExplorer({
           onFileDoubleClick={onFileDoubleClick}
           onDirExpand={onDirExpand}
           onTogglePath={handleTogglePath}
+          onSymlinkClick={handleSymlinkClick}
           expandState={expandState}
           fileStatuses={fileStatuses}
           gitColors={gitColors}
