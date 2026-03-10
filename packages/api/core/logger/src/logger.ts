@@ -31,6 +31,8 @@ const LEVEL_PRIORITY: Record<LogLevel, number> = {
 /**
  * Resolves the initial log level from the `LOG_LEVEL` environment variable.
  * Falls back to `'info'` if unset or invalid.
+ *
+ * @returns The resolved log level.
  */
 const resolveInitialLevel = (): LogLevel => {
   const env = typeof process !== 'undefined' ? process.env?.LOG_LEVEL?.toLowerCase() : undefined
@@ -79,7 +81,12 @@ const getCurrentLogger = (): Logger => {
   return bondGet<Logger>(BOND_TYPE) ?? consoleLogger
 }
 
-/** Returns `true` if a message at the given level should be emitted. */
+/**
+ * Returns `true` if a message at the given level should be emitted.
+ *
+ * @param level - The log level to check.
+ * @returns Whether the level meets the current minimum threshold.
+ */
 const shouldLog = (level: LogLevel): boolean =>
   LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[currentLevel]
 
