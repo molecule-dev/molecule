@@ -47,6 +47,10 @@ export type ChatEvent =
 export interface TokenUsage {
   inputTokens: number
   outputTokens: number
+  /** Number of input tokens written to the prompt cache. */
+  cacheCreationInputTokens?: number
+  /** Number of input tokens read from the prompt cache. */
+  cacheReadInputTokens?: number
 }
 
 /**
@@ -85,6 +89,8 @@ export interface ChatParams {
   model?: string
   /** Enable extended thinking. Only supported by Sonnet/Opus models. */
   thinking?: { type: 'enabled'; budgetTokens: number }
+  /** Enable prompt caching. Providers that support it will cache system prompts and tools. */
+  cacheControl?: { type: 'ephemeral' }
 }
 
 /**

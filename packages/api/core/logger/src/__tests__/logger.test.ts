@@ -7,6 +7,8 @@ import type { Logger, LogLevel } from '../types.js'
 let logger: typeof LoggerModule.logger
 let setLogger: typeof LoggerModule.setLogger
 let resetLogger: typeof LoggerModule.resetLogger
+let setLevel: typeof LoggerModule.setLevel
+let getLevel: typeof LoggerModule.getLevel
 
 describe('logger', () => {
   const consoleMocks = {
@@ -32,6 +34,8 @@ describe('logger', () => {
     logger = loggerModule.logger
     setLogger = loggerModule.setLogger
     resetLogger = loggerModule.resetLogger
+    setLevel = loggerModule.setLevel
+    getLevel = loggerModule.getLevel
   })
 
   afterEach(() => {
@@ -44,18 +48,6 @@ describe('logger', () => {
   })
 
   describe('default console logger', () => {
-    it('should call console.trace for trace', () => {
-      logger.trace('trace message', { data: 'value' })
-
-      expect(consoleMocks.trace).toHaveBeenCalledWith('trace message', { data: 'value' })
-    })
-
-    it('should call console.debug for debug', () => {
-      logger.debug('debug message')
-
-      expect(consoleMocks.debug).toHaveBeenCalledWith('debug message')
-    })
-
     it('should call console.info for info', () => {
       logger.info('info message', 42)
 
@@ -80,6 +72,62 @@ describe('logger', () => {
 
       expect(consoleMocks.info).toHaveBeenCalledWith('message', 1, 2, 3, { key: 'value' })
     })
+
+    it('should suppress trace and debug at default info level', () => {
+      logger.trace('trace message')
+      logger.debug('debug message')
+
+      expect(consoleMocks.trace).not.toHaveBeenCalled()
+      expect(consoleMocks.debug).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('setLevel / getLevel', () => {
+    it('should default to info', () => {
+      expect(getLevel()).toBe('info')
+    })
+
+    it('should allow trace and debug when level is trace', () => {
+      setLevel('trace')
+      logger.trace('trace message', { data: 'value' })
+      logger.debug('debug message')
+
+      expect(consoleMocks.trace).toHaveBeenCalledWith('trace message', { data: 'value' })
+      expect(consoleMocks.debug).toHaveBeenCalledWith('debug message')
+    })
+
+    it('should allow debug but not trace when level is debug', () => {
+      setLevel('debug')
+      logger.trace('trace message')
+      logger.debug('debug message')
+
+      expect(consoleMocks.trace).not.toHaveBeenCalled()
+      expect(consoleMocks.debug).toHaveBeenCalledWith('debug message')
+    })
+
+    it('should suppress info when level is warn', () => {
+      setLevel('warn')
+      logger.info('info message')
+      logger.warn('warning message')
+
+      expect(consoleMocks.info).not.toHaveBeenCalled()
+      expect(consoleMocks.warn).toHaveBeenCalledWith('warning message')
+    })
+
+    it('should suppress everything when level is silent', () => {
+      setLevel('silent')
+      logger.trace('t')
+      logger.debug('d')
+      logger.info('i')
+      logger.warn('w')
+      logger.error('e')
+
+      expect(consoleMocks.trace).not.toHaveBeenCalled()
+      expect(consoleMocks.debug).not.toHaveBeenCalled()
+      expect(consoleMocks.info).not.toHaveBeenCalled()
+      expect(consoleMocks.warn).not.toHaveBeenCalled()
+      expect(consoleMocks.error).not.toHaveBeenCalled()
+    })
   })
 
   describe('setLogger', () => {
@@ -100,7 +148,7 @@ describe('logger', () => {
       expect(consoleMocks.info).not.toHaveBeenCalled()
     })
 
-    it('should use custom logger for all levels', () => {
+    it('should use custom logger for all levels when level is trace', () => {
       const customLogger: Logger = {
         trace: vi.fn(),
         debug: vi.fn(),
@@ -109,6 +157,7 @@ describe('logger', () => {
         error: vi.fn(),
       }
 
+      setLevel('trace')
       setLogger(customLogger)
 
       logger.trace('trace')

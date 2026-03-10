@@ -5,14 +5,56 @@
  * logger provider at call time. If no provider is bonded, methods fall back
  * to the built-in console logger.
  *
+ * The minimum log level defaults to `'info'` and can be changed via the
+ * `LOG_LEVEL` environment variable or `setLevel()`. Messages below the
+ * active level are silently dropped before reaching any provider.
+ *
  * @module
  */
 
 import { bond, get as bondGet } from '@molecule/api-bond'
 
-import type { Logger } from './types.js'
+import type { Logger, LogLevel } from './types.js'
 
 const BOND_TYPE = 'logger'
+
+/** Numeric priority for each log level (higher = more severe). */
+const LEVEL_PRIORITY: Record<LogLevel, number> = {
+  trace: 0,
+  debug: 1,
+  info: 2,
+  warn: 3,
+  error: 4,
+  silent: 5,
+}
+
+/**
+ * Resolves the initial log level from the `LOG_LEVEL` environment variable.
+ * Falls back to `'info'` if unset or invalid.
+ */
+const resolveInitialLevel = (): LogLevel => {
+  const env = typeof process !== 'undefined' ? process.env?.LOG_LEVEL?.toLowerCase() : undefined
+  if (env && env in LEVEL_PRIORITY) return env as LogLevel
+  return 'info'
+}
+
+let currentLevel: LogLevel = resolveInitialLevel()
+
+/**
+ * Sets the minimum log level. Messages below this level are silently dropped.
+ *
+ * @param level - The minimum log level to allow.
+ */
+export const setLevel = (level: LogLevel): void => {
+  currentLevel = level
+}
+
+/**
+ * Returns the current minimum log level.
+ *
+ * @returns The active `LogLevel`.
+ */
+export const getLevel = (): LogLevel => currentLevel
 
 /**
  * Built-in console logger used as the default when no provider is bonded.
@@ -37,17 +79,34 @@ const getCurrentLogger = (): Logger => {
   return bondGet<Logger>(BOND_TYPE) ?? consoleLogger
 }
 
+/** Returns `true` if a message at the given level should be emitted. */
+const shouldLog = (level: LogLevel): boolean =>
+  LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[currentLevel]
+
 /**
  * Singleton logger proxy. Each method delegates to the currently bonded
  * logger at call time, so swapping providers via `setLogger()` takes
  * effect immediately without re-importing.
+ *
+ * Messages below the active minimum level (set via `LOG_LEVEL` env var
+ * or `setLevel()`) are silently dropped.
  */
 export const logger: Logger = {
-  trace: (...args) => getCurrentLogger().trace(...args),
-  debug: (...args) => getCurrentLogger().debug(...args),
-  info: (...args) => getCurrentLogger().info(...args),
-  warn: (...args) => getCurrentLogger().warn(...args),
-  error: (...args) => getCurrentLogger().error(...args),
+  trace: (...args) => {
+    if (shouldLog('trace')) getCurrentLogger().trace(...args)
+  },
+  debug: (...args) => {
+    if (shouldLog('debug')) getCurrentLogger().debug(...args)
+  },
+  info: (...args) => {
+    if (shouldLog('info')) getCurrentLogger().info(...args)
+  },
+  warn: (...args) => {
+    if (shouldLog('warn')) getCurrentLogger().warn(...args)
+  },
+  error: (...args) => {
+    if (shouldLog('error')) getCurrentLogger().error(...args)
+  },
 }
 
 /**

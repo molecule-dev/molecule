@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Logger, LogLevel } from '../index.js'
-import { logger, resetLogger, setLogger } from '../index.js'
+import { logger, resetLogger, setLevel, setLogger } from '../index.js'
 
 describe('@molecule/api-logger', () => {
   // Save original console methods
@@ -14,8 +14,9 @@ describe('@molecule/api-logger', () => {
   }
 
   beforeEach(() => {
-    // Reset logger to default before each test
+    // Reset logger and level to defaults before each test
     resetLogger()
+    setLevel('info')
     // Mock console methods
     console.trace = vi.fn()
     console.debug = vi.fn()
@@ -36,34 +37,50 @@ describe('@molecule/api-logger', () => {
 
   describe('logger (default console implementation)', () => {
     describe('trace', () => {
-      it('should call console.trace with provided arguments', () => {
+      it('should suppress trace at default info level', () => {
+        logger.trace('test message')
+        expect(console.trace).not.toHaveBeenCalled()
+      })
+
+      it('should call console.trace when level is trace', () => {
+        setLevel('trace')
         logger.trace('test message')
         expect(console.trace).toHaveBeenCalledWith('test message')
       })
 
       it('should pass multiple arguments to console.trace', () => {
+        setLevel('trace')
         logger.trace('message', { data: 123 }, 'extra')
         expect(console.trace).toHaveBeenCalledWith('message', { data: 123 }, 'extra')
       })
 
       it('should handle no arguments', () => {
+        setLevel('trace')
         logger.trace()
         expect(console.trace).toHaveBeenCalledWith()
       })
     })
 
     describe('debug', () => {
-      it('should call console.debug with provided arguments', () => {
+      it('should suppress debug at default info level', () => {
+        logger.debug('debug message')
+        expect(console.debug).not.toHaveBeenCalled()
+      })
+
+      it('should call console.debug when level is debug', () => {
+        setLevel('debug')
         logger.debug('debug message')
         expect(console.debug).toHaveBeenCalledWith('debug message')
       })
 
       it('should pass multiple arguments to console.debug', () => {
+        setLevel('debug')
         logger.debug('message', 123, true, null)
         expect(console.debug).toHaveBeenCalledWith('message', 123, true, null)
       })
 
       it('should handle objects and arrays', () => {
+        setLevel('debug')
         const obj = { key: 'value' }
         const arr = [1, 2, 3]
         logger.debug(obj, arr)
@@ -138,7 +155,7 @@ describe('@molecule/api-logger', () => {
       expect(console.info).not.toHaveBeenCalled()
     })
 
-    it('should use custom logger for all log methods', () => {
+    it('should use custom logger for all log methods when level is trace', () => {
       const customLogger: Logger = {
         trace: vi.fn(),
         debug: vi.fn(),
@@ -147,6 +164,7 @@ describe('@molecule/api-logger', () => {
         error: vi.fn(),
       }
 
+      setLevel('trace')
       setLogger(customLogger)
 
       logger.trace('trace')
@@ -262,6 +280,7 @@ describe('@molecule/api-logger', () => {
         error: vi.fn(),
       }
 
+      setLevel('trace')
       setLogger(customLogger)
       resetLogger()
 
@@ -313,6 +332,7 @@ describe('@molecule/api-logger', () => {
         error: (...args) => buffer.push({ level: 'error', args }),
       }
 
+      setLevel('trace')
       setLogger(bufferingLogger)
 
       logger.info('message 1')
@@ -375,55 +395,57 @@ describe('@molecule/api-logger', () => {
         error: 4,
       }
 
-      let currentLevel: LogLevel = 'warn'
+      let customLevel: LogLevel = 'warn'
       const logged: Array<{ level: Exclude<LogLevel, 'silent'>; message: string }> = []
 
       const filteringLogger: Logger = {
         trace: (msg: unknown) => {
           if (
-            currentLevel !== 'silent' &&
-            logLevels.trace >= logLevels[currentLevel as Exclude<LogLevel, 'silent'>]
+            customLevel !== 'silent' &&
+            logLevels.trace >= logLevels[customLevel as Exclude<LogLevel, 'silent'>]
           ) {
             logged.push({ level: 'trace', message: String(msg) })
           }
         },
         debug: (msg: unknown) => {
           if (
-            currentLevel !== 'silent' &&
-            logLevels.debug >= logLevels[currentLevel as Exclude<LogLevel, 'silent'>]
+            customLevel !== 'silent' &&
+            logLevels.debug >= logLevels[customLevel as Exclude<LogLevel, 'silent'>]
           ) {
             logged.push({ level: 'debug', message: String(msg) })
           }
         },
         info: (msg: unknown) => {
           if (
-            currentLevel !== 'silent' &&
-            logLevels.info >= logLevels[currentLevel as Exclude<LogLevel, 'silent'>]
+            customLevel !== 'silent' &&
+            logLevels.info >= logLevels[customLevel as Exclude<LogLevel, 'silent'>]
           ) {
             logged.push({ level: 'info', message: String(msg) })
           }
         },
         warn: (msg: unknown) => {
           if (
-            currentLevel !== 'silent' &&
-            logLevels.warn >= logLevels[currentLevel as Exclude<LogLevel, 'silent'>]
+            customLevel !== 'silent' &&
+            logLevels.warn >= logLevels[customLevel as Exclude<LogLevel, 'silent'>]
           ) {
             logged.push({ level: 'warn', message: String(msg) })
           }
         },
         error: (msg: unknown) => {
           if (
-            currentLevel !== 'silent' &&
-            logLevels.error >= logLevels[currentLevel as Exclude<LogLevel, 'silent'>]
+            customLevel !== 'silent' &&
+            logLevels.error >= logLevels[customLevel as Exclude<LogLevel, 'silent'>]
           ) {
             logged.push({ level: 'error', message: String(msg) })
           }
         },
       }
 
+      // Open up proxy level so filtering is done by the custom logger
+      setLevel('trace')
       setLogger(filteringLogger)
 
-      // With level 'warn', only warn and error should be logged
+      // With custom level 'warn', only warn and error should be logged
       logger.trace('trace msg')
       logger.debug('debug msg')
       logger.info('info msg')
@@ -435,9 +457,9 @@ describe('@molecule/api-logger', () => {
         { level: 'error', message: 'error msg' },
       ])
 
-      // Change level to 'debug' and log more
+      // Change custom level to 'debug' and log more
       logged.length = 0
-      currentLevel = 'debug'
+      customLevel = 'debug'
 
       logger.trace('trace msg 2')
       logger.debug('debug msg 2')
@@ -450,7 +472,7 @@ describe('@molecule/api-logger', () => {
 
       // Test silent level
       logged.length = 0
-      currentLevel = 'silent'
+      customLevel = 'silent'
 
       logger.error('should not appear')
       expect(logged).toEqual([])
@@ -468,6 +490,7 @@ describe('@molecule/api-logger', () => {
     })
 
     it('should handle logging symbols', () => {
+      setLevel('debug')
       const sym = Symbol('test-symbol')
       logger.debug('symbol:', sym)
       expect(console.debug).toHaveBeenCalledWith('symbol:', sym)
@@ -480,6 +503,7 @@ describe('@molecule/api-logger', () => {
     })
 
     it('should handle logging very large arrays', () => {
+      setLevel('debug')
       const largeArray = new Array(10000).fill(0).map((_, i) => i)
       logger.debug('large array:', largeArray)
       expect(console.debug).toHaveBeenCalledWith('large array:', largeArray)
@@ -503,6 +527,7 @@ describe('@molecule/api-logger', () => {
     })
 
     it('should handle logging RegExp objects', () => {
+      setLevel('debug')
       const regex = /test-pattern/gi
       logger.debug('regex:', regex)
       expect(console.debug).toHaveBeenCalledWith('regex:', regex)
@@ -516,6 +541,7 @@ describe('@molecule/api-logger', () => {
     })
 
     it('should handle logging typed arrays', () => {
+      setLevel('debug')
       const uint8 = new Uint8Array([1, 2, 3, 4])
       const float64 = new Float64Array([1.1, 2.2, 3.3])
       logger.debug('typed arrays:', uint8, float64)

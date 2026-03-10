@@ -56,8 +56,21 @@ class AnthropicAIProvider implements AIProvider {
       messages: this.formatMessages(params.messages),
     }
 
-    if (params.system) body.system = params.system
-    if (params.tools?.length) body.tools = this.formatTools(params.tools)
+    if (params.system) {
+      if (params.cacheControl) {
+        body.system = [{ type: 'text', text: params.system, cache_control: params.cacheControl }]
+      } else {
+        body.system = params.system
+      }
+    }
+    if (params.tools?.length) {
+      const tools = this.formatTools(params.tools)
+      if (params.cacheControl && tools.length > 0) {
+        // Place cache breakpoint on the last tool so tools + system are cached together
+        tools[tools.length - 1] = { ...tools[tools.length - 1], cache_control: params.cacheControl }
+      }
+      body.tools = tools
+    }
     if (params.stream !== false) body.stream = true
 
     // Thinking requires temperature=1 (default); skip any explicit temperature override
@@ -170,9 +183,7 @@ class AnthropicAIProvider implements AIProvider {
    * @param tools - The AI tool definitions to format.
    * @returns The formatted tools array for the Anthropic API.
    */
-  private formatTools(
-    tools: AITool[],
-  ): Array<{ name: string; description: string; input_schema: unknown }> {
+  private formatTools(tools: AITool[]): Array<Record<string, unknown>> {
     return tools.map((t) => ({
       name: t.name,
       description: t.description,
@@ -202,12 +213,25 @@ class AnthropicAIProvider implements AIProvider {
       }
     }
 
-    const usage = data.usage as { input_tokens?: number; output_tokens?: number } | undefined
+    const usage = data.usage as
+      | {
+          input_tokens?: number
+          output_tokens?: number
+          cache_creation_input_tokens?: number | null
+          cache_read_input_tokens?: number | null
+        }
+      | undefined
     yield {
       type: 'done',
       usage: {
         inputTokens: usage?.input_tokens ?? 0,
         outputTokens: usage?.output_tokens ?? 0,
+        ...(usage?.cache_creation_input_tokens
+          ? { cacheCreationInputTokens: usage.cache_creation_input_tokens }
+          : {}),
+        ...(usage?.cache_read_input_tokens
+          ? { cacheReadInputTokens: usage.cache_read_input_tokens }
+          : {}),
       },
     }
   }
@@ -233,6 +257,8 @@ class AnthropicAIProvider implements AIProvider {
     let buffer = ''
     let inputTokens = 0
     let outputTokens = 0
+    let cacheCreationInputTokens = 0
+    let cacheReadInputTokens = 0
 
     // Track pending content blocks to accumulate streamed deltas
     let pendingTool: { id: string; name: string; inputJson: string } | null = null
@@ -305,8 +331,18 @@ class AnthropicAIProvider implements AIProvider {
               if (usage?.output_tokens) outputTokens = usage.output_tokens
             } else if (eventType === 'message_start') {
               const message = event.message as Record<string, unknown>
-              const usage = message?.usage as { input_tokens?: number } | undefined
+              const usage = message?.usage as
+                | {
+                    input_tokens?: number
+                    cache_creation_input_tokens?: number | null
+                    cache_read_input_tokens?: number | null
+                  }
+                | undefined
               if (usage?.input_tokens) inputTokens = usage.input_tokens
+              if (usage?.cache_creation_input_tokens)
+                cacheCreationInputTokens = usage.cache_creation_input_tokens
+              if (usage?.cache_read_input_tokens)
+                cacheReadInputTokens = usage.cache_read_input_tokens
             }
           } catch {
             logger.debug('Skipping malformed SSE JSON line', { json })
@@ -317,7 +353,15 @@ class AnthropicAIProvider implements AIProvider {
       reader.releaseLock()
     }
 
-    yield { type: 'done', usage: { inputTokens, outputTokens } }
+    yield {
+      type: 'done',
+      usage: {
+        inputTokens,
+        outputTokens,
+        ...(cacheCreationInputTokens ? { cacheCreationInputTokens } : {}),
+        ...(cacheReadInputTokens ? { cacheReadInputTokens } : {}),
+      },
+    }
   }
 }
 
