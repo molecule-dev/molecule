@@ -78,9 +78,29 @@ interface CommitCard {
   status: 'running' | 'done' | 'error'
 }
 
+interface SystemCard {
+  id: string
+  text: string
+  timestamp: number
+}
+
 const COMMANDS = [
   { id: 'clear' as const, label: '/clear', description: 'Clear chat history' },
+  { id: 'model' as const, label: '/model', description: 'Set AI model (e.g. /model claude-sonnet-4-6)' },
+  { id: 'maxloops' as const, label: '/maxloops', description: 'Set max tool iterations (e.g. /maxloops 50)' },
 ]
+
+type CommandId = (typeof COMMANDS)[number]['id']
+
+const AVAILABLE_MODELS = [
+  { id: 'claude-opus-4-6', label: 'Claude Opus 4.6', description: 'Most capable — deep reasoning & complex tasks' },
+  { id: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6', description: 'Fast & capable — best balance' },
+  { id: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5', description: 'Fastest — quick tasks & iteration' },
+]
+
+interface ModelPicker {
+  selectedIdx: number
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -336,6 +356,8 @@ interface ChatInnerProps {
 function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, pendingMessage, pendingMessageKey }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
   const themeMode = useThemeMode()
+  const isLight = themeMode === 'light'
+  const borderClr = isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'
   const http = useHttpClient()
   const { messages, isLoading, error, sendMessage, abort, clearHistory } = useChat({
     endpoint,
@@ -365,6 +387,29 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
 
   // ── Command menu ───────────────────────────────────────────────────────────
   const [commandMenu, setCommandMenu] = useState<CommandMenu | null>(null)
+
+  // ── Model picker (shown when typing /model <filter>) ──────────────────────
+  const [modelPicker, setModelPicker] = useState<ModelPicker | null>(null)
+
+  // ── Current project settings (model + maxloops) ───────────────────────────
+  const DEFAULT_MODEL = 'claude-haiku-4-5-20251001'
+  const [currentModel, setCurrentModel] = useState<string>(DEFAULT_MODEL)
+  const [currentMaxLoops, setCurrentMaxLoops] = useState<number>(25)
+  useEffect(() => {
+    http.get<{ settings?: Record<string, unknown> }>(`/projects/${projectId}`)
+      .then((res) => {
+        const s = res.data.settings
+        if (typeof s?.chatModel === 'string') setCurrentModel(s.chatModel)
+        if (typeof s?.maxToolLoops === 'number') setCurrentMaxLoops(s.maxToolLoops)
+      })
+      .catch(() => {/* ignore */})
+  }, [http, projectId])
+
+  // ── System cards (persistent inline notifications in chat history) ────────
+  const [systemCards, setSystemCards] = useState<SystemCard[]>([])
+  const addSystemCard = useCallback((text: string) => {
+    setSystemCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
+  }, [])
 
   // ── Input focus ────────────────────────────────────────────────────────────
   const [isFocused, setIsFocused] = useState(false)
@@ -597,8 +642,17 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
       }
       setFilePicker(null)
 
+      // Show model picker when typing "/model <filter>"
+      const modelMatch = val.match(/^\/model\s+/i)
+      if (modelMatch) {
+        setModelPicker({ selectedIdx: -1 })
+        setCommandMenu(null)
+        return
+      }
+      setModelPicker(null)
+
       if (val.startsWith('/') && !val.includes(' ')) {
-        setCommandMenu({ selectedIdx: 0 })
+        setCommandMenu({ selectedIdx: -1 })
       } else {
         setCommandMenu(null)
       }
@@ -607,20 +661,125 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
   )
 
   // ── Execute command ────────────────────────────────────────────────────────
-  const executeCommand = useCallback(
-    async (_id: 'clear') => {
-      setCommandMenu(null)
+  /** Sets textarea value and moves cursor to the end. */
+  const setInputAndCursorEnd = useCallback((val: string) => {
+    setInputValue(val)
+    setTimeout(() => {
+      const ta = textareaRef.current
+      if (ta) {
+        ta.focus()
+        ta.setSelectionRange(val.length, val.length)
+      }
+    }, 0)
+  }, [])
+
+  /** Select and apply a model by ID. */
+  const selectModel = useCallback(
+    async (modelId: string, displayName?: string) => {
+      setModelPicker(null)
       setInputValue('')
-      await clearHistory()
-      setCommitCards([])
+      try {
+        await http.patch(`/projects/${projectId}`, { settings: { chatModel: modelId } })
+        setCurrentModel(modelId)
+        addSystemCard(
+          t('ide.chat.modelSet', { name: displayName ?? modelId }, {
+            defaultValue: `Chat model set to ${displayName ?? modelId}`,
+          }),
+        )
+      } catch {
+        addSystemCard(
+          t('ide.chat.modelError', undefined, {
+            defaultValue: 'Failed to update chat model.',
+          }),
+        )
+      }
     },
-    [clearHistory],
+    [http, projectId],
+  )
+
+  const executeCommand = useCallback(
+    async (id: CommandId) => {
+      setCommandMenu(null)
+      if (id === 'clear') {
+        setInputValue('')
+        await clearHistory()
+        setCommitCards([])
+        setSystemCards([])
+      } else if (id === 'model') {
+        setInputAndCursorEnd('/model ')
+        setModelPicker({ selectedIdx: -1 })
+      } else if (id === 'maxloops') {
+        setInputAndCursorEnd('/maxloops ')
+      }
+    },
+    [clearHistory, setInputAndCursorEnd],
   )
 
   // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(async () => {
     const trimmed = inputValue.trim()
     if ((!trimmed && attachedFiles.length === 0) || isLoading) return
+
+    // Handle /model <name> command locally
+    const modelCmdMatch = trimmed.match(/^\/model(?:\s+(.+))?$/i)
+    if (modelCmdMatch) {
+      const query = modelCmdMatch[1]?.trim()
+      if (!query) {
+        addSystemCard(
+          t('ide.chat.modelUsage', undefined, {
+            defaultValue: 'Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+          }),
+        )
+      } else {
+        // Resolve partial name to closest model
+        const q = query.toLowerCase()
+        const resolved = AVAILABLE_MODELS.find((m) => m.id === q)
+          ?? AVAILABLE_MODELS.find((m) => m.id.toLowerCase().includes(q))
+          ?? AVAILABLE_MODELS.find((m) => m.label.toLowerCase().includes(q))
+        const name = resolved?.id ?? query
+        try {
+          await http.patch(`/projects/${projectId}`, { settings: { chatModel: name } })
+          setCurrentModel(name)
+          addSystemCard(
+            t('ide.chat.modelSet', { name: resolved?.label ?? name }, {
+              defaultValue: `Chat model set to ${resolved?.label ?? name}`,
+            }),
+          )
+        } catch {
+          addSystemCard(
+            t('ide.chat.modelError', undefined, {
+              defaultValue: 'Failed to update chat model.',
+            }),
+          )
+        }
+      }
+      setInputValue('')
+      setModelPicker(null)
+      return
+    }
+
+    // Handle /maxloops <N> command locally
+    const maxLoopsMatch = trimmed.match(/^\/maxloops\s+(\d+)$/i)
+    if (maxLoopsMatch) {
+      const n = Math.max(1, Math.min(Number(maxLoopsMatch[1]), 100))
+      try {
+        await http.patch(`/projects/${projectId}`, { settings: { maxToolLoops: n } })
+        setCurrentMaxLoops(n)
+        addSystemCard(
+          t('ide.chat.maxLoopsSet', { n }, {
+            defaultValue: `Max tool iterations set to ${n}`,
+          }),
+        )
+      } catch {
+        addSystemCard(
+          t('ide.chat.maxLoopsError', undefined, {
+            defaultValue: 'Failed to update max tool iterations.',
+          }),
+        )
+      }
+      setInputValue('')
+      return
+    }
 
     let message = trimmed
     const chatAttachments: Array<{
@@ -667,6 +826,16 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
   // ── Keyboard ───────────────────────────────────────────────────────────────
   const filteredCmds = commandMenu ? COMMANDS.filter((c) => c.label.startsWith(inputValue)) : []
 
+  const filteredModels = useMemo(() => {
+    if (!modelPicker) return []
+    const match = inputValue.match(/^\/model\s+(.*)/i)
+    const q = (match?.[1] ?? '').trim().toLowerCase()
+    if (!q) return AVAILABLE_MODELS
+    return AVAILABLE_MODELS.filter(
+      (m) => m.id.toLowerCase().includes(q) || m.label.toLowerCase().includes(q),
+    )
+  }, [modelPicker, inputValue])
+
   const filteredEntries = filePicker
     ? filePicker.entries
         .filter(
@@ -676,72 +845,104 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
         .slice(0, 12)
     : []
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Escape') {
-        if (filePicker) { setFilePicker(null); return }
-        if (commandMenu) { setCommandMenu(null); return }
-        if (isLoading) { abort(); return }
-      }
+  /** Wrap-around index: Down from -1 → 0, Up from -1 → last, wraps at both ends. */
+  const wrapIdx = (cur: number, delta: number, len: number) => {
+    if (cur === -1) return delta > 0 ? 0 : len - 1
+    return ((cur + delta) % len + len) % len
+  }
 
-      if (filePicker) {
-        if (e.key === 'ArrowDown') {
-          e.preventDefault()
-          setFilePicker((p) =>
-            p ? { ...p, selectedIdx: Math.min(p.selectedIdx + 1, filteredEntries.length - 1) } : null,
-          )
-          return
-        }
-        if (e.key === 'ArrowUp') {
-          e.preventDefault()
-          setFilePicker((p) => (p ? { ...p, selectedIdx: Math.max(p.selectedIdx - 1, 0) } : null))
-          return
-        }
-        if (e.key === 'Enter' || e.key === 'Tab') {
-          e.preventDefault()
-          const entry = filteredEntries[filePicker.selectedIdx]
-          if (entry) selectFileEntry(entry, filePicker.currentPath)
-          return
-        }
-      }
+  // Store the handler in a ref so the native listener always calls the latest version.
+  const keyDownRef = useRef<(e: KeyboardEvent) => void>(() => {})
+  keyDownRef.current = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      if (modelPicker) { setModelPicker(null); return }
+      if (filePicker) { setFilePicker(null); return }
+      if (commandMenu) { setCommandMenu(null); return }
+      if (isLoading) { abort(); return }
+    }
 
-      if (commandMenu) {
-        if (e.key === 'ArrowDown') {
-          e.preventDefault()
-          setCommandMenu((m) =>
-            m ? { selectedIdx: Math.min(m.selectedIdx + 1, filteredCmds.length - 1) } : null,
-          )
-          return
-        }
-        if (e.key === 'ArrowUp') {
-          e.preventDefault()
-          setCommandMenu((m) => (m ? { selectedIdx: Math.max(m.selectedIdx - 1, 0) } : null))
-          return
-        }
-        if (e.key === 'Enter' || e.key === 'Tab') {
-          e.preventDefault()
-          const cmd = filteredCmds[commandMenu.selectedIdx]
-          if (cmd) void executeCommand(cmd.id)
-          return
-        }
-      }
-
-      if (e.key === 'Enter' && !e.shiftKey) {
+    if (modelPicker && filteredModels.length > 0) {
+      if (e.key === 'ArrowDown') {
         e.preventDefault()
-        void handleSubmit()
+        setModelPicker((m) => m ? { selectedIdx: wrapIdx(m.selectedIdx, 1, filteredModels.length) } : null)
+        return
       }
-    },
-    [abort, commandMenu, executeCommand, filePicker, filteredCmds, filteredEntries, handleSubmit, isLoading, selectFileEntry],
-  )
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setModelPicker((m) => m ? { selectedIdx: wrapIdx(m.selectedIdx, -1, filteredModels.length) } : null)
+        return
+      }
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault()
+        const model = filteredModels[modelPicker.selectedIdx >= 0 ? modelPicker.selectedIdx : 0]
+        if (model) void selectModel(model.id, model.label)
+        return
+      }
+    }
+
+    if (filePicker) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setFilePicker((p) => p ? { ...p, selectedIdx: wrapIdx(p.selectedIdx, 1, filteredEntries.length) } : null)
+        return
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setFilePicker((p) => p ? { ...p, selectedIdx: wrapIdx(p.selectedIdx, -1, filteredEntries.length) } : null)
+        return
+      }
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault()
+        const entry = filteredEntries[filePicker.selectedIdx]
+        if (entry) selectFileEntry(entry, filePicker.currentPath)
+        return
+      }
+    }
+
+    if (commandMenu && filteredCmds.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setCommandMenu((m) => m ? { selectedIdx: wrapIdx(m.selectedIdx, 1, filteredCmds.length) } : null)
+        return
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setCommandMenu((m) => m ? { selectedIdx: wrapIdx(m.selectedIdx, -1, filteredCmds.length) } : null)
+        return
+      }
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault()
+        const cmd = filteredCmds[commandMenu.selectedIdx >= 0 ? commandMenu.selectedIdx : 0]
+        if (cmd) void executeCommand(cmd.id)
+        return
+      }
+    }
+
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      void handleSubmit()
+    }
+  }
+
+  // Attach native keydown listener directly to the textarea element.
+  useEffect(() => {
+    const ta = textareaRef.current
+    if (!ta) return
+    const handler = (e: KeyboardEvent) => keyDownRef.current(e)
+    ta.addEventListener('keydown', handler)
+    return () => ta.removeEventListener('keydown', handler)
+  }, [])
 
   // Build a unified timeline so commit cards appear at the correct position
   type TimelineItem =
     | { kind: 'message'; msg: (typeof messages)[number]; msgIdx: number }
     | { kind: 'commit'; card: CommitCard }
+    | { kind: 'system'; card: SystemCard }
   const timeline = useMemo<TimelineItem[]>(() => {
     const items: TimelineItem[] = [
       ...messages.map((msg, i) => ({ kind: 'message' as const, msg, msgIdx: i })),
       ...commitCards.map((card) => ({ kind: 'commit' as const, card })),
+      ...systemCards.map((card) => ({ kind: 'system' as const, card })),
     ]
     items.sort((a, b) => {
       const tA = a.kind === 'message' ? a.msg.timestamp : a.card.timestamp
@@ -749,12 +950,12 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
       return tA - tB
     })
     return items
-  }, [messages, commitCards])
+  }, [messages, commitCards, systemCards])
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div
-      style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}
+      style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative' }}
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -790,6 +991,16 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
       <div className={cm.sp('p', 3)} style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'thin', ...cm.sp({ pr: 1 }) }}>
         {timeline.map((item) => {
           if (item.kind === 'commit') return <CommitCardItem key={item.card.id} card={item.card} />
+
+          if (item.kind === 'system') return (
+            <div
+              key={item.card.id}
+              className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+              style={{ textAlign: 'center', padding: '6px 0' }}
+            >
+              {item.card.text}
+            </div>
+          )
 
           const { msg, msgIdx } = item
 
@@ -922,45 +1133,86 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
                     </span>
                   )}
 
-                  {msg.loopLimitReached && !msg.isStreaming && (
-                    <div
-                      className={cm.surfaceSecondary}
-                      style={{
+                  {msg.loopLimitReached && !msg.isStreaming && (() => {
+                    const loopActions: Array<{ label: string; action: () => void }> = [
+                      {
+                        label: t('ide.chat.changeModel', undefined, { defaultValue: 'Change model' }),
+                        action: () => { setInputAndCursorEnd('/model '); setModelPicker({ selectedIdx: -1 }) },
+                      },
+                      {
+                        label: t('ide.chat.increaseLoops', undefined, { defaultValue: 'Increase max loops' }),
+                        action: () => { setInputAndCursorEnd('/maxloops ') },
+                      },
+                      {
+                        label: t('ide.chat.continueButton', undefined, { defaultValue: 'Continue' }),
+                        action: () => { void sendMessage(t('ide.chat.continuePrompt', undefined, { defaultValue: 'Continue implementing from where you left off.' })) },
+                      },
+                    ]
+                    return (
+                      <div style={{
                         marginTop: '8px',
-                        padding: '10px 12px',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '8px',
-                      }}
-                    >
-                      <span style={{ opacity: 0.8 }}>
-                        {t('ide.chat.loopLimitReached', { max: msg.loopLimitReached }, {
-                          defaultValue: `Reached the maximum of ${msg.loopLimitReached} tool iterations.`,
-                        })}
-                      </span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <button
-                          type="button"
-                          className={cm.button({ color: 'primary', size: 'sm' })}
-                          disabled={isLoading}
-                          onClick={() => void sendMessage(
-                            t('ide.chat.continuePrompt', undefined, {
-                              defaultValue: 'Continue implementing from where you left off.',
-                            }),
-                          )}
-                        >
-                          {t('ide.chat.continueButton', undefined, { defaultValue: 'Continue' })}
-                        </button>
-                        <span className={cm.textMuted} style={{ fontSize: '12px' }}>
-                          {t('ide.chat.loopLimitHint', undefined, {
-                            defaultValue: 'Tip: try a more capable model, or increase the iteration limit in project settings.',
+                        borderRadius: '8px',
+                        border: `1px solid ${borderClr}`,
+                        background: isLight ? '#f6f8fa' : 'rgba(255,255,255,0.04)',
+                        overflow: 'hidden',
+                      }}>
+                        <div style={{
+                          padding: '10px 12px',
+                          fontSize: '13px',
+                          fontWeight: 600,
+                          borderBottom: `1px solid ${borderClr}`,
+                        }}>
+                          {t('ide.chat.loopLimitReached', { max: msg.loopLimitReached }, {
+                            defaultValue: `Reached the maximum of ${msg.loopLimitReached} tool iterations.`,
                           })}
-                        </span>
+                        </div>
+                        {loopActions.map((opt, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            disabled={i === 0 && isLoading}
+                            onClick={opt.action}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = isLight ? '#eaeef2' : 'rgba(255,255,255,0.06)' }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              width: '100%',
+                              padding: '8px 12px',
+                              border: 'none',
+                              borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
+                              background: 'transparent',
+                              color: 'inherit',
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                              fontSize: '13px',
+                              transition: 'background 80ms',
+                            }}
+                          >
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: 22,
+                              height: 22,
+                              borderRadius: '5px',
+                              border: `1px solid ${borderClr}`,
+                              background: isLight ? '#fff' : 'rgba(255,255,255,0.08)',
+                              color: isLight ? '#57606a' : '#848d97',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              flexShrink: 0,
+                              fontFamily: '"SF Mono", Menlo, Consolas, monospace',
+                            }}>
+                              {String.fromCharCode(65 + i)}
+                            </span>
+                            <span>{opt.label}</span>
+                          </button>
+                        ))}
                       </div>
-                    </div>
-                  )}
+                    )
+                  })()}
                 </div>
               )}
             </div>
@@ -976,6 +1228,8 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
             {error}
           </div>
         )}
+
+
 
         <div ref={messagesEndRef} />
       </div>
@@ -1047,19 +1301,100 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
         {/* Command menu popup */}
         {commandMenu && filteredCmds.length > 0 && (
           <div
-            className={cm.cn(cm.surfaceSecondary, cm.borderAll)}
-            style={{ position: 'absolute', bottom: '100%', left: 8, right: 8, marginBottom: 4, borderRadius: '6px', overflow: 'hidden', zIndex: 50 }}
+            className={cm.cn(cm.surface, cm.borderAll)}
+            style={{
+              position: 'absolute',
+              bottom: '100%',
+              left: 0,
+              right: 0,
+              marginBottom: 0,
+              borderRadius: '6px 6px 0 0',
+              overflow: 'hidden',
+              zIndex: 100,
+              boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
+            }}
           >
             {filteredCmds.map((cmd, idx) => (
               <button
                 key={cmd.id}
                 type="button"
                 onClick={() => void executeCommand(cmd.id)}
-                className={cm.cn(cm.w('full'), cm.textSize('sm'), idx === commandMenu.selectedIdx ? cm.surface : '')}
-                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 10px', border: 'none', cursor: 'pointer', color: 'inherit', textAlign: 'left' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = idx === commandMenu.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent' }}
+                className={cm.w('full')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '8px 12px',
+                  border: 'none',
+                  borderTop: idx > 0 ? '1px solid rgba(128,128,128,0.12)' : 'none',
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  textAlign: 'left',
+                  fontSize: '13px',
+                  background: idx === commandMenu.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent',
+                }}
               >
-                <span className={cm.fontWeight('medium')} style={{ fontFamily: 'monospace' }}>{cmd.label}</span>
-                <span className={cm.textMuted}>{cmd.description}</span>
+                <span className={cm.fontWeight('medium')} style={{ fontFamily: 'monospace', opacity: 0.9 }}>{cmd.label}</span>
+                <span className={cm.textMuted} style={{ fontSize: '12px' }}>
+                  {cmd.description}
+                  {cmd.id === 'model' && ` (current: ${AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel})`}
+                  {cmd.id === 'maxloops' && ` (current: ${currentMaxLoops})`}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Model picker popup */}
+        {modelPicker && filteredModels.length > 0 && (
+          <div
+            className={cm.cn(cm.surface, cm.borderAll)}
+            style={{
+              position: 'absolute',
+              bottom: '100%',
+              left: 0,
+              right: 0,
+              marginBottom: 0,
+              borderRadius: '6px 6px 0 0',
+              overflow: 'hidden',
+              zIndex: 100,
+              boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
+            }}
+          >
+            <div
+              className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+              style={{ padding: '5px 12px', borderBottom: '1px solid rgba(128,128,128,0.12)', display: 'flex', justifyContent: 'space-between' }}
+            >
+              <span>{t('ide.chat.selectModel', undefined, { defaultValue: 'Select model' })}</span>
+              <span>{t('ide.chat.currentModelLabel', { model: AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel }, { defaultValue: `Current: ${AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel}` })}</span>
+            </div>
+            {filteredModels.map((model, idx) => (
+              <button
+                key={model.id}
+                type="button"
+                onClick={() => void selectModel(model.id, model.label)}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = idx === modelPicker.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent' }}
+                className={cm.w('full')}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  gap: '2px',
+                  padding: '8px 12px',
+                  border: 'none',
+                  borderTop: '1px solid rgba(128,128,128,0.12)',
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  textAlign: 'left',
+                  fontSize: '13px',
+                  background: idx === modelPicker.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent',
+                }}
+              >
+                <span className={cm.fontWeight('medium')} style={{ opacity: 0.9 }}>{model.label}</span>
+                <span className={cm.textMuted} style={{ fontSize: '12px' }}>{model.description}</span>
               </button>
             ))}
           </div>
@@ -1099,8 +1434,8 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
           </div>
         )}
 
-        {/* Commit bar — anchored above the textarea */}
-        {pendingFiles != null && pendingFiles.length > 0 && (
+        {/* Commit bar — anchored above the textarea (hidden when a popup menu is open) */}
+        {pendingFiles != null && pendingFiles.length > 0 && !commandMenu && !modelPicker && (
           <div
             style={{
               borderTop: '1px solid rgba(128,128,128,0.15)',
@@ -1269,8 +1604,8 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
           <textarea
             ref={textareaRef}
             value={inputValue}
+            autoComplete="off"
             onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
@@ -1315,7 +1650,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
                 onClick: () => {
                   if (!inputValue) {
                     setInputValue('/')
-                    setCommandMenu({ selectedIdx: 0 })
+                    setCommandMenu({ selectedIdx: -1 })
                   }
                   setTimeout(() => { textareaRef.current?.focus() }, 0)
                 },
@@ -1514,7 +1849,7 @@ export function ChatPanel({
           cm.shrink0,
           cm.borderB,
         )}
-        style={{ position: 'relative', minHeight: '36px' }}
+        style={{ position: 'relative', minHeight: '36px', zIndex: 10 }}
       >
         {/* Conversation picker button */}
         <button
