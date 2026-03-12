@@ -1,0 +1,51 @@
+{
+  "name": "@molecule/app-ui-tailwind-glass",
+  "version": "1.0.0",
+  "description": "Liquid glass ClassMap extension with backdrop-filter effects for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "ui",
+    "tailwind",
+    "glass",
+    "frosted-glass",
+    "backdrop-filter"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "25.3.0",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "@molecule/app-styling": "^1.0.0",
+    "@molecule/app-ui": "^1.0.0",
+    "@molecule/app-ui-tailwind": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/ui/tailwind-glass"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/ui/tailwind-glass",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

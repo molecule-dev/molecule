@@ -55,13 +55,14 @@ function mockReq(overrides: Record<string, unknown> = {}): any {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mockRes(): any {
+function mockRes(overrides: Record<string, unknown> = {}): any {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res: any = {
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
     end: vi.fn(),
-    locals: {},
+    locals: { session: { userId: 'user-1' } },
+    ...overrides,
   }
   return res
 }
@@ -142,6 +143,83 @@ describe('@molecule/api-resource-project handlers', () => {
       await create(req, res)
 
       expect(res.status).toHaveBeenCalledWith(500)
+    })
+
+    it('should return 401 when session has no userId', async () => {
+      const req = mockReq({
+        body: { name: 'Test', projectType: 'api' },
+      })
+      const res = mockRes({ locals: { session: {} } })
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'user.error.unauthorized' }),
+      )
+    })
+
+    it('should return 401 when session is missing entirely', async () => {
+      const req = mockReq({
+        body: { name: 'Test', projectType: 'api' },
+      })
+      const res = mockRes({ locals: {} })
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'user.error.unauthorized' }),
+      )
+    })
+
+    it('should use userId from session, not from request body', async () => {
+      mockFindOne.mockResolvedValue(null)
+      mockCreate.mockResolvedValue({ data: { id: '1', slug: 'test' } })
+
+      const req = mockReq({
+        body: {
+          name: 'Test',
+          projectType: 'api',
+          userId: 'attacker-supplied-user-id',
+        },
+      })
+      // Session has the real userId.
+      const res = mockRes({ locals: { session: { userId: 'session-user-id' } } })
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(201)
+      // Verify the userId passed to the database create call is from the session.
+      expect(mockCreate).toHaveBeenCalledWith(
+        'projects',
+        expect.objectContaining({
+          userId: 'session-user-id',
+        }),
+      )
+      // Ensure the attacker-supplied userId was NOT used.
+      const createArgs = mockCreate.mock.calls[0][1] as Record<string, unknown>
+      expect(createArgs.userId).not.toBe('attacker-supplied-user-id')
+    })
+
+    it('should use session userId over body userId in all cases', async () => {
+      mockFindOne.mockResolvedValue(null)
+      mockCreate.mockResolvedValue({ data: { id: '2', slug: 'another' } })
+
+      const req = mockReq({
+        body: {
+          name: 'Another',
+          projectType: 'full-stack',
+          userId: 'body-user-id',
+        },
+      })
+      const res = mockRes() // default session has userId: 'user-1'
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(201)
+      const createArgs = mockCreate.mock.calls[0][1] as Record<string, unknown>
+      expect(createArgs.userId).toBe('user-1')
     })
   })
 

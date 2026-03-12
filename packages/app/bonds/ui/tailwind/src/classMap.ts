@@ -383,9 +383,10 @@ const SPACING_CSS_PROP: Partial<Record<string, string>> = {
 function sp(property: SpacingProperty, scale: SpacingScale): string
 function sp(overrides: SpacingOverrides): Record<string, string>
 /**
- *
- * @param propertyOrOverrides
- * @param scale
+ * Resolves spacing utilities — returns a Tailwind class string or a CSS style object.
+ * @param propertyOrOverrides - A spacing property name or a compound overrides object.
+ * @param scale - The spacing scale value (only for the two-argument form).
+ * @returns A Tailwind class string or a CSS style record depending on the call form.
  */
 function sp(
   propertyOrOverrides: SpacingProperty | SpacingOverrides,
@@ -447,9 +448,7 @@ function sp(
   return result
 }
 
-/**
- *
- */
+/** Tailwind CSS UIClassMap implementation mapping abstract UI tokens to Tailwind class strings. */
 export const classMap: UIClassMap = {
   cn(...classes: ClassMapValue[]): string {
     return cn(...(classes as Parameters<typeof cn>))

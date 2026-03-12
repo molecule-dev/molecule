@@ -133,7 +133,7 @@ function sendMail(message: EmailMessage): Promise<EmailSendResult>
 Raw nodemailer transport alias.
 
 ```typescript
-const email: nodemailer.Transporter<SentMessageInfo, Options>
+const email: { sendMail: (msg: nodemailer.SendMailOptions) => Promise<any>; }
 ```
 
 #### `provider`
@@ -149,7 +149,7 @@ const provider: EmailTransport
 Raw nodemailer transport for direct access.
 
 ```typescript
-const transport: nodemailer.Transporter<SentMessageInfo, Options>
+const transport: { sendMail: (msg: nodemailer.SendMailOptions) => Promise<any>; }
 ```
 
 ## Core Interface

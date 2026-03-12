@@ -52,8 +52,8 @@ export const set = (req: MoleculeRequest, res: MoleculeResponse, session: Sessio
       res.cookie('sessionId', session.id, {
         httpOnly: true,
         secure,
-        sameSite: secure ? 'none' : 'lax',
-        maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
+        sameSite: 'lax',
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days (match JWT expiry)
       })
     }
   } catch (error) {
@@ -83,16 +83,10 @@ export const verifyMiddleware = (): MoleculeRequestHandler => async (req, res, n
     try {
       session = jwtVerify(token) as Session
     } catch {
-      // Token might be expired - try to decode it anyway for refresh.
-      const decoded = decode(token) as Session | null
-
-      if (decoded?.id) {
-        // Check if this session ID matches a cookie (web browser refresh).
-        const cookieSessionId = req.cookies?.sessionId
-        if (cookieSessionId && cookieSessionId === decoded.id) {
-          session = decoded
-        }
-      }
+      // Token is invalid or expired — do NOT accept unverified tokens.
+      // Previous code used decode() (no signature check) as a fallback,
+      // which allowed expired/tampered tokens to be accepted if a cookie matched.
+      // This was an authentication bypass. Require re-authentication instead.
     }
 
     if (session?.userId && session?.deviceId) {

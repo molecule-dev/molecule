@@ -218,6 +218,8 @@ export interface UseChatOptions {
   loadOnMount?: boolean
   /** Called when a file is created or modified by a tool call (path + new content). */
   onFileChange?: (path: string, content: string) => void
+  /** Called when the AI switches between plan and execute modes. */
+  onModeChange?: (mode: 'plan' | 'execute') => void
 }
 
 /**
@@ -227,6 +229,8 @@ export interface UseChatResult {
   messages: ChatMessage[]
   isLoading: boolean
   error: string | null
+  /** Current agent mode — plan (read-only research) or execute (full access). */
+  mode: 'plan' | 'execute'
   sendMessage: (message: string, attachments?: ChatAttachment[]) => Promise<void>
   abort: () => void
   clearHistory: () => Promise<void>

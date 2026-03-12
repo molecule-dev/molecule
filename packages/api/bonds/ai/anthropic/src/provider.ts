@@ -89,10 +89,16 @@ class AnthropicAIProvider implements AIProvider {
       headers['anthropic-beta'] = 'interleaved-thinking-2025-05-14'
     }
 
+    // Default timeout of 5 minutes to prevent hung connections.
+    // Caller can override via params.signal for custom timeouts.
+    const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000
+    const signal = params.signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS)
+
     const response = await fetch(`${this.baseUrl}/v1/messages`, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
+      signal,
     })
 
     if (!response.ok) {
@@ -104,8 +110,16 @@ class AnthropicAIProvider implements AIProvider {
       } catch {
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
+      // Log full detail server-side for debugging
       logger.error('Anthropic API error', { status: response.status, detail })
-      yield { type: 'error', message: detail, errorKey: 'ai.error.apiError' }
+      // Return sanitized error to client — never leak internal API details
+      const clientMessage =
+        response.status === 429
+          ? 'AI rate limit exceeded. Please try again shortly.'
+          : response.status === 401
+            ? 'AI service configuration error.'
+            : 'AI service temporarily unavailable.'
+      yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
       return
     }
 

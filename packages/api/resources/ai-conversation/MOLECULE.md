@@ -26,6 +26,21 @@ interface AIContext {
 }
 ```
 
+#### `ChatAttachment`
+
+A file attachment sent with a chat message.
+
+```typescript
+interface ChatAttachment {
+  /** MIME type (e.g., 'image/jpeg', 'application/pdf'). */
+  mediaType: string
+  /** Base64-encoded file data (no data-URL prefix). */
+  data: string
+  /** Original filename for display. */
+  filename?: string
+}
+```
+
 #### `ChatMessage`
 
 A single message in a conversation (user, assistant, or system) with optional tool call data.
@@ -40,6 +55,8 @@ interface ChatMessage {
     input: unknown
     output?: unknown
   }>
+  /** File attachment metadata (no base64 data — for display in history). */
+  attachments?: Array<{ filename: string; mediaType: string; size: number }>
   timestamp: string
 }
 ```
@@ -67,6 +84,8 @@ Input payload for sending a message to a conversation (message text and optional
 interface SendMessageInput {
   message: string
   model?: string
+  /** File attachments (images, PDFs, audio, video) to include with the message. */
+  attachments?: ChatAttachment[]
 }
 ```
 

@@ -184,7 +184,11 @@ describe('@molecule/app-live-preview-iframe', () => {
       const provider = new IframePreviewProvider({ defaultUrl: 'http://localhost:3000' })
       provider.openExternal()
 
-      expect(mockOpen).toHaveBeenCalledWith('http://localhost:3000', '_blank')
+      expect(mockOpen).toHaveBeenCalledWith(
+        'http://localhost:3000',
+        '_blank',
+        'noopener,noreferrer',
+      )
       vi.unstubAllGlobals()
     })
 

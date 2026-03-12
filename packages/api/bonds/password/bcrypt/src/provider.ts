@@ -16,7 +16,7 @@ import type { PasswordProvider } from '@molecule/api-password'
 export const provider: PasswordProvider = {
   async hash(
     password: string,
-    saltRounds: number = Number(process.env.SALT_ROUNDS) || 10,
+    saltRounds: number = Math.min(Math.max(Number(process.env.SALT_ROUNDS) || 12, 10), 16),
   ): Promise<string> {
     return bcrypt.hash(password, saltRounds)
   },

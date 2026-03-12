@@ -22,8 +22,9 @@ import { StreamingIndicator } from './StreamingIndicator.js'
 type Segment = { type: 'code'; lang: string; content: string } | { type: 'text'; content: string }
 
 /**
- *
- * @param text
+ * Splits raw markdown text into alternating prose and fenced code block segments.
+ * @param text - The raw markdown string to split.
+ * @returns An array of text and code segments.
  */
 function splitSegments(text: string): Segment[] {
   const out: Segment[] = []
@@ -48,8 +49,9 @@ function splitSegments(text: string): Segment[] {
 const INLINE_RE = /(`[^`\n]+`|\*\*(?:[^*]|\*(?!\*))+\*\*|\*[^*\n]+\*)/g
 
 /**
- *
- * @param text
+ * Renders inline markdown formatting (bold, italic, inline code) as React nodes.
+ * @param text - The text containing inline markdown tokens.
+ * @returns A ReactNode with formatted inline elements.
  */
 function renderInline(text: string): ReactNode {
   const parts: ReactNode[] = []
@@ -93,10 +95,11 @@ function renderInline(text: string): ReactNode {
 // ---------------------------------------------------------------------------
 
 /**
- *
- * @param root0
- * @param root0.content
- * @param root0.segIdx
+ * Renders a prose text segment as structured HTML (headers, lists, paragraphs).
+ * @param root0 - Component props.
+ * @param root0.content - The raw prose text to parse and render.
+ * @param root0.segIdx - The segment index used for generating stable React keys.
+ * @returns The rendered prose block element.
  */
 function Prose({ content, segIdx }: { content: string; segIdx: number }): JSX.Element {
   const lines = content.split('\n')
@@ -193,18 +196,17 @@ function Prose({ content, segIdx }: { content: string; segIdx: number }): JSX.El
 // ---------------------------------------------------------------------------
 
 /**
- *
- * @param root0
- * @param root0.lang
- * @param root0.content
+ * Renders a fenced code block with a language label and copy-to-clipboard button.
+ * @param root0 - Component props.
+ * @param root0.lang - The code language identifier for the header label.
+ * @param root0.content - The code content to display.
+ * @returns The rendered code block element.
  */
 function CodeBlock({ lang, content }: { lang: string; content: string }): JSX.Element {
   const cm = getClassMap()
   const [copied, setCopied] = useState(false)
 
-  /**
-   *
-   */
+  /** Copies the code block content to clipboard and shows a brief confirmation. */
   function handleCopy(): void {
     void navigator.clipboard.writeText(content)
     setCopied(true)
@@ -281,9 +283,10 @@ interface MarkdownContentProps {
  * Renders a subset of Markdown as React elements.
  * Handles fenced code blocks (with copy button), headers, lists,
  * bold/italic, and inline code.
- * @param root0
- * @param root0.text
- * @param root0.isStreaming
+ * @param root0 - Component props.
+ * @param root0.text - The raw markdown text to render.
+ * @param root0.isStreaming - Whether to show a streaming indicator at the end.
+ * @returns The rendered markdown content element.
  */
 export function MarkdownContent({ text, isStreaming }: MarkdownContentProps): JSX.Element {
   if (!text) {

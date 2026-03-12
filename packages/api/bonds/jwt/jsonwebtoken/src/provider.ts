@@ -22,7 +22,8 @@ import type {
  */
 export const provider: JwtProvider = {
   sign(payload: JSONObject, options?: JwtSignOptions, privateKey?: string | Buffer): string {
-    return jsonwebtoken.sign(payload, privateKey ?? '', options as jsonwebtoken.SignOptions)
+    if (!privateKey) throw new Error('JWT private key is required for signing')
+    return jsonwebtoken.sign(payload, privateKey, options as jsonwebtoken.SignOptions)
   },
 
   verify(
@@ -30,7 +31,10 @@ export const provider: JwtProvider = {
     options?: JwtVerifyOptions,
     publicKey?: string | Buffer,
   ): string | JwtPayload {
-    return jsonwebtoken.verify(token, publicKey ?? '', options as jsonwebtoken.VerifyOptions) as
+    if (!publicKey) throw new Error('JWT public key is required for verification')
+    // Force expiration/notBefore checks — never allow callers to bypass token expiry
+    const safeOptions = { ...options, ignoreExpiration: false, ignoreNotBefore: false }
+    return jsonwebtoken.verify(token, publicKey, safeOptions as jsonwebtoken.VerifyOptions) as
       | string
       | JwtPayload
   },

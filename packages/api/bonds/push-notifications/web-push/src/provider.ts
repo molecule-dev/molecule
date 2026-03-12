@@ -46,6 +46,15 @@ class WebPushProvider implements PushNotificationProvider {
     if (email && publicKey && privateKey) {
       webPush.setVapidDetails(`mailto:${email}`, publicKey, privateKey)
       this.configured = true
+    } else {
+      const missing = [
+        !email && 'VAPID_EMAIL',
+        !publicKey && 'VAPID_PUBLIC_KEY',
+        !privateKey && 'VAPID_PRIVATE_KEY',
+      ]
+        .filter(Boolean)
+        .join(', ')
+      logger.warn(`Push notifications disabled: missing ${missing}`)
     }
   }
 
@@ -58,6 +67,11 @@ class WebPushProvider implements PushNotificationProvider {
    */
   async send(subscription: PushSubscription, payload: NotificationPayload): Promise<SendResult> {
     if (!this.configured) this.configure()
+    if (!this.configured) {
+      throw new Error(
+        'Push notifications not configured. Set VAPID_EMAIL, VAPID_PUBLIC_KEY, and VAPID_PRIVATE_KEY.',
+      )
+    }
 
     try {
       const result = await webPush.sendNotification(

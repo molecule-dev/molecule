@@ -72,9 +72,10 @@ export const create =
       id = id || uuid()
       props.id = id
 
-      // Describe when the resource was created/updated.
-      props.createdAt = props.createdAt || new Date().toISOString()
-      props.updatedAt = props.updatedAt || props.createdAt
+      // Always set server-controlled timestamps — never trust client-supplied values.
+      const now = new Date().toISOString()
+      props.createdAt = now
+      props.updatedAt = now
 
       // Validate the new resource's `props`.
       props = getValidProps<CreatedProps>({

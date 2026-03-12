@@ -407,6 +407,7 @@ const lightTheme: Theme
 | Provider | Package |
 |----------|---------|
 | CSS Variables | `@molecule/app-theme-css-variables` |
+| Liquid Glass | `@molecule/app-theme-css-variables-liquid-glass` |
 
 ## Injection Notes
 

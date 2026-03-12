@@ -91,6 +91,8 @@ export interface ChatParams {
   thinking?: { type: 'enabled'; budgetTokens: number }
   /** Enable prompt caching. Providers that support it will cache system prompts and tools. */
   cacheControl?: { type: 'ephemeral' }
+  /** Abort signal to cancel in-flight API requests when the client disconnects. */
+  signal?: AbortSignal
 }
 
 /**

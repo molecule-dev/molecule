@@ -2698,6 +2698,7 @@ function setProvider(provider: UIProvider): void
 | Solid UI | `@molecule/app-ui-solid` |
 | Svelte UI | `@molecule/app-ui-svelte` |
 | Tailwind UI | `@molecule/app-ui-tailwind` |
+| Tailwind Glass | `@molecule/app-ui-tailwind-glass` |
 | Vue UI | `@molecule/app-ui-vue` |
 
 ## Injection Notes

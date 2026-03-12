@@ -76,6 +76,7 @@ describe('GitHub OAuth Provider', () => {
           headers: {
             accept: 'application/json',
           },
+          timeout: 15000,
         },
       )
 
@@ -84,6 +85,7 @@ describe('GitHub OAuth Provider', () => {
           accept: 'application/json',
           authorization: 'Bearer test-access-token',
         },
+        timeout: 15000,
       })
 
       expect(result).toEqual({

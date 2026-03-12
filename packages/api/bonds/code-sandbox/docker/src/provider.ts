@@ -29,6 +29,16 @@ import type { Socket } from 'net'
 import type { DockerConfig } from './types.js'
 
 const DEFAULT_IMAGE = 'node:22-slim'
+
+/**
+ * Shell-safe single-quote escaping for file paths. Prevents command injection
+ * via `$()`, backticks, or other shell metacharacters inside double quotes.
+ * @param s - The string to escape for shell use.
+ * @returns A single-quoted shell-safe string.
+ */
+function shellQuote(s: string): string {
+  return "'" + s.replace(/'/g, "'\\''") + "'"
+}
 const LABEL_PREFIX = 'molecule-sandbox'
 
 /**
@@ -36,36 +46,51 @@ const LABEL_PREFIX = 'molecule-sandbox'
  * Each frame: 8-byte header [streamType(1), 0, 0, 0, size(4 BE uint32)] + payload.
  * Buffers partial frames across data events.
  */
+/** Maximum single frame size in Docker multiplexed stream (50 MB). */
+const MAX_MUX_FRAME_SIZE = 50 * 1024 * 1024
+
+/** Parses Docker multiplexed binary stream frames into stdout/stderr callbacks. */
 class DockerMuxParser {
   private buffer = Buffer.alloc(0)
   private stdoutCb: ((data: string) => void) | null = null
   private stderrCb: ((data: string) => void) | null = null
 
   /**
-   *
-   * @param cb
+   * Registers a callback for stdout data events.
+   * @param cb - The callback invoked with each stdout data chunk.
    */
   onStdout(cb: (data: string) => void): void {
     this.stdoutCb = cb
   }
 
   /**
-   *
-   * @param cb
+   * Registers a callback for stderr data events.
+   * @param cb - The callback invoked with each stderr data chunk.
    */
   onStderr(cb: (data: string) => void): void {
     this.stderrCb = cb
   }
 
+  /** Clear internal buffer (e.g. on connection close). */
+  clear(): void {
+    this.buffer = Buffer.alloc(0)
+  }
+
   /**
-   *
-   * @param chunk
+   * Feeds a buffer chunk into the parser, extracting complete frames.
+   * @param chunk - The raw data chunk from the Docker stream.
    */
   feed(chunk: Buffer): void {
     this.buffer = Buffer.concat([this.buffer, chunk])
     while (this.buffer.length >= 8) {
       const streamType = this.buffer[0]
       const frameSize = this.buffer.readUInt32BE(4)
+      if (frameSize > MAX_MUX_FRAME_SIZE) {
+        this.buffer = Buffer.alloc(0)
+        throw new Error(
+          `Docker stream frame size ${frameSize} exceeds ${MAX_MUX_FRAME_SIZE} byte limit`,
+        )
+      }
       if (this.buffer.length < 8 + frameSize) break
       const payload = this.buffer.subarray(8, 8 + frameSize).toString('utf-8')
       this.buffer = this.buffer.subarray(8 + frameSize)
@@ -116,11 +141,17 @@ class DockerSandboxProvider implements SandboxProvider {
       [`${this.labelPrefix}.managed`]: 'true',
     }
 
+    const memoryBytes = memoryMB * 1024 * 1024
     const hostConfig: Record<string, unknown> = {
       NanoCPUs: cpu * 1e9,
-      Memory: memoryMB * 1024 * 1024,
+      Memory: memoryBytes,
+      MemorySwap: memoryBytes, // Equal to Memory = no swap; prevents host swap exhaustion
       PublishAllPorts: true,
       Init: true, // Use tini init to reap zombie processes
+      PidsLimit: 512,
+      SecurityOpt: ['no-new-privileges'],
+      CapDrop: ['ALL'],
+      CapAdd: ['CHOWN', 'SETGID', 'SETUID'],
     }
 
     // Mount a named Docker volume at /workspace for persistent storage.
@@ -260,8 +291,17 @@ class DockerSandboxProvider implements SandboxProvider {
       },
 
       async exec(command: string, opts?: ExecOptions): Promise<ExecResult> {
+        // Wrap the command in a timeout if specified to enforce time limits
+        const timeoutMs = opts?.timeout
+        // Use single-quote shell escaping — JSON.stringify produces double quotes which
+        // still allow $(), backtick, and ! expansion inside sh -c.
+        const shellQuote = (s: string): string => "'" + s.replace(/'/g, "'\\''") + "'"
+        const wrappedCommand = timeoutMs
+          ? `timeout ${Math.ceil(timeoutMs / 1000)} sh -c ${shellQuote(command)}`
+          : command
+
         const execCreate = (await provider.dockerApi(`/containers/${containerId}/exec`, 'POST', {
-          Cmd: ['sh', '-c', command],
+          Cmd: ['sh', '-c', wrappedCommand],
           AttachStdout: true,
           AttachStderr: true,
           WorkingDir: opts?.cwd ?? '/workspace',
@@ -304,7 +344,7 @@ class DockerSandboxProvider implements SandboxProvider {
       },
 
       async readFile(path: string): Promise<string> {
-        const result = await this.exec(`cat ${JSON.stringify(path)}`)
+        const result = await this.exec(`cat ${shellQuote(path)}`)
         if (result.exitCode !== 0)
           throw new Error(
             t(
@@ -318,9 +358,7 @@ class DockerSandboxProvider implements SandboxProvider {
 
       async writeFile(path: string, content: string): Promise<void> {
         const b64 = Buffer.from(content).toString('base64')
-        const result = await this.exec(
-          `echo ${JSON.stringify(b64)} | base64 -d > ${JSON.stringify(path)}`,
-        )
+        const result = await this.exec(`echo ${shellQuote(b64)} | base64 -d > ${shellQuote(path)}`)
         if (result.exitCode !== 0)
           throw new Error(
             t(
@@ -335,7 +373,7 @@ class DockerSandboxProvider implements SandboxProvider {
         // Append trailing slash so ls follows symlinks (e.g. /workspace -> /sandbox/project)
         const dirPath = path.endsWith('/') ? path : `${path}/`
         const result = await this.exec(
-          `ls -la --time-style=+%s ${JSON.stringify(dirPath)} | tail -n +2`,
+          `ls -la --time-style=+%s ${shellQuote(dirPath)} | tail -n +2`,
         )
         if (result.exitCode !== 0) return []
 
@@ -369,7 +407,7 @@ class DockerSandboxProvider implements SandboxProvider {
       },
 
       async deleteFile(path: string): Promise<void> {
-        const result = await this.exec(`rm -f ${JSON.stringify(path)}`)
+        const result = await this.exec(`rm -f ${shellQuote(path)}`)
         if (result.exitCode !== 0)
           throw new Error(
             t(
@@ -399,10 +437,29 @@ class DockerSandboxProvider implements SandboxProvider {
         const parser = new DockerMuxParser()
         let closeCb: (() => void) | null = null
 
-        socket.on('data', (chunk: Buffer) => parser.feed(chunk))
-        socket.on('close', () => closeCb?.())
+        // Kill idle spawn sockets after 10 minutes to prevent descriptor leaks
+        socket.setTimeout(600_000)
+        socket.on('timeout', () => {
+          socket.destroy()
+        })
+
+        socket.on('data', (chunk: Buffer) => {
+          try {
+            parser.feed(chunk)
+          } catch (err) {
+            logger.debug('Spawn parser error, destroying socket', {
+              error: err instanceof Error ? err.message : err,
+            })
+            socket.destroy()
+          }
+        })
+        socket.on('close', () => {
+          parser.clear()
+          closeCb?.()
+        })
         socket.on('error', (err: Error) => {
           logger.debug('Spawn socket error', { error: err.message })
+          parser.clear()
           closeCb?.()
         })
 
@@ -446,15 +503,21 @@ class DockerSandboxProvider implements SandboxProvider {
 
   /**
    * Create a named Docker volume. No-op if it already exists.
-   * @param name
+   * @param name - The Docker volume name to create.
    */
   async createVolume(name: string): Promise<void> {
-    await this.dockerApi('/volumes/create', 'POST', { Name: name })
+    try {
+      await this.dockerApi('/volumes/create', 'POST', { Name: name })
+    } catch (error) {
+      // 409 Conflict means the volume already exists — idempotent success
+      if (error instanceof Error && error.message.includes('409')) return
+      throw error
+    }
   }
 
   /**
    * Remove a named Docker volume. Silently succeeds if already removed.
-   * @param name
+   * @param name - The Docker volume name to remove.
    */
   async removeVolume(name: string): Promise<void> {
     try {
@@ -466,7 +529,8 @@ class DockerSandboxProvider implements SandboxProvider {
 
   /**
    * Check if a named Docker volume exists.
-   * @param name
+   * @param name - The Docker volume name to check.
+   * @returns `true` if the volume exists, `false` otherwise.
    */
   async volumeExists(name: string): Promise<boolean> {
     try {
@@ -518,6 +582,10 @@ class DockerSandboxProvider implements SandboxProvider {
         })
         res.on('error', reject)
       })
+      // Timeout to prevent hanging on unresponsive Docker daemon
+      req.setTimeout(30_000, () => {
+        req.destroy(new Error(`Docker API timeout: ${method} ${path}`))
+      })
       req.on('error', reject)
       if (body) req.write(JSON.stringify(body))
       req.end()
@@ -527,9 +595,10 @@ class DockerSandboxProvider implements SandboxProvider {
   /**
    * Like `dockerApi` but returns the raw response Buffer without parsing.
    * Used for exec start responses which return a multiplexed binary stream.
-   * @param path
-   * @param method
-   * @param body
+   * @param path - The API endpoint path.
+   * @param method - The HTTP method (defaults to `'GET'`).
+   * @param body - Optional JSON request body.
+   * @returns The raw response buffer.
    */
   private async dockerApiRaw(path: string, method = 'GET', body?: unknown): Promise<Buffer> {
     return new Promise((resolve, reject) => {
@@ -540,9 +609,21 @@ class DockerSandboxProvider implements SandboxProvider {
         headers: body ? { 'Content-Type': 'application/json' } : undefined,
       }
 
+      const MAX_RAW_RESPONSE = 50 * 1024 * 1024 // 50 MB cap on exec output
+      let totalSize = 0
+
       const req = http.request(opts, (res) => {
         const chunks: Buffer[] = []
-        res.on('data', (chunk: Buffer) => chunks.push(chunk))
+        res.on('data', (chunk: Buffer) => {
+          totalSize += chunk.length
+          if (totalSize > MAX_RAW_RESPONSE) {
+            req.destroy(
+              new Error(`Docker exec output exceeded ${MAX_RAW_RESPONSE / (1024 * 1024)}MB limit`),
+            )
+            return
+          }
+          chunks.push(chunk)
+        })
         res.on('end', () => {
           const buf = Buffer.concat(chunks)
           if (res.statusCode && res.statusCode >= 400) {
@@ -562,6 +643,10 @@ class DockerSandboxProvider implements SandboxProvider {
           resolve(buf)
         })
         res.on('error', reject)
+      })
+      // Longer timeout for exec responses (commands can take minutes)
+      req.setTimeout(600_000, () => {
+        req.destroy(new Error(`Docker exec timeout: ${method} ${path}`))
       })
       req.on('error', reject)
       if (body) req.write(JSON.stringify(body))

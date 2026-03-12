@@ -33,20 +33,18 @@ let _cors: ReturnType<typeof createCors> | null = null
  */
 function getLazyCors(): ReturnType<typeof createCors> {
   if (!_cors) {
+    const origins: (string | RegExp)[] = [`capacitor://localhost`, `capacitor-electron://-`]
+    // Only allow localhost origins in development — not in production
+    if (process.env.NODE_ENV !== 'production') {
+      origins.push(/^https?:\/\/localhost(:\d+)?$/)
+    }
+    // Only add configured origins when they are actually set
+    if (process.env.APP_ORIGIN) origins.push(process.env.APP_ORIGIN)
+    if (process.env.SITE_ORIGIN) origins.push(process.env.SITE_ORIGIN)
+    if (process.env.APP_URL_SCHEME) origins.push(`${process.env.APP_URL_SCHEME}://-`)
+
     _cors = createCors({
-      origin: [
-        process.env.APP_ORIGIN,
-        process.env.SITE_ORIGIN,
-        // Allow any localhost port (e.g. :3000, :5173, :5174) for local dev
-        /^https?:\/\/localhost(:\d+)?$/,
-        `capacitor://localhost`,
-        `capacitor-electron://-`,
-        `${process.env.APP_URL_SCHEME}://-`,
-        null,
-        `null`,
-        undefined,
-        `undefined`,
-      ],
+      origin: origins,
       credentials: true,
       exposedHeaders: `set-authorization`,
     } as createCors.CorsOptions)

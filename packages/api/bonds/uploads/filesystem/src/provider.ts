@@ -140,10 +140,16 @@ export const abortUpload = (file: File): void => {
 /**
  * Deletes a previously uploaded file from the local file system by its UUID.
  * @param id - The UUID file identifier (also the filename on disk).
+ * @returns A promise that resolves when the file is deleted.
  */
 export const deleteFile = (id: string): Promise<void> => {
+  // Validate ID to prevent path traversal
+  const resolved = path.resolve(uploadPath, id)
+  if (!resolved.startsWith(uploadPath + path.sep) && resolved !== uploadPath) {
+    return Promise.reject(new Error('Invalid file ID'))
+  }
   return new Promise((resolve, reject) => {
-    fs.unlink(path.join(uploadPath, id), (error) => {
+    fs.unlink(resolved, (error) => {
       if (error) {
         logger.error(`Error deleting file (id: ${id})`, error)
         reject(error)
@@ -160,7 +166,12 @@ export const deleteFile = (id: string): Promise<void> => {
  * @returns A `ReadStream` for the file at `uploadPath/id`.
  */
 export const getFileStream = (id: string): fs.ReadStream => {
-  return fs.createReadStream(path.join(uploadPath, id))
+  // Validate ID to prevent path traversal
+  const resolved = path.resolve(uploadPath, id)
+  if (!resolved.startsWith(uploadPath + path.sep) && resolved !== uploadPath) {
+    throw new Error('Invalid file ID')
+  }
+  return fs.createReadStream(resolved)
 }
 
 /**

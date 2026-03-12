@@ -85,6 +85,33 @@ describe('@molecule/api-push-notifications-web-push', () => {
   })
 
   describe('send', () => {
+    it('should throw when VAPID env vars are not configured', async () => {
+      const origEmail = process.env.VAPID_EMAIL
+      const origPub = process.env.VAPID_PUBLIC_KEY
+      const origPriv = process.env.VAPID_PRIVATE_KEY
+
+      delete process.env.VAPID_EMAIL
+      delete process.env.VAPID_PUBLIC_KEY
+      delete process.env.VAPID_PRIVATE_KEY
+
+      try {
+        const provider = createProvider()
+        const subscription = {
+          endpoint: 'https://push.example.com',
+          keys: { p256dh: 'a', auth: 'b' },
+        }
+
+        await expect(provider.send(subscription, { title: 'Hello' })).rejects.toThrow(
+          'Push notifications not configured. Set VAPID_EMAIL, VAPID_PUBLIC_KEY, and VAPID_PRIVATE_KEY.',
+        )
+        expect(mockSendNotification).not.toHaveBeenCalled()
+      } finally {
+        if (origEmail) process.env.VAPID_EMAIL = origEmail
+        if (origPub) process.env.VAPID_PUBLIC_KEY = origPub
+        if (origPriv) process.env.VAPID_PRIVATE_KEY = origPriv
+      }
+    })
+
     it('should send notification with JSON payload', async () => {
       mockSendNotification.mockResolvedValue({
         statusCode: 201,

@@ -89,6 +89,7 @@ describe('@molecule/api-two-factor-otplib', () => {
       expect(mockVerifySync).toHaveBeenCalledWith({
         secret: 'JBSWY3DPEHPK3PXP',
         token: '123456',
+        epochTolerance: 30,
       })
       expect(result).toBe(true)
     })

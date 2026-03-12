@@ -75,6 +75,7 @@ const toSubscriptionResult = (sub: Stripe.Subscription): SubscriptionResult => {
  * @param options.cancelUrl - URL to redirect to if the user cancels.
  * @param options.customerId - Optional existing Stripe Customer ID.
  * @param options.metadata - Optional key-value metadata to attach to the session.
+ * @param options.idempotencyKey - Optional idempotency key for safe request retries.
  * @returns The checkout session ID and URL.
  */
 export const createCheckoutSession = async (options: {
@@ -83,22 +84,26 @@ export const createCheckoutSession = async (options: {
   cancelUrl: string
   customerId?: string
   metadata?: Record<string, string>
+  idempotencyKey?: string
 }): Promise<CheckoutSessionResult> => {
   try {
-    const session = await getClient().checkout.sessions.create({
-      mode: 'subscription',
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price: options.priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: options.successUrl,
-      cancel_url: options.cancelUrl,
-      customer: options.customerId,
-      metadata: options.metadata,
-    })
+    const session = await getClient().checkout.sessions.create(
+      {
+        mode: 'subscription',
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price: options.priceId,
+            quantity: 1,
+          },
+        ],
+        success_url: options.successUrl,
+        cancel_url: options.cancelUrl,
+        customer: options.customerId,
+        metadata: options.metadata,
+      },
+      options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : undefined,
+    )
 
     return { id: session.id, url: session.url }
   } catch (error) {
@@ -108,15 +113,19 @@ export const createCheckoutSession = async (options: {
 }
 
 /**
- * Retrieves a Stripe Checkout session by ID.
+ * Retrieves a Stripe Checkout session by ID, including the associated subscription.
  *
  * @param sessionId - The Stripe Checkout session ID.
- * @returns The session ID and URL.
+ * @returns The session ID, URL, and subscription ID (if a subscription was created).
  */
 export const getCheckoutSession = async (sessionId: string): Promise<CheckoutSessionResult> => {
   try {
     const session = await getClient().checkout.sessions.retrieve(sessionId)
-    return { id: session.id, url: session.url }
+    const subscription =
+      typeof session.subscription === 'string'
+        ? session.subscription
+        : (session.subscription as { id?: string } | null)?.id
+    return { id: session.id, url: session.url, subscription }
   } catch (error) {
     logger.error(`Error retrieving Stripe checkout session:`, error)
     throw error

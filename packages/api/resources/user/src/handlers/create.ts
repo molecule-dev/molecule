@@ -63,6 +63,30 @@ export const create = ({ name, tableName, schema: _schema }: types.Resource) => 
         }
       }
 
+      if (body.password.length > 1024) {
+        return {
+          statusCode: 400,
+          body: {
+            error: t('user.error.passwordTooLong', undefined, {
+              defaultValue: 'Password must be at most 1024 characters',
+            }),
+            errorKey: 'user.error.passwordTooLong',
+          },
+        }
+      }
+
+      if (body.password.length < 8) {
+        return {
+          statusCode: 400,
+          body: {
+            error: t('user.error.passwordTooShort', undefined, {
+              defaultValue: 'Password must be at least 8 characters',
+            }),
+            errorKey: 'user.error.passwordTooShort',
+          },
+        }
+      }
+
       if (props.email) {
         props.email = props.email.substring(0, 1023)
         // Basic email validation

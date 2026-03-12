@@ -31,7 +31,13 @@ function slugify(name: string): string {
 export async function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
   const userId =
     (res.locals.session as { userId?: string } | undefined)?.userId ??
-    ((req.body as Record<string, unknown>).userId as string | undefined)
+    (req as unknown as { userId?: string }).userId
+  if (!userId) {
+    res
+      .status(401)
+      .json({ error: t('user.error.unauthorized'), errorKey: 'user.error.unauthorized' })
+    return
+  }
   const input = req.body as CreateProjectInput
 
   if (!input.name || !input.projectType) {

@@ -47,10 +47,11 @@ export function useChatProvider(): ChatProvider {
  */
 export function useChat(options: UseChatOptions): UseChatResult {
   const provider = useChatProvider()
-  const { endpoint, projectId, loadOnMount = true, onFileChange } = options
+  const { endpoint, projectId, loadOnMount = true, onFileChange, onModeChange } = options
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [mode, setMode] = useState<'plan' | 'execute'>('execute')
   const mountedRef = useRef(true)
   const idCounterRef = useRef(0)
 
@@ -172,7 +173,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           case 'file_diff': {
             // Attach snapshot to the matching running tool call (for persistent diff review)
             // Normalize paths — strip /workspace/ prefix so resolved and raw paths match
-            const normalizePath = (p: string) => p.replace(/^\/workspace\//, '')
+            const normalizePath = (p: string): string => p.replace(/^\/workspace\//, '')
             const match = [...(toolCalls ?? [])]
               .reverse()
               .find(
@@ -238,6 +239,10 @@ export function useChat(options: UseChatOptions): UseChatResult {
             )
             break
           }
+          case 'mode':
+            setMode(event.mode)
+            onModeChange?.(event.mode)
+            break
           default:
             break
         }
@@ -278,5 +283,5 @@ export function useChat(options: UseChatOptions): UseChatResult {
     }
   }, [provider, endpoint])
 
-  return { messages, isLoading, error, sendMessage, abort, clearHistory }
+  return { messages, isLoading, error, mode, sendMessage, abort, clearHistory }
 }

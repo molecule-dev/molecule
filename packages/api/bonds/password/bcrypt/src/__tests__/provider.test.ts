@@ -37,7 +37,7 @@ describe('@molecule/api-password-bcrypt', () => {
 
       const result = await provider.hash('my-password')
 
-      expect(mockHash).toHaveBeenCalledWith('my-password', 10)
+      expect(mockHash).toHaveBeenCalledWith('my-password', 12)
       expect(result).toBe('hashed-password')
     })
 
@@ -58,13 +58,13 @@ describe('@molecule/api-password-bcrypt', () => {
       expect(mockHash).toHaveBeenCalledWith('password', 14)
     })
 
-    it('should fall back to 10 when SALT_ROUNDS is invalid', async () => {
+    it('should fall back to 12 when SALT_ROUNDS is invalid', async () => {
       process.env.SALT_ROUNDS = 'not-a-number'
       mockHash.mockResolvedValue('hashed')
 
       await provider.hash('password')
 
-      expect(mockHash).toHaveBeenCalledWith('password', 10)
+      expect(mockHash).toHaveBeenCalledWith('password', 12)
     })
 
     it('should propagate errors from bcrypt', async () => {

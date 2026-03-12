@@ -7,6 +7,8 @@
  * @module
  */
 
+import crypto from 'crypto'
+
 import { getLogger } from '@molecule/api-bond'
 const logger = getLogger()
 import { get } from '@molecule/api-bond'
@@ -20,6 +22,7 @@ import type {
 
 import {
   createCheckoutSession,
+  getCheckoutSession,
   getSubscription,
   normalizeSubscription,
   updateSubscription as stripeUpdateSubscription,
@@ -70,14 +73,26 @@ export const paymentProvider: PaymentProvider = {
   /**
    * Verifies a Stripe subscription by ID and returns a VerifiedSubscription.
    *
-   * Retrieves the subscription from Stripe, normalizes it, then maps to the
-   * VerifiedSubscription interface expected by the bond system.
-   * @param subscriptionId - The Stripe subscription ID (e.g. `sub_xxx`).
+   * Accepts either a Subscription ID (`sub_xxx`) or a Checkout Session ID (`cs_xxx`).
+   * If a Checkout Session ID is provided, it retrieves the session first to extract
+   * the associated subscription ID.
+   * @param subscriptionId - The Stripe subscription ID (`sub_xxx`) or checkout session ID (`cs_xxx`).
    * @returns The verified subscription with product, expiry, and renewal info, or `null` on failure.
    */
   async verifySubscription(subscriptionId: string): Promise<VerifiedSubscription | null> {
     try {
-      const subscription = await getSubscription(subscriptionId)
+      // If this is a Checkout Session ID (from post-checkout redirect), resolve to subscription
+      let resolvedSubscriptionId = subscriptionId
+      if (subscriptionId.startsWith('cs_')) {
+        const session = await getCheckoutSession(subscriptionId)
+        if (!session.subscription) {
+          logger.error('Stripe checkout session has no subscription', { sessionId: subscriptionId })
+          return null
+        }
+        resolvedSubscriptionId = session.subscription
+      }
+
+      const subscription = await getSubscription(resolvedSubscriptionId)
 
       if (!subscription) {
         return null
@@ -237,19 +252,19 @@ export const paymentProvider: PaymentProvider = {
       const apiOrigin = process.env.API_ORIGIN || process.env.ORIGIN || ''
       const appOrigin = process.env.APP_ORIGIN || process.env.ORIGIN || ''
 
-      const jwtProvider = get<{ sign(payload: Record<string, unknown>): string }>('jwt')
-      if (!jwtProvider) {
-        throw new Error('JWT provider must be bonded for Stripe checkout flows.')
-      }
-      const paymentToken = jwtProvider.sign({
-        userId: params.userId,
-        productId: params.newProductId,
-      })
+      // Generate idempotency key from userId + priceId + timestamp window (5-min buckets)
+      // This prevents duplicate checkout sessions if the user double-clicks or retries
+      const timeWindow = Math.floor(Date.now() / (5 * 60 * 1000))
+      const idempotencyKey = crypto
+        .createHash('sha256')
+        .update(`checkout:${params.userId}:${params.newProductId}:${timeWindow}`)
+        .digest('hex')
 
       const session = await createCheckoutSession({
         priceId: params.newProductId,
-        successUrl: `${apiOrigin}/api/users/${params.userId}/verify-payment/stripe?sessionId={CHECKOUT_SESSION_ID}&paymentToken=${paymentToken}`,
+        successUrl: `${apiOrigin}/api/users/${params.userId}/verify-payment/stripe?subscriptionId={CHECKOUT_SESSION_ID}`,
         cancelUrl: appOrigin,
+        idempotencyKey,
       })
 
       if (session?.id && session?.url) {

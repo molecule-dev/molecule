@@ -181,14 +181,16 @@ describe('Mailgun Email Provider', () => {
   })
 
   describe('environment variable handling', () => {
-    it('should use fallback key when MAILGUN_API_KEY is missing', async () => {
+    it('should throw when MAILGUN_API_KEY is missing', async () => {
       delete process.env.MAILGUN_API_KEY
       vi.resetModules()
 
-      await import('../provider.js')
+      const { sendMail } = await import('../provider.js')
 
-      // The transport should be created even without the API key
-      expect(mockCreateTransport).toHaveBeenCalled()
+      // Sending should throw because the API key is required
+      await expect(sendMail({ to: 'test@test.com', subject: 'Test' })).rejects.toThrow(
+        'MAILGUN_API_KEY is not set',
+      )
     })
   })
 

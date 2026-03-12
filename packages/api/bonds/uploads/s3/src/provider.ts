@@ -72,6 +72,23 @@ export const upload = (
   const encoding = info.encoding.substring(0, 1023)
   const mimetype = info.mimeType.substring(0, 255)
 
+  // Block dangerous MIME types that could enable XSS if served directly
+  const BLOCKED_MIME_TYPES = new Set([
+    'text/html',
+    'application/xhtml+xml',
+    'application/javascript',
+    'text/javascript',
+    'application/x-javascript',
+    'image/svg+xml',
+    'text/xml',
+    'application/xml',
+  ])
+  if (BLOCKED_MIME_TYPES.has(mimetype.toLowerCase())) {
+    const error = new Error(`File type ${mimetype} is not allowed for upload`)
+    onError(error)
+    return { id, fieldname, filename, encoding, mimetype, size: 0, uploaded: false } as File
+  }
+
   const s3Upload = new Upload({
     client: getS3Client(),
     params: {
@@ -79,6 +96,7 @@ export const upload = (
       Key: id,
       Body: stream as Readable,
       ContentType: mimetype,
+      ContentDisposition: 'attachment',
     },
   })
 
@@ -119,6 +137,10 @@ export const upload = (
 
   stream.on(`end`, () => {
     delete file.stream
+  })
+
+  stream.on(`error`, (err) => {
+    onError(err instanceof Error ? err : new Error(String(err)))
   })
 
   stream.on(`limit`, () => {

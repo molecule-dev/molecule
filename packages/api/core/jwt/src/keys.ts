@@ -74,17 +74,30 @@ if (!process.env.JWT_PRIVATE_KEY || !process.env.JWT_PUBLIC_KEY) {
 /**
  * The RSA private key for signing JWTs. Read from the `JWT_PRIVATE_KEY`
  * environment variable, or loaded from the PEM file on disk.
+ *
+ * Throws at startup if neither source provides a key — running with an
+ * empty secret would allow anyone to forge valid JWTs.
  */
 export const JWT_PRIVATE_KEY =
   process.env.JWT_PRIVATE_KEY ||
   (fs.existsSync(privateKeyPath) && fs.readFileSync(privateKeyPath)) ||
-  ``
+  (() => {
+    throw new Error(
+      'JWT private key not found. Set JWT_PRIVATE_KEY env var or ensure key files exist.',
+    )
+  })()
 
 /**
  * The RSA public key for verifying JWTs. Read from the `JWT_PUBLIC_KEY`
  * environment variable, or loaded from the PEM file on disk.
+ *
+ * Throws at startup if neither source provides a key.
  */
 export const JWT_PUBLIC_KEY =
   process.env.JWT_PUBLIC_KEY ||
   (fs.existsSync(publicKeyPath) && fs.readFileSync(publicKeyPath)) ||
-  ``
+  (() => {
+    throw new Error(
+      'JWT public key not found. Set JWT_PUBLIC_KEY env var or ensure key files exist.',
+    )
+  })()

@@ -18,7 +18,6 @@ import type {
   EditorTab,
   FixWithAIRequest,
 } from '@molecule/app-code-editor'
-
 import { t } from '@molecule/app-i18n'
 
 import {
@@ -748,7 +747,7 @@ export class MonacoEditorProvider implements EditorProvider {
   /**
    * Opens a side-by-side diff view, replacing the normal editor temporarily.
    * The normal editor is hidden (not disposed) and restored when `closeDiff()` is called.
-   * @param file
+   * @param file - The diff file descriptor containing original, modified content, and path.
    */
   openDiff(file: DiffFile): void {
     if (!this.monaco || !this.containerElement) return
@@ -880,7 +879,7 @@ export class MonacoEditorProvider implements EditorProvider {
 
   /**
    * Configures TypeScript/JavaScript language defaults (compiler options, diagnostics).
-   * @param monaco
+   * @param monaco - The Monaco module instance.
    */
   private configureTypeScript(monaco: MonacoModule): void {
     const compilerOptions: Record<string, unknown> = {
@@ -921,7 +920,7 @@ export class MonacoEditorProvider implements EditorProvider {
 
   /**
    * Subscribes to Monaco marker changes and updates tab diagnostics.
-   * @param monaco
+   * @param monaco - The Monaco module instance.
    */
   private wireMarkerListener(monaco: MonacoModule): void {
     this.markerDisposable?.dispose()
@@ -994,7 +993,7 @@ export class MonacoEditorProvider implements EditorProvider {
   /**
    * Sets a file resolver used by Go to Definition / Peek Definition to fetch
    * content for files not yet opened in the editor.
-   * @param resolver
+   * @param resolver - Async function that fetches file content and language by path.
    */
   setFileResolver(
     resolver: (path: string) => Promise<{ content: string; language?: string } | null>,
@@ -1005,7 +1004,7 @@ export class MonacoEditorProvider implements EditorProvider {
   /**
    * Registers a Monaco editor opener that intercepts cross-file navigation
    * (Go to Definition, Cmd+Click) and opens the target file in the editor.
-   * @param monaco
+   * @param monaco - The Monaco module instance.
    */
   private registerEditorOpener(monaco: MonacoModule): void {
     this.editorOpenerDisposable?.dispose()
@@ -1065,7 +1064,7 @@ export class MonacoEditorProvider implements EditorProvider {
   /**
    * Connects to an LSP server over WebSocket and registers Monaco language providers.
    * Disables built-in TS diagnostics in favour of LSP-provided ones.
-   * @param wsUrl
+   * @param wsUrl - The WebSocket URL of the LSP server.
    */
   async connectLsp(wsUrl: string): Promise<void> {
     if (this.lspClient) this.disconnectLsp()
@@ -1167,7 +1166,8 @@ export class MonacoEditorProvider implements EditorProvider {
 
   /**
    * Maps file extension to LSP language identifier.
-   * @param path
+   * @param path - The file path to determine language for.
+   * @returns The LSP language identifier string.
    */
   private getLspLanguageId(path: string): string {
     if (path.endsWith('.tsx')) return 'typescriptreact'
@@ -1421,8 +1421,8 @@ export class MonacoEditorProvider implements EditorProvider {
   }
 
   /**
-   *
-   * @param path
+   * Marks a file tab as saved (clears the dirty flag) and notifies listeners.
+   * @param path - The file path to mark as saved.
    */
   markSaved(path: string): void {
     const tab = this.tabs.get(path)

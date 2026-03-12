@@ -14,6 +14,38 @@ npm install @molecule/app-ai-chat
 
 ### Interfaces
 
+#### `AttachmentMeta`
+
+Attachment metadata stored in message history (no base64 data).
+
+```typescript
+interface AttachmentMeta {
+  /** Original filename. */
+  filename: string
+  /** MIME type. */
+  mediaType: string
+  /** File size in bytes. */
+  size: number
+}
+```
+
+#### `ChatAttachment`
+
+A file attachment sent with a chat message.
+
+```typescript
+interface ChatAttachment {
+  /** MIME type (e.g., 'image/jpeg', 'application/pdf'). */
+  mediaType: string
+  /** Base64-encoded file data (no data-URL prefix). */
+  data: string
+  /** Original filename for display. */
+  filename: string
+  /** File size in bytes (for validation and display). */
+  size: number
+}
+```
+
 #### `ChatConfig`
 
 Configuration for a chat session, including the API endpoint,
@@ -49,9 +81,13 @@ interface ChatMessage {
   isStreaming?: boolean
   /** Set when the user aborted the response mid-stream. */
   aborted?: boolean
+  /** Set when the agentic loop hit its iteration limit before finishing. */
+  loopLimitReached?: number
   /** Persisted commit record for display in conversation history. */
   commitRecord?: { message: string; files: string[] }
   commitSuggestion?: CommitSuggestion
+  /** File attachments sent with this message (metadata only — no base64 data in history). */
+  attachments?: AttachmentMeta[]
 }
 ```
 
@@ -65,7 +101,12 @@ interface ChatProvider {
   readonly name: string
 
   /** Sends a message and streams the response via the event handler. */
-  sendMessage(message: string, config: ChatConfig, onEvent: ChatEventHandler): Promise<void>
+  sendMessage(
+    message: string,
+    config: ChatConfig,
+    onEvent: ChatEventHandler,
+    attachments?: ChatAttachment[],
+  ): Promise<void>
 
   /** Aborts the current streaming response. */
   abort(): void
@@ -116,6 +157,8 @@ interface ToolCall {
   input: unknown
   output?: unknown
   status: 'pending' | 'running' | 'done' | 'error'
+  /** Snapshot of original/modified file content captured at tool-call time (not sent to AI). */
+  fileDiff?: { original: string; modified: string }
 }
 ```
 
@@ -141,7 +184,10 @@ type ChatStreamEvent =
   | { type: 'thinking'; content: string }
   | { type: 'tool_use'; id: string; name: string; input: unknown }
   | { type: 'tool_result'; id: string; output: unknown }
+  | { type: 'file_diff'; path: string; oldContent: string | null; newContent: string }
   | { type: 'commit_suggestion'; files: string[] }
+  | { type: 'mode'; mode: 'plan' | 'execute' }
+  | { type: 'loop_limit_reached'; maxLoops: number }
   | { type: 'done'; usage?: { inputTokens: number; outputTokens: number } }
   | { type: 'error'; message: string }
 ```

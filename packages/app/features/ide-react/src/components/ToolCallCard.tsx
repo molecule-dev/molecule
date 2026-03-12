@@ -25,8 +25,9 @@ type Inp = Record<string, unknown>
 type Out = Record<string, unknown> | string | null | undefined
 
 /**
- *
- * @param path
+ * Extracts the last path segment from a file path (e.g. "a/b/c.ts" → "c.ts").
+ * @param path - The file path to extract the basename from.
+ * @returns The basename string, or empty string if path is undefined.
  */
 function basename(path: string | undefined): string {
   if (!path) return ''
@@ -35,8 +36,9 @@ function basename(path: string | undefined): string {
 
 /**
  * Human-readable label for a tool call (e.g. "Edit `ChatPanel.tsx`").
- * @param name
- * @param input
+ * @param name - The tool name (e.g. "write_file", "exec_command").
+ * @param input - The raw tool input payload.
+ * @returns A formatted label string with backtick-wrapped filenames.
  */
 function toolLabel(name: string, input: unknown): string {
   const inp = (input ?? {}) as Inp
@@ -84,9 +86,10 @@ function toolLabel(name: string, input: unknown): string {
 
 /**
  * One-line result summary shown beneath the label.
- * @param name
- * @param output
- * @param status
+ * @param name - The tool name.
+ * @param output - The raw tool output payload.
+ * @param status - The execution status (pending, running, done, error).
+ * @returns A brief summary string describing the result.
  */
 function toolSummary(name: string, output: Out, status: string): string {
   if (status === 'pending') return ''
@@ -167,11 +170,12 @@ const CODE_STYLE: React.CSSProperties = {
 
 /**
  * Clickable filename code — single click opens preview, double click pins tab.
- * @param root0
- * @param root0.filePath
- * @param root0.onFileOpen
- * @param root0.onFileDoubleClick
- * @param root0.children
+ * @param root0 - Component props.
+ * @param root0.filePath - The file path to open on click.
+ * @param root0.onFileOpen - Callback invoked on single click to preview the file.
+ * @param root0.onFileDoubleClick - Callback invoked on double click to pin the file tab.
+ * @param root0.children - The inline code content to display.
+ * @returns The rendered clickable code element.
  */
 function FileCodeLink({ filePath, onFileOpen, onFileDoubleClick, children }: {
   filePath: string
@@ -193,12 +197,13 @@ function FileCodeLink({ filePath, onFileOpen, onFileDoubleClick, children }: {
 }
 
 /**
- *
- * @param name
- * @param input
- * @param filePath
- * @param onFileOpen
- * @param onFileDoubleClick
+ * Renders a tool label with backtick segments converted to clickable code spans.
+ * @param name - The tool name.
+ * @param input - The raw tool input payload.
+ * @param filePath - The primary file path for clickable code links, or null.
+ * @param onFileOpen - Callback to preview a file on single click.
+ * @param onFileDoubleClick - Callback to pin a file tab on double click.
+ * @returns A ReactNode with formatted label text and clickable file references.
  */
 function renderLabel(
   name: string,
@@ -240,8 +245,9 @@ const PRE: React.CSSProperties = {
 
 /**
  * Render the input section for a tool call.
- * @param name
- * @param input
+ * @param name - The tool name.
+ * @param input - The raw tool input payload.
+ * @returns A ReactNode showing the formatted input content.
  */
 function renderIn(name: string, input: unknown): ReactNode {
   const inp = (input ?? {}) as Inp
@@ -310,8 +316,9 @@ function renderIn(name: string, input: unknown): ReactNode {
 
 /**
  * Render the output section for a tool call.
- * @param name
- * @param output
+ * @param name - The tool name.
+ * @param output - The raw tool output payload.
+ * @returns A ReactNode showing the formatted output content.
  */
 function renderOut(name: string, output: unknown): ReactNode {
   const out = (output ?? {}) as Inp
@@ -467,8 +474,9 @@ function renderOut(name: string, output: unknown): ReactNode {
  */
 /**
  * Count truly added/removed lines between two line arrays using LCS.
- * @param oldLines
- * @param newLines
+ * @param oldLines - The original lines array.
+ * @param newLines - The modified lines array.
+ * @returns An object with the number of added and removed lines.
  */
 function diffLineCount(oldLines: string[], newLines: string[]): { added: number; removed: number } {
   const n = oldLines.length
@@ -487,9 +495,10 @@ function diffLineCount(oldLines: string[], newLines: string[]): { added: number;
 
 /**
  * Compute lines added/removed from a file-changing tool call.
- * @param name
- * @param input
- * @param output
+ * @param name - The tool name (edit_file or write_file).
+ * @param input - The raw tool input payload.
+ * @param output - The raw tool output payload.
+ * @returns Diff stats with added and removed line counts, or null if not applicable.
  */
 function fileDiffStats(name: string, input: unknown, output: unknown): { added: number; removed: number } | null {
   if (name === 'edit_file') {
@@ -518,8 +527,9 @@ function fileDiffStats(name: string, input: unknown, output: unknown): { added: 
 
 /**
  * Extracts the primary file path from a tool's input, if it operates on a single file.
- * @param name
- * @param input
+ * @param name - The tool name.
+ * @param input - The raw tool input payload.
+ * @returns The file path string, or null if the tool doesn't target a single file.
  */
 function extractFilePath(name: string, input: unknown): string | null {
   const inp = (input ?? {}) as Record<string, unknown>
@@ -536,18 +546,20 @@ function extractFilePath(name: string, input: unknown): string | null {
 }
 
 /**
- *
- * @param root0
- * @param root0.name
- * @param root0.input
- * @param root0.output
- * @param root0.status
- * @param root0.fileDiff
- * @param root0.onFileOpen
- * @param root0.onFileDoubleClick
- * @param root0.onFileDiff
- * @param root0.onFileRevert
- * @param root0.className
+ * Compact tool-call row with status dot, label, summary, and expandable detail pane.
+ * @param root0 - Component props.
+ * @param root0.name - The tool name (e.g. "write_file", "exec_command").
+ * @param root0.input - The raw tool input payload.
+ * @param root0.output - The raw tool output payload.
+ * @param root0.status - The execution status (pending, running, done, error).
+ * @param root0.fileDiff - Original and modified file content for undo/redo.
+ * @param root0.onFileOpen - Callback to preview a file in the editor.
+ * @param root0.onFileDoubleClick - Callback to pin a file tab in the editor.
+ * @param root0.onFileDiff - Callback to open a side-by-side diff view.
+ * @param root0.onFileRevert - Callback to revert a file to previous content.
+ * @param root0.onAskUserResponse - Callback to send the user's response to an ask_user tool.
+ * @param root0.className - Optional CSS class name for the container.
+ * @returns The rendered tool call card element.
  */
 export function ToolCallCard({
   name,
@@ -650,7 +662,7 @@ export function ToolCallCard({
     const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
 
     const borderClr = isLight ? '#d0d7de' : '#3d444d'
-    const labelChar = (i: number) => String.fromCharCode(65 + i) // A, B, C, …
+    const labelChar = (i: number): string => String.fromCharCode(65 + i) // A, B, C, …
 
     return (
       <div

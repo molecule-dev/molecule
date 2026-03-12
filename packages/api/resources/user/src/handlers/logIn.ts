@@ -1,3 +1,5 @@
+import crypto from 'node:crypto'
+
 import { get, getAnalytics, getLogger } from '@molecule/api-bond'
 import { findById, findOne, updateById } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
@@ -56,6 +58,13 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
       }
 
       if (!user) {
+        // Perform a dummy bcrypt compare to prevent timing-based user enumeration.
+        // Without this, the ~100-300ms difference between "user not found" (instant)
+        // and "wrong password" (bcrypt cost) reveals whether an account exists.
+        if (body.password) {
+          const dummyHash = '$2b$12$000000000000000000000000000000000000000000000000000000'
+          await compare(body.password, dummyHash).catch(() => {})
+        }
         analytics
           .track({ name: 'user.login_failed', properties: { reason: 'invalid_credentials' } })
           .catch(() => {})
@@ -88,20 +97,22 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
         authenticated = await compare(body.password, secrets.passwordHash)
       }
 
-      // Try password reset token.
+      // Try password reset token (constant-time comparison to prevent timing attacks).
       if (!authenticated && body.passwordResetToken && secrets.passwordResetToken) {
-        if (body.passwordResetToken === secrets.passwordResetToken) {
+        const a = Buffer.from(body.passwordResetToken, 'utf-8')
+        const b = Buffer.from(secrets.passwordResetToken, 'utf-8')
+        if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
           // Check if the token is still valid (within 1 hour).
           if (secrets.passwordResetTokenAt) {
             const tokenAge = Date.now() - new Date(secrets.passwordResetTokenAt).getTime()
             if (tokenAge < 1000 * 60 * 60) {
-              authenticated = true
-
-              // Clear the reset token after use.
+              // Clear the reset token BEFORE granting auth to prevent concurrent
+              // replay — two requests with the same token must not both succeed.
               await updateById(`${tableName}Secrets`, user.id, {
                 passwordResetToken: null,
                 passwordResetTokenAt: null,
               })
+              authenticated = true
             }
           }
         }

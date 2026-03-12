@@ -39,12 +39,8 @@ describe('@molecule/api-jwt-jsonwebtoken', () => {
       expect(result).toBe('signed-token')
     })
 
-    it('should use empty string when no key is provided', () => {
-      mockSign.mockReturnValue('token')
-
-      provider.sign({ sub: '123' })
-
-      expect(mockSign).toHaveBeenCalledWith({ sub: '123' }, '', undefined)
+    it('should throw when no private key is provided', () => {
+      expect(() => provider.sign({ sub: '123' })).toThrow('JWT private key is required for signing')
     })
 
     it('should pass undefined options when not provided', () => {
@@ -73,16 +69,14 @@ describe('@molecule/api-jwt-jsonwebtoken', () => {
 
       expect(mockVerify).toHaveBeenCalledWith('token-string', 'public-key', {
         algorithms: ['RS256'],
+        ignoreExpiration: false,
+        ignoreNotBefore: false,
       })
       expect(result).toEqual(payload)
     })
 
-    it('should use empty string when no key is provided', () => {
-      mockVerify.mockReturnValue({ sub: '123' })
-
-      provider.verify('token')
-
-      expect(mockVerify).toHaveBeenCalledWith('token', '', undefined)
+    it('should throw when no public key is provided', () => {
+      expect(() => provider.verify('token')).toThrow('JWT public key is required for verification')
     })
 
     it('should propagate verification errors', () => {

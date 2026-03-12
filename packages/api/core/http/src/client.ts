@@ -41,14 +41,42 @@ export const defaultClient: HttpClient = {
       }
     }
 
-    // Make the fetch request
-    const response = await global.fetch(fullUrl, {
-      method,
-      headers,
-      body,
-      credentials: options?.credentials,
-      signal: options?.signal,
-    })
+    // Enforce timeout via AbortController when options.timeout is set.
+    // If the caller also passed a signal, abort on either timeout or caller abort.
+    let timeoutId: ReturnType<typeof setTimeout> | undefined
+    let signal = options?.signal
+    if (options?.timeout && options.timeout > 0) {
+      const controller = new AbortController()
+      timeoutId = setTimeout(() => controller.abort(), options.timeout)
+      // If the caller also provided a signal, abort our controller when it fires
+      if (signal) {
+        signal.addEventListener('abort', () => controller.abort(), { once: true })
+      }
+      signal = controller.signal
+    }
+
+    let response: Response
+    try {
+      // Make the fetch request
+      response = await global.fetch(fullUrl, {
+        method,
+        headers,
+        body,
+        credentials: options?.credentials,
+        signal,
+      })
+    } catch (err) {
+      if (timeoutId) clearTimeout(timeoutId)
+      // Tag timeout errors for callers to distinguish
+      if (err instanceof Error && err.name === 'AbortError' && options?.timeout) {
+        const timeoutErr = new Error(`Request timed out after ${options.timeout}ms`) as HttpError
+        timeoutErr.isTimeout = true
+        timeoutErr.request = { url: fullUrl }
+        throw timeoutErr
+      }
+      throw err
+    }
+    if (timeoutId) clearTimeout(timeoutId)
 
     const { status, statusText } = response
 
@@ -67,10 +95,22 @@ export const defaultClient: HttpClient = {
       }
     }
 
+    // Convert Fetch Headers to plain object
+    const responseHeaders: Record<string, string> = {}
+    response.headers.forEach((value, key) => {
+      responseHeaders[key] = value
+    })
+
     // Handle error responses
     if (!response.ok) {
       const error = new Error(`HTTP ${status}: ${statusText}`) as HttpError
-      error.response = { status, statusText, headers: {}, data, request: { url: fullUrl } }
+      error.response = {
+        status,
+        statusText,
+        headers: responseHeaders,
+        data,
+        request: { url: fullUrl },
+      }
       error.request = { url: fullUrl }
       throw error
     }
@@ -78,7 +118,7 @@ export const defaultClient: HttpClient = {
     return {
       status,
       statusText,
-      headers: {},
+      headers: responseHeaders,
       data,
       request: { url: fullUrl },
     }

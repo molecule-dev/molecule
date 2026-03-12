@@ -93,5 +93,6 @@ export function setupCodeEditorMonaco(): void {
 
 Peer dependencies:
 - `@molecule/app-code-editor` ^1.0.0
+- `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `monaco-editor` >=0.40.0

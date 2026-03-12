@@ -1,0 +1,50 @@
+{
+  "name": "@molecule/app-theme-css-variables-liquid-glass",
+  "version": "1.0.0",
+  "description": "Liquid glass theme preset with translucent surfaces for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "theme",
+    "css-variables",
+    "liquid-glass",
+    "frosted-glass",
+    "translucent"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "25.3.0",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18"
+  },
+  "peerDependencies": {
+    "@molecule/app-theme": "^1.0.0",
+    "@molecule/app-theme-css-variables": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/theme/css-variables-liquid-glass"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/theme/css-variables-liquid-glass",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

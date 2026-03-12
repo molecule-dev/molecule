@@ -1,4 +1,4 @@
-import { v4 as uuid } from 'uuid'
+import crypto from 'crypto'
 
 import { get, getAnalytics, getLogger } from '@molecule/api-bond'
 import { get as getConfig } from '@molecule/api-config'
@@ -51,7 +51,7 @@ export const forgotPassword = ({ name: _name, tableName, schema: _schema }: type
       }
 
       // Generate a reset token.
-      const passwordResetToken = uuid()
+      const passwordResetToken = crypto.randomBytes(32).toString('hex')
       const passwordResetTokenAt = new Date().toISOString()
 
       await updateById(`${tableName}Secrets`, user.id, { passwordResetToken, passwordResetTokenAt })

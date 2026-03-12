@@ -99,6 +99,7 @@ export function PreviewPanel({ className }: PreviewPanelProps): JSX.Element {
         {state.url ? (
           <iframe
             src={state.url}
+            sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin"
             title={t('ide.preview.livePreview')}
             className={cm.cn(state.device !== 'none' && state.device !== 'desktop' && cm.borderAll)}
             style={{

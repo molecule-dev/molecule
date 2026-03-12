@@ -34,6 +34,7 @@ export const provider: TwoFactorProvider = {
 
   async verify(params: TwoFactorVerifyParams): Promise<boolean> {
     const { secret, token } = params
-    return verifySync({ secret, token }).valid
+    // Allow ±30 seconds tolerance for clock skew between server and mobile devices
+    return verifySync({ secret, token, epochTolerance: 30 }).valid
   },
 }

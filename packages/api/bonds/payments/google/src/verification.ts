@@ -13,6 +13,20 @@ import type { NormalizedSubscription, SubscriptionStatus } from '@molecule/api-p
 import { getPublisher } from './auth.js'
 
 /**
+ * Returns the Google Play package name from env, throwing if not configured.
+ * @returns The GOOGLE_PLAY_PACKAGE_NAME value.
+ */
+function requirePackageName(): string {
+  const name = process.env.GOOGLE_PLAY_PACKAGE_NAME
+  if (!name) {
+    throw new Error(
+      'GOOGLE_PLAY_PACKAGE_NAME is not set. Google Play payment verification will not work.',
+    )
+  }
+  return name
+}
+
+/**
  * Verifies a Google Play subscription purchase using the Android Publisher API v2.
  * @param productId - The Google Play subscription product ID (used for context; the token is the lookup key).
  * @param purchaseToken - The purchase token received from the Google Play client.
@@ -25,7 +39,7 @@ export const verifySubscription = async (
   try {
     const publisher = getPublisher()
     const response = await publisher.purchases.subscriptionsv2.get({
-      packageName: process.env.GOOGLE_PLAY_PACKAGE_NAME,
+      packageName: requirePackageName(),
       token: purchaseToken,
     })
 
@@ -49,7 +63,7 @@ export const verifyProduct = async (
   try {
     const publisher = getPublisher()
     const response = await publisher.purchases.products.get({
-      packageName: process.env.GOOGLE_PLAY_PACKAGE_NAME,
+      packageName: requirePackageName(),
       productId,
       token: purchaseToken,
     })
@@ -74,7 +88,7 @@ export const acknowledgeSubscription = async (
   try {
     const publisher = getPublisher()
     await publisher.purchases.subscriptions.acknowledge({
-      packageName: process.env.GOOGLE_PLAY_PACKAGE_NAME,
+      packageName: requirePackageName(),
       subscriptionId: productId,
       token: purchaseToken,
     })
@@ -97,7 +111,7 @@ export const acknowledgeProduct = async (
   try {
     const publisher = getPublisher()
     await publisher.purchases.products.acknowledge({
-      packageName: process.env.GOOGLE_PLAY_PACKAGE_NAME,
+      packageName: requirePackageName(),
       productId,
       token: purchaseToken,
     })

@@ -120,6 +120,7 @@ describe('Stripe Provider', () => {
         expect.objectContaining({
           customer: 'cus_123',
         }),
+        undefined,
       )
     })
 
@@ -137,6 +138,7 @@ describe('Stripe Provider', () => {
         expect.objectContaining({
           metadata: { userId: 'user_123' },
         }),
+        undefined,
       )
     })
 
@@ -155,6 +157,7 @@ describe('Stripe Provider', () => {
           payment_method_types: ['card'],
           line_items: [{ price: 'price_123', quantity: 1 }],
         }),
+        undefined,
       )
     })
 
@@ -178,13 +181,14 @@ describe('Stripe Provider', () => {
   })
 
   describe('getCheckoutSession', () => {
-    it('should retrieve a checkout session', async () => {
+    it('should retrieve a checkout session with subscription ID', async () => {
       const { getCheckoutSession } = await import('../provider.js')
 
       const session = await getCheckoutSession('cs_123')
 
       expect(session).toBeDefined()
       expect(session.id).toBe('cs_123')
+      expect(session.subscription).toBe('sub_123')
     })
 
     it('should call retrieve with the session ID', async () => {

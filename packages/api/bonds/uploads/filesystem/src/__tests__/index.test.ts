@@ -712,23 +712,129 @@ describe('Filesystem Security Tests', () => {
     it('should handle path traversal attempts in delete', async () => {
       const { deleteFile } = await import('../provider.js')
 
-      // Note: This tests that the provider uses path.join which normalizes paths
-      // However, the actual protection comes from using UUIDs as IDs
-      await deleteFile('../../../etc/passwd')
-
-      // The path should be constructed from uploadPath + id
-      expect(mockUnlink).toHaveBeenCalled()
+      // Path traversal should be rejected before touching the filesystem
+      await expect(deleteFile('../../../etc/passwd')).rejects.toThrow('Invalid file ID')
+      expect(mockUnlink).not.toHaveBeenCalled()
     })
 
     it('should handle path traversal attempts in getFileStream', async () => {
+      const { getFileStream } = await import('../provider.js')
+
+      // Path traversal should be rejected before opening a stream
+      expect(() => getFileStream('../../../etc/passwd')).toThrow('Invalid file ID')
+      expect(mockCreateReadStream).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('deleteFile path traversal', () => {
+    it('should reject path traversal with ../ sequences', async () => {
+      const { deleteFile } = await import('../provider.js')
+
+      await expect(deleteFile('../../../etc/passwd')).rejects.toThrow('Invalid file ID')
+      expect(mockUnlink).not.toHaveBeenCalled()
+    })
+
+    it('should reject path traversal with deeper traversal', async () => {
+      const { deleteFile } = await import('../provider.js')
+
+      await expect(deleteFile('../../../../../../../../etc/shadow')).rejects.toThrow(
+        'Invalid file ID',
+      )
+      expect(mockUnlink).not.toHaveBeenCalled()
+    })
+
+    it('should reject path traversal with encoded characters like ..%2f..%2f', async () => {
+      const { deleteFile } = await import('../provider.js')
+
+      // URL-decoded by the time it reaches the provider: ..%2f becomes ../
+      const decoded = decodeURIComponent('..%2f..%2f..%2fetc%2fpasswd')
+      await expect(deleteFile(decoded)).rejects.toThrow('Invalid file ID')
+      expect(mockUnlink).not.toHaveBeenCalled()
+    })
+
+    it('should succeed with a normal file ID', async () => {
+      const { deleteFile } = await import('../provider.js')
+
+      await deleteFile('abc123-def456')
+
+      expect(mockUnlink).toHaveBeenCalledWith(
+        expect.stringContaining('abc123-def456'),
+        expect.any(Function),
+      )
+    })
+
+    it('should succeed with a UUID file ID', async () => {
+      const { deleteFile } = await import('../provider.js')
+
+      await deleteFile('550e8400-e29b-41d4-a716-446655440000')
+
+      expect(mockUnlink).toHaveBeenCalledWith(
+        expect.stringContaining('550e8400-e29b-41d4-a716-446655440000'),
+        expect.any(Function),
+      )
+    })
+
+    it('should reject relative path that escapes upload directory', async () => {
+      const { deleteFile } = await import('../provider.js')
+
+      await expect(deleteFile('../sibling-dir/file')).rejects.toThrow('Invalid file ID')
+      expect(mockUnlink).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('getFileStream path traversal', () => {
+    it('should reject path traversal with ../ sequences', async () => {
+      const { getFileStream } = await import('../provider.js')
+
+      expect(() => getFileStream('../../../etc/passwd')).toThrow('Invalid file ID')
+      expect(mockCreateReadStream).not.toHaveBeenCalled()
+    })
+
+    it('should reject path traversal with deeper traversal', async () => {
+      const { getFileStream } = await import('../provider.js')
+
+      expect(() => getFileStream('../../../../../../../../etc/shadow')).toThrow('Invalid file ID')
+      expect(mockCreateReadStream).not.toHaveBeenCalled()
+    })
+
+    it('should reject path traversal with encoded characters like ..%2f..%2f', async () => {
+      const { getFileStream } = await import('../provider.js')
+
+      // URL-decoded by the time it reaches the provider: ..%2f becomes ../
+      const decoded = decodeURIComponent('..%2f..%2f..%2fetc%2fpasswd')
+      expect(() => getFileStream(decoded)).toThrow('Invalid file ID')
+      expect(mockCreateReadStream).not.toHaveBeenCalled()
+    })
+
+    it('should succeed with a normal file ID', async () => {
       const mockReadStream = new PassThrough()
       mockCreateReadStream.mockReturnValue(mockReadStream)
       const { getFileStream } = await import('../provider.js')
 
-      getFileStream('../../../etc/passwd')
+      const result = getFileStream('abc123-def456')
 
-      // The provider constructs the path, actual security comes from using UUIDs
-      expect(mockCreateReadStream).toHaveBeenCalled()
+      expect(result).toBe(mockReadStream)
+      expect(mockCreateReadStream).toHaveBeenCalledWith(expect.stringContaining('abc123-def456'))
+    })
+
+    it('should succeed with a UUID file ID', async () => {
+      const mockReadStream = new PassThrough()
+      mockCreateReadStream.mockReturnValue(mockReadStream)
+      const { getFileStream } = await import('../provider.js')
+
+      const result = getFileStream('550e8400-e29b-41d4-a716-446655440000')
+
+      expect(result).toBe(mockReadStream)
+      expect(mockCreateReadStream).toHaveBeenCalledWith(
+        expect.stringContaining('550e8400-e29b-41d4-a716-446655440000'),
+      )
+    })
+
+    it('should reject relative path that escapes upload directory', async () => {
+      const { getFileStream } = await import('../provider.js')
+
+      expect(() => getFileStream('../sibling-dir/file')).toThrow('Invalid file ID')
+      expect(mockCreateReadStream).not.toHaveBeenCalled()
     })
   })
 })

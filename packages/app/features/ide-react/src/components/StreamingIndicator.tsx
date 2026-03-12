@@ -20,8 +20,9 @@ const LIN = '0 0 1 1'
 
 /**
  * Animated molecule logo spinner (pure SVG, no external deps).
- * @param root0
- * @param root0.size
+ * @param root0 - Component props.
+ * @param root0.size - The width and height of the spinner in pixels.
+ * @returns The rendered SVG spinner element.
  */
 function MolSpinner({ size = 16 }: { size?: number }): JSX.Element {
   return (
@@ -174,8 +175,9 @@ interface StreamingIndicatorProps {
  * Animated streaming indicator with molecule spinner and rotating
  * status messages. Pass `inline` for a compact cursor replacement
  * inside flowing text.
- * @param root0
- * @param root0.inline
+ * @param root0 - Component props.
+ * @param root0.inline - When true, renders only the spinner without status text.
+ * @returns The rendered streaming indicator element.
  */
 export function StreamingIndicator({ inline }: StreamingIndicatorProps): JSX.Element {
   const [msgIdx, setMsgIdx] = useState(0)

@@ -40,7 +40,15 @@ interface ChatPanelProps {
   /** Called when a filename in a tool call is double-clicked — should pin the tab. */
   onFileDoubleClick?: (path: string) => void
   /** Called when a file in the uncommitted list is clicked for diff view. */
-  onFileDiff?: (path: string) => void
+  onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
+  /** Called to undo/redo a file change — writes the given content to the file path. */
+  onFileRevert?: (path: string, content: string) => Promise<void>
+  /** Called when the AI creates or modifies a file — should refresh the editor if the file is open. */
+  onFileChange?: (path: string, content: string) => void
+  /** Message to auto-send (e.g. from "Fix with AI"). Sent when pendingMessageKey changes. */
+  pendingMessage?: string
+  /** Incremented to trigger sending pendingMessage. */
+  pendingMessageKey?: number
   className?: string
 }
 ```
@@ -72,6 +80,16 @@ interface EditorPanelProps {
   onTabsChange?: (paths: string[]) => void
   /** Maps file path to git status for coloring tab filenames. */
   fileStatuses?: Record<string, string>
+  /** Path of the file currently being formatted, for visual indicator. */
+  formattingFile?: string | null
+  /** Path of the file with an active save debounce countdown. */
+  countdownFile?: string | null
+  /** Incremented each keystroke to restart the countdown animation. */
+  countdownKey?: number
+  /** Estimated format duration in ms (rolling average, default 2000). */
+  formatEstimate?: number
+  /** Called when the user triggers "Fix with AI" from the editor's lightbulb or context menu. */
+  onFixWithAI?: (request: FixWithAIRequest) => void
 }
 ```
 
@@ -107,6 +125,8 @@ interface FileNode {
   children?: FileNode[]
   isDimmed?: boolean
   gitStatus?: 'modified' | 'added' | 'deleted' | 'untracked'
+  /** If this entry is a symlink, the target it points to. */
+  symlinkTarget?: string
 }
 ```
 
@@ -160,12 +180,18 @@ interface ToolCallCardProps {
   input?: unknown
   output?: unknown
   status: 'pending' | 'running' | 'done' | 'error'
+  /** Snapshot of original/modified file content captured at tool-call time. */
+  fileDiff?: { original: string; modified: string }
   /** Called when a filename in the card is clicked — should open the file as a preview tab. */
   onFileOpen?: (path: string) => void
   /** Called when a filename in the card is double-clicked — should pin the tab. */
   onFileDoubleClick?: (path: string) => void
   /** Called when a file-changing card is clicked — should open the file diff in the editor. */
-  onFileDiff?: (path: string) => void
+  onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
+  /** Called to undo/redo a file change — writes the given content to the file path. */
+  onFileRevert?: (path: string, content: string) => Promise<void>
+  /** Called when the user responds to an `ask_user` tool call (clicks an option or submits free text). */
+  onAskUserResponse?: (response: string) => void
   className?: string
 }
 ```

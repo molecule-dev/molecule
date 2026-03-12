@@ -37,10 +37,14 @@ const setRawBody = (
 }
 
 // Use the JSON parser that comes with Express, with our `req.rawBody` customization.
-const jsonParser = express.json({ verify: setRawBody })
+// Explicit limit prevents ambiguity and protects against oversized payloads.
+const jsonParser = express.json({ verify: setRawBody, limit: '2mb' })
 
 // Use busboy for parsing multipart bodies.
-const busboy = connectBusboy()
+// Limit fields to prevent abuse (e.g. sending thousands of form fields to exhaust memory).
+const busboy = connectBusboy({
+  limits: { fields: 100, fieldSize: 1024 * 1024, files: 0, fileSize: 1024, parts: 110 },
+})
 
 // Same as busboy's content type checker.
 const shouldUseBusboy = (contentType?: string): boolean =>

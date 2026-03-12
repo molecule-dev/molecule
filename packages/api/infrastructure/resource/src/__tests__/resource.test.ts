@@ -166,7 +166,7 @@ describe('create', () => {
     expect(body.error).toContain('Unable to create')
   })
 
-  it('should preserve provided createdAt and updatedAt timestamps', async () => {
+  it('should ignore client-supplied createdAt and updatedAt timestamps', async () => {
     mockCreate.mockResolvedValueOnce({ affected: 1 })
 
     const createResource = create<{
@@ -180,22 +180,27 @@ describe('create', () => {
       schema: testSchema,
     })
 
-    const customCreatedAt = '2023-06-15T10:30:00.000Z'
-    const customUpdatedAt = '2023-06-15T10:30:00.000Z'
+    const clientCreatedAt = '2023-06-15T10:30:00.000Z'
+    const clientUpdatedAt = '2023-06-15T10:30:00.000Z'
 
     const result = await createResource({
       props: {
         name: 'Test',
         email: 'test@example.com',
-        createdAt: customCreatedAt,
-        updatedAt: customUpdatedAt,
+        createdAt: clientCreatedAt,
+        updatedAt: clientUpdatedAt,
       },
     })
 
     expect(result.statusCode).toBe(201)
     const body = result.body as { props: TestProps }
-    expect(body.props.createdAt).toBe(customCreatedAt)
-    expect(body.props.updatedAt).toBe(customUpdatedAt)
+    // Server must always set timestamps — client-supplied values are ignored
+    // to prevent timestamp manipulation attacks
+    expect(body.props.createdAt).not.toBe(clientCreatedAt)
+    expect(body.props.updatedAt).not.toBe(clientUpdatedAt)
+    // Both timestamps should be recent ISO strings
+    expect(new Date(body.props.createdAt).getTime()).toBeGreaterThan(Date.now() - 5000)
+    expect(body.props.createdAt).toBe(body.props.updatedAt)
   })
 
   it('should use custom status code from error if provided', async () => {

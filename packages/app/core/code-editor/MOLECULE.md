@@ -56,6 +56,22 @@ interface EditorConfig {
 }
 ```
 
+#### `EditorDiagnostic`
+
+A single diagnostic (error, warning, etc.) reported by the editor's language service.
+
+```typescript
+interface EditorDiagnostic {
+  message: string
+  severity: 'error' | 'warning' | 'info' | 'hint'
+  startLine: number
+  startColumn: number
+  endLine: number
+  endColumn: number
+  source?: string
+}
+```
+
 #### `EditorFile`
 
 A file opened in the code editor, with its path, content, and language.
@@ -95,6 +111,8 @@ interface EditorProvider {
   closeFile(path: string): void
   getContent(): string | null
   setContent(path: string, content: string): void
+  /** Silently update file content without firing change events or marking dirty. Preserves cursor position. */
+  setContentSilent?(path: string, content: string): void
   getCursorPosition(): EditorPosition | null
   setCursorPosition(position: EditorPosition): void
   focus(): void
@@ -106,10 +124,24 @@ interface EditorProvider {
   openDiff?(file: DiffFile): void
   /** Close the diff view and restore the normal editor. */
   closeDiff?(): void
+  /** Clear the dirty flag on a tab after a successful save. */
+  markSaved?(path: string): void
   /** Promote a preview tab to a permanent tab. */
   pinTab?(path: string): void
   /** Add a type definition or virtual file for module resolution. */
   addExtraLib?(content: string, filePath: string): void
+  /** Remove all registered extra libs. */
+  clearExtraLibs?(): void
+  /** Connect to an LSP server for language intelligence. */
+  connectLsp?(wsUrl: string): Promise<void>
+  /** Disconnect from the LSP server. */
+  disconnectLsp?(): void
+  /** Set a file resolver for Go to Definition / Peek Definition cross-file navigation. */
+  setFileResolver?(
+    resolver: (path: string) => Promise<{ content: string; language?: string } | null>,
+  ): void
+  /** Register a callback for "Fix with AI" requests from the editor (lightbulb quick fix or context menu). Returns an unsubscribe function. */
+  onFixWithAI?(callback: (request: FixWithAIRequest) => void): () => void
 }
 ```
 
@@ -148,7 +180,29 @@ interface EditorTab {
   isDirty: boolean
   isActive: boolean
   isPreview?: boolean
+  /** Diff tabs show a side-by-side comparison and cannot be pinned. */
+  isDiff?: boolean
   diagnostics?: { errors: number; warnings: number }
+}
+```
+
+#### `FixWithAIRequest`
+
+Request to interact with AI about code, triggered from the editor's lightbulb quick fix
+or right-click context menu.
+
+```typescript
+interface FixWithAIRequest {
+  /** File path of the file containing the code. */
+  path: string
+  /** Diagnostics (errors/warnings) at the target location, if any. */
+  diagnostics: EditorDiagnostic[]
+  /** Source code surrounding the target location for context. */
+  codeContext?: string
+  /** Exact text the user had selected, if any. */
+  selectedCode?: string
+  /** Line number where the cursor or selection starts. */
+  line?: number
 }
 ```
 

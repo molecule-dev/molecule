@@ -44,6 +44,7 @@ export const verify: OAuthVerifier = async (
         headers: {
           accept: `application/json`,
         },
+        timeout: 15_000,
       },
     )
 
@@ -56,6 +57,7 @@ export const verify: OAuthVerifier = async (
           accept: `application/json`,
           authorization: `Bearer ${token}`,
         },
+        timeout: 15_000,
       },
     )
 

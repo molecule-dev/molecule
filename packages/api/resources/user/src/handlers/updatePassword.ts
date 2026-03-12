@@ -1,4 +1,4 @@
-import { getAnalytics, getLogger } from '@molecule/api-bond'
+import { get, getAnalytics, getLogger } from '@molecule/api-bond'
 import { findById, updateById } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
 import { compare, hash } from '@molecule/api-password'
@@ -43,6 +43,30 @@ export const updatePassword = ({ name: _name, tableName, schema: _schema }: type
         }
       }
 
+      if (newPassword.length < 8) {
+        return {
+          statusCode: 400,
+          body: {
+            error: t('user.error.passwordTooShort', undefined, {
+              defaultValue: 'Password must be at least 8 characters',
+            }),
+            errorKey: 'user.error.passwordTooShort',
+          },
+        }
+      }
+
+      if (newPassword.length > 1024) {
+        return {
+          statusCode: 400,
+          body: {
+            error: t('user.error.passwordTooLong', undefined, {
+              defaultValue: 'Password must be at most 1024 characters',
+            }),
+            errorKey: 'user.error.passwordTooLong',
+          },
+        }
+      }
+
       // Get current password hash.
       const secrets = await findById<types.SecretProps>(`${tableName}Secrets`, id)
 
@@ -70,9 +94,23 @@ export const updatePassword = ({ name: _name, tableName, schema: _schema }: type
         }
       }
 
-      // Hash and store the new password.
+      // Hash and store the new password, and clear any outstanding reset token.
       const passwordHash = await hash(newPassword)
-      await updateById(`${tableName}Secrets`, id, { passwordHash })
+      await updateById(`${tableName}Secrets`, id, {
+        passwordHash,
+        passwordResetToken: null,
+        passwordResetTokenAt: null,
+      })
+
+      // Invalidate all existing sessions by deleting all devices for this user.
+      // This forces re-login on every device, preventing compromised sessions
+      // from persisting after a password change.
+      try {
+        await get<{ deleteByUserId(userId: string): Promise<void> }>('device')?.deleteByUserId(id)
+      } catch {
+        // Non-critical — password was already changed successfully
+        logger.warn('Failed to invalidate sessions after password change', { userId: id })
+      }
 
       analytics.track({ name: 'user.password_changed', userId: id }).catch(() => {})
 

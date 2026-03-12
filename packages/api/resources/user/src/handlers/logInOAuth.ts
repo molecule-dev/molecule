@@ -17,6 +17,7 @@ export interface LogInOAuthRequest extends MoleculeRequest {
   body: {
     server?: string
     code?: string
+    state?: string
     codeVerifier?: string
     redirect_uri?: string
     deviceName?: string
@@ -47,6 +48,31 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
       return {
         statusCode: 400,
         body: { error: t('user.error.badRequest'), errorKey: 'user.error.badRequest' },
+      }
+    }
+
+    // Validate OAuth CSRF state parameter if present in request.
+    // The state cookie is set by GET /users/oauth/:provider and should match.
+    if (body.state) {
+      const cookieState = (req as unknown as { cookies?: Record<string, string> }).cookies
+        ?.oauth_state
+      if (!cookieState || cookieState !== body.state) {
+        return {
+          statusCode: 403,
+          body: {
+            error: t('user.error.oauthStateMismatch', undefined, {
+              defaultValue: 'OAuth state mismatch — possible CSRF attack',
+            }),
+            errorKey: 'user.error.oauthStateMismatch',
+          },
+        }
+      }
+      // Clear the state cookie after validation (one-time use)
+      const expressRes = res as unknown as {
+        clearCookie?(name: string, options?: Record<string, unknown>): void
+      }
+      if (typeof expressRes.clearCookie === 'function') {
+        expressRes.clearCookie('oauth_state', { path: '/' })
       }
     }
 

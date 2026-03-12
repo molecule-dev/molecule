@@ -18,6 +18,19 @@ export * as setup from './setup/index.js'
  * @returns A `DatabasePool` that delegates to the provided pg pool.
  */
 function wrapPool(pgPool: pg.Pool): DatabasePool {
+  // Set statement_timeout on each new connection to prevent runaway queries
+  pgPool.on('connect', (client: pg.PoolClient) => {
+    client
+      .query("SET statement_timeout = '30s'; SET idle_in_transaction_session_timeout = '60s';")
+      .catch(() => {})
+  })
+
+  // Handle errors from idle clients in the pool to prevent unhandled exceptions
+  // that would crash the process (e.g., network interruption, server restart).
+  pgPool.on('error', (err: Error) => {
+    console.error('Unexpected error on idle database client', err.message)
+  })
+
   return {
     async query<T = Record<string, unknown>>(text: string, values?: unknown[]) {
       const result = await pgPool.query<T & pg.QueryResultRow>(text, values)
@@ -68,8 +81,8 @@ let _pool: DatabasePool | null = null
  * Returns the lazily-initialized default pool, creating it from
  * `DATABASE_URL` env var on first access.
  *
- * @param url
- * @returns The shared `DatabasePool` instance.
+ * @param url - The PostgreSQL connection URL to check.
+ * @returns `true` if the URL points to a local database.
  */
 function isLocalUrl(url: string): boolean {
   return (
@@ -81,19 +94,32 @@ function isLocalUrl(url: string): boolean {
 }
 
 /**
- *
+ * Returns the lazily-initialized default pool, creating it from
+ * `DATABASE_URL` env var on first access.
+ * @returns The shared `DatabasePool` instance.
  */
 function getPoolInstance(): DatabasePool {
   if (!_pool) {
     const url = process.env.DATABASE_URL
-    _pool = wrapPool(
-      !url
-        ? new pg.Pool()
-        : new pg.Pool({
-            connectionString: url,
-            ssl: isLocalUrl(url) ? false : { rejectUnauthorized: false },
-          }),
-    )
+    const poolConfig: pg.PoolConfig = url
+      ? {
+          connectionString: url,
+          ssl: isLocalUrl(url)
+            ? false
+            : process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'false'
+              ? { rejectUnauthorized: false }
+              : true,
+        }
+      : {}
+
+    // Production-safe defaults: prevent runaway queries and idle transactions.
+    // Pool size of 100 handles thousands of concurrent users while staying within
+    // PostgreSQL's default max_connections (100). Tune via DATABASE_POOL_MAX if needed.
+    poolConfig.max = poolConfig.max ?? parseInt(process.env.DATABASE_POOL_MAX ?? '100', 10)
+    poolConfig.connectionTimeoutMillis = poolConfig.connectionTimeoutMillis ?? 10_000
+    poolConfig.idleTimeoutMillis = poolConfig.idleTimeoutMillis ?? 30_000
+
+    _pool = wrapPool(new pg.Pool(poolConfig))
   }
   return _pool
 }

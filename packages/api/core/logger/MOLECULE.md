@@ -62,6 +62,16 @@ type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent'
 
 ### Functions
 
+#### `getLevel()`
+
+Returns the current minimum log level.
+
+```typescript
+function getLevel(): LogLevel
+```
+
+**Returns:** The active `LogLevel`.
+
 #### `hasLogger()`
 
 Checks whether a custom logger has been bonded via `setLogger()`.
@@ -80,6 +90,16 @@ Resets the logger back to the built-in console logger.
 function resetLogger(): void
 ```
 
+#### `setLevel(level)`
+
+Sets the minimum log level. Messages below this level are silently dropped.
+
+```typescript
+function setLevel(level: LogLevel): void
+```
+
+- `level` — The minimum log level to allow.
+
 #### `setLogger(newLogger)`
 
 Registers a logger implementation as the active provider.
@@ -97,6 +117,9 @@ function setLogger(newLogger: Logger): void
 Singleton logger proxy. Each method delegates to the currently bonded
 logger at call time, so swapping providers via `setLogger()` takes
 effect immediately without re-importing.
+
+Messages below the active minimum level (set via `LOG_LEVEL` env var
+or `setLevel()`) are silently dropped.
 
 ```typescript
 const logger: Logger

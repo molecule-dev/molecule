@@ -114,6 +114,11 @@ export interface LspMonacoModule {
 
 const TS_LANGUAGES = ['typescript', 'javascript', 'typescriptreact', 'javascriptreact']
 
+/**
+ * Converts an LSP range (0-based) to a Monaco range (1-based).
+ * @param range - The LSP range to convert.
+ * @returns A Monaco-compatible range object with 1-based line/column numbers.
+ */
 function lspToMonacoRange(range: LspRange): {
   startLineNumber: number
   startColumn: number
@@ -128,6 +133,16 @@ function lspToMonacoRange(range: LspRange): {
   }
 }
 
+/**
+ * Maps an LSP diagnostic severity to a Monaco MarkerSeverity value.
+ * @param severity - The LSP severity level (1=Error, 2=Warning, 3=Info, 4=Hint).
+ * @param ms - The Monaco MarkerSeverity enum object.
+ * @param ms.Error - Error severity constant.
+ * @param ms.Warning - Warning severity constant.
+ * @param ms.Info - Info severity constant.
+ * @param ms.Hint - Hint severity constant.
+ * @returns The corresponding Monaco marker severity number.
+ */
 function lspToMonacoSeverity(
   severity: number | undefined,
   ms: { Error: number; Warning: number; Info: number; Hint: number },
@@ -146,6 +161,11 @@ function lspToMonacoSeverity(
   }
 }
 
+/**
+ * Converts LSP hover contents to Monaco-compatible hover content format.
+ * @param contents - The LSP hover contents (string, MarkupContent, or array).
+ * @returns An array of value objects suitable for Monaco hover display.
+ */
 function convertHoverContents(
   contents: LspHover['contents'],
 ): { value: string; isTrusted?: boolean }[] {
@@ -156,6 +176,11 @@ function convertHoverContents(
   return [{ value: contents.value }]
 }
 
+/**
+ * Converts an LSP completion item to a Monaco completion suggestion.
+ * @param item - The LSP completion item to convert.
+ * @returns A Monaco-compatible completion suggestion object.
+ */
 function convertCompletionItem(item: LspCompletionItem): {
   label: string
   kind: number
@@ -188,6 +213,9 @@ function convertCompletionItem(item: LspCompletionItem): {
 // LspClient
 // ---------------------------------------------------------------------------
 
+/**
+ * WebSocket-based LSP client that communicates with a language server using JSON-RPC.
+ */
 export class LspClient {
   private ws: WebSocket | null = null
   private requestId = 0
@@ -201,13 +229,21 @@ export class LspClient {
 
   constructor(private wsUrl: string) {}
 
-  /** Convert an editor path or URI to an LSP file:// URI. */
+  /**
+   * Convert an editor path or URI to an LSP file:// URI.
+   * @param pathOrUri - The editor path or existing file:// URI.
+   * @returns The LSP-compatible file:// URI string.
+   */
   toLspUri(pathOrUri: string): string {
     if (pathOrUri.startsWith('file://')) return pathOrUri
     return `file://${pathOrUri}`
   }
 
-  /** Convert an LSP URI back to an editor-style file:// URI. */
+  /**
+   * Convert an LSP URI back to an editor-style file:// URI.
+   * @param lspUri - The LSP URI to convert.
+   * @returns The editor-style URI string.
+   */
   fromLspUri(lspUri: string): string {
     return lspUri
   }
@@ -338,18 +374,32 @@ export class LspClient {
     this.pendingRequests.clear()
   }
 
-  /** Whether the client is currently connected. */
+  /**
+   * Whether the client is currently connected.
+   * @returns True if the LSP connection is active.
+   */
   isConnected(): boolean {
     return this.connected
   }
 
-  /** Whether a document URI is currently open on the LSP server. */
+  /**
+   * Whether a document URI is currently open on the LSP server.
+   * @param uri - The document URI to check.
+   * @returns True if the document is currently tracked as open.
+   */
   isOpen(uri: string): boolean {
     return this.openDocuments.has(uri)
   }
 
   // --- Document sync ---
 
+  /**
+   * Notifies the LSP server that a document has been opened.
+   * @param uri - The document URI.
+   * @param languageId - The language identifier (e.g. "typescript").
+   * @param version - The document version number.
+   * @param text - The full document text content.
+   */
   didOpen(uri: string, languageId: string, version: number, text: string): void {
     if (!this.connected) return
     this.openDocuments.add(uri)
@@ -358,6 +408,12 @@ export class LspClient {
     })
   }
 
+  /**
+   * Notifies the LSP server that a document's content has changed.
+   * @param uri - The document URI.
+   * @param version - The new document version number.
+   * @param text - The full updated document text content.
+   */
   didChange(uri: string, version: number, text: string): void {
     if (!this.connected) return
     this.sendNotification('textDocument/didChange', {
@@ -366,6 +422,10 @@ export class LspClient {
     })
   }
 
+  /**
+   * Notifies the LSP server that a document has been closed.
+   * @param uri - The document URI being closed.
+   */
   didClose(uri: string): void {
     if (!this.connected) return
     this.openDocuments.delete(uri)
@@ -376,6 +436,13 @@ export class LspClient {
 
   // --- Language features ---
 
+  /**
+   * Requests code completion suggestions at a given position.
+   * @param uri - The document URI.
+   * @param line - The 0-based line number.
+   * @param character - The 0-based character offset.
+   * @returns A completion list with items and whether the list is incomplete.
+   */
   async completion(uri: string, line: number, character: number): Promise<LspCompletionList> {
     const result = await this.sendRequest('textDocument/completion', {
       textDocument: { uri },
@@ -386,6 +453,13 @@ export class LspClient {
     return result as LspCompletionList
   }
 
+  /**
+   * Requests hover information at a given position.
+   * @param uri - The document URI.
+   * @param line - The 0-based line number.
+   * @param character - The 0-based character offset.
+   * @returns The hover information, or null if none available.
+   */
   async hover(uri: string, line: number, character: number): Promise<LspHover | null> {
     const result = await this.sendRequest('textDocument/hover', {
       textDocument: { uri },
@@ -394,6 +468,13 @@ export class LspClient {
     return (result as LspHover) ?? null
   }
 
+  /**
+   * Requests go-to-definition locations at a given position.
+   * @param uri - The document URI.
+   * @param line - The 0-based line number.
+   * @param character - The 0-based character offset.
+   * @returns An array of definition locations.
+   */
   async definition(uri: string, line: number, character: number): Promise<LspLocation[]> {
     const result = await this.sendRequest('textDocument/definition', {
       textDocument: { uri },
@@ -404,6 +485,13 @@ export class LspClient {
     return [result as LspLocation]
   }
 
+  /**
+   * Requests function signature help at a given position.
+   * @param uri - The document URI.
+   * @param line - The 0-based line number.
+   * @param character - The 0-based character offset.
+   * @returns The signature help information, or null if unavailable.
+   */
   async signatureHelp(
     uri: string,
     line: number,
@@ -418,12 +506,23 @@ export class LspClient {
 
   // --- Notification registration ---
 
+  /**
+   * Registers a handler for server-initiated notifications.
+   * @param method - The LSP notification method name.
+   * @param handler - The callback to invoke when the notification arrives.
+   */
   onNotification(method: string, handler: (params: unknown) => void): void {
     this.notificationHandlers.set(method, handler)
   }
 
   // --- Internal ---
 
+  /**
+   * Sends a JSON-RPC request to the LSP server and waits for the response.
+   * @param method - The LSP request method name.
+   * @param params - The request parameters.
+   * @returns A promise that resolves with the server's response.
+   */
   private sendRequest(method: string, params: unknown): Promise<unknown> {
     return new Promise((resolve, reject) => {
       if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
@@ -436,6 +535,11 @@ export class LspClient {
     })
   }
 
+  /**
+   * Sends a one-way JSON-RPC notification to the LSP server (no response expected).
+   * @param method - The LSP notification method name.
+   * @param params - The notification parameters.
+   */
   private sendNotification(method: string, params: unknown): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return
     this.ws.send(JSON.stringify({ jsonrpc: '2.0', method, params }))
@@ -460,6 +564,10 @@ export interface LspProviderOptions {
 /**
  * Registers LSP-backed Monaco language providers for TypeScript/JavaScript.
  * Returns a disposable that unregisters all providers.
+ * @param monaco - The Monaco module instance with language and editor APIs.
+ * @param client - The connected LSP client to delegate language requests to.
+ * @param options - Optional configuration (e.g. custom model resolver for definition).
+ * @returns A disposable that unregisters all registered providers.
  */
 export function registerLspProviders(
   monaco: LspMonacoModule,
@@ -469,7 +577,7 @@ export function registerLspProviders(
   const disposables: { dispose(): void }[] = []
 
   // Helper: convert Monaco model URI → LSP URI
-  const toLsp = (modelUri: string) => client.toLspUri(modelUri)
+  const toLsp = (modelUri: string): string => client.toLspUri(modelUri)
 
   // Completion
   disposables.push(

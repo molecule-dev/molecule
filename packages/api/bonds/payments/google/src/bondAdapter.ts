@@ -88,6 +88,18 @@ export const paymentProvider: PaymentProvider = {
 
       const lineItem = subscription.lineItems?.[0]
 
+      // Reject expired subscriptions — prevent replay of old purchase tokens
+      if (lineItem?.expiryTime) {
+        const expiresMs = new Date(lineItem.expiryTime).getTime()
+        if (Number.isFinite(expiresMs) && expiresMs < Date.now()) {
+          logger.warn('Google Play: rejecting expired subscription', {
+            productId,
+            expiresAt: lineItem.expiryTime,
+          })
+          return null
+        }
+      }
+
       const verified: VerifiedSubscription = {
         productId,
         transactionId: subscription.latestOrderId ?? undefined,

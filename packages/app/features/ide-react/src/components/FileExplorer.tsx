@@ -39,8 +39,10 @@ const STATUS_PRIORITY: Record<string, number> = {
 /**
  * Compute the highest-priority git status color for a directory by checking
  * all entries in fileStatuses whose paths start with the directory path.
- * @param dirPath
- * @param fileStatuses
+ * @param dirPath - The directory path to check.
+ * @param fileStatuses - Map of file paths to git status strings.
+ * @param colors - Map of git status names to CSS color values.
+ * @returns The color string for the highest-priority child status, or undefined.
  */
 function getDirColor(
   dirPath: string,
@@ -72,8 +74,9 @@ interface ExpandState {
 }
 
 /**
- *
- * @param persistKey
+ * Loads persisted expand/collapse state from localStorage.
+ * @param persistKey - The localStorage key to read from.
+ * @returns The deserialized expand state, or a fresh empty state if none found.
  */
 function loadExpandState(persistKey: string): ExpandState {
   try {
@@ -89,9 +92,9 @@ function loadExpandState(persistKey: string): ExpandState {
 }
 
 /**
- *
- * @param persistKey
- * @param state
+ * Persists expand/collapse state to localStorage.
+ * @param persistKey - The localStorage key to write to.
+ * @param state - The expand state to serialize and store.
  */
 function saveExpandState(persistKey: string, state: ExpandState): void {
   try {
@@ -105,10 +108,11 @@ function saveExpandState(persistKey: string, state: ExpandState): void {
 }
 
 /**
- *
- * @param state
- * @param path
- * @param depth
+ * Determines whether a directory path should be expanded based on persisted state.
+ * @param state - The current expand/collapse state.
+ * @param path - The directory path to check.
+ * @param depth - The nesting depth (directories at depth 0 default to expanded).
+ * @returns True if the directory should be shown expanded.
  */
 function isExpandedFromState(state: ExpandState, path: string, depth: number): boolean {
   if (state.expanded.has(path)) return true
@@ -118,7 +122,8 @@ function isExpandedFromState(state: ExpandState, path: string, depth: number): b
 
 /**
  * Returns the ancestor directory paths for a given file path (e.g. "a/b/c.ts" → ["a", "a/b"]).
- * @param filePath
+ * @param filePath - The full file path to extract ancestors from.
+ * @returns An array of ancestor directory paths, from shallowest to deepest.
  */
 function getAncestorPaths(filePath: string): string[] {
   const parts = filePath.split('/')
@@ -131,9 +136,10 @@ function getAncestorPaths(filePath: string): string[] {
 
 /**
  * Find a node and its depth in the file tree by path.
- * @param nodes
- * @param targetPath
- * @param depth
+ * @param nodes - The tree nodes to search through.
+ * @param targetPath - The path to find.
+ * @param depth - The current tree depth (used for recursion).
+ * @returns The matching node and its depth, or null if not found.
  */
 function findNodeByPath(
   nodes: FileNode[],
@@ -152,8 +158,9 @@ function findNodeByPath(
 
 /**
  * Resolve a symlink target to an absolute path relative to the symlink's parent directory.
- * @param symlinkPath
- * @param target
+ * @param symlinkPath - The path of the symlink itself.
+ * @param target - The symlink's target value (relative or absolute).
+ * @returns The resolved absolute path of the symlink target.
  */
 function resolveSymlinkTarget(symlinkPath: string, target: string): string {
   if (target.startsWith('/')) return target
@@ -163,8 +170,8 @@ function resolveSymlinkTarget(symlinkPath: string, target: string): string {
 
 /**
  * Scroll to and briefly highlight a tree item by path.
- * @param container
- * @param path
+ * @param container - The scrollable container element.
+ * @param path - The file path to scroll to and highlight.
  */
 function scrollAndHighlight(container: HTMLElement | null, path: string): void {
   if (!container) return
@@ -187,8 +194,9 @@ function scrollAndHighlight(container: HTMLElement | null, path: string): void {
 
 /**
  * Chevron icon — points right when collapsed, down when expanded.
- * @param root0
- * @param root0.isOpen
+ * @param root0 - Component props.
+ * @param root0.isOpen - Whether the chevron should point downward (expanded).
+ * @returns The rendered SVG chevron icon.
  */
 function ChevronIcon({ isOpen }: { isOpen: boolean }): JSX.Element {
   return (
@@ -220,8 +228,9 @@ function ChevronIcon({ isOpen }: { isOpen: boolean }): JSX.Element {
 
 /**
  * File icon resolved from material-file-icons based on the filename.
- * @param root0
- * @param root0.name
+ * @param root0 - Component props.
+ * @param root0.name - The filename to resolve an icon for.
+ * @returns The rendered file type icon element.
  */
 function FileTypeIcon({ name }: { name: string }): JSX.Element {
   const { svg } = getIcon(name)
@@ -253,19 +262,21 @@ interface FileTreeItemProps {
 }
 
 /**
- *
- * @param root0
- * @param root0.node
- * @param root0.depth
- * @param root0.isExpanded
- * @param root0.activeFile
- * @param root0.onFileSelect
- * @param root0.onFileDoubleClick
- * @param root0.onDirExpand
- * @param root0.onTogglePath
- * @param root0.onSymlinkClick
- * @param root0.expandState
- * @param root0.fileStatuses
+ * Recursive tree item for a single file or directory node.
+ * @param root0 - Component props.
+ * @param root0.node - The file tree node to render.
+ * @param root0.depth - The current nesting depth for indentation.
+ * @param root0.isExpanded - Whether this node (if a directory) is expanded.
+ * @param root0.activeFile - The currently selected file path.
+ * @param root0.onFileSelect - Callback when a file is clicked.
+ * @param root0.onFileDoubleClick - Callback when a file is double-clicked.
+ * @param root0.onDirExpand - Callback to load a directory's children.
+ * @param root0.onTogglePath - Callback to toggle expand/collapse state.
+ * @param root0.onSymlinkClick - Callback when a symlink node is clicked.
+ * @param root0.expandState - The current expand/collapse state for all paths.
+ * @param root0.fileStatuses - Git status map keyed by file path.
+ * @param root0.gitColors - Color map for git statuses.
+ * @returns The rendered tree item element.
  */
 function FileTreeItem({
   node,
@@ -416,12 +427,12 @@ function FileTreeItem({
  * @param root0 - The component props.
  * @param root0.files - The root file nodes to display.
  * @param root0.onFileSelect - Callback invoked when a file is selected.
- * @param root0.onFileDoubleClick
+ * @param root0.onFileDoubleClick - Callback invoked when a file is double-clicked (pin tab).
  * @param root0.onDirExpand - Callback invoked when a directory is expanded.
  * @param root0.className - Optional CSS class name for the container.
  * @param root0.persistKey - localStorage key for persisting expand/collapse state.
- * @param root0.activeFile
- * @param root0.fileStatuses
+ * @param root0.activeFile - The currently active file path for highlighting.
+ * @param root0.fileStatuses - Git status map keyed by file path.
  * @returns The rendered file explorer element.
  */
 export function FileExplorer({

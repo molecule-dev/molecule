@@ -67,7 +67,8 @@ describe('Apple Provider', () => {
       })
     })
 
-    it('should retry with sandbox when production returns 21007', async () => {
+    it('should retry with sandbox when production returns 21007 in non-production env', async () => {
+      vi.stubEnv('NODE_ENV', 'development')
       const { post } = await import('@molecule/api-http')
 
       const sandboxResponse: VerifyReceiptResponse = {
@@ -90,6 +91,24 @@ describe('Apple Provider', () => {
       expect(post).toHaveBeenCalledTimes(2)
       expect(post).toHaveBeenLastCalledWith(
         'https://sandbox.itunes.apple.com/verifyReceipt',
+        expect.any(Object),
+      )
+    })
+
+    it('should reject sandbox receipt (status 21007) in production environment', async () => {
+      vi.stubEnv('NODE_ENV', 'production')
+      const { post } = await import('@molecule/api-http')
+
+      vi.mocked(post).mockResolvedValueOnce({ data: { status: 21007 } })
+
+      const { verifyReceipt } = await import('../provider.js')
+
+      await expect(verifyReceipt('base64_receipt_data')).rejects.toThrow(
+        'Sandbox receipts are not accepted in production.',
+      )
+      expect(post).toHaveBeenCalledTimes(1)
+      expect(post).toHaveBeenCalledWith(
+        'https://buy.itunes.apple.com/verifyReceipt',
         expect.any(Object),
       )
     })

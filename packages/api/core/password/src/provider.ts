@@ -46,13 +46,13 @@ export const hasProvider = (): boolean => {
  * Hashes a plain-text password using the bonded provider.
  *
  * @param password - The plain-text password to hash.
- * @param saltRounds - Number of salt rounds (cost factor); defaults to the `SALT_ROUNDS` env var or 10.
+ * @param saltRounds - Number of salt rounds (cost factor); defaults to the `SALT_ROUNDS` env var or 12.
  * @returns The resulting password hash string.
  * @throws {Error} If no password provider has been bonded.
  */
 export const hash = (
   password: string,
-  saltRounds: number = Number(process.env.SALT_ROUNDS) || 10,
+  saltRounds: number = Number(process.env.SALT_ROUNDS) || 12,
 ): Promise<string> => {
   return getProvider().hash(password, saltRounds)
 }

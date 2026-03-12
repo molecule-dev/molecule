@@ -46,12 +46,13 @@ const LIGHT_DIAGNOSTIC: Record<string, string> = {
 
 /**
  * Resolve filename color based on diagnostics (highest priority) then git status.
- * @param statusColors
- * @param diagnosticColors
- * @param diagnostics
- * @param diagnostics.errors
- * @param diagnostics.warnings
- * @param gitStatus
+ * @param statusColors - Map of git status names to CSS color values.
+ * @param diagnosticColors - Map of diagnostic severity to CSS color values.
+ * @param diagnostics - Diagnostic counts for the file.
+ * @param diagnostics.errors - Number of error-level diagnostics.
+ * @param diagnostics.warnings - Number of warning-level diagnostics.
+ * @param gitStatus - The git status string (e.g. "modified", "added").
+ * @returns The resolved CSS color string, or undefined for default color.
  */
 function resolveFileColor(
   statusColors: Record<string, string>,
@@ -71,9 +72,10 @@ function resolveFileColor(
 // ---------------------------------------------------------------------------
 
 /**
- *
- * @param root0
- * @param root0.name
+ * File type icon resolved from material-file-icons.
+ * @param root0 - Component props.
+ * @param root0.name - The filename to resolve an icon for.
+ * @returns The rendered file type icon element.
  */
 function FileTypeIcon({ name }: { name: string }): JSX.Element {
   const { svg } = getIcon(name)
@@ -110,17 +112,20 @@ interface TabItemProps {
 }
 
 /**
- *
- * @param root0
- * @param root0.path
- * @param root0.isDirty
- * @param root0.isActive
- * @param root0.isPreview
- * @param root0.gitStatus
- * @param root0.diagnostics
- * @param root0.onSelect
- * @param root0.onClose
- * @param root0.onDoubleClick
+ * Individual tab item with hover-gated close button and status coloring.
+ * @param root0 - Component props.
+ * @param root0.path - The file path this tab represents.
+ * @param root0.isDirty - Whether the file has unsaved changes.
+ * @param root0.isActive - Whether this tab is the currently active one.
+ * @param root0.isPreview - Whether this tab is a preview (italic) tab.
+ * @param root0.gitStatus - The git status string for color coding.
+ * @param root0.diagnostics - Error and warning counts for the file.
+ * @param root0.onSelect - Callback when the tab is clicked.
+ * @param root0.onClose - Callback when the close button is clicked.
+ * @param root0.onDoubleClick - Callback when the tab is double-clicked (pin).
+ * @param root0.statusColors - Map of git status names to colors.
+ * @param root0.diagnosticColors - Map of diagnostic severity to colors.
+ * @returns The rendered tab item element.
  */
 function TabItem({
   path,
@@ -215,8 +220,8 @@ function TabItem({
  * @param root0.activeFile - The path of the currently active file.
  * @param root0.onSelect - Callback invoked when a tab is clicked.
  * @param root0.onClose - Callback invoked when a tab's close button is clicked.
- * @param root0.onDoubleClick
- * @param root0.fileStatuses
+ * @param root0.onDoubleClick - Callback invoked when a tab is double-clicked (pin).
+ * @param root0.fileStatuses - Git status map keyed by file path.
  * @param root0.className - Optional CSS class name for the tab bar.
  * @returns The rendered tab bar element, or null if no tabs are open.
  */

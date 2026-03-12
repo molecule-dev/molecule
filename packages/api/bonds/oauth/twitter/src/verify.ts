@@ -44,6 +44,7 @@ export const verify: OAuthVerifier = async (
           Authorization: `Basic ${Buffer.from(`${process.env.OAUTH_TWITTER_CLIENT_ID}:${process.env.OAUTH_TWITTER_CLIENT_SECRET}`).toString('base64')}`,
           accept: `application/json`,
         },
+        timeout: 15_000,
       },
     )
 
@@ -56,6 +57,7 @@ export const verify: OAuthVerifier = async (
         accept: `application/json`,
         authorization: `Bearer ${token}`,
       },
+      timeout: 15_000,
     })
 
     return {

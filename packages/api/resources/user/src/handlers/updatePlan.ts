@@ -193,7 +193,18 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
         })
       }
 
-      // No plans service bonded - just update planKey directly.
+      // No plans service bonded — only allow downgrade to free plan.
+      // Upgrades MUST go through a bonded PlanService + PaymentProvider to prevent
+      // privilege escalation (users setting planKey to a paid tier without payment).
+      if (planKey !== '') {
+        return {
+          statusCode: 400,
+          body: {
+            error: t('user.error.failedToUpdatePlan'),
+            errorKey: 'user.error.failedToUpdatePlan',
+          },
+        }
+      }
       analytics
         .track({
           name: 'user.plan_updated',
@@ -201,7 +212,7 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
           properties: { newPlanKey: planKey },
         })
         .catch(() => {})
-      return await updateResource({ id, props: { planKey } })
+      return await updateResource({ id, props: { planKey, planAutoRenews: false } })
     } catch (error) {
       logger.error(error)
       return {

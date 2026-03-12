@@ -274,6 +274,9 @@ const JWT_EXPIRES_TIME: number
 The RSA private key for signing JWTs. Read from the `JWT_PRIVATE_KEY`
 environment variable, or loaded from the PEM file on disk.
 
+Throws at startup if neither source provides a key — running with an
+empty secret would allow anyone to forge valid JWTs.
+
 ```typescript
 const JWT_PRIVATE_KEY: string | NonSharedBuffer
 ```
@@ -282,6 +285,8 @@ const JWT_PRIVATE_KEY: string | NonSharedBuffer
 
 The RSA public key for verifying JWTs. Read from the `JWT_PUBLIC_KEY`
 environment variable, or loaded from the PEM file on disk.
+
+Throws at startup if neither source provides a key.
 
 ```typescript
 const JWT_PUBLIC_KEY: string | NonSharedBuffer

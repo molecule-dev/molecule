@@ -757,6 +757,10 @@ interface UseChatOptions {
   projectId?: string
   /** Load history on mount. */
   loadOnMount?: boolean
+  /** Called when a file is created or modified by a tool call (path + new content). */
+  onFileChange?: (path: string, content: string) => void
+  /** Called when the AI switches between plan and execute modes. */
+  onModeChange?: (mode: 'plan' | 'execute') => void
 }
 ```
 
@@ -769,7 +773,9 @@ interface UseChatResult {
   messages: ChatMessage[]
   isLoading: boolean
   error: string | null
-  sendMessage: (message: string) => Promise<void>
+  /** Current agent mode — plan (read-only research) or execute (full access). */
+  mode: 'plan' | 'execute'
+  sendMessage: (message: string, attachments?: ChatAttachment[]) => Promise<void>
   abort: () => void
   clearHistory: () => Promise<void>
 }
@@ -813,6 +819,7 @@ interface UseEditorResult {
   closeDiff: () => void
   pinTab: (path: string) => void
   addExtraLib: (content: string, filePath: string) => void
+  onFixWithAI: (callback: (request: FixWithAIRequest) => void) => () => void
 }
 ```
 
@@ -1540,21 +1547,26 @@ function useNavigate(): (path: string, options?: NavigateOptions) => void
 
 **Returns:** The navigate function
 
-#### `useOAuth(config, config, config, config)`
+#### `useOAuth(config, config, config, config, config, config, config)`
 
 Hook for OAuth authentication.
 
 Reads OAuth configuration from the provided config and provides
 helpers to build OAuth URLs and redirect to providers.
+Automatically handles OAuth callbacks by detecting `code` and `state`
+URL parameters and exchanging them for a session.
 
 ```typescript
-function useOAuth(config?: { baseURL?: string; oauthProviders?: string[]; oauthEndpoint?: string; }): UseOAuthReturn
+function useOAuth(config?: { baseURL?: string; oauthProviders?: string[]; oauthEndpoint?: string; loginEndpoint?: string; onSuccess?: () => void; onError?: (error: string) => void; }): UseOAuthReturn
 ```
 
 - `config` — Optional OAuth configuration override.
 - `config` — .baseURL - Base URL for the API server (e.g. "https://api.example.com").
 - `config` — .oauthProviders - List of supported OAuth provider names (e.g. ["google", "github"]).
 - `config` — .oauthEndpoint - Path prefix for OAuth routes (defaults to "/oauth").
+- `config` — .loginEndpoint - Path for the OAuth login POST endpoint (defaults to "/users/log-in/oauth").
+- `config` — .onSuccess - Callback after successful OAuth login.
+- `config` — .onError - Callback on OAuth login failure.
 
 **Returns:** OAuth helpers: available providers list, getOAuthUrl builder, and redirect function.
 

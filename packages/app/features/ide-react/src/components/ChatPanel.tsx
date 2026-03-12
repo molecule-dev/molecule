@@ -107,8 +107,9 @@ interface ModelPicker {
 // ---------------------------------------------------------------------------
 
 /**
- *
- * @param iso
+ * Formats an ISO timestamp as a relative time string (e.g. "5m ago", "2h ago").
+ * @param iso - The ISO 8601 timestamp string.
+ * @returns A human-readable relative time string.
  */
 function relativeTime(iso: string): string {
   const ms = Date.now() - new Date(iso).getTime()
@@ -160,9 +161,10 @@ function formatSize(bytes: number): string {
 // ---------------------------------------------------------------------------
 
 /**
- *
- * @param root0
- * @param root0.content
+ * Collapsible block for displaying AI thinking/reasoning content.
+ * @param root0 - Component props.
+ * @param root0.content - The raw thinking text to render.
+ * @returns The rendered thinking block element.
  */
 function ThinkingBlock({ content }: { content: string }): JSX.Element {
   const cm = getClassMap()
@@ -223,9 +225,10 @@ function ThinkingBlock({ content }: { content: string }): JSX.Element {
 // ---------------------------------------------------------------------------
 
 /**
- *
- * @param root0
- * @param root0.card
+ * Expandable tool-call-style card displaying a commit with its files.
+ * @param root0 - Component props.
+ * @param root0.card - The commit card data including message, files, and status.
+ * @returns The rendered commit card element.
  */
 function CommitCardItem({ card }: { card: CommitCard }): JSX.Element {
   const cm = getClassMap()
@@ -343,15 +346,19 @@ interface ChatInnerProps {
 }
 
 /**
- *
- * @param root0
- * @param root0.projectId
- * @param root0.endpoint
- * @param root0.initialMessage
- * @param root0.onFileOpen
- * @param root0.onFileDoubleClick
- * @param root0.onFileDiff
- * @param root0.onFileRevert
+ * Inner chat component that owns useChat state, message rendering, and input handling.
+ * @param root0 - Component props.
+ * @param root0.projectId - The project ID for the chat session.
+ * @param root0.endpoint - The chat API endpoint URL.
+ * @param root0.initialMessage - Optional message to auto-send on mount.
+ * @param root0.onFileOpen - Callback to preview a file in the editor.
+ * @param root0.onFileDoubleClick - Callback to pin a file tab in the editor.
+ * @param root0.onFileDiff - Callback to open a side-by-side diff view.
+ * @param root0.onFileRevert - Callback to revert a file to previous content.
+ * @param root0.onFileChange - Callback when a file's content changes from AI edits.
+ * @param root0.pendingMessage - An externally triggered message to send.
+ * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
+ * @returns The rendered chat inner component.
  */
 function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, pendingMessage, pendingMessageKey }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
@@ -845,8 +852,14 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
         .slice(0, 12)
     : []
 
-  /** Wrap-around index: Down from -1 → 0, Up from -1 → last, wraps at both ends. */
-  const wrapIdx = (cur: number, delta: number, len: number) => {
+  /**
+   * Wrap-around index: Down from -1 → 0, Up from -1 → last, wraps at both ends.
+   * @param cur - The current index (-1 means no selection).
+   * @param delta - The direction to move (+1 down, -1 up).
+   * @param len - The total number of items.
+   * @returns The new wrapped index.
+   */
+  const wrapIdx = (cur: number, delta: number, len: number): number => {
     if (cur === -1) return delta > 0 ? 0 : len - 1
     return ((cur + delta) % len + len) % len
   }
@@ -928,7 +941,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
   useEffect(() => {
     const ta = textareaRef.current
     if (!ta) return
-    const handler = (e: KeyboardEvent) => keyDownRef.current(e)
+    const handler = (e: KeyboardEvent): void => keyDownRef.current(e)
     ta.addEventListener('keydown', handler)
     return () => ta.removeEventListener('keydown', handler)
   }, [])
@@ -1739,10 +1752,13 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
  * @param root0.projectId - The project ID for the chat session.
  * @param root0.endpoint - Optional custom chat API endpoint URL.
  * @param root0.initialMessage - Optional initial message to auto-send on mount.
- * @param root0.onFileOpen
- * @param root0.onFileDoubleClick
- * @param root0.onFileDiff
- * @param root0.onFileRevert
+ * @param root0.onFileOpen - Callback to preview a file in the editor.
+ * @param root0.onFileDoubleClick - Callback to pin a file tab in the editor.
+ * @param root0.onFileDiff - Callback to open a side-by-side diff view.
+ * @param root0.onFileRevert - Callback to revert a file to previous content.
+ * @param root0.onFileChange - Callback when a file's content changes from AI edits.
+ * @param root0.pendingMessage - An externally triggered message to send.
+ * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @param root0.className - Optional CSS class name for the container.
  * @returns The rendered chat panel element.
  */
@@ -1820,7 +1836,7 @@ export function ChatPanel({
   // Close dropdown on outside click
   useEffect(() => {
     if (!showDropdown) return
-    const handler = (e: MouseEvent) => {
+    const handler = (e: MouseEvent): void => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setShowDropdown(false)
       }

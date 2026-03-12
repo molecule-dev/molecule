@@ -16,6 +16,7 @@ import { TabBar } from './TabBar.js'
 
 /** Inject the countdown keyframes once. */
 let styleInjected = false
+/** Injects CSS keyframes for the format countdown and toast animations. */
 function injectCountdownStyle(): void {
   if (styleInjected) return
   styleInjected = true
@@ -37,13 +38,15 @@ function injectCountdownStyle(): void {
  * Code editor panel with tab bar and Monaco integration.
  * @param root0 - The component props.
  * @param root0.className - Optional CSS class name for the container.
- * @param root0.onActiveFileChange
- * @param root0.onEditorReady
- * @param root0.onTabsChange
- * @param root0.fileStatuses
- * @param root0.formattingFile
- * @param root0.countdownFile
- * @param root0.countdownKey
+ * @param root0.onActiveFileChange - Callback when the active file tab changes.
+ * @param root0.onEditorReady - Callback when the Monaco editor finishes mounting.
+ * @param root0.onTabsChange - Callback when the list of open tabs changes.
+ * @param root0.fileStatuses - Git status map keyed by file path.
+ * @param root0.formattingFile - Path of the file currently being formatted.
+ * @param root0.countdownFile - Path of the file showing the format countdown bar.
+ * @param root0.countdownKey - React key to re-trigger the countdown animation.
+ * @param root0.formatEstimate - Estimated formatting duration in milliseconds.
+ * @param root0.onFixWithAI - Callback to request AI-assisted diagnostic fix.
  * @returns The rendered editor panel element.
  */
 export function EditorPanel({

@@ -3,7 +3,7 @@
 import { act, renderHook } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import React from 'react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { AuthClient, AuthState } from '@molecule/app-auth'
 
@@ -433,5 +433,238 @@ describe('useOAuth', () => {
     })
 
     expect(window.location.href).toBe('https://api.example.com/oauth/github')
+  })
+
+  it('should store oauth_provider in sessionStorage on redirect', () => {
+    const { result } = renderHook(
+      () =>
+        useOAuth({
+          baseURL: 'https://api.example.com',
+          oauthProviders: ['github'],
+        }),
+      { wrapper: createWrapper(client) },
+    )
+
+    act(() => {
+      result.current.redirect('github')
+    })
+
+    expect(sessionStorage.getItem('oauth_provider')).toBe('github')
+  })
+})
+
+describe('useOAuth callback detection', () => {
+  let client: ReturnType<typeof createMockAuthClient>
+  let replaceStateSpy: ReturnType<typeof vi.spyOn>
+  let fetchSpy: ReturnType<typeof vi.spyOn>
+
+  beforeEach(() => {
+    client = createMockAuthClient()
+    replaceStateSpy = vi.spyOn(window.history, 'replaceState').mockImplementation(() => {})
+    fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ user: { id: '1' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+  })
+
+  afterEach(() => {
+    replaceStateSpy.mockRestore()
+    fetchSpy.mockRestore()
+    sessionStorage.clear()
+    // Reset location back to a clean state
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: window.location,
+    })
+  })
+
+  /**
+   * Sets window.location to a URL with the given search params.
+   * @param search - Query string including leading '?'.
+   */
+  function setLocationWithSearch(search: string): void {
+    const url = `http://localhost${search}`
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: new URL(url),
+    })
+  }
+
+  it('should detect callback when URL has code and state params', async () => {
+    setLocationWithSearch('?code=abc123&state=xyz789')
+    sessionStorage.setItem('oauth_provider', 'github')
+
+    renderHook(
+      () =>
+        useOAuth({
+          baseURL: 'https://api.example.com',
+          oauthProviders: ['github'],
+        }),
+      { wrapper: createWrapper(client) },
+    )
+
+    // Wait for the async exchangeCode to fire
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+    })
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'https://api.example.com/users/log-in/oauth',
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+        body: expect.stringContaining('"code":"abc123"'),
+      }),
+    )
+  })
+
+  it('should clean URL after processing callback', async () => {
+    setLocationWithSearch('?code=abc123&state=xyz789')
+    sessionStorage.setItem('oauth_provider', 'github')
+
+    renderHook(
+      () =>
+        useOAuth({
+          baseURL: 'https://api.example.com',
+          oauthProviders: ['github'],
+        }),
+      { wrapper: createWrapper(client) },
+    )
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+    })
+
+    expect(replaceStateSpy).toHaveBeenCalled()
+    const cleanedUrl = replaceStateSpy.mock.calls[0][2] as string
+    expect(cleanedUrl).not.toContain('code=')
+    expect(cleanedUrl).not.toContain('state=')
+  })
+
+  it('should not process callback when sessionStorage has no oauth_provider', async () => {
+    setLocationWithSearch('?code=abc123&state=xyz789')
+    // Intentionally NOT setting sessionStorage oauth_provider
+
+    renderHook(
+      () =>
+        useOAuth({
+          baseURL: 'https://api.example.com',
+          oauthProviders: ['github'],
+        }),
+      { wrapper: createWrapper(client) },
+    )
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+    })
+
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('should call onError when code exchange fails', async () => {
+    setLocationWithSearch('?code=bad_code&state=xyz789')
+    sessionStorage.setItem('oauth_provider', 'github')
+
+    fetchSpy.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: 'Invalid authorization code' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+
+    const onError = vi.fn()
+
+    renderHook(
+      () =>
+        useOAuth({
+          baseURL: 'https://api.example.com',
+          oauthProviders: ['github'],
+          onError,
+        }),
+      { wrapper: createWrapper(client) },
+    )
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+    })
+
+    expect(onError).toHaveBeenCalledWith('Invalid authorization code')
+  })
+
+  it('should call onSuccess after successful code exchange', async () => {
+    setLocationWithSearch('?code=good_code&state=xyz789')
+    sessionStorage.setItem('oauth_provider', 'github')
+
+    fetchSpy.mockResolvedValueOnce(
+      new Response(JSON.stringify({ user: { id: '1' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+
+    const onSuccess = vi.fn()
+
+    renderHook(
+      () =>
+        useOAuth({
+          baseURL: 'https://api.example.com',
+          oauthProviders: ['github'],
+          onSuccess,
+        }),
+      { wrapper: createWrapper(client) },
+    )
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+    })
+
+    expect(onSuccess).toHaveBeenCalled()
+  })
+
+  it('should handle network errors gracefully in code exchange', async () => {
+    setLocationWithSearch('?code=abc123&state=xyz789')
+    sessionStorage.setItem('oauth_provider', 'github')
+
+    fetchSpy.mockRejectedValueOnce(new Error('Network error'))
+
+    const onError = vi.fn()
+
+    renderHook(
+      () =>
+        useOAuth({
+          baseURL: 'https://api.example.com',
+          oauthProviders: ['github'],
+          onError,
+        }),
+      { wrapper: createWrapper(client) },
+    )
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+    })
+
+    expect(onError).toHaveBeenCalledWith('Network error')
+  })
+
+  it('should remove oauth_provider from sessionStorage after processing', async () => {
+    setLocationWithSearch('?code=abc123&state=xyz789')
+    sessionStorage.setItem('oauth_provider', 'github')
+
+    renderHook(
+      () =>
+        useOAuth({
+          baseURL: 'https://api.example.com',
+          oauthProviders: ['github'],
+        }),
+      { wrapper: createWrapper(client) },
+    )
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+    })
+
+    expect(sessionStorage.getItem('oauth_provider')).toBeNull()
   })
 })

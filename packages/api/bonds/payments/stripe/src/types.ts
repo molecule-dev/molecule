@@ -12,11 +12,13 @@ export type {
 } from '@molecule/api-payments'
 
 /**
- * Result of creating a checkout session.
+ * Result of creating or retrieving a checkout session.
  */
 export interface CheckoutSessionResult {
   id: string
   url: string | null
+  /** The Stripe Subscription ID created by the checkout session, if available. */
+  subscription?: string
 }
 
 /**

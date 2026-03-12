@@ -109,6 +109,10 @@ interface ChatParams {
   model?: string
   /** Enable extended thinking. Only supported by Sonnet/Opus models. */
   thinking?: { type: 'enabled'; budgetTokens: number }
+  /** Enable prompt caching. Providers that support it will cache system prompts and tools. */
+  cacheControl?: { type: 'ephemeral' }
+  /** Abort signal to cancel in-flight API requests when the client disconnects. */
+  signal?: AbortSignal
 }
 ```
 
@@ -136,6 +140,10 @@ Token usage from a chat completion.
 interface TokenUsage {
   inputTokens: number
   outputTokens: number
+  /** Number of input tokens written to the prompt cache. */
+  cacheCreationInputTokens?: number
+  /** Number of input tokens read from the prompt cache. */
+  cacheReadInputTokens?: number
 }
 ```
 
@@ -158,9 +166,17 @@ type ChatEvent =
 
 Rich content block within a message.
 
+Includes text, tool interactions, and file attachments (images, documents,
+audio, video). Provider bonds map these generic blocks to their native API
+format (e.g., Anthropic base64 source, OpenAI image_url, etc.).
+
 ```typescript
 type ContentBlock =
   | { type: 'text'; text: string }
+  | { type: 'image'; mediaType: string; data: string }
+  | { type: 'document'; mediaType: string; data: string; filename?: string }
+  | { type: 'audio'; mediaType: string; data: string }
+  | { type: 'video'; mediaType: string; data: string }
   | { type: 'tool_use'; id: string; name: string; input: unknown }
   | { type: 'tool_result'; tool_use_id: string; content: string | unknown }
 ```

@@ -82,6 +82,7 @@ describe('Twitter OAuth Provider', () => {
             Authorization: expect.stringContaining('Basic '),
             accept: 'application/json',
           },
+          timeout: 15000,
         },
       )
 
@@ -90,6 +91,7 @@ describe('Twitter OAuth Provider', () => {
           accept: 'application/json',
           authorization: 'Bearer test-access-token',
         },
+        timeout: 15000,
       })
 
       expect(result).toEqual({
@@ -139,6 +141,7 @@ describe('Twitter OAuth Provider', () => {
             Authorization: `Basic ${expectedAuth}`,
             accept: 'application/json',
           },
+          timeout: 15000,
         },
       )
     })

@@ -41,8 +41,14 @@ export const verifyReceipt = async (
       'exclude-old-transactions': true,
     })
 
-    // Status 21007 means the receipt is from the sandbox, retry with sandbox URL
+    // Status 21007 means the receipt is from the sandbox environment.
+    // In production, reject sandbox receipts to prevent fraud.
+    // Only auto-retry with sandbox in non-production environments.
     if (response.data.status === 21007 && !useSandbox) {
+      if (process.env.NODE_ENV === 'production') {
+        logger.warn('Rejecting sandbox receipt in production')
+        throw new Error('Sandbox receipts are not accepted in production.')
+      }
       return verifyReceipt(receiptData, true)
     }
 

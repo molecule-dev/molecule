@@ -16,12 +16,14 @@ npm install @molecule/api-payments-stripe stripe
 
 #### `CheckoutSessionResult`
 
-Result of creating a checkout session.
+Result of creating or retrieving a checkout session.
 
 ```typescript
 interface CheckoutSessionResult {
   id: string
   url: string | null
+  /** The Stripe Subscription ID created by the checkout session, if available. */
+  subscription?: string
 }
 ```
 
@@ -187,7 +189,7 @@ function cancelSubscription(subscriptionId: string): Promise<SubscriptionResult>
 Creates a Stripe Checkout session for a new subscription.
 
 ```typescript
-function createCheckoutSession(options: { priceId: string; successUrl: string; cancelUrl: string; customerId?: string; metadata?: Record<string, string>; }): Promise<CheckoutSessionResult>
+function createCheckoutSession(options: { priceId: string; successUrl: string; cancelUrl: string; customerId?: string; metadata?: Record<string, string>; idempotencyKey?: string; }): Promise<CheckoutSessionResult>
 ```
 
 - `options` — Checkout configuration.
@@ -201,7 +203,7 @@ function createCheckoutSession(options: { priceId: string; successUrl: string; c
 
 #### `getCheckoutSession(sessionId)`
 
-Retrieves a Stripe Checkout session by ID.
+Retrieves a Stripe Checkout session by ID, including the associated subscription.
 
 ```typescript
 function getCheckoutSession(sessionId: string): Promise<CheckoutSessionResult>
@@ -209,7 +211,7 @@ function getCheckoutSession(sessionId: string): Promise<CheckoutSessionResult>
 
 - `sessionId` — The Stripe Checkout session ID.
 
-**Returns:** The session ID and URL.
+**Returns:** The session ID, URL, and subscription ID (if a subscription was created).
 
 #### `getClient()`
 

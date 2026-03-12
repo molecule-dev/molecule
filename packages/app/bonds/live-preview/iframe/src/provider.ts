@@ -95,7 +95,15 @@ export class IframePreviewProvider implements PreviewProvider {
   /** Opens the current preview URL in a new browser tab. */
   openExternal(): void {
     if (this.state.url) {
-      window.open(this.state.url, '_blank')
+      try {
+        const parsed = new URL(this.state.url)
+        // Only allow http/https — block javascript:, data:, and other dangerous schemes
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+          window.open(this.state.url, '_blank', 'noopener,noreferrer')
+        }
+      } catch {
+        // Invalid URL — silently ignore
+      }
     }
   }
 

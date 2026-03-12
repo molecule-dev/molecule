@@ -78,7 +78,7 @@ function hash(password: string, saltRounds?: number): Promise<string>
 ```
 
 - `password` — The plain-text password to hash.
-- `saltRounds` — Number of salt rounds (cost factor); defaults to the `SALT_ROUNDS` env var or 10.
+- `saltRounds` — Number of salt rounds (cost factor); defaults to the `SALT_ROUNDS` env var or 12.
 
 **Returns:** The resulting password hash string.
 

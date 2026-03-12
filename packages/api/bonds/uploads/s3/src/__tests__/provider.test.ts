@@ -529,4 +529,352 @@ describe('S3 Security Tests', () => {
       expect(file.id).not.toContain('/')
     })
   })
+
+  describe('MIME type blocklist', () => {
+    it('should reject text/html uploads', async () => {
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+      const onError = vi.fn()
+
+      const file = upload(
+        'file',
+        stream,
+        {
+          filename: 'page.html',
+          encoding: '7bit',
+          mimeType: 'text/html',
+        },
+        onError,
+      )
+
+      expect(file.uploaded).toBe(false)
+      expect(file.uploadPromise).toBeUndefined()
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('text/html'),
+        }),
+      )
+    })
+
+    it('should reject application/javascript uploads', async () => {
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+      const onError = vi.fn()
+
+      const file = upload(
+        'file',
+        stream,
+        {
+          filename: 'script.js',
+          encoding: '7bit',
+          mimeType: 'application/javascript',
+        },
+        onError,
+      )
+
+      expect(file.uploaded).toBe(false)
+      expect(file.uploadPromise).toBeUndefined()
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('application/javascript'),
+        }),
+      )
+    })
+
+    it('should reject image/svg+xml uploads', async () => {
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+      const onError = vi.fn()
+
+      const file = upload(
+        'file',
+        stream,
+        {
+          filename: 'image.svg',
+          encoding: '7bit',
+          mimeType: 'image/svg+xml',
+        },
+        onError,
+      )
+
+      expect(file.uploaded).toBe(false)
+      expect(file.uploadPromise).toBeUndefined()
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('image/svg+xml'),
+        }),
+      )
+    })
+
+    it('should reject text/xml uploads', async () => {
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+      const onError = vi.fn()
+
+      const file = upload(
+        'file',
+        stream,
+        {
+          filename: 'data.xml',
+          encoding: '7bit',
+          mimeType: 'text/xml',
+        },
+        onError,
+      )
+
+      expect(file.uploaded).toBe(false)
+      expect(file.uploadPromise).toBeUndefined()
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('text/xml'),
+        }),
+      )
+    })
+
+    it('should reject application/xhtml+xml uploads', async () => {
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+      const onError = vi.fn()
+
+      const file = upload(
+        'file',
+        stream,
+        {
+          filename: 'page.xhtml',
+          encoding: '7bit',
+          mimeType: 'application/xhtml+xml',
+        },
+        onError,
+      )
+
+      expect(file.uploaded).toBe(false)
+      expect(file.uploadPromise).toBeUndefined()
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('application/xhtml+xml'),
+        }),
+      )
+    })
+
+    it('should reject text/javascript uploads', async () => {
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+      const onError = vi.fn()
+
+      const file = upload(
+        'file',
+        stream,
+        {
+          filename: 'module.mjs',
+          encoding: '7bit',
+          mimeType: 'text/javascript',
+        },
+        onError,
+      )
+
+      expect(file.uploaded).toBe(false)
+      expect(file.uploadPromise).toBeUndefined()
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('text/javascript'),
+        }),
+      )
+    })
+
+    it('should reject application/xml uploads', async () => {
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+      const onError = vi.fn()
+
+      const file = upload(
+        'file',
+        stream,
+        {
+          filename: 'config.xml',
+          encoding: '7bit',
+          mimeType: 'application/xml',
+        },
+        onError,
+      )
+
+      expect(file.uploaded).toBe(false)
+      expect(file.uploadPromise).toBeUndefined()
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('application/xml'),
+        }),
+      )
+    })
+
+    it('should allow image/png uploads', async () => {
+      mockUploadDone.mockResolvedValue({
+        Location: 'https://test-bucket.s3.amazonaws.com/test-uuid-1234',
+      })
+
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+      const onError = vi.fn()
+
+      const file = upload(
+        'file',
+        stream,
+        {
+          filename: 'photo.png',
+          encoding: '7bit',
+          mimeType: 'image/png',
+        },
+        onError,
+      )
+
+      expect(onError).not.toHaveBeenCalled()
+      expect(file.uploadPromise).toBeDefined()
+      expect(file.mimetype).toBe('image/png')
+    })
+
+    it('should allow application/pdf uploads', async () => {
+      mockUploadDone.mockResolvedValue({
+        Location: 'https://test-bucket.s3.amazonaws.com/test-uuid-1234',
+      })
+
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+      const onError = vi.fn()
+
+      const file = upload(
+        'file',
+        stream,
+        {
+          filename: 'document.pdf',
+          encoding: '7bit',
+          mimeType: 'application/pdf',
+        },
+        onError,
+      )
+
+      expect(onError).not.toHaveBeenCalled()
+      expect(file.uploadPromise).toBeDefined()
+      expect(file.mimetype).toBe('application/pdf')
+    })
+
+    it('should not create S3 Upload for blocked MIME types', async () => {
+      const { Upload } = await import('@aws-sdk/lib-storage')
+
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+
+      upload(
+        'file',
+        stream,
+        {
+          filename: 'evil.html',
+          encoding: '7bit',
+          mimeType: 'text/html',
+        },
+        vi.fn(),
+      )
+
+      // Upload constructor should not be called for blocked types
+      expect(Upload).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('ContentDisposition header', () => {
+    it('should set ContentDisposition to attachment on S3 uploads', async () => {
+      mockUploadDone.mockResolvedValue({
+        Location: 'https://test-bucket.s3.amazonaws.com/test-uuid-1234',
+      })
+
+      const { Upload } = await import('@aws-sdk/lib-storage')
+
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+
+      upload(
+        'file',
+        stream,
+        {
+          filename: 'photo.jpg',
+          encoding: '7bit',
+          mimeType: 'image/jpeg',
+        },
+        vi.fn(),
+      )
+
+      expect(Upload).toHaveBeenCalledWith(
+        expect.objectContaining({
+          params: expect.objectContaining({
+            ContentDisposition: 'attachment',
+          }),
+        }),
+      )
+    })
+  })
+
+  describe('stream error handler', () => {
+    it('should call onError when stream emits an error', async () => {
+      mockUploadDone.mockResolvedValue({
+        Location: 'https://test-bucket.s3.amazonaws.com/test-uuid-1234',
+      })
+
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+      const onError = vi.fn()
+
+      upload(
+        'file',
+        stream,
+        {
+          filename: 'test.txt',
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+        onError,
+      )
+
+      const streamError = new Error('Connection reset')
+      stream.emit('error', streamError)
+
+      expect(onError).toHaveBeenCalledWith(streamError)
+    })
+
+    it('should wrap non-Error stream errors into Error objects', async () => {
+      mockUploadDone.mockResolvedValue({
+        Location: 'https://test-bucket.s3.amazonaws.com/test-uuid-1234',
+      })
+
+      const { upload } = await import('../provider.js')
+
+      const stream = new PassThrough()
+      const onError = vi.fn()
+
+      upload(
+        'file',
+        stream,
+        {
+          filename: 'test.txt',
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+        onError,
+      )
+
+      // Emit a non-Error value
+      stream.emit('error', 'string error')
+
+      expect(onError).toHaveBeenCalledWith(expect.any(Error))
+      expect(onError.mock.calls[0][0].message).toBe('string error')
+    })
+  })
 })

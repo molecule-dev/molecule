@@ -121,11 +121,11 @@ Implements `@molecule/api-logger` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setLogger } from '@molecule/api-logger'
+import { setLevel, setLogger } from '@molecule/api-logger'
 import { provider } from '@molecule/api-logger-pino'
 
 export function setupLoggerPino(): void {
-  setLogger(provider)
+  setLevel(provider)
 }
 ```
 
