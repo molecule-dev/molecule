@@ -184,7 +184,7 @@ function cancelSubscription(subscriptionId: string): Promise<SubscriptionResult>
 
 **Returns:** The canceled subscription result.
 
-#### `createCheckoutSession(options, options, options, options, options, options)`
+#### `createCheckoutSession(options, options, options, options, options, options, options)`
 
 Creates a Stripe Checkout session for a new subscription.
 
@@ -198,6 +198,7 @@ function createCheckoutSession(options: { priceId: string; successUrl: string; c
 - `options` — .cancelUrl - URL to redirect to if the user cancels.
 - `options` — .customerId - Optional existing Stripe Customer ID.
 - `options` — .metadata - Optional key-value metadata to attach to the session.
+- `options` — .idempotencyKey - Optional idempotency key for safe request retries.
 
 **Returns:** The checkout session ID and URL.
 

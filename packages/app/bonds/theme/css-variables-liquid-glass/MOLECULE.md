@@ -4,7 +4,7 @@ Liquid glass theme preset for molecule.dev.
 
 Provides translucent, frosted-glass-inspired light and dark themes
 designed to pair with backdrop-filter blur effects. Uses the standard
-CSS custom properties provider from @molecule/app-theme-css-variables.
+CSS custom properties provider from `@molecule/app-theme-css-variables`.
 
 ## Type
 `provider`

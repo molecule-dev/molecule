@@ -181,6 +181,8 @@ export class MonacoEditorProvider implements EditorProvider {
   private lspClient: LspClient | null = null
   /** Disposable for LSP-registered Monaco language providers. */
   private lspProviders: { dispose(): void } | null = null
+  /** Models created lazily by resolveModel (Peek Definition) — disposed on LSP disconnect. */
+  private lspResolvedModels: MonacoModel[] = []
   /** LSP document version counters keyed by file path. */
   private documentVersions: Map<string, number> = new Map()
   /** Callback to fetch file content by path — used for Go to Definition cross-file navigation. */
@@ -579,10 +581,15 @@ export class MonacoEditorProvider implements EditorProvider {
       stored.content = content
     }
 
-    // Update Monaco model if it exists
+    // Update Monaco model if it exists.
+    // Suppress the wireChangeListener during setValue so we don't double-fire
+    // change events (setValue triggers onDidChangeModelContent synchronously).
     const model = this.monacoModels.get(path)
     if (model) {
+      const isActiveModel = path === this.activeFile && this.editor
+      if (isActiveModel) this.changeDisposable?.dispose()
       model.setValue(content)
+      if (isActiveModel) this.wireChangeListener()
     }
 
     this.versionCounter++
@@ -1107,7 +1114,8 @@ export class MonacoEditorProvider implements EditorProvider {
           if (!resolved) return false
           const uri = monaco.Uri.parse(uriStr)
           if (!monaco.editor.getModel(uri)) {
-            monaco.editor.createModel(resolved.content, resolved.language, uri)
+            const model = monaco.editor.createModel(resolved.content, resolved.language, uri)
+            this.lspResolvedModels.push(model as unknown as MonacoModel)
           }
           return true
         }
@@ -1137,6 +1145,12 @@ export class MonacoEditorProvider implements EditorProvider {
     this.lspClient?.disconnect()
     this.lspClient = null
     this.documentVersions.clear()
+
+    // Dispose models created lazily for Peek Definition to free worker memory
+    for (const model of this.lspResolvedModels) {
+      model.dispose()
+    }
+    this.lspResolvedModels = []
 
     // Re-enable built-in TS language features as fallback
     if (this.monaco) {

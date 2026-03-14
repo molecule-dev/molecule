@@ -40,6 +40,10 @@ Designed to pair with translucent theme colors (rgba surfaces with alpha).
 function glassOverrides(base: UIClassMap): { card: (opts: CardClassOptions | undefined) => string; modal: (opts: ModalClassOptions | undefined) => string; toast: (opts: ToastClassOptions | undefined) => string; tooltip: () => string; headerBar: string; drawer: string; dropdownContent: string; tabsList: string; actionSheet: string; dialogOverlay: string; }
 ```
 
+- `base` — The base UIClassMap to extend with glass effects.
+
+**Returns:** An object of class overrides applying frosted glass backdrop filters.
+
 ### Constants
 
 #### `classMap`
@@ -72,4 +76,4 @@ Peer dependencies:
 This package extends (not replaces) the base Tailwind ClassMap.
 All component classes remain identical — only surface components
 gain backdrop-filter effects. Pair with a translucent theme preset
-(e.g. @molecule/app-theme-css-variables-liquid-glass) for the full effect.
+(e.g. `@molecule/app-theme-css-variables-liquid-glass`) for the full effect.

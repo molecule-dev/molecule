@@ -47,13 +47,24 @@ export function useChatProvider(): ChatProvider {
  */
 export function useChat(options: UseChatOptions): UseChatResult {
   const provider = useChatProvider()
-  const { endpoint, projectId, loadOnMount = true, onFileChange, onModeChange } = options
+  const {
+    endpoint,
+    projectId,
+    loadOnMount = true,
+    onFileChange,
+    onModeChange,
+    onConversationId,
+  } = options
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [mode, setMode] = useState<'plan' | 'execute'>('execute')
   const mountedRef = useRef(true)
   const idCounterRef = useRef(0)
+  // Capture loadOnMount at mount time — prevents mid-session flips
+  // (e.g. initialMessage consumed → loadOnMount becomes true → history
+  // load overwrites streaming messages).
+  const loadOnMountRef = useRef(loadOnMount)
 
   useEffect(() => {
     mountedRef.current = true
@@ -69,7 +80,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
   // Load history on mount
   useEffect(() => {
-    if (!loadOnMount) return
+    if (!loadOnMountRef.current) return
     provider
       .loadHistory(config)
       .then((history) => {
@@ -242,6 +253,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
           case 'mode':
             setMode(event.mode)
             onModeChange?.(event.mode)
+            break
+          case 'conversation':
+            onConversationId?.(event.id)
             break
           default:
             break

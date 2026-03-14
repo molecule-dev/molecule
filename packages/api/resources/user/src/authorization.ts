@@ -42,7 +42,15 @@ export const set = (req: MoleculeRequest, res: MoleculeResponse, session: Sessio
       session.id = uuid()
     }
 
-    const token = sign(session)
+    // Strip JWT-specific claims from the session before re-signing —
+    // sign() sets expiresIn which conflicts with an existing exp property.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { exp, iat, nbf, ...sessionPayload } = session as Session & {
+      exp?: number
+      iat?: number
+      nbf?: number
+    }
+    const token = sign(sessionPayload)
 
     if (token) {
       res.setHeader('Authorization', `Bearer ${token}`)

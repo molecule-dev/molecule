@@ -336,11 +336,13 @@ interface ChatInnerProps {
   projectId: string
   endpoint: string
   initialMessage?: string
+  onInitialMessageSent?: () => void
   onFileOpen?: (path: string) => void
   onFileDoubleClick?: (path: string) => void
   onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
   onFileRevert?: (path: string, content: string) => Promise<void>
   onFileChange?: (path: string, content: string) => void
+  onConversationId?: (id: string) => void
   pendingMessage?: string
   pendingMessageKey?: number
 }
@@ -351,16 +353,18 @@ interface ChatInnerProps {
  * @param root0.projectId - The project ID for the chat session.
  * @param root0.endpoint - The chat API endpoint URL.
  * @param root0.initialMessage - Optional message to auto-send on mount.
+ * @param root0.onInitialMessageSent - Callback fired after the initial message is sent.
  * @param root0.onFileOpen - Callback to preview a file in the editor.
  * @param root0.onFileDoubleClick - Callback to pin a file tab in the editor.
  * @param root0.onFileDiff - Callback to open a side-by-side diff view.
  * @param root0.onFileRevert - Callback to revert a file to previous content.
  * @param root0.onFileChange - Callback when a file's content changes from AI edits.
+ * @param root0.onConversationId - Callback when the conversation ID is assigned.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @returns The rendered chat inner component.
  */
-function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, pendingMessage, pendingMessageKey }: ChatInnerProps): JSX.Element {
+function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, onConversationId, pendingMessage, pendingMessageKey }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
@@ -371,6 +375,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
     projectId,
     loadOnMount: !initialMessage,
     onFileChange,
+    onConversationId,
   })
 
   // ── Commit ─────────────────────────────────────────────────────────────────
@@ -463,8 +468,9 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
     if (initialMessage && sentInitialRef.current !== initialMessage) {
       sentInitialRef.current = initialMessage
       sendMessage(initialMessage)
+      onInitialMessageSent?.()
     }
-  }, [initialMessage, sendMessage])
+  }, [initialMessage, sendMessage, onInitialMessageSent])
 
   // ── Auto-send pending message (e.g. "Fix with AI") ────────────────────────
   // Initialize ref with current key so remounting (conversation switch) won't re-send.
@@ -1752,6 +1758,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onFileOpen, onFileDoub
  * @param root0.projectId - The project ID for the chat session.
  * @param root0.endpoint - Optional custom chat API endpoint URL.
  * @param root0.initialMessage - Optional initial message to auto-send on mount.
+ * @param root0.onInitialMessageSent - Callback fired after the initial message is sent.
  * @param root0.onFileOpen - Callback to preview a file in the editor.
  * @param root0.onFileDoubleClick - Callback to pin a file tab in the editor.
  * @param root0.onFileDiff - Callback to open a side-by-side diff view.
@@ -1766,6 +1773,7 @@ export function ChatPanel({
   projectId,
   endpoint,
   initialMessage,
+  onInitialMessageSent,
   onFileOpen,
   onFileDoubleClick,
   onFileDiff,
@@ -1783,6 +1791,11 @@ export function ChatPanel({
   const [activeConversationId, setActiveConversationId] = useState<string | null>(
     () => localStorage.getItem(storageKey),
   )
+  // Separate key that only changes on *user-initiated* conversation switches
+  // (new chat, select conversation). The backend assigns a conversation ID
+  // mid-stream which updates activeConversationId, but must NOT remount
+  // ChatInner (that would lose the in-flight messages).
+  const [chatKey, setChatKey] = useState(() => localStorage.getItem(storageKey) ?? 'default')
   const [showDropdown, setShowDropdown] = useState(false)
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [convSearch, setConvSearch] = useState('')
@@ -1820,8 +1833,10 @@ export function ChatPanel({
     try {
       const res = await http.post<{ id: string }>(`/projects/${projectId}/conversations`, {})
       persistConversationId(res.data.id)
+      setChatKey(res.data.id)
     } catch {
       persistConversationId(null)
+      setChatKey(`new-${Date.now()}`)
     }
     setShowDropdown(false)
     setConvSearch('')
@@ -1829,6 +1844,7 @@ export function ChatPanel({
 
   const handleSelectConversation = useCallback((id: string) => {
     persistConversationId(id)
+    setChatKey(id)
     setShowDropdown(false)
     setConvSearch('')
   }, [persistConversationId])
@@ -2019,15 +2035,17 @@ export function ChatPanel({
 
       {/* ── Chat inner — remounts on conversation switch ── */}
       <ChatInner
-        key={activeConversationId ?? 'default'}
+        key={chatKey}
         projectId={projectId}
         endpoint={chatEndpoint}
         initialMessage={initialMessage}
+        onInitialMessageSent={onInitialMessageSent}
         onFileOpen={onFileOpen}
         onFileDoubleClick={onFileDoubleClick}
         onFileDiff={onFileDiff}
         onFileRevert={onFileRevert}
         onFileChange={onFileChange}
+        onConversationId={persistConversationId}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}
       />

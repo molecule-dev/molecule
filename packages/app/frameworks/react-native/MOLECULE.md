@@ -741,6 +741,8 @@ interface UseChatOptions {
     onFileChange?: (path: string, content: string) => void;
     /** Called when the AI switches between plan and execute modes. */
     onModeChange?: (mode: 'plan' | 'execute') => void;
+    /** Called when the backend assigns or confirms a conversation ID. */
+    onConversationId?: (id: string) => void;
 }
 ```
 

@@ -7,7 +7,7 @@
  * @module
  */
 
-import { bond, isBonded, require as bondRequire } from '@molecule/api-bond'
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
 
 import { JWT_PRIVATE_KEY, JWT_PUBLIC_KEY } from './keys.js'
 import type {
@@ -21,6 +21,7 @@ import type {
 } from './types.js'
 
 const BOND_TYPE = 'jwt'
+expectBond(BOND_TYPE)
 
 /**
  * The signing algorithm used for JWT operations. Read from the `JWT_ALGORITHM`

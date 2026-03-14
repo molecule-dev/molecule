@@ -48,9 +48,9 @@ export function useEditor(): UseEditorResult {
   // Subscribe to changes to update tabs and active file
   useEffect(() => {
     const unsubscribe = provider.onChange(() => {
-      setTabs(provider.getTabs())
       const currentTabs = provider.getTabs()
-      const active = currentTabs.find((t) => t.isActive)
+      setTabs(currentTabs)
+      const active = currentTabs.find((tab) => tab.isActive)
       setActiveFile(active?.path ?? null)
     })
     return unsubscribe

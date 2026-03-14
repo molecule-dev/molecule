@@ -524,10 +524,10 @@ describe('DockerSandboxProvider', () => {
       expect(hostConfig.CapDrop).toEqual(['ALL'])
     })
 
-    it('should set CapAdd: ["CHOWN", "SETGID", "SETUID"]', async () => {
+    it('should set CapAdd: ["CHOWN", "SETGID", "SETUID", "NET_ADMIN"]', async () => {
       const body = await getCreateBody()
       const hostConfig = body.HostConfig as Record<string, unknown>
-      expect(hostConfig.CapAdd).toEqual(['CHOWN', 'SETGID', 'SETUID'])
+      expect(hostConfig.CapAdd).toEqual(['CHOWN', 'SETGID', 'SETUID', 'NET_ADMIN'])
     })
 
     it('should set SecurityOpt: ["no-new-privileges"]', async () => {
@@ -581,10 +581,11 @@ describe('DockerSandboxProvider', () => {
       expect(hostConfig.MemorySwap).toBe(1024 * 1024 * 1024)
     })
 
-    it('should set PublishAllPorts: true', async () => {
+    it('should set explicit PortBindings instead of PublishAllPorts', async () => {
       const body = await getCreateBody()
       const hostConfig = body.HostConfig as Record<string, unknown>
-      expect(hostConfig.PublishAllPorts).toBe(true)
+      expect(hostConfig.PublishAllPorts).toBeUndefined()
+      expect(hostConfig.PortBindings).toBeDefined()
     })
 
     it('should mount volume when volumeName is provided', async () => {

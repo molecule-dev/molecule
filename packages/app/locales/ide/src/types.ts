@@ -19,6 +19,7 @@ export type IdeTranslationKey =
   | 'ide.preview.openNewTab'
   | 'ide.preview.livePreview'
   | 'ide.preview.starting'
+  | 'ide.preview.restarting'
   | 'ide.preview.noPreview'
   | 'ide.device.label'
   | 'ide.device.responsive'

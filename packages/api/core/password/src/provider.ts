@@ -7,11 +7,12 @@
  * @module
  */
 
-import { bond, isBonded, require as bondRequire } from '@molecule/api-bond'
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
 
 import type { PasswordProvider } from './types.js'
 
 const BOND_TYPE = 'password'
+expectBond(BOND_TYPE)
 
 /**
  * Registers a password hashing provider as the active singleton. Called by

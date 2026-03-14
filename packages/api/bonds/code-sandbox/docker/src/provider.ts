@@ -146,13 +146,30 @@ class DockerSandboxProvider implements SandboxProvider {
       NanoCPUs: cpu * 1e9,
       Memory: memoryBytes,
       MemorySwap: memoryBytes, // Equal to Memory = no swap; prevents host swap exhaustion
-      PublishAllPorts: true,
       Init: true, // Use tini init to reap zombie processes
       PidsLimit: 512,
       SecurityOpt: ['no-new-privileges'],
       CapDrop: ['ALL'],
-      CapAdd: ['CHOWN', 'SETGID', 'SETUID'],
+      CapAdd: ['CHOWN', 'SETGID', 'SETUID', 'NET_ADMIN'],
+      // Bind ports to localhost only — prevents external access
+      PortBindings: {
+        '4000/tcp': [{ HostIp: '127.0.0.1', HostPort: '' }],
+        '5173/tcp': [{ HostIp: '127.0.0.1', HostPort: '' }],
+      },
+      Tmpfs: { '/tmp': 'rw,noexec,nosuid,size=256m' },
+      ReadonlyPaths: [
+        '/proc/asound',
+        '/proc/bus',
+        '/proc/fs',
+        '/proc/irq',
+        '/proc/sys',
+        '/proc/sysrq-trigger',
+      ],
     }
+
+    // All containers run on the default bridge network (internet access).
+    // SMTP ports are blocked via iptables after container start to prevent spam abuse.
+    hostConfig.NetworkMode = 'bridge'
 
     // Mount a named Docker volume at /workspace for persistent storage.
     // Docker copies image contents (molecule/, node_modules/) into empty volumes.
@@ -358,7 +375,9 @@ class DockerSandboxProvider implements SandboxProvider {
 
       async writeFile(path: string, content: string): Promise<void> {
         const b64 = Buffer.from(content).toString('base64')
-        const result = await this.exec(`echo ${shellQuote(b64)} | base64 -d > ${shellQuote(path)}`)
+        const result = await this.exec(
+          `mkdir -p "$(dirname ${shellQuote(path)})" && echo ${shellQuote(b64)} | base64 -d > ${shellQuote(path)}`,
+        )
         if (result.exitCode !== 0)
           throw new Error(
             t(

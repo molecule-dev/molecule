@@ -7,12 +7,13 @@
  * @module
  */
 
-import { bond, isBonded, require as bondRequire } from '@molecule/api-bond'
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
 import type { EmailTransport } from './types.js'
 
 const BOND_TYPE = 'email'
+expectBond(BOND_TYPE)
 
 /**
  * Registers an email transport as the active singleton. Called by bond

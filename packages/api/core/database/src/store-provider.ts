@@ -8,11 +8,12 @@
  * @module
  */
 
-import { bond, isBonded, require as bondRequire } from '@molecule/api-bond'
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
 
 import type { DataStore, FindManyOptions, MutationResult, WhereCondition } from './store.js'
 
 const BOND_TYPE = 'datastore'
+expectBond(BOND_TYPE)
 
 /**
  * Registers a DataStore implementation as the active singleton. Called by

@@ -169,6 +169,17 @@ function configure(newConfig: Partial<BondConfig>): void
 
 - `newConfig` — Partial configuration to merge. Unspecified fields retain their current values.
 
+#### `expectBond(type)`
+
+Declares a bond type as expected by a core package. Called at module scope
+so that importing the core package automatically registers the requirement.
+
+```typescript
+function expectBond(type: string): void
+```
+
+- `type` — The bond category that must be wired before the app starts.
+
 #### `get(type)`
 
 Retrieves a bonded singleton provider by category, or undefined if not bonded.
@@ -374,6 +385,28 @@ function unbondSingleton(type: string): boolean
 - `type` — The provider category to unbond.
 
 **Returns:** `true` if a provider was removed, `false` if none was bonded.
+
+#### `unexpectBond(type)`
+
+Removes a bond type from the expected set. Call this when an optional
+bond setup fails and the application has decided it can run without it.
+
+```typescript
+function unexpectBond(type: string): void
+```
+
+- `type` — The bond category to remove from the expected set.
+
+#### `validateBonds()`
+
+Validates that every expected bond type has a provider registered.
+Call this after all bonds are wired in `setupBonds()`. Throws with a
+clear message listing all missing bonds so the developer can fix them
+all at once instead of hitting them one-by-one at runtime.
+
+```typescript
+function validateBonds(): void
+```
 
 ### Constants
 

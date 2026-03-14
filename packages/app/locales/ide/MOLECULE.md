@@ -4,7 +4,7 @@ Translations for molecule IDE components in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-ide` package which has 29 translation keys.
+Provides translations for the `@molecule/app-ide` package which has 30 translation keys.
 
 ## Languages
 
@@ -39,7 +39,8 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.preview.refresh` | Refresh preview |
 | `ide.preview.openNewTab` | Open in new tab |
 | `ide.preview.livePreview` | Live Preview |
-| `ide.preview.starting` | Starting preview... |
+| `ide.preview.starting` | Loading preview... |
+| `ide.preview.restarting` | Loading preview... |
 | `ide.preview.noPreview` | No preview available |
 | `ide.device.label` | Device frame |
 | `ide.device.responsive` | Responsive |

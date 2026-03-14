@@ -1,10 +1,17 @@
 /**
  * Live preview panel with iframe and device frame selection.
  *
+ * Two states:
+ * 1. "Loading preview" — polling until the first successful fetch
+ * 2. "Loading preview" — server was up before but fetch is now failing
+ *
+ * The iframe is always mounted (behind the overlay) once we have a URL.
+ * The overlay hides when the iframe fires `onLoad`.
+ *
  * @module
  */
 
-import type { JSX } from 'react'
+import { type JSX,useCallback, useEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { usePreview } from '@molecule/app-react'
@@ -20,17 +27,187 @@ const deviceWidths: Record<string, string> = {
   mobile: '375px',
 }
 
+/** How often to poll when waiting for the server to come up. */
+const POLL_INTERVAL_MS = 500
+
+/**
+ * Check whether the server at `url` is accepting connections.
+ * Uses `no-cors` so CORS errors aren't mistaken for network failures.
+ * Aborts after 2s to avoid holding browser connections — hanging polls
+ * exhaust the per-origin connection limit and starve the iframe of
+ * connections for script/asset requests.
+ * @param url - The URL to check.
+ * @returns Whether the server responded within the timeout.
+ */
+async function isServerUp(url: string): Promise<boolean> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 500)
+  try {
+    await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal })
+    clearTimeout(timeout)
+    return true
+  } catch {
+    clearTimeout(timeout)
+    return false
+  }
+}
+
 /**
  * Live preview panel with iframe, device frame selector, and URL bar.
  * @param root0 - The component props.
+ * @param root0.loadingIndicator - Custom loading indicator for initial start.
+ * @param root0.restartingIndicator - Custom loading indicator for mid-session restarts.
  * @param root0.className - Optional CSS class name for the container.
  * @returns The rendered preview panel element.
  */
-export function PreviewPanel({ className }: PreviewPanelProps): JSX.Element {
+export function PreviewPanel({
+  loadingIndicator,
+  restartingIndicator,
+  className,
+}: PreviewPanelProps): JSX.Element {
   const cm = getClassMap()
   const { state, setUrl, refresh, setDevice, openExternal } = usePreview()
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
+  // Has the server ever responded successfully?
+  const [everLoaded, setEverLoaded] = useState(false)
+  // Is the iframe content ready to show?
+  const [iframeReady, setIframeReady] = useState(false)
+  // Fade-out transition in progress
+  const [fadingOut, setFadingOut] = useState(false)
+
+  const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const urlRef = useRef(state.url)
+  urlRef.current = state.url
+  // Tracks the iframe src to force reload when server recovers
+  const [iframeSrc, setIframeSrc] = useState('')
+
+  // --- Clear poll timer ---
+  const clearPoll = useCallback(() => {
+    if (pollRef.current) {
+      clearTimeout(pollRef.current)
+      pollRef.current = null
+    }
+  }, [])
+
+  // --- Poll until server is up, then mount the iframe ---
+  const startPolling = useCallback(
+    (url: string): void => {
+      clearPoll()
+      setIframeReady(false)
+      setFadingOut(false)
+
+      const poll = async (): Promise<void> => {
+        if (urlRef.current !== url) return
+        const up = await isServerUp(url)
+        if (urlRef.current !== url) return
+
+        if (up) {
+          setEverLoaded(true)
+          setIframeSrc(url)
+          pollRef.current = null
+        } else {
+          pollRef.current = setTimeout(poll, POLL_INTERVAL_MS)
+        }
+      }
+
+      void poll()
+    },
+    [clearPoll],
+  )
+
+  // --- When URL changes, reset and start polling ---
+  useEffect(() => {
+    if (!state.url) {
+      clearPoll()
+      setEverLoaded(false)
+      setIframeReady(false)
+      setFadingOut(false)
+      setIframeSrc('')
+      return
+    }
+
+    setEverLoaded(false)
+    setIframeSrc('')
+    startPolling(state.url)
+
+    return () => clearPoll()
+  }, [state.url, startPolling, clearPoll])
+
+  // --- When iframeReady becomes true, trigger fade-out ---
+  useEffect(() => {
+    if (iframeReady) setFadingOut(true)
+  }, [iframeReady])
+
+  // --- Listen for postMessage from scaffold template ---
+  // molecule:ready  = #root got children (app rendered)  → hide overlay
+  // molecule:error {crash:true} = #root emptied (app crashed) → show overlay
+  useEffect(() => {
+    const handler = (event: MessageEvent): void => {
+      if (event.data?.type === 'molecule:ready') {
+        clearPoll()
+        setEverLoaded(true)
+        setIframeReady(true)
+      } else if (event.data?.type === 'molecule:error' && event.data.crash) {
+        setIframeReady(false)
+        setFadingOut(false)
+      }
+    }
+    window.addEventListener('message', handler)
+    return () => window.removeEventListener('message', handler)
+  }, [clearPoll])
+
+  // --- iframe onError: server unreachable, poll and reload when ready ---
+  const handleIframeError = useCallback(() => {
+    if (!urlRef.current) return
+    setIframeReady(false)
+    setFadingOut(false)
+    startPolling(urlRef.current)
+  }, [startPolling])
+
+  // --- Health check: periodically verify server is still up ---
+  useEffect(() => {
+    // Only run health checks after overlay is fully gone
+    if (!iframeReady || fadingOut || !state.url) return
+
+    const url = state.url
+    const healthRef = { current: null as ReturnType<typeof setInterval> | null }
+
+    healthRef.current = setInterval(async () => {
+      const up = await isServerUp(url)
+      if (!up && urlRef.current === url) {
+        // Server went down — show overlay, poll, reload when back
+        if (healthRef.current) clearInterval(healthRef.current)
+        setIframeReady(false)
+        setFadingOut(false)
+
+        const poll = async (): Promise<void> => {
+          if (urlRef.current !== url) return
+          const back = await isServerUp(url)
+          if (urlRef.current !== url) return
+          if (back) {
+            // Force-reload iframe with cache buster
+            setIframeSrc(url + (url.includes('?') ? '&' : '?') + '_r=' + Date.now())
+          } else {
+            setTimeout(poll, POLL_INTERVAL_MS)
+          }
+        }
+        void poll()
+      }
+    }, 3000)
+
+    return () => {
+      if (healthRef.current) clearInterval(healthRef.current)
+    }
+  }, [iframeReady, fadingOut, state.url])
+
+  // --- Rendering ---
   const iframeWidth = deviceWidths[state.device] || '100%'
+  const showOverlay = Boolean(state.url) && (!iframeReady || fadingOut)
+
+  const overlayContent = everLoaded
+    ? (restartingIndicator ?? loadingIndicator ?? <DefaultLoadingIndicator restarting />)
+    : (loadingIndicator ?? <DefaultLoadingIndicator restarting={false} />)
 
   return (
     <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, className)}>
@@ -87,18 +264,21 @@ export function PreviewPanel({ className }: PreviewPanelProps): JSX.Element {
         />
       </div>
 
-      {/* Iframe */}
+      {/* Preview area */}
       <div
         className={cm.cn(cm.flex({ direction: 'row', justify: 'center' }), cm.surfaceSecondary)}
         style={{
           flex: 1,
           minHeight: 0,
           overflow: 'auto',
+          position: 'relative',
         }}
       >
-        {state.url ? (
+        {/* Iframe — always mounted when we have a src, sits behind overlay */}
+        {iframeSrc && (
           <iframe
-            src={state.url}
+            ref={iframeRef}
+            src={iframeSrc}
             sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin"
             title={t('ide.preview.livePreview')}
             className={cm.cn(state.device !== 'none' && state.device !== 'desktop' && cm.borderAll)}
@@ -108,8 +288,36 @@ export function PreviewPanel({ className }: PreviewPanelProps): JSX.Element {
               borderRadius: state.device === 'mobile' ? '16px' : '0',
               background: '#fff',
             }}
+            onError={handleIframeError}
           />
-        ) : (
+        )}
+
+        {/* Overlay — "Loading preview" or "Loading preview" */}
+        {showOverlay && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1,
+              background: 'var(--mol-color-surface-secondary, #f5f5f5)',
+              opacity: fadingOut ? 0 : 1,
+              transition: 'opacity 0.5s ease-out',
+              pointerEvents: fadingOut ? 'none' : 'auto',
+            }}
+            onTransitionEnd={() => {
+              if (fadingOut) setFadingOut(false)
+            }}
+          >
+            {overlayContent}
+          </div>
+        )}
+
+        {/* No URL state */}
+        {!state.url && (
           <div
             className={cm.cn(cm.textMuted, cm.textSize('sm'))}
             style={{
@@ -119,7 +327,9 @@ export function PreviewPanel({ className }: PreviewPanelProps): JSX.Element {
               width: '100%',
             }}
           >
-            {state.isLoading ? t('ide.preview.starting') : t('ide.preview.noPreview')}
+            {state.isLoading
+              ? t('ide.preview.starting', {}, { defaultValue: 'Loading preview...' })
+              : t('ide.preview.noPreview', {}, { defaultValue: 'No preview available' })}
           </div>
         )}
 
@@ -131,6 +341,7 @@ export function PreviewPanel({ className }: PreviewPanelProps): JSX.Element {
               bottom: 0,
               left: 0,
               right: 0,
+              zIndex: 2,
             }}
           >
             {state.error}
@@ -142,3 +353,43 @@ export function PreviewPanel({ className }: PreviewPanelProps): JSX.Element {
 }
 
 PreviewPanel.displayName = 'PreviewPanel'
+
+/**
+ * Fallback loading indicator when no custom one is provided.
+ * @param root0 - Component props.
+ * @param root0.restarting - Whether this is a restart (server was previously up).
+ * @returns The rendered loading indicator element.
+ */
+function DefaultLoadingIndicator({ restarting }: { restarting: boolean }): JSX.Element {
+  const message = restarting
+    ? t('ide.preview.restarting', {}, { defaultValue: 'Loading preview...' })
+    : t('ide.preview.starting', {}, { defaultValue: 'Loading preview...' })
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: 'var(--mol-color-primary, #4070e0)',
+              animation: `mol-preview-pulse 1.4s ease-in-out ${i * 0.2}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+      <span style={{ fontSize: '13px', color: 'var(--mol-color-text-muted, #888)' }}>
+        {message}
+      </span>
+      <style>{`
+        @keyframes mol-preview-pulse {
+          0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+          40% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  )
+}

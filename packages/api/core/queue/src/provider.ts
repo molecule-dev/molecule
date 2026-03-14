@@ -8,7 +8,7 @@
  * @module
  */
 
-import { bond, isBonded, require as bondRequire } from '@molecule/api-bond'
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
 import type {
@@ -21,6 +21,7 @@ import type {
 } from './types.js'
 
 const BOND_TYPE = 'queue'
+expectBond(BOND_TYPE)
 
 /**
  * Registers a queue provider as the active singleton. Called by bond

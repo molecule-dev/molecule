@@ -514,6 +514,8 @@ const checkbox: (props?: ({ variant?: "default" | "error" | undefined; } & { cla
 
 #### `classMap`
 
+Tailwind CSS UIClassMap implementation mapping abstract UI tokens to Tailwind class strings.
+
 ```typescript
 const classMap: UIClassMap
 ```
@@ -1014,7 +1016,7 @@ const labelBlock: "mb-1.5 block"
 Language option (active/selected) classes.
 
 ```typescript
-const languageActive: "px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-medium"
+const languageActive: "px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors bg-primary/15 text-primary font-medium"
 ```
 
 #### `languageGrid`
@@ -1030,7 +1032,7 @@ const languageGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-
 Language option (inactive) classes.
 
 ```typescript
-const languageOption: "px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+const languageOption: "px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors hover:bg-surface-secondary"
 ```
 
 #### `logoIcon`

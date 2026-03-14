@@ -250,13 +250,14 @@ function getNumber(key: string, defaultValue?: number): number | undefined
 
 #### `getProvider()`
 
-Retrieves the bonded configuration provider, throwing if none is configured.
+Retrieves the bonded configuration provider, falling back to a minimal
+`process.env` reader if none is configured.
 
 ```typescript
 function getProvider(): ConfigProvider
 ```
 
-**Returns:** The bonded configuration provider.
+**Returns:** The bonded configuration provider, or the env fallback.
 
 #### `getRequired(key)`
 

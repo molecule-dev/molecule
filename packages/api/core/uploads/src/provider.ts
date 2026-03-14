@@ -8,12 +8,13 @@
  * @module
  */
 
-import { bond, isBonded, require as bondRequire } from '@molecule/api-bond'
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
 import type { UploadProvider } from './types.js'
 
 const BOND_TYPE = 'uploads'
+expectBond(BOND_TYPE)
 
 /**
  * Registers an upload provider as the active singleton. Called by bond

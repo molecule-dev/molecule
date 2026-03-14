@@ -630,10 +630,10 @@ export const languageGrid =
   'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-96 overflow-y-auto p-2'
 /** Language option (inactive) classes. */
 export const languageOption =
-  'px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors hover:bg-gray-100 dark:hover:bg-gray-700'
+  'px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors hover:bg-surface-secondary'
 /** Language option (active/selected) classes. */
 export const languageActive =
-  'px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-medium'
+  'px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors bg-primary/15 text-primary font-medium'
 
 /** Theme toggle button classes. */
 export const themeToggleButton =

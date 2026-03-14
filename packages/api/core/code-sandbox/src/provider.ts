@@ -8,12 +8,19 @@
  * @module
  */
 
-import { bond, get as bondGet, isBonded, require as bondRequire } from '@molecule/api-bond'
+import {
+  bond,
+  expectBond,
+  get as bondGet,
+  isBonded,
+  require as bondRequire,
+} from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
 import type { SandboxProvider } from './types.js'
 
 const BOND_TYPE = 'code-sandbox'
+expectBond(BOND_TYPE)
 
 /**
  * Registers a sandbox provider as the active singleton. Called by bond

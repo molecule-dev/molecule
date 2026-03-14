@@ -129,6 +129,8 @@ function deleteFile(id: string): Promise<void>
 
 - `id` — The UUID file identifier (also the filename on disk).
 
+**Returns:** A promise that resolves when the file is deleted.
+
 #### `getFileStream(id)`
 
 Opens a read stream for a previously uploaded file.

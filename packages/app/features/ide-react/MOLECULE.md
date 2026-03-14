@@ -35,6 +35,8 @@ interface ChatPanelProps {
   endpoint?: string
   /** If provided, auto-send this message once on mount (e.g., prompt from landing page). */
   initialMessage?: string
+  /** Called after the initial message has been sent — used to clear router state. */
+  onInitialMessageSent?: () => void
   /** Called when a filename in a tool call is clicked — should open the file as a preview tab. */
   onFileOpen?: (path: string) => void
   /** Called when a filename in a tool call is double-clicked — should pin the tab. */
@@ -136,6 +138,10 @@ Properties for preview panel.
 
 ```typescript
 interface PreviewPanelProps {
+  /** Custom loading indicator shown while the dev server is starting. */
+  loadingIndicator?: ReactNode
+  /** Custom loading indicator shown when the dev server restarts mid-session. Falls back to loadingIndicator if not provided. */
+  restartingIndicator?: ReactNode
   className?: string
 }
 ```

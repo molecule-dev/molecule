@@ -8,12 +8,13 @@
  * @module
  */
 
-import { bond, isBonded, require as bondRequire } from '@molecule/api-bond'
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
 import type { DatabaseConnection, DatabasePool, QueryResult } from './types.js'
 
 const BOND_TYPE = 'database'
+expectBond(BOND_TYPE)
 
 /**
  * Registers a database connection pool as the active singleton. Called by

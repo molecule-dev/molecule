@@ -129,6 +129,7 @@ export type ChatStreamEvent =
   | { type: 'tool_result'; id: string; output: unknown }
   | { type: 'file_diff'; path: string; oldContent: string | null; newContent: string }
   | { type: 'commit_suggestion'; files: string[] }
+  | { type: 'conversation'; id: string }
   | { type: 'mode'; mode: 'plan' | 'execute' }
   | { type: 'loop_limit_reached'; maxLoops: number }
   | { type: 'done'; usage?: { inputTokens: number; outputTokens: number } }

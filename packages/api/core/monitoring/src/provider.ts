@@ -7,12 +7,19 @@
  * @module
  */
 
-import { bond, get as bondGet, isBonded, require as bondRequire } from '@molecule/api-bond'
+import {
+  bond,
+  expectBond,
+  get as bondGet,
+  isBonded,
+  require as bondRequire,
+} from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
 import type { MonitoringProvider, SystemHealth } from './types.js'
 
 const BOND_TYPE = 'monitoring'
+expectBond(BOND_TYPE)
 
 /**
  * Registers a monitoring provider as the active singleton. Called by bond

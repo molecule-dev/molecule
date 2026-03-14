@@ -8,7 +8,7 @@
  * @module
  */
 
-import { bond, isBonded, require as bondRequire } from '@molecule/api-bond'
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
 
 import type {
   TwoFactorProvider,
@@ -18,6 +18,7 @@ import type {
 } from './types.js'
 
 const BOND_TYPE = 'two-factor'
+expectBond(BOND_TYPE)
 
 /**
  * Registers a two-factor authentication provider as the active singleton.

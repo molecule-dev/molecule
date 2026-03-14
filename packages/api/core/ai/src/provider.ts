@@ -8,12 +8,19 @@
  * @module
  */
 
-import { bond, get as bondGet, isBonded, require as bondRequire } from '@molecule/api-bond'
+import {
+  bond,
+  expectBond,
+  get as bondGet,
+  isBonded,
+  require as bondRequire,
+} from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
 import type { AIProvider } from './types.js'
 
 const BOND_TYPE = 'ai'
+expectBond(BOND_TYPE)
 
 /**
  * Registers an AI provider as the active singleton. Called by bond packages

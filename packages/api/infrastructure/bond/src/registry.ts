@@ -21,6 +21,15 @@ export const registry: ProviderRegistry = {
 }
 
 /**
+ * Set of bond types that have been declared as expected by core packages.
+ * Core packages call `expectBond(type)` at module scope so that any import
+ * of the package automatically registers the requirement. After all bonds
+ * are wired at startup, `validateBonds()` checks that every expected type
+ * has a provider — failing fast instead of crashing later at runtime.
+ */
+const expectedBonds = new Set<string>()
+
+/**
  * Current bond configuration controlling strict mode and verbosity.
  */
 export let config: BondConfig = {
@@ -181,4 +190,55 @@ export const clearProviders = (type: string): void => {
 export const reset = (): void => {
   registry.singletons.clear()
   registry.named.clear()
+}
+
+/**
+ * Declares a bond type as expected by a core package. Called at module scope
+ * so that importing the core package automatically registers the requirement.
+ *
+ * @example
+ * ```typescript
+ * // In @molecule/api-config provider.ts (module scope):
+ * import { expectBond } from '@molecule/api-bond'
+ * const BOND_TYPE = 'config'
+ * expectBond(BOND_TYPE)
+ * ```
+ *
+ * @param type - The bond category that must be wired before the app starts.
+ */
+export const expectBond = (type: string): void => {
+  expectedBonds.add(type)
+}
+
+/**
+ * Removes a bond type from the expected set. Call this when an optional
+ * bond setup fails and the application has decided it can run without it.
+ *
+ * @param type - The bond category to remove from the expected set.
+ */
+export const unexpectBond = (type: string): void => {
+  expectedBonds.delete(type)
+}
+
+/**
+ * Validates that every expected bond type has a provider registered.
+ * Call this after all bonds are wired in `setupBonds()`. Throws with a
+ * clear message listing all missing bonds so the developer can fix them
+ * all at once instead of hitting them one-by-one at runtime.
+ *
+ * @throws {Error} If any expected bond types are missing providers.
+ */
+export const validateBonds = (): void => {
+  const missing: string[] = []
+  for (const type of expectedBonds) {
+    if (!registry.singletons.has(type)) {
+      missing.push(type)
+    }
+  }
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing required bond providers: ${missing.join(', ')}. ` +
+        `Wire them in setupBonds() before starting the server.`,
+    )
+  }
 }
