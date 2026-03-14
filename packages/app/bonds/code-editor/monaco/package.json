@@ -30,6 +30,7 @@
     "@molecule/app-code-editor": "1.0.0",
     "@molecule/app-i18n": "1.0.0",
     "@types/node": "25.3.0",
+    "monaco-editor": "0.52.2",
     "typescript": "5.9.3",
     "vitest": "4.0.18"
   },
