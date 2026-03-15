@@ -21,8 +21,8 @@
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
-    "@molecule/api-middleware-body-parser": "^1.0.0",
     "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-middleware-body-parser": "^1.0.0",
     "express": "^5.0.0"
   },
   "dependencies": {
@@ -30,12 +30,13 @@
   },
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",
-    "@molecule/api-middleware-body-parser": "1.0.0",
     "@molecule/api-i18n": "1.0.0",
+    "@molecule/api-middleware-body-parser": "1.0.0",
     "@types/busboy": "1.5.4",
     "@types/connect-busboy": "1.0.3",
     "@types/express": "5.0.6",
     "@types/node": "25.3.0",
+    "express": "5.2.1",
     "typescript": "5.9.3",
     "vitest": "4.0.18"
   },
