@@ -542,13 +542,12 @@ describe('DockerSandboxProvider', () => {
       expect(hostConfig.PidsLimit).toBe(512)
     })
 
-    it('should set MemorySwap equal to Memory (no swap)', async () => {
+    it('should set MemorySwap to -1 (unlimited swap)', async () => {
       const body = await getCreateBody()
       const hostConfig = body.HostConfig as Record<string, unknown>
       const expectedBytes = 512 * 1024 * 1024
       expect(hostConfig.Memory).toBe(expectedBytes)
-      expect(hostConfig.MemorySwap).toBe(expectedBytes)
-      expect(hostConfig.MemorySwap).toBe(hostConfig.Memory)
+      expect(hostConfig.MemorySwap).toBe(-1)
     })
 
     it('should set Init: true for zombie process reaping', async () => {
@@ -578,7 +577,7 @@ describe('DockerSandboxProvider', () => {
       const hostConfig = body.HostConfig as Record<string, unknown>
       expect(hostConfig.NanoCPUs).toBe(1e9)
       expect(hostConfig.Memory).toBe(1024 * 1024 * 1024)
-      expect(hostConfig.MemorySwap).toBe(1024 * 1024 * 1024)
+      expect(hostConfig.MemorySwap).toBe(-1)
     })
 
     it('should set explicit PortBindings instead of PublishAllPorts', async () => {

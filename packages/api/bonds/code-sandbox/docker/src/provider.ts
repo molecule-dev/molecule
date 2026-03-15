@@ -145,7 +145,7 @@ class DockerSandboxProvider implements SandboxProvider {
     const hostConfig: Record<string, unknown> = {
       NanoCPUs: cpu * 1e9,
       Memory: memoryBytes,
-      MemorySwap: memoryBytes, // Equal to Memory = no swap; prevents host swap exhaustion
+      MemorySwap: -1, // Unlimited swap — prevents OOM-kill; RAM limit still enforced by Memory
       Init: true, // Use tini init to reap zombie processes
       PidsLimit: 512,
       SecurityOpt: ['no-new-privileges'],

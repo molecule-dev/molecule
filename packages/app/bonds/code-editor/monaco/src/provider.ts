@@ -22,6 +22,7 @@ import { t } from '@molecule/app-i18n'
 
 import {
   LspClient,
+  type LspClientRef,
   type LspMonacoModule,
   type LspProviderOptions,
   registerLspProviders,
@@ -181,7 +182,7 @@ export class MonacoEditorProvider implements EditorProvider {
   /** Active LSP client for remote language intelligence. */
   private lspClient: LspClient | null = null
   /** Mutable ref read by LSP providers — swapped on reconnect without re-registration. */
-  private lspClientRef: import('./lsp-client.js').LspClientRef = { current: null }
+  private lspClientRef: LspClientRef = { current: null }
   /** Disposable for LSP-registered Monaco language providers (registered once, never re-registered). */
   private lspProviders: { dispose(): void } | null = null
   /** Models created lazily by resolveModel (Peek Definition) — disposed on LSP disconnect. */
@@ -1213,7 +1214,10 @@ export class MonacoEditorProvider implements EditorProvider {
     console.debug('[Monaco] LSP connected', wsUrl)
   }
 
-  /** Register a callback for when the LSP connection drops unexpectedly. */
+  /**
+   * Register a callback for when the LSP connection drops unexpectedly.
+   * @param cb - The callback to invoke on unexpected disconnect.
+   */
   onLspDisconnect(cb: () => void): void {
     this.onLspDisconnectCb = cb
   }

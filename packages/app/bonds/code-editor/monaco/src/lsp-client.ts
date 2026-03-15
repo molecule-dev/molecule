@@ -27,14 +27,6 @@ interface LspLocation {
   range: LspRange
 }
 
-interface LspDiagnostic {
-  range: LspRange
-  severity?: number
-  message: string
-  source?: string
-  code?: number | string
-}
-
 interface LspCompletionItem {
   label: string
   kind?: number
@@ -134,46 +126,20 @@ function lspToMonacoRange(range: LspRange): {
 }
 
 /**
- * Maps an LSP diagnostic severity to a Monaco MarkerSeverity value.
- * @param severity - The LSP severity level (1=Error, 2=Warning, 3=Info, 4=Hint).
- * @param ms - The Monaco MarkerSeverity enum object.
- * @param ms.Error - Error severity constant.
- * @param ms.Warning - Warning severity constant.
- * @param ms.Info - Info severity constant.
- * @param ms.Hint - Hint severity constant.
- * @returns The corresponding Monaco marker severity number.
- */
-function lspToMonacoSeverity(
-  severity: number | undefined,
-  ms: { Error: number; Warning: number; Info: number; Hint: number },
-): number {
-  switch (severity) {
-    case 1:
-      return ms.Error
-    case 2:
-      return ms.Warning
-    case 3:
-      return ms.Info
-    case 4:
-      return ms.Hint
-    default:
-      return ms.Info
-  }
-}
-
-/**
  * Converts LSP hover contents to Monaco-compatible hover content format.
  * @param contents - The LSP hover contents (string, MarkupContent, or array).
  * @returns An array of value objects suitable for Monaco hover display.
  */
 function convertHoverContents(
   contents: LspHover['contents'],
-): { value: string; isTrusted?: boolean }[] {
-  if (typeof contents === 'string') return [{ value: contents }]
+): { value: string; isTrusted: boolean }[] {
+  if (typeof contents === 'string') return [{ value: contents, isTrusted: true }]
   if (Array.isArray(contents)) {
-    return contents.map((c) => (typeof c === 'string' ? { value: c } : { value: c.value }))
+    return contents.map((c) =>
+      typeof c === 'string' ? { value: c, isTrusted: true } : { value: c.value, isTrusted: true },
+    )
   }
-  return [{ value: contents.value }]
+  return [{ value: contents.value, isTrusted: true }]
 }
 
 /**
@@ -226,6 +192,7 @@ export class LspClient {
   private notificationHandlers = new Map<string, (params: unknown) => void>()
   private openDocuments = new Set<string>()
   private connected = false
+  private disconnectCb: (() => void) | null = null
 
   constructor(private wsUrl: string) {}
 
@@ -346,12 +313,15 @@ export class LspClient {
       }
 
       ws.onclose = () => {
+        const wasConnected = this.connected
         this.connected = false
         // Reject all pending requests
         for (const [, pending] of this.pendingRequests) {
           pending.reject(new Error('LSP connection closed'))
         }
         this.pendingRequests.clear()
+        // Notify owner so it can reconnect
+        if (wasConnected) this.disconnectCb?.()
       }
     })
   }
@@ -507,6 +477,14 @@ export class LspClient {
   // --- Notification registration ---
 
   /**
+   * Registers a callback invoked when the connection drops unexpectedly.
+   * @param cb - The callback to invoke on unexpected disconnect.
+   */
+  onDisconnect(cb: () => void): void {
+    this.disconnectCb = cb
+  }
+
+  /**
    * Registers a handler for server-initiated notifications.
    * @param method - The LSP notification method name.
    * @param handler - The callback to invoke when the notification arrives.
@@ -562,22 +540,32 @@ export interface LspProviderOptions {
 }
 
 /**
+ * Mutable reference to the current LSP client. Providers read from this so
+ * they survive across reconnections without being disposed and re-registered
+ * (which triggers Monaco's InstantiationService disposal bug).
+ */
+export interface LspClientRef {
+  current: LspClient | null
+}
+
+/**
  * Registers LSP-backed Monaco language providers for TypeScript/JavaScript.
  * Returns a disposable that unregisters all providers.
  * @param monaco - The Monaco module instance with language and editor APIs.
- * @param client - The connected LSP client to delegate language requests to.
+ * @param clientRef - Mutable ref to the current LSP client (swapped on reconnect).
  * @param options - Optional configuration (e.g. custom model resolver for definition).
  * @returns A disposable that unregisters all registered providers.
  */
 export function registerLspProviders(
   monaco: LspMonacoModule,
-  client: LspClient,
+  clientRef: LspClientRef,
   options?: LspProviderOptions,
 ): { dispose(): void } {
   const disposables: { dispose(): void }[] = []
 
   // Helper: convert Monaco model URI → LSP URI
-  const toLsp = (modelUri: string): string => client.toLspUri(modelUri)
+  const toLsp = (modelUri: string): string =>
+    clientRef.current?.toLspUri(modelUri) ?? `file://${modelUri}`
 
   // Completion
   disposables.push(
@@ -587,9 +575,9 @@ export function registerLspProviders(
         model: { uri: { toString(): string } },
         position: { lineNumber: number; column: number },
       ) {
-        if (!client.isConnected()) return { suggestions: [] }
+        if (!clientRef.current?.isConnected()) return { suggestions: [] }
         try {
-          const result = await client.completion(
+          const result = await clientRef.current!.completion(
             toLsp(model.uri.toString()),
             position.lineNumber - 1,
             position.column - 1,
@@ -614,13 +602,13 @@ export function registerLspProviders(
       ) {
         console.debug('[LSP hover] called', {
           uri: model.uri.toString(),
-          connected: client.isConnected(),
+          connected: clientRef.current?.isConnected() ?? false,
           line: position.lineNumber,
           col: position.column,
         })
-        if (!client.isConnected()) return null
+        if (!clientRef.current?.isConnected()) return null
         try {
-          const result = await client.hover(
+          const result = await clientRef.current!.hover(
             toLsp(model.uri.toString()),
             position.lineNumber - 1,
             position.column - 1,
@@ -646,15 +634,15 @@ export function registerLspProviders(
         model: { uri: { toString(): string } },
         position: { lineNumber: number; column: number },
       ) {
-        if (!client.isConnected()) return []
+        if (!clientRef.current?.isConnected()) return []
         try {
-          const locations = await client.definition(
+          const locations = await clientRef.current!.definition(
             toLsp(model.uri.toString()),
             position.lineNumber - 1,
             position.column - 1,
           )
           const results = locations.map((loc) => ({
-            uri: monaco.Uri.parse(client.fromLspUri(loc.uri)),
+            uri: monaco.Uri.parse(clientRef.current!.fromLspUri(loc.uri)),
             range: lspToMonacoRange(loc.range),
           }))
 
@@ -684,9 +672,9 @@ export function registerLspProviders(
         model: { uri: { toString(): string } },
         position: { lineNumber: number; column: number },
       ) {
-        if (!client.isConnected()) return null
+        if (!clientRef.current?.isConnected()) return null
         try {
-          const result = await client.signatureHelp(
+          const result = await clientRef.current!.signatureHelp(
             toLsp(model.uri.toString()),
             position.lineNumber - 1,
             position.column - 1,
@@ -722,20 +710,8 @@ export function registerLspProviders(
     }),
   )
 
-  // Diagnostics (server-pushed) — map LSP URI back to editor URI
-  client.onNotification('textDocument/publishDiagnostics', (params: unknown) => {
-    const p = params as { uri: string; diagnostics: LspDiagnostic[] }
-    const editorUri = client.fromLspUri(p.uri)
-    const model = monaco.editor.getModel(monaco.Uri.parse(editorUri))
-    if (!model) return
-    const markers = p.diagnostics.map((d) => ({
-      severity: lspToMonacoSeverity(d.severity, monaco.MarkerSeverity),
-      message: d.message,
-      source: d.source ?? 'typescript',
-      ...lspToMonacoRange(d.range),
-    }))
-    monaco.editor.setModelMarkers(model, 'lsp', markers)
-  })
+  // Diagnostics are registered per-client in connectLsp(), not here,
+  // since onNotification is bound to a specific client instance.
 
   return {
     dispose() {
