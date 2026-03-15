@@ -368,8 +368,8 @@ const FileTreeItem = memo(function FileTreeItem({
               ? fileStatuses
                 ? getDirColor(node.path, fileStatuses, gitColors)
                 : undefined
-              : node.gitStatus
-                ? gitColors[node.gitStatus]
+              : fileStatuses?.[node.path]
+                ? gitColors[fileStatuses[node.path]]
                 : undefined,
             opacity: node.symlinkTarget ? 0.55 : undefined,
           }}

@@ -68,6 +68,7 @@ interface MonacoModel {
 
 /** Minimal marker type from Monaco's marker service. */
 interface MonacoMarker {
+  owner: string
   severity: number // 1=Hint, 2=Info, 4=Warning, 8=Error
   message: string
   startLineNumber: number
@@ -455,6 +456,8 @@ export class MonacoEditorProvider implements EditorProvider {
           const existing = this.monaco.editor.getModel(uri)
           if (existing) {
             existing.setValue(file.content)
+            // Clear stale LSP markers from a previous session (model survives HMR/reopen)
+            this.monaco.editor.setModelMarkers(existing, 'lsp', [])
             model = existing
           } else {
             model = this.monaco.editor.createModel(file.content, file.language, uri)
@@ -634,6 +637,14 @@ export class MonacoEditorProvider implements EditorProvider {
     this.changeDisposable?.dispose()
     model.setValue(content)
     this.wireChangeListener()
+
+    // Notify LSP so it re-analyzes and clears stale diagnostics
+    if (this.lspClient?.isConnected()) {
+      const uri = this.lspClient.toLspUri(path)
+      const docVersion = (this.documentVersions.get(path) ?? 0) + 1
+      this.documentVersions.set(path, docVersion)
+      this.lspClient.didChange(uri, docVersion, content)
+    }
 
     // Restore cursor, clamped to valid bounds
     if (savedPosition && this.editor && path === this.activeFile) {
@@ -968,10 +979,14 @@ export class MonacoEditorProvider implements EditorProvider {
       for (const [path, tab] of this.tabs) {
         const model = this.monacoModels.get(path)
         if (!model) continue
+        // Only count markers we own ('lsp'). Monaco's built-in TS checker may
+        // produce markers under a different owner that persist even after the
+        // LSP clears its diagnostics (e.g. when setModeConfiguration is unavailable).
         const markers = monaco.editor.getModelMarkers({ resource: model.uri })
         let errors = 0
         let warnings = 0
         for (const m of markers) {
+          if (m.owner !== 'lsp') continue
           if (m.severity === monaco.MarkerSeverity.Error) errors++
           else if (m.severity === monaco.MarkerSeverity.Warning) warnings++
         }
@@ -1228,6 +1243,13 @@ export class MonacoEditorProvider implements EditorProvider {
     this.lspClient = null
     this.lspClientRef.current = null
     this.documentVersions.clear()
+
+    // Clear all LSP markers so stale diagnostics don't linger after disconnect
+    if (this.monaco) {
+      for (const model of this.monacoModels.values()) {
+        this.monaco.editor.setModelMarkers(model, 'lsp', [])
+      }
+    }
 
     // Dispose models created lazily for Peek Definition to free worker memory
     for (const model of this.lspResolvedModels) {
