@@ -38,6 +38,8 @@ export interface ChatPanelProps {
   onFileRevert?: (path: string, content: string) => Promise<void>
   /** Called when the AI creates or modifies a file — should refresh the editor if the file is open. */
   onFileChange?: (path: string, content: string) => void
+  /** Called after a successful commit — should refresh file explorer git status. */
+  onCommit?: () => void
   /** Message to auto-send (e.g. from "Fix with AI"). Sent when pendingMessageKey changes. */
   pendingMessage?: string
   /** Incremented to trigger sending pendingMessage. */

@@ -6,7 +6,7 @@
 
 import { getIcon } from 'material-file-icons'
 import type { JSX } from 'react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { useThemeMode } from '@molecule/app-react'
@@ -278,7 +278,7 @@ interface FileTreeItemProps {
  * @param root0.gitColors - Color map for git statuses.
  * @returns The rendered tree item element.
  */
-function FileTreeItem({
+const FileTreeItem = memo(function FileTreeItem({
   node,
   depth,
   isExpanded,
@@ -416,7 +416,7 @@ function FileTreeItem({
       )}
     </div>
   )
-}
+})
 
 // ---------------------------------------------------------------------------
 // FileExplorer

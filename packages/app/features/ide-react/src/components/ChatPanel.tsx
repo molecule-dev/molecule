@@ -342,6 +342,7 @@ interface ChatInnerProps {
   onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
   onFileRevert?: (path: string, content: string) => Promise<void>
   onFileChange?: (path: string, content: string) => void
+  onCommit?: () => void
   onConversationId?: (id: string) => void
   pendingMessage?: string
   pendingMessageKey?: number
@@ -359,12 +360,13 @@ interface ChatInnerProps {
  * @param root0.onFileDiff - Callback to open a side-by-side diff view.
  * @param root0.onFileRevert - Callback to revert a file to previous content.
  * @param root0.onFileChange - Callback when a file's content changes from AI edits.
+ * @param root0.onCommit - Callback fired after a successful commit.
  * @param root0.onConversationId - Callback when the conversation ID is assigned.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @returns The rendered chat inner component.
  */
-function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, onConversationId, pendingMessage, pendingMessageKey }: ChatInnerProps): JSX.Element {
+function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, onCommit, onConversationId, pendingMessage, pendingMessageKey }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
@@ -503,6 +505,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
         setCommitCards((prev) =>
           prev.map((c) => (c.id === cardId ? { ...c, message: msg, files: result.data.files ?? [], status: 'done' as const } : c)),
         )
+        onCommit?.()
         setTimeout(() => setCommitState(null), 3000)
       } else {
         setCommitCards((prev) => prev.filter((c) => c.id !== cardId))
@@ -515,7 +518,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
       setCommitState({ status: 'error' })
       setTimeout(() => setCommitState(null), 3000)
     }
-  }, [http, projectId])
+  }, [http, projectId, onCommit])
 
   // ── File picker ────────────────────────────────────────────────────────────
   const openFilePicker = useCallback(
@@ -1764,6 +1767,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
  * @param root0.onFileDiff - Callback to open a side-by-side diff view.
  * @param root0.onFileRevert - Callback to revert a file to previous content.
  * @param root0.onFileChange - Callback when a file's content changes from AI edits.
+ * @param root0.onCommit - Callback fired after a successful commit.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @param root0.className - Optional CSS class name for the container.
@@ -1779,6 +1783,7 @@ export function ChatPanel({
   onFileDiff,
   onFileRevert,
   onFileChange,
+  onCommit,
   pendingMessage,
   pendingMessageKey,
   className,
@@ -2045,6 +2050,7 @@ export function ChatPanel({
         onFileDiff={onFileDiff}
         onFileRevert={onFileRevert}
         onFileChange={onFileChange}
+        onCommit={onCommit}
         onConversationId={persistConversationId}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}
