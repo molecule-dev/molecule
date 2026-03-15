@@ -109,6 +109,7 @@ interface MonacoModule {
     createModel(value: string, language?: string, uri?: unknown): MonacoModel
     getModel(uri: unknown): MonacoModel | null
     getModelMarkers(filter: { resource?: unknown }): MonacoMarker[]
+    setModelMarkers(model: MonacoModel, owner: string, markers: unknown[]): void
     onDidChangeMarkers(listener: (uris: unknown[]) => void): { dispose(): void }
     registerEditorOpener?(opener: {
       openCodeEditor(
@@ -179,10 +180,14 @@ export class MonacoEditorProvider implements EditorProvider {
   private extraLibDisposables: Map<string, { dispose(): void }> = new Map()
   /** Active LSP client for remote language intelligence. */
   private lspClient: LspClient | null = null
-  /** Disposable for LSP-registered Monaco language providers. */
+  /** Mutable ref read by LSP providers — swapped on reconnect without re-registration. */
+  private lspClientRef: import('./lsp-client.js').LspClientRef = { current: null }
+  /** Disposable for LSP-registered Monaco language providers (registered once, never re-registered). */
   private lspProviders: { dispose(): void } | null = null
   /** Models created lazily by resolveModel (Peek Definition) — disposed on LSP disconnect. */
   private lspResolvedModels: MonacoModel[] = []
+  /** Callback invoked when the LSP connection drops unexpectedly. */
+  private onLspDisconnectCb: (() => void) | null = null
   /** LSP document version counters keyed by file path. */
   private documentVersions: Map<string, number> = new Map()
   /** Callback to fetch file content by path — used for Go to Definition cross-file navigation. */
@@ -340,6 +345,8 @@ export class MonacoEditorProvider implements EditorProvider {
     this.closeDiff()
 
     this.disconnectLsp()
+    this.lspProviders?.dispose()
+    this.lspProviders = null
     this.editorOpenerDisposable?.dispose()
     this.editorOpenerDisposable = null
     for (const d of this.fixWithAIDisposables) d.dispose()
@@ -915,14 +922,38 @@ export class MonacoEditorProvider implements EditorProvider {
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions)
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions(compilerOptions)
 
-    // Enable full diagnostics (syntax, semantic, and suggestions)
+    // Disable built-in semantic validation — the LSP server provides diagnostics.
+    // Keeping it enabled causes the Monaco TS worker to attempt module resolution
+    // for every import, freezing the page when @molecule/* packages aren't
+    // registered as extra libs (they live in the sandbox, not the browser).
     const diagOptions = {
-      noSemanticValidation: false,
+      noSemanticValidation: true,
       noSyntaxValidation: false,
-      noSuggestionDiagnostics: false,
+      noSuggestionDiagnostics: true,
     }
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions(diagOptions)
     monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(diagOptions)
+
+    // Disable ALL built-in TS language features — LSP provides what we need.
+    // Any enabled feature triggers the TS web worker, which attempts to resolve
+    // all @molecule/* imports (not available in browser) and freezes the tab.
+    const modeOff = {
+      completionItems: false,
+      hovers: false,
+      definitions: false,
+      references: false,
+      documentHighlights: false,
+      documentSymbols: false,
+      rename: false,
+      signatureHelp: false,
+      diagnostics: false,
+      documentRangeFormattingEdits: false,
+      onTypeFormattingEdits: false,
+      codeActions: false,
+      inlayHints: false,
+    }
+    monaco.languages.typescript.typescriptDefaults.setModeConfiguration?.(modeOff)
+    monaco.languages.typescript.javascriptDefaults.setModeConfiguration?.(modeOff)
   }
 
   /**
@@ -1074,36 +1105,33 @@ export class MonacoEditorProvider implements EditorProvider {
    * @param wsUrl - The WebSocket URL of the LSP server.
    */
   async connectLsp(wsUrl: string): Promise<void> {
-    if (this.lspClient) this.disconnectLsp()
+    // Disconnect old client without disposing providers — they read from lspClientRef
+    if (this.lspClient) {
+      this.lspClient.disconnect()
+      this.lspClient = null
+      this.lspClientRef.current = null
+      this.documentVersions.clear()
+    }
 
     const client = new LspClient(wsUrl)
     await client.connect()
     this.lspClient = client
+    this.lspClientRef.current = client
 
-    if (this.monaco) {
-      // Disable built-in TS language features — LSP server provides them
-      const diagOptions = {
-        noSemanticValidation: true,
-        noSyntaxValidation: false,
-        noSuggestionDiagnostics: true,
-      }
-      const modeOff = {
-        completionItems: false,
-        hovers: false,
-        definitions: false,
-        signatureHelp: false,
-        diagnostics: false,
-      }
-      for (const defaults of [
-        this.monaco.languages.typescript.typescriptDefaults,
-        this.monaco.languages.typescript.javascriptDefaults,
-      ]) {
-        defaults.setDiagnosticsOptions(diagOptions)
-        defaults.setModeConfiguration?.(modeOff)
-      }
+    // On unexpected disconnect, null out the client ref so providers return
+    // empty results instead of erroring. Reconnection is handled by the
+    // Workspace useEffect which re-fires when sandboxStatus → 'running'.
+    client.onDisconnect(() => {
+      console.debug('[Monaco] LSP connection dropped')
+      this.lspClient = null
+      this.lspClientRef.current = null
+      this.documentVersions.clear()
+      this.onLspDisconnectCb?.()
+    })
 
-      // Build resolveModel callback for Peek Definition — lazily creates Monaco
-      // models for files that aren't open yet by fetching via the file resolver.
+    // Register LSP providers ONCE — they read from lspClientRef so they
+    // survive reconnections without being disposed (avoids Monaco disposal bugs).
+    if (this.monaco && !this.lspProviders) {
       const lspOptions: LspProviderOptions = {}
       if (this.fileResolver) {
         const resolver = this.fileResolver
@@ -1122,9 +1150,56 @@ export class MonacoEditorProvider implements EditorProvider {
       }
       this.lspProviders = registerLspProviders(
         this.monaco as unknown as LspMonacoModule,
-        client,
+        this.lspClientRef,
         lspOptions,
       )
+    }
+
+    // Register diagnostics handler on this specific client instance
+    if (this.monaco) {
+      const monaco = this.monaco
+      client.onNotification('textDocument/publishDiagnostics', (params: unknown) => {
+        const p = params as {
+          uri: string
+          diagnostics: {
+            range: {
+              start: { line: number; character: number }
+              end: { line: number; character: number }
+            }
+            severity?: number
+            message: string
+            source?: string
+          }[]
+        }
+        const editorUri = client.fromLspUri(p.uri)
+        const model = monaco.editor.getModel(monaco.Uri.parse(editorUri))
+        if (!model) return
+        const markers = p.diagnostics.map(
+          (d: {
+            range: {
+              start: { line: number; character: number }
+              end: { line: number; character: number }
+            }
+            severity?: number
+            message: string
+            source?: string
+          }) => ({
+            severity:
+              d.severity === 1
+                ? monaco.MarkerSeverity.Error
+                : d.severity === 2
+                  ? monaco.MarkerSeverity.Warning
+                  : monaco.MarkerSeverity.Info,
+            message: d.message,
+            source: d.source ?? 'typescript',
+            startLineNumber: d.range.start.line + 1,
+            startColumn: d.range.start.character + 1,
+            endLineNumber: d.range.end.line + 1,
+            endColumn: d.range.end.character + 1,
+          }),
+        )
+        monaco.editor.setModelMarkers(model, 'lsp', markers)
+      })
     }
 
     // Send didOpen for all currently open files
@@ -1138,12 +1213,16 @@ export class MonacoEditorProvider implements EditorProvider {
     console.debug('[Monaco] LSP connected', wsUrl)
   }
 
-  /** Disconnects from the LSP server and re-enables built-in TS diagnostics. */
+  /** Register a callback for when the LSP connection drops unexpectedly. */
+  onLspDisconnect(cb: () => void): void {
+    this.onLspDisconnectCb = cb
+  }
+
+  /** Disconnects from the LSP server. Providers stay registered (they read lspClientRef). */
   disconnectLsp(): void {
-    this.lspProviders?.dispose()
-    this.lspProviders = null
     this.lspClient?.disconnect()
     this.lspClient = null
+    this.lspClientRef.current = null
     this.documentVersions.clear()
 
     // Dispose models created lazily for Peek Definition to free worker memory
@@ -1151,29 +1230,6 @@ export class MonacoEditorProvider implements EditorProvider {
       model.dispose()
     }
     this.lspResolvedModels = []
-
-    // Re-enable built-in TS language features as fallback
-    if (this.monaco) {
-      const diagOptions = {
-        noSemanticValidation: false,
-        noSyntaxValidation: false,
-        noSuggestionDiagnostics: false,
-      }
-      const modeOn = {
-        completionItems: true,
-        hovers: true,
-        definitions: true,
-        signatureHelp: true,
-        diagnostics: true,
-      }
-      for (const defaults of [
-        this.monaco.languages.typescript.typescriptDefaults,
-        this.monaco.languages.typescript.javascriptDefaults,
-      ]) {
-        defaults.setDiagnosticsOptions(diagOptions)
-        defaults.setModeConfiguration?.(modeOn)
-      }
-    }
 
     console.debug('[Monaco] LSP disconnected')
   }

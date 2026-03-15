@@ -177,7 +177,12 @@ const CODE_STYLE: React.CSSProperties = {
  * @param root0.children - The inline code content to display.
  * @returns The rendered clickable code element.
  */
-function FileCodeLink({ filePath, onFileOpen, onFileDoubleClick, children }: {
+function FileCodeLink({
+  filePath,
+  onFileOpen,
+  onFileDoubleClick,
+  children,
+}: {
   filePath: string
   onFileOpen: (path: string) => void
   onFileDoubleClick?: (path: string) => void
@@ -186,10 +191,20 @@ function FileCodeLink({ filePath, onFileOpen, onFileDoubleClick, children }: {
   return (
     <code
       style={{ ...CODE_STYLE, cursor: 'pointer', opacity: 0.75, transition: 'opacity 100ms' }}
-      onClick={(e) => { e.stopPropagation(); onFileOpen(filePath) }}
-      onDoubleClick={(e) => { e.stopPropagation(); onFileDoubleClick?.(filePath) }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.75' }}
+      onClick={(e) => {
+        e.stopPropagation()
+        onFileOpen(filePath)
+      }}
+      onDoubleClick={(e) => {
+        e.stopPropagation()
+        onFileDoubleClick?.(filePath)
+      }}
+      onMouseEnter={(e) => {
+        ;(e.currentTarget as HTMLElement).style.opacity = '1'
+      }}
+      onMouseLeave={(e) => {
+        ;(e.currentTarget as HTMLElement).style.opacity = '0.75'
+      }}
     >
       {children}
     </code>
@@ -218,12 +233,21 @@ function renderLabel(
   return (
     <>
       {parts.map((part, i) =>
-        i % 2 === 0 ? part : (
-          filePath && onFileOpen ? (
-            <FileCodeLink key={i} filePath={filePath} onFileOpen={onFileOpen} onFileDoubleClick={onFileDoubleClick}>{part}</FileCodeLink>
-          ) : (
-            <code key={i} style={{ ...CODE_STYLE, opacity: 0.75 }}>{part}</code>
-          )
+        i % 2 === 0 ? (
+          part
+        ) : filePath && onFileOpen ? (
+          <FileCodeLink
+            key={i}
+            filePath={filePath}
+            onFileOpen={onFileOpen}
+            onFileDoubleClick={onFileDoubleClick}
+          >
+            {part}
+          </FileCodeLink>
+        ) : (
+          <code key={i} style={{ ...CODE_STYLE, opacity: 0.75 }}>
+            {part}
+          </code>
         ),
       )}
     </>
@@ -254,11 +278,16 @@ function renderIn(name: string, input: unknown): ReactNode {
 
   switch (name) {
     case 'exec_command':
-      return <pre style={PRE}><span style={{ opacity: 0.5 }}>$ </span>{inp.command as string ?? ''}</pre>
+      return (
+        <pre style={PRE}>
+          <span style={{ opacity: 0.5 }}>$ </span>
+          {(inp.command as string) ?? ''}
+        </pre>
+      )
 
     case 'write_file':
       // Full file content is too noisy — show only the path
-      return <pre style={PRE}>{inp.path as string ?? ''}</pre>
+      return <pre style={PRE}>{(inp.path as string) ?? ''}</pre>
 
     case 'edit_file': {
       const replacements = Array.isArray(inp.replacements)
@@ -269,12 +298,22 @@ function renderIn(name: string, input: unknown): ReactNode {
         if (i > 0) nodes.push('\n\n')
         r.old_string.split('\n').forEach((line, li) => {
           if (li > 0) nodes.push('\n')
-          nodes.push(<span key={`r${i}-${li}`} style={{ color: '#f47067', fontFamily: 'inherit' }}>{'- '}{line}</span>)
+          nodes.push(
+            <span key={`r${i}-${li}`} style={{ color: '#f47067', fontFamily: 'inherit' }}>
+              {'- '}
+              {line}
+            </span>,
+          )
         })
         nodes.push('\n')
         r.new_string.split('\n').forEach((line, li) => {
           if (li > 0) nodes.push('\n')
-          nodes.push(<span key={`a${i}-${li}`} style={{ color: '#57ab5a', fontFamily: 'inherit' }}>{'+ '}{line}</span>)
+          nodes.push(
+            <span key={`a${i}-${li}`} style={{ color: '#57ab5a', fontFamily: 'inherit' }}>
+              {'+ '}
+              {line}
+            </span>,
+          )
         })
       })
       return <pre style={PRE}>{nodes}</pre>
@@ -283,7 +322,7 @@ function renderIn(name: string, input: unknown): ReactNode {
     case 'search_files':
       return (
         <pre style={PRE}>
-          {`/${inp.pattern as string ?? ''}/`}
+          {`/${(inp.pattern as string) ?? ''}/`}
           {inp.path ? ` in ${inp.path}` : ''}
           {inp.include ? ` (${inp.include})` : ''}
         </pre>
@@ -292,7 +331,7 @@ function renderIn(name: string, input: unknown): ReactNode {
     case 'find_files':
       return (
         <pre style={PRE}>
-          {inp.pattern as string ?? ''}
+          {(inp.pattern as string) ?? ''}
           {inp.path ? ` in ${inp.path}` : ''}
         </pre>
       )
@@ -301,13 +340,21 @@ function renderIn(name: string, input: unknown): ReactNode {
     case 'delete_file':
     case 'list_files':
     case 'create_directory':
-      return <pre style={PRE}>{inp.path as string ?? ''}</pre>
+      return <pre style={PRE}>{(inp.path as string) ?? ''}</pre>
 
     case 'rename_file':
-      return <pre style={PRE}>{inp.old_path as string ?? ''} → {inp.new_path as string ?? ''}</pre>
+      return (
+        <pre style={PRE}>
+          {(inp.old_path as string) ?? ''} → {(inp.new_path as string) ?? ''}
+        </pre>
+      )
 
     case 'web_fetch':
-      return <pre style={PRE}>{inp.method as string ?? 'GET'} {inp.url as string ?? ''}</pre>
+      return (
+        <pre style={PRE}>
+          {(inp.method as string) ?? 'GET'} {(inp.url as string) ?? ''}
+        </pre>
+      )
 
     default:
       return <pre style={PRE}>{JSON.stringify(input, null, 2)}</pre>
@@ -329,13 +376,15 @@ function renderOut(name: string, output: unknown): ReactNode {
 
   switch (name) {
     case 'exec_command': {
-      const stdout = (out.stdout as string ?? '').trimEnd()
-      const stderr = (out.stderr as string ?? '').trimEnd()
+      const stdout = ((out.stdout as string) ?? '').trimEnd()
+      const stderr = ((out.stderr as string) ?? '').trimEnd()
       const exitCode = out.exitCode as number | undefined
       return (
         <div>
           {stdout && <pre style={PRE}>{stdout}</pre>}
-          {stderr && <pre style={{ ...PRE, color: '#f47067', marginTop: stdout ? '4px' : 0 }}>{stderr}</pre>}
+          {stderr && (
+            <pre style={{ ...PRE, color: '#f47067', marginTop: stdout ? '4px' : 0 }}>{stderr}</pre>
+          )}
           {exitCode != null && exitCode !== 0 && (
             <div style={{ marginTop: '4px', color: '#f47067', fontSize: '10px' }}>
               exit code {exitCode}
@@ -347,7 +396,9 @@ function renderOut(name: string, output: unknown): ReactNode {
     }
 
     case 'write_file': {
-      const diff = out.diff as { type: string; linesAdded: number; linesRemoved: number } | undefined
+      const diff = out.diff as
+        | { type: string; linesAdded: number; linesRemoved: number }
+        | undefined
       if (!diff) return <span style={{ opacity: 0.6 }}>Written</span>
       if (diff.type === 'unchanged') return <span style={{ opacity: 0.6 }}>Unchanged</span>
       return (
@@ -357,8 +408,12 @@ function renderOut(name: string, output: unknown): ReactNode {
           )}
           {diff.type === 'modified' && (
             <>
-              {diff.linesAdded > 0 && <div style={{ color: '#57ab5a' }}>+{diff.linesAdded} lines</div>}
-              {diff.linesRemoved > 0 && <div style={{ color: '#f47067' }}>−{diff.linesRemoved} lines</div>}
+              {diff.linesAdded > 0 && (
+                <div style={{ color: '#57ab5a' }}>+{diff.linesAdded} lines</div>
+              )}
+              {diff.linesRemoved > 0 && (
+                <div style={{ color: '#f47067' }}>−{diff.linesRemoved} lines</div>
+              )}
             </>
           )}
         </div>
@@ -379,9 +434,7 @@ function renderOut(name: string, output: unknown): ReactNode {
       if (!content) return <span style={{ opacity: 0.5 }}>(empty)</span>
       const truncated = content.length > 3000
       return (
-        <pre style={PRE}>
-          {truncated ? content.slice(0, 3000) + '\n… (truncated)' : content}
-        </pre>
+        <pre style={PRE}>{truncated ? content.slice(0, 3000) + '\n… (truncated)' : content}</pre>
       )
     }
 
@@ -395,7 +448,10 @@ function renderOut(name: string, output: unknown): ReactNode {
               <span style={{ opacity: 0.4, width: '10px', flexShrink: 0 }}>
                 {e.type === 'directory' ? '▶' : ''}
               </span>
-              <span>{e.name}{e.type === 'directory' ? '/' : ''}</span>
+              <span>
+                {e.name}
+                {e.type === 'directory' ? '/' : ''}
+              </span>
             </div>
           ))}
         </div>
@@ -407,13 +463,17 @@ function renderOut(name: string, output: unknown): ReactNode {
       if (!files?.length) return <span style={{ opacity: 0.5 }}>No files found</span>
       return (
         <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px', lineHeight: 1.6 }}>
-          {files.map((f, i) => <div key={i}>{f}</div>)}
+          {files.map((f, i) => (
+            <div key={i}>{f}</div>
+          ))}
         </div>
       )
     }
 
     case 'search_files': {
-      const matches = out.matches as Array<{ file: string; line: number; content: string }> | undefined
+      const matches = out.matches as
+        | Array<{ file: string; line: number; content: string }>
+        | undefined
       if (!matches?.length) return <span style={{ opacity: 0.5 }}>No matches</span>
       return (
         <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px', lineHeight: 1.6 }}>
@@ -439,7 +499,13 @@ function renderOut(name: string, output: unknown): ReactNode {
       return (
         <div>
           {status != null && (
-            <div style={{ color: ok ? '#57ab5a' : '#f47067', marginBottom: body ? '4px' : 0, fontSize: '11px' }}>
+            <div
+              style={{
+                color: ok ? '#57ab5a' : '#f47067',
+                marginBottom: body ? '4px' : 0,
+                fontSize: '11px',
+              }}
+            >
               HTTP {status}
             </div>
           )}
@@ -484,9 +550,10 @@ function diffLineCount(oldLines: string[], newLines: string[]): { added: number;
   const dp: number[][] = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0) as number[])
   for (let i = 1; i <= n; i++) {
     for (let j = 1; j <= m; j++) {
-      dp[i][j] = oldLines[i - 1] === newLines[j - 1]
-        ? dp[i - 1][j - 1] + 1
-        : Math.max(dp[i - 1][j], dp[i][j - 1])
+      dp[i][j] =
+        oldLines[i - 1] === newLines[j - 1]
+          ? dp[i - 1][j - 1] + 1
+          : Math.max(dp[i - 1][j], dp[i][j - 1])
     }
   }
   const common = dp[n][m]
@@ -500,7 +567,11 @@ function diffLineCount(oldLines: string[], newLines: string[]): { added: number;
  * @param output - The raw tool output payload.
  * @returns Diff stats with added and removed line counts, or null if not applicable.
  */
-function fileDiffStats(name: string, input: unknown, output: unknown): { added: number; removed: number } | null {
+function fileDiffStats(
+  name: string,
+  input: unknown,
+  output: unknown,
+): { added: number; removed: number } | null {
   if (name === 'edit_file') {
     const inp = (input ?? {}) as Inp
     const replacements = Array.isArray(inp.replacements)
@@ -517,7 +588,9 @@ function fileDiffStats(name: string, input: unknown, output: unknown): { added: 
     return { added, removed }
   }
   if (name === 'write_file') {
-    const diff = (output as Inp)?.diff as { type: string; linesAdded: number; linesRemoved: number } | undefined
+    const diff = (output as Inp)?.diff as
+      | { type: string; linesAdded: number; linesRemoved: number }
+      | undefined
     if (!diff || diff.type === 'unchanged') return null
     if (diff.type === 'new') return { added: diff.linesAdded, removed: 0 }
     return { added: diff.linesAdded, removed: diff.linesRemoved }
@@ -613,11 +686,21 @@ export function ToolCallCard({
   const filePath = extractFilePath(name, input)
 
   // New files open directly (no diff to show); edits/modifications open the diff viewer.
-  const isNewFile = name === 'write_file' && ((output as Inp)?.diff as { type?: string })?.type === 'new'
-  const isFileDiff = !isNewFile && (name === 'edit_file' || name === 'write_file') && filePath != null && onFileDiff != null
+  const isNewFile =
+    name === 'write_file' && ((output as Inp)?.diff as { type?: string })?.type === 'new'
+  const isFileDiff =
+    !isNewFile &&
+    (name === 'edit_file' || name === 'write_file') &&
+    filePath != null &&
+    onFileDiff != null
 
   // Undo/redo: available for file modifications (not new files) when a snapshot exists.
-  const canRevert = !isNewFile && (name === 'edit_file' || name === 'write_file') && filePath != null && fileDiff != null && onFileRevert != null
+  const canRevert =
+    !isNewFile &&
+    (name === 'edit_file' || name === 'write_file') &&
+    filePath != null &&
+    fileDiff != null &&
+    onFileRevert != null
 
   const handleRevert = useCallback(
     async (e: React.MouseEvent) => {
@@ -636,7 +719,14 @@ export function ToolCallCard({
   )
 
   // Tools that expand to show details inline.
-  const EXPANDABLE = new Set(['exec_command', 'web_fetch', 'rename_file', 'list_files', 'find_files', 'search_files'])
+  const EXPANDABLE = new Set([
+    'exec_command',
+    'web_fetch',
+    'rename_file',
+    'list_files',
+    'find_files',
+    'search_files',
+  ])
   const hasDetails = EXPANDABLE.has(name) && (input !== undefined || output !== undefined)
 
   // Only exec_command and web_fetch get the labeled IN / OUT pane treatment.
@@ -644,20 +734,35 @@ export function ToolCallCard({
   const inContent = showInOut && input !== undefined ? renderIn(name, input) : null
   const outContent = showInOut && output !== undefined ? renderOut(name, output) : null
 
-  const handleClick = isNewFile && filePath && onFileOpen
-    ? () => { onFileOpen(filePath) }
-    : isFileDiff
-      ? () => { onFileDiff!(filePath!, fileDiff) }
-      : hasDetails
-        ? () => { setExpanded((e) => !e) }
-      : undefined
+  const handleClick =
+    isNewFile && filePath && onFileOpen
+      ? () => {
+          onFileOpen(filePath)
+        }
+      : isFileDiff
+        ? () => {
+            onFileDiff!(filePath!, fileDiff)
+          }
+        : hasDetails
+          ? () => {
+              setExpanded((e) => !e)
+            }
+          : undefined
 
   // ── ask_user: render interactive option list instead of a normal tool card ──
   if (name === 'ask_user') {
-    const askInput = (input ?? {}) as { question?: string; options?: string[]; allowFreeText?: boolean }
+    const askInput = (input ?? {}) as {
+      question?: string
+      options?: string[]
+      allowFreeText?: boolean
+    }
     const askOutput = output as { status?: string } | string | undefined
-    const isAwaiting = typeof askOutput === 'object' && askOutput?.status === 'awaiting_response'
+    const serverAwaiting =
+      typeof askOutput === 'object' && askOutput?.status === 'awaiting_response'
     const isResponded = typeof askOutput === 'string'
+    const [localAnswer, setLocalAnswer] = useState<string | null>(null)
+    const isAwaiting = serverAwaiting && localAnswer === null
+    const selectedAnswer = isResponded ? (askOutput as string) : localAnswer
     const [freeText, setFreeText] = useState('')
     const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
 
@@ -677,19 +782,21 @@ export function ToolCallCard({
         }}
       >
         {/* Question header */}
-        <div style={{
-          padding: '10px 12px',
-          fontSize: '13px',
-          fontWeight: 600,
-          borderBottom: `1px solid ${borderClr}`,
-        }}>
+        <div
+          style={{
+            padding: '10px 12px',
+            fontSize: '13px',
+            fontWeight: 600,
+            borderBottom: `1px solid ${borderClr}`,
+          }}
+        >
           {askInput.question}
         </div>
 
         {/* Full-width option rows */}
         {askInput.options?.map((option, i) => {
-          const isSelected = isResponded && askOutput === option
-          const isFaded = isResponded && !isSelected
+          const isSelected = selectedAnswer === option
+          const isFaded = !isAwaiting && !isSelected
           const isHover = isAwaiting && hoveredIdx === i
 
           return (
@@ -697,8 +804,13 @@ export function ToolCallCard({
               key={i}
               type="button"
               disabled={!isAwaiting}
-              onClick={() => { onAskUserResponse?.(option) }}
-              onMouseEnter={() => { if (isAwaiting) setHoveredIdx(i) }}
+              onClick={() => {
+                setLocalAnswer(option)
+                onAskUserResponse?.(option)
+              }}
+              onMouseEnter={() => {
+                if (isAwaiting) setHoveredIdx(i)
+              }}
               onMouseLeave={() => setHoveredIdx(null)}
               style={{
                 display: 'flex',
@@ -709,9 +821,13 @@ export function ToolCallCard({
                 border: 'none',
                 borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
                 background: isSelected
-                  ? (isLight ? '#dbeafe' : 'rgba(59,130,246,0.2)')
+                  ? isLight
+                    ? '#dbeafe'
+                    : 'rgba(59,130,246,0.2)'
                   : isHover
-                    ? (isLight ? '#eaeef2' : 'rgba(255,255,255,0.06)')
+                    ? isLight
+                      ? '#eaeef2'
+                      : 'rgba(255,255,255,0.06)'
                     : 'transparent',
                 color: 'inherit',
                 cursor: isAwaiting ? 'pointer' : 'default',
@@ -722,23 +838,29 @@ export function ToolCallCard({
               }}
             >
               {/* Letter badge */}
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 22,
-                height: 22,
-                borderRadius: '5px',
-                border: `1px solid ${isSelected ? (isLight ? '#93c5fd' : '#3b82f6') : borderClr}`,
-                background: isSelected
-                  ? (isLight ? '#3b82f6' : '#2563eb')
-                  : (isLight ? '#fff' : 'rgba(255,255,255,0.08)'),
-                color: isSelected ? '#fff' : (isLight ? '#57606a' : '#848d97'),
-                fontSize: '11px',
-                fontWeight: 600,
-                flexShrink: 0,
-                fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
-              }}>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 22,
+                  height: 22,
+                  borderRadius: '5px',
+                  border: `1px solid ${isSelected ? (isLight ? '#93c5fd' : '#3b82f6') : borderClr}`,
+                  background: isSelected
+                    ? isLight
+                      ? '#3b82f6'
+                      : '#2563eb'
+                    : isLight
+                      ? '#fff'
+                      : 'rgba(255,255,255,0.08)',
+                  color: isSelected ? '#fff' : isLight ? '#57606a' : '#848d97',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  flexShrink: 0,
+                  fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
+                }}
+              >
                 {labelChar(i)}
               </span>
 
@@ -747,7 +869,13 @@ export function ToolCallCard({
 
               {/* Checkmark for selected */}
               {isSelected && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill={isLight ? '#2563eb' : '#60a5fa'}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  width="14"
+                  height="14"
+                  fill={isLight ? '#2563eb' : '#60a5fa'}
+                >
                   <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
                 </svg>
               )}
@@ -757,18 +885,28 @@ export function ToolCallCard({
 
         {/* Free text input (optional) */}
         {isAwaiting && askInput.allowFreeText && (
-          <div style={{
-            display: 'flex',
-            gap: '4px',
-            padding: '8px 12px',
-            borderTop: `1px solid ${borderClr}`,
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: '4px',
+              padding: '8px 12px',
+              borderTop: `1px solid ${borderClr}`,
+            }}
+          >
             <input
               type="text"
               value={freeText}
               onChange={(e) => setFreeText(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && freeText.trim()) { onAskUserResponse?.(freeText.trim()); setFreeText('') } }}
-              placeholder={t('ide.chat.askUserPlaceholder', undefined, { defaultValue: 'Or type your own…' })}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && freeText.trim()) {
+                  setLocalAnswer(freeText.trim())
+                  onAskUserResponse?.(freeText.trim())
+                  setFreeText('')
+                }
+              }}
+              placeholder={t('ide.chat.askUserPlaceholder', undefined, {
+                defaultValue: 'Or type your own…',
+              })}
               style={{
                 flex: 1,
                 padding: '5px 8px',
@@ -783,7 +921,13 @@ export function ToolCallCard({
             <button
               type="button"
               disabled={!freeText.trim()}
-              onClick={() => { if (freeText.trim()) { onAskUserResponse?.(freeText.trim()); setFreeText('') } }}
+              onClick={() => {
+                if (freeText.trim()) {
+                  setLocalAnswer(freeText.trim())
+                  onAskUserResponse?.(freeText.trim())
+                  setFreeText('')
+                }
+              }}
               style={{
                 padding: '5px 12px',
                 borderRadius: '5px',
@@ -802,14 +946,16 @@ export function ToolCallCard({
         )}
 
         {/* Show free-text response if it wasn't one of the preset options */}
-        {isResponded && !askInput.options?.includes(askOutput as string) && (
-          <div style={{
-            padding: '8px 12px',
-            borderTop: `1px solid ${borderClr}`,
-            fontSize: '12px',
-            fontStyle: 'italic',
-          }}>
-            {askOutput as string}
+        {selectedAnswer && !askInput.options?.includes(selectedAnswer) && (
+          <div
+            style={{
+              padding: '8px 12px',
+              borderTop: `1px solid ${borderClr}`,
+              fontSize: '12px',
+              fontStyle: 'italic',
+            }}
+          >
+            {selectedAnswer}
           </div>
         )}
       </div>
@@ -821,7 +967,13 @@ export function ToolCallCard({
       <button
         type="button"
         onClick={handleClick}
-        onDoubleClick={isNewFile && filePath && onFileDoubleClick ? () => { onFileDoubleClick(filePath) } : undefined}
+        onDoubleClick={
+          isNewFile && filePath && onFileDoubleClick
+            ? () => {
+                onFileDoubleClick(filePath)
+              }
+            : undefined
+        }
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
@@ -845,20 +997,41 @@ export function ToolCallCard({
         {/* Label + undo icon + one-line summary */}
         <span style={{ flex: 1, minWidth: 0 }}>
           <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span
+              style={{
+                flex: 1,
+                minWidth: 0,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
               {renderLabel(name, input, filePath, onFileOpen, onFileDoubleClick)}
             </span>
             {canRevert && (
               <span
                 role="button"
                 tabIndex={0}
-                title={isUndone
-                  ? t('ide.chat.redoChange', undefined, { defaultValue: 'Re-apply this change' })
-                  : t('ide.chat.undoChange', undefined, { defaultValue: 'Undo this change' })}
+                title={
+                  isUndone
+                    ? t('ide.chat.redoChange', undefined, { defaultValue: 'Re-apply this change' })
+                    : t('ide.chat.undoChange', undefined, { defaultValue: 'Undo this change' })
+                }
                 onClick={handleRevert}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleRevert(e as unknown as React.MouseEvent) } }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(128,128,128,0.2)'; e.currentTarget.style.opacity = '1' }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.opacity = '' }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleRevert(e as unknown as React.MouseEvent)
+                  }
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
+                  e.currentTarget.style.opacity = '1'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.opacity = ''
+                }}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -872,7 +1045,13 @@ export function ToolCallCard({
                   transition: 'opacity 100ms, background 100ms',
                 }}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  width="13"
+                  height="13"
+                  fill="currentColor"
+                >
                   {isUndone ? (
                     <path d="M14.78 6.28a.749.749 0 0 0 0-1.06l-3.5-3.5a.749.749 0 1 0-1.06 1.06L12.439 5H5.251l-.001.007L5.251 5a.8.8 0 0 0-.171.019A4.501 4.501 0 0 0 5.5 14h1.704a.75.75 0 0 0 0-1.5H5.5a3 3 0 1 1 0-6h6.939L10.22 8.72a.749.749 0 1 0 1.06 1.06l3.5-3.5Z" />
                   ) : (
@@ -897,9 +1076,51 @@ export function ToolCallCard({
           const diff = fileDiffStats(name, input, output)
           if (!diff) return null
           return (
-            <span style={{ display: 'flex', gap: '4px', flexShrink: 0, marginTop: '2px', marginRight: '-2px', fontSize: '11px', fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace', opacity: isHovered ? 1 : 0.6, transition: 'opacity 100ms' }}>
-              {diff.added > 0 && <span style={{ color: isUndone ? (isLight ? '#cf222e' : '#f47067') : (isLight ? '#1a7f37' : '#57ab5a'), textDecoration: isUndone ? 'line-through' : undefined }}>+{diff.added}</span>}
-              {diff.removed > 0 && <span style={{ color: isUndone ? (isLight ? '#1a7f37' : '#57ab5a') : (isLight ? '#cf222e' : '#f47067'), textDecoration: isUndone ? 'line-through' : undefined }}>-{diff.removed}</span>}
+            <span
+              style={{
+                display: 'flex',
+                gap: '4px',
+                flexShrink: 0,
+                marginTop: '2px',
+                marginRight: '-2px',
+                fontSize: '11px',
+                fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
+                opacity: isHovered ? 1 : 0.6,
+                transition: 'opacity 100ms',
+              }}
+            >
+              {diff.added > 0 && (
+                <span
+                  style={{
+                    color: isUndone
+                      ? isLight
+                        ? '#cf222e'
+                        : '#f47067'
+                      : isLight
+                        ? '#1a7f37'
+                        : '#57ab5a',
+                    textDecoration: isUndone ? 'line-through' : undefined,
+                  }}
+                >
+                  +{diff.added}
+                </span>
+              )}
+              {diff.removed > 0 && (
+                <span
+                  style={{
+                    color: isUndone
+                      ? isLight
+                        ? '#1a7f37'
+                        : '#57ab5a'
+                      : isLight
+                        ? '#cf222e'
+                        : '#f47067',
+                    textDecoration: isUndone ? 'line-through' : undefined,
+                  }}
+                >
+                  -{diff.removed}
+                </span>
+              )}
             </span>
           )
         })()}
@@ -920,7 +1141,14 @@ export function ToolCallCard({
               opacity: isHovered ? 0.85 : 0.35,
             }}
           >
-            <polyline points="6,4 10,8 6,12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <polyline
+              points="6,4 10,8 6,12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         )}
       </button>
@@ -943,7 +1171,13 @@ export function ToolCallCard({
                 <div style={{ padding: '6px 10px' }}>
                   <div
                     className={cm.textMuted}
-                    style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px', fontWeight: 600 }}
+                    style={{
+                      fontSize: '9px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.6px',
+                      marginBottom: '4px',
+                      fontWeight: 600,
+                    }}
                   >
                     IN
                   </div>
@@ -951,10 +1185,21 @@ export function ToolCallCard({
                 </div>
               )}
               {outContent && (
-                <div style={{ padding: '6px 10px', borderTop: inContent ? '1px solid rgba(128,128,128,0.15)' : undefined }}>
+                <div
+                  style={{
+                    padding: '6px 10px',
+                    borderTop: inContent ? '1px solid rgba(128,128,128,0.15)' : undefined,
+                  }}
+                >
                   <div
                     className={cm.textMuted}
-                    style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px', fontWeight: 600 }}
+                    style={{
+                      fontSize: '9px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.6px',
+                      marginBottom: '4px',
+                      fontWeight: 600,
+                    }}
                   >
                     OUT
                   </div>
@@ -967,12 +1212,16 @@ export function ToolCallCard({
               {/* rename_file: show old → new path */}
               {name === 'rename_file' && (
                 <pre style={PRE}>
-                  {((input ?? {}) as Inp).old_path as string ?? ''}{' → '}{((input ?? {}) as Inp).new_path as string ?? ''}
+                  {(((input ?? {}) as Inp).old_path as string) ?? ''}
+                  {' → '}
+                  {(((input ?? {}) as Inp).new_path as string) ?? ''}
                 </pre>
               )}
 
               {/* Listing / search tools: show output results */}
-              {(name === 'list_files' || name === 'find_files' || name === 'search_files') && output !== undefined && renderOut(name, output)}
+              {(name === 'list_files' || name === 'find_files' || name === 'search_files') &&
+                output !== undefined &&
+                renderOut(name, output)}
             </div>
           )}
         </div>
