@@ -18,6 +18,7 @@
 import type { JSX } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { formatTokenCount, MODELS } from '@molecule/ai-models'
 import { t } from '@molecule/app-i18n'
 import { useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -92,11 +93,7 @@ const COMMANDS = [
 
 type CommandId = (typeof COMMANDS)[number]['id']
 
-const AVAILABLE_MODELS = [
-  { id: 'claude-opus-4-6', label: 'Claude Opus 4.6', description: 'Most capable — deep reasoning & complex tasks' },
-  { id: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6', description: 'Fast & capable — best balance' },
-  { id: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5', description: 'Fastest — quick tasks & iteration' },
-]
+const AVAILABLE_MODELS = MODELS
 
 interface ModelPicker {
   selectedIdx: number
@@ -1417,6 +1414,9 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
               >
                 <span className={cm.fontWeight('medium')} style={{ opacity: 0.9 }}>{model.label}</span>
                 <span className={cm.textMuted} style={{ fontSize: '12px' }}>{model.description}</span>
+                <span className={cm.textMuted} style={{ fontSize: '11px', opacity: 0.6 }}>
+                  {formatTokenCount(model.contextWindow)} context · {formatTokenCount(model.maxOutputTokens)} output · ${model.inputPricePerMTok}/${model.outputPricePerMTok} per MTok
+                </span>
               </button>
             ))}
           </div>
