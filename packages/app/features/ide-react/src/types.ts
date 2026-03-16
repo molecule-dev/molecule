@@ -40,6 +40,8 @@ export interface ChatPanelProps {
   onFileChange?: (path: string, content: string) => void
   /** Called after a successful commit — should refresh file explorer git status. */
   onCommit?: () => void
+  /** Incremented to trigger a git status refresh (e.g. after file create/rename/delete). */
+  gitStatusTick?: number
   /** Message to auto-send (e.g. from "Fix with AI"). Sent when pendingMessageKey changes. */
   pendingMessage?: string
   /** Incremented to trigger sending pendingMessage. */

@@ -345,6 +345,7 @@ interface ChatInnerProps {
   onConversationId?: (id: string) => void
   pendingMessage?: string
   pendingMessageKey?: number
+  gitStatusTick?: number
 }
 
 /**
@@ -365,7 +366,7 @@ interface ChatInnerProps {
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @returns The rendered chat inner component.
  */
-function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, isAnonymous, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, onCommit, onConversationId, pendingMessage, pendingMessageKey }: ChatInnerProps): JSX.Element {
+function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, isAnonymous, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, onCommit, onConversationId, pendingMessage, pendingMessageKey, gitStatusTick: externalGitStatusTick }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
@@ -601,7 +602,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
       .get<{ files: { path: string; status: string; additions?: number; deletions?: number }[] }>(`/projects/${projectId}/git-status`)
       .then((res) => setPendingFiles(res.data.files.length > 0 ? res.data.files : null))
       .catch(() => setPendingFiles(null))
-  }, [isLoading, projectId, gitStatusTick])
+  }, [isLoading, projectId, gitStatusTick, externalGitStatusTick])
 
   // Wrap onFileRevert so undo/redo also refreshes git status
   const handleFileRevert = useCallback(
@@ -2054,6 +2055,7 @@ export function ChatPanel({
   onFileRevert,
   onFileChange,
   onCommit,
+  gitStatusTick,
   pendingMessage,
   pendingMessageKey,
   isAnonymous,
@@ -2326,6 +2328,7 @@ export function ChatPanel({
         onConversationId={persistConversationId}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}
+        gitStatusTick={gitStatusTick}
       />
     </div>
   )
