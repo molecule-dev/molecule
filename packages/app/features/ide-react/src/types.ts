@@ -177,3 +177,190 @@ export interface ChatMessageItemProps {
   message: ChatMessage
   className?: string
 }
+
+// ---------------------------------------------------------------------------
+// Keyboard shortcuts
+// ---------------------------------------------------------------------------
+
+/**
+ * A keyboard shortcut definition.
+ */
+export interface KeyboardShortcut {
+  /** Key combo string, e.g. `"mod+p"`, `"mod+shift+f"`. `mod` = Cmd (Mac) / Ctrl (others). */
+  keys: string
+  /** Handler invoked when the shortcut fires. */
+  handler: () => void
+  /** If true, fires even when an `<input>` / `<textarea>` is focused. */
+  allowInInput?: boolean
+  /** If true, fires even when the Monaco editor is focused. */
+  allowInEditor?: boolean
+  /** Human-readable label for display in the command palette. */
+  label?: string
+}
+
+// ---------------------------------------------------------------------------
+// Sidebar tabs
+// ---------------------------------------------------------------------------
+
+/**
+ * Properties for the sidebar tab switcher.
+ */
+export interface SidebarTabsProps {
+  /** Currently active sidebar tab. */
+  activeTab: 'files' | 'search'
+  /** Called when the user switches tabs. */
+  onTabChange: (tab: 'files' | 'search') => void
+  /** Tab content rendered below the tab buttons. */
+  children: ReactNode
+  className?: string
+}
+
+// ---------------------------------------------------------------------------
+// Search panel
+// ---------------------------------------------------------------------------
+
+/**
+ * Properties for the search-in-files panel.
+ */
+export interface SearchPanelProps {
+  /** Project ID used for API calls. */
+  projectId: string
+  /** Called when the user clicks a search result. */
+  onResultClick?: (path: string, line: number) => void
+  className?: string
+}
+
+/**
+ * A single file's search results.
+ */
+export interface SearchResult {
+  /** Relative file path. */
+  file: string
+  /** Matching lines within the file. */
+  matches: Array<{ line: number; content: string }>
+}
+
+/**
+ * Response from the search API endpoint.
+ */
+export interface SearchResponse {
+  /** The search pattern used. */
+  pattern: string
+  /** Grouped results by file. */
+  results: SearchResult[]
+  /** Total number of matches across all files. */
+  totalCount: number
+  /** Whether results were truncated. */
+  truncated: boolean
+}
+
+// ---------------------------------------------------------------------------
+// Quick picker (shared base)
+// ---------------------------------------------------------------------------
+
+/**
+ * An item in the quick picker list.
+ */
+export interface QuickPickerItem {
+  /** Unique identifier. */
+  id: string
+  /** Primary label. */
+  label: string
+  /** Secondary text shown beside the label. */
+  detail?: string
+  /** Optional icon element. */
+  icon?: ReactNode
+}
+
+/**
+ * Properties for the reusable quick picker overlay.
+ */
+export interface QuickPickerProps {
+  /** Items to display and filter. */
+  items: QuickPickerItem[]
+  /** Placeholder text for the search input. */
+  placeholder?: string
+  /** Called when the user selects an item. */
+  onSelect: (item: QuickPickerItem) => void
+  /** Called when the user dismisses the picker (Escape or backdrop click). */
+  onDismiss: () => void
+  /** Show a loading indicator. */
+  loading?: boolean
+  /** Pre-fill the search input. */
+  initialQuery?: string
+  className?: string
+}
+
+// ---------------------------------------------------------------------------
+// Quick open (file finder)
+// ---------------------------------------------------------------------------
+
+/**
+ * Properties for the quick-open file finder.
+ */
+export interface QuickOpenProps {
+  /** Project ID used for API calls. */
+  projectId: string
+  /** Called when the user selects a file. */
+  onFileOpen: (path: string) => void
+  /** Called when the picker is dismissed. */
+  onDismiss: () => void
+}
+
+// ---------------------------------------------------------------------------
+// Command palette
+// ---------------------------------------------------------------------------
+
+/**
+ * A command available in the command palette.
+ */
+export interface Command {
+  /** Unique identifier. */
+  id: string
+  /** Display label. */
+  label: string
+  /** Keyboard shortcut hint (e.g. "Cmd+P"). */
+  shortcut?: string
+  /** Handler invoked when the command is executed. */
+  execute: () => void
+  /** Category prefix (e.g. "View", "File"). */
+  category?: string
+}
+
+/**
+ * Properties for the command palette.
+ */
+export interface CommandPaletteProps {
+  /** Available commands. */
+  commands: Command[]
+  /** Called when the palette is dismissed. */
+  onDismiss: () => void
+}
+
+// ---------------------------------------------------------------------------
+// Keyboard shortcuts panel
+// ---------------------------------------------------------------------------
+
+/**
+ * A shortcut entry for display in the keyboard shortcuts panel.
+ */
+export interface ShortcutEntry {
+  /** Human-readable label describing the action. */
+  label: string
+  /** Display string for the key combo (e.g. "⌘P", "⌘⇧F"). */
+  keys: string
+  /** Optional grouping category. */
+  category?: string
+  /** Handler invoked when the row is clicked. */
+  execute?: () => void
+}
+
+/**
+ * Properties for the keyboard shortcuts reference panel.
+ */
+export interface KeyboardShortcutsPanelProps {
+  /** List of shortcuts to display. */
+  shortcuts: ShortcutEntry[]
+  /** Called when the panel is dismissed. */
+  onDismiss: () => void
+}

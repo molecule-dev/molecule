@@ -38,6 +38,7 @@ interface MonacoEditor {
   layout(dimensions?: { width: number; height: number }): void
   getPosition(): { lineNumber: number; column: number } | null
   setPosition(position: { lineNumber: number; column: number }): void
+  revealLineInCenter(lineNumber: number): void
   focus(): void
   updateOptions(options: Record<string, unknown>): void
   onDidChangeModelContent(listener: () => void): { dispose(): void }
@@ -172,6 +173,10 @@ export class MonacoEditorProvider implements EditorProvider {
   private changeListeners: Set<(event: EditorChangeEvent) => void> = new Set()
   private changeDisposable: { dispose(): void } | null = null
   private versionCounter = 0
+  /** Guard against re-entrant changeListeners.forEach() calls. */
+  private notifying = false
+  /** Timer for debounced marker-change notifications. */
+  private markerNotifyTimer: ReturnType<typeof setTimeout> | null = null
   /** Incremented on each mount() call; continuations check this to cancel stale async mounts. */
   private mountGeneration = 0
   /** The DOM element the normal editor is mounted into (saved for diff toggle). */
@@ -365,6 +370,10 @@ export class MonacoEditorProvider implements EditorProvider {
     this.changeDisposable = null
     this.markerDisposable?.dispose()
     this.markerDisposable = null
+    if (this.markerNotifyTimer) {
+      clearTimeout(this.markerNotifyTimer)
+      this.markerNotifyTimer = null
+    }
     this.clearExtraLibs()
 
     for (const model of this.monacoModels.values()) {
@@ -380,8 +389,14 @@ export class MonacoEditorProvider implements EditorProvider {
     // because the subscribing effect's deps haven't changed.
 
     if (this.editor) {
-      this.editor.dispose()
+      // Defer the actual editor disposal to the next microtask so any in-progress
+      // Monaco UI operations (context menu creation, suggest widget rendering)
+      // can finish before the InstantiationService is torn down. Disposing
+      // synchronously while Monaco is mid-render causes "InstantiationService
+      // has been disposed" errors.
+      const editorToDispose = this.editor
       this.editor = null
+      queueMicrotask(() => editorToDispose.dispose())
     }
 
     this.activeFile = null
@@ -516,7 +531,7 @@ export class MonacoEditorProvider implements EditorProvider {
       content: file.content,
       version: this.versionCounter,
     }
-    this.changeListeners.forEach((cb) => cb(event))
+    this.notifyChangeListeners(event)
   }
 
   /**
@@ -568,9 +583,7 @@ export class MonacoEditorProvider implements EditorProvider {
     const newActive = this.activeFile
     const content = newActive ? (this.fileContents.get(newActive)?.content ?? '') : ''
     this.versionCounter++
-    this.changeListeners.forEach((cb) =>
-      cb({ path: newActive ?? path, content, version: this.versionCounter }),
-    )
+    this.notifyChangeListeners({ path: newActive ?? path, content, version: this.versionCounter })
   }
 
   /**
@@ -617,7 +630,7 @@ export class MonacoEditorProvider implements EditorProvider {
       content,
       version: this.versionCounter,
     }
-    this.changeListeners.forEach((cb) => cb(event))
+    this.notifyChangeListeners(event)
   }
 
   /**
@@ -641,10 +654,15 @@ export class MonacoEditorProvider implements EditorProvider {
       savedPosition = this.editor.getPosition()
     }
 
-    // Suppress change listener during setValue (same pattern as openFile)
-    this.changeDisposable?.dispose()
+    // Suppress change listener during setValue (same pattern as openFile).
+    // Only dispose/re-wire if this is the active model — otherwise setValue on a
+    // background model won't trigger onDidChangeModelContent on the editor anyway,
+    // and needlessly disposing the active listener creates a window where user
+    // keystrokes are lost.
+    const isActiveModel = path === this.activeFile && this.editor
+    if (isActiveModel) this.changeDisposable?.dispose()
     model.setValue(content)
-    this.wireChangeListener()
+    if (isActiveModel) this.wireChangeListener()
 
     // Notify LSP so it re-analyzes and clears stale diagnostics
     if (this.lspClient?.isConnected()) {
@@ -682,11 +700,28 @@ export class MonacoEditorProvider implements EditorProvider {
   setCursorPosition(position: EditorPosition): void {
     if (!this.editor) return
     this.editor.setPosition({ lineNumber: position.line, column: position.column })
+    this.editor.revealLineInCenter(position.line)
   }
 
   /** Focuses the Monaco editor instance. */
   focus(): void {
     this.editor?.focus()
+  }
+
+  /**
+   * Notifies all change listeners with re-entrancy protection.
+   * If a listener callback synchronously triggers another notification (e.g. by
+   * calling openFile/setContent/setActiveTab), the nested call is dropped to
+   * prevent infinite loops that freeze the browser tab at 100% CPU.
+   */
+  private notifyChangeListeners(event: EditorChangeEvent): void {
+    if (this.notifying) return
+    this.notifying = true
+    try {
+      this.changeListeners.forEach((cb) => cb(event))
+    } finally {
+      this.notifying = false
+    }
   }
 
   /**
@@ -696,10 +731,8 @@ export class MonacoEditorProvider implements EditorProvider {
    */
   onChange(callback: (event: EditorChangeEvent) => void): () => void {
     this.changeListeners.add(callback)
-    console.log('[Monaco] onChange registered, total listeners:', this.changeListeners.size)
     return () => {
       this.changeListeners.delete(callback)
-      console.log('[Monaco] onChange unregistered, total listeners:', this.changeListeners.size)
     }
   }
 
@@ -741,7 +774,7 @@ export class MonacoEditorProvider implements EditorProvider {
       // update their tabs/activeFile state to reflect the new active tab.
       const content = this.fileContents.get(path)?.content ?? ''
       this.versionCounter++
-      this.changeListeners.forEach((cb) => cb({ path, content, version: this.versionCounter }))
+      this.notifyChangeListeners({ path, content, version: this.versionCounter })
     }
   }
 
@@ -755,7 +788,7 @@ export class MonacoEditorProvider implements EditorProvider {
       this.tabs.set(path, { ...tab, isPreview: false })
       this.versionCounter++
       const content = this.fileContents.get(path)?.content ?? ''
-      this.changeListeners.forEach((cb) => cb({ path, content, version: this.versionCounter }))
+      this.notifyChangeListeners({ path, content, version: this.versionCounter })
     }
   }
 
@@ -857,9 +890,11 @@ export class MonacoEditorProvider implements EditorProvider {
 
     // Notify listeners so UI updates tabs/activeFile
     this.versionCounter++
-    this.changeListeners.forEach((cb) =>
-      cb({ path: file.path, content: file.modifiedContent, version: this.versionCounter }),
-    )
+    this.notifyChangeListeners({
+      path: file.path,
+      content: file.modifiedContent,
+      version: this.versionCounter,
+    })
   }
 
   /** Closes the diff view and restores the normal editor. */
@@ -906,9 +941,11 @@ export class MonacoEditorProvider implements EditorProvider {
     // Notify listeners so tab bar re-renders
     this.versionCounter++
     const content = this.activeFile ? (this.fileContents.get(this.activeFile)?.content ?? '') : ''
-    this.changeListeners.forEach((cb) =>
-      cb({ path: this.activeFile ?? '', content, version: this.versionCounter }),
-    )
+    this.notifyChangeListeners({
+      path: this.activeFile ?? '',
+      content,
+      version: this.versionCounter,
+    })
   }
 
   /**
@@ -1005,13 +1042,24 @@ export class MonacoEditorProvider implements EditorProvider {
         }
       }
       if (changed) {
-        this.versionCounter++
-        const content = this.activeFile
-          ? (this.fileContents.get(this.activeFile)?.content ?? '')
-          : ''
-        this.changeListeners.forEach((cb) =>
-          cb({ path: this.activeFile ?? '', content, version: this.versionCounter }),
-        )
+        // Debounce change notifications from marker updates.
+        // LSP can send many diagnostic batches in quick succession (e.g. after
+        // a file save + format), and each fires onDidChangeMarkers. Without
+        // debouncing, every burst notifies all subscribers synchronously,
+        // causing cascading React re-renders that can freeze the tab.
+        if (this.markerNotifyTimer) clearTimeout(this.markerNotifyTimer)
+        this.markerNotifyTimer = setTimeout(() => {
+          this.markerNotifyTimer = null
+          this.versionCounter++
+          const content = this.activeFile
+            ? (this.fileContents.get(this.activeFile)?.content ?? '')
+            : ''
+          this.notifyChangeListeners({
+            path: this.activeFile ?? '',
+            content,
+            version: this.versionCounter,
+          })
+        }, 100)
       }
     })
   }
@@ -1317,13 +1365,7 @@ export class MonacoEditorProvider implements EditorProvider {
         content,
         version: this.versionCounter,
       }
-      console.log(
-        '[Monaco] wireChangeListener fired, notifying',
-        this.changeListeners.size,
-        'listeners for',
-        this.activeFile,
-      )
-      this.changeListeners.forEach((cb) => cb(event))
+      this.notifyChangeListeners(event)
     })
   }
 
@@ -1535,7 +1577,7 @@ export class MonacoEditorProvider implements EditorProvider {
       // Notify listeners so useEditor() re-renders with the updated tab state
       this.versionCounter++
       const content = this.fileContents.get(path)?.content ?? ''
-      this.changeListeners.forEach((cb) => cb({ path, content, version: this.versionCounter }))
+      this.notifyChangeListeners({ path, content, version: this.versionCounter })
     }
   }
 }
