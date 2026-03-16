@@ -27,6 +27,7 @@ import {
   type LspProviderOptions,
   registerLspProviders,
 } from './lsp-client.js'
+import { registerTsxHighlighting } from './tsx-monarch.js'
 import type { MonacoConfig } from './types.js'
 
 /** Minimal Monaco types to avoid importing the full package at compile time. */
@@ -113,6 +114,7 @@ interface MonacoModule {
     getModelMarkers(filter: { resource?: unknown }): MonacoMarker[]
     setModelMarkers(model: MonacoModel, owner: string, markers: unknown[]): void
     onDidChangeMarkers(listener: (uris: unknown[]) => void): { dispose(): void }
+    defineTheme(themeName: string, themeData: Record<string, unknown>): void
     registerEditorOpener?(opener: {
       openCodeEditor(
         source: unknown,
@@ -129,6 +131,10 @@ interface MonacoModule {
       typescriptDefaults: MonacoLanguageDefaults
       javascriptDefaults: MonacoLanguageDefaults
     }
+    setMonarchTokensProvider(
+      languageId: string,
+      languageDef: Record<string, unknown>,
+    ): { dispose(): void }
     registerCodeActionProvider(
       languageSelector: string,
       provider: {
@@ -205,7 +211,7 @@ export class MonacoEditorProvider implements EditorProvider {
 
   constructor(config: MonacoConfig = {}) {
     this.config = {
-      theme: config.theme ?? 'vs-dark',
+      theme: config.theme,
       fontFamily: config.fontFamily ?? "'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, monospace",
       fontSize: config.fontSize ?? 12,
       tabSize: config.tabSize ?? 2,
@@ -238,7 +244,7 @@ export class MonacoEditorProvider implements EditorProvider {
     this.monaco = monaco
     this.containerElement = element
 
-    // Configure Monaco workers for syntax highlighting and language services.
+    // Configure Monaco workers for language services.
     // Only set if not already configured (avoids overwriting on re-mounts).
     // Workers must be module type since Monaco's ESM worker files use `import`.
     // Vite dev server serves node_modules with fs.strict=false so these paths work.
@@ -289,8 +295,10 @@ export class MonacoEditorProvider implements EditorProvider {
       this.editor.dispose()
     }
 
+    registerTsxHighlighting(monaco as Parameters<typeof registerTsxHighlighting>[0])
+
     this.editor = monaco.editor.create(element, {
-      theme: mergedConfig.theme ?? 'vs-dark',
+      theme: mergedConfig.theme ?? 'molecule-dark',
       fontFamily: mergedConfig.fontFamily,
       fontSize: mergedConfig.fontSize ?? 14,
       tabSize: mergedConfig.tabSize ?? 2,
