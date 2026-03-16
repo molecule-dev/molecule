@@ -63,13 +63,19 @@ class AnthropicAIProvider implements AIProvider {
         body.system = params.system
       }
     }
-    if (params.tools?.length) {
-      const tools = this.formatTools(params.tools)
-      if (params.cacheControl && tools.length > 0) {
+    // Merge custom tools (with input_schema) and server tools (provider-native, e.g. web_search)
+    const customTools = params.tools?.length ? this.formatTools(params.tools) : []
+    const serverTools = (params.serverTools ?? []).map((st) => ({ ...st }))
+    const allTools = [...customTools, ...serverTools]
+    if (allTools.length > 0) {
+      if (params.cacheControl) {
         // Place cache breakpoint on the last tool so tools + system are cached together
-        tools[tools.length - 1] = { ...tools[tools.length - 1], cache_control: params.cacheControl }
+        allTools[allTools.length - 1] = {
+          ...allTools[allTools.length - 1],
+          cache_control: params.cacheControl,
+        }
       }
-      body.tools = tools
+      body.tools = allTools
     }
     if (params.stream !== false) body.stream = true
 

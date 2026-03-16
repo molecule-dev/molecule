@@ -51,6 +51,10 @@ export interface ModelDefinition {
   supportsPromptCaching: boolean
   /** Whether the model supports tool use / function calling. */
   supportsTools: boolean
+  /** Provider-specific server tool type for web search (e.g. `'web_search_20250305'`).
+   *  When set, the chat handler sends this as a `ServerTool` alongside custom tools.
+   *  Omit if the model/provider does not support native web search. */
+  webSearchToolType?: string
   /** Input price per million tokens in USD. */
   inputPricePerMTok: number
   /** Output price per million tokens in USD. */

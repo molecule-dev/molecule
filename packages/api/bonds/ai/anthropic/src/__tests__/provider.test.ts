@@ -176,6 +176,117 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
   })
 
   // =========================================================================
+  // Server tools (e.g. web_search)
+  // =========================================================================
+
+  describe('server tools', () => {
+    it('includes serverTools in the request body alongside custom tools', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers(),
+        body: {
+          getReader: () => ({
+            read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+            releaseLock: vi.fn(),
+          }),
+        },
+      })
+
+      const customTool = {
+        name: 'read_file',
+        description: 'Read a file',
+        parameters: {
+          type: 'object',
+          properties: { path: { type: 'string' } },
+          required: ['path'],
+        },
+        execute: vi.fn(),
+      }
+
+      await collectEvents(
+        provider.chat({
+          ...minimalParams,
+          tools: [customTool],
+          serverTools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        }),
+      )
+
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
+      // Should have both custom + server tools
+      expect(body.tools).toHaveLength(2)
+      // Custom tool has input_schema
+      expect(body.tools[0].name).toBe('read_file')
+      expect(body.tools[0].input_schema).toBeDefined()
+      // Server tool has type, no input_schema
+      expect(body.tools[1].type).toBe('web_search_20250305')
+      expect(body.tools[1].name).toBe('web_search')
+      expect(body.tools[1].input_schema).toBeUndefined()
+    })
+
+    it('sends only server tools when no custom tools provided', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers(),
+        body: {
+          getReader: () => ({
+            read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+            releaseLock: vi.fn(),
+          }),
+        },
+      })
+
+      await collectEvents(
+        provider.chat({
+          ...minimalParams,
+          serverTools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        }),
+      )
+
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
+      expect(body.tools).toHaveLength(1)
+      expect(body.tools[0].type).toBe('web_search_20250305')
+    })
+
+    it('cache_control breakpoint lands on last tool (server tool)', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers(),
+        body: {
+          getReader: () => ({
+            read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+            releaseLock: vi.fn(),
+          }),
+        },
+      })
+
+      const customTool = {
+        name: 'read_file',
+        description: 'Read a file',
+        parameters: { type: 'object', properties: {} },
+        execute: vi.fn(),
+      }
+
+      await collectEvents(
+        provider.chat({
+          ...minimalParams,
+          tools: [customTool],
+          serverTools: [{ type: 'web_search_20250305', name: 'web_search' }],
+          cacheControl: { type: 'ephemeral' as const },
+        }),
+      )
+
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
+      // Cache control should be on the LAST tool (the server tool)
+      expect(body.tools[0].cache_control).toBeUndefined()
+      expect(body.tools[1].cache_control).toEqual({ type: 'ephemeral' })
+    })
+  })
+
+  // =========================================================================
   // Default timeout
   // =========================================================================
 

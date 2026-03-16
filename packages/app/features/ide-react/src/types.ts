@@ -44,6 +44,8 @@ export interface ChatPanelProps {
   pendingMessage?: string
   /** Incremented to trigger sending pendingMessage. */
   pendingMessageKey?: number
+  /** When true, model picker shows non-default models as locked (sign-up required). */
+  isAnonymous?: boolean
   className?: string
 }
 
@@ -105,6 +107,16 @@ export interface FileExplorerProps {
   onFileSelect: (path: string) => void
   onFileDoubleClick?: (path: string) => void
   onDirExpand?: (path: string) => void
+  /** Called when the user chooses "Rename" from the context menu. */
+  onRename?: (path: string) => void
+  /** Called when the user chooses "Delete" from the context menu. */
+  onDelete?: (path: string) => void
+  /** Called when the user chooses "New File" from the context menu. */
+  onNewFile?: (dirPath: string) => void
+  /** Called when the user chooses "New Folder" from the context menu. */
+  onNewFolder?: (dirPath: string) => void
+  /** Called when the user chooses "Collapse All" from the context menu. */
+  onCollapseAll?: () => void
   className?: string
   /** localStorage key for persisting expand/collapse state across reloads. */
   persistKey?: string

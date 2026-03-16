@@ -335,6 +335,7 @@ interface ChatInnerProps {
   endpoint: string
   initialMessage?: string
   onInitialMessageSent?: () => void
+  isAnonymous?: boolean
   onFileOpen?: (path: string) => void
   onFileDoubleClick?: (path: string) => void
   onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
@@ -364,7 +365,7 @@ interface ChatInnerProps {
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @returns The rendered chat inner component.
  */
-function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, onCommit, onConversationId, pendingMessage, pendingMessageKey }: ChatInnerProps): JSX.Element {
+function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, isAnonymous, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, onCommit, onConversationId, pendingMessage, pendingMessageKey }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
@@ -1555,48 +1556,108 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
               right: 0,
               marginBottom: 0,
               borderRadius: '6px 6px 0 0',
-              overflow: 'hidden',
               zIndex: 100,
               boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              maxHeight: '60vh',
             }}
           >
             <div
               className={cm.cn(cm.textSize('xs'), cm.textMuted)}
-              style={{ padding: '5px 12px', borderBottom: '1px solid rgba(128,128,128,0.12)', display: 'flex', justifyContent: 'space-between' }}
+              style={{ padding: '5px 12px', borderBottom: '1px solid rgba(128,128,128,0.12)', display: 'flex', justifyContent: 'space-between', flexShrink: 0 }}
             >
               <span>{t('ide.chat.selectModel', undefined, { defaultValue: 'Select model' })}</span>
               <span>{t('ide.chat.currentModelLabel', { model: AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel }, { defaultValue: `Current: ${AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel}` })}</span>
             </div>
-            {filteredModels.map((model, idx) => (
+            <div style={{ overflowY: 'auto', flex: 1 }}>
+            {filteredModels.map((model, idx) => {
+              const badges: Array<{ label: string; bg: string; fg: string }> = []
+              if (model.supportsVision) badges.push({ label: 'vision',
+                bg: isLight ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.18)',
+                fg: isLight ? 'rgb(37,99,235)' : 'rgb(96,165,250)' })
+              if (model.supportsThinking) badges.push({ label: 'thinking',
+                bg: isLight ? 'rgba(168,85,247,0.12)' : 'rgba(168,85,247,0.18)',
+                fg: isLight ? 'rgb(126,34,206)' : 'rgb(192,132,252)' })
+              if (model.webSearchToolType) badges.push({ label: 'web search',
+                bg: isLight ? 'rgba(22,163,74,0.12)' : 'rgba(34,197,94,0.18)',
+                fg: isLight ? 'rgb(22,163,74)' : 'rgb(74,222,128)' })
+              if (model.supportsPromptCaching) badges.push({ label: 'caching',
+                bg: isLight ? 'rgba(202,138,4,0.12)' : 'rgba(234,179,8,0.18)',
+                fg: isLight ? 'rgb(161,98,7)' : 'rgb(250,204,21)' })
+              const providerColors: Record<string, string> = {
+                anthropic: '#d97706',
+                openai: '#10b981',
+                google: '#3b82f6',
+                xai: '#ef4444',
+                meta: '#6366f1',
+                moonshot: '#8b5cf6',
+                minimax: '#ec4899',
+                alibaba: '#f97316',
+                zhipu: '#14b8a6',
+              }
+              const accent = providerColors[model.provider] ?? '#888'
+              const locked = isAnonymous && model.id !== DEFAULT_MODEL
+              // Price-based color: green ≤$1, yellow ≤$3, red >$3 (input per MTok)
+              const priceColor = model.inputPricePerMTok <= 1
+                ? (isLight ? 'rgb(22,163,74)' : 'rgb(74,222,128)')
+                : model.inputPricePerMTok <= 3
+                  ? (isLight ? 'rgb(161,98,7)' : 'rgb(250,204,21)')
+                  : (isLight ? 'rgb(220,38,38)' : 'rgb(248,113,113)')
+              return (
               <button
                 key={model.id}
                 type="button"
-                onClick={() => void selectModel(model.id, model.label)}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)' }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = idx === modelPicker.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent' }}
+                onClick={() => { if (!locked) void selectModel(model.id, model.label) }}
+                onMouseEnter={(e) => { if (!locked) (e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = idx === modelPicker.selectedIdx && !locked ? 'rgba(128,128,128,0.1)' : 'transparent' }}
                 className={cm.w('full')}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'flex-start',
                   gap: '2px',
-                  padding: '8px 12px',
+                  padding: '8px 12px 8px 15px',
                   border: 'none',
                   borderTop: '1px solid rgba(128,128,128,0.12)',
-                  cursor: 'pointer',
+                  borderLeft: `3px solid ${accent}`,
+                  cursor: locked ? 'default' : 'pointer',
                   color: 'inherit',
                   textAlign: 'left',
                   fontSize: '13px',
-                  background: idx === modelPicker.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent',
+                  opacity: locked ? 0.45 : 1,
+                  background: idx === modelPicker.selectedIdx && !locked ? 'rgba(128,128,128,0.1)' : 'transparent',
                 }}
               >
-                <span className={cm.fontWeight('medium')} style={{ opacity: 0.9 }}>{model.label}</span>
-                <span className={cm.textMuted} style={{ fontSize: '12px' }}>{model.description}</span>
-                <span className={cm.textMuted} style={{ fontSize: '11px', opacity: 0.6 }}>
-                  {formatTokenCount(model.contextWindow)} context · {formatTokenCount(model.maxOutputTokens)} output · ${model.inputPricePerMTok}/${model.outputPricePerMTok} per MTok
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}>
+                  <span className={cm.fontWeight('medium')}>{model.label}</span>
+                  <span style={{ fontSize: '10px', color: accent, opacity: 0.85 }}>{model.provider}</span>
+                  {model.id === currentModel && (
+                    <span style={{ fontSize: '10px', background: 'rgba(128,128,128,0.2)', padding: '1px 5px', borderRadius: '3px' }}>
+                      {t('ide.chat.currentBadge', undefined, { defaultValue: 'current' })}
+                    </span>
+                  )}
+                  {locked && (
+                    <span style={{ fontSize: '10px', marginLeft: 'auto', background: 'rgba(128,128,128,0.2)', padding: '1px 5px', borderRadius: '3px' }}>
+                      {t('ide.chat.signUpRequired', undefined, { defaultValue: 'Sign up to use' })}
+                    </span>
+                  )}
+                </div>
+                <span style={{ fontSize: '12px', opacity: 0.7 }}>{model.description}</span>
+                <span style={{ fontSize: '11px', opacity: 0.65 }}>
+                  {formatTokenCount(model.contextWindow)} ctx · {formatTokenCount(model.maxOutputTokens)} out · <span style={{ color: priceColor }}>${model.inputPricePerMTok}/{model.outputPricePerMTok}</span>/MTok · {model.knowledgeCutoff}
                 </span>
+                {badges.length > 0 && (
+                  <span style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '1px' }}>
+                    {badges.map((b) => (
+                      <span key={b.label} style={{ fontSize: '10px', color: b.fg, background: b.bg, padding: '1px 5px', borderRadius: '3px' }}>{b.label}</span>
+                    ))}
+                  </span>
+                )}
               </button>
-            ))}
+              )
+            })}
+            </div>
           </div>
         )}
 
@@ -1995,6 +2056,7 @@ export function ChatPanel({
   onCommit,
   pendingMessage,
   pendingMessageKey,
+  isAnonymous,
   className,
 }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
@@ -2254,6 +2316,7 @@ export function ChatPanel({
         endpoint={chatEndpoint}
         initialMessage={initialMessage}
         onInitialMessageSent={onInitialMessageSent}
+        isAnonymous={isAnonymous}
         onFileOpen={onFileOpen}
         onFileDoubleClick={onFileDoubleClick}
         onFileDiff={onFileDiff}

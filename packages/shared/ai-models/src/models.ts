@@ -43,6 +43,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
+    webSearchToolType: 'web_search_20250305',
     inputPricePerMTok: 5,
     outputPricePerMTok: 25,
     knowledgeCutoff: '2025-05-01',
@@ -59,6 +60,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
+    webSearchToolType: 'web_search_20250305',
     inputPricePerMTok: 3,
     outputPricePerMTok: 15,
     knowledgeCutoff: '2025-08-01',
@@ -75,6 +77,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
+    webSearchToolType: 'web_search_20250305',
     inputPricePerMTok: 1,
     outputPricePerMTok: 5,
     knowledgeCutoff: '2025-02-01',
@@ -97,6 +100,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
+    webSearchToolType: 'web_search',
     inputPricePerMTok: 2.5,
     outputPricePerMTok: 15,
     knowledgeCutoff: '2025-08-31',
@@ -120,6 +124,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
+    webSearchToolType: 'google_search',
     inputPricePerMTok: 2,
     outputPricePerMTok: 12,
     knowledgeCutoff: '2025-01-01',
@@ -142,6 +147,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: false,
     supportsTools: true,
+    webSearchToolType: 'web_search',
     inputPricePerMTok: 2,
     outputPricePerMTok: 6,
     knowledgeCutoff: '2024-11-01',
@@ -158,6 +164,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: false,
     supportsTools: true,
+    webSearchToolType: 'web_search',
     inputPricePerMTok: 0.2,
     outputPricePerMTok: 0.5,
     knowledgeCutoff: '2024-11-01',
@@ -174,6 +181,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: false,
     supportsPromptCaching: false,
     supportsTools: true,
+    webSearchToolType: 'web_search',
     inputPricePerMTok: 0.2,
     outputPricePerMTok: 1.5,
     knowledgeCutoff: '2024-11-01',
@@ -300,6 +308,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: false,
     supportsPromptCaching: false,
     supportsTools: true,
+    webSearchToolType: 'web_search',
     inputPricePerMTok: 0.72,
     outputPricePerMTok: 2.3,
     knowledgeCutoff: '2025-01-01',
@@ -350,7 +359,13 @@ export function getAvailableModels(
  * @returns Formatted string.
  */
 export function formatTokenCount(tokens: number): string {
-  if (tokens >= 1_000_000) return `${tokens / 1_000_000}M`
-  if (tokens >= 1_000) return `${tokens / 1_000}K`
+  if (tokens >= 1_000_000) {
+    const m = tokens / 1_000_000
+    return `${Number.isInteger(m) ? m : m.toFixed(1).replace(/\.0$/, '')}M`
+  }
+  if (tokens >= 1_000) {
+    const k = tokens / 1_000
+    return `${Number.isInteger(k) ? k : Math.round(k)}K`
+  }
   return String(tokens)
 }
