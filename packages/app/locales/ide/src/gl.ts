@@ -32,4 +32,12 @@ export const gl: IdeTranslations = {
   'ide.toolCall.input': 'Entrada',
   'ide.toolCall.output': 'Saída',
   'ide.tabs.close': 'Pechar {{fileName}}',
+  'ide.contextMenu.open': 'Abrir',
+  'ide.contextMenu.newFile': 'Novo ficheiro...',
+  'ide.contextMenu.newFolder': 'Novo cartafol...',
+  'ide.contextMenu.rename': 'Renomear',
+  'ide.contextMenu.delete': 'Eliminar',
+  'ide.contextMenu.copyPath': 'Copiar ruta',
+  'ide.contextMenu.copyRelativePath': 'Copiar ruta relativa',
+  'ide.contextMenu.collapseAll': 'Contraer todo',
 }

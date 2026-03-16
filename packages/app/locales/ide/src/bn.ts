@@ -32,4 +32,12 @@ export const bn: IdeTranslations = {
   'ide.toolCall.input': 'ইনপুট',
   'ide.toolCall.output': 'আউটপুট',
   'ide.tabs.close': '{{fileName}} বন্ধ করুন',
+  'ide.contextMenu.open': 'খুলুন',
+  'ide.contextMenu.newFile': 'নতুন ফাইল...',
+  'ide.contextMenu.newFolder': 'নতুন ফোল্ডার...',
+  'ide.contextMenu.rename': 'নাম পরিবর্তন',
+  'ide.contextMenu.delete': 'মুছুন',
+  'ide.contextMenu.copyPath': 'পথ কপি করুন',
+  'ide.contextMenu.copyRelativePath': 'আপেক্ষিক পথ কপি করুন',
+  'ide.contextMenu.collapseAll': 'সব সংকুচিত করুন',
 }

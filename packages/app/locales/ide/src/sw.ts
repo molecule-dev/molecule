@@ -32,4 +32,12 @@ export const sw: IdeTranslations = {
   'ide.toolCall.input': 'Ingizo',
   'ide.toolCall.output': 'Tokeo',
   'ide.tabs.close': 'Funga {{fileName}}',
+  'ide.contextMenu.open': 'Fungua',
+  'ide.contextMenu.newFile': 'Faili mpya...',
+  'ide.contextMenu.newFolder': 'Folda mpya...',
+  'ide.contextMenu.rename': 'Badilisha jina',
+  'ide.contextMenu.delete': 'Futa',
+  'ide.contextMenu.copyPath': 'Nakili njia',
+  'ide.contextMenu.copyRelativePath': 'Nakili njia ya jamaa',
+  'ide.contextMenu.collapseAll': 'Kunja zote',
 }

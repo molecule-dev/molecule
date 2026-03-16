@@ -32,4 +32,12 @@ export const fi: IdeTranslations = {
   'ide.toolCall.input': 'Syöte',
   'ide.toolCall.output': 'Tuloste',
   'ide.tabs.close': 'Sulje {{fileName}}',
+  'ide.contextMenu.open': 'Avaa',
+  'ide.contextMenu.newFile': 'Uusi tiedosto...',
+  'ide.contextMenu.newFolder': 'Uusi kansio...',
+  'ide.contextMenu.rename': 'Nimeä uudelleen',
+  'ide.contextMenu.delete': 'Poista',
+  'ide.contextMenu.copyPath': 'Kopioi polku',
+  'ide.contextMenu.copyRelativePath': 'Kopioi suhteellinen polku',
+  'ide.contextMenu.collapseAll': 'Kutista kaikki',
 }

@@ -32,4 +32,12 @@ export const ko: IdeTranslations = {
   'ide.toolCall.input': '입력',
   'ide.toolCall.output': '출력',
   'ide.tabs.close': '{{fileName}} 닫기',
+  'ide.contextMenu.open': '열기',
+  'ide.contextMenu.newFile': '새 파일...',
+  'ide.contextMenu.newFolder': '새 폴더...',
+  'ide.contextMenu.rename': '이름 바꾸기',
+  'ide.contextMenu.delete': '삭제',
+  'ide.contextMenu.copyPath': '경로 복사',
+  'ide.contextMenu.copyRelativePath': '상대 경로 복사',
+  'ide.contextMenu.collapseAll': '모두 접기',
 }

@@ -32,4 +32,12 @@ export const zu: IdeTranslations = {
   'ide.toolCall.input': 'Okufakwayo',
   'ide.toolCall.output': 'Okukhiphayo',
   'ide.tabs.close': 'Vala {{fileName}}',
+  'ide.contextMenu.open': 'Vula',
+  'ide.contextMenu.newFile': 'Ifayela elisha...',
+  'ide.contextMenu.newFolder': 'Ifolda elisha...',
+  'ide.contextMenu.rename': 'Qamba kabusha',
+  'ide.contextMenu.delete': 'Susa',
+  'ide.contextMenu.copyPath': 'Kopisha indlela',
+  'ide.contextMenu.copyRelativePath': 'Kopisha indlela ehlobene',
+  'ide.contextMenu.collapseAll': 'Goqa konke',
 }

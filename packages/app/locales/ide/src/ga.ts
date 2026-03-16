@@ -32,4 +32,12 @@ export const ga: IdeTranslations = {
   'ide.toolCall.input': 'Ionchur',
   'ide.toolCall.output': 'Aschur',
   'ide.tabs.close': 'Dún {{fileName}}',
+  'ide.contextMenu.open': 'Oscail',
+  'ide.contextMenu.newFile': 'Comhad nua...',
+  'ide.contextMenu.newFolder': 'Fillteán nua...',
+  'ide.contextMenu.rename': 'Athainmnigh',
+  'ide.contextMenu.delete': 'Scrios',
+  'ide.contextMenu.copyPath': 'Cóipeáil cosán',
+  'ide.contextMenu.copyRelativePath': 'Cóipeáil cosán coibhneasta',
+  'ide.contextMenu.collapseAll': 'Laghdaigh gach ceann',
 }

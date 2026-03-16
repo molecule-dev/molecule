@@ -32,4 +32,12 @@ export const si: IdeTranslations = {
   'ide.toolCall.input': 'ආදානය',
   'ide.toolCall.output': 'ප්‍රතිදානය',
   'ide.tabs.close': '{{fileName}} වසන්න',
+  'ide.contextMenu.open': 'Open',
+  'ide.contextMenu.newFile': 'New File...',
+  'ide.contextMenu.newFolder': 'New Folder...',
+  'ide.contextMenu.rename': 'Rename',
+  'ide.contextMenu.delete': 'Delete',
+  'ide.contextMenu.copyPath': 'Copy Path',
+  'ide.contextMenu.copyRelativePath': 'Copy Relative Path',
+  'ide.contextMenu.collapseAll': 'Collapse All',
 }

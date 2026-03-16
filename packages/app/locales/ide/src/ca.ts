@@ -32,4 +32,12 @@ export const ca: IdeTranslations = {
   'ide.toolCall.input': 'Entrada',
   'ide.toolCall.output': 'Sortida',
   'ide.tabs.close': 'Tanca {{fileName}}',
+  'ide.contextMenu.open': 'Obre',
+  'ide.contextMenu.newFile': 'Fitxer nou...',
+  'ide.contextMenu.newFolder': 'Carpeta nova...',
+  'ide.contextMenu.rename': 'Reanomena',
+  'ide.contextMenu.delete': 'Suprimeix',
+  'ide.contextMenu.copyPath': 'Copia la ruta',
+  'ide.contextMenu.copyRelativePath': 'Copia la ruta relativa',
+  'ide.contextMenu.collapseAll': 'Replega-ho tot',
 }

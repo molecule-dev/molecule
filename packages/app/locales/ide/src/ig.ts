@@ -32,4 +32,12 @@ export const ig: IdeTranslations = {
   'ide.toolCall.input': 'Ntinye',
   'ide.toolCall.output': 'Nsoputạ',
   'ide.tabs.close': 'Mechie {{fileName}}',
+  'ide.contextMenu.open': 'Mepee',
+  'ide.contextMenu.newFile': 'Faịlụ ọhụrụ...',
+  'ide.contextMenu.newFolder': 'Nchekwa ọhụrụ...',
+  'ide.contextMenu.rename': 'Gbanwee aha',
+  'ide.contextMenu.delete': 'Hichapụ',
+  'ide.contextMenu.copyPath': 'Detuo ụzọ',
+  'ide.contextMenu.copyRelativePath': 'Detuo ụzọ njikọ',
+  'ide.contextMenu.collapseAll': 'Kwụsị niile',
 }

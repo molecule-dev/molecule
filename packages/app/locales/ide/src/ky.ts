@@ -32,4 +32,12 @@ export const ky: IdeTranslations = {
   'ide.toolCall.input': 'Киргизүү',
   'ide.toolCall.output': 'Чыгаруу',
   'ide.tabs.close': '{{fileName}} жабуу',
+  'ide.contextMenu.open': 'Open',
+  'ide.contextMenu.newFile': 'New File...',
+  'ide.contextMenu.newFolder': 'New Folder...',
+  'ide.contextMenu.rename': 'Rename',
+  'ide.contextMenu.delete': 'Delete',
+  'ide.contextMenu.copyPath': 'Copy Path',
+  'ide.contextMenu.copyRelativePath': 'Copy Relative Path',
+  'ide.contextMenu.collapseAll': 'Collapse All',
 }

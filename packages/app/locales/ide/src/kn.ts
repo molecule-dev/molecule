@@ -32,4 +32,12 @@ export const kn: IdeTranslations = {
   'ide.toolCall.input': 'ಇನ್‌ಪುಟ್',
   'ide.toolCall.output': 'ಔಟ್‌ಪುಟ್',
   'ide.tabs.close': '{{fileName}} ಮುಚ್ಚಿ',
+  'ide.contextMenu.open': 'Open',
+  'ide.contextMenu.newFile': 'New File...',
+  'ide.contextMenu.newFolder': 'New Folder...',
+  'ide.contextMenu.rename': 'Rename',
+  'ide.contextMenu.delete': 'Delete',
+  'ide.contextMenu.copyPath': 'Copy Path',
+  'ide.contextMenu.copyRelativePath': 'Copy Relative Path',
+  'ide.contextMenu.collapseAll': 'Collapse All',
 }

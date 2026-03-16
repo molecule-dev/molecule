@@ -32,4 +32,12 @@ export const et: IdeTranslations = {
   'ide.toolCall.input': 'Sisend',
   'ide.toolCall.output': 'Väljund',
   'ide.tabs.close': 'Sulge {{fileName}}',
+  'ide.contextMenu.open': 'Ava',
+  'ide.contextMenu.newFile': 'Uus fail...',
+  'ide.contextMenu.newFolder': 'Uus kaust...',
+  'ide.contextMenu.rename': 'Nimeta ümber',
+  'ide.contextMenu.delete': 'Kustuta',
+  'ide.contextMenu.copyPath': 'Kopeeri tee',
+  'ide.contextMenu.copyRelativePath': 'Kopeeri suhteline tee',
+  'ide.contextMenu.collapseAll': 'Ahenda kõik',
 }

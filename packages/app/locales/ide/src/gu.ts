@@ -32,4 +32,12 @@ export const gu: IdeTranslations = {
   'ide.toolCall.input': 'ઇનપુટ',
   'ide.toolCall.output': 'આઉટપુટ',
   'ide.tabs.close': '{{fileName}} બંધ કરો',
+  'ide.contextMenu.open': 'ખોલો',
+  'ide.contextMenu.newFile': 'નવી ફાઇલ...',
+  'ide.contextMenu.newFolder': 'નવું ફોલ્ડર...',
+  'ide.contextMenu.rename': 'નામ બદલો',
+  'ide.contextMenu.delete': 'કાઢી નાખો',
+  'ide.contextMenu.copyPath': 'પાથ કૉપિ કરો',
+  'ide.contextMenu.copyRelativePath': 'સંબંધિત પાથ કૉપિ કરો',
+  'ide.contextMenu.collapseAll': 'બધું સંકુચિત કરો',
 }

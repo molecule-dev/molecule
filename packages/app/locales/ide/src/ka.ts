@@ -32,4 +32,12 @@ export const ka: IdeTranslations = {
   'ide.toolCall.input': 'Shetani',
   'ide.toolCall.output': 'Gamosavali',
   'ide.tabs.close': 'Dakhurva {{fileName}}',
+  'ide.contextMenu.open': 'გახსნა',
+  'ide.contextMenu.newFile': 'ახალი ფაილი...',
+  'ide.contextMenu.newFolder': 'ახალი საქაღალდე...',
+  'ide.contextMenu.rename': 'სახელის შეცვლა',
+  'ide.contextMenu.delete': 'წაშლა',
+  'ide.contextMenu.copyPath': 'ბილიკის კოპირება',
+  'ide.contextMenu.copyRelativePath': 'შედარებითი ბილიკის კოპირება',
+  'ide.contextMenu.collapseAll': 'ყველას ჩაკეცვა',
 }

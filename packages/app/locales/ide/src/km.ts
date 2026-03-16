@@ -32,4 +32,12 @@ export const km: IdeTranslations = {
   'ide.toolCall.input': 'បញ្ចូល',
   'ide.toolCall.output': 'លទ្ធផល',
   'ide.tabs.close': 'បិទ {{fileName}}',
+  'ide.contextMenu.open': 'បើក',
+  'ide.contextMenu.newFile': 'ឯកសារថ្មី...',
+  'ide.contextMenu.newFolder': 'ថតថ្មី...',
+  'ide.contextMenu.rename': 'ប្តូរឈ្មោះ',
+  'ide.contextMenu.delete': 'លុប',
+  'ide.contextMenu.copyPath': 'ចម្លងផ្លូវ',
+  'ide.contextMenu.copyRelativePath': 'ចម្លងផ្លូវដែលទាក់ទង',
+  'ide.contextMenu.collapseAll': 'បង្រួមទាំងអស់',
 }

@@ -30,6 +30,14 @@ export type IdeTranslationKey =
   | 'ide.toolCall.input'
   | 'ide.toolCall.output'
   | 'ide.tabs.close'
+  | 'ide.contextMenu.open'
+  | 'ide.contextMenu.newFile'
+  | 'ide.contextMenu.newFolder'
+  | 'ide.contextMenu.rename'
+  | 'ide.contextMenu.delete'
+  | 'ide.contextMenu.copyPath'
+  | 'ide.contextMenu.copyRelativePath'
+  | 'ide.contextMenu.collapseAll'
 
 /** Translation record mapping ide keys to translated strings. */
 export type IdeTranslations = Record<IdeTranslationKey, string>

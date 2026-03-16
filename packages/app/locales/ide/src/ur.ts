@@ -32,4 +32,12 @@ export const ur: IdeTranslations = {
   'ide.toolCall.input': 'ان پٹ',
   'ide.toolCall.output': 'آؤٹ پٹ',
   'ide.tabs.close': '{{fileName}} بند کریں',
+  'ide.contextMenu.open': 'Open',
+  'ide.contextMenu.newFile': 'New File...',
+  'ide.contextMenu.newFolder': 'New Folder...',
+  'ide.contextMenu.rename': 'Rename',
+  'ide.contextMenu.delete': 'Delete',
+  'ide.contextMenu.copyPath': 'Copy Path',
+  'ide.contextMenu.copyRelativePath': 'Copy Relative Path',
+  'ide.contextMenu.collapseAll': 'Collapse All',
 }

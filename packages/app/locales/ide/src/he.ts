@@ -32,4 +32,12 @@ export const he: IdeTranslations = {
   'ide.toolCall.input': 'קלט',
   'ide.toolCall.output': 'פלט',
   'ide.tabs.close': 'סגור {{fileName}}',
+  'ide.contextMenu.open': 'פתח',
+  'ide.contextMenu.newFile': 'קובץ חדש...',
+  'ide.contextMenu.newFolder': 'תיקייה חדשה...',
+  'ide.contextMenu.rename': 'שנה שם',
+  'ide.contextMenu.delete': 'מחק',
+  'ide.contextMenu.copyPath': 'העתק נתיב',
+  'ide.contextMenu.copyRelativePath': 'העתק נתיב יחסי',
+  'ide.contextMenu.collapseAll': 'כווץ הכל',
 }

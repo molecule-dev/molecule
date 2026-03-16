@@ -32,4 +32,12 @@ export const hu: IdeTranslations = {
   'ide.toolCall.input': 'Bemenet',
   'ide.toolCall.output': 'Kimenet',
   'ide.tabs.close': 'Bezárás: {{fileName}}',
+  'ide.contextMenu.open': 'Megnyitás',
+  'ide.contextMenu.newFile': 'Új fájl...',
+  'ide.contextMenu.newFolder': 'Új mappa...',
+  'ide.contextMenu.rename': 'Átnevezés',
+  'ide.contextMenu.delete': 'Törlés',
+  'ide.contextMenu.copyPath': 'Útvonal másolása',
+  'ide.contextMenu.copyRelativePath': 'Relatív útvonal másolása',
+  'ide.contextMenu.collapseAll': 'Összes összecsukása',
 }

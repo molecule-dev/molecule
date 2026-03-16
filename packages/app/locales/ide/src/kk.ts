@@ -32,4 +32,12 @@ export const kk: IdeTranslations = {
   'ide.toolCall.input': 'Кіріс',
   'ide.toolCall.output': 'Шығыс',
   'ide.tabs.close': '{{fileName}} жабу',
+  'ide.contextMenu.open': 'Ашу',
+  'ide.contextMenu.newFile': 'Жаңа файл...',
+  'ide.contextMenu.newFolder': 'Жаңа қалта...',
+  'ide.contextMenu.rename': 'Атын өзгерту',
+  'ide.contextMenu.delete': 'Жою',
+  'ide.contextMenu.copyPath': 'Жолды көшіру',
+  'ide.contextMenu.copyRelativePath': 'Салыстырмалы жолды көшіру',
+  'ide.contextMenu.collapseAll': 'Барлығын жию',
 }

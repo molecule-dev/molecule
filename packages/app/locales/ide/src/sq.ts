@@ -32,4 +32,12 @@ export const sq: IdeTranslations = {
   'ide.toolCall.input': 'Hyrja',
   'ide.toolCall.output': 'Dalja',
   'ide.tabs.close': 'Mbyll {{fileName}}',
+  'ide.contextMenu.open': 'Hap',
+  'ide.contextMenu.newFile': 'Skedar i ri...',
+  'ide.contextMenu.newFolder': 'Dosje e re...',
+  'ide.contextMenu.rename': 'Riemërto',
+  'ide.contextMenu.delete': 'Fshi',
+  'ide.contextMenu.copyPath': 'Kopjo shteg',
+  'ide.contextMenu.copyRelativePath': 'Kopjo shteg relativ',
+  'ide.contextMenu.collapseAll': 'Mbyll të gjitha',
 }

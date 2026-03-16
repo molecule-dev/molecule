@@ -32,4 +32,12 @@ export const pa: IdeTranslations = {
   'ide.toolCall.input': 'ਇਨਪੁੱਟ',
   'ide.toolCall.output': 'ਆਊਟਪੁੱਟ',
   'ide.tabs.close': '{{fileName}} ਬੰਦ ਕਰੋ',
+  'ide.contextMenu.open': 'Open',
+  'ide.contextMenu.newFile': 'New File...',
+  'ide.contextMenu.newFolder': 'New Folder...',
+  'ide.contextMenu.rename': 'Rename',
+  'ide.contextMenu.delete': 'Delete',
+  'ide.contextMenu.copyPath': 'Copy Path',
+  'ide.contextMenu.copyRelativePath': 'Copy Relative Path',
+  'ide.contextMenu.collapseAll': 'Collapse All',
 }

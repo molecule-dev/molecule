@@ -32,4 +32,12 @@ export const uk: IdeTranslations = {
   'ide.toolCall.input': 'Введення',
   'ide.toolCall.output': 'Виведення',
   'ide.tabs.close': 'Закрити {{fileName}}',
+  'ide.contextMenu.open': 'Відкрити',
+  'ide.contextMenu.newFile': 'Новий файл...',
+  'ide.contextMenu.newFolder': 'Нова тека...',
+  'ide.contextMenu.rename': 'Перейменувати',
+  'ide.contextMenu.delete': 'Видалити',
+  'ide.contextMenu.copyPath': 'Копіювати шлях',
+  'ide.contextMenu.copyRelativePath': 'Копіювати відносний шлях',
+  'ide.contextMenu.collapseAll': 'Згорнути все',
 }

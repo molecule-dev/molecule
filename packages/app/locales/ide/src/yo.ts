@@ -32,4 +32,12 @@ export const yo: IdeTranslations = {
   'ide.toolCall.input': 'Ìṣàfihàn',
   'ide.toolCall.output': 'Àbájáde',
   'ide.tabs.close': 'Pa {{fileName}} dé',
+  'ide.contextMenu.open': 'Ṣí',
+  'ide.contextMenu.newFile': 'Fáìlì tuntun...',
+  'ide.contextMenu.newFolder': 'Fódà tuntun...',
+  'ide.contextMenu.rename': 'Tún orúkọ sọ',
+  'ide.contextMenu.delete': 'Pa rẹ́',
+  'ide.contextMenu.copyPath': 'Dà ọ̀nà kọ',
+  'ide.contextMenu.copyRelativePath': 'Dà ọ̀nà ìbátan kọ',
+  'ide.contextMenu.collapseAll': 'Pa gbogbo ré',
 }

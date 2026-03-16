@@ -32,4 +32,12 @@ export const ta: IdeTranslations = {
   'ide.toolCall.input': 'உள்ளீடு',
   'ide.toolCall.output': 'வெளியீடு',
   'ide.tabs.close': '{{fileName}} மூடு',
+  'ide.contextMenu.open': 'Open',
+  'ide.contextMenu.newFile': 'New File...',
+  'ide.contextMenu.newFolder': 'New Folder...',
+  'ide.contextMenu.rename': 'Rename',
+  'ide.contextMenu.delete': 'Delete',
+  'ide.contextMenu.copyPath': 'Copy Path',
+  'ide.contextMenu.copyRelativePath': 'Copy Relative Path',
+  'ide.contextMenu.collapseAll': 'Collapse All',
 }

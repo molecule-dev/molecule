@@ -32,4 +32,12 @@ export const tr: IdeTranslations = {
   'ide.toolCall.input': 'Girdi',
   'ide.toolCall.output': 'Çıktı',
   'ide.tabs.close': '{{fileName}} kapat',
+  'ide.contextMenu.open': 'Aç',
+  'ide.contextMenu.newFile': 'Yeni dosya...',
+  'ide.contextMenu.newFolder': 'Yeni klasör...',
+  'ide.contextMenu.rename': 'Yeniden adlandır',
+  'ide.contextMenu.delete': 'Sil',
+  'ide.contextMenu.copyPath': 'Yolu kopyala',
+  'ide.contextMenu.copyRelativePath': 'Göreli yolu kopyala',
+  'ide.contextMenu.collapseAll': 'Tümünü daralt',
 }

@@ -32,4 +32,12 @@ export const cy: IdeTranslations = {
   'ide.toolCall.input': 'Mewnbwn',
   'ide.toolCall.output': 'Allbwn',
   'ide.tabs.close': 'Cau {{fileName}}',
+  'ide.contextMenu.open': 'Agor',
+  'ide.contextMenu.newFile': 'Ffeil newydd...',
+  'ide.contextMenu.newFolder': 'Ffolder newydd...',
+  'ide.contextMenu.rename': 'Ailenwi',
+  'ide.contextMenu.delete': 'Dileu',
+  'ide.contextMenu.copyPath': 'Copïo llwybr',
+  'ide.contextMenu.copyRelativePath': 'Copïo llwybr perthynol',
+  'ide.contextMenu.collapseAll': 'Cwympo popeth',
 }

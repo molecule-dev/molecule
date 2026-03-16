@@ -32,4 +32,12 @@ export const pt: IdeTranslations = {
   'ide.toolCall.input': 'Entrada',
   'ide.toolCall.output': 'Saída',
   'ide.tabs.close': 'Fechar {{fileName}}',
+  'ide.contextMenu.open': 'Abrir',
+  'ide.contextMenu.newFile': 'Novo ficheiro...',
+  'ide.contextMenu.newFolder': 'Nova pasta...',
+  'ide.contextMenu.rename': 'Renomear',
+  'ide.contextMenu.delete': 'Eliminar',
+  'ide.contextMenu.copyPath': 'Copiar caminho',
+  'ide.contextMenu.copyRelativePath': 'Copiar caminho relativo',
+  'ide.contextMenu.collapseAll': 'Recolher tudo',
 }

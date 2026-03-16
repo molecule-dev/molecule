@@ -32,4 +32,12 @@ export const te: IdeTranslations = {
   'ide.toolCall.input': 'ఇన్‌పుట్',
   'ide.toolCall.output': 'అవుట్‌పుట్',
   'ide.tabs.close': '{{fileName}} మూసివేయి',
+  'ide.contextMenu.open': 'Open',
+  'ide.contextMenu.newFile': 'New File...',
+  'ide.contextMenu.newFolder': 'New Folder...',
+  'ide.contextMenu.rename': 'Rename',
+  'ide.contextMenu.delete': 'Delete',
+  'ide.contextMenu.copyPath': 'Copy Path',
+  'ide.contextMenu.copyRelativePath': 'Copy Relative Path',
+  'ide.contextMenu.collapseAll': 'Collapse All',
 }

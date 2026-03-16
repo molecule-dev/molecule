@@ -32,4 +32,12 @@ export const fa: IdeTranslations = {
   'ide.toolCall.input': 'ورودی',
   'ide.toolCall.output': 'خروجی',
   'ide.tabs.close': 'بستن {{fileName}}',
+  'ide.contextMenu.open': 'باز کردن',
+  'ide.contextMenu.newFile': 'فایل جدید...',
+  'ide.contextMenu.newFolder': 'پوشه جدید...',
+  'ide.contextMenu.rename': 'تغییر نام',
+  'ide.contextMenu.delete': 'حذف',
+  'ide.contextMenu.copyPath': 'کپی مسیر',
+  'ide.contextMenu.copyRelativePath': 'کپی مسیر نسبی',
+  'ide.contextMenu.collapseAll': 'جمع کردن همه',
 }

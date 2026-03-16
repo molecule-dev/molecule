@@ -13,6 +13,8 @@ import { useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { FileExplorerProps, FileNode } from '../types.js'
+import type { ContextMenuAction } from './FileExplorerContextMenu.js'
+import { FileExplorerContextMenu } from './FileExplorerContextMenu.js'
 
 // Git status → filename color — dark/light variants for readability
 const DARK_GIT_COLORS: Record<string, string> = {
@@ -256,6 +258,7 @@ interface FileTreeItemProps {
   onDirExpand?: (path: string) => void
   onTogglePath: (path: string, nowExpanded: boolean) => void
   onSymlinkClick?: (symlinkPath: string, target: string) => void
+  onContextMenu?: (position: { x: number; y: number }, node: FileNode) => void
   expandState: ExpandState
   fileStatuses?: Record<string, string>
   gitColors: Record<string, string>
@@ -273,6 +276,7 @@ interface FileTreeItemProps {
  * @param root0.onDirExpand - Callback to load a directory's children.
  * @param root0.onTogglePath - Callback to toggle expand/collapse state.
  * @param root0.onSymlinkClick - Callback when a symlink node is clicked.
+ * @param root0.onContextMenu - Callback when a tree item is right-clicked.
  * @param root0.expandState - The current expand/collapse state for all paths.
  * @param root0.fileStatuses - Git status map keyed by file path.
  * @param root0.gitColors - Color map for git statuses.
@@ -288,6 +292,7 @@ const FileTreeItem = memo(function FileTreeItem({
   onDirExpand,
   onTogglePath,
   onSymlinkClick,
+  onContextMenu,
   expandState,
   fileStatuses,
   gitColors,
@@ -332,6 +337,13 @@ const FileTreeItem = memo(function FileTreeItem({
         onClick={toggle}
         onDoubleClick={() => {
           if (!isDir && onFileDoubleClick) onFileDoubleClick(node.path)
+        }}
+        onContextMenu={(e) => {
+          if (onContextMenu) {
+            e.preventDefault()
+            e.stopPropagation()
+            onContextMenu({ x: e.clientX, y: e.clientY }, node)
+          }
         }}
         data-explorer-path={node.path}
         className={cm.w('full')}
@@ -407,6 +419,7 @@ const FileTreeItem = memo(function FileTreeItem({
               onDirExpand={onDirExpand}
               onTogglePath={onTogglePath}
               onSymlinkClick={onSymlinkClick}
+              onContextMenu={onContextMenu}
               expandState={expandState}
               fileStatuses={fileStatuses}
               gitColors={gitColors}
@@ -429,6 +442,11 @@ const FileTreeItem = memo(function FileTreeItem({
  * @param root0.onFileSelect - Callback invoked when a file is selected.
  * @param root0.onFileDoubleClick - Callback invoked when a file is double-clicked (pin tab).
  * @param root0.onDirExpand - Callback invoked when a directory is expanded.
+ * @param root0.onRename - Callback invoked for the "Rename" context menu action.
+ * @param root0.onDelete - Callback invoked for the "Delete" context menu action.
+ * @param root0.onNewFile - Callback invoked for the "New File" context menu action.
+ * @param root0.onNewFolder - Callback invoked for the "New Folder" context menu action.
+ * @param root0.onCollapseAll - Callback invoked for the "Collapse All" context menu action.
  * @param root0.className - Optional CSS class name for the container.
  * @param root0.persistKey - localStorage key for persisting expand/collapse state.
  * @param root0.activeFile - The currently active file path for highlighting.
@@ -440,6 +458,11 @@ export function FileExplorer({
   onFileSelect,
   onFileDoubleClick,
   onDirExpand,
+  onRename,
+  onDelete,
+  onNewFile,
+  onNewFolder,
+  onCollapseAll,
   className,
   persistKey,
   activeFile,
@@ -556,6 +579,74 @@ export function FileExplorer({
     [files, persistKey, onFileSelect],
   )
 
+  // ---------------------------------------------------------------------------
+  // Context menu
+  // ---------------------------------------------------------------------------
+
+  const [contextMenu, setContextMenu] = useState<{
+    position: { x: number; y: number }
+    node: FileNode | null
+  } | null>(null)
+
+  const handleItemContextMenu = useCallback((position: { x: number; y: number }, node: FileNode) => {
+    setContextMenu({ position, node })
+  }, [])
+
+  const handleBackgroundContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    setContextMenu({ position: { x: e.clientX, y: e.clientY }, node: null })
+  }, [])
+
+  const handleCloseContextMenu = useCallback(() => {
+    setContextMenu(null)
+  }, [])
+
+  const handleCollapseAll = useCallback(() => {
+    setExpandState({ expanded: new Set(), collapsed: new Set(['__all_collapsed__']) })
+    if (persistKey) saveExpandState(persistKey, { expanded: new Set(), collapsed: new Set(['__all_collapsed__']) })
+    onCollapseAll?.()
+  }, [persistKey, onCollapseAll])
+
+  const handleContextMenuAction = useCallback(
+    (action: ContextMenuAction) => {
+      const node = contextMenu?.node
+      switch (action) {
+        case 'open':
+          if (node) onFileSelect(node.path)
+          break
+        case 'rename':
+          if (node) onRename?.(node.path)
+          break
+        case 'delete':
+          if (node) onDelete?.(node.path)
+          break
+        case 'newFile': {
+          const dir = node?.type === 'directory' ? node.path : '/workspace'
+          onNewFile?.(dir)
+          break
+        }
+        case 'newFolder': {
+          const dir = node?.type === 'directory' ? node.path : '/workspace'
+          onNewFolder?.(dir)
+          break
+        }
+        case 'copyPath':
+          if (node) navigator.clipboard.writeText(node.path).catch(() => {})
+          break
+        case 'copyRelativePath':
+          if (node) {
+            const rel = node.path.replace(/^\/workspace\//, '')
+            navigator.clipboard.writeText(rel).catch(() => {})
+          }
+          break
+        case 'collapseAll':
+          handleCollapseAll()
+          break
+      }
+    },
+    [contextMenu, onFileSelect, onRename, onDelete, onNewFile, onNewFolder, handleCollapseAll],
+  )
+
   // Sort root-level entries: directories first, then files, alphabetically
   const sortedFiles = [...files].sort((a, b) => {
     if (a.type !== b.type) return a.type === 'directory' ? -1 : 1
@@ -568,6 +659,7 @@ export function FileExplorer({
       className={cm.cn(cm.sp('py', 1), cm.sp('pl', 1), className)}
       style={{ overflowY: 'auto' }}
       role="tree"
+      onContextMenu={handleBackgroundContextMenu}
     >
       {files.length === 0 && (
         <div className={cm.cn(cm.textMuted, cm.textSize('sm'), cm.sp('p', 3))}>
@@ -586,11 +678,20 @@ export function FileExplorer({
           onDirExpand={onDirExpand}
           onTogglePath={handleTogglePath}
           onSymlinkClick={handleSymlinkClick}
+          onContextMenu={handleItemContextMenu}
           expandState={expandState}
           fileStatuses={fileStatuses}
           gitColors={gitColors}
         />
       ))}
+      {contextMenu && (
+        <FileExplorerContextMenu
+          position={contextMenu.position}
+          node={contextMenu.node}
+          onAction={handleContextMenuAction}
+          onClose={handleCloseContextMenu}
+        />
+      )}
     </div>
   )
 }

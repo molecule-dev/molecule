@@ -32,4 +32,12 @@ export const vi: IdeTranslations = {
   'ide.toolCall.input': 'Đầu vào',
   'ide.toolCall.output': 'Đầu ra',
   'ide.tabs.close': 'Đóng {{fileName}}',
+  'ide.contextMenu.open': 'Mở',
+  'ide.contextMenu.newFile': 'Tệp mới...',
+  'ide.contextMenu.newFolder': 'Thư mục mới...',
+  'ide.contextMenu.rename': 'Đổi tên',
+  'ide.contextMenu.delete': 'Xóa',
+  'ide.contextMenu.copyPath': 'Sao chép đường dẫn',
+  'ide.contextMenu.copyRelativePath': 'Sao chép đường dẫn tương đối',
+  'ide.contextMenu.collapseAll': 'Thu gọn tất cả',
 }

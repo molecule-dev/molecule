@@ -32,4 +32,12 @@ export const hi: IdeTranslations = {
   'ide.toolCall.input': 'इनपुट',
   'ide.toolCall.output': 'आउटपुट',
   'ide.tabs.close': '{{fileName}} बंद करें',
+  'ide.contextMenu.open': 'खोलें',
+  'ide.contextMenu.newFile': 'नई फ़ाइल...',
+  'ide.contextMenu.newFolder': 'नया फ़ोल्डर...',
+  'ide.contextMenu.rename': 'नाम बदलें',
+  'ide.contextMenu.delete': 'हटाएँ',
+  'ide.contextMenu.copyPath': 'पथ कॉपी करें',
+  'ide.contextMenu.copyRelativePath': 'सापेक्ष पथ कॉपी करें',
+  'ide.contextMenu.collapseAll': 'सभी संक्षिप्त करें',
 }

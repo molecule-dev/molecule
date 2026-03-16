@@ -32,4 +32,12 @@ export const lv: IdeTranslations = {
   'ide.toolCall.input': 'Ievade',
   'ide.toolCall.output': 'Izvade',
   'ide.tabs.close': 'Aizvērt {{fileName}}',
+  'ide.contextMenu.open': 'Atvērt',
+  'ide.contextMenu.newFile': 'Jauns fails...',
+  'ide.contextMenu.newFolder': 'Jauna mape...',
+  'ide.contextMenu.rename': 'Pārdēvēt',
+  'ide.contextMenu.delete': 'Dzēst',
+  'ide.contextMenu.copyPath': 'Kopēt ceļu',
+  'ide.contextMenu.copyRelativePath': 'Kopēt relatīvo ceļu',
+  'ide.contextMenu.collapseAll': 'Sakļaut visu',
 }

@@ -32,4 +32,12 @@ export const ml: IdeTranslations = {
   'ide.toolCall.input': 'ഇൻപുട്ട്',
   'ide.toolCall.output': 'ഔട്ട്‌പുട്ട്',
   'ide.tabs.close': '{{fileName}} അടയ്ക്കുക',
+  'ide.contextMenu.open': 'Open',
+  'ide.contextMenu.newFile': 'New File...',
+  'ide.contextMenu.newFolder': 'New Folder...',
+  'ide.contextMenu.rename': 'Rename',
+  'ide.contextMenu.delete': 'Delete',
+  'ide.contextMenu.copyPath': 'Copy Path',
+  'ide.contextMenu.copyRelativePath': 'Copy Relative Path',
+  'ide.contextMenu.collapseAll': 'Collapse All',
 }

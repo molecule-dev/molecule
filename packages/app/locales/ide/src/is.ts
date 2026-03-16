@@ -32,4 +32,12 @@ export const is: IdeTranslations = {
   'ide.toolCall.input': 'Inntak',
   'ide.toolCall.output': 'Úttak',
   'ide.tabs.close': 'Loka {{fileName}}',
+  'ide.contextMenu.open': 'Opna',
+  'ide.contextMenu.newFile': 'Ný skrá...',
+  'ide.contextMenu.newFolder': 'Ný mappa...',
+  'ide.contextMenu.rename': 'Endurnefna',
+  'ide.contextMenu.delete': 'Eyða',
+  'ide.contextMenu.copyPath': 'Afrita slóð',
+  'ide.contextMenu.copyRelativePath': 'Afrita hlutfallslega slóð',
+  'ide.contextMenu.collapseAll': 'Fella allt saman',
 }

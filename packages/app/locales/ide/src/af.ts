@@ -32,4 +32,12 @@ export const af: IdeTranslations = {
   'ide.toolCall.input': 'Invoer',
   'ide.toolCall.output': 'Uitvoer',
   'ide.tabs.close': 'Sluit {{fileName}}',
+  'ide.contextMenu.open': 'Open',
+  'ide.contextMenu.newFile': 'Nuwe lêer...',
+  'ide.contextMenu.newFolder': 'Nuwe vouer...',
+  'ide.contextMenu.rename': 'Hernoem',
+  'ide.contextMenu.delete': 'Verwyder',
+  'ide.contextMenu.copyPath': 'Kopieer pad',
+  'ide.contextMenu.copyRelativePath': 'Kopieer relatiewe pad',
+  'ide.contextMenu.collapseAll': 'Vou alles in',
 }

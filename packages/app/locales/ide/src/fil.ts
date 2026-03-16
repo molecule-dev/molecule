@@ -32,4 +32,12 @@ export const fil: IdeTranslations = {
   'ide.toolCall.input': 'Input',
   'ide.toolCall.output': 'Output',
   'ide.tabs.close': 'Isara ang {{fileName}}',
+  'ide.contextMenu.open': 'Buksan',
+  'ide.contextMenu.newFile': 'Bagong file...',
+  'ide.contextMenu.newFolder': 'Bagong folder...',
+  'ide.contextMenu.rename': 'Palitan ang pangalan',
+  'ide.contextMenu.delete': 'Tanggalin',
+  'ide.contextMenu.copyPath': 'Kopyahin ang path',
+  'ide.contextMenu.copyRelativePath': 'Kopyahin ang relative path',
+  'ide.contextMenu.collapseAll': 'I-collapse lahat',
 }

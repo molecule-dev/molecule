@@ -32,4 +32,12 @@ export const ms: IdeTranslations = {
   'ide.toolCall.input': 'Input',
   'ide.toolCall.output': 'Output',
   'ide.tabs.close': 'Tutup {{fileName}}',
+  'ide.contextMenu.open': 'Buka',
+  'ide.contextMenu.newFile': 'Fail baharu...',
+  'ide.contextMenu.newFolder': 'Folder baharu...',
+  'ide.contextMenu.rename': 'Namakan semula',
+  'ide.contextMenu.delete': 'Padam',
+  'ide.contextMenu.copyPath': 'Salin laluan',
+  'ide.contextMenu.copyRelativePath': 'Salin laluan relatif',
+  'ide.contextMenu.collapseAll': 'Runtuhkan semua',
 }

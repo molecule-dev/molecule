@@ -32,4 +32,12 @@ export const ro: IdeTranslations = {
   'ide.toolCall.input': 'Intrare',
   'ide.toolCall.output': 'Ieșire',
   'ide.tabs.close': 'Închide {{fileName}}',
+  'ide.contextMenu.open': 'Deschide',
+  'ide.contextMenu.newFile': 'Fișier nou...',
+  'ide.contextMenu.newFolder': 'Dosar nou...',
+  'ide.contextMenu.rename': 'Redenumește',
+  'ide.contextMenu.delete': 'Șterge',
+  'ide.contextMenu.copyPath': 'Copiază calea',
+  'ide.contextMenu.copyRelativePath': 'Copiază calea relativă',
+  'ide.contextMenu.collapseAll': 'Restrânge tot',
 }

@@ -32,4 +32,12 @@ export const el: IdeTranslations = {
   'ide.toolCall.input': 'Είσοδος',
   'ide.toolCall.output': 'Έξοδος',
   'ide.tabs.close': 'Κλείσιμο {{fileName}}',
+  'ide.contextMenu.open': 'Άνοιγμα',
+  'ide.contextMenu.newFile': 'Νέο αρχείο...',
+  'ide.contextMenu.newFolder': 'Νέος φάκελος...',
+  'ide.contextMenu.rename': 'Μετονομασία',
+  'ide.contextMenu.delete': 'Διαγραφή',
+  'ide.contextMenu.copyPath': 'Αντιγραφή διαδρομής',
+  'ide.contextMenu.copyRelativePath': 'Αντιγραφή σχετικής διαδρομής',
+  'ide.contextMenu.collapseAll': 'Σύμπτυξη όλων',
 }

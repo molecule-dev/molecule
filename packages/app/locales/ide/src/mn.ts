@@ -32,4 +32,12 @@ export const mn: IdeTranslations = {
   'ide.toolCall.input': 'Оролт',
   'ide.toolCall.output': 'Гаралт',
   'ide.tabs.close': '{{fileName}} хаах',
+  'ide.contextMenu.open': 'Open',
+  'ide.contextMenu.newFile': 'New File...',
+  'ide.contextMenu.newFolder': 'New Folder...',
+  'ide.contextMenu.rename': 'Rename',
+  'ide.contextMenu.delete': 'Delete',
+  'ide.contextMenu.copyPath': 'Copy Path',
+  'ide.contextMenu.copyRelativePath': 'Copy Relative Path',
+  'ide.contextMenu.collapseAll': 'Collapse All',
 }

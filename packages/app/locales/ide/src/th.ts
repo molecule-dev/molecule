@@ -32,4 +32,12 @@ export const th: IdeTranslations = {
   'ide.toolCall.input': 'อินพุต',
   'ide.toolCall.output': 'เอาต์พุต',
   'ide.tabs.close': 'ปิด {{fileName}}',
+  'ide.contextMenu.open': 'เปิด',
+  'ide.contextMenu.newFile': 'ไฟล์ใหม่...',
+  'ide.contextMenu.newFolder': 'โฟลเดอร์ใหม่...',
+  'ide.contextMenu.rename': 'เปลี่ยนชื่อ',
+  'ide.contextMenu.delete': 'ลบ',
+  'ide.contextMenu.copyPath': 'คัดลอกเส้นทาง',
+  'ide.contextMenu.copyRelativePath': 'คัดลอกเส้นทางสัมพัทธ์',
+  'ide.contextMenu.collapseAll': 'ยุบทั้งหมด',
 }

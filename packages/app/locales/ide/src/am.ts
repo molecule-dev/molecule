@@ -32,4 +32,12 @@ export const am: IdeTranslations = {
   'ide.toolCall.input': 'ግብዓት',
   'ide.toolCall.output': 'ውጤት',
   'ide.tabs.close': '{{fileName}}ን ዝጋ',
+  'ide.contextMenu.open': 'ክፈት',
+  'ide.contextMenu.newFile': 'አዲስ ፋይል...',
+  'ide.contextMenu.newFolder': 'አዲስ አቃፊ...',
+  'ide.contextMenu.rename': 'ዳግም ሰይም',
+  'ide.contextMenu.delete': 'ሰርዝ',
+  'ide.contextMenu.copyPath': 'መንገድ ቅዳ',
+  'ide.contextMenu.copyRelativePath': 'አንጻራዊ መንገድ ቅዳ',
+  'ide.contextMenu.collapseAll': 'ሁሉንም ሰብስብ',
 }

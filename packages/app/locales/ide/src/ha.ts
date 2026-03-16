@@ -32,4 +32,12 @@ export const ha: IdeTranslations = {
   'ide.toolCall.input': 'Shigarwa',
   'ide.toolCall.output': 'Fitarwa',
   'ide.tabs.close': 'Rufe {{fileName}}',
+  'ide.contextMenu.open': 'Buɗe',
+  'ide.contextMenu.newFile': 'Sabon fayil...',
+  'ide.contextMenu.newFolder': 'Sabon babban fayil...',
+  'ide.contextMenu.rename': 'Sake suna',
+  'ide.contextMenu.delete': 'Goge',
+  'ide.contextMenu.copyPath': 'Kwafa hanya',
+  'ide.contextMenu.copyRelativePath': 'Kwafa hanyar dangantaka',
+  'ide.contextMenu.collapseAll': 'Rufe duka',
 }

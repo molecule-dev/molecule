@@ -32,4 +32,12 @@ export const hr: IdeTranslations = {
   'ide.toolCall.input': 'Ulaz',
   'ide.toolCall.output': 'Izlaz',
   'ide.tabs.close': 'Zatvori {{fileName}}',
+  'ide.contextMenu.open': 'Otvori',
+  'ide.contextMenu.newFile': 'Nova datoteka...',
+  'ide.contextMenu.newFolder': 'Nova mapa...',
+  'ide.contextMenu.rename': 'Preimenuj',
+  'ide.contextMenu.delete': 'Izbriši',
+  'ide.contextMenu.copyPath': 'Kopiraj putanju',
+  'ide.contextMenu.copyRelativePath': 'Kopiraj relativnu putanju',
+  'ide.contextMenu.collapseAll': 'Sažmi sve',
 }

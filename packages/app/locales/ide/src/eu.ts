@@ -32,4 +32,12 @@ export const eu: IdeTranslations = {
   'ide.toolCall.input': 'Sarrera',
   'ide.toolCall.output': 'Irteera',
   'ide.tabs.close': 'Itxi {{fileName}}',
+  'ide.contextMenu.open': 'Ireki',
+  'ide.contextMenu.newFile': 'Fitxategi berria...',
+  'ide.contextMenu.newFolder': 'Karpeta berria...',
+  'ide.contextMenu.rename': 'Berrizendatu',
+  'ide.contextMenu.delete': 'Ezabatu',
+  'ide.contextMenu.copyPath': 'Bidea kopiatu',
+  'ide.contextMenu.copyRelativePath': 'Bide erlatiboa kopiatu',
+  'ide.contextMenu.collapseAll': 'Tolestu guztiak',
 }

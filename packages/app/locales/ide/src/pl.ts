@@ -32,4 +32,12 @@ export const pl: IdeTranslations = {
   'ide.toolCall.input': 'Wejście',
   'ide.toolCall.output': 'Wyjście',
   'ide.tabs.close': 'Zamknij {{fileName}}',
+  'ide.contextMenu.open': 'Otwórz',
+  'ide.contextMenu.newFile': 'Nowy plik...',
+  'ide.contextMenu.newFolder': 'Nowy folder...',
+  'ide.contextMenu.rename': 'Zmień nazwę',
+  'ide.contextMenu.delete': 'Usuń',
+  'ide.contextMenu.copyPath': 'Kopiuj ścieżkę',
+  'ide.contextMenu.copyRelativePath': 'Kopiuj ścieżkę względną',
+  'ide.contextMenu.collapseAll': 'Zwiń wszystko',
 }

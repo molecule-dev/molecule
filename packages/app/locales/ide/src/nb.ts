@@ -32,4 +32,12 @@ export const nb: IdeTranslations = {
   'ide.toolCall.input': 'Inndata',
   'ide.toolCall.output': 'Utdata',
   'ide.tabs.close': 'Lukk {{fileName}}',
+  'ide.contextMenu.open': 'Åpne',
+  'ide.contextMenu.newFile': 'Ny fil...',
+  'ide.contextMenu.newFolder': 'Ny mappe...',
+  'ide.contextMenu.rename': 'Gi nytt navn',
+  'ide.contextMenu.delete': 'Slett',
+  'ide.contextMenu.copyPath': 'Kopier bane',
+  'ide.contextMenu.copyRelativePath': 'Kopier relativ bane',
+  'ide.contextMenu.collapseAll': 'Skjul alle',
 }

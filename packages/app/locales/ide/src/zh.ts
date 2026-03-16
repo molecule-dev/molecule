@@ -32,4 +32,12 @@ export const zh: IdeTranslations = {
   'ide.toolCall.input': '输入',
   'ide.toolCall.output': '输出',
   'ide.tabs.close': '关闭 {{fileName}}',
+  'ide.contextMenu.open': '打开',
+  'ide.contextMenu.newFile': '新建文件...',
+  'ide.contextMenu.newFolder': '新建文件夹...',
+  'ide.contextMenu.rename': '重命名',
+  'ide.contextMenu.delete': '删除',
+  'ide.contextMenu.copyPath': '复制路径',
+  'ide.contextMenu.copyRelativePath': '复制相对路径',
+  'ide.contextMenu.collapseAll': '全部折叠',
 }

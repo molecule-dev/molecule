@@ -32,4 +32,12 @@ export const my: IdeTranslations = {
   'ide.toolCall.input': 'ထည့်သွင်းမှု',
   'ide.toolCall.output': 'ထွက်ရှိမှု',
   'ide.tabs.close': '{{fileName}} ကို ပိတ်ပါ',
+  'ide.contextMenu.open': 'Open',
+  'ide.contextMenu.newFile': 'New File...',
+  'ide.contextMenu.newFolder': 'New Folder...',
+  'ide.contextMenu.rename': 'Rename',
+  'ide.contextMenu.delete': 'Delete',
+  'ide.contextMenu.copyPath': 'Copy Path',
+  'ide.contextMenu.copyRelativePath': 'Copy Relative Path',
+  'ide.contextMenu.collapseAll': 'Collapse All',
 }

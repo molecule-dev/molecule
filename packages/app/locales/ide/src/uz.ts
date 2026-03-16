@@ -32,4 +32,12 @@ export const uz: IdeTranslations = {
   'ide.toolCall.input': 'Kirish',
   'ide.toolCall.output': 'Chiqish',
   'ide.tabs.close': '{{fileName}} yopish',
+  'ide.contextMenu.open': 'Ochish',
+  'ide.contextMenu.newFile': 'Yangi fayl...',
+  'ide.contextMenu.newFolder': 'Yangi papka...',
+  'ide.contextMenu.rename': "Nomini o'zgartirish",
+  'ide.contextMenu.delete': "O'chirish",
+  'ide.contextMenu.copyPath': "Yo'lni nusxalash",
+  'ide.contextMenu.copyRelativePath': "Nisbiy yo'lni nusxalash",
+  'ide.contextMenu.collapseAll': "Barchasini yig'ish",
 }

@@ -32,4 +32,12 @@ export const lt: IdeTranslations = {
   'ide.toolCall.input': 'Įvestis',
   'ide.toolCall.output': 'Išvestis',
   'ide.tabs.close': 'Uždaryti {{fileName}}',
+  'ide.contextMenu.open': 'Atidaryti',
+  'ide.contextMenu.newFile': 'Naujas failas...',
+  'ide.contextMenu.newFolder': 'Naujas aplankas...',
+  'ide.contextMenu.rename': 'Pervadinti',
+  'ide.contextMenu.delete': 'Ištrinti',
+  'ide.contextMenu.copyPath': 'Kopijuoti kelią',
+  'ide.contextMenu.copyRelativePath': 'Kopijuoti santykinį kelią',
+  'ide.contextMenu.collapseAll': 'Sutraukti viską',
 }

@@ -32,4 +32,12 @@ export const mt: IdeTranslations = {
   'ide.toolCall.input': 'Input',
   'ide.toolCall.output': 'Output',
   'ide.tabs.close': 'Aghlaq {{fileName}}',
+  'ide.contextMenu.open': 'Iftaħ',
+  'ide.contextMenu.newFile': 'Fajl ġdid...',
+  'ide.contextMenu.newFolder': 'Folder ġdid...',
+  'ide.contextMenu.rename': 'Agħti isem ġdid',
+  'ide.contextMenu.delete': 'Ħassar',
+  'ide.contextMenu.copyPath': 'Ikkopja l-mogħdija',
+  'ide.contextMenu.copyRelativePath': 'Ikkopja l-mogħdija relattiva',
+  'ide.contextMenu.collapseAll': 'Agħlaq kollox',
 }

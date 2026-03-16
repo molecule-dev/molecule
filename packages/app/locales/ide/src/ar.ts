@@ -32,4 +32,12 @@ export const ar: IdeTranslations = {
   'ide.toolCall.input': 'الإدخال',
   'ide.toolCall.output': 'الإخراج',
   'ide.tabs.close': 'إغلاق {{fileName}}',
+  'ide.contextMenu.open': 'فتح',
+  'ide.contextMenu.newFile': 'ملف جديد...',
+  'ide.contextMenu.newFolder': 'مجلد جديد...',
+  'ide.contextMenu.rename': 'إعادة تسمية',
+  'ide.contextMenu.delete': 'حذف',
+  'ide.contextMenu.copyPath': 'نسخ المسار',
+  'ide.contextMenu.copyRelativePath': 'نسخ المسار النسبي',
+  'ide.contextMenu.collapseAll': 'طي الكل',
 }

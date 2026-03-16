@@ -32,4 +32,12 @@ export const cs: IdeTranslations = {
   'ide.toolCall.input': 'Vstup',
   'ide.toolCall.output': 'Výstup',
   'ide.tabs.close': 'Zavřít {{fileName}}',
+  'ide.contextMenu.open': 'Otevřít',
+  'ide.contextMenu.newFile': 'Nový soubor...',
+  'ide.contextMenu.newFolder': 'Nová složka...',
+  'ide.contextMenu.rename': 'Přejmenovat',
+  'ide.contextMenu.delete': 'Smazat',
+  'ide.contextMenu.copyPath': 'Kopírovat cestu',
+  'ide.contextMenu.copyRelativePath': 'Kopírovat relativní cestu',
+  'ide.contextMenu.collapseAll': 'Sbalit vše',
 }

@@ -32,4 +32,12 @@ export const sv: IdeTranslations = {
   'ide.toolCall.input': 'Indata',
   'ide.toolCall.output': 'Utdata',
   'ide.tabs.close': 'Stäng {{fileName}}',
+  'ide.contextMenu.open': 'Öppna',
+  'ide.contextMenu.newFile': 'Ny fil...',
+  'ide.contextMenu.newFolder': 'Ny mapp...',
+  'ide.contextMenu.rename': 'Byt namn',
+  'ide.contextMenu.delete': 'Ta bort',
+  'ide.contextMenu.copyPath': 'Kopiera sökväg',
+  'ide.contextMenu.copyRelativePath': 'Kopiera relativ sökväg',
+  'ide.contextMenu.collapseAll': 'Fäll ihop alla',
 }

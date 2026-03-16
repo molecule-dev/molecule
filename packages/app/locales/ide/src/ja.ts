@@ -32,4 +32,12 @@ export const ja: IdeTranslations = {
   'ide.toolCall.input': '入力',
   'ide.toolCall.output': '出力',
   'ide.tabs.close': '{{fileName}}を閉じる',
+  'ide.contextMenu.open': '開く',
+  'ide.contextMenu.newFile': '新しいファイル...',
+  'ide.contextMenu.newFolder': '新しいフォルダー...',
+  'ide.contextMenu.rename': '名前の変更',
+  'ide.contextMenu.delete': '削除',
+  'ide.contextMenu.copyPath': 'パスをコピー',
+  'ide.contextMenu.copyRelativePath': '相対パスをコピー',
+  'ide.contextMenu.collapseAll': 'すべて折りたたむ',
 }
