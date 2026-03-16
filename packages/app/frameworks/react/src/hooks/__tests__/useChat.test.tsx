@@ -229,7 +229,7 @@ describe('useChat', () => {
   })
 
   it('creates an assistant placeholder for each queued message when it is sent', async () => {
-    const { provider, deferreds, complete } = createMockProvider()
+    const { provider, complete } = createMockProvider()
     const { result } = renderHook(
       () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
       { wrapper: createWrapper(provider) },
@@ -521,23 +521,21 @@ describe('useChat', () => {
 
   // ── Resume on mount ───────────────────────────────────────────────────
 
-  it('restores persisted queue on mount and sends messages', async () => {
-    // Simulate a previous interrupted session
+  it('restores persisted queue on mount and sends messages (no interrupted stream)', async () => {
+    // Queue exists but no streaming flag — just send queued messages directly
     sessionStorage.setItem(
       `mol-chat-queue-${PROJECT_ID}`,
       JSON.stringify([{ message: 'queued-1' }, { message: 'queued-2' }]),
     )
-    sessionStorage.setItem(`mol-chat-streaming-${PROJECT_ID}`, '1')
 
     const { provider, deferreds, complete } = createMockProvider()
     ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
       { id: 'h1', role: 'user', content: 'old msg', timestamp: 1000 },
     ])
 
-    renderHook(
-      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: true }),
-      { wrapper: createWrapper(provider) },
-    )
+    renderHook(() => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: true }), {
+      wrapper: createWrapper(provider),
+    })
 
     // loadHistory fires, then the first queued message is sent via setTimeout
     await waitFor(() => expect(deferreds).toHaveLength(1))
@@ -555,43 +553,53 @@ describe('useChat', () => {
     })
   })
 
-  it('resumes interrupted stream into the last assistant message', async () => {
+  it('waits for server to finish, then sends resume request for real streaming', async () => {
     sessionStorage.setItem(`mol-chat-streaming-${PROJECT_ID}`, '1')
 
     const { provider, deferreds, emitText, complete } = createMockProvider()
-    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
-      { id: 'h1', role: 'user', content: 'old msg', timestamp: 1000 },
-      { id: 'h2', role: 'assistant', content: 'partial response...', timestamp: 1001 },
-    ])
+
+    // Phase 1: server is still streaming (polling)
+    const streamingProvider = provider as { isServerStreaming: boolean }
+    streamingProvider.isServerStreaming = true
+    let pollCount = 0
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+      pollCount++
+      if (pollCount <= 2) {
+        streamingProvider.isServerStreaming = true
+      } else {
+        streamingProvider.isServerStreaming = false
+      }
+      return [
+        { id: 'h1', role: 'user', content: 'old msg', timestamp: 1000 },
+        { id: 'h2', role: 'assistant', content: 'partial...', timestamp: 1001 },
+      ]
+    })
 
     const { result } = renderHook(
       () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: true }),
       { wrapper: createWrapper(provider) },
     )
 
-    // Resume sends a request with resume:true via provider.sendMessage
-    await waitFor(() => expect(deferreds).toHaveLength(1))
-    // The message is empty (resume mode, no user message)
-    expect(deferreds[0].message).toBe('')
-
-    // The last assistant message from history should be marked as streaming
+    // Spinner should show during polling
     await waitFor(() => {
       const h2 = result.current.messages.find((m) => m.id === 'h2')
       expect(h2?.isStreaming).toBe(true)
     })
 
-    // New text is appended to the existing assistant message content
+    // Phase 2: after polling, a resume request is sent (provider.sendMessage called)
+    await waitFor(() => expect(deferreds).toHaveLength(1), { timeout: 10000 })
+    // Empty message = resume mode
+    expect(deferreds[0].message).toBe('')
+
+    // Real streaming works — text events append to the existing message
     await act(async () => {
-      emitText(0, ' more content')
+      emitText(0, ' continued response')
     })
-
     const h2 = result.current.messages.find((m) => m.id === 'h2')
-    expect(h2?.content).toBe('partial response... more content')
+    expect(h2?.content).toBe('partial... continued response')
 
-    // No new user message was added (no "Continue from where you left off.")
-    const userMsgs = result.current.messages.filter((m) => m.role === 'user')
-    expect(userMsgs).toHaveLength(1)
-    expect(userMsgs[0].content).toBe('old msg')
+    // No new user message was created
+    expect(result.current.messages.filter((m) => m.role === 'user')).toHaveLength(1)
 
     await act(async () => {
       complete(0)
@@ -605,10 +613,9 @@ describe('useChat', () => {
     const { provider, deferreds } = createMockProvider()
     ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([])
 
-    renderHook(
-      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: true }),
-      { wrapper: createWrapper(provider) },
-    )
+    renderHook(() => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: true }), {
+      wrapper: createWrapper(provider),
+    })
 
     // Wait for history load + potential setTimeout — no sendMessage should fire
     await act(async () => {
@@ -618,18 +625,14 @@ describe('useChat', () => {
   })
 
   it('does not restore queue when loadOnMount is false', async () => {
-    sessionStorage.setItem(
-      `mol-chat-queue-${PROJECT_ID}`,
-      JSON.stringify([{ message: 'queued' }]),
-    )
+    sessionStorage.setItem(`mol-chat-queue-${PROJECT_ID}`, JSON.stringify([{ message: 'queued' }]))
     sessionStorage.setItem(`mol-chat-streaming-${PROJECT_ID}`, '1')
 
     const { provider, deferreds } = createMockProvider()
 
-    renderHook(
-      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
-      { wrapper: createWrapper(provider) },
-    )
+    renderHook(() => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }), {
+      wrapper: createWrapper(provider),
+    })
 
     await act(async () => {
       await new Promise((r) => setTimeout(r, 50))
@@ -638,8 +641,7 @@ describe('useChat', () => {
     expect(provider.loadHistory).not.toHaveBeenCalled()
   })
 
-  it('resumes interrupted stream first, then drains queued messages', async () => {
-    // Both streaming flag and queue are set — resume first, then send queued
+  it('resumes then drains queued messages', async () => {
     sessionStorage.setItem(`mol-chat-streaming-${PROJECT_ID}`, '1')
     sessionStorage.setItem(
       `mol-chat-queue-${PROJECT_ID}`,
@@ -647,25 +649,29 @@ describe('useChat', () => {
     )
 
     const { provider, deferreds, complete } = createMockProvider()
-    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
-      { id: 'h1', role: 'user', content: 'old', timestamp: 1000 },
-      { id: 'h2', role: 'assistant', content: 'partial', timestamp: 1001 },
-    ])
+    const streamingProvider = provider as { isServerStreaming: boolean }
+    streamingProvider.isServerStreaming = false // Server already done
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+      streamingProvider.isServerStreaming = false
+      return [
+        { id: 'h1', role: 'user', content: 'old', timestamp: 1000 },
+        { id: 'h2', role: 'assistant', content: 'final', timestamp: 1001 },
+      ]
+    })
 
-    renderHook(
-      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: true }),
-      { wrapper: createWrapper(provider) },
-    )
+    renderHook(() => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: true }), {
+      wrapper: createWrapper(provider),
+    })
 
-    // First call is the resume (empty message)
-    await waitFor(() => expect(deferreds).toHaveLength(1))
+    // First call is the resume request (empty message)
+    await waitFor(() => expect(deferreds).toHaveLength(1), { timeout: 10000 })
     expect(deferreds[0].message).toBe('')
 
-    // Complete resume → queued message is sent next
+    // Complete resume → queued message sent next
     await act(async () => {
       complete(0)
     })
-    await waitFor(() => expect(deferreds).toHaveLength(2))
+    await waitFor(() => expect(deferreds).toHaveLength(2), { timeout: 5000 })
     expect(deferreds[1].message).toBe('my queued msg')
 
     await act(async () => {
@@ -677,10 +683,9 @@ describe('useChat', () => {
 
   it('uses "default" storage key when projectId is undefined', async () => {
     const { provider } = createMockProvider()
-    const { result } = renderHook(
-      () => useChat({ endpoint: ENDPOINT, loadOnMount: false }),
-      { wrapper: createWrapper(provider) },
-    )
+    const { result } = renderHook(() => useChat({ endpoint: ENDPOINT, loadOnMount: false }), {
+      wrapper: createWrapper(provider),
+    })
 
     await act(async () => {
       result.current.sendMessage('A')
@@ -886,10 +891,9 @@ describe('useChat', () => {
 
   it('does not load history when loadOnMount is false', async () => {
     const { provider } = createMockProvider()
-    renderHook(
-      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
-      { wrapper: createWrapper(provider) },
-    )
+    renderHook(() => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }), {
+      wrapper: createWrapper(provider),
+    })
 
     await act(async () => {
       await new Promise((r) => setTimeout(r, 50))

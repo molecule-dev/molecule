@@ -28,6 +28,13 @@ export class HttpChatProvider implements ChatProvider {
   private config: HttpChatConfig
   private abortController: AbortController | null = null
 
+  /**
+   * Whether the server reported an active stream for the conversation
+   * on the last `loadHistory` call. Used by the client to decide whether
+   * to poll for updates after a page refresh.
+   */
+  isServerStreaming = false
+
   /** Maximum number of retries for HTTP 409 (server-side lock not yet released). */
   private static readonly CONFLICT_MAX_RETRIES = 10
 
@@ -213,7 +220,11 @@ export class HttpChatProvider implements ChatProvider {
 
     if (!response.ok) return []
 
-    const data = (await response.json()) as { messages?: Record<string, unknown>[] }
+    const data = (await response.json()) as {
+      messages?: Record<string, unknown>[]
+      streaming?: boolean
+    }
+    this.isServerStreaming = data.streaming ?? false
     return (data.messages ?? []).map((m, i) => {
       // Backend stores timestamps as ISO strings; frontend needs numbers
       const raw = m.timestamp

@@ -185,27 +185,43 @@ export function useChat(options: UseChatOptions): UseChatResult {
           setMessages(history)
         }
 
-        if (interrupted && history.length > 0) {
-          // Stream was interrupted — resume seamlessly into the last assistant message,
-          // then drain any queued user messages after the resume completes.
-          const lastAssistant = [...history].reverse().find((m) => m.role === 'assistant')
-          if (lastAssistant) {
-            pendingRef.current.push(...persistedQueue)
-            setTimeout(() => {
-              if (mountedRef.current) {
-                resumeStreamRef.current(lastAssistant.id, lastAssistant.content)
-              }
-            }, 0)
-          } else if (persistedQueue.length > 0) {
-            // No assistant message to resume into — just send queued messages
-            const [first, ...rest] = persistedQueue
-            pendingRef.current.push(...rest)
-            setTimeout(() => {
-              if (mountedRef.current) {
-                sendMessageRef.current(first.message, first.attachments)
-              }
-            }, 0)
+        // Also check the provider's streaming flag — the server tells us
+        // directly whether a stream is active, even if sessionStorage was lost
+        const serverStreaming =
+          (provider as { isServerStreaming?: boolean }).isServerStreaming === true
+        const shouldResume = (interrupted || serverStreaming) && history.length > 0
+
+        if (shouldResume) {
+          // Stream was interrupted — resume into the last assistant message,
+          // or create a new placeholder if the last message is from the user
+          // (the server hadn't saved the assistant response yet).
+          const lastMsg = history[history.length - 1]
+          let resumeTarget: { id: string; content: string }
+
+          if (lastMsg?.role === 'assistant') {
+            resumeTarget = { id: lastMsg.id, content: lastMsg.content }
+          } else {
+            // No assistant message after the last user message — create one
+            const placeholderId = `assistant-${++idCounterRef.current}`
+            const placeholder: ChatMessage = {
+              id: placeholderId,
+              role: 'assistant',
+              content: '',
+              timestamp: Date.now(),
+              isStreaming: true,
+              blocks: [],
+            }
+            setMessages((prev) => [...prev, placeholder])
+            resumeTarget = { id: placeholderId, content: '' }
           }
+
+          pendingRef.current.push(...persistedQueue)
+          const target = resumeTarget
+          setTimeout(() => {
+            if (mountedRef.current) {
+              resumeStreamRef.current(target.id, target.content)
+            }
+          }, 0)
         } else if (persistedQueue.length > 0) {
           const [first, ...rest] = persistedQueue
           pendingRef.current.push(...rest)
@@ -453,14 +469,14 @@ export function useChat(options: UseChatOptions): UseChatResult {
     [provider, endpoint],
   )
 
-  // Resume an interrupted stream by continuing into the last assistant message
-  // from the loaded history. No user message is added — the server re-enters
-  // the agentic loop with the existing conversation state.
+  // Resume an interrupted stream after a page refresh. Two phases:
+  // 1. Poll history until the server finishes the old request (lock clears)
+  // 2. Send a resume request that continues the AI response with real streaming
   const resumeStream = useCallback(
     async (resumeId: string, existingContent: string) => {
       if (!mountedRef.current || sendingRef.current) return
 
-      // Mark the existing assistant message as streaming again
+      // Show the spinner on the last assistant message immediately
       setMessages((prev) => prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: true } : m)))
 
       sendingRef.current = true
@@ -468,15 +484,136 @@ export function useChat(options: UseChatOptions): UseChatResult {
       setError(null)
       setStreamingFlag(storageKey)
 
+      // ── Phase 1: wait for the server to finish the old request ────────
+      const POLL_INTERVAL = 1000
+      const MAX_POLLS = 300
+      const streamingProvider = provider as { isServerStreaming?: boolean }
+
+      for (let i = 0; i < MAX_POLLS; i++) {
+        if (!mountedRef.current) break
+
+        await new Promise((r) => setTimeout(r, POLL_INTERVAL))
+        if (!mountedRef.current) break
+
+        try {
+          const history = await provider.loadHistory(config)
+          if (!mountedRef.current) break
+
+          // Update displayed messages while keeping the spinner
+          if (history.length > 0) {
+            setMessages(history.map((m) => (m.id === resumeId ? { ...m, isStreaming: true } : m)))
+            // Track content for phase 2
+            const updated =
+              history.find((m) => m.id === resumeId) ??
+              [...history].reverse().find((m) => m.role === 'assistant')
+            if (updated) existingContent = updated.content
+          }
+
+          if (streamingProvider.isServerStreaming === false) break
+        } catch {
+          // loadHistory failure — keep polling
+        }
+      }
+
+      if (!mountedRef.current) {
+        sendingRef.current = false
+        return
+      }
+
+      // ── Phase 2: send a resume request with full SSE streaming ────────
+      // Same event handler as sendMessage but targeting the existing message.
       let assistantText = existingContent
+      const toolCalls: ChatMessage['toolCalls'] = []
+      const blocks: MessageBlock[] = []
+
+      // Seed blocks with a text block for the existing content so new text
+      // appends correctly and new tool_use/thinking blocks interleave properly.
+      if (existingContent) {
+        blocks.push({ type: 'text', content: existingContent })
+      }
 
       const onEvent = (event: ChatStreamEvent): void => {
         if (!mountedRef.current) return
+
         switch (event.type) {
-          case 'text':
+          case 'text': {
             assistantText += event.content
+            const last = blocks[blocks.length - 1]
+            if (last?.type === 'text') {
+              last.content += event.content
+            } else {
+              blocks.push({ type: 'text', content: event.content })
+            }
             setMessages((prev) =>
-              prev.map((m) => (m.id === resumeId ? { ...m, content: assistantText } : m)),
+              prev.map((m) =>
+                m.id === resumeId ? { ...m, content: assistantText, blocks: [...blocks] } : m,
+              ),
+            )
+            break
+          }
+          case 'tool_use':
+            toolCalls!.push({
+              id: event.id,
+              name: event.name,
+              input: event.input,
+              status: 'running',
+            })
+            blocks.push({ type: 'tool_call', id: event.id })
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === resumeId ? { ...m, toolCalls: [...toolCalls!], blocks: [...blocks] } : m,
+              ),
+            )
+            break
+          case 'tool_result':
+            if (toolCalls) {
+              const tc = toolCalls.find((t) => t.id === event.id)
+              if (tc) {
+                tc.output = event.output
+                tc.status = 'done'
+              }
+            }
+            setMessages((prev) =>
+              prev.map((m) => (m.id === resumeId ? { ...m, toolCalls: [...toolCalls!] } : m)),
+            )
+            break
+          case 'file_diff': {
+            const normalizePath = (p: string): string => p.replace(/^\/workspace\//, '')
+            const match = [...(toolCalls ?? [])]
+              .reverse()
+              .find(
+                (t) =>
+                  (t.name === 'write_file' || t.name === 'edit_file') &&
+                  normalizePath((t.input as { path?: string })?.path ?? '') ===
+                    normalizePath(event.path),
+              )
+            if (match) {
+              match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
+              setMessages((prev) =>
+                prev.map((m) => (m.id === resumeId ? { ...m, toolCalls: [...toolCalls!] } : m)),
+              )
+            }
+            onFileChange?.(event.path, event.newContent)
+            break
+          }
+          case 'commit_suggestion':
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === resumeId
+                  ? {
+                      ...m,
+                      commitSuggestion: {
+                        files: event.files,
+                        status: 'pending' as const,
+                      },
+                    }
+                  : m,
+              ),
+            )
+            break
+          case 'loop_limit_reached':
+            setMessages((prev) =>
+              prev.map((m) => (m.id === resumeId ? { ...m, loopLimitReached: event.maxLoops } : m)),
             )
             break
           case 'done':
@@ -490,6 +627,18 @@ export function useChat(options: UseChatOptions): UseChatResult {
               prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: false } : m)),
             )
             break
+          case 'thinking': {
+            const lastBlock = blocks[blocks.length - 1]
+            if (lastBlock?.type === 'thinking') {
+              lastBlock.content += event.content
+            } else {
+              blocks.push({ type: 'thinking', content: event.content })
+            }
+            setMessages((prev) =>
+              prev.map((m) => (m.id === resumeId ? { ...m, blocks: [...blocks] } : m)),
+            )
+            break
+          }
           case 'mode':
             setMode(event.mode)
             onModeChange?.(event.mode)
@@ -517,14 +666,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
         }
       }
 
-      // After resume, drain any queued user messages
+      // Drain any queued user messages
       let current = pendingRef.current.shift()
       while (current) {
         if (!mountedRef.current) break
         setError(null)
         persistQueue(storageKey, pendingRef.current)
-        // For queued messages, delegate to sendMessage which handles the full flow
-        // (user message + assistant placeholder + streaming)
         sendingRef.current = false
         await sendMessageRef.current(current.message, current.attachments)
         current = pendingRef.current.shift()

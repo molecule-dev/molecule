@@ -392,19 +392,53 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
   const [commitCards, setCommitCards] = useState<CommitCard[]>([])
 
   // ── Input ──────────────────────────────────────────────────────────────────
+  // The textarea is uncontrolled to avoid re-rendering the entire ChatInner on
+  // every keystroke.  `inputRef` holds the current value; `hasInput` is a
+  // boolean state used only by the submit button's disabled prop.
   const draftKey = `mol-chat-draft:${projectId}`
-  const [inputValue, setInputValue] = useState(() => {
+  const inputRef = useRef<string>((() => {
     try { return sessionStorage.getItem(draftKey) ?? '' } catch { return '' }
-  })
+  })())
+  const [hasInput, setHasInput] = useState(() => Boolean(inputRef.current))
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // Persist draft text to sessionStorage so it survives refresh
+  /** Auto-resize the textarea to fit its content (max 200px). */
+  const autoResize = useCallback(() => {
+    const ta = textareaRef.current
+    if (!ta) return
+    ta.style.height = 'auto'
+    ta.style.height = `${Math.min(ta.scrollHeight, 200)}px`
+  }, [])
+
+  // Seed the textarea with the draft value on mount
   useEffect(() => {
-    try {
-      if (inputValue) sessionStorage.setItem(draftKey, inputValue)
-      else sessionStorage.removeItem(draftKey)
-    } catch { /* quota exceeded or unavailable */ }
-  }, [inputValue, draftKey])
+    const ta = textareaRef.current
+    if (ta && inputRef.current) {
+      ta.value = inputRef.current
+      autoResize()
+    }
+  }, [autoResize])
+
+  /** Update the ref, the DOM element, and the hasInput flag without re-rendering the parent. */
+  const setInputValue = useCallback((val: string) => {
+    inputRef.current = val
+    const ta = textareaRef.current
+    if (ta && ta.value !== val) ta.value = val
+    setHasInput(Boolean(val.trim()))
+  }, [])
+
+  // Persist draft text to sessionStorage so it survives refresh (debounced)
+  const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const persistDraft = useCallback(() => {
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current)
+    draftTimerRef.current = setTimeout(() => {
+      try {
+        const v = inputRef.current
+        if (v) sessionStorage.setItem(draftKey, v)
+        else sessionStorage.removeItem(draftKey)
+      } catch { /* quota exceeded or unavailable */ }
+    }, 500)
+  }, [draftKey])
 
   // ── Voice input (Web Speech API) ──────────────────────────────────────────
   const speechCtorRef = useRef(
@@ -444,7 +478,9 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
         }
       }
       if (transcript) {
-        setInputValue((prev) => prev ? `${prev} ${transcript}` : transcript)
+        const prev = inputRef.current as string
+        setInputValue(prev ? `${prev} ${transcript}` : transcript)
+        autoResize()
       }
     }
 
@@ -494,7 +530,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
     recognitionRef.current = recognition
     voiceLastStart.current = Date.now()
     recognition.start()
-  }, [])
+  }, [setInputValue, autoResize])
 
   const toggleVoice = useCallback(() => {
     if (isListening) {
@@ -554,14 +590,6 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
   // ── Scroll ─────────────────────────────────────────────────────────────────
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const sentInitialRef = useRef<string | null>(null)
-
-  // ── Auto-resize textarea ───────────────────────────────────────────────────
-  useEffect(() => {
-    const ta = textareaRef.current
-    if (!ta) return
-    ta.style.height = 'auto'
-    ta.style.height = `${Math.min(ta.scrollHeight, 200)}px`
-  }, [inputValue])
 
   // ── Git status ─────────────────────────────────────────────────────────────
   const [gitStatusTick, setGitStatusTick] = useState(0)
@@ -683,11 +711,10 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
                 size: entry.size ?? 0,
               }],
         )
-        setInputValue((prev) => {
-          const before = prev.slice(0, mentionStart)
-          const after = prev.slice(mentionStart + 1 + (filePicker?.query.length ?? 0))
-          return before + after
-        })
+        const prev = inputRef.current
+        const before = prev.slice(0, mentionStart)
+        const after = prev.slice(mentionStart + 1 + (filePicker?.query.length ?? 0))
+        setInputValue(before + after)
         setFilePicker(null)
       }
     },
@@ -775,7 +802,10 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const val = e.target.value
-      setInputValue(val)
+      inputRef.current = val
+      setHasInput(Boolean(val.trim()))
+      autoResize()
+      persistDraft()
 
       const cursor = e.target.selectionStart ?? val.length
       const before = val.slice(0, cursor)
@@ -804,13 +834,14 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
         setCommandMenu(null)
       }
     },
-    [openFilePicker],
+    [openFilePicker, autoResize, persistDraft],
   )
 
   // ── Execute command ────────────────────────────────────────────────────────
   /** Sets textarea value and moves cursor to the end. */
   const setInputAndCursorEnd = useCallback((val: string) => {
     setInputValue(val)
+    autoResize()
     setTimeout(() => {
       const ta = textareaRef.current
       if (ta) {
@@ -818,7 +849,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
         ta.setSelectionRange(val.length, val.length)
       }
     }, 0)
-  }, [])
+  }, [setInputValue, autoResize])
 
   /** Select and apply a model by ID. */
   const selectModel = useCallback(
@@ -868,7 +899,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
     voiceIntentRef.current = false
     recognitionRef.current?.stop()
 
-    const trimmed = inputValue.trim()
+    const trimmed = (inputRef.current as string).trim()
     if (!trimmed && attachedFiles.length === 0) return
 
     // Handle /model <name> command locally
@@ -972,20 +1003,21 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
     setAttachedFiles([])
     setAttachmentError(null)
     sendMessage(message, chatAttachments.length > 0 ? chatAttachments : undefined)
-  }, [attachedFiles, http, inputValue, projectId, sendMessage])
+  }, [attachedFiles, http, projectId, sendMessage, setInputValue])
 
   // ── Keyboard ───────────────────────────────────────────────────────────────
-  const filteredCmds = commandMenu ? COMMANDS.filter((c) => c.label.startsWith(inputValue)) : []
+  const filteredCmds = commandMenu ? COMMANDS.filter((c) => c.label.startsWith(inputRef.current as string)) : []
 
   const filteredModels = useMemo(() => {
     if (!modelPicker) return []
-    const match = inputValue.match(/^\/model\s+(.*)/i)
+    const val = inputRef.current as string
+    const match = val.match(/^\/model\s+(.*)/i)
     const q = (match?.[1] ?? '').trim().toLowerCase()
     if (!q) return AVAILABLE_MODELS
     return AVAILABLE_MODELS.filter(
       (m) => m.id.toLowerCase().includes(q) || m.label.toLowerCase().includes(q),
     )
-  }, [modelPicker, inputValue])
+  }, [modelPicker])
 
   const filteredEntries = filePicker
     ? filePicker.entries
@@ -1771,7 +1803,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
         >
           <textarea
             ref={textareaRef}
-            value={inputValue}
+            defaultValue={inputRef.current as string}
             autoComplete="off"
             onChange={handleInputChange}
             onPaste={handlePaste}
@@ -1801,9 +1833,11 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
               {
                 sym: '@',
                 onClick: () => {
-                  const pos = textareaRef.current?.selectionStart ?? inputValue.length
-                  const newVal = inputValue.slice(0, pos) + '@' + inputValue.slice(pos)
+                  const val = inputRef.current as string
+                  const pos = textareaRef.current?.selectionStart ?? val.length
+                  const newVal = val.slice(0, pos) + '@' + val.slice(pos)
                   setInputValue(newVal)
+                  autoResize()
                   setMentionStart(pos)
                   void openFilePicker('')
                   setCommandMenu(null)
@@ -1816,8 +1850,9 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
               {
                 sym: '/',
                 onClick: () => {
-                  if (!inputValue) {
+                  if (!(inputRef.current as string)) {
                     setInputValue('/')
+                    autoResize()
                     setCommandMenu({ selectedIdx: -1 })
                   }
                   setTimeout(() => { textareaRef.current?.focus() }, 0)
@@ -1910,7 +1945,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
               <button
                 type="button"
                 onClick={() => void handleSubmit()}
-                disabled={!inputValue.trim() && attachedFiles.length === 0}
+                disabled={!hasInput && attachedFiles.length === 0}
                 className={cm.button({ color: 'primary', size: 'sm' })}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="17" height="17" style={{ display: 'block' }}>
