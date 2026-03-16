@@ -9,6 +9,7 @@
  * - @ file mention: type @ to attach a project file as context
  * - / command menu: /clear clears history
  * - Auto-resizing textarea (grows up to 200 px)
+ * - Voice dictation via Web Speech API (hidden when unsupported)
  * - Commit button at bottom of messages; commit records appear inline
  * - Escape: close menus or abort the active stream
  *
@@ -369,10 +370,14 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
   const isLight = themeMode === 'light'
   const borderClr = isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'
   const http = useHttpClient()
+  // If there's already a conversation (conversationId in the URL), always load
+  // history — even when initialMessage is set. This prevents a refresh from
+  // re-sending the initial prompt instead of restoring the existing conversation.
+  const hasConversation = endpoint.includes('conversationId=')
   const { messages, isLoading, error, sendMessage, abort, clearHistory } = useChat({
     endpoint,
     projectId,
-    loadOnMount: !initialMessage,
+    loadOnMount: hasConversation || !initialMessage,
     onFileChange,
     onConversationId,
   })
@@ -387,8 +392,129 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
   const [commitCards, setCommitCards] = useState<CommitCard[]>([])
 
   // ── Input ──────────────────────────────────────────────────────────────────
-  const [inputValue, setInputValue] = useState('')
+  const draftKey = `mol-chat-draft:${projectId}`
+  const [inputValue, setInputValue] = useState(() => {
+    try { return sessionStorage.getItem(draftKey) ?? '' } catch { return '' }
+  })
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Persist draft text to sessionStorage so it survives refresh
+  useEffect(() => {
+    try {
+      if (inputValue) sessionStorage.setItem(draftKey, inputValue)
+      else sessionStorage.removeItem(draftKey)
+    } catch { /* quota exceeded or unavailable */ }
+  }, [inputValue, draftKey])
+
+  // ── Voice input (Web Speech API) ──────────────────────────────────────────
+  const speechCtorRef = useRef(
+    typeof window !== 'undefined'
+      ? (window as unknown as Record<string, unknown>).SpeechRecognition ?? (window as unknown as Record<string, unknown>).webkitSpeechRecognition
+      : undefined,
+  )
+  const hasSpeechRecognition = Boolean(speechCtorRef.current)
+  type SpeechRec = { start(): void; stop(): void; abort(): void; onresult: ((e: unknown) => void) | null; onend: (() => void) | null; onerror: ((e: unknown) => void) | null; continuous: boolean; interimResults: boolean; lang: string }
+  const recognitionRef = useRef<SpeechRec | null>(null)
+  const [isListening, setIsListening] = useState(false)
+  const voiceIntentRef = useRef(false)
+  const voiceRestartTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Count rapid consecutive failures to bail out of restart loops
+  const voiceFailCount = useRef(0)
+  const voiceLastStart = useRef(0)
+
+  const startRecognition = useCallback(() => {
+    const Ctor = speechCtorRef.current as (new () => SpeechRec) | undefined
+    if (!Ctor || !voiceIntentRef.current) return
+
+    const recognition = new Ctor()
+    recognition.continuous = true
+    recognition.interimResults = true
+    recognition.lang = navigator.language || 'en-US'
+
+    let gotResult = false
+
+    recognition.onresult = (e: unknown) => {
+      gotResult = true
+      voiceFailCount.current = 0
+      const event = e as { results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }>; resultIndex: number }
+      let transcript = ''
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          transcript += event.results[i][0].transcript
+        }
+      }
+      if (transcript) {
+        setInputValue((prev) => prev ? `${prev} ${transcript}` : transcript)
+      }
+    }
+
+    recognition.onend = () => {
+      recognitionRef.current = null
+      if (!voiceIntentRef.current) {
+        setIsListening(false)
+        return
+      }
+      // If we got results, the session was healthy — restart immediately
+      if (gotResult) {
+        voiceFailCount.current = 0
+        startRecognition()
+        return
+      }
+      // No results — could be a rapid failure loop. Track it.
+      const elapsed = Date.now() - voiceLastStart.current
+      if (elapsed < 1000) {
+        voiceFailCount.current++
+      } else {
+        voiceFailCount.current = 0
+      }
+      // Too many rapid failures — give up
+      if (voiceFailCount.current >= 3) {
+        voiceIntentRef.current = false
+        voiceFailCount.current = 0
+        setIsListening(false)
+        return
+      }
+      // Restart after a short delay so we don't spin
+      voiceRestartTimer.current = setTimeout(() => {
+        voiceRestartTimer.current = null
+        if (voiceIntentRef.current) startRecognition()
+      }, 300)
+    }
+
+    recognition.onerror = (e: unknown) => {
+      const error = (e as { error?: string }).error
+      if (error === 'not-allowed' || error === 'service-not-allowed' || error === 'language-not-supported') {
+        voiceIntentRef.current = false
+        recognitionRef.current = null
+        setIsListening(false)
+      }
+      // Other errors (no-speech, audio-capture, network, aborted) — onend will handle restart
+    }
+
+    recognitionRef.current = recognition
+    voiceLastStart.current = Date.now()
+    recognition.start()
+  }, [])
+
+  const toggleVoice = useCallback(() => {
+    if (isListening) {
+      voiceIntentRef.current = false
+      if (voiceRestartTimer.current) { clearTimeout(voiceRestartTimer.current); voiceRestartTimer.current = null }
+      recognitionRef.current?.stop()
+      return
+    }
+    voiceIntentRef.current = true
+    voiceFailCount.current = 0
+    setIsListening(true)
+    startRecognition()
+  }, [isListening, startRecognition])
+
+  // Stop recognition on unmount
+  useEffect(() => () => {
+    voiceIntentRef.current = false
+    if (voiceRestartTimer.current) { clearTimeout(voiceRestartTimer.current); voiceRestartTimer.current = null }
+    recognitionRef.current?.abort()
+  }, [])
 
   // ── File picker ────────────────────────────────────────────────────────────
   const [filePicker, setFilePicker] = useState<FilePicker | null>(null)
@@ -458,18 +584,26 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
   )
 
   // ── Auto-scroll ────────────────────────────────────────────────────────────
+  // Debounced to avoid stacking smooth-scroll animations during streaming,
+  // which can cause the browser to spend all its time computing scroll positions.
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current)
+    scrollTimerRef.current = setTimeout(() => {
+      scrollTimerRef.current = null
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, 80)
   }, [messages, commitCards])
 
   // ── Auto-send initial message ──────────────────────────────────────────────
+  // Skip if a conversation already exists (e.g. page refresh with router state preserved).
   useEffect(() => {
-    if (initialMessage && sentInitialRef.current !== initialMessage) {
+    if (initialMessage && !hasConversation && sentInitialRef.current !== initialMessage) {
       sentInitialRef.current = initialMessage
       sendMessage(initialMessage)
       onInitialMessageSent?.()
     }
-  }, [initialMessage, sendMessage, onInitialMessageSent])
+  }, [initialMessage, hasConversation, sendMessage, onInitialMessageSent])
 
   // ── Auto-send pending message (e.g. "Fix with AI") ────────────────────────
   // Initialize ref with current key so remounting (conversation switch) won't re-send.
@@ -730,8 +864,12 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
 
   // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(async () => {
+    // Stop voice recognition on submit
+    voiceIntentRef.current = false
+    recognitionRef.current?.stop()
+
     const trimmed = inputValue.trim()
-    if ((!trimmed && attachedFiles.length === 0) || isLoading) return
+    if (!trimmed && attachedFiles.length === 0) return
 
     // Handle /model <name> command locally
     const modelCmdMatch = trimmed.match(/^\/model(?:\s+(.+))?$/i)
@@ -834,7 +972,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
     setAttachedFiles([])
     setAttachmentError(null)
     sendMessage(message, chatAttachments.length > 0 ? chatAttachments : undefined)
-  }, [attachedFiles, http, inputValue, isLoading, projectId, sendMessage])
+  }, [attachedFiles, http, inputValue, projectId, sendMessage])
 
   // ── Keyboard ───────────────────────────────────────────────────────────────
   const filteredCmds = commandMenu ? COMMANDS.filter((c) => c.label.startsWith(inputValue)) : []
@@ -1061,6 +1199,14 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
                         </span>
                       ))}
                     </div>
+                  )}
+                  {msg.queued && (
+                    <span
+                      className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                      style={{ display: 'block', marginTop: 2, fontStyle: 'italic' }}
+                    >
+                      {t('ide.chat.queued', undefined, { defaultValue: 'Queued' })}
+                    </span>
                   )}
                 </div>
               ) : (
@@ -1724,25 +1870,53 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
                 <path d="M14 5.5L7.5 12a3.54 3.54 0 01-5-5L9 .5a2.12 2.12 0 013 3l-6.5 6.5a.71.71 0 01-1-1L11 2.5" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
-            <div style={{ marginLeft: '4px' }}>
-              {isLoading ? (
+            {/* Voice input button — only rendered when Web Speech API is available */}
+            {hasSpeechRecognition && (
+              <button
+                type="button"
+                className={cm.textSize('xs')}
+                onClick={toggleVoice}
+                title={t('ide.chat.voice', undefined, { defaultValue: isListening ? 'Stop dictation' : 'Dictate' })}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: isListening ? 'rgb(239,68,68)' : 'inherit',
+                  opacity: isListening ? 1 : 0.4,
+                  padding: '2px 5px',
+                  borderRadius: '3px',
+                  fontFamily: 'inherit',
+                  transition: 'opacity 100ms, color 100ms',
+                }}
+                onMouseEnter={(e) => { if (!isListening) e.currentTarget.style.opacity = '0.85' }}
+                onMouseLeave={(e) => { if (!isListening) e.currentTarget.style.opacity = '0.4' }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" style={{ display: 'block' }}>
+                  <rect x="6" y="1" width="4" height="8" rx="2" fill={isListening ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.25" />
+                  <path d="M4 7v1a4 4 0 008 0V7" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+                  <line x1="8" y1="12" x2="8" y2="15" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+                  <line x1="6" y1="15" x2="10" y2="15" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
+            <div style={{ marginLeft: '4px', display: 'flex', gap: '4px' }}>
+              {isLoading && (
                 <button type="button" onClick={abort} className={cm.button({ color: 'error', size: 'sm' })}>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="17" height="17" style={{ display: 'block' }}>
                     <rect x="4" y="4" width="8" height="8" rx="1" fill="currentColor" />
                   </svg>
                 </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => void handleSubmit()}
-                  disabled={!inputValue.trim() && attachedFiles.length === 0}
-                  className={cm.button({ color: 'primary', size: 'sm' })}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="17" height="17" style={{ display: 'block' }}>
-                    <path d="M 4,8 L 8,4 L 12,8 M 8,4 L 8,13" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
               )}
+              <button
+                type="button"
+                onClick={() => void handleSubmit()}
+                disabled={!inputValue.trim() && attachedFiles.length === 0}
+                className={cm.button({ color: 'primary', size: 'sm' })}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="17" height="17" style={{ display: 'block' }}>
+                  <path d="M 4,8 L 8,4 L 12,8 M 8,4 L 8,13" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>

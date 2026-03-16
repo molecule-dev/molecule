@@ -28,6 +28,12 @@ export class HttpChatProvider implements ChatProvider {
   private config: HttpChatConfig
   private abortController: AbortController | null = null
 
+  /** Maximum number of retries for HTTP 409 (server-side lock not yet released). */
+  private static readonly CONFLICT_MAX_RETRIES = 10
+
+  /** Base delay in ms between 409 retries (doubled each attempt). */
+  private static readonly CONFLICT_BASE_DELAY = 500
+
   constructor(config: HttpChatConfig = {}) {
     this.config = config
   }
@@ -56,36 +62,65 @@ export class HttpChatProvider implements ChatProvider {
     // AbortErrors thrown at any stage (fetch, response.text(), reader.read())
     // are all handled uniformly rather than propagating to the caller.
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...this.config.headers,
-        },
-        body: JSON.stringify({
-          message,
-          model: config.model,
-          ...(attachments?.length ? { attachments } : {}),
-        }),
-        signal: this.abortController.signal,
-      })
+      // Retry loop for HTTP 409 — the server holds a per-conversation lock
+      // that may not be released yet after a page refresh or rapid resend.
+      let response: Response | undefined
+      for (let attempt = 0; attempt <= HttpChatProvider.CONFLICT_MAX_RETRIES; attempt++) {
+        response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...this.config.headers,
+          },
+          body: JSON.stringify({
+            message,
+            model: config.model,
+            ...(attachments?.length ? { attachments } : {}),
+            ...(config.resume ? { resume: true } : {}),
+          }),
+          signal: this.abortController.signal,
+        })
 
-      if (!response.ok) {
-        const text = await response
+        if (response.status !== 409) break
+
+        // Consume the 409 response body to free the connection for the next attempt
+        await response.text().catch(() => {})
+
+        // 409 Conflict — server lock still held. Wait with exponential backoff.
+        if (attempt < HttpChatProvider.CONFLICT_MAX_RETRIES) {
+          const delay = HttpChatProvider.CONFLICT_BASE_DELAY * 2 ** attempt
+          await new Promise<void>((resolve) => {
+            const timer = setTimeout(resolve, delay)
+            // If aborted while waiting, resolve immediately so the AbortError
+            // is thrown on the next fetch attempt rather than hanging.
+            this.abortController?.signal.addEventListener(
+              'abort',
+              () => {
+                clearTimeout(timer)
+                resolve()
+              },
+              { once: true },
+            )
+          })
+        }
+      }
+
+      if (!response!.ok) {
+        const text = await response!
           .text()
           .catch(() => t('chat.error.unknownError', undefined, { defaultValue: 'Unknown error' }))
         onEvent({
           type: 'error',
           message: t(
             'chat.error.httpError',
-            { status: response.status, text },
+            { status: response!.status, text },
             { defaultValue: 'HTTP {{status}}: {{text}}' },
           ),
         })
         return
       }
 
-      if (!response.body) {
+      if (!response!.body) {
         onEvent({
           type: 'error',
           message: t('chat.error.noResponseBody', undefined, { defaultValue: 'No response body' }),
@@ -93,7 +128,7 @@ export class HttpChatProvider implements ChatProvider {
         return
       }
 
-      const reader = response.body.getReader()
+      const reader = response!.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
 
