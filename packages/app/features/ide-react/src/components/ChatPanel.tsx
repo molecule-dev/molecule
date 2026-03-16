@@ -2146,7 +2146,7 @@ export function ChatPanel({
   const activeConv = conversations.find((c) => c.id === activeConversationId)
 
   return (
-    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, className)}>
+    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, cm.borderR, className)}>
 
       {/* ── Header: conversation selector ── */}
       <div
@@ -2157,7 +2157,7 @@ export function ChatPanel({
           cm.shrink0,
           cm.borderB,
         )}
-        style={{ position: 'relative', minHeight: '36px', zIndex: 10 }}
+        style={{ position: 'relative', height: '33px', zIndex: 10 }}
       >
         {/* Conversation picker button */}
         <button

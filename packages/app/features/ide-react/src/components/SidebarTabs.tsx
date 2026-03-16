@@ -79,7 +79,7 @@ export function SidebarTabs({
 
   return (
     <div
-      className={cm.cn(cm.h('full'), className)}
+      className={cm.cn(cm.h('full'), cm.borderR, className)}
       style={{ display: 'flex', flexDirection: 'column' }}
     >
       <div
@@ -121,7 +121,6 @@ export function SidebarTabs({
             cm.textSize('sm'),
             cm.shrink0,
             cm.cursorPointer,
-            cm.borderR,
             activeTab === 'search' && cm.surface,
             activeTab === 'search' && cm.borderBPrimary,
           )}

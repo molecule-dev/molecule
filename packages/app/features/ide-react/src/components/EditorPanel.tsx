@@ -173,7 +173,7 @@ export function EditorPanel({
   }, [mount, dispose])
 
   return (
-    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, className)}>
+    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, cm.borderR, className)}>
       {/* Tab bar */}
       <TabBar
         tabs={tabs}
