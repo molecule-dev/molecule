@@ -157,11 +157,10 @@ function TabItem({
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      style={{ userSelect: 'none' }}
+      style={{ userSelect: 'none', height: '32px' }}
       className={cm.cn(
         cm.flex({ direction: 'row', align: 'center', gap: 'xs' }),
         cm.sp('px', 3),
-        cm.sp('py', 2),
         cm.textSize('sm'),
         cm.shrink0,
         cm.cursorPointer,
@@ -250,34 +249,30 @@ export function TabBar({
   if (tabs.length === 0) return null
 
   return (
-    <div
-      ref={scrollRef}
-      className={cm.cn(
-        cm.flex({ direction: 'row', align: 'center' }),
-        cm.shrink0,
-        cm.surfaceSecondary,
-        cm.borderB,
-        className,
-      )}
-      style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
-      role="tablist"
-    >
-      {tabs.map((tab) => (
-        <TabItem
-          key={tab.path}
-          path={tab.path}
-          isDirty={tab.isDirty}
-          isActive={tab.path === activeFile}
-          isPreview={tab.isPreview}
-          gitStatus={fileStatuses?.[tab.path]}
-          diagnostics={tab.diagnostics}
-          onSelect={onSelect}
-          onClose={onClose}
-          onDoubleClick={onDoubleClick}
-          statusColors={statusColors}
-          diagnosticColors={diagnosticColors}
-        />
-      ))}
+    <div className={cm.cn(cm.shrink0, cm.surfaceSecondary, cm.borderB, className)}>
+      <div
+        ref={scrollRef}
+        className={cm.flex({ direction: 'row', align: 'center' })}
+        style={{ overflowX: 'auto', scrollbarWidth: 'none', height: '32px' }}
+        role="tablist"
+      >
+        {tabs.map((tab) => (
+          <TabItem
+            key={tab.path}
+            path={tab.path}
+            isDirty={tab.isDirty}
+            isActive={tab.path === activeFile}
+            isPreview={tab.isPreview}
+            gitStatus={fileStatuses?.[tab.path]}
+            diagnostics={tab.diagnostics}
+            onSelect={onSelect}
+            onClose={onClose}
+            onDoubleClick={onDoubleClick}
+            statusColors={statusColors}
+            diagnosticColors={diagnosticColors}
+          />
+        ))}
+      </div>
     </div>
   )
 }

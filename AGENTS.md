@@ -78,6 +78,10 @@ Core packages (`packages/api/core/*`, `packages/app/core/*`) contain ONLY interf
 
 No CSS class names (`"flex"`, `"p-4"`, `"btn-primary"`, `"items-center"`, etc.) may appear in ANY package except ClassMap bond packages (e.g., `@molecule/app-ui-tailwind`). This includes templates, components, tests, and generated code. Use `getClassMap()` from `@molecule/app-ui` instead. Swapping one styling library for another should only require changing the ClassMap bond — nothing else.
 
+**Inline styles must never conflict with ClassMap classes.** Inline styles have higher CSS specificity than classes — setting `background`, `border`, `color`, etc. inline will silently override any ClassMap class controlling the same property (e.g., `cm.surface`, `cm.borderBPrimary`). If a property is managed by a ClassMap class, do not set it inline.
+
+**Before using any ClassMap class, check what it resolves to.** ClassMap classes are defined in the bond package (e.g., `@molecule/app-ui-tailwind/src/components.ts`). Read the actual definition to understand what CSS properties it sets — do not guess. This takes seconds and prevents cascading mistakes.
+
 ### 6. No Raw SQL in Handlers
 
 Handler code uses abstract DataStore methods (`findOne`, `findMany`, `create`, `updateById`, `deleteById`). Raw SQL only in database bond packages, migration scripts, or complex queries wrapped in dedicated functions.
@@ -134,6 +138,8 @@ Sorted by: `node:` builtins → external packages → `@molecule/*` → relative
 9. Hardcoded UI text — English strings directly in JSX/templates instead of `t('key')` calls
 10. Embedding translations in feature packages instead of companion locale bonds
 11. Unpinned dependency versions (`^1.0.0` or `~2.3.0` instead of exact `1.0.0`)
+12. Inline styles that override ClassMap classes (e.g., `style={{ background: 'transparent' }}` silently kills `cm.surface`)
+13. Using ClassMap classes without checking their definitions in the bond package first
 
 ---
 
