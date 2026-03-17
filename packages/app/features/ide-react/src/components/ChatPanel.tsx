@@ -341,6 +341,7 @@ interface ChatInnerProps {
   onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
   onFileRevert?: (path: string, content: string) => Promise<void>
   onFileChange?: (path: string, content: string) => void
+  onFileDeleted?: (path: string) => void
   onCommit?: () => void
   onConversationId?: (id: string) => void
   pendingMessage?: string
@@ -366,7 +367,7 @@ interface ChatInnerProps {
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @returns The rendered chat inner component.
  */
-function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, isAnonymous, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, onCommit, onConversationId, pendingMessage, pendingMessageKey, gitStatusTick: externalGitStatusTick }: ChatInnerProps): JSX.Element {
+function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, isAnonymous, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, onFileDeleted, onCommit, onConversationId, pendingMessage, pendingMessageKey, gitStatusTick: externalGitStatusTick }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
@@ -1829,7 +1830,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
                               // Refresh editor if the file is open — fetch fresh content for modified/restored,
                               // or close if it was a new file that got deleted
                               if (f.status === 'untracked' || f.status === 'added') {
-                                onFileChange?.(f.path, '')
+                                onFileDeleted?.(f.path)
                               } else {
                                 // Re-fetch file content from sandbox to update editor
                                 http
@@ -2079,6 +2080,7 @@ export function ChatPanel({
   onFileDiff,
   onFileRevert,
   onFileChange,
+  onFileDeleted,
   onCommit,
   gitStatusTick,
   pendingMessage,
@@ -2349,6 +2351,7 @@ export function ChatPanel({
         onFileDiff={onFileDiff}
         onFileRevert={onFileRevert}
         onFileChange={onFileChange}
+        onFileDeleted={onFileDeleted}
         onCommit={onCommit}
         onConversationId={persistConversationId}
         pendingMessage={pendingMessage}
