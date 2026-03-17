@@ -1854,6 +1854,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
                           cursor: 'pointer',
                           opacity: 0.5,
                           transition: 'opacity 100ms, background 100ms',
+                          ...!(f.additions || f.deletions) ? { marginLeft: 'auto' } : {},
                         }}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
