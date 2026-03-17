@@ -1,8 +1,9 @@
 import { v4 as uuid } from 'uuid'
 
-import { getLogger } from '@molecule/api-bond'
+import { getAnalytics, getLogger } from '@molecule/api-bond'
 import { create, deleteMany, findMany, findOne, updateById } from '@molecule/api-database'
 const logger = getLogger()
+const analytics = getAnalytics()
 import { resource } from './resource.js'
 import type { DeviceService } from './types.js'
 
@@ -39,6 +40,9 @@ export const deviceService: DeviceService = {
         name: deviceName,
       })
 
+      analytics
+        .track({ name: 'device.registered', userId, properties: { deviceId } })
+        .catch(() => {})
       return deviceId
     } catch (error) {
       logger.error(error)

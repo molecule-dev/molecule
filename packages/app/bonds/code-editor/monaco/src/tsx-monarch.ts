@@ -317,6 +317,10 @@ const tsxLanguageDef: Record<string, any> = {
  * Registers the JSX-aware tokenizer and defines the molecule-dark theme.
  *
  * @param monaco - The Monaco module instance with languages and editor APIs.
+ * @param monaco.languages - The languages API namespace.
+ * @param monaco.languages.setMonarchTokensProvider - Registers a Monarch tokenizer for a language.
+ * @param monaco.editor - The editor API namespace.
+ * @param monaco.editor.defineTheme - Defines a custom editor color theme.
  */
 export function registerTsxHighlighting(monaco: {
   languages: {

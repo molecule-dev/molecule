@@ -13,8 +13,9 @@ import type { SidebarTabsProps } from '../types.js'
 
 /**
  * SVG icon for the file tree tab.
- * @param root0
- * @param root0.active
+ * @param root0 - The component props.
+ * @param root0.active - Whether this tab is currently active.
+ * @returns The rendered SVG icon element.
  */
 function FilesIcon({ active }: { active: boolean }): JSX.Element {
   return (
@@ -37,8 +38,9 @@ function FilesIcon({ active }: { active: boolean }): JSX.Element {
 
 /**
  * SVG icon for the search tab (magnifying glass).
- * @param root0
- * @param root0.active
+ * @param root0 - The component props.
+ * @param root0.active - Whether this tab is currently active.
+ * @returns The rendered SVG icon element.
  */
 function SearchIcon({ active }: { active: boolean }): JSX.Element {
   return (

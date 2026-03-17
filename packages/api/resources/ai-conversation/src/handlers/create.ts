@@ -116,6 +116,8 @@ export async function chat(req: MoleculeRequest, res: MoleculeResponse): Promise
 
   let assistantText = ''
   const toolCalls: ChatMessage['toolCalls'] = []
+  let inputTokens = 0
+  let outputTokens = 0
 
   try {
     for await (const event of aiProvider.chat(chatParams)) {
@@ -134,9 +136,17 @@ export async function chat(req: MoleculeRequest, res: MoleculeResponse): Promise
           })
           res.write(`data: ${JSON.stringify(event)}\n\n`)
           break
-        case 'done':
+        case 'done': {
+          const usage = (event as Record<string, unknown>).usage as
+            | { inputTokens?: number; outputTokens?: number }
+            | undefined
+          if (usage) {
+            inputTokens = usage.inputTokens ?? 0
+            outputTokens = usage.outputTokens ?? 0
+          }
           res.write(`data: ${JSON.stringify(event)}\n\n`)
           break
+        }
         case 'error':
           res.write(`data: ${JSON.stringify(event)}\n\n`)
           break
@@ -153,6 +163,23 @@ export async function chat(req: MoleculeRequest, res: MoleculeResponse): Promise
     if (!aborted) {
       res.write(`data: ${JSON.stringify({ type: 'error', message, errorKey })}\n\n`)
     }
+  }
+
+  // Track AI response completion with token usage
+  if (!aborted && (inputTokens > 0 || outputTokens > 0)) {
+    analytics
+      .track({
+        name: 'conversation.ai_response',
+        properties: {
+          projectId,
+          conversationId: conversation.id,
+          model: input.model,
+          inputTokens,
+          outputTokens,
+          toolCallCount: toolCalls!.length,
+        },
+      })
+      .catch(() => {})
   }
 
   // Save assistant message to conversation

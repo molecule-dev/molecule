@@ -1,6 +1,7 @@
-import { getLogger } from '@molecule/api-bond'
+import { getAnalytics, getLogger } from '@molecule/api-bond'
 import { findOne } from '@molecule/api-database'
 const logger = getLogger()
+const analytics = getAnalytics()
 import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest } from '@molecule/api-resource'
 import { update as resourceUpdate } from '@molecule/api-resource'
@@ -96,7 +97,15 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
         }
       }
 
-      return await updateResource({ id: id as string, props })
+      const result = await updateResource({ id: id as string, props })
+      analytics
+        .track({
+          name: 'user.profile_updated',
+          userId: id,
+          properties: { fields: Object.keys(props) },
+        })
+        .catch(() => {})
+      return result
     } catch (error) {
       logger.error(error)
       return {

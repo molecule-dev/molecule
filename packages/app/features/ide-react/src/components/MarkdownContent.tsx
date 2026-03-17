@@ -9,7 +9,7 @@
  */
 
 import type { JSX, ReactNode } from 'react'
-import { useState } from 'react'
+import { memo, useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -288,7 +288,7 @@ interface MarkdownContentProps {
  * @param root0.isStreaming - Whether to show a streaming indicator at the end.
  * @returns The rendered markdown content element.
  */
-export function MarkdownContent({ text, isStreaming }: MarkdownContentProps): JSX.Element {
+export const MarkdownContent = memo(function MarkdownContent({ text, isStreaming }: MarkdownContentProps): JSX.Element {
   if (!text) {
     return (
       <>
@@ -311,6 +311,4 @@ export function MarkdownContent({ text, isStreaming }: MarkdownContentProps): JS
       {isStreaming && <StreamingIndicator inline />}
     </div>
   )
-}
-
-MarkdownContent.displayName = 'MarkdownContent'
+})

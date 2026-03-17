@@ -6,6 +6,7 @@
 
 import pg from 'pg'
 
+import { getLogger } from '@molecule/api-bond'
 import type { DatabaseConfig, DatabaseConnection, DatabasePool } from '@molecule/api-database'
 
 export * as setup from './setup/index.js'
@@ -28,7 +29,7 @@ function wrapPool(pgPool: pg.Pool): DatabasePool {
   // Handle errors from idle clients in the pool to prevent unhandled exceptions
   // that would crash the process (e.g., network interruption, server restart).
   pgPool.on('error', (err: Error) => {
-    console.error('Unexpected error on idle database client', err.message)
+    getLogger().error('Unexpected error on idle database client', err.message)
   })
 
   return {

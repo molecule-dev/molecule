@@ -51,10 +51,24 @@ export interface ModelDefinition {
   supportsPromptCaching: boolean
   /** Whether the model supports tool use / function calling. */
   supportsTools: boolean
-  /** Provider-specific server tool type for web search (e.g. `'web_search_20250305'`).
+  /**
+   * Provider-specific server tool type for web search (e.g. `'web_search_20250305'`).
    *  When set, the chat handler sends this as a `ServerTool` alongside custom tools.
-   *  Omit if the model/provider does not support native web search. */
+   *  Omit if the model/provider does not support native web search.
+   */
   webSearchToolType?: string
+  /**
+   * Provider-specific server tool type for code execution (e.g. `'code_execution_20250825'`).
+   *  When set, the chat handler sends this as a `ServerTool` for server-side calculations.
+   *  Omit if the model/provider does not support native code execution.
+   */
+  codeExecutionToolType?: string
+  /**
+   * Provider-specific server tool type for web fetch / URL context (e.g. `'web_fetch_20260209'`).
+   *  When set, the chat handler sends this as a `ServerTool` for server-side URL fetching.
+   *  Omit if the model/provider does not support native web fetch.
+   */
+  webFetchToolType?: string
   /** Input price per million tokens in USD. */
   inputPricePerMTok: number
   /** Output price per million tokens in USD. */

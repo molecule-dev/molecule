@@ -27,7 +27,11 @@ const STORAGE_PREFIX = 'mol-chat-'
 
 type QueueEntry = { message: string; attachments?: ChatAttachment[]; userMsgId?: string }
 
-/** Persist the pending message queue for a project. */
+/**
+ * Persist the pending message queue for a project.
+ * @param projectId - The project identifier used as the storage key.
+ * @param queue - The message queue entries to persist.
+ */
 function persistQueue(projectId: string, queue: QueueEntry[]): void {
   try {
     if (queue.length > 0) {
@@ -40,7 +44,11 @@ function persistQueue(projectId: string, queue: QueueEntry[]): void {
   }
 }
 
-/** Load and clear the persisted queue for a project. */
+/**
+ * Load and clear the persisted queue for a project.
+ * @param projectId - The project identifier used as the storage key.
+ * @returns The previously persisted queue entries, or an empty array if none found.
+ */
 function loadPersistedQueue(projectId: string): QueueEntry[] {
   try {
     const raw = sessionStorage.getItem(`${STORAGE_PREFIX}queue-${projectId}`)
@@ -54,7 +62,10 @@ function loadPersistedQueue(projectId: string): QueueEntry[] {
   return []
 }
 
-/** Mark a project as actively streaming. */
+/**
+ * Mark a project as actively streaming.
+ * @param projectId - The project identifier to flag as streaming.
+ */
 function setStreamingFlag(projectId: string): void {
   try {
     sessionStorage.setItem(`${STORAGE_PREFIX}streaming-${projectId}`, '1')
@@ -63,7 +74,10 @@ function setStreamingFlag(projectId: string): void {
   }
 }
 
-/** Clear the streaming flag for a project. */
+/**
+ * Clear the streaming flag for a project.
+ * @param projectId - The project identifier whose streaming flag should be cleared.
+ */
 function clearStreamingFlag(projectId: string): void {
   try {
     sessionStorage.removeItem(`${STORAGE_PREFIX}streaming-${projectId}`)
@@ -72,7 +86,11 @@ function clearStreamingFlag(projectId: string): void {
   }
 }
 
-/** Check and clear the streaming flag — returns true if a stream was interrupted. */
+/**
+ * Check and clear the streaming flag — returns true if a stream was interrupted.
+ * @param projectId - The project identifier to check for an interrupted stream.
+ * @returns True if the streaming flag was set (indicating an interrupted stream), false otherwise.
+ */
 function consumeStreamingFlag(projectId: string): boolean {
   try {
     const val = sessionStorage.getItem(`${STORAGE_PREFIX}streaming-${projectId}`)

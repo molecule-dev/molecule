@@ -2270,9 +2270,9 @@ const WorkspaceContext: Context<WorkspaceProvider | null>
 ### Requirements
 
 Peer dependencies:
-- `@molecule/app-react` ^1.0.0
-- `@molecule/app-lifecycle` ^1.0.0
 - `@molecule/app-keyboard` ^1.0.0
+- `@molecule/app-lifecycle` ^1.0.0
+- `@molecule/app-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-native` >=0.72.0
 - `react-native-safe-area-context` >=4.0.0

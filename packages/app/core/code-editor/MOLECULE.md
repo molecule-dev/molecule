@@ -136,6 +136,8 @@ interface EditorProvider {
   connectLsp?(wsUrl: string): Promise<void>
   /** Disconnect from the LSP server. */
   disconnectLsp?(): void
+  /** Register a callback for when the LSP connection drops unexpectedly. */
+  onLspDisconnect?(cb: () => void): void
   /** Set a file resolver for Go to Definition / Peek Definition cross-file navigation. */
   setFileResolver?(
     resolver: (path: string) => Promise<{ content: string; language?: string } | null>,

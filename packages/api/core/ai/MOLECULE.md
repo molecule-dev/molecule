@@ -102,6 +102,8 @@ Parameters for a chat call.
 interface ChatParams {
   messages: ChatMessage[]
   tools?: AITool[]
+  /** Provider-native server tools (e.g. web search) — executed by the provider, not the caller. */
+  serverTools?: ServerTool[]
   system?: string
   stream?: boolean
   maxTokens?: number
@@ -128,6 +130,25 @@ interface JSONSchema {
   required?: string[]
   description?: string
   enum?: unknown[]
+  [key: string]: unknown
+}
+```
+
+#### `ServerTool`
+
+Provider-native tool handled server-side (e.g., Anthropic's `web_search`).
+
+Unlike `AITool`, server tools are executed by the AI provider itself —
+no client-side `execute` callback is needed. The provider passes them
+through to the API alongside custom tools.
+
+```typescript
+interface ServerTool {
+  /** Provider-specific tool type identifier (e.g. `"web_search_20250305"`). */
+  type: string
+  /** Tool name. */
+  name: string
+  /** Allow additional provider-specific fields (max_uses, etc.). */
   [key: string]: unknown
 }
 ```

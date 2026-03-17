@@ -4,7 +4,7 @@
  * @module
  */
 
-import { getLogger } from '@molecule/api-bond'
+import { getAnalytics, getLogger } from '@molecule/api-bond'
 import { create } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest } from '@molecule/api-resource'
@@ -13,6 +13,7 @@ import { createServicePropsSchema } from '../schema.js'
 import type * as types from '../types.js'
 
 const logger = getLogger()
+const analytics = getAnalytics()
 
 /**
  * Creates a new monitored service. Validates the request body against
@@ -43,6 +44,9 @@ export const createService = ({ tableName }: { tableName: string }) => {
       const result = await create<types.ServiceProps>(tableName, parsed.data)
 
       logger.debug('Service created', { serviceId: result.data?.id })
+      analytics
+        .track({ name: 'service.created', properties: { serviceId: result.data?.id } })
+        .catch(() => {})
       return { statusCode: 201, body: { props: result.data } }
     } catch (error) {
       logger.error(error)

@@ -88,7 +88,10 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]): void {
       normalized: normalizeKeys(s.keys),
     }))
 
-    /** Keydown handler that matches events against registered shortcuts. */
+    /**
+     * Keydown handler that matches events against registered shortcuts.
+     * @param e - The keyboard event to evaluate.
+     */
     function handler(e: KeyboardEvent): void {
       const combo = serializeEvent(e)
       for (const entry of entries) {

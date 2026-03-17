@@ -9,155 +9,24 @@
  */
 
 import type { JSX, ReactNode } from 'react'
-import { useCallback, useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ToolCallCardProps } from '../types.js'
-
-// ---------------------------------------------------------------------------
-// Label + summary helpers
-// ---------------------------------------------------------------------------
+import type { ToolOutput } from './tool-call-utilities.js'
+import {
+  basename,
+  extractFilePath,
+  fileDiffStats,
+  toolLabel,
+  toolSummary,
+} from './tool-call-utilities.js'
 
 type Inp = Record<string, unknown>
-type Out = Record<string, unknown> | string | null | undefined
-
-/**
- * Extracts the last path segment from a file path (e.g. "a/b/c.ts" → "c.ts").
- * @param path - The file path to extract the basename from.
- * @returns The basename string, or empty string if path is undefined.
- */
-function basename(path: string | undefined): string {
-  if (!path) return ''
-  return path.split('/').pop() ?? path
-}
-
-/**
- * Human-readable label for a tool call (e.g. "Edit `ChatPanel.tsx`").
- * @param name - The tool name (e.g. "write_file", "exec_command").
- * @param input - The raw tool input payload.
- * @returns A formatted label string with backtick-wrapped filenames.
- */
-function toolLabel(name: string, input: unknown): string {
-  const inp = (input ?? {}) as Inp
-  const path = inp.path as string | undefined
-  const cmd = inp.command as string | undefined
-  const pattern = inp.pattern as string | undefined
-  const url = inp.url as string | undefined
-
-  switch (name) {
-    case 'list_files':
-      return `List \`${basename(path) || 'project'}\``
-    case 'read_file':
-      return `Read \`${basename(path)}\``
-    case 'write_file':
-      return `Write \`${basename(path)}\``
-    case 'edit_file':
-      return `Edit \`${basename(path)}\``
-    case 'search_files':
-      return `Search \`${pattern ?? ''}\``
-    case 'create_directory':
-      return `Create dir \`${basename(path)}\``
-    case 'rename_file':
-      return `Rename \`${basename(inp.old_path as string | undefined)}\``
-    case 'delete_file':
-      return `Delete \`${basename(path)}\``
-    case 'find_files':
-      return `Find \`${pattern ?? ''}\``
-    case 'web_fetch': {
-      try {
-        return `Fetch ${new URL(url ?? '').hostname}`
-      } catch {
-        return `Fetch ${url ?? ''}`
-      }
-    }
-    case 'exec_command': {
-      const short = (cmd ?? '').slice(0, 60)
-      return `Bash \`${short}${(cmd ?? '').length > 60 ? '…' : ''}\``
-    }
-    case 'ask_user':
-      return (inp.question as string) ?? 'Question'
-    default:
-      return name.replace(/_/g, ' ')
-  }
-}
-
-/**
- * One-line result summary shown beneath the label.
- * @param name - The tool name.
- * @param output - The raw tool output payload.
- * @param status - The execution status (pending, running, done, error).
- * @returns A brief summary string describing the result.
- */
-function toolSummary(name: string, output: Out, status: string): string {
-  if (status === 'pending') return ''
-  if (status === 'running') return 'Running…'
-
-  const out = output as Inp | undefined
-  const hasError = typeof out === 'object' && out !== null && 'error' in out
-
-  if (hasError) {
-    const msg = ((out as { error: string }).error ?? '').toLowerCase()
-    if (msg.includes('not found') || msg.includes('no such file')) return 'Not found'
-    if (msg.includes('permission') || msg.includes('access denied')) return 'Permission denied'
-    return 'Failed'
-  }
-
-  switch (name) {
-    case 'write_file': {
-      const diff = (out as { diff?: { type: string; linesAdded: number; linesRemoved: number } })
-        ?.diff
-      if (!diff) return ''
-      if (diff.type === 'unchanged') return 'Unchanged'
-      return ''
-    }
-    case 'edit_file':
-      return ''
-    case 'list_files': {
-      const entries = (out as { entries?: unknown[] })?.entries
-      return entries != null ? `${entries.length} entries` : ''
-    }
-    case 'read_file':
-      return ''
-    case 'search_files': {
-      const matches = (out as { matches?: unknown[] })?.matches
-      return matches != null ? `${matches.length} match${matches.length === 1 ? '' : 'es'}` : ''
-    }
-    case 'find_files': {
-      const files = (out as { files?: unknown[] })?.files
-      return files != null ? `${files.length} file${files.length === 1 ? '' : 's'}` : ''
-    }
-    case 'create_directory':
-      return ''
-    case 'rename_file':
-      return ''
-    case 'delete_file':
-      return ''
-    case 'web_fetch': {
-      const status_ = (out as { status?: number })?.status
-      if (status_ == null) return ''
-      if (status_ >= 200 && status_ < 300) return ''
-      if (status_ === 404) return 'Not found'
-      if (status_ >= 400 && status_ < 500) return 'Failed'
-      if (status_ >= 500) return 'Server error'
-      return ''
-    }
-    case 'exec_command': {
-      const exitCode = (out as { exitCode?: number })?.exitCode
-      return exitCode != null && exitCode !== 0 ? 'Failed' : ''
-    }
-    case 'ask_user': {
-      if (typeof out === 'string') return out
-      const askOut = out as { status?: string } | undefined
-      if (askOut?.status === 'awaiting_response') return ''
-      return ''
-    }
-    default:
-      return ''
-  }
-}
+type Out = ToolOutput
 
 // ---------------------------------------------------------------------------
 // Label renderer — turns `backtick` segments into inline <code> spans
@@ -390,7 +259,7 @@ function renderOut(name: string, output: unknown): ReactNode {
               exit code {exitCode}
             </div>
           )}
-          {!stdout && !stderr && <span style={{ opacity: 0.5 }}>(no output)</span>}
+          {!stdout && !stderr && <span style={{ opacity: 0.5 }}>{t('ide.toolCall.noOutput', undefined, { defaultValue: '(no output)' })}</span>}
         </div>
       )
     }
@@ -399,20 +268,20 @@ function renderOut(name: string, output: unknown): ReactNode {
       const diff = out.diff as
         | { type: string; linesAdded: number; linesRemoved: number }
         | undefined
-      if (!diff) return <span style={{ opacity: 0.6 }}>Written</span>
-      if (diff.type === 'unchanged') return <span style={{ opacity: 0.6 }}>Unchanged</span>
+      if (!diff) return <span style={{ opacity: 0.6 }}>{t('ide.toolCall.written', undefined, { defaultValue: 'Written' })}</span>
+      if (diff.type === 'unchanged') return <span style={{ opacity: 0.6 }}>{t('ide.toolCall.statusUnchanged', undefined, { defaultValue: 'Unchanged' })}</span>
       return (
         <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px' }}>
           {diff.type === 'new' && (
-            <div style={{ color: '#57ab5a' }}>new file, {diff.linesAdded} lines</div>
+            <div style={{ color: '#57ab5a' }}>{t('ide.toolCall.newFileLines', { count: diff.linesAdded }, { defaultValue: 'new file, {{count}} lines' })}</div>
           )}
           {diff.type === 'modified' && (
             <>
               {diff.linesAdded > 0 && (
-                <div style={{ color: '#57ab5a' }}>+{diff.linesAdded} lines</div>
+                <div style={{ color: '#57ab5a' }}>{t('ide.toolCall.linesAdded', { count: diff.linesAdded }, { defaultValue: '+{{count}} lines' })}</div>
               )}
               {diff.linesRemoved > 0 && (
-                <div style={{ color: '#f47067' }}>−{diff.linesRemoved} lines</div>
+                <div style={{ color: '#f47067' }}>{t('ide.toolCall.linesRemoved', { count: diff.linesRemoved }, { defaultValue: '−{{count}} lines' })}</div>
               )}
             </>
           )}
@@ -424,23 +293,23 @@ function renderOut(name: string, output: unknown): ReactNode {
       const n = out.replacementsApplied as number | undefined
       return (
         <span style={{ opacity: 0.6, fontSize: '11px' }}>
-          {n != null ? `${n} change${n === 1 ? '' : 's'} applied` : 'Applied'}
+          {n != null ? t('ide.toolCall.changesApplied', { count: n }, { defaultValue: '{{count}} changes applied' }) : t('ide.toolCall.applied', undefined, { defaultValue: 'Applied' })}
         </span>
       )
     }
 
     case 'read_file': {
       const content = out.content as string | undefined
-      if (!content) return <span style={{ opacity: 0.5 }}>(empty)</span>
+      if (!content) return <span style={{ opacity: 0.5 }}>{t('ide.toolCall.empty', undefined, { defaultValue: '(empty)' })}</span>
       const truncated = content.length > 3000
       return (
-        <pre style={PRE}>{truncated ? content.slice(0, 3000) + '\n… (truncated)' : content}</pre>
+        <pre style={PRE}>{truncated ? content.slice(0, 3000) + '\n' + t('ide.toolCall.truncated', undefined, { defaultValue: '… (truncated)' }) : content}</pre>
       )
     }
 
     case 'list_files': {
       const entries = out.entries as Array<{ name: string; type: string }> | undefined
-      if (!entries?.length) return <span style={{ opacity: 0.5 }}>(empty)</span>
+      if (!entries?.length) return <span style={{ opacity: 0.5 }}>{t('ide.toolCall.empty', undefined, { defaultValue: '(empty)' })}</span>
       return (
         <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px', lineHeight: 1.6 }}>
           {entries.map((e, i) => (
@@ -460,7 +329,7 @@ function renderOut(name: string, output: unknown): ReactNode {
 
     case 'find_files': {
       const files = out.files as string[] | undefined
-      if (!files?.length) return <span style={{ opacity: 0.5 }}>No files found</span>
+      if (!files?.length) return <span style={{ opacity: 0.5 }}>{t('ide.toolCall.noFilesFound', undefined, { defaultValue: 'No files found' })}</span>
       return (
         <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px', lineHeight: 1.6 }}>
           {files.map((f, i) => (
@@ -474,7 +343,7 @@ function renderOut(name: string, output: unknown): ReactNode {
       const matches = out.matches as
         | Array<{ file: string; line: number; content: string }>
         | undefined
-      if (!matches?.length) return <span style={{ opacity: 0.5 }}>No matches</span>
+      if (!matches?.length) return <span style={{ opacity: 0.5 }}>{t('ide.toolCall.noMatches', undefined, { defaultValue: 'No matches' })}</span>
       return (
         <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px', lineHeight: 1.6 }}>
           {matches.slice(0, 30).map((m, i) => (
@@ -486,7 +355,7 @@ function renderOut(name: string, output: unknown): ReactNode {
             </div>
           ))}
           {matches.length > 30 && (
-            <div style={{ opacity: 0.5, marginTop: '4px' }}>… and {matches.length - 30} more</div>
+            <div style={{ opacity: 0.5, marginTop: '4px' }}>{t('ide.toolCall.andMore', { count: matches.length - 30 }, { defaultValue: '… and {{count}} more' })}</div>
           )}
         </div>
       )
@@ -511,7 +380,7 @@ function renderOut(name: string, output: unknown): ReactNode {
           )}
           {body && (
             <pre style={PRE}>
-              {body.length > 2000 ? body.slice(0, 2000) + '\n… (truncated)' : body}
+              {body.length > 2000 ? body.slice(0, 2000) + '\n' + t('ide.toolCall.truncated', undefined, { defaultValue: '… (truncated)' }) : body}
             </pre>
           )}
         </div>
@@ -526,97 +395,6 @@ function renderOut(name: string, output: unknown): ReactNode {
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
-
-/**
- * Compact tool-call row with a colored status dot, human-readable label,
- * result summary, and expandable detail pane with smart per-tool rendering.
- * @param root0 - Component props.
- * @param root0.name - Tool name (e.g. `write_file`).
- * @param root0.input - Raw tool input.
- * @param root0.output - Raw tool output.
- * @param root0.status - Execution status.
- * @param root0.className - Optional CSS class.
- * @returns Rendered tool call row.
- */
-/**
- * Count truly added/removed lines between two line arrays using LCS.
- * @param oldLines - The original lines array.
- * @param newLines - The modified lines array.
- * @returns An object with the number of added and removed lines.
- */
-function diffLineCount(oldLines: string[], newLines: string[]): { added: number; removed: number } {
-  const n = oldLines.length
-  const m = newLines.length
-  const dp: number[][] = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0) as number[])
-  for (let i = 1; i <= n; i++) {
-    for (let j = 1; j <= m; j++) {
-      dp[i][j] =
-        oldLines[i - 1] === newLines[j - 1]
-          ? dp[i - 1][j - 1] + 1
-          : Math.max(dp[i - 1][j], dp[i][j - 1])
-    }
-  }
-  const common = dp[n][m]
-  return { added: m - common, removed: n - common }
-}
-
-/**
- * Compute lines added/removed from a file-changing tool call.
- * @param name - The tool name (edit_file or write_file).
- * @param input - The raw tool input payload.
- * @param output - The raw tool output payload.
- * @returns Diff stats with added and removed line counts, or null if not applicable.
- */
-function fileDiffStats(
-  name: string,
-  input: unknown,
-  output: unknown,
-): { added: number; removed: number } | null {
-  if (name === 'edit_file') {
-    const inp = (input ?? {}) as Inp
-    const replacements = Array.isArray(inp.replacements)
-      ? (inp.replacements as Array<{ old_string: string; new_string: string }>)
-      : []
-    if (replacements.length === 0) return null
-    let added = 0
-    let removed = 0
-    for (const r of replacements) {
-      const d = diffLineCount(r.old_string.split('\n'), r.new_string.split('\n'))
-      added += d.added
-      removed += d.removed
-    }
-    return { added, removed }
-  }
-  if (name === 'write_file') {
-    const diff = (output as Inp)?.diff as
-      | { type: string; linesAdded: number; linesRemoved: number }
-      | undefined
-    if (!diff || diff.type === 'unchanged') return null
-    if (diff.type === 'new') return { added: diff.linesAdded, removed: 0 }
-    return { added: diff.linesAdded, removed: diff.linesRemoved }
-  }
-  return null
-}
-
-/**
- * Extracts the primary file path from a tool's input, if it operates on a single file.
- * @param name - The tool name.
- * @param input - The raw tool input payload.
- * @returns The file path string, or null if the tool doesn't target a single file.
- */
-function extractFilePath(name: string, input: unknown): string | null {
-  const inp = (input ?? {}) as Record<string, unknown>
-  switch (name) {
-    case 'read_file':
-    case 'write_file':
-    case 'edit_file':
-      return (inp.path as string) || null
-    case 'rename_file':
-      return (inp.new_path as string) || null
-    default:
-      return null
-  }
-}
 
 /**
  * Compact tool-call row with status dot, label, summary, and expandable detail pane.
@@ -634,7 +412,7 @@ function extractFilePath(name: string, input: unknown): string | null {
  * @param root0.className - Optional CSS class name for the container.
  * @returns The rendered tool call card element.
  */
-export function ToolCallCard({
+export const ToolCallCard = memo(function ToolCallCard({
   name,
   input,
   output,
@@ -1228,6 +1006,4 @@ export function ToolCallCard({
       )}
     </div>
   )
-}
-
-ToolCallCard.displayName = 'ToolCallCard'
+})

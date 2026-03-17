@@ -4,7 +4,7 @@
  * @module
  */
 
-import { getLogger } from '@molecule/api-bond'
+import { getAnalytics, getLogger } from '@molecule/api-bond'
 import { deleteById, findById } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest } from '@molecule/api-resource'
@@ -12,6 +12,7 @@ import type { MoleculeRequest } from '@molecule/api-resource'
 import type * as types from '../types.js'
 
 const logger = getLogger()
+const analytics = getAnalytics()
 
 /**
  * Deletes a monitored service by ID. Returns 404 if the service does not exist.
@@ -40,6 +41,7 @@ export const deleteService = ({ tableName }: { tableName: string }) => {
       await deleteById(tableName, id)
 
       logger.debug('Service deleted', { id })
+      analytics.track({ name: 'service.deleted', properties: { serviceId: id } }).catch(() => {})
       return { statusCode: 200, body: { props: { id } } }
     } catch (error) {
       logger.error(error)

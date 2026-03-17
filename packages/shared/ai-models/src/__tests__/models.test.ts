@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatTokenCount, getModel, MODELS } from '../models.js'
+import {
+  formatTokenCount,
+  getAvailableModels,
+  getModel,
+  getModelsByProvider,
+  MODEL_IDS,
+  MODELS,
+} from '../models.js'
 
 // ---------------------------------------------------------------------------
 // formatTokenCount rounding
@@ -198,5 +205,90 @@ describe('getModel', () => {
 
   it('returns undefined for unknown ID', () => {
     expect(getModel('nonexistent-model')).toBeUndefined()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// MODEL_IDS set
+// ---------------------------------------------------------------------------
+
+describe('MODEL_IDS', () => {
+  it('contains every model ID from MODELS', () => {
+    for (const model of MODELS) {
+      expect(MODEL_IDS.has(model.id)).toBe(true)
+    }
+  })
+
+  it('has the same size as MODELS', () => {
+    expect(MODEL_IDS.size).toBe(MODELS.length)
+  })
+
+  it('returns false for unknown IDs', () => {
+    expect(MODEL_IDS.has('nonexistent-model')).toBe(false)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getModelsByProvider
+// ---------------------------------------------------------------------------
+
+describe('getModelsByProvider', () => {
+  it('returns Anthropic models', () => {
+    const models = getModelsByProvider('anthropic')
+    expect(models.length).toBeGreaterThan(0)
+    for (const m of models) {
+      expect(m.provider).toBe('anthropic')
+    }
+  })
+
+  it('returns models for each provider that has entries', () => {
+    const providers = [...new Set(MODELS.map((m) => m.provider))]
+    for (const provider of providers) {
+      const models = getModelsByProvider(provider)
+      expect(models.length).toBeGreaterThan(0)
+      for (const m of models) {
+        expect(m.provider).toBe(provider)
+      }
+    }
+  })
+
+  it('returns all models for a provider (not a subset)', () => {
+    const providers = [...new Set(MODELS.map((m) => m.provider))]
+    for (const provider of providers) {
+      const expected = MODELS.filter((m) => m.provider === provider).length
+      expect(getModelsByProvider(provider).length).toBe(expected)
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getAvailableModels
+// ---------------------------------------------------------------------------
+
+describe('getAvailableModels', () => {
+  it('returns models only from available providers (Set)', () => {
+    const available = new Set<(typeof MODELS)[number]['provider']>(['anthropic'])
+    const models = getAvailableModels(available)
+    expect(models.length).toBeGreaterThan(0)
+    for (const m of models) {
+      expect(m.provider).toBe('anthropic')
+    }
+  })
+
+  it('accepts an array of providers', () => {
+    const models = getAvailableModels(['anthropic', 'openai'])
+    expect(models.length).toBeGreaterThan(0)
+    for (const m of models) {
+      expect(['anthropic', 'openai']).toContain(m.provider)
+    }
+  })
+
+  it('returns empty for empty provider set', () => {
+    expect(getAvailableModels(new Set())).toEqual([])
+  })
+
+  it('returns all models when all providers are available', () => {
+    const allProviders = new Set(MODELS.map((m) => m.provider))
+    expect(getAvailableModels(allProviders).length).toBe(MODELS.length)
   })
 })

@@ -4,7 +4,7 @@
  * @module
  */
 
-import { getLogger } from '@molecule/api-bond'
+import { getAnalytics, getLogger } from '@molecule/api-bond'
 import { findById, updateById } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest } from '@molecule/api-resource'
@@ -13,6 +13,7 @@ import { updateServicePropsSchema } from '../schema.js'
 import type * as types from '../types.js'
 
 const logger = getLogger()
+const analytics = getAnalytics()
 
 /**
  * Updates an existing monitored service by ID. Validates the request body
@@ -60,6 +61,7 @@ export const updateService = ({ tableName }: { tableName: string }) => {
       const result = await updateById<types.ServiceProps>(tableName, id, data)
 
       logger.debug('Service updated', { id })
+      analytics.track({ name: 'service.updated', properties: { serviceId: id } }).catch(() => {})
       return { statusCode: 200, body: { props: result.data } }
     } catch (error) {
       logger.error(error)

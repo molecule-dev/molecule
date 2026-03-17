@@ -33,10 +33,10 @@
     "@angular/platform-browser": "21.1.5",
     "@molecule/app-i18n": "1.0.0",
     "@molecule/app-icons": "1.0.0",
-    "@types/node": "25.3.0",
+    "@types/node": "25.5.0",
     "rxjs": "7.8.2",
     "typescript": "5.9.3",
-    "vitest": "4.0.18",
+    "vitest": "4.1.0",
     "zone.js": "0.16.1"
   },
   "repository": {

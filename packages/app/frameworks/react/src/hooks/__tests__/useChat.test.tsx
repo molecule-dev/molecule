@@ -23,8 +23,9 @@ interface Deferred {
  * Creates a mock ChatProvider where each `sendMessage` call returns a promise
  * that the test controls. Use `complete(i)` to emit a `done` event and resolve
  * the i-th call, or `completeWithError(i, msg)` for an error event.
+ * @returns The mock provider, deferred list, and helper methods to control responses.
  */
-function createMockProvider() {
+function createMockProvider(): { provider: ChatProvider; deferreds: Deferred[]; complete: (index: number) => void; completeWithError: (index: number, message: string) => void; emitText: (index: number, content: string) => void; emit: (index: number, event: ChatStreamEvent) => void } {
   const deferreds: Deferred[] = []
 
   const provider: ChatProvider = {
@@ -50,25 +51,40 @@ function createMockProvider() {
   return {
     provider,
     deferreds,
-    /** Emit a `done` event and resolve the i-th sendMessage call. */
+    /**
+     * Emit a `done` event and resolve the i-th sendMessage call.
+     * @param index - The zero-based index of the sendMessage call to complete.
+     */
     complete(index: number) {
       const d = deferreds[index]
       d.onEvent({ type: 'done' })
       d.settled = true
       d.resolve()
     },
-    /** Emit an `error` event and resolve the i-th sendMessage call. */
+    /**
+     * Emit an `error` event and resolve the i-th sendMessage call.
+     * @param index - The zero-based index of the sendMessage call to complete with an error.
+     * @param message - The error message to include in the error event.
+     */
     completeWithError(index: number, message: string) {
       const d = deferreds[index]
       d.onEvent({ type: 'error', message })
       d.settled = true
       d.resolve()
     },
-    /** Emit a `text` event on the i-th call. */
+    /**
+     * Emit a `text` event on the i-th call.
+     * @param index - The zero-based index of the sendMessage call to emit text on.
+     * @param content - The text content to emit.
+     */
     emitText(index: number, content: string) {
       deferreds[index].onEvent({ type: 'text', content })
     },
-    /** Emit an arbitrary event on the i-th call. */
+    /**
+     * Emit an arbitrary event on the i-th call.
+     * @param index - The zero-based index of the sendMessage call to emit on.
+     * @param event - The chat stream event to emit.
+     */
     emit(index: number, event: ChatStreamEvent) {
       deferreds[index].onEvent(event)
     },
@@ -77,7 +93,12 @@ function createMockProvider() {
 
 // ── Test wrapper ──────────────────────────────────────────────────────────
 
-function createWrapper(chatProvider: ChatProvider) {
+/**
+ * Creates a React wrapper component that provides the given ChatProvider via context.
+ * @param chatProvider - The ChatProvider instance to inject into the component tree.
+ * @returns A wrapper component that renders children within the ChatContext.
+ */
+function createWrapper(chatProvider: ChatProvider): ({ children }: { children: ReactNode }) => React.JSX.Element {
   return function Wrapper({ children }: { children: ReactNode }): React.JSX.Element {
     return <ChatContext.Provider value={chatProvider}>{children}</ChatContext.Provider>
   }
@@ -559,7 +580,7 @@ describe('useChat', () => {
     const { provider, deferreds, emitText, complete } = createMockProvider()
 
     // Phase 1: server is still streaming (polling)
-    const streamingProvider = provider as { isServerStreaming: boolean }
+    const streamingProvider = provider as unknown as { isServerStreaming: boolean }
     streamingProvider.isServerStreaming = true
     let pollCount = 0
     ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockImplementation(async () => {
@@ -649,7 +670,7 @@ describe('useChat', () => {
     )
 
     const { provider, deferreds, complete } = createMockProvider()
-    const streamingProvider = provider as { isServerStreaming: boolean }
+    const streamingProvider = provider as unknown as { isServerStreaming: boolean }
     streamingProvider.isServerStreaming = false // Server already done
     ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockImplementation(async () => {
       streamingProvider.isServerStreaming = false

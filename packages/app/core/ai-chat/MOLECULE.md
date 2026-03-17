@@ -61,6 +61,8 @@ interface ChatConfig {
   systemPrompt?: string
   /** AI model to use. */
   model?: string
+  /** When true, resume the last interrupted assistant response without adding a user message. */
+  resume?: boolean
 }
 ```
 
@@ -81,6 +83,8 @@ interface ChatMessage {
   isStreaming?: boolean
   /** Set when the user aborted the response mid-stream. */
   aborted?: boolean
+  /** Set on user messages that are queued waiting for the current stream to finish. */
+  queued?: boolean
   /** Set when the agentic loop hit its iteration limit before finishing. */
   loopLimitReached?: number
   /** Persisted commit record for display in conversation history. */

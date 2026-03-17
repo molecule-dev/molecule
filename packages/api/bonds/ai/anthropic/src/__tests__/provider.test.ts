@@ -225,6 +225,57 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       expect(body.tools[1].input_schema).toBeUndefined()
     })
 
+    it('includes multiple server tools (code_execution + web_search + web_fetch) in request body', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers(),
+        body: {
+          getReader: () => ({
+            read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+            releaseLock: vi.fn(),
+          }),
+        },
+      })
+
+      const customTool = {
+        name: 'read_file',
+        description: 'Read a file',
+        parameters: {
+          type: 'object',
+          properties: { path: { type: 'string' } },
+          required: ['path'],
+        },
+        execute: vi.fn(),
+      }
+
+      await collectEvents(
+        provider.chat({
+          ...minimalParams,
+          tools: [customTool],
+          serverTools: [
+            { type: 'code_execution_20250825', name: 'code_execution' },
+            { type: 'web_search_20260209', name: 'web_search' },
+            { type: 'web_fetch_20260209', name: 'web_fetch' },
+          ],
+        }),
+      )
+
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
+      // Should have 1 custom + 3 server tools
+      expect(body.tools).toHaveLength(4)
+      expect(body.tools[0].name).toBe('read_file')
+      expect(body.tools[0].input_schema).toBeDefined()
+      expect(body.tools[1].type).toBe('code_execution_20250825')
+      expect(body.tools[1].name).toBe('code_execution')
+      expect(body.tools[1].input_schema).toBeUndefined()
+      expect(body.tools[2].type).toBe('web_search_20260209')
+      expect(body.tools[2].name).toBe('web_search')
+      expect(body.tools[3].type).toBe('web_fetch_20260209')
+      expect(body.tools[3].name).toBe('web_fetch')
+    })
+
     it('sends only server tools when no custom tools provided', async () => {
       mockFetch.mockResolvedValue({
         ok: true,

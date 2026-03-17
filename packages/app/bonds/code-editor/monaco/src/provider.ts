@@ -713,6 +713,7 @@ export class MonacoEditorProvider implements EditorProvider {
    * If a listener callback synchronously triggers another notification (e.g. by
    * calling openFile/setContent/setActiveTab), the nested call is dropped to
    * prevent infinite loops that freeze the browser tab at 100% CPU.
+   * @param event - The editor change event to broadcast to listeners.
    */
   private notifyChangeListeners(event: EditorChangeEvent): void {
     if (this.notifying) return

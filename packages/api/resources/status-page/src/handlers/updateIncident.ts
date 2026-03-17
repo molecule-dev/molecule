@@ -4,7 +4,7 @@
  * @module
  */
 
-import { getLogger } from '@molecule/api-bond'
+import { getAnalytics, getLogger } from '@molecule/api-bond'
 import { findById, updateById } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest } from '@molecule/api-resource'
@@ -13,6 +13,7 @@ import { updateIncidentPropsSchema } from '../schema.js'
 import type * as types from '../types.js'
 
 const logger = getLogger()
+const analytics = getAnalytics()
 
 /**
  * Updates an existing incident by ID. Validates the request body against
@@ -60,6 +61,12 @@ export const updateIncident = ({ tableName: _tableName }: { tableName: string })
       const result = await updateById<types.IncidentProps>('incidents', id, data)
 
       logger.debug('Incident updated', { id })
+      analytics
+        .track({
+          name: 'incident.updated',
+          properties: { incidentId: id, status: parsed.data.status },
+        })
+        .catch(() => {})
       return { statusCode: 200, body: { props: result.data } }
     } catch (error) {
       logger.error(error)

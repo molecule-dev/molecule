@@ -198,7 +198,7 @@ function ThinkingBlock({ content }: { content: string }): JSX.Element {
         >
           <polyline points="6,4 10,8 6,12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <span className={cm.cn(cm.textMuted, cm.textSize('xs'))}>Thinking</span>
+        <span className={cm.cn(cm.textMuted, cm.textSize('xs'))}>{t('ide.chat.thinking', undefined, { defaultValue: 'Thinking' })}</span>
       </button>
       {open && (
         <div
@@ -267,14 +267,14 @@ function CommitCardItem({ card }: { card: CommitCard }): JSX.Element {
             <span style={{ fontSize: '13px' }}>
               {isRunning
                 ? t('ide.chat.committing', undefined, { defaultValue: 'Committing...' })
-                : <>Commit <code style={{ fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace', fontSize: 'inherit' }}>{card.message}</code></>}
+                : <>{t('ide.chat.commitLabel', undefined, { defaultValue: 'Commit' })} <code style={{ fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace', fontSize: 'inherit' }}>{card.message}</code></>}
             </span>
             {hasFiles && !expanded && (
               <span
                 className={cm.cn(cm.textMuted, cm.textSize('xs'))}
                 style={{ display: 'block', marginTop: '1px' }}
               >
-                {card.files.length} {card.files.length === 1 ? 'file' : 'files'}
+                {t('ide.chat.fileCount', { count: card.files.length }, { defaultValue: '{{count}} files' })}
               </span>
             )}
           </span>
@@ -356,15 +356,18 @@ interface ChatInnerProps {
  * @param root0.endpoint - The chat API endpoint URL.
  * @param root0.initialMessage - Optional message to auto-send on mount.
  * @param root0.onInitialMessageSent - Callback fired after the initial message is sent.
+ * @param root0.isAnonymous - Whether the current user is anonymous.
  * @param root0.onFileOpen - Callback to preview a file in the editor.
  * @param root0.onFileDoubleClick - Callback to pin a file tab in the editor.
  * @param root0.onFileDiff - Callback to open a side-by-side diff view.
  * @param root0.onFileRevert - Callback to revert a file to previous content.
  * @param root0.onFileChange - Callback when a file's content changes from AI edits.
+ * @param root0.onFileDeleted - Callback fired when a file is deleted.
  * @param root0.onCommit - Callback fired after a successful commit.
  * @param root0.onConversationId - Callback when the conversation ID is assigned.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
+ * @param root0.gitStatusTick - Counter that increments when git status changes.
  * @returns The rendered chat inner component.
  */
 function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, isAnonymous, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, onFileDeleted, onCommit, onConversationId, pendingMessage, pendingMessageKey, gitStatusTick: externalGitStatusTick }: ChatInnerProps): JSX.Element {
@@ -1755,7 +1758,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
                     ? commitState.message
                     : commitState?.status === 'error'
                       ? t('ide.chat.commitFailed')
-                      : `${pendingFiles.length} uncommitted ${pendingFiles.length === 1 ? 'file' : 'files'}`}
+                      : t('ide.chat.uncommittedFileCount', { count: pendingFiles.length }, { defaultValue: '{{count}} uncommitted files' })}
                 </span>
               </div>
               <button
@@ -2064,9 +2067,12 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
  * @param root0.onFileDiff - Callback to open a side-by-side diff view.
  * @param root0.onFileRevert - Callback to revert a file to previous content.
  * @param root0.onFileChange - Callback when a file's content changes from AI edits.
+ * @param root0.onFileDeleted - Callback fired when a file is deleted.
  * @param root0.onCommit - Callback fired after a successful commit.
+ * @param root0.gitStatusTick - Counter that increments when git status changes.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
+ * @param root0.isAnonymous - Whether the current user is anonymous.
  * @param root0.className - Optional CSS class name for the container.
  * @returns The rendered chat panel element.
  */
@@ -2242,7 +2248,7 @@ export function ChatPanel({
           type="button"
           onClick={handleNewChat}
           className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
-          title="New chat"
+          title={t('ide.chat.newChat', undefined, { defaultValue: 'New chat' })}
           style={{ flexShrink: 0 }}
         >
           +
@@ -2278,7 +2284,7 @@ export function ChatPanel({
               <input
                 value={convSearch}
                 onChange={(e) => setConvSearch(e.target.value)}
-                placeholder="Search conversations…"
+                placeholder={t('ide.chat.searchConversations', undefined, { defaultValue: 'Search conversations…' })}
                 autoFocus
                 className={cm.textSize('xs')}
                 style={{
