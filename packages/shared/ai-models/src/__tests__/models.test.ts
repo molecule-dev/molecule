@@ -47,8 +47,19 @@ describe('webSearchToolType', () => {
     const anthropic = MODELS.filter((m) => m.provider === 'anthropic')
     expect(anthropic.length).toBeGreaterThan(0)
     for (const m of anthropic) {
-      expect(m.webSearchToolType).toBe('web_search_20250305')
+      expect(m.webSearchToolType).toBeDefined()
     }
+    // Opus and Sonnet use the upgraded dynamic-filtering version
+    expect(MODELS.find((m) => m.id === 'claude-opus-4-6')!.webSearchToolType).toBe(
+      'web_search_20260209',
+    )
+    expect(MODELS.find((m) => m.id === 'claude-sonnet-4-6')!.webSearchToolType).toBe(
+      'web_search_20260209',
+    )
+    // Haiku keeps the original version (no code_execution = no dynamic filtering)
+    expect(MODELS.find((m) => m.id === 'claude-haiku-4-5-20251001')!.webSearchToolType).toBe(
+      'web_search_20250305',
+    )
   })
 
   it('is set on OpenAI, xAI, Google, and Zhipu models', () => {
@@ -83,6 +94,92 @@ describe('webSearchToolType', () => {
   it('models without webSearchToolType have it undefined', () => {
     for (const m of modelsWithoutWebSearch) {
       expect(m.webSearchToolType).toBeUndefined()
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// codeExecutionToolType on model definitions
+// ---------------------------------------------------------------------------
+
+describe('codeExecutionToolType', () => {
+  it('is set on Anthropic Opus and Sonnet (not Haiku)', () => {
+    expect(MODELS.find((m) => m.id === 'claude-opus-4-6')!.codeExecutionToolType).toBe(
+      'code_execution_20250825',
+    )
+    expect(MODELS.find((m) => m.id === 'claude-sonnet-4-6')!.codeExecutionToolType).toBe(
+      'code_execution_20250825',
+    )
+    expect(
+      MODELS.find((m) => m.id === 'claude-haiku-4-5-20251001')!.codeExecutionToolType,
+    ).toBeUndefined()
+  })
+
+  it('is set on OpenAI and xAI models as code_interpreter', () => {
+    for (const provider of ['openai', 'xai'] as const) {
+      const models = MODELS.filter((m) => m.provider === provider)
+      expect(models.length).toBeGreaterThan(0)
+      for (const m of models) {
+        expect(m.codeExecutionToolType).toBe('code_interpreter')
+      }
+    }
+  })
+
+  it('is set on Google as code_execution', () => {
+    const google = MODELS.filter((m) => m.provider === 'google')
+    for (const m of google) {
+      expect(m.codeExecutionToolType).toBe('code_execution')
+    }
+  })
+
+  it('is not set on Meta, Moonshot, MiniMax, Alibaba, or Zhipu models', () => {
+    for (const provider of ['meta', 'moonshot', 'minimax', 'alibaba', 'zhipu'] as const) {
+      const models = MODELS.filter((m) => m.provider === provider)
+      for (const m of models) {
+        expect(m.codeExecutionToolType).toBeUndefined()
+      }
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// webFetchToolType on model definitions
+// ---------------------------------------------------------------------------
+
+describe('webFetchToolType', () => {
+  it('is set on Anthropic Opus, Sonnet, and Haiku', () => {
+    expect(MODELS.find((m) => m.id === 'claude-opus-4-6')!.webFetchToolType).toBe(
+      'web_fetch_20260209',
+    )
+    expect(MODELS.find((m) => m.id === 'claude-sonnet-4-6')!.webFetchToolType).toBe(
+      'web_fetch_20260209',
+    )
+    expect(MODELS.find((m) => m.id === 'claude-haiku-4-5-20251001')!.webFetchToolType).toBe(
+      'web_fetch_20250910',
+    )
+  })
+
+  it('is set on Google as url_context', () => {
+    const google = MODELS.filter((m) => m.provider === 'google')
+    for (const m of google) {
+      expect(m.webFetchToolType).toBe('url_context')
+    }
+  })
+
+  it('is not set on OpenAI, xAI, Meta, Moonshot, MiniMax, Alibaba, or Zhipu models', () => {
+    for (const provider of [
+      'openai',
+      'xai',
+      'meta',
+      'moonshot',
+      'minimax',
+      'alibaba',
+      'zhipu',
+    ] as const) {
+      const models = MODELS.filter((m) => m.provider === provider)
+      for (const m of models) {
+        expect(m.webFetchToolType).toBeUndefined()
+      }
     }
   })
 })

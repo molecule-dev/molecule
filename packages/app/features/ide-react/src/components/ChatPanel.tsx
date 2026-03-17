@@ -604,17 +604,28 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
       .catch(() => setPendingFiles(null))
   }, [http, projectId])
 
+  // Debounced version — coalesces rapid ticks (e.g. save → format) into a
+  // single fetch after the last write settles.
+  const gitFetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const debouncedFetchPendingFiles = useCallback(() => {
+    if (gitFetchTimerRef.current) clearTimeout(gitFetchTimerRef.current)
+    gitFetchTimerRef.current = setTimeout(() => {
+      gitFetchTimerRef.current = null
+      fetchPendingFiles()
+    }, 400)
+  }, [fetchPendingFiles])
+
   // Fetch after AI finishes or internal refreshGitStatus() calls
   useEffect(() => {
     if (isLoading) return
     fetchPendingFiles()
   }, [isLoading, gitStatusTick, fetchPendingFiles])
-  // Fetch immediately when the parent signals a file mutation (edit, rename, delete) —
-  // skip the isLoading guard since these are user-initiated, not AI-driven.
+  // Fetch when the parent signals a file mutation (edit, rename, delete) —
+  // debounced so save+format coalesces into one fetch after the final write.
   useEffect(() => {
     if (!externalGitStatusTick) return
-    fetchPendingFiles()
-  }, [externalGitStatusTick, fetchPendingFiles])
+    debouncedFetchPendingFiles()
+  }, [externalGitStatusTick, debouncedFetchPendingFiles])
 
   // Wrap onFileRevert so undo/redo also refreshes git status
   const handleFileRevert = useCallback(
