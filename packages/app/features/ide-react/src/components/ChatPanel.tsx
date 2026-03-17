@@ -596,13 +596,23 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
   // ── Git status ─────────────────────────────────────────────────────────────
   const [gitStatusTick, setGitStatusTick] = useState(0)
   const refreshGitStatus = useCallback(() => setGitStatusTick((n) => n + 1), [])
+  // Fetch after AI finishes or internal refreshGitStatus() calls
   useEffect(() => {
     if (isLoading) return
     http
       .get<{ files: { path: string; status: string; additions?: number; deletions?: number }[] }>(`/projects/${projectId}/git-status`)
       .then((res) => setPendingFiles(res.data.files.length > 0 ? res.data.files : null))
       .catch(() => setPendingFiles(null))
-  }, [isLoading, projectId, gitStatusTick, externalGitStatusTick])
+  }, [isLoading, projectId, gitStatusTick])
+  // Fetch immediately when the parent signals a file mutation (context menu ops) —
+  // skip the isLoading guard since these are user-initiated, not AI-driven.
+  useEffect(() => {
+    if (!externalGitStatusTick) return
+    http
+      .get<{ files: { path: string; status: string; additions?: number; deletions?: number }[] }>(`/projects/${projectId}/git-status`)
+      .then((res) => setPendingFiles(res.data.files.length > 0 ? res.data.files : null))
+      .catch(() => setPendingFiles(null))
+  }, [externalGitStatusTick, projectId])
 
   // Wrap onFileRevert so undo/redo also refreshes git status
   const handleFileRevert = useCallback(
@@ -1212,6 +1222,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
                   className={cm.cn(cm.surfaceSecondary, cm.textSize('sm'))}
                   style={{
                     borderRadius: '4px',
+                    borderLeft: '2px solid var(--mol-color-primary, #6366f1)',
                     paddingLeft: '10px',
                     paddingTop: '4px',
                     paddingBottom: '4px',
