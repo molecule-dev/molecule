@@ -170,7 +170,7 @@ function TabItem({
       )}
     >
       <FileTypeIcon name={fileName} />
-      <span style={{ fontStyle: isPreview ? 'italic' : undefined, color: fileColor }}>
+      <span style={{ fontStyle: isPreview ? 'italic' : undefined, color: fileColor, textDecoration: gitStatus === 'deleted' ? 'line-through' : undefined }}>
         {fileName}
         {isDirty && <span className={cm.textWarning}> {'\u2022'}</span>}
       </span>
