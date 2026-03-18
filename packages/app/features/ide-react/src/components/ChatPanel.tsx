@@ -56,7 +56,6 @@ interface AttachedFile {
 
 interface FilePicker {
   entries: FileEntry[]
-  currentPath: string
   query: string
   selectedIdx: number
 }
@@ -90,6 +89,16 @@ const COMMANDS = [
   { id: 'clear' as const, label: '/clear', description: 'Clear chat history' },
   { id: 'model' as const, label: '/model', description: 'Set AI model (e.g. /model claude-sonnet-4-6)' },
   { id: 'maxloops' as const, label: '/maxloops', description: 'Set max tool iterations (e.g. /maxloops 50)' },
+  { id: 'help' as const, label: '/help', description: 'Show available commands' },
+  { id: 'compact' as const, label: '/compact', description: 'Compress conversation to free context' },
+  { id: 'plan' as const, label: '/plan', description: 'Enter plan mode (read-only research)' },
+  { id: 'cost' as const, label: '/cost', description: 'Show token usage and estimated cost' },
+  { id: 'undo' as const, label: '/undo', description: 'Revert last AI turn\'s file changes' },
+  { id: 'diff' as const, label: '/diff', description: 'Show summary of uncommitted changes' },
+  { id: 'commit' as const, label: '/commit', description: 'Commit current changes' },
+  { id: 'test' as const, label: '/test', description: 'Run project test suite' },
+  { id: 'explain' as const, label: '/explain', description: 'Explain code (e.g. /explain @file)' },
+  { id: 'lint' as const, label: '/lint', description: 'Run linter and fix issues' },
 ]
 
 type CommandId = (typeof COMMANDS)[number]['id']
@@ -336,6 +345,8 @@ interface ChatInnerProps {
   initialMessage?: string
   onInitialMessageSent?: () => void
   isAnonymous?: boolean
+  activeFile?: string | null
+  openTabs?: string[]
   onFileOpen?: (path: string) => void
   onFileDoubleClick?: (path: string) => void
   onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
@@ -357,6 +368,8 @@ interface ChatInnerProps {
  * @param root0.initialMessage - Optional message to auto-send on mount.
  * @param root0.onInitialMessageSent - Callback fired after the initial message is sent.
  * @param root0.isAnonymous - Whether the current user is anonymous.
+ * @param root0.activeFile - Path of the currently focused file in the editor.
+ * @param root0.openTabs - Paths of all open editor tabs.
  * @param root0.onFileOpen - Callback to preview a file in the editor.
  * @param root0.onFileDoubleClick - Callback to pin a file tab in the editor.
  * @param root0.onFileDiff - Callback to open a side-by-side diff view.
@@ -370,7 +383,7 @@ interface ChatInnerProps {
  * @param root0.gitStatusTick - Counter that increments when git status changes.
  * @returns The rendered chat inner component.
  */
-function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, isAnonymous, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, onFileDeleted, onCommit, onConversationId, pendingMessage, pendingMessageKey, gitStatusTick: externalGitStatusTick }: ChatInnerProps): JSX.Element {
+function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, isAnonymous, activeFile, openTabs, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onFileChange, onFileDeleted, onCommit, onConversationId, pendingMessage, pendingMessageKey, gitStatusTick: externalGitStatusTick }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
@@ -380,6 +393,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
   // history — even when initialMessage is set. This prevents a refresh from
   // re-sending the initial prompt instead of restoring the existing conversation.
   const hasConversation = endpoint.includes('conversationId=')
+  const conversationId = endpoint.match(/conversationId=([^&]+)/)?.[1] ?? null
   const { messages, isLoading, error, sendMessage, abort, clearHistory } = useChat({
     endpoint,
     projectId,
@@ -709,45 +723,63 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
   }, [http, projectId, onCommit])
 
   // ── File picker ────────────────────────────────────────────────────────────
+  /** Cached flat file list from the sandbox — avoids re-fetching on every keystroke. */
+  const allFilesRef = useRef<string[]>([])
+  const allFilesFetchedRef = useRef(false)
+
   const openFilePicker = useCallback(
-    async (query: string, currentPath = '/app') => {
-      try {
-        const res = await http.get<{ path: string; entries: FileEntry[] }>(
-          `/projects/${projectId}/files?path=${encodeURIComponent(currentPath)}`,
-        )
-        setFilePicker({ entries: res.data.entries, currentPath, query, selectedIdx: 0 })
-      } catch {
-        setFilePicker(null)
+    async (query: string) => {
+      // Fetch file list once, then reuse for subsequent keystrokes
+      if (!allFilesFetchedRef.current) {
+        try {
+          const res = await http.get<{ files: string[] }>(
+            `/projects/${projectId}/files-list`,
+          )
+          // Normalize: strip /workspace/ prefix for display, keep as relative paths
+          allFilesRef.current = (res.data.files ?? []).map((f) =>
+            f.startsWith('/workspace/') ? f.slice('/workspace/'.length) : f,
+          )
+          allFilesFetchedRef.current = true
+        } catch {
+          setFilePicker(null)
+          return
+        }
       }
+
+      const entries: FileEntry[] = allFilesRef.current.map((f) => ({
+        name: f,
+        type: 'file' as const,
+      }))
+      setFilePicker({ entries, query, selectedIdx: 0 })
     },
     [http, projectId],
   )
 
+  /** Invalidate the cached file list when we know the tree changed. */
+  useEffect(() => {
+    allFilesFetchedRef.current = false
+  }, [externalGitStatusTick])
+
   const selectFileEntry = useCallback(
-    (entry: FileEntry, currentPath: string) => {
-      const entryPath = `${currentPath}/${entry.name}`
-      if (entry.type === 'directory') {
-        if (!entryPath.startsWith('/app')) return
-        void openFilePicker(filePicker?.query ?? '', entryPath)
-      } else {
-        setAttachedFiles((prev) =>
-          prev.some((f) => f.path === entryPath)
-            ? prev
-            : [...prev, {
-                path: entryPath,
-                filename: entry.name,
-                mediaType: 'text/plain',
-                size: entry.size ?? 0,
-              }],
-        )
-        const prev = inputRef.current
-        const before = prev.slice(0, mentionStart)
-        const after = prev.slice(mentionStart + 1 + (filePicker?.query.length ?? 0))
-        setInputValue(before + after)
-        setFilePicker(null)
-      }
+    (entry: FileEntry) => {
+      const entryPath = '/' + entry.name
+      setAttachedFiles((prev) =>
+        prev.some((f) => f.path === entryPath)
+          ? prev
+          : [...prev, {
+              path: entryPath,
+              filename: entry.name.split('/').pop() ?? entry.name,
+              mediaType: 'text/plain',
+              size: entry.size ?? 0,
+            }],
+      )
+      const prev = inputRef.current
+      const before = prev.slice(0, mentionStart)
+      const after = prev.slice(mentionStart + 1 + (filePicker?.query.length ?? 0))
+      setInputValue(before + after)
+      setFilePicker(null)
     },
-    [filePicker, mentionStart, openFilePicker],
+    [filePicker, mentionStart],
   )
 
   const removeAttachment = useCallback((key: string) => {
@@ -917,9 +949,165 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
         setModelPicker({ selectedIdx: -1 })
       } else if (id === 'maxloops') {
         setInputAndCursorEnd('/maxloops ')
+      } else if (id === 'help') {
+        setInputValue('')
+        const modelLabel = AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel
+        addSystemCard(
+          t('ide.chat.helpText', undefined, {
+            defaultValue: [
+              '/clear        Clear chat history',
+              '/model        Set AI model (current: ' + modelLabel + ')',
+              '/maxloops     Set max tool iterations (current: ' + currentMaxLoops + ')',
+              '/compact      Compress conversation to free context',
+              '/plan         Enter plan mode (read-only research)',
+              '/cost         Show token usage and estimated cost',
+              '/undo         Revert last AI turn\'s file changes',
+              '/diff         Show summary of uncommitted changes',
+              '/commit       Commit current changes',
+              '/test         Run project test suite',
+              '/explain      Explain code (e.g. /explain @file)',
+              '/lint         Run linter and fix issues',
+            ].join('\n'),
+          }),
+        )
+      } else if (id === 'compact') {
+        setInputValue('')
+        addSystemCard(t('ide.chat.compacting', undefined, { defaultValue: 'Compacting conversation...' }))
+        try {
+          const compactUrl = conversationId
+            ? `/projects/${projectId}/compact?conversationId=${conversationId}`
+            : `/projects/${projectId}/compact`
+          const res = await http.post<{ compactedCount: number }>(compactUrl)
+          if (res.data.compactedCount > 0) {
+            addSystemCard(t('ide.chat.compacted', { count: res.data.compactedCount }, {
+              defaultValue: `Compacted ${res.data.compactedCount} messages.`,
+            }))
+          } else {
+            addSystemCard(t('ide.chat.compactNotNeeded', undefined, {
+              defaultValue: 'Context usage is low — no compaction needed.',
+            }))
+          }
+        } catch {
+          addSystemCard(t('ide.chat.compactError', undefined, { defaultValue: 'Failed to compact conversation.' }))
+        }
+      } else if (id === 'plan') {
+        setInputValue('')
+        sendMessage('Switch to plan mode. Acknowledge the mode change briefly.')
+      } else if (id === 'cost') {
+        setInputValue('')
+        try {
+          const usageUrl = conversationId
+            ? `/projects/${projectId}/chat-usage?conversationId=${conversationId}`
+            : `/projects/${projectId}/chat-usage`
+          const res = await http.get<{
+            inputTokens: number
+            outputTokens: number
+            estimatedCost: number
+            model: string
+          }>(usageUrl)
+          const d = res.data
+          const fmt = (n: number): string => n >= 1_000_000 ? (n / 1_000_000).toFixed(1) + 'M' : n >= 1_000 ? (n / 1_000).toFixed(1) + 'K' : String(n)
+          addSystemCard(
+            t('ide.chat.costSummary', undefined, {
+              defaultValue: [
+                `Model:  ${d.model}`,
+                `Input:  ${fmt(d.inputTokens)} tokens`,
+                `Output: ${fmt(d.outputTokens)} tokens`,
+                `Cost:   ~$${d.estimatedCost.toFixed(4)}`,
+              ].join('\n'),
+            }),
+          )
+        } catch {
+          addSystemCard(t('ide.chat.costError', undefined, { defaultValue: 'Unable to fetch usage data.' }))
+        }
+      } else if (id === 'undo') {
+        setInputValue('')
+        const lastTurn = [...messages].reverse().find(
+          (m) => m.role === 'assistant' && m.toolCalls?.some(
+            (tc: { name: string; fileDiff?: unknown }) => (tc.name === 'write_file' || tc.name === 'edit_file') && tc.fileDiff,
+          ),
+        )
+        if (!lastTurn) {
+          addSystemCard(t('ide.chat.undoNoChanges', undefined, { defaultValue: 'No file changes to undo.' }))
+          return
+        }
+        const filePaths = new Set<string>()
+        for (const tc of lastTurn.toolCalls ?? []) {
+          if ((tc.name === 'write_file' || tc.name === 'edit_file') && tc.fileDiff) {
+            const path = (tc.input as { path?: string })?.path
+            if (path) filePaths.add(path)
+          }
+        }
+        if (filePaths.size === 0) {
+          addSystemCard(t('ide.chat.undoNoChanges', undefined, { defaultValue: 'No file changes to undo.' }))
+          return
+        }
+        try {
+          for (const path of filePaths) {
+            await http.post(`/projects/${projectId}/git-revert`, { path })
+          }
+          addSystemCard(t('ide.chat.undoComplete', { count: filePaths.size }, {
+            defaultValue: `Reverted ${filePaths.size} file(s) from last AI turn.`,
+          }))
+          refreshGitStatus()
+        } catch {
+          addSystemCard(t('ide.chat.undoError', undefined, { defaultValue: 'Failed to revert changes.' }))
+        }
+      } else if (id === 'diff') {
+        setInputValue('')
+        try {
+          const res = await http.get<{ files: { path: string; status: string; additions?: number; deletions?: number }[] }>(`/projects/${projectId}/git-status`)
+          const files = res.data.files
+          if (!files.length) {
+            addSystemCard(t('ide.chat.diffNoChanges', undefined, { defaultValue: 'No uncommitted changes.' }))
+          } else {
+            const lines = files.map((f) => {
+              const adds = f.additions != null ? ` +${f.additions}` : ''
+              const dels = f.deletions != null ? ` -${f.deletions}` : ''
+              return `${f.status.padEnd(10)} ${f.path}${adds}${dels}`
+            })
+            addSystemCard(
+              t('ide.chat.diffSummary', undefined, {
+                defaultValue: `${files.length} changed file(s):\n${lines.join('\n')}`,
+              }),
+            )
+          }
+        } catch {
+          addSystemCard(t('ide.chat.diffError', undefined, { defaultValue: 'Failed to fetch changes.' }))
+        }
+      } else if (id === 'commit') {
+        setInputValue('')
+        try {
+          const status = await http.get<{ files: { path: string }[] }>(`/projects/${projectId}/git-status`)
+          if (!status.data.files.length) {
+            addSystemCard(t('ide.chat.commitNoChanges', undefined, { defaultValue: 'No changes to commit.' }))
+            return
+          }
+          const res = await http.post<{ ok: boolean; committed: boolean; message?: string; files?: string[] }>(`/projects/${projectId}/commit`)
+          if (res.data.committed) {
+            setCommitCards((prev) => [...prev, {
+              id: crypto.randomUUID(),
+              message: res.data.message ?? '',
+              files: res.data.files ?? [],
+              timestamp: Date.now(),
+              status: 'done' as const,
+            }])
+            refreshGitStatus()
+          }
+        } catch {
+          addSystemCard(t('ide.chat.commitError', undefined, { defaultValue: 'Failed to commit changes.' }))
+        }
+      } else if (id === 'test') {
+        setInputValue('')
+        sendMessage('Run the project test suite (npm test) and report the results. If tests fail, analyze the failures.')
+      } else if (id === 'explain') {
+        setInputAndCursorEnd('/explain ')
+      } else if (id === 'lint') {
+        setInputValue('')
+        sendMessage('Run the project linter (npm run lint) and fix any issues found. Show what you fixed.')
       }
     },
-    [clearHistory, setInputAndCursorEnd],
+    [clearHistory, setInputAndCursorEnd, http, projectId, conversationId, addSystemCard, currentModel, currentMaxLoops, messages, sendMessage, refreshGitStatus],
   )
 
   // ── Submit ─────────────────────────────────────────────────────────────────
@@ -992,7 +1180,52 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
       return
     }
 
+    // Handle /test [args] — inject prompt for AI to run tests
+    const testMatch = trimmed.match(/^\/test(?:\s+(.*))?$/i)
+    if (testMatch) {
+      const args = testMatch[1]?.trim()
+      const prompt = args
+        ? `Run this test command and report the results: npm test -- ${args}`
+        : 'Run the project test suite (npm test) and report the results. If tests fail, analyze the failures.'
+      setInputValue('')
+      sendMessage(prompt)
+      return
+    }
+
+    // Handle /explain [target] — inject prompt for AI to explain code
+    // NOTE: does NOT return early — falls through to attachment processing below
+    // so that @-attached files are included in the message sent to the AI.
+    const explainMatch = trimmed.match(/^\/explain(?:\s+(.*))?$/i)
+    if (explainMatch && attachedFiles.length === 0) {
+      const target = explainMatch[1]?.trim()
+      const prompt = target
+        ? `Explain this in detail: ${target}`
+        : 'Explain the code I just shared or the most recently discussed code. Be thorough but concise.'
+      setInputValue('')
+      sendMessage(prompt)
+      return
+    }
+
+    // Handle /lint [args] — inject prompt for AI to run linter
+    const lintMatch = trimmed.match(/^\/lint(?:\s+(.*))?$/i)
+    if (lintMatch) {
+      const args = lintMatch[1]?.trim()
+      const prompt = args
+        ? `Run the linter on ${args} and fix any issues found: npm run lint -- ${args}`
+        : 'Run the project linter (npm run lint) and fix any issues found. Show what you fixed.'
+      setInputValue('')
+      sendMessage(prompt)
+      return
+    }
+
+    // Rewrite /explain with attachments into a proper prompt (attachments processed below)
     let message = trimmed
+    if (explainMatch) {
+      const target = explainMatch[1]?.trim()
+      message = target
+        ? `Explain this in detail: ${target}`
+        : 'Explain the attached file(s) in detail. Be thorough but concise.'
+    }
     const chatAttachments: Array<{
       mediaType: string
       data: string
@@ -1004,16 +1237,18 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
       for (const f of attachedFiles) {
         if (f.path && !f.file) {
           // @-mentioned sandbox text file — fetch and embed inline
+          // Strip leading / so the path annotation matches what the AI's read_file tool expects
+          const displayPath = f.path.startsWith('/') ? f.path.slice(1) : f.path
           try {
             const res = await http.get<{ content: string }>(
               `/projects/${projectId}/files${f.path}`,
             )
             const ext = f.path.split('.').pop() ?? ''
             message = (message ? `${message}\n\n` : '') +
-              `<file path="${f.path}">\n\`\`\`${ext}\n${res.data.content}\n\`\`\`\n</file>`
+              `<file path="${displayPath}">\n\`\`\`${ext}\n${res.data.content}\n\`\`\`\n</file>`
           } catch {
             message = (message ? `${message}\n\n` : '') +
-              `<file path="${f.path}">[Could not read file]</file>`
+              `<file path="${displayPath}">[Could not read file]</file>`
           }
         } else if (f.file) {
           // Binary file attachment — encode as base64
@@ -1048,14 +1283,40 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
     )
   }, [modelPicker])
 
-  const filteredEntries = filePicker
-    ? filePicker.entries
-        .filter(
-          (e) =>
-            !filePicker.query || e.name.toLowerCase().includes(filePicker.query.toLowerCase()),
-        )
-        .slice(0, 12)
-    : []
+  const filteredEntries = useMemo(() => {
+    if (!filePicker) return []
+    const q = filePicker.query.toLowerCase()
+
+    // Normalize active file and open tabs to match entry names (relative paths without leading /)
+    const normalizeTabPath = (p: string): string =>
+      p.startsWith('/workspace/') ? p.slice('/workspace/'.length) : p.startsWith('/') ? p.slice(1) : p
+    const activeNorm = activeFile ? normalizeTabPath(activeFile) : null
+    const openTabSet = new Set((openTabs ?? []).map(normalizeTabPath))
+
+    // Filter by query
+    const matches = q
+      ? filePicker.entries.filter((e) => e.name.toLowerCase().includes(q))
+      : filePicker.entries
+
+    // Rank: active file first, then open tabs, then rest (by match position)
+    const scored = matches.map((e) => {
+      const name = e.name
+      const nameLower = name.toLowerCase()
+      let score = 0
+      if (activeNorm && name === activeNorm) score = 3
+      else if (openTabSet.has(name)) score = 2
+      // Boost prefix matches (query matches start of filename)
+      else if (q && nameLower.split('/').pop()?.startsWith(q)) score = 1
+      return { entry: e, score }
+    })
+
+    scored.sort((a, b) => {
+      if (a.score !== b.score) return b.score - a.score
+      return a.entry.name.localeCompare(b.entry.name)
+    })
+
+    return scored.map((s) => s.entry).slice(0, 15)
+  }, [filePicker, activeFile, openTabs])
 
   /**
    * Wrap-around index: Down from -1 → 0, Up from -1 → last, wraps at both ends.
@@ -1112,7 +1373,7 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
       if (e.key === 'Enter' || e.key === 'Tab') {
         e.preventDefault()
         const entry = filteredEntries[filePicker.selectedIdx]
-        if (entry) selectFileEntry(entry, filePicker.currentPath)
+        if (entry) selectFileEntry(entry)
         return
       }
     }
@@ -1210,15 +1471,24 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
         {timeline.map((item) => {
           if (item.kind === 'commit') return <CommitCardItem key={item.card.id} card={item.card} />
 
-          if (item.kind === 'system') return (
-            <div
-              key={item.card.id}
-              className={cm.cn(cm.textSize('xs'), cm.textMuted)}
-              style={{ textAlign: 'center', padding: '6px 0' }}
-            >
-              {item.card.text}
-            </div>
-          )
+          if (item.kind === 'system') {
+            const isMultiLine = item.card.text.includes('\n')
+            return (
+              <div
+                key={item.card.id}
+                className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+                style={{
+                  textAlign: isMultiLine ? 'left' : 'center',
+                  padding: isMultiLine ? '8px 12px' : '6px 0',
+                  whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
+                  fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
+                  lineHeight: isMultiLine ? 1.5 : undefined,
+                }}
+              >
+                {item.card.text}
+              </div>
+            )
+          }
 
           const { msg, msgIdx } = item
 
@@ -1539,6 +1809,8 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
               overflow: 'hidden',
               zIndex: 100,
               boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
+              maxHeight: '60vh',
+              overflowY: 'auto',
             }}
           >
             {filteredCmds.map((cmd, idx) => (
@@ -1691,38 +1963,74 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
         )}
 
         {/* File picker popup */}
-        {filePicker && filteredEntries.length > 0 && (
+        {filePicker && filteredEntries.length > 0 && (() => {
+          const normalizeTabPath = (p: string): string =>
+            p.startsWith('/workspace/') ? p.slice('/workspace/'.length) : p.startsWith('/') ? p.slice(1) : p
+          const activeNorm = activeFile ? normalizeTabPath(activeFile) : null
+          const openTabSet = new Set((openTabs ?? []).map(normalizeTabPath))
+          return (
           <div
-            className={cm.cn(cm.surfaceSecondary, cm.borderAll)}
-            style={{ position: 'absolute', bottom: '100%', left: 8, right: 8, marginBottom: 4, borderRadius: '6px', overflow: 'hidden', zIndex: 50 }}
+            className={cm.cn(cm.surface, cm.borderAll)}
+            style={{
+              position: 'absolute',
+              bottom: '100%',
+              left: 0,
+              right: 0,
+              marginBottom: 0,
+              borderRadius: '6px 6px 0 0',
+              overflow: 'hidden',
+              zIndex: 100,
+              boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
+              maxHeight: '60vh',
+              overflowY: 'auto',
+            }}
           >
-            <div
-              className={cm.cn(cm.textSize('xs'), cm.textMuted)}
-              style={{ padding: '3px 10px', borderBottom: '1px solid rgba(128,128,128,0.2)', fontFamily: 'monospace' }}
-            >
-              {filePicker.currentPath}
-            </div>
-            {filteredEntries.map((entry, idx) => (
+            {filteredEntries.map((entry, idx) => {
+              const fileName = entry.name.split('/').pop() ?? entry.name
+              const dirPath = entry.name.includes('/') ? entry.name.slice(0, entry.name.lastIndexOf('/')) : ''
+              const isActive = activeNorm === entry.name
+              const isOpenTab = !isActive && openTabSet.has(entry.name)
+              return (
               <button
                 key={entry.name}
                 type="button"
-                onClick={() => selectFileEntry(entry, filePicker.currentPath)}
-                className={cm.cn(cm.w('full'), cm.textSize('sm'), idx === filePicker.selectedIdx ? cm.surface : '')}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '5px 10px', border: 'none', cursor: 'pointer', color: 'inherit', textAlign: 'left' }}
+                onClick={() => selectFileEntry(entry)}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = idx === filePicker.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent' }}
+                className={cm.w('full')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  border: 'none',
+                  borderTop: idx > 0 ? '1px solid rgba(128,128,128,0.12)' : 'none',
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  background: idx === filePicker.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent',
+                }}
               >
-                <span style={{ opacity: 0.5, fontSize: '10px', width: '12px' }}>
-                  {entry.type === 'directory' ? '▶' : ''}
-                </span>
-                <span style={{ fontFamily: 'monospace', fontSize: '12px' }}>{entry.name}</span>
-                {entry.type !== 'directory' && entry.size != null && (
-                  <span className={cm.textMuted} style={{ marginLeft: 'auto', fontSize: '10px' }}>
-                    {entry.size < 1024 ? `${entry.size}B` : `${Math.round(entry.size / 1024)}KB`}
+                <span style={{ fontFamily: 'monospace', fontWeight: 500 }}>{fileName}</span>
+                {dirPath && (
+                  <span className={cm.textMuted} style={{ fontSize: '11px', fontFamily: 'monospace', opacity: 0.6 }}>
+                    {dirPath}
+                  </span>
+                )}
+                {(isActive || isOpenTab) && (
+                  <span style={{ marginLeft: 'auto', fontSize: '10px', opacity: 0.5, flexShrink: 0 }}>
+                    {isActive
+                      ? t('ide.chat.activeFile', undefined, { defaultValue: 'active' })
+                      : t('ide.chat.openTab', undefined, { defaultValue: 'open' })}
                   </span>
                 )}
               </button>
-            ))}
+              )
+            })}
           </div>
-        )}
+          )
+        })()}
 
         {/* Commit bar — anchored above the textarea (hidden when a popup menu is open) */}
         {pendingFiles != null && pendingFiles.length > 0 && !commandMenu && !modelPicker && (
@@ -2062,6 +2370,8 @@ function ChatInner({ projectId, endpoint, initialMessage, onInitialMessageSent, 
  * @param root0.endpoint - Optional custom chat API endpoint URL.
  * @param root0.initialMessage - Optional initial message to auto-send on mount.
  * @param root0.onInitialMessageSent - Callback fired after the initial message is sent.
+ * @param root0.activeFile - Path of the currently focused file in the editor.
+ * @param root0.openTabs - Paths of all open editor tabs.
  * @param root0.onFileOpen - Callback to preview a file in the editor.
  * @param root0.onFileDoubleClick - Callback to pin a file tab in the editor.
  * @param root0.onFileDiff - Callback to open a side-by-side diff view.
@@ -2081,6 +2391,8 @@ export function ChatPanel({
   endpoint,
   initialMessage,
   onInitialMessageSent,
+  activeFile,
+  openTabs,
   onFileOpen,
   onFileDoubleClick,
   onFileDiff,
@@ -2352,6 +2664,8 @@ export function ChatPanel({
         initialMessage={initialMessage}
         onInitialMessageSent={onInitialMessageSent}
         isAnonymous={isAnonymous}
+        activeFile={activeFile}
+        openTabs={openTabs}
         onFileOpen={onFileOpen}
         onFileDoubleClick={onFileDoubleClick}
         onFileDiff={onFileDiff}

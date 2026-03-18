@@ -443,6 +443,11 @@ describe('@molecule/app-i18n-i18next', () => {
         const result = testProvider.t('items', { count: 5 }, { count: 5 })
         expect(result).toBe('5 items')
       })
+
+      it('should interpolate count from values when options.count is not set', () => {
+        const result = testProvider.t('items', { count: 3 }, { defaultValue: '{{count}} items' })
+        expect(result).toBe('3 items')
+      })
     })
 
     describe('exists', () => {

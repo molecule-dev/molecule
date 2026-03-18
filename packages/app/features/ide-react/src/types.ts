@@ -42,6 +42,10 @@ export interface ChatPanelProps {
   onFileDeleted?: (path: string) => void
   /** Called after a successful commit — should refresh file explorer git status. */
   onCommit?: () => void
+  /** Path of the currently focused file in the editor (shown first in @ picker). */
+  activeFile?: string | null
+  /** Paths of all open editor tabs (shown after active file in @ picker). */
+  openTabs?: string[]
   /** Incremented to trigger a git status refresh (e.g. after file create/rename/delete). */
   gitStatusTick?: number
   /** Message to auto-send (e.g. from "Fix with AI"). Sent when pendingMessageKey changes. */

@@ -170,11 +170,10 @@ export const createI18nextProvider = (
       values?: InterpolationValues,
       options?: { defaultValue?: string; count?: number },
     ): string {
-      return i18n.t(key, {
-        ...values,
-        defaultValue: options?.defaultValue,
-        count: options?.count,
-      })
+      const opts: Record<string, unknown> = { ...values }
+      if (options?.defaultValue !== undefined) opts.defaultValue = options.defaultValue
+      if (options?.count !== undefined) opts.count = options.count
+      return i18n.t(key, opts)
     },
 
     exists(key: string): boolean {

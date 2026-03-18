@@ -118,13 +118,18 @@ class AnthropicAIProvider implements AIProvider {
       }
       // Log full detail server-side for debugging
       logger.error('Anthropic API error', { status: response.status, detail })
-      // Return sanitized error to client — never leak internal API details
+      // Return sanitized but actionable error to client
       const clientMessage =
         response.status === 429
           ? 'AI rate limit exceeded. Please try again shortly.'
           : response.status === 401
             ? 'AI service configuration error.'
-            : 'AI service temporarily unavailable.'
+            : response.status === 400 &&
+                /prompt is too long|too many tokens|token.*limit|context.*length/i.test(detail)
+              ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
+              : response.status === 529 || response.status === 503
+                ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                : 'AI service error. Please try again.'
       yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
       return
     }

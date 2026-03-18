@@ -165,6 +165,16 @@ class DockerSandboxProvider implements SandboxProvider {
         '/proc/sys',
         '/proc/sysrq-trigger',
       ],
+      MaskedPaths: [
+        '/proc/kcore',
+        '/proc/keys',
+        '/proc/latency_stats',
+        '/proc/sched_debug',
+        '/proc/timer_list',
+        '/proc/timer_stats',
+        '/proc/self/environ',
+        '/proc/1/environ',
+      ],
     }
 
     // All containers run on the default bridge network (internet access).

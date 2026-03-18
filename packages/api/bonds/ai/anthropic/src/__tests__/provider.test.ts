@@ -105,7 +105,7 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       expect(events[0].message).toBe('AI service configuration error.')
     })
 
-    it('500 response yields generic unavailable message', async () => {
+    it('500 response yields generic error message', async () => {
       mockFetch.mockResolvedValue(
         mockErrorResponse(
           500,
@@ -117,10 +117,10 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
 
       expect(events).toHaveLength(1)
       expect(events[0].type).toBe('error')
-      expect(events[0].message).toBe('AI service temporarily unavailable.')
+      expect(events[0].message).toBe('AI service error. Please try again.')
     })
 
-    it('other 4xx (e.g. 400) also yields generic unavailable message', async () => {
+    it('other 4xx (e.g. 400) yields generic error message', async () => {
       mockFetch.mockResolvedValue(
         mockErrorResponse(400, JSON.stringify({ error: { message: 'max_tokens must be > 0' } })),
       )
@@ -129,7 +129,7 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
 
       expect(events).toHaveLength(1)
       expect(events[0].type).toBe('error')
-      expect(events[0].message).toBe('AI service temporarily unavailable.')
+      expect(events[0].message).toBe('AI service error. Please try again.')
     })
 
     it('raw API error body is NOT leaked to the client', async () => {
@@ -161,7 +161,9 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
 
       const events = await collectEvents(provider.chat(minimalParams))
 
-      expect(events[0].message).toBe('AI service temporarily unavailable.')
+      expect(events[0].message).toBe(
+        'AI service is temporarily overloaded. Please try again in a moment.',
+      )
       expect(events[0].message).not.toContain('10.0.0.5')
       expect(events[0].message).not.toContain('proxy')
     })
