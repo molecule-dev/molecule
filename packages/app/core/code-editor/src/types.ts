@@ -163,4 +163,6 @@ export interface EditorProvider {
   ): void
   /** Register a callback for "Fix with AI" requests from the editor (lightbulb quick fix or context menu). Returns an unsubscribe function. */
   onFixWithAI?(callback: (request: FixWithAIRequest) => void): () => void
+  /** Get current diagnostics (errors/warnings) for a file from the language service. */
+  getDiagnostics?(path: string): EditorDiagnostic[]
 }

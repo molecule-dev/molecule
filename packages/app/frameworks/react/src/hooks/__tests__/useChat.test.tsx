@@ -931,4 +931,266 @@ describe('useChat', () => {
     }).toThrow('useChatProvider must be used within a ChatProvider')
     consoleSpy.mockRestore()
   })
+
+  // ── editQueuedMessage ────────────────────────────────────────────────
+
+  it('editQueuedMessage updates content in messages and persists to queue', async () => {
+    const { provider, deferreds, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    // Send A (starts streaming), then queue B and C
+    await act(async () => {
+      result.current.sendMessage('A')
+    })
+    await act(async () => {
+      result.current.sendMessage('B')
+    })
+    await act(async () => {
+      result.current.sendMessage('C')
+    })
+
+    expect(deferreds).toHaveLength(1)
+
+    // Find the queued B message
+    const bMsg = result.current.messages.find((m) => m.content === 'B')
+    expect(bMsg).toBeDefined()
+    expect(bMsg!.queued).toBe(true)
+
+    // Edit B's content
+    await act(async () => {
+      result.current.editQueuedMessage(bMsg!.id, 'B-edited')
+    })
+
+    // Message content should be updated
+    const bMsgAfter = result.current.messages.find((m) => m.id === bMsg!.id)
+    expect(bMsgAfter?.content).toBe('B-edited')
+    expect(bMsgAfter?.queued).toBe(true)
+
+    // sessionStorage should reflect the edit
+    const raw = sessionStorage.getItem(`mol-chat-queue-${PROJECT_ID}`)
+    expect(raw).not.toBeNull()
+    const queue = JSON.parse(raw!)
+    const editedEntry = queue.find((e: { message: string }) => e.message === 'B-edited')
+    expect(editedEntry).toBeDefined()
+
+    // Complete A → B-edited should be sent (with the edited content)
+    await act(async () => {
+      complete(0)
+    })
+    await waitFor(() => expect(deferreds).toHaveLength(2))
+    expect(deferreds[1].message).toBe('B-edited')
+
+    // Complete B and C
+    await act(async () => {
+      complete(1)
+    })
+    await waitFor(() => expect(deferreds).toHaveLength(3))
+    await act(async () => {
+      complete(2)
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+  })
+
+  it('editQueuedMessage does nothing for non-queued messages', async () => {
+    const { provider, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    // Send A (not queued — sent directly)
+    await act(async () => {
+      result.current.sendMessage('A')
+    })
+
+    const aMsg = result.current.messages.find((m) => m.content === 'A')
+    expect(aMsg).toBeDefined()
+    expect(aMsg!.queued).toBeFalsy()
+
+    // Attempt to edit a non-queued message
+    await act(async () => {
+      result.current.editQueuedMessage(aMsg!.id, 'A-edited')
+    })
+
+    // Content should be unchanged
+    const aMsgAfter = result.current.messages.find((m) => m.id === aMsg!.id)
+    expect(aMsgAfter?.content).toBe('A')
+
+    await act(async () => {
+      complete(0)
+    })
+  })
+
+  // ── deleteQueuedMessage ──────────────────────────────────────────────
+
+  it('deleteQueuedMessage removes a queued message from messages and queue', async () => {
+    const { provider, deferreds, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    // Send A (starts streaming), then queue B and C
+    await act(async () => {
+      result.current.sendMessage('A')
+    })
+    await act(async () => {
+      result.current.sendMessage('B')
+    })
+    await act(async () => {
+      result.current.sendMessage('C')
+    })
+
+    expect(deferreds).toHaveLength(1)
+
+    // Find the queued B message
+    const bMsg = result.current.messages.find((m) => m.content === 'B')
+    expect(bMsg).toBeDefined()
+    expect(bMsg!.queued).toBe(true)
+
+    // Delete B from the queue
+    await act(async () => {
+      result.current.deleteQueuedMessage(bMsg!.id)
+    })
+
+    // B should no longer be in messages
+    const bMsgAfter = result.current.messages.find((m) => m.id === bMsg!.id)
+    expect(bMsgAfter).toBeUndefined()
+
+    // sessionStorage should only contain C
+    const raw = sessionStorage.getItem(`mol-chat-queue-${PROJECT_ID}`)
+    expect(raw).not.toBeNull()
+    const queue = JSON.parse(raw!)
+    expect(queue).toHaveLength(1)
+    expect(queue[0].message).toBe('C')
+
+    // Complete A → C should be sent (B was deleted)
+    await act(async () => {
+      complete(0)
+    })
+    await waitFor(() => expect(deferreds).toHaveLength(2))
+    expect(deferreds[1].message).toBe('C')
+
+    await act(async () => {
+      complete(1)
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+  })
+
+  it('deleteQueuedMessage does nothing for non-queued messages', async () => {
+    const { provider, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    // Send A (not queued)
+    await act(async () => {
+      result.current.sendMessage('A')
+    })
+
+    const aMsg = result.current.messages.find((m) => m.content === 'A')
+    expect(aMsg).toBeDefined()
+    const msgCountBefore = result.current.messages.length
+
+    // Attempt to delete a non-queued message
+    await act(async () => {
+      result.current.deleteQueuedMessage(aMsg!.id)
+    })
+
+    // Messages should be unchanged
+    expect(result.current.messages).toHaveLength(msgCountBefore)
+    const aMsgAfter = result.current.messages.find((m) => m.id === aMsg!.id)
+    expect(aMsgAfter).toBeDefined()
+
+    await act(async () => {
+      complete(0)
+    })
+  })
+
+  // ── onStreamEvent callback ───────────────────────────────────────────
+
+  it('calls onStreamEvent for each streaming event', async () => {
+    const onStreamEvent = vi.fn()
+    const { provider, emitText, complete } = createMockProvider()
+    const { result } = renderHook(
+      () =>
+        useChat({
+          endpoint: ENDPOINT,
+          projectId: PROJECT_ID,
+          loadOnMount: false,
+          onStreamEvent,
+        }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('Hi')
+    })
+
+    await act(async () => {
+      emitText(0, 'Hello ')
+      emitText(0, 'world')
+    })
+
+    expect(onStreamEvent).toHaveBeenCalledTimes(2)
+    expect(onStreamEvent).toHaveBeenNthCalledWith(1, { type: 'text', content: 'Hello ' })
+    expect(onStreamEvent).toHaveBeenNthCalledWith(2, { type: 'text', content: 'world' })
+
+    await act(async () => {
+      complete(0)
+    })
+
+    // The done event should also be forwarded
+    expect(onStreamEvent).toHaveBeenCalledWith({ type: 'done' })
+  })
+
+  it('forwards different event types to onStreamEvent', async () => {
+    const onStreamEvent = vi.fn()
+    const { provider, emit, emitText, complete } = createMockProvider()
+    const { result } = renderHook(
+      () =>
+        useChat({
+          endpoint: ENDPOINT,
+          projectId: PROJECT_ID,
+          loadOnMount: false,
+          onStreamEvent,
+        }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('Do stuff')
+    })
+
+    await act(async () => {
+      emit(0, { type: 'thinking', content: 'Hmm...' })
+      emitText(0, 'Result: ')
+      emit(0, { type: 'tool_use', id: 'tc1', name: 'write_file', input: { path: '/a.ts' } })
+      emit(0, { type: 'tool_result', id: 'tc1', output: { success: true } })
+      emit(0, { type: 'mode', mode: 'plan' })
+    })
+
+    expect(onStreamEvent).toHaveBeenCalledWith({ type: 'thinking', content: 'Hmm...' })
+    expect(onStreamEvent).toHaveBeenCalledWith({ type: 'text', content: 'Result: ' })
+    expect(onStreamEvent).toHaveBeenCalledWith({
+      type: 'tool_use',
+      id: 'tc1',
+      name: 'write_file',
+      input: { path: '/a.ts' },
+    })
+    expect(onStreamEvent).toHaveBeenCalledWith({
+      type: 'tool_result',
+      id: 'tc1',
+      output: { success: true },
+    })
+    expect(onStreamEvent).toHaveBeenCalledWith({ type: 'mode', mode: 'plan' })
+
+    await act(async () => {
+      complete(0)
+    })
+  })
 })

@@ -112,6 +112,16 @@ const COMMANDS = [
   { id: 'test' as const, label: '/test', description: 'Run project test suite' },
   { id: 'explain' as const, label: '/explain', description: 'Explain code (e.g. /explain @file)' },
   { id: 'lint' as const, label: '/lint', description: 'Run linter and fix issues' },
+  {
+    id: 'autolint' as const,
+    label: '/autolint',
+    description: 'Toggle auto-lint after AI file changes',
+  },
+  {
+    id: 'sounds' as const,
+    label: '/sounds',
+    description: 'Configure notification sounds',
+  },
 ]
 
 type CommandId = (typeof COMMANDS)[number]['id']
@@ -120,6 +130,115 @@ const AVAILABLE_MODELS = MODELS
 
 interface ModelPicker {
   selectedIdx: number
+}
+
+// ---------------------------------------------------------------------------
+// Sound types & playTone
+// ---------------------------------------------------------------------------
+
+/** Possible modes for each notification sound event. */
+type SoundMode = 'off' | 'whenNotFocused' | 'always'
+
+/** All stream event types that can trigger a notification sound. */
+const SOUND_EVENTS = [
+  'done',
+  'error',
+  'tool_result',
+  'file_diff',
+  'commit_suggestion',
+  'mode',
+  'loop_limit_reached',
+  'verification_result',
+  'preview_error',
+] as const
+
+type SoundEventType = (typeof SOUND_EVENTS)[number]
+
+/** User-friendly labels for each sound event (used as i18n defaultValues). */
+const SOUND_EVENT_LABELS: Record<SoundEventType, string> = {
+  done: 'Response complete',
+  error: 'Error',
+  tool_result: 'Tool finished',
+  file_diff: 'File changed',
+  commit_suggestion: 'Commit suggested',
+  mode: 'Mode changed',
+  loop_limit_reached: 'Loop limit reached',
+  verification_result: 'Verification result',
+  preview_error: 'Preview error',
+}
+
+/** Brief descriptions for each sound event. */
+const SOUND_EVENT_DESCRIPTIONS: Record<SoundEventType, string> = {
+  done: 'Synthase finished responding',
+  error: 'Something went wrong during a response',
+  tool_result: 'A tool call (file read, command, etc.) completed',
+  file_diff: 'A file was created or modified',
+  commit_suggestion: 'Synthase is suggesting files to commit',
+  mode: 'Switched between plan mode and execute mode',
+  loop_limit_reached: 'Hit the max tool iterations limit',
+  verification_result: 'Lint or type-check finished running',
+  preview_error: 'The live preview encountered an error',
+}
+
+/** Mode cycle order and display labels. */
+const SOUND_MODES: SoundMode[] = ['off', 'whenNotFocused', 'always']
+const SOUND_MODE_LABELS: Record<SoundMode, string> = {
+  off: 'off',
+  whenNotFocused: 'when not focused',
+  always: 'always',
+}
+
+type SoundsConfig = Record<SoundEventType, SoundMode>
+
+const DEFAULT_SOUNDS_CONFIG: SoundsConfig = {
+  done: 'whenNotFocused',
+  error: 'whenNotFocused',
+  tool_result: 'off',
+  file_diff: 'off',
+  commit_suggestion: 'off',
+  mode: 'whenNotFocused',
+  loop_limit_reached: 'whenNotFocused',
+  verification_result: 'whenNotFocused',
+  preview_error: 'whenNotFocused',
+}
+
+interface SoundsPicker {
+  selectedIdx: number
+}
+
+let audioCtx: AudioContext | null = null
+
+/**
+ * Play a short notification tone using the Web Audio API.
+ * Creates the AudioContext lazily on first call (after user interaction).
+ */
+function playTone(): void {
+  try {
+    if (!audioCtx) audioCtx = new AudioContext()
+    const osc = audioCtx.createOscillator()
+    const gain = audioCtx.createGain()
+    osc.connect(gain)
+    gain.connect(audioCtx.destination)
+    osc.type = 'sine'
+    osc.frequency.value = 660
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15)
+    osc.start(audioCtx.currentTime)
+    osc.stop(audioCtx.currentTime + 0.15)
+  } catch {
+    // AudioContext not available — silently skip
+  }
+}
+
+/**
+ * Check if a sound should play based on the mode and current page focus.
+ * @param mode - The sound mode for the event.
+ * @returns Whether the sound should play.
+ */
+function shouldPlaySound(mode: SoundMode): boolean {
+  if (mode === 'off') return false
+  if (mode === 'always') return true
+  return !document.hasFocus()
 }
 
 // ---------------------------------------------------------------------------
@@ -251,6 +370,159 @@ function ThinkingBlock({ content }: { content: string }): JSX.Element {
 }
 
 // ---------------------------------------------------------------------------
+// VerificationBadge — inline lint result indicator
+// ---------------------------------------------------------------------------
+
+/**
+ * Inline badge showing lint verification status — green check for pass, expandable error card for fail.
+ * @param root0 - Component props.
+ * @param root0.status - Whether lint passed or found errors.
+ * @param root0.output - Lint error output (only present on error).
+ * @param root0.workspaces - Which workspaces were checked.
+ * @returns The rendered verification badge element.
+ */
+function VerificationBadge({
+  status,
+  output,
+  workspaces,
+}: {
+  status: 'ok' | 'error'
+  output?: string
+  workspaces: string[]
+}): JSX.Element {
+  const cm = getClassMap()
+  const [expanded, setExpanded] = useState(false)
+  const wsLabel = workspaces.join(', ')
+
+  if (status === 'ok') {
+    return (
+      <div
+        className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
+          padding: '3px 0',
+          opacity: 0.7,
+        }}
+      >
+        <span style={{ color: '#3fb950' }}>{'\u2713'}</span>
+        <span>
+          {t('ide.chat.verificationPassed', { workspaces: wsLabel }, { defaultValue: 'Lint passed' })}
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      style={{
+        margin: '4px 0',
+        borderRadius: 6,
+        border: '1px solid rgba(248,81,73,0.3)',
+        background: 'rgba(248,81,73,0.06)',
+        overflow: 'hidden',
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className={cm.cn(cm.textSize('xs'), cm.w('full'))}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
+          padding: '5px 8px',
+          border: 'none',
+          background: 'transparent',
+          color: '#f85149',
+          cursor: 'pointer',
+          textAlign: 'left',
+        }}
+      >
+        <span>{'\u26A0'}</span>
+        <span style={{ flex: 1 }}>
+          {t(
+            'ide.chat.verificationFailed',
+            { workspaces: wsLabel },
+            { defaultValue: 'Lint errors found' },
+          )}
+        </span>
+        <span style={{ opacity: 0.6, fontSize: 10 }}>{expanded ? '\u25B2' : '\u25BC'}</span>
+      </button>
+      {expanded && output && (
+        <pre
+          className={cm.cn(cm.textSize('xs'))}
+          style={{
+            margin: 0,
+            padding: '6px 8px',
+            borderTop: '1px solid rgba(248,81,73,0.15)',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+            maxHeight: 200,
+            overflow: 'auto',
+            opacity: 0.85,
+            fontFamily: 'var(--mol-font-mono, monospace)',
+            color: 'inherit',
+          }}
+        >
+          {output}
+        </pre>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// ResourceLimitBanner — upgrade prompt when sandbox runs out of memory
+// ---------------------------------------------------------------------------
+
+/**
+ * Inline banner shown when the sandbox runs out of memory, prompting the user to upgrade.
+ * @param root0 - Component props.
+ * @param root0.message - The resource limit message.
+ * @returns The rendered upgrade banner element.
+ */
+function ResourceLimitBanner({ message }: { message: string }): JSX.Element {
+  const cm = getClassMap()
+  return (
+    <div
+      style={{
+        margin: '6px 0',
+        padding: '8px 12px',
+        borderRadius: 6,
+        border: '1px solid rgba(234,179,8,0.4)',
+        background: 'rgba(234,179,8,0.08)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+      }}
+    >
+      <span style={{ fontSize: 16 }}>{'\u26A0'}</span>
+      <div style={{ flex: 1 }}>
+        <span className={cm.textSize('xs')} style={{ display: 'block' }}>
+          {message}
+        </span>
+        <a
+          href="/pricing"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cm.textSize('xs')}
+          style={{
+            color: '#4070e0',
+            textDecoration: 'underline',
+            marginTop: 2,
+            display: 'inline-block',
+          }}
+        >
+          {t('ide.chat.viewPlans', undefined, { defaultValue: 'View plans' })}
+        </a>
+      </div>
+    </div>
+  )
+}
+
 // CommitCardItem — expandable tool-call-style card for commits
 // ---------------------------------------------------------------------------
 
@@ -582,12 +854,24 @@ function ChatInner({
   // re-sending the initial prompt instead of restoring the existing conversation.
   const hasConversation = endpoint.includes('conversationId=')
   const conversationId = endpoint.match(/conversationId=([^&]+)/)?.[1] ?? null
-  const { messages, isLoading, error, sendMessage, abort, clearHistory } = useChat({
+  // Ref for sounds config so the onStreamEvent callback always reads the latest value.
+  const soundsConfigRef = useRef<SoundsConfig>({ ...DEFAULT_SOUNDS_CONFIG })
+
+  const handleStreamEvent = useCallback((event: { type: string }) => {
+    const cfg = soundsConfigRef.current
+    const eventType = event.type as SoundEventType
+    if (eventType in cfg && shouldPlaySound(cfg[eventType])) {
+      playTone()
+    }
+  }, [])
+
+  const { messages, isLoading, error, sendMessage, abort, clearHistory, editQueuedMessage, deleteQueuedMessage } = useChat({
     endpoint,
     projectId,
     loadOnMount: hasConversation || !initialMessage,
     onFileChange,
     onConversationId,
+    onStreamEvent: handleStreamEvent,
   })
 
   // ── Commit ─────────────────────────────────────────────────────────────────
@@ -693,12 +977,23 @@ function ChatInner({
   }, [autoResize])
 
   /** Update the ref, the DOM element, and the hasInput flag without re-rendering the parent. */
-  const setInputValue = useCallback((val: string) => {
-    inputRef.current = val
-    const ta = textareaRef.current
-    if (ta && ta.value !== val) ta.value = val
-    setHasInput(Boolean(val.trim()))
-  }, [])
+  const setInputValue = useCallback(
+    (val: string) => {
+      inputRef.current = val
+      const ta = textareaRef.current
+      if (ta && ta.value !== val) ta.value = val
+      setHasInput(Boolean(val.trim()))
+      // Clear persisted draft when input is emptied (e.g. on submit)
+      if (!val) {
+        try {
+          sessionStorage.removeItem(draftKey)
+        } catch {
+          /* unavailable */
+        }
+      }
+    },
+    [draftKey],
+  )
 
   // Persist draft text to sessionStorage so it survives refresh (debounced)
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -866,10 +1161,55 @@ function ChatInner({
   // ── Model picker (shown when typing /model <filter>) ──────────────────────
   const [modelPicker, setModelPicker] = useState<ModelPicker | null>(null)
 
-  // ── Current project settings (model + maxloops) ───────────────────────────
+  // ── System cards (persistent inline notifications in chat history) ────────
+  const [systemCards, setSystemCards] = useState<SystemCard[]>([])
+  const addSystemCard = useCallback((text: string) => {
+    setSystemCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
+  }, [])
+
+  // ── Sounds picker (shown when /sounds is executed) ────────────────────────
+  const [soundsPicker, setSoundsPicker] = useState<SoundsPicker | null>(null)
+  const [soundsConfig, setSoundsConfig] = useState<SoundsConfig>({ ...DEFAULT_SOUNDS_CONFIG })
+
+  // Keep ref in sync so the streaming callback always sees latest config
+  useEffect(() => {
+    soundsConfigRef.current = soundsConfig
+  }, [soundsConfig])
+
+  /** Cycle a single sound event's mode and persist to project settings. */
+  const cycleSoundMode = useCallback(
+    async (eventType: SoundEventType | 'all') => {
+      let updated: SoundsConfig
+      if (eventType === 'all') {
+        const current = soundsConfig[SOUND_EVENTS[0]]
+        const nextIdx = (SOUND_MODES.indexOf(current) + 1) % SOUND_MODES.length
+        const next = SOUND_MODES[nextIdx]
+        updated = Object.fromEntries(SOUND_EVENTS.map((e) => [e, next])) as SoundsConfig
+      } else {
+        const current = soundsConfig[eventType]
+        const nextIdx = (SOUND_MODES.indexOf(current) + 1) % SOUND_MODES.length
+        const next = SOUND_MODES[nextIdx]
+        updated = { ...soundsConfig, [eventType]: next }
+      }
+      setSoundsConfig(updated)
+      try {
+        await http.patch(`/projects/${projectId}`, { settings: { sounds: updated } })
+      } catch {
+        addSystemCard(
+          t('ide.chat.soundsError', undefined, {
+            defaultValue: 'Failed to update sound settings.',
+          }),
+        )
+      }
+    },
+    [soundsConfig, http, projectId, addSystemCard],
+  )
+
+  // ── Current project settings (model + maxloops + sounds) ──────────────────
   const DEFAULT_MODEL = 'claude-haiku-4-5-20251001'
   const [currentModel, setCurrentModel] = useState<string>(DEFAULT_MODEL)
   const [currentMaxLoops, setCurrentMaxLoops] = useState<number>(25)
+  const [autoLintEnabled, setAutoLintEnabled] = useState<boolean>(true)
   useEffect(() => {
     http
       .get<{ settings?: Record<string, unknown> }>(`/projects/${projectId}`)
@@ -877,17 +1217,19 @@ function ChatInner({
         const s = res.data.settings
         if (typeof s?.chatModel === 'string') setCurrentModel(s.chatModel)
         if (typeof s?.maxToolLoops === 'number') setCurrentMaxLoops(s.maxToolLoops)
+        if (typeof s?.autoLint === 'boolean') setAutoLintEnabled(s.autoLint)
+        if (s?.sounds && typeof s.sounds === 'object') {
+          setSoundsConfig((prev) => ({ ...prev, ...(s.sounds as Partial<SoundsConfig>) }))
+        }
       })
       .catch(() => {
         /* ignore */
       })
   }, [http, projectId])
 
-  // ── System cards (persistent inline notifications in chat history) ────────
-  const [systemCards, setSystemCards] = useState<SystemCard[]>([])
-  const addSystemCard = useCallback((text: string) => {
-    setSystemCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
-  }, [])
+  // ── Queued message editing ──────────────────────────────────────────────────
+  const [editingQueuedId, setEditingQueuedId] = useState<string | null>(null)
+  const [editingQueuedText, setEditingQueuedText] = useState('')
 
   // ── Input focus ────────────────────────────────────────────────────────────
   const [isFocused, setIsFocused] = useState(false)
@@ -1222,6 +1564,9 @@ function ChatInner({
       const cursor = e.target.selectionStart ?? val.length
       const before = val.slice(0, cursor)
 
+      // Close sounds picker when user starts typing
+      setSoundsPicker(null)
+
       const atMatch = before.match(/@(\S*)$/)
       if (atMatch) {
         setMentionStart(cursor - atMatch[0].length)
@@ -1326,6 +1671,9 @@ function ChatInner({
               '/test         Run project test suite',
               '/explain      Explain code (e.g. /explain @file)',
               '/lint         Run linter and fix issues',
+              '/autolint     Toggle auto-lint after AI file changes' +
+                (autoLintEnabled ? ' (on)' : ' (off)'),
+              '/sounds       Configure notification sounds',
             ].join('\n'),
           }),
         )
@@ -1546,8 +1894,33 @@ function ChatInner({
       } else if (id === 'lint') {
         setInputValue('')
         sendMessage(
-          'Run the project linter (npm run lint) and fix any issues found. Show what you fixed.',
+          'Run `npm run lint` in both api/ and app/ workspaces. Report all errors and warnings found and fix them.',
         )
+      } else if (id === 'autolint') {
+        setInputValue('')
+        const newValue = !autoLintEnabled
+        try {
+          await http.patch(`/projects/${projectId}`, { settings: { autoLint: newValue } })
+          setAutoLintEnabled(newValue)
+          addSystemCard(
+            newValue
+              ? t('ide.chat.autoLintEnabled', undefined, {
+                  defaultValue: 'Auto-lint enabled — lint runs automatically after AI file changes.',
+                })
+              : t('ide.chat.autoLintDisabled', undefined, {
+                  defaultValue: 'Auto-lint disabled.',
+                }),
+          )
+        } catch {
+          addSystemCard(
+            t('ide.chat.autoLintError', undefined, {
+              defaultValue: 'Failed to update auto-lint setting.',
+            }),
+          )
+        }
+      } else if (id === 'sounds') {
+        setInputValue('')
+        setSoundsPicker({ selectedIdx: -1 })
       }
     },
     [
@@ -1559,6 +1932,7 @@ function ChatInner({
       addSystemCard,
       currentModel,
       currentMaxLoops,
+      autoLintEnabled,
       messages,
       sendMessage,
       refreshGitStatus,
@@ -1573,6 +1947,19 @@ function ChatInner({
 
     const trimmed = (inputRef.current as string).trim()
     if (!trimmed && attachedFiles.length === 0) return
+
+    // Handle /autolint toggle locally
+    if (/^\/autolint$/i.test(trimmed)) {
+      void executeCommand('autolint')
+      return
+    }
+
+    // Handle /sounds command locally
+    if (/^\/sounds$/i.test(trimmed)) {
+      setInputValue('')
+      setSoundsPicker({ selectedIdx: -1 })
+      return
+    }
 
     // Handle /model <name> command locally
     const modelCmdMatch = trimmed.match(/^\/model(?:\s+(.+))?$/i)
@@ -1621,7 +2008,7 @@ function ChatInner({
     // Handle /maxloops <N> command locally
     const maxLoopsMatch = trimmed.match(/^\/maxloops\s+(\d+)$/i)
     if (maxLoopsMatch) {
-      const n = Math.max(1, Math.min(Number(maxLoopsMatch[1]), 100))
+      const n = Math.max(1, Number(maxLoopsMatch[1]))
       try {
         await http.patch(`/projects/${projectId}`, { settings: { maxToolLoops: n } })
         setCurrentMaxLoops(n)
@@ -1805,6 +2192,10 @@ function ChatInner({
   const keyDownRef = useRef<(e: KeyboardEvent) => void>(() => {})
   keyDownRef.current = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
+      if (soundsPicker) {
+        setSoundsPicker(null)
+        return
+      }
       if (modelPicker) {
         setModelPicker(null)
         return
@@ -1819,6 +2210,32 @@ function ChatInner({
       }
       if (isLoading) {
         abort()
+        return
+      }
+    }
+
+    // Sounds picker: "All" row at index 0, then one row per event
+    const soundsRowCount = SOUND_EVENTS.length + 1
+    if (soundsPicker) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setSoundsPicker((s) =>
+          s ? { selectedIdx: wrapIdx(s.selectedIdx, 1, soundsRowCount) } : null,
+        )
+        return
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setSoundsPicker((s) =>
+          s ? { selectedIdx: wrapIdx(s.selectedIdx, -1, soundsRowCount) } : null,
+        )
+        return
+      }
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault()
+        const idx = soundsPicker.selectedIdx >= 0 ? soundsPicker.selectedIdx : 0
+        const target = idx === 0 ? 'all' : SOUND_EVENTS[idx - 1]
+        void cycleSoundMode(target)
         return
       }
     }
@@ -2071,12 +2488,131 @@ function ChatInner({
                     </div>
                   )}
                   {msg.queued && (
-                    <span
-                      className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                      style={{ display: 'block', marginTop: 2, fontStyle: 'italic' }}
-                    >
-                      {t('ide.chat.queued', undefined, { defaultValue: 'Queued' })}
-                    </span>
+                    <div style={{ marginTop: 4 }}>
+                      {editingQueuedId === msg.id ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <textarea
+                            autoFocus
+                            defaultValue={editingQueuedText}
+                            onChange={(e) => setEditingQueuedText(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault()
+                                const trimmed = editingQueuedText.trim()
+                                if (trimmed) {
+                                  editQueuedMessage(msg.id, trimmed)
+                                } else {
+                                  deleteQueuedMessage(msg.id)
+                                }
+                                setEditingQueuedId(null)
+                              }
+                              if (e.key === 'Escape') {
+                                setEditingQueuedId(null)
+                              }
+                            }}
+                            className={cm.cn(cm.surface, cm.textSize('sm'))}
+                            style={{
+                              width: '100%',
+                              minHeight: '40px',
+                              padding: '6px 8px',
+                              border: '1px solid rgba(128,128,128,0.3)',
+                              borderRadius: '4px',
+                              resize: 'vertical',
+                              color: 'inherit',
+                              fontFamily: 'inherit',
+                            }}
+                          />
+                          <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
+                            <button
+                              type="button"
+                              onClick={() => setEditingQueuedId(null)}
+                              className={cm.textSize('xs')}
+                              style={{
+                                padding: '2px 8px',
+                                border: '1px solid rgba(128,128,128,0.3)',
+                                borderRadius: '3px',
+                                background: 'transparent',
+                                color: 'inherit',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {t('ide.chat.cancel', undefined, { defaultValue: 'Cancel' })}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const trimmed = editingQueuedText.trim()
+                                if (trimmed) {
+                                  editQueuedMessage(msg.id, trimmed)
+                                } else {
+                                  deleteQueuedMessage(msg.id)
+                                }
+                                setEditingQueuedId(null)
+                              }}
+                              className={cm.textSize('xs')}
+                              style={{
+                                padding: '2px 8px',
+                                border: '1px solid rgba(128,128,128,0.3)',
+                                borderRadius: '3px',
+                                background: 'rgba(128,128,128,0.1)',
+                                color: 'inherit',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {t('ide.chat.save', undefined, { defaultValue: 'Save' })}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                          }}
+                        >
+                          <span
+                            className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                            style={{ fontStyle: 'italic' }}
+                          >
+                            {t('ide.chat.queued', undefined, { defaultValue: 'Queued' })}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingQueuedId(msg.id)
+                              setEditingQueuedText(msg.content)
+                            }}
+                            className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              cursor: 'pointer',
+                              color: 'inherit',
+                              textDecoration: 'underline',
+                              padding: 0,
+                            }}
+                          >
+                            {t('ide.chat.editQueued', undefined, { defaultValue: 'Edit' })}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteQueuedMessage(msg.id)}
+                            className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              cursor: 'pointer',
+                              color: 'inherit',
+                              textDecoration: 'underline',
+                              padding: 0,
+                            }}
+                          >
+                            {t('ide.chat.deleteQueued', undefined, { defaultValue: 'Delete' })}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               ) : (
@@ -2108,6 +2644,36 @@ function ChatInner({
                             key={bi}
                             text={(block as { type: string; content: string }).content}
                             isStreaming={isLast && msg.isStreaming}
+                          />
+                        )
+                      }
+
+                      if (blockType === 'verification') {
+                        const vBlock = block as unknown as {
+                          type: 'verification'
+                          status: 'ok' | 'error'
+                          output?: string
+                          workspaces: string[]
+                        }
+                        return (
+                          <VerificationBadge
+                            key={`verification-${bi}`}
+                            status={vBlock.status}
+                            output={vBlock.output}
+                            workspaces={vBlock.workspaces}
+                          />
+                        )
+                      }
+
+                      if (blockType === 'resource_limit') {
+                        const rlBlock = block as unknown as {
+                          type: 'resource_limit'
+                          message: string
+                        }
+                        return (
+                          <ResourceLimitBanner
+                            key={`resource-limit-${bi}`}
+                            message={rlBlock.message}
                           />
                         )
                       }
@@ -2400,7 +2966,7 @@ function ChatInner({
               overflow: 'hidden',
               zIndex: 100,
               boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
-              maxHeight: '60vh',
+              maxHeight: '70vh',
               overflowY: 'auto',
             }}
           >
@@ -2443,6 +3009,13 @@ function ChatInner({
                   {cmd.id === 'model' &&
                     ` (current: ${AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel})`}
                   {cmd.id === 'maxloops' && ` (current: ${currentMaxLoops})`}
+                  {cmd.id === 'autolint' && ` (${autoLintEnabled ? 'on' : 'off'})`}
+                  {cmd.id === 'sounds' &&
+                    (() => {
+                      const modes = SOUND_EVENTS.map((e) => soundsConfig[e])
+                      const allSame = modes.every((m) => m === modes[0])
+                      return ` (${allSame ? t(`ide.chat.soundMode.${modes[0]}`, undefined, { defaultValue: SOUND_MODE_LABELS[modes[0]] }) : t('ide.chat.soundMode.mixed', undefined, { defaultValue: 'mixed' })})`
+                    })()}
                 </span>
               </button>
             ))}
@@ -2464,7 +3037,7 @@ function ChatInner({
               boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
               display: 'flex',
               flexDirection: 'column',
-              maxHeight: '60vh',
+              maxHeight: '70vh',
             }}
           >
             <div
@@ -2653,6 +3226,192 @@ function ChatInner({
           </div>
         )}
 
+        {/* Sounds picker popup */}
+        {soundsPicker && (
+          <div
+            className={cm.cn(cm.surface, cm.borderAll)}
+            style={{
+              position: 'absolute',
+              bottom: '100%',
+              left: 0,
+              right: 0,
+              marginBottom: 0,
+              borderRadius: '6px 6px 0 0',
+              zIndex: 100,
+              boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              maxHeight: '70vh',
+            }}
+          >
+            <div
+              className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+              style={{
+                padding: '5px 12px',
+                borderBottom: '1px solid rgba(128,128,128,0.12)',
+                flexShrink: 0,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <span>
+                {t('ide.chat.notificationSounds', undefined, {
+                  defaultValue: 'Notification sounds',
+                })}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSoundsPicker(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  padding: '0 2px',
+                  fontSize: '14px',
+                  lineHeight: 1,
+                  opacity: 0.6,
+                }}
+              >
+                {'\u2715'}
+              </button>
+            </div>
+            <div style={{ overflowY: 'auto', flex: 1 }}>
+              {/* "All" row */}
+              {(() => {
+                const allModes = SOUND_EVENTS.map((e) => soundsConfig[e])
+                const allSame = allModes.every((m) => m === allModes[0])
+                const currentMode = allSame ? allModes[0] : null
+                const badgeColor =
+                  currentMode === 'always'
+                    ? { bg: 'rgba(34,197,94,0.2)', fg: 'rgb(34,197,94)' }
+                    : currentMode === 'whenNotFocused'
+                      ? { bg: 'rgba(234,179,8,0.2)', fg: 'rgb(202,138,4)' }
+                      : { bg: 'rgba(128,128,128,0.2)', fg: 'inherit' }
+                const modeLabel = allSame ? t(`ide.chat.soundMode.${allModes[0]}`, undefined, { defaultValue: SOUND_MODE_LABELS[allModes[0]] }) : t('ide.chat.soundMode.mixed', undefined, { defaultValue: 'mixed' })
+                return (
+                  <button
+                    type="button"
+                    onClick={() => void cycleSoundMode('all')}
+                    onMouseEnter={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)'
+                    }}
+                    onMouseLeave={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.background =
+                        soundsPicker.selectedIdx === 0 ? 'rgba(128,128,128,0.1)' : 'transparent'
+                    }}
+                    className={cm.w('full')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      minHeight: '55px',
+                      padding: '8px 12px',
+                      border: 'none',
+                      borderBottom: '1px solid rgba(128,128,128,0.12)',
+                      cursor: 'pointer',
+                      color: 'inherit',
+                      textAlign: 'left',
+                      fontSize: '13px',
+                      background:
+                        soundsPicker.selectedIdx === 0 ? 'rgba(128,128,128,0.1)' : 'transparent',
+                    }}
+                  >
+                    <span className={cm.fontWeight('medium')}>
+                      {t('ide.chat.soundAll', undefined, { defaultValue: 'All' })}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        background: badgeColor.bg,
+                        color: badgeColor.fg,
+                        padding: '1px 6px',
+                        borderRadius: '3px',
+                      }}
+                    >
+                      {modeLabel}
+                    </span>
+                  </button>
+                )
+              })()}
+              {/* Per-event rows */}
+              {SOUND_EVENTS.map((eventType, idx) => {
+                const rowIdx = idx + 1
+                const mode = soundsConfig[eventType]
+                const badgeColor =
+                  mode === 'always'
+                    ? { bg: 'rgba(34,197,94,0.2)', fg: 'rgb(34,197,94)' }
+                    : mode === 'whenNotFocused'
+                      ? { bg: 'rgba(234,179,8,0.2)', fg: 'rgb(202,138,4)' }
+                      : { bg: 'rgba(128,128,128,0.2)', fg: 'inherit' }
+                return (
+                  <button
+                    key={eventType}
+                    type="button"
+                    onClick={() => void cycleSoundMode(eventType)}
+                    onMouseEnter={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)'
+                    }}
+                    onMouseLeave={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.background =
+                        soundsPicker.selectedIdx === rowIdx
+                          ? 'rgba(128,128,128,0.1)'
+                          : 'transparent'
+                    }}
+                    className={cm.w('full')}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      minHeight: '55px',
+                      padding: '8px 12px 8px 24px',
+                      border: 'none',
+                      borderTop: '1px solid rgba(128,128,128,0.12)',
+                      cursor: 'pointer',
+                      color: 'inherit',
+                      textAlign: 'left',
+                      fontSize: '13px',
+                      background:
+                        soundsPicker.selectedIdx === rowIdx
+                          ? 'rgba(128,128,128,0.1)'
+                          : 'transparent',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span>
+                        {t(`ide.chat.soundEvent.${eventType}`, undefined, {
+                          defaultValue: SOUND_EVENT_LABELS[eventType],
+                        })}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: '11px',
+                          background: badgeColor.bg,
+                          color: badgeColor.fg,
+                          padding: '1px 6px',
+                          borderRadius: '3px',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {t(`ide.chat.soundMode.${mode}`, undefined, { defaultValue: SOUND_MODE_LABELS[mode] })}
+                      </span>
+                    </div>
+                    <div
+                      className={cm.textMuted}
+                      style={{ fontSize: '11px', marginTop: '2px', opacity: 0.7 }}
+                    >
+                      {t(`ide.chat.soundEventDesc.${eventType}`, undefined, {
+                        defaultValue: SOUND_EVENT_DESCRIPTIONS[eventType],
+                      })}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
         {/* File picker popup */}
         {filePicker &&
           filteredEntries.length > 0 &&
@@ -2678,7 +3437,7 @@ function ChatInner({
                   overflow: 'hidden',
                   zIndex: 100,
                   boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
-                  maxHeight: '60vh',
+                  maxHeight: '70vh',
                   overflowY: 'auto',
                 }}
               >

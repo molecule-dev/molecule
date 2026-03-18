@@ -136,6 +136,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
     onFileChange,
     onModeChange,
     onConversationId,
+    onStreamEvent,
   } = options
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -326,6 +327,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
         const onEvent = (event: ChatStreamEvent): void => {
           if (!mountedRef.current) return
+          onStreamEvent?.(event)
 
           switch (event.type) {
             case 'text': {
@@ -408,6 +410,27 @@ export function useChat(options: UseChatOptions): UseChatResult {
                       }
                     : m,
                 ),
+              )
+              break
+            case 'verification_result':
+              blocks.push({
+                type: 'verification',
+                status: event.status,
+                ...(event.output ? { output: event.output } : {}),
+                workspaces: event.workspaces,
+              })
+              setMessages((prev) =>
+                prev.map((m) => (m.id === assistantId ? { ...m, blocks: [...blocks] } : m)),
+              )
+              break
+            case 'resource_limit':
+              blocks.push({
+                type: 'resource_limit',
+                resource: event.resource,
+                message: event.message,
+              })
+              setMessages((prev) =>
+                prev.map((m) => (m.id === assistantId ? { ...m, blocks: [...blocks] } : m)),
               )
               break
             case 'loop_limit_reached':
@@ -629,6 +652,27 @@ export function useChat(options: UseChatOptions): UseChatResult {
               ),
             )
             break
+          case 'verification_result':
+            blocks.push({
+              type: 'verification',
+              status: event.status,
+              ...(event.output ? { output: event.output } : {}),
+              workspaces: event.workspaces,
+            })
+            setMessages((prev) =>
+              prev.map((m) => (m.id === resumeId ? { ...m, blocks: [...blocks] } : m)),
+            )
+            break
+          case 'resource_limit':
+            blocks.push({
+              type: 'resource_limit',
+              resource: event.resource,
+              message: event.message,
+            })
+            setMessages((prev) =>
+              prev.map((m) => (m.id === resumeId ? { ...m, blocks: [...blocks] } : m)),
+            )
+            break
           case 'loop_limit_reached':
             setMessages((prev) =>
               prev.map((m) => (m.id === resumeId ? { ...m, loopLimitReached: event.maxLoops } : m)),
@@ -732,5 +776,38 @@ export function useChat(options: UseChatOptions): UseChatResult {
     }
   }, [provider, endpoint])
 
-  return { messages, isLoading, error, mode, sendMessage, abort, clearHistory }
+  const editQueuedMessage = useCallback(
+    (msgId: string, newContent: string) => {
+      const entry = pendingRef.current.find((e) => e.userMsgId === msgId)
+      if (entry) {
+        entry.message = newContent
+        persistQueue(storageKey, pendingRef.current)
+      }
+      setMessages((prev) =>
+        prev.map((m) => (m.id === msgId && m.queued ? { ...m, content: newContent } : m)),
+      )
+    },
+    [storageKey],
+  )
+
+  const deleteQueuedMessage = useCallback(
+    (msgId: string) => {
+      pendingRef.current = pendingRef.current.filter((e) => e.userMsgId !== msgId)
+      persistQueue(storageKey, pendingRef.current)
+      setMessages((prev) => prev.filter((m) => !(m.id === msgId && m.queued)))
+    },
+    [storageKey],
+  )
+
+  return {
+    messages,
+    isLoading,
+    error,
+    mode,
+    sendMessage,
+    abort,
+    clearHistory,
+    editQueuedMessage,
+    deleteQueuedMessage,
+  }
 }

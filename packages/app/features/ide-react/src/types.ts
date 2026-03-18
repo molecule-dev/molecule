@@ -92,6 +92,10 @@ export interface PreviewPanelProps {
   loadingIndicator?: ReactNode
   /** Custom loading indicator shown when the dev server restarts mid-session. Falls back to loadingIndicator if not provided. */
   restartingIndicator?: ReactNode
+  /** Called when the preview iframe reports runtime JS errors. */
+  onPreviewError?: (
+    errors: Array<{ message: string; source?: string; line?: number; column?: number }>,
+  ) => void
   className?: string
 }
 

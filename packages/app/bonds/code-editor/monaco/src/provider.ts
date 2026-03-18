@@ -1495,6 +1495,27 @@ export class MonacoEditorProvider implements EditorProvider {
   }
 
   /**
+   * Get current diagnostics for a file from the LSP markers.
+   * @param path - The file path (with or without /workspace/ prefix).
+   * @returns Array of diagnostics, or empty if no model/markers exist.
+   */
+  getDiagnostics(path: string): EditorDiagnostic[] {
+    if (!this.monaco) return []
+    const model = this.monacoModels.get(path)
+    if (!model) return []
+    const markers = this.monaco.editor.getModelMarkers({ resource: model.uri })
+    return markers.map((m) => ({
+      message: m.message,
+      severity: this.mapMarkerSeverity(m.severity),
+      startLine: m.startLineNumber,
+      startColumn: m.startColumn,
+      endLine: m.endLineNumber,
+      endColumn: m.endColumn,
+      source: m.source,
+    }))
+  }
+
+  /**
    * Registers "Fix with AI" in the editor's lightbulb quick fix menu and right-click
    * context menu. Both trigger the `onFixWithAI` callback with diagnostic details.
    * @param monaco - The Monaco module instance.

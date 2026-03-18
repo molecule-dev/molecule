@@ -57,6 +57,7 @@ async function isServerUp(url: string): Promise<boolean> {
  * @param root0 - The component props.
  * @param root0.loadingIndicator - Custom loading indicator for initial start.
  * @param root0.restartingIndicator - Custom loading indicator for mid-session restarts.
+ * @param root0.onPreviewError - Called when the preview iframe reports runtime JS errors.
  * @param root0.className - Optional CSS class name for the container.
  * @returns The rendered preview panel element.
  */
@@ -64,6 +65,7 @@ export function PreviewPanel({
   loadingIndicator,
   restartingIndicator,
   className,
+  onPreviewError,
 }: PreviewPanelProps): JSX.Element {
   const cm = getClassMap()
   const { state, setUrl, refresh, setDevice, openExternal } = usePreview()
@@ -142,7 +144,13 @@ export function PreviewPanel({
   // --- Listen for postMessage from scaffold template ---
   // molecule:ready  = #root got children (app rendered)  → hide overlay
   // molecule:error {crash:true} = #root emptied (app crashed) → show overlay
+  // molecule:runtime-error = JS runtime error in the iframe → forward to chat
   useEffect(() => {
+    // Debounce runtime errors — HMR triggers rapid error/recovery cycles
+    let errorBatch: Array<{ message: string; source?: string; line?: number; column?: number }> = []
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null
+    const MAX_ERRORS_PER_BATCH = 5
+
     const handler = (event: MessageEvent): void => {
       if (event.data?.type === 'molecule:ready') {
         clearPoll()
@@ -151,11 +159,31 @@ export function PreviewPanel({
       } else if (event.data?.type === 'molecule:error' && event.data.crash) {
         setIframeReady(false)
         setFadingOut(false)
+      } else if (event.data?.type === 'molecule:runtime-error' && onPreviewError) {
+        if (errorBatch.length < MAX_ERRORS_PER_BATCH) {
+          errorBatch.push({
+            message: String(event.data.message ?? 'Unknown error'),
+            source: event.data.source ?? undefined,
+            line: event.data.line ?? undefined,
+            column: event.data.column ?? undefined,
+          })
+        }
+        if (debounceTimer) clearTimeout(debounceTimer)
+        debounceTimer = setTimeout(() => {
+          if (errorBatch.length > 0) {
+            onPreviewError(errorBatch)
+            errorBatch = []
+          }
+          debounceTimer = null
+        }, 2000)
       }
     }
     window.addEventListener('message', handler)
-    return () => window.removeEventListener('message', handler)
-  }, [clearPoll])
+    return () => {
+      window.removeEventListener('message', handler)
+      if (debounceTimer) clearTimeout(debounceTimer)
+    }
+  }, [clearPoll, onPreviewError])
 
   // --- iframe onError: server unreachable, poll and reload when ready ---
   const handleIframeError = useCallback(() => {

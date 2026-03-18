@@ -12,6 +12,8 @@ export type MessageBlock =
   | { type: 'text'; content: string }
   | { type: 'tool_call'; id: string }
   | { type: 'thinking'; content: string }
+  | { type: 'verification'; status: 'ok' | 'error'; output?: string; workspaces: string[] }
+  | { type: 'resource_limit'; resource: string; message: string }
 
 /**
  * A file attachment sent with a chat message.
@@ -138,6 +140,18 @@ export type ChatStreamEvent =
   | { type: 'conversation'; id: string }
   | { type: 'mode'; mode: 'plan' | 'execute' }
   | { type: 'loop_limit_reached'; maxLoops: number }
+  | {
+      type: 'verification_result'
+      status: 'ok' | 'error'
+      output?: string
+      workspaces: string[]
+      changedPaths?: string[]
+    }
+  | {
+      type: 'preview_error'
+      errors: Array<{ message: string; source?: string; line?: number; column?: number }>
+    }
+  | { type: 'resource_limit'; resource: 'memory'; message: string }
   | { type: 'done'; usage?: { inputTokens: number; outputTokens: number } }
   | { type: 'error'; message: string }
 

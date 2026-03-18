@@ -6,7 +6,12 @@
 
 import type { ReactNode } from 'react'
 
-import type { ChatAttachment, ChatMessage, ChatProvider } from '@molecule/app-ai-chat'
+import type {
+  ChatAttachment,
+  ChatMessage,
+  ChatProvider,
+  ChatStreamEvent,
+} from '@molecule/app-ai-chat'
 import type { AuthClient, AuthState } from '@molecule/app-auth'
 import type {
   DiffFile,
@@ -222,6 +227,8 @@ export interface UseChatOptions {
   onModeChange?: (mode: 'plan' | 'execute') => void
   /** Called when the backend assigns or confirms a conversation ID. */
   onConversationId?: (id: string) => void
+  /** Called for every streaming event — useful for notifications, sounds, etc. */
+  onStreamEvent?: (event: ChatStreamEvent) => void
 }
 
 /**
@@ -236,6 +243,10 @@ export interface UseChatResult {
   sendMessage: (message: string, attachments?: ChatAttachment[]) => Promise<void>
   abort: () => void
   clearHistory: () => Promise<void>
+  /** Edit the content of a queued (not yet sent) message. */
+  editQueuedMessage: (msgId: string, newContent: string) => void
+  /** Remove a queued (not yet sent) message from the queue. */
+  deleteQueuedMessage: (msgId: string) => void
 }
 
 /**
