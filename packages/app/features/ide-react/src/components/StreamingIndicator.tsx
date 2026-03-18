@@ -36,9 +36,12 @@ function MolSpinner({ size = 16 }: { size?: number }): JSX.Element {
     >
       <g>
         <animateTransform
-          attributeName="transform" type="rotate"
-          from="0 16 16" to="360 16 16"
-          dur="3s" repeatCount="indefinite"
+          attributeName="transform"
+          type="rotate"
+          from="0 16 16"
+          to="360 16 16"
+          dur="3s"
+          repeatCount="indefinite"
         />
         <g
           transform="matrix(.86229 0 0 .86229 -.78879 2.2034)"
@@ -52,7 +55,9 @@ function MolSpinner({ size = 16 }: { size?: number }): JSX.Element {
           {/* Bond: Center–Left */}
           <line x1="16.494" x2="8.563" y1="16" y2="16">
             <animate
-              attributeName="opacity" dur={DUR} repeatCount="indefinite"
+              attributeName="opacity"
+              dur={DUR}
+              repeatCount="indefinite"
               values="1;0;0;1;1"
               keyTimes="0;0.033;0.167;0.217;1"
               calcMode="spline"
@@ -63,7 +68,9 @@ function MolSpinner({ size = 16 }: { size?: number }): JSX.Element {
           {/* Bond: Center–Bottom-right */}
           <line x1="20.959" x2="24.924" y1="18.579" y2="25.446">
             <animate
-              attributeName="opacity" dur={DUR} repeatCount="indefinite"
+              attributeName="opacity"
+              dur={DUR}
+              repeatCount="indefinite"
               values="1;1;0;0;1;1"
               keyTimes="0;0.333;0.367;0.500;0.550;1"
               calcMode="spline"
@@ -74,7 +81,9 @@ function MolSpinner({ size = 16 }: { size?: number }): JSX.Element {
           {/* Bond: Center–Top-right */}
           <line x1="20.959" x2="24.924" y1="13.422" y2="6.555">
             <animate
-              attributeName="opacity" dur={DUR} repeatCount="indefinite"
+              attributeName="opacity"
+              dur={DUR}
+              repeatCount="indefinite"
               values="1;1;0;0;1;1"
               keyTimes="0;0.667;0.700;0.833;0.883;1"
               calcMode="spline"
@@ -85,58 +94,79 @@ function MolSpinner({ size = 16 }: { size?: number }): JSX.Element {
           {/* Atom 0: Center → Left */}
           <circle cx="19.47" cy="16" r="2.976">
             <animate
-              attributeName="cx" dur={DUR} repeatCount="indefinite"
+              attributeName="cx"
+              dur={DUR}
+              repeatCount="indefinite"
               values="19.47;19.47;5.587;5.587"
               keyTimes="0;0.033;0.167;1"
-              calcMode="spline" keySplines={[LIN, EASE, LIN].join(';')}
+              calcMode="spline"
+              keySplines={[LIN, EASE, LIN].join(';')}
             />
           </circle>
 
           {/* Atom 1: Left → Center → Bottom-right */}
           <circle cx="5.587" cy="16" r="2.976">
             <animate
-              attributeName="cx" dur={DUR} repeatCount="indefinite"
+              attributeName="cx"
+              dur={DUR}
+              repeatCount="indefinite"
               values="5.587;5.587;19.47;19.47;26.412;26.412"
               keyTimes="0;0.033;0.167;0.367;0.500;1"
-              calcMode="spline" keySplines={[LIN, EASE, LIN, EASE, LIN].join(';')}
+              calcMode="spline"
+              keySplines={[LIN, EASE, LIN, EASE, LIN].join(';')}
             />
             <animate
-              attributeName="cy" dur={DUR} repeatCount="indefinite"
+              attributeName="cy"
+              dur={DUR}
+              repeatCount="indefinite"
               values="16;16;16;16;28.023;28.023"
               keyTimes="0;0.033;0.167;0.367;0.500;1"
-              calcMode="spline" keySplines={[LIN, EASE, LIN, EASE, LIN].join(';')}
+              calcMode="spline"
+              keySplines={[LIN, EASE, LIN, EASE, LIN].join(';')}
             />
           </circle>
 
           {/* Atom 2: Bottom-right → Center → Top-right */}
           <circle cx="26.412" cy="28.023" r="2.976">
             <animate
-              attributeName="cx" dur={DUR} repeatCount="indefinite"
+              attributeName="cx"
+              dur={DUR}
+              repeatCount="indefinite"
               values="26.412;26.412;19.47;19.47;26.412;26.412"
               keyTimes="0;0.367;0.500;0.700;0.833;1"
-              calcMode="spline" keySplines={[LIN, EASE, LIN, EASE, LIN].join(';')}
+              calcMode="spline"
+              keySplines={[LIN, EASE, LIN, EASE, LIN].join(';')}
             />
             <animate
-              attributeName="cy" dur={DUR} repeatCount="indefinite"
+              attributeName="cy"
+              dur={DUR}
+              repeatCount="indefinite"
               values="28.023;28.023;16;16;3.977;3.977"
               keyTimes="0;0.367;0.500;0.700;0.833;1"
-              calcMode="spline" keySplines={[LIN, EASE, LIN, EASE, LIN].join(';')}
+              calcMode="spline"
+              keySplines={[LIN, EASE, LIN, EASE, LIN].join(';')}
             />
           </circle>
 
           {/* Atom 3: Top-right → Center */}
           <circle cx="26.412" cy="3.977" r="2.976">
             <animate
-              attributeName="cx" dur={DUR} repeatCount="indefinite"
+              attributeName="cx"
+              dur={DUR}
+              repeatCount="indefinite"
               values="26.412;26.412;19.47;19.47"
               keyTimes="0;0.700;0.833;1"
-              calcMode="spline" keySplines={[LIN, EASE, LIN].join(';')}
+              calcMode="spline"
+              keySplines={[LIN, EASE, LIN].join(';')}
             />
             <animate
-              attributeName="cy" dur={DUR} repeatCount="indefinite"
+              attributeName="cy"
+              dur={DUR}
+              repeatCount="indefinite"
               values="3.977;3.977;16;16"
               keyTimes="0;0.700;0.833;1"
-              calcMode="spline" keySplines={[LIN, EASE, LIN].join(';')}
+              calcMode="spline"
+              keySplines={[LIN, EASE, LIN].join(';')}
             />
           </circle>
         </g>

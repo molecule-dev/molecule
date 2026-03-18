@@ -47,6 +47,7 @@ function injectCountdownStyle(): void {
  * @param root0.countdownKey - React key to re-trigger the countdown animation.
  * @param root0.formatEstimate - Estimated formatting duration in milliseconds.
  * @param root0.onFixWithAI - Callback to request AI-assisted diagnostic fix.
+ * @param root0.onTabDoubleClick - Override double-click on a tab. Return true to skip default pin behavior.
  * @returns The rendered editor panel element.
  */
 export function EditorPanel({
@@ -60,6 +61,7 @@ export function EditorPanel({
   countdownKey,
   formatEstimate = 2000,
   onFixWithAI,
+  onTabDoubleClick,
 }: EditorPanelProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
@@ -173,14 +175,25 @@ export function EditorPanel({
   }, [mount, dispose])
 
   return (
-    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, cm.borderR, className)}>
+    <div
+      className={cm.cn(
+        cm.flex({ direction: 'col' }),
+        cm.h('full'),
+        cm.surface,
+        cm.borderR,
+        className,
+      )}
+    >
       {/* Tab bar */}
       <TabBar
         tabs={tabs}
         activeFile={activeFile}
         onSelect={handleTabSelect}
         onClose={closeFile}
-        onDoubleClick={pinTab}
+        onDoubleClick={(path) => {
+          if (onTabDoubleClick?.(path)) return
+          pinTab(path)
+        }}
         fileStatuses={fileStatuses}
       />
 

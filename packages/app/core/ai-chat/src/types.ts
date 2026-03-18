@@ -59,7 +59,7 @@ export interface ChatMessage {
   /** Set when the agentic loop hit its iteration limit before finishing. */
   loopLimitReached?: number
   /** Persisted commit record for display in conversation history. */
-  commitRecord?: { message: string; files: string[] }
+  commitRecord?: { message: string; files: string[]; hash?: string }
   commitSuggestion?: CommitSuggestion
   /** File attachments sent with this message (metadata only — no base64 data in history). */
   attachments?: AttachmentMeta[]
@@ -86,6 +86,8 @@ export interface ToolCall {
   status: 'pending' | 'running' | 'done' | 'error'
   /** Snapshot of original/modified file content captured at tool-call time (not sent to AI). */
   fileDiff?: { original: string; modified: string }
+  /** Whether this tool call's file change has been undone. */
+  isUndone?: boolean
 }
 
 /**

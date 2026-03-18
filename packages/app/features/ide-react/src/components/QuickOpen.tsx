@@ -84,7 +84,9 @@ export function QuickOpen({ projectId, onFileOpen, onDismiss }: QuickOpenProps):
   return (
     <QuickPicker
       items={items}
-      placeholder={t('ide.quickOpen.placeholder', undefined, { defaultValue: 'Search files by name…' })}
+      placeholder={t('ide.quickOpen.placeholder', undefined, {
+        defaultValue: 'Search files by name…',
+      })}
       onSelect={(item) => {
         onFileOpen(item.id)
         onDismiss()

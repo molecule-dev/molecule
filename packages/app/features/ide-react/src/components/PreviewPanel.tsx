@@ -11,7 +11,7 @@
  * @module
  */
 
-import { type JSX,useCallback, useEffect, useRef, useState } from 'react'
+import { type JSX, useCallback, useEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { usePreview } from '@molecule/app-react'

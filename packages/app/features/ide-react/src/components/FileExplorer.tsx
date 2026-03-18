@@ -177,9 +177,9 @@ function resolveSymlinkTarget(symlinkPath: string, target: string): string {
  */
 function scrollAndHighlight(container: HTMLElement | null, path: string): void {
   if (!container) return
-  const el = Array.from(
-    container.querySelectorAll<HTMLElement>('[data-explorer-path]'),
-  ).find((e) => e.dataset.explorerPath === path)
+  const el = Array.from(container.querySelectorAll<HTMLElement>('[data-explorer-path]')).find(
+    (e) => e.dataset.explorerPath === path,
+  )
   if (!el) return
   el.scrollIntoView({ block: 'nearest' })
   el.style.transition = 'background 0s'
@@ -387,9 +387,7 @@ const FileTreeItem = memo(function FileTreeItem({
           }}
         >
           {node.name}
-          {node.symlinkTarget && (
-            ' \u2192 ' + node.symlinkTarget.split('/').pop()
-          )}
+          {node.symlinkTarget && ' \u2192 ' + node.symlinkTarget.split('/').pop()}
         </span>
       </button>
 
@@ -588,9 +586,12 @@ export function FileExplorer({
     node: FileNode | null
   } | null>(null)
 
-  const handleItemContextMenu = useCallback((position: { x: number; y: number }, node: FileNode) => {
-    setContextMenu({ position, node })
-  }, [])
+  const handleItemContextMenu = useCallback(
+    (position: { x: number; y: number }, node: FileNode) => {
+      setContextMenu({ position, node })
+    },
+    [],
+  )
 
   const handleBackgroundContextMenu = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
@@ -603,7 +604,11 @@ export function FileExplorer({
 
   const handleCollapseAll = useCallback(() => {
     setExpandState({ expanded: new Set(), collapsed: new Set(['__all_collapsed__']) })
-    if (persistKey) saveExpandState(persistKey, { expanded: new Set(), collapsed: new Set(['__all_collapsed__']) })
+    if (persistKey)
+      saveExpandState(persistKey, {
+        expanded: new Set(),
+        collapsed: new Set(['__all_collapsed__']),
+      })
     onCollapseAll?.()
   }, [persistKey, onCollapseAll])
 

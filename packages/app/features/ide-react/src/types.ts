@@ -80,6 +80,8 @@ export interface EditorPanelProps {
   formatEstimate?: number
   /** Called when the user triggers "Fix with AI" from the editor's lightbulb or context menu. */
   onFixWithAI?: (request: FixWithAIRequest) => void
+  /** Override double-click on a tab. Return `true` to skip the default pin behavior. */
+  onTabDoubleClick?: (path: string) => boolean
 }
 
 /**
@@ -177,6 +179,10 @@ export interface ToolCallCardProps {
   status: 'pending' | 'running' | 'done' | 'error'
   /** Snapshot of original/modified file content captured at tool-call time. */
   fileDiff?: { original: string; modified: string }
+  /** Externally controlled undo state — when true, the card displays as undone. */
+  isUndone?: boolean
+  /** Called when the undo/redo button is toggled on this tool call. */
+  onUndoToggle?: (id: string, undone: boolean) => void
   /** Called when a filename in the card is clicked — should open the file as a preview tab. */
   onFileOpen?: (path: string) => void
   /** Called when a filename in the card is double-clicked — should pin the tab. */

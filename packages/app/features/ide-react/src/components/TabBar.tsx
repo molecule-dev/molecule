@@ -102,6 +102,7 @@ interface TabItemProps {
   isDirty?: boolean
   isActive: boolean
   isPreview?: boolean
+  isDiff?: boolean
   gitStatus?: string
   diagnostics?: { errors: number; warnings: number }
   onSelect: (path: string) => void
@@ -118,6 +119,7 @@ interface TabItemProps {
  * @param root0.isDirty - Whether the file has unsaved changes.
  * @param root0.isActive - Whether this tab is the currently active one.
  * @param root0.isPreview - Whether this tab is a preview (italic) tab.
+ * @param root0.isDiff - Whether this tab is showing a diff view.
  * @param root0.gitStatus - The git status string for color coding.
  * @param root0.diagnostics - Error and warning counts for the file.
  * @param root0.onSelect - Callback when the tab is clicked.
@@ -132,6 +134,7 @@ function TabItem({
   isDirty,
   isActive,
   isPreview,
+  isDiff,
   gitStatus,
   diagnostics,
   onSelect,
@@ -145,13 +148,36 @@ function TabItem({
   const fileName = path.split('/').pop() || path
   const fileColor = resolveFileColor(statusColors, diagnosticColors, diagnostics, gitStatus)
 
+  // For diff tabs, suppress the single-click during a double-click so that
+  // setActiveTab (which destroys the diff) doesn't fire before onDoubleClick.
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const handleClick = isDiff
+    ? () => {
+        // Delay single-click; cancel if double-click fires first
+        clickTimerRef.current = setTimeout(() => {
+          clickTimerRef.current = null
+          onSelect(path)
+        }, 250)
+      }
+    : () => onSelect(path)
+  const handleDoubleClick = isDiff
+    ? () => {
+        if (clickTimerRef.current) {
+          clearTimeout(clickTimerRef.current)
+          clickTimerRef.current = null
+        }
+        onDoubleClick?.(path)
+      }
+    : () => onDoubleClick?.(path)
+
   return (
     <div
       role="tab"
+      title={path}
       tabIndex={0}
       aria-selected={isActive}
-      onClick={() => onSelect(path)}
-      onDoubleClick={() => onDoubleClick?.(path)}
+      onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') onSelect(path)
       }}
@@ -170,7 +196,13 @@ function TabItem({
       )}
     >
       <FileTypeIcon name={fileName} />
-      <span style={{ fontStyle: isPreview ? 'italic' : undefined, color: fileColor, textDecoration: gitStatus === 'deleted' ? 'line-through' : undefined }}>
+      <span
+        style={{
+          fontStyle: isPreview ? 'italic' : undefined,
+          color: fileColor,
+          textDecoration: gitStatus === 'deleted' ? 'line-through' : undefined,
+        }}
+      >
         {fileName}
         {isDirty && <span className={cm.textWarning}> {'\u2022'}</span>}
       </span>
@@ -263,6 +295,7 @@ export function TabBar({
             isDirty={tab.isDirty}
             isActive={tab.path === activeFile}
             isPreview={tab.isPreview}
+            isDiff={tab.isDiff}
             gitStatus={fileStatuses?.[tab.path]}
             diagnostics={tab.diagnostics}
             onSelect={onSelect}

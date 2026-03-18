@@ -160,7 +160,10 @@ function Prose({ content, segIdx }: { content: string; segIdx: number }): JSX.El
         i++
       }
       els.push(
-        <ol key={k++} style={{ paddingLeft: '18px', marginBottom: '6px', listStyleType: 'decimal' }}>
+        <ol
+          key={k++}
+          style={{ paddingLeft: '18px', marginBottom: '6px', listStyleType: 'decimal' }}
+        >
           {items}
         </ol>,
       )
@@ -231,7 +234,10 @@ function CodeBlock({ lang, content }: { lang: string; content: string }): JSX.El
         }}
       >
         <span
-          style={{ fontFamily: 'var(--vscode-editor-font-family, monospace)', letterSpacing: '0.3px' }}
+          style={{
+            fontFamily: 'var(--vscode-editor-font-family, monospace)',
+            letterSpacing: '0.3px',
+          }}
         >
           {lang || 'text'}
         </span>
@@ -288,13 +294,12 @@ interface MarkdownContentProps {
  * @param root0.isStreaming - Whether to show a streaming indicator at the end.
  * @returns The rendered markdown content element.
  */
-export const MarkdownContent = memo(function MarkdownContent({ text, isStreaming }: MarkdownContentProps): JSX.Element {
+export const MarkdownContent = memo(function MarkdownContent({
+  text,
+  isStreaming,
+}: MarkdownContentProps): JSX.Element {
   if (!text) {
-    return (
-      <>
-        {isStreaming && <StreamingIndicator inline />}
-      </>
-    )
+    return <>{isStreaming && <StreamingIndicator inline />}</>
   }
 
   const segments = splitSegments(text)

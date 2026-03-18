@@ -42,7 +42,9 @@ export function CommandPalette({ commands, onDismiss }: CommandPaletteProps): JS
   return (
     <QuickPicker
       items={items}
-      placeholder={t('ide.commandPalette.placeholder', undefined, { defaultValue: 'Type a command…' })}
+      placeholder={t('ide.commandPalette.placeholder', undefined, {
+        defaultValue: 'Type a command…',
+      })}
       onSelect={(item) => {
         const handler = commandMap.get(item.id)
         handler?.()

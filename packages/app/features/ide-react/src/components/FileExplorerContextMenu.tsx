@@ -51,30 +51,77 @@ function getMenuItems(node: FileNode | null): MenuItem[] {
   if (!node) {
     // Background (empty area)
     return [
-      { action: 'newFile', label: t('ide.contextMenu.newFile', undefined, { defaultValue: 'New File...' }) },
-      { action: 'newFolder', label: t('ide.contextMenu.newFolder', undefined, { defaultValue: 'New Folder...' }) },
-      { action: 'collapseAll', label: t('ide.contextMenu.collapseAll', undefined, { defaultValue: 'Collapse All' }), separator: true },
+      {
+        action: 'newFile',
+        label: t('ide.contextMenu.newFile', undefined, { defaultValue: 'New File...' }),
+      },
+      {
+        action: 'newFolder',
+        label: t('ide.contextMenu.newFolder', undefined, { defaultValue: 'New Folder...' }),
+      },
+      {
+        action: 'collapseAll',
+        label: t('ide.contextMenu.collapseAll', undefined, { defaultValue: 'Collapse All' }),
+        separator: true,
+      },
     ]
   }
 
   if (node.type === 'directory') {
     return [
-      { action: 'newFile', label: t('ide.contextMenu.newFile', undefined, { defaultValue: 'New File...' }) },
-      { action: 'newFolder', label: t('ide.contextMenu.newFolder', undefined, { defaultValue: 'New Folder...' }) },
-      { action: 'rename', label: t('ide.contextMenu.rename', undefined, { defaultValue: 'Rename' }), shortcut: 'F2', separator: true },
-      { action: 'delete', label: t('ide.contextMenu.delete', undefined, { defaultValue: 'Delete' }) },
-      { action: 'copyPath', label: t('ide.contextMenu.copyPath', undefined, { defaultValue: 'Copy Path' }), separator: true },
-      { action: 'copyRelativePath', label: t('ide.contextMenu.copyRelativePath', undefined, { defaultValue: 'Copy Relative Path' }) },
+      {
+        action: 'newFile',
+        label: t('ide.contextMenu.newFile', undefined, { defaultValue: 'New File...' }),
+      },
+      {
+        action: 'newFolder',
+        label: t('ide.contextMenu.newFolder', undefined, { defaultValue: 'New Folder...' }),
+      },
+      {
+        action: 'rename',
+        label: t('ide.contextMenu.rename', undefined, { defaultValue: 'Rename' }),
+        shortcut: 'F2',
+        separator: true,
+      },
+      {
+        action: 'delete',
+        label: t('ide.contextMenu.delete', undefined, { defaultValue: 'Delete' }),
+      },
+      {
+        action: 'copyPath',
+        label: t('ide.contextMenu.copyPath', undefined, { defaultValue: 'Copy Path' }),
+        separator: true,
+      },
+      {
+        action: 'copyRelativePath',
+        label: t('ide.contextMenu.copyRelativePath', undefined, {
+          defaultValue: 'Copy Relative Path',
+        }),
+      },
     ]
   }
 
   // File
   return [
     { action: 'open', label: t('ide.contextMenu.open', undefined, { defaultValue: 'Open' }) },
-    { action: 'rename', label: t('ide.contextMenu.rename', undefined, { defaultValue: 'Rename' }), shortcut: 'F2', separator: true },
+    {
+      action: 'rename',
+      label: t('ide.contextMenu.rename', undefined, { defaultValue: 'Rename' }),
+      shortcut: 'F2',
+      separator: true,
+    },
     { action: 'delete', label: t('ide.contextMenu.delete', undefined, { defaultValue: 'Delete' }) },
-    { action: 'copyPath', label: t('ide.contextMenu.copyPath', undefined, { defaultValue: 'Copy Path' }), separator: true },
-    { action: 'copyRelativePath', label: t('ide.contextMenu.copyRelativePath', undefined, { defaultValue: 'Copy Relative Path' }) },
+    {
+      action: 'copyPath',
+      label: t('ide.contextMenu.copyPath', undefined, { defaultValue: 'Copy Path' }),
+      separator: true,
+    },
+    {
+      action: 'copyRelativePath',
+      label: t('ide.contextMenu.copyRelativePath', undefined, {
+        defaultValue: 'Copy Relative Path',
+      }),
+    },
   ]
 }
 

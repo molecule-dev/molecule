@@ -259,7 +259,11 @@ function renderOut(name: string, output: unknown): ReactNode {
               exit code {exitCode}
             </div>
           )}
-          {!stdout && !stderr && <span style={{ opacity: 0.5 }}>{t('ide.toolCall.noOutput', undefined, { defaultValue: '(no output)' })}</span>}
+          {!stdout && !stderr && (
+            <span style={{ opacity: 0.5 }}>
+              {t('ide.toolCall.noOutput', undefined, { defaultValue: '(no output)' })}
+            </span>
+          )}
         </div>
       )
     }
@@ -268,20 +272,48 @@ function renderOut(name: string, output: unknown): ReactNode {
       const diff = out.diff as
         | { type: string; linesAdded: number; linesRemoved: number }
         | undefined
-      if (!diff) return <span style={{ opacity: 0.6 }}>{t('ide.toolCall.written', undefined, { defaultValue: 'Written' })}</span>
-      if (diff.type === 'unchanged') return <span style={{ opacity: 0.6 }}>{t('ide.toolCall.statusUnchanged', undefined, { defaultValue: 'Unchanged' })}</span>
+      if (!diff)
+        return (
+          <span style={{ opacity: 0.6 }}>
+            {t('ide.toolCall.written', undefined, { defaultValue: 'Written' })}
+          </span>
+        )
+      if (diff.type === 'unchanged')
+        return (
+          <span style={{ opacity: 0.6 }}>
+            {t('ide.toolCall.statusUnchanged', undefined, { defaultValue: 'Unchanged' })}
+          </span>
+        )
       return (
         <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px' }}>
           {diff.type === 'new' && (
-            <div style={{ color: '#57ab5a' }}>{t('ide.toolCall.newFileLines', { count: diff.linesAdded }, { defaultValue: 'new file, {{count}} lines' })}</div>
+            <div style={{ color: '#57ab5a' }}>
+              {t(
+                'ide.toolCall.newFileLines',
+                { count: diff.linesAdded },
+                { defaultValue: 'new file, {{count}} lines' },
+              )}
+            </div>
           )}
           {diff.type === 'modified' && (
             <>
               {diff.linesAdded > 0 && (
-                <div style={{ color: '#57ab5a' }}>{t('ide.toolCall.linesAdded', { count: diff.linesAdded }, { defaultValue: '+{{count}} lines' })}</div>
+                <div style={{ color: '#57ab5a' }}>
+                  {t(
+                    'ide.toolCall.linesAdded',
+                    { count: diff.linesAdded },
+                    { defaultValue: '+{{count}} lines' },
+                  )}
+                </div>
               )}
               {diff.linesRemoved > 0 && (
-                <div style={{ color: '#f47067' }}>{t('ide.toolCall.linesRemoved', { count: diff.linesRemoved }, { defaultValue: '−{{count}} lines' })}</div>
+                <div style={{ color: '#f47067' }}>
+                  {t(
+                    'ide.toolCall.linesRemoved',
+                    { count: diff.linesRemoved },
+                    { defaultValue: '−{{count}} lines' },
+                  )}
+                </div>
               )}
             </>
           )}
@@ -293,23 +325,45 @@ function renderOut(name: string, output: unknown): ReactNode {
       const n = out.replacementsApplied as number | undefined
       return (
         <span style={{ opacity: 0.6, fontSize: '11px' }}>
-          {n != null ? t('ide.toolCall.changesApplied', { count: n }, { defaultValue: '{{count}} changes applied' }) : t('ide.toolCall.applied', undefined, { defaultValue: 'Applied' })}
+          {n != null
+            ? t(
+                'ide.toolCall.changesApplied',
+                { count: n },
+                { defaultValue: '{{count}} changes applied' },
+              )
+            : t('ide.toolCall.applied', undefined, { defaultValue: 'Applied' })}
         </span>
       )
     }
 
     case 'read_file': {
       const content = out.content as string | undefined
-      if (!content) return <span style={{ opacity: 0.5 }}>{t('ide.toolCall.empty', undefined, { defaultValue: '(empty)' })}</span>
+      if (!content)
+        return (
+          <span style={{ opacity: 0.5 }}>
+            {t('ide.toolCall.empty', undefined, { defaultValue: '(empty)' })}
+          </span>
+        )
       const truncated = content.length > 3000
       return (
-        <pre style={PRE}>{truncated ? content.slice(0, 3000) + '\n' + t('ide.toolCall.truncated', undefined, { defaultValue: '… (truncated)' }) : content}</pre>
+        <pre style={PRE}>
+          {truncated
+            ? content.slice(0, 3000) +
+              '\n' +
+              t('ide.toolCall.truncated', undefined, { defaultValue: '… (truncated)' })
+            : content}
+        </pre>
       )
     }
 
     case 'list_files': {
       const entries = out.entries as Array<{ name: string; type: string }> | undefined
-      if (!entries?.length) return <span style={{ opacity: 0.5 }}>{t('ide.toolCall.empty', undefined, { defaultValue: '(empty)' })}</span>
+      if (!entries?.length)
+        return (
+          <span style={{ opacity: 0.5 }}>
+            {t('ide.toolCall.empty', undefined, { defaultValue: '(empty)' })}
+          </span>
+        )
       return (
         <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px', lineHeight: 1.6 }}>
           {entries.map((e, i) => (
@@ -329,7 +383,12 @@ function renderOut(name: string, output: unknown): ReactNode {
 
     case 'find_files': {
       const files = out.files as string[] | undefined
-      if (!files?.length) return <span style={{ opacity: 0.5 }}>{t('ide.toolCall.noFilesFound', undefined, { defaultValue: 'No files found' })}</span>
+      if (!files?.length)
+        return (
+          <span style={{ opacity: 0.5 }}>
+            {t('ide.toolCall.noFilesFound', undefined, { defaultValue: 'No files found' })}
+          </span>
+        )
       return (
         <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px', lineHeight: 1.6 }}>
           {files.map((f, i) => (
@@ -343,7 +402,12 @@ function renderOut(name: string, output: unknown): ReactNode {
       const matches = out.matches as
         | Array<{ file: string; line: number; content: string }>
         | undefined
-      if (!matches?.length) return <span style={{ opacity: 0.5 }}>{t('ide.toolCall.noMatches', undefined, { defaultValue: 'No matches' })}</span>
+      if (!matches?.length)
+        return (
+          <span style={{ opacity: 0.5 }}>
+            {t('ide.toolCall.noMatches', undefined, { defaultValue: 'No matches' })}
+          </span>
+        )
       return (
         <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px', lineHeight: 1.6 }}>
           {matches.slice(0, 30).map((m, i) => (
@@ -355,7 +419,13 @@ function renderOut(name: string, output: unknown): ReactNode {
             </div>
           ))}
           {matches.length > 30 && (
-            <div style={{ opacity: 0.5, marginTop: '4px' }}>{t('ide.toolCall.andMore', { count: matches.length - 30 }, { defaultValue: '… and {{count}} more' })}</div>
+            <div style={{ opacity: 0.5, marginTop: '4px' }}>
+              {t(
+                'ide.toolCall.andMore',
+                { count: matches.length - 30 },
+                { defaultValue: '… and {{count}} more' },
+              )}
+            </div>
           )}
         </div>
       )
@@ -380,7 +450,11 @@ function renderOut(name: string, output: unknown): ReactNode {
           )}
           {body && (
             <pre style={PRE}>
-              {body.length > 2000 ? body.slice(0, 2000) + '\n' + t('ide.toolCall.truncated', undefined, { defaultValue: '… (truncated)' }) : body}
+              {body.length > 2000
+                ? body.slice(0, 2000) +
+                  '\n' +
+                  t('ide.toolCall.truncated', undefined, { defaultValue: '… (truncated)' })
+                : body}
             </pre>
           )}
         </div>
@@ -399,11 +473,14 @@ function renderOut(name: string, output: unknown): ReactNode {
 /**
  * Compact tool-call row with status dot, label, summary, and expandable detail pane.
  * @param root0 - Component props.
+ * @param root0.id - Unique identifier for this tool call.
  * @param root0.name - The tool name (e.g. "write_file", "exec_command").
  * @param root0.input - The raw tool input payload.
  * @param root0.output - The raw tool output payload.
  * @param root0.status - The execution status (pending, running, done, error).
  * @param root0.fileDiff - Original and modified file content for undo/redo.
+ * @param root0.isUndone - Externally controlled undo state.
+ * @param root0.onUndoToggle - Called when the undo/redo button is toggled.
  * @param root0.onFileOpen - Callback to preview a file in the editor.
  * @param root0.onFileDoubleClick - Callback to pin a file tab in the editor.
  * @param root0.onFileDiff - Callback to open a side-by-side diff view.
@@ -413,11 +490,14 @@ function renderOut(name: string, output: unknown): ReactNode {
  * @returns The rendered tool call card element.
  */
 export const ToolCallCard = memo(function ToolCallCard({
+  id,
   name,
   input,
   output,
   status,
   fileDiff,
+  isUndone: isUndoneProp,
+  onUndoToggle,
   onFileOpen,
   onFileDoubleClick,
   onFileDiff,
@@ -429,7 +509,8 @@ export const ToolCallCard = memo(function ToolCallCard({
   const isLight = useThemeMode() === 'light'
   const [expanded, setExpanded] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const [isUndone, setIsUndone] = useState(false)
+  const [isUndoneLocal, setIsUndoneLocal] = useState(false)
+  const isUndone = isUndoneProp ?? isUndoneLocal
   const [isReverting, setIsReverting] = useState(false)
 
   const hasError = (() => {
@@ -488,12 +569,14 @@ export const ToolCallCard = memo(function ToolCallCard({
       setIsReverting(true)
       try {
         await onFileRevert!(filePath!, content)
-        setIsUndone((v) => !v)
+        const newUndone = !isUndone
+        setIsUndoneLocal(newUndone)
+        onUndoToggle?.(id, newUndone)
       } finally {
         setIsReverting(false)
       }
     },
-    [canRevert, isReverting, isUndone, fileDiff, filePath, onFileRevert],
+    [canRevert, isReverting, isUndone, fileDiff, filePath, onFileRevert, onUndoToggle, id],
   )
 
   // Tools that expand to show details inline.
@@ -757,7 +840,7 @@ export const ToolCallCard = memo(function ToolCallCard({
         style={{
           display: 'flex',
           alignItems: 'flex-start',
-          gap: '8px',
+          gap: '6px',
           background: 'none',
           border: 'none',
           cursor: handleClick ? 'pointer' : 'default',
@@ -767,14 +850,14 @@ export const ToolCallCard = memo(function ToolCallCard({
           width: '100%',
         }}
       >
-        {/* Colored status dot */}
-        <span style={{ color: dotColor, fontSize: '11px', marginTop: '3px', flexShrink: 0 }}>
-          ●
-        </span>
-
         {/* Label + undo icon + one-line summary */}
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {/* Colored status dot — inside the flex row so it auto-centers with the label */}
+            <svg width="10" height="10" viewBox="0 0 10 10" style={{ flexShrink: 0 }}>
+              <circle cx="5" cy="5" r="4.5" fill={dotColor} opacity="0.35" />
+              <circle cx="5" cy="5" r="2.5" fill="none" stroke={dotColor} strokeWidth="1.75" />
+            </svg>
             <span
               style={{
                 flex: 1,
@@ -860,7 +943,6 @@ export const ToolCallCard = memo(function ToolCallCard({
                 gap: '4px',
                 flexShrink: 0,
                 marginTop: '2px',
-                marginRight: '-2px',
                 fontSize: '11px',
                 fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
                 opacity: isHovered ? 1 : 0.6,

@@ -208,7 +208,9 @@ const FileResultGroup = memo(function FileResultGroup({
           <button
             type="button"
             onClick={() => onReplaceInFile(result.file)}
-            title={t('ide.search.replaceInFile', undefined, { defaultValue: 'Replace in this file' })}
+            title={t('ide.search.replaceInFile', undefined, {
+              defaultValue: 'Replace in this file',
+            })}
             style={{
               padding: '2px 6px',
               marginRight: 4,
@@ -286,7 +288,11 @@ const FileResultGroup = memo(function FileResultGroup({
  * @param root0.className - Optional CSS class name.
  * @returns The search panel element.
  */
-export function SearchPanel({ projectId, onResultClick, className }: SearchPanelProps): JSX.Element {
+export function SearchPanel({
+  projectId,
+  onResultClick,
+  className,
+}: SearchPanelProps): JSX.Element {
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
   const http = useHttpClient()

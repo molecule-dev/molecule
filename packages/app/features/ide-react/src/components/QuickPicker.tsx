@@ -151,9 +151,7 @@ export function QuickPicker({
           zIndex: 1001,
           borderRadius: 8,
           overflow: 'hidden',
-          boxShadow: isLight
-            ? '0 8px 32px rgba(0,0,0,0.18)'
-            : '0 8px 32px rgba(0,0,0,0.6)',
+          boxShadow: isLight ? '0 8px 32px rgba(0,0,0,0.18)' : '0 8px 32px rgba(0,0,0,0.6)',
           background: isLight ? '#fff' : 'var(--mol-color-background, #1e1e1e)',
           border: '1px solid var(--color-border, #333)',
         }}
@@ -164,7 +162,10 @@ export function QuickPicker({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={placeholder ?? t('ide.quickPicker.placeholder', undefined, { defaultValue: 'Type to search…' })}
+          placeholder={
+            placeholder ??
+            t('ide.quickPicker.placeholder', undefined, { defaultValue: 'Type to search…' })
+          }
           style={{
             width: '100%',
             padding: '10px 12px',

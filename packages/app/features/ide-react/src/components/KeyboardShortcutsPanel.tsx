@@ -168,9 +168,7 @@ export function KeyboardShortcutsPanel({
           zIndex: 1001,
           borderRadius: 8,
           overflow: 'hidden',
-          boxShadow: isLight
-            ? '0 8px 32px rgba(0,0,0,0.18)'
-            : '0 8px 32px rgba(0,0,0,0.6)',
+          boxShadow: isLight ? '0 8px 32px rgba(0,0,0,0.18)' : '0 8px 32px rgba(0,0,0,0.6)',
           background: isLight ? '#fff' : 'var(--mol-color-background, #1e1e1e)',
           border: '1px solid var(--color-border, #333)',
           display: 'flex',
