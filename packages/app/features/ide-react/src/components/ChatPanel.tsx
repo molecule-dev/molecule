@@ -84,47 +84,79 @@ interface SystemCard {
   id: string
   text: string
   timestamp: number
+  action?:
+    | { label: string; href?: string; onClick?: () => void }
+    | { label: string; href?: string; onClick?: () => void }[]
 }
 
-const COMMANDS = [
-  { id: 'clear' as const, label: '/clear', description: 'Clear chat history' },
+interface CommandDef {
+  id: string
+  label: string
+  description: string
+  category: 'context' | 'code' | 'model' | 'settings' | 'support'
+}
+
+const COMMAND_CATEGORIES = [
+  { key: 'context' as const, label: 'Context' },
+  { key: 'code' as const, label: 'Code' },
+  { key: 'model' as const, label: 'Model' },
+  { key: 'settings' as const, label: 'Settings' },
+  { key: 'support' as const, label: 'Support' },
+] as const
+
+const COMMANDS: CommandDef[] = [
+  // Context
+  { id: 'clear', label: '/clear', description: 'Clear conversation', category: 'context' },
   {
-    id: 'model' as const,
-    label: '/model',
-    description: 'Set AI model (e.g. /model claude-sonnet-4-6)',
-  },
-  {
-    id: 'maxloops' as const,
-    label: '/maxloops',
-    description: 'Set max tool iterations (e.g. /maxloops 50)',
-  },
-  { id: 'help' as const, label: '/help', description: 'Show available commands' },
-  {
-    id: 'compact' as const,
+    id: 'compact',
     label: '/compact',
-    description: 'Compress conversation to free context',
-  },
-  { id: 'plan' as const, label: '/plan', description: 'Enter plan mode (read-only research)' },
-  { id: 'cost' as const, label: '/cost', description: 'Show token usage and estimated cost' },
-  { id: 'undo' as const, label: '/undo', description: "Revert last AI turn's file changes" },
-  { id: 'diff' as const, label: '/diff', description: 'Show summary of uncommitted changes' },
-  { id: 'commit' as const, label: '/commit', description: 'Commit current changes' },
-  { id: 'test' as const, label: '/test', description: 'Run project test suite' },
-  { id: 'explain' as const, label: '/explain', description: 'Explain code (e.g. /explain @file)' },
-  { id: 'lint' as const, label: '/lint', description: 'Run linter and fix issues' },
-  {
-    id: 'autolint' as const,
-    label: '/autolint',
-    description: 'Toggle auto-lint after AI file changes',
+    description: 'Compress context to free space',
+    category: 'context',
   },
   {
-    id: 'sounds' as const,
-    label: '/sounds',
-    description: 'Configure notification sounds',
+    id: 'cost',
+    label: '/cost',
+    description: 'Show token usage & estimated cost',
+    category: 'context',
   },
+
+  // Code
+  { id: 'commit', label: '/commit', description: 'Commit current changes', category: 'code' },
+  { id: 'diff', label: '/diff', description: 'Show uncommitted changes', category: 'code' },
+  {
+    id: 'explain',
+    label: '/explain',
+    description: 'Explain code (e.g. /explain @file)',
+    category: 'code',
+  },
+  { id: 'lint', label: '/lint', description: 'Run linter and fix issues', category: 'code' },
+  { id: 'test', label: '/test', description: 'Run project test suite', category: 'code' },
+  {
+    id: 'undo',
+    label: '/undo',
+    description: "Revert last AI turn's file changes",
+    category: 'code',
+  },
+
+  // Model
+  { id: 'model', label: '/model', description: 'Switch model...', category: 'model' },
+  { id: 'plan', label: '/plan', description: 'Toggle plan/execute mode', category: 'model' },
+  { id: 'maxloops', label: '/maxloops', description: 'Set max tool iterations', category: 'model' },
+
+  // Settings
+  {
+    id: 'autofix',
+    label: '/autofix',
+    description: 'Toggle auto-fix after AI file changes',
+    category: 'settings',
+  },
+  { id: 'sounds', label: '/sounds', description: 'Notification sounds', category: 'settings' },
+
+  // Support
+  { id: 'help', label: '/help', description: 'Workflow guide & tips', category: 'support' },
 ]
 
-type CommandId = (typeof COMMANDS)[number]['id']
+type CommandId = CommandDef['id']
 
 const AVAILABLE_MODELS = MODELS
 
@@ -301,19 +333,62 @@ function formatSize(bytes: number): string {
 // ---------------------------------------------------------------------------
 
 /**
+ * Format a duration in milliseconds as a human-readable string.
+ * @param ms - Duration in milliseconds.
+ * @returns Formatted string like "Thought for 5 seconds" or "Thought for 2 minutes".
+ */
+function formatThinkingDuration(ms: number): string {
+  if (ms < 1000) return t('ide.chat.thoughtBriefly', undefined, { defaultValue: 'Thought briefly' })
+  const seconds = Math.round(ms / 1000)
+  if (seconds < 60) {
+    return t(
+      'ide.chat.thoughtForSeconds',
+      { count: seconds },
+      { defaultValue: `Thought for ${seconds} second${seconds === 1 ? '' : 's'}` },
+    )
+  }
+  const minutes = Math.round(seconds / 60)
+  return t(
+    'ide.chat.thoughtForMinutes',
+    { count: minutes },
+    { defaultValue: `Thought for ${minutes} minute${minutes === 1 ? '' : 's'}` },
+  )
+}
+
+/**
  * Collapsible block for displaying AI thinking/reasoning content.
  * @param root0 - Component props.
  * @param root0.content - The raw thinking text to render.
+ * @param root0.durationMs - How long the thinking took in milliseconds.
+ * @param root0.isStreaming - Whether the thinking is still in progress.
  * @returns The rendered thinking block element.
  */
-function ThinkingBlock({ content }: { content: string }): JSX.Element {
+function ThinkingBlock({
+  content,
+  durationMs,
+  isStreaming,
+}: {
+  content: string
+  durationMs?: number
+  isStreaming?: boolean
+}): JSX.Element {
   const cm = getClassMap()
-  const [open, setOpen] = useState(false)
+  // Auto-expand while streaming so the user can see thinking in real-time.
+  // Once streaming ends, the user's manual toggle takes over.
+  const [manualToggle, setManualToggle] = useState<boolean | null>(null)
+  const open = manualToggle ?? isStreaming === true
+
+  const label = isStreaming
+    ? t('ide.chat.thinking', undefined, { defaultValue: 'Thinking' })
+    : durationMs != null
+      ? formatThinkingDuration(durationMs)
+      : t('ide.chat.thoughtBriefly', undefined, { defaultValue: 'Thought briefly' })
+
   return (
     <div style={{ marginBottom: '6px' }}>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setManualToggle((v) => !(v ?? isStreaming === true))}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -347,9 +422,7 @@ function ThinkingBlock({ content }: { content: string }): JSX.Element {
             strokeLinejoin="round"
           />
         </svg>
-        <span className={cm.cn(cm.textMuted, cm.textSize('xs'))}>
-          {t('ide.chat.thinking', undefined, { defaultValue: 'Thinking' })}
-        </span>
+        <span className={cm.cn(cm.textMuted, cm.textSize('xs'))}>{label}</span>
       </button>
       {open && (
         <div
@@ -379,48 +452,108 @@ function ThinkingBlock({ content }: { content: string }): JSX.Element {
  * @param root0.status - Whether lint passed or found errors.
  * @param root0.output - Lint error output (only present on error).
  * @param root0.workspaces - Which workspaces were checked.
+ * @param root0.categories - Which verification categories were checked (type, lint, runtime).
  * @returns The rendered verification badge element.
  */
 function VerificationBadge({
   status,
   output,
-  workspaces,
+  categories,
 }: {
   status: 'ok' | 'error'
   output?: string
   workspaces: string[]
+  categories?: string[]
 }): JSX.Element {
   const cm = getClassMap()
   const [expanded, setExpanded] = useState(false)
-  const wsLabel = workspaces.join(', ')
 
   if (status === 'ok') {
     return (
       <div
-        className={cm.cn(cm.textSize('xs'), cm.textMuted)}
         style={{
           display: 'flex',
-          alignItems: 'center',
-          gap: 4,
+          alignItems: 'baseline',
+          gap: '6px',
           padding: '3px 0',
-          opacity: 0.7,
+          fontSize: '13px',
         }}
+        className={cm.textMuted}
       >
-        <span style={{ color: '#3fb950' }}>{'\u2713'}</span>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 10 10"
+          style={{ flexShrink: 0, alignSelf: 'center', position: 'relative', top: '-1px' }}
+        >
+          <path
+            d="M2 5.5 L4.2 7.8 L8 3"
+            fill="none"
+            stroke="#3fb950"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
         <span>
-          {t('ide.chat.verificationPassed', { workspaces: wsLabel }, { defaultValue: 'Lint passed' })}
+          {t('ide.chat.verificationPassed', undefined, { defaultValue: 'Checks passed' })}
         </span>
       </div>
     )
   }
+
+  // Count errors from the output text
+  const cats = categories ?? []
+  const errorCount = output ? (output.match(/\berror\b/gi) ?? []).length || 1 : 1
+  const warningCount = output ? (output.match(/\bwarning\b/gi) ?? []).length : 0
+
+  // Build label with counts
+  const parts: string[] = []
+  if (cats.includes('type')) {
+    const n = output ? (output.match(/error TS\d+/g) ?? []).length || errorCount : errorCount
+    parts.push(
+      n === 1
+        ? t('ide.chat.typeErrorCount', { count: 1 }, { defaultValue: '1 type error' })
+        : t('ide.chat.typeErrorsCount', { count: n }, { defaultValue: `${n} type errors` }),
+    )
+  }
+  if (cats.includes('lint')) {
+    const n = output ? (output.match(/\d+:\d+\s+error/g) ?? []).length || 1 : 1
+    const w = warningCount
+    if (n > 0)
+      parts.push(
+        n === 1
+          ? t('ide.chat.lintErrorCount', { count: 1 }, { defaultValue: '1 lint error' })
+          : t('ide.chat.lintErrorsCount', { count: n }, { defaultValue: `${n} lint errors` }),
+      )
+    if (w > 0)
+      parts.push(
+        w === 1
+          ? t('ide.chat.lintWarningCount', { count: 1 }, { defaultValue: '1 warning' })
+          : t('ide.chat.lintWarningsCount', { count: w }, { defaultValue: `${w} warnings` }),
+      )
+  }
+  if (cats.includes('runtime')) {
+    parts.push(t('ide.chat.runtimeErrors', undefined, { defaultValue: 'Runtime errors' }))
+  }
+  const label =
+    parts.length > 0
+      ? parts.join(', ')
+      : t('ide.chat.verificationFailed', undefined, { defaultValue: 'Errors found' })
+
+  // Use amber for lint-only warnings, red for type/runtime errors
+  const isLintOnly = cats.length > 0 && cats.every((c) => c === 'lint')
+  const borderColor = isLintOnly ? 'rgba(234,179,8,0.4)' : 'rgba(248,81,73,0.3)'
+  const bgColor = isLintOnly ? 'rgba(234,179,8,0.06)' : 'rgba(248,81,73,0.06)'
+  const textColor = isLintOnly ? '#d4a017' : '#f85149'
 
   return (
     <div
       style={{
         margin: '4px 0',
         borderRadius: 6,
-        border: '1px solid rgba(248,81,73,0.3)',
-        background: 'rgba(248,81,73,0.06)',
+        border: `1px solid ${borderColor}`,
+        background: bgColor,
         overflow: 'hidden',
       }}
     >
@@ -431,24 +564,37 @@ function VerificationBadge({
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 4,
+          gap: 6,
           padding: '5px 8px',
           border: 'none',
           background: 'transparent',
-          color: '#f85149',
+          color: textColor,
           cursor: 'pointer',
           textAlign: 'left',
         }}
       >
-        <span>{'\u26A0'}</span>
-        <span style={{ flex: 1 }}>
-          {t(
-            'ide.chat.verificationFailed',
-            { workspaces: wsLabel },
-            { defaultValue: 'Lint errors found' },
-          )}
-        </span>
-        <span style={{ opacity: 0.6, fontSize: 10 }}>{expanded ? '\u25B2' : '\u25BC'}</span>
+        <span style={{ flex: 1 }}>{label}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          width="12"
+          height="12"
+          style={{
+            flexShrink: 0,
+            transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 150ms',
+            opacity: 0.6,
+          }}
+        >
+          <polyline
+            points="4,6 8,10 12,6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </button>
       {expanded && output && (
         <pre
@@ -456,7 +602,7 @@ function VerificationBadge({
           style={{
             margin: 0,
             padding: '6px 8px',
-            borderTop: '1px solid rgba(248,81,73,0.15)',
+            borderTop: `1px solid ${borderColor}`,
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-word',
             maxHeight: 200,
@@ -482,9 +628,19 @@ function VerificationBadge({
  * Inline banner shown when the sandbox runs out of memory, prompting the user to upgrade.
  * @param root0 - Component props.
  * @param root0.message - The resource limit message.
+ * @param root0.ctaLabel - Label for the call-to-action button.
+ * @param root0.ctaHref - Link target for the call-to-action button.
  * @returns The rendered upgrade banner element.
  */
-function ResourceLimitBanner({ message }: { message: string }): JSX.Element {
+function ResourceLimitBanner({
+  message,
+  ctaLabel,
+  ctaHref,
+}: {
+  message: string
+  ctaLabel?: string
+  ctaHref?: string
+}): JSX.Element {
   const cm = getClassMap()
   return (
     <div
@@ -495,17 +651,29 @@ function ResourceLimitBanner({ message }: { message: string }): JSX.Element {
         border: '1px solid rgba(234,179,8,0.4)',
         background: 'rgba(234,179,8,0.08)',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         gap: 8,
       }}
     >
-      <span style={{ fontSize: 16 }}>{'\u26A0'}</span>
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 20 20"
+        fill="#d4a017"
+        style={{ flexShrink: 0, marginTop: 1 }}
+      >
+        <path
+          fillRule="evenodd"
+          d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.168 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 9a1 1 0 100-2 1 1 0 000 2z"
+          clipRule="evenodd"
+        />
+      </svg>
       <div style={{ flex: 1 }}>
         <span className={cm.textSize('xs')} style={{ display: 'block' }}>
           {message}
         </span>
         <a
-          href="/pricing"
+          href={ctaHref ?? '/pricing'}
           target="_blank"
           rel="noopener noreferrer"
           className={cm.textSize('xs')}
@@ -516,7 +684,7 @@ function ResourceLimitBanner({ message }: { message: string }): JSX.Element {
             display: 'inline-block',
           }}
         >
-          {t('ide.chat.viewPlans', undefined, { defaultValue: 'View plans' })}
+          {ctaLabel ?? t('ide.chat.viewPlans', undefined, { defaultValue: 'View plans' })}
         </a>
       </div>
     </div>
@@ -606,8 +774,8 @@ function CommitCardItem({
             viewBox="0 0 10 10"
             style={{ flexShrink: 0, marginTop: '5px' }}
           >
-            <circle cx="5" cy="5" r="4.5" fill={dotColor} opacity="0.35" />
-            <circle cx="5" cy="5" r="2.5" fill="none" stroke={dotColor} strokeWidth="1.75" />
+            <circle cx="5" cy="5" r="3" fill={dotColor} opacity="0.35" />
+            <circle cx="5" cy="5" r="3" fill="none" stroke={dotColor} strokeWidth="2" />
           </svg>
 
           {/* Label — single truncated line unless expanded */}
@@ -798,6 +966,9 @@ interface ChatInnerProps {
   onConversationId?: (id: string) => void
   pendingMessage?: string
   pendingMessageKey?: number
+  /** File path edited by the user in the editor — triggers auto-deletion of queued autofix messages referencing this file. */
+  userEditedFile?: string
+  userEditedFileKey?: number
   gitStatusTick?: number
 }
 
@@ -821,6 +992,8 @@ interface ChatInnerProps {
  * @param root0.onConversationId - Callback when the conversation ID is assigned.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
+ * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
+ * @param root0.userEditedFileKey - Key to distinguish repeated edits to the same file.
  * @param root0.gitStatusTick - Counter that increments when git status changes.
  * @returns The rendered chat inner component.
  */
@@ -842,6 +1015,8 @@ function ChatInner({
   onConversationId,
   pendingMessage,
   pendingMessageKey,
+  userEditedFile,
+  userEditedFileKey,
   gitStatusTick: externalGitStatusTick,
 }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
@@ -857,22 +1032,209 @@ function ChatInner({
   // Ref for sounds config so the onStreamEvent callback always reads the latest value.
   const soundsConfigRef = useRef<SoundsConfig>({ ...DEFAULT_SOUNDS_CONFIG })
 
-  const handleStreamEvent = useCallback((event: { type: string }) => {
-    const cfg = soundsConfigRef.current
-    const eventType = event.type as SoundEventType
-    if (eventType in cfg && shouldPlaySound(cfg[eventType])) {
-      playTone()
+  // ── Context usage tracking (ring indicator) ─────────────────────────────
+  const [contextUsage, setContextUsage] = useState<{
+    inputTokens: number
+    contextWindow: number
+  } | null>(null)
+
+  // Restore context usage from the history endpoint on mount
+  useEffect(() => {
+    if (!hasConversation) return
+    http
+      .get<{ contextUsage?: { inputTokens: number; contextWindow: number } }>(endpoint)
+      .then((res) => {
+        if (res.data.contextUsage) setContextUsage(res.data.contextUsage)
+      })
+      .catch(() => {
+        /* ignore */
+      })
+  }, [endpoint, hasConversation, http])
+
+  // ── Auto-fix countdown state ──────────────────────────────────────────────
+  // After the AI finishes, if verification found errors, show a countdown
+  // before auto-sending a fix message. User can cancel/pause.
+  const [autoFixCountdown, setAutoFixCountdown] = useState<{
+    output: string
+    categories: string[]
+    changedPaths: string[]
+    secondsLeft: number
+    paused: boolean
+  } | null>(null)
+  const autoFixIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const pendingVerificationRef = useRef<{
+    output: string
+    categories: string[]
+    changedPaths: string[]
+  } | null>(null)
+
+  // Clear countdown interval on unmount
+  useEffect(
+    () => () => {
+      if (autoFixIntervalRef.current) clearInterval(autoFixIntervalRef.current)
+    },
+    [],
+  )
+
+  // Track completed assistant turns to inject periodic sign-up reminders.
+  // First reminder after 3 turns, then every 10 turns thereafter.
+  const turnCountRef = useRef(0)
+  const addSystemCardRef = useRef<(text: string, action?: SystemCard['action']) => void>(() => {})
+  const GUEST_REMINDER_FIRST = 3
+  const GUEST_REMINDER_INTERVAL = 10
+
+  const handleStreamEvent = useCallback(
+    (event: {
+      type: string
+      usage?: { inputTokens?: number; contextWindow?: number }
+      [key: string]: unknown
+    }) => {
+      // Capture context usage from done events
+      if (event.type === 'done' && event.usage?.inputTokens && event.usage?.contextWindow) {
+        setContextUsage({
+          inputTokens: event.usage.inputTokens,
+          contextWindow: event.usage.contextWindow,
+        })
+      }
+      // Capture verification errors to trigger countdown after stream ends
+      if (event.type === 'verification_result' && event.status === 'error' && event.output) {
+        pendingVerificationRef.current = {
+          output: event.output as string,
+          categories: (event.categories as string[]) ?? [],
+          changedPaths: (event.changedPaths as string[]) ?? [],
+        }
+      }
+      // When stream ends, start countdown if there are pending verification errors
+      if (event.type === 'done' && pendingVerificationRef.current) {
+        const pending = pendingVerificationRef.current
+        pendingVerificationRef.current = null
+        setAutoFixCountdown({ ...pending, secondsLeft: 3, paused: false })
+      }
+      // Clear pending verification if a new verification comes back clean
+      if (event.type === 'verification_result' && event.status === 'ok') {
+        pendingVerificationRef.current = null
+      }
+      // Periodic sign-up reminder for anonymous users in chat history
+      if (event.type === 'done' && isAnonymous) {
+        turnCountRef.current++
+        const n = turnCountRef.current
+        if (
+          n === GUEST_REMINDER_FIRST ||
+          (n > GUEST_REMINDER_FIRST && (n - GUEST_REMINDER_FIRST) % GUEST_REMINDER_INTERVAL === 0)
+        ) {
+          addSystemCardRef.current(
+            t('guest.reminder.message', undefined, {
+              defaultValue:
+                'Sign up or log in to keep your work \u2014 guest sessions expire after 72 hours.',
+            }),
+            [
+              {
+                label: t('upgrade.signUp', undefined, { defaultValue: 'Sign up' }),
+                href: '/signup',
+              },
+              {
+                label: t('guest.reminder.logIn', undefined, { defaultValue: 'Log in' }),
+                href: '/login',
+              },
+            ],
+          )
+        }
+      }
+      const cfg = soundsConfigRef.current
+      const eventType = event.type as SoundEventType
+      if (eventType in cfg && shouldPlaySound(cfg[eventType])) {
+        playTone()
+      }
+    },
+    [isAnonymous, t],
+  )
+
+  // Countdown timer effect — ticks down and auto-sends fix message
+  useEffect(() => {
+    if (autoFixIntervalRef.current) {
+      clearInterval(autoFixIntervalRef.current)
+      autoFixIntervalRef.current = null
     }
+    if (!autoFixCountdown || autoFixCountdown.paused || autoFixCountdown.secondsLeft <= 0) return
+
+    autoFixIntervalRef.current = setInterval(() => {
+      setAutoFixCountdown((prev) => {
+        if (!prev || prev.paused) return prev
+        if (prev.secondsLeft <= 1) {
+          // Countdown complete — will send in the effect below
+          return { ...prev, secondsLeft: 0 }
+        }
+        return { ...prev, secondsLeft: prev.secondsLeft - 1 }
+      })
+    }, 1000)
+
+    return () => {
+      if (autoFixIntervalRef.current) {
+        clearInterval(autoFixIntervalRef.current)
+        autoFixIntervalRef.current = null
+      }
+    }
+  }, [autoFixCountdown?.paused, autoFixCountdown?.secondsLeft])
+
+  // When countdown reaches 0, send the fix message
+  const sendMessageRef = useRef<(msg: string) => void>(() => {})
+  useEffect(() => {
+    if (autoFixCountdown && autoFixCountdown.secondsLeft === 0 && !autoFixCountdown.paused) {
+      const msg = `Fix these issues:\n\n${autoFixCountdown.output}`
+      setAutoFixCountdown(null)
+      sendMessageRef.current(msg)
+    }
+  }, [autoFixCountdown])
+
+  // Auto-pause countdown when user starts typing
+  const handleAutoFixPauseOnInput = useCallback(() => {
+    setAutoFixCountdown((prev) => (prev && !prev.paused ? { ...prev, paused: true } : prev))
   }, [])
 
-  const { messages, isLoading, error, sendMessage, abort, clearHistory, editQueuedMessage, deleteQueuedMessage } = useChat({
+  // Cancel countdown when file changes arrive (AI likely fixing things in a new turn)
+  const onFileChangeWrapped = useCallback(
+    (path: string, content: string) => {
+      if (autoFixCountdown) {
+        const norm = path.replace(/^\/workspace\//, '')
+        const isRelevant = autoFixCountdown.changedPaths.some(
+          (p) => p.replace(/^\/workspace\//, '') === norm,
+        )
+        if (isRelevant) setAutoFixCountdown(null)
+      }
+      // Auto-open plan files in the editor when saved
+      const cleanPath = path.replace(/^\/workspace\//, '')
+      if (cleanPath.startsWith('.agents/plans/') && onFileOpen) {
+        onFileOpen(cleanPath)
+      }
+      onFileChange?.(path, content)
+    },
+    [onFileChange, onFileOpen, autoFixCountdown],
+  )
+
+  const {
+    messages,
+    isLoading,
+    error,
+    errorMeta,
+    mode,
+    setMode,
+    sendMessage,
+    abort,
+    clearHistory,
+    editQueuedMessage,
+    deleteQueuedMessage,
+    clearQueuedForFile,
+  } = useChat({
     endpoint,
     projectId,
     loadOnMount: hasConversation || !initialMessage,
-    onFileChange,
+    onFileChange: onFileChangeWrapped,
     onConversationId,
     onStreamEvent: handleStreamEvent,
   })
+
+  // Keep sendMessageRef in sync so the countdown effect can call the latest sendMessage
+  sendMessageRef.current = sendMessage
 
   // ── Commit ─────────────────────────────────────────────────────────────────
   const [commitState, setCommitState] = useState<{
@@ -983,6 +1345,7 @@ function ChatInner({
       const ta = textareaRef.current
       if (ta && ta.value !== val) ta.value = val
       setHasInput(Boolean(val.trim()))
+      autoResize()
       // Clear persisted draft when input is emptied (e.g. on submit)
       if (!val) {
         try {
@@ -992,7 +1355,7 @@ function ChatInner({
         }
       }
     },
-    [draftKey],
+    [draftKey, autoResize],
   )
 
   // Persist draft text to sessionStorage so it survives refresh (debounced)
@@ -1133,6 +1496,7 @@ function ChatInner({
     voiceIntentRef.current = true
     voiceFailCount.current = 0
     setIsListening(true)
+    handleAutoFixPauseOnInput()
     startRecognition()
   }, [isListening, startRecognition])
 
@@ -1163,9 +1527,17 @@ function ChatInner({
 
   // ── System cards (persistent inline notifications in chat history) ────────
   const [systemCards, setSystemCards] = useState<SystemCard[]>([])
-  const addSystemCard = useCallback((text: string) => {
-    setSystemCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
+  const addSystemCard = useCallback((text: string, action?: SystemCard['action']) => {
+    setSystemCards((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), text, timestamp: Date.now(), action },
+    ])
+    // Auto-scroll after the card renders so the user sees it immediately
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, 50)
   }, [])
+  addSystemCardRef.current = addSystemCard
 
   // ── Sounds picker (shown when /sounds is executed) ────────────────────────
   const [soundsPicker, setSoundsPicker] = useState<SoundsPicker | null>(null)
@@ -1209,7 +1581,7 @@ function ChatInner({
   const DEFAULT_MODEL = 'claude-haiku-4-5-20251001'
   const [currentModel, setCurrentModel] = useState<string>(DEFAULT_MODEL)
   const [currentMaxLoops, setCurrentMaxLoops] = useState<number>(25)
-  const [autoLintEnabled, setAutoLintEnabled] = useState<boolean>(true)
+  const [autoFixEnabled, setAutoFixEnabled] = useState<boolean>(true)
   useEffect(() => {
     http
       .get<{ settings?: Record<string, unknown> }>(`/projects/${projectId}`)
@@ -1217,7 +1589,7 @@ function ChatInner({
         const s = res.data.settings
         if (typeof s?.chatModel === 'string') setCurrentModel(s.chatModel)
         if (typeof s?.maxToolLoops === 'number') setCurrentMaxLoops(s.maxToolLoops)
-        if (typeof s?.autoLint === 'boolean') setAutoLintEnabled(s.autoLint)
+        if (typeof s?.autoFix === 'boolean') setAutoFixEnabled(s.autoFix)
         if (s?.sounds && typeof s.sounds === 'object') {
           setSoundsConfig((prev) => ({ ...prev, ...(s.sounds as Partial<SoundsConfig>) }))
         }
@@ -1318,6 +1690,19 @@ function ChatInner({
       sendMessage(pendingMessage)
     }
   }, [pendingMessage, pendingMessageKey, sendMessage])
+
+  // ── Auto-delete queued autofix messages when user edits a relevant file ────
+  const lastUserEditKeyRef = useRef(userEditedFileKey)
+  useEffect(() => {
+    if (
+      userEditedFile &&
+      userEditedFileKey !== undefined &&
+      userEditedFileKey !== lastUserEditKeyRef.current
+    ) {
+      lastUserEditKeyRef.current = userEditedFileKey
+      clearQueuedForFile(userEditedFile)
+    }
+  }, [userEditedFile, userEditedFileKey, clearQueuedForFile])
 
   // ── Commit ─────────────────────────────────────────────────────────────────
   const handleCommit = useCallback(async () => {
@@ -1561,6 +1946,9 @@ function ChatInner({
       autoResize()
       persistDraft()
 
+      // Pause auto-fix countdown when user starts typing
+      handleAutoFixPauseOnInput()
+
       const cursor = e.target.selectionStart ?? val.length
       const before = val.slice(0, cursor)
 
@@ -1647,6 +2035,7 @@ function ChatInner({
         await clearHistory()
         setCommitCards([])
         setSystemCards([])
+        setContextUsage(null)
       } else if (id === 'model') {
         setInputAndCursorEnd('/model ')
         setModelPicker({ selectedIdx: -1 })
@@ -1654,28 +2043,63 @@ function ChatInner({
         setInputAndCursorEnd('/maxloops ')
       } else if (id === 'help') {
         setInputValue('')
-        const modelLabel =
-          AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel
+        const lines = [
+          '── Getting Started ──',
+          "Synthase is Molecule.dev's AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.",
+          '',
+          '── Workflow ──',
+          '1. Describe your app or feature in plain language',
+          '2. Synthase writes code, creates files, and runs tools',
+          '3. See changes live in the preview panel',
+          '4. Use @filename to reference project files, or drag & drop any file as context',
+          "5. Use /commit when you're happy with the changes",
+          '6. Deploy from the project dashboard',
+          '',
+          '── Tips ──',
+          '• Be specific — "Add a login page with email/password and Google OAuth" works better than "add auth"',
+          '• Use /plan to have the AI research before making changes',
+          '• Use /undo if the AI goes in the wrong direction',
+          '• Use /compact if the conversation gets long',
+          '• Type / to see all available commands',
+          '',
+          'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
+        ]
+        if (isAnonymous) {
+          lines.push(
+            '',
+            '── Upgrade ──',
+            "You're using Molecule.dev as a guest. Sign up for free to unlock:",
+            '• Deployments & environment variable management',
+            '• 50 AI messages/day (vs 30 as guest)',
+            '• Persistent project history',
+            '',
+            'Go Pro ($19/mo) for even more:',
+            '• All models — Opus 4.6, Sonnet 4.6, GPT-5.4, Gemini 3.1 Pro, and more',
+            '• 500 AI messages/day',
+            '• Larger sandboxes — 2 CPU, 2 GB RAM, 30 min timeout',
+            '• 10 projects, 10 deployments, custom domains',
+            '• 5 GB storage & email support',
+          )
+        } else {
+          lines.push(
+            '',
+            '── Upgrade to Pro ──',
+            'Unlock the full Molecule.dev experience ($19/mo):',
+            '• All models — Opus 4.6, Sonnet 4.6, GPT-5.4, Gemini 3.1 Pro, and more',
+            '• 500 AI messages/day (vs 50 on free)',
+            '• Larger sandboxes — 2 CPU, 2 GB RAM, 30 min timeout',
+            '• 10 projects, 10 deployments, custom domains',
+            '• 5 GB storage & email support',
+          )
+        }
         addSystemCard(
-          t('ide.chat.helpText', undefined, {
-            defaultValue: [
-              '/clear        Clear chat history',
-              '/model        Set AI model (current: ' + modelLabel + ')',
-              '/maxloops     Set max tool iterations (current: ' + currentMaxLoops + ')',
-              '/compact      Compress conversation to free context',
-              '/plan         Enter plan mode (read-only research)',
-              '/cost         Show token usage and estimated cost',
-              "/undo         Revert last AI turn's file changes",
-              '/diff         Show summary of uncommitted changes',
-              '/commit       Commit current changes',
-              '/test         Run project test suite',
-              '/explain      Explain code (e.g. /explain @file)',
-              '/lint         Run linter and fix issues',
-              '/autolint     Toggle auto-lint after AI file changes' +
-                (autoLintEnabled ? ' (on)' : ' (off)'),
-              '/sounds       Configure notification sounds',
-            ].join('\n'),
-          }),
+          lines.join('\n'),
+          isAnonymous
+            ? [
+                { label: 'Sign up free', href: '/signup' },
+                { label: 'Log in', href: '/login' },
+              ]
+            : { label: 'View plans', href: '/pricing' },
         )
       } else if (id === 'compact') {
         setInputValue('')
@@ -1713,7 +2137,18 @@ function ChatInner({
         }
       } else if (id === 'plan') {
         setInputValue('')
-        sendMessage('Switch to plan mode. Acknowledge the mode change briefly.')
+        const newMode = mode === 'plan' ? 'execute' : 'plan'
+        setMode(newMode)
+        http
+          .patch(`/projects/${projectId}/chat-mode`, { mode: newMode, conversationId })
+          .catch(() => setMode(mode))
+        addSystemCard(
+          newMode === 'plan'
+            ? t('ide.chat.switchedToPlan', undefined, { defaultValue: 'Switched to plan mode' })
+            : t('ide.chat.switchedToExecute', undefined, {
+                defaultValue: 'Switched to execute mode',
+              }),
+        )
       } else if (id === 'cost') {
         setInputValue('')
         try {
@@ -1896,25 +2331,25 @@ function ChatInner({
         sendMessage(
           'Run `npm run lint` in both api/ and app/ workspaces. Report all errors and warnings found and fix them.',
         )
-      } else if (id === 'autolint') {
+      } else if (id === 'autofix') {
         setInputValue('')
-        const newValue = !autoLintEnabled
+        const newValue = !autoFixEnabled
         try {
-          await http.patch(`/projects/${projectId}`, { settings: { autoLint: newValue } })
-          setAutoLintEnabled(newValue)
+          await http.patch(`/projects/${projectId}`, { settings: { autoFix: newValue } })
+          setAutoFixEnabled(newValue)
           addSystemCard(
             newValue
-              ? t('ide.chat.autoLintEnabled', undefined, {
-                  defaultValue: 'Auto-lint enabled — lint runs automatically after AI file changes.',
+              ? t('ide.chat.autoFixEnabled', undefined, {
+                  defaultValue: 'Auto-fix enabled.',
                 })
-              : t('ide.chat.autoLintDisabled', undefined, {
-                  defaultValue: 'Auto-lint disabled.',
+              : t('ide.chat.autoFixDisabled', undefined, {
+                  defaultValue: 'Auto-fix disabled.',
                 }),
           )
         } catch {
           addSystemCard(
-            t('ide.chat.autoLintError', undefined, {
-              defaultValue: 'Failed to update auto-lint setting.',
+            t('ide.chat.autoFixError', undefined, {
+              defaultValue: 'Failed to update auto-fix setting.',
             }),
           )
         }
@@ -1932,7 +2367,7 @@ function ChatInner({
       addSystemCard,
       currentModel,
       currentMaxLoops,
-      autoLintEnabled,
+      autoFixEnabled,
       messages,
       sendMessage,
       refreshGitStatus,
@@ -1948,9 +2383,9 @@ function ChatInner({
     const trimmed = (inputRef.current as string).trim()
     if (!trimmed && attachedFiles.length === 0) return
 
-    // Handle /autolint toggle locally
-    if (/^\/autolint$/i.test(trimmed)) {
-      void executeCommand('autolint')
+    // Handle /autofix toggle locally
+    if (/^\/autofix$/i.test(trimmed)) {
+      void executeCommand('autofix')
       return
     }
 
@@ -2008,7 +2443,8 @@ function ChatInner({
     // Handle /maxloops <N> command locally
     const maxLoopsMatch = trimmed.match(/^\/maxloops\s+(\d+)$/i)
     if (maxLoopsMatch) {
-      const n = Math.max(1, Number(maxLoopsMatch[1]))
+      const maxCap = isAnonymous ? 100 : 10_000
+      const n = Math.max(1, Math.min(Number(maxLoopsMatch[1]), maxCap))
       try {
         await http.patch(`/projects/${projectId}`, { settings: { maxToolLoops: n } })
         setCurrentMaxLoops(n)
@@ -2369,7 +2805,7 @@ function ChatInner({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(64,112,224,0.08)',
+            background: 'rgba(64,112,224,0.2)',
             border: '2px dashed rgba(64,112,224,0.5)',
             borderRadius: '6px',
             pointerEvents: 'none',
@@ -2417,6 +2853,63 @@ function ChatInner({
                 }}
               >
                 {item.card.text}
+                {item.card.action &&
+                  (() => {
+                    const actionStyle: React.CSSProperties = {
+                      display: 'inline-block',
+                      padding: '6px 16px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      fontFamily: 'inherit',
+                      cursor: 'pointer',
+                      border: 'none',
+                      textDecoration: 'none',
+                      color: '#fff',
+                      background: 'var(--color-primary)',
+                      transition: 'background 100ms',
+                    }
+                    const handleEnter = (e: React.MouseEvent): void => {
+                      ;(e.currentTarget as HTMLElement).style.background =
+                        'var(--color-primary-hover)'
+                    }
+                    const handleLeave = (e: React.MouseEvent): void => {
+                      ;(e.currentTarget as HTMLElement).style.background = 'var(--color-primary)'
+                    }
+                    const actions = Array.isArray(item.card.action)
+                      ? item.card.action
+                      : [item.card.action!]
+                    return (
+                      <div style={{ marginTop: '10px', display: 'flex', gap: '8px' }}>
+                        {actions.map((act, i) =>
+                          act.href ? (
+                            <a
+                              key={i}
+                              href={act.href}
+                              target={act.href.startsWith('http') ? '_blank' : undefined}
+                              rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                              style={actionStyle}
+                              onMouseEnter={handleEnter}
+                              onMouseLeave={handleLeave}
+                            >
+                              {act.label}
+                            </a>
+                          ) : (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={act.onClick}
+                              style={actionStyle}
+                              onMouseEnter={handleEnter}
+                              onMouseLeave={handleLeave}
+                            >
+                              {act.label}
+                            </button>
+                          ),
+                        )}
+                      </div>
+                    )
+                  })()}
               </div>
             )
           }
@@ -2488,9 +2981,9 @@ function ChatInner({
                     </div>
                   )}
                   {msg.queued && (
-                    <div style={{ marginTop: 4 }}>
+                    <div style={{ marginTop: 6 }}>
                       {editingQueuedId === msg.id ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                           <textarea
                             autoFocus
                             defaultValue={editingQueuedText}
@@ -2499,67 +2992,59 @@ function ChatInner({
                               if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault()
                                 const trimmed = editingQueuedText.trim()
-                                if (trimmed) {
-                                  editQueuedMessage(msg.id, trimmed)
-                                } else {
-                                  deleteQueuedMessage(msg.id)
-                                }
+                                if (trimmed) editQueuedMessage(msg.id, trimmed)
+                                else deleteQueuedMessage(msg.id)
                                 setEditingQueuedId(null)
                               }
-                              if (e.key === 'Escape') {
-                                setEditingQueuedId(null)
-                              }
+                              if (e.key === 'Escape') setEditingQueuedId(null)
                             }}
                             className={cm.cn(cm.surface, cm.textSize('sm'))}
                             style={{
                               width: '100%',
-                              minHeight: '40px',
-                              padding: '6px 8px',
-                              border: '1px solid rgba(128,128,128,0.3)',
-                              borderRadius: '4px',
+                              minHeight: '60px',
+                              padding: '8px 10px',
+                              border: `1px solid ${borderClr}`,
+                              borderRadius: '6px',
                               resize: 'vertical',
                               color: 'inherit',
                               fontFamily: 'inherit',
                             }}
                           />
-                          <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
+                          <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                             <button
                               type="button"
                               onClick={() => setEditingQueuedId(null)}
                               className={cm.textSize('xs')}
                               style={{
-                                padding: '2px 8px',
-                                border: '1px solid rgba(128,128,128,0.3)',
-                                borderRadius: '3px',
+                                padding: '4px 12px',
+                                border: `1px solid ${borderClr}`,
+                                borderRadius: '4px',
                                 background: 'transparent',
                                 color: 'inherit',
                                 cursor: 'pointer',
                               }}
                             >
-                              {t('ide.chat.cancel', undefined, { defaultValue: 'Cancel' })}
+                              {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
                             </button>
                             <button
                               type="button"
                               onClick={() => {
                                 const trimmed = editingQueuedText.trim()
-                                if (trimmed) {
-                                  editQueuedMessage(msg.id, trimmed)
-                                } else {
-                                  deleteQueuedMessage(msg.id)
-                                }
+                                if (trimmed) editQueuedMessage(msg.id, trimmed)
+                                else deleteQueuedMessage(msg.id)
                                 setEditingQueuedId(null)
                               }}
                               className={cm.textSize('xs')}
                               style={{
-                                padding: '2px 8px',
-                                border: '1px solid rgba(128,128,128,0.3)',
-                                borderRadius: '3px',
+                                padding: '4px 12px',
+                                border: `1px solid ${borderClr}`,
+                                borderRadius: '4px',
                                 background: 'rgba(128,128,128,0.1)',
                                 color: 'inherit',
                                 cursor: 'pointer',
                               }}
                             >
-                              {t('ide.chat.save', undefined, { defaultValue: 'Save' })}
+                              {t('common.save', undefined, { defaultValue: 'Save' })}
                             </button>
                           </div>
                         </div>
@@ -2568,12 +3053,14 @@ function ChatInner({
                           style={{
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: 'flex-end',
                             gap: 6,
+                            paddingRight: 4,
                           }}
                         >
                           <span
                             className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                            style={{ fontStyle: 'italic' }}
+                            style={{ fontStyle: 'italic', marginRight: 'auto' }}
                           >
                             {t('ide.chat.queued', undefined, { defaultValue: 'Queued' })}
                           </span>
@@ -2583,14 +3070,22 @@ function ChatInner({
                               setEditingQueuedId(msg.id)
                               setEditingQueuedText(msg.content)
                             }}
-                            className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                            className={cm.textSize('xs')}
                             style={{
-                              background: 'none',
-                              border: 'none',
-                              cursor: 'pointer',
+                              padding: '3px 10px',
+                              border: `1px solid ${borderClr}`,
+                              borderRadius: '4px',
+                              background: 'rgba(128,128,128,0.1)',
                               color: 'inherit',
-                              textDecoration: 'underline',
-                              padding: 0,
+                              cursor: 'pointer',
+                              fontWeight: 500,
+                              transition: 'background 100ms',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'rgba(128,128,128,0.1)'
                             }}
                           >
                             {t('ide.chat.editQueued', undefined, { defaultValue: 'Edit' })}
@@ -2598,14 +3093,22 @@ function ChatInner({
                           <button
                             type="button"
                             onClick={() => deleteQueuedMessage(msg.id)}
-                            className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                            className={cm.textSize('xs')}
                             style={{
-                              background: 'none',
-                              border: 'none',
+                              padding: '3px 10px',
+                              border: '1px solid rgba(220,38,38,0.3)',
+                              borderRadius: '4px',
+                              background: 'rgba(220,38,38,0.08)',
+                              color: isLight ? 'rgb(185,28,28)' : 'rgb(248,113,113)',
                               cursor: 'pointer',
-                              color: 'inherit',
-                              textDecoration: 'underline',
-                              padding: 0,
+                              fontWeight: 500,
+                              transition: 'background 100ms',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(220,38,38,0.18)'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'rgba(220,38,38,0.08)'
                             }}
                           >
                             {t('ide.chat.deleteQueued', undefined, { defaultValue: 'Delete' })}
@@ -2617,14 +3120,18 @@ function ChatInner({
                 </div>
               ) : (
                 <div style={{ paddingLeft: sameRoleAsPrev ? '0' : '0' }}>
-                  {msg.blocks?.map((block, bi) =>
-                    (block as { type: string }).type === 'thinking' ? (
+                  {msg.blocks?.map((block, bi) => {
+                    if ((block as { type: string }).type !== 'thinking') return null
+                    const isLastBlock = bi === (msg.blocks?.length ?? 0) - 1
+                    return (
                       <ThinkingBlock
                         key={bi}
                         content={(block as { type: string; content: string }).content}
+                        durationMs={(block as { durationMs?: number }).durationMs}
+                        isStreaming={msg.isStreaming && isLastBlock}
                       />
-                    ) : null,
-                  )}
+                    )
+                  })}
 
                   {msg.isStreaming &&
                     (!msg.blocks ||
@@ -2654,6 +3161,7 @@ function ChatInner({
                           status: 'ok' | 'error'
                           output?: string
                           workspaces: string[]
+                          categories?: string[]
                         }
                         return (
                           <VerificationBadge
@@ -2661,6 +3169,7 @@ function ChatInner({
                             status={vBlock.status}
                             output={vBlock.output}
                             workspaces={vBlock.workspaces}
+                            categories={vBlock.categories}
                           />
                         )
                       }
@@ -2861,23 +3370,122 @@ function ChatInner({
           )
         })}
 
-        {error && (
-          <div
-            className={cm.cn(
-              cm.textSize('sm'),
-              cm.sp('p', 2),
-              cm.sp('mb', 2),
-              cm.bgErrorSubtle,
-              cm.textError,
-            )}
-            style={{ borderRadius: '6px' }}
-          >
-            {error}
-          </div>
-        )}
+        {error &&
+          (errorMeta?.limitType ? (
+            <ResourceLimitBanner
+              message={error}
+              ctaLabel={
+                errorMeta.requiresSignup
+                  ? t('upgrade.signUp', undefined, { defaultValue: 'Sign up' })
+                  : t('upgrade.viewPlans', undefined, { defaultValue: 'Upgrade' })
+              }
+              ctaHref={errorMeta.requiresSignup ? '/signup' : '/pricing'}
+            />
+          ) : (
+            <div
+              className={cm.cn(
+                cm.textSize('sm'),
+                cm.sp('p', 2),
+                cm.sp('mb', 2),
+                cm.bgErrorSubtle,
+                cm.textError,
+              )}
+              style={{ borderRadius: '6px' }}
+            >
+              {error}
+            </div>
+          ))}
 
         <div ref={messagesEndRef} />
       </div>
+
+      {/* ── Auto-fix countdown banner ── */}
+      {autoFixCountdown && (
+        <div
+          className={cm.cn(cm.shrink0, cm.borderT)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '6px 12px',
+            fontSize: 12,
+            background: 'rgba(234,179,8,0.06)',
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="#d4a017" style={{ flexShrink: 0 }}>
+            <path
+              fillRule="evenodd"
+              d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.168 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 9a1 1 0 100-2 1 1 0 000 2z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span style={{ flex: 1, opacity: 0.85 }}>
+            {autoFixCountdown.paused
+              ? t('ide.chat.autoFixPaused', undefined, { defaultValue: 'Auto-fix paused' })
+              : t(
+                  'ide.chat.autoFixCountdown',
+                  { seconds: autoFixCountdown.secondsLeft },
+                  {
+                    defaultValue: `Auto-fixing in ${autoFixCountdown.secondsLeft}s...`,
+                  },
+                )}
+          </span>
+          {autoFixCountdown.paused ? (
+            <button
+              type="button"
+              onClick={() =>
+                setAutoFixCountdown((prev) =>
+                  prev ? { ...prev, paused: false, secondsLeft: 3 } : prev,
+                )
+              }
+              style={{
+                fontSize: 11,
+                padding: '2px 8px',
+                borderRadius: 4,
+                border: '1px solid rgba(128,128,128,0.3)',
+                background: 'transparent',
+                color: 'inherit',
+                cursor: 'pointer',
+              }}
+            >
+              {t('ide.chat.autoFixResume', undefined, { defaultValue: 'Resume' })}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() =>
+                setAutoFixCountdown((prev) => (prev ? { ...prev, paused: true } : prev))
+              }
+              style={{
+                fontSize: 11,
+                padding: '2px 8px',
+                borderRadius: 4,
+                border: '1px solid rgba(128,128,128,0.3)',
+                background: 'transparent',
+                color: 'inherit',
+                cursor: 'pointer',
+              }}
+            >
+              {t('ide.chat.autoFixPause', undefined, { defaultValue: 'Pause' })}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setAutoFixCountdown(null)}
+            style={{
+              fontSize: 11,
+              padding: '2px 8px',
+              borderRadius: 4,
+              border: '1px solid rgba(128,128,128,0.3)',
+              background: 'transparent',
+              color: 'inherit',
+              cursor: 'pointer',
+            }}
+          >
+            {t('ide.chat.autoFixCancel', undefined, { defaultValue: 'Cancel' })}
+          </button>
+        </div>
+      )}
 
       {/* ── Input area ── */}
       <div className={cm.cn(cm.shrink0, cm.borderT)} style={{ position: 'relative' }}>
@@ -2953,74 +3561,152 @@ function ChatInner({
         />
 
         {/* Command menu popup */}
-        {commandMenu && filteredCmds.length > 0 && (
-          <div
-            className={cm.cn(cm.surface, cm.borderAll)}
-            style={{
-              position: 'absolute',
-              bottom: '100%',
-              left: 0,
-              right: 0,
-              marginBottom: 0,
-              borderRadius: '6px 6px 0 0',
-              overflow: 'hidden',
-              zIndex: 100,
-              boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
-              maxHeight: '70vh',
-              overflowY: 'auto',
-            }}
-          >
-            {filteredCmds.map((cmd, idx) => (
-              <button
-                key={cmd.id}
-                type="button"
-                onClick={() => void executeCommand(cmd.id)}
-                onMouseEnter={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)'
-                }}
-                onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.background =
-                    idx === commandMenu.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent'
-                }}
-                className={cm.w('full')}
+        {commandMenu &&
+          filteredCmds.length > 0 &&
+          (() => {
+            // Build flat index → command mapping while rendering grouped
+            let flatIdx = 0
+            // Determine which categories have commands in the filtered set
+            const grouped = COMMAND_CATEGORIES.map(({ key, label }) => ({
+              key,
+              label,
+              cmds: filteredCmds.filter((c) => c.category === key),
+            })).filter((g) => g.cmds.length > 0)
+
+            return (
+              <div
+                className={cm.cn(cm.surface, cm.borderAll)}
                 style={{
+                  position: 'absolute',
+                  bottom: '100%',
+                  left: 0,
+                  right: 0,
+                  marginBottom: 0,
+                  borderRadius: '6px 6px 0 0',
+                  zIndex: 100,
+                  boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '8px 12px',
-                  border: 'none',
-                  borderTop: idx > 0 ? '1px solid rgba(128,128,128,0.12)' : 'none',
-                  cursor: 'pointer',
-                  color: 'inherit',
-                  textAlign: 'left',
-                  fontSize: '13px',
-                  background:
-                    idx === commandMenu.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent',
+                  flexDirection: 'column',
+                  maxHeight: '70vh',
                 }}
               >
-                <span
-                  className={cm.fontWeight('medium')}
-                  style={{ fontFamily: 'monospace', opacity: 0.9 }}
+                <div style={{ overflowY: 'auto', flex: 1 }}>
+                  {grouped.map((group, gi) => (
+                    <div key={group.key}>
+                      {/* Category header */}
+                      <div
+                        className={cm.textMuted}
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 500,
+                          padding: '6px 12px 2px',
+                          ...(gi > 0 ? { borderTop: '1px solid rgba(128,128,128,0.12)' } : {}),
+                        }}
+                      >
+                        {group.label}
+                      </div>
+                      {/* Commands in this group */}
+                      {group.cmds.map((cmd) => {
+                        const thisIdx = flatIdx++
+                        // Inline state suffix
+                        let suffix = ''
+                        if (cmd.id === 'model')
+                          suffix = ` (${AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel})`
+                        else if (cmd.id === 'maxloops') suffix = ` (${currentMaxLoops})`
+                        else if (cmd.id === 'autofix')
+                          suffix = ` (${autoFixEnabled ? 'on' : 'off'})`
+                        else if (cmd.id === 'sounds') {
+                          const modes = SOUND_EVENTS.map((e) => soundsConfig[e])
+                          const allSame = modes.every((m) => m === modes[0])
+                          suffix = ` (${allSame ? SOUND_MODE_LABELS[modes[0]] : 'mixed'})`
+                        }
+                        return (
+                          <button
+                            key={cmd.id}
+                            type="button"
+                            onClick={() => void executeCommand(cmd.id as CommandId)}
+                            onMouseEnter={(e) => {
+                              ;(e.currentTarget as HTMLElement).style.background =
+                                'rgba(128,128,128,0.15)'
+                            }}
+                            onMouseLeave={(e) => {
+                              ;(e.currentTarget as HTMLElement).style.background =
+                                thisIdx === commandMenu!.selectedIdx
+                                  ? 'rgba(128,128,128,0.1)'
+                                  : 'transparent'
+                            }}
+                            className={cm.w('full')}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              padding: '5px 12px 5px 20px',
+                              border: 'none',
+                              cursor: 'pointer',
+                              color: 'inherit',
+                              textAlign: 'left',
+                              fontSize: '13px',
+                              background:
+                                thisIdx === commandMenu!.selectedIdx
+                                  ? 'rgba(128,128,128,0.1)'
+                                  : 'transparent',
+                            }}
+                          >
+                            <span
+                              className={cm.fontWeight('medium')}
+                              style={{ fontFamily: 'monospace', opacity: 0.9, flexShrink: 0 }}
+                            >
+                              {cmd.label}
+                            </span>
+                            <span className={cm.textMuted} style={{ fontSize: '12px' }}>
+                              {cmd.description}
+                              {suffix && (
+                                <span
+                                  style={{
+                                    opacity: 1,
+                                    color: 'var(--color-primary)',
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  {suffix}
+                                </span>
+                              )}
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  ))}
+                </div>
+                {/* Footer: version + report */}
+                <div
+                  className={cm.textMuted}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '5px 12px',
+                    borderTop: '1px solid rgba(128,128,128,0.12)',
+                    fontSize: '11px',
+                    flexShrink: 0,
+                  }}
                 >
-                  {cmd.label}
-                </span>
-                <span className={cm.textMuted} style={{ fontSize: '12px' }}>
-                  {cmd.description}
-                  {cmd.id === 'model' &&
-                    ` (current: ${AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel})`}
-                  {cmd.id === 'maxloops' && ` (current: ${currentMaxLoops})`}
-                  {cmd.id === 'autolint' && ` (${autoLintEnabled ? 'on' : 'off'})`}
-                  {cmd.id === 'sounds' &&
-                    (() => {
-                      const modes = SOUND_EVENTS.map((e) => soundsConfig[e])
-                      const allSame = modes.every((m) => m === modes[0])
-                      return ` (${allSame ? t(`ide.chat.soundMode.${modes[0]}`, undefined, { defaultValue: SOUND_MODE_LABELS[modes[0]] }) : t('ide.chat.soundMode.mixed', undefined, { defaultValue: 'mixed' })})`
-                    })()}
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
+                  <a
+                    href="https://github.com/molecule-dev/molecule/issues"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: 'inherit', opacity: 0.7, textDecoration: 'underline' }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {t('ide.chat.reportProblem', undefined, { defaultValue: 'Report a problem' })}
+                  </a>
+                  <span style={{ opacity: 0.5 }}>
+                    {t('ide.chat.version', undefined, { defaultValue: 'Molecule.dev v0.1.0' })}
+                  </span>
+                </div>
+              </div>
+            )
+          })()}
 
         {/* Model picker popup */}
         {modelPicker && filteredModels.length > 0 && (
@@ -3289,7 +3975,11 @@ function ChatInner({
                     : currentMode === 'whenNotFocused'
                       ? { bg: 'rgba(234,179,8,0.2)', fg: 'rgb(202,138,4)' }
                       : { bg: 'rgba(128,128,128,0.2)', fg: 'inherit' }
-                const modeLabel = allSame ? t(`ide.chat.soundMode.${allModes[0]}`, undefined, { defaultValue: SOUND_MODE_LABELS[allModes[0]] }) : t('ide.chat.soundMode.mixed', undefined, { defaultValue: 'mixed' })
+                const modeLabel = allSame
+                  ? t(`ide.chat.soundMode.${allModes[0]}`, undefined, {
+                      defaultValue: SOUND_MODE_LABELS[allModes[0]],
+                    })
+                  : t('ide.chat.soundMode.mixed', undefined, { defaultValue: 'mixed' })
                 return (
                   <button
                     type="button"
@@ -3378,7 +4068,13 @@ function ChatInner({
                           : 'transparent',
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
                       <span>
                         {t(`ide.chat.soundEvent.${eventType}`, undefined, {
                           defaultValue: SOUND_EVENT_LABELS[eventType],
@@ -3394,7 +4090,9 @@ function ChatInner({
                           flexShrink: 0,
                         }}
                       >
-                        {t(`ide.chat.soundMode.${mode}`, undefined, { defaultValue: SOUND_MODE_LABELS[mode] })}
+                        {t(`ide.chat.soundMode.${mode}`, undefined, {
+                          defaultValue: SOUND_MODE_LABELS[mode],
+                        })}
                       </span>
                     </div>
                     <div
@@ -3578,13 +4276,13 @@ function ChatInner({
                   if (
                     !(commitState?.status === 'committing' || commitState?.status === 'committed')
                   ) {
-                    e.currentTarget.style.background = 'rgba(64,112,224,0.25)'
+                    e.currentTarget.style.background = 'rgba(64,112,224,0.3)'
                     e.currentTarget.style.borderColor = 'rgba(64,112,224,0.65)'
                     e.currentTarget.style.color = '#6090f0'
                   }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(64,112,224,0.15)'
+                  e.currentTarget.style.background = 'rgba(64,112,224,0.2)'
                   e.currentTarget.style.borderColor = 'rgba(64,112,224,0.4)'
                   e.currentTarget.style.color = '#4070e0'
                 }}
@@ -3593,7 +4291,7 @@ function ChatInner({
                   padding: '4px 10px',
                   borderRadius: 6,
                   border: '1px solid rgba(64,112,224,0.4)',
-                  background: 'rgba(64,112,224,0.15)',
+                  background: 'rgba(64,112,224,0.2)',
                   color: '#4070e0',
                   cursor:
                     commitState?.status === 'committing' || commitState?.status === 'committed'
@@ -3612,7 +4310,7 @@ function ChatInner({
               </button>
             </div>
             {commitBarExpanded && (
-              <div style={{ marginTop: 4, paddingLeft: 16 }}>
+              <div style={{ marginTop: 4, paddingLeft: 16, maxHeight: 200, overflowY: 'auto' }}>
                 {pendingFiles.map((f) => (
                   <button
                     key={f.path}
@@ -3775,20 +4473,38 @@ function ChatInner({
               boxSizing: 'border-box',
             }}
           />
-          {/* Hint row: shortcuts · send */}
+          {/* Hint row: shortcuts · context ring · send */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'flex-end',
               marginTop: '6px',
               gap: '4px',
             }}
           >
+            {/* Icon buttons — all use identical box model for vertical alignment:
+                fixed 24×24 flex-centered boxes so text glyphs and SVGs align identically. */}
             {(
               [
                 {
+                  sym: 'slash',
+                  nudgeY: 1,
+                  size: 15,
+                  onClick: () => {
+                    if (!(inputRef.current as string)) {
+                      setInputValue('/')
+                      autoResize()
+                      setCommandMenu({ selectedIdx: -1 })
+                    }
+                    setTimeout(() => {
+                      textareaRef.current?.focus()
+                    }, 0)
+                  },
+                },
+                {
                   sym: '@',
+                  nudgeY: 0,
+                  size: 15,
                   onClick: () => {
                     const val = inputRef.current as string
                     const pos = textareaRef.current?.selectionStart ?? val.length
@@ -3804,35 +4520,28 @@ function ChatInner({
                     }, 0)
                   },
                 },
-                {
-                  sym: '/',
-                  onClick: () => {
-                    if (!(inputRef.current as string)) {
-                      setInputValue('/')
-                      autoResize()
-                      setCommandMenu({ selectedIdx: -1 })
-                    }
-                    setTimeout(() => {
-                      textareaRef.current?.focus()
-                    }, 0)
-                  },
-                },
               ] as const
-            ).map(({ sym, onClick }) => (
+            ).map(({ sym, nudgeY, size: fontSize, onClick }) => (
               <button
                 key={sym}
                 type="button"
-                className={cm.textSize('xs')}
                 onClick={onClick}
                 style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 24,
+                  height: 24,
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
                   color: 'inherit',
                   opacity: 0.4,
-                  padding: '2px 5px',
+                  padding: 0,
                   borderRadius: '3px',
                   fontFamily: 'inherit',
+                  fontSize: `${fontSize}px`,
+                  lineHeight: 1,
                   transition: 'opacity 100ms',
                 }}
                 onMouseEnter={(e) => {
@@ -3842,24 +4551,46 @@ function ChatInner({
                   e.currentTarget.style.opacity = '0.4'
                 }}
               >
-                {sym}
+                {sym === 'slash' ? (
+                  <svg
+                    width="9"
+                    height="13"
+                    viewBox="0 0 9 13"
+                    style={{ display: 'block', position: 'relative', top: `${nudgeY}px` }}
+                  >
+                    <line
+                      x1="8"
+                      y1="1"
+                      x2="1"
+                      y2="12"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                ) : (
+                  <span style={{ position: 'relative', top: `${nudgeY}px` }}>{sym}</span>
+                )}
               </button>
             ))}
             {/* Attachment button */}
             <button
               type="button"
-              className={cm.textSize('xs')}
               onClick={() => fileInputRef.current?.click()}
               title={t('ide.chat.attachFile', undefined, { defaultValue: 'Attach file' })}
               style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 24,
+                height: 24,
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
                 color: 'inherit',
                 opacity: 0.4,
-                padding: '2px 5px',
+                padding: 0,
                 borderRadius: '3px',
-                fontFamily: 'inherit',
                 transition: 'opacity 100ms',
               }}
               onMouseEnter={(e) => {
@@ -3869,41 +4600,38 @@ function ChatInner({
                 e.currentTarget.style.opacity = '0.4'
               }}
             >
+              {/* Paperclip icon (Primer Octicons) */}
               <svg
-                xmlns="http://www.w3.org/2000/svg"
+                width="15"
+                height="15"
                 viewBox="0 0 16 16"
-                width="14"
-                height="14"
+                fill="currentColor"
                 style={{ display: 'block' }}
               >
-                <path
-                  d="M14 5.5L7.5 12a3.54 3.54 0 01-5-5L9 .5a2.12 2.12 0 013 3l-6.5 6.5a.71.71 0 01-1-1L11 2.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.25"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+                <path d="M12.212 3.02a1.753 1.753 0 0 0-2.478.003l-5.83 5.83a3.007 3.007 0 0 0-.88 2.127c0 .795.315 1.551.88 2.116.567.567 1.333.89 2.126.89.79 0 1.548-.321 2.116-.89l5.48-5.48a.75.75 0 0 1 1.061 1.06l-5.48 5.48a4.492 4.492 0 0 1-3.177 1.33c-1.2 0-2.345-.487-3.187-1.33a4.483 4.483 0 0 1-1.32-3.177c0-1.195.475-2.341 1.32-3.186l5.83-5.83a3.25 3.25 0 0 1 5.553 2.297c0 .863-.343 1.691-.953 2.301L7.439 12.39c-.375.377-.884.59-1.416.593a1.998 1.998 0 0 1-1.412-.593 1.992 1.992 0 0 1 0-2.828l5.48-5.48a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-5.48 5.48a.492.492 0 0 0 0 .707.499.499 0 0 0 .352.154.51.51 0 0 0 .356-.154l5.833-5.827a1.755 1.755 0 0 0 0-2.481Z" />
               </svg>
             </button>
             {/* Voice input button — only rendered when Web Speech API is available */}
             {hasSpeechRecognition && (
               <button
                 type="button"
-                className={cm.textSize('xs')}
                 onClick={toggleVoice}
                 title={t('ide.chat.voice', undefined, {
                   defaultValue: isListening ? 'Stop dictation' : 'Dictate',
                 })}
                 style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 24,
+                  height: 24,
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
                   color: isListening ? 'rgb(239,68,68)' : 'inherit',
                   opacity: isListening ? 1 : 0.4,
-                  padding: '2px 5px',
+                  padding: 0,
                   borderRadius: '3px',
-                  fontFamily: 'inherit',
                   transition: 'opacity 100ms, color 100ms',
                 }}
                 onMouseEnter={(e) => {
@@ -3916,8 +4644,8 @@ function ChatInner({
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
-                  width="14"
-                  height="14"
+                  width="16"
+                  height="16"
                   style={{ display: 'block' }}
                 >
                   <rect
@@ -3958,21 +4686,201 @@ function ChatInner({
                 </svg>
               </button>
             )}
-            <div style={{ marginLeft: '4px', display: 'flex', gap: '4px' }}>
+            {/* Plan/Execute mode toggle — right after mic */}
+            <button
+              type="button"
+              onClick={() => {
+                const newMode = mode === 'plan' ? 'execute' : 'plan'
+                setMode(newMode)
+                http
+                  .patch(`/projects/${projectId}/chat-mode`, { mode: newMode, conversationId })
+                  .catch(() => setMode(mode))
+                addSystemCard(
+                  newMode === 'plan'
+                    ? t('ide.chat.switchedToPlan', undefined, {
+                        defaultValue: 'Switched to plan mode',
+                      })
+                    : t('ide.chat.switchedToExecute', undefined, {
+                        defaultValue: 'Switched to execute mode',
+                      }),
+                )
+              }}
+              title={
+                mode === 'plan'
+                  ? t('ide.chat.switchToExecute', undefined, {
+                      defaultValue: 'Switch to execute mode',
+                    })
+                  : t('ide.chat.switchToPlan', undefined, { defaultValue: 'Switch to plan mode' })
+              }
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 24,
+                height: 24,
+                background: 'none',
+                border:
+                  mode === 'plan'
+                    ? `1px solid ${isLight ? 'rgba(180,130,0,0.45)' : 'rgba(234,179,8,0.5)'}`
+                    : 'none',
+                borderRadius: '3px',
+                cursor: 'pointer',
+                color: mode === 'plan' ? (isLight ? '#a16207' : '#eab308') : 'inherit',
+                opacity: mode === 'plan' ? 1 : 0.4,
+                padding: 0,
+                transition: 'opacity 100ms, color 100ms',
+              }}
+              onMouseEnter={(e) => {
+                if (mode !== 'plan') e.currentTarget.style.opacity = '0.85'
+              }}
+              onMouseLeave={(e) => {
+                if (mode !== 'plan') e.currentTarget.style.opacity = '0.4'
+              }}
+            >
+              {/* Lightbulb icon (Primer Octicons) for plan mode */}
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z" />
+              </svg>
+            </button>
+            {/* Context usage ring */}
+            {contextUsage &&
+              (() => {
+                // The ring represents usage toward the auto-compaction threshold,
+                // not the raw context window. 100% = compaction will trigger.
+                const RESERVE = 0.15
+                const COMPACT_THRESHOLD = 0.75
+                const budget = Math.floor(contextUsage.contextWindow * (1 - RESERVE))
+                const compactAt = Math.floor(budget * COMPACT_THRESHOLD)
+                const ratio = Math.min(contextUsage.inputTokens / compactAt, 1)
+                const thresholdRatio = COMPACT_THRESHOLD
+                const size = 18
+                const stroke = 2
+                const r = (size - stroke) / 2
+                const c = 2 * Math.PI * r
+                const dashOffset = c * (1 - ratio)
+                const color =
+                  ratio < 0.5
+                    ? isLight
+                      ? 'rgb(22,163,74)'
+                      : 'rgb(74,222,128)'
+                    : ratio < thresholdRatio
+                      ? isLight
+                        ? 'rgb(161,98,7)'
+                        : 'rgb(250,204,21)'
+                      : ratio < 0.9
+                        ? isLight
+                          ? 'rgb(194,65,12)'
+                          : 'rgb(251,146,60)'
+                        : isLight
+                          ? 'rgb(220,38,38)'
+                          : 'rgb(248,113,113)'
+                const pct = Math.round(ratio * 100)
+                const label = `${formatTokenCount(contextUsage.inputTokens)} / ${formatTokenCount(compactAt)} tokens (${pct}%) — auto-compacts at 100%`
+                return (
+                  <span
+                    title={label}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      marginLeft: 'auto',
+                      opacity: 0.7,
+                      cursor: 'default',
+                    }}
+                    onMouseEnter={(e) => {
+                      const pctEl = e.currentTarget.querySelector<HTMLElement>('[data-ctx-pct]')
+                      if (pctEl) {
+                        pctEl.style.opacity = '1'
+                        pctEl.style.width = 'auto'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const pctEl = e.currentTarget.querySelector<HTMLElement>('[data-ctx-pct]')
+                      if (pctEl) {
+                        pctEl.style.opacity = '0'
+                        pctEl.style.width = '0'
+                      }
+                    }}
+                  >
+                    <span
+                      data-ctx-pct=""
+                      style={{
+                        color,
+                        fontSize: '10px',
+                        lineHeight: 1,
+                        opacity: 0,
+                        width: 0,
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        transition: 'opacity 150ms',
+                      }}
+                    >
+                      {pct}%
+                    </span>
+                    <svg
+                      width={size}
+                      height={size}
+                      viewBox={`0 0 ${size} ${size}`}
+                      style={{ display: 'block', transform: 'rotate(-90deg)', flexShrink: 0 }}
+                    >
+                      <circle
+                        cx={size / 2}
+                        cy={size / 2}
+                        r={r}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={stroke}
+                        opacity={0.15}
+                      />
+                      <circle
+                        cx={size / 2}
+                        cy={size / 2}
+                        r={r}
+                        fill="none"
+                        stroke={color}
+                        strokeWidth={stroke}
+                        strokeDasharray={`${c}`}
+                        strokeDashoffset={`${dashOffset}`}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </span>
+                )
+              })()}
+            <div
+              style={{
+                marginLeft: contextUsage ? '4px' : 'auto',
+                display: 'flex',
+                gap: '4px',
+                alignItems: 'center',
+              }}
+            >
               {isLoading && (
                 <button
                   type="button"
                   onClick={abort}
-                  className={cm.button({ color: 'error', size: 'sm' })}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(248,81,73,0.3)'
+                    e.currentTarget.style.borderColor = 'rgba(248,81,73,0.65)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(248,81,73,0.2)'
+                    e.currentTarget.style.borderColor = 'rgba(248,81,73,0.4)'
+                  }}
+                  style={{
+                    padding: '5px 10px',
+                    borderRadius: 6,
+                    border: '1px solid rgba(248,81,73,0.4)',
+                    background: 'rgba(248,81,73,0.2)',
+                    color: '#f85149',
+                    cursor: 'pointer',
+                    transition: 'background 100ms, border-color 100ms',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 16 16"
-                    width="17"
-                    height="17"
-                    style={{ display: 'block' }}
-                  >
-                    <rect x="4" y="4" width="8" height="8" rx="1" fill="currentColor" />
+                  <svg width="12" height="12" viewBox="0 0 12 12" style={{ display: 'block' }}>
+                    <rect x="2" y="2" width="8" height="8" rx="1.5" fill="currentColor" />
                   </svg>
                 </button>
               )}
@@ -3980,17 +4888,32 @@ function ChatInner({
                 type="button"
                 onClick={() => void handleSubmit()}
                 disabled={!hasInput && attachedFiles.length === 0}
-                className={cm.button({ color: 'primary', size: 'sm' })}
+                onMouseEnter={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.background = 'rgba(96,160,240,0.3)'
+                    e.currentTarget.style.borderColor = 'rgba(96,160,240,0.7)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(96,160,240,0.2)'
+                  e.currentTarget.style.borderColor = 'rgba(96,160,240,0.5)'
+                }}
+                style={{
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  border: '1px solid rgba(96,160,240,0.5)',
+                  background: 'rgba(96,160,240,0.2)',
+                  color: '#6aa3f0',
+                  cursor: !hasInput && attachedFiles.length === 0 ? 'not-allowed' : 'pointer',
+                  opacity: !hasInput && attachedFiles.length === 0 ? 0.5 : 1,
+                  transition: 'background 100ms, border-color 100ms, color 100ms',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  width="17"
-                  height="17"
-                  style={{ display: 'block' }}
-                >
+                <svg width="12" height="12" viewBox="0 0 12 12" style={{ display: 'block' }}>
                   <path
-                    d="M 4,8 L 8,4 L 12,8 M 8,4 L 8,13"
+                    d="M 2.5,6.5 L 6,3 L 9.5,6.5 M 6,3.5 L 6,10"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="1.75"
@@ -4030,6 +4953,8 @@ function ChatInner({
  * @param root0.gitStatusTick - Counter that increments when git status changes.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
+ * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
+ * @param root0.userEditedFileKey - Key to distinguish repeated edits to the same file.
  * @param root0.isAnonymous - Whether the current user is anonymous.
  * @param root0.className - Optional CSS class name for the container.
  * @returns The rendered chat panel element.
@@ -4051,6 +4976,8 @@ export function ChatPanel({
   gitStatusTick,
   pendingMessage,
   pendingMessageKey,
+  userEditedFile,
+  userEditedFileKey,
   isAnonymous,
   className,
 }: ChatPanelProps): JSX.Element {
@@ -4086,6 +5013,11 @@ export function ChatPanel({
       // non-critical
     }
   }, [http, projectId])
+
+  // Fetch conversations on mount so the header shows the current chat title
+  useEffect(() => {
+    void fetchConversations()
+  }, [fetchConversations])
 
   const handleToggleDropdown = useCallback(() => {
     setShowDropdown((v) => {
@@ -4223,7 +5155,7 @@ export function ChatPanel({
               opacity: 0.7,
             }}
           >
-            {activeConv?.preview ? activeConv.preview.slice(0, 40) : 'Chat history'}
+            {activeConv?.preview ?? 'Chat history'}
           </span>
         </button>
 
@@ -4359,6 +5291,8 @@ export function ChatPanel({
         onConversationId={persistConversationId}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}
+        userEditedFile={userEditedFile}
+        userEditedFileKey={userEditedFileKey}
         gitStatusTick={gitStatusTick}
       />
     </div>

@@ -35,6 +35,12 @@ export class HttpChatProvider implements ChatProvider {
    */
   isServerStreaming = false
 
+  /**
+   * The mode reported by the server on the last `loadHistory` call.
+   * Used to restore plan/execute mode after a page refresh.
+   */
+  lastMode: 'plan' | 'execute' = 'execute'
+
   /** Maximum number of retries for HTTP 409 (server-side lock not yet released). */
   private static readonly CONFLICT_MAX_RETRIES = 10
 
@@ -116,13 +122,29 @@ export class HttpChatProvider implements ChatProvider {
         const text = await response!
           .text()
           .catch(() => t('chat.error.unknownError', undefined, { defaultValue: 'Unknown error' }))
+        // Parse structured limit error metadata from JSON responses
+        let limitType: string | undefined
+        let requiresSignup: boolean | undefined
+        let errorMessage: string | undefined
+        try {
+          const body = JSON.parse(text)
+          if (typeof body.limitType === 'string') limitType = body.limitType
+          if (typeof body.requiresSignup === 'boolean') requiresSignup = body.requiresSignup
+          if (typeof body.error === 'string') errorMessage = body.error
+        } catch {
+          // Not JSON — use raw text
+        }
         onEvent({
           type: 'error',
-          message: t(
-            'chat.error.httpError',
-            { status: response!.status, text },
-            { defaultValue: 'HTTP {{status}}: {{text}}' },
-          ),
+          message:
+            errorMessage ??
+            t(
+              'chat.error.httpError',
+              { status: response!.status, text },
+              { defaultValue: 'HTTP {{status}}: {{text}}' },
+            ),
+          limitType,
+          requiresSignup,
         })
         return
       }
@@ -223,8 +245,10 @@ export class HttpChatProvider implements ChatProvider {
     const data = (await response.json()) as {
       messages?: Record<string, unknown>[]
       streaming?: boolean
+      mode?: 'plan' | 'execute'
     }
     this.isServerStreaming = data.streaming ?? false
+    this.lastMode = data.mode ?? 'execute'
     return (data.messages ?? []).map((m, i) => {
       // Backend stores timestamps as ISO strings; frontend needs numbers
       const raw = m.timestamp

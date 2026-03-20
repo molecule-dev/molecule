@@ -52,6 +52,10 @@ export interface ChatPanelProps {
   pendingMessage?: string
   /** Incremented to trigger sending pendingMessage. */
   pendingMessageKey?: number
+  /** File path the user just edited in the editor — triggers auto-deletion of queued autofix messages. */
+  userEditedFile?: string
+  /** Incremented to trigger the user-edit check (same path may be edited multiple times). */
+  userEditedFileKey?: number
   /** When true, model picker shows non-default models as locked (sign-up required). */
   isAnonymous?: boolean
   className?: string
@@ -96,6 +100,8 @@ export interface PreviewPanelProps {
   onPreviewError?: (
     errors: Array<{ message: string; source?: string; line?: number; column?: number }>,
   ) => void
+  /** Incremented when AI edits files. Triggers an iframe reload only when the preview is broken. */
+  fileChangeTick?: number
   className?: string
 }
 

@@ -1,8 +1,5 @@
 import type { IconData } from '@molecule/app-icons'
 
-/**
- * SVG path data for the chevron right icon.
- */
 export const chevronRight: IconData = {
   paths: [
     {

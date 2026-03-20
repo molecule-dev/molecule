@@ -221,15 +221,15 @@ describe('propsSchema', () => {
     expect(result.success).toBe(true)
   })
 
-  it('should reject missing username', () => {
-    const invalidProps = {
+  it('should accept missing username (optional)', () => {
+    const validProps = {
       id: '550e8400-e29b-41d4-a716-446655440000',
       createdAt: '2024-01-01T00:00:00.000Z',
       updatedAt: '2024-01-01T00:00:00.000Z',
     }
 
-    const result = propsSchema.safeParse(invalidProps)
-    expect(result.success).toBe(false)
+    const result = propsSchema.safeParse(validProps)
+    expect(result.success).toBe(true)
   })
 
   it('should reject invalid planExpiresAt datetime', () => {
@@ -328,14 +328,14 @@ describe('createPropsSchema', () => {
     expect(result.success).toBe(true)
   })
 
-  it('should reject missing username', () => {
-    const invalidCreateProps = {
+  it('should accept missing username (optional)', () => {
+    const validCreateProps = {
       name: 'New User',
       email: 'newuser@example.com',
     }
 
-    const result = createPropsSchema.safeParse(invalidCreateProps)
-    expect(result.success).toBe(false)
+    const result = createPropsSchema.safeParse(validCreateProps)
+    expect(result.success).toBe(true)
   })
 
   it('should not include id field', () => {
@@ -394,14 +394,14 @@ describe('createOAuthPropsSchema', () => {
     expect(result.success).toBe(true)
   })
 
-  it('should reject missing username', () => {
-    const invalidOAuthProps = {
+  it('should accept missing username (optional)', () => {
+    const validOAuthProps = {
       oauthServer: 'google',
       oauthId: 'google-oauth-id-123',
     }
 
-    const result = createOAuthPropsSchema.safeParse(invalidOAuthProps)
-    expect(result.success).toBe(false)
+    const result = createOAuthPropsSchema.safeParse(validOAuthProps)
+    expect(result.success).toBe(true)
   })
 })
 

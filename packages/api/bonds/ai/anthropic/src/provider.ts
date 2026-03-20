@@ -50,10 +50,21 @@ class AnthropicAIProvider implements AIProvider {
     const model = params.model ?? this.defaultModel
     const maxTokens = params.maxTokens ?? this.maxTokens
 
+    const formattedMessages = this.formatMessages(params.messages)
+
     const body: Record<string, unknown> = {
       model,
       max_tokens: maxTokens,
-      messages: this.formatMessages(params.messages),
+      messages: formattedMessages,
+    }
+
+    // Enable automatic prompt caching at the request level. The API places
+    // the cache breakpoint on the last cacheable block and advances it as the
+    // conversation grows — no manual breakpoint management needed for messages.
+    // Explicit breakpoints on system + tools below provide additional stable
+    // cache points (tools/system rarely change, so they cache independently).
+    if (params.cacheControl) {
+      body.cache_control = params.cacheControl
     }
 
     if (params.system) {
@@ -91,8 +102,12 @@ class AnthropicAIProvider implements AIProvider {
       'x-api-key': this.apiKey,
       'anthropic-version': '2023-06-01',
     }
-    if (params.thinking) {
-      headers['anthropic-beta'] = 'interleaved-thinking-2025-05-14'
+    // Build anthropic-beta header — features that require beta flags.
+    // Prompt caching is GA (no longer needs a beta flag).
+    const betaFeatures: string[] = []
+    if (params.thinking) betaFeatures.push('interleaved-thinking-2025-05-14')
+    if (betaFeatures.length > 0) {
+      headers['anthropic-beta'] = betaFeatures.join(',')
     }
 
     // Default timeout of 5 minutes to prevent hung connections.
@@ -100,16 +115,51 @@ class AnthropicAIProvider implements AIProvider {
     const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000
     const signal = params.signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS)
 
-    const response = await fetch(`${this.baseUrl}/v1/messages`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-      signal,
-    })
+    // Retry with exponential backoff for rate limits (429) and overloaded (529/503)
+    const MAX_RETRIES = 3
+    let response: Response | null = null
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      response = await fetch(`${this.baseUrl}/v1/messages`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+        signal,
+      })
 
-    if (!response.ok) {
-      const errorBody = await response.text()
-      let detail = `HTTP ${response.status}`
+      if (response.status === 429 || response.status === 529 || response.status === 503) {
+        if (attempt < MAX_RETRIES) {
+          // Use Retry-After header if provided, otherwise exponential backoff
+          const retryAfter = response.headers.get('retry-after')
+          const delayMs = retryAfter
+            ? Math.min(parseInt(retryAfter, 10) * 1000, 60_000)
+            : Math.min(1000 * 2 ** attempt, 30_000)
+          logger.warn('Anthropic API rate limited, retrying', {
+            status: response.status,
+            attempt: attempt + 1,
+            delayMs,
+          })
+          await new Promise<void>((resolve) => {
+            const timer = setTimeout(resolve, delayMs)
+            // If aborted while waiting, resolve immediately
+            signal.addEventListener(
+              'abort',
+              () => {
+                clearTimeout(timer)
+                resolve()
+              },
+              { once: true },
+            )
+          })
+          if (signal.aborted) break
+          continue
+        }
+      }
+      break
+    }
+
+    if (!response!.ok) {
+      const errorBody = await response!.text()
+      let detail = `HTTP ${response!.status}`
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
         if (parsed.error?.message) detail = parsed.error.message
@@ -117,17 +167,17 @@ class AnthropicAIProvider implements AIProvider {
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
       // Log full detail server-side for debugging
-      logger.error('Anthropic API error', { status: response.status, detail })
+      logger.error('Anthropic API error', { status: response!.status, detail })
       // Return sanitized but actionable error to client
       const clientMessage =
-        response.status === 429
+        response!.status === 429
           ? 'AI rate limit exceeded. Please try again shortly.'
-          : response.status === 401
+          : response!.status === 401
             ? 'AI service configuration error.'
-            : response.status === 400 &&
+            : response!.status === 400 &&
                 /prompt is too long|too many tokens|token.*limit|context.*length/i.test(detail)
               ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
-              : response.status === 529 || response.status === 503
+              : response!.status === 529 || response!.status === 503
                 ? 'AI service is temporarily overloaded. Please try again in a moment.'
                 : 'AI service error. Please try again.'
       yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
@@ -136,13 +186,13 @@ class AnthropicAIProvider implements AIProvider {
 
     if (params.stream === false) {
       // Non-streaming: parse full response
-      const data = (await response.json()) as Record<string, unknown>
+      const data = (await response!.json()) as Record<string, unknown>
       yield* this.parseNonStreamingResponse(data)
       return
     }
 
     // Streaming: parse SSE events
-    yield* this.parseStreamingResponse(response)
+    yield* this.parseStreamingResponse(response!)
   }
 
   /**
@@ -314,7 +364,9 @@ class AnthropicAIProvider implements AIProvider {
               } else if (delta.type === 'input_json_delta' && pendingTool) {
                 pendingTool.inputJson += delta.partial_json as string
               } else if (delta.type === 'thinking_delta' && pendingThinking !== null) {
-                pendingThinking += delta.thinking as string
+                const chunk = delta.thinking as string
+                pendingThinking += chunk
+                yield { type: 'thinking', content: chunk }
               }
             } else if (eventType === 'content_block_start') {
               const block = event.content_block as Record<string, unknown>
@@ -344,11 +396,8 @@ class AnthropicAIProvider implements AIProvider {
                 }
                 pendingTool = null
               }
-              // Emit completed thinking block
+              // Thinking block complete — deltas were already yielded incrementally
               if (pendingThinking !== null) {
-                if (pendingThinking.length > 0) {
-                  yield { type: 'thinking', content: pendingThinking }
-                }
                 pendingThinking = null
               }
             } else if (eventType === 'message_delta') {

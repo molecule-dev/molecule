@@ -299,7 +299,7 @@ export const MarkdownContent = memo(function MarkdownContent({
   isStreaming,
 }: MarkdownContentProps): JSX.Element {
   if (!text) {
-    return <>{isStreaming && <StreamingIndicator inline />}</>
+    return <>{isStreaming && <StreamingIndicator />}</>
   }
 
   const segments = splitSegments(text)

@@ -610,12 +610,94 @@ export const ToolCallCard = memo(function ToolCallCard({
             }
           : undefined
 
+  // ── save_plan: clickable row that opens the plan file in the editor ──────────
+  if (name === 'save_plan') {
+    const planOutput = (output ?? {}) as { path?: string }
+    const planPath = planOutput.path ?? null
+
+    // Render as a standard tool card row — click opens the plan file
+    const planHandleClick =
+      planPath && onFileOpen
+        ? () => {
+            onFileOpen(planPath)
+          }
+        : undefined
+
+    return (
+      <div className={className} style={{ marginBottom: '4px' }}>
+        <button
+          type="button"
+          onClick={planHandleClick}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '6px',
+            background: 'none',
+            border: 'none',
+            cursor: planHandleClick ? 'pointer' : 'default',
+            color: 'inherit',
+            textAlign: 'left',
+            padding: '2px 0',
+            width: '100%',
+          }}
+        >
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="10" height="10" viewBox="0 0 10 10" style={{ flexShrink: 0 }}>
+                <circle cx="5" cy="5" r="3" fill={dotColor} opacity="0.35" />
+                <circle cx="5" cy="5" r="3" fill="none" stroke={dotColor} strokeWidth="2" />
+              </svg>
+              <span
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {renderLabel(name, input, planPath, onFileOpen, onFileDoubleClick)}
+              </span>
+            </span>
+          </span>
+          {planHandleClick && (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              width="14"
+              height="14"
+              style={{
+                display: 'block',
+                flexShrink: 0,
+                marginTop: '3px',
+                transition: 'opacity 100ms',
+                opacity: isHovered ? 0.85 : 0.35,
+              }}
+            >
+              <polyline
+                points="6,4 10,8 6,12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+        </button>
+      </div>
+    )
+  }
+
   // ── ask_user: render interactive option list instead of a normal tool card ──
   if (name === 'ask_user') {
     const askInput = (input ?? {}) as {
       question?: string
       options?: string[]
       allowFreeText?: boolean
+      hint?: string
     }
     const askOutput = output as { status?: string } | string | undefined
     const serverAwaiting =
@@ -766,7 +848,7 @@ export const ToolCallCard = memo(function ToolCallCard({
                 }
               }}
               placeholder={t('ide.chat.askUserPlaceholder', undefined, {
-                defaultValue: 'Or type your own…',
+                defaultValue: 'Or something else…',
               })}
               style={{
                 flex: 1,
@@ -789,16 +871,36 @@ export const ToolCallCard = memo(function ToolCallCard({
                   setFreeText('')
                 }
               }}
+              onMouseEnter={(e) => {
+                if (freeText.trim()) {
+                  e.currentTarget.style.background = 'rgba(64,112,224,0.3)'
+                  e.currentTarget.style.borderColor = 'rgba(64,112,224,0.65)'
+                  e.currentTarget.style.color = '#6090f0'
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = freeText.trim()
+                  ? 'rgba(64,112,224,0.2)'
+                  : 'transparent'
+                e.currentTarget.style.borderColor = freeText.trim()
+                  ? 'rgba(64,112,224,0.4)'
+                  : 'transparent'
+                e.currentTarget.style.color = freeText.trim() ? '#4070e0' : 'inherit'
+              }}
               style={{
-                padding: '5px 12px',
-                borderRadius: '5px',
-                border: 'none',
-                background: freeText.trim() ? (isLight ? '#2563eb' : '#3b82f6') : 'transparent',
-                color: freeText.trim() ? '#fff' : 'inherit',
+                height: 30,
+                padding: '0 10px',
+                borderRadius: 6,
+                border: freeText.trim()
+                  ? '1px solid rgba(64,112,224,0.4)'
+                  : '1px solid transparent',
+                background: freeText.trim() ? 'rgba(64,112,224,0.2)' : 'transparent',
+                color: freeText.trim() ? '#4070e0' : 'inherit',
                 cursor: freeText.trim() ? 'pointer' : 'default',
                 fontSize: '12px',
                 fontWeight: 500,
                 opacity: freeText.trim() ? 1 : 0.3,
+                transition: 'background 100ms, border-color 100ms, color 100ms',
               }}
             >
               {t('ide.chat.askUserSubmit', undefined, { defaultValue: 'Send' })}
@@ -817,6 +919,21 @@ export const ToolCallCard = memo(function ToolCallCard({
             }}
           >
             {selectedAnswer}
+          </div>
+        )}
+
+        {/* Optional hint text */}
+        {askInput.hint && (
+          <div
+            style={{
+              padding: '8px 12px',
+              borderTop: `1px solid ${borderClr}`,
+              fontSize: '11px',
+              fontStyle: 'italic',
+              opacity: 0.5,
+            }}
+          >
+            {askInput.hint}
           </div>
         )}
       </div>
@@ -855,8 +972,8 @@ export const ToolCallCard = memo(function ToolCallCard({
           <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             {/* Colored status dot — inside the flex row so it auto-centers with the label */}
             <svg width="10" height="10" viewBox="0 0 10 10" style={{ flexShrink: 0 }}>
-              <circle cx="5" cy="5" r="4.5" fill={dotColor} opacity="0.35" />
-              <circle cx="5" cy="5" r="2.5" fill="none" stroke={dotColor} strokeWidth="1.75" />
+              <circle cx="5" cy="5" r="3" fill={dotColor} opacity="0.35" />
+              <circle cx="5" cy="5" r="3" fill="none" stroke={dotColor} strokeWidth="2" />
             </svg>
             <span
               style={{

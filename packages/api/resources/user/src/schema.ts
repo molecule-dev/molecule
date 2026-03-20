@@ -31,7 +31,7 @@ export const createSchema = <
     /**
      * An alphanumeric username.
      */
-    username: z.string(),
+    username: z.string().optional(),
     /**
      * The user's given name.
      */

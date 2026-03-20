@@ -12,7 +12,13 @@ export type MessageBlock =
   | { type: 'text'; content: string }
   | { type: 'tool_call'; id: string }
   | { type: 'thinking'; content: string }
-  | { type: 'verification'; status: 'ok' | 'error'; output?: string; workspaces: string[] }
+  | {
+      type: 'verification'
+      status: 'ok' | 'error'
+      output?: string
+      workspaces: string[]
+      categories?: string[]
+    }
   | { type: 'resource_limit'; resource: string; message: string }
 
 /**
@@ -140,11 +146,13 @@ export type ChatStreamEvent =
   | { type: 'conversation'; id: string }
   | { type: 'mode'; mode: 'plan' | 'execute' }
   | { type: 'loop_limit_reached'; maxLoops: number }
+  | { type: 'compaction'; compactedCount: number; remainingCount: number; summary: string }
   | {
       type: 'verification_result'
       status: 'ok' | 'error'
       output?: string
       workspaces: string[]
+      categories?: ('type' | 'lint' | 'runtime')[]
       changedPaths?: string[]
     }
   | {
@@ -152,8 +160,8 @@ export type ChatStreamEvent =
       errors: Array<{ message: string; source?: string; line?: number; column?: number }>
     }
   | { type: 'resource_limit'; resource: 'memory'; message: string }
-  | { type: 'done'; usage?: { inputTokens: number; outputTokens: number } }
-  | { type: 'error'; message: string }
+  | { type: 'done'; usage?: { inputTokens: number; outputTokens: number; contextWindow?: number } }
+  | { type: 'error'; message: string; limitType?: string; requiresSignup?: boolean }
 
 /**
  * AI chat provider interface that all chat bond packages must implement.

@@ -392,7 +392,7 @@ describe('@molecule/app-ui-nativewind classMap', () => {
 
       it('should map variant "outline"', () => {
         const result = classMap.button({ variant: 'outline' })
-        expect(result).toContain('border')
+        expect(result).toContain('bg-transparent')
       })
 
       it('should map size "xs"', () => {

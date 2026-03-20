@@ -63,12 +63,12 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.chat.selectModel` | Select model |
 | `ide.chat.signUpRequired` | Sign up to use |
 | `ide.chat.undoChange` | Undo this change |
-| `ide.chat.verificationPassed` | Lint passed |
-| `ide.chat.verificationFailed` | Lint errors found |
-| `ide.chat.verificationFixing` | Fixing lint errors... |
-| `ide.chat.autoLintEnabled` | Auto-lint enabled — ESLint runs automatically after AI file changes. |
-| `ide.chat.autoLintDisabled` | Auto-lint disabled. |
-| `ide.chat.autoLintError` | Failed to update auto-lint setting. |
+| `ide.chat.verificationPassed` | Checks passed |
+| `ide.chat.verificationFailed` | Errors found |
+| `ide.chat.verificationFixing` | Fixing errors... |
+| `ide.chat.autoFixEnabled` | Auto-fix enabled. |
+| `ide.chat.autoFixDisabled` | Auto-fix disabled. |
+| `ide.chat.autoFixError` | Failed to update auto-fix setting. |
 | `ide.chat.viewPlans` | View plans |
 | `ide.chat.cancel` | Cancel |
 | `ide.chat.save` | Save |

@@ -8,7 +8,6 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import { create as resourceCreate } from '@molecule/api-resource'
 
 import * as authorization from '../authorization.js'
-import { createPropsSchema } from '../schema.js'
 import type * as types from '../types.js'
 
 const analytics = getAnalytics()
@@ -32,11 +31,11 @@ export interface CreateRequest extends MoleculeRequest {
  * @param resource.schema - The validation schema for user properties.
  * @returns A request handler that responds with `{ statusCode: 201, body: { props } }` on success.
  */
-export const create = ({ name, tableName, schema: _schema }: types.Resource) => {
+export const create = ({ name, tableName, schema }: types.Resource) => {
   const createResource = resourceCreate({
     name,
     tableName,
-    schema: createPropsSchema,
+    schema,
   })
 
   return async (req: CreateRequest, res: MoleculeResponse) => {
@@ -153,6 +152,13 @@ export const create = ({ name, tableName, schema: _schema }: types.Resource) => 
     // Create the id in advance.
     const id = uuid()
 
+    // Create the user first (usersSecrets has a FK to users.id).
+    const createdResponse = await createResource({ props, id: id as string })
+
+    if (!createdResponse || createdResponse.statusCode !== 201) {
+      return createdResponse
+    }
+
     // Hash and store the password.
     try {
       const passwordHash = await hash(body.password!)
@@ -172,42 +178,44 @@ export const create = ({ name, tableName, schema: _schema }: types.Resource) => 
       }
     }
 
-    // Create the user.
-    const createdResponse = await createResource({ props, id: id as string })
+    // User and secrets created — now set up the session.
+    try {
+      const deviceId = await get<{
+        createOrUpdate(userId: string, deviceName: string): Promise<string | null>
+      }>('device')?.createOrUpdate(id, body.deviceName || 'Unknown')
 
-    if (createdResponse && createdResponse.statusCode === 201) {
-      try {
-        const deviceId = await get<{
-          createOrUpdate(userId: string, deviceName: string): Promise<string | null>
-        }>('device')?.createOrUpdate(id, body.deviceName || 'Unknown')
+      if (deviceId) {
+        const accessToken = authorization.set(req, res, { userId: id, deviceId })
+        analytics
+          .track({ name: 'user.signup', userId: id, properties: { method: 'password' } })
+          .catch(() => {})
+        analytics
+          .identify({
+            userId: id,
+            email: props.email || undefined,
+            name: props.name || undefined,
+          })
+          .catch(() => {})
 
-        if (deviceId) {
-          authorization.set(req, res, { userId: id, deviceId })
-          analytics
-            .track({ name: 'user.signup', userId: id, properties: { method: 'password' } })
-            .catch(() => {})
-          analytics
-            .identify({
-              userId: id,
-              email: props.email || undefined,
-              name: props.name || undefined,
-            })
-            .catch(() => {})
-        } else {
-          throw new Error('Failed to create session device.')
-        }
-      } catch (error) {
-        logger.error(error)
+        // Include accessToken and user in the response body so the frontend
+        // auth client can store them (it expects { accessToken, user }).
+        const user = createdResponse.body?.props ?? { id, ...props }
         return {
-          statusCode: 500,
-          body: {
-            error: t('user.error.failedToCreateSession'),
-            errorKey: 'user.error.failedToCreateSession',
-          },
+          statusCode: 201,
+          body: { props: user, accessToken, user },
         }
+      } else {
+        throw new Error('Failed to create session device.')
+      }
+    } catch (error) {
+      logger.error(error)
+      return {
+        statusCode: 500,
+        body: {
+          error: t('user.error.failedToCreateSession'),
+          errorKey: 'user.error.failedToCreateSession',
+        },
       }
     }
-
-    return createdResponse
   }
 }

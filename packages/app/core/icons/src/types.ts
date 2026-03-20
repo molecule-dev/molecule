@@ -113,6 +113,10 @@ export type ComponentIconName =
   | 'code'
   | 'mail'
   // Misc
+  | 'lightbulb'
+  | 'mention'
+  | 'microphone'
+  | 'paperclip'
   | 'question'
   | 'bookmark'
   | 'pin'

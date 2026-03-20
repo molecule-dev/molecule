@@ -67,10 +67,20 @@ export function toolLabel(name: string, input: unknown): string {
       const short = (cmd ?? '').slice(0, 60)
       return `Bash \`${short}${(cmd ?? '').length > 60 ? '…' : ''}\``
     }
+    case 'save_plan': {
+      const planName = (inp.name as string) ?? ''
+      return planName ? `Save plan \`${planName}\`` : 'Save plan'
+    }
+    case 'set_mode': {
+      const targetMode = (inp.mode as string) ?? ''
+      return targetMode ? `Switch to ${targetMode} mode` : 'Switch mode'
+    }
     case 'ask_user':
       return (inp.question as string) ?? 'Question'
-    default:
-      return name.replace(/_/g, ' ')
+    default: {
+      const label = name.replace(/_/g, ' ')
+      return label.charAt(0).toUpperCase() + label.slice(1)
+    }
   }
 }
 

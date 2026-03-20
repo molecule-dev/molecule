@@ -95,6 +95,10 @@ const ICON_MAP: Record<string, string> = {
   mail: 'mail',
 
   // Misc
+  lightbulb: 'light-bulb',
+  mention: 'mention',
+  microphone: 'unmute',
+  paperclip: 'paperclip',
   question: 'question',
   bookmark: 'bookmark-fill',
   pin: 'pin',

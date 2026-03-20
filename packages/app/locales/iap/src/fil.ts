@@ -15,7 +15,7 @@ export const fil: IapTranslations = {
   'iap.error.E_NOT_OWNED': 'Hindi mo pag-aari ang item na ito.',
   'iap.error.E_DEFERRED': 'Kailangan ng approval ang pagbili.',
   'iap.error.E_INVALID_PRODUCT': 'Hindi valid na produkto.',
-  'iap.error.E_NETWORK': 'Network error.',
+  'iap.error.E_NETWORK': 'May error sa network.',
   'iap.error.0': 'May naganap na hindi kilalang error.',
   'iap.error.E_CLIENT_INVALID': 'Hindi pinapayagan ang client na mag-issue ng request.',
   'iap.error.E_PAYMENT_CANCELLED': 'Kinansela ng user ang request.',
@@ -31,7 +31,7 @@ export const fil: IapTranslations = {
   'iap.error.3': 'Hindi available ang billing.',
   'iap.error.4': 'Hindi available ang item.',
   'iap.error.5': 'Error ng developer.',
-  'iap.error.6': 'Error.',
+  'iap.error.6': 'May error.',
   'iap.error.7': 'Pag-aari na ang item.',
   'iap.error.8': 'Hindi pag-aari ang item.',
 }

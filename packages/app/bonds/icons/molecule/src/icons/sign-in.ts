@@ -1,8 +1,5 @@
 import type { IconData } from '@molecule/app-icons'
 
-/**
- * SVG path data for the sign in icon.
- */
 export const signIn: IconData = {
   paths: [
     {

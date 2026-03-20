@@ -288,7 +288,7 @@ describe('button component', () => {
 
   it('should apply variant prop', () => {
     expect(button({ variant: 'secondary' })).toContain('bg-secondary')
-    expect(button({ variant: 'outline' })).toContain('border')
+    expect(button({ variant: 'outline' })).toContain('bg-transparent')
     expect(button({ variant: 'ghost' })).toContain('hover:bg-surface-secondary')
     expect(button({ variant: 'link' })).toContain('underline-offset-4')
     expect(button({ variant: 'danger' })).toContain('bg-error')

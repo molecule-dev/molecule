@@ -59,6 +59,7 @@ async function isServerUp(url: string): Promise<boolean> {
  * @param root0.restartingIndicator - Custom loading indicator for mid-session restarts.
  * @param root0.onPreviewError - Called when the preview iframe reports runtime JS errors.
  * @param root0.className - Optional CSS class name for the container.
+ * @param root0.fileChangeTick - Incremented when the user edits a file, used to cancel queued autofix messages.
  * @returns The rendered preview panel element.
  */
 export function PreviewPanel({
@@ -66,6 +67,7 @@ export function PreviewPanel({
   restartingIndicator,
   className,
   onPreviewError,
+  fileChangeTick,
 }: PreviewPanelProps): JSX.Element {
   const cm = getClassMap()
   const { state, setUrl, refresh, setDevice, openExternal } = usePreview()
@@ -228,6 +230,23 @@ export function PreviewPanel({
       if (healthRef.current) clearInterval(healthRef.current)
     }
   }, [iframeReady, fadingOut, state.url])
+
+  // --- Auto-reload when preview is broken and AI edits files ---
+  // Only triggers when the overlay is showing (preview broken/loading) and
+  // fileChangeTick increments (AI wrote/edited a file that might fix the issue).
+  const fileChangTickRef = useRef(fileChangeTick)
+  useEffect(() => {
+    if (fileChangTickRef.current === fileChangeTick) return
+    fileChangTickRef.current = fileChangeTick
+    // Only reload if the preview is broken (overlay visible, server was up before)
+    if (!iframeReady && everLoaded && state.url) {
+      // Debounce — wait for Vite to process the change before reloading
+      const timer = setTimeout(() => {
+        setIframeSrc(state.url + (state.url.includes('?') ? '&' : '?') + '_r=' + Date.now())
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [fileChangeTick, iframeReady, everLoaded, state.url])
 
   // --- Rendering ---
   const iframeWidth = deviceWidths[state.device] || '100%'

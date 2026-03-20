@@ -1,8 +1,5 @@
 import type { IconData } from '@molecule/app-icons'
 
-/**
- * SVG path data for the tag icon.
- */
 export const tag: IconData = {
   paths: [
     {

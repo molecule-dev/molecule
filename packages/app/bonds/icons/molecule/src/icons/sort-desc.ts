@@ -1,8 +1,5 @@
 import type { IconData } from '@molecule/app-icons'
 
-/**
- * SVG path data for the sort desc icon.
- */
 export const sortDesc: IconData = {
   paths: [
     {

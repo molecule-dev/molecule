@@ -121,7 +121,7 @@ describe('toolLabel', () => {
   })
 
   it('falls back to formatted name for unknown tools', () => {
-    expect(toolLabel('custom_tool', {})).toBe('custom tool')
+    expect(toolLabel('custom_tool', {})).toBe('Custom tool')
   })
 
   it('handles null input', () => {

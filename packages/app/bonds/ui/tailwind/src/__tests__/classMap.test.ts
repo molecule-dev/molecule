@@ -40,9 +40,9 @@ describe('classMap', () => {
       expect(result).toContain('bg-primary')
     })
 
-    it('should map variant "outline" to border styles', () => {
+    it('should map variant "outline" to transparent background', () => {
       const result = classMap.button({ variant: 'outline' })
-      expect(result).toContain('border')
+      expect(result).toContain('bg-transparent')
     })
 
     it('should map variant "ghost"', () => {

@@ -27,6 +27,9 @@ const STORAGE_PREFIX = 'mol-chat-'
 
 type QueueEntry = { message: string; attachments?: ChatAttachment[]; userMsgId?: string }
 
+/** Prefix used by auto-fix messages so we can identify them in the queue. */
+const AUTOFIX_PREFIX = 'Fix these issues:'
+
 /**
  * Persist the pending message queue for a project.
  * @param projectId - The project identifier used as the storage key.
@@ -141,6 +144,10 @@ export function useChat(options: UseChatOptions): UseChatResult {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [errorMeta, setErrorMeta] = useState<{
+    limitType?: string
+    requiresSignup?: boolean
+  } | null>(null)
   const [mode, setMode] = useState<'plan' | 'execute'>('execute')
   const mountedRef = useRef(true)
   const idCounterRef = useRef(0)
@@ -157,6 +164,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
   const sendMessageRef = useRef<(message: string, attachments?: ChatAttachment[]) => Promise<void>>(
     () => Promise.resolve(),
   )
+  // Stable ref to clearQueuedForFile so stream event handlers can call it
+  const clearQueuedForFileRef = useRef<(filePath: string) => void>(() => {})
 
   // Track page unload so the streaming flag isn't cleared during refresh.
   // On refresh the browser aborts the in-flight fetch, which causes the
@@ -202,6 +211,13 @@ export function useChat(options: UseChatOptions): UseChatResult {
         if (!mountedRef.current) return
         if (history.length > 0) {
           setMessages(history)
+        }
+
+        // Restore mode from server (persisted in conversation.aiContext.mode)
+        const serverMode = (provider as { lastMode?: 'plan' | 'execute' }).lastMode
+        if (serverMode && serverMode !== 'execute') {
+          setMode(serverMode)
+          onModeChange?.(serverMode)
         }
 
         // Also check the provider's streaming flag — the server tells us
@@ -290,6 +306,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       sendingRef.current = true
       setIsLoading(true)
       setError(null)
+      setErrorMeta(null)
       setStreamingFlag(storageKey)
 
       let current: QueueEntry | undefined = {
@@ -393,6 +410,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
                   ),
                 )
               }
+              // Auto-delete queued autofix messages that reference this file
+              clearQueuedForFileRef.current(event.path)
               // Notify host so open editor tabs can be refreshed
               onFileChange?.(event.path, event.newContent)
               break
@@ -418,6 +437,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 status: event.status,
                 ...(event.output ? { output: event.output } : {}),
                 workspaces: event.workspaces,
+                ...(event.categories ? { categories: event.categories } : {}),
               })
               setMessages((prev) =>
                 prev.map((m) => (m.id === assistantId ? { ...m, blocks: [...blocks] } : m)),
@@ -431,6 +451,17 @@ export function useChat(options: UseChatOptions): UseChatResult {
               })
               setMessages((prev) =>
                 prev.map((m) => (m.id === assistantId ? { ...m, blocks: [...blocks] } : m)),
+              )
+              break
+            case 'compaction':
+              blocks.push({
+                type: 'text',
+                content: `**Context compacted** — ${event.compactedCount} older messages were summarized to free space.\n\n${event.summary}`,
+              })
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId ? { ...m, content: assistantText, blocks: [...blocks] } : m,
+                ),
               )
               break
             case 'loop_limit_reached':
@@ -447,16 +478,30 @@ export function useChat(options: UseChatOptions): UseChatResult {
               break
             case 'error':
               setError(event.message)
+              setErrorMeta(
+                event.limitType
+                  ? { limitType: event.limitType, requiresSignup: event.requiresSignup }
+                  : null,
+              )
               setMessages((prev) =>
                 prev.map((m) => (m.id === assistantId ? { ...m, isStreaming: false } : m)),
               )
               break
             case 'thinking': {
-              const lastBlock = blocks[blocks.length - 1]
+              const lastBlock = blocks[blocks.length - 1] as
+                | (MessageBlock & { _startedAt?: number; durationMs?: number })
+                | undefined
               if (lastBlock?.type === 'thinking') {
                 lastBlock.content += event.content
+                lastBlock.durationMs = Date.now() - (lastBlock._startedAt ?? Date.now())
               } else {
-                blocks.push({ type: 'thinking', content: event.content })
+                const now = Date.now()
+                blocks.push(
+                  Object.assign(
+                    { type: 'thinking' as const, content: event.content, durationMs: 0 },
+                    { _startedAt: now },
+                  ),
+                )
               }
               setMessages((prev) =>
                 prev.map((m) => (m.id === assistantId ? { ...m, blocks: [...blocks] } : m)),
@@ -494,6 +539,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         current = pendingRef.current.shift()
         if (current) {
           setError(null)
+          setErrorMeta(null)
           persistQueue(storageKey, pendingRef.current)
         }
       }
@@ -523,6 +569,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       sendingRef.current = true
       setIsLoading(true)
       setError(null)
+      setErrorMeta(null)
       setStreamingFlag(storageKey)
 
       // ── Phase 1: wait for the server to finish the old request ────────
@@ -634,6 +681,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 prev.map((m) => (m.id === resumeId ? { ...m, toolCalls: [...toolCalls!] } : m)),
               )
             }
+            // Auto-delete queued autofix messages that reference this file
+            clearQueuedForFileRef.current(event.path)
             onFileChange?.(event.path, event.newContent)
             break
           }
@@ -658,6 +707,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
               status: event.status,
               ...(event.output ? { output: event.output } : {}),
               workspaces: event.workspaces,
+              ...(event.categories ? { categories: event.categories } : {}),
             })
             setMessages((prev) =>
               prev.map((m) => (m.id === resumeId ? { ...m, blocks: [...blocks] } : m)),
@@ -668,6 +718,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
               type: 'resource_limit',
               resource: event.resource,
               message: event.message,
+            })
+            setMessages((prev) =>
+              prev.map((m) => (m.id === resumeId ? { ...m, blocks: [...blocks] } : m)),
+            )
+            break
+          case 'compaction':
+            blocks.push({
+              type: 'text',
+              content: `> **Context compacted** — ${event.compactedCount} older messages were summarized to free space. The AI retains a summary of the compacted history.`,
             })
             setMessages((prev) =>
               prev.map((m) => (m.id === resumeId ? { ...m, blocks: [...blocks] } : m)),
@@ -685,16 +744,30 @@ export function useChat(options: UseChatOptions): UseChatResult {
             break
           case 'error':
             setError(event.message)
+            setErrorMeta(
+              event.limitType
+                ? { limitType: event.limitType, requiresSignup: event.requiresSignup }
+                : null,
+            )
             setMessages((prev) =>
               prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: false } : m)),
             )
             break
           case 'thinking': {
-            const lastBlock = blocks[blocks.length - 1]
+            const lastBlock = blocks[blocks.length - 1] as
+              | (MessageBlock & { _startedAt?: number; durationMs?: number })
+              | undefined
             if (lastBlock?.type === 'thinking') {
               lastBlock.content += event.content
+              lastBlock.durationMs = Date.now() - (lastBlock._startedAt ?? Date.now())
             } else {
-              blocks.push({ type: 'thinking', content: event.content })
+              const now = Date.now()
+              blocks.push(
+                Object.assign(
+                  { type: 'thinking' as const, content: event.content, durationMs: 0 },
+                  { _startedAt: now },
+                ),
+              )
             }
             setMessages((prev) =>
               prev.map((m) => (m.id === resumeId ? { ...m, blocks: [...blocks] } : m)),
@@ -733,6 +806,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       while (current) {
         if (!mountedRef.current) break
         setError(null)
+        setErrorMeta(null)
         persistQueue(storageKey, pendingRef.current)
         sendingRef.current = false
         await sendMessageRef.current(current.message, current.attachments)
@@ -754,7 +828,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
   resumeStreamRef.current = resumeStream
 
   const abort = useCallback(() => {
-    provider.abort()
+    try {
+      provider.abort()
+    } catch {
+      /* no active stream to abort */
+    }
     pendingRef.current.length = 0
     sendingRef.current = false
     clearStreamingFlag(storageKey)
@@ -773,6 +851,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
     if (mountedRef.current) {
       setMessages([])
       setError(null)
+      setErrorMeta(null)
     }
   }, [provider, endpoint])
 
@@ -799,15 +878,49 @@ export function useChat(options: UseChatOptions): UseChatResult {
     [storageKey],
   )
 
+  /**
+   * Remove queued auto-fix messages whose content references the given file path.
+   * Called automatically when the AI writes to a file (file_diff event) and can
+   * also be called externally when the user edits a file in the editor.
+   */
+  const clearQueuedForFile = useCallback(
+    (filePath: string) => {
+      const norm = filePath.replace(/^\/workspace\//, '')
+      const toRemove = pendingRef.current.filter(
+        (e) => e.message.startsWith(AUTOFIX_PREFIX) && e.message.includes(norm),
+      )
+      if (toRemove.length === 0) return
+      const removeIds = new Set(toRemove.map((e) => e.userMsgId))
+      pendingRef.current = pendingRef.current.filter((e) => !removeIds.has(e.userMsgId))
+      persistQueue(storageKey, pendingRef.current)
+      setMessages((prev) => prev.filter((m) => !(m.queued && removeIds.has(m.id))))
+    },
+    [storageKey],
+  )
+
+  // Sync clearQueuedForFile ref so stream event handlers can call the latest version
+  clearQueuedForFileRef.current = clearQueuedForFile
+
+  const exposedSetMode = useCallback(
+    (newMode: 'plan' | 'execute') => {
+      setMode(newMode)
+      onModeChange?.(newMode)
+    },
+    [onModeChange],
+  )
+
   return {
     messages,
     isLoading,
     error,
+    errorMeta,
     mode,
+    setMode: exposedSetMode,
     sendMessage,
     abort,
     clearHistory,
     editQueuedMessage,
     deleteQueuedMessage,
+    clearQueuedForFile,
   }
 }

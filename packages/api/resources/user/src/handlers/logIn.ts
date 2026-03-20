@@ -183,7 +183,7 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
       }
 
       // Set authorization.
-      authorization.set(req, res, { userId: user.id, deviceId })
+      const accessToken = authorization.set(req, res, { userId: user.id, deviceId })
 
       // Notify other devices about the login.
       notify({
@@ -209,7 +209,7 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
         })
         .catch(() => {})
 
-      return { statusCode: 200, body: { props: user } }
+      return { statusCode: 200, body: { props: user, accessToken, user } }
     } catch (error) {
       logger.error(error)
       return {

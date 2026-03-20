@@ -9,7 +9,7 @@ export const fil: BiometricsTranslations = {
   'biometrics.error.userCancel': 'Kinansela ng user ang authentication',
   'biometrics.error.permissionDenied': 'Tinanggihan ang pahintulot',
   'biometrics.error.unknown': 'Hindi kilalang error',
-  'biometrics.device.fingerprint': 'Fingerprint',
+  'biometrics.device.fingerprint': 'Bakas ng daliri',
   'biometrics.device.faceId': 'Face ID',
   'biometrics.device.touchId': 'Touch ID',
   'biometrics.device.windowsHello': 'Windows Hello',

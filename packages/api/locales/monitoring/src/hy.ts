@@ -2,15 +2,15 @@ import type { MonitoringTranslations } from './types.js'
 
 /** Monitoring translations for Armenian. */
 export const hy: MonitoringTranslations = {
-  'monitoring.error.noProvider': 'Monitoring provider not configured. Call setProvider() first.',
-  'monitoring.check.database.notBonded': 'Database bond not configured.',
+  'monitoring.error.noProvider': 'Մոնիթորինգի պրովայդերը կարգավորված չէ. Նախ setProvider() կանչեք.',
+  'monitoring.check.database.notBonded': 'Տվյալների բազայի bond-ը կարգավորված չէ.',
   'monitoring.check.database.poolUnavailable': 'Տվյալների բազայի փուլը անհասանելի է.',
-  'monitoring.check.cache.notBonded': 'Cache bond not configured.',
+  'monitoring.check.cache.notBonded': 'Քեշի bond-ը կարգավորված չէ.',
   'monitoring.check.cache.providerUnavailable': 'Քեշի մատակարարը անհասանելի է.',
-  'monitoring.check.http.badStatus': 'HTTP {{status}} response.',
-  'monitoring.check.http.timeout': 'Request timed out.',
+  'monitoring.check.http.badStatus': 'HTTP {{status}} պատասխան.',
+  'monitoring.check.http.timeout': 'Հարցումը ժամկետանց է.',
   'monitoring.check.http.degraded':
     'Պատասխանի ժամանակը {{latencyMs}}ms գերազանցել է շեմը {{thresholdMs}}ms.',
-  'monitoring.check.bond.notBonded': "Bond '{{bondType}}' is not registered.",
+  'monitoring.check.bond.notBonded': "Bond '{{bondType}}'-ը գրանցված չէ.",
   'monitoring.check.timedOut': 'Ստուգումը ժամկետանց է {{timeoutMs}}ms հետո.',
 }

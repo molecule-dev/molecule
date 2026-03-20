@@ -1,8 +1,5 @@
 import type { IconData } from '@molecule/app-icons'
 
-/**
- * SVG path data for the maximize icon.
- */
 export const maximize: IconData = {
   paths: [
     {

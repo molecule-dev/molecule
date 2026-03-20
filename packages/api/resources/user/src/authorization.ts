@@ -34,8 +34,13 @@ const getJwtRefreshTime = (): number => {
  * @param req - The request object.
  * @param res - The response object.
  * @param session - The session.
+ * @returns The signed JWT token string, or null if signing failed.
  */
-export const set = (req: MoleculeRequest, res: MoleculeResponse, session: Session): void => {
+export const set = (
+  _req: MoleculeRequest,
+  res: MoleculeResponse,
+  session: Session,
+): string | null => {
   try {
     // Create a session ID for web browser clients.
     if (!session.id) {
@@ -55,18 +60,30 @@ export const set = (req: MoleculeRequest, res: MoleculeResponse, session: Sessio
     if (token) {
       res.setHeader('Authorization', `Bearer ${token}`)
 
-      // Set as a cookie as well for web browser clients.
+      // Set as cookies for web browser clients.
       const secure = getConfig('NODE_ENV') === 'production'
+      const maxAge = 1000 * 60 * 60 * 24 * 7 // 7 days (match JWT expiry)
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure,
+        sameSite: 'lax',
+        maxAge,
+        path: '/',
+      })
       res.cookie('sessionId', session.id, {
         httpOnly: true,
         secure,
         sameSite: 'lax',
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days (match JWT expiry)
+        maxAge,
       })
+
+      return token
     }
   } catch (error) {
     logger.error(error)
   }
+
+  return null
 }
 
 /**

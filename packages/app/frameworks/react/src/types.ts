@@ -238,8 +238,12 @@ export interface UseChatResult {
   messages: ChatMessage[]
   isLoading: boolean
   error: string | null
+  /** Metadata about a limit-related error (for contextual upgrade CTAs). */
+  errorMeta: { limitType?: string; requiresSignup?: boolean } | null
   /** Current agent mode — plan (read-only research) or execute (full access). */
   mode: 'plan' | 'execute'
+  /** Update the local mode state (for instant mode toggle without an AI turn). */
+  setMode: (mode: 'plan' | 'execute') => void
   sendMessage: (message: string, attachments?: ChatAttachment[]) => Promise<void>
   abort: () => void
   clearHistory: () => Promise<void>
@@ -247,6 +251,8 @@ export interface UseChatResult {
   editQueuedMessage: (msgId: string, newContent: string) => void
   /** Remove a queued (not yet sent) message from the queue. */
   deleteQueuedMessage: (msgId: string) => void
+  /** Remove queued auto-fix messages whose content references the given file path. */
+  clearQueuedForFile: (filePath: string) => void
 }
 
 /**

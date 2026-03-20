@@ -14,17 +14,21 @@ import { cva } from './utilities.js'
  * Button component classes.
  */
 export const button = cva(
-  'inline-flex items-center justify-center gap-1 rounded-[3px] text-[15px] font-normal uppercase border-0 cursor-pointer transition-all duration-250 ease-in-out focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center gap-1 rounded-[3px] text-[15px] font-normal uppercase cursor-pointer transition-all duration-250 ease-in-out focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'bg-primary text-white hover:bg-primary-hover active:bg-primary-active',
-        secondary: 'bg-secondary text-white hover:bg-secondary-hover active:bg-secondary-active',
-        success: 'bg-success text-white hover:bg-success-hover active:bg-success-active',
+        default:
+          'bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 hover:border-primary/50 active:bg-primary/35',
+        secondary:
+          'bg-secondary/15 text-secondary border border-secondary/30 hover:bg-secondary/25 hover:border-secondary/50 active:bg-secondary/35',
+        success:
+          'bg-success/15 text-success border border-success/30 hover:bg-success/25 hover:border-success/50 active:bg-success/35',
         outline: 'bg-transparent text-foreground hover:bg-surface-secondary',
         ghost: 'bg-transparent text-foreground hover:bg-surface-secondary',
         link: 'bg-transparent text-primary normal-case underline-offset-4 hover:underline',
-        danger: 'bg-error text-white hover:bg-error-hover active:bg-error-active',
+        danger:
+          'bg-error/15 text-error border border-error/30 hover:bg-error/25 hover:border-error/50 active:bg-error/35',
       },
       size: {
         sm: 'h-[26px] px-2.5 text-[13px]',

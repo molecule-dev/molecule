@@ -37,6 +37,19 @@ async function collectEvents(
   return events
 }
 
+/**
+ * Collects events while advancing fake timers to unblock retry delays.
+ * Use this for tests that trigger retryable status codes (429/503/529).
+ */
+async function collectEventsWithRetries(
+  iterable: AsyncIterable<{ type: string; message?: string; [k: string]: unknown }>,
+): Promise<Array<{ type: string; message?: string; [k: string]: unknown }>> {
+  const promise = collectEvents(iterable)
+  // Advance far enough to exhaust all retry backoff delays (1s + 2s + 4s = 7s)
+  await vi.advanceTimersByTimeAsync(60_000)
+  return promise
+}
+
 /** Creates a minimal mock Response with the given status and body text. */
 function mockErrorResponse(status: number, body: string): Record<string, unknown> {
   return {
@@ -57,10 +70,12 @@ function mockErrorResponse(status: number, body: string): Record<string, unknown
 describe('AnthropicAIProvider — error sanitization and timeout', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', mockFetch)
+    vi.useFakeTimers()
     vi.clearAllMocks()
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.unstubAllGlobals()
   })
 
@@ -83,7 +98,7 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
         ),
       )
 
-      const events = await collectEvents(provider.chat(minimalParams))
+      const events = await collectEventsWithRetries(provider.chat(minimalParams))
 
       expect(events).toHaveLength(1)
       expect(events[0].type).toBe('error')
@@ -159,7 +174,7 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
         ),
       )
 
-      const events = await collectEvents(provider.chat(minimalParams))
+      const events = await collectEventsWithRetries(provider.chat(minimalParams))
 
       expect(events[0].message).toBe(
         'AI service is temporarily overloaded. Please try again in a moment.',
@@ -171,7 +186,7 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
     it('all error events include errorKey for i18n', async () => {
       mockFetch.mockResolvedValue(mockErrorResponse(429, '{}'))
 
-      const events = await collectEvents(provider.chat(minimalParams))
+      const events = await collectEventsWithRetries(provider.chat(minimalParams))
 
       expect(events[0].errorKey).toBe('ai.error.apiError')
     })
