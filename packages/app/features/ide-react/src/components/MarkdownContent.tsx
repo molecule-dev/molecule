@@ -9,7 +9,7 @@
  */
 
 import type { JSX, ReactNode } from 'react'
-import { memo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -298,11 +298,11 @@ export const MarkdownContent = memo(function MarkdownContent({
   text,
   isStreaming,
 }: MarkdownContentProps): JSX.Element {
+  const segments = useMemo(() => (text ? splitSegments(text) : []), [text])
+
   if (!text) {
     return <>{isStreaming && <StreamingIndicator />}</>
   }
-
-  const segments = splitSegments(text)
 
   return (
     <div style={{ fontSize: '13px', lineHeight: 1.6, marginTop: '6px' }}>

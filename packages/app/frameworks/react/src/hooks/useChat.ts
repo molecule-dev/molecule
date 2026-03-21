@@ -4,7 +4,7 @@
  * @module
  */
 
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 import type {
   ChatAttachment,
@@ -174,17 +174,101 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // before the abort microtask, so the ref is set in time.
   const unloadingRef = useRef(false)
 
+  // ── Throttled flush for streaming message updates ─────────────────────────
+  // Instead of calling setMessages on every SSE event (130+ per response, each
+  // doing an O(n) array scan + React reconciliation), we accumulate the latest
+  // mutable state in a ref and flush to React on a 50ms throttle.
+  const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Stores a function that, when called, performs the setMessages update for
+  // the current streaming message. Replaced each time a new stream starts.
+  const pendingFlushFnRef = useRef<(() => void) | null>(null)
+
+  /**
+   * Build a flush-scheduling toolkit for a single streaming message.
+   *
+   * Returns `{ scheduleFlush, flushNow }` that share the same timer.
+   * - `scheduleFlush(buildUpdate)` — stores the update builder and schedules a
+   *   50ms debounced flush (no-op if one is already pending).
+   * - `flushNow(buildUpdate?)` — cancels any pending timer and flushes
+   *   immediately. If `buildUpdate` is provided it replaces the stored one first.
+   *
+   * `buildUpdate` is a function `(msg: ChatMessage) => Partial<ChatMessage>`
+   * that returns the fields to merge into the streaming message.
+   */
+  const createFlushScheduler = useMemo(
+    () =>
+      (
+        targetId: string,
+      ): {
+        scheduleFlush: (buildUpdate: (msg: ChatMessage) => Partial<ChatMessage>) => void
+        flushNow: (buildUpdate?: (msg: ChatMessage) => Partial<ChatMessage>) => void
+      } => {
+        const scheduleFlush = (buildUpdate: (msg: ChatMessage) => Partial<ChatMessage>): void => {
+          // Always store the latest builder so when the timer fires we use the
+          // most recent mutable state.
+          pendingFlushFnRef.current = () => {
+            setMessages((prev) =>
+              prev.map((m) => (m.id === targetId ? { ...m, ...buildUpdate(m) } : m)),
+            )
+          }
+          if (flushTimerRef.current === null) {
+            flushTimerRef.current = setTimeout(() => {
+              flushTimerRef.current = null
+              pendingFlushFnRef.current?.()
+              pendingFlushFnRef.current = null
+            }, 50)
+          }
+        }
+
+        const flushNow = (buildUpdate?: (msg: ChatMessage) => Partial<ChatMessage>): void => {
+          if (flushTimerRef.current !== null) {
+            clearTimeout(flushTimerRef.current)
+            flushTimerRef.current = null
+          }
+          if (buildUpdate) {
+            pendingFlushFnRef.current = () => {
+              setMessages((prev) =>
+                prev.map((m) => (m.id === targetId ? { ...m, ...buildUpdate(m) } : m)),
+              )
+            }
+          }
+          pendingFlushFnRef.current?.()
+          pendingFlushFnRef.current = null
+        }
+
+        return { scheduleFlush, flushNow }
+      },
+    [],
+  )
+
+  // Clean up flush timer on unmount
+  useEffect(() => {
+    return () => {
+      if (flushTimerRef.current !== null) {
+        clearTimeout(flushTimerRef.current)
+        flushTimerRef.current = null
+      }
+    }
+  }, [])
+
   useEffect(() => {
     mountedRef.current = true
     const onBeforeUnload = (): void => {
       unloadingRef.current = true
+      // Kill the server-side stream on page refresh/close so it doesn't
+      // continue running in the background. Uses sendBeacon so it works
+      // even during unload.
+      if (sendingRef.current) {
+        const p = provider as { abortOnServer?: (config: ChatConfig, cid?: string) => void }
+        p.abortOnServer?.({ endpoint, projectId }, undefined)
+      }
     }
     window.addEventListener('beforeunload', onBeforeUnload)
     return () => {
       mountedRef.current = false
       window.removeEventListener('beforeunload', onBeforeUnload)
     }
-  }, [])
+  }, [provider, endpoint, projectId, storageKey])
 
   const config: ChatConfig = {
     endpoint,
@@ -342,6 +426,22 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
         setMessages((prev) => [...prev, assistantMsg])
 
+        // Create a throttled flush scheduler for this streaming message.
+        // High-frequency events (text, thinking) call scheduleFlush() which
+        // batches into a single setMessages every 50ms. Terminal events
+        // (done, error) and file_diff call flushNow() for immediate commit.
+        const { scheduleFlush, flushNow } = createFlushScheduler(assistantId)
+
+        /**
+         * Build the current snapshot of all mutable streaming state.
+         * @returns Partial message fields to merge.
+         */
+        const buildFullUpdate = (): Partial<ChatMessage> => ({
+          content: assistantText,
+          blocks: [...blocks],
+          toolCalls: [...toolCalls!],
+        })
+
         const onEvent = (event: ChatStreamEvent): void => {
           if (!mountedRef.current) return
           onStreamEvent?.(event)
@@ -355,11 +455,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
               } else {
                 blocks.push({ type: 'text', content: event.content })
               }
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId ? { ...m, content: assistantText, blocks: [...blocks] } : m,
-                ),
-              )
+              scheduleFlush(() => ({ content: assistantText, blocks: [...blocks] }))
               break
             }
             case 'tool_use':
@@ -370,13 +466,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 status: 'running',
               })
               blocks.push({ type: 'tool_call', id: event.id })
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId
-                    ? { ...m, toolCalls: [...toolCalls!], blocks: [...blocks] }
-                    : m,
-                ),
-              )
+              scheduleFlush(() => ({ toolCalls: [...toolCalls!], blocks: [...blocks] }))
               break
             case 'tool_result':
               if (toolCalls) {
@@ -386,9 +476,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
                   tc.status = 'done'
                 }
               }
-              setMessages((prev) =>
-                prev.map((m) => (m.id === assistantId ? { ...m, toolCalls: [...toolCalls!] } : m)),
-              )
+              scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
               break
             case 'file_diff': {
               // Attach snapshot to the matching running tool call (for persistent diff review)
@@ -404,11 +492,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 )
               if (match) {
                 match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === assistantId ? { ...m, toolCalls: [...toolCalls!] } : m,
-                  ),
-                )
+                // Flush immediately — onFileChange triggers Monaco updates
+                flushNow(() => ({ toolCalls: [...toolCalls!] }))
               }
               // Auto-delete queued autofix messages that reference this file
               clearQueuedForFileRef.current(event.path)
@@ -417,19 +502,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
               break
             }
             case 'commit_suggestion':
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId
-                    ? {
-                        ...m,
-                        commitSuggestion: {
-                          files: event.files,
-                          status: 'pending' as const,
-                        },
-                      }
-                    : m,
-                ),
-              )
+              scheduleFlush(() => ({
+                commitSuggestion: {
+                  files: event.files,
+                  status: 'pending' as const,
+                },
+              }))
               break
             case 'verification_result':
               blocks.push({
@@ -439,9 +517,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 workspaces: event.workspaces,
                 ...(event.categories ? { categories: event.categories } : {}),
               })
-              setMessages((prev) =>
-                prev.map((m) => (m.id === assistantId ? { ...m, blocks: [...blocks] } : m)),
-              )
+              scheduleFlush(() => ({ blocks: [...blocks] }))
               break
             case 'resource_limit':
               blocks.push({
@@ -449,32 +525,21 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 resource: event.resource,
                 message: event.message,
               })
-              setMessages((prev) =>
-                prev.map((m) => (m.id === assistantId ? { ...m, blocks: [...blocks] } : m)),
-              )
+              scheduleFlush(() => ({ blocks: [...blocks] }))
               break
             case 'compaction':
               blocks.push({
                 type: 'text',
                 content: `**Context compacted** — ${event.compactedCount} older messages were summarized to free space.\n\n${event.summary}`,
               })
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId ? { ...m, content: assistantText, blocks: [...blocks] } : m,
-                ),
-              )
+              scheduleFlush(() => ({ content: assistantText, blocks: [...blocks] }))
               break
             case 'loop_limit_reached':
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId ? { ...m, loopLimitReached: event.maxLoops } : m,
-                ),
-              )
+              scheduleFlush(() => ({ loopLimitReached: event.maxLoops }))
               break
             case 'done':
-              setMessages((prev) =>
-                prev.map((m) => (m.id === assistantId ? { ...m, isStreaming: false } : m)),
-              )
+              // Flush immediately — commit final state and clear streaming flag
+              flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
               break
             case 'error':
               setError(event.message)
@@ -483,9 +548,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
                   ? { limitType: event.limitType, requiresSignup: event.requiresSignup }
                   : null,
               )
-              setMessages((prev) =>
-                prev.map((m) => (m.id === assistantId ? { ...m, isStreaming: false } : m)),
-              )
+              // Flush immediately — commit final state and clear streaming flag
+              flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
               break
             case 'thinking': {
               const lastBlock = blocks[blocks.length - 1] as
@@ -503,9 +567,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
                   ),
                 )
               }
-              setMessages((prev) =>
-                prev.map((m) => (m.id === assistantId ? { ...m, blocks: [...blocks] } : m)),
-              )
+              scheduleFlush(() => ({ blocks: [...blocks] }))
               break
             }
             case 'mode':
@@ -529,9 +591,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 ? err.message
                 : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' })
             setError(msg)
-            setMessages((prev) =>
-              prev.map((m) => (m.id === assistantId ? { ...m, isStreaming: false } : m)),
-            )
+            // Flush immediately on catch — stream is over
+            flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
           }
         }
 
@@ -578,10 +639,10 @@ export function useChat(options: UseChatOptions): UseChatResult {
       const streamingProvider = provider as { isServerStreaming?: boolean }
 
       for (let i = 0; i < MAX_POLLS; i++) {
-        if (!mountedRef.current) break
+        if (!mountedRef.current || !sendingRef.current) break
 
         await new Promise((r) => setTimeout(r, POLL_INTERVAL))
-        if (!mountedRef.current) break
+        if (!mountedRef.current || !sendingRef.current) break
 
         try {
           const history = await provider.loadHistory(config)
@@ -603,8 +664,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
         }
       }
 
-      if (!mountedRef.current) {
+      if (!mountedRef.current || !sendingRef.current) {
         sendingRef.current = false
+        setIsLoading(false)
+        setMessages((prev) =>
+          prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: false } : m)),
+        )
         return
       }
 
@@ -620,6 +685,19 @@ export function useChat(options: UseChatOptions): UseChatResult {
         blocks.push({ type: 'text', content: existingContent })
       }
 
+      // Create a throttled flush scheduler for the resumed streaming message
+      const { scheduleFlush, flushNow } = createFlushScheduler(resumeId)
+
+      /**
+       * Build the current snapshot of all mutable streaming state.
+       * @returns Partial message fields to merge.
+       */
+      const buildFullUpdate = (): Partial<ChatMessage> => ({
+        content: assistantText,
+        blocks: [...blocks],
+        toolCalls: [...toolCalls!],
+      })
+
       const onEvent = (event: ChatStreamEvent): void => {
         if (!mountedRef.current) return
 
@@ -632,11 +710,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
             } else {
               blocks.push({ type: 'text', content: event.content })
             }
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === resumeId ? { ...m, content: assistantText, blocks: [...blocks] } : m,
-              ),
-            )
+            scheduleFlush(() => ({ content: assistantText, blocks: [...blocks] }))
             break
           }
           case 'tool_use':
@@ -647,11 +721,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
               status: 'running',
             })
             blocks.push({ type: 'tool_call', id: event.id })
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === resumeId ? { ...m, toolCalls: [...toolCalls!], blocks: [...blocks] } : m,
-              ),
-            )
+            scheduleFlush(() => ({ toolCalls: [...toolCalls!], blocks: [...blocks] }))
             break
           case 'tool_result':
             if (toolCalls) {
@@ -661,9 +731,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 tc.status = 'done'
               }
             }
-            setMessages((prev) =>
-              prev.map((m) => (m.id === resumeId ? { ...m, toolCalls: [...toolCalls!] } : m)),
-            )
+            scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
             break
           case 'file_diff': {
             const normalizePath = (p: string): string => p.replace(/^\/workspace\//, '')
@@ -677,9 +745,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
               )
             if (match) {
               match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
-              setMessages((prev) =>
-                prev.map((m) => (m.id === resumeId ? { ...m, toolCalls: [...toolCalls!] } : m)),
-              )
+              // Flush immediately — onFileChange triggers Monaco updates
+              flushNow(() => ({ toolCalls: [...toolCalls!] }))
             }
             // Auto-delete queued autofix messages that reference this file
             clearQueuedForFileRef.current(event.path)
@@ -687,19 +754,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
             break
           }
           case 'commit_suggestion':
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === resumeId
-                  ? {
-                      ...m,
-                      commitSuggestion: {
-                        files: event.files,
-                        status: 'pending' as const,
-                      },
-                    }
-                  : m,
-              ),
-            )
+            scheduleFlush(() => ({
+              commitSuggestion: {
+                files: event.files,
+                status: 'pending' as const,
+              },
+            }))
             break
           case 'verification_result':
             blocks.push({
@@ -709,9 +769,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
               workspaces: event.workspaces,
               ...(event.categories ? { categories: event.categories } : {}),
             })
-            setMessages((prev) =>
-              prev.map((m) => (m.id === resumeId ? { ...m, blocks: [...blocks] } : m)),
-            )
+            scheduleFlush(() => ({ blocks: [...blocks] }))
             break
           case 'resource_limit':
             blocks.push({
@@ -719,28 +777,21 @@ export function useChat(options: UseChatOptions): UseChatResult {
               resource: event.resource,
               message: event.message,
             })
-            setMessages((prev) =>
-              prev.map((m) => (m.id === resumeId ? { ...m, blocks: [...blocks] } : m)),
-            )
+            scheduleFlush(() => ({ blocks: [...blocks] }))
             break
           case 'compaction':
             blocks.push({
               type: 'text',
               content: `> **Context compacted** — ${event.compactedCount} older messages were summarized to free space. The AI retains a summary of the compacted history.`,
             })
-            setMessages((prev) =>
-              prev.map((m) => (m.id === resumeId ? { ...m, blocks: [...blocks] } : m)),
-            )
+            scheduleFlush(() => ({ blocks: [...blocks] }))
             break
           case 'loop_limit_reached':
-            setMessages((prev) =>
-              prev.map((m) => (m.id === resumeId ? { ...m, loopLimitReached: event.maxLoops } : m)),
-            )
+            scheduleFlush(() => ({ loopLimitReached: event.maxLoops }))
             break
           case 'done':
-            setMessages((prev) =>
-              prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: false } : m)),
-            )
+            // Flush immediately — commit final state and clear streaming flag
+            flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
             break
           case 'error':
             setError(event.message)
@@ -749,9 +800,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 ? { limitType: event.limitType, requiresSignup: event.requiresSignup }
                 : null,
             )
-            setMessages((prev) =>
-              prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: false } : m)),
-            )
+            // Flush immediately — commit final state and clear streaming flag
+            flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
             break
           case 'thinking': {
             const lastBlock = blocks[blocks.length - 1] as
@@ -769,9 +819,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 ),
               )
             }
-            setMessages((prev) =>
-              prev.map((m) => (m.id === resumeId ? { ...m, blocks: [...blocks] } : m)),
-            )
+            scheduleFlush(() => ({ blocks: [...blocks] }))
             break
           }
           case 'mode':
@@ -795,9 +843,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
               ? err.message
               : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' })
           setError(msg)
-          setMessages((prev) =>
-            prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: false } : m)),
-          )
+          // Flush immediately on catch — stream is over
+          flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
         }
       }
 
@@ -833,6 +880,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
     } catch {
       /* no active stream to abort */
     }
+    // Also kill the server-side stream so it doesn't continue running
+    const p = provider as { abortOnServer?: (config: ChatConfig, cid?: string) => void }
+    p.abortOnServer?.({ endpoint, projectId }, undefined)
+    // Cancel any pending throttled flush — we're about to set final state directly
+    if (flushTimerRef.current !== null) {
+      clearTimeout(flushTimerRef.current)
+      flushTimerRef.current = null
+    }
+    pendingFlushFnRef.current = null
     pendingRef.current.length = 0
     sendingRef.current = false
     clearStreamingFlag(storageKey)
@@ -841,7 +897,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
     setMessages((prev) =>
       prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false, aborted: true } : m)),
     )
-  }, [provider, storageKey])
+  }, [provider, endpoint, projectId, storageKey])
 
   const clearHistory = useCallback(async () => {
     pendingRef.current.length = 0

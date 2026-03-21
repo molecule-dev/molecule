@@ -2042,7 +2042,7 @@ export interface UIClassMap {
   floatingInputWrapper: string
   /** Floating input field class (sibling-selector hook for floating label). */
   floatingInput: string
-  /** Floating input label/placeholder (absolute positioned, uppercase). */
+  /** Floating input label/placeholder (absolute positioned). */
   floatingLabel: string
 
   // ---- Input sub-element tokens ----
@@ -2256,7 +2256,7 @@ export interface UIClassMap {
 
   // ---- Composite style tokens ----
 
-  /** Settings section heading (small, uppercase, muted). */
+  /** Settings section heading (small, muted). */
   sectionHeading: string
   /** Standard form label (block, small, medium weight, bottom margin). */
   formLabel: string

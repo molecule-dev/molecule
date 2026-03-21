@@ -240,6 +240,7 @@ export function fileDiffStats(
     let added = 0
     let removed = 0
     for (const r of replacements) {
+      if (typeof r.old_string !== 'string' || typeof r.new_string !== 'string') continue
       const d = diffLineCount(r.old_string.split('\n'), r.new_string.split('\n'))
       added += d.added
       removed += d.removed

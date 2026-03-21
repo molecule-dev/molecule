@@ -20,8 +20,13 @@ export type ContextMenuAction =
   | 'newFolder'
   | 'rename'
   | 'delete'
+  | 'deleteMultiple'
   | 'copyPath'
+  | 'copyPaths'
   | 'copyRelativePath'
+  | 'copyRelativePaths'
+  | 'cut'
+  | 'paste'
   | 'collapseAll'
 
 interface ContextMenuProps {
@@ -29,6 +34,10 @@ interface ContextMenuProps {
   position: { x: number; y: number }
   /** The file/directory node that was right-clicked, or null for background. */
   node: FileNode | null
+  /** Number of items in the current multi-selection (0 or 1 = single mode). */
+  selectedCount: number
+  /** Whether paste is available (clipboard has cut items). */
+  canPaste: boolean
   /** Called when the user selects a menu action. */
   onAction: (action: ContextMenuAction) => void
   /** Called when the menu should close (Escape, outside click, after action). */
@@ -45,12 +54,14 @@ interface MenuItem {
 /**
  * Build the list of menu items based on context (file, directory, or background).
  * @param node - The right-clicked node, or null for background.
+ * @param selectedCount - Number of selected items (> 1 triggers multi-select menu).
+ * @param canPaste - Whether paste is available.
  * @returns Array of menu items with optional separators.
  */
-function getMenuItems(node: FileNode | null): MenuItem[] {
+function getMenuItems(node: FileNode | null, selectedCount: number, canPaste: boolean): MenuItem[] {
   if (!node) {
     // Background (empty area)
-    return [
+    const items: MenuItem[] = [
       {
         action: 'newFile',
         label: t('ide.contextMenu.newFile', undefined, { defaultValue: 'New File...' }),
@@ -59,16 +70,68 @@ function getMenuItems(node: FileNode | null): MenuItem[] {
         action: 'newFolder',
         label: t('ide.contextMenu.newFolder', undefined, { defaultValue: 'New Folder...' }),
       },
-      {
-        action: 'collapseAll',
-        label: t('ide.contextMenu.collapseAll', undefined, { defaultValue: 'Collapse All' }),
-        separator: true,
-      },
     ]
+    if (canPaste) {
+      items.push({
+        action: 'paste',
+        label: t('ide.contextMenu.paste', undefined, { defaultValue: 'Paste' }),
+        shortcut: '\u2318V',
+        separator: true,
+      })
+    }
+    items.push({
+      action: 'collapseAll',
+      label: t('ide.contextMenu.collapseAll', undefined, { defaultValue: 'Collapse All' }),
+      separator: !canPaste,
+    })
+    return items
   }
 
+  // Multi-select menu (2+ items selected)
+  if (selectedCount > 1) {
+    const items: MenuItem[] = [
+      {
+        action: 'deleteMultiple',
+        label: t('ide.contextMenu.deleteCount', { count: selectedCount }, { defaultValue: `Delete ${selectedCount} Items` }),
+        shortcut: '\u232B',
+      },
+      {
+        action: 'cut',
+        label: t('ide.contextMenu.cut', undefined, { defaultValue: 'Cut' }),
+        shortcut: '\u2318X',
+        separator: true,
+      },
+      {
+        action: 'copyPaths',
+        label: t('ide.contextMenu.copyPaths', undefined, { defaultValue: 'Copy Paths' }),
+        separator: true,
+      },
+      {
+        action: 'copyRelativePaths',
+        label: t('ide.contextMenu.copyRelativePaths', undefined, {
+          defaultValue: 'Copy Relative Paths',
+        }),
+      },
+    ]
+    if (canPaste) {
+      items.push({
+        action: 'paste',
+        label: t('ide.contextMenu.paste', undefined, { defaultValue: 'Paste' }),
+        shortcut: '\u2318V',
+        separator: true,
+      })
+    }
+    items.push({
+      action: 'collapseAll',
+      label: t('ide.contextMenu.collapseAll', undefined, { defaultValue: 'Collapse All' }),
+      separator: true,
+    })
+    return items
+  }
+
+  // Single-item menus
   if (node.type === 'directory') {
-    return [
+    const items: MenuItem[] = [
       {
         action: 'newFile',
         label: t('ide.contextMenu.newFile', undefined, { defaultValue: 'New File...' }),
@@ -88,6 +151,20 @@ function getMenuItems(node: FileNode | null): MenuItem[] {
         label: t('ide.contextMenu.delete', undefined, { defaultValue: 'Delete' }),
       },
       {
+        action: 'cut',
+        label: t('ide.contextMenu.cut', undefined, { defaultValue: 'Cut' }),
+        shortcut: '\u2318X',
+      },
+    ]
+    if (canPaste) {
+      items.push({
+        action: 'paste',
+        label: t('ide.contextMenu.paste', undefined, { defaultValue: 'Paste' }),
+        shortcut: '\u2318V',
+      })
+    }
+    items.push(
+      {
         action: 'copyPath',
         label: t('ide.contextMenu.copyPath', undefined, { defaultValue: 'Copy Path' }),
         separator: true,
@@ -98,11 +175,17 @@ function getMenuItems(node: FileNode | null): MenuItem[] {
           defaultValue: 'Copy Relative Path',
         }),
       },
-    ]
+      {
+        action: 'collapseAll',
+        label: t('ide.contextMenu.collapseAll', undefined, { defaultValue: 'Collapse All' }),
+        separator: true,
+      },
+    )
+    return items
   }
 
   // File
-  return [
+  const items: MenuItem[] = [
     { action: 'open', label: t('ide.contextMenu.open', undefined, { defaultValue: 'Open' }) },
     {
       action: 'rename',
@@ -111,6 +194,20 @@ function getMenuItems(node: FileNode | null): MenuItem[] {
       separator: true,
     },
     { action: 'delete', label: t('ide.contextMenu.delete', undefined, { defaultValue: 'Delete' }) },
+    {
+      action: 'cut',
+      label: t('ide.contextMenu.cut', undefined, { defaultValue: 'Cut' }),
+      shortcut: '\u2318X',
+    },
+  ]
+  if (canPaste) {
+    items.push({
+      action: 'paste',
+      label: t('ide.contextMenu.paste', undefined, { defaultValue: 'Paste' }),
+      shortcut: '\u2318V',
+    })
+  }
+  items.push(
     {
       action: 'copyPath',
       label: t('ide.contextMenu.copyPath', undefined, { defaultValue: 'Copy Path' }),
@@ -122,7 +219,8 @@ function getMenuItems(node: FileNode | null): MenuItem[] {
         defaultValue: 'Copy Relative Path',
       }),
     },
-  ]
+  )
+  return items
 }
 
 /**
@@ -130,6 +228,8 @@ function getMenuItems(node: FileNode | null): MenuItem[] {
  * @param root0 - Component props.
  * @param root0.position - Screen coordinates for the menu.
  * @param root0.node - The right-clicked file node or null for background.
+ * @param root0.selectedCount - Number of items in the current multi-selection.
+ * @param root0.canPaste - Whether paste is available.
  * @param root0.onAction - Callback when a menu item is selected.
  * @param root0.onClose - Callback to dismiss the menu.
  * @returns The rendered context menu portal.
@@ -137,6 +237,8 @@ function getMenuItems(node: FileNode | null): MenuItem[] {
 export function FileExplorerContextMenu({
   position,
   node,
+  selectedCount,
+  canPaste,
   onAction,
   onClose,
 }: ContextMenuProps): JSX.Element {
@@ -188,7 +290,7 @@ export function FileExplorerContextMenu({
     [onAction, onClose],
   )
 
-  const items = getMenuItems(node)
+  const items = getMenuItems(node, selectedCount, canPaste)
 
   const menu = (
     <div

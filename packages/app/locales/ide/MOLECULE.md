@@ -147,6 +147,11 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.contextMenu.delete` | Delete |
 | `ide.contextMenu.copyPath` | Copy Path |
 | `ide.contextMenu.copyRelativePath` | Copy Relative Path |
+| `ide.contextMenu.deleteCount` | Delete {{count}} Items |
+| `ide.contextMenu.copyPaths` | Copy Paths |
+| `ide.contextMenu.copyRelativePaths` | Copy Relative Paths |
+| `ide.contextMenu.cut` | Cut |
+| `ide.contextMenu.paste` | Paste |
 | `ide.contextMenu.collapseAll` | Collapse All |
 | `ide.commandPalette.placeholder` | Type a command… |
 | `ide.formatting` | Formatting… |

@@ -280,7 +280,7 @@ const sizeModalMap: Record<ModalSize, 'sm' | 'md' | 'lg' | 'xl' | 'full'> = {
 /** Map generic ButtonVariant to Tailwind button CVA variant. */
 const buttonVariantMap: Record<
   ButtonVariant,
-  'default' | 'secondary' | 'success' | 'outline' | 'ghost' | 'link' | 'danger'
+  'default' | 'secondary' | 'success' | 'warning' | 'outline' | 'ghost' | 'link' | 'danger'
 > = {
   solid: 'default',
   outline: 'outline',
@@ -291,12 +291,12 @@ const buttonVariantMap: Record<
 /** Map generic ColorVariant to Tailwind button CVA variant (color override). */
 const buttonColorMap: Record<
   ColorVariant,
-  'default' | 'secondary' | 'success' | 'outline' | 'ghost' | 'link' | 'danger'
+  'default' | 'secondary' | 'success' | 'warning' | 'outline' | 'ghost' | 'link' | 'danger'
 > = {
   primary: 'default',
   secondary: 'secondary',
   success: 'success',
-  warning: 'default',
+  warning: 'warning',
   error: 'danger',
   info: 'default',
 }
@@ -460,8 +460,15 @@ export const classMap: UIClassMap = {
     const v = opts?.variant
     const c = opts?.color
     const s = opts?.size
-    let variant: 'default' | 'secondary' | 'success' | 'outline' | 'ghost' | 'link' | 'danger' =
-      'default'
+    let variant:
+      | 'default'
+      | 'secondary'
+      | 'success'
+      | 'warning'
+      | 'outline'
+      | 'ghost'
+      | 'link'
+      | 'danger' = 'default'
     if (c) variant = buttonColorMap[c]
     else if (v) variant = buttonVariantMap[v]
     const size = s === 'icon' ? ('icon' as const) : s ? size3Map[s] : 'md'
@@ -850,8 +857,8 @@ export const classMap: UIClassMap = {
 
   // ---- Composite style tokens ----
 
-  sectionHeading: 'text-sm font-semibold uppercase tracking-wider text-foreground-secondary',
-  formLabel: 'block text-[11px] uppercase leading-none text-foreground mb-0',
+  sectionHeading: 'text-sm font-semibold text-foreground-secondary',
+  formLabel: 'block text-[11px] leading-none text-foreground mb-0',
   formLabelSmall: 'block text-xs text-foreground-secondary mb-1',
   link: 'hover:underline',
   prose:

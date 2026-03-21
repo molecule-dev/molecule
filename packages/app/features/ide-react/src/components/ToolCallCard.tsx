@@ -9,7 +9,7 @@
  */
 
 import type { JSX, ReactNode } from 'react'
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { useThemeMode } from '@molecule/app-react'
@@ -553,6 +553,9 @@ export const ToolCallCard = memo(function ToolCallCard({
     filePath != null &&
     onFileDiff != null
 
+  // Memoize the expensive O(n*m) LCS diff computation so it only re-runs when inputs change.
+  const diffStats = useMemo(() => fileDiffStats(name, input, output), [name, input, output])
+
   // Undo/redo: available for file modifications (not new files) when a snapshot exists.
   const canRevert =
     !isNewFile &&
@@ -1050,57 +1053,53 @@ export const ToolCallCard = memo(function ToolCallCard({
         </span>
 
         {/* Line diff stats for file-changing tools */}
-        {(() => {
-          const diff = fileDiffStats(name, input, output)
-          if (!diff) return null
-          return (
-            <span
-              style={{
-                display: 'flex',
-                gap: '4px',
-                flexShrink: 0,
-                marginTop: '2px',
-                fontSize: '11px',
-                fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
-                opacity: isHovered ? 1 : 0.6,
-                transition: 'opacity 100ms',
-              }}
-            >
-              {diff.added > 0 && (
-                <span
-                  style={{
-                    color: isUndone
-                      ? isLight
-                        ? '#cf222e'
-                        : '#f47067'
-                      : isLight
-                        ? '#1a7f37'
-                        : '#57ab5a',
-                    textDecoration: isUndone ? 'line-through' : undefined,
-                  }}
-                >
-                  +{diff.added}
-                </span>
-              )}
-              {diff.removed > 0 && (
-                <span
-                  style={{
-                    color: isUndone
-                      ? isLight
-                        ? '#1a7f37'
-                        : '#57ab5a'
-                      : isLight
-                        ? '#cf222e'
-                        : '#f47067',
-                    textDecoration: isUndone ? 'line-through' : undefined,
-                  }}
-                >
-                  -{diff.removed}
-                </span>
-              )}
-            </span>
-          )
-        })()}
+        {diffStats && (
+          <span
+            style={{
+              display: 'flex',
+              gap: '4px',
+              flexShrink: 0,
+              marginTop: '2px',
+              fontSize: '11px',
+              fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
+              opacity: isHovered ? 1 : 0.6,
+              transition: 'opacity 100ms',
+            }}
+          >
+            {diffStats.added > 0 && (
+              <span
+                style={{
+                  color: isUndone
+                    ? isLight
+                      ? '#cf222e'
+                      : '#f47067'
+                    : isLight
+                      ? '#1a7f37'
+                      : '#57ab5a',
+                  textDecoration: isUndone ? 'line-through' : undefined,
+                }}
+              >
+                +{diffStats.added}
+              </span>
+            )}
+            {diffStats.removed > 0 && (
+              <span
+                style={{
+                  color: isUndone
+                    ? isLight
+                      ? '#1a7f37'
+                      : '#57ab5a'
+                    : isLight
+                      ? '#cf222e'
+                      : '#f47067',
+                  textDecoration: isUndone ? 'line-through' : undefined,
+                }}
+              >
+                -{diffStats.removed}
+              </span>
+            )}
+          </span>
+        )}
 
         {/* Expand / open chevron */}
         {(hasDetails || isFileDiff || (isNewFile && filePath && onFileOpen)) && (

@@ -68,7 +68,9 @@ export class HttpChatProvider implements ChatProvider {
     // Prevents stale streaming events from corrupting state when called concurrently
     // (e.g., React StrictMode double-mount or rapid message sends).
     this.abortController?.abort()
-    this.abortController = new AbortController()
+    const controller = new AbortController()
+    this.abortController = controller
+    const { signal } = controller
     const url = `${this.config.baseUrl ?? ''}${config.endpoint}`
 
     // Single try-catch wraps everything including the initial fetch so that
@@ -91,7 +93,7 @@ export class HttpChatProvider implements ChatProvider {
             ...(attachments?.length ? { attachments } : {}),
             ...(config.resume ? { resume: true } : {}),
           }),
-          signal: this.abortController.signal,
+          signal,
         })
 
         if (response.status !== 409) break
@@ -106,7 +108,7 @@ export class HttpChatProvider implements ChatProvider {
             const timer = setTimeout(resolve, delay)
             // If aborted while waiting, resolve immediately so the AbortError
             // is thrown on the next fetch attempt rather than hanging.
-            this.abortController?.signal.addEventListener(
+            signal.addEventListener(
               'abort',
               () => {
                 clearTimeout(timer)
@@ -115,6 +117,8 @@ export class HttpChatProvider implements ChatProvider {
               { once: true },
             )
           })
+          // If aborted during the delay, exit cleanly instead of retrying
+          if (signal.aborted) return
         }
       }
 
@@ -181,6 +185,10 @@ export class HttpChatProvider implements ChatProvider {
             // Skip malformed SSE data lines
           }
         }
+
+        // Yield to the main thread between chunks so React can flush renders,
+        // providing backpressure when a single read() returns many SSE events.
+        await new Promise((r) => setTimeout(r, 0))
       }
 
       // Process any remaining buffer
@@ -207,7 +215,11 @@ export class HttpChatProvider implements ChatProvider {
           : t('chat.error.streamError', undefined, { defaultValue: 'Stream error' })
       onEvent({ type: 'error', message })
     } finally {
-      this.abortController = null
+      // Only clear if this call's controller is still the active one — a newer
+      // sendMessage call may have already replaced it.
+      if (this.abortController === controller) {
+        this.abortController = null
+      }
     }
   }
 
@@ -215,6 +227,32 @@ export class HttpChatProvider implements ChatProvider {
   abort(): void {
     this.abortController?.abort()
     this.abortController = null
+  }
+
+  /**
+   * Sends an abort request to the server to kill the active AI stream.
+   * Uses `navigator.sendBeacon` when available (works during page unload),
+   * falls back to a fire-and-forget fetch POST.
+   * @param config - Chat configuration with the endpoint URL.
+   * @param conversationId - Optional conversation ID to target.
+   */
+  abortOnServer(config: ChatConfig, conversationId?: string): void {
+    // Append -abort to the pathname only, preserving any query string.
+    // e.g. "/chat?conversationId=x" → "/chat-abort?conversationId=x"
+    const base = `${this.config.baseUrl ?? ''}${config.endpoint}`
+    const qIdx = base.indexOf('?')
+    const url = qIdx === -1 ? `${base}-abort` : `${base.slice(0, qIdx)}-abort${base.slice(qIdx)}`
+    const body = JSON.stringify(conversationId ? { conversationId } : {})
+    if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+      navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }))
+    } else {
+      fetch(url, {
+        method: 'POST',
+        headers: { ...this.config.headers, 'Content-Type': 'application/json' },
+        body,
+        keepalive: true,
+      }).catch(() => {})
+    }
   }
 
   /**

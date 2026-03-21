@@ -17,9 +17,10 @@
  */
 
 import type { JSX } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { formatTokenCount, MODELS } from '@molecule/ai-models'
+import type { ChatMessage } from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
 import { useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -373,10 +374,18 @@ function ThinkingBlock({
   isStreaming?: boolean
 }): JSX.Element {
   const cm = getClassMap()
+  const contentRef = useRef<HTMLDivElement>(null)
   // Auto-expand while streaming so the user can see thinking in real-time.
   // Once streaming ends, the user's manual toggle takes over.
   const [manualToggle, setManualToggle] = useState<boolean | null>(null)
   const open = manualToggle ?? isStreaming === true
+
+  // Auto-scroll to the bottom as new thinking content streams in.
+  useEffect(() => {
+    if (open && contentRef.current) {
+      contentRef.current.scrollTop = contentRef.current.scrollHeight
+    }
+  }, [open, content])
 
   const label = isStreaming
     ? t('ide.chat.thinking', undefined, { defaultValue: 'Thinking' })
@@ -426,10 +435,13 @@ function ThinkingBlock({
       </button>
       {open && (
         <div
+          ref={contentRef}
           className={cm.cn(cm.textMuted, cm.textSize('xs'))}
           style={{
             paddingLeft: '16px',
             marginTop: '4px',
+            maxHeight: '200px',
+            overflowY: 'auto',
             whiteSpace: 'pre-wrap',
             fontStyle: 'italic',
             opacity: 0.7,
@@ -437,6 +449,118 @@ function ThinkingBlock({
         >
           {content}
         </div>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// CollapsibleUserMessage — height-limited user message with expand toggle
+// ---------------------------------------------------------------------------
+
+/** Height threshold (px) above which user messages get collapsed. */
+const USER_MSG_COLLAPSE_HEIGHT = 150
+
+/**
+ * Renders user message content with a max height and a chevron-down expand button
+ * when the content overflows. Similar to the compaction summary expand pattern.
+ * @param root0 - Component props.
+ * @param root0.content - The message text.
+ * @param root0.isLight - Whether the current theme is light mode.
+ * @returns The rendered collapsible message element.
+ */
+function CollapsibleUserMessage({
+  content,
+  isLight,
+}: {
+  content: string
+  isLight: boolean
+}): JSX.Element {
+  const innerRef = useRef<HTMLDivElement>(null)
+  const [overflows, setOverflows] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+
+  useEffect(() => {
+    const el = innerRef.current
+    if (el) setOverflows(el.scrollHeight > USER_MSG_COLLAPSE_HEIGHT)
+  }, [content])
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <div
+        ref={innerRef}
+        style={{
+          maxHeight: expanded ? 'none' : `${USER_MSG_COLLAPSE_HEIGHT}px`,
+          overflow: 'hidden',
+          whiteSpace: 'pre-wrap',
+        }}
+      >
+        {content}
+      </div>
+      {overflows && !expanded && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '40px',
+            background: isLight
+              ? 'linear-gradient(transparent, var(--mol-color-surface-secondary, #f5f5f5))'
+              : 'linear-gradient(transparent, var(--mol-color-surface-secondary, #1e1e1e))',
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+      {overflows && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          onMouseEnter={(e) => {
+            ;(e.currentTarget as HTMLElement).style.background = isLight
+              ? 'rgba(99,102,241,0.12)'
+              : 'rgba(99,102,241,0.18)'
+          }}
+          onMouseLeave={(e) => {
+            ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            padding: '2px 0',
+            margin: '2px 0 0',
+            background: 'transparent',
+            border: 'none',
+            borderRadius: '0 0 4px 4px',
+            cursor: 'pointer',
+            color: 'inherit',
+            transition: 'background 100ms',
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            width="14"
+            height="14"
+            style={{
+              display: 'block',
+              opacity: 0.5,
+              transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 150ms',
+            }}
+          >
+            <polyline
+              points="4,6 8,10 12,6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       )}
     </div>
   )
@@ -945,6 +1069,621 @@ function CommitCardItem({
 }
 
 // ---------------------------------------------------------------------------
+// MessageItem — memo'd to avoid re-rendering all messages when one changes
+// ---------------------------------------------------------------------------
+
+interface MessageItemProps {
+  msg: ChatMessage
+  prevMsg: ChatMessage | undefined
+  editingQueuedId: string | null
+  editingQueuedText: string
+  setEditingQueuedId: React.Dispatch<React.SetStateAction<string | null>>
+  setEditingQueuedText: React.Dispatch<React.SetStateAction<string>>
+  editQueuedMessage: (id: string, content: string) => void
+  deleteQueuedMessage: (id: string) => void
+  sendMessage: (msg: string) => void
+  handleAskUserResponse: (response: string) => void
+  isLoading: boolean
+  undoneTcIds: Set<string>
+  handleUndoToggle: (tcId: string, undone: boolean) => void
+  onFileOpen?: (path: string) => void
+  onFileDoubleClick?: (path: string) => void
+  onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
+  handleFileRevert: (path: string, content: string) => Promise<void>
+  setInputAndCursorEnd: (val: string) => void
+  setModelPicker: React.Dispatch<React.SetStateAction<ModelPicker | null>>
+}
+
+/**
+ * Renders a single message (user or assistant) in the chat timeline.
+ * Wrapped in React.memo so unchanged messages skip re-rendering when
+ * only the streaming message updates.
+ * @param props - Message item props.
+ * @returns The rendered message item.
+ */
+const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Element {
+  const {
+    msg,
+    prevMsg,
+    editingQueuedId,
+    editingQueuedText,
+    setEditingQueuedId,
+    setEditingQueuedText,
+    editQueuedMessage,
+    deleteQueuedMessage,
+    sendMessage,
+    handleAskUserResponse,
+    isLoading,
+    undoneTcIds,
+    handleUndoToggle,
+    onFileOpen,
+    onFileDoubleClick,
+    onFileDiff,
+    handleFileRevert,
+    setInputAndCursorEnd,
+    setModelPicker,
+  } = props
+
+  const cm = getClassMap()
+  const themeMode = useThemeMode()
+  const isLight = themeMode === 'light'
+  const borderClr = isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'
+
+  const sameRoleAsPrev = prevMsg?.role === msg.role
+  const isUser = msg.role === 'user'
+
+  return (
+    <div style={{ marginBottom: '16px' }}>
+      {isUser ? (
+        <div
+          className={cm.cn(cm.surfaceSecondary, cm.textSize('sm'))}
+          style={{
+            borderRadius: '4px',
+            borderLeft: '2px solid var(--mol-color-primary, #6366f1)',
+            paddingLeft: '10px',
+            paddingTop: '4px',
+            paddingBottom: '4px',
+          }}
+        >
+          <CollapsibleUserMessage content={msg.content} isLight={isLight} />
+          {msg.attachments && msg.attachments.length > 0 && (
+            <div style={{ marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              {msg.attachments.map((att, ai) => (
+                <span
+                  key={ai}
+                  className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}
+                >
+                  {att.mediaType.startsWith('image/')
+                    ? '\uD83D\uDDBC\uFE0F'
+                    : att.mediaType.startsWith('audio/')
+                      ? '\uD83C\uDFB5'
+                      : att.mediaType.startsWith('video/')
+                        ? '\uD83C\uDFA5'
+                        : '\uD83D\uDCC4'}{' '}
+                  {att.filename}
+                  <span style={{ fontSize: 10, opacity: 0.7 }}>
+                    ({formatSize(att.size)})
+                  </span>
+                </span>
+              ))}
+            </div>
+          )}
+          {msg.queued && (
+            <div style={{ marginTop: 6 }}>
+              {editingQueuedId === msg.id ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <textarea
+                    autoFocus
+                    defaultValue={editingQueuedText}
+                    onChange={(e) => setEditingQueuedText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        const trimmed = editingQueuedText.trim()
+                        if (trimmed) editQueuedMessage(msg.id, trimmed)
+                        else deleteQueuedMessage(msg.id)
+                        setEditingQueuedId(null)
+                      }
+                      if (e.key === 'Escape') setEditingQueuedId(null)
+                    }}
+                    className={cm.cn(cm.surface, cm.textSize('sm'))}
+                    style={{
+                      width: '100%',
+                      minHeight: '60px',
+                      padding: '8px 10px',
+                      border: `1px solid ${borderClr}`,
+                      borderRadius: '6px',
+                      resize: 'vertical',
+                      color: 'inherit',
+                      fontFamily: 'inherit',
+                    }}
+                  />
+                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                    <button
+                      type="button"
+                      onClick={() => setEditingQueuedId(null)}
+                      className={cm.textSize('xs')}
+                      style={{
+                        padding: '4px 12px',
+                        border: `1px solid ${borderClr}`,
+                        borderRadius: '4px',
+                        background: 'transparent',
+                        color: 'inherit',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const trimmed = editingQueuedText.trim()
+                        if (trimmed) editQueuedMessage(msg.id, trimmed)
+                        else deleteQueuedMessage(msg.id)
+                        setEditingQueuedId(null)
+                      }}
+                      className={cm.textSize('xs')}
+                      style={{
+                        padding: '4px 12px',
+                        border: `1px solid ${borderClr}`,
+                        borderRadius: '4px',
+                        background: 'rgba(128,128,128,0.1)',
+                        color: 'inherit',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {t('common.save', undefined, { defaultValue: 'Save' })}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    gap: 6,
+                    paddingRight: 4,
+                  }}
+                >
+                  <span
+                    className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                    style={{ fontStyle: 'italic', marginRight: 'auto' }}
+                  >
+                    {t('ide.chat.queued', undefined, { defaultValue: 'Queued' })}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingQueuedId(msg.id)
+                      setEditingQueuedText(msg.content)
+                    }}
+                    className={cm.textSize('xs')}
+                    style={{
+                      padding: '3px 10px',
+                      border: `1px solid ${borderClr}`,
+                      borderRadius: '4px',
+                      background: 'rgba(128,128,128,0.1)',
+                      color: 'inherit',
+                      cursor: 'pointer',
+                      fontWeight: 500,
+                      transition: 'background 100ms',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(128,128,128,0.1)'
+                    }}
+                  >
+                    {t('ide.chat.editQueued', undefined, { defaultValue: 'Edit' })}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteQueuedMessage(msg.id)}
+                    className={cm.textSize('xs')}
+                    style={{
+                      padding: '3px 10px',
+                      border: '1px solid rgba(220,38,38,0.3)',
+                      borderRadius: '4px',
+                      background: 'rgba(220,38,38,0.08)',
+                      color: isLight ? 'rgb(185,28,28)' : 'rgb(248,113,113)',
+                      cursor: 'pointer',
+                      fontWeight: 500,
+                      transition: 'background 100ms',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(220,38,38,0.18)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(220,38,38,0.08)'
+                    }}
+                  >
+                    {t('ide.chat.deleteQueued', undefined, { defaultValue: 'Delete' })}
+                  </button>
+                  {!isLoading && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const content = msg.content
+                        deleteQueuedMessage(msg.id)
+                        sendMessage(content)
+                      }}
+                      className={cm.textSize('xs')}
+                      style={{
+                        padding: '3px 10px',
+                        border: '1px solid rgba(34,197,94,0.4)',
+                        borderRadius: '4px',
+                        background: 'rgba(34,197,94,0.12)',
+                        color: isLight ? 'rgb(21,128,61)' : 'rgb(74,222,128)',
+                        cursor: 'pointer',
+                        fontWeight: 500,
+                        transition: 'background 100ms',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(34,197,94,0.22)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(34,197,94,0.12)'
+                      }}
+                    >
+                      {t('ide.chat.sendQueued', undefined, { defaultValue: 'Send' })}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div style={{ paddingLeft: sameRoleAsPrev ? '0' : '0' }}>
+          {msg.blocks?.map((block, bi) => {
+            if ((block as { type: string }).type !== 'thinking') return null
+            const isLastBlock = bi === (msg.blocks?.length ?? 0) - 1
+            return (
+              <ThinkingBlock
+                key={bi}
+                content={(block as { type: string; content: string }).content}
+                durationMs={(block as { durationMs?: number }).durationMs}
+                isStreaming={msg.isStreaming && isLastBlock}
+              />
+            )
+          })}
+
+          {msg.isStreaming &&
+            (!msg.blocks ||
+              msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
+            !msg.content && <StreamingIndicator />}
+
+          {msg.blocks && msg.blocks.length > 0 ? (
+            msg.blocks.map((block, bi) => {
+              const blockType = (block as { type: string }).type
+              if (blockType === 'thinking') return null
+
+              const isLast = bi === msg.blocks!.length - 1
+
+              if (blockType === 'text') {
+                const textContent = (block as { type: string; content: string }).content
+                const isCompaction =
+                  textContent.startsWith('**Context compacted**') ||
+                  textContent.startsWith('> **Context compacted**')
+                if (isCompaction) {
+                  // Split into headline (first line) and optional summary (rest)
+                  const nlIdx = textContent.indexOf('\n\n')
+                  const headline = (nlIdx > -1 ? textContent.slice(0, nlIdx) : textContent)
+                    .replace(/^>\s*/, '') // strip leading blockquote
+                  const summary = nlIdx > -1 ? textContent.slice(nlIdx + 2) : ''
+                  return (
+                    <div
+                      key={bi}
+                      className={cm.textSize('sm')}
+                      style={{
+                        padding: '10px 16px',
+                        margin: '8px 0 16px',
+                        background: 'rgba(64,112,224,0.10)',
+                        border: '1px solid rgba(64,112,224,0.25)',
+                        borderRadius: 8,
+                        color: 'var(--mol-color-text-secondary, #aaa)',
+                        textAlign: 'center',
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      <MarkdownContent text={headline} isStreaming={false} />
+                      {summary && (
+                        <details
+                          style={{ margin: '14px -16px -10px', textAlign: 'left' }}
+                          onToggle={(e) => {
+                            const svg = (e.currentTarget as HTMLElement).querySelector(
+                              '[data-chevron]',
+                            ) as HTMLElement | null
+                            if (svg)
+                              svg.style.transform = (
+                                e.currentTarget as HTMLDetailsElement
+                              ).open
+                                ? 'rotate(180deg)'
+                                : 'rotate(0deg)'
+                          }}
+                        >
+                          <summary
+                            onMouseEnter={(e) => {
+                              ;(e.currentTarget as HTMLElement).style.background = isLight
+                                ? 'rgba(64,112,224,0.12)'
+                                : 'rgba(64,112,224,0.18)'
+                            }}
+                            onMouseLeave={(e) => {
+                              ;(e.currentTarget as HTMLElement).style.background = isLight
+                                ? 'rgba(64,112,224,0.05)'
+                                : 'rgba(64,112,224,0.08)'
+                            }}
+                            style={{
+                              cursor: 'pointer',
+                              textAlign: 'center',
+                              listStyle: 'none',
+                              padding: '3px 0',
+                              borderRadius: '0 0 8px 8px',
+                              background: isLight
+                                ? 'rgba(64,112,224,0.05)'
+                                : 'rgba(64,112,224,0.08)',
+                              transition: 'background 100ms',
+                            }}
+                          >
+                            <svg
+                              data-chevron=""
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 16 16"
+                              width="14"
+                              height="14"
+                              style={{
+                                display: 'inline-block',
+                                verticalAlign: 'middle',
+                                transition: 'transform 150ms',
+                                color: isLight ? '#2850a0' : '#80b0ff',
+                              }}
+                            >
+                              <polyline
+                                points="4,6 8,10 12,6"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </summary>
+                          <div style={{ padding: '8px 16px 10px' }}>
+                            <MarkdownContent text={summary} isStreaming={false} />
+                          </div>
+                        </details>
+                      )}
+                    </div>
+                  )
+                }
+                return (
+                  <MarkdownContent
+                    key={bi}
+                    text={textContent}
+                    isStreaming={isLast && msg.isStreaming}
+                  />
+                )
+              }
+
+              if (blockType === 'verification') {
+                const vBlock = block as unknown as {
+                  type: 'verification'
+                  status: 'ok' | 'error'
+                  output?: string
+                  workspaces: string[]
+                  categories?: string[]
+                }
+                return (
+                  <VerificationBadge
+                    key={`verification-${bi}`}
+                    status={vBlock.status}
+                    output={vBlock.output}
+                    workspaces={vBlock.workspaces}
+                    categories={vBlock.categories}
+                  />
+                )
+              }
+
+              if (blockType === 'resource_limit') {
+                const rlBlock = block as unknown as {
+                  type: 'resource_limit'
+                  message: string
+                }
+                return (
+                  <ResourceLimitBanner
+                    key={`resource-limit-${bi}`}
+                    message={rlBlock.message}
+                  />
+                )
+              }
+
+              const tc = msg.toolCalls?.find(
+                (c) => c.id === (block as { type: string; id: string }).id,
+              )
+              if (!tc) return null
+              return (
+                <div key={tc.id} style={{ marginTop: '4px' }}>
+                  <ToolCallCard
+                    id={tc.id}
+                    name={tc.name}
+                    input={tc.input}
+                    output={tc.output}
+                    status={tc.status}
+                    fileDiff={tc.fileDiff}
+                    isUndone={undoneTcIds.has(tc.id)}
+                    onUndoToggle={handleUndoToggle}
+                    onFileOpen={onFileOpen}
+                    onFileDoubleClick={onFileDoubleClick}
+                    onFileDiff={onFileDiff}
+                    onFileRevert={handleFileRevert}
+                    onAskUserResponse={handleAskUserResponse}
+                  />
+                  {isLast && msg.isStreaming && <StreamingIndicator />}
+                </div>
+              )
+            })
+          ) : msg.content ? (
+            <MarkdownContent text={msg.content} isStreaming={msg.isStreaming} />
+          ) : null}
+
+          {msg.toolCalls &&
+            msg.toolCalls.length > 0 &&
+            (!msg.blocks || msg.blocks.length === 0) &&
+            msg.toolCalls.map((tc) => (
+              <ToolCallCard
+                key={tc.id}
+                id={tc.id}
+                name={tc.name}
+                input={tc.input}
+                output={tc.output}
+                status={tc.status}
+                fileDiff={tc.fileDiff}
+                isUndone={undoneTcIds.has(tc.id)}
+                onUndoToggle={handleUndoToggle}
+                onFileOpen={onFileOpen}
+                onFileDoubleClick={onFileDoubleClick}
+                onFileDiff={onFileDiff}
+                onFileRevert={handleFileRevert}
+                onAskUserResponse={handleAskUserResponse}
+              />
+            ))}
+
+          {msg.aborted && (
+            <span
+              className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+              style={{ display: 'block', marginTop: 4, fontStyle: 'italic' }}
+            >
+              {t('ide.chat.responseStopped', undefined, {
+                defaultValue: 'Response stopped',
+              })}
+            </span>
+          )}
+
+          {msg.loopLimitReached &&
+            !msg.isStreaming &&
+            (() => {
+              const loopActions: Array<{ label: string; action: () => void }> = [
+                {
+                  label: t('ide.chat.changeModel', undefined, {
+                    defaultValue: 'Change model',
+                  }),
+                  action: () => {
+                    setInputAndCursorEnd('/model ')
+                    setModelPicker({ selectedIdx: -1 })
+                  },
+                },
+                {
+                  label: t('ide.chat.increaseLoops', undefined, {
+                    defaultValue: 'Increase max loops',
+                  }),
+                  action: () => {
+                    setInputAndCursorEnd('/maxloops ')
+                  },
+                },
+                {
+                  label: t('ide.chat.continueButton', undefined, {
+                    defaultValue: 'Continue',
+                  }),
+                  action: () => {
+                    void sendMessage(
+                      t('ide.chat.continuePrompt', undefined, {
+                        defaultValue: 'Continue implementing from where you left off.',
+                      }),
+                    )
+                  },
+                },
+              ]
+              return (
+                <div
+                  style={{
+                    marginTop: '8px',
+                    borderRadius: '8px',
+                    border: `1px solid ${borderClr}`,
+                    background: isLight ? '#f6f8fa' : 'rgba(255,255,255,0.04)',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: '10px 12px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      borderBottom: `1px solid ${borderClr}`,
+                    }}
+                  >
+                    {t(
+                      'ide.chat.loopLimitReached',
+                      { max: msg.loopLimitReached },
+                      {
+                        defaultValue: `Reached the maximum of ${msg.loopLimitReached} tool iterations.`,
+                      },
+                    )}
+                  </div>
+                  {loopActions.map((opt, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      disabled={i === 0 && isLoading}
+                      onClick={opt.action}
+                      onMouseEnter={(e) => {
+                        ;(e.currentTarget as HTMLElement).style.background = isLight
+                          ? '#eaeef2'
+                          : 'rgba(255,255,255,0.06)'
+                      }}
+                      onMouseLeave={(e) => {
+                        ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        width: '100%',
+                        padding: '8px 12px',
+                        border: 'none',
+                        borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
+                        background: 'transparent',
+                        color: 'inherit',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontSize: '13px',
+                        transition: 'background 80ms',
+                      }}
+                    >
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 22,
+                          height: 22,
+                          borderRadius: '5px',
+                          border: `1px solid ${borderClr}`,
+                          background: isLight ? '#fff' : 'rgba(255,255,255,0.08)',
+                          color: isLight ? '#57606a' : '#848d97',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          flexShrink: 0,
+                          fontFamily: '"SF Mono", Menlo, Consolas, monospace',
+                        }}
+                      >
+                        {String.fromCharCode(65 + i)}
+                      </span>
+                      <span>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )
+            })()}
+        </div>
+      )}
+    </div>
+  )
+})
+
+// ---------------------------------------------------------------------------
 // ChatInner — owns useChat, messages, input, commit
 // ---------------------------------------------------------------------------
 
@@ -1022,7 +1761,6 @@ function ChatInner({
   const cm = getClassMap()
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
-  const borderClr = isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'
   const http = useHttpClient()
   // If there's already a conversation (conversationId in the URL), always load
   // history — even when initialMessage is set. This prevents a refresh from
@@ -1235,6 +1973,15 @@ function ChatInner({
 
   // Keep sendMessageRef in sync so the countdown effect can call the latest sendMessage
   sendMessageRef.current = sendMessage
+
+  // Ref-stable callback for ToolCallCard's onAskUserResponse — avoids breaking
+  // React.memo when sendMessage's identity changes (provider/endpoint deps).
+  const handleAskUserResponse = useCallback(
+    (response: string) => {
+      sendMessageRef.current(response)
+    },
+    [],
+  )
 
   // ── Commit ─────────────────────────────────────────────────────────────────
   const [commitState, setCommitState] = useState<{
@@ -1527,10 +2274,22 @@ function ChatInner({
 
   // ── System cards (persistent inline notifications in chat history) ────────
   const [systemCards, setSystemCards] = useState<SystemCard[]>([])
+  // Keep a ref to the latest messages so addSystemCard can read them
+  // without adding messages to its dependency array (avoids re-creation on
+  // every streaming chunk).
+  const messagesRef = useRef(messages)
+  messagesRef.current = messages
   const addSystemCard = useCallback((text: string, action?: SystemCard['action']) => {
+    // If a message is actively streaming, place the card just before it so
+    // it doesn't get pinned below the growing response.
+    let ts = Date.now()
+    const streaming = messagesRef.current.find((m) => m.isStreaming)
+    if (streaming && streaming.timestamp <= ts) {
+      ts = streaming.timestamp - 1
+    }
     setSystemCards((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), text, timestamp: Date.now(), action },
+      { id: crypto.randomUUID(), text, timestamp: ts, action },
     ])
     // Auto-scroll after the card renders so the user sees it immediately
     setTimeout(() => {
@@ -2840,47 +3599,108 @@ function ChatInner({
 
           if (item.kind === 'system') {
             const isMultiLine = item.card.text.includes('\n')
+            const actions = item.card.action
+              ? Array.isArray(item.card.action)
+                ? item.card.action
+                : [item.card.action]
+              : []
+            const isGuestReminder = actions.some(
+              (a) => a.href === '/signup' || a.href === '/login',
+            )
             return (
               <div
                 key={item.card.id}
-                className={cm.cn(cm.textSize('xs'), cm.textMuted)}
-                style={{
-                  textAlign: isMultiLine ? 'left' : 'center',
-                  padding: isMultiLine ? '8px 12px' : '6px 0',
-                  whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
-                  fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
-                  lineHeight: isMultiLine ? 1.5 : undefined,
-                }}
+                className={cm.cn(cm.textSize(isGuestReminder ? 'sm' : 'xs'), isGuestReminder ? undefined : cm.textMuted)}
+                style={
+                  isGuestReminder
+                    ? {
+                        textAlign: 'center',
+                        padding: '10px 16px',
+                        margin: '8px 0 16px',
+                        background: 'rgba(64,112,224,0.10)',
+                        border: '1px solid rgba(64,112,224,0.25)',
+                        borderRadius: 8,
+                        color: 'var(--mol-color-text-secondary, #aaa)',
+                      }
+                    : {
+                        textAlign: isMultiLine ? 'left' : 'center',
+                        padding: isMultiLine ? '8px 12px' : '6px 0',
+                        whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
+                        fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
+                        lineHeight: isMultiLine ? 1.5 : undefined,
+                      }
+                }
               >
                 {item.card.text}
                 {item.card.action &&
                   (() => {
-                    const actionStyle: React.CSSProperties = {
+                    const btnBase: React.CSSProperties = {
                       display: 'inline-block',
-                      padding: '6px 16px',
-                      borderRadius: '6px',
-                      fontSize: '12px',
+                      fontSize: 12,
                       fontWeight: 600,
-                      fontFamily: 'inherit',
+                      padding: '5px 14px',
+                      borderRadius: 6,
                       cursor: 'pointer',
-                      border: 'none',
                       textDecoration: 'none',
+                      transition: 'opacity 100ms',
+                      fontFamily: 'inherit',
+                    }
+                    const signupStyle: React.CSSProperties = {
+                      ...btnBase,
+                      border: '1px solid rgba(64,112,224,0.5)',
+                      background: isLight ? 'rgba(64,112,224,0.15)' : 'rgba(64,112,224,0.3)',
+                      color: isLight ? '#2850a0' : '#80b0ff',
+                    }
+                    const loginStyle: React.CSSProperties = {
+                      ...btnBase,
+                      border: '1px solid rgba(48,144,0,0.5)',
+                      background: isLight ? 'rgba(48,144,0,0.12)' : 'rgba(48,144,0,0.25)',
+                      color: isLight ? '#1a6600' : '#70cc40',
+                    }
+                    const defaultStyle: React.CSSProperties = {
+                      ...btnBase,
+                      border: 'none',
                       color: '#fff',
                       background: 'var(--color-primary)',
-                      transition: 'background 100ms',
                     }
-                    const handleEnter = (e: React.MouseEvent): void => {
-                      ;(e.currentTarget as HTMLElement).style.background =
-                        'var(--color-primary-hover)'
+                    const getStyle = (href?: string): React.CSSProperties => {
+                      if (href === '/signup') return signupStyle
+                      if (href === '/login') return loginStyle
+                      return defaultStyle
                     }
-                    const handleLeave = (e: React.MouseEvent): void => {
-                      ;(e.currentTarget as HTMLElement).style.background = 'var(--color-primary)'
+                    const handleEnter = (e: React.MouseEvent, href?: string): void => {
+                      const el = e.currentTarget as HTMLElement
+                      if (href === '/signup') {
+                        el.style.background = isLight ? 'rgba(64,112,224,0.25)' : 'rgba(64,112,224,0.45)'
+                        el.style.borderColor = isLight ? 'rgba(64,112,224,0.7)' : 'rgba(64,112,224,0.75)'
+                        el.style.color = isLight ? '#1a3a80' : '#a0c8ff'
+                      } else if (href === '/login') {
+                        el.style.background = isLight ? 'rgba(48,144,0,0.22)' : 'rgba(48,144,0,0.4)'
+                        el.style.borderColor = isLight ? 'rgba(48,144,0,0.7)' : 'rgba(48,144,0,0.75)'
+                        el.style.color = isLight ? '#105000' : '#90e050'
+                      } else {
+                        el.style.background = 'var(--color-primary-hover)'
+                      }
+                    }
+                    const handleLeave = (e: React.MouseEvent, href?: string): void => {
+                      const el = e.currentTarget as HTMLElement
+                      if (href === '/signup') {
+                        el.style.background = isLight ? 'rgba(64,112,224,0.15)' : 'rgba(64,112,224,0.3)'
+                        el.style.borderColor = 'rgba(64,112,224,0.5)'
+                        el.style.color = isLight ? '#2850a0' : '#80b0ff'
+                      } else if (href === '/login') {
+                        el.style.background = isLight ? 'rgba(48,144,0,0.12)' : 'rgba(48,144,0,0.25)'
+                        el.style.borderColor = 'rgba(48,144,0,0.5)'
+                        el.style.color = isLight ? '#1a6600' : '#70cc40'
+                      } else {
+                        el.style.background = 'var(--color-primary)'
+                      }
                     }
                     const actions = Array.isArray(item.card.action)
                       ? item.card.action
                       : [item.card.action!]
                     return (
-                      <div style={{ marginTop: '10px', display: 'flex', gap: '8px' }}>
+                      <div style={{ marginTop: '10px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
                         {actions.map((act, i) =>
                           act.href ? (
                             <a
@@ -2888,9 +3708,9 @@ function ChatInner({
                               href={act.href}
                               target={act.href.startsWith('http') ? '_blank' : undefined}
                               rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                              style={actionStyle}
-                              onMouseEnter={handleEnter}
-                              onMouseLeave={handleLeave}
+                              style={getStyle(act.href)}
+                              onMouseEnter={(e) => handleEnter(e, act.href)}
+                              onMouseLeave={(e) => handleLeave(e, act.href)}
                             >
                               {act.label}
                             </a>
@@ -2899,9 +3719,9 @@ function ChatInner({
                               key={i}
                               type="button"
                               onClick={act.onClick}
-                              style={actionStyle}
-                              onMouseEnter={handleEnter}
-                              onMouseLeave={handleLeave}
+                              style={defaultStyle}
+                              onMouseEnter={(e) => handleEnter(e)}
+                              onMouseLeave={(e) => handleLeave(e)}
                             >
                               {act.label}
                             </button>
@@ -2938,435 +3758,29 @@ function ChatInner({
             )
           }
 
-          const prevMsg = messages[msgIdx - 1]
-          const sameRoleAsPrev = prevMsg?.role === msg.role
-          const isUser = msg.role === 'user'
-
           return (
-            <div key={msg.id} style={{ marginBottom: '16px' }}>
-              {isUser ? (
-                <div
-                  className={cm.cn(cm.surfaceSecondary, cm.textSize('sm'))}
-                  style={{
-                    borderRadius: '4px',
-                    borderLeft: '2px solid var(--mol-color-primary, #6366f1)',
-                    paddingLeft: '10px',
-                    paddingTop: '4px',
-                    paddingBottom: '4px',
-                    whiteSpace: 'pre-wrap',
-                  }}
-                >
-                  {msg.content}
-                  {msg.attachments && msg.attachments.length > 0 && (
-                    <div style={{ marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                      {msg.attachments.map((att, ai) => (
-                        <span
-                          key={ai}
-                          className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}
-                        >
-                          {att.mediaType.startsWith('image/')
-                            ? '\uD83D\uDDBC\uFE0F'
-                            : att.mediaType.startsWith('audio/')
-                              ? '\uD83C\uDFB5'
-                              : att.mediaType.startsWith('video/')
-                                ? '\uD83C\uDFA5'
-                                : '\uD83D\uDCC4'}{' '}
-                          {att.filename}
-                          <span style={{ fontSize: 10, opacity: 0.7 }}>
-                            ({formatSize(att.size)})
-                          </span>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {msg.queued && (
-                    <div style={{ marginTop: 6 }}>
-                      {editingQueuedId === msg.id ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                          <textarea
-                            autoFocus
-                            defaultValue={editingQueuedText}
-                            onChange={(e) => setEditingQueuedText(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault()
-                                const trimmed = editingQueuedText.trim()
-                                if (trimmed) editQueuedMessage(msg.id, trimmed)
-                                else deleteQueuedMessage(msg.id)
-                                setEditingQueuedId(null)
-                              }
-                              if (e.key === 'Escape') setEditingQueuedId(null)
-                            }}
-                            className={cm.cn(cm.surface, cm.textSize('sm'))}
-                            style={{
-                              width: '100%',
-                              minHeight: '60px',
-                              padding: '8px 10px',
-                              border: `1px solid ${borderClr}`,
-                              borderRadius: '6px',
-                              resize: 'vertical',
-                              color: 'inherit',
-                              fontFamily: 'inherit',
-                            }}
-                          />
-                          <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                            <button
-                              type="button"
-                              onClick={() => setEditingQueuedId(null)}
-                              className={cm.textSize('xs')}
-                              style={{
-                                padding: '4px 12px',
-                                border: `1px solid ${borderClr}`,
-                                borderRadius: '4px',
-                                background: 'transparent',
-                                color: 'inherit',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const trimmed = editingQueuedText.trim()
-                                if (trimmed) editQueuedMessage(msg.id, trimmed)
-                                else deleteQueuedMessage(msg.id)
-                                setEditingQueuedId(null)
-                              }}
-                              className={cm.textSize('xs')}
-                              style={{
-                                padding: '4px 12px',
-                                border: `1px solid ${borderClr}`,
-                                borderRadius: '4px',
-                                background: 'rgba(128,128,128,0.1)',
-                                color: 'inherit',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              {t('common.save', undefined, { defaultValue: 'Save' })}
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'flex-end',
-                            gap: 6,
-                            paddingRight: 4,
-                          }}
-                        >
-                          <span
-                            className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                            style={{ fontStyle: 'italic', marginRight: 'auto' }}
-                          >
-                            {t('ide.chat.queued', undefined, { defaultValue: 'Queued' })}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingQueuedId(msg.id)
-                              setEditingQueuedText(msg.content)
-                            }}
-                            className={cm.textSize('xs')}
-                            style={{
-                              padding: '3px 10px',
-                              border: `1px solid ${borderClr}`,
-                              borderRadius: '4px',
-                              background: 'rgba(128,128,128,0.1)',
-                              color: 'inherit',
-                              cursor: 'pointer',
-                              fontWeight: 500,
-                              transition: 'background 100ms',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'rgba(128,128,128,0.1)'
-                            }}
-                          >
-                            {t('ide.chat.editQueued', undefined, { defaultValue: 'Edit' })}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => deleteQueuedMessage(msg.id)}
-                            className={cm.textSize('xs')}
-                            style={{
-                              padding: '3px 10px',
-                              border: '1px solid rgba(220,38,38,0.3)',
-                              borderRadius: '4px',
-                              background: 'rgba(220,38,38,0.08)',
-                              color: isLight ? 'rgb(185,28,28)' : 'rgb(248,113,113)',
-                              cursor: 'pointer',
-                              fontWeight: 500,
-                              transition: 'background 100ms',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'rgba(220,38,38,0.18)'
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'rgba(220,38,38,0.08)'
-                            }}
-                          >
-                            {t('ide.chat.deleteQueued', undefined, { defaultValue: 'Delete' })}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div style={{ paddingLeft: sameRoleAsPrev ? '0' : '0' }}>
-                  {msg.blocks?.map((block, bi) => {
-                    if ((block as { type: string }).type !== 'thinking') return null
-                    const isLastBlock = bi === (msg.blocks?.length ?? 0) - 1
-                    return (
-                      <ThinkingBlock
-                        key={bi}
-                        content={(block as { type: string; content: string }).content}
-                        durationMs={(block as { durationMs?: number }).durationMs}
-                        isStreaming={msg.isStreaming && isLastBlock}
-                      />
-                    )
-                  })}
-
-                  {msg.isStreaming &&
-                    (!msg.blocks ||
-                      msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
-                    !msg.content && <StreamingIndicator />}
-
-                  {msg.blocks && msg.blocks.length > 0 ? (
-                    msg.blocks.map((block, bi) => {
-                      const blockType = (block as { type: string }).type
-                      if (blockType === 'thinking') return null
-
-                      const isLast = bi === msg.blocks!.length - 1
-
-                      if (blockType === 'text') {
-                        return (
-                          <MarkdownContent
-                            key={bi}
-                            text={(block as { type: string; content: string }).content}
-                            isStreaming={isLast && msg.isStreaming}
-                          />
-                        )
-                      }
-
-                      if (blockType === 'verification') {
-                        const vBlock = block as unknown as {
-                          type: 'verification'
-                          status: 'ok' | 'error'
-                          output?: string
-                          workspaces: string[]
-                          categories?: string[]
-                        }
-                        return (
-                          <VerificationBadge
-                            key={`verification-${bi}`}
-                            status={vBlock.status}
-                            output={vBlock.output}
-                            workspaces={vBlock.workspaces}
-                            categories={vBlock.categories}
-                          />
-                        )
-                      }
-
-                      if (blockType === 'resource_limit') {
-                        const rlBlock = block as unknown as {
-                          type: 'resource_limit'
-                          message: string
-                        }
-                        return (
-                          <ResourceLimitBanner
-                            key={`resource-limit-${bi}`}
-                            message={rlBlock.message}
-                          />
-                        )
-                      }
-
-                      const tc = msg.toolCalls?.find(
-                        (c) => c.id === (block as { type: string; id: string }).id,
-                      )
-                      if (!tc) return null
-                      return (
-                        <div key={tc.id} style={{ marginTop: '4px' }}>
-                          <ToolCallCard
-                            id={tc.id}
-                            name={tc.name}
-                            input={tc.input}
-                            output={tc.output}
-                            status={tc.status}
-                            fileDiff={tc.fileDiff}
-                            isUndone={undoneTcIds.has(tc.id)}
-                            onUndoToggle={handleUndoToggle}
-                            onFileOpen={onFileOpen}
-                            onFileDoubleClick={onFileDoubleClick}
-                            onFileDiff={onFileDiff}
-                            onFileRevert={handleFileRevert}
-                            onAskUserResponse={sendMessage}
-                          />
-                          {isLast && msg.isStreaming && <StreamingIndicator />}
-                        </div>
-                      )
-                    })
-                  ) : msg.content ? (
-                    <MarkdownContent text={msg.content} isStreaming={msg.isStreaming} />
-                  ) : null}
-
-                  {msg.toolCalls &&
-                    msg.toolCalls.length > 0 &&
-                    (!msg.blocks || msg.blocks.length === 0) &&
-                    msg.toolCalls.map((tc) => (
-                      <ToolCallCard
-                        key={tc.id}
-                        id={tc.id}
-                        name={tc.name}
-                        input={tc.input}
-                        output={tc.output}
-                        status={tc.status}
-                        fileDiff={tc.fileDiff}
-                        isUndone={undoneTcIds.has(tc.id)}
-                        onUndoToggle={handleUndoToggle}
-                        onFileOpen={onFileOpen}
-                        onFileDoubleClick={onFileDoubleClick}
-                        onFileDiff={onFileDiff}
-                        onFileRevert={handleFileRevert}
-                        onAskUserResponse={sendMessage}
-                      />
-                    ))}
-
-                  {msg.aborted && (
-                    <span
-                      className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                      style={{ display: 'block', marginTop: 4, fontStyle: 'italic' }}
-                    >
-                      {t('ide.chat.responseStopped', undefined, {
-                        defaultValue: 'Response stopped',
-                      })}
-                    </span>
-                  )}
-
-                  {msg.loopLimitReached &&
-                    !msg.isStreaming &&
-                    (() => {
-                      const loopActions: Array<{ label: string; action: () => void }> = [
-                        {
-                          label: t('ide.chat.changeModel', undefined, {
-                            defaultValue: 'Change model',
-                          }),
-                          action: () => {
-                            setInputAndCursorEnd('/model ')
-                            setModelPicker({ selectedIdx: -1 })
-                          },
-                        },
-                        {
-                          label: t('ide.chat.increaseLoops', undefined, {
-                            defaultValue: 'Increase max loops',
-                          }),
-                          action: () => {
-                            setInputAndCursorEnd('/maxloops ')
-                          },
-                        },
-                        {
-                          label: t('ide.chat.continueButton', undefined, {
-                            defaultValue: 'Continue',
-                          }),
-                          action: () => {
-                            void sendMessage(
-                              t('ide.chat.continuePrompt', undefined, {
-                                defaultValue: 'Continue implementing from where you left off.',
-                              }),
-                            )
-                          },
-                        },
-                      ]
-                      return (
-                        <div
-                          style={{
-                            marginTop: '8px',
-                            borderRadius: '8px',
-                            border: `1px solid ${borderClr}`,
-                            background: isLight ? '#f6f8fa' : 'rgba(255,255,255,0.04)',
-                            overflow: 'hidden',
-                          }}
-                        >
-                          <div
-                            style={{
-                              padding: '10px 12px',
-                              fontSize: '13px',
-                              fontWeight: 600,
-                              borderBottom: `1px solid ${borderClr}`,
-                            }}
-                          >
-                            {t(
-                              'ide.chat.loopLimitReached',
-                              { max: msg.loopLimitReached },
-                              {
-                                defaultValue: `Reached the maximum of ${msg.loopLimitReached} tool iterations.`,
-                              },
-                            )}
-                          </div>
-                          {loopActions.map((opt, i) => (
-                            <button
-                              key={i}
-                              type="button"
-                              disabled={i === 0 && isLoading}
-                              onClick={opt.action}
-                              onMouseEnter={(e) => {
-                                ;(e.currentTarget as HTMLElement).style.background = isLight
-                                  ? '#eaeef2'
-                                  : 'rgba(255,255,255,0.06)'
-                              }}
-                              onMouseLeave={(e) => {
-                                ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-                              }}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                                width: '100%',
-                                padding: '8px 12px',
-                                border: 'none',
-                                borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
-                                background: 'transparent',
-                                color: 'inherit',
-                                cursor: 'pointer',
-                                textAlign: 'left',
-                                fontSize: '13px',
-                                transition: 'background 80ms',
-                              }}
-                            >
-                              <span
-                                style={{
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  width: 22,
-                                  height: 22,
-                                  borderRadius: '5px',
-                                  border: `1px solid ${borderClr}`,
-                                  background: isLight ? '#fff' : 'rgba(255,255,255,0.08)',
-                                  color: isLight ? '#57606a' : '#848d97',
-                                  fontSize: '11px',
-                                  fontWeight: 600,
-                                  flexShrink: 0,
-                                  fontFamily: '"SF Mono", Menlo, Consolas, monospace',
-                                }}
-                              >
-                                {String.fromCharCode(65 + i)}
-                              </span>
-                              <span>{opt.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )
-                    })()}
-                </div>
-              )}
-            </div>
+            <MessageItem
+              key={msg.id}
+              msg={msg}
+              prevMsg={messages[msgIdx - 1]}
+              editingQueuedId={editingQueuedId}
+              editingQueuedText={editingQueuedText}
+              setEditingQueuedId={setEditingQueuedId}
+              setEditingQueuedText={setEditingQueuedText}
+              editQueuedMessage={editQueuedMessage}
+              deleteQueuedMessage={deleteQueuedMessage}
+              sendMessage={sendMessage}
+              handleAskUserResponse={handleAskUserResponse}
+              isLoading={isLoading}
+              undoneTcIds={undoneTcIds}
+              handleUndoToggle={handleUndoToggle}
+              onFileOpen={onFileOpen}
+              onFileDoubleClick={onFileDoubleClick}
+              onFileDiff={onFileDiff}
+              handleFileRevert={handleFileRevert}
+              setInputAndCursorEnd={setInputAndCursorEnd}
+              setModelPicker={setModelPicker}
+            />
           )
         })}
 

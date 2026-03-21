@@ -164,8 +164,11 @@ describe('useChat', () => {
       emitText(0, 'world')
     })
 
-    const assistant = result.current.messages.find((m) => m.role === 'assistant')
-    expect(assistant?.content).toBe('Hello world')
+    // Text events are throttle-flushed every 50ms — wait for the update
+    await waitFor(() => {
+      const assistant = result.current.messages.find((m) => m.role === 'assistant')
+      expect(assistant?.content).toBe('Hello world')
+    })
 
     await act(async () => {
       complete(0)
@@ -616,8 +619,12 @@ describe('useChat', () => {
     await act(async () => {
       emitText(0, ' continued response')
     })
-    const h2 = result.current.messages.find((m) => m.id === 'h2')
-    expect(h2?.content).toBe('partial... continued response')
+
+    // Text events are throttle-flushed every 50ms — wait for the update
+    await waitFor(() => {
+      const h2 = result.current.messages.find((m) => m.id === 'h2')
+      expect(h2?.content).toBe('partial... continued response')
+    })
 
     // No new user message was created
     expect(result.current.messages.filter((m) => m.role === 'user')).toHaveLength(1)
@@ -736,17 +743,22 @@ describe('useChat', () => {
       emit(0, { type: 'tool_use', id: 'tc1', name: 'write_file', input: { path: '/a.ts' } })
     })
 
-    let assistant = result.current.messages.find((m) => m.role === 'assistant')!
-    expect(assistant.toolCalls).toHaveLength(1)
-    expect(assistant.toolCalls![0].status).toBe('running')
+    // Streaming events are throttle-flushed every 50ms — wait for the update
+    await waitFor(() => {
+      const assistant = result.current.messages.find((m) => m.role === 'assistant')!
+      expect(assistant.toolCalls).toHaveLength(1)
+      expect(assistant.toolCalls![0].status).toBe('running')
+    })
 
     await act(async () => {
       emit(0, { type: 'tool_result', id: 'tc1', output: { success: true } })
     })
 
-    assistant = result.current.messages.find((m) => m.role === 'assistant')!
-    expect(assistant.toolCalls![0].status).toBe('done')
-    expect(assistant.toolCalls![0].output).toEqual({ success: true })
+    await waitFor(() => {
+      const assistant = result.current.messages.find((m) => m.role === 'assistant')!
+      expect(assistant.toolCalls![0].status).toBe('done')
+      expect(assistant.toolCalls![0].output).toEqual({ success: true })
+    })
 
     await act(async () => {
       complete(0)
@@ -803,10 +815,13 @@ describe('useChat', () => {
       emit(0, { type: 'thinking', content: 'think...' })
     })
 
-    const assistant = result.current.messages.find((m) => m.role === 'assistant')!
-    const thinkingBlock = assistant.blocks?.find((b) => b.type === 'thinking')
-    expect(thinkingBlock).toBeDefined()
-    expect(thinkingBlock!.type === 'thinking' && thinkingBlock!.content).toBe('Let me think...')
+    // Streaming events are throttle-flushed every 50ms — wait for the update
+    await waitFor(() => {
+      const assistant = result.current.messages.find((m) => m.role === 'assistant')!
+      const thinkingBlock = assistant.blocks?.find((b) => b.type === 'thinking')
+      expect(thinkingBlock).toBeDefined()
+      expect(thinkingBlock!.type === 'thinking' && thinkingBlock!.content).toBe('Let me think...')
+    })
 
     await act(async () => {
       complete(0)
@@ -860,8 +875,11 @@ describe('useChat', () => {
       emit(0, { type: 'commit_suggestion', files: ['a.ts', 'b.ts'] })
     })
 
-    const assistant = result.current.messages.find((m) => m.role === 'assistant')!
-    expect(assistant.commitSuggestion).toEqual({ files: ['a.ts', 'b.ts'], status: 'pending' })
+    // Streaming events are throttle-flushed every 50ms — wait for the update
+    await waitFor(() => {
+      const assistant = result.current.messages.find((m) => m.role === 'assistant')!
+      expect(assistant.commitSuggestion).toEqual({ files: ['a.ts', 'b.ts'], status: 'pending' })
+    })
 
     await act(async () => {
       complete(0)
@@ -883,8 +901,11 @@ describe('useChat', () => {
       emit(0, { type: 'loop_limit_reached', maxLoops: 25 })
     })
 
-    const assistant = result.current.messages.find((m) => m.role === 'assistant')!
-    expect(assistant.loopLimitReached).toBe(25)
+    // Streaming events are throttle-flushed every 50ms — wait for the update
+    await waitFor(() => {
+      const assistant = result.current.messages.find((m) => m.role === 'assistant')!
+      expect(assistant.loopLimitReached).toBe(25)
+    })
 
     await act(async () => {
       complete(0)

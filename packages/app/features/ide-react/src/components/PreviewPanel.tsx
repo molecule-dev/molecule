@@ -30,6 +30,17 @@ const deviceWidths: Record<string, string> = {
 /** How often to poll when waiting for the server to come up. */
 const POLL_INTERVAL_MS = 500
 
+/** Max consecutive poll failures before giving up. */
+const MAX_POLL_ATTEMPTS = 120 // 60 seconds at 500ms
+
+/** Minimum interval between acting on ready/error messages (ms). */
+const MSG_RATE_LIMIT_MS = 300
+
+/** Max ready↔error transitions before suppressing (per window). */
+const MAX_TRANSITIONS = 10
+/** Window duration for transition counting (ms). */
+const TRANSITION_WINDOW_MS = 5000
+
 /**
  * Check whether the server at `url` is accepting connections.
  * Uses `no-cors` so CORS errors aren't mistaken for network failures.
@@ -86,6 +97,10 @@ export function PreviewPanel({
   // Tracks the iframe src to force reload when server recovers
   const [iframeSrc, setIframeSrc] = useState('')
 
+  // --- Cycle detection: catch rapid ready↔error oscillations ---
+  const transitionTimesRef = useRef<number[]>([])
+  const suppressedRef = useRef(false)
+
   // --- Clear poll timer ---
   const clearPoll = useCallback(() => {
     if (pollRef.current) {
@@ -101,8 +116,15 @@ export function PreviewPanel({
       setIframeReady(false)
       setFadingOut(false)
 
+      let attempts = 0
       const poll = async (): Promise<void> => {
         if (urlRef.current !== url) return
+        if (attempts >= MAX_POLL_ATTEMPTS) {
+          console.warn('[PreviewPanel] Startup poll gave up after %d attempts for %s', attempts, url)
+          pollRef.current = null
+          return
+        }
+        attempts++
         const up = await isServerUp(url)
         if (urlRef.current !== url) return
 
@@ -153,14 +175,79 @@ export function PreviewPanel({
     let debounceTimer: ReturnType<typeof setTimeout> | null = null
     const MAX_ERRORS_PER_BATCH = 5
 
+    // Rate-limit ready/error to prevent rapid state oscillation
+    let lastMsgTime = 0
+    let lastMsgType = ''
+    let pendingMsg: ReturnType<typeof setTimeout> | null = null
+
     const handler = (event: MessageEvent): void => {
       if (event.data?.type === 'molecule:ready') {
+        const now = Date.now()
+
+        // Track transitions for cycle detection
+        const times = transitionTimesRef.current
+        times.push(now)
+        // Trim old entries
+        while (times.length > 0 && now - times[0] > TRANSITION_WINDOW_MS) times.shift()
+        if (times.length >= MAX_TRANSITIONS && !suppressedRef.current) {
+          suppressedRef.current = true
+          console.warn(
+            '[PreviewPanel] Rapid ready/error cycle detected (%d transitions in %dms) — suppressing further toggles. This indicates a render loop in the preview iframe.',
+            times.length,
+            TRANSITION_WINDOW_MS,
+          )
+          // Auto-recover after the storm passes
+          setTimeout(() => {
+            suppressedRef.current = false
+            transitionTimesRef.current = []
+          }, TRANSITION_WINDOW_MS)
+          return
+        }
+        if (suppressedRef.current) return
+
+        // Rate-limit: ignore duplicate ready within MSG_RATE_LIMIT_MS
+        if (lastMsgType === 'molecule:ready' && now - lastMsgTime < MSG_RATE_LIMIT_MS) return
+        lastMsgTime = now
+        lastMsgType = 'molecule:ready'
+        if (pendingMsg) clearTimeout(pendingMsg)
+
         clearPoll()
         setEverLoaded(true)
         setIframeReady(true)
       } else if (event.data?.type === 'molecule:error' && event.data.crash) {
-        setIframeReady(false)
-        setFadingOut(false)
+        const now = Date.now()
+
+        // Track transitions
+        const times = transitionTimesRef.current
+        times.push(now)
+        while (times.length > 0 && now - times[0] > TRANSITION_WINDOW_MS) times.shift()
+        if (times.length >= MAX_TRANSITIONS && !suppressedRef.current) {
+          suppressedRef.current = true
+          console.warn(
+            '[PreviewPanel] Rapid ready/error cycle detected (%d transitions in %dms) — suppressing further toggles.',
+            times.length,
+            TRANSITION_WINDOW_MS,
+          )
+          setTimeout(() => {
+            suppressedRef.current = false
+            transitionTimesRef.current = []
+          }, TRANSITION_WINDOW_MS)
+          return
+        }
+        if (suppressedRef.current) return
+
+        // Rate-limit: debounce crash to let HMR settle
+        if (lastMsgType === 'molecule:error' && now - lastMsgTime < MSG_RATE_LIMIT_MS) return
+        lastMsgTime = now
+        lastMsgType = 'molecule:error'
+        if (pendingMsg) clearTimeout(pendingMsg)
+
+        // Debounce crash — if a ready arrives within 300ms, skip the crash entirely
+        pendingMsg = setTimeout(() => {
+          pendingMsg = null
+          setIframeReady(false)
+          setFadingOut(false)
+        }, MSG_RATE_LIMIT_MS)
       } else if (event.data?.type === 'molecule:runtime-error' && onPreviewError) {
         if (errorBatch.length < MAX_ERRORS_PER_BATCH) {
           errorBatch.push({
@@ -184,6 +271,7 @@ export function PreviewPanel({
     return () => {
       window.removeEventListener('message', handler)
       if (debounceTimer) clearTimeout(debounceTimer)
+      if (pendingMsg) clearTimeout(pendingMsg)
     }
   }, [clearPoll, onPreviewError])
 
@@ -202,19 +290,30 @@ export function PreviewPanel({
 
     const url = state.url
     const healthRef = { current: null as ReturnType<typeof setInterval> | null }
+    // Cancellation flag — prevents orphaned poll() closures from running
+    // after this effect cleans up.
+    let cancelled = false
 
     healthRef.current = setInterval(async () => {
+      if (cancelled) return
       const up = await isServerUp(url)
+      if (cancelled) return
       if (!up && urlRef.current === url) {
         // Server went down — show overlay, poll, reload when back
         if (healthRef.current) clearInterval(healthRef.current)
         setIframeReady(false)
         setFadingOut(false)
 
+        let attempts = 0
         const poll = async (): Promise<void> => {
-          if (urlRef.current !== url) return
+          if (cancelled || urlRef.current !== url) return
+          if (attempts >= MAX_POLL_ATTEMPTS) {
+            console.warn('[PreviewPanel] Health-check poll gave up after %d attempts for %s', attempts, url)
+            return
+          }
+          attempts++
           const back = await isServerUp(url)
-          if (urlRef.current !== url) return
+          if (cancelled || urlRef.current !== url) return
           if (back) {
             // Force-reload iframe with cache buster
             setIframeSrc(url + (url.includes('?') ? '&' : '?') + '_r=' + Date.now())
@@ -227,25 +326,27 @@ export function PreviewPanel({
     }, 3000)
 
     return () => {
+      cancelled = true
       if (healthRef.current) clearInterval(healthRef.current)
     }
   }, [iframeReady, fadingOut, state.url])
 
-  // --- Auto-reload when preview is broken and AI edits files ---
-  // Only triggers when the overlay is showing (preview broken/loading) and
-  // fileChangeTick increments (AI wrote/edited a file that might fix the issue).
+  // --- Auto-reload when AI edits files ---
+  // When preview is broken: reload quickly so the user sees the fix.
+  // When preview is healthy: reload after a longer delay as a safety net in
+  // case Vite HMR didn't pick up the change (common for auth/routing changes).
   const fileChangTickRef = useRef(fileChangeTick)
   useEffect(() => {
     if (fileChangTickRef.current === fileChangeTick) return
     fileChangTickRef.current = fileChangeTick
-    // Only reload if the preview is broken (overlay visible, server was up before)
-    if (!iframeReady && everLoaded && state.url) {
-      // Debounce — wait for Vite to process the change before reloading
-      const timer = setTimeout(() => {
-        setIframeSrc(state.url + (state.url.includes('?') ? '&' : '?') + '_r=' + Date.now())
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
+    if (!everLoaded || !state.url) return
+    // Shorter debounce when broken (overlay visible), longer when healthy
+    // to give HMR a chance before force-reloading.
+    const delay = iframeReady ? 3000 : 1500
+    const timer = setTimeout(() => {
+      setIframeSrc(state.url + (state.url.includes('?') ? '&' : '?') + '_r=' + Date.now())
+    }, delay)
+    return () => clearTimeout(timer)
   }, [fileChangeTick, iframeReady, everLoaded, state.url])
 
   // --- Rendering ---

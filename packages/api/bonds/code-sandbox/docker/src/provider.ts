@@ -436,7 +436,7 @@ class DockerSandboxProvider implements SandboxProvider {
       },
 
       async deleteFile(path: string): Promise<void> {
-        const result = await this.exec(`rm -f ${shellQuote(path)}`)
+        const result = await this.exec(`rm -rf ${shellQuote(path)}`)
         if (result.exitCode !== 0)
           throw new Error(
             t(

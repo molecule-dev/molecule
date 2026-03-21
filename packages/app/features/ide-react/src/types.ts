@@ -131,6 +131,10 @@ export interface FileExplorerProps {
   onRename?: (path: string) => void
   /** Called when the user chooses "Delete" from the context menu. */
   onDelete?: (path: string) => void
+  /** Called when the user deletes multiple selected files/folders via context menu or keyboard. */
+  onDeleteMultiple?: (paths: string[]) => void
+  /** Called when the user moves files via drag-and-drop or cut+paste. */
+  onMoveFiles?: (moves: Array<{ oldPath: string; newPath: string }>) => void
   /** Called when the user chooses "New File" from the context menu. */
   onNewFile?: (dirPath: string) => void
   /** Called when the user chooses "New Folder" from the context menu. */

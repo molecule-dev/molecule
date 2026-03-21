@@ -268,7 +268,7 @@ describe('DockerSandboxProvider', () => {
       const execCall = httpRequestCalls[1]
       const body = JSON.parse(execCall.body!)
       const cmd = body.Cmd.join(' ')
-      expect(cmd).toContain("rm -f 'path'\\''with'\\''quotes'")
+      expect(cmd).toContain("rm -rf 'path'\\''with'\\''quotes'")
     })
 
     it('should use shellQuote in exec with timeout wrapping', async () => {

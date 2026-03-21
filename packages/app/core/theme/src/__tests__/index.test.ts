@@ -59,7 +59,7 @@ describe('Theme Module', () => {
     it('should have semantic colors', () => {
       expect(lightColors.success).toBe('#28a745')
       expect(lightColors.successLight).toBe('#d4edda')
-      expect(lightColors.warning).toBe('#ffc107')
+      expect(lightColors.warning).toBe('#b87a00')
       expect(lightColors.warningLight).toBe('#fff3cd')
       expect(lightColors.error).toBe('#dc3545')
       expect(lightColors.errorLight).toBe('#f8d7da')
@@ -108,9 +108,9 @@ describe('Theme Module', () => {
     it('should have semantic colors', () => {
       expect(darkColors.success).toBe('#28a745')
       expect(darkColors.successLight).toBe('#1e4620')
-      expect(darkColors.warning).toBe('#ffc107')
+      expect(darkColors.warning).toBe('#b88a12')
       expect(darkColors.warningLight).toBe('#4d3800')
-      expect(darkColors.error).toBe('#dc3545')
+      expect(darkColors.error).toBe('#e87080')
       expect(darkColors.errorLight).toBe('#4d1a1f')
       expect(darkColors.info).toBe('#17a2b8')
       expect(darkColors.infoLight).toBe('#0d3d47')

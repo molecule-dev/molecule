@@ -363,6 +363,24 @@ describe('fileDiffStats', () => {
   it('returns null for write_file with no diff', () => {
     expect(fileDiffStats('write_file', {}, {})).toBeNull()
   })
+
+  it('skips replacements with undefined old_string or new_string', () => {
+    const input = {
+      replacements: [
+        { old_string: undefined, new_string: 'b' },
+        { old_string: 'a', new_string: undefined },
+        { old_string: 'x', new_string: 'x\ny' },
+      ],
+    }
+    expect(fileDiffStats('edit_file', input, {})).toEqual({ added: 1, removed: 0 })
+  })
+
+  it('returns null when all replacements have undefined strings', () => {
+    const input = {
+      replacements: [{ old_string: undefined, new_string: undefined }],
+    }
+    expect(fileDiffStats('edit_file', input, {})).toEqual({ added: 0, removed: 0 })
+  })
 })
 
 // ---------------------------------------------------------------------------

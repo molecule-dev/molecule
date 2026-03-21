@@ -69,7 +69,7 @@ const mockTheme: Theme = {
     secondaryDark: '#495057',
     success: '#28a745',
     successLight: '#d4edda',
-    warning: '#ffc107',
+    warning: '#b87a00',
     warningLight: '#fff3cd',
     error: '#dc3545',
     errorLight: '#f8d7da',
@@ -695,7 +695,7 @@ describe('themeToTailwind', () => {
 
     expect(tailwindConfig.colors.success.DEFAULT).toBe('#28a745')
     expect(tailwindConfig.colors.success.light).toBe('#d4edda')
-    expect(tailwindConfig.colors.warning.DEFAULT).toBe('#ffc107')
+    expect(tailwindConfig.colors.warning.DEFAULT).toBe('#b87a00')
     expect(tailwindConfig.colors.error.DEFAULT).toBe('#dc3545')
     expect(tailwindConfig.colors.info.DEFAULT).toBe('#17a2b8')
   })

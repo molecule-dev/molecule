@@ -213,6 +213,10 @@ export class MonacoEditorProvider implements EditorProvider {
   private fixWithAIListeners: Set<(request: FixWithAIRequest) => void> = new Set()
   /** Disposables for Fix with AI registrations (code action provider + context menu action). */
   private fixWithAIDisposables: { dispose(): void }[] = []
+  /** Queued silent content updates, keyed by file path — flushed on the next animation frame. */
+  private pendingSilentUpdates: Map<string, string> = new Map()
+  /** Handle for the scheduled rAF that flushes pendingSilentUpdates, or null if none is pending. */
+  private silentUpdateRaf: number | null = null
 
   constructor(config: MonacoConfig = {}) {
     this.config = {
@@ -355,6 +359,13 @@ export class MonacoEditorProvider implements EditorProvider {
   dispose(): void {
     // Invalidate any in-flight mount() calls
     this.mountGeneration++
+
+    // Cancel any pending batched silent updates
+    if (this.silentUpdateRaf !== null) {
+      cancelAnimationFrame(this.silentUpdateRaf)
+      this.silentUpdateRaf = null
+    }
+    this.pendingSilentUpdates.clear()
 
     // Clean up diff editor if open
     this.closeDiff()
@@ -648,37 +659,54 @@ export class MonacoEditorProvider implements EditorProvider {
     const model = this.monacoModels.get(path)
     if (!model) return
 
-    // Save cursor position for the active file
-    let savedPosition: { lineNumber: number; column: number } | null = null
-    if (path === this.activeFile && this.editor) {
-      savedPosition = this.editor.getPosition()
-    }
+    // Queue the update — if multiple calls arrive for the same file before the
+    // next animation frame, only the last content wins (natural deduplication).
+    this.pendingSilentUpdates.set(path, content)
 
-    // Suppress change listener during setValue (same pattern as openFile).
-    // Only dispose/re-wire if this is the active model — otherwise setValue on a
-    // background model won't trigger onDidChangeModelContent on the editor anyway,
-    // and needlessly disposing the active listener creates a window where user
-    // keystrokes are lost.
-    const isActiveModel = path === this.activeFile && this.editor
-    if (isActiveModel) this.changeDisposable?.dispose()
-    model.setValue(content)
-    if (isActiveModel) this.wireChangeListener()
+    if (this.silentUpdateRaf === null) {
+      this.silentUpdateRaf = requestAnimationFrame(() => {
+        this.silentUpdateRaf = null
+        const updates = new Map(this.pendingSilentUpdates)
+        this.pendingSilentUpdates.clear()
 
-    // Notify LSP so it re-analyzes and clears stale diagnostics
-    if (this.lspClient?.isConnected()) {
-      const uri = this.lspClient.toLspUri(path)
-      const docVersion = (this.documentVersions.get(path) ?? 0) + 1
-      this.documentVersions.set(path, docVersion)
-      this.lspClient.didChange(uri, docVersion, content)
-    }
+        for (const [updatePath, updateContent] of updates) {
+          const updateModel = this.monacoModels.get(updatePath)
+          if (!updateModel) continue
 
-    // Restore cursor, clamped to valid bounds
-    if (savedPosition && this.editor && path === this.activeFile) {
-      const lines = content.split('\n')
-      const line = Math.min(savedPosition.lineNumber, lines.length)
-      const maxCol = (lines[line - 1]?.length ?? 0) + 1
-      const col = Math.min(savedPosition.column, maxCol)
-      this.editor.setPosition({ lineNumber: line, column: col })
+          // Save cursor position for the active file
+          let savedPosition: { lineNumber: number; column: number } | null = null
+          if (updatePath === this.activeFile && this.editor) {
+            savedPosition = this.editor.getPosition()
+          }
+
+          // Suppress change listener during setValue (same pattern as openFile).
+          // Only dispose/re-wire if this is the active model — otherwise setValue on a
+          // background model won't trigger onDidChangeModelContent on the editor anyway,
+          // and needlessly disposing the active listener creates a window where user
+          // keystrokes are lost.
+          const isActiveModel = updatePath === this.activeFile && this.editor
+          if (isActiveModel) this.changeDisposable?.dispose()
+          updateModel.setValue(updateContent)
+          if (isActiveModel) this.wireChangeListener()
+
+          // Notify LSP so it re-analyzes and clears stale diagnostics
+          if (this.lspClient?.isConnected()) {
+            const uri = this.lspClient.toLspUri(updatePath)
+            const docVersion = (this.documentVersions.get(updatePath) ?? 0) + 1
+            this.documentVersions.set(updatePath, docVersion)
+            this.lspClient.didChange(uri, docVersion, updateContent)
+          }
+
+          // Restore cursor, clamped to valid bounds
+          if (savedPosition && this.editor && updatePath === this.activeFile) {
+            const lines = updateContent.split('\n')
+            const line = Math.min(savedPosition.lineNumber, lines.length)
+            const maxCol = (lines[line - 1]?.length ?? 0) + 1
+            const col = Math.min(savedPosition.column, maxCol)
+            this.editor.setPosition({ lineNumber: line, column: col })
+          }
+        }
+      })
     }
   }
 

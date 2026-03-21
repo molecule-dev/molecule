@@ -41,7 +41,7 @@ export const lightColors: ThemeColors = {
 
   success: '#28a745',
   successLight: '#d4edda',
-  warning: '#ffc107',
+  warning: '#b87a00',
   warningLight: '#fff3cd',
   error: '#dc3545',
   errorLight: '#f8d7da',
@@ -81,9 +81,9 @@ export const darkColors: ThemeColors = {
 
   success: '#28a745',
   successLight: '#1e4620',
-  warning: '#ffc107',
+  warning: '#b88a12',
   warningLight: '#4d3800',
-  error: '#dc3545',
+  error: '#e87080',
   errorLight: '#4d1a1f',
   info: '#17a2b8',
   infoLight: '#0d3d47',

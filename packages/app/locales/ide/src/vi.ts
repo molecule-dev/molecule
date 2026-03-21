@@ -149,6 +149,11 @@ export const vi: IdeTranslations = {
   'ide.contextMenu.copyPath': 'Sao ch\u00E9p \u0111\u01B0\u1EDDng d\u1EABn',
   'ide.contextMenu.copyRelativePath':
     'Sao ch\u00E9p \u0111\u01B0\u1EDDng d\u1EABn t\u01B0\u01A1ng \u0111\u1ED1i',
+  'ide.contextMenu.deleteCount': 'Delete {{count}} Items',
+  'ide.contextMenu.copyPaths': 'Copy Paths',
+  'ide.contextMenu.copyRelativePaths': 'Copy Relative Paths',
+  'ide.contextMenu.cut': 'Cut',
+  'ide.contextMenu.paste': 'Paste',
   'ide.contextMenu.collapseAll': 'Thu g\u1ECDn t\u1EA5t c\u1EA3',
   'ide.commandPalette.placeholder': 'Nh\u1EADp l\u1EC7nh\u2026',
   'ide.formatting': '\u0110ang \u0111\u1ECBnh d\u1EA1ng\u2026',

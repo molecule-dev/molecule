@@ -14,21 +14,23 @@ import { cva } from './utilities.js'
  * Button component classes.
  */
 export const button = cva(
-  'inline-flex items-center justify-center gap-1 rounded-[3px] text-[15px] font-normal uppercase cursor-pointer transition-all duration-250 ease-in-out focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center gap-1 rounded-[3px] text-[15px] font-normal cursor-pointer transition-all duration-250 ease-in-out focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
         default:
-          'bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 hover:border-primary/50 active:bg-primary/35',
+          'bg-primary/25 text-primary border border-primary/50 hover:bg-primary/40 hover:border-primary/65 active:bg-primary/55',
         secondary:
-          'bg-secondary/15 text-secondary border border-secondary/30 hover:bg-secondary/25 hover:border-secondary/50 active:bg-secondary/35',
+          'bg-secondary/25 text-secondary border border-secondary/50 hover:bg-secondary/40 hover:border-secondary/65 active:bg-secondary/55',
         success:
-          'bg-success/15 text-success border border-success/30 hover:bg-success/25 hover:border-success/50 active:bg-success/35',
+          'bg-success/25 text-success border border-success/50 hover:bg-success/40 hover:border-success/65 active:bg-success/55',
         outline: 'bg-transparent text-foreground hover:bg-surface-secondary',
         ghost: 'bg-transparent text-foreground hover:bg-surface-secondary',
-        link: 'bg-transparent text-primary normal-case underline-offset-4 hover:underline',
+        link: 'bg-transparent text-primary underline-offset-4 hover:underline',
+        warning:
+          'bg-warning/25 text-warning border border-warning/50 hover:bg-warning/40 hover:border-warning/65 active:bg-warning/55',
         danger:
-          'bg-error/15 text-error border border-error/30 hover:bg-error/25 hover:border-error/50 active:bg-error/35',
+          'bg-error/25 text-error border border-error/50 hover:bg-error/40 hover:border-error/65 active:bg-error/55',
       },
       size: {
         sm: 'h-[26px] px-2.5 text-[13px]',
@@ -717,7 +719,7 @@ export const floatingInputWrapper = 'relative inline-block align-middle w-full'
 export const floatingInput = 'peer'
 /** Floating label classes (absolute positioned, animated on focus). */
 export const floatingLabel =
-  'absolute top-0 left-0 right-0 w-full p-[3px] text-[11px] leading-none whitespace-nowrap text-foreground uppercase pointer-events-none transition-all duration-250 peer-hover:bg-input-background peer-focus:text-primary peer-focus:[text-shadow:0_0_var(--color-primary)] peer-focus:bg-input-background'
+  'absolute top-0 left-0 right-0 w-full p-[3px] text-[11px] leading-none whitespace-nowrap text-foreground pointer-events-none transition-all duration-250 peer-hover:bg-input-background peer-focus:text-primary peer-focus:[text-shadow:0_0_var(--color-primary)] peer-focus:bg-input-background'
 
 /** Input wrapper classes. */
 export const inputWrapper = 'w-full'
@@ -941,8 +943,8 @@ export const roundedFull = 'rounded-full'
 /** Text right-alignment utility class. */
 export const textRight = 'text-right'
 
-/** Logo text classes (lowercase, tracked, 26px). */
-export const logoText = 'text-[26px] leading-[26px] tracking-[-1px] lowercase'
+/** Logo text classes (tracked, 26px). */
+export const logoText = 'text-[26px] leading-[26px] tracking-[-1px]'
 /**
  * Tailwind class for the logo icon color.
  */
