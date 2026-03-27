@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-notification",
   "version": "1.0.0",
-  "description": "",
+  "description": "Notification resource handlers for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,24 +21,18 @@
   ],
   "keywords": [
     "molecule",
-    "notification"
+    "notification",
+    "resource"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-notification-center": "1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-notification-center": "1.0.0",
+    "@types/express": "5.0.6",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
-  },
-  "peerDependencies": {
-    "@molecule/api-database": "^1.0.0",
-    "@molecule/api-resource": "^1.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@molecule/api-resource": {
-      "optional": true
-    },
-    "@molecule/api-database": {
-      "optional": true
-    }
   }
 }

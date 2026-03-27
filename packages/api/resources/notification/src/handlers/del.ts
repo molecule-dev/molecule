@@ -1,18 +1,22 @@
+/**
+ * Delete notification handler.
+ *
+ * DELETE /notifications/:id — deletes a notification.
+ *
+ * @module
+ */
+
 import type { Request, Response } from 'express'
 
-import { deleteById } from '@molecule/api-database'
-import { t } from '@molecule/api-i18n'
+import { deleteNotification } from '@molecule/api-notification-center'
 
 /**
+ * Handles DELETE /notifications/:id requests.
  *
- * @param req
- * @param res
+ * @param req - Express request with notification id param.
+ * @param res - Express response.
  */
-export async function del(req: Request, res: Response): Promise<void> {
-  const result = await deleteById('notifications', req.params.id)
-  if (result.affected === 0)
-    return res
-      .status(404)
-      .json({ error: t('resource.error.notFound', undefined, { defaultValue: 'Not found' }) })
+export async function del(req: Request<{ id: string }>, res: Response): Promise<void> {
+  await deleteNotification(req.params.id)
   res.status(204).end()
 }
