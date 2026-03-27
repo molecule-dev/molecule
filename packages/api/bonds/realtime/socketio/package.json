@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-realtime-socketio",
   "version": "1.0.0",
-  "description": "",
+  "description": "Socket.io realtime provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,12 +22,31 @@
   "keywords": [
     "molecule",
     "realtime",
-    "socketio"
+    "socketio",
+    "websocket",
+    "provider"
   ],
   "license": "MIT",
+  "dependencies": {
+    "socket.io": "4.8.3"
+  },
+  "peerDependencies": {
+    "@molecule/api-realtime": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-realtime": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/realtime/socketio"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/realtime/socketio",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }
