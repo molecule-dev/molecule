@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-realtime-socketio",
   "version": "1.0.0",
-  "description": "",
+  "description": "Socket.io provider for @molecule/app-realtime",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,10 +22,15 @@
   "keywords": [
     "molecule",
     "realtime",
-    "socketio"
+    "socketio",
+    "websocket"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-realtime": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-realtime": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
