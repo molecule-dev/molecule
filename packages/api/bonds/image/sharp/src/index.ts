@@ -1,8 +1,20 @@
 /**
- * Sharp image-sharp provider for molecule.dev.
+ * Sharp image provider for molecule.dev.
+ *
+ * High-performance, native image processing powered by libvips via Sharp.
+ * Supports resize, crop, format conversion, thumbnailing, optimization,
+ * rotation, flip, and flop operations.
+ *
+ * @example
+ * ```typescript
+ * import { setProvider } from '@molecule/api-image'
+ * import { provider } from '@molecule/api-image-sharp'
+ *
+ * setProvider(provider)
+ * ```
  *
  * @module
  */
 
-export { createProvider, SharpImageProvider } from './provider.js'
+export * from './provider.js'
 export * from './types.js'
