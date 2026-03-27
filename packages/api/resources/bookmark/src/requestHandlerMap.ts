@@ -7,16 +7,16 @@
 import { create } from './handlers/create.js'
 import { del } from './handlers/del.js'
 import { list } from './handlers/list.js'
-import { read } from './handlers/read.js'
-import { update } from './handlers/update.js'
+import { check } from './handlers/read.js'
+import { folders } from './handlers/update.js'
 
 /**
- *
+ * Handler map for bookmark routes.
  */
 export const requestHandlerMap = {
   create,
   list,
-  read,
-  update,
+  check,
+  folders,
   del,
 } as const
