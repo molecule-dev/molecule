@@ -3,15 +3,15 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import type { OrderItemRow, OrderRow } from '../types.js'
-import { assembleOrder } from '../utilities.js'
+import type { OrderEventRow, OrderRow } from '../types.js'
+import { toOrderEvent } from '../utilities.js'
 
 /**
- * Retrieves a single order by ID. Only the order owner can read it.
+ * Returns the event history for an order. Only the order owner can view history.
  * @param req - The request with `params.id`.
  * @param res - The response object.
  */
-export async function read(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+export async function getHistory(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
   const userId = (res.locals.session as { userId?: string } | undefined)?.userId
   if (!userId) {
     res.status(401).json({
@@ -42,16 +42,19 @@ export async function read(req: MoleculeRequest, res: MoleculeResponse): Promise
       return
     }
 
-    const itemRows = await findMany<OrderItemRow>('order_items', {
-      where: [{ field: 'orderId', operator: '=', value: orderRow.id }],
+    const eventRows = await findMany<OrderEventRow>('order_events', {
+      where: [{ field: 'orderId', operator: '=' as const, value: orderRow.id }],
+      orderBy: [{ field: 'createdAt', direction: 'asc' }],
     })
 
-    res.json(assembleOrder(orderRow, itemRows))
+    res.json(eventRows.map(toOrderEvent))
   } catch (error) {
-    logger.error('Failed to read order', { orderId: req.params.id, error })
+    logger.error('Failed to get order history', { orderId: req.params.id, error })
     res.status(500).json({
-      error: t('order.error.readFailed', undefined, { defaultValue: 'Failed to read order' }),
-      errorKey: 'order.error.readFailed',
+      error: t('order.error.historyFailed', undefined, {
+        defaultValue: 'Failed to get order history',
+      }),
+      errorKey: 'order.error.historyFailed',
     })
   }
 }
