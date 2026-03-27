@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-data-table",
   "version": "1.0.0",
-  "description": "",
+  "description": "Data table core interface for molecule.dev — sorting, filtering, pagination, selection",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,13 +21,22 @@
   ],
   "keywords": [
     "molecule",
-    "data",
-    "table"
+    "data-table",
+    "grid",
+    "sorting",
+    "pagination"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-bond": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-bond": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
