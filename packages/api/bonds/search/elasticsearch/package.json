@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-search-elasticsearch",
   "version": "1.0.0",
-  "description": "",
+  "description": "Elasticsearch search provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,12 +22,30 @@
   "keywords": [
     "molecule",
     "search",
-    "elasticsearch"
+    "elasticsearch",
+    "opensearch"
   ],
   "license": "MIT",
+  "dependencies": {
+    "@elastic/elasticsearch": "9.3.4"
+  },
+  "peerDependencies": {
+    "@molecule/api-search": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-search": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/search/elasticsearch"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/search/elasticsearch",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }
