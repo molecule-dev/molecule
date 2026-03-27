@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-data-table-tanstack",
   "version": "1.0.0",
-  "description": "",
+  "description": "TanStack Table provider for @molecule/app-data-table",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,7 +26,14 @@
     "tanstack"
   ],
   "license": "MIT",
+  "dependencies": {
+    "@tanstack/table-core": "8.21.3"
+  },
+  "peerDependencies": {
+    "@molecule/app-data-table": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-data-table": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
