@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-geolocation",
   "version": "1.0.0",
-  "description": "",
+  "description": "Geolocation core interface for molecule.dev — geocoding, reverse geocoding, distance calculation, autocomplete, and timezone lookups",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,12 +21,33 @@
   ],
   "keywords": [
     "molecule",
-    "geolocation"
+    "geolocation",
+    "geocoding",
+    "reverse-geocode",
+    "distance",
+    "autocomplete",
+    "timezone"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/geolocation"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/geolocation",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }
