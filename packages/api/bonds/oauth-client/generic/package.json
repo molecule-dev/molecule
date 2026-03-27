@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-oauth-client-generic",
   "version": "1.0.0",
-  "description": "",
+  "description": "Generic OAuth 2.0 client provider for molecule.dev — standard authorization code flow with PKCE support",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,13 +22,29 @@
   "keywords": [
     "molecule",
     "oauth",
+    "oauth2",
     "client",
-    "generic"
+    "generic",
+    "authorization"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-oauth-client": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-oauth-client": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/oauth-client/generic"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/oauth-client/generic",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }
