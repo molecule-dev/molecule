@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-cron-node-cron",
   "version": "1.0.0",
-  "description": "",
+  "description": "node-cron scheduling provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,13 +22,30 @@
   "keywords": [
     "molecule",
     "cron",
-    "node",
-    "cron"
+    "node-cron",
+    "scheduler"
   ],
   "license": "MIT",
+  "dependencies": {
+    "node-cron": "4.2.1"
+  },
+  "peerDependencies": {
+    "@molecule/api-cron": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-cron": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/cron/node-cron"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/cron/node-cron",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }
