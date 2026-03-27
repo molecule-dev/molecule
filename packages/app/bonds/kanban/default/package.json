@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-kanban-default",
   "version": "1.0.0",
-  "description": "",
+  "description": "Default provider for @molecule/app-kanban — in-memory kanban board state management",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,7 +25,11 @@
     "default"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-kanban": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-kanban": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
