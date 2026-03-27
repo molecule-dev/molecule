@@ -4,19 +4,25 @@
  * @module
  */
 
-import { create } from './handlers/create.js'
-import { del } from './handlers/del.js'
-import { list } from './handlers/list.js'
-import { read } from './handlers/read.js'
-import { update } from './handlers/update.js'
+import { addItem } from './handlers/addItem.js'
+import { applyCoupon } from './handlers/applyCoupon.js'
+import { clearCart } from './handlers/clearCart.js'
+import { getCart } from './handlers/getCart.js'
+import { getCartSummary } from './handlers/getCartSummary.js'
+import { removeCoupon } from './handlers/removeCoupon.js'
+import { removeItem } from './handlers/removeItem.js'
+import { updateQuantity } from './handlers/updateQuantity.js'
 
 /**
- *
+ * Handler map for the cart resource routes.
  */
 export const requestHandlerMap = {
-  create,
-  list,
-  read,
-  update,
-  del,
+  getCart,
+  addItem,
+  updateQuantity,
+  removeItem,
+  clearCart,
+  applyCoupon,
+  removeCoupon,
+  getCartSummary,
 } as const
