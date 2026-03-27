@@ -1,5 +1,5 @@
 /**
- * Delete review handler.
+ * Mark review as helpful handler.
  *
  * @module
  */
@@ -8,15 +8,15 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import { deleteReview } from '../service.js'
+import { markHelpful } from '../service.js'
 
 /**
- * Deletes a review. Only the review owner can delete.
+ * Marks a review as helpful. Idempotent — duplicate votes are silently ignored.
  *
  * @param req - The request with `reviewId` param.
  * @param res - The response object.
  */
-export async function del(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+export async function helpful(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
   const userId = (res.locals.session as { userId?: string } | undefined)?.userId
   if (!userId) {
     res.status(401).json({
@@ -36,22 +36,15 @@ export async function del(req: MoleculeRequest, res: MoleculeResponse): Promise<
   }
 
   try {
-    const deleted = await deleteReview(reviewId, userId)
-    if (!deleted) {
-      res.status(404).json({
-        error: t('resource.error.notFound', undefined, { defaultValue: 'Not found' }),
-        errorKey: 'resource.error.notFound',
-      })
-      return
-    }
+    await markHelpful(reviewId, userId)
     res.status(204).end()
   } catch (error) {
-    logger.error('Failed to delete review', { reviewId, userId, error })
+    logger.error('Failed to mark review helpful', { reviewId, userId, error })
     res.status(500).json({
-      error: t('review.error.deleteFailed', undefined, {
-        defaultValue: 'Failed to delete review',
+      error: t('review.error.helpfulFailed', undefined, {
+        defaultValue: 'Failed to mark review as helpful',
       }),
-      errorKey: 'review.error.deleteFailed',
+      errorKey: 'review.error.helpfulFailed',
     })
   }
 }

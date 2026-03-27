@@ -7,12 +7,34 @@
  */
 
 /**
- *
+ * Routes for review CRUD, rating statistics, and helpfulness voting.
  */
 export const routes = [
-  { method: 'post', path: '/reviews', handler: 'create' },
-  { method: 'get', path: '/reviews', handler: 'list' },
-  { method: 'get', path: '/reviews/:id', handler: 'read' },
-  { method: 'patch', path: '/reviews/:id', handler: 'update' },
-  { method: 'delete', path: '/reviews/:id', handler: 'del' },
+  {
+    method: 'post',
+    path: '/:resourceType/:resourceId/reviews',
+    handler: 'create',
+    middlewares: ['authenticate'],
+  },
+  { method: 'get', path: '/:resourceType/:resourceId/reviews', handler: 'list' },
+  { method: 'get', path: '/:resourceType/:resourceId/reviews/rating', handler: 'averageRating' },
+  { method: 'get', path: '/reviews/:reviewId', handler: 'read' },
+  {
+    method: 'put',
+    path: '/reviews/:reviewId',
+    handler: 'update',
+    middlewares: ['authenticate'],
+  },
+  {
+    method: 'delete',
+    path: '/reviews/:reviewId',
+    handler: 'del',
+    middlewares: ['authenticate'],
+  },
+  {
+    method: 'post',
+    path: '/reviews/:reviewId/helpful',
+    handler: 'helpful',
+    middlewares: ['authenticate'],
+  },
 ] as const
