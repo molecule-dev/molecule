@@ -1,44 +1,53 @@
 /**
- * Sms provider singleton.
+ * SMS provider bond accessor.
  *
- * Bond packages call set() during setup.
- * Application code calls get()/require() at runtime.
+ * Bond packages (e.g. `@molecule/api-sms-twilio`) call `setProvider()`
+ * during setup. Application code uses the convenience functions from `sms.ts`.
  *
  * @module
  */
 
-import type { SmsProvider } from './types.js'
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
+import { t } from '@molecule/api-i18n'
 
-let _provider: SmsProvider | null = null
+import type { SMSProvider } from './types.js'
+
+const BOND_TYPE = 'sms'
+expectBond(BOND_TYPE)
 
 /**
+ * Registers an SMS provider as the active singleton. Called by bond
+ * packages during application startup.
  *
- * @param provider
+ * @param provider - The SMS provider implementation to bond.
  */
-export function setProvider(provider: SmsProvider): void {
-  _provider = provider
+export const setProvider = (provider: SMSProvider): void => {
+  bond(BOND_TYPE, provider)
 }
 
 /**
+ * Retrieves the bonded SMS provider, throwing if none is configured.
  *
+ * @returns The bonded SMS provider.
+ * @throws {Error} If no SMS provider has been bonded.
  */
-export function getProvider(): SmsProvider | null {
-  return _provider
-}
-
-/**
- *
- */
-export function hasProvider(): boolean {
-  return _provider !== null
-}
-
-/**
- *
- */
-export function requireProvider(): SmsProvider {
-  if (!_provider) {
-    throw new Error('Sms provider not configured. Bond a sms provider first.')
+export const getProvider = (): SMSProvider => {
+  try {
+    return bondRequire<SMSProvider>(BOND_TYPE)
+  } catch {
+    throw new Error(
+      t('sms.error.noProvider', undefined, {
+        defaultValue: 'SMS provider not configured. Call setProvider() first.',
+      }),
+    )
   }
-  return _provider
+}
+
+/**
+ * Checks whether an SMS provider is currently bonded.
+ *
+ * @returns `true` if an SMS provider is bonded.
+ */
+export const hasProvider = (): boolean => {
+  return isBonded(BOND_TYPE)
 }
