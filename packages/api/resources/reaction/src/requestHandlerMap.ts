@@ -7,16 +7,12 @@
 import { create } from './handlers/create.js'
 import { del } from './handlers/del.js'
 import { list } from './handlers/list.js'
-import { read } from './handlers/read.js'
-import { update } from './handlers/update.js'
 
 /**
- *
+ * Handler map for reaction routes.
  */
 export const requestHandlerMap = {
   create,
-  list,
-  read,
-  update,
   del,
+  list,
 } as const

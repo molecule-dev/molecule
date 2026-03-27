@@ -7,12 +7,20 @@
  */
 
 /**
- *
+ * Routes for reaction add/remove/summary.
  */
 export const routes = [
-  { method: 'post', path: '/reactions', handler: 'create' },
-  { method: 'get', path: '/reactions', handler: 'list' },
-  { method: 'get', path: '/reactions/:id', handler: 'read' },
-  { method: 'patch', path: '/reactions/:id', handler: 'update' },
-  { method: 'delete', path: '/reactions/:id', handler: 'del' },
+  {
+    method: 'post',
+    path: '/:resourceType/:resourceId/reactions',
+    handler: 'create',
+    middlewares: ['authenticate'],
+  },
+  {
+    method: 'delete',
+    path: '/:resourceType/:resourceId/reactions',
+    handler: 'del',
+    middlewares: ['authenticate'],
+  },
+  { method: 'get', path: '/:resourceType/:resourceId/reactions', handler: 'list' },
 ] as const

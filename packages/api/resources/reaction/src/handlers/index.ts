@@ -1,5 +1,3 @@
-export { create } from './create.js'
-export { del } from './del.js'
-export { list } from './list.js'
-export { read } from './read.js'
-export { update } from './update.js'
+export * from './create.js'
+export * from './del.js'
+export * from './list.js'
