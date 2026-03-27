@@ -7,12 +7,41 @@
  */
 
 /**
- *
+ * Booking routes. Supports availability checking, CRUD, lifecycle transitions,
+ * and resource-scoped listing.
  */
 export const routes = [
-  { method: 'post', path: '/bookings', handler: 'create' },
-  { method: 'get', path: '/bookings', handler: 'list' },
-  { method: 'get', path: '/bookings/:id', handler: 'read' },
-  { method: 'patch', path: '/bookings/:id', handler: 'update' },
-  { method: 'delete', path: '/bookings/:id', handler: 'del' },
+  {
+    method: 'get',
+    path: '/bookings/availability/:resourceType/:resourceId',
+    handler: 'checkAvailability',
+    middlewares: ['authenticate'],
+  },
+  { method: 'post', path: '/bookings', handler: 'book', middlewares: ['authenticate'] },
+  { method: 'get', path: '/bookings', handler: 'getBookings', middlewares: ['authenticate'] },
+  { method: 'get', path: '/bookings/:id', handler: 'getById', middlewares: ['authenticate'] },
+  {
+    method: 'post',
+    path: '/bookings/:id/cancel',
+    handler: 'cancel',
+    middlewares: ['authenticate'],
+  },
+  {
+    method: 'put',
+    path: '/bookings/:id/reschedule',
+    handler: 'reschedule',
+    middlewares: ['authenticate'],
+  },
+  {
+    method: 'post',
+    path: '/bookings/:id/confirm',
+    handler: 'confirm',
+    middlewares: ['authenticate'],
+  },
+  {
+    method: 'post',
+    path: '/bookings/:id/complete',
+    handler: 'complete',
+    middlewares: ['authenticate'],
+  },
 ] as const
