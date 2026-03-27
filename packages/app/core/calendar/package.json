@@ -1,7 +1,7 @@
 {
-  "name": "@molecule/app-device-calendar",
+  "name": "@molecule/app-calendar",
   "version": "1.0.0",
-  "description": "Calendar access interface for molecule.dev",
+  "description": "Calendar core interface for molecule.dev — month, week, day, and agenda views with drag-and-drop event editing",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,13 +23,11 @@
     "molecule",
     "calendar",
     "events",
-    "schedule",
-    "native"
+    "scheduler"
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@molecule/app-bond": "^1.0.0",
-    "@molecule/app-i18n": "^1.0.0"
+    "@molecule/app-bond": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/app-bond": "1.0.0",
@@ -37,13 +35,6 @@
     "typescript": "5.9.3",
     "vitest": "4.1.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/app/native/calendar"
-  },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/native/calendar",
-  "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"
   }
