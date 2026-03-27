@@ -4,19 +4,25 @@
  * @module
  */
 
-import { create } from './handlers/create.js'
-import { del } from './handlers/del.js'
-import { list } from './handlers/list.js'
-import { read } from './handlers/read.js'
-import { update } from './handlers/update.js'
+import { bulkUpdate } from './handlers/bulkUpdate.js'
+import { confirm } from './handlers/confirm.js'
+import { getAlerts } from './handlers/getAlerts.js'
+import { getMovements } from './handlers/getMovements.js'
+import { getStock } from './handlers/getStock.js'
+import { release } from './handlers/release.js'
+import { reserve } from './handlers/reserve.js'
+import { updateStock } from './handlers/updateStock.js'
 
 /**
- *
+ * Handler map for the inventory resource routes.
  */
 export const requestHandlerMap = {
-  create,
-  list,
-  read,
-  update,
-  del,
+  getStock,
+  updateStock,
+  reserve,
+  release,
+  confirm,
+  getAlerts,
+  getMovements,
+  bulkUpdate,
 } as const
