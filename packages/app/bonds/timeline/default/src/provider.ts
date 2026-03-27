@@ -1,26 +1,69 @@
 /**
- * Default implementation of TimelineProvider.
+ * Default timeline provider implementation.
  *
  * @module
  */
 
-import type { DefaultConfig } from './types.js'
+import type {
+  TimelineInstance,
+  TimelineItem,
+  TimelineOptions,
+  TimelineProvider,
+} from '@molecule/app-timeline'
+
+import type { DefaultTimelineConfig } from './types.js'
 
 /**
+ * Creates a default timeline provider.
  *
+ * @param config - Optional provider configuration.
+ * @returns A configured TimelineProvider.
  */
-export class DefaultTimelineProvider {
-  readonly name = 'default'
+export function createProvider(config?: DefaultTimelineConfig): TimelineProvider {
+  const sortByDate = config?.sortByDate ?? true
 
-  constructor(private config: DefaultConfig) {
-    // TODO: Initialize provider
+  return {
+    name: 'default',
+
+    createTimeline(options: TimelineOptions): TimelineInstance {
+      let items = [...options.items]
+
+      if (sortByDate) {
+        items.sort((a, b) => a.date.getTime() - b.date.getTime())
+      }
+
+      return {
+        setItems(newItems: TimelineItem[]): void {
+          items = sortByDate
+            ? [...newItems].sort((a, b) => a.date.getTime() - b.date.getTime())
+            : [...newItems]
+        },
+
+        addItem(item: TimelineItem): void {
+          items.push(item)
+          if (sortByDate) {
+            items.sort((a, b) => a.date.getTime() - b.date.getTime())
+          }
+        },
+
+        removeItem(id: string): boolean {
+          const index = items.findIndex((item) => item.id === id)
+          if (index === -1) return false
+          items.splice(index, 1)
+          return true
+        },
+
+        getItems(): TimelineItem[] {
+          return [...items]
+        },
+
+        destroy(): void {
+          items = []
+        },
+      }
+    },
   }
 }
 
-/**
- *
- * @param config
- */
-export function createProvider(config: DefaultConfig): DefaultTimelineProvider {
-  return new DefaultTimelineProvider(config)
-}
+/** Default timeline provider instance. */
+export const provider: TimelineProvider = createProvider()

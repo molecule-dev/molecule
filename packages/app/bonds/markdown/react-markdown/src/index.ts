@@ -1,8 +1,19 @@
 /**
- * Markdown markdown-react-markdown provider for molecule.dev.
+ * react-markdown provider for @molecule/app-markdown.
+ *
+ * Provides a regex-based markdown-to-HTML renderer conforming to
+ * the molecule markdown provider interface.
  *
  * @module
+ *
+ * @example
+ * ```typescript
+ * import { provider } from '@molecule/app-markdown-react-markdown'
+ * import { setProvider } from '@molecule/app-markdown'
+ *
+ * setProvider(provider)
+ * ```
  */
 
-export { createProvider, MarkdownMarkdownProvider } from './provider.js'
+export * from './provider.js'
 export * from './types.js'

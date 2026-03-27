@@ -1,13 +1,16 @@
 /**
- * Hotkeys Keyboard provider configuration.
+ * Configuration for the hotkeys provider.
  *
  * @module
  */
 
 /**
- *
+ * Provider-specific configuration options.
  */
 export interface HotkeysConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+  /** Default scope for shortcuts. Defaults to `'all'`. */
+  defaultScope?: string
+
+  /** Whether shortcuts are enabled initially. Defaults to `true`. */
+  enabled?: boolean
 }

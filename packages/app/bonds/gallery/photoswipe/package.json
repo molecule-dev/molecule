@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-gallery-photoswipe",
   "version": "1.0.0",
-  "description": "",
+  "description": "PhotoSwipe provider for @molecule/app-gallery",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,7 +25,15 @@
     "photoswipe"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "directory": "packages/app/bonds/gallery/photoswipe"
+  },
+  "peerDependencies": {
+    "@molecule/app-gallery": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-gallery": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

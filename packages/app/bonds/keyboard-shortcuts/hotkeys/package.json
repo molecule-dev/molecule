@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-keyboard-shortcuts-hotkeys",
   "version": "1.0.0",
-  "description": "",
+  "description": "hotkeys-js provider for @molecule/app-keyboard-shortcuts",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,7 +26,15 @@
     "hotkeys"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "directory": "packages/app/bonds/keyboard-shortcuts/hotkeys"
+  },
+  "peerDependencies": {
+    "@molecule/app-keyboard-shortcuts": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-keyboard-shortcuts": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

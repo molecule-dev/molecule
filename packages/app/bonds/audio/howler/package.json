@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-audio-howler",
   "version": "1.0.0",
-  "description": "",
+  "description": "Howler.js provider for @molecule/app-audio",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,7 +25,16 @@
     "howler"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicholasgriffintn/molecule.git",
+    "directory": "packages/app/bonds/audio/howler"
+  },
+  "peerDependencies": {
+    "@molecule/app-audio": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-audio": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

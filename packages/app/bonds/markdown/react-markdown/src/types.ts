@@ -1,13 +1,16 @@
 /**
- * Markdown Markdown provider configuration.
+ * Configuration for the react-markdown provider.
  *
  * @module
  */
 
 /**
- *
+ * Provider-specific configuration options.
  */
-export interface MarkdownConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+export interface ReactMarkdownConfig {
+  /** Whether to sanitize HTML by default. Defaults to `true`. */
+  sanitize?: boolean
+
+  /** Whether to enable GFM by default. Defaults to `true`. */
+  gfm?: boolean
 }

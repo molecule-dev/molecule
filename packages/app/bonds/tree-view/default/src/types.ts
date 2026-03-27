@@ -1,13 +1,13 @@
 /**
- * Default Tree provider configuration.
+ * Configuration for the default tree view provider.
  *
  * @module
  */
 
 /**
- *
+ * Provider-specific configuration options.
  */
-export interface DefaultConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+export interface DefaultTreeViewConfig {
+  /** Whether to expand all nodes by default. Defaults to `false`. */
+  expandAll?: boolean
 }

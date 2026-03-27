@@ -1,13 +1,13 @@
 /**
- * Default Color provider configuration.
+ * Configuration for the default color picker provider.
  *
  * @module
  */
 
 /**
- *
+ * Provider-specific configuration options.
  */
-export interface DefaultConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+export interface DefaultColorPickerConfig {
+  /** Default color format. Defaults to `'hex'`. */
+  format?: 'hex' | 'rgb' | 'hsl'
 }

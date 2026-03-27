@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-markdown-react-markdown",
   "version": "1.0.0",
-  "description": "",
+  "description": "react-markdown provider for @molecule/app-markdown",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,11 +22,18 @@
   "keywords": [
     "molecule",
     "markdown",
-    "react",
-    "markdown"
+    "react"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "directory": "packages/app/bonds/markdown/react-markdown"
+  },
+  "peerDependencies": {
+    "@molecule/app-markdown": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-markdown": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
