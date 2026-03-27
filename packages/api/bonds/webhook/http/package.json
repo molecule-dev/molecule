@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-webhook-http",
   "version": "1.0.0",
-  "description": "",
+  "description": "HTTP webhook provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,7 +25,11 @@
     "http"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-webhook": "1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-webhook": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
