@@ -104,21 +104,29 @@ describe('handlebars template provider', () => {
 
     it('should use per-render helpers', async () => {
       const p = createProvider()
-      const result = await p.render('{{whisper name}}', { name: 'HELLO' }, {
-        helpers: {
-          whisper: (val: unknown): string => String(val).toLowerCase(),
+      const result = await p.render(
+        '{{whisper name}}',
+        { name: 'HELLO' },
+        {
+          helpers: {
+            whisper: (val: unknown): string => String(val).toLowerCase(),
+          },
         },
-      })
+      )
       expect(result).toBe('hello')
     })
 
     it('should use per-render partials', async () => {
       const p = createProvider()
-      const result = await p.render('{{> footer}}', { year: 2026 }, {
-        partials: {
-          footer: 'Copyright {{year}}',
+      const result = await p.render(
+        '{{> footer}}',
+        { year: 2026 },
+        {
+          partials: {
+            footer: 'Copyright {{year}}',
+          },
         },
-      })
+      )
       expect(result).toBe('Copyright 2026')
     })
   })

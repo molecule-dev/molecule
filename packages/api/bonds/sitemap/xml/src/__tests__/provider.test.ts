@@ -69,9 +69,7 @@ describe('xml sitemap provider', () => {
       const p = createProvider()
       p.addUrl({
         loc: 'https://example.com/',
-        images: [
-          { loc: 'https://example.com/img.jpg', caption: 'A photo', title: 'Photo' },
-        ],
+        images: [{ loc: 'https://example.com/img.jpg', caption: 'A photo', title: 'Photo' }],
       })
       const xml = await p.generate()
       expect(xml).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"')

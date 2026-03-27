@@ -87,9 +87,7 @@ export const createProvider = (config: XmlSitemapConfig = {}): SitemapProvider =
 
       const namespaces = [
         'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
-        urls.some((u) => u.alternates?.length)
-          ? 'xmlns:xhtml="http://www.w3.org/1999/xhtml"'
-          : '',
+        urls.some((u) => u.alternates?.length) ? 'xmlns:xhtml="http://www.w3.org/1999/xhtml"' : '',
         urls.some((u) => u.images?.length)
           ? 'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"'
           : '',

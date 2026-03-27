@@ -60,7 +60,11 @@ export const createProvider = (config: MjmlTemplateConfig = {}): TemplateProvide
    * @param options - Optional rendering configuration.
    * @returns The rendered responsive HTML string.
    */
-  const renderMjml = (mjmlSource: string, data: Record<string, unknown>, options?: RenderOptions): string => {
+  const renderMjml = (
+    mjmlSource: string,
+    data: Record<string, unknown>,
+    options?: RenderOptions,
+  ): string => {
     const localEnv = applyLocalOptions(env, options)
     const noEscape = options?.escape === false
     const interpolated = localEnv.compile(mjmlSource, { noEscape })(data)
@@ -127,8 +131,11 @@ const applyLocalOptions = (
 
   const local = Handlebars.create()
 
-  const parentHelpers = (parent as unknown as { helpers: Record<string, Handlebars.HelperDelegate> }).helpers
-  const parentPartials = (parent as unknown as { partials: Record<string, Handlebars.Template> }).partials
+  const parentHelpers = (
+    parent as unknown as { helpers: Record<string, Handlebars.HelperDelegate> }
+  ).helpers
+  const parentPartials = (parent as unknown as { partials: Record<string, Handlebars.Template> })
+    .partials
 
   for (const [name, helper] of Object.entries(parentHelpers)) {
     local.registerHelper(name, helper)

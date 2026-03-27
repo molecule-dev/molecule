@@ -131,15 +131,15 @@ describe('sitemap provider', () => {
     })
 
     it('should throw on rss when no provider is set', async () => {
-      await expect(
-        rss({ title: '', description: '', link: '', items: [] }),
-      ).rejects.toThrow('Sitemap provider not configured. Call setProvider() first.')
+      await expect(rss({ title: '', description: '', link: '', items: [] })).rejects.toThrow(
+        'Sitemap provider not configured. Call setProvider() first.',
+      )
     })
 
     it('should throw on atom when no provider is set', async () => {
-      await expect(
-        atom({ title: '', link: '', id: '', entries: [] }),
-      ).rejects.toThrow('Sitemap provider not configured. Call setProvider() first.')
+      await expect(atom({ title: '', link: '', id: '', entries: [] })).rejects.toThrow(
+        'Sitemap provider not configured. Call setProvider() first.',
+      )
     })
   })
 })

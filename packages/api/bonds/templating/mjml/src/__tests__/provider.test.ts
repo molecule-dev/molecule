@@ -5,7 +5,8 @@ import type { TemplateProvider } from '@molecule/api-templating'
 import { createProvider, provider } from '../provider.js'
 
 /** Minimal valid MJML template wrapper. */
-const wrap = (content: string): string => `<mjml><mj-body><mj-section><mj-column>${content}</mj-column></mj-section></mj-body></mjml>`
+const wrap = (content: string): string =>
+  `<mjml><mj-body><mj-section><mj-column>${content}</mj-column></mj-section></mj-body></mjml>`
 
 describe('mjml template provider', () => {
   describe('createProvider', () => {
@@ -81,10 +82,9 @@ describe('mjml template provider', () => {
 
     it('should handle Handlebars #each blocks', async () => {
       const p = createProvider()
-      const result = await p.render(
-        wrap('<mj-text>{{#each items}}{{this}} {{/each}}</mj-text>'),
-        { items: ['a', 'b', 'c'] },
-      )
+      const result = await p.render(wrap('<mj-text>{{#each items}}{{this}} {{/each}}</mj-text>'), {
+        items: ['a', 'b', 'c'],
+      })
       expect(result).toContain('a b c')
     })
 
@@ -191,7 +191,10 @@ describe('mjml template provider', () => {
   describe('validation', () => {
     it('should use soft validation by default (render despite errors)', async () => {
       const p = createProvider()
-      const result = await p.render('<mjml><mj-body><mj-invalid>test</mj-invalid></mj-body></mjml>', {})
+      const result = await p.render(
+        '<mjml><mj-body><mj-invalid>test</mj-invalid></mj-body></mjml>',
+        {},
+      )
       expect(result).toBeDefined()
     })
 
@@ -204,7 +207,10 @@ describe('mjml template provider', () => {
 
     it('should skip validation when configured', async () => {
       const p = createProvider({ validationLevel: 'skip' })
-      const result = await p.render('<mjml><mj-body><mj-invalid>test</mj-invalid></mj-body></mjml>', {})
+      const result = await p.render(
+        '<mjml><mj-body><mj-invalid>test</mj-invalid></mj-body></mjml>',
+        {},
+      )
       expect(result).toBeDefined()
     })
   })

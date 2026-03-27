@@ -9,7 +9,12 @@
 
 import Handlebars from 'handlebars'
 
-import type { CompiledTemplate, RenderOptions, TemplateHelper, TemplateProvider } from '@molecule/api-templating'
+import type {
+  CompiledTemplate,
+  RenderOptions,
+  TemplateHelper,
+  TemplateProvider,
+} from '@molecule/api-templating'
 
 import type { HandlebarsTemplateConfig } from './types.js'
 
@@ -44,7 +49,8 @@ export const createProvider = (config: HandlebarsTemplateConfig = {}): TemplateP
       options?: RenderOptions,
     ): Promise<string> {
       const localEnv = createLocalEnv(env, options)
-      const noEscape = options?.escape === false || (options?.escape === undefined && config.escape === false)
+      const noEscape =
+        options?.escape === false || (options?.escape === undefined && config.escape === false)
       const compiled = localEnv.compile(template, { noEscape })
       return compiled(data)
     },
@@ -82,10 +88,7 @@ export const createProvider = (config: HandlebarsTemplateConfig = {}): TemplateP
  * @param options - Render options containing additional helpers/partials.
  * @returns A Handlebars environment with merged helpers and partials.
  */
-const createLocalEnv = (
-  parent: typeof Handlebars,
-  options?: RenderOptions,
-): typeof Handlebars => {
+const createLocalEnv = (parent: typeof Handlebars, options?: RenderOptions): typeof Handlebars => {
   if (!options?.helpers && !options?.partials) {
     return parent
   }
@@ -93,8 +96,11 @@ const createLocalEnv = (
   const local = Handlebars.create()
 
   // Copy parent helpers and partials
-  const parentHelpers = (parent as unknown as { helpers: Record<string, Handlebars.HelperDelegate> }).helpers
-  const parentPartials = (parent as unknown as { partials: Record<string, Handlebars.Template> }).partials
+  const parentHelpers = (
+    parent as unknown as { helpers: Record<string, Handlebars.HelperDelegate> }
+  ).helpers
+  const parentPartials = (parent as unknown as { partials: Record<string, Handlebars.Template> })
+    .partials
 
   for (const [name, helper] of Object.entries(parentHelpers)) {
     local.registerHelper(name, helper)

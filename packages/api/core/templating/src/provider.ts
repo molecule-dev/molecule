@@ -10,12 +10,7 @@
 import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
-import type {
-  CompiledTemplate,
-  RenderOptions,
-  TemplateHelper,
-  TemplateProvider,
-} from './types.js'
+import type { CompiledTemplate, RenderOptions, TemplateHelper, TemplateProvider } from './types.js'
 
 const BOND_TYPE = 'templating'
 expectBond(BOND_TYPE)

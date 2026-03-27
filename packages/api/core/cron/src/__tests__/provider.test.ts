@@ -40,9 +40,7 @@ describe('cron provider', () => {
 
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
-      expect(() => getProvider()).toThrow(
-        'Cron provider not configured. Call setProvider() first.',
-      )
+      expect(() => getProvider()).toThrow('Cron provider not configured. Call setProvider() first.')
     })
 
     it('should return false when no provider is configured', () => {
@@ -107,9 +105,9 @@ describe('cron provider', () => {
 
   describe('error handling', () => {
     it('should throw on schedule when no provider is set', async () => {
-      await expect(
-        schedule('test', '* * * * *', async () => {}),
-      ).rejects.toThrow('Cron provider not configured. Call setProvider() first.')
+      await expect(schedule('test', '* * * * *', async () => {})).rejects.toThrow(
+        'Cron provider not configured. Call setProvider() first.',
+      )
     })
 
     it('should throw on cancel when no provider is set', async () => {
