@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-thread",
   "version": "1.0.0",
-  "description": "",
+  "description": "Threaded discussions with messages, read-tracking, and unread counts for any resource",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,24 +21,47 @@
   ],
   "keywords": [
     "molecule",
-    "thread"
+    "thread",
+    "discussion",
+    "messaging",
+    "resource"
   ],
   "license": "MIT",
   "devDependencies": {
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.0",
+    "zod": "4.3.6"
   },
   "peerDependencies": {
     "@molecule/api-database": "^1.0.0",
-    "@molecule/api-resource": "^1.0.0"
+    "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-logger": "^1.0.0",
+    "@molecule/api-resource": "^1.0.0",
+    "zod": "^4.0.0"
   },
   "peerDependenciesMeta": {
-    "@molecule/api-resource": {
-      "optional": true
-    },
     "@molecule/api-database": {
       "optional": true
+    },
+    "@molecule/api-i18n": {
+      "optional": true
+    },
+    "@molecule/api-logger": {
+      "optional": true
+    },
+    "@molecule/api-resource": {
+      "optional": true
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/resources/thread"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/thread",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }

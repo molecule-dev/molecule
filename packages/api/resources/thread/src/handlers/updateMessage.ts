@@ -1,5 +1,5 @@
 /**
- * Update thread handler.
+ * Update message handler.
  *
  * @module
  */
@@ -8,16 +8,16 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import { updateThread } from '../service.js'
-import { updateThreadSchema } from '../validation.js'
+import { updateMessage } from '../service.js'
+import { updateMessageSchema } from '../validation.js'
 
 /**
- * Updates an existing thread. Only the thread creator can update.
+ * Updates an existing message. Only the message author can update.
  *
- * @param req - The request with `threadId` param and update body.
+ * @param req - The request with `messageId` param and update body.
  * @param res - The response object.
  */
-export async function update(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+export async function updateMsg(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
   const userId = (res.locals.session as { userId?: string } | undefined)?.userId
   if (!userId) {
     res.status(401).json({
@@ -27,16 +27,18 @@ export async function update(req: MoleculeRequest, res: MoleculeResponse): Promi
     return
   }
 
-  const { threadId } = req.params
-  if (!threadId) {
+  const { messageId } = req.params
+  if (!messageId) {
     res.status(400).json({
-      error: t('thread.error.missingId', undefined, { defaultValue: 'Thread ID is required' }),
-      errorKey: 'thread.error.missingId',
+      error: t('thread.error.missingMessageId', undefined, {
+        defaultValue: 'Message ID is required',
+      }),
+      errorKey: 'thread.error.missingMessageId',
     })
     return
   }
 
-  const parsed = updateThreadSchema.safeParse(req.body)
+  const parsed = updateMessageSchema.safeParse(req.body)
   if (!parsed.success) {
     const errors = parsed.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')
     res.status(400).json({ error: errors, errorKey: 'thread.error.validationFailed' })
@@ -44,22 +46,22 @@ export async function update(req: MoleculeRequest, res: MoleculeResponse): Promi
   }
 
   try {
-    const thread = await updateThread(threadId, userId, parsed.data)
-    if (!thread) {
+    const message = await updateMessage(messageId, userId, parsed.data)
+    if (!message) {
       res.status(404).json({
         error: t('resource.error.notFound', undefined, { defaultValue: 'Not found' }),
         errorKey: 'resource.error.notFound',
       })
       return
     }
-    res.json(thread)
+    res.json(message)
   } catch (error) {
-    logger.error('Failed to update thread', { threadId, userId, error })
+    logger.error('Failed to update message', { messageId, userId, error })
     res.status(500).json({
-      error: t('thread.error.updateFailed', undefined, {
-        defaultValue: 'Failed to update thread',
+      error: t('thread.error.updateMessageFailed', undefined, {
+        defaultValue: 'Failed to update message',
       }),
-      errorKey: 'thread.error.updateFailed',
+      errorKey: 'thread.error.updateMessageFailed',
     })
   }
 }

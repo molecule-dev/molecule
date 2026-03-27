@@ -1,5 +1,5 @@
 /**
- * Delete thread handler.
+ * Delete message handler.
  *
  * @module
  */
@@ -8,15 +8,15 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import { deleteThread } from '../service.js'
+import { deleteMessage } from '../service.js'
 
 /**
- * Deletes a thread. Only the thread creator can delete.
+ * Deletes a message. Only the message author can delete.
  *
- * @param req - The request with `threadId` param.
+ * @param req - The request with `messageId` param.
  * @param res - The response object.
  */
-export async function del(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+export async function deleteMsg(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
   const userId = (res.locals.session as { userId?: string } | undefined)?.userId
   if (!userId) {
     res.status(401).json({
@@ -26,17 +26,19 @@ export async function del(req: MoleculeRequest, res: MoleculeResponse): Promise<
     return
   }
 
-  const { threadId } = req.params
-  if (!threadId) {
+  const { messageId } = req.params
+  if (!messageId) {
     res.status(400).json({
-      error: t('thread.error.missingId', undefined, { defaultValue: 'Thread ID is required' }),
-      errorKey: 'thread.error.missingId',
+      error: t('thread.error.missingMessageId', undefined, {
+        defaultValue: 'Message ID is required',
+      }),
+      errorKey: 'thread.error.missingMessageId',
     })
     return
   }
 
   try {
-    const deleted = await deleteThread(threadId, userId)
+    const deleted = await deleteMessage(messageId, userId)
     if (!deleted) {
       res.status(404).json({
         error: t('resource.error.notFound', undefined, { defaultValue: 'Not found' }),
@@ -46,12 +48,12 @@ export async function del(req: MoleculeRequest, res: MoleculeResponse): Promise<
     }
     res.status(204).end()
   } catch (error) {
-    logger.error('Failed to delete thread', { threadId, userId, error })
+    logger.error('Failed to delete message', { messageId, userId, error })
     res.status(500).json({
-      error: t('thread.error.deleteFailed', undefined, {
-        defaultValue: 'Failed to delete thread',
+      error: t('thread.error.deleteMessageFailed', undefined, {
+        defaultValue: 'Failed to delete message',
       }),
-      errorKey: 'thread.error.deleteFailed',
+      errorKey: 'thread.error.deleteMessageFailed',
     })
   }
 }
