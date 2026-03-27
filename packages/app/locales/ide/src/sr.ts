@@ -34,10 +34,14 @@ export const sr: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Достигнут максимум од {{max}} итерација алата.',
   'ide.chat.maxLoopsError': 'Ажурирање максимума итерација алата није успело.',
   'ide.chat.maxLoopsSet': 'Максимум итерација алата постављен на {{n}}',
+  'ide.chat.maxLoopsReached': 'Достигнут максимални лимит петљи.',
   'ide.chat.modelError': 'Ажурирање модела ћаскања није успело.',
   'ide.chat.modelSet': 'Модел ћаскања постављен на {{name}}',
   'ide.chat.modelUsage':
     'Употреба: /model <име-модела>  (нпр. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} је доступан у Pro. Надоградите за приступ свим моделима.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'У реду',
   'ide.chat.redoChange': 'Поново примени ову промену',
   'ide.chat.responseStopped': 'Одговор заустављен',
@@ -92,6 +96,8 @@ export const sr: IdeTranslations = {
   'ide.preview.starting': 'Учитавање прегледа...',
   'ide.preview.restarting': 'Учитавање прегледа...',
   'ide.preview.noPreview': 'Преглед није доступан',
+  'ide.preview.retryCount': 'Покушај {{count}}',
+  'ide.preview.retryButton': 'Покушај поново',
   'ide.device.label': 'Оквир уређаја',
   'ide.device.responsive': 'Респонзиван',
   'ide.device.desktop': 'Десктоп',

@@ -335,7 +335,10 @@ interface FileTreeItemProps {
   onTogglePath: (path: string, nowExpanded: boolean) => void
   onSymlinkClick?: (symlinkPath: string, target: string) => void
   onContextMenu?: (position: { x: number; y: number }, node: FileNode) => void
-  onItemClick: (path: string, modifiers: { ctrlKey: boolean; metaKey: boolean; shiftKey: boolean }) => void
+  onItemClick: (
+    path: string,
+    modifiers: { ctrlKey: boolean; metaKey: boolean; shiftKey: boolean },
+  ) => void
   onDragStart: (path: string, e: React.DragEvent) => void
   onDragOver: (path: string, e: React.DragEvent) => void
   onDragLeave: (e: React.DragEvent) => void
@@ -416,7 +419,16 @@ const FileTreeItem = memo(function FileTreeItem({
         }
       }
     },
-    [node.path, node.symlinkTarget, isDir, isExpanded, onItemClick, onFileSelect, onTogglePath, onSymlinkClick],
+    [
+      node.path,
+      node.symlinkTarget,
+      isDir,
+      isExpanded,
+      onItemClick,
+      onFileSelect,
+      onTogglePath,
+      onSymlinkClick,
+    ],
   )
 
   // Directories before files, each group sorted alphabetically
@@ -534,7 +546,11 @@ const FileTreeItem = memo(function FileTreeItem({
               isExpanded={isExpandedFromState(expandState, child.path, depth + 1)}
               activeFile={activeFile}
               isSelected={selectedPaths.has(child.path)}
-              isCut={clipboardOperation === 'cut' && clipboardPaths !== null && clipboardPaths.has(child.path)}
+              isCut={
+                clipboardOperation === 'cut' &&
+                clipboardPaths !== null &&
+                clipboardPaths.has(child.path)
+              }
               isFocused={false}
               isDropTarget={dropTargetPath === child.path}
               onFileSelect={onFileSelect}
@@ -636,10 +652,7 @@ export function FileExplorer({
   const [dropTargetPath, setDropTargetPath] = useState<string | null>(null)
 
   // Memoized visible items list — used for shift-click range and keyboard nav
-  const visibleItems = useMemo(
-    () => getVisibleItems(files, expandState),
-    [files, expandState],
-  )
+  const visibleItems = useMemo(() => getVisibleItems(files, expandState), [files, expandState])
 
   // Prune stale selections when the file tree changes
   useEffect(() => {
@@ -918,9 +931,7 @@ export function FileExplorer({
         case 'cut':
           if (selectedPaths.size > 0) {
             setClipboard({ paths: new Set(selectedPaths), operation: 'cut' })
-            navigator.clipboard
-              .writeText(Array.from(selectedPaths).join('\n'))
-              .catch(() => {})
+            navigator.clipboard.writeText(Array.from(selectedPaths).join('\n')).catch(() => {})
           }
           break
         case 'paste': {
@@ -1015,7 +1026,10 @@ export function FileExplorer({
       if (e.key === 'ArrowLeft' && focusedPath) {
         e.preventDefault()
         const found = findNodeByPath(files, focusedPath)
-        if (found?.node.type === 'directory' && isExpandedFromState(expandState, focusedPath, found.depth)) {
+        if (
+          found?.node.type === 'directory' &&
+          isExpandedFromState(expandState, focusedPath, found.depth)
+        ) {
           handleTogglePath(focusedPath, false)
         } else {
           const parent = getParentDir(focusedPath)
@@ -1102,9 +1116,7 @@ export function FileExplorer({
       if (isMod && e.key === 'x' && selectedPaths.size > 0) {
         e.preventDefault()
         setClipboard({ paths: new Set(selectedPaths), operation: 'cut' })
-        navigator.clipboard
-          .writeText(Array.from(selectedPaths).join('\n'))
-          .catch(() => {})
+        navigator.clipboard.writeText(Array.from(selectedPaths).join('\n')).catch(() => {})
         return
       }
 

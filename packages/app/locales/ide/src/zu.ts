@@ -35,10 +35,14 @@ export const zu: IdeTranslations = {
     'Kufinyelelwe kumkhawulo wokuphindaphinda kwamathuluzi angu-{{max}}.',
   'ide.chat.maxLoopsError': 'Kwehlulekile ukubuyekeza ukuphindaphinda kwamathuluzi okuphezulu.',
   'ide.chat.maxLoopsSet': 'Ukuphindaphinda kwamathuluzi okuphezulu kusethelwe ku-{{n}}',
+  'ide.chat.maxLoopsReached': 'Umkhawulo wezinhlelo ophezulu ufinyelelwe.',
   'ide.chat.modelError': 'Kwehlulekile ukubuyekeza imodeli yengxoxo.',
   'ide.chat.modelSet': 'Imodeli yengxoxo isethelwe ku-{{name}}',
   'ide.chat.modelUsage':
     'Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} iyatholakala ku-Pro. Thuthukisa ukufinyelela wonke amamodeli.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Kulindile',
   'ide.chat.redoChange': 'Phinda usebenzise lolu shintsho',
   'ide.chat.responseStopped': 'Impendulo imisiwe',
@@ -96,6 +100,8 @@ export const zu: IdeTranslations = {
   'ide.preview.starting': 'Ilayisha ukubuka kuqala...',
   'ide.preview.restarting': 'Ilayisha ukubuka kuqala...',
   'ide.preview.noPreview': 'Akukho ukubuka kuqala okutholakalayo',
+  'ide.preview.retryCount': 'Ukuzama {{count}}',
+  'ide.preview.retryButton': 'Zama futhi manje',
   'ide.device.label': 'Uhlaka lwedivayisi',
   'ide.device.responsive': 'Ephendulayo',
   'ide.device.desktop': 'Idesktophu',

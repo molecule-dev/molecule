@@ -34,10 +34,14 @@ export const cy: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Cyrhaeddwyd yr uchafswm o {{max}} iteriad offer.',
   'ide.chat.maxLoopsError': "Methwyd diweddaru'r uchafswm iteriadau offer.",
   'ide.chat.maxLoopsSet': "Uchafswm iteriadau offer wedi'i osod i {{n}}",
+  'ide.chat.maxLoopsReached': 'Cyrhaeddwyd y terfyn dolenni uchaf.',
   'ide.chat.modelError': 'Methwyd diweddaru model y sgwrs.',
   'ide.chat.modelSet': "Model y sgwrs wedi'i osod i {{name}}",
   'ide.chat.modelUsage':
     'Defnydd: /model <enw-model>  (e.e. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    "Mae {{model}} ar gael ar Pro. Uwchraddiwch i gael mynediad i'r holl fodelau.",
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Yn y ciw',
   'ide.chat.redoChange': "Ail-gymhwyso'r newid hwn",
   'ide.chat.responseStopped': "Ymateb wedi'i stopio",
@@ -93,6 +97,8 @@ export const cy: IdeTranslations = {
   'ide.preview.starting': 'Yn llwytho rhagolwg...',
   'ide.preview.restarting': 'Yn llwytho rhagolwg...',
   'ide.preview.noPreview': 'Dim rhagolwg ar gael',
+  'ide.preview.retryCount': 'Ymgais {{count}}',
+  'ide.preview.retryButton': 'Ailgeisio nawr',
   'ide.device.label': 'Ffrâm ddyfais',
   'ide.device.responsive': 'Ymatebol',
   'ide.device.desktop': 'Bwrdd gwaith',

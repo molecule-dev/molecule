@@ -34,10 +34,14 @@ export const be: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Дасягнуты максімум у {{max}} ітэрацый інструмента.',
   'ide.chat.maxLoopsError': 'Не ўдалося абнавіць максімум ітэрацый інструмента.',
   'ide.chat.maxLoopsSet': 'Максімум ітэрацый інструмента ўстаноўлены на {{n}}',
+  'ide.chat.maxLoopsReached': 'Дасягнуты ліміт цыклаў.',
   'ide.chat.modelError': 'Не ўдалося абнавіць мадэль чата.',
   'ide.chat.modelSet': 'Мадэль чата ўстаноўлена на {{name}}',
   'ide.chat.modelUsage':
     'Выкарыстанне: /model <назва-мадэлі>  (напр. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} даступна ў Pro. Абнавіце для доступу да ўсіх мадэляў.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'У чарзе',
   'ide.chat.redoChange': 'Паўторна прымяніць гэту змену',
   'ide.chat.responseStopped': 'Адказ спынены',
@@ -93,6 +97,8 @@ export const be: IdeTranslations = {
   'ide.preview.starting': 'Загрузка прагляду...',
   'ide.preview.restarting': 'Загрузка прагляду...',
   'ide.preview.noPreview': 'Прагляд недаступны',
+  'ide.preview.retryCount': 'Спроба {{count}}',
+  'ide.preview.retryButton': 'Паўтарыць зараз',
   'ide.device.label': 'Рамка прылады',
   'ide.device.responsive': 'Адаптыўны',
   'ide.device.desktop': 'Настольны',

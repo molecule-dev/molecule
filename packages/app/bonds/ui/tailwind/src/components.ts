@@ -19,18 +19,18 @@ export const button = cva(
     variants: {
       variant: {
         default:
-          'bg-primary/25 text-primary border border-primary/50 hover:bg-primary/40 hover:border-primary/65 active:bg-primary/55',
+          'bg-primary/25 text-primary-text border border-primary/50 hover:bg-primary/40 hover:border-primary/65 active:bg-primary/55',
         secondary:
-          'bg-secondary/25 text-secondary border border-secondary/50 hover:bg-secondary/40 hover:border-secondary/65 active:bg-secondary/55',
+          'bg-secondary/25 text-secondary-text border border-secondary/50 hover:bg-secondary/40 hover:border-secondary/65 active:bg-secondary/55',
         success:
-          'bg-success/25 text-success border border-success/50 hover:bg-success/40 hover:border-success/65 active:bg-success/55',
+          'bg-success/25 text-success-text border border-success/50 hover:bg-success/40 hover:border-success/65 active:bg-success/55',
         outline: 'bg-transparent text-foreground hover:bg-surface-secondary',
         ghost: 'bg-transparent text-foreground hover:bg-surface-secondary',
-        link: 'bg-transparent text-primary underline-offset-4 hover:underline',
+        link: 'bg-transparent text-primary-text underline-offset-4 hover:underline',
         warning:
-          'bg-warning/25 text-warning border border-warning/50 hover:bg-warning/40 hover:border-warning/65 active:bg-warning/55',
+          'bg-warning/25 text-warning-text border border-warning/50 hover:bg-warning/40 hover:border-warning/65 active:bg-warning/55',
         danger:
-          'bg-error/25 text-error border border-error/50 hover:bg-error/40 hover:border-error/65 active:bg-error/55',
+          'bg-error/25 text-error-text border border-error/50 hover:bg-error/40 hover:border-error/65 active:bg-error/55',
       },
       size: {
         sm: 'h-[26px] px-2.5 text-[13px]',

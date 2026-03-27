@@ -34,10 +34,14 @@ export const mr: IdeTranslations = {
   'ide.chat.loopLimitReached': '{{max}} टूल पुनरावृत्तींची कमाल गाठली.',
   'ide.chat.maxLoopsError': 'कमाल टूल पुनरावृत्ती अपडेट करण्यात अयशस्वी.',
   'ide.chat.maxLoopsSet': 'कमाल टूल पुनरावृत्ती {{n}} वर सेट केली',
+  'ide.chat.maxLoopsReached': 'कमाल लूप मर्यादा गाठली.',
   'ide.chat.modelError': 'चॅट मॉडेल अपडेट करण्यात अयशस्वी.',
   'ide.chat.modelSet': 'चॅट मॉडेल {{name}} वर सेट केले',
   'ide.chat.modelUsage':
     'वापर: /model <मॉडेल-नाव>  (उदा. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro मध्ये उपलब्ध आहे. सर्व मॉडेल्स ऍक्सेस करण्यासाठी अपग्रेड करा.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'रांगेत',
   'ide.chat.redoChange': 'हा बदल पुन्हा लागू करा',
   'ide.chat.responseStopped': 'प्रतिसाद थांबवला',
@@ -92,6 +96,8 @@ export const mr: IdeTranslations = {
   'ide.preview.starting': 'प्रीव्ह्यू लोड होत आहे...',
   'ide.preview.restarting': 'प्रीव्ह्यू लोड होत आहे...',
   'ide.preview.noPreview': 'कोणताही प्रीव्ह्यू उपलब्ध नाही',
+  'ide.preview.retryCount': 'पुन्हा प्रयत्न {{count}}',
+  'ide.preview.retryButton': 'आता पुन्हा प्रयत्न करा',
   'ide.device.label': 'डिव्हाइस फ्रेम',
   'ide.device.responsive': 'रिस्पॉन्सिव्ह',
   'ide.device.desktop': 'डेस्कटॉप',

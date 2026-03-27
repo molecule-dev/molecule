@@ -34,10 +34,14 @@ export const nl: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Maximum van {{max}} tool-iteraties bereikt.',
   'ide.chat.maxLoopsError': 'Kan maximale tool-iteraties niet bijwerken.',
   'ide.chat.maxLoopsSet': 'Maximale tool-iteraties ingesteld op {{n}}',
+  'ide.chat.maxLoopsReached': 'Maximale luslimiet bereikt.',
   'ide.chat.modelError': 'Kan chatmodel niet bijwerken.',
   'ide.chat.modelSet': 'Chatmodel ingesteld op {{name}}',
   'ide.chat.modelUsage':
     'Gebruik: /model <modelnaam>  (bijv. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} is beschikbaar in Pro. Upgrade voor toegang tot alle modellen.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'In wachtrij',
   'ide.chat.redoChange': 'Deze wijziging opnieuw toepassen',
   'ide.chat.responseStopped': 'Antwoord gestopt',
@@ -93,6 +97,8 @@ export const nl: IdeTranslations = {
   'ide.preview.starting': 'Voorbeeld laden...',
   'ide.preview.restarting': 'Voorbeeld laden...',
   'ide.preview.noPreview': 'Geen voorbeeld beschikbaar',
+  'ide.preview.retryCount': 'Poging {{count}}',
+  'ide.preview.retryButton': 'Nu opnieuw proberen',
   'ide.device.label': 'Apparaatframe',
   'ide.device.responsive': 'Responsief',
   'ide.device.desktop': 'Bureaublad',

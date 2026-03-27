@@ -34,10 +34,14 @@ export const uk: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Досягнуто максимум {{max}} ітерацій інструменту.',
   'ide.chat.maxLoopsError': 'Не вдалося оновити максимум ітерацій інструменту.',
   'ide.chat.maxLoopsSet': 'Максимум ітерацій інструменту встановлено на {{n}}',
+  'ide.chat.maxLoopsReached': 'Досягнуто максимальну межу циклів.',
   'ide.chat.modelError': 'Не вдалося оновити модель чату.',
   'ide.chat.modelSet': 'Модель чату встановлено на {{name}}',
   'ide.chat.modelUsage':
     'Використання: /model <назва-моделі>  (напр. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} доступний у Pro. Оновіть для доступу до всіх моделей.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'У черзі',
   'ide.chat.redoChange': 'Повторити цю зміну',
   'ide.chat.responseStopped': 'Відповідь зупинено',
@@ -93,6 +97,8 @@ export const uk: IdeTranslations = {
   'ide.preview.starting': 'Завантаження попереднього перегляду...',
   'ide.preview.restarting': 'Завантаження попереднього перегляду...',
   'ide.preview.noPreview': 'Попередній перегляд недоступний',
+  'ide.preview.retryCount': 'Спроба {{count}}',
+  'ide.preview.retryButton': 'Повторити зараз',
   'ide.device.label': 'Рамка пристрою',
   'ide.device.responsive': 'Адаптивний',
   'ide.device.desktop': 'Настільний',

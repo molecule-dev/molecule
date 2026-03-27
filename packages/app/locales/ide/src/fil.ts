@@ -34,10 +34,14 @@ export const fil: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Naabot na ang maximum na {{max}} na tool iteration.',
   'ide.chat.maxLoopsError': 'Hindi na-update ang max na tool iteration.',
   'ide.chat.maxLoopsSet': 'Ang max na tool iteration ay naitakda sa {{n}}',
+  'ide.chat.maxLoopsReached': 'Naabot na ang maximum na loop limit.',
   'ide.chat.modelError': 'Hindi na-update ang chat model.',
   'ide.chat.modelSet': 'Ang chat model ay naitakda sa {{name}}',
   'ide.chat.modelUsage':
     'Paggamit: /model <pangalan-ng-modelo>  (hal. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} ay available sa Pro. Mag-upgrade para ma-access ang lahat ng model.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Nakapila',
   'ide.chat.redoChange': 'Muling ilapat ang pagbabagong ito',
   'ide.chat.responseStopped': 'Hininto ang tugon',
@@ -93,6 +97,8 @@ export const fil: IdeTranslations = {
   'ide.preview.starting': 'Naglo-load ng preview...',
   'ide.preview.restarting': 'Naglo-load ng preview...',
   'ide.preview.noPreview': 'Walang available na preview',
+  'ide.preview.retryCount': 'Pagsubok {{count}}',
+  'ide.preview.retryButton': 'Subukang muli',
   'ide.device.label': 'Frame ng device',
   'ide.device.responsive': 'Responsive',
   'ide.device.desktop': 'Kompyuter',

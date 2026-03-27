@@ -58,6 +58,8 @@ export interface ChatPanelProps {
   userEditedFileKey?: number
   /** When true, model picker shows non-default models as locked (sign-up required). */
   isAnonymous?: boolean
+  /** When true, user has a paid plan and can use all models. */
+  isPro?: boolean
   className?: string
 }
 
@@ -102,6 +104,8 @@ export interface PreviewPanelProps {
   ) => void
   /** Incremented when AI edits files. Triggers an iframe reload only when the preview is broken. */
   fileChangeTick?: number
+  /** Called when the preview fails to load after multiple recovery attempts. */
+  onPreviewStuck?: () => void
   className?: string
 }
 

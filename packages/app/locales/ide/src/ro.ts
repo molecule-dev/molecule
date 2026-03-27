@@ -34,10 +34,14 @@ export const ro: IdeTranslations = {
   'ide.chat.loopLimitReached': 'S-a atins maximul de {{max}} iterații ale instrumentelor.',
   'ide.chat.maxLoopsError': 'Nu s-a putut actualiza maximul de iterații ale instrumentelor.',
   'ide.chat.maxLoopsSet': 'Maximul de iterații ale instrumentelor setat la {{n}}',
+  'ide.chat.maxLoopsReached': 'Limita maximă de bucle atinsă.',
   'ide.chat.modelError': 'Nu s-a putut actualiza modelul de chat.',
   'ide.chat.modelSet': 'Modelul de chat setat la {{name}}',
   'ide.chat.modelUsage':
     'Utilizare: /model <nume-model>  (ex. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} este disponibil în Pro. Faceți upgrade pentru a accesa toate modelele.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'În așteptare',
   'ide.chat.redoChange': 'Reaplică această modificare',
   'ide.chat.responseStopped': 'Răspuns oprit',
@@ -94,6 +98,8 @@ export const ro: IdeTranslations = {
   'ide.preview.starting': 'Se încarcă previzualizarea...',
   'ide.preview.restarting': 'Se încarcă previzualizarea...',
   'ide.preview.noPreview': 'Nicio previzualizare disponibilă',
+  'ide.preview.retryCount': 'Încercare {{count}}',
+  'ide.preview.retryButton': 'Reîncearcă acum',
   'ide.device.label': 'Cadrul dispozitivului',
   'ide.device.responsive': 'Responsiv',
   'ide.device.desktop': 'Calculator',

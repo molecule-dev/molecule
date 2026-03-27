@@ -414,6 +414,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         let assistantText = ''
         const toolCalls: ChatMessage['toolCalls'] = []
         const blocks: MessageBlock[] = []
+        let loopLimitReached: number | undefined
 
         const assistantMsg: ChatMessage = {
           id: assistantId,
@@ -440,6 +441,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           content: assistantText,
           blocks: [...blocks],
           toolCalls: [...toolCalls!],
+          ...(loopLimitReached != null ? { loopLimitReached } : {}),
         })
 
         const onEvent = (event: ChatStreamEvent): void => {
@@ -492,8 +494,10 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 )
               if (match) {
                 match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
-                // Flush immediately — onFileChange triggers Monaco updates
-                flushNow(() => ({ toolCalls: [...toolCalls!] }))
+                // Schedule (not flushNow) — Monaco updates happen independently
+                // via onFileChange below. Batching here avoids per-file React
+                // re-renders that accumulate during rapid AI file writes.
+                scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
               }
               // Auto-delete queued autofix messages that reference this file
               clearQueuedForFileRef.current(event.path)
@@ -535,6 +539,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
               scheduleFlush(() => ({ content: assistantText, blocks: [...blocks] }))
               break
             case 'loop_limit_reached':
+              loopLimitReached = event.maxLoops
               scheduleFlush(() => ({ loopLimitReached: event.maxLoops }))
               break
             case 'done':
@@ -678,6 +683,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       let assistantText = existingContent
       const toolCalls: ChatMessage['toolCalls'] = []
       const blocks: MessageBlock[] = []
+      let loopLimitReached: number | undefined
 
       // Seed blocks with a text block for the existing content so new text
       // appends correctly and new tool_use/thinking blocks interleave properly.
@@ -696,6 +702,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         content: assistantText,
         blocks: [...blocks],
         toolCalls: [...toolCalls!],
+        ...(loopLimitReached != null ? { loopLimitReached } : {}),
       })
 
       const onEvent = (event: ChatStreamEvent): void => {
@@ -745,8 +752,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
               )
             if (match) {
               match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
-              // Flush immediately — onFileChange triggers Monaco updates
-              flushNow(() => ({ toolCalls: [...toolCalls!] }))
+              scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
             }
             // Auto-delete queued autofix messages that reference this file
             clearQueuedForFileRef.current(event.path)
@@ -787,6 +793,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
             scheduleFlush(() => ({ blocks: [...blocks] }))
             break
           case 'loop_limit_reached':
+            loopLimitReached = event.maxLoops
             scheduleFlush(() => ({ loopLimitReached: event.maxLoops }))
             break
           case 'done':

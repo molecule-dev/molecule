@@ -34,10 +34,14 @@ export const eu: IdeTranslations = {
   'ide.chat.loopLimitReached': '{{max}} tresna-iterazio maximora iritsi da.',
   'ide.chat.maxLoopsError': 'Ezin izan dira gehienezko tresna-iterazioak eguneratu.',
   'ide.chat.maxLoopsSet': 'Gehienezko tresna-iterazioak {{n}}(e)ra ezarrita',
+  'ide.chat.maxLoopsReached': 'Begizten muga maximoa lortu da.',
   'ide.chat.modelError': 'Ezin izan da txat-eredua eguneratu.',
   'ide.chat.modelSet': 'Txat-eredua {{name}}(e)ra ezarrita',
   'ide.chat.modelUsage':
     'Erabilera: /model <eredu-izena>  (adib. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro-n dago eskuragarri. Eguneratu eredu guztietara sartzeko.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Ilaran',
   'ide.chat.redoChange': 'Berriz aplikatu aldaketa hau',
   'ide.chat.responseStopped': 'Erantzuna gelditu da',
@@ -94,6 +98,8 @@ export const eu: IdeTranslations = {
   'ide.preview.starting': 'Aurrebista kargatzen...',
   'ide.preview.restarting': 'Aurrebista kargatzen...',
   'ide.preview.noPreview': 'Aurrebistarik ez dago erabilgarri',
+  'ide.preview.retryCount': '{{count}}. saiakera',
+  'ide.preview.retryButton': 'Saiatu orain',
   'ide.device.label': 'Gailu-markoa',
   'ide.device.responsive': 'Moldagarria',
   'ide.device.desktop': 'Mahaigaina',

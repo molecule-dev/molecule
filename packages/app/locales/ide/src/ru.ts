@@ -34,10 +34,14 @@ export const ru: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Достигнут максимум {{max}} итераций инструментов.',
   'ide.chat.maxLoopsError': 'Не удалось обновить максимум итераций инструментов.',
   'ide.chat.maxLoopsSet': 'Максимум итераций инструментов установлен на {{n}}',
+  'ide.chat.maxLoopsReached': 'Достигнут максимальный лимит циклов.',
   'ide.chat.modelError': 'Не удалось обновить модель чата.',
   'ide.chat.modelSet': 'Модель чата установлена на {{name}}',
   'ide.chat.modelUsage':
     'Использование: /model <имя-модели>  (напр. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} доступен в Pro. Обновите для доступа ко всем моделям.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'В очереди',
   'ide.chat.redoChange': 'Применить это изменение повторно',
   'ide.chat.responseStopped': 'Ответ остановлен',
@@ -94,6 +98,8 @@ export const ru: IdeTranslations = {
   'ide.preview.starting': 'Загрузка предпросмотра...',
   'ide.preview.restarting': 'Загрузка предпросмотра...',
   'ide.preview.noPreview': 'Предпросмотр недоступен',
+  'ide.preview.retryCount': 'Попытка {{count}}',
+  'ide.preview.retryButton': 'Повторить сейчас',
   'ide.device.label': 'Рамка устройства',
   'ide.device.responsive': 'Адаптивный',
   'ide.device.desktop': 'Настольный',

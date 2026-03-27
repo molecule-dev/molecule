@@ -34,10 +34,14 @@ export const el: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Συμπληρώθηκε το μέγιστο {{max}} επαναλήψεων εργαλείων.',
   'ide.chat.maxLoopsError': 'Αποτυχία ενημέρωσης μέγιστων επαναλήψεων εργαλείων.',
   'ide.chat.maxLoopsSet': 'Μέγιστες επαναλήψεις εργαλείων ορίστηκαν σε {{n}}',
+  'ide.chat.maxLoopsReached': 'Επιτεύχθηκε το μέγιστο όριο επαναλήψεων.',
   'ide.chat.modelError': 'Αποτυχία ενημέρωσης μοντέλου συνομιλίας.',
   'ide.chat.modelSet': 'Μοντέλο συνομιλίας ορίστηκε σε {{name}}',
   'ide.chat.modelUsage':
     'Χρήση: /model <όνομα-μοντέλου>  (π.χ. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    'Το {{model}} είναι διαθέσιμο στο Pro. Αναβαθμίστε για πρόσβαση σε όλα τα μοντέλα.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Σε αναμονή',
   'ide.chat.redoChange': 'Επαναεφαρμογή αυτής της αλλαγής',
   'ide.chat.responseStopped': 'Η απάντηση σταμάτησε',
@@ -94,6 +98,8 @@ export const el: IdeTranslations = {
   'ide.preview.starting': 'Φόρτωση προεπισκόπησης...',
   'ide.preview.restarting': 'Φόρτωση προεπισκόπησης...',
   'ide.preview.noPreview': 'Δεν υπάρχει διαθέσιμη προεπισκόπηση',
+  'ide.preview.retryCount': 'Προσπάθεια {{count}}',
+  'ide.preview.retryButton': 'Επανάληψη τώρα',
   'ide.device.label': 'Πλαίσιο συσκευής',
   'ide.device.responsive': 'Προσαρμοστικό',
   'ide.device.desktop': 'Επιτραπέζιο',

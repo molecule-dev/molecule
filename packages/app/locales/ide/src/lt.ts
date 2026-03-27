@@ -34,10 +34,14 @@ export const lt: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Pasiektas {{max}} įrankių iteracijų maksimumas.',
   'ide.chat.maxLoopsError': 'Nepavyko atnaujinti maks. įrankių iteracijų.',
   'ide.chat.maxLoopsSet': 'Maks. įrankių iteracijos nustatytos {{n}}',
+  'ide.chat.maxLoopsReached': 'Pasiektas maksimalus ciklų limitas.',
   'ide.chat.modelError': 'Nepavyko atnaujinti pokalbio modelio.',
   'ide.chat.modelSet': 'Pokalbio modelis nustatytas kaip {{name}}',
   'ide.chat.modelUsage':
     'Naudojimas: /model <modelio-pavadinimas>  (pvz. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} pasiekiamas Pro versijoje. Atnaujinkite, kad galėtumėte pasiekti visus modelius.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Eilėje',
   'ide.chat.redoChange': 'Pritaikyti šį pakeitimą iš naujo',
   'ide.chat.responseStopped': 'Atsakymas sustabdytas',
@@ -93,6 +97,8 @@ export const lt: IdeTranslations = {
   'ide.preview.starting': 'Įkeliama peržiūra...',
   'ide.preview.restarting': 'Įkeliama peržiūra...',
   'ide.preview.noPreview': 'Peržiūra nepasiekiama',
+  'ide.preview.retryCount': 'Bandymas {{count}}',
+  'ide.preview.retryButton': 'Bandyti dar kartą',
   'ide.device.label': 'Įrenginio rėmas',
   'ide.device.responsive': 'Reaguojantis',
   'ide.device.desktop': 'Stalinis',

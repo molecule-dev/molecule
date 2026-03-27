@@ -34,10 +34,14 @@ export const az: IdeTranslations = {
   'ide.chat.loopLimitReached': '{{max}} alət təkrarının maksimumuna çatıldı.',
   'ide.chat.maxLoopsError': 'Maksimum alət təkrarlarını yeniləmək uğursuz oldu.',
   'ide.chat.maxLoopsSet': 'Maksimum alət təkrarları {{n}} olaraq təyin edildi',
+  'ide.chat.maxLoopsReached': 'Maksimum döngü limitinə çatıldı.',
   'ide.chat.modelError': 'Söhbət modelini yeniləmək uğursuz oldu.',
   'ide.chat.modelSet': 'Söhbət modeli {{name}} olaraq təyin edildi',
   'ide.chat.modelUsage':
     'İstifadə: /model <model-adı>  (məs. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro-da mövcuddur. Bütün modellərə giriş üçün yüksəldin.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Növbədə',
   'ide.chat.redoChange': 'Bu dəyişikliyi yenidən tətbiq et',
   'ide.chat.responseStopped': 'Cavab dayandırıldı',
@@ -92,6 +96,8 @@ export const az: IdeTranslations = {
   'ide.preview.starting': 'Önizləmə yüklənir...',
   'ide.preview.restarting': 'Önizləmə yüklənir...',
   'ide.preview.noPreview': 'Önizləmə mövcud deyil',
+  'ide.preview.retryCount': '{{count}}-ci cəhd',
+  'ide.preview.retryButton': 'İndi yenidən sına',
   'ide.device.label': 'Cihaz çərçivəsi',
   'ide.device.responsive': 'Adaptiv',
   'ide.device.desktop': 'Masaüstü',

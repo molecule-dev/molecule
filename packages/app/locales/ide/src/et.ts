@@ -34,10 +34,14 @@ export const et: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Saavutatud tööriistade iteratsioonide piirmäär {{max}}.',
   'ide.chat.maxLoopsError': 'Tööriistade iteratsioonide piirmäära värskendamine ebaõnnestus.',
   'ide.chat.maxLoopsSet': 'Tööriistade iteratsioonide piirmäär seatud {{n}}',
+  'ide.chat.maxLoopsReached': 'Maksimaalne tsüklite limiit saavutatud.',
   'ide.chat.modelError': 'Vestluse mudeli värskendamine ebaõnnestus.',
   'ide.chat.modelSet': 'Vestluse mudel seatud: {{name}}',
   'ide.chat.modelUsage':
     'Kasutus: /model <mudeli-nimi>  (nt claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} on saadaval Pro-s. Uuendage kõigile mudelitele juurdepääsuks.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Järjekorras',
   'ide.chat.redoChange': 'Rakenda see muudatus uuesti',
   'ide.chat.responseStopped': 'Vastus peatatud',
@@ -92,6 +96,8 @@ export const et: IdeTranslations = {
   'ide.preview.starting': 'Eelvaate laadimine...',
   'ide.preview.restarting': 'Eelvaate laadimine...',
   'ide.preview.noPreview': 'Eelvaade pole saadaval',
+  'ide.preview.retryCount': 'Katse {{count}}',
+  'ide.preview.retryButton': 'Proovi uuesti',
   'ide.device.label': 'Seadme raam',
   'ide.device.responsive': 'Kohanduv',
   'ide.device.desktop': 'Lauaarvuti',

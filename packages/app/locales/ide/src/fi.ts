@@ -34,10 +34,14 @@ export const fi: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Työkaluiteraatioiden enimmäismäärä {{max}} saavutettu.',
   'ide.chat.maxLoopsError': 'Työkaluiteraatioiden enimmäismäärän päivitys epäonnistui.',
   'ide.chat.maxLoopsSet': 'Työkaluiteraatioiden enimmäismäärä asetettu: {{n}}',
+  'ide.chat.maxLoopsReached': 'Silmukoiden enimmäisraja saavutettu.',
   'ide.chat.modelError': 'Keskustelumallin päivitys epäonnistui.',
   'ide.chat.modelSet': 'Keskustelumalli asetettu: {{name}}',
   'ide.chat.modelUsage':
     'Käyttö: /model <mallin-nimi>  (esim. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} on saatavilla Pro-versiossa. Päivitä saadaksesi kaikki mallit käyttöön.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Jonossa',
   'ide.chat.redoChange': 'Tee tämä muutos uudelleen',
   'ide.chat.responseStopped': 'Vastaus pysäytetty',
@@ -92,6 +96,8 @@ export const fi: IdeTranslations = {
   'ide.preview.starting': 'Ladataan esikatselua...',
   'ide.preview.restarting': 'Ladataan esikatselua...',
   'ide.preview.noPreview': 'Esikatselu ei ole saatavilla',
+  'ide.preview.retryCount': 'Yritys {{count}}',
+  'ide.preview.retryButton': 'Yritä uudelleen',
   'ide.device.label': 'Laitteen kehys',
   'ide.device.responsive': 'Responsiivinen',
   'ide.device.desktop': 'Työpöytä',

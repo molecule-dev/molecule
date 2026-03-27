@@ -34,10 +34,14 @@ export const da: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Maksimum på {{max}} værktøjsiterationer nået.',
   'ide.chat.maxLoopsError': 'Kunne ikke opdatere maks. antal værktøjsiterationer.',
   'ide.chat.maxLoopsSet': 'Maks. antal værktøjsiterationer sat til {{n}}',
+  'ide.chat.maxLoopsReached': 'Maksimal sløjfegrænse nået.',
   'ide.chat.modelError': 'Kunne ikke opdatere chatmodel.',
   'ide.chat.modelSet': 'Chatmodel sat til {{name}}',
   'ide.chat.modelUsage':
     'Brug: /model <modelnavn>  (f.eks. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} er tilgængelig på Pro. Opgrader for adgang til alle modeller.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'I kø',
   'ide.chat.redoChange': 'Anvend denne ændring igen',
   'ide.chat.responseStopped': 'Svar stoppet',
@@ -92,6 +96,8 @@ export const da: IdeTranslations = {
   'ide.preview.starting': 'Indlæser forhåndsvisning...',
   'ide.preview.restarting': 'Indlæser forhåndsvisning...',
   'ide.preview.noPreview': 'Ingen forhåndsvisning tilgængelig',
+  'ide.preview.retryCount': 'Forsøg {{count}}',
+  'ide.preview.retryButton': 'Prøv igen nu',
   'ide.device.label': 'Enhedsramme',
   'ide.device.responsive': 'Responsiv',
   'ide.device.desktop': 'Skrivebord',

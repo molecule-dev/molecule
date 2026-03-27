@@ -34,10 +34,14 @@ export const kn: IdeTranslations = {
   'ide.chat.loopLimitReached': 'ಉಪಕರಣ ಪುನರಾವರ್ತನೆಯ ಗರಿಷ್ಠ {{max}} ತಲುಪಿದೆ.',
   'ide.chat.maxLoopsError': 'ಉಪಕರಣ ಪುನರಾವರ್ತನೆಯ ಗರಿಷ್ಠ ನವೀಕರಿಸಲು ವಿಫಲವಾಯಿತು.',
   'ide.chat.maxLoopsSet': 'ಉಪಕರಣ ಪುನರಾವರ್ತನೆಯ ಗರಿಷ್ಠ {{n}} ಕ್ಕೆ ಹೊಂದಿಸಲಾಗಿದೆ',
+  'ide.chat.maxLoopsReached': 'ಗರಿಷ್ಠ ಲೂಪ್ ಮಿತಿ ತಲುಪಿದೆ.',
   'ide.chat.modelError': 'ಚಾಟ್ ಮಾಡೆಲ್ ನವೀಕರಿಸಲು ವಿಫಲವಾಯಿತು.',
   'ide.chat.modelSet': 'ಚಾಟ್ ಮಾಡೆಲ್ {{name}} ಗೆ ಹೊಂದಿಸಲಾಗಿದೆ',
   'ide.chat.modelUsage':
     'ಬಳಕೆ: /model <ಮಾಡೆಲ್-ಹೆಸರು>  (ಉದಾ. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro ನಲ್ಲಿ ಲಭ್ಯವಿದೆ. ಎಲ್ಲಾ ಮಾಡೆಲ್‌ಗಳನ್ನು ಪ್ರವೇಶಿಸಲು ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'ಸರದಿಯಲ್ಲಿದೆ',
   'ide.chat.redoChange': 'ಈ ಬದಲಾವಣೆಯನ್ನು ಮತ್ತೆ ಅನ್ವಯಿಸಿ',
   'ide.chat.responseStopped': 'ಪ್ರತಿಕ್ರಿಯೆ ನಿಲ್ಲಿಸಲಾಗಿದೆ',
@@ -92,6 +96,8 @@ export const kn: IdeTranslations = {
   'ide.preview.starting': 'ಪೂರ್ವವೀಕ್ಷಣೆ ಲೋಡ್ ಆಗುತ್ತಿದೆ...',
   'ide.preview.restarting': 'ಪೂರ್ವವೀಕ್ಷಣೆ ಲೋಡ್ ಆಗುತ್ತಿದೆ...',
   'ide.preview.noPreview': 'ಯಾವುದೇ ಪ್ರಿವ್ಯೂ ಲಭ್ಯವಿಲ್ಲ',
+  'ide.preview.retryCount': 'ಮರುಪ್ರಯತ್ನ {{count}}',
+  'ide.preview.retryButton': 'ಈಗ ಮರುಪ್ರಯತ್ನಿಸಿ',
   'ide.device.label': 'ಡಿವೈಸ್ ಫ್ರೇಮ್',
   'ide.device.responsive': 'ರೆಸ್ಪಾನ್ಸಿವ್',
   'ide.device.desktop': 'ಡೆಸ್ಕ್‌ಟಾಪ್',

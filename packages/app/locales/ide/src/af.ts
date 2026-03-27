@@ -34,10 +34,14 @@ export const af: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Maksimum van {{max}} gereedskapiterasies bereik.',
   'ide.chat.maxLoopsError': 'Kon nie maksimum gereedskapiterasies opdateer nie.',
   'ide.chat.maxLoopsSet': 'Maksimum gereedskapiterasies gestel op {{n}}',
+  'ide.chat.maxLoopsReached': 'Maksimum luslimiet bereik.',
   'ide.chat.modelError': 'Kon nie kletsmodel opdateer nie.',
   'ide.chat.modelSet': 'Kletsmodel gestel op {{name}}',
   'ide.chat.modelUsage':
     'Gebruik: /model <model-naam>  (bv. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} is beskikbaar op Pro. Gradeer op om alle modelle te gebruik.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'In die ry',
   'ide.chat.redoChange': 'Pas hierdie verandering weer toe',
   'ide.chat.responseStopped': 'Antwoord gestop',
@@ -92,6 +96,8 @@ export const af: IdeTranslations = {
   'ide.preview.starting': 'Laai voorskou...',
   'ide.preview.restarting': 'Laai voorskou...',
   'ide.preview.noPreview': 'Geen voorskou beskikbaar nie',
+  'ide.preview.retryCount': 'Herpoging {{count}}',
+  'ide.preview.retryButton': 'Herprobeer nou',
   'ide.device.label': 'Toestellraam',
   'ide.device.responsive': 'Responsief',
   'ide.device.desktop': 'Rekenaar',

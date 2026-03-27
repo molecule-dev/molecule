@@ -34,10 +34,14 @@ export const sv: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Nådde maximalt {{max}} verktygsiterationer.',
   'ide.chat.maxLoopsError': 'Kunde inte uppdatera max verktygsiterationer.',
   'ide.chat.maxLoopsSet': 'Max verktygsiterationer satt till {{n}}',
+  'ide.chat.maxLoopsReached': 'Maximal slinggräns nådd.',
   'ide.chat.modelError': 'Kunde inte uppdatera chattmodell.',
   'ide.chat.modelSet': 'Chattmodell satt till {{name}}',
   'ide.chat.modelUsage':
     'Användning: /model <modellnamn>  (t.ex. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} är tillgänglig i Pro. Uppgradera för åtkomst till alla modeller.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'I kö',
   'ide.chat.redoChange': 'Tillämpa denna ändring igen',
   'ide.chat.responseStopped': 'Svar stoppat',
@@ -93,6 +97,8 @@ export const sv: IdeTranslations = {
   'ide.preview.starting': 'Laddar förhandsgranskning...',
   'ide.preview.restarting': 'Laddar förhandsgranskning...',
   'ide.preview.noPreview': 'Ingen förhandsgranskning tillgänglig',
+  'ide.preview.retryCount': 'Försök {{count}}',
+  'ide.preview.retryButton': 'Försök igen nu',
   'ide.device.label': 'Enhetsram',
   'ide.device.responsive': 'Responsiv',
   'ide.device.desktop': 'Dator',

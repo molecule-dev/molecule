@@ -34,10 +34,14 @@ export const ne: IdeTranslations = {
   'ide.chat.loopLimitReached': 'अधिकतम {{max}} उपकरण पुनरावृत्ति पुग्यो।',
   'ide.chat.maxLoopsError': 'अधिकतम उपकरण पुनरावृत्ति अपडेट गर्न सकिएन।',
   'ide.chat.maxLoopsSet': 'अधिकतम उपकरण पुनरावृत्ति {{n}} मा सेट गरियो',
+  'ide.chat.maxLoopsReached': 'अधिकतम लूप सीमा पुग्यो।',
   'ide.chat.modelError': 'च्याट मोडेल अपडेट गर्न सकिएन।',
   'ide.chat.modelSet': 'च्याट मोडेल {{name}} मा सेट गरियो',
   'ide.chat.modelUsage':
     'प्रयोग: /model <model-name>  (जस्तै claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro मा उपलब्ध छ। सबै मोडेलहरू पहुँच गर्न अपग्रेड गर्नुहोस्।',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'लाममा',
   'ide.chat.redoChange': 'यो परिवर्तन पुन: लागू गर्नुहोस्',
   'ide.chat.responseStopped': 'प्रतिक्रिया रोकियो',
@@ -92,6 +96,8 @@ export const ne: IdeTranslations = {
   'ide.preview.starting': 'पूर्वावलोकन लोड हुँदैछ...',
   'ide.preview.restarting': 'पूर्वावलोकन लोड हुँदैछ...',
   'ide.preview.noPreview': 'कुनै प्रिभ्यू उपलब्ध छैन',
+  'ide.preview.retryCount': 'पुनःप्रयास {{count}}',
+  'ide.preview.retryButton': 'अहिले पुनः प्रयास गर्नुहोस्',
   'ide.device.label': 'यन्त्र फ्रेम',
   'ide.device.responsive': 'रेस्पोन्सिभ',
   'ide.device.desktop': 'डेस्कटप',

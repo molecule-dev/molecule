@@ -45,6 +45,11 @@ export interface ModelDefinition {
   supportsThinking: boolean
   /** Default thinking budget in tokens (only relevant when supportsThinking is true). */
   thinkingBudgetTokens: number
+  /**
+   * Whether the thinking budget can be controlled via API params.
+   * When false, the model always reasons but does not accept a thinking/reasoning_effort param.
+   */
+  thinkingConfigurable: boolean
   /** Whether the model supports vision (images, documents, etc.). */
   supportsVision: boolean
   /** Whether the model supports prompt caching. */
@@ -69,6 +74,8 @@ export interface ModelDefinition {
    *  Omit if the model/provider does not support native web fetch.
    */
   webFetchToolType?: string
+  /** Whether this model is available on the free tier (only one model should be true). */
+  freeTier?: boolean
   /** Input price per million tokens in USD. */
   inputPricePerMTok: number
   /** Output price per million tokens in USD. */

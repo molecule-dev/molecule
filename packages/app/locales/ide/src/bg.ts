@@ -34,10 +34,14 @@ export const bg: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Достигнат е максимумът от {{max}} итерации на инструмента.',
   'ide.chat.maxLoopsError': 'Неуспешно обновяване на максималните итерации на инструмента.',
   'ide.chat.maxLoopsSet': 'Максималните итерации на инструмента са зададени на {{n}}',
+  'ide.chat.maxLoopsReached': 'Достигнат е лимитът на цикли.',
   'ide.chat.modelError': 'Неуспешно обновяване на модела за чат.',
   'ide.chat.modelSet': 'Моделът за чат е зададен на {{name}}',
   'ide.chat.modelUsage':
     'Употреба: /model <име-на-модел>  (напр. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} е достъпен в Pro. Надградете за достъп до всички модели.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'На опашка',
   'ide.chat.redoChange': 'Приложи отново тази промяна',
   'ide.chat.responseStopped': 'Отговорът е спрян',
@@ -94,6 +98,8 @@ export const bg: IdeTranslations = {
   'ide.preview.starting': 'Зареждане на визуализацията...',
   'ide.preview.restarting': 'Зареждане на визуализацията...',
   'ide.preview.noPreview': 'Няма налична визуализация',
+  'ide.preview.retryCount': 'Опит {{count}}',
+  'ide.preview.retryButton': 'Опитай отново',
   'ide.device.label': 'Рамка на устройство',
   'ide.device.responsive': 'Адаптивен',
   'ide.device.desktop': 'Десктоп',

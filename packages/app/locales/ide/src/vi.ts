@@ -40,12 +40,16 @@ export const vi: IdeTranslations = {
     'Kh\u00F4ng th\u1EC3 c\u1EADp nh\u1EADt s\u1ED1 l\u1EA7n l\u1EB7p c\u00F4ng c\u1EE5 t\u1ED1i \u0111a.',
   'ide.chat.maxLoopsSet':
     'S\u1ED1 l\u1EA7n l\u1EB7p c\u00F4ng c\u1EE5 t\u1ED1i \u0111a \u0111\u01B0\u1EE3c \u0111\u1EB7t th\u00E0nh {{n}}',
+  'ide.chat.maxLoopsReached': 'Đã đạt giới hạn vòng lặp tối đa.',
   'ide.chat.modelError':
     'Kh\u00F4ng th\u1EC3 c\u1EADp nh\u1EADt m\u00F4 h\u00ECnh tr\u00F2 chuy\u1EC7n.',
   'ide.chat.modelSet':
     'M\u00F4 h\u00ECnh tr\u00F2 chuy\u1EC7n \u0111\u01B0\u1EE3c \u0111\u1EB7t th\u00E0nh {{name}}',
   'ide.chat.modelUsage':
     'Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} có sẵn trên Pro. Nâng cấp để truy cập tất cả các mô hình.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Trong h\u00E0ng \u0111\u1EE3i',
   'ide.chat.redoChange': '\u00C1p d\u1EE5ng l\u1EA1i thay \u0111\u1ED5i n\u00E0y',
   'ide.chat.responseStopped': 'Ph\u1EA3n h\u1ED3i \u0111\u00E3 d\u1EEBng',
@@ -111,6 +115,8 @@ export const vi: IdeTranslations = {
   'ide.preview.starting': '\u0110ang t\u1EA3i b\u1EA3n xem tr\u01B0\u1EDBc...',
   'ide.preview.restarting': '\u0110ang t\u1EA3i b\u1EA3n xem tr\u01B0\u1EDBc...',
   'ide.preview.noPreview': 'Kh\u00F4ng c\u00F3 b\u1EA3n xem tr\u01B0\u1EDBc',
+  'ide.preview.retryCount': 'Lần thử {{count}}',
+  'ide.preview.retryButton': 'Thử lại ngay',
   'ide.device.label': 'Khung thi\u1EBFt b\u1ECB',
   'ide.device.responsive': '\u0110\u00E1p \u1EE9ng',
   'ide.device.desktop': 'M\u00E1y t\u00EDnh',

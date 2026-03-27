@@ -34,10 +34,14 @@ export const cs: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Dosaženo maxima {{max}} iterací nástrojů.',
   'ide.chat.maxLoopsError': 'Nepodařilo se aktualizovat maximální počet iterací nástrojů.',
   'ide.chat.maxLoopsSet': 'Maximální počet iterací nástrojů nastaven na {{n}}',
+  'ide.chat.maxLoopsReached': 'Byl dosažen maximální limit smyček.',
   'ide.chat.modelError': 'Nepodařilo se aktualizovat model chatu.',
   'ide.chat.modelSet': 'Model chatu nastaven na {{name}}',
   'ide.chat.modelUsage':
     'Použití: /model <název-modelu>  (např. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} je dostupný v Pro. Upgradujte pro přístup ke všem modelům.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Ve frontě',
   'ide.chat.redoChange': 'Znovu použít tuto změnu',
   'ide.chat.responseStopped': 'Odpověď zastavena',
@@ -93,6 +97,8 @@ export const cs: IdeTranslations = {
   'ide.preview.starting': 'Načítání náhledu...',
   'ide.preview.restarting': 'Načítání náhledu...',
   'ide.preview.noPreview': 'Náhled není k dispozici',
+  'ide.preview.retryCount': 'Pokus {{count}}',
+  'ide.preview.retryButton': 'Zkusit znovu',
   'ide.device.label': 'Rám zařízení',
   'ide.device.responsive': 'Responzivní',
   'ide.device.desktop': 'Počítač',

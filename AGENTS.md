@@ -25,7 +25,7 @@ Composable, injectable modules for full-stack applications.
 - Frontend packages: `@molecule/app-*`
 - **Core packages** define contracts (interfaces only, zero implementation)
 - **Bond packages** implement those contracts and are swappable at runtime
-- Bond wiring: `bond('category', provider)` at startup, `require('category')` anywhere
+- Bond wiring: `bond('category', provider)` (singleton) or `bond('category', 'name', provider)` (named) at startup, `require('category')` anywhere
 
 ---
 
@@ -205,7 +205,7 @@ npm run format:check    # Prettier
 
 ### Bond System
 
-`bond('category', provider)` — string-based runtime wiring. Core defines contract → Provider implements → App wires at startup → Consumer uses anywhere via `require('category')`.
+`bond('category', provider)` — string-based runtime wiring. Supports singleton (`bond('category', provider)`) and named providers (`bond('category', 'name', provider)`) for multi-provider categories like AI. Core defines contract → Provider implements → App wires at startup → Consumer uses anywhere via `require('category')` or `get('category', 'name')`.
 
 ### Normalization
 

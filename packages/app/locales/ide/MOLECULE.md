@@ -53,9 +53,12 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.chat.loopLimitReached` | Reached the maximum of {{max}} tool iterations. |
 | `ide.chat.maxLoopsError` | Failed to update max tool iterations. |
 | `ide.chat.maxLoopsSet` | Max tool iterations set to {{n}} |
+| `ide.chat.maxLoopsReached` | Max loops limit reached. |
 | `ide.chat.modelError` | Failed to update chat model. |
 | `ide.chat.modelSet` | Chat model set to {{name}} |
 | `ide.chat.modelUsage` | Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001) |
+| `ide.chat.modelUpgradeRequired` | {{model}} is available on Pro. Upgrade to access all models. |
+| `ide.chat.proRequired` | Pro |
 | `ide.chat.queued` | Queued |
 | `ide.chat.redoChange` | Re-apply this change |
 | `ide.chat.responseStopped` | Response stopped |
@@ -110,6 +113,8 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.preview.starting` | Loading preview... |
 | `ide.preview.restarting` | Loading preview... |
 | `ide.preview.noPreview` | No preview available |
+| `ide.preview.retryCount` | Retry attempt {{count}} |
+| `ide.preview.retryButton` | Retry now |
 | `ide.device.label` | Device frame |
 | `ide.device.responsive` | Responsive |
 | `ide.device.desktop` | Desktop |

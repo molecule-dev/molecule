@@ -34,10 +34,14 @@ export const ky: IdeTranslations = {
   'ide.chat.loopLimitReached': '{{max}} курал итерацияларынын максимумуна жетти.',
   'ide.chat.maxLoopsError': 'Максималдуу курал итерацияларын жаңыртуу ишке ашкан жок.',
   'ide.chat.maxLoopsSet': 'Максималдуу курал итерациялары {{n}} деп коюлду',
+  'ide.chat.maxLoopsReached': 'Максималдуу цикл чегине жетти.',
   'ide.chat.modelError': 'Чат моделин жаңыртуу ишке ашкан жок.',
   'ide.chat.modelSet': 'Чат модели {{name}} деп коюлду',
   'ide.chat.modelUsage':
     'Колдонуу: /model <модел-аты>  (мис. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro версиясында жеткиликтүү. Бардык моделдерге жетүү үчүн жаңыртыңыз.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Кезекте',
   'ide.chat.redoChange': 'Бул өзгөртүүнү кайра колдонуу',
   'ide.chat.responseStopped': 'Жооп токтотулду',
@@ -92,6 +96,8 @@ export const ky: IdeTranslations = {
   'ide.preview.starting': 'Алдын ала көрүү жүктөлүүдө...',
   'ide.preview.restarting': 'Алдын ала көрүү жүктөлүүдө...',
   'ide.preview.noPreview': 'Алдын ала көрүү жок',
+  'ide.preview.retryCount': '{{count}}-аракет',
+  'ide.preview.retryButton': 'Азыр кайталоо',
   'ide.device.label': 'Түзмөк рамкасы',
   'ide.device.responsive': 'Жооптуу',
   'ide.device.desktop': 'Иш такта',

@@ -40,6 +40,7 @@ export const MODELS: readonly ModelDefinition[] = [
     maxOutputTokens: 128_000,
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -59,6 +60,7 @@ export const MODELS: readonly ModelDefinition[] = [
     maxOutputTokens: 64_000,
     supportsThinking: true,
     thinkingBudgetTokens: 10_000,
+    thinkingConfigurable: true,
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -78,6 +80,7 @@ export const MODELS: readonly ModelDefinition[] = [
     maxOutputTokens: 64_000,
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -102,6 +105,7 @@ export const MODELS: readonly ModelDefinition[] = [
     maxOutputTokens: 128_000,
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -127,6 +131,7 @@ export const MODELS: readonly ModelDefinition[] = [
     maxOutputTokens: 65_536,
     supportsThinking: true,
     thinkingBudgetTokens: 10_000,
+    thinkingConfigurable: true,
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -152,31 +157,12 @@ export const MODELS: readonly ModelDefinition[] = [
     maxOutputTokens: 128_000,
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
     supportsVision: true,
-    supportsPromptCaching: false,
+    supportsPromptCaching: true,
     supportsTools: true,
-    webSearchToolType: 'web_search',
-    codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 2,
     outputPricePerMTok: 6,
-    knowledgeCutoff: '2024-11-01',
-  },
-  {
-    id: 'grok-4-1-fast-reasoning',
-    provider: 'xai',
-    label: 'Grok 4.1 Fast',
-    description: 'Cheapest 2M context — $0.20/MTok input',
-    contextWindow: 2_000_000,
-    maxOutputTokens: 128_000,
-    supportsThinking: true,
-    thinkingBudgetTokens: 8_000,
-    supportsVision: true,
-    supportsPromptCaching: false,
-    supportsTools: true,
-    webSearchToolType: 'web_search',
-    codeExecutionToolType: 'code_interpreter',
-    inputPricePerMTok: 0.2,
-    outputPricePerMTok: 0.5,
     knowledgeCutoff: '2024-11-01',
   },
   {
@@ -186,57 +172,16 @@ export const MODELS: readonly ModelDefinition[] = [
     description: 'Code specialist — fast & cheap',
     contextWindow: 256_000,
     maxOutputTokens: 64_000,
-    supportsThinking: false,
-    thinkingBudgetTokens: 0,
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: false,
     supportsVision: false,
-    supportsPromptCaching: false,
+    supportsPromptCaching: true,
     supportsTools: true,
-    webSearchToolType: 'web_search',
-    codeExecutionToolType: 'code_interpreter',
+    freeTier: true,
     inputPricePerMTok: 0.2,
     outputPricePerMTok: 1.5,
     knowledgeCutoff: '2024-11-01',
-  },
-
-  // ---------------------------------------------------------------------------
-  // Meta (Llama) — open-source, hosted via Together AI / Fireworks / etc.
-  // Verified: https://openrouter.ai/meta-llama/llama-4-maverick
-  //           https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
-  //           https://openrouter.ai/meta-llama/llama-4-scout
-  // Note: Scout model supports 10M context per Meta, but API providers
-  //       currently limit to ~328K. Listed as 327,680 (provider reality).
-  // ---------------------------------------------------------------------------
-  {
-    id: 'meta-llama/llama-4-maverick',
-    provider: 'meta',
-    label: 'Llama 4 Maverick',
-    description: 'Open-source MoE — 1M context, very cheap',
-    contextWindow: 1_048_576,
-    maxOutputTokens: 16_384,
-    supportsThinking: false,
-    thinkingBudgetTokens: 0,
-    supportsVision: true,
-    supportsPromptCaching: false,
-    supportsTools: true,
-    inputPricePerMTok: 0.15,
-    outputPricePerMTok: 0.6,
-    knowledgeCutoff: '2024-08-01',
-  },
-  {
-    id: 'meta-llama/llama-4-scout',
-    provider: 'meta',
-    label: 'Llama 4 Scout',
-    description: 'Open-source — 10M capable, cheapest option',
-    contextWindow: 327_680,
-    maxOutputTokens: 16_384,
-    supportsThinking: false,
-    thinkingBudgetTokens: 0,
-    supportsVision: true,
-    supportsPromptCaching: false,
-    supportsTools: true,
-    inputPricePerMTok: 0.08,
-    outputPricePerMTok: 0.3,
-    knowledgeCutoff: '2024-08-01',
   },
 
   // ---------------------------------------------------------------------------
@@ -252,6 +197,7 @@ export const MODELS: readonly ModelDefinition[] = [
     maxOutputTokens: 65_535,
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -273,6 +219,7 @@ export const MODELS: readonly ModelDefinition[] = [
     maxOutputTokens: 196_608,
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
     supportsVision: false,
     supportsPromptCaching: false,
     supportsTools: true,
@@ -294,6 +241,7 @@ export const MODELS: readonly ModelDefinition[] = [
     maxOutputTokens: 65_536,
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
     supportsVision: false,
     supportsPromptCaching: false,
     supportsTools: true,
@@ -316,6 +264,7 @@ export const MODELS: readonly ModelDefinition[] = [
     maxOutputTokens: 131_072,
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
     supportsVision: false,
     supportsPromptCaching: false,
     supportsTools: true,
@@ -362,6 +311,22 @@ export function getAvailableModels(
   const providerSet =
     availableProviders instanceof Set ? availableProviders : new Set(availableProviders)
   return MODELS.filter((m) => providerSet.has(m.provider))
+}
+
+/**
+ * Brand colors for each AI provider, used in model picker UIs.
+ * Centralised here so feature packages stay provider-agnostic.
+ */
+export const PROVIDER_BRAND_COLORS: Readonly<Record<AIProviderID, string>> = {
+  anthropic: '#d97706',
+  openai: '#10b981',
+  google: '#3b82f6',
+  xai: '#ef4444',
+  meta: '#6366f1',
+  moonshot: '#8b5cf6',
+  minimax: '#ec4899',
+  alibaba: '#f97316',
+  zhipu: '#14b8a6',
 }
 
 /**

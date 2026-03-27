@@ -34,10 +34,14 @@ export const pl: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Osiągnięto maksymalną liczbę {{max}} iteracji narzędzia.',
   'ide.chat.maxLoopsError': 'Nie udało się zaktualizować maksymalnej liczby iteracji narzędzia.',
   'ide.chat.maxLoopsSet': 'Maksymalna liczba iteracji narzędzia ustawiona na {{n}}',
+  'ide.chat.maxLoopsReached': 'Osiągnięto maksymalny limit pętli.',
   'ide.chat.modelError': 'Nie udało się zaktualizować modelu czatu.',
   'ide.chat.modelSet': 'Model czatu ustawiony na {{name}}',
   'ide.chat.modelUsage':
     'Użycie: /model <nazwa-modelu>  (np. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} jest dostępny w Pro. Uaktualnij, aby uzyskać dostęp do wszystkich modeli.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'W kolejce',
   'ide.chat.redoChange': 'Ponownie zastosuj tę zmianę',
   'ide.chat.responseStopped': 'Odpowiedź zatrzymana',
@@ -94,6 +98,8 @@ export const pl: IdeTranslations = {
   'ide.preview.starting': 'Ładowanie podglądu...',
   'ide.preview.restarting': 'Ładowanie podglądu...',
   'ide.preview.noPreview': 'Podgląd niedostępny',
+  'ide.preview.retryCount': 'Próba {{count}}',
+  'ide.preview.retryButton': 'Ponów teraz',
   'ide.device.label': 'Ramka urządzenia',
   'ide.device.responsive': 'Responsywny',
   'ide.device.desktop': 'Komputer',

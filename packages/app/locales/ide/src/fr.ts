@@ -35,10 +35,14 @@ export const fr: IdeTranslations = {
   'ide.chat.loopLimitReached': "Le maximum de {{max}} itérations d'outils a été atteint.",
   'ide.chat.maxLoopsError': "Impossible de mettre à jour le nombre max d'itérations d'outils.",
   'ide.chat.maxLoopsSet': "Nombre max d'itérations d'outils défini à {{n}}",
+  'ide.chat.maxLoopsReached': 'Limite maximale de boucles atteinte.',
   'ide.chat.modelError': 'Impossible de mettre à jour le modèle de discussion.',
   'ide.chat.modelSet': 'Modèle de discussion défini sur {{name}}',
   'ide.chat.modelUsage':
     'Utilisation : /model <nom-du-modèle>  (ex. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} est disponible dans Pro. Mettez à niveau pour accéder à tous les modèles.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': "En file d'attente",
   'ide.chat.redoChange': 'Réappliquer cette modification',
   'ide.chat.responseStopped': 'Réponse arrêtée',
@@ -95,6 +99,8 @@ export const fr: IdeTranslations = {
   'ide.preview.starting': "Chargement de l'aperçu...",
   'ide.preview.restarting': "Chargement de l'aperçu...",
   'ide.preview.noPreview': 'Aucun aperçu disponible',
+  'ide.preview.retryCount': 'Tentative {{count}}',
+  'ide.preview.retryButton': 'Réessayer maintenant',
   'ide.device.label': "Cadre de l'appareil",
   'ide.device.responsive': 'Adaptatif',
   'ide.device.desktop': 'Bureau',

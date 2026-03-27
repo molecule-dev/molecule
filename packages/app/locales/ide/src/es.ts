@@ -34,10 +34,14 @@ export const es: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Se alcanzó el máximo de {{max}} iteraciones de herramientas.',
   'ide.chat.maxLoopsError': 'No se pudo actualizar el máximo de iteraciones de herramientas.',
   'ide.chat.maxLoopsSet': 'Máximo de iteraciones de herramientas establecido en {{n}}',
+  'ide.chat.maxLoopsReached': 'Se alcanzó el límite máximo de bucles.',
   'ide.chat.modelError': 'No se pudo actualizar el modelo del chat.',
   'ide.chat.modelSet': 'Modelo del chat establecido en {{name}}',
   'ide.chat.modelUsage':
     'Uso: /model <nombre-del-modelo>  (ej. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} está disponible en Pro. Actualiza para acceder a todos los modelos.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'En cola',
   'ide.chat.redoChange': 'Reaplicar este cambio',
   'ide.chat.responseStopped': 'Respuesta detenida',
@@ -95,6 +99,8 @@ export const es: IdeTranslations = {
   'ide.preview.starting': 'Cargando vista previa...',
   'ide.preview.restarting': 'Cargando vista previa...',
   'ide.preview.noPreview': 'No hay vista previa disponible',
+  'ide.preview.retryCount': 'Intento {{count}}',
+  'ide.preview.retryButton': 'Reintentar ahora',
   'ide.device.label': 'Marco del dispositivo',
   'ide.device.responsive': 'Responsivo',
   'ide.device.desktop': 'Escritorio',

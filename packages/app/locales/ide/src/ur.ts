@@ -34,10 +34,14 @@ export const ur: IdeTranslations = {
   'ide.chat.loopLimitReached': 'زیادہ سے زیادہ {{max}} ٹول تکرار تک پہنچ گئے۔',
   'ide.chat.maxLoopsError': 'زیادہ سے زیادہ ٹول تکرار اپڈیٹ کرنے میں ناکامی۔',
   'ide.chat.maxLoopsSet': 'زیادہ سے زیادہ ٹول تکرار {{n}} پر سیٹ ہو گئے',
+  'ide.chat.maxLoopsReached': 'زیادہ سے زیادہ لوپ کی حد پوری ہو گئی۔',
   'ide.chat.modelError': 'چیٹ ماڈل اپڈیٹ کرنے میں ناکامی۔',
   'ide.chat.modelSet': 'چیٹ ماڈل {{name}} پر سیٹ ہو گیا',
   'ide.chat.modelUsage':
     'استعمال: /model <ماڈل-نام>  (مثلاً claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro میں دستیاب ہے۔ تمام ماڈلز تک رسائی کے لیے اپگریڈ کریں۔',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'قطار میں',
   'ide.chat.redoChange': 'یہ تبدیلی دوبارہ لاگو کریں',
   'ide.chat.responseStopped': 'جواب رک گیا',
@@ -92,6 +96,8 @@ export const ur: IdeTranslations = {
   'ide.preview.starting': 'پیش نظارہ لوڈ ہو رہا ہے...',
   'ide.preview.restarting': 'پیش نظارہ لوڈ ہو رہا ہے...',
   'ide.preview.noPreview': 'کوئی پیش نظارہ دستیاب نہیں',
+  'ide.preview.retryCount': 'دوبارہ کوشش {{count}}',
+  'ide.preview.retryButton': 'ابھی دوبارہ کوشش کریں',
   'ide.device.label': 'آلے کا فریم',
   'ide.device.responsive': 'ریسپانسو',
   'ide.device.desktop': 'ڈیسک ٹاپ',

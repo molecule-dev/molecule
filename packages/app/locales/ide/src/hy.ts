@@ -34,10 +34,14 @@ export const hy: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Hasnel e {{max}} gorciqneri aravelajn tuyny:',
   'ide.chat.maxLoopsError': 'Gorciqneri aravelajn tuyny tarmacnely dzeraxoghecav:',
   'ide.chat.maxLoopsSet': 'Gorciqneri aravelajn tuyny sahmanvel e {{n}}',
+  'ide.chat.maxLoopsReached': 'Առavelagnuyn tsiklerineximaum sahmanin e hasel.',
   'ide.chat.modelError': 'Zruyci modely tarmacnely dzeraxoghecav:',
   'ide.chat.modelSet': 'Zruyci modely sahmanvel e {{name}}',
   'ide.chat.modelUsage':
     'Ogtagorcum: /model <model-name>  (or. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}}-y hasaneli e Pro-um. Tarmatsreq bolor modelnerin hasel.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Hertin spasum e',
   'ide.chat.redoChange': 'Krknel ays popokhutiuny',
   'ide.chat.responseStopped': 'Pataskhany kangecvec',
@@ -93,6 +97,8 @@ export const hy: IdeTranslations = {
   'ide.preview.starting': 'Nakhaditsmann bernvum e...',
   'ide.preview.restarting': 'Nakhaditsmann bernvum e...',
   'ide.preview.noPreview': 'Nakhatesq hasa che',
+  'ide.preview.retryCount': 'Krknel pordz {{count}}',
+  'ide.preview.retryButton': 'Krknel hima',
   'ide.device.label': 'Sarqi shrtjanak',
   'ide.device.responsive': 'Hartsvoghayin',
   'ide.device.desktop': 'Hamakargich',

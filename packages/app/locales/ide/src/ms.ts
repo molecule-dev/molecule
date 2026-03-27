@@ -34,10 +34,14 @@ export const ms: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Telah mencapai maksimum {{max}} lelaran alat.',
   'ide.chat.maxLoopsError': 'Gagal mengemaskini lelaran alat maksimum.',
   'ide.chat.maxLoopsSet': 'Lelaran alat maksimum ditetapkan kepada {{n}}',
+  'ide.chat.maxLoopsReached': 'Had gelung maksimum dicapai.',
   'ide.chat.modelError': 'Gagal mengemaskini model sembang.',
   'ide.chat.modelSet': 'Model sembang ditetapkan kepada {{name}}',
   'ide.chat.modelUsage':
     'Penggunaan: /model <nama-model>  (cth. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} tersedia di Pro. Naik taraf untuk mengakses semua model.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Dalam giliran',
   'ide.chat.redoChange': 'Terapkan semula perubahan ini',
   'ide.chat.responseStopped': 'Respons dihentikan',
@@ -92,6 +96,8 @@ export const ms: IdeTranslations = {
   'ide.preview.starting': 'Memuatkan pratonton...',
   'ide.preview.restarting': 'Memuatkan pratonton...',
   'ide.preview.noPreview': 'Tiada pratonton tersedia',
+  'ide.preview.retryCount': 'Percubaan {{count}}',
+  'ide.preview.retryButton': 'Cuba lagi sekarang',
   'ide.device.label': 'Bingkai peranti',
   'ide.device.responsive': 'Responsif',
   'ide.device.desktop': 'Komputer meja',

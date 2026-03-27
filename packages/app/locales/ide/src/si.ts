@@ -34,10 +34,14 @@ export const si: IdeTranslations = {
   'ide.chat.loopLimitReached': 'මෙවලම් පුනරාවර්තන උපරිමය {{max}} කට ළඟා විය.',
   'ide.chat.maxLoopsError': 'මෙවලම් පුනරාවර්තන උපරිමය යාවත්කාලීන කිරීමට අසමත් විය.',
   'ide.chat.maxLoopsSet': 'මෙවලම් පුනරාවර්තන උපරිමය {{n}} ලෙස සකසන ලදී',
+  'ide.chat.maxLoopsReached': 'උපරිම ලූප් සීමාවට ළඟා විය.',
   'ide.chat.modelError': 'කතාබහ මාදිලිය යාවත්කාලීන කිරීමට අසමත් විය.',
   'ide.chat.modelSet': 'කතාබහ මාදිලිය {{name}} ලෙස සකසන ලදී',
   'ide.chat.modelUsage':
     'භාවිතය: /model <මාදිලි-නම>  (උදා. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro හි ලබා ගත හැකිය. සියලුම මාදිලි වෙත ප්‍රවේශ වීමට උත්ශ්‍රේණි කරන්න.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'පෝලිමේ',
   'ide.chat.redoChange': 'මෙම වෙනස නැවත යොදන්න',
   'ide.chat.responseStopped': 'ප්‍රතිචාරය නවතා ඇත',
@@ -92,6 +96,8 @@ export const si: IdeTranslations = {
   'ide.preview.starting': 'පෙරදසුන පූරණය වෙමින්...',
   'ide.preview.restarting': 'පෙරදසුන පූරණය වෙමින්...',
   'ide.preview.noPreview': 'පෙරදසුනක් නොමැත',
+  'ide.preview.retryCount': 'නැවත උත්සාහය {{count}}',
+  'ide.preview.retryButton': 'දැන් නැවත උත්සාහ කරන්න',
   'ide.device.label': 'උපකරණ රාමුව',
   'ide.device.responsive': 'ප්‍රතිචාරාත්මක',
   'ide.device.desktop': 'ඩෙස්ක්ටොප්',

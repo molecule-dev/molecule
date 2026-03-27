@@ -34,10 +34,14 @@ export const sq: IdeTranslations = {
   'ide.chat.loopLimitReached': 'U arrit maksimumi i {{max}} iteracioneve te mjeteve.',
   'ide.chat.maxLoopsError': 'Deshtoi perditesimi i maksimumit te iteracioneve te mjeteve.',
   'ide.chat.maxLoopsSet': 'Maksimumi i iteracioneve te mjeteve u vendos ne {{n}}',
+  'ide.chat.maxLoopsReached': 'U arrit kufiri maksimal i cikleve.',
   'ide.chat.modelError': 'Deshtoi perditesimi i modelit te bisedes.',
   'ide.chat.modelSet': 'Modeli i bisedes u vendos ne {{name}}',
   'ide.chat.modelUsage':
     'Perdorimi: /model <emri-i-modelit>  (p.sh. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} është i disponueshëm në Pro. Përmirësoni për të aksesuar të gjitha modelet.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Ne radhe',
   'ide.chat.redoChange': 'Riapliko kete ndryshim',
   'ide.chat.responseStopped': 'Pergjigja u ndal',
@@ -94,6 +98,8 @@ export const sq: IdeTranslations = {
   'ide.preview.starting': 'Duke ngarkuar pamjen paraprake...',
   'ide.preview.restarting': 'Duke ngarkuar pamjen paraprake...',
   'ide.preview.noPreview': 'Nuk ka parashikim te disponueshem',
+  'ide.preview.retryCount': 'Tentativë {{count}}',
+  'ide.preview.retryButton': 'Provo tani',
   'ide.device.label': 'Korniza e pajisjes',
   'ide.device.responsive': 'Reagues',
   'ide.device.desktop': 'Kompjuter',

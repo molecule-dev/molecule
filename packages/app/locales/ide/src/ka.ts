@@ -34,10 +34,14 @@ export const ka: IdeTranslations = {
   'ide.chat.loopLimitReached': 'მიღწეულია ინსტრუმენტის იტერაციების მაქსიმუმი {{max}}.',
   'ide.chat.maxLoopsError': 'ინსტრუმენტის მაქსიმალური იტერაციების განახლება ვერ მოხერხდა.',
   'ide.chat.maxLoopsSet': 'ინსტრუმენტის მაქსიმალური იტერაციები დაყენებულია {{n}}-ზე',
+  'ide.chat.maxLoopsReached': 'ციკლების მაქსიმალური ლიმიტი მიღწეულია.',
   'ide.chat.modelError': 'ჩატის მოდელის განახლება ვერ მოხერხდა.',
   'ide.chat.modelSet': 'ჩატის მოდელი დაყენებულია {{name}}-ზე',
   'ide.chat.modelUsage':
     'გამოყენება: /model <მოდელის-სახელი>  (მაგ. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} ხელმისაწვდომია Pro-ში. განაახლეთ ყველა მოდელზე წვდომისთვის.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'რიგში',
   'ide.chat.redoChange': 'ამ ცვლილების ხელახლა გამოყენება',
   'ide.chat.responseStopped': 'პასუხი შეჩერდა',
@@ -94,6 +98,8 @@ export const ka: IdeTranslations = {
   'ide.preview.starting': 'წინასწარი ნახვის ჩატვირთვა...',
   'ide.preview.restarting': 'წინასწარი ნახვის ჩატვირთვა...',
   'ide.preview.noPreview': 'წინასწარი ნახვა მიუწვდომელია',
+  'ide.preview.retryCount': 'მცდელობა {{count}}',
+  'ide.preview.retryButton': 'სცადეთ ახლა',
   'ide.device.label': 'მოწყობილობის ჩარჩო',
   'ide.device.responsive': 'ადაპტიური',
   'ide.device.desktop': 'დესკტოპი',

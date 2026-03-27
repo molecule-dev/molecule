@@ -34,10 +34,14 @@ export const uz: IdeTranslations = {
   'ide.chat.loopLimitReached': '{{max}} ta asbob takrorlanishining maksimal soniga yetildi.',
   'ide.chat.maxLoopsError': 'Maksimal asbob takrorlanishlarini yangilash amalga oshmadi.',
   'ide.chat.maxLoopsSet': "Maksimal asbob takrorlanishlari {{n}} ga o'rnatildi",
+  'ide.chat.maxLoopsReached': 'Maksimal tsikllar chegarasiga yetildi.',
   'ide.chat.modelError': 'Suhbat modelini yangilash amalga oshmadi.',
   'ide.chat.modelSet': "Suhbat modeli {{name}} ga o'rnatildi",
   'ide.chat.modelUsage':
     'Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    "{{model}} Pro'da mavjud. Barcha modellarga kirish uchun yangilang.",
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Navbatda',
   'ide.chat.redoChange': "Bu o'zgarishni qayta qo'llash",
   'ide.chat.responseStopped': "Javob to'xtatildi",
@@ -93,6 +97,8 @@ export const uz: IdeTranslations = {
   'ide.preview.starting': "Ko'rib chiqish yuklanmoqda...",
   'ide.preview.restarting': "Ko'rib chiqish yuklanmoqda...",
   'ide.preview.noPreview': "Oldindan ko'rish mavjud emas",
+  'ide.preview.retryCount': 'Urinish {{count}}',
+  'ide.preview.retryButton': 'Hozir qayta urinish',
   'ide.device.label': 'Qurilma ramkasi',
   'ide.device.responsive': 'Moslashuvchan',
   'ide.device.desktop': 'Ish stoli',

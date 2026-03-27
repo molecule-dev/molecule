@@ -34,10 +34,14 @@ export const lv: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Sasniegts {{max}} rīku iterāciju maksimums.',
   'ide.chat.maxLoopsError': 'Neizdevās atjaunināt maks. rīku iterācijas.',
   'ide.chat.maxLoopsSet': 'Maks. rīku iterācijas iestatītas uz {{n}}',
+  'ide.chat.maxLoopsReached': 'Sasniegts maksimālais ciklu ierobežojums.',
   'ide.chat.modelError': 'Neizdevās atjaunināt tērzēšanas modeli.',
   'ide.chat.modelSet': 'Tērzēšanas modelis iestatīts uz {{name}}',
   'ide.chat.modelUsage':
     'Lietošana: /model <modeļa-nosaukums>  (piem. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} ir pieejams Pro versijā. Jauniniet, lai piekļūtu visiem modeļiem.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Rindā',
   'ide.chat.redoChange': 'Piemērot šīs izmaiņas atkārtoti',
   'ide.chat.responseStopped': 'Atbilde apturēta',
@@ -92,6 +96,8 @@ export const lv: IdeTranslations = {
   'ide.preview.starting': 'Ielādē priekšskatījumu...',
   'ide.preview.restarting': 'Ielādē priekšskatījumu...',
   'ide.preview.noPreview': 'Priekšskatījums nav pieejams',
+  'ide.preview.retryCount': 'Mēģinājums {{count}}',
+  'ide.preview.retryButton': 'Mēģināt vēlreiz',
   'ide.device.label': 'Ierīces rāmis',
   'ide.device.responsive': 'Adaptīvs',
   'ide.device.desktop': 'Galddators',

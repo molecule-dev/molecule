@@ -34,10 +34,14 @@ export const hu: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Elérte a maximális {{max}} eszköziteráció-számot.',
   'ide.chat.maxLoopsError': 'A maximális eszköziteráció-szám frissítése sikertelen.',
   'ide.chat.maxLoopsSet': 'Maximális eszköziteráció-szám beállítva: {{n}}',
+  'ide.chat.maxLoopsReached': 'Elérte a maximális ciklushatárt.',
   'ide.chat.modelError': 'A csevegési modell frissítése sikertelen.',
   'ide.chat.modelSet': 'Csevegési modell beállítva: {{name}}',
   'ide.chat.modelUsage':
     'Használat: /model <model-name>  (pl. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} elérhető a Pro-ban. Frissítsen az összes modell eléréséhez.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Várakozik',
   'ide.chat.redoChange': 'Változtatás újraalkalmazása',
   'ide.chat.responseStopped': 'Válasz leállítva',
@@ -93,6 +97,8 @@ export const hu: IdeTranslations = {
   'ide.preview.starting': 'Előnézet betöltése...',
   'ide.preview.restarting': 'Előnézet betöltése...',
   'ide.preview.noPreview': 'Nincs elérhető előnézet',
+  'ide.preview.retryCount': '{{count}}. próbálkozás',
+  'ide.preview.retryButton': 'Újrapróbálkozás most',
   'ide.device.label': 'Eszköz keret',
   'ide.device.responsive': 'Reszponzív',
   'ide.device.desktop': 'Asztali',

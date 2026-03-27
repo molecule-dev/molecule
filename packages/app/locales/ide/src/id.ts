@@ -34,10 +34,14 @@ export const id: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Mencapai maksimum {{max}} iterasi alat.',
   'ide.chat.maxLoopsError': 'Gagal memperbarui iterasi alat maksimum.',
   'ide.chat.maxLoopsSet': 'Iterasi alat maksimum diatur ke {{n}}',
+  'ide.chat.maxLoopsReached': 'Batas loop maksimum tercapai.',
   'ide.chat.modelError': 'Gagal memperbarui model obrolan.',
   'ide.chat.modelSet': 'Model obrolan diatur ke {{name}}',
   'ide.chat.modelUsage':
     'Penggunaan: /model <model-name>  (mis. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} tersedia di Pro. Tingkatkan untuk mengakses semua model.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Dalam antrian',
   'ide.chat.redoChange': 'Terapkan ulang perubahan ini',
   'ide.chat.responseStopped': 'Respons dihentikan',
@@ -92,6 +96,8 @@ export const id: IdeTranslations = {
   'ide.preview.starting': 'Memuat pratinjau...',
   'ide.preview.restarting': 'Memuat pratinjau...',
   'ide.preview.noPreview': 'Tidak ada pratinjau tersedia',
+  'ide.preview.retryCount': 'Percobaan {{count}}',
+  'ide.preview.retryButton': 'Coba lagi sekarang',
   'ide.device.label': 'Bingkai perangkat',
   'ide.device.responsive': 'Responsif',
   'ide.device.desktop': 'Komputer',

@@ -34,10 +34,14 @@ export const ha: IdeTranslations = {
   'ide.chat.loopLimitReached': 'An kai mafi yawan zagayowar kayan aiki {{max}}.',
   'ide.chat.maxLoopsError': 'An kasa sabunta mafi yawan zagayowar kayan aiki.',
   'ide.chat.maxLoopsSet': 'An saita mafi yawan zagayowar kayan aiki zuwa {{n}}',
+  'ide.chat.maxLoopsReached': 'An kai iyakar yawan zagaye.',
   'ide.chat.modelError': 'An kasa sabunta tsarin hira.',
   'ide.chat.modelSet': 'An saita tsarin hira zuwa {{name}}',
   'ide.chat.modelUsage':
     'Amfani: /model <model-name>  (misali claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} yana samuwa a Pro. Haɓaka don samun damar duk samfurori.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'A jerin jira',
   'ide.chat.redoChange': 'Sake aiwatar da wannan canjin',
   'ide.chat.responseStopped': 'An dakatar da amsa',
@@ -93,6 +97,8 @@ export const ha: IdeTranslations = {
   'ide.preview.starting': 'Ana loda duba...',
   'ide.preview.restarting': 'Ana loda duba...',
   'ide.preview.noPreview': 'Babu duba',
+  'ide.preview.retryCount': 'Gwaji {{count}}',
+  'ide.preview.retryButton': 'Sake gwadawa yanzu',
   'ide.device.label': "Firam ɗin na'ura",
   'ide.device.responsive': 'Mai amsawa',
   'ide.device.desktop': 'Kwamfuta',

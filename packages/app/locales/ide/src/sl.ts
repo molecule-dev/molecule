@@ -34,10 +34,14 @@ export const sl: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Dosežen maksimum {{max}} iteracij orodij.',
   'ide.chat.maxLoopsError': 'Posodobitev maksimuma iteracij orodij ni uspela.',
   'ide.chat.maxLoopsSet': 'Maksimum iteracij orodij nastavljen na {{n}}',
+  'ide.chat.maxLoopsReached': 'Dosežena je bila največja omejitev zank.',
   'ide.chat.modelError': 'Posodobitev modela klepeta ni uspela.',
   'ide.chat.modelSet': 'Model klepeta nastavljen na {{name}}',
   'ide.chat.modelUsage':
     'Uporaba: /model <ime-modela>  (npr. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} je na voljo v Pro. Nadgradite za dostop do vseh modelov.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'V čakalni vrsti',
   'ide.chat.redoChange': 'Ponovno uporabi to spremembo',
   'ide.chat.responseStopped': 'Odgovor ustavljen',
@@ -92,6 +96,8 @@ export const sl: IdeTranslations = {
   'ide.preview.starting': 'Nalaganje predogleda...',
   'ide.preview.restarting': 'Nalaganje predogleda...',
   'ide.preview.noPreview': 'Predogled ni na voljo',
+  'ide.preview.retryCount': 'Poskus {{count}}',
+  'ide.preview.retryButton': 'Poskusi znova',
   'ide.device.label': 'Okvir naprave',
   'ide.device.responsive': 'Odziven',
   'ide.device.desktop': 'Namizje',

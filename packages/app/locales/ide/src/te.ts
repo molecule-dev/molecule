@@ -34,10 +34,14 @@ export const te: IdeTranslations = {
   'ide.chat.loopLimitReached': 'గరిష్ట {{max}} టూల్ పునరావృత్తులు చేరుకున్నారు.',
   'ide.chat.maxLoopsError': 'గరిష్ట టూల్ పునరావృత్తులను నవీకరించడం విఫలమైంది.',
   'ide.chat.maxLoopsSet': 'గరిష్ట టూల్ పునరావృత్తులు {{n}} కు సెట్ చేయబడ్డాయి',
+  'ide.chat.maxLoopsReached': 'గరిష్ట లూప్ పరిమితి చేరుకుంది.',
   'ide.chat.modelError': 'చాట్ మోడల్‌ను నవీకరించడం విఫలమైంది.',
   'ide.chat.modelSet': 'చాట్ మోడల్ {{name}} కు సెట్ చేయబడింది',
   'ide.chat.modelUsage':
     'వాడకం: /model <మోడల్-పేరు>  (ఉదా. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro లో అందుబాటులో ఉంది. అన్ని మోడల్‌లను యాక్సెస్ చేయడానికి అప్‌గ్రేడ్ చేయండి.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'క్యూలో ఉంది',
   'ide.chat.redoChange': 'ఈ మార్పును మళ్ళీ వర్తించు',
   'ide.chat.responseStopped': 'ప్రతిస్పందన ఆపబడింది',
@@ -92,6 +96,8 @@ export const te: IdeTranslations = {
   'ide.preview.starting': 'ప్రివ్యూ లోడ్ అవుతోంది...',
   'ide.preview.restarting': 'ప్రివ్యూ లోడ్ అవుతోంది...',
   'ide.preview.noPreview': 'ప్రివ్యూ అందుబాటులో లేదు',
+  'ide.preview.retryCount': 'మళ్ళీ ప్రయత్నం {{count}}',
+  'ide.preview.retryButton': 'ఇప్పుడు మళ్ళీ ప్రయత్నించండి',
   'ide.device.label': 'పరికర ఫ్రేమ్',
   'ide.device.responsive': 'రెస్పాన్సివ్',
   'ide.device.desktop': 'డెస్క్‌టాప్',

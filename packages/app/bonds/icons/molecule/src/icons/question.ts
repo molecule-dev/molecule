@@ -1,5 +1,8 @@
 import type { IconData } from '@molecule/app-icons'
 
+/**
+ *
+ */
 export const question: IconData = {
   paths: [
     {

@@ -40,6 +40,7 @@ export type ChatEvent =
   | { type: 'tool_use'; id: string; name: string; input: unknown }
   | { type: 'done'; usage: TokenUsage }
   | { type: 'error'; message: string; errorKey?: string }
+  | { type: 'keep_alive' }
 
 /**
  * Token usage from a chat completion.

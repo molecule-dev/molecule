@@ -34,10 +34,14 @@ export const kk: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Құрал итерацияларының максимумы {{max}} жетті.',
   'ide.chat.maxLoopsError': 'Құрал итерацияларының максимумын жаңарту сәтсіз аяқталды.',
   'ide.chat.maxLoopsSet': 'Құрал итерацияларының максимумы {{n}} деп орнатылды',
+  'ide.chat.maxLoopsReached': 'Циклдердің максималды шегіне жетті.',
   'ide.chat.modelError': 'Чат моделін жаңарту сәтсіз аяқталды.',
   'ide.chat.modelSet': 'Чат моделі {{name}} деп орнатылды',
   'ide.chat.modelUsage':
     'Қолдану: /model <модель-атауы>  (мыс. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro нұсқасында қолжетімді. Барлық модельдерге қол жеткізу үшін жаңартыңыз.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Кезекте',
   'ide.chat.redoChange': 'Бұл өзгерісті қайта қолдану',
   'ide.chat.responseStopped': 'Жауап тоқтатылды',
@@ -92,6 +96,8 @@ export const kk: IdeTranslations = {
   'ide.preview.starting': 'Алдын ала қарау жүктелуде...',
   'ide.preview.restarting': 'Алдын ала қарау жүктелуде...',
   'ide.preview.noPreview': 'Алдын ала қарау қолжетімсіз',
+  'ide.preview.retryCount': '{{count}}-ші әрекет',
+  'ide.preview.retryButton': 'Қазір қайталау',
   'ide.device.label': 'Құрылғы жақтауы',
   'ide.device.responsive': 'Бейімді',
   'ide.device.desktop': 'Жұмыс үстелі',

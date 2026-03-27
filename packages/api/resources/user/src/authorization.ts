@@ -32,6 +32,7 @@ const getJwtRefreshTime = (): number => {
 /**
  * Set authorization headers and cookie for a session.
  * @param req - The request object.
+ * @param _req
  * @param res - The response object.
  * @param session - The session.
  * @returns The signed JWT token string, or null if signing failed.

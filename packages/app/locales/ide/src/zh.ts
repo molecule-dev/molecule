@@ -39,10 +39,13 @@ export const zh: IdeTranslations = {
     '\u65E0\u6CD5\u66F4\u65B0\u6700\u5927\u5DE5\u5177\u8FED\u4EE3\u6B21\u6570\u3002',
   'ide.chat.maxLoopsSet':
     '\u6700\u5927\u5DE5\u5177\u8FED\u4EE3\u6B21\u6570\u5DF2\u8BBE\u7F6E\u4E3A {{n}}',
+  'ide.chat.maxLoopsReached': '已达到最大循环限制。',
   'ide.chat.modelError': '\u65E0\u6CD5\u66F4\u65B0\u804A\u5929\u6A21\u578B\u3002',
   'ide.chat.modelSet': '\u804A\u5929\u6A21\u578B\u5DF2\u8BBE\u7F6E\u4E3A {{name}}',
   'ide.chat.modelUsage':
     'Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired': '{{model}} 在 Pro 中可用。升级以访问所有模型。',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': '\u6392\u961F\u4E2D',
   'ide.chat.redoChange': '\u91CD\u65B0\u5E94\u7528\u6B64\u66F4\u6539',
   'ide.chat.responseStopped': '\u54CD\u5E94\u5DF2\u505C\u6B62',
@@ -102,6 +105,8 @@ export const zh: IdeTranslations = {
   'ide.preview.starting': '\u6B63\u5728\u52A0\u8F7D\u9884\u89C8...',
   'ide.preview.restarting': '\u6B63\u5728\u52A0\u8F7D\u9884\u89C8...',
   'ide.preview.noPreview': '\u65E0\u53EF\u7528\u9884\u89C8',
+  'ide.preview.retryCount': '重试第 {{count}} 次',
+  'ide.preview.retryButton': '立即重试',
   'ide.device.label': '\u8BBE\u5907\u6846\u67B6',
   'ide.device.responsive': '\u54CD\u5E94\u5F0F',
   'ide.device.desktop': '\u684C\u9762',

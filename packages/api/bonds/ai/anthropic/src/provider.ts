@@ -21,6 +21,16 @@ const logger = getLogger()
 
 import type { AnthropicConfig } from './types.js'
 
+/** Mutable state shared across SSE line-processing calls for the Anthropic streaming parser. */
+interface AnthropicStreamState {
+  inputTokens: number
+  outputTokens: number
+  cacheCreationInputTokens: number
+  cacheReadInputTokens: number
+  pendingTool: { id: string; name: string; inputJson: string } | null
+  pendingThinking: string | null
+}
+
 /**
  * Anthropic Claude AI provider that implements the `AIProvider` interface
  * using Anthropic's Messages API with support for streaming, tool use,
@@ -330,14 +340,14 @@ class AnthropicAIProvider implements AIProvider {
 
     const decoder = new TextDecoder()
     let buffer = ''
-    let inputTokens = 0
-    let outputTokens = 0
-    let cacheCreationInputTokens = 0
-    let cacheReadInputTokens = 0
-
-    // Track pending content blocks to accumulate streamed deltas
-    let pendingTool: { id: string; name: string; inputJson: string } | null = null
-    let pendingThinking: string | null = null
+    const state: AnthropicStreamState = {
+      inputTokens: 0,
+      outputTokens: 0,
+      cacheCreationInputTokens: 0,
+      cacheReadInputTokens: 0,
+      pendingTool: null,
+      pendingThinking: null,
+    }
 
     try {
       while (true) {
@@ -348,80 +358,29 @@ class AnthropicAIProvider implements AIProvider {
         const lines = buffer.split('\n')
         buffer = lines.pop() ?? ''
 
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue
-          const json = line.slice(6).trim()
-          if (json === '[DONE]') continue
+        yield* this.processSSELines(lines, state)
+      }
 
-          try {
-            const event = JSON.parse(json) as Record<string, unknown>
-            const eventType = event.type as string
+      // Flush any remaining data in the buffer after EOF
+      if (buffer.trim()) {
+        yield* this.processSSELines(buffer.split('\n'), state)
+      }
 
-            if (eventType === 'content_block_delta') {
-              const delta = event.delta as Record<string, unknown>
-              if (delta.type === 'text_delta') {
-                yield { type: 'text', content: delta.text as string }
-              } else if (delta.type === 'input_json_delta' && pendingTool) {
-                pendingTool.inputJson += delta.partial_json as string
-              } else if (delta.type === 'thinking_delta' && pendingThinking !== null) {
-                const chunk = delta.thinking as string
-                pendingThinking += chunk
-                yield { type: 'thinking', content: chunk }
-              }
-            } else if (eventType === 'content_block_start') {
-              const block = event.content_block as Record<string, unknown>
-              if (block.type === 'tool_use') {
-                pendingTool = {
-                  id: block.id as string,
-                  name: block.name as string,
-                  inputJson: '',
-                }
-              } else if (block.type === 'thinking') {
-                pendingThinking = ''
-              }
-            } else if (eventType === 'content_block_stop') {
-              // Emit completed tool_use with accumulated input
-              if (pendingTool) {
-                let input: unknown = {}
-                try {
-                  input = JSON.parse(pendingTool.inputJson)
-                } catch {
-                  // Fall back to empty object if JSON is malformed
-                }
-                yield {
-                  type: 'tool_use',
-                  id: pendingTool.id,
-                  name: pendingTool.name,
-                  input,
-                }
-                pendingTool = null
-              }
-              // Thinking block complete — deltas were already yielded incrementally
-              if (pendingThinking !== null) {
-                pendingThinking = null
-              }
-            } else if (eventType === 'message_delta') {
-              const usage = event.usage as { output_tokens?: number } | undefined
-              if (usage?.output_tokens) outputTokens = usage.output_tokens
-            } else if (eventType === 'message_start') {
-              const message = event.message as Record<string, unknown>
-              const usage = message?.usage as
-                | {
-                    input_tokens?: number
-                    cache_creation_input_tokens?: number | null
-                    cache_read_input_tokens?: number | null
-                  }
-                | undefined
-              if (usage?.input_tokens) inputTokens = usage.input_tokens
-              if (usage?.cache_creation_input_tokens)
-                cacheCreationInputTokens = usage.cache_creation_input_tokens
-              if (usage?.cache_read_input_tokens)
-                cacheReadInputTokens = usage.cache_read_input_tokens
-            }
-          } catch {
-            logger.debug('Skipping malformed SSE JSON line', { json })
-          }
+      // Emit any tool call still pending after stream ends (safety net for missing content_block_stop)
+      if (state.pendingTool) {
+        let input: unknown = {}
+        try {
+          input = JSON.parse(state.pendingTool.inputJson)
+        } catch {
+          // Fall back to empty object if JSON is malformed
         }
+        yield {
+          type: 'tool_use',
+          id: state.pendingTool.id,
+          name: state.pendingTool.name,
+          input,
+        }
+        state.pendingTool = null
       }
     } finally {
       reader.releaseLock()
@@ -430,11 +389,98 @@ class AnthropicAIProvider implements AIProvider {
     yield {
       type: 'done',
       usage: {
-        inputTokens,
-        outputTokens,
-        ...(cacheCreationInputTokens ? { cacheCreationInputTokens } : {}),
-        ...(cacheReadInputTokens ? { cacheReadInputTokens } : {}),
+        inputTokens: state.inputTokens,
+        outputTokens: state.outputTokens,
+        ...(state.cacheCreationInputTokens
+          ? { cacheCreationInputTokens: state.cacheCreationInputTokens }
+          : {}),
+        ...(state.cacheReadInputTokens ? { cacheReadInputTokens: state.cacheReadInputTokens } : {}),
       },
+    }
+  }
+
+  /**
+   * Processes an array of SSE lines from the Anthropic streaming response, yielding
+   * ChatEvent objects for text deltas, thinking, tool use, and usage updates.
+   *
+   * @param lines - Raw SSE lines to process.
+   * @param state - Mutable stream state (token counters, pending blocks).
+   * @yields {ChatEvent} Chat events extracted from the SSE lines.
+   */
+  private *processSSELines(lines: string[], state: AnthropicStreamState): Iterable<ChatEvent> {
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue
+      const json = line.slice(6).trim()
+      if (json === '[DONE]') continue
+
+      try {
+        const event = JSON.parse(json) as Record<string, unknown>
+        const eventType = event.type as string
+
+        if (eventType === 'content_block_delta') {
+          const delta = event.delta as Record<string, unknown>
+          if (delta.type === 'text_delta') {
+            yield { type: 'text', content: delta.text as string }
+          } else if (delta.type === 'input_json_delta' && state.pendingTool) {
+            state.pendingTool.inputJson += delta.partial_json as string
+          } else if (delta.type === 'thinking_delta' && state.pendingThinking !== null) {
+            const chunk = delta.thinking as string
+            state.pendingThinking += chunk
+            yield { type: 'thinking', content: chunk }
+          }
+        } else if (eventType === 'content_block_start') {
+          const block = event.content_block as Record<string, unknown>
+          if (block.type === 'tool_use') {
+            state.pendingTool = {
+              id: block.id as string,
+              name: block.name as string,
+              inputJson: '',
+            }
+          } else if (block.type === 'thinking') {
+            state.pendingThinking = ''
+          }
+        } else if (eventType === 'content_block_stop') {
+          // Emit completed tool_use with accumulated input
+          if (state.pendingTool) {
+            let input: unknown = {}
+            try {
+              input = JSON.parse(state.pendingTool.inputJson)
+            } catch {
+              // Fall back to empty object if JSON is malformed
+            }
+            yield {
+              type: 'tool_use',
+              id: state.pendingTool.id,
+              name: state.pendingTool.name,
+              input,
+            }
+            state.pendingTool = null
+          }
+          // Thinking block complete — deltas were already yielded incrementally
+          if (state.pendingThinking !== null) {
+            state.pendingThinking = null
+          }
+        } else if (eventType === 'message_delta') {
+          const usage = event.usage as { output_tokens?: number } | undefined
+          if (usage?.output_tokens) state.outputTokens = usage.output_tokens
+        } else if (eventType === 'message_start') {
+          const message = event.message as Record<string, unknown>
+          const usage = message?.usage as
+            | {
+                input_tokens?: number
+                cache_creation_input_tokens?: number | null
+                cache_read_input_tokens?: number | null
+              }
+            | undefined
+          if (usage?.input_tokens) state.inputTokens = usage.input_tokens
+          if (usage?.cache_creation_input_tokens)
+            state.cacheCreationInputTokens = usage.cache_creation_input_tokens
+          if (usage?.cache_read_input_tokens)
+            state.cacheReadInputTokens = usage.cache_read_input_tokens
+        }
+      } catch {
+        logger.debug('Skipping malformed SSE JSON line', { json })
+      }
     }
   }
 }

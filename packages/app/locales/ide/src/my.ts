@@ -35,10 +35,14 @@ export const my: IdeTranslations = {
   'ide.chat.loopLimitReached': 'အများဆုံး tool iteration {{max}} ခုသို့ ရောက်ရှိပြီ။',
   'ide.chat.maxLoopsError': 'အများဆုံး tool iteration ကို မွမ်းမံ၍မရပါ။',
   'ide.chat.maxLoopsSet': 'အများဆုံး tool iteration ကို {{n}} သို့ သတ်မှတ်ပြီ',
+  'ide.chat.maxLoopsReached': 'အများဆုံး loop ကန့်သတ်ချက်ရောက်ပါပြီ။',
   'ide.chat.modelError': 'ချတ် မော်ဒယ်ကို မွမ်းမံ၍မရပါ။',
   'ide.chat.modelSet': 'ချတ် မော်ဒယ်ကို {{name}} သို့ သတ်မှတ်ပြီ',
   'ide.chat.modelUsage':
     'အသုံးပြုပုံ: /model <model-name>  (ဥပမာ claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} သည် Pro တွင်ရနိုင်ပါသည်။ မော်ဒယ်အားလုံးကိုဝင်ရောက်ရန် အဆင့်မြှင့်ပါ။',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'စောင့်ဆိုင်းနေသည်',
   'ide.chat.redoChange': 'ဤပြောင်းလဲမှုကို ပြန်ကျင့်သုံးပါ',
   'ide.chat.responseStopped': 'တုံ့ပြန်မှု ရပ်တန့်ပြီ',
@@ -96,6 +100,8 @@ export const my: IdeTranslations = {
   'ide.preview.starting': 'အကြိုကြည့်ရှု ဖွင့်နေသည်...',
   'ide.preview.restarting': 'အကြိုကြည့်ရှု ဖွင့်နေသည်...',
   'ide.preview.noPreview': 'အစမ်းကြည့် မရရှိနိုင်ပါ',
+  'ide.preview.retryCount': 'ပြန်ကြိုးစားမှု {{count}}',
+  'ide.preview.retryButton': 'ယခုပြန်ကြိုးစားပါ',
   'ide.device.label': 'ကိရိယာ ဘောင်',
   'ide.device.responsive': 'တုံ့ပြန်မှု',
   'ide.device.desktop': 'စားပွဲတင်',

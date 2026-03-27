@@ -160,6 +160,7 @@ export type ChatStreamEvent =
       errors: Array<{ message: string; source?: string; line?: number; column?: number }>
     }
   | { type: 'resource_limit'; resource: 'memory'; message: string }
+  | { type: 'upgrade_prompt'; feature: string; message: string }
   | { type: 'done'; usage?: { inputTokens: number; outputTokens: number; contextWindow?: number } }
   | { type: 'error'; message: string; limitType?: string; requiresSignup?: boolean }
 

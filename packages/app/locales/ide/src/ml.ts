@@ -34,10 +34,14 @@ export const ml: IdeTranslations = {
   'ide.chat.loopLimitReached': '{{max}} ടൂൾ ഇറ്ററേഷനുകളുടെ പരമാവധി എത്തി.',
   'ide.chat.maxLoopsError': 'പരമാവധി ടൂൾ ഇറ്ററേഷനുകൾ അപ്ഡേറ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല.',
   'ide.chat.maxLoopsSet': 'പരമാവധി ടൂൾ ഇറ്ററേഷനുകൾ {{n}} ആയി സജ്ജീകരിച്ചു',
+  'ide.chat.maxLoopsReached': 'പരമാവധി ലൂപ്പ് പരിധി എത്തി.',
   'ide.chat.modelError': 'ചാറ്റ് മോഡൽ അപ്ഡേറ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല.',
   'ide.chat.modelSet': 'ചാറ്റ് മോഡൽ {{name}} ആയി സജ്ജീകരിച്ചു',
   'ide.chat.modelUsage':
     'ഉപയോഗം: /model <മോഡൽ-പേര്>  (ഉദാ. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro-ൽ ലഭ്യമാണ്. എല്ലാ മോഡലുകളും ആക്സസ് ചെയ്യാൻ അപ്‌ഗ്രേഡ് ചെയ്യുക.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'ക്യൂവിൽ',
   'ide.chat.redoChange': 'ഈ മാറ്റം വീണ്ടും പ്രയോഗിക്കുക',
   'ide.chat.responseStopped': 'പ്രതികരണം നിർത്തി',
@@ -92,6 +96,8 @@ export const ml: IdeTranslations = {
   'ide.preview.starting': 'പ്രിവ്യൂ ലോഡ് ചെയ്യുന്നു...',
   'ide.preview.restarting': 'പ്രിവ്യൂ ലോഡ് ചെയ്യുന്നു...',
   'ide.preview.noPreview': 'പ്രിവ്യൂ ലഭ്യമല്ല',
+  'ide.preview.retryCount': 'വീണ്ടും ശ്രമം {{count}}',
+  'ide.preview.retryButton': 'ഇപ്പോൾ വീണ്ടും ശ്രമിക്കുക',
   'ide.device.label': 'ഉപകരണ ഫ്രെയിം',
   'ide.device.responsive': 'റെസ്‌പോൺസീവ്',
   'ide.device.desktop': 'ഡെസ്‌ക്ടോപ്പ്',

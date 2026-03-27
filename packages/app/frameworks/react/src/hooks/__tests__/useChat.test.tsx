@@ -851,8 +851,11 @@ describe('useChat', () => {
       emit(0, { type: 'file_diff', path: 'app.ts', oldContent: 'old', newContent: 'new' })
     })
 
-    const assistant = result.current.messages.find((m) => m.role === 'assistant')!
-    expect(assistant.toolCalls![0].fileDiff).toEqual({ original: 'old', modified: 'new' })
+    // file_diff uses scheduleFlush (50ms debounce) — wait for the update
+    await waitFor(() => {
+      const assistant = result.current.messages.find((m) => m.role === 'assistant')!
+      expect(assistant.toolCalls![0].fileDiff).toEqual({ original: 'old', modified: 'new' })
+    })
     expect(onFileChange).toHaveBeenCalledWith('app.ts', 'new')
 
     await act(async () => {

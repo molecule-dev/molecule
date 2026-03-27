@@ -34,10 +34,14 @@ export const is: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Náð hámarki {{max}} verkfæraítrekana.',
   'ide.chat.maxLoopsError': 'Ekki tókst að uppfæra hámark verkfæraítrekana.',
   'ide.chat.maxLoopsSet': 'Hámark verkfæraítrekana stillt á {{n}}',
+  'ide.chat.maxLoopsReached': 'Hámarks lykkjumörk náð.',
   'ide.chat.modelError': 'Ekki tókst að uppfæra spjalllíkan.',
   'ide.chat.modelSet': 'Spjalllíkan stillt á {{name}}',
   'ide.chat.modelUsage':
     'Notkun: /model <líkananafn>  (t.d. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} er í boði í Pro. Uppfærðu til að fá aðgang að öllum módelum.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Í biðröð',
   'ide.chat.redoChange': 'Endurbeita þessa breytingu',
   'ide.chat.responseStopped': 'Svar stöðvað',
@@ -92,6 +96,8 @@ export const is: IdeTranslations = {
   'ide.preview.starting': 'Hleður forskoðun...',
   'ide.preview.restarting': 'Hleður forskoðun...',
   'ide.preview.noPreview': 'Engin forskoðun tiltæk',
+  'ide.preview.retryCount': 'Tilraun {{count}}',
+  'ide.preview.retryButton': 'Reyna aftur núna',
   'ide.device.label': 'Tækjarammi',
   'ide.device.responsive': 'Sveigjanleg',
   'ide.device.desktop': 'Skjáborð',

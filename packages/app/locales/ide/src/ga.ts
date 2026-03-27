@@ -34,10 +34,14 @@ export const ga: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Sroicheadh uasmhéid {{max}} atriall uirlise.',
   'ide.chat.maxLoopsError': 'Theip ar nuashonrú uasmhéid atriall uirlise.',
   'ide.chat.maxLoopsSet': 'Uasmhéid atriall uirlise socraithe ag {{n}}',
+  'ide.chat.maxLoopsReached': 'Sroicheadh teorainn uasta na lúb.',
   'ide.chat.modelError': 'Theip ar nuashonrú samhail comhrá.',
   'ide.chat.modelSet': 'Samhail comhrá socraithe ag {{name}}',
   'ide.chat.modelUsage':
     'Úsáid: /model <ainm-samhla>  (m.sh. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    'Tá {{model}} ar fáil ar Pro. Uasghrádaigh chun rochtain a fháil ar na múnlaí go léir.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Sa scuaine',
   'ide.chat.redoChange': 'Cuir an t-athrú seo i bhfeidhm arís',
   'ide.chat.responseStopped': 'Stopadh an freagra',
@@ -92,6 +96,8 @@ export const ga: IdeTranslations = {
   'ide.preview.starting': 'Réamhamharc á lódáil...',
   'ide.preview.restarting': 'Réamhamharc á lódáil...',
   'ide.preview.noPreview': 'Gan réamhamharc ar fáil',
+  'ide.preview.retryCount': 'Iarracht {{count}}',
+  'ide.preview.retryButton': 'Bain triail as anois',
   'ide.device.label': 'Fráma gléis',
   'ide.device.responsive': 'Freagrach',
   'ide.device.desktop': 'Deisce',

@@ -34,10 +34,14 @@ export const mt: IdeTranslations = {
   'ide.chat.loopLimitReached': "Intlaħaq il-massimu ta' {{max}} iterazzjonijiet tal-għodda.",
   'ide.chat.maxLoopsError': 'Ma rnexxiex jaġġorna l-iterazzjonijiet massimi tal-għodda.',
   'ide.chat.maxLoopsSet': 'L-iterazzjonijiet massimi tal-għodda ssettjati għal {{n}}',
+  'ide.chat.maxLoopsReached': 'Intlaħaq il-limitu massimu tal-loops.',
   'ide.chat.modelError': 'Ma rnexxiex jaġġorna l-mudell tal-chat.',
   'ide.chat.modelSet': 'Il-mudell tal-chat issettjat għal {{name}}',
   'ide.chat.modelUsage':
     'Użu: /model <isem-mudell>  (eż. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} huwa disponibbli fuq Pro. Aġġorna biex ikollok aċċess għall-mudelli kollha.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Fil-kju',
   'ide.chat.redoChange': "Erġa' applika din il-bidla",
   'ide.chat.responseStopped': 'Ir-risposta twaqqfet',
@@ -93,6 +97,8 @@ export const mt: IdeTranslations = {
   'ide.preview.starting': 'Qed jitgħabba l-preview...',
   'ide.preview.restarting': 'Qed jitgħabba l-preview...',
   'ide.preview.noPreview': 'Ebda previżjoni disponibbli',
+  'ide.preview.retryCount': 'Tentattiv {{count}}',
+  'ide.preview.retryButton': 'Erġa pprova issa',
   'ide.device.label': 'Qafas tal-apparat',
   'ide.device.responsive': 'Responsiv',
   'ide.device.desktop': 'Kompjuter tal-mejda',

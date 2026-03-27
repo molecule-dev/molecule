@@ -8,6 +8,13 @@
  * The iframe is always mounted (behind the overlay) once we have a URL.
  * The overlay hides when the iframe fires `onLoad`.
  *
+ * Recovery features:
+ * - Never-give-up polling with exponential backoff (never permanently stuck)
+ * - Stuck-load detection: auto-reloads/remounts iframe if molecule:ready never arrives
+ * - Pre-render error forwarding: module/import errors sent to Synthase for auto-fix
+ * - Heartbeat monitoring: detects alive-but-broken scaffold
+ * - Blank page detection: catches pages that render but show nothing
+ *
  * @module
  */
 
@@ -27,11 +34,25 @@ const deviceWidths: Record<string, string> = {
   mobile: '375px',
 }
 
-/** How often to poll when waiting for the server to come up. */
-const POLL_INTERVAL_MS = 500
+// --- Polling constants (exponential backoff, never gives up) ---
 
-/** Max consecutive poll failures before giving up. */
-const MAX_POLL_ATTEMPTS = 120 // 60 seconds at 500ms
+/** Initial poll interval when waiting for the server. */
+const POLL_INITIAL_MS = 500
+/** Maximum poll interval after backoff. */
+const POLL_MAX_MS = 5000
+/** Backoff multiplier applied after each failed poll. */
+const POLL_BACKOFF_FACTOR = 2
+
+// --- Stuck-load detection constants ---
+
+/** Time to wait for molecule:ready after iframe src is set before attempting recovery (ms). */
+const STUCK_DETECT_MS = 5_000
+/** Max recovery cycles (reload + remount) before firing onPreviewStuck. */
+const MAX_RECOVERY_CYCLES = 3
+/** Interval between recovery attempts after MAX_RECOVERY_CYCLES exhausted (ms). */
+const STUCK_RETRY_INTERVAL_MS = 10_000
+
+// --- Rate-limiting constants ---
 
 /** Minimum interval between acting on ready/error messages (ms). */
 const MSG_RATE_LIMIT_MS = 300
@@ -44,7 +65,7 @@ const TRANSITION_WINDOW_MS = 5000
 /**
  * Check whether the server at `url` is accepting connections.
  * Uses `no-cors` so CORS errors aren't mistaken for network failures.
- * Aborts after 2s to avoid holding browser connections — hanging polls
+ * Aborts after 500ms to avoid holding browser connections — hanging polls
  * exhaust the per-origin connection limit and starve the iframe of
  * connections for script/asset requests.
  * @param url - The URL to check.
@@ -69,6 +90,7 @@ async function isServerUp(url: string): Promise<boolean> {
  * @param root0.loadingIndicator - Custom loading indicator for initial start.
  * @param root0.restartingIndicator - Custom loading indicator for mid-session restarts.
  * @param root0.onPreviewError - Called when the preview iframe reports runtime JS errors.
+ * @param root0.onPreviewStuck - Called when the preview fails to load after multiple recovery attempts.
  * @param root0.className - Optional CSS class name for the container.
  * @param root0.fileChangeTick - Incremented when the user edits a file, used to cancel queued autofix messages.
  * @returns The rendered preview panel element.
@@ -78,6 +100,7 @@ export function PreviewPanel({
   restartingIndicator,
   className,
   onPreviewError,
+  onPreviewStuck,
   fileChangeTick,
 }: PreviewPanelProps): JSX.Element {
   const cm = getClassMap()
@@ -97,6 +120,17 @@ export function PreviewPanel({
   // Tracks the iframe src to force reload when server recovers
   const [iframeSrc, setIframeSrc] = useState('')
 
+  // --- Stuck-load detection state ---
+  const [stuckRetryCount, setStuckRetryCount] = useState(0)
+  const stuckTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [iframeMountKey, setIframeMountKey] = useState(0)
+  // Mirror iframeReady to a ref so timer callbacks read current value
+  const iframeReadyRef = useRef(iframeReady)
+  iframeReadyRef.current = iframeReady
+
+  // --- Heartbeat tracking ---
+  const lastHeartbeatRef = useRef<number>(0)
+
   // --- Cycle detection: catch rapid ready↔error oscillations ---
   const transitionTimesRef = useRef<number[]>([])
   const suppressedRef = useRef(false)
@@ -109,22 +143,25 @@ export function PreviewPanel({
     }
   }, [])
 
+  // --- Clear stuck timer ---
+  const clearStuckTimer = useCallback(() => {
+    if (stuckTimerRef.current) {
+      clearTimeout(stuckTimerRef.current)
+      stuckTimerRef.current = null
+    }
+  }, [])
+
   // --- Poll until server is up, then mount the iframe ---
+  // Uses exponential backoff: POLL_INITIAL_MS → POLL_MAX_MS. Never gives up.
   const startPolling = useCallback(
     (url: string): void => {
       clearPoll()
       setIframeReady(false)
       setFadingOut(false)
 
-      let attempts = 0
+      let interval = POLL_INITIAL_MS
       const poll = async (): Promise<void> => {
         if (urlRef.current !== url) return
-        if (attempts >= MAX_POLL_ATTEMPTS) {
-          console.warn('[PreviewPanel] Startup poll gave up after %d attempts for %s', attempts, url)
-          pollRef.current = null
-          return
-        }
-        attempts++
         const up = await isServerUp(url)
         if (urlRef.current !== url) return
 
@@ -133,7 +170,8 @@ export function PreviewPanel({
           setIframeSrc(url)
           pollRef.current = null
         } else {
-          pollRef.current = setTimeout(poll, POLL_INTERVAL_MS)
+          pollRef.current = setTimeout(poll, interval)
+          interval = Math.min(interval * POLL_BACKOFF_FACTOR, POLL_MAX_MS)
         }
       }
 
@@ -146,29 +184,95 @@ export function PreviewPanel({
   useEffect(() => {
     if (!state.url) {
       clearPoll()
+      clearStuckTimer()
       setEverLoaded(false)
       setIframeReady(false)
       setFadingOut(false)
       setIframeSrc('')
+      setStuckRetryCount(0)
       return
     }
 
     setEverLoaded(false)
     setIframeSrc('')
+    setStuckRetryCount(0)
     startPolling(state.url)
 
-    return () => clearPoll()
-  }, [state.url, startPolling, clearPoll])
+    return () => {
+      clearPoll()
+      clearStuckTimer()
+    }
+  }, [state.url, startPolling, clearPoll, clearStuckTimer])
 
   // --- When iframeReady becomes true, trigger fade-out ---
   useEffect(() => {
     if (iframeReady) setFadingOut(true)
   }, [iframeReady])
 
+  // --- Stuck-load detection: auto-recover when molecule:ready never arrives ---
+  useEffect(() => {
+    // Only run when we have a src but iframe hasn't reported ready
+    if (!iframeSrc || iframeReady) {
+      clearStuckTimer()
+      return
+    }
+
+    let cycleCount = 0
+    let stuckFired = false
+
+    const attempt = (): void => {
+      const delay = cycleCount < MAX_RECOVERY_CYCLES ? STUCK_DETECT_MS : STUCK_RETRY_INTERVAL_MS
+      stuckTimerRef.current = setTimeout(() => {
+        stuckTimerRef.current = null
+        // Check ref, not stale closure
+        if (iframeReadyRef.current) return
+
+        cycleCount++
+        setStuckRetryCount(cycleCount)
+
+        if (cycleCount <= MAX_RECOVERY_CYCLES) {
+          if (cycleCount % 2 === 1) {
+            // Odd cycles: force-reload iframe with cache buster
+            setIframeSrc(
+              urlRef.current + (urlRef.current.includes('?') ? '&' : '?') + '_r=' + Date.now(),
+            )
+          } else {
+            // Even cycles: full iframe remount (unmount + remount)
+            setIframeMountKey((k) => k + 1)
+          }
+          attempt()
+        } else {
+          // Exhausted recovery cycles — fire onPreviewStuck (once)
+          if (!stuckFired) {
+            stuckFired = true
+            onPreviewStuck?.()
+          }
+          // Continue retrying at longer intervals indefinitely
+          const longRetry = (): void => {
+            stuckTimerRef.current = setTimeout(() => {
+              stuckTimerRef.current = null
+              if (iframeReadyRef.current) return
+              setIframeMountKey((k) => k + 1)
+              setStuckRetryCount((n) => n + 1)
+              longRetry()
+            }, STUCK_RETRY_INTERVAL_MS)
+          }
+          longRetry()
+        }
+      }, delay)
+    }
+
+    attempt()
+
+    return () => clearStuckTimer()
+  }, [iframeSrc, iframeReady, onPreviewStuck, clearStuckTimer])
+
   // --- Listen for postMessage from scaffold template ---
-  // molecule:ready  = #root got children (app rendered)  → hide overlay
-  // molecule:error {crash:true} = #root emptied (app crashed) → show overlay
-  // molecule:runtime-error = JS runtime error in the iframe → forward to chat
+  // molecule:ready       = #root got children (app rendered)  → hide overlay
+  // molecule:error       = pre-render error OR crash           → forward/show overlay
+  // molecule:runtime-error = JS runtime error in the iframe   → forward to chat
+  // molecule:heartbeat   = scaffold alive signal
+  // molecule:blank       = page rendered but appears empty
   useEffect(() => {
     // Debounce runtime errors — HMR triggers rapid error/recovery cycles
     let errorBatch: Array<{ message: string; source?: string; line?: number; column?: number }> = []
@@ -179,6 +283,27 @@ export function PreviewPanel({
     let lastMsgTime = 0
     let lastMsgType = ''
     let pendingMsg: ReturnType<typeof setTimeout> | null = null
+
+    const flushErrors = (): void => {
+      if (errorBatch.length > 0 && onPreviewError) {
+        onPreviewError(errorBatch)
+        errorBatch = []
+      }
+      debounceTimer = null
+    }
+
+    const queueError = (err: {
+      message: string
+      source?: string
+      line?: number
+      column?: number
+    }): void => {
+      if (errorBatch.length < MAX_ERRORS_PER_BATCH) {
+        errorBatch.push(err)
+      }
+      if (debounceTimer) clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(flushErrors, 2000)
+    }
 
     const handler = (event: MessageEvent): void => {
       if (event.data?.type === 'molecule:ready') {
@@ -214,6 +339,7 @@ export function PreviewPanel({
         clearPoll()
         setEverLoaded(true)
         setIframeReady(true)
+        setStuckRetryCount(0)
       } else if (event.data?.type === 'molecule:error' && event.data.crash) {
         const now = Date.now()
 
@@ -248,23 +374,36 @@ export function PreviewPanel({
           setIframeReady(false)
           setFadingOut(false)
         }, MSG_RATE_LIMIT_MS)
-      } else if (event.data?.type === 'molecule:runtime-error' && onPreviewError) {
-        if (errorBatch.length < MAX_ERRORS_PER_BATCH) {
-          errorBatch.push({
-            message: String(event.data.message ?? 'Unknown error'),
-            source: event.data.source ?? undefined,
-            line: event.data.line ?? undefined,
-            column: event.data.column ?? undefined,
-          })
+      } else if (event.data?.type === 'molecule:error' && !event.data.crash && event.data.message) {
+        // Pre-render error — app failed to mount (e.g., module export missing, import error).
+        // Forward to Synthase so it can fix the issue.
+        queueError({
+          message: String(event.data.message),
+          source: event.data.source ? String(event.data.source) : 'pre-render',
+          line: event.data.line ?? undefined,
+          column: event.data.column ?? undefined,
+        })
+      } else if (event.data?.type === 'molecule:runtime-error') {
+        queueError({
+          message: String(event.data.message ?? 'Unknown error'),
+          source: event.data.source ?? undefined,
+          line: event.data.line ?? undefined,
+          column: event.data.column ?? undefined,
+        })
+      } else if (event.data?.type === 'molecule:heartbeat') {
+        lastHeartbeatRef.current = Date.now()
+      } else if (event.data?.type === 'molecule:blank') {
+        // Page rendered but appears blank — notify Synthase
+        if (onPreviewError) {
+          onPreviewError([
+            {
+              message: String(
+                event.data.message ?? 'Page appears blank — rendered but no visible content',
+              ),
+              source: 'molecule:blank',
+            },
+          ])
         }
-        if (debounceTimer) clearTimeout(debounceTimer)
-        debounceTimer = setTimeout(() => {
-          if (errorBatch.length > 0) {
-            onPreviewError(errorBatch)
-            errorBatch = []
-          }
-          debounceTimer = null
-        }, 2000)
       }
     }
     window.addEventListener('message', handler)
@@ -304,21 +443,17 @@ export function PreviewPanel({
         setIframeReady(false)
         setFadingOut(false)
 
-        let attempts = 0
+        let interval = POLL_INITIAL_MS
         const poll = async (): Promise<void> => {
           if (cancelled || urlRef.current !== url) return
-          if (attempts >= MAX_POLL_ATTEMPTS) {
-            console.warn('[PreviewPanel] Health-check poll gave up after %d attempts for %s', attempts, url)
-            return
-          }
-          attempts++
           const back = await isServerUp(url)
           if (cancelled || urlRef.current !== url) return
           if (back) {
             // Force-reload iframe with cache buster
             setIframeSrc(url + (url.includes('?') ? '&' : '?') + '_r=' + Date.now())
           } else {
-            setTimeout(poll, POLL_INTERVAL_MS)
+            setTimeout(poll, interval)
+            interval = Math.min(interval * POLL_BACKOFF_FACTOR, POLL_MAX_MS)
           }
         }
         void poll()
@@ -349,13 +484,35 @@ export function PreviewPanel({
     return () => clearTimeout(timer)
   }, [fileChangeTick, iframeReady, everLoaded, state.url])
 
+  // --- Manual retry handler ---
+  const handleManualRetry = useCallback(() => {
+    setIframeMountKey((k) => k + 1)
+    setStuckRetryCount(0)
+    if (state.url) {
+      setIframeSrc(state.url + (state.url.includes('?') ? '&' : '?') + '_r=' + Date.now())
+    }
+  }, [state.url])
+
   // --- Rendering ---
   const iframeWidth = deviceWidths[state.device] || '100%'
   const showOverlay = Boolean(state.url) && (!iframeReady || fadingOut)
 
   const overlayContent = everLoaded
-    ? (restartingIndicator ?? loadingIndicator ?? <DefaultLoadingIndicator restarting />)
-    : (loadingIndicator ?? <DefaultLoadingIndicator restarting={false} />)
+    ? (restartingIndicator ??
+      loadingIndicator ?? (
+        <DefaultLoadingIndicator
+          restarting
+          retryCount={stuckRetryCount}
+          onManualRetry={handleManualRetry}
+        />
+      ))
+    : (loadingIndicator ?? (
+        <DefaultLoadingIndicator
+          restarting={false}
+          retryCount={stuckRetryCount}
+          onManualRetry={handleManualRetry}
+        />
+      ))
 
   return (
     <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, className)}>
@@ -425,6 +582,7 @@ export function PreviewPanel({
         {/* Iframe — always mounted when we have a src, sits behind overlay */}
         {iframeSrc && (
           <iframe
+            key={iframeMountKey}
             ref={iframeRef}
             src={iframeSrc}
             sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin"
@@ -440,7 +598,7 @@ export function PreviewPanel({
           />
         )}
 
-        {/* Overlay — "Loading preview" or "Loading preview" */}
+        {/* Overlay — "Loading preview" */}
         {showOverlay && (
           <div
             style={{
@@ -506,9 +664,19 @@ PreviewPanel.displayName = 'PreviewPanel'
  * Fallback loading indicator when no custom one is provided.
  * @param root0 - Component props.
  * @param root0.restarting - Whether this is a restart (server was previously up).
+ * @param root0.retryCount - Number of stuck-load recovery attempts so far.
+ * @param root0.onManualRetry - Callback to trigger a manual retry.
  * @returns The rendered loading indicator element.
  */
-function DefaultLoadingIndicator({ restarting }: { restarting: boolean }): JSX.Element {
+function DefaultLoadingIndicator({
+  restarting,
+  retryCount,
+  onManualRetry,
+}: {
+  restarting: boolean
+  retryCount: number
+  onManualRetry?: () => void
+}): JSX.Element {
   const message = restarting
     ? t('ide.preview.restarting', {}, { defaultValue: 'Loading preview...' })
     : t('ide.preview.starting', {}, { defaultValue: 'Loading preview...' })
@@ -532,6 +700,33 @@ function DefaultLoadingIndicator({ restarting }: { restarting: boolean }): JSX.E
       <span style={{ fontSize: '13px', color: 'var(--mol-color-text-muted, #888)' }}>
         {message}
       </span>
+      {retryCount > 0 && (
+        <span style={{ fontSize: '11px', color: 'var(--mol-color-text-muted, #888)' }}>
+          {t(
+            'ide.preview.retryCount',
+            { count: retryCount },
+            { defaultValue: 'Retry attempt {{count}}' },
+          )}
+        </span>
+      )}
+      {retryCount >= MAX_RECOVERY_CYCLES && onManualRetry && (
+        <button
+          type="button"
+          onClick={onManualRetry}
+          style={{
+            marginTop: '8px',
+            padding: '6px 16px',
+            fontSize: '12px',
+            border: '1px solid var(--mol-color-border, #ddd)',
+            borderRadius: '4px',
+            background: 'transparent',
+            color: 'inherit',
+            cursor: 'pointer',
+          }}
+        >
+          {t('ide.preview.retryButton', {}, { defaultValue: 'Retry now' })}
+        </button>
+      )}
       <style>{`
         @keyframes mol-preview-pulse {
           0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }

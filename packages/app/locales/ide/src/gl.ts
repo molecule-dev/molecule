@@ -34,10 +34,14 @@ export const gl: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Alcanzouse o máximo de {{max}} iteracións de ferramentas.',
   'ide.chat.maxLoopsError': 'Non se puideron actualizar as iteracións máximas de ferramentas.',
   'ide.chat.maxLoopsSet': 'Iteracións máximas de ferramentas establecidas en {{n}}',
+  'ide.chat.maxLoopsReached': 'Alcanzouse o límite máximo de bucles.',
   'ide.chat.modelError': 'Non se puido actualizar o modelo de chat.',
   'ide.chat.modelSet': 'Modelo de chat establecido en {{name}}',
   'ide.chat.modelUsage':
     'Uso: /model <nome-do-modelo>  (p. ex. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} está dispoñible en Pro. Actualiza para acceder a todos os modelos.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'En cola',
   'ide.chat.redoChange': 'Volver aplicar este cambio',
   'ide.chat.responseStopped': 'Resposta detida',
@@ -94,6 +98,8 @@ export const gl: IdeTranslations = {
   'ide.preview.starting': 'Cargando vista previa...',
   'ide.preview.restarting': 'Cargando vista previa...',
   'ide.preview.noPreview': 'Non hai vista previa dispoñible',
+  'ide.preview.retryCount': 'Intento {{count}}',
+  'ide.preview.retryButton': 'Reintentar agora',
   'ide.device.label': 'Marco do dispositivo',
   'ide.device.responsive': 'Adaptable',
   'ide.device.desktop': 'Escritorio',

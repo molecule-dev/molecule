@@ -34,10 +34,14 @@ export const fa: IdeTranslations = {
   'ide.chat.loopLimitReached': 'به حداکثر {{max}} تکرار ابزار رسیده است.',
   'ide.chat.maxLoopsError': 'به‌روزرسانی حداکثر تکرار ابزار ناموفق بود.',
   'ide.chat.maxLoopsSet': 'حداکثر تکرار ابزار روی {{n}} تنظیم شد',
+  'ide.chat.maxLoopsReached': 'به حداکثر تعداد حلقه‌ها رسید.',
   'ide.chat.modelError': 'به‌روزرسانی مدل گفتگو ناموفق بود.',
   'ide.chat.modelSet': 'مدل گفتگو روی {{name}} تنظیم شد',
   'ide.chat.modelUsage':
     'استفاده: /model <نام-مدل>  (مثلاً claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} در Pro موجود است. برای دسترسی به تمام مدل‌ها ارتقا دهید.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'در صف',
   'ide.chat.redoChange': 'اعمال مجدد این تغییر',
   'ide.chat.responseStopped': 'پاسخ متوقف شد',
@@ -92,6 +96,8 @@ export const fa: IdeTranslations = {
   'ide.preview.starting': 'بارگذاری پیش‌نمایش...',
   'ide.preview.restarting': 'بارگذاری پیش‌نمایش...',
   'ide.preview.noPreview': 'پیش‌نمایشی موجود نیست',
+  'ide.preview.retryCount': 'تلاش {{count}}',
+  'ide.preview.retryButton': 'اکنون دوباره امتحان کنید',
   'ide.device.label': 'قاب دستگاه',
   'ide.device.responsive': 'واکنش‌گرا',
   'ide.device.desktop': 'دسکتاپ',

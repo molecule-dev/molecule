@@ -34,10 +34,14 @@ export const mn: IdeTranslations = {
   'ide.chat.loopLimitReached': '{{max}} хэрэгслийн давталтын хамгийн их хэмжээнд хүрсэн.',
   'ide.chat.maxLoopsError': 'Хамгийн их хэрэгслийн давталтыг шинэчлэх боломжгүй болсон.',
   'ide.chat.maxLoopsSet': 'Хамгийн их хэрэгслийн давталт {{n}} болж тохируулагдсан',
+  'ide.chat.maxLoopsReached': 'Давталтын дээд хязгаарт хүрсэн.',
   'ide.chat.modelError': 'Чатын загварыг шинэчлэх боломжгүй болсон.',
   'ide.chat.modelSet': 'Чатын загвар {{name}} болж тохируулагдсан',
   'ide.chat.modelUsage':
     'Хэрэглээ: /model <загвар-нэр>  (жиш. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro-д боломжтой. Бүх моделд хандахын тулд шинэчлэнэ үү.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Дараалалд',
   'ide.chat.redoChange': 'Энэ өөрчлөлтийг дахин хийх',
   'ide.chat.responseStopped': 'Хариу зогссон',
@@ -94,6 +98,8 @@ export const mn: IdeTranslations = {
   'ide.preview.starting': 'Урьдчилан харах ачааллаж байна...',
   'ide.preview.restarting': 'Урьдчилан харах ачааллаж байна...',
   'ide.preview.noPreview': 'Урьдчилан харах боломжгүй',
+  'ide.preview.retryCount': 'Оролдлого {{count}}',
+  'ide.preview.retryButton': 'Одоо дахин оролдох',
   'ide.device.label': 'Төхөөрөмжийн хүрээ',
   'ide.device.responsive': 'Уян хариу',
   'ide.device.desktop': 'Ширээний',

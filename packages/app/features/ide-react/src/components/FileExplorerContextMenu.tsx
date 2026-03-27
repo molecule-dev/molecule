@@ -92,7 +92,11 @@ function getMenuItems(node: FileNode | null, selectedCount: number, canPaste: bo
     const items: MenuItem[] = [
       {
         action: 'deleteMultiple',
-        label: t('ide.contextMenu.deleteCount', { count: selectedCount }, { defaultValue: `Delete ${selectedCount} Items` }),
+        label: t(
+          'ide.contextMenu.deleteCount',
+          { count: selectedCount },
+          { defaultValue: `Delete ${selectedCount} Items` },
+        ),
         shortcut: '\u232B',
       },
       {

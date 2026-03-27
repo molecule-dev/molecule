@@ -103,6 +103,7 @@ interface MonacoLanguageDefaults {
   setCompilerOptions(options: Record<string, unknown>): void
   setDiagnosticsOptions(options: Record<string, unknown>): void
   setModeConfiguration?(options: Record<string, boolean>): void
+  setEagerModelSync?(enabled: boolean): void
   addExtraLib(content: string, filePath?: string): { dispose(): void }
 }
 
@@ -217,6 +218,10 @@ export class MonacoEditorProvider implements EditorProvider {
   private pendingSilentUpdates: Map<string, string> = new Map()
   /** Handle for the scheduled rAF that flushes pendingSilentUpdates, or null if none is pending. */
   private silentUpdateRaf: number | null = null
+  /** Files whose Monaco model content is stale (fileContents updated but model.setValue skipped). */
+  private staleModels: Set<string> = new Set()
+  /** Reverse lookup: Monaco model URI string → file path, for targeted marker checks. */
+  private uriToPath: Map<string, string> = new Map()
 
   constructor(config: MonacoConfig = {}) {
     this.config = {
@@ -254,47 +259,45 @@ export class MonacoEditorProvider implements EditorProvider {
     this.containerElement = element
 
     // Configure Monaco workers for language services.
-    // Only set if not already configured (avoids overwriting on re-mounts).
+    // Always override — stale MonacoEnvironment from HMR reloads may still
+    // reference the TS worker, bypassing our fix to exclude it.
     // Workers must be module type since Monaco's ESM worker files use `import`.
     // Vite dev server serves node_modules with fs.strict=false so these paths work.
     const win = window as unknown as Record<string, unknown>
-    if (!win.MonacoEnvironment) {
-      win.MonacoEnvironment = {
-        // Use new URL(..., import.meta.url) so Vite resolves bare specifiers
-        // through its module resolver (finds hoisted workspace node_modules).
-        // Hardcoded /node_modules/ paths fail in monorepo setups where node_modules
-        // is at the workspace root, not the app root.
-        getWorker(_moduleId: string, label: string): Worker {
-          if (label === 'json') {
-            return new Worker(
-              new URL('monaco-editor/esm/vs/language/json/json.worker.js', import.meta.url),
-              { type: 'module' },
-            )
-          }
-          if (label === 'css' || label === 'scss' || label === 'less') {
-            return new Worker(
-              new URL('monaco-editor/esm/vs/language/css/css.worker.js', import.meta.url),
-              { type: 'module' },
-            )
-          }
-          if (label === 'html' || label === 'handlebars' || label === 'razor') {
-            return new Worker(
-              new URL('monaco-editor/esm/vs/language/html/html.worker.js', import.meta.url),
-              { type: 'module' },
-            )
-          }
-          if (label === 'typescript' || label === 'javascript') {
-            return new Worker(
-              new URL('monaco-editor/esm/vs/language/typescript/ts.worker.js', import.meta.url),
-              { type: 'module' },
-            )
-          }
+    win.MonacoEnvironment = {
+      // Use new URL(..., import.meta.url) so Vite resolves bare specifiers
+      // through its module resolver (finds hoisted workspace node_modules).
+      // Hardcoded /node_modules/ paths fail in monorepo setups where node_modules
+      // is at the workspace root, not the app root.
+      getWorker(_moduleId: string, label: string): Worker {
+        if (label === 'json') {
           return new Worker(
-            new URL('monaco-editor/esm/vs/editor/editor.worker.js', import.meta.url),
+            new URL('monaco-editor/esm/vs/language/json/json.worker.js', import.meta.url),
             { type: 'module' },
           )
-        },
-      }
+        }
+        if (label === 'css' || label === 'scss' || label === 'less') {
+          return new Worker(
+            new URL('monaco-editor/esm/vs/language/css/css.worker.js', import.meta.url),
+            { type: 'module' },
+          )
+        }
+        if (label === 'html' || label === 'handlebars' || label === 'razor') {
+          return new Worker(
+            new URL('monaco-editor/esm/vs/language/html/html.worker.js', import.meta.url),
+            { type: 'module' },
+          )
+        }
+        // Intentionally NOT loading ts.worker.js for TypeScript/JavaScript.
+        // The TS worker attempts to resolve every import (including @molecule/*
+        // packages that don't exist in the browser) and freezes the tab.
+        // LSP provides all language features we need — the basic editor worker
+        // handles tokenization and syntax highlighting via Monarch grammars.
+        return new Worker(
+          new URL('monaco-editor/esm/vs/editor/editor.worker.js', import.meta.url),
+          { type: 'module' },
+        )
+      },
     }
 
     // Dispose previous editor if exists
@@ -342,6 +345,7 @@ export class MonacoEditorProvider implements EditorProvider {
               model = this.monaco.editor.createModel(stored.content, stored.language, uri)
             }
             this.monacoModels.set(this.activeFile, model)
+            this.uriToPath.set(String(model.uri), this.activeFile)
           }
         }
         if (model) {
@@ -362,7 +366,7 @@ export class MonacoEditorProvider implements EditorProvider {
 
     // Cancel any pending batched silent updates
     if (this.silentUpdateRaf !== null) {
-      cancelAnimationFrame(this.silentUpdateRaf)
+      clearTimeout(this.silentUpdateRaf)
       this.silentUpdateRaf = null
     }
     this.pendingSilentUpdates.clear()
@@ -391,8 +395,10 @@ export class MonacoEditorProvider implements EditorProvider {
       model.dispose()
     }
     this.monacoModels.clear()
+    this.uriToPath.clear()
     this.fileContents.clear()
     this.tabs.clear()
+    this.staleModels.clear()
     // NOTE: Do NOT clear changeListeners here. External subscribers (e.g.
     // auto-save, tab sync) register via onChange() and manage their own
     // lifecycle through the returned unsubscribe function. Clearing them
@@ -497,6 +503,7 @@ export class MonacoEditorProvider implements EditorProvider {
             model = this.monaco.editor.createModel(file.content, file.language, uri)
           }
           this.monacoModels.set(file.path, model)
+          this.uriToPath.set(String(model.uri), file.path)
         } else {
           // Model already exists — update its content with the freshly fetched file
           model.setValue(file.content)
@@ -559,9 +566,11 @@ export class MonacoEditorProvider implements EditorProvider {
 
     this.tabs.delete(path)
     this.fileContents.delete(path)
+    this.staleModels.delete(path)
 
     const model = this.monacoModels.get(path)
     if (model) {
+      this.uriToPath.delete(String(model.uri))
       model.dispose()
       this.monacoModels.delete(path)
     }
@@ -578,10 +587,15 @@ export class MonacoEditorProvider implements EditorProvider {
       if (this.activeFile) {
         const tab = this.tabs.get(this.activeFile)
         if (tab) this.tabs.set(this.activeFile, { ...tab, isActive: true })
-        // Switch model
+        // Switch model — sync stale content if needed
         const nextModel = this.monacoModels.get(this.activeFile)
         if (nextModel && this.editor) {
           this.changeDisposable?.dispose()
+          if (this.staleModels.has(this.activeFile)) {
+            const staleContent = this.fileContents.get(this.activeFile)
+            if (staleContent) nextModel.setValue(staleContent.content)
+            this.staleModels.delete(this.activeFile)
+          }
           this.editor.setModel(nextModel)
           this.wireChangeListener()
         }
@@ -659,55 +673,72 @@ export class MonacoEditorProvider implements EditorProvider {
     const model = this.monacoModels.get(path)
     if (!model) return
 
-    // Queue the update — if multiple calls arrive for the same file before the
-    // next animation frame, only the last content wins (natural deduplication).
+    // For non-active files, skip model.setValue() entirely — just mark the model
+    // stale. The content is already in fileContents (above). When the user switches
+    // to this tab, setActiveTab() will sync the model before displaying it.
+    // This avoids triggering the Monaco editor worker for files the user isn't
+    // looking at, which previously caused tab freezes when the AI edited many files.
+    if (path !== this.activeFile) {
+      this.staleModels.add(path)
+
+      // Still notify LSP so diagnostics stay current even for background files
+      if (this.lspClient?.isConnected()) {
+        const uri = this.lspClient.toLspUri(path)
+        const docVersion = (this.documentVersions.get(path) ?? 0) + 1
+        this.documentVersions.set(path, docVersion)
+        this.lspClient.didChange(uri, docVersion, content)
+      }
+      return
+    }
+
+    // Queue the update for the active file — if multiple calls arrive within
+    // the debounce window, only the last content wins (natural deduplication).
+    // Uses 300ms setTimeout instead of rAF (16ms) to give the browser more
+    // breathing room during rapid AI edits. Resets on each call so the model
+    // only updates 300ms after the last edit — during active streaming, this
+    // means zero setValue calls until the AI pauses or finishes.
     this.pendingSilentUpdates.set(path, content)
 
-    if (this.silentUpdateRaf === null) {
-      this.silentUpdateRaf = requestAnimationFrame(() => {
-        this.silentUpdateRaf = null
-        const updates = new Map(this.pendingSilentUpdates)
-        this.pendingSilentUpdates.clear()
-
-        for (const [updatePath, updateContent] of updates) {
-          const updateModel = this.monacoModels.get(updatePath)
-          if (!updateModel) continue
-
-          // Save cursor position for the active file
-          let savedPosition: { lineNumber: number; column: number } | null = null
-          if (updatePath === this.activeFile && this.editor) {
-            savedPosition = this.editor.getPosition()
-          }
-
-          // Suppress change listener during setValue (same pattern as openFile).
-          // Only dispose/re-wire if this is the active model — otherwise setValue on a
-          // background model won't trigger onDidChangeModelContent on the editor anyway,
-          // and needlessly disposing the active listener creates a window where user
-          // keystrokes are lost.
-          const isActiveModel = updatePath === this.activeFile && this.editor
-          if (isActiveModel) this.changeDisposable?.dispose()
-          updateModel.setValue(updateContent)
-          if (isActiveModel) this.wireChangeListener()
-
-          // Notify LSP so it re-analyzes and clears stale diagnostics
-          if (this.lspClient?.isConnected()) {
-            const uri = this.lspClient.toLspUri(updatePath)
-            const docVersion = (this.documentVersions.get(updatePath) ?? 0) + 1
-            this.documentVersions.set(updatePath, docVersion)
-            this.lspClient.didChange(uri, docVersion, updateContent)
-          }
-
-          // Restore cursor, clamped to valid bounds
-          if (savedPosition && this.editor && updatePath === this.activeFile) {
-            const lines = updateContent.split('\n')
-            const line = Math.min(savedPosition.lineNumber, lines.length)
-            const maxCol = (lines[line - 1]?.length ?? 0) + 1
-            const col = Math.min(savedPosition.column, maxCol)
-            this.editor.setPosition({ lineNumber: line, column: col })
-          }
-        }
-      })
+    if (this.silentUpdateRaf !== null) {
+      clearTimeout(this.silentUpdateRaf)
     }
+    this.silentUpdateRaf = window.setTimeout(() => {
+      this.silentUpdateRaf = null
+
+      // Process only the active file's pending update. Non-active files were
+      // already handled above (staleModels).
+      const activeContent = this.pendingSilentUpdates.get(this.activeFile ?? '')
+      this.pendingSilentUpdates.clear()
+
+      if (!activeContent || !this.activeFile) return
+      const updateModel = this.monacoModels.get(this.activeFile)
+      if (!updateModel) return
+
+      // Save cursor position
+      const savedPosition = this.editor?.getPosition() ?? null
+
+      // Suppress change listener during setValue
+      if (this.editor) this.changeDisposable?.dispose()
+      updateModel.setValue(activeContent)
+      if (this.editor) this.wireChangeListener()
+
+      // Notify LSP so it re-analyzes and clears stale diagnostics
+      if (this.lspClient?.isConnected()) {
+        const uri = this.lspClient.toLspUri(this.activeFile)
+        const docVersion = (this.documentVersions.get(this.activeFile) ?? 0) + 1
+        this.documentVersions.set(this.activeFile, docVersion)
+        this.lspClient.didChange(uri, docVersion, activeContent)
+      }
+
+      // Restore cursor, clamped to valid bounds
+      if (savedPosition && this.editor) {
+        const lines = activeContent.split('\n')
+        const line = Math.min(savedPosition.lineNumber, lines.length)
+        const maxCol = (lines[line - 1]?.length ?? 0) + 1
+        const col = Math.min(savedPosition.column, maxCol)
+        this.editor.setPosition({ lineNumber: line, column: col })
+      }
+    }) as unknown as number
   }
 
   /**
@@ -795,6 +826,17 @@ export class MonacoEditorProvider implements EditorProvider {
       const model = this.monacoModels.get(path)
       if (model && this.editor) {
         this.changeDisposable?.dispose()
+
+        // Sync model content if it was updated silently while this tab was in
+        // the background (setContentSilent skips model.setValue for non-active files).
+        if (this.staleModels.has(path)) {
+          const staleContent = this.fileContents.get(path)
+          if (staleContent) {
+            model.setValue(staleContent.content)
+          }
+          this.staleModels.delete(path)
+        }
+
         this.editor.setModel(model)
         this.wireChangeListener()
       }
@@ -1040,6 +1082,15 @@ export class MonacoEditorProvider implements EditorProvider {
     }
     monaco.languages.typescript.typescriptDefaults.setModeConfiguration?.(modeOff)
     monaco.languages.typescript.javascriptDefaults.setModeConfiguration?.(modeOff)
+
+    // Fallback: if setModeConfiguration doesn't exist (older Monaco versions),
+    // disable eager model sync to prevent the TS worker from processing models
+    // on every keystroke. Without this, the worker still resolves @molecule/*
+    // imports and freezes the tab.
+    if (typeof monaco.languages.typescript.typescriptDefaults.setModeConfiguration !== 'function') {
+      monaco.languages.typescript.typescriptDefaults.setEagerModelSync?.(false)
+      monaco.languages.typescript.javascriptDefaults.setEagerModelSync?.(false)
+    }
   }
 
   /**
@@ -1048,11 +1099,18 @@ export class MonacoEditorProvider implements EditorProvider {
    */
   private wireMarkerListener(monaco: MonacoModule): void {
     this.markerDisposable?.dispose()
-    this.markerDisposable = monaco.editor.onDidChangeMarkers(() => {
+    this.markerDisposable = monaco.editor.onDidChangeMarkers((uris: unknown[]) => {
+      // Only check models whose markers actually changed (via URI parameter),
+      // not all tabs. Reduces work from O(all_tabs) to O(changed_models).
       let changed = false
-      for (const [path, tab] of this.tabs) {
+      for (const uri of uris) {
+        const path = this.uriToPath.get(String(uri))
+        if (!path) continue
+        const tab = this.tabs.get(path)
+        if (!tab) continue
         const model = this.monacoModels.get(path)
         if (!model) continue
+
         // Only count markers we own ('lsp'). Monaco's built-in TS checker may
         // produce markers under a different owner that persist even after the
         // LSP clears its diagnostics (e.g. when setModeConfiguration is unavailable).
@@ -1088,7 +1146,7 @@ export class MonacoEditorProvider implements EditorProvider {
             content,
             version: this.versionCounter,
           })
-        }, 100)
+        }, 500)
       }
     })
   }

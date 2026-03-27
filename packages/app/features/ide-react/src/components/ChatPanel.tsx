@@ -19,7 +19,7 @@
 import type { JSX } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { formatTokenCount, MODELS } from '@molecule/ai-models'
+import { formatTokenCount, MODELS, PROVIDER_BRAND_COLORS } from '@molecule/ai-models'
 import type { ChatMessage } from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
 import { useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
@@ -159,7 +159,7 @@ const COMMANDS: CommandDef[] = [
 
 type CommandId = CommandDef['id']
 
-const AVAILABLE_MODELS = MODELS
+const FREE_TIER_MODEL = MODELS.find((m) => m.freeTier)?.id ?? MODELS[0].id
 
 interface ModelPicker {
   selectedIdx: number
@@ -770,7 +770,7 @@ function ResourceLimitBanner({
     <div
       style={{
         margin: '6px 0',
-        padding: '8px 12px',
+        padding: '10px 14px',
         borderRadius: 6,
         border: '1px solid rgba(234,179,8,0.4)',
         background: 'rgba(234,179,8,0.08)',
@@ -800,12 +800,26 @@ function ResourceLimitBanner({
           href={ctaHref ?? '/pricing'}
           target="_blank"
           rel="noopener noreferrer"
-          className={cm.textSize('xs')}
           style={{
-            color: '#4070e0',
-            textDecoration: 'underline',
-            marginTop: 2,
             display: 'inline-block',
+            marginTop: 8,
+            fontSize: 12,
+            fontWeight: 600,
+            padding: '5px 14px',
+            borderRadius: 6,
+            cursor: 'pointer',
+            textDecoration: 'none',
+            transition: 'opacity 100ms',
+            fontFamily: 'inherit',
+            border: 'none',
+            background: 'var(--color-primary)',
+            color: '#fff',
+          }}
+          onMouseEnter={(e) => {
+            ;(e.currentTarget as HTMLElement).style.background = 'var(--color-primary-hover)'
+          }}
+          onMouseLeave={(e) => {
+            ;(e.currentTarget as HTMLElement).style.background = 'var(--color-primary)'
           }}
         >
           {ctaLabel ?? t('ide.chat.viewPlans', undefined, { defaultValue: 'View plans' })}
@@ -1162,9 +1176,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                         ? '\uD83C\uDFA5'
                         : '\uD83D\uDCC4'}{' '}
                   {att.filename}
-                  <span style={{ fontSize: 10, opacity: 0.7 }}>
-                    ({formatSize(att.size)})
-                  </span>
+                  <span style={{ fontSize: 10, opacity: 0.7 }}>({formatSize(att.size)})</span>
                 </span>
               ))}
             </div>
@@ -1338,28 +1350,25 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
         </div>
       ) : (
         <div style={{ paddingLeft: sameRoleAsPrev ? '0' : '0' }}>
-          {msg.blocks?.map((block, bi) => {
-            if ((block as { type: string }).type !== 'thinking') return null
-            const isLastBlock = bi === (msg.blocks?.length ?? 0) - 1
-            return (
-              <ThinkingBlock
-                key={bi}
-                content={(block as { type: string; content: string }).content}
-                durationMs={(block as { durationMs?: number }).durationMs}
-                isStreaming={msg.isStreaming && isLastBlock}
-              />
-            )
-          })}
-
           {msg.isStreaming &&
-            (!msg.blocks ||
-              msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
+            (!msg.blocks || msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
             !msg.content && <StreamingIndicator />}
 
           {msg.blocks && msg.blocks.length > 0 ? (
             msg.blocks.map((block, bi) => {
               const blockType = (block as { type: string }).type
-              if (blockType === 'thinking') return null
+
+              if (blockType === 'thinking') {
+                const isLastBlock = bi === (msg.blocks?.length ?? 0) - 1
+                return (
+                  <ThinkingBlock
+                    key={bi}
+                    content={(block as { type: string; content: string }).content}
+                    durationMs={(block as { durationMs?: number }).durationMs}
+                    isStreaming={msg.isStreaming && isLastBlock}
+                  />
+                )
+              }
 
               const isLast = bi === msg.blocks!.length - 1
 
@@ -1371,8 +1380,10 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                 if (isCompaction) {
                   // Split into headline (first line) and optional summary (rest)
                   const nlIdx = textContent.indexOf('\n\n')
-                  const headline = (nlIdx > -1 ? textContent.slice(0, nlIdx) : textContent)
-                    .replace(/^>\s*/, '') // strip leading blockquote
+                  const headline = (nlIdx > -1 ? textContent.slice(0, nlIdx) : textContent).replace(
+                    /^>\s*/,
+                    '',
+                  ) // strip leading blockquote
                   const summary = nlIdx > -1 ? textContent.slice(nlIdx + 2) : ''
                   return (
                     <div
@@ -1398,9 +1409,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                               '[data-chevron]',
                             ) as HTMLElement | null
                             if (svg)
-                              svg.style.transform = (
-                                e.currentTarget as HTMLDetailsElement
-                              ).open
+                              svg.style.transform = (e.currentTarget as HTMLDetailsElement).open
                                 ? 'rotate(180deg)'
                                 : 'rotate(0deg)'
                           }}
@@ -1493,10 +1502,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   message: string
                 }
                 return (
-                  <ResourceLimitBanner
-                    key={`resource-limit-${bi}`}
-                    message={rlBlock.message}
-                  />
+                  <ResourceLimitBanner key={`resource-limit-${bi}`} message={rlBlock.message} />
                 )
               }
 
@@ -1693,6 +1699,7 @@ interface ChatInnerProps {
   initialMessage?: string
   onInitialMessageSent?: () => void
   isAnonymous?: boolean
+  isPro?: boolean
   activeFile?: string | null
   openTabs?: string[]
   onFileOpen?: (path: string) => void
@@ -1719,6 +1726,7 @@ interface ChatInnerProps {
  * @param root0.initialMessage - Optional message to auto-send on mount.
  * @param root0.onInitialMessageSent - Callback fired after the initial message is sent.
  * @param root0.isAnonymous - Whether the current user is anonymous.
+ * @param root0.isPro - Whether the current user has a Pro plan.
  * @param root0.activeFile - Path of the currently focused file in the editor.
  * @param root0.openTabs - Paths of all open editor tabs.
  * @param root0.onFileOpen - Callback to preview a file in the editor.
@@ -1742,6 +1750,7 @@ function ChatInner({
   initialMessage,
   onInitialMessageSent,
   isAnonymous,
+  isPro,
   activeFile,
   openTabs,
   onFileOpen,
@@ -1806,6 +1815,11 @@ function ChatInner({
     changedPaths: string[]
   } | null>(null)
 
+  // Deferred pending message — stores auto-fix messages (preview errors, stuck)
+  // that arrived while the AI was streaming. Sent after streaming ends, unless
+  // verification already caught the same errors (to avoid duplicates).
+  const deferredPendingRef = useRef<string | null>(null)
+
   // Clear countdown interval on unmount
   useEffect(
     () => () => {
@@ -1834,13 +1848,15 @@ function ChatInner({
           contextWindow: event.usage.contextWindow,
         })
       }
-      // Capture verification errors to trigger countdown after stream ends
+      // Capture verification errors to trigger countdown after stream ends.
+      // Also drop any deferred preview error — verification's countdown handles it.
       if (event.type === 'verification_result' && event.status === 'error' && event.output) {
         pendingVerificationRef.current = {
           output: event.output as string,
           categories: (event.categories as string[]) ?? [],
           changedPaths: (event.changedPaths as string[]) ?? [],
         }
+        deferredPendingRef.current = null
       }
       // When stream ends, start countdown if there are pending verification errors
       if (event.type === 'done' && pendingVerificationRef.current) {
@@ -1851,6 +1867,13 @@ function ChatInner({
       // Clear pending verification if a new verification comes back clean
       if (event.type === 'verification_result' && event.status === 'ok') {
         pendingVerificationRef.current = null
+      }
+      // Upgrade prompt from backend (e.g. free user tried to raise max loops)
+      if (event.type === 'upgrade_prompt') {
+        addSystemCardRef.current(event.message as string, {
+          label: t('upgrade.viewPlans', undefined, { defaultValue: 'Upgrade' }),
+          href: '/pricing',
+        })
       }
       // Periodic sign-up reminder for anonymous users in chat history
       if (event.type === 'done' && isAnonymous) {
@@ -1976,12 +1999,9 @@ function ChatInner({
 
   // Ref-stable callback for ToolCallCard's onAskUserResponse — avoids breaking
   // React.memo when sendMessage's identity changes (provider/endpoint deps).
-  const handleAskUserResponse = useCallback(
-    (response: string) => {
-      sendMessageRef.current(response)
-    },
-    [],
-  )
+  const handleAskUserResponse = useCallback((response: string) => {
+    sendMessageRef.current(response)
+  }, [])
 
   // ── Commit ─────────────────────────────────────────────────────────────────
   const [commitState, setCommitState] = useState<{
@@ -1993,6 +2013,8 @@ function ChatInner({
   >(null)
   const [commitBarExpanded, setCommitBarExpanded] = useState(false)
   const [commitCards, setCommitCards] = useState<CommitCard[]>([])
+  /** Number of timeline items rendered in the DOM. Increases when user clicks "Show earlier". */
+  const [maxVisibleItems, setMaxVisibleItems] = useState(60)
 
   // ── Undo tracking ───────────────────────────────────────────────────────────
   // Tracks which tool calls are currently in the "undone" state so /undo can
@@ -2287,14 +2309,14 @@ function ChatInner({
     if (streaming && streaming.timestamp <= ts) {
       ts = streaming.timestamp - 1
     }
-    setSystemCards((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), text, timestamp: ts, action },
-    ])
+    setSystemCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: ts, action }])
     // Auto-scroll after the card renders so the user sees it immediately
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, 50)
+    if (!userScrolledUpRef.current) {
+      setTimeout(() => {
+        const el = messagesContainerRef.current
+        if (el) el.scrollTop = el.scrollHeight
+      }, 50)
+    }
   }, [])
   addSystemCardRef.current = addSystemCard
 
@@ -2337,9 +2359,11 @@ function ChatInner({
   )
 
   // ── Current project settings (model + maxloops + sounds) ──────────────────
-  const DEFAULT_MODEL = 'claude-haiku-4-5-20251001'
+  const DEFAULT_MODEL = FREE_TIER_MODEL
+  const AVAILABLE_MODELS = MODELS
+  const isFreeTier = !isPro
   const [currentModel, setCurrentModel] = useState<string>(DEFAULT_MODEL)
-  const [currentMaxLoops, setCurrentMaxLoops] = useState<number>(25)
+  const [currentMaxLoops, setCurrentMaxLoops] = useState<number>(100)
   const [autoFixEnabled, setAutoFixEnabled] = useState<boolean>(true)
   useEffect(() => {
     http
@@ -2367,7 +2391,38 @@ function ChatInner({
 
   // ── Scroll ─────────────────────────────────────────────────────────────────
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const userScrolledUpRef = useRef(false)
   const sentInitialRef = useRef<string | null>(null)
+
+  // Detect user scroll intent via wheel/touch events. These never fire during
+  // programmatic scrollTop changes, so they cleanly separate user intent from
+  // auto-scroll without false positives from animation timing.
+  useEffect(() => {
+    const el = messagesContainerRef.current
+    if (!el) return
+    const check = () => {
+      userScrolledUpRef.current = el.scrollHeight - el.scrollTop - el.clientHeight > 80
+    }
+    const onWheel = () => requestAnimationFrame(check)
+    let touchY = 0
+    const onTouchStart = (e: TouchEvent) => {
+      touchY = e.touches[0].clientY
+    }
+    const onTouchMove = (e: TouchEvent) => {
+      // Swipe down (finger moves down) = scroll up
+      if (e.touches[0].clientY > touchY) userScrolledUpRef.current = true
+      else requestAnimationFrame(check)
+    }
+    el.addEventListener('wheel', onWheel, { passive: true })
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchmove', onTouchMove, { passive: true })
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchmove', onTouchMove)
+    }
+  }, [])
 
   // ── Git status ─────────────────────────────────────────────────────────────
   const [gitStatusTick, setGitStatusTick] = useState(0)
@@ -2415,14 +2470,18 @@ function ChatInner({
   )
 
   // ── Auto-scroll ────────────────────────────────────────────────────────────
-  // Debounced to avoid stacking smooth-scroll animations during streaming,
-  // which can cause the browser to spend all its time computing scroll positions.
+  // Debounced to batch rapid streaming updates. Uses direct scrollTop assignment
+  // instead of scrollIntoView to avoid smooth-scroll animation timing issues
+  // (intermediate onScroll events, unpredictable animation duration).
+  // Skipped when the user has scrolled up via wheel/touch.
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
+    if (userScrolledUpRef.current) return
     if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current)
     scrollTimerRef.current = setTimeout(() => {
       scrollTimerRef.current = null
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+      const el = messagesContainerRef.current
+      if (el) el.scrollTop = el.scrollHeight
     }, 80)
   }, [messages, commitCards])
 
@@ -2436,9 +2495,12 @@ function ChatInner({
     }
   }, [initialMessage, hasConversation, sendMessage, onInitialMessageSent])
 
-  // ── Auto-send pending message (e.g. "Fix with AI") ────────────────────────
-  // Initialize ref with current key so remounting (conversation switch) won't re-send.
+  // ── Auto-send pending message (e.g. "Fix with AI", preview errors) ──────
+  // Defers sending while the AI is streaming to avoid queueing up auto-fix
+  // messages during active work. Messages are sent once streaming ends.
   const lastPendingKeyRef = useRef(pendingMessageKey)
+
+  // When a new pending message arrives, either send immediately or defer
   useEffect(() => {
     if (
       pendingMessage &&
@@ -2446,9 +2508,24 @@ function ChatInner({
       pendingMessageKey !== lastPendingKeyRef.current
     ) {
       lastPendingKeyRef.current = pendingMessageKey
-      sendMessage(pendingMessage)
+      if (isLoading) {
+        // AI is busy — defer until streaming ends
+        deferredPendingRef.current = pendingMessage
+      } else {
+        deferredPendingRef.current = null
+        sendMessage(pendingMessage)
+      }
     }
-  }, [pendingMessage, pendingMessageKey, sendMessage])
+  }, [pendingMessage, pendingMessageKey, sendMessage, isLoading])
+
+  // When streaming ends, send any deferred message
+  useEffect(() => {
+    if (!isLoading && deferredPendingRef.current) {
+      const msg = deferredPendingRef.current
+      deferredPendingRef.current = null
+      sendMessage(msg)
+    }
+  }, [isLoading, sendMessage])
 
   // ── Auto-delete queued autofix messages when user edits a relevant file ────
   const lastUserEditKeyRef = useRef(userEditedFileKey)
@@ -2795,6 +2872,7 @@ function ChatInner({
         setCommitCards([])
         setSystemCards([])
         setContextUsage(null)
+        setMaxVisibleItems(60)
       } else if (id === 'model') {
         setInputAndCursorEnd('/model ')
         setModelPicker({ selectedIdx: -1 })
@@ -3174,24 +3252,52 @@ function ChatInner({
           AVAILABLE_MODELS.find((m) => m.id.toLowerCase().includes(q)) ??
           AVAILABLE_MODELS.find((m) => m.label.toLowerCase().includes(q))
         const name = resolved?.id ?? query
-        try {
-          await http.patch(`/projects/${projectId}`, { settings: { chatModel: name } })
-          setCurrentModel(name)
+        // Block free-tier users from selecting paid models
+        if (isFreeTier && name !== FREE_TIER_MODEL) {
           addSystemCard(
             t(
-              'ide.chat.modelSet',
-              { name: resolved?.label ?? name },
+              'ide.chat.modelUpgradeRequired',
+              { model: resolved?.label ?? name },
               {
-                defaultValue: `Chat model set to ${resolved?.label ?? name}`,
+                defaultValue: `${resolved?.label ?? name} is available on Pro. Upgrade to access all models.`,
               },
             ),
+            isAnonymous
+              ? [
+                  {
+                    label: t('upgrade.signUp', undefined, { defaultValue: 'Sign up' }),
+                    href: '/signup',
+                  },
+                  {
+                    label: t('upgrade.viewPlans', undefined, { defaultValue: 'View plans' }),
+                    href: '/pricing',
+                  },
+                ]
+              : {
+                  label: t('upgrade.viewPlans', undefined, { defaultValue: 'Upgrade' }),
+                  href: '/pricing',
+                },
           )
-        } catch {
-          addSystemCard(
-            t('ide.chat.modelError', undefined, {
-              defaultValue: 'Failed to update chat model.',
-            }),
-          )
+        } else {
+          try {
+            await http.patch(`/projects/${projectId}`, { settings: { chatModel: name } })
+            setCurrentModel(name)
+            addSystemCard(
+              t(
+                'ide.chat.modelSet',
+                { name: resolved?.label ?? name },
+                {
+                  defaultValue: `Chat model set to ${resolved?.label ?? name}`,
+                },
+              ),
+            )
+          } catch {
+            addSystemCard(
+              t('ide.chat.modelError', undefined, {
+                defaultValue: 'Failed to update chat model.',
+              }),
+            )
+          }
         }
       }
       setInputValue('')
@@ -3199,11 +3305,10 @@ function ChatInner({
       return
     }
 
-    // Handle /maxloops <N> command locally
+    // Handle /maxloops <N> command locally — server enforces tier cap
     const maxLoopsMatch = trimmed.match(/^\/maxloops\s+(\d+)$/i)
     if (maxLoopsMatch) {
-      const maxCap = isAnonymous ? 100 : 10_000
-      const n = Math.max(1, Math.min(Number(maxLoopsMatch[1]), maxCap))
+      const n = Math.max(1, Number(maxLoopsMatch[1]))
       try {
         await http.patch(`/projects/${projectId}`, { settings: { maxToolLoops: n } })
         setCurrentMaxLoops(n)
@@ -3216,12 +3321,32 @@ function ChatInner({
             },
           ),
         )
-      } catch {
-        addSystemCard(
-          t('ide.chat.maxLoopsError', undefined, {
-            defaultValue: 'Failed to update max tool iterations.',
-          }),
-        )
+      } catch (err) {
+        const data = (
+          err as {
+            response?: { data?: { error?: string; limitType?: string; requiresSignup?: boolean } }
+          }
+        )?.response?.data
+        if (data?.limitType === 'max_tool_loops') {
+          addSystemCard(
+            data.error ??
+              t('ide.chat.maxLoopsReached', undefined, {
+                defaultValue: 'Max loops limit reached.',
+              }),
+            {
+              label: data.requiresSignup
+                ? t('upgrade.signUp', undefined, { defaultValue: 'Sign up' })
+                : t('upgrade.viewPlans', undefined, { defaultValue: 'Upgrade' }),
+              href: data.requiresSignup ? '/signup' : '/pricing',
+            },
+          )
+        } else {
+          addSystemCard(
+            t('ide.chat.maxLoopsError', undefined, {
+              defaultValue: 'Failed to update max tool iterations.',
+            }),
+          )
+        }
       }
       setInputValue('')
       return
@@ -3588,201 +3713,200 @@ function ChatInner({
 
       {/* ── Messages ── */}
       <div
+        ref={messagesContainerRef}
         className={cm.sp('p', 3)}
         style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'thin', ...cm.sp({ pr: 1 }) }}
       >
-        {timeline.map((item) => {
-          if (item.kind === 'commit')
-            return (
-              <CommitCardItem key={item.card.id} card={item.card} onRevert={handleRevertCommit} />
-            )
+        {timeline.length > maxVisibleItems && (
+          <div style={{ textAlign: 'center', padding: '8px 0' }}>
+            <button
+              onClick={() => setMaxVisibleItems((n) => n + 40)}
+              className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+              style={{
+                background: 'none',
+                border: '1px solid currentColor',
+                borderRadius: 4,
+                padding: '4px 12px',
+                cursor: 'pointer',
+                opacity: 0.7,
+              }}
+            >
+              {t('ide.chat.showEarlier', undefined, {
+                defaultValue: 'Show earlier messages',
+              })}
+            </button>
+          </div>
+        )}
+        {(timeline.length > maxVisibleItems ? timeline.slice(-maxVisibleItems) : timeline).map(
+          (item) => {
+            if (item.kind === 'commit')
+              return (
+                <CommitCardItem key={item.card.id} card={item.card} onRevert={handleRevertCommit} />
+              )
 
-          if (item.kind === 'system') {
-            const isMultiLine = item.card.text.includes('\n')
-            const actions = item.card.action
-              ? Array.isArray(item.card.action)
-                ? item.card.action
-                : [item.card.action]
-              : []
-            const isGuestReminder = actions.some(
-              (a) => a.href === '/signup' || a.href === '/login',
-            )
-            return (
-              <div
-                key={item.card.id}
-                className={cm.cn(cm.textSize(isGuestReminder ? 'sm' : 'xs'), isGuestReminder ? undefined : cm.textMuted)}
-                style={
-                  isGuestReminder
-                    ? {
-                        textAlign: 'center',
-                        padding: '10px 16px',
-                        margin: '8px 0 16px',
-                        background: 'rgba(64,112,224,0.10)',
-                        border: '1px solid rgba(64,112,224,0.25)',
-                        borderRadius: 8,
-                        color: 'var(--mol-color-text-secondary, #aaa)',
+            if (item.kind === 'system') {
+              const isMultiLine = item.card.text.includes('\n')
+              const actions = item.card.action
+                ? Array.isArray(item.card.action)
+                  ? item.card.action
+                  : [item.card.action]
+                : []
+              const isGuestReminder = actions.some(
+                (a) => a.href === '/signup' || a.href === '/login',
+              )
+              return (
+                <div
+                  key={item.card.id}
+                  className={cm.cn(
+                    cm.textSize(isGuestReminder ? 'sm' : 'xs'),
+                    isGuestReminder ? undefined : cm.textMuted,
+                  )}
+                  style={
+                    isGuestReminder
+                      ? {
+                          textAlign: 'center',
+                          padding: '10px 16px',
+                          margin: '8px 0 16px',
+                          background: 'rgba(64,112,224,0.10)',
+                          border: '1px solid rgba(64,112,224,0.25)',
+                          borderRadius: 8,
+                          color: 'var(--mol-color-text-secondary, #aaa)',
+                        }
+                      : {
+                          textAlign: isMultiLine ? 'left' : 'center',
+                          padding: isMultiLine ? '8px 12px' : '6px 0',
+                          whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
+                          fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
+                          lineHeight: isMultiLine ? 1.5 : undefined,
+                        }
+                  }
+                >
+                  {item.card.text}
+                  {item.card.action &&
+                    (() => {
+                      const btnStyle: React.CSSProperties = {
+                        display: 'inline-block',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        padding: '5px 14px',
+                        borderRadius: 6,
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        transition: 'opacity 100ms',
+                        fontFamily: 'inherit',
+                        border: 'none',
+                        color: '#fff',
+                        background: 'var(--color-primary)',
                       }
-                    : {
-                        textAlign: isMultiLine ? 'left' : 'center',
-                        padding: isMultiLine ? '8px 12px' : '6px 0',
-                        whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
-                        fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
-                        lineHeight: isMultiLine ? 1.5 : undefined,
-                      }
-                }
-              >
-                {item.card.text}
-                {item.card.action &&
-                  (() => {
-                    const btnBase: React.CSSProperties = {
-                      display: 'inline-block',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      padding: '5px 14px',
-                      borderRadius: 6,
-                      cursor: 'pointer',
-                      textDecoration: 'none',
-                      transition: 'opacity 100ms',
-                      fontFamily: 'inherit',
-                    }
-                    const signupStyle: React.CSSProperties = {
-                      ...btnBase,
-                      border: '1px solid rgba(64,112,224,0.5)',
-                      background: isLight ? 'rgba(64,112,224,0.15)' : 'rgba(64,112,224,0.3)',
-                      color: isLight ? '#2850a0' : '#80b0ff',
-                    }
-                    const loginStyle: React.CSSProperties = {
-                      ...btnBase,
-                      border: '1px solid rgba(48,144,0,0.5)',
-                      background: isLight ? 'rgba(48,144,0,0.12)' : 'rgba(48,144,0,0.25)',
-                      color: isLight ? '#1a6600' : '#70cc40',
-                    }
-                    const defaultStyle: React.CSSProperties = {
-                      ...btnBase,
-                      border: 'none',
-                      color: '#fff',
-                      background: 'var(--color-primary)',
-                    }
-                    const getStyle = (href?: string): React.CSSProperties => {
-                      if (href === '/signup') return signupStyle
-                      if (href === '/login') return loginStyle
-                      return defaultStyle
-                    }
-                    const handleEnter = (e: React.MouseEvent, href?: string): void => {
-                      const el = e.currentTarget as HTMLElement
-                      if (href === '/signup') {
-                        el.style.background = isLight ? 'rgba(64,112,224,0.25)' : 'rgba(64,112,224,0.45)'
-                        el.style.borderColor = isLight ? 'rgba(64,112,224,0.7)' : 'rgba(64,112,224,0.75)'
-                        el.style.color = isLight ? '#1a3a80' : '#a0c8ff'
-                      } else if (href === '/login') {
-                        el.style.background = isLight ? 'rgba(48,144,0,0.22)' : 'rgba(48,144,0,0.4)'
-                        el.style.borderColor = isLight ? 'rgba(48,144,0,0.7)' : 'rgba(48,144,0,0.75)'
-                        el.style.color = isLight ? '#105000' : '#90e050'
-                      } else {
-                        el.style.background = 'var(--color-primary-hover)'
-                      }
-                    }
-                    const handleLeave = (e: React.MouseEvent, href?: string): void => {
-                      const el = e.currentTarget as HTMLElement
-                      if (href === '/signup') {
-                        el.style.background = isLight ? 'rgba(64,112,224,0.15)' : 'rgba(64,112,224,0.3)'
-                        el.style.borderColor = 'rgba(64,112,224,0.5)'
-                        el.style.color = isLight ? '#2850a0' : '#80b0ff'
-                      } else if (href === '/login') {
-                        el.style.background = isLight ? 'rgba(48,144,0,0.12)' : 'rgba(48,144,0,0.25)'
-                        el.style.borderColor = 'rgba(48,144,0,0.5)'
-                        el.style.color = isLight ? '#1a6600' : '#70cc40'
-                      } else {
-                        el.style.background = 'var(--color-primary)'
-                      }
-                    }
-                    const actions = Array.isArray(item.card.action)
-                      ? item.card.action
-                      : [item.card.action!]
-                    return (
-                      <div style={{ marginTop: '10px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                        {actions.map((act, i) =>
-                          act.href ? (
-                            <a
-                              key={i}
-                              href={act.href}
-                              target={act.href.startsWith('http') ? '_blank' : undefined}
-                              rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                              style={getStyle(act.href)}
-                              onMouseEnter={(e) => handleEnter(e, act.href)}
-                              onMouseLeave={(e) => handleLeave(e, act.href)}
-                            >
-                              {act.label}
-                            </a>
-                          ) : (
-                            <button
-                              key={i}
-                              type="button"
-                              onClick={act.onClick}
-                              style={defaultStyle}
-                              onMouseEnter={(e) => handleEnter(e)}
-                              onMouseLeave={(e) => handleLeave(e)}
-                            >
-                              {act.label}
-                            </button>
-                          ),
-                        )}
-                      </div>
-                    )
-                  })()}
-              </div>
-            )
-          }
+                      const actions = Array.isArray(item.card.action)
+                        ? item.card.action
+                        : [item.card.action!]
+                      return (
+                        <div
+                          style={{
+                            marginTop: '10px',
+                            display: 'flex',
+                            gap: '8px',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {actions.map((act, i) =>
+                            act.href ? (
+                              <a
+                                key={i}
+                                href={act.href}
+                                target={act.href.startsWith('http') ? '_blank' : undefined}
+                                rel={
+                                  act.href.startsWith('http') ? 'noopener noreferrer' : undefined
+                                }
+                                style={btnStyle}
+                                onMouseEnter={(e) => {
+                                  ;(e.currentTarget as HTMLElement).style.background =
+                                    'var(--color-primary-hover)'
+                                }}
+                                onMouseLeave={(e) => {
+                                  ;(e.currentTarget as HTMLElement).style.background =
+                                    'var(--color-primary)'
+                                }}
+                              >
+                                {act.label}
+                              </a>
+                            ) : (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={act.onClick}
+                                style={btnStyle}
+                                onMouseEnter={(e) => {
+                                  ;(e.currentTarget as HTMLElement).style.background =
+                                    'var(--color-primary-hover)'
+                                }}
+                                onMouseLeave={(e) => {
+                                  ;(e.currentTarget as HTMLElement).style.background =
+                                    'var(--color-primary)'
+                                }}
+                              >
+                                {act.label}
+                              </button>
+                            ),
+                          )}
+                        </div>
+                      )
+                    })()}
+                </div>
+              )
+            }
 
-          const { msg, msgIdx } = item
+            const { msg, msgIdx } = item
 
-          // Persisted commit records render as commit cards
-          if (msg.commitRecord) {
-            const files = msg.commitRecord.files.map((f: string | { path: string }) =>
-              typeof f === 'string' ? f : f.path,
-            )
-            const hash = msg.commitRecord.hash
+            // Persisted commit records render as commit cards
+            if (msg.commitRecord) {
+              const files = msg.commitRecord.files.map((f: string | { path: string }) =>
+                typeof f === 'string' ? f : f.path,
+              )
+              const hash = msg.commitRecord.hash
+              return (
+                <CommitCardItem
+                  key={msg.id}
+                  card={{
+                    id: msg.id,
+                    message: msg.commitRecord.message,
+                    files,
+                    timestamp: msg.timestamp,
+                    status: 'done',
+                    hash,
+                  }}
+                  onRevert={handleRevertCommit}
+                />
+              )
+            }
+
             return (
-              <CommitCardItem
+              <MessageItem
                 key={msg.id}
-                card={{
-                  id: msg.id,
-                  message: msg.commitRecord.message,
-                  files,
-                  timestamp: msg.timestamp,
-                  status: 'done',
-                  hash,
-                }}
-                onRevert={handleRevertCommit}
+                msg={msg}
+                prevMsg={messages[msgIdx - 1]}
+                editingQueuedId={editingQueuedId}
+                editingQueuedText={editingQueuedText}
+                setEditingQueuedId={setEditingQueuedId}
+                setEditingQueuedText={setEditingQueuedText}
+                editQueuedMessage={editQueuedMessage}
+                deleteQueuedMessage={deleteQueuedMessage}
+                sendMessage={sendMessage}
+                handleAskUserResponse={handleAskUserResponse}
+                isLoading={isLoading}
+                undoneTcIds={undoneTcIds}
+                handleUndoToggle={handleUndoToggle}
+                onFileOpen={onFileOpen}
+                onFileDoubleClick={onFileDoubleClick}
+                onFileDiff={onFileDiff}
+                handleFileRevert={handleFileRevert}
+                setInputAndCursorEnd={setInputAndCursorEnd}
+                setModelPicker={setModelPicker}
               />
             )
-          }
-
-          return (
-            <MessageItem
-              key={msg.id}
-              msg={msg}
-              prevMsg={messages[msgIdx - 1]}
-              editingQueuedId={editingQueuedId}
-              editingQueuedText={editingQueuedText}
-              setEditingQueuedId={setEditingQueuedId}
-              setEditingQueuedText={setEditingQueuedText}
-              editQueuedMessage={editQueuedMessage}
-              deleteQueuedMessage={deleteQueuedMessage}
-              sendMessage={sendMessage}
-              handleAskUserResponse={handleAskUserResponse}
-              isLoading={isLoading}
-              undoneTcIds={undoneTcIds}
-              handleUndoToggle={handleUndoToggle}
-              onFileOpen={onFileOpen}
-              onFileDoubleClick={onFileDoubleClick}
-              onFileDiff={onFileDiff}
-              handleFileRevert={handleFileRevert}
-              setInputAndCursorEnd={setInputAndCursorEnd}
-              setModelPicker={setModelPicker}
-            />
-          )
-        })}
+          },
+        )}
 
         {error &&
           (errorMeta?.limitType ? (
@@ -4191,19 +4315,8 @@ function ChatInner({
                     bg: isLight ? 'rgba(202,138,4,0.12)' : 'rgba(234,179,8,0.18)',
                     fg: isLight ? 'rgb(161,98,7)' : 'rgb(250,204,21)',
                   })
-                const providerColors: Record<string, string> = {
-                  anthropic: '#d97706',
-                  openai: '#10b981',
-                  google: '#3b82f6',
-                  xai: '#ef4444',
-                  meta: '#6366f1',
-                  moonshot: '#8b5cf6',
-                  minimax: '#ec4899',
-                  alibaba: '#f97316',
-                  zhipu: '#14b8a6',
-                }
-                const accent = providerColors[model.provider] ?? '#888'
-                const locked = isAnonymous && model.id !== DEFAULT_MODEL
+                const accent = PROVIDER_BRAND_COLORS[model.provider] ?? '#888'
+                const locked = isFreeTier && model.id !== FREE_TIER_MODEL
                 // Price-based color: green ≤$1, yellow ≤$3, red >$3 (input per MTok)
                 const priceColor =
                   model.inputPricePerMTok <= 1
@@ -4222,7 +4335,42 @@ function ChatInner({
                     key={model.id}
                     type="button"
                     onClick={() => {
-                      if (!locked) void selectModel(model.id, model.label)
+                      if (locked) {
+                        setModelPicker(null)
+                        setInputValue('')
+                        addSystemCard(
+                          t(
+                            'ide.chat.modelUpgradeRequired',
+                            { model: model.label },
+                            {
+                              defaultValue: `${model.label} is available on Pro. Upgrade to access all models.`,
+                            },
+                          ),
+                          isAnonymous
+                            ? [
+                                {
+                                  label: t('upgrade.signUp', undefined, {
+                                    defaultValue: 'Sign up',
+                                  }),
+                                  href: '/signup',
+                                },
+                                {
+                                  label: t('upgrade.viewPlans', undefined, {
+                                    defaultValue: 'View plans',
+                                  }),
+                                  href: '/pricing',
+                                },
+                              ]
+                            : {
+                                label: t('upgrade.viewPlans', undefined, {
+                                  defaultValue: 'Upgrade',
+                                }),
+                                href: '/pricing',
+                              },
+                        )
+                      } else {
+                        void selectModel(model.id, model.label)
+                      }
                     }}
                     onMouseEnter={(e) => {
                       if (!locked)
@@ -4284,8 +4432,8 @@ function ChatInner({
                             borderRadius: '3px',
                           }}
                         >
-                          {t('ide.chat.signUpRequired', undefined, {
-                            defaultValue: 'Sign up to use',
+                          {t('ide.chat.proRequired', undefined, {
+                            defaultValue: 'Pro',
                           })}
                         </span>
                       )}
@@ -4898,100 +5046,32 @@ function ChatInner({
           >
             {/* Icon buttons — all use identical box model for vertical alignment:
                 fixed 24×24 flex-centered boxes so text glyphs and SVGs align identically. */}
-            {(
-              [
-                {
-                  sym: 'slash',
-                  nudgeY: 1,
-                  size: 15,
-                  onClick: () => {
-                    if (!(inputRef.current as string)) {
-                      setInputValue('/')
-                      autoResize()
-                      setCommandMenu({ selectedIdx: -1 })
-                    }
-                    setTimeout(() => {
-                      textareaRef.current?.focus()
-                    }, 0)
-                  },
-                },
-                {
-                  sym: '@',
-                  nudgeY: 0,
-                  size: 15,
-                  onClick: () => {
-                    const val = inputRef.current as string
-                    const pos = textareaRef.current?.selectionStart ?? val.length
-                    const newVal = val.slice(0, pos) + '@' + val.slice(pos)
-                    setInputValue(newVal)
-                    autoResize()
-                    setMentionStart(pos)
-                    void openFilePicker('')
-                    setCommandMenu(null)
-                    setTimeout(() => {
-                      textareaRef.current?.focus()
-                      textareaRef.current?.setSelectionRange(pos + 1, pos + 1)
-                    }, 0)
-                  },
-                },
-              ] as const
-            ).map(({ sym, nudgeY, size: fontSize, onClick }) => (
-              <button
-                key={sym}
-                type="button"
-                onClick={onClick}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 24,
-                  height: 24,
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'inherit',
-                  opacity: 0.4,
-                  padding: 0,
-                  borderRadius: '3px',
-                  fontFamily: 'inherit',
-                  fontSize: `${fontSize}px`,
-                  lineHeight: 1,
-                  transition: 'opacity 100ms',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.opacity = '0.85'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = '0.4'
-                }}
-              >
-                {sym === 'slash' ? (
-                  <svg
-                    width="9"
-                    height="13"
-                    viewBox="0 0 9 13"
-                    style={{ display: 'block', position: 'relative', top: `${nudgeY}px` }}
-                  >
-                    <line
-                      x1="8"
-                      y1="1"
-                      x2="1"
-                      y2="12"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                ) : (
-                  <span style={{ position: 'relative', top: `${nudgeY}px` }}>{sym}</span>
-                )}
-              </button>
-            ))}
-            {/* Attachment button */}
+            {/* Plan/Execute mode toggle */}
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
-              title={t('ide.chat.attachFile', undefined, { defaultValue: 'Attach file' })}
+              onClick={() => {
+                const newMode = mode === 'plan' ? 'execute' : 'plan'
+                setMode(newMode)
+                http
+                  .patch(`/projects/${projectId}/chat-mode`, { mode: newMode, conversationId })
+                  .catch(() => setMode(mode))
+                addSystemCard(
+                  newMode === 'plan'
+                    ? t('ide.chat.switchedToPlan', undefined, {
+                        defaultValue: 'Switched to plan mode',
+                      })
+                    : t('ide.chat.switchedToExecute', undefined, {
+                        defaultValue: 'Switched to execute mode',
+                      }),
+                )
+              }}
+              title={
+                mode === 'plan'
+                  ? t('ide.chat.switchToExecute', undefined, {
+                      defaultValue: 'Switch to execute mode',
+                    })
+                  : t('ide.chat.switchToPlan', undefined, { defaultValue: 'Switch to plan mode' })
+              }
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -4999,30 +5079,27 @@ function ChatInner({
                 width: 24,
                 height: 24,
                 background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'inherit',
-                opacity: 0.4,
-                padding: 0,
+                border:
+                  mode === 'plan'
+                    ? `1px solid ${isLight ? 'rgba(180,130,0,0.45)' : 'rgba(234,179,8,0.5)'}`
+                    : 'none',
                 borderRadius: '3px',
-                transition: 'opacity 100ms',
+                cursor: 'pointer',
+                color: mode === 'plan' ? (isLight ? '#a16207' : '#eab308') : 'inherit',
+                opacity: mode === 'plan' ? 1 : 0.4,
+                padding: 0,
+                transition: 'opacity 100ms, color 100ms',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = '0.85'
+                if (mode !== 'plan') e.currentTarget.style.opacity = '0.85'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = '0.4'
+                if (mode !== 'plan') e.currentTarget.style.opacity = '0.4'
               }}
             >
-              {/* Paperclip icon (Primer Octicons) */}
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                style={{ display: 'block' }}
-              >
-                <path d="M12.212 3.02a1.753 1.753 0 0 0-2.478.003l-5.83 5.83a3.007 3.007 0 0 0-.88 2.127c0 .795.315 1.551.88 2.116.567.567 1.333.89 2.126.89.79 0 1.548-.321 2.116-.89l5.48-5.48a.75.75 0 0 1 1.061 1.06l-5.48 5.48a4.492 4.492 0 0 1-3.177 1.33c-1.2 0-2.345-.487-3.187-1.33a4.483 4.483 0 0 1-1.32-3.177c0-1.195.475-2.341 1.32-3.186l5.83-5.83a3.25 3.25 0 0 1 5.553 2.297c0 .863-.343 1.691-.953 2.301L7.439 12.39c-.375.377-.884.59-1.416.593a1.998 1.998 0 0 1-1.412-.593 1.992 1.992 0 0 1 0-2.828l5.48-5.48a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-5.48 5.48a.492.492 0 0 0 0 .707.499.499 0 0 0 .352.154.51.51 0 0 0 .356-.154l5.833-5.827a1.755 1.755 0 0 0 0-2.481Z" />
+              {/* Lightbulb icon (Primer Octicons) for plan mode */}
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z" />
               </svg>
             </button>
             {/* Voice input button — only rendered when Web Speech API is available */}
@@ -5100,32 +5177,11 @@ function ChatInner({
                 </svg>
               </button>
             )}
-            {/* Plan/Execute mode toggle — right after mic */}
+            {/* Attachment button */}
             <button
               type="button"
-              onClick={() => {
-                const newMode = mode === 'plan' ? 'execute' : 'plan'
-                setMode(newMode)
-                http
-                  .patch(`/projects/${projectId}/chat-mode`, { mode: newMode, conversationId })
-                  .catch(() => setMode(mode))
-                addSystemCard(
-                  newMode === 'plan'
-                    ? t('ide.chat.switchedToPlan', undefined, {
-                        defaultValue: 'Switched to plan mode',
-                      })
-                    : t('ide.chat.switchedToExecute', undefined, {
-                        defaultValue: 'Switched to execute mode',
-                      }),
-                )
-              }}
-              title={
-                mode === 'plan'
-                  ? t('ide.chat.switchToExecute', undefined, {
-                      defaultValue: 'Switch to execute mode',
-                    })
-                  : t('ide.chat.switchToPlan', undefined, { defaultValue: 'Switch to plan mode' })
-              }
+              onClick={() => fileInputRef.current?.click()}
+              title={t('ide.chat.attachFile', undefined, { defaultValue: 'Attach file' })}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -5133,29 +5189,121 @@ function ChatInner({
                 width: 24,
                 height: 24,
                 background: 'none',
-                border:
-                  mode === 'plan'
-                    ? `1px solid ${isLight ? 'rgba(180,130,0,0.45)' : 'rgba(234,179,8,0.5)'}`
-                    : 'none',
-                borderRadius: '3px',
+                border: 'none',
                 cursor: 'pointer',
-                color: mode === 'plan' ? (isLight ? '#a16207' : '#eab308') : 'inherit',
-                opacity: mode === 'plan' ? 1 : 0.4,
+                color: 'inherit',
+                opacity: 0.4,
                 padding: 0,
-                transition: 'opacity 100ms, color 100ms',
+                borderRadius: '3px',
+                transition: 'opacity 100ms',
               }}
               onMouseEnter={(e) => {
-                if (mode !== 'plan') e.currentTarget.style.opacity = '0.85'
+                e.currentTarget.style.opacity = '0.85'
               }}
               onMouseLeave={(e) => {
-                if (mode !== 'plan') e.currentTarget.style.opacity = '0.4'
+                e.currentTarget.style.opacity = '0.4'
               }}
             >
-              {/* Lightbulb icon (Primer Octicons) for plan mode */}
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z" />
+              {/* Paperclip icon (Primer Octicons) */}
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                style={{ display: 'block' }}
+              >
+                <path d="M12.212 3.02a1.753 1.753 0 0 0-2.478.003l-5.83 5.83a3.007 3.007 0 0 0-.88 2.127c0 .795.315 1.551.88 2.116.567.567 1.333.89 2.126.89.79 0 1.548-.321 2.116-.89l5.48-5.48a.75.75 0 0 1 1.061 1.06l-5.48 5.48a4.492 4.492 0 0 1-3.177 1.33c-1.2 0-2.345-.487-3.187-1.33a4.483 4.483 0 0 1-1.32-3.177c0-1.195.475-2.341 1.32-3.186l5.83-5.83a3.25 3.25 0 0 1 5.553 2.297c0 .863-.343 1.691-.953 2.301L7.439 12.39c-.375.377-.884.59-1.416.593a1.998 1.998 0 0 1-1.412-.593 1.992 1.992 0 0 1 0-2.828l5.48-5.48a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-5.48 5.48a.492.492 0 0 0 0 .707.499.499 0 0 0 .352.154.51.51 0 0 0 .356-.154l5.833-5.827a1.755 1.755 0 0 0 0-2.481Z" />
               </svg>
             </button>
+            {(
+              [
+                {
+                  sym: '@',
+                  nudgeY: 0,
+                  size: 15,
+                  onClick: () => {
+                    const val = inputRef.current as string
+                    const pos = textareaRef.current?.selectionStart ?? val.length
+                    const newVal = val.slice(0, pos) + '@' + val.slice(pos)
+                    setInputValue(newVal)
+                    autoResize()
+                    setMentionStart(pos)
+                    void openFilePicker('')
+                    setCommandMenu(null)
+                    setTimeout(() => {
+                      textareaRef.current?.focus()
+                      textareaRef.current?.setSelectionRange(pos + 1, pos + 1)
+                    }, 0)
+                  },
+                },
+                {
+                  sym: 'slash',
+                  nudgeY: 1,
+                  size: 15,
+                  onClick: () => {
+                    if (!(inputRef.current as string)) {
+                      setInputValue('/')
+                      autoResize()
+                      setCommandMenu({ selectedIdx: -1 })
+                    }
+                    setTimeout(() => {
+                      textareaRef.current?.focus()
+                    }, 0)
+                  },
+                },
+              ] as const
+            ).map(({ sym, nudgeY, size: fontSize, onClick }) => (
+              <button
+                key={sym}
+                type="button"
+                onClick={onClick}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 24,
+                  height: 24,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  opacity: 0.4,
+                  padding: 0,
+                  borderRadius: '3px',
+                  fontFamily: 'inherit',
+                  fontSize: `${fontSize}px`,
+                  lineHeight: 1,
+                  transition: 'opacity 100ms',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '0.85'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '0.4'
+                }}
+              >
+                {sym === 'slash' ? (
+                  <svg
+                    width="9"
+                    height="13"
+                    viewBox="0 0 9 13"
+                    style={{ display: 'block', position: 'relative', top: `${nudgeY}px` }}
+                  >
+                    <line
+                      x1="8"
+                      y1="1"
+                      x2="1"
+                      y2="12"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                ) : (
+                  <span style={{ position: 'relative', top: `${nudgeY}px` }}>{sym}</span>
+                )}
+              </button>
+            ))}
             {/* Context usage ring */}
             {contextUsage &&
               (() => {
@@ -5370,6 +5518,7 @@ function ChatInner({
  * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
  * @param root0.userEditedFileKey - Key to distinguish repeated edits to the same file.
  * @param root0.isAnonymous - Whether the current user is anonymous.
+ * @param root0.isPro - Whether the current user has a Pro plan.
  * @param root0.className - Optional CSS class name for the container.
  * @returns The rendered chat panel element.
  */
@@ -5393,6 +5542,7 @@ export function ChatPanel({
   userEditedFile,
   userEditedFileKey,
   isAnonymous,
+  isPro,
   className,
 }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
@@ -5693,6 +5843,7 @@ export function ChatPanel({
         initialMessage={initialMessage}
         onInitialMessageSent={onInitialMessageSent}
         isAnonymous={isAnonymous}
+        isPro={isPro}
         activeFile={activeFile}
         openTabs={openTabs}
         onFileOpen={onFileOpen}

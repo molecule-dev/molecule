@@ -34,10 +34,14 @@ export const ca: IdeTranslations = {
   'ide.chat.loopLimitReached': "S'ha assolit el màxim de {{max}} iteracions d'eines.",
   'ide.chat.maxLoopsError': "No s'ha pogut actualitzar el màxim d'iteracions d'eines.",
   'ide.chat.maxLoopsSet': "Màxim d'iteracions d'eines establert a {{n}}",
+  'ide.chat.maxLoopsReached': "S'ha assolit el límit màxim de bucles.",
   'ide.chat.modelError': "No s'ha pogut actualitzar el model del xat.",
   'ide.chat.modelSet': 'Model del xat establert a {{name}}',
   'ide.chat.modelUsage':
     'Ús: /model <nom-del-model>  (p. ex. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} està disponible a Pro. Actualitza per accedir a tots els models.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'En cua',
   'ide.chat.redoChange': 'Torna a aplicar aquest canvi',
   'ide.chat.responseStopped': 'Resposta aturada',
@@ -93,6 +97,8 @@ export const ca: IdeTranslations = {
   'ide.preview.starting': 'Carregant la previsualització...',
   'ide.preview.restarting': 'Carregant la previsualització...',
   'ide.preview.noPreview': 'No hi ha previsualització disponible',
+  'ide.preview.retryCount': 'Intent {{count}}',
+  'ide.preview.retryButton': 'Reintenta ara',
   'ide.device.label': 'Marc del dispositiu',
   'ide.device.responsive': 'Responsiu',
   'ide.device.desktop': 'Escriptori',

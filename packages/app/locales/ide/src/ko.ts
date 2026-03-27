@@ -34,10 +34,14 @@ export const ko: IdeTranslations = {
   'ide.chat.loopLimitReached': '도구 반복 최대 횟수 {{max}}에 도달했습니다.',
   'ide.chat.maxLoopsError': '도구 반복 최대 횟수 업데이트에 실패했습니다.',
   'ide.chat.maxLoopsSet': '도구 반복 최대 횟수가 {{n}}으로 설정됨',
+  'ide.chat.maxLoopsReached': '최대 루프 제한에 도달했습니다.',
   'ide.chat.modelError': '채팅 모델 업데이트에 실패했습니다.',
   'ide.chat.modelSet': '채팅 모델이 {{name}}으로 설정됨',
   'ide.chat.modelUsage':
     '사용법: /model <모델이름>  (예: claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}}은(는) Pro에서 사용할 수 있습니다. 모든 모델에 액세스하려면 업그레이드하세요.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': '대기 중',
   'ide.chat.redoChange': '이 변경 사항 다시 적용',
   'ide.chat.responseStopped': '응답 중지됨',
@@ -92,6 +96,8 @@ export const ko: IdeTranslations = {
   'ide.preview.starting': '미리보기 로딩 중...',
   'ide.preview.restarting': '미리보기 로딩 중...',
   'ide.preview.noPreview': '미리보기 없음',
+  'ide.preview.retryCount': '재시도 {{count}}',
+  'ide.preview.retryButton': '지금 재시도',
   'ide.device.label': '기기 프레임',
   'ide.device.responsive': '반응형',
   'ide.device.desktop': '데스크톱',

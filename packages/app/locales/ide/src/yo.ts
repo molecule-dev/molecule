@@ -42,12 +42,16 @@ export const yo: IdeTranslations = {
     'K\u00F2 l\u00E8 \u1E63e \u00ECm\u00FAd\u00F2j\u00FAtw\u00F2n iw\u1ECDn \u00EC\u1E63\u1EB9\u0300l\u1EB9\u0300 ir\u00EDn\u1E63\u1EB9\u0301.',
   'ide.chat.maxLoopsSet':
     'Iw\u1ECDn \u00EC\u1E63\u1EB9\u0300l\u1EB9\u0300 ir\u00EDn\u1E63\u1EB9\u0301 ti y\u00ED pad\u00E0 s\u00ED {{n}}',
+  'ide.chat.maxLoopsReached': 'A ti de opin awọn iyipo.',
   'ide.chat.modelError':
     'K\u00F2 l\u00E8 \u1E63e \u00ECm\u00FAd\u00F2j\u00FAtw\u00F2n m\u1ECD\u0301d\u1EB9\u0300l\u00EC \u00ECj\u00EDr\u00F2r\u00F2.',
   'ide.chat.modelSet':
     'M\u1ECD\u0301d\u1EB9\u0300l\u00EC \u00ECj\u00EDr\u00F2r\u00F2 ti y\u00ED pad\u00E0 s\u00ED {{name}}',
   'ide.chat.modelUsage':
     'Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} wa lori Pro. Ṣe igbesoke lati wọle si gbogbo awọn awoṣe.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Wa l\u00E1\u00EC\u00ECn\u00EC',
   'ide.chat.redoChange': 'Tun \u00E0y\u00EDpad\u00E0 y\u00EC\u00ED \u1E63e',
   'ide.chat.responseStopped': '\u00CCd\u00E1h\u00F9n ti d\u00FAr\u00F3',
@@ -115,6 +119,8 @@ export const yo: IdeTranslations = {
   'ide.preview.starting': '\u1E62\u00ED\u1E63e \u00E0w\u00F2\u1E63e...',
   'ide.preview.restarting': '\u1E62\u00ED\u1E63e \u00E0w\u00F2\u1E63e...',
   'ide.preview.noPreview': 'K\u00F2 s\u00ED \u00ECw\u00F2ye',
+  'ide.preview.retryCount': 'Igbiyanju {{count}}',
+  'ide.preview.retryButton': 'Tun gbiyanju bayi',
   'ide.device.label': 'F\u00EDr\u00E9\u00E8m\u00F9 \u1EB9\u0300r\u1ECD',
   'ide.device.responsive': '\u00CCD\u00E1h\u00F9n',
   'ide.device.desktop': 'K\u1ECD\u0300\u01F9p\u00FAt\u00E0',

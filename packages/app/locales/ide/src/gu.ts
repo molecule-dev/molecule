@@ -34,10 +34,14 @@ export const gu: IdeTranslations = {
   'ide.chat.loopLimitReached': '{{max}} ટૂલ ઇટરેશનની મહત્તમ મર્યાદા પહોંચી ગઈ.',
   'ide.chat.maxLoopsError': 'મહત્તમ ટૂલ ઇટરેશન અપડેટ કરવામાં નિષ્ફળ.',
   'ide.chat.maxLoopsSet': 'મહત્તમ ટૂલ ઇટરેશન {{n}} પર સેટ કર્યું',
+  'ide.chat.maxLoopsReached': 'મહત્તમ લૂપ મર્યાદા પહોંચી ગઈ.',
   'ide.chat.modelError': 'ચેટ મોડેલ અપડેટ કરવામાં નિષ્ફળ.',
   'ide.chat.modelSet': 'ચેટ મોડેલ {{name}} પર સેટ કર્યું',
   'ide.chat.modelUsage':
     'ઉપયોગ: /model <મોડેલ-નામ>  (દા.ત. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro માં ઉપલબ્ધ છે. બધા મોડેલ્સ ઍક્સેસ કરવા માટે અપગ્રેડ કરો.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'કતારમાં',
   'ide.chat.redoChange': 'આ ફેરફાર ફરીથી લાગુ કરો',
   'ide.chat.responseStopped': 'પ્રતિસાદ રોકાયો',
@@ -92,6 +96,8 @@ export const gu: IdeTranslations = {
   'ide.preview.starting': 'પ્રીવ્યૂ લોડ થઈ રહ્યું છે...',
   'ide.preview.restarting': 'પ્રીવ્યૂ લોડ થઈ રહ્યું છે...',
   'ide.preview.noPreview': 'કોઈ પ્રિવ્યૂ ઉપલબ્ધ નથી',
+  'ide.preview.retryCount': 'પુનઃપ્રયાસ {{count}}',
+  'ide.preview.retryButton': 'હવે ફરી પ્રયાસ કરો',
   'ide.device.label': 'ડિવાઇસ ફ્રેમ',
   'ide.device.responsive': 'રિસ્પોન્સિવ',
   'ide.device.desktop': 'ડેસ્કટોપ',

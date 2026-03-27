@@ -7,6 +7,7 @@ import {
   getModelsByProvider,
   MODEL_IDS,
   MODELS,
+  PROVIDER_BRAND_COLORS,
 } from '../models.js'
 
 // ---------------------------------------------------------------------------
@@ -69,8 +70,8 @@ describe('webSearchToolType', () => {
     )
   })
 
-  it('is set on OpenAI, xAI, Google, and Zhipu models', () => {
-    for (const provider of ['openai', 'xai', 'zhipu'] as const) {
+  it('is set on OpenAI, Google, and Zhipu models', () => {
+    for (const provider of ['openai', 'zhipu'] as const) {
       const models = MODELS.filter((m) => m.provider === provider)
       expect(models.length).toBeGreaterThan(0)
       for (const m of models) {
@@ -80,14 +81,6 @@ describe('webSearchToolType', () => {
     const google = MODELS.filter((m) => m.provider === 'google')
     for (const m of google) {
       expect(m.webSearchToolType).toBe('google_search')
-    }
-  })
-
-  it('is not set on Meta models (open-source, no native search)', () => {
-    const meta = MODELS.filter((m) => m.provider === 'meta')
-    expect(meta.length).toBeGreaterThan(0)
-    for (const m of meta) {
-      expect(m.webSearchToolType).toBeUndefined()
     }
   })
 
@@ -122,8 +115,8 @@ describe('codeExecutionToolType', () => {
     ).toBeUndefined()
   })
 
-  it('is set on OpenAI and xAI models as code_interpreter', () => {
-    for (const provider of ['openai', 'xai'] as const) {
+  it('is set on OpenAI models as code_interpreter', () => {
+    for (const provider of ['openai'] as const) {
       const models = MODELS.filter((m) => m.provider === provider)
       expect(models.length).toBeGreaterThan(0)
       for (const m of models) {
@@ -290,5 +283,33 @@ describe('getAvailableModels', () => {
   it('returns all models when all providers are available', () => {
     const allProviders = new Set(MODELS.map((m) => m.provider))
     expect(getAvailableModels(allProviders).length).toBe(MODELS.length)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Model data integrity
+// ---------------------------------------------------------------------------
+
+describe('model data integrity', () => {
+  it('has exactly one freeTier model', () => {
+    const freeTierModels = MODELS.filter((m) => m.freeTier)
+    expect(freeTierModels).toHaveLength(1)
+    expect(freeTierModels[0].id).toBe('grok-code-fast-1')
+  })
+
+  it('has brand colors for all providers', () => {
+    const providerIds = [...new Set(MODELS.map((m) => m.provider))]
+    for (const id of providerIds) {
+      expect(PROVIDER_BRAND_COLORS[id]).toBeDefined()
+      expect(PROVIDER_BRAND_COLORS[id]).toMatch(/^#[0-9a-fA-F]{6}$/)
+    }
+  })
+
+  it('sets thinkingConfigurable on all models with supportsThinking', () => {
+    for (const model of MODELS) {
+      if (model.supportsThinking) {
+        expect(typeof model.thinkingConfigurable).toBe('boolean')
+      }
+    }
   })
 })

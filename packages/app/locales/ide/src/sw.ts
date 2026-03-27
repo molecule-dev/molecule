@@ -34,10 +34,14 @@ export const sw: IdeTranslations = {
   'ide.chat.loopLimitReached': 'Umefikia kiwango cha juu cha marudio {{max}} ya zana.',
   'ide.chat.maxLoopsError': 'Imeshindwa kusasisha marudio ya juu ya zana.',
   'ide.chat.maxLoopsSet': 'Marudio ya juu ya zana yamewekwa kuwa {{n}}',
+  'ide.chat.maxLoopsReached': 'Kikomo cha juu cha mizunguko kimefikiwa.',
   'ide.chat.modelError': 'Imeshindwa kusasisha modeli ya mazungumzo.',
   'ide.chat.modelSet': 'Modeli ya mazungumzo imewekwa kuwa {{name}}',
   'ide.chat.modelUsage':
     'Matumizi: /model <jina-la-modeli>  (mfano claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} inapatikana katika Pro. Boresha ili kupata mifano yote.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Imepangwa',
   'ide.chat.redoChange': 'Tekeleza tena mabadiliko haya',
   'ide.chat.responseStopped': 'Jibu limesimamishwa',
@@ -92,6 +96,8 @@ export const sw: IdeTranslations = {
   'ide.preview.starting': 'Inapakia muhtasari...',
   'ide.preview.restarting': 'Inapakia muhtasari...',
   'ide.preview.noPreview': 'Hakuna hakikisho linalopatikana',
+  'ide.preview.retryCount': 'Jaribio {{count}}',
+  'ide.preview.retryButton': 'Jaribu tena sasa',
   'ide.device.label': 'Fremu ya kifaa',
   'ide.device.responsive': 'Inayojibu',
   'ide.device.desktop': 'Kompyuta ya Mezani',

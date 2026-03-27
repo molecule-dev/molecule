@@ -34,10 +34,14 @@ export const ta: IdeTranslations = {
   'ide.chat.loopLimitReached': 'அதிகபட்ச {{max}} கருவி மறுசெய்கைகளை எட்டியது.',
   'ide.chat.maxLoopsError': 'அதிகபட்ச கருவி மறுசெய்கைகளைப் புதுப்பிக்க முடியவில்லை.',
   'ide.chat.maxLoopsSet': 'அதிகபட்ச கருவி மறுசெய்கைகள் {{n}} ஆக அமைக்கப்பட்டது',
+  'ide.chat.maxLoopsReached': 'அதிகபட்ச வளையங்கள் வரம்பு எட்டியது.',
   'ide.chat.modelError': 'அரட்டை மாதிரியைப் புதுப்பிக்க முடியவில்லை.',
   'ide.chat.modelSet': 'அரட்டை மாதிரி {{name}} ஆக அமைக்கப்பட்டது',
   'ide.chat.modelUsage':
     'பயன்பாடு: /model <மாதிரி-பெயர்>  (எ.கா. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} Pro-வில் கிடைக்கும். எல்லா மாதிரிகளையும் அணுக மேம்படுத்தவும்.',
+  'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'வரிசையில்',
   'ide.chat.redoChange': 'இந்த மாற்றத்தை மீண்டும் செய்',
   'ide.chat.responseStopped': 'பதில் நிறுத்தப்பட்டது',
@@ -93,6 +97,8 @@ export const ta: IdeTranslations = {
   'ide.preview.starting': 'முன்னோட்டம் ஏற்றப்படுகிறது...',
   'ide.preview.restarting': 'முன்னோட்டம் ஏற்றப்படுகிறது...',
   'ide.preview.noPreview': 'முன்னோட்டம் கிடைக்கவில்லை',
+  'ide.preview.retryCount': 'மீண்டும் முயற்சி {{count}}',
+  'ide.preview.retryButton': 'இப்போது மீண்டும் முயற்சிக்கவும்',
   'ide.device.label': 'சாதன சட்டம்',
   'ide.device.responsive': 'பதிலளிப்பு',
   'ide.device.desktop': 'டெஸ்க்டாப்',
