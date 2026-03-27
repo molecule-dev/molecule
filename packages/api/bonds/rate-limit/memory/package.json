@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-rate-limit-memory",
   "version": "1.0.0",
-  "description": "",
+  "description": "In-memory rate-limit provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,14 +21,29 @@
   ],
   "keywords": [
     "molecule",
-    "rate",
-    "limit",
-    "memory"
+    "rate-limit",
+    "memory",
+    "throttle",
+    "provider"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-rate-limit": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-rate-limit": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/rate-limit/memory"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/rate-limit/memory",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }
