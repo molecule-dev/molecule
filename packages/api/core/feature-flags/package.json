@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-feature-flags",
   "version": "1.0.0",
-  "description": "",
+  "description": "Feature flag management core interface for molecule.dev — flag evaluation, targeting rules, and percentage rollouts",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,13 +21,31 @@
   ],
   "keywords": [
     "molecule",
-    "feature",
-    "flags"
+    "feature-flags",
+    "feature-toggles",
+    "targeting",
+    "rollouts"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/feature-flags"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/feature-flags",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }
