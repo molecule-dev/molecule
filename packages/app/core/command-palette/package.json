@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-command-palette",
   "version": "1.0.0",
-  "description": "",
+  "description": "Command palette core interface for molecule.dev — Cmd+K palette with hierarchical groups, nested pages, and fuzzy search",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,13 +21,21 @@
   ],
   "keywords": [
     "molecule",
-    "command",
-    "palette"
+    "command-palette",
+    "cmdk",
+    "spotlight"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-bond": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-bond": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

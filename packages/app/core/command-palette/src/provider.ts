@@ -1,46 +1,66 @@
 /**
- * CommandPalette provider singleton.
+ * Command palette provider singleton.
  *
- * Bond packages call set() during setup.
- * Application code calls get()/require() at runtime.
+ * Bond packages call {@link setProvider} during application startup.
+ * Application code calls {@link getProvider} or the convenience factory
+ * ({@link createPalette}) at runtime.
  *
  * @module
  */
 
-import type { CommandPaletteProvider } from './types.js'
+import { bond, get as bondGet, isBonded } from '@molecule/app-bond'
 
-let _provider: CommandPaletteProvider | null = null
+import type {
+  CommandPaletteInstance,
+  CommandPaletteOptions,
+  CommandPaletteProvider,
+} from './types.js'
+
+/** Bond category key for the command palette provider. */
+const BOND_TYPE = 'command-palette'
 
 /**
+ * Registers a command palette provider as the active singleton. Called by bond
+ * packages (e.g. `@molecule/app-command-palette-cmdk`) during app startup.
  *
- * @param provider
+ * @param provider - The command palette provider implementation to bond.
  */
 export function setProvider(provider: CommandPaletteProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
+ * Retrieves the bonded command palette provider, throwing if none is configured.
  *
+ * @returns The bonded command palette provider.
+ * @throws {Error} If no command palette provider has been bonded.
  */
-export function getProvider(): CommandPaletteProvider | null {
-  return _provider
-}
-
-/**
- *
- */
-export function hasProvider(): boolean {
-  return _provider !== null
-}
-
-/**
- *
- */
-export function requireProvider(): CommandPaletteProvider {
-  if (!_provider) {
+export function getProvider(): CommandPaletteProvider {
+  const provider = bondGet<CommandPaletteProvider>(BOND_TYPE)
+  if (!provider) {
     throw new Error(
-      'CommandPalette provider not configured. Bond a command-palette provider first.',
+      '@molecule/app-command-palette: No provider bonded. Call setProvider() with a command palette bond (e.g. @molecule/app-command-palette-cmdk).',
     )
   }
-  return _provider
+  return provider
+}
+
+/**
+ * Checks whether a command palette provider is currently bonded.
+ *
+ * @returns `true` if a command palette provider is bonded.
+ */
+export function hasProvider(): boolean {
+  return isBonded(BOND_TYPE)
+}
+
+/**
+ * Creates a command palette instance using the bonded provider.
+ *
+ * @param options - Command palette configuration.
+ * @returns A command palette instance.
+ * @throws {Error} If no command palette provider has been bonded.
+ */
+export function createPalette(options: CommandPaletteOptions): CommandPaletteInstance {
+  return getProvider().createPalette(options)
 }
