@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-image-generation-stability",
   "version": "1.0.0",
-  "description": "",
+  "description": "Stability AI image generation provider for molecule.dev — Stable Diffusion 3, Stable Image Core/Ultra",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,7 +27,11 @@
     "stability"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-ai-image-generation": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-ai-image-generation": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
