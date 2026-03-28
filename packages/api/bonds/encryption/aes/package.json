@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-encryption-aes",
   "version": "1.0.0",
-  "description": "",
+  "description": "AES-256-GCM encryption provider for molecule.dev — authenticated encryption, SHA-256 hashing, and key rotation",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,12 +22,29 @@
   "keywords": [
     "molecule",
     "encryption",
-    "aes"
+    "aes",
+    "aes-256-gcm",
+    "field-level-encryption",
+    "key-rotation"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-encryption": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-encryption": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/encryption/aes"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/encryption/aes",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }

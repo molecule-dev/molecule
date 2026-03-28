@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-permissions",
   "version": "1.0.0",
-  "description": "",
+  "description": "Permissions core interface for molecule.dev — RBAC/ABAC access control",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,12 +21,32 @@
   ],
   "keywords": [
     "molecule",
-    "permissions"
+    "permissions",
+    "rbac",
+    "abac",
+    "access-control",
+    "authorization"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/permissions"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/permissions",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }

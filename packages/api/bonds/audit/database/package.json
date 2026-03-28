@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-audit-database",
   "version": "1.0.0",
-  "description": "",
+  "description": "Database-backed audit trail provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,12 +22,30 @@
   "keywords": [
     "molecule",
     "audit",
-    "database"
+    "audit-trail",
+    "database",
+    "provider"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-audit": "^1.0.0",
+    "@molecule/api-database": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-audit": "1.0.0",
+    "@molecule/api-database": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/audit/database"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/audit/database",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }
