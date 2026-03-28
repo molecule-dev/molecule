@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-speech-elevenlabs",
   "version": "1.0.0",
-  "description": "",
+  "description": "ElevenLabs text-to-speech provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,10 +23,16 @@
     "molecule",
     "ai",
     "speech",
-    "elevenlabs"
+    "elevenlabs",
+    "tts",
+    "text-to-speech"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-ai-speech": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-ai-speech": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
