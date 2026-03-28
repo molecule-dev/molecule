@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-image-generation-openai",
   "version": "1.0.0",
-  "description": "",
+  "description": "OpenAI image generation provider for molecule.dev — DALL-E 3 and gpt-image-1",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,10 +24,16 @@
     "ai",
     "image",
     "generation",
-    "openai"
+    "openai",
+    "dall-e",
+    "gpt-image"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-ai-image-generation": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-ai-image-generation": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
