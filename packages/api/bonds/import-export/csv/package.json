@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-import-export-csv",
   "version": "1.0.0",
-  "description": "",
+  "description": "CSV import/export provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,9 +26,25 @@
     "csv"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-database": "^1.0.0",
+    "@molecule/api-import-export": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-database": "1.0.0",
+    "@molecule/api-import-export": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/import-export/csv"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/import-export/csv",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }
