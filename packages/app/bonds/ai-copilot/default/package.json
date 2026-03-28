@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-ai-copilot-default",
   "version": "1.0.0",
-  "description": "",
+  "description": "Default HTTP/SSE copilot provider for inline AI suggestions",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,8 +27,14 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@molecule/app-ai-copilot": "1.0.0",
+    "@molecule/app-i18n": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "peerDependencies": {
+    "@molecule/app-ai-copilot": "^1.0.0",
+    "@molecule/app-i18n": "^1.0.0"
   }
 }
