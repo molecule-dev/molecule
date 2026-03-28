@@ -1,6 +1,9 @@
 # @molecule/app-image-crop-cropperjs
 
-Cropperjs image-crop-cropperjs provider for molecule.dev.
+Cropper.js provider for @molecule/app-image-crop.
+
+Provides an in-memory image crop implementation conforming to
+the molecule image crop provider interface.
 
 ## Type
 `provider`
@@ -10,27 +13,60 @@ Cropperjs image-crop-cropperjs provider for molecule.dev.
 npm install @molecule/app-image-crop-cropperjs
 ```
 
+## Usage
+
+```typescript
+import { provider } from '@molecule/app-image-crop-cropperjs'
+import { setProvider } from '@molecule/app-image-crop'
+
+setProvider(provider)
+```
+
 ## API
 
 ### Interfaces
 
 #### `CropperjsConfig`
 
+Provider-specific configuration options.
+
 ```typescript
 interface CropperjsConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+  /** Whether to show guides by default. Defaults to `true`. */
+  guides?: boolean
+
+  /** Whether to show the crop box background. Defaults to `true`. */
+  background?: boolean
 }
 ```
 
-### Classes
-
-#### `CropperjsImageProvider`
-
 ### Functions
 
-#### `createProvider(config)`
+#### `createProvider(_config)`
+
+Creates a Cropper.js-based image crop provider.
 
 ```typescript
-function createProvider(config: CropperjsConfig): CropperjsImageProvider
+function createProvider(_config?: CropperjsConfig): ImageCropProvider
 ```
+
+- `_config` — Optional provider configuration.
+
+**Returns:** A configured ImageCropProvider.
+
+### Constants
+
+#### `provider`
+
+Default Cropper.js provider instance.
+
+```typescript
+const provider: ImageCropProvider
+```
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-image-crop` ^1.0.0

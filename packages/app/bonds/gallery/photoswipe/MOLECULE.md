@@ -1,6 +1,9 @@
 # @molecule/app-gallery-photoswipe
 
-Photoswipe gallery-photoswipe provider for molecule.dev.
+PhotoSwipe provider for @molecule/app-gallery.
+
+Provides an in-memory gallery implementation conforming to
+the molecule gallery provider interface.
 
 ## Type
 `provider`
@@ -10,27 +13,60 @@ Photoswipe gallery-photoswipe provider for molecule.dev.
 npm install @molecule/app-gallery-photoswipe
 ```
 
+## Usage
+
+```typescript
+import { provider } from '@molecule/app-gallery-photoswipe'
+import { setProvider } from '@molecule/app-gallery'
+
+setProvider(provider)
+```
+
 ## API
 
 ### Interfaces
 
-#### `PhotoswipeConfig`
+#### `PhotoSwipeConfig`
+
+Provider-specific configuration options.
 
 ```typescript
-interface PhotoswipeConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+interface PhotoSwipeConfig {
+  /** Whether to enable zoom by default. Defaults to `true`. */
+  zoomable?: boolean
+
+  /** Whether to show counter by default. Defaults to `true`. */
+  showCounter?: boolean
 }
 ```
 
-### Classes
-
-#### `PhotoswipeGalleryProvider`
-
 ### Functions
 
-#### `createProvider(config)`
+#### `createProvider(_config)`
+
+Creates a PhotoSwipe-based gallery provider.
 
 ```typescript
-function createProvider(config: PhotoswipeConfig): PhotoswipeGalleryProvider
+function createProvider(_config?: PhotoSwipeConfig): GalleryProvider
 ```
+
+- `_config` — Optional provider configuration.
+
+**Returns:** A configured GalleryProvider.
+
+### Constants
+
+#### `provider`
+
+Default PhotoSwipe gallery provider instance.
+
+```typescript
+const provider: GalleryProvider
+```
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-gallery` ^1.0.0

@@ -1,6 +1,9 @@
 # @molecule/app-audio-howler
 
-Howler audio-howler provider for molecule.dev.
+Howler.js provider for @molecule/app-audio.
+
+Provides an in-memory audio player implementation conforming to
+the molecule audio provider interface.
 
 ## Type
 `provider`
@@ -10,27 +13,60 @@ Howler audio-howler provider for molecule.dev.
 npm install @molecule/app-audio-howler
 ```
 
+## Usage
+
+```typescript
+import { provider } from '@molecule/app-audio-howler'
+import { setProvider } from '@molecule/app-audio'
+
+setProvider(provider)
+```
+
 ## API
 
 ### Interfaces
 
 #### `HowlerConfig`
 
+Provider-specific configuration options.
+
 ```typescript
 interface HowlerConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+  /** Whether to use HTML5 Audio instead of Web Audio API. Defaults to `false`. */
+  html5?: boolean
+
+  /** Global volume for all sounds. Defaults to `1.0`. */
+  volume?: number
 }
 ```
 
-### Classes
-
-#### `HowlerAudioProvider`
-
 ### Functions
 
-#### `createProvider(config)`
+#### `createProvider(_config)`
+
+Creates a Howler-based audio provider.
 
 ```typescript
-function createProvider(config: HowlerConfig): HowlerAudioProvider
+function createProvider(_config?: HowlerConfig): AudioProvider
 ```
+
+- `_config` — Optional provider configuration.
+
+**Returns:** A configured AudioProvider.
+
+### Constants
+
+#### `provider`
+
+Default Howler audio provider instance.
+
+```typescript
+const provider: AudioProvider
+```
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-audio` ^1.0.0

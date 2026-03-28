@@ -1,6 +1,9 @@
 # @molecule/app-tour-shepherd
 
-Shepherd tour-shepherd provider for molecule.dev.
+Shepherd.js provider for @molecule/app-tour.
+
+Provides an in-memory tour implementation conforming to
+the molecule tour provider interface.
 
 ## Type
 `provider`
@@ -10,27 +13,60 @@ Shepherd tour-shepherd provider for molecule.dev.
 npm install @molecule/app-tour-shepherd
 ```
 
+## Usage
+
+```typescript
+import { provider } from '@molecule/app-tour-shepherd'
+import { setProvider } from '@molecule/app-tour'
+
+setProvider(provider)
+```
+
 ## API
 
 ### Interfaces
 
 #### `ShepherdConfig`
 
+Provider-specific configuration options.
+
 ```typescript
 interface ShepherdConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+  /** Default overlay behavior. Defaults to `true`. */
+  overlay?: boolean
+
+  /** Default button visibility. Defaults to `true`. */
+  showButtons?: boolean
 }
 ```
 
-### Classes
-
-#### `ShepherdTourProvider`
-
 ### Functions
 
-#### `createProvider(config)`
+#### `createProvider(_config)`
+
+Creates a Shepherd-based tour provider.
 
 ```typescript
-function createProvider(config: ShepherdConfig): ShepherdTourProvider
+function createProvider(_config?: ShepherdConfig): TourProvider
 ```
+
+- `_config` — Optional provider configuration.
+
+**Returns:** A configured TourProvider.
+
+### Constants
+
+#### `provider`
+
+Default Shepherd tour provider instance.
+
+```typescript
+const provider: TourProvider
+```
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-tour` ^1.0.0

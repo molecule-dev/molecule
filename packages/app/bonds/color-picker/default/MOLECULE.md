@@ -1,6 +1,9 @@
 # @molecule/app-color-picker-default
 
-Default color-picker-default provider for molecule.dev.
+Default provider for @molecule/app-color-picker.
+
+Provides an in-memory color picker implementation conforming to
+the molecule color picker provider interface.
 
 ## Type
 `provider`
@@ -10,27 +13,57 @@ Default color-picker-default provider for molecule.dev.
 npm install @molecule/app-color-picker-default
 ```
 
+## Usage
+
+```typescript
+import { provider } from '@molecule/app-color-picker-default'
+import { setProvider } from '@molecule/app-color-picker'
+
+setProvider(provider)
+```
+
 ## API
 
 ### Interfaces
 
-#### `DefaultConfig`
+#### `DefaultColorPickerConfig`
+
+Provider-specific configuration options.
 
 ```typescript
-interface DefaultConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+interface DefaultColorPickerConfig {
+  /** Default color format. Defaults to `'hex'`. */
+  format?: 'hex' | 'rgb' | 'hsl'
 }
 ```
 
-### Classes
-
-#### `DefaultColorProvider`
-
 ### Functions
 
-#### `createProvider(config)`
+#### `createProvider(_config)`
+
+Creates a default color picker provider.
 
 ```typescript
-function createProvider(config: DefaultConfig): DefaultColorProvider
+function createProvider(_config?: DefaultColorPickerConfig): ColorPickerProvider
 ```
+
+- `_config` — Optional provider configuration.
+
+**Returns:** A configured ColorPickerProvider.
+
+### Constants
+
+#### `provider`
+
+Default color picker provider instance.
+
+```typescript
+const provider: ColorPickerProvider
+```
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-color-picker` ^1.0.0

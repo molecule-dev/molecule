@@ -1,6 +1,9 @@
 # @molecule/app-stepper-default
 
-Default stepper-default provider for molecule.dev.
+Default provider for @molecule/app-stepper.
+
+Provides an in-memory stepper implementation with step navigation,
+validation, and linear mode support.
 
 ## Type
 `provider`
@@ -10,27 +13,57 @@ Default stepper-default provider for molecule.dev.
 npm install @molecule/app-stepper-default
 ```
 
+## Usage
+
+```typescript
+import { provider } from '@molecule/app-stepper-default'
+import { setProvider } from '@molecule/app-stepper'
+
+setProvider(provider)
+```
+
 ## API
 
 ### Interfaces
 
-#### `DefaultConfig`
+#### `DefaultStepperConfig`
+
+Provider-specific configuration options.
 
 ```typescript
-interface DefaultConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+interface DefaultStepperConfig {
+  /** Default orientation. Defaults to `'horizontal'`. */
+  orientation?: 'horizontal' | 'vertical'
 }
 ```
 
-### Classes
-
-#### `DefaultStepperProvider`
-
 ### Functions
 
-#### `createProvider(config)`
+#### `createProvider(_config)`
+
+Creates a default stepper provider.
 
 ```typescript
-function createProvider(config: DefaultConfig): DefaultStepperProvider
+function createProvider(_config?: DefaultStepperConfig): StepperProvider
 ```
+
+- `_config` — Optional provider configuration.
+
+**Returns:** A configured StepperProvider.
+
+### Constants
+
+#### `provider`
+
+Default stepper provider instance.
+
+```typescript
+const provider: StepperProvider
+```
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-stepper` ^1.0.0

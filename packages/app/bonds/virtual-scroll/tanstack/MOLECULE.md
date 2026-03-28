@@ -1,6 +1,9 @@
 # @molecule/app-virtual-scroll-tanstack
 
-Tanstack virtual-scroll-tanstack provider for molecule.dev.
+TanStack Virtual provider for the molecule virtual scroll interface.
+
+Implements `VirtualScrollProvider` from `@molecule/app-virtual-scroll` using
+`@tanstack/virtual-core` for headless virtual/infinite scrolling.
 
 ## Type
 `provider`
@@ -10,27 +13,73 @@ Tanstack virtual-scroll-tanstack provider for molecule.dev.
 npm install @molecule/app-virtual-scroll-tanstack
 ```
 
+## Usage
+
+```typescript
+import { provider } from '@molecule/app-virtual-scroll-tanstack'
+import { setProvider } from '@molecule/app-virtual-scroll'
+
+setProvider(provider)
+```
+
 ## API
 
 ### Interfaces
 
-#### `TanstackConfig`
+#### `TanStackVirtualConfig`
+
+Configuration options for the TanStack Virtual scroll provider.
 
 ```typescript
-interface TanstackConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+interface TanStackVirtualConfig {
+  /**
+   * Whether to enable debug mode in TanStack Virtual.
+   * When `true`, TanStack logs internal state changes to the console.
+   * Defaults to `false`.
+   */
+  debug?: boolean
+
+  /**
+   * Delay in milliseconds before the `isScrolling` state resets to `false`
+   * after scrolling stops. Defaults to `150`.
+   */
+  isScrollingResetDelay?: number
+
+  /**
+   * Whether to use the native `scrollend` event instead of debouncing.
+   * Defaults to `false`.
+   */
+  useScrollendEvent?: boolean
 }
 ```
 
-### Classes
-
-#### `TanstackVirtualProvider`
-
 ### Functions
 
-#### `createProvider(config)`
+#### `createTanStackProvider(config)`
+
+Creates a TanStack Virtual-backed virtual scroll provider.
 
 ```typescript
-function createProvider(config: TanstackConfig): TanstackVirtualProvider
+function createTanStackProvider(config?: TanStackVirtualConfig): VirtualScrollProvider
 ```
+
+- `config` — Optional TanStack-specific configuration.
+
+**Returns:** A `VirtualScrollProvider` backed by TanStack Virtual.
+
+### Constants
+
+#### `provider`
+
+Default TanStack Virtual provider instance.
+
+```typescript
+const provider: VirtualScrollProvider
+```
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-virtual-scroll` >=1.0.0

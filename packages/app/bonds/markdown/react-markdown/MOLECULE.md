@@ -1,6 +1,9 @@
 # @molecule/app-markdown-react-markdown
 
-Markdown markdown-react-markdown provider for molecule.dev.
+react-markdown provider for @molecule/app-markdown.
+
+Provides a regex-based markdown-to-HTML renderer conforming to
+the molecule markdown provider interface.
 
 ## Type
 `provider`
@@ -10,27 +13,60 @@ Markdown markdown-react-markdown provider for molecule.dev.
 npm install @molecule/app-markdown-react-markdown
 ```
 
+## Usage
+
+```typescript
+import { provider } from '@molecule/app-markdown-react-markdown'
+import { setProvider } from '@molecule/app-markdown'
+
+setProvider(provider)
+```
+
 ## API
 
 ### Interfaces
 
-#### `MarkdownConfig`
+#### `ReactMarkdownConfig`
+
+Provider-specific configuration options.
 
 ```typescript
-interface MarkdownConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+interface ReactMarkdownConfig {
+  /** Whether to sanitize HTML by default. Defaults to `true`. */
+  sanitize?: boolean
+
+  /** Whether to enable GFM by default. Defaults to `true`. */
+  gfm?: boolean
 }
 ```
-
-### Classes
-
-#### `MarkdownMarkdownProvider`
 
 ### Functions
 
 #### `createProvider(config)`
 
+Creates a react-markdown-compatible provider instance.
+
 ```typescript
-function createProvider(config: MarkdownConfig): MarkdownMarkdownProvider
+function createProvider(config?: ReactMarkdownConfig): MarkdownProvider
 ```
+
+- `config` — Optional provider configuration.
+
+**Returns:** A configured MarkdownProvider.
+
+### Constants
+
+#### `provider`
+
+Default react-markdown provider instance.
+
+```typescript
+const provider: MarkdownProvider
+```
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-markdown` ^1.0.0

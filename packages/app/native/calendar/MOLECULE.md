@@ -1,4 +1,4 @@
-# @molecule/app-calendar
+# @molecule/app-device-calendar
 
 Calendar access interface for molecule.dev
 
@@ -7,7 +7,7 @@ Calendar access interface for molecule.dev
 
 ## Installation
 ```bash
-npm install @molecule/app-calendar
+npm install @molecule/app-device-calendar
 ```
 
 ## API

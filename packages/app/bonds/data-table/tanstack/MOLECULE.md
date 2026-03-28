@@ -1,6 +1,9 @@
 # @molecule/app-data-table-tanstack
 
-Tanstack data-table-tanstack provider for molecule.dev.
+TanStack Table provider for the molecule data table interface.
+
+Implements `DataTableProvider` from `@molecule/app-data-table` using
+`@tanstack/table-core` for sorting, filtering, pagination, and row selection.
 
 ## Type
 `provider`
@@ -10,27 +13,61 @@ Tanstack data-table-tanstack provider for molecule.dev.
 npm install @molecule/app-data-table-tanstack
 ```
 
+## Usage
+
+```typescript
+import { provider } from '@molecule/app-data-table-tanstack'
+import { setProvider } from '@molecule/app-data-table'
+
+setProvider(provider)
+```
+
 ## API
 
 ### Interfaces
 
-#### `TanstackConfig`
+#### `TanStackTableConfig`
+
+Configuration options for the TanStack Table data table provider.
 
 ```typescript
-interface TanstackConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+interface TanStackTableConfig {
+  /**
+   * Whether to enable debug mode in TanStack Table.
+   * When `true`, TanStack logs internal state changes to the console.
+   * Defaults to `false`.
+   */
+  debug?: boolean
 }
 ```
 
-### Classes
-
-#### `TanstackDataProvider`
-
 ### Functions
 
-#### `createProvider(config)`
+#### `createTanStackProvider(config)`
+
+Creates a TanStack Table-backed data table provider.
 
 ```typescript
-function createProvider(config: TanstackConfig): TanstackDataProvider
+function createTanStackProvider(config?: TanStackTableConfig): DataTableProvider
 ```
+
+- `config` — Optional TanStack-specific configuration.
+
+**Returns:** A `DataTableProvider` backed by TanStack Table.
+
+### Constants
+
+#### `provider`
+
+Default TanStack Table provider instance.
+
+```typescript
+const provider: DataTableProvider
+```
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-data-table` >=1.0.0

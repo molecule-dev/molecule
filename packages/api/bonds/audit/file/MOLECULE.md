@@ -1,6 +1,10 @@
 # @molecule/api-audit-file
 
-File audit-file provider for molecule.dev.
+File-based audit provider for molecule.dev.
+
+Stores audit trail entries as newline-delimited JSON (NDJSON) files.
+Supports log rotation, querying, and export to CSV or JSON. Ideal for
+development, testing, or single-instance deployments.
 
 ## Type
 `provider`
@@ -10,27 +14,64 @@ File audit-file provider for molecule.dev.
 npm install @molecule/api-audit-file
 ```
 
+## Usage
+
+```typescript
+import { setProvider } from '@molecule/api-audit'
+import { provider } from '@molecule/api-audit-file'
+
+setProvider(provider)
+```
+
 ## API
 
 ### Interfaces
 
-#### `FileConfig`
+#### `FileAuditConfig`
+
+Configuration options for the file-based audit provider.
 
 ```typescript
-interface FileConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+interface FileAuditConfig {
+  /** Directory path where audit log files are written. Defaults to `'./audit-logs'`. */
+  directory?: string
+
+  /** Maximum size (in bytes) of a single log file before rotation. Defaults to `10_485_760` (10 MB). */
+  maxFileSize?: number
+
+  /** Prefix for log file names. Defaults to `'audit'`. */
+  filePrefix?: string
 }
 ```
-
-### Classes
-
-#### `FileAuditProvider`
 
 ### Functions
 
 #### `createProvider(config)`
 
+Creates a file-based audit provider.
+
 ```typescript
-function createProvider(config: FileConfig): FileAuditProvider
+function createProvider(config?: FileAuditConfig): AuditProvider
 ```
+
+- `config` — Optional provider configuration.
+
+**Returns:** An `AuditProvider` backed by NDJSON files on disk.
+
+### Constants
+
+#### `provider`
+
+Default file audit provider instance. Lazily initializes on first
+property access with default options.
+
+```typescript
+const provider: AuditProvider
+```
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/api-audit` ^1.0.0
