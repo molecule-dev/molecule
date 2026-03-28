@@ -1,8 +1,13 @@
 /**
- * Default ai-image-generator-default provider for molecule.dev.
+ * Default HTTP image generator provider for molecule.dev.
  *
  * @module
  */
 
-export { createProvider, DefaultAIProvider } from './provider.js'
+export * from './provider.js'
 export * from './types.js'
+
+import { createProvider } from './provider.js'
+
+/** Pre-instantiated provider singleton. */
+export const provider = createProvider()
