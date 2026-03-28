@@ -8,6 +8,7 @@
  * @module
  */
 
+export * from './automation.js'
 export * from './components.js'
 export * from './provider.js'
 export * from './types.js'
