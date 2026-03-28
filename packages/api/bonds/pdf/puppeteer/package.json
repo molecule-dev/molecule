@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-pdf-puppeteer",
   "version": "1.0.0",
-  "description": "",
+  "description": "Puppeteer HTML-to-PDF provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,12 +22,32 @@
   "keywords": [
     "molecule",
     "pdf",
-    "puppeteer"
+    "puppeteer",
+    "html-to-pdf",
+    "generation"
   ],
   "license": "MIT",
+  "dependencies": {
+    "pdf-lib": "1.17.1",
+    "puppeteer": "24.40.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-pdf": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-pdf": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/pdf/puppeteer"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/pdf/puppeteer",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }

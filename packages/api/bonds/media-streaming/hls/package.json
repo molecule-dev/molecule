@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-media-streaming-hls",
   "version": "1.0.0",
-  "description": "",
+  "description": "HLS media streaming provider for molecule.dev — ffmpeg-based segmentation, transcoding, and M3U8 playlist generation",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,12 +23,29 @@
     "molecule",
     "media",
     "streaming",
-    "hls"
+    "hls",
+    "m3u8",
+    "ffmpeg",
+    "transcode"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-media-streaming": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-media-streaming": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/media-streaming/hls"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/media-streaming/hls",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }
