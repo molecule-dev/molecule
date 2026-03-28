@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-vector-store-pgvector",
   "version": "1.0.0",
-  "description": "",
+  "description": "PostgreSQL pgvector provider for molecule.dev — vector similarity search with pgvector",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,11 +24,21 @@
     "ai",
     "vector",
     "store",
-    "pgvector"
+    "pgvector",
+    "postgresql"
   ],
   "license": "MIT",
+  "dependencies": {
+    "pg": "8.16.0",
+    "pgvector": "0.2.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai-vector-store": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-ai-vector-store": "1.0.0",
     "@types/node": "25.5.0",
+    "@types/pg": "8.15.4",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
   }

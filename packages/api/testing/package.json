@@ -52,9 +52,13 @@
     }
   },
   "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-database": "1.0.0",
+    "@molecule/api-middleware-validation": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.0",
+    "zod": "4.3.6"
   },
   "repository": {
     "type": "git",
