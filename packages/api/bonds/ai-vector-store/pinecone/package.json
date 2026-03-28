@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-vector-store-pinecone",
   "version": "1.0.0",
-  "description": "",
+  "description": "Pinecone vector store provider for molecule.dev — serverless vector similarity search",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,10 +24,18 @@
     "ai",
     "vector",
     "store",
-    "pinecone"
+    "pinecone",
+    "serverless"
   ],
   "license": "MIT",
+  "dependencies": {
+    "@pinecone-database/pinecone": "7.1.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai-vector-store": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-ai-vector-store": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
