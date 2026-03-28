@@ -35,8 +35,9 @@ describe('getPeriodTime', () => {
     const yearTime = getPeriodTime('year')
 
     // A year is approximately 365-366 days in milliseconds
-    const minYear = 365 * 24 * 60 * 60 * 1000 // 365 days
-    const maxYear = 366 * 24 * 60 * 60 * 1000 // 366 days
+    // Allow up to 1 hour less than 365 days due to DST transitions
+    const minYear = 365 * 24 * 60 * 60 * 1000 - 60 * 60 * 1000 // 365 days minus 1 hour
+    const maxYear = 366 * 24 * 60 * 60 * 1000 + 60 * 60 * 1000 // 366 days plus 1 hour
 
     expect(yearTime).toBeGreaterThanOrEqual(minYear)
     expect(yearTime).toBeLessThanOrEqual(maxYear)

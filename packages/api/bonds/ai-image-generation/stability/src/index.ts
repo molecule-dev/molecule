@@ -4,5 +4,5 @@
  * @module
  */
 
-export { createProvider, StabilityAIProvider } from './provider.js'
+export * from './provider.js'
 export * from './types.js'

@@ -4,5 +4,5 @@
  * @module
  */
 
-export { createProvider, DeeplAIProvider } from './provider.js'
+export * from './provider.js'
 export * from './types.js'

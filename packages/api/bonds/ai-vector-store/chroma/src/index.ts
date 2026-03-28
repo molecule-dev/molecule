@@ -4,5 +4,5 @@
  * @module
  */
 
-export { ChromaAIProvider, createProvider } from './provider.js'
+export * from './provider.js'
 export * from './types.js'
