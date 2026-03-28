@@ -1,18 +1,59 @@
 # @molecule/api-ai-vector-store
 
-
+ai-vector-store core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-ai-vector-store
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `AIVectorStoreConfig`
+
+```typescript
+interface AIVectorStoreConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `AIVectorStoreProvider`
+
+```typescript
+interface AIVectorStoreProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): AIVectorStoreProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): AIVectorStoreProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: AIVectorStoreProvider): void
+```

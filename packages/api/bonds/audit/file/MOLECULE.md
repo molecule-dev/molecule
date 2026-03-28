@@ -1,18 +1,36 @@
 # @molecule/api-audit-file
 
-
+File audit-file provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-audit-file
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `FileConfig`
+
+```typescript
+interface FileConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `FileAuditProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: FileConfig): FileAuditProvider
+```

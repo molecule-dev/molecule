@@ -1,18 +1,36 @@
 # @molecule/api-ai-vector-store-pinecone
 
-
+Pinecone ai-vector-store-pinecone provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-ai-vector-store-pinecone
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `PineconeConfig`
+
+```typescript
+interface PineconeConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `PineconeAIProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: PineconeConfig): PineconeAIProvider
+```

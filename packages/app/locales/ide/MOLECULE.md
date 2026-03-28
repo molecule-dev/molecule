@@ -4,7 +4,7 @@ Translations for molecule IDE components in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-ide` package which has 118 translation keys.
+Provides translations for the `@molecule/app-ide` package which has 164 translation keys.
 
 ## Languages
 

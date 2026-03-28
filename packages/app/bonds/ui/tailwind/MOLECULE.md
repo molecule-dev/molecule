@@ -125,7 +125,7 @@ const actionSheetHeader: "flex-shrink-0 px-4 py-3 border-b border-border"
 Alert component classes with variant support (default, info, success, warning, error).
 
 ```typescript
-const alert: (props?: ({ variant?: "default" | "success" | "error" | "warning" | "info" | undefined; } & { class?: string; }) | undefined) => string
+const alert: (props?: ({ variant?: "default" | "success" | "warning" | "error" | "info" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `alertContent`
@@ -341,7 +341,7 @@ const avatarSquare: "rounded-md"
 Badge component classes with variant support.
 
 ```typescript
-const badge: (props?: ({ variant?: "default" | "secondary" | "success" | "outline" | "error" | "warning" | undefined; } & { class?: string; }) | undefined) => string
+const badge: (props?: ({ variant?: "default" | "secondary" | "success" | "outline" | "warning" | "error" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `badgeSquare`
@@ -413,7 +413,7 @@ const borderT: "border-t border-border"
 Button component classes.
 
 ```typescript
-const button: (props?: ({ variant?: "default" | "secondary" | "success" | "outline" | "ghost" | "link" | "danger" | undefined; size?: "sm" | "md" | "lg" | "icon" | undefined; } & { class?: string; }) | undefined) => string
+const button: (props?: ({ variant?: "default" | "secondary" | "success" | "outline" | "ghost" | "link" | "warning" | "danger" | undefined; size?: "sm" | "md" | "lg" | "icon" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `buttonIconLeft`
@@ -792,7 +792,7 @@ const floatingInputWrapper: "relative inline-block align-middle w-full"
 Floating label classes (absolute positioned, animated on focus).
 
 ```typescript
-const floatingLabel: "absolute top-0 left-0 right-0 w-full p-[3px] text-[11px] leading-none whitespace-nowrap text-foreground uppercase pointer-events-none transition-all duration-250 peer-hover:bg-input-background peer-focus:text-primary peer-focus:[text-shadow:0_0_var(--color-primary)] peer-focus:bg-input-background"
+const floatingLabel: "absolute top-0 left-0 right-0 w-full p-[3px] text-[11px] leading-none whitespace-nowrap text-foreground pointer-events-none transition-all duration-250 peer-hover:bg-input-background peer-focus:text-primary peer-focus:[text-shadow:0_0_var(--color-primary)] peer-focus:bg-input-background"
 ```
 
 #### `footerBar`
@@ -1045,10 +1045,10 @@ const logoIcon: "text-primary"
 
 #### `logoText`
 
-Logo text classes (lowercase, tracked, 26px).
+Logo text classes (tracked, 26px).
 
 ```typescript
-const logoText: "text-[26px] leading-[26px] tracking-[-1px] lowercase"
+const logoText: "text-[26px] leading-[26px] tracking-[-1px]"
 ```
 
 #### `mxAuto`
@@ -1616,7 +1616,7 @@ const themeToggleButton: "w-[30px] h-[30px] p-0 border-0 bg-transparent text-for
 Tailwind toast notification variant classes (default, success, error, warning).
 
 ```typescript
-const toast: (props?: ({ variant?: "default" | "success" | "error" | "warning" | "info" | undefined; } & { class?: string; }) | undefined) => string
+const toast: (props?: ({ variant?: "default" | "success" | "warning" | "error" | "info" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `toastAction`

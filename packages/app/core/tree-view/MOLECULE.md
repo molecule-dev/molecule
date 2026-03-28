@@ -1,18 +1,59 @@
 # @molecule/app-tree-view
 
-
+tree-view core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-tree-view
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `TreeViewConfig`
+
+```typescript
+interface TreeViewConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `TreeViewProvider`
+
+```typescript
+interface TreeViewProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): TreeViewProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): TreeViewProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: TreeViewProvider): void
+```

@@ -1,18 +1,36 @@
 # @molecule/app-command-palette-cmdk
 
-
+Cmdk command-palette-cmdk provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-command-palette-cmdk
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `CmdkConfig`
+
+```typescript
+interface CmdkConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `CmdkCommandProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: CmdkConfig): CmdkCommandProvider
+```

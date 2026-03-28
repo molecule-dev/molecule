@@ -1,18 +1,36 @@
 # @molecule/api-ai-translation-deepl
 
-
+Deepl ai-translation-deepl provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-ai-translation-deepl
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `DeeplConfig`
+
+```typescript
+interface DeeplConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `DeeplAIProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: DeeplConfig): DeeplAIProvider
+```

@@ -1,18 +1,59 @@
 # @molecule/app-file-upload
 
-
+file-upload core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-file-upload
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `FileUploadConfig`
+
+```typescript
+interface FileUploadConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `FileUploadProvider`
+
+```typescript
+interface FileUploadProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): FileUploadProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): FileUploadProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: FileUploadProvider): void
+```

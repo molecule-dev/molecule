@@ -1,18 +1,36 @@
 # @molecule/api-workflow-database
 
-
+Database workflow-database provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-workflow-database
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `DatabaseConfig`
+
+```typescript
+interface DatabaseConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `DatabaseWorkflowProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: DatabaseConfig): DatabaseWorkflowProvider
+```

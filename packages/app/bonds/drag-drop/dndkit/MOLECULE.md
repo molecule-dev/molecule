@@ -1,18 +1,36 @@
 # @molecule/app-drag-drop-dndkit
 
-
+Dndkit drag-drop-dndkit provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-drag-drop-dndkit
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `DndkitConfig`
+
+```typescript
+interface DndkitConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `DndkitDragProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: DndkitConfig): DndkitDragProvider
+```

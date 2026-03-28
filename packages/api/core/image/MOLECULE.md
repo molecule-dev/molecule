@@ -1,18 +1,59 @@
 # @molecule/api-image
 
-
+image core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-image
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `ImageConfig`
+
+```typescript
+interface ImageConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `ImageProvider`
+
+```typescript
+interface ImageProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): ImageProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): ImageProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: ImageProvider): void
+```

@@ -1,18 +1,36 @@
 # @molecule/app-markdown-react-markdown
 
-
+Markdown markdown-react-markdown provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-markdown-react-markdown
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `MarkdownConfig`
+
+```typescript
+interface MarkdownConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `MarkdownMarkdownProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: MarkdownConfig): MarkdownMarkdownProvider
+```

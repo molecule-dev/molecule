@@ -1,18 +1,59 @@
 # @molecule/app-image-crop
 
-
+image-crop core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-image-crop
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `ImageCropConfig`
+
+```typescript
+interface ImageCropConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `ImageCropProvider`
+
+```typescript
+interface ImageCropProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): ImageCropProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): ImageCropProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: ImageCropProvider): void
+```

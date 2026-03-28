@@ -1,18 +1,36 @@
 # @molecule/app-keyboard-shortcuts-hotkeys
 
-
+Hotkeys keyboard-shortcuts-hotkeys provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-keyboard-shortcuts-hotkeys
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `HotkeysConfig`
+
+```typescript
+interface HotkeysConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `HotkeysKeyboardProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: HotkeysConfig): HotkeysKeyboardProvider
+```

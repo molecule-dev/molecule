@@ -1,18 +1,36 @@
 # @molecule/api-pdf-puppeteer
 
-
+Puppeteer pdf-puppeteer provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-pdf-puppeteer
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `PuppeteerConfig`
+
+```typescript
+interface PuppeteerConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `PuppeteerPdfProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: PuppeteerConfig): PuppeteerPdfProvider
+```

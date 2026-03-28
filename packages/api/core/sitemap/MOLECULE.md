@@ -1,18 +1,59 @@
 # @molecule/api-sitemap
 
-
+sitemap core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-sitemap
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `SitemapConfig`
+
+```typescript
+interface SitemapConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `SitemapProvider`
+
+```typescript
+interface SitemapProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): SitemapProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): SitemapProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: SitemapProvider): void
+```

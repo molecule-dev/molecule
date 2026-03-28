@@ -1,18 +1,36 @@
 # @molecule/api-compliance-gdpr
 
-
+Gdpr compliance-gdpr provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-compliance-gdpr
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `GdprConfig`
+
+```typescript
+interface GdprConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `GdprComplianceProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: GdprConfig): GdprComplianceProvider
+```

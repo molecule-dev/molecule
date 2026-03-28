@@ -1,18 +1,36 @@
 # @molecule/app-data-table-tanstack
 
-
+Tanstack data-table-tanstack provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-data-table-tanstack
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `TanstackConfig`
+
+```typescript
+interface TanstackConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `TanstackDataProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: TanstackConfig): TanstackDataProvider
+```

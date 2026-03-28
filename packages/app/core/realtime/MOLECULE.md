@@ -1,18 +1,59 @@
 # @molecule/app-realtime
 
-
+realtime core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-realtime
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `RealtimeConfig`
+
+```typescript
+interface RealtimeConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `RealtimeProvider`
+
+```typescript
+interface RealtimeProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): RealtimeProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): RealtimeProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: RealtimeProvider): void
+```

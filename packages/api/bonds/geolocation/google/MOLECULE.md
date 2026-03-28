@@ -1,18 +1,36 @@
 # @molecule/api-geolocation-google
 
-
+Google geolocation-google provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-geolocation-google
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `GoogleConfig`
+
+```typescript
+interface GoogleConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `GoogleGeolocationProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: GoogleConfig): GoogleGeolocationProvider
+```

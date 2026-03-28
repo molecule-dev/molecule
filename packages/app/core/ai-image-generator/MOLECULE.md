@@ -1,18 +1,59 @@
 # @molecule/app-ai-image-generator
 
-
+ai-image-generator core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-ai-image-generator
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `AIImageGeneratorConfig`
+
+```typescript
+interface AIImageGeneratorConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `AIImageGeneratorProvider`
+
+```typescript
+interface AIImageGeneratorProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): AIImageGeneratorProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): AIImageGeneratorProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: AIImageGeneratorProvider): void
+```

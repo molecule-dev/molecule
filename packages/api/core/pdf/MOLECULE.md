@@ -1,18 +1,59 @@
 # @molecule/api-pdf
 
-
+pdf core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-pdf
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `PdfConfig`
+
+```typescript
+interface PdfConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `PdfProvider`
+
+```typescript
+interface PdfProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): PdfProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): PdfProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: PdfProvider): void
+```

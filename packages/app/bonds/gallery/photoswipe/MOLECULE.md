@@ -1,18 +1,36 @@
 # @molecule/app-gallery-photoswipe
 
-
+Photoswipe gallery-photoswipe provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-gallery-photoswipe
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `PhotoswipeConfig`
+
+```typescript
+interface PhotoswipeConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `PhotoswipeGalleryProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: PhotoswipeConfig): PhotoswipeGalleryProvider
+```

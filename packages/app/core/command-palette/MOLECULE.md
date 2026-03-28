@@ -1,18 +1,59 @@
 # @molecule/app-command-palette
 
-
+command-palette core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-command-palette
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `CommandPaletteConfig`
+
+```typescript
+interface CommandPaletteConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `CommandPaletteProvider`
+
+```typescript
+interface CommandPaletteProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): CommandPaletteProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): CommandPaletteProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: CommandPaletteProvider): void
+```

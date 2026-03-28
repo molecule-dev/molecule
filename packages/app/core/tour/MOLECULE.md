@@ -1,18 +1,59 @@
 # @molecule/app-tour
 
-
+tour core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-tour
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `TourConfig`
+
+```typescript
+interface TourConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `TourProvider`
+
+```typescript
+interface TourProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): TourProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): TourProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: TourProvider): void
+```

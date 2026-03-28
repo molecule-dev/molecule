@@ -88,7 +88,7 @@ interface ChatMessage {
   /** Set when the agentic loop hit its iteration limit before finishing. */
   loopLimitReached?: number
   /** Persisted commit record for display in conversation history. */
-  commitRecord?: { message: string; files: string[] }
+  commitRecord?: { message: string; files: string[]; hash?: string }
   commitSuggestion?: CommitSuggestion
   /** File attachments sent with this message (metadata only — no base64 data in history). */
   attachments?: AttachmentMeta[]
@@ -163,6 +163,8 @@ interface ToolCall {
   status: 'pending' | 'running' | 'done' | 'error'
   /** Snapshot of original/modified file content captured at tool-call time (not sent to AI). */
   fileDiff?: { original: string; modified: string }
+  /** Whether this tool call's file change has been undone. */
+  isUndone?: boolean
 }
 ```
 
@@ -193,8 +195,23 @@ type ChatStreamEvent =
   | { type: 'conversation'; id: string }
   | { type: 'mode'; mode: 'plan' | 'execute' }
   | { type: 'loop_limit_reached'; maxLoops: number }
-  | { type: 'done'; usage?: { inputTokens: number; outputTokens: number } }
-  | { type: 'error'; message: string }
+  | { type: 'compaction'; compactedCount: number; remainingCount: number; summary: string }
+  | {
+      type: 'verification_result'
+      status: 'ok' | 'error'
+      output?: string
+      workspaces: string[]
+      categories?: ('type' | 'lint' | 'runtime')[]
+      changedPaths?: string[]
+    }
+  | {
+      type: 'preview_error'
+      errors: Array<{ message: string; source?: string; line?: number; column?: number }>
+    }
+  | { type: 'resource_limit'; resource: 'memory'; message: string }
+  | { type: 'upgrade_prompt'; feature: string; message: string }
+  | { type: 'done'; usage?: { inputTokens: number; outputTokens: number; contextWindow?: number } }
+  | { type: 'error'; message: string; limitType?: string; requiresSignup?: boolean }
 ```
 
 #### `MessageBlock`
@@ -207,6 +224,14 @@ type MessageBlock =
   | { type: 'text'; content: string }
   | { type: 'tool_call'; id: string }
   | { type: 'thinking'; content: string }
+  | {
+      type: 'verification'
+      status: 'ok' | 'error'
+      output?: string
+      workspaces: string[]
+      categories?: string[]
+    }
+  | { type: 'resource_limit'; resource: string; message: string }
 ```
 
 ### Functions

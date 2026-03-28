@@ -1,18 +1,36 @@
 # @molecule/api-geolocation-mapbox
 
-
+Mapbox geolocation-mapbox provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-geolocation-mapbox
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `MapboxConfig`
+
+```typescript
+interface MapboxConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `MapboxGeolocationProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: MapboxConfig): MapboxGeolocationProvider
+```

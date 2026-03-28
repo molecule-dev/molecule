@@ -1,18 +1,59 @@
 # @molecule/app-timeline
 
-
+timeline core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-timeline
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `TimelineConfig`
+
+```typescript
+interface TimelineConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `TimelineProvider`
+
+```typescript
+interface TimelineProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): TimelineProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): TimelineProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: TimelineProvider): void
+```

@@ -1,18 +1,59 @@
 # @molecule/api-ai-classification
 
-
+ai-classification core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-ai-classification
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `AIClassificationConfig`
+
+```typescript
+interface AIClassificationConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `AIClassificationProvider`
+
+```typescript
+interface AIClassificationProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): AIClassificationProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): AIClassificationProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: AIClassificationProvider): void
+```

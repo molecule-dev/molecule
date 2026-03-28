@@ -1,18 +1,36 @@
 # @molecule/app-realtime-socketio
 
-
+Socketio realtime-socketio provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-realtime-socketio
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `SocketioConfig`
+
+```typescript
+interface SocketioConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `SocketioRealtimeProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: SocketioConfig): SocketioRealtimeProvider
+```

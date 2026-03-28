@@ -1,18 +1,36 @@
 # @molecule/api-cron-bullmq
 
-
+Bullmq cron-bullmq provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-cron-bullmq
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `BullmqConfig`
+
+```typescript
+interface BullmqConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `BullmqCronProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: BullmqConfig): BullmqCronProvider
+```

@@ -1,18 +1,36 @@
 # @molecule/api-ai-vector-store-chroma
 
-
+Chroma ai-vector-store-chroma provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-ai-vector-store-chroma
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `ChromaConfig`
+
+```typescript
+interface ChromaConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `ChromaAIProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: ChromaConfig): ChromaAIProvider
+```

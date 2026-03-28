@@ -181,6 +181,7 @@ type ChatEvent =
   | { type: 'tool_use'; id: string; name: string; input: unknown }
   | { type: 'done'; usage: TokenUsage }
   | { type: 'error'; message: string; errorKey?: string }
+  | { type: 'keep_alive' }
 ```
 
 #### `ContentBlock`
@@ -204,9 +205,19 @@ type ContentBlock =
 
 ### Functions
 
+#### `getAllProviders()`
+
+Retrieves all named AI providers as a Map keyed by provider name.
+
+```typescript
+function getAllProviders(): Map<string, AIProvider>
+```
+
+**Returns:** Map of provider name → AIProvider.
+
 #### `getProvider()`
 
-Retrieves the bonded AI provider, or `null` if none is bonded.
+Retrieves the singleton AI provider, or `null` if none is bonded.
 
 ```typescript
 function getProvider(): AIProvider | null
@@ -214,15 +225,29 @@ function getProvider(): AIProvider | null
 
 **Returns:** The bonded AI provider, or `null`.
 
-#### `hasProvider()`
+#### `getProviderByName(name)`
+
+Retrieves a named AI provider, or `null` if not bonded.
+
+```typescript
+function getProviderByName(name: string): AIProvider | null
+```
+
+- `name` — The provider name (e.g. `'anthropic'`, `'xai'`).
+
+**Returns:** The named AI provider, or `null`.
+
+#### `hasProvider(name)`
 
 Checks whether an AI provider is currently bonded.
 
 ```typescript
-function hasProvider(): boolean
+function hasProvider(name?: string): boolean
 ```
 
-**Returns:** `true` if an AI provider is bonded.
+- `name` — Optional provider name. If omitted, checks the singleton.
+
+**Returns:** `true` if the provider is bonded.
 
 #### `requireProvider()`
 
@@ -235,22 +260,27 @@ function requireProvider(): AIProvider
 
 **Returns:** The bonded AI provider.
 
-#### `setProvider(provider)`
+#### `setProvider(nameOrProvider, provider)`
 
-Registers an AI provider as the active singleton. Called by bond packages
-during application startup.
+Registers an AI provider. Supports two modes:
+
+- **Singleton**: `setProvider(provider)` — bonds a single default provider.
+- **Named**: `setProvider('anthropic', provider)` — bonds a named provider
+  alongside others (e.g. `'xai'`, `'openai'`).
 
 ```typescript
 function setProvider(provider: AIProvider): void
 ```
 
-- `provider` — The AI provider implementation to bond.
+- `nameOrProvider` — Provider name (string) or the provider instance (singleton mode).
+- `provider` — The provider instance (only when first arg is a name).
 
 ## Available Providers
 
 | Provider | Package |
 |----------|---------|
 | Anthropic | `@molecule/api-ai-anthropic` |
+| xAI | `@molecule/api-ai-xai` |
 
 ## Injection Notes
 

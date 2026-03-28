@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-workflow-database",
   "version": "1.0.0",
-  "description": "",
+  "description": "Database-backed workflow provider — stores definitions, instances, and event history via the abstract DataStore.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,10 +22,19 @@
   "keywords": [
     "molecule",
     "workflow",
+    "state-machine",
     "database"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-database": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-workflow": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-database": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
+    "@molecule/api-workflow": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

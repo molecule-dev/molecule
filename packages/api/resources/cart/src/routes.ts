@@ -7,12 +7,36 @@
  */
 
 /**
- *
+ * Shopping cart routes. The cart is a user-scoped singleton resource
+ * (one cart per authenticated user), so routes use `/cart` (singular).
  */
 export const routes = [
-  { method: 'post', path: '/carts', handler: 'create' },
-  { method: 'get', path: '/carts', handler: 'list' },
-  { method: 'get', path: '/carts/:id', handler: 'read' },
-  { method: 'patch', path: '/carts/:id', handler: 'update' },
-  { method: 'delete', path: '/carts/:id', handler: 'del' },
+  { method: 'get', path: '/cart', handler: 'getCart', middlewares: ['authenticate'] },
+  { method: 'post', path: '/cart/items', handler: 'addItem', middlewares: ['authenticate'] },
+  {
+    method: 'put',
+    path: '/cart/items/:itemId',
+    handler: 'updateQuantity',
+    middlewares: ['authenticate'],
+  },
+  {
+    method: 'delete',
+    path: '/cart/items/:itemId',
+    handler: 'removeItem',
+    middlewares: ['authenticate'],
+  },
+  { method: 'delete', path: '/cart', handler: 'clearCart', middlewares: ['authenticate'] },
+  { method: 'post', path: '/cart/coupon', handler: 'applyCoupon', middlewares: ['authenticate'] },
+  {
+    method: 'delete',
+    path: '/cart/coupon',
+    handler: 'removeCoupon',
+    middlewares: ['authenticate'],
+  },
+  {
+    method: 'get',
+    path: '/cart/summary',
+    handler: 'getCartSummary',
+    middlewares: ['authenticate'],
+  },
 ] as const

@@ -16,15 +16,11 @@ npm install @molecule/app-icons-molecule
 
 #### `arrowDown`
 
-SVG path data for the arrow down icon.
-
 ```typescript
 const arrowDown: IconData
 ```
 
 #### `arrowLeft`
-
-SVG path data for the arrow left icon.
 
 ```typescript
 const arrowLeft: IconData
@@ -32,15 +28,11 @@ const arrowLeft: IconData
 
 #### `arrowRight`
 
-SVG path data for the arrow right icon.
-
 ```typescript
 const arrowRight: IconData
 ```
 
 #### `arrowUp`
-
-SVG path data for the arrow up icon.
 
 ```typescript
 const arrowUp: IconData
@@ -48,15 +40,11 @@ const arrowUp: IconData
 
 #### `bell`
 
-SVG path data for the bell icon.
-
 ```typescript
 const bell: IconData
 ```
 
 #### `bookmark`
-
-SVG path data for the bookmark icon.
 
 ```typescript
 const bookmark: IconData
@@ -64,15 +52,11 @@ const bookmark: IconData
 
 #### `calendar`
 
-SVG path data for the calendar icon.
-
 ```typescript
 const calendar: IconData
 ```
 
 #### `check`
-
-SVG path data for the check icon.
 
 ```typescript
 const check: IconData
@@ -80,15 +64,11 @@ const check: IconData
 
 #### `checkCircle`
 
-SVG path data for the check-circle icon.
-
 ```typescript
 const checkCircle: IconData
 ```
 
 #### `chevronDown`
-
-SVG path data for the chevron down icon.
 
 ```typescript
 const chevronDown: IconData
@@ -96,15 +76,11 @@ const chevronDown: IconData
 
 #### `chevronLeft`
 
-SVG path data for the chevron left icon.
-
 ```typescript
 const chevronLeft: IconData
 ```
 
 #### `chevronRight`
-
-SVG path data for the chevron right icon.
 
 ```typescript
 const chevronRight: IconData
@@ -128,15 +104,11 @@ const chevronsRight: IconData
 
 #### `chevronUp`
 
-SVG path data for the chevron up icon.
-
 ```typescript
 const chevronUp: IconData
 ```
 
 #### `clock`
-
-SVG path data for the clock icon.
 
 ```typescript
 const clock: IconData
@@ -144,15 +116,11 @@ const clock: IconData
 
 #### `code`
 
-SVG path data for the code icon.
-
 ```typescript
 const code: IconData
 ```
 
 #### `copy`
-
-SVG path data for the copy icon.
 
 ```typescript
 const copy: IconData
@@ -160,15 +128,11 @@ const copy: IconData
 
 #### `download`
 
-SVG path data for the download icon.
-
 ```typescript
 const download: IconData
 ```
 
 #### `ellipsisHorizontal`
-
-SVG path data for the ellipsis horizontal icon.
 
 ```typescript
 const ellipsisHorizontal: IconData
@@ -176,15 +140,11 @@ const ellipsisHorizontal: IconData
 
 #### `exclamationTriangle`
 
-SVG path data for the exclamation triangle icon.
-
 ```typescript
 const exclamationTriangle: IconData
 ```
 
 #### `eye`
-
-SVG path data for the eye icon.
 
 ```typescript
 const eye: IconData
@@ -192,15 +152,11 @@ const eye: IconData
 
 #### `eyeClosed`
 
-SVG path data for the eye closed icon.
-
 ```typescript
 const eyeClosed: IconData
 ```
 
 #### `file`
-
-SVG path data for the file icon.
 
 ```typescript
 const file: IconData
@@ -208,23 +164,17 @@ const file: IconData
 
 #### `filter`
 
-SVG path data for the filter icon.
-
 ```typescript
 const filter: IconData
 ```
 
 #### `folder`
 
-SVG path data for the folder icon.
-
 ```typescript
 const folder: IconData
 ```
 
 #### `gear`
-
-SVG path data for the gear icon.
 
 ```typescript
 const gear: IconData
@@ -248,8 +198,6 @@ const gitlab: IconData
 
 #### `globe`
 
-SVG path data for the globe icon.
-
 ```typescript
 const globe: IconData
 ```
@@ -264,23 +212,17 @@ const google: IconData
 
 #### `heart`
 
-SVG path data for the heart icon.
-
 ```typescript
 const heart: IconData
 ```
 
 #### `history`
 
-SVG path data for the history icon.
-
 ```typescript
 const history: IconData
 ```
 
 #### `home`
-
-SVG path data for the home icon.
 
 ```typescript
 const home: IconData
@@ -311,23 +253,23 @@ const iconSet: IconSet
 
 #### `image`
 
-SVG path data for the image icon.
-
 ```typescript
 const image: IconData
 ```
 
 #### `infoCircle`
 
-SVG path data for the info circle icon.
-
 ```typescript
 const infoCircle: IconData
 ```
 
-#### `link`
+#### `lightbulb`
 
-SVG path data for the link icon.
+```typescript
+const lightbulb: IconData
+```
+
+#### `link`
 
 ```typescript
 const link: IconData
@@ -335,15 +277,11 @@ const link: IconData
 
 #### `linkExternal`
 
-SVG path data for the link external icon.
-
 ```typescript
 const linkExternal: IconData
 ```
 
 #### `lock`
-
-SVG path data for the lock icon.
 
 ```typescript
 const lock: IconData
@@ -367,31 +305,35 @@ const logoMark: IconData
 
 #### `mail`
 
-SVG path data for the mail icon.
-
 ```typescript
 const mail: IconData
 ```
 
 #### `maximize`
 
-SVG path data for the maximize icon.
-
 ```typescript
 const maximize: IconData
 ```
 
-#### `menu`
+#### `mention`
 
-SVG path data for the menu icon.
+```typescript
+const mention: IconData
+```
+
+#### `menu`
 
 ```typescript
 const menu: IconData
 ```
 
-#### `minimize`
+#### `microphone`
 
-SVG path data for the minimize icon.
+```typescript
+const microphone: IconData
+```
+
+#### `minimize`
 
 ```typescript
 const minimize: IconData
@@ -399,23 +341,23 @@ const minimize: IconData
 
 #### `minus`
 
-SVG path data for the minus icon.
-
 ```typescript
 const minus: IconData
 ```
 
 #### `moon`
 
-SVG path data for the moon icon.
-
 ```typescript
 const moon: IconData
 ```
 
-#### `pencil`
+#### `paperclip`
 
-SVG path data for the pencil icon.
+```typescript
+const paperclip: IconData
+```
+
+#### `pencil`
 
 ```typescript
 const pencil: IconData
@@ -423,15 +365,11 @@ const pencil: IconData
 
 #### `people`
 
-SVG path data for the people icon.
-
 ```typescript
 const people: IconData
 ```
 
 #### `pin`
-
-SVG path data for the pin icon.
 
 ```typescript
 const pin: IconData
@@ -439,15 +377,11 @@ const pin: IconData
 
 #### `plus`
 
-SVG path data for the plus icon.
-
 ```typescript
 const plus: IconData
 ```
 
 #### `question`
-
-SVG path data for the question icon.
 
 ```typescript
 const question: IconData
@@ -455,15 +389,11 @@ const question: IconData
 
 #### `reply`
 
-SVG path data for the reply icon.
-
 ```typescript
 const reply: IconData
 ```
 
 #### `search`
-
-SVG path data for the search icon.
 
 ```typescript
 const search: IconData
@@ -471,15 +401,11 @@ const search: IconData
 
 #### `share`
 
-SVG path data for the share icon.
-
 ```typescript
 const share: IconData
 ```
 
 #### `signIn`
-
-SVG path data for the sign in icon.
 
 ```typescript
 const signIn: IconData
@@ -487,15 +413,11 @@ const signIn: IconData
 
 #### `signOut`
 
-SVG path data for the sign out icon.
-
 ```typescript
 const signOut: IconData
 ```
 
 #### `sortAsc`
-
-SVG path data for the sort asc icon.
 
 ```typescript
 const sortAsc: IconData
@@ -503,15 +425,11 @@ const sortAsc: IconData
 
 #### `sortDesc`
 
-SVG path data for the sort desc icon.
-
 ```typescript
 const sortDesc: IconData
 ```
 
 #### `star`
-
-SVG path data for the star icon.
 
 ```typescript
 const star: IconData
@@ -519,15 +437,11 @@ const star: IconData
 
 #### `sun`
 
-SVG path data for the sun icon.
-
 ```typescript
 const sun: IconData
 ```
 
 #### `sync`
-
-SVG path data for the sync icon.
 
 ```typescript
 const sync: IconData
@@ -535,15 +449,11 @@ const sync: IconData
 
 #### `table`
 
-SVG path data for the table icon.
-
 ```typescript
 const table: IconData
 ```
 
 #### `tag`
-
-SVG path data for the tag icon.
 
 ```typescript
 const tag: IconData
@@ -551,23 +461,17 @@ const tag: IconData
 
 #### `thumbsdown`
 
-SVG path data for the thumbsdown icon.
-
 ```typescript
 const thumbsdown: IconData
 ```
 
 #### `thumbsup`
 
-SVG path data for the thumbsup icon.
-
 ```typescript
 const thumbsup: IconData
 ```
 
 #### `trash`
-
-SVG path data for the trash icon.
 
 ```typescript
 const trash: IconData
@@ -583,15 +487,11 @@ const twitter: IconData
 
 #### `unlock`
 
-SVG path data for the unlock icon.
-
 ```typescript
 const unlock: IconData
 ```
 
 #### `upload`
-
-SVG path data for the upload icon.
 
 ```typescript
 const upload: IconData
@@ -599,23 +499,17 @@ const upload: IconData
 
 #### `user`
 
-SVG path data for the user icon.
-
 ```typescript
 const user: IconData
 ```
 
 #### `xCircle`
 
-SVG path data for the x circle icon.
-
 ```typescript
 const xCircle: IconData
 ```
 
 #### `xMark`
-
-SVG path data for the x mark icon.
 
 ```typescript
 const xMark: IconData

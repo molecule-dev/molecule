@@ -1,18 +1,36 @@
 # @molecule/api-pdf-pdfkit
 
-
+Pdfkit pdf-pdfkit provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-pdf-pdfkit
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `PdfkitConfig`
+
+```typescript
+interface PdfkitConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `PdfkitPdfProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: PdfkitConfig): PdfkitPdfProvider
+```

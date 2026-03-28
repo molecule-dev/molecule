@@ -51,14 +51,24 @@ interface ChatPanelProps {
   onFileDeleted?: (path: string) => void
   /** Called after a successful commit — should refresh file explorer git status. */
   onCommit?: () => void
+  /** Path of the currently focused file in the editor (shown first in @ picker). */
+  activeFile?: string | null
+  /** Paths of all open editor tabs (shown after active file in @ picker). */
+  openTabs?: string[]
   /** Incremented to trigger a git status refresh (e.g. after file create/rename/delete). */
   gitStatusTick?: number
   /** Message to auto-send (e.g. from "Fix with AI"). Sent when pendingMessageKey changes. */
   pendingMessage?: string
   /** Incremented to trigger sending pendingMessage. */
   pendingMessageKey?: number
+  /** File path the user just edited in the editor — triggers auto-deletion of queued autofix messages. */
+  userEditedFile?: string
+  /** Incremented to trigger the user-edit check (same path may be edited multiple times). */
+  userEditedFileKey?: number
   /** When true, model picker shows non-default models as locked (sign-up required). */
   isAnonymous?: boolean
+  /** When true, user has a paid plan and can use all models. */
+  isPro?: boolean
   className?: string
 }
 ```
@@ -132,6 +142,8 @@ interface EditorPanelProps {
   formatEstimate?: number
   /** Called when the user triggers "Fix with AI" from the editor's lightbulb or context menu. */
   onFixWithAI?: (request: FixWithAIRequest) => void
+  /** Override double-click on a tab. Return `true` to skip the default pin behavior. */
+  onTabDoubleClick?: (path: string) => boolean
 }
 ```
 
@@ -149,6 +161,10 @@ interface FileExplorerProps {
   onRename?: (path: string) => void
   /** Called when the user chooses "Delete" from the context menu. */
   onDelete?: (path: string) => void
+  /** Called when the user deletes multiple selected files/folders via context menu or keyboard. */
+  onDeleteMultiple?: (paths: string[]) => void
+  /** Called when the user moves files via drag-and-drop or cut+paste. */
+  onMoveFiles?: (moves: Array<{ oldPath: string; newPath: string }>) => void
   /** Called when the user chooses "New File" from the context menu. */
   onNewFile?: (dirPath: string) => void
   /** Called when the user chooses "New Folder" from the context menu. */
@@ -224,6 +240,14 @@ interface PreviewPanelProps {
   loadingIndicator?: ReactNode
   /** Custom loading indicator shown when the dev server restarts mid-session. Falls back to loadingIndicator if not provided. */
   restartingIndicator?: ReactNode
+  /** Called when the preview iframe reports runtime JS errors. */
+  onPreviewError?: (
+    errors: Array<{ message: string; source?: string; line?: number; column?: number }>,
+  ) => void
+  /** Incremented when AI edits files. Triggers an iframe reload only when the preview is broken. */
+  fileChangeTick?: number
+  /** Called when the preview fails to load after multiple recovery attempts. */
+  onPreviewStuck?: () => void
   className?: string
 }
 ```
@@ -401,6 +425,10 @@ interface ToolCallCardProps {
   status: 'pending' | 'running' | 'done' | 'error'
   /** Snapshot of original/modified file content captured at tool-call time. */
   fileDiff?: { original: string; modified: string }
+  /** Externally controlled undo state — when true, the card displays as undone. */
+  isUndone?: boolean
+  /** Called when the undo/redo button is toggled on this tool call. */
+  onUndoToggle?: (id: string, undone: boolean) => void
   /** Called when a filename in the card is clicked — should open the file as a preview tab. */
   onFileOpen?: (path: string) => void
   /** Called when a filename in the card is double-clicked — should pin the tab. */

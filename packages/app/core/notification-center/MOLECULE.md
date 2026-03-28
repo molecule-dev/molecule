@@ -1,18 +1,59 @@
 # @molecule/app-notification-center
 
-
+notification-center core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-notification-center
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `NotificationCenterConfig`
+
+```typescript
+interface NotificationCenterConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `NotificationCenterProvider`
+
+```typescript
+interface NotificationCenterProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): NotificationCenterProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): NotificationCenterProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: NotificationCenterProvider): void
+```

@@ -1,18 +1,36 @@
 # @molecule/api-templating-handlebars
 
-
+Handlebars templating-handlebars provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-templating-handlebars
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `HandlebarsConfig`
+
+```typescript
+interface HandlebarsConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `HandlebarsTemplatingProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: HandlebarsConfig): HandlebarsTemplatingProvider
+```

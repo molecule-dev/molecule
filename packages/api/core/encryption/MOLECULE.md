@@ -1,18 +1,59 @@
 # @molecule/api-encryption
 
-
+encryption core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-encryption
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `EncryptionConfig`
+
+```typescript
+interface EncryptionConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `EncryptionProvider`
+
+```typescript
+interface EncryptionProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): EncryptionProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): EncryptionProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: EncryptionProvider): void
+```

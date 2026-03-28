@@ -1,18 +1,59 @@
 # @molecule/api-ai-speech
 
-
+ai-speech core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-ai-speech
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `AISpeechConfig`
+
+```typescript
+interface AISpeechConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `AISpeechProvider`
+
+```typescript
+interface AISpeechProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): AISpeechProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): AISpeechProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: AISpeechProvider): void
+```

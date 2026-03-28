@@ -4,19 +4,25 @@
  * @module
  */
 
-import { create } from './handlers/create.js'
-import { del } from './handlers/del.js'
-import { list } from './handlers/list.js'
-import { read } from './handlers/read.js'
-import { update } from './handlers/update.js'
+import { book } from './handlers/book.js'
+import { cancel } from './handlers/cancel.js'
+import { checkAvailability } from './handlers/checkAvailability.js'
+import { complete } from './handlers/complete.js'
+import { confirm } from './handlers/confirm.js'
+import { getBookings } from './handlers/getBookings.js'
+import { getById } from './handlers/getById.js'
+import { reschedule } from './handlers/reschedule.js'
 
 /**
- *
+ * Handler map for the booking resource routes.
  */
 export const requestHandlerMap = {
-  create,
-  list,
-  read,
-  update,
-  del,
+  checkAvailability,
+  book,
+  getBookings,
+  getById,
+  cancel,
+  reschedule,
+  confirm,
+  complete,
 } as const

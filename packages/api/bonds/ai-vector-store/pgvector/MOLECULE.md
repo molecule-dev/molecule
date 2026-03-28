@@ -1,18 +1,36 @@
 # @molecule/api-ai-vector-store-pgvector
 
-
+Pgvector ai-vector-store-pgvector provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/api-ai-vector-store-pgvector
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `PgvectorConfig`
+
+```typescript
+interface PgvectorConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `PgvectorAIProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: PgvectorConfig): PgvectorAIProvider
+```

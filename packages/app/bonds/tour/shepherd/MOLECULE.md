@@ -1,18 +1,36 @@
 # @molecule/app-tour-shepherd
 
-
+Shepherd tour-shepherd provider for molecule.dev.
 
 ## Type
 `provider`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-tour-shepherd
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `ShepherdConfig`
+
+```typescript
+interface ShepherdConfig {
+  // TODO: Define provider-specific config
+  [key: string]: unknown
+}
+```
+
+### Classes
+
+#### `ShepherdTourProvider`
+
+### Functions
+
+#### `createProvider(config)`
+
+```typescript
+function createProvider(config: ShepherdConfig): ShepherdTourProvider
+```

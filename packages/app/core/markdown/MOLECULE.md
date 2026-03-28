@@ -1,18 +1,59 @@
 # @molecule/app-markdown
 
-
+markdown core interface for molecule.dev.
 
 ## Type
 `core`
 
-## Injection Notes
+## Installation
+```bash
+npm install @molecule/app-markdown
+```
 
-### Requirements
-- None
+## API
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+### Interfaces
 
-### Known Limitations
-- None yet
+#### `MarkdownConfig`
+
+```typescript
+interface MarkdownConfig {
+  // TODO: Define configuration options
+  [key: string]: unknown
+}
+```
+
+#### `MarkdownProvider`
+
+```typescript
+interface MarkdownProvider {
+  readonly name: string
+  // TODO: Define provider methods
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+```typescript
+function getProvider(): MarkdownProvider | null
+```
+
+#### `hasProvider()`
+
+```typescript
+function hasProvider(): boolean
+```
+
+#### `requireProvider()`
+
+```typescript
+function requireProvider(): MarkdownProvider
+```
+
+#### `setProvider(provider)`
+
+```typescript
+function setProvider(provider: MarkdownProvider): void
+```
