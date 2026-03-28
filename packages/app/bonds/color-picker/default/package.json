@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-color-picker-default",
   "version": "1.0.0",
-  "description": "",
+  "description": "Default provider for @molecule/app-color-picker",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,6 +19,10 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "directory": "packages/app/bonds/color-picker/default"
+  },
   "keywords": [
     "molecule",
     "color",
@@ -26,7 +30,11 @@
     "default"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-color-picker": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-color-picker": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

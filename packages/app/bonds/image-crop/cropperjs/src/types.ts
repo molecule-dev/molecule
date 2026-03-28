@@ -1,13 +1,16 @@
 /**
- * Cropperjs Image provider configuration.
+ * Configuration for the Cropper.js provider.
  *
  * @module
  */
 
 /**
- *
+ * Provider-specific configuration options.
  */
 export interface CropperjsConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+  /** Whether to show guides by default. Defaults to `true`. */
+  guides?: boolean
+
+  /** Whether to show the crop box background. Defaults to `true`. */
+  background?: boolean
 }

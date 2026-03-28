@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-stepper-default",
   "version": "1.0.0",
-  "description": "",
+  "description": "Default provider for @molecule/app-stepper",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,7 +25,16 @@
     "default"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/stepper/default"
+  },
+  "peerDependencies": {
+    "@molecule/app-stepper": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-stepper": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

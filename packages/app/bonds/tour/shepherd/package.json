@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-tour-shepherd",
   "version": "1.0.0",
-  "description": "",
+  "description": "Shepherd.js provider for @molecule/app-tour",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,7 +25,16 @@
     "shepherd"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/tour/shepherd"
+  },
+  "peerDependencies": {
+    "@molecule/app-tour": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-tour": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
