@@ -8,10 +8,14 @@
  */
 
 /**
-<<<<<<< HEAD
  * Format of the generated image data returned by the provider.
  */
 export type ImageResponseFormat = 'url' | 'base64'
+
+/**
+ * Supported output image formats.
+ */
+export type ImageOutputFormat = 'png' | 'jpeg' | 'webp'
 
 /**
  * Parameters for generating images from a text prompt.
@@ -34,46 +38,7 @@ export interface ImageGenerateParams {
 }
 
 /**
- * Parameters for editing an existing image with a text prompt.
- */
-export interface ImageEditParams {
-  /** The source image to edit, as a Buffer of PNG data or a base64-encoded string. */
-  image: Buffer | string
-  /** Text description of the desired edits. */
-  prompt: string
-  /** Optional mask indicating areas to edit (white = edit, black = keep). */
-  mask?: Buffer | string
-  /** Model to use for editing (provider-specific). */
-  model?: string
-  /** Number of edited images to generate. */
-  n?: number
-  /** Output image size as a "widthxheight" string. */
-  size?: string
-  /** Format of the returned image data. */
-  responseFormat?: ImageResponseFormat
-}
-
-/**
- * A single generated or edited image.
- */
-export interface GeneratedImage {
-  /** URL of the generated image (when responseFormat is 'url'). */
-  url?: string
-  /** Base64-encoded image data (when responseFormat is 'base64'). */
-  base64?: string
-  /** The prompt after provider revision (some providers rewrite prompts for safety/quality). */
-  revisedPrompt?: string
-}
-
-/**
- * Result of an image generation or edit request.
-=======
- * Supported output image formats.
- */
-export type ImageOutputFormat = 'png' | 'jpeg' | 'webp'
-
-/**
- * Parameters for text-to-image generation.
+ * Parameters for text-to-image generation (Stability AI-style).
  */
 export interface GenerateImageParams {
   /** The text prompt describing the desired image. */
@@ -100,6 +65,26 @@ export interface GenerateImageParams {
   aspectRatio?: string
   /** Style preset (provider-specific, e.g. 'photographic', 'anime'). */
   stylePreset?: string
+}
+
+/**
+ * Parameters for editing an existing image with a text prompt.
+ */
+export interface ImageEditParams {
+  /** The source image to edit, as a Buffer of PNG data or a base64-encoded string. */
+  image: Buffer | string
+  /** Text description of the desired edits. */
+  prompt: string
+  /** Optional mask indicating areas to edit (white = edit, black = keep). */
+  mask?: Buffer | string
+  /** Model to use for editing (provider-specific). */
+  model?: string
+  /** Number of edited images to generate. */
+  n?: number
+  /** Output image size as a "widthxheight" string. */
+  size?: string
+  /** Format of the returned image data. */
+  responseFormat?: ImageResponseFormat
 }
 
 /**
@@ -131,44 +116,38 @@ export interface UpscaleImageParams {
 }
 
 /**
- * A single generated image result.
+ * A single generated or edited image.
  */
 export interface GeneratedImage {
-  /** The image data as a Buffer. */
-  data: Buffer
+  /** URL of the generated image (when responseFormat is 'url'). */
+  url?: string
+  /** Base64-encoded image data (when responseFormat is 'base64'). */
+  base64?: string
+  /** The prompt after provider revision (some providers rewrite prompts for safety/quality). */
+  revisedPrompt?: string
+  /** The image data as a Buffer (when returned as raw data). */
+  data?: Buffer
   /** The MIME type of the image (e.g. 'image/png'). */
-  mimeType: string
+  mimeType?: string
   /** The seed used to generate this image, for reproducibility. */
   seed?: number
-  /** Base64-encoded image data, if requested. */
-  base64?: string
 }
 
 /**
- * Result of an image generation request.
->>>>>>> stub-imggen-stability
+ * Result of an image generation or edit request.
  */
 export interface ImageGenerationResult {
   /** The generated images. */
   images: GeneratedImage[]
-<<<<<<< HEAD
-  /** Model that produced the images. */
-=======
   /** The model that produced the images. */
->>>>>>> stub-imggen-stability
   model: string
 }
 
 /**
  * AIImageGeneration provider interface.
  *
-<<<<<<< HEAD
- * Providers generate images from text prompts and optionally support
- * editing existing images with text-guided inpainting.
-=======
- * Providers generate images from text prompts, transform existing images,
- * and perform upscaling operations.
->>>>>>> stub-imggen-stability
+ * Providers generate images from text prompts, edit existing images with
+ * text-guided inpainting, transform images, and perform upscaling operations.
  */
 export interface AIImageGenerationProvider {
   /** Provider name identifier. */
@@ -177,11 +156,18 @@ export interface AIImageGenerationProvider {
   /**
    * Generate images from a text prompt.
    *
-<<<<<<< HEAD
    * @param params - Generation parameters including prompt, model, size, and quality.
    * @returns Generated image(s) with metadata.
    */
   generate(params: ImageGenerateParams): Promise<ImageGenerationResult>
+
+  /**
+   * Generate images from a text prompt (Stability AI-style params).
+   *
+   * @param params - Generation parameters including prompt, dimensions, and model.
+   * @returns Generated images with metadata.
+   */
+  generateImage?(params: GenerateImageParams): Promise<ImageGenerationResult>
 
   /**
    * Edit an existing image using a text prompt and optional mask.
@@ -191,11 +177,6 @@ export interface AIImageGenerationProvider {
    * @returns Edited image(s) with metadata.
    */
   edit?(params: ImageEditParams): Promise<ImageGenerationResult>
-=======
-   * @param params - Generation parameters including prompt, dimensions, and model.
-   * @returns Generated images with metadata.
-   */
-  generate(params: GenerateImageParams): Promise<ImageGenerationResult>
 
   /**
    * Transform an existing image guided by a text prompt (image-to-image).
@@ -212,7 +193,6 @@ export interface AIImageGenerationProvider {
    * @returns Upscaled image with metadata.
    */
   upscale?(params: UpscaleImageParams): Promise<ImageGenerationResult>
->>>>>>> stub-imggen-stability
 }
 
 /**
@@ -221,11 +201,7 @@ export interface AIImageGenerationProvider {
 export interface AIImageGenerationConfig {
   /** API key for the image generation service. */
   apiKey?: string
-<<<<<<< HEAD
   /** Default model to use for generation. */
-=======
-  /** Default model to use. */
->>>>>>> stub-imggen-stability
   defaultModel?: string
   /** Base URL override (for proxies or self-hosted endpoints). */
   baseUrl?: string

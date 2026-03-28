@@ -1,9 +1,5 @@
 /**
-<<<<<<< HEAD
  * AISpeech provider interface — speech-to-text (STT) and text-to-speech (TTS).
-=======
- * AISpeech provider interface — text-to-speech synthesis.
->>>>>>> stub-speech-elevenlabs
  *
  * Implement this interface in a bond package to provide
  * a concrete ai-speech implementation (ElevenLabs, OpenAI TTS, Google Cloud TTS, etc.).
@@ -19,24 +15,7 @@
 export type TTSAudioFormat = 'mp3' | 'opus' | 'aac' | 'flac' | 'wav' | 'pcm'
 
 /**
-<<<<<<< HEAD
- * Parameters for text-to-speech synthesis.
- */
-export interface SynthesizeParams {
-  /** The text to convert to speech. */
-  input: string
-  /** Voice identifier (provider-specific). */
-  voice?: string
-  /** Model to use for synthesis (provider-specific). */
-  model?: string
-  /** Desired audio output format. */
-  responseFormat?: TTSAudioFormat
-  /** Speech speed multiplier (e.g. 0.5 = half speed, 2.0 = double speed). */
-  speed?: number
-  /** Optional instructions to guide voice style/tone (if supported by model). */
-  instructions?: string
-=======
- * Supported audio output formats for speech synthesis.
+ * Supported audio output formats for speech synthesis (provider-specific detailed formats).
  */
 export type AudioFormat =
   | 'mp3_44100_128'
@@ -52,7 +31,25 @@ export type AudioFormat =
   | 'flac'
 
 /**
- * Parameters for a text-to-speech synthesis request.
+ * Parameters for text-to-speech synthesis.
+ */
+export interface SynthesizeParams {
+  /** The text to convert to speech. */
+  input: string
+  /** Voice identifier (provider-specific). */
+  voice?: string
+  /** Model to use for synthesis (provider-specific). */
+  model?: string
+  /** Desired audio output format. */
+  responseFormat?: TTSAudioFormat
+  /** Speech speed multiplier (e.g. 0.5 = half speed, 2.0 = double speed). */
+  speed?: number
+  /** Optional instructions to guide voice style/tone (if supported by model). */
+  instructions?: string
+}
+
+/**
+ * Parameters for a text-to-speech synthesis request (ElevenLabs-style).
  */
 export interface SpeechParams {
   /** The text to synthesize into speech. */
@@ -75,18 +72,44 @@ export interface SpeechParams {
   speed?: number
   /** BCP-47 language code for multilingual models. */
   languageCode?: string
->>>>>>> stub-speech-elevenlabs
 }
 
 /**
  * Result of a text-to-speech synthesis request.
  */
-<<<<<<< HEAD
 export interface SynthesizeResult {
   /** The synthesized audio data. */
   audio: Uint8Array
   /** MIME content type of the audio (e.g. "audio/mpeg"). */
   contentType: string
+}
+
+/**
+ * Result of a text-to-speech synthesis request (ElevenLabs-style).
+ */
+export interface SpeechResult {
+  /** The synthesized audio as a Buffer/Uint8Array. */
+  audio: Uint8Array
+  /** The content type of the audio (e.g. 'audio/mpeg'). */
+  contentType: string
+}
+
+/**
+ * Information about an available voice.
+ */
+export interface VoiceInfo {
+  /** Provider-specific voice identifier. */
+  voiceId: string
+  /** Human-readable voice name. */
+  name: string
+  /** Voice category (e.g. 'premade', 'cloned', 'generated'). */
+  category?: string
+  /** Labels/tags associated with the voice (e.g. accent, gender, age). */
+  labels?: Record<string, string>
+  /** ISO language codes this voice supports. */
+  languages?: string[]
+  /** URL to a preview/sample of this voice, if available. */
+  previewUrl?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -216,7 +239,32 @@ export interface AISpeechProvider {
    * @param params - Synthesis parameters including text, voice, and format.
    * @returns Synthesized audio data with content type.
    */
-  synthesize(params: SynthesizeParams): Promise<SynthesizeResult>
+  synthesize?(params: SynthesizeParams): Promise<SynthesizeResult>
+
+  /**
+   * Synthesize speech from text (ElevenLabs-style params).
+   *
+   * @param params - Speech synthesis parameters.
+   * @returns The synthesized audio data with content type metadata.
+   */
+  synthesizeSpeech?(params: SpeechParams): Promise<SpeechResult>
+
+  /**
+   * Stream synthesized speech from text.
+   *
+   * Returns an async iterable of audio chunks for real-time playback.
+   *
+   * @param params - Speech synthesis parameters.
+   * @returns Async iterable of audio data chunks.
+   */
+  synthesizeStream?(params: SpeechParams): AsyncIterable<Uint8Array>
+
+  /**
+   * List available voices from this provider.
+   *
+   * @returns Array of available voice information.
+   */
+  listVoices?(): Promise<VoiceInfo[]>
 
   /**
    * Transcribe audio to text in the original language.
@@ -224,15 +272,16 @@ export interface AISpeechProvider {
    * @param params - Transcription parameters including audio data, model, and language.
    * @returns Transcribed text with optional timestamps and metadata.
    */
-  transcribe(params: TranscribeParams): Promise<TranscribeResult>
+  transcribe?(params: TranscribeParams): Promise<TranscribeResult>
 
   /**
    * Translate audio from any language to English text.
+   * Optional — not all providers support STT (e.g., ElevenLabs is TTS-only).
    *
    * @param params - Translation parameters including audio data and model.
    * @returns Translated English text with optional metadata.
    */
-  translate(params: TranslateParams): Promise<TranslateResult>
+  translate?(params: TranslateParams): Promise<TranslateResult>
 }
 
 /**
@@ -247,80 +296,12 @@ export interface AISpeechConfig {
   defaultSTTModel?: string
   /** Default voice for text-to-speech. */
   defaultVoice?: string
-  /** Base URL override (for proxies or self-hosted endpoints). */
-  baseUrl?: string
-  /** Additional provider-specific options. */
-  [key: string]: unknown
-=======
-export interface SpeechResult {
-  /** The synthesized audio as a Buffer/Uint8Array. */
-  audio: Uint8Array
-  /** The content type of the audio (e.g. 'audio/mpeg'). */
-  contentType: string
-}
-
-/**
- * Information about an available voice.
- */
-export interface VoiceInfo {
-  /** Provider-specific voice identifier. */
-  voiceId: string
-  /** Human-readable voice name. */
-  name: string
-  /** Voice category (e.g. 'premade', 'cloned', 'generated'). */
-  category?: string
-  /** Labels/tags associated with the voice (e.g. accent, gender, age). */
-  labels?: Record<string, string>
-  /** ISO language codes this voice supports. */
-  languages?: string[]
-  /** URL to a preview/sample of this voice, if available. */
-  previewUrl?: string
-}
-
-/**
- * AISpeech provider interface.
- *
- * All speech provider bonds must implement this interface.
- */
-export interface AISpeechProvider {
-  /** Provider identifier (e.g. 'elevenlabs', 'openai'). */
-  readonly name: string
-
-  /**
-   * Synthesize speech from text.
-   *
-   * @param params - Speech synthesis parameters.
-   * @returns The synthesized audio data with content type metadata.
-   */
-  synthesize(params: SpeechParams): Promise<SpeechResult>
-
-  /**
-   * Stream synthesized speech from text.
-   *
-   * Returns an async iterable of audio chunks for real-time playback.
-   *
-   * @param params - Speech synthesis parameters.
-   * @returns Async iterable of audio data chunks.
-   */
-  synthesizeStream(params: SpeechParams): AsyncIterable<Uint8Array>
-
-  /**
-   * List available voices from this provider.
-   *
-   * @returns Array of available voice information.
-   */
-  listVoices(): Promise<VoiceInfo[]>
-}
-
-/**
- * Configuration shared by all AISpeech providers.
- */
-export interface AISpeechConfig {
-  /** API key for the speech provider. */
-  apiKey?: string
   /** Default voice ID to use when not specified in params. */
   defaultVoiceId?: string
   /** Default model to use when not specified in params. */
   defaultModel?: string
->>>>>>> stub-speech-elevenlabs
+  /** Base URL override (for proxies or self-hosted endpoints). */
+  baseUrl?: string
+  /** Additional provider-specific options. */
+  [key: string]: unknown
 }
