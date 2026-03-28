@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-resource-product",
   "version": "1.0.0",
-  "description": "",
+  "description": "Product catalog resource handlers with CRUD, soft-delete, and variant sub-resources",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,16 +21,22 @@
   ],
   "keywords": [
     "molecule",
-    "product"
+    "product",
+    "resource",
+    "catalog"
   ],
   "license": "MIT",
   "devDependencies": {
+    "@molecule/api-locales-product": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
   },
   "peerDependencies": {
     "@molecule/api-database": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-locales-product": "^1.0.0",
+    "@molecule/api-logger": "^1.0.0",
     "@molecule/api-resource": "^1.0.0"
   },
   "peerDependenciesMeta": {
@@ -39,6 +45,19 @@
     },
     "@molecule/api-database": {
       "optional": true
+    },
+    "@molecule/api-logger": {
+      "optional": true
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/resources/product"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/product",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }

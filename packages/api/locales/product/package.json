@@ -1,0 +1,28 @@
+{
+  "name": "@molecule/api-locales-product",
+  "version": "1.0.0",
+  "description": "Product resource translations for 79 languages",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@molecule/api-i18n": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
