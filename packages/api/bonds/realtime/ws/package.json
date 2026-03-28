@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-realtime-ws",
   "version": "1.0.0",
-  "description": "",
+  "description": "Raw WebSocket (ws) realtime provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,12 +22,32 @@
   "keywords": [
     "molecule",
     "realtime",
-    "ws"
+    "ws",
+    "websocket",
+    "provider"
   ],
   "license": "MIT",
+  "dependencies": {
+    "ws": "8.20.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-realtime": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-realtime": "1.0.0",
     "@types/node": "25.5.0",
+    "@types/ws": "8.18.1",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/realtime/ws"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/realtime/ws",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }

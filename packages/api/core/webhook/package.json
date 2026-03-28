@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-webhook",
   "version": "1.0.0",
-  "description": "",
+  "description": "Webhook core interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,10 +21,17 @@
   ],
   "keywords": [
     "molecule",
-    "webhook"
+    "webhook",
+    "dispatch"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

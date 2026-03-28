@@ -1,24 +1,24 @@
 /**
- * Notification types.
+ * Notification resource types.
+ *
+ * Re-exports core types from `@molecule/api-notification-center` and defines
+ * request-specific types for the notification resource handlers.
  *
  * @module
  */
 
-/**
- *
- */
-export interface Notification {
-  id: string
-  createdAt: string
-  updatedAt: string
-  // TODO: Add fields
-}
+export type {
+  CreateNotification,
+  Notification,
+  NotificationPreferences,
+  NotificationQuery,
+  PaginatedResult,
+} from '@molecule/api-notification-center'
 
 /**
- *
+ * Express request with authenticated user context.
  */
-export type CreateNotificationInput = Omit<Notification, 'id' | 'createdAt' | 'updatedAt'>
-/**
- *
- */
-export type UpdateNotificationInput = Partial<CreateNotificationInput>
+export interface AuthenticatedUser {
+  /** The authenticated user's identifier. */
+  id: string
+}

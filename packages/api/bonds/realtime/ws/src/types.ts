@@ -1,13 +1,40 @@
 /**
- * Ws Realtime provider configuration.
+ * Raw WebSocket realtime provider configuration.
  *
  * @module
  */
 
+import type { ServerOptions } from 'ws'
+
 /**
- *
+ * Configuration options for the raw WebSocket realtime provider.
  */
-export interface WsConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+export interface WsRealtimeConfig {
+  /**
+   * `ws` server options passed to the `WebSocketServer` constructor.
+   *
+   * @see https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketserveroptions-callback
+   */
+  serverOptions?: ServerOptions
+
+  /**
+   * An existing Node.js HTTP server to attach the WebSocket server to.
+   * If omitted, a standalone WebSocket server is created.
+   */
+  httpServer?: import('node:http').Server
+
+  /**
+   * Port to listen on when no `httpServer` is provided.
+   *
+   * @defaultValue 3000
+   */
+  port?: number
+
+  /**
+   * The event name used by clients to send messages.
+   * Clients send JSON with `{ event, data }` structure.
+   *
+   * @defaultValue 'message'
+   */
+  messageEvent?: string
 }

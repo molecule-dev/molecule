@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-sms-twilio",
   "version": "1.0.0",
-  "description": "",
+  "description": "Twilio SMS provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,7 +25,14 @@
     "twilio"
   ],
   "license": "MIT",
+  "dependencies": {
+    "twilio": "5.13.1"
+  },
+  "peerDependencies": {
+    "@molecule/api-sms": "1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-sms": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
