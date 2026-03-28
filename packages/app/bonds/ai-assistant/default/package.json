@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-ai-assistant-default",
   "version": "1.0.0",
-  "description": "",
+  "description": "Default HTTP/SSE AI assistant panel provider",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,8 +27,17 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@molecule/app-ai-assistant": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "peerDependencies": {
+    "@molecule/app-ai-assistant": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/app-ai-assistant": {
+      "optional": true
+    }
   }
 }
