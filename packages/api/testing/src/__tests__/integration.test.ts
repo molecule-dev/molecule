@@ -5,9 +5,23 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { bond, get, getAll, isBonded, require as bondRequire, reset, unbond, unbondAll } from '@molecule/api-bond'
+import {
+  bond,
+  get,
+  getAll,
+  isBonded,
+  require as bondRequire,
+  reset,
+  unbond,
+  unbondAll,
+} from '@molecule/api-bond'
 import { paginated, validate, validateBody } from '@molecule/api-middleware-validation'
-import type { DataStore, FindManyOptions, MutationResult, WhereCondition } from '@molecule/api-database'
+import type {
+  DataStore,
+  FindManyOptions,
+  MutationResult,
+  WhereCondition,
+} from '@molecule/api-database'
 import { z } from 'zod'
 
 import type { Request, Response } from 'express'
@@ -27,12 +41,18 @@ function mockRequest(overrides: Partial<Request> = {}): Request {
 }
 
 /** Creates a minimal mock Express response with spied methods. */
-function mockResponse(): Response & { status: ReturnType<typeof vi.fn>; json: ReturnType<typeof vi.fn> } {
+function mockResponse(): Response & {
+  status: ReturnType<typeof vi.fn>
+  json: ReturnType<typeof vi.fn>
+} {
   const res = {
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
   }
-  return res as unknown as Response & { status: ReturnType<typeof vi.fn>; json: ReturnType<typeof vi.fn> }
+  return res as unknown as Response & {
+    status: ReturnType<typeof vi.fn>
+    json: ReturnType<typeof vi.fn>
+  }
 }
 
 // ============================================================================
@@ -105,7 +125,10 @@ describe('Multi-provider bond integration', () => {
   })
 
   it('registers and retrieves multiple named providers under one category', () => {
-    const anthropic = { name: 'anthropic', complete: vi.fn().mockResolvedValue('Hello from Claude') }
+    const anthropic = {
+      name: 'anthropic',
+      complete: vi.fn().mockResolvedValue('Hello from Claude'),
+    }
     const openai = { name: 'openai', complete: vi.fn().mockResolvedValue('Hello from GPT') }
 
     bond('ai', 'anthropic', anthropic)
@@ -192,7 +215,11 @@ describe('Provider type safety integration', () => {
   })
 
   interface EmailTransport {
-    sendMail(options: { to: string; subject: string; body: string }): Promise<{ id: string; accepted: boolean }>
+    sendMail(options: {
+      to: string
+      subject: string
+      body: string
+    }): Promise<{ id: string; accepted: boolean }>
   }
 
   interface PaymentProvider {
@@ -252,12 +279,20 @@ describe('Provider type safety integration', () => {
 
     // Wire sendgrid first
     bond('email', sendgrid)
-    let result = await bondRequire<EmailTransport>('email').sendMail({ to: 'a@b.c', subject: 's', body: 'b' })
+    let result = await bondRequire<EmailTransport>('email').sendMail({
+      to: 'a@b.c',
+      subject: 's',
+      body: 'b',
+    })
     expect(result.id).toBe('sg-123')
 
     // Swap to mailgun — same interface, different implementation
     bond('email', mailgun)
-    result = await bondRequire<EmailTransport>('email').sendMail({ to: 'a@b.c', subject: 's', body: 'b' })
+    result = await bondRequire<EmailTransport>('email').sendMail({
+      to: 'a@b.c',
+      subject: 's',
+      body: 'b',
+    })
     expect(result.id).toBe('mg-456')
     expect(result.accepted).toBe(true)
   })
@@ -295,7 +330,11 @@ describe('Validation middleware integration', () => {
       expect.objectContaining({
         error: expect.any(String),
         errors: expect.arrayContaining([
-          expect.objectContaining({ field: expect.any(String), message: expect.any(String), code: expect.any(String) }),
+          expect.objectContaining({
+            field: expect.any(String),
+            message: expect.any(String),
+            code: expect.any(String),
+          }),
         ]),
       }),
     )
@@ -462,7 +501,10 @@ describe('Pagination response format integration', () => {
       perPage: z.coerce.number().int().positive().max(100).default(20),
     })
 
-    const allItems = Array.from({ length: 55 }, (_, i) => ({ id: String(i + 1), name: `Item ${i + 1}` }))
+    const allItems = Array.from({ length: 55 }, (_, i) => ({
+      id: String(i + 1),
+      name: `Item ${i + 1}`,
+    }))
 
     const handler = (req: Request, res: Response) => {
       const { page, perPage } = req.query as unknown as { page: number; perPage: number }
@@ -504,7 +546,9 @@ describe('Pagination response format integration', () => {
 
 describe('Database abstraction integration', () => {
   /** In-memory DataStore implementation for testing. */
-  function createMockDataStore(): DataStore & { tables: Map<string, Map<string, Record<string, unknown>>> } {
+  function createMockDataStore(): DataStore & {
+    tables: Map<string, Map<string, Record<string, unknown>>>
+  } {
     const tables = new Map<string, Map<string, Record<string, unknown>>>()
     let autoId = 0
 
@@ -519,18 +563,30 @@ describe('Database abstraction integration', () => {
       return where.every((cond) => {
         const val = row[cond.field]
         switch (cond.operator) {
-          case '=': return val === cond.value
-          case '!=': return val !== cond.value
-          case '>': return (val as number) > (cond.value as number)
-          case '<': return (val as number) < (cond.value as number)
-          case '>=': return (val as number) >= (cond.value as number)
-          case '<=': return (val as number) <= (cond.value as number)
-          case 'in': return (cond.value as unknown[]).includes(val)
-          case 'not_in': return !(cond.value as unknown[]).includes(val)
-          case 'like': return typeof val === 'string' && val.includes(cond.value as string)
-          case 'is_null': return val == null
-          case 'is_not_null': return val != null
-          default: return false
+          case '=':
+            return val === cond.value
+          case '!=':
+            return val !== cond.value
+          case '>':
+            return (val as number) > (cond.value as number)
+          case '<':
+            return (val as number) < (cond.value as number)
+          case '>=':
+            return (val as number) >= (cond.value as number)
+          case '<=':
+            return (val as number) <= (cond.value as number)
+          case 'in':
+            return (cond.value as unknown[]).includes(val)
+          case 'not_in':
+            return !(cond.value as unknown[]).includes(val)
+          case 'like':
+            return typeof val === 'string' && val.includes(cond.value as string)
+          case 'is_null':
+            return val == null
+          case 'is_not_null':
+            return val != null
+          default:
+            return false
         }
       })
     }
@@ -599,7 +655,11 @@ describe('Database abstraction integration', () => {
         return { data: row as T, affected: 1 }
       },
 
-      async updateById<T>(table: string, id: string | number, data: Record<string, unknown>): Promise<MutationResult<T>> {
+      async updateById<T>(
+        table: string,
+        id: string | number,
+        data: Record<string, unknown>,
+      ): Promise<MutationResult<T>> {
         const t = getTable(table)
         const existing = t.get(String(id))
         if (!existing) return { data: null, affected: 0 }
@@ -608,7 +668,11 @@ describe('Database abstraction integration', () => {
         return { data: updated as T, affected: 1 }
       },
 
-      async updateMany(table: string, where: WhereCondition[], data: Record<string, unknown>): Promise<MutationResult> {
+      async updateMany(
+        table: string,
+        where: WhereCondition[],
+        data: Record<string, unknown>,
+      ): Promise<MutationResult> {
         let affected = 0
         for (const [id, row] of getTable(table)) {
           if (matchesWhere(row, where)) {
@@ -704,7 +768,12 @@ describe('Database abstraction integration', () => {
   })
 
   it('findMany() supports select to project specific columns', async () => {
-    await store.create('users', { id: '1', name: 'Alice', email: 'alice@test.com', secret: 'hidden' })
+    await store.create('users', {
+      id: '1',
+      name: 'Alice',
+      email: 'alice@test.com',
+      secret: 'hidden',
+    })
 
     const results = await store.findMany<{ name: string; email: string }>('users', {
       select: ['name', 'email'],
@@ -756,7 +825,9 @@ describe('Database abstraction integration', () => {
     const totalCount = await store.count('users')
     expect(totalCount).toBe(3)
 
-    const activeCount = await store.count('users', [{ field: 'active', operator: '=', value: true }])
+    const activeCount = await store.count('users', [
+      { field: 'active', operator: '=', value: true },
+    ])
     expect(activeCount).toBe(2)
   })
 
@@ -765,7 +836,10 @@ describe('Database abstraction integration', () => {
     const retrievedStore = bondRequire<DataStore>('datastore')
 
     await retrievedStore.create('projects', { id: 'proj-1', name: 'Molecule' })
-    const project = await retrievedStore.findById<{ id: string; name: string }>('projects', 'proj-1')
+    const project = await retrievedStore.findById<{ id: string; name: string }>(
+      'projects',
+      'proj-1',
+    )
 
     expect(project).toEqual({ id: 'proj-1', name: 'Molecule' })
   })
@@ -786,13 +860,20 @@ describe('Database abstraction integration', () => {
     expect(found?.status).toBe('pending')
 
     // Update
-    const updated = await ds.updateById<{ id: string; name: string; status: string }>('tasks', 'task-1', {
-      status: 'completed',
-    })
+    const updated = await ds.updateById<{ id: string; name: string; status: string }>(
+      'tasks',
+      'task-1',
+      {
+        status: 'completed',
+      },
+    )
     expect(updated.data?.status).toBe('completed')
 
     // Verify update persisted
-    const afterUpdate = await ds.findById<{ id: string; name: string; status: string }>('tasks', 'task-1')
+    const afterUpdate = await ds.findById<{ id: string; name: string; status: string }>(
+      'tasks',
+      'task-1',
+    )
     expect(afterUpdate?.status).toBe('completed')
 
     // Delete
@@ -809,7 +890,9 @@ describe('Database abstraction integration', () => {
     await store.create('logs', { id: '2', level: 'info', message: 'ok' })
     await store.create('logs', { id: '3', level: 'error', message: 'fail 2' })
 
-    const result = await store.deleteMany('logs', [{ field: 'level', operator: '=', value: 'error' }])
+    const result = await store.deleteMany('logs', [
+      { field: 'level', operator: '=', value: 'error' },
+    ])
     expect(result.affected).toBe(2)
 
     const remaining = await store.findMany('logs')
@@ -845,7 +928,9 @@ describe('Database abstraction integration', () => {
   })
 
   it('findOne() returns null when no records match', async () => {
-    const found = await store.findOne('users', [{ field: 'email', operator: '=', value: 'nobody@test.com' }])
+    const found = await store.findOne('users', [
+      { field: 'email', operator: '=', value: 'nobody@test.com' },
+    ])
     expect(found).toBeNull()
   })
 })

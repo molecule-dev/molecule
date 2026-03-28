@@ -283,8 +283,8 @@ class PgvectorProvider implements AIVectorStoreProvider {
    * @throws Error if the collection does not exist.
    */
   async upsert(params: VectorUpsertParams): Promise<void> {
-    await this.ensureInitialized()
     if (params.records.length === 0) return
+    await this.ensureInitialized()
 
     const table = this.collectionTable(params.collection)
     const client = await this.pool.connect()
@@ -461,10 +461,7 @@ class PgvectorProvider implements AIVectorStoreProvider {
     const table = this.collectionTable(params.collection)
     const placeholders = params.ids.map((_, i) => `$${i + 1}`).join(', ')
 
-    await this.pool.query(
-      `DELETE FROM ${table} WHERE id IN (${placeholders})`,
-      params.ids,
-    )
+    await this.pool.query(`DELETE FROM ${table} WHERE id IN (${placeholders})`, params.ids)
   }
 
   /**

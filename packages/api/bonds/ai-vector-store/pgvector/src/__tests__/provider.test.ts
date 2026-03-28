@@ -28,13 +28,7 @@ vi.mock('pg', () => ({
 }))
 
 vi.mock('pgvector', () => ({
-  fromSql: vi.fn((value: string) =>
-    value
-      .replace('[', '')
-      .replace(']', '')
-      .split(',')
-      .map(Number),
-  ),
+  fromSql: vi.fn((value: string) => value.replace('[', '').replace(']', '').split(',').map(Number)),
 }))
 
 vi.mock('pgvector/pg', () => ({
@@ -211,9 +205,9 @@ describe('PgvectorProvider', () => {
 
       const calls = mockClient.query.mock.calls.map((c: unknown[]) => c[0] as string)
 
-      expect(calls.some((c) => c.includes('DROP TABLE') && c.includes('mol_vectors_documents'))).toBe(
-        true,
-      )
+      expect(
+        calls.some((c) => c.includes('DROP TABLE') && c.includes('mol_vectors_documents')),
+      ).toBe(true)
 
       const deleteCall = mockClient.query.mock.calls.find(
         (c: unknown[]) =>
@@ -554,8 +548,7 @@ describe('PgvectorProvider', () => {
       await provider.delete({ collection: 'documents', ids: ['doc-1', 'doc-2'] })
 
       const deleteCall = mockPool.query.mock.calls.find(
-        (c: unknown[]) =>
-          typeof c[0] === 'string' && (c[0] as string).includes('DELETE FROM'),
+        (c: unknown[]) => typeof c[0] === 'string' && (c[0] as string).includes('DELETE FROM'),
       )
       expect(deleteCall).toBeDefined()
       expect(deleteCall![1]).toEqual(['doc-1', 'doc-2'])
