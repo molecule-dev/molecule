@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-vector-store-chroma",
   "version": "1.0.0",
-  "description": "",
+  "description": "ChromaDB vector store provider for molecule.dev — open-source embedding database",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,10 +24,19 @@
     "ai",
     "vector",
     "store",
-    "chroma"
+    "chroma",
+    "chromadb",
+    "embedding"
   ],
   "license": "MIT",
+  "dependencies": {
+    "chromadb": "3.4.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai-vector-store": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-ai-vector-store": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

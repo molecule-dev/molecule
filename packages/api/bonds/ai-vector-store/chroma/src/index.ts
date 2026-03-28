@@ -1,5 +1,5 @@
 /**
- * Chroma ai-vector-store-chroma provider for molecule.dev.
+ * ChromaDB vector store provider for molecule.dev.
  *
  * @module
  */
