@@ -1,5 +1,5 @@
 /**
- * ActivityFeed route definitions.
+ * Activity feed route definitions.
  *
  * Declarative routing — mlcl inject reads these to generate the Express router.
  *
@@ -7,12 +7,36 @@
  */
 
 /**
- *
+ * Routes for activity feed operations.
  */
 export const routes = [
-  { method: 'post', path: '/activity-feeds', handler: 'create' },
-  { method: 'get', path: '/activity-feeds', handler: 'list' },
-  { method: 'get', path: '/activity-feeds/:id', handler: 'read' },
-  { method: 'patch', path: '/activity-feeds/:id', handler: 'update' },
-  { method: 'delete', path: '/activity-feeds/:id', handler: 'del' },
+  {
+    method: 'post',
+    path: '/activities',
+    handler: 'logActivity',
+    middlewares: ['authenticate'],
+  },
+  {
+    method: 'get',
+    path: '/activities/feed',
+    handler: 'feed',
+    middlewares: ['authenticate'],
+  },
+  {
+    method: 'get',
+    path: '/activities/unseen',
+    handler: 'unseen',
+    middlewares: ['authenticate'],
+  },
+  {
+    method: 'post',
+    path: '/activities/seen',
+    handler: 'markSeen',
+    middlewares: ['authenticate'],
+  },
+  {
+    method: 'get',
+    path: '/activities/:resourceType/:resourceId',
+    handler: 'timeline',
+  },
 ] as const

@@ -7,16 +7,16 @@
 import { create } from './handlers/create.js'
 import { del } from './handlers/del.js'
 import { list } from './handlers/list.js'
-import { read } from './handlers/read.js'
-import { update } from './handlers/update.js'
+import { following } from './handlers/read.js'
+import { checkFollowing } from './handlers/update.js'
 
 /**
- *
+ * Handler map for follow routes.
  */
 export const requestHandlerMap = {
   create,
-  list,
-  read,
-  update,
   del,
+  list,
+  following,
+  checkFollowing,
 } as const
