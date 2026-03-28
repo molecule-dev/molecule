@@ -1,8 +1,10 @@
 /**
- * Default ai-copilot-default provider for molecule.dev.
+ * Default ai-copilot provider for molecule.dev.
+ *
+ * HTTP/SSE-based inline AI suggestion provider.
  *
  * @module
  */
 
-export { createProvider, DefaultAIProvider } from './provider.js'
+export * from './provider.js'
 export * from './types.js'
