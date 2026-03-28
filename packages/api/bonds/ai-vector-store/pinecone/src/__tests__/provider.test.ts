@@ -464,9 +464,7 @@ describe('PineconeProvider', () => {
 
       await provider.query({ collection: 'docs', embedding: [0.1, 0.2] })
 
-      expect(mockIndex.query).toHaveBeenCalledWith(
-        expect.objectContaining({ topK: 10 }),
-      )
+      expect(mockIndex.query).toHaveBeenCalledWith(expect.objectContaining({ topK: 10 }))
     })
 
     it('caches metric after first describeIndex call', async () => {
