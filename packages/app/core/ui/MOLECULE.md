@@ -267,6 +267,13 @@ interface BaseProps {
   testId?: string
 
   /**
+   * Automation ID for AI agents, E2E tests, and screen readers.
+   * Maps to the `data-mol-id` HTML attribute.
+   * Use `molId()` from `./automation.js` to generate semantic IDs.
+   */
+  automationId?: string
+
+  /**
    * Whether the component is disabled.
    */
   disabled?: boolean
@@ -2666,6 +2673,57 @@ function hasProvider(): boolean
 
 **Returns:** `true` if a UI provider is bonded.
 
+#### `molId(component, context, qualifier)`
+
+Generate a semantic automation ID for a component.
+
+```typescript
+function molId(component: string, context: string, qualifier?: string): string
+```
+
+- `component` — Component type (e.g., 'button', 'input', 'card')
+- `context` — Context within the page (e.g., 'login', 'product', 'settings')
+- `qualifier` — Optional qualifier (e.g., 'submit', 'cancel', item ID)
+
+**Returns:** The joined automation ID string.
+
+#### `molIdProps(id)`
+
+Generate the props object for spreading onto an element.
+
+```typescript
+function molIdProps(id: string): Record<string, string>
+```
+
+- `id` — The automation ID string.
+
+**Returns:** An object with the `data-mol-id` attribute set.
+
+#### `molSelector(id)`
+
+Playwright/testing selector for finding elements by automation ID.
+
+```typescript
+function molSelector(id: string): string
+```
+
+- `id` — The automation ID to find.
+
+**Returns:** A CSS attribute selector string.
+
+#### `molSelectorPrefix(prefix)`
+
+Playwright/testing selector for finding elements by partial automation ID.
+Useful for finding all elements of a type: molSelectorPrefix('button-login')
+
+```typescript
+function molSelectorPrefix(prefix: string): string
+```
+
+- `prefix` — The automation ID prefix to match.
+
+**Returns:** A CSS attribute prefix selector string.
+
 #### `setClassMap(classMap)`
 
 Registers a UIClassMap as the active styling resolver. Called at
@@ -2686,6 +2744,16 @@ function setProvider(provider: UIProvider): void
 ```
 
 - `provider` — The UI provider implementation to bond.
+
+### Constants
+
+#### `MOL_ID_ATTR`
+
+The HTML attribute name for automation IDs.
+
+```typescript
+const MOL_ID_ATTR: "data-mol-id"
+```
 
 ## Available Providers
 

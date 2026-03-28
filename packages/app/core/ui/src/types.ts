@@ -1577,6 +1577,56 @@ export interface DropdownProps<T = string> extends BaseProps {
 }
 
 // ============================================================================
+// PAGE SHELL
+// ============================================================================
+
+/** Props for the PageShell component — authenticated page wrapper with navigation. */
+export interface PageShellProps extends BaseProps {
+  /** Sidebar content (navigation links). */
+  sidebar?: Children
+  /** Top bar content (breadcrumbs, user menu). */
+  topbar?: Children
+  /** Whether the sidebar is collapsed. */
+  sidebarCollapsed?: boolean
+  /** Callback when sidebar toggle is clicked. */
+  onSidebarToggle?: () => void
+  /** Main content. */
+  children?: Children
+}
+
+// ============================================================================
+// EMPTY STATE
+// ============================================================================
+
+/** Props for the EmptyState component — shown when a list or section has no data. */
+export interface EmptyStateProps extends BaseProps {
+  /** Icon or illustration to display. */
+  icon?: Children
+  /** Main heading text. */
+  title: string
+  /** Description text. */
+  description?: string
+  /** Primary action button (e.g., "Create first item"). */
+  action?: Children
+}
+
+// ============================================================================
+// PAGE HEADER
+// ============================================================================
+
+/** Props for the PageHeader component — consistent page title area. */
+export interface PageHeaderProps extends BaseProps {
+  /** Page title. */
+  title: string
+  /** Page description. */
+  description?: string
+  /** Action buttons (e.g., "Create", "Export"). */
+  actions?: Children
+  /** Breadcrumb trail. */
+  breadcrumbs?: Array<{ label: string; href?: string }>
+}
+
+// ============================================================================
 // CLASS MAP — STYLING-AGNOSTIC CLASS RESOLUTION
 // ============================================================================
 
@@ -2438,4 +2488,43 @@ export interface UIClassMap {
 
   /** OAuth provider name label (fallback when no icon). */
   oauthProviderLabel: string
+
+  // ---- Layout pattern tokens ----
+
+  /** PageShell root container (flex, full screen). */
+  pageShell: string
+  /** PageShell sidebar panel. */
+  pageShellSidebar: string
+  /** PageShell sidebar collapsed state (narrow width). */
+  pageShellSidebarCollapsed: string
+  /** PageShell top bar strip. */
+  pageShellTopbar: string
+  /** PageShell main content area (scrollable). */
+  pageShellContent: string
+  /** PageShell sidebar toggle button. */
+  pageShellSidebarToggle: string
+  /** EmptyState root container (centered column). */
+  emptyState: string
+  /** EmptyState icon/illustration wrapper. */
+  emptyStateIcon: string
+  /** EmptyState heading text. */
+  emptyStateTitle: string
+  /** EmptyState description text. */
+  emptyStateDescription: string
+  /** EmptyState action slot. */
+  emptyStateAction: string
+  /** PageHeader root container. */
+  pageHeader: string
+  /** PageHeader title text. */
+  pageHeaderTitle: string
+  /** PageHeader description text. */
+  pageHeaderDescription: string
+  /** PageHeader action buttons container. */
+  pageHeaderActions: string
+  /** PageHeader breadcrumb trail container. */
+  pageHeaderBreadcrumbs: string
+  /** PageHeader breadcrumb item link/text. */
+  pageHeaderBreadcrumbItem: string
+  /** PageHeader breadcrumb separator character. */
+  pageHeaderBreadcrumbSeparator: string
 }

@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  MOL_ID_ATTR,
-  molId,
-  molIdProps,
-  molSelector,
-  molSelectorPrefix,
-} from '../automation.js'
+import { MOL_ID_ATTR, molId, molIdProps, molSelector, molSelectorPrefix } from '../automation.js'
 
 describe('automation', () => {
   describe('molId', () => {
@@ -52,9 +46,7 @@ describe('automation', () => {
 
   describe('molSelector', () => {
     it('should return a CSS attribute selector', () => {
-      expect(molSelector('button-login-submit')).toBe(
-        '[data-mol-id="button-login-submit"]',
-      )
+      expect(molSelector('button-login-submit')).toBe('[data-mol-id="button-login-submit"]')
     })
 
     it('should work with molId output', () => {
@@ -65,9 +57,7 @@ describe('automation', () => {
 
   describe('molSelectorPrefix', () => {
     it('should return a CSS attribute prefix selector', () => {
-      expect(molSelectorPrefix('button-login')).toBe(
-        '[data-mol-id^="button-login"]',
-      )
+      expect(molSelectorPrefix('button-login')).toBe('[data-mol-id^="button-login"]')
     })
 
     it('should match component type alone', () => {

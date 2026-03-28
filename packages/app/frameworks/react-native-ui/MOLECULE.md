@@ -172,6 +172,12 @@ interface BaseProps {
      */
     testId?: string;
     /**
+     * Automation ID for AI agents, E2E tests, and screen readers.
+     * Maps to the `data-mol-id` HTML attribute.
+     * Use `molId()` from `./automation.js` to generate semantic IDs.
+     */
+    automationId?: string;
+    /**
      * Whether the component is disabled.
      */
     disabled?: boolean;

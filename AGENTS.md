@@ -241,3 +241,18 @@ Every package with user-facing text has a companion locale bond (`@molecule/{sta
 - Changesets for versioning and releases
 - npm workspaces monorepo
 - Node >= 20
+
+---
+
+## Design System
+
+**Always reference `DESIGN.md` when generating or modifying any UI component.** Use only the colors, fonts, spacing, and component values defined there — never invent arbitrary values.
+
+Key rules:
+- All spacing follows an 8px grid (4px for tight spaces)
+- Use semantic colors (success/warning/error/info) for status indicators
+- All interactive elements must include `data-mol-id` attributes for AI agent interaction
+- Every screen must work in both light and dark themes
+- Meet WCAG AA contrast ratios (4.5:1 for body text, 3:1 for large text)
+
+Per-app overrides go in each project's own `DESIGN.md`, extending the base system.

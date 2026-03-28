@@ -66,7 +66,11 @@ describe('validate', () => {
         expect.objectContaining({
           error: 'Validation failed',
           errors: expect.arrayContaining([
-            expect.objectContaining({ field: expect.any(String), message: expect.any(String), code: expect.any(String) }),
+            expect.objectContaining({
+              field: expect.any(String),
+              message: expect.any(String),
+              code: expect.any(String),
+            }),
           ]),
         }),
       )
@@ -368,9 +372,7 @@ describe('error', () => {
   })
 
   it('includes field-level errors when provided', () => {
-    const result = error('Validation failed', [
-      { field: 'email', message: 'Invalid email' },
-    ])
+    const result = error('Validation failed', [{ field: 'email', message: 'Invalid email' }])
     expect(result).toEqual({
       error: 'Validation failed',
       errors: [{ field: 'email', message: 'Invalid email' }],

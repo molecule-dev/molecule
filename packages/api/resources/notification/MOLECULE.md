@@ -40,6 +40,101 @@ interface AuthenticatedUser {
 }
 ```
 
+#### `CreateNotification`
+
+Data required to create a new notification.
+
+```typescript
+interface CreateNotification {
+    /** Notification category. */
+    type: string;
+    /** Notification headline. */
+    title: string;
+    /** Notification body text. */
+    body: string;
+    /** Arbitrary structured data to attach. */
+    data?: Record<string, unknown>;
+    /** Delivery channels for this notification. Defaults to `['inApp']`. */
+    channels?: ('inApp' | 'email' | 'push' | 'sms')[];
+}
+```
+
+#### `Notification`
+
+An in-app notification.
+
+```typescript
+interface Notification {
+    /** Provider-assigned notification identifier. */
+    id: string;
+    /** The user this notification belongs to. */
+    userId: string;
+    /** Notification category (e.g. 'system', 'message', 'alert'). */
+    type: string;
+    /** Notification headline. */
+    title: string;
+    /** Notification body text. */
+    body: string;
+    /** Whether the notification has been read. */
+    read: boolean;
+    /** Arbitrary structured data attached to the notification. */
+    data?: Record<string, unknown>;
+    /** When the notification was created. */
+    createdAt: Date;
+}
+```
+
+#### `NotificationPreferences`
+
+User notification preferences.
+
+```typescript
+interface NotificationPreferences {
+    /** Whether email notifications are enabled. */
+    email: boolean;
+    /** Whether push notifications are enabled. */
+    push: boolean;
+    /** Whether SMS notifications are enabled. */
+    sms: boolean;
+    /** Per-channel or per-type overrides. */
+    channels: Record<string, boolean>;
+}
+```
+
+#### `NotificationQuery`
+
+Query options for listing notifications.
+
+```typescript
+interface NotificationQuery {
+    /** Maximum number of results to return. */
+    limit?: number;
+    /** Number of results to skip. */
+    offset?: number;
+    /** Filter by read status. */
+    read?: boolean;
+    /** Filter by notification type. */
+    type?: string;
+}
+```
+
+#### `PaginatedResult`
+
+Paginated result set.
+
+```typescript
+interface PaginatedResult<T> {
+    /** The result items for this page. */
+    items: T[];
+    /** Total number of matching items. */
+    total: number;
+    /** Number of items skipped. */
+    offset: number;
+    /** Maximum items per page. */
+    limit: number;
+}
+```
+
 ### Functions
 
 #### `del(req, res)`

@@ -1059,3 +1059,48 @@ export const bgErrorSubtle = 'bg-error-light'
  * Tailwind class for a background matching the theme border color.
  */
 export const bgBorder = 'bg-border'
+
+// ============================================================================
+// LAYOUT PATTERN TOKENS
+// ============================================================================
+
+/** PageShell root — flex row filling the screen. */
+export const pageShell = 'flex h-screen overflow-hidden'
+/** PageShell sidebar — fixed-width left panel. */
+export const pageShellSidebar =
+  'w-60 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-y-auto transition-all duration-300'
+/** PageShell sidebar collapsed modifier — narrow width. */
+export const pageShellSidebarCollapsed = 'w-16'
+/** PageShell top bar — horizontal strip above content. */
+export const pageShellTopbar =
+  'h-14 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center px-4 gap-3'
+/** PageShell main content area. */
+export const pageShellContent = 'flex-1 overflow-y-auto'
+/** PageShell sidebar collapse/expand toggle button. */
+export const pageShellSidebarToggle =
+  'p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors'
+/** EmptyState root — centered column layout. */
+export const emptyState = 'flex flex-col items-center justify-center py-16 px-4 text-center'
+/** EmptyState icon wrapper. */
+export const emptyStateIcon = 'mb-4 text-gray-400 dark:text-gray-500'
+/** EmptyState heading. */
+export const emptyStateTitle = 'text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2'
+/** EmptyState description. */
+export const emptyStateDescription = 'text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-md'
+/** EmptyState action slot. */
+export const emptyStateAction = ''
+/** PageHeader root container. */
+export const pageHeader = 'mb-6'
+/** PageHeader title. */
+export const pageHeaderTitle = 'text-2xl font-bold text-gray-900 dark:text-gray-100'
+/** PageHeader description. */
+export const pageHeaderDescription = 'mt-1 text-sm text-gray-500 dark:text-gray-400'
+/** PageHeader action buttons container. */
+export const pageHeaderActions = 'flex gap-2 mt-4 sm:mt-0'
+/** PageHeader breadcrumb trail. */
+export const pageHeaderBreadcrumbs =
+  'flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 mb-2'
+/** PageHeader breadcrumb item. */
+export const pageHeaderBreadcrumbItem = 'hover:text-gray-700 dark:hover:text-gray-200'
+/** PageHeader breadcrumb separator. */
+export const pageHeaderBreadcrumbSeparator = 'mx-1'

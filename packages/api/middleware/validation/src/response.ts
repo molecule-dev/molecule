@@ -34,7 +34,12 @@ export interface PaginatedResponse<T> {
  * @param perPage - Number of items per page.
  * @returns A `PaginatedResponse` object.
  */
-export function paginated<T>(data: T[], total: number, page: number, perPage: number): PaginatedResponse<T> {
+export function paginated<T>(
+  data: T[],
+  total: number,
+  page: number,
+  perPage: number,
+): PaginatedResponse<T> {
   return {
     data,
     pagination: {
