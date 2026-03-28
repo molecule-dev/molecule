@@ -1,8 +1,20 @@
 /**
- * Meilisearch search-meilisearch provider for molecule.dev.
+ * Meilisearch search provider for molecule.dev.
+ *
+ * Implements the `SearchProvider` interface using the `meilisearch` client.
+ * Supports full-text search, faceted filtering, bulk indexing, and
+ * autocomplete suggestions.
+ *
+ * @example
+ * ```typescript
+ * import { setProvider } from '@molecule/api-search'
+ * import { provider } from '@molecule/api-search-meilisearch'
+ *
+ * setProvider(provider)
+ * ```
  *
  * @module
  */
 
-export { createProvider, MeilisearchSearchProvider } from './provider.js'
+export * from './provider.js'
 export * from './types.js'
