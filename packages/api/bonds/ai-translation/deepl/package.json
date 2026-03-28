@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-translation-deepl",
   "version": "1.0.0",
-  "description": "",
+  "description": "DeepL translation provider for molecule.dev — text translation via DeepL API",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,7 +26,11 @@
     "deepl"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-ai-translation": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-ai-translation": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

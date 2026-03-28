@@ -1,5 +1,5 @@
 /**
- * Deepl ai-translation-deepl provider for molecule.dev.
+ * DeepL translation provider for molecule.dev.
  *
  * @module
  */
