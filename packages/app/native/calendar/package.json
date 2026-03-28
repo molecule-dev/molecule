@@ -1,5 +1,5 @@
 {
-  "name": "@molecule/app-calendar",
+  "name": "@molecule/app-device-calendar",
   "version": "1.0.0",
   "description": "Calendar access interface for molecule.dev",
   "type": "module",

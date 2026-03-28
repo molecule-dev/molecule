@@ -1,13 +1,17 @@
 /**
- * Tanstack Data provider configuration.
+ * TanStack Table provider configuration types.
  *
  * @module
  */
 
 /**
- *
+ * Configuration options for the TanStack Table data table provider.
  */
-export interface TanstackConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+export interface TanStackTableConfig {
+  /**
+   * Whether to enable debug mode in TanStack Table.
+   * When `true`, TanStack logs internal state changes to the console.
+   * Defaults to `false`.
+   */
+  debug?: boolean
 }

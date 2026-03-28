@@ -1,13 +1,16 @@
 /**
- * Filepond File provider configuration.
+ * FilePond file upload provider configuration types.
  *
  * @module
  */
 
 /**
- *
+ * Configuration options for the FilePond file upload provider.
  */
 export interface FilepondConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+  /**
+   * Timeout in milliseconds for individual upload requests.
+   * Set to `0` for no timeout. Defaults to `0`.
+   */
+  timeout?: number
 }

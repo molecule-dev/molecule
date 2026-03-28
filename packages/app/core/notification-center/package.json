@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-notification-center",
   "version": "1.0.0",
-  "description": "",
+  "description": "Notification center core interface for molecule.dev — in-app notification bell with pagination, read tracking, realtime updates, and polling",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,12 +22,20 @@
   "keywords": [
     "molecule",
     "notification",
-    "center"
+    "center",
+    "bell"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-bond": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-bond": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

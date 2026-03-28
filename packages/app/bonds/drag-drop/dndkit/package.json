@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-drag-drop-dndkit",
   "version": "1.0.0",
-  "description": "",
+  "description": "dnd-kit provider for @molecule/app-drag-drop",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,12 +23,20 @@
     "molecule",
     "drag",
     "drop",
-    "dndkit"
+    "dndkit",
+    "dnd-kit"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-drag-drop": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-drag-drop": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

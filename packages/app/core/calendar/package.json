@@ -1,0 +1,41 @@
+{
+  "name": "@molecule/app-calendar",
+  "version": "1.0.0",
+  "description": "Calendar core interface for molecule.dev — month, week, day, and agenda views with drag-and-drop event editing",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "calendar",
+    "events",
+    "scheduler"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-bond": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-bond": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

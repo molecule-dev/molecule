@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-notification-center-default",
   "version": "1.0.0",
-  "description": "",
+  "description": "Default provider for @molecule/app-notification-center",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,12 +21,15 @@
   ],
   "keywords": [
     "molecule",
-    "notification",
-    "center",
+    "notification-center",
     "default"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-notification-center": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-notification-center": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"

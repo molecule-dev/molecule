@@ -1,7 +1,7 @@
 {
   "name": "@molecule/app-calendar-fullcalendar",
   "version": "1.0.0",
-  "description": "",
+  "description": "FullCalendar-style provider for @molecule/app-calendar",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,7 +25,11 @@
     "fullcalendar"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-calendar": ">=1.0.0"
+  },
   "devDependencies": {
+    "@molecule/app-calendar": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
