@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS "users" (
   "id" uuid UNIQUE PRIMARY KEY NOT NULL,
   "createdAt" timestamptz DEFAULT current_timestamp NOT NULL,
   "updatedAt" timestamptz DEFAULT current_timestamp NOT NULL,
-  "username" varchar(255) NOT NULL,
+  "username" varchar(255),
   "name" text,
   "email" varchar(1023) UNIQUE,
   "twoFactorEnabled" boolean DEFAULT false,
