@@ -221,7 +221,7 @@ export const MODELS: readonly ModelDefinition[] = [
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: true,
     supportsVision: false,
-    supportsPromptCaching: false,
+    supportsPromptCaching: true,
     supportsTools: true,
     inputPricePerMTok: 0.25,
     outputPricePerMTok: 1.2,
@@ -231,6 +231,7 @@ export const MODELS: readonly ModelDefinition[] = [
   // ---------------------------------------------------------------------------
   // Alibaba (Qwen)
   // Verified: https://openrouter.ai/qwen/qwen3-coder-plus
+  //           https://modelstudio.console.alibabacloud.com
   // ---------------------------------------------------------------------------
   {
     id: 'qwen3-coder-plus',
@@ -243,7 +244,7 @@ export const MODELS: readonly ModelDefinition[] = [
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: true,
     supportsVision: false,
-    supportsPromptCaching: false,
+    supportsPromptCaching: true,
     supportsTools: true,
     inputPricePerMTok: 0.65,
     outputPricePerMTok: 3.25,
@@ -254,6 +255,7 @@ export const MODELS: readonly ModelDefinition[] = [
   // Zhipu (GLM)
   // Verified: https://openrouter.ai/z-ai/glm-5
   //           https://docs.z.ai/guides/llm/glm-5
+  //           https://docs.z.ai/guides/capabilities/cache
   // ---------------------------------------------------------------------------
   {
     id: 'glm-5',
@@ -266,7 +268,7 @@ export const MODELS: readonly ModelDefinition[] = [
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: true,
     supportsVision: false,
-    supportsPromptCaching: false,
+    supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search',
     inputPricePerMTok: 0.72,
