@@ -129,8 +129,10 @@ export interface ResponseState {
 
 /** Configuration for the mock HTTP server */
 export interface MockServerConfig {
-  /** App type to serve fixtures for */
+  /** App type to serve fixtures for (used for display and handler resolution) */
   appType: string
+  /** Path to a directory of JSON fixture files (takes priority over appType for data) */
+  fixturesPath?: string
   /** Port to listen on (default 4000) */
   port?: number
   /** Default response delay in ms (default 0) */

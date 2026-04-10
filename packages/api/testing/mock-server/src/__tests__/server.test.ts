@@ -1,6 +1,18 @@
+import { join } from 'node:path'
 import { describe, it, expect, afterEach } from 'vitest'
 import { createMockServer } from '../server/server.js'
 import type { MockServer } from '../types.js'
+
+/**
+ * Resolve the fixtures path for a given app type.
+ * Tests run from inside molecule/packages/api/testing/mock-server/src/__tests__/,
+ * so we walk up 7 levels to reach molecule-workspace root.
+ */
+function fixturesPathFor(appType: string): string {
+  // __dirname = .../molecule/packages/api/testing/mock-server/src/__tests__
+  // 7 levels up = molecule-workspace root
+  return join(__dirname, '..', '..', '..', '..', '..', '..', '..', 'mlcl', 'templates', 'apps', appType, 'api', 'fixtures')
+}
 
 describe('createMockServer', () => {
   let server: MockServer | null = null
@@ -15,6 +27,7 @@ describe('createMockServer', () => {
   it('starts on a random port when port is 0', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })
@@ -25,6 +38,7 @@ describe('createMockServer', () => {
   it('serves fixture data for GET /api/accounts', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })
@@ -48,6 +62,7 @@ describe('createMockServer', () => {
   it('serves fixture data for GET /api/transactions', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })
@@ -67,6 +82,7 @@ describe('createMockServer', () => {
   it('returns error response when _state=error', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })
@@ -81,6 +97,7 @@ describe('createMockServer', () => {
   it('returns empty response when _state=empty', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })
@@ -96,6 +113,7 @@ describe('createMockServer', () => {
   it('returns unauthorized when _state=unauthorized', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })
@@ -110,6 +128,7 @@ describe('createMockServer', () => {
   it('supports X-Mock-State header', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })
@@ -123,6 +142,7 @@ describe('createMockServer', () => {
   it('has a health check endpoint', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })
@@ -139,6 +159,7 @@ describe('createMockServer', () => {
   it('supports CORS', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })
@@ -150,6 +171,7 @@ describe('createMockServer', () => {
   it('allows programmatic state control', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })
@@ -167,6 +189,7 @@ describe('createMockServer', () => {
   it('handles online-store app type', async () => {
     server = await createMockServer({
       appType: 'online-store',
+      fixturesPath: fixturesPathFor('online-store'),
       port: 0,
       logging: false,
     })
@@ -189,6 +212,7 @@ describe('createMockServer', () => {
   it('handles DELETE requests with 204', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })
@@ -202,6 +226,7 @@ describe('createMockServer', () => {
   it('handles POST requests with 201', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })
@@ -214,10 +239,11 @@ describe('createMockServer', () => {
     expect(response.status).toBe(201)
   })
 
-  it('throws for unsupported app type', async () => {
+  it('throws for nonexistent fixtures path', async () => {
     await expect(
       createMockServer({
         appType: 'nonexistent-app-type',
+        fixturesPath: '/tmp/nonexistent-fixtures-dir',
         port: 0,
         logging: false,
       })
@@ -227,6 +253,7 @@ describe('createMockServer', () => {
   it('serves report endpoints for personal-finance', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
       port: 0,
       logging: false,
     })

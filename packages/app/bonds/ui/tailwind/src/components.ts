@@ -621,9 +621,9 @@ export const paginationNext = 'gap-1 pr-2.5'
  */
 export const paginationEllipsis = 'flex h-9 w-9 items-center justify-center'
 
-/** Footer bar classes (fixed bottom, full-width). */
+/** Footer bar classes (full-width). Position is determined by the consuming layout, not forced here. */
 export const footerBar =
-  'fixed bottom-0 left-0 right-0 w-full flex flex-wrap items-center justify-around p-[5px] bg-background text-[12px] text-foreground-secondary z-[1001]'
+  'w-full flex flex-wrap items-center justify-around p-[5px] bg-background text-[12px] text-foreground-secondary'
 /** Footer link classes. */
 export const footerLink =
   'p-[5px] text-[12px] text-foreground-secondary hover:text-foreground no-underline'
@@ -950,8 +950,8 @@ export const logoText = 'text-[26px] leading-[26px] tracking-[-1px]'
  */
 export const logoIcon = 'text-primary'
 
-/** Fixed header container classes (top, full-width, z-1001). */
-export const headerFixed = 'fixed top-0 left-0 right-0 z-[1001]'
+/** Header container classes (full-width). Position is determined by the consuming layout, not forced here. */
+export const headerFixed = 'top-0 left-0 right-0 w-full'
 /**
  * The header inner.
  */

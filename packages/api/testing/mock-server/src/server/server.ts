@@ -6,6 +6,8 @@
 import express from 'express'
 import type { Request, Response } from 'express'
 import type { Server } from 'node:http'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import type {
   MockServerConfig,
   MockServer,
@@ -48,6 +50,7 @@ import {
 export async function createMockServer(config: MockServerConfig): Promise<MockServer> {
   const {
     appType,
+    fixturesPath,
     port = 4000,
     defaultDelay = 0,
     defaultState = 'success',
@@ -63,28 +66,33 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
   if (customFixtures) {
     fixtures = customFixtures
   } else {
-    // Try scanning handlers first
-    const resolvedPath = handlersPath ?? resolveHandlersPath(appType)
-    if (resolvedPath) {
-      const scanResult = scanHandlers(resolvedPath, appType)
-      const scannedFixtures = buildFixtureSet(appType, scanResult.endpoints)
-      if (scannedFixtures) {
-        fixtures = scannedFixtures
-      } else {
-        // Fall back to auto-generated fixtures
-        const generated = generateFixtures(appType)
-        if (!generated) {
-          throw new Error(`No fixture data available for app type: ${appType}. Supported types: personal-finance, online-store`)
+    // Generate fixtures from directory path or throw
+    const resolvedFixturesPath = fixturesPath ?? resolveFixturesPath(appType)
+    if (!resolvedFixturesPath) {
+      throw new Error(`No fixture data available for app type: ${appType}. Provide a fixturesPath or ensure fixtures exist at mlcl/templates/apps/${appType}/api/fixtures/`)
+    }
+
+    const generated = generateFixtures(resolvedFixturesPath, appType)
+    if (!generated) {
+      throw new Error(`No fixture data available at path: ${resolvedFixturesPath}`)
+    }
+    fixtures = generated
+
+    // If handler files exist, scan them and merge any endpoints not already covered
+    const resolvedHandlersPath = handlersPath ?? resolveHandlersPath(appType)
+    if (resolvedHandlersPath) {
+      try {
+        const scanResult = scanHandlers(resolvedHandlersPath, appType)
+        const scanned = buildFixtureSet(appType, scanResult.endpoints, resolvedFixturesPath)
+        if (scanned) {
+          // Add scanner-discovered endpoints that aren't already in the pool
+          for (const [key, fixture] of scanned.endpoints) {
+            if (!fixtures.endpoints.has(key)) {
+              fixtures.endpoints.set(key, fixture)
+            }
+          }
         }
-        fixtures = generated
-      }
-    } else {
-      // No handler path found, use auto-generated fixtures
-      const generated = generateFixtures(appType)
-      if (!generated) {
-        throw new Error(`No fixture data available for app type: ${appType}. Supported types: personal-finance, online-store`)
-      }
-      fixtures = generated
+      } catch {}
     }
   }
 
@@ -170,6 +178,38 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
       })
     },
   }
+}
+
+/**
+ * Resolve a fixtures directory path from an app type name.
+ * Searches standard locations in the mlcl templates directory.
+ * @param appType - The app type name
+ * @returns The resolved fixtures path, or undefined if not found
+ */
+function resolveFixturesPath(appType: string): string | undefined {
+  const root = findWorkspaceRoot()
+  if (!root) return undefined
+
+  const candidate = join(root, 'mlcl', 'templates', 'apps', appType, 'api', 'fixtures')
+  if (existsSync(candidate)) return candidate
+
+  return undefined
+}
+
+/**
+ * Attempt to find the workspace root by walking up from cwd.
+ */
+function findWorkspaceRoot(): string | undefined {
+  let dir = process.cwd()
+  for (let i = 0; i < 10; i++) {
+    if (existsSync(join(dir, 'mlcl')) && existsSync(join(dir, 'molecule'))) {
+      return dir
+    }
+    const parent = join(dir, '..')
+    if (parent === dir) break
+    dir = parent
+  }
+  return undefined
 }
 
 /**

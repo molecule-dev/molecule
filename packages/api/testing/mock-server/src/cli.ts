@@ -5,15 +5,15 @@
  *
  * Usage:
  *   npx @molecule/api-mock-server --app personal-finance --port 4000
+ *   npx @molecule/api-mock-server --fixtures-path ./fixtures --port 4000
  *   npx @molecule/api-mock-server --app online-store --port 4015 --state success
- *   npx @molecule/api-mock-server --app personal-finance --state empty
  */
 
 import { createMockServer } from './server/server.js'
-import { getSupportedAppTypes } from './fixtures/app-fixtures.js'
 
 interface CliArgs {
   app: string
+  fixturesPath?: string
   port: number
   state: 'success' | 'empty' | 'error' | 'unauthorized'
   delay: number
@@ -38,6 +38,11 @@ function parseArgs(argv: string[]): CliArgs {
       case '--app':
       case '-a':
         args.app = next ?? ''
+        i++
+        break
+      case '--fixtures-path':
+      case '--fixtures':
+        args.fixturesPath = next
         i++
         break
       case '--port':
@@ -72,26 +77,25 @@ function parseArgs(argv: string[]): CliArgs {
 }
 
 function printHelp(): void {
-  const supported = getSupportedAppTypes()
   console.log(`
-  @molecule/api-mock-server - Mock API server with realistic fixture data
+  @molecule/api-mock-server - Mock API server with fixture data from JSON files
 
   Usage:
     npx @molecule/api-mock-server --app <app-type> [options]
+    npx @molecule/api-mock-server --fixtures-path <path> [options]
 
   Options:
-    --app, -a <type>       App type to serve fixtures for (required)
-    --port, -p <port>      Port to listen on (default: 4000)
-    --state, -s <state>    Default response state: success|empty|error|unauthorized (default: success)
-    --delay, -d <ms>       Default response delay in milliseconds (default: 0)
-    --handlers-path <path> Custom path to handler template files
-    --help, -h             Show this help message
-
-  Supported app types:
-    ${supported.join(', ')}
+    --app, -a <type>           App type to serve (resolves fixtures from mlcl/templates/apps/{type}/api/fixtures/)
+    --fixtures-path <path>     Explicit path to a directory of JSON fixture files
+    --port, -p <port>          Port to listen on (default: 4000)
+    --state, -s <state>        Default response state: success|empty|error|unauthorized (default: success)
+    --delay, -d <ms>           Default response delay in milliseconds (default: 0)
+    --handlers-path <path>     Custom path to handler template files
+    --help, -h                 Show this help message
 
   Examples:
     npx @molecule/api-mock-server --app personal-finance --port 4000
+    npx @molecule/api-mock-server --fixtures-path ./my-app/api/fixtures --port 4000
     npx @molecule/api-mock-server --app online-store --state empty
     npx @molecule/api-mock-server --app personal-finance --delay 500
 `)
@@ -105,14 +109,15 @@ async function main(): Promise<void> {
     process.exit(0)
   }
 
-  if (!args.app) {
-    console.error('Error: --app is required. Use --help for usage.')
+  if (!args.app && !args.fixturesPath) {
+    console.error('Error: --app or --fixtures-path is required. Use --help for usage.')
     process.exit(1)
   }
 
   try {
     const server = await createMockServer({
-      appType: args.app,
+      appType: args.app || 'custom',
+      fixturesPath: args.fixturesPath,
       port: args.port,
       defaultState: args.state,
       defaultDelay: args.delay,
