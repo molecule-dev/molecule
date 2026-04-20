@@ -29,7 +29,9 @@ interface MiniMaxStreamState {
 
 /**
  * Map thinking budget tokens to MiniMax reasoning_effort level (only 'low' or 'high' supported).
+ *
  * @param budgetTokens - The budget token count to map.
+ * @returns Either `'high'` or `'low'` for the upstream effort hint.
  */
 function budgetToEffort(budgetTokens: number): string {
   return budgetTokens >= 8_000 ? 'high' : 'low'
@@ -177,14 +179,23 @@ class MiniMaxAIProvider implements AIProvider {
    *
    * @param messages - The chat messages to format.
    * @param system - Optional system prompt to prepend.
+   * @param cacheControl - Optional cache hint for the system prompt block.
+   * @param cacheControl.type - Ephemeral cache policy label expected by MiniMax.
    * @returns The formatted messages array for the MiniMax API.
    */
-  private formatMessages(messages: ChatMessage[], system?: string, cacheControl?: { type: string }): Array<Record<string, unknown>> {
+  private formatMessages(
+    messages: ChatMessage[],
+    system?: string,
+    cacheControl?: { type: string },
+  ): Array<Record<string, unknown>> {
     const formatted: Array<Record<string, unknown>> = []
 
     if (system) {
       if (cacheControl) {
-        formatted.push({ role: 'system', content: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }] })
+        formatted.push({
+          role: 'system',
+          content: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
+        })
       } else {
         formatted.push({ role: 'system', content: system })
       }

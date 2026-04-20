@@ -40,7 +40,11 @@ const ALL_CATEGORIES: DataCategory[] = [
 /** Default categories retained for legal obligations. */
 const DEFAULT_LEGAL_OBLIGATION_CATEGORIES: DataCategory[] = ['billing']
 
-/** Generates a unique identifier. */
+/**
+ * Generates a unique identifier.
+ *
+ * @returns A short random identifier suitable for in-memory records.
+ */
 const generateId = (): string => {
   const timestamp = Date.now().toString(36)
   const random = Math.random().toString(36).slice(2, 10)
@@ -72,6 +76,10 @@ export const createProvider = (config: GdprConfig = {}): ComplianceProvider => {
 
   /**
    * Records a processing activity in the log.
+   *
+   * @param userId - Subject user identifier.
+   * @param activity - Human-readable processing action label.
+   * @param category - Data category impacted by the activity.
    */
   const recordProcessing = (userId: string, activity: string, category: DataCategory): void => {
     const entries = processingLogStore.get(userId) ?? []
@@ -89,6 +97,10 @@ export const createProvider = (config: GdprConfig = {}): ComplianceProvider => {
 
   /**
    * Collects user data from registered data collectors.
+   *
+   * @param userId - Subject user identifier.
+   * @param targetCategories - Categories the export should include.
+   * @returns Aggregated payloads keyed by category name.
    */
   const collectUserData = async (
     userId: string,

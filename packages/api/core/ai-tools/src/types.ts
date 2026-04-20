@@ -24,8 +24,10 @@ export interface ExecutionBackend {
   /** List entries in a directory. */
   readDir(path: string): Promise<Array<{ name: string; type: 'file' | 'directory' }>>
 
-  /** Run a shell command. Returns stdout, stderr, and exit code.
-   * Backends implement this safely (sandbox.exec for Docker, execFile for local). */
+  /**
+   * Run a shell command. Returns stdout, stderr, and exit code.
+   * Backends implement this safely (sandbox.exec for Docker, execFile for local).
+   */
   run(
     command: string,
     opts?: { cwd?: string; timeout?: number },
@@ -65,12 +67,18 @@ export interface ToolBuildConfig {
   onFileChange?: (event: FileChangeEvent) => void
 }
 
+/**
+ * Payload emitted when a tracked file changes contents.
+ */
 export interface FileDiffEvent {
   path: string
   oldContent: string | null
   newContent: string
 }
 
+/**
+ * Payload emitted when a file is created, modified, or deleted structurally.
+ */
 export interface FileChangeEvent {
   type: 'created' | 'modified' | 'deleted'
   path: string

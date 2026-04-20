@@ -64,6 +64,7 @@ export const hasProvider = (): boolean => {
  * Records an audit trail entry.
  *
  * @param entry - The audit entry to record.
+ * @returns Resolves when the bonded provider persists the entry.
  * @throws {Error} If no audit provider has been bonded.
  */
 export const log = async (entry: AuditEntry): Promise<void> => {

@@ -10,7 +10,6 @@ type StateCallback = (state: {
   error: Error | null
 }) => void
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createMockApp = () => {
   const subscribers = new Set<StateCallback>()
   let state = {

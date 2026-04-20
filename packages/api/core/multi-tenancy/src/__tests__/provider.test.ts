@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type * as ProviderModule from '../provider.js'
-import type { Tenant, TenancyProvider, TenancyRequestHandler } from '../types.js'
+import type { TenancyProvider, TenancyRequestHandler, Tenant } from '../types.js'
 
 let setProvider: typeof ProviderModule.setProvider
 let getProvider: typeof ProviderModule.getProvider

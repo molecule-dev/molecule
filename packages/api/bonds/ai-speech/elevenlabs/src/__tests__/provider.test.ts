@@ -113,9 +113,7 @@ describe('ElevenlabsSpeechProvider', () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1)
       const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit]
-      expect(url).toBe(
-        'https://test.api/v1/text-to-speech/voice-1?output_format=mp3_44100_128',
-      )
+      expect(url).toBe('https://test.api/v1/text-to-speech/voice-1?output_format=mp3_44100_128')
       const body = JSON.parse(init.body as string)
       expect(body.text).toBe('Hello world')
       expect(body.model_id).toBe('eleven_multilingual_v2')
@@ -141,9 +139,7 @@ describe('ElevenlabsSpeechProvider', () => {
         model: 'eleven_turbo_v2_5',
       })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.model_id).toBe('eleven_turbo_v2_5')
     })
 
@@ -160,9 +156,7 @@ describe('ElevenlabsSpeechProvider', () => {
         speed: 1.2,
       })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.voice_settings.stability).toBe(0.8)
       expect(body.voice_settings.similarity_boost).toBe(0.9)
       expect(body.voice_settings.style).toBe(0.3)
@@ -179,9 +173,7 @@ describe('ElevenlabsSpeechProvider', () => {
         languageCode: 'fr',
       })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.language_code).toBe('fr')
     })
 
@@ -190,9 +182,7 @@ describe('ElevenlabsSpeechProvider', () => {
 
       await provider.synthesize({ text: 'Hello', voiceId: 'voice-1' })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.language_code).toBeUndefined()
     })
 
@@ -257,7 +247,6 @@ describe('ElevenlabsSpeechProvider', () => {
     it('uses the streaming endpoint', async () => {
       mockFetch.mockResolvedValue(mockStreamResponse([new Uint8Array([1])]))
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for await (const _ of provider.synthesizeStream({
         text: 'Hello',
         voiceId: 'voice-1',
@@ -279,7 +268,6 @@ describe('ElevenlabsSpeechProvider', () => {
 
       const iterator = provider.synthesizeStream({ text: 'Hello', voiceId: 'voice-1' })
       await expect(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for await (const _ of iterator) {
           // consume
         }
@@ -337,36 +325,30 @@ describe('ElevenlabsSpeechProvider', () => {
   describe('error handling', () => {
     it('throws on 401 unauthorized with API error message', async () => {
       mockFetch.mockResolvedValue(
-        mockErrorResponse(
-          401,
-          JSON.stringify({ detail: { message: 'Invalid API key' } }),
-        ),
+        mockErrorResponse(401, JSON.stringify({ detail: { message: 'Invalid API key' } })),
       )
 
-      await expect(
-        provider.synthesize({ text: 'test', voiceId: 'voice-1' }),
-      ).rejects.toThrow('ElevenLabs API error: Invalid API key')
+      await expect(provider.synthesize({ text: 'test', voiceId: 'voice-1' })).rejects.toThrow(
+        'ElevenLabs API error: Invalid API key',
+      )
     })
 
     it('throws on 422 validation error', async () => {
       mockFetch.mockResolvedValue(
-        mockErrorResponse(
-          422,
-          JSON.stringify({ detail: { message: 'Voice not found' } }),
-        ),
+        mockErrorResponse(422, JSON.stringify({ detail: { message: 'Voice not found' } })),
       )
 
-      await expect(
-        provider.synthesize({ text: 'test', voiceId: 'bad-voice' }),
-      ).rejects.toThrow('ElevenLabs API error: Voice not found')
+      await expect(provider.synthesize({ text: 'test', voiceId: 'bad-voice' })).rejects.toThrow(
+        'ElevenLabs API error: Voice not found',
+      )
     })
 
     it('throws with HTTP status when error body is not JSON', async () => {
       mockFetch.mockResolvedValue(mockErrorResponse(500, 'Internal Server Error'))
 
-      await expect(
-        provider.synthesize({ text: 'test', voiceId: 'voice-1' }),
-      ).rejects.toThrow('ElevenLabs API error: Internal Server Error')
+      await expect(provider.synthesize({ text: 'test', voiceId: 'voice-1' })).rejects.toThrow(
+        'ElevenLabs API error: Internal Server Error',
+      )
     })
 
     it('retries on 429 rate limit', async () => {
@@ -433,9 +415,7 @@ describe('ElevenlabsSpeechProvider', () => {
         statusText: 'Too Many Requests',
         text: vi
           .fn()
-          .mockResolvedValue(
-            JSON.stringify({ detail: { message: 'Rate limit exceeded' } }),
-          ),
+          .mockResolvedValue(JSON.stringify({ detail: { message: 'Rate limit exceeded' } })),
         headers: new Headers(),
       })
       mockFetch
@@ -445,9 +425,7 @@ describe('ElevenlabsSpeechProvider', () => {
         .mockResolvedValueOnce(makeErrorResp())
 
       const promise = provider.synthesize({ text: 'test', voiceId: 'voice-1' })
-      const assertion = expect(promise).rejects.toThrow(
-        'ElevenLabs API error: Rate limit exceeded',
-      )
+      const assertion = expect(promise).rejects.toThrow('ElevenLabs API error: Rate limit exceeded')
       await vi.advanceTimersByTimeAsync(60_000)
       await assertion
 
@@ -500,9 +478,7 @@ describe('ElevenlabsSpeechProvider', () => {
 
       await provider.synthesize({ text: 'test', voiceId: 'voice-1' })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.model_id).toBe('eleven_multilingual_v2')
     })
 
@@ -516,9 +492,7 @@ describe('ElevenlabsSpeechProvider', () => {
 
       await customProvider.synthesize({ text: 'test', voiceId: 'voice-1' })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.model_id).toBe('eleven_turbo_v2_5')
     })
 
@@ -533,9 +507,7 @@ describe('ElevenlabsSpeechProvider', () => {
 
       await customProvider.synthesize({ text: 'test', voiceId: 'voice-1' })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.voice_settings.stability).toBe(0.9)
       expect(body.voice_settings.similarity_boost).toBe(0.3)
     })

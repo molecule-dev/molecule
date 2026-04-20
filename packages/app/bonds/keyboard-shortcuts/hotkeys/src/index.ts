@@ -1,5 +1,5 @@
 /**
- * hotkeys-js provider for @molecule/app-keyboard-shortcuts.
+ * hotkeys-js provider for \@molecule/app-keyboard-shortcuts.
  *
  * Provides an in-memory keyboard shortcut registry conforming to
  * the molecule keyboard shortcuts provider interface.

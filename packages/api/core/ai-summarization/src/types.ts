@@ -8,7 +8,7 @@
  */
 
 /**
- *
+ * Live AI summarization integration contract (TODO: expand methods).
  */
 export interface AISummarizationProvider {
   readonly name: string
@@ -16,7 +16,7 @@ export interface AISummarizationProvider {
 }
 
 /**
- *
+ * Config options for an AI summarization bond (TODO: tighten schema).
  */
 export interface AISummarizationConfig {
   // TODO: Define configuration options

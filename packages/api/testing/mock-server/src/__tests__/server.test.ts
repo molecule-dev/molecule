@@ -1,5 +1,7 @@
 import { join } from 'node:path'
-import { describe, it, expect, afterEach } from 'vitest'
+
+import { afterEach, describe, expect, it } from 'vitest'
+
 import { createMockServer } from '../server/server.js'
 import type { MockServer } from '../types.js'
 
@@ -11,7 +13,22 @@ import type { MockServer } from '../types.js'
 function fixturesPathFor(appType: string): string {
   // __dirname = .../molecule/packages/api/testing/mock-server/src/__tests__
   // 7 levels up = molecule-workspace root
-  return join(__dirname, '..', '..', '..', '..', '..', '..', '..', 'mlcl', 'templates', 'apps', appType, 'api', 'fixtures')
+  return join(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    '..',
+    '..',
+    '..',
+    '..',
+    'mlcl',
+    'templates',
+    'apps',
+    appType,
+    'api',
+    'fixtures',
+  )
 }
 
 describe('createMockServer', () => {
@@ -246,7 +263,7 @@ describe('createMockServer', () => {
         fixturesPath: '/tmp/nonexistent-fixtures-dir',
         port: 0,
         logging: false,
-      })
+      }),
     ).rejects.toThrow('No fixture data available')
   })
 

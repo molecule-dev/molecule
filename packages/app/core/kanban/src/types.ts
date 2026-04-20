@@ -15,7 +15,7 @@
 /**
  * A single card on a kanban board.
  *
- * @typeParam T - Application-specific data type attached to the card.
+ * @template T - Application-specific data type attached to the card.
  */
 export interface KanbanCard<T = unknown> {
   /** Unique identifier for the card. */
@@ -27,7 +27,7 @@ export interface KanbanCard<T = unknown> {
 /**
  * A column (lane) on a kanban board.
  *
- * @typeParam T - Application-specific data type for cards in this column.
+ * @template T - Application-specific data type for cards in this column.
  */
 export interface KanbanColumn<T = unknown> {
   /** Unique identifier for the column. */
@@ -75,7 +75,7 @@ export interface ColumnReorderEvent {
 /**
  * Snapshot of the kanban board state, emitted to subscribers on change.
  *
- * @typeParam T - Application-specific card data type.
+ * @template T - Application-specific card data type.
  */
 export interface KanbanState<T = unknown> {
   /** Current list of columns in display order. */
@@ -89,7 +89,7 @@ export interface KanbanState<T = unknown> {
 /**
  * Handler invoked when the kanban board state changes.
  *
- * @typeParam T - Application-specific card data type.
+ * @template T - Application-specific card data type.
  * @param state - The updated kanban board state snapshot.
  */
 export type KanbanUpdateHandler<T = unknown> = (state: KanbanState<T>) => void
@@ -101,7 +101,7 @@ export type KanbanUpdateHandler<T = unknown> = (state: KanbanState<T>) => void
 /**
  * Configuration for creating a kanban board instance.
  *
- * @typeParam T - Application-specific card data type.
+ * @template T - Application-specific card data type.
  */
 export interface KanbanOptions<T = unknown> {
   /** Initial columns (with their cards) for the board. */
@@ -134,7 +134,7 @@ export interface KanbanOptions<T = unknown> {
  * A live kanban board instance exposing query, mutation, and subscription
  * methods.
  *
- * @typeParam T - Application-specific card data type.
+ * @template T - Application-specific card data type.
  */
 export interface KanbanInstance<T = unknown> {
   // -- Query ---------------------------------------------------------------
@@ -291,7 +291,7 @@ export interface KanbanProvider {
   /**
    * Creates a new kanban board instance from the given options.
    *
-   * @typeParam T - Application-specific card data type.
+   * @template T - Application-specific card data type.
    * @param options - Kanban board configuration.
    * @returns A kanban board instance.
    */

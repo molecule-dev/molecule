@@ -42,7 +42,7 @@ export function hasProvider(): boolean {
  * Retrieves the bonded timeline provider, throwing if none is configured.
  *
  * @returns The active timeline provider.
- * @throws Error if no provider has been bonded.
+ * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): TimelineProvider {
   if (!_provider) {

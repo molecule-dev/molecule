@@ -97,7 +97,6 @@ describe('Auth primitives', () => {
     contextValues.set(AuthContext.id, mockAuthClient)
   })
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   async function getAuthModule() {
     return await import('../primitives/auth.js')
   }
@@ -229,7 +228,6 @@ describe('HTTP primitives', () => {
     contextValues.set(HttpContext.id, mockHttpClient)
   })
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   async function getHttpModule() {
     return await import('../primitives/http.js')
   }
@@ -441,7 +439,6 @@ describe('I18n primitives', () => {
     contextValues.set(I18nContext.id, mockI18nProvider)
   })
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   async function getI18nModule() {
     return await import('../primitives/i18n.js')
   }
@@ -586,7 +583,6 @@ describe('Logger primitives', () => {
     contextValues.set(LoggerContext.id, mockLoggerProvider)
   })
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   async function getLoggerModule() {
     return await import('../primitives/logger.js')
   }
@@ -713,7 +709,6 @@ describe('Router primitives', () => {
     contextValues.set(RouterContext.id, mockRouter)
   })
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   async function getRouterModule() {
     return await import('../primitives/router.js')
   }
@@ -850,7 +845,6 @@ describe('State primitives', () => {
     contextValues.set(StateContext.id, mockStateProvider)
   })
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   async function getStateModule() {
     return await import('../primitives/state.js')
   }
@@ -973,7 +967,6 @@ describe('Storage primitives', () => {
     contextValues.set(StorageContext.id, mockStorageProvider)
   })
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   async function getStorageModule() {
     return await import('../primitives/storage.js')
   }
@@ -1108,7 +1101,6 @@ describe('Theme primitives', () => {
     contextValues.set(ThemeContext.id, mockThemeProvider)
   })
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   async function getThemeModule() {
     return await import('../primitives/theme.js')
   }

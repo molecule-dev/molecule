@@ -105,6 +105,7 @@ export const verify = async (data: string, hashed: string): Promise<boolean> => 
  *
  * @param oldKey - The current encryption key.
  * @param newKey - The new encryption key to rotate to.
+ * @returns Resolves when rotation completes successfully.
  * @throws {Error} If no encryption provider has been bonded.
  */
 export const rotateKey = async (oldKey: string, newKey: string): Promise<void> => {

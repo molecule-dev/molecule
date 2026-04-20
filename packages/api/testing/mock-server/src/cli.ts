@@ -4,9 +4,9 @@
  * CLI entrypoint for the mock API server.
  *
  * Usage:
- *   npx @molecule/api-mock-server --app personal-finance --port 4000
- *   npx @molecule/api-mock-server --fixtures-path ./fixtures --port 4000
- *   npx @molecule/api-mock-server --app online-store --port 4015 --state success
+ *   npx \@molecule/api-mock-server --app personal-finance --port 4000
+ *   npx \@molecule/api-mock-server --fixtures-path ./fixtures --port 4000
+ *   npx \@molecule/api-mock-server --app online-store --port 4015 --state success
  */
 
 import { createMockServer } from './server/server.js'
@@ -21,6 +21,10 @@ interface CliArgs {
   help: boolean
 }
 
+/**
+ *
+ * @param argv
+ */
 function parseArgs(argv: string[]): CliArgs {
   const args: CliArgs = {
     app: '',
@@ -76,6 +80,9 @@ function parseArgs(argv: string[]): CliArgs {
   return args
 }
 
+/**
+ *
+ */
 function printHelp(): void {
   console.log(`
   @molecule/api-mock-server - Mock API server with fixture data from JSON files
@@ -101,6 +108,9 @@ function printHelp(): void {
 `)
 }
 
+/**
+ *
+ */
 async function main(): Promise<void> {
   const args = parseArgs(process.argv)
 

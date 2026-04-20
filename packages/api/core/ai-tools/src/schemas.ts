@@ -7,22 +7,30 @@
 
 import type { JSONSchema } from '@molecule/api-ai'
 
+/**
+ * JSON-schema-backed definition for a single agent tool.
+ */
 export interface ToolSchema {
   name: string
   description: string
   parameters: JSONSchema
 }
 
+/**
+ * Canonical tool schemas shared by the agent runtime and documentation.
+ */
 export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
   list_files: {
     name: 'list_files',
-    description: 'List files and directories at a given path. Returns entry names with type indicators.',
+    description:
+      'List files and directories at a given path. Returns entry names with type indicators.',
     parameters: {
       type: 'object',
       properties: {
         path: {
           type: 'string',
-          description: "Directory path to list. Omit or use '/' for project root. Supports relative or absolute paths.",
+          description:
+            "Directory path to list. Omit or use '/' for project root. Supports relative or absolute paths.",
         },
       },
       required: [],
@@ -46,7 +54,8 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
 
   write_file: {
     name: 'write_file',
-    description: 'Create or overwrite a file with full content. Use edit_file for small targeted changes instead.',
+    description:
+      'Create or overwrite a file with full content. Use edit_file for small targeted changes instead.',
     parameters: {
       type: 'object',
       properties: {
@@ -65,7 +74,8 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
 
   edit_file: {
     name: 'edit_file',
-    description: 'Make targeted search-and-replace edits to a file. Preferred over write_file for small changes. Each old_string must match exactly once in the file.',
+    description:
+      'Make targeted search-and-replace edits to a file. Preferred over write_file for small changes. Each old_string must match exactly once in the file.',
     parameters: {
       type: 'object',
       properties: {
@@ -98,7 +108,8 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
 
   search_files: {
     name: 'search_files',
-    description: 'Search for a text pattern across files using grep. Returns matching lines with file paths and line numbers.',
+    description:
+      'Search for a text pattern across files using grep. Returns matching lines with file paths and line numbers.',
     parameters: {
       type: 'object',
       properties: {
@@ -121,7 +132,8 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
 
   find_files: {
     name: 'find_files',
-    description: "Find files by name or glob pattern recursively. Excludes node_modules and .git. Use for discovering files by name (e.g. '*.tsx', 'Dashboard*', 'index.*').",
+    description:
+      "Find files by name or glob pattern recursively. Excludes node_modules and .git. Use for discovering files by name (e.g. '*.tsx', 'Dashboard*', 'index.*').",
     parameters: {
       type: 'object',
       properties: {
@@ -189,7 +201,8 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
 
   exec_command: {
     name: 'exec_command',
-    description: 'Run a shell command and return its output. Use for build checks, npm commands, verification, etc.',
+    description:
+      'Run a shell command and return its output. Use for build checks, npm commands, verification, etc.',
     parameters: {
       type: 'object',
       properties: {
@@ -227,7 +240,8 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
 
   load_skill: {
     name: 'load_skill',
-    description: 'Load a skill guide by name. Returns the full SKILL.md content for detailed reference on a topic.',
+    description:
+      'Load a skill guide by name. Returns the full SKILL.md content for detailed reference on a topic.',
     parameters: {
       type: 'object',
       properties: {

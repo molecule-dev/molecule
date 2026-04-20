@@ -42,7 +42,7 @@ export function hasProvider(): boolean {
  * Retrieves the bonded gallery provider, throwing if none is configured.
  *
  * @returns The active gallery provider.
- * @throws Error if no provider has been bonded.
+ * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): GalleryProvider {
   if (!_provider) {

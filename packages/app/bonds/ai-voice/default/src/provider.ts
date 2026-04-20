@@ -312,7 +312,7 @@ export class DefaultVoiceProvider implements AIVoiceProvider {
     if (voices.length === 0) {
       // Some browsers (Chrome) load voices asynchronously
       voices = await new Promise<SpeechSynthesisVoice[]>((resolve) => {
-        const onVoicesChanged = () => {
+        const onVoicesChanged = (): void => {
           synth.removeEventListener('voiceschanged', onVoicesChanged)
           resolve(synth.getVoices())
         }

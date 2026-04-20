@@ -5,8 +5,8 @@
  * @module
  */
 
-import { readFile, writeFile, unlink, readdir, mkdir } from 'fs/promises'
 import { execFile } from 'child_process'
+import { mkdir, readdir, readFile, unlink, writeFile } from 'fs/promises'
 import { dirname } from 'path'
 
 import type { ExecutionBackend } from '../types.js'
@@ -15,6 +15,7 @@ import type { ExecutionBackend } from '../types.js'
  * Create an ExecutionBackend that operates on the local filesystem.
  *
  * @param projectRoot - Absolute path to the project root directory
+ * @returns A backend wired to `fs/promises` and guarded subprocess calls.
  */
 export function createLocalBackend(projectRoot: string): ExecutionBackend {
   return {
@@ -35,7 +36,7 @@ export function createLocalBackend(projectRoot: string): ExecutionBackend {
 
     async readDir(path: string) {
       const entries = await readdir(path, { withFileTypes: true })
-      return entries.map(e => ({
+      return entries.map((e) => ({
         name: e.name,
         type: (e.isDirectory() ? 'directory' : 'file') as 'file' | 'directory',
       }))
@@ -45,20 +46,25 @@ export function createLocalBackend(projectRoot: string): ExecutionBackend {
       return new Promise((resolve) => {
         // Use shell: true for command strings (grep pipelines, find, etc.)
         // Input is sanitized via shellQuote at the tool level
-        execFile('sh', ['-c', command], {
-          cwd: opts?.cwd || projectRoot,
-          timeout: opts?.timeout || 30000,
-          maxBuffer: 10 * 1024 * 1024,
-          encoding: 'utf8',
-        }, (error, stdout, stderr) => {
-          if (error && 'code' in error && typeof error.code === 'number') {
-            resolve({ stdout: stdout || '', stderr: stderr || '', exitCode: error.code })
-          } else if (error) {
-            resolve({ stdout: stdout || '', stderr: stderr || error.message, exitCode: 1 })
-          } else {
-            resolve({ stdout: stdout || '', stderr: stderr || '', exitCode: 0 })
-          }
-        })
+        execFile(
+          'sh',
+          ['-c', command],
+          {
+            cwd: opts?.cwd || projectRoot,
+            timeout: opts?.timeout || 30000,
+            maxBuffer: 10 * 1024 * 1024,
+            encoding: 'utf8',
+          },
+          (error, stdout, stderr) => {
+            if (error && 'code' in error && typeof error.code === 'number') {
+              resolve({ stdout: stdout || '', stderr: stderr || '', exitCode: error.code })
+            } else if (error) {
+              resolve({ stdout: stdout || '', stderr: stderr || error.message, exitCode: 1 })
+            } else {
+              resolve({ stdout: stdout || '', stderr: stderr || '', exitCode: 0 })
+            }
+          },
+        )
       })
     },
   }

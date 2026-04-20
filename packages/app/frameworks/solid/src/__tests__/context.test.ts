@@ -27,7 +27,7 @@ vi.mock('solid-js', () => {
     }),
     createSignal: vi.fn(<T>(initial: T) => {
       let value = initial
-      // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
       const getter = () => value
       const setter = (newValue: T | ((prev: T) => T)): void => {
         if (typeof newValue === 'function') {

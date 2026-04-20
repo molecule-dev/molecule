@@ -4,10 +4,12 @@
  * @module
  */
 
-import type { Request, Response, NextFunction } from 'express'
+import type { NextFunction, Request, RequestHandler, Response } from 'express'
 import { ZodError, type ZodType } from 'zod'
+
 import { t } from '@molecule/api-i18n'
-import type { ValidationSchema, ValidationError } from './types.js'
+
+import type { ValidationError, ValidationSchema } from './types.js'
 
 /**
  * Creates an Express middleware that validates the request body, params,
@@ -32,7 +34,7 @@ import type { ValidationSchema, ValidationError } from './types.js'
  * }), handler)
  * ```
  */
-export function validate(schema: ValidationSchema) {
+export function validate(schema: ValidationSchema): RequestHandler {
   return (req: Request, res: Response, next: NextFunction): void => {
     const errors: ValidationError[] = []
 
@@ -74,7 +76,7 @@ export function validate(schema: ValidationSchema) {
  * @param schema - Zod schema for `req.body`.
  * @returns Express middleware function.
  */
-export function validateBody<T extends ZodType>(schema: T) {
+export function validateBody<T extends ZodType>(schema: T): RequestHandler {
   return validate({ body: schema })
 }
 
@@ -84,7 +86,7 @@ export function validateBody<T extends ZodType>(schema: T) {
  * @param schema - Zod schema for `req.params`.
  * @returns Express middleware function.
  */
-export function validateParams<T extends ZodType>(schema: T) {
+export function validateParams<T extends ZodType>(schema: T): RequestHandler {
   return validate({ params: schema })
 }
 
@@ -94,6 +96,6 @@ export function validateParams<T extends ZodType>(schema: T) {
  * @param schema - Zod schema for `req.query`.
  * @returns Express middleware function.
  */
-export function validateQuery<T extends ZodType>(schema: T) {
+export function validateQuery<T extends ZodType>(schema: T): RequestHandler {
   return validate({ query: schema })
 }

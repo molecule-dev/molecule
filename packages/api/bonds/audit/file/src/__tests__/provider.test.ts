@@ -2,8 +2,9 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import type { AuditRecord, PaginatedResult } from '@molecule/api-audit'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { AuditRecord, PaginatedResult } from '@molecule/api-audit'
 
 import { createProvider } from '../provider.js'
 

@@ -1,10 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import type { Server } from 'node:http'
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type {
-  RealtimeProvider,
   ConnectionHandler,
   DisconnectionHandler,
   MessageHandler,
+  RealtimeProvider,
 } from '@molecule/api-realtime'
 
 /* ------------------------------------------------------------------ */
@@ -133,7 +135,7 @@ describe('@molecule/api-realtime-ws', () => {
     it('creates a server with an http server when provided', async () => {
       vi.clearAllMocks()
       mockServerInstances.length = 0
-      const httpServer = {} as import('node:http').Server
+      const httpServer = {} as Server
       const { createProvider } = await import('../provider.js')
       createProvider({ httpServer })
       expect(MockWebSocketServer).toHaveBeenCalledWith(

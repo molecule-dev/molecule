@@ -1,5 +1,5 @@
 /**
- * Default provider for @molecule/app-stepper.
+ * Default provider for \@molecule/app-stepper.
  *
  * Provides an in-memory stepper implementation with step navigation,
  * validation, and linear mode support.

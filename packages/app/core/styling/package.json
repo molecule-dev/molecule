@@ -27,6 +27,9 @@
     "cva"
   ],
   "license": "MIT",
+  "dependencies": {
+    "tailwind-merge": "^3.4.0"
+  },
   "devDependencies": {
     "@types/node": "25.5.0",
     "typescript": "5.9.3",

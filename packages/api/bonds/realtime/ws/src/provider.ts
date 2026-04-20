@@ -11,8 +11,8 @@
 
 import { randomUUID } from 'node:crypto'
 
-import { WebSocketServer } from 'ws'
 import type { WebSocket } from 'ws'
+import { WebSocketServer } from 'ws'
 
 import type {
   ConnectionHandler,

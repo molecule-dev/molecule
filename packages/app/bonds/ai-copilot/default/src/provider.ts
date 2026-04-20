@@ -85,9 +85,8 @@ export class DefaultCopilotProvider implements AICopilotProvider {
       if (!response.ok) {
         const text = await response
           .text()
-          .catch(
-            () =>
-              t('copilot.error.unknownError', undefined, { defaultValue: 'Unknown error' }),
+          .catch(() =>
+            t('copilot.error.unknownError', undefined, { defaultValue: 'Unknown error' }),
           )
         let errorMessage: string | undefined
         try {
@@ -182,10 +181,7 @@ export class DefaultCopilotProvider implements AICopilotProvider {
    * @param suggestion - The suggestion the user accepted.
    * @param config - Request-level configuration (endpoint).
    */
-  async acceptSuggestion(
-    suggestion: CopilotSuggestion,
-    config: AICopilotConfig,
-  ): Promise<void> {
+  async acceptSuggestion(suggestion: CopilotSuggestion, config: AICopilotConfig): Promise<void> {
     const url = `${this.config.baseUrl ?? ''}${config.endpoint}/feedback`
     try {
       await fetch(url, {
@@ -212,10 +208,7 @@ export class DefaultCopilotProvider implements AICopilotProvider {
    * @param suggestion - The suggestion the user dismissed.
    * @param config - Request-level configuration (endpoint).
    */
-  async rejectSuggestion(
-    suggestion: CopilotSuggestion,
-    config: AICopilotConfig,
-  ): Promise<void> {
+  async rejectSuggestion(suggestion: CopilotSuggestion, config: AICopilotConfig): Promise<void> {
     const url = `${this.config.baseUrl ?? ''}${config.endpoint}/feedback`
     try {
       await fetch(url, {

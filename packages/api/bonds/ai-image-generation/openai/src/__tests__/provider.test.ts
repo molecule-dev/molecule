@@ -101,9 +101,7 @@ describe('OpenaiImageGenerationProvider', () => {
       expect(result.images[0].url).toBe('https://example.com/image1.png')
       expect(result.images[1].url).toBe('https://example.com/image2.png')
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.n).toBe(2)
     })
 
@@ -112,9 +110,7 @@ describe('OpenaiImageGenerationProvider', () => {
 
       await provider.generate({ prompt: 'test', model: 'dall-e-3' })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.model).toBe('dall-e-3')
     })
 
@@ -127,9 +123,7 @@ describe('OpenaiImageGenerationProvider', () => {
         quality: 'hd',
       })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.size).toBe('1792x1024')
       expect(body.quality).toBe('hd')
     })
@@ -143,9 +137,7 @@ describe('OpenaiImageGenerationProvider', () => {
         style: 'natural',
       })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.style).toBe('natural')
     })
 
@@ -158,9 +150,7 @@ describe('OpenaiImageGenerationProvider', () => {
         responseFormat: 'base64',
       })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.response_format).toBe('b64_json')
       expect(result.images[0].base64).toBe('aW1hZ2VkYXRh')
     })
@@ -170,9 +160,7 @@ describe('OpenaiImageGenerationProvider', () => {
 
       await provider.generate({ prompt: 'test', model: 'gpt-image-1' })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.output_format).toBe('png')
       expect(body.response_format).toBeUndefined()
     })
@@ -187,9 +175,7 @@ describe('OpenaiImageGenerationProvider', () => {
 
       await customProvider.generate({ prompt: 'test' })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.quality).toBe('high')
     })
 
@@ -222,9 +208,7 @@ describe('OpenaiImageGenerationProvider', () => {
 
   describe('edit()', () => {
     it('sends image as multipart form data', async () => {
-      mockFetch.mockResolvedValue(
-        mockImagesResponse([{ url: 'https://example.com/edited.png' }]),
-      )
+      mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/edited.png' }]))
 
       const imageBuffer = Buffer.from('fake-image-data')
       const result = await provider.edit({
@@ -244,9 +228,7 @@ describe('OpenaiImageGenerationProvider', () => {
     })
 
     it('accepts base64 string as image input', async () => {
-      mockFetch.mockResolvedValue(
-        mockImagesResponse([{ url: 'https://example.com/edited.png' }]),
-      )
+      mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/edited.png' }]))
 
       const base64Image = Buffer.from('fake-image-data').toString('base64')
       const result = await provider.edit({
@@ -259,9 +241,7 @@ describe('OpenaiImageGenerationProvider', () => {
     })
 
     it('includes mask when provided', async () => {
-      mockFetch.mockResolvedValue(
-        mockImagesResponse([{ url: 'https://example.com/edited.png' }]),
-      )
+      mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/edited.png' }]))
 
       const imageBuffer = Buffer.from('fake-image-data')
       const maskBuffer = Buffer.from('fake-mask-data')
@@ -277,9 +257,7 @@ describe('OpenaiImageGenerationProvider', () => {
     })
 
     it('sends optional size and n parameters', async () => {
-      mockFetch.mockResolvedValue(
-        mockImagesResponse([{ url: 'https://example.com/edited.png' }]),
-      )
+      mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/edited.png' }]))
 
       const imageBuffer = Buffer.from('fake-image-data')
       await provider.edit({
@@ -296,9 +274,7 @@ describe('OpenaiImageGenerationProvider', () => {
     })
 
     it('uses correct model in form data', async () => {
-      mockFetch.mockResolvedValue(
-        mockImagesResponse([{ url: 'https://example.com/edited.png' }]),
-      )
+      mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/edited.png' }]))
 
       const imageBuffer = Buffer.from('fake-image-data')
       await provider.edit({
@@ -363,9 +339,7 @@ describe('OpenaiImageGenerationProvider', () => {
           text: vi.fn().mockResolvedValue('{}'),
           headers: new Headers(),
         })
-        .mockResolvedValueOnce(
-          mockImagesResponse([{ url: 'https://example.com/img.png' }]),
-        )
+        .mockResolvedValueOnce(mockImagesResponse([{ url: 'https://example.com/img.png' }]))
 
       const promise = provider.generate({ prompt: 'test' })
       await vi.advanceTimersByTimeAsync(5000)
@@ -384,9 +358,7 @@ describe('OpenaiImageGenerationProvider', () => {
           text: vi.fn().mockResolvedValue('{}'),
           headers: new Headers(),
         })
-        .mockResolvedValueOnce(
-          mockImagesResponse([{ url: 'https://example.com/img.png' }]),
-        )
+        .mockResolvedValueOnce(mockImagesResponse([{ url: 'https://example.com/img.png' }]))
 
       const promise = provider.generate({ prompt: 'test' })
       await vi.advanceTimersByTimeAsync(5000)
@@ -405,9 +377,7 @@ describe('OpenaiImageGenerationProvider', () => {
           text: vi.fn().mockResolvedValue('{}'),
           headers: new Headers({ 'retry-after': '2' }),
         })
-        .mockResolvedValueOnce(
-          mockImagesResponse([{ url: 'https://example.com/img.png' }]),
-        )
+        .mockResolvedValueOnce(mockImagesResponse([{ url: 'https://example.com/img.png' }]))
 
       const promise = provider.generate({ prompt: 'test' })
       await vi.advanceTimersByTimeAsync(3000)
@@ -452,9 +422,7 @@ describe('OpenaiImageGenerationProvider', () => {
     it('uses OPENAI_API_KEY env var when no key provided', async () => {
       vi.stubEnv('OPENAI_API_KEY', 'env-key')
       const envProvider = createProvider({ baseUrl: 'https://test.api' })
-      mockFetch.mockResolvedValue(
-        mockImagesResponse([{ url: 'https://example.com/img.png' }]),
-      )
+      mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/img.png' }]))
 
       await envProvider.generate({ prompt: 'test' })
 
@@ -468,15 +436,11 @@ describe('OpenaiImageGenerationProvider', () => {
     })
 
     it('defaults to gpt-image-1 model', async () => {
-      mockFetch.mockResolvedValue(
-        mockImagesResponse([{ url: 'https://example.com/img.png' }]),
-      )
+      mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/img.png' }]))
 
       const result = await provider.generate({ prompt: 'test' })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.model).toBe('gpt-image-1')
       expect(result.model).toBe('gpt-image-1')
     })
@@ -491,9 +455,7 @@ describe('OpenaiImageGenerationProvider', () => {
 
       await customProvider.generate({ prompt: 'test' })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.model).toBe('dall-e-3')
     })
 
@@ -507,9 +469,7 @@ describe('OpenaiImageGenerationProvider', () => {
 
       await customProvider.generate({ prompt: 'test' })
 
-      const body = JSON.parse(
-        (mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string,
-      )
+      const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
       expect(body.size).toBe('1536x1024')
     })
   })

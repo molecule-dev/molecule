@@ -4,8 +4,9 @@
  * No hardcoded app-specific data — all data lives in template fixture directories.
  */
 
-import { readFileSync, readdirSync, existsSync } from 'node:fs'
-import { join, basename } from 'node:path'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { basename, join } from 'node:path'
+
 import type {
   AppDataPool,
   AppFixtureSet,
@@ -41,7 +42,7 @@ export function loadFixturesFromDirectory(
 ): AppDataPool | undefined {
   if (!existsSync(fixturesDir)) return undefined
 
-  const files = readdirSync(fixturesDir).filter(f => f.endsWith('.json'))
+  const files = readdirSync(fixturesDir).filter((f) => f.endsWith('.json'))
   if (files.length === 0) return undefined
 
   const resources: Record<string, FixtureRecord[]> = {}
@@ -99,10 +100,7 @@ const poolCache = new Map<string, AppDataPool>()
  * @param appType - App type label
  * @returns The loaded pool, or undefined if directory missing/empty
  */
-export function getAppDataPool(
-  fixturesDir: string,
-  appType: string,
-): AppDataPool | undefined {
+export function getAppDataPool(fixturesDir: string, appType: string): AppDataPool | undefined {
   const cached = poolCache.get(fixturesDir)
   if (cached) return cached
 
@@ -141,11 +139,10 @@ export function buildFixtureSet(
 
 /**
  * Build fixture data for a single endpoint based on the data pool.
+ * @param endpoint
+ * @param pool
  */
-function buildEndpointFixture(
-  endpoint: EndpointDefinition,
-  pool: AppDataPool,
-): EndpointFixture {
+function buildEndpointFixture(endpoint: EndpointDefinition, pool: AppDataPool): EndpointFixture {
   const { method, path, responseHints } = endpoint
   const resourceName = responseHints.resourceName
 
@@ -261,10 +258,7 @@ function buildEndpointFixture(
  * @param appType - App type label (default: derived from directory name)
  * @returns A fixture set with standard CRUD endpoints, or undefined if no data
  */
-export function generateFixtures(
-  fixturesDir: string,
-  appType?: string,
-): AppFixtureSet | undefined {
+export function generateFixtures(fixturesDir: string, appType?: string): AppFixtureSet | undefined {
   const resolvedAppType = appType ?? basename(fixturesDir)
   const pool = getAppDataPool(fixturesDir, resolvedAppType)
   if (!pool) return undefined
@@ -356,7 +350,12 @@ export function generateFixtures(
         method: 'GET',
         path: reportPath,
         requiresAuth: true,
-        responseHints: { isList: false, isPaginated: false, hasNestedResources: false, resourceName: 'reports' },
+        responseHints: {
+          isList: false,
+          isPaginated: false,
+          hasNestedResources: false,
+          resourceName: 'reports',
+        },
       }
       fixtureMap.set(`GET ${reportPath}`, {
         endpoint: reportEndpoint,

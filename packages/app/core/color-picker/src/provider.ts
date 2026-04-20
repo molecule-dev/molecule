@@ -42,7 +42,7 @@ export function hasProvider(): boolean {
  * Retrieves the bonded color picker provider, throwing if none is configured.
  *
  * @returns The active color picker provider.
- * @throws Error if no provider has been bonded.
+ * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): ColorPickerProvider {
   if (!_provider) {

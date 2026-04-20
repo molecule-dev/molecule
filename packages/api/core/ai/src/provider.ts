@@ -25,17 +25,29 @@ const BOND_TYPE = 'ai'
 expectBond(BOND_TYPE)
 
 /**
- * Registers an AI provider. Supports two modes:
+ * Registers an AI provider in singleton mode.
  *
  * - **Singleton**: `setProvider(provider)` — bonds a single default provider.
+ *
+ * @param provider - The default provider implementation for this process.
+ */
+export function setProvider(provider: AIProvider): void
+/**
+ * Registers a named AI provider under bond type `ai`.
+ *
  * - **Named**: `setProvider('anthropic', provider)` — bonds a named provider
  *   alongside others (e.g. `'xai'`, `'openai'`).
+ *
+ * @param name - Provider identifier used when selecting models.
+ * @param provider - Concrete provider bound to `name`.
+ */
+export function setProvider(name: string, provider: AIProvider): void
+/**
+ * Implementation that powers the `setProvider` overloads.
  *
  * @param nameOrProvider - Provider name (string) or the provider instance (singleton mode).
  * @param provider - The provider instance (only when first arg is a name).
  */
-export function setProvider(provider: AIProvider): void
-export function setProvider(name: string, provider: AIProvider): void
 export function setProvider(nameOrProvider: string | AIProvider, provider?: AIProvider): void {
   if (typeof nameOrProvider === 'string') {
     bond(BOND_TYPE, nameOrProvider, provider!)

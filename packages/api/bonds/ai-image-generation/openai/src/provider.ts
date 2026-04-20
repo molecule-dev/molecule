@@ -211,7 +211,7 @@ class OpenaiImageGenerationProvider implements AIImageGenerationProvider {
    * @param path - API endpoint path.
    * @param init - Fetch RequestInit options.
    * @returns Parsed API response.
-   * @throws Error on non-retryable API errors or after exhausting retries.
+   * @throws {Error} on non-retryable API errors or after exhausting retries.
    */
   private async callWithRetry(path: string, init: RequestInit): Promise<OpenAIImagesResponse> {
     const MAX_RETRIES = 3

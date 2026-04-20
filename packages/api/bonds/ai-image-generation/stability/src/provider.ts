@@ -10,8 +10,8 @@
 
 import type {
   AIImageGenerationProvider,
-  GenerateImageParams,
   GeneratedImage,
+  GenerateImageParams,
   ImageGenerationResult,
   ImageToImageParams,
   UpscaleImageParams,
@@ -20,7 +20,14 @@ import type {
 import type { StabilityConfig } from './types.js'
 
 /** Models that use the SD3 generation endpoint. */
-const SD3_MODELS = new Set(['sd3.5-large', 'sd3.5-large-turbo', 'sd3.5-medium', 'sd3-large', 'sd3-large-turbo', 'sd3-medium'])
+const SD3_MODELS = new Set([
+  'sd3.5-large',
+  'sd3.5-large-turbo',
+  'sd3.5-medium',
+  'sd3-large',
+  'sd3-large-turbo',
+  'sd3-medium',
+])
 
 /** Models that use the Stable Image Core endpoint. */
 const CORE_MODELS = new Set(['core'])
@@ -60,7 +67,9 @@ export class StabilityAIProvider implements AIImageGenerationProvider {
   constructor(config: StabilityConfig = {}) {
     const apiKey = config.apiKey ?? process.env['STABILITY_API_KEY']
     if (!apiKey) {
-      throw new Error('Stability AI API key is required. Set STABILITY_API_KEY or pass apiKey in config.')
+      throw new Error(
+        'Stability AI API key is required. Set STABILITY_API_KEY or pass apiKey in config.',
+      )
     }
     this.apiKey = apiKey
     this.defaultModel = config.defaultModel ?? DEFAULT_MODEL
@@ -131,9 +140,8 @@ export class StabilityAIProvider implements AIImageGenerationProvider {
     const model = params.model ?? this.defaultModel
     const endpoint = `${this.baseUrl}/v2beta/stable-image/generate/sd3`
 
-    const imageBuffer = typeof params.image === 'string'
-      ? Buffer.from(params.image, 'base64')
-      : params.image
+    const imageBuffer =
+      typeof params.image === 'string' ? Buffer.from(params.image, 'base64') : params.image
     const outputFormat = params.outputFormat ?? 'png'
     const images: GeneratedImage[] = []
     const count = params.count ?? 1
@@ -180,9 +188,8 @@ export class StabilityAIProvider implements AIImageGenerationProvider {
 
     const form = new FormData()
 
-    const imageBuffer = typeof params.image === 'string'
-      ? Buffer.from(params.image, 'base64')
-      : params.image
+    const imageBuffer =
+      typeof params.image === 'string' ? Buffer.from(params.image, 'base64') : params.image
     form.append('image', new Blob([new Uint8Array(imageBuffer)]), 'image.png')
 
     if (params.prompt) {
@@ -325,7 +332,7 @@ export class StabilityAIProvider implements AIImageGenerationProvider {
         const contentType = response.headers.get('content-type') ?? ''
 
         if (contentType.includes('application/json')) {
-          const json = await response.json() as StabilityJsonResponse
+          const json = (await response.json()) as StabilityJsonResponse
           return { image: json.image, seed: json.seed }
         }
 
@@ -337,7 +344,7 @@ export class StabilityAIProvider implements AIImageGenerationProvider {
       if (!RETRYABLE_STATUS_CODES.has(response.status) || attempt === this.maxRetries) {
         let message: string
         try {
-          const errorBody = await response.json() as { message?: string; name?: string }
+          const errorBody = (await response.json()) as { message?: string; name?: string }
           message = errorBody.message ?? errorBody.name ?? response.statusText
         } catch {
           message = response.statusText

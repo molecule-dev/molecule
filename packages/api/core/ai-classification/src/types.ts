@@ -8,7 +8,7 @@
  */
 
 /**
- *
+ * Live AI classification integration contract (TODO: expand methods).
  */
 export interface AIClassificationProvider {
   readonly name: string
@@ -16,7 +16,7 @@ export interface AIClassificationProvider {
 }
 
 /**
- *
+ * Config options for an AI classification bond (TODO: tighten schema).
  */
 export interface AIClassificationConfig {
   // TODO: Define configuration options

@@ -2401,15 +2401,17 @@ function ChatInner({
   useEffect(() => {
     const el = messagesContainerRef.current
     if (!el) return
-    const check = () => {
+    const check = (): void => {
       userScrolledUpRef.current = el.scrollHeight - el.scrollTop - el.clientHeight > 80
     }
-    const onWheel = () => requestAnimationFrame(check)
+    const onWheel = (): void => {
+      requestAnimationFrame(check)
+    }
     let touchY = 0
-    const onTouchStart = (e: TouchEvent) => {
+    const onTouchStart = (e: TouchEvent): void => {
       touchY = e.touches[0].clientY
     }
-    const onTouchMove = (e: TouchEvent) => {
+    const onTouchMove = (e: TouchEvent): void => {
       // Swipe down (finger moves down) = scroll up
       if (e.touches[0].clientY > touchY) userScrolledUpRef.current = true
       else requestAnimationFrame(check)

@@ -42,7 +42,7 @@ export function hasProvider(): boolean {
  * Get the active AI assistant provider, throwing if none is registered.
  *
  * @returns The current provider
- * @throws Error if no provider has been registered
+ * @throws {Error} if no provider has been registered
  */
 export function requireProvider(): AIAssistantProvider {
   if (!_provider) {

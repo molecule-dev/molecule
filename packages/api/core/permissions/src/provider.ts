@@ -78,6 +78,7 @@ export const can = async (
  * @param subject - The entity to assign the role to.
  * @param role - The role name to assign.
  * @param scope - Optional scope for the assignment (e.g. `org:123`).
+ * @returns Resolves when the bonded provider records the assignment.
  * @throws {Error} If no permissions provider has been bonded.
  */
 export const assign = async (subject: string, role: string, scope?: string): Promise<void> => {
@@ -90,6 +91,7 @@ export const assign = async (subject: string, role: string, scope?: string): Pro
  * @param subject - The entity to revoke the role from.
  * @param role - The role name to revoke.
  * @param scope - Optional scope for the revocation.
+ * @returns Resolves when the bonded provider records the revocation.
  * @throws {Error} If no permissions provider has been bonded.
  */
 export const revoke = async (subject: string, role: string, scope?: string): Promise<void> => {
@@ -122,6 +124,7 @@ export const createRole = async (role: CreateRole): Promise<Role> => {
  * Deletes a role definition by ID.
  *
  * @param roleId - The ID of the role to delete.
+ * @returns Resolves when the role is removed.
  * @throws {Error} If no permissions provider has been bonded.
  */
 export const deleteRole = async (roleId: string): Promise<void> => {
@@ -144,6 +147,7 @@ export const getPermissions = async (role: string): Promise<Permission[]> => {
  *
  * @param role - The role name to add the permission to.
  * @param permission - The permission to add.
+ * @returns Resolves when the permission is attached to the role.
  * @throws {Error} If no permissions provider has been bonded.
  */
 export const addPermission = async (role: string, permission: Permission): Promise<void> => {
@@ -155,6 +159,7 @@ export const addPermission = async (role: string, permission: Permission): Promi
  *
  * @param role - The role name to remove the permission from.
  * @param permissionId - The ID of the permission to remove.
+ * @returns Resolves when the permission is removed from the role.
  * @throws {Error} If no permissions provider has been bonded.
  */
 export const removePermission = async (role: string, permissionId: string): Promise<void> => {

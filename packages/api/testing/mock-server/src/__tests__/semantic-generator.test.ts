@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import { applySemanticRules } from '../fixtures/semantic-generator.js'
+import { describe, expect, it } from 'vitest'
+
 import { createSeededRandom } from '../fixtures/seed.js'
+import { applySemanticRules } from '../fixtures/semantic-generator.js'
 
 describe('applySemanticRules', () => {
   it('generates a UUID for id fields', () => {

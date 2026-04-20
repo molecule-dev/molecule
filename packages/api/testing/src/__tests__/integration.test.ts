@@ -4,7 +4,10 @@
  * isolation.
  */
 
+import type { Request, Response } from 'express'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { z } from 'zod'
+
 import {
   bond,
   get,
@@ -15,16 +18,13 @@ import {
   unbond,
   unbondAll,
 } from '@molecule/api-bond'
-import { paginated, validate, validateBody } from '@molecule/api-middleware-validation'
 import type {
   DataStore,
   FindManyOptions,
   MutationResult,
   WhereCondition,
 } from '@molecule/api-database'
-import { z } from 'zod'
-
-import type { Request, Response } from 'express'
+import { paginated, validate, validateBody } from '@molecule/api-middleware-validation'
 
 // ============================================================================
 // Helpers
@@ -229,7 +229,7 @@ describe('Provider type safety integration', () => {
 
   it('typed provider methods return the expected result types', async () => {
     const emailProvider: EmailTransport = {
-      async sendMail(options) {
+      async sendMail(_options) {
         return { id: `msg-${Date.now()}`, accepted: true }
       },
     }
@@ -245,10 +245,10 @@ describe('Provider type safety integration', () => {
 
   it('named provider methods are callable and return correct types', async () => {
     const stripe: PaymentProvider = {
-      async charge(amount, currency) {
+      async charge(amount, _currency) {
         return { transactionId: `txn-${amount}`, status: 'succeeded' }
       },
-      async refund(transactionId) {
+      async refund(_transactionId) {
         return { refunded: true }
       },
     }

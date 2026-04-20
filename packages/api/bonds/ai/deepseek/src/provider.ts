@@ -7,7 +7,7 @@
 import type { DeepseekConfig } from './types.js'
 
 /**
- *
+ * Stub DeepSeek AI provider scaffold (TODO: implement API wiring).
  */
 export class DeepseekAIProvider {
   readonly name = 'deepseek'
@@ -18,8 +18,10 @@ export class DeepseekAIProvider {
 }
 
 /**
+ * Creates a DeepSeek AI provider instance for bonding.
  *
- * @param config
+ * @param config - DeepSeek provider configuration.
+ * @returns A DeepSeek-backed provider instance.
  */
 export function createProvider(config: DeepseekConfig): DeepseekAIProvider {
   return new DeepseekAIProvider(config)

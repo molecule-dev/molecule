@@ -14,7 +14,6 @@ import { createSignupStore } from '../signup.js'
 
 const mockGetAuthClient = getAuthClient as ReturnType<typeof vi.fn>
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function createMockClient() {
   return {
     login: vi.fn(),

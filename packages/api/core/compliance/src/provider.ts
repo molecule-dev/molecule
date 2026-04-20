@@ -108,6 +108,7 @@ export const getConsent = async (userId: string): Promise<ConsentRecord> => {
  *
  * @param userId - The identifier of the user.
  * @param consent - The consent update to apply.
+ * @returns Resolves when the bonded provider applies the update.
  * @throws {Error} If no compliance provider has been bonded.
  */
 export const setConsent = async (userId: string, consent: ConsentUpdate): Promise<void> => {

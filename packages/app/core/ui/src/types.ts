@@ -1651,7 +1651,12 @@ export type ClassMapValue =
  * Abstract spacing scale. Each styling library maps these to its own units.
  * For Tailwind: 0 → 0, 1 → 0.25rem, 4 → 1rem, 8 → 2rem, etc.
  */
-export type SpacingScale = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16
+export type SpacingScale = 0 | 1 | 2 | 2.5 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16 | 20 | 24
+
+/**
+ * Tailwind arbitrary value in bracket notation (e.g. `[440px]`, `[65%]`).
+ */
+export type TailwindArbitraryBracket = `[${string}]`
 
 /**
  * CSS spacing property shorthand (padding/margin with direction).
@@ -1694,27 +1699,60 @@ export type SpacingOverrides = Partial<Record<SpacingProperty, SpacingScale>>
 /**
  * Text size scale from extra-small to 4xl.
  */
-export type TextScale = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl'
+export type TextScale = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl'
 
 /**
  * Font weight scale.
  */
-export type FontWeightScale = 'normal' | 'medium' | 'semibold' | 'bold'
+export type FontWeightScale = 'normal' | 'medium' | 'semibold' | 'bold' | 'extrabold'
 
 /**
  * Max-width scale for constraining content.
  */
-export type MaxWidthScale = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'
+export type MaxWidthScale =
+  | 'none'
+  | 'xs'
+  | 'sm'
+  | 'md'
+  | 'lg'
+  | 'xl'
+  | '2xl'
+  | '4xl'
+  | '5xl'
+  | '6xl'
+  | '7xl'
+  | 'full'
+  | 'screen-2xl'
+  | TailwindArbitraryBracket
 
 /**
  * Width value — fractional, keyword, or numeric (mapped to spacing scale).
  */
-export type WidthValue = 'full' | '1/2' | '1/3' | '2/3' | '1/4' | '3/4' | 'auto' | 'screen'
+export type WidthValue =
+  | 'full'
+  | '1/2'
+  | '1/3'
+  | '2/3'
+  | '1/4'
+  | '3/4'
+  | 'auto'
+  | 'screen'
+  | 'fit'
+  | TailwindArbitraryBracket
 
 /**
- * Height value — keyword or numeric (mapped to spacing scale).
+ * Height value — fractional, keyword, or numeric (mapped to spacing scale).
  */
-export type HeightValue = 'full' | 'screen' | 'auto'
+export type HeightValue =
+  | 'full'
+  | 'screen'
+  | 'auto'
+  | '1/2'
+  | '1/3'
+  | '2/3'
+  | '1/4'
+  | '3/4'
+  | TailwindArbitraryBracket
 
 /**
  * Options for resolving button CSS classes via UIClassMap.
@@ -1864,7 +1902,8 @@ export interface FlexClassOptions {
   align?: 'start' | 'center' | 'end' | 'stretch' | 'baseline'
   justify?: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly'
   wrap?: 'wrap' | 'nowrap' | 'wrap-reverse'
-  gap?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  /** Named tokens or Tailwind spacing scale index (e.g. `3` → `gap-3`). */
+  gap?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number
 }
 
 /**
@@ -1872,7 +1911,8 @@ export interface FlexClassOptions {
  */
 export interface GridClassOptions {
   cols?: number
-  gap?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  /** Named tokens or Tailwind spacing scale index (e.g. `10` → `gap-10`). */
+  gap?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number
 }
 
 /**

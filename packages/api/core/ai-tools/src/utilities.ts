@@ -10,6 +10,9 @@ import { posix } from 'path'
 /**
  * Shell-safe quoting using single quotes. Unlike JSON.stringify (double quotes),
  * single-quoted strings prevent command substitution ($(), backticks) and variable expansion.
+ *
+ * @param s - Raw string to wrap for POSIX shell single-quoted context.
+ * @returns A single-quoted shell literal representing `s`.
  */
 export function shellQuote(s: string): string {
   return "'" + s.replace(/'/g, "'\\''") + "'"
@@ -18,9 +21,13 @@ export function shellQuote(s: string): string {
 /**
  * Strip C0 control chars (except tab, newline, CR) that break PostgreSQL JSONB
  * and can cause rendering issues.
+ *
+ * @param s - Arbitrary text that may contain disallowed control characters.
+ * @returns A copy of `s` with unsafe control characters removed.
  */
-// eslint-disable-next-line no-control-regex
-export const stripControlChars = (s: string): string => s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+export const stripControlChars = (s: string): string =>
+  // eslint-disable-next-line no-control-regex -- strip C0 controls except tab/LF/CR
+  s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
 
 // ── Secret redaction ──────────────────────────────────────────────────────────
 
@@ -38,7 +45,12 @@ const SECRET_JSON_SQ = new RegExp(
   'gi',
 )
 
-/** Redact values of common secret/credential patterns in text output. */
+/**
+ * Redact values of common secret/credential patterns in text output.
+ *
+ * @param s - Log or command output that may contain `.env`-style secrets.
+ * @returns A redacted copy safe to surface to end users or models.
+ */
 export function redactSecrets(s: string): string {
   return s
     .replace(SECRET_KEY_PATTERN, '$1=[REDACTED]')
@@ -57,11 +69,19 @@ const BLOCKED_PROC_REDIRECT = /(?:<\s*\/proc\/(?:\d+|self)\/environ)/i
 const BLOCKED_INTERPRETER_ENV =
   /(?:python[23]?|node|ruby|perl)\s+(?:-e|-c)\s+[^\n]*(?:os\.environ|process\.env|ENV\[|%ENV|ENVIRON)/i
 
-/** Check if a command is blocked for security reasons. Returns error message or null if allowed. */
+/**
+ * Check if a command is blocked for security reasons. Returns error message or null if allowed.
+ *
+ * @param command - Shell command string proposed for execution.
+ * @returns A human-readable block reason, or `null` when the command is allowed.
+ */
 export function checkBlockedCommand(command: string): string | null {
-  if (BLOCKED_COMMANDS.test(command)) return 'Command blocked: environment variable dumps are not allowed'
-  if (BLOCKED_PROC_REDIRECT.test(command)) return 'Command blocked: /proc/environ access is not allowed'
-  if (BLOCKED_INTERPRETER_ENV.test(command)) return 'Command blocked: interpreter environment dumps are not allowed'
+  if (BLOCKED_COMMANDS.test(command))
+    return 'Command blocked: environment variable dumps are not allowed'
+  if (BLOCKED_PROC_REDIRECT.test(command))
+    return 'Command blocked: /proc/environ access is not allowed'
+  if (BLOCKED_INTERPRETER_ENV.test(command))
+    return 'Command blocked: interpreter environment dumps are not allowed'
   return null
 }
 
@@ -71,6 +91,10 @@ export function checkBlockedCommand(command: string): string | null {
  * Normalize a path to be absolute within the project root.
  * Empty string and '/' both resolve to projectRoot.
  * Rejects paths that escape via traversal or absolute paths outside root.
+ *
+ * @param path - Relative or absolute path inside the workspace.
+ * @param projectRoot - Absolute filesystem root for the active project.
+ * @returns A normalized absolute path confined to `projectRoot`.
  */
 export function resolvePath(path: string, projectRoot: string): string {
   if (path === '' || path === '/') return projectRoot
@@ -85,6 +109,9 @@ export function resolvePath(path: string, projectRoot: string): string {
 /**
  * Validate that a glob/include pattern is safe (no shell metacharacters).
  * Only allows alphanumeric, *, ?, ., _, -, / characters.
+ *
+ * @param pattern - User-supplied glob fragment for search/list operations.
+ * @returns `true` when the pattern contains only allowed characters.
  */
 export function isValidGlob(pattern: string): boolean {
   return /^[a-zA-Z0-9*?._\-/]+$/.test(pattern)
@@ -103,7 +130,13 @@ export const MAX_SEARCH_RESULTS = 50
 /** Max find results. */
 export const MAX_FIND_RESULTS = 100
 
-/** Truncate a string to a max length with a truncation notice. */
+/**
+ * Truncate a string to a max length with a truncation notice.
+ *
+ * @param s - Arbitrary text to bound in size.
+ * @param maxLength - Maximum number of characters to retain before truncating.
+ * @returns Either the original string or a shortened copy with a trailing notice.
+ */
 export function truncate(s: string, maxLength: number): string {
   if (s.length <= maxLength) return s
   return s.substring(0, maxLength) + '\n\n... (truncated)'

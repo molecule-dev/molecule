@@ -53,7 +53,7 @@ export function hasProvider(): boolean {
 /**
  * Creates a kanban board instance using the bonded provider.
  *
- * @typeParam T - Application-specific card data type.
+ * @template T - Application-specific card data type.
  * @param options - Kanban board configuration.
  * @returns A kanban board instance.
  * @throws {Error} If no kanban provider has been bonded.

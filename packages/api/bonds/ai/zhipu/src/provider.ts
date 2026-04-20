@@ -29,7 +29,9 @@ interface ZhipuStreamState {
 
 /**
  * Map thinking budget tokens to Zhipu reasoning_effort level (only 'low' or 'high' supported).
- * @param budgetTokens
+ *
+ * @param budgetTokens - Requested thinking budget in tokens.
+ * @returns Either `'high'` or `'low'` for the upstream effort hint.
  */
 function budgetToEffort(budgetTokens: number): string {
   return budgetTokens >= 8_000 ? 'high' : 'low'

@@ -4,6 +4,8 @@
  * @module
  */
 
+import type { Server } from 'node:http'
+
 import type { ServerOptions } from 'ws'
 
 /**
@@ -21,7 +23,7 @@ export interface WsRealtimeConfig {
    * An existing Node.js HTTP server to attach the WebSocket server to.
    * If omitted, a standalone WebSocket server is created.
    */
-  httpServer?: import('node:http').Server
+  httpServer?: Server
 
   /**
    * Port to listen on when no `httpServer` is provided.

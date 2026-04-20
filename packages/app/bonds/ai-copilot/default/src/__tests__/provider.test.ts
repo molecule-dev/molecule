@@ -114,9 +114,7 @@ describe('@molecule/app-ai-copilot-default', () => {
     })
 
     it('should include custom headers from provider config', async () => {
-      mockFetch.mockResolvedValue(
-        createMockStreamResponse(['data: {"type":"done"}']),
-      )
+      mockFetch.mockResolvedValue(createMockStreamResponse(['data: {"type":"done"}']))
 
       const provider = new DefaultCopilotProvider({
         headers: { Authorization: 'Bearer my-token' },
@@ -261,10 +259,7 @@ describe('@molecule/app-ai-copilot-default', () => {
 
     it('should skip malformed JSON in SSE data', async () => {
       mockFetch.mockResolvedValue(
-        createMockStreamResponse([
-          'data: not-valid-json',
-          'data: {"type":"done"}',
-        ]),
+        createMockStreamResponse(['data: not-valid-json', 'data: {"type":"done"}']),
       )
 
       const provider = new DefaultCopilotProvider()

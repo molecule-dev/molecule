@@ -1,12 +1,13 @@
+import type { IncomingMessage, Server as HttpServer, ServerResponse } from 'node:http'
 import { createServer } from 'node:http'
-import type { Server as HttpServer, IncomingMessage, ServerResponse } from 'node:http'
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type {
-  RealtimeProvider,
   ConnectionHandler,
   DisconnectionHandler,
   MessageHandler,
+  RealtimeProvider,
 } from '@molecule/api-realtime'
 
 import { createProvider } from '../provider.js'

@@ -8,9 +8,9 @@
  * @module
  */
 
+import { TOOL_SCHEMAS } from './schemas.js'
 import type { ExecutionBackend, SkillEntry } from './types.js'
 import type { PromptContext } from './types.js'
-import { TOOL_SCHEMAS } from './schemas.js'
 
 /** Tool descriptions for the prompt, keyed by tool name. */
 const TOOL_DESCRIPTIONS: Record<string, string> = {
@@ -109,17 +109,25 @@ export async function discoverSkills(backend: ExecutionBackend): Promise<SkillEn
  * - Discovered skills listing (if provided)
  * - Inline skills (if provided)
  * - Custom sections (if provided)
+ *
+ * @param ctx - Prompt construction inputs (tools, docs, skills, etc.).
+ * @returns Fully assembled system prompt text for the coding agent.
  */
 export function buildAgentPrompt(ctx: PromptContext): string {
   const sections: string[] = []
 
   // Identity
-  sections.push(`You are ${ctx.agentName}, an AI coding agent with full access to the project at \`${ctx.projectRoot}\`.`)
+  sections.push(
+    `You are ${ctx.agentName}, an AI coding agent with full access to the project at \`${ctx.projectRoot}\`.`,
+  )
 
   // Tool listing
   const toolLines = ctx.tools
-    .filter(name => TOOL_DESCRIPTIONS[name] || TOOL_SCHEMAS[name])
-    .map(name => `- **${name}** — ${TOOL_DESCRIPTIONS[name] || TOOL_SCHEMAS[name]?.description || ''}`)
+    .filter((name) => TOOL_DESCRIPTIONS[name] || TOOL_SCHEMAS[name])
+    .map(
+      (name) =>
+        `- **${name}** — ${TOOL_DESCRIPTIONS[name] || TOOL_SCHEMAS[name]?.description || ''}`,
+    )
   if (toolLines.length > 0) {
     sections.push(`\n## Available Tools\n\n${toolLines.join('\n')}`)
   }
@@ -149,9 +157,11 @@ For edit_file: each old_string must match **exactly once** in the file. If it ma
   // Discovered skills (on-demand via load_skill)
   if (ctx.discoveredSkills?.length) {
     const skillLines = ctx.discoveredSkills.map(
-      s => `- **${s.name}** — ${s.description} \u2192 \`${s.path}\``,
+      (s) => `- **${s.name}** — ${s.description} \u2192 \`${s.path}\``,
     )
-    sections.push(`\n## Available Skills\n\nThe project has detailed skill guides. Use \`load_skill\` to read them when relevant:\n${skillLines.join('\n')}`)
+    sections.push(
+      `\n## Available Skills\n\nThe project has detailed skill guides. Use \`load_skill\` to read them when relevant:\n${skillLines.join('\n')}`,
+    )
   }
 
   // Inline skills (full content injected directly)

@@ -31,6 +31,7 @@ export const createRoom = async (name: string, options?: RoomOptions): Promise<R
  *
  * @param roomId - The room to join.
  * @param clientId - The client joining the room.
+ * @returns Resolves when the join operation completes.
  * @throws {Error} If no realtime provider has been bonded.
  */
 export const joinRoom = async (roomId: string, clientId: string): Promise<void> => {
@@ -42,6 +43,7 @@ export const joinRoom = async (roomId: string, clientId: string): Promise<void> 
  *
  * @param roomId - The room to leave.
  * @param clientId - The client leaving the room.
+ * @returns Resolves when the leave operation completes.
  * @throws {Error} If no realtime provider has been bonded.
  */
 export const leaveRoom = async (roomId: string, clientId: string): Promise<void> => {
@@ -54,6 +56,7 @@ export const leaveRoom = async (roomId: string, clientId: string): Promise<void>
  * @param roomId - The target room.
  * @param event - The event name.
  * @param data - The event payload.
+ * @returns Resolves when the broadcast completes.
  * @throws {Error} If no realtime provider has been bonded.
  */
 export const broadcast = async (roomId: string, event: string, data: unknown): Promise<void> => {
@@ -66,6 +69,7 @@ export const broadcast = async (roomId: string, event: string, data: unknown): P
  * @param clientId - The target client.
  * @param event - The event name.
  * @param data - The event payload.
+ * @returns Resolves when the message is delivered to the transport layer.
  * @throws {Error} If no realtime provider has been bonded.
  */
 export const sendTo = async (clientId: string, event: string, data: unknown): Promise<void> => {
@@ -126,6 +130,7 @@ export const getRooms = async (): Promise<Room[]> => {
 /**
  * Shuts down the bonded realtime provider and cleans up resources.
  *
+ * @returns Resolves when sockets and timers are torn down.
  * @throws {Error} If no realtime provider has been bonded.
  */
 export const close = async (): Promise<void> => {

@@ -42,7 +42,7 @@ export function hasProvider(): boolean {
  * Retrieves the bonded markdown provider, throwing if none is configured.
  *
  * @returns The active markdown provider.
- * @throws Error if no provider has been bonded.
+ * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): MarkdownProvider {
   if (!_provider) {

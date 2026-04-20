@@ -6,8 +6,8 @@ import type {
   CommandPaletteOptions,
 } from '@molecule/app-command-palette'
 
-import type { CmdkPaletteInstance } from '../types.js'
 import { createCmdkProvider, provider } from '../provider.js'
+import type { CmdkPaletteInstance } from '../types.js'
 
 // ---------------------------------------------------------------------------
 // Test data

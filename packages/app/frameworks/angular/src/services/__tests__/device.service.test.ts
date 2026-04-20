@@ -62,7 +62,6 @@ const mockFeatureSupport = {
   clipboard: true,
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createMockProvider = () => ({
   getDeviceInfo: vi.fn().mockReturnValue(mockDeviceInfo),
   getScreenInfo: vi.fn().mockReturnValue(mockScreenInfo),

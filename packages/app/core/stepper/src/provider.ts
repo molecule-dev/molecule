@@ -42,7 +42,7 @@ export function hasProvider(): boolean {
  * Retrieves the bonded stepper provider, throwing if none is configured.
  *
  * @returns The active stepper provider.
- * @throws Error if no provider has been bonded.
+ * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): StepperProvider {
   if (!_provider) {

@@ -37,7 +37,7 @@ export interface FetchOptions {
 /**
  * A generic paginated result set.
  *
- * @typeParam T - The type of items in the result set.
+ * @template T - The type of items in the result set.
  */
 export interface PaginatedResult<T> {
   /** The items for the current page. */
@@ -86,7 +86,7 @@ export interface AppNotification {
  * Minimal realtime transport interface for receiving push notifications.
  *
  * Any object with `on` / `off` methods satisfies this contract — including
- * a {@link @molecule/app-realtime#RealtimeConnection}.
+ * a realtime connection from the `@molecule/app-realtime` package.
  */
 export interface NotificationRealtimeAdapter {
   /**

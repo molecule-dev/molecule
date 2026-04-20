@@ -1,5 +1,5 @@
 /**
- * Cropper.js provider for @molecule/app-image-crop.
+ * Cropper.js provider for \@molecule/app-image-crop.
  *
  * Provides an in-memory image crop implementation conforming to
  * the molecule image crop provider interface.

@@ -1,5 +1,5 @@
 /**
- * Default provider for @molecule/app-tree-view.
+ * Default provider for \@molecule/app-tree-view.
  *
  * Provides an in-memory tree view implementation with node management,
  * selection, and expansion control.

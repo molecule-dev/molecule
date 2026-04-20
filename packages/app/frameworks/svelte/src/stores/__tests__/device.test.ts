@@ -10,7 +10,6 @@ import { getProvider } from '@molecule/app-device'
 
 const mockGetProvider = getProvider as ReturnType<typeof vi.fn>
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function createMockProvider() {
   return {
     getDeviceInfo: vi.fn(() => ({

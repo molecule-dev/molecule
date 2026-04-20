@@ -155,7 +155,11 @@ class PgvectorProvider implements AIVectorStoreProvider {
     }
   }
 
-  /** Fully-qualified name of the collections registry table. */
+  /**
+   * Fully-qualified name of the collections registry table.
+   *
+   * @returns The quoted schema.table identifier for the registry.
+   */
   private get registryTable(): string {
     return `"${this.schema}"."${this.tablePrefix}collections"`
   }
@@ -189,7 +193,7 @@ class PgvectorProvider implements AIVectorStoreProvider {
    * and HNSW index for fast similarity search.
    *
    * @param params - Collection creation parameters.
-   * @throws Error if the collection already exists.
+   * @throws {Error} if the collection already exists.
    */
   async createCollection(params: CreateCollectionParams): Promise<void> {
     await this.ensureInitialized()
@@ -280,7 +284,7 @@ class PgvectorProvider implements AIVectorStoreProvider {
    * new records are inserted.
    *
    * @param params - Upsert parameters including collection and records.
-   * @throws Error if the collection does not exist.
+   * @throws {Error} if the collection does not exist.
    */
   async upsert(params: VectorUpsertParams): Promise<void> {
     if (params.records.length === 0) return
@@ -324,7 +328,7 @@ class PgvectorProvider implements AIVectorStoreProvider {
    *
    * @param params - Query parameters including embedding, topK, and optional filters.
    * @returns Results sorted by similarity (highest first).
-   * @throws Error if the collection does not exist.
+   * @throws {Error} if the collection does not exist.
    */
   async query(params: VectorQueryParams): Promise<VectorSearchResult[]> {
     await this.ensureInitialized()

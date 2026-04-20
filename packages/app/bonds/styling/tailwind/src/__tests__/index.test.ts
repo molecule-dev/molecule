@@ -1286,8 +1286,9 @@ describe('Integration tests', () => {
   })
 
   it('should combine show/hide with other classes', () => {
-    const result = cn('flex', show('tablet'), 'gap-4')
-    expect(result).toContain('flex')
+    // `show()` includes `hidden`, which conflicts with `flex` in tailwind-merge (both set display).
+    const result = cn('rounded-lg', show('tablet'), 'gap-4')
+    expect(result).toContain('rounded-lg')
     expect(result).toContain('hidden')
     expect(result).toContain('tablet:block')
     expect(result).toContain('gap-4')

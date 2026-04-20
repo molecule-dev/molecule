@@ -42,7 +42,7 @@ export function hasProvider(): boolean {
  * Retrieves the bonded keyboard shortcuts provider, throwing if none is configured.
  *
  * @returns The active keyboard shortcuts provider.
- * @throws Error if no provider has been bonded.
+ * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): KeyboardShortcutsProvider {
   if (!_provider) {

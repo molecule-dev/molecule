@@ -101,6 +101,7 @@ export const getAllFlags = async (): Promise<FeatureFlag[]> => {
  * Deletes a feature flag using the bonded provider.
  *
  * @param flag - The flag name/key to delete.
+ * @returns Resolves when the flag is removed.
  * @throws {Error} If no feature flag provider has been bonded.
  */
 export const deleteFlag = async (flag: string): Promise<void> => {

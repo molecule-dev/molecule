@@ -52,10 +52,7 @@ function mockErrorResponse(
 }
 
 /** Creates a retryable error response with optional Retry-After header. */
-function mockRetryableResponse(
-  status: number,
-  retryAfter?: string,
-): Record<string, unknown> {
+function mockRetryableResponse(status: number, retryAfter?: string): Record<string, unknown> {
   const headers = new Headers()
   if (retryAfter) headers.set('retry-after', retryAfter)
   return {
@@ -537,9 +534,7 @@ describe('StabilityAIProvider', () => {
       const p = createProvider({ apiKey: 'test-key', baseUrl: 'https://test.api', maxRetries: 0 })
       mockFetch.mockResolvedValue(mockRetryableResponse(429))
 
-      await expect(p.generate({ prompt: 'a cat' })).rejects.toThrow(
-        'Stability AI API error (429)',
-      )
+      await expect(p.generate({ prompt: 'a cat' })).rejects.toThrow('Stability AI API error (429)')
       expect(mockFetch).toHaveBeenCalledTimes(1)
       vi.useFakeTimers()
     })

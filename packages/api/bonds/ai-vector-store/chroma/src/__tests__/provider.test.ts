@@ -202,10 +202,7 @@ describe('ChromaProvider', () => {
 
     it('filters only collections with configured prefix', async () => {
       const provider = createProvider({ collectionPrefix: 'vs_' })
-      mockClient.listCollections.mockResolvedValue([
-        { name: 'vs_alpha' },
-        { name: 'mol_beta' },
-      ])
+      mockClient.listCollections.mockResolvedValue([{ name: 'vs_alpha' }, { name: 'mol_beta' }])
 
       const collections = await provider.listCollections()
       expect(collections).toEqual(['alpha'])
@@ -271,7 +268,10 @@ describe('ChromaProvider', () => {
 
       expect(mockCollection.upsert).toHaveBeenCalledWith({
         ids: ['a', 'b'],
-        embeddings: [[1, 2], [3, 4]],
+        embeddings: [
+          [1, 2],
+          [3, 4],
+        ],
         metadatas: [{ type: 'pdf' }, { _content: 'text' }],
       })
     })
@@ -317,7 +317,12 @@ describe('ChromaProvider', () => {
       const provider = createProvider()
       mockCollection.query.mockResolvedValue({
         ids: [['doc-1', 'doc-2']],
-        embeddings: [[[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]]],
+        embeddings: [
+          [
+            [0.1, 0.2, 0.3],
+            [0.4, 0.5, 0.6],
+          ],
+        ],
         metadatas: [[{ source: 'web', _content: 'Hello world' }, {}]],
         distances: [[0.05, 0.3]],
         documents: [[null, null]],
@@ -374,7 +379,12 @@ describe('ChromaProvider', () => {
       const provider = createProvider()
       mockCollection.query.mockResolvedValue({
         ids: [['close', 'far']],
-        embeddings: [[[0.1, 0.2], [0.9, 0.8]]],
+        embeddings: [
+          [
+            [0.1, 0.2],
+            [0.9, 0.8],
+          ],
+        ],
         metadatas: [[{}, {}]],
         distances: [[0.05, 0.8]],
         documents: [[null, null]],
@@ -538,9 +548,7 @@ describe('ChromaProvider', () => {
 
       await provider.query({ collection: 'docs', embedding: [0.1, 0.2] })
 
-      expect(mockCollection.query).toHaveBeenCalledWith(
-        expect.objectContaining({ nResults: 10 }),
-      )
+      expect(mockCollection.query).toHaveBeenCalledWith(expect.objectContaining({ nResults: 10 }))
     })
 
     it('skips results with null distances', async () => {
@@ -661,10 +669,7 @@ describe('ChromaProvider', () => {
       const provider = createProvider({ collectionPrefix: 'vs_' })
       mockClient.createCollection.mockResolvedValue(mockCollection)
       mockClient.deleteCollection.mockResolvedValue(undefined)
-      mockClient.listCollections.mockResolvedValue([
-        { name: 'vs_alpha' },
-        { name: 'mol_other' },
-      ])
+      mockClient.listCollections.mockResolvedValue([{ name: 'vs_alpha' }, { name: 'mol_other' }])
 
       await provider.createCollection({ name: 'docs', dimension: 256 })
       expect(mockClient.createCollection).toHaveBeenCalledWith(

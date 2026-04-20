@@ -4,11 +4,16 @@
  * @module
  */
 
+import { twMerge } from 'tailwind-merge'
+
 import type { ClassValue, CVAConfig } from './types.js'
 
 /**
  * Merges class names, filtering out falsy values. Supports strings,
  * numbers, conditional objects, and nested arrays.
+ *
+ * Resolves conflicting Tailwind utilities (e.g. two `gap-*` classes from
+ * `cm.grid({ cols: 12 })` plus a literal `'gap-10'`) via `tailwind-merge`.
  *
  * @param classes - Class values to merge (strings, booleans, objects, arrays).
  * @returns A single space-separated class string.
@@ -20,7 +25,7 @@ import type { ClassValue, CVAConfig } from './types.js'
  * ```
  */
 export const cn = (...classes: ClassValue[]): string => {
-  return classes
+  const joined = classes
     .flat()
     .filter((c): c is string | number | Record<string, boolean | undefined | null> => {
       if (c === null || c === undefined || c === false || c === '') return false
@@ -38,6 +43,7 @@ export const cn = (...classes: ClassValue[]): string => {
     })
     .join(' ')
     .trim()
+  return joined === '' ? '' : twMerge(joined)
 }
 
 /**

@@ -11,7 +11,6 @@ import { getProvider } from '@molecule/app-push'
 
 const mockGetProvider = vi.mocked(getProvider)
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createMockProvider = () => ({
   checkPermission: vi.fn().mockResolvedValue('default' as const),
   requestPermission: vi.fn().mockResolvedValue('granted' as const),

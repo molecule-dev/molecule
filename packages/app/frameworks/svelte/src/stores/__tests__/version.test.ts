@@ -11,7 +11,6 @@ import { getProvider } from '@molecule/app-version'
 
 const mockGetProvider = getProvider as ReturnType<typeof vi.fn>
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function createMockProvider() {
   const handlers = new Map<string, Set<(...args: unknown[]) => void>>()
 

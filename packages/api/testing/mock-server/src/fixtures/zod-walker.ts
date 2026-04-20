@@ -3,8 +3,8 @@
  * Handles the Zod 4 type system for deterministic data generation.
  */
 
-import type { ZodSchemaDefinition, FixtureConfig } from '../types.js'
-import { createSeededRandom, seedFromPath, seededUUID } from './seed.js'
+import type { FixtureConfig, ZodSchemaDefinition } from '../types.js'
+import { createSeededRandom, seededUUID, seedFromPath } from './seed.js'
 import { applySemanticRules } from './semantic-generator.js'
 
 /**
@@ -19,7 +19,7 @@ export function walkSchema(
   schema: ZodSchemaDefinition,
   fieldName: string,
   rng: () => number,
-  index: number
+  index: number,
 ): unknown {
   switch (schema.type) {
     case 'ZodObject':
@@ -83,11 +83,14 @@ export function walkSchema(
 
 /**
  * Walk a ZodObject schema to produce a conformant object.
+ * @param schema
+ * @param rng
+ * @param index
  */
 function walkObject(
   schema: ZodSchemaDefinition,
   rng: () => number,
-  index: number
+  index: number,
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {}
   if (schema.shape) {
@@ -100,12 +103,16 @@ function walkObject(
 
 /**
  * Walk a ZodArray schema to produce a conformant array.
+ * @param schema
+ * @param fieldName
+ * @param rng
+ * @param index
  */
 function walkArray(
   schema: ZodSchemaDefinition,
   fieldName: string,
   rng: () => number,
-  index: number
+  index: number,
 ): unknown[] {
   const count = schema.constraints?.min ?? 2
   const elementType = schema.elementType ?? { type: 'ZodString' }
@@ -118,12 +125,16 @@ function walkArray(
 
 /**
  * Walk a ZodString schema, applying semantic rules for realistic values.
+ * @param _schema
+ * @param fieldName
+ * @param rng
+ * @param index
  */
 function walkString(
   _schema: ZodSchemaDefinition,
   fieldName: string,
   rng: () => number,
-  index: number
+  index: number,
 ): string {
   // Try semantic rule first
   const semantic = applySemanticRules(fieldName, rng, index)
@@ -136,12 +147,16 @@ function walkString(
 
 /**
  * Walk a ZodNumber schema, applying semantic rules and constraints.
+ * @param schema
+ * @param fieldName
+ * @param rng
+ * @param index
  */
 function walkNumber(
   schema: ZodSchemaDefinition,
   fieldName: string,
   rng: () => number,
-  index: number
+  index: number,
 ): number {
   // Try semantic rule first
   const semantic = applySemanticRules(fieldName, rng, index)
@@ -179,7 +194,7 @@ function walkNumber(
 export function generateRecord(
   schema: ZodSchemaDefinition | undefined,
   rng: () => number,
-  index: number
+  index: number,
 ): Record<string, unknown> {
   const base: Record<string, unknown> = {
     id: seededUUID(rng),
@@ -210,7 +225,7 @@ export function generateRecords(
   count: number,
   appType: string,
   path: string,
-  config?: FixtureConfig
+  config?: FixtureConfig,
 ): Record<string, unknown>[] {
   const seed = config?.seed ?? seedFromPath(appType, path)
   const rng = createSeededRandom(seed)

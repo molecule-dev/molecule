@@ -1,5 +1,5 @@
 /**
- * Default provider for @molecule/app-timeline.
+ * Default provider for \@molecule/app-timeline.
  *
  * Provides an in-memory timeline implementation with sorting
  * and item management.

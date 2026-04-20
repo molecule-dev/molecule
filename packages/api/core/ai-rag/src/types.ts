@@ -8,7 +8,7 @@
  */
 
 /**
- *
+ * Live AI RAG integration contract (TODO: expand methods).
  */
 export interface AIRagProvider {
   readonly name: string
@@ -16,7 +16,7 @@ export interface AIRagProvider {
 }
 
 /**
- *
+ * Config options for an AI RAG bond (TODO: tighten schema).
  */
 export interface AIRagConfig {
   // TODO: Define configuration options

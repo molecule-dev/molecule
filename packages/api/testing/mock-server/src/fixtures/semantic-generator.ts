@@ -4,109 +4,278 @@
  */
 
 import type { SemanticRule } from '../types.js'
-import { pick, randomDollars, randomInt, recentDate, seededUUID, futureDate } from './seed.js'
+import { futureDate, pick, randomDollars, randomInt, recentDate, seededUUID } from './seed.js'
 
 /* ------------------------------------------------------------------ */
 /*  Realistic Data Pools                                               */
 /* ------------------------------------------------------------------ */
 
 const FIRST_NAMES = [
-  'Emma', 'Liam', 'Olivia', 'Noah', 'Ava', 'James', 'Sophia', 'William',
-  'Isabella', 'Benjamin', 'Mia', 'Lucas', 'Charlotte', 'Henry', 'Amelia',
-  'Alexander', 'Harper', 'Daniel', 'Evelyn', 'Michael'
+  'Emma',
+  'Liam',
+  'Olivia',
+  'Noah',
+  'Ava',
+  'James',
+  'Sophia',
+  'William',
+  'Isabella',
+  'Benjamin',
+  'Mia',
+  'Lucas',
+  'Charlotte',
+  'Henry',
+  'Amelia',
+  'Alexander',
+  'Harper',
+  'Daniel',
+  'Evelyn',
+  'Michael',
 ] as const
 
 const LAST_NAMES = [
-  'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller',
-  'Davis', 'Rodriguez', 'Martinez', 'Anderson', 'Taylor', 'Thomas',
-  'Jackson', 'White', 'Harris', 'Clark', 'Lewis', 'Robinson', 'Walker'
+  'Smith',
+  'Johnson',
+  'Williams',
+  'Brown',
+  'Jones',
+  'Garcia',
+  'Miller',
+  'Davis',
+  'Rodriguez',
+  'Martinez',
+  'Anderson',
+  'Taylor',
+  'Thomas',
+  'Jackson',
+  'White',
+  'Harris',
+  'Clark',
+  'Lewis',
+  'Robinson',
+  'Walker',
 ] as const
 
 const EMAIL_DOMAINS = [
-  'gmail.com', 'outlook.com', 'yahoo.com', 'icloud.com', 'protonmail.com'
+  'gmail.com',
+  'outlook.com',
+  'yahoo.com',
+  'icloud.com',
+  'protonmail.com',
 ] as const
 
 const MERCHANT_NAMES = [
-  'Whole Foods Market', 'Target', 'Amazon.com', 'Starbucks', 'Costco',
-  'Trader Joes', 'Walmart Supercenter', 'Shell Gas Station', 'CVS Pharmacy',
-  'Uber Eats', 'Netflix', 'Spotify Premium', 'Apple Store', 'Home Depot',
-  'Chipotle Mexican Grill', 'DoorDash', 'Safeway', 'Verizon Wireless',
-  'Delta Air Lines', 'Nordstrom', 'REI Co-op', 'Petco', 'IKEA',
-  'Sephora', 'Nike.com', 'Lyft', 'AT&T', 'United Airlines',
-  'Panera Bread', 'Best Buy'
+  'Whole Foods Market',
+  'Target',
+  'Amazon.com',
+  'Starbucks',
+  'Costco',
+  'Trader Joes',
+  'Walmart Supercenter',
+  'Shell Gas Station',
+  'CVS Pharmacy',
+  'Uber Eats',
+  'Netflix',
+  'Spotify Premium',
+  'Apple Store',
+  'Home Depot',
+  'Chipotle Mexican Grill',
+  'DoorDash',
+  'Safeway',
+  'Verizon Wireless',
+  'Delta Air Lines',
+  'Nordstrom',
+  'REI Co-op',
+  'Petco',
+  'IKEA',
+  'Sephora',
+  'Nike.com',
+  'Lyft',
+  'AT&T',
+  'United Airlines',
+  'Panera Bread',
+  'Best Buy',
 ] as const
 
 const CATEGORY_NAMES = [
-  'Groceries', 'Dining', 'Transportation', 'Entertainment', 'Shopping',
-  'Utilities', 'Healthcare', 'Education', 'Travel', 'Insurance',
-  'Housing', 'Personal Care', 'Gifts', 'Subscriptions', 'Fitness'
+  'Groceries',
+  'Dining',
+  'Transportation',
+  'Entertainment',
+  'Shopping',
+  'Utilities',
+  'Healthcare',
+  'Education',
+  'Travel',
+  'Insurance',
+  'Housing',
+  'Personal Care',
+  'Gifts',
+  'Subscriptions',
+  'Fitness',
 ] as const
 
 const INSTITUTION_NAMES = [
-  'Chase', 'Bank of America', 'Wells Fargo', 'Citibank', 'US Bank',
-  'Capital One', 'TD Bank', 'PNC Bank', 'Ally Bank', 'Marcus by Goldman Sachs',
-  'American Express', 'Discover', 'Fidelity', 'Vanguard', 'Charles Schwab'
+  'Chase',
+  'Bank of America',
+  'Wells Fargo',
+  'Citibank',
+  'US Bank',
+  'Capital One',
+  'TD Bank',
+  'PNC Bank',
+  'Ally Bank',
+  'Marcus by Goldman Sachs',
+  'American Express',
+  'Discover',
+  'Fidelity',
+  'Vanguard',
+  'Charles Schwab',
 ] as const
 
-
 const COLORS = [
-  '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
-  '#EC4899', '#06B6D4', '#F97316', '#6366F1', '#14B8A6'
+  '#3B82F6',
+  '#EF4444',
+  '#10B981',
+  '#F59E0B',
+  '#8B5CF6',
+  '#EC4899',
+  '#06B6D4',
+  '#F97316',
+  '#6366F1',
+  '#14B8A6',
 ] as const
 
 const ICONS = [
-  'wallet', 'credit-card', 'bank', 'piggy-bank', 'chart-line',
-  'receipt', 'shopping-cart', 'home', 'car', 'utensils',
-  'film', 'music', 'book', 'heart', 'gift'
+  'wallet',
+  'credit-card',
+  'bank',
+  'piggy-bank',
+  'chart-line',
+  'receipt',
+  'shopping-cart',
+  'home',
+  'car',
+  'utensils',
+  'film',
+  'music',
+  'book',
+  'heart',
+  'gift',
 ] as const
 
 const PRODUCT_ADJECTIVES = [
-  'Premium', 'Classic', 'Ultra', 'Pro', 'Essential', 'Deluxe',
-  'Vintage', 'Modern', 'Artisan', 'Organic', 'Handcrafted'
+  'Premium',
+  'Classic',
+  'Ultra',
+  'Pro',
+  'Essential',
+  'Deluxe',
+  'Vintage',
+  'Modern',
+  'Artisan',
+  'Organic',
+  'Handcrafted',
 ] as const
 
 const PRODUCT_NOUNS = [
-  'Headphones', 'Backpack', 'Watch', 'Notebook', 'Sneakers',
-  'Sunglasses', 'Wallet', 'Mug', 'Candle', 'Blanket',
-  'Jacket', 'T-Shirt', 'Hat', 'Scarf', 'Gloves'
+  'Headphones',
+  'Backpack',
+  'Watch',
+  'Notebook',
+  'Sneakers',
+  'Sunglasses',
+  'Wallet',
+  'Mug',
+  'Candle',
+  'Blanket',
+  'Jacket',
+  'T-Shirt',
+  'Hat',
+  'Scarf',
+  'Gloves',
 ] as const
 
 const REVIEW_TITLES = [
-  'Absolutely love it!', 'Great quality', 'Worth every penny', 'Exceeded expectations',
-  'Good but not perfect', 'Solid purchase', 'Highly recommend', 'Pretty decent',
-  'Amazing craftsmanship', 'Perfect gift'
+  'Absolutely love it!',
+  'Great quality',
+  'Worth every penny',
+  'Exceeded expectations',
+  'Good but not perfect',
+  'Solid purchase',
+  'Highly recommend',
+  'Pretty decent',
+  'Amazing craftsmanship',
+  'Perfect gift',
 ] as const
 
 const STREET_NAMES = [
-  'Main St', 'Oak Ave', 'Maple Dr', 'Cedar Ln', 'Elm St',
-  'Park Blvd', 'Washington Ave', 'Lake Dr', 'Hill Rd', 'River Way'
+  'Main St',
+  'Oak Ave',
+  'Maple Dr',
+  'Cedar Ln',
+  'Elm St',
+  'Park Blvd',
+  'Washington Ave',
+  'Lake Dr',
+  'Hill Rd',
+  'River Way',
 ] as const
 
 const CITIES = [
-  'San Francisco', 'New York', 'Austin', 'Denver', 'Portland',
-  'Seattle', 'Chicago', 'Boston', 'Nashville', 'Miami'
+  'San Francisco',
+  'New York',
+  'Austin',
+  'Denver',
+  'Portland',
+  'Seattle',
+  'Chicago',
+  'Boston',
+  'Nashville',
+  'Miami',
 ] as const
 
-const STATES = [
-  'CA', 'NY', 'TX', 'CO', 'OR', 'WA', 'IL', 'MA', 'TN', 'FL'
-] as const
+const STATES = ['CA', 'NY', 'TX', 'CO', 'OR', 'WA', 'IL', 'MA', 'TN', 'FL'] as const
 
 const COUNTRIES = ['US', 'CA', 'GB', 'DE', 'FR', 'AU', 'JP'] as const
 
 const NOTES = [
-  'Regular monthly payment', 'One-time purchase', 'Recurring subscription',
-  'Reimbursable expense', 'Shared with roommate', 'Tax deductible',
-  'Business expense', 'Auto-pay enrolled', '', ''
+  'Regular monthly payment',
+  'One-time purchase',
+  'Recurring subscription',
+  'Reimbursable expense',
+  'Shared with roommate',
+  'Tax deductible',
+  'Business expense',
+  'Auto-pay enrolled',
+  '',
+  '',
 ] as const
 
 const SKUS = [
-  'SKU-001', 'SKU-002', 'SKU-003', 'SKU-004', 'SKU-005',
-  'SKU-006', 'SKU-007', 'SKU-008', 'SKU-009', 'SKU-010'
+  'SKU-001',
+  'SKU-002',
+  'SKU-003',
+  'SKU-004',
+  'SKU-005',
+  'SKU-006',
+  'SKU-007',
+  'SKU-008',
+  'SKU-009',
+  'SKU-010',
 ] as const
 
 const TAGS = [
-  'new', 'sale', 'popular', 'limited', 'bestseller',
-  'eco-friendly', 'handmade', 'premium', 'organic', 'vegan'
+  'new',
+  'sale',
+  'popular',
+  'limited',
+  'bestseller',
+  'eco-friendly',
+  'handmade',
+  'premium',
+  'organic',
+  'vegan',
 ] as const
 
 /* ------------------------------------------------------------------ */
@@ -292,7 +461,7 @@ export const defaultSemanticRules: SemanticRule[] = [
   },
   {
     pattern: /^line2$|^address_line_?2$/i,
-    generate: (rng) => rng() > 0.6 ? `Apt ${randomInt(rng, 1, 400)}` : '',
+    generate: (rng) => (rng() > 0.6 ? `Apt ${randomInt(rng, 1, 400)}` : ''),
   },
   {
     pattern: /^city$/i,
@@ -357,7 +526,7 @@ export function applySemanticRules(
   fieldName: string,
   rng: () => number,
   index: number,
-  rules: SemanticRule[] = defaultSemanticRules
+  rules: SemanticRule[] = defaultSemanticRules,
 ): unknown | undefined {
   for (const rule of rules) {
     if (rule.pattern.test(fieldName)) {

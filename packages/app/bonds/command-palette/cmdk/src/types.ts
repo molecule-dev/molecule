@@ -4,6 +4,8 @@
  * @module
  */
 
+import type { CommandGroup, CommandItem } from '@molecule/app-command-palette'
+
 /**
  * Provider-specific configuration for the cmdk command palette provider.
  */
@@ -33,15 +35,15 @@ export interface CmdkPaletteInstance {
   isOpen(): boolean
   getQuery(): string
   setQuery(query: string): void
-  getFilteredGroups(): import('@molecule/app-command-palette').CommandGroup[]
+  getFilteredGroups(): CommandGroup[]
   pushPage(pageId: string): void
   popPage(): boolean
   getPageStack(): string[]
   getCurrentPage(): string
-  setGroups(groups: import('@molecule/app-command-palette').CommandGroup[]): void
-  addGroup(group: import('@molecule/app-command-palette').CommandGroup): void
+  setGroups(groups: CommandGroup[]): void
+  addGroup(group: CommandGroup): void
   removeGroup(groupId: string): void
-  addCommand(groupId: string, command: import('@molecule/app-command-palette').CommandItem): void
+  addCommand(groupId: string, command: CommandItem): void
   removeCommand(commandId: string): void
   destroy(): void
 

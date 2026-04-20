@@ -11,7 +11,6 @@ import { createCapacitorApp } from '@molecule/app-platform'
 
 const mockCreateCapacitorApp = createCapacitorApp as ReturnType<typeof vi.fn>
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function createMockApp() {
   const listeners = new Set<(state: Record<string, unknown>) => void>()
   let state = {

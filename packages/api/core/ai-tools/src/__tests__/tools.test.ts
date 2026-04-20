@@ -1,5 +1,15 @@
-import { describe, it, expect, vi } from 'vitest'
-import { buildTools, createLocalBackend, buildAgentPrompt, discoverSkills, shellQuote, resolvePath, redactSecrets, isValidGlob, TOOL_SCHEMAS } from '../index.js'
+import { describe, expect, it, vi } from 'vitest'
+
+import {
+  buildAgentPrompt,
+  buildTools,
+  discoverSkills,
+  isValidGlob,
+  redactSecrets,
+  resolvePath,
+  shellQuote,
+  TOOL_SCHEMAS,
+} from '../index.js'
 import type { ExecutionBackend } from '../types.js'
 
 // ── Utilities ───────────────────────────────────────────────────────────────
@@ -58,7 +68,20 @@ describe('isValidGlob', () => {
 
 describe('TOOL_SCHEMAS', () => {
   it('has all expected tools', () => {
-    const expected = ['list_files', 'read_file', 'write_file', 'edit_file', 'search_files', 'find_files', 'create_directory', 'rename_file', 'delete_file', 'exec_command', 'save_plan', 'load_skill']
+    const expected = [
+      'list_files',
+      'read_file',
+      'write_file',
+      'edit_file',
+      'search_files',
+      'find_files',
+      'create_directory',
+      'rename_file',
+      'delete_file',
+      'exec_command',
+      'save_plan',
+      'load_skill',
+    ]
     for (const name of expected) {
       expect(TOOL_SCHEMAS[name]).toBeDefined()
       expect(TOOL_SCHEMAS[name].name).toBe(name)
@@ -84,7 +107,7 @@ describe('buildTools', () => {
   it('returns all tools by default', () => {
     const tools = buildTools(mockBackend())
     expect(tools.length).toBeGreaterThanOrEqual(10)
-    const names = tools.map(t => t.name)
+    const names = tools.map((t) => t.name)
     expect(names).toContain('read_file')
     expect(names).toContain('write_file')
     expect(names).toContain('edit_file')
@@ -98,21 +121,21 @@ describe('buildTools', () => {
   it('respects include filter', () => {
     const tools = buildTools(mockBackend(), { include: ['read_file', 'write_file'] })
     expect(tools.length).toBe(2)
-    expect(tools.map(t => t.name)).toEqual(['read_file', 'write_file'])
+    expect(tools.map((t) => t.name)).toEqual(['read_file', 'write_file'])
   })
 
   it('respects exclude filter', () => {
     const tools = buildTools(mockBackend(), { exclude: ['save_plan', 'load_skill'] })
-    expect(tools.find(t => t.name === 'save_plan')).toBeUndefined()
-    expect(tools.find(t => t.name === 'load_skill')).toBeUndefined()
-    expect(tools.find(t => t.name === 'read_file')).toBeDefined()
+    expect(tools.find((t) => t.name === 'save_plan')).toBeUndefined()
+    expect(tools.find((t) => t.name === 'load_skill')).toBeUndefined()
+    expect(tools.find((t) => t.name === 'read_file')).toBeDefined()
   })
 
   it('read_file returns structured result', async () => {
     const backend = mockBackend()
     const tools = buildTools(backend)
-    const readFile = tools.find(t => t.name === 'read_file')!
-    const result = await readFile.execute({ path: '/test/file.ts' }) as Record<string, unknown>
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: '/test/file.ts' })) as Record<string, unknown>
     expect(result.path).toBe('/test/file.ts')
     expect(result.content).toBe('file content')
   })
@@ -121,8 +144,12 @@ describe('buildTools', () => {
     const backend = mockBackend()
     ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('hello world')
     const tools = buildTools(backend)
-    const editFile = tools.find(t => t.name === 'edit_file')!
-    const result = await editFile.execute({ path: '/test/file.ts', old_string: 'hello', new_string: 'goodbye' }) as Record<string, unknown>
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/file.ts',
+      old_string: 'hello',
+      new_string: 'goodbye',
+    })) as Record<string, unknown>
     expect(result.ok).toBe(true)
     expect(result.replacementsApplied).toBe(1)
   })
@@ -131,22 +158,22 @@ describe('buildTools', () => {
     const backend = mockBackend()
     ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('aaa bbb ccc')
     const tools = buildTools(backend)
-    const editFile = tools.find(t => t.name === 'edit_file')!
-    const result = await editFile.execute({
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
       path: '/test/file.ts',
       replacements: [
         { old_string: 'aaa', new_string: 'xxx' },
         { old_string: 'bbb', new_string: 'yyy' },
       ],
-    }) as Record<string, unknown>
+    })) as Record<string, unknown>
     expect(result.ok).toBe(true)
     expect(result.replacementsApplied).toBe(2)
   })
 
   it('exec_command blocks dangerous commands when configured', async () => {
     const tools = buildTools(mockBackend(), { blockDangerousCommands: true })
-    const execCmd = tools.find(t => t.name === 'exec_command')!
-    const result = await execCmd.execute({ command: 'env' }) as Record<string, unknown>
+    const execCmd = tools.find((t) => t.name === 'exec_command')!
+    const result = (await execCmd.execute({ command: 'env' })) as Record<string, unknown>
     expect(result.error).toContain('blocked')
   })
 })
@@ -189,7 +216,13 @@ describe('buildAgentPrompt', () => {
       agentName: 'Test',
       projectRoot: '/test',
       tools: ['load_skill'],
-      discoveredSkills: [{ name: 'styling', description: 'ClassMap patterns', path: '.agents/skills/styling/SKILL.md' }],
+      discoveredSkills: [
+        {
+          name: 'styling',
+          description: 'ClassMap patterns',
+          path: '.agents/skills/styling/SKILL.md',
+        },
+      ],
     })
     expect(prompt).toContain('styling')
     expect(prompt).toContain('ClassMap patterns')

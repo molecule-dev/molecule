@@ -11,9 +11,9 @@
 
 import type {
   CreateTenant,
-  Tenant,
   TenancyProvider,
   TenancyRequestHandler,
+  Tenant,
 } from '@molecule/api-multi-tenancy'
 
 import type { SchemaConfig } from './types.js'
@@ -21,10 +21,11 @@ import type { SchemaConfig } from './types.js'
 /** Default HTTP header for tenant identification. */
 const DEFAULT_TENANT_HEADER = 'x-tenant-id'
 
-/** Default schema prefix for tenant schemas. */
-const DEFAULT_SCHEMA_PREFIX = 'tenant_'
-
-/** Generates a unique identifier. */
+/**
+ * Generates a unique identifier.
+ *
+ * @returns A short random identifier suitable for tenant records.
+ */
 const generateId = (): string => {
   const timestamp = Date.now().toString(36)
   const random = Math.random().toString(36).slice(2, 10)
@@ -38,11 +39,7 @@ const generateId = (): string => {
  * @returns A `TenancyProvider` using schema-based tenant isolation.
  */
 export const createProvider = (config: SchemaConfig = {}): TenancyProvider => {
-  const {
-    tenantHeader = DEFAULT_TENANT_HEADER,
-    schemaPrefix: _schemaPrefix = DEFAULT_SCHEMA_PREFIX,
-    defaultTenantId,
-  } = config
+  const { tenantHeader = DEFAULT_TENANT_HEADER, defaultTenantId } = config
 
   /** In-memory tenant storage. */
   const tenantStore = new Map<string, Tenant>()

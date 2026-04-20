@@ -58,7 +58,7 @@ export function paginated<T>(
  * @param data - The payload to wrap.
  * @returns An object with a single `data` key.
  */
-export function success<T>(data: T) {
+export function success<T>(data: T): { data: T } {
   return { data }
 }
 
@@ -69,6 +69,9 @@ export function success<T>(data: T) {
  * @param errors - Optional array of field-level errors.
  * @returns An error response object.
  */
-export function error(message: string, errors?: Array<{ field: string; message: string }>) {
+export function error(
+  message: string,
+  errors?: Array<{ field: string; message: string }>,
+): { error: string; errors?: Array<{ field: string; message: string }> } {
   return { error: message, ...(errors ? { errors } : {}) }
 }

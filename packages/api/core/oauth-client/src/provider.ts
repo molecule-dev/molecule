@@ -95,7 +95,7 @@ export const getToken = async (
  * Refreshes an expired access token using a refresh token.
  *
  * @param config - The OAuth provider configuration.
- * @param refreshToken - The refresh token.
+ * @param token - The refresh token string.
  * @returns A new token set.
  * @throws {Error} If no OAuth client provider has been bonded.
  */

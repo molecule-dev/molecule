@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { registerTsxHighlighting } from '../tsx-monarch.js'
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function createMockMonaco() {
   const monarchProviders = new Map<string, unknown>()
   const themes = new Map<string, unknown>()

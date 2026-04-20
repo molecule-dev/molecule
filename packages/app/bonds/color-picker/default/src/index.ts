@@ -1,5 +1,5 @@
 /**
- * Default provider for @molecule/app-color-picker.
+ * Default provider for \@molecule/app-color-picker.
  *
  * Provides an in-memory color picker implementation conforming to
  * the molecule color picker provider interface.

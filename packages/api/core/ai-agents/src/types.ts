@@ -8,7 +8,7 @@
  */
 
 /**
- *
+ * Live AI agents integration contract (TODO: expand methods).
  */
 export interface AIAgentsProvider {
   readonly name: string
@@ -16,7 +16,7 @@ export interface AIAgentsProvider {
 }
 
 /**
- *
+ * Config options for an AI agents bond (TODO: tighten schema).
  */
 export interface AIAgentsConfig {
   // TODO: Define configuration options

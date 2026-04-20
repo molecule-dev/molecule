@@ -6,7 +6,8 @@
  * Headers: X-Mock-State: error, X-Mock-Delay: 2000
  */
 
-import type { Request, Response, NextFunction } from 'express'
+import type { NextFunction, Request, Response } from 'express'
+
 import type { ResponseState } from '../types.js'
 
 /**
@@ -16,7 +17,7 @@ import type { ResponseState } from '../types.js'
  * @returns Express middleware function
  */
 export function stateControlMiddleware(
-  defaultState: ResponseState = { state: 'success' }
+  defaultState: ResponseState = { state: 'success' },
 ): (req: Request, res: Response, next: NextFunction) => void {
   return (req: Request, res: Response, next: NextFunction): void => {
     // Extract state from query params or headers
@@ -62,7 +63,10 @@ export function corsMiddleware(): (req: Request, res: Response, next: NextFuncti
   return (_req: Request, res: Response, next: NextFunction): void => {
     res.setHeader('Access-Control-Allow-Origin', '*')
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Mock-State, X-Mock-Delay, X-Mock-Status')
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, X-Mock-State, X-Mock-Delay, X-Mock-Status',
+    )
     res.setHeader('Access-Control-Max-Age', '86400')
 
     if (_req.method === 'OPTIONS') {
@@ -94,7 +98,7 @@ export function loggingMiddleware(): (req: Request, res: Response, next: NextFun
  */
 export function applyDelay(state: ResponseState): Promise<void> {
   if (state.delay && state.delay > 0) {
-    return new Promise(resolve => setTimeout(resolve, state.delay))
+    return new Promise((resolve) => setTimeout(resolve, state.delay))
   }
   return Promise.resolve()
 }

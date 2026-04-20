@@ -12,8 +12,8 @@ import {
   create,
   deleteById,
   findMany,
-  updateById,
   type FindManyOptions,
+  updateById,
 } from '@molecule/api-database'
 import type {
   FeatureFlag,

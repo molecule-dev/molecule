@@ -11,9 +11,9 @@
  * @module
  */
 
-import { createServer } from 'node:http'
 import { randomUUID } from 'node:crypto'
-import type { Server as HttpServer, IncomingMessage, ServerResponse } from 'node:http'
+import type { IncomingMessage, Server as HttpServer, ServerResponse } from 'node:http'
+import { createServer } from 'node:http'
 
 import type {
   ConnectionHandler,
@@ -90,6 +90,10 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
 
   /**
    * Writes an SSE event to a response stream.
+   *
+   * @param res - Active HTTP response configured for streaming.
+   * @param event - SSE event name written to the `event:` field.
+   * @param data - Serializable payload written to the `data:` field.
    */
   function writeSSE(res: ServerResponse, event: string, data: unknown): void {
     if (res.writableEnded) {
@@ -100,6 +104,9 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
 
   /**
    * Reads the full request body as a string.
+   *
+   * @param req - Incoming HTTP message whose body should be buffered.
+   * @returns The concatenated UTF-8 body text.
    */
   function readBody(req: IncomingMessage): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -112,6 +119,8 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
 
   /**
    * Builds common SSE response headers.
+   *
+   * @returns Header map suitable for `writeHead` on SSE responses.
    */
   function sseHeaders(): Record<string, string> {
     return {
@@ -125,6 +134,9 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
 
   /**
    * Removes a client from all rooms and cleans up.
+   *
+   * @param clientId - Stable identifier for the SSE subscriber.
+   * @param reason - Human-readable explanation for the disconnect.
    */
   function removeClient(clientId: string, reason: string): void {
     for (const [roomId, state] of rooms) {
@@ -156,6 +168,12 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
   /*  HTTP request handler                                               */
   /* ------------------------------------------------------------------ */
 
+  /**
+   * Primary HTTP handler that upgrades matching paths to SSE streams.
+   *
+   * @param req - Incoming HTTP request from Node's HTTP server.
+   * @param res - HTTP response that may be converted into an event stream.
+   */
   function handleRequest(req: IncomingMessage, res: ServerResponse): void {
     const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`)
 

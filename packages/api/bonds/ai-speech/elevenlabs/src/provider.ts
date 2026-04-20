@@ -95,7 +95,7 @@ class ElevenlabsSpeechProvider implements AISpeechProvider {
    * Yields audio data chunks as they arrive for real-time playback.
    *
    * @param params - Speech synthesis parameters.
-   * @returns Async iterable of audio data chunks.
+   * @yields {Uint8Array} Audio chunk bytes as they arrive from the stream.
    */
   async *synthesizeStream(params: SpeechParams): AsyncIterable<Uint8Array> {
     const voiceId = params.voiceId || this.defaultVoiceId
@@ -211,7 +211,7 @@ class ElevenlabsSpeechProvider implements AISpeechProvider {
    * @param url - The API endpoint URL.
    * @param body - The request body.
    * @returns The successful response.
-   * @throws Error on non-retryable API errors or after exhausting retries.
+   * @throws {Error} on non-retryable API errors or after exhausting retries.
    */
   private async callApi(url: string, body: Record<string, unknown>): Promise<Response> {
     const headers: Record<string, string> = {
@@ -253,7 +253,7 @@ class ElevenlabsSpeechProvider implements AISpeechProvider {
    * Parse an error response from the ElevenLabs API and throw a descriptive error.
    *
    * @param response - The failed API response.
-   * @throws Error with a descriptive message.
+   * @throws {Error} with a descriptive message.
    */
   private async throwApiError(response: Response): Promise<never> {
     const errorBody = await response.text()

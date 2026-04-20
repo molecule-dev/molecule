@@ -4,6 +4,8 @@
  * @module
  */
 
+import type { Server } from 'node:http'
+
 import type { ServerOptions } from 'socket.io'
 
 /**
@@ -21,7 +23,7 @@ export interface SocketioRealtimeConfig {
    * An existing Node.js HTTP server to attach Socket.io to.
    * If omitted, Socket.io creates its own standalone server.
    */
-  httpServer?: import('node:http').Server
+  httpServer?: Server
 
   /**
    * Port to listen on when no `httpServer` is provided.

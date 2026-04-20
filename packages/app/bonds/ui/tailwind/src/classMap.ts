@@ -181,8 +181,8 @@ import {
   pageHeader,
   pageHeaderActions,
   pageHeaderBreadcrumbItem,
-  pageHeaderBreadcrumbSeparator,
   pageHeaderBreadcrumbs,
+  pageHeaderBreadcrumbSeparator,
   pageHeaderDescription,
   pageHeaderTitle,
   pageShell,
@@ -261,7 +261,7 @@ import {
   tooltipContent,
   tooltipTrigger,
 } from './components.js'
-import { center, container, flex, grid, notSrOnly, srOnly } from './layout.js'
+import { center, container, flex, grid, notSrOnly, srOnly, stack as stackLayout } from './layout.js'
 import { cn } from './utilities.js'
 
 // ============================================================================
@@ -379,6 +379,7 @@ const SPACING_SCALE: Record<SpacingScale, string> = {
   0: '0px',
   1: '0.25rem',
   2: '0.5rem',
+  2.5: '0.625rem',
   3: '0.75rem',
   4: '1rem',
   5: '1.25rem',
@@ -387,6 +388,8 @@ const SPACING_SCALE: Record<SpacingScale, string> = {
   10: '2.5rem',
   12: '3rem',
   16: '4rem',
+  20: '5rem',
+  24: '6rem',
 }
 const SPACING_CSS_PROP: Partial<Record<string, string>> = {
   pt: 'paddingTop',
@@ -464,6 +467,22 @@ function sp(
     if (cssProp && s !== undefined) result[cssProp] = SPACING_SCALE[s as SpacingScale]
   }
   return result
+}
+
+/**
+ * Remove every `gap-*` utility from a resolved class string.
+ * `cn()` from \@molecule/app-styling concatenates — it does not tailwind-merge —
+ * so `gap-0` plus `gap-3` in one className is ambiguous. Numeric `flex`/`grid`
+ * append exactly one `gap-{n}` after stripping any gap from the layout CVA.
+ *
+ * @param className - Space-delimited Tailwind utility string to sanitize.
+ * @returns A new string without any `gap-*` utilities.
+ */
+function stripGapUtilities(className: string): string {
+  return className
+    .split(/\s+/)
+    .filter((t) => t && !t.startsWith('gap-'))
+    .join(' ')
 }
 
 /** Tailwind CSS UIClassMap implementation mapping abstract UI tokens to Tailwind class strings. */
@@ -602,21 +621,37 @@ export const classMap: UIClassMap = {
   },
 
   flex(opts?: FlexClassOptions): string {
+    const gap = opts?.gap
+    if (typeof gap === 'number') {
+      return cn(
+        flex({
+          direction: opts?.direction,
+          align: opts?.align,
+          justify: opts?.justify,
+          wrap: opts?.wrap,
+        }),
+        `gap-${gap}`,
+      )
+    }
     return flex({
       direction: opts?.direction,
       align: opts?.align,
       justify: opts?.justify,
       wrap: opts?.wrap,
-      gap: opts?.gap,
+      gap: gap,
     })
   },
 
   grid(opts?: GridClassOptions): string {
     // Grid CVA uses numeric keys but cva requires string lookups — stringify cols
     const cols = opts?.cols !== undefined ? (String(opts.cols) as unknown as 1) : undefined
+    const gap = opts?.gap
+    if (typeof gap === 'number') {
+      return cn(stripGapUtilities(grid({ cols })), `gap-${gap}`)
+    }
     return grid({
       cols,
-      gap: opts?.gap,
+      gap: gap,
     })
   },
 
@@ -916,8 +951,7 @@ export const classMap: UIClassMap = {
   sp,
 
   stack(scale: SpacingScale): string {
-    if (scale === 0) return 'space-y-0'
-    return `space-y-${scale}`
+    return cn(stripGapUtilities(stackLayout({})), `gap-${scale}`)
   },
 
   // ---- Typography utilities ----
@@ -936,6 +970,7 @@ export const classMap: UIClassMap = {
 
   w(value: WidthValue | number): string {
     if (typeof value === 'number') return `w-${value}`
+    if (value === 'fit') return 'w-fit'
     if (value === '1/2') return 'w-1/2'
     if (value === '1/3') return 'w-1/3'
     if (value === '2/3') return 'w-2/3'
@@ -946,6 +981,11 @@ export const classMap: UIClassMap = {
 
   h(value: HeightValue | number): string {
     if (typeof value === 'number') return `h-${value}`
+    if (value === '1/2') return 'h-1/2'
+    if (value === '1/3') return 'h-1/3'
+    if (value === '2/3') return 'h-2/3'
+    if (value === '1/4') return 'h-1/4'
+    if (value === '3/4') return 'h-3/4'
     return `h-${value}`
   },
 

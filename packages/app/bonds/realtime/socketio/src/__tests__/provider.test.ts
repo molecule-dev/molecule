@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { RealtimeClientProvider } from '@molecule/app-realtime'
 
-import type { SocketioConnection } from '../types.js'
 import { createSocketioProvider, provider } from '../provider.js'
+import type { SocketioConnection } from '../types.js'
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -1,12 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+
 import {
   createSeededRandom,
-  seedFromPath,
   pick,
-  randomInt,
   randomDollars,
+  randomInt,
   recentDate,
   seededUUID,
+  seedFromPath,
 } from '../fixtures/seed.js'
 
 describe('createSeededRandom', () => {
@@ -56,11 +57,7 @@ describe('seedFromPath', () => {
   })
 
   it('always returns a positive number', () => {
-    const seeds = [
-      seedFromPath('a', '/b'),
-      seedFromPath('test', '/path'),
-      seedFromPath('', ''),
-    ]
+    const seeds = [seedFromPath('a', '/b'), seedFromPath('test', '/path'), seedFromPath('', '')]
     for (const s of seeds) {
       expect(s).toBeGreaterThanOrEqual(0)
     }

@@ -42,7 +42,7 @@ export function hasProvider(): boolean {
  * Retrieves the bonded tour provider, throwing if none is configured.
  *
  * @returns The active tour provider.
- * @throws Error if no provider has been bonded.
+ * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): TourProvider {
   if (!_provider) {

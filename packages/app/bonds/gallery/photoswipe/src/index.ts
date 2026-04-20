@@ -1,5 +1,5 @@
 /**
- * PhotoSwipe provider for @molecule/app-gallery.
+ * PhotoSwipe provider for \@molecule/app-gallery.
  *
  * Provides an in-memory gallery implementation conforming to
  * the molecule gallery provider interface.

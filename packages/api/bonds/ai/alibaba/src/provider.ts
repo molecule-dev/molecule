@@ -29,7 +29,9 @@ interface AlibabaStreamState {
 
 /**
  * Map thinking budget tokens to reasoning_effort level (only 'low' or 'high' supported).
- * @param budgetTokens
+ *
+ * @param budgetTokens - Requested thinking budget in tokens.
+ * @returns Either 'high' or 'low' for the upstream effort hint.
  */
 function budgetToEffort(budgetTokens: number): string {
   return budgetTokens >= 8_000 ? 'high' : 'low'
@@ -48,10 +50,14 @@ class AlibabaAIProvider implements AIProvider {
   private baseUrl: string
 
   constructor(config: AlibabaConfig = {}) {
-    this.apiKey = config.apiKey ?? process.env.DASHSCOPE_API_KEY ?? process.env.ALIBABA_API_KEY ?? ''
+    this.apiKey =
+      config.apiKey ?? process.env.DASHSCOPE_API_KEY ?? process.env.ALIBABA_API_KEY ?? ''
     this.defaultModel = config.defaultModel ?? 'qwen3.6-plus'
     this.maxTokens = config.maxTokens ?? 4096
-    this.baseUrl = config.baseUrl ?? process.env.DASHSCOPE_BASE_URL ?? 'https://dashscope-us.aliyuncs.com/compatible-mode'
+    this.baseUrl =
+      config.baseUrl ??
+      process.env.DASHSCOPE_BASE_URL ??
+      'https://dashscope-us.aliyuncs.com/compatible-mode'
   }
 
   /**
@@ -152,8 +158,10 @@ class AlibabaAIProvider implements AIProvider {
           : response!.status === 401
             ? 'AI service configuration error.'
             : response!.status === 400 &&
-                /prompt is too long|too many tokens|token.*limit|context.*length|Range of input|InvalidParameter/i.test(detail)
-              ? "Input too long for model context window."
+                /prompt is too long|too many tokens|token.*limit|context.*length|Range of input|InvalidParameter/i.test(
+                  detail,
+                )
+              ? 'Input too long for model context window.'
               : response!.status === 503
                 ? 'AI service is temporarily overloaded. Please try again in a moment.'
                 : 'AI service error. Please try again.'
@@ -176,9 +184,15 @@ class AlibabaAIProvider implements AIProvider {
    *
    * @param messages - The chat messages to format.
    * @param system - Optional system prompt to prepend.
+   * @param cacheControl - Optional cache hint for the system prompt block.
+   * @param cacheControl.type - Ephemeral cache policy label expected by DashScope.
    * @returns The formatted messages array for the DashScope API.
    */
-  private formatMessages(messages: ChatMessage[], system?: string, cacheControl?: { type: string }): Array<Record<string, unknown>> {
+  private formatMessages(
+    messages: ChatMessage[],
+    system?: string,
+    cacheControl?: { type: string },
+  ): Array<Record<string, unknown>> {
     const formatted: Array<Record<string, unknown>> = []
 
     if (system) {

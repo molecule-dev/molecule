@@ -3,7 +3,7 @@
  * Provides standard response shapes for success, empty, error, and unauthorized states.
  */
 
-import type { ResponseState, HttpMethod } from '../types.js'
+import type { HttpMethod, ResponseState } from '../types.js'
 
 /** Default response states for each scenario */
 export const DEFAULT_STATES = {
@@ -49,6 +49,10 @@ export function getStatusCode(state: ResponseState, method: HttpMethod): number 
  * @param state - The response state
  * @param method - The HTTP method
  * @param fixture - The fixture data containing success, empty, and error responses
+ * @param fixture.successResponse
+ * @param fixture.emptyResponse
+ * @param fixture.errorResponse
+ * @param fixture.errorResponse.error
  * @returns The response body, or null for 204 responses
  */
 export function getResponseBody(
@@ -58,7 +62,7 @@ export function getResponseBody(
     successResponse: unknown
     emptyResponse: unknown
     errorResponse: { error: string }
-  }
+  },
 ): unknown {
   switch (state.state) {
     case 'success':

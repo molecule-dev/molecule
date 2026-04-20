@@ -36,6 +36,10 @@ describe('@molecule/app-styling', () => {
     it('should handle numbers', () => {
       expect(cn('text', 0)).toBe('text 0')
     })
+
+    it('should merge conflicting Tailwind gap utilities (last wins)', () => {
+      expect(cn('grid grid-cols-12 gap-4', 'gap-10')).toBe('grid grid-cols-12 gap-10')
+    })
   })
 
   describe('cva', () => {

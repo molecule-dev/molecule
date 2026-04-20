@@ -1,5 +1,5 @@
 /**
- * react-markdown provider for @molecule/app-markdown.
+ * react-markdown provider for \@molecule/app-markdown.
  *
  * Provides a regex-based markdown-to-HTML renderer conforming to
  * the molecule markdown provider interface.

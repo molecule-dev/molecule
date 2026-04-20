@@ -9,8 +9,8 @@
  * @module
  */
 
-import { ChromaClient, IncludeEnum } from 'chromadb'
 import type { Where } from 'chromadb'
+import { ChromaClient, IncludeEnum } from 'chromadb'
 
 import type {
   AIVectorStoreProvider,
@@ -160,7 +160,7 @@ class ChromaProvider implements AIVectorStoreProvider {
    * specified distance metric stored via HNSW configuration.
    *
    * @param params - Collection creation parameters.
-   * @throws Error if the collection already exists.
+   * @throws {Error} if the collection already exists.
    */
   async createCollection(params: CreateCollectionParams): Promise<void> {
     const metric = params.metric ?? this.defaultMetric
@@ -224,7 +224,11 @@ class ChromaProvider implements AIVectorStoreProvider {
       const meta: Record<string, string | number | boolean> = {}
       if (record.metadata) {
         for (const [key, value] of Object.entries(record.metadata)) {
-          if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+          if (
+            typeof value === 'string' ||
+            typeof value === 'number' ||
+            typeof value === 'boolean'
+          ) {
             meta[key] = value
           }
         }
@@ -251,9 +255,7 @@ class ChromaProvider implements AIVectorStoreProvider {
 
     const topK = params.topK ?? 10
 
-    const where = params.filter && params.filter.length > 0
-      ? buildWhere(params.filter)
-      : undefined
+    const where = params.filter && params.filter.length > 0 ? buildWhere(params.filter) : undefined
 
     const response = await collection.query({
       queryEmbeddings: [params.embedding],

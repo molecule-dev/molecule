@@ -15,10 +15,10 @@ import { join } from 'node:path'
 import { promisify } from 'node:util'
 
 import type {
+  StreamingProvider,
   StreamManifest,
   StreamOptions,
   StreamSegment,
-  StreamingProvider,
   TranscodeProfile,
   TranscodeResult,
   TranscodeVariant,

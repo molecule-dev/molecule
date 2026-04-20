@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { CalendarEvent, CalendarOptions } from '@molecule/app-calendar'
 
-import type { FullCalendarInstance } from '../types.js'
 import { createFullCalendarProvider, provider } from '../provider.js'
+import type { FullCalendarInstance } from '../types.js'
 
 // ---------------------------------------------------------------------------
 // Test data

@@ -42,7 +42,7 @@ export function hasProvider(): boolean {
  * Get the active vector store provider, throwing if none is configured.
  *
  * @returns The current provider.
- * @throws Error if no provider has been set.
+ * @throws {Error} if no provider has been set.
  */
 export function requireProvider(): AIVectorStoreProvider {
   if (!_provider) {

@@ -70,7 +70,10 @@ export const flex = cva('flex', {
     align: 'stretch',
     justify: 'start',
     wrap: 'nowrap',
-    gap: 'none',
+    // Intentionally no default `gap`: `getClassMap().flex({ gap: N })` appends
+    // `gap-${N}`; the styling `cn()` is not tailwind-merge — a default `gap-0`
+    // would be concatenated with `gap-3` and whichever utility wins in CSS is
+    // undefined. Callers that need zero gap pass `gap: 'none'`.
   },
 })
 

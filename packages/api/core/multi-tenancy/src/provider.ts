@@ -11,7 +11,7 @@
 import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
-import type { CreateTenant, Tenant, TenancyProvider, TenancyRequestHandler } from './types.js'
+import type { CreateTenant, TenancyProvider, TenancyRequestHandler, Tenant } from './types.js'
 
 const BOND_TYPE = 'multi-tenancy'
 expectBond(BOND_TYPE)
@@ -88,6 +88,7 @@ export const createTenant = async (tenant: CreateTenant): Promise<Tenant> => {
  * Deletes a tenant using the bonded provider.
  *
  * @param tenantId - The identifier of the tenant to delete.
+ * @returns Resolves when the tenant is removed.
  * @throws {Error} If no tenancy provider has been bonded.
  */
 export const deleteTenant = async (tenantId: string): Promise<void> => {

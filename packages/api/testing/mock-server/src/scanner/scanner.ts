@@ -4,7 +4,8 @@
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { join, basename } from 'node:path'
+import { basename, join } from 'node:path'
+
 import type {
   EndpointDefinition,
   HandlerScanResult,
@@ -30,7 +31,8 @@ const ROUTER_USE_RE = /router\.use\(\s*['"]([^'"]+)['"]\s*,\s*(\w+)\s*\)/g
  * router.put('/:id', validateBody(schema), async ...)
  * Uses a permissive capture for the middleware chain to handle nested parentheses.
  */
-const ROUTER_METHOD_RE = /router\.(get|post|put|delete)\(\s*['"]([^'"]+)['"]\s*,\s*([\s\S]*?)\basync\b/g
+const ROUTER_METHOD_RE =
+  /router\.(get|post|put|delete)\(\s*['"]([^'"]+)['"]\s*,\s*([\s\S]*?)\basync\b/g
 
 /**
  * Pattern for validateBody(schemaName) in middleware chain
@@ -87,9 +89,7 @@ export function scanHandlers(handlersPath: string, appType: string): HandlerScan
   const endpoints: EndpointDefinition[] = []
   const resources = new Set<string>()
 
-  const files = readdirSync(handlersPath).filter(
-    f => f.endsWith('.ts') && f !== 'index.ts'
-  )
+  const files = readdirSync(handlersPath).filter((f) => f.endsWith('.ts') && f !== 'index.ts')
 
   for (const file of files) {
     const filePath = join(handlersPath, file)
@@ -164,6 +164,7 @@ export function scanHandlers(handlersPath: string, appType: string): HandlerScan
 /**
  * Parse Zod schema definitions from source code.
  * Returns a map of schema variable names to serialized definitions.
+ * @param source
  */
 function parseZodSchemas(source: string): Map<string, ZodSchemaDefinition> {
   const schemas = new Map<string, ZodSchemaDefinition>()
@@ -182,6 +183,7 @@ function parseZodSchemas(source: string): Map<string, ZodSchemaDefinition> {
 
 /**
  * Parse the body of a z.object({ ... }) call into field definitions.
+ * @param body
  */
 function parseZodObjectBody(body: string): Record<string, ZodSchemaDefinition> {
   const shape: Record<string, ZodSchemaDefinition> = {}
@@ -202,6 +204,9 @@ function parseZodObjectBody(body: string): Record<string, ZodSchemaDefinition> {
 
 /**
  * Parse a single Zod field definition into a schema definition.
+ * @param zodType
+ * @param args
+ * @param chain
  */
 function parseZodField(zodType: string, args: string, chain: string): ZodSchemaDefinition {
   const constraints: ZodSchemaDefinition['constraints'] = {}
@@ -254,7 +259,7 @@ function parseZodField(zodType: string, args: string, chain: string): ZodSchemaD
       if (enumMatch) {
         const enumValues = enumMatch[1]
           .split(',')
-          .map(v => v.trim().replace(/['"]/g, ''))
+          .map((v) => v.trim().replace(/['"]/g, ''))
           .filter(Boolean)
         return { type: 'ZodEnum', enumValues }
       }
@@ -279,6 +284,11 @@ function parseZodField(zodType: string, args: string, chain: string): ZodSchemaD
 
 /**
  * Infer response hints for an endpoint based on method, path, and handler source.
+ * @param method
+ * @param path
+ * @param handlerName
+ * @param isPaginated
+ * @param source
  */
 function inferResponseHints(
   method: HttpMethod,
@@ -311,10 +321,7 @@ function inferResponseHints(
  * @param workspaceRoot - The workspace root directory
  * @returns The resolved handlers path, or undefined if not found
  */
-export function resolveHandlersPath(
-  appType: string,
-  workspaceRoot?: string
-): string | undefined {
+export function resolveHandlersPath(appType: string, workspaceRoot?: string): string | undefined {
   const root = workspaceRoot ?? findWorkspaceRoot()
   if (!root) return undefined
 

@@ -39,12 +39,15 @@ export default tseslint.config(
       'jsdoc/require-param-description': 'warn',
       'jsdoc/require-returns': 'warn',
       'jsdoc/require-returns-description': 'warn',
-      'jsdoc/check-tag-names': ['warn', { definedTags: ['module', 'remarks'] }],
+      'jsdoc/check-tag-names': ['warn', { definedTags: ['module', 'remarks', 'defaultValue'] }],
       'jsdoc/check-param-names': 'warn',
       'jsdoc/tag-lines': 'off',
       'jsdoc/require-throws-type': 'warn',
       'jsdoc/escape-inline-tags': 'warn',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/consistent-type-imports': [
         'warn',
@@ -130,8 +133,25 @@ export default tseslint.config(
     },
   },
   {
+    files: ['packages/app/bonds/icons/molecule/src/icons/**/*.ts'],
+    rules: {
+      'jsdoc/require-description': 'off',
+    },
+  },
+  {
+    files: ['packages/api/testing/mock-server/**/*.ts'],
+    rules: {
+      'jsdoc/require-description': 'off',
+      'jsdoc/require-param': 'off',
+      'jsdoc/require-param-description': 'off',
+      'jsdoc/require-returns': 'off',
+      'jsdoc/require-returns-description': 'off',
+    },
+  },
+  {
     files: ['**/__tests__/**/*.ts', '**/*.test.ts', '**/*.spec.ts'],
     rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
       'jsdoc/require-jsdoc': 'off',
       'jsdoc/require-description': 'off',
       'jsdoc/require-param': 'off',

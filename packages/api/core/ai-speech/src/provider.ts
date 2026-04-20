@@ -42,7 +42,7 @@ export function hasProvider(): boolean {
  * Get the registered AISpeech provider, throwing if none is registered.
  *
  * @returns The registered provider.
- * @throws Error if no provider has been registered.
+ * @throws {Error} if no provider has been registered.
  */
 export function requireProvider(): AISpeechProvider {
   if (!_provider) {

@@ -24,6 +24,7 @@ import {
   cardTitle,
   center,
   checkbox,
+  classMap,
   // Utilities
   cn,
   // Layout
@@ -893,6 +894,18 @@ describe('layout components', () => {
       expect(flex({ gap: 'lg' })).toContain('gap-6')
       expect(flex({ gap: 'xl' })).toContain('gap-8')
     })
+
+    it('should apply numeric gap via tailwind spacing scale', () => {
+      expect(classMap.flex({ gap: 3 })).toContain('gap-3')
+      expect(classMap.flex({ gap: 3 })).not.toContain('gap-0')
+      expect(classMap.flex({ gap: 10 })).toContain('gap-10')
+      expect(classMap.flex({ gap: 10 })).not.toContain('gap-0')
+    })
+
+    it('should not emit a default gap utility on bare flex()', () => {
+      const s = flex({ align: 'center' })
+      expect(s).not.toMatch(/\bgap-/)
+    })
   })
 
   describe('grid', () => {
@@ -916,6 +929,24 @@ describe('layout components', () => {
     it('should apply gap variants', () => {
       expect(grid({ gap: 'none' })).toContain('gap-0')
       expect(grid({ gap: 'lg' })).toContain('gap-6')
+    })
+
+    it('should apply numeric gap via classMap', () => {
+      expect(classMap.grid({ cols: 2, gap: 10 })).toContain('gap-10')
+      expect(classMap.grid({ cols: 2, gap: 10 })).not.toContain('gap-0')
+      expect(classMap.grid({ cols: 3, gap: 3 })).toContain('gap-3')
+      expect(classMap.grid({ cols: 3, gap: 3 })).not.toMatch(/\bgap-4\b/)
+    })
+  })
+
+  describe('classMap.stack (numeric vertical stack)', () => {
+    it('should use flex column + a single gap-* (no stray default gap)', () => {
+      expect(classMap.stack(10)).toContain('flex')
+      expect(classMap.stack(10)).toContain('flex-col')
+      expect(classMap.stack(10)).toContain('gap-10')
+      expect(classMap.stack(10)).not.toMatch(/\bgap-4\b/)
+      expect(classMap.stack(0)).toContain('gap-0')
+      expect(classMap.stack(0)).not.toMatch(/\bgap-4\b/)
     })
   })
 

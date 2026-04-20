@@ -1064,7 +1064,16 @@ export const bgBorder = 'bg-border'
 // LAYOUT PATTERN TOKENS
 // ============================================================================
 
-/** PageShell root — flex row filling the screen. */
+/**
+ * PageShell root — flex row filling the screen.
+ *
+ * Use this pattern (or an equivalent `flex` row on the page root) whenever a
+ * persistent sidebar and `<main>` are siblings. A full-height `sticky` sidebar
+ * in **block** flow (no flex row on the parent) still occupies vertical space,
+ * so `<main>` with only `ml-[…]` starts below the viewport — content appears
+ * under fixed headers / near the bottom. Prefer `pageShell` + `pageShellSidebar`,
+ * or a `fixed inset-y-0` sidebar plus horizontal offset on main.
+ */
 export const pageShell = 'flex h-screen overflow-hidden'
 /** PageShell sidebar — fixed-width left panel. */
 export const pageShellSidebar =

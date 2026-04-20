@@ -1,5 +1,5 @@
 /**
- * Howler.js provider for @molecule/app-audio.
+ * Howler.js provider for \@molecule/app-audio.
  *
  * Provides an in-memory audio player implementation conforming to
  * the molecule audio provider interface.

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 
-import type { AICopilotProvider } from '../types.js'
 import { getProvider, hasProvider, requireProvider, setProvider } from '../provider.js'
+import type { AICopilotProvider } from '../types.js'
 
 const mockProvider: AICopilotProvider = {
   name: 'test',

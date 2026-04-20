@@ -11,10 +11,10 @@ import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/ap
 import { t } from '@molecule/api-i18n'
 
 import type {
+  StreamingProvider,
   StreamManifest,
   StreamOptions,
   StreamSegment,
-  StreamingProvider,
   TranscodeProfile,
   TranscodeResult,
 } from './types.js'

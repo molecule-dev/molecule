@@ -10,8 +10,8 @@
 
 import type {
   AIEmbeddingsProvider,
-  EmbedParams,
   EmbeddingResult,
+  EmbedParams,
 } from '@molecule/api-ai-embeddings'
 
 import type { OpenaiEmbeddingsConfig } from './types.js'
@@ -163,7 +163,7 @@ class OpenaiEmbeddingsProvider implements AIEmbeddingsProvider {
    * @param model - Model identifier.
    * @param dimensions - Optional dimension count for text-embedding-3 models.
    * @returns Parsed embedding result.
-   * @throws Error on non-retryable API errors.
+   * @throws {Error} on non-retryable API errors.
    */
   private async callApi(
     inputs: string[],

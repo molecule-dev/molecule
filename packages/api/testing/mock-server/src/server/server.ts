@@ -3,26 +3,28 @@
  * Supports programmatic control of response states and delays.
  */
 
-import express from 'express'
-import type { Request, Response } from 'express'
-import type { Server } from 'node:http'
 import { existsSync } from 'node:fs'
+import type { Server } from 'node:http'
 import { join } from 'node:path'
+
+import type { Request, Response } from 'express'
+import express from 'express'
+
+import { buildFixtureSet, generateFixtures } from '../fixtures/app-fixtures.js'
+import { resolveHandlersPath, scanHandlers } from '../scanner/scanner.js'
+import { getResponseBody, getStatusCode } from '../states/states.js'
 import type {
-  MockServerConfig,
-  MockServer,
   AppFixtureSet,
   EndpointFixture,
+  MockServer,
+  MockServerConfig,
   ResponseState,
 } from '../types.js'
-import { scanHandlers, resolveHandlersPath } from '../scanner/scanner.js'
-import { generateFixtures, buildFixtureSet } from '../fixtures/app-fixtures.js'
-import { getStatusCode, getResponseBody } from '../states/states.js'
 import {
-  stateControlMiddleware,
+  applyDelay,
   corsMiddleware,
   loggingMiddleware,
-  applyDelay,
+  stateControlMiddleware,
 } from './middleware.js'
 
 /**
@@ -69,7 +71,9 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
     // Generate fixtures from directory path or throw
     const resolvedFixturesPath = fixturesPath ?? resolveFixturesPath(appType)
     if (!resolvedFixturesPath) {
-      throw new Error(`No fixture data available for app type: ${appType}. Provide a fixturesPath or ensure fixtures exist at mlcl/templates/apps/${appType}/api/fixtures/`)
+      throw new Error(
+        `No fixture data available for app type: ${appType}. Provide a fixturesPath or ensure fixtures exist at mlcl/templates/apps/${appType}/api/fixtures/`,
+      )
     }
 
     const generated = generateFixtures(resolvedFixturesPath, appType)
@@ -92,14 +96,14 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
             }
           }
         }
-      } catch {}
+      } catch {
+        // Scanner is optional; ignore failures when handlers/fixtures are absent.
+      }
     }
   }
 
   // Per-endpoint state overrides (mutable at runtime)
-  const stateOverrides = new Map<string, ResponseState>(
-    Object.entries(endpointStates)
-  )
+  const stateOverrides = new Map<string, ResponseState>(Object.entries(endpointStates))
 
   let currentDefaultState: ResponseState = {
     state: defaultState,
@@ -214,6 +218,11 @@ function findWorkspaceRoot(): string | undefined {
 
 /**
  * Register an Express route for a fixture endpoint.
+ * @param app
+ * @param key
+ * @param fixture
+ * @param stateOverrides
+ * @param getDefault
  */
 function registerRoute(
   app: express.Express,
@@ -234,7 +243,8 @@ function registerRoute(
 
   const handler = async (_req: Request, res: Response): Promise<void> => {
     // Determine effective state: per-endpoint override > per-request > default
-    const endpointOverride = stateOverrides.get(key) ?? stateOverrides.get(apiKey) ?? stateOverrides.get(bareKey)
+    const endpointOverride =
+      stateOverrides.get(key) ?? stateOverrides.get(apiKey) ?? stateOverrides.get(bareKey)
     const requestState = res.locals.mockState as ResponseState | undefined
 
     let state: ResponseState
@@ -283,6 +293,8 @@ function registerRoute(
 
 /**
  * Start the Express server, with special handling for port 0 (random port).
+ * @param app
+ * @param port
  */
 function startServer(app: express.Express, port: number): Promise<Server> {
   return new Promise((resolve, reject) => {

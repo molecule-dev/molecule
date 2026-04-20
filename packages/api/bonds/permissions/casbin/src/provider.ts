@@ -8,8 +8,8 @@
  * @module
  */
 
-import { newEnforcer, newModel } from 'casbin'
 import type { Enforcer } from 'casbin'
+import { newEnforcer, newModel } from 'casbin'
 
 import type { CreateRole, Permission, PermissionsProvider, Role } from '@molecule/api-permissions'
 

@@ -57,7 +57,7 @@ export class DefaultAssistantProvider implements AIAssistantProvider {
   /**
    * Create a new default assistant provider.
    *
-   * @param config - Provider-specific configuration
+   * @param config - Provider-specific configuration (base URL, headers, etc.).
    */
   constructor(config: DefaultAssistantConfig = {}) {
     this.baseUrl = config.baseUrl ?? ''
@@ -65,7 +65,11 @@ export class DefaultAssistantProvider implements AIAssistantProvider {
     this.state = createInitialState()
   }
 
-  /** Open the assistant panel. */
+  /**
+   * Open the assistant panel.
+   *
+   * @param config - Runtime assistant layout and suggestion settings.
+   */
   open(config: AIAssistantConfig): void {
     this.setState({
       isOpen: true,
@@ -80,7 +84,11 @@ export class DefaultAssistantProvider implements AIAssistantProvider {
     this.setState({ isOpen: false })
   }
 
-  /** Toggle the assistant panel open/closed. */
+  /**
+   * Toggle the assistant panel open/closed.
+   *
+   * @param config - Runtime assistant layout and suggestion settings when opening.
+   */
   toggle(config: AIAssistantConfig): void {
     if (this.state.isOpen) {
       this.close()

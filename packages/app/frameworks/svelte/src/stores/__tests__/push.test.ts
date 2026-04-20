@@ -11,7 +11,6 @@ import { getProvider } from '@molecule/app-push'
 
 const mockGetProvider = getProvider as ReturnType<typeof vi.fn>
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function createMockProvider() {
   return {
     checkPermission: vi.fn(() => Promise.resolve('default' as const)),
