@@ -269,6 +269,96 @@ export function generateFixtures(fixturesDir: string, appType?: string): AppFixt
   for (const [resourceName, records] of Object.entries(pool.resources)) {
     const basePath = `/api/${resourceName}`
 
+    // Cart is special: UI expects { items, subtotal, shipping?, tax?, total? }
+    // not a flat list. Synthesize the envelope from line-item records so the
+    // existing fixture file (a flat array of cart-line records) drives both
+    // the cart and checkout pages without duplication.
+    if (resourceName === 'cart') {
+      const subtotal = records.reduce((sum, r) => {
+        const item = r as Record<string, unknown>
+        const qty = typeof item.quantity === 'number' ? item.quantity : 1
+        const product = item.product as Record<string, unknown> | undefined
+        const price = product && typeof product.price === 'number' ? product.price : 0
+        return sum + qty * price
+      }, 0)
+      const shipping = subtotal > 0 ? 500 : 0
+      const tax = Math.round(subtotal * 0.08)
+      const total = subtotal + shipping + tax
+      const cartEnvelope = { items: records, subtotal, shipping, tax, total }
+      const cartEndpoint: EndpointDefinition = {
+        method: 'GET',
+        path: basePath,
+        requiresAuth: true,
+        responseHints: {
+          isList: false,
+          isPaginated: false,
+          hasNestedResources: false,
+          resourceName,
+        },
+      }
+      fixtureMap.set(`GET ${basePath}`, {
+        endpoint: cartEndpoint,
+        successResponse: cartEnvelope,
+        emptyResponse: { items: [], subtotal: 0, shipping: 0, tax: 0, total: 0 },
+        errorResponse: { error: 'Internal server error' },
+      })
+      // Also expose mutation endpoints (POST add, DELETE clear, POST promo)
+      // so the cart page's add/remove/promo flows return reasonable shapes.
+      fixtureMap.set(`POST ${basePath}`, {
+        endpoint: {
+          method: 'POST',
+          path: basePath,
+          requiresAuth: true,
+          responseHints: {
+            isList: false,
+            isPaginated: false,
+            hasNestedResources: false,
+            resourceName,
+          },
+        },
+        successResponse: cartEnvelope,
+        emptyResponse: cartEnvelope,
+        errorResponse: { error: 'Internal server error' },
+      })
+      fixtureMap.set(`POST ${basePath}/promo`, {
+        endpoint: {
+          method: 'POST',
+          path: `${basePath}/promo`,
+          requiresAuth: true,
+          responseHints: {
+            isList: false,
+            isPaginated: false,
+            hasNestedResources: false,
+            resourceName,
+          },
+        },
+        successResponse: {
+          ...cartEnvelope,
+          promoApplied: true,
+          discount: Math.round(subtotal * 0.1),
+        },
+        emptyResponse: cartEnvelope,
+        errorResponse: { error: 'Invalid promo code' },
+      })
+      fixtureMap.set(`DELETE ${basePath}/:id`, {
+        endpoint: {
+          method: 'DELETE',
+          path: `${basePath}/:id`,
+          requiresAuth: true,
+          responseHints: {
+            isList: false,
+            isPaginated: false,
+            hasNestedResources: false,
+            resourceName,
+          },
+        },
+        successResponse: { items: [], subtotal: 0, shipping: 0, tax: 0, total: 0 },
+        emptyResponse: { items: [], subtotal: 0, shipping: 0, tax: 0, total: 0 },
+        errorResponse: { error: 'Internal server error' },
+      })
+      continue
+    }
+
     // GET list
     const listEndpoint: EndpointDefinition = {
       method: 'GET',

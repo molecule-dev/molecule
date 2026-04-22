@@ -87,8 +87,20 @@ class MoonshotAIProvider implements AIProvider {
     if (params.thinking) {
       body.reasoning_effort = budgetToEffort(params.thinking.budgetTokens)
     } else {
-      // Use minimal thinking to avoid reasoning_content issues in multi-turn tool-use conversations
-      body.reasoning_effort = 'minimal'
+      // Default: read from env so callers can tune kimi's reasoning level
+      // without touching code. Supported values:
+      //   - 'disabled' (default) — fully disables thinking via
+      //     `thinking: {type: "disabled"}`. Fastest, least accurate.
+      //   - 'minimal' | 'low' | 'medium' | 'high' — sets `reasoning_effort`.
+      //     Note: on kimi-k2.6, `minimal` still produces ~1000 chars of
+      //     reasoning_content per turn (~5x slower than disabled but more
+      //     reliable for complex multi-step tasks).
+      const effort = (process.env.KIMI_REASONING_EFFORT || 'disabled').toLowerCase()
+      if (effort === 'minimal' || effort === 'low' || effort === 'medium' || effort === 'high') {
+        body.reasoning_effort = effort
+      } else {
+        body.thinking = { type: 'disabled' }
+      }
     }
     if (params.temperature !== undefined) {
       body.temperature = params.temperature
@@ -99,7 +111,12 @@ class MoonshotAIProvider implements AIProvider {
       Authorization: `Bearer ${this.apiKey}`,
     }
 
-    const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000
+    // Kimi with reasoning enabled (especially on large multimodal/vision
+    // prompts) regularly takes longer than 5 minutes to finish a streaming
+    // response. 5 min was too aggressive — bumped to 15 min to accommodate
+    // long-context + reasoning workloads. Caller can override via
+    // params.signal if a tighter budget is needed.
+    const DEFAULT_TIMEOUT_MS = 15 * 60 * 1000
     const signal = params.signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS)
 
     // Retry with exponential backoff for rate limits (429) and overloaded (503)
