@@ -1,0 +1,44 @@
+{
+  "name": "@molecule/app-ticker-row-react",
+  "version": "1.0.0",
+  "description": "Financial ticker row — symbol, price, change%, sparkline for crypto/stocks/markets",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "ticker-row",
+    "react"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-react": "^1.0.0",
+    "@molecule/app-ui": "^1.0.0",
+    "@molecule/app-ui-react": "^1.0.0",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-react": "1.0.0",
+    "@molecule/app-ui": "1.0.0",
+    "@molecule/app-ui-react": "1.0.0",
+    "@types/node": "25.5.0",
+    "@types/react": "19.2.14",
+    "react": "19.2.4",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}

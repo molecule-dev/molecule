@@ -1,0 +1,42 @@
+{
+  "name": "@molecule/app-analytics-react",
+  "version": "1.0.0",
+  "description": "React bindings for @molecule/app-analytics (route listener, hooks)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "analytics",
+    "react"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-analytics": "^1.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-router-dom": "^6.0.0 || ^7.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-analytics": "1.0.0",
+    "@types/node": "25.5.0",
+    "@types/react": "19.2.14",
+    "react": "19.2.4",
+    "react-router-dom": "7.13.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
