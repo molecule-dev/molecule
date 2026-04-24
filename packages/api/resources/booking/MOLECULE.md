@@ -5,18 +5,18 @@ Booking/reservation resource for molecule.dev.
 Provides availability checking, booking creation, lifecycle management
 (confirm, cancel, complete), rescheduling, and resource-scoped queries.
 
+## Quick Start
+
+```typescript
+import { routes, requestHandlerMap } from '@molecule/api-resource-booking'
+```
+
 ## Type
 `resource`
 
 ## Installation
 ```bash
 npm install @molecule/api-resource-booking
-```
-
-## Usage
-
-```typescript
-import { routes, requestHandlerMap } from '@molecule/api-resource-booking'
 ```
 
 ## API

@@ -5,21 +5,21 @@ TanStack Table provider for the molecule data table interface.
 Implements `DataTableProvider` from `@molecule/app-data-table` using
 `@tanstack/table-core` for sorting, filtering, pagination, and row selection.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-data-table-tanstack
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { provider } from '@molecule/app-data-table-tanstack'
 import { setProvider } from '@molecule/app-data-table'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-data-table-tanstack
 ```
 
 ## API

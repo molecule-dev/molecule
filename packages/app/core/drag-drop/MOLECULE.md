@@ -7,15 +7,7 @@ and droppable zones. Bond a provider (e.g. `@molecule/app-drag-drop-dndkit`)
 at startup, then use {@link createSortable}, {@link createDraggable}, or
 {@link createDroppable} anywhere.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-drag-drop
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, createSortable } from '@molecule/app-drag-drop'
@@ -28,6 +20,14 @@ const sortable = createSortable({
   axis: 'vertical',
   onReorder: (items) => console.log('New order:', items),
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-drag-drop
 ```
 
 ## API

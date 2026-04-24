@@ -1,9 +1,18 @@
 # @molecule/app-timeline-default
 
-Default provider for @molecule/app-timeline.
+Default provider for \@molecule/app-timeline.
 
 Provides an in-memory timeline implementation with sorting
 and item management.
+
+## Quick Start
+
+```typescript
+import { provider } from '@molecule/app-timeline-default'
+import { setProvider } from '@molecule/app-timeline'
+
+setProvider(provider)
+```
 
 ## Type
 `provider`
@@ -11,15 +20,6 @@ and item management.
 ## Installation
 ```bash
 npm install @molecule/app-timeline-default
-```
-
-## Usage
-
-```typescript
-import { provider } from '@molecule/app-timeline-default'
-import { setProvider } from '@molecule/app-timeline'
-
-setProvider(provider)
 ```
 
 ## API

@@ -6,21 +6,21 @@ Implements the `TemplateProvider` interface using the Handlebars template
 engine. Supports Mustache-compatible syntax with helpers, partials, and
 pre-compiled templates for fast rendering.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-templating-handlebars
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-templating'
 import { provider } from '@molecule/api-templating-handlebars'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-templating-handlebars
 ```
 
 ## API

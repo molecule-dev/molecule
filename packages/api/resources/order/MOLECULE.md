@@ -5,18 +5,18 @@ Order resource for molecule.dev.
 Provides order management with status tracking, lifecycle transitions,
 cancellation, refunds, and event history.
 
+## Quick Start
+
+```typescript
+import { routes, requestHandlerMap } from '@molecule/api-resource-order'
+```
+
 ## Type
 `resource`
 
 ## Installation
 ```bash
 npm install @molecule/api-resource-order
-```
-
-## Usage
-
-```typescript
-import { routes, requestHandlerMap } from '@molecule/api-resource-order'
 ```
 
 ## API

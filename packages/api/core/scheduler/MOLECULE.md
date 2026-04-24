@@ -5,15 +5,7 @@ Task scheduler interface for molecule.dev.
 Defines SchedulerProvider and ScheduledTask interfaces for periodic
 background task execution.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-scheduler
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, schedule } from '@molecule/api-scheduler'
@@ -28,6 +20,14 @@ schedule({
     await cleanupExpiredRecords()
   },
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-scheduler
 ```
 
 ## API

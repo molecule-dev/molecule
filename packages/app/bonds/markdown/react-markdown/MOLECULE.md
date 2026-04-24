@@ -1,9 +1,18 @@
 # @molecule/app-markdown-react-markdown
 
-react-markdown provider for @molecule/app-markdown.
+react-markdown provider for \@molecule/app-markdown.
 
 Provides a regex-based markdown-to-HTML renderer conforming to
 the molecule markdown provider interface.
+
+## Quick Start
+
+```typescript
+import { provider } from '@molecule/app-markdown-react-markdown'
+import { setProvider } from '@molecule/app-markdown'
+
+setProvider(provider)
+```
 
 ## Type
 `provider`
@@ -11,15 +20,6 @@ the molecule markdown provider interface.
 ## Installation
 ```bash
 npm install @molecule/app-markdown-react-markdown
-```
-
-## Usage
-
-```typescript
-import { provider } from '@molecule/app-markdown-react-markdown'
-import { setProvider } from '@molecule/app-markdown'
-
-setProvider(provider)
 ```
 
 ## API

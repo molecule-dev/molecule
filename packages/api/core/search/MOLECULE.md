@@ -8,15 +8,7 @@ Typesense, PostgreSQL, etc.) implement this interface. Application code
 uses the convenience functions (`search`, `index`, `suggest`, etc.) which
 delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-search
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, search, index, suggest } from '@molecule/api-search'
@@ -26,6 +18,14 @@ setProvider(elasticsearch)
 await index('products', '1', { name: 'Widget', price: 9.99 })
 const results = await search('products', { text: 'widget', highlight: true })
 const suggestions = await suggest('products', 'wid', { limit: 5 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-search
 ```
 
 ## API

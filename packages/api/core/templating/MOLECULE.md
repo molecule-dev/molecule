@@ -8,15 +8,7 @@ templates for reuse, and registering helpers and partials. Bond packages
 uses the convenience functions (`render`, `compile`, `renderCompiled`,
 `registerHelper`, `registerPartial`) which delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-templating
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, render, compile, renderCompiled } from '@molecule/api-templating'
@@ -28,6 +20,14 @@ const html = await render('Hello {{name}}!', { name: 'World' })
 
 const compiled = await compile('Hello {{name}}!')
 const fast = renderCompiled(compiled, { name: 'Fast' })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-templating
 ```
 
 ## API

@@ -408,7 +408,7 @@ interface CheckboxProps extends InputElementProps {
      */
     size?: Size;
     /**
-     * Error message.
+     * {Error} message.
      */
     error?: string;
 }
@@ -655,7 +655,7 @@ interface FormFieldProps extends HTMLElementProps {
      */
     name?: string;
     /**
-     * Error message.
+     * {Error} message.
      */
     error?: string;
     /**
@@ -833,7 +833,7 @@ interface InputProps extends InputElementProps {
      */
     label?: string;
     /**
-     * Error message.
+     * {Error} message.
      */
     error?: string;
     /**
@@ -1050,7 +1050,7 @@ interface RadioGroupProps<T = string> extends BaseProps {
      */
     direction?: 'horizontal' | 'vertical';
     /**
-     * Error message.
+     * {Error} message.
      */
     error?: string;
 }
@@ -1160,7 +1160,7 @@ interface SelectProps<T = string> extends SelectElementProps {
      */
     placeholder?: string;
     /**
-     * Error message.
+     * {Error} message.
      */
     error?: string;
     /**
@@ -1574,7 +1574,7 @@ interface TextareaProps extends TextareaElementProps {
      */
     label?: string;
     /**
-     * Error message.
+     * {Error} message.
      */
     error?: string;
     /**

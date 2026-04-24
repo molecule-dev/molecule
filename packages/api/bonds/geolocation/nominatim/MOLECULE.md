@@ -10,21 +10,21 @@ Nominatim is free and open-source but requires a `User-Agent` header per the
 usage policy. For production use, consider hosting your own Nominatim instance
 and configuring `baseUrl`.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-geolocation-nominatim
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-geolocation'
 import { provider } from '@molecule/api-geolocation-nominatim'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-geolocation-nominatim
 ```
 
 ## API

@@ -7,15 +7,7 @@ tracking, validation, drag-and-drop support, and multi-file queues.
 Bond a provider (e.g. `@molecule/app-file-upload-filepond`) at startup,
 then use {@link createUploader} anywhere.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-file-upload
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { createUploader } from '@molecule/app-file-upload'
@@ -29,6 +21,14 @@ const uploader = createUploader({
     onComplete: (file) => console.log(`Uploaded: ${file.name}`),
   },
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-file-upload
 ```
 
 ## API

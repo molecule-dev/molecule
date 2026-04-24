@@ -4,21 +4,21 @@ Quill v2 rich text editor provider for molecule.dev.
 
 Implements the RichTextProvider interface using Quill v2.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-rich-text-quill
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/app-rich-text'
 import { createQuillProvider } from '@molecule/app-rich-text-quill'
 
 setProvider(createQuillProvider())
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-rich-text-quill
 ```
 
 ## API

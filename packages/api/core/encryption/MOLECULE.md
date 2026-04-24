@@ -6,15 +6,7 @@ Provides the `EncryptionProvider` interface for field-level encryption,
 decryption, hashing, and key rotation. Bond a concrete provider
 (e.g. `@molecule/api-encryption-aes`) at startup via `setProvider()`.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-encryption
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, encrypt, decrypt, hash, verify } from '@molecule/api-encryption'
@@ -30,6 +22,14 @@ const plaintext = await decrypt(ciphertext)
 // Hash and verify data
 const hashed = await hash('password')
 const isValid = await verify('password', hashed)
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-encryption
 ```
 
 ## API
@@ -181,6 +181,8 @@ function rotateKey(oldKey: string, newKey: string): Promise<void>
 
 - `oldKey` — The current encryption key.
 - `newKey` — The new encryption key to rotate to.
+
+**Returns:** Resolves when rotation completes successfully.
 
 #### `setProvider(provider)`
 

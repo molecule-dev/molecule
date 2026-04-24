@@ -6,21 +6,21 @@ Implements `CalendarProvider` from `@molecule/app-calendar` using
 a FullCalendar-style state management approach. Framework bindings
 connect the headless state to the actual FullCalendar DOM library.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-calendar-fullcalendar
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { provider } from '@molecule/app-calendar-fullcalendar'
 import { setProvider } from '@molecule/app-calendar'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-calendar-fullcalendar
 ```
 
 ## API

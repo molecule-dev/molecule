@@ -7,15 +7,7 @@ for consent records, processing logs, and data export/deletion.
 Supports configurable data collectors, legal obligation retention,
 and data category filtering for GDPR Article 15–20 compliance.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-compliance-gdpr
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, exportUserData, deleteUserData, getConsent, setConsent } from '@molecule/api-compliance'
@@ -31,6 +23,14 @@ const customProvider = createProvider({
   legalObligationCategories: ['billing', 'authentication'],
 })
 setProvider(customProvider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-compliance-gdpr
 ```
 
 ## API

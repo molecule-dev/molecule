@@ -2,21 +2,21 @@
 
 Native fetch HTTP client provider for molecule.dev.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-http-fetch
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setClient } from '@molecule/api-http'
 import { provider } from '@molecule/api-http-fetch'
 
 setClient(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-http-fetch
 ```
 
 ## API

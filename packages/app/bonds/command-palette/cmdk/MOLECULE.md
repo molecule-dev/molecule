@@ -6,21 +6,21 @@ Implements `CommandPaletteProvider` from `@molecule/app-command-palette` using
 a cmdk-style headless state management approach. Framework bindings
 connect the headless state to the actual cmdk DOM library.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-command-palette-cmdk
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { provider } from '@molecule/app-command-palette-cmdk'
 import { setProvider } from '@molecule/app-command-palette'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-command-palette-cmdk
 ```
 
 ## API

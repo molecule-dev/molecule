@@ -1,9 +1,18 @@
 # @molecule/app-stepper-default
 
-Default provider for @molecule/app-stepper.
+Default provider for \@molecule/app-stepper.
 
 Provides an in-memory stepper implementation with step navigation,
 validation, and linear mode support.
+
+## Quick Start
+
+```typescript
+import { provider } from '@molecule/app-stepper-default'
+import { setProvider } from '@molecule/app-stepper'
+
+setProvider(provider)
+```
 
 ## Type
 `provider`
@@ -11,15 +20,6 @@ validation, and linear mode support.
 ## Installation
 ```bash
 npm install @molecule/app-stepper-default
-```
-
-## Usage
-
-```typescript
-import { provider } from '@molecule/app-stepper-default'
-import { setProvider } from '@molecule/app-stepper'
-
-setProvider(provider)
 ```
 
 ## API

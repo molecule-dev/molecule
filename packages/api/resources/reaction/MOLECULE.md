@@ -5,15 +5,7 @@ Like/emoji reactions resource for molecule.dev.
 Polymorphic reactions that attach to any resource type. Supports multiple
 reaction types (like, love, laugh, etc.) with idempotent add/remove.
 
-## Type
-`resource`
-
-## Installation
-```bash
-npm install @molecule/api-resource-reaction
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { routes, requestHandlerMap } from '@molecule/api-resource-reaction'
@@ -22,6 +14,14 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-reaction'
 // POST   /:resourceType/:resourceId/reactions
 // DELETE /:resourceType/:resourceId/reactions
 // GET    /:resourceType/:resourceId/reactions
+```
+
+## Type
+`resource`
+
+## Installation
+```bash
+npm install @molecule/api-resource-reaction
 ```
 
 ## API

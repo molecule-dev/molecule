@@ -7,15 +7,7 @@ isolation. Each tenant is logically mapped to a database schema via
 a configurable prefix. Includes middleware that resolves the tenant
 from a configurable HTTP header (`x-tenant-id` by default).
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-multi-tenancy-schema
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, getTenantMiddleware } from '@molecule/api-multi-tenancy'
@@ -31,6 +23,14 @@ const customProvider = createProvider({
   schemaPrefix: 'org_',
 })
 setProvider(customProvider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-multi-tenancy-schema
 ```
 
 ## API

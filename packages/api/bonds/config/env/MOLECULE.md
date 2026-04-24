@@ -2,21 +2,21 @@
 
 Environment configuration provider for molecule.dev.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-config-env
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-config'
 import { provider } from '@molecule/api-config-env'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-config-env
 ```
 
 ## API

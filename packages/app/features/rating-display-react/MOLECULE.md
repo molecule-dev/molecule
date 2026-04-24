@@ -1,18 +1,24 @@
 # @molecule/app-rating-display-react
 
-Read-only and interactive star rating display with half-star support
+React star-rating display.
+
+Exports `<RatingDisplay>` — fractional star rendering (inline SVG),
+optional review count tail, optional interactive mode via `onChange`.
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-rating-display-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `@molecule/app-ui-react` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0

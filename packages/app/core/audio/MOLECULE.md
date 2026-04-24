@@ -5,15 +5,7 @@ Audio player core interface for molecule.dev.
 Provides a standardized API for audio playback. Bond a provider
 (e.g. `@molecule/app-audio-howler`) to supply the concrete implementation.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-audio
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { requireProvider } from '@molecule/app-audio'
@@ -24,6 +16,14 @@ const player = requireProvider().createPlayer({
   onEnd: () => console.log('Playback finished'),
 })
 player.play()
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-audio
 ```
 
 ## API

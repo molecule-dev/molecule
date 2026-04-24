@@ -5,15 +5,7 @@ Notification resource for molecule.dev.
 Provides Express route handlers for in-app notification management
 including listing, read status, deletion, and preference management.
 
-## Type
-`resource`
-
-## Installation
-```bash
-npm install @molecule/api-resource-notification
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { routes, requestHandlerMap } from '@molecule/api-resource-notification'
@@ -23,6 +15,14 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-notification'
 for (const route of routes) {
   app[route.method](route.path, requestHandlerMap[route.handler])
 }
+```
+
+## Type
+`resource`
+
+## Installation
+```bash
+npm install @molecule/api-resource-notification
 ```
 
 ## API

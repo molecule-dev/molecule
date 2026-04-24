@@ -7,15 +7,7 @@ indexes, RSS 2.0 feeds, and Atom feeds. Bond packages provide concrete
 implementations. Application code uses the convenience functions (`addUrl`,
 `generate`, `generateIndex`, `rss`, `atom`) which delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-sitemap
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, addUrl, generate, rss } from '@molecule/api-sitemap'
@@ -33,6 +25,14 @@ const feed = await rss({
   link: 'https://example.com',
   items: [{ title: 'Hello', description: 'First post', link: 'https://example.com/hello' }],
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-sitemap
 ```
 
 ## API

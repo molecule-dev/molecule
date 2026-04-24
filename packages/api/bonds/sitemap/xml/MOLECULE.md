@@ -6,15 +6,7 @@ Implements the `SitemapProvider` interface using zero-dependency XML string
 generation. Produces valid XML sitemaps (with image and alternate language
 support), sitemap indexes, RSS 2.0 feeds, and Atom feeds.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-sitemap-xml
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, addUrl, generate } from '@molecule/api-sitemap'
@@ -24,6 +16,14 @@ setProvider(provider)
 
 addUrl({ loc: 'https://example.com/', changefreq: 'daily', priority: 1.0 })
 const xml = await generate()
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-sitemap-xml
 ```
 
 ## API

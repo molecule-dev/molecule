@@ -5,15 +5,7 @@ State management for active staging environments in molecule.dev.
 Manages the `.molecule/staging.json` file that tracks ephemeral
 branch-per-feature staging environments within a project.
 
-## Type
-`utility`
-
-## Installation
-```bash
-npm install @molecule/api-staging-state
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { addEnvironment, listEnvironments, allocatePort } from '@molecule/api-staging-state'
@@ -29,6 +21,14 @@ await addEnvironment('/path/to/project', {
   urls: { api: `http://localhost:${ports.api}` },
   ports,
 })
+```
+
+## Type
+`utility`
+
+## Installation
+```bash
+npm install @molecule/api-staging-state
 ```
 
 ## API

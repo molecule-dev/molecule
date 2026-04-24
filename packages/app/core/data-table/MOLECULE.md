@@ -7,15 +7,7 @@ sorting, filtering, pagination, row selection, and column pinning.
 Bond a provider (e.g. `@molecule/app-data-table-tanstack`) at startup,
 then use {@link createTable} anywhere.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-data-table
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { createTable } from '@molecule/app-data-table'
@@ -28,6 +20,14 @@ const table = createTable({
   ],
   pagination: { page: 0, pageSize: 20 },
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-data-table
 ```
 
 ## API

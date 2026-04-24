@@ -5,15 +5,7 @@ Reviews with ratings resource for molecule.dev.
 Polymorphic reviews that attach to any resource type. Supports star ratings
 (1–5), title/body text, helpfulness voting, and aggregate rating statistics.
 
-## Type
-`resource`
-
-## Installation
-```bash
-npm install @molecule/api-resource-review
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { routes, requestHandlerMap } from '@molecule/api-resource-review'
@@ -26,6 +18,14 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-review'
 // PUT    /reviews/:reviewId
 // DELETE /reviews/:reviewId
 // POST   /reviews/:reviewId/helpful
+```
+
+## Type
+`resource`
+
+## Installation
+```bash
+npm install @molecule/api-resource-review
 ```
 
 ## API

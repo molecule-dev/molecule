@@ -588,6 +588,23 @@ interface DropdownProps<T = string> extends BaseProps {
 }
 ```
 
+#### `EmptyStateProps`
+
+Props for the EmptyState component — shown when a list or section has no data.
+
+```typescript
+interface EmptyStateProps extends BaseProps {
+  /** Icon or illustration to display. */
+  icon?: Children
+  /** Main heading text. */
+  title: string
+  /** Description text. */
+  description?: string
+  /** Primary action button (e.g., "Create first item"). */
+  action?: Children
+}
+```
+
 #### `FlexClassOptions`
 
 Options for flex class resolution.
@@ -598,7 +615,8 @@ interface FlexClassOptions {
   align?: 'start' | 'center' | 'end' | 'stretch' | 'baseline'
   justify?: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly'
   wrap?: 'wrap' | 'nowrap' | 'wrap-reverse'
-  gap?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  /** Named tokens or Tailwind spacing scale index (e.g. `3` → `gap-3`). */
+  gap?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number
 }
 ```
 
@@ -725,7 +743,8 @@ Options for grid class resolution.
 ```typescript
 interface GridClassOptions {
   cols?: number
-  gap?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  /** Named tokens or Tailwind spacing scale index (e.g. `10` → `gap-10`). */
+  gap?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number
 }
 ```
 
@@ -982,6 +1001,42 @@ interface ModalProps extends HTMLElementProps {
    * @default 'Close'
    */
   closeLabel?: string
+}
+```
+
+#### `PageHeaderProps`
+
+Props for the PageHeader component — consistent page title area.
+
+```typescript
+interface PageHeaderProps extends BaseProps {
+  /** Page title. */
+  title: string
+  /** Page description. */
+  description?: string
+  /** Action buttons (e.g., "Create", "Export"). */
+  actions?: Children
+  /** Breadcrumb trail. */
+  breadcrumbs?: Array<{ label: string; href?: string }>
+}
+```
+
+#### `PageShellProps`
+
+Props for the PageShell component — authenticated page wrapper with navigation.
+
+```typescript
+interface PageShellProps extends BaseProps {
+  /** Sidebar content (navigation links). */
+  sidebar?: Children
+  /** Top bar content (breadcrumbs, user menu). */
+  topbar?: Children
+  /** Whether the sidebar is collapsed. */
+  sidebarCollapsed?: boolean
+  /** Callback when sidebar toggle is clicked. */
+  onSidebarToggle?: () => void
+  /** Main content. */
+  children?: Children
 }
 ```
 
@@ -2335,6 +2390,45 @@ interface UIClassMap {
 
   /** OAuth provider name label (fallback when no icon). */
   oauthProviderLabel: string
+
+  // ---- Layout pattern tokens ----
+
+  /** PageShell root container (flex, full screen). */
+  pageShell: string
+  /** PageShell sidebar panel. */
+  pageShellSidebar: string
+  /** PageShell sidebar collapsed state (narrow width). */
+  pageShellSidebarCollapsed: string
+  /** PageShell top bar strip. */
+  pageShellTopbar: string
+  /** PageShell main content area (scrollable). */
+  pageShellContent: string
+  /** PageShell sidebar toggle button. */
+  pageShellSidebarToggle: string
+  /** EmptyState root container (centered column). */
+  emptyState: string
+  /** EmptyState icon/illustration wrapper. */
+  emptyStateIcon: string
+  /** EmptyState heading text. */
+  emptyStateTitle: string
+  /** EmptyState description text. */
+  emptyStateDescription: string
+  /** EmptyState action slot. */
+  emptyStateAction: string
+  /** PageHeader root container. */
+  pageHeader: string
+  /** PageHeader title text. */
+  pageHeaderTitle: string
+  /** PageHeader description text. */
+  pageHeaderDescription: string
+  /** PageHeader action buttons container. */
+  pageHeaderActions: string
+  /** PageHeader breadcrumb trail container. */
+  pageHeaderBreadcrumbs: string
+  /** PageHeader breadcrumb item link/text. */
+  pageHeaderBreadcrumbItem: string
+  /** PageHeader breadcrumb separator character. */
+  pageHeaderBreadcrumbSeparator: string
 }
 ```
 
@@ -2444,7 +2538,7 @@ type FocusEventHandler = EventHandler<FocusEvent>
 Font weight scale.
 
 ```typescript
-type FontWeightScale = 'normal' | 'medium' | 'semibold' | 'bold'
+type FontWeightScale = 'normal' | 'medium' | 'semibold' | 'bold' | 'extrabold'
 ```
 
 #### `FormEventHandler`
@@ -2457,10 +2551,19 @@ type FormEventHandler = EventHandler<Event>
 
 #### `HeightValue`
 
-Height value — keyword or numeric (mapped to spacing scale).
+Height value — fractional, keyword, or numeric (mapped to spacing scale).
 
 ```typescript
-type HeightValue = 'full' | 'screen' | 'auto'
+type HeightValue =
+  | 'full'
+  | 'screen'
+  | 'auto'
+  | '1/2'
+  | '1/3'
+  | '2/3'
+  | '1/4'
+  | '3/4'
+  | TailwindArbitraryBracket
 ```
 
 #### `InputType`
@@ -2494,7 +2597,21 @@ type KeyboardEventHandler = EventHandler<KeyboardEvent>
 Max-width scale for constraining content.
 
 ```typescript
-type MaxWidthScale = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'
+type MaxWidthScale =
+  | 'none'
+  | 'xs'
+  | 'sm'
+  | 'md'
+  | 'lg'
+  | 'xl'
+  | '2xl'
+  | '4xl'
+  | '5xl'
+  | '6xl'
+  | '7xl'
+  | 'full'
+  | 'screen-2xl'
+  | TailwindArbitraryBracket
 ```
 
 #### `ModalSize`
@@ -2564,7 +2681,15 @@ Abstract spacing scale. Each styling library maps these to its own units.
 For Tailwind: 0 → 0, 1 → 0.25rem, 4 → 1rem, 8 → 2rem, etc.
 
 ```typescript
-type SpacingScale = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16
+type SpacingScale = 0 | 1 | 2 | 2.5 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16 | 20 | 24
+```
+
+#### `TailwindArbitraryBracket`
+
+Tailwind arbitrary value in bracket notation (e.g. `[440px]`, `[65%]`).
+
+```typescript
+type TailwindArbitraryBracket = `[${string}]`
 ```
 
 #### `TextScale`
@@ -2572,7 +2697,7 @@ type SpacingScale = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16
 Text size scale from extra-small to 4xl.
 
 ```typescript
-type TextScale = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl'
+type TextScale = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl'
 ```
 
 #### `ToastPosition`
@@ -2610,7 +2735,17 @@ type TooltipPlacement =
 Width value — fractional, keyword, or numeric (mapped to spacing scale).
 
 ```typescript
-type WidthValue = 'full' | '1/2' | '1/3' | '2/3' | '1/4' | '3/4' | 'auto' | 'screen'
+type WidthValue =
+  | 'full'
+  | '1/2'
+  | '1/3'
+  | '2/3'
+  | '1/4'
+  | '3/4'
+  | 'auto'
+  | 'screen'
+  | 'fit'
+  | TailwindArbitraryBracket
 ```
 
 ### Functions

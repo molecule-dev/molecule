@@ -7,21 +7,21 @@ dnd-kit-compatible state management layer. Framework bindings wire these
 instances to `@dnd-kit/core` (React), `@dnd-kit/vue`, or equivalent
 libraries for actual DOM interactions.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-drag-drop-dndkit
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { provider } from '@molecule/app-drag-drop-dndkit'
 import { setProvider } from '@molecule/app-drag-drop'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-drag-drop-dndkit
 ```
 
 ## API

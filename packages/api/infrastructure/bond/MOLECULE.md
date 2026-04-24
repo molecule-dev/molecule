@@ -5,15 +5,7 @@ Runtime provider wiring system for molecule.dev.
 Enables swappable providers for email, auth, payments, uploads, and any
 custom category — all through dynamic string-based keys.
 
-## Type
-`infrastructure`
-
-## Installation
-```bash
-npm install @molecule/api-bond
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { bond, require as bondRequire, get, isBonded, getLogger } from '@molecule/api-bond'
@@ -41,6 +33,14 @@ const stripePayments = get<PaymentProvider>('payments', 'stripe')
 // Safe logging (falls back to console if no logger bonded)
 const logger = getLogger()
 logger.info('Server started')
+```
+
+## Type
+`infrastructure`
+
+## Installation
+```bash
+npm install @molecule/api-bond
 ```
 
 ## API

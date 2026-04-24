@@ -8,15 +8,7 @@ configurable windows, token consumption, and reset. Bond packages
 uses the convenience functions (`check`, `consume`, `reset`, `getRemaining`)
 which delegate to the bonded provider, or the Express middleware factory.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-rate-limit
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, consume, createRateLimitMiddleware } from '@molecule/api-rate-limit'
@@ -30,6 +22,14 @@ if (!result.allowed) console.log('Rate limited, retry after', result.retryAfter)
 
 // Or as Express middleware
 app.use(createRateLimitMiddleware({ windowMs: 60_000, max: 100 }))
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-rate-limit
 ```
 
 ## API

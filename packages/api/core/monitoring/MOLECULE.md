@@ -6,15 +6,7 @@ Defines MonitoringProvider and SystemHealth interfaces, plus composable
 factory functions for common health checks (database, cache, HTTP probes,
 bond registry checks, and custom checks).
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-monitoring
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, runAll, createDatabaseCheck, createHttpCheck } from '@molecule/api-monitoring'
@@ -28,6 +20,14 @@ monitoring.register(createHttpCheck('https://api.stripe.com', { name: 'stripe', 
 
 const health = await runAll()
 console.log(health.status) // 'operational' | 'degraded' | 'down'
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-monitoring
 ```
 
 ## API

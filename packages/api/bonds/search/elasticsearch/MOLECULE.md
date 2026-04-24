@@ -6,21 +6,21 @@ Implements the `SearchProvider` interface using the `@elastic/elasticsearch`
 client. Supports full-text search, faceted filtering, bulk indexing, and
 autocomplete suggestions.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-search-elasticsearch
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-search'
 import { provider } from '@molecule/api-search-elasticsearch'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-search-elasticsearch
 ```
 
 ## API

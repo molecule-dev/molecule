@@ -1,9 +1,18 @@
 # @molecule/app-date-range-picker-default
 
-Default provider for @molecule/app-date-range-picker.
+Default provider for \@molecule/app-date-range-picker.
 
 Provides an in-memory date range picker implementation conforming to
 the molecule date range picker provider interface.
+
+## Quick Start
+
+```typescript
+import { provider } from '@molecule/app-date-range-picker-default'
+import { setProvider } from '@molecule/app-date-range-picker'
+
+setProvider(provider)
+```
 
 ## Type
 `provider`
@@ -11,15 +20,6 @@ the molecule date range picker provider interface.
 ## Installation
 ```bash
 npm install @molecule/app-date-range-picker-default
-```
-
-## Usage
-
-```typescript
-import { provider } from '@molecule/app-date-range-picker-default'
-import { setProvider } from '@molecule/app-date-range-picker'
-
-setProvider(provider)
 ```
 
 ## API

@@ -9,15 +9,7 @@ manifests, and retrieving individual stream segments. Bond packages
 convenience functions (`createStream`, `transcode`, `generateManifest`,
 `getSegment`) which delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-media-streaming
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, createStream, transcode } from '@molecule/api-media-streaming'
@@ -34,6 +26,14 @@ const result = await transcode('/path/to/video.mp4', [
   { name: '720p', width: 1280, height: 720, videoBitrate: 2_500_000, audioBitrate: 128_000 },
   { name: '1080p', width: 1920, height: 1080, videoBitrate: 5_000_000, audioBitrate: 192_000 },
 ])
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-media-streaming
 ```
 
 ## API

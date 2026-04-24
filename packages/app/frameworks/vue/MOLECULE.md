@@ -6,15 +6,7 @@ Provides Vue-specific composables and plugins for all molecule
 core interfaces. This package enables the use of molecule's framework-agnostic
 interfaces with Vue's idioms (Composition API, provide/inject, etc.).
 
-## Type
-`framework`
-
-## Installation
-```bash
-npm install @molecule/app-vue
-```
-
-## Usage
+## Quick Start
 
 ```ts
 import { createApp } from 'vue'
@@ -38,6 +30,14 @@ const { user, logout } = useAuth()
 const { theme, toggleTheme } = useTheme()
 const count = useStore(counterStore)
 // </script>
+```
+
+## Type
+`framework`
+
+## Installation
+```bash
+npm install @molecule/app-vue
 ```
 
 ## API

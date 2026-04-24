@@ -1,18 +1,24 @@
 # @molecule/app-related-items-card-react
 
-Card container for cross-linked items: company→deals, contact→notes, ticket→articles
+React card container for cross-linked / related item lists.
+
+Exports `<RelatedItemsCard>` — titled Card with header + list + empty state + "View all" link.
+Use for "Company → Deals", "Contact → Notes", "Ticket → Related Articles" panels.
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-related-items-card-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `@molecule/app-ui-react` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0

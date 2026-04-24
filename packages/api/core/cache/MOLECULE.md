@@ -7,15 +7,7 @@ batch operations, and cache-aside (`getOrSet`). Bond packages (Redis, Memcached,
 in-memory, etc.) implement this interface. Application code uses the convenience
 functions (`get`, `set`, `del`, `has`, `getOrSet`) which delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-cache
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, get, set, getOrSet } from '@molecule/api-cache'
@@ -25,6 +17,14 @@ setProvider(redis)
 await set('user:123', userData, { ttl: 3600 })
 const cached = await get<UserData>('user:123')
 const fresh = await getOrSet('user:456', () => fetchUser('456'), { ttl: 600 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-cache
 ```
 
 ## API

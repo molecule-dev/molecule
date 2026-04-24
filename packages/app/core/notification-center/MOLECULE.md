@@ -8,15 +8,7 @@ and subscription-based state notifications. Bond a provider (e.g.
 `@molecule/app-notification-center-default`) at startup, then use
 {@link createNotificationCenter} anywhere.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-notification-center
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, createNotificationCenter } from '@molecule/app-notification-center'
@@ -35,6 +27,14 @@ const center = createNotificationCenter({
 center.onUpdate((state) => {
   console.log('Unread:', state.unreadCount)
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-notification-center
 ```
 
 ## API
@@ -286,7 +286,7 @@ interface NotificationFilter {
 Minimal realtime transport interface for receiving push notifications.
 
 Any object with `on` / `off` methods satisfies this contract — including
-a {@link @molecule/app-realtime#RealtimeConnection}.
+a realtime connection from the `@molecule/app-realtime` package.
 
 ```typescript
 interface NotificationRealtimeAdapter {

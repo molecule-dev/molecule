@@ -1,18 +1,23 @@
 # @molecule/app-ticker-row-react
 
-Financial ticker row — symbol, price, change%, sparkline for crypto/stocks/markets
+Financial ticker row — symbol + price + change% + optional sparkline.
+
+Exports `<TickerRow>`.
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-ticker-row-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `@molecule/app-ui-react` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0

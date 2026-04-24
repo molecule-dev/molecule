@@ -7,15 +7,7 @@ with support for GFM, syntax highlighting, and table of contents extraction.
 Bond a provider (e.g. `@molecule/app-markdown-react-markdown`) to supply
 the concrete implementation.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-markdown
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { requireProvider } from '@molecule/app-markdown'
@@ -23,6 +15,14 @@ import { requireProvider } from '@molecule/app-markdown'
 const md = requireProvider()
 const result = md.render('# Hello World', { gfm: true })
 console.log(result.html)
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-markdown
 ```
 
 ## API

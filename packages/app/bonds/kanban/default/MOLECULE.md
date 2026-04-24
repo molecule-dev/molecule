@@ -6,21 +6,21 @@ Provides an in-memory kanban board implementation with column/card CRUD,
 drag state tracking, column reordering, and subscription-based state
 notifications. No external dependencies.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-kanban-default
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/app-kanban'
 import { provider } from '@molecule/app-kanban-default'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-kanban-default
 ```
 
 ## API

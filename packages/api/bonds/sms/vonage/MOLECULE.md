@@ -4,15 +4,7 @@ Vonage SMS provider for molecule.dev.
 
 Implements the `@molecule/api-sms` interface using the Vonage SMS API.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-sms-vonage
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-sms'
@@ -27,6 +19,14 @@ setProvider(createProvider({
   apiSecret: 'secret',
   defaultFrom: '+15551234567',
 }))
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-sms-vonage
 ```
 
 ## API

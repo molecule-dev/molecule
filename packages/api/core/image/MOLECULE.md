@@ -8,15 +8,7 @@ thumbnailing, optimizing, and extracting metadata from images. Bond packages
 convenience functions (`resize`, `crop`, `convert`, `thumbnail`, `optimize`,
 `getMetadata`) which delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-image
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, resize, convert, getMetadata } from '@molecule/api-image'
@@ -26,6 +18,14 @@ setProvider(sharp)
 const resized = await resize(imageBuffer, { width: 800, height: 600, fit: 'cover' })
 const webp = await convert(imageBuffer, 'webp', 80)
 const meta = await getMetadata(imageBuffer)
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-image
 ```
 
 ## API

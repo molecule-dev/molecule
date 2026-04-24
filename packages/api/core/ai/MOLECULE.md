@@ -5,15 +5,7 @@ Model-agnostic AI chat interface for molecule.dev.
 Defines the `AIProvider` interface that bond packages (Anthropic, OpenAI, etc.)
 implement, plus types for messages, streaming events, tool use, and token usage.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-ai
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { requireProvider } from '@molecule/api-ai'
@@ -27,6 +19,14 @@ const params: ChatParams = {
 for await (const event of ai.chat(params)) {
   if (event.type === 'text') process.stdout.write(event.content)
 }
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-ai
 ```
 
 ## API
@@ -260,20 +260,17 @@ function requireProvider(): AIProvider
 
 **Returns:** The bonded AI provider.
 
-#### `setProvider(nameOrProvider, provider)`
+#### `setProvider(provider)`
 
-Registers an AI provider. Supports two modes:
+Registers an AI provider in singleton mode.
 
 - **Singleton**: `setProvider(provider)` — bonds a single default provider.
-- **Named**: `setProvider('anthropic', provider)` — bonds a named provider
-  alongside others (e.g. `'xai'`, `'openai'`).
 
 ```typescript
 function setProvider(provider: AIProvider): void
 ```
 
-- `nameOrProvider` — Provider name (string) or the provider instance (singleton mode).
-- `provider` — The provider instance (only when first arg is a name).
+- `provider` — The default provider implementation for this process.
 
 ## Available Providers
 

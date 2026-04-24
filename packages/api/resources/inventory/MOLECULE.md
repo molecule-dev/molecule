@@ -5,18 +5,18 @@ Inventory resource for molecule.dev.
 Provides stock tracking with reservations, low-stock alerts,
 movement history, and bulk update support.
 
+## Quick Start
+
+```typescript
+import { routes, requestHandlerMap } from '@molecule/api-resource-inventory'
+```
+
 ## Type
 `resource`
 
 ## Installation
 ```bash
 npm install @molecule/api-resource-inventory
-```
-
-## Usage
-
-```typescript
-import { routes, requestHandlerMap } from '@molecule/api-resource-inventory'
 ```
 
 ## API

@@ -6,15 +6,7 @@ Uses Node.js built-in `crypto` for AES-256-GCM authenticated encryption,
 SHA-256 hashing, and timing-safe verification. Supports key rotation with
 versioned ciphertext format.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-encryption-aes
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-encryption'
@@ -27,6 +19,14 @@ setProvider(provider)
 import { createProvider } from '@molecule/api-encryption-aes'
 const customProvider = createProvider({ key: 'your-64-char-hex-key' })
 setProvider(customProvider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-encryption-aes
 ```
 
 ## API

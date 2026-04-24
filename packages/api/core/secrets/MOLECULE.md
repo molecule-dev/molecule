@@ -8,15 +8,7 @@ Provides a standardized way to:
 - Validate secrets at startup
 - Auto-provision services
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-secrets
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { get, getRequired, validate, COMMON_SECRETS } from '@molecule/api-secrets'
@@ -32,6 +24,14 @@ const results = await validate([
   COMMON_SECRETS.DATABASE_URL,
   COMMON_SECRETS.STRIPE_SECRET_KEY,
 ])
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-secrets
 ```
 
 ## API

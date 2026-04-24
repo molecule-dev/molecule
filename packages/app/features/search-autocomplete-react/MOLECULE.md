@@ -1,18 +1,23 @@
 # @molecule/app-search-autocomplete-react
 
-Search input with typeahead suggestion popover
+Search input with typeahead suggestions.
+
+Exports `<SearchAutocomplete>` and `SuggestionItem` type.
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-search-autocomplete-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `@molecule/app-ui-react` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0

@@ -6,21 +6,21 @@ Implements the `SearchProvider` interface using PostgreSQL's built-in
 `tsvector`/`tsquery` full-text search capabilities. No external search
 engine required — uses the existing database bond.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-search-postgres
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-search'
 import { provider } from '@molecule/api-search-postgres'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-search-postgres
 ```
 
 ## API

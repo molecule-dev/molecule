@@ -6,21 +6,21 @@ Persists audit trail entries using the abstract `DataStore` from
 `@molecule/api-database`. Supports filtering, pagination, and export
 to CSV or JSON.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-audit-database
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-audit'
 import { provider } from '@molecule/api-audit-database'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-audit-database
 ```
 
 ## API

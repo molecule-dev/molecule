@@ -6,15 +6,7 @@ Provides a {@link RealtimeProvider} implementation using native Node.js
 Server-Sent Events for server-to-client push, with HTTP POST for
 client-to-server messages.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-realtime-sse
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { createProvider } from '@molecule/api-realtime-sse'
@@ -25,6 +17,14 @@ const sseProvider = createProvider({ port: 3000, path: '/sse' })
 
 // Bond it as the active realtime provider
 setProvider(sseProvider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-realtime-sse
 ```
 
 ## API

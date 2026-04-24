@@ -6,15 +6,7 @@ Provides a standardized API for multi-step wizard / stepper UI
 components. Bond a provider (e.g. `@molecule/app-stepper-default`)
 to supply the concrete implementation.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-stepper
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { requireProvider } from '@molecule/app-stepper'
@@ -27,6 +19,14 @@ const stepper = requireProvider().createStepper({
   ],
 })
 stepper.next()
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-stepper
 ```
 
 ## API

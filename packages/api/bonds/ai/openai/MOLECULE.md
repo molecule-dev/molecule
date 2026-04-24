@@ -16,6 +16,8 @@ npm install @molecule/api-ai-openai
 
 #### `OpenaiConfig`
 
+OpenAI provider configuration (TODO: expand required fields).
+
 ```typescript
 interface OpenaiConfig {
   // TODO: Define provider-specific config
@@ -27,10 +29,18 @@ interface OpenaiConfig {
 
 #### `OpenaiAIProvider`
 
+Stub OpenAI AI provider scaffold (TODO: implement API wiring).
+
 ### Functions
 
 #### `createProvider(config)`
 
+Creates an OpenAI AI provider instance for bonding.
+
 ```typescript
 function createProvider(config: OpenaiConfig): OpenaiAIProvider
 ```
+
+- `config` — OpenAI provider configuration.
+
+**Returns:** An OpenAI-backed provider instance.

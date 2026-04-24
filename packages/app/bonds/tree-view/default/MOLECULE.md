@@ -1,9 +1,18 @@
 # @molecule/app-tree-view-default
 
-Default provider for @molecule/app-tree-view.
+Default provider for \@molecule/app-tree-view.
 
 Provides an in-memory tree view implementation with node management,
 selection, and expansion control.
+
+## Quick Start
+
+```typescript
+import { provider } from '@molecule/app-tree-view-default'
+import { setProvider } from '@molecule/app-tree-view'
+
+setProvider(provider)
+```
 
 ## Type
 `provider`
@@ -11,15 +20,6 @@ selection, and expansion control.
 ## Installation
 ```bash
 npm install @molecule/app-tree-view-default
-```
-
-## Usage
-
-```typescript
-import { provider } from '@molecule/app-tree-view-default'
-import { setProvider } from '@molecule/app-tree-view'
-
-setProvider(provider)
 ```
 
 ## API

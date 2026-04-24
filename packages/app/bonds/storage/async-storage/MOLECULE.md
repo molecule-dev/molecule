@@ -5,15 +5,7 @@ AsyncStorage provider for `@molecule/app-storage`.
 This package provides a React Native AsyncStorage-based implementation of the molecule StorageProvider
 interface, with support for key prefixing and custom serialization.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-storage-async-storage
-```
-
-## Usage
+## Quick Start
 
 ```ts
 import { createAsyncStorageProvider } from '@molecule/app-storage-async-storage'
@@ -31,6 +23,14 @@ import { get, set, remove } from '@molecule/app-storage'
 await set('user', { name: 'John' })
 const user = await get<User>('user')
 await remove('user')
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-storage-async-storage
 ```
 
 ## API

@@ -6,21 +6,21 @@ Implements the `GeolocationProvider` interface using Google Maps Geocoding,
 Places Autocomplete, and Timezone APIs. Supports geocoding, reverse geocoding,
 Haversine distance calculations, place autocomplete, and timezone lookups.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-geolocation-google
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-geolocation'
 import { provider } from '@molecule/api-geolocation-google'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-geolocation-google
 ```
 
 ## API

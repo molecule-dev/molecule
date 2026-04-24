@@ -5,15 +5,7 @@ Configuration core interface for molecule.dev.
 Defines the standard interface for configuration providers with
 typed accessors for strings, numbers, booleans, and JSON values.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-config
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import {
@@ -42,6 +34,14 @@ const result = validate([
   { key: 'DATABASE_URL', required: true },
   { key: 'PORT', type: 'number', min: 1, max: 65535 },
 ])
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-config
 ```
 
 ## API

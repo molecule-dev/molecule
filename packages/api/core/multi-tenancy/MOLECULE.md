@@ -7,15 +7,7 @@ including tenant lifecycle management, context switching, and middleware
 integration. Bond a concrete provider (e.g. `@molecule/api-multi-tenancy-schema`)
 at startup via `setProvider()`.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-multi-tenancy
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, setTenant, getTenant, createTenant, listTenants, getTenantMiddleware } from '@molecule/api-multi-tenancy'
@@ -32,6 +24,14 @@ setTenant(tenant.id)
 
 // Use middleware to auto-resolve tenant from requests
 app.use(getTenantMiddleware())
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-multi-tenancy
 ```
 
 ## API
@@ -231,6 +231,8 @@ function deleteTenant(tenantId: string): Promise<void>
 ```
 
 - `tenantId` — The identifier of the tenant to delete.
+
+**Returns:** Resolves when the tenant is removed.
 
 #### `getProvider()`
 

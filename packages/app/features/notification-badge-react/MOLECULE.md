@@ -1,18 +1,26 @@
 # @molecule/app-notification-badge-react
 
-Unread count badge and positioned wrapper for attaching to any child
+React notification badge / dot / wrapper.
+
+Exports:
+- `<NotificationBadge>` — count pill with `max+` overflow handling.
+- `<NotificationDot>` — tiny presence indicator.
+- `<NotificationWrapper>` — positions a badge at the corner of any child.
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-notification-badge-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `@molecule/app-ui-react` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0

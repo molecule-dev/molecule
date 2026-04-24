@@ -6,15 +6,7 @@ Provides Svelte-specific stores and context utilities for all molecule
 core interfaces. This package enables the use of molecule's framework-agnostic
 interfaces with Svelte's idioms (stores, context, etc.).
 
-## Type
-`framework`
-
-## Installation
-```bash
-npm install @molecule/app-svelte
-```
-
-## Usage
+## Quick Start
 
 ```svelte
 <!-- +layout.svelte -->
@@ -46,6 +38,14 @@ npm install @molecule/app-svelte
     <button on:click={logout}>Logout</button>
   </div>
 {/if}
+```
+
+## Type
+`framework`
+
+## Installation
+```bash
+npm install @molecule/app-svelte
 ```
 
 ## API

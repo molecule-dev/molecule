@@ -5,15 +5,7 @@ Follow/unfollow resource for molecule.dev.
 Polymorphic follow system for users or any resource type. Supports
 followers list, following list, and follow status checks.
 
-## Type
-`resource`
-
-## Installation
-```bash
-npm install @molecule/api-resource-follow
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { routes, requestHandlerMap } from '@molecule/api-resource-follow'
@@ -24,6 +16,14 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-follow'
 // GET    /:targetType/:targetId/followers
 // GET    /following
 // GET    /follow/check/:targetType/:targetId
+```
+
+## Type
+`resource`
+
+## Installation
+```bash
+npm install @molecule/api-resource-follow
 ```
 
 ## API

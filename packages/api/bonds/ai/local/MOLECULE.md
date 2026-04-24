@@ -16,6 +16,8 @@ npm install @molecule/api-ai-local
 
 #### `LocalConfig`
 
+Local provider configuration (TODO: expand required fields).
+
 ```typescript
 interface LocalConfig {
   // TODO: Define provider-specific config
@@ -27,10 +29,18 @@ interface LocalConfig {
 
 #### `LocalAIProvider`
 
+Stub local AI provider scaffold (TODO: implement API wiring).
+
 ### Functions
 
 #### `createProvider(config)`
 
+Creates a local AI provider instance for bonding.
+
 ```typescript
 function createProvider(config: LocalConfig): LocalAIProvider
 ```
+
+- `config` — Local provider configuration.
+
+**Returns:** A local-backed provider instance.

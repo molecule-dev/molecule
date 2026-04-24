@@ -1,18 +1,23 @@
 # @molecule/app-copy-link-field-react
 
-Read-only input + copy-to-clipboard button for share links, API keys, webhook URLs
+React copy-link field.
+
+Exports `<CopyLinkField>` — read-only input + copy-to-clipboard button with "Copied!" feedback.
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-copy-link-field-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `@molecule/app-ui-react` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0

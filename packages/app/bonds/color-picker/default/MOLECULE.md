@@ -1,9 +1,18 @@
 # @molecule/app-color-picker-default
 
-Default provider for @molecule/app-color-picker.
+Default provider for \@molecule/app-color-picker.
 
 Provides an in-memory color picker implementation conforming to
 the molecule color picker provider interface.
+
+## Quick Start
+
+```typescript
+import { provider } from '@molecule/app-color-picker-default'
+import { setProvider } from '@molecule/app-color-picker'
+
+setProvider(provider)
+```
 
 ## Type
 `provider`
@@ -11,15 +20,6 @@ the molecule color picker provider interface.
 ## Installation
 ```bash
 npm install @molecule/app-color-picker-default
-```
-
-## Usage
-
-```typescript
-import { provider } from '@molecule/app-color-picker-default'
-import { setProvider } from '@molecule/app-color-picker'
-
-setProvider(provider)
 ```
 
 ## API

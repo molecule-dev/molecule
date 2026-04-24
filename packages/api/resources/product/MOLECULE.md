@@ -5,18 +5,18 @@ Product catalog resource for molecule.dev.
 Provides CRUD handlers for products with soft-delete, pagination, status filtering,
 and variant sub-resources. All user-facing text is i18n-ready via companion locale bonds.
 
+## Quick Start
+
+```typescript
+import { routes, requestHandlerMap } from '@molecule/api-resource-product'
+```
+
 ## Type
 `resource`
 
 ## Installation
 ```bash
 npm install @molecule/api-resource-product
-```
-
-## Usage
-
-```typescript
-import { routes, requestHandlerMap } from '@molecule/api-resource-product'
 ```
 
 ## API

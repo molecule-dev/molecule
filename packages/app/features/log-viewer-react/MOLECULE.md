@@ -1,18 +1,23 @@
 # @molecule/app-log-viewer-react
 
-Expandable log rows with timestamp, severity, service label, and JSON structured-data panel
+Structured log-row viewer.
+
+Exports `<LogViewer>` and `LogEntry` / `LogLevel` types.
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-log-viewer-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `@molecule/app-ui-react` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0

@@ -6,15 +6,7 @@ Provides a headless Socket.io-style state manager for realtime connections,
 with rooms, presence, event buffering, and reconnection support. Bond this
 provider at startup, then use the core `@molecule/app-realtime` API anywhere.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-realtime-socketio
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/app-realtime'
@@ -30,6 +22,14 @@ setProvider(createSocketioProvider({
   bufferEvents: true,
   maxBufferSize: 200,
 }))
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-realtime-socketio
 ```
 
 ## API

@@ -7,21 +7,21 @@ Implements the `ReportProvider` interface using the bonded
 time-series reporting. No external analytics engine required —
 uses the existing database bond.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-reporting-database
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-reporting'
 import { provider } from '@molecule/api-reporting-database'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-reporting-database
 ```
 
 ## API

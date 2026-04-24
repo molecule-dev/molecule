@@ -5,15 +5,7 @@ Raw WebSocket (`ws`) realtime provider for molecule.dev.
 Provides a `ws`-backed implementation of the
 `@molecule/api-realtime` {@link RealtimeProvider} interface.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-realtime-ws
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { createProvider } from '@molecule/api-realtime-ws'
@@ -25,6 +17,14 @@ const realtimeProvider = createProvider({ httpServer: server })
 setProvider(realtimeProvider)
 
 server.listen(3000)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-realtime-ws
 ```
 
 ## API

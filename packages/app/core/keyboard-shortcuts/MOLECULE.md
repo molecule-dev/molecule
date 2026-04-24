@@ -7,15 +7,7 @@ shortcuts across the application. Bond a provider
 (e.g. `@molecule/app-keyboard-shortcuts-hotkeys`) to supply
 the concrete implementation.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-keyboard-shortcuts
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { requireProvider } from '@molecule/app-keyboard-shortcuts'
@@ -26,6 +18,14 @@ const unregister = shortcuts.register({
   handler: (e) => { e.preventDefault(); save() },
   description: 'Save document',
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-keyboard-shortcuts
 ```
 
 ## API

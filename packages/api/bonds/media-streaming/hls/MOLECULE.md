@@ -6,15 +6,7 @@ Provides HLS (HTTP Live Streaming) support via ffmpeg for media segmentation
 and transcoding, with pure-TypeScript M3U8 playlist generation. Requires
 ffmpeg to be installed on the host system.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-media-streaming-hls
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, createStream } from '@molecule/api-media-streaming'
@@ -27,6 +19,14 @@ const manifest = await createStream('/path/to/video.mp4', {
   protocol: 'hls',
 })
 console.log(manifest.manifestUri) // '/hls-…/index.m3u8'
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-media-streaming-hls
 ```
 
 ## API

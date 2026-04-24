@@ -5,15 +5,7 @@ HTTP webhook provider for molecule.dev.
 Implements the `@molecule/api-webhook` interface using direct HTTP POST
 delivery with HMAC signature verification and automatic retries.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-webhook-http
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-webhook'
@@ -28,6 +20,14 @@ setProvider(createProvider({
   retryCount: 5,
   retryDelay: 2000,
 }))
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-webhook-http
 ```
 
 ## API

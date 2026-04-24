@@ -20,13 +20,6 @@ npm install @molecule/app-filter-bar-react
 
 #### `FilterFieldBase`
 
-Field-driven filter-bar types.
-
-A filter bar is configured with an array of `FilterField`s — each field
-knows its type, its i18n-keyed label, and the available options (for
-select/multi fields). Consumers own the filter state and receive
-updates via `onChange`.
-
 ```typescript
 interface FilterFieldBase {
   /** Unique field id — used as the state key. */
@@ -89,7 +82,10 @@ type FilterField =
 Flat value map keyed by field id.
 
 ```typescript
-type FilterValues = Record<string, string | string[] | { from?: string; to?: string } | undefined>
+type FilterValues = Record<
+  string,
+  string | string[] | { from?: string; to?: string } | undefined
+>
 ```
 
 ## Injection Notes

@@ -7,15 +7,7 @@ with support for selection, expansion, drag-and-drop, and checkboxes.
 Bond a provider (e.g. `@molecule/app-tree-view-default`) to supply
 the concrete implementation.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-tree-view
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { requireProvider } from '@molecule/app-tree-view'
@@ -28,6 +20,14 @@ const tree = requireProvider().createTree({
   ],
   onSelect: (node) => console.log(node.label),
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-tree-view
 ```
 
 ## API

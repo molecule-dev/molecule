@@ -1,18 +1,23 @@
 # @molecule/app-bulk-action-toolbar-react
 
-Selection-aware floating toolbar that appears when N rows are selected
+Selection-aware bulk action toolbar.
+
+Exports `<BulkActionToolbar>` and `BulkAction` type.
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-bulk-action-toolbar-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `@molecule/app-ui-react` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0

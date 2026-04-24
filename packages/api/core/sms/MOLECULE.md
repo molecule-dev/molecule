@@ -5,15 +5,7 @@ SMS core interface for molecule.dev.
 Defines the standard interface for SMS messaging providers
 (Twilio, Vonage, etc.).
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-sms
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, send, getStatus } from '@molecule/api-sms'
@@ -27,6 +19,14 @@ const result = await send('+1234567890', 'Hello from Molecule!')
 // Check delivery status
 const status = await getStatus(result.id)
 console.log(status.status) // 'delivered'
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-sms
 ```
 
 ## API

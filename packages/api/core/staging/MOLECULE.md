@@ -6,15 +6,7 @@ Defines the abstract `StagingDriver` interface for ephemeral branch-per-feature
 environments. Driver packages (e.g. `@molecule/api-staging-docker-compose`)
 implement this interface. The CLI orchestrates lifecycle operations.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-staging
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, getProvider } from '@molecule/api-staging'
@@ -27,6 +19,14 @@ if (driver) {
   const urls = await driver.up(env, config)
   console.log(`API: ${urls.api}, App: ${urls.app}`)
 }
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-staging
 ```
 
 ## API

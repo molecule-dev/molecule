@@ -5,15 +5,7 @@ Axios HTTP client provider for `@molecule/app-http`.
 This package provides an Axios-based implementation of the molecule HttpClient interface,
 allowing you to use molecule's HTTP abstractions with Axios.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-http-axios
-```
-
-## Usage
+## Quick Start
 
 ```ts
 import { createAxiosClient } from '@molecule/app-http-axios'
@@ -30,6 +22,14 @@ setClient(client)
 import { get, post } from '@molecule/app-http'
 const users = await get('/users')
 const newUser = await post('/users', { name: 'John' })
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-http-axios
 ```
 
 ## API

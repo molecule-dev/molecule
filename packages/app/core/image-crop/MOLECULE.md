@@ -6,15 +6,7 @@ Provides a standardized API for image cropping UI components.
 Bond a provider (e.g. `@molecule/app-image-crop-cropperjs`) to
 supply the concrete implementation.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-image-crop
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { requireProvider } from '@molecule/app-image-crop'
@@ -25,6 +17,14 @@ const cropper = requireProvider().createCropper({
   circular: true,
 })
 const canvas = cropper.getCroppedCanvas({ width: 200, height: 200 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-image-crop
 ```
 
 ## API

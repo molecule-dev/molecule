@@ -5,15 +5,7 @@ Solid.js framework bindings for molecule.dev.
 This package provides Solid.js-specific implementations of molecule.dev
 core interfaces, using Solid's reactive primitives (signals, effects, resources).
 
-## Type
-`framework`
-
-## Installation
-```bash
-npm install @molecule/app-solid
-```
-
-## Usage
+## Quick Start
 
 ```tsx
 import { MoleculeProvider, createAuth, createTheme, createRouter } from '@molecule/app-solid'
@@ -48,6 +40,14 @@ function UserProfile() {
     </Show>
   )
 }
+```
+
+## Type
+`framework`
+
+## Installation
+```bash
+npm install @molecule/app-solid
 ```
 
 ## API

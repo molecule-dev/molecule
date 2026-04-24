@@ -6,15 +6,7 @@ Provides React-specific hooks, contexts, and providers for all molecule
 core interfaces. This package enables the use of molecule's framework-agnostic
 interfaces with React's idioms (hooks, context, etc.).
 
-## Type
-`framework`
-
-## Installation
-```bash
-npm install @molecule/app-react
-```
-
-## Usage
+## Quick Start
 
 ```tsx
 import {
@@ -55,6 +47,14 @@ function UserDashboard() {
     </div>
   )
 }
+```
+
+## Type
+`framework`
+
+## Installation
+```bash
+npm install @molecule/app-react
 ```
 
 ## API

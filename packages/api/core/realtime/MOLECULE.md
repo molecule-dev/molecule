@@ -5,15 +5,7 @@ Realtime core interface for molecule.dev.
 Defines the standard interface for real-time communication providers
 (WebSocket, SSE, Socket.io, etc.).
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-realtime
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, createRoom, broadcast, onMessage } from '@molecule/api-realtime'
@@ -29,6 +21,14 @@ await broadcast(room.id, 'message', { text: 'Hello!' })
 onMessage((roomId, clientId, event, data) => {
   console.log(`${clientId} sent ${event} in ${roomId}:`, data)
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-realtime
 ```
 
 ## API
@@ -229,6 +229,8 @@ function broadcast(roomId: string, event: string, data: unknown): Promise<void>
 - `event` — The event name.
 - `data` — The event payload.
 
+**Returns:** Resolves when the broadcast completes.
+
 #### `close()`
 
 Shuts down the bonded realtime provider and cleans up resources.
@@ -236,6 +238,8 @@ Shuts down the bonded realtime provider and cleans up resources.
 ```typescript
 function close(): Promise<void>
 ```
+
+**Returns:** Resolves when sockets and timers are torn down.
 
 #### `createRoom(name, options)`
 
@@ -303,6 +307,8 @@ function joinRoom(roomId: string, clientId: string): Promise<void>
 - `roomId` — The room to join.
 - `clientId` — The client joining the room.
 
+**Returns:** Resolves when the join operation completes.
+
 #### `leaveRoom(roomId, clientId)`
 
 Removes a client from a room using the bonded realtime provider.
@@ -313,6 +319,8 @@ function leaveRoom(roomId: string, clientId: string): Promise<void>
 
 - `roomId` — The room to leave.
 - `clientId` — The client leaving the room.
+
+**Returns:** Resolves when the leave operation completes.
 
 #### `onConnection(handler)`
 
@@ -355,6 +363,8 @@ function sendTo(clientId: string, event: string, data: unknown): Promise<void>
 - `clientId` — The target client.
 - `event` — The event name.
 - `data` — The event payload.
+
+**Returns:** Resolves when the message is delivered to the transport layer.
 
 #### `setProvider(provider)`
 

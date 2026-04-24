@@ -5,15 +5,7 @@ Shared AI agent tools with backend abstraction.
 Provides a unified tool set that works with both Docker sandboxes (Synthase)
 and local filesystems (polish pipeline, CLI tools).
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-ai-tools
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { buildTools, createLocalBackend, buildAgentPrompt } from '@molecule/api-ai-tools'
@@ -21,6 +13,14 @@ import { buildTools, createLocalBackend, buildAgentPrompt } from '@molecule/api-
 const backend = createLocalBackend('/path/to/project')
 const tools = buildTools(backend, { include: ['read_file', 'write_file', 'edit_file', 'search_files', 'exec_command'] })
 const systemPrompt = buildAgentPrompt({ agentName: 'My Agent', projectRoot: '/path/to/project', tools: tools.map(t => t.name) })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-ai-tools
 ```
 
 ## API
@@ -49,8 +49,10 @@ interface ExecutionBackend {
   /** List entries in a directory. */
   readDir(path: string): Promise<Array<{ name: string; type: 'file' | 'directory' }>>
 
-  /** Run a shell command. Returns stdout, stderr, and exit code.
-   * Backends implement this safely (sandbox.exec for Docker, execFile for local). */
+  /**
+   * Run a shell command. Returns stdout, stderr, and exit code.
+   * Backends implement this safely (sandbox.exec for Docker, execFile for local).
+   */
   run(
     command: string,
     opts?: { cwd?: string; timeout?: number },
@@ -60,6 +62,8 @@ interface ExecutionBackend {
 
 #### `FileChangeEvent`
 
+Payload emitted when a file is created, modified, or deleted structurally.
+
 ```typescript
 interface FileChangeEvent {
   type: 'created' | 'modified' | 'deleted'
@@ -68,6 +72,8 @@ interface FileChangeEvent {
 ```
 
 #### `FileDiffEvent`
+
+Payload emitted when a tracked file changes contents.
 
 ```typescript
 interface FileDiffEvent {
@@ -159,6 +165,8 @@ interface ToolBuildConfig {
 
 #### `ToolSchema`
 
+JSON-schema-backed definition for a single agent tool.
+
 ```typescript
 interface ToolSchema {
   name: string
@@ -197,6 +205,10 @@ Returns a string that includes:
 function buildAgentPrompt(ctx: PromptContext): string
 ```
 
+- `ctx` — Prompt construction inputs (tools, docs, skills, etc.).
+
+**Returns:** Fully assembled system prompt text for the coding agent.
+
 #### `buildTools(backend, config)`
 
 Build a complete set of AI agent tools bound to an execution backend.
@@ -218,6 +230,10 @@ Check if a command is blocked for security reasons. Returns error message or nul
 function checkBlockedCommand(command: string): string | null
 ```
 
+- `command` — Shell command string proposed for execution.
+
+**Returns:** A human-readable block reason, or `null` when the command is allowed.
+
 #### `createLocalBackend(projectRoot)`
 
 Create an ExecutionBackend that operates on the local filesystem.
@@ -228,6 +244,8 @@ function createLocalBackend(projectRoot: string): ExecutionBackend
 
 - `projectRoot` — Absolute path to the project root directory
 
+**Returns:** A backend wired to `fs/promises` and guarded subprocess calls.
+
 #### `createSandboxBackend(sandbox, projectRoot)`
 
 Create an ExecutionBackend that delegates to a Docker sandbox instance.
@@ -237,8 +255,10 @@ The sandbox.exec method is inherently safe — it runs inside an isolated Docker
 function createSandboxBackend(sandbox: SandboxLike, projectRoot?: string): ExecutionBackend
 ```
 
-- `sandbox` — A running Sandbox instance from
+- `sandbox` — A running Sandbox instance from \@molecule/api-code-sandbox
 - `projectRoot` — Root directory inside the sandbox (default: '/workspace')
+
+**Returns:** A backend that proxies all filesystem calls into the sandbox.
 
 #### `discoverSkills(backend)`
 
@@ -264,6 +284,10 @@ Only allows alphanumeric, *, ?, ., _, -, / characters.
 function isValidGlob(pattern: string): boolean
 ```
 
+- `pattern` — User-supplied glob fragment for search/list operations.
+
+**Returns:** `true` when the pattern contains only allowed characters.
+
 #### `redactSecrets(s)`
 
 Redact values of common secret/credential patterns in text output.
@@ -271,6 +295,10 @@ Redact values of common secret/credential patterns in text output.
 ```typescript
 function redactSecrets(s: string): string
 ```
+
+- `s` — Log or command output that may contain `.env`-style secrets.
+
+**Returns:** A redacted copy safe to surface to end users or models.
 
 #### `resolvePath(path, projectRoot)`
 
@@ -282,6 +310,11 @@ Rejects paths that escape via traversal or absolute paths outside root.
 function resolvePath(path: string, projectRoot: string): string
 ```
 
+- `path` — Relative or absolute path inside the workspace.
+- `projectRoot` — Absolute filesystem root for the active project.
+
+**Returns:** A normalized absolute path confined to `projectRoot`.
+
 #### `shellQuote(s)`
 
 Shell-safe quoting using single quotes. Unlike JSON.stringify (double quotes),
@@ -290,6 +323,10 @@ single-quoted strings prevent command substitution ($(), backticks) and variable
 ```typescript
 function shellQuote(s: string): string
 ```
+
+- `s` — Raw string to wrap for POSIX shell single-quoted context.
+
+**Returns:** A single-quoted shell literal representing `s`.
 
 #### `stripControlChars(s)`
 
@@ -300,6 +337,10 @@ and can cause rendering issues.
 function stripControlChars(s: string): string
 ```
 
+- `s` — Arbitrary text that may contain disallowed control characters.
+
+**Returns:** A copy of `s` with unsafe control characters removed.
+
 #### `truncate(s, maxLength)`
 
 Truncate a string to a max length with a truncation notice.
@@ -307,6 +348,11 @@ Truncate a string to a max length with a truncation notice.
 ```typescript
 function truncate(s: string, maxLength: number): string
 ```
+
+- `s` — Arbitrary text to bound in size.
+- `maxLength` — Maximum number of characters to retain before truncating.
+
+**Returns:** Either the original string or a shortened copy with a trailing notice.
 
 ### Constants
 
@@ -351,6 +397,8 @@ const MAX_WRITE_SIZE: number
 ```
 
 #### `TOOL_SCHEMAS`
+
+Canonical tool schemas shared by the agent runtime and documentation.
 
 ```typescript
 const TOOL_SCHEMAS: Record<string, ToolSchema>

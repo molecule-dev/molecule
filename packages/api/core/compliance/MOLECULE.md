@@ -7,15 +7,7 @@ operations including user data export, deletion, consent management,
 and data processing logs. Bond a concrete provider
 (e.g. `@molecule/api-compliance-gdpr`) at startup via `setProvider()`.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-compliance
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, exportUserData, deleteUserData, getConsent, setConsent } from '@molecule/api-compliance'
@@ -33,6 +25,14 @@ const result = await deleteUserData('user-123', { retainLegalObligations: true }
 // Manage user consent
 await setConsent('user-123', { purpose: 'marketing', granted: false })
 const consent = await getConsent('user-123')
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-compliance
 ```
 
 ## API
@@ -394,6 +394,8 @@ function setConsent(userId: string, consent: ConsentUpdate): Promise<void>
 
 - `userId` — The identifier of the user.
 - `consent` — The consent update to apply.
+
+**Returns:** Resolves when the bonded provider applies the update.
 
 #### `setProvider(provider)`
 

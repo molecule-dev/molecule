@@ -6,15 +6,7 @@ Implements the I18nProvider interface using i18next directly,
 without any framework-specific bindings. Suitable for Vue, Angular,
 Svelte, Solid, and any other framework.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-i18n-i18next
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/app-i18n'
@@ -29,6 +21,14 @@ const provider = createI18nextProvider({
 })
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-i18n-i18next
 ```
 
 ## API

@@ -6,15 +6,7 @@ Provides a standardized API for image gallery and lightbox UI
 components. Bond a provider (e.g. `@molecule/app-gallery-photoswipe`)
 to supply the concrete implementation.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-gallery
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { requireProvider } from '@molecule/app-gallery'
@@ -26,6 +18,14 @@ const gallery = requireProvider().createGallery({
   zoomable: true,
 })
 gallery.open()
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-gallery
 ```
 
 ## API

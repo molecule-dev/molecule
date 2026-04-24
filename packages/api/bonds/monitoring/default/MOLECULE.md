@@ -5,15 +5,7 @@ Default in-process monitoring provider for molecule.dev.
 Stores registered checks in memory and runs them in parallel on each
 runAll() call. No external dependencies. Suitable for all deployment sizes.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-monitoring-default
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-monitoring'
@@ -25,6 +17,14 @@ setProvider(provider)
 // Or create a custom instance with options
 const customProvider = createProvider({ checkTimeoutMs: 5000 })
 setProvider(customProvider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-monitoring-default
 ```
 
 ## API

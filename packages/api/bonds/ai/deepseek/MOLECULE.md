@@ -16,6 +16,8 @@ npm install @molecule/api-ai-deepseek
 
 #### `DeepseekConfig`
 
+DeepSeek provider configuration (TODO: expand required fields).
+
 ```typescript
 interface DeepseekConfig {
   // TODO: Define provider-specific config
@@ -27,10 +29,18 @@ interface DeepseekConfig {
 
 #### `DeepseekAIProvider`
 
+Stub DeepSeek AI provider scaffold (TODO: implement API wiring).
+
 ### Functions
 
 #### `createProvider(config)`
 
+Creates a DeepSeek AI provider instance for bonding.
+
 ```typescript
 function createProvider(config: DeepseekConfig): DeepseekAIProvider
 ```
+
+- `config` — DeepSeek provider configuration.
+
+**Returns:** A DeepSeek-backed provider instance.

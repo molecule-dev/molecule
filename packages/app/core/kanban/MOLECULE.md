@@ -7,15 +7,7 @@ cards, drag-to-move, column reordering, WIP limits, and subscription-based
 state notifications. Bond a provider (e.g. `@molecule/app-kanban-default`)
 at startup, then use {@link createBoard} anywhere.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-kanban
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, createBoard } from '@molecule/app-kanban'
@@ -37,6 +29,14 @@ const board = createBoard({
 board.onUpdate((state) => {
   console.log('Columns:', state.columns.length)
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-kanban
 ```
 
 ## API
@@ -292,7 +292,7 @@ interface KanbanProvider {
   /**
    * Creates a new kanban board instance from the given options.
    *
-   * @typeParam T - Application-specific card data type.
+   * @template T - Application-specific card data type.
    * @param options - Kanban board configuration.
    * @returns A kanban board instance.
    */

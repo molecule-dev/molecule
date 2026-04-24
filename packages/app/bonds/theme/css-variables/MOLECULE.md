@@ -6,15 +6,7 @@ Provides a framework-agnostic ThemeProvider implementation that applies
 theme tokens as CSS custom properties (variables) to the document root.
 Works with any framework -- React, Vue, Svelte, Angular, Solid, or vanilla JS.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-theme-css-variables
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import {
@@ -42,6 +34,14 @@ Then use CSS variables in your stylesheets:
   border-radius: var(--mol-radius-md);
   transition: background-color var(--mol-transition-fast);
 }
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-theme-css-variables
 ```
 
 ## API

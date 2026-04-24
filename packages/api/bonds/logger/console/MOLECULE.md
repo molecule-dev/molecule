@@ -2,21 +2,21 @@
 
 Console logger provider for molecule.dev.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-logger-console
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setLogger } from '@molecule/api-logger'
 import { provider } from '@molecule/api-logger-console'
 
 setLogger(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-logger-console
 ```
 
 ## API

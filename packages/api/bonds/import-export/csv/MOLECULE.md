@@ -6,15 +6,7 @@ Implements the {@link ImportExportProvider} contract using pure TypeScript
 CSV parsing/formatting and the bonded `@molecule/api-database` DataStore
 for all database operations.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-import-export-csv
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-import-export'
@@ -22,6 +14,14 @@ import { provider } from '@molecule/api-import-export-csv'
 
 // Wire the CSV provider at startup
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-import-export-csv
 ```
 
 ## API

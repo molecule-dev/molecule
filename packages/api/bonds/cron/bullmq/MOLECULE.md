@@ -7,15 +7,7 @@ by Redis. Jobs are persistent and distributed — they survive process restarts
 and can be processed by multiple workers. Ideal for production environments
 requiring reliability.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-cron-bullmq
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, schedule } from '@molecule/api-cron'
@@ -29,6 +21,14 @@ setProvider(provider)
 await schedule('cleanup', '0 3 * * *', async () => {
   console.log('Nightly cleanup')
 })
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-cron-bullmq
 ```
 
 ## API

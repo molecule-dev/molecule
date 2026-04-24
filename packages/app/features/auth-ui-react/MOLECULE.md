@@ -20,6 +20,7 @@ npm install @molecule/app-auth-ui-react
 ### Requirements
 
 Peer dependencies:
+- `@molecule/app-oauth-logos-react` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

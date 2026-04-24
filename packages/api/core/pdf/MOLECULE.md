@@ -8,15 +8,7 @@ Bond packages (Puppeteer, PDFKit, etc.) implement this interface. Application co
 uses the convenience functions (`fromHTML`, `fromTemplate`, `merge`, `addWatermark`,
 `getPageCount`, `getMetadata`, `toImages`) which delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-pdf
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, fromHTML, merge, getPageCount } from '@molecule/api-pdf'
@@ -26,6 +18,14 @@ setProvider(puppeteer)
 const pdf = await fromHTML('<h1>Hello World</h1>', { format: 'A4', margin: { top: '1cm' } })
 const pageCount = await getPageCount(pdf)
 const merged = await merge([pdf, anotherPdf])
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-pdf
 ```
 
 ## API

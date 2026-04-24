@@ -7,15 +7,7 @@ with hierarchical groups, nested pages, and fuzzy search. Bond a provider
 (e.g. `@molecule/app-command-palette-cmdk`) at startup, then use
 {@link createPalette} anywhere.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-command-palette
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, createPalette } from '@molecule/app-command-palette'
@@ -36,6 +28,14 @@ const palette = createPalette({
   ],
   placeholder: 'Type a command…',
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-command-palette
 ```
 
 ## API

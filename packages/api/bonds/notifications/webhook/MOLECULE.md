@@ -4,21 +4,21 @@ Webhook notifications provider for molecule.dev.
 
 Sends notifications as HTTP POST requests with optional HMAC signing.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-notifications-webhook
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-notifications'
 import { provider } from '@molecule/api-notifications-webhook'
 
 setProvider('webhook', provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-notifications-webhook
 ```
 
 ## API

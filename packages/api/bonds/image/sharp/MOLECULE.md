@@ -6,21 +6,21 @@ High-performance, native image processing powered by libvips via Sharp.
 Supports resize, crop, format conversion, thumbnailing, optimization,
 rotation, flip, and flop operations.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-image-sharp
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-image'
 import { provider } from '@molecule/api-image-sharp'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-image-sharp
 ```
 
 ## API

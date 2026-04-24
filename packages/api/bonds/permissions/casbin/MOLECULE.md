@@ -6,15 +6,7 @@ Provides role-based and attribute-based access control (RBAC/ABAC)
 using Casbin. Supports custom model definitions, policy files,
 and external adapters for persistent storage.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-permissions-casbin
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-permissions'
@@ -27,6 +19,14 @@ import { createProvider } from '@molecule/api-permissions-casbin'
 
 const casbinPerms = createProvider({ modelPath: './rbac_model.conf' })
 setProvider(casbinPerms)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-permissions-casbin
 ```
 
 ## API

@@ -5,15 +5,7 @@ Bookmark/favorite resource for molecule.dev.
 Allows users to bookmark any resource, organize into folders, and check
 bookmark status.
 
-## Type
-`resource`
-
-## Installation
-```bash
-npm install @molecule/api-resource-bookmark
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { routes, requestHandlerMap } from '@molecule/api-resource-bookmark'
@@ -24,6 +16,14 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-bookmark'
 // GET    /bookmarks/folders
 // GET    /bookmarks/check/:resourceType/:resourceId
 // DELETE /bookmarks/:resourceType/:resourceId
+```
+
+## Type
+`resource`
+
+## Installation
+```bash
+npm install @molecule/api-resource-bookmark
 ```
 
 ## API

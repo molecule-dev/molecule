@@ -525,6 +525,9 @@ const classMap: UIClassMap
 Merges class names, filtering out falsy values. Supports strings,
 numbers, conditional objects, and nested arrays.
 
+Resolves conflicting Tailwind utilities (e.g. two `gap-*` classes from
+`cm.grid({ cols: 12 })` plus a literal `'gap-10'`) via `tailwind-merge`.
+
 ```typescript
 const cn: (...classes: ClassValue[]) => string
 ```
@@ -755,6 +758,46 @@ Dropdown trigger wrapper classes.
 const dropdownTrigger: "inline-block"
 ```
 
+#### `emptyState`
+
+EmptyState root — centered column layout.
+
+```typescript
+const emptyState: "flex flex-col items-center justify-center py-16 px-4 text-center"
+```
+
+#### `emptyStateAction`
+
+EmptyState action slot.
+
+```typescript
+const emptyStateAction: ""
+```
+
+#### `emptyStateDescription`
+
+EmptyState description.
+
+```typescript
+const emptyStateDescription: "text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-md"
+```
+
+#### `emptyStateIcon`
+
+EmptyState icon wrapper.
+
+```typescript
+const emptyStateIcon: "mb-4 text-gray-400 dark:text-gray-500"
+```
+
+#### `emptyStateTitle`
+
+EmptyState heading.
+
+```typescript
+const emptyStateTitle: "text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2"
+```
+
 #### `flex`
 
 Flex layout classes.
@@ -797,10 +840,10 @@ const floatingLabel: "absolute top-0 left-0 right-0 w-full p-[3px] text-[11px] l
 
 #### `footerBar`
 
-Footer bar classes (fixed bottom, full-width).
+Footer bar classes (full-width). Position is determined by the consuming layout, not forced here.
 
 ```typescript
-const footerBar: "fixed bottom-0 left-0 right-0 w-full flex flex-wrap items-center justify-around p-[5px] bg-background text-[12px] text-foreground-secondary z-[1001]"
+const footerBar: "w-full flex flex-wrap items-center justify-around p-[5px] bg-background text-[12px] text-foreground-secondary"
 ```
 
 #### `footerButton`
@@ -885,10 +928,10 @@ const grid: (props?: ({ cols?: 1 | 2 | 3 | 4 | 5 | 6 | 12 | undefined; gap?: "sm
 
 #### `headerFixed`
 
-Fixed header container classes (top, full-width, z-1001).
+Header container classes (full-width). Position is determined by the consuming layout, not forced here.
 
 ```typescript
-const headerFixed: "fixed top-0 left-0 right-0 z-[1001]"
+const headerFixed: "top-0 left-0 right-0 w-full"
 ```
 
 #### `headerInner`
@@ -1121,6 +1164,117 @@ OAuth provider label (fallback when no icon).
 
 ```typescript
 const oauthProviderLabel: "text-sm font-medium"
+```
+
+#### `pageHeader`
+
+PageHeader root container.
+
+```typescript
+const pageHeader: "mb-6"
+```
+
+#### `pageHeaderActions`
+
+PageHeader action buttons container.
+
+```typescript
+const pageHeaderActions: "flex gap-2 mt-4 sm:mt-0"
+```
+
+#### `pageHeaderBreadcrumbItem`
+
+PageHeader breadcrumb item.
+
+```typescript
+const pageHeaderBreadcrumbItem: "hover:text-gray-700 dark:hover:text-gray-200"
+```
+
+#### `pageHeaderBreadcrumbs`
+
+PageHeader breadcrumb trail.
+
+```typescript
+const pageHeaderBreadcrumbs: "flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 mb-2"
+```
+
+#### `pageHeaderBreadcrumbSeparator`
+
+PageHeader breadcrumb separator.
+
+```typescript
+const pageHeaderBreadcrumbSeparator: "mx-1"
+```
+
+#### `pageHeaderDescription`
+
+PageHeader description.
+
+```typescript
+const pageHeaderDescription: "mt-1 text-sm text-gray-500 dark:text-gray-400"
+```
+
+#### `pageHeaderTitle`
+
+PageHeader title.
+
+```typescript
+const pageHeaderTitle: "text-2xl font-bold text-gray-900 dark:text-gray-100"
+```
+
+#### `pageShell`
+
+PageShell root — flex row filling the screen.
+
+Use this pattern (or an equivalent `flex` row on the page root) whenever a
+persistent sidebar and `<main>` are siblings. A full-height `sticky` sidebar
+in **block** flow (no flex row on the parent) still occupies vertical space,
+so `<main>` with only `ml-[…]` starts below the viewport — content appears
+under fixed headers / near the bottom. Prefer `pageShell` + `pageShellSidebar`,
+or a `fixed inset-y-0` sidebar plus horizontal offset on main.
+
+```typescript
+const pageShell: "flex h-screen overflow-hidden"
+```
+
+#### `pageShellContent`
+
+PageShell main content area.
+
+```typescript
+const pageShellContent: "flex-1 overflow-y-auto"
+```
+
+#### `pageShellSidebar`
+
+PageShell sidebar — fixed-width left panel.
+
+```typescript
+const pageShellSidebar: "w-60 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-y-auto transition-all duration-300"
+```
+
+#### `pageShellSidebarCollapsed`
+
+PageShell sidebar collapsed modifier — narrow width.
+
+```typescript
+const pageShellSidebarCollapsed: "w-16"
+```
+
+#### `pageShellSidebarToggle`
+
+PageShell sidebar collapse/expand toggle button.
+
+```typescript
+const pageShellSidebarToggle: "p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+```
+
+#### `pageShellTopbar`
+
+PageShell top bar — horizontal strip above content.
+
+```typescript
+const pageShellTopbar: "h-14 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center px-4 gap-3"
 ```
 
 #### `pagination`

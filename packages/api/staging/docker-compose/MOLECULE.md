@@ -6,21 +6,21 @@ Manages ephemeral staging environments using Docker Compose.
 Each feature branch gets isolated API, App, and database containers
 with unique port allocations and networking.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-staging-docker-compose
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-staging'
 import { provider } from '@molecule/api-staging-docker-compose'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-staging-docker-compose
 ```
 
 ## API

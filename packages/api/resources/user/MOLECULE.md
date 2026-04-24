@@ -297,6 +297,7 @@ Peer dependencies:
 - `@molecule/api-payments` ^1.0.0
 - `@molecule/api-push-notifications` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+- `@molecule/api-resource-device` ^1.0.0
 - `@molecule/api-two-factor` ^1.0.0
 
 ### Environment Variables

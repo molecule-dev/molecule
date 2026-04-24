@@ -6,15 +6,7 @@ Provides a standardized API for onboarding walkthrough and guided
 tour UI components. Bond a provider (e.g. `@molecule/app-tour-shepherd`)
 to supply the concrete implementation.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-tour
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { requireProvider } from '@molecule/app-tour'
@@ -27,6 +19,14 @@ const tour = requireProvider().createTour({
   onComplete: () => console.log('Tour finished'),
 })
 tour.start()
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-tour
 ```
 
 ## API

@@ -1,9 +1,18 @@
 # @molecule/app-keyboard-shortcuts-hotkeys
 
-hotkeys-js provider for @molecule/app-keyboard-shortcuts.
+hotkeys-js provider for \@molecule/app-keyboard-shortcuts.
 
 Provides an in-memory keyboard shortcut registry conforming to
 the molecule keyboard shortcuts provider interface.
+
+## Quick Start
+
+```typescript
+import { provider } from '@molecule/app-keyboard-shortcuts-hotkeys'
+import { setProvider } from '@molecule/app-keyboard-shortcuts'
+
+setProvider(provider)
+```
 
 ## Type
 `provider`
@@ -11,15 +20,6 @@ the molecule keyboard shortcuts provider interface.
 ## Installation
 ```bash
 npm install @molecule/app-keyboard-shortcuts-hotkeys
-```
-
-## Usage
-
-```typescript
-import { provider } from '@molecule/app-keyboard-shortcuts-hotkeys'
-import { setProvider } from '@molecule/app-keyboard-shortcuts'
-
-setProvider(provider)
 ```
 
 ## API

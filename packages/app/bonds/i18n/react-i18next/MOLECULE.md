@@ -4,15 +4,7 @@ react-i18next provider for molecule.dev.
 
 Implements the I18nProvider interface using i18next and react-i18next.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-i18n-react-i18next
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/app-i18n'
@@ -27,6 +19,14 @@ const provider = createReactI18nextProvider({
 })
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-i18n-react-i18next
 ```
 
 ## API

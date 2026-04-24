@@ -4,21 +4,21 @@ Environment variables secrets provider for molecule.dev.
 
 Reads secrets from .env files and process.env.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-secrets-env
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-secrets'
 import { provider } from '@molecule/api-secrets-env'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-secrets-env
 ```
 
 ## API

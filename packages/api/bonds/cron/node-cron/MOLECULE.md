@@ -7,15 +7,7 @@ lightweight in-process cron scheduling. Supports standard cron expressions,
 timezone configuration, pause/resume, and manual triggering. Jobs are
 in-memory and do not persist across process restarts.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-cron-node-cron
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, schedule } from '@molecule/api-cron'
@@ -26,6 +18,14 @@ setProvider(provider)
 await schedule('cleanup', '0 3 * * *', async () => {
   console.log('Nightly cleanup')
 })
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-cron-node-cron
 ```
 
 ## API

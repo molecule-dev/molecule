@@ -8,15 +8,7 @@ BullMQ, etc.) implement this interface. Application code uses the convenience
 functions (`schedule`, `cancel`, `list`, `pause`, `resume`, `runNow`)
 which delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-cron
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, schedule, list } from '@molecule/api-cron'
@@ -29,6 +21,14 @@ const jobId = await schedule('cleanup', '0 3 * * *', async () => {
 })
 
 const jobs = await list()
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-cron
 ```
 
 ## API

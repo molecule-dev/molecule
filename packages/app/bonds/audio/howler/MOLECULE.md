@@ -1,9 +1,18 @@
 # @molecule/app-audio-howler
 
-Howler.js provider for @molecule/app-audio.
+Howler.js provider for \@molecule/app-audio.
 
 Provides an in-memory audio player implementation conforming to
 the molecule audio provider interface.
+
+## Quick Start
+
+```typescript
+import { provider } from '@molecule/app-audio-howler'
+import { setProvider } from '@molecule/app-audio'
+
+setProvider(provider)
+```
 
 ## Type
 `provider`
@@ -11,15 +20,6 @@ the molecule audio provider interface.
 ## Installation
 ```bash
 npm install @molecule/app-audio-howler
-```
-
-## Usage
-
-```typescript
-import { provider } from '@molecule/app-audio-howler'
-import { setProvider } from '@molecule/app-audio'
-
-setProvider(provider)
 ```
 
 ## API

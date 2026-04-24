@@ -2,15 +2,7 @@
 
 Express CORS provider for molecule.dev.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-middleware-cors-express
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setCors, setCorsFactory } from '@molecule/api-middleware-cors'
@@ -18,6 +10,14 @@ import { provider, corsFactory } from '@molecule/api-middleware-cors-express'
 
 setCors(provider)
 setCorsFactory(corsFactory)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-middleware-cors-express
 ```
 
 ## API

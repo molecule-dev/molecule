@@ -7,15 +7,7 @@ with rooms, presence tracking, events, and automatic reconnection. Bond a
 provider (e.g. `@molecule/app-realtime-socketio`) at startup, then use
 {@link connect} anywhere.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-realtime
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, connect } from '@molecule/app-realtime'
@@ -31,6 +23,14 @@ const connection = await connect('wss://api.example.com', {
 await connection.joinRoom('chat-room-1')
 connection.on('message', (data) => console.log('Received:', data))
 connection.sendTo('chat-room-1', 'message', { text: 'Hello!' })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-realtime
 ```
 
 ## API

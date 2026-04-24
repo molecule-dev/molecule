@@ -2,15 +2,7 @@
 
 Express cookie parser provider for molecule.dev.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-middleware-cookie-parser-express
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setCookieParser, setCookieParserFactory } from '@molecule/api-middleware-cookie-parser'
@@ -18,6 +10,14 @@ import { provider, cookieParserFactory } from '@molecule/api-middleware-cookie-p
 
 setCookieParser(provider)
 setCookieParserFactory(cookieParserFactory)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-middleware-cookie-parser-express
 ```
 
 ## API

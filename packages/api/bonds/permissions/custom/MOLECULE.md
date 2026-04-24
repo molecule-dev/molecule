@@ -8,15 +8,7 @@ wildcard matching on actions/resources and basic ABAC condition
 evaluation. Ideal for development, testing, or single-instance
 deployments.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-permissions-custom
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-permissions'
@@ -29,6 +21,14 @@ import { createProvider } from '@molecule/api-permissions-custom'
 
 const perms = createProvider({ wildcards: true })
 setProvider(perms)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-permissions-custom
 ```
 
 ## API

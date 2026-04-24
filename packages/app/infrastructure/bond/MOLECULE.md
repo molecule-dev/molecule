@@ -5,15 +5,7 @@ Runtime provider wiring system for molecule.dev app-side packages.
 Enables swappable providers for state management, theming, routing, styling,
 and any custom category — all through dynamic string-based keys.
 
-## Type
-`infrastructure`
-
-## Installation
-```bash
-npm install @molecule/app-bond
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { bond, get, require as bondRequire, isBonded } from '@molecule/app-bond'
@@ -35,6 +27,14 @@ const theme = bondRequire<ThemeProvider>('theme')  // throws if not bonded
 if (isBonded('analytics')) {
   const analytics = get<AnalyticsProvider>('analytics')
 }
+```
+
+## Type
+`infrastructure`
+
+## Installation
+```bash
+npm install @molecule/app-bond
 ```
 
 ## API

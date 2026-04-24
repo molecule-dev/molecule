@@ -6,15 +6,7 @@ Provides translucent, frosted-glass-inspired light and dark themes
 designed to pair with backdrop-filter blur effects. Uses the standard
 CSS custom properties provider from `@molecule/app-theme-css-variables`.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-theme-css-variables-liquid-glass
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { createCSSVariablesThemeProvider, lightTheme, darkTheme } from '@molecule/app-theme-css-variables-liquid-glass'
@@ -27,6 +19,14 @@ const provider = createCSSVariablesThemeProvider({
 })
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-theme-css-variables-liquid-glass
 ```
 
 ## API

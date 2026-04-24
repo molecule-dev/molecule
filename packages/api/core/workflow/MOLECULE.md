@@ -7,15 +7,7 @@ instances, state transitions, and event history. Bond packages (database,
 in-memory, etc.) implement this interface. Application code uses the
 convenience functions which delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-workflow
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, createWorkflow, startInstance, transition } from '@molecule/api-workflow'
@@ -36,6 +28,14 @@ const workflow = await createWorkflow({
 
 const instance = await startInstance(workflow.id, { orderId: '123' })
 await transition(instance.id, 'confirm')
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-workflow
 ```
 
 ## API

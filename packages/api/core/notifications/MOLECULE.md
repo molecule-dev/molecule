@@ -5,15 +5,7 @@ Notifications interface for molecule.dev.
 Supports multiple notification channels (webhook, Slack, email, etc.)
 through named bonds. Use notifyAll() to broadcast to all channels.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-notifications
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, notifyAll } from '@molecule/api-notifications'
@@ -25,6 +17,14 @@ await notifyAll({
   subject: 'Service Down',
   body: 'API is not responding',
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-notifications
 ```
 
 ## API

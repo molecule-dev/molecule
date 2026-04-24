@@ -5,15 +5,7 @@ Threaded discussion resource for molecule.dev.
 Conversation threads with messages, read-tracking, and unread counts.
 Threads can optionally attach to any resource via `resourceType`/`resourceId`.
 
-## Type
-`resource`
-
-## Installation
-```bash
-npm install @molecule/api-resource-thread
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { routes, requestHandlerMap } from '@molecule/api-resource-thread'
@@ -30,6 +22,14 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-thread'
 // PUT    /threads/messages/:messageId
 // DELETE /threads/messages/:messageId
 // POST   /threads/:threadId/read
+```
+
+## Type
+`resource`
+
+## Installation
+```bash
+npm install @molecule/api-resource-thread
 ```
 
 ## API

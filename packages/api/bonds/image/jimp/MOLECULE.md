@@ -6,21 +6,21 @@ Pure-JavaScript image processing with zero native dependencies.
 Supports resize, crop, format conversion, thumbnailing, optimization,
 rotation, flip, and flop operations.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-image-jimp
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-image'
 import { provider } from '@molecule/api-image-jimp'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-image-jimp
 ```
 
 ## API

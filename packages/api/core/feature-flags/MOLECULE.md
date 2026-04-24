@@ -7,15 +7,7 @@ including flag evaluation, CRUD operations, rule-based targeting, and
 percentage rollouts. Bond a concrete provider
 (e.g. `@molecule/api-feature-flags-database`) at startup via `setProvider()`.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-feature-flags
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, isEnabled, setFlag, evaluateForUser } from '@molecule/api-feature-flags'
@@ -32,6 +24,14 @@ const enabled = await isEnabled('new-dashboard', { userId: 'user-123' })
 
 // Evaluate all flags for a user
 const flags = await evaluateForUser('user-123')
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-feature-flags
 ```
 
 ## API
@@ -207,6 +207,8 @@ function deleteFlag(flag: string): Promise<void>
 ```
 
 - `flag` — The flag name/key to delete.
+
+**Returns:** Resolves when the flag is removed.
 
 #### `evaluateForUser(userId, flags)`
 

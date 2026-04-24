@@ -5,15 +5,7 @@ GitHub Actions CI/CD templates and utilities for molecule.dev.
 Provides pre-built workflow configurations and a YAML generator for
 setting up CI/CD pipelines.
 
-## Type
-`infrastructure`
-
-## Installation
-```bash
-npm install @molecule/api-ci-github-actions
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import {
@@ -51,6 +43,14 @@ const customWorkflow: WorkflowConfig = {
     },
   },
 }
+```
+
+## Type
+`infrastructure`
+
+## Installation
+```bash
+npm install @molecule/api-ci-github-actions
 ```
 
 ## API

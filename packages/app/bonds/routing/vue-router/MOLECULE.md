@@ -5,15 +5,7 @@ Vue Router provider for `@molecule/app-routing`.
 This package provides a Vue Router implementation of the molecule Router interface,
 allowing you to use molecule's routing abstractions with Vue Router.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-routing-vue-router
-```
-
-## Usage
+## Quick Start
 
 ```vue
 <script setup lang="ts">
@@ -33,6 +25,14 @@ function navigateToProfile() {
     <button @click="navigateToProfile">Go to Profile</button>
   </div>
 </template>
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-routing-vue-router
 ```
 
 ## API

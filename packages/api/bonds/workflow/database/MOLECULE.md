@@ -6,21 +6,21 @@ Stores workflow definitions, instances, and event history using the
 abstract `@molecule/api-database` DataStore. Wire this provider at
 startup with `setProvider(provider)` from `@molecule/api-workflow`.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-workflow-database
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-workflow'
 import { provider } from '@molecule/api-workflow-database'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-workflow-database
 ```
 
 ## API

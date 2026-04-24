@@ -16,6 +16,8 @@ npm install @molecule/api-ai-rag
 
 #### `AIRagConfig`
 
+Config options for an AI RAG bond (TODO: tighten schema).
+
 ```typescript
 interface AIRagConfig {
   // TODO: Define configuration options
@@ -24,6 +26,8 @@ interface AIRagConfig {
 ```
 
 #### `AIRagProvider`
+
+Live AI RAG integration contract (TODO: expand methods).
 
 ```typescript
 interface AIRagProvider {
@@ -36,24 +40,40 @@ interface AIRagProvider {
 
 #### `getProvider()`
 
+Returns the bonded AI RAG provider, or `null` if none is registered.
+
 ```typescript
 function getProvider(): AIRagProvider | null
 ```
 
+**Returns:** The active provider, or `null`.
+
 #### `hasProvider()`
+
+Returns whether an AI RAG provider has been registered.
 
 ```typescript
 function hasProvider(): boolean
 ```
 
+**Returns:** `true` if a provider is bonded.
+
 #### `requireProvider()`
+
+Returns the bonded AI RAG provider, throwing if none is configured.
 
 ```typescript
 function requireProvider(): AIRagProvider
 ```
 
+**Returns:** The active provider.
+
 #### `setProvider(provider)`
+
+Registers the AI RAG provider singleton.
 
 ```typescript
 function setProvider(provider: AIRagProvider): void
 ```
+
+- `provider` — The AI RAG provider implementation to register.

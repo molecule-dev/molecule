@@ -18,15 +18,7 @@ Exports:
   `<MicrosoftLogo/>`, `<LinkedInLogo/>`, `<DiscordLogo/>`.
 - `OAuthProviderId`, `OAuthLogoProps` types.
 
-## Type
-`feature`
-
-## Installation
-```bash
-npm install @molecule/app-oauth-logos-react
-```
-
-## Usage
+## Quick Start
 
 ```tsx
 import { OAuthProviderLogo } from '@molecule/app-oauth-logos-react'
@@ -35,6 +27,14 @@ import { OAuthProviderLogo } from '@molecule/app-oauth-logos-react'
   <OAuthProviderLogo provider="github" size={20} />
   <span>Continue with GitHub</span>
 </button>
+```
+
+## Type
+`feature`
+
+## Installation
+```bash
+npm install @molecule/app-oauth-logos-react
 ```
 
 ## API

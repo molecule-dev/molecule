@@ -6,15 +6,7 @@ Defines the abstract {@link ImportExportProvider} contract and convenience
 functions for importing CSV/JSON data, exporting to CSV/JSON/Excel, and
 tracking asynchronous import job status.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-import-export
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, importCSV, exportJSON, getJobStatus } from '@molecule/api-import-export'
@@ -37,6 +29,14 @@ const rows = await exportJSON('users', {
 
 // Check import job status
 const status = await getJobStatus(result.jobId)
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-import-export
 ```
 
 ## API

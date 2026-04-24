@@ -5,15 +5,7 @@ Database core interface for molecule.dev.
 Defines the standard interface for database providers, including both
 raw connection pools and the database-agnostic DataStore abstraction.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-database
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setStore, findById, findMany, create, updateById, deleteById } from '@molecule/api-database'
@@ -36,6 +28,14 @@ const activeUsers = await findMany<User>('users', {
 await create('users', { id, username, email })
 await updateById('users', id, { name: 'New Name' })
 await deleteById('users', id)
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-database
 ```
 
 ## API

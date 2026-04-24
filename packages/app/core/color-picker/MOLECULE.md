@@ -6,15 +6,7 @@ Provides a standardized API for color selection UI components.
 Bond a provider (e.g. `@molecule/app-color-picker-default`) to
 supply the concrete implementation.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-color-picker
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { requireProvider } from '@molecule/app-color-picker'
@@ -25,6 +17,14 @@ const picker = requireProvider().createPicker({
   showAlpha: true,
   onChange: (color) => console.log('Selected:', color),
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-color-picker
 ```
 
 ## API

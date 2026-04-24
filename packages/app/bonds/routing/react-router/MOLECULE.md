@@ -5,15 +5,7 @@ React Router v7 provider for `@molecule/app-routing`.
 This package provides a React Router implementation of the molecule Router interface,
 allowing you to use molecule's routing abstractions with React Router.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-routing-react-router
-```
-
-## Usage
+## Quick Start
 
 ```tsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
@@ -31,6 +23,14 @@ function App() {
     </BrowserRouter>
   )
 }
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-routing-react-router
 ```
 
 ## API

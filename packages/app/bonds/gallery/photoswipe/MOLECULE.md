@@ -1,9 +1,18 @@
 # @molecule/app-gallery-photoswipe
 
-PhotoSwipe provider for @molecule/app-gallery.
+PhotoSwipe provider for \@molecule/app-gallery.
 
 Provides an in-memory gallery implementation conforming to
 the molecule gallery provider interface.
+
+## Quick Start
+
+```typescript
+import { provider } from '@molecule/app-gallery-photoswipe'
+import { setProvider } from '@molecule/app-gallery'
+
+setProvider(provider)
+```
 
 ## Type
 `provider`
@@ -11,15 +20,6 @@ the molecule gallery provider interface.
 ## Installation
 ```bash
 npm install @molecule/app-gallery-photoswipe
-```
-
-## Usage
-
-```typescript
-import { provider } from '@molecule/app-gallery-photoswipe'
-import { setProvider } from '@molecule/app-gallery'
-
-setProvider(provider)
 ```
 
 ## API

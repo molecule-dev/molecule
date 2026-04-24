@@ -5,18 +5,18 @@ Shopping cart resource for molecule.dev.
 Provides a user-scoped singleton cart with item management, coupon support,
 and computed totals (subtotal, discount, tax, total).
 
+## Quick Start
+
+```typescript
+import { routes, requestHandlerMap } from '@molecule/api-resource-cart'
+```
+
 ## Type
 `resource`
 
 ## Installation
 ```bash
 npm install @molecule/api-resource-cart
-```
-
-## Usage
-
-```typescript
-import { routes, requestHandlerMap } from '@molecule/api-resource-cart'
 ```
 
 ## API

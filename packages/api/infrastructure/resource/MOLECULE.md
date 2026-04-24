@@ -5,15 +5,7 @@ Base resource patterns for molecule.dev.
 Provides CRUD operation factories and request handler utilities for
 building RESTful API resources.
 
-## Type
-`infrastructure`
-
-## Installation
-```bash
-npm install @molecule/api-resource
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import {
@@ -38,6 +30,14 @@ export const requestHandlerMap = {
   read: createRequestHandler(readUser),
   // ...
 }
+```
+
+## Type
+`infrastructure`
+
+## Installation
+```bash
+npm install @molecule/api-resource
 ```
 
 ## API

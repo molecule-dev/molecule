@@ -7,15 +7,7 @@ template rendering. Variable interpolation uses Handlebars syntax. Templates
 are first interpolated with data, then compiled from MJML to responsive HTML
 that works across all major email clients.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-templating-mjml
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, render } from '@molecule/api-templating'
@@ -34,6 +26,14 @@ const html = await render(`
     </mj-body>
   </mjml>
 `, { name: 'World' })
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-templating-mjml
 ```
 
 ## API

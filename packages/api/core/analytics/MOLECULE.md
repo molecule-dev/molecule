@@ -7,15 +7,7 @@ and recording page views. Bond packages (Mixpanel, PostHog, Segment, etc.)
 implement this interface. Application code uses the convenience functions
 (`track`, `identify`, `page`) which delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-analytics
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, track, identify } from '@molecule/api-analytics'
@@ -24,6 +16,14 @@ import { provider as mixpanel } from '@molecule/api-analytics-mixpanel'
 setProvider(mixpanel)
 await identify({ userId: 'u_123', email: 'user@example.com' })
 await track({ name: 'purchase.completed', properties: { amount: 49.99 } })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-analytics
 ```
 
 ## API

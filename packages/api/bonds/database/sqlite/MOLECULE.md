@@ -6,16 +6,7 @@ Provides DatabasePool and DataStore implementations backed by
 better-sqlite3. Ideal for lightweight services, status pages,
 and single-instance deployments.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-database-sqlite better-sqlite3
-npm install -D @types/better-sqlite3
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setPool, setStore } from '@molecule/api-database'
@@ -23,6 +14,15 @@ import { pool, store } from '@molecule/api-database-sqlite'
 
 setPool(pool)
 setStore(store)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-database-sqlite better-sqlite3
+npm install -D @types/better-sqlite3
 ```
 
 ## API

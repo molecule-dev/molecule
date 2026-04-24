@@ -5,15 +5,7 @@ Socket.io realtime provider for molecule.dev.
 Provides a Socket.io-backed implementation of the
 `@molecule/api-realtime` {@link RealtimeProvider} interface.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-realtime-socketio
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { createProvider } from '@molecule/api-realtime-socketio'
@@ -25,6 +17,14 @@ const realtimeProvider = createProvider({ httpServer: server })
 setProvider(realtimeProvider)
 
 server.listen(3000)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-realtime-socketio
 ```
 
 ## API

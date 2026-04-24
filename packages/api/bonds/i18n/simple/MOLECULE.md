@@ -2,21 +2,21 @@
 
 Simple i18n provider for molecule.dev.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-i18n-simple
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-i18n'
 import { provider } from '@molecule/api-i18n-simple'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-i18n-simple
 ```
 
 ## API

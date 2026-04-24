@@ -5,15 +5,7 @@ Threaded comments resource for molecule.dev.
 Polymorphic comments that attach to any resource type. Supports threaded
 replies, pagination, and ownership-based authorization.
 
-## Type
-`resource`
-
-## Installation
-```bash
-npm install @molecule/api-resource-comment
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { routes, requestHandlerMap } from '@molecule/api-resource-comment'
@@ -25,6 +17,14 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-comment'
 // PUT    /comments/:commentId
 // DELETE /comments/:commentId
 // GET    /comments/:commentId/replies
+```
+
+## Type
+`resource`
+
+## Installation
+```bash
+npm install @molecule/api-resource-comment
 ```
 
 ## API

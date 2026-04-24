@@ -6,15 +6,7 @@ Defines the abstract contract for AI-powered content moderation and
 user report management. Bond a concrete provider (e.g., one backed
 by `@molecule/api-ai`) to enable moderation in your application.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-content-moderation
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, requireProvider } from '@molecule/api-content-moderation'
@@ -29,6 +21,14 @@ const result = await moderation.check('some user content')
 if (result.flagged) {
   console.log('Content flagged:', result.categories)
 }
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-content-moderation
 ```
 
 ## API

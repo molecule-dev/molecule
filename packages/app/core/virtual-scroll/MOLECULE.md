@@ -7,15 +7,7 @@ of large lists and grids. Bond a provider (e.g.
 `@molecule/app-virtual-scroll-tanstack`) at startup, then use
 {@link createVirtualizer} anywhere.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/app-virtual-scroll
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { createVirtualizer } from '@molecule/app-virtual-scroll'
@@ -28,6 +20,14 @@ const virtualizer = createVirtualizer(scrollElement, {
 
 const items = virtualizer.getVirtualItems()
 const totalSize = virtualizer.getTotalSize()
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/app-virtual-scroll
 ```
 
 ## API

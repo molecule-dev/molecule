@@ -5,15 +5,7 @@ Database-backed notification center provider for molecule.dev.
 Implements the `@molecule/api-notification-center` interface using the
 bonded `@molecule/api-database` DataStore for persistence.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-notification-center-database
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-notification-center'
@@ -27,6 +19,14 @@ setProvider(createProvider({
   tableName: 'user_notifications',
   preferencesTableName: 'user_notification_prefs',
 }))
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-notification-center-database
 ```
 
 ## API

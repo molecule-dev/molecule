@@ -5,15 +5,7 @@ Queue-backed webhook provider for molecule.dev.
 Implements the `@molecule/api-webhook` interface using an internal job queue
 with exponential backoff retries and configurable concurrency.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-webhook-queue
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-webhook'
@@ -28,6 +20,14 @@ setProvider(createProvider({
   baseDelay: 2000,
   concurrency: 5,
 }))
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-webhook-queue
 ```
 
 ## API

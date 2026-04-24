@@ -7,15 +7,7 @@ manipulating existing PDFs (merge, watermark, page count, metadata).
 Best suited for programmatic PDF generation. For high-fidelity HTML-to-PDF
 rendering, use `@molecule/api-pdf-puppeteer` instead.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-pdf-pdfkit
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-pdf'
@@ -27,6 +19,14 @@ setProvider(provider)
 import { createProvider } from '@molecule/api-pdf-pdfkit'
 const customProvider = createProvider({ defaultFont: 'Helvetica', defaultFontSize: 14 })
 setProvider(customProvider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-pdf-pdfkit
 ```
 
 ## API

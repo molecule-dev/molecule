@@ -4,21 +4,21 @@ Slack notifications provider for molecule.dev.
 
 Sends notifications to Slack via incoming webhooks.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-notifications-slack
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-notifications'
 import { provider } from '@molecule/api-notifications-slack'
 
 setProvider('slack', provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-notifications-slack
 ```
 
 ## API

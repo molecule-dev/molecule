@@ -5,15 +5,7 @@ Activity feed resource for molecule.dev.
 Activity timeline with logging, feed queries, resource timelines, and
 unseen-count tracking. Activities can reference any resource type.
 
-## Type
-`resource`
-
-## Installation
-```bash
-npm install @molecule/api-resource-activity-feed
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { routes, requestHandlerMap } from '@molecule/api-resource-activity-feed'
@@ -24,6 +16,14 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-activity-feed'
 // GET  /activities/unseen    — unseen count
 // POST /activities/seen      — mark seen up to ID
 // GET  /activities/:resourceType/:resourceId — resource timeline
+```
+
+## Type
+`resource`
+
+## Installation
+```bash
+npm install @molecule/api-resource-activity-feed
 ```
 
 ## API

@@ -1,9 +1,18 @@
 # @molecule/app-tour-shepherd
 
-Shepherd.js provider for @molecule/app-tour.
+Shepherd.js provider for \@molecule/app-tour.
 
 Provides an in-memory tour implementation conforming to
 the molecule tour provider interface.
+
+## Quick Start
+
+```typescript
+import { provider } from '@molecule/app-tour-shepherd'
+import { setProvider } from '@molecule/app-tour'
+
+setProvider(provider)
+```
 
 ## Type
 `provider`
@@ -11,15 +20,6 @@ the molecule tour provider interface.
 ## Installation
 ```bash
 npm install @molecule/app-tour-shepherd
-```
-
-## Usage
-
-```typescript
-import { provider } from '@molecule/app-tour-shepherd'
-import { setProvider } from '@molecule/app-tour'
-
-setProvider(provider)
 ```
 
 ## API

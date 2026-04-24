@@ -1,18 +1,24 @@
 # @molecule/app-image-gallery-react
 
-Main image + thumbnail grid gallery with selection + optional upload
+React image gallery.
+
+Exports `<ImageGallery>` — main image + thumbnail grid with controlled-optional
+selection and "+N" overflow summarisation.
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-image-gallery-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `@molecule/app-ui-react` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0

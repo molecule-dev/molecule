@@ -5,21 +5,21 @@ Default in-process scheduler provider for molecule.dev.
 Uses setInterval for periodic task execution with staggered startup
 to prevent thundering herd.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-scheduler-default
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-scheduler'
 import { provider } from '@molecule/api-scheduler-default'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-scheduler-default
 ```
 
 ## API

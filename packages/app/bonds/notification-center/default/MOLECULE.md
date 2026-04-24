@@ -6,21 +6,21 @@ Implements `NotificationCenterProvider` from `@molecule/app-notification-center`
 using pure TypeScript in-memory state management with support for polling,
 realtime push updates, and subscription-based state notifications.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/app-notification-center-default
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { provider } from '@molecule/app-notification-center-default'
 import { setProvider } from '@molecule/app-notification-center'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/app-notification-center-default
 ```
 
 ## API

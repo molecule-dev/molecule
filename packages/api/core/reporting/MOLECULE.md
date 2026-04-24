@@ -6,15 +6,7 @@ Defines the abstract {@link ReportProvider} contract and convenience
 functions for executing aggregate queries, time-series analysis,
 data export, and report scheduling.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-reporting
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, aggregate, timeSeries } from '@molecule/api-reporting'
@@ -37,6 +29,14 @@ const series = await timeSeries({
   interval: 'day',
   measures: [{ field: 'id', function: 'count', alias: 'orderCount' }],
 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-reporting
 ```
 
 ## API

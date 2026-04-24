@@ -6,21 +6,21 @@ Implements the `SearchProvider` interface using the `meilisearch` client.
 Supports full-text search, faceted filtering, bulk indexing, and
 autocomplete suggestions.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-search-meilisearch
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-search'
 import { provider } from '@molecule/api-search-meilisearch'
 
 setProvider(provider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-search-meilisearch
 ```
 
 ## API

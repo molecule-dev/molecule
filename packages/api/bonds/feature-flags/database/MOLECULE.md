@@ -6,15 +6,7 @@ Persists feature flags using the abstract `DataStore` from
 `@molecule/api-database`. Supports rule-based targeting, percentage
 rollouts, and bulk user evaluation.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-feature-flags-database
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, isEnabled, setFlag } from '@molecule/api-feature-flags'
@@ -27,6 +19,14 @@ setProvider(provider)
 import { createProvider } from '@molecule/api-feature-flags-database'
 const customProvider = createProvider({ tableName: 'flags' })
 setProvider(customProvider)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-feature-flags-database
 ```
 
 ## API

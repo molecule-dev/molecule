@@ -9,15 +9,7 @@ tokens, making authenticated requests, and revoking access. Bond packages
 convenience functions (`getAuthorizationUrl`, `getToken`, `refreshToken`,
 `request`, `revokeToken`) which delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-oauth-client
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, getAuthorizationUrl, getToken } from '@molecule/api-oauth-client'
@@ -37,6 +29,14 @@ const config = {
 
 const authUrl = getAuthorizationUrl(config, { state: 'csrf-token' })
 const tokens = await getToken(config, 'authorization-code')
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-oauth-client
 ```
 
 ## API
@@ -306,7 +306,7 @@ function hasProvider(): boolean
 
 **Returns:** `true` if an OAuth client provider is bonded.
 
-#### `refreshToken(config, refreshToken)`
+#### `refreshToken(config, token)`
 
 Refreshes an expired access token using a refresh token.
 
@@ -315,7 +315,7 @@ function refreshToken(config: OAuthConfig, token: string): Promise<OAuthTokens>
 ```
 
 - `config` — The OAuth provider configuration.
-- `refreshToken` — The refresh token.
+- `token` — The refresh token string.
 
 **Returns:** A new token set.
 

@@ -1,18 +1,23 @@
 # @molecule/app-emoji-reactions-react
 
-Generic emoji reaction-bar with toggle + add-reaction popover
+Emoji reaction bar.
+
+Exports `<EmojiReactions>` and `EmojiReaction` type.
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-emoji-reactions-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `@molecule/app-ui-react` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0

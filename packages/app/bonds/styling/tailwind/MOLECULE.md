@@ -241,6 +241,9 @@ const cardClasses: (props?: ({ variant?: "outline" | "default" | "elevated" | un
 Merges class names, filtering out falsy values. Supports strings,
 numbers, conditional objects, and nested arrays.
 
+Resolves conflicting Tailwind utilities (e.g. two `gap-*` classes from
+`cm.grid({ cols: 12 })` plus a literal `'gap-10'`) via `tailwind-merge`.
+
 ```typescript
 const cn: (...classes: ClassValue[]) => string
 ```

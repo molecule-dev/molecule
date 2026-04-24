@@ -8,15 +8,7 @@ Bond packages (Google Maps, Mapbox, Nominatim, etc.) implement this interface. A
 code uses the convenience functions (`geocode`, `reverseGeocode`, `distance`, `autocomplete`,
 `getTimezone`) which delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-geolocation
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, geocode, reverseGeocode, distance } from '@molecule/api-geolocation'
@@ -26,6 +18,14 @@ setProvider(google)
 const results = await geocode('1600 Amphitheatre Parkway, Mountain View, CA')
 const addresses = await reverseGeocode(37.4224764, -122.0842499)
 const km = distance({ lat: 40.7128, lng: -74.006 }, { lat: 34.0522, lng: -118.2437 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-geolocation
 ```
 
 ## API

@@ -4,15 +4,7 @@ Twilio SMS provider for molecule.dev.
 
 Implements the `@molecule/api-sms` interface using the Twilio REST API.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-sms-twilio
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider } from '@molecule/api-sms'
@@ -27,6 +19,14 @@ setProvider(createProvider({
   authToken: 'xxx',
   defaultFrom: '+15551234567',
 }))
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-sms-twilio
 ```
 
 ## API

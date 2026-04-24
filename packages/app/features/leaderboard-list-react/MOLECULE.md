@@ -1,18 +1,23 @@
 # @molecule/app-leaderboard-list-react
 
-Wrapper list above leaderboard rows with podium / top-N highlighting
+Leaderboard list container.
+
+Exports `<LeaderboardList>` — wraps a stack of `<LeaderboardRow>`s with title and actions.
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-leaderboard-list-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `@molecule/app-ui-react` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0

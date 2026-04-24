@@ -6,15 +6,7 @@ Provides Angular-specific services and providers for all molecule
 core interfaces. This package enables the use of molecule's framework-agnostic
 interfaces with Angular's idioms (services, DI, RxJS observables, etc.).
 
-## Type
-`framework`
-
-## Installation
-```bash
-npm install @molecule/app-angular
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 // main.ts
@@ -34,6 +26,14 @@ bootstrapApplication(AppComponent, {
 
 // component.ts
 import { MoleculeAuthService, MoleculeThemeService } from '@molecule/app-angular'
+
+## Type
+`framework`
+
+## Installation
+```bash
+npm install @molecule/app-angular
+```
 
 ## API
 

@@ -5,15 +5,7 @@ Logger core interface for molecule.dev.
 Provides an abstract logging interface with a built-in console logger.
 Use `setLogger` to swap in a provider like pino, winston, or loglevel.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-logger
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { logger, setLogger, resetLogger } from '@molecule/api-logger'
@@ -30,6 +22,14 @@ setLogger(log)
 
 // Reset to default console logger
 resetLogger()
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-logger
 ```
 
 ## API

@@ -2,15 +2,7 @@
 
 Express body parser provider for molecule.dev.
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-middleware-body-parser-express
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setBodyParser, setJsonParserFactory } from '@molecule/api-middleware-body-parser'
@@ -18,6 +10,14 @@ import { provider, jsonParserFactory } from '@molecule/api-middleware-body-parse
 
 setBodyParser(provider)
 setJsonParserFactory(jsonParserFactory)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-middleware-body-parser-express
 ```
 
 ## API

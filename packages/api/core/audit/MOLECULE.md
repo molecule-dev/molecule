@@ -6,15 +6,7 @@ Provides the `AuditProvider` interface for recording and querying audit
 trail entries. Bond a concrete provider (e.g. `@molecule/api-audit-database`,
 `@molecule/api-audit-file`) at startup via `setProvider()`.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-audit
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, log, query } from '@molecule/api-audit'
@@ -28,6 +20,14 @@ await log({ actor: 'user:1', action: 'create', resource: 'project', resourceId: 
 
 // Query audit records
 const results = await query({ actor: 'user:1', page: 1, perPage: 20 })
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-audit
 ```
 
 ## API
@@ -221,6 +221,8 @@ function log(entry: AuditEntry): Promise<void>
 ```
 
 - `entry` — The audit entry to record.
+
+**Returns:** Resolves when the bonded provider persists the entry.
 
 #### `query(options)`
 

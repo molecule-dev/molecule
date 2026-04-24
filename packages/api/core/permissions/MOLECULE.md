@@ -8,15 +8,7 @@ custom, etc.) implement this interface. Application code uses the
 convenience functions (`can`, `assign`, `revoke`, `getRoles`) which
 delegate to the bonded provider.
 
-## Type
-`core`
-
-## Installation
-```bash
-npm install @molecule/api-permissions
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, can, assign } from '@molecule/api-permissions'
@@ -26,6 +18,14 @@ setProvider(casbin)
 
 await assign('user:123', 'editor')
 const allowed = await can('user:123', 'write', 'project')
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-permissions
 ```
 
 ## API
@@ -197,6 +197,8 @@ function addPermission(role: string, permission: Permission): Promise<void>
 - `role` — The role name to add the permission to.
 - `permission` — The permission to add.
 
+**Returns:** Resolves when the permission is attached to the role.
+
 #### `assign(subject, role, scope)`
 
 Assigns a role to a subject, optionally within a scope.
@@ -208,6 +210,8 @@ function assign(subject: string, role: string, scope?: string): Promise<void>
 - `subject` — The entity to assign the role to.
 - `role` — The role name to assign.
 - `scope` — Optional scope for the assignment (e.g. `org:123`).
+
+**Returns:** Resolves when the bonded provider records the assignment.
 
 #### `can(subject, action, resource, context)`
 
@@ -245,6 +249,8 @@ function deleteRole(roleId: string): Promise<void>
 ```
 
 - `roleId` — The ID of the role to delete.
+
+**Returns:** Resolves when the role is removed.
 
 #### `getPermissions(role)`
 
@@ -301,6 +307,8 @@ function removePermission(role: string, permissionId: string): Promise<void>
 - `role` — The role name to remove the permission from.
 - `permissionId` — The ID of the permission to remove.
 
+**Returns:** Resolves when the permission is removed from the role.
+
 #### `revoke(subject, role, scope)`
 
 Revokes a role from a subject, optionally within a scope.
@@ -312,6 +320,8 @@ function revoke(subject: string, role: string, scope?: string): Promise<void>
 - `subject` — The entity to revoke the role from.
 - `role` — The role name to revoke.
 - `scope` — Optional scope for the revocation.
+
+**Returns:** Resolves when the bonded provider records the revocation.
 
 #### `setProvider(provider)`
 

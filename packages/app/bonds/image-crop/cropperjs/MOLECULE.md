@@ -1,9 +1,18 @@
 # @molecule/app-image-crop-cropperjs
 
-Cropper.js provider for @molecule/app-image-crop.
+Cropper.js provider for \@molecule/app-image-crop.
 
 Provides an in-memory image crop implementation conforming to
 the molecule image crop provider interface.
+
+## Quick Start
+
+```typescript
+import { provider } from '@molecule/app-image-crop-cropperjs'
+import { setProvider } from '@molecule/app-image-crop'
+
+setProvider(provider)
+```
 
 ## Type
 `provider`
@@ -11,15 +20,6 @@ the molecule image crop provider interface.
 ## Installation
 ```bash
 npm install @molecule/app-image-crop-cropperjs
-```
-
-## Usage
-
-```typescript
-import { provider } from '@molecule/app-image-crop-cropperjs'
-import { setProvider } from '@molecule/app-image-crop'
-
-setProvider(provider)
 ```
 
 ## API

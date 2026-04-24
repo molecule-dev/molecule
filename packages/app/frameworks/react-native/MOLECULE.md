@@ -872,7 +872,7 @@ interface UseHttpOptions<T> extends RequestConfig {
     /**
      * Callback when request fails.
      */
-    onError?: (error: Error) => void;
+    onError?: (error: {Error}) => void;
 }
 ```
 
@@ -895,7 +895,7 @@ State for async HTTP operations.
 interface UseHttpState<T> {
     data: T | null;
     loading: boolean;
-    error: Error | null;
+    error: {Error} | null;
 }
 ```
 
@@ -993,7 +993,7 @@ Extended promise state with actions.
 interface UsePromiseState<T> {
     status: PromiseStatus;
     value: T | null;
-    error: Error | null;
+    error: {Error} | null;
     cancel: (message?: string) => void;
     reset: () => void;
 }
@@ -1090,7 +1090,7 @@ interface UseStorageValueResult<T> {
     setValue: (value: T) => Promise<void>;
     removeValue: () => Promise<void>;
     loading: boolean;
-    error: Error | null;
+    error: {Error} | null;
 }
 ```
 
@@ -1646,7 +1646,7 @@ its key is translated using the current locale. For plain `Error` instances,
 `error.message` is returned unchanged.
 
 ```typescript
-function useI18nError(error: Error | null | undefined): string | null
+function useI18nError(error: { Error: any; } | null | undefined): string | null
 ```
 
 - `error` — The error to translate, or `null`/`undefined`.

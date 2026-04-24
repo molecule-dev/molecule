@@ -6,15 +6,7 @@ Implements the standard OAuth 2.0 authorization code flow with PKCE support,
 using Node.js built-in `fetch` for HTTP requests. Compatible with any
 OAuth 2.0 compliant provider (GitHub, Google, GitLab, Slack, etc.).
 
-## Type
-`provider`
-
-## Installation
-```bash
-npm install @molecule/api-oauth-client-generic
-```
-
-## Usage
+## Quick Start
 
 ```typescript
 import { setProvider, getAuthorizationUrl, getToken } from '@molecule/api-oauth-client'
@@ -35,6 +27,14 @@ const config = {
 const authUrl = getAuthorizationUrl(config, { state: 'random-csrf' })
 // Redirect user to authUrl, then on callback:
 const tokens = await getToken(config, code)
+```
+
+## Type
+`provider`
+
+## Installation
+```bash
+npm install @molecule/api-oauth-client-generic
 ```
 
 ## API
