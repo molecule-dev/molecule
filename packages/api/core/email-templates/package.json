@@ -1,0 +1,51 @@
+{
+  "name": "@molecule/api-email-templates",
+  "version": "1.0.0",
+  "description": "Transactional email templates for molecule.dev: i18n-driven subject/text/html templates with variable interpolation, sent via the bonded email transport",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "email",
+    "templates",
+    "transactional",
+    "i18n"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-emails": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-emails": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/email-templates"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/email-templates",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

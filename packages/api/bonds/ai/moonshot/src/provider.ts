@@ -261,7 +261,7 @@ class MoonshotAIProvider implements AIProvider {
         }
       } else if (toolCalls.length > 0) {
         // Assistant message with tool calls — include reasoning_content for Kimi compatibility
-        const rawMsg = m as Record<string, unknown>
+        const rawMsg = m as unknown as Record<string, unknown>
         formatted.push({
           role: 'assistant',
           content: parts.length > 0 ? parts : null,

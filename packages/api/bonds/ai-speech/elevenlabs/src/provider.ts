@@ -73,7 +73,7 @@ class ElevenlabsSpeechProvider implements AISpeechProvider {
    * @param params - Speech synthesis parameters.
    * @returns The synthesized audio data with content type.
    */
-  async synthesize(params: SpeechParams): Promise<SpeechResult> {
+  async synthesizeSpeech(params: SpeechParams): Promise<SpeechResult> {
     const voiceId = params.voiceId || this.defaultVoiceId
     const outputFormat = params.outputFormat ?? this.defaultOutputFormat
     const url = `${this.baseUrl}/v1/text-to-speech/${encodeURIComponent(voiceId)}?output_format=${encodeURIComponent(outputFormat)}`
