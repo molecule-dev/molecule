@@ -23,6 +23,6 @@ export class DeepseekAIProvider {
  * @param config - DeepSeek provider configuration.
  * @returns A DeepSeek-backed provider instance.
  */
-export function createProvider(config: DeepseekConfig): DeepseekAIProvider {
+export function createProvider(config: DeepseekConfig = {}): DeepseekAIProvider {
   return new DeepseekAIProvider(config)
 }

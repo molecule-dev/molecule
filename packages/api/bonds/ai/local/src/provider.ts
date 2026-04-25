@@ -23,6 +23,6 @@ export class LocalAIProvider {
  * @param config - Local provider configuration.
  * @returns A local-backed provider instance.
  */
-export function createProvider(config: LocalConfig): LocalAIProvider {
+export function createProvider(config: LocalConfig = {}): LocalAIProvider {
   return new LocalAIProvider(config)
 }

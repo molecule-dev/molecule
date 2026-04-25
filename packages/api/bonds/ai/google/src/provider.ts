@@ -23,6 +23,6 @@ export class GoogleAIProvider {
  * @param config - Google provider configuration.
  * @returns A Google-backed provider instance.
  */
-export function createProvider(config: GoogleConfig): GoogleAIProvider {
+export function createProvider(config: GoogleConfig = {}): GoogleAIProvider {
   return new GoogleAIProvider(config)
 }
