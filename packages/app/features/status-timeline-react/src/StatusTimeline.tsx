@@ -24,8 +24,8 @@ export interface StatusTimelineProps {
  * Vertical ordered-step status timeline.
  *
  * Each step renders as a colored dot + label. Steps at or before the
- * current one are "reached" (filled dot, normal text); the current step's
- * label is bolded; steps after the current one are dimmed.
+ * current one are "reached" (filled dot); the current step's label is
+ * bolded; steps after the current one are dimmed via `cm.textMuted`.
  *
  * @param root0
  * @param root0.steps
@@ -55,12 +55,12 @@ export function StatusTimeline({
         return (
           <li key={step.key} className={cm.flex({ align: 'center', gap: 'sm' })}>
             <span
-              className={cm.cn('h-2 w-2 rounded-full', reached ? 'bg-primary' : 'bg-outline-variant')}
+              className={cm.cn(cm.roundedFull, 'h-2 w-2', reached ? 'bg-primary' : 'bg-outline-variant')}
               aria-hidden="true"
             />
             <span
               className={cm.cn(
-                reached ? '' : 'text-on-surface-variant',
+                reached ? '' : cm.textMuted,
                 isCurrent ? cm.fontWeight('semibold') : '',
               )}
             >

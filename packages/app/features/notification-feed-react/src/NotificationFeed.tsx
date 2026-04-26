@@ -63,23 +63,23 @@ export function NotificationFeed({
         const content = (
           <div
             className={cm.cn(
+              cm.card(),
               cm.sp('p', 4),
               cm.flex({ align: 'start', gap: 'md' }),
-              'bg-surface rounded-lg shadow-sm',
               item.unread ? 'border-l-4 border-primary' : '',
             )}
           >
-            <div className={cm.cn('h-10 w-10 flex items-center justify-center bg-primary-container rounded-full text-primary flex-shrink-0')}>
+            <div className={cm.cn(cm.shrink0, cm.flex({ align: 'center', justify: 'center' }), cm.roundedFull, cm.textPrimary, 'h-10 w-10 bg-primary-container')}>
               <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
             </div>
-            <div className="flex-1 min-w-0">
+            <div className={cm.cn(cm.flex1, 'min-w-0')}>
               <div className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
                 <h2 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{item.title}</h2>
-                <span className={cm.cn(cm.textSize('xs'), 'text-on-surface-variant whitespace-nowrap')}>
+                <span className={cm.cn(cm.textSize('xs'), cm.textMuted, 'whitespace-nowrap')}>
                   {fmtRelativeShort(item.createdAt)}
                 </span>
               </div>
-              <p className={cm.cn(cm.textSize('sm'), 'text-on-surface-variant')}>{item.body}</p>
+              <p className={cm.cn(cm.textSize('sm'), cm.textMuted)}>{item.body}</p>
             </div>
           </div>
         )

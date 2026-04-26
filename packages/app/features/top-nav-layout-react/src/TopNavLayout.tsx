@@ -62,10 +62,10 @@ export function TopNavLayout({
         <div
           className={cm.cn(
             cm.maxW('7xl'),
+            cm.mxAuto,
             cm.sp('px', 6),
             cm.sp('py', 3),
             cm.flex({ align: 'center', justify: 'between', gap: 'lg' }),
-            'mx-auto',
           )}
         >
           <Link to={logoTo} className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'))}>
@@ -85,8 +85,8 @@ export function TopNavLayout({
                     cm.fontWeight('medium'),
                     'rounded-md transition-colors',
                     isActive
-                      ? 'bg-primary-container text-primary'
-                      : 'text-on-surface hover:bg-surface-container',
+                      ? cm.cn('bg-primary-container', cm.textPrimary)
+                      : cm.cn(cm.textMuted, 'hover:bg-surface-container hover:text-on-surface'),
                   )
                 }
               >
