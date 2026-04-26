@@ -1,0 +1,74 @@
+import { getClassMap } from '@molecule/app-ui'
+
+export interface StatusTimelineStep {
+  /** Stable identifier for this step (used as the React key). */
+  key: string
+  /** Visible label. Apps that route this through `t(...)` should pass the resolved string. */
+  label: string
+}
+
+export interface StatusTimelineProps {
+  /** Ordered list of steps from earliest to latest. */
+  steps: ReadonlyArray<StatusTimelineStep>
+  /** The key of the current step. Steps with the same or earlier index are shown as "reached". */
+  currentKey: string
+  /** Aria-label for the timeline ordered list. */
+  ariaLabel?: string
+  /** Extra classes on the outer `<ol>`. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+
+/**
+ * Vertical ordered-step status timeline.
+ *
+ * Each step renders as a colored dot + label. Steps at or before the
+ * current one are "reached" (filled dot, normal text); the current step's
+ * label is bolded; steps after the current one are dimmed.
+ *
+ * @param root0
+ * @param root0.steps
+ * @param root0.currentKey
+ * @param root0.ariaLabel
+ * @param root0.className
+ * @param root0.dataMolId
+ */
+export function StatusTimeline({
+  steps,
+  currentKey,
+  ariaLabel,
+  className,
+  dataMolId,
+}: StatusTimelineProps) {
+  const cm = getClassMap()
+  const currentIdx = steps.findIndex(s => s.key === currentKey)
+  return (
+    <ol
+      className={cm.cn('space-y-2', cm.textSize('sm'), className)}
+      aria-label={ariaLabel}
+      data-mol-id={dataMolId}
+    >
+      {steps.map((step, i) => {
+        const reached = currentIdx >= 0 && i <= currentIdx
+        const isCurrent = i === currentIdx
+        return (
+          <li key={step.key} className={cm.flex({ align: 'center', gap: 'sm' })}>
+            <span
+              className={cm.cn('h-2 w-2 rounded-full', reached ? 'bg-primary' : 'bg-outline-variant')}
+              aria-hidden="true"
+            />
+            <span
+              className={cm.cn(
+                reached ? '' : 'text-on-surface-variant',
+                isCurrent ? cm.fontWeight('semibold') : '',
+              )}
+            >
+              {step.label}
+            </span>
+          </li>
+        )
+      })}
+    </ol>
+  )
+}
