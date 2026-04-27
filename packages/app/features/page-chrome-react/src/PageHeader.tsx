@@ -15,6 +15,15 @@ interface PageHeaderProps {
   actions?: ReactNode
   /** Optional meta row rendered below the title/subtitle (status chips, timestamps, etc.). */
   meta?: ReactNode
+  /**
+   * Title emphasis level.
+   * - `'normal'` (default) — `text-3xl font-bold` for general / reusable
+   *   list-page headers.
+   * - `'extrabold'` — `text-4xl font-extrabold tracking-tight` matching
+   *   the polished flagship dashboards (project-management, crm,
+   *   personal-finance). Use this on top-level dashboard / hero pages.
+   */
+  emphasis?: 'normal' | 'extrabold'
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
   /** Extra classes on the outer wrapper. */
@@ -44,10 +53,15 @@ export function PageHeader({
   breadcrumbs,
   actions,
   meta,
+  emphasis = 'normal',
   dataMolId,
   className,
 }: PageHeaderProps) {
   const cm = getClassMap()
+  const titleClass =
+    emphasis === 'extrabold'
+      ? cm.cn(cm.textSize('4xl'), 'font-extrabold tracking-tight')
+      : cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))
   return (
     <header data-mol-id={dataMolId} className={cm.cn(cm.stack(3), className)}>
       {breadcrumbs}
@@ -55,7 +69,7 @@ export function PageHeader({
         <div className={cm.flex({ align: 'center', gap: 'sm' })}>
           {icon}
           <div className={cm.stack(1 as const)}>
-            <h1 className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}>{title}</h1>
+            <h1 className={titleClass}>{title}</h1>
             {subtitle && <p className={cm.textSize('base')}>{subtitle}</p>}
           </div>
         </div>

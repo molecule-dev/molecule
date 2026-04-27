@@ -27,6 +27,13 @@ interface TabFilterProps {
   onChange: (id: string) => void
   /** Whether to allow the row to scroll horizontally. Defaults to true. */
   scrollable?: boolean
+  /**
+   * When `true` (default), draws filled-pill backgrounds matching the
+   * polished flagship apps: active = `bg-primary text-on-primary`,
+   * inactive = `bg-surface-container-low hover:bg-surface-container`.
+   * Pass `false` for the older bare-text-only style (no background).
+   */
+  filled?: boolean
   /** Extra classes. */
   className?: string
 }
@@ -43,6 +50,7 @@ interface TabFilterProps {
  * @param root0.activeId
  * @param root0.onChange
  * @param root0.scrollable
+ * @param root0.filled
  * @param root0.className
  */
 export function TabFilter({
@@ -50,6 +58,7 @@ export function TabFilter({
   activeId,
   onChange,
   scrollable = true,
+  filled = true,
   className,
 }: TabFilterProps) {
   const cm = getClassMap()
@@ -61,6 +70,11 @@ export function TabFilter({
     >
       {tabs.map((t) => {
         const active = t.id === activeId
+        const filledClasses = filled
+          ? active
+            ? 'bg-primary text-on-primary'
+            : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
+          : ''
         return (
           <button
             key={t.id}
@@ -76,6 +90,8 @@ export function TabFilter({
               cm.textSize('sm'),
               active ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
               cm.roundedFull,
+              filledClasses,
+              'transition-colors',
             )}
           >
             {t.icon}

@@ -17,6 +17,13 @@ interface FilterBarProps {
   onClear?: () => void
   /** Extra right-side actions (e.g. "Add filter", "Save view"). */
   actions?: ReactNode
+  /**
+   * When `true`, renders each field's `label` above its input as a
+   * 10px-uppercase-tracking-widest label (matching the polished flagship
+   * apps' settings/filter sections). Default `false` keeps the original
+   * unlabeled inline-row layout used by simple toolbar consumers.
+   */
+  showLabels?: boolean
   /** Extra classes. */
   className?: string
 }
@@ -40,6 +47,7 @@ export function FilterBar({
   onChange,
   onClear,
   actions,
+  showLabels = false,
   className,
 }: FilterBarProps) {
   const cm = getClassMap()
@@ -54,11 +62,41 @@ export function FilterBar({
     onChange({ ...values, [id]: v })
   }
 
+  /**
+   * Wrap a field's input(s) with an optional 10px-uppercase label above
+   * (when `showLabels` is true).
+   * @param field
+   * @param children
+   */
+  function withLabel(field: FilterField, children: ReactNode): ReactNode {
+    if (!showLabels) return children
+    return (
+      <label key={`${field.id}-label`} className={cm.cn(cm.flex({ direction: 'col', gap: 'xs' }))}>
+        <span
+          className={cm.cn(
+            cm.textSize('xs'),
+            cm.fontWeight('bold'),
+            'uppercase tracking-widest text-on-surface-variant',
+          )}
+        >
+          {field.label}
+        </span>
+        {children}
+      </label>
+    )
+  }
+
   return (
-    <div className={cm.cn(cm.flex({ align: 'center', gap: 'sm', wrap: 'wrap' }), className)}>
+    <div
+      className={cm.cn(
+        cm.flex({ align: showLabels ? 'end' : 'center', gap: 'sm', wrap: 'wrap' }),
+        className,
+      )}
+    >
       {fields.map((f) => {
         if (f.type === 'text') {
-          return (
+          return withLabel(
+            f,
             <Input
               key={f.id}
               type="text"
@@ -66,23 +104,25 @@ export function FilterBar({
               onChange={(e) => set(f.id, (e.target as HTMLInputElement).value)}
               placeholder={f.placeholder ?? f.label}
               aria-label={f.label}
-            />
+            />,
           )
         }
         if (f.type === 'select') {
-          return (
+          return withLabel(
+            f,
             <Select
               key={f.id}
               value={(values[f.id] as string) ?? ''}
               onValueChange={(v) => set(f.id, v)}
               options={f.options}
               aria-label={f.label}
-            />
+            />,
           )
         }
         if (f.type === 'multi') {
           const current = (values[f.id] as string[] | undefined) ?? []
-          return (
+          return withLabel(
+            f,
             <Input
               key={f.id}
               type="text"
@@ -98,12 +138,13 @@ export function FilterBar({
               }
               placeholder={f.placeholder ?? f.label}
               aria-label={f.label}
-            />
+            />,
           )
         }
         // date-range
         const range = (values[f.id] as { from?: string; to?: string } | undefined) ?? {}
-        return (
+        return withLabel(
+          f,
           <span key={f.id} className={cm.flex({ align: 'center', gap: 'xs' })}>
             <Input
               type="date"
@@ -118,7 +159,7 @@ export function FilterBar({
               onChange={(e) => set(f.id, { ...range, to: (e.target as HTMLInputElement).value })}
               aria-label={`${f.label} to`}
             />
-          </span>
+          </span>,
         )
       })}
       {onClear && (
