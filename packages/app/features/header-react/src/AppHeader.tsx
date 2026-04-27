@@ -15,11 +15,19 @@ export interface AppHeaderProps {
   brandTo?: string
   /** Slot for the right-side user menu — typically `<UserMenu />` from `@molecule/app-ui-react`. */
   userMenu?: ReactNode
-  /** Render the bonded `<ThemeToggle />` between extras and `userMenu`. Defaults to `true`. */
-  showThemeToggle?: boolean
+  /**
+   * Theme toggle slot. Defaults to `<ThemeToggle />` from `@molecule/app-ui-react`.
+   * Pass `null` to hide it, or your own component (e.g. an icon-bonded variant) to override.
+   */
+  themeToggle?: ReactNode
   /** Optional extra actions rendered between the theme toggle and the user menu. */
   extraActions?: ReactNode
-  /** Extra className on the outer `<header>` (composed with `cm.headerBar` + `cm.headerFixed`). */
+  /**
+   * Apply `cm.headerFixed` for sticky/fixed positioning. Defaults to `true`,
+   * matching the flagship-app convention. Set to `false` for a non-sticky header.
+   */
+  fixed?: boolean
+  /** Extra className on the outer `<header>` (composed with `cm.headerBar` + optional `cm.headerFixed`). */
   className?: string
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
@@ -34,20 +42,26 @@ export interface AppHeaderProps {
  * (`cm.headerBar`, `cm.headerFixed`, `cm.logoText`) so the bonded styling layer
  * controls the visual treatment.
  */
+const DEFAULT_THEME_TOGGLE = <ThemeToggle />
+
 export function AppHeader({
   appName,
   logoSrc = '/logo.svg',
   logoSize = 30,
   brandTo = '/',
   userMenu,
-  showThemeToggle = true,
+  themeToggle = DEFAULT_THEME_TOGGLE,
   extraActions,
+  fixed = true,
   className,
   dataMolId,
 }: AppHeaderProps) {
   const cm = getClassMap()
   return (
-    <header className={cm.cn(cm.headerBar, cm.headerFixed, className)} data-mol-id={dataMolId}>
+    <header
+      className={cm.cn(cm.headerBar, fixed ? cm.headerFixed : '', className)}
+      data-mol-id={dataMolId}
+    >
       <div className={cm.headerInner}>
         <Flex align="center" justify="between" className={cm.h('full')}>
           <Link to={brandTo}>
@@ -57,7 +71,7 @@ export function AppHeader({
             </Flex>
           </Link>
           <Flex align="center" gap="sm">
-            {showThemeToggle ? <ThemeToggle /> : null}
+            {themeToggle}
             {extraActions}
             {userMenu}
           </Flex>

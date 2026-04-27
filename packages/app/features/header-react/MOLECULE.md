@@ -60,9 +60,10 @@ npm install @molecule/app-header-react
 | `logoSize` | `number` | `30` | Logo size in pixels (square). |
 | `brandTo` | `string` | `'/'` | Path the brand link navigates to. |
 | `userMenu` | `ReactNode` | _none_ | Right-side action slot — typically `<UserMenu />` from `@molecule/app-ui-react`. |
-| `showThemeToggle` | `boolean` | `true` | Render the bonded `<ThemeToggle />` between extras and `userMenu`. |
+| `themeToggle` | `ReactNode` | `<ThemeToggle />` | Theme toggle slot. Pass `null` to hide, or your own component to override the default. |
 | `extraActions` | `ReactNode` | _none_ | Optional extra actions rendered between the theme toggle and the user menu. |
-| `className` | `string` | _none_ | Composed with `cm.headerBar` + `cm.headerFixed` on the outer `<header>`. |
+| `fixed` | `boolean` | `true` | Apply `cm.headerFixed` for sticky positioning. Set `false` for a non-sticky header. |
+| `className` | `string` | _none_ | Composed with `cm.headerBar` + optional `cm.headerFixed` on the outer `<header>`. |
 | `dataMolId` | `string` | _none_ | `data-mol-id` for AI-agent selectors. |
 
 ## Notes
