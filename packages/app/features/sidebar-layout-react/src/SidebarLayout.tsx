@@ -81,7 +81,7 @@ export function SidebarLayout({
                   cm.fontWeight('medium'),
                   'rounded-md transition-colors',
                   isActive
-                    ? cm.cn('bg-primary-container', cm.textPrimary)
+                    ? 'bg-primary-container text-on-primary-container'
                     : cm.cn(cm.textMuted, 'hover:bg-surface-container hover:text-on-surface'),
                 )
               }
