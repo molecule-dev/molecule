@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -57,6 +57,20 @@ export function SidebarLayout({
   dataMolId,
 }: SidebarLayoutProps) {
   const cm = getClassMap()
+  const { pathname } = useLocation()
+
+  // Single-active-item resolution: highlight the nav item whose `to` is the
+  // longest prefix-match of the current pathname. Avoids the default NavLink
+  // behaviour of highlighting every ancestor (e.g. both `/docs` and
+  // `/docs/endpoints` when on `/docs/endpoints`).
+  const activeKey = navItems.reduce<string | null>((bestKey, item) => {
+    const isMatch = pathname === item.to || pathname.startsWith(`${item.to}/`)
+    if (!isMatch) return bestKey
+    if (bestKey === null) return item.key
+    const best = navItems.find(i => i.key === bestKey)
+    return best && item.to.length > best.to.length ? item.key : bestKey
+  }, null)
+
   return (
     <div
       className={cm.cn(cm.minH('screen'), cm.flex({ direction: 'row' }), 'bg-background text-on-surface antialiased', className)}
@@ -68,12 +82,14 @@ export function SidebarLayout({
         </Link>
 
         <nav className={cm.cn(cm.flex1, 'space-y-1')} aria-label={navAriaLabel}>
-          {navItems.map(item => (
-            <NavLink
-              key={item.key}
-              to={item.to}
-              className={({ isActive }) =>
-                cm.cn(
+          {navItems.map(item => {
+            const isActive = item.key === activeKey
+            return (
+              <Link
+                key={item.key}
+                to={item.to}
+                aria-current={isActive ? 'page' : undefined}
+                className={cm.cn(
                   cm.flex({ align: 'center', gap: 'sm' }),
                   cm.sp('px', 3),
                   cm.sp('py', 2),
@@ -83,15 +99,15 @@ export function SidebarLayout({
                   isActive
                     ? 'bg-primary-container text-on-primary-container'
                     : cm.cn(cm.textMuted, 'hover:bg-surface-container hover:text-on-surface'),
-                )
-              }
-            >
-              {item.icon
-                ? <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
-                : null}
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
+                )}
+              >
+                {item.icon
+                  ? <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
+                  : null}
+                <span>{item.label}</span>
+              </Link>
+            )
+          })}
         </nav>
 
         {userMenu
