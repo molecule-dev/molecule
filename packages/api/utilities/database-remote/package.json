@@ -1,0 +1,57 @@
+{
+  "name": "@molecule/api-database-remote",
+  "version": "1.0.0",
+  "description": "Remote-database driver for database-admin flagship — connects to user-supplied Postgres/MySQL/SQLite databases for inspection, schema browsing, and query execution.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "database",
+    "remote",
+    "postgresql",
+    "mysql",
+    "sqlite"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/better-sqlite3": "7.6.13",
+    "@types/node": "25.5.0",
+    "@types/pg": "8.16.0",
+    "better-sqlite3": "12.6.2",
+    "mysql2": "3.18.0",
+    "pg": "8.18.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "peerDependencies": {
+    "better-sqlite3": "^12.0.0",
+    "mysql2": "^3.0.0",
+    "pg": "^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "better-sqlite3": {
+      "optional": true
+    },
+    "mysql2": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    }
+  }
+}
