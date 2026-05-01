@@ -1,0 +1,38 @@
+{
+  "name": "@molecule/api-smtp",
+  "version": "1.0.0",
+  "description": "Direct SMTP send client — sends mail through a user-supplied SMTP server (distinct from transactional email provider bonds).",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "smtp",
+    "email",
+    "nodemailer"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "nodemailer": "8.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "@types/nodemailer": "7.0.11",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
