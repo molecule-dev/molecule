@@ -1,0 +1,33 @@
+{
+  "name": "@molecule/api-formula-engine",
+  "version": "1.0.0",
+  "description": "Spreadsheet-style formula evaluator: parser, evaluator, dependency tracker for cell graphs with arithmetic, comparison, string ops, references, aggregations, conditionals, date/text functions, and circular-ref detection.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "formula",
+    "engine"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
