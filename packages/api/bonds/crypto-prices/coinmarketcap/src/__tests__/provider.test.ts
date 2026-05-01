@@ -320,7 +320,10 @@ describe('coinmarketcap crypto-prices provider', () => {
 
   describe('getHistorical', () => {
     it('should map quotes samples into ts/price points', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(mockFetchResponse(QUOTES_HISTORICAL_FIXTURE)))
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue(mockFetchResponse(QUOTES_HISTORICAL_FIXTURE)),
+      )
 
       const points = await provider.getHistorical('BTC', 7)
 

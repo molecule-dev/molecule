@@ -113,13 +113,14 @@ interface CmcHistoricalSample {
 interface CmcQuotesHistoricalResponse {
   data: Record<
     string,
-    {
-      symbol?: string
-      quotes: CmcHistoricalSample[]
-    } | Array<{
-      symbol?: string
-      quotes: CmcHistoricalSample[]
-    }>
+    | {
+        symbol?: string
+        quotes: CmcHistoricalSample[]
+      }
+    | Array<{
+        symbol?: string
+        quotes: CmcHistoricalSample[]
+      }>
   >
 }
 
@@ -539,8 +540,7 @@ export const createProvider = (
         circulatingSupply:
           typeof row.circulating_supply === 'number' ? row.circulating_supply : null,
         totalSupply: typeof row.total_supply === 'number' ? row.total_supply : null,
-        change24h:
-          typeof quote.percent_change_24h === 'number' ? quote.percent_change_24h : null,
+        change24h: typeof quote.percent_change_24h === 'number' ? quote.percent_change_24h : null,
         asOf: typeof lastUpdated === 'string' ? new Date(lastUpdated) : new Date(),
       }
     },
