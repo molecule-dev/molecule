@@ -138,9 +138,7 @@ function toZoomSettings(settings: MeetingSettings | undefined): ZoomMeetingSetti
  * @param settings - The Zoom settings payload.
  * @returns The normalised meeting settings, or `undefined` if no fields apply.
  */
-function fromZoomSettings(
-  settings: ZoomMeetingSettings | undefined,
-): MeetingSettings | undefined {
+function fromZoomSettings(settings: ZoomMeetingSettings | undefined): MeetingSettings | undefined {
   if (!settings) return undefined
   const known = new Set([
     'host_video',
@@ -421,9 +419,7 @@ export function createProvider(config: ZoomVideoMeetingsConfig = {}): VideoMeeti
         method: 'PATCH',
         body: JSON.stringify(body),
       })
-      const data = await request<ZoomMeetingResponse>(
-        `/meetings/${encodeURIComponent(meetingId)}`,
-      )
+      const data = await request<ZoomMeetingResponse>(`/meetings/${encodeURIComponent(meetingId)}`)
       return mapMeeting(data)
     },
 

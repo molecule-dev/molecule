@@ -230,10 +230,7 @@ describe('@molecule/api-video-meetings-zoom', () => {
     it('calls the resolver for every request (no provider-side caching)', async () => {
       queueResponse({ id: 1, topic: 'a', join_url: 'https://zoom.us/j/1' })
       queueResponse({ id: 2, topic: 'b', join_url: 'https://zoom.us/j/2' })
-      const accessToken = vi
-        .fn()
-        .mockResolvedValueOnce('tok-1')
-        .mockResolvedValueOnce('tok-2')
+      const accessToken = vi.fn().mockResolvedValueOnce('tok-1').mockResolvedValueOnce('tok-2')
       const provider = createProvider({ fetch: mockFetch, accessToken })
 
       await provider.getMeeting('1')
