@@ -1,0 +1,35 @@
+{
+  "name": "@molecule/api-locales-resource-version-history",
+  "version": "1.0.0",
+  "description": "English-baseline translations for @molecule/api-resource-version-history error messages.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "locales",
+    "resource-version-history",
+    "i18n"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-i18n": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
