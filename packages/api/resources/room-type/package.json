@@ -1,0 +1,58 @@
+{
+  "name": "@molecule/api-resource-room-type",
+  "version": "1.0.0",
+  "description": "Room-type resource (capacity, rate plans, amenities) for hotel and rental marketplace apps.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "room-type",
+    "hotel",
+    "rental",
+    "resource"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@molecule/api-database": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
+    "@molecule/api-logger": "1.0.0",
+    "@molecule/api-resource": "1.0.0",
+    "@molecule/api-resource-property": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-database": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-logger": "^1.0.0",
+    "@molecule/api-resource": "^1.0.0",
+    "@molecule/api-resource-property": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/api-database": {
+      "optional": true
+    },
+    "@molecule/api-logger": {
+      "optional": true
+    },
+    "@molecule/api-resource-property": {
+      "optional": true
+    }
+  }
+}

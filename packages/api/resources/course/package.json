@@ -1,0 +1,58 @@
+{
+  "name": "@molecule/api-resource-course",
+  "version": "1.0.0",
+  "description": "Course / module / module-item / enrollment resource with access helpers.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "course",
+    "resource",
+    "lms",
+    "enrollment"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@molecule/api-database": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
+    "@molecule/api-locales-resource-course": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-database": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-locales-resource-course": "^1.0.0",
+    "@molecule/api-resource": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/api-resource": {
+      "optional": true
+    },
+    "@molecule/api-database": {
+      "optional": true
+    },
+    "@molecule/api-i18n": {
+      "optional": true
+    },
+    "@molecule/api-locales-resource-course": {
+      "optional": true
+    }
+  }
+}
