@@ -1,0 +1,57 @@
+{
+  "name": "@molecule/api-resource-device-auth-token",
+  "version": "1.0.0",
+  "description": "Per-device long-lived bearer tokens — hashed at rest, scoped, revocable, with last-used tracking. Distinct from human user session tokens.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src/__setup__"
+  ],
+  "keywords": [
+    "molecule",
+    "api",
+    "resource",
+    "device",
+    "auth",
+    "token"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@molecule/api-database": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-database": "^1.0.0",
+    "@molecule/api-resource": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/api-resource": {
+      "optional": true
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/resources/device-auth-token"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/device-auth-token",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
