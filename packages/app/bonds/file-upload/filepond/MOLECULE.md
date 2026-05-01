@@ -65,6 +65,22 @@ Default FilePond file upload provider instance.
 const provider: FileUploadProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-file-upload` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-file-upload'
+import { provider } from '@molecule/app-file-upload-filepond'
+
+export function setupFileUploadFilepond(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

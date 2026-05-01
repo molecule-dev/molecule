@@ -86,6 +86,22 @@ The provider implementation with default configuration.
 const provider: OAuthClientProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-oauth-client` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-oauth-client'
+import { provider } from '@molecule/api-oauth-client-generic'
+
+export function setupOauthClientGeneric(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

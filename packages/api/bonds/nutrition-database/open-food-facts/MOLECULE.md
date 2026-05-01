@@ -1,55 +1,147 @@
 # @molecule/api-nutrition-database-open-food-facts
 
-Open Food Facts nutrition-database provider
+Open Food Facts nutrition-database provider for molecule.dev.
 
-## Type
-`provider`
+Implements the `NutritionDatabaseProvider` interface against the
+public Open Food Facts API at `https://world.openfoodfacts.org`. The
+endpoint is keyless and free for any use; Open Food Facts asks
+callers to identify themselves via a polite `User-Agent` header so
+abusive traffic can be reached before being blocked. Set
+`OPEN_FOOD_FACTS_USER_AGENT` to override the default identifier.
 
-## Implements
-`@molecule/api-nutrition-database`
+## Quick Start
 
-## Bond shape
-
-```ts
+```typescript
 import { setProvider } from '@molecule/api-nutrition-database'
 import { provider } from '@molecule/api-nutrition-database-open-food-facts'
 
 setProvider(provider)
 ```
 
-## Configuration
+## Type
+`provider`
 
-The Open Food Facts public API at `https://world.openfoodfacts.org` is
-keyless and free for any use. Open Food Facts asks callers to identify
-themselves via a polite `User-Agent` header so abusive traffic can be
-reached before being blocked. Wire either an environment variable or the
-config option:
+## Installation
+```bash
+npm install @molecule/api-nutrition-database-open-food-facts
+```
 
-| Env var | Config field | Default |
-| --- | --- | --- |
-| `OPEN_FOOD_FACTS_USER_AGENT` | `userAgent` | `molecule.dev/1.0 (https://molecule.dev)` |
-| `OPEN_FOOD_FACTS_BASE_URL` | `baseUrl` | `https://world.openfoodfacts.org` |
+## API
 
-Production deployments should set `OPEN_FOOD_FACTS_USER_AGENT` to a
-contact identifier of the form
+### Interfaces
+
+#### `OpenFoodFactsConfig`
+
+Configuration options for the Open Food Facts nutrition-database
+provider.
+
+The Open Food Facts public API
+(`https://world.openfoodfacts.org`) is keyless and free for any use,
+so all fields are optional. Open Food Facts ASKS callers to identify
+themselves via a polite `User-Agent` of the form
+`<app-name>/<version> (<contact-email-or-url>)` so abusive traffic can
+be contacted before being blocked. Wire {@link userAgent} (or the
+`OPEN_FOOD_FACTS_USER_AGENT` environment variable) when shipping to
+production.
+
+```typescript
+interface OpenFoodFactsConfig {
+  /**
+   * Base URL override. Defaults to `'https://world.openfoodfacts.org'`.
+   *
+   * Country-specific instances exist (e.g. `'https://us.openfoodfacts.org'`)
+   * but they share the same product database — the `world` host is the
+   * canonical entry point.
+   */
+  baseUrl?: string
+
+  /**
+   * Polite `User-Agent` header sent on every request. Open Food Facts
+   * asks callers to identify themselves so abusive traffic can be
+   * contacted before being blocked.
+   *
+   * Defaults to a generic `molecule.dev/1.0 (https://molecule.dev)` when
+   * omitted; overrides should follow the form
+   * `<app-name>/<version> (<contact-email-or-url>)`.
+   */
+  userAgent?: string
+
+  /**
+   * Request timeout in milliseconds. Defaults to `10000`.
+   */
+  timeout?: number
+}
+```
+
+### Classes
+
+#### `OpenFoodFactsRateLimitedError`
+
+Error thrown by the Open Food Facts provider when the upstream API
+rejects a request with HTTP 429 (Too Many Requests).
+
+### Functions
+
+#### `createProvider(config)`
+
+Creates an Open Food Facts nutrition-database provider.
+
+```typescript
+function createProvider(config?: OpenFoodFactsConfig): NutritionDatabaseProvider
+```
+
+- `config` — Provider configuration. All fields are optional.
+
+**Returns:** A {@link NutritionDatabaseProvider} backed by the Open Food
+ *   Facts API.
+
+### Constants
+
+#### `provider`
+
+The provider implementation, lazily initialized on first use.
+
+Reads `OPEN_FOOD_FACTS_BASE_URL` and `OPEN_FOOD_FACTS_USER_AGENT` from
+environment variables. The Open Food Facts public API requires no key;
+production deployments should set `OPEN_FOOD_FACTS_USER_AGENT` to a
+polite identifier of the form
 `<app-name>/<version> (<contact-email-or-url>)`.
 
-## Endpoints used
+```typescript
+const provider: NutritionDatabaseProvider
+```
 
-- `GET /cgi/search.pl?search_terms=<q>&json=1&page_size=<n>&page=<p>` —
-  free-text search.
-- `GET /api/v2/product/:barcode.json` — barcode + id lookup.
+#### `RATE_LIMITED`
 
-Open Food Facts uses the product barcode as the canonical id, so
-`getFood(id)` aliases `getFoodByBarcode(id)`.
+Stable error code emitted by the Open Food Facts provider when the
+upstream API returns HTTP 429 (Too Many Requests).
 
-## Notes
+Catch on this constant rather than parsing error messages — the message
+text is for humans only.
 
-- Coverage is strongest for European packaged goods. US/Asian coverage
-  is meaningful but uneven — chain a Nutritionix or USDA provider for
-  better hit-rates outside Europe.
-- Sodium is normalized to milligrams. When the upstream record has only
-  a salt value, salt is converted via the standard
-  `sodium = salt / 2.5` ratio.
-- Rate-limit responses (HTTP 429) raise `OpenFoodFactsRateLimitedError`
-  exposing the parsed `Retry-After` value.
+```typescript
+const RATE_LIMITED: "RATE_LIMITED"
+```
+
+## Core Interface
+Implements `@molecule/api-nutrition-database` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-nutrition-database'
+import { provider } from '@molecule/api-nutrition-database-open-food-facts'
+
+export function setupNutritionDatabaseOpenFoodFacts(): void {
+  setProvider(provider)
+}
+```
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/api-nutrition-database` ^1.0.0

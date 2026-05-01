@@ -1,0 +1,34 @@
+# @molecule/app-locales-join-code
+
+Translations for molecule join-code components in 79 languages
+
+## Purpose
+
+Provides translations for the `@molecule/app-join-code` package which has 4 translation keys.
+
+## Languages
+
+79 languages supported: af, am, ar, az, be, bg, bn, bs, ca, cs, cy, da, de, el, en, es, et, eu, fa, fi, fil, fr, ga, gl, gu, ha, he, hi, hr, hu, hy, id, ig, is, it, ja, ka, kk, km, kn, ko, ky, lo, lt, lv, mk, ml, mn, mr, ms, mt, my, nb, ne, nl, pa, pl, pt, ro, ru, si, sk, sl, sq, sr, sv, sw, ta, te, th, tr, uk, ur, uz, vi, yo, zh, zh-TW, zu.
+
+## Quick Start
+
+```typescript
+import { af, am, ar } from '@molecule/app-locales-join-code'
+import type { JoinCodeTranslationKey, JoinCodeTranslations } from '@molecule/app-locales-join-code'
+```
+
+## Translation Keys
+
+| Key | English |
+|-----|---------|
+| `joinCode.label` | Join code |
+| `joinCode.slotAriaLabel` | Join code character {{position}} |
+| `joinCode.help` | Enter the {{length}}-character code. |
+| `joinCode.errorAlphabet` | Invalid character. |
+
+## Metadata
+
+- **Type:** locales
+- **Category:** i18n
+- **Stack:** app
+- **Translates:** `@molecule/app-join-code`

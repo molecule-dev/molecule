@@ -64,6 +64,9 @@ function createProvider(config?: TwilioSMSConfig): SMSProvider
 
 **Returns:** A fully initialised `SMSProvider` backed by Twilio.
 
+## Core Interface
+Implements `@molecule/api-sms` interface.
+
 ## Injection Notes
 
 ### Requirements

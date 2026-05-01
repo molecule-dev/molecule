@@ -104,6 +104,22 @@ Stores workflow definitions, instances, and event history in the bonded DataStor
 const provider: WorkflowProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-workflow` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-workflow'
+import { provider } from '@molecule/api-workflow-database'
+
+export function setupWorkflowDatabase(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

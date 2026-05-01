@@ -227,3 +227,9 @@ function setProvider(provider: TreeViewProvider): void
 ```
 
 - `provider` — The tree view provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Tree View | `@molecule/app-tree-view-default` |

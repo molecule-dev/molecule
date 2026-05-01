@@ -218,3 +218,9 @@ function setProvider(provider: AIImageGeneratorProvider): void
 ```
 
 - `provider` — The provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Ai Image Generator | `@molecule/app-ai-image-generator-default` |

@@ -61,6 +61,22 @@ Default color picker provider instance.
 const provider: ColorPickerProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-color-picker` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-color-picker'
+import { provider } from '@molecule/app-color-picker-default'
+
+export function setupColorPickerDefault(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

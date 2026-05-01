@@ -71,6 +71,22 @@ Default notification center provider instance.
 const provider: NotificationCenterProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-notification-center` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-notification-center'
+import { provider } from '@molecule/app-notification-center-default'
+
+export function setupNotificationCenterDefault(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

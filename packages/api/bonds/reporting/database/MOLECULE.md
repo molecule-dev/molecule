@@ -314,6 +314,22 @@ Uses the bonded database pool for queries.
 const provider: ReportProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-reporting` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-reporting'
+import { provider } from '@molecule/api-reporting-database'
+
+export function setupReportingDatabase(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

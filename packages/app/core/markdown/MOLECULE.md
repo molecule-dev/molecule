@@ -150,3 +150,9 @@ function setProvider(provider: MarkdownProvider): void
 ```
 
 - `provider` — The markdown provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Markdown | `@molecule/app-markdown-react-markdown` |

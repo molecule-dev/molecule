@@ -406,6 +406,22 @@ Uses the bonded database pool for queries.
 const provider: SearchProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-search` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-search'
+import { provider } from '@molecule/api-search-postgres'
+
+export function setupSearchPostgres(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

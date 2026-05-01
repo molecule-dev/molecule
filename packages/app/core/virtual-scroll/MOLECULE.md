@@ -317,6 +317,12 @@ function setProvider(provider: VirtualScrollProvider): void
 
 - `provider` — The virtual scroll provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Virtual Scroll | `@molecule/app-virtual-scroll-tanstack` |
+
 ## Injection Notes
 
 ### Requirements

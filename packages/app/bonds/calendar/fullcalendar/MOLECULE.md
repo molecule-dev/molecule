@@ -16,7 +16,7 @@ setProvider(provider)
 ```
 
 ## Type
-`provider`
+`feature`
 
 ## Installation
 ```bash

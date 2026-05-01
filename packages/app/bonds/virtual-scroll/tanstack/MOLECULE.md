@@ -77,6 +77,22 @@ Default TanStack Virtual provider instance.
 const provider: VirtualScrollProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-virtual-scroll` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-virtual-scroll'
+import { provider } from '@molecule/app-virtual-scroll-tanstack'
+
+export function setupVirtualScrollTanstack(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

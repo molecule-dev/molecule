@@ -64,6 +64,22 @@ Default Shepherd tour provider instance.
 const provider: TourProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-tour` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-tour'
+import { provider } from '@molecule/app-tour-shepherd'
+
+export function setupTourShepherd(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

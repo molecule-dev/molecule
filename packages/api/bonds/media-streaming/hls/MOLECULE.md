@@ -125,6 +125,22 @@ The provider implementation with default configuration.
 const provider: StreamingProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-media-streaming` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-media-streaming'
+import { provider } from '@molecule/api-media-streaming-hls'
+
+export function setupMediaStreamingHls(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

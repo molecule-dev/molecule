@@ -410,6 +410,12 @@ function timeSeries(query: TimeSeriesQuery): Promise<TimeSeriesResult>
 
 **Returns:** Ordered time-series points.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Reporting | `@molecule/api-reporting-database` |
+
 ## Injection Notes
 
 ### Requirements

@@ -195,3 +195,9 @@ function setProvider(provider: DateRangePickerProvider): void
 ```
 
 - `provider` — The date range picker provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Date Range Picker | `@molecule/app-date-range-picker-default` |

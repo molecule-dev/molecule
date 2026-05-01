@@ -313,6 +313,13 @@ function unregister(webhookId: string): Promise<void>
 
 **Returns:** Resolves when the webhook has been unregistered.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Webhook | `@molecule/api-webhook-http` |
+| Webhook | `@molecule/api-webhook-queue` |
+
 ## Injection Notes
 
 ### Requirements

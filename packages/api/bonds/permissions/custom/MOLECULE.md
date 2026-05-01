@@ -209,6 +209,22 @@ property access with default options.
 const provider: PermissionsProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-permissions` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-permissions'
+import { provider } from '@molecule/api-permissions-custom'
+
+export function setupPermissionsCustom(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

@@ -100,6 +100,9 @@ function createProvider(config?: SseRealtimeConfig): RealtimeProvider
 
 **Returns:** A fully initialised `RealtimeProvider` backed by Server-Sent Events.
 
+## Core Interface
+Implements `@molecule/api-realtime` interface.
+
 ## Injection Notes
 
 ### Requirements

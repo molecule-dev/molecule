@@ -382,6 +382,12 @@ function setProvider(provider: NotificationCenterProvider): void
 
 - `provider` — The notification center provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Notification Center | `@molecule/app-notification-center-default` |
+
 ## Injection Notes
 
 ### Requirements

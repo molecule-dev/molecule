@@ -101,6 +101,22 @@ The provider implementation, lazily initialized with default config.
 const provider: PDFProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-pdf` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-pdf'
+import { provider } from '@molecule/api-pdf-puppeteer'
+
+export function setupPdfPuppeteer(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

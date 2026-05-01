@@ -279,6 +279,12 @@ function setProvider(provider: RealtimeClientProvider): void
 
 - `provider` — The realtime client provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Realtime | `@molecule/app-realtime-socketio` |
+
 ## Injection Notes
 
 ### Requirements

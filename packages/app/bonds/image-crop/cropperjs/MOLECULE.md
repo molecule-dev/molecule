@@ -64,6 +64,22 @@ Default Cropper.js provider instance.
 const provider: ImageCropProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-image-crop` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-image-crop'
+import { provider } from '@molecule/app-image-crop-cropperjs'
+
+export function setupImageCropCropperjs(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

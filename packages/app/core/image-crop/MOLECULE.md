@@ -229,3 +229,9 @@ function setProvider(provider: ImageCropProvider): void
 ```
 
 - `provider` — The image crop provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Image Crop | `@molecule/app-image-crop-cropperjs` |

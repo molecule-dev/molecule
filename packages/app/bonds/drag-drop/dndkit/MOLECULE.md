@@ -177,6 +177,22 @@ Default dnd-kit drag-drop provider instance.
 const provider: DragDropProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-drag-drop` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-drag-drop'
+import { provider } from '@molecule/app-drag-drop-dndkit'
+
+export function setupDragDropDndkit(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

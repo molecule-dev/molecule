@@ -183,3 +183,9 @@ function setProvider(provider: TimelineProvider): void
 ```
 
 - `provider` — The timeline provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Timeline | `@molecule/app-timeline-default` |

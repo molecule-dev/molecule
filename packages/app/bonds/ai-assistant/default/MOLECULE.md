@@ -64,6 +64,22 @@ Pre-instantiated provider singleton.
 const provider: DefaultAssistantProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-ai-assistant` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-ai-assistant'
+import { provider } from '@molecule/app-ai-assistant-default'
+
+export function setupAiAssistantDefault(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

@@ -237,6 +237,22 @@ Default Socket.io realtime client provider instance.
 const provider: RealtimeClientProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-realtime` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-realtime'
+import { provider } from '@molecule/app-realtime-socketio'
+
+export function setupRealtimeSocketio(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

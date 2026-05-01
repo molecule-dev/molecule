@@ -1,15 +1,18 @@
 # @molecule/app-data-table-ui-react
 
-React row-level primitives for `<Table>` from `@molecule/app-ui-react`.
+React table primitives for `<Table>` from `@molecule/app-ui-react`.
 
 Exports:
+- `<DataTableCard>` — full polished-pattern data table (card wrapper +
+  title + uppercase-th headers + divide-y body + skeleton + empty
+  state). Drop-in for the most common dashboard CRUD use case.
 - `<TableToolbar>` — top chrome with left/right slots + optional filter row.
 - `<TableEmpty>` — single full-width "no rows" cell.
 - `<TableFooter>` — bottom bar (left summary + right pagination).
 - `<RowWithActions>` — `<tr>` wrapper with trailing actions cell and click handler.
 
-Use these to compose standard CRUD table screens without re-implementing
-the surrounding chrome on every page.
+Use `DataTableCard` for new screens; use the row-level primitives to
+compose richer custom tables (group-by, expandable rows, etc.).
 
 ## Type
 `feature`

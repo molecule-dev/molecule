@@ -334,6 +334,13 @@ function setProvider(provider: PermissionsProvider): void
 
 - `provider` — The permissions provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Permissions | `@molecule/api-permissions-casbin` |
+| Permissions | `@molecule/api-permissions-custom` |
+
 ## Injection Notes
 
 ### Requirements

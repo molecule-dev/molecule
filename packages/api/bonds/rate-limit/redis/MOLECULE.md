@@ -165,6 +165,22 @@ property access using environment variables for connection config.
 const provider: RateLimitProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-rate-limit` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-rate-limit'
+import { provider } from '@molecule/api-rate-limit-redis'
+
+export function setupRateLimitRedis(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

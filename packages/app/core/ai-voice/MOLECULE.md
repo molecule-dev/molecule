@@ -252,3 +252,9 @@ function setProvider(provider: AIVoiceProvider): void
 ```
 
 - `provider` — The AI voice provider implementation to register.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Ai Voice | `@molecule/app-ai-voice-default` |

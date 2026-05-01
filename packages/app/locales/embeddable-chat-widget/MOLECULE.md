@@ -1,10 +1,10 @@
 # @molecule/app-locales-embeddable-chat-widget
 
-Translations for `@molecule/app-embeddable-chat-widget` in 79 languages.
+Translations for @molecule/app-embeddable-chat-widget in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-embeddable-chat-widget` package which has 8 translation keys (launcher label, panel header/close, transcript empty state, typing indicator, composer placeholder, send button, stream error).
+Provides translations for the `@molecule/app-embeddable-chat-widget` package which has 8 translation keys.
 
 ## Languages
 
@@ -13,11 +13,8 @@ Provides translations for the `@molecule/app-embeddable-chat-widget` package whi
 ## Quick Start
 
 ```typescript
-import { en, fr, es } from '@molecule/app-locales-embeddable-chat-widget'
-import type {
-  EmbeddableChatWidgetTranslationKey,
-  EmbeddableChatWidgetTranslations,
-} from '@molecule/app-locales-embeddable-chat-widget'
+import { af, am, ar } from '@molecule/app-locales-embeddable-chat-widget'
+import type { EmbeddableChatWidgetTranslationKey, EmbeddableChatWidgetTranslations } from '@molecule/app-locales-embeddable-chat-widget'
 ```
 
 ## Translation Keys
@@ -33,6 +30,9 @@ import type {
 | `embeddableChatWidget.composer.send` | Send |
 | `embeddableChatWidget.error.streamError` | Something went wrong. Please try again. |
 
-## Stub status
+## Metadata
 
-Non-English files currently mirror the English strings as stubs to satisfy the type contract. Replace with localized content in a follow-up translation pass.
+- **Type:** locales
+- **Category:** i18n
+- **Stack:** app
+- **Translates:** `@molecule/app-embeddable-chat-widget`

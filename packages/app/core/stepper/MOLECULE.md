@@ -196,3 +196,9 @@ function setProvider(provider: StepperProvider): void
 ```
 
 - `provider` — The stepper provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Stepper | `@molecule/app-stepper-default` |

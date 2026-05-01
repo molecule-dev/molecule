@@ -377,6 +377,15 @@ function setProvider(provider: RealtimeProvider): void
 
 - `provider` — The realtime provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Realtime | `@molecule/api-realtime-socketio` |
+| Realtime | `@molecule/api-realtime-sse` |
+| Realtime | `@molecule/api-realtime-ws` |
+| Realtime (Yjs CRDT) | `@molecule/api-realtime-yjs` |
+
 ## Injection Notes
 
 ### Requirements

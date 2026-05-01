@@ -14,6 +14,27 @@ npm install @molecule/api-payments-stripe stripe
 
 ### Interfaces
 
+#### `AccountStatus`
+
+Connected-account onboarding / payout eligibility status.
+
+```typescript
+interface AccountStatus {
+  /** Stripe connected account ID. */
+  id: string
+  /** Whether the account can accept charges. */
+  chargesEnabled: boolean
+  /** Whether the account can receive payouts. */
+  payoutsEnabled: boolean
+  /** Whether there are any currently-due requirements (Stripe is blocked on something). */
+  requirementsCurrent: boolean
+  /** Stripe connected-account type (`standard`, `express`, `custom`), if known. */
+  type?: ConnectedAccountType
+  /** Currently-due requirement IDs from Stripe (empty when nothing is due). */
+  currentlyDue: readonly string[]
+}
+```
+
 #### `CheckoutSessionResult`
 
 Result of creating or retrieving a checkout session.
@@ -24,6 +45,192 @@ interface CheckoutSessionResult {
   url: string | null
   /** The Stripe Subscription ID created by the checkout session, if available. */
   subscription?: string
+}
+```
+
+#### `ConnectedAccountBusinessProfile`
+
+Subset of Stripe `business_profile` fields commonly set during marketplace
+onboarding.
+
+```typescript
+interface ConnectedAccountBusinessProfile {
+  name?: string
+  url?: string
+  productDescription?: string
+  supportEmail?: string
+  supportPhone?: string
+  mcc?: string
+}
+```
+
+#### `ConnectWebhookEvent`
+
+Normalized Connect webhook event.
+
+Provider-agnostic shape so consumers don't have to import Stripe types
+to dispatch on event kind.
+
+```typescript
+interface ConnectWebhookEvent {
+  /** Recognized Connect event type, or `unknown` for unrelated events. */
+  type: ConnectWebhookEventType
+  /** Original Stripe event type string (e.g. `account.updated`). */
+  rawType: string
+  /** The ID of the primary resource this event is about (account, payout, transfer, fee). */
+  resourceId?: string
+  /** The connected account this event applies to, if Stripe sent one. */
+  accountId?: string
+  /** Raw event-data object (plain JSON shape — never the live Stripe object). */
+  data: Record<string, unknown>
+}
+```
+
+#### `CreateAccountLinkParams`
+
+Parameters for creating an account link.
+
+```typescript
+interface CreateAccountLinkParams {
+  /** Stripe connected account ID (`acct_...`). */
+  accountId: string
+  /** URL Stripe redirects the user back to after onboarding completes. */
+  returnUrl: string
+  /** URL Stripe redirects the user to if the link expires before completion. */
+  refreshUrl: string
+  /** Whether this is a first-time onboarding link or an update link. */
+  type: AccountLinkType
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string
+}
+```
+
+#### `CreateAccountLinkResult`
+
+Result of creating an account link.
+
+```typescript
+interface CreateAccountLinkResult {
+  /** Hosted onboarding URL the connected account holder should open. */
+  url: string
+  /** Unix timestamp (seconds) when the link expires. */
+  expiresAt: number
+}
+```
+
+#### `CreateConnectedAccountParams`
+
+Parameters for creating a connected account.
+
+```typescript
+interface CreateConnectedAccountParams {
+  /** Stripe account type — `standard`, `express`, or `custom`. */
+  type: ConnectedAccountType
+  /** Two-letter ISO country code for the account holder (e.g. `US`, `GB`). */
+  country: string
+  /** Email address of the account holder. */
+  email: string
+  /** Optional business profile fields (display name, website, MCC, etc.). */
+  businessProfile?: ConnectedAccountBusinessProfile
+  /** Optional metadata to attach to the connected account. */
+  metadata?: Record<string, string>
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string
+}
+```
+
+#### `CreateConnectedAccountResult`
+
+Result of creating a connected account.
+
+```typescript
+interface CreateConnectedAccountResult {
+  /** Stripe connected account ID (`acct_...`). */
+  id: string
+  /** Optional onboarding URL (only present when an account link is created in the same flow). */
+  accountLinkUrl?: string
+}
+```
+
+#### `CreatePayoutParams`
+
+Parameters for creating a payout from a connected account's Stripe balance to its bank account.
+
+```typescript
+interface CreatePayoutParams {
+  /** Connected account ID to issue the payout from (`acct_...`). */
+  accountId: string
+  /** Amount in the smallest currency unit (e.g. cents for USD). */
+  amount: number
+  /** Three-letter ISO currency code, lowercase (e.g. `usd`). */
+  currency: string
+  /** Optional payout method — `standard` or `instant`. */
+  method?: 'standard' | 'instant'
+  /** Optional metadata. */
+  metadata?: Record<string, string>
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string
+}
+```
+
+#### `CreatePayoutResult`
+
+Result of creating a payout.
+
+```typescript
+interface CreatePayoutResult {
+  /** Stripe payout ID (`po_...`). */
+  id: string
+  /** Amount paid out (smallest currency unit). */
+  amount: number
+  /** Three-letter ISO currency code. */
+  currency: string
+  /** Payout status (e.g. `pending`, `paid`, `failed`). */
+  status: string
+  /** Estimated arrival date (Unix timestamp in seconds). */
+  arrivalDate: number
+}
+```
+
+#### `CreateTransferParams`
+
+Parameters for creating a transfer to a connected account.
+
+```typescript
+interface CreateTransferParams {
+  /** Amount in the smallest currency unit (e.g. cents for USD). */
+  amount: number
+  /** Three-letter ISO currency code, lowercase (e.g. `usd`). */
+  currency: string
+  /** Destination connected account ID (`acct_...`). */
+  destination: string
+  /** Optional source charge to attach the transfer to (for separate-charges-and-transfers flow). */
+  sourceTransaction?: string
+  /** Optional transfer group string (groups related transfers/charges together). */
+  transferGroup?: string
+  /** Optional metadata. */
+  metadata?: Record<string, string>
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string
+}
+```
+
+#### `CreateTransferResult`
+
+Result of creating a transfer.
+
+```typescript
+interface CreateTransferResult {
+  /** Stripe transfer ID (`tr_...`). */
+  id: string
+  /** Amount transferred (smallest currency unit). */
+  amount: number
+  /** Three-letter ISO currency code. */
+  currency: string
+  /** Destination connected account ID. */
+  destination: string
+  /** Transfer group, if set. */
+  transferGroup?: string
 }
 ```
 
@@ -151,6 +358,42 @@ interface WebhookEventResult {
 
 ### Types
 
+#### `AccountLinkType`
+
+Account-link types — onboarding (first-time) vs update (returning).
+
+```typescript
+type AccountLinkType = 'account_onboarding' | 'account_update'
+```
+
+#### `ConnectedAccountType`
+
+Connected account type.
+
+Stripe distinguishes three account types with different
+onboarding / dashboard responsibilities. See
+https://stripe.com/docs/connect/accounts.
+
+```typescript
+type ConnectedAccountType = 'standard' | 'express' | 'custom'
+```
+
+#### `ConnectWebhookEventType`
+
+Connect webhook event types this provider knows how to interpret.
+
+`unknown` is returned for any other Stripe event so callers can fall
+through to the standard subscription webhook handler if needed.
+
+```typescript
+type ConnectWebhookEventType =
+  | 'account.updated'
+  | 'payout.created'
+  | 'transfer.created'
+  | 'application_fee.refunded'
+  | 'unknown'
+```
+
 #### `PaymentProvider`
 
 Payment provider bond interface.
@@ -184,6 +427,19 @@ function cancelSubscription(subscriptionId: string): Promise<SubscriptionResult>
 
 **Returns:** The canceled subscription result.
 
+#### `createAccountLink(params)`
+
+Creates a Stripe account link the connected account holder uses to finish
+onboarding (or to update payout details).
+
+```typescript
+function createAccountLink(params: CreateAccountLinkParams): Promise<CreateAccountLinkResult>
+```
+
+- `params` — Account-link creation parameters.
+
+**Returns:** The hosted onboarding/update URL and its expiry (Unix timestamp, seconds).
+
 #### `createCheckoutSession(options, options, options, options, options, options, options)`
 
 Creates a Stripe Checkout session for a new subscription.
@@ -201,6 +457,87 @@ function createCheckoutSession(options: { priceId: string; successUrl: string; c
 - `options` — .idempotencyKey - Optional idempotency key for safe request retries.
 
 **Returns:** The checkout session ID and URL.
+
+#### `createConnectedAccount(params)`
+
+Creates a Stripe connected account for a marketplace seller / driver / provider.
+
+```typescript
+function createConnectedAccount(params: CreateConnectedAccountParams): Promise<CreateConnectedAccountResult>
+```
+
+- `params` — Connected-account creation parameters.
+
+**Returns:** The new account ID.
+
+#### `createPayout(params)`
+
+Issues a payout from a connected account's Stripe balance to its bank account.
+
+Uses Stripe's `Stripe-Account` header to scope the call to the connected account.
+
+```typescript
+function createPayout(params: CreatePayoutParams): Promise<CreatePayoutResult>
+```
+
+- `params` — Payout parameters.
+
+**Returns:** The created payout.
+
+#### `createSetupIntent(options, options, options, options)`
+
+Creates a Stripe SetupIntent for the saved-card flow.
+
+If `customerId` is not provided, a new Stripe customer is created and its
+ID is returned alongside the SetupIntent so the resource layer can persist
+the customer ID for future SetupIntents and detachments.
+
+```typescript
+function createSetupIntent(options: { customerId?: string; metadata?: Record<string, string>; idempotencyKey?: string; }): Promise<{ id: string; clientSecret: string; customerId: string; }>
+```
+
+- `options` — SetupIntent creation options.
+- `options` — .customerId - Optional existing Stripe customer ID (`cus_...`).
+- `options` — .metadata - Optional metadata to attach to the SetupIntent.
+- `options` — .idempotencyKey - Optional idempotency key for safe retries.
+
+**Returns:** The SetupIntent ID, client secret, and customer ID.
+
+#### `createTransfer(params)`
+
+Transfers funds from the platform balance to a connected account.
+
+```typescript
+function createTransfer(params: CreateTransferParams): Promise<CreateTransferResult>
+```
+
+- `params` — Transfer parameters.
+
+**Returns:** The created transfer.
+
+#### `detachPaymentMethod(paymentMethodId)`
+
+Detaches a saved Stripe payment method from its customer.
+
+```typescript
+function detachPaymentMethod(paymentMethodId: string): Promise<boolean>
+```
+
+- `paymentMethodId` — The Stripe payment method ID (`pm_...`).
+
+**Returns:** `true` if Stripe acknowledged the detach, `false` otherwise.
+
+#### `getAccountStatus(accountId)`
+
+Looks up a connected account's onboarding / payout status.
+
+```typescript
+function getAccountStatus(accountId: string): Promise<AccountStatus>
+```
+
+- `accountId` — Stripe connected account ID (`acct_...`).
+
+**Returns:** Normalized account status.
 
 #### `getCheckoutSession(sessionId)`
 
@@ -248,6 +585,36 @@ function normalizeSubscription(subscription: SubscriptionResult): NormalizedSubs
 - `subscription` — The Stripe subscription result to normalize.
 
 **Returns:** A `NormalizedSubscription` with provider-agnostic fields.
+
+#### `processConnectWebhook(headers, body)`
+
+Verifies and normalizes a Stripe Connect webhook event.
+
+Reuses the same `STRIPE_WEBHOOK_SECRET` env var as the standard webhook
+pipeline (and the same signature verification logic) — Connect events
+arrive on the same webhook endpoint when the platform's webhook is
+configured to receive Connect events.
+
+```typescript
+function processConnectWebhook(headers: Record<string, string | string[] | undefined>, body: string | Buffer<ArrayBufferLike>): ConnectWebhookEvent
+```
+
+- `headers` — Request headers (looks up `stripe-signature`).
+- `body` — The raw request body (string or Buffer).
+
+**Returns:** The verified, normalized Connect webhook event.
+
+#### `retrievePaymentMethod(paymentMethodId)`
+
+Retrieves a saved Stripe payment method (card) and returns normalized metadata.
+
+```typescript
+function retrievePaymentMethod(paymentMethodId: string): Promise<{ id: string; brand: string; last4: string; expMonth: number; expYear: number; } | null>
+```
+
+- `paymentMethodId` — The Stripe payment method ID (`pm_...`).
+
+**Returns:** Brand, last4, and expiry, or `null` if the lookup fails.
 
 #### `updateSubscription(subscriptionId, params)`
 

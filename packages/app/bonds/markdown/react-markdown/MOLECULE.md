@@ -64,6 +64,22 @@ Default react-markdown provider instance.
 const provider: MarkdownProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-markdown` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-markdown'
+import { provider } from '@molecule/app-markdown-react-markdown'
+
+export function setupMarkdownReactMarkdown(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

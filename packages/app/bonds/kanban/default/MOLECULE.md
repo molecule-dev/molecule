@@ -69,6 +69,22 @@ Default kanban provider instance.
 const provider: KanbanProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-kanban` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-kanban'
+import { provider } from '@molecule/app-kanban-default'
+
+export function setupKanbanDefault(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

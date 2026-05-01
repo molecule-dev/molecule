@@ -413,6 +413,22 @@ Uses environment variables for configuration.
 const provider: SearchProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-search` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-search'
+import { provider } from '@molecule/api-search-typesense'
+
+export function setupSearchTypesense(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

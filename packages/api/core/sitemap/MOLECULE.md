@@ -397,6 +397,12 @@ function setProvider(provider: SitemapProvider): void
 
 - `provider` — The sitemap provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Sitemap | `@molecule/api-sitemap-xml` |
+
 ## Injection Notes
 
 ### Requirements

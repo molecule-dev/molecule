@@ -250,6 +250,13 @@ function setProvider(provider: TemplateProvider): void
 
 - `provider` — The template provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Templating | `@molecule/api-templating-handlebars` |
+| Templating | `@molecule/api-templating-mjml` |
+
 ## Injection Notes
 
 ### Requirements

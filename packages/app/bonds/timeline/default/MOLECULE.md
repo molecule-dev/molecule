@@ -64,6 +64,22 @@ Default timeline provider instance.
 const provider: TimelineProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-timeline` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-timeline'
+import { provider } from '@molecule/app-timeline-default'
+
+export function setupTimelineDefault(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

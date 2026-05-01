@@ -54,6 +54,9 @@ function createProvider(config?: DefaultVoiceConfig): DefaultVoiceProvider
 
 **Returns:** A DefaultVoiceProvider that uses the browser Web Speech API.
 
+## Core Interface
+Implements `@molecule/app-ai-voice` interface.
+
 ## Injection Notes
 
 ### Requirements

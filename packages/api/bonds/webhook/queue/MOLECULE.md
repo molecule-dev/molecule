@@ -84,6 +84,9 @@ function createProvider(config?: QueueWebhookConfig): WebhookProvider
 
 **Returns:** A fully initialised `WebhookProvider` with queue-based delivery.
 
+## Core Interface
+Implements `@molecule/api-webhook` interface.
+
 ## Injection Notes
 
 ### Requirements

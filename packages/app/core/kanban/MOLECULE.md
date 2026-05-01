@@ -370,6 +370,12 @@ function setProvider(provider: KanbanProvider): void
 
 - `provider` — The kanban provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Kanban | `@molecule/app-kanban-default` |
+
 ## Injection Notes
 
 ### Requirements

@@ -1,6 +1,6 @@
 # @molecule/app-embeddable-chat-widget
 
-Embeddable AI chat widget — third-party-site drop-in launcher + expanded panel with streaming responses.
+Embeddable AI chat widget — third-party-site drop-in launcher + panel.
 
 Exports:
 - `<EmbeddableChatWidget>` — root component (floating launcher + expanded panel).
@@ -8,15 +8,9 @@ Exports:
 - `<EmbeddableChatPanel>` — standalone expanded panel (used internally).
 - `sendChatRequest()` — fetch + SSE helper, exported for advanced integrations.
 - `readChatStream()` — low-level SSE / chunked-text reader.
-- Types: `EmbeddableChatWidgetConfig`, `EmbeddableChatWidgetTheme`, `EmbeddableChatWidgetPosition`, `EmbeddableChatMessage`, `EmbeddableChatStreamEvent`.
-
-## Type
-`feature`
-
-## Installation
-```bash
-npm install @molecule/app-embeddable-chat-widget
-```
+- Types: `EmbeddableChatWidgetConfig`, `EmbeddableChatWidgetTheme`,
+  `EmbeddableChatWidgetPosition`, `EmbeddableChatMessage`,
+  `EmbeddableChatStreamEvent`.
 
 ## Quick Start
 
@@ -33,17 +27,126 @@ import { EmbeddableChatWidget } from '@molecule/app-embeddable-chat-widget'
 />
 ```
 
-## Embed Snippet (host page)
+## Type
+`feature`
 
-```html
-<div id="molecule-chat-widget"></div>
-<script type="module">
-  import { createRoot } from 'react-dom/client'
-  import { EmbeddableChatWidget } from '@molecule/app-embeddable-chat-widget'
-  createRoot(document.getElementById('molecule-chat-widget'))
-    .render(<EmbeddableChatWidget config={{ apiBaseUrl: '...', brandName: '...' }} />)
-</script>
+## Installation
+```bash
+npm install @molecule/app-embeddable-chat-widget
 ```
+
+## API
+
+### Interfaces
+
+#### `EmbeddableChatMessage`
+
+A single message stored in the widget's local state.
+
+```typescript
+interface EmbeddableChatMessage {
+  /** Stable id (uuid-ish) used as the React key. */
+  id: string
+  /** Author role — drives alignment + accent. */
+  role: 'user' | 'assistant'
+  /** Plain text body. Streaming assistant messages append to this. */
+  body: string
+  /** Unix-ms timestamp the message started. */
+  timestamp: number
+}
+```
+
+#### `EmbeddableChatWidgetConfig`
+
+Configuration object passed into `<EmbeddableChatWidget>`. The object is
+intentionally flat so a host site can populate it from a single
+`data-*` attribute on the embed div.
+
+```typescript
+interface EmbeddableChatWidgetConfig {
+  /** Base URL of the chat backend (no trailing slash). `/chat` is appended. */
+  apiBaseUrl: string
+  /** Brand name shown in the header. Required. */
+  brandName: string
+  /** Optional brand logo (URL) shown in the header next to the brand name. */
+  brandLogo?: string
+  /** Floating-launcher position. Defaults to `bottom-right`. */
+  position?: EmbeddableChatWidgetPosition
+  /** Visual theme overrides. */
+  theme?: EmbeddableChatWidgetTheme
+  /** Optional fetch override (test injection / custom auth). Defaults to `globalThis.fetch`. */
+  fetchImpl?: typeof fetch
+}
+```
+
+#### `EmbeddableChatWidgetTheme`
+
+Visual / branding configuration for the widget shell.
+
+```typescript
+interface EmbeddableChatWidgetTheme {
+  /** Primary accent colour (header, send button, launcher background). */
+  primaryColor?: string
+  /** Foreground colour to use against `primaryColor`. */
+  primaryForegroundColor?: string
+}
+```
+
+### Types
+
+#### `EmbeddableChatStreamEvent`
+
+Streaming chat event the widget understands. The widget speaks SSE
+(`data: {json}\n\n`) but is tolerant of plain chunked text — any
+non-JSON payload is appended to the in-flight assistant message verbatim.
+
+```typescript
+type EmbeddableChatStreamEvent =
+  | { type: 'content'; delta: string }
+  | { type: 'done' }
+  | { type: 'error'; message: string }
+```
+
+#### `EmbeddableChatWidgetPosition`
+
+Position of the floating launcher relative to the host viewport.
+
+```typescript
+type EmbeddableChatWidgetPosition = 'bottom-right' | 'bottom-left'
+```
+
+### Functions
+
+#### `readChatStream(body, onEvent)`
+
+Reads a fetch Response body and yields normalized stream events. Tolerates
+both SSE-formatted chunks (`data: {json}\n\n`) and plain text chunks (any
+non-data line is forwarded as a `content` delta).
+
+Stops cleanly on `done` events, AbortError, or stream end.
+
+```typescript
+function readChatStream(body: ReadableStream<Uint8Array<ArrayBufferLike>>, onEvent: (event: EmbeddableChatStreamEvent) => void): Promise<void>
+```
+
+- `body` — The `ReadableStream` returned by `fetch().body`.
+- `onEvent` — Callback invoked once per parsed event.
+
+#### `sendChatRequest(args)`
+
+Sends a chat message and streams the response back. Throws on transport
+errors or non-OK HTTP statuses; resolves cleanly on `done` / stream end.
+
+```typescript
+function sendChatRequest({
+  message,
+  config,
+  onDelta,
+  signal,
+}: SendChatRequestArgs): Promise<void>
+```
+
+- `args` — Send args (`message`, `config`, `onDelta`, optional `signal`).
 
 ## Injection Notes
 
@@ -58,23 +161,24 @@ Peer dependencies:
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 
-### Self-contained styling
+The widget is designed to be embedded on third-party sites that don't
+ship molecule's CSS. All geometry, colors, and shadows are inlined so
+the launcher and panel render correctly regardless of the host
+stylesheet. Layout primitives still resolve through `getClassMap()` so
+a host that *does* ship molecule keeps consistent spacing.
 
-The widget is designed to be embedded on third-party sites that don't ship molecule's CSS. All geometry, colors, and shadows are inlined so the launcher and panel render correctly regardless of the host stylesheet. Layout primitives still resolve through `getClassMap()` so a host that *does* ship molecule keeps consistent spacing.
+Embed snippet for a host page that already has a React root:
 
-### Translations
+```html
+<div id="molecule-chat-widget"></div>
+<script type="module">
+  import { createRoot } from 'react-dom/client'
+  import { EmbeddableChatWidget } from '@molecule/app-embeddable-chat-widget'
+  createRoot(document.getElementById('molecule-chat-widget'))
+    .render(<EmbeddableChatWidget config={...} />)
+</script>
+```
 
-Use the companion locale bond `@molecule/app-locales-embeddable-chat-widget` for translations in 79 languages.
+## Translations
 
-### Backend contract
-
-The widget POSTs `{ "message": "..." }` to `${apiBaseUrl}/chat` with `Accept: text/event-stream`. The backend must respond with either:
-
-1. **SSE-formatted** chunks of the form:
-   ```
-   data: {"type":"content","delta":"hello"}\n\n
-   data: {"type":"done"}\n\n
-   ```
-2. **Plain chunked text** — any line that doesn't start with `data:` is appended verbatim as a content delta.
-
-OpenAI- and Anthropic-shaped JSON payloads (`{ content: "..." }` / `{ text: "..." }`) are also recognized and forwarded as content deltas.
+Translation strings are provided by `@molecule/app-locales-embeddable-chat-widget`.

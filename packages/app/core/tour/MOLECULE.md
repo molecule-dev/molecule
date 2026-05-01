@@ -195,3 +195,9 @@ function setProvider(provider: TourProvider): void
 ```
 
 - `provider` — The tour provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Tour | `@molecule/app-tour-shepherd` |

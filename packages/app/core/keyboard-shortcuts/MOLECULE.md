@@ -183,3 +183,9 @@ function setProvider(provider: KeyboardShortcutsProvider): void
 ```
 
 - `provider` — The keyboard shortcuts provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Keyboard Shortcuts | `@molecule/app-keyboard-shortcuts-hotkeys` |

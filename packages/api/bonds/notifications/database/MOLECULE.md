@@ -63,6 +63,9 @@ function createProvider(config?: DatabaseNotificationCenterConfig): Notification
 
 **Returns:** A fully initialised `NotificationCenterProvider` backed by the bonded DataStore.
 
+## Core Interface
+Implements `@molecule/api-notifications` interface.
+
 ## Injection Notes
 
 ### Requirements

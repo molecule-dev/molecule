@@ -305,6 +305,12 @@ function setTenant(tenantId: string): void
 
 - `tenantId` — The tenant identifier to activate.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Multi Tenancy | `@molecule/api-multi-tenancy-schema` |
+
 ## Injection Notes
 
 ### Requirements

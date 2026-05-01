@@ -302,6 +302,12 @@ function setProvider(provider: CommandPaletteProvider): void
 
 - `provider` — The command palette provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Command Palette | `@molecule/app-command-palette-cmdk` |
+
 ## Injection Notes
 
 ### Requirements

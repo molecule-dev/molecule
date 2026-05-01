@@ -255,6 +255,13 @@ function setProvider(provider: RateLimitProvider): void
 
 - `provider` — The rate-limit provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Rate Limit | `@molecule/api-rate-limit-memory` |
+| Rate Limit | `@molecule/api-rate-limit-redis` |
+
 ## Injection Notes
 
 ### Requirements

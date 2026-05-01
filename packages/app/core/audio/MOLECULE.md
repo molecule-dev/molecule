@@ -189,3 +189,9 @@ function setProvider(provider: AudioProvider): void
 ```
 
 - `provider` — The audio provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Audio | `@molecule/app-audio-howler` |

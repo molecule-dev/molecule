@@ -117,6 +117,22 @@ Default cmdk command palette provider instance.
 const provider: CommandPaletteProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-command-palette` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-command-palette'
+import { provider } from '@molecule/app-command-palette-cmdk'
+
+export function setupCommandPaletteCmdk(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

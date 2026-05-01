@@ -191,3 +191,9 @@ function setProvider(provider: GalleryProvider): void
 ```
 
 - `provider` — The gallery provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Gallery | `@molecule/app-gallery-photoswipe` |

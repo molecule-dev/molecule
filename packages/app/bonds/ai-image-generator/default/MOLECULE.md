@@ -60,6 +60,22 @@ Pre-instantiated provider singleton.
 const provider: HttpImageGeneratorProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-ai-image-generator` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-ai-image-generator'
+import { provider } from '@molecule/app-ai-image-generator-default'
+
+export function setupAiImageGeneratorDefault(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

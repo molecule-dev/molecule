@@ -64,6 +64,22 @@ Default PhotoSwipe gallery provider instance.
 const provider: GalleryProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-gallery` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-gallery'
+import { provider } from '@molecule/app-gallery-photoswipe'
+
+export function setupGalleryPhotoswipe(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

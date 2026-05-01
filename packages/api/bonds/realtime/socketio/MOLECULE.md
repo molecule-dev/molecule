@@ -80,6 +80,9 @@ function createProvider(config?: SocketioRealtimeConfig): RealtimeProvider
 
 **Returns:** A fully initialised `RealtimeProvider` backed by Socket.io.
 
+## Core Interface
+Implements `@molecule/api-realtime` interface.
+
 ## Injection Notes
 
 ### Requirements

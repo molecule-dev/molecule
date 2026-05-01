@@ -65,6 +65,22 @@ Default TanStack Table provider instance.
 const provider: DataTableProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-data-table` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-data-table'
+import { provider } from '@molecule/app-data-table-tanstack'
+
+export function setupDataTableTanstack(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

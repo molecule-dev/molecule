@@ -325,6 +325,12 @@ function setProvider(provider: FileUploadProvider): void
 
 - `provider` — The file upload provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| File Upload | `@molecule/app-file-upload-filepond` |
+
 ## Injection Notes
 
 ### Requirements

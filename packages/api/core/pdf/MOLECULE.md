@@ -372,6 +372,13 @@ function toImages(pdf: Buffer<ArrayBufferLike>, options?: RenderOptions): Promis
 
 **Returns:** An array of image buffers, one per rendered page.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Pdf | `@molecule/api-pdf-pdfkit` |
+| Pdf | `@molecule/api-pdf-puppeteer` |
+
 ## Injection Notes
 
 ### Requirements

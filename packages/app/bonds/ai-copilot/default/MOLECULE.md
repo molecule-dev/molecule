@@ -50,6 +50,9 @@ function createProvider(config?: DefaultCopilotConfig): DefaultCopilotProvider
 
 **Returns:** A new DefaultCopilotProvider.
 
+## Core Interface
+Implements `@molecule/app-ai-copilot` interface.
+
 ## Injection Notes
 
 ### Requirements

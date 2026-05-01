@@ -357,6 +357,12 @@ function setProvider(provider: OAuthClientProvider): void
 
 - `provider` — The OAuth client provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Oauth Client | `@molecule/api-oauth-client-generic` |
+
 ## Injection Notes
 
 ### Requirements

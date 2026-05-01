@@ -54,6 +54,22 @@ backed by an in-memory `Map`.
 const provider: RateLimitProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-rate-limit` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-rate-limit'
+import { provider } from '@molecule/api-rate-limit-memory'
+
+export function setupRateLimitMemory(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

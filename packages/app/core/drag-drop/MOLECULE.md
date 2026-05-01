@@ -381,6 +381,12 @@ function setProvider(provider: DragDropProvider): void
 
 - `provider` — The drag-drop provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Drag Drop | `@molecule/app-drag-drop-dndkit` |
+
 ## Injection Notes
 
 ### Requirements

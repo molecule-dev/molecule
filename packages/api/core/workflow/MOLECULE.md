@@ -402,6 +402,12 @@ function transition(instanceId: string, action: string, data?: Record<string, un
 
 **Returns:** The updated instance in its new state.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Workflow | `@molecule/api-workflow-database` |
+
 ## Injection Notes
 
 ### Requirements

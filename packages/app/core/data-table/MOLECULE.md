@@ -374,6 +374,12 @@ function setProvider(provider: DataTableProvider): void
 
 - `provider` — The data table provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Data Table | `@molecule/app-data-table-tanstack` |
+
 ## Injection Notes
 
 ### Requirements

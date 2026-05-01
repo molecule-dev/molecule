@@ -161,3 +161,9 @@ function setProvider(provider: ColorPickerProvider): void
 ```
 
 - `provider` — The color picker provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Color Picker | `@molecule/app-color-picker-default` |

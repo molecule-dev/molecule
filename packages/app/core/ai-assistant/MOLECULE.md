@@ -279,3 +279,9 @@ function setProvider(provider: AIAssistantProvider): void
 ```
 
 - `provider` — The provider instance to register
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Ai Assistant | `@molecule/app-ai-assistant-default` |

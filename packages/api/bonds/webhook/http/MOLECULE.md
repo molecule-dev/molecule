@@ -71,6 +71,9 @@ function createProvider(config?: HttpWebhookConfig): WebhookProvider
 
 **Returns:** A fully initialised `WebhookProvider` backed by direct HTTP delivery.
 
+## Core Interface
+Implements `@molecule/api-webhook` interface.
+
 ## Injection Notes
 
 ### Requirements

@@ -64,6 +64,22 @@ Default Howler audio provider instance.
 const provider: AudioProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-audio` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-audio'
+import { provider } from '@molecule/app-audio-howler'
+
+export function setupAudioHowler(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

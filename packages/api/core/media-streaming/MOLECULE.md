@@ -330,6 +330,12 @@ function transcode(input: string | Buffer<ArrayBufferLike>, profiles: TranscodeP
 
 **Returns:** The aggregated transcode result with variant URIs.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Media Streaming | `@molecule/api-media-streaming-hls` |
+
 ## Injection Notes
 
 ### Requirements

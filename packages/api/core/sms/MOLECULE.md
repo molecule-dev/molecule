@@ -232,6 +232,13 @@ function setProvider(provider: SMSProvider): void
 
 - `provider` — The SMS provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Sms | `@molecule/api-sms-twilio` |
+| Sms | `@molecule/api-sms-vonage` |
+
 ## Injection Notes
 
 ### Requirements

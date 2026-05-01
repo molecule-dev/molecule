@@ -145,6 +145,22 @@ The provider implementation with default configuration.
 const provider: SitemapProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-sitemap` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-sitemap'
+import { provider } from '@molecule/api-sitemap-xml'
+
+export function setupSitemapXml(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

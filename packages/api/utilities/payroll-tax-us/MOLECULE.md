@@ -1,18 +1,420 @@
 # @molecule/api-payroll-tax-us
 
-Federal + state US payroll tax calculator (FICA, Medicare, federal income tax withholding via IRS Pub 15-T 2024/2025 brackets, state withholding registry).
+US payroll-tax calculator for molecule.dev.
+
+Pure-function library that turns a per-paycheck input record
+(gross cents, filing status, pay frequency, year-to-date wages,
+optional state + allowances + pre-tax deductions) into a fully
+decomposed tax breakdown: federal income-tax withholding (IRS
+Pub 15-T 2024 / 2025 brackets), FICA (Social Security with
+annual wage cap), Medicare, Additional Medicare (0.9% over the
+$200K per-employer threshold), and state withholding for six
+representative states (CA, NY, TX, FL, IL, MA).
+
+Apps that need additional states can plug them in via
+{@link registerStateCalculator} without forking the package.
+
+No I/O, no clock reads, no DB — every result is a pure function
+of its input. All amounts are integer cents.
+
+Used by `payroll-manager` and any other app that runs US payroll.
+
+## Quick Start
+
+```ts
+import { calculatePayrollTax } from '@molecule/api-payroll-tax-us'
+
+const result = calculatePayrollTax({
+  grossCents: 5_000_00,
+  filingStatus: 'single',
+  payPeriod: 'biweekly',
+  ytdCents: 0,
+  state: 'CA',
+  year: 2025,
+})
+// → { federalCents, ficaCents, medicareCents, ..., netCents }
+```
+
+```ts
+import { registerStateCalculator } from '@molecule/api-payroll-tax-us'
+
+registerStateCalculator('OR', (input) => {
+  // Oregon-specific withholding logic ...
+  return 0
+})
+```
 
 ## Type
 `utility`
 
+## Installation
+```bash
+npm install @molecule/api-payroll-tax-us
+```
+
+## API
+
+### Interfaces
+
+#### `PayrollTaxInput`
+
+Single-paycheck input to {@link calculatePayrollTax}.
+
+```typescript
+interface PayrollTaxInput {
+  /** Gross pay for this period, in integer cents. */
+  grossCents: number
+  /** Federal filing status. */
+  filingStatus: FilingStatus
+  /** Pay period; the gross is annualised based on this. */
+  payPeriod: PayPeriod
+  /**
+   * Year-to-date FICA-eligible wages already paid in the current
+   * calendar year, in integer cents. Used to apply the Social
+   * Security wage cap and the Additional Medicare Tax threshold.
+   */
+  ytdCents: number
+  /** Two-letter state code (uppercase). Optional — defaults to no state tax. */
+  state?: string
+  /**
+   * State withholding allowances / dependents — passed through to
+   * the per-state calculator. Interpretation is state-specific.
+   */
+  stateAllowances?: number
+  /**
+   * Pre-tax deductions for this paycheck. All amounts in cents.
+   */
+  preTax?: PreTaxDeductions
+  /**
+   * Tax year for bracket / wage-cap lookup. Defaults to 2025.
+   */
+  year?: TaxYear
+}
+```
+
+#### `PayrollTaxResult`
+
+Per-paycheck tax breakdown returned by {@link calculatePayrollTax}.
+
+All amounts are integer cents; `netCents = grossCents - sum-of-taxes - preTax`.
+
+```typescript
+interface PayrollTaxResult {
+  /** Federal income-tax withholding for the period. */
+  federalCents: number
+  /** Social Security tax (employee share, 6.2% up to wage cap). */
+  ficaCents: number
+  /** Regular Medicare tax (employee share, 1.45% — no cap). */
+  medicareCents: number
+  /** Additional Medicare Tax (0.9%) on YTD wages above filing-status threshold. */
+  additionalMedicareCents: number
+  /** State income-tax withholding (0 when state omitted or unsupported). */
+  stateCents: number
+  /** Take-home: `grossCents - all taxes - all preTax deductions`. */
+  netCents: number
+  /** Total of all pre-tax deductions applied this period. */
+  preTaxCents: number
+  /** Total of all taxes withheld this period. */
+  taxCents: number
+}
+```
+
+#### `PreTaxDeductions`
+
+Pre-tax deduction categories that reduce wages BEFORE federal
+income-tax withholding (and, where applicable, FICA / state).
+
+- `retirement401k` — 401(k) / 403(b) contributions. Reduces
+  federal + state taxable wages. Does NOT reduce FICA wages.
+- `healthPremium` — Section 125 / cafeteria-plan health
+  premiums. Reduces federal + FICA + state taxable wages.
+
+All amounts are integer cents.
+
+```typescript
+interface PreTaxDeductions {
+  retirement401k?: number
+  healthPremium?: number
+}
+```
+
+#### `TaxBracket`
+
+A federal-tax bracket: marginal rate applied to wages above
+`thresholdCents` and up to (but not including) the next bracket.
+The final bracket has no upper bound.
+
+```typescript
+interface TaxBracket {
+  thresholdCents: number
+  rate: number
+}
+```
+
+### Types
+
+#### `FilingStatus`
+
+Federal filing-status codes used for income-tax withholding lookups.
+
+- `single` — unmarried filer.
+- `married-jointly` — married filing jointly (or qualifying surviving spouse).
+- `married-separately` — married filing separately.
+- `head-of-household` — single with qualifying dependents.
+
+```typescript
+type FilingStatus = 'single' | 'married-jointly' | 'married-separately' | 'head-of-household'
+```
+
+#### `PayPeriod`
+
+Pay frequency. Used to annualise gross pay before applying
+annual federal/state brackets, and to deannualise the resulting
+tax back to a per-paycheck withholding amount.
+
+```typescript
+type PayPeriod = 'weekly' | 'biweekly' | 'semimonthly' | 'monthly' | 'annual'
+```
+
+#### `StateCalculator`
+
+Per-state withholding calculator. Receives the same input record as
+the top-level calculator and returns withholding in integer cents.
+
+Implementations should derive their own taxable-wage base from
+`grossCents` and `preTax` — pre-tax-401(k) and Section 125 health
+premiums are state-deductible in the vast majority of states.
+
+```typescript
+type StateCalculator = (input: PayrollTaxInput) => number
+```
+
+#### `TaxYear`
+
+Tax-year selector. Brackets, wage caps, and standard deductions
+are pinned per year; future years are added by extending the
+tables in `federal.ts` / `fica.ts` / `state.ts`.
+
+```typescript
+type TaxYear = 2024 | 2025
+```
+
+### Functions
+
+#### `annualise(wageCents, period)`
+
+Annualise a per-period wage to its yearly equivalent.
+
+```typescript
+function annualise(wageCents: number, period: PayPeriod): number
+```
+
+- `wageCents` — Per-paycheck wage in cents.
+- `period` — Pay frequency.
+
+**Returns:** Annualised wage in cents.
+
+#### `applyBrackets(taxableAnnualCents, brackets)`
+
+Apply progressive tax brackets to an annualised taxable wage.
+
+```typescript
+function applyBrackets(taxableAnnualCents: number, brackets: TaxBracket[]): number
+```
+
+- `taxableAnnualCents` — Taxable annual wage in cents.
+- `brackets` — Bracket table (sorted ascending by threshold).
+
+**Returns:** Annual tax in cents.
+
+#### `calculateAdditionalMedicare(ficaWageCents, ytdCents)`
+
+Compute the Additional Medicare Tax (0.9%) withholding for a single
+paycheck, applying the per-employer $200,000 YTD threshold.
+
+```typescript
+function calculateAdditionalMedicare(ficaWageCents: number, ytdCents: number): number
+```
+
+- `ficaWageCents` — FICA-taxable wages for this paycheck.
+- `ytdCents` — Year-to-date FICA-eligible wages already paid (pre this paycheck).
+
+**Returns:** Additional Medicare tax withheld this period, in integer cents.
+
+#### `calculateFederal(taxableCents, filingStatus, period, year)`
+
+Compute the federal income-tax withholding for a single paycheck
+using the IRS Pub 15-T annualised wage-bracket method.
+
+```typescript
+function calculateFederal(taxableCents: number, filingStatus: FilingStatus, period: PayPeriod, year?: TaxYear): number
+```
+
+- `taxableCents` — Per-paycheck federal-taxable wages (gross minus pre-tax deductions).
+- `filingStatus` — Federal filing status.
+- `period` — Pay frequency.
+- `year` — Tax year (defaults to 2025).
+
+**Returns:** Federal withholding for this paycheck in integer cents.
+
+#### `calculateMedicare(ficaWageCents)`
+
+Compute the regular (1.45%) Medicare tax withholding for a single paycheck.
+
+```typescript
+function calculateMedicare(ficaWageCents: number): number
+```
+
+- `ficaWageCents` — FICA-taxable wages for this paycheck.
+
+**Returns:** Medicare tax withheld this period, in integer cents.
+
+#### `calculatePayrollTax(input)`
+
+Compute the per-paycheck tax breakdown for a US W-2 employee.
+
+Pre-tax handling:
+- 401(k) contributions reduce federal + state taxable wages but NOT FICA wages.
+- Section 125 health premiums reduce federal + FICA + state taxable wages.
+
+```typescript
+function calculatePayrollTax(input: PayrollTaxInput): PayrollTaxResult
+```
+
+- `input` — Per-paycheck input record. See {@link PayrollTaxInput}.
+
+**Returns:** Per-paycheck breakdown including a `netCents` take-home figure.
+
+#### `calculateSocialSecurity(ficaWageCents, ytdCents, year)`
+
+Compute the Social Security tax withholding for a single paycheck.
+
+```typescript
+function calculateSocialSecurity(ficaWageCents: number, ytdCents: number, year?: TaxYear): number
+```
+
+- `ficaWageCents` — FICA-taxable wages for this paycheck (post-Section-125, but pre-401k).
+- `ytdCents` — Year-to-date FICA-eligible wages already paid (pre this paycheck).
+- `year` — Tax year selector (defaults to 2025).
+
+**Returns:** Social Security tax withheld this period, in integer cents.
+
+#### `calculateState(input)`
+
+Compute the state withholding for a single paycheck. Returns 0
+when no state is supplied or no calculator is registered for the
+given state.
+
+```typescript
+function calculateState(input: PayrollTaxInput): number
+```
+
+- `input` — Payroll-tax input record.
+
+**Returns:** State withholding in integer cents.
+
+#### `getStateCalculator(state)`
+
+Look up a per-state calculator by 2-letter code (case-insensitive).
+Returns `undefined` when no calculator is registered.
+
+```typescript
+function getStateCalculator(state: string): StateCalculator | undefined
+```
+
+- `state` — 2-letter state code.
+
+**Returns:** The registered calculator, or `undefined`.
+
+#### `registerStateCalculator(state, fn)`
+
+Register (or override) a state calculator. Use this from app code
+to add states beyond the six built-ins, or to swap the built-in
+formula for an updated one.
+
+```typescript
+function registerStateCalculator(state: string, fn: StateCalculator): void
+```
+
+- `state` — 2-letter state code (case-insensitive — stored uppercased).
+- `fn` — Pure calculator function returning per-period withholding in cents.
+
+#### `stateTaxableWageCents(input)`
+
+Compute the state-level taxable wage for this paycheck. Treats both
+401(k) and Section 125 health premiums as state-deductible — the
+dominant rule across all 50 states; states that diverge (e.g. PA on
+401(k)) override this in their own calculator.
+
+```typescript
+function stateTaxableWageCents(input: PayrollTaxInput): number
+```
+
+- `input` — The full payroll-tax input record.
+
+**Returns:** Per-paycheck state-taxable wage in integer cents.
+
+#### `unregisterStateCalculator(state)`
+
+Remove a state calculator from the registry. Primarily useful for
+tests that want to assert the "unsupported state" code path.
+
+```typescript
+function unregisterStateCalculator(state: string): void
+```
+
+- `state` — 2-letter state code.
+
+### Constants
+
+#### `ADDITIONAL_MEDICARE_FILING_THRESHOLD_CENTS`
+
+Annual filing-status thresholds for the employee's own Additional
+Medicare reconciliation. Exposed for test parity and for callers
+that want to compute the year-end true-up amount.
+
+```typescript
+const ADDITIONAL_MEDICARE_FILING_THRESHOLD_CENTS: Record<FilingStatus, number>
+```
+
+#### `FEDERAL_BRACKETS`
+
+Federal annualised withholding brackets per IRS Pub 15-T.
+
+Each bracket entry is `[thresholdCents, marginalRate]`. The first
+bracket starts at the post-standard-deduction taxable wage of $0;
+the standard deduction is applied separately via
+{@link FEDERAL_STANDARD_DEDUCTION}.
+
+Sourced from IRS Pub 15-T (2024 and 2025), "Annual Payroll Period —
+Standard withholding" tables for Form W-4 from 2020 or later.
+
+```typescript
+const FEDERAL_BRACKETS: Record<TaxYear, Record<FilingStatus, TaxBracket[]>>
+```
+
+#### `FEDERAL_STANDARD_DEDUCTION`
+
+Standard deduction (already baked into the Pub 15-T bracket
+thresholds above). We expose it for callers that want to reason
+about pre-deduction taxable wages — but {@link calculateFederal}
+does NOT subtract it, since the brackets already account for it.
+
+```typescript
+const FEDERAL_STANDARD_DEDUCTION: Record<TaxYear, Record<FilingStatus, number>>
+```
+
+#### `PERIODS_PER_YEAR`
+
+Pay-period multipliers used to annualise per-paycheck wages.
+The "annual" period is its own identity (no scaling).
+
+```typescript
+const PERIODS_PER_YEAR: Record<PayPeriod, number>
+```
+
 ## Injection Notes
 
-### Requirements
-- None
-
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Brackets are pinned per tax year. Each January's IRS / state
+publication update requires a new package release that adds
+the new year to `federal.ts`, `fica.ts`, and `state.ts`.

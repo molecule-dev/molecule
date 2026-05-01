@@ -111,6 +111,22 @@ The provider implementation with default configuration (soft validation).
 const provider: TemplateProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-templating` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider, registerHelper, registerPartial } from '@molecule/api-templating'
+import { provider } from '@molecule/api-templating-mjml'
+
+export function setupTemplatingMjml(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

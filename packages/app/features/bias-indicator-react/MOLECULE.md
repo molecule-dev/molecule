@@ -1,18 +1,36 @@
 # @molecule/app-bias-indicator-react
 
-Political-bias / source-credibility indicator (left/right scale + reliability tier) for news article headers
+React political-bias / source-credibility indicator.
+
+Exports `<BiasIndicator>` — left/right scale with marker plus
+optional reliability dot/chip — for news-aggregator article
+headers and dense article lists (compact variant).
+
+## Quick Start
+
+```tsx
+import { BiasIndicator } from '@molecule/app-bias-indicator-react'
+
+<BiasIndicator bias={-0.4} reliability={0.8} sourceLabel="Reuters" />
+```
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-bias-indicator-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0
 
-### Known Limitations
-- None yet
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-bias-indicator-react`.

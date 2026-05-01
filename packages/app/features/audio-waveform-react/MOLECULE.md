@@ -1,18 +1,45 @@
 # @molecule/app-feature-audio-waveform-react
 
-Stylized SVG audio waveform with click-to-seek + region overlays — renders pre-computed peaks for music-daw / podcast / streaming
+Audio waveform — stylized SVG renderer of pre-computed audio peaks
+with progress overlay, click-to-seek, and timed region markers.
+
+Used by music-daw, podcast, and music-streaming surfaces to display
+a waveform of the underlying audio source. Peak amplitudes must be
+computed by the caller (typically offline with `wavesurfer.js`,
+`peaks.js`, or an `AudioContext` analysis pass) — this package is
+intentionally just the renderer.
+
+## Quick Start
+
+```tsx
+import { AudioWaveform } from '@molecule/app-feature-audio-waveform-react'
+
+<AudioWaveform
+  peaks={peaks}
+  duration={track.duration}
+  currentTime={audio.currentTime}
+  onSeek={(s) => { audio.currentTime = s }}
+  regions={[{ id: 'loop', startTime: 12, duration: 3, color: '#a78bfa55' }]}
+/>
+```
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-feature-audio-waveform-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+Peer dependencies:
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0
 
-### Known Limitations
-- None yet
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-feature-audio-waveform-react`.

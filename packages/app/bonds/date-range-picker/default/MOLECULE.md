@@ -61,6 +61,22 @@ Default date range picker provider instance.
 const provider: DateRangePickerProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-date-range-picker` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-date-range-picker'
+import { provider } from '@molecule/app-date-range-picker-default'
+
+export function setupDateRangePickerDefault(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

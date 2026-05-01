@@ -528,6 +528,15 @@ function suggest(indexName: string, query: string, options?: SuggestOptions): Pr
 
 **Returns:** Array of suggestions sorted by relevance.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Search | `@molecule/api-search-elasticsearch` |
+| Search | `@molecule/api-search-meilisearch` |
+| Search | `@molecule/api-search-postgres` |
+| Search | `@molecule/api-search-typesense` |
+
 ## Injection Notes
 
 ### Requirements

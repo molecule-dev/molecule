@@ -64,6 +64,22 @@ Default hotkeys provider instance.
 const provider: KeyboardShortcutsProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-keyboard-shortcuts` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-keyboard-shortcuts'
+import { provider } from '@molecule/app-keyboard-shortcuts-hotkeys'
+
+export function setupKeyboardShortcutsHotkeys(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

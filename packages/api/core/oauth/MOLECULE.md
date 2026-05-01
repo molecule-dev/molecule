@@ -95,7 +95,9 @@ type OAuthVerifier = (
 
 | Provider | Package |
 |----------|---------|
+| Apple OAuth | `@molecule/api-oauth-apple` |
 | GitHub OAuth | `@molecule/api-oauth-github` |
 | GitLab OAuth | `@molecule/api-oauth-gitlab` |
 | Google OAuth | `@molecule/api-oauth-google` |
+| Microsoft OAuth | `@molecule/api-oauth-microsoft` |
 | Twitter OAuth | `@molecule/api-oauth-twitter` |

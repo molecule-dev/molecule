@@ -81,6 +81,9 @@ function createProvider(config?: WsRealtimeConfig): RealtimeProvider
 
 **Returns:** A fully initialised `RealtimeProvider` backed by `ws`.
 
+## Core Interface
+Implements `@molecule/api-realtime` interface.
+
 ## Injection Notes
 
 ### Requirements

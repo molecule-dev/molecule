@@ -93,6 +93,22 @@ Lazily initializes on first property access with default configuration.
 const provider: TenancyProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-multi-tenancy` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider, setTenant } from '@molecule/api-multi-tenancy'
+import { provider } from '@molecule/api-multi-tenancy-schema'
+
+export function setupMultiTenancySchema(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

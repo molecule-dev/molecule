@@ -61,6 +61,22 @@ Default tree view provider instance.
 const provider: TreeViewProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-tree-view` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-tree-view'
+import { provider } from '@molecule/app-tree-view-default'
+
+export function setupTreeViewDefault(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

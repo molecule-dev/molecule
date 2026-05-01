@@ -64,6 +64,9 @@ function createProvider(config?: VonageSMSConfig): SMSProvider
 
 **Returns:** A fully initialised `SMSProvider` backed by Vonage.
 
+## Core Interface
+Implements `@molecule/api-sms` interface.
+
 ## Injection Notes
 
 ### Requirements

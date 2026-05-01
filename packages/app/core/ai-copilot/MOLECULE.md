@@ -203,3 +203,9 @@ function setProvider(provider: AICopilotProvider): void
 ```
 
 - `provider` — The provider instance to register.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Ai Copilot | `@molecule/app-ai-copilot-default` |
