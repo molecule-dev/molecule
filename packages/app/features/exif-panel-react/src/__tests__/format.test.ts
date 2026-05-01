@@ -114,7 +114,7 @@ describe('formatDms', () => {
   })
 
   it('renders negative longitude as W hemisphere', () => {
-    expect(formatDms(-122.0840, 'lon')).toBe('122° 5\' 2.40" W')
+    expect(formatDms(-122.084, 'lon')).toBe('122° 5\' 2.40" W')
   })
 
   it('treats zero as the positive hemisphere', () => {
@@ -130,9 +130,7 @@ describe('formatDms', () => {
 
 describe('formatGps', () => {
   it('joins both axes with a comma', () => {
-    expect(formatGps(37.4219983, -122.0840)).toBe(
-      '37° 25\' 19.19" N, 122° 5\' 2.40" W',
-    )
+    expect(formatGps(37.4219983, -122.084)).toBe('37° 25\' 19.19" N, 122° 5\' 2.40" W')
   })
 
   it('returns null when either axis is missing', () => {

@@ -46,9 +46,7 @@ function buildStubClassMap(): UIClassMap {
  * @returns The wrapped element tree.
  */
 function Wrap({ children }: { children: ReactNode }): React.ReactElement {
-  return (
-    <I18nProvider provider={createSimpleI18nProvider('en')}>{children}</I18nProvider>
-  )
+  return <I18nProvider provider={createSimpleI18nProvider('en')}>{children}</I18nProvider>
 }
 
 beforeEach(() => {
@@ -139,12 +137,8 @@ describe('<ExifPanel>', () => {
         <ExifPanel exif={fullExif} showGps={false} />
       </Wrap>,
     )
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-row-gps"]'),
-    ).toBeNull()
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-map-link"]'),
-    ).toBeNull()
+    expect(container.querySelector('[data-mol-id="exif-panel-row-gps"]')).toBeNull()
+    expect(container.querySelector('[data-mol-id="exif-panel-map-link"]')).toBeNull()
   })
 
   it('hides the GPS row when latitude/longitude are missing', () => {
@@ -153,9 +147,7 @@ describe('<ExifPanel>', () => {
         <ExifPanel exif={{ ...fullExif, gpsLatitude: undefined, gpsLongitude: undefined }} />
       </Wrap>,
     )
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-row-gps"]'),
-    ).toBeNull()
+    expect(container.querySelector('[data-mol-id="exif-panel-row-gps"]')).toBeNull()
   })
 
   it('skips fields that are missing from the EXIF object', () => {
@@ -165,21 +157,11 @@ describe('<ExifPanel>', () => {
         <ExifPanel exif={minimal} />
       </Wrap>,
     )
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-row-camera"]'),
-    ).not.toBeNull()
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-row-lens"]'),
-    ).toBeNull()
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-row-exposure"]'),
-    ).toBeNull()
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-row-gps"]'),
-    ).toBeNull()
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-row-timestamp"]'),
-    ).toBeNull()
+    expect(container.querySelector('[data-mol-id="exif-panel-row-camera"]')).not.toBeNull()
+    expect(container.querySelector('[data-mol-id="exif-panel-row-lens"]')).toBeNull()
+    expect(container.querySelector('[data-mol-id="exif-panel-row-exposure"]')).toBeNull()
+    expect(container.querySelector('[data-mol-id="exif-panel-row-gps"]')).toBeNull()
+    expect(container.querySelector('[data-mol-id="exif-panel-row-timestamp"]')).toBeNull()
   })
 
   it('omits the 35 mm-equivalent row when it equals the focal length', () => {
@@ -188,22 +170,16 @@ describe('<ExifPanel>', () => {
         <ExifPanel exif={fullExif} />
       </Wrap>,
     )
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-row-focal35"]'),
-    ).toBeNull()
+    expect(container.querySelector('[data-mol-id="exif-panel-row-focal35"]')).toBeNull()
   })
 
   it('shows the 35 mm-equivalent row when it differs from focalLength', () => {
     const { container } = render(
       <Wrap>
-        <ExifPanel
-          exif={{ ...fullExif, focalLength: 35, focalLength35mm: 52 }}
-        />
+        <ExifPanel exif={{ ...fullExif, focalLength: 35, focalLength35mm: 52 }} />
       </Wrap>,
     )
-    const row = container.querySelector(
-      '[data-mol-id="exif-panel-row-focal35"]',
-    )
+    const row = container.querySelector('[data-mol-id="exif-panel-row-focal35"]')
     expect(row).not.toBeNull()
     expect(row?.textContent).toContain('52 mm')
   })
@@ -224,12 +200,10 @@ describe('<ExifPanel>', () => {
         <ExifPanel exif={fullExif} />
       </Wrap>,
     )
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-eyebrow"]')?.textContent,
-    ).toBe('Frame metadata')
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-heading"]')?.textContent,
-    ).toBe('EXIF')
+    expect(container.querySelector('[data-mol-id="exif-panel-eyebrow"]')?.textContent).toBe(
+      'Frame metadata',
+    )
+    expect(container.querySelector('[data-mol-id="exif-panel-heading"]')?.textContent).toBe('EXIF')
   })
 
   it('renders the timestamp, software, and copyright rows when present', () => {
@@ -238,15 +212,9 @@ describe('<ExifPanel>', () => {
         <ExifPanel exif={fullExif} />
       </Wrap>,
     )
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-row-timestamp"]'),
-    ).not.toBeNull()
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-row-software"]'),
-    ).not.toBeNull()
-    expect(
-      container.querySelector('[data-mol-id="exif-panel-row-copyright"]'),
-    ).not.toBeNull()
+    expect(container.querySelector('[data-mol-id="exif-panel-row-timestamp"]')).not.toBeNull()
+    expect(container.querySelector('[data-mol-id="exif-panel-row-software"]')).not.toBeNull()
+    expect(container.querySelector('[data-mol-id="exif-panel-row-copyright"]')).not.toBeNull()
   })
 
   it('appends the className prop to the panel root', () => {
