@@ -1,0 +1,28 @@
+{
+  "name": "@molecule/api-locales-resource-api-key",
+  "version": "1.0.0",
+  "description": "Locale bond for @molecule/api-resource-api-key.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run --passWithNoTests"
+  },
+  "peerDependencies": {
+    "@molecule/api-i18n": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
