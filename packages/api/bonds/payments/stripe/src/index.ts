@@ -7,5 +7,6 @@
  */
 
 export * from './bondAdapter.js'
+export * from './connect.js'
 export * from './provider.js'
 export * from './types.js'
