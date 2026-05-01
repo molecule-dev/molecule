@@ -1,0 +1,57 @@
+{
+  "name": "@molecule/app-three-viewer-react",
+  "version": "1.0.0",
+  "description": "WebGL 3D model viewer wrapping three.js — supports GLTF/GLB, OBJ, STL with orbit controls + lighting presets",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "three",
+    "viewer",
+    "3d",
+    "gltf",
+    "obj",
+    "stl",
+    "react"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "three": "0.184.0"
+  },
+  "peerDependencies": {
+    "@molecule/app-react": "^1.0.0",
+    "@molecule/app-ui": "^1.0.0",
+    "@molecule/app-ui-react": "^1.0.0",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-i18n": "1.0.0",
+    "@molecule/app-react": "1.0.0",
+    "@molecule/app-ui": "1.0.0",
+    "@molecule/app-ui-react": "1.0.0",
+    "@testing-library/react": "16.3.0",
+    "@types/node": "25.5.0",
+    "@types/react": "19.2.14",
+    "@types/three": "0.184.0",
+    "jsdom": "27.0.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
