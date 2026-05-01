@@ -1,1 +1,28 @@
-npm run format:check && npm run lint && npm run check:lockfile && npm run check:peer-deps && npm test
+#!/usr/bin/env bash
+# Staged-only pre-commit hook. Original ran format:check + lint + tests over the
+# entire monorepo (~30s), which serialised badly when many parallel agents were
+# committing concurrently — the wide hook window let other agents' staged files
+# bleed across commits. This version scopes format/lint to staged files and
+# defers `npm test` to CI; lockfile + peer-deps checks remain.
+
+set -e
+
+STAGED=$(git diff --cached --name-only --diff-filter=AM)
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+JSTS=$(echo "$STAGED" | grep -E '\.(ts|tsx|js|jsx|mjs|cjs)$' || true)
+JSON_MD=$(echo "$STAGED" | grep -E '\.(json|md|css|scss|html|yaml|yml)$' || true)
+
+if [ -n "$JSTS" ]; then
+  echo "$JSTS" | xargs npx --no-install prettier --check
+  echo "$JSTS" | xargs npx --no-install eslint --no-error-on-unmatched-pattern
+fi
+
+if [ -n "$JSON_MD" ]; then
+  echo "$JSON_MD" | xargs npx --no-install prettier --check
+fi
+
+npm run check:lockfile
+npm run check:peer-deps
