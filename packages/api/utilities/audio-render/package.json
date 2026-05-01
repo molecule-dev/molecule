@@ -1,0 +1,50 @@
+{
+  "name": "@molecule/api-audio-render",
+  "version": "1.0.0",
+  "description": "Offline multi-track audio mixdown — renders an AudioSession to WAV/MP3/FLAC via FFmpeg, queue-driven.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "audio",
+    "render",
+    "ffmpeg",
+    "mixdown",
+    "daw"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-queue": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-queue": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/utilities/audio-render"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/utilities/audio-render",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,180 @@
+/**
+ * Public types for `@molecule/api-audio-render`.
+ *
+ * Same shape as `api-video-render`: a queue-driven offline renderer that
+ * takes a multi-track {@link AudioSession} and emits a single mixed-down
+ * audio file (WAV / MP3 / FLAC).
+ *
+ * @module
+ */
+
+/**
+ * Supported output container/codec combinations.
+ *
+ * - `wav`  — uncompressed PCM, default 16-bit signed (`pcm_s16le`).
+ * - `mp3`  — lossy MPEG-1 Layer III via libmp3lame.
+ * - `flac` — lossless FLAC.
+ */
+export type AudioRenderFormat = 'wav' | 'mp3' | 'flac'
+
+/**
+ * A single audio clip placed on a {@link AudioChannel} timeline.
+ *
+ * Time fields are seconds in the session's master timeline. The renderer
+ * pads silence before the clip's `startTime` and trims to `duration` so
+ * timeline placement is preserved exactly.
+ */
+export interface AudioClip {
+  /** Stable clip id — appears in error messages and progress events. */
+  id?: string
+  /**
+   * Source audio. Either a local filesystem path or an `http(s):` URL.
+   * Strings containing NUL/newline/control characters are rejected so
+   * the value is always safe to pass to ffmpeg as a positional argument.
+   */
+  audioUrl: string
+  /** Seconds from session t=0 at which this clip should begin playing. */
+  startTime: number
+  /** Length of the clip's contribution to the mix, in seconds. */
+  duration: number
+  /**
+   * Optional offset into the source file (seconds). Defaults to 0 — the
+   * clip plays from the start of `audioUrl`.
+   */
+  sourceOffset?: number
+}
+
+/**
+ * A simple audio effect applied to a channel before mixdown.
+ *
+ * The shape is intentionally minimal — providers translate `kind` into
+ * the right ffmpeg `-af` filter. Unknown kinds are ignored at render time
+ * (warned, not failed) so future effect types are forward-compatible.
+ */
+export interface AudioEffect {
+  /** Effect kind — `gain`, `lowpass`, `highpass`, `reverb`, etc. */
+  kind: string
+  /** Effect-specific parameters (numeric or string). */
+  params?: Record<string, number | string>
+}
+
+/**
+ * A single mixer channel: an ordered list of clips plus per-channel
+ * volume / pan / effects.
+ */
+export interface AudioChannel {
+  /** Stable channel id — required because clips reference timing in seconds, not bars. */
+  id: string
+  /** Display label (caller-supplied, never localized by this package). */
+  label?: string
+  /** Clips placed on this channel's timeline. */
+  clips: AudioClip[]
+  /**
+   * Linear volume gain. `1` = unity, `0` = silent, `2` = +6 dB.
+   * Defaults to 1 when omitted.
+   */
+  volume?: number
+  /**
+   * Stereo pan from `-1` (hard left) to `1` (hard right). `0` = center.
+   * Defaults to 0 when omitted.
+   */
+  pan?: number
+  /** Whether this channel is muted in the final mix. Defaults to false. */
+  muted?: boolean
+  /** Optional per-channel effects, applied in array order before summing. */
+  effects?: AudioEffect[]
+}
+
+/**
+ * A complete multi-track session ready for mixdown.
+ *
+ * The session is the single argument to {@link renderAudio}; it must be
+ * fully self-describing — no implicit project state, no global mixer.
+ */
+export interface AudioSession {
+  /** Mixer channels. Empty arrays produce a silent track of `duration` seconds. */
+  channels: AudioChannel[]
+  /** Total session length in seconds (master timeline). */
+  duration: number
+  /** Optional master gain applied after summing the channels. Defaults to 1. */
+  masterVolume?: number
+}
+
+/**
+ * Options accepted by {@link renderAudio}.
+ */
+export interface AudioRenderOptions {
+  /** Output format. Defaults to `'mp3'`. */
+  format?: AudioRenderFormat
+  /** Output sample rate in Hz. Defaults to `44100`. */
+  sampleRate?: number
+  /** Output channel count: 1 = mono, 2 = stereo. Defaults to `2`. */
+  channels?: number
+  /**
+   * Output bitrate (e.g. `'192k'`). Honoured for `mp3`; ignored for
+   * uncompressed `wav` and lossless `flac`. Defaults to `'192k'` for mp3.
+   */
+  bitrate?: string
+  /**
+   * Override the destination path. Defaults to a unique tmp path under the
+   * caller's `os.tmpdir()` with the format-appropriate extension.
+   */
+  outputPath?: string
+  /**
+   * Override the queue name jobs are dispatched to. Defaults to
+   * `'audio-render'`.
+   */
+  queueName?: string
+}
+
+/**
+ * Lifecycle states a render job moves through.
+ *
+ * `queued` → `processing` → (`completed` | `failed` | `cancelled`).
+ * Cancellation requests on `queued` jobs short-circuit straight to
+ * `cancelled` without ever entering `processing`.
+ */
+export type AudioRenderJobStatus = 'queued' | 'processing' | 'completed' | 'failed' | 'cancelled'
+
+/**
+ * The job descriptor returned by {@link renderAudio} and inspected by
+ * {@link getRenderStatus}. Mutated in-place by the worker as state
+ * advances; consumers should treat reads as a snapshot.
+ */
+export interface RenderJob {
+  /** Stable job id — opaque, generated by the queue provider. */
+  id: string
+  /** Current lifecycle state. */
+  status: AudioRenderJobStatus
+  /** Queue name the job was sent to. */
+  queueName: string
+  /** Resolved output path. */
+  outputPath: string
+  /** Resolved output format. */
+  format: AudioRenderFormat
+  /** Echo of the originating session — useful for re-rendering / diagnostics. */
+  session: AudioSession
+  /** Echo of the resolved options. */
+  options: Required<Omit<AudioRenderOptions, 'outputPath' | 'queueName' | 'bitrate'>> & {
+    bitrate?: string
+  }
+  /** When the job was enqueued. */
+  enqueuedAt: Date
+  /** Set when the worker begins processing. */
+  startedAt?: Date
+  /** Set when the worker finishes (success, failure, or cancellation). */
+  finishedAt?: Date
+  /** Populated when `status === 'failed'`. */
+  error?: string
+}
+
+/**
+ * Payload placed on the queue for the worker to consume.
+ */
+export interface AudioRenderJobPayload {
+  jobId: string
+  session: AudioSession
+  options: AudioRenderOptions
+  outputPath: string
+  format: AudioRenderFormat
+}
