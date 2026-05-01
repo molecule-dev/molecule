@@ -1,0 +1,51 @@
+{
+  "name": "@molecule/api-travel-amadeus",
+  "version": "1.0.0",
+  "description": "Amadeus travel trip-planning aggregator (flights + hotels + activities) provider for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "travel",
+    "trip",
+    "amadeus",
+    "flights",
+    "hotels",
+    "activities"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-travel": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-travel": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/travel/amadeus"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/travel/amadeus",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
