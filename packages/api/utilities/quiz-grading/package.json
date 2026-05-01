@@ -1,0 +1,36 @@
+{
+  "name": "@molecule/api-quiz-grading",
+  "version": "1.0.0",
+  "description": "Multi-question-type grading engine: multi-choice, true-false, type-answer, fill-blank, numeric, matching with optional partial credit and speed bonus.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "quiz",
+    "grading"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
