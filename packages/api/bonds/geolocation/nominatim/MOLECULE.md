@@ -95,6 +95,22 @@ The provider implementation, lazily initialized with User-Agent from
 const provider: GeolocationProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-geolocation` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-geolocation'
+import { provider } from '@molecule/api-geolocation-nominatim'
+
+export function setupGeolocationNominatim(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

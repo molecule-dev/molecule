@@ -65,6 +65,22 @@ The provider implementation, lazily initialized with default config.
 const provider: ImageProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-image` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-image'
+import { provider } from '@molecule/api-image-jimp'
+
+export function setupImageJimp(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

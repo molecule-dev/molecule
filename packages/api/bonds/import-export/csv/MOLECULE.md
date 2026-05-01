@@ -114,6 +114,22 @@ Uses the bonded DataStore for database operations.
 const provider: ImportExportProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-import-export` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-import-export'
+import { provider } from '@molecule/api-import-export-csv'
+
+export function setupImportExportCsv(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

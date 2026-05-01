@@ -397,6 +397,13 @@ function thumbnail(input: Buffer<ArrayBufferLike>, size: number): Promise<Buffer
 
 **Returns:** The thumbnail image as a Buffer.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Image | `@molecule/api-image-jimp` |
+| Image | `@molecule/api-image-sharp` |
+
 ## Injection Notes
 
 ### Requirements
