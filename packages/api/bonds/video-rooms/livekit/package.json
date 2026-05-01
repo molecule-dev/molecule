@@ -1,0 +1,53 @@
+{
+  "name": "@molecule/api-video-rooms-livekit",
+  "version": "1.0.0",
+  "description": "LiveKit video rooms provider for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "video",
+    "video-rooms",
+    "livekit",
+    "webrtc",
+    "self-hosted"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-video-rooms": "1.0.0"
+  },
+  "dependencies": {
+    "livekit-server-sdk": "2.15.2"
+  },
+  "devDependencies": {
+    "@molecule/api-video-rooms": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/video-rooms/livekit"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/video-rooms/livekit",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
