@@ -1,0 +1,57 @@
+{
+  "name": "@molecule/api-fx-rates-ecb",
+  "version": "1.0.0",
+  "description": "European Central Bank reference FX rates provider for molecule.dev (free, keyless, EUR pivot)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "fx",
+    "rates",
+    "currency",
+    "ecb",
+    "european-central-bank",
+    "forex",
+    "exchange"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "fast-xml-parser": "5.7.2"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-fx-rates": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-fx-rates": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/fx-rates/ecb"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/fx-rates/ecb",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
