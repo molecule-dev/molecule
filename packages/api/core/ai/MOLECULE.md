@@ -277,6 +277,10 @@ function setProvider(provider: AIProvider): void
 | Provider | Package |
 |----------|---------|
 | Anthropic | `@molecule/api-ai-anthropic` |
+| Ai | `@molecule/api-ai-deepseek` |
+| Ai | `@molecule/api-ai-google` |
+| Ai | `@molecule/api-ai-local` |
+| Ai | `@molecule/api-ai-openai` |
 | xAI | `@molecule/api-ai-xai` |
 
 ## Injection Notes

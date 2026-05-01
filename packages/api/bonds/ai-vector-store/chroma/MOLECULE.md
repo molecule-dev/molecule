@@ -53,6 +53,9 @@ function createProvider(config?: ChromaConfig): AIVectorStoreProvider
 
 **Returns:** An `AIVectorStoreProvider` backed by ChromaDB.
 
+## Core Interface
+Implements `@molecule/api-ai-vector-store` interface.
+
 ## Injection Notes
 
 ### Requirements

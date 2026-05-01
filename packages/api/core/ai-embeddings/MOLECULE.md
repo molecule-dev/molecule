@@ -155,3 +155,9 @@ function setProvider(provider: AIEmbeddingsProvider): void
 ```
 
 - `provider` — The AI embeddings provider implementation to register.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Ai Embeddings | `@molecule/api-ai-embeddings-openai` |

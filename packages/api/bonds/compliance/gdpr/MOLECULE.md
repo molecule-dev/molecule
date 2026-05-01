@@ -134,6 +134,22 @@ Lazily initializes on first property access with default configuration.
 const provider: ComplianceProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-compliance` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider, setConsent } from '@molecule/api-compliance'
+import { provider } from '@molecule/api-compliance-gdpr'
+
+export function setupComplianceGdpr(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

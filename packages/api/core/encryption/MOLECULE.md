@@ -208,6 +208,12 @@ function verify(data: string, hashed: string): Promise<boolean>
 
 **Returns:** `true` if the data matches the hash.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Encryption | `@molecule/api-encryption-aes` |
+
 ## Injection Notes
 
 ### Requirements

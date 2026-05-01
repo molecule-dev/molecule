@@ -301,6 +301,12 @@ function setProvider(provider: FeatureFlagProvider): void
 
 - `provider` — The feature flag provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Feature Flags | `@molecule/api-feature-flags-database` |
+
 ## Injection Notes
 
 ### Requirements

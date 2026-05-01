@@ -47,6 +47,9 @@ function createProvider(config?: PgvectorConfig): PgvectorProvider
 
 **Returns:** An `AIVectorStoreProvider` backed by PostgreSQL with pgvector.
 
+## Core Interface
+Implements `@molecule/api-ai-vector-store` interface.
+
 ## Injection Notes
 
 ### Requirements

@@ -1,18 +1,413 @@
 # @molecule/api-emails-inbound
 
-Inbound email core interface
+Provider-agnostic inbound-emails interface for molecule.dev.
+
+Defines the {@link InboundEmailProvider} interface for receiving and
+replying to email-to-ticket / email-to-reply traffic. Bond packages
+(Mailgun Routes, SES Inbound, etc.) implement this interface.
+Application code uses the convenience functions (`parseWebhookPayload`,
+`verifySignature`, `replyTo`, `supportsReply`) which delegate to the
+bonded provider.
+
+Webhook payloads vary wildly between providers; the contract here
+normalizes them to a single {@link InboundEmail} shape so handler code
+does not need to branch by provider.
+
+## Quick Start
+
+```typescript
+import {
+  setProvider,
+  parseWebhookPayload,
+  verifySignature,
+} from '@molecule/api-emails-inbound'
+import { provider as mailgunRoutes } from '@molecule/api-emails-inbound-mailgun-routes'
+
+setProvider(mailgunRoutes)
+
+// In an HTTP handler bound to the inbound webhook URL:
+const ok = await verifySignature(req.headers, req.rawBody)
+if (!ok) return res.status(401).end()
+
+const email = await parseWebhookPayload(req.headers, req.rawBody)
+await createTicketFromEmail(email)
+```
 
 ## Type
 `core`
 
+## Installation
+```bash
+npm install @molecule/api-emails-inbound
+```
+
+## API
+
+### Interfaces
+
+#### `InboundEmail`
+
+A normalized inbound email, produced by parsing a provider webhook
+payload through {@link InboundEmailProvider.parseWebhookPayload}.
+
+All providers (Mailgun Routes, SES Inbound, fixtures, etc.) return this
+same shape so handler code can treat inbound mail uniformly. Provider
+specifics (raw MIME, signing tokens, etc.) MUST NOT leak into this type.
+
+```typescript
+interface InboundEmail {
+  /**
+   * Stable provider-supplied identifier for the message. Used for
+   * deduplication when the same webhook is retried.
+   */
+  id: string
+
+  /**
+   * Sender address (RFC 5322 mailbox), e.g. `'alice@example.com'`.
+   */
+  from: string
+
+  /**
+   * Primary recipient addresses (the values from the `To:` header).
+   */
+  to: string[]
+
+  /**
+   * Carbon-copy recipient addresses, if present.
+   */
+  cc?: string[]
+
+  /**
+   * Subject line, decoded to a plain string. May be empty.
+   */
+  subject: string
+
+  /**
+   * Plain-text body of the message, if present.
+   */
+  textBody?: string
+
+  /**
+   * HTML body of the message, if present.
+   */
+  htmlBody?: string
+
+  /**
+   * Decoded attachments. An empty array when the message has none.
+   */
+  attachments?: InboundEmailAttachment[]
+
+  /**
+   * All headers from the raw message, lowercased keys to canonicalize the
+   * many capitalizations that mail servers use. Multi-value headers
+   * (`Received:`, etc.) are joined with newlines or returned as arrays at
+   * provider discretion — see provider docs.
+   */
+  headers: Record<string, string | string[]>
+
+  /**
+   * Server-side timestamp the inbound provider received the message.
+   */
+  receivedAt: Date
+
+  /**
+   * Optional `Message-ID` header value for threading. Surfaced separately
+   * from {@link headers} because helpdesk handlers almost always need it.
+   */
+  messageId?: string
+
+  /**
+   * Optional `In-Reply-To` header value for threading replies into an
+   * existing ticket.
+   */
+  inReplyTo?: string
+
+  /**
+   * Optional `References` header values for threading.
+   */
+  references?: string[]
+}
+```
+
+#### `InboundEmailAttachment`
+
+A binary attachment carried by an inbound email.
+
+Providers normalize whatever multipart/MIME representation they receive
+into this neutral shape. The body is base64-encoded so the type is
+JSON-serializable across IPC, queue, and webhook boundaries.
+
+```typescript
+interface InboundEmailAttachment {
+  /**
+   * The original filename as supplied by the sender, or a provider-derived
+   * fallback when the sender omitted one.
+   */
+  name: string
+
+  /**
+   * MIME type of the attachment (e.g. `'application/pdf'`, `'image/png'`).
+   * Defaults to `'application/octet-stream'` when the provider cannot
+   * determine the type.
+   */
+  contentType: string
+
+  /**
+   * Attachment payload, base64-encoded.
+   */
+  contentBase64: string
+
+  /**
+   * Optional size hint in bytes of the decoded payload. Providers MAY set
+   * this from upstream headers without decoding the payload themselves.
+   */
+  sizeBytes?: number
+
+  /**
+   * Optional Content-ID, used for inline images referenced from the HTML
+   * body via `cid:` URLs.
+   */
+  contentId?: string
+}
+```
+
+#### `InboundEmailProvider`
+
+Inbound-email provider interface.
+
+Implementations (Mailgun Routes, SES Inbound, etc.) live in separate
+bond packages (`@molecule/api-emails-inbound-mailgun-routes`,
+`@molecule/api-emails-inbound-ses`). The interface is deliberately
+minimal: a webhook arrives at the host application's HTTP layer, the
+raw headers and body are handed to the provider, and the provider
+returns a normalized {@link InboundEmail}.
+
+Signature verification is mandatory for any provider that runs against
+a public webhook endpoint; {@link verifySignature} is the hook for
+that. Providers without signed webhooks SHOULD return `false` rather
+than `true` so callers can decide whether to accept unsigned mail.
+
+```typescript
+interface InboundEmailProvider {
+  /**
+   * Parses the raw webhook payload (HTTP headers + body) into a
+   * normalized {@link InboundEmail}.
+   *
+   * @param headers - HTTP request headers received by the webhook
+   *   endpoint. Lowercased keys are recommended but not required;
+   *   implementations MUST handle either casing.
+   * @param body - Raw HTTP request body. May be a `Buffer` (e.g. from a
+   *   raw body parser), a `string`, or an already-parsed object provided
+   *   by an upstream JSON middleware.
+   * @returns The normalized inbound email.
+   */
+  parseWebhookPayload(
+    headers: Record<string, string | string[] | undefined>,
+    body: Buffer | string | Record<string, unknown>,
+  ): Promise<InboundEmail>
+
+  /**
+   * Verifies the signature of a webhook request, using whatever scheme
+   * the provider exposes (Mailgun HMAC, SES SNS subscription
+   * confirmation, etc.). Implementations MUST be constant-time when
+   * comparing secrets.
+   *
+   * @param headers - HTTP request headers received by the webhook
+   *   endpoint.
+   * @param body - Raw HTTP request body. Implementations that need the
+   *   exact bytes (e.g. for HMAC) MUST be passed a `Buffer`.
+   * @returns `true` when the signature is valid, `false` otherwise.
+   */
+  verifySignature(
+    headers: Record<string, string | string[] | undefined>,
+    body: Buffer | string,
+  ): Promise<boolean>
+
+  /**
+   * Optional: dispatches an outbound reply through the provider's own
+   * reply mechanism. Providers that do not support reply dispatch (e.g.
+   * pure inbound-only adapters) SHOULD omit this method; callers MUST
+   * use {@link InboundEmailProvider.supportsReply} to detect support.
+   *
+   * @param email - The original inbound email being replied to.
+   * @param reply - The reply payload.
+   * @returns Result of the dispatch.
+   */
+  replyTo?(email: InboundEmail, reply: InboundEmailReply): Promise<InboundEmailReplyResult>
+
+  /**
+   * Indicates whether the provider supports outbound reply dispatch via
+   * {@link replyTo}. Implementations SHOULD return a stable `true` /
+   * `false` based on their own configuration; the property is a function
+   * so providers can defer to runtime configuration if needed.
+   *
+   * @returns `true` when {@link replyTo} is implemented and ready to use.
+   */
+  supportsReply(): boolean
+}
+```
+
+#### `InboundEmailReply`
+
+Outgoing reply produced by handler code in response to an
+{@link InboundEmail}. Providers that support the optional
+{@link InboundEmailProvider.replyTo} method translate this into whatever
+outbound mechanism their upstream offers (Mailgun reply route, SES
+SendEmail, etc.).
+
+For providers that do NOT expose an outbound reply path, handler code
+SHOULD fall back to the regular `@molecule/api-emails` outbound bond.
+
+```typescript
+interface InboundEmailReply {
+  /**
+   * Subject line for the outbound reply. If omitted, providers SHOULD
+   * default to the original subject prefixed with `'Re: '` (locale-aware
+   * prefixing is the caller's responsibility).
+   */
+  subject?: string
+
+  /**
+   * Plain-text body of the reply, if any.
+   */
+  textBody?: string
+
+  /**
+   * HTML body of the reply, if any.
+   */
+  htmlBody?: string
+
+  /**
+   * Attachments to send with the reply.
+   */
+  attachments?: InboundEmailAttachment[]
+
+  /**
+   * Optional override for the `From:` address. Defaults to the address
+   * the original message was sent to (the inbound mailbox).
+   */
+  from?: string
+
+  /**
+   * Optional additional headers to set on the outbound message.
+   */
+  headers?: Record<string, string>
+}
+```
+
+#### `InboundEmailReplyResult`
+
+Result of a successful reply dispatch via
+{@link InboundEmailProvider.replyTo}.
+
+```typescript
+interface InboundEmailReplyResult {
+  /**
+   * Provider-supplied identifier for the dispatched outbound message.
+   */
+  id: string
+}
+```
+
+### Functions
+
+#### `getProvider()`
+
+Retrieves the bonded inbound-emails provider, throwing if none is
+configured.
+
+```typescript
+function getProvider(): InboundEmailProvider
+```
+
+**Returns:** The bonded inbound-emails provider.
+
+#### `hasProvider()`
+
+Checks whether an inbound-emails provider is currently bonded.
+
+```typescript
+function hasProvider(): boolean
+```
+
+**Returns:** `true` if an inbound-emails provider is bonded.
+
+#### `parseWebhookPayload(headers, body)`
+
+Parses the raw webhook payload (HTTP headers + body) into a normalized
+{@link InboundEmail} using the bonded provider.
+
+```typescript
+function parseWebhookPayload(headers: Record<string, string | string[] | undefined>, body: string | Buffer<ArrayBufferLike> | Record<string, unknown>): Promise<InboundEmail>
+```
+
+- `headers` — HTTP request headers received by the webhook endpoint.
+- `body` — Raw HTTP request body.
+
+**Returns:** The normalized inbound email.
+
+#### `replyTo(email, reply)`
+
+Dispatches an outbound reply through the bonded provider's reply
+mechanism.
+
+```typescript
+function replyTo(email: InboundEmail, reply: InboundEmailReply): Promise<InboundEmailReplyResult>
+```
+
+- `email` — The original inbound email being replied to.
+- `reply` — The reply payload.
+
+**Returns:** Result of the dispatch.
+
+#### `setProvider(provider)`
+
+Registers an inbound-emails provider as the active singleton. Called by
+bond packages (e.g. `@molecule/api-emails-inbound-mailgun-routes`)
+during application startup.
+
+```typescript
+function setProvider(provider: InboundEmailProvider): void
+```
+
+- `provider` — The inbound-emails provider implementation to bond.
+
+#### `supportsReply()`
+
+Indicates whether the bonded provider supports outbound reply dispatch
+via {@link replyTo}.
+
+```typescript
+function supportsReply(): boolean
+```
+
+**Returns:** `true` when the bonded provider exposes a `replyTo()` method
+ *   and reports `supportsReply() === true`.
+
+#### `verifySignature(headers, body)`
+
+Verifies the signature of a webhook request via the bonded provider.
+
+```typescript
+function verifySignature(headers: Record<string, string | string[] | undefined>, body: string | Buffer<ArrayBufferLike>): Promise<boolean>
+```
+
+- `headers` — HTTP request headers received by the webhook endpoint.
+- `body` — Raw HTTP request body.
+
+**Returns:** `true` when the signature is valid, `false` otherwise.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Mailgun | `@molecule/api-emails-inbound-mailgun` |
+| AWS SES Inbound | `@molecule/api-emails-inbound-ses` |
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/api-bond` ^1.0.0
+- `@molecule/api-i18n` ^1.0.0

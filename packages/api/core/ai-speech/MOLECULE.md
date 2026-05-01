@@ -392,3 +392,10 @@ function setProvider(provider: AISpeechProvider): void
 ```
 
 - `provider` — The speech provider to register.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Ai Speech | `@molecule/api-ai-speech-elevenlabs` |
+| Ai Speech | `@molecule/api-ai-speech-openai` |

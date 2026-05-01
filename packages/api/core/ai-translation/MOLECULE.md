@@ -184,3 +184,9 @@ function setProvider(provider: AITranslationProvider): void
 ```
 
 - `provider` — The AI translation provider implementation to register.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Ai Translation | `@molecule/api-ai-translation-deepl` |

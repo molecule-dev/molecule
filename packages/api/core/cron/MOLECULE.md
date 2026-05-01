@@ -276,6 +276,13 @@ function setProvider(provider: CronProvider): void
 
 - `provider` — The cron provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Cron | `@molecule/api-cron-bullmq` |
+| Cron | `@molecule/api-cron-node-cron` |
+
 ## Injection Notes
 
 ### Requirements

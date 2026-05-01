@@ -51,6 +51,9 @@ function createProvider(config?: OpenaiSpeechConfig): AISpeechProvider
 
 **Returns:** An `AISpeechProvider` backed by OpenAI TTS and Whisper APIs.
 
+## Core Interface
+Implements `@molecule/api-ai-speech` interface.
+
 ## Injection Notes
 
 ### Requirements

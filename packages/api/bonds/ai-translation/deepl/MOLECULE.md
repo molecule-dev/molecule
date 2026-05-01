@@ -49,6 +49,9 @@ function createProvider(config?: DeeplConfig): AITranslationProvider
 
 **Returns:** An `AITranslationProvider` backed by the DeepL REST API.
 
+## Core Interface
+Implements `@molecule/api-ai-translation` interface.
+
 ## Injection Notes
 
 ### Requirements

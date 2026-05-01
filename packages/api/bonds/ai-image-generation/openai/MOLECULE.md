@@ -47,6 +47,9 @@ function createProvider(config?: OpenaiImageGenerationConfig): AIImageGeneration
 
 **Returns:** An `AIImageGenerationProvider` backed by the OpenAI Images API.
 
+## Core Interface
+Implements `@molecule/api-ai-image-generation` interface.
+
 ## Injection Notes
 
 ### Requirements

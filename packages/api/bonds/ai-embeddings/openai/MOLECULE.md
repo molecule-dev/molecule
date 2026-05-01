@@ -57,6 +57,22 @@ The provider implementation.
 const provider: AIEmbeddingsProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-ai-embeddings` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-ai-embeddings'
+import { provider } from '@molecule/api-ai-embeddings-openai'
+
+export function setupAiEmbeddingsOpenai(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

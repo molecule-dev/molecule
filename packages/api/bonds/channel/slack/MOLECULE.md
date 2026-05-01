@@ -1,21 +1,221 @@
 # @molecule/api-channel-slack
 
-Slack channel bond — implements @molecule/api-channel for sendMessage, webhook signature verification, and inbound event parsing.
+Slack channel bond for molecule.dev.
+
+Implements the {@link ChannelProvider} interface from
+`@molecule/api-channel` on top of `@slack/web-api`. Used by apps that
+post into Slack channels (notifications, AI bot replies, helpdesk
+announcements) and consume inbound Slack events (message events,
+`app_mention`, slash commands) via signed webhooks.
+
+## Quick Start
+
+```typescript
+import { setProvider } from '@molecule/api-channel'
+import { createProvider } from '@molecule/api-channel-slack'
+
+setProvider(
+  'slack',
+  createProvider({
+    botToken: process.env.SLACK_BOT_TOKEN,
+    signingSecret: process.env.SLACK_SIGNING_SECRET,
+  }),
+)
+```
 
 ## Type
 `provider`
 
-## Implements
-`@molecule/api-channel`
+## Installation
+```bash
+npm install @molecule/api-channel-slack
+```
+
+## API
+
+### Interfaces
+
+#### `ProcessEnv`
+
+Environment variables consumed by the Slack channel provider.
+
+```typescript
+interface ProcessEnv {
+  /**
+   * Bot user OAuth token (xoxb-…). Required for outbound `sendMessage`.
+   */
+  SLACK_BOT_TOKEN: string
+
+  /**
+   * Slack app signing secret. Required for `verifyWebhookSignature`.
+   */
+  SLACK_SIGNING_SECRET: string
+}
+```
+
+#### `SlackBlock`
+
+Minimal shape of a Slack Block Kit block as used by this provider.
+Slack's full block schema is large; we only constrain the fields we
+emit (`section` and `actions`) and treat the rest as opaque pass-through.
+
+```typescript
+interface SlackBlock {
+  type: string
+  text?: { type: string; text: string }
+  elements?: Array<{
+    type: string
+    text?: { type: string; text: string }
+    value?: string
+    action_id?: string
+  }>
+}
+```
+
+#### `SlackChannelConfig`
+
+Configuration for the Slack channel provider.
+
+Tokens default to environment variables when not supplied so deployment
+pipelines that already inject `SLACK_BOT_TOKEN` / `SLACK_SIGNING_SECRET`
+keep working without extra wiring.
+
+```typescript
+interface SlackChannelConfig {
+  /**
+   * Bot user OAuth token used for `chat.postMessage` and other Web API
+   * calls. Defaults to `process.env.SLACK_BOT_TOKEN`.
+   */
+  botToken?: string
+
+  /**
+   * Slack app signing secret used to verify the HMAC of inbound webhook
+   * requests. Defaults to `process.env.SLACK_SIGNING_SECRET`.
+   */
+  signingSecret?: string
+
+  /**
+   * Maximum allowed clock skew (in seconds) between the request timestamp
+   * and the verifier when validating `x-slack-signature`. Defaults to 300
+   * seconds (5 minutes), matching Slack's documented replay window.
+   */
+  signatureToleranceSeconds?: number
+
+  /**
+   * Optional pre-built `WebClient`-shaped object. Tests inject a minimal
+   * mock here; production code should leave this unset and let the
+   * provider construct its own client from {@link botToken}.
+   */
+  webClient?: SlackWebClientLike
+}
+```
+
+#### `SlackChatPostMessageArgs`
+
+Subset of `chat.postMessage` arguments consumed by this provider.
+
+```typescript
+interface SlackChatPostMessageArgs {
+  channel: string
+  text?: string
+  blocks?: SlackBlock[]
+  thread_ts?: string
+  attachments?: SlackOutboundAttachment[]
+}
+```
+
+#### `SlackChatPostMessageResponse`
+
+Subset of `chat.postMessage` response fields consumed by this provider.
+
+```typescript
+interface SlackChatPostMessageResponse {
+  ok: boolean
+  ts?: string
+  channel?: string
+  error?: string
+}
+```
+
+#### `SlackOutboundAttachment`
+
+Slack-flavoured outbound attachment (legacy attachments API). Used as a
+pass-through for callers that already speak Slack's attachment shape.
+
+```typescript
+interface SlackOutboundAttachment {
+  fallback?: string
+  text?: string
+  title?: string
+  title_link?: string
+  image_url?: string
+  thumb_url?: string
+  color?: string
+}
+```
+
+#### `SlackWebClientLike`
+
+The narrow surface of `@slack/web-api`'s `WebClient` that this provider
+actually uses. Defining it explicitly keeps tests free of the full SDK
+type tree and documents the integration contract.
+
+```typescript
+interface SlackWebClientLike {
+  chat: {
+    postMessage(args: SlackChatPostMessageArgs): Promise<SlackChatPostMessageResponse>
+  }
+}
+```
+
+### Functions
+
+#### `createProvider(config)`
+
+Creates a Slack-backed {@link ChannelProvider}.
+
+Tokens are sourced from the supplied {@link SlackChannelConfig} or, as
+a fallback, the documented environment variables. Methods that require
+a particular secret throw a generic error if the secret is missing —
+the missing token name is surfaced, but never its value.
+
+```typescript
+function createProvider(config?: SlackChannelConfig): ChannelProvider
+```
+
+- `config` — Provider configuration. All fields are optional; env
+
+**Returns:** A `ChannelProvider` ready to be bonded under name `'slack'`.
+
+### Constants
+
+#### `provider`
+
+Default Slack channel provider — pre-bound to env vars at import time.
+
+Convenience export for apps that want to `bond('channel', 'slack',
+provider)` without explicit configuration. Configuration via env vars
+still applies.
+
+```typescript
+const provider: ChannelProvider
+```
+
+## Core Interface
+Implements `@molecule/api-channel` interface.
 
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
+Peer dependencies:
+- `@molecule/api-channel` ^1.0.0
 
-### Known Limitations
-- None yet
+### Environment Variables
+
+- `SLACK_BOT_TOKEN` *(required)*
+- `SLACK_SIGNING_SECRET` *(required)*
+
+Tokens are deliberately scrubbed from any error this provider raises;
+upstream stack traces that contain a token are still possible if a
+higher layer re-throws without going through this bond.

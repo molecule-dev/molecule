@@ -63,6 +63,22 @@ property access with default options.
 const provider: AuditProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-audit` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-audit'
+import { provider } from '@molecule/api-audit-database'
+
+export function setupAuditDatabase(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

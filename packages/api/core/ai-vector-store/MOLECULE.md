@@ -281,3 +281,11 @@ function setProvider(provider: AIVectorStoreProvider): void
 ```
 
 - `provider` — The vector store provider to register.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Ai Vector Store | `@molecule/api-ai-vector-store-chroma` |
+| Ai Vector Store | `@molecule/api-ai-vector-store-pgvector` |
+| Ai Vector Store | `@molecule/api-ai-vector-store-pinecone` |

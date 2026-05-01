@@ -38,9 +38,12 @@ Stub DeepSeek AI provider scaffold (TODO: implement API wiring).
 Creates a DeepSeek AI provider instance for bonding.
 
 ```typescript
-function createProvider(config: DeepseekConfig): DeepseekAIProvider
+function createProvider(config?: DeepseekConfig): DeepseekAIProvider
 ```
 
 - `config` — DeepSeek provider configuration.
 
 **Returns:** A DeepSeek-backed provider instance.
+
+## Core Interface
+Implements `@molecule/api-ai` interface.

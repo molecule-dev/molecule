@@ -73,6 +73,22 @@ on first property access with default options.
 const provider: FeatureFlagProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-feature-flags` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider, setFlag } from '@molecule/api-feature-flags'
+import { provider } from '@molecule/api-feature-flags-database'
+
+export function setupFeatureFlagsDatabase(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

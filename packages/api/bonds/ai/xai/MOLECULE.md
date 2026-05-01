@@ -68,19 +68,6 @@ const provider: AIProvider
 ## Core Interface
 Implements `@molecule/api-ai` interface.
 
-## Bond Wiring
-
-Setup function to register this provider with the core interface:
-
-```typescript
-import { setProvider } from '@molecule/api-ai'
-import { provider } from '@molecule/api-ai-xai'
-
-export function setupAiXai(): void {
-  setProvider(provider)
-}
-```
-
 ## Injection Notes
 
 ### Requirements

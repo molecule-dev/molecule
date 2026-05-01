@@ -64,6 +64,22 @@ The provider implementation.
 const provider: AIImageGenerationProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-ai-image-generation` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-ai-image-generation'
+import { provider } from '@molecule/api-ai-image-generation-stability'
+
+export function setupAiImageGenerationStability(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

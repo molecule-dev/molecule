@@ -408,6 +408,12 @@ function setProvider(provider: ComplianceProvider): void
 
 - `provider` — The compliance provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Compliance | `@molecule/api-compliance-gdpr` |
+
 ## Injection Notes
 
 ### Requirements

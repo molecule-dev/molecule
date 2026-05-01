@@ -247,6 +247,13 @@ function setProvider(provider: AuditProvider): void
 
 - `provider` — The audit provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Audit | `@molecule/api-audit-database` |
+| Audit | `@molecule/api-audit-file` |
+
 ## Injection Notes
 
 ### Requirements

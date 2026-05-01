@@ -79,6 +79,22 @@ environment variable (hex-encoded 256-bit key).
 const provider: EncryptionProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-encryption` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-encryption'
+import { provider } from '@molecule/api-encryption-aes'
+
+export function setupEncryptionAes(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

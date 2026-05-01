@@ -38,9 +38,12 @@ Stub OpenAI AI provider scaffold (TODO: implement API wiring).
 Creates an OpenAI AI provider instance for bonding.
 
 ```typescript
-function createProvider(config: OpenaiConfig): OpenaiAIProvider
+function createProvider(config?: OpenaiConfig): OpenaiAIProvider
 ```
 
 - `config` — OpenAI provider configuration.
 
 **Returns:** An OpenAI-backed provider instance.
+
+## Core Interface
+Implements `@molecule/api-ai` interface.

@@ -38,9 +38,12 @@ Stub local AI provider scaffold (TODO: implement API wiring).
 Creates a local AI provider instance for bonding.
 
 ```typescript
-function createProvider(config: LocalConfig): LocalAIProvider
+function createProvider(config?: LocalConfig): LocalAIProvider
 ```
 
 - `config` — Local provider configuration.
 
 **Returns:** A local-backed provider instance.
+
+## Core Interface
+Implements `@molecule/api-ai` interface.

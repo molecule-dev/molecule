@@ -292,3 +292,10 @@ function setProvider(provider: AIImageGenerationProvider): void
 ```
 
 - `provider` — The AI image generation provider implementation to register.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Ai Image Generation | `@molecule/api-ai-image-generation-openai` |
+| Ai Image Generation | `@molecule/api-ai-image-generation-stability` |

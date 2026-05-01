@@ -100,6 +100,22 @@ The provider implementation.
 const provider: AISpeechProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-ai-speech` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-ai-speech'
+import { provider } from '@molecule/api-ai-speech-elevenlabs'
+
+export function setupAiSpeechElevenlabs(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

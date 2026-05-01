@@ -38,9 +38,12 @@ Stub Google AI provider scaffold (TODO: implement API wiring).
 Creates a Google AI provider instance for bonding.
 
 ```typescript
-function createProvider(config: GoogleConfig): GoogleAIProvider
+function createProvider(config?: GoogleConfig): GoogleAIProvider
 ```
 
 - `config` — Google provider configuration.
 
 **Returns:** A Google-backed provider instance.
+
+## Core Interface
+Implements `@molecule/api-ai` interface.

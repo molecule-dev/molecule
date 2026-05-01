@@ -89,6 +89,9 @@ function createProvider(config: BullMQCronConfig): CronProvider
 
 **Returns:** A `CronProvider` backed by BullMQ repeatable jobs.
 
+## Core Interface
+Implements `@molecule/api-cron` interface.
+
 ## Injection Notes
 
 ### Requirements

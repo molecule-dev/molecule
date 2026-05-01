@@ -379,6 +379,14 @@ function setProvider(provider: GeolocationProvider): void
 
 - `provider` — The geolocation provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Geolocation | `@molecule/api-geolocation-google` |
+| Geolocation | `@molecule/api-geolocation-mapbox` |
+| Geolocation | `@molecule/api-geolocation-nominatim` |
+
 ## Injection Notes
 
 ### Requirements

@@ -52,6 +52,9 @@ function createProvider(config?: PineconeConfig): AIVectorStoreProvider
 
 **Returns:** An `AIVectorStoreProvider` backed by Pinecone.
 
+## Core Interface
+Implements `@molecule/api-ai-vector-store` interface.
+
 ## Injection Notes
 
 ### Requirements

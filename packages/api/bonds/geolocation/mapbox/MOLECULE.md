@@ -74,6 +74,22 @@ The provider implementation, lazily initialized with access token from `MAPBOX_A
 const provider: GeolocationProvider
 ```
 
+## Core Interface
+Implements `@molecule/api-geolocation` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-geolocation'
+import { provider } from '@molecule/api-geolocation-mapbox'
+
+export function setupGeolocationMapbox(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements
