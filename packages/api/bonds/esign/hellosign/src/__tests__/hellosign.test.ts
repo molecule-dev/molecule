@@ -89,9 +89,7 @@ describe('HelloSign provider', () => {
 
   describe('createSignatureRequest', () => {
     it('uploads a Buffer document via multipart FormData', async () => {
-      fetchMock.mockResolvedValue(
-        mockResponse({ signature_request: helloSignSignatureRequest() }),
-      )
+      fetchMock.mockResolvedValue(mockResponse({ signature_request: helloSignSignatureRequest() }))
 
       const { createSignatureRequest } = await import('../provider.js')
 
@@ -135,9 +133,7 @@ describe('HelloSign provider', () => {
     })
 
     it('uses JSON body with file_url for url documents', async () => {
-      fetchMock.mockResolvedValue(
-        mockResponse({ signature_request: helloSignSignatureRequest() }),
-      )
+      fetchMock.mockResolvedValue(mockResponse({ signature_request: helloSignSignatureRequest() }))
 
       const { createSignatureRequest } = await import('../provider.js')
 
@@ -157,9 +153,7 @@ describe('HelloSign provider', () => {
     })
 
     it('uses send_with_template + custom_fields for template documents', async () => {
-      fetchMock.mockResolvedValue(
-        mockResponse({ signature_request: helloSignSignatureRequest() }),
-      )
+      fetchMock.mockResolvedValue(mockResponse({ signature_request: helloSignSignatureRequest() }))
 
       const { createSignatureRequest } = await import('../provider.js')
 
@@ -215,7 +209,9 @@ describe('HelloSign provider', () => {
 
     it('never echoes the API key inside an error message', async () => {
       // Simulate an underlying error whose message would otherwise leak the key.
-      fetchMock.mockRejectedValue(new Error(`Bad request to https://api.hellosign.com (key=${TEST_KEY})`))
+      fetchMock.mockRejectedValue(
+        new Error(`Bad request to https://api.hellosign.com (key=${TEST_KEY})`),
+      )
 
       const { createSignatureRequest } = await import('../provider.js')
 
@@ -229,9 +225,7 @@ describe('HelloSign provider', () => {
     })
 
     it('uses HTTP Basic auth with HELLOSIGN_API_KEY:', async () => {
-      fetchMock.mockResolvedValue(
-        mockResponse({ signature_request: helloSignSignatureRequest() }),
-      )
+      fetchMock.mockResolvedValue(mockResponse({ signature_request: helloSignSignatureRequest() }))
 
       const { createSignatureRequest } = await import('../provider.js')
       await createSignatureRequest({
@@ -240,10 +234,7 @@ describe('HelloSign provider', () => {
         document: { url: 'https://example.com/x.pdf' },
       })
 
-      const headers = (fetchMock.mock.calls[0][1] as RequestInit).headers as Record<
-        string,
-        string
-      >
+      const headers = (fetchMock.mock.calls[0][1] as RequestInit).headers as Record<string, string>
       const expected = `Basic ${Buffer.from(`${TEST_KEY}:`).toString('base64')}`
       expect(headers.Authorization).toBe(expected)
     })
@@ -309,9 +300,7 @@ describe('HelloSign provider', () => {
 
   describe('getSignatureRequest', () => {
     it('GETs /signature_request/:id and normalizes', async () => {
-      fetchMock.mockResolvedValue(
-        mockResponse({ signature_request: helloSignSignatureRequest() }),
-      )
+      fetchMock.mockResolvedValue(mockResponse({ signature_request: helloSignSignatureRequest() }))
 
       const { getSignatureRequest } = await import('../provider.js')
       const r = await getSignatureRequest('sig_abc123')
@@ -328,7 +317,9 @@ describe('HelloSign provider', () => {
 
     it('encodes the signature request id in the URL', async () => {
       fetchMock.mockResolvedValue(
-        mockResponse({ signature_request: helloSignSignatureRequest({ signature_request_id: 'a/b c' }) }),
+        mockResponse({
+          signature_request: helloSignSignatureRequest({ signature_request_id: 'a/b c' }),
+        }),
       )
 
       const { getSignatureRequest } = await import('../provider.js')
@@ -398,7 +389,9 @@ describe('HelloSign provider', () => {
 
   describe('processWebhook', () => {
     const buildEventHash = (eventTime: string, eventType: string) =>
-      createHmac('sha256', TEST_KEY).update(eventTime + eventType).digest('hex')
+      createHmac('sha256', TEST_KEY)
+        .update(eventTime + eventType)
+        .digest('hex')
 
     const validBody = (overrides: Record<string, unknown> = {}) => {
       const eventTime = '1714560000'
@@ -494,9 +487,7 @@ describe('HelloSign provider', () => {
     it('throws sanitized error and never echoes API key', async () => {
       delete process.env.HELLOSIGN_API_KEY
       const { processWebhook } = await import('../provider.js')
-      await expect(processWebhook({}, validBody())).rejects.toThrow(
-        'HELLOSIGN_API_KEY is not set',
-      )
+      await expect(processWebhook({}, validBody())).rejects.toThrow('HELLOSIGN_API_KEY is not set')
     })
 
     it('returns empty signerEmail when signature_request has no signatures', async () => {
@@ -531,15 +522,10 @@ describe('HelloSign provider', () => {
     })
 
     it('all five methods route through fetch with auth headers', async () => {
-      fetchMock.mockResolvedValue(
-        mockResponse({ signature_request: helloSignSignatureRequest() }),
-      )
+      fetchMock.mockResolvedValue(mockResponse({ signature_request: helloSignSignatureRequest() }))
       const { provider } = await import('../provider.js')
       await provider.getSignatureRequest('sig_abc123')
-      const headers = (fetchMock.mock.calls[0][1] as RequestInit).headers as Record<
-        string,
-        string
-      >
+      const headers = (fetchMock.mock.calls[0][1] as RequestInit).headers as Record<string, string>
       expect(headers.Authorization).toMatch(/^Basic /)
     })
   })

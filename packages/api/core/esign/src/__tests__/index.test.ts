@@ -82,9 +82,7 @@ describe('SignatureRequest types', () => {
     const req: SignatureRequest = {
       id: 'sig_1',
       status: 'awaiting_signatures',
-      signers: [
-        { name: 'a', email: 'a@b', status: 'pending' },
-      ],
+      signers: [{ name: 'a', email: 'a@b', status: 'pending' }],
     }
     expect(req.id).toBe('sig_1')
     expect(req.signers[0].status).toBe('pending')
@@ -94,9 +92,7 @@ describe('SignatureRequest types', () => {
     const req: SignatureRequest = {
       id: 'sig_1',
       status: 'signed',
-      signers: [
-        { name: 'a', email: 'a@b', status: 'signed', signedAt: '2026-05-01T00:00:00Z' },
-      ],
+      signers: [{ name: 'a', email: 'a@b', status: 'signed', signedAt: '2026-05-01T00:00:00Z' }],
       signedAt: '2026-05-01T00:00:00Z',
     }
     expect(req.signedAt).toBeDefined()

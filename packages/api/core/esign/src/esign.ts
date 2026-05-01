@@ -5,11 +5,7 @@
  */
 
 import { getProvider } from './provider.js'
-import type {
-  CreateSignatureRequestInput,
-  EsignWebhookEvent,
-  SignatureRequest,
-} from './types.js'
+import type { CreateSignatureRequestInput, EsignWebhookEvent, SignatureRequest } from './types.js'
 
 /**
  * Creates a new signature request via the bonded provider.

@@ -119,9 +119,7 @@ const mapSignerStatus = (code: string | undefined): SignerStatus => {
  * @param raw - The raw HelloSign signature request payload.
  * @returns The aggregate signature request status.
  */
-const mapAggregateStatus = (
-  raw: HelloSignSignatureRequestRaw,
-): SignatureRequestStatus => {
+const mapAggregateStatus = (raw: HelloSignSignatureRequestRaw): SignatureRequestStatus => {
   if (raw.is_declined) return 'declined'
   if (raw.is_complete) return 'signed'
   if (raw.has_error) return 'cancelled'
@@ -193,7 +191,6 @@ const buildSendFormData = (
     form.append(`signers[${idx}][email_address]`, signer.email)
     if (signer.role) form.append(`signers[${idx}][role]`, signer.role)
   })
-
   ;(input.ccs || []).forEach((cc, idx) => {
     form.append(`cc_email_addresses[${idx}]`, cc)
   })
@@ -326,7 +323,11 @@ const classifyDocument = (
 ):
   | { kind: 'buffer'; content: Buffer }
   | { kind: 'url'; url: string; filename: string }
-  | { kind: 'template'; templateId: string; prefill?: Record<string, string | number | boolean> } => {
+  | {
+      kind: 'template'
+      templateId: string
+      prefill?: Record<string, string | number | boolean>
+    } => {
   if (Buffer.isBuffer(doc)) return { kind: 'buffer', content: doc }
   if ('templateId' in doc) {
     return { kind: 'template', templateId: doc.templateId, prefill: doc.prefill }
@@ -376,7 +377,9 @@ const verifyEventHash = (
   eventType: string,
   providedHash: string,
 ): boolean => {
-  const expected = createHmac('sha256', apiKey).update(eventTime + eventType).digest('hex')
+  const expected = createHmac('sha256', apiKey)
+    .update(eventTime + eventType)
+    .digest('hex')
   if (expected.length !== providedHash.length) return false
   try {
     return timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(providedHash, 'hex'))
@@ -411,10 +414,9 @@ export const createSignatureRequest = async (
         break
       }
       case 'url': {
-        raw = (await postJson(
-          '/signature_request/send',
-          buildSendUrlJson(input, doc.url),
-        )) as { signature_request: HelloSignSignatureRequestRaw }
+        raw = (await postJson('/signature_request/send', buildSendUrlJson(input, doc.url))) as {
+          signature_request: HelloSignSignatureRequestRaw
+        }
         break
       }
       case 'template': {
@@ -462,13 +464,10 @@ export const getSignatureRequest = async (id: string): Promise<SignatureRequest>
  */
 export const cancelSignatureRequest = async (id: string): Promise<void> => {
   try {
-    const res = await fetch(
-      `${API_BASE}/signature_request/cancel/${encodeURIComponent(id)}`,
-      {
-        method: 'POST',
-        headers: { Authorization: authHeader() },
-      },
-    )
+    const res = await fetch(`${API_BASE}/signature_request/cancel/${encodeURIComponent(id)}`, {
+      method: 'POST',
+      headers: { Authorization: authHeader() },
+    })
     if (!res.ok) {
       const text = await res.text().catch(() => '')
       throw new Error(`HelloSign cancel failed: ${res.status} ${text}`)

@@ -169,9 +169,7 @@ describe('esign convenience helpers', () => {
   })
 
   it('cancelSignatureRequest throws when provider not bonded', async () => {
-    await expect(cancelSignatureRequest('x')).rejects.toThrow(
-      'E-signature provider not configured',
-    )
+    await expect(cancelSignatureRequest('x')).rejects.toThrow('E-signature provider not configured')
   })
 
   it('getSignedDocument throws when provider not bonded', async () => {
