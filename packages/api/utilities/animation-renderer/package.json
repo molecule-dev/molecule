@@ -1,0 +1,33 @@
+{
+  "name": "@molecule/api-animation-renderer",
+  "version": "1.0.0",
+  "description": "Server-side animation rendering — render an animation document to Lottie JSON or MP4/GIF (frame-by-frame via canvas-render + ffmpeg). Queue-driven.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "animation",
+    "renderer"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
