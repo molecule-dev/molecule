@@ -1,0 +1,54 @@
+{
+  "name": "@molecule/api-calendar-google",
+  "version": "1.0.0",
+  "description": "Google Calendar bond for molecule.dev — read busy-blocks + write booking events via Google Calendar v3 REST API",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "calendar",
+    "google",
+    "google-calendar",
+    "oauth",
+    "scheduling"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-calendar": "^1.0.0",
+    "@molecule/api-http": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-calendar": "1.0.0",
+    "@molecule/api-http": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/calendar/google"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/calendar/google",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
