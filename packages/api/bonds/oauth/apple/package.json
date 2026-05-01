@@ -1,0 +1,57 @@
+{
+  "name": "@molecule/api-oauth-apple",
+  "version": "1.0.0",
+  "description": "Sign in with Apple OAuth provider for molecule.dev.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "oauth",
+    "apple",
+    "sign-in-with-apple",
+    "authentication"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "jsonwebtoken": "9.0.3"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-http": "1.0.0",
+    "@molecule/api-oauth": "1.0.0",
+    "@types/jsonwebtoken": "9.0.10",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-http": "^1.0.0",
+    "@molecule/api-oauth": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/oauth/apple"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/oauth/apple",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

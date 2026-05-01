@@ -1,0 +1,479 @@
+/**
+ * Tests for the Apple OAuth (Sign in with Apple) provider.
+ *
+ * Uses real keypairs generated at test time:
+ * - ES256 (P-256) for the client-secret JWT signed by the bond.
+ * - RS256 for the simulated Apple-issued ID token; the public key is
+ *   exported as a JWK and served via the mocked JWKS endpoint.
+ *
+ * @module
+ */
+
+import { generateKeyPairSync } from 'node:crypto'
+
+import jwt from 'jsonwebtoken'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+const mockGet = vi.fn()
+const mockPost = vi.fn()
+
+vi.mock('@molecule/api-http', () => ({
+  get: mockGet,
+  post: mockPost,
+}))
+
+vi.mock('@molecule/api-bond', () => ({
+  getLogger: () => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  }),
+}))
+
+vi.mock('@molecule/api-oauth', () => ({}))
+
+const TEAM_ID = 'TEAM123456'
+const CLIENT_ID = 'com.example.app'
+const KEY_ID = 'KEY1234567'
+const APPLE_KID = 'AIDOPK1'
+
+const ec = generateKeyPairSync('ec', { namedCurve: 'P-256' })
+const ES256_PRIVATE_PEM = ec.privateKey.export({ format: 'pem', type: 'pkcs8' }) as string
+
+const rsa = generateKeyPairSync('rsa', { modulusLength: 2048 })
+const RSA_PRIVATE_PEM = rsa.privateKey.export({ format: 'pem', type: 'pkcs8' }) as string
+const RSA_PUBLIC_JWK = rsa.publicKey.export({ format: 'jwk' }) as Record<string, string>
+
+const setEnv = () => {
+  process.env.OAUTH_APPLE_CLIENT_ID = CLIENT_ID
+  process.env.OAUTH_APPLE_TEAM_ID = TEAM_ID
+  process.env.OAUTH_APPLE_KEY_ID = KEY_ID
+  process.env.OAUTH_APPLE_PRIVATE_KEY = ES256_PRIVATE_PEM
+  process.env.APP_ORIGIN = 'http://localhost:3000'
+}
+
+const signAppleIdToken = (overrides: Record<string, unknown> = {}, sub = '001234.apple.user') =>
+  jwt.sign(
+    {
+      iss: 'https://appleid.apple.com',
+      aud: CLIENT_ID,
+      sub,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 600,
+      email: 'tester@privaterelay.appleid.com',
+      email_verified: 'true',
+      ...overrides,
+    },
+    RSA_PRIVATE_PEM,
+    { algorithm: 'RS256', keyid: APPLE_KID },
+  )
+
+const mockJwksOk = () => {
+  mockGet.mockResolvedValue({
+    data: {
+      keys: [{ ...RSA_PUBLIC_JWK, kid: APPLE_KID, alg: 'RS256', use: 'sig' }],
+    },
+  })
+}
+
+describe('Apple OAuth Provider', () => {
+  const originalEnv = process.env
+
+  beforeEach(async () => {
+    vi.clearAllMocks()
+    process.env = { ...originalEnv }
+    setEnv()
+    vi.resetModules()
+    const { resetJwksCache } = await import('../jwks.js')
+    resetJwksCache()
+  })
+
+  afterEach(() => {
+    process.env = originalEnv
+  })
+
+  describe('serverName', () => {
+    it('is "apple"', async () => {
+      const { serverName } = await import('../verify.js')
+      expect(serverName).toBe('apple')
+    })
+  })
+
+  describe('getAuthorizationUrl', () => {
+    it('builds the Apple authorize URL with form_post when name/email scopes are requested', async () => {
+      const { getAuthorizationUrl } = await import('../authorize.js')
+      const url = getAuthorizationUrl({
+        state: 'xyz',
+        redirectUri: 'https://app.example.com/auth/apple/callback',
+      })
+      const parsed = new URL(url)
+
+      expect(parsed.origin + parsed.pathname).toBe('https://appleid.apple.com/auth/authorize')
+      expect(parsed.searchParams.get('client_id')).toBe(CLIENT_ID)
+      expect(parsed.searchParams.get('redirect_uri')).toBe(
+        'https://app.example.com/auth/apple/callback',
+      )
+      expect(parsed.searchParams.get('response_type')).toBe('code id_token')
+      expect(parsed.searchParams.get('response_mode')).toBe('form_post')
+      expect(parsed.searchParams.get('scope')).toBe('name email')
+      expect(parsed.searchParams.get('state')).toBe('xyz')
+    })
+
+    it('defaults to query mode when scope omits name/email', async () => {
+      const { getAuthorizationUrl } = await import('../authorize.js')
+      const url = getAuthorizationUrl({
+        state: 's',
+        redirectUri: 'https://app.example.com/cb',
+        scope: 'openid',
+      })
+      expect(new URL(url).searchParams.get('response_mode')).toBe('query')
+    })
+
+    it('respects an explicit responseMode and includes nonce', async () => {
+      const { getAuthorizationUrl } = await import('../authorize.js')
+      const url = getAuthorizationUrl({
+        state: 's',
+        redirectUri: 'https://app.example.com/cb',
+        responseMode: 'fragment',
+        nonce: 'n-0S6_WzA2Mj',
+      })
+      const params = new URL(url).searchParams
+      expect(params.get('response_mode')).toBe('fragment')
+      expect(params.get('nonce')).toBe('n-0S6_WzA2Mj')
+    })
+
+    it('throws when state or redirectUri is missing', async () => {
+      const { getAuthorizationUrl } = await import('../authorize.js')
+      expect(() => getAuthorizationUrl({ state: '', redirectUri: 'https://x' })).toThrowError(
+        /state/,
+      )
+      expect(() => getAuthorizationUrl({ state: 's', redirectUri: '' })).toThrowError(/redirectUri/)
+    })
+
+    it('throws when OAUTH_APPLE_CLIENT_ID is not configured', async () => {
+      delete process.env.OAUTH_APPLE_CLIENT_ID
+      const { getAuthorizationUrl } = await import('../authorize.js')
+      expect(() => getAuthorizationUrl({ state: 's', redirectUri: 'https://x' })).toThrowError(
+        /OAUTH_APPLE_CLIENT_ID/,
+      )
+    })
+  })
+
+  describe('createAppleClientSecret', () => {
+    it('produces an ES256 JWT with the required Apple claims and kid header', async () => {
+      const { createAppleClientSecret } = await import('../client-secret.js')
+      const token = createAppleClientSecret({
+        teamId: TEAM_ID,
+        clientId: CLIENT_ID,
+        keyId: KEY_ID,
+        privateKey: ES256_PRIVATE_PEM,
+      })
+
+      const decoded = jwt.decode(token, { complete: true })
+      expect(decoded).toBeTruthy()
+      if (!decoded || typeof decoded === 'string') throw new Error('decode failed')
+      expect(decoded.header.alg).toBe('ES256')
+      expect(decoded.header.kid).toBe(KEY_ID)
+      const payload = decoded.payload as Record<string, unknown>
+      expect(payload.iss).toBe(TEAM_ID)
+      expect(payload.sub).toBe(CLIENT_ID)
+      expect(payload.aud).toBe('https://appleid.apple.com')
+      expect(payload.exp).toBeGreaterThan(payload.iat as number)
+    })
+
+    it('tolerates `\\n`-encoded newlines in the private key env value', async () => {
+      const { createAppleClientSecret } = await import('../client-secret.js')
+      const escaped = ES256_PRIVATE_PEM.replace(/\n/g, '\\n')
+      const token = createAppleClientSecret({
+        teamId: TEAM_ID,
+        clientId: CLIENT_ID,
+        keyId: KEY_ID,
+        privateKey: escaped,
+      })
+      expect(typeof token).toBe('string')
+      expect(token.split('.').length).toBe(3)
+    })
+
+    it('rejects missing inputs', async () => {
+      const { createAppleClientSecret } = await import('../client-secret.js')
+      expect(() =>
+        createAppleClientSecret({
+          teamId: '',
+          clientId: CLIENT_ID,
+          keyId: KEY_ID,
+          privateKey: ES256_PRIVATE_PEM,
+        }),
+      ).toThrow()
+    })
+
+    it('rejects out-of-range lifetimes', async () => {
+      const { createAppleClientSecret } = await import('../client-secret.js')
+      expect(() =>
+        createAppleClientSecret({
+          teamId: TEAM_ID,
+          clientId: CLIENT_ID,
+          keyId: KEY_ID,
+          privateKey: ES256_PRIVATE_PEM,
+          lifetimeSeconds: 0,
+        }),
+      ).toThrow()
+      expect(() =>
+        createAppleClientSecret({
+          teamId: TEAM_ID,
+          clientId: CLIENT_ID,
+          keyId: KEY_ID,
+          privateKey: ES256_PRIVATE_PEM,
+          lifetimeSeconds: 99999999,
+        }),
+      ).toThrow()
+    })
+
+    it('does not include the private key in error messages', async () => {
+      const { createAppleClientSecret } = await import('../client-secret.js')
+      try {
+        createAppleClientSecret({
+          teamId: TEAM_ID,
+          clientId: CLIENT_ID,
+          keyId: KEY_ID,
+          privateKey: 'not-a-real-pem',
+        })
+        throw new Error('should have thrown')
+      } catch (err) {
+        const message = (err as Error).message
+        expect(message).not.toContain('not-a-real-pem')
+      }
+    })
+  })
+
+  describe('exchangeCodeForTokens', () => {
+    it('POSTs to /auth/token with an ES256 client_secret JWT', async () => {
+      mockPost.mockResolvedValue({
+        data: {
+          access_token: 'at',
+          expires_in: 3600,
+          id_token: 'it',
+          refresh_token: 'rt',
+          token_type: 'Bearer',
+        },
+      })
+
+      const { exchangeCodeForTokens } = await import('../tokens.js')
+      const result = await exchangeCodeForTokens('the-code', 'https://app.example.com/cb')
+
+      expect(result.access_token).toBe('at')
+      expect(result.refresh_token).toBe('rt')
+      expect(mockPost).toHaveBeenCalledTimes(1)
+
+      const [url, body, options] = mockPost.mock.calls[0]
+      expect(url).toBe('https://appleid.apple.com/auth/token')
+      expect((options as { headers: Record<string, string> }).headers['content-type']).toBe(
+        'application/x-www-form-urlencoded',
+      )
+
+      const params = new URLSearchParams(body as string)
+      expect(params.get('grant_type')).toBe('authorization_code')
+      expect(params.get('code')).toBe('the-code')
+      expect(params.get('client_id')).toBe(CLIENT_ID)
+      expect(params.get('redirect_uri')).toBe('https://app.example.com/cb')
+
+      const clientSecret = params.get('client_secret')
+      expect(clientSecret).toBeTruthy()
+      const decoded = jwt.decode(clientSecret as string, { complete: true })
+      if (!decoded || typeof decoded === 'string') throw new Error('decode failed')
+      expect(decoded.header.alg).toBe('ES256')
+      expect(decoded.header.kid).toBe(KEY_ID)
+      expect((decoded.payload as Record<string, unknown>).iss).toBe(TEAM_ID)
+      expect((decoded.payload as Record<string, unknown>).sub).toBe(CLIENT_ID)
+    })
+
+    it('falls back to APP_ORIGIN when redirectUri is omitted', async () => {
+      mockPost.mockResolvedValue({
+        data: {
+          access_token: 'at',
+          expires_in: 3600,
+          id_token: 'it',
+          token_type: 'Bearer',
+        },
+      })
+      const { exchangeCodeForTokens } = await import('../tokens.js')
+      await exchangeCodeForTokens('code')
+      const params = new URLSearchParams(mockPost.mock.calls[0][1] as string)
+      expect(params.get('redirect_uri')).toBe('http://localhost:3000')
+    })
+
+    it('throws when required env vars are missing', async () => {
+      delete process.env.OAUTH_APPLE_TEAM_ID
+      const { exchangeCodeForTokens } = await import('../tokens.js')
+      await expect(exchangeCodeForTokens('code', 'https://x')).rejects.toThrow(
+        /OAUTH_APPLE_TEAM_ID/,
+      )
+    })
+  })
+
+  describe('refreshAccessToken', () => {
+    it('POSTs to /auth/token with grant_type=refresh_token', async () => {
+      mockPost.mockResolvedValue({
+        data: { access_token: 'new-at', expires_in: 3600, id_token: 'it', token_type: 'Bearer' },
+      })
+
+      const { refreshAccessToken } = await import('../tokens.js')
+      const result = await refreshAccessToken('old-rt')
+
+      expect(result.access_token).toBe('new-at')
+      const params = new URLSearchParams(mockPost.mock.calls[0][1] as string)
+      expect(params.get('grant_type')).toBe('refresh_token')
+      expect(params.get('refresh_token')).toBe('old-rt')
+      expect(params.get('client_id')).toBe(CLIENT_ID)
+      expect(params.get('client_secret')).toBeTruthy()
+    })
+  })
+
+  describe('verifyIdToken', () => {
+    it('verifies a valid Apple ID token using JWKS lookup', async () => {
+      mockJwksOk()
+      const idToken = signAppleIdToken()
+      const { verifyIdToken } = await import('../verify-id-token.js')
+
+      const claims = await verifyIdToken(idToken)
+      expect(claims.iss).toBe('https://appleid.apple.com')
+      expect(claims.aud).toBe(CLIENT_ID)
+      expect(claims.sub).toBe('001234.apple.user')
+      expect(claims.email).toBe('tester@privaterelay.appleid.com')
+      expect(mockGet).toHaveBeenCalledWith('https://appleid.apple.com/auth/keys', expect.anything())
+    })
+
+    it('caches JWKS results across calls within the TTL', async () => {
+      mockJwksOk()
+      const { verifyIdToken } = await import('../verify-id-token.js')
+      await verifyIdToken(signAppleIdToken())
+      await verifyIdToken(signAppleIdToken())
+      expect(mockGet).toHaveBeenCalledTimes(1)
+    })
+
+    it('rejects tokens with the wrong issuer', async () => {
+      mockJwksOk()
+      const idToken = signAppleIdToken({ iss: 'https://evil.example.com' })
+      const { verifyIdToken } = await import('../verify-id-token.js')
+      await expect(verifyIdToken(idToken)).rejects.toThrow()
+    })
+
+    it('rejects tokens with the wrong audience', async () => {
+      mockJwksOk()
+      const idToken = signAppleIdToken({ aud: 'someone.else' })
+      const { verifyIdToken } = await import('../verify-id-token.js')
+      await expect(verifyIdToken(idToken)).rejects.toThrow()
+    })
+
+    it('rejects expired tokens', async () => {
+      mockJwksOk()
+      const past = Math.floor(Date.now() / 1000) - 3600
+      const idToken = signAppleIdToken({ iat: past - 600, exp: past })
+      const { verifyIdToken } = await import('../verify-id-token.js')
+      await expect(verifyIdToken(idToken)).rejects.toThrow()
+    })
+
+    it('rejects tokens whose kid is not in the JWKS', async () => {
+      mockJwksOk()
+      const idToken = jwt.sign(
+        {
+          iss: 'https://appleid.apple.com',
+          aud: CLIENT_ID,
+          sub: '001234.apple.user',
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + 600,
+        },
+        RSA_PRIVATE_PEM,
+        { algorithm: 'RS256', keyid: 'NotInJwks' },
+      )
+      const { verifyIdToken } = await import('../verify-id-token.js')
+      await expect(verifyIdToken(idToken)).rejects.toThrow(/JWKS/)
+    })
+
+    it('rejects empty / unparseable input', async () => {
+      const { verifyIdToken } = await import('../verify-id-token.js')
+      await expect(verifyIdToken('')).rejects.toThrow()
+      await expect(verifyIdToken('not.a.jwt.really')).rejects.toThrow()
+    })
+  })
+
+  describe('verify (OAuthVerifier contract)', () => {
+    it('exchanges code for tokens, verifies the id_token, and returns normalized props', async () => {
+      mockJwksOk()
+      const idToken = signAppleIdToken()
+      mockPost.mockResolvedValue({
+        data: {
+          access_token: 'at',
+          expires_in: 3600,
+          id_token: idToken,
+          refresh_token: 'rt',
+          token_type: 'Bearer',
+        },
+      })
+
+      const { verify } = await import('../verify.js')
+      const result = await verify('the-code', undefined, 'https://app.example.com/cb')
+
+      expect(result.username).toBe('tester@privaterelay.appleid.com@apple')
+      expect(result.email).toBe('tester@privaterelay.appleid.com')
+      expect(result.oauthServer).toBe('apple')
+      expect(result.oauthId).toBe('001234.apple.user')
+      expect(result.oauthData.access_token).toBe('at')
+      expect(result.oauthData.refresh_token).toBe('rt')
+    })
+
+    it('falls back to oauthId in username when email is omitted', async () => {
+      mockJwksOk()
+      const idToken = signAppleIdToken({ email: undefined })
+      mockPost.mockResolvedValue({
+        data: { access_token: 'at', expires_in: 3600, id_token: idToken, token_type: 'Bearer' },
+      })
+
+      const { verify } = await import('../verify.js')
+      const result = await verify('the-code')
+      expect(result.email).toBeUndefined()
+      expect(result.username).toBe('001234.apple.user@apple')
+    })
+
+    it('propagates token-exchange failures', async () => {
+      mockPost.mockRejectedValue(new Error('invalid_grant'))
+      const { verify } = await import('../verify.js')
+      await expect(verify('bad-code')).rejects.toThrow('invalid_grant')
+    })
+
+    it('propagates id-token verification failures', async () => {
+      mockJwksOk()
+      const idToken = signAppleIdToken({ aud: 'wrong.audience' })
+      mockPost.mockResolvedValue({
+        data: { access_token: 'at', expires_in: 3600, id_token: idToken, token_type: 'Bearer' },
+      })
+      const { verify } = await import('../verify.js')
+      await expect(verify('the-code')).rejects.toThrow()
+    })
+  })
+
+  describe('getUserInfo', () => {
+    it('returns the verified ID token claims', async () => {
+      mockJwksOk()
+      const idToken = signAppleIdToken({ email: 'a@b.c' })
+      const { getUserInfo } = await import('../verify.js')
+      const claims = await getUserInfo(idToken)
+      expect(claims.email).toBe('a@b.c')
+      expect(claims.sub).toBe('001234.apple.user')
+    })
+  })
+
+  describe('index exports', () => {
+    it('exports the public surface', async () => {
+      const exports = await import('../index.js')
+      expect(exports.serverName).toBeDefined()
+      expect(exports.verify).toBeDefined()
+      expect(exports.getAuthorizationUrl).toBeDefined()
+      expect(exports.exchangeCodeForTokens).toBeDefined()
+      expect(exports.refreshAccessToken).toBeDefined()
+      expect(exports.verifyIdToken).toBeDefined()
+      expect(exports.getUserInfo).toBeDefined()
+      expect(exports.createAppleClientSecret).toBeDefined()
+    })
+  })
+})
