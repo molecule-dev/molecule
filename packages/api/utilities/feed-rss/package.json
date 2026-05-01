@@ -1,0 +1,39 @@
+{
+  "name": "@molecule/api-feed-rss",
+  "version": "1.0.0",
+  "description": "RSS/Atom/JSON Feed producer — pure-function serializers for RSS 2.0, Atom 1.0, JSON Feed 1.1; emits valid XML/JSON with full XML escaping and CDATA wrapping. Includes optional HTTP handler factory.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "feed",
+    "rss",
+    "atom",
+    "json-feed",
+    "podcast",
+    "producer",
+    "serializer"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@molecule/api-feed-rss-parser": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
