@@ -46,7 +46,18 @@ export function validate(schema: ValidationSchema): RequestHandler {
         req.params = schema.params.parse(req.params) as Record<string, string>
       }
       if (schema.query) {
-        req.query = schema.query.parse(req.query) as Record<string, string>
+        // Express 5 made `req.query` a getter-only property — direct
+        // assignment throws `TypeError: Cannot set property query of
+        // #<IncomingMessage> which has only a getter`. Use
+        // `Object.defineProperty` to install a writable own-property that
+        // shadows the prototype getter; downstream handlers reading
+        // `req.query` then see the parsed/coerced value.
+        Object.defineProperty(req, 'query', {
+          value: schema.query.parse(req.query) as Record<string, string>,
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        })
       }
     } catch (error) {
       if (error instanceof ZodError) {
