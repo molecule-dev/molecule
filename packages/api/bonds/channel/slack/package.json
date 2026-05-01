@@ -1,0 +1,51 @@
+{
+  "name": "@molecule/api-channel-slack",
+  "version": "1.0.0",
+  "description": "Slack channel bond — implements @molecule/api-channel for sendMessage, webhook signature verification, and inbound event parsing.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "channel",
+    "slack",
+    "messaging"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@slack/web-api": "7.15.1"
+  },
+  "peerDependencies": {
+    "@molecule/api-channel": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-channel": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/channel/slack"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/channel/slack",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
