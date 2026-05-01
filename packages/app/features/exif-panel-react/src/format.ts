@@ -81,10 +81,7 @@ export function formatFocalLength(mm: number | undefined): string | null {
  * @param axis - Which axis the value represents — picks `N`/`S` vs `E`/`W`.
  * @returns A string like `"37° 25' 19.07" N"`, or `null` when missing.
  */
-export function formatDms(
-  value: number | undefined,
-  axis: 'lat' | 'lon',
-): string | null {
+export function formatDms(value: number | undefined, axis: 'lat' | 'lon'): string | null {
   if (value === undefined || value === null) return null
   if (!Number.isFinite(value)) return null
   const positiveLabel = axis === 'lat' ? 'N' : 'E'
@@ -145,9 +142,7 @@ export function buildMapLink(
  * @returns A locale-formatted date/time string, or `null` when missing
  *   or unparseable.
  */
-export function formatTimestamp(
-  value: Date | string | number | undefined,
-): string | null {
+export function formatTimestamp(value: Date | string | number | undefined): string | null {
   if (value === undefined || value === null) return null
   let date: Date
   if (value instanceof Date) {
@@ -170,10 +165,7 @@ export function formatTimestamp(
  * @param model - Camera model.
  * @returns The combined label, or `null` when both inputs are missing.
  */
-export function formatCamera(
-  make: string | undefined,
-  model: string | undefined,
-): string | null {
+export function formatCamera(make: string | undefined, model: string | undefined): string | null {
   const m = make?.trim()
   const md = model?.trim()
   if (!m && !md) return null
