@@ -1,0 +1,33 @@
+{
+  "name": "@molecule/api-recurring-schedule",
+  "version": "1.0.0",
+  "description": "RRULE-style schedule engine: next-occurrence and expand-occurrences-in-window for recurring events (daily/weekly/monthly/yearly with interval, byday/bymonthday, count/until termination).",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "recurring",
+    "schedule"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
