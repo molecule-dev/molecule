@@ -44,15 +44,26 @@ export function ExifPanel(props: ExifPanelProps): ReactElement {
   const iso = formatIso(exif.iso)
   const focal = formatFocalLength(exif.focalLength)
   const focal35 = formatFocalLength(exif.focalLength35mm)
-  const exposureParts = [aperture, shutter, iso, focal].filter((v): v is string => v !== null)
-  const gpsText = showGps ? formatGps(exif.gpsLatitude, exif.gpsLongitude) : null
-  const mapHref = showGps ? buildMapLink(exif.gpsLatitude, exif.gpsLongitude) : null
+  const exposureParts = [aperture, shutter, iso, focal].filter(
+    (v): v is string => v !== null,
+  )
+  const gpsText = showGps
+    ? formatGps(exif.gpsLatitude, exif.gpsLongitude)
+    : null
+  const mapHref = showGps
+    ? buildMapLink(exif.gpsLatitude, exif.gpsLongitude)
+    : null
   const timestamp = formatTimestamp(exif.dateTimeOriginal)
   const software = exif.software?.trim() || null
   const copyright = exif.copyright?.trim() || null
 
-  const headingText = heading ?? t('exifPanel.heading', {}, { defaultValue: 'EXIF' })
-  const eyebrowText = t('exifPanel.eyebrow', {}, { defaultValue: 'Frame metadata' })
+  const headingText =
+    heading ?? t('exifPanel.heading', {}, { defaultValue: 'EXIF' })
+  const eyebrowText = t(
+    'exifPanel.eyebrow',
+    {},
+    { defaultValue: 'Frame metadata' },
+  )
 
   const labelSize = compact ? 'xs' : 'sm'
   const valueSize = compact ? 'sm' : 'base'
@@ -68,7 +79,12 @@ export function ExifPanel(props: ExifPanelProps): ReactElement {
    * @param molId - Stable `data-mol-id` token for the row.
    * @returns The row element, or `null` when there is no value.
    */
-  const renderRow = (key: string, label: string, value: ReactNode, molId: string) => {
+  const renderRow = (
+    key: string,
+    label: string,
+    value: ReactNode,
+    molId: string,
+  ) => {
     if (value === null || value === undefined || value === '') return null
     return (
       <div
@@ -81,7 +97,13 @@ export function ExifPanel(props: ExifPanelProps): ReactElement {
           cm.borderB,
         )}
       >
-        <dt className={cm.cn(cm.textSize(labelSize), cm.fontWeight('medium'), cm.textMuted)}>
+        <dt
+          className={cm.cn(
+            cm.textSize(labelSize),
+            cm.fontWeight('medium'),
+            cm.textMuted,
+          )}
+        >
           {label}
         </dt>
         <dd className={cm.cn(cm.textSize(valueSize), cm.textRight)}>{value}</dd>
@@ -92,7 +114,11 @@ export function ExifPanel(props: ExifPanelProps): ReactElement {
   return (
     <aside
       data-mol-id="exif-panel"
-      aria-label={t('exifPanel.aria.region', {}, { defaultValue: 'EXIF metadata' })}
+      aria-label={t(
+        'exifPanel.aria.region',
+        {},
+        { defaultValue: 'EXIF metadata' },
+      )}
       className={cm.cn(cm.surface, className)}
     >
       <header
@@ -134,7 +160,11 @@ export function ExifPanel(props: ExifPanelProps): ReactElement {
         {focal35 && focal35 !== focal
           ? renderRow(
               'focal35',
-              t('exifPanel.focalLength35mm', {}, { defaultValue: '35 mm equivalent' }),
+              t(
+                'exifPanel.focalLength35mm',
+                {},
+                { defaultValue: '35 mm equivalent' },
+              ),
               focal35,
               'exif-panel-row-focal35',
             )
