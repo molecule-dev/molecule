@@ -1,0 +1,53 @@
+{
+  "name": "@molecule/api-wearable",
+  "version": "1.0.0",
+  "description": "Wearable cloud-API ingestion core for molecule.dev — normalized contract for Fitbit, Oura, Withings, and other consumer wearable providers",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "wearable",
+    "fitness",
+    "sleep",
+    "activity",
+    "heart-rate",
+    "oauth"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/wearable"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/wearable",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
