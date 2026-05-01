@@ -1,0 +1,38 @@
+{
+  "name": "@molecule/api-qr-code",
+  "version": "1.0.0",
+  "description": "Server-side QR code generation — SVG / PNG / data-URL output for emails, PDFs, and push-notification icons.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "qr-code",
+    "qrcode",
+    "svg",
+    "png"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "qrcode-generator": "1.4.4"
+  },
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
