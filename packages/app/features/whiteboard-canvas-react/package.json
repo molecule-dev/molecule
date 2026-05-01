@@ -1,0 +1,53 @@
+{
+  "name": "@molecule/app-whiteboard-canvas-react",
+  "version": "1.0.0",
+  "description": "React whiteboard canvas — pen / marker / eraser / sticky-note / line / arrow / shape / text tools layered on top of @molecule/app-feature-canvas-react",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "whiteboard",
+    "canvas",
+    "drawing",
+    "pen",
+    "marker",
+    "sticky-note",
+    "react"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-feature-canvas-react": "^1.0.0",
+    "@molecule/app-react": "^1.0.0",
+    "@molecule/app-ui": "^1.0.0",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-feature-canvas-react": "1.0.0",
+    "@molecule/app-i18n": "1.0.0",
+    "@molecule/app-react": "1.0.0",
+    "@molecule/app-ui": "1.0.0",
+    "@testing-library/react": "16.3.0",
+    "@types/node": "25.5.0",
+    "@types/react": "19.2.14",
+    "jsdom": "27.0.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
