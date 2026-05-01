@@ -284,9 +284,7 @@ const parseRetryAfter = (header: string | null): number | undefined => {
  *   non-OK status, or a body whose `status` field signals an error. Error
  *   messages NEVER include the API key.
  */
-const fetchJson = async <
-  T extends { status?: string; error?: string; message?: string },
->(
+const fetchJson = async <T extends { status?: string; error?: string; message?: string }>(
   baseUrl: string,
   path: string,
   params: URLSearchParams,
@@ -497,15 +495,10 @@ const mapFundamentals = (
   const recent = financials.results?.[0]?.financials?.income_statement
   // Prefer diluted EPS over basic when both are present (more
   // conservative, matches how most analysts quote PE).
-  const eps =
-    recent?.diluted_earnings_per_share?.value ?? recent?.basic_earnings_per_share?.value
+  const eps = recent?.diluted_earnings_per_share?.value ?? recent?.basic_earnings_per_share?.value
   if (typeof eps === 'number' && Number.isFinite(eps)) {
     result.eps = eps
-    if (
-      typeof latestPrice === 'number' &&
-      Number.isFinite(latestPrice) &&
-      eps !== 0
-    ) {
+    if (typeof latestPrice === 'number' && Number.isFinite(latestPrice) && eps !== 0) {
       result.peRatio = latestPrice / eps
     }
   }
@@ -549,9 +542,7 @@ const mapExchanges = (body: PolygonExchangesResponse): ExchangeCode[] => {
  *   here directly or via the `POLYGON_API_KEY` environment variable.
  * @returns An {@link EquityPricesProvider} backed by Polygon.io.
  */
-export const createProvider = (
-  config: PolygonEquityPricesConfig = {},
-): EquityPricesProvider => {
+export const createProvider = (config: PolygonEquityPricesConfig = {}): EquityPricesProvider => {
   const baseUrl = (config.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/u, '')
   const timeout = config.timeout ?? DEFAULT_TIMEOUT
 
@@ -675,12 +666,8 @@ export const provider: EquityPricesProvider = new Proxy({} as EquityPricesProvid
   get(_, prop, receiver) {
     if (!_provider) {
       _provider = createProvider({
-        ...(process.env['POLYGON_BASE_URL']
-          ? { baseUrl: process.env['POLYGON_BASE_URL'] }
-          : {}),
-        ...(process.env['POLYGON_API_KEY']
-          ? { apiKey: process.env['POLYGON_API_KEY'] }
-          : {}),
+        ...(process.env['POLYGON_BASE_URL'] ? { baseUrl: process.env['POLYGON_BASE_URL'] } : {}),
+        ...(process.env['POLYGON_API_KEY'] ? { apiKey: process.env['POLYGON_API_KEY'] } : {}),
       })
     }
     return Reflect.get(_provider, prop, receiver)

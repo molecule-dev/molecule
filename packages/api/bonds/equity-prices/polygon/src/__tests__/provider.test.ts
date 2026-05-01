@@ -166,14 +166,11 @@ describe('polygon equity-prices provider', () => {
   describe('sanitizeUrl', () => {
     it('should redact the apiKey query parameter', () => {
       const url = 'https://api.polygon.io/v2/last/trade/AAPL?apiKey=secret-token'
-      expect(sanitizeUrl(url)).toBe(
-        'https://api.polygon.io/v2/last/trade/AAPL?apiKey=REDACTED',
-      )
+      expect(sanitizeUrl(url)).toBe('https://api.polygon.io/v2/last/trade/AAPL?apiKey=REDACTED')
     })
 
     it('should redact apiKey when followed by additional parameters', () => {
-      const url =
-        'https://api.polygon.io/v3/reference/tickers?search=apple&apiKey=secret&limit=10'
+      const url = 'https://api.polygon.io/v3/reference/tickers?search=apple&apiKey=secret&limit=10'
       expect(sanitizeUrl(url)).toBe(
         'https://api.polygon.io/v3/reference/tickers?search=apple&apiKey=REDACTED&limit=10',
       )
@@ -362,7 +359,9 @@ describe('polygon equity-prices provider', () => {
       await provider.getHistorical('AAPL', '1m')
 
       const calledUrl = mockFetch.mock.calls[0][0] as string
-      expect(calledUrl).toMatch(/\/v2\/aggs\/ticker\/AAPL\/range\/1\/day\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2}\?/u)
+      expect(calledUrl).toMatch(
+        /\/v2\/aggs\/ticker\/AAPL\/range\/1\/day\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2}\?/u,
+      )
       expect(calledUrl).toContain('apiKey=test-key')
       expect(calledUrl).toContain('adjusted=true')
       expect(calledUrl).toContain('sort=asc')
