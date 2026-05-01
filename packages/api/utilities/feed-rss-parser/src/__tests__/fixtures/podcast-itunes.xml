@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+  xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>The Molecule Show</title>
+    <link>https://podcast.example.com/</link>
+    <description>Conversations about composable systems.</description>
+    <language>en-US</language>
+    <itunes:author>Pat Doe</itunes:author>
+    <itunes:image href="https://podcast.example.com/cover.jpg"/>
+    <itunes:category text="Technology"/>
+    <itunes:category text="News"/>
+    <atom:link href="https://podcast.example.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>Mon, 28 Apr 2026 18:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Episode 42 — Bonds, Bonds, Bonds</title>
+      <link>https://podcast.example.com/ep/42</link>
+      <guid isPermaLink="false">podcast-42</guid>
+      <pubDate>Mon, 28 Apr 2026 17:30:00 GMT</pubDate>
+      <itunes:author>Pat Doe</itunes:author>
+      <itunes:duration>01:42:30</itunes:duration>
+      <enclosure url="https://podcast.example.com/audio/ep-42.mp3" length="60000000" type="audio/mpeg"/>
+      <description>A deep dive on the bond system.</description>
+    </item>
+    <item>
+      <title>Episode 41 — Composability</title>
+      <link>https://podcast.example.com/ep/41</link>
+      <guid isPermaLink="false">podcast-41</guid>
+      <pubDate>Mon, 21 Apr 2026 17:00:00 GMT</pubDate>
+      <itunes:duration>3600</itunes:duration>
+      <enclosure url="https://podcast.example.com/audio/ep-41.mp3" length="50000000" type="audio/mpeg"/>
+      <description>Why composability beats vertical integration.</description>
+    </item>
+  </channel>
+</rss>

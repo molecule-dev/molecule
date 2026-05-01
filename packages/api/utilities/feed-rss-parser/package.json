@@ -1,0 +1,40 @@
+{
+  "name": "@molecule/api-feed-rss-parser",
+  "version": "1.0.0",
+  "description": "RSS/Atom/JSON Feed parser — normalizes RSS 2.0, Atom 1.0, RDF 1.0, and JSON Feed into a uniform { feed, items[] } shape.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "feed",
+    "rss",
+    "atom",
+    "json-feed",
+    "podcast",
+    "parser"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "fast-xml-parser": "5.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}

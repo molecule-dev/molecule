@@ -1,0 +1,40 @@
+{
+  "version": "https://jsonfeed.org/version/1.1",
+  "title": "JSON Feed Example",
+  "home_page_url": "https://example.org/",
+  "feed_url": "https://example.org/feed.json",
+  "description": "Sample JSON Feed for tests.",
+  "language": "en",
+  "icon": "https://example.org/icon.png",
+  "authors": [
+    { "name": "Editorial Team", "url": "https://example.org/about" }
+  ],
+  "items": [
+    {
+      "id": "https://example.org/posts/2026-04-28",
+      "url": "https://example.org/posts/2026-04-28",
+      "title": "JSON Feed at a Glance",
+      "content_html": "<p>JSON Feed is a simple syndication format.</p><script>alert('xss')</script>",
+      "summary": "An overview of JSON Feed.",
+      "date_published": "2026-04-28T08:00:00-05:00",
+      "date_modified": "2026-04-28T09:00:00-05:00",
+      "tags": ["formats", "rss"],
+      "authors": [{ "name": "Pat Doe" }],
+      "attachments": [
+        {
+          "url": "https://example.org/audio/episode.mp3",
+          "mime_type": "audio/mpeg",
+          "size_in_bytes": 1234567,
+          "duration_in_seconds": 1800,
+          "title": "Episode audio"
+        }
+      ]
+    },
+    {
+      "id": "post-2",
+      "title": "Untitled Note",
+      "content_text": "Just a quick note.",
+      "date_published": "2026-04-26T12:00:00Z"
+    }
+  ]
+}

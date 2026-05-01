@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Example Engineering Blog</title>
+    <link>https://example.com/blog/</link>
+    <description>Posts about software engineering, architecture, and operations.</description>
+    <language>en-US</language>
+    <copyright>(c) 2026 Example Corp</copyright>
+    <managingEditor>blog@example.com (Editorial Team)</managingEditor>
+    <lastBuildDate>Mon, 28 Apr 2026 14:00:00 GMT</lastBuildDate>
+    <atom:link href="https://example.com/blog/feed.xml" rel="self" type="application/rss+xml"/>
+    <image>
+      <url>https://example.com/blog/logo.png</url>
+      <title>Example Engineering Blog</title>
+      <link>https://example.com/blog/</link>
+    </image>
+    <item>
+      <title>Designing the Bond System</title>
+      <link>https://example.com/blog/posts/bond-system</link>
+      <guid isPermaLink="true">https://example.com/blog/posts/bond-system</guid>
+      <pubDate>Sat, 26 Apr 2026 09:30:00 GMT</pubDate>
+      <dc:creator>Pat Doe</dc:creator>
+      <category>architecture</category>
+      <category>typescript</category>
+      <description><![CDATA[A short summary of the bond system: <em>swappable</em> at runtime.]]></description>
+      <content:encoded><![CDATA[<p>The bond system separates contracts from providers.</p><script>alert('xss')</script><p>Here is more content.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>Versioning Strategy</title>
+      <link>https://example.com/blog/posts/versioning</link>
+      <guid>tag:example.com,2026:posts/versioning</guid>
+      <pubDate>Wed, 23 Apr 2026 12:00:00 GMT</pubDate>
+      <dc:creator>Sam Lee</dc:creator>
+      <category>release</category>
+      <description>How we version Molecule packages.</description>
+    </item>
+  </channel>
+</rss>
