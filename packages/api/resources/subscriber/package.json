@@ -1,0 +1,60 @@
+{
+  "name": "@molecule/api-resource-subscriber",
+  "version": "1.0.0",
+  "description": "Tokenized email/sms/webhook subscriber records with confirm/unsubscribe links.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "subscriber",
+    "newsletter",
+    "incident-updates",
+    "resource"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-database": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
+    "@molecule/api-logger": "1.0.0",
+    "@molecule/api-resource": "1.0.0",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-database": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-logger": "^1.0.0",
+    "@molecule/api-resource": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/api-database": {
+      "optional": true
+    },
+    "@molecule/api-i18n": {
+      "optional": true
+    },
+    "@molecule/api-logger": {
+      "optional": true
+    },
+    "@molecule/api-resource": {
+      "optional": true
+    }
+  }
+}
