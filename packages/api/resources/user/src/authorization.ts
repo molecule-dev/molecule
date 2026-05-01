@@ -94,10 +94,19 @@ export const set = (
  */
 export const verifyMiddleware = (): MoleculeRequestHandler => async (req, res, next) => {
   try {
-    // Get token from Authorization header.
+    // Get token from Authorization header, falling back to the `token`
+    // cookie that `set()` writes alongside the header. The JSDoc above
+    // promises this fallback for browser clients; without it the cookie
+    // we hand out is decorative — every page-driven request after login
+    // gets a 401, even though the cookie is sitting right there. We still
+    // verify the signature via `jwtVerify` so a tampered cookie value is
+    // never trusted (no decode-fallback bypass).
     const rawAuth = req.headers.authorization
     const authHeader = Array.isArray(rawAuth) ? rawAuth[0] : rawAuth
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+    const headerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+    const cookieToken = (req as unknown as { cookies?: Record<string, unknown> }).cookies?.token
+    const token =
+      headerToken ?? (typeof cookieToken === 'string' && cookieToken ? cookieToken : null)
 
     if (!token) {
       return next()
