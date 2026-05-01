@@ -213,6 +213,106 @@ export const verifyWebhookSignature = (
 }
 
 /**
+ * Creates a Stripe SetupIntent for the saved-card flow.
+ *
+ * If `customerId` is not provided, a new Stripe customer is created and its
+ * ID is returned alongside the SetupIntent so the resource layer can persist
+ * the customer ID for future SetupIntents and detachments.
+ *
+ * @param options - SetupIntent creation options.
+ * @param options.customerId - Optional existing Stripe customer ID (`cus_...`).
+ * @param options.metadata - Optional metadata to attach to the SetupIntent.
+ * @param options.idempotencyKey - Optional idempotency key for safe retries.
+ * @returns The SetupIntent ID, client secret, and customer ID.
+ */
+export const createSetupIntent = async (options: {
+  customerId?: string
+  metadata?: Record<string, string>
+  idempotencyKey?: string
+}): Promise<{ id: string; clientSecret: string; customerId: string }> => {
+  try {
+    const client = getClient()
+    let customerId = options.customerId
+    if (!customerId) {
+      const customer = await client.customers.create(
+        { metadata: options.metadata },
+        options.idempotencyKey
+          ? { idempotencyKey: `${options.idempotencyKey}:customer` }
+          : undefined,
+      )
+      customerId = customer.id
+    }
+    const setupIntent = await client.setupIntents.create(
+      {
+        customer: customerId,
+        payment_method_types: ['card'],
+        usage: 'off_session',
+        metadata: options.metadata,
+      },
+      options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : undefined,
+    )
+    if (!setupIntent.client_secret) {
+      throw new Error('Stripe SetupIntent missing client_secret')
+    }
+    return {
+      id: setupIntent.id,
+      clientSecret: setupIntent.client_secret,
+      customerId,
+    }
+  } catch (error) {
+    logger.error('Error creating Stripe SetupIntent:', error)
+    throw error
+  }
+}
+
+/**
+ * Retrieves a saved Stripe payment method (card) and returns normalized metadata.
+ *
+ * @param paymentMethodId - The Stripe payment method ID (`pm_...`).
+ * @returns Brand, last4, and expiry, or `null` if the lookup fails.
+ */
+export const retrievePaymentMethod = async (
+  paymentMethodId: string,
+): Promise<{
+  id: string
+  brand: string
+  last4: string
+  expMonth: number
+  expYear: number
+} | null> => {
+  try {
+    const pm = await getClient().paymentMethods.retrieve(paymentMethodId)
+    if (!pm.card) return null
+    return {
+      id: pm.id,
+      brand: pm.card.brand,
+      last4: pm.card.last4,
+      expMonth: pm.card.exp_month,
+      expYear: pm.card.exp_year,
+    }
+  } catch (error) {
+    logger.error('Error retrieving Stripe payment method:', error)
+    return null
+  }
+}
+
+/**
+ * Detaches a saved Stripe payment method from its customer.
+ *
+ * @param paymentMethodId - The Stripe payment method ID (`pm_...`).
+ * @returns `true` if Stripe acknowledged the detach, `false` otherwise.
+ */
+export const detachPaymentMethod = async (paymentMethodId: string): Promise<boolean> => {
+  try {
+    await getClient().paymentMethods.detach(paymentMethodId)
+    return true
+  } catch (error) {
+    logger.error('Error detaching Stripe payment method:', error)
+    return false
+  }
+}
+
+/**
  * Normalizes a Stripe-specific `SubscriptionResult` to the common
  * `NormalizedSubscription` interface used across all payment providers.
  *

@@ -13,8 +13,11 @@ import { getLogger } from '@molecule/api-bond'
 const logger = getLogger()
 import { get } from '@molecule/api-bond'
 import type {
+  CreateSetupIntentParams,
   PaymentProvider,
   PaymentRecordService,
+  ProviderPaymentMethod,
+  SetupIntentResult,
   SubscriptionUpdateResult,
   VerifiedSubscription,
   WebhookEvent,
@@ -22,9 +25,12 @@ import type {
 
 import {
   createCheckoutSession,
+  createSetupIntent as stripeCreateSetupIntent,
+  detachPaymentMethod as stripeDetachPaymentMethod,
   getCheckoutSession,
   getSubscription,
   normalizeSubscription,
+  retrievePaymentMethod as stripeRetrievePaymentMethod,
   updateSubscription as stripeUpdateSubscription,
   verifyWebhookSignature,
 } from './provider.js'
@@ -276,6 +282,40 @@ export const paymentProvider: PaymentProvider = {
       logger.error('Stripe bondAdapter updateSubscription error:', error)
       return { updated: false }
     }
+  },
+
+  /**
+   * Creates a Stripe SetupIntent so the frontend can confirm a card off-session.
+   *
+   * @param params - SetupIntent parameters (optional Stripe customer ID, metadata, idempotency key).
+   * @returns The SetupIntent ID, client secret, and customer ID.
+   */
+  async createSetupIntent(params: CreateSetupIntentParams): Promise<SetupIntentResult> {
+    return stripeCreateSetupIntent({
+      customerId: params.customerId,
+      metadata: params.metadata,
+      idempotencyKey: params.idempotencyKey,
+    })
+  },
+
+  /**
+   * Retrieves a saved Stripe payment method and returns normalized card metadata.
+   *
+   * @param providerPaymentMethodId - The Stripe payment method ID (`pm_...`).
+   * @returns Card brand/last4/exp, or `null` on failure.
+   */
+  async getPaymentMethod(providerPaymentMethodId: string): Promise<ProviderPaymentMethod | null> {
+    return stripeRetrievePaymentMethod(providerPaymentMethodId)
+  },
+
+  /**
+   * Detaches a Stripe saved payment method from its customer.
+   *
+   * @param providerPaymentMethodId - The Stripe payment method ID (`pm_...`).
+   * @returns `true` on success, `false` on provider error.
+   */
+  async detachPaymentMethod(providerPaymentMethodId: string): Promise<boolean> {
+    return stripeDetachPaymentMethod(providerPaymentMethodId)
   },
 
   /**

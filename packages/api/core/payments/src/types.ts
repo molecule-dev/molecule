@@ -197,6 +197,60 @@ export interface SubscriptionUpdateResult {
 }
 
 /**
+ * Parameters for creating a SetupIntent (off-session card-save flow).
+ */
+export interface CreateSetupIntentParams {
+  /**
+   * The provider customer ID (e.g. Stripe `cus_...`).
+   *
+   * If omitted, the provider may create a customer on demand and return its ID
+   * via {@link SetupIntentResult.customerId}.
+   */
+  customerId?: string
+  /** Optional metadata to attach to the SetupIntent. */
+  metadata?: Record<string, string>
+  /** Optional idempotency key for safe retries. */
+  idempotencyKey?: string
+}
+
+/**
+ * Result of creating a SetupIntent.
+ */
+export interface SetupIntentResult {
+  /** Provider SetupIntent ID (e.g. Stripe `seti_...`). */
+  id: string
+  /**
+   * The client secret used by the frontend SDK to confirm the SetupIntent.
+   *
+   * For Stripe, this is consumed by `stripe.confirmCardSetup(clientSecret, ...)`.
+   */
+  clientSecret: string
+  /**
+   * The provider customer ID this SetupIntent is attached to.
+   *
+   * Returned even when the caller didn't provide one — the provider may create
+   * a customer on demand and the resource layer will persist the ID.
+   */
+  customerId: string
+}
+
+/**
+ * Card-style payment method metadata returned by the provider.
+ */
+export interface ProviderPaymentMethod {
+  /** Provider payment-method ID (e.g. Stripe `pm_...`). */
+  id: string
+  /** Card brand (e.g. `visa`, `mastercard`, `amex`). */
+  brand: string
+  /** Last four digits of the card. */
+  last4: string
+  /** Two-digit expiry month (1–12). */
+  expMonth: number
+  /** Four-digit expiry year. */
+  expYear: number
+}
+
+/**
  * Payment provider bond interface.
  *
  * Each payment provider implements the methods relevant to its platform.
@@ -258,6 +312,30 @@ export interface PaymentProviderInterface {
 
   /** Cancel an existing subscription for a user. */
   cancelSubscription?(params: { userId: string }): Promise<boolean>
+
+  /**
+   * Create a SetupIntent for the saved-card flow (Stripe-style).
+   *
+   * The frontend confirms the SetupIntent with the provider's client SDK
+   * using {@link SetupIntentResult.clientSecret}; on success the resulting
+   * payment-method ID is sent back to the API for persistence.
+   */
+  createSetupIntent?(params: CreateSetupIntentParams): Promise<SetupIntentResult>
+
+  /**
+   * Look up a saved payment method by ID and return normalized card metadata.
+   *
+   * Used when a SetupIntent confirms client-side and the resource layer needs
+   * brand/last4/exp to persist alongside the provider PM ID.
+   */
+  getPaymentMethod?(providerPaymentMethodId: string): Promise<ProviderPaymentMethod | null>
+
+  /**
+   * Detach a saved payment method from its customer (Stripe-style).
+   *
+   * Returns `true` on success; returns `false` if the provider call failed.
+   */
+  detachPaymentMethod?(providerPaymentMethodId: string): Promise<boolean>
 }
 
 /**
