@@ -63,7 +63,6 @@ export interface ClassScheduleProps {
 }
 
 const MINUTES_PER_HOUR = 60
-const DAYS_PER_WEEK = 7
 const WEEKEND_DAYS = new Set<number>([0, 6])
 
 /**
