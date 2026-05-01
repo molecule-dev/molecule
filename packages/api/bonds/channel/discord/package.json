@@ -1,0 +1,55 @@
+{
+  "name": "@molecule/api-channel-discord",
+  "version": "1.0.0",
+  "description": "Discord channel provider for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "channel",
+    "discord",
+    "messaging"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-channel": "^1.0.0",
+    "discord.js": "^14.0.0"
+  },
+  "peerDependenciesMeta": {
+    "discord.js": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@molecule/api-channel": "1.0.0",
+    "@types/node": "25.5.0",
+    "discord.js": "14.26.4",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/channel/discord"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/channel/discord",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
