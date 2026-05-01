@@ -19,6 +19,7 @@
  * @module
  */
 
+import type { WhereCondition } from '@molecule/api-database'
 import {
   count,
   create as dbCreate,
@@ -30,7 +31,6 @@ import {
   updateById,
   updateMany,
 } from '@molecule/api-database'
-import type { WhereCondition } from '@molecule/api-database'
 
 import type {
   JSONValue,
@@ -38,8 +38,8 @@ import type {
   PaginatedResult,
   RestoreCallback,
   RestoreResult,
-  TrashItemInput,
   TrashedItem,
+  TrashItemInput,
 } from './types.js'
 
 const TABLE = 'trashedItems'
