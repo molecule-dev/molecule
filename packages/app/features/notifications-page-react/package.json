@@ -1,0 +1,51 @@
+{
+  "name": "@molecule/app-notifications-page-react",
+  "version": "1.0.0",
+  "description": "Drop-in /notifications page composing notification-feed/center primitives — header, filter chips, paginated list, mark-all-read action, empty state. Wires to api-resource-notification via the HTTP bond.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "notifications",
+    "page",
+    "react"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-i18n": "^1.0.0",
+    "@molecule/app-notification-feed-react": "^1.0.0",
+    "@molecule/app-react": "^1.0.0",
+    "@molecule/app-ui": "^1.0.0",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-i18n": "1.0.0",
+    "@molecule/app-notification-feed-react": "1.0.0",
+    "@molecule/app-react": "1.0.0",
+    "@molecule/app-ui": "1.0.0",
+    "@testing-library/react": "16.3.2",
+    "@types/node": "25.5.0",
+    "@types/react": "19.2.14",
+    "jsdom": "27.0.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-router-dom": "7.13.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
