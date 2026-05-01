@@ -190,17 +190,12 @@ describe('@molecule/api-realtime-rooms service', () => {
     })
 
     it('rejects mismatched join codes', async () => {
-      mockFindOne
-        .mockResolvedValueOnce(sampleRoomRow({ join_code: 'ABC123', is_public: false }))
-      await expect(joinRoom(ROOM_ID, GUEST, 'WRONG')).rejects.toBeInstanceOf(
-        InvalidJoinCodeError,
-      )
+      mockFindOne.mockResolvedValueOnce(sampleRoomRow({ join_code: 'ABC123', is_public: false }))
+      await expect(joinRoom(ROOM_ID, GUEST, 'WRONG')).rejects.toBeInstanceOf(InvalidJoinCodeError)
     })
 
     it('rejects missing join codes when one is required', async () => {
-      mockFindOne.mockResolvedValueOnce(
-        sampleRoomRow({ join_code: 'ABC123', is_public: false }),
-      )
+      mockFindOne.mockResolvedValueOnce(sampleRoomRow({ join_code: 'ABC123', is_public: false }))
       await expect(joinRoom(ROOM_ID, GUEST)).rejects.toBeInstanceOf(InvalidJoinCodeError)
     })
 
@@ -218,20 +213,14 @@ describe('@molecule/api-realtime-rooms service', () => {
     })
 
     it('enforces capacity', async () => {
-      mockFindOne
-        .mockResolvedValueOnce(sampleRoomRow({ capacity: 2 }))
-        .mockResolvedValueOnce(null)
+      mockFindOne.mockResolvedValueOnce(sampleRoomRow({ capacity: 2 })).mockResolvedValueOnce(null)
       mockCount.mockResolvedValueOnce(2)
 
-      await expect(joinRoom(ROOM_ID, GUEST)).rejects.toBeInstanceOf(
-        RoomCapacityExceededError,
-      )
+      await expect(joinRoom(ROOM_ID, GUEST)).rejects.toBeInstanceOf(RoomCapacityExceededError)
     })
 
     it('admits when capacity has room remaining', async () => {
-      mockFindOne
-        .mockResolvedValueOnce(sampleRoomRow({ capacity: 5 }))
-        .mockResolvedValueOnce(null)
+      mockFindOne.mockResolvedValueOnce(sampleRoomRow({ capacity: 5 })).mockResolvedValueOnce(null)
       mockCount.mockResolvedValueOnce(3)
 
       const member = await joinRoom(ROOM_ID, GUEST)
@@ -292,17 +281,13 @@ describe('@molecule/api-realtime-rooms service', () => {
     })
 
     it('returns the membership when no role is required', async () => {
-      mockFindOne.mockResolvedValueOnce(
-        sampleMemberRow({ user_id: GUEST, role: 'guest' }),
-      )
+      mockFindOne.mockResolvedValueOnce(sampleMemberRow({ user_id: GUEST, role: 'guest' }))
       const member = await assertCanAct(ROOM_ID, GUEST)
       expect(member).toMatchObject({ userId: GUEST, role: 'guest' })
     })
 
     it('throws when host role is required but caller is a guest', async () => {
-      mockFindOne.mockResolvedValueOnce(
-        sampleMemberRow({ user_id: GUEST, role: 'guest' }),
-      )
+      mockFindOne.mockResolvedValueOnce(sampleMemberRow({ user_id: GUEST, role: 'guest' }))
       await expect(assertCanAct(ROOM_ID, GUEST, 'host')).rejects.toBeInstanceOf(
         UnauthorizedRoomActionError,
       )

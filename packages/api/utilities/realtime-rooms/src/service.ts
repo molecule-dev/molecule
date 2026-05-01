@@ -115,9 +115,7 @@ export const channelFor = (roomId: string): string => `realtime-rooms:${roomId}`
  * @returns The persisted room.
  */
 const loadRoom = async (roomId: string): Promise<Room> => {
-  const row = await dbFindOne<RoomRow>(ROOMS_TABLE, [
-    { field: 'id', operator: '=', value: roomId },
-  ])
+  const row = await dbFindOne<RoomRow>(ROOMS_TABLE, [{ field: 'id', operator: '=', value: roomId }])
   if (!row) throw new RoomNotFoundError(roomId)
   return toRoom(row)
 }
@@ -166,9 +164,7 @@ export const createRoom = async (options: CreateRoomOptions): Promise<Room> => {
     }
     row = refetched
   } else {
-    throw new Error(
-      'createRoom: DataStore did not return inserted row and no `id` was supplied',
-    )
+    throw new Error('createRoom: DataStore did not return inserted row and no `id` was supplied')
   }
 
   // Auto-register the owner as host. We don't go through joinRoom() here
@@ -322,10 +318,7 @@ export const assertCanAct = async (
  * @returns The {@link RoomEvent} that was broadcast (useful for echo /
  *          local persistence).
  */
-export const broadcast = async (
-  roomId: string,
-  event: BroadcastOptions,
-): Promise<RoomEvent> => {
+export const broadcast = async (roomId: string, event: BroadcastOptions): Promise<RoomEvent> => {
   const sentAt = event.sentAt ?? new Date()
   const roomEvent: RoomEvent = {
     roomId,
