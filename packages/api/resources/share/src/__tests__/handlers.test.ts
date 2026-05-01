@@ -1,0 +1,381 @@
+const { mockCount, mockCreate, mockDeleteMany, mockFindMany, mockFindOne, mockUpdateById } =
+  vi.hoisted(() => ({
+    mockCount: vi.fn(),
+    mockCreate: vi.fn(),
+    mockDeleteMany: vi.fn(),
+    mockFindMany: vi.fn(),
+    mockFindOne: vi.fn(),
+    mockUpdateById: vi.fn(),
+  }))
+
+vi.mock('@molecule/api-database', () => ({
+  count: mockCount,
+  create: mockCreate,
+  deleteMany: mockDeleteMany,
+  findMany: mockFindMany,
+  findOne: mockFindOne,
+  updateById: mockUpdateById,
+}))
+
+vi.mock('@molecule/api-i18n', () => ({
+  t: vi.fn((key: string) => key),
+}))
+
+vi.mock('@molecule/api-logger', () => ({
+  logger: {
+    debug: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+  },
+}))
+
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { create } from '../handlers/create.js'
+import { createLink } from '../handlers/createLink.js'
+import { del } from '../handlers/del.js'
+import { list } from '../handlers/list.js'
+import { listLinks } from '../handlers/listLinks.js'
+import { read } from '../handlers/read.js'
+import { resolveLink } from '../handlers/resolveLink.js'
+import { revokeLink } from '../handlers/revokeLink.js'
+import { update } from '../handlers/update.js'
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mockReq(overrides: Record<string, unknown> = {}): any {
+  return { params: {}, body: {}, query: {}, ...overrides }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mockRes(overrides: Record<string, unknown> = {}): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const res: any = {
+    status: vi.fn().mockReturnThis(),
+    json: vi.fn().mockReturnThis(),
+    end: vi.fn(),
+    locals: { session: { userId: 'user-1' } },
+    ...overrides,
+  }
+  return res
+}
+
+const validGrantBody = {
+  resourceType: 'doc',
+  resourceId: 'd1',
+  principalType: 'user',
+  principalId: 'u2',
+  role: 'editor',
+}
+
+describe('@molecule/api-resource-share — handlers', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  describe('create', () => {
+    it('returns 401 with no session', async () => {
+      const req = mockReq({ body: validGrantBody })
+      const res = mockRes({ locals: {} })
+      await create(req, res)
+      expect(res.status).toHaveBeenCalledWith(401)
+    })
+
+    it('returns 400 on bad input', async () => {
+      const req = mockReq({ body: { resourceType: 'doc' } })
+      const res = mockRes()
+      await create(req, res)
+      expect(res.status).toHaveBeenCalledWith(400)
+    })
+
+    it('rejects unknown role', async () => {
+      const req = mockReq({ body: { ...validGrantBody, role: 'admin' } })
+      const res = mockRes()
+      await create(req, res)
+      expect(res.status).toHaveBeenCalledWith(400)
+    })
+
+    it('rejects unknown principalType', async () => {
+      const req = mockReq({ body: { ...validGrantBody, principalType: 'organization' } })
+      const res = mockRes()
+      await create(req, res)
+      expect(res.status).toHaveBeenCalledWith(400)
+    })
+
+    it('grants a share and returns 201', async () => {
+      mockFindOne.mockResolvedValue(null)
+      const created = { id: 's1', ...validGrantBody, grantedBy: 'user-1' }
+      mockCreate.mockResolvedValue({ data: created, affected: 1 })
+
+      const req = mockReq({ body: validGrantBody })
+      const res = mockRes()
+      await create(req, res)
+      expect(res.status).toHaveBeenCalledWith(201)
+      expect(res.json).toHaveBeenCalledWith(created)
+    })
+  })
+
+  describe('list', () => {
+    it('returns 401 with no session', async () => {
+      const req = mockReq({ params: { resourceType: 'doc', resourceId: 'd1' } })
+      const res = mockRes({ locals: {} })
+      await list(req, res)
+      expect(res.status).toHaveBeenCalledWith(401)
+    })
+
+    it('returns 400 when params missing', async () => {
+      const req = mockReq()
+      const res = mockRes()
+      await list(req, res)
+      expect(res.status).toHaveBeenCalledWith(400)
+    })
+
+    it('returns paginated list', async () => {
+      mockFindMany.mockResolvedValue([{ id: 's1' }])
+      mockCount.mockResolvedValue(1)
+      const req = mockReq({ params: { resourceType: 'doc', resourceId: 'd1' } })
+      const res = mockRes()
+      await list(req, res)
+      expect(res.json).toHaveBeenCalledWith({
+        data: [{ id: 's1' }],
+        total: 1,
+        limit: 50,
+        offset: 0,
+      })
+    })
+
+    it('honours principalType filter', async () => {
+      mockFindMany.mockResolvedValue([])
+      mockCount.mockResolvedValue(0)
+      const req = mockReq({
+        params: { resourceType: 'doc', resourceId: 'd1' },
+        query: { principalType: 'team' },
+      })
+      const res = mockRes()
+      await list(req, res)
+      const where = mockFindMany.mock.calls[0][1].where
+      expect(where).toEqual(
+        expect.arrayContaining([{ field: 'principalType', operator: '=', value: 'team' }]),
+      )
+    })
+
+    it('ignores invalid principalType filter values', async () => {
+      mockFindMany.mockResolvedValue([])
+      mockCount.mockResolvedValue(0)
+      const req = mockReq({
+        params: { resourceType: 'doc', resourceId: 'd1' },
+        query: { principalType: 'evil' },
+      })
+      const res = mockRes()
+      await list(req, res)
+      const where = mockFindMany.mock.calls[0][1].where
+      expect(where).not.toEqual(
+        expect.arrayContaining([{ field: 'principalType', operator: '=', value: 'evil' }]),
+      )
+    })
+  })
+
+  describe('read (effective role)', () => {
+    it('returns 400 when params missing', async () => {
+      const req = mockReq()
+      const res = mockRes()
+      await read(req, res)
+      expect(res.status).toHaveBeenCalledWith(400)
+    })
+
+    it('returns null role when no grants', async () => {
+      mockFindOne.mockResolvedValue(null)
+      const req = mockReq({ params: { resourceType: 'doc', resourceId: 'd1' } })
+      const res = mockRes()
+      await read(req, res)
+      expect(res.json).toHaveBeenCalledWith({ role: null })
+    })
+
+    it('returns role even for anonymous when public grant exists', async () => {
+      mockFindOne.mockResolvedValueOnce({ role: 'viewer', expiresAt: null })
+      const req = mockReq({ params: { resourceType: 'doc', resourceId: 'd1' } })
+      const res = mockRes({ locals: {} })
+      await read(req, res)
+      expect(res.json).toHaveBeenCalledWith({ role: 'viewer' })
+    })
+  })
+
+  describe('update', () => {
+    it('returns 401 with no session', async () => {
+      const req = mockReq({ params: { id: 's1' }, body: { role: 'owner' } })
+      const res = mockRes({ locals: {} })
+      await update(req, res)
+      expect(res.status).toHaveBeenCalledWith(401)
+    })
+
+    it('returns 400 when id missing', async () => {
+      const req = mockReq({ body: { role: 'owner' } })
+      const res = mockRes()
+      await update(req, res)
+      expect(res.status).toHaveBeenCalledWith(400)
+    })
+
+    it('returns 404 when share not found', async () => {
+      mockUpdateById.mockResolvedValue({ data: null, affected: 0 })
+      const req = mockReq({ params: { id: 's-missing' }, body: { role: 'owner' } })
+      const res = mockRes()
+      await update(req, res)
+      expect(res.status).toHaveBeenCalledWith(404)
+    })
+
+    it('updates a share', async () => {
+      mockUpdateById.mockResolvedValue({ data: { id: 's1', role: 'owner' }, affected: 1 })
+      const req = mockReq({ params: { id: 's1' }, body: { role: 'owner' } })
+      const res = mockRes()
+      await update(req, res)
+      expect(res.json).toHaveBeenCalledWith({ id: 's1', role: 'owner' })
+    })
+
+    it('rejects invalid role', async () => {
+      const req = mockReq({ params: { id: 's1' }, body: { role: 'admin' } })
+      const res = mockRes()
+      await update(req, res)
+      expect(res.status).toHaveBeenCalledWith(400)
+    })
+  })
+
+  describe('del', () => {
+    it('returns 401 with no session', async () => {
+      const req = mockReq({ params: { id: 's1' } })
+      const res = mockRes({ locals: {} })
+      await del(req, res)
+      expect(res.status).toHaveBeenCalledWith(401)
+    })
+
+    it('returns 400 when id missing', async () => {
+      const req = mockReq()
+      const res = mockRes()
+      await del(req, res)
+      expect(res.status).toHaveBeenCalledWith(400)
+    })
+
+    it('revokes and returns 204', async () => {
+      mockDeleteMany.mockResolvedValue({ data: null, affected: 1 })
+      const req = mockReq({ params: { id: 's1' } })
+      const res = mockRes()
+      await del(req, res)
+      expect(res.status).toHaveBeenCalledWith(204)
+      expect(res.end).toHaveBeenCalled()
+    })
+  })
+
+  describe('createLink', () => {
+    it('returns 401 with no session', async () => {
+      const req = mockReq({ body: { resourceType: 'doc', resourceId: 'd1', role: 'viewer' } })
+      const res = mockRes({ locals: {} })
+      await createLink(req, res)
+      expect(res.status).toHaveBeenCalledWith(401)
+    })
+
+    it('returns 400 on bad input', async () => {
+      const req = mockReq({ body: {} })
+      const res = mockRes()
+      await createLink(req, res)
+      expect(res.status).toHaveBeenCalledWith(400)
+    })
+
+    it('creates a link and returns 201 with slug', async () => {
+      const created = { id: 'l1', slug: 'abc', role: 'viewer' }
+      mockCreate.mockResolvedValue({ data: created, affected: 1 })
+      const req = mockReq({
+        body: { resourceType: 'doc', resourceId: 'd1', role: 'viewer' },
+      })
+      const res = mockRes()
+      await createLink(req, res)
+      expect(res.status).toHaveBeenCalledWith(201)
+      expect(res.json).toHaveBeenCalledWith(created)
+    })
+  })
+
+  describe('listLinks', () => {
+    it('returns 401 with no session', async () => {
+      const req = mockReq({ params: { resourceType: 'doc', resourceId: 'd1' } })
+      const res = mockRes({ locals: {} })
+      await listLinks(req, res)
+      expect(res.status).toHaveBeenCalledWith(401)
+    })
+
+    it('returns 400 when params missing', async () => {
+      const req = mockReq()
+      const res = mockRes()
+      await listLinks(req, res)
+      expect(res.status).toHaveBeenCalledWith(400)
+    })
+
+    it('returns links wrapped under data', async () => {
+      mockFindMany.mockResolvedValue([{ id: 'l1' }])
+      const req = mockReq({ params: { resourceType: 'doc', resourceId: 'd1' } })
+      const res = mockRes()
+      await listLinks(req, res)
+      expect(res.json).toHaveBeenCalledWith({ data: [{ id: 'l1' }] })
+    })
+  })
+
+  describe('revokeLink', () => {
+    it('returns 401 with no session', async () => {
+      const req = mockReq({ params: { id: 'l1' } })
+      const res = mockRes({ locals: {} })
+      await revokeLink(req, res)
+      expect(res.status).toHaveBeenCalledWith(401)
+    })
+
+    it('returns 400 when id missing', async () => {
+      const req = mockReq()
+      const res = mockRes()
+      await revokeLink(req, res)
+      expect(res.status).toHaveBeenCalledWith(400)
+    })
+
+    it('returns 404 for unknown id', async () => {
+      mockFindOne.mockResolvedValue(null)
+      const req = mockReq({ params: { id: 'l-missing' } })
+      const res = mockRes()
+      await revokeLink(req, res)
+      expect(res.status).toHaveBeenCalledWith(404)
+    })
+
+    it('revokes a link', async () => {
+      mockFindOne.mockResolvedValue({ id: 'l1', revokedAt: null })
+      mockUpdateById.mockResolvedValue({
+        data: { id: 'l1', revokedAt: '2026-05-01T00:00:00.000Z' },
+        affected: 1,
+      })
+      const req = mockReq({ params: { id: 'l1' } })
+      const res = mockRes()
+      await revokeLink(req, res)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'l1', revokedAt: expect.any(String) }),
+      )
+    })
+  })
+
+  describe('resolveLink (public)', () => {
+    it('does NOT require a session', async () => {
+      mockFindOne.mockResolvedValue({ id: 'l1', revokedAt: null, expiresAt: null })
+      const req = mockReq({ params: { slug: 'abc' } })
+      const res = mockRes({ locals: {} })
+      await resolveLink(req, res)
+      expect(res.status).not.toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith({ id: 'l1', revokedAt: null, expiresAt: null })
+    })
+
+    it('returns 400 when slug missing', async () => {
+      const req = mockReq()
+      const res = mockRes({ locals: {} })
+      await resolveLink(req, res)
+      expect(res.status).toHaveBeenCalledWith(400)
+    })
+
+    it('returns 404 when slug unknown / revoked / expired', async () => {
+      mockFindOne.mockResolvedValue(null)
+      const req = mockReq({ params: { slug: 'xxx' } })
+      const res = mockRes({ locals: {} })
+      await resolveLink(req, res)
+      expect(res.status).toHaveBeenCalledWith(404)
+    })
+  })
+})
