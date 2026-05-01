@@ -1,0 +1,57 @@
+{
+  "name": "@molecule/api-emails-inbound-ses",
+  "version": "1.0.0",
+  "description": "AWS SES inbound email provider — parses SNS notification payloads carrying SES inbound messages into normalized InboundEmail.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "emails",
+    "inbound",
+    "ses",
+    "aws",
+    "sns",
+    "webhook"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "mailparser": "3.9.8"
+  },
+  "devDependencies": {
+    "@molecule/api-emails": "1.0.0",
+    "@molecule/api-emails-inbound": "1.0.0",
+    "@types/mailparser": "3.4.6",
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-emails": "^1.0.0",
+    "@molecule/api-emails-inbound": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/emails-inbound/ses"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/emails-inbound/ses",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
