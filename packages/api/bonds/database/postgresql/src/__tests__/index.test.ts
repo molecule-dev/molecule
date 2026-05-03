@@ -441,6 +441,35 @@ describe('@molecule/api-database-postgresql', () => {
     })
   })
 
+  describe('ILIKE operator', () => {
+    let store: Store
+
+    beforeEach(async () => {
+      vi.resetModules()
+      const { createStore } = await import('../store.js')
+      const { pool } = await import('../index.js')
+      mockQuery.mockResolvedValue({ rows: [], rowCount: 0, command: 'SELECT', oid: 0, fields: [] })
+      store = createStore(pool)
+    })
+
+    it('emits ILIKE with %-wrapped value for case-insensitive contains', async () => {
+      await store.findMany('users', {
+        where: [{ field: 'name', operator: 'ilike', value: 'Postgres' }],
+      })
+      const callArgs = mockQuery.mock.calls[mockQuery.mock.calls.length - 1]
+      expect(callArgs[0]).toContain('ILIKE')
+      expect(callArgs[1]).toEqual(['%Postgres%'])
+    })
+
+    it('escapes LIKE metacharacters in the value before wrapping', async () => {
+      await store.findMany('users', {
+        where: [{ field: 'name', operator: 'ilike', value: '50%' }],
+      })
+      const callArgs = mockQuery.mock.calls[mockQuery.mock.calls.length - 1]
+      expect(callArgs[1]).toEqual(['%50\\%%'])
+    })
+  })
+
   describe('updateMany/deleteMany WHERE requirement', () => {
     let store: Store
 

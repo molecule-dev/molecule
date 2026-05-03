@@ -61,6 +61,14 @@ function buildWhere(
         values.push(String(cond.value).replace(/[%_\\]/g, '\\$&'))
         paramIdx++
         break
+      case 'ilike':
+        // Case-insensitive contains: caller passes the literal substring,
+        // we escape its LIKE metacharacters and wrap with `%…%` so the
+        // operator is safe to feed user input (no wildcard injection).
+        parts.push(`"${cond.field}" ILIKE $${paramIdx} ESCAPE '\\'`)
+        values.push(`%${String(cond.value).replace(/[%_\\]/g, '\\$&')}%`)
+        paramIdx++
+        break
       case 'is_null':
         parts.push(`"${cond.field}" IS NULL`)
         break

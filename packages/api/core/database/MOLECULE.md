@@ -359,6 +359,13 @@ interface WhereCondition {
     | 'in'
     | 'not_in'
     | 'like'
+    /**
+     * Case-insensitive substring match. The value is treated as a
+     * literal substring (LIKE wildcards in the value are escaped) and
+     * the bond wraps it with `%…%` to perform a contains-style match.
+     * Use this for human-typed search input where case shouldn't matter.
+     */
+    | 'ilike'
     | 'is_null'
     | 'is_not_null'
   value?: unknown
