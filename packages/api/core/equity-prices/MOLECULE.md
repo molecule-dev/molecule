@@ -368,7 +368,6 @@ function setProvider(provider: EquityPricesProvider): void
 | Provider | Package |
 |----------|---------|
 | Alpha Vantage Equity Prices | `@molecule/api-equity-prices-alpha-vantage` |
-| IEX Cloud Equity Prices | `@molecule/api-equity-prices-iex` |
 | Polygon.io Equity Prices | `@molecule/api-equity-prices-polygon` |
 
 ## Injection Notes
