@@ -41,19 +41,20 @@ export const createRequestHandlerMap = (
 
     // OAuth login — handler checks bond registry at request time.
     logInOAuth: createRequestHandler(handlers.logInOAuth(resource)),
+
+    // Payment handlers — always registered so route mounts don't crash with
+    // "argument handler must be a function" when no payments bond is wired
+    // at module-init time. The handlers themselves check the bond registry
+    // at REQUEST time and respond with 503 if no provider is bonded for the
+    // requested :provider. Adding a new payment provider requires only a
+    // new bond package — no source changes here.
+    verifyPayment: createRequestHandler(handlers.verifyPayment(resource)),
+    handlePaymentNotification: createRequestHandler(handlers.handlePaymentNotification(resource)),
   }
 
-  // Payment handlers — two generic handlers that work with any bonded
-  // payment provider. The provider name comes from the :provider route
-  // parameter at request time. Adding a new payment provider requires
-  // only a new bond package — no source changes here.
-  const paymentProviders = getAll<PaymentProvider>('payments')
-  if (paymentProviders.size > 0) {
-    map.verifyPayment = createRequestHandler(handlers.verifyPayment(resource))
-    map.handlePaymentNotification = createRequestHandler(
-      handlers.handlePaymentNotification(resource),
-    )
-  }
+  // Suppress unused-import warning while keeping the bond-registry import
+  // for future reuse (handlers themselves still consult `getAll<PaymentProvider>('payments')`).
+  void getAll<PaymentProvider>
 
   return map
 }

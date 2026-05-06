@@ -3,6 +3,7 @@ import type { PaymentProvider, PaymentRecordService, PlanService } from '@molecu
 import type { MoleculeRequest } from '@molecule/api-resource'
 import { update as resourceUpdate } from '@molecule/api-resource'
 
+import { updatePlanPropsSchema } from '../../schema.js'
 import type * as types from '../../types.js'
 
 const analytics = getAnalytics()
@@ -24,7 +25,7 @@ const logger = getLogger()
  * @param resource.schema - The validation schema for user properties.
  * @returns A request handler for payment provider notifications.
  */
-export const handlePaymentNotification = ({ name, tableName, schema }: types.Resource) => {
+export const handlePaymentNotification = ({ name, tableName, schema: _schema }: types.Resource) => {
   return async (req: MoleculeRequest) => {
     const okResponse = { statusCode: 200, body: 'OK' }
     const providerName = req.params.provider as string
@@ -40,10 +41,14 @@ export const handlePaymentNotification = ({ name, tableName, schema }: types.Res
 
       const records = get<PaymentRecordService>('paymentRecords')
 
+      // Use the partial plan-props schema, NOT the full user `schema`. The
+      // resource's full schema makes `id`/`createdAt`/`updatedAt` required,
+      // which would reject the partial `{ planKey, planExpiresAt, planAutoRenews }`
+      // payload we want to apply here.
       const updateUser = resourceUpdate({
         name,
         tableName,
-        schema,
+        schema: updatePlanPropsSchema as unknown as types.Resource['schema'],
       })
 
       const cancelTypes = ['canceled', 'expired', 'refund', 'revoked']
