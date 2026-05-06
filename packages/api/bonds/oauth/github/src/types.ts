@@ -26,6 +26,24 @@ declare global {
        * @see https://github.com/settings/developers
        */
       OAUTH_GITHUB_CLIENT_SECRET?: string
+
+      /**
+       * Override for the GitHub access-token endpoint. Defaults to
+       * `https://github.com/login/oauth/access_token`.
+       *
+       * Use this to point the bond at GitHub Enterprise, an internal proxy,
+       * or — most commonly — an E2E mock OAuth server.
+       */
+      OAUTH_GITHUB_TOKEN_URL?: string
+
+      /**
+       * Override for the GitHub user-info endpoint. Defaults to
+       * `https://api.github.com/user`.
+       *
+       * Pairs with `OAUTH_GITHUB_TOKEN_URL` for GitHub Enterprise / E2E
+       * mock setups.
+       */
+      OAUTH_GITHUB_USER_URL?: string
     }
   }
 }

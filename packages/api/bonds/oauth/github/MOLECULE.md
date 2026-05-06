@@ -69,6 +69,10 @@ type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string)
 Exchanges a GitHub OAuth authorization code for an access token, then
 fetches the authenticated user's profile from the GitHub API.
 
+The token and user-info URLs default to GitHub.com, but can be overridden
+via `OAUTH_GITHUB_TOKEN_URL` and `OAUTH_GITHUB_USER_URL` for GitHub
+Enterprise deployments or E2E mock servers.
+
 ```typescript
 function verify(code: string, codeVerifier?: string): Promise<{ username: string; email: string | undefined; oauthServer: "github"; oauthId: string; oauthData: Record<string, unknown>; }>
 ```

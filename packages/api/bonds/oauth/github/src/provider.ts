@@ -41,9 +41,18 @@ const logger = getLogger()
 /** The OAuth server identifier for GitHub. */
 export const serverName = `github` as const
 
+/** Default GitHub access-token endpoint. Overridable via `OAUTH_GITHUB_TOKEN_URL`. */
+const DEFAULT_TOKEN_URL = `https://github.com/login/oauth/access_token`
+/** Default GitHub user-info endpoint. Overridable via `OAUTH_GITHUB_USER_URL`. */
+const DEFAULT_USER_URL = `https://api.github.com/user`
+
 /**
  * Exchanges a GitHub OAuth authorization code for an access token, then
  * fetches the authenticated user's profile from the GitHub API.
+ *
+ * The token and user-info URLs default to GitHub.com, but can be overridden
+ * via `OAUTH_GITHUB_TOKEN_URL` and `OAUTH_GITHUB_USER_URL` for GitHub
+ * Enterprise deployments or E2E mock servers.
  *
  * @param code - The authorization code from the OAuth callback.
  * @param codeVerifier - The PKCE code verifier (if PKCE was used in the auth request).
@@ -51,12 +60,15 @@ export const serverName = `github` as const
  */
 export const verify: OAuthVerifier = async (code: string, codeVerifier?: string) => {
   try {
+    const tokenUrl = process.env.OAUTH_GITHUB_TOKEN_URL || DEFAULT_TOKEN_URL
+    const userUrl = process.env.OAUTH_GITHUB_USER_URL || DEFAULT_USER_URL
+
     const response = await post<{
       access_token: string
       token_type: string
       scope: string
     }>(
-      `https://github.com/login/oauth/access_token`,
+      tokenUrl,
       {
         client_id: process.env.OAUTH_GITHUB_CLIENT_ID,
         client_secret: process.env.OAUTH_GITHUB_CLIENT_SECRET,
@@ -74,7 +86,7 @@ export const verify: OAuthVerifier = async (code: string, codeVerifier?: string)
 
     const token = response.data.access_token
 
-    const { data: oauthData } = await get<Record<string, unknown>>(`https://api.github.com/user`, {
+    const { data: oauthData } = await get<Record<string, unknown>>(userUrl, {
       headers: {
         accept: `application/json`,
         authorization: `Bearer ${token}`,

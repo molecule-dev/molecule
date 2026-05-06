@@ -245,6 +245,33 @@ describe('GitHub OAuth Provider', () => {
 
       await expect(verify('test-auth-code')).rejects.toBeDefined()
     })
+
+    it('should honour OAUTH_GITHUB_TOKEN_URL / OAUTH_GITHUB_USER_URL overrides', async () => {
+      process.env.OAUTH_GITHUB_TOKEN_URL = 'http://127.0.0.1:9999/token'
+      process.env.OAUTH_GITHUB_USER_URL = 'http://127.0.0.1:9999/user'
+
+      mockPost.mockResolvedValue({
+        data: { access_token: 'mock-token', token_type: 'bearer', scope: 'user' },
+      })
+      mockGet.mockResolvedValue({
+        data: { id: 999, login: 'mockuser', email: 'mock@example.com' },
+      })
+
+      const { verify } = await import('../provider.js')
+      await verify('mock-auth-code')
+
+      expect(mockPost).toHaveBeenCalledWith(
+        'http://127.0.0.1:9999/token',
+        expect.objectContaining({ code: 'mock-auth-code' }),
+        expect.anything(),
+      )
+      expect(mockGet).toHaveBeenCalledWith(
+        'http://127.0.0.1:9999/user',
+        expect.objectContaining({
+          headers: expect.objectContaining({ authorization: 'Bearer mock-token' }),
+        }),
+      )
+    })
   })
 
   describe('index exports', () => {
