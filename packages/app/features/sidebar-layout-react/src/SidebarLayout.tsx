@@ -67,27 +67,51 @@ export function SidebarLayout({
     const isMatch = pathname === item.to || pathname.startsWith(`${item.to}/`)
     if (!isMatch) return bestKey
     if (bestKey === null) return item.key
-    const best = navItems.find(i => i.key === bestKey)
+    const best = navItems.find((i) => i.key === bestKey)
     return best && item.to.length > best.to.length ? item.key : bestKey
   }, null)
 
+  // safeTarget: when a Link's destination matches the current path, append
+  // a `#top` fragment so clicking still produces an observable URL change.
+  // Avoids "dead-link" behaviour on same-route clicks (active nav items,
+  // brand logo when already on the home route).
+  const safeTarget = (to: string): string => {
+    const samePath = pathname === to || pathname + '/' === to
+    return samePath ? `${to.replace(/\/$/, '')}#top` : to
+  }
+
   return (
     <div
-      className={cm.cn(cm.minH('screen'), cm.flex({ direction: 'row' }), 'bg-background text-on-surface antialiased', className)}
+      className={cm.cn(
+        cm.minH('screen'),
+        cm.flex({ direction: 'row' }),
+        'bg-background text-on-surface antialiased',
+        className,
+      )}
       data-mol-id={dataMolId}
     >
-      <aside className={cm.cn(cm.sp('p', 4), cm.shrink0, cm.flex({ direction: 'col' }), `${sidebarWidthClass} bg-surface border-r border-outline-variant`)}>
-        <Link to={logoTo} className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'), cm.sp('mb', 6), 'block')}>
+      <aside
+        className={cm.cn(
+          cm.sp('p', 4),
+          cm.shrink0,
+          cm.flex({ direction: 'col' }),
+          `${sidebarWidthClass} bg-surface border-r border-outline-variant`,
+        )}
+      >
+        <Link
+          to={safeTarget(logoTo)}
+          className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'), cm.sp('mb', 6), 'block')}
+        >
           {appName}
         </Link>
 
         <nav className={cm.cn(cm.flex1, 'space-y-1')} aria-label={navAriaLabel}>
-          {navItems.map(item => {
+          {navItems.map((item) => {
             const isActive = item.key === activeKey
             return (
               <Link
                 key={item.key}
-                to={item.to}
+                to={safeTarget(item.to)}
                 aria-current={isActive ? 'page' : undefined}
                 className={cm.cn(
                   cm.flex({ align: 'center', gap: 'sm' }),
@@ -101,18 +125,20 @@ export function SidebarLayout({
                     : cm.cn(cm.textMuted, 'hover:bg-surface-container hover:text-on-surface'),
                 )}
               >
-                {item.icon
-                  ? <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
-                  : null}
+                {item.icon ? (
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    {item.icon}
+                  </span>
+                ) : null}
                 <span>{item.label}</span>
               </Link>
             )
           })}
         </nav>
 
-        {userMenu
-          ? <div className={cm.cn(cm.sp('pt', 4), 'border-t border-outline-variant')}>{userMenu}</div>
-          : null}
+        {userMenu ? (
+          <div className={cm.cn(cm.sp('pt', 4), 'border-t border-outline-variant')}>{userMenu}</div>
+        ) : null}
       </aside>
 
       <main className={cm.cn(cm.flex1, 'min-w-0 overflow-y-auto')}>
