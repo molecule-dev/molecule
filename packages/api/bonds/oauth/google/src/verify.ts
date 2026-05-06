@@ -13,8 +13,17 @@ const logger = getLogger()
 /** The OAuth server identifier for Google. */
 export const serverName = `google` as const
 
+/** Default Google access-token endpoint. Overridable via `OAUTH_GOOGLE_TOKEN_URL`. */
+const DEFAULT_TOKEN_URL = `https://www.googleapis.com/oauth2/v4/token`
+/** Default Google userinfo endpoint. Overridable via `OAUTH_GOOGLE_USER_URL`. */
+const DEFAULT_USER_URL = `https://www.googleapis.com/oauth2/v3/userinfo`
+
 /**
  * Verifies a Google OAuth code and responds with OAuth-related user props.
+ *
+ * Endpoints can be overridden via `OAUTH_GOOGLE_TOKEN_URL` and
+ * `OAUTH_GOOGLE_USER_URL` for testing (E2E mocks) or proxy deployments.
+ *
  * @param code - The authorization code from the OAuth callback.
  * @param codeVerifier - The PKCE code verifier (if PKCE was used).
  * @param redirectUri - The redirect URI used in the authorization request.
@@ -26,12 +35,14 @@ export const verify: OAuthVerifier = async (
   redirectUri?: string,
 ) => {
   try {
+    const tokenUrl = process.env.OAUTH_GOOGLE_TOKEN_URL || DEFAULT_TOKEN_URL
+    const userUrl = process.env.OAUTH_GOOGLE_USER_URL || DEFAULT_USER_URL
     const response = await post<{
       access_token: string
       token_type: string
       scope: string
     }>(
-      `https://www.googleapis.com/oauth2/v4/token`,
+      tokenUrl,
       {
         client_id: process.env.OAUTH_GOOGLE_CLIENT_ID,
         client_secret: process.env.OAUTH_GOOGLE_CLIENT_SECRET,
@@ -50,16 +61,13 @@ export const verify: OAuthVerifier = async (
 
     const token = response.data.access_token
 
-    const { data: oauthData } = await get<Record<string, unknown>>(
-      `https://www.googleapis.com/oauth2/v3/userinfo`,
-      {
-        headers: {
-          accept: `application/json`,
-          authorization: `Bearer ${token}`,
-        },
-        timeout: 15_000,
+    const { data: oauthData } = await get<Record<string, unknown>>(userUrl, {
+      headers: {
+        accept: `application/json`,
+        authorization: `Bearer ${token}`,
       },
-    )
+      timeout: 15_000,
+    })
 
     return {
       username: `${oauthData.email || oauthData.sub}@google`,

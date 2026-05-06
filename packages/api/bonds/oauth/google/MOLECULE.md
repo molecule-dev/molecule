@@ -118,6 +118,9 @@ type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string)
 
 Verifies a Google OAuth code and responds with OAuth-related user props.
 
+Endpoints can be overridden via `OAUTH_GOOGLE_TOKEN_URL` and
+`OAUTH_GOOGLE_USER_URL` for testing (E2E mocks) or proxy deployments.
+
 ```typescript
 function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; oauthServer: "google"; oauthId: string; oauthData: Record<string, unknown>; }>
 ```
