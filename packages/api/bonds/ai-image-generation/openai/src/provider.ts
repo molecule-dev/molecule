@@ -40,6 +40,38 @@ interface OpenAIErrorResponse {
 }
 
 /**
+ * Each OpenAI image model has a hard whitelist of acceptable `size`
+ * values. Callers that pass a size the chosen model can't handle
+ * (e.g. an aspect-ratio derived `1792x1024` for `gpt-image-1`) get a
+ * 400 from the upstream API. Map the requested size to the closest
+ * supported size for the active model so the call still succeeds.
+ *
+ * - dall-e-3:    1024x1024 | 1024x1792 | 1792x1024
+ * - gpt-image-1: 1024x1024 | 1024x1536 | 1536x1024 | auto
+ */
+function normalizeSize(size: string, model: string): string {
+  if (model.startsWith('gpt-image')) {
+    const allowed = new Set(['1024x1024', '1024x1536', '1536x1024', 'auto'])
+    if (allowed.has(size)) return size
+    const [w, h] = size.split('x').map((n) => Number(n))
+    if (!w || !h) return '1024x1024'
+    if (w > h) return '1536x1024'
+    if (h > w) return '1024x1536'
+    return '1024x1024'
+  }
+  if (model.startsWith('dall-e-3')) {
+    const allowed = new Set(['1024x1024', '1024x1792', '1792x1024'])
+    if (allowed.has(size)) return size
+    const [w, h] = size.split('x').map((n) => Number(n))
+    if (!w || !h) return '1024x1024'
+    if (w > h) return '1792x1024'
+    if (h > w) return '1024x1792'
+    return '1024x1024'
+  }
+  return size
+}
+
+/**
  * Maps the provider-agnostic `ImageResponseFormat` to the OpenAI API's `output_format` values.
  * DALL-E 3 uses `response_format` with 'url' | 'b64_json'.
  * gpt-image-1 uses `output_format` with 'png' | 'jpeg' | 'webp' and always returns base64.
@@ -73,7 +105,7 @@ class OpenaiImageGenerationProvider implements AIImageGenerationProvider {
   private defaultModel: string
   private baseUrl: string
   private defaultSize: string
-  private defaultQuality: string
+  private defaultQuality: string | undefined
 
   /**
    * Creates a new OpenAI image generation provider.
@@ -99,22 +131,29 @@ class OpenaiImageGenerationProvider implements AIImageGenerationProvider {
    */
   async generate(params: ImageGenerateParams): Promise<ImageGenerationResult> {
     const model = params.model ?? this.defaultModel
+    const isGptImage = model.startsWith('gpt-image')
     const body: Record<string, unknown> = {
       model,
       prompt: params.prompt,
       n: params.n ?? 1,
-      size: params.size ?? this.defaultSize,
+      size: normalizeSize(params.size ?? this.defaultSize, model),
       ...mapResponseFormat(params.responseFormat, model),
     }
 
+    // `quality` enum differs by model:
+    //   gpt-image-1 → 'auto' | 'high' | 'medium' | 'low'
+    //   dall-e-3    → 'standard' | 'hd'
+    // Only attach when the caller (or config) actually set it.
     if (params.quality) {
       body.quality = params.quality
     } else if (this.defaultQuality) {
       body.quality = this.defaultQuality
     }
-    // else: omit `quality` so OpenAI picks the model-appropriate default
 
-    if (params.style) {
+    // `style` ('vivid' | 'natural') is dall-e-3 specific. gpt-image-1
+    // rejects it as an unknown parameter, so silently drop it for that
+    // family rather than failing the whole request.
+    if (params.style && !isGptImage) {
       body.style = params.style
     }
 
