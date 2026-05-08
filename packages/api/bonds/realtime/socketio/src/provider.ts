@@ -42,7 +42,21 @@ interface RoomState {
  * @returns A fully initialised `RealtimeProvider` backed by Socket.io.
  */
 export function createProvider(config: SocketioRealtimeConfig = {}): RealtimeProvider {
-  const { serverOptions = {}, httpServer, port = 3000, namespace = '/' } = config
+  const { serverOptions = {}, httpServer, namespace = '/' } = config
+
+  // Resolve port with sensible per-deployment defaults so multiple flagships
+  // can run side-by-side on the same machine without colliding on port 3000:
+  //   1. explicit `config.port`
+  //   2. `process.env.SOCKETIO_PORT`
+  //   3. `process.env.PORT + 1000` (matches `npm run dev`'s API port + 1000)
+  //   4. fall back to 3000 for back-compat with examples
+  const envPort = process.env.SOCKETIO_PORT && Number(process.env.SOCKETIO_PORT)
+  const apiPort = process.env.PORT && Number(process.env.PORT)
+  const port =
+    config.port ??
+    (envPort && Number.isFinite(envPort) ? envPort : undefined) ??
+    (apiPort && Number.isFinite(apiPort) ? apiPort + 1000 : undefined) ??
+    3000
 
   const io: Server = httpServer
     ? new Server(httpServer, serverOptions)

@@ -255,8 +255,17 @@ export const paymentProvider: PaymentProvider = {
       }
 
       // No existing subscription — create a Stripe Checkout session.
-      const apiOrigin = process.env.API_ORIGIN || process.env.ORIGIN || ''
-      const appOrigin = process.env.APP_ORIGIN || process.env.ORIGIN || ''
+      // Stripe rejects empty/relative success_url and cancel_url with
+      // `code: 'url_invalid'`. When neither API_ORIGIN/APP_ORIGIN nor
+      // ORIGIN is set (typical in dev / smoke-app spin-ups), fall back to
+      // `http://localhost:${PORT}` so checkout still works locally.
+      const apiPort = Number(process.env.PORT) || 4000
+      const fallbackApiOrigin = `http://localhost:${apiPort}`
+      // Conventional dev frontend lives on apiPort - 1000 (e.g. 4030 → 3030).
+      // Mirrors the polish-v2 dispatcher's port pairing.
+      const fallbackAppOrigin = `http://localhost:${apiPort - 1000}`
+      const apiOrigin = process.env.API_ORIGIN || process.env.ORIGIN || fallbackApiOrigin
+      const appOrigin = process.env.APP_ORIGIN || process.env.ORIGIN || fallbackAppOrigin
 
       // Generate idempotency key from userId + priceId + timestamp window (5-min buckets)
       // This prevents duplicate checkout sessions if the user double-clicks or retries
