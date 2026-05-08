@@ -36,6 +36,7 @@ export const createRequestHandlerMap = (
     del: createRequestHandler(handlers.del(resource)),
     updatePassword: createRequestHandler(handlers.updatePassword(resource)),
     forgotPassword: createRequestHandler(handlers.forgotPassword(resource)),
+    resetPassword: createRequestHandler(handlers.resetPassword(resource)),
     verifyTwoFactor: createRequestHandler(handlers.verifyTwoFactor(resource)),
     updatePlan: createRequestHandler(handlers.updatePlan(resource)),
 

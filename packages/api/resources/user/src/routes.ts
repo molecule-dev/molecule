@@ -21,6 +21,12 @@ export const routes = [
     middlewares: [],
     handler: 'forgotPassword',
   },
+  {
+    method: 'post' as const,
+    path: '/users/reset-password',
+    middlewares: [],
+    handler: 'resetPassword',
+  },
 
   // User CRUD (requires auth)
   { method: 'get' as const, path: '/users/:id', middlewares: ['authSelf'], handler: 'read' },
