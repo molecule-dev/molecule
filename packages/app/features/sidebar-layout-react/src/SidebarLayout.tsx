@@ -83,9 +83,9 @@ export function SidebarLayout({
   return (
     <div
       className={cm.cn(
-        cm.minH('screen'),
+        cm.h('screen'),
         cm.flex({ direction: 'row' }),
-        'bg-background text-on-surface antialiased',
+        'bg-background text-on-surface antialiased overflow-hidden',
         className,
       )}
       data-mol-id={dataMolId}

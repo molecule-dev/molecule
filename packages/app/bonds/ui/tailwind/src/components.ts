@@ -335,7 +335,7 @@ export const avatarFallback =
 
 /** Modal/Dialog overlay classes. */
 export const dialogOverlay =
-  'fixed inset-0 z-modal bg-overlay backdrop-blur-[2px] pointer-events-none'
+  'fixed inset-0 z-[1300] bg-overlay backdrop-blur-[2px] pointer-events-none'
 
 /**
  * The dialog content.
@@ -379,7 +379,7 @@ export const dialogClose =
 /**
  * The dialog wrapper.
  */
-export const dialogWrapper = 'fixed inset-0 z-modal flex items-center justify-center px-4 py-10'
+export const dialogWrapper = 'fixed inset-0 z-[1300] flex items-center justify-center px-4 py-10'
 /**
  * The dialog body.
  */
@@ -387,13 +387,13 @@ export const dialogBody = 'flex-1 min-h-0 overflow-y-auto pl-6 py-6 *:pr-6'
 
 /** Action sheet: bottom-anchored panel for pickers and action menus. */
 export const actionSheet =
-  'fixed bottom-0 left-0 right-0 z-modal bg-surface rounded-t-2xl max-h-[50vh] overflow-hidden'
+  'fixed bottom-0 left-0 right-0 z-[1300] bg-surface rounded-t-2xl max-h-[50vh] overflow-hidden'
 /** Action sheet header with bottom border. */
 export const actionSheetHeader = 'flex-shrink-0 px-4 py-3 border-b border-border'
 
 /** Dropdown menu content container classes. */
 export const dropdownContent =
-  'z-dropdown min-w-[8rem] overflow-hidden rounded-md border bg-surface p-1 text-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95'
+  'z-[1000] min-w-[8rem] overflow-hidden rounded-md border bg-surface p-1 text-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95'
 
 /** Dropdown menu item classes. */
 export const dropdownItem =
@@ -449,7 +449,7 @@ export const tabsContent =
 
 /** Tooltip content container classes. */
 export const tooltipContent =
-  'z-tooltip overflow-hidden rounded-md border bg-surface px-3 py-1.5 text-sm text-foreground shadow-md animate-in fade-in-0 zoom-in-95'
+  'z-[1500] overflow-hidden rounded-md border bg-surface px-3 py-1.5 text-sm text-foreground shadow-md animate-in fade-in-0 zoom-in-95'
 
 /**
  * Progress component classes.
@@ -498,7 +498,7 @@ export const spinner = cva(
 
 /** Toast viewport container classes (positioned fixed, stacked). */
 export const toastViewport =
-  'fixed top-0 z-toast flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]'
+  'fixed top-0 z-[1600] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]'
 
 /**
  * Tailwind toast notification variant classes (default, success, error, warning).

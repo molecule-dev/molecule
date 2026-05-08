@@ -178,7 +178,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
 
       try {
         const token = tokenStorage.getAccessToken()
-        if (token) {
+        if (token && logoutEndpoint) {
           await fetchAPI(logoutEndpoint, { method: 'POST' }).catch((err) => {
             logger.debug('Logout endpoint call failed (non-critical)', err)
           })
