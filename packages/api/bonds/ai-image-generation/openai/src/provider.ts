@@ -85,7 +85,10 @@ class OpenaiImageGenerationProvider implements AIImageGenerationProvider {
     this.defaultModel = config.defaultModel ?? 'gpt-image-1'
     this.baseUrl = config.baseUrl ?? 'https://api.openai.com'
     this.defaultSize = config.defaultSize ?? '1024x1024'
-    this.defaultQuality = config.defaultQuality ?? 'auto'
+    // No fallback default: 'auto' is only valid for gpt-image-1; dall-e-3
+    // accepts 'standard' | 'hd'. When neither caller nor config sets it,
+    // omit `quality` and let OpenAI use the model-appropriate default.
+    this.defaultQuality = config.defaultQuality
   }
 
   /**
@@ -106,9 +109,10 @@ class OpenaiImageGenerationProvider implements AIImageGenerationProvider {
 
     if (params.quality) {
       body.quality = params.quality
-    } else {
+    } else if (this.defaultQuality) {
       body.quality = this.defaultQuality
     }
+    // else: omit `quality` so OpenAI picks the model-appropriate default
 
     if (params.style) {
       body.style = params.style
