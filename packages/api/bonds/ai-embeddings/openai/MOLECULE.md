@@ -79,3 +79,7 @@ export function setupAiEmbeddingsOpenai(): void {
 
 Peer dependencies:
 - `@molecule/api-ai-embeddings` >=1.0.0
+
+### Environment Variables
+
+- `OPENAI_API_KEY` *(required)*

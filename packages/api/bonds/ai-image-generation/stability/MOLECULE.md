@@ -86,3 +86,7 @@ export function setupAiImageGenerationStability(): void {
 
 Peer dependencies:
 - `@molecule/api-ai-image-generation` >=1.0.0
+
+### Environment Variables
+
+- `STABILITY_API_KEY` *(required)*

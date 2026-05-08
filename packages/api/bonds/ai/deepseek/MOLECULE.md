@@ -47,3 +47,9 @@ function createProvider(config?: DeepseekConfig): DeepseekAIProvider
 
 ## Core Interface
 Implements `@molecule/api-ai` interface.
+
+## Injection Notes
+
+### Environment Variables
+
+- `DEEPSEEK_API_KEY` *(required)*

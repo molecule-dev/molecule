@@ -5,7 +5,7 @@
  */
 
 import type { ReactNode } from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useAuth, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -92,6 +92,14 @@ export function SidebarUserCard({
   const user = auth.user
   const [open, setOpen] = useState(false)
 
+  // Close drawer on browser back/forward navigation so subsequent
+  // SPA route changes don't leave the modal overlay covering the page.
+  useEffect(() => {
+    const onPop = () => setOpen(false)
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
   const guestName = t('sidebarUserCard.guest', {}, { defaultValue: 'Guest' })
   const displayName = name ?? user?.name ?? user?.email ?? guestName
   const displaySecondary = secondaryLine ?? user?.email ?? undefined
@@ -111,61 +119,41 @@ export function SidebarUserCard({
           'w-full text-left rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors',
         )}
       >
-        {displayAvatarUrl
-          ? (
-            <img
-              src={displayAvatarUrl}
-              alt=""
-              className={cm.cn(
-                cm.w(10),
-                cm.h(10),
-                cm.roundedFull,
-                'shrink-0 object-cover',
-              )}
-            />
-          )
-          : (
-            <span
-              aria-hidden="true"
-              className={cm.cn(
-                cm.w(10),
-                cm.h(10),
-                cm.roundedFull,
-                cm.flex({ align: 'center', justify: 'center' }),
-                cm.textSize('sm'),
-                cm.fontWeight('bold'),
-                'shrink-0',
-              )}
-              style={{
-                backgroundColor: 'var(--color-primary)',
-                color: 'var(--color-on-primary, #ffffff)',
-              }}
-            >
-              {getInitials(displayName)}
-            </span>
-          )}
-        <span className={cm.cn('min-w-0 flex-1')}>
+        {displayAvatarUrl ? (
+          <img
+            src={displayAvatarUrl}
+            alt=""
+            className={cm.cn(cm.w(10), cm.h(10), cm.roundedFull, 'shrink-0 object-cover')}
+          />
+        ) : (
           <span
+            aria-hidden="true"
             className={cm.cn(
+              cm.w(10),
+              cm.h(10),
+              cm.roundedFull,
+              cm.flex({ align: 'center', justify: 'center' }),
               cm.textSize('sm'),
-              cm.fontWeight('semibold'),
-              'block truncate',
+              cm.fontWeight('bold'),
+              'shrink-0',
             )}
+            style={{
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-on-primary, #ffffff)',
+            }}
           >
+            {getInitials(displayName)}
+          </span>
+        )}
+        <span className={cm.cn('min-w-0 flex-1')}>
+          <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'), 'block truncate')}>
             {displayName}
           </span>
-          {displaySecondary
-            ? (
-              <span
-                className={cm.cn(
-                  cm.textSize('xs'),
-                  'block truncate text-on-surface-variant',
-                )}
-              >
-                {displaySecondary}
-              </span>
-            )
-            : null}
+          {displaySecondary ? (
+            <span className={cm.cn(cm.textSize('xs'), 'block truncate text-on-surface-variant')}>
+              {displaySecondary}
+            </span>
+          ) : null}
         </span>
       </button>
       <Modal open={open} onClose={() => setOpen(false)} className={cm.drawer}>

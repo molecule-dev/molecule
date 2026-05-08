@@ -47,3 +47,9 @@ function createProvider(config?: OpenaiConfig): OpenaiAIProvider
 
 ## Core Interface
 Implements `@molecule/api-ai` interface.
+
+## Injection Notes
+
+### Environment Variables
+
+- `OPENAI_API_KEY` *(required)*

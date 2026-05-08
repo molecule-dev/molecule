@@ -112,6 +112,7 @@ export function SidebarLayout({
               <Link
                 key={item.key}
                 to={safeTarget(item.to)}
+                data-mol-id={`nav-${item.key}`}
                 aria-current={isActive ? 'page' : undefined}
                 className={cm.cn(
                   cm.flex({ align: 'center', gap: 'sm' }),

@@ -44,3 +44,8 @@ export function setupJwtJsonwebtoken(): void {
 
 Peer dependencies:
 - `@molecule/api-jwt` ^1.0.0
+
+### Environment Variables
+
+- `JWT_PRIVATE_KEY` *(required)*
+- `JWT_PUBLIC_KEY` *(required)*

@@ -435,3 +435,8 @@ export function setupSearchTypesense(): void {
 
 Peer dependencies:
 - `@molecule/api-search` ^1.0.0
+
+### Environment Variables
+
+- `TYPESENSE_HOST` *(required)*
+- `TYPESENSE_API_KEY` *(required)*

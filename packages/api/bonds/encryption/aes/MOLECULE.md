@@ -101,3 +101,7 @@ export function setupEncryptionAes(): void {
 
 Peer dependencies:
 - `@molecule/api-encryption` ^1.0.0
+
+### Environment Variables
+
+- `ENCRYPTION_KEY` *(required)*

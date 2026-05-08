@@ -96,3 +96,7 @@ export function setupGeolocationMapbox(): void {
 
 Peer dependencies:
 - `@molecule/api-geolocation` ^1.0.0
+
+### Environment Variables
+
+- `MAPBOX_ACCESS_TOKEN` *(required)*

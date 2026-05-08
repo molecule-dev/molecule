@@ -47,3 +47,9 @@ function createProvider(config?: GoogleConfig): GoogleAIProvider
 
 ## Core Interface
 Implements `@molecule/api-ai` interface.
+
+## Injection Notes
+
+### Environment Variables
+
+- `GOOGLE_AI_API_KEY` *(required)*

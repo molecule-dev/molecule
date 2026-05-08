@@ -73,3 +73,9 @@ Implements `@molecule/api-sms` interface.
 
 Peer dependencies:
 - `@molecule/api-sms` 1.0.0
+
+### Environment Variables
+
+- `TWILIO_ACCOUNT_SID` *(required)*
+- `TWILIO_AUTH_TOKEN` *(required)*
+- `TWILIO_FROM_NUMBER` *(required)*

@@ -56,3 +56,7 @@ Implements `@molecule/api-ai-image-generation` interface.
 
 Peer dependencies:
 - `@molecule/api-ai-image-generation` >=1.0.0
+
+### Environment Variables
+
+- `OPENAI_API_KEY` *(required)*

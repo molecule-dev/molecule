@@ -96,3 +96,7 @@ export function setupGeolocationGoogle(): void {
 
 Peer dependencies:
 - `@molecule/api-geolocation` ^1.0.0
+
+### Environment Variables
+
+- `GOOGLE_MAPS_API_KEY` *(required)*

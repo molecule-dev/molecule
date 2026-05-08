@@ -103,7 +103,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `DATABASE_URL` *(required)* — default: `postgres://localhost:5432/myapp`
+- `DATABASE_URL` *(required)* — default: `postgres://molecule:molecule@127.0.0.1:5432/myapp`
 
 ### Runtime Dependencies
 

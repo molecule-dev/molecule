@@ -421,3 +421,8 @@ export function setupSearchMeilisearch(): void {
 
 Peer dependencies:
 - `@molecule/api-search` ^1.0.0
+
+### Environment Variables
+
+- `MEILISEARCH_HOST` *(required)*
+- `MEILISEARCH_API_KEY` *(required)*
