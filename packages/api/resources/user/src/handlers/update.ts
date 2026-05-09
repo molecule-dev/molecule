@@ -6,8 +6,21 @@ import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest } from '@molecule/api-resource'
 import { update as resourceUpdate } from '@molecule/api-resource'
 
-import { updatePropsSchema } from '../schema.js'
+import { propsSchema, updatePropsSchema } from '../schema.js'
 import type * as types from '../types.js'
+
+/**
+ * Extended update schema that also permits the application-specific
+ * `oauthData` bag to flow through the standard `PATCH /api/users/:id`
+ * endpoint. Apps frequently store per-user UI/feature preferences inside
+ * `oauthData` (it is the only freeform JSON field on the user row), so
+ * the update handler needs to accept and persist it.
+ *
+ * Username/name/email retain their existing validation paths above.
+ */
+const extendedUpdatePropsSchema = updatePropsSchema.extend({
+  oauthData: propsSchema.shape.oauthData,
+})
 
 /**
  * Updates a user's profile fields (username, name, email). Validates username format
@@ -23,13 +36,13 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
   const updateResource = resourceUpdate({
     name,
     tableName,
-    schema: updatePropsSchema,
+    schema: extendedUpdatePropsSchema,
   })
 
   return async (req: MoleculeRequest) => {
     try {
       const id = req.params.id as string
-      const props: types.UpdateProps = {}
+      const props: types.UpdateProps & { oauthData?: Record<string, unknown> } = {}
 
       if (req.body.username !== undefined) {
         props.username = String(req.body.username)
@@ -94,6 +107,33 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
               },
             }
           }
+        }
+      }
+
+      if (req.body.oauthData !== undefined) {
+        if (req.body.oauthData === null || typeof req.body.oauthData !== 'object') {
+          return {
+            statusCode: 400,
+            body: {
+              error: t('user.error.oauthDataInvalid', undefined, {
+                defaultValue: 'oauthData must be an object.',
+              }),
+              errorKey: 'user.error.oauthDataInvalid',
+            },
+          }
+        }
+        props.oauthData = req.body.oauthData as Record<string, unknown>
+      }
+
+      if (Object.keys(props).length === 0) {
+        return {
+          statusCode: 400,
+          body: {
+            error: t('user.error.noUpdatableFields', undefined, {
+              defaultValue: 'No updatable fields were provided.',
+            }),
+            errorKey: 'user.error.noUpdatableFields',
+          },
         }
       }
 

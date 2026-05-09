@@ -220,6 +220,15 @@ export function createStore(pool: DatabasePool): DataStore {
     ): Promise<MutationResult<T>> {
       assertSafeIdentifier(table)
       const keys = Object.keys(data)
+      // No-op when there are no fields to update — return the existing row
+      // so callers see `affected: 1` for known-id reads. Issuing an UPDATE
+      // with an empty SET clause produces a SQL syntax error, which is a
+      // surprising failure mode for handlers that strip every input field
+      // via Zod `.partial().pick({...})` and end up passing `{}` here.
+      if (keys.length === 0) {
+        const existing = await pool.query<T>(`SELECT * FROM "${table}" WHERE "id" = $1`, [id])
+        return { data: existing.rows[0] ?? null, affected: existing.rowCount ?? 0 }
+      }
       for (const k of keys) assertSafeIdentifier(k)
       const setClauses = keys.map((k, i) => `"${k}" = $${i + 1}`).join(', ')
       const values = [...keys.map((k) => data[k]), id]
