@@ -20,7 +20,7 @@ const variantMap: Record<string, 'default' | 'elevated' | 'outline' | 'ghost'> =
 /**
  * Card component.
  */
-export const Card = forwardRef<HTMLDivElement, CardProps>(
+export const Card = forwardRef<HTMLDivElement, CardProps & { 'data-mol-id'?: string }>(
   (
     {
       children,
@@ -31,6 +31,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       style,
       testId,
       onClick,
+      ...rest
     },
     ref,
   ) => {
@@ -45,6 +46,11 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       className,
     )
 
+    const passthrough: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(rest as Record<string, unknown>)) {
+      if (k.startsWith('data-') || k.startsWith('aria-')) passthrough[k] = v
+    }
+
     return (
       <div
         ref={ref}
@@ -54,6 +60,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         onClick={onClick as unknown as React.MouseEventHandler<HTMLDivElement>}
         role={interactive ? 'button' : undefined}
         tabIndex={interactive ? 0 : undefined}
+        {...passthrough}
       >
         {children as React.ReactNode}
       </div>
