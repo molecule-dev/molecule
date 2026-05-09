@@ -269,10 +269,12 @@ describe('@molecule/api-realtime-socketio', () => {
       expect(emitMock).toHaveBeenCalledWith('chat:message', { text: 'hello' })
     })
 
-    it('throws when room does not exist', async () => {
-      await expect(provider.broadcast('nonexistent', 'ev', {})).rejects.toThrow(
-        'Room "nonexistent" does not exist',
-      )
+    it('emits to a never-created room as a no-op (matches Socket.io fan-out semantics)', async () => {
+      await expect(provider.broadcast('nonexistent', 'ev', { x: 1 })).resolves.toBeUndefined()
+      expect(mockNamespace.to).toHaveBeenCalledWith('nonexistent')
+      const emitMock = (mockNamespace.to as ReturnType<typeof vi.fn>).mock.results.at(-1)!.value
+        .emit
+      expect(emitMock).toHaveBeenCalledWith('ev', { x: 1 })
     })
   })
 

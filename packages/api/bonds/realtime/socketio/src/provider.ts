@@ -173,11 +173,10 @@ export function createProvider(config: SocketioRealtimeConfig = {}): RealtimePro
     },
 
     async broadcast(roomId: string, event: string, data: unknown): Promise<void> {
-      const state = rooms.get(roomId)
-      if (!state) {
-        throw new Error(`Room "${roomId}" does not exist`)
-      }
-
+      // Broadcast is fan-out pub/sub: if no clients ever joined the room,
+      // there are simply no subscribers to deliver to. Match Socket.IO
+      // semantics (always-safe emit) instead of throwing — callers should
+      // not need to coordinate with the receiver's join lifecycle.
       nsp.to(roomId).emit(event, data)
     },
 
