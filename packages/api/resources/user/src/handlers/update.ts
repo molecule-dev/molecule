@@ -20,6 +20,7 @@ import type * as types from '../types.js'
  */
 const extendedUpdatePropsSchema = updatePropsSchema.extend({
   oauthData: propsSchema.shape.oauthData,
+  twoFactorEnabled: propsSchema.shape.twoFactorEnabled,
 })
 
 /**
@@ -42,7 +43,10 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
   return async (req: MoleculeRequest) => {
     try {
       const id = req.params.id as string
-      const props: types.UpdateProps & { oauthData?: Record<string, unknown> } = {}
+      const props: types.UpdateProps & {
+        oauthData?: Record<string, unknown>
+        twoFactorEnabled?: boolean
+      } = {}
 
       if (req.body.username !== undefined) {
         props.username = String(req.body.username)
@@ -108,6 +112,10 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
             }
           }
         }
+      }
+
+      if (req.body.twoFactorEnabled !== undefined) {
+        props.twoFactorEnabled = Boolean(req.body.twoFactorEnabled)
       }
 
       if (req.body.oauthData !== undefined) {
