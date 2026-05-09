@@ -29,7 +29,7 @@ import type {
  * @returns Async-state for the pricing tiers response.
  */
 export function usePricingTiers<TLimits = unknown>(): UseHttpResult<PricingTiersResponse<TLimits>> {
-  return useGet<PricingTiersResponse<TLimits>>('/billing/tiers', { immediate: true })
+  return useGet<PricingTiersResponse<TLimits>>('/api/billing/tiers', { immediate: true })
 }
 
 /**
@@ -41,7 +41,7 @@ export function usePricingTiers<TLimits = unknown>(): UseHttpResult<PricingTiers
  * @returns Async-state for the user's billing status.
  */
 export function useBillingStatus<TLimits = unknown>(): UseHttpResult<BillingStatus<TLimits>> {
-  return useGet<BillingStatus<TLimits>>('/billing/status', { immediate: true })
+  return useGet<BillingStatus<TLimits>>('/api/billing/status', { immediate: true })
 }
 
 /** Async-state shape returned by `useStartCheckout` / `useCancelSubscription`. */
@@ -79,7 +79,7 @@ export function useStartCheckout(): BillingActionState<CheckoutResponse> & {
     async (priceId: string): Promise<CheckoutResponse | null> => {
       setState({ data: null, loading: true, error: null })
       try {
-        const response = await client.post<CheckoutResponse>('/billing/checkout', { priceId })
+        const response = await client.post<CheckoutResponse>('/api/billing/checkout', { priceId })
         setState({ data: response.data, loading: false, error: null })
         return response.data
       } catch (err) {
@@ -113,7 +113,7 @@ export function useCancelSubscription(): BillingActionState<CancelResponse> & {
   const cancel = useCallback(async (): Promise<CancelResponse | null> => {
     setState({ data: null, loading: true, error: null })
     try {
-      const response = await client.post<CancelResponse>('/billing/cancel', {})
+      const response = await client.post<CancelResponse>('/api/billing/cancel', {})
       setState({ data: response.data, loading: false, error: null })
       return response.data
     } catch (err) {
