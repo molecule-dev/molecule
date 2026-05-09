@@ -320,7 +320,8 @@ export const buildTimeSeriesSQL = (q: TimeSeriesQuery): BuiltQuery => {
   const params: unknown[] = []
   let paramIdx = 1
 
-  const selectParts: string[] = [`date_trunc('${q.interval}', "${dateField}") AS "date"`]
+  const dateExpr = `date_trunc('${q.interval}', "${dateField}")`
+  const selectParts: string[] = [`${dateExpr} AS "date"`]
   for (const measure of q.measures) {
     selectParts.push(buildMeasureExpression(measure))
   }
@@ -353,7 +354,7 @@ export const buildTimeSeriesSQL = (q: TimeSeriesQuery): BuiltQuery => {
     params.push(...filterParams)
   }
 
-  sql += ` GROUP BY "date" ORDER BY "date" ASC`
+  sql += ` GROUP BY ${dateExpr} ORDER BY ${dateExpr} ASC`
 
   return { sql, params }
 }

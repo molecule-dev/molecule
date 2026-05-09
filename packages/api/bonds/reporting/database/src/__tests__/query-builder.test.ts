@@ -367,8 +367,8 @@ describe('query-builder', () => {
         measures: [{ field: '*', function: 'count' }],
       })
       expect(result.sql).toContain('date_trunc(\'day\', "created_at")')
-      expect(result.sql).toContain('GROUP BY "date"')
-      expect(result.sql).toContain('ORDER BY "date" ASC')
+      expect(result.sql).toContain('GROUP BY date_trunc(\'day\', "created_at")')
+      expect(result.sql).toContain('ORDER BY date_trunc(\'day\', "created_at") ASC')
     })
 
     it('should handle all intervals', () => {

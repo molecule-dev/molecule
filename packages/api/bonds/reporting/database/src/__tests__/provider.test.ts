@@ -187,8 +187,8 @@ describe('database reporting provider', () => {
 
       const sql = mockQuery.mock.calls[0][0] as string
       expect(sql).toContain("date_trunc('day'")
-      expect(sql).toContain('GROUP BY "date"')
-      expect(sql).toContain('ORDER BY "date" ASC')
+      expect(sql).toContain('GROUP BY date_trunc(\'day\', "created_at")')
+      expect(sql).toContain('ORDER BY date_trunc(\'day\', "created_at") ASC')
     })
 
     it('should handle date range filters', async () => {
