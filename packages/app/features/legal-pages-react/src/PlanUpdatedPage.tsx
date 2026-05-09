@@ -58,7 +58,10 @@ export function PlanUpdatedPage({
   }
 
   return (
-    <div className={cm.cn(cm.textCenter, cm.sp('py', 12))}>
+    <main
+      data-mol-id="page-plan-updated"
+      className={cm.cn(cm.textCenter, cm.sp('py', 12))}
+    >
       <h2 className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 2))}>
         {t(messageKey, {}, { defaultValue: messageDefault })}
       </h2>
@@ -68,6 +71,6 @@ export function PlanUpdatedPage({
       <Link to={actionHref}>
         <Button>{t(actionKey, {}, { defaultValue: actionDefault })}</Button>
       </Link>
-    </div>
+    </main>
   )
 }
