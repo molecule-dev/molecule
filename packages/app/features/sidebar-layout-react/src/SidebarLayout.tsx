@@ -23,6 +23,8 @@ export interface SidebarLayoutProps {
   navItems: ReadonlyArray<SidebarNavItem>
   /** Slot rendered at the bottom of the sidebar (typically a `<UserMenu />`). */
   userMenu?: ReactNode
+  /** Optional slot rendered next to the user menu (typically a `<ThemeToggle />`). */
+  themeToggle?: ReactNode
   /** Aria-label for the primary <nav>. */
   navAriaLabel?: string
   /** Tailwind width utility for the sidebar (e.g. `'w-60'`, `'w-64'`). Defaults to `'w-60'`. */
@@ -51,6 +53,7 @@ export function SidebarLayout({
   logoTo = '/',
   navItems,
   userMenu,
+  themeToggle,
   navAriaLabel = 'Primary navigation',
   sidebarWidthClass = 'w-60',
   className,
@@ -137,8 +140,17 @@ export function SidebarLayout({
           })}
         </nav>
 
-        {userMenu ? (
-          <div className={cm.cn(cm.sp('pt', 4), 'border-t border-outline-variant')}>{userMenu}</div>
+        {userMenu || themeToggle ? (
+          <div
+            className={cm.cn(
+              cm.sp('pt', 4),
+              cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
+              'border-t border-outline-variant',
+            )}
+          >
+            {userMenu ?? <span aria-hidden="true" />}
+            {themeToggle ?? null}
+          </div>
         ) : null}
       </aside>
 
