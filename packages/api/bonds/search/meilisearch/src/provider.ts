@@ -63,7 +63,7 @@ export const createProvider = (options?: MeilisearchOptions): SearchProvider => 
 
     async index(indexName: string, id: string, document: Record<string, unknown>): Promise<void> {
       const index = client.index(indexName)
-      await index.addDocuments([{ id, ...document }]).waitTask()
+      await index.addDocuments([{ id, ...document }], { primaryKey: 'id' }).waitTask()
     },
 
     async bulkIndex(indexName: string, documents: IndexDocument[]): Promise<BulkIndexResult> {
@@ -71,7 +71,7 @@ export const createProvider = (options?: MeilisearchOptions): SearchProvider => 
       const docs = documents.map((d) => ({ id: d.id, ...d.document }))
 
       try {
-        await index.addDocuments(docs).waitTask()
+        await index.addDocuments(docs, { primaryKey: 'id' }).waitTask()
         return { indexed: documents.length, failed: 0, errors: {} }
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error'
