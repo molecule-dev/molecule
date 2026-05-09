@@ -113,16 +113,25 @@ function applyThemeToDocument(theme: Theme, prefix: string): void {
  * @returns A ThemeProvider that applies themes as CSS custom properties on the document root.
  */
 export function createCSSVariablesThemeProvider(config: CSSVariablesThemeConfig): ThemeProvider {
-  const {
-    themes,
-    defaultTheme,
-    prefix = 'mol',
-    applyToDocument = true,
-    persistKey,
-    storage,
-  } = config
+  const { themes, defaultTheme, prefix = 'mol', applyToDocument = true, persistKey } = config
 
-  // Resolve initial theme
+  // If a persistKey is set without an explicit storage adapter, fall back to
+  // window.localStorage. The previous behavior — persistKey but no storage =
+  // silent no-op — was the source of "I toggled dark mode and it reset on
+  // reload" bugs across multiple flagships. SSR/non-browser environments
+  // still get undefined and skip persistence.
+  const storage =
+    config.storage ??
+    (typeof globalThis !== 'undefined' && (globalThis as { localStorage?: Storage }).localStorage
+      ? {
+          getItem: (key: string): string | null =>
+            (globalThis as { localStorage: Storage }).localStorage.getItem(key),
+          setItem: (key: string, value: string): void => {
+            ;(globalThis as { localStorage: Storage }).localStorage.setItem(key, value)
+          },
+        }
+      : undefined)
+
   let currentTheme: Theme = themes.find((t) => t.name === defaultTheme) || themes[0]
 
   const listeners = new Set<(theme: Theme) => void>()
