@@ -137,6 +137,11 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
 
     getUser: () => state.user,
 
+    setUser: (user: T | null) => {
+      tokenStorage.setUser(user)
+      setState({ user })
+    },
+
     getAccessToken: () => tokenStorage.getAccessToken(),
 
     getRefreshToken: () => tokenStorage.getRefreshToken(),

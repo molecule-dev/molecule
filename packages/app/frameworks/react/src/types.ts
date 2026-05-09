@@ -168,6 +168,7 @@ export interface UseAuthResult<T = unknown> {
   logout: AuthClient<T>['logout']
   register: AuthClient<T>['register']
   refresh: AuthClient<T>['refresh']
+  setUser: AuthClient<T>['setUser']
   isAuthenticated: boolean
   isLoading: boolean
   user: T | null

@@ -201,6 +201,14 @@ export interface AuthClient<T = UserProfile> {
   getUser(): T | null
 
   /**
+   * Updates the cached user object (state + persistent storage) without
+   * hitting the network. Intended for local refreshes after a per-app
+   * mutation (e.g., the user just PATCHed their own profile and the
+   * server returned the canonical row). Does NOT change tokens.
+   */
+  setUser(user: T | null): void
+
+  /**
    * Gets the current access token.
    */
   getAccessToken(): string | null

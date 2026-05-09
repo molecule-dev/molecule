@@ -37,6 +37,7 @@ function toAxiosConfig(config: RequestConfig): AxiosRequestConfig {
     withCredentials: config.withCredentials,
     responseType: config.responseType,
     signal: config.signal,
+    data: config.data,
     ...config.options,
   }
 }

@@ -96,12 +96,15 @@ export function useAuth<T = unknown>(options?: UseAuthOptions): UseAuthResult<T>
 
   const refresh = useCallback(() => client.refresh(), [client])
 
+  const setUser = useCallback((user: T | null) => client.setUser(user), [client])
+
   return {
     state,
     login,
     logout,
     register,
     refresh,
+    setUser,
     isAuthenticated: state.authenticated,
     isLoading: state.loading,
     user: state.user,
