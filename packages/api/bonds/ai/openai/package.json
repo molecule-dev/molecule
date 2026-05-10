@@ -26,8 +26,19 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@molecule/api-ai": "1.0.0",
+    "@molecule/api-bond": "1.0.0",
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai": "^1.0.0",
+    "@molecule/api-bond": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/api-ai": {
+      "optional": true
+    }
   }
 }

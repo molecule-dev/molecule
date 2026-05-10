@@ -1,4 +1,4 @@
-import { useTranslation } from '@molecule/app-react'
+import { useAuth, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { usePricingTiers, useStartCheckout } from './hooks.js'

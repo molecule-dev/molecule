@@ -127,7 +127,15 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
       throw new I18nError(key, undefined, fallback)
     }
 
-    return response.json()
+    const data = await response.json()
+    // Compatibility shim: many @molecule/api-resource-* handlers (notably
+    // the user resource) wrap the entity under `props` rather than `user`
+    // (the auth-client's expected shape). Surface either so login/register
+    // populate state correctly regardless of the API's wrapper convention.
+    if (data && typeof data === 'object' && data.user === undefined && data.props !== undefined) {
+      data.user = data.props
+    }
+    return data
   }
 
   const client: AuthClient<T> = {

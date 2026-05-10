@@ -424,5 +424,5 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `MEILISEARCH_HOST` *(required)*
+- `MEILISEARCH_URL` *(required)* — Meilisearch host URL (read by `provider.ts createProvider()`; falls back to `http://localhost:7700`)
 - `MEILISEARCH_API_KEY` *(required)*

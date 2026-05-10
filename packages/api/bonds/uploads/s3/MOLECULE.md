@@ -201,4 +201,5 @@ Peer dependencies:
 
 - `AWS_ACCESS_KEY_ID` *(required)*
 - `AWS_SECRET_ACCESS_KEY` *(required)*
-- `S3_BUCKET` *(required)*
+- `AWS_S3_BUCKET` *(required)* — bucket name (read by `provider.ts` `getBucketName()`)
+- `AWS_S3_REGION` — bucket region (defaults to `us-east-1`)
