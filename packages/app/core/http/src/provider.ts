@@ -32,6 +32,27 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
   const errorInterceptors: ErrorInterceptor[] = []
   const authErrorHandlers = new Set<() => void>()
 
+  // Track whether the document is currently navigating / unloading.
+  // Browser tears down in-flight fetch()es on navigation as
+  // `TypeError: Failed to fetch`, which is indistinguishable from a
+  // real outage at the catch site. The pagehide / beforeunload listeners
+  // give us a hint we can use to demote the log severity in that case
+  // without hiding genuine network failures.
+  let navigationInProgress = false
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    const markNav = () => {
+      navigationInProgress = true
+      // Auto-clear shortly after; if the navigation is real, the page
+      // will unload and we won't see anything else from this client
+      // anyway. If it's a same-page event, this lets us recover.
+      setTimeout(() => {
+        navigationInProgress = false
+      }, 1000)
+    }
+    window.addEventListener('beforeunload', markNav)
+    window.addEventListener('pagehide', markNav)
+  }
+
   const client: HttpClient = {
     baseURL: config.baseURL || '',
     defaultHeaders: config.defaultHeaders || {},
@@ -203,12 +224,19 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
         }
 
         // Distinguish an explicit abort (AbortController, page unload
-        // wired up via signal) from a real network error. Aborts are
-        // normal operational events; generic "Failed to fetch" still
-        // gets logged because that's how a real outage manifests too
-        // and surfacing it helps debugging. Components that don't want
-        // navigation-cancellation noise should pass an AbortSignal in
-        // their useEffect cleanup.
+        // wired up via signal) and SPA navigation-induced cancellation
+        // from a real network outage.
+        //
+        //  - AbortError → user-initiated cancel: silent
+        //  - "TypeError: Failed to fetch" while the browser tab is
+        //    hidden / unloading → SPA tore down a fetch as it left the
+        //    page. Demote to warn so it stays visible in the console
+        //    for debugging but doesn't fail strict console-error gates.
+        //  - Anything else (including "Failed to fetch" while the tab
+        //    is visible) → real outage: logger.error.
+        //
+        // Components that want zero navigation noise should still pass
+        // an AbortSignal from their useEffect cleanup.
         const errMsg = err instanceof Error ? err.message : ''
         const errName = err instanceof Error ? err.name : ''
         const isAbort =
@@ -217,7 +245,21 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
             err instanceof DOMException &&
             err.name === 'AbortError') ||
           /the user aborted a request/i.test(errMsg)
-        if (!isAbort) {
+
+        const tabHidden =
+          typeof document !== 'undefined' &&
+          (document.visibilityState === 'hidden' || document.hidden === true)
+        const isNavCancel =
+          !isAbort &&
+          errName === 'TypeError' &&
+          /failed to fetch|network ?error|load failed/i.test(errMsg) &&
+          (tabHidden || navigationInProgress)
+
+        if (isAbort) {
+          // silent — not interesting
+        } else if (isNavCancel) {
+          logger.warn('Network request cancelled by navigation', finalConfig.method, url)
+        } else {
           logger.error('Network error', finalConfig.method, url, err)
         }
         const error = new HttpError(
