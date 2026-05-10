@@ -202,8 +202,24 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
           throw err
         }
 
-        // Network error or abort
-        logger.error('Network error', finalConfig.method, url, err)
+        // Distinguish an explicit abort (AbortController, page unload
+        // wired up via signal) from a real network error. Aborts are
+        // normal operational events; generic "Failed to fetch" still
+        // gets logged because that's how a real outage manifests too
+        // and surfacing it helps debugging. Components that don't want
+        // navigation-cancellation noise should pass an AbortSignal in
+        // their useEffect cleanup.
+        const errMsg = err instanceof Error ? err.message : ''
+        const errName = err instanceof Error ? err.name : ''
+        const isAbort =
+          errName === 'AbortError' ||
+          (typeof DOMException !== 'undefined' &&
+            err instanceof DOMException &&
+            err.name === 'AbortError') ||
+          /the user aborted a request/i.test(errMsg)
+        if (!isAbort) {
+          logger.error('Network error', finalConfig.method, url, err)
+        }
         const error = new HttpError(
           err instanceof Error
             ? err.message
