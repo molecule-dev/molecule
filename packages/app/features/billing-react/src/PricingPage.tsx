@@ -4,6 +4,13 @@ import { getClassMap } from '@molecule/app-ui'
 import { usePricingTiers, useStartCheckout } from './hooks.js'
 import type { PricingTierEntry, PricingTierPrice } from './types.js'
 
+/**
+ * Default "anonymous → routes to" path used when a logged-out visitor
+ * clicks an upgrade CTA. Apps can override via the `unauthenticatedRedirect`
+ * prop. `/login` is the convention across flagship templates.
+ */
+const DEFAULT_UNAUTHENTICATED_REDIRECT = '/login'
+
 /** Props for `<PricingPage />`. */
 export interface PricingPageProps<TLimits = unknown> {
   /**
@@ -34,6 +41,14 @@ export interface PricingPageProps<TLimits = unknown> {
    * the page in an existing layout.
    */
   className?: string
+
+  /**
+   * Path the browser is sent to when an anonymous visitor clicks a paid
+   * tier's upgrade CTA. Defaults to `/login`. Set to `null` to disable
+   * the redirect (e.g. when the app handles the auth gate at a higher
+   * level via routing guards).
+   */
+  unauthenticatedRedirect?: string | null
 }
 
 /**
@@ -55,10 +70,12 @@ export function PricingPage<TLimits = unknown>(
     headingKey = 'billing.pricing.heading',
     headingDefault = 'Choose your plan',
     className,
+    unauthenticatedRedirect = DEFAULT_UNAUTHENTICATED_REDIRECT,
   } = props
 
   const cm = getClassMap()
   const { t } = useTranslation()
+  const auth = useAuth()
   const { data, loading, error } = usePricingTiers<TLimits>()
   const { start, loading: starting, error: startError } = useStartCheckout()
 
@@ -86,6 +103,12 @@ export function PricingPage<TLimits = unknown>(
 
   const handleUpgrade = async (priceId: string | null): Promise<void> => {
     if (!priceId) return
+    if (!auth.isAuthenticated && unauthenticatedRedirect) {
+      if (typeof window !== 'undefined') {
+        window.location.assign(unauthenticatedRedirect)
+      }
+      return
+    }
     const response = await start(priceId)
     if (response?.checkoutUrl) {
       window.location.assign(response.checkoutUrl)
