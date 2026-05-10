@@ -72,6 +72,32 @@ if (!process.env.JWT_PRIVATE_KEY || !process.env.JWT_PUBLIC_KEY) {
 }
 
 /**
+ * Convert PEM read from a process.env value back into a real PEM string.
+ *
+ * Node's `--env-file` (and many other dotenv readers) deliberately do NOT
+ * interpret backslash-escapes inside quoted values, so a `.env` line like
+ *   JWT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END..."
+ * arrives in `process.env` as a string containing literal `\n` characters
+ * (backslash + n) instead of newlines. Crypto libraries like `jsonwebtoken`
+ * then reject the value with "secretOrPrivateKey must be an asymmetric key
+ * when using RS256" because the OpenSSL parser can't find PEM headers
+ * separated by real newlines.
+ *
+ * Normalize here so any consumer of this module gets a usable PEM
+ * regardless of how the key was stored in the env source.
+ */
+const normalizePem = (value: string | Buffer | false): string | Buffer | false => {
+  if (typeof value !== 'string') return value
+  // Only rewrite if the literal escape is present and there are no real
+  // newlines yet — preserves keys that arrived correctly (multi-line .env
+  // values, files on disk, etc.).
+  if (value.includes('\\n') && !value.includes('\n')) {
+    return value.replace(/\\n/g, '\n')
+  }
+  return value
+}
+
+/**
  * The RSA private key for signing JWTs. Read from the `JWT_PRIVATE_KEY`
  * environment variable, or loaded from the PEM file on disk.
  *
@@ -79,7 +105,7 @@ if (!process.env.JWT_PRIVATE_KEY || !process.env.JWT_PUBLIC_KEY) {
  * empty secret would allow anyone to forge valid JWTs.
  */
 export const JWT_PRIVATE_KEY =
-  process.env.JWT_PRIVATE_KEY ||
+  normalizePem(process.env.JWT_PRIVATE_KEY || false) ||
   (fs.existsSync(privateKeyPath) && fs.readFileSync(privateKeyPath)) ||
   (() => {
     throw new Error(
@@ -94,7 +120,7 @@ export const JWT_PRIVATE_KEY =
  * Throws at startup if neither source provides a key.
  */
 export const JWT_PUBLIC_KEY =
-  process.env.JWT_PUBLIC_KEY ||
+  normalizePem(process.env.JWT_PUBLIC_KEY || false) ||
   (fs.existsSync(publicKeyPath) && fs.readFileSync(publicKeyPath)) ||
   (() => {
     throw new Error(
