@@ -67,7 +67,13 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
       // Build URL
       let url = finalConfig.url
       if (client.baseURL && !url.startsWith('http://') && !url.startsWith('https://')) {
-        url = client.baseURL + url
+        // Guard against double-prefixing: callers (e.g. @molecule/app-billing-react
+        // hooks) pass absolute `/api/...` paths whether or not a baseURL is bonded.
+        // If the URL already starts with the bonded baseURL, leave it alone.
+        const prefix = client.baseURL.endsWith('/') ? client.baseURL : client.baseURL + '/'
+        if (!url.startsWith(prefix) && url !== client.baseURL) {
+          url = client.baseURL + url
+        }
       }
 
       // Add query params
