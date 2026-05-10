@@ -7,9 +7,10 @@
  * `@molecule/api-payments-stripe` (see
  * `mlcl/templates/apps/<app>/api/routes/billing.ts` for the routes).
  *
- * NOTE on URLs: every flagship app's HTTP client is bonded with an empty
- * baseURL — page-level callers pass `/api/...` directly. We do the same
- * here so the hooks work without any per-app baseURL plumbing.
+ * NOTE on URLs: every flagship app's HTTP client is bonded with
+ * `baseURL: '/api'` — page-level callers pass bare resource paths like
+ * `/billing/tiers` and the bond resolves them to `/api/billing/tiers`.
+ * Passing `/api/...` here would double up to `/api/api/...` and 404.
  *
  * @module
  */
@@ -33,7 +34,7 @@ import type {
  * @returns Async-state for the pricing tiers response.
  */
 export function usePricingTiers<TLimits = unknown>(): UseHttpResult<PricingTiersResponse<TLimits>> {
-  return useGet<PricingTiersResponse<TLimits>>('/api/billing/tiers', { immediate: true })
+  return useGet<PricingTiersResponse<TLimits>>('/billing/tiers', { immediate: true })
 }
 
 /**
@@ -45,7 +46,7 @@ export function usePricingTiers<TLimits = unknown>(): UseHttpResult<PricingTiers
  * @returns Async-state for the user's billing status.
  */
 export function useBillingStatus<TLimits = unknown>(): UseHttpResult<BillingStatus<TLimits>> {
-  return useGet<BillingStatus<TLimits>>('/api/billing/status', { immediate: true })
+  return useGet<BillingStatus<TLimits>>('/billing/status', { immediate: true })
 }
 
 /** Async-state shape returned by `useStartCheckout` / `useCancelSubscription`. */
@@ -83,7 +84,7 @@ export function useStartCheckout(): BillingActionState<CheckoutResponse> & {
     async (priceId: string): Promise<CheckoutResponse | null> => {
       setState({ data: null, loading: true, error: null })
       try {
-        const response = await client.post<CheckoutResponse>('/api/billing/checkout', { priceId })
+        const response = await client.post<CheckoutResponse>('/billing/checkout', { priceId })
         setState({ data: response.data, loading: false, error: null })
         return response.data
       } catch (err) {
@@ -117,7 +118,7 @@ export function useCancelSubscription(): BillingActionState<CancelResponse> & {
   const cancel = useCallback(async (): Promise<CancelResponse | null> => {
     setState({ data: null, loading: true, error: null })
     try {
-      const response = await client.post<CancelResponse>('/api/billing/cancel', {})
+      const response = await client.post<CancelResponse>('/billing/cancel', {})
       setState({ data: response.data, loading: false, error: null })
       return response.data
     } catch (err) {
