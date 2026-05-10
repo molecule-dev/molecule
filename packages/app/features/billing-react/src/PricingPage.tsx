@@ -103,16 +103,22 @@ export function PricingPage<TLimits = unknown>(
 
   const handleUpgrade = async (priceId: string | null): Promise<void> => {
     if (!priceId) return
-    if (!auth.isAuthenticated && unauthenticatedRedirect) {
-      if (typeof window !== 'undefined') {
+    // Always fire the POST so the API is the source of truth for auth and
+    // entitlement gating. Short-circuiting on `auth.isAuthenticated` would
+    // produce a "silent button" for anonymous visitors (no network activity,
+    // no observable failure) and bypass the API's 401 contract that e2e
+    // suites rely on. Redirect anonymous visitors only AFTER the POST
+    // resolves (or fails), so the request is always observable.
+    const response = await start(priceId)
+    if (!response) {
+      if (!auth.isAuthenticated && unauthenticatedRedirect && typeof window !== 'undefined') {
         window.location.assign(unauthenticatedRedirect)
       }
       return
     }
-    const response = await start(priceId)
-    if (response?.checkoutUrl) {
+    if (response.checkoutUrl) {
       window.location.assign(response.checkoutUrl)
-    } else if (response?.updated) {
+    } else if (response.updated) {
       window.location.reload()
     }
   }
