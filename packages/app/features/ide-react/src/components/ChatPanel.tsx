@@ -2393,6 +2393,48 @@ function ChatInner({
       })
   }, [http, projectId])
 
+  // ── Removed-model recovery ──────────────────────────────────────────────────
+  // If the saved chatModel is no longer in the catalog (a provider retired it,
+  // or we pruned the entry), notify once and fall back to the free-tier model.
+  // Guarded by a ref so re-renders don't keep firing the card / patching the
+  // project. Tracks the removed id so a user could in theory hit this twice
+  // for two different removed models in the same session.
+  const removedModelNotifiedRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (modelsLoading) return
+    if (!currentModel) return
+    if (AVAILABLE_MODELS.some((m) => m.id === currentModel)) return
+    if (removedModelNotifiedRef.current === currentModel) return
+    removedModelNotifiedRef.current = currentModel
+    const removedId = currentModel
+    const fallback = FREE_TIER_MODEL || AVAILABLE_MODELS[0]?.id
+    addSystemCard(
+      t(
+        'ide.chat.modelRemoved',
+        { removed: removedId, fallback: fallback ?? '' },
+        {
+          defaultValue: fallback
+            ? `Your selected model "${removedId}" is no longer available. Switched to "${fallback}". Type /model to pick another.`
+            : `Your selected model "${removedId}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.`,
+        },
+      ),
+    )
+    if (fallback) {
+      setCurrentModel(fallback)
+      http.patch(`/projects/${projectId}`, { settings: { chatModel: fallback } }).catch(() => {
+        /* persistence is best-effort; the in-memory switch is what matters */
+      })
+    }
+  }, [
+    modelsLoading,
+    currentModel,
+    AVAILABLE_MODELS,
+    FREE_TIER_MODEL,
+    addSystemCard,
+    http,
+    projectId,
+  ])
+
   // ── Queued message editing ──────────────────────────────────────────────────
   const [editingQueuedId, setEditingQueuedId] = useState<string | null>(null)
   const [editingQueuedText, setEditingQueuedText] = useState('')
