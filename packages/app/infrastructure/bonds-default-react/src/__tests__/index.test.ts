@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import * as bonds from '../index.js'
 
 describe('@molecule/app-bonds-default-react', () => {
-  it('exports the 7 default app-side bond setup functions', () => {
+  it('exports default app bond setup functions + auth + bootstrap helpers', () => {
     const expected = [
       'setupAppFontsArimo',
       'setupAppIconsMolecule',
@@ -12,10 +12,12 @@ describe('@molecule/app-bonds-default-react', () => {
       'setupAppStylingTailwind',
       'setupAppThemeCssVariables',
       'setupAppUiTailwind',
+      'getDefaultThemeProvider',
+      'createDefaultAuthClient',
+      'bootstrapApp',
     ]
     for (const name of expected) {
       expect(typeof (bonds as Record<string, unknown>)[name], `${name}`).toBe('function')
     }
-    expect(typeof (bonds as Record<string, unknown>).getDefaultThemeProvider).toBe('function')
   })
 })
