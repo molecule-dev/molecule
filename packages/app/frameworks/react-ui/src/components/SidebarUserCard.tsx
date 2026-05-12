@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { ReactNode } from 'react'
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 
 import { useAuth, useTranslation } from '@molecule/app-react'
@@ -39,8 +39,14 @@ interface AccountUserShape {
 
 /**
  * Props for the {@link SidebarUserCard} component.
+ *
+ * Extends standard `<button>` attributes so callers can pass extra
+ * `data-*`, `aria-*`, `style`, or event handler props onto the trigger
+ * button without forking. The named props below cover the common
+ * customization points.
  */
-export interface SidebarUserCardProps {
+export interface SidebarUserCardProps
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label' | 'onClick' | 'children'> {
   /**
    * Render function for the panel shown inside the drawer/modal.
    * Receives an `onClose` callback so the panel's own close-button
@@ -64,8 +70,6 @@ export interface SidebarUserCardProps {
   ariaLabelKey?: string
   /** Fallback aria-label if the i18n key is missing. Default: `'Open account menu'`. */
   ariaLabelDefault?: string
-  /** `data-mol-id` for AI-agent selectors. */
-  dataMolId?: string
 }
 
 /**
@@ -76,6 +80,10 @@ export interface SidebarUserCardProps {
  * vertical sidebar (e.g. as the `userMenu` slot of `<SidebarLayout>`).
  * Reads name/email/avatar from `useAuth()` by default; pass explicit
  * `name` / `secondaryLine` / `avatarUrl` props to override.
+ *
+ * Ships with `data-mol-id="sidebar-user-card"` on the trigger button
+ * by default for AI-agent / e2e selection. Callers can override by
+ * passing `data-mol-id` as an extra prop.
  */
 export function SidebarUserCard({
   renderPanel,
@@ -84,7 +92,8 @@ export function SidebarUserCard({
   avatarUrl,
   ariaLabelKey = 'sidebarUserCard.open',
   ariaLabelDefault = 'Open account menu',
-  dataMolId,
+  className,
+  ...rest
 }: SidebarUserCardProps) {
   const cm = getClassMap()
   const { t } = useTranslation()
@@ -111,13 +120,15 @@ export function SidebarUserCard({
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
-        data-mol-id={dataMolId}
+        data-mol-id="sidebar-user-card"
         className={cm.cn(
           cm.flex({ align: 'center', gap: 'sm' }),
           cm.sp('px', 3),
           cm.sp('py', 3),
           'w-full text-left rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors',
+          className,
         )}
+        {...rest}
       >
         {displayAvatarUrl ? (
           <img
