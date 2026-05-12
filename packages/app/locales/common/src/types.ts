@@ -184,3 +184,12 @@ export interface CommonTranslations {
   'user.payment.verificationNotConfigured': string
   'userMenu.open': string
 }
+
+/**
+ * Default `UiTranslations` for apps with no app-specific UI keys.
+ *
+ * Apps that ship app-specific keys should declare their own
+ * `UiTranslations = Partial<CommonTranslations> & { 'foo': string; ... }`
+ * locally and skip this re-export.
+ */
+export type UiTranslations = Partial<CommonTranslations>
