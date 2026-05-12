@@ -1,0 +1,49 @@
+{
+  "name": "@molecule/app-settings-panel-react",
+  "version": "1.0.0",
+  "description": "Composable settings panel — a SettingsContainer + family of section sub-components (Account, Auth, Notifications, Billing, Devices, ThisDevice, LogOutDelete). Apps compose via JSX children, picking which sections to include and what order.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "settings",
+    "panel",
+    "react"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0",
+    "@molecule/app-auth": "1.0.0",
+    "@molecule/app-react": "1.0.0",
+    "@molecule/app-ui": "1.0.0",
+    "@molecule/app-ui-react": "1.0.0",
+    "@types/react": "19.2.14",
+    "react": "19.2.4",
+    "react-router-dom": "7.13.1"
+  },
+  "peerDependencies": {
+    "@molecule/app-auth": "^1.0.0",
+    "@molecule/app-react": "^1.0.0",
+    "@molecule/app-ui": "^1.0.0",
+    "@molecule/app-ui-react": "^1.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-router-dom": "^6.0.0 || ^7.0.0"
+  }
+}
