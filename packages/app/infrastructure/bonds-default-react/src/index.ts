@@ -1,0 +1,17 @@
+/**
+ * `@molecule/app-bonds-default-react` — default app-side bond wirings.
+ *
+ * 5 setup functions consolidating the byte-identical per-app bond
+ * wiring files (fonts-arimo, icons-molecule, routing-react-router,
+ * storage-localstorage, styling-tailwind). Each app's
+ * `app/src/bonds/<name>.ts` becomes a 1-line re-export:
+ *
+ * ```ts
+ * // app/src/bonds/app-fonts-arimo.ts
+ * export { setupAppFontsArimo } from '@molecule/app-bonds-default-react'
+ * ```
+ *
+ * @module
+ */
+
+export * from './setup.js'

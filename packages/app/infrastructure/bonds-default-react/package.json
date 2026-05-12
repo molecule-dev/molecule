@@ -1,0 +1,52 @@
+{
+  "name": "@molecule/app-bonds-default-react",
+  "version": "1.0.0",
+  "description": "Default app-side bond wirings for React+Tailwind+react-router+localStorage+Arimo font+molecule icons. 5 setup functions consolidating 665 byte-identical per-app bond wiring files across the fleet.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "bonds",
+    "default",
+    "react"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0",
+    "@molecule/app-fonts": "1.0.0",
+    "@molecule/app-fonts-arimo": "1.0.0",
+    "@molecule/app-icons": "1.0.0",
+    "@molecule/app-icons-molecule": "1.0.0",
+    "@molecule/app-routing": "1.0.0",
+    "@molecule/app-routing-react-router": "1.0.0",
+    "@molecule/app-storage": "1.0.0",
+    "@molecule/app-storage-localstorage": "1.0.0"
+  },
+  "peerDependencies": {
+    "@molecule/app-fonts": "^1.0.0",
+    "@molecule/app-fonts-arimo": "^1.0.0",
+    "@molecule/app-icons": "^1.0.0",
+    "@molecule/app-icons-molecule": "^1.0.0",
+    "@molecule/app-routing": "^1.0.0",
+    "@molecule/app-routing-react-router": "^1.0.0",
+    "@molecule/app-storage": "^1.0.0",
+    "@molecule/app-storage-localstorage": "^1.0.0"
+  }
+}
