@@ -1,0 +1,94 @@
+/**
+ * Static metadata for the 74 languages supported by the molecule
+ * flagship fleet. Each entry includes the locale code, native name,
+ * and text direction.
+ *
+ * Lifted from the byte-identical per-app `bonds/i18n-default.ts`
+ * files that every fleet app used to ship.
+ */
+export interface LanguageDefinition {
+  code: string
+  name: string
+  direction: 'ltr' | 'rtl'
+}
+
+/**
+ * Canonical 74-language definition list. The names are written in
+ * the language's own script for the language picker dropdown.
+ */
+export const LANGUAGE_DEFINITIONS: readonly LanguageDefinition[] = [
+  { code: 'en', name: 'English', direction: 'ltr' },
+  { code: 'af', name: 'Afrikaans', direction: 'ltr' },
+  { code: 'am', name: 'አማርኛ', direction: 'ltr' },
+  { code: 'ar', name: 'العربية', direction: 'rtl' },
+  { code: 'az', name: 'Azərbaycan', direction: 'ltr' },
+  { code: 'bg', name: 'Български', direction: 'ltr' },
+  { code: 'bn', name: 'বাংলা', direction: 'ltr' },
+  { code: 'bs', name: 'Bosanski', direction: 'ltr' },
+  { code: 'ca', name: 'Català', direction: 'ltr' },
+  { code: 'cs', name: 'Čeština', direction: 'ltr' },
+  { code: 'cy', name: 'Cymraeg', direction: 'ltr' },
+  { code: 'da', name: 'Dansk', direction: 'ltr' },
+  { code: 'de', name: 'Deutsch', direction: 'ltr' },
+  { code: 'el', name: 'Ελληνικά', direction: 'ltr' },
+  { code: 'es', name: 'Español', direction: 'ltr' },
+  { code: 'et', name: 'Eesti', direction: 'ltr' },
+  { code: 'eu', name: 'Euskara', direction: 'ltr' },
+  { code: 'fa', name: 'فارسی', direction: 'rtl' },
+  { code: 'fi', name: 'Suomi', direction: 'ltr' },
+  { code: 'fil', name: 'Filipino', direction: 'ltr' },
+  { code: 'fr', name: 'Français', direction: 'ltr' },
+  { code: 'ga', name: 'Gaeilge', direction: 'ltr' },
+  { code: 'gl', name: 'Galego', direction: 'ltr' },
+  { code: 'gu', name: 'ગુજરાતી', direction: 'ltr' },
+  { code: 'he', name: 'עברית', direction: 'rtl' },
+  { code: 'hi', name: 'हिन्दी', direction: 'ltr' },
+  { code: 'hr', name: 'Hrvatski', direction: 'ltr' },
+  { code: 'hu', name: 'Magyar', direction: 'ltr' },
+  { code: 'hy', name: 'Հայերեն', direction: 'ltr' },
+  { code: 'id', name: 'Bahasa Indonesia', direction: 'ltr' },
+  { code: 'is', name: 'Íslenska', direction: 'ltr' },
+  { code: 'it', name: 'Italiano', direction: 'ltr' },
+  { code: 'ja', name: '日本語', direction: 'ltr' },
+  { code: 'ka', name: 'ქართული', direction: 'ltr' },
+  { code: 'kk', name: 'Қазақша', direction: 'ltr' },
+  { code: 'km', name: 'ខ្មែរ', direction: 'ltr' },
+  { code: 'kn', name: 'ಕನ್ನಡ', direction: 'ltr' },
+  { code: 'ko', name: '한국어', direction: 'ltr' },
+  { code: 'lo', name: 'ລາວ', direction: 'ltr' },
+  { code: 'lt', name: 'Lietuvių', direction: 'ltr' },
+  { code: 'lv', name: 'Latviešu', direction: 'ltr' },
+  { code: 'mk', name: 'Македонски', direction: 'ltr' },
+  { code: 'ml', name: 'മലയാളം', direction: 'ltr' },
+  { code: 'mn', name: 'Монгол', direction: 'ltr' },
+  { code: 'mr', name: 'मराठी', direction: 'ltr' },
+  { code: 'ms', name: 'Bahasa Melayu', direction: 'ltr' },
+  { code: 'mt', name: 'Malti', direction: 'ltr' },
+  { code: 'my', name: 'မြန်မာ', direction: 'ltr' },
+  { code: 'nb', name: 'Norsk bokmål', direction: 'ltr' },
+  { code: 'ne', name: 'नेपाली', direction: 'ltr' },
+  { code: 'nl', name: 'Nederlands', direction: 'ltr' },
+  { code: 'pa', name: 'ਪੰਜਾਬੀ', direction: 'ltr' },
+  { code: 'pl', name: 'Polski', direction: 'ltr' },
+  { code: 'pt', name: 'Português', direction: 'ltr' },
+  { code: 'ro', name: 'Română', direction: 'ltr' },
+  { code: 'ru', name: 'Русский', direction: 'ltr' },
+  { code: 'si', name: 'සිංහල', direction: 'ltr' },
+  { code: 'sk', name: 'Slovenčina', direction: 'ltr' },
+  { code: 'sl', name: 'Slovenščina', direction: 'ltr' },
+  { code: 'sq', name: 'Shqip', direction: 'ltr' },
+  { code: 'sr', name: 'Српски', direction: 'ltr' },
+  { code: 'sv', name: 'Svenska', direction: 'ltr' },
+  { code: 'sw', name: 'Kiswahili', direction: 'ltr' },
+  { code: 'ta', name: 'தமிழ்', direction: 'ltr' },
+  { code: 'te', name: 'తెలుగు', direction: 'ltr' },
+  { code: 'th', name: 'ไทย', direction: 'ltr' },
+  { code: 'tr', name: 'Türkçe', direction: 'ltr' },
+  { code: 'uk', name: 'Українська', direction: 'ltr' },
+  { code: 'ur', name: 'اردو', direction: 'rtl' },
+  { code: 'uz', name: 'Oʻzbek', direction: 'ltr' },
+  { code: 'vi', name: 'Tiếng Việt', direction: 'ltr' },
+  { code: 'zh', name: '中文', direction: 'ltr' },
+  { code: 'zh-TW', name: '繁體中文', direction: 'ltr' },
+  { code: 'zu', name: 'isiZulu', direction: 'ltr' },
+]
