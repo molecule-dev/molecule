@@ -1,22 +1,45 @@
+import type { SVGProps } from 'react'
+
 import { getIcon } from '@molecule/app-icons'
 
-interface IconProps {
-  /** Icon name to look up in the wired `@molecule/app-icons` provider. */
+/**
+ * Props for {@link Icon}.
+ *
+ * Extends `SVGProps<SVGSVGElement>` so callers can pass any SVG / HTML
+ * attribute the underlying `<svg>` accepts, including `data-mol-id`,
+ * `aria-*`, `role`, event handlers, `style`, etc. — without the
+ * component needing to enumerate them.
+ */
+export interface IconProps extends Omit<
+  SVGProps<SVGSVGElement>,
+  'width' | 'height' | 'viewBox' | 'fill'
+> {
+  /** Name of the glyph to look up in the bonded icon set. */
   name: string
-  /** Size in pixels applied to both width and height. Defaults to 20. */
+  /** Width and height of the rendered SVG in pixels. Defaults to 20. */
   size?: number
-  /** Optional extra classes. */
+  /** Class name forwarded to the root `<svg>`. */
   className?: string
 }
 
 /**
- * React wrapper around `getIcon()` from `@molecule/app-icons`.
+ * Renders an SVG glyph looked up by `name` from the bonded
+ * `@molecule/app-icons` set.
  *
- * Renders an `<svg>` reconstructed from the wired icon-set provider.
- * Supports raw SVG icons (`icon.svg`), stroked icons (`icon.stroke`,
- * `icon.strokeWidth`, etc.), and filled icons (`icon.paths`).
+ * Handles two icon-data shapes returned by the bond:
+ *   1. Pre-rendered SVG markup (`icon.svg`) — injected via
+ *      `dangerouslySetInnerHTML`. The bond is the trust boundary; only
+ *      bond a set that controls its own SVG strings.
+ *   2. Structured paths (`icon.paths`) — rendered as discrete `<path>`
+ *      children, with optional stroke styling forwarded from the icon set.
+ *
+ * Any extra HTML/SVG attribute (e.g. `data-mol-id`, `aria-label`,
+ * `role="img"`, `onClick`) is forwarded to the root `<svg>` via spread.
+ *
+ * @param props - {@link IconProps}
+ * @returns An `<svg>` element rendering the named glyph.
  */
-export function Icon({ name, size = 20, className }: IconProps) {
+export function Icon({ name, size = 20, className, ...rest }: IconProps) {
   const icon = getIcon(name)
   const viewBox = icon.viewBox || '0 0 20 20'
 
@@ -29,6 +52,7 @@ export function Icon({ name, size = 20, className }: IconProps) {
         fill={icon.fill || 'none'}
         className={className}
         dangerouslySetInnerHTML={{ __html: icon.svg }}
+        {...rest}
       />
     )
   }
@@ -50,6 +74,7 @@ export function Icon({ name, size = 20, className }: IconProps) {
           }
         : {})}
       className={className}
+      {...rest}
     >
       {icon.paths.map((p, i) => (
         <path
