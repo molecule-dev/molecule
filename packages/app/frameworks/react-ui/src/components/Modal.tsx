@@ -15,8 +15,17 @@ import { renderIcon } from '../utilities/renderIcon.js'
 
 /**
  * Modal component.
+ *
+ * Renders into a `document.body` portal. Forwards any extra `data-*` or
+ * `aria-*` props on the rest spread to the inner dialog `<div>` (e.g.
+ * callers commonly pass `data-mol-id="some-modal"` for AI-agent / e2e
+ * selectors).
+ *
+ * The internal close button always carries `data-mol-id="modal-close"`
+ * as the molecule-convention default for the one fixed interactive
+ * element inside the chrome.
  */
-export const Modal = forwardRef<HTMLDivElement, ModalProps>(
+export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: string }>(
   (
     {
       open,
@@ -34,6 +43,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
       className,
       style,
       testId,
+      ...rest
     },
     ref,
   ) => {
@@ -74,6 +84,11 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
       return null
     }
 
+    const passthrough: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(rest as Record<string, unknown>)) {
+      if (k.startsWith('data-') || k.startsWith('aria-')) passthrough[k] = v
+    }
+
     const modalContent = (
       <>
         {/* Overlay background */}
@@ -91,6 +106,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
             style={style}
             data-testid={testId}
             onClick={(e: React.MouseEvent) => e.stopPropagation()}
+            {...passthrough}
           >
             {(title || showCloseButton) && (
               <div className={cm.dialogHeader}>
@@ -106,6 +122,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
                     type="button"
                     onClick={onClose}
                     className={cm.dialogClose}
+                    data-mol-id="modal-close"
                     aria-label={
                       closeLabel ?? t('ui.modal.close', undefined, { defaultValue: 'Close' })
                     }
