@@ -16,6 +16,7 @@
  */
 
 export * from './types.js'
+export * from './loadContent.js'
 export { af } from './af.js'
 export { am } from './am.js'
 export { ar } from './ar.js'

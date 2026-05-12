@@ -29,7 +29,8 @@
   "devDependencies": {
     "@types/node": "25.5.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.0",
+    "@molecule/app-i18n": "1.0.0"
   },
   "peerDependencies": {
     "@molecule/app-i18n": "^1.0.0"
