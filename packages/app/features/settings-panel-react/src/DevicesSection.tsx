@@ -2,7 +2,7 @@ import { type ReactNode, useCallback, useEffect, useState } from 'react'
 
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-import { Flex, Spinner } from '@molecule/app-ui-react'
+import { Flex, Icon, Spinner } from '@molecule/app-ui-react'
 
 /** A user's registered device (subset rendered in the settings list). */
 export interface Device {
@@ -15,9 +15,9 @@ export interface Device {
 /**
  * Devices section — lists the user's registered devices.
  *
- * Apps that want to show an icon next to each row can pass `renderRowIcon`
- * (kept optional so the default — no icon — matches the canonical fleet
- * apps with the smallest possible compound API surface).
+ * Each row renders a chevron-right icon by default (matching the
+ * canonical fleet pattern). Apps that want a different icon can pass
+ * a `renderRowIcon` callback; pass `() => null` to suppress entirely.
  */
 export function DevicesSection({
   renderRowIcon,
@@ -61,7 +61,11 @@ export function DevicesSection({
                 className={cm.cn(cm.textSize('sm'), cm.sp('py', 1))}
               >
                 <span>{device.name || device.platform}</span>
-                {renderRowIcon?.(device)}
+                {renderRowIcon ? (
+                  renderRowIcon(device)
+                ) : (
+                  <Icon name="chevron-right" size={16} className={cm.textSubtle} />
+                )}
               </Flex>
             </li>
           ))}
