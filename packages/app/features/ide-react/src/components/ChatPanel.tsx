@@ -20,7 +20,7 @@ import type { JSX } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { ChatMessage } from '@molecule/app-ai-chat'
-import { formatTokenCount, PROVIDER_BRAND_COLORS } from '@molecule/app-core-ai-models'
+import { formatTokenCount, PROVIDER_BRAND_COLORS } from '@molecule/app-ai-models'
 import { t } from '@molecule/app-i18n'
 import { useAIModels, useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'

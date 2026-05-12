@@ -21,7 +21,7 @@
   },
   "peerDependencies": {
     "@molecule/app-ai-chat": "^1.0.0",
-    "@molecule/app-core-ai-models": "^1.0.0",
+    "@molecule/app-ai-models": "^1.0.0",
     "@molecule/app-i18n": "^1.0.0",
     "@molecule/app-code-editor": "^1.0.0",
     "@molecule/app-ide": "^1.0.0",
@@ -34,7 +34,7 @@
     "material-file-icons": "2.4.0"
   },
   "devDependencies": {
-    "@molecule/app-core-ai-models": "1.0.0",
+    "@molecule/app-ai-models": "1.0.0",
     "@types/node": "25.5.0",
     "@types/react": "19.2.14",
     "react": "19.2.4",

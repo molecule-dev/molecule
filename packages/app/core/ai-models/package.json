@@ -1,5 +1,5 @@
 {
-  "name": "@molecule/app-core-ai-models",
+  "name": "@molecule/app-ai-models",
   "version": "1.0.0",
   "description": "Framework-agnostic client + UI metadata for the AI model catalog",
   "type": "module",

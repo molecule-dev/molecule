@@ -10,8 +10,8 @@
 
 import { useEffect, useState } from 'react'
 
-import type { AppModelDefinition } from '@molecule/app-core-ai-models'
-import { loadAIModels, pickFreeTierModel } from '@molecule/app-core-ai-models'
+import type { AppModelDefinition } from '@molecule/app-ai-models'
+import { loadAIModels, pickFreeTierModel } from '@molecule/app-ai-models'
 import type { HttpClient } from '@molecule/app-http'
 
 import { useHttpClient } from './useHttp.js'

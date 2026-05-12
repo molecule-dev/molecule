@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { AppModelDefinition } from '@molecule/app-core-ai-models'
+import type { AppModelDefinition } from '@molecule/app-ai-models'
 import type { HttpClient, HttpResponse } from '@molecule/app-http'
 
 import { HttpContext } from '../../contexts.js'
