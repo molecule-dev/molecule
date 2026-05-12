@@ -1,0 +1,47 @@
+{
+  "name": "@molecule/api-server-default-express",
+  "version": "1.0.0",
+  "description": "Default Express server factory: bonds setup, DB migrations, body/cookie/cors middleware, /api router mount, /health endpoint, 401 normalization, optional HTTPS via self-signed pem certs. Extracts 80-line server.ts shipped by 79 fleet apps.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "server",
+    "default",
+    "express"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0",
+    "@molecule/api-logger": "1.0.0",
+    "@molecule/api-middleware-body-parser": "1.0.0",
+    "@molecule/api-middleware-cookie-parser": "1.0.0",
+    "@molecule/api-middleware-cors": "1.0.0",
+    "express": "5.2.1",
+    "@types/express": "5.0.6"
+  },
+  "peerDependencies": {
+    "@molecule/api-logger": "^1.0.0",
+    "@molecule/api-middleware-body-parser": "^1.0.0",
+    "@molecule/api-middleware-cookie-parser": "^1.0.0",
+    "@molecule/api-middleware-cors": "^1.0.0",
+    "express": "^4.0.0 || ^5.0.0"
+  }
+}
