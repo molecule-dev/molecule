@@ -4,6 +4,7 @@
  * @module
  */
 
+export * from './useAIModels.js'
 export * from './useAsyncState.js'
 export * from './useAuth.js'
 export * from './useCapacitorApp.js'
