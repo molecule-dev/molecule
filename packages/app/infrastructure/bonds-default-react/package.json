@@ -47,7 +47,8 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.4",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "@molecule/app-http": "1.0.0"
   },
   "peerDependencies": {
     "@molecule/app-fonts": "^1.0.0",
@@ -64,6 +65,7 @@
     "@molecule/app-ui-tailwind": "^1.0.0",
     "@molecule/app-auth": "^1.0.0",
     "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0"
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "@molecule/app-http": "^1.0.0"
   }
 }
