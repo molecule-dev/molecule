@@ -32,6 +32,7 @@ function fixtureModel(overrides: Partial<AppModelDefinition> = {}): AppModelDefi
     supportsPromptCaching: false,
     supportsTools: true,
     inputPricePerMTok: 1,
+    outputPricePerMTok: 5,
     knowledgeCutoff: '2025-01-01',
     ...overrides,
   }

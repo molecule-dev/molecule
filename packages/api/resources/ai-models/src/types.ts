@@ -1,11 +1,11 @@
 /**
  * AI model catalog types.
  *
- * Single source of truth for model metadata. The full `ModelDefinition`
- * (including pricing on both sides) is consumed by server-side code
- * (chat handler, compaction). The narrower `PublicModel` is the wire
- * shape returned by the public `/ai/models` endpoint — pricing on the
- * output side stays server-only.
+ * Single source of truth for model metadata. The full `ModelDefinition` is
+ * consumed both by server-side code (chat handler, compaction) and over the
+ * wire by `GET /ai/models`. Nothing in this shape is sensitive enough to hide
+ * from authenticated clients today; if that changes, introduce a `PublicModel`
+ * projection here and have the handler convert before responding.
  *
  * @module
  */
@@ -79,23 +79,15 @@ export interface ModelDefinition {
   freeTier?: boolean
   /** Input price per million tokens in USD. */
   inputPricePerMTok: number
-  /** Output price per million tokens in USD (server-only — not exposed to the client). */
+  /** Output price per million tokens in USD. */
   outputPricePerMTok: number
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
 }
 
 /**
- * Public projection sent to the client by `GET /ai/models`. Mirrors the full
- * `ModelDefinition` except for fields kept server-only (`outputPricePerMTok`).
- * Client packages should redeclare a matching shape rather than importing
- * this type cross-stack.
- */
-export type PublicModel = Omit<ModelDefinition, 'outputPricePerMTok'>
-
-/**
  * Response shape returned by `GET /ai/models`.
  */
 export interface ListModelsResponse {
-  models: PublicModel[]
+  models: ModelDefinition[]
 }

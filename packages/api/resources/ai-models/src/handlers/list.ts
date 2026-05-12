@@ -2,8 +2,8 @@
  * `GET /ai/models` — returns the catalog of available AI models.
  *
  * Filters the central `MODELS` list to only those whose provider is currently
- * bonded under the `'ai'` category, then strips server-only fields via
- * `toPublicModel`.
+ * bonded under the `'ai'` category. No further projection is applied — every
+ * `ModelDefinition` field is fine to expose to authenticated clients today.
  *
  * @module
  */
@@ -12,7 +12,6 @@ import { getAll } from '@molecule/api-bond'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import { MODELS } from '../models.js'
-import { toPublicModel } from '../projection.js'
 import type { ListModelsResponse } from '../types.js'
 
 /**
@@ -25,7 +24,7 @@ import type { ListModelsResponse } from '../types.js'
  */
 export async function list(_req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
   const bondedProviders = new Set(getAll('ai').keys())
-  const models = MODELS.filter((m) => bondedProviders.has(m.provider)).map(toPublicModel)
-  const response: ListModelsResponse = { models }
+  const models = MODELS.filter((m) => bondedProviders.has(m.provider))
+  const response: ListModelsResponse = { models: [...models] }
   res.json(response)
 }

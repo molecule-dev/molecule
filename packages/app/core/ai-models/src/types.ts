@@ -3,7 +3,8 @@
  *
  * Mirrors the wire shape returned by the API's `GET /ai/models` endpoint.
  * Re-declared locally rather than imported from the API package, per the
- * cross-stack rule — server and client communicate only via JSON.
+ * cross-stack rule — server and client communicate only via JSON. Keep in
+ * sync with the server-side `ModelDefinition` in `@molecule/api-resource-ai-models`.
  *
  * @module
  */
@@ -25,8 +26,8 @@ export type AIProviderID =
   | 'zhipu'
 
 /**
- * Client-visible model metadata. Mirrors the API's `PublicModel` projection —
- * every server field except `outputPricePerMTok`, which stays server-only.
+ * Client-visible model metadata. Mirrors every field of the server-side
+ * `ModelDefinition`; no field is currently hidden from authenticated clients.
  */
 export interface AppModelDefinition {
   /** API model ID. */
@@ -63,6 +64,8 @@ export interface AppModelDefinition {
   freeTier?: boolean
   /** Input price per million tokens in USD. */
   inputPricePerMTok: number
+  /** Output price per million tokens in USD. */
+  outputPricePerMTok: number
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
 }

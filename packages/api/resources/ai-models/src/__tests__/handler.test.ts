@@ -10,7 +10,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { list } from '../handlers/list.js'
 import { MODELS } from '../models.js'
-import type { ListModelsResponse, PublicModel } from '../types.js'
+import type { ListModelsResponse } from '../types.js'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mockReq(): any {
@@ -80,8 +80,8 @@ describe('list handler', () => {
     expect(providers).toEqual(new Set(['anthropic', 'xai']))
   })
 
-  it('strips outputPricePerMTok from every returned model', async () => {
-    mockGetAll.mockReturnValue(bondedMap('anthropic', 'openai', 'google', 'xai'))
+  it('returns full ModelDefinition fields (including both prices)', async () => {
+    mockGetAll.mockReturnValue(bondedMap('anthropic'))
 
     const res = mockRes()
     await list(mockReq(), res)
@@ -89,22 +89,10 @@ describe('list handler', () => {
     const { models } = lastJsonBody(res)
     expect(models.length).toBeGreaterThan(0)
     for (const m of models) {
-      expect(
-        (m as PublicModel & { outputPricePerMTok?: number }).outputPricePerMTok,
-      ).toBeUndefined()
-    }
-  })
-
-  it('keeps inputPricePerMTok on every returned model', async () => {
-    mockGetAll.mockReturnValue(bondedMap('anthropic'))
-
-    const res = mockRes()
-    await list(mockReq(), res)
-
-    const { models } = lastJsonBody(res)
-    for (const m of models) {
       expect(typeof m.inputPricePerMTok).toBe('number')
       expect(m.inputPricePerMTok).toBeGreaterThan(0)
+      expect(typeof m.outputPricePerMTok).toBe('number')
+      expect(m.outputPricePerMTok).toBeGreaterThan(0)
     }
   })
 

@@ -12,7 +12,6 @@
 export * from './handlers/index.js'
 export * from './lookup.js'
 export * from './models.js'
-export * from './projection.js'
 export * from './requestHandlerMap.js'
 export * from './routes.js'
 export * from './types.js'
