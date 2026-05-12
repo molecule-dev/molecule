@@ -1,30 +1,186 @@
 /**
- * Shared `common.*` translation keys used by every molecule.dev app.
- *
- * Each key has a single canonical value per language; values harvested
- * from the existing fleet locale files (133 apps × 73 languages,
- * identical per-language) and lifted out so apps don't have to ship
- * the same strings in every locale file.
- *
- * Apps that need a different value for a particular key can still
- * override per-call by passing a `defaultValue` to `t()` or by adding
- * a later-merged entry in their own locale files — the i18n provider
- * keeps the last-merged value.
+ * Shared scaffolded UI translation keys used by every molecule.dev app.
  *
  * @module
  */
 
 export interface CommonTranslations {
-  /** Generic close action (modal/drawer dismiss buttons, etc.). */
   'common.close': string
-  /** Forward step in a multi-step flow (onboarding, wizards). */
   'common.continue': string
-  /** Backward step / return to previous screen. */
   'common.goBack': string
-  /** Generic loading state copy. */
   'common.loading': string
-  /** Generic save-in-progress state copy. */
   'common.saving': string
-  /** Generic form submit button label. */
   'common.submit': string
+  'auth.error.loginFailed': string
+  'auth.error.noRefreshToken': string
+  'auth.error.registrationFailed': string
+  'auth.error.requestFailed': string
+  'auth.forgotPassword.email': string
+  'auth.forgotPassword.submitting': string
+  'auth.forgotPassword.success': string
+  'auth.login.email': string
+  'auth.login.forgotPassword': string
+  'auth.login.logIn': string
+  'auth.login.loggingIn': string
+  'auth.login.password': string
+  'auth.login.signUp': string
+  'auth.login.twoFactor': string
+  'auth.resetPassword.email': string
+  'auth.resetPassword.loggingIn': string
+  'auth.resetPassword.newPassword': string
+  'auth.resetPassword.submit': string
+  'auth.resetPassword.token': string
+  'auth.resetPassword.twoFactor': string
+  'auth.signup.email': string
+  'auth.signup.name': string
+  'auth.signup.password': string
+  'auth.signup.signUp': string
+  'auth.signup.signingUp': string
+  'codeSandbox.docker.error.apiError': string
+  'codeSandbox.docker.error.deleteFailed': string
+  'codeSandbox.docker.error.readFailed': string
+  'codeSandbox.docker.error.writeFailed': string
+  'conversation.error.aiNotConfigured': string
+  'conversation.error.messageRequired': string
+  'conversation.error.notFound': string
+  'conversation.error.streamError': string
+  'conversation.error.unknownAiError': string
+  'device.error.badRequest': string
+  'device.error.notFound': string
+  'device.error.unauthorized': string
+  'error.forbidden': string
+  'error.networkError': string
+  'error.notFound': string
+  'error.serverError': string
+  'error.timeout': string
+  'error.unauthorized': string
+  'error.unknown': string
+  'error.validationError': string
+  'footer.about': string
+  'footer.language': string
+  'footer.privacyPolicy': string
+  'footer.termsOfService': string
+  'forms.invalidEmail': string
+  'forms.invalidFormat': string
+  'forms.invalidUrl': string
+  'forms.invalidValue': string
+  'forms.max': string
+  'forms.maxLength': string
+  'forms.min': string
+  'forms.minLength': string
+  'forms.required': string
+  'home.greeting': string
+  'home.world': string
+  'http.error.networkError': string
+  'http.error.requestFailed': string
+  'oauth.continueWith': string
+  'oauth.github': string
+  'oauth.gitlab': string
+  'oauth.google': string
+  'oauth.orContinueWith': string
+  'oauth.twitter': string
+  'planUpdated.message': string
+  'planUpdated.returnHome': string
+  'planUpdated.thankYou': string
+  'project.error.nameAndTypeRequired': string
+  'project.error.notFound': string
+  'push.error.notSupported': string
+  'push.error.permissionNotGranted': string
+  'pwa.update': string
+  'pwa.updateAvailable': string
+  'pwa.updating': string
+  'resource.error.badRequest': string
+  'resource.error.notFound': string
+  'resource.error.unableToCreate': string
+  'resource.error.unableToDelete': string
+  'resource.error.unableToUpdate': string
+  'resource.error.unauthorized': string
+  'resource.error.unknownError': string
+  'routing.error.missingParam': string
+  'routing.error.routeNotFound': string
+  'routing.error.useMoleculeRouterOutsideProvider': string
+  'settings.account': string
+  'settings.authentication': string
+  'settings.billing': string
+  'settings.browser': string
+  'settings.changePassword': string
+  'settings.changePasswordModal.changing': string
+  'settings.changePasswordModal.currentPassword': string
+  'settings.changePasswordModal.error': string
+  'settings.changePasswordModal.newPassword': string
+  'settings.changePasswordModal.submit': string
+  'settings.changePasswordModal.title': string
+  'settings.deleteAccount': string
+  'settings.deleteAccountModal.deleting': string
+  'settings.deleteAccountModal.password': string
+  'settings.deleteAccountModal.submit': string
+  'settings.deleteAccountModal.title': string
+  'settings.deleteAccountModal.warning': string
+  'settings.devices': string
+  'settings.email': string
+  'settings.failedToDeleteAccount': string
+  'settings.failedToUpdateEmail': string
+  'settings.logOut': string
+  'settings.network': string
+  'settings.noDevices': string
+  'settings.notifications': string
+  'settings.offline': string
+  'settings.online': string
+  'settings.plan': string
+  'settings.platform': string
+  'settings.pushNotifications': string
+  'settings.thisDevice': string
+  'settings.togglePushNotifications': string
+  'settings.toggleTwoFactor': string
+  'settings.twoFactor': string
+  'settings.unknown': string
+  'settings.upgrade': string
+  'theme.toggle': string
+  'user.error.badRequest': string
+  'user.error.currentPasswordIncorrect': string
+  'user.error.currentPasswordRequired': string
+  'user.error.emailAlreadyRegistered': string
+  'user.error.emailInvalid': string
+  'user.error.emailRequired': string
+  'user.error.failedToCreateSession': string
+  'user.error.failedToCreateUser': string
+  'user.error.failedToDeleteUser': string
+  'user.error.failedToHashPassword': string
+  'user.error.failedToProcessPasswordReset': string
+  'user.error.failedToReadUser': string
+  'user.error.failedToUpdatePassword': string
+  'user.error.failedToUpdatePlan': string
+  'user.error.failedToUpdateSubscription': string
+  'user.error.failedToUpdateUser': string
+  'user.error.invalidAction': string
+  'user.error.invalidCredentials': string
+  'user.error.invalidPlan': string
+  'user.error.invalidToken': string
+  'user.error.invalidTwoFactorToken': string
+  'user.error.loginFailed': string
+  'user.error.newPasswordRequired': string
+  'user.error.noPendingTwoFactorSetup': string
+  'user.error.notFound': string
+  'user.error.oauthLoginFailed': string
+  'user.error.oauthServerNotConfigured': string
+  'user.error.oauthVerificationFailed': string
+  'user.error.passwordRequired': string
+  'user.error.planKeyRequired': string
+  'user.error.tokenRequired': string
+  'user.error.twoFactorNotAvailable': string
+  'user.error.twoFactorNotEnabled': string
+  'user.error.twoFactorOperationFailed': string
+  'user.error.twoFactorVerificationUnavailable': string
+  'user.error.usernameCannotBeEmpty': string
+  'user.error.usernameRequired': string
+  'user.error.usernameUnavailable': string
+  'user.payment.invalidPlan': string
+  'user.payment.invalidWebhookEvent': string
+  'user.payment.providerRequired': string
+  'user.payment.receiptAndPlanRequired': string
+  'user.payment.subscriptionIdRequired': string
+  'user.payment.unknownPlan': string
+  'user.payment.verificationFailed': string
+  'user.payment.verificationNotConfigured': string
+  'userMenu.open': string
 }

@@ -3,14 +3,24 @@ import { describe, expect, it } from 'vitest'
 import * as bond from '../index.js'
 import type { CommonTranslations } from '../index.js'
 
-const REQUIRED_KEYS: Array<keyof CommonTranslations> = [
+// Sample of the 178 keys — the test confirms every language has these specific
+// values and that escape sequences round-trip correctly. Full key list lives
+// in CommonTranslations interface.
+const SPOT_CHECK_KEYS: Array<keyof CommonTranslations> = [
   'common.close',
   'common.continue',
   'common.goBack',
   'common.loading',
   'common.saving',
   'common.submit',
+  'auth.login.email',
+  'auth.error.loginFailed',
+  'settings.changePassword',
+  'footer.about',
+  'oauth.orContinueWith',
+  'theme.toggle',
 ]
+const REQUIRED_KEYS = SPOT_CHECK_KEYS
 
 // Identifier-style language names exported from each *.ts file.
 const LANGUAGES = [
@@ -107,15 +117,28 @@ describe('@molecule/app-locales-common', () => {
     }
   })
 
-  it('english values match the canonical fleet copy', () => {
-    expect(bond.en).toEqual({
-      'common.close': 'Close',
-      'common.continue': 'Continue',
-      'common.goBack': 'Go back',
-      'common.loading': 'Loading...',
-      'common.saving': 'Saving...',
-      'common.submit': 'Submit',
-    })
+  it('english values match the canonical fleet copy (spot checks)', () => {
+    expect(bond.en['common.close']).toBe('Close')
+    expect(bond.en['common.continue']).toBe('Continue')
+    expect(bond.en['common.goBack']).toBe('Go back')
+    expect(bond.en['common.loading']).toBe('Loading...')
+    expect(bond.en['common.saving']).toBe('Saving...')
+    expect(bond.en['common.submit']).toBe('Submit')
+    expect(bond.en['auth.login.email']).toBe('Email')
+    expect(bond.en['auth.error.loginFailed']).toBe('Login failed')
+    expect(bond.en['settings.changePassword']).toBe('Change password')
+    expect(bond.en['footer.about']).toBe('About {{appName}}')
+    expect(bond.en['oauth.orContinueWith']).toBe('Or continue with')
+    expect(bond.en['theme.toggle']).toBe('Toggle theme')
+  })
+
+  it('apostrophe-containing values (Catalan) round-trip via double-quoted source', () => {
+    // Catalan has values like "L'inici de sessió ha fallat" with apostrophes;
+    // bond source uses double-quoted strings to avoid escaping. At runtime
+    // both single and double quotes produce the same JS string.
+    expect(bond.ca['auth.error.loginFailed']).toBe('L’inici de sessió ha fallat'.replace('’', "'"))
+    // simpler equivalent assertion
+    expect(bond.ca['auth.error.loginFailed']).toBe("L'inici de sessió ha fallat")
   })
 
   it('non-Latin scripts round-trip correctly (no double-escape bug)', () => {
