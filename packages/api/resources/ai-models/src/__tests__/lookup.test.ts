@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { MODELS } from '../models.js'
 import { getAvailableModels, getModel, getModelsByProvider, MODEL_IDS } from '../lookup.js'
+import { MODELS } from '../models.js'
 
 // ---------------------------------------------------------------------------
 // webSearchToolType on model definitions
