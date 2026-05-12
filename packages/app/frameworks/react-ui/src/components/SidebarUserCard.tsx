@@ -45,8 +45,10 @@ interface AccountUserShape {
  * button without forking. The named props below cover the common
  * customization points.
  */
-export interface SidebarUserCardProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label' | 'onClick' | 'children'> {
+export interface SidebarUserCardProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'aria-label' | 'onClick' | 'children'
+> {
   /**
    * Render function for the panel shown inside the drawer/modal.
    * Receives an `onClose` callback so the panel's own close-button
@@ -70,6 +72,12 @@ export interface SidebarUserCardProps
   ariaLabelKey?: string
   /** Fallback aria-label if the i18n key is missing. Default: `'Open account menu'`. */
   ariaLabelDefault?: string
+  /**
+   * `data-mol-id` for the trigger button. Defaults to
+   * `'sidebar-user-card'`. Pass a different value (e.g. `'user-menu'`)
+   * to disambiguate or align with an app's existing e2e selectors.
+   */
+  dataMolId?: string
 }
 
 /**
@@ -92,6 +100,7 @@ export function SidebarUserCard({
   avatarUrl,
   ariaLabelKey = 'sidebarUserCard.open',
   ariaLabelDefault = 'Open account menu',
+  dataMolId = 'sidebar-user-card',
   className,
   ...rest
 }: SidebarUserCardProps) {
@@ -120,7 +129,7 @@ export function SidebarUserCard({
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
-        data-mol-id="sidebar-user-card"
+        data-mol-id={dataMolId}
         className={cm.cn(
           cm.flex({ align: 'center', gap: 'sm' }),
           cm.sp('px', 3),
