@@ -91,3 +91,20 @@ export function setupAppThemeCssVariables(): void {
 export function setupAppUiTailwind(): void {
   setClassMap(classMap)
 }
+
+/**
+ * Wires all 7 universal app-side bonds in one call — fonts, routing,
+ * storage, styling, theme, UI ClassMap, icons (in that order). Auth
+ * + i18n stay per-app because they need app-specific config.
+ *
+ * Replaces 9 individual setupX() calls in per-app `bonds/index.ts`.
+ */
+export function setupAllDefaultBonds(): void {
+  setupAppFontsArimo()
+  setupAppRoutingReactRouter()
+  setupAppStorageLocalstorage()
+  setupAppStylingTailwind()
+  setupAppThemeCssVariables()
+  setupAppUiTailwind()
+  setupAppIconsMolecule()
+}
