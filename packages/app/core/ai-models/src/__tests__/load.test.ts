@@ -1,5 +1,6 @@
-import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import { describe, expect, it, vi } from 'vitest'
+
+import type { HttpClient, HttpResponse } from '@molecule/app-http'
 
 import { loadAIModels, pickFreeTierModel } from '../load.js'
 import type { AppModelDefinition } from '../types.js'
