@@ -19,12 +19,14 @@ export function Home() {
   const { t } = useTranslation()
   const { user } = useAuth<UserProfile>()
 
+  // Concatenated into one expression so JSX doesn't insert whitespace
+  // between greeting and name — keeps the rendered output identical to
+  // the byte-identical fleet original (`Hello, World!`, not `Hello,  World!`).
+  const headline = `${t('home.greeting')}${user?.name || user?.email || t('home.world')}!`
+
   return (
     <div className={cm.cn(cm.textCenter, cm.sp('py', 12))}>
-      <h2 className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}>
-        {t('home.greeting')}
-        {user?.name || user?.email || t('home.world')}!
-      </h2>
+      <h2 className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))}>{headline}</h2>
     </div>
   )
 }
