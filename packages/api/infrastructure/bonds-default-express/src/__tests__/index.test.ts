@@ -1,35 +1,31 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  setupConfigEnv,
-  setupDatabasePostgresql,
-  setupJwtJsonwebtoken,
-  setupMiddlewareBodyParserExpress,
-  setupMiddlewareCookieParserExpress,
-  setupMiddlewareCorsExpress,
-  setupPasswordBcrypt,
-  setupSecretsEnv,
-  setupServiceDevice,
-  setupTwoFactorOtplib,
-} from '../index.js'
+import * as bondsDefault from '../index.js'
 
 describe('@molecule/api-bonds-default-express', () => {
-  it('exports the 10 universal API bond setup functions', () => {
-    const setups = [
-      setupConfigEnv,
-      setupDatabasePostgresql,
-      setupJwtJsonwebtoken,
-      setupMiddlewareBodyParserExpress,
-      setupMiddlewareCookieParserExpress,
-      setupMiddlewareCorsExpress,
-      setupPasswordBcrypt,
-      setupSecretsEnv,
-      setupServiceDevice,
-      setupTwoFactorOtplib,
+  it('exports the universal API bond setup functions', () => {
+    const expected = [
+      'setupConfigEnv',
+      'setupDatabasePostgresql',
+      'setupJwtJsonwebtoken',
+      'setupMiddlewareBodyParserExpress',
+      'setupMiddlewareCookieParserExpress',
+      'setupMiddlewareCorsExpress',
+      'setupPasswordBcrypt',
+      'setupSecretsEnv',
+      'setupServiceDevice',
+      'setupTwoFactorOtplib',
+      'setupEmailsMailgun',
+      'setupPaymentsStripe',
+      'setupServicePayment',
+      'setupSearchMeilisearch',
+      'setupUploadsS3',
     ]
-    expect(setups).toHaveLength(10)
-    for (const fn of setups) {
-      expect(typeof fn).toBe('function')
+    for (const name of expected) {
+      expect(
+        typeof (bondsDefault as Record<string, unknown>)[name],
+        `${name} missing or not a function`,
+      ).toBe('function')
     }
   })
 })

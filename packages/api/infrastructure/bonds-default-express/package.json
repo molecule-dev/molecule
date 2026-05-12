@@ -49,7 +49,15 @@
     "@molecule/api-secrets": "1.0.0",
     "@molecule/api-secrets-env": "1.0.0",
     "@molecule/api-two-factor": "1.0.0",
-    "@molecule/api-two-factor-otplib": "1.0.0"
+    "@molecule/api-two-factor-otplib": "1.0.0",
+    "@molecule/api-emails": "1.0.0",
+    "@molecule/api-emails-mailgun": "1.0.0",
+    "@molecule/api-payments-stripe": "1.0.0",
+    "@molecule/api-resource-payment": "1.0.0",
+    "@molecule/api-search": "1.0.0",
+    "@molecule/api-search-meilisearch": "1.0.0",
+    "@molecule/api-uploads": "1.0.0",
+    "@molecule/api-uploads-s3": "1.0.0"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
@@ -71,6 +79,14 @@
     "@molecule/api-secrets": "^1.0.0",
     "@molecule/api-secrets-env": "^1.0.0",
     "@molecule/api-two-factor": "^1.0.0",
-    "@molecule/api-two-factor-otplib": "^1.0.0"
+    "@molecule/api-two-factor-otplib": "^1.0.0",
+    "@molecule/api-emails": "^1.0.0",
+    "@molecule/api-emails-mailgun": "^1.0.0",
+    "@molecule/api-payments-stripe": "^1.0.0",
+    "@molecule/api-resource-payment": "^1.0.0",
+    "@molecule/api-search": "^1.0.0",
+    "@molecule/api-search-meilisearch": "^1.0.0",
+    "@molecule/api-uploads": "^1.0.0",
+    "@molecule/api-uploads-s3": "^1.0.0"
   }
 }

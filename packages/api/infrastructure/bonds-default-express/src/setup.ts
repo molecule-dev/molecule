@@ -13,6 +13,14 @@
 
 import { bond } from '@molecule/api-bond'
 import { setProvider as setConfig } from '@molecule/api-config'
+import { setTransport as setEmails } from '@molecule/api-emails'
+import { provider as emailsMailgunProvider } from '@molecule/api-emails-mailgun'
+import { paymentProvider as stripePaymentProvider } from '@molecule/api-payments-stripe'
+import { paymentRecordService, planService } from '@molecule/api-resource-payment'
+import { setProvider as setSearch } from '@molecule/api-search'
+import { provider as searchMeilisearchProvider } from '@molecule/api-search-meilisearch'
+import { setProvider as setUploads } from '@molecule/api-uploads'
+import { provider as uploadsS3Provider } from '@molecule/api-uploads-s3'
 import { provider as configProvider } from '@molecule/api-config-env'
 import { setPool, setStore } from '@molecule/api-database'
 import { pool as dbPool, store as dbStore } from '@molecule/api-database-postgresql'
@@ -90,4 +98,30 @@ export function setupServiceDevice(): void {
 /** Wires `@molecule/api-two-factor-otplib` to `@molecule/api-two-factor`. */
 export function setupTwoFactorOtplib(): void {
   setTwoFactor(twoFactorProvider)
+}
+
+/** Wires `@molecule/api-emails-mailgun` to `@molecule/api-emails`. */
+export function setupEmailsMailgun(): void {
+  setEmails(emailsMailgunProvider)
+}
+
+/** Registers `@molecule/api-payments-stripe` as a named `'stripe'` payments provider. */
+export function setupPaymentsStripe(): void {
+  bond('payments', 'stripe', stripePaymentProvider)
+}
+
+/** Registers the plan + paymentRecord services from `@molecule/api-resource-payment`. */
+export function setupServicePayment(): void {
+  bond('plans', planService)
+  bond('paymentRecords', paymentRecordService)
+}
+
+/** Wires `@molecule/api-search-meilisearch` to `@molecule/api-search`. */
+export function setupSearchMeilisearch(): void {
+  setSearch(searchMeilisearchProvider)
+}
+
+/** Wires `@molecule/api-uploads-s3` to `@molecule/api-uploads`. */
+export function setupUploadsS3(): void {
+  setUploads(uploadsS3Provider)
 }
