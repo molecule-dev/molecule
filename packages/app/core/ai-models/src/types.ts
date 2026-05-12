@@ -68,6 +68,14 @@ export interface AppModelDefinition {
   outputPricePerMTok: number
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
+  /**
+   * When the model was (or will be) deprecated (YYYY-MM-DD).
+   *
+   * Past dates: still selectable, but the picker hides them in an "Older
+   * models" section. Future dates: treated as current. Omit entirely for
+   * current models.
+   */
+  deprecatedAt?: string
 }
 
 /**

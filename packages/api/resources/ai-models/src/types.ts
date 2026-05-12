@@ -83,6 +83,17 @@ export interface ModelDefinition {
   outputPricePerMTok: number
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
+  /**
+   * When the model was (or will be) deprecated (YYYY-MM-DD).
+   *
+   * Past dates: still selectable, but the picker tucks them into an "Older
+   * models" section so newcomers default to current entries. Saved selections
+   * (a user previously picked this) keep working. Future dates: still treated
+   * as current — useful for scheduling a deprecation in advance.
+   *
+   * Omit entirely for current models.
+   */
+  deprecatedAt?: string
 }
 
 /**

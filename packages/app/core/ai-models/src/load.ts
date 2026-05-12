@@ -37,3 +37,42 @@ export function pickFreeTierModel(
 ): AppModelDefinition | undefined {
   return models.find((m) => m.freeTier)
 }
+
+/**
+ * Returns `true` when the model is deprecated as of `now`. A model is deprecated
+ * if `deprecatedAt` is set and lexicographically `<=` the `now` date (YYYY-MM-DD
+ * strings compare as dates). Models with a future `deprecatedAt` are still
+ * current — useful for scheduling deprecations.
+ *
+ * @param model - Model to check.
+ * @param now - Today's date as YYYY-MM-DD. Defaults to the current UTC date.
+ * @returns `true` if the model is deprecated as of `now`.
+ */
+export function isDeprecated(
+  model: Pick<AppModelDefinition, 'deprecatedAt'>,
+  now: string = new Date().toISOString().slice(0, 10),
+): boolean {
+  return typeof model.deprecatedAt === 'string' && model.deprecatedAt <= now
+}
+
+/**
+ * Splits a model catalog into current and deprecated entries based on each
+ * model's `deprecatedAt` relative to `now`. Order within each partition is
+ * preserved.
+ *
+ * @param models - Loaded model catalog.
+ * @param now - Today's date as YYYY-MM-DD. Defaults to the current UTC date.
+ * @returns Object with `current` and `deprecated` arrays.
+ */
+export function partitionByDeprecation(
+  models: readonly AppModelDefinition[],
+  now: string = new Date().toISOString().slice(0, 10),
+): { current: AppModelDefinition[]; deprecated: AppModelDefinition[] } {
+  const current: AppModelDefinition[] = []
+  const deprecated: AppModelDefinition[] = []
+  for (const model of models) {
+    if (isDeprecated(model, now)) deprecated.push(model)
+    else current.push(model)
+  }
+  return { current, deprecated }
+}
