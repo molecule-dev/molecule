@@ -19,8 +19,7 @@
     "packages/app/native/*",
     "packages/app/frameworks/*",
     "packages/api/locales/*",
-    "packages/app/locales/*",
-    "packages/shared/*"
+    "packages/app/locales/*"
   ],
   "engines": {
     "node": ">=20"
