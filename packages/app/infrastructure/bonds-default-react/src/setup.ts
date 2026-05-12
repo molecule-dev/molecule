@@ -21,6 +21,36 @@ import { setRouter } from '@molecule/app-routing'
 import { provider as reactRouterProvider } from '@molecule/app-routing-react-router'
 import { setProvider as setStorage } from '@molecule/app-storage'
 import { provider as localStorageProvider } from '@molecule/app-storage-localstorage'
+import { setProvider as setTheme } from '@molecule/app-theme'
+import {
+  createCSSVariablesThemeProvider,
+  darkTheme,
+  lightTheme,
+} from '@molecule/app-theme-css-variables'
+import { setClassMap } from '@molecule/app-ui'
+import { classMap } from '@molecule/app-ui-tailwind'
+
+/**
+ * Pre-wired default CSS-variables theme provider with light + dark
+ * themes from `@molecule/app-theme-css-variables`. Apps that need
+ * custom themes should build their own provider and skip this.
+ *
+ * Lazily constructed on first access — `createCSSVariablesThemeProvider`
+ * touches `globalThis.localStorage.getItem` during construction, which
+ * throws in non-DOM environments (SSR, unit-test runners with
+ * incomplete localStorage shims).
+ */
+let _defaultThemeProvider: ReturnType<typeof createCSSVariablesThemeProvider> | null = null
+export function getDefaultThemeProvider(): ReturnType<typeof createCSSVariablesThemeProvider> {
+  if (!_defaultThemeProvider) {
+    _defaultThemeProvider = createCSSVariablesThemeProvider({
+      themes: [lightTheme, darkTheme],
+      defaultTheme: 'light',
+      persistKey: 'molecule-theme',
+    })
+  }
+  return _defaultThemeProvider
+}
 
 /** Wires `@molecule/app-fonts-arimo` to `@molecule/app-fonts`. */
 export function setupAppFontsArimo(): void {
@@ -50,4 +80,14 @@ export function setupAppStorageLocalstorage(): void {
  */
 export function setupAppStylingTailwind(): void {
   // No explicit setup needed — configured via environment variables.
+}
+
+/** Wires the default light + dark CSS-variables theme provider to `@molecule/app-theme`. */
+export function setupAppThemeCssVariables(): void {
+  setTheme(getDefaultThemeProvider())
+}
+
+/** Wires `@molecule/app-ui-tailwind` `classMap` to `@molecule/app-ui`. */
+export function setupAppUiTailwind(): void {
+  setClassMap(classMap)
 }

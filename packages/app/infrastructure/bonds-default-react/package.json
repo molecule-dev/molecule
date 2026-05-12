@@ -37,7 +37,12 @@
     "@molecule/app-routing": "1.0.0",
     "@molecule/app-routing-react-router": "1.0.0",
     "@molecule/app-storage": "1.0.0",
-    "@molecule/app-storage-localstorage": "1.0.0"
+    "@molecule/app-storage-localstorage": "1.0.0",
+    "@molecule/app-theme": "1.0.0",
+    "@molecule/app-theme-css-variables": "1.0.0",
+    "@molecule/app-ui": "1.0.0",
+    "@molecule/app-ui-tailwind": "1.0.0",
+    "happy-dom": "20.0.7"
   },
   "peerDependencies": {
     "@molecule/app-fonts": "^1.0.0",
@@ -47,6 +52,10 @@
     "@molecule/app-routing": "^1.0.0",
     "@molecule/app-routing-react-router": "^1.0.0",
     "@molecule/app-storage": "^1.0.0",
-    "@molecule/app-storage-localstorage": "^1.0.0"
+    "@molecule/app-storage-localstorage": "^1.0.0",
+    "@molecule/app-theme": "^1.0.0",
+    "@molecule/app-theme-css-variables": "^1.0.0",
+    "@molecule/app-ui": "^1.0.0",
+    "@molecule/app-ui-tailwind": "^1.0.0"
   }
 }
