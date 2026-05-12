@@ -19,10 +19,10 @@
 import type { JSX } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { formatTokenCount, MODELS, PROVIDER_BRAND_COLORS } from '@molecule/ai-models'
 import type { ChatMessage } from '@molecule/app-ai-chat'
+import { formatTokenCount, PROVIDER_BRAND_COLORS } from '@molecule/app-core-ai-models'
 import { t } from '@molecule/app-i18n'
-import { useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
+import { useAIModels, useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ChatPanelProps } from '../types.js'
@@ -158,8 +158,6 @@ const COMMANDS: CommandDef[] = [
 ]
 
 type CommandId = CommandDef['id']
-
-const FREE_TIER_MODEL = MODELS.find((m) => m.freeTier)?.id ?? MODELS[0].id
 
 interface ModelPicker {
   selectedIdx: number
@@ -2359,12 +2357,20 @@ function ChatInner({
   )
 
   // ── Current project settings (model + maxloops + sounds) ──────────────────
+  const { models: AVAILABLE_MODELS, freeTierModel, loading: modelsLoading } = useAIModels()
+  const FREE_TIER_MODEL = freeTierModel?.id ?? AVAILABLE_MODELS[0]?.id ?? ''
   const DEFAULT_MODEL = FREE_TIER_MODEL
-  const AVAILABLE_MODELS = MODELS
   const isFreeTier = !isPro
-  const [currentModel, setCurrentModel] = useState<string>(DEFAULT_MODEL)
+  const [currentModel, setCurrentModel] = useState<string>('')
   const [currentMaxLoops, setCurrentMaxLoops] = useState<number>(100)
   const [autoFixEnabled, setAutoFixEnabled] = useState<boolean>(true)
+  // Adopt the free-tier model id as soon as the catalog resolves, unless the
+  // project-settings fetch already populated currentModel with a saved choice.
+  useEffect(() => {
+    if (!currentModel && DEFAULT_MODEL) {
+      setCurrentModel(DEFAULT_MODEL)
+    }
+  }, [currentModel, DEFAULT_MODEL])
   useEffect(() => {
     http
       .get<{ settings?: Record<string, unknown> }>(`/projects/${projectId}`)
@@ -4249,7 +4255,7 @@ function ChatInner({
           })()}
 
         {/* Model picker popup */}
-        {modelPicker && filteredModels.length > 0 && (
+        {modelPicker && (modelsLoading || filteredModels.length > 0) && (
           <div
             className={cm.cn(cm.surface, cm.borderAll)}
             style={{
@@ -4290,189 +4296,201 @@ function ChatInner({
                 )}
               </span>
             </div>
-            <div style={{ overflowY: 'auto', flex: 1 }}>
-              {filteredModels.map((model, idx) => {
-                const badges: Array<{ label: string; bg: string; fg: string }> = []
-                if (model.supportsVision)
-                  badges.push({
-                    label: 'vision',
-                    bg: isLight ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.18)',
-                    fg: isLight ? 'rgb(37,99,235)' : 'rgb(96,165,250)',
-                  })
-                if (model.supportsThinking)
-                  badges.push({
-                    label: 'thinking',
-                    bg: isLight ? 'rgba(168,85,247,0.12)' : 'rgba(168,85,247,0.18)',
-                    fg: isLight ? 'rgb(126,34,206)' : 'rgb(192,132,252)',
-                  })
-                if (model.webSearchToolType)
-                  badges.push({
-                    label: 'web search',
-                    bg: isLight ? 'rgba(22,163,74,0.12)' : 'rgba(34,197,94,0.18)',
-                    fg: isLight ? 'rgb(22,163,74)' : 'rgb(74,222,128)',
-                  })
-                if (model.supportsPromptCaching)
-                  badges.push({
-                    label: 'caching',
-                    bg: isLight ? 'rgba(202,138,4,0.12)' : 'rgba(234,179,8,0.18)',
-                    fg: isLight ? 'rgb(161,98,7)' : 'rgb(250,204,21)',
-                  })
-                const accent = PROVIDER_BRAND_COLORS[model.provider] ?? '#888'
-                const locked = isFreeTier && model.id !== FREE_TIER_MODEL
-                // Price-based color: green ≤$1, yellow ≤$3, red >$3 (input per MTok)
-                const priceColor =
-                  model.inputPricePerMTok <= 1
-                    ? isLight
-                      ? 'rgb(22,163,74)'
-                      : 'rgb(74,222,128)'
-                    : model.inputPricePerMTok <= 3
+            {modelsLoading ? (
+              <div className={cm.cn(cm.textSize('sm'), cm.textMuted)} style={{ padding: 12 }}>
+                {t('ide.chat.modelsLoading', undefined, { defaultValue: 'Loading models…' })}
+              </div>
+            ) : (
+              <div style={{ overflowY: 'auto', flex: 1 }}>
+                {filteredModels.map((model, idx) => {
+                  const badges: Array<{ label: string; bg: string; fg: string }> = []
+                  if (model.supportsVision)
+                    badges.push({
+                      label: 'vision',
+                      bg: isLight ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.18)',
+                      fg: isLight ? 'rgb(37,99,235)' : 'rgb(96,165,250)',
+                    })
+                  if (model.supportsThinking)
+                    badges.push({
+                      label: 'thinking',
+                      bg: isLight ? 'rgba(168,85,247,0.12)' : 'rgba(168,85,247,0.18)',
+                      fg: isLight ? 'rgb(126,34,206)' : 'rgb(192,132,252)',
+                    })
+                  if (model.webSearchToolType)
+                    badges.push({
+                      label: 'web search',
+                      bg: isLight ? 'rgba(22,163,74,0.12)' : 'rgba(34,197,94,0.18)',
+                      fg: isLight ? 'rgb(22,163,74)' : 'rgb(74,222,128)',
+                    })
+                  if (model.supportsPromptCaching)
+                    badges.push({
+                      label: 'caching',
+                      bg: isLight ? 'rgba(202,138,4,0.12)' : 'rgba(234,179,8,0.18)',
+                      fg: isLight ? 'rgb(161,98,7)' : 'rgb(250,204,21)',
+                    })
+                  const accent = PROVIDER_BRAND_COLORS[model.provider] ?? '#888'
+                  const locked = isFreeTier && model.id !== FREE_TIER_MODEL
+                  // Price-based color: green ≤$1, yellow ≤$3, red >$3 (input per MTok)
+                  const priceColor =
+                    model.inputPricePerMTok <= 1
                       ? isLight
-                        ? 'rgb(161,98,7)'
-                        : 'rgb(250,204,21)'
-                      : isLight
-                        ? 'rgb(220,38,38)'
-                        : 'rgb(248,113,113)'
-                return (
-                  <button
-                    key={model.id}
-                    type="button"
-                    onClick={() => {
-                      if (locked) {
-                        setModelPicker(null)
-                        setInputValue('')
-                        addSystemCard(
-                          t(
-                            'ide.chat.modelUpgradeRequired',
-                            { model: model.label },
-                            {
-                              defaultValue: `${model.label} is available on Pro. Upgrade to access all models.`,
-                            },
-                          ),
-                          isAnonymous
-                            ? [
-                                {
-                                  label: t('upgrade.signUp', undefined, {
-                                    defaultValue: 'Sign up',
-                                  }),
-                                  href: '/signup',
-                                },
-                                {
+                        ? 'rgb(22,163,74)'
+                        : 'rgb(74,222,128)'
+                      : model.inputPricePerMTok <= 3
+                        ? isLight
+                          ? 'rgb(161,98,7)'
+                          : 'rgb(250,204,21)'
+                        : isLight
+                          ? 'rgb(220,38,38)'
+                          : 'rgb(248,113,113)'
+                  return (
+                    <button
+                      key={model.id}
+                      type="button"
+                      onClick={() => {
+                        if (locked) {
+                          setModelPicker(null)
+                          setInputValue('')
+                          addSystemCard(
+                            t(
+                              'ide.chat.modelUpgradeRequired',
+                              { model: model.label },
+                              {
+                                defaultValue: `${model.label} is available on Pro. Upgrade to access all models.`,
+                              },
+                            ),
+                            isAnonymous
+                              ? [
+                                  {
+                                    label: t('upgrade.signUp', undefined, {
+                                      defaultValue: 'Sign up',
+                                    }),
+                                    href: '/signup',
+                                  },
+                                  {
+                                    label: t('upgrade.viewPlans', undefined, {
+                                      defaultValue: 'View plans',
+                                    }),
+                                    href: '/pricing',
+                                  },
+                                ]
+                              : {
                                   label: t('upgrade.viewPlans', undefined, {
-                                    defaultValue: 'View plans',
+                                    defaultValue: 'Upgrade',
                                   }),
                                   href: '/pricing',
                                 },
-                              ]
-                            : {
-                                label: t('upgrade.viewPlans', undefined, {
-                                  defaultValue: 'Upgrade',
-                                }),
-                                href: '/pricing',
-                              },
-                        )
-                      } else {
-                        void selectModel(model.id, model.label)
-                      }
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!locked)
-                        (e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)'
-                    }}
-                    onMouseLeave={(e) => {
-                      ;(e.currentTarget as HTMLElement).style.background =
-                        idx === modelPicker.selectedIdx && !locked
-                          ? 'rgba(128,128,128,0.1)'
-                          : 'transparent'
-                    }}
-                    className={cm.w('full')}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'flex-start',
-                      gap: '2px',
-                      padding: '8px 12px 8px 15px',
-                      border: 'none',
-                      borderTop: '1px solid rgba(128,128,128,0.12)',
-                      borderLeft: `3px solid ${accent}`,
-                      cursor: locked ? 'default' : 'pointer',
-                      color: 'inherit',
-                      textAlign: 'left',
-                      fontSize: '13px',
-                      opacity: locked ? 0.45 : 1,
-                      background:
-                        idx === modelPicker.selectedIdx && !locked
-                          ? 'rgba(128,128,128,0.1)'
-                          : 'transparent',
-                    }}
-                  >
-                    <div
-                      style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}
+                          )
+                        } else {
+                          void selectModel(model.id, model.label)
+                        }
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!locked)
+                          (e.currentTarget as HTMLElement).style.background =
+                            'rgba(128,128,128,0.15)'
+                      }}
+                      onMouseLeave={(e) => {
+                        ;(e.currentTarget as HTMLElement).style.background =
+                          idx === modelPicker.selectedIdx && !locked
+                            ? 'rgba(128,128,128,0.1)'
+                            : 'transparent'
+                      }}
+                      className={cm.w('full')}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        gap: '2px',
+                        padding: '8px 12px 8px 15px',
+                        border: 'none',
+                        borderTop: '1px solid rgba(128,128,128,0.12)',
+                        borderLeft: `3px solid ${accent}`,
+                        cursor: locked ? 'default' : 'pointer',
+                        color: 'inherit',
+                        textAlign: 'left',
+                        fontSize: '13px',
+                        opacity: locked ? 0.45 : 1,
+                        background:
+                          idx === modelPicker.selectedIdx && !locked
+                            ? 'rgba(128,128,128,0.1)'
+                            : 'transparent',
+                      }}
                     >
-                      <span className={cm.fontWeight('medium')}>{model.label}</span>
-                      <span style={{ fontSize: '10px', color: accent, opacity: 0.85 }}>
-                        {model.provider}
-                      </span>
-                      {model.id === currentModel && (
-                        <span
-                          style={{
-                            fontSize: '10px',
-                            background: 'rgba(128,128,128,0.2)',
-                            padding: '1px 5px',
-                            borderRadius: '3px',
-                          }}
-                        >
-                          {t('ide.chat.currentBadge', undefined, { defaultValue: 'current' })}
-                        </span>
-                      )}
-                      {locked && (
-                        <span
-                          style={{
-                            fontSize: '10px',
-                            marginLeft: 'auto',
-                            background: 'rgba(128,128,128,0.2)',
-                            padding: '1px 5px',
-                            borderRadius: '3px',
-                          }}
-                        >
-                          {t('ide.chat.proRequired', undefined, {
-                            defaultValue: 'Pro',
-                          })}
-                        </span>
-                      )}
-                    </div>
-                    <span style={{ fontSize: '12px', opacity: 0.7 }}>{model.description}</span>
-                    <span style={{ fontSize: '11px', opacity: 0.65 }}>
-                      {formatTokenCount(model.contextWindow)} ctx ·{' '}
-                      {formatTokenCount(model.maxOutputTokens)} out ·{' '}
-                      <span style={{ color: priceColor }}>
-                        ${model.inputPricePerMTok}/{model.outputPricePerMTok}
-                      </span>
-                      /MTok · {model.knowledgeCutoff}
-                    </span>
-                    {badges.length > 0 && (
-                      <span
-                        style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '1px' }}
+                      <div
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}
                       >
-                        {badges.map((b) => (
+                        <span className={cm.fontWeight('medium')}>{model.label}</span>
+                        <span style={{ fontSize: '10px', color: accent, opacity: 0.85 }}>
+                          {model.provider}
+                        </span>
+                        {model.id === currentModel && (
                           <span
-                            key={b.label}
                             style={{
                               fontSize: '10px',
-                              color: b.fg,
-                              background: b.bg,
+                              background: 'rgba(128,128,128,0.2)',
                               padding: '1px 5px',
                               borderRadius: '3px',
                             }}
                           >
-                            {b.label}
+                            {t('ide.chat.currentBadge', undefined, { defaultValue: 'current' })}
                           </span>
-                        ))}
+                        )}
+                        {locked && (
+                          <span
+                            style={{
+                              fontSize: '10px',
+                              marginLeft: 'auto',
+                              background: 'rgba(128,128,128,0.2)',
+                              padding: '1px 5px',
+                              borderRadius: '3px',
+                            }}
+                          >
+                            {t('ide.chat.proRequired', undefined, {
+                              defaultValue: 'Pro',
+                            })}
+                          </span>
+                        )}
+                      </div>
+                      <span style={{ fontSize: '12px', opacity: 0.7 }}>{model.description}</span>
+                      <span style={{ fontSize: '11px', opacity: 0.65 }}>
+                        {formatTokenCount(model.contextWindow)} ctx ·{' '}
+                        {formatTokenCount(model.maxOutputTokens)} out ·{' '}
+                        <span style={{ color: priceColor }}>
+                          ${model.inputPricePerMTok}/{model.outputPricePerMTok}
+                        </span>
+                        /MTok · {model.knowledgeCutoff}
                       </span>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
+                      {badges.length > 0 && (
+                        <span
+                          style={{
+                            display: 'flex',
+                            gap: '4px',
+                            flexWrap: 'wrap',
+                            marginTop: '1px',
+                          }}
+                        >
+                          {badges.map((b) => (
+                            <span
+                              key={b.label}
+                              style={{
+                                fontSize: '10px',
+                                color: b.fg,
+                                background: b.bg,
+                                padding: '1px 5px',
+                                borderRadius: '3px',
+                              }}
+                            >
+                              {b.label}
+                            </span>
+                          ))}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
         )}
 
