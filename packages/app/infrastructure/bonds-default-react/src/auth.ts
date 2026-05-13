@@ -1,6 +1,10 @@
 import { createJWTAuthClient, setClient } from '@molecule/app-auth'
 import type { AuthClient, AuthClientConfig, UserProfile } from '@molecule/app-auth'
-import { getClient as getHttpClient } from '@molecule/app-http'
+import {
+  createFetchClient,
+  getClient as getHttpClient,
+  setClient as setHttpClient,
+} from '@molecule/app-http'
 
 /**
  * Builds the default JWT auth client + wires it into `@molecule/app-auth`.
@@ -63,6 +67,48 @@ export function createDefaultAuthClientWithHttpSync<TUser extends UserProfile = 
           if (token) getHttpClient().setAuthToken(token)
         } else if (event.type === 'logout') {
           getHttpClient().setAuthToken(null)
+        }
+      })
+    },
+  }
+}
+
+/**
+ * Most aggressive variant — bonds a fetch-based HTTP client with the
+ * given `baseURL` (so molecule pkg `useGet('/path')` calls hit
+ * `${baseURL}/path` instead of the SPA's catch-all route), AND keeps
+ * its bearer token in sync with auth events.
+ *
+ * Used by apps where molecule packages render pricing / billing /
+ * other authed JSON-fetching screens that need both behaviors.
+ */
+export function createDefaultAuthClientWithFetchClient<TUser extends UserProfile = UserProfile>(
+  authConfig: AuthClientConfig,
+  fetchClientOptions: { baseURL: string; withCredentials?: boolean },
+): {
+  authClient: AuthClient<TUser>
+  setupAuthDefault: () => void
+} {
+  const authClient = createJWTAuthClient<TUser>(authConfig)
+  return {
+    authClient,
+    setupAuthDefault: () => {
+      const httpClient = createFetchClient({
+        baseURL: fetchClientOptions.baseURL,
+        withCredentials: fetchClientOptions.withCredentials ?? true,
+      })
+      setHttpClient(httpClient)
+      setClient(authClient)
+      const initialToken = authClient.getAccessToken()
+      if (initialToken) {
+        httpClient.setAuthToken(initialToken)
+      }
+      authClient.addEventListener((event) => {
+        if (event.type === 'login' || event.type === 'register' || event.type === 'refresh') {
+          const token = authClient.getAccessToken()
+          if (token) httpClient.setAuthToken(token)
+        } else if (event.type === 'logout') {
+          httpClient.setAuthToken(null)
         }
       })
     },
