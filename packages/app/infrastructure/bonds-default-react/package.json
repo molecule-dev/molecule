@@ -45,7 +45,7 @@
     "happy-dom": "20.0.7",
     "@molecule/app-auth": "1.0.0",
     "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.4",
+    "@types/react-dom": "19.2.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "@molecule/app-http": "1.0.0",
