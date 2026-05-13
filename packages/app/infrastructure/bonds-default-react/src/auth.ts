@@ -33,6 +33,45 @@ export function createDefaultHttpClient(baseURL: string): {
 }
 
 /**
+ * Variant of `createDefaultHttpClient` that adds a request interceptor
+ * injecting the JWT bearer token from the auth client AND (optionally)
+ * stripping a leading `/api/` from request URLs.
+ *
+ * Replaces ~20 per-app `bonds/http-default.ts` files that hand-roll
+ * this same wiring. Pass `stripApiPrefix: true` when the app uses
+ * `baseURL: '/api'` to handle pages that pass `/api/`-prefixed paths
+ * (would otherwise resolve to `/api/api/...` and 404).
+ */
+export function createDefaultHttpClientWithAuthBearer(opts: {
+  baseURL: string
+  withCredentials?: boolean
+  stripApiPrefix?: boolean
+  getToken: () => string | null | undefined
+}): {
+  httpClient: HttpClient
+  setupHttpDefault: () => void
+} {
+  const httpClient = createFetchClient({
+    baseURL: opts.baseURL,
+    withCredentials: opts.withCredentials,
+  })
+  httpClient.addRequestInterceptor((config) => {
+    if (opts.stripApiPrefix && typeof config.url === 'string' && config.url.startsWith('/api/')) {
+      config.url = config.url.replace(/^\/api\//, '/')
+    }
+    const token = opts.getToken()
+    if (token) {
+      config.headers = { ...config.headers, Authorization: `Bearer ${token}` }
+    }
+    return config
+  })
+  return {
+    httpClient,
+    setupHttpDefault: () => setHttpClient(httpClient),
+  }
+}
+
+/**
  * Builds the default JWT auth client + wires it into `@molecule/app-auth`.
  *
  * Replaces the 16-line per-app `bonds/auth-default.ts` that 93 fleet
