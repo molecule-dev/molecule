@@ -612,7 +612,7 @@ describe('dialog components', () => {
   it('dialogOverlay should have correct classes', () => {
     expect(dialogOverlay).toContain('fixed')
     expect(dialogOverlay).toContain('inset-0')
-    expect(dialogOverlay).toContain('z-modal')
+    expect(dialogOverlay).toContain('z-[1300]')
   })
 
   describe('dialogContent', () => {
@@ -663,7 +663,7 @@ describe('dialog components', () => {
 
 describe('dropdown components', () => {
   it('dropdownContent should have correct classes', () => {
-    expect(dropdownContent).toContain('z-dropdown')
+    expect(dropdownContent).toContain('z-[1000]')
     expect(dropdownContent).toContain('rounded-md')
     expect(dropdownContent).toContain('border')
   })
@@ -756,7 +756,7 @@ describe('tabs components', () => {
 
 describe('tooltip components', () => {
   it('tooltipContent should have correct classes', () => {
-    expect(tooltipContent).toContain('z-tooltip')
+    expect(tooltipContent).toContain('z-[1500]')
     expect(tooltipContent).toContain('rounded-md')
     expect(tooltipContent).toContain('text-sm')
   })
