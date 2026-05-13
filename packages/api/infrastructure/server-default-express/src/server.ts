@@ -26,6 +26,19 @@ export interface CreateServerOptions {
    * `files: 0` config would silently consume the multipart stream.
    */
   preBodyParser?: (app: express.Express) => Promise<void> | void
+  /**
+   * Optional hook called after `setupBonds()` but before the router
+   * import. Use for additional one-shot setup (e.g. entitlements
+   * tier-registry registration that runs after the bonds are wired).
+   */
+  postBondsSetup?: () => Promise<void> | void
+  /**
+   * Optional hook to mount middleware on `/api` BEFORE the canonical
+   * `app.use('/api', router)` mount. Use for app-specific authed
+   * content handlers (`/api`-prefixed) that need to run before the
+   * resource router.
+   */
+  preApiRouter?: (app: express.Express) => Promise<void> | void
 }
 
 let processHandlersRegistered = false
@@ -59,6 +72,7 @@ export function createServerFactory(
 
     await opts.runMigrations()
     await opts.setupBonds()
+    if (opts.postBondsSetup) await opts.postBondsSetup()
 
     // Import router after bonds are set up — handler maps are built at
     // module-evaluation time, so bond-conditional handlers need providers
@@ -82,6 +96,8 @@ export function createServerFactory(
       app.use(cookieParserMiddleware)
       app.use(corsMiddleware)
     }
+
+    if (opts.preApiRouter) await opts.preApiRouter(app)
 
     app.use('/api', router)
 
