@@ -86,7 +86,24 @@
     "@molecule/api-geolocation": "1.0.0",
     "@molecule/api-geolocation-mapbox": "1.0.0",
     "@molecule/api-cache": "1.0.0",
-    "@molecule/api-cache-redis": "1.0.0"
+    "@molecule/api-cache-redis": "1.0.0",
+    "@molecule/api-ai-openai": "1.0.0",
+    "@molecule/api-ai-embeddings": "1.0.0",
+    "@molecule/api-ai-embeddings-openai": "1.0.0",
+    "@molecule/api-webhook": "1.0.0",
+    "@molecule/api-webhook-http": "1.0.0",
+    "@molecule/api-ai-vector-store": "1.0.0",
+    "@molecule/api-ai-vector-store-pgvector": "1.0.0",
+    "@molecule/api-ai-speech": "1.0.0",
+    "@molecule/api-ai-speech-openai": "1.0.0",
+    "@molecule/api-workflow": "1.0.0",
+    "@molecule/api-workflow-database": "1.0.0",
+    "@molecule/api-http": "1.0.0",
+    "@molecule/api-http-fetch": "1.0.0",
+    "@molecule/api-notifications-webhook": "1.0.0",
+    "@molecule/api-geolocation-google": "1.0.0",
+    "@molecule/api-media-streaming": "1.0.0",
+    "@molecule/api-media-streaming-hls": "1.0.0"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
@@ -144,7 +161,24 @@
     "@molecule/api-geolocation": "^1.0.0",
     "@molecule/api-geolocation-mapbox": "^1.0.0",
     "@molecule/api-cache": "^1.0.0",
-    "@molecule/api-cache-redis": "^1.0.0"
+    "@molecule/api-cache-redis": "^1.0.0",
+    "@molecule/api-ai-openai": "^1.0.0",
+    "@molecule/api-ai-embeddings": "^1.0.0",
+    "@molecule/api-ai-embeddings-openai": "^1.0.0",
+    "@molecule/api-webhook": "^1.0.0",
+    "@molecule/api-webhook-http": "^1.0.0",
+    "@molecule/api-ai-vector-store": "^1.0.0",
+    "@molecule/api-ai-vector-store-pgvector": "^1.0.0",
+    "@molecule/api-ai-speech": "^1.0.0",
+    "@molecule/api-ai-speech-openai": "^1.0.0",
+    "@molecule/api-workflow": "^1.0.0",
+    "@molecule/api-workflow-database": "^1.0.0",
+    "@molecule/api-http": "^1.0.0",
+    "@molecule/api-http-fetch": "^1.0.0",
+    "@molecule/api-notifications-webhook": "^1.0.0",
+    "@molecule/api-geolocation-google": "^1.0.0",
+    "@molecule/api-media-streaming": "^1.0.0",
+    "@molecule/api-media-streaming-hls": "^1.0.0"
   },
   "dependencies": {
     "pg": "8.18.0"
@@ -223,6 +257,57 @@
       "optional": true
     },
     "@molecule/api-cache-redis": {
+      "optional": true
+    },
+    "@molecule/api-ai-openai": {
+      "optional": true
+    },
+    "@molecule/api-ai-embeddings": {
+      "optional": true
+    },
+    "@molecule/api-ai-embeddings-openai": {
+      "optional": true
+    },
+    "@molecule/api-webhook": {
+      "optional": true
+    },
+    "@molecule/api-webhook-http": {
+      "optional": true
+    },
+    "@molecule/api-ai-vector-store": {
+      "optional": true
+    },
+    "@molecule/api-ai-vector-store-pgvector": {
+      "optional": true
+    },
+    "@molecule/api-ai-speech": {
+      "optional": true
+    },
+    "@molecule/api-ai-speech-openai": {
+      "optional": true
+    },
+    "@molecule/api-workflow": {
+      "optional": true
+    },
+    "@molecule/api-workflow-database": {
+      "optional": true
+    },
+    "@molecule/api-http": {
+      "optional": true
+    },
+    "@molecule/api-http-fetch": {
+      "optional": true
+    },
+    "@molecule/api-notifications-webhook": {
+      "optional": true
+    },
+    "@molecule/api-geolocation-google": {
+      "optional": true
+    },
+    "@molecule/api-media-streaming": {
+      "optional": true
+    },
+    "@molecule/api-media-streaming-hls": {
       "optional": true
     }
   }

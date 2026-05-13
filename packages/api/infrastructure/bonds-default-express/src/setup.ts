@@ -249,3 +249,87 @@ export async function setupCacheRedis(): Promise<void> {
   ])
   setCache(provider)
 }
+
+/** Registers `@molecule/api-ai-openai` as a named `'openai'` AI provider. */
+export async function setupAiOpenai(): Promise<void> {
+  const { createProvider } = await import('@molecule/api-ai-openai')
+  bond('ai', 'openai', createProvider())
+}
+
+/** Wires `@molecule/api-ai-embeddings-openai` to `@molecule/api-ai-embeddings`. */
+export async function setupAiEmbeddingsOpenai(): Promise<void> {
+  const [{ setProvider: setEmb }, { provider }] = await Promise.all([
+    import('@molecule/api-ai-embeddings'),
+    import('@molecule/api-ai-embeddings-openai'),
+  ])
+  setEmb(provider)
+}
+
+/** Wires `@molecule/api-webhook-http` to `@molecule/api-webhook`. */
+export async function setupWebhookHttp(): Promise<void> {
+  const [{ setProvider: setWebhook }, { createProvider }] = await Promise.all([
+    import('@molecule/api-webhook'),
+    import('@molecule/api-webhook-http'),
+  ])
+  setWebhook(createProvider())
+}
+
+/** Wires `@molecule/api-ai-vector-store-pgvector` to `@molecule/api-ai-vector-store`. */
+export async function setupAiVectorStorePgvector(): Promise<void> {
+  const [{ setProvider: setVS }, { createProvider }] = await Promise.all([
+    import('@molecule/api-ai-vector-store'),
+    import('@molecule/api-ai-vector-store-pgvector'),
+  ])
+  setVS(createProvider())
+}
+
+/** Wires `@molecule/api-ai-speech-openai` to `@molecule/api-ai-speech`. */
+export async function setupAiSpeechOpenai(): Promise<void> {
+  const [{ setProvider: setSpeech }, { createProvider }] = await Promise.all([
+    import('@molecule/api-ai-speech'),
+    import('@molecule/api-ai-speech-openai'),
+  ])
+  setSpeech(createProvider())
+}
+
+/** Wires `@molecule/api-workflow-database` to `@molecule/api-workflow`. */
+export async function setupWorkflowDatabase(): Promise<void> {
+  const [{ setProvider: setWf }, { provider }] = await Promise.all([
+    import('@molecule/api-workflow'),
+    import('@molecule/api-workflow-database'),
+  ])
+  setWf(provider)
+}
+
+/** Wires `@molecule/api-http-fetch` to `@molecule/api-http`. */
+export async function setupHttpFetch(): Promise<void> {
+  const [{ setClient: setHttp }, { provider }] = await Promise.all([
+    import('@molecule/api-http'),
+    import('@molecule/api-http-fetch'),
+  ])
+  setHttp(provider)
+}
+
+/** Registers `@molecule/api-notifications-webhook` as a named `'webhook'` notifications provider. */
+export async function setupNotificationsWebhook(): Promise<void> {
+  const { provider } = await import('@molecule/api-notifications-webhook')
+  bond('notifications', 'webhook', provider)
+}
+
+/** Wires `@molecule/api-geolocation-google` to `@molecule/api-geolocation`. */
+export async function setupGeolocationGoogle(): Promise<void> {
+  const [{ setProvider: setGeo }, { provider }] = await Promise.all([
+    import('@molecule/api-geolocation'),
+    import('@molecule/api-geolocation-google'),
+  ])
+  setGeo(provider)
+}
+
+/** Wires `@molecule/api-media-streaming-hls` to `@molecule/api-media-streaming`. */
+export async function setupMediaStreamingHls(): Promise<void> {
+  const [{ setProvider: setMedia }, { provider }] = await Promise.all([
+    import('@molecule/api-media-streaming'),
+    import('@molecule/api-media-streaming-hls'),
+  ])
+  setMedia(provider)
+}
