@@ -92,6 +92,33 @@ export function setupAppUiTailwind(): void {
   setClassMap(classMap)
 }
 
+/** Wires `@molecule/app-realtime-socketio` to `@molecule/app-realtime`. */
+export async function setupAppRealtimeSocketio(): Promise<void> {
+  const [{ setProvider: setRealtime }, { provider }] = await Promise.all([
+    import('@molecule/app-realtime'),
+    import('@molecule/app-realtime-socketio'),
+  ])
+  setRealtime(provider)
+}
+
+/** Wires `@molecule/app-keyboard-shortcuts-hotkeys` to `@molecule/app-keyboard-shortcuts`. */
+export async function setupAppKeyboardShortcutsHotkeys(): Promise<void> {
+  const [{ setProvider: setKbd }, { provider }] = await Promise.all([
+    import('@molecule/app-keyboard-shortcuts'),
+    import('@molecule/app-keyboard-shortcuts-hotkeys'),
+  ])
+  setKbd(provider)
+}
+
+/** Wires `@molecule/app-command-palette-cmdk` to `@molecule/app-command-palette`. */
+export async function setupAppCommandPaletteCmdk(): Promise<void> {
+  const [{ setProvider: setPalette }, { provider }] = await Promise.all([
+    import('@molecule/app-command-palette'),
+    import('@molecule/app-command-palette-cmdk'),
+  ])
+  setPalette(provider)
+}
+
 /**
  * Wires all 7 universal app-side bonds in one call — fonts, routing,
  * storage, styling, theme, UI ClassMap, icons (in that order). Auth
