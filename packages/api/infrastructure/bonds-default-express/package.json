@@ -61,7 +61,24 @@
     "@types/pg": "8.15.6",
     "@molecule/api-resource": "1.0.0",
     "@molecule/api-analytics": "1.0.0",
-    "@molecule/api-logger": "1.0.0"
+    "@molecule/api-logger": "1.0.0",
+    "@molecule/api-cron": "1.0.0",
+    "@molecule/api-cron-node-cron": "1.0.0",
+    "@molecule/api-encryption": "1.0.0",
+    "@molecule/api-encryption-aes": "1.0.0",
+    "@molecule/api-image": "1.0.0",
+    "@molecule/api-image-sharp": "1.0.0",
+    "@molecule/api-import-export": "1.0.0",
+    "@molecule/api-import-export-csv": "1.0.0",
+    "@molecule/api-permissions": "1.0.0",
+    "@molecule/api-permissions-custom": "1.0.0",
+    "@molecule/api-push-notifications": "1.0.0",
+    "@molecule/api-push-notifications-web-push": "1.0.0",
+    "@molecule/api-realtime": "1.0.0",
+    "@molecule/api-realtime-socketio": "1.0.0",
+    "@molecule/api-reporting": "1.0.0",
+    "@molecule/api-reporting-database": "1.0.0",
+    "@molecule/api-ai-anthropic": "1.0.0"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
@@ -94,9 +111,79 @@
     "@molecule/api-uploads-s3": "^1.0.0",
     "@molecule/api-resource": "^1.0.0",
     "@molecule/api-analytics": "^1.0.0",
-    "@molecule/api-logger": "^1.0.0"
+    "@molecule/api-logger": "^1.0.0",
+    "@molecule/api-cron": "^1.0.0",
+    "@molecule/api-cron-node-cron": "^1.0.0",
+    "@molecule/api-encryption": "^1.0.0",
+    "@molecule/api-encryption-aes": "^1.0.0",
+    "@molecule/api-image": "^1.0.0",
+    "@molecule/api-image-sharp": "^1.0.0",
+    "@molecule/api-import-export": "^1.0.0",
+    "@molecule/api-import-export-csv": "^1.0.0",
+    "@molecule/api-permissions": "^1.0.0",
+    "@molecule/api-permissions-custom": "^1.0.0",
+    "@molecule/api-push-notifications": "^1.0.0",
+    "@molecule/api-push-notifications-web-push": "^1.0.0",
+    "@molecule/api-realtime": "^1.0.0",
+    "@molecule/api-realtime-socketio": "^1.0.0",
+    "@molecule/api-reporting": "^1.0.0",
+    "@molecule/api-reporting-database": "^1.0.0",
+    "@molecule/api-ai-anthropic": "^1.0.0"
   },
   "dependencies": {
     "pg": "8.18.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/api-cron": {
+      "optional": true
+    },
+    "@molecule/api-cron-node-cron": {
+      "optional": true
+    },
+    "@molecule/api-encryption": {
+      "optional": true
+    },
+    "@molecule/api-encryption-aes": {
+      "optional": true
+    },
+    "@molecule/api-image": {
+      "optional": true
+    },
+    "@molecule/api-image-sharp": {
+      "optional": true
+    },
+    "@molecule/api-import-export": {
+      "optional": true
+    },
+    "@molecule/api-import-export-csv": {
+      "optional": true
+    },
+    "@molecule/api-permissions": {
+      "optional": true
+    },
+    "@molecule/api-permissions-custom": {
+      "optional": true
+    },
+    "@molecule/api-push-notifications": {
+      "optional": true
+    },
+    "@molecule/api-push-notifications-web-push": {
+      "optional": true
+    },
+    "@molecule/api-realtime": {
+      "optional": true
+    },
+    "@molecule/api-realtime-socketio": {
+      "optional": true
+    },
+    "@molecule/api-reporting": {
+      "optional": true
+    },
+    "@molecule/api-reporting-database": {
+      "optional": true
+    },
+    "@molecule/api-ai-anthropic": {
+      "optional": true
+    }
   }
 }

@@ -125,3 +125,81 @@ export function setupSearchMeilisearch(): void {
 export function setupUploadsS3(): void {
   setUploads(uploadsS3Provider)
 }
+
+/** Wires `@molecule/api-image-sharp` to `@molecule/api-image`. */
+export async function setupImageSharp(): Promise<void> {
+  const [{ setProvider: setImage }, { provider }] = await Promise.all([
+    import('@molecule/api-image'),
+    import('@molecule/api-image-sharp'),
+  ])
+  setImage(provider)
+}
+
+/** Wires `@molecule/api-permissions-custom` to `@molecule/api-permissions`. */
+export async function setupPermissionsCustom(): Promise<void> {
+  const [{ setProvider: setPermissions }, { provider }] = await Promise.all([
+    import('@molecule/api-permissions'),
+    import('@molecule/api-permissions-custom'),
+  ])
+  setPermissions(provider)
+}
+
+/** Wires `@molecule/api-reporting-database` to `@molecule/api-reporting`. */
+export async function setupReportingDatabase(): Promise<void> {
+  const [{ setProvider: setReporting }, { provider }] = await Promise.all([
+    import('@molecule/api-reporting'),
+    import('@molecule/api-reporting-database'),
+  ])
+  setReporting(provider)
+}
+
+/** Wires `@molecule/api-realtime-socketio` to `@molecule/api-realtime`. */
+export async function setupRealtimeSocketio(): Promise<void> {
+  const [{ setProvider: setRealtime }, { createProvider }] = await Promise.all([
+    import('@molecule/api-realtime'),
+    import('@molecule/api-realtime-socketio'),
+  ])
+  setRealtime(createProvider())
+}
+
+/** Wires `@molecule/api-cron-node-cron` to `@molecule/api-cron`. */
+export async function setupCronNodeCron(): Promise<void> {
+  const [{ setProvider: setCron }, { provider }] = await Promise.all([
+    import('@molecule/api-cron'),
+    import('@molecule/api-cron-node-cron'),
+  ])
+  setCron(provider)
+}
+
+/** Wires `@molecule/api-encryption-aes` to `@molecule/api-encryption`. */
+export async function setupEncryptionAes(): Promise<void> {
+  const [{ setProvider: setEncryption }, { provider }] = await Promise.all([
+    import('@molecule/api-encryption'),
+    import('@molecule/api-encryption-aes'),
+  ])
+  setEncryption(provider)
+}
+
+/** Wires `@molecule/api-push-notifications-web-push` to `@molecule/api-push-notifications`. */
+export async function setupPushNotificationsWebPush(): Promise<void> {
+  const [{ setProvider: setPush }, { provider }] = await Promise.all([
+    import('@molecule/api-push-notifications'),
+    import('@molecule/api-push-notifications-web-push'),
+  ])
+  setPush(provider)
+}
+
+/** Wires `@molecule/api-import-export-csv` to `@molecule/api-import-export`. */
+export async function setupImportExportCsv(): Promise<void> {
+  const [{ setProvider: setImportExport }, { provider }] = await Promise.all([
+    import('@molecule/api-import-export'),
+    import('@molecule/api-import-export-csv'),
+  ])
+  setImportExport(provider)
+}
+
+/** Registers `@molecule/api-ai-anthropic` as a named `'anthropic'` AI provider. */
+export async function setupAiAnthropic(): Promise<void> {
+  const { provider } = await import('@molecule/api-ai-anthropic')
+  bond('ai', 'anthropic', provider)
+}
