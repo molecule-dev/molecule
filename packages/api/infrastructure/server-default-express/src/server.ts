@@ -19,6 +19,13 @@ export interface CreateServerOptions {
    * route maps see fully-registered providers at module-evaluation time.
    */
   getRouter: () => Promise<{ router: express.Router }>
+  /**
+   * Optional hook to mount middleware AFTER cors+cookieParser but
+   * BEFORE the body parser. Use this for routes that need their own
+   * multipart streaming (file uploads via busboy) — the body parser's
+   * `files: 0` config would silently consume the multipart stream.
+   */
+  preBodyParser?: (app: express.Express) => Promise<void> | void
 }
 
 let processHandlersRegistered = false
@@ -61,9 +68,20 @@ export function createServerFactory(
     const app = express()
     app.disable('x-powered-by')
 
-    app.use(bodyParserMiddleware)
-    app.use(cookieParserMiddleware)
-    app.use(corsMiddleware)
+    if (opts.preBodyParser) {
+      // Custom-ordering path: mount cors+cookie before custom hooks
+      // (e.g. multipart uploads) which run BEFORE the body parser
+      // would otherwise swallow their streams.
+      app.use(corsMiddleware)
+      app.use(cookieParserMiddleware)
+      await opts.preBodyParser(app)
+      app.use(bodyParserMiddleware)
+    } else {
+      // Canonical ordering — body/cookie/cors stacked in that order.
+      app.use(bodyParserMiddleware)
+      app.use(cookieParserMiddleware)
+      app.use(corsMiddleware)
+    }
 
     app.use('/api', router)
 
