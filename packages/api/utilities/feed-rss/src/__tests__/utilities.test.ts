@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { FeedSerializeError, type Feed } from '../types.js'
+import { type Feed, FeedSerializeError } from '../types.js'
 import {
   assertFeedShape,
   indent,
