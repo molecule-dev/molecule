@@ -123,7 +123,7 @@ export const requireAuth: RequestHandler = (
 ): void => {
   if (!(res.locals.session as SessionLike | undefined)?.userId) {
     res.status(401).json({
-      error: t('auth.required', undefined, { defaultValue: 'Authentication required' }),
+      error: t('auth.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
     })
     return
   }
