@@ -1,0 +1,39 @@
+{
+  "name": "@molecule/api-ai-image-generation-pipeline",
+  "version": "1.0.0",
+  "description": "Image generation pipeline: prompt assembly, provider call, variations, AI prompt enhancement",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "image-generation",
+    "prompt-enhancement",
+    "variations"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai": "^1.0.0",
+    "@molecule/api-ai-image-generation": "^1.0.0"
+  }
+}
