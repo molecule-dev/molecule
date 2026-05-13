@@ -33,7 +33,7 @@
     "@tailwindcss/vite": "4.1.16",
     "@vitejs/plugin-react": "5.1.4",
     "vite": "7.1.10",
-    "vite-plugin-pwa": "1.0.4"
+    "vite-plugin-pwa": "1.3.0"
   },
   "peerDependencies": {
     "@tailwindcss/vite": "^4.0.0",
