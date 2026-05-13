@@ -1,0 +1,257 @@
+@source inline("{p,px,py,pt,pb,pl,pr}-{0,1,2,3,4,5,6,8,10,12,16}");
+
+/* cm.sp('m'|'mx'|'my'|'mt'|'mb'|'ml'|'mr', scale) */
+@source inline("{m,mx,my,mt,mb,ml,mr}-{0,1,2,3,4,5,6,8,10,12,16}");
+
+/* cm.stack(scale) → flex flex-col + gap-{scale} (see @molecule/app-ui-tailwind classMap) */
+@source inline("gap-{0,1,2,3,4,5,6,8,10,12,16}");
+
+/* cm.textSize(scale) → text-{scale} */
+@source inline("text-{xs,sm,base,lg,xl,2xl,3xl,4xl}");
+
+/* cm.fontWeight(weight) → font-{weight} */
+@source inline("font-{normal,medium,semibold,bold}");
+
+/* cm.w(value) → w-{value} */
+@source inline("w-{full,auto,screen,1/2,1/3,2/3,1/4,3/4}");
+
+/* cm.h(value) → h-{value} */
+@source inline("h-{full,screen,auto}");
+
+/* cm.minH(value) → min-h-{value} */
+@source inline("min-h-{full,screen,0}");
+
+/* cm.maxW(scale) → max-w-{scale} */
+@source inline("max-w-{none,xs,sm,md,lg,xl,2xl,full}");
+
+/* cm.gridRows(n) → grid-rows-{n} */
+@source inline("grid-rows-{1,2,3,4,5,6}");
+/* cm.flex({ direction, align, justify, wrap }) variants — referenced via runtime
+ * function calls inside @molecule/app-sidebar-layout-react and other shared
+ * packages, so Tailwind's static scanner cannot detect them in this app's source. */
+@source inline("flex flex-row flex-col flex-row-reverse flex-col-reverse flex-wrap flex-nowrap items-start items-center items-end items-stretch items-baseline justify-start justify-center justify-end justify-between justify-around justify-evenly shrink-0");
+
+/* SidebarLayout default sidebar width + active-nav text token. */
+@source inline("w-60 w-64 text-on-primary-container hover:text-on-surface hover:bg-surface-container");
+
+@theme {
+  --font-sans: var(--mol-font-sans, system-ui, -apple-system, sans-serif);
+  --font-mono: var(--mol-font-mono, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  --color-primary: var(--mol-color-primary, #4070e0);
+  --color-primary-light: var(--mol-color-primary-light, #6090f0);
+  --color-primary-dark: var(--mol-color-primary-dark, #3060c0);
+  --color-secondary: var(--mol-color-secondary, #808080);
+  --color-secondary-light: var(--mol-color-secondary-light, #a0a0a0);
+  --color-secondary-dark: var(--mol-color-secondary-dark, #606060);
+  --color-background: var(--mol-color-background, #f6f6f6);
+  --color-background-secondary: var(--mol-color-background-secondary, #eeeeee);
+  --color-background-tertiary: var(--mol-color-background-tertiary, #e8e8e8);
+  --color-surface: var(--mol-color-surface, #ffffff);
+  --color-surface-secondary: var(--mol-color-surface-secondary, #f8f8f8);
+  --color-input-background: var(--mol-color-input-background, #ffffff);
+  --color-surface-hover: color-mix(in srgb, var(--color-surface) 90%, black);
+  --color-primary-hover: color-mix(in srgb, var(--color-primary) 85%, black);
+  --color-primary-active: color-mix(in srgb, var(--color-primary) 75%, black);
+  --color-secondary-hover: color-mix(in srgb, var(--color-secondary) 85%, black);
+  --color-secondary-active: color-mix(in srgb, var(--color-secondary) 75%, black);
+  --color-success-hover: color-mix(in srgb, var(--color-success) 85%, black);
+  --color-success-active: color-mix(in srgb, var(--color-success) 75%, black);
+  --color-error-hover: color-mix(in srgb, var(--color-error) 85%, black);
+  --color-error-active: color-mix(in srgb, var(--color-error) 75%, black);
+  --color-foreground: var(--mol-color-text, #333333);
+  --color-foreground-secondary: var(--mol-color-text-secondary, #808080);
+  --color-foreground-tertiary: var(--mol-color-text-tertiary, #555555);
+  --color-foreground-inverse: var(--mol-color-text-inverse, #ffffff);
+  --color-success: var(--mol-color-success, #309000);
+  --color-success-light: var(--mol-color-success-light, #dcfce7);
+  --color-warning: var(--mol-color-warning, #e0e040);
+  --color-warning-light: var(--mol-color-warning-light, #fef3c7);
+  --color-error: var(--mol-color-error, #d02000);
+  --color-error-light: var(--mol-color-error-light, #fee2e2);
+  --color-info: var(--mol-color-info, #17a2b8);
+  --color-info-light: var(--mol-color-info-light, #cffafe);
+  --color-border: var(--mol-color-border, #e0e0e0);
+  --color-border-secondary: var(--mol-color-border-secondary, #d0d0d0);
+  --color-border-focus: var(--mol-color-border-focus, #4070e0);
+  /* Button text colors — mix semantic colors with foreground for higher contrast */
+  --color-primary-text: color-mix(in srgb, var(--color-primary) 75%, var(--color-foreground));
+  --color-secondary-text: color-mix(in srgb, var(--color-secondary) 65%, var(--color-foreground));
+  --color-success-text: color-mix(in srgb, var(--color-success) 75%, var(--color-foreground));
+  --color-warning-text: color-mix(in srgb, var(--color-warning) 75%, var(--color-foreground));
+  --color-error-text: color-mix(in srgb, var(--color-error) 75%, var(--color-foreground));
+
+  /* Material 3 derivative tokens — filled by scripts/fill-material3-tokens.mjs */
+  --color-primary-container: color-mix(in srgb, var(--color-primary) 30%, var(--color-surface));
+  --color-on-primary: var(--color-foreground-inverse, #ffffff);
+  --color-on-primary-container: color-mix(
+    in srgb,
+    var(--color-primary) 25%,
+    var(--color-foreground)
+  );
+  --color-secondary-container: color-mix(in srgb, var(--color-secondary) 30%, var(--color-surface));
+  --color-on-secondary: var(--color-foreground-inverse, #ffffff);
+  --color-on-secondary-container: color-mix(
+    in srgb,
+    var(--color-secondary) 25%,
+    var(--color-foreground)
+  );
+  --color-error-container: color-mix(in srgb, var(--color-error) 30%, var(--color-surface));
+  --color-on-error: var(--color-foreground-inverse, #ffffff);
+  --color-on-error-container: color-mix(in srgb, var(--color-error) 25%, var(--color-foreground));
+  --color-tertiary: color-mix(in srgb, var(--color-primary) 60%, #aa286b);
+  --color-tertiary-container: color-mix(in srgb, var(--color-tertiary) 30%, var(--color-surface));
+  --color-on-tertiary: var(--color-foreground-inverse, #ffffff);
+  --color-on-tertiary-container: color-mix(
+    in srgb,
+    var(--color-tertiary) 25%,
+    var(--color-foreground)
+  );
+  --color-on-background: var(--color-foreground);
+  --color-on-surface: var(--color-foreground);
+  --color-on-surface-variant: var(--color-foreground-secondary);
+  --color-outline: var(--color-border);
+  --color-outline-variant: color-mix(in srgb, var(--color-border) 60%, var(--color-surface));
+  --color-surface-container-lowest: color-mix(in srgb, var(--color-surface) 95%, white);
+  --color-surface-container-low: color-mix(
+    in srgb,
+    var(--color-surface) 95%,
+    var(--color-foreground)
+  );
+  --color-surface-container: color-mix(in srgb, var(--color-surface) 90%, var(--color-foreground));
+  --color-surface-container-high: color-mix(
+    in srgb,
+    var(--color-surface) 85%,
+    var(--color-foreground)
+  );
+  --color-surface-container-highest: color-mix(
+    in srgb,
+    var(--color-surface) 80%,
+    var(--color-foreground)
+  );
+  --color-surface-bright: color-mix(in srgb, var(--color-surface) 95%, white);
+  --color-surface-dim: color-mix(in srgb, var(--color-surface) 85%, var(--color-foreground));
+  --color-surface-tint: var(--color-primary);
+  --color-surface-variant: color-mix(in srgb, var(--color-surface) 90%, var(--color-foreground));
+  --color-primary-fixed: color-mix(in srgb, var(--color-primary) 60%, white);
+  --color-primary-fixed-dim: color-mix(in srgb, var(--color-primary) 50%, white);
+  --color-on-primary-fixed: color-mix(in srgb, var(--color-primary) 80%, black);
+  --color-on-primary-fixed-variant: color-mix(in srgb, var(--color-primary) 70%, black);
+  --color-secondary-fixed: color-mix(in srgb, var(--color-secondary) 60%, white);
+  --color-secondary-fixed-dim: color-mix(in srgb, var(--color-secondary) 50%, white);
+  --color-on-secondary-fixed: color-mix(in srgb, var(--color-secondary) 80%, black);
+  --color-on-secondary-fixed-variant: color-mix(in srgb, var(--color-secondary) 70%, black);
+  --color-tertiary-fixed: color-mix(in srgb, var(--color-tertiary) 60%, white);
+  --color-tertiary-fixed-dim: color-mix(in srgb, var(--color-tertiary) 50%, white);
+  --color-on-tertiary-fixed: color-mix(in srgb, var(--color-tertiary) 80%, black);
+  --color-on-tertiary-fixed-variant: color-mix(in srgb, var(--color-tertiary) 70%, black);
+  --color-inverse-surface: color-mix(in srgb, var(--color-foreground) 90%, var(--color-surface));
+  --color-inverse-on-surface: color-mix(in srgb, var(--color-surface) 95%, var(--color-foreground));
+  --color-inverse-primary: color-mix(in srgb, var(--color-primary) 50%, white);
+  --color-success-container: color-mix(in srgb, var(--color-success) 30%, var(--color-surface));
+  --color-on-success-container: color-mix(
+    in srgb,
+    var(--color-success) 25%,
+    var(--color-foreground)
+  );
+  --color-warning-container: color-mix(in srgb, var(--color-warning) 30%, var(--color-surface));
+  --color-on-warning-container: color-mix(
+    in srgb,
+    var(--color-warning) 25%,
+    var(--color-foreground)
+  );
+  --color-info-container: color-mix(in srgb, var(--color-info) 30%, var(--color-surface));
+  --color-on-info-container: color-mix(in srgb, var(--color-info) 25%, var(--color-foreground));
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--mol-font-sans, system-ui, sans-serif);
+    margin: 0 auto;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation;
+  }
+
+  body {
+    overscroll-behavior: contain;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  svg {
+    fill: currentColor;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  /* Thin scrollbars with subtle styling */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(128, 128, 128, 0.35) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(128, 128, 128, 0.35);
+    border-radius: 20px;
+    border: none;
+  }
+
+  /* Hide scrollbars on small mobile */
+  @media (max-width: 400px) {
+    html,
+    body,
+    #root {
+      scrollbar-width: none;
+      scrollbar-color: transparent;
+    }
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    #root::-webkit-scrollbar {
+      width: 0;
+    }
+    html::-webkit-scrollbar-thumb,
+    body::-webkit-scrollbar-thumb,
+    #root::-webkit-scrollbar-thumb {
+      background-color: transparent;
+      border: 0 solid transparent;
+    }
+  }
+
+  /* Autofill overrides — theme-aware background + text */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:active,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--color-background-tertiary) inset !important;
+    -webkit-text-fill-color: var(--color-foreground) !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Hide number input spinners */
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}

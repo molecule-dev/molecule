@@ -14,10 +14,12 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./base.css": "./base.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "base.css"
   ],
   "keywords": [
     "molecule",
