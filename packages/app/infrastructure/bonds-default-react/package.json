@@ -54,7 +54,13 @@
     "@molecule/app-keyboard-shortcuts": "1.0.0",
     "@molecule/app-keyboard-shortcuts-hotkeys": "1.0.0",
     "@molecule/app-command-palette": "1.0.0",
-    "@molecule/app-command-palette-cmdk": "1.0.0"
+    "@molecule/app-command-palette-cmdk": "1.0.0",
+    "@molecule/app-code-editor": "1.0.0",
+    "@molecule/app-code-editor-monaco": "1.0.0",
+    "@molecule/app-virtual-scroll": "1.0.0",
+    "@molecule/app-virtual-scroll-tanstack": "1.0.0",
+    "@molecule/app-drag-drop": "1.0.0",
+    "@molecule/app-drag-drop-dndkit": "1.0.0"
   },
   "peerDependencies": {
     "@molecule/app-fonts": "^1.0.0",
@@ -78,7 +84,13 @@
     "@molecule/app-keyboard-shortcuts": "^1.0.0",
     "@molecule/app-keyboard-shortcuts-hotkeys": "^1.0.0",
     "@molecule/app-command-palette": "^1.0.0",
-    "@molecule/app-command-palette-cmdk": "^1.0.0"
+    "@molecule/app-command-palette-cmdk": "^1.0.0",
+    "@molecule/app-code-editor": "^1.0.0",
+    "@molecule/app-code-editor-monaco": "^1.0.0",
+    "@molecule/app-virtual-scroll": "^1.0.0",
+    "@molecule/app-virtual-scroll-tanstack": "^1.0.0",
+    "@molecule/app-drag-drop": "^1.0.0",
+    "@molecule/app-drag-drop-dndkit": "^1.0.0"
   },
   "peerDependenciesMeta": {
     "@molecule/app-realtime": {
@@ -97,6 +109,24 @@
       "optional": true
     },
     "@molecule/app-command-palette-cmdk": {
+      "optional": true
+    },
+    "@molecule/app-code-editor": {
+      "optional": true
+    },
+    "@molecule/app-code-editor-monaco": {
+      "optional": true
+    },
+    "@molecule/app-virtual-scroll": {
+      "optional": true
+    },
+    "@molecule/app-virtual-scroll-tanstack": {
+      "optional": true
+    },
+    "@molecule/app-drag-drop": {
+      "optional": true
+    },
+    "@molecule/app-drag-drop-dndkit": {
       "optional": true
     }
   }

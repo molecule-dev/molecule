@@ -203,3 +203,49 @@ export async function setupAiAnthropic(): Promise<void> {
   const { provider } = await import('@molecule/api-ai-anthropic')
   bond('ai', 'anthropic', provider)
 }
+
+/** Wires `@molecule/api-audit-database` to `@molecule/api-audit`. */
+export async function setupAuditDatabase(): Promise<void> {
+  const [{ setProvider: setAudit }, { provider }] = await Promise.all([
+    import('@molecule/api-audit'),
+    import('@molecule/api-audit-database'),
+  ])
+  setAudit(provider)
+}
+
+/** Wires `@molecule/api-pdf-pdfkit` to `@molecule/api-pdf`. */
+export async function setupPdfPdfkit(): Promise<void> {
+  const [{ setProvider: setPdf }, { provider }] = await Promise.all([
+    import('@molecule/api-pdf'),
+    import('@molecule/api-pdf-pdfkit'),
+  ])
+  setPdf(provider)
+}
+
+/** Wires a no-op default analytics provider so `@molecule/api-analytics` calls succeed. */
+export async function setupApiAnalyticsDefault(): Promise<void> {
+  const { setProvider: setAnalytics } = await import('@molecule/api-analytics')
+  setAnalytics({
+    identify: async () => {},
+    track: async () => {},
+    page: async () => {},
+  })
+}
+
+/** Wires `@molecule/api-geolocation-mapbox` to `@molecule/api-geolocation`. */
+export async function setupGeolocationMapbox(): Promise<void> {
+  const [{ setProvider: setGeo }, { provider }] = await Promise.all([
+    import('@molecule/api-geolocation'),
+    import('@molecule/api-geolocation-mapbox'),
+  ])
+  setGeo(provider)
+}
+
+/** Wires `@molecule/api-cache-redis` to `@molecule/api-cache`. */
+export async function setupCacheRedis(): Promise<void> {
+  const [{ setProvider: setCache }, { provider }] = await Promise.all([
+    import('@molecule/api-cache'),
+    import('@molecule/api-cache-redis'),
+  ])
+  setCache(provider)
+}

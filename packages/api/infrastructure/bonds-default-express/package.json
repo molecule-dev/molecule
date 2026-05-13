@@ -78,7 +78,15 @@
     "@molecule/api-realtime-socketio": "1.0.0",
     "@molecule/api-reporting": "1.0.0",
     "@molecule/api-reporting-database": "1.0.0",
-    "@molecule/api-ai-anthropic": "1.0.0"
+    "@molecule/api-ai-anthropic": "1.0.0",
+    "@molecule/api-audit": "1.0.0",
+    "@molecule/api-audit-database": "1.0.0",
+    "@molecule/api-pdf": "1.0.0",
+    "@molecule/api-pdf-pdfkit": "1.0.0",
+    "@molecule/api-geolocation": "1.0.0",
+    "@molecule/api-geolocation-mapbox": "1.0.0",
+    "@molecule/api-cache": "1.0.0",
+    "@molecule/api-cache-redis": "1.0.0"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
@@ -128,7 +136,15 @@
     "@molecule/api-realtime-socketio": "^1.0.0",
     "@molecule/api-reporting": "^1.0.0",
     "@molecule/api-reporting-database": "^1.0.0",
-    "@molecule/api-ai-anthropic": "^1.0.0"
+    "@molecule/api-ai-anthropic": "^1.0.0",
+    "@molecule/api-audit": "^1.0.0",
+    "@molecule/api-audit-database": "^1.0.0",
+    "@molecule/api-pdf": "^1.0.0",
+    "@molecule/api-pdf-pdfkit": "^1.0.0",
+    "@molecule/api-geolocation": "^1.0.0",
+    "@molecule/api-geolocation-mapbox": "^1.0.0",
+    "@molecule/api-cache": "^1.0.0",
+    "@molecule/api-cache-redis": "^1.0.0"
   },
   "dependencies": {
     "pg": "8.18.0"
@@ -183,6 +199,30 @@
       "optional": true
     },
     "@molecule/api-ai-anthropic": {
+      "optional": true
+    },
+    "@molecule/api-audit": {
+      "optional": true
+    },
+    "@molecule/api-audit-database": {
+      "optional": true
+    },
+    "@molecule/api-pdf": {
+      "optional": true
+    },
+    "@molecule/api-pdf-pdfkit": {
+      "optional": true
+    },
+    "@molecule/api-geolocation": {
+      "optional": true
+    },
+    "@molecule/api-geolocation-mapbox": {
+      "optional": true
+    },
+    "@molecule/api-cache": {
+      "optional": true
+    },
+    "@molecule/api-cache-redis": {
       "optional": true
     }
   }

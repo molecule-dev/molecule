@@ -119,6 +119,33 @@ export async function setupAppCommandPaletteCmdk(): Promise<void> {
   setPalette(provider)
 }
 
+/** Wires `@molecule/app-code-editor-monaco` to `@molecule/app-code-editor`. */
+export async function setupAppCodeEditorMonaco(): Promise<void> {
+  const [{ setProvider: setEditor }, { provider }] = await Promise.all([
+    import('@molecule/app-code-editor'),
+    import('@molecule/app-code-editor-monaco'),
+  ])
+  setEditor(provider)
+}
+
+/** Wires `@molecule/app-virtual-scroll-tanstack` to `@molecule/app-virtual-scroll`. */
+export async function setupAppVirtualScrollTanstack(): Promise<void> {
+  const [{ setProvider: setScroll }, { provider }] = await Promise.all([
+    import('@molecule/app-virtual-scroll'),
+    import('@molecule/app-virtual-scroll-tanstack'),
+  ])
+  setScroll(provider)
+}
+
+/** Wires `@molecule/app-drag-drop-dndkit` to `@molecule/app-drag-drop`. */
+export async function setupAppDragDropDndkit(): Promise<void> {
+  const [{ setProvider: setDnd }, { provider }] = await Promise.all([
+    import('@molecule/app-drag-drop'),
+    import('@molecule/app-drag-drop-dndkit'),
+  ])
+  setDnd(provider)
+}
+
 /**
  * Wires all 7 universal app-side bonds in one call — fonts, routing,
  * storage, styling, theme, UI ClassMap, icons (in that order). Auth
