@@ -39,7 +39,7 @@ export const createSchema = <
     /**
      * The user's email address.
      */
-    email: z.email().nullable().optional(),
+    email: z.string().email().nullable().optional(),
     /**
      * Whether two-factor authentication is enabled.
      */
