@@ -100,8 +100,9 @@ describe('createCapacitorApp', () => {
   })
 
   it('handles push init failure gracefully', async () => {
-    // Mock the dynamic import to fail
-    vi.mock('@molecule/app-push', () => {
+    // vi.doMock (not vi.mock) — applies only after this point and is NOT
+    // hoisted, so it doesn't bleed into other tests in the file.
+    vi.doMock('@molecule/app-push', () => {
       throw new Error('Module not found')
     })
 
@@ -115,7 +116,7 @@ describe('createCapacitorApp', () => {
     expect(app.getState().pushReady).toBe(true)
 
     warnSpy.mockRestore()
-    vi.unmock('@molecule/app-push')
+    vi.doUnmock('@molecule/app-push')
   })
 
   it('destroy clears all listeners', async () => {
