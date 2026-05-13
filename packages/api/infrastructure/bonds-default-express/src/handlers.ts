@@ -16,7 +16,7 @@
  * @module
  */
 
-import type { Request, Response } from 'express'
+import type { NextFunction, Request, RequestHandler, Response } from 'express'
 
 import { findById } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
@@ -104,6 +104,30 @@ export async function requireUserOwnership<
     return { ok: false, status: 404 }
   }
   return { ok: true, row }
+}
+
+/**
+ * Express middleware that 401s any request lacking `res.locals.session.userId`.
+ * Drop-in for the fleet's 51 inline `requireAuth` copies.
+ *
+ * @example
+ * ```ts
+ * router.use(requireAuth)
+ * router.get('/private', handler)
+ * ```
+ */
+export const requireAuth: RequestHandler = (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  if (!(res.locals.session as SessionLike | undefined)?.userId) {
+    res.status(401).json({
+      error: t('auth.required', undefined, { defaultValue: 'Authentication required' }),
+    })
+    return
+  }
+  next()
 }
 
 /**
