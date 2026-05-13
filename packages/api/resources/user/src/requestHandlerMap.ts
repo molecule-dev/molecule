@@ -12,18 +12,43 @@ import { resource } from './resource.js'
 type RequestHandlerCreator = typeof CreateRequestHandler
 
 /**
+ * Shape of the user request-handler map produced by `createRequestHandlerMap`.
+ * Names match the route definitions in `routes.ts`. Exported so helpers that
+ * accept the map (e.g. `mountDefaultUserAuthRoutes`, `mountDefaultUserCrudRoutes`)
+ * can type their parameter precisely instead of widening to
+ * `Record<string, MoleculeRequestHandler>`.
+ */
+export interface UserRequestHandlerMap {
+  auth: MoleculeRequestHandler
+  authSelf: MoleculeRequestHandler
+  create: MoleculeRequestHandler
+  logIn: MoleculeRequestHandler
+  logInOAuth: MoleculeRequestHandler
+  read: MoleculeRequestHandler
+  update: MoleculeRequestHandler
+  del: MoleculeRequestHandler
+  updatePassword: MoleculeRequestHandler
+  forgotPassword: MoleculeRequestHandler
+  resetPassword: MoleculeRequestHandler
+  verifyTwoFactor: MoleculeRequestHandler
+  updatePlan: MoleculeRequestHandler
+  verifyPayment: MoleculeRequestHandler
+  handlePaymentNotification: MoleculeRequestHandler
+}
+
+/**
  * Creates the full request handler map for the User resource.
  * Optional features (OAuth, payments) are conditionally included
  * based on bonded providers.
  *
  * Handler names match the route definitions in routes.ts.
  * @param createRequestHandler - Factory from `@molecule/api-resource` that wraps handler configs into Express middleware.
- * @returns A record mapping handler names (matching route definitions) to Express middleware functions.
+ * @returns A `UserRequestHandlerMap` of handler names to Express middleware.
  */
 export const createRequestHandlerMap = (
   createRequestHandler: RequestHandlerCreator,
-): Record<string, MoleculeRequestHandler> => {
-  const map: Record<string, MoleculeRequestHandler> = {
+): UserRequestHandlerMap => {
+  const map: UserRequestHandlerMap = {
     // Authorizers
     auth: authorizers.auth(),
     authSelf: authorizers.authSelf(),

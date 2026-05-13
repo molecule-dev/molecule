@@ -1,5 +1,8 @@
 import type { Router } from 'express'
 
+import type { DeviceRequestHandlerMap } from '@molecule/api-resource-device'
+import type { UserRequestHandlerMap } from '@molecule/api-resource-user'
+
 /**
  * Composable route-mount helpers for the molecule fleet's default
  * `api/src/App/router.ts`. Apps assemble their router by calling the
@@ -14,34 +17,9 @@ import type { Router } from 'express'
  * @module
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-type RouteHandler = any
+type DeviceMap = DeviceRequestHandlerMap
 
-interface DeviceMap {
-  auth: RouteHandler
-  authUser: RouteHandler
-  query: RouteHandler
-  read: RouteHandler
-  update: RouteHandler
-  del: RouteHandler
-}
-
-interface UserMap {
-  create: RouteHandler
-  logIn: RouteHandler
-  forgotPassword: RouteHandler
-  resetPassword?: RouteHandler
-  authSelf: RouteHandler
-  read: RouteHandler
-  update: RouteHandler
-  del: RouteHandler
-  updatePassword: RouteHandler
-  verifyTwoFactor: RouteHandler
-  updatePlan: RouteHandler
-  verifyPayment?: RouteHandler
-  handlePaymentNotification?: RouteHandler
-}
-/* eslint-enable @typescript-eslint/no-explicit-any */
+type UserMap = UserRequestHandlerMap
 
 /**
  * Mounts the standard 4-method device CRUD routes:
