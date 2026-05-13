@@ -1,0 +1,38 @@
+{
+  "name": "@molecule/app-node-editor-panel-react",
+  "version": "1.0.0",
+  "description": "Right-side properties panel for node-based editors: titled aside, scroll body, sticky footer with save bar. Composable sub-primitives: Section, Slider, Toggle, RadioGroup. Generalised from ai-chatbot-builder BotEditorNodePropertiesPanel.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "keywords": ["molecule", "node-editor", "properties-panel", "inspector", "react"],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-react": "^1.0.0",
+    "@molecule/app-ui": "^1.0.0",
+    "@molecule/app-ui-react": "^1.0.0",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-react": "1.0.0",
+    "@molecule/app-ui": "1.0.0",
+    "@molecule/app-ui-react": "1.0.0",
+    "@types/node": "25.5.0",
+    "@types/react": "19.2.14",
+    "react": "19.2.4",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}
