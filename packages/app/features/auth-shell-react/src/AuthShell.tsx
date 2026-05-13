@@ -59,27 +59,50 @@ export function AuthShellDecoration({ children }: { children: ReactNode }) {
 }
 
 /**
- * The centered glassmorphic card surface.
+ * The centered glassmorphic card surface. Layout (flex column + padding)
+ * is fixed; the visible surface (rounded / bg / border / shadow) is the
+ * default glass treatment, replaceable per-app via `surfaceClassName`.
+ *
+ * Pass `outerClassName` to override the outer `<main>` width / max-width
+ * constraint (default `max-w-md`).
  */
 export interface AuthShellCardProps {
   children: ReactNode
-  /** Override or extend the default glass-card classes. */
+  /** Override the default glass surface (rounded + bg + border + shadow). */
+  surfaceClassName?: string
+  /** Extra layout classes to append (after flex/padding defaults). */
   className?: string
+  /** Override the outer `<main>` wrapper classes (defaults to `cm.w('full') max-w-md relative z-10`). */
+  outerClassName?: string
+  /** data-mol-id pass-through for E2E selectors. */
+  dataMolId?: string
   style?: CSSProperties
 }
 
-export function AuthShellCard({ children, className, style }: AuthShellCardProps) {
+const DEFAULT_SURFACE_CLASSES =
+  'rounded-3xl border border-white/40 bg-surface-container-lowest/80 backdrop-blur-2xl shadow-[0_30px_80px_-20px_rgba(116,47,229,0.30)]'
+
+export function AuthShellCard({
+  children,
+  surfaceClassName,
+  className,
+  outerClassName,
+  dataMolId,
+  style,
+}: AuthShellCardProps) {
   const cm = getClassMap()
+  const outer = outerClassName ?? cm.cn(cm.w('full'), 'max-w-md relative z-10')
   return (
-    <main className={cm.cn(cm.w('full'), 'max-w-md relative z-10')}>
+    <main className={outer}>
       <div
         className={cm.cn(
           cm.flex({ direction: 'col', gap: 'lg' }),
           cm.sp('p', 8),
-          'rounded-3xl border border-white/40 bg-surface-container-lowest/80 backdrop-blur-2xl shadow-[0_30px_80px_-20px_rgba(116,47,229,0.30)]',
+          surfaceClassName ?? DEFAULT_SURFACE_CLASSES,
           className,
         )}
         style={style}
+        data-mol-id={dataMolId}
       >
         {children}
       </div>
