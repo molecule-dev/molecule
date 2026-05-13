@@ -1,0 +1,51 @@
+{
+  "name": "@molecule/api-ai-rag-qa",
+  "version": "1.0.0",
+  "description": "RAG Q&A pipeline — chunk + embed + retrieve + ground answer with sources",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "rag",
+    "qa",
+    "embeddings",
+    "vector",
+    "resource"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/express": "5.0.6",
+    "@types/node": "25.5.0",
+    "express": "5.2.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0",
+    "zod": "4.3.6"
+  },
+  "peerDependencies": {
+    "@molecule/api-bonds-default-express": "^1.0.0",
+    "@molecule/api-database": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-middleware-validation": "^1.0.0",
+    "express": "^5.0.0",
+    "zod": "^4.0.0",
+    "@molecule/api-ai": "^1.0.0",
+    "@molecule/api-ai-embeddings": "^1.0.0",
+    "@molecule/api-ai-vector-store": "^1.0.0"
+  }
+}
