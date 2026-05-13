@@ -110,7 +110,7 @@ export function applyPolicy(
     if (threshold === undefined) continue
     if (s.score >= threshold) {
       const over = s.score - threshold
-      if (over > maxOver) {
+      if (matched === null || over > maxOver) {
         maxOver = over
         matched = s.category
       }
