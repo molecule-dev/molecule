@@ -1,10 +1,36 @@
 import { createJWTAuthClient, setClient } from '@molecule/app-auth'
 import type { AuthClient, AuthClientConfig, UserProfile } from '@molecule/app-auth'
+import type { HttpClient } from '@molecule/app-http'
 import {
   createFetchClient,
   getClient as getHttpClient,
   setClient as setHttpClient,
 } from '@molecule/app-http'
+
+/**
+ * Builds the default fetch-based HTTP client + wires it into
+ * `@molecule/app-http`. Replaces the per-app `bonds/http-default.ts`
+ * shipped by ~52 fleet apps.
+ *
+ * @example
+ * ```ts
+ * // bonds/http-default.ts
+ * import { createDefaultHttpClient } from '@molecule/app-bonds-default-react'
+ * import { API_BASE_URL } from '../config.js'
+ *
+ * export const { httpClient, setupHttpDefault } = createDefaultHttpClient(API_BASE_URL)
+ * ```
+ */
+export function createDefaultHttpClient(baseURL: string): {
+  httpClient: HttpClient
+  setupHttpDefault: () => void
+} {
+  const httpClient = createFetchClient({ baseURL })
+  return {
+    httpClient,
+    setupHttpDefault: () => setHttpClient(httpClient),
+  }
+}
 
 /**
  * Builds the default JWT auth client + wires it into `@molecule/app-auth`.
