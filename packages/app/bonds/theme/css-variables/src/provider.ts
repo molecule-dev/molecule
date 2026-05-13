@@ -120,14 +120,20 @@ export function createCSSVariablesThemeProvider(config: CSSVariablesThemeConfig)
   // silent no-op — was the source of "I toggled dark mode and it reset on
   // reload" bugs across multiple flagships. SSR/non-browser environments
   // still get undefined and skip persistence.
+  // Guard against partial localStorage shims (some test runners stub
+  // `globalThis.localStorage = {}` without methods); only adopt it when
+  // both getItem and setItem are real functions.
+  const browserStorage = (globalThis as { localStorage?: Partial<Storage> }).localStorage
   const storage =
     config.storage ??
-    (typeof globalThis !== 'undefined' && (globalThis as { localStorage?: Storage }).localStorage
+    (browserStorage &&
+    typeof browserStorage.getItem === 'function' &&
+    typeof browserStorage.setItem === 'function'
       ? {
           getItem: (key: string): string | null =>
-            (globalThis as { localStorage: Storage }).localStorage.getItem(key),
+            (browserStorage.getItem as (k: string) => string | null)(key),
           setItem: (key: string, value: string): void => {
-            ;(globalThis as { localStorage: Storage }).localStorage.setItem(key, value)
+            ;(browserStorage.setItem as (k: string, v: string) => void)(key, value)
           },
         }
       : undefined)
