@@ -53,8 +53,11 @@ export function AuthShellContainer({
  * inset-0 -z-10 overflow-hidden` wrapper.
  */
 export function AuthShellDecoration({ children }: { children: ReactNode }) {
+  const cm = getClassMap()
   return (
-    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">{children}</div>
+    <div className={cm.cn('pointer-events-none absolute inset-0 -z-10 overflow-hidden')}>
+      {children}
+    </div>
   )
 }
 
@@ -206,7 +209,7 @@ export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps) {
           'hover:text-primary transition-colors',
         )}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
+        <span className={cm.cn('material-symbols-outlined')} style={{ fontSize: 14 }}>
           arrow_back
         </span>
         {label ?? t('auth.backHome', undefined, { defaultValue: 'Back to home' })}
