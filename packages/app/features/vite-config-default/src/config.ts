@@ -1,5 +1,7 @@
 import { readdirSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
@@ -31,11 +33,34 @@ export interface DefaultViteConfigBranding {
  * ```
  */
 export function createDefaultViteConfig(branding: DefaultViteConfigBranding): UserConfig {
+  // Discover the @molecule/* packages to exclude from Vite's dep
+  // pre-bundling — bond state uses module-level singletons, and
+  // pre-bundling would create duplicate instances that break the bond
+  // system. npm workspaces hoist @molecule/* to the workspace-root
+  // node_modules, so `node_modules/@molecule` doesn't exist next to the
+  // consuming app's config — walk up from this file until one is found.
+  // Works for both the hoisted workspace layout and a standalone
+  // scaffolded app.
   let moleculePackages: string[] = []
-  try {
-    moleculePackages = readdirSync('node_modules/@molecule').map((name) => `@molecule/${name}`)
-  } catch {
-    // node_modules not yet available (e.g. during build tooling check)
+  const findMoleculeDir = (): string | null => {
+    let dir = dirname(fileURLToPath(import.meta.url))
+    for (let i = 0; i < 8; i++) {
+      try {
+        const candidate = resolve(dir, 'node_modules/@molecule')
+        readdirSync(candidate)
+        return candidate
+      } catch {
+        /* keep walking */
+      }
+      const parent = dirname(dir)
+      if (parent === dir) break
+      dir = parent
+    }
+    return null
+  }
+  const moleculeDir = findMoleculeDir()
+  if (moleculeDir) {
+    moleculePackages = readdirSync(moleculeDir).map((name) => `@molecule/${name}`)
   }
 
   const pwaOptions = {
