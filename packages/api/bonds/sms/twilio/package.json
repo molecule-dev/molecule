@@ -26,7 +26,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "twilio": "5.13.1"
+    "twilio": "6.0.2"
   },
   "peerDependencies": {
     "@molecule/api-sms": "1.0.0"

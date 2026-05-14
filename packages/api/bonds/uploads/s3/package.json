@@ -30,12 +30,11 @@
   "dependencies": {
     "@aws-sdk/client-s3": "3.997.0",
     "@aws-sdk/lib-storage": "3.997.0",
-    "uuid": "13.0.0"
+    "uuid": "14.0.0"
   },
   "devDependencies": {
     "@types/busboy": "1.5.4",
     "@types/node": "25.8.0",
-    "@types/uuid": "10.0.0",
     "typescript": "6.0.3",
     "vitest": "4.1.6"
   },

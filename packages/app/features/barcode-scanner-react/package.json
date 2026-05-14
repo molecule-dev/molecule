@@ -30,7 +30,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@zxing/library": "0.21.3"
+    "@zxing/library": "0.23.0"
   },
   "peerDependencies": {
     "@molecule/app-react": "^1.0.0",

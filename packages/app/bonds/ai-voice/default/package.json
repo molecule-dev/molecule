@@ -28,7 +28,7 @@
   "license": "MIT",
   "devDependencies": {
     "@molecule/app-ai-voice": "1.0.0",
-    "@types/dom-speech-recognition": "0.0.4",
+    "@types/dom-speech-recognition": "0.0.11",
     "@types/node": "25.8.0",
     "typescript": "6.0.3",
     "vitest": "4.1.6"

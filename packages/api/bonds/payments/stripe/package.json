@@ -26,7 +26,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "stripe": "20.3.1"
+    "stripe": "22.1.1"
   },
   "devDependencies": {
     "@types/node": "25.8.0",

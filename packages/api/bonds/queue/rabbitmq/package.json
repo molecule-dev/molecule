@@ -28,7 +28,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "amqplib": "0.10.9"
+    "amqplib": "2.0.1"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
