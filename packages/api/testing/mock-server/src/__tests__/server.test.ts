@@ -63,12 +63,12 @@ describe('createMockServer', () => {
     const response = await fetch(`http://localhost:${server.port}/api/accounts`)
     expect(response.status).toBe(200)
 
-    const data = await response.json()
-    expect(Array.isArray(data)).toBe(true)
-    expect(data.length).toBeGreaterThan(0)
+    const body = await response.json()
+    expect(Array.isArray(body.data)).toBe(true)
+    expect(body.data.length).toBeGreaterThan(0)
 
     // Check the first account has realistic fields
-    const account = data[0]
+    const account = body.data[0]
     expect(account).toHaveProperty('id')
     expect(account).toHaveProperty('name')
     expect(account).toHaveProperty('balance')
@@ -87,11 +87,11 @@ describe('createMockServer', () => {
     const response = await fetch(`http://localhost:${server.port}/api/transactions`)
     expect(response.status).toBe(200)
 
-    const data = await response.json()
-    expect(Array.isArray(data)).toBe(true)
-    expect(data.length).toBeGreaterThan(0)
+    const body = await response.json()
+    expect(Array.isArray(body.data)).toBe(true)
+    expect(body.data.length).toBeGreaterThan(0)
 
-    const tx = data[0]
+    const tx = body.data[0]
     expect(tx).toHaveProperty('description')
     expect(tx).toHaveProperty('amount')
   })
@@ -122,9 +122,9 @@ describe('createMockServer', () => {
     const response = await fetch(`http://localhost:${server.port}/api/accounts?_state=empty`)
     expect(response.status).toBe(200)
 
-    const data = await response.json()
-    expect(Array.isArray(data)).toBe(true)
-    expect(data).toHaveLength(0)
+    const body = await response.json()
+    expect(Array.isArray(body.data)).toBe(true)
+    expect(body.data).toHaveLength(0)
   })
 
   it('returns unauthorized when _state=unauthorized', async () => {
@@ -215,7 +215,7 @@ describe('createMockServer', () => {
     expect(response.status).toBe(200)
 
     const body = await response.json()
-    // generateFixtures returns a flat array for list endpoints
+    // generateFixtures wraps list endpoints in a { data, total } envelope
     const data = Array.isArray(body) ? body : body.data
     expect(Array.isArray(data)).toBe(true)
     expect(data.length).toBeGreaterThan(0)

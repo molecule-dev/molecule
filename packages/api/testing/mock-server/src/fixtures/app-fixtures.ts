@@ -359,17 +359,20 @@ export function generateFixtures(fixturesDir: string, appType?: string): AppFixt
       continue
     }
 
-    // GET list
+    // GET list — wrap in a { data, total } envelope to match the real
+    // molecule resource handlers (e.g. `res.json({ data: addresses })`).
+    // App pages are wired to the real backend's envelope shape; the mock
+    // server must mirror it or list pages render empty.
     const listEndpoint: EndpointDefinition = {
       method: 'GET',
       path: basePath,
       requiresAuth: true,
-      responseHints: { isList: true, isPaginated: false, hasNestedResources: false, resourceName },
+      responseHints: { isList: true, isPaginated: true, hasNestedResources: false, resourceName },
     }
     fixtureMap.set(`GET ${basePath}`, {
       endpoint: listEndpoint,
-      successResponse: records,
-      emptyResponse: [],
+      successResponse: { data: records, total: records.length },
+      emptyResponse: { data: [], total: 0 },
       errorResponse: { error: 'Internal server error' },
     })
 
