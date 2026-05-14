@@ -326,7 +326,9 @@ export function resolveHandlersPath(appType: string, workspaceRoot?: string): st
   if (!root) return undefined
 
   const candidates = [
+    join(root, 'mlcl', 'templates', 'apps', appType, 'api', 'src', 'handlers'),
     join(root, 'mlcl', 'templates', 'apps', appType, 'api', 'handlers'),
+    join(root, 'mlcl', 'templates', appType, 'api', 'src', 'handlers'),
     join(root, 'mlcl', 'templates', appType, 'api', 'handlers'),
   ]
 
