@@ -59,7 +59,6 @@
     "@molecule/api-search-meilisearch": "1.0.0",
     "@molecule/api-uploads": "1.0.0",
     "@molecule/api-uploads-s3": "1.0.0",
-    "@types/pg": "8.15.6",
     "@molecule/api-resource": "1.0.0",
     "@molecule/api-analytics": "1.0.0",
     "@molecule/api-logger": "1.0.0",
@@ -181,9 +180,6 @@
     "@molecule/api-geolocation-google": "^1.0.0",
     "@molecule/api-media-streaming": "^1.0.0",
     "@molecule/api-media-streaming-hls": "^1.0.0"
-  },
-  "dependencies": {
-    "pg": "8.18.0"
   },
   "peerDependenciesMeta": {
     "@molecule/api-cron": {

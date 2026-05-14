@@ -15,6 +15,19 @@ npm install -D @types/pg
 
 ### Functions
 
+#### `createMigrator(migrationsDir)`
+
+Returns a `runMigrations()` function bound to the given directory.
+
+```typescript
+function createMigrator(migrationsDir: string): () => Promise<void>
+```
+
+- `migrationsDir` — Absolute path to the directory containing
+
+**Returns:** A no-arg `runMigrations()` that creates the database (if
+ *   missing) and applies every migration file in lexical order.
+
 #### `createPool(config)`
 
 Creates a new pool with custom configuration.

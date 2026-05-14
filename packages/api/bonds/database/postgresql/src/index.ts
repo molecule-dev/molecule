@@ -10,6 +10,7 @@ import { getLogger } from '@molecule/api-bond'
 import type { DatabaseConfig, DatabaseConnection, DatabasePool } from '@molecule/api-database'
 
 export * as setup from './setup/index.js'
+export * from './migrator.js'
 
 /**
  * Wraps a `pg.Pool` instance into a `DatabasePool`-compatible interface,
