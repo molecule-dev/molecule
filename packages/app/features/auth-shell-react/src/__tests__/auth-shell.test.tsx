@@ -212,6 +212,12 @@ describe('AuthShellCardColumn', () => {
     expect(markup).toContain('data-card=""')
     expect(markup).toContain('col-cls')
   })
+
+  it('renders as <main> when as="main" is passed', () => {
+    const markup = html(createElement(AuthShellCardColumn, { children: 'x', as: 'main' }))
+    expect(markup).toContain('<main')
+    expect(markup).not.toContain('<section')
+  })
 })
 
 describe('AuthShell (preset)', () => {

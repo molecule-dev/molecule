@@ -310,12 +310,24 @@ export interface AuthShellCardColumnProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode
   /** Cosmetic classes — width ratio, padding. */
   className?: string
+  /**
+   * Element to render. Defaults to `'section'`; pass `'main'` when the
+   * card column is the auth page's primary content landmark — i.e. the
+   * shell is not already wrapped in `<AuthShellSplitRow>` (which is
+   * itself a `<main>`, so nesting another would be invalid).
+   */
+  as?: 'section' | 'main'
 }
 
-export function AuthShellCardColumn({ children, className, ...rest }: AuthShellCardColumnProps) {
+export function AuthShellCardColumn({
+  children,
+  className,
+  as: As = 'section',
+  ...rest
+}: AuthShellCardColumnProps) {
   const cm = getClassMap()
   return (
-    <section
+    <As
       className={cm.cn(
         cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
         className,
@@ -323,7 +335,7 @@ export function AuthShellCardColumn({ children, className, ...rest }: AuthShellC
       {...rest}
     >
       {children}
-    </section>
+    </As>
   )
 }
 
