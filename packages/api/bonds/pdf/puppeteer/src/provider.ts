@@ -186,7 +186,7 @@ export const createProvider = (config?: PuppeteerPDFConfig): PDFProvider => {
 
     try {
       page.setDefaultTimeout(timeout)
-      await page.setContent(html, { waitUntil: 'networkidle0', timeout })
+      await page.setContent(html, { waitUntil: 'load', timeout })
       const pdfUint8Array = await page.pdf(toPuppeteerOptions(options))
       return Buffer.from(pdfUint8Array)
     } finally {
@@ -316,7 +316,7 @@ export const createProvider = (config?: PuppeteerPDFConfig): PDFProvider => {
   <embed src="data:application/pdf;base64,${base64Pdf}" type="application/pdf" width="${pixelWidth}" height="${pixelHeight}" />
 </body></html>`
 
-          await page.setContent(html, { waitUntil: 'networkidle0', timeout })
+          await page.setContent(html, { waitUntil: 'load', timeout })
 
           const screenshot = await page.screenshot({
             type: format === 'jpeg' ? 'jpeg' : 'png',
