@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Maltese (TODO: translate). */
+/** Progress-rings translations for Maltese. */
 export const mt: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Ċrieki tal-progress ({{count}} ċrieki)',
+  'progressRings.ring': 'Ċirku {{index}}',
 }

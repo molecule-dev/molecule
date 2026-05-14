@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Georgian (TODO: translate). */
+/** Progress-rings translations for Georgian. */
 export const ka: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'პროგრესის რგოლები ({{count}} რგოლი)',
+  'progressRings.ring': 'რგოლი {{index}}',
 }

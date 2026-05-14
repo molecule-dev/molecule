@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Macedonian (TODO: translate). */
+/** Progress-rings translations for Macedonian. */
 export const mk: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Прстени на напредок ({{count}} прстени)',
+  'progressRings.ring': 'Прстен {{index}}',
 }

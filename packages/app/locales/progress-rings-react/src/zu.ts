@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Zulu (TODO: translate). */
+/** Progress-rings translations for Zulu. */
 export const zu: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Amasongo enqubekela phambili ({{count}} amasongo)',
+  'progressRings.ring': 'Isongo {{index}}',
 }

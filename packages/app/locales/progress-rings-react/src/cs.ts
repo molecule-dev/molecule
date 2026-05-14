@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Czech (TODO: translate). */
+/** Progress-rings translations for Czech. */
 export const cs: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Prstence postupu ({{count}} prstenců)',
+  'progressRings.ring': 'Prstenec {{index}}',
 }

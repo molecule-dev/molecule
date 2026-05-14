@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Hebrew (TODO: translate). */
+/** Progress-rings translations for Hebrew. */
 export const he: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'טבעות התקדמות ({{count}} טבעות)',
+  'progressRings.ring': 'טבעת {{index}}',
 }

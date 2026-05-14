@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Korean (TODO: translate). */
+/** Progress-rings translations for Korean. */
 export const ko: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': '진행 링({{count}}개 링)',
+  'progressRings.ring': '링 {{index}}',
 }

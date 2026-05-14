@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Azerbaijani (TODO: translate). */
+/** Progress-rings translations for Azerbaijani. */
 export const az: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'İrəliləyiş halqaları ({{count}} halqa)',
+  'progressRings.ring': 'Halqa {{index}}',
 }

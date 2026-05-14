@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Hungarian (TODO: translate). */
+/** Progress-rings translations for Hungarian. */
 export const hu: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Folyamatgyűrűk ({{count}} gyűrű)',
+  'progressRings.ring': '{{index}}. gyűrű',
 }

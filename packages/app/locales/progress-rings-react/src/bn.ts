@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Bengali (TODO: translate). */
+/** Progress-rings translations for Bengali. */
 export const bn: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'অগ্রগতির রিং ({{count}}টি রিং)',
+  'progressRings.ring': 'রিং {{index}}',
 }

@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Lithuanian (TODO: translate). */
+/** Progress-rings translations for Lithuanian. */
 export const lt: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Progreso žiedai ({{count}} žiedai)',
+  'progressRings.ring': 'Žiedas {{index}}',
 }

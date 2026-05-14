@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Greek (TODO: translate). */
+/** Progress-rings translations for Greek. */
 export const el: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Δαχτυλίδια προόδου ({{count}} δαχτυλίδια)',
+  'progressRings.ring': 'Δαχτυλίδι {{index}}',
 }

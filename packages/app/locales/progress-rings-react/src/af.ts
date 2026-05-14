@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Afrikaans (TODO: translate). */
+/** Progress-rings translations for Afrikaans. */
 export const af: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
+  'progressRings.summary': 'Vorderingsringe ({{count}} ringe)',
   'progressRings.ring': 'Ring {{index}}',
 }

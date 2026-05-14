@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Yoruba (TODO: translate). */
+/** Progress-rings translations for Yoruba. */
 export const yo: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Àwọn òrùka ìlọsíwájú ({{count}} òrùka)',
+  'progressRings.ring': 'Òrùka {{index}}',
 }

@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Swedish (TODO: translate). */
+/** Progress-rings translations for Swedish. */
 export const sv: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
+  'progressRings.summary': 'Förloppsringar ({{count}} ringar)',
   'progressRings.ring': 'Ring {{index}}',
 }

@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Belarusian (TODO: translate). */
+/** Progress-rings translations for Belarusian. */
 export const be: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Кольцы прагрэсу ({{count}} кольцаў)',
+  'progressRings.ring': 'Кольца {{index}}',
 }

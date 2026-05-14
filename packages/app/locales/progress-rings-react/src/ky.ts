@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Kyrgyz (TODO: translate). */
+/** Progress-rings translations for Kyrgyz. */
 export const ky: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Прогресс шакектери ({{count}} шакек)',
+  'progressRings.ring': 'Шакек {{index}}',
 }

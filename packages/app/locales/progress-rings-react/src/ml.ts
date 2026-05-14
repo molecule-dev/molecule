@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Malayalam (TODO: translate). */
+/** Progress-rings translations for Malayalam. */
 export const ml: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'പുരോഗതി വളയങ്ങൾ ({{count}} വളയങ്ങൾ)',
+  'progressRings.ring': 'വളയം {{index}}',
 }

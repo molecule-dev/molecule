@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Serbian (TODO: translate). */
+/** Progress-rings translations for Serbian. */
 export const sr: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Прстенови напретка ({{count}} прстенова)',
+  'progressRings.ring': 'Прстен {{index}}',
 }

@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Russian (TODO: translate). */
+/** Progress-rings translations for Russian. */
 export const ru: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Кольца прогресса ({{count}} колец)',
+  'progressRings.ring': 'Кольцо {{index}}',
 }

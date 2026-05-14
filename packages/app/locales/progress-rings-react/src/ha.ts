@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Hausa (TODO: translate). */
+/** Progress-rings translations for Hausa. */
 export const ha: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Zoben ci gaba ({{count}} zobba)',
+  'progressRings.ring': 'Zobe {{index}}',
 }

@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Finnish (TODO: translate). */
+/** Progress-rings translations for Finnish. */
 export const fi: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Edistymisrenkaat ({{count}} rengasta)',
+  'progressRings.ring': 'Rengas {{index}}',
 }

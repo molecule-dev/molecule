@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Lao (TODO: translate). */
+/** Progress-rings translations for Lao. */
 export const lo: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'ວົງແຫວນຄວາມຄືບໜ້າ ({{count}} ວົງ)',
+  'progressRings.ring': 'ວົງແຫວນ {{index}}',
 }

@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Punjabi (TODO: translate). */
+/** Progress-rings translations for Punjabi. */
 export const pa: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'ਤਰੱਕੀ ਰਿੰਗ ({{count}} ਰਿੰਗ)',
+  'progressRings.ring': 'ਰਿੰਗ {{index}}',
 }

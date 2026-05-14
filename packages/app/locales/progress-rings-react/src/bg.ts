@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Bulgarian (TODO: translate). */
+/** Progress-rings translations for Bulgarian. */
 export const bg: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Пръстени на напредъка ({{count}} пръстена)',
+  'progressRings.ring': 'Пръстен {{index}}',
 }

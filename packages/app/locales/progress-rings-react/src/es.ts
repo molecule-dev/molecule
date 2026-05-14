@@ -1,7 +1,7 @@
 import type { ProgressRingsTranslations } from './types.js'
 
-/** Progress-rings translations for Spanish (TODO: translate). */
+/** Progress-rings translations for Spanish. */
 export const es: ProgressRingsTranslations = {
-  'progressRings.summary': 'Progress rings ({{count}} rings)',
-  'progressRings.ring': 'Ring {{index}}',
+  'progressRings.summary': 'Anillos de progreso ({{count}} anillos)',
+  'progressRings.ring': 'Anillo {{index}}',
 }
