@@ -153,22 +153,22 @@ describe('handlebars template provider', () => {
     it('should render a compiled template', async () => {
       const p = createProvider()
       const compiled = await p.compile('Hello {{name}}!')
-      const result = p.renderCompiled(compiled, { name: 'World' })
+      const result = await p.renderCompiled(compiled, { name: 'World' })
       expect(result).toBe('Hello World!')
     })
 
     it('should render compiled template with different data', async () => {
       const p = createProvider()
       const compiled = await p.compile('Hi {{name}}!')
-      expect(p.renderCompiled(compiled, { name: 'Alice' })).toBe('Hi Alice!')
-      expect(p.renderCompiled(compiled, { name: 'Bob' })).toBe('Hi Bob!')
+      expect(await p.renderCompiled(compiled, { name: 'Alice' })).toBe('Hi Alice!')
+      expect(await p.renderCompiled(compiled, { name: 'Bob' })).toBe('Hi Bob!')
     })
 
     it('should use registered helpers in compiled templates', async () => {
       const p = createProvider()
       p.registerHelper('upper', (val: unknown): string => String(val).toUpperCase())
       const compiled = await p.compile('{{upper name}}')
-      const result = p.renderCompiled(compiled, { name: 'hello' })
+      const result = await p.renderCompiled(compiled, { name: 'hello' })
       expect(result).toBe('HELLO')
     })
 
@@ -176,7 +176,7 @@ describe('handlebars template provider', () => {
       const p = createProvider()
       p.registerPartial('header', '<h1>{{title}}</h1>')
       const compiled = await p.compile('{{> header}}')
-      const result = p.renderCompiled(compiled, { title: 'Test' })
+      const result = await p.renderCompiled(compiled, { title: 'Test' })
       expect(result).toBe('<h1>Test</h1>')
     })
   })

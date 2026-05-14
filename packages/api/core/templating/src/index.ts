@@ -17,7 +17,7 @@
  * const html = await render('Hello {{name}}!', { name: 'World' })
  *
  * const compiled = await compile('Hello {{name}}!')
- * const fast = renderCompiled(compiled, { name: 'Fast' })
+ * const fast = await renderCompiled(compiled, { name: 'Fast' })
  * ```
  *
  * @module

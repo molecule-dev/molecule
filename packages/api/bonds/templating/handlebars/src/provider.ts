@@ -66,7 +66,10 @@ export const createProvider = (config: HandlebarsTemplateConfig = {}): TemplateP
       }
     },
 
-    renderCompiled(compiled: CompiledTemplate, data: Record<string, unknown>): string {
+    async renderCompiled(
+      compiled: CompiledTemplate,
+      data: Record<string, unknown>,
+    ): Promise<string> {
       const fn = compiled.compiled as Handlebars.TemplateDelegate
       return fn(data)
     },

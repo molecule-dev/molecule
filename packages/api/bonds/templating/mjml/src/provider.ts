@@ -60,15 +60,15 @@ export const createProvider = (config: MjmlTemplateConfig = {}): TemplateProvide
    * @param options - Optional rendering configuration.
    * @returns The rendered responsive HTML string.
    */
-  const renderMjml = (
+  const renderMjml = async (
     mjmlSource: string,
     data: Record<string, unknown>,
     options?: RenderOptions,
-  ): string => {
+  ): Promise<string> => {
     const localEnv = applyLocalOptions(env, options)
     const noEscape = options?.escape === false
     const interpolated = localEnv.compile(mjmlSource, { noEscape })(data)
-    const result = mjml2html(interpolated, mjmlOptions)
+    const result = await mjml2html(interpolated, mjmlOptions)
 
     if (result.errors?.length && mjmlOptions.validationLevel === 'strict') {
       throw new Error(
@@ -97,10 +97,13 @@ export const createProvider = (config: MjmlTemplateConfig = {}): TemplateProvide
       }
     },
 
-    renderCompiled(compiled: CompiledTemplate, data: Record<string, unknown>): string {
+    async renderCompiled(
+      compiled: CompiledTemplate,
+      data: Record<string, unknown>,
+    ): Promise<string> {
       const fn = compiled.compiled as Handlebars.TemplateDelegate
       const interpolated = fn(data)
-      const result = mjml2html(interpolated, mjmlOptions)
+      const result = await mjml2html(interpolated, mjmlOptions)
       return result.html
     },
 

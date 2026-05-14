@@ -21,7 +21,7 @@ const mockCompiled: CompiledTemplate = {
 const createMockProvider = (overrides?: Partial<TemplateProvider>): TemplateProvider => ({
   render: vi.fn().mockResolvedValue('Hello World!'),
   compile: vi.fn().mockResolvedValue(mockCompiled),
-  renderCompiled: vi.fn().mockReturnValue('Hello Fast!'),
+  renderCompiled: vi.fn().mockResolvedValue('Hello Fast!'),
   registerHelper: vi.fn(),
   registerPartial: vi.fn(),
   ...overrides,
@@ -93,9 +93,9 @@ describe('templating provider', () => {
       expect(result).toBe(mockCompiled)
     })
 
-    it('should delegate renderCompiled to provider', () => {
+    it('should delegate renderCompiled to provider', async () => {
       const data = { name: 'Fast' }
-      const result = renderCompiled(mockCompiled, data)
+      const result = await renderCompiled(mockCompiled, data)
       expect(mockProvider.renderCompiled).toHaveBeenCalledWith(mockCompiled, data)
       expect(result).toBe('Hello Fast!')
     })
@@ -128,8 +128,8 @@ describe('templating provider', () => {
       )
     })
 
-    it('should throw on renderCompiled when no provider is set', () => {
-      expect(() => renderCompiled(mockCompiled, {})).toThrow(
+    it('should throw on renderCompiled when no provider is set', async () => {
+      await expect(renderCompiled(mockCompiled, {})).rejects.toThrow(
         'Template provider not configured. Call setProvider() first.',
       )
     })

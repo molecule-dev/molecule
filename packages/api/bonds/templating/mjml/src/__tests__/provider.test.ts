@@ -155,7 +155,7 @@ describe('mjml template provider', () => {
     it('should render a compiled MJML template', async () => {
       const p = createProvider()
       const compiled = await p.compile(wrap('<mj-text>Hello {{name}}!</mj-text>'))
-      const result = p.renderCompiled(compiled, { name: 'World' })
+      const result = await p.renderCompiled(compiled, { name: 'World' })
       expect(result).toContain('<!doctype html>')
       expect(result).toContain('Hello World!')
     })
@@ -163,8 +163,8 @@ describe('mjml template provider', () => {
     it('should render compiled template with different data', async () => {
       const p = createProvider()
       const compiled = await p.compile(wrap('<mj-text>Hi {{name}}!</mj-text>'))
-      expect(p.renderCompiled(compiled, { name: 'Alice' })).toContain('Hi Alice!')
-      expect(p.renderCompiled(compiled, { name: 'Bob' })).toContain('Hi Bob!')
+      expect(await p.renderCompiled(compiled, { name: 'Alice' })).toContain('Hi Alice!')
+      expect(await p.renderCompiled(compiled, { name: 'Bob' })).toContain('Hi Bob!')
     })
   })
 

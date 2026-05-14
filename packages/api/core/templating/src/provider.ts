@@ -88,10 +88,10 @@ export const compile = async (template: string): Promise<CompiledTemplate> => {
  * @returns The rendered output string.
  * @throws {Error} If no template provider has been bonded.
  */
-export const renderCompiled = (
+export const renderCompiled = async (
   compiled: CompiledTemplate,
   data: Record<string, unknown>,
-): string => {
+): Promise<string> => {
   return getProvider().renderCompiled(compiled, data)
 }
 

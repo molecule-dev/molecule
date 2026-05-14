@@ -76,7 +76,7 @@ export interface TemplateProvider {
    * @param data - Key-value pairs to inject into the template.
    * @returns The rendered output string.
    */
-  renderCompiled(compiled: CompiledTemplate, data: Record<string, unknown>): string
+  renderCompiled(compiled: CompiledTemplate, data: Record<string, unknown>): Promise<string>
 
   /**
    * Registers a named helper function available in all templates.
