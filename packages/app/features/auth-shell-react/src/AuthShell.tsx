@@ -219,11 +219,109 @@ export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps) {
 }
 
 /**
+ * Two-column auth layout: a full-bleed brand panel beside the form-card
+ * column. The dominant "decorated brand panel + card" shape across the
+ * fleet's polished auth pages. Compose `<AuthShellPanel>` and
+ * `<AuthShellCardColumn>` as the two children.
+ *
+ * The panel content is inherently per-app (bespoke gradients, sample
+ * cards, social proof) so it stays a slot; only the two-column frame +
+ * column chrome are shared here.
+ */
+export interface AuthShellSplitProps {
+  children: ReactNode
+  /** Extra classes on the outer container. */
+  className?: string
+  /**
+   * Optional full-width node rendered below the two columns — typically
+   * the app's site `<Footer />`.
+   */
+  footerBelow?: ReactNode
+}
+
+export function AuthShellSplit({ children, className, footerBelow }: AuthShellSplitProps) {
+  const cm = getClassMap()
+  return (
+    <div
+      className={cm.cn(
+        cm.flex({ direction: 'col' }),
+        cm.minH('screen'),
+        'bg-background text-on-surface',
+        className,
+      )}
+    >
+      <div className={cm.cn(cm.flex1, cm.flex({}))}>{children}</div>
+      {footerBelow}
+    </div>
+  )
+}
+
+/**
+ * The brand-panel half of `<AuthShellSplit>` — `hidden lg:flex` so it
+ * collapses on mobile. Fill it with the app's bespoke decoration,
+ * wordmark, social proof, etc. Pass `className` to tune the width ratio
+ * / gradient (default: half-width column with generous padding).
+ */
+export interface AuthShellPanelProps {
+  children: ReactNode
+  /** Override the panel width + chrome (default `w-1/2` padded column). */
+  className?: string
+}
+
+export function AuthShellPanel({ children, className }: AuthShellPanelProps) {
+  const cm = getClassMap()
+  return (
+    <aside
+      className={
+        className ??
+        cm.cn(
+          cm.flex({ direction: 'col', justify: 'between' }),
+          cm.sp('p', 12),
+          'relative overflow-hidden hidden lg:flex w-1/2',
+        )
+      }
+    >
+      {children}
+    </aside>
+  )
+}
+
+/**
+ * The form-card half of `<AuthShellSplit>` — centers its children
+ * (typically an `<AuthShellCard>`) in a padded column. Pass `className`
+ * to tune the width ratio so it pairs with `<AuthShellPanel>`.
+ */
+export interface AuthShellCardColumnProps {
+  children: ReactNode
+  /** Override the column width + chrome (default `w-full lg:w-1/2`). */
+  className?: string
+}
+
+export function AuthShellCardColumn({ children, className }: AuthShellCardColumnProps) {
+  const cm = getClassMap()
+  return (
+    <section
+      className={cm.cn(
+        cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
+        cm.sp('p', 6),
+        'w-full lg:w-1/2',
+        className,
+      )}
+    >
+      {children}
+    </section>
+  )
+}
+
+/**
  * Convenience preset for the most common layout: centered glass card
  * with optional decoration, brand panel, heading, body, footer, and a
  * "Back to home" link below the card. Equivalent to manually composing
  * `<AuthShellContainer>` + `<AuthShellDecoration>` + `<AuthShellCard>`
  * + `<AuthShellHeading>` + `<AuthShellFooter>` + `<AuthShellBackLink>`.
+ *
+ * For the two-column "brand panel + card" shape, use `<AuthShellSplit>`
+ * + `<AuthShellPanel>` + `<AuthShellCardColumn>` instead.
  */
 export interface AuthShellProps {
   heading: string

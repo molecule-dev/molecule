@@ -43,6 +43,9 @@ const {
   AuthShellHeading,
   AuthShellFooter,
   AuthShellBackLink,
+  AuthShellSplit,
+  AuthShellPanel,
+  AuthShellCardColumn,
 } = await import('../AuthShell.js')
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
@@ -140,6 +143,66 @@ describe('AuthShellBackLink', () => {
     const markup = html(createElement(AuthShellBackLink, { to: '/welcome', label: 'Go back' }))
     expect(markup).toContain('href="/welcome"')
     expect(markup).toContain('Go back')
+  })
+})
+
+describe('AuthShellSplit', () => {
+  it('renders its two children and forwards className', () => {
+    const markup = html(
+      createElement(AuthShellSplit, {
+        className: 'split-cls',
+        children: [
+          createElement('div', { 'data-panel': '', key: 'p' }),
+          createElement('div', { 'data-col': '', key: 'c' }),
+        ],
+      }),
+    )
+    expect(markup).toContain('data-panel=""')
+    expect(markup).toContain('data-col=""')
+    expect(markup).toContain('split-cls')
+  })
+
+  it('renders footerBelow below the columns only when supplied', () => {
+    const withFooter = html(
+      createElement(AuthShellSplit, {
+        children: 'x',
+        footerBelow: createElement('footer', { 'data-site-footer': '' }),
+      }),
+    )
+    expect(withFooter).toContain('data-site-footer=""')
+    const without = html(createElement(AuthShellSplit, { children: 'x' }))
+    expect(without).not.toContain('data-site-footer')
+  })
+})
+
+describe('AuthShellPanel', () => {
+  it('renders its children inside a hidden lg:flex aside by default', () => {
+    const markup = html(
+      createElement(AuthShellPanel, { children: createElement('div', { 'data-brand': '' }) }),
+    )
+    expect(markup).toContain('<aside')
+    expect(markup).toContain('data-brand=""')
+    expect(markup).toContain('hidden lg:flex')
+  })
+
+  it('lets className fully override the default panel chrome', () => {
+    const markup = html(createElement(AuthShellPanel, { children: 'x', className: 'my-panel' }))
+    expect(markup).toContain('my-panel')
+    expect(markup).not.toContain('hidden lg:flex')
+  })
+})
+
+describe('AuthShellCardColumn', () => {
+  it('renders its children inside a centered section and appends className', () => {
+    const markup = html(
+      createElement(AuthShellCardColumn, {
+        children: createElement('div', { 'data-card': '' }),
+        className: 'col-cls',
+      }),
+    )
+    expect(markup).toContain('<section')
+    expect(markup).toContain('data-card=""')
+    expect(markup).toContain('col-cls')
   })
 })
 
