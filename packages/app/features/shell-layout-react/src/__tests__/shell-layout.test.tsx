@@ -66,6 +66,18 @@ describe('AppShellLayout', () => {
     )
   })
 
+  it('leaves <main> with no class attribute when mainClassName is omitted', () => {
+    const markup = html(createElement(AppShellLayout, { children: 'x' }))
+    expect(markup).toContain('<main>')
+  })
+
+  it('forwards mainClassName onto the inner <main> element', () => {
+    const markup = html(
+      createElement(AppShellLayout, { children: 'x', mainClassName: 'main-pad-y' }),
+    )
+    expect(markup).toContain('<main class="main-pad-y">')
+  })
+
   it('sets data-mol-id and forwards className', () => {
     const markup = html(
       createElement(AppShellLayout, { children: 'x', dataMolId: 'shell-x', className: 'sl-cls' }),

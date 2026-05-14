@@ -14,6 +14,13 @@ interface AppShellLayoutProps {
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | string
   /** Extra classes on the outer wrapper. */
   className?: string
+  /**
+   * Extra classes on the inner `<main>` element. Apps that need
+   * vertical rhythm around the routed content (e.g. `cm.sp('py', 8)`)
+   * pass it here instead of forking the shell. Omitted by default so
+   * the `<main>` carries no padding.
+   */
+  mainClassName?: string
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
 }
@@ -32,6 +39,7 @@ interface AppShellLayoutProps {
  * @param root0.children
  * @param root0.maxWidth
  * @param root0.className
+ * @param root0.mainClassName
  * @param root0.dataMolId
  */
 export function AppShellLayout({
@@ -40,19 +48,15 @@ export function AppShellLayout({
   children,
   maxWidth = 'xl',
   className,
+  mainClassName,
   dataMolId,
 }: AppShellLayoutProps) {
   const cm = getClassMap()
   return (
-    <div
-      className={cm.cn(cm.page, cm.appLayout, className)}
-      data-mol-id={dataMolId}
-    >
+    <div className={cm.cn(cm.page, cm.appLayout, className)} data-mol-id={dataMolId}>
       {header}
-      <main>
-        <Container maxWidth={maxWidth}>
-          {children}
-        </Container>
+      <main className={mainClassName}>
+        <Container maxWidth={maxWidth}>{children}</Container>
       </main>
       {footer}
     </div>
