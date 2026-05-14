@@ -193,6 +193,33 @@
     max-height: 100%;
   }
 
+  /*
+   * Material Symbols icon font. Flagship templates render icons as
+   * `<span class="material-symbols-outlined">icon_name</span>` and rely on
+   * this class to swap the ligature text for the glyph. The @font-face is
+   * loaded via the Google Fonts <link> in each app's index.html.
+   */
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    vertical-align: middle;
+  }
+
   /* Thin scrollbars with subtle styling */
   * {
     scrollbar-width: thin;
