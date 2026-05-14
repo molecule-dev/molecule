@@ -1,7 +1,7 @@
 import type { LayerPanelTranslations } from './types.js'
 
 /** Layer Panel translations for Chinese (Traditional). Stub — uses English copy. */
-export const zh_TW: LayerPanelTranslations = {
+export const zhTW: LayerPanelTranslations = {
   'layerPanel.label': 'Layers',
   'layerPanel.show': 'Show layer',
   'layerPanel.hide': 'Hide layer',

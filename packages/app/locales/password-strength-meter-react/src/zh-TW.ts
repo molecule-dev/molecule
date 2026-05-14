@@ -1,7 +1,7 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
 /** Password-strength-meter translations for Chinese (Traditional). */
-export const zh_TW: PasswordStrengthMeterTranslations = {
+export const zhTW: PasswordStrengthMeterTranslations = {
   'passwordStrengthMeter.label.0': '非常弱',
   'passwordStrengthMeter.label.1': '弱',
   'passwordStrengthMeter.label.2': '普通',

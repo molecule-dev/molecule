@@ -1,7 +1,7 @@
 import type { AuthorBioCardTranslations } from './types.js'
 
 /** Author-bio-card translations for Chinese (Traditional). */
-export const zh_TW: AuthorBioCardTranslations = {
+export const zhTW: AuthorBioCardTranslations = {
   'authorBioCard.follow': '追蹤',
   'authorBioCard.following': '追蹤中',
   'authorBioCard.social.twitter.label': 'Twitter',

@@ -1,7 +1,7 @@
 import type { MindMapCanvasTranslations } from './types.js'
 
 /** Mind-map-canvas translations for Chinese (Traditional). */
-export const zh_TW: MindMapCanvasTranslations = {
+export const zhTW: MindMapCanvasTranslations = {
   'mindMap.aria.canvas': 'Mind map canvas',
   'mindMap.aria.edit': 'Edit node text',
   'mindMap.action.collapse': 'Collapse subtree',

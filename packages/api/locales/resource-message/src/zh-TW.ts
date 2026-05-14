@@ -1,7 +1,7 @@
 import type { MessageTranslations } from './types.js'
 
 /** Message resource translations for Chinese (Traditional). */
-export const zh_TW: MessageTranslations = {
+export const zhTW: MessageTranslations = {
   'message.error.deleteFailed': '刪除訊息失敗',
   'message.error.editFailed': '編輯訊息失敗',
   'message.error.listMessagesFailed': '列出訊息失敗',

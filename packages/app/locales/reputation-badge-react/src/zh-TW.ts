@@ -1,7 +1,7 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
 /** Reputation-badge translations for Chinese (Traditional). */
-export const zh_TW: ReputationBadgeTranslations = {
+export const zhTW: ReputationBadgeTranslations = {
   'reputationBadge.caption': '聲譽',
   'reputationBadge.aria': '聲譽 {{score}}，{{level}}',
   'reputationBadge.level.newcomer': '新人',

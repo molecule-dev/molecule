@@ -1,7 +1,7 @@
 import type { RuleBuilderTranslations } from './types.js'
 
 /** Rule-builder translations for Chinese (Traditional). */
-export const zh_TW: RuleBuilderTranslations = {
+export const zhTW: RuleBuilderTranslations = {
   'ruleBuilder.op.and': 'AND',
   'ruleBuilder.op.or': 'OR',
   'ruleBuilder.help.allMustMatch': 'All conditions must match',

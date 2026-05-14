@@ -1,7 +1,7 @@
 import type { TrashTranslations } from './types.js'
 
 /** Trash translations for Chinese (Traditional). */
-export const zh_TW: TrashTranslations = {
+export const zhTW: TrashTranslations = {
   'trash.error.alreadyResolved': '資源回收筒項目已被還原或永久刪除',
   'trash.error.countFailed': '無法統計資源回收筒項目數量',
   'trash.error.listFailed': '無法列出資源回收筒項目',

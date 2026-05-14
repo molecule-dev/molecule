@@ -1,7 +1,7 @@
 import type { VersionHistoryTranslations } from './types.js'
 
 /** Version-history resource translations for Chinese (Traditional). */
-export const zh_TW: VersionHistoryTranslations = {
+export const zhTW: VersionHistoryTranslations = {
   'versionHistory.error.countFailed': '無法統計版本數量',
   'versionHistory.error.createFailed': '無法建立版本',
   'versionHistory.error.diffFailed': '無法比較版本',
