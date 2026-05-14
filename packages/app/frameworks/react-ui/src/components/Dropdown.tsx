@@ -6,6 +6,7 @@
 
 import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useLocation } from 'react-router-dom'
 
 import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -144,6 +145,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
     const [position, setPosition] = useState<Position>({ top: 0, left: 0 })
     const triggerRef = useRef<HTMLDivElement>(null)
     const menuRef = useRef<HTMLDivElement>(null)
+    const location = useLocation()
 
     const cm = getClassMap()
     const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen
@@ -218,6 +220,13 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<string>>(
         document.removeEventListener('keydown', handleEscape)
       }
     }, [isOpen, handleClose])
+
+    // Close on route change — a dropdown left open over the next page
+    // blocks clicks underneath. React Router's `location` updates on
+    // both in-app navigation and browser back/forward (popstate).
+    useEffect(() => {
+      setOpen(false)
+    }, [location.pathname, location.search, setOpen])
 
     // Calculate menu width
     const menuWidth =

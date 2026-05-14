@@ -1,8 +1,8 @@
 /**
- * Render tests for the close-on-route-change behavior shared by
- * `UserMenu` and `SidebarUserCard`: opening the drawer and then
- * changing the route must dismiss it (a drawer left mounted over the
- * next page blocks clicks underneath).
+ * Render tests for the close-on-route-change behavior shared by the
+ * overlay components (`UserMenu`, `SidebarUserCard`, `Dropdown`):
+ * opening the overlay and then changing the route must dismiss it (an
+ * overlay left mounted over the next page blocks clicks underneath).
  *
  * @vitest-environment jsdom
  * @module
@@ -54,6 +54,7 @@ vi.mock('@molecule/app-icons', () => ({
 
 const { UserMenu } = await import('../components/UserMenu.js')
 const { SidebarUserCard } = await import('../components/SidebarUserCard.js')
+const { Dropdown } = await import('../components/Dropdown.js')
 
 afterEach(() => {
   mockLocation.pathname = '/'
@@ -86,5 +87,18 @@ describe('SidebarUserCard — close on route change', () => {
     mockLocation.pathname = '/profile'
     rerender(<SidebarUserCard renderPanel={panel} />)
     expect(screen.queryByText('sidebar-panel')).toBeNull()
+  })
+})
+
+describe('Dropdown — close on route change', () => {
+  it('dismisses the open menu when the route changes', () => {
+    const items = [{ label: 'Item A', value: 'a' }]
+    const trigger = <button type="button">Open menu</button>
+    const { rerender } = render(<Dropdown trigger={trigger} items={items} />)
+    fireEvent.click(screen.getByText('Open menu'))
+    expect(screen.getByText('Item A')).toBeDefined()
+    mockLocation.pathname = '/elsewhere'
+    rerender(<Dropdown trigger={trigger} items={items} />)
+    expect(screen.queryByText('Item A')).toBeNull()
   })
 })
