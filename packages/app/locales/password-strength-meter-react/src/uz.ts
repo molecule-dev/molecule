@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Uzbek (TODO: translate). */
+/** Password-strength-meter translations for Uzbek. */
 export const uz: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Juda zaif',
+  'passwordStrengthMeter.label.1': 'Zaif',
+  'passwordStrengthMeter.label.2': 'Orta',
+  'passwordStrengthMeter.label.3': 'Yaxshi',
+  'passwordStrengthMeter.label.4': 'Kuchli',
+  'passwordStrengthMeter.ariaValueText': 'Parol kuchi: {{label}} ({{score}} dan 4)',
+  'passwordStrengthMeter.rule.length': 'Kamida 12 ta belgi',
+  'passwordStrengthMeter.rule.upper': 'Bosh harf bor',
+  'passwordStrengthMeter.rule.lower': 'Kichik harf bor',
+  'passwordStrengthMeter.rule.digit': 'Raqam bor',
+  'passwordStrengthMeter.rule.symbol': 'Belgi bor',
+  'passwordStrengthMeter.rule.noCommon': 'Keng tarqalgan parol emas',
 }

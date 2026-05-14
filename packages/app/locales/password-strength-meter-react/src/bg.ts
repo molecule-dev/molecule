@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Bulgarian (TODO: translate). */
+/** Password-strength-meter translations for Bulgarian. */
 export const bg: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Много слаба',
+  'passwordStrengthMeter.label.1': 'Слаба',
+  'passwordStrengthMeter.label.2': 'Средна',
+  'passwordStrengthMeter.label.3': 'Добра',
+  'passwordStrengthMeter.label.4': 'Силна',
+  'passwordStrengthMeter.ariaValueText': 'Сила на паролата: {{label}} ({{score}} от 4)',
+  'passwordStrengthMeter.rule.length': 'Поне 12 знака',
+  'passwordStrengthMeter.rule.upper': 'Съдържа главна буква',
+  'passwordStrengthMeter.rule.lower': 'Съдържа малка буква',
+  'passwordStrengthMeter.rule.digit': 'Съдържа цифра',
+  'passwordStrengthMeter.rule.symbol': 'Съдържа символ',
+  'passwordStrengthMeter.rule.noCommon': 'Не е често срещана парола',
 }

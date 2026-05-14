@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for German (TODO: translate). */
+/** Password-strength-meter translations for German. */
 export const de: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Sehr schwach',
+  'passwordStrengthMeter.label.1': 'Schwach',
+  'passwordStrengthMeter.label.2': 'Mittel',
+  'passwordStrengthMeter.label.3': 'Gut',
+  'passwordStrengthMeter.label.4': 'Stark',
+  'passwordStrengthMeter.ariaValueText': 'Passwortstärke: {{label}} ({{score}} von 4)',
+  'passwordStrengthMeter.rule.length': 'Mindestens 12 Zeichen',
+  'passwordStrengthMeter.rule.upper': 'Enthält Großbuchstaben',
+  'passwordStrengthMeter.rule.lower': 'Enthält Kleinbuchstaben',
+  'passwordStrengthMeter.rule.digit': 'Enthält eine Ziffer',
+  'passwordStrengthMeter.rule.symbol': 'Enthält ein Symbol',
+  'passwordStrengthMeter.rule.noCommon': 'Kein gängiges Passwort',
 }

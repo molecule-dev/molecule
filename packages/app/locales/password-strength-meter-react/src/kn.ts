@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Kannada (TODO: translate). */
+/** Password-strength-meter translations for Kannada. */
 export const kn: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'ತುಂಬಾ ದುರ್ಬಲ',
+  'passwordStrengthMeter.label.1': 'ದುರ್ಬಲ',
+  'passwordStrengthMeter.label.2': 'ಸಾಧಾರಣ',
+  'passwordStrengthMeter.label.3': 'ಉತ್ತಮ',
+  'passwordStrengthMeter.label.4': 'ಪ್ರಬಲ',
+  'passwordStrengthMeter.ariaValueText': 'ಪಾಸ್‌ವರ್ಡ್ ಬಲ: {{label}} ({{score}}/4)',
+  'passwordStrengthMeter.rule.length': 'ಕನಿಷ್ಠ 12 ಅಕ್ಷರಗಳು',
+  'passwordStrengthMeter.rule.upper': 'ದೊಡ್ಡಕ್ಷರವಿದೆ',
+  'passwordStrengthMeter.rule.lower': 'ಸಣ್ಣಕ್ಷರವಿದೆ',
+  'passwordStrengthMeter.rule.digit': 'ಅಂಕಿ ಇದೆ',
+  'passwordStrengthMeter.rule.symbol': 'ಚಿಹ್ನೆ ಇದೆ',
+  'passwordStrengthMeter.rule.noCommon': 'ಸಾಮಾನ್ಯ ಪಾಸ್‌ವರ್ಡ್ ಅಲ್ಲ',
 }

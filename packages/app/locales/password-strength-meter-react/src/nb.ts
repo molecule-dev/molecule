@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Norwegian Bokmal (TODO: translate). */
+/** Password-strength-meter translations for Norwegian Bokmal. */
 export const nb: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Veldig svakt',
+  'passwordStrengthMeter.label.1': 'Svakt',
+  'passwordStrengthMeter.label.2': 'Middels',
+  'passwordStrengthMeter.label.3': 'Bra',
+  'passwordStrengthMeter.label.4': 'Sterkt',
+  'passwordStrengthMeter.ariaValueText': 'Passordstyrke: {{label}} ({{score}} av 4)',
+  'passwordStrengthMeter.rule.length': 'Minst 12 tegn',
+  'passwordStrengthMeter.rule.upper': 'Inneholder stor bokstav',
+  'passwordStrengthMeter.rule.lower': 'Inneholder liten bokstav',
+  'passwordStrengthMeter.rule.digit': 'Inneholder et tall',
+  'passwordStrengthMeter.rule.symbol': 'Inneholder et symbol',
+  'passwordStrengthMeter.rule.noCommon': 'Ikke et vanlig passord',
 }

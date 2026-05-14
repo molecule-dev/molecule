@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Greek (TODO: translate). */
+/** Password-strength-meter translations for Greek. */
 export const el: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Πολύ αδύναμος',
+  'passwordStrengthMeter.label.1': 'Αδύναμος',
+  'passwordStrengthMeter.label.2': 'Μέτριος',
+  'passwordStrengthMeter.label.3': 'Καλός',
+  'passwordStrengthMeter.label.4': 'Ισχυρός',
+  'passwordStrengthMeter.ariaValueText': 'Ισχύς κωδικού: {{label}} ({{score}} από 4)',
+  'passwordStrengthMeter.rule.length': 'Τουλάχιστον 12 χαρακτήρες',
+  'passwordStrengthMeter.rule.upper': 'Περιέχει κεφαλαίο γράμμα',
+  'passwordStrengthMeter.rule.lower': 'Περιέχει πεζό γράμμα',
+  'passwordStrengthMeter.rule.digit': 'Περιέχει ψηφίο',
+  'passwordStrengthMeter.rule.symbol': 'Περιέχει σύμβολο',
+  'passwordStrengthMeter.rule.noCommon': 'Δεν είναι κοινός κωδικός',
 }

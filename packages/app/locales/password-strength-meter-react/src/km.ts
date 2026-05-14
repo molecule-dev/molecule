@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Khmer (TODO: translate). */
+/** Password-strength-meter translations for Khmer. */
 export const km: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'ខ្សោយណាស់',
+  'passwordStrengthMeter.label.1': 'ខ្សោយ',
+  'passwordStrengthMeter.label.2': 'មធ្យម',
+  'passwordStrengthMeter.label.3': 'ល្អ',
+  'passwordStrengthMeter.label.4': 'ខ្លាំង',
+  'passwordStrengthMeter.ariaValueText': 'កម្លាំងពាក្យសម្ងាត់៖ {{label}} ({{score}} ក្នុងចំណោម 4)',
+  'passwordStrengthMeter.rule.length': 'យ៉ាងហោចណាស់ 12 តួអក្សរ',
+  'passwordStrengthMeter.rule.upper': 'មានអក្សរធំ',
+  'passwordStrengthMeter.rule.lower': 'មានអក្សរតូច',
+  'passwordStrengthMeter.rule.digit': 'មានលេខ',
+  'passwordStrengthMeter.rule.symbol': 'មាននិមិត្តសញ្ញា',
+  'passwordStrengthMeter.rule.noCommon': 'មិនមែនជាពាក្យសម្ងាត់ទូទៅ',
 }

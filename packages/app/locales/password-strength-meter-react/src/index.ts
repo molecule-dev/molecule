@@ -2,8 +2,7 @@
  * Companion locale bond for `@molecule/app-password-strength-meter-react`.
  *
  * Provides `passwordStrengthMeter.*` translations across 79 supported
- * locales. English is fully translated; non-English locales are stubbed
- * (English fallback) and marked `TODO: translate` until localized.
+ * locales.
  *
  * Register all exports with the i18n provider via `registerLocaleModule`:
  *

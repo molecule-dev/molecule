@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Turkish (TODO: translate). */
+/** Password-strength-meter translations for Turkish. */
 export const tr: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Çok zayıf',
+  'passwordStrengthMeter.label.1': 'Zayıf',
+  'passwordStrengthMeter.label.2': 'Orta',
+  'passwordStrengthMeter.label.3': 'İyi',
+  'passwordStrengthMeter.label.4': 'Güçlü',
+  'passwordStrengthMeter.ariaValueText': 'Parola gücü: {{label}} ({{score}} / 4)',
+  'passwordStrengthMeter.rule.length': 'En az 12 karakter',
+  'passwordStrengthMeter.rule.upper': 'Büyük harf içeriyor',
+  'passwordStrengthMeter.rule.lower': 'Küçük harf içeriyor',
+  'passwordStrengthMeter.rule.digit': 'Rakam içeriyor',
+  'passwordStrengthMeter.rule.symbol': 'Sembol içeriyor',
+  'passwordStrengthMeter.rule.noCommon': 'Yaygın bir parola değil',
 }

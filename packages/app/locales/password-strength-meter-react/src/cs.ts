@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Czech (TODO: translate). */
+/** Password-strength-meter translations for Czech. */
 export const cs: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Velmi slabé',
+  'passwordStrengthMeter.label.1': 'Slabé',
+  'passwordStrengthMeter.label.2': 'Průměrné',
+  'passwordStrengthMeter.label.3': 'Dobré',
+  'passwordStrengthMeter.label.4': 'Silné',
+  'passwordStrengthMeter.ariaValueText': 'Síla hesla: {{label}} ({{score}} ze 4)',
+  'passwordStrengthMeter.rule.length': 'Alespoň 12 znaků',
+  'passwordStrengthMeter.rule.upper': 'Obsahuje velké písmeno',
+  'passwordStrengthMeter.rule.lower': 'Obsahuje malé písmeno',
+  'passwordStrengthMeter.rule.digit': 'Obsahuje číslici',
+  'passwordStrengthMeter.rule.symbol': 'Obsahuje symbol',
+  'passwordStrengthMeter.rule.noCommon': 'Není běžné heslo',
 }

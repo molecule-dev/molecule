@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Bengali (TODO: translate). */
+/** Password-strength-meter translations for Bengali. */
 export const bn: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'খুব দুর্বল',
+  'passwordStrengthMeter.label.1': 'দুর্বল',
+  'passwordStrengthMeter.label.2': 'মোটামুটি',
+  'passwordStrengthMeter.label.3': 'ভালো',
+  'passwordStrengthMeter.label.4': 'শক্তিশালী',
+  'passwordStrengthMeter.ariaValueText': 'পাসওয়ার্ডের শক্তি: {{label}} ({{score}}/4)',
+  'passwordStrengthMeter.rule.length': 'কমপক্ষে ১২টি অক্ষর',
+  'passwordStrengthMeter.rule.upper': 'একটি বড় হাতের অক্ষর আছে',
+  'passwordStrengthMeter.rule.lower': 'একটি ছোট হাতের অক্ষর আছে',
+  'passwordStrengthMeter.rule.digit': 'একটি সংখ্যা আছে',
+  'passwordStrengthMeter.rule.symbol': 'একটি প্রতীক আছে',
+  'passwordStrengthMeter.rule.noCommon': 'একটি সাধারণ পাসওয়ার্ড নয়',
 }

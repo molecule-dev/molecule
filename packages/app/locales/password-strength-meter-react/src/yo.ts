@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Yoruba (TODO: translate). */
+/** Password-strength-meter translations for Yoruba. */
 export const yo: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Kò lágbára rárá',
+  'passwordStrengthMeter.label.1': 'Kò lágbára',
+  'passwordStrengthMeter.label.2': 'Níwọ̀ntúnwọ̀nsì',
+  'passwordStrengthMeter.label.3': 'Dáa',
+  'passwordStrengthMeter.label.4': 'Lágbára',
+  'passwordStrengthMeter.ariaValueText': 'Agbára ọ̀rọ̀ aṣínà: {{label}} ({{score}} nínú 4)',
+  'passwordStrengthMeter.rule.length': 'Ó kéré tán lẹ́tà 12',
+  'passwordStrengthMeter.rule.upper': 'Ní lẹ́tà ńlá',
+  'passwordStrengthMeter.rule.lower': 'Ní lẹ́tà kékeré',
+  'passwordStrengthMeter.rule.digit': 'Ní nọ́mbà',
+  'passwordStrengthMeter.rule.symbol': 'Ní àmì',
+  'passwordStrengthMeter.rule.noCommon': 'Kì í ṣe ọ̀rọ̀ aṣínà tó wọ́pọ̀',
 }

@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Burmese (TODO: translate). */
+/** Password-strength-meter translations for Burmese. */
 export const my: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'အလွန်အားနည်း',
+  'passwordStrengthMeter.label.1': 'အားနည်း',
+  'passwordStrengthMeter.label.2': 'အသင့်အတင့်',
+  'passwordStrengthMeter.label.3': 'ကောင်း',
+  'passwordStrengthMeter.label.4': 'အားကောင်း',
+  'passwordStrengthMeter.ariaValueText': 'စကားဝှက်အားသတ္တိ: {{label}} ({{score}}/4)',
+  'passwordStrengthMeter.rule.length': 'အနည်းဆုံး စာလုံး 12 လုံး',
+  'passwordStrengthMeter.rule.upper': 'စာလုံးကြီး ပါဝင်',
+  'passwordStrengthMeter.rule.lower': 'စာလုံးသေး ပါဝင်',
+  'passwordStrengthMeter.rule.digit': 'ဂဏန်း ပါဝင်',
+  'passwordStrengthMeter.rule.symbol': 'သင်္ကေတ ပါဝင်',
+  'passwordStrengthMeter.rule.noCommon': 'အသုံးများသော စကားဝှက် မဟုတ်ပါ',
 }

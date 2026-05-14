@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Catalan (TODO: translate). */
+/** Password-strength-meter translations for Catalan. */
 export const ca: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Molt feble',
+  'passwordStrengthMeter.label.1': 'Feble',
+  'passwordStrengthMeter.label.2': 'Acceptable',
+  'passwordStrengthMeter.label.3': 'Bona',
+  'passwordStrengthMeter.label.4': 'Forta',
+  'passwordStrengthMeter.ariaValueText': 'Seguretat de la contrasenya: {{label}} ({{score}} de 4)',
+  'passwordStrengthMeter.rule.length': 'Com a mínim 12 caràcters',
+  'passwordStrengthMeter.rule.upper': 'Conté una majúscula',
+  'passwordStrengthMeter.rule.lower': 'Conté una minúscula',
+  'passwordStrengthMeter.rule.digit': 'Conté un dígit',
+  'passwordStrengthMeter.rule.symbol': 'Conté un símbol',
+  'passwordStrengthMeter.rule.noCommon': 'No és una contrasenya habitual',
 }

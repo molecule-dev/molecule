@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Swahili (TODO: translate). */
+/** Password-strength-meter translations for Swahili. */
 export const sw: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Dhaifu sana',
+  'passwordStrengthMeter.label.1': 'Dhaifu',
+  'passwordStrengthMeter.label.2': 'Wastani',
+  'passwordStrengthMeter.label.3': 'Nzuri',
+  'passwordStrengthMeter.label.4': 'Imara',
+  'passwordStrengthMeter.ariaValueText': 'Nguvu ya nenosiri: {{label}} ({{score}} kati ya 4)',
+  'passwordStrengthMeter.rule.length': 'Angalau herufi 12',
+  'passwordStrengthMeter.rule.upper': 'Ina herufi kubwa',
+  'passwordStrengthMeter.rule.lower': 'Ina herufi ndogo',
+  'passwordStrengthMeter.rule.digit': 'Ina tarakimu',
+  'passwordStrengthMeter.rule.symbol': 'Ina alama',
+  'passwordStrengthMeter.rule.noCommon': 'Si nenosiri la kawaida',
 }

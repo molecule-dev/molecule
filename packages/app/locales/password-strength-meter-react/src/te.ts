@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Telugu (TODO: translate). */
+/** Password-strength-meter translations for Telugu. */
 export const te: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'చాలా బలహీనం',
+  'passwordStrengthMeter.label.1': 'బలహీనం',
+  'passwordStrengthMeter.label.2': 'ఓ మోస్తరు',
+  'passwordStrengthMeter.label.3': 'మంచిది',
+  'passwordStrengthMeter.label.4': 'బలమైనది',
+  'passwordStrengthMeter.ariaValueText': 'పాస్‌వర్డ్ బలం: {{label}} ({{score}}/4)',
+  'passwordStrengthMeter.rule.length': 'కనీసం 12 అక్షరాలు',
+  'passwordStrengthMeter.rule.upper': 'పెద్ద అక్షరం ఉంది',
+  'passwordStrengthMeter.rule.lower': 'చిన్న అక్షరం ఉంది',
+  'passwordStrengthMeter.rule.digit': 'అంకె ఉంది',
+  'passwordStrengthMeter.rule.symbol': 'చిహ్నం ఉంది',
+  'passwordStrengthMeter.rule.noCommon': 'సాధారణ పాస్‌వర్డ్ కాదు',
 }

@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Persian (TODO: translate). */
+/** Password-strength-meter translations for Persian. */
 export const fa: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'بسیار ضعیف',
+  'passwordStrengthMeter.label.1': 'ضعیف',
+  'passwordStrengthMeter.label.2': 'متوسط',
+  'passwordStrengthMeter.label.3': 'خوب',
+  'passwordStrengthMeter.label.4': 'قوی',
+  'passwordStrengthMeter.ariaValueText': 'قدرت گذرواژه: {{label}} ({{score}} از 4)',
+  'passwordStrengthMeter.rule.length': 'حداقل ۱۲ نویسه',
+  'passwordStrengthMeter.rule.upper': 'شامل حرف بزرگ',
+  'passwordStrengthMeter.rule.lower': 'شامل حرف کوچک',
+  'passwordStrengthMeter.rule.digit': 'شامل رقم',
+  'passwordStrengthMeter.rule.symbol': 'شامل نماد',
+  'passwordStrengthMeter.rule.noCommon': 'یک گذرواژه رایج نیست',
 }

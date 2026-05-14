@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Latvian (TODO: translate). */
+/** Password-strength-meter translations for Latvian. */
 export const lv: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Ļoti vāja',
+  'passwordStrengthMeter.label.1': 'Vāja',
+  'passwordStrengthMeter.label.2': 'Viduvēja',
+  'passwordStrengthMeter.label.3': 'Laba',
+  'passwordStrengthMeter.label.4': 'Spēcīga',
+  'passwordStrengthMeter.ariaValueText': 'Paroles stiprums: {{label}} ({{score}} no 4)',
+  'passwordStrengthMeter.rule.length': 'Vismaz 12 rakstzīmes',
+  'passwordStrengthMeter.rule.upper': 'Satur lielo burtu',
+  'passwordStrengthMeter.rule.lower': 'Satur mazo burtu',
+  'passwordStrengthMeter.rule.digit': 'Satur ciparu',
+  'passwordStrengthMeter.rule.symbol': 'Satur simbolu',
+  'passwordStrengthMeter.rule.noCommon': 'Nav izplatīta parole',
 }

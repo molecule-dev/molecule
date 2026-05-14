@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Mongolian (TODO: translate). */
+/** Password-strength-meter translations for Mongolian. */
 export const mn: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Маш сул',
+  'passwordStrengthMeter.label.1': 'Сул',
+  'passwordStrengthMeter.label.2': 'Дунд зэрэг',
+  'passwordStrengthMeter.label.3': 'Сайн',
+  'passwordStrengthMeter.label.4': 'Хүчтэй',
+  'passwordStrengthMeter.ariaValueText': 'Нууц үгийн хүч: {{label}} ({{score}}/4)',
+  'passwordStrengthMeter.rule.length': 'Дор хаяж 12 тэмдэгт',
+  'passwordStrengthMeter.rule.upper': 'Том үсэг агуулна',
+  'passwordStrengthMeter.rule.lower': 'Жижиг үсэг агуулна',
+  'passwordStrengthMeter.rule.digit': 'Тоо агуулна',
+  'passwordStrengthMeter.rule.symbol': 'Тэмдэг агуулна',
+  'passwordStrengthMeter.rule.noCommon': 'Түгээмэл нууц үг биш',
 }

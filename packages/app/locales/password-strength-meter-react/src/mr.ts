@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Marathi (TODO: translate). */
+/** Password-strength-meter translations for Marathi. */
 export const mr: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'खूप कमकुवत',
+  'passwordStrengthMeter.label.1': 'कमकुवत',
+  'passwordStrengthMeter.label.2': 'ठीक',
+  'passwordStrengthMeter.label.3': 'चांगला',
+  'passwordStrengthMeter.label.4': 'मजबूत',
+  'passwordStrengthMeter.ariaValueText': 'पासवर्ड ताकद: {{label}} ({{score}}/4)',
+  'passwordStrengthMeter.rule.length': 'किमान 12 वर्ण',
+  'passwordStrengthMeter.rule.upper': 'मोठे अक्षर आहे',
+  'passwordStrengthMeter.rule.lower': 'लहान अक्षर आहे',
+  'passwordStrengthMeter.rule.digit': 'अंक आहे',
+  'passwordStrengthMeter.rule.symbol': 'चिन्ह आहे',
+  'passwordStrengthMeter.rule.noCommon': 'सामान्य पासवर्ड नाही',
 }

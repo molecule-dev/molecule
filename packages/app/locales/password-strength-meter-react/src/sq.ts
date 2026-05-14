@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Albanian (TODO: translate). */
+/** Password-strength-meter translations for Albanian. */
 export const sq: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Shumë e dobët',
+  'passwordStrengthMeter.label.1': 'E dobët',
+  'passwordStrengthMeter.label.2': 'Mesatare',
+  'passwordStrengthMeter.label.3': 'E mirë',
+  'passwordStrengthMeter.label.4': 'E fortë',
+  'passwordStrengthMeter.ariaValueText': 'Fuqia e fjalëkalimit: {{label}} ({{score}} nga 4)',
+  'passwordStrengthMeter.rule.length': 'Të paktën 12 karaktere',
+  'passwordStrengthMeter.rule.upper': 'Përmban shkronjë të madhe',
+  'passwordStrengthMeter.rule.lower': 'Përmban shkronjë të vogël',
+  'passwordStrengthMeter.rule.digit': 'Përmban shifër',
+  'passwordStrengthMeter.rule.symbol': 'Përmban simbol',
+  'passwordStrengthMeter.rule.noCommon': 'Nuk është fjalëkalim i zakonshëm',
 }

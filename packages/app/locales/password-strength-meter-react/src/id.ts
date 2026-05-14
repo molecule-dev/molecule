@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Indonesian (TODO: translate). */
+/** Password-strength-meter translations for Indonesian. */
 export const id: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Sangat lemah',
+  'passwordStrengthMeter.label.1': 'Lemah',
+  'passwordStrengthMeter.label.2': 'Sedang',
+  'passwordStrengthMeter.label.3': 'Bagus',
+  'passwordStrengthMeter.label.4': 'Kuat',
+  'passwordStrengthMeter.ariaValueText': 'Kekuatan kata sandi: {{label}} ({{score}} dari 4)',
+  'passwordStrengthMeter.rule.length': 'Minimal 12 karakter',
+  'passwordStrengthMeter.rule.upper': 'Berisi huruf besar',
+  'passwordStrengthMeter.rule.lower': 'Berisi huruf kecil',
+  'passwordStrengthMeter.rule.digit': 'Berisi angka',
+  'passwordStrengthMeter.rule.symbol': 'Berisi simbol',
+  'passwordStrengthMeter.rule.noCommon': 'Bukan kata sandi umum',
 }

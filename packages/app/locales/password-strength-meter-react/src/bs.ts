@@ -1,17 +1,17 @@
 import type { PasswordStrengthMeterTranslations } from './types.js'
 
-/** Password-strength-meter translations for Bosnian (TODO: translate). */
+/** Password-strength-meter translations for Bosnian. */
 export const bs: PasswordStrengthMeterTranslations = {
-  'passwordStrengthMeter.label.0': 'Very weak',
-  'passwordStrengthMeter.label.1': 'Weak',
-  'passwordStrengthMeter.label.2': 'Fair',
-  'passwordStrengthMeter.label.3': 'Good',
-  'passwordStrengthMeter.label.4': 'Strong',
-  'passwordStrengthMeter.ariaValueText': 'Password strength: {{label}} ({{score}} of 4)',
-  'passwordStrengthMeter.rule.length': 'At least 12 characters',
-  'passwordStrengthMeter.rule.upper': 'Contains an uppercase letter',
-  'passwordStrengthMeter.rule.lower': 'Contains a lowercase letter',
-  'passwordStrengthMeter.rule.digit': 'Contains a digit',
-  'passwordStrengthMeter.rule.symbol': 'Contains a symbol',
-  'passwordStrengthMeter.rule.noCommon': 'Not a common password',
+  'passwordStrengthMeter.label.0': 'Vrlo slaba',
+  'passwordStrengthMeter.label.1': 'Slaba',
+  'passwordStrengthMeter.label.2': 'Osrednja',
+  'passwordStrengthMeter.label.3': 'Dobra',
+  'passwordStrengthMeter.label.4': 'Jaka',
+  'passwordStrengthMeter.ariaValueText': 'Jačina lozinke: {{label}} ({{score}} od 4)',
+  'passwordStrengthMeter.rule.length': 'Najmanje 12 znakova',
+  'passwordStrengthMeter.rule.upper': 'Sadrži veliko slovo',
+  'passwordStrengthMeter.rule.lower': 'Sadrži malo slovo',
+  'passwordStrengthMeter.rule.digit': 'Sadrži cifru',
+  'passwordStrengthMeter.rule.symbol': 'Sadrži simbol',
+  'passwordStrengthMeter.rule.noCommon': 'Nije uobičajena lozinka',
 }
