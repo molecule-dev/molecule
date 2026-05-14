@@ -219,27 +219,21 @@ export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps) {
 }
 
 /**
- * Two-column auth layout: a full-bleed brand panel beside the form-card
- * column. The dominant "decorated brand panel + card" shape across the
- * fleet's polished auth pages. Compose `<AuthShellPanel>` and
- * `<AuthShellCardColumn>` as the two children.
+ * Outer frame for the two-column "decorated brand panel + card" auth
+ * layout — the dominant shape across the fleet's polished auth pages.
  *
- * The panel content is inherently per-app (bespoke gradients, sample
- * cards, social proof) so it stays a slot; only the two-column frame +
- * column chrome are shared here.
+ * A `min-h-screen` vertical stack: compose an `<AuthShellSplitRow>` (the
+ * brand-panel + card-column row) as a child, and optionally a site
+ * `<Footer />` after it. The row flexes to fill, so the footer sits at
+ * the bottom.
  */
 export interface AuthShellSplitProps {
   children: ReactNode
   /** Extra classes on the outer container. */
   className?: string
-  /**
-   * Optional full-width node rendered below the two columns — typically
-   * the app's site `<Footer />`.
-   */
-  footerBelow?: ReactNode
 }
 
-export function AuthShellSplit({ children, className, footerBelow }: AuthShellSplitProps) {
+export function AuthShellSplit({ children, className }: AuthShellSplitProps) {
   const cm = getClassMap()
   return (
     <div
@@ -250,10 +244,26 @@ export function AuthShellSplit({ children, className, footerBelow }: AuthShellSp
         className,
       )}
     >
-      <div className={cm.cn(cm.flex1, cm.flex({}))}>{children}</div>
-      {footerBelow}
+      {children}
     </div>
   )
+}
+
+/**
+ * The flex-fill two-column row inside `<AuthShellSplit>` — compose
+ * `<AuthShellPanel>` and `<AuthShellCardColumn>` as its children. Split
+ * out from `<AuthShellSplit>` so a site `<Footer />` can sit below the
+ * row as a sibling child rather than a slot prop.
+ */
+export interface AuthShellSplitRowProps {
+  children: ReactNode
+  /** Extra classes on the row. */
+  className?: string
+}
+
+export function AuthShellSplitRow({ children, className }: AuthShellSplitRowProps) {
+  const cm = getClassMap()
+  return <div className={cm.cn(cm.flex1, cm.flex({}), className)}>{children}</div>
 }
 
 /**
