@@ -82,6 +82,13 @@ interface AuthClient<T = UserProfile> {
      */
     getUser(): T | null;
     /**
+     * Updates the cached user object (state + persistent storage) without
+     * hitting the network. Intended for local refreshes after a per-app
+     * mutation (e.g., the user just PATCHed their own profile and the
+     * server returned the canonical row). Does NOT change tokens.
+     */
+    setUser(user: T | null): void;
+    /**
      * Gets the current access token.
      */
     getAccessToken(): string | null;
@@ -702,6 +709,23 @@ interface ThemeProviderProps extends ProviderProps {
 }
 ```
 
+#### `UseAIModelsResult`
+
+Result returned by `useAIModels`.
+
+```typescript
+interface UseAIModelsResult {
+  /** Available models, or an empty array while loading. */
+  models: AppModelDefinition[]
+  /** The single model marked `freeTier: true`, or `undefined`. */
+  freeTierModel: AppModelDefinition | undefined
+  /** `true` while the initial fetch is in flight. */
+  loading: boolean
+  /** Error from the initial fetch, or `null`. */
+  error: Error | null
+}
+```
+
 #### `UseAuthOptions`
 
 Hook options for useAuth.
@@ -726,6 +750,7 @@ interface UseAuthResult<T = unknown> {
   logout: AuthClient<T>['logout']
   register: AuthClient<T>['register']
   refresh: AuthClient<T>['refresh']
+  setUser: AuthClient<T>['setUser']
   isAuthenticated: boolean
   isLoading: boolean
   user: T | null
@@ -1220,6 +1245,26 @@ type UseCapacitorAppResult = CapacitorAppState & {
 ```
 
 ### Functions
+
+#### `resetAIModelsCache()`
+
+Test-only: drops the cached model list so the next `useAIModels` call
+refetches. Exposed for unit tests; do not call from production code.
+
+```typescript
+function resetAIModelsCache(): void
+```
+
+#### `useAIModels()`
+
+Subscribes to the cached AI model catalog. The first mount triggers a single
+`GET /ai/models` fetch; subsequent mounts return the cached result.
+
+```typescript
+function useAIModels(): UseAIModelsResult
+```
+
+**Returns:** Models, free-tier model, loading flag, and error.
 
 #### `useAsyncState(initialState)`
 
@@ -2054,6 +2099,7 @@ const WorkspaceContext: Context<WorkspaceProvider | null>
 
 Peer dependencies:
 - `@molecule/app-auth` ^1.0.0
+- `@molecule/app-ai-models` ^1.0.0
 - `@molecule/app-forms` ^1.0.0
 - `@molecule/app-utilities` ^1.0.0
 - `@molecule/app-http` ^1.0.0
