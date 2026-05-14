@@ -115,6 +115,15 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       // named 'default'" runtime errors. Force-include them so vite
       // pre-bundles with proper CJS→ESM interop.
       include: [
+        // react / react-dom are CJS proxy modules (`module.exports =
+        // require('./cjs/...')`); vite 8's optimizer needs them listed
+        // explicitly to expose named exports like `createRoot` to the
+        // excluded (@molecule/*) packages that import them.
+        'react',
+        'react-dom',
+        'react-dom/client',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
         'void-elements',
         'html-parse-stringify',
         'use-sync-external-store',
