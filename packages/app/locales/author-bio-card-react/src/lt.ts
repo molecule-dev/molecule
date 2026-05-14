@@ -1,17 +1,17 @@
 import type { AuthorBioCardTranslations } from './types.js'
 
-/** Author-bio-card translations for Lithuanian (TODO: translate). */
+/** Author-bio-card translations for Lithuanian. */
 export const lt: AuthorBioCardTranslations = {
-  'authorBioCard.follow': 'Follow',
-  'authorBioCard.following': 'Following',
+  'authorBioCard.follow': 'Sekti',
+  'authorBioCard.following': 'Sekama',
   'authorBioCard.social.twitter.label': 'Twitter',
   'authorBioCard.social.github.label': 'GitHub',
   'authorBioCard.social.linkedin.label': 'LinkedIn',
   'authorBioCard.social.mastodon.label': 'Mastodon',
-  'authorBioCard.social.website.label': 'Website',
-  'authorBioCard.social.twitter': '{{name}} on Twitter',
-  'authorBioCard.social.github': '{{name}} on GitHub',
-  'authorBioCard.social.linkedin': '{{name}} on LinkedIn',
-  'authorBioCard.social.mastodon': '{{name}} on Mastodon',
-  'authorBioCard.social.website': "{{name}}'s website",
+  'authorBioCard.social.website.label': 'Svetainė',
+  'authorBioCard.social.twitter': '{{name}} platformoje Twitter',
+  'authorBioCard.social.github': '{{name}} platformoje GitHub',
+  'authorBioCard.social.linkedin': '{{name}} platformoje LinkedIn',
+  'authorBioCard.social.mastodon': '{{name}} platformoje Mastodon',
+  'authorBioCard.social.website': '{{name}} svetainė',
 }

@@ -1,17 +1,17 @@
 import type { AuthorBioCardTranslations } from './types.js'
 
-/** Author-bio-card translations for Welsh (TODO: translate). */
+/** Author-bio-card translations for Welsh. */
 export const cy: AuthorBioCardTranslations = {
-  'authorBioCard.follow': 'Follow',
-  'authorBioCard.following': 'Following',
+  'authorBioCard.follow': 'Dilyn',
+  'authorBioCard.following': 'Yn dilyn',
   'authorBioCard.social.twitter.label': 'Twitter',
   'authorBioCard.social.github.label': 'GitHub',
   'authorBioCard.social.linkedin.label': 'LinkedIn',
   'authorBioCard.social.mastodon.label': 'Mastodon',
-  'authorBioCard.social.website.label': 'Website',
-  'authorBioCard.social.twitter': '{{name}} on Twitter',
-  'authorBioCard.social.github': '{{name}} on GitHub',
-  'authorBioCard.social.linkedin': '{{name}} on LinkedIn',
-  'authorBioCard.social.mastodon': '{{name}} on Mastodon',
-  'authorBioCard.social.website': "{{name}}'s website",
+  'authorBioCard.social.website.label': 'Gwefan',
+  'authorBioCard.social.twitter': '{{name}} ar Twitter',
+  'authorBioCard.social.github': '{{name}} ar GitHub',
+  'authorBioCard.social.linkedin': '{{name}} ar LinkedIn',
+  'authorBioCard.social.mastodon': '{{name}} ar Mastodon',
+  'authorBioCard.social.website': 'Gwefan {{name}}',
 }

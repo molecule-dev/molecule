@@ -1,17 +1,17 @@
 import type { AuthorBioCardTranslations } from './types.js'
 
-/** Author-bio-card translations for Tamil (TODO: translate). */
+/** Author-bio-card translations for Tamil. */
 export const ta: AuthorBioCardTranslations = {
-  'authorBioCard.follow': 'Follow',
-  'authorBioCard.following': 'Following',
+  'authorBioCard.follow': 'பின்தொடர்',
+  'authorBioCard.following': 'பின்தொடர்கிறீர்கள்',
   'authorBioCard.social.twitter.label': 'Twitter',
   'authorBioCard.social.github.label': 'GitHub',
   'authorBioCard.social.linkedin.label': 'LinkedIn',
   'authorBioCard.social.mastodon.label': 'Mastodon',
-  'authorBioCard.social.website.label': 'Website',
-  'authorBioCard.social.twitter': '{{name}} on Twitter',
-  'authorBioCard.social.github': '{{name}} on GitHub',
-  'authorBioCard.social.linkedin': '{{name}} on LinkedIn',
-  'authorBioCard.social.mastodon': '{{name}} on Mastodon',
-  'authorBioCard.social.website': "{{name}}'s website",
+  'authorBioCard.social.website.label': 'வலைத்தளம்',
+  'authorBioCard.social.twitter': 'Twitter இல் {{name}}',
+  'authorBioCard.social.github': 'GitHub இல் {{name}}',
+  'authorBioCard.social.linkedin': 'LinkedIn இல் {{name}}',
+  'authorBioCard.social.mastodon': 'Mastodon இல் {{name}}',
+  'authorBioCard.social.website': '{{name}} இன் வலைத்தளம்',
 }

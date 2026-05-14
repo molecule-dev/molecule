@@ -1,17 +1,17 @@
 import type { AuthorBioCardTranslations } from './types.js'
 
-/** Author-bio-card translations for Maltese (TODO: translate). */
+/** Author-bio-card translations for Maltese. */
 export const mt: AuthorBioCardTranslations = {
-  'authorBioCard.follow': 'Follow',
-  'authorBioCard.following': 'Following',
+  'authorBioCard.follow': 'Segwi',
+  'authorBioCard.following': 'Qed issegwi',
   'authorBioCard.social.twitter.label': 'Twitter',
   'authorBioCard.social.github.label': 'GitHub',
   'authorBioCard.social.linkedin.label': 'LinkedIn',
   'authorBioCard.social.mastodon.label': 'Mastodon',
-  'authorBioCard.social.website.label': 'Website',
-  'authorBioCard.social.twitter': '{{name}} on Twitter',
-  'authorBioCard.social.github': '{{name}} on GitHub',
-  'authorBioCard.social.linkedin': '{{name}} on LinkedIn',
-  'authorBioCard.social.mastodon': '{{name}} on Mastodon',
-  'authorBioCard.social.website': "{{name}}'s website",
+  'authorBioCard.social.website.label': 'Websajt',
+  'authorBioCard.social.twitter': '{{name}} fuq Twitter',
+  'authorBioCard.social.github': '{{name}} fuq GitHub',
+  'authorBioCard.social.linkedin': '{{name}} fuq LinkedIn',
+  'authorBioCard.social.mastodon': '{{name}} fuq Mastodon',
+  'authorBioCard.social.website': "Il-websajt ta' {{name}}",
 }

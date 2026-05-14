@@ -1,17 +1,17 @@
 import type { AuthorBioCardTranslations } from './types.js'
 
-/** Author-bio-card translations for Amharic (TODO: translate). */
+/** Author-bio-card translations for Amharic. */
 export const am: AuthorBioCardTranslations = {
-  'authorBioCard.follow': 'Follow',
-  'authorBioCard.following': 'Following',
+  'authorBioCard.follow': 'ተከተል',
+  'authorBioCard.following': 'በመከተል ላይ',
   'authorBioCard.social.twitter.label': 'Twitter',
   'authorBioCard.social.github.label': 'GitHub',
   'authorBioCard.social.linkedin.label': 'LinkedIn',
   'authorBioCard.social.mastodon.label': 'Mastodon',
-  'authorBioCard.social.website.label': 'Website',
-  'authorBioCard.social.twitter': '{{name}} on Twitter',
-  'authorBioCard.social.github': '{{name}} on GitHub',
-  'authorBioCard.social.linkedin': '{{name}} on LinkedIn',
-  'authorBioCard.social.mastodon': '{{name}} on Mastodon',
-  'authorBioCard.social.website': "{{name}}'s website",
+  'authorBioCard.social.website.label': 'ድር ጣቢያ',
+  'authorBioCard.social.twitter': '{{name}} በTwitter ላይ',
+  'authorBioCard.social.github': '{{name}} በGitHub ላይ',
+  'authorBioCard.social.linkedin': '{{name}} በLinkedIn ላይ',
+  'authorBioCard.social.mastodon': '{{name}} በMastodon ላይ',
+  'authorBioCard.social.website': 'የ{{name}} ድር ጣቢያ',
 }

@@ -1,17 +1,17 @@
 import type { AuthorBioCardTranslations } from './types.js'
 
-/** Author-bio-card translations for Estonian (TODO: translate). */
+/** Author-bio-card translations for Estonian. */
 export const et: AuthorBioCardTranslations = {
-  'authorBioCard.follow': 'Follow',
-  'authorBioCard.following': 'Following',
+  'authorBioCard.follow': 'Jälgi',
+  'authorBioCard.following': 'Jälgitud',
   'authorBioCard.social.twitter.label': 'Twitter',
   'authorBioCard.social.github.label': 'GitHub',
   'authorBioCard.social.linkedin.label': 'LinkedIn',
   'authorBioCard.social.mastodon.label': 'Mastodon',
-  'authorBioCard.social.website.label': 'Website',
-  'authorBioCard.social.twitter': '{{name}} on Twitter',
-  'authorBioCard.social.github': '{{name}} on GitHub',
-  'authorBioCard.social.linkedin': '{{name}} on LinkedIn',
-  'authorBioCard.social.mastodon': '{{name}} on Mastodon',
-  'authorBioCard.social.website': "{{name}}'s website",
+  'authorBioCard.social.website.label': 'Veebisait',
+  'authorBioCard.social.twitter': '{{name}} platvormil Twitter',
+  'authorBioCard.social.github': '{{name}} platvormil GitHub',
+  'authorBioCard.social.linkedin': '{{name}} platvormil LinkedIn',
+  'authorBioCard.social.mastodon': '{{name}} platvormil Mastodon',
+  'authorBioCard.social.website': '{{name}} veebisait',
 }
