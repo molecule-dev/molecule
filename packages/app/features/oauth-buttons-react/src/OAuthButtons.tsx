@@ -14,18 +14,19 @@ import { dedupeProviders, getProviderLabel } from './labels.js'
 import type { OAuthButtonsProps } from './types.js'
 
 /**
- * Renders one styled, brand-themed button per OAuth provider.
+ * Renders one styled button per OAuth provider.
  *
  * Composes the canonical brand logos from
  * `@molecule/app-oauth-logos-react` and pulls layout / chrome from
  * the wired ClassMap (`cm.oauthButtonGroup`, `cm.oauthButton`,
- * `cm.oauthButtonIcon`). Brand colors are applied via inline `style`
- * because they are exact spec colors that ClassMap intentionally does
- * not encode (each provider's developer guidelines mandate them).
+ * `cm.oauthButtonIcon`). When `brandButtons` is set, each button also
+ * gets its provider's exact brand-spec background via inline `style`
+ * (ClassMap intentionally does not encode provider brand colors).
  *
- * Replaces the bespoke `OAuthButtons.tsx` shipped by every flagship
- * Login / Signup page today — those re-implementations all reduced
- * to the same row, just with subtly different gaps and label keys.
+ * This is the lower-level primitive — host apps that have an
+ * `oauthConfig` object typically use the config-driven
+ * `<OAuthButtons>` from `@molecule/app-auth-ui-react`, which composes
+ * this row plus `<OAuthDivider>`.
  *
  * @param props - See `OAuthButtonsProps`.
  *
@@ -55,6 +56,7 @@ export function OAuthButtons({
   layout = 'horizontal',
   iconSize = 30,
   iconMode = 'brand',
+  brandButtons = false,
   showLabels = false,
   className,
 }: OAuthButtonsProps) {
@@ -68,50 +70,43 @@ export function OAuthButtons({
   const buttonStyle = getButtonLayoutStyle(layout)
 
   return (
-    <div className={className}>
-      <div
-        className={cm.oauthButtonGroup}
-        role="group"
-        aria-label={t('oauthButtons.groupLabel', undefined, {
-          defaultValue: 'Continue with another account',
-        })}
-        style={wrapperStyle}
-        data-mol-id="oauth-buttons"
-        data-layout={layout}
-      >
-        {ordered.map((provider) => {
-          const label = getProviderLabel(provider)
-          const localizedName = t(label.key, undefined, { defaultValue: label.default })
-          const brandStyle = iconMode === 'brand' ? getBrandStyle(provider) : {}
-          const ariaLabel = t(
-            'oauthButtons.continueWith',
-            { provider: localizedName },
-            { defaultValue: 'Continue with {{provider}}' },
-          )
-          return (
-            <button
-              key={provider}
-              type="button"
-              onClick={onSelect ? () => onSelect(provider) : undefined}
-              aria-label={ariaLabel}
-              className={cm.oauthButton}
-              data-mol-id={`oauth-button-${provider}`}
-              data-provider={provider}
-              style={{ ...brandStyle, ...buttonStyle }}
-            >
-              <span className={cm.oauthButtonIcon}>
-                <OAuthProviderLogo
-                  provider={provider}
-                  size={iconSize}
-                  mode={iconMode}
-                  ariaLabel=""
-                />
-              </span>
-              {showLabels && <span className={cm.oauthProviderLabel}>{localizedName}</span>}
-            </button>
-          )
-        })}
-      </div>
+    <div
+      className={cm.cn(cm.oauthButtonGroup, className)}
+      role="group"
+      aria-label={t('oauthButtons.groupLabel', undefined, {
+        defaultValue: 'Continue with another account',
+      })}
+      style={wrapperStyle}
+      data-mol-id="oauth-buttons"
+      data-layout={layout}
+    >
+      {ordered.map((provider) => {
+        const label = getProviderLabel(provider)
+        const localizedName = t(label.key, undefined, { defaultValue: label.default })
+        const brandStyle = brandButtons ? getBrandStyle(provider) : {}
+        const ariaLabel = t(
+          'oauthButtons.continueWith',
+          { provider: localizedName },
+          { defaultValue: 'Continue with {{provider}}' },
+        )
+        return (
+          <button
+            key={provider}
+            type="button"
+            onClick={onSelect ? () => onSelect(provider) : undefined}
+            aria-label={ariaLabel}
+            className={cm.oauthButton}
+            data-mol-id={`oauth-button-${provider}`}
+            data-provider={provider}
+            style={{ ...brandStyle, ...buttonStyle }}
+          >
+            <span className={cm.oauthButtonIcon}>
+              <OAuthProviderLogo provider={provider} size={iconSize} mode={iconMode} ariaLabel="" />
+            </span>
+            {showLabels && <span className={cm.oauthProviderLabel}>{localizedName}</span>}
+          </button>
+        )
+      })}
     </div>
   )
 }

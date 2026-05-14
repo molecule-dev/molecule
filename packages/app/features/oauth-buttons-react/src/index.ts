@@ -13,11 +13,16 @@
  *   from their auth bond.
  * - `layout` toggles `'horizontal' | 'vertical' | 'grid'` — the grid
  *   variant auto-paginates into a 2-column layout above 4 providers.
- * - Brand-spec backgrounds (`#fff` for Google, `#24292f` for GitHub,
- *   etc.) are applied inline because they are exact provider-mandated
- *   color tokens that ClassMap intentionally does not encode. Layout,
- *   padding, radius, and chrome all come from the wired ClassMap
- *   (`cm.oauthButtonGroup`, `cm.oauthButton`, `cm.oauthButtonIcon`).
+ * - `brandButtons` opt-in paints each button with its provider's exact
+ *   brand-spec background (`#fff` for Google, `#24292f` for GitHub,
+ *   etc.) via inline `style` — those are provider-mandated color tokens
+ *   ClassMap intentionally does not encode. It is independent of
+ *   `iconMode` (logo color). Layout, padding, radius, and chrome all
+ *   come from the wired ClassMap (`cm.oauthButtonGroup`,
+ *   `cm.oauthButton`, `cm.oauthButtonIcon`).
+ * - `<OAuthDivider>` is the composable "or continue with" rule — the
+ *   config-driven `<OAuthButtons>` in `@molecule/app-auth-ui-react`
+ *   composes it above this row.
  *
  * Companion locale bond:
  * `@molecule/app-locales-oauth-buttons-react` (79 languages).
@@ -48,4 +53,5 @@ export * from './brand-styles.js'
 export * from './labels.js'
 export * from './layout.js'
 export * from './OAuthButtons.js'
+export * from './OAuthDivider.js'
 export * from './types.js'

@@ -10,6 +10,10 @@ vi.mock('@molecule/app-ui', () => ({
     oauthButton: 'cm-oauthButton',
     oauthButtonIcon: 'cm-oauthButtonIcon',
     oauthProviderLabel: 'cm-oauthProviderLabel',
+    oauthDivider: 'cm-oauthDivider',
+    oauthDividerLine: 'cm-oauthDividerLine',
+    oauthDividerText: 'cm-oauthDividerText',
+    cn: (...cls: unknown[]) => cls.filter((c) => typeof c === 'string' && c.length > 0).join(' '),
   }),
 }))
 
@@ -35,6 +39,7 @@ vi.mock('@molecule/app-react', () => ({
 }))
 
 import { OAuthButtons } from '../OAuthButtons.js'
+import { OAuthDivider } from '../OAuthDivider.js'
 
 describe('<OAuthButtons />', () => {
   it('renders one <button> per provider with provider data attributes', () => {
@@ -59,6 +64,18 @@ describe('<OAuthButtons />', () => {
     render(<OAuthButtons providers={['github', 'google']} onSelect={onSelect} />)
     fireEvent.click(screen.getByRole('button', { name: /Continue with GitHub/ }))
     expect(onSelect).toHaveBeenCalledExactlyOnceWith('github')
+  })
+
+  it('renders the group as the root element (no redundant wrapper div)', () => {
+    const { container } = render(<OAuthButtons providers={['google']} />)
+    expect((container.firstChild as HTMLElement)?.dataset.molId).toBe('oauth-buttons')
+  })
+
+  it('composes className onto the button-group element', () => {
+    const { container } = render(<OAuthButtons providers={['google']} className="extra-cls" />)
+    const group = container.querySelector('[data-mol-id="oauth-buttons"]') as HTMLElement
+    expect(group.className).toContain('cm-oauthButtonGroup')
+    expect(group.className).toContain('extra-cls')
   })
 
   it('renders horizontal layout by default (no inline grid override)', () => {
@@ -89,15 +106,17 @@ describe('<OAuthButtons />', () => {
     }
   })
 
-  it('applies brand-spec inline background colors in brand mode', () => {
-    const { container } = render(<OAuthButtons providers={['github']} iconMode="brand" />)
+  it('applies brand-spec inline background colors when brandButtons is set', () => {
+    const { container } = render(<OAuthButtons providers={['github']} brandButtons />)
     const button = container.querySelector('button[data-provider="github"]') as HTMLElement
     // jsdom normalizes hex colors to rgb() — check for either form.
     expect(button.style.background.toLowerCase()).toMatch(/#24292f|rgb\(36,\s*41,\s*47\)/)
   })
 
-  it('omits brand colors in mono mode (lets ClassMap drive)', () => {
-    const { container } = render(<OAuthButtons providers={['github']} iconMode="mono" />)
+  it('omits brand colors by default — independent of iconMode', () => {
+    // iconMode controls the logo, not the button surface: brand-mode
+    // logos still get a ClassMap-neutral button unless brandButtons is set.
+    const { container } = render(<OAuthButtons providers={['github']} iconMode="brand" />)
     const button = container.querySelector('button[data-provider="github"]') as HTMLElement
     expect(button.style.background).toBe('')
   })
@@ -110,5 +129,24 @@ describe('<OAuthButtons />', () => {
   it('hides provider labels by default (icon-only row)', () => {
     render(<OAuthButtons providers={['google']} />)
     expect(screen.queryByText('Google')).toBeNull()
+  })
+})
+
+describe('<OAuthDivider />', () => {
+  it('renders the default "or continue with" label', () => {
+    render(<OAuthDivider />)
+    expect(screen.getByText('or continue with')).toBeDefined()
+  })
+
+  it('honours a custom label default', () => {
+    render(<OAuthDivider labelDefault="sign in with" />)
+    expect(screen.getByText('sign in with')).toBeDefined()
+  })
+
+  it('composes className onto the divider wrapper', () => {
+    const { container } = render(<OAuthDivider className="extra-cls" />)
+    const wrapper = container.firstChild as HTMLElement
+    expect(wrapper.className).toContain('cm-oauthDivider')
+    expect(wrapper.className).toContain('extra-cls')
   })
 })
