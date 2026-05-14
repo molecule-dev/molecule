@@ -224,12 +224,17 @@ describe('delay step', () => {
       triggers: { t: async () => ({}) },
       actions: {},
     })
+    const ms = 5
     const start = Date.now()
     const run = await engine.execute({
       trigger: 't',
-      steps: [{ type: 'delay', ms: 5 }],
+      steps: [{ type: 'delay', ms }],
     })
-    expect(Date.now() - start).toBeGreaterThanOrEqual(5)
+    // `Date.now()` is millisecond-truncated, so a real 5ms wait can measure
+    // as 4ms when `start` is captured mid-millisecond — assert `ms - 1` to
+    // keep the "the delay genuinely blocked" intent without the off-by-one
+    // flake.
+    expect(Date.now() - start).toBeGreaterThanOrEqual(ms - 1)
     expect(run.trace[0].outcome).toBe('executed')
   })
 })
