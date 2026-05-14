@@ -22,16 +22,22 @@ export default defineConfig({
       'packages/api/utilities/*/vitest.config.ts',
       'packages/api/testing/vitest.config.ts',
       'packages/api/ci/*/vitest.config.ts',
+      'packages/api/staging/*/vitest.config.ts',
 
       // App packages
       'packages/app/core/*/vitest.config.ts',
       'packages/app/bonds/*/*/vitest.config.ts',
       'packages/app/bonds/native/*/*/vitest.config.ts',
+      'packages/app/infrastructure/*/vitest.config.ts',
       'packages/app/features/*/vitest.config.ts',
       'packages/app/native/*/vitest.config.ts',
 
       // App framework packages
       'packages/app/frameworks/*/vitest.config.ts',
+
+      // Locale bond packages
+      'packages/api/locales/*/vitest.config.ts',
+      'packages/app/locales/*/vitest.config.ts',
 
       // (No catchall project — each package's own vitest.config.ts
       // declares its environment, mocks, and includes. monaco-editor and
