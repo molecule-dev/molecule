@@ -32,7 +32,7 @@
     "react": "19.2.6",
     "react-router": "7.15.1",
     "react-router-dom": "7.15.1",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "vitest": "4.1.6"
   },
   "repository": {

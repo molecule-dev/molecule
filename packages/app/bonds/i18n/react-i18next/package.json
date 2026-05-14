@@ -29,14 +29,14 @@
   "license": "MIT",
   "dependencies": {
     "@molecule/app-i18n-i18next": "1.0.0",
-    "i18next": "25.8.13",
-    "react-i18next": "16.5.4"
+    "i18next": "26.1.0",
+    "react-i18next": "17.0.7"
   },
   "devDependencies": {
     "@types/node": "25.8.0",
     "@types/react": "19.2.14",
     "react": "19.2.6",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "vitest": "4.1.6"
   },
   "peerDependencies": {
