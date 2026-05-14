@@ -61,6 +61,10 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       ],
     },
     workbox: {
+      // vite-plugin-pwa defaults this to 2 MiB; apps that bundle heavy
+      // deps (e.g. a Monaco-based code editor) ship a >2 MiB entry chunk
+      // and fail the build outright. 5 MiB gives the fleet headroom.
+      maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
       runtimeCaching: [
         {
