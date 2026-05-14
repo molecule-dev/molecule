@@ -1,0 +1,403 @@
+# @molecule/api-notification-center
+
+Notification center core interface for molecule.dev.
+
+Defines the standard interface for in-app notification management
+providers (database-backed, etc.).
+
+## Quick Start
+
+```typescript
+import { setProvider, send, getAll, markRead } from '@molecule/api-notification-center'
+
+// Bond a provider at startup
+setProvider(databaseProvider)
+
+// Send a notification
+const notification = await send('user-123', {
+  type: 'system',
+  title: 'Welcome!',
+  body: 'Your account is ready.',
+})
+
+// List unread notifications
+const { items } = await getAll('user-123', { read: false })
+
+// Mark as read
+await markRead(notification.id)
+```
+
+## Type
+`core`
+
+## Installation
+```bash
+npm install @molecule/api-notification-center
+```
+
+## API
+
+### Interfaces
+
+#### `BulkNotification`
+
+A bulk notification targeting a specific user.
+
+```typescript
+interface BulkNotification {
+  /** The target user. */
+  userId: string
+
+  /** The notification to send. */
+  notification: CreateNotification
+}
+```
+
+#### `CreateNotification`
+
+Data required to create a new notification.
+
+```typescript
+interface CreateNotification {
+  /** Notification category. */
+  type: string
+
+  /** Notification headline. */
+  title: string
+
+  /** Notification body text. */
+  body: string
+
+  /** Arbitrary structured data to attach. */
+  data?: Record<string, unknown>
+
+  /** Delivery channels for this notification. Defaults to `['inApp']`. */
+  channels?: ('inApp' | 'email' | 'push' | 'sms')[]
+}
+```
+
+#### `Notification`
+
+An in-app notification.
+
+```typescript
+interface Notification {
+  /** Provider-assigned notification identifier. */
+  id: string
+
+  /** The user this notification belongs to. */
+  userId: string
+
+  /** Notification category (e.g. 'system', 'message', 'alert'). */
+  type: string
+
+  /** Notification headline. */
+  title: string
+
+  /** Notification body text. */
+  body: string
+
+  /** Whether the notification has been read. */
+  read: boolean
+
+  /** Arbitrary structured data attached to the notification. */
+  data?: Record<string, unknown>
+
+  /** When the notification was created. */
+  createdAt: Date
+}
+```
+
+#### `NotificationCenterProvider`
+
+Notification center provider interface.
+
+All notification center providers must implement this interface to provide
+in-app notification CRUD, read status management, and user preferences.
+
+```typescript
+interface NotificationCenterProvider {
+  /**
+   * Sends a notification to a specific user.
+   *
+   * @param userId - The target user identifier.
+   * @param notification - The notification to create.
+   * @returns The created notification.
+   */
+  send(userId: string, notification: CreateNotification): Promise<Notification>
+
+  /**
+   * Sends notifications to multiple users in a single batch.
+   *
+   * @param notifications - Array of user-targeted notifications.
+   * @returns The created notifications.
+   */
+  sendBulk(notifications: BulkNotification[]): Promise<Notification[]>
+
+  /**
+   * Retrieves all notifications for a user with optional filtering.
+   *
+   * @param userId - The user to retrieve notifications for.
+   * @param options - Optional query filters and pagination.
+   * @returns Paginated notification results.
+   */
+  getAll(userId: string, options?: NotificationQuery): Promise<PaginatedResult<Notification>>
+
+  /**
+   * Returns the count of unread notifications for a user.
+   *
+   * @param userId - The user to count unread notifications for.
+   * @returns The unread notification count.
+   */
+  getUnreadCount(userId: string): Promise<number>
+
+  /**
+   * Marks a single notification as read.
+   *
+   * @param notificationId - The notification to mark as read.
+   */
+  markRead(notificationId: string): Promise<void>
+
+  /**
+   * Marks all notifications for a user as read.
+   *
+   * @param userId - The user whose notifications should be marked read.
+   */
+  markAllRead(userId: string): Promise<void>
+
+  /**
+   * Deletes a notification.
+   *
+   * @param notificationId - The notification to delete.
+   */
+  delete(notificationId: string): Promise<void>
+
+  /**
+   * Retrieves notification preferences for a user.
+   *
+   * @param userId - The user to retrieve preferences for.
+   * @returns The user's notification preferences.
+   */
+  getPreferences(userId: string): Promise<NotificationPreferences>
+
+  /**
+   * Updates notification preferences for a user.
+   *
+   * @param userId - The user to update preferences for.
+   * @param preferences - The preferences to merge.
+   */
+  setPreferences(userId: string, preferences: Partial<NotificationPreferences>): Promise<void>
+}
+```
+
+#### `NotificationPreferences`
+
+User notification preferences.
+
+```typescript
+interface NotificationPreferences {
+  /** Whether email notifications are enabled. */
+  email: boolean
+
+  /** Whether push notifications are enabled. */
+  push: boolean
+
+  /** Whether SMS notifications are enabled. */
+  sms: boolean
+
+  /** Per-channel or per-type overrides. */
+  channels: Record<string, boolean>
+}
+```
+
+#### `NotificationQuery`
+
+Query options for listing notifications.
+
+```typescript
+interface NotificationQuery {
+  /** Maximum number of results to return. */
+  limit?: number
+
+  /** Number of results to skip. */
+  offset?: number
+
+  /** Filter by read status. */
+  read?: boolean
+
+  /** Filter by notification type. */
+  type?: string
+}
+```
+
+#### `PaginatedResult`
+
+Paginated result set.
+
+```typescript
+interface PaginatedResult<T> {
+  /** The result items for this page. */
+  items: T[]
+
+  /** Total number of matching items. */
+  total: number
+
+  /** Number of items skipped. */
+  offset: number
+
+  /** Maximum items per page. */
+  limit: number
+}
+```
+
+### Functions
+
+#### `deleteNotification(notificationId)`
+
+Deletes a notification.
+
+```typescript
+function deleteNotification(notificationId: string): Promise<void>
+```
+
+- `notificationId` — The notification to delete.
+
+**Returns:** Resolves when the notification has been deleted.
+
+#### `getAll(userId, options)`
+
+Retrieves all notifications for a user with optional filtering.
+
+```typescript
+function getAll(userId: string, options?: NotificationQuery): Promise<PaginatedResult<Notification>>
+```
+
+- `userId` — The user to retrieve notifications for.
+- `options` — Optional query filters and pagination.
+
+**Returns:** Paginated notification results.
+
+#### `getPreferences(userId)`
+
+Retrieves notification preferences for a user.
+
+```typescript
+function getPreferences(userId: string): Promise<NotificationPreferences>
+```
+
+- `userId` — The user to retrieve preferences for.
+
+**Returns:** The user's notification preferences.
+
+#### `getProvider()`
+
+Retrieves the bonded notification center provider, throwing if none is configured.
+
+```typescript
+function getProvider(): NotificationCenterProvider
+```
+
+**Returns:** The bonded notification center provider.
+
+#### `getUnreadCount(userId)`
+
+Returns the count of unread notifications for a user.
+
+```typescript
+function getUnreadCount(userId: string): Promise<number>
+```
+
+- `userId` — The user to count unread notifications for.
+
+**Returns:** The unread notification count.
+
+#### `hasProvider()`
+
+Checks whether a notification center provider is currently bonded.
+
+```typescript
+function hasProvider(): boolean
+```
+
+**Returns:** `true` if a notification center provider is bonded.
+
+#### `markAllRead(userId)`
+
+Marks all notifications for a user as read.
+
+```typescript
+function markAllRead(userId: string): Promise<void>
+```
+
+- `userId` — The user whose notifications should be marked read.
+
+**Returns:** Resolves when all notifications have been marked read.
+
+#### `markRead(notificationId)`
+
+Marks a single notification as read.
+
+```typescript
+function markRead(notificationId: string): Promise<void>
+```
+
+- `notificationId` — The notification to mark as read.
+
+**Returns:** Resolves when the notification has been marked read.
+
+#### `send(userId, notification)`
+
+Sends a notification to a specific user.
+
+```typescript
+function send(userId: string, notification: CreateNotification): Promise<Notification>
+```
+
+- `userId` — The target user identifier.
+- `notification` — The notification to create.
+
+**Returns:** The created notification.
+
+#### `sendBulk(notifications)`
+
+Sends notifications to multiple users in a single batch.
+
+```typescript
+function sendBulk(notifications: BulkNotification[]): Promise<Notification[]>
+```
+
+- `notifications` — Array of user-targeted notifications.
+
+**Returns:** The created notifications.
+
+#### `setPreferences(userId, preferences)`
+
+Updates notification preferences for a user.
+
+```typescript
+function setPreferences(userId: string, preferences: Partial<NotificationPreferences>): Promise<void>
+```
+
+- `userId` — The user to update preferences for.
+- `preferences` — The preferences to merge.
+
+**Returns:** Resolves when preferences have been updated.
+
+#### `setProvider(provider)`
+
+Registers a notification center provider as the active singleton. Called
+by bond packages during application startup.
+
+```typescript
+function setProvider(provider: NotificationCenterProvider): void
+```
+
+- `provider` — The notification center provider implementation to bond.
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/api-bond` ^1.0.0
+- `@molecule/api-i18n` ^1.0.0

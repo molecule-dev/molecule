@@ -1,63 +1,111 @@
 # @molecule/api-drug-database-rxnorm
 
-RxNorm drug-database provider — NIH NLM keyless free API.
+RxNorm drug-database provider for molecule.dev.
 
-## Type
-`bond` (provider for `@molecule/api-drug-database`)
+Implements the `DrugDatabaseProvider` interface against the public
+NIH National Library of Medicine RxNav REST API at
+`https://rxnav.nlm.nih.gov/REST/`. The endpoint is keyless and free
+for any use.
 
-## Public API
+The NLM is deprecating the RxNorm interactions endpoint
+(`/interaction/list.json`); this provider degrades gracefully, mapping
+`404` / `410` / `503` responses from that endpoint onto an empty
+`DrugInteraction[]` rather than throwing.
 
-```ts
-import { provider, createProvider } from '@molecule/api-drug-database-rxnorm'
-import type { RxNormConfig } from '@molecule/api-drug-database-rxnorm'
+## Quick Start
 
+```typescript
 import { setProvider } from '@molecule/api-drug-database'
+import { provider } from '@molecule/api-drug-database-rxnorm'
 
 setProvider(provider)
 ```
 
-- `provider` — lazily-initialized default provider, configured from
-  `RXNORM_BASE_URL` (defaults to `https://rxnav.nlm.nih.gov/REST`).
-- `createProvider(config?)` — explicit factory for tests / multi-tenant
-  apps that need their own client.
+## Type
+`provider`
 
-## Endpoint mapping
+## Installation
+```bash
+npm install @molecule/api-drug-database-rxnorm
+```
 
-- `searchDrug(query)` → `GET /drugs.json?name=...`
-- `getDrug(id)` → `GET /rxcui/:id/properties.json` + companion
-  `GET /rxcui/:id/related.json?tty=IN+SBD+SCD+DF+BN`
-- `checkInteractions(drugIds)` → `GET /interaction/list.json?rxcuis=...`
-- `getNDCs(drugId)` → `GET /rxcui/:id/ndcs.json`
+## API
 
-## Deprecation Notice
+### Interfaces
 
-The NIH NLM is deprecating the RxNorm interactions endpoint
-(`/interaction/list.json`). This provider degrades gracefully — a
-`404` / `410` / `503` response from that endpoint resolves to `[]` rather
-than throwing. Application code MUST treat an empty
-`checkInteractions` result as "no interactions reported by this
-provider", NOT a clinical guarantee.
+#### `RxNormConfig`
 
-Production apps that need authoritative interaction data should layer a
-clinical-grade provider (First Databank, Lexicomp, Wolters Kluwer) on
-top of this bond — the core `DrugDatabaseProvider` interface accepts any
-implementation.
+Configuration options for the RxNorm drug-database provider.
+
+The NIH National Library of Medicine RxNav REST API at
+`https://rxnav.nlm.nih.gov/REST/` is keyless and free for any use, so
+all fields are optional.
+
+```typescript
+interface RxNormConfig {
+  /**
+   * Base URL override. Defaults to `'https://rxnav.nlm.nih.gov/REST'`.
+   *
+   * The trailing `/REST` segment is part of the base URL — endpoints are
+   * appended without a leading slash duplicate. Trailing slashes on the
+   * supplied value are tolerated (and stripped).
+   */
+  baseUrl?: string
+
+  /**
+   * Request timeout in milliseconds. Defaults to `10000`.
+   */
+  timeout?: number
+}
+```
+
+### Functions
+
+#### `createProvider(config)`
+
+Creates an RxNorm drug-database provider.
+
+```typescript
+function createProvider(config?: RxNormConfig): DrugDatabaseProvider
+```
+
+- `config` — Provider configuration. All fields are optional.
+
+**Returns:** A {@link DrugDatabaseProvider} backed by the RxNav REST API.
+
+### Constants
+
+#### `provider`
+
+The provider implementation, lazily initialized on first use.
+
+Reads `RXNORM_BASE_URL` from environment variables. The RxNav public
+API requires no key; production deployments may override the base URL
+to point at a mirror.
+
+```typescript
+const provider: DrugDatabaseProvider
+```
+
+## Core Interface
+Implements `@molecule/api-drug-database` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-drug-database'
+import { provider } from '@molecule/api-drug-database-rxnorm'
+
+export function setupDrugDatabaseRxnorm(): void {
+  setProvider(provider)
+}
+```
 
 ## Injection Notes
 
 ### Requirements
-- `@molecule/api-drug-database` (peer dep).
-- No API key, no signup. Production apps that point at a mirror set
-  `RXNORM_BASE_URL`.
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- `getDrug(id).ingredients[*].strength` is always `null` — RxNorm encodes
-  strength as free-text inside SCD/SBD names rather than on the IN
-  concept. Parsers wanting strength should consume the SCDC/SCDF concept
-  graph directly.
-- Coverage is FDA-approved US drugs; international catalogues require a
-  separate bond.
+Peer dependencies:
+- `@molecule/api-drug-database` ^1.0.0
