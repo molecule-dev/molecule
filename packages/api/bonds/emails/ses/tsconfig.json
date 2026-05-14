@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["node", "nodemailer"],
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",

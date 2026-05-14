@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["express", "node"],
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",

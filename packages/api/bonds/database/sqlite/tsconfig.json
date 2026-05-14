@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["better-sqlite3", "node"],
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
