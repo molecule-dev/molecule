@@ -1651,7 +1651,7 @@ export type ClassMapValue =
  * Abstract spacing scale. Each styling library maps these to its own units.
  * For Tailwind: 0 → 0, 1 → 0.25rem, 4 → 1rem, 8 → 2rem, etc.
  */
-export type SpacingScale = 0 | 0.5 | 1 | 2 | 2.5 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16 | 20 | 24
+export type SpacingScale = 0 | 0.5 | 1 | 1.5 | 2 | 2.5 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16 | 20 | 24
 
 /**
  * Tailwind arbitrary value in bracket notation (e.g. `[440px]`, `[65%]`).
