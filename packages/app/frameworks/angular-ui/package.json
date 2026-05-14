@@ -27,10 +27,11 @@
     "@molecule/app-ui": "^1.0.0"
   },
   "devDependencies": {
-    "@angular/compiler": "21.1.5",
-    "@angular/compiler-cli": "21.1.5",
-    "@angular/core": "21.1.5",
-    "@angular/platform-browser": "21.1.5",
+    "@angular/common": "21.2.13",
+    "@angular/compiler": "21.2.13",
+    "@angular/compiler-cli": "21.2.13",
+    "@angular/core": "21.2.13",
+    "@angular/platform-browser": "21.2.13",
     "@molecule/app-i18n": "1.0.0",
     "@molecule/app-icons": "1.0.0",
     "@types/node": "25.8.0",
