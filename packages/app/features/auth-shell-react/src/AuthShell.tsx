@@ -250,20 +250,29 @@ export function AuthShellSplit({ children, className }: AuthShellSplitProps) {
 }
 
 /**
- * The flex-fill two-column row inside `<AuthShellSplit>` — compose
- * `<AuthShellPanel>` and `<AuthShellCardColumn>` as its children. Split
- * out from `<AuthShellSplit>` so a site `<Footer />` can sit below the
- * row as a sibling child rather than a slot prop.
+ * The vertically-flexed two-column row inside `<AuthShellSplit>` —
+ * compose `<AuthShellPanel>` and `<AuthShellCardColumn>` as its
+ * children. Split out from `<AuthShellSplit>` so a site `<Footer />`
+ * can sit below the row as a sibling child rather than a slot prop.
+ *
+ * Provides only the `flex-1` vertical fill (so the row stretches and
+ * any sibling footer sits at the bottom). The two-column layout itself
+ * is the caller's choice — pass `className` with `cm.flex({})` for a
+ * flex row or `cm.grid({ cols: 2 })` (or a custom grid template) so the
+ * primitive never fights a grid-based shell.
  */
 export interface AuthShellSplitRowProps {
   children: ReactNode
-  /** Extra classes on the row. */
+  /**
+   * Layout classes for the row — typically `cm.flex({})` or
+   * `cm.grid({ cols: 2 })`. Appended after the `flex-1` vertical fill.
+   */
   className?: string
 }
 
 export function AuthShellSplitRow({ children, className }: AuthShellSplitRowProps) {
   const cm = getClassMap()
-  return <div className={cm.cn(cm.flex1, cm.flex({}), className)}>{children}</div>
+  return <div className={cm.cn(cm.flex1, className)}>{children}</div>
 }
 
 /**
