@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Finnish (TODO: translate). */
+/** Reputation-badge translations for Finnish. */
 export const fi: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Maine',
+  'reputationBadge.aria': '{{score}} mainetta, {{level}}',
+  'reputationBadge.level.newcomer': 'Tulokas',
+  'reputationBadge.level.contributor': 'Osallistuja',
+  'reputationBadge.level.trusted': 'Luotettu',
+  'reputationBadge.level.veteran': 'Veteraani',
+  'reputationBadge.level.legend': 'Legenda',
+  'badgeShelf.aria': '{{count}} merkkiä ansaittu',
+  'badgeShelf.overflow.aria': 'Näytä {{count}} merkkiä lisää',
 }

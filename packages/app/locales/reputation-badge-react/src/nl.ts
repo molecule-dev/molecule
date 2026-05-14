@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Dutch (TODO: translate). */
+/** Reputation-badge translations for Dutch. */
 export const nl: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Reputatie',
+  'reputationBadge.aria': '{{score}} reputatie, {{level}}',
+  'reputationBadge.level.newcomer': 'Nieuwkomer',
+  'reputationBadge.level.contributor': 'Bijdrager',
+  'reputationBadge.level.trusted': 'Vertrouwd',
+  'reputationBadge.level.veteran': 'Veteraan',
+  'reputationBadge.level.legend': 'Legende',
+  'badgeShelf.aria': '{{count}} badges verdiend',
+  'badgeShelf.overflow.aria': '{{count}} badges meer weergeven',
 }

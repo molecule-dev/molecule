@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Vietnamese (TODO: translate). */
+/** Reputation-badge translations for Vietnamese. */
 export const vi: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Uy tín',
+  'reputationBadge.aria': '{{score}} uy tín, {{level}}',
+  'reputationBadge.level.newcomer': 'Người mới',
+  'reputationBadge.level.contributor': 'Người đóng góp',
+  'reputationBadge.level.trusted': 'Đáng tin cậy',
+  'reputationBadge.level.veteran': 'Kỳ cựu',
+  'reputationBadge.level.legend': 'Huyền thoại',
+  'badgeShelf.aria': 'Đã nhận {{count}} huy hiệu',
+  'badgeShelf.overflow.aria': 'Hiển thị thêm {{count}} huy hiệu',
 }

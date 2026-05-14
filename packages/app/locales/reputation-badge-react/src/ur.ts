@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Urdu (TODO: translate). */
+/** Reputation-badge translations for Urdu. */
 export const ur: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'ساکھ',
+  'reputationBadge.aria': '{{score}} ساکھ، {{level}}',
+  'reputationBadge.level.newcomer': 'نووارد',
+  'reputationBadge.level.contributor': 'معاون',
+  'reputationBadge.level.trusted': 'قابل اعتماد',
+  'reputationBadge.level.veteran': 'تجربہ کار',
+  'reputationBadge.level.legend': 'لیجنڈ',
+  'badgeShelf.aria': '{{count}} بیجز حاصل کیے',
+  'badgeShelf.overflow.aria': '{{count}} مزید بیجز دکھائیں',
 }

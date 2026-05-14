@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Macedonian (TODO: translate). */
+/** Reputation-badge translations for Macedonian. */
 export const mk: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Углед',
+  'reputationBadge.aria': '{{score}} углед, {{level}}',
+  'reputationBadge.level.newcomer': 'Новодојденец',
+  'reputationBadge.level.contributor': 'Соработник',
+  'reputationBadge.level.trusted': 'Доверлив',
+  'reputationBadge.level.veteran': 'Ветеран',
+  'reputationBadge.level.legend': 'Легенда',
+  'badgeShelf.aria': 'Освоени {{count}} значки',
+  'badgeShelf.overflow.aria': 'Прикажи уште {{count}} значки',
 }

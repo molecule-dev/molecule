@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Latvian (TODO: translate). */
+/** Reputation-badge translations for Latvian. */
 export const lv: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Reputācija',
+  'reputationBadge.aria': '{{score}} reputācija, {{level}}',
+  'reputationBadge.level.newcomer': 'Jaunpienācējs',
+  'reputationBadge.level.contributor': 'Līdzdalībnieks',
+  'reputationBadge.level.trusted': 'Uzticams',
+  'reputationBadge.level.veteran': 'Veterāns',
+  'reputationBadge.level.legend': 'Leģenda',
+  'badgeShelf.aria': 'Iegūtas {{count}} nozīmes',
+  'badgeShelf.overflow.aria': 'Rādīt vēl {{count}} nozīmes',
 }

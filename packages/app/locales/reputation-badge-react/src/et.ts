@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Estonian (TODO: translate). */
+/** Reputation-badge translations for Estonian. */
 export const et: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
+  'reputationBadge.caption': 'Maine',
+  'reputationBadge.aria': '{{score}} mainet, {{level}}',
+  'reputationBadge.level.newcomer': 'Uustulnuk',
+  'reputationBadge.level.contributor': 'Panustaja',
+  'reputationBadge.level.trusted': 'Usaldusväärne',
   'reputationBadge.level.veteran': 'Veteran',
   'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'badgeShelf.aria': 'Teenitud {{count}} märki',
+  'badgeShelf.overflow.aria': 'Näita veel {{count}} märki',
 }

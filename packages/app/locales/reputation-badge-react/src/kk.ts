@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Kazakh (TODO: translate). */
+/** Reputation-badge translations for Kazakh. */
 export const kk: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Бедел',
+  'reputationBadge.aria': '{{score}} бедел, {{level}}',
+  'reputationBadge.level.newcomer': 'Жаңадан келген',
+  'reputationBadge.level.contributor': 'Үлес қосушы',
+  'reputationBadge.level.trusted': 'Сенімді',
+  'reputationBadge.level.veteran': 'Ардагер',
+  'reputationBadge.level.legend': 'Аңыз',
+  'badgeShelf.aria': '{{count}} белгі алынды',
+  'badgeShelf.overflow.aria': 'Тағы {{count}} белгіні көрсету',
 }

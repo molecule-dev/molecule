@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Mongolian (TODO: translate). */
+/** Reputation-badge translations for Mongolian. */
 export const mn: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Нэр хүнд',
+  'reputationBadge.aria': '{{score}} нэр хүнд, {{level}}',
+  'reputationBadge.level.newcomer': 'Шинэ гишүүн',
+  'reputationBadge.level.contributor': 'Хувь нэмэр оруулагч',
+  'reputationBadge.level.trusted': 'Итгэмжтэй',
+  'reputationBadge.level.veteran': 'Ахмад',
+  'reputationBadge.level.legend': 'Домог',
+  'badgeShelf.aria': '{{count}} тэмдэг хүртсэн',
+  'badgeShelf.overflow.aria': 'Өөр {{count}} тэмдэг харуулах',
 }

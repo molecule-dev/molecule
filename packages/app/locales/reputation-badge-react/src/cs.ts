@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Czech (TODO: translate). */
+/** Reputation-badge translations for Czech. */
 export const cs: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Reputace',
+  'reputationBadge.aria': '{{score}} reputace, {{level}}',
+  'reputationBadge.level.newcomer': 'Nováček',
+  'reputationBadge.level.contributor': 'Přispěvatel',
+  'reputationBadge.level.trusted': 'Důvěryhodný',
+  'reputationBadge.level.veteran': 'Veterán',
+  'reputationBadge.level.legend': 'Legenda',
+  'badgeShelf.aria': 'Získáno {{count}} odznaků',
+  'badgeShelf.overflow.aria': 'Zobrazit dalších {{count}} odznaků',
 }

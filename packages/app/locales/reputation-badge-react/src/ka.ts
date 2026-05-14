@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Georgian (TODO: translate). */
+/** Reputation-badge translations for Georgian. */
 export const ka: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'რეპუტაცია',
+  'reputationBadge.aria': '{{score}} რეპუტაცია, {{level}}',
+  'reputationBadge.level.newcomer': 'ახალბედა',
+  'reputationBadge.level.contributor': 'წვლილის შემტანი',
+  'reputationBadge.level.trusted': 'სანდო',
+  'reputationBadge.level.veteran': 'ვეტერანი',
+  'reputationBadge.level.legend': 'ლეგენდა',
+  'badgeShelf.aria': 'მოპოვებულია {{count}} სამკერდე ნიშანი',
+  'badgeShelf.overflow.aria': 'კიდევ {{count}} ნიშნის ჩვენება',
 }

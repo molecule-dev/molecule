@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Azerbaijani (TODO: translate). */
+/** Reputation-badge translations for Azerbaijani. */
 export const az: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
+  'reputationBadge.caption': 'Reputasiya',
+  'reputationBadge.aria': '{{score}} reputasiya, {{level}}',
+  'reputationBadge.level.newcomer': 'Yeni gələn',
+  'reputationBadge.level.contributor': 'Töhfəçi',
+  'reputationBadge.level.trusted': 'Etibarlı',
   'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.level.legend': 'Əfsanə',
+  'badgeShelf.aria': '{{count}} nişan qazanıldı',
+  'badgeShelf.overflow.aria': 'Daha {{count}} nişan göstər',
 }

@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Filipino (TODO: translate). */
+/** Reputation-badge translations for Filipino. */
 export const fil: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Reputasyon',
+  'reputationBadge.aria': '{{score}} reputasyon, {{level}}',
+  'reputationBadge.level.newcomer': 'Bagong dating',
+  'reputationBadge.level.contributor': 'Kontribyutor',
+  'reputationBadge.level.trusted': 'Mapagkakatiwalaan',
+  'reputationBadge.level.veteran': 'Beterano',
+  'reputationBadge.level.legend': 'Alamat',
+  'badgeShelf.aria': '{{count}} badge ang nakuha',
+  'badgeShelf.overflow.aria': 'Magpakita ng {{count}} pang badge',
 }

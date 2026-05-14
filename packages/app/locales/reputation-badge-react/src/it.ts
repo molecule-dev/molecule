@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Italian (TODO: translate). */
+/** Reputation-badge translations for Italian. */
 export const it: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Reputazione',
+  'reputationBadge.aria': '{{score}} di reputazione, {{level}}',
+  'reputationBadge.level.newcomer': 'Nuovo arrivato',
+  'reputationBadge.level.contributor': 'Collaboratore',
+  'reputationBadge.level.trusted': 'Affidabile',
+  'reputationBadge.level.veteran': 'Veterano',
+  'reputationBadge.level.legend': 'Leggenda',
+  'badgeShelf.aria': '{{count}} badge ottenuti',
+  'badgeShelf.overflow.aria': 'Mostra altri {{count}} badge',
 }

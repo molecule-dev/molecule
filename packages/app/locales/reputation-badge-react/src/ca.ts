@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Catalan (TODO: translate). */
+/** Reputation-badge translations for Catalan. */
 export const ca: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Reputació',
+  'reputationBadge.aria': '{{score}} de reputació, {{level}}',
+  'reputationBadge.level.newcomer': 'Nouvingut',
+  'reputationBadge.level.contributor': 'Col·laborador',
+  'reputationBadge.level.trusted': 'De confiança',
+  'reputationBadge.level.veteran': 'Veterà',
+  'reputationBadge.level.legend': 'Llegenda',
+  'badgeShelf.aria': '{{count}} insígnies obtingudes',
+  'badgeShelf.overflow.aria': 'Mostra {{count}} insígnies més',
 }

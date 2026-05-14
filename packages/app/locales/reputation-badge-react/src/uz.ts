@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Uzbek (TODO: translate). */
+/** Reputation-badge translations for Uzbek. */
 export const uz: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Obro',
+  'reputationBadge.aria': '{{score}} obro, {{level}}',
+  'reputationBadge.level.newcomer': 'Yangi kelgan',
+  'reputationBadge.level.contributor': 'Hissa qoshuvchi',
+  'reputationBadge.level.trusted': 'Ishonchli',
+  'reputationBadge.level.veteran': 'Faxriy',
+  'reputationBadge.level.legend': 'Afsona',
+  'badgeShelf.aria': '{{count}} ta nishon olindi',
+  'badgeShelf.overflow.aria': 'Yana {{count}} ta nishonni korsatish',
 }

@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Belarusian (TODO: translate). */
+/** Reputation-badge translations for Belarusian. */
 export const be: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Рэпутацыя',
+  'reputationBadge.aria': '{{score}} рэпутацыі, {{level}}',
+  'reputationBadge.level.newcomer': 'Навічок',
+  'reputationBadge.level.contributor': 'Удзельнік',
+  'reputationBadge.level.trusted': 'Давераны',
+  'reputationBadge.level.veteran': 'Ветэран',
+  'reputationBadge.level.legend': 'Легенда',
+  'badgeShelf.aria': 'Атрымана {{count}} значкоў',
+  'badgeShelf.overflow.aria': 'Паказаць яшчэ {{count}} значкоў',
 }

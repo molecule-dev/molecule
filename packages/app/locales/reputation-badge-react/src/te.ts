@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Telugu (TODO: translate). */
+/** Reputation-badge translations for Telugu. */
 export const te: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'ప్రతిష్ఠ',
+  'reputationBadge.aria': '{{score}} ప్రతిష్ఠ, {{level}}',
+  'reputationBadge.level.newcomer': 'కొత్తవారు',
+  'reputationBadge.level.contributor': 'సహకారి',
+  'reputationBadge.level.trusted': 'విశ్వసనీయుడు',
+  'reputationBadge.level.veteran': 'అనుభవజ్ఞుడు',
+  'reputationBadge.level.legend': 'దిగ్గజం',
+  'badgeShelf.aria': '{{count}} బ్యాడ్జ్‌లు సంపాదించారు',
+  'badgeShelf.overflow.aria': 'మరో {{count}} బ్యాడ్జ్‌లను చూపించు',
 }

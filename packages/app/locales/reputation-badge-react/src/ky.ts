@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Kyrgyz (TODO: translate). */
+/** Reputation-badge translations for Kyrgyz. */
 export const ky: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Аброй',
+  'reputationBadge.aria': '{{score}} аброй, {{level}}',
+  'reputationBadge.level.newcomer': 'Жаңы келген',
+  'reputationBadge.level.contributor': 'Салым кошуучу',
+  'reputationBadge.level.trusted': 'Ишеничтүү',
+  'reputationBadge.level.veteran': 'Ардагер',
+  'reputationBadge.level.legend': 'Легенда',
+  'badgeShelf.aria': '{{count}} төш белги алынды',
+  'badgeShelf.overflow.aria': 'Дагы {{count}} төш белги көрсөтүү',
 }

@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Thai (TODO: translate). */
+/** Reputation-badge translations for Thai. */
 export const th: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'ชื่อเสียง',
+  'reputationBadge.aria': 'ชื่อเสียง {{score}}, {{level}}',
+  'reputationBadge.level.newcomer': 'ผู้มาใหม่',
+  'reputationBadge.level.contributor': 'ผู้มีส่วนร่วม',
+  'reputationBadge.level.trusted': 'น่าเชื่อถือ',
+  'reputationBadge.level.veteran': 'ผู้มากประสบการณ์',
+  'reputationBadge.level.legend': 'ตำนาน',
+  'badgeShelf.aria': 'ได้รับ {{count}} เหรียญตรา',
+  'badgeShelf.overflow.aria': 'แสดงเหรียญตราอีก {{count}} รายการ',
 }

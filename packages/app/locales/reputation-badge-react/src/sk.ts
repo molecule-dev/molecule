@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Slovak (TODO: translate). */
+/** Reputation-badge translations for Slovak. */
 export const sk: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Reputácia',
+  'reputationBadge.aria': '{{score}} reputácie, {{level}}',
+  'reputationBadge.level.newcomer': 'Nováčik',
+  'reputationBadge.level.contributor': 'Prispievateľ',
+  'reputationBadge.level.trusted': 'Dôveryhodný',
+  'reputationBadge.level.veteran': 'Veterán',
+  'reputationBadge.level.legend': 'Legenda',
+  'badgeShelf.aria': 'Získaných {{count}} odznakov',
+  'badgeShelf.overflow.aria': 'Zobraziť ďalších {{count}} odznakov',
 }

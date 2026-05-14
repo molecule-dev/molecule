@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Polish (TODO: translate). */
+/** Reputation-badge translations for Polish. */
 export const pl: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Reputacja',
+  'reputationBadge.aria': '{{score}} reputacji, {{level}}',
+  'reputationBadge.level.newcomer': 'Nowicjusz',
+  'reputationBadge.level.contributor': 'Współtwórca',
+  'reputationBadge.level.trusted': 'Zaufany',
+  'reputationBadge.level.veteran': 'Weteran',
+  'reputationBadge.level.legend': 'Legenda',
+  'badgeShelf.aria': 'Zdobyto {{count}} odznak',
+  'badgeShelf.overflow.aria': 'Pokaż {{count}} więcej odznak',
 }

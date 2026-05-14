@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Arabic (TODO: translate). */
+/** Reputation-badge translations for Arabic. */
 export const ar: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'السمعة',
+  'reputationBadge.aria': '{{score}} سمعة، {{level}}',
+  'reputationBadge.level.newcomer': 'وافد جديد',
+  'reputationBadge.level.contributor': 'مساهم',
+  'reputationBadge.level.trusted': 'موثوق',
+  'reputationBadge.level.veteran': 'محترف',
+  'reputationBadge.level.legend': 'أسطورة',
+  'badgeShelf.aria': 'تم كسب {{count}} شارة',
+  'badgeShelf.overflow.aria': 'عرض {{count}} شارات إضافية',
 }

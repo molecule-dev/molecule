@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Hungarian (TODO: translate). */
+/** Reputation-badge translations for Hungarian. */
 export const hu: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Hírnév',
+  'reputationBadge.aria': '{{score}} hírnév, {{level}}',
+  'reputationBadge.level.newcomer': 'Újonc',
+  'reputationBadge.level.contributor': 'Közreműködő',
+  'reputationBadge.level.trusted': 'Megbízható',
+  'reputationBadge.level.veteran': 'Veterán',
+  'reputationBadge.level.legend': 'Legenda',
+  'badgeShelf.aria': '{{count}} jelvény megszerezve',
+  'badgeShelf.overflow.aria': 'További {{count}} jelvény megjelenítése',
 }

@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Serbian (TODO: translate). */
+/** Reputation-badge translations for Serbian. */
 export const sr: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Углед',
+  'reputationBadge.aria': '{{score}} угледа, {{level}}',
+  'reputationBadge.level.newcomer': 'Придошлица',
+  'reputationBadge.level.contributor': 'Сарадник',
+  'reputationBadge.level.trusted': 'Поуздан',
+  'reputationBadge.level.veteran': 'Ветеран',
+  'reputationBadge.level.legend': 'Легенда',
+  'badgeShelf.aria': 'Освојено {{count}} значки',
+  'badgeShelf.overflow.aria': 'Прикажи још {{count}} значки',
 }

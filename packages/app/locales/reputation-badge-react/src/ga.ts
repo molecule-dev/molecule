@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Irish (TODO: translate). */
+/** Reputation-badge translations for Irish. */
 export const ga: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Cáil',
+  'reputationBadge.aria': '{{score}} cáil, {{level}}',
+  'reputationBadge.level.newcomer': 'Núíosach',
+  'reputationBadge.level.contributor': 'Rannpháirtí',
+  'reputationBadge.level.trusted': 'Iontaofa',
+  'reputationBadge.level.veteran': 'Seanfhondúir',
+  'reputationBadge.level.legend': 'Finscéal',
+  'badgeShelf.aria': '{{count}} suaitheantas tuillte',
+  'badgeShelf.overflow.aria': 'Taispeáin {{count}} suaitheantas eile',
 }

@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Zulu (TODO: translate). */
+/** Reputation-badge translations for Zulu. */
 export const zu: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Idumela',
+  'reputationBadge.aria': 'Idumela {{score}}, {{level}}',
+  'reputationBadge.level.newcomer': 'Osanda kufika',
+  'reputationBadge.level.contributor': 'Umnikeli',
+  'reputationBadge.level.trusted': 'Othenjwayo',
+  'reputationBadge.level.veteran': 'Iqhawe elidala',
+  'reputationBadge.level.legend': 'Inganekwane',
+  'badgeShelf.aria': '{{count}} amabheji azuziwe',
+  'badgeShelf.overflow.aria': 'Bonisa amanye amabheji angu-{{count}}',
 }

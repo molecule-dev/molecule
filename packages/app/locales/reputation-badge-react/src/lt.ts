@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Lithuanian (TODO: translate). */
+/** Reputation-badge translations for Lithuanian. */
 export const lt: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Reputacija',
+  'reputationBadge.aria': '{{score}} reputacijos, {{level}}',
+  'reputationBadge.level.newcomer': 'Naujokas',
+  'reputationBadge.level.contributor': 'Bendradarbis',
+  'reputationBadge.level.trusted': 'Patikimas',
+  'reputationBadge.level.veteran': 'Veteranas',
+  'reputationBadge.level.legend': 'Legenda',
+  'badgeShelf.aria': 'Pelnyta {{count}} ženklelių',
+  'badgeShelf.overflow.aria': 'Rodyti dar {{count}} ženklelių',
 }

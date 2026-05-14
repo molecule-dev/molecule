@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Maltese (TODO: translate). */
+/** Reputation-badge translations for Maltese. */
 export const mt: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
+  'reputationBadge.caption': 'Reputazzjoni',
+  'reputationBadge.aria': '{{score}} reputazzjoni, {{level}}',
+  'reputationBadge.level.newcomer': 'Ġdid',
+  'reputationBadge.level.contributor': 'Kontributur',
+  'reputationBadge.level.trusted': 'Fdat',
   'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.level.legend': 'Leġġenda',
+  'badgeShelf.aria': '{{count}} badges miksuba',
+  'badgeShelf.overflow.aria': 'Uri {{count}} badges oħra',
 }

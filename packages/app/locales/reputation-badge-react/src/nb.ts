@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Norwegian Bokmål (TODO: translate). */
+/** Reputation-badge translations for Norwegian Bokmål. */
 export const nb: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
+  'reputationBadge.caption': 'Omdømme',
+  'reputationBadge.aria': '{{score}} omdømme, {{level}}',
+  'reputationBadge.level.newcomer': 'Nykommer',
+  'reputationBadge.level.contributor': 'Bidragsyter',
+  'reputationBadge.level.trusted': 'Betrodd',
   'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.level.legend': 'Legende',
+  'badgeShelf.aria': '{{count}} merker opptjent',
+  'badgeShelf.overflow.aria': 'Vis {{count}} merker til',
 }

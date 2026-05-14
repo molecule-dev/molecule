@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Albanian (TODO: translate). */
+/** Reputation-badge translations for Albanian. */
 export const sq: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
+  'reputationBadge.caption': 'Reputacioni',
+  'reputationBadge.aria': '{{score}} reputacion, {{level}}',
+  'reputationBadge.level.newcomer': 'I sapoardhur',
+  'reputationBadge.level.contributor': 'Kontribues',
+  'reputationBadge.level.trusted': 'I besuar',
   'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.level.legend': 'Legjendë',
+  'badgeShelf.aria': '{{count}} stema të fituara',
+  'badgeShelf.overflow.aria': 'Shfaq {{count}} stema të tjera',
 }

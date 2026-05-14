@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Croatian (TODO: translate). */
+/** Reputation-badge translations for Croatian. */
 export const hr: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
+  'reputationBadge.caption': 'Ugled',
+  'reputationBadge.aria': '{{score}} ugleda, {{level}}',
+  'reputationBadge.level.newcomer': 'Pridošlica',
+  'reputationBadge.level.contributor': 'Suradnik',
+  'reputationBadge.level.trusted': 'Pouzdan',
   'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.level.legend': 'Legenda',
+  'badgeShelf.aria': 'Osvojeno {{count}} značaka',
+  'badgeShelf.overflow.aria': 'Prikaži još {{count}} značaka',
 }

@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Igbo (TODO: translate). */
+/** Reputation-badge translations for Igbo. */
 export const ig: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Aha ọma',
+  'reputationBadge.aria': 'Aha ọma {{score}}, {{level}}',
+  'reputationBadge.level.newcomer': 'Onye ọhụrụ',
+  'reputationBadge.level.contributor': 'Onye ntinye aka',
+  'reputationBadge.level.trusted': 'A tụkwasịrị obi',
+  'reputationBadge.level.veteran': 'Onye ahụ tọrọ ahụ',
+  'reputationBadge.level.legend': 'Akụkọ ifo',
+  'badgeShelf.aria': 'Enwetara baajị {{count}}',
+  'badgeShelf.overflow.aria': 'Gosi baajị {{count}} ọzọ',
 }

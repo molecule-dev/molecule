@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Greek (TODO: translate). */
+/** Reputation-badge translations for Greek. */
 export const el: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Φήμη',
+  'reputationBadge.aria': '{{score}} φήμη, {{level}}',
+  'reputationBadge.level.newcomer': 'Νεοφερμένος',
+  'reputationBadge.level.contributor': 'Συνεισφέρων',
+  'reputationBadge.level.trusted': 'Έμπιστος',
+  'reputationBadge.level.veteran': 'Βετεράνος',
+  'reputationBadge.level.legend': 'Θρύλος',
+  'badgeShelf.aria': 'Κερδίσατε {{count}} σήματα',
+  'badgeShelf.overflow.aria': 'Εμφάνιση {{count}} ακόμη σημάτων',
 }

@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Yoruba (TODO: translate). */
+/** Reputation-badge translations for Yoruba. */
 export const yo: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Òkìkí',
+  'reputationBadge.aria': 'Òkìkí {{score}}, {{level}}',
+  'reputationBadge.level.newcomer': 'Tuntun dé',
+  'reputationBadge.level.contributor': 'Olùdáàwọ́',
+  'reputationBadge.level.trusted': 'Olùgbẹ́kẹ̀lé',
+  'reputationBadge.level.veteran': 'Akọ́nimọ̀ọ́gbá',
+  'reputationBadge.level.legend': 'Ìtàn àròsọ',
+  'badgeShelf.aria': 'Àwọn àmì {{count}} ti jẹ́',
+  'badgeShelf.overflow.aria': 'Fi àwọn àmì {{count}} síi hàn',
 }

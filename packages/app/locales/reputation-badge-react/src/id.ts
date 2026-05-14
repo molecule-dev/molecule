@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Indonesian (TODO: translate). */
+/** Reputation-badge translations for Indonesian. */
 export const id: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
+  'reputationBadge.caption': 'Reputasi',
+  'reputationBadge.aria': 'Reputasi {{score}}, {{level}}',
+  'reputationBadge.level.newcomer': 'Pendatang baru',
+  'reputationBadge.level.contributor': 'Kontributor',
+  'reputationBadge.level.trusted': 'Tepercaya',
   'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.level.legend': 'Legenda',
+  'badgeShelf.aria': '{{count}} lencana diraih',
+  'badgeShelf.overflow.aria': 'Tampilkan {{count}} lencana lagi',
 }

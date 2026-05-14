@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Lao (TODO: translate). */
+/** Reputation-badge translations for Lao. */
 export const lo: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'ຊື່ສຽງ',
+  'reputationBadge.aria': 'ຊື່ສຽງ {{score}}, {{level}}',
+  'reputationBadge.level.newcomer': 'ຜູ້ມາໃໝ່',
+  'reputationBadge.level.contributor': 'ຜູ້ປະກອບສ່ວນ',
+  'reputationBadge.level.trusted': 'ເຊື່ອຖືໄດ້',
+  'reputationBadge.level.veteran': 'ຜູ້ມີປະສົບການ',
+  'reputationBadge.level.legend': 'ตำนาน',
+  'badgeShelf.aria': 'ໄດ້ຮັບ {{count}} ກາໝາຍ',
+  'badgeShelf.overflow.aria': 'ສະແດງ {{count}} ກາໝາຍເພີ່ມເຕີມ',
 }

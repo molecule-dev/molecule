@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Bengali (TODO: translate). */
+/** Reputation-badge translations for Bengali. */
 export const bn: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'সুনাম',
+  'reputationBadge.aria': '{{score}} সুনাম, {{level}}',
+  'reputationBadge.level.newcomer': 'নবাগত',
+  'reputationBadge.level.contributor': 'অবদানকারী',
+  'reputationBadge.level.trusted': 'বিশ্বস্ত',
+  'reputationBadge.level.veteran': 'অভিজ্ঞ',
+  'reputationBadge.level.legend': 'কিংবদন্তি',
+  'badgeShelf.aria': '{{count}}টি ব্যাজ অর্জিত',
+  'badgeShelf.overflow.aria': 'আরও {{count}}টি ব্যাজ দেখান',
 }

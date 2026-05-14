@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Gujarati (TODO: translate). */
+/** Reputation-badge translations for Gujarati. */
 export const gu: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'પ્રતિષ્ઠા',
+  'reputationBadge.aria': '{{score}} પ્રતિષ્ઠા, {{level}}',
+  'reputationBadge.level.newcomer': 'નવાગંતુક',
+  'reputationBadge.level.contributor': 'યોગદાનકર્તા',
+  'reputationBadge.level.trusted': 'વિશ્વસનીય',
+  'reputationBadge.level.veteran': 'અનુભવી',
+  'reputationBadge.level.legend': 'દંતકથા',
+  'badgeShelf.aria': '{{count}} બેજ મેળવ્યા',
+  'badgeShelf.overflow.aria': 'વધુ {{count}} બેજ બતાવો',
 }

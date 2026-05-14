@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Punjabi (TODO: translate). */
+/** Reputation-badge translations for Punjabi. */
 export const pa: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'ਸਾਖ',
+  'reputationBadge.aria': '{{score}} ਸਾਖ, {{level}}',
+  'reputationBadge.level.newcomer': 'ਨਵਾਂ ਆਇਆ',
+  'reputationBadge.level.contributor': 'ਯੋਗਦਾਨੀ',
+  'reputationBadge.level.trusted': 'ਭਰੋਸੇਯੋਗ',
+  'reputationBadge.level.veteran': 'ਤਜਰਬੇਕਾਰ',
+  'reputationBadge.level.legend': 'ਦੰਤਕਥਾ',
+  'badgeShelf.aria': '{{count}} ਬੈਜ ਕਮਾਏ',
+  'badgeShelf.overflow.aria': '{{count}} ਹੋਰ ਬੈਜ ਦਿਖਾਓ',
 }

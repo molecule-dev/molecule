@@ -1,14 +1,14 @@
 import type { ReputationBadgeTranslations } from './types.js'
 
-/** Reputation-badge translations for Galician (TODO: translate). */
+/** Reputation-badge translations for Galician. */
 export const gl: ReputationBadgeTranslations = {
-  'reputationBadge.caption': 'Reputation',
-  'reputationBadge.aria': '{{score}} reputation, {{level}}',
-  'reputationBadge.level.newcomer': 'Newcomer',
-  'reputationBadge.level.contributor': 'Contributor',
-  'reputationBadge.level.trusted': 'Trusted',
-  'reputationBadge.level.veteran': 'Veteran',
-  'reputationBadge.level.legend': 'Legend',
-  'badgeShelf.aria': '{{count}} badges earned',
-  'badgeShelf.overflow.aria': 'Show {{count}} more badges',
+  'reputationBadge.caption': 'Reputación',
+  'reputationBadge.aria': '{{score}} de reputación, {{level}}',
+  'reputationBadge.level.newcomer': 'Recén chegado',
+  'reputationBadge.level.contributor': 'Colaborador',
+  'reputationBadge.level.trusted': 'De confianza',
+  'reputationBadge.level.veteran': 'Veterano',
+  'reputationBadge.level.legend': 'Lenda',
+  'badgeShelf.aria': '{{count}} insignias obtidas',
+  'badgeShelf.overflow.aria': 'Amosar {{count}} insignias máis',
 }
