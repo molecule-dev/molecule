@@ -28,7 +28,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "3.5.0"
   },
   "devDependencies": {
     "@types/node": "25.5.0",
