@@ -35,10 +35,10 @@
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",
     "@molecule/api-push-notifications": "1.0.0",
-    "@types/node": "25.5.0",
+    "@types/node": "25.8.0",
     "@types/web-push": "3.6.4",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.6"
   },
   "repository": {
     "type": "git",

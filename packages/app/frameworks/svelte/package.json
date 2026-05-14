@@ -40,10 +40,10 @@
   },
   "devDependencies": {
     "@molecule/app-utilities": "1.0.0",
-    "@types/node": "25.5.0",
-    "svelte": "5.53.3",
+    "@types/node": "25.8.0",
+    "svelte": "5.55.6",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.6"
   },
   "repository": {
     "type": "git",

@@ -30,15 +30,15 @@
     "node": ">=20"
   },
   "dependencies": {
-    "better-sqlite3": "12.6.2"
+    "better-sqlite3": "12.10.0"
   },
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",
     "@molecule/api-database": "1.0.0",
     "@types/better-sqlite3": "7.6.13",
-    "@types/node": "25.5.0",
+    "@types/node": "25.8.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.6"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",

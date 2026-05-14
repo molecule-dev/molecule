@@ -16,8 +16,17 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
-  "keywords": ["molecule", "ecommerce", "storefront", "navbar", "footer", "react"],
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "ecommerce",
+    "storefront",
+    "navbar",
+    "footer",
+    "react"
+  ],
   "license": "MIT",
   "peerDependencies": {
     "@molecule/app-react": "^1.0.0",
@@ -30,11 +39,11 @@
     "@molecule/app-react": "1.0.0",
     "@molecule/app-ui": "1.0.0",
     "@molecule/app-ui-react": "1.0.0",
-    "@types/node": "25.5.0",
+    "@types/node": "25.8.0",
     "@types/react": "19.2.14",
-    "react": "19.2.4",
-    "react-router-dom": "7.13.1",
+    "react": "19.2.6",
+    "react-router-dom": "7.15.1",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.6"
   }
 }

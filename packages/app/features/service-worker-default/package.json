@@ -27,14 +27,14 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "25.5.0",
+    "@types/node": "25.8.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.0",
-    "workbox-core": "7.3.0",
-    "workbox-expiration": "7.3.0",
-    "workbox-precaching": "7.3.0",
-    "workbox-routing": "7.3.0",
-    "workbox-strategies": "7.3.0"
+    "vitest": "4.1.6",
+    "workbox-core": "7.4.1",
+    "workbox-expiration": "7.4.1",
+    "workbox-precaching": "7.4.1",
+    "workbox-routing": "7.4.1",
+    "workbox-strategies": "7.4.1"
   },
   "peerDependencies": {
     "workbox-core": "^7.0.0",

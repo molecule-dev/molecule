@@ -29,17 +29,17 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "pg": "8.16.0",
-    "pgvector": "0.2.0"
+    "pg": "8.20.0",
+    "pgvector": "0.2.1"
   },
   "peerDependencies": {
     "@molecule/api-ai-vector-store": ">=1.0.0"
   },
   "devDependencies": {
     "@molecule/api-ai-vector-store": "1.0.0",
-    "@types/node": "25.5.0",
-    "@types/pg": "8.15.4",
+    "@types/node": "25.8.0",
+    "@types/pg": "8.20.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.6"
   }
 }

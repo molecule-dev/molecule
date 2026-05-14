@@ -29,11 +29,11 @@
   "license": "MIT",
   "devDependencies": {
     "@types/express": "5.0.6",
-    "@types/node": "25.5.0",
+    "@types/node": "25.8.0",
     "express": "5.2.1",
     "typescript": "5.9.3",
-    "vitest": "4.1.0",
-    "zod": "4.3.6"
+    "vitest": "4.1.6",
+    "zod": "4.4.3"
   },
   "peerDependencies": {
     "@molecule/api-bonds-default-express": "^1.0.0",

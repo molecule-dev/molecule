@@ -27,13 +27,13 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.0.0",
-    "@types/node": "25.5.0",
+    "@types/node": "25.8.0",
     "@types/react": "19.2.14",
-    "react": "19.2.4",
-    "react-router": "7.13.1",
-    "react-router-dom": "7.13.1",
+    "react": "19.2.6",
+    "react-router": "7.15.1",
+    "react-router-dom": "7.15.1",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.6"
   },
   "repository": {
     "type": "git",

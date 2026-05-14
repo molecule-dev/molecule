@@ -35,17 +35,17 @@
   "license": "MIT",
   "dependencies": {
     "uuid": "13.0.0",
-    "zod": "4.3.6"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",
     "@molecule/api-database": "1.0.0",
     "@molecule/api-locales-resource": "1.0.0",
     "@molecule/api-utilities-validation": "1.0.0",
-    "@types/node": "25.5.0",
+    "@types/node": "25.8.0",
     "@types/uuid": "10.0.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.6"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",

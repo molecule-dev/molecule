@@ -31,16 +31,16 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "casbin": "5.49.0"
+    "casbin": "5.50.0"
   },
   "peerDependencies": {
     "@molecule/api-permissions": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-permissions": "1.0.0",
-    "@types/node": "25.5.0",
+    "@types/node": "25.8.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.6"
   },
   "repository": {
     "type": "git",

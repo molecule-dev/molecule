@@ -28,7 +28,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "otplib": "13.3.0",
+    "otplib": "13.4.0",
     "qrcode": "1.5.4"
   },
   "peerDependencies": {
@@ -38,7 +38,7 @@
     "@molecule/api-two-factor": "1.0.0",
     "@types/qrcode": "1.5.6",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.6"
   },
   "repository": {
     "type": "git",

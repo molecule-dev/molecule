@@ -18,10 +18,10 @@
     "node": ">=20"
   },
   "dependencies": {
-    "zod": "4.3.6"
+    "zod": "4.4.3"
   },
   "devDependencies": {
-    "@types/node": "25.5.0",
+    "@types/node": "25.8.0",
     "typescript": "5.9.3"
   },
   "repository": {

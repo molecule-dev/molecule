@@ -29,16 +29,16 @@
   "license": "MIT",
   "dependencies": {
     "pdf-lib": "1.17.1",
-    "puppeteer": "24.40.0"
+    "puppeteer": "24.43.1"
   },
   "peerDependencies": {
     "@molecule/api-pdf": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-pdf": "1.0.0",
-    "@types/node": "25.5.0",
+    "@types/node": "25.8.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.6"
   },
   "repository": {
     "type": "git",

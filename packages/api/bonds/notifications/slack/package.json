@@ -16,17 +16,23 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
-  "keywords": ["molecule", "notifications", "slack"],
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "notifications",
+    "slack"
+  ],
   "license": "MIT",
   "peerDependencies": {
     "@molecule/api-notifications": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-notifications": "1.0.0",
-    "@types/node": "25.5.0",
+    "@types/node": "25.8.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "vitest": "4.1.6"
   },
   "repository": {
     "type": "git",
@@ -35,5 +41,7 @@
   },
   "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/notifications/slack",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
-  "publishConfig": { "access": "public" }
+  "publishConfig": {
+    "access": "public"
+  }
 }
