@@ -82,4 +82,39 @@ describe('AuthBrandHeader', () => {
     )
     expect(markup).toContain('color:#ff0000')
   })
+
+  it('uses renderWordmark to fully override the wordmark element', () => {
+    const markup = html(
+      createElement(AuthBrandHeader, {
+        appName: 'Refract',
+        tagline: 'T',
+        renderWordmark: (name: string) => createElement('h1', { 'data-custom-wordmark': '' }, name),
+      }),
+    )
+    expect(markup).toContain('data-custom-wordmark=""')
+    expect(markup).toContain('Refract')
+    // the default wordmark <h1> chrome must not also render
+    expect(markup).not.toContain('font-extrabold tracking-tighter')
+  })
+
+  it('uses renderTagline to fully override the tagline element', () => {
+    const markup = html(
+      createElement(AuthBrandHeader, {
+        appName: 'A',
+        tagline: 'Ship faster',
+        renderTagline: (tagline: string) =>
+          createElement('p', { 'data-custom-tagline': '' }, tagline),
+      }),
+    )
+    expect(markup).toContain('data-custom-tagline=""')
+    expect(markup).toContain('Ship faster')
+    expect(markup).not.toContain('text-on-surface-variant')
+  })
+
+  it('appends className onto the <header> wrapper', () => {
+    const markup = html(
+      createElement(AuthBrandHeader, { appName: 'A', tagline: 'T', className: 'extra-cls' }),
+    )
+    expect(markup).toContain('extra-cls')
+  })
 })
