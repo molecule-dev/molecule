@@ -95,6 +95,16 @@ export function useTheme(): UseThemeResult {
   const setTheme = useCallback((name: string) => provider.setTheme(name), [provider])
 
   const toggleTheme = useCallback(() => {
+    // Prefer the provider's purpose-built light/dark toggle. `toggleMode`
+    // is a required `ThemeProvider` method and the semantically correct
+    // action for a light/dark toggle — unlike `getThemes()`, which is
+    // optional, so the index-cycle below silently no-ops for providers
+    // that don't implement it. The index-cycle is kept only as a fallback
+    // for non-conforming providers that predate `toggleMode`.
+    if (typeof provider.toggleMode === 'function') {
+      provider.toggleMode()
+      return
+    }
     const themes = provider.getThemes?.() ?? []
     if (themes.length === 0) return
     const currentName =

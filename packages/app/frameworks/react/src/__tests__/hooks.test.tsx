@@ -161,6 +161,10 @@ function createMockThemeProvider(): ThemeProviderType {
       currentTheme = name
       listeners.forEach((l) => l())
     },
+    toggleMode: () => {
+      currentTheme = currentTheme === 'light' ? 'dark' : 'light'
+      listeners.forEach((l) => l())
+    },
     onThemeChange: (listener) => {
       listeners.add(listener)
       return () => listeners.delete(listener)
@@ -395,11 +399,47 @@ describe('useTheme', () => {
     expect(result.current.mode).toBe('light')
   })
 
-  it('should toggle theme', () => {
+  it('should toggle theme via the provider toggleMode method', () => {
     const themeProvider = createMockThemeProvider()
+    const toggleModeSpy = vi.spyOn(themeProvider, 'toggleMode')
 
     const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
       <ThemeProvider provider={themeProvider}>{children}</ThemeProvider>
+    )
+
+    const { result } = renderHook(() => useTheme(), { wrapper })
+
+    act(() => {
+      result.current.toggleTheme()
+    })
+
+    // `toggleTheme` must delegate to the provider's purpose-built
+    // `toggleMode()` rather than index-cycling `getThemes()`.
+    expect(toggleModeSpy).toHaveBeenCalledOnce()
+    expect(result.current.themeName).toBe('dark')
+  })
+
+  it('falls back to cycling getThemes() when the provider has no toggleMode', () => {
+    let currentTheme = 'light'
+    const listeners = new Set<() => void>()
+    // A non-conforming provider that predates `toggleMode` — `toggleTheme`
+    // must still work by cycling the registered themes.
+    const legacyProvider = {
+      getTheme: () => createMockThemeProvider().getTheme(),
+      getThemeName: () => currentTheme,
+      getThemes: () => ['light', 'dark'],
+      setTheme: (name: string) => {
+        currentTheme = name
+        listeners.forEach((l) => l())
+      },
+      onThemeChange: (listener: () => void) => {
+        listeners.add(listener)
+        return () => listeners.delete(listener)
+      },
+    } as unknown as ThemeProviderType
+
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <ThemeProvider provider={legacyProvider}>{children}</ThemeProvider>
     )
 
     const { result } = renderHook(() => useTheme(), { wrapper })
