@@ -8,6 +8,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { Button } from './Button.js'
 import { Icon } from './Icon.js'
 import { Modal } from './Modal.js'
+import { PanelCloseProvider } from './PanelClose.js'
 
 /**
  * Props for {@link UserMenu}.
@@ -20,11 +21,11 @@ import { Modal } from './Modal.js'
  */
 export interface UserMenuProps {
   /**
-   * Render function for the panel shown inside the drawer/modal.
-   * Receives an `onClose` callback so the panel's own close-button
-   * can dismiss the drawer.
+   * Panel content shown inside the drawer/modal (typically the app's
+   * `SettingsPanel`). It can dismiss the drawer by calling
+   * `usePanelClose()` — no `onClose` prop-threading required.
    */
-  renderPanel: (args: { onClose: () => void }) => ReactNode
+  children: ReactNode
   /**
    * i18n key for the trigger button's aria-label. Defaults to
    * `'userMenu.open'`. Apps whose existing locales use a different key
@@ -52,15 +53,15 @@ export interface UserMenuProps {
 /**
  * Avatar-style trigger that opens the app's settings panel in a drawer.
  *
- * The panel content is injected via `renderPanel` so apps can mount
- * their own `SettingsPanel` (which diverges per app) inside the shared
- * drawer chrome.
+ * The panel content is passed as `children` so apps can mount their own
+ * `SettingsPanel` (which diverges per app) inside the shared drawer
+ * chrome. Panel content dismisses the drawer via `usePanelClose()`.
  *
  * Ships with `data-mol-id="user-menu"` on the trigger button by
  * default for AI-agent / e2e selection.
  */
 export function UserMenu({
-  renderPanel,
+  children,
   ariaLabelKey = 'userMenu.open',
   ariaLabelDefault = 'Open user menu',
   triggerIcon = 'user',
@@ -96,7 +97,7 @@ export function UserMenu({
         <Icon name={triggerIcon} size={triggerIconSize} />
       </Button>
       <Modal open={open} onClose={() => setOpen(false)} className={cm.drawer}>
-        {renderPanel({ onClose: () => setOpen(false) })}
+        <PanelCloseProvider close={() => setOpen(false)}>{children}</PanelCloseProvider>
       </Modal>
     </>
   )

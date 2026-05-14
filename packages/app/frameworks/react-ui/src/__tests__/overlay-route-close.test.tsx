@@ -55,6 +55,7 @@ vi.mock('@molecule/app-icons', () => ({
 const { UserMenu } = await import('../components/UserMenu.js')
 const { SidebarUserCard } = await import('../components/SidebarUserCard.js')
 const { Dropdown } = await import('../components/Dropdown.js')
+const { usePanelClose } = await import('../components/PanelClose.js')
 
 afterEach(() => {
   mockLocation.pathname = '/'
@@ -64,7 +65,9 @@ afterEach(() => {
 describe('UserMenu — close on route change', () => {
   it('dismisses the open drawer when the route changes', () => {
     const { rerender } = render(
-      <UserMenu renderPanel={() => <div data-mol-id="panel-body">panel</div>} />,
+      <UserMenu>
+        <div data-mol-id="panel-body">panel</div>
+      </UserMenu>,
     )
     // Drawer is closed initially.
     expect(screen.queryByTestId?.('panel-body')).toBeFalsy()
@@ -73,20 +76,47 @@ describe('UserMenu — close on route change', () => {
     expect(screen.getByText('panel')).toBeDefined()
     // Navigate — the location effect must close the drawer.
     mockLocation.pathname = '/settings'
-    rerender(<UserMenu renderPanel={() => <div data-mol-id="panel-body">panel</div>} />)
+    rerender(
+      <UserMenu>
+        <div data-mol-id="panel-body">panel</div>
+      </UserMenu>,
+    )
     expect(screen.queryByText('panel')).toBeNull()
   })
 })
 
 describe('SidebarUserCard — close on route change', () => {
   it('dismisses the open drawer when the route changes', () => {
-    const panel = () => <div>sidebar-panel</div>
-    const { rerender } = render(<SidebarUserCard renderPanel={panel} />)
+    const panel = <div>sidebar-panel</div>
+    const { rerender } = render(<SidebarUserCard>{panel}</SidebarUserCard>)
     fireEvent.click(screen.getByRole('button'))
     expect(screen.getByText('sidebar-panel')).toBeDefined()
     mockLocation.pathname = '/profile'
-    rerender(<SidebarUserCard renderPanel={panel} />)
+    rerender(<SidebarUserCard>{panel}</SidebarUserCard>)
     expect(screen.queryByText('sidebar-panel')).toBeNull()
+  })
+})
+
+describe('usePanelClose — panel content dismisses its drawer', () => {
+  it('lets UserMenu panel children close the drawer via context', () => {
+    function ClosingPanel() {
+      const close = usePanelClose()
+      return (
+        <button type="button" onClick={close}>
+          dismiss
+        </button>
+      )
+    }
+    render(
+      <UserMenu>
+        <ClosingPanel />
+      </UserMenu>,
+    )
+    // Open the drawer, then close it from inside the panel.
+    fireEvent.click(screen.getByRole('button', { name: 'Open user menu' }))
+    expect(screen.getByText('dismiss')).toBeDefined()
+    fireEvent.click(screen.getByText('dismiss'))
+    expect(screen.queryByText('dismiss')).toBeNull()
   })
 })
 

@@ -12,6 +12,7 @@ import { useAuth, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Modal } from './Modal.js'
+import { PanelCloseProvider } from './PanelClose.js'
 
 /**
  * Compute up-to-two-letter initials from a display name or email.
@@ -51,11 +52,11 @@ export interface SidebarUserCardProps extends Omit<
   'aria-label' | 'onClick' | 'children'
 > {
   /**
-   * Render function for the panel shown inside the drawer/modal.
-   * Receives an `onClose` callback so the panel's own close-button
-   * can dismiss the drawer.
+   * Panel content shown inside the drawer/modal (typically the app's
+   * `SettingsPanel`). It can dismiss the drawer by calling
+   * `usePanelClose()` — no `onClose` prop-threading required.
    */
-  renderPanel: (args: { onClose: () => void }) => ReactNode
+  children: ReactNode
   /**
    * Display name override. When omitted, falls back to
    * `useAuth().user?.name`, then `email`, then a guest label.
@@ -95,7 +96,7 @@ export interface SidebarUserCardProps extends Omit<
  * passing `data-mol-id` as an extra prop.
  */
 export function SidebarUserCard({
-  renderPanel,
+  children,
   name,
   secondaryLine,
   avatarUrl,
@@ -179,7 +180,7 @@ export function SidebarUserCard({
         </span>
       </button>
       <Modal open={open} onClose={() => setOpen(false)} className={cm.drawer}>
-        {renderPanel({ onClose: () => setOpen(false) })}
+        <PanelCloseProvider close={() => setOpen(false)}>{children}</PanelCloseProvider>
       </Modal>
     </>
   )
