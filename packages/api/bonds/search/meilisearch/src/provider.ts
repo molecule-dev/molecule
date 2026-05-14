@@ -8,7 +8,7 @@
  */
 
 import type { Hit, RecordAny, SearchParams } from 'meilisearch'
-import { MeiliSearch } from 'meilisearch'
+import { Meilisearch } from 'meilisearch'
 
 import type {
   BulkIndexResult,
@@ -33,7 +33,7 @@ export const createProvider = (options?: MeilisearchOptions): SearchProvider => 
   const host = options?.host ?? process.env.MEILISEARCH_URL ?? 'http://localhost:7700'
   const apiKey = options?.apiKey ?? process.env.MEILISEARCH_API_KEY ?? ''
 
-  const client = new MeiliSearch({ host, apiKey })
+  const client = new Meilisearch({ host, apiKey })
 
   return {
     async createIndex(name: string, schema?: IndexSchema): Promise<void> {
