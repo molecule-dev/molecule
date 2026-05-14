@@ -278,11 +278,13 @@ export function AuthShellSplitRow({ children, className, ...rest }: AuthShellSpl
 }
 
 /**
- * The brand-panel half of `<AuthShellSplit>` — an `<aside>` that
- * collapses on mobile (`hidden lg:flex`, the one universally-shared
- * concern). Fill it with the app's bespoke decoration, wordmark, social
- * proof, etc. Pass `className` for the panel's width ratio, padding,
- * gradient, and positioning.
+ * A decorative `<aside>` that collapses on mobile (`hidden lg:flex`, the
+ * one universally-shared concern) — the brand-panel half of
+ * `<AuthShellSplit>`, or the decorative column of any grid-based auth
+ * layout. Fill it with the app's bespoke decoration, wordmark, social
+ * proof, etc. Pass `className` for width ratio, padding, gradient, and
+ * positioning; extra props (`style`, `aria-*`, `data-*`) pass through to
+ * the `<aside>`.
  */
 export interface AuthShellPanelProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode
