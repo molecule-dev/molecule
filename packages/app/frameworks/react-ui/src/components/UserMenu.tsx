@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -71,6 +72,15 @@ export function UserMenu({
   const cm = getClassMap()
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const location = useLocation()
+
+  // Close the drawer whenever the route changes. React Router updates
+  // `location` on both in-app navigation and browser back/forward
+  // (popstate), so a single effect covers both — without it the drawer
+  // stays mounted over the next page and blocks clicks underneath.
+  useEffect(() => {
+    setOpen(false)
+  }, [location.pathname, location.search])
 
   return (
     <>

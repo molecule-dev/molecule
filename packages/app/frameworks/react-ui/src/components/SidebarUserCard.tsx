@@ -6,6 +6,7 @@
 
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { useAuth, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -109,14 +110,15 @@ export function SidebarUserCard({
   const auth = useAuth<AccountUserShape>()
   const user = auth.user
   const [open, setOpen] = useState(false)
+  const location = useLocation()
 
-  // Close drawer on browser back/forward navigation so subsequent
-  // SPA route changes don't leave the modal overlay covering the page.
+  // Close the drawer whenever the route changes. React Router updates
+  // `location` on both in-app navigation and browser back/forward
+  // (popstate), so a single effect covers both — without it the drawer
+  // stays mounted over the next page and blocks clicks underneath.
   useEffect(() => {
-    const onPop = () => setOpen(false)
-    window.addEventListener('popstate', onPop)
-    return () => window.removeEventListener('popstate', onPop)
-  }, [])
+    setOpen(false)
+  }, [location.pathname, location.search])
 
   const guestName = t('sidebarUserCard.guest', {}, { defaultValue: 'Guest' })
   const displayName = name ?? user?.name ?? user?.email ?? guestName
