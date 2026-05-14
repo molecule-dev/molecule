@@ -269,7 +269,8 @@ export interface AuthShellSplitRowProps {
 
 export function AuthShellSplitRow({ children, className }: AuthShellSplitRowProps) {
   const cm = getClassMap()
-  return <div className={cm.cn(cm.flex1, className)}>{children}</div>
+  // `<main>` — the row is the auth page's primary content landmark.
+  return <main className={cm.cn(cm.flex1, className)}>{children}</main>
 }
 
 /**
