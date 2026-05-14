@@ -29,8 +29,8 @@
   "license": "MIT",
   "dependencies": {
     "@molecule/app-i18n-i18next": "1.0.0",
-    "i18next": "26.1.0",
-    "react-i18next": "17.0.7"
+    "i18next": "26.2.0",
+    "react-i18next": "17.0.8"
   },
   "devDependencies": {
     "@types/node": "25.8.0",

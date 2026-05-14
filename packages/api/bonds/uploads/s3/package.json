@@ -28,8 +28,8 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@aws-sdk/client-s3": "3.997.0",
-    "@aws-sdk/lib-storage": "3.997.0",
+    "@aws-sdk/client-s3": "3.1047.0",
+    "@aws-sdk/lib-storage": "3.1047.0",
     "uuid": "14.0.0"
   },
   "devDependencies": {

@@ -29,7 +29,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@napi-rs/canvas": "0.1.100"
+    "@napi-rs/canvas": "1.0.0"
   },
   "devDependencies": {
     "@types/node": "25.8.0",

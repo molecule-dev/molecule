@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@elastic/elasticsearch": "9.3.4"
+    "@elastic/elasticsearch": "9.4.0"
   },
   "peerDependencies": {
     "@molecule/api-search": "^1.0.0"
