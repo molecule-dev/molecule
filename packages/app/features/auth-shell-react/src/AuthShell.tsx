@@ -302,9 +302,11 @@ export function AuthShellPanel({ children, className, ...rest }: AuthShellPanelP
 }
 
 /**
- * The form-card half of `<AuthShellSplit>` — a `<section>` that centers
- * its children (typically an `<AuthShellCard>`). Provides only the
- * centering; pass `className` for the column's width ratio and padding.
+ * A `<section>` (or `<main>`, via `as`) that centers its children on
+ * both axes — the form-card half of `<AuthShellSplit>`, or the centered
+ * content column of a header / main / footer stacked auth layout.
+ * Provides only the `flex` centering; pass `className` for width ratio,
+ * padding, and `flex-1`.
  */
 export interface AuthShellCardColumnProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode
