@@ -14,11 +14,16 @@ on `@molecule/app-oauth-logos-react` for the canonical brand marks.
   from their auth bond.
 - `layout` toggles `'horizontal' | 'vertical' | 'grid'` — the grid
   variant auto-paginates into a 2-column layout above 4 providers.
-- Brand-spec backgrounds (`#fff` for Google, `#24292f` for GitHub,
-  etc.) are applied inline because they are exact provider-mandated
-  color tokens that ClassMap intentionally does not encode. Layout,
-  padding, radius, and chrome all come from the wired ClassMap
-  (`cm.oauthButtonGroup`, `cm.oauthButton`, `cm.oauthButtonIcon`).
+- `brandButtons` opt-in paints each button with its provider's exact
+  brand-spec background (`#fff` for Google, `#24292f` for GitHub,
+  etc.) via inline `style` — those are provider-mandated color tokens
+  ClassMap intentionally does not encode. It is independent of
+  `iconMode` (logo color). Layout, padding, radius, and chrome all
+  come from the wired ClassMap (`cm.oauthButtonGroup`,
+  `cm.oauthButton`, `cm.oauthButtonIcon`).
+- `<OAuthDivider>` is the composable "or continue with" rule — the
+  config-driven `<OAuthButtons>` in `@molecule/app-auth-ui-react`
+  composes it above this row.
 
 Companion locale bond:
 `@molecule/app-locales-oauth-buttons-react` (79 languages).
@@ -79,28 +84,30 @@ interface OAuthButtonsProps {
   /**
    * Ordered list of provider ids to render.
    *
-   * Provider ids are normalized canonical strings (e.g. `'google'`,
-   * `'github'`). Unknown ids fall through to the dispatcher's `fallback`
-   * (rendered as the provider id text).
+   * Typically the `string[]` from `useOAuth(config).providers`. Known
+   * canonical ids (e.g. `'google'`, `'github'` — see `OAuthProviderId`)
+   * get their brand logo + localized label; unknown ids fall through to
+   * a synthesized label and a ClassMap-neutral button, so any string is
+   * safe to pass.
    */
-  providers: OAuthProviderId[]
+  providers: string[]
   /**
-   * Optional click handler. Called with the canonical provider id when
-   * the user activates a button.
+   * Optional click handler. Called with the provider id when the user
+   * activates a button.
    *
    * If omitted, buttons render as plain `<button type="button">` with no
    * default behavior — host apps wire the handler (typically calling
    * `redirect(provider)` from `useOAuth(...)` or the auth bond's
    * `signInWithProvider(provider)`).
    */
-  onSelect?: (provider: OAuthProviderId) => void
+  onSelect?: (provider: string) => void
   /**
    * Optional success callback. Reserved for host apps that resolve the
    * OAuth handshake inline (popup / pkce-on-page) rather than via a full
-   * page redirect. Called with the canonical provider id once the
-   * handshake completes successfully.
+   * page redirect. Called with the provider id once the handshake
+   * completes successfully.
    */
-  onSuccess?: (provider: OAuthProviderId) => void
+  onSuccess?: (provider: string) => void
   /**
    * Layout variant. Defaults to `'horizontal'` (flex-wrap row).
    *
@@ -114,12 +121,43 @@ interface OAuthButtonsProps {
   /** Logo color mode — `'brand'` (default, official multi-color) or `'mono'`. */
   iconMode?: 'brand' | 'mono'
   /**
+   * When true, paint each button with its provider's brand-spec
+   * background/foreground colors (Google white, GitHub `#24292f`, etc.)
+   * via inline `style`. Defaults to `false` — buttons stay
+   * ClassMap-neutral so the row is visually uniform.
+   *
+   * Independent of `iconMode`: `iconMode` controls the *logo's* color
+   * rendering, `brandButtons` controls the *button surface*.
+   */
+  brandButtons?: boolean
+  /**
    * When true, render the localized provider label text next to the
    * logo (e.g. `"Continue with GitHub"`). Defaults to `false` (icon-only
    * pixel-identical row across providers).
    */
   showLabels?: boolean
-  /** Extra class applied to the outer wrapper. */
+  /** Extra class composed onto the button-group element. */
+  className?: string
+}
+```
+
+#### `OAuthDividerProps`
+
+Props accepted by `<OAuthDivider />` — the "or continue with" rule
+rendered above an OAuth button row.
+
+```typescript
+interface OAuthDividerProps {
+  /**
+   * i18n key for the divider label. Defaults to `'oauth.orContinueWith'`.
+   */
+  labelKey?: string
+  /**
+   * Fallback divider text if the i18n key is missing. Defaults to
+   * `'or continue with'`.
+   */
+  labelDefault?: string
+  /** Extra class composed onto the divider wrapper. */
   className?: string
 }
 ```
