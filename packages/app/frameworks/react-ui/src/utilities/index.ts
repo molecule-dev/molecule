@@ -4,4 +4,5 @@
  * @module
  */
 
+export * from './initials.js'
 export * from './renderIcon.js'
