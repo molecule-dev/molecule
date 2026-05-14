@@ -226,24 +226,21 @@ export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps) {
  * brand-panel + card-column row) as a child, and optionally a site
  * `<Footer />` after it. The row flexes to fill, so the footer sits at
  * the bottom.
+ *
+ * Provides only the structural concern (`flex-col` + `min-h-screen`).
+ * Background, text color, and font are per-app — pass them via
+ * `className`.
  */
 export interface AuthShellSplitProps {
   children: ReactNode
-  /** Extra classes on the outer container. */
+  /** Cosmetic classes (background, text color, font) for the outer container. */
   className?: string
 }
 
 export function AuthShellSplit({ children, className }: AuthShellSplitProps) {
   const cm = getClassMap()
   return (
-    <div
-      className={cm.cn(
-        cm.flex({ direction: 'col' }),
-        cm.minH('screen'),
-        'bg-background text-on-surface',
-        className,
-      )}
-    >
+    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.minH('screen'), className)}>
       {children}
     </div>
   )
@@ -276,43 +273,31 @@ export function AuthShellSplitRow({ children, className }: AuthShellSplitRowProp
 }
 
 /**
- * The brand-panel half of `<AuthShellSplit>` — `hidden lg:flex` so it
- * collapses on mobile. Fill it with the app's bespoke decoration,
- * wordmark, social proof, etc. Pass `className` to tune the width ratio
- * / gradient (default: half-width column with generous padding).
+ * The brand-panel half of `<AuthShellSplit>` — an `<aside>` that
+ * collapses on mobile (`hidden lg:flex`, the one universally-shared
+ * concern). Fill it with the app's bespoke decoration, wordmark, social
+ * proof, etc. Pass `className` for the panel's width ratio, padding,
+ * gradient, and positioning.
  */
 export interface AuthShellPanelProps {
   children: ReactNode
-  /** Override the panel width + chrome (default `w-1/2` padded column). */
+  /** Cosmetic classes — width ratio, padding, gradient, positioning. */
   className?: string
 }
 
 export function AuthShellPanel({ children, className }: AuthShellPanelProps) {
   const cm = getClassMap()
-  return (
-    <aside
-      className={
-        className ??
-        cm.cn(
-          cm.flex({ direction: 'col', justify: 'between' }),
-          cm.sp('p', 12),
-          'relative overflow-hidden hidden lg:flex w-1/2',
-        )
-      }
-    >
-      {children}
-    </aside>
-  )
+  return <aside className={cm.cn('hidden lg:flex', className)}>{children}</aside>
 }
 
 /**
- * The form-card half of `<AuthShellSplit>` — centers its children
- * (typically an `<AuthShellCard>`) in a padded column. Pass `className`
- * to tune the width ratio so it pairs with `<AuthShellPanel>`.
+ * The form-card half of `<AuthShellSplit>` — a `<section>` that centers
+ * its children (typically an `<AuthShellCard>`). Provides only the
+ * centering; pass `className` for the column's width ratio and padding.
  */
 export interface AuthShellCardColumnProps {
   children: ReactNode
-  /** Override the column width + chrome (default `w-full lg:w-1/2`). */
+  /** Cosmetic classes — width ratio, padding. */
   className?: string
 }
 
@@ -322,8 +307,6 @@ export function AuthShellCardColumn({ children, className }: AuthShellCardColumn
     <section
       className={cm.cn(
         cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
-        cm.sp('p', 6),
-        'w-full lg:w-1/2',
         className,
       )}
     >

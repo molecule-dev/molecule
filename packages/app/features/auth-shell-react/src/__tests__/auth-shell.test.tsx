@@ -191,10 +191,12 @@ describe('AuthShellPanel', () => {
     expect(markup).toContain('hidden lg:flex')
   })
 
-  it('lets className fully override the default panel chrome', () => {
+  it('appends className alongside the shared hidden lg:flex collapse', () => {
     const markup = html(createElement(AuthShellPanel, { children: 'x', className: 'my-panel' }))
     expect(markup).toContain('my-panel')
-    expect(markup).not.toContain('hidden lg:flex')
+    // `hidden lg:flex` is the one universally-shared concern and always
+    // applies; the app's className (width / gradient / padding) appends.
+    expect(markup).toContain('hidden lg:flex')
   })
 })
 
