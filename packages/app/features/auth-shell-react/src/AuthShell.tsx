@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { CSSProperties, HTMLAttributes, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useTranslation } from '@molecule/app-react'
@@ -231,16 +231,16 @@ export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps) {
  * Background, text color, and font are per-app — pass them via
  * `className`.
  */
-export interface AuthShellSplitProps {
+export interface AuthShellSplitProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode
   /** Cosmetic classes (background, text color, font) for the outer container. */
   className?: string
 }
 
-export function AuthShellSplit({ children, className }: AuthShellSplitProps) {
+export function AuthShellSplit({ children, className, ...rest }: AuthShellSplitProps) {
   const cm = getClassMap()
   return (
-    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.minH('screen'), className)}>
+    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.minH('screen'), className)} {...rest}>
       {children}
     </div>
   )
@@ -258,7 +258,7 @@ export function AuthShellSplit({ children, className }: AuthShellSplitProps) {
  * flex row or `cm.grid({ cols: 2 })` (or a custom grid template) so the
  * primitive never fights a grid-based shell.
  */
-export interface AuthShellSplitRowProps {
+export interface AuthShellSplitRowProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode
   /**
    * Layout classes for the row — typically `cm.flex({})` or
@@ -267,10 +267,14 @@ export interface AuthShellSplitRowProps {
   className?: string
 }
 
-export function AuthShellSplitRow({ children, className }: AuthShellSplitRowProps) {
+export function AuthShellSplitRow({ children, className, ...rest }: AuthShellSplitRowProps) {
   const cm = getClassMap()
   // `<main>` — the row is the auth page's primary content landmark.
-  return <main className={cm.cn(cm.flex1, className)}>{children}</main>
+  return (
+    <main className={cm.cn(cm.flex1, className)} {...rest}>
+      {children}
+    </main>
+  )
 }
 
 /**
@@ -280,15 +284,19 @@ export function AuthShellSplitRow({ children, className }: AuthShellSplitRowProp
  * proof, etc. Pass `className` for the panel's width ratio, padding,
  * gradient, and positioning.
  */
-export interface AuthShellPanelProps {
+export interface AuthShellPanelProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode
   /** Cosmetic classes — width ratio, padding, gradient, positioning. */
   className?: string
 }
 
-export function AuthShellPanel({ children, className }: AuthShellPanelProps) {
+export function AuthShellPanel({ children, className, ...rest }: AuthShellPanelProps) {
   const cm = getClassMap()
-  return <aside className={cm.cn('hidden lg:flex', className)}>{children}</aside>
+  return (
+    <aside className={cm.cn('hidden lg:flex', className)} {...rest}>
+      {children}
+    </aside>
+  )
 }
 
 /**
@@ -296,13 +304,13 @@ export function AuthShellPanel({ children, className }: AuthShellPanelProps) {
  * its children (typically an `<AuthShellCard>`). Provides only the
  * centering; pass `className` for the column's width ratio and padding.
  */
-export interface AuthShellCardColumnProps {
+export interface AuthShellCardColumnProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode
   /** Cosmetic classes — width ratio, padding. */
   className?: string
 }
 
-export function AuthShellCardColumn({ children, className }: AuthShellCardColumnProps) {
+export function AuthShellCardColumn({ children, className, ...rest }: AuthShellCardColumnProps) {
   const cm = getClassMap()
   return (
     <section
@@ -310,6 +318,7 @@ export function AuthShellCardColumn({ children, className }: AuthShellCardColumn
         cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
         className,
       )}
+      {...rest}
     >
       {children}
     </section>
