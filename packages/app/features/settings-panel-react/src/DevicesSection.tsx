@@ -32,7 +32,7 @@ export function DevicesSection({
 
   const load = useCallback(async () => {
     try {
-      const response = await http.get<{ data: Device[] }>('/devices')
+      const response = await http.get<{ data: Device[] }>('/api/devices')
       setDevices(response.data.data || [])
     } catch {
       // Devices may not be available

@@ -25,7 +25,7 @@ export function AccountSection() {
   // on mount. The fetch is fire-and-forget; failures are silent
   // because `useAuth().user` already has the cached profile.
   useEffect(() => {
-    http.get('/users/me').catch(() => {
+    http.get('/api/users/me').catch(() => {
       /* refresh is best-effort */
     })
   }, [http])
@@ -35,7 +35,7 @@ export function AccountSection() {
     setSaving(true)
     setError('')
     try {
-      await http.patch(`/users/${user?.id}`, { email })
+      await http.patch(`/api/users/${user?.id}`, { email })
     } catch (err) {
       setError(err instanceof Error ? err.message : t('settings.failedToUpdateEmail'))
       setEmail(user?.email || '')

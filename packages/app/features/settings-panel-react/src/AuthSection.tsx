@@ -44,7 +44,7 @@ export function AuthSection() {
   const handleToggleTwoFactor = async (enabled: boolean) => {
     setTwoFactorLoading(true)
     try {
-      await http.patch(`/users/${user?.id}`, { data: { twoFactorEnabled: enabled } })
+      await http.patch(`/api/users/${user?.id}`, { twoFactorEnabled: enabled })
       setTwoFactorEnabled(enabled)
     } catch {
       // Revert on failure

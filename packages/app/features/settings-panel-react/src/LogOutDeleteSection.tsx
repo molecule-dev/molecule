@@ -40,7 +40,7 @@ export function LogOutDeleteSection() {
     setLoading(true)
     setError('')
     try {
-      await http.delete(`/users/${user?.id}`, { data: { password } })
+      await http.delete(`/api/users/${user?.id}`, { data: { password } })
       await logout()
       onClose()
       navigate('/login')
