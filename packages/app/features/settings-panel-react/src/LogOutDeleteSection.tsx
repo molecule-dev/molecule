@@ -55,7 +55,7 @@ export function LogOutDeleteSection() {
     <>
       <section className={cm.stack(3)}>
         <Button color="error" fullWidth onClick={handleLogout} data-mol-id="user-menu-logout">
-          {t('settings.logOut')}
+          {t('settings.logOut', undefined, { defaultValue: 'Sign out' })}
         </Button>
         <Button
           variant="ghost"
@@ -63,7 +63,7 @@ export function LogOutDeleteSection() {
           onClick={() => setShowModal(true)}
           data-mol-id="user-menu-delete-account"
         >
-          {t('settings.deleteAccount')}
+          {t('settings.deleteAccount', undefined, { defaultValue: 'Delete account' })}
         </Button>
       </section>
 
