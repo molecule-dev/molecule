@@ -132,6 +132,11 @@ describe('AuthBrandHeaderWordmark', () => {
     expect(markup).toContain('custom-wordmark')
     expect(markup).toContain('color:#7c3aed')
   })
+
+  it('includes text-on-surface by default so the wordmark stays legible in both themes', () => {
+    const markup = html(createElement(AuthBrandHeaderWordmark, { children: 'Reverb' }))
+    expect(markup).toContain('text-on-surface')
+  })
 })
 
 describe('AuthBrandHeaderTagline', () => {
