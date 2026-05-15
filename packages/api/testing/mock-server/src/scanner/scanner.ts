@@ -461,7 +461,11 @@ function inferResponseHints(
     isPaginatedEnvelope: boolean
   },
 ): ResponseHint {
-  const isSingle = path.includes(':id') || path.includes(':itemId')
+  // Recognize any `:<word>Id` (or `:<word>id`) param as a single-resource
+  // marker, not just :id/:itemId — e.g. :locationId, :botId, :userId. The
+  // previous narrow check classified those as list endpoints, so they
+  // returned `[]` and the calling page rendered empty.
+  const isSingle = /:\w*[Ii]d\b/.test(path)
   const isReport = path.includes('/reports/') || path.includes('/storefront/')
 
   // A handler whose success response is a bare object literal
