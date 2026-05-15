@@ -89,10 +89,28 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
         const scanResult = scanHandlers(resolvedHandlersPath, appType)
         const scanned = buildFixtureSet(appType, scanResult.endpoints, resolvedFixturesPath)
         if (scanned) {
-          // Add scanner-discovered endpoints that aren't already in the pool
+          // Directory fixtures key endpoints as `GET /api/x`; the scanner keys
+          // them as `GET /x` (the router.use prefix has no /api). Normalize so
+          // the two sets reconcile instead of double-registering.
+          const norm = (k: string) => k.replace(/^(\w+) (?!\/api\/)\//, '$1 /api/')
+          const dirKeys = new Set([...fixtures.endpoints.keys()].map(norm))
           for (const [key, fixture] of scanned.endpoints) {
-            if (!fixtures.endpoints.has(key)) {
-              fixtures.endpoints.set(key, fixture)
+            const nk = norm(key)
+            if (!dirKeys.has(nk)) {
+              // Scanner-discovered endpoint not covered by a fixture file.
+              fixtures.endpoints.set(nk, fixture)
+            } else if (fixture.endpoint.responseHints.isPaginated) {
+              // Endpoint exists in both: the directory fixture defaults a list
+              // GET to a bare array, but the handler actually returns a
+              // `{ data, total }` envelope — re-wrap the directory fixture's
+              // data so the response shape matches what app pages expect.
+              const dir = fixtures.endpoints.get(nk)
+              if (dir && Array.isArray(dir.successResponse)) {
+                const arr = dir.successResponse as unknown[]
+                dir.successResponse = { data: arr, total: arr.length }
+                dir.emptyResponse = { data: [], total: 0 }
+                dir.endpoint.responseHints.isPaginated = true
+              }
             }
           }
         }

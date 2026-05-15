@@ -63,12 +63,15 @@ describe('createMockServer', () => {
     const response = await fetch(`http://localhost:${server.port}/api/accounts`)
     expect(response.status).toBe(200)
 
-    const body = await response.json()
-    expect(Array.isArray(body.data)).toBe(true)
-    expect(body.data.length).toBeGreaterThan(0)
+    // generateFixtures serves list GETs as a bare array unless the handler
+    // scanner detects a { data } envelope. personal-finance/accounts is bare.
+    const data = await response.json()
+    const accounts = Array.isArray(data) ? data : data.data
+    expect(Array.isArray(accounts)).toBe(true)
+    expect(accounts.length).toBeGreaterThan(0)
 
     // Check the first account has realistic fields
-    const account = body.data[0]
+    const account = accounts[0]
     expect(account).toHaveProperty('id')
     expect(account).toHaveProperty('name')
     expect(account).toHaveProperty('balance')
@@ -87,11 +90,12 @@ describe('createMockServer', () => {
     const response = await fetch(`http://localhost:${server.port}/api/transactions`)
     expect(response.status).toBe(200)
 
-    const body = await response.json()
-    expect(Array.isArray(body.data)).toBe(true)
-    expect(body.data.length).toBeGreaterThan(0)
+    const data = await response.json()
+    const txs = Array.isArray(data) ? data : data.data
+    expect(Array.isArray(txs)).toBe(true)
+    expect(txs.length).toBeGreaterThan(0)
 
-    const tx = body.data[0]
+    const tx = txs[0]
     expect(tx).toHaveProperty('description')
     expect(tx).toHaveProperty('amount')
   })
@@ -122,9 +126,10 @@ describe('createMockServer', () => {
     const response = await fetch(`http://localhost:${server.port}/api/accounts?_state=empty`)
     expect(response.status).toBe(200)
 
-    const body = await response.json()
-    expect(Array.isArray(body.data)).toBe(true)
-    expect(body.data).toHaveLength(0)
+    const data = await response.json()
+    const accounts = Array.isArray(data) ? data : data.data
+    expect(Array.isArray(accounts)).toBe(true)
+    expect(accounts).toHaveLength(0)
   })
 
   it('returns unauthorized when _state=unauthorized', async () => {
