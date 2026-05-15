@@ -21,22 +21,57 @@
  * Accepts:
  *   - a bare array → returned as-is (cast)
  *   - `{ data: T[] }` envelope → the inner array
+ *   - `HttpResponse<T[]>` (i.e. `{ data: T[], status, ... }`) → the inner array
+ *   - `HttpResponse<{ data: T[] }>` (the response of an envelope-returning
+ *     endpoint as it arrives from `@molecule/app-http`'s `HttpClient`) → the
+ *     doubly-nested inner array
  *   - anything else → `[]`
  *
- * @param res - Raw response body (e.g. `HttpResponse.data` from `@molecule/app-http`).
+ * Callers commonly pass either the raw JSON body (e.g. from `fetch().then(r =>
+ * r.json())`) or the `HttpResponse` returned by `useHttpClient().get(...)`.
+ * Both shapes are handled here so pages don't have to remember to call
+ * `unwrapList(res.data)` vs `unwrapList(res)`.
+ *
+ * @param res - Raw response body OR an `HttpResponse` envelope from `@molecule/app-http`.
  * @returns A typed array `T[]`; never `null`/`undefined`.
  */
 export function unwrapList<T>(res: unknown): T[] {
   if (Array.isArray(res)) return res as T[]
-  if (
-    res &&
-    typeof res === 'object' &&
-    'data' in res &&
-    Array.isArray((res as { data: unknown }).data)
-  ) {
-    return (res as { data: T[] }).data
+  if (res && typeof res === 'object' && 'data' in res) {
+    const inner = (res as { data: unknown }).data
+    if (Array.isArray(inner)) return inner as T[]
+    // `HttpResponse<{ data: T[] }>` — caller passed the whole response object
+    // (typeof `{ data, status, statusText, headers, config }`) and the inner
+    // JSON body is itself an envelope `{ data: T[] }`. Peel both layers, but
+    // only when the outer shape is unambiguously an `HttpResponse` (i.e. has
+    // the `status: number` field), so we don't mis-peel application objects.
+    if (
+      isHttpResponseLike(res) &&
+      inner &&
+      typeof inner === 'object' &&
+      'data' in inner &&
+      Array.isArray((inner as { data: unknown }).data)
+    ) {
+      return (inner as { data: T[] }).data
+    }
   }
   return []
+}
+
+/**
+ * Recognise an `HttpResponse` from `@molecule/app-http` without taking a
+ * runtime dependency on its types: an object with both `data` and a numeric
+ * `status` field. Plain API JSON bodies don't include `status`, so the check
+ * is unambiguous.
+ */
+function isHttpResponseLike(res: unknown): boolean {
+  return (
+    !!res &&
+    typeof res === 'object' &&
+    'data' in res &&
+    'status' in res &&
+    typeof (res as { status: unknown }).status === 'number'
+  )
 }
 
 /**
@@ -67,7 +102,26 @@ export function unwrapSingle<T>(res: unknown): T | null {
       // Caller expects a single resource. If the envelope contains an array
       // (mock-server returns [] for unmatched endpoints), treat as missing.
       if (Array.isArray(inner)) return null
-      if (typeof inner === 'object' && Object.keys(inner as object).length === 0) return null
+      if (typeof inner === 'object') {
+        const innerObj = inner as Record<string, unknown>
+        // `HttpResponse<{ data: T }>` — caller passed the whole HttpResponse
+        // (recognisable by the `status: number` sibling on `res`) and the
+        // inner JSON body is itself an envelope `{ data: T }`. Peel the second
+        // layer. We restrict this to the HttpResponse case so plain payloads
+        // shaped `{ data: { data: ... } }` keep their existing semantics.
+        if (
+          isHttpResponseLike(res) &&
+          'data' in innerObj &&
+          innerObj.data !== null &&
+          innerObj.data !== undefined &&
+          typeof innerObj.data === 'object' &&
+          !Array.isArray(innerObj.data) &&
+          Object.keys(innerObj.data as object).length > 0
+        ) {
+          return innerObj.data as T
+        }
+        if (Object.keys(innerObj).length === 0) return null
+      }
       return inner as T
     }
     if (Object.keys(res as object).length === 0) return null

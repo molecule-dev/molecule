@@ -36,6 +36,38 @@ describe('unwrapList', () => {
   it('returns [] for a non-array object with no data field', () => {
     expect(unwrapList({ id: 1, name: 'x' })).toEqual([])
   })
+
+  it('unwraps an HttpResponse wrapping a bare array', () => {
+    // Mimic `client.get()` returning HttpResponse with bare-array body.
+    const httpResponse = {
+      data: [{ id: 1 }, { id: 2 }],
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { method: 'GET', url: '/x' },
+    }
+    expect(unwrapList<{ id: number }>(httpResponse)).toEqual([{ id: 1 }, { id: 2 }])
+  })
+
+  it('unwraps an HttpResponse wrapping a { data: T[] } envelope', () => {
+    // The createBillingRouter / molecule resource routes return
+    // `{ data: [...] }`. After going through HttpClient it arrives as
+    // HttpResponse<{ data: T[] }>. Peel both layers.
+    const httpResponse = {
+      data: { data: [{ id: 1 }, { id: 2 }] },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { method: 'GET', url: '/x' },
+    }
+    expect(unwrapList<{ id: number }>(httpResponse)).toEqual([{ id: 1 }, { id: 2 }])
+  })
+
+  it('does NOT mis-peel application JSON shaped `{ data: { data: ... } }`', () => {
+    // Without an HttpResponse-like outer shape (status field), the second
+    // layer must be left alone so existing semantics are preserved.
+    expect(unwrapList({ data: { data: [1, 2, 3] } })).toEqual([])
+  })
 })
 
 describe('unwrapSingle', () => {
@@ -78,5 +110,39 @@ describe('unwrapSingle', () => {
     expect(unwrapSingle('foo')).toBeNull()
     expect(unwrapSingle(null)).toBeNull()
     expect(unwrapSingle(undefined)).toBeNull()
+  })
+
+  it('unwraps an HttpResponse wrapping a bare resource', () => {
+    const httpResponse = {
+      data: { id: 1, name: 'Mira' },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { method: 'GET', url: '/x' },
+    }
+    expect(unwrapSingle<{ id: number; name: string }>(httpResponse)).toEqual({
+      id: 1,
+      name: 'Mira',
+    })
+  })
+
+  it('unwraps an HttpResponse wrapping a { data: T } envelope', () => {
+    const httpResponse = {
+      data: { data: { id: 5, name: 'Hana' } },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { method: 'GET', url: '/x' },
+    }
+    expect(unwrapSingle<{ id: number; name: string }>(httpResponse)).toEqual({
+      id: 5,
+      name: 'Hana',
+    })
+  })
+
+  it('does NOT mis-peel application JSON shaped `{ data: { data: ... } }`', () => {
+    // Without an HttpResponse-like outer shape (status field), the existing
+    // "single object" semantics returns the outer `data` field as-is.
+    expect(unwrapSingle({ data: { data: { id: 5 } } })).toEqual({ data: { id: 5 } })
   })
 })
