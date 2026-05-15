@@ -80,6 +80,9 @@ export function mountDefaultUserCrudRoutes(router: Router, User: UserMap): void 
  */
 export function mountDefaultUserSecurityRoutes(router: Router, User: UserMap): void {
   router.patch('/users/:id/password', User.authSelf, User.updatePassword)
+  // POST alias for clients that use the auth-client `changePassword` flow,
+  // which historically dispatches POST. Same handler; both verbs accepted.
+  router.post('/users/:id/password', User.authSelf, User.updatePassword)
   router.post('/users/:id/verify-two-factor', User.authSelf, User.verifyTwoFactor)
 }
 
