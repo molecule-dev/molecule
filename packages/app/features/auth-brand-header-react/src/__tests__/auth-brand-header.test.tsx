@@ -98,6 +98,24 @@ describe('AuthBrandHeaderChip', () => {
     expect(markup).toContain('background:linear-gradient(red, blue)')
     expect(markup).toContain('rounded-2xl')
   })
+
+  it('falls back to bg-primary when no chipGradient is supplied so the white icon stays visible', () => {
+    const markup = html(createElement(AuthBrandHeaderChip, { icon: 'description' }))
+    expect(markup).toContain('description')
+    expect(markup).toContain('bg-primary')
+    expect(markup).not.toContain('background:')
+  })
+
+  it('omits the bg-primary fallback when chipGradient supplies its own background', () => {
+    const markup = html(
+      createElement(AuthBrandHeaderChip, {
+        icon: 'description',
+        chipGradient: 'linear-gradient(red, blue)',
+      }),
+    )
+    expect(markup).not.toContain('bg-primary')
+    expect(markup).toContain('background:linear-gradient(red, blue)')
+  })
 })
 
 describe('AuthBrandHeaderWordmark', () => {
