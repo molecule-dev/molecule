@@ -88,11 +88,17 @@ function mapResponseFormat(
     // gpt-image-1 always returns base64; output_format controls the image encoding
     return { output_format: 'png' }
   }
-  // DALL-E models use response_format
+  // DALL-E models historically accepted response_format='url'|'b64_json'.
+  // OpenAI now rejects this parameter on the current /images/generations
+  // endpoint ("Unknown parameter: 'response_format'"). The default
+  // response shape returns `data[].url`, which is what callers expect,
+  // so only attach the parameter when the caller explicitly asks for
+  // base64 — and even then we send it knowing it may be rejected, in
+  // which case the caller should switch to gpt-image-1.
   if (responseFormat === 'base64') {
     return { response_format: 'b64_json' }
   }
-  return { response_format: 'url' }
+  return {}
 }
 
 /**
