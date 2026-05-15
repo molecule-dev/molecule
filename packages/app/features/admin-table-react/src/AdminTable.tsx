@@ -30,6 +30,8 @@ interface AdminTableProps<T> {
   /** Slot rendered below the table (typically a `<Pagination>` row). */
   footer?: ReactNode
   className?: string
+  /** Optional `data-mol-id` to attach to the rendered `<tbody>` for tests/AI. */
+  tbodyDataMolId?: string
 }
 
 /** Admin-style data table. */
@@ -47,6 +49,7 @@ export function AdminTable<T>({
   rowActionsAriaLabel,
   footer,
   className,
+  tbodyDataMolId,
 }: AdminTableProps<T>) {
   const cm = getClassMap()
   const [internalSelected, setInternalSelected] = useState<string[]>([])
@@ -91,7 +94,7 @@ export function AdminTable<T>({
             ) : null}
           </tr>
         </thead>
-        <tbody className={cm.cn('divide-y divide-slate-100')}>
+        <tbody className={cm.cn('divide-y divide-slate-100')} data-mol-id={tbodyDataMolId}>
           {loading
             ? Array.from({ length: skeletonRowCount }).map((_, i) => (
                 <tr key={i} className={cm.cn('animate-pulse')}>
