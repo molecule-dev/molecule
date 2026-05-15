@@ -15,7 +15,6 @@ import {
   get as bondGet,
   getAll as bondGetAll,
   isBonded,
-  require as bondRequire,
 } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
@@ -64,10 +63,21 @@ export function setProvider(nameOrProvider: string | AIProvider, provider?: AIPr
 /**
  * Retrieves the singleton AI provider, or `null` if none is bonded.
  *
+ * Falls back to a single named provider when no singleton is bonded —
+ * this lets apps that wire `bond('ai', 'anthropic', provider)` directly
+ * (without going through `setProvider`'s singleton-fallback) still work
+ * with code that uses the simple `getProvider()` / `requireProvider()`
+ * accessors. When multiple named providers are bonded, the fallback
+ * declines (returns `null`) because the choice is ambiguous — those
+ * call sites must use `getProviderByName(name)` explicitly.
+ *
  * @returns The bonded AI provider, or `null`.
  */
 export function getProvider(): AIProvider | null {
-  return bondGet<AIProvider>(BOND_TYPE) ?? null
+  const singleton = bondGet<AIProvider>(BOND_TYPE)
+  if (singleton) return singleton
+  const named = bondGetAll<AIProvider>(BOND_TYPE)
+  return named.size === 1 ? (named.values().next().value ?? null) : null
 }
 
 /**
@@ -103,16 +113,19 @@ export function hasProvider(name?: string): boolean {
  * Retrieves the bonded AI provider, throwing if none is bonded.
  * Use this when AI functionality is required.
  *
+ * Routes through `getProvider()` so the same single-named-bond fallback
+ * applies — apps that wire `bond('ai', 'anthropic', provider)` directly
+ * still satisfy this call without having to switch to the explicit
+ * `getProviderByName()` pattern.
+ *
  * @returns The bonded AI provider.
  */
 export function requireProvider(): AIProvider {
-  try {
-    return bondRequire<AIProvider>(BOND_TYPE)
-  } catch {
-    throw new Error(
-      t('ai.error.noProvider', undefined, {
-        defaultValue: 'AI provider not configured. Bond an AI provider first.',
-      }),
-    )
-  }
+  const provider = getProvider()
+  if (provider) return provider
+  throw new Error(
+    t('ai.error.noProvider', undefined, {
+      defaultValue: 'AI provider not configured. Bond an AI provider first.',
+    }),
+  )
 }
