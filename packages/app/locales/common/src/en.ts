@@ -120,7 +120,7 @@ export const en: CommonTranslations = {
   'settings.email': 'Email',
   'settings.failedToDeleteAccount': 'Failed to delete account.',
   'settings.failedToUpdateEmail': 'Failed to update email.',
-  'settings.logOut': 'Log out',
+  'settings.logOut': 'Sign out',
   'settings.network': 'Network',
   'settings.noDevices': 'No devices found',
   'settings.notifications': 'Notifications',
