@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import type { UserProfile } from '@molecule/app-auth'
 import { useAuth, useHttpClient, useTranslation } from '@molecule/app-react'
@@ -6,8 +6,10 @@ import { getClassMap } from '@molecule/app-ui'
 import { Flex, Input, Spinner } from '@molecule/app-ui-react'
 
 /**
- * Email-editing section. On blur, PATCHes `/users/:id` with the new
- * email; reverts + shows an inline error if the request fails.
+ * Email-editing section. Fetches `/users/me` on mount to refresh the
+ * current user record; on blur of the email field, PATCHes
+ * `/users/:id` with the new email; reverts + shows an inline error
+ * if the request fails.
  */
 export function AccountSection() {
   const cm = getClassMap()
@@ -18,6 +20,15 @@ export function AccountSection() {
   const [email, setEmail] = useState(user?.email || '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+
+  // Refresh the current user via the canonical `/users/me` endpoint
+  // on mount. The fetch is fire-and-forget; failures are silent
+  // because `useAuth().user` already has the cached profile.
+  useEffect(() => {
+    http.get('/users/me').catch(() => {
+      /* refresh is best-effort */
+    })
+  }, [http])
 
   const handleBlur = async () => {
     if (email === user?.email || !email) return
