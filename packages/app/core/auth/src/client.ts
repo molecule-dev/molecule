@@ -299,9 +299,13 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     },
 
     async changePassword(oldPassword: string, newPassword: string): Promise<void> {
+      // Server handler (@molecule/api-resource-user `updatePassword`)
+      // reads `currentPassword`; legacy callers passed `oldPassword`,
+      // so accept either name in the hook signature but translate to
+      // the canonical `currentPassword` field when sending.
       await fetchAPI(changePasswordEndpoint, {
         method: 'POST',
-        body: JSON.stringify({ oldPassword, newPassword }),
+        body: JSON.stringify({ currentPassword: oldPassword, newPassword }),
       })
     },
 
