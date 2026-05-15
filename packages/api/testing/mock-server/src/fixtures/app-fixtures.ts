@@ -21,20 +21,71 @@ import { applySemanticRules } from './semantic-generator.js'
 /*  Single-object response synthesis                                   */
 /* ------------------------------------------------------------------ */
 
-/** Field names that should resolve to an array (chart series, top-N lists, etc.). */
+/** Field names that should resolve to an array of records (top-N lists, recent activity, etc.). */
 const ARRAY_FIELD_RE =
-  /^(points|items|data|results|rows|recent|top|history|entries|list|series|breakdown|timeline|activity|feed|chart|buckets|days|weeks|months|labels|datasets|trend|trends)/i
+  /^(points|items|data|results|rows|recent|top|history|entries|list|series|breakdown|timeline|activity|feed|chart|buckets|labels|datasets|trend|trends|posts|orders|transactions|events|notifications|messages|members|users|categories|tags|reviews|sessions|logs)/i
+
+/** Field names that are a time/value series for a chart (one point per day). */
+const CHART_SERIES_RE =
+  /^(points|series|trend|trends|history|timeline|chart|chartData|graph|daily|weekly|monthly|overTime|byDay)/i
+
+/**
+ * Build a small array of generic records. Each record carries a grab-bag of
+ * the most common field names so whatever a list/chart component reads, it
+ * finds a plausible value rather than `undefined`.
+ * @param field
+ * @param rng
+ */
+function generateRecordArray(field: string, rng: () => number): unknown[] {
+  const isChart = CHART_SERIES_RE.test(field)
+  const count = isChart ? 7 : 5
+  const out: unknown[] = []
+  for (let i = 0; i < count; i++) {
+    if (isChart) {
+      const v = randomInt(rng, 20, 4000)
+      const d = new Date(Date.UTC(2026, 3, 16 - (count - 1 - i)))
+      out.push({
+        date: d.toISOString().slice(0, 10),
+        label: d.toISOString().slice(5, 10),
+        value: v,
+        views: v,
+        count: v,
+        amount: v,
+        total: v,
+        revenue: v,
+      })
+    } else {
+      const n = randomInt(rng, 10, 9000)
+      out.push({
+        id: seededUUID(rng),
+        title: `Sample ${field} ${i + 1}`,
+        name: `Sample ${field} ${i + 1}`,
+        label: `Item ${i + 1}`,
+        status: 'published',
+        date: recentDate(rng),
+        createdAt: recentDate(rng),
+        views: n,
+        count: n,
+        value: n,
+        amount: n,
+        total: n,
+      })
+    }
+  }
+  return out
+}
 
 /**
  * Synthesize a realistic value for a single response field, by name.
- * Array-ish names yield `[]` (safe — pages do `?? []`); everything else
- * goes through the semantic rules with type-flavoured fallbacks.
+ * Array-ish names yield a small array of generic records (chart points or
+ * list rows); everything else goes through the semantic rules with
+ * type-flavoured fallbacks.
  * @param field
  * @param rng
  * @param index
  */
 function generateFieldValue(field: string, rng: () => number, index: number): unknown {
-  if (ARRAY_FIELD_RE.test(field)) return []
+  if (ARRAY_FIELD_RE.test(field)) return generateRecordArray(field, rng)
   const semantic = applySemanticRules(field, rng, index)
   if (semantic !== undefined) return semantic
   if (/(_id$|^id$)/i.test(field)) return seededUUID(rng)
