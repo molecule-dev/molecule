@@ -22,7 +22,11 @@ import { getClassMap } from '@molecule/app-ui'
 export interface AuthBrandHeaderChipProps {
   /** Material-symbol icon name shown inside the chip. */
   icon: string
-  /** CSS background value for the chip — typically a `linear-gradient(...)`. */
+  /**
+   * CSS background value for the chip — typically a `linear-gradient(...)`.
+   * Falls back to the wired ClassMap's `bg-primary` token when omitted, so
+   * the chip's white icon glyph always has a colored backdrop.
+   */
   chipGradient?: string
   /** Chip corner shape. `'round'` = `rounded-full`, `'square'` = `rounded-2xl`. */
   chipShape?: 'round' | 'square'
