@@ -35,7 +35,7 @@ export function AccountSection() {
     setSaving(true)
     setError('')
     try {
-      await http.patch(`/users/${user?.id}`, { data: { email } })
+      await http.patch(`/users/${user?.id}`, { email })
     } catch (err) {
       setError(err instanceof Error ? err.message : t('settings.failedToUpdateEmail'))
       setEmail(user?.email || '')
