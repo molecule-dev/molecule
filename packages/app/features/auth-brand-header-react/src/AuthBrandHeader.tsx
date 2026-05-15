@@ -80,9 +80,18 @@ export function AuthBrandHeaderWordmark({
   className,
 }: AuthBrandHeaderWordmarkProps) {
   const cm = getClassMap()
+  // Default to `text-on-surface` so the wordmark renders with the
+  // correct contrast in both light and dark themes when the parent
+  // hasn't propagated a text color. Apps that supply `color` (inline
+  // style) or override via `className` still win — the cm.cn call
+  // appends `className` last.
   return (
     <h1
-      className={cm.cn(cm.textSize('4xl'), 'font-extrabold tracking-tighter', className)}
+      className={cm.cn(
+        cm.textSize('4xl'),
+        'font-extrabold tracking-tighter text-on-surface',
+        className,
+      )}
       style={color ? { color } : undefined}
     >
       {children}
