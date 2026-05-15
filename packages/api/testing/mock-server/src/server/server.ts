@@ -92,7 +92,7 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
           // Directory fixtures key endpoints as `GET /api/x`; the scanner keys
           // them as `GET /x` (the router.use prefix has no /api). Normalize so
           // the two sets reconcile instead of double-registering.
-          const norm = (k: string) => k.replace(/^(\w+) (?!\/api\/)\//, '$1 /api/')
+          const norm = (k: string): string => k.replace(/^(\w+) (?!\/api\/)\//, '$1 /api/')
           const dirKeys = new Set([...fixtures.endpoints.keys()].map(norm))
           for (const [key, fixture] of scanned.endpoints) {
             const nk = norm(key)
