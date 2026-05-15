@@ -156,12 +156,12 @@ class OpenaiImageGenerationProvider implements AIImageGenerationProvider {
       body.quality = this.defaultQuality
     }
 
-    // `style` ('vivid' | 'natural') is dall-e-3 specific. gpt-image-1
-    // rejects it as an unknown parameter, so silently drop it for that
-    // family rather than failing the whole request.
-    if (params.style && !isGptImage) {
-      body.style = params.style
-    }
+    // OpenAI removed `style` from the Images API: even dall-e-3 now
+    // rejects it with "Unknown parameter: 'style'". Callers that want a
+    // style effect should bake it into the prompt text instead.
+    // The param is silently dropped here so an upstream caller passing
+    // it doesn't fail the whole request.
+    void isGptImage
 
     const data = await this.callJsonApi('/v1/images/generations', body)
 
