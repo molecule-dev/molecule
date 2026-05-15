@@ -14,6 +14,83 @@ import type {
   EndpointFixture,
   FixtureRecord,
 } from '../types.js'
+import { createSeededRandom, randomInt, recentDate, seededUUID, seedFromPath } from './seed.js'
+import { applySemanticRules } from './semantic-generator.js'
+
+/* ------------------------------------------------------------------ */
+/*  Single-object response synthesis                                   */
+/* ------------------------------------------------------------------ */
+
+/** Field names that should resolve to an array (chart series, top-N lists, etc.). */
+const ARRAY_FIELD_RE =
+  /^(points|items|data|results|rows|recent|top|history|entries|list|series|breakdown|timeline|activity|feed|chart|buckets|days|weeks|months|labels|datasets|trend|trends)/i
+
+/**
+ * Synthesize a realistic value for a single response field, by name.
+ * Array-ish names yield `[]` (safe — pages do `?? []`); everything else
+ * goes through the semantic rules with type-flavoured fallbacks.
+ * @param field
+ * @param rng
+ * @param index
+ */
+function generateFieldValue(field: string, rng: () => number, index: number): unknown {
+  if (ARRAY_FIELD_RE.test(field)) return []
+  const semantic = applySemanticRules(field, rng, index)
+  if (semantic !== undefined) return semantic
+  if (/(_id$|^id$)/i.test(field)) return seededUUID(rng)
+  if (/(at$|date$|_date|timestamp)/i.test(field)) return recentDate(rng)
+  if (
+    /^(is|has|can|show|enable|enabled|allow|allowed)[A-Z]?|active$|visible$|verified$|public$/i.test(
+      field,
+    )
+  ) {
+    return rng() > 0.5
+  }
+  if (/(url$|link$|image$|avatar$|icon$|photo$)/i.test(field)) {
+    return `https://picsum.photos/seed/${index}/400/400`
+  }
+  if (
+    /(name|title|label|slug|description|bio|message|summary|text|subject|note|headline)$/i.test(
+      field,
+    )
+  ) {
+    return `Sample ${field}`
+  }
+  if (/(theme|mode|status|state|type|tier|plan|role|level|visibility)$/i.test(field)) {
+    return 'active'
+  }
+  // Nested-object fields (preferences, settings, metadata, …) — `{}` is the
+  // safe shape; callers read sub-keys with optional chaining + defaults.
+  if (
+    /(preferences|settings|config|metadata|^meta$|options|oauthdata|profile|address|location)$/i.test(
+      field,
+    )
+  ) {
+    return {}
+  }
+  // Dashboard/analytics fields are overwhelmingly numeric — default to a count.
+  return randomInt(rng, 1, 1200)
+}
+
+/**
+ * Build a single-object success response from a list of field names
+ * discovered by the handler scanner (`res.json({ a, b, c })`).
+ * @param fields
+ * @param appType
+ * @param path
+ */
+function synthesizeSingleObject(
+  fields: string[],
+  appType: string,
+  path: string,
+): Record<string, unknown> {
+  const rng = createSeededRandom(seedFromPath(appType, path))
+  const obj: Record<string, unknown> = {}
+  fields.forEach((f, i) => {
+    obj[f] = generateFieldValue(f, rng, i)
+  })
+  return obj
+}
 
 /* ================================================================== */
 /*  Directory-based fixture loading                                    */
@@ -184,6 +261,24 @@ function buildEndpointFixture(endpoint: EndpointDefinition, pool: AppDataPool): 
       endpoint,
       successResponse: pool.reports['storefront/cart-summary'],
       emptyResponse: { items: [], subtotal: 0 },
+      errorResponse: { error: 'Internal server error' },
+    }
+  }
+
+  // Single-object endpoints — `res.json({ a, b, c })` with no fixture file
+  // (e.g. /analytics/summary, /profile/me). Synthesize a semantic object
+  // from the field names the scanner extracted, so dashboard KPI cards and
+  // detail panels render real values instead of zeros/empty states.
+  if (
+    method === 'GET' &&
+    responseHints.isSingleObject &&
+    responseHints.responseFields &&
+    responseHints.responseFields.length > 0
+  ) {
+    return {
+      endpoint,
+      successResponse: synthesizeSingleObject(responseHints.responseFields, pool.appType, path),
+      emptyResponse: {},
       errorResponse: { error: 'Internal server error' },
     }
   }

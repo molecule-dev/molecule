@@ -399,6 +399,37 @@ export const defaultSemanticRules: SemanticRule[] = [
     pattern: /^featured$|^is_active$|^enabled$/i,
     generate: (rng) => rng() > 0.5,
   },
+  // Dashboard / analytics metrics — money-flavoured aggregates first.
+  {
+    pattern: /(revenue|earnings|sales|spend|spent|cost|payout|mrr|arr)$/i,
+    generate: (rng) => randomDollars(rng, 500, 250000),
+  },
+  // Count-flavoured aggregates: totalPosts, totalViews, postCount, comments, etc.
+  {
+    pattern:
+      /^(total|num|count)[A-Z]|(posts|views|comments|claps|likes|followers|following|members|users|orders|visitors|sessions|clicks|impressions|downloads|subscribers|projects|tasks|messages|notifications|reviews|bookings|files|items|count)$/i,
+    generate: (rng) => randomInt(rng, 12, 8400),
+  },
+  // Streak / day-window counters.
+  {
+    pattern: /(streak|streakdays|activedays|windowdays|days|weeks|months)$/i,
+    generate: (rng) => randomInt(rng, 1, 30),
+  },
+  // Word counts.
+  {
+    pattern: /words/i,
+    generate: (rng) => randomInt(rng, 800, 42000),
+  },
+  // Rates / percentages / growth.
+  {
+    pattern: /(rate|percent|percentage|ratio|growth|change|completion|progress|score)$/i,
+    generate: (rng) => randomInt(rng, 1, 98),
+  },
+  // Averages.
+  {
+    pattern: /^(avg|average|mean)|(_avg|average|readtime|duration)$/i,
+    generate: (rng) => randomInt(rng, 1, 60),
+  },
   // Numbers
   {
     pattern: /^quantity$|^count$|^available$|^reserved$/i,

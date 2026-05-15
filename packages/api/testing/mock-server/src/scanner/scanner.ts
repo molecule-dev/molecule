@@ -59,6 +59,151 @@ const ZOD_OBJECT_RE = /const\s+(\w+)\s*=\s*z\.object\(\{([\s\S]*?)\}\)/g
  */
 const ZOD_FIELD_RE = /(\w+)\s*:\s*z\.(\w+)\(([^)]*)\)([.\w()'"]*)/g
 
+/* ------------------------------------------------------------------ */
+/*  Response-shape extraction                                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Return the inner content of a balanced bracket pair starting at `openIdx`
+ * (which must point at `open`). Skips brackets inside strings/templates.
+ * Returns null if no matching close is found.
+ * @param str
+ * @param openIdx
+ * @param open
+ * @param close
+ */
+function matchBalanced(str: string, openIdx: number, open: string, close: string): string | null {
+  let depth = 0
+  let quote: string | null = null
+  for (let i = openIdx; i < str.length; i++) {
+    const c = str[i]
+    if (quote) {
+      if (c === '\\') {
+        i++
+        continue
+      }
+      if (c === quote) quote = null
+      continue
+    }
+    if (c === "'" || c === '"' || c === '`') {
+      quote = c
+      continue
+    }
+    if (c === open) depth++
+    else if (c === close) {
+      depth--
+      if (depth === 0) return str.slice(openIdx + 1, i)
+    }
+  }
+  return null
+}
+
+/**
+ * Parse the top-level keys of an object-literal body (the text between
+ * `{` and `}`). Handles shorthand props, `key: value`, nested
+ * objects/arrays/calls, strings, and `...spread` (skipped).
+ * @param inner
+ */
+function parseTopLevelKeys(inner: string): string[] {
+  const keys: string[] = []
+  let depth = 0
+  let quote: string | null = null
+  let segStart = 0
+  const segments: string[] = []
+  for (let i = 0; i < inner.length; i++) {
+    const c = inner[i]
+    if (quote) {
+      if (c === '\\') {
+        i++
+        continue
+      }
+      if (c === quote) quote = null
+      continue
+    }
+    if (c === "'" || c === '"' || c === '`') {
+      quote = c
+      continue
+    }
+    if (c === '{' || c === '[' || c === '(') depth++
+    else if (c === '}' || c === ']' || c === ')') depth--
+    else if (c === ',' && depth === 0) {
+      segments.push(inner.slice(segStart, i))
+      segStart = i + 1
+    }
+  }
+  segments.push(inner.slice(segStart))
+  for (const seg of segments) {
+    const trimmed = seg.trim()
+    if (!trimmed || trimmed.startsWith('...')) continue
+    // `key: value` or shorthand `key` — the key is the leading identifier.
+    const m = trimmed.match(/^([A-Za-z_$][\w$]*)\s*(:|$)/)
+    if (m) keys.push(m[1])
+  }
+  return keys
+}
+
+const PAGINATION_KEYS = new Set([
+  'data',
+  'total',
+  'page',
+  'limit',
+  'perPage',
+  'hasMore',
+  'nextCursor',
+  'count',
+])
+
+/**
+ * Extract the success-response shape from a handler body slice by parsing
+ * its `res.json(...)` calls. Error responses (`res.json({ error })`) and
+ * `res.status(...).json(...)` chains are skipped so the success shape wins.
+ * @param body - Source slice covering a single route handler.
+ */
+function extractResponseShape(body: string): {
+  isSingleObject: boolean
+  responseFields: string[]
+  isArrayLiteral: boolean
+  isPaginatedEnvelope: boolean
+} {
+  let best: string[] = []
+  let isArrayLiteral = false
+  let isPaginatedEnvelope = false
+
+  let from = 0
+  for (;;) {
+    const idx = body.indexOf('res.json(', from)
+    if (idx === -1) break
+    from = idx + 9
+    // Skip `res.status(4xx|5xx)...json(...)` error responses.
+    const before = body.slice(Math.max(0, idx - 60), idx)
+    if (/\.status\([^)]*\)\s*\.?\s*$/.test(before)) continue
+    let i = idx + 9
+    while (i < body.length && /\s/.test(body[i])) i++
+    const first = body[i]
+    if (first === '[') {
+      isArrayLiteral = true
+      continue
+    }
+    if (first !== '{') continue // res.json(variable) — shape not statically known
+    const inner = matchBalanced(body, i, '{', '}')
+    if (inner === null) continue
+    const keys = parseTopLevelKeys(inner)
+    if (keys.length === 0) continue
+    if (keys.length === 1 && keys[0] === 'error') continue
+    if (keys.includes('data') && keys.every((k) => PAGINATION_KEYS.has(k))) {
+      isPaginatedEnvelope = true
+      continue
+    }
+    if (keys.length > best.length) best = keys
+  }
+  return {
+    isSingleObject: best.length > 0,
+    responseFields: best,
+    isArrayLiteral,
+    isPaginatedEnvelope,
+  }
+}
+
 /**
  * Scan all handler files for a given app type and produce endpoint definitions.
  * @param handlersPath - Path to the handlers directory
@@ -125,7 +270,9 @@ export function scanHandlers(handlersPath: string, appType: string): HandlerScan
       const routePath = match[2]
       const middlewareChain = match[3] || ''
 
-      const fullPath = `${prefix}${routePath === '/' ? '' : routePath}`
+      // Collapse any double slash from joining prefix + routePath — handlers
+      // mounted at `router.use('/', x)` keep full paths in their own routes.
+      const fullPath = `${prefix}${routePath === '/' ? '' : routePath}`.replace(/\/{2,}/g, '/')
 
       // Check for validateBody in middleware
       let bodySchema: ZodSchemaDefinition | undefined
@@ -135,13 +282,24 @@ export function scanHandlers(handlersPath: string, appType: string): HandlerScan
         bodySchema = schemas.get(schemaName)
       }
 
+      // Slice this route's handler body — from this match to the next
+      // router.method() call (or EOF) — and extract its response shape.
+      const afterMatch = match.index + match[0].length
+      const nextRel = source.slice(afterMatch).search(/router\.(get|post|put|delete)\(/)
+      const handlerBody = source.slice(
+        match.index,
+        nextRel === -1 ? source.length : afterMatch + nextRel,
+      )
+      const shape = extractResponseShape(handlerBody)
+
       // Determine response hints
       const responseHints = inferResponseHints(
         method,
         fullPath,
         handlerName,
-        isPaginated && method === 'GET' && routePath === '/',
+        (isPaginated && method === 'GET' && routePath === '/') || shape.isPaginatedEnvelope,
         source,
+        shape,
       )
 
       endpoints.push({
@@ -296,10 +454,25 @@ function inferResponseHints(
   handlerName: string,
   isPaginated: boolean,
   source: string,
+  shape?: {
+    isSingleObject: boolean
+    responseFields: string[]
+    isArrayLiteral: boolean
+    isPaginatedEnvelope: boolean
+  },
 ): ResponseHint {
   const isSingle = path.includes(':id') || path.includes(':itemId')
-  const isList = method === 'GET' && !isSingle && !path.includes('/reports/')
   const isReport = path.includes('/reports/') || path.includes('/storefront/')
+
+  // A handler whose success response is a bare object literal
+  // (`res.json({ a, b })`) is a single-object endpoint, not a list — even
+  // for a GET without an `:id` param (e.g. `/analytics/summary`,
+  // `/profile/me`). Without this, such endpoints get mis-classified as
+  // list endpoints and serve `[]` because no fixture file matches.
+  const isSingleObject =
+    !!shape?.isSingleObject && method === 'GET' && !isSingle && !isReport && !isPaginated
+
+  const isList = method === 'GET' && !isSingle && !isReport && !isSingleObject
 
   let resourceName = handlerName
   if (isReport) {
@@ -307,10 +480,12 @@ function inferResponseHints(
   }
 
   return {
-    isList: isList && !isReport,
+    isList,
     isPaginated,
     hasNestedResources: source.includes('Promise.all') || source.includes('findMany'),
     resourceName,
+    isSingleObject,
+    responseFields: isSingleObject ? shape?.responseFields : undefined,
   }
 }
 

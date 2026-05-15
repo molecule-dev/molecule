@@ -20,6 +20,15 @@ export interface ResponseHint {
   hasNestedResources: boolean
   /** Resource name (e.g. 'accounts', 'transactions') */
   resourceName: string
+  /**
+   * Whether the success response is a single bare object literal
+   * (`res.json({ a, b, c })`) rather than a list or `{ data: [] }`
+   * envelope — e.g. `/analytics/summary`, `/profile/me`. When true,
+   * `responseFields` holds its top-level keys.
+   */
+  isSingleObject?: boolean
+  /** Top-level field names of the success `res.json({...})` object, if extracted */
+  responseFields?: string[]
 }
 
 /** Serialized Zod schema definition for fixture generation */
