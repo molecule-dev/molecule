@@ -34,6 +34,10 @@ export function AuthBrandHeaderChip({
   chipShape = 'round',
 }: AuthBrandHeaderChipProps) {
   const cm = getClassMap()
+  // When no `chipGradient` is supplied, fall back to `bg-primary` so the
+  // white icon glyph always has a colored backdrop. Without this, apps
+  // whose shims pass only `icon` (no gradient) render an invisible white
+  // glyph on the white card surface.
   const chipClass = cm.cn(
     cm.w(12),
     cm.h(12),
@@ -41,6 +45,7 @@ export function AuthBrandHeaderChip({
     cm.flex({ align: 'center', justify: 'center' }),
     cm.sp('mb', 2),
     chipShape === 'square' ? 'rounded-2xl' : '',
+    chipGradient ? '' : 'bg-primary',
     'shadow-md shadow-primary/30',
   )
   return (
