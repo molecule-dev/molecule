@@ -925,7 +925,10 @@ export const classMap: UIClassMap = {
   borderR,
   borderAll,
   borderBPrimary,
-  borderTPrimary: 'border-t-4 border-primary',
+  // border-t-X with a directional color so only the TOP edge gets the
+  // primary tint. Using `border-primary` (no -t suffix) would color all
+  // four sides whenever the card also carries a base 1px `border`.
+  borderTPrimary: 'border-t-4 border-t-primary',
 
   // ---- Background utility tokens ----
 
@@ -933,6 +936,11 @@ export const classMap: UIClassMap = {
   bgBorder,
   bgPrimarySubtle: 'bg-primary/10',
   bgPrimary: 'bg-primary',
+  // Pure white background — picks up the surface-container-lowest
+  // token if defined, else the literal #fff. Used for elevated cards
+  // (e.g. pricing tier cards) that need to sit cleanly on the page bg
+  // without inheriting the secondary surface tint.
+  bgWhite: 'bg-[var(--color-surface-container-lowest,white)]',
 
   // ---- Premium typography utilities ----
 

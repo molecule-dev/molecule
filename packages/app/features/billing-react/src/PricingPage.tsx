@@ -360,10 +360,10 @@ function TierCard<TLimits>({
   void periodLabel
   return (
     <div
-      // Outer positioning wrapper so the "Most popular" pill can float
-      // above the article's top edge via absolute positioning. The
-      // popular tier card is also given a negative top margin so it
-      // visually rises above its neighbors AND has more vertical room.
+      // Outer wrapper keeps the popular tier physically larger (taller
+      // + wider) than its neighbors. The "Most popular" tag sits
+      // INSIDE the card at the top-right, matching the Stitch
+      // reference — not floating above the top edge.
       style={{
         position: 'relative',
         width: popular ? '24rem' : '19rem',
@@ -371,45 +371,57 @@ function TierCard<TLimits>({
         marginBottom: popular ? '-1.5rem' : 0,
       }}
     >
-      {popular && (
-        <span
-          className={cm.cn(
-            cm.badge({ variant: 'primary', size: 'sm' }),
-            cm.uppercase,
-            cm.trackingWide,
-            cm.fontWeight('bold'),
-          )}
-          style={{
-            position: 'absolute',
-            top: '-0.875rem',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 1,
-          }}
-          data-mol-id={`pricing-tier-${tier.key}-popular-badge`}
-        >
-          <Icon name="star" size={12} aria-hidden="true" className={cm.sp('mr', 1)} />
-          {t('billing.pricing.mostPopular', undefined, { defaultValue: 'Most popular' })}
-        </span>
-      )}
       <article
         className={cm.cn(
-          cm.card({ variant: 'default' }),
+          // `elevated` removes the default 1px all-sides border so the
+          // popular tier's `borderTPrimary` accent shows ONLY as a top
+          // edge instead of bleeding into a 4-sided primary ring.
+          // Keeps the theme's `bg-surface` card color so cards still
+          // contrast with the page background — `bg-white` blended
+          // away on themes whose page bg is also white.
+          cm.card({ variant: 'elevated' }),
           cm.flex({ direction: 'col' }),
           popular && cm.borderTPrimary,
-          popular && cm.shadowLifted,
         )}
         style={{
+          position: 'relative',
           height: '100%',
-          // Extra vertical padding on the popular tier so it physically
-          // grows taller than the side cards in addition to wider. Side
-          // padding tracks the card variant's defaults.
-          paddingTop: popular ? '3rem' : '1.5rem',
-          paddingBottom: popular ? '2.5rem' : '1.5rem',
+          // Generous internal padding matches the Stitch reference's
+          // editorial whitespace — content should never crowd edges.
+          padding: popular ? '3rem 2.5rem 2.5rem' : '2.5rem 2rem',
+          // Strong soft shadow lifts cards off any same-colored page
+          // background. Heavier on the popular tier for emphasis.
+          boxShadow: popular
+            ? '0 24px 48px -12px rgba(15, 23, 42, 0.18), 0 8px 16px -8px rgba(15, 23, 42, 0.08)'
+            : '0 12px 24px -8px rgba(15, 23, 42, 0.10), 0 4px 8px -4px rgba(15, 23, 42, 0.06)',
         }}
         data-mol-id={`pricing-tier-${tier.key}`}
         data-popular={popular ? 'true' : undefined}
       >
+        {popular && (
+          <span
+            className={cm.cn(
+              cm.uppercase,
+              cm.trackingWide,
+              cm.fontWeight('bold'),
+              cm.textSize('xs'),
+            )}
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              right: '1rem',
+              backgroundColor: 'var(--color-accent-soft, #ffdf99)',
+              color: 'var(--color-on-accent-soft, #5a4300)',
+              padding: '0.25rem 0.6rem',
+              borderRadius: '999px',
+              lineHeight: 1.2,
+              zIndex: 1,
+            }}
+            data-mol-id={`pricing-tier-${tier.key}-popular-badge`}
+          >
+            {t('billing.pricing.mostPopular', undefined, { defaultValue: 'Most popular' })}
+          </span>
+        )}
         <header className={cm.cardHeader}>
           {!popular && (
             <p
@@ -495,7 +507,19 @@ function TierCard<TLimits>({
               popular && cm.gradientPrimary,
               cm.uppercase,
               cm.trackingWide,
+              cm.fontWeight('semibold'),
+              cm.textSize('sm'),
             )}
+            // Override the cramped default size — `cm.button({size: 'md'})`
+            // gives `h-[30px] px-2.5` which feels like a tag, not a CTA.
+            // Real button padding: ~14px vertical, ~20px horizontal.
+            style={{
+              height: 'auto',
+              paddingTop: '0.875rem',
+              paddingBottom: '0.875rem',
+              paddingLeft: '1.25rem',
+              paddingRight: '1.25rem',
+            }}
             disabled={!price?.stripePriceId || starting}
             onClick={() => onUpgrade(price?.stripePriceId ?? null)}
             data-mol-id={`pricing-cta-${tier.key}`}

@@ -2357,6 +2357,8 @@ export interface UIClassMap {
   bgPrimarySubtle: string
   /** Solid primary background (e.g. CTA fill). */
   bgPrimary: string
+  /** Pure white background (uses `--color-surface-container-lowest` if defined). */
+  bgWhite: string
 
   // ---- Premium typography utilities ----
 
