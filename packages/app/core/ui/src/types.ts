@@ -2344,6 +2344,8 @@ export interface UIClassMap {
   borderAll: string
   /** Primary-colored bottom border (e.g. active tab indicator). */
   borderBPrimary: string
+  /** Primary-colored top border accent (e.g. highlighted pricing card). */
+  borderTPrimary: string
 
   // ---- Background utility tokens ----
 
@@ -2351,6 +2353,26 @@ export interface UIClassMap {
   bgErrorSubtle: string
   /** Border color used as element background (e.g. resize handles, separators). */
   bgBorder: string
+  /** Subtle primary-tinted background (e.g. icon halo, callout banner). */
+  bgPrimarySubtle: string
+  /** Solid primary background (e.g. CTA fill). */
+  bgPrimary: string
+
+  // ---- Premium typography utilities ----
+
+  /** Italic style for emphasized headlines (e.g. tier name in pricing card). */
+  italic: string
+  /** ALL CAPS letter transform for eyebrow labels. */
+  uppercase: string
+  /** Wide letter-spacing for caps eyebrow / button labels. */
+  trackingWide: string
+
+  // ---- Premium decoration tokens ----
+
+  /** Linear gradient using the app's primary color (e.g. hero CTAs). */
+  gradientPrimary: string
+  /** Soft elevation suitable for "lifted" cards (e.g. popular pricing tier). */
+  shadowLifted: string
 
   // ---- Composite style tokens ----
 

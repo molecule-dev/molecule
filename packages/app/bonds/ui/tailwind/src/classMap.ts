@@ -925,11 +925,25 @@ export const classMap: UIClassMap = {
   borderR,
   borderAll,
   borderBPrimary,
+  borderTPrimary: 'border-t-4 border-primary',
 
   // ---- Background utility tokens ----
 
   bgErrorSubtle,
   bgBorder,
+  bgPrimarySubtle: 'bg-primary/10',
+  bgPrimary: 'bg-primary',
+
+  // ---- Premium typography utilities ----
+
+  italic: 'italic',
+  uppercase: 'uppercase',
+  trackingWide: 'tracking-widest',
+
+  // ---- Premium decoration tokens ----
+
+  gradientPrimary: 'bg-gradient-to-br from-primary to-primary-hover text-on-primary',
+  shadowLifted: 'shadow-2xl shadow-primary/10',
 
   // ---- Composite style tokens ----
 

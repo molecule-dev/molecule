@@ -37,23 +37,33 @@ export function PlanUpdated() {
       className={cm.cn(cm.maxW('xl'), cm.mxAuto, cm.textCenter, cm.sp('px', 6), cm.sp('py', 16))}
       data-mol-id="plan-updated-page"
     >
-      <Flex
-        align="center"
-        justify="center"
+      <div
         className={cm.cn(
           cm.mxAuto,
-          cm.sp('mb', 6),
-          cm.w(24),
-          cm.h(24),
+          cm.sp('mb', 8),
           cm.roundedFull,
-          cm.surfaceSecondary,
-          cm.textSuccess,
+          cm.bgPrimarySubtle,
+          cm.textPrimary,
+          cm.flex({ align: 'center', justify: 'center' }),
         )}
+        // Inline size — `cm.w(28)`/`cm.h(28)` produce runtime class strings
+        // (`w-28`, `h-28`) that Tailwind's static scanner doesn't pick up,
+        // so the classes land in the DOM but the CSS rules are never
+        // generated. Width/height aren't managed by any ClassMap token, so
+        // inline style is safe per the "no inline that conflicts with
+        // ClassMap" rule.
+        style={{ width: '7rem', height: '7rem' }}
       >
-        <Icon name="check-circle" size={56} aria-hidden="true" data-mol-id="plan-updated-icon" />
-      </Flex>
+        <Icon name="check-circle" size={64} aria-hidden="true" data-mol-id="plan-updated-icon" />
+      </div>
       <h1
-        className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'), cm.sp('mb', 3))}
+        className={cm.cn(cm.textSize('4xl'), cm.italic, cm.fontWeight('bold'), cm.sp('mb', 4))}
+        // Headline font comes from the app's theme via `--font-headline`
+        // (set in the app's theme.css when a serif/display treatment is
+        // wanted). Falls back to `inherit` so apps without an opinion
+        // pick up the body font — the shared component never bakes in
+        // a specific app's font choice.
+        style={{ fontFamily: 'var(--font-headline, inherit)' }}
         data-mol-id="plan-updated-heading"
       >
         {t('planUpdated.message')}
@@ -65,14 +75,26 @@ export function PlanUpdated() {
         {t('planUpdated.thankYou')}
       </h2>
       <Link to="/">
-        <Button variant="solid" size="lg" data-mol-id="plan-updated-return-home">
+        <Button
+          variant="solid"
+          size="lg"
+          className={cm.cn(cm.gradientPrimary, cm.uppercase, cm.trackingWide)}
+          data-mol-id="plan-updated-return-home"
+        >
           {t('planUpdated.returnHome')}
         </Button>
       </Link>
-      <div className={cm.sp('mt', 4)}>
+      <div className={cm.sp('mt', 6)}>
         <Link
           to="/billing"
-          className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.link)}
+          className={cm.cn(
+            cm.textSize('xs'),
+            cm.textSubtle,
+            cm.uppercase,
+            cm.trackingWide,
+            cm.fontWeight('semibold'),
+            cm.link,
+          )}
           data-mol-id="plan-updated-view-receipt"
         >
           {t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' })}
