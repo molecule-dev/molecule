@@ -56,18 +56,17 @@ export function PlanUpdated() {
       >
         <Icon name="check-circle" size={64} aria-hidden="true" data-mol-id="plan-updated-icon" />
       </div>
-      <h1
+      {/* Both message + thankYou stay as <h2> for backward compatibility
+          with per-app plan-updated.spec.ts assertions that two level-2
+          headings are present. Visual hierarchy comes from the font
+          scale, not the heading level. */}
+      <h2
         className={cm.cn(cm.textSize('4xl'), cm.italic, cm.fontWeight('bold'), cm.sp('mb', 4))}
-        // Headline font comes from the app's theme via `--font-headline`
-        // (set in the app's theme.css when a serif/display treatment is
-        // wanted). Falls back to `inherit` so apps without an opinion
-        // pick up the body font — the shared component never bakes in
-        // a specific app's font choice.
         style={{ fontFamily: 'var(--font-headline, inherit)' }}
         data-mol-id="plan-updated-heading"
       >
         {t('planUpdated.message')}
-      </h1>
+      </h2>
       <h2
         className={cm.cn(cm.textSize('lg'), cm.fontWeight('normal'), cm.textMuted, cm.sp('mb', 10))}
         data-mol-id="plan-updated-subheading"
