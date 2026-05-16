@@ -129,6 +129,15 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
         'use-sync-external-store',
         'use-sync-external-store/shim',
         'use-sync-external-store/shim/with-selector',
+        // quill and quill-delta are CJS — quill's compiled core does
+        // `import Delta from 'quill-delta'` and quill-delta only exposes
+        // `default` via `module.exports.default = Delta`. Without
+        // pre-bundling, Vite serves the raw CJS to the browser as ESM
+        // and the import throws "does not provide an export named
+        // 'default'" → React never mounts on apps that consume
+        // @molecule/app-rich-text-quill.
+        'quill',
+        'quill-delta',
       ],
     },
     server: {
