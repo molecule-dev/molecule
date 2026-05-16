@@ -359,118 +359,158 @@ function TierCard<TLimits>({
 
   void periodLabel
   return (
-    <article
-      className={cm.cn(
-        cm.card({ variant: 'default' }),
-        cm.flex({ direction: 'col' }),
-        popular && cm.borderTPrimary,
-        popular && cm.shadowLifted,
-      )}
-      // Inline width — the popular tier is 25% larger than the others.
-      // cm.w(N) returns runtime strings Tailwind's static scanner doesn't
-      // pick up, and there are no native ClassMap tokens for a "scaled"
-      // card variant. Using style is safe: width isn't managed by any
-      // ClassMap class on this element.
-      style={{ width: popular ? '24rem' : '19rem' }}
-      data-mol-id={`pricing-tier-${tier.key}`}
-      data-popular={popular ? 'true' : undefined}
+    <div
+      // Outer positioning wrapper so the "Most popular" pill can float
+      // above the article's top edge via absolute positioning. The
+      // popular tier card is also given a negative top margin so it
+      // visually rises above its neighbors AND has more vertical room.
+      style={{
+        position: 'relative',
+        width: popular ? '24rem' : '19rem',
+        marginTop: popular ? '-1.5rem' : 0,
+        marginBottom: popular ? '-1.5rem' : 0,
+      }}
     >
-      <header className={cm.cardHeader}>
-        <p
+      {popular && (
+        <span
           className={cm.cn(
-            cm.textSize('xs'),
-            popular ? cm.textPrimary : cm.textSubtle,
-            cm.fontWeight('semibold'),
+            cm.badge({ variant: 'primary', size: 'sm' }),
             cm.uppercase,
             cm.trackingWide,
-            cm.sp('mb', 2),
+            cm.fontWeight('bold'),
           )}
-          data-mol-id={`pricing-tier-${tier.key}-eyebrow`}
+          style={{
+            position: 'absolute',
+            top: '-0.875rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1,
+          }}
+          data-mol-id={`pricing-tier-${tier.key}-popular-badge`}
         >
-          {popular && (
-            <>
-              <Icon name="star" size={12} aria-hidden="true" className={cm.sp('mr', 1)} />
-              {t('billing.pricing.mostPopular', undefined, { defaultValue: 'Most popular' })}
-            </>
+          <Icon name="star" size={12} aria-hidden="true" className={cm.sp('mr', 1)} />
+          {t('billing.pricing.mostPopular', undefined, { defaultValue: 'Most popular' })}
+        </span>
+      )}
+      <article
+        className={cm.cn(
+          cm.card({ variant: 'default' }),
+          cm.flex({ direction: 'col' }),
+          popular && cm.borderTPrimary,
+          popular && cm.shadowLifted,
+        )}
+        style={{
+          height: '100%',
+          // Extra vertical padding on the popular tier so it physically
+          // grows taller than the side cards in addition to wider. Side
+          // padding tracks the card variant's defaults.
+          paddingTop: popular ? '3rem' : '1.5rem',
+          paddingBottom: popular ? '2.5rem' : '1.5rem',
+        }}
+        data-mol-id={`pricing-tier-${tier.key}`}
+        data-popular={popular ? 'true' : undefined}
+      >
+        <header className={cm.cardHeader}>
+          {!popular && (
+            <p
+              className={cm.cn(
+                cm.textSize('xs'),
+                cm.textSubtle,
+                cm.fontWeight('semibold'),
+                cm.uppercase,
+                cm.trackingWide,
+                cm.sp('mb', 2),
+              )}
+              data-mol-id={`pricing-tier-${tier.key}-eyebrow`}
+            >
+              {t('billing.pricing.tierEyebrow', undefined, { defaultValue: 'Tier' })}
+            </p>
           )}
-          {!popular && t('billing.pricing.tierEyebrow', undefined, { defaultValue: 'Tier' })}
-        </p>
-        <h2
-          className={cm.cn(
-            cm.textSize('2xl'),
-            cm.italic,
-            cm.fontWeight('semibold'),
-            cm.sp('mb', 4),
-          )}
-          style={headlineStyle}
-        >
-          {tier.name}
-        </h2>
-        <p>
-          <span
-            className={cm.cn(cm.textSize('5xl'), cm.fontWeight('bold'), popular && cm.textPrimary)}
+          <h2
+            className={cm.cn(
+              cm.textSize('2xl'),
+              cm.italic,
+              cm.fontWeight('semibold'),
+              cm.sp('mb', 4),
+            )}
             style={headlineStyle}
           >
-            {price?.price ?? '—'}
-          </span>
-          {tier.perSeat && (
-            <span className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.fontWeight('normal'))}>
-              {' '}
-              {t('billing.pricing.perSeat', undefined, { defaultValue: 'per seat' })}
+            {tier.name}
+          </h2>
+          <p>
+            <span
+              className={cm.cn(
+                cm.textSize('5xl'),
+                cm.fontWeight('bold'),
+                popular && cm.textPrimary,
+              )}
+              style={headlineStyle}
+            >
+              {price?.price ?? '—'}
             </span>
+            {tier.perSeat && (
+              <span className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.fontWeight('normal'))}>
+                {' '}
+                {t('billing.pricing.perSeat', undefined, { defaultValue: 'per seat' })}
+              </span>
+            )}
+          </p>
+          <p
+            className={cm.cn(
+              cm.textSize('xs'),
+              cm.textSubtle,
+              cm.fontWeight('semibold'),
+              cm.uppercase,
+              cm.trackingWide,
+              cm.sp('mt', 2),
+            )}
+          >
+            {t(`billing.pricing.billed.${price?.period ?? 'month'}`, undefined, {
+              defaultValue: price?.period === 'year' ? 'Billed annually' : 'Billed monthly',
+            })}
+            {price?.savings && (
+              <>
+                {' · '}
+                <span className={cm.textSuccess}>{price.savings.toUpperCase()}</span>
+              </>
+            )}
+          </p>
+        </header>
+        <div className={cm.cn(cm.cardContent, cm.flex1)}>
+          {renderLimits ? (
+            renderLimits(tier.limits)
+          ) : (
+            <DefaultLimits limits={tier.limits} cm={cm} />
           )}
-        </p>
-        <p
-          className={cm.cn(
-            cm.textSize('xs'),
-            cm.textSubtle,
-            cm.fontWeight('semibold'),
-            cm.uppercase,
-            cm.trackingWide,
-            cm.sp('mt', 2),
-          )}
-        >
-          {t(`billing.pricing.billed.${price?.period ?? 'month'}`, undefined, {
-            defaultValue: price?.period === 'year' ? 'Billed annually' : 'Billed monthly',
-          })}
-          {price?.savings && (
-            <>
-              {' · '}
-              <span className={cm.textSuccess}>{price.savings.toUpperCase()}</span>
-            </>
-          )}
-        </p>
-      </header>
-      <div className={cm.cn(cm.cardContent, cm.flex1)}>
-        {renderLimits ? renderLimits(tier.limits) : <DefaultLimits limits={tier.limits} cm={cm} />}
-      </div>
-      <footer className={cm.cardFooter}>
-        <button
-          type="button"
-          className={cm.cn(
-            cm.button({
-              variant: popular ? 'solid' : 'outline',
-              size: 'md',
-              fullWidth: true,
-            }),
-            popular && cm.gradientPrimary,
-            cm.uppercase,
-            cm.trackingWide,
-          )}
-          disabled={!price?.stripePriceId || starting}
-          onClick={() => onUpgrade(price?.stripePriceId ?? null)}
-          data-mol-id={`pricing-cta-${tier.key}`}
-        >
-          {price?.stripePriceId
-            ? t(
-                'billing.pricing.upgradeCta',
-                { tierName: tier.name },
-                { defaultValue: 'Upgrade to {{tierName}}' },
-              )
-            : t('billing.pricing.currentCta', undefined, { defaultValue: 'Current plan' })}
-        </button>
-      </footer>
-    </article>
+        </div>
+        <footer className={cm.cardFooter}>
+          <button
+            type="button"
+            className={cm.cn(
+              cm.button({
+                variant: popular ? 'solid' : 'outline',
+                size: 'md',
+                fullWidth: true,
+              }),
+              popular && cm.gradientPrimary,
+              cm.uppercase,
+              cm.trackingWide,
+            )}
+            disabled={!price?.stripePriceId || starting}
+            onClick={() => onUpgrade(price?.stripePriceId ?? null)}
+            data-mol-id={`pricing-cta-${tier.key}`}
+          >
+            {price?.stripePriceId
+              ? t(
+                  'billing.pricing.upgradeCta',
+                  { tierName: tier.name },
+                  { defaultValue: 'Upgrade to {{tierName}}' },
+                )
+              : t('billing.pricing.currentCta', undefined, { defaultValue: 'Current plan' })}
+          </button>
+        </footer>
+      </article>
+    </div>
   )
 }
 

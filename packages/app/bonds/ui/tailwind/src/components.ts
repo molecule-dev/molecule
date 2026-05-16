@@ -24,7 +24,8 @@ export const button = cva(
           'bg-secondary/25 text-secondary-text border border-secondary/50 hover:bg-secondary/40 hover:border-secondary/65 active:bg-secondary/55',
         success:
           'bg-success/25 text-success-text border border-success/50 hover:bg-success/40 hover:border-success/65 active:bg-success/55',
-        outline: 'bg-transparent text-foreground hover:bg-surface-secondary',
+        outline:
+          'bg-transparent text-foreground border border-border hover:bg-surface-secondary hover:border-primary/40',
         ghost: 'bg-transparent text-foreground hover:bg-surface-secondary',
         link: 'bg-transparent text-primary-text underline-offset-4 hover:underline',
         warning:
