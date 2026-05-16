@@ -1,4 +1,4 @@
-import { readdirSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -59,8 +59,30 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
     return null
   }
   const moleculeDir = findMoleculeDir()
+  // Collect per-package `molecule.viteOptimizeInclude` declarations from
+  // every installed @molecule/* package.json. Each package that depends
+  // on a CJS-shim library (one whose dist uses `module.exports.default =
+  // X`) declares it here so Vite pre-bundles it for downstream apps and
+  // the "does not provide an export named 'default'" runtime crash
+  // can't recur. Example:
+  //   { "molecule": { "viteOptimizeInclude": ["quill", "quill-delta"] } }
+  const declaredOptimizeIncludes = new Set<string>()
   if (moleculeDir) {
-    moleculePackages = readdirSync(moleculeDir).map((name) => `@molecule/${name}`)
+    const entries = readdirSync(moleculeDir)
+    moleculePackages = entries.map((name) => `@molecule/${name}`)
+    for (const entry of entries) {
+      try {
+        const pkgPath = resolve(moleculeDir, entry, 'package.json')
+        const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as {
+          molecule?: { viteOptimizeInclude?: string[] }
+        }
+        for (const dep of pkg.molecule?.viteOptimizeInclude ?? []) {
+          declaredOptimizeIncludes.add(dep)
+        }
+      } catch {
+        /* missing/invalid package.json — skip */
+      }
+    }
   }
 
   const pwaOptions = {
@@ -129,15 +151,12 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
         'use-sync-external-store',
         'use-sync-external-store/shim',
         'use-sync-external-store/shim/with-selector',
-        // quill and quill-delta are CJS — quill's compiled core does
-        // `import Delta from 'quill-delta'` and quill-delta only exposes
-        // `default` via `module.exports.default = Delta`. Without
-        // pre-bundling, Vite serves the raw CJS to the browser as ESM
-        // and the import throws "does not provide an export named
-        // 'default'" → React never mounts on apps that consume
-        // @molecule/app-rich-text-quill.
-        'quill',
-        'quill-delta',
+        // Per-package CJS deps that each @molecule/* package declares
+        // via its own `molecule.viteOptimizeInclude` field. Aggregated
+        // above. New offenders should be declared on the OWNING package
+        // (the one that depends on the CJS library) so the fix lands in
+        // the same commit as the dep — not added to this hardcoded list.
+        ...declaredOptimizeIncludes,
       ],
     },
     server: {

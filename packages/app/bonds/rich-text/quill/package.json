@@ -30,6 +30,12 @@
   "dependencies": {
     "quill": "2.0.3"
   },
+  "molecule": {
+    "viteOptimizeInclude": [
+      "quill",
+      "quill-delta"
+    ]
+  },
   "devDependencies": {
     "@types/node": "25.8.0",
     "typescript": "6.0.3",
