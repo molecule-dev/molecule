@@ -1,0 +1,49 @@
+{
+  "name": "@molecule/app-e2e-fixtures-default",
+  "version": "1.0.0",
+  "description": "Shared Playwright `test` + `expect` with auto-attached browser console-error/pageerror guard. Every fleet app's e2e specs import from here so a runtime exception (React mount failure, ESM/CJS interop error, unhandled rejection) hard-fails the test instead of silently passing.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "playwright",
+    "e2e",
+    "fixtures",
+    "console-errors"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "1.57.0",
+    "@types/node": "25.8.0",
+    "typescript": "6.0.3",
+    "vitest": "4.1.6"
+  },
+  "peerDependencies": {
+    "@playwright/test": "^1.50.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/features/e2e-fixtures-default"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/features/e2e-fixtures-default",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
