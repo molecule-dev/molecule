@@ -69,6 +69,15 @@ export function PlanUpdated() {
           {t('planUpdated.returnHome')}
         </Button>
       </Link>
+      <div className={cm.sp('mt', 4)}>
+        <Link
+          to="/billing"
+          className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.link)}
+          data-mol-id="plan-updated-view-receipt"
+        >
+          {t('planUpdated.viewReceipt', undefined, { defaultValue: 'View receipt' })}
+        </Link>
+      </div>
     </section>
   )
 }

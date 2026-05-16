@@ -215,6 +215,14 @@ export function PricingPage<TLimits = unknown>(
           })}
         </p>
       )}
+      <p
+        className={cm.cn(cm.sp('mt', 10), cm.textCenter, cm.textSize('xs'), cm.textSubtle)}
+        data-mol-id="pricing-page-reassurance"
+      >
+        {t('billing.pricing.reassurance', undefined, {
+          defaultValue: 'Cancel anytime · No credit card required to start',
+        })}
+      </p>
     </section>
   )
 }
@@ -260,7 +268,7 @@ function TierCard<TLimits>({
       <header className={cm.cardHeader}>
         {popular && (
           <span
-            className={cm.cn(cm.badge({ variant: 'primary', size: 'sm' }), cm.sp('mb', 3))}
+            className={cm.cn(cm.badge({ variant: 'primary', size: 'sm' }), cm.sp('mb', 4))}
             data-mol-id={`pricing-tier-${tier.key}-popular-badge`}
           >
             <Icon name="star" size={14} aria-hidden="true" />
@@ -269,8 +277,19 @@ function TierCard<TLimits>({
             </span>
           </span>
         )}
+        <p
+          className={cm.cn(
+            cm.textSize('xs'),
+            cm.textSubtle,
+            cm.fontWeight('semibold'),
+            cm.sp('mb', 1),
+          )}
+          data-mol-id={`pricing-tier-${tier.key}-eyebrow`}
+        >
+          {t('billing.pricing.tierEyebrow', undefined, { defaultValue: 'Plan' })}
+        </p>
         <h2 className={cm.cardTitle}>{tier.name}</h2>
-        <p className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'), cm.sp('mt', 3))}>
+        <p className={cm.cn(cm.textSize('5xl'), cm.fontWeight('bold'), cm.sp('mt', 4))}>
           {price?.price ?? '—'}
           {tier.perSeat && (
             <span className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.fontWeight('normal'))}>
@@ -279,12 +298,19 @@ function TierCard<TLimits>({
             </span>
           )}
         </p>
-        <p className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.sp('mt', 1))}>
-          {periodLabel}
+        <p
+          className={cm.cn(
+            cm.textSize('xs'),
+            cm.textSubtle,
+            cm.fontWeight('semibold'),
+            cm.sp('mt', 2),
+          )}
+        >
+          {periodLabel.toUpperCase()}
           {price?.savings && (
             <>
               {' · '}
-              <span className={cm.textSuccess}>{price.savings}</span>
+              <span className={cm.textSuccess}>{price.savings.toUpperCase()}</span>
             </>
           )}
         </p>
