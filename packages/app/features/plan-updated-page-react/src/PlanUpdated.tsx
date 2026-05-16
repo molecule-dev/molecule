@@ -58,12 +58,12 @@ export function PlanUpdated() {
       >
         {t('planUpdated.message')}
       </h1>
-      <p
-        className={cm.cn(cm.textSize('lg'), cm.textMuted, cm.sp('mb', 10))}
+      <h2
+        className={cm.cn(cm.textSize('lg'), cm.fontWeight('normal'), cm.textMuted, cm.sp('mb', 10))}
         data-mol-id="plan-updated-subheading"
       >
         {t('planUpdated.thankYou')}
-      </p>
+      </h2>
       <Link to="/">
         <Button variant="solid" size="lg" data-mol-id="plan-updated-return-home">
           {t('planUpdated.returnHome')}
