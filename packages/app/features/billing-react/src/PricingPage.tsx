@@ -1,5 +1,6 @@
 import { useAuth, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Icon } from '@molecule/app-ui-react'
 
 import { usePricingTiers, useStartCheckout } from './hooks.js'
 import type { PricingTierEntry, PricingTierPrice } from './types.js'
@@ -22,8 +23,8 @@ export interface PricingPageProps<TLimits = unknown> {
 
   /**
    * Optional render function for the tier-specific limits column. Defaults
-   * to a key-value table rendering numeric / boolean values directly. Apps
-   * with rich limit shapes can supply a custom renderer.
+   * to a stacked checklist rendering numeric / boolean values with a green
+   * check glyph. Apps with rich limit shapes can supply a custom renderer.
    */
   renderLimits?: (limits: TLimits) => React.ReactNode
 
@@ -35,6 +36,14 @@ export interface PricingPageProps<TLimits = unknown> {
 
   /** Optional English fallback for the heading. Defaults to `'Choose your plan'`. */
   headingDefault?: string
+
+  /**
+   * Optional sub-heading shown under the page heading. Pass `null` to
+   * suppress. Defaults to a translated "Pick the plan that fits…" line.
+   */
+  subheadingKey?: string | null
+  /** English fallback for the sub-heading. */
+  subheadingDefault?: string
 
   /**
    * Optional className applied to the outer wrapper, useful when embedding
@@ -49,6 +58,15 @@ export interface PricingPageProps<TLimits = unknown> {
    * level via routing guards).
    */
   unauthenticatedRedirect?: string | null
+
+  /**
+   * Optional tier key to highlight as "most popular" — receives the
+   * elevated card variant, a popular-badge in the header, and a
+   * primary-tone CTA. When omitted (default), the highest-priced tier
+   * with a real stripePriceId for the selected period is auto-selected.
+   * Pass `null` to disable highlighting entirely.
+   */
+  popularTierKey?: string | null
 }
 
 /**
@@ -57,6 +75,12 @@ export interface PricingPageProps<TLimits = unknown> {
  * and a CTA that starts a Stripe Checkout session via
  * `/api/billing/checkout`. Tiers without a Stripe priceId (e.g. the free
  * tier or local-dev) render a disabled CTA so users still see the row.
+ *
+ * The highest-priced paid tier is highlighted as "most popular" by
+ * default — the card uses the elevated variant, the header carries a
+ * star badge, and its CTA renders in the primary color. Apps that want
+ * a different tier in the spotlight can pass `popularTierKey` (or
+ * `null` to suppress).
  *
  * @param props - Component props (see `PricingPageProps`).
  * @returns The rendered pricing page.
@@ -69,8 +93,11 @@ export function PricingPage<TLimits = unknown>(
     renderLimits,
     headingKey = 'billing.pricing.heading',
     headingDefault = 'Choose your plan',
+    subheadingKey = 'billing.pricing.subheading',
+    subheadingDefault = 'Pick the plan that fits how you work. Upgrade or downgrade any time.',
     className,
     unauthenticatedRedirect = DEFAULT_UNAUTHENTICATED_REDIRECT,
+    popularTierKey,
   } = props
 
   const cm = getClassMap()
@@ -81,25 +108,39 @@ export function PricingPage<TLimits = unknown>(
 
   if (loading) {
     return (
-      <div className={className}>
-        <p>{t('billing.pricing.loading', undefined, { defaultValue: 'Loading plans…' })}</p>
-      </div>
+      <section
+        className={cm.cn(cm.maxW('xl'), cm.mxAuto, cm.textCenter, cm.sp('py', 16), className)}
+        data-mol-id="pricing-page"
+      >
+        <p className={cm.textMuted}>
+          {t('billing.pricing.loading', undefined, { defaultValue: 'Loading plans…' })}
+        </p>
+      </section>
     )
   }
 
   if (error || !data) {
     return (
-      <div className={className}>
+      <section
+        className={cm.cn(cm.maxW('xl'), cm.mxAuto, cm.textCenter, cm.sp('py', 16), className)}
+        data-mol-id="pricing-page"
+      >
         <p className={cm.formError}>
           {t('billing.pricing.error', undefined, {
             defaultValue: 'Could not load pricing. Try again later.',
           })}
         </p>
-      </div>
+      </section>
     )
   }
 
   const tiers = data.data
+
+  // Default-pick the popular tier: highest-priced paid tier that has a
+  // real Stripe price id for the active period. Honors `popularTierKey`
+  // override when set (string = use that key; null = disable highlight).
+  const resolvedPopularKey =
+    popularTierKey === null ? null : (popularTierKey ?? autoSelectPopular(tiers, period))
 
   const handleUpgrade = async (priceId: string | null): Promise<void> => {
     if (!priceId) return
@@ -124,13 +165,35 @@ export function PricingPage<TLimits = unknown>(
   }
 
   return (
-    <section className={className} data-mol-id="pricing-page">
-      <header className={cm.cardHeader}>
-        <h1 className={cm.cardTitle}>
+    <section
+      className={cm.cn(cm.maxW('6xl'), cm.mxAuto, cm.sp('px', 6), cm.sp('py', 12), className)}
+      data-mol-id="pricing-page"
+    >
+      <header className={cm.cn(cm.textCenter, cm.sp('mb', 10))}>
+        <h1
+          className={cm.cn(cm.textSize('4xl'), cm.fontWeight('bold'), cm.sp('mb', 3))}
+          data-mol-id="pricing-page-heading"
+        >
           {t(headingKey, undefined, { defaultValue: headingDefault })}
         </h1>
+        {subheadingKey !== null && (
+          <p
+            className={cm.cn(cm.textSize('lg'), cm.textMuted, cm.maxW('2xl'), cm.mxAuto)}
+            data-mol-id="pricing-page-subheading"
+          >
+            {t(subheadingKey, undefined, { defaultValue: subheadingDefault })}
+          </p>
+        )}
       </header>
-      <div className={cm.flex({ direction: 'row', wrap: 'wrap', gap: 'md', justify: 'center' })}>
+      <div
+        className={cm.flex({
+          direction: 'row',
+          wrap: 'wrap',
+          gap: 'lg',
+          justify: 'center',
+          align: 'stretch',
+        })}
+      >
         {tiers.map((tier: PricingTierEntry<TLimits>) => (
           <TierCard
             key={tier.key}
@@ -141,11 +204,12 @@ export function PricingPage<TLimits = unknown>(
             renderLimits={renderLimits}
             onUpgrade={handleUpgrade}
             starting={starting}
+            popular={tier.key === resolvedPopularKey}
           />
         ))}
       </div>
       {startError && (
-        <p className={cm.formError} role="alert">
+        <p className={cm.cn(cm.formError, cm.sp('mt', 6), cm.textCenter)} role="alert">
           {t('billing.pricing.checkoutError', undefined, {
             defaultValue: 'Could not start checkout. Please try again.',
           })}
@@ -163,6 +227,7 @@ interface TierCardProps<TLimits> {
   renderLimits?: (limits: TLimits) => React.ReactNode
   onUpgrade: (priceId: string | null) => Promise<void>
   starting: boolean
+  popular: boolean
 }
 
 function TierCard<TLimits>({
@@ -173,28 +238,68 @@ function TierCard<TLimits>({
   renderLimits,
   onUpgrade,
   starting,
+  popular,
 }: TierCardProps<TLimits>): React.ReactElement {
   const price = tier.prices.find((p) => p.period === period) ?? tier.prices[0]
+  const periodLabel = price?.period
+    ? t(`billing.pricing.period.${price.period}`, undefined, {
+        defaultValue: price.period === 'year' ? 'per year' : 'per month',
+      })
+    : ''
 
   return (
-    <article className={cm.card({ variant: 'default' })} data-mol-id={`pricing-tier-${tier.key}`}>
+    <article
+      className={cm.cn(
+        cm.card({ variant: popular ? 'elevated' : 'default' }),
+        cm.w(80),
+        cm.flex({ direction: 'col' }),
+      )}
+      data-mol-id={`pricing-tier-${tier.key}`}
+      data-popular={popular ? 'true' : undefined}
+    >
       <header className={cm.cardHeader}>
+        {popular && (
+          <span
+            className={cm.cn(cm.badge({ variant: 'primary', size: 'sm' }), cm.sp('mb', 3))}
+            data-mol-id={`pricing-tier-${tier.key}-popular-badge`}
+          >
+            <Icon name="star" size={14} aria-hidden="true" />
+            <span className={cm.sp('ml', 1)}>
+              {t('billing.pricing.mostPopular', undefined, { defaultValue: 'Most popular' })}
+            </span>
+          </span>
+        )}
         <h2 className={cm.cardTitle}>{tier.name}</h2>
-        <p className={cm.cardDescription}>
+        <p className={cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'), cm.sp('mt', 3))}>
           {price?.price ?? '—'}
           {tier.perSeat && (
-            <span> {t('billing.pricing.perSeat', undefined, { defaultValue: 'per seat' })}</span>
+            <span className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.fontWeight('normal'))}>
+              {' '}
+              {t('billing.pricing.perSeat', undefined, { defaultValue: 'per seat' })}
+            </span>
           )}
         </p>
-        {price?.savings && <p className={cm.cardDescription}>{price.savings}</p>}
+        <p className={cm.cn(cm.textSize('sm'), cm.textMuted, cm.sp('mt', 1))}>
+          {periodLabel}
+          {price?.savings && (
+            <>
+              {' · '}
+              <span className={cm.textSuccess}>{price.savings}</span>
+            </>
+          )}
+        </p>
       </header>
-      <div className={cm.cardContent}>
-        {renderLimits ? renderLimits(tier.limits) : <DefaultLimits limits={tier.limits} />}
+      <div className={cm.cn(cm.cardContent, cm.flex1)}>
+        {renderLimits ? renderLimits(tier.limits) : <DefaultLimits limits={tier.limits} cm={cm} />}
       </div>
       <footer className={cm.cardFooter}>
         <button
           type="button"
-          className={cm.button({ variant: 'solid', size: 'md' })}
+          className={cm.button({
+            variant: popular ? 'solid' : 'outline',
+            size: 'md',
+            fullWidth: true,
+          })}
           disabled={!price?.stripePriceId || starting}
           onClick={() => onUpgrade(price?.stripePriceId ?? null)}
           data-mol-id={`pricing-cta-${tier.key}`}
@@ -214,39 +319,61 @@ function TierCard<TLimits>({
 
 interface DefaultLimitsProps<TLimits> {
   limits: TLimits
+  cm: ReturnType<typeof getClassMap>
 }
 
 /**
- * Default render for a tier's `limits` object — a stacked key-value list.
- * Numbers and booleans render directly; objects/arrays JSON-stringify.
- * Apps with richer limit shapes should pass their own `renderLimits` prop
- * to `<PricingPage />`.
+ * Default render for a tier's `limits` object — a stacked checklist
+ * with a green check glyph per row. Numbers and booleans render
+ * directly; objects/arrays JSON-stringify. Apps with richer limit
+ * shapes should pass their own `renderLimits` prop to `<PricingPage />`.
  *
  * @param props - The component props.
  * @param props.limits - Tier-specific limits to render.
- * @returns A `<dl>` showing each limit field.
+ * @param props.cm - Active ClassMap instance.
+ * @returns A `<ul>` of check-prefixed limit rows.
  */
-function DefaultLimits<TLimits>({ limits }: DefaultLimitsProps<TLimits>): React.ReactElement {
+function DefaultLimits<TLimits>({ limits, cm }: DefaultLimitsProps<TLimits>): React.ReactElement {
   if (limits == null || typeof limits !== 'object') {
     return <></>
   }
   const entries = Object.entries(limits as Record<string, unknown>)
   return (
-    <dl>
+    <ul className={cm.stack(2)}>
       {entries.map(([key, value]) => (
-        <div key={key}>
-          <dt>{key}</dt>
-          <dd>{formatLimitValue(value)}</dd>
-        </div>
+        <li
+          key={key}
+          className={cm.cn(
+            cm.flex({ direction: 'row', align: 'start', gap: 'sm' }),
+            cm.textSize('sm'),
+          )}
+        >
+          <Icon name="check-circle" size={16} className={cm.textSuccess} aria-hidden="true" />
+          <span>
+            <span className={cm.textMuted}>{humanizeKey(key)}: </span>
+            <span className={cm.fontWeight('medium')}>{formatLimitValue(value)}</span>
+          </span>
+        </li>
       ))}
-    </dl>
+    </ul>
   )
+}
+
+function humanizeKey(key: string): string {
+  // 'maxBlocks' → 'Max blocks'; 'canExport' → 'Can export';
+  // 'max_blocks' → 'Max blocks'. The PricingPage caller can always
+  // override with renderLimits for fully custom labels.
+  const spaced = key
+    .replace(/_/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1)
 }
 
 function formatLimitValue(value: unknown): string {
   if (typeof value === 'boolean') return value ? '✓' : '—'
   if (typeof value === 'number') {
-    if (value >= 999_999) return '∞'
+    if (value >= 999_999) return 'Unlimited'
     return value.toLocaleString()
   }
   if (value == null) return '—'
@@ -256,4 +383,35 @@ function formatLimitValue(value: unknown): string {
   } catch {
     return String(value)
   }
+}
+
+/**
+ * Pick the "most popular" tier when the caller hasn't specified one:
+ * the highest-priced paid tier that has a real stripePriceId for the
+ * active period. If nothing qualifies, returns null (no highlight).
+ */
+function autoSelectPopular<TLimits>(
+  tiers: ReadonlyArray<PricingTierEntry<TLimits>>,
+  period: PricingTierPrice['period'],
+): string | null {
+  let bestKey: string | null = null
+  let bestCents = -1
+  for (const tier of tiers) {
+    const price = tier.prices.find((p) => p.period === period) ?? tier.prices[0]
+    if (!price?.stripePriceId) continue
+    const cents = priceToCents(price.price)
+    if (cents > bestCents) {
+      bestCents = cents
+      bestKey = tier.key
+    }
+  }
+  return bestKey
+}
+
+function priceToCents(label: string | null | undefined): number {
+  if (!label) return 0
+  // Accept "$12", "$12.99/mo", "€12,99" — strip currency + suffix, parse the number.
+  const match = label.match(/(\d+(?:[.,]\d+)?)/)
+  if (!match) return 0
+  return Math.round(Number(match[1].replace(',', '.')) * 100)
 }
