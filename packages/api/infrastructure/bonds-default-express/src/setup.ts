@@ -250,19 +250,46 @@ export async function setupCacheRedis(): Promise<void> {
   setCache(provider)
 }
 
+/**
+ * Returns the model to default to for the given OpenAI bond category.
+ * Explicit env var wins (escape hatch for debugging at a different
+ * tier). Otherwise, non-production defaults to the cheapest model in
+ * the family so smoke / CI / dev iteration doesn't accidentally burn
+ * real OpenAI credits at the auto-selected expensive tier (see
+ * gpt-image-1's `quality` story for the analog — auto picks high).
+ * Production passes `undefined` so the provider's own default applies
+ * and there's no silent downgrade for real user traffic.
+ */
+function nonProdDefaultModel(envVar: string, cheapModel: string): string | undefined {
+  const explicit = process.env[envVar]
+  if (explicit) return explicit
+  if (process.env.NODE_ENV !== 'production') return cheapModel
+  return undefined
+}
+
 /** Registers `@molecule/api-ai-openai` as a named `'openai'` AI provider. */
 export async function setupAiOpenai(): Promise<void> {
   const { createProvider } = await import('@molecule/api-ai-openai')
-  bond('ai', 'openai', createProvider())
+  bond(
+    'ai',
+    'openai',
+    createProvider({
+      defaultModel: nonProdDefaultModel('OPENAI_TEXT_MODEL', 'gpt-4o-mini'),
+    }),
+  )
 }
 
 /** Wires `@molecule/api-ai-embeddings-openai` to `@molecule/api-ai-embeddings`. */
 export async function setupAiEmbeddingsOpenai(): Promise<void> {
-  const [{ setProvider: setEmb }, { provider }] = await Promise.all([
+  const [{ setProvider: setEmb }, { createProvider }] = await Promise.all([
     import('@molecule/api-ai-embeddings'),
     import('@molecule/api-ai-embeddings-openai'),
   ])
-  setEmb(provider)
+  setEmb(
+    createProvider({
+      defaultModel: nonProdDefaultModel('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small'),
+    }),
+  )
 }
 
 /** Wires `@molecule/api-webhook-http` to `@molecule/api-webhook`. */
@@ -289,7 +316,12 @@ export async function setupAiSpeechOpenai(): Promise<void> {
     import('@molecule/api-ai-speech'),
     import('@molecule/api-ai-speech-openai'),
   ])
-  setSpeech(createProvider())
+  setSpeech(
+    createProvider({
+      defaultTTSModel: nonProdDefaultModel('OPENAI_TTS_MODEL', 'tts-1'),
+      defaultSTTModel: nonProdDefaultModel('OPENAI_STT_MODEL', 'whisper-1'),
+    }),
+  )
 }
 
 /** Wires `@molecule/api-workflow-database` to `@molecule/api-workflow`. */
