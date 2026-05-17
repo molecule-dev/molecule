@@ -13,17 +13,11 @@
 
 import { bond } from '@molecule/api-bond'
 import { setProvider as setConfig } from '@molecule/api-config'
-import { setTransport as setEmails } from '@molecule/api-emails'
-import { provider as emailsMailgunProvider } from '@molecule/api-emails-mailgun'
-import { paymentProvider as stripePaymentProvider } from '@molecule/api-payments-stripe'
-import { paymentRecordService, planService } from '@molecule/api-resource-payment'
-import { setProvider as setSearch } from '@molecule/api-search'
-import { provider as searchMeilisearchProvider } from '@molecule/api-search-meilisearch'
-import { setProvider as setUploads } from '@molecule/api-uploads'
-import { provider as uploadsS3Provider } from '@molecule/api-uploads-s3'
 import { provider as configProvider } from '@molecule/api-config-env'
 import { setPool, setStore } from '@molecule/api-database'
 import { pool as dbPool, store as dbStore } from '@molecule/api-database-postgresql'
+import { setTransport as setEmails } from '@molecule/api-emails'
+import { provider as emailsMailgunProvider } from '@molecule/api-emails-mailgun'
 import { setProvider as setJwt } from '@molecule/api-jwt'
 import { provider as jwtProvider } from '@molecule/api-jwt-jsonwebtoken'
 import { setBodyParser, setJsonParserFactory } from '@molecule/api-middleware-body-parser'
@@ -40,11 +34,17 @@ import { setCors, setCorsFactory } from '@molecule/api-middleware-cors'
 import { corsFactory, provider as corsProvider } from '@molecule/api-middleware-cors-express'
 import { setProvider as setPassword } from '@molecule/api-password'
 import { provider as passwordProvider } from '@molecule/api-password-bcrypt'
+import { paymentProvider as stripePaymentProvider } from '@molecule/api-payments-stripe'
 import { deviceService } from '@molecule/api-resource-device'
+import { paymentRecordService, planService } from '@molecule/api-resource-payment'
+import { setProvider as setSearch } from '@molecule/api-search'
+import { provider as searchMeilisearchProvider } from '@molecule/api-search-meilisearch'
 import { setProvider as setSecrets } from '@molecule/api-secrets'
 import { provider as secretsProvider } from '@molecule/api-secrets-env'
 import { setProvider as setTwoFactor } from '@molecule/api-two-factor'
 import { provider as twoFactorProvider } from '@molecule/api-two-factor-otplib'
+import { setProvider as setUploads } from '@molecule/api-uploads'
+import { provider as uploadsS3Provider } from '@molecule/api-uploads-s3'
 
 /** Wires `@molecule/api-config-env` to `@molecule/api-config`. */
 export function setupConfigEnv(): void {
@@ -259,6 +259,9 @@ export async function setupCacheRedis(): Promise<void> {
  * gpt-image-1's `quality` story for the analog — auto picks high).
  * Production passes `undefined` so the provider's own default applies
  * and there's no silent downgrade for real user traffic.
+ * @param envVar - Name of the env var that, if set, takes precedence as the explicit model id.
+ * @param cheapModel - Fallback model id to use in non-production environments when no env override is set.
+ * @returns The model id to pass as the provider's default, or `undefined` to defer to the provider's own default (production case).
  */
 function nonProdDefaultModel(envVar: string, cheapModel: string): string | undefined {
   const explicit = process.env[envVar]
