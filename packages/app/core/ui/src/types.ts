@@ -2407,6 +2407,8 @@ export interface UIClassMap {
   languageOption: string
   /** Language option item (active/selected state). */
   languageActive: string
+  /** Trigger button for `<LanguagePicker />` (globe icon + current locale name). */
+  languagePickerTrigger: string
 
   // ---- Spacing utilities ----
 

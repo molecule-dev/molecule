@@ -168,6 +168,7 @@ import {
   languageActive,
   languageGrid,
   languageOption,
+  languagePickerTrigger,
   logoIcon,
   logoText,
   mxAuto,
@@ -969,6 +970,7 @@ export const classMap: UIClassMap = {
   languageGrid,
   languageOption,
   languageActive,
+  languagePickerTrigger,
 
   // ---- Spacing utilities ----
 

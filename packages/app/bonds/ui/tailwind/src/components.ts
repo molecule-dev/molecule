@@ -641,6 +641,13 @@ export const languageOption =
 /** Language option (active/selected) classes. */
 export const languageActive =
   'px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors bg-primary/15 text-primary font-medium'
+/**
+ * Language picker trigger button classes (globe icon + native locale name).
+ * Inherits surface/foreground tokens so it sits cleanly inside Settings
+ * cards, header chrome, or footers without forcing a specific background.
+ */
+export const languagePickerTrigger =
+  'inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium bg-transparent text-foreground-secondary hover:text-foreground hover:bg-surface-secondary border border-border-secondary cursor-pointer transition-colors'
 
 /** Theme toggle button classes. */
 export const themeToggleButton =
