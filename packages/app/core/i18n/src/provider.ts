@@ -95,6 +95,13 @@ export const createSimpleI18nProvider = (
 
     addLocale(config: LocaleConfig): void {
       locales.set(config.code, config)
+      notify()
+    },
+
+    removeLocale(code: string): boolean {
+      const removed = locales.delete(code)
+      if (removed) notify()
+      return removed
     },
 
     addTranslations(locale: string, translations: Translations, namespace?: string): void {

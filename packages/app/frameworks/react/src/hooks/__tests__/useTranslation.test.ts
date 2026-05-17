@@ -15,6 +15,7 @@ const createMockProvider = (tFn?: I18nProvider['t']): I18nProvider => ({
   setLocale: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
   getLocales: () => [{ code: 'en', name: 'English' }],
   addLocale: vi.fn(),
+  removeLocale: vi.fn().mockReturnValue(true),
   addTranslations: vi.fn(),
   t: tFn ?? ((key: string) => key),
   exists: () => true,

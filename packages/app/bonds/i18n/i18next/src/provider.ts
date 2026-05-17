@@ -144,6 +144,16 @@ export const createI18nextProvider = (
     addLocale(config: LocaleConfig): void {
       localeConfigs.set(config.code, config)
       i18n.addResourceBundle(config.code, 'translation', config.translations ?? {}, true, true)
+      listeners.forEach((listener) => listener(i18n.language))
+    },
+
+    removeLocale(code: string): boolean {
+      const removed = localeConfigs.delete(code)
+      if (removed) {
+        i18n.removeResourceBundle(code, 'translation')
+        listeners.forEach((listener) => listener(i18n.language))
+      }
+      return removed
     },
 
     addTranslations(locale: string, translations: Translations, namespace = 'translation'): void {

@@ -272,6 +272,34 @@ describe('@molecule/app-i18n', () => {
         })
         expect(provider.getLocales().map((l) => l.code)).toContain('de')
       })
+
+      it('should notify onLocaleChange subscribers so pickers re-render', () => {
+        const listener = vi.fn()
+        provider.onLocaleChange(listener)
+        provider.addLocale({ code: 'it', name: 'Italian', direction: 'ltr', translations: {} })
+        expect(listener).toHaveBeenCalled()
+      })
+    })
+
+    describe('removeLocale', () => {
+      it('removes a registered locale and returns true', () => {
+        provider.addLocale({ code: 'de', name: 'German', direction: 'ltr', translations: {} })
+        expect(provider.getLocales().map((l) => l.code)).toContain('de')
+        expect(provider.removeLocale('de')).toBe(true)
+        expect(provider.getLocales().map((l) => l.code)).not.toContain('de')
+      })
+
+      it('returns false when the locale was never registered', () => {
+        expect(provider.removeLocale('xx-unknown')).toBe(false)
+      })
+
+      it('notifies onLocaleChange subscribers so pickers re-render', () => {
+        provider.addLocale({ code: 'pt', name: 'Portuguese', direction: 'ltr', translations: {} })
+        const listener = vi.fn()
+        provider.onLocaleChange(listener)
+        provider.removeLocale('pt')
+        expect(listener).toHaveBeenCalled()
+      })
     })
 
     describe('addTranslations', () => {
