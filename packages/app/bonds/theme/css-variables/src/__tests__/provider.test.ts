@@ -5,15 +5,47 @@ import { createCSSVariablesThemeProvider, darkTheme, lightTheme } from '../index
 interface StubElement {
   style: { setProperty: ReturnType<typeof vi.fn> }
   setAttribute: ReturnType<typeof vi.fn>
+  classList: { toggle: ReturnType<typeof vi.fn> }
 }
 
-function makeDocumentStub(): { documentElement: StubElement } {
-  return {
+interface StubStyle {
+  id: string
+  textContent: string
+  remove: ReturnType<typeof vi.fn>
+}
+
+interface StubDocument {
+  documentElement: StubElement
+  head: {
+    firstChild: unknown
+    insertBefore: ReturnType<typeof vi.fn>
+  }
+  createElement: ReturnType<typeof vi.fn>
+  getElementById: ReturnType<typeof vi.fn>
+  /** Last `<style>` element handed back from createElement (or the existing one). */
+  styleEl: StubStyle | null
+}
+
+function makeDocumentStub(): StubDocument {
+  const doc: StubDocument = {
     documentElement: {
       style: { setProperty: vi.fn() },
       setAttribute: vi.fn(),
+      classList: { toggle: vi.fn() },
     },
+    head: {
+      firstChild: null,
+      insertBefore: vi.fn(),
+    },
+    createElement: vi.fn((_tag: string) => {
+      const el: StubStyle = { id: '', textContent: '', remove: vi.fn() }
+      doc.styleEl = el
+      return el
+    }),
+    getElementById: vi.fn((id: string) => (doc.styleEl?.id === id ? doc.styleEl : null)),
+    styleEl: null,
   }
+  return doc
 }
 
 afterEach(() => {
@@ -288,7 +320,7 @@ describe('createCSSVariablesThemeProvider', () => {
   })
 
   describe('DOM application (applyToDocument=true)', () => {
-    it('sets CSS custom properties for every theme token category', () => {
+    it('injects a <style> element with every theme token category', () => {
       const docStub = makeDocumentStub()
       vi.stubGlobal('document', docStub)
 
@@ -298,17 +330,39 @@ describe('createCSSVariablesThemeProvider', () => {
         applyToDocument: true,
       })
 
-      const setProp = docStub.documentElement.style.setProperty
-      // At least one color, one spacing, one font-family, one font-size, etc.
-      const calls = setProp.mock.calls.map((c) => c[0] as string)
-      expect(calls.some((c) => c.startsWith('--mol-color-'))).toBe(true)
-      expect(calls.some((c) => c.startsWith('--mol-spacing-'))).toBe(true)
-      expect(calls.some((c) => c.startsWith('--mol-radius-'))).toBe(true)
-      expect(calls.some((c) => c.startsWith('--mol-shadow-'))).toBe(true)
-      expect(calls.some((c) => c.startsWith('--mol-font-'))).toBe(true)
-      expect(calls.some((c) => c.startsWith('--mol-text-'))).toBe(true)
-      expect(calls.some((c) => c.startsWith('--mol-leading-'))).toBe(true)
-      expect(calls.some((c) => c.startsWith('--mol-z-'))).toBe(true)
+      expect(docStub.createElement).toHaveBeenCalledWith('style')
+      expect(docStub.styleEl?.id).toBe('mol-theme-vars')
+      const css = docStub.styleEl?.textContent ?? ''
+      // At least one of each token category present in the injected stylesheet.
+      expect(css).toMatch(/--mol-color-/)
+      expect(css).toMatch(/--mol-spacing-/)
+      expect(css).toMatch(/--mol-radius-/)
+      expect(css).toMatch(/--mol-shadow-/)
+      expect(css).toMatch(/--mol-font-/)
+      expect(css).toMatch(/--mol-text-/)
+      expect(css).toMatch(/--mol-leading-/)
+      expect(css).toMatch(/--mol-z-/)
+    })
+
+    it('uses zero-specificity :where() selectors so per-app theme.css wins', () => {
+      const docStub = makeDocumentStub()
+      vi.stubGlobal('document', docStub)
+
+      createCSSVariablesThemeProvider({
+        themes: [lightTheme, darkTheme],
+        defaultTheme: 'light',
+        applyToDocument: true,
+      })
+
+      const css = docStub.styleEl?.textContent ?? ''
+      // Baseline rule for :root and a rule per mode, all wrapped in :where().
+      expect(css).toMatch(/:where\(:root\)/)
+      expect(css).toMatch(/:where\(\[data-mol-mode="dark"\]\)/)
+      expect(css).toMatch(/:where\(\[data-mol-mode="light"\]\)/)
+      // No raw (specificity-bearing) selector escapes the :where() wrapper.
+      const stripped = css.replace(/:where\([^)]+\)/g, '')
+      expect(stripped).not.toMatch(/\[data-mol-mode/)
+      expect(stripped).not.toMatch(/:root/)
     })
 
     it('sets data-{prefix}-theme + data-{prefix}-mode attributes', () => {
@@ -336,9 +390,10 @@ describe('createCSSVariablesThemeProvider', () => {
         prefix: 'acme',
       })
 
-      const setProp = docStub.documentElement.style.setProperty
-      const calls = setProp.mock.calls.map((c) => c[0] as string)
-      expect(calls.some((c) => c.startsWith('--acme-color-'))).toBe(true)
+      expect(docStub.styleEl?.id).toBe('acme-theme-vars')
+      const css = docStub.styleEl?.textContent ?? ''
+      expect(css).toMatch(/--acme-color-/)
+      expect(css).toMatch(/:where\(\[data-acme-mode="light"\]\)/)
       expect(docStub.documentElement.setAttribute).toHaveBeenCalledWith('data-acme-theme', 'light')
     })
 
@@ -352,12 +407,9 @@ describe('createCSSVariablesThemeProvider', () => {
         applyToDocument: true,
       })
 
-      const setProp = docStub.documentElement.style.setProperty
-      const colorCalls = setProp.mock.calls.filter((c) =>
-        (c[0] as string).startsWith('--mol-color-'),
-      )
+      const css = docStub.styleEl?.textContent ?? ''
       // backgroundSecondary should land as --mol-color-background-secondary
-      expect(colorCalls.some((c) => c[0] === '--mol-color-background-secondary')).toBe(true)
+      expect(css).toMatch(/--mol-color-background-secondary:/)
     })
 
     it('applyToDocument=false skips all DOM writes', () => {
@@ -370,11 +422,11 @@ describe('createCSSVariablesThemeProvider', () => {
         applyToDocument: false,
       })
 
-      expect(docStub.documentElement.style.setProperty).not.toHaveBeenCalled()
+      expect(docStub.createElement).not.toHaveBeenCalled()
       expect(docStub.documentElement.setAttribute).not.toHaveBeenCalled()
     })
 
-    it('re-applies the theme to the document on setTheme', () => {
+    it('re-uses the same <style> element on setTheme (does not stack)', () => {
       const docStub = makeDocumentStub()
       vi.stubGlobal('document', docStub)
 
@@ -383,13 +435,35 @@ describe('createCSSVariablesThemeProvider', () => {
         defaultTheme: 'light',
         applyToDocument: true,
       })
-      const initial = docStub.documentElement.style.setProperty.mock.calls.length
 
+      expect(docStub.createElement).toHaveBeenCalledTimes(1)
       provider.setTheme('dark')
-
-      expect(docStub.documentElement.style.setProperty.mock.calls.length).toBeGreaterThan(initial)
+      // Same element re-used — getElementById returned it on the 2nd apply.
+      expect(docStub.createElement).toHaveBeenCalledTimes(1)
       // data-mol-mode should now be 'dark'
       expect(docStub.documentElement.setAttribute).toHaveBeenCalledWith('data-mol-mode', 'dark')
+    })
+
+    it('toggles `.dark` class on <html> in lockstep with theme mode', () => {
+      const docStub = makeDocumentStub()
+      vi.stubGlobal('document', docStub)
+
+      const provider = createCSSVariablesThemeProvider({
+        themes: [lightTheme, darkTheme],
+        defaultTheme: 'light',
+        applyToDocument: true,
+      })
+
+      // Initial light apply removes the class.
+      expect(docStub.documentElement.classList.toggle).toHaveBeenCalledWith('dark', false)
+
+      provider.setTheme('dark')
+      expect(docStub.documentElement.classList.toggle).toHaveBeenCalledWith('dark', true)
+
+      provider.setTheme('light')
+      // Most recent call should be the removal.
+      const calls = docStub.documentElement.classList.toggle.mock.calls
+      expect(calls[calls.length - 1]).toEqual(['dark', false])
     })
 
     it('skips DOM apply when document is undefined (SSR)', () => {

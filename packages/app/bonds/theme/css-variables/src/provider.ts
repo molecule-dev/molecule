@@ -22,73 +22,107 @@ function camelToKebab(str: string): string {
 }
 
 /**
- * Applies a theme's tokens as CSS custom properties to the document root.
- * @param theme - The theme object containing all design tokens to apply.
- * @param prefix - The CSS variable prefix (e.g. `'mol'` produces `--mol-color-primary`).
+ * Build the declaration body (CSS custom-property lines) for a single theme.
  */
-function applyThemeToDocument(theme: Theme, prefix: string): void {
+function buildDeclarations(theme: Theme, prefix: string): string {
+  const lines: string[] = []
+  for (const [key, value] of Object.entries(theme.colors)) {
+    lines.push(`  --${prefix}-color-${camelToKebab(key)}: ${value};`)
+  }
+  for (const [key, value] of Object.entries(theme.spacing)) {
+    lines.push(`  --${prefix}-spacing-${key}: ${value};`)
+  }
+  for (const [key, value] of Object.entries(theme.borderRadius)) {
+    lines.push(`  --${prefix}-radius-${key}: ${value};`)
+  }
+  for (const [key, value] of Object.entries(theme.shadows)) {
+    lines.push(`  --${prefix}-shadow-${key}: ${value};`)
+  }
+  for (const [key, value] of Object.entries(theme.typography.fontFamily)) {
+    lines.push(`  --${prefix}-font-${key}: ${value};`)
+  }
+  for (const [key, value] of Object.entries(theme.typography.fontSize)) {
+    lines.push(`  --${prefix}-text-${key}: ${value};`)
+  }
+  for (const [key, value] of Object.entries(theme.typography.fontWeight)) {
+    lines.push(`  --${prefix}-font-weight-${key}: ${String(value)};`)
+  }
+  for (const [key, value] of Object.entries(theme.typography.lineHeight)) {
+    lines.push(`  --${prefix}-leading-${key}: ${String(value)};`)
+  }
+  for (const [key, value] of Object.entries(theme.breakpoints)) {
+    lines.push(`  --${prefix}-breakpoint-${camelToKebab(key)}: ${value};`)
+  }
+  for (const [key, value] of Object.entries(theme.transitions)) {
+    lines.push(`  --${prefix}-transition-${key}: ${value};`)
+  }
+  for (const [key, value] of Object.entries(theme.zIndex)) {
+    lines.push(`  --${prefix}-z-${key}: ${String(value)};`)
+  }
+  return lines.join('\n')
+}
+
+/**
+ * Apply the active theme to the document.
+ *
+ * Strategy: inject a single `<style>` element holding ONE rule per
+ * registered theme, each scoped with `:where(...)` so the rules have ZERO
+ * specificity. This lets an app's own `theme.css` (e.g. plain
+ * `:root { … }` or `[data-mol-mode="dark"] { … }`, both specificity 0,1,0)
+ * always win, while still giving apps that ship no theme.css a working
+ * baseline. The selector for the mode-matching theme bumps to the active
+ * mode via the `data-{prefix}-mode` attribute the function also writes.
+ *
+ * Without `:where()` the provider's inline / high-specificity styles
+ * defeated every per-app `[data-mol-mode="dark"]` block, leaving the
+ * fleet's brand-specific dark palettes unreachable. See
+ * `__tests__/provider.test.ts` for the regression that pinned this.
+ *
+ * @param themes - All themes registered with the provider.
+ * @param activeTheme - The currently-selected theme (drives data-attrs + class).
+ * @param prefix - CSS variable prefix (e.g. `'mol'` → `--mol-color-primary`).
+ */
+function applyThemeToDocument(themes: Theme[], activeTheme: Theme, prefix: string): void {
   if (typeof document === 'undefined') return
 
   const root = document.documentElement
+  const styleId = `${prefix}-theme-vars`
 
-  // Colors
-  for (const [key, value] of Object.entries(theme.colors)) {
-    root.style.setProperty(`--${prefix}-color-${camelToKebab(key)}`, value)
+  // Build/refresh the single stylesheet with one :where()-wrapped rule per theme.
+  let style = document.getElementById(styleId) as HTMLStyleElement | null
+  if (!style) {
+    style = document.createElement('style')
+    style.id = styleId
+    // Insert as early as possible so source-order ties go to app stylesheets
+    // imported later. The :where() wrapper makes specificity moot, but
+    // injecting at <head> top is the safest belt-and-braces.
+    const head = document.head || document.documentElement
+    head.insertBefore(style, head.firstChild)
   }
 
-  // Spacing
-  for (const [key, value] of Object.entries(theme.spacing)) {
-    root.style.setProperty(`--${prefix}-spacing-${key}`, value)
+  const rules: string[] = []
+  // Default (light/baseline) rule — always present, selects :root unconditionally
+  // but inside :where(), so specificity is 0,0,0.
+  const baseline = themes.find((t) => t.mode === 'light') || themes[0]
+  if (baseline) {
+    rules.push(`:where(:root) {\n${buildDeclarations(baseline, prefix)}\n}`)
   }
-
-  // Border radius
-  for (const [key, value] of Object.entries(theme.borderRadius)) {
-    root.style.setProperty(`--${prefix}-radius-${key}`, value)
+  // Per-mode rules — fire when the active mode attribute matches.
+  for (const t of themes) {
+    rules.push(`:where([data-${prefix}-mode="${t.mode}"]) {\n${buildDeclarations(t, prefix)}\n}`)
   }
-
-  // Shadows
-  for (const [key, value] of Object.entries(theme.shadows)) {
-    root.style.setProperty(`--${prefix}-shadow-${key}`, value)
-  }
-
-  // Typography - font families
-  for (const [key, value] of Object.entries(theme.typography.fontFamily)) {
-    root.style.setProperty(`--${prefix}-font-${key}`, value)
-  }
-
-  // Typography - font sizes
-  for (const [key, value] of Object.entries(theme.typography.fontSize)) {
-    root.style.setProperty(`--${prefix}-text-${key}`, value)
-  }
-
-  // Typography - font weights
-  for (const [key, value] of Object.entries(theme.typography.fontWeight)) {
-    root.style.setProperty(`--${prefix}-font-weight-${key}`, String(value))
-  }
-
-  // Typography - line heights
-  for (const [key, value] of Object.entries(theme.typography.lineHeight)) {
-    root.style.setProperty(`--${prefix}-leading-${key}`, String(value))
-  }
-
-  // Breakpoints
-  for (const [key, value] of Object.entries(theme.breakpoints)) {
-    root.style.setProperty(`--${prefix}-breakpoint-${camelToKebab(key)}`, value)
-  }
-
-  // Transitions
-  for (const [key, value] of Object.entries(theme.transitions)) {
-    root.style.setProperty(`--${prefix}-transition-${key}`, value)
-  }
-
-  // Z-index
-  for (const [key, value] of Object.entries(theme.zIndex)) {
-    root.style.setProperty(`--${prefix}-z-${key}`, String(value))
-  }
+  style.textContent = rules.join('\n\n')
 
   // Set data attributes for CSS selectors
-  root.setAttribute(`data-${prefix}-theme`, theme.name)
-  root.setAttribute(`data-${prefix}-mode`, theme.mode)
+  root.setAttribute(`data-${prefix}-theme`, activeTheme.name)
+  root.setAttribute(`data-${prefix}-mode`, activeTheme.mode)
+
+  // Also toggle a `.dark` class on <html>. Many app templates rely on the
+  // Tailwind `dark:` modifier — which the generator wires via
+  // `@custom-variant dark (&:where(.dark, .dark *))` in index.css — so
+  // without this class on the root, every `dark:bg-*` / `dark:text-*` etc.
+  // utility silently no-ops on theme toggle.
+  root.classList.toggle('dark', activeTheme.mode === 'dark')
 }
 
 /**
@@ -153,7 +187,7 @@ export function createCSSVariablesThemeProvider(config: CSSVariablesThemeConfig)
 
   // Apply initial theme
   if (applyToDocument) {
-    applyThemeToDocument(currentTheme, prefix)
+    applyThemeToDocument(themes, currentTheme, prefix)
   }
 
   const provider: ThemeProvider = {
@@ -168,7 +202,7 @@ export function createCSSVariablesThemeProvider(config: CSSVariablesThemeConfig)
       currentTheme = newTheme
 
       if (applyToDocument) {
-        applyThemeToDocument(currentTheme, prefix)
+        applyThemeToDocument(themes, currentTheme, prefix)
       }
 
       if (persistKey && storage) {
