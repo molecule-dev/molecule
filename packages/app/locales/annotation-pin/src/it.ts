@@ -4,6 +4,6 @@ import type { AnnotationPinTranslations } from './types.js'
 export const it: Partial<AnnotationPinTranslations> = {
   'annotationPin.aria.layer': 'Livello delle annotazioni',
   'annotationPin.aria.marker': 'Perno di riferimento',
-  'annotationPin.aria.popup': "Dettagli dell'annotazione",
   'annotationPin.empty': 'Non ci sono note relative a questo pin.',
+  'annotationPin.aria.popup': 'Dettagli dell&#39;annotazione',
 }
