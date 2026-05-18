@@ -1,11 +1,7 @@
 import type { VoteClusterTranslations } from './types.js'
 
-/** Vote cluster translations for tr. Stub — falls back to English defaults. */
-export const tr: VoteClusterTranslations = {
-  'vote-cluster.upvote': 'Upvote',
-  'vote-cluster.removeUpvote': 'Remove upvote',
-  'vote-cluster.downvote': 'Downvote',
-  'vote-cluster.removeDownvote': 'Remove downvote',
-  'vote-cluster.score': 'Score: {{score}}',
-  'vote-cluster.group': 'Vote cluster, current score {{score}}',
+/** VoteCluster translations for tr. */
+export const tr: Partial<VoteClusterTranslations> = {
+  'vote-cluster.upvote': 'Olumlu oy',
+  'vote-cluster.downvote': 'Olumsuz oy',
 }

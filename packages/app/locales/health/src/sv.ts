@@ -1,7 +1,6 @@
 import type { HealthTranslations } from './types.js'
 
-/** Health translations for Swedish. */
-export const sv: HealthTranslations = {
-  'health.durationHoursMinutes': '{{hours}}t {{minutes}}m',
-  'health.durationMinutes': '{{minutes}}m',
+/** Health translations for sv. */
+export const sv: Partial<HealthTranslations> = {
+  'health.durationMinutes': '{{minutes}}min',
 }

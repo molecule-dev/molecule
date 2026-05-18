@@ -1,9 +1,6 @@
 import type { AuthTranslations } from './types.js'
 
-/** Auth translations for Malay. */
-export const ms: AuthTranslations = {
-  'auth.error.requestFailed': 'Permintaan gagal',
+/** Auth translations for ms. */
+export const ms: Partial<AuthTranslations> = {
   'auth.error.loginFailed': 'Log masuk gagal',
-  'auth.error.registrationFailed': 'Pendaftaran gagal',
-  'auth.error.noRefreshToken': 'Tiada refresh token tersedia',
 }

@@ -1,5 +1,6 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for zh — currently mirrors English (translation TBD). */
-export const zh: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for zh. */
+export const zh: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.loading': '正在加载图片……',
+}

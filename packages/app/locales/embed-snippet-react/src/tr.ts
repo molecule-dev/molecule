@@ -1,5 +1,13 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for tr — currently mirrors English (translation TBD). */
-export const tr: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for tr. */
+export const tr: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.heading': 'Yerleştirme kodu',
+  'embedSnippet.copy': 'Kopyala',
+  'embedSnippet.copied': 'Kopyalandı!',
+  'embedSnippet.controls.height': 'Boy',
+  'embedSnippet.controls.theme': 'Tema',
+  'embedSnippet.theme.light': 'Açık',
+  'embedSnippet.theme.dark': 'Koyu',
+  'embedSnippet.theme.auto': 'Oto',
+}

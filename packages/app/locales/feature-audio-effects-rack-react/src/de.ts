@@ -1,5 +1,14 @@
-import type { AudioEffectsRackTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioEffectsRackTranslations } from './types.js'
 
-/** Audio-effects-rack translations for de — currently mirrors English (translation TBD). */
-export const de: AudioEffectsRackTranslations = { ...en }
+/** FeatureAudioEffectsRack translations for de. */
+export const de: Partial<FeatureAudioEffectsRackTranslations> = {
+  'audioEffectsRack.param.eq.low': 'Niedrig',
+  'audioEffectsRack.param.eq.high': 'Hoch',
+  'audioEffectsRack.param.compressor.threshold': 'Schwellenwert',
+  'audioEffectsRack.param.delay.time': 'Zeit',
+  'audioEffectsRack.param.gate.threshold': 'Schwellenwert',
+  'audioEffectsRack.param.limiter.threshold': 'Schwellenwert',
+  'audioEffectsRack.param.chorus.rate': 'Satz',
+  'audioEffectsRack.param.flanger.rate': 'Satz',
+  'audioEffectsRack.param.phaser.rate': 'Satz',
+}

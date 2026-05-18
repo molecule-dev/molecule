@@ -1,5 +1,7 @@
 import type { GradebookTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Gradebook translations for nb — currently mirrors English (translation TBD). */
-export const nb: GradebookTranslations = { ...en }
+/** Gradebook translations for nb. */
+export const nb: Partial<GradebookTranslations> = {
+  'gradebook.col.title': 'Kurs',
+  'gradebook.col.numeric': 'Poeng',
+}

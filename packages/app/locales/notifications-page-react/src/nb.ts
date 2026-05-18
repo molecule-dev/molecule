@@ -1,5 +1,14 @@
-import { en } from './en.js'
 import type { NotificationsPageTranslations } from './types.js'
 
-/** Notifications-page translations for nb (stub — falls back to English until reviewed). */
-export const nb: NotificationsPageTranslations = { ...en }
+/** NotificationsPage translations for nb. */
+export const nb: Partial<NotificationsPageTranslations> = {
+  'notificationsPage.title': 'Varsler',
+  'notificationsPage.filterAll': 'Alle',
+  'notificationsPage.filterMentions': 'Omtaler',
+  'notificationsPage.filterAriaLabel': 'Filtrer varsler',
+  'notificationsPage.feedAriaLabel': 'Varsler',
+  'notificationsPage.loading': 'Laster varsler…',
+  'notificationsPage.error': 'Kunne ikke laste varsler.',
+  'notificationsPage.emptyBody': 'Nye varsler vises her.',
+  'notificationsPage.prev': 'Forrige',
+}

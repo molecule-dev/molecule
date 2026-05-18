@@ -1,4 +1,6 @@
 import type { VideoCallControlsTranslations } from './types.js'
 
 /** VideoCallControls translations for ar. */
-export const ar: Partial<VideoCallControlsTranslations> = {}
+export const ar: Partial<VideoCallControlsTranslations> = {
+  'call.leave': 'مغادرة',
+}

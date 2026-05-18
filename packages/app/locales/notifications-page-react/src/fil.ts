@@ -1,5 +1,14 @@
-import { en } from './en.js'
 import type { NotificationsPageTranslations } from './types.js'
 
-/** Notifications-page translations for fil (stub — falls back to English until reviewed). */
-export const fil: NotificationsPageTranslations = { ...en }
+/** NotificationsPage translations for fil. */
+export const fil: Partial<NotificationsPageTranslations> = {
+  'notificationsPage.title': 'Mga Notification',
+  'notificationsPage.filterAll': 'Lahat',
+  'notificationsPage.filterMentions': 'Mga Mention',
+  'notificationsPage.filterAriaLabel': 'I-filter ang mga notification',
+  'notificationsPage.feedAriaLabel': 'Mga Notification',
+  'notificationsPage.loading': 'Naglo-load ng mga notification…',
+  'notificationsPage.error': 'Hindi ma-load ang mga abiso.',
+  'notificationsPage.emptyBody': 'Ang mga bagong notification ay lalabas dito.',
+  'notificationsPage.prev': 'Nakaraan',
+}

@@ -1,6 +1,6 @@
 import type { ContactsTranslations } from './types.js'
 
-/** Contacts translations for Indonesian. */
-export const id: ContactsTranslations = {
-  'contacts.unknown': 'Tidak Diketahui',
+/** Contacts translations for id. */
+export const id: Partial<ContactsTranslations> = {
+  'contacts.unknown': 'Tidak diketahui',
 }

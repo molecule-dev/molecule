@@ -1,5 +1,7 @@
 import type { ExifPanelTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Exif-panel translations for es — currently mirrors English (translation TBD). */
-export const es: ExifPanelTranslations = { ...en }
+/** ExifPanel translations for es. */
+export const es: Partial<ExifPanelTranslations> = {
+  'exifPanel.eyebrow': 'Metadatos del fotograma',
+  'exifPanel.camera': 'Cámara',
+}

@@ -1,5 +1,6 @@
-import type { BarcodeScannerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureBarcodeScannerTranslations } from './types.js'
 
-/** Barcode-scanner translations for it — currently mirrors English (translation TBD). */
-export const it: BarcodeScannerTranslations = { ...en }
+/** FeatureBarcodeScanner translations for it. */
+export const it: Partial<FeatureBarcodeScannerTranslations> = {
+  'barcodeScanner.status.scanning': 'Scansione…',
+}

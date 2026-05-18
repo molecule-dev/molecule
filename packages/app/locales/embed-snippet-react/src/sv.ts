@@ -1,5 +1,12 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for sv — currently mirrors English (translation TBD). */
-export const sv: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for sv. */
+export const sv: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.heading': 'Inbäddningskod',
+  'embedSnippet.copy': 'Kopiera',
+  'embedSnippet.copied': 'Kopierat!',
+  'embedSnippet.controls.height': 'Längd',
+  'embedSnippet.controls.theme': 'Tema',
+  'embedSnippet.theme.light': 'Ljust',
+  'embedSnippet.theme.dark': 'Mörkt',
+}

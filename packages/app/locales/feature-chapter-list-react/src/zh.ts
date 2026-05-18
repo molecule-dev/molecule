@@ -1,5 +1,7 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for zh — currently mirrors English (translation TBD). */
-export const zh: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for zh. */
+export const zh: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': '章节',
+  'chapterList.current': '正在播放',
+}

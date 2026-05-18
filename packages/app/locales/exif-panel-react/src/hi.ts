@@ -1,5 +1,7 @@
 import type { ExifPanelTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Exif-panel translations for hi — currently mirrors English (translation TBD). */
-export const hi: ExifPanelTranslations = { ...en }
+/** ExifPanel translations for hi. */
+export const hi: Partial<ExifPanelTranslations> = {
+  'exifPanel.eyebrow': 'फ़्रेम मेटाडेटा',
+  'exifPanel.camera': 'कैमरा',
+}

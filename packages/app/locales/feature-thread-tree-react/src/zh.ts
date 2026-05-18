@@ -1,5 +1,7 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for zh (stub — falls back to English until reviewed). */
-export const zh: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for zh. */
+export const zh: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.upvote': '顶',
+  'threadTree.reply': '回复',
+}

@@ -1,6 +1,6 @@
 import type { ContactsTranslations } from './types.js'
 
-/** Contacts translations for Portuguese. */
-export const pt: ContactsTranslations = {
+/** Contacts translations for pt. */
+export const pt: Partial<ContactsTranslations> = {
   'contacts.unknown': 'Desconhecido',
 }

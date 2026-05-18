@@ -1,12 +1,6 @@
 import type { LayerPanelTranslations } from './types.js'
 
-/** Layer Panel translations for Indonesian. Stub — uses English copy. */
-export const id: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+/** LayerPanel translations for id. */
+export const id: Partial<LayerPanelTranslations> = {
+  'layerPanel.label': 'Lapisan',
 }

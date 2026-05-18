@@ -1,5 +1,6 @@
-import { en } from './en.js'
 import type { NotificationsPageTranslations } from './types.js'
 
-/** Notifications-page translations for ne (stub — falls back to English until reviewed). */
-export const ne: NotificationsPageTranslations = { ...en }
+/** NotificationsPage translations for ne. */
+export const ne: Partial<NotificationsPageTranslations> = {
+  'notificationsPage.filterAll': 'All ({{count}})',
+}

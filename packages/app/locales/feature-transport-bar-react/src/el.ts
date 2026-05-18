@@ -1,5 +1,8 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for el (stub — falls back to English until reviewed). */
-export const el: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for el. */
+export const el: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.play': 'Αναπαραγωγή',
+  'transportBar.aria.pause': 'Παύση',
+  'transportBar.aria.record': 'Εγγραφή',
+}

@@ -1,25 +1,12 @@
 import type { RuleBuilderTranslations } from './types.js'
 
-/** Rule-builder translations for Ukrainian. */
-export const uk: RuleBuilderTranslations = {
-  'ruleBuilder.op.and': 'AND',
-  'ruleBuilder.op.or': 'OR',
-  'ruleBuilder.help.allMustMatch': 'All conditions must match',
-  'ruleBuilder.help.anyMustMatch': 'Any condition may match',
-  'ruleBuilder.action.addCondition': '+ Add condition',
-  'ruleBuilder.action.addGroup': '+ Add group',
-  'ruleBuilder.action.removeCondition': 'Remove',
-  'ruleBuilder.action.removeGroup': 'Remove group',
-  'ruleBuilder.aria.toggleOp': 'Toggle AND / OR',
-  'ruleBuilder.aria.removeGroup': 'Remove group',
-  'ruleBuilder.aria.removeCondition': 'Remove condition',
-  'ruleBuilder.aria.field': 'Field',
-  'ruleBuilder.aria.operator': 'Operator',
-  'ruleBuilder.aria.value': 'Value',
-  'ruleBuilder.aria.valueFrom': 'From',
-  'ruleBuilder.aria.valueTo': 'To',
-  'ruleBuilder.field.placeholder': 'Select field…',
-  'ruleBuilder.between.separator': '–',
-  'ruleBuilder.boolean.true': 'true',
-  'ruleBuilder.boolean.false': 'false',
+/** RuleBuilder translations for uk. */
+export const uk: Partial<RuleBuilderTranslations> = {
+  'ruleBuilder.action.removeCondition': 'Видалити',
+  'ruleBuilder.aria.removeCondition': 'Видалити умову',
+  'ruleBuilder.aria.field': 'Поле',
+  'ruleBuilder.aria.operator': 'Оператор',
+  'ruleBuilder.aria.value': 'Значення',
+  'ruleBuilder.aria.valueFrom': 'Від',
+  'ruleBuilder.aria.valueTo': 'Кому',
 }

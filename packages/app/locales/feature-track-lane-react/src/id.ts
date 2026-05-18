@@ -1,5 +1,6 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for id — currently mirrors English (translation TBD). */
-export const id: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for id. */
+export const id: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.header': 'Lacak',
+}

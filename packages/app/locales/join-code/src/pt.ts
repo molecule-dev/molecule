@@ -1,9 +1,6 @@
 import type { JoinCodeTranslations } from './types.js'
 
-/** Join code translations for Portuguese. */
-export const pt: JoinCodeTranslations = {
-  'joinCode.label': 'Join code',
-  'joinCode.slotAriaLabel': 'Join code character {{position}}',
-  'joinCode.help': 'Enter the {{length}}-character code.',
-  'joinCode.errorAlphabet': 'Invalid character.',
+/** JoinCode translations for pt. */
+export const pt: Partial<JoinCodeTranslations> = {
+  'joinCode.label': 'Código de acesso',
 }

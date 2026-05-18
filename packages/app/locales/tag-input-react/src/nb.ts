@@ -1,4 +1,6 @@
 import type { TagInputTranslations } from './types.js'
 
 /** TagInput translations for nb. */
-export const nb: Partial<TagInputTranslations> = {}
+export const nb: Partial<TagInputTranslations> = {
+  'tagChip.remove': 'Fjern',
+}

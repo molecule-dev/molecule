@@ -1,25 +1,12 @@
 import type { RuleBuilderTranslations } from './types.js'
 
-/** Rule-builder translations for French. */
-export const fr: RuleBuilderTranslations = {
-  'ruleBuilder.op.and': 'AND',
-  'ruleBuilder.op.or': 'OR',
-  'ruleBuilder.help.allMustMatch': 'All conditions must match',
-  'ruleBuilder.help.anyMustMatch': 'Any condition may match',
-  'ruleBuilder.action.addCondition': '+ Add condition',
-  'ruleBuilder.action.addGroup': '+ Add group',
-  'ruleBuilder.action.removeCondition': 'Remove',
-  'ruleBuilder.action.removeGroup': 'Remove group',
-  'ruleBuilder.aria.toggleOp': 'Toggle AND / OR',
-  'ruleBuilder.aria.removeGroup': 'Remove group',
-  'ruleBuilder.aria.removeCondition': 'Remove condition',
-  'ruleBuilder.aria.field': 'Field',
-  'ruleBuilder.aria.operator': 'Operator',
-  'ruleBuilder.aria.value': 'Value',
-  'ruleBuilder.aria.valueFrom': 'From',
-  'ruleBuilder.aria.valueTo': 'To',
-  'ruleBuilder.field.placeholder': 'Select field…',
-  'ruleBuilder.between.separator': '–',
-  'ruleBuilder.boolean.true': 'true',
-  'ruleBuilder.boolean.false': 'false',
+/** RuleBuilder translations for fr. */
+export const fr: Partial<RuleBuilderTranslations> = {
+  'ruleBuilder.action.removeCondition': 'Retirer',
+  'ruleBuilder.aria.removeCondition': 'Supprimer la condition',
+  'ruleBuilder.aria.field': 'Champ',
+  'ruleBuilder.aria.operator': 'Opérateur',
+  'ruleBuilder.aria.value': 'Valeur',
+  'ruleBuilder.aria.valueFrom': 'De',
+  'ruleBuilder.aria.valueTo': 'À',
 }

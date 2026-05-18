@@ -1,4 +1,6 @@
 import type { ColorPickerTranslations } from './types.js'
 
 /** ColorPicker translations for ro. */
-export const ro: Partial<ColorPickerTranslations> = {}
+export const ro: Partial<ColorPickerTranslations> = {
+  'colorPicker.value': 'Valoare',
+}

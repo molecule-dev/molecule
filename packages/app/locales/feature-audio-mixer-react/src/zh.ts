@@ -1,5 +1,7 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for zh — currently mirrors English (translation TBD). */
-export const zh: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for zh. */
+export const zh: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.button.mute': '静音',
+  'audioMixer.sends': '发送量',
+}

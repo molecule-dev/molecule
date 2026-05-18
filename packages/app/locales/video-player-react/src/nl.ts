@@ -1,4 +1,7 @@
 import type { VideoPlayerTranslations } from './types.js'
 
 /** VideoPlayer translations for nl. */
-export const nl: Partial<VideoPlayerTranslations> = {}
+export const nl: Partial<VideoPlayerTranslations> = {
+  'video.pause': 'Pauzeren',
+  'video.play': 'Afspelen',
+}

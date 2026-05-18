@@ -1,4 +1,6 @@
 import type { TagInputTranslations } from './types.js'
 
 /** TagInput translations for ja. */
-export const ja: Partial<TagInputTranslations> = {}
+export const ja: Partial<TagInputTranslations> = {
+  'tagChip.remove': '削除',
+}

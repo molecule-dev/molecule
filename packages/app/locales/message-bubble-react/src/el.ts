@@ -1,4 +1,6 @@
 import type { MessageBubbleTranslations } from './types.js'
 
 /** MessageBubble translations for el. */
-export const el: Partial<MessageBubbleTranslations> = {}
+export const el: Partial<MessageBubbleTranslations> = {
+  'composer.send': 'Αποστολή',
+}

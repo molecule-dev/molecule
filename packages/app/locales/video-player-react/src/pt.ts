@@ -1,4 +1,7 @@
 import type { VideoPlayerTranslations } from './types.js'
 
 /** VideoPlayer translations for pt. */
-export const pt: Partial<VideoPlayerTranslations> = {}
+export const pt: Partial<VideoPlayerTranslations> = {
+  'video.pause': 'Pausar',
+  'video.play': 'Reproduzir',
+}

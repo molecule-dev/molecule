@@ -1,5 +1,7 @@
 import type { NowPlayingBarTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Now-playing-bar translations for fi — currently mirrors English (translation TBD). */
-export const fi: NowPlayingBarTranslations = { ...en }
+/** NowPlayingBar translations for fi. */
+export const fi: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.aria.play': 'Toista',
+  'nowPlaying.aria.pause': 'Tauko',
+}

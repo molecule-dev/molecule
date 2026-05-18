@@ -1,7 +1,6 @@
 import type { HealthTranslations } from './types.js'
 
-/** Health translations for Japanese. */
-export const ja: HealthTranslations = {
-  'health.durationHoursMinutes': '{{hours}}時間{{minutes}}分',
+/** Health translations for ja. */
+export const ja: Partial<HealthTranslations> = {
   'health.durationMinutes': '{{minutes}}分',
 }

@@ -1,4 +1,7 @@
 import type { OnboardingModalTranslations } from './types.js'
 
 /** OnboardingModal translations for ms. */
-export const ms: Partial<OnboardingModalTranslations> = {}
+export const ms: Partial<OnboardingModalTranslations> = {
+  'onboarding.back': 'Kembali',
+  'onboarding.done': 'Mulakan',
+}

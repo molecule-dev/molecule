@@ -1,5 +1,6 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for vi — currently mirrors English (translation TBD). */
-export const vi: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for vi. */
+export const vi: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.loading': 'Đang tải hình ảnh…',
+}

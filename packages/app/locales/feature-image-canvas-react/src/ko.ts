@@ -1,5 +1,6 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for ko — currently mirrors English (translation TBD). */
-export const ko: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for ko. */
+export const ko: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.loading': '이미지를 불러오는 중…',
+}

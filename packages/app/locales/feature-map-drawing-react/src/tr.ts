@@ -1,5 +1,9 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for tr — currently mirrors English (translation TBD). */
-export const tr: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for tr. */
+export const tr: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.tool.pin': 'Sabitle',
+  'mapDrawing.tool.line': 'Satır',
+  'mapDrawing.tool.select': 'Seç',
+  'mapDrawing.tool.delete': 'Sil',
+}

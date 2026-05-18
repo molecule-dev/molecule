@@ -1,4 +1,7 @@
 import type { HabitStreakCardTranslations } from './types.js'
 
 /** HabitStreakCard translations for nl. */
-export const nl: Partial<HabitStreakCardTranslations> = {}
+export const nl: Partial<HabitStreakCardTranslations> = {
+  'habit.currentStreak': 'dagen op rij',
+  'habit.total': 'totaal',
+}

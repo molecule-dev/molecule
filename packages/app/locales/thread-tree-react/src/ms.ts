@@ -1,4 +1,6 @@
 import type { ThreadTreeTranslations } from './types.js'
 
 /** ThreadTree translations for ms. */
-export const ms: Partial<ThreadTreeTranslations> = {}
+export const ms: Partial<ThreadTreeTranslations> = {
+  'threadTree.reply': 'Balas',
+}

@@ -1,19 +1,12 @@
 import type { PricingPageTranslations } from './types.js'
 
-/** Pricing Page translations for Romanian. Stub — uses English copy. */
-export const ro: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
-  'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
-  'pricingPage.perSeat': 'per seat',
-  'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
-  'pricingPage.currentCta': 'Current plan',
-  'pricingPage.periodToggle.label': 'Billing period',
-  'pricingPage.periodToggle.monthly': 'Monthly',
-  'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
-  'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+/** PricingPage translations for ro. */
+export const ro: Partial<PricingPageTranslations> = {
+  'pricingPage.loading': 'Se încarcă planurile…',
+  'pricingPage.error': 'Nu s-au putut încărca prețurile. Încercați mai târziu.',
+  'pricingPage.checkoutError': 'Nu s-a putut iniția casa de plată. Vă rugăm să încercați din nou.',
+  'pricingPage.upgradeCta': 'Treceți la {{tierName}}',
+  'pricingPage.currentCta': 'Planul curent',
+  'pricingPage.periodToggle.monthly': 'Lunar',
+  'pricingPage.periodToggle.yearly': 'Anual',
 }

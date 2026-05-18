@@ -1,4 +1,6 @@
 import type { OnboardingModalTranslations } from './types.js'
 
 /** OnboardingModal translations for my. */
-export const my: Partial<OnboardingModalTranslations> = {}
+export const my: Partial<OnboardingModalTranslations> = {
+  'onboarding.done': 'စတင်ပါ',
+}

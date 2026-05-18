@@ -1,18 +1,9 @@
 import type { PasswordGeneratorTranslations } from './types.js'
 
-/** Password generator translations for hi. Stub — falls back to English defaults. */
-export const hi: PasswordGeneratorTranslations = {
-  'password-generator.readoutLabel': 'Generated password',
-  'password-generator.copy': 'Copy',
-  'password-generator.copied': 'Copied!',
-  'password-generator.regenerate': 'Regenerate',
-  'password-generator.length': 'Length: {{length}}',
-  'password-generator.lengthLabel': 'Password length',
-  'password-generator.toggle.uppercase': 'Uppercase (A-Z)',
-  'password-generator.toggle.lowercase': 'Lowercase (a-z)',
-  'password-generator.toggle.digits': 'Digits (0-9)',
-  'password-generator.toggle.symbols': 'Symbols (!@#…)',
-  'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
-  'password-generator.toggle.noAmbiguous': 'Skip ambiguous (space, quotes)',
-  'password-generator.pick': 'Use this password',
+/** PasswordGenerator translations for hi. */
+export const hi: Partial<PasswordGeneratorTranslations> = {
+  'password-generator.readoutLabel': 'उत्पन्न पासवर्ड',
+  'password-generator.copy': 'कॉपी करें',
+  'password-generator.copied': 'कॉपी किया गया!',
+  'password-generator.regenerate': 'पुनः उत्पन्न करें',
 }

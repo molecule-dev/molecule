@@ -1,4 +1,6 @@
 import type { BulkActionToolbarTranslations } from './types.js'
 
 /** BulkActionToolbar translations for it. */
-export const it: Partial<BulkActionToolbarTranslations> = {}
+export const it: Partial<BulkActionToolbarTranslations> = {
+  'bulkActions.clear': 'Cancella',
+}

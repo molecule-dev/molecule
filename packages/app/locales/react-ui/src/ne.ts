@@ -1,4 +1,6 @@
 import type { ReactUiTranslations } from './types.js'
 
 /** ReactUi translations for ne. */
-export const ne: Partial<ReactUiTranslations> = {}
+export const ne: Partial<ReactUiTranslations> = {
+  'userMenu.navLabel': 'खाता मेनु',
+}

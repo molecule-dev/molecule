@@ -1,5 +1,11 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for uk — currently mirrors English (translation TBD). */
-export const uk: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for uk. */
+export const uk: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.heading': 'Код для вставлення',
+  'embedSnippet.copy': 'Копіювати',
+  'embedSnippet.copied': 'Скопійовано!',
+  'embedSnippet.controls.theme': 'Тема',
+  'embedSnippet.theme.light': 'Світла',
+  'embedSnippet.theme.dark': 'Темна',
+}

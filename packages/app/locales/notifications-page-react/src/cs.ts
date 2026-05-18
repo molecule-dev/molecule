@@ -1,5 +1,14 @@
-import { en } from './en.js'
 import type { NotificationsPageTranslations } from './types.js'
 
-/** Notifications-page translations for cs (stub — falls back to English until reviewed). */
-export const cs: NotificationsPageTranslations = { ...en }
+/** NotificationsPage translations for cs. */
+export const cs: Partial<NotificationsPageTranslations> = {
+  'notificationsPage.title': 'Oznámení',
+  'notificationsPage.filterAll': 'Vše',
+  'notificationsPage.filterMentions': 'Zmínky',
+  'notificationsPage.filterAriaLabel': 'Filtrovat oznámení',
+  'notificationsPage.feedAriaLabel': 'Oznámení',
+  'notificationsPage.loading': 'Načítání oznámení…',
+  'notificationsPage.error': 'Nepodařilo se načíst oznámení.',
+  'notificationsPage.emptyBody': 'Nová oznámení se zobrazí zde.',
+  'notificationsPage.prev': 'Předchozí',
+}

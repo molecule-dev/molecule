@@ -1,19 +1,13 @@
 import type { PricingPageTranslations } from './types.js'
 
-/** Pricing Page translations for Dutch. Stub — uses English copy. */
-export const nl: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
-  'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
-  'pricingPage.perSeat': 'per seat',
-  'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
-  'pricingPage.currentCta': 'Current plan',
-  'pricingPage.periodToggle.label': 'Billing period',
-  'pricingPage.periodToggle.monthly': 'Monthly',
-  'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
-  'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+/** PricingPage translations for nl. */
+export const nl: Partial<PricingPageTranslations> = {
+  'pricingPage.loading': 'Abonnementen laden…',
+  'pricingPage.error': 'Prijzen konden niet worden geladen. Probeer het later opnieuw.',
+  'pricingPage.checkoutError': 'Kon afrekenen niet starten. Probeer opnieuw.',
+  'pricingPage.upgradeCta': 'Upgrade naar {{tierName}}',
+  'pricingPage.currentCta': 'Huidig abonnement',
+  'pricingPage.periodToggle.monthly': 'Maandelijks',
+  'pricingPage.periodToggle.yearly': 'Jaarlijks',
+  'pricingPage.planUpdated.heading': 'Uw abonnement is bijgewerkt',
 }

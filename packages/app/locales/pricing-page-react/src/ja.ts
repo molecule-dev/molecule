@@ -1,19 +1,13 @@
 import type { PricingPageTranslations } from './types.js'
 
-/** Pricing Page translations for Japanese. Stub — uses English copy. */
-export const ja: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
-  'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
-  'pricingPage.perSeat': 'per seat',
-  'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
-  'pricingPage.currentCta': 'Current plan',
-  'pricingPage.periodToggle.label': 'Billing period',
-  'pricingPage.periodToggle.monthly': 'Monthly',
-  'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
-  'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+/** PricingPage translations for ja. */
+export const ja: Partial<PricingPageTranslations> = {
+  'pricingPage.loading': 'プランを読み込み中…',
+  'pricingPage.error': '料金を読み込めませんでした。後ほど再度お試しください。',
+  'pricingPage.checkoutError': 'チェックアウトを開始できませんでした。もう一度お試しください。',
+  'pricingPage.upgradeCta': '{{tierName}}にアップグレード',
+  'pricingPage.currentCta': '現在のプラン',
+  'pricingPage.periodToggle.monthly': '月額',
+  'pricingPage.periodToggle.yearly': '年額',
+  'pricingPage.planUpdated.heading': 'プランが更新されました',
 }

@@ -1,5 +1,13 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for ar — currently mirrors English (translation TBD). */
-export const ar: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for ar. */
+export const ar: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.heading': 'كود التضمين',
+  'embedSnippet.copy': 'نسخ',
+  'embedSnippet.copied': 'تم النسخ!',
+  'embedSnippet.controls.height': 'الطول',
+  'embedSnippet.controls.theme': 'السمة',
+  'embedSnippet.theme.light': 'فاتح',
+  'embedSnippet.theme.dark': 'داكن',
+  'embedSnippet.theme.auto': 'تلقائي',
+}

@@ -1,5 +1,14 @@
-import { en } from './en.js'
 import type { NotificationsPageTranslations } from './types.js'
 
-/** Notifications-page translations for ro (stub — falls back to English until reviewed). */
-export const ro: NotificationsPageTranslations = { ...en }
+/** NotificationsPage translations for ro. */
+export const ro: Partial<NotificationsPageTranslations> = {
+  'notificationsPage.title': 'Notificări',
+  'notificationsPage.filterAll': 'Toate',
+  'notificationsPage.filterMentions': 'Mențiuni',
+  'notificationsPage.filterAriaLabel': 'Filtrați notificările',
+  'notificationsPage.feedAriaLabel': 'Notificări',
+  'notificationsPage.loading': 'Se încarcă notificările…',
+  'notificationsPage.error': 'Nu s-au putut încărca notificările.',
+  'notificationsPage.emptyBody': 'Notificările noi vor apărea aici.',
+  'notificationsPage.prev': 'Anteriorul',
+}

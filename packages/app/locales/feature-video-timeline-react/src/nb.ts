@@ -1,5 +1,8 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for nb — currently mirrors English (translation TBD). */
-export const nb: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for nb. */
+export const nb: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.zoom.in': 'Zoom inn',
+  'videoTimeline.zoom.out': 'Zoom ut',
+  'videoTimeline.mode.insert': 'Sett inn',
+}

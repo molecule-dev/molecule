@@ -1,6 +1,6 @@
 import type { ContactsTranslations } from './types.js'
 
-/** Contacts translations for Japanese. */
-export const ja: ContactsTranslations = {
+/** Contacts translations for ja. */
+export const ja: Partial<ContactsTranslations> = {
   'contacts.unknown': '不明',
 }

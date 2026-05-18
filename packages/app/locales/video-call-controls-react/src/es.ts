@@ -1,4 +1,6 @@
 import type { VideoCallControlsTranslations } from './types.js'
 
 /** VideoCallControls translations for es. */
-export const es: Partial<VideoCallControlsTranslations> = {}
+export const es: Partial<VideoCallControlsTranslations> = {
+  'call.leave': 'Salir',
+}

@@ -1,5 +1,6 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for el — currently mirrors English (translation TBD). */
-export const el: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for el. */
+export const el: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.sends': 'Αποστολές',
+}

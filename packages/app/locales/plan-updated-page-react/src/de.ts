@@ -1,4 +1,6 @@
 import type { PlanUpdatedPageTranslations } from './types.js'
 
 /** PlanUpdatedPage translations for de. */
-export const de: Partial<PlanUpdatedPageTranslations> = {}
+export const de: Partial<PlanUpdatedPageTranslations> = {
+  'planUpdated.viewReceipt': 'Beleg anzeigen',
+}

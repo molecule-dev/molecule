@@ -1,4 +1,6 @@
 import type { ReactUiTranslations } from './types.js'
 
 /** ReactUi translations for bg. */
-export const bg: Partial<ReactUiTranslations> = {}
+export const bg: Partial<ReactUiTranslations> = {
+  'userMenu.navLabel': 'Меню на акаунта',
+}

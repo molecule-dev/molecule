@@ -1,5 +1,7 @@
 import type { ExifPanelTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Exif-panel translations for vi — currently mirrors English (translation TBD). */
-export const vi: ExifPanelTranslations = { ...en }
+/** ExifPanel translations for vi. */
+export const vi: Partial<ExifPanelTranslations> = {
+  'exifPanel.eyebrow': 'Siêu dữ liệu khung',
+  'exifPanel.camera': 'Máy ảnh',
+}

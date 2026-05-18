@@ -1,13 +1,8 @@
 import type { EmbeddableChatWidgetTranslations } from './types.js'
 
-/** Embeddable Chat Widget translations for Hindi. */
-export const hi: EmbeddableChatWidgetTranslations = {
-  'embeddableChatWidget.launcher.openLabel': 'Open chat',
-  'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
-  'embeddableChatWidget.panel.closeLabel': 'Close chat',
-  'embeddableChatWidget.panel.emptyState': 'Ask a question to get started.',
-  'embeddableChatWidget.panel.assistantTyping': 'Assistant is typing…',
-  'embeddableChatWidget.composer.placeholder': 'Type your message…',
-  'embeddableChatWidget.composer.send': 'Send',
-  'embeddableChatWidget.error.streamError': 'Something went wrong. Please try again.',
+/** EmbeddableChatWidget translations for hi. */
+export const hi: Partial<EmbeddableChatWidgetTranslations> = {
+  'embeddableChatWidget.launcher.openLabel': 'चैट खोलें',
+  'embeddableChatWidget.composer.placeholder': 'अपना संदेश लिखें…',
+  'embeddableChatWidget.composer.send': 'भेजें',
 }

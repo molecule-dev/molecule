@@ -1,5 +1,11 @@
 import type { NowPlayingBarTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Now-playing-bar translations for zh — currently mirrors English (translation TBD). */
-export const zh: NowPlayingBarTranslations = { ...en }
+/** NowPlayingBar translations for zh. */
+export const zh: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.aria.play': '播放',
+  'nowPlaying.aria.pause': '暂停',
+  'nowPlaying.aria.next': '下一曲',
+  'nowPlaying.aria.prev': '上一曲',
+  'nowPlaying.aria.seek': '拖动播放进度',
+  'nowPlaying.aria.volume': '成交量',
+}

@@ -1,5 +1,11 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for el — currently mirrors English (translation TBD). */
-export const el: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for el. */
+export const el: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.heading': 'Κώδικας ενσωμάτωσης',
+  'embedSnippet.copy': 'Αντιγραφή',
+  'embedSnippet.copied': 'Αντιγράφηκε!',
+  'embedSnippet.controls.theme': 'Θέμα',
+  'embedSnippet.theme.light': 'Φωτεινό',
+  'embedSnippet.theme.dark': 'Σκοτεινό',
+}

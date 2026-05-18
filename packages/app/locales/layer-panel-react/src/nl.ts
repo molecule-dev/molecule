@@ -1,12 +1,6 @@
 import type { LayerPanelTranslations } from './types.js'
 
-/** Layer Panel translations for Dutch. Stub — uses English copy. */
-export const nl: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+/** LayerPanel translations for nl. */
+export const nl: Partial<LayerPanelTranslations> = {
+  'layerPanel.label': 'Lagen',
 }

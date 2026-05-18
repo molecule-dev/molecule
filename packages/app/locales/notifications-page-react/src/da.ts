@@ -1,5 +1,14 @@
-import { en } from './en.js'
 import type { NotificationsPageTranslations } from './types.js'
 
-/** Notifications-page translations for da (stub — falls back to English until reviewed). */
-export const da: NotificationsPageTranslations = { ...en }
+/** NotificationsPage translations for da. */
+export const da: Partial<NotificationsPageTranslations> = {
+  'notificationsPage.title': 'Notifikationer',
+  'notificationsPage.filterAll': 'Alle',
+  'notificationsPage.filterMentions': 'Omtaler',
+  'notificationsPage.filterAriaLabel': 'Filtrer notifikationer',
+  'notificationsPage.feedAriaLabel': 'Notifikationer',
+  'notificationsPage.loading': 'Indlæser notifikationer…',
+  'notificationsPage.error': 'Kunne ikke indlæse notifikationer.',
+  'notificationsPage.emptyBody': 'Nye notifikationer vises her.',
+  'notificationsPage.prev': 'Forrige',
+}

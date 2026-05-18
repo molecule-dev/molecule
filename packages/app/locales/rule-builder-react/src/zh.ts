@@ -1,25 +1,12 @@
 import type { RuleBuilderTranslations } from './types.js'
 
-/** Rule-builder translations for Chinese (Simplified). */
-export const zh: RuleBuilderTranslations = {
-  'ruleBuilder.op.and': 'AND',
-  'ruleBuilder.op.or': 'OR',
-  'ruleBuilder.help.allMustMatch': 'All conditions must match',
-  'ruleBuilder.help.anyMustMatch': 'Any condition may match',
-  'ruleBuilder.action.addCondition': '+ Add condition',
-  'ruleBuilder.action.addGroup': '+ Add group',
-  'ruleBuilder.action.removeCondition': 'Remove',
-  'ruleBuilder.action.removeGroup': 'Remove group',
-  'ruleBuilder.aria.toggleOp': 'Toggle AND / OR',
-  'ruleBuilder.aria.removeGroup': 'Remove group',
-  'ruleBuilder.aria.removeCondition': 'Remove condition',
-  'ruleBuilder.aria.field': 'Field',
-  'ruleBuilder.aria.operator': 'Operator',
-  'ruleBuilder.aria.value': 'Value',
-  'ruleBuilder.aria.valueFrom': 'From',
-  'ruleBuilder.aria.valueTo': 'To',
-  'ruleBuilder.field.placeholder': 'Select field…',
-  'ruleBuilder.between.separator': '–',
-  'ruleBuilder.boolean.true': 'true',
-  'ruleBuilder.boolean.false': 'false',
+/** RuleBuilder translations for zh. */
+export const zh: Partial<RuleBuilderTranslations> = {
+  'ruleBuilder.action.removeCondition': '移除',
+  'ruleBuilder.aria.removeCondition': '移除条件',
+  'ruleBuilder.aria.field': '字段',
+  'ruleBuilder.aria.operator': '运算符',
+  'ruleBuilder.aria.value': '价值',
+  'ruleBuilder.aria.valueFrom': '起价',
+  'ruleBuilder.aria.valueTo': '收件人',
 }

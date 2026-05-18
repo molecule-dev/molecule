@@ -1,4 +1,9 @@
 import type { SecretRowTranslations } from './types.js'
 
 /** SecretRow translations for ms. */
-export const ms: Partial<SecretRowTranslations> = {}
+export const ms: Partial<SecretRowTranslations> = {
+  'secretRow.copied': 'Disalin!',
+  'secretRow.copy': 'Salin',
+  'secretRow.rotate': 'Putar',
+  'secretRow.delete': 'Padam',
+}

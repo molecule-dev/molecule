@@ -1,5 +1,6 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for ro (stub — falls back to English until reviewed). */
-export const ro: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for ro. */
+export const ro: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.reply': 'Răspundeți',
+}

@@ -1,5 +1,9 @@
 import type { GradebookTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Gradebook translations for vi — currently mirrors English (translation TBD). */
-export const vi: GradebookTranslations = { ...en }
+/** Gradebook translations for vi. */
+export const vi: Partial<GradebookTranslations> = {
+  'gradebook.col.title': 'Khóa học',
+  'gradebook.col.numeric': 'Điểm',
+  'gradebook.col.weight': 'Cân nặng',
+  'gradebook.gpa.trend.flat': 'Ổn định',
+}

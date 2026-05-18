@@ -1,4 +1,6 @@
 import type { AudioMixerTranslations } from './types.js'
 
 /** AudioMixer translations for id. */
-export const id: Partial<AudioMixerTranslations> = {}
+export const id: Partial<AudioMixerTranslations> = {
+  'audioMixer.button.mute': 'Bisukan',
+}

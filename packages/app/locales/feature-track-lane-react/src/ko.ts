@@ -1,5 +1,6 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for ko — currently mirrors English (translation TBD). */
-export const ko: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for ko. */
+export const ko: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.header': '추적',
+}

@@ -1,12 +1,6 @@
 import type { LayerPanelTranslations } from './types.js'
 
-/** Layer Panel translations for Swedish. Stub — uses English copy. */
-export const sv: LayerPanelTranslations = {
-  'layerPanel.label': 'Layers',
-  'layerPanel.show': 'Show layer',
-  'layerPanel.hide': 'Hide layer',
-  'layerPanel.lock': 'Lock layer',
-  'layerPanel.unlock': 'Unlock layer',
-  'layerPanel.renameInput': 'Rename layer',
-  'layerPanel.metadata': 'Layer metadata',
+/** LayerPanel translations for sv. */
+export const sv: Partial<LayerPanelTranslations> = {
+  'layerPanel.label': 'Lager',
 }

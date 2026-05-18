@@ -1,4 +1,7 @@
 import type { PaginationBarTranslations } from './types.js'
 
 /** PaginationBar translations for zh-TW. */
-export const zhTW: Partial<PaginationBarTranslations> = {}
+export const zhTW: Partial<PaginationBarTranslations> = {
+  'pagination.previous': '上一頁',
+  'pagination.next': '下一頁',
+}

@@ -1,25 +1,12 @@
 import type { RuleBuilderTranslations } from './types.js'
 
-/** Rule-builder translations for Korean. */
-export const ko: RuleBuilderTranslations = {
-  'ruleBuilder.op.and': 'AND',
-  'ruleBuilder.op.or': 'OR',
-  'ruleBuilder.help.allMustMatch': 'All conditions must match',
-  'ruleBuilder.help.anyMustMatch': 'Any condition may match',
-  'ruleBuilder.action.addCondition': '+ Add condition',
-  'ruleBuilder.action.addGroup': '+ Add group',
-  'ruleBuilder.action.removeCondition': 'Remove',
-  'ruleBuilder.action.removeGroup': 'Remove group',
-  'ruleBuilder.aria.toggleOp': 'Toggle AND / OR',
-  'ruleBuilder.aria.removeGroup': 'Remove group',
-  'ruleBuilder.aria.removeCondition': 'Remove condition',
-  'ruleBuilder.aria.field': 'Field',
-  'ruleBuilder.aria.operator': 'Operator',
-  'ruleBuilder.aria.value': 'Value',
-  'ruleBuilder.aria.valueFrom': 'From',
-  'ruleBuilder.aria.valueTo': 'To',
-  'ruleBuilder.field.placeholder': 'Select field…',
-  'ruleBuilder.between.separator': '–',
-  'ruleBuilder.boolean.true': 'true',
-  'ruleBuilder.boolean.false': 'false',
+/** RuleBuilder translations for ko. */
+export const ko: Partial<RuleBuilderTranslations> = {
+  'ruleBuilder.action.removeCondition': '제거',
+  'ruleBuilder.aria.removeCondition': '조건 제거',
+  'ruleBuilder.aria.field': '필드',
+  'ruleBuilder.aria.operator': '연산자',
+  'ruleBuilder.aria.value': '금액',
+  'ruleBuilder.aria.valueFrom': '최저가',
+  'ruleBuilder.aria.valueTo': '받는 사람',
 }

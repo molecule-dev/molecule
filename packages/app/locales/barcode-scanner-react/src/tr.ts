@@ -1,4 +1,6 @@
 import type { BarcodeScannerTranslations } from './types.js'
 
 /** BarcodeScanner translations for tr. */
-export const tr: Partial<BarcodeScannerTranslations> = {}
+export const tr: Partial<BarcodeScannerTranslations> = {
+  'barcodeScanner.status.scanning': 'Taranıyor…',
+}

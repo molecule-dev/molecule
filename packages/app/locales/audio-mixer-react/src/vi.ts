@@ -1,4 +1,6 @@
 import type { AudioMixerTranslations } from './types.js'
 
 /** AudioMixer translations for vi. */
-export const vi: Partial<AudioMixerTranslations> = {}
+export const vi: Partial<AudioMixerTranslations> = {
+  'audioMixer.button.mute': 'Tắt tiếng',
+}

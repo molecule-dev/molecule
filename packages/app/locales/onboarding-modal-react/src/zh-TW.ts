@@ -1,4 +1,6 @@
 import type { OnboardingModalTranslations } from './types.js'
 
 /** OnboardingModal translations for zh-TW. */
-export const zhTW: Partial<OnboardingModalTranslations> = {}
+export const zhTW: Partial<OnboardingModalTranslations> = {
+  'onboarding.done': '開始',
+}

@@ -1,4 +1,6 @@
 import type { AuthShellTranslations } from './types.js'
 
 /** AuthShell translations for sv. */
-export const sv: Partial<AuthShellTranslations> = {}
+export const sv: Partial<AuthShellTranslations> = {
+  'auth.backHome': 'Tillbaka till start',
+}

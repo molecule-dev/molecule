@@ -1,5 +1,7 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for sv — currently mirrors English (translation TBD). */
-export const sv: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for sv. */
+export const sv: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Kapitel',
+  'chapterList.current': 'Spelas nu',
+}

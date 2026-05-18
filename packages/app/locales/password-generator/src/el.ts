@@ -1,18 +1,8 @@
 import type { PasswordGeneratorTranslations } from './types.js'
 
-/** Password generator translations for el. Stub — falls back to English defaults. */
-export const el: PasswordGeneratorTranslations = {
-  'password-generator.readoutLabel': 'Generated password',
-  'password-generator.copy': 'Copy',
-  'password-generator.copied': 'Copied!',
-  'password-generator.regenerate': 'Regenerate',
-  'password-generator.length': 'Length: {{length}}',
-  'password-generator.lengthLabel': 'Password length',
-  'password-generator.toggle.uppercase': 'Uppercase (A-Z)',
-  'password-generator.toggle.lowercase': 'Lowercase (a-z)',
-  'password-generator.toggle.digits': 'Digits (0-9)',
-  'password-generator.toggle.symbols': 'Symbols (!@#…)',
-  'password-generator.toggle.noSimilar': 'Skip similar (0/O/1/l/I)',
-  'password-generator.toggle.noAmbiguous': 'Skip ambiguous (space, quotes)',
-  'password-generator.pick': 'Use this password',
+/** PasswordGenerator translations for el. */
+export const el: Partial<PasswordGeneratorTranslations> = {
+  'password-generator.copy': 'Αντιγραφή',
+  'password-generator.copied': 'Αντιγράφηκε!',
+  'password-generator.regenerate': 'Επαναδημιουργία',
 }

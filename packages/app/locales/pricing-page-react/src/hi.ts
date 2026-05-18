@@ -1,19 +1,13 @@
 import type { PricingPageTranslations } from './types.js'
 
-/** Pricing Page translations for Hindi. Stub — uses English copy. */
-export const hi: PricingPageTranslations = {
-  'pricingPage.heading': 'Choose your plan',
-  'pricingPage.loading': 'Loading plans…',
-  'pricingPage.error': 'Could not load pricing. Try again later.',
-  'pricingPage.checkoutError': 'Could not start checkout. Please try again.',
-  'pricingPage.perSeat': 'per seat',
-  'pricingPage.upgradeCta': 'Upgrade to {{tierName}}',
-  'pricingPage.currentCta': 'Current plan',
-  'pricingPage.periodToggle.label': 'Billing period',
-  'pricingPage.periodToggle.monthly': 'Monthly',
-  'pricingPage.periodToggle.yearly': 'Yearly',
-  'pricingPage.planUpdated.heading': 'Your plan has been updated',
-  'pricingPage.planUpdated.headingNamed': "You're now on the {{planName}} plan",
-  'pricingPage.planUpdated.body':
-    'Thanks for upgrading. Your new plan is active immediately and a receipt has been emailed to you.',
+/** PricingPage translations for hi. */
+export const hi: Partial<PricingPageTranslations> = {
+  'pricingPage.loading': 'योजनाएँ लोड हो रही हैं…',
+  'pricingPage.error': 'मूल्य निर्धारण लोड नहीं हो सका। बाद में पुनः प्रयास कीजिए।',
+  'pricingPage.checkoutError': 'चेकआउट शुरू नहीं किया जा सका। कृपया पुनः प्रयास करें।',
+  'pricingPage.upgradeCta': '{{tierName}} पर अपग्रेड कीजिए',
+  'pricingPage.currentCta': 'वर्तमान योजना',
+  'pricingPage.periodToggle.monthly': 'मासिक',
+  'pricingPage.periodToggle.yearly': 'वार्षिक',
+  'pricingPage.planUpdated.heading': 'आपका प्लान अपडेट कर दिया गया है',
 }

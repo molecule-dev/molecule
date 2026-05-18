@@ -1,5 +1,6 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for ar — currently mirrors English (translation TBD). */
-export const ar: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for ar. */
+export const ar: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.loading': 'جارٍ تحميل الصورة…',
+}

@@ -1,4 +1,6 @@
 import type { MapDrawingTranslations } from './types.js'
 
 /** MapDrawing translations for fil. */
-export const fil: Partial<MapDrawingTranslations> = {}
+export const fil: Partial<MapDrawingTranslations> = {
+  'mapDrawing.tool.delete': 'Burahin',
+}

@@ -1,4 +1,6 @@
 import type { AuthShellTranslations } from './types.js'
 
 /** AuthShell translations for ms. */
-export const ms: Partial<AuthShellTranslations> = {}
+export const ms: Partial<AuthShellTranslations> = {
+  'auth.backHome': 'Kembali ke laman utama',
+}

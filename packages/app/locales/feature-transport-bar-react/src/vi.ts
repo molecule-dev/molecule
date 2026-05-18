@@ -1,5 +1,9 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for vi (stub — falls back to English until reviewed). */
-export const vi: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for vi. */
+export const vi: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.play': 'Phát',
+  'transportBar.aria.pause': 'Tạm dừng',
+  'transportBar.aria.record': 'Ghi âm',
+  'transportBar.aria.stopRecording': 'Dừng ghi',
+}

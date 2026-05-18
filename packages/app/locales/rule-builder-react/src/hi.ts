@@ -1,25 +1,12 @@
 import type { RuleBuilderTranslations } from './types.js'
 
-/** Rule-builder translations for Hindi. */
-export const hi: RuleBuilderTranslations = {
-  'ruleBuilder.op.and': 'AND',
-  'ruleBuilder.op.or': 'OR',
-  'ruleBuilder.help.allMustMatch': 'All conditions must match',
-  'ruleBuilder.help.anyMustMatch': 'Any condition may match',
-  'ruleBuilder.action.addCondition': '+ Add condition',
-  'ruleBuilder.action.addGroup': '+ Add group',
-  'ruleBuilder.action.removeCondition': 'Remove',
-  'ruleBuilder.action.removeGroup': 'Remove group',
-  'ruleBuilder.aria.toggleOp': 'Toggle AND / OR',
-  'ruleBuilder.aria.removeGroup': 'Remove group',
-  'ruleBuilder.aria.removeCondition': 'Remove condition',
-  'ruleBuilder.aria.field': 'Field',
-  'ruleBuilder.aria.operator': 'Operator',
-  'ruleBuilder.aria.value': 'Value',
-  'ruleBuilder.aria.valueFrom': 'From',
-  'ruleBuilder.aria.valueTo': 'To',
-  'ruleBuilder.field.placeholder': 'Select field…',
-  'ruleBuilder.between.separator': '–',
-  'ruleBuilder.boolean.true': 'true',
-  'ruleBuilder.boolean.false': 'false',
+/** RuleBuilder translations for hi. */
+export const hi: Partial<RuleBuilderTranslations> = {
+  'ruleBuilder.action.removeCondition': 'हटाएँ',
+  'ruleBuilder.aria.removeCondition': 'शर्त हटाएँ',
+  'ruleBuilder.aria.field': 'फ़ील्ड',
+  'ruleBuilder.aria.operator': 'ऑपरेटर',
+  'ruleBuilder.aria.value': 'मूल्य',
+  'ruleBuilder.aria.valueFrom': 'से',
+  'ruleBuilder.aria.valueTo': 'प्रति',
 }

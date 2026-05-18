@@ -1,5 +1,7 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for vi — currently mirrors English (translation TBD). */
-export const vi: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for vi. */
+export const vi: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Chương',
+  'chapterList.current': 'Đang phát',
+}

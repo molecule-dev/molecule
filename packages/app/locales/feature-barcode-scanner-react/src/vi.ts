@@ -1,5 +1,6 @@
-import type { BarcodeScannerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureBarcodeScannerTranslations } from './types.js'
 
-/** Barcode-scanner translations for vi — currently mirrors English (translation TBD). */
-export const vi: BarcodeScannerTranslations = { ...en }
+/** FeatureBarcodeScanner translations for vi. */
+export const vi: Partial<FeatureBarcodeScannerTranslations> = {
+  'barcodeScanner.status.scanning': 'Đang quét…',
+}

@@ -1,4 +1,7 @@
 import type { ShareLinkCardTranslations } from './types.js'
 
 /** ShareLinkCard translations for fi. */
-export const fi: Partial<ShareLinkCardTranslations> = {}
+export const fi: Partial<ShareLinkCardTranslations> = {
+  'copyLink.copied': 'Kopioitu!',
+  'copyLink.copy': 'Kopioi',
+}

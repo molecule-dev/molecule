@@ -1,5 +1,7 @@
 import type { ExifPanelTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Exif-panel translations for ar — currently mirrors English (translation TBD). */
-export const ar: ExifPanelTranslations = { ...en }
+/** ExifPanel translations for ar. */
+export const ar: Partial<ExifPanelTranslations> = {
+  'exifPanel.eyebrow': 'بيانات الإطار',
+  'exifPanel.camera': 'الكاميرا',
+}

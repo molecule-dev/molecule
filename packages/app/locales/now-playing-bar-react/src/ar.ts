@@ -1,5 +1,11 @@
 import type { NowPlayingBarTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Now-playing-bar translations for ar — currently mirrors English (translation TBD). */
-export const ar: NowPlayingBarTranslations = { ...en }
+/** NowPlayingBar translations for ar. */
+export const ar: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.aria.play': 'تشغيل',
+  'nowPlaying.aria.pause': 'إيقاف مؤقت',
+  'nowPlaying.aria.next': 'المقطع التالي',
+  'nowPlaying.aria.prev': 'المقطع السابق',
+  'nowPlaying.aria.seek': 'بحث',
+  'nowPlaying.aria.volume': 'الحجم',
+}

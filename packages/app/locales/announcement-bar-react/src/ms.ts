@@ -1,4 +1,6 @@
 import type { AnnouncementBarTranslations } from './types.js'
 
 /** AnnouncementBar translations for ms. */
-export const ms: Partial<AnnouncementBarTranslations> = {}
+export const ms: Partial<AnnouncementBarTranslations> = {
+  'announcement.dismiss': 'Tutup',
+}

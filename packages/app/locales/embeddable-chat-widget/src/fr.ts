@@ -1,13 +1,8 @@
 import type { EmbeddableChatWidgetTranslations } from './types.js'
 
-/** Embeddable Chat Widget translations for French. */
-export const fr: EmbeddableChatWidgetTranslations = {
-  'embeddableChatWidget.launcher.openLabel': 'Open chat',
-  'embeddableChatWidget.panel.headerLabel': 'Chat with {{brandName}}',
-  'embeddableChatWidget.panel.closeLabel': 'Close chat',
-  'embeddableChatWidget.panel.emptyState': 'Ask a question to get started.',
-  'embeddableChatWidget.panel.assistantTyping': 'Assistant is typing…',
-  'embeddableChatWidget.composer.placeholder': 'Type your message…',
-  'embeddableChatWidget.composer.send': 'Send',
-  'embeddableChatWidget.error.streamError': 'Something went wrong. Please try again.',
+/** EmbeddableChatWidget translations for fr. */
+export const fr: Partial<EmbeddableChatWidgetTranslations> = {
+  'embeddableChatWidget.launcher.openLabel': 'Ouvrir le chat',
+  'embeddableChatWidget.composer.placeholder': 'Saisissez votre message…',
+  'embeddableChatWidget.composer.send': 'Envoyer',
 }

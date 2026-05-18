@@ -1,27 +1,11 @@
 import type { FileCardTranslations } from './types.js'
 
-/** File card translations for ja. Stub — falls back to English defaults. */
-export const ja: FileCardTranslations = {
-  'file-card.kind.image': 'Image file',
-  'file-card.kind.video': 'Video file',
-  'file-card.kind.audio': 'Audio file',
-  'file-card.kind.document': 'Document',
-  'file-card.kind.archive': 'Archive',
-  'file-card.kind.code': 'Code file',
-  'file-card.kind.folder': 'Folder',
-  'file-card.kind.other': 'File',
-  'file-card.aria.root': '{{name}}, {{kind}}',
-  'file-card.aria.size': 'Size {{size}}',
-  'file-card.aria.modified': 'Modified {{when}}',
-  'file-card.modified.just-now': 'just now',
-  'file-card.modified.minute-one': '1 min ago',
-  'file-card.modified.minute-other': '{{count}} min ago',
-  'file-card.modified.hour-one': '1 hr ago',
-  'file-card.modified.hour-other': '{{count}} hr ago',
-  'file-card.modified.day-one': 'yesterday',
-  'file-card.modified.day-other': '{{count}} days ago',
-  'file-card.modified.week-one': '1 wk ago',
-  'file-card.modified.week-other': '{{count}} wk ago',
-  'file-card.modified.month-one': '1 mo ago',
-  'file-card.modified.month-other': '{{count}} mo ago',
+/** FileCard translations for ja. */
+export const ja: Partial<FileCardTranslations> = {
+  'file-card.kind.document': 'ドキュメント',
+  'file-card.kind.archive': 'アーカイブ',
+  'file-card.kind.folder': 'フォルダ',
+  'file-card.kind.other': 'ファイル',
+  'file-card.modified.just-now': 'たった今',
+  'file-card.modified.minute-other': '{{count}}分前',
 }

@@ -1,5 +1,7 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for pl — currently mirrors English (translation TBD). */
-export const pl: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for pl. */
+export const pl: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Rozdziały',
+  'chapterList.current': 'Teraz odtwarzane',
+}

@@ -1,7 +1,6 @@
 import type { HealthTranslations } from './types.js'
 
-/** Health translations for Vietnamese. */
-export const vi: HealthTranslations = {
-  'health.durationHoursMinutes': '{{hours}}g {{minutes}}p',
+/** Health translations for vi. */
+export const vi: Partial<HealthTranslations> = {
   'health.durationMinutes': '{{minutes}}p',
 }

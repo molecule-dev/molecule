@@ -1,5 +1,9 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for vi — currently mirrors English (translation TBD). */
-export const vi: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for vi. */
+export const vi: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.tool.pin': 'Ghim',
+  'mapDrawing.tool.line': 'Dòng',
+  'mapDrawing.tool.select': 'Chọn',
+  'mapDrawing.tool.delete': 'Xóa',
+}

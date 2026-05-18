@@ -1,4 +1,6 @@
 import type { AudioMixerTranslations } from './types.js'
 
 /** AudioMixer translations for nl. */
-export const nl: Partial<AudioMixerTranslations> = {}
+export const nl: Partial<AudioMixerTranslations> = {
+  'audioMixer.button.mute': 'Dempen',
+}

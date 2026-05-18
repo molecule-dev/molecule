@@ -1,5 +1,11 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for cs — currently mirrors English (translation TBD). */
-export const cs: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for cs. */
+export const cs: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.heading': 'Kód pro vložení',
+  'embedSnippet.copy': 'Kopírovat',
+  'embedSnippet.copied': 'Zkopírováno!',
+  'embedSnippet.controls.theme': 'Motiv',
+  'embedSnippet.theme.light': 'Světlé',
+  'embedSnippet.theme.dark': 'Tmavé',
+}

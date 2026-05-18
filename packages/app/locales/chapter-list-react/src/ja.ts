@@ -1,4 +1,6 @@
 import type { ChapterListTranslations } from './types.js'
 
 /** ChapterList translations for ja. */
-export const ja: Partial<ChapterListTranslations> = {}
+export const ja: Partial<ChapterListTranslations> = {
+  'chapterList.aria.region': 'チャプター',
+}

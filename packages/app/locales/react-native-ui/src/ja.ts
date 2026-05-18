@@ -1,4 +1,15 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for ja. */
-export const ja: Partial<ReactNativeUiTranslations> = {}
+export const ja: Partial<ReactNativeUiTranslations> = {
+  'ui.alert.dismiss': '閉じる',
+  'ui.avatar.alt': 'アバター',
+  'ui.modal.close': '閉じる',
+  'ui.pagination.previous': '前へ',
+  'ui.pagination.goToPage': '次へ',
+  'ui.pagination.last': '最終',
+  'ui.select.placeholder': '選択…',
+  'ui.select.title': '選択',
+  'ui.spinner.loading': '読み込み中',
+  'ui.toast.dismiss': '閉じる',
+}

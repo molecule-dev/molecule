@@ -1,5 +1,8 @@
-import type { AudioEffectsRackTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioEffectsRackTranslations } from './types.js'
 
-/** Audio-effects-rack translations for el — currently mirrors English (translation TBD). */
-export const el: AudioEffectsRackTranslations = { ...en }
+/** FeatureAudioEffectsRack translations for el. */
+export const el: Partial<FeatureAudioEffectsRackTranslations> = {
+  'audioEffectsRack.param.eq.low': 'Χαμηλή',
+  'audioEffectsRack.param.eq.high': 'Υψηλή',
+  'audioEffectsRack.param.delay.time': 'Χρόνος',
+}

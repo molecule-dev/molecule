@@ -1,4 +1,6 @@
 import type { ThreadTreeTranslations } from './types.js'
 
 /** ThreadTree translations for uk. */
-export const uk: Partial<ThreadTreeTranslations> = {}
+export const uk: Partial<ThreadTreeTranslations> = {
+  'threadTree.reply': 'Відповісти',
+}

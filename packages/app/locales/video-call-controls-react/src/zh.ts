@@ -1,4 +1,6 @@
 import type { VideoCallControlsTranslations } from './types.js'
 
 /** VideoCallControls translations for zh. */
-export const zh: Partial<VideoCallControlsTranslations> = {}
+export const zh: Partial<VideoCallControlsTranslations> = {
+  'call.leave': '离开',
+}

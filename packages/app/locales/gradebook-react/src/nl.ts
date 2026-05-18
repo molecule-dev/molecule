@@ -1,5 +1,8 @@
 import type { GradebookTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Gradebook translations for nl — currently mirrors English (translation TBD). */
-export const nl: GradebookTranslations = { ...en }
+/** Gradebook translations for nl. */
+export const nl: Partial<GradebookTranslations> = {
+  'gradebook.col.title': 'Cursus',
+  'gradebook.col.weight': 'Gewicht',
+  'gradebook.gpa.trend.flat': 'Stabiel',
+}

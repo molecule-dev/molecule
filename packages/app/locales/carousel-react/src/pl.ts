@@ -1,4 +1,7 @@
 import type { CarouselTranslations } from './types.js'
 
 /** Carousel translations for pl. */
-export const pl: Partial<CarouselTranslations> = {}
+export const pl: Partial<CarouselTranslations> = {
+  'carousel.previous': 'Poprzednia',
+  'carousel.next': 'Dalej',
+}

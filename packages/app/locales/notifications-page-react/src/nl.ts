@@ -1,5 +1,18 @@
-import { en } from './en.js'
 import type { NotificationsPageTranslations } from './types.js'
 
-/** Notifications-page translations for nl (stub — falls back to English until reviewed). */
-export const nl: NotificationsPageTranslations = { ...en }
+/** NotificationsPage translations for nl. */
+export const nl: Partial<NotificationsPageTranslations> = {
+  'notificationsPage.title': 'Meldingen',
+  'notificationsPage.markAllRead': 'Markeer {{count}} als gelezen',
+  'notificationsPage.filterAll': 'Alle',
+  'notificationsPage.filterUnread': 'Ongelezen',
+  'notificationsPage.filterMentions': 'Vermeldingen',
+  'notificationsPage.filterAriaLabel': 'Meldingen filteren',
+  'notificationsPage.feedAriaLabel': 'Meldingen',
+  'notificationsPage.loading': 'Meldingen laden…',
+  'notificationsPage.error': 'Kan meldingen niet laden.',
+  'notificationsPage.emptyTitle': 'U bent helemaal bij',
+  'notificationsPage.emptyBody': 'Nieuwe meldingen verschijnen hier.',
+  'notificationsPage.prev': 'Vorige',
+  'notificationsPage.next': 'Volgende',
+}

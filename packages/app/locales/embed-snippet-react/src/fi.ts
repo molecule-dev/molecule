@@ -1,5 +1,11 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for fi — currently mirrors English (translation TBD). */
-export const fi: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for fi. */
+export const fi: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.heading': 'Upotuskoodi',
+  'embedSnippet.copy': 'Kopioi',
+  'embedSnippet.copied': 'Kopioitu!',
+  'embedSnippet.controls.theme': 'Teema',
+  'embedSnippet.theme.light': 'Vaalea',
+  'embedSnippet.theme.dark': 'Tumma',
+}

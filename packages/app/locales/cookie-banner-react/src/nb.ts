@@ -1,4 +1,6 @@
 import type { CookieBannerTranslations } from './types.js'
 
 /** CookieBanner translations for nb. */
-export const nb: Partial<CookieBannerTranslations> = {}
+export const nb: Partial<CookieBannerTranslations> = {
+  'cookieBanner.save': 'Lagre innstillinger',
+}

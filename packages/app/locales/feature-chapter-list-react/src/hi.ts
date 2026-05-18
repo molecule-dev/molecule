@@ -1,5 +1,7 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for hi — currently mirrors English (translation TBD). */
-export const hi: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for hi. */
+export const hi: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'अध्याय',
+  'chapterList.current': 'अभी चल रहा है',
+}

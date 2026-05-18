@@ -1,4 +1,36 @@
 import type { IdeTranslations } from './types.js'
 
 /** Ide translations for nb. */
-export const nb: Partial<IdeTranslations> = {}
+export const nb: Partial<IdeTranslations> = {
+  'ide.chat.viewPlans': 'Se abonnementer',
+  'ide.chat.fileCount': '{{count}} filer',
+  'common.cancel': 'Avbryt',
+  'common.save': 'Lagre',
+  'ide.chat.queued': 'I kø',
+  'ide.chat.editQueued': 'Rediger',
+  'ide.chat.deleteQueued': 'Slett',
+  'ide.chat.continueButton': 'Fortsett',
+  'upgrade.viewPlans': 'Oppgrader',
+  'upgrade.signUp': 'Registrer deg',
+  'ide.chat.modelUpgradeRequired': 'Registrer deg',
+  'ide.chat.autoFixCountdown': 'Gjenoppta',
+  'ide.chat.autoFixPause': 'Sett på pause',
+  'ide.chat.autoFixCancel': 'Avbryt',
+  'ide.chat.currentModelLabel': 'Laster modeller…',
+  'ide.chat.soundAll': 'Alle',
+  'ide.chat.activeFile': 'aktiv',
+  'ide.contextMenu.rename': 'Gi nytt navn',
+  'ide.contextMenu.delete': 'Slett',
+  'ide.contextMenu.open': 'Åpne',
+  'ide.preview.noPreview': 'Ingen forhåndsvisning tilgjengelig',
+  'ide.quickPicker.loading': 'Laster…',
+  'ide.search.placeholder': 'Søk',
+  'ide.search.clear': 'Tøm',
+  'ide.search.replaceAllShort': 'Alle',
+  'ide.search.searching': 'Søker…',
+  'ide.sidebar.search': 'Søk',
+  'ide.toolCall.noMatches': 'Ingen treff',
+  'ide.toolCall.statusRunning': 'Kjører…',
+  'ide.toolCall.statusFailed': 'Mislyktes',
+  'ide.toolCall.fileCount': '{{count}} filer',
+}

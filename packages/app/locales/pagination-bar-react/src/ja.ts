@@ -1,4 +1,7 @@
 import type { PaginationBarTranslations } from './types.js'
 
 /** PaginationBar translations for ja. */
-export const ja: Partial<PaginationBarTranslations> = {}
+export const ja: Partial<PaginationBarTranslations> = {
+  'pagination.previous': '前のページ',
+  'pagination.next': '次のページ',
+}

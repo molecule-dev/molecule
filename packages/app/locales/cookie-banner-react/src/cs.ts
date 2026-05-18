@@ -1,4 +1,6 @@
 import type { CookieBannerTranslations } from './types.js'
 
 /** CookieBanner translations for cs. */
-export const cs: Partial<CookieBannerTranslations> = {}
+export const cs: Partial<CookieBannerTranslations> = {
+  'cookieBanner.save': 'Uložit předvolby',
+}

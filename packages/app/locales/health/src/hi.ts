@@ -1,7 +1,6 @@
 import type { HealthTranslations } from './types.js'
 
-/** Health translations for Hindi. */
-export const hi: HealthTranslations = {
-  'health.durationHoursMinutes': '{{hours}}घं {{minutes}}मि',
+/** Health translations for hi. */
+export const hi: Partial<HealthTranslations> = {
   'health.durationMinutes': '{{minutes}}मि',
 }

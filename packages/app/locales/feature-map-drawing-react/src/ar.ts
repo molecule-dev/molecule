@@ -1,5 +1,9 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for ar — currently mirrors English (translation TBD). */
-export const ar: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for ar. */
+export const ar: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.tool.pin': 'تثبيت',
+  'mapDrawing.tool.line': 'السطر',
+  'mapDrawing.tool.select': 'اختيار',
+  'mapDrawing.tool.delete': 'حذف',
+}

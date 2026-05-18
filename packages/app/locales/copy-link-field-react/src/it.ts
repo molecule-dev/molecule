@@ -1,4 +1,8 @@
 import type { CopyLinkFieldTranslations } from './types.js'
 
 /** CopyLinkField translations for it. */
-export const it: Partial<CopyLinkFieldTranslations> = {}
+export const it: Partial<CopyLinkFieldTranslations> = {
+  'copyLink.field': 'Collegamento',
+  'copyLink.copied': 'Copiato!',
+  'copyLink.copy': 'Copia',
+}

@@ -1,4 +1,6 @@
 import type { RatingFormTranslations } from './types.js'
 
 /** RatingForm translations for fi. */
-export const fi: Partial<RatingFormTranslations> = {}
+export const fi: Partial<RatingFormTranslations> = {
+  'rating.submitting': 'Lähetetään…',
+}

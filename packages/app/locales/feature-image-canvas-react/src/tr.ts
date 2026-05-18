@@ -1,5 +1,6 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for tr — currently mirrors English (translation TBD). */
-export const tr: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for tr. */
+export const tr: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.loading': 'Görsel yükleniyor…',
+}

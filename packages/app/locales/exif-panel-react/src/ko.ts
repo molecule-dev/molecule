@@ -1,5 +1,7 @@
 import type { ExifPanelTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Exif-panel translations for ko — currently mirrors English (translation TBD). */
-export const ko: ExifPanelTranslations = { ...en }
+/** ExifPanel translations for ko. */
+export const ko: Partial<ExifPanelTranslations> = {
+  'exifPanel.eyebrow': '프레임 메타데이터',
+  'exifPanel.camera': '카메라',
+}
