@@ -1,5 +1,0 @@
-/** Translation keys for the emoji-reactions-react locale package. */
-export type EmojiReactionsTranslationKey = 'reactions.add'
-
-/** Translation record mapping emoji-reactions-react keys to translated strings. */
-export type EmojiReactionsTranslations = Record<EmojiReactionsTranslationKey, string>

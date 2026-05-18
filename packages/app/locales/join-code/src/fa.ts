@@ -1,7 +1,7 @@
 import type { JoinCodeTranslations } from './types.js'
 
-/** Join code translations for Persian. */
-export const fa: JoinCodeTranslations = {
+/** JoinCode translations for fa. */
+export const fa: Partial<JoinCodeTranslations> = {
   'joinCode.label': 'Join code',
   'joinCode.slotAriaLabel': 'Join code character {{position}}',
   'joinCode.help': 'Enter the {{length}}-character code.',

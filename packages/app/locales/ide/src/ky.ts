@@ -1,7 +1,7 @@
 import type { IdeTranslations } from './types.js'
 
-/** Ide translations for Kyrgyz. */
-export const ky: IdeTranslations = {
+/** Ide translations for ky. */
+export const ky: Partial<IdeTranslations> = {
   'ide.chat.title': 'Чат',
   'ide.chat.placeholder': 'Билдирүү жөнөтүү...',
   'ide.chat.emptyState': 'Эмнени куруп чыгууну каалаганыңызды сүрөттөңүз...',

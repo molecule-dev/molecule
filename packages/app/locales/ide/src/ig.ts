@@ -1,7 +1,7 @@
 import type { IdeTranslations } from './types.js'
 
-/** Ide translations for Igbo. */
-export const ig: IdeTranslations = {
+/** Ide translations for ig. */
+export const ig: Partial<IdeTranslations> = {
   'ide.chat.title': 'Nkata',
   'ide.chat.placeholder': 'Zipu ozi...',
   'ide.chat.emptyState': 'Kọwaa ihe ị chọrọ iwu...',
@@ -24,8 +24,6 @@ export const ig: IdeTranslations = {
   'ide.chat.askUserSubmit': 'Zipu',
   'ide.chat.attachFile': 'Tinye faịlụ',
   'ide.chat.changeModel': 'Gbanwee ụdị',
-  'ide.chat.continueButton': "Gaa n'ihu",
-  'ide.chat.continuePrompt': "Gaa n'ihu na-arụ ọrụ site n'ebe ị kwụsịrị.",
   'ide.chat.currentBadge': 'ugbu a',
   'ide.chat.currentModelLabel': 'Ugbu a: {{name}}',
   'ide.chat.dropFilesHere': 'Tụsa faịlụ ebe a',
@@ -76,11 +74,9 @@ export const ig: IdeTranslations = {
   'ide.chat.soundEvent.verification_result': 'Nsoputạ nyocha',
   'ide.chat.soundEvent.preview_error': 'Njehie nlele',
   'ide.chat.soundEventDesc.done': 'Synthase mechara ịza azaghachi',
-  'ide.chat.soundEventDesc.error': "Ihe mere n'ezighị ezi n'oge azaghachi",
   'ide.chat.soundEventDesc.tool_result': 'Oku ngwaọrụ (ịgụ faịlụ, iwu, dgz.) zuchara',
   'ide.chat.soundEventDesc.file_diff': 'Emepụtara ma ọ bụ gbanwere faịlụ',
   'ide.chat.soundEventDesc.commit_suggestion': 'Synthase na-atụ aro faịlụ maka commit',
-  'ide.chat.soundEventDesc.mode': "Gbanwere n'etiti ụdị atụmatụ na ụdị ịrụ ọrụ",
   'ide.chat.soundEventDesc.loop_limit_reached': 'Erute oke ogologo kacha elu nke ngwaọrụ',
   'ide.chat.soundEventDesc.verification_result': 'Lint ma ọ bụ nyocha ụdị gwụchara ịgba ọsọ',
   'ide.chat.soundEventDesc.preview_error': 'Nlele dị ndụ zutere njehie',
@@ -142,7 +138,6 @@ export const ig: IdeTranslations = {
   'ide.contextMenu.collapseAll': 'Kwụsị niile',
   'ide.commandPalette.placeholder': 'Dee iwu…',
   'ide.formatting': 'Na-ahazi…',
-  'ide.quickOpen.placeholder': "Chọọ faịlụ site n'aha…",
   'ide.quickPicker.placeholder': 'Dee ka ịchọọ…',
   'ide.quickPicker.loading': 'Na-ebunye…',
   'ide.quickPicker.noResults': 'Enweghị nsoputạ dakọrọ',

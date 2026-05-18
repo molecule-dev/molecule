@@ -1,7 +1,7 @@
 import type { IdeTranslations } from './types.js'
 
-/** Ide translations for Hausa. */
-export const ha: IdeTranslations = {
+/** Ide translations for ha. */
+export const ha: Partial<IdeTranslations> = {
   'ide.chat.title': 'Hira',
   'ide.chat.placeholder': 'Aika saƙo...',
   'ide.chat.emptyState': 'Bayyana abin da kuke son ginawa...',
@@ -84,7 +84,6 @@ export const ha: IdeTranslations = {
   'ide.chat.soundEventDesc.commit_suggestion': 'Synthase yana ba da shawarar fayiloli don aika',
   'ide.chat.soundEventDesc.mode': 'An canza tsakanin yanayin shiri da yanayin aiwatarwa',
   'ide.chat.soundEventDesc.loop_limit_reached': 'An kai iyakar zagayowar kayan aiki',
-  'ide.chat.soundEventDesc.verification_result': "Binciken lint ko nau'i ya gama gudana",
   'ide.chat.soundEventDesc.preview_error': 'Duban kai tsaye ya samu kuskure',
   'ide.chat.voice': 'Murya',
   'ide.editor.title': 'Edita',
@@ -99,7 +98,6 @@ export const ha: IdeTranslations = {
   'ide.preview.noPreview': 'Babu duba',
   'ide.preview.retryCount': 'Gwaji {{count}}',
   'ide.preview.retryButton': 'Sake gwadawa yanzu',
-  'ide.device.label': "Firam ɗin na'ura",
   'ide.device.responsive': 'Mai amsawa',
   'ide.device.desktop': 'Kwamfuta',
   'ide.device.tablet': 'Kwamfutar hannu',

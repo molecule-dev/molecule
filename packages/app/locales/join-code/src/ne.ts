@@ -1,7 +1,7 @@
 import type { JoinCodeTranslations } from './types.js'
 
-/** Join code translations for Nepali. */
-export const ne: JoinCodeTranslations = {
+/** JoinCode translations for ne. */
+export const ne: Partial<JoinCodeTranslations> = {
   'joinCode.label': 'Join code',
   'joinCode.slotAriaLabel': 'Join code character {{position}}',
   'joinCode.help': 'Enter the {{length}}-character code.',

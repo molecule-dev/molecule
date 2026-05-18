@@ -1,7 +1,7 @@
 import type { IdeTranslations } from './types.js'
 
-/** Ide translations for Belarusian. */
-export const be: IdeTranslations = {
+/** Ide translations for be. */
+export const be: Partial<IdeTranslations> = {
   'ide.chat.title': 'Чат',
   'ide.chat.placeholder': 'Адправіць паведамленне...',
   'ide.chat.emptyState': 'Апішыце, што вы хочаце стварыць...',

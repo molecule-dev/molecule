@@ -1,0 +1,29 @@
+{
+  "name": "@molecule/app-locales-feature-image-canvas",
+  "version": "1.0.0",
+  "description": "Translations for @molecule/app-feature-image-canvas-react in 79 languages",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-i18n": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vitest": "4.1.6"
+  }
+}
