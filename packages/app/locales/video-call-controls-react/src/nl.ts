@@ -1,0 +1,4 @@
+import type { VideoCallControlsTranslations } from './types.js'
+
+/** VideoCallControls translations for nl. */
+export const nl: Partial<VideoCallControlsTranslations> = {}

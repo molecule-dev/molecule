@@ -1,0 +1,4 @@
+import type { ShareLinkCardTranslations } from './types.js'
+
+/** ShareLinkCard translations for fi. */
+export const fi: Partial<ShareLinkCardTranslations> = {}

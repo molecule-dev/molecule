@@ -1,0 +1,4 @@
+import type { ColorPickerTranslations } from './types.js'
+
+/** ColorPicker translations for ha. */
+export const ha: Partial<ColorPickerTranslations> = {}

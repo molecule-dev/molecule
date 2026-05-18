@@ -1,0 +1,4 @@
+import type { HabitStreakCardTranslations } from './types.js'
+
+/** HabitStreakCard translations for pt. */
+export const pt: Partial<HabitStreakCardTranslations> = {}

@@ -1,0 +1,4 @@
+import type { PaginationBarTranslations } from './types.js'
+
+/** PaginationBar translations for pt. */
+export const pt: Partial<PaginationBarTranslations> = {}

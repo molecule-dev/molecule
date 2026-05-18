@@ -1,0 +1,4 @@
+import type { OnboardingModalTranslations } from './types.js'
+
+/** OnboardingModal translations for lo. */
+export const lo: Partial<OnboardingModalTranslations> = {}
