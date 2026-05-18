@@ -1,5 +1,13 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for uz (stub — falls back to English until reviewed). */
-export const uz: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for uz. */
+export const uz: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.expand': 'Kengaytirish<x> {{count}}</x> javoblar',
+  'threadTree.collapse': 'Mavzuni yopish',
+  'threadTree.expandSymbol': '[+]',
+  'threadTree.collapseSymbol': '[−]',
+  'threadTree.score': '{{count}} ballar',
+  'threadTree.hiddenReplies': '{{count}} yashiringan',
+  'threadTree.upvote': 'Ijobiy ovoz berish',
+  'threadTree.reply': 'Javob',
+}

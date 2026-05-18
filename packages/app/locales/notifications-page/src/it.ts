@@ -15,4 +15,6 @@ export const it: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyBody': 'Le nuove notifiche appariranno qui.',
   'notificationsPage.prev': 'Precedente',
   'notificationsPage.next': 'Avanti',
+  'notificationsPage.paginationAriaLabel': 'Paginazione',
+  'notificationsPage.pageOf': 'Pagina<x> {{attuale}}</x> Di<x> {{totale}}</x>',
 }

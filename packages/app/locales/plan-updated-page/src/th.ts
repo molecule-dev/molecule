@@ -1,4 +1,6 @@
 import type { PlanUpdatedPageTranslations } from './types.js'
 
 /** PlanUpdatedPage translations for th. */
-export const th: Partial<PlanUpdatedPageTranslations> = {}
+export const th: Partial<PlanUpdatedPageTranslations> = {
+  'planUpdated.viewReceipt': 'ดูใบเสร็จ',
+}

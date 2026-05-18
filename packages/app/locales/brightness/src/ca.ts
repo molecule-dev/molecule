@@ -1,7 +1,7 @@
 import type { BrightnessTranslations } from './types.js'
 
-/** Brightness translations for Catalan. */
-export const ca: BrightnessTranslations = {
+/** Brightness translations for ca. */
+export const ca: Partial<BrightnessTranslations> = {
   'brightness.error.noProvider':
-    "@molecule/app-brightness: No s'ha establert cap proveïdor. Crideu setProvider() amb una implementació de BrightnessProvider (p. ex., de @molecule/app-brightness-capacitor).",
+    '@molecule/app-brightness: No s&#39;ha definit cap proveïdor. Crida setProvider() amb una implementació de BrightnessProvider (per exemple, des de @molecule/app-brightness-capacitor).',
 }

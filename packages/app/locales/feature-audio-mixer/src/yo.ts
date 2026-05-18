@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for yo — currently mirrors English (translation TBD). */
-export const yo: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for yo. */
+export const yo: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Kọ́nsólù àdàpọ̀ ohun',
+  'audioMixer.aria.fader': '{{orúkọ}} fader',
+  'audioMixer.aria.pan': '{{orúkọ}} àwokòtò',
+  'audioMixer.aria.send': '{{ikanni}} fi ranṣẹ si<x> {{firanṣẹ́}}</x>',
+  'audioMixer.button.mute': 'Mu odi',
+  'audioMixer.button.solo': 'Dá nìkan',
+  'audioMixer.master': 'Ọ̀gá',
+  'audioMixer.sends': 'Àwọn olùránṣẹ́',
+}

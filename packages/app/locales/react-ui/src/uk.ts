@@ -12,4 +12,16 @@ export const uk: Partial<ReactUiTranslations> = {
   'userMenu.guestName': 'Аналітик',
   'userMenuPopover.guest': 'Обліковий запис',
   'userMenu.navLabel': 'Меню облікового запису',
+  'react.error.useAccordionOutsideProvider':
+    'Компоненти акордеона повинні використовуватися всередині акордеона',
+  'ui.pagination.nav': 'Пагінація',
+  'ui.pagination.first': 'Перейти на першу сторінку',
+  'ui.pagination.previous': 'Перейти на попередню сторінку',
+  'ui.pagination.goToPage': 'Перейти на сторінку<x> {{сторінка}}</x>',
+  'ui.pagination.last': 'Перейти на останню сторінку',
+  'ui.radioGroup.label': 'Радіогрупа',
+  'sidebar.memberStatus': 'Преміум-учасник',
+  'ui.spinner.loading': 'Завантаження',
+  'ui.table.empty': 'Дані недоступні',
+  'react.error.useToastOutsideProvider': 'useToast має використовуватися всередині ToastProvider',
 }

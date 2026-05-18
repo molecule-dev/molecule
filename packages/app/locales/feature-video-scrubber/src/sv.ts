@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for sv — currently mirrors English (translation TBD). */
-export const sv: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for sv. */
+export const sv: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Videoskrubber',
+  'videoScrubber.aria.strip':
+    'Filmremsa — uppspelningshuvud vid<x> {{tid}}</x> s (ram<x> {{ram}}</x> )',
+  'videoScrubber.aria.playhead': 'Uppspelningshuvud vid<x> {{tid}}</x> s',
+  'videoScrubber.aria.frameReadout': 'Ram<x> {{ram}}</x> av<x> {{total}}</x>',
+  'videoScrubber.aria.thumbnail': 'Förhandsgranskning av bildruta',
+  'videoScrubber.thumbnails.empty': 'Ingen förhandsgranskning',
+  'videoScrubber.frameReadout.total': '/<x> {{total}}</x> ramar',
+}

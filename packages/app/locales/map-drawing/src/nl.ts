@@ -6,4 +6,8 @@ export const nl: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Regel',
   'mapDrawing.tool.select': 'Selecteer',
   'mapDrawing.tool.delete': 'Verwijderen',
+  'mapDrawing.surface.aria': 'Kaarttekenoppervlak',
+  'mapDrawing.tool.polygon': 'Veelhoek',
+  'mapDrawing.tool.circle': 'Cirkel',
+  'mapDrawing.toolbar.aria': 'Kaarttekentools',
 }

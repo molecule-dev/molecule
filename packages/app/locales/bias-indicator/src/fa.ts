@@ -1,5 +1,14 @@
 import type { BiasIndicatorTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Bias-indicator translations for fa — currently mirrors English (translation TBD). */
-export const fa: BiasIndicatorTranslations = { ...en }
+/** BiasIndicator translations for fa. */
+export const fa: Partial<BiasIndicatorTranslations> = {
+  'biasIndicator.bias.farLeft': 'سمت چپ',
+  'biasIndicator.bias.leftLeaning': 'چپ‌گرا',
+  'biasIndicator.bias.center': 'مرکز',
+  'biasIndicator.bias.rightLeaning': 'راست گرا',
+  'biasIndicator.bias.farRight': 'راست افراطی',
+  'biasIndicator.reliability.high': 'قابلیت اطمینان: بالا',
+  'biasIndicator.reliability.medium': 'قابلیت اطمینان: متوسط',
+  'biasIndicator.reliability.low': 'قابلیت اطمینان: کم',
+  'biasIndicator.reliability.disputed': 'قابلیت اطمینان: مورد مناقشه',
+}

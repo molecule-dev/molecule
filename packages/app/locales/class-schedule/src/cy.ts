@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for cy — currently mirrors English (translation TBD). */
-export const cy: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for cy. */
+export const cy: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Amserlen dosbarth wythnosol',
+  'classSchedule.aria.event': '{{diwrnod yr wythnos}}<x> {{dechrau}}</x> –<x> {{diwedd}}</x>',
+  'classSchedule.aria.slot': 'Slot gwag,<x> {{diwrnod yr wythnos}}</x><x> {{amser}}</x>',
+}

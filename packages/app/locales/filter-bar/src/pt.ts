@@ -1,4 +1,6 @@
 import type { FilterBarTranslations } from './types.js'
 
 /** FilterBar translations for pt. */
-export const pt: Partial<FilterBarTranslations> = {}
+export const pt: Partial<FilterBarTranslations> = {
+  'filterBar.clear': 'Limpar filtros',
+}

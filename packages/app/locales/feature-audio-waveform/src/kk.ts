@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for kk — currently mirrors English (translation TBD). */
-export const kk: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for kk. */
+export const kk: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Дыбыс толқынының пішіні',
+  'audioWaveform.aria.seek': 'Толқын пішінін басу арқылы дыбысты іздеңіз',
+  'audioWaveform.empty': 'Толқын пішіні туралы деректер жоқ.',
+}

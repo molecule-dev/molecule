@@ -6,4 +6,8 @@ export const tr: Partial<TransportBarTranslations> = {
   'transportBar.aria.pause': 'Duraklat',
   'transportBar.aria.record': 'Kaydet',
   'transportBar.aria.stopRecording': 'Kaydı durdur',
+  'transportBar.aria.region': 'Oynatma taşıma kontrolleri',
+  'transportBar.aria.skipForward': 'İleriye atla',
+  'transportBar.aria.stop': 'Durmak',
+  'transportBar.aria.loopOff': 'Döngüyü etkinleştir',
 }

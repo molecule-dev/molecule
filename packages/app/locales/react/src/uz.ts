@@ -1,7 +1,7 @@
 import type { ReactTranslations } from './types.js'
 
-/** React translations for Uzbek. */
-export const uz: ReactTranslations = {
+/** React translations for uz. */
+export const uz: Partial<ReactTranslations> = {
   'react.error.useAccordionOutsideProvider':
     'Accordion komponentlari Accordion ichida ishlatilishi kerak',
   'react.error.useAuthOutsideProvider': 'useAuthClient AuthProvider ichida ishlatilishi kerak',
@@ -23,5 +23,5 @@ export const uz: ReactTranslations = {
   'react.error.useToastOutsideProvider': 'useToast ToastProvider ichida ishlatilishi kerak',
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider WorkspaceProvider ichida ishlatilishi kerak',
-  'react.error.unsupportedMethod': "Qo'llab-quvvatlanmaydigan usul: {{method}}",
+  'react.error.unsupportedMethod': 'Qo&#39;llab-quvvatlanmaydigan usul:<x> {{method}}</x>',
 }

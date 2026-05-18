@@ -1,5 +1,53 @@
-import type { AudioEffectsRackTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioEffectsRackTranslations } from './types.js'
 
-/** Audio-effects-rack translations for uz — currently mirrors English (translation TBD). */
-export const uz: AudioEffectsRackTranslations = { ...en }
+/** FeatureAudioEffectsRack translations for uz. */
+export const uz: Partial<FeatureAudioEffectsRackTranslations> = {
+  'audioEffectsRack.aria.rack': 'Audio effektlar javoni',
+  'audioEffectsRack.aria.dragHandle': 'Qayta tartiblash uchun sudrab torting',
+  'audioEffectsRack.button.add': 'Effekt qo&#39;shish',
+  'audioEffectsRack.button.addPlaceholder': 'Effekt qo&#39;shish…',
+  'audioEffectsRack.button.bypass': 'Aylanma yo&#39;l',
+  'audioEffectsRack.button.remove': 'Effektni olib tashlash',
+  'audioEffectsRack.empty':
+    'Zanjirda hech qanday effekt yo&#39;q — boshlash uchun bittasini qo&#39;shing.',
+  'audioEffectsRack.kind.eq': 'EQ',
+  'audioEffectsRack.kind.compressor': 'Kompressor',
+  'audioEffectsRack.kind.reverb': 'Reverb',
+  'audioEffectsRack.kind.delay': 'Kechikish',
+  'audioEffectsRack.kind.distortion': 'Buzilish; xato ko&#39;rsatish',
+  'audioEffectsRack.kind.gate': 'Darvoza',
+  'audioEffectsRack.kind.limiter': 'Cheklovchi',
+  'audioEffectsRack.kind.chorus': 'Xor',
+  'audioEffectsRack.kind.flanger': 'Flanjer',
+  'audioEffectsRack.kind.phaser': 'Phaser',
+  'audioEffectsRack.param.eq.low': 'Past',
+  'audioEffectsRack.param.eq.mid': 'O&#39;rta',
+  'audioEffectsRack.param.eq.high': 'Yuqori',
+  'audioEffectsRack.param.compressor.threshold': 'Ostona',
+  'audioEffectsRack.param.compressor.ratio': 'Nisbat',
+  'audioEffectsRack.param.compressor.attack': 'Hujum',
+  'audioEffectsRack.param.compressor.release': 'Chiqarish',
+  'audioEffectsRack.param.reverb.mix': 'Aralash',
+  'audioEffectsRack.param.reverb.decay': 'Parchalanish',
+  'audioEffectsRack.param.reverb.predelay': 'Oldindan kechikish',
+  'audioEffectsRack.param.delay.time': 'Vaqt',
+  'audioEffectsRack.param.delay.feedback': 'Fikr-mulohaza',
+  'audioEffectsRack.param.delay.mix': 'Aralash',
+  'audioEffectsRack.param.distortion.drive': 'Haydash',
+  'audioEffectsRack.param.distortion.tone': 'Ohang',
+  'audioEffectsRack.param.distortion.mix': 'Aralash',
+  'audioEffectsRack.param.gate.threshold': 'Ostona',
+  'audioEffectsRack.param.gate.attack': 'Hujum',
+  'audioEffectsRack.param.gate.release': 'Chiqarish',
+  'audioEffectsRack.param.limiter.threshold': 'Ostona',
+  'audioEffectsRack.param.limiter.release': 'Chiqarish',
+  'audioEffectsRack.param.chorus.rate': 'Narx',
+  'audioEffectsRack.param.chorus.depth': 'Chuqurlik',
+  'audioEffectsRack.param.chorus.mix': 'Aralash',
+  'audioEffectsRack.param.flanger.rate': 'Narx',
+  'audioEffectsRack.param.flanger.depth': 'Chuqurlik',
+  'audioEffectsRack.param.flanger.feedback': 'Fikr-mulohaza',
+  'audioEffectsRack.param.phaser.rate': 'Narx',
+  'audioEffectsRack.param.phaser.depth': 'Chuqurlik',
+  'audioEffectsRack.param.phaser.feedback': 'Fikr-mulohaza',
+}

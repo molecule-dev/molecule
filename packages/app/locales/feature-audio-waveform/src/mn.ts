@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for mn — currently mirrors English (translation TBD). */
-export const mn: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for mn. */
+export const mn: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Аудио долгионы хэлбэр',
+  'audioWaveform.aria.seek': 'Долгионы хэлбэр дээр дарж аудиог хайгаарай',
+  'audioWaveform.empty': 'Долгионы хэлбэрийн мэдээлэл байхгүй байна.',
+}

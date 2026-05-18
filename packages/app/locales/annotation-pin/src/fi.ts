@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for fi — currently mirrors English (translation TBD). */
-export const fi: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for fi. */
+export const fi: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Merkintäkerros',
+  'annotationPin.aria.marker': 'Merkintänasta',
+  'annotationPin.aria.popup': 'Merkintöjen tiedot',
+  'annotationPin.empty': 'Tälle merkinnälle ei ole muistiinpanoja.',
+}

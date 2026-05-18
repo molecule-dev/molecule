@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for sk. */
-export const sk: Partial<ReactNativeUiTranslations> = {}
+export const sk: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Zavrieť',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Zatvoriť',
+  'ui.pagination.nav': 'Stránkovanie',
+  'ui.pagination.first': 'Prvý',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Predchádzajúce',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Ďalej',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Posledný',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{hodnota}} %',
+  'ui.radioGroup.label': 'Rádiová skupina',
+  'ui.select.placeholder': 'Vyberte…',
+  'ui.select.title': 'Vyberte',
+  'ui.spinner.loading': 'Načítava sa',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Žiadne údaje',
+  'ui.toast.dismiss': 'Zavrieť',
+  'ui.toast.error.noProvider': 'useToast sa musí použiť v rámci ToastProvider',
+}

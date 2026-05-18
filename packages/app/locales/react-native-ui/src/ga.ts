@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for ga. */
-export const ga: Partial<ReactNativeUiTranslations> = {}
+export const ga: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Díbhe',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatár',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Dún',
+  'ui.pagination.nav': 'Leathanachú',
+  'ui.pagination.first': 'Ar dtús',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Roimhe Seo',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Ar Aghaidh',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Deireanach',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{luach}} %',
+  'ui.radioGroup.label': 'Grúpa raidió',
+  'ui.select.placeholder': 'Roghnaigh…',
+  'ui.select.title': 'Roghnaigh',
+  'ui.spinner.loading': 'Ag luchtú',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Gan aon sonraí',
+  'ui.toast.dismiss': 'Díbhe',
+  'ui.toast.error.noProvider': 'Ní mór useToast a úsáid laistigh de Sholáthraí Toast',
+}

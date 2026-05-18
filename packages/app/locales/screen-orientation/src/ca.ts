@@ -1,7 +1,7 @@
 import type { ScreenOrientationTranslations } from './types.js'
 
-/** Screen Orientation translations for Catalan. */
-export const ca: ScreenOrientationTranslations = {
+/** ScreenOrientation translations for ca. */
+export const ca: Partial<ScreenOrientationTranslations> = {
   'screenOrientation.error.noProvider':
-    "@molecule/app-screen-orientation: No s'ha establert cap proveïdor. Crideu setProvider() amb una implementació de ScreenOrientationProvider (p. ex., de @molecule/app-screen-orientation-capacitor).",
+    '@molecule/app-screen-orientation: No s&#39;ha definit cap proveïdor. Crida setProvider() amb una implementació de ScreenOrientationProvider (per exemple, des de @molecule/app-screen-orientation-capacitor).',
 }

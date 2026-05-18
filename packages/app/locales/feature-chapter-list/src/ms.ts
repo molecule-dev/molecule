@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for ms — currently mirrors English (translation TBD). */
-export const ms: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for ms. */
+export const ms: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Bab-bab',
+  'chapterList.aria.seek': 'Lompat ke<x> {{tajuk}}</x> pada<x> {{cap masa}}</x>',
+  'chapterList.aria.thumbnail': 'Gambar kecil untuk<x> {{tajuk}}</x>',
+  'chapterList.empty': 'Tiada bab yang tersedia untuk episod ini.',
+  'chapterList.current': 'Sedang dimainkan',
+}

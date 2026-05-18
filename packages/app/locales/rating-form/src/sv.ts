@@ -5,4 +5,5 @@ export const sv: Partial<RatingFormTranslations> = {
   'rating.label': 'Betyg',
   'rating.submitting': 'Skickar…',
   'rating.submit': 'Skicka omdöme',
+  'rating.commentPlaceholder': 'Dela dina tankar (valfritt)',
 }

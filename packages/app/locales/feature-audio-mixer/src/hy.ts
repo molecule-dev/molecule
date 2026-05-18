@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for hy — currently mirrors English (translation TBD). */
-export const hy: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for hy. */
+export const hy: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Աուդիո խառնիչի կոնսոլ',
+  'audioMixer.aria.fader': '{{անուն}} ֆեյդեր',
+  'audioMixer.aria.pan': '{{անուն}} տապակ',
+  'audioMixer.aria.send': '{{ալիք}} ուղարկել<x> {{ուղարկել}}</x>',
+  'audioMixer.button.mute': 'Անջատել',
+  'audioMixer.button.solo': 'Միայնակ',
+  'audioMixer.master': 'Վարպետ',
+  'audioMixer.sends': 'Ուղարկում է',
+}

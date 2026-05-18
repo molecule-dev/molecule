@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for ur. */
-export const ur: Partial<ReactNativeUiTranslations> = {}
+export const ur: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'برطرف کرنا',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'اوتار',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '-',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'بند',
+  'ui.pagination.nav': 'صفحہ بندی',
+  'ui.pagination.first': 'سب سے پہلے',
+  'ui.icon.chevronsLeft': '&quot;',
+  'ui.pagination.previous': 'پچھلا',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'اگلا',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'آخری',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{قدر}} %',
+  'ui.radioGroup.label': 'ریڈیو گروپ',
+  'ui.select.placeholder': 'منتخب کریں…',
+  'ui.select.title': 'منتخب کریں۔',
+  'ui.spinner.loading': 'لوڈ ہو رہا ہے۔',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'کوئی ڈیٹا نہیں۔',
+  'ui.toast.dismiss': 'برطرف کرنا',
+  'ui.toast.error.noProvider': 'useToast کا استعمال ToastProvider کے اندر ہونا چاہیے۔',
+}

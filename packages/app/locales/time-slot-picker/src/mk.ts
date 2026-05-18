@@ -1,4 +1,6 @@
 import type { TimeSlotPickerTranslations } from './types.js'
 
 /** TimeSlotPicker translations for mk. */
-export const mk: Partial<TimeSlotPickerTranslations> = {}
+export const mk: Partial<TimeSlotPickerTranslations> = {
+  'timeSlot.aria': 'Временски слотови',
+}

@@ -1,5 +1,14 @@
 import type { BiasIndicatorTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Bias-indicator translations for hu — currently mirrors English (translation TBD). */
-export const hu: BiasIndicatorTranslations = { ...en }
+/** BiasIndicator translations for hu. */
+export const hu: Partial<BiasIndicatorTranslations> = {
+  'biasIndicator.bias.farLeft': 'Szélsőbaloldal',
+  'biasIndicator.bias.leftLeaning': 'Baloldali beállítottságú',
+  'biasIndicator.bias.center': 'Központ',
+  'biasIndicator.bias.rightLeaning': 'Jobboldali beállítottságú',
+  'biasIndicator.bias.farRight': 'Szélsőjobboldal',
+  'biasIndicator.reliability.high': 'Megbízhatóság: magas',
+  'biasIndicator.reliability.medium': 'Megbízhatóság: közepes',
+  'biasIndicator.reliability.low': 'Megbízhatóság: alacsony',
+  'biasIndicator.reliability.disputed': 'Megbízhatóság: vitatott',
+}

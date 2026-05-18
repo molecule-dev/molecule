@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for zu — currently mirrors English (translation TBD). */
-export const zu: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for zu. */
+export const zu: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Ikhanvasi yesithombe',
+  'imageCanvas.aria.canvas': 'Hudula ukuze uphenye, skrola ukuze usondeze',
+  'imageCanvas.loading': 'Ilayisha isithombe…',
+  'imageCanvas.error': 'Isithombe sehlulekile ukulayisha.',
+}

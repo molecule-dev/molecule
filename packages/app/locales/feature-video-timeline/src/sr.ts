@@ -1,5 +1,19 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for sr — currently mirrors English (translation TBD). */
-export const sr: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for sr. */
+export const sr: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.aria.root': 'Временска линија видеа',
+  'videoTimeline.aria.ruler': 'Владар времена',
+  'videoTimeline.aria.playhead': 'Показивач репродукције на<x> {{време}}</x> с',
+  'videoTimeline.aria.zoom': 'Зумирање временске линије',
+  'videoTimeline.aria.mode': 'Режим уређивања',
+  'videoTimeline.zoom.in': 'Увећај',
+  'videoTimeline.zoom.out': 'Умањи',
+  'videoTimeline.zoom.in.icon': '+',
+  'videoTimeline.zoom.out.icon': '−',
+  'videoTimeline.mode.ripple': 'Таласање',
+  'videoTimeline.mode.insert': 'Уметни',
+  'videoTimeline.trackKind.video': 'Видео',
+  'videoTimeline.trackKind.audio': 'Аудио',
+  'videoTimeline.trackKind.subtitle': 'Поднаслов',
+}

@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for eu — currently mirrors English (translation TBD). */
-export const eu: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for eu. */
+export const eu: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Irudi-oihal',
+  'imageCanvas.aria.canvas': 'Arrastatu panoramikoa egiteko, joan zooma egiteko',
+  'imageCanvas.loading': 'Irudia kargatzen…',
+  'imageCanvas.error': 'Irudia ezin izan da kargatu.',
+}

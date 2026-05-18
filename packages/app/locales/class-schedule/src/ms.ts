@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for ms — currently mirrors English (translation TBD). */
-export const ms: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for ms. */
+export const ms: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Jadual kelas mingguan',
+  'classSchedule.aria.event': '{{hari bekerja}}<x> {{mula}}</x> –<x> {{akhir}}</x>',
+  'classSchedule.aria.slot': 'Slot kosong,<x> {{hari bekerja}}</x><x> {{masa}}</x>',
+}

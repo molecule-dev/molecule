@@ -15,4 +15,6 @@ export const hi: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyBody': 'नई सूचनाएं यहां दिखाई देंगी।',
   'notificationsPage.prev': 'पिछला',
   'notificationsPage.next': 'अगला',
+  'notificationsPage.paginationAriaLabel': 'पृष्ठ पर अंक लगाना',
+  'notificationsPage.pageOf': 'पृष्ठ<x> {{मौजूदा}}</x> का<x> {{कुल}}</x>',
 }

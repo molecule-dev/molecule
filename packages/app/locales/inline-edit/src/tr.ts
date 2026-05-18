@@ -5,4 +5,5 @@ export const tr: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'İptal',
   'inlineEdit.saving': 'Kaydediliyor…',
   'inlineEdit.save': 'Kaydet',
+  'inlineEdit.empty': 'Düzenlemek için tıklayın',
 }

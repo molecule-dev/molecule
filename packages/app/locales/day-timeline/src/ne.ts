@@ -1,4 +1,6 @@
 import type { DayTimelineTranslations } from './types.js'
 
 /** DayTimeline translations for ne. */
-export const ne: Partial<DayTimelineTranslations> = {}
+export const ne: Partial<DayTimelineTranslations> = {
+  'dayTimeline.group': 'दिनको समयरेखा',
+}

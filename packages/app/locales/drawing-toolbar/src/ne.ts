@@ -1,4 +1,6 @@
 import type { DrawingToolbarTranslations } from './types.js'
 
 /** DrawingToolbar translations for ne. */
-export const ne: Partial<DrawingToolbarTranslations> = {}
+export const ne: Partial<DrawingToolbarTranslations> = {
+  'drawingToolbar.label': 'रेखाचित्र उपकरणहरू',
+}

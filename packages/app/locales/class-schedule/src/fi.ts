@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for fi — currently mirrors English (translation TBD). */
-export const fi: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for fi. */
+export const fi: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Viikoittainen luokka-aikataulu',
+  'classSchedule.aria.event': '{{arkipäivä}}<x> {{aloita}}</x> –<x> {{loppu}}</x>',
+  'classSchedule.aria.slot': 'Tyhjä paikka,<x> {{arkipäivä}}</x><x> {{aika}}</x>',
+}

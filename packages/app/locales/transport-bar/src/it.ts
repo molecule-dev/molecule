@@ -6,4 +6,8 @@ export const it: Partial<TransportBarTranslations> = {
   'transportBar.aria.pause': 'Pausa',
   'transportBar.aria.record': 'Registra',
   'transportBar.aria.stopRecording': 'Ferma registrazione',
+  'transportBar.aria.region': 'Controlli di riproduzione e trasporto',
+  'transportBar.aria.skipForward': 'Vai avanti',
+  'transportBar.aria.stop': 'Fermare',
+  'transportBar.aria.loopOff': 'Circuito di attivazione',
 }

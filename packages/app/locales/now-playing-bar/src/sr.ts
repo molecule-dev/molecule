@@ -1,5 +1,13 @@
 import type { NowPlayingBarTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Now-playing-bar translations for sr — currently mirrors English (translation TBD). */
-export const sr: NowPlayingBarTranslations = { ...en }
+/** NowPlayingBar translations for sr. */
+export const sr: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.aria.region': 'Сада се репродукује:<x> {{наслов}}</x>',
+  'nowPlaying.aria.artwork': 'Уметничко дело за<x> {{наслов}}</x>',
+  'nowPlaying.aria.play': 'Играј',
+  'nowPlaying.aria.pause': 'Пауза',
+  'nowPlaying.aria.next': 'Следећа нумера',
+  'nowPlaying.aria.prev': 'Претходна нумера',
+  'nowPlaying.aria.seek': 'Тражи',
+  'nowPlaying.aria.volume': 'Јачина звука',
+}

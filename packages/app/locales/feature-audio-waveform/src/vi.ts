@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for vi — currently mirrors English (translation TBD). */
-export const vi: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for vi. */
+export const vi: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Dạng sóng âm thanh',
+  'audioWaveform.aria.seek': 'Tìm kiếm đoạn âm thanh bằng cách nhấp vào dạng sóng.',
+  'audioWaveform.empty': 'Không có dữ liệu dạng sóng nào.',
+}

@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for eu — currently mirrors English (translation TBD). */
-export const eu: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for eu. */
+export const eu: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Mapa marrazteko tresnak',
+  'mapDrawing.surface.aria': 'Mapa marrazteko gainazala',
+  'mapDrawing.tool.polygon': 'Poligonoa',
+  'mapDrawing.tool.circle': 'Zirkulua',
+  'mapDrawing.tool.pin': 'Txinga',
+  'mapDrawing.tool.line': 'Lerroa',
+  'mapDrawing.tool.select': 'Hautatu',
+  'mapDrawing.tool.delete': 'Ezabatu',
+}

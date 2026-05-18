@@ -1,4 +1,6 @@
 import type { SearchAutocompleteTranslations } from './types.js'
 
 /** SearchAutocomplete translations for cy. */
-export const cy: Partial<SearchAutocompleteTranslations> = {}
+export const cy: Partial<SearchAutocompleteTranslations> = {
+  'search.placeholder': 'Chwilio…',
+}

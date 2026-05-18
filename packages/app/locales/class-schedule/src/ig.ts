@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for ig — currently mirrors English (translation TBD). */
-export const ig: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for ig. */
+export const ig: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Usoro klaasị kwa izu',
+  'classSchedule.aria.event': '{{ụbọchị izu ụka}}<x> {{mmalite}}</x> –<x> {{ọgwụgwụ}}</x>',
+  'classSchedule.aria.slot': 'Oghere efu,<x> {{ụbọchị izu ụka}}</x><x> {{oge}}</x>',
+}

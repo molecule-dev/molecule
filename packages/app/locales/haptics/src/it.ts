@@ -1,7 +1,7 @@
 import type { HapticsTranslations } from './types.js'
 
-/** Haptics translations for Italian. */
-export const it: HapticsTranslations = {
+/** Haptics translations for it. */
+export const it: Partial<HapticsTranslations> = {
   'haptics.error.noProvider':
-    "@molecule/app-haptics: Nessun provider impostato. Chiama setProvider() con un'implementazione di HapticsProvider (es., da @molecule/app-haptics-capacitor).",
+    '@molecule/app-haptics: Nessun provider impostato. Chiama setProvider() con un&#39;implementazione di HapticsProvider (ad esempio, da @molecule/app-haptics-capacitor).',
 }

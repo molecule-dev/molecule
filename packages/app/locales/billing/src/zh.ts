@@ -10,4 +10,8 @@ export const zh: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': '最受欢迎',
   'billing.pricing.tierEyebrow': '层级',
   'billing.pricing.upgradeCta': '升级到{{tierName}}',
+  'billing.status.currentPlan': '当前计划：<x> {{tierName}}</x>',
+  'billing.status.cancelError': '取消操作失败，请稍后再试。',
+  'billing.pricing.reassurance': '随时取消 · 无需信用卡即可开始',
+  'billing.pricing.perSeat': '每座位',
 }

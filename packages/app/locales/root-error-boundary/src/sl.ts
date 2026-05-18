@@ -1,4 +1,6 @@
 import type { RootErrorBoundaryTranslations } from './types.js'
 
 /** RootErrorBoundary translations for sl. */
-export const sl: Partial<RootErrorBoundaryTranslations> = {}
+export const sl: Partial<RootErrorBoundaryTranslations> = {
+  'error.unknown': 'Prišlo je do nepričakovane napake.',
+}

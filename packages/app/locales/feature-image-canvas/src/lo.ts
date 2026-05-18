@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for lo — currently mirrors English (translation TBD). */
-export const lo: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for lo. */
+export const lo: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'ຮູບພາບໃນຜ້າໃບ',
+  'imageCanvas.aria.canvas': 'ລາກເພື່ອເລື່ອນ, ເລື່ອນເພື່ອຊູມ',
+  'imageCanvas.loading': 'ກຳລັງໂຫຼດຮູບພາບ…',
+  'imageCanvas.error': 'ໂຫຼດຮູບພາບບໍ່ສຳເລັດ.',
+}

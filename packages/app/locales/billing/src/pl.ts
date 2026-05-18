@@ -10,4 +10,9 @@ export const pl: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Najpopularniejszy',
   'billing.pricing.tierEyebrow': 'Poziom',
   'billing.pricing.upgradeCta': 'Ulepsz do {{tierName}}',
+  'billing.status.currentPlan': 'Aktualny plan:<x> {{nazwa_poziomu}}</x>',
+  'billing.status.cancelError': 'Nie udało się anulować. Spróbuj ponownie.',
+  'billing.pricing.reassurance':
+    'Anuluj w dowolnym momencie · Do rozpoczęcia nie jest wymagana karta kredytowa',
+  'billing.pricing.perSeat': 'za miejsce',
 }

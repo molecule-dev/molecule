@@ -4,4 +4,10 @@ import type { FeatureAudioMixerTranslations } from './types.js'
 export const pt: Partial<FeatureAudioMixerTranslations> = {
   'audioMixer.button.mute': 'Silenciar',
   'audioMixer.sends': 'Envios',
+  'audioMixer.aria.console': 'Mesa de mixagem de áudio',
+  'audioMixer.aria.fader': '{{nome}} fader',
+  'audioMixer.aria.pan': '{{nome}} frigideira',
+  'audioMixer.aria.send': '{{canal}} enviar para<x> {{enviar}}</x>',
+  'audioMixer.button.solo': 'Solo',
+  'audioMixer.master': 'Mestre',
 }

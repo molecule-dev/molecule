@@ -9,4 +9,10 @@ export const uk: Partial<PricingPageTranslations> = {
   'pricingPage.currentCta': 'Поточний план',
   'pricingPage.periodToggle.monthly': 'Щомісяця',
   'pricingPage.periodToggle.yearly': 'Щорічно',
+  'pricingPage.heading': 'Оберіть свій план',
+  'pricingPage.perSeat': 'за місце',
+  'pricingPage.periodToggle.label': 'Розрахунковий період',
+  'pricingPage.planUpdated.heading': 'Ваш план оновлено',
+  'pricingPage.planUpdated.body':
+    'Дякуємо за оновлення. Ваш новий план активний негайно, і вам надіслано квитанцію.',
 }

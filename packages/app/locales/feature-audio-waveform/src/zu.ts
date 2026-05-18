@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for zu — currently mirrors English (translation TBD). */
-export const zu: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for zu. */
+export const zu: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Ifomu lomsindo',
+  'audioWaveform.aria.seek': 'Funa umsindo ngokuchofoza i-waveform',
+  'audioWaveform.empty': 'Ayikho idatha ye-waveform etholakalayo.',
+}

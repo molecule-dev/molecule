@@ -4,4 +4,5 @@ import type { PaginationBarTranslations } from './types.js'
 export const da: Partial<PaginationBarTranslations> = {
   'pagination.previous': 'Forrige side',
   'pagination.next': 'Næste side',
+  'pagination.pageSize': 'Sidestørrelse',
 }

@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for si. */
-export const si: Partial<ReactNativeUiTranslations> = {}
+export const si: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'ඉවතලන්න',
+  'ui.icon.close': '✕ ✕ 안장',
+  'ui.avatar.alt': 'අවතාරය',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'වසන්න',
+  'ui.pagination.nav': 'පිටු සැකසුම',
+  'ui.pagination.first': 'පළමු',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'පෙර',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'ඊළඟ',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'අවසන්',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{අගය}} %',
+  'ui.radioGroup.label': 'ගුවන්විදුලි කණ්ඩායම',
+  'ui.select.placeholder': 'තෝරන්න...',
+  'ui.select.title': 'තෝරන්න',
+  'ui.spinner.loading': 'පූරණය වෙමින් පවතී',
+  'ui.icon.sortAsc': '↑ ↑ ශ්‍රේණිය',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'දත්ත නැත',
+  'ui.toast.dismiss': 'ඉවතලන්න',
+  'ui.toast.error.noProvider': 'useToast ToastProvider එකක් තුළ භාවිතා කළ යුතුය.',
+}

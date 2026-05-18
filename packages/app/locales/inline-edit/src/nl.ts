@@ -5,4 +5,5 @@ export const nl: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Annuleren',
   'inlineEdit.saving': 'Opslaan…',
   'inlineEdit.save': 'Opslaan',
+  'inlineEdit.empty': 'Klik om te bewerken',
 }

@@ -6,4 +6,7 @@ export const nb: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopier',
   'secretRow.rotate': 'Roter',
   'secretRow.delete': 'Slett',
+  'secretRow.expired': 'Utløpt',
+  'secretRow.hide': 'Gjemme',
+  'secretRow.show': 'Vise',
 }

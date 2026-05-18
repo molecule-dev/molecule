@@ -1,4 +1,7 @@
 import type { CodeBlockTranslations } from './types.js'
 
 /** CodeBlock translations for ml. */
-export const ml: Partial<CodeBlockTranslations> = {}
+export const ml: Partial<CodeBlockTranslations> = {
+  'codeBlock.copied': 'പകർത്തി!',
+  'codeBlock.copy': 'പകർത്തുക',
+}

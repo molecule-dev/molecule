@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for lt — currently mirrors English (translation TBD). */
-export const lt: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for lt. */
+export const lt: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Vaizdo drobė',
+  'imageCanvas.aria.canvas': 'Vilkite, kad panoramintumėte, slinkite, kad priartintumėte',
+  'imageCanvas.loading': 'Kraunamas vaizdas…',
+  'imageCanvas.error': 'Nepavyko įkelti vaizdo.',
+}

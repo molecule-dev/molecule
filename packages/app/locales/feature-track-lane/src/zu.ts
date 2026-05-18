@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for zu — currently mirrors English (translation TBD). */
-export const zu: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for zu. */
+export const zu: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Umzila wethrekhi<x> {{igama}}</x>',
+  'trackLane.aria.clip':
+    'Isiqeshana<x> {{ilebula}}</x> kusukela ku-<x> {{Isikhathi sokuqala}}</x> s ye<x> {{ubude}}</x> s',
+  'trackLane.aria.resize': 'Shintsha usayizi wesiqeshana',
+  'trackLane.header': 'Ithrekhi',
+}

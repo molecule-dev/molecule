@@ -4,4 +4,6 @@ import type { OnboardingModalTranslations } from './types.js'
 export const hu: Partial<OnboardingModalTranslations> = {
   'onboarding.back': 'Vissza',
   'onboarding.done': 'Kezdés',
+  'onboarding.skip': 'Kihagyás',
+  'onboarding.next': 'Következő',
 }

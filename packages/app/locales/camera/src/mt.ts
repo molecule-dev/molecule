@@ -1,7 +1,7 @@
 import type { CameraTranslations } from './types.js'
 
-/** Camera translations for Maltese. */
-export const mt: CameraTranslations = {
+/** Camera translations for mt. */
+export const mt: Partial<CameraTranslations> = {
   'camera.error.canvasContext': 'Ma setghetx tiehu l-kuntest tal-canvas',
   'camera.error.noFileSelected': 'Ebda fajl intghazel',
   'camera.error.noFilesSelected': 'Ebda fajls intghazlu',
@@ -9,6 +9,6 @@ export const mt: CameraTranslations = {
   'camera.error.videoNotSupported':
     'Ir-rekording tal-vidjo mhux supportat fil-provajder tal-web. Uza provajder nattiv.',
   'camera.error.previewNotStarted': 'Il-previżjoni ma nbdietx',
-  'camera.error.previewNoParent': "Il-previżjoni m'ghandhiex parent",
   'camera.error.noVideoTrack': 'Ebda track tal-vidjo',
+  'camera.error.previewNoParent': 'Il-previżjoni m&#39;għandhiex ġenitur',
 }

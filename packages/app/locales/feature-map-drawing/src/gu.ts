@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for gu — currently mirrors English (translation TBD). */
-export const gu: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for gu. */
+export const gu: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'નકશા દોરવાના સાધનો',
+  'mapDrawing.surface.aria': 'નકશા દોરવાની સપાટી',
+  'mapDrawing.tool.polygon': 'બહુકોણ',
+  'mapDrawing.tool.circle': 'વર્તુળ',
+  'mapDrawing.tool.pin': 'પિન',
+  'mapDrawing.tool.line': 'રેખા',
+  'mapDrawing.tool.select': 'પસંદ કરો',
+  'mapDrawing.tool.delete': 'કાઢી નાખો',
+}

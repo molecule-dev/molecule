@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for bn — currently mirrors English (translation TBD). */
-export const bn: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for bn. */
+export const bn: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'পিয়ানো রোল',
+  'pianoRoll.aria.keys': 'পিয়ানোর চাবি',
+  'pianoRoll.aria.grid': 'নোট গ্রিড',
+  'pianoRoll.aria.resize': 'নোটের আকার পরিবর্তন করুন',
+  'pianoRoll.aria.note':
+    'দ্রষ্টব্য<x> পিচ</x> বিটে শুরু হচ্ছে<x> {{startBeat}}</x> জন্য<x> {{durationBeats}}</x> বিটস',
+}

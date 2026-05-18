@@ -8,4 +8,9 @@ export const ro: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.controls.theme': 'Temă',
   'embedSnippet.theme.light': 'Luminos',
   'embedSnippet.theme.dark': 'Întunecat',
+  'embedSnippet.aria.region': 'Cod încorporat ({limbă})',
+  'embedSnippet.eyebrow': 'Copiați codul de încorporare',
+  'embedSnippet.controls.width': 'Lăţime',
+  'embedSnippet.controls.height': 'Înălţime',
+  'embedSnippet.theme.auto': 'Auto',
 }

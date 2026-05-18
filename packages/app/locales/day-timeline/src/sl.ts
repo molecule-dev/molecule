@@ -1,4 +1,6 @@
 import type { DayTimelineTranslations } from './types.js'
 
 /** DayTimeline translations for sl. */
-export const sl: Partial<DayTimelineTranslations> = {}
+export const sl: Partial<DayTimelineTranslations> = {
+  'dayTimeline.group': 'Dnevna časovnica',
+}

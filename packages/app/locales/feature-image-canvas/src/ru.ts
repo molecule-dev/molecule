@@ -1,5 +1,10 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for ru — currently mirrors English (translation TBD). */
-export const ru: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for ru. */
+export const ru: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Холст изображения',
+  'imageCanvas.aria.canvas':
+    'Перетащите курсор для панорамирования, прокрутите для масштабирования.',
+  'imageCanvas.loading': 'Загрузка изображения…',
+  'imageCanvas.error': 'Изображение не загрузилось.',
+}

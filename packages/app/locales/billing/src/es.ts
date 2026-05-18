@@ -10,4 +10,9 @@ export const es: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Más popular',
   'billing.pricing.tierEyebrow': 'Nivel',
   'billing.pricing.upgradeCta': 'Actualiza a {{tierName}}',
+  'billing.status.currentPlan': 'Plan actual:<x> {{tierName}}</x>',
+  'billing.status.cancelError': 'No se pudo cancelar. Inténtalo de nuevo.',
+  'billing.pricing.reassurance':
+    'Cancela cuando quieras · No se requiere tarjeta de crédito para empezar',
+  'billing.pricing.perSeat': 'por asiento',
 }

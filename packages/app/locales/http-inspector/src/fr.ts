@@ -6,4 +6,5 @@ export const fr: Partial<HttpInspectorTranslations> = {
   'httpInspector.send': 'Envoyer',
   'httpInspector.headers': 'En-têtes',
   'httpInspector.body': 'Corps',
+  'httpInspector.addHeader': 'Ajouter un en-tête',
 }

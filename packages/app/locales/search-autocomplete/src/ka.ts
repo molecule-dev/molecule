@@ -1,4 +1,6 @@
 import type { SearchAutocompleteTranslations } from './types.js'
 
 /** SearchAutocomplete translations for ka. */
-export const ka: Partial<SearchAutocompleteTranslations> = {}
+export const ka: Partial<SearchAutocompleteTranslations> = {
+  'search.placeholder': 'ძიება…',
+}

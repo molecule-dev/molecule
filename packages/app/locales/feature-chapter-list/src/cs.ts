@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for cs — currently mirrors English (translation TBD). */
-export const cs: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for cs. */
+export const cs: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Kapitoly',
+  'chapterList.aria.seek': 'Přejít na<x> {{titul}}</x> na<x> {{časové razítko}}</x>',
+  'chapterList.aria.thumbnail': 'Náhled pro<x> {{titul}}</x>',
+  'chapterList.empty': 'Pro tuto epizodu nejsou k dispozici žádné kapitoly.',
+  'chapterList.current': 'Právě hraje',
+}

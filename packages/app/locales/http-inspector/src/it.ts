@@ -6,4 +6,5 @@ export const it: Partial<HttpInspectorTranslations> = {
   'httpInspector.send': 'Invia',
   'httpInspector.headers': 'Intestazioni',
   'httpInspector.body': 'Corpo',
+  'httpInspector.addHeader': 'Aggiungi intestazione',
 }

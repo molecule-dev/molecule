@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for kn — currently mirrors English (translation TBD). */
-export const kn: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for kn. */
+export const kn: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'ಟ್ರ್ಯಾಕ್ ಲೇನ್<x> {{ಹೆಸರು}}</x>',
+  'trackLane.aria.clip':
+    'ಕ್ಲಿಪ್<x> {{ಲೇಬಲ್}}</x> ಆರಂಭ<x> {{ಪ್ರಾರಂಭ ಸಮಯ}}</x> ಗಳಿಗೆ<x> {{ಅವಧಿ}}</x> ರು',
+  'trackLane.aria.resize': 'ಕ್ಲಿಪ್ ಅನ್ನು ಮರುಗಾತ್ರಗೊಳಿಸಿ',
+  'trackLane.header': 'ಟ್ರ್ಯಾಕ್',
+}

@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for fa — currently mirrors English (translation TBD). */
-export const fa: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for fa. */
+export const fa: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'لایه حاشیه‌نویسی',
+  'annotationPin.aria.marker': 'پین حاشیه‌نویسی',
+  'annotationPin.aria.popup': 'جزئیات حاشیه‌نویسی',
+  'annotationPin.empty': 'یادداشتی برای این پین وجود ندارد.',
+}

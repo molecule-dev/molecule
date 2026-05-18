@@ -1,5 +1,19 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for et — currently mirrors English (translation TBD). */
-export const et: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for et. */
+export const et: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.aria.root': 'Video ajajoon',
+  'videoTimeline.aria.ruler': 'Ajajoonlaud',
+  'videoTimeline.aria.playhead': 'Esituspea kell<x> aeg</x> s',
+  'videoTimeline.aria.zoom': 'Ajajoone suum',
+  'videoTimeline.aria.mode': 'Redigeerimisrežiim',
+  'videoTimeline.zoom.in': 'Suumi sisse',
+  'videoTimeline.zoom.out': 'Suumi välja',
+  'videoTimeline.zoom.in.icon': '+',
+  'videoTimeline.zoom.out.icon': '−',
+  'videoTimeline.mode.ripple': 'Ripple',
+  'videoTimeline.mode.insert': 'Sisesta',
+  'videoTimeline.trackKind.video': 'Video',
+  'videoTimeline.trackKind.audio': 'Heli',
+  'videoTimeline.trackKind.subtitle': 'Alapealkiri',
+}

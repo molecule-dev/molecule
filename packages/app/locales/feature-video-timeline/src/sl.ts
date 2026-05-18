@@ -1,5 +1,19 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for sl — currently mirrors English (translation TBD). */
-export const sl: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for sl. */
+export const sl: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.aria.root': 'Časovna premica videoposnetka',
+  'videoTimeline.aria.ruler': 'Časovni vladar',
+  'videoTimeline.aria.playhead': 'Predvajalnik pri<x> {{čas}}</x> s',
+  'videoTimeline.aria.zoom': 'Povečava časovnice',
+  'videoTimeline.aria.mode': 'Način urejanja',
+  'videoTimeline.zoom.in': 'Povečaj',
+  'videoTimeline.zoom.out': 'Pomanjšaj',
+  'videoTimeline.zoom.in.icon': '+',
+  'videoTimeline.zoom.out.icon': '−',
+  'videoTimeline.mode.ripple': 'Valovanje',
+  'videoTimeline.mode.insert': 'Vstavi',
+  'videoTimeline.trackKind.video': 'Videoposnetek',
+  'videoTimeline.trackKind.audio': 'Zvok',
+  'videoTimeline.trackKind.subtitle': 'Podnaslov',
+}

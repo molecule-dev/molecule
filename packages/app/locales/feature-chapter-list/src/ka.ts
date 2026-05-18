@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for ka — currently mirrors English (translation TBD). */
-export const ka: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for ka. */
+export const ka: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'თავები',
+  'chapterList.aria.seek': 'გადასვლა<x> {{სათაური}}</x> დროს<x> {{დროის ნიშნული}}</x>',
+  'chapterList.aria.thumbnail': 'მინიატურა<x> {{სათაური}}</x>',
+  'chapterList.empty': 'ამ ეპიზოდისთვის თავები ხელმისაწვდომი არ არის.',
+  'chapterList.current': 'ახლა უკრავს',
+}

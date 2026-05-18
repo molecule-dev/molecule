@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for ga — currently mirrors English (translation TBD). */
-export const ga: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for ga. */
+export const ga: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Uirlisí líníochta léarscáile',
+  'mapDrawing.surface.aria': 'Dromchla líníochta léarscáile',
+  'mapDrawing.tool.polygon': 'Polagán',
+  'mapDrawing.tool.circle': 'Ciorcal',
+  'mapDrawing.tool.pin': 'bioráin',
+  'mapDrawing.tool.line': 'Líne',
+  'mapDrawing.tool.select': 'Roghnaigh',
+  'mapDrawing.tool.delete': 'Scrios',
+}

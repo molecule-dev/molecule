@@ -1,5 +1,19 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for is — currently mirrors English (translation TBD). */
-export const is: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for is. */
+export const is: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.aria.root': 'Tímalína myndbands',
+  'videoTimeline.aria.ruler': 'Tímastjórnandi',
+  'videoTimeline.aria.playhead': 'Spilunarhaus kl.<x> {{tími}}</x> s',
+  'videoTimeline.aria.zoom': 'Tímalínu aðdráttur',
+  'videoTimeline.aria.mode': 'Breytingarstilling',
+  'videoTimeline.zoom.in': 'Aðdráttur',
+  'videoTimeline.zoom.out': 'Aðdráttur',
+  'videoTimeline.zoom.in.icon': '+',
+  'videoTimeline.zoom.out.icon': '−',
+  'videoTimeline.mode.ripple': 'Gára',
+  'videoTimeline.mode.insert': 'Setja inn',
+  'videoTimeline.trackKind.video': 'Myndband',
+  'videoTimeline.trackKind.audio': 'Hljóð',
+  'videoTimeline.trackKind.subtitle': 'Undirtitill',
+}

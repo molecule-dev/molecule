@@ -6,4 +6,5 @@ export const ar: Partial<HttpInspectorTranslations> = {
   'httpInspector.send': 'إرسال',
   'httpInspector.headers': 'الترويسات',
   'httpInspector.body': 'النص',
+  'httpInspector.addHeader': 'أضف رأس الصفحة',
 }

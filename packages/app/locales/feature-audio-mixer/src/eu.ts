@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for eu — currently mirrors English (translation TBD). */
-export const eu: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for eu. */
+export const eu: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Audio nahasgailu kontsola',
+  'audioMixer.aria.fader': '{{izena}} iraungitze',
+  'audioMixer.aria.pan': '{{izena}} zartagin',
+  'audioMixer.aria.send': '{{kanala}} bidali honera<x> {{bidali}}</x>',
+  'audioMixer.button.mute': 'Isilarazi',
+  'audioMixer.button.solo': 'Bakarrik',
+  'audioMixer.master': 'Maisua',
+  'audioMixer.sends': 'Bidalketak',
+}

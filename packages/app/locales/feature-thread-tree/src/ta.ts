@@ -1,5 +1,13 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for ta (stub — falls back to English until reviewed). */
-export const ta: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for ta. */
+export const ta: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.expand': 'விரிவாக்கு<x> {{count}}</x> பதில்கள்',
+  'threadTree.collapse': 'நூலைச் சுருக்கு',
+  'threadTree.expandSymbol': '[+]',
+  'threadTree.collapseSymbol': '[−]',
+  'threadTree.score': '{{count}} புள்ளிகள்',
+  'threadTree.hiddenReplies': '{{count}} மறைக்கப்பட்ட',
+  'threadTree.upvote': 'மேல்வாக்கு',
+  'threadTree.reply': 'பதில்',
+}

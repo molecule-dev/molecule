@@ -1,5 +1,14 @@
 import type { BiasIndicatorTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Bias-indicator translations for lv — currently mirrors English (translation TBD). */
-export const lv: BiasIndicatorTranslations = { ...en }
+/** BiasIndicator translations for lv. */
+export const lv: Partial<BiasIndicatorTranslations> = {
+  'biasIndicator.bias.farLeft': 'Tāli pa kreisi',
+  'biasIndicator.bias.leftLeaning': 'Kreisā nosliece',
+  'biasIndicator.bias.center': 'Centrs',
+  'biasIndicator.bias.rightLeaning': 'Labēji noskaņots',
+  'biasIndicator.bias.farRight': 'Galēji labējie',
+  'biasIndicator.reliability.high': 'Uzticamība: augsta',
+  'biasIndicator.reliability.medium': 'Uzticamība: vidēja',
+  'biasIndicator.reliability.low': 'Uzticamība: zema',
+  'biasIndicator.reliability.disputed': 'Uzticamība: apstrīdama',
+}

@@ -6,4 +6,7 @@ export const hu: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Másolás',
   'secretRow.rotate': 'Forgatás',
   'secretRow.delete': 'Törlés',
+  'secretRow.expired': 'Lejárt',
+  'secretRow.hide': 'Elrejt',
+  'secretRow.show': 'Megmutat',
 }

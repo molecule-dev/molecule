@@ -5,4 +5,5 @@ export const zh: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': '取消',
   'inlineEdit.saving': '保存中…',
   'inlineEdit.save': '保存',
+  'inlineEdit.empty': '点击编辑',
 }

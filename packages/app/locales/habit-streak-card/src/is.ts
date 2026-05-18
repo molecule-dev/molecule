@@ -1,4 +1,8 @@
 import type { HabitStreakCardTranslations } from './types.js'
 
 /** HabitStreakCard translations for is. */
-export const is: Partial<HabitStreakCardTranslations> = {}
+export const is: Partial<HabitStreakCardTranslations> = {
+  'habit.currentStreak': 'dagsröð',
+  'habit.bestStreak': 'besta',
+  'habit.total': 'samtals',
+}

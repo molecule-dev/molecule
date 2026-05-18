@@ -1,4 +1,6 @@
 import type { SortPickerTranslations } from './types.js'
 
 /** SortPicker translations for lo. */
-export const lo: Partial<SortPickerTranslations> = {}
+export const lo: Partial<SortPickerTranslations> = {
+  'sort.label': 'ຈັດຮຽງຕາມ',
+}

@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for ga — currently mirrors English (translation TBD). */
-export const ga: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for ga. */
+export const ga: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Lána riain<x> {{ainm}}</x>',
+  'trackLane.aria.clip':
+    'Gearrthóg<x> {{lipéad}}</x> ag tosú ag<x> {{AmTosaigh}}</x> s le haghaidh<x> {{fad}}</x> s',
+  'trackLane.aria.resize': 'Athraigh méid an ghearrthóige',
+  'trackLane.header': 'Rian',
+}

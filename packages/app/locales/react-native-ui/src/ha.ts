@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for ha. */
-export const ha: Partial<ReactNativeUiTranslations> = {}
+export const ha: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Kore',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Rufe',
+  'ui.pagination.nav': 'Shafin shafi',
+  'ui.pagination.first': 'Na farko',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Na Baya',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Na gaba',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Na ƙarshe',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{darajar}} %',
+  'ui.radioGroup.label': 'Ƙungiyar rediyo',
+  'ui.select.placeholder': 'Zaɓi…',
+  'ui.select.title': 'Zaɓi',
+  'ui.spinner.loading': 'Ana lodawa',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Babu bayanai',
+  'ui.toast.dismiss': 'Kore',
+  'ui.toast.error.noProvider': 'Dole ne a yi amfani da Toast a cikin Mai Ba da Toast',
+}

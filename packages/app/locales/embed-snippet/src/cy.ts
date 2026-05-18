@@ -1,5 +1,16 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for cy — currently mirrors English (translation TBD). */
-export const cy: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for cy. */
+export const cy: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.aria.region': 'Mewnosod cod ({iaith})',
+  'embedSnippet.heading': 'Mewnosod cod',
+  'embedSnippet.eyebrow': 'Copïo cod mewnosod',
+  'embedSnippet.copy': 'Copïo',
+  'embedSnippet.copied': 'Wedi&#39;i gopïo!',
+  'embedSnippet.controls.width': 'Lled',
+  'embedSnippet.controls.height': 'Uchder',
+  'embedSnippet.controls.theme': 'Thema',
+  'embedSnippet.theme.light': 'Golau',
+  'embedSnippet.theme.dark': 'Tywyll',
+  'embedSnippet.theme.auto': 'Auto',
+}

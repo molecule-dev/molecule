@@ -1,4 +1,6 @@
 import type { SearchAutocompleteTranslations } from './types.js'
 
 /** SearchAutocomplete translations for fa. */
-export const fa: Partial<SearchAutocompleteTranslations> = {}
+export const fa: Partial<SearchAutocompleteTranslations> = {
+  'search.placeholder': 'جستجو…',
+}

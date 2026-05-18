@@ -1,7 +1,7 @@
 import type { NetworkTranslations } from './types.js'
 
-/** Network translations for Catalan. */
-export const ca: NetworkTranslations = {
+/** Network translations for ca. */
+export const ca: Partial<NetworkTranslations> = {
   'network.wifi': 'Wi-Fi',
   'network.cellular': 'Dades mòbils',
   'network.ethernet': 'Ethernet',
@@ -10,6 +10,6 @@ export const ca: NetworkTranslations = {
   'network.other': 'Altres',
   'network.none': 'Desconnectat',
   'network.unknown': 'Desconegut',
-  'network.error.connectionTimeout': "Temps d'espera de connexió de xarxa esgotat",
   'network.error.unavailable': 'Xarxa no disponible',
+  'network.error.connectionTimeout': 'Temps d&#39;espera de la connexió de xarxa',
 }

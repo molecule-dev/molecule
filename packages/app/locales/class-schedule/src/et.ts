@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for et — currently mirrors English (translation TBD). */
-export const et: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for et. */
+export const et: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Nädala tunniplaan',
+  'classSchedule.aria.event': '{{nädalapäev}}<x> {{start}}</x> –<x> {{lõpp}}</x>',
+  'classSchedule.aria.slot': 'Tühi pesa,<x> {{nädalapäev}}</x><x> aeg</x>',
+}

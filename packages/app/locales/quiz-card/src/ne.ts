@@ -1,4 +1,6 @@
 import type { QuizCardTranslations } from './types.js'
 
 /** QuizCard translations for ne. */
-export const ne: Partial<QuizCardTranslations> = {}
+export const ne: Partial<QuizCardTranslations> = {
+  'quizCard.submit': 'उत्तर बुझाउनुहोस्',
+}

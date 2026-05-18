@@ -1,5 +1,12 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for zh — currently mirrors English (translation TBD). */
-export const zh: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for zh. */
+export const zh: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': '视频擦除器',
+  'videoScrubber.aria.strip': '胶片——播放头{{时间}} s（帧{{框架}} ）',
+  'videoScrubber.aria.playhead': '播放头{{时间}} s',
+  'videoScrubber.aria.frameReadout': '框架{{框架}}的{{全部的}}',
+  'videoScrubber.aria.thumbnail': '帧预览',
+  'videoScrubber.thumbnails.empty': '无预览',
+  'videoScrubber.frameReadout.total': '/<x> {{全部的}}</x>框架',
+}

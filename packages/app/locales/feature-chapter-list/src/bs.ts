@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for bs — currently mirrors English (translation TBD). */
-export const bs: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for bs. */
+export const bs: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Poglavlja',
+  'chapterList.aria.seek': 'Skoči na<x> {{naslov}}</x> na<x> {{vremenska oznaka}}</x>',
+  'chapterList.aria.thumbnail': 'Sličica za<x> {{naslov}}</x>',
+  'chapterList.empty': 'Nema dostupnih poglavlja za ovu epizodu.',
+  'chapterList.current': 'Trenutno se reproducira',
+}

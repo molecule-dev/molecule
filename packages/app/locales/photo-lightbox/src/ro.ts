@@ -4,4 +4,5 @@ import type { PhotoLightboxTranslations } from './types.js'
 export const ro: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Închideți',
   'lightbox.previous': 'Anteriorul',
+  'lightbox.next': 'Următorul',
 }

@@ -5,4 +5,6 @@ export const hu: Partial<HttpInspectorTranslations> = {
   'httpInspector.sending': 'Küldés…',
   'httpInspector.send': 'Küldés',
   'httpInspector.body': 'Üzenettörzs',
+  'httpInspector.headers': 'Fejlécek',
+  'httpInspector.addHeader': 'Fejléc hozzáadása',
 }

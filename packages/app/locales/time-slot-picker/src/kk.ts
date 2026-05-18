@@ -1,4 +1,6 @@
 import type { TimeSlotPickerTranslations } from './types.js'
 
 /** TimeSlotPicker translations for kk. */
-export const kk: Partial<TimeSlotPickerTranslations> = {}
+export const kk: Partial<TimeSlotPickerTranslations> = {
+  'timeSlot.aria': 'Уақыт аралықтары',
+}

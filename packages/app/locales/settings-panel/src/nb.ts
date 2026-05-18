@@ -9,4 +9,12 @@ export const nb: Partial<SettingsPanelTranslations> = {
   'settings.billing': 'Fakturering',
   'settings.upgrade': 'Oppgrader',
   'settings.billing.cancel': 'Avbryt',
+  'settings.darkMode': 'Mørk modus',
+  'theme.toggle': 'Veksle tema',
+  'settings.billing.cancelConfirm': 'Vil du si opp abonnementet ditt?',
+  'settings.billing.cancelFailed': 'Kunne ikke avbryte.',
+  'settings.plan': 'Plan',
+  'settings.billing.upgradeTitle': 'Oppgrader planen din',
+  'settings.billing.noTiers': 'Ingen betalte planer konfigurert.',
+  'settings.billing.subscribe': 'Abonner',
 }

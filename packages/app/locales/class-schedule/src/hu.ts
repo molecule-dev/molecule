@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for hu — currently mirrors English (translation TBD). */
-export const hu: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for hu. */
+export const hu: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Heti órarend',
+  'classSchedule.aria.event': '{{hétköznap}}<x> {{indul}}</x> –<x> {{vége}}</x>',
+  'classSchedule.aria.slot': 'Üres rés,<x> {{hétköznap}}</x><x> {{idő}}</x>',
+}

@@ -8,4 +8,6 @@ export const ko: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.aria.prev': '이전 곡',
   'nowPlaying.aria.seek': '탐색',
   'nowPlaying.aria.volume': '거래량',
+  'nowPlaying.aria.region': '현재 재생 중:<x> {{제목}}</x>',
+  'nowPlaying.aria.artwork': '아트워크<x> {{제목}}</x>',
 }

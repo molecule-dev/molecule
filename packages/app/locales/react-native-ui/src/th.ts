@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for th. */
-export const th: Partial<ReactNativeUiTranslations> = {}
+export const th: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'อนุญาตให้ออกไป',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'อวตาร',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'ปิด',
+  'ui.pagination.nav': 'การแบ่งหน้า',
+  'ui.pagination.first': 'อันดับแรก',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'ก่อนหน้า',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'ต่อไป',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'ล่าสุด',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{ค่า}} %',
+  'ui.radioGroup.label': 'กลุ่มวิทยุ',
+  'ui.select.placeholder': 'เลือก…',
+  'ui.select.title': 'เลือก',
+  'ui.spinner.loading': 'กำลังโหลด',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'ไม่มีข้อมูล',
+  'ui.toast.dismiss': 'อนุญาตให้ออกไป',
+  'ui.toast.error.noProvider': 'ต้องใช้ useToast ภายใน ToastProvider',
+}

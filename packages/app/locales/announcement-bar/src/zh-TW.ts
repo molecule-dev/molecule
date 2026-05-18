@@ -1,4 +1,6 @@
 import type { AnnouncementBarTranslations } from './types.js'
 
 /** AnnouncementBar translations for zh-TW. */
-export const zhTW: Partial<AnnouncementBarTranslations> = {}
+export const zhTW: Partial<AnnouncementBarTranslations> = {
+  'announcement.dismiss': '解僱',
+}

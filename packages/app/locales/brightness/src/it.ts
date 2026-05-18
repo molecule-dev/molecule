@@ -1,7 +1,7 @@
 import type { BrightnessTranslations } from './types.js'
 
-/** Brightness translations for Italian. */
-export const it: BrightnessTranslations = {
+/** Brightness translations for it. */
+export const it: Partial<BrightnessTranslations> = {
   'brightness.error.noProvider':
-    "@molecule/app-brightness: Nessun provider impostato. Chiama setProvider() con un'implementazione di BrightnessProvider (ad es., da @molecule/app-brightness-capacitor).",
+    '@molecule/app-brightness: Nessun provider impostato. Chiama setProvider() con un&#39;implementazione di BrightnessProvider (ad esempio, da @molecule/app-brightness-capacitor).',
 }

@@ -1,5 +1,14 @@
 import type { BiasIndicatorTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Bias-indicator translations for uk — currently mirrors English (translation TBD). */
-export const uk: BiasIndicatorTranslations = { ...en }
+/** BiasIndicator translations for uk. */
+export const uk: Partial<BiasIndicatorTranslations> = {
+  'biasIndicator.bias.farLeft': 'Крайній лівий',
+  'biasIndicator.bias.leftLeaning': 'Ліві погляди',
+  'biasIndicator.bias.center': 'Центр',
+  'biasIndicator.bias.rightLeaning': 'Правоспрямований',
+  'biasIndicator.bias.farRight': 'Крайньо правий',
+  'biasIndicator.reliability.high': 'Надійність: висока',
+  'biasIndicator.reliability.medium': 'Надійність: середня',
+  'biasIndicator.reliability.low': 'Надійність: низька',
+  'biasIndicator.reliability.disputed': 'Надійність: спірна',
+}

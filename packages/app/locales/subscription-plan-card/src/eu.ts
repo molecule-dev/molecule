@@ -1,4 +1,6 @@
 import type { SubscriptionPlanCardTranslations } from './types.js'
 
 /** SubscriptionPlanCard translations for eu. */
-export const eu: Partial<SubscriptionPlanCardTranslations> = {}
+export const eu: Partial<SubscriptionPlanCardTranslations> = {
+  'plan.recommended': 'Gomendatua',
+}

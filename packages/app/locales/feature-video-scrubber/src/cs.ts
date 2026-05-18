@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for cs — currently mirrors English (translation TBD). */
-export const cs: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for cs. */
+export const cs: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Průběžník videa',
+  'videoScrubber.aria.strip':
+    'Filmový pás – přehrávací bod na<x> {{čas}}</x> s (rámec<x> {{rám}}</x> )',
+  'videoScrubber.aria.playhead': 'Přehrávací bod na<x> {{čas}}</x> s',
+  'videoScrubber.aria.frameReadout': 'Rám<x> {{rám}}</x> z<x> {{celkový}}</x>',
+  'videoScrubber.aria.thumbnail': 'Náhled snímku',
+  'videoScrubber.thumbnails.empty': 'Bez náhledu',
+  'videoScrubber.frameReadout.total': '/<x> {{celkový}}</x> rámy',
+}

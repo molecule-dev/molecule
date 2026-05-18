@@ -1,5 +1,13 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for af (stub — falls back to English until reviewed). */
-export const af: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for af. */
+export const af: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.expand': 'Brei uit<x> {{telling}}</x> antwoorde',
+  'threadTree.collapse': 'Vou draad in',
+  'threadTree.expandSymbol': '[+]',
+  'threadTree.collapseSymbol': '[−]',
+  'threadTree.score': '{{telling}} punte',
+  'threadTree.hiddenReplies': '{{telling}} versteek',
+  'threadTree.upvote': 'Stem op',
+  'threadTree.reply': 'Antwoord',
+}

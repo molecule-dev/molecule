@@ -4,4 +4,5 @@ import type { ShareLinkCardTranslations } from './types.js'
 export const sv: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Kopierat!',
   'copyLink.copy': 'Kopiera',
+  'shareLink.passwordProtect': 'Lösenordsskydd',
 }

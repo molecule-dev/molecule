@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for hy — currently mirrors English (translation TBD). */
-export const hy: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for hy. */
+export const hy: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Քարտեզի նկարչության գործիքներ',
+  'mapDrawing.surface.aria': 'Քարտեզի գծագրման մակերես',
+  'mapDrawing.tool.polygon': 'Պոլիգոն',
+  'mapDrawing.tool.circle': 'Շրջան',
+  'mapDrawing.tool.pin': 'Պին',
+  'mapDrawing.tool.line': 'Գիծ',
+  'mapDrawing.tool.select': 'Ընտրել',
+  'mapDrawing.tool.delete': 'Ջնջել',
+}

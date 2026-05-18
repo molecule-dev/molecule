@@ -1,9 +1,8 @@
 import type { NetworkTranslations } from './types.js'
 
-/** Network translations for Hausa. */
-export const ha: NetworkTranslations = {
+/** Network translations for ha. */
+export const ha: Partial<NetworkTranslations> = {
   'network.wifi': 'Wi-Fi',
-  'network.cellular': "Na'urar salula",
   'network.ethernet': 'Ethernet',
   'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
@@ -12,4 +11,5 @@ export const ha: NetworkTranslations = {
   'network.unknown': 'Ba a sani ba',
   'network.error.connectionTimeout': 'Lokacin haɗin hanyar sadarwa ya ƙare',
   'network.error.unavailable': 'Hanyar sadarwa ba ta samuwa',
+  'network.cellular': 'Wayar salula',
 }

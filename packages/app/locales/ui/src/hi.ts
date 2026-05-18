@@ -9,4 +9,12 @@ export const hi: Partial<UiTranslations> = {
   'ui.avatar.alt': 'अवतार',
   'ui.spinner.loading': 'लोड हो रहा है',
   'ui.progress.label': 'प्रगति',
+  'ui.pagination.nav': 'पृष्ठ पर अंक लगाना',
+  'ui.pagination.first': 'पहले पृष्ठ पर जाएं',
+  'ui.pagination.previous': 'पिछले पृष्ठ पर जाएं',
+  'ui.pagination.next': 'अगले पृष्ठ पर जाएं',
+  'ui.pagination.last': 'अंतिम पृष्ठ पर जाएं',
+  'ui.pagination.goToPage': 'पृष्ठ पर जाओ<x> {{पृष्ठ}}</x>',
+  'ui.table.empty': 'कोई डेटा मौजूद नहीं',
+  'ui.radioGroup.label': 'रेडियो समूह',
 }

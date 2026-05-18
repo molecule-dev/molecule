@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for az — currently mirrors English (translation TBD). */
-export const az: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for az. */
+export const az: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Fəsillər',
+  'chapterList.aria.seek': 'Keçid edin<x> {{title}}</x> da<x> {{vaxt damğası}}</x>',
+  'chapterList.aria.thumbnail': 'Miniatür üçün<x> {{title}}</x>',
+  'chapterList.empty': 'Bu epizod üçün heç bir fəsil mövcud deyil.',
+  'chapterList.current': 'Hazırda oxudulur',
+}

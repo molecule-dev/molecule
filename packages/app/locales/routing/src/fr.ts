@@ -1,9 +1,9 @@
 import type { RoutingTranslations } from './types.js'
 
-/** Routing translations for French. */
-export const fr: RoutingTranslations = {
+/** Routing translations for fr. */
+export const fr: Partial<RoutingTranslations> = {
   'routing.error.missingParam': 'Paramètre "{{name}}" manquant pour le chemin "{{pattern}}"',
   'routing.error.routeNotFound': 'Route "{{name}}" introuvable',
   'routing.error.useMoleculeRouterOutsideProvider':
-    "useMoleculeRouter doit être utilisé à l'intérieur d'un MoleculeRouterProvider",
+    'La fonction useMoleculeRouter doit être utilisée au sein d&#39;un MoleculeRouterProvider.',
 }

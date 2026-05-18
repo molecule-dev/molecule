@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for kn — currently mirrors English (translation TBD). */
-export const kn: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for kn. */
+export const kn: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'ಆಡಿಯೋ ತರಂಗರೂಪ',
+  'audioWaveform.aria.seek': 'ತರಂಗರೂಪವನ್ನು ಕ್ಲಿಕ್ ಮಾಡುವ ಮೂಲಕ ಆಡಿಯೊವನ್ನು ಹುಡುಕಿ',
+  'audioWaveform.empty': 'ಯಾವುದೇ ತರಂಗರೂಪದ ಡೇಟಾ ಲಭ್ಯವಿಲ್ಲ.',
+}

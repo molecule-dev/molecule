@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for gl. */
-export const gl: Partial<ReactNativeUiTranslations> = {}
+export const gl: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Rexeitar',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '¿?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Pechar',
+  'ui.pagination.nav': 'Paxinación',
+  'ui.pagination.first': 'Primeiro',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Anterior',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Seguinte',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Último',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{valor}} %',
+  'ui.radioGroup.label': 'Grupo de radio',
+  'ui.select.placeholder': 'Seleccionar…',
+  'ui.select.title': 'Seleccionar',
+  'ui.spinner.loading': 'Cargando',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Sen datos',
+  'ui.toast.dismiss': 'Rexeitar',
+  'ui.toast.error.noProvider': 'useToast debe usarse dentro dun ToastProvider',
+}

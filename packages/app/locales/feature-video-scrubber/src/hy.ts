@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for hy — currently mirrors English (translation TBD). */
-export const hy: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for hy. */
+export const hy: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Տեսանյութերի սքրաբեր',
+  'videoScrubber.aria.strip':
+    'Ֆիլմի ժապավեն — նվագարկիչի գլխիկ<x> {{ժամանակ}}</x> վ (շրջանակ<x> {{շրջանակ}}</x> )',
+  'videoScrubber.aria.playhead': 'Նվագարկիչի գլխիկ<x> {{ժամանակ}}</x> ներ',
+  'videoScrubber.aria.frameReadout': 'Կադր<x> {{շրջանակ}}</x> -ի<x> {{ընդհանուր}}</x>',
+  'videoScrubber.aria.thumbnail': 'Կադրի նախադիտում',
+  'videoScrubber.thumbnails.empty': 'Նախադիտում չկա',
+  'videoScrubber.frameReadout.total': '/<x> {{ընդհանուր}}</x> շրջանակներ',
+}

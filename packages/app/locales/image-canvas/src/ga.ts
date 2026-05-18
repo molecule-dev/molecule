@@ -1,4 +1,8 @@
 import type { ImageCanvasTranslations } from './types.js'
 
 /** ImageCanvas translations for ga. */
-export const ga: Partial<ImageCanvasTranslations> = {}
+export const ga: Partial<ImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Canbhás íomhá',
+  'imageCanvas.aria.canvas': 'Tarraing chun panáil, scrollaigh chun súmáil isteach',
+  'imageCanvas.error': 'Theip ar an íomhá a lódáil.',
+}

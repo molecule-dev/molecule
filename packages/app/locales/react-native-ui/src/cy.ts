@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for cy. */
-export const cy: Partial<ReactNativeUiTranslations> = {}
+export const cy: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Diystyru',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Cau',
+  'ui.pagination.nav': 'Tudalennu',
+  'ui.pagination.first': 'Yn gyntaf',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Blaenorol',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Nesaf',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Diwethaf',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{gwerth}} %',
+  'ui.radioGroup.label': 'Grŵp radio',
+  'ui.select.placeholder': 'Dewiswch…',
+  'ui.select.title': 'Dewis',
+  'ui.spinner.loading': 'Yn llwytho',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Dim data',
+  'ui.toast.dismiss': 'Diystyru',
+  'ui.toast.error.noProvider': 'Rhaid defnyddio useToast o fewn Darparwr Toast',
+}

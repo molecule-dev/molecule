@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for ne — currently mirrors English (translation TBD). */
-export const ne: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for ne. */
+export const ne: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'एनोटेसन तह',
+  'annotationPin.aria.marker': 'एनोटेसन पिन',
+  'annotationPin.aria.popup': 'एनोटेसन विवरणहरू',
+  'annotationPin.empty': 'यो पिनको लागि कुनै नोट छैन।',
+}

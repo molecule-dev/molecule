@@ -4,4 +4,5 @@ import type { CopyLinkFieldTranslations } from './types.js'
 export const ro: Partial<CopyLinkFieldTranslations> = {
   'copyLink.copied': 'Copiat!',
   'copyLink.copy': 'Copiați',
+  'copyLink.field': 'Legătură',
 }

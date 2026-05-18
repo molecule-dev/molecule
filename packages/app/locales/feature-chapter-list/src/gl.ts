@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for gl — currently mirrors English (translation TBD). */
-export const gl: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for gl. */
+export const gl: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Capítulos',
+  'chapterList.aria.seek': 'Saltar a<x> {{título}}</x> ás<x> {{marca de tempo}}</x>',
+  'chapterList.aria.thumbnail': 'Miniatura para<x> {{título}}</x>',
+  'chapterList.empty': 'Non hai capítulos dispoñibles para este episodio.',
+  'chapterList.current': 'Agora reproducíndose',
+}

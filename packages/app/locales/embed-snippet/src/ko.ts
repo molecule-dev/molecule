@@ -10,4 +10,7 @@ export const ko: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': '라이트',
   'embedSnippet.theme.dark': '다크',
   'embedSnippet.theme.auto': '자동',
+  'embedSnippet.aria.region': '임베드 코드({language})',
+  'embedSnippet.eyebrow': '임베드 코드 복사',
+  'embedSnippet.controls.width': '너비',
 }

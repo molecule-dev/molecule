@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for gu — currently mirrors English (translation TBD). */
-export const gu: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for gu. */
+export const gu: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'ઑડિઓ વેવફોર્મ',
+  'audioWaveform.aria.seek': 'વેવફોર્મ પર ક્લિક કરીને ઑડિઓ શોધો',
+  'audioWaveform.empty': 'કોઈ વેવફોર્મ ડેટા ઉપલબ્ધ નથી.',
+}

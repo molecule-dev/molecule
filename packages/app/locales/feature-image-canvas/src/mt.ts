@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for mt — currently mirrors English (translation TBD). */
-export const mt: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for mt. */
+export const mt: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Kanvas tal-immaġni',
+  'imageCanvas.aria.canvas': 'Iddreggja biex tiddraġġja, skrollja biex tiżżumja',
+  'imageCanvas.loading': 'Qed tiċċarġja l-immaġni…',
+  'imageCanvas.error': 'L-immaġni ma rnexxilhiex titgħabba.',
+}

@@ -1,5 +1,19 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for ig — currently mirrors English (translation TBD). */
-export const ig: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for ig. */
+export const ig: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.aria.root': 'Usoro iheomume vidiyo',
+  'videoTimeline.aria.ruler': 'Onye na-achịkwa oge',
+  'videoTimeline.aria.playhead': 'Isi egwuregwu na<x> {{oge}}</x> s',
+  'videoTimeline.aria.zoom': 'Mbugharị usoro oge',
+  'videoTimeline.aria.mode': 'Dezie ọnọdụ',
+  'videoTimeline.zoom.in': 'Bugharịa gaa na',
+  'videoTimeline.zoom.out': 'Mepee elu',
+  'videoTimeline.zoom.in.icon': '+',
+  'videoTimeline.zoom.out.icon': '−',
+  'videoTimeline.mode.ripple': 'Ripple',
+  'videoTimeline.mode.insert': 'Tinye',
+  'videoTimeline.trackKind.video': 'Vidiyo',
+  'videoTimeline.trackKind.audio': 'Ọdịyo',
+  'videoTimeline.trackKind.subtitle': 'Ndepụta Okwu',
+}

@@ -8,4 +8,6 @@ export const ja: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.aria.prev': '前の曲',
   'nowPlaying.aria.seek': 'シーク',
   'nowPlaying.aria.volume': '出来高',
+  'nowPlaying.aria.region': '現在再生中：<x> {{タイトル}}</x>',
+  'nowPlaying.aria.artwork': 'アートワーク{{タイトル}}',
 }

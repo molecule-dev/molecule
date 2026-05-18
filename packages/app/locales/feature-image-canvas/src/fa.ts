@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for fa — currently mirrors English (translation TBD). */
-export const fa: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for fa. */
+export const fa: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'بوم تصویر',
+  'imageCanvas.aria.canvas': 'برای حرکت بکشید، برای بزرگنمایی اسکرول کنید',
+  'imageCanvas.loading': 'در حال بارگذاری تصویر…',
+  'imageCanvas.error': 'تصویر بارگذاری نشد.',
+}

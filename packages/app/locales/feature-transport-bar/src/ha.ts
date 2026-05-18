@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for ha (stub — falls back to English until reviewed). */
-export const ha: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for ha. */
+export const ha: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': 'Sarrafa jigilar sake kunnawa',
+  'transportBar.aria.skipBack': 'Tsallake baya',
+  'transportBar.aria.skipForward': 'Tsallake gaba',
+  'transportBar.aria.play': 'Yi wasa',
+  'transportBar.aria.pause': 'Dakatar da',
+  'transportBar.aria.stop': 'Tsaya',
+  'transportBar.aria.record': 'Rikodi',
+  'transportBar.aria.stopRecording': 'Dakatar da rikodi',
+  'transportBar.aria.loopOn': 'Kashe madauki',
+  'transportBar.aria.loopOff': 'Kunna madauki',
+}

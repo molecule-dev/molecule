@@ -25,4 +25,11 @@ export const ar: Partial<ModerationQueueTranslations> = {
   'moderationQueue.severity.low': 'منخفضة',
   'moderationQueue.severity.medium': 'متوسط',
   'moderationQueue.severity.high': 'عالية',
+  'moderationQueue.aria.bulkToolbar': 'إجراءات الإشراف الجماعي',
+  'moderationQueue.aria.selectRow': 'حدد العناصر',
+  'moderationQueue.loading': 'جارٍ تحميل قائمة المراجعة...',
+  'moderationQueue.empty': 'لا توجد عناصر بانتظار الموافقة.',
+  'moderationQueue.selectedCount': '{{عدد}} تم الاختيار',
+  'moderationQueue.reportedBy': 'تقرير من',
+  'moderationQueue.kind.image': 'صورة',
 }

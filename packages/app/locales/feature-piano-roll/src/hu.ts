@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for hu — currently mirrors English (translation TBD). */
-export const hu: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for hu. */
+export const hu: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Zongoratekercs',
+  'pianoRoll.aria.keys': 'Zongorabillentyűk',
+  'pianoRoll.aria.grid': 'Jegyzetrács',
+  'pianoRoll.aria.resize': 'Jegyzet átméretezése',
+  'pianoRoll.aria.note':
+    'Jegyzet<x> {{hangmagasság}}</x> ütemtől kezdve<x> {{startBeat}}</x> mert<x> {{durationBeats}}</x> ütemek',
+}

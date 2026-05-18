@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for id — currently mirrors English (translation TBD). */
-export const id: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for id. */
+export const id: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Gulungan piano',
+  'pianoRoll.aria.keys': 'Tombol piano',
+  'pianoRoll.aria.grid': 'Catatan kisi',
+  'pianoRoll.aria.resize': 'Catatan perubahan ukuran',
+  'pianoRoll.aria.note':
+    'Catatan<x> {{melempar}}</x> dimulai pada ketukan<x> {{startBeat}}</x> untuk<x> {{durationBeats}}</x> ketukan',
+}

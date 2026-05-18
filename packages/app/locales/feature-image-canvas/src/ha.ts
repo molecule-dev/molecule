@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for ha — currently mirrors English (translation TBD). */
-export const ha: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for ha. */
+export const ha: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Zane mai hoto',
+  'imageCanvas.aria.canvas': 'Ja zuwa faifai, gungura don zuƙowa',
+  'imageCanvas.loading': 'Ana loda hoto…',
+  'imageCanvas.error': 'Hoton ya gaza lodawa.',
+}

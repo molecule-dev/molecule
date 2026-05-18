@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for et. */
-export const et: Partial<ReactNativeUiTranslations> = {}
+export const et: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Jäta vahele',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Sule',
+  'ui.pagination.nav': 'Lehekülgede arv',
+  'ui.pagination.first': 'Esimene',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Eelmine',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Järgmine',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Viimane',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '<x>väärtus</x> %',
+  'ui.radioGroup.label': 'Raadio grupp',
+  'ui.select.placeholder': 'Vali…',
+  'ui.select.title': 'Vali',
+  'ui.spinner.loading': 'Laadimine',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Andmeid pole',
+  'ui.toast.dismiss': 'Jäta vahele',
+  'ui.toast.error.noProvider': 'useToast peab olema kasutatud ToastProvideri sees.',
+}

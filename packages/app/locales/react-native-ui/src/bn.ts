@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for bn. */
-export const bn: Partial<ReactNativeUiTranslations> = {}
+export const bn: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'খারিজ করুন',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'অবতার',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'বন্ধ করুন',
+  'ui.pagination.nav': 'পৃষ্ঠা সংখ্যা',
+  'ui.pagination.first': 'প্রথম',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'পূর্ববর্তী',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'পরবর্তী',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'শেষ',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{মান}} %',
+  'ui.radioGroup.label': 'রেডিও গ্রুপ',
+  'ui.select.placeholder': 'নির্বাচন করুন…',
+  'ui.select.title': 'নির্বাচন করুন',
+  'ui.spinner.loading': 'লোড হচ্ছে',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'কোন ডেটা নেই',
+  'ui.toast.dismiss': 'খারিজ করুন',
+  'ui.toast.error.noProvider': 'useToast অবশ্যই একটি ToastProvider-এর মধ্যে ব্যবহার করতে হবে।',
+}

@@ -4,4 +4,5 @@ import type { PaginationBarTranslations } from './types.js'
 export const cs: Partial<PaginationBarTranslations> = {
   'pagination.previous': 'Předchozí stránka',
   'pagination.next': 'Další stránka',
+  'pagination.pageSize': 'Velikost stránky',
 }

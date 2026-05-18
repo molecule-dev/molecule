@@ -25,4 +25,11 @@ export const es: Partial<ModerationQueueTranslations> = {
   'moderationQueue.severity.low': 'Baja',
   'moderationQueue.severity.medium': 'Medio',
   'moderationQueue.severity.high': 'Alta',
+  'moderationQueue.aria.bulkToolbar': 'Acciones de moderación masiva',
+  'moderationQueue.aria.selectRow': 'Seleccione un artículo',
+  'moderationQueue.loading': 'Cargando cola de moderación…',
+  'moderationQueue.empty': 'No hay elementos pendientes de moderación.',
+  'moderationQueue.selectedCount': '{{contar}} seleccionado',
+  'moderationQueue.reportedBy': 'Informado por',
+  'moderationQueue.kind.image': 'Imagen',
 }

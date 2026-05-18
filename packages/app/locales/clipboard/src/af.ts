@@ -1,9 +1,9 @@
 import type { ClipboardTranslations } from './types.js'
 
-/** Clipboard translations for Afrikaans. */
-export const af: ClipboardTranslations = {
-  'clipboard.error.noProvider':
-    "@molecule/app-clipboard: Geen verskaffer gestel nie. Roep setProvider() met 'n ClipboardProvider-implementering (bv. van @molecule/app-clipboard-capacitor).",
+/** Clipboard translations for af. */
+export const af: Partial<ClipboardTranslations> = {
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange word nie deur die verskaffer ondersteun nie',
+  'clipboard.error.noProvider':
+    '@molecule/app-knipbord: Geen verskaffer gestel nie. Roep setProvider() met &#39;n Klembordverskaffer-implementering (bv. vanaf @molecule/app-knipbord-kondensator).',
 }

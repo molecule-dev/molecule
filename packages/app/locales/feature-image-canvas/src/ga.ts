@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for ga — currently mirrors English (translation TBD). */
-export const ga: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for ga. */
+export const ga: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Canbhás íomhá',
+  'imageCanvas.aria.canvas': 'Tarraing chun panáil, scrollaigh chun súmáil isteach',
+  'imageCanvas.loading': 'Íomhá á lódáil…',
+  'imageCanvas.error': 'Theip ar an íomhá a lódáil.',
+}

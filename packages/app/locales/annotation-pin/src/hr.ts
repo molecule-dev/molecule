@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for hr — currently mirrors English (translation TBD). */
-export const hr: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for hr. */
+export const hr: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Sloj s napomenama',
+  'annotationPin.aria.marker': 'Prikvačivanje napomene',
+  'annotationPin.aria.popup': 'Detalji napomena',
+  'annotationPin.empty': 'Nema bilješki za ovaj pin.',
+}

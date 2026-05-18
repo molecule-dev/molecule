@@ -9,4 +9,14 @@ export const ko: Partial<SolidUiTranslations> = {
   'ui.progress.label': '진행률',
   'ui.spinner.loading': '로딩 중',
   'ui.toast.close': '닫기',
+  'solid.error.useAccordionOutsideProvider':
+    '아코디언 구성 요소는 아코디언 내에서만 사용해야 합니다.',
+  'ui.pagination.nav': '쪽수 매기기',
+  'ui.pagination.first': '첫 페이지로 이동',
+  'ui.pagination.previous': '이전 페이지로 이동',
+  'ui.pagination.goToPage': '페이지로 이동<x> {{페이지}}</x>',
+  'ui.pagination.last': '이전 페이지로 이동',
+  'ui.radioGroup.label': '라디오 그룹',
+  'ui.table.empty': '사용 가능한 데이터가 없습니다.',
+  'solid.error.useToastOutsideProvider': 'useToast는 ToastProvider 내에서 사용해야 합니다.',
 }

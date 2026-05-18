@@ -1,4 +1,7 @@
 import type { CodeBlockTranslations } from './types.js'
 
 /** CodeBlock translations for hy. */
-export const hy: Partial<CodeBlockTranslations> = {}
+export const hy: Partial<CodeBlockTranslations> = {
+  'codeBlock.copied': 'Պատճենված է!',
+  'codeBlock.copy': 'Պատճենել',
+}

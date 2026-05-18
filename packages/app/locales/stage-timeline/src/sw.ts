@@ -1,4 +1,6 @@
 import type { StageTimelineTranslations } from './types.js'
 
 /** StageTimeline translations for sw. */
-export const sw: Partial<StageTimelineTranslations> = {}
+export const sw: Partial<StageTimelineTranslations> = {
+  'stageTimeline.group': 'Ratiba ya hatua',
+}

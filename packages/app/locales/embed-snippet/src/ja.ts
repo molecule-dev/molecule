@@ -10,4 +10,7 @@ export const ja: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'ライト',
   'embedSnippet.theme.dark': 'ダーク',
   'embedSnippet.theme.auto': '自動',
+  'embedSnippet.aria.region': '埋め込みコード（{language}）',
+  'embedSnippet.eyebrow': '埋め込みコードをコピー',
+  'embedSnippet.controls.width': '幅',
 }

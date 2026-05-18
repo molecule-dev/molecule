@@ -5,4 +5,5 @@ export const tr: Partial<RatingFormTranslations> = {
   'rating.label': 'Puan',
   'rating.submitting': 'Gönderiliyor…',
   'rating.submit': 'Değerlendirmeyi gönder',
+  'rating.commentPlaceholder': 'Düşüncelerinizi paylaşın (isteğe bağlı).',
 }

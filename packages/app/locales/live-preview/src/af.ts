@@ -1,7 +1,7 @@
 import type { LivePreviewTranslations } from './types.js'
 
-/** Live Preview translations for Afrikaans. */
-export const af: LivePreviewTranslations = {
+/** LivePreview translations for af. */
+export const af: Partial<LivePreviewTranslations> = {
   'livePreview.error.noProvider':
-    "Regstreekse voorskou-verskaffer is nie opgestel nie. Bind eers 'n regstreekse voorskou-verskaffer.",
+    'Verskaffer van regstreekse voorskou nie gekonfigureer nie. Koppel eers &#39;n verskaffer van regstreekse voorskou.',
 }

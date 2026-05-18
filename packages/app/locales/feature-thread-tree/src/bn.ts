@@ -1,5 +1,13 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for bn (stub — falls back to English until reviewed). */
-export const bn: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for bn. */
+export const bn: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.expand': 'প্রসারিত করুন<x> {{count}}</x> উত্তর',
+  'threadTree.collapse': 'থ্রেড সংকুচিত করুন',
+  'threadTree.expandSymbol': '[+]',
+  'threadTree.collapseSymbol': '[−]',
+  'threadTree.score': '{{count}} পয়েন্ট',
+  'threadTree.hiddenReplies': '{{count}} লুকানো',
+  'threadTree.upvote': 'আপভোট',
+  'threadTree.reply': 'উত্তর',
+}

@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for mt (stub — falls back to English until reviewed). */
-export const mt: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for mt. */
+export const mt: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': 'Kontrolli tat-trasport tad-daqq',
+  'transportBar.aria.skipBack': 'Aqbeż lura',
+  'transportBar.aria.skipForward': 'Aqbeż &#39;il quddiem',
+  'transportBar.aria.play': 'Ilgħab',
+  'transportBar.aria.pause': 'Pawża',
+  'transportBar.aria.stop': 'Waqqaf',
+  'transportBar.aria.record': 'Rekord',
+  'transportBar.aria.stopRecording': 'Waqqaf ir-reġistrazzjoni',
+  'transportBar.aria.loopOn': 'Iddiżattiva l-linja',
+  'transportBar.aria.loopOff': 'Ippermetti l-linja',
+}

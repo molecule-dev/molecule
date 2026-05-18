@@ -4,5 +4,5 @@ import type { NewsletterSignupTranslations } from './types.js'
 export const fr: Partial<NewsletterSignupTranslations> = {
   'newsletter.placeholder': 'Votre e-mail',
   'newsletter.subscribing': 'Abonnement…',
-  'newsletter.subscribe': "S'abonner",
+  'newsletter.subscribe': 'S&#39;abonner',
 }

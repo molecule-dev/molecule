@@ -4,4 +4,7 @@ import type { HttpInspectorTranslations } from './types.js'
 export const da: Partial<HttpInspectorTranslations> = {
   'httpInspector.sending': 'Sender…',
   'httpInspector.body': 'Brødtekst',
+  'httpInspector.send': 'Sende',
+  'httpInspector.headers': 'Overskrifter',
+  'httpInspector.addHeader': 'Tilføj overskrift',
 }

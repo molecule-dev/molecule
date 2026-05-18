@@ -1,5 +1,7 @@
 import type { AdjustmentSliderTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Adjustment-slider translations for si — currently mirrors English (translation TBD). */
-export const si: AdjustmentSliderTranslations = { ...en }
+/** AdjustmentSlider translations for si. */
+export const si: Partial<AdjustmentSliderTranslations> = {
+  'adjustmentSlider.aria': '{{ලේබලය}}',
+  'adjustmentSlider.reset.aria': 'නැවත සකසන්න<x> {{ලේබලය}}</x>',
+}

@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for hy — currently mirrors English (translation TBD). */
-export const hy: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for hy. */
+export const hy: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Դաշնամուրի գլորում',
+  'pianoRoll.aria.keys': 'Դաշնամուրի ստեղներ',
+  'pianoRoll.aria.grid': 'Նոտաների ցանց',
+  'pianoRoll.aria.resize': 'Չափափոխել նշումը',
+  'pianoRoll.aria.note':
+    'Նշում<x> {{խոսք}}</x> սկսած ռիթմից<x> {{startBeat}}</x> համար<x> {{տևողության զարկեր}}</x> ռիթմերը',
+}

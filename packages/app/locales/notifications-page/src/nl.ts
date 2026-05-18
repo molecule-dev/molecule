@@ -15,4 +15,6 @@ export const nl: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyBody': 'Nieuwe meldingen verschijnen hier.',
   'notificationsPage.prev': 'Vorige',
   'notificationsPage.next': 'Volgende',
+  'notificationsPage.paginationAriaLabel': 'Paginering',
+  'notificationsPage.pageOf': 'Pagina<x> {{huidig}}</x> van<x> {{totaal}}</x>',
 }

@@ -1,4 +1,6 @@
 import type { FilterBarTranslations } from './types.js'
 
 /** FilterBar translations for th. */
-export const th: Partial<FilterBarTranslations> = {}
+export const th: Partial<FilterBarTranslations> = {
+  'filterBar.clear': 'ล้างตัวกรอง',
+}

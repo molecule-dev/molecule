@@ -1,4 +1,7 @@
 import type { VideoPlayerTranslations } from './types.js'
 
 /** VideoPlayer translations for fa. */
-export const fa: Partial<VideoPlayerTranslations> = {}
+export const fa: Partial<VideoPlayerTranslations> = {
+  'video.pause': 'مکث',
+  'video.play': 'بازی',
+}

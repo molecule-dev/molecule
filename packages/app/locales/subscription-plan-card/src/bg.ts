@@ -1,4 +1,6 @@
 import type { SubscriptionPlanCardTranslations } from './types.js'
 
 /** SubscriptionPlanCard translations for bg. */
-export const bg: Partial<SubscriptionPlanCardTranslations> = {}
+export const bg: Partial<SubscriptionPlanCardTranslations> = {
+  'plan.recommended': 'Препоръчано',
+}

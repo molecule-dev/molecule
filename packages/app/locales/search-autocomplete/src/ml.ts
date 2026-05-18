@@ -1,4 +1,6 @@
 import type { SearchAutocompleteTranslations } from './types.js'
 
 /** SearchAutocomplete translations for ml. */
-export const ml: Partial<SearchAutocompleteTranslations> = {}
+export const ml: Partial<SearchAutocompleteTranslations> = {
+  'search.placeholder': 'തിരയുക...',
+}

@@ -6,4 +6,5 @@ export const ja: Partial<ContactFormTranslations> = {
   'contactForm.message': 'どのようにお手伝いできますか？',
   'contactForm.sending': '送信中…',
   'contactForm.send': 'メッセージを送信',
+  'contactForm.email': 'you@example.com',
 }

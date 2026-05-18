@@ -5,4 +5,6 @@ export const nl: Partial<HttpInspectorTranslations> = {
   'httpInspector.sending': 'Verzenden…',
   'httpInspector.send': 'Verzenden',
   'httpInspector.body': 'Bericht',
+  'httpInspector.headers': 'Kopteksten',
+  'httpInspector.addHeader': 'Koptekst toevoegen',
 }

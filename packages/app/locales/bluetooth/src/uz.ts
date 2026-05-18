@@ -1,7 +1,7 @@
 import type { BluetoothTranslations } from './types.js'
 
-/** Bluetooth translations for Uzbek. */
-export const uz: BluetoothTranslations = {
+/** Bluetooth translations for uz. */
+export const uz: Partial<BluetoothTranslations> = {
   'bluetooth.error.noProvider':
-    "@molecule/app-bluetooth: Provayder o'rnatilmagan. setProvider() ni BluetoothProvider ilovasi bilan chaqiring (masalan, @molecule/app-bluetooth-capacitor dan).",
+    '@molecule/app-bluetooth: Provayder o&#39;rnatilmagan. BluetoothProvider implementatsiyasi bilan setProvider() ni chaqiring (masalan, @molecule/app-bluetooth-capacitor dan).',
 }

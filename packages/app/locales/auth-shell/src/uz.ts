@@ -1,4 +1,6 @@
 import type { AuthShellTranslations } from './types.js'
 
 /** AuthShell translations for uz. */
-export const uz: Partial<AuthShellTranslations> = {}
+export const uz: Partial<AuthShellTranslations> = {
+  'auth.backHome': 'Uyga qaytish',
+}

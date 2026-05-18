@@ -1,4 +1,6 @@
 import type { DrawingToolbarTranslations } from './types.js'
 
 /** DrawingToolbar translations for af. */
-export const af: Partial<DrawingToolbarTranslations> = {}
+export const af: Partial<DrawingToolbarTranslations> = {
+  'drawingToolbar.label': 'Tekengereedskap',
+}

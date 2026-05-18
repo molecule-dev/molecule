@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for ga — currently mirrors English (translation TBD). */
-export const ga: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for ga. */
+export const ga: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': 'Breathnóir samhail 3T',
+  'threeViewer.loading': 'Ag lódáil samhail 3T…',
+  'threeViewer.error': 'Theip ar an tsamhail 3T a lódáil.',
+}

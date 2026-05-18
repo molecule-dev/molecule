@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for el — currently mirrors English (translation TBD). */
-export const el: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for el. */
+export const el: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Εβδομαδιαίο πρόγραμμα μαθημάτων',
+  'classSchedule.aria.event': '{{καθημερινή}}<x> {{αρχή}}</x> –<x> {{τέλος}}</x>',
+  'classSchedule.aria.slot': 'Κενή υποδοχή,<x> {{καθημερινή}}</x><x> {{φορά}}</x>',
+}

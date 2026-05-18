@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for cs — currently mirrors English (translation TBD). */
-export const cs: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for cs. */
+export const cs: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Koleje<x> {{jméno}}</x>',
+  'trackLane.aria.clip':
+    'Klip<x> {{označení}}</x> počínaje<x> {{startTime}}</x> s pro<x> {{trvání}}</x> s',
+  'trackLane.aria.resize': 'Změnit velikost klipu',
+  'trackLane.header': 'Dráha',
+}

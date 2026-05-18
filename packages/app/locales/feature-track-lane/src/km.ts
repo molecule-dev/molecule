@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for km — currently mirrors English (translation TBD). */
-export const km: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for km. */
+export const km: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'ផ្លូវ​សម្រាប់​រត់<x> {{ឈ្មោះ}}</x>',
+  'trackLane.aria.clip':
+    'ឃ្លីប<x> {{ស្លាក}}</x> ចាប់ផ្តើមពី<x> {{ពេលវេលាចាប់ផ្តើម}}</x> សម្រាប់<x> រយៈពេល</x> ស',
+  'trackLane.aria.resize': 'ប្ដូរទំហំ​ឈុត',
+  'trackLane.header': 'តាមដាន',
+}

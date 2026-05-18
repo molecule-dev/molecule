@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for am — currently mirrors English (translation TBD). */
-export const am: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for am. */
+export const am: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'የፒያኖ ሮል',
+  'pianoRoll.aria.keys': 'የፒያኖ ቁልፎች',
+  'pianoRoll.aria.grid': 'የማስታወሻ ፍርግርግ',
+  'pianoRoll.aria.resize': 'የማስታወሻ መጠን ቀይር',
+  'pianoRoll.aria.note':
+    'ማስታወሻ<x> {{ፒች}}</x> ከቢት ጀምሮ<x> {{startBeat}}</x> ለ<x> {{durationBeats}}</x> ምቶች',
+}

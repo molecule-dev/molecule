@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for zu — currently mirrors English (translation TBD). */
-export const zu: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for zu. */
+export const zu: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': 'Isibukeli semodeli ye-3D',
+  'threeViewer.loading': 'Ilayisha imodeli ye-3D…',
+  'threeViewer.error': 'Yehlulekile ukulayisha imodeli ye-3D.',
+}

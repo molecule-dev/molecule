@@ -25,4 +25,11 @@ export const vi: Partial<ModerationQueueTranslations> = {
   'moderationQueue.severity.low': 'Thấp',
   'moderationQueue.severity.medium': 'Trung bình',
   'moderationQueue.severity.high': 'Cao',
+  'moderationQueue.aria.bulkToolbar': 'Hành động kiểm duyệt hàng loạt',
+  'moderationQueue.aria.selectRow': 'Chọn mục',
+  'moderationQueue.loading': 'Đang tải hàng đợi kiểm duyệt…',
+  'moderationQueue.empty': 'Không có mục nào đang chờ kiểm duyệt.',
+  'moderationQueue.selectedCount': '{{đếm}} đã chọn',
+  'moderationQueue.reportedBy': 'Được báo cáo bởi',
+  'moderationQueue.kind.image': 'Hình ảnh',
 }

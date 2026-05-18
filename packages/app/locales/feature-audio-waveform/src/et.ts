@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for et — currently mirrors English (translation TBD). */
-export const et: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for et. */
+export const et: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Helilaine',
+  'audioWaveform.aria.seek': 'Heli sirvimiseks klõpsake lainekujul',
+  'audioWaveform.empty': 'Lainekuju andmed pole saadaval.',
+}

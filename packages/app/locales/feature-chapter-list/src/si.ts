@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for si — currently mirrors English (translation TBD). */
-export const si: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for si. */
+export const si: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'පරිච්ඡේද',
+  'chapterList.aria.seek': 'වෙත පනින්න<x> {{මාතෘකාව}}</x> දී<x> {{වේලාමුද්‍රාව}}</x>',
+  'chapterList.aria.thumbnail': 'සඳහා සිඟිති රුව<x> {{මාතෘකාව}}</x>',
+  'chapterList.empty': 'මෙම කථාංගය සඳහා පරිච්ඡේද නොමැත.',
+  'chapterList.current': 'දැන් වාදනය වේ',
+}

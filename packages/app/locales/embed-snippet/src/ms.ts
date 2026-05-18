@@ -8,4 +8,9 @@ export const ms: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.controls.theme': 'Tema',
   'embedSnippet.theme.light': 'Cerah',
   'embedSnippet.theme.dark': 'Gelap',
+  'embedSnippet.aria.region': 'Kod benam ({language})',
+  'embedSnippet.eyebrow': 'Salin kod benam',
+  'embedSnippet.controls.width': 'Lebar',
+  'embedSnippet.controls.height': 'Ketinggian',
+  'embedSnippet.theme.auto': 'Auto',
 }

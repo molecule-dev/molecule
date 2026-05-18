@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for el — currently mirrors English (translation TBD). */
-export const el: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for el. */
+export const el: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Λωρίδα τροχιάς<x> {{όνομα}}</x>',
+  'trackLane.aria.clip':
+    'Συνδετήρας<x> {{επιγραφή}}</x> ξεκινώντας από<x> {{Ώρα έναρξης}}</x> s για<x> {{διάρκεια}}</x> μικρό',
+  'trackLane.aria.resize': 'Αλλαγή μεγέθους κλιπ',
+  'trackLane.header': 'Τροχιά',
+}

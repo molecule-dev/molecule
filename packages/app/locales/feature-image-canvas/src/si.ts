@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for si — currently mirrors English (translation TBD). */
-export const si: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for si. */
+export const si: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'රූප කැන්වසය',
+  'imageCanvas.aria.canvas': 'පෑන් කිරීමට අදින්න, විශාලනය කිරීමට අනුචලනය කරන්න',
+  'imageCanvas.loading': 'රූපය පූරණය වෙමින්...',
+  'imageCanvas.error': 'රූපය පූරණය කිරීමට අසමත් විය.',
+}

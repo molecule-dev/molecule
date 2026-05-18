@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for az — currently mirrors English (translation TBD). */
-export const az: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for az. */
+export const az: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Fortepiano rollu',
+  'pianoRoll.aria.keys': 'Piano düymələri',
+  'pianoRoll.aria.grid': 'Qeyd cədvəli',
+  'pianoRoll.aria.resize': 'Qeydin ölçüsünü dəyişin',
+  'pianoRoll.aria.note':
+    'Qeyd<x> {{təyyarə}}</x> ritmdən başlayaraq<x> {{startBeat}}</x> üçün<x> {{durationBeats}}</x> döyüntülər',
+}

@@ -25,4 +25,11 @@ export const tr: Partial<ModerationQueueTranslations> = {
   'moderationQueue.severity.low': 'Düşük',
   'moderationQueue.severity.medium': 'Orta',
   'moderationQueue.severity.high': 'Yüksek',
+  'moderationQueue.aria.bulkToolbar': 'Toplu moderasyon işlemleri',
+  'moderationQueue.aria.selectRow': 'Öğe seçin',
+  'moderationQueue.loading': 'Moderasyon kuyruğu yükleniyor…',
+  'moderationQueue.empty': 'Onay bekleyen öğe yok.',
+  'moderationQueue.selectedCount': '{{saymak}} seçildi',
+  'moderationQueue.reportedBy': 'Bildiren:',
+  'moderationQueue.kind.image': 'Görüntü',
 }

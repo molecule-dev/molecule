@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for ig — currently mirrors English (translation TBD). */
-export const ig: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for ig. */
+export const ig: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Ngwaọrụ ise maapụ',
+  'mapDrawing.surface.aria': 'Ihu eserese maapụ',
+  'mapDrawing.tool.polygon': 'Polygon',
+  'mapDrawing.tool.circle': 'Okirikiri',
+  'mapDrawing.tool.pin': 'Ntụtụ',
+  'mapDrawing.tool.line': 'Ahịrị',
+  'mapDrawing.tool.select': 'Họrọ',
+  'mapDrawing.tool.delete': 'Hichapụ',
+}

@@ -4,4 +4,5 @@ import type { PhotoLightboxTranslations } from './types.js'
 export const nb: Partial<PhotoLightboxTranslations> = {
   'lightbox.close': 'Lukk',
   'lightbox.previous': 'Forrige',
+  'lightbox.next': 'Neste',
 }

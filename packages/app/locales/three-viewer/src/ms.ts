@@ -1,4 +1,8 @@
 import type { ThreeViewerTranslations } from './types.js'
 
 /** ThreeViewer translations for ms. */
-export const ms: Partial<ThreeViewerTranslations> = {}
+export const ms: Partial<ThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': 'Pemapar model 3D',
+  'threeViewer.loading': 'Memuatkan model 3D…',
+  'threeViewer.error': 'Gagal memuatkan model 3D.',
+}

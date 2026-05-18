@@ -1,5 +1,16 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for hr — currently mirrors English (translation TBD). */
-export const hr: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for hr. */
+export const hr: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.aria.region': 'Ugradi kod ({language})',
+  'embedSnippet.heading': 'Ugradi kod',
+  'embedSnippet.eyebrow': 'Kopiraj kod za ugradnju',
+  'embedSnippet.copy': 'Kopirati',
+  'embedSnippet.copied': 'Kopirano!',
+  'embedSnippet.controls.width': 'Širina',
+  'embedSnippet.controls.height': 'Visina',
+  'embedSnippet.controls.theme': 'Tema',
+  'embedSnippet.theme.light': 'Svjetlo',
+  'embedSnippet.theme.dark': 'Tamno',
+  'embedSnippet.theme.auto': 'Auto',
+}

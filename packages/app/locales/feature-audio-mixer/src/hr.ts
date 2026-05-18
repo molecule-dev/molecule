@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for hr — currently mirrors English (translation TBD). */
-export const hr: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for hr. */
+export const hr: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Konzola za audio mikser',
+  'audioMixer.aria.fader': '{{ime}} fader',
+  'audioMixer.aria.pan': '{{ime}} tava',
+  'audioMixer.aria.send': '{{kanal}} poslati<x> {{poslati}}</x>',
+  'audioMixer.button.mute': 'Isključi zvuk',
+  'audioMixer.button.solo': 'Solo',
+  'audioMixer.master': 'Majstorski',
+  'audioMixer.sends': 'Šalje',
+}

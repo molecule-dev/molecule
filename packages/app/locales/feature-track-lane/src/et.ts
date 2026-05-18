@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for et — currently mirrors English (translation TBD). */
-export const et: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for et. */
+export const et: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Rööbastee<x> {{nimi}}</x>',
+  'trackLane.aria.clip':
+    'Klipp<x> {{silt}}</x> alates kell<x> {{algusaeg}}</x> s jaoks<x> {{kestus}}</x> s',
+  'trackLane.aria.resize': 'Klipi suuruse muutmine',
+  'trackLane.header': 'Rada',
+}

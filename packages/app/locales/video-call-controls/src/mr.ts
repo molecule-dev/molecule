@@ -1,4 +1,11 @@
 import type { VideoCallControlsTranslations } from './types.js'
 
 /** VideoCallControls translations for mr. */
-export const mr: Partial<VideoCallControlsTranslations> = {}
+export const mr: Partial<VideoCallControlsTranslations> = {
+  'call.muteOn': '🎙',
+  'call.muteOff': '🔇',
+  'call.cameraOn': '📹',
+  'call.cameraOff': '🚫',
+  'call.share': '🖥',
+  'call.leave': 'सोडा',
+}

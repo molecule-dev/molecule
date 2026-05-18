@@ -1,4 +1,10 @@
 import type { HttpInspectorTranslations } from './types.js'
 
 /** HttpInspector translations for uz. */
-export const uz: Partial<HttpInspectorTranslations> = {}
+export const uz: Partial<HttpInspectorTranslations> = {
+  'httpInspector.sending': 'Yuborilmoqda…',
+  'httpInspector.send': 'Yuborish',
+  'httpInspector.headers': 'Sarlavhalar',
+  'httpInspector.addHeader': 'Sarlavha qo&#39;shish',
+  'httpInspector.body': 'Kuzov',
+}

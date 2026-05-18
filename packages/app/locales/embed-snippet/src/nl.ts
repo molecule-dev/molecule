@@ -9,4 +9,8 @@ export const nl: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.controls.theme': 'Thema',
   'embedSnippet.theme.light': 'Licht',
   'embedSnippet.theme.dark': 'Donker',
+  'embedSnippet.aria.region': 'Code insluiten ({taal})',
+  'embedSnippet.eyebrow': 'Kopieer de embedcode',
+  'embedSnippet.controls.width': 'Breedte',
+  'embedSnippet.theme.auto': 'Auto',
 }

@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for ro — currently mirrors English (translation TBD). */
-export const ro: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for ro. */
+export const ro: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Derulator video',
+  'videoScrubber.aria.strip':
+    'Filmstrip — cap de redare la<x> {{timp}}</x> s (cadru<x> {{cadru}}</x> )',
+  'videoScrubber.aria.playhead': 'Cap de redare la<x> {{timp}}</x> s',
+  'videoScrubber.aria.frameReadout': 'Cadru<x> {{cadru}}</x> de<x> {{total}}</x>',
+  'videoScrubber.aria.thumbnail': 'Previzualizare cadru',
+  'videoScrubber.thumbnails.empty': 'Fără previzualizare',
+  'videoScrubber.frameReadout.total': '/<x> {{total}}</x> rame',
+}

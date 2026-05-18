@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for mr — currently mirrors English (translation TBD). */
-export const mr: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for mr. */
+export const mr: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'नकाशा काढण्याची साधने',
+  'mapDrawing.surface.aria': 'नकाशा रेखाटन पृष्ठभाग',
+  'mapDrawing.tool.polygon': 'बहुभुज',
+  'mapDrawing.tool.circle': 'वर्तुळ',
+  'mapDrawing.tool.pin': 'पिन',
+  'mapDrawing.tool.line': 'ओळ',
+  'mapDrawing.tool.select': 'निवडा',
+  'mapDrawing.tool.delete': 'हटवा',
+}

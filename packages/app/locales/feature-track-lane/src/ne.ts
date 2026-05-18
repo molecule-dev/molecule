@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for ne — currently mirrors English (translation TBD). */
-export const ne: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for ne. */
+export const ne: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'ट्र्याक लेन<x> {{नाम}}</x>',
+  'trackLane.aria.clip':
+    'क्लिप<x> {{लेबल}}</x> बाट सुरु हुँदै<x> {{सुरुवात समय}}</x> को लागि<x> {{अवधि}}</x> को',
+  'trackLane.aria.resize': 'क्लिपको आकार बदल्नुहोस्',
+  'trackLane.header': 'ट्र्याक',
+}

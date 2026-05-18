@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for km — currently mirrors English (translation TBD). */
-export const km: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for km. */
+export const km: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'កាលវិភាគថ្នាក់ប្រចាំសប្តាហ៍',
+  'classSchedule.aria.event': '{{ថ្ងៃធ្វើការ}}<x> {{ចាប់ផ្តើម}}</x> –<x> {{ចប់}}</x>',
+  'classSchedule.aria.slot': 'រន្ធទទេ,<x> {{ថ្ងៃធ្វើការ}}</x><x> {{ពេលវេលា}}</x>',
+}

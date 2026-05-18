@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for lo — currently mirrors English (translation TBD). */
-export const lo: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for lo. */
+export const lo: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'ເປຍໂນມ້ວນ',
+  'pianoRoll.aria.keys': 'ປຸ່ມເປຍໂນ',
+  'pianoRoll.aria.grid': 'ຕາຂ່າຍບັນທຶກ',
+  'pianoRoll.aria.resize': 'ປັບຂະໜາດບັນທຶກ',
+  'pianoRoll.aria.note':
+    'ໝາຍເຫດ<x> {{pitch}}</x> ເລີ່ມຕົ້ນທີ່ຈັງຫວະ<x> {{startBeat}}</x> ສຳລັບ<x> {{durationBeats}}</x> ຈັງຫວະ',
+}

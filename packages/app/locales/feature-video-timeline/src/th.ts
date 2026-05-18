@@ -1,5 +1,19 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for th — currently mirrors English (translation TBD). */
-export const th: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for th. */
+export const th: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.aria.root': 'ไทม์ไลน์วิดีโอ',
+  'videoTimeline.aria.ruler': 'ไม้บรรทัดเวลา',
+  'videoTimeline.aria.playhead': 'Playhead ที่<x> {{เวลา}}</x> ส',
+  'videoTimeline.aria.zoom': 'การซูมไทม์ไลน์',
+  'videoTimeline.aria.mode': 'โหมดแก้ไข',
+  'videoTimeline.zoom.in': 'ซูมเข้า',
+  'videoTimeline.zoom.out': 'ซูมออก',
+  'videoTimeline.zoom.in.icon': '+',
+  'videoTimeline.zoom.out.icon': '−',
+  'videoTimeline.mode.ripple': 'ระลอกคลื่น',
+  'videoTimeline.mode.insert': 'แทรก',
+  'videoTimeline.trackKind.video': 'วิดีโอ',
+  'videoTimeline.trackKind.audio': 'เสียง',
+  'videoTimeline.trackKind.subtitle': 'คำบรรยาย',
+}

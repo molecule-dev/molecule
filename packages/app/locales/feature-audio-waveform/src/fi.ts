@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for fi — currently mirrors English (translation TBD). */
-export const fi: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for fi. */
+export const fi: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Ääniaaltomuoto',
+  'audioWaveform.aria.seek': 'Etsi ääntä napsauttamalla aaltomuotoa',
+  'audioWaveform.empty': 'Aaltomuototietoja ei ole saatavilla.',
+}

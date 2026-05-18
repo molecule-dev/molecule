@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for cy — currently mirrors English (translation TBD). */
-export const cy: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for cy. */
+export const cy: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Cynfas delwedd',
+  'imageCanvas.aria.canvas': 'Llusgwch i banio, sgrolio i chwyddo',
+  'imageCanvas.loading': 'Wrthi&#39;n llwytho delwedd…',
+  'imageCanvas.error': 'Methodd y ddelwedd â llwytho.',
+}

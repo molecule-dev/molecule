@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for cy — currently mirrors English (translation TBD). */
-export const cy: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for cy. */
+export const cy: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Consol cymysgydd sain',
+  'audioMixer.aria.fader': '{{enw}} pylu',
+  'audioMixer.aria.pan': '{{enw}} padell',
+  'audioMixer.aria.send': '{{sianel}} anfon at<x> {{anfon}}</x>',
+  'audioMixer.button.mute': 'Mud',
+  'audioMixer.button.solo': 'Solo',
+  'audioMixer.master': 'Meistr',
+  'audioMixer.sends': 'Anfoniadau',
+}

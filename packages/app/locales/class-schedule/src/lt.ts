@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for lt — currently mirrors English (translation TBD). */
-export const lt: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for lt. */
+export const lt: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Savaitės pamokų tvarkaraštis',
+  'classSchedule.aria.event': '{{weekday}}<x> {{pradėti}}</x> –<x> {{pabaiga}}</x>',
+  'classSchedule.aria.slot': 'Tuščia anga,<x> {{weekday}}</x><x> laikas</x>',
+}

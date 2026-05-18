@@ -4,4 +4,5 @@ import type { PaginationBarTranslations } from './types.js'
 export const zhTW: Partial<PaginationBarTranslations> = {
   'pagination.previous': '上一頁',
   'pagination.next': '下一頁',
+  'pagination.pageSize': '頁面大小',
 }

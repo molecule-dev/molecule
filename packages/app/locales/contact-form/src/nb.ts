@@ -5,4 +5,6 @@ export const nb: Partial<ContactFormTranslations> = {
   'contactForm.name': 'Ditt navn',
   'contactForm.email': 'deg@eksempel.no',
   'contactForm.sending': 'Sender…',
+  'contactForm.message': 'Hvordan kan vi hjelpe?',
+  'contactForm.send': 'Send melding',
 }

@@ -14,4 +14,7 @@ export const zh: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': '升级',
   'settings.billing.cancel': '取消',
   'settings.billing.subscribe': '订阅',
+  'settings.darkMode': '深色模式',
+  'settings.billing.upgradeTitle': '升级您的套餐',
+  'settings.billing.noTiers': '未配置付费套餐。',
 }

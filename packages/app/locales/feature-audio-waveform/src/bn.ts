@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for bn — currently mirrors English (translation TBD). */
-export const bn: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for bn. */
+export const bn: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'অডিও তরঙ্গরূপ',
+  'audioWaveform.aria.seek': 'ওয়েভফর্মে ক্লিক করে অডিওটি খুঁজুন।',
+  'audioWaveform.empty': 'কোন তরঙ্গরূপ ডেটা উপলব্ধ নেই।',
+}

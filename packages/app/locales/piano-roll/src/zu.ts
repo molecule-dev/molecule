@@ -1,4 +1,11 @@
 import type { PianoRollTranslations } from './types.js'
 
 /** PianoRoll translations for zu. */
-export const zu: Partial<PianoRollTranslations> = {}
+export const zu: Partial<PianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Ukugoqa upiyano',
+  'pianoRoll.aria.keys': 'Izihluthulelo zepiyano',
+  'pianoRoll.aria.grid': 'Igridi yamanothi',
+  'pianoRoll.aria.resize': 'Shintsha usayizi wenothi',
+  'pianoRoll.aria.note':
+    'Inothi<x> {{pitch}}</x> ukuqala ngesikhathi sokushaya<x> {{startBeat}}</x> ngoba<x> {{durationBeats}}</x> amabhithi',
+}

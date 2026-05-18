@@ -5,4 +5,9 @@ export const sv: Partial<CookieBannerTranslations> = {
   'cookieBanner.hideDetails': 'Dölj detaljer',
   'cookieBanner.customize': 'Anpassa',
   'cookieBanner.save': 'Spara inställningar',
+  'cookieBanner.title': 'Cookie-inställningar',
+  'cookieBanner.description':
+    'Vi använder cookies för att förbättra din upplevelse och analysera trafik.',
+  'cookieBanner.reject': 'Avvisa alla',
+  'cookieBanner.accept': 'Acceptera alla',
 }

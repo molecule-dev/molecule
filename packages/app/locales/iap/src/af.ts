@@ -1,8 +1,7 @@
 import type { IapTranslations } from './types.js'
 
-/** Iap translations for Afrikaans. */
-export const af: IapTranslations = {
-  'iap.error.E_UNKNOWN': "'n Onbekende fout het voorgekom.",
+/** Iap translations for af. */
+export const af: Partial<IapTranslations> = {
   'iap.error.E_SETUP': 'Kon nie in-program-aankope opstel nie.',
   'iap.error.E_LOAD': 'Kon nie produkte laai nie.',
   'iap.error.E_PURCHASE': 'Aankoop het misluk.',
@@ -16,7 +15,6 @@ export const af: IapTranslations = {
   'iap.error.E_DEFERRED': 'Aankoop vereis goedkeuring.',
   'iap.error.E_INVALID_PRODUCT': 'Ongeldige produk.',
   'iap.error.E_NETWORK': 'Netwerkfout.',
-  'iap.error.0': "'n Onbekende fout het voorgekom.",
   'iap.error.E_CLIENT_INVALID': 'Kliënt mag nie die versoek uitreik nie.',
   'iap.error.E_PAYMENT_CANCELLED': 'Gebruiker het die versoek gekanselleer.',
   'iap.error.E_PAYMENT_INVALID': 'Die aankoop-identifiseerder was ongeldig.',
@@ -34,4 +32,6 @@ export const af: IapTranslations = {
   'iap.error.6': 'Fout.',
   'iap.error.7': 'Item reeds besit.',
   'iap.error.8': 'Item nie besit nie.',
+  'iap.error.E_UNKNOWN': '&#39;n Onbekende fout het voorgekom.',
+  'iap.error.0': '&#39;n Onbekende fout het voorgekom.',
 }

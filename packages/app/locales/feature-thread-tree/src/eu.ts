@@ -1,5 +1,13 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for eu (stub — falls back to English until reviewed). */
-export const eu: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for eu. */
+export const eu: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.expand': 'Zabaldu<x> {{kopurua}}</x> erantzunak',
+  'threadTree.collapse': 'Tolestu haria',
+  'threadTree.expandSymbol': '[+]',
+  'threadTree.collapseSymbol': '[−]',
+  'threadTree.score': '{{kopurua}} puntuak',
+  'threadTree.hiddenReplies': '{{kopurua}} ezkutuan',
+  'threadTree.upvote': 'Bozkatu alde',
+  'threadTree.reply': 'Erantzun',
+}

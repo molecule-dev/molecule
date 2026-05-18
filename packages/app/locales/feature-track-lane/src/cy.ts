@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for cy — currently mirrors English (translation TBD). */
-export const cy: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for cy. */
+export const cy: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Lôn trac<x> {{enw}}</x>',
+  'trackLane.aria.clip':
+    'Clip<x> {{label}}</x> gan ddechrau am<x> {{Amser cychwyn}}</x> s ar gyfer<x> {{hyd}}</x> au',
+  'trackLane.aria.resize': 'Newid maint y clip',
+  'trackLane.header': 'Trac',
+}

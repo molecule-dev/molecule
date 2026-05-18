@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for pt — currently mirrors English (translation TBD). */
-export const pt: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for pt. */
+export const pt: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Reprodutor de vídeo',
+  'videoScrubber.aria.strip':
+    'Tira de filme — cabeça de reprodução em<x> {{tempo}}</x> s (quadro)<x> {{quadro}}</x> )',
+  'videoScrubber.aria.playhead': 'Playhead em<x> {{tempo}}</x> s',
+  'videoScrubber.aria.frameReadout': 'Quadro<x> {{quadro}}</x> de<x> {{total}}</x>',
+  'videoScrubber.aria.thumbnail': 'Pré-visualização do quadro',
+  'videoScrubber.thumbnails.empty': 'Sem pré-visualização',
+  'videoScrubber.frameReadout.total': '/<x> {{total}}</x> quadros',
+}

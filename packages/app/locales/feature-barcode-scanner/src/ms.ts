@@ -1,5 +1,14 @@
-import type { BarcodeScannerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureBarcodeScannerTranslations } from './types.js'
 
-/** Barcode-scanner translations for ms — currently mirrors English (translation TBD). */
-export const ms: BarcodeScannerTranslations = { ...en }
+/** FeatureBarcodeScanner translations for ms. */
+export const ms: Partial<FeatureBarcodeScannerTranslations> = {
+  'barcodeScanner.aria.region': 'Paparan kamera pengimbas kod bar',
+  'barcodeScanner.error.permission_denied': 'Kebenaran kamera ditolak',
+  'barcodeScanner.error.no_camera': 'Tiada kamera ditemui',
+  'barcodeScanner.error.unsupported': 'Kamera tidak disokong dalam pelayar ini',
+  'barcodeScanner.error.detector_failure': 'Pengesan kod bar gagal',
+  'barcodeScanner.error.fallback_unavailable': 'Pustaka pengimbas kod bar tidak dapat dimuatkan',
+  'barcodeScanner.status.starting': 'Memulakan kamera…',
+  'barcodeScanner.status.scanning': 'Mengimbas…',
+  'barcodeScanner.status.stopped': 'Imbasan selesai',
+}

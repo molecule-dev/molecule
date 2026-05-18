@@ -1,4 +1,8 @@
 import type { WikiPageHeaderTranslations } from './types.js'
 
 /** WikiPageHeader translations for ky. */
-export const ky: Partial<WikiPageHeaderTranslations> = {}
+export const ky: Partial<WikiPageHeaderTranslations> = {
+  'wiki.edit': 'Түзөтүү',
+  'wiki.history': 'Тарых',
+  'wiki.updatedAt': 'Жаңыртылды',
+}

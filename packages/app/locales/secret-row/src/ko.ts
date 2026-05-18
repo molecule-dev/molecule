@@ -8,4 +8,5 @@ export const ko: Partial<SecretRowTranslations> = {
   'secretRow.copy': '복사',
   'secretRow.rotate': '교체',
   'secretRow.delete': '삭제',
+  'secretRow.expired': '만료됨',
 }

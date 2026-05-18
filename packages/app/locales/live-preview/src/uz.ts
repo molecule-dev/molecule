@@ -1,7 +1,7 @@
 import type { LivePreviewTranslations } from './types.js'
 
-/** Live Preview translations for Uzbek. */
-export const uz: LivePreviewTranslations = {
+/** LivePreview translations for uz. */
+export const uz: Partial<LivePreviewTranslations> = {
   'livePreview.error.noProvider':
-    "Jonli oldindan ko'rish provayderi sozlanmagan. Avval jonli oldindan ko'rish provayderini ulang.",
+    'Jonli ko‘rish provayderi sozlanmagan. Avval jonli ko‘rish provayderini bog‘lang.',
 }

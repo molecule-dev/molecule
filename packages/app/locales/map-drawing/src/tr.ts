@@ -6,4 +6,8 @@ export const tr: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Satır',
   'mapDrawing.tool.select': 'Seç',
   'mapDrawing.tool.delete': 'Sil',
+  'mapDrawing.surface.aria': 'Harita çizim yüzeyi',
+  'mapDrawing.tool.polygon': 'Çokgen',
+  'mapDrawing.tool.circle': 'Daire',
+  'mapDrawing.toolbar.aria': 'Harita çizim araçları',
 }

@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for ta. */
-export const ta: Partial<ReactNativeUiTranslations> = {}
+export const ta: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'நிராகரி',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'அவதார்',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'அருகில்',
+  'ui.pagination.nav': 'பக்க எண்',
+  'ui.pagination.first': 'முதலில்',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'முந்தைய',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'அடுத்து',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'கடைசி',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{மதிப்பு}} %',
+  'ui.radioGroup.label': 'வானொலி குழு',
+  'ui.select.placeholder': 'தேர்ந்தெடுக்கவும்…',
+  'ui.select.title': 'தேர்ந்தெடுக்கவும்',
+  'ui.spinner.loading': 'ஏற்றுகிறது',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'தரவு இல்லை',
+  'ui.toast.dismiss': 'நிராகரி',
+  'ui.toast.error.noProvider': 'useToast ஆனது ஒரு ToastProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
+}

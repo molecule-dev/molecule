@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for pa — currently mirrors English (translation TBD). */
-export const pa: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for pa. */
+export const pa: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'ਐਨੋਟੇਸ਼ਨ ਪਰਤ',
+  'annotationPin.aria.marker': 'ਐਨੋਟੇਸ਼ਨ ਪਿੰਨ',
+  'annotationPin.aria.popup': 'ਐਨੋਟੇਸ਼ਨ ਵੇਰਵੇ',
+  'annotationPin.empty': 'ਇਸ ਪਿੰਨ ਲਈ ਕੋਈ ਨੋਟਸ ਨਹੀਂ ਹਨ।',
+}

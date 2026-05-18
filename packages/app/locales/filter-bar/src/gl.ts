@@ -1,4 +1,6 @@
 import type { FilterBarTranslations } from './types.js'
 
 /** FilterBar translations for gl. */
-export const gl: Partial<FilterBarTranslations> = {}
+export const gl: Partial<FilterBarTranslations> = {
+  'filterBar.clear': 'Borrar filtros',
+}

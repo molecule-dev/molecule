@@ -4,4 +4,5 @@ import type { HabitStreakCardTranslations } from './types.js'
 export const zh: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': '天连续',
   'habit.total': '总计',
+  'habit.bestStreak': '最好的',
 }

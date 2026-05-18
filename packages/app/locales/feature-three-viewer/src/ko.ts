@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for ko — currently mirrors English (translation TBD). */
-export const ko: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for ko. */
+export const ko: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': '3D 모델 뷰어',
+  'threeViewer.loading': '3D 모델을 불러오는 중…',
+  'threeViewer.error': '3D 모델을 불러오는 데 실패했습니다.',
+}

@@ -11,4 +11,17 @@ export const cs: Partial<ReactUiTranslations> = {
   'userMenu.guestName': 'Analytik',
   'userMenuPopover.guest': 'Účet',
   'userMenu.navLabel': 'Nabídka účtu',
+  'react.error.useAccordionOutsideProvider':
+    'Komponenty akordeonu musí být použity v rámci akordeonu',
+  'ui.avatar.alt': 'Avatar',
+  'ui.pagination.nav': 'Stránkování',
+  'ui.pagination.first': 'Přejít na první stránku',
+  'ui.pagination.previous': 'Přejít na předchozí stránku',
+  'ui.pagination.goToPage': 'Přejít na stránku<x> {{strana}}</x>',
+  'ui.pagination.last': 'Přejít na poslední stránku',
+  'ui.radioGroup.label': 'Rádiová skupina',
+  'sidebar.memberStatus': 'Prémiový člen',
+  'ui.spinner.loading': 'Načítání',
+  'ui.table.empty': 'Nejsou k dispozici žádná data',
+  'react.error.useToastOutsideProvider': 'useToast musí být použit v rámci ToastProvider.',
 }

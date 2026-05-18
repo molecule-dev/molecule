@@ -1,4 +1,6 @@
 import type { EmojiReactionsTranslations } from './types.js'
 
 /** EmojiReactions translations for hy. */
-export const hy: Partial<EmojiReactionsTranslations> = {}
+export const hy: Partial<EmojiReactionsTranslations> = {
+  'reactions.add': 'Ավելացնել ռեակցիա',
+}

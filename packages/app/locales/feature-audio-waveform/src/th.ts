@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for th — currently mirrors English (translation TBD). */
-export const th: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for th. */
+export const th: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'รูปคลื่นเสียง',
+  'audioWaveform.aria.seek': 'ค้นหาไฟล์เสียงโดยคลิกที่รูปคลื่นเสียง',
+  'audioWaveform.empty': 'ไม่มีข้อมูลรูปคลื่นให้ใช้งาน',
+}

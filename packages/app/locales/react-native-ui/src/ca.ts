@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for ca. */
-export const ca: Partial<ReactNativeUiTranslations> = {}
+export const ca: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Ignora',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Tanca',
+  'ui.pagination.nav': 'Paginació',
+  'ui.pagination.first': 'Primer',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Anterior',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Següent',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Últim',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{valor}} %',
+  'ui.radioGroup.label': 'Grup de ràdio',
+  'ui.select.placeholder': 'Selecciona…',
+  'ui.select.title': 'Selecciona',
+  'ui.spinner.loading': 'S&#39;està carregant',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Sense dades',
+  'ui.toast.dismiss': 'Ignora',
+  'ui.toast.error.noProvider': 'useToast s&#39;ha d&#39;utilitzar dins d&#39;un ToastProvider.',
+}

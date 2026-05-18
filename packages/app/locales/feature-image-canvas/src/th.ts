@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for th — currently mirrors English (translation TBD). */
-export const th: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for th. */
+export const th: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'ภาพบนผืนผ้าใบ',
+  'imageCanvas.aria.canvas': 'ลากเพื่อเลื่อนดูภาพกว้าง เลื่อนเมาส์เพื่อซูมเข้าออก',
+  'imageCanvas.loading': 'กำลังโหลดรูปภาพ…',
+  'imageCanvas.error': 'ไม่สามารถโหลดรูปภาพได้',
+}

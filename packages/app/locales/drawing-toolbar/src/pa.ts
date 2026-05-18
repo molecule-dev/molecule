@@ -1,4 +1,6 @@
 import type { DrawingToolbarTranslations } from './types.js'
 
 /** DrawingToolbar translations for pa. */
-export const pa: Partial<DrawingToolbarTranslations> = {}
+export const pa: Partial<DrawingToolbarTranslations> = {
+  'drawingToolbar.label': 'ਡਰਾਇੰਗ ਟੂਲ',
+}

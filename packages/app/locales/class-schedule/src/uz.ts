@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for uz — currently mirrors English (translation TBD). */
-export const uz: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for uz. */
+export const uz: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Haftalik dars jadvali',
+  'classSchedule.aria.event': '{{haftai kuni}}<x> {{start}}</x> –<x> {{oxiri}}</x>',
+  'classSchedule.aria.slot': 'Bo&#39;sh joy,<x> {{haftai kuni}}</x><x> {{vaqt}}</x>',
+}

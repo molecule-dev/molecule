@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for zh-TW — currently mirrors English (translation TBD). */
-export const zhTW: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for zh-TW. */
+export const zhTW: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': '每週課程安排',
+  'classSchedule.aria.event': '{{工作日}}<x> {{開始}}</x> –<x> {{結尾}}</x>',
+  'classSchedule.aria.slot': '空位，<x> {{工作日}}</x><x> {{時間}}</x>',
+}

@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for sk — currently mirrors English (translation TBD). */
-export const sk: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for sk. */
+export const sk: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Kapitoly',
+  'chapterList.aria.seek': 'Prejsť na<x> {{titul}}</x> na<x> {{časová pečiatka}}</x>',
+  'chapterList.aria.thumbnail': 'Miniatúra pre<x> {{titul}}</x>',
+  'chapterList.empty': 'Pre túto epizódu nie sú k dispozícii žiadne kapitoly.',
+  'chapterList.current': 'Práve sa prehráva',
+}

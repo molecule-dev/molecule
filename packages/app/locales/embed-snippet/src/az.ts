@@ -1,5 +1,16 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for az — currently mirrors English (translation TBD). */
-export const az: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for az. */
+export const az: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.aria.region': 'Kodu daxil edin ({language})',
+  'embedSnippet.heading': 'Kodu yerləşdirin',
+  'embedSnippet.eyebrow': 'Yerləşdirmə kodunu kopyalayın',
+  'embedSnippet.copy': 'Kopyalayın',
+  'embedSnippet.copied': 'Kopyalandı!',
+  'embedSnippet.controls.width': 'Eni',
+  'embedSnippet.controls.height': 'Boy',
+  'embedSnippet.controls.theme': 'Mövzu',
+  'embedSnippet.theme.light': 'İşıq',
+  'embedSnippet.theme.dark': 'Qaranlıq',
+  'embedSnippet.theme.auto': 'Avtomatik',
+}

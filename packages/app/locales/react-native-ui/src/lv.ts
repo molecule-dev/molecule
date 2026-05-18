@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for lv. */
-export const lv: Partial<ReactNativeUiTranslations> = {}
+export const lv: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Noraidīt',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatars',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Aizvērt',
+  'ui.pagination.nav': 'Lappušu numerācija',
+  'ui.pagination.first': 'Pirmais',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Iepriekšējais',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Nākamais',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Pēdējais',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{vērtība}} %',
+  'ui.radioGroup.label': 'Radio grupa',
+  'ui.select.placeholder': 'Izvēlieties…',
+  'ui.select.title': 'Atlasīt',
+  'ui.spinner.loading': 'Ielādēšana',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Nav datu',
+  'ui.toast.dismiss': 'Noraidīt',
+  'ui.toast.error.noProvider': 'useToast ir jāizmanto ToastProvider ietvaros.',
+}

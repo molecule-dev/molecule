@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for et — currently mirrors English (translation TBD). */
-export const et: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for et. */
+export const et: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Kaardi joonistamise tööriistad',
+  'mapDrawing.surface.aria': 'Kaardi joonistamise pind',
+  'mapDrawing.tool.polygon': 'Polügoon',
+  'mapDrawing.tool.circle': 'Ring',
+  'mapDrawing.tool.pin': 'Pin',
+  'mapDrawing.tool.line': 'Joon',
+  'mapDrawing.tool.select': 'Vali',
+  'mapDrawing.tool.delete': 'Kustuta',
+}

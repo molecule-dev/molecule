@@ -4,4 +4,5 @@ import type { PaginationBarTranslations } from './types.js'
 export const mr: Partial<PaginationBarTranslations> = {
   'pagination.previous': 'मागील पृष्ठ',
   'pagination.next': 'पुढील पृष्ठ',
+  'pagination.pageSize': 'पृष्ठाचा आकार',
 }

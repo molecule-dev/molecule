@@ -25,4 +25,11 @@ export const ko: Partial<ModerationQueueTranslations> = {
   'moderationQueue.severity.low': '낮음',
   'moderationQueue.severity.medium': '중간',
   'moderationQueue.severity.high': '높음',
+  'moderationQueue.aria.bulkToolbar': '대량 검토 작업',
+  'moderationQueue.aria.selectRow': '항목을 선택하세요',
+  'moderationQueue.loading': '검토 대기열을 불러오는 중…',
+  'moderationQueue.empty': '검토 대기 중인 항목이 없습니다.',
+  'moderationQueue.selectedCount': '{{세다}} 선택된',
+  'moderationQueue.reportedBy': '보고자:',
+  'moderationQueue.kind.image': '영상',
 }

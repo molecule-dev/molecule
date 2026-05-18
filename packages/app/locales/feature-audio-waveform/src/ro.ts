@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for ro — currently mirrors English (translation TBD). */
-export const ro: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for ro. */
+export const ro: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Formă de undă audio',
+  'audioWaveform.aria.seek': 'Căutați sunetul făcând clic pe forma de undă',
+  'audioWaveform.empty': 'Nu sunt disponibile date despre forma de undă.',
+}

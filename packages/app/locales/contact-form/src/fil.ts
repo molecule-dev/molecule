@@ -5,4 +5,6 @@ export const fil: Partial<ContactFormTranslations> = {
   'contactForm.name': 'Inyong pangalan',
   'contactForm.email': 'ikaw@halimbawa.com',
   'contactForm.sending': 'Nagpapadala…',
+  'contactForm.message': 'Paano tayo makakatulong?',
+  'contactForm.send': 'Magpadala ng mensahe',
 }

@@ -1,4 +1,6 @@
 import type { HelpButtonTranslations } from './types.js'
 
 /** HelpButton translations for sr. */
-export const sr: Partial<HelpButtonTranslations> = {}
+export const sr: Partial<HelpButtonTranslations> = {
+  'helpButton.label': 'Помоћ',
+}

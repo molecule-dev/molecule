@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for pa — currently mirrors English (translation TBD). */
-export const pa: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for pa. */
+export const pa: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'ਆਡੀਓ ਮਿਕਸਰ ਕੰਸੋਲ',
+  'audioMixer.aria.fader': '{{ਨਾਮ}} ਫੇਡੋਰ',
+  'audioMixer.aria.pan': '{{ਨਾਮ}} ਪੈਨ',
+  'audioMixer.aria.send': '{{ਚੈਨਲ}} ਭੇਜੋ<x> {{ਭੇਜੋ}}</x>',
+  'audioMixer.button.mute': 'ਮਿਊਟ ਕਰੋ',
+  'audioMixer.button.solo': 'ਸੋਲੋ',
+  'audioMixer.master': 'ਮਾਸਟਰ',
+  'audioMixer.sends': 'ਭੇਜਦਾ ਹੈ',
+}

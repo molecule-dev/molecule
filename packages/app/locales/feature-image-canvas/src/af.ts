@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for af — currently mirrors English (translation TBD). */
-export const af: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for af. */
+export const af: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Beelddoek',
+  'imageCanvas.aria.canvas': 'Sleep om te pan, blaai om te zoem',
+  'imageCanvas.loading': 'Laai beeld…',
+  'imageCanvas.error': 'Kon nie beeld laai nie.',
+}

@@ -10,4 +10,8 @@ export const ja: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': '最も人気',
   'billing.pricing.tierEyebrow': 'ティア',
   'billing.pricing.upgradeCta': '{{tierName}}にアップグレード',
+  'billing.status.currentPlan': '現在の計画：<x> {{tierName}}</x>',
+  'billing.status.cancelError': 'キャンセルできませんでした。もう一度お試しください。',
+  'billing.pricing.reassurance': 'いつでもキャンセル可能 · クレジットカード不要で始められます',
+  'billing.pricing.perSeat': '座席あたり',
 }

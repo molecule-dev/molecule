@@ -1,5 +1,9 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for zh-TW — currently mirrors English (translation TBD). */
-export const zhTW: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for zh-TW. */
+export const zhTW: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': '賽道{{姓名}}',
+  'trackLane.aria.clip': '夾子{{標籤}}從{{startTime}} s 代表{{期間}} s',
+  'trackLane.aria.resize': '調整片段大小',
+  'trackLane.header': '追蹤',
+}

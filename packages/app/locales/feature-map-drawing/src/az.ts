@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for az — currently mirrors English (translation TBD). */
-export const az: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for az. */
+export const az: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Xəritə çəkmə alətləri',
+  'mapDrawing.surface.aria': 'Xəritə çəkmə səthi',
+  'mapDrawing.tool.polygon': 'Çoxbucaqlı',
+  'mapDrawing.tool.circle': 'Dairə',
+  'mapDrawing.tool.pin': 'Sancaq',
+  'mapDrawing.tool.line': 'Xətt',
+  'mapDrawing.tool.select': 'Seçin',
+  'mapDrawing.tool.delete': 'Sil',
+}

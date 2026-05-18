@@ -1,5 +1,14 @@
 import type { BiasIndicatorTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Bias-indicator translations for pa — currently mirrors English (translation TBD). */
-export const pa: BiasIndicatorTranslations = { ...en }
+/** BiasIndicator translations for pa. */
+export const pa: Partial<BiasIndicatorTranslations> = {
+  'biasIndicator.bias.farLeft': 'ਬਹੁਤ ਖੱਬੇ',
+  'biasIndicator.bias.leftLeaning': 'ਖੱਬੇ-ਝੁਕਾਅ',
+  'biasIndicator.bias.center': 'ਕੇਂਦਰ',
+  'biasIndicator.bias.rightLeaning': 'ਸੱਜੇ-ਝੁਕਾਅ',
+  'biasIndicator.bias.farRight': 'ਬਹੁਤ ਸੱਜੇ',
+  'biasIndicator.reliability.high': 'ਭਰੋਸੇਯੋਗਤਾ: ਉੱਚ',
+  'biasIndicator.reliability.medium': 'ਭਰੋਸੇਯੋਗਤਾ: ਦਰਮਿਆਨਾ',
+  'biasIndicator.reliability.low': 'ਭਰੋਸੇਯੋਗਤਾ: ਘੱਟ',
+  'biasIndicator.reliability.disputed': 'ਭਰੋਸੇਯੋਗਤਾ: ਵਿਵਾਦਿਤ',
+}

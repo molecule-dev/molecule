@@ -1,4 +1,7 @@
 import type { CodeBlockTranslations } from './types.js'
 
 /** CodeBlock translations for uz. */
-export const uz: Partial<CodeBlockTranslations> = {}
+export const uz: Partial<CodeBlockTranslations> = {
+  'codeBlock.copied': 'Nusxalandi!',
+  'codeBlock.copy': 'Nusxalash',
+}

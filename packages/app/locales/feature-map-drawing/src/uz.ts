@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for uz — currently mirrors English (translation TBD). */
-export const uz: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for uz. */
+export const uz: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Xarita chizish vositalari',
+  'mapDrawing.surface.aria': 'Xarita chizish yuzasi',
+  'mapDrawing.tool.polygon': 'Poligon',
+  'mapDrawing.tool.circle': 'Doira',
+  'mapDrawing.tool.pin': 'Pin',
+  'mapDrawing.tool.line': 'Chiziq',
+  'mapDrawing.tool.select': 'Tanlang',
+  'mapDrawing.tool.delete': 'O&#39;chirish',
+}

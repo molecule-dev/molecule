@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for si — currently mirrors English (translation TBD). */
-export const si: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for si. */
+export const si: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'විවරණ ස්ථරය',
+  'annotationPin.aria.marker': 'විවරණ පින් එක',
+  'annotationPin.aria.popup': 'විවරණ විස්තර',
+  'annotationPin.empty': 'මෙම පින් එක සඳහා සටහන් නොමැත.',
+}

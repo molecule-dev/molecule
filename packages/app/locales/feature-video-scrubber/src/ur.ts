@@ -1,5 +1,12 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for ur — currently mirrors English (translation TBD). */
-export const ur: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for ur. */
+export const ur: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'ویڈیو اسکربر',
+  'videoScrubber.aria.strip': 'فلم اسٹریپ — پلے ہیڈ پر<x> {{وقت}}</x> s (فریم<x> {{فریم}}</x> )',
+  'videoScrubber.aria.playhead': 'پلے ہیڈ پر<x> {{وقت}}</x> s',
+  'videoScrubber.aria.frameReadout': 'فریم<x> {{فریم}}</x> کی<x> {{کل}}</x>',
+  'videoScrubber.aria.thumbnail': 'فریم کا پیش نظارہ',
+  'videoScrubber.thumbnails.empty': 'کوئی پیش نظارہ نہیں۔',
+  'videoScrubber.frameReadout.total': '/<x> {{کل}}</x> فریم',
+}

@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for mt — currently mirrors English (translation TBD). */
-export const mt: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for mt. */
+export const mt: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Għodda għat-tpinġija tal-mapep',
+  'mapDrawing.surface.aria': 'Wiċċ tat-tpinġija tal-mappa',
+  'mapDrawing.tool.polygon': 'Poligonu',
+  'mapDrawing.tool.circle': 'Ċirku',
+  'mapDrawing.tool.pin': 'Pin',
+  'mapDrawing.tool.line': 'Linja',
+  'mapDrawing.tool.select': 'Agħżel',
+  'mapDrawing.tool.delete': 'Ħassar',
+}

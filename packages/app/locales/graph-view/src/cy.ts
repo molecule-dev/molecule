@@ -1,4 +1,7 @@
 import type { GraphViewTranslations } from './types.js'
 
 /** GraphView translations for cy. */
-export const cy: Partial<GraphViewTranslations> = {}
+export const cy: Partial<GraphViewTranslations> = {
+  'graphView.aria.canvas': 'Golwg graff',
+  'graphView.empty': 'Dim nodau i&#39;w harddangos',
+}

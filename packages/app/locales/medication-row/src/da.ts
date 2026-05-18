@@ -1,4 +1,6 @@
 import type { MedicationRowTranslations } from './types.js'
 
 /** MedicationRow translations for da. */
-export const da: Partial<MedicationRowTranslations> = {}
+export const da: Partial<MedicationRowTranslations> = {
+  'medication.prescribedBy': 'Ordineret af',
+}

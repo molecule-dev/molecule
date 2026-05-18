@@ -4,4 +4,5 @@ import type { CopyLinkFieldTranslations } from './types.js'
 export const uk: Partial<CopyLinkFieldTranslations> = {
   'copyLink.copied': 'Скопійовано!',
   'copyLink.copy': 'Копіювати',
+  'copyLink.field': 'Посилання',
 }

@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for da — currently mirrors English (translation TBD). */
-export const da: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for da. */
+export const da: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Videoskrubber',
+  'videoScrubber.aria.strip':
+    'Filmstrimmel — afspilningshoved ved<x> {{tid}}</x> s (ramme<x> {{ramme}}</x> )',
+  'videoScrubber.aria.playhead': 'Afspilningshoved ved<x> {{tid}}</x> s',
+  'videoScrubber.aria.frameReadout': 'Ramme<x> {{ramme}}</x> af<x> {{total}}</x>',
+  'videoScrubber.aria.thumbnail': 'Forhåndsvisning af billede',
+  'videoScrubber.thumbnails.empty': 'Ingen forhåndsvisning',
+  'videoScrubber.frameReadout.total': '/<x> {{total}}</x> rammer',
+}

@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for sw — currently mirrors English (translation TBD). */
-export const sw: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for sw. */
+export const sw: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Ratiba ya darasa la kila wiki',
+  'classSchedule.aria.event': '{{siku ya wiki}}<x> {{anza}}</x> –<x> {{mwisho}}</x>',
+  'classSchedule.aria.slot': 'Nafasi tupu,<x> {{siku ya wiki}}</x><x> {{wakati}}</x>',
+}

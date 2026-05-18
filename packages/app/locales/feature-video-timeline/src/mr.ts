@@ -1,5 +1,19 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for mr — currently mirrors English (translation TBD). */
-export const mr: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for mr. */
+export const mr: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.aria.root': 'व्हिडिओ टाइमलाइन',
+  'videoTimeline.aria.ruler': 'वेळ मापक',
+  'videoTimeline.aria.playhead': 'प्लेहेडवर<x> {{वेळ}}</x> एस',
+  'videoTimeline.aria.zoom': 'टाइमलाइन झूम',
+  'videoTimeline.aria.mode': 'संपादन मोड',
+  'videoTimeline.zoom.in': 'झूम इन करा',
+  'videoTimeline.zoom.out': 'झूम आउट',
+  'videoTimeline.zoom.in.icon': '+',
+  'videoTimeline.zoom.out.icon': '−',
+  'videoTimeline.mode.ripple': 'रिपल',
+  'videoTimeline.mode.insert': 'घाला',
+  'videoTimeline.trackKind.video': 'व्हिडिओ',
+  'videoTimeline.trackKind.audio': 'ऑडिओ',
+  'videoTimeline.trackKind.subtitle': 'उपशीर्षक',
+}

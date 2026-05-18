@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for fa — currently mirrors English (translation TBD). */
-export const fa: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for fa. */
+export const fa: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'کنسول میکسر صوتی',
+  'audioMixer.aria.fader': '{{نام}} محو کننده',
+  'audioMixer.aria.pan': '{{نام}} تابه',
+  'audioMixer.aria.send': '{{کانال}} ارسال به<x> {{ارسال}}</x>',
+  'audioMixer.button.mute': 'بی‌صدا کردن',
+  'audioMixer.button.solo': 'انفرادی',
+  'audioMixer.master': 'استاد',
+  'audioMixer.sends': 'ارسال می‌کند',
+}

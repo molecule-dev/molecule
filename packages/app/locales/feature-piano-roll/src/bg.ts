@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for bg — currently mirrors English (translation TBD). */
-export const bg: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for bg. */
+export const bg: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Пиано рол',
+  'pianoRoll.aria.keys': 'Клавиши за пиано',
+  'pianoRoll.aria.grid': 'Решетка за бележки',
+  'pianoRoll.aria.resize': 'Преоразмеряване на бележката',
+  'pianoRoll.aria.note':
+    'Забележка<x> {{pitch}}</x> започвайки от такта<x> {{startBeat}}</x> за<x> {{durationBeats}}</x> бийтове',
+}

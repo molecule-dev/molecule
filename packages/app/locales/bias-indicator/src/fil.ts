@@ -1,5 +1,14 @@
 import type { BiasIndicatorTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Bias-indicator translations for fil — currently mirrors English (translation TBD). */
-export const fil: BiasIndicatorTranslations = { ...en }
+/** BiasIndicator translations for fil. */
+export const fil: Partial<BiasIndicatorTranslations> = {
+  'biasIndicator.bias.farLeft': 'Dulong kaliwa',
+  'biasIndicator.bias.leftLeaning': 'Kaliwa',
+  'biasIndicator.bias.center': 'Sentro',
+  'biasIndicator.bias.rightLeaning': 'Pakanan ang pagkakahilig',
+  'biasIndicator.bias.farRight': 'Dulong kanan',
+  'biasIndicator.reliability.high': 'Kahusayan: mataas',
+  'biasIndicator.reliability.medium': 'Kahusayan: katamtaman',
+  'biasIndicator.reliability.low': 'Kahusayan: mababa',
+  'biasIndicator.reliability.disputed': 'Kahusayan: pinagtatalunan',
+}

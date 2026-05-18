@@ -1,5 +1,13 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for ig (stub — falls back to English until reviewed). */
-export const ig: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for ig. */
+export const ig: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.expand': 'Gbasaa<x> {{ọnụọgụ}}</x> azịza',
+  'threadTree.collapse': 'Gbakọọ eriri ahụ',
+  'threadTree.expandSymbol': '[+]',
+  'threadTree.collapseSymbol': '[−]',
+  'threadTree.score': '{{ọnụọgụ}} isi ihe',
+  'threadTree.hiddenReplies': '{{ọnụọgụ}} zoro ezo',
+  'threadTree.upvote': 'Ntuli aka kwalite',
+  'threadTree.reply': 'Zaghachi',
+}

@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for uz — currently mirrors English (translation TBD). */
-export const uz: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for uz. */
+export const uz: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Rasmli kanvas',
+  'imageCanvas.aria.canvas': 'Panoramalash uchun sudrang, kattalashtirish uchun aylantiring',
+  'imageCanvas.loading': 'Rasm yuklanmoqda…',
+  'imageCanvas.error': 'Rasm yuklanmadi.',
+}

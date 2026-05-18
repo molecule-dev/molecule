@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for cy — currently mirrors English (translation TBD). */
-export const cy: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for cy. */
+export const cy: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Penodau',
+  'chapterList.aria.seek': 'Neidio i<x> {{teitl}}</x> yn<x> {{stamp amser}}</x>',
+  'chapterList.aria.thumbnail': 'Mân-lun ar gyfer<x> {{teitl}}</x>',
+  'chapterList.empty': 'Dim penodau ar gael ar gyfer y bennod hon.',
+  'chapterList.current': 'Nawr yn chwarae',
+}

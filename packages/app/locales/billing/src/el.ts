@@ -10,4 +10,10 @@ export const el: Partial<BillingTranslations> = {
     'Δεν ήταν δυνατή η έναρξη ολοκλήρωσης αγοράς. Παρακαλώ δοκιμάστε ξανά.',
   'billing.pricing.mostPopular': 'Πιο δημοφιλές',
   'billing.pricing.upgradeCta': 'Αναβάθμιση σε {{tierName}}',
+  'billing.status.currentPlan': 'Τρέχον σχέδιο:<x> {{tierName}}</x>',
+  'billing.status.cancelError': 'Δεν ήταν δυνατή η ακύρωση. Δοκιμάστε ξανά.',
+  'billing.pricing.reassurance':
+    'Ακύρωση οποιαδήποτε στιγμή · Δεν απαιτείται πιστωτική κάρτα για την έναρξη',
+  'billing.pricing.tierEyebrow': 'Κερκίδα',
+  'billing.pricing.perSeat': 'ανά θέση',
 }

@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for lo. */
-export const lo: Partial<ReactNativeUiTranslations> = {}
+export const lo: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'ປິດ',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'ຮູບແທນຕົວ',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'ປິດ',
+  'ui.pagination.nav': 'ການຈັດແບ່ງໜ້າ',
+  'ui.pagination.first': 'ທຳອິດ',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'ກ່ອນໜ້ານີ້',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '...',
+  'ui.pagination.goToPage': 'ຕໍ່ໄປ',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'ສຸດທ້າຍ',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{value}} %',
+  'ui.radioGroup.label': 'ກຸ່ມວິທະຍຸ',
+  'ui.select.placeholder': 'ເລືອກ…',
+  'ui.select.title': 'ເລືອກ',
+  'ui.spinner.loading': 'ກຳລັງໂຫຼດ',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'ບໍ່ມີຂໍ້ມູນ',
+  'ui.toast.dismiss': 'ປິດ',
+  'ui.toast.error.noProvider': 'useToast ຕ້ອງຖືກນໍາໃຊ້ພາຍໃນ ToastProvider',
+}

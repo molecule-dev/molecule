@@ -4,4 +4,5 @@ import type { HabitStreakCardTranslations } from './types.js'
 export const vi: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'chuỗi ngày',
   'habit.total': 'tổng',
+  'habit.bestStreak': 'tốt nhất',
 }

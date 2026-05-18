@@ -4,4 +4,5 @@ import type { CopyLinkFieldTranslations } from './types.js'
 export const cs: Partial<CopyLinkFieldTranslations> = {
   'copyLink.copied': 'Zkopírováno!',
   'copyLink.copy': 'Kopírovat',
+  'copyLink.field': 'Odkaz',
 }

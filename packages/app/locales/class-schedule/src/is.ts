@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for is — currently mirrors English (translation TBD). */
-export const is: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for is. */
+export const is: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Vikuleg kennslustundaáætlun',
+  'classSchedule.aria.event': '{{virkur dagur}}<x> {{byrja}}</x> –<x> {{lok}}</x>',
+  'classSchedule.aria.slot': 'Tómt rauf,<x> {{virkur dagur}}</x><x> {{tími}}</x>',
+}

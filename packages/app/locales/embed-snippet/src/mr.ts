@@ -1,5 +1,16 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for mr — currently mirrors English (translation TBD). */
-export const mr: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for mr. */
+export const mr: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.aria.region': 'एम्बेड कोड ({भाषा})',
+  'embedSnippet.heading': 'एम्बेड कोड',
+  'embedSnippet.eyebrow': 'एम्बेड कोड कॉपी करा',
+  'embedSnippet.copy': 'प्रत',
+  'embedSnippet.copied': 'कॉपी केले!',
+  'embedSnippet.controls.width': 'रुंदी',
+  'embedSnippet.controls.height': 'उंची',
+  'embedSnippet.controls.theme': 'थीम',
+  'embedSnippet.theme.light': 'प्रकाश',
+  'embedSnippet.theme.dark': 'गडद',
+  'embedSnippet.theme.auto': 'ऑटो',
+}

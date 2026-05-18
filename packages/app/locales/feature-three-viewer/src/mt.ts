@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for mt — currently mirrors English (translation TBD). */
-export const mt: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for mt. */
+export const mt: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': 'Viżwalizzatur tal-mudelli 3D',
+  'threeViewer.loading': 'Qed jitgħabba l-mudell 3D…',
+  'threeViewer.error': 'Ma rnexxiex jitgħabba l-mudell 3D.',
+}

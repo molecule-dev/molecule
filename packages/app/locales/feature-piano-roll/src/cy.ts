@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for cy — currently mirrors English (translation TBD). */
-export const cy: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for cy. */
+export const cy: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Rholio piano',
+  'pianoRoll.aria.keys': 'Allweddi piano',
+  'pianoRoll.aria.grid': 'Grid nodiadau',
+  'pianoRoll.aria.resize': 'Newid maint y nodyn',
+  'pianoRoll.aria.note':
+    'Nodyn<x> {{traw}}</x> gan ddechrau ar guriad<x> {{dechrauBeat}}</x> ar gyfer<x> {{hydCuriadau}}</x> curiadau',
+}

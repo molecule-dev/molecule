@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for tr — currently mirrors English (translation TBD). */
-export const tr: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for tr. */
+export const tr: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Ses dalga formu',
+  'audioWaveform.aria.seek': 'Dalga biçimine tıklayarak ses dosyasında arama yapın.',
+  'audioWaveform.empty': 'Dalga formu verisi mevcut değil.',
+}

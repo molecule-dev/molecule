@@ -1,7 +1,7 @@
 import type { ScreenOrientationTranslations } from './types.js'
 
-/** Screen Orientation translations for Afrikaans. */
-export const af: ScreenOrientationTranslations = {
+/** ScreenOrientation translations for af. */
+export const af: Partial<ScreenOrientationTranslations> = {
   'screenOrientation.error.noProvider':
-    "@molecule/app-screen-orientation: Geen verskaffer gestel nie. Roep setProvider() met 'n ScreenOrientationProvider-implementering (bv. van @molecule/app-screen-orientation-capacitor).",
+    '@molecule/app-screen-orientation: Geen verskaffer gestel nie. Roep setProvider() met &#39;n ScreenOrientationProvider-implementering (bv. vanaf @molecule/app-screen-orientation-capacitor).',
 }

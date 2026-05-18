@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for mr. */
-export const mr: Partial<ReactNativeUiTranslations> = {}
+export const mr: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'बरखास्त करा',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'अवतार',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'बंद करा',
+  'ui.pagination.nav': 'पृष्ठांकन',
+  'ui.pagination.first': 'पहिला',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'मागील',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'पुढील',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'शेवटचे',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{value}} %',
+  'ui.radioGroup.label': 'रेडिओ गट',
+  'ui.select.placeholder': 'निवडा…',
+  'ui.select.title': 'निवडा',
+  'ui.spinner.loading': 'लोडिंग',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'कोणताही डेटा नाही',
+  'ui.toast.dismiss': 'बरखास्त करा',
+  'ui.toast.error.noProvider': 'useToast चा वापर ToastProvider च्या आतच केला पाहिजे.',
+}

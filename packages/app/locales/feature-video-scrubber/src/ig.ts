@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for ig — currently mirrors English (translation TBD). */
-export const ig: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for ig. */
+export const ig: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Ihe nhicha vidiyo',
+  'videoScrubber.aria.strip':
+    'Ihe nkiri — isi egwuregwu na<x> {{oge}}</x> s (fremu<x> {{fremu}}</x> )',
+  'videoScrubber.aria.playhead': 'Isi egwuregwu na<x> {{oge}}</x> s',
+  'videoScrubber.aria.frameReadout': 'Etiti<x> {{fremu}}</x> nke<x> {{mkpokọta}}</x>',
+  'videoScrubber.aria.thumbnail': 'Nlele nke etiti',
+  'videoScrubber.thumbnails.empty': 'Enweghị nlele mbụ',
+  'videoScrubber.frameReadout.total': '/<x> {{mkpokọta}}</x> fremu',
+}

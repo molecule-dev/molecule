@@ -11,4 +11,10 @@ export const nb: Partial<NotificationsPageTranslations> = {
   'notificationsPage.error': 'Kunne ikke laste varsler.',
   'notificationsPage.emptyBody': 'Nye varsler vises her.',
   'notificationsPage.prev': 'Forrige',
+  'notificationsPage.markAllRead': 'Merke<x> {{telle}}</x> som lest',
+  'notificationsPage.filterUnread': 'Ulest',
+  'notificationsPage.emptyTitle': 'Du er ferdig med alt',
+  'notificationsPage.paginationAriaLabel': 'Paginering',
+  'notificationsPage.pageOf': 'Side<x> {{nåværende}}</x> av<x> {{total}}</x>',
+  'notificationsPage.next': 'Neste',
 }

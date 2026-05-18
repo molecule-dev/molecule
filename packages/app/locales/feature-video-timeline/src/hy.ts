@@ -1,5 +1,19 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for hy — currently mirrors English (translation TBD). */
-export const hy: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for hy. */
+export const hy: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.aria.root': 'Տեսանյութերի ժամանակագրություն',
+  'videoTimeline.aria.ruler': 'Ժամանակի քանոն',
+  'videoTimeline.aria.playhead': 'Նվագարկիչի գլխիկ<x> {{ժամանակ}}</x> ներ',
+  'videoTimeline.aria.zoom': 'Ժամանակացույցի մեծացում',
+  'videoTimeline.aria.mode': 'Խմբագրման ռեժիմ',
+  'videoTimeline.zoom.in': 'Մեծացնել',
+  'videoTimeline.zoom.out': 'Փոքրացնել մասշտաբը',
+  'videoTimeline.zoom.in.icon': '+',
+  'videoTimeline.zoom.out.icon': '−',
+  'videoTimeline.mode.ripple': 'Ռիփլ',
+  'videoTimeline.mode.insert': 'Ներդնել',
+  'videoTimeline.trackKind.video': 'Տեսանյութ',
+  'videoTimeline.trackKind.audio': 'Աուդիո',
+  'videoTimeline.trackKind.subtitle': 'Ենթավերնագիր',
+}

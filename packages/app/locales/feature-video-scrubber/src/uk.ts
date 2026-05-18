@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for uk — currently mirrors English (translation TBD). */
-export const uk: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for uk. */
+export const uk: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Відеопомічник',
+  'videoScrubber.aria.strip':
+    'Кінострічка — позиція відтворення на<x> {{час}}</x> s (кадр<x> {{кадр}}</x> )',
+  'videoScrubber.aria.playhead': 'Точка відтворення на<x> {{час}}</x> с',
+  'videoScrubber.aria.frameReadout': 'Рамка<x> {{кадр}}</x> з<x> {{всього}}</x>',
+  'videoScrubber.aria.thumbnail': 'Попередній перегляд кадру',
+  'videoScrubber.thumbnails.empty': 'Без попереднього перегляду',
+  'videoScrubber.frameReadout.total': '/<x> {{всього}}</x> рамки',
+}

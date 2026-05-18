@@ -10,4 +10,9 @@ export const hi: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'सबसे लोकप्रिय',
   'billing.pricing.tierEyebrow': 'टियर',
   'billing.pricing.upgradeCta': '{{tierName}} पर अपग्रेड कीजिए',
+  'billing.status.currentPlan': 'वर्तमान योजना:<x> {{tierName}}</x>',
+  'billing.status.cancelError': 'रद्द नहीं हो सका। कृपया पुनः प्रयास करें।',
+  'billing.pricing.reassurance':
+    'कभी भी रद्द करें · शुरू करने के लिए क्रेडिट कार्ड की आवश्यकता नहीं है',
+  'billing.pricing.perSeat': 'प्रति सीट',
 }

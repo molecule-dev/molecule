@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for lo — currently mirrors English (translation TBD). */
-export const lo: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for lo. */
+export const lo: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'ບົດຕ່າງໆ',
+  'chapterList.aria.seek': 'ຂ້າມໄປທີ່<x> ຫົວຂໍ້</x> ທີ່<x> {{ປະທັບເວລາ}}</x>',
+  'chapterList.aria.thumbnail': 'ຮູບຕົວຢ່າງສຳລັບ<x> ຫົວຂໍ້</x>',
+  'chapterList.empty': 'ບໍ່ມີບົດໃດໆສຳລັບຕອນນີ້.',
+  'chapterList.current': 'ກຳລັງຫຼິ້ນຢູ່',
+}

@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for ru — currently mirrors English (translation TBD). */
-export const ru: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for ru. */
+export const ru: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'фортепианный рулон',
+  'pianoRoll.aria.keys': 'Клавиши пианино',
+  'pianoRoll.aria.grid': 'Сетка заметок',
+  'pianoRoll.aria.resize': 'Примечание по изменению размера',
+  'pianoRoll.aria.note':
+    'Примечание<x> {{подача}}</x> начиная с ритма<x> {{startBeat}}</x> для<x> {{durationBeats}}</x> ритмы',
+}

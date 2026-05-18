@@ -1,4 +1,6 @@
 import type { DrawingToolbarTranslations } from './types.js'
 
 /** DrawingToolbar translations for el. */
-export const el: Partial<DrawingToolbarTranslations> = {}
+export const el: Partial<DrawingToolbarTranslations> = {
+  'drawingToolbar.label': 'Εργαλεία σχεδίασης',
+}

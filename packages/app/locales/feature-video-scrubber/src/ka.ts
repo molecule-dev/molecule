@@ -1,5 +1,12 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for ka — currently mirrors English (translation TBD). */
-export const ka: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for ka. */
+export const ka: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'ვიდეო სკრაბერი',
+  'videoScrubber.aria.strip': 'ფირი — დაკვრის თავი<x> {{დრო}}</x> s (ჩარჩო<x> {{ჩარჩო}}</x> )',
+  'videoScrubber.aria.playhead': 'დაკვრის თავი<x> {{დრო}}</x> ს',
+  'videoScrubber.aria.frameReadout': 'ჩარჩო<x> {{ჩარჩო}}</x> -ის<x> {{სულ}}</x>',
+  'videoScrubber.aria.thumbnail': 'კადრის გადახედვა',
+  'videoScrubber.thumbnails.empty': 'წინასწარი გადახედვა არ არის',
+  'videoScrubber.frameReadout.total': '/<x> {{სულ}}</x> ჩარჩოები',
+}

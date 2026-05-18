@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for mt — currently mirrors English (translation TBD). */
-export const mt: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for mt. */
+export const mt: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Roll tal-pjanu',
+  'pianoRoll.aria.keys': 'Ċwievet tal-pjanu',
+  'pianoRoll.aria.grid': 'Grilja tan-noti',
+  'pianoRoll.aria.resize': 'Ibdel id-daqs tan-nota',
+  'pianoRoll.aria.note':
+    'Nota<x> {{pitch}}</x> tibda bit-taħbita<x> {{startBeat}}</x> għal<x> {{durationBeats}}</x> taħbitiet',
+}

@@ -1,5 +1,14 @@
-import type { BarcodeScannerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureBarcodeScannerTranslations } from './types.js'
 
-/** Barcode-scanner translations for ky — currently mirrors English (translation TBD). */
-export const ky: BarcodeScannerTranslations = { ...en }
+/** FeatureBarcodeScanner translations for ky. */
+export const ky: Partial<FeatureBarcodeScannerTranslations> = {
+  'barcodeScanner.aria.region': 'Штрих-код сканеринин камера көрүнүшү',
+  'barcodeScanner.error.permission_denied': 'Камерага уруксат берилген жок',
+  'barcodeScanner.error.no_camera': 'Камера табылган жок',
+  'barcodeScanner.error.unsupported': 'Бул браузерде камера колдоого алынбайт',
+  'barcodeScanner.error.detector_failure': 'Штрих-код детектору иштебей калды',
+  'barcodeScanner.error.fallback_unavailable': 'Штрих-код сканеринин китепканасы жүктөлбөй койду',
+  'barcodeScanner.status.starting': 'Камераны иштетүү…',
+  'barcodeScanner.status.scanning': 'Скандалууда…',
+  'barcodeScanner.status.stopped': 'Скандоо аяктады',
+}

@@ -4,4 +4,6 @@ import type { OnboardingModalTranslations } from './types.js'
 export const uk: Partial<OnboardingModalTranslations> = {
   'onboarding.back': 'Назад',
   'onboarding.done': 'Почати',
+  'onboarding.skip': 'Пропустити',
+  'onboarding.next': 'Далі',
 }

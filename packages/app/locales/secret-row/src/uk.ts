@@ -6,4 +6,7 @@ export const uk: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Копіювати',
   'secretRow.rotate': 'Ротувати',
   'secretRow.delete': 'Видалити',
+  'secretRow.expired': 'Термін дії минув',
+  'secretRow.hide': 'Приховати',
+  'secretRow.show': 'Показати',
 }

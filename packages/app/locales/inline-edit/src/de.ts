@@ -5,4 +5,5 @@ export const de: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Abbrechen',
   'inlineEdit.saving': 'Wird gespeichert…',
   'inlineEdit.save': 'Speichern',
+  'inlineEdit.empty': 'Zum Bearbeiten klicken',
 }

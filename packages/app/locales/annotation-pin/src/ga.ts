@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for ga — currently mirrors English (translation TBD). */
-export const ga: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for ga. */
+export const ga: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Sraith anótála',
+  'annotationPin.aria.marker': 'Biorán anótála',
+  'annotationPin.aria.popup': 'Sonraí anótála',
+  'annotationPin.empty': 'Gan aon nótaí don biorán seo.',
+}

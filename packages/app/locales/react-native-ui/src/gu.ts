@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for gu. */
-export const gu: Partial<ReactNativeUiTranslations> = {}
+export const gu: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'કાઢી નાખો',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'અવતાર',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '-',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'બંધ કરો',
+  'ui.pagination.nav': 'પૃષ્ઠ ક્રમાંકન',
+  'ui.pagination.first': 'પ્રથમ',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'પાછલું',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'આગળ',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'છેલ્લા',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{મૂલ્ય}} %',
+  'ui.radioGroup.label': 'રેડિયો ગ્રુપ',
+  'ui.select.placeholder': 'પસંદ કરો...',
+  'ui.select.title': 'પસંદ કરો',
+  'ui.spinner.loading': 'લોડ કરી રહ્યું છે',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'કોઈ ડેટા નથી',
+  'ui.toast.dismiss': 'કાઢી નાખો',
+  'ui.toast.error.noProvider': 'useToast નો ઉપયોગ ToastProvider માં થવો જોઈએ.',
+}

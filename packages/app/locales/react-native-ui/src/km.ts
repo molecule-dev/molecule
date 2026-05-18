@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for km. */
-export const km: Partial<ReactNativeUiTranslations> = {}
+export const km: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'បដិសេធ',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'រូប​តំណាង',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'បិទ',
+  'ui.pagination.nav': 'ការបែងចែកទំព័រ',
+  'ui.pagination.first': 'ដំបូង',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'មុន',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'បន្ទាប់',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'ចុងក្រោយ',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{តម្លៃ}} %',
+  'ui.radioGroup.label': 'ក្រុមវិទ្យុ',
+  'ui.select.placeholder': 'ជ្រើសរើស…',
+  'ui.select.title': 'ជ្រើសរើស',
+  'ui.spinner.loading': 'កំពុងផ្ទុក',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'គ្មានទិន្នន័យ',
+  'ui.toast.dismiss': 'បដិសេធ',
+  'ui.toast.error.noProvider': 'useToast ត្រូវតែប្រើនៅក្នុង ToastProvider',
+}

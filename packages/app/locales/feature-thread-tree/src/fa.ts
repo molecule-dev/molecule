@@ -1,5 +1,13 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for fa (stub — falls back to English until reviewed). */
-export const fa: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for fa. */
+export const fa: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.expand': 'گسترش<x> {{شمارش}}</x> پاسخ‌ها',
+  'threadTree.collapse': 'جمع کردن تاپیک',
+  'threadTree.expandSymbol': '[+]',
+  'threadTree.collapseSymbol': '[−]',
+  'threadTree.score': '{{شمارش}} امتیازها',
+  'threadTree.hiddenReplies': '{{شمارش}} پنهان',
+  'threadTree.upvote': 'رأی مثبت',
+  'threadTree.reply': 'پاسخ',
+}

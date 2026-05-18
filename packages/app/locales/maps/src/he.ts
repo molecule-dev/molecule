@@ -1,7 +1,7 @@
 import type { MapsTranslations } from './types.js'
 
-/** Maps translations for Hebrew. */
-export const he: MapsTranslations = {
+/** Maps translations for he. */
+export const he: Partial<MapsTranslations> = {
   'maps.placeholder.title': 'מציין מקום למפה',
-  'maps.placeholder.description': "השתמש בספק מפות מתאים (MapBox, Google Maps, וכו')",
+  'maps.placeholder.description': 'השתמשו בספק מפות מתאים (MapBox, Google Maps וכו&#39;)',
 }

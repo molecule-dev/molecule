@@ -8,4 +8,6 @@ export const zh: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.aria.prev': '上一曲',
   'nowPlaying.aria.seek': '拖动播放进度',
   'nowPlaying.aria.volume': '成交量',
+  'nowPlaying.aria.region': '正在播放：<x> {{标题}}</x>',
+  'nowPlaying.aria.artwork': '为艺术作品{{标题}}',
 }

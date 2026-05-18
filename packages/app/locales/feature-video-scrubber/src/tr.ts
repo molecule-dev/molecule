@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for tr — currently mirrors English (translation TBD). */
-export const tr: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for tr. */
+export const tr: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Video temizleyici',
+  'videoScrubber.aria.strip':
+    'Film şeridi — oynatma başlığı<x> {{zaman}}</x> s (çerçeve)<x> {{çerçeve}}</x> )',
+  'videoScrubber.aria.playhead': 'Playhead&#39;de<x> {{zaman}}</x> S',
+  'videoScrubber.aria.frameReadout': 'Çerçeve<x> {{çerçeve}}</x> ile ilgili<x> {{toplam}}</x>',
+  'videoScrubber.aria.thumbnail': 'Çerçeve önizlemesi',
+  'videoScrubber.thumbnails.empty': 'Önizleme yok',
+  'videoScrubber.frameReadout.total': '/<x> {{toplam}}</x> çerçeveler',
+}

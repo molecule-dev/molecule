@@ -14,4 +14,7 @@ export const ar: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'ترقية',
   'settings.billing.cancel': 'إلغاء',
   'settings.billing.subscribe': 'اشترك',
+  'settings.darkMode': 'الوضع الداكن',
+  'settings.billing.upgradeTitle': 'قم بترقية خطتك',
+  'settings.billing.noTiers': 'لم يتم إعداد أي خطط مدفوعة.',
 }

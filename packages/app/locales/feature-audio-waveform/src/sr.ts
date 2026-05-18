@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for sr — currently mirrors English (translation TBD). */
-export const sr: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for sr. */
+export const sr: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Аудио таласни облик',
+  'audioWaveform.aria.seek': 'Претражите звук кликом на таласни облик',
+  'audioWaveform.empty': 'Нема доступних података о таласном облику.',
+}

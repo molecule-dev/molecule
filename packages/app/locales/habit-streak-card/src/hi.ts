@@ -4,4 +4,5 @@ import type { HabitStreakCardTranslations } from './types.js'
 export const hi: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': 'दिन की लय',
   'habit.total': 'कुल',
+  'habit.bestStreak': 'श्रेष्ठ',
 }

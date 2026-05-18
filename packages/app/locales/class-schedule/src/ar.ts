@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for ar — currently mirrors English (translation TBD). */
-export const ar: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for ar. */
+export const ar: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'الجدول الأسبوعي للحصص الدراسية',
+  'classSchedule.aria.event': '{{weekday}}<x> {{يبدأ}}</x> –<x> {{نهاية}}</x>',
+  'classSchedule.aria.slot': 'خانة فارغة،<x> {{weekday}}</x><x> {{وقت}}</x>',
+}

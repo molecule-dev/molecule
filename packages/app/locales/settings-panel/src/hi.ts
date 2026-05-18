@@ -14,4 +14,7 @@ export const hi: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'अपग्रेड करें',
   'settings.billing.cancel': 'रद्द करें',
   'settings.billing.subscribe': 'सदस्यता लें',
+  'settings.darkMode': 'डार्क मोड',
+  'settings.billing.upgradeTitle': 'अपनी योजना को अपग्रेड करें',
+  'settings.billing.noTiers': 'कोई सशुल्क प्लान कॉन्फ़िगर नहीं किया गया है।',
 }

@@ -4,4 +4,5 @@ import type { HabitStreakCardTranslations } from './types.js'
 export const ko: Partial<HabitStreakCardTranslations> = {
   'habit.currentStreak': '일 연속',
   'habit.total': '전체',
+  'habit.bestStreak': '최상의',
 }

@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for km (stub — falls back to English until reviewed). */
-export const km: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for km. */
+export const km: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': 'ការគ្រប់គ្រងការដឹកជញ្ជូនការចាក់ឡើងវិញ',
+  'transportBar.aria.skipBack': 'រំលង​ទៅ​ក្រោយ',
+  'transportBar.aria.skipForward': 'រំលងទៅមុខ',
+  'transportBar.aria.play': 'លេង',
+  'transportBar.aria.pause': 'ផ្អាក',
+  'transportBar.aria.stop': 'ឈប់',
+  'transportBar.aria.record': 'ថត',
+  'transportBar.aria.stopRecording': 'ឈប់ថត',
+  'transportBar.aria.loopOn': 'បិទរង្វិលជុំ',
+  'transportBar.aria.loopOff': 'បើកដំណើរការរង្វិលជុំ',
+}

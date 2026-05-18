@@ -1,4 +1,6 @@
 import type { HelpButtonTranslations } from './types.js'
 
 /** HelpButton translations for yo. */
-export const yo: Partial<HelpButtonTranslations> = {}
+export const yo: Partial<HelpButtonTranslations> = {
+  'helpButton.label': 'Egba Mi O',
+}

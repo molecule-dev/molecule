@@ -1,5 +1,7 @@
 import type { AdjustmentSliderTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Adjustment-slider translations for lo — currently mirrors English (translation TBD). */
-export const lo: AdjustmentSliderTranslations = { ...en }
+/** AdjustmentSlider translations for lo. */
+export const lo: Partial<AdjustmentSliderTranslations> = {
+  'adjustmentSlider.aria': '{{ປ້າຍກຳກັບ}}',
+  'adjustmentSlider.reset.aria': 'ຕັ້ງຄ່າໃໝ່<x> {{ປ້າຍກຳກັບ}}</x>',
+}

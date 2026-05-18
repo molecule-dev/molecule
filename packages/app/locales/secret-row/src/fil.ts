@@ -6,4 +6,7 @@ export const fil: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopyahin',
   'secretRow.rotate': 'I-rotate',
   'secretRow.delete': 'Burahin',
+  'secretRow.expired': 'Nag-expire na',
+  'secretRow.hide': 'Itago',
+  'secretRow.show': 'Ipakita',
 }

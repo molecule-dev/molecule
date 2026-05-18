@@ -1,7 +1,7 @@
 import type { BluetoothTranslations } from './types.js'
 
-/** Bluetooth translations for Turkish. */
-export const tr: BluetoothTranslations = {
+/** Bluetooth translations for tr. */
+export const tr: Partial<BluetoothTranslations> = {
   'bluetooth.error.noProvider':
-    "@molecule/app-bluetooth: Sağlayıcı ayarlanmamış. setProvider() fonksiyonunu bir BluetoothProvider uygulamasıyla çağırın (ör., @molecule/app-bluetooth-capacitor'dan).",
+    '@molecule/app-bluetooth: Sağlayıcı ayarlanmadı. Bir BluetoothProvider uygulamasıyla (örneğin, @molecule/app-bluetooth-capacitor&#39;dan) setProvider() işlevini çağırın.',
 }

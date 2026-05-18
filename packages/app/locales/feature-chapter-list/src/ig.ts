@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for ig — currently mirrors English (translation TBD). */
-export const ig: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for ig. */
+export const ig: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Isiakwụkwọ',
+  'chapterList.aria.seek': 'Wụga na<x> {{aha}}</x> na<x> {{oge akara}}</x>',
+  'chapterList.aria.thumbnail': 'obere ihe maka<x> {{aha}}</x>',
+  'chapterList.empty': 'Enweghị isiakwụkwọ dị maka ihe omume a.',
+  'chapterList.current': 'Na-egwu ugbu a',
+}

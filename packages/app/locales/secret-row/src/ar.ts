@@ -8,4 +8,5 @@ export const ar: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'نسخ',
   'secretRow.rotate': 'تدوير',
   'secretRow.delete': 'حذف',
+  'secretRow.expired': 'منتهي الصلاحية',
 }

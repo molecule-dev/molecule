@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for te — currently mirrors English (translation TBD). */
-export const te: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for te. */
+export const te: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'అధ్యాయాలు',
+  'chapterList.aria.seek': 'దూకు<x> {{title}}</x> వద్ద<x> {{timestamp}}</x>',
+  'chapterList.aria.thumbnail': 'థంబ్నెయిల్ కోసం<x> {{title}}</x>',
+  'chapterList.empty': 'ఈ ఎపిసోడ్‌కు సంబంధించిన అధ్యాయాలు అందుబాటులో లేవు.',
+  'chapterList.current': 'ఇప్పుడు ప్లే అవుతోంది',
+}

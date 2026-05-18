@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for ka — currently mirrors English (translation TBD). */
-export const ka: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for ka. */
+export const ka: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'აუდიო მიქსერის კონსოლი',
+  'audioMixer.aria.fader': '{{სახელი}} ფეიდერი',
+  'audioMixer.aria.pan': '{{სახელი}} ტაფა',
+  'audioMixer.aria.send': '{{არხი}} გაგზავნა<x> {{გაგზავნა}}</x>',
+  'audioMixer.button.mute': 'დადუმება',
+  'audioMixer.button.solo': 'სოლო',
+  'audioMixer.master': 'ოსტატი',
+  'audioMixer.sends': 'აგზავნის',
+}

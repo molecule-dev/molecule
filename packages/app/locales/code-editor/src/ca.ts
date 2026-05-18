@@ -1,7 +1,7 @@
 import type { CodeEditorTranslations } from './types.js'
 
-/** Code Editor translations for Catalan. */
-export const ca: CodeEditorTranslations = {
+/** CodeEditor translations for ca. */
+export const ca: Partial<CodeEditorTranslations> = {
   'codeEditor.error.noProvider':
-    "El proveïdor de l'editor de codi no està configurat. Vinculeu primer un proveïdor d'editor de codi.",
+    'Proveïdor d&#39;editor de codi no configurat. Primer, vincula un proveïdor d&#39;editor de codi.',
 }

@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for pa — currently mirrors English (translation TBD). */
-export const pa: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for pa. */
+export const pa: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'ਚਿੱਤਰ ਕੈਨਵਸ',
+  'imageCanvas.aria.canvas': 'ਪੈਨ ਕਰਨ ਲਈ ਘਸੀਟੋ, ਜ਼ੂਮ ਕਰਨ ਲਈ ਸਕ੍ਰੋਲ ਕਰੋ',
+  'imageCanvas.loading': 'ਚਿੱਤਰ ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ…',
+  'imageCanvas.error': 'ਚਿੱਤਰ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕਿਆ।',
+}

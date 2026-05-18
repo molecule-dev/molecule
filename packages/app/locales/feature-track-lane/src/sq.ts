@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for sq — currently mirrors English (translation TBD). */
-export const sq: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for sq. */
+export const sq: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Korsi pistash<x> {{emri}}</x>',
+  'trackLane.aria.clip':
+    'Klip<x> {{etiketë}}</x> duke filluar nga<x> {{fillimi i kohës}}</x> s për<x> {{kohëzgjatja}}</x> s',
+  'trackLane.aria.resize': 'Ndrysho madhësinë e klipit',
+  'trackLane.header': 'Pistë',
+}

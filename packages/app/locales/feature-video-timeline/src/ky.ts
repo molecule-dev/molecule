@@ -1,5 +1,19 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for ky — currently mirrors English (translation TBD). */
-export const ky: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for ky. */
+export const ky: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.aria.root': 'Видеонун убакыт сызыгы',
+  'videoTimeline.aria.ruler': 'Убакыт сызгычы',
+  'videoTimeline.aria.playhead': 'Ойноткуч башы<x> {{убакыт}}</x> с',
+  'videoTimeline.aria.zoom': 'Убакыт тилкесинин масштабы',
+  'videoTimeline.aria.mode': 'Түзөтүү режими',
+  'videoTimeline.zoom.in': 'Жакындатуу',
+  'videoTimeline.zoom.out': 'Жакындатуу',
+  'videoTimeline.zoom.in.icon': '+',
+  'videoTimeline.zoom.out.icon': '−',
+  'videoTimeline.mode.ripple': 'Толкун',
+  'videoTimeline.mode.insert': 'Киргизүү',
+  'videoTimeline.trackKind.video': 'Видео',
+  'videoTimeline.trackKind.audio': 'Аудио',
+  'videoTimeline.trackKind.subtitle': 'Субтитр',
+}

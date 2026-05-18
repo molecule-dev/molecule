@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for sw — currently mirrors English (translation TBD). */
-export const sw: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for sw. */
+export const sw: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Sura',
+  'chapterList.aria.seek': 'Ruka hadi<x> {{title}}</x> katika<x> {{muhuri wa muda}}</x>',
+  'chapterList.aria.thumbnail': 'Kijipicha cha<x> {{title}}</x>',
+  'chapterList.empty': 'Hakuna sura zinazopatikana kwa kipindi hiki.',
+  'chapterList.current': 'Sasa inacheza',
+}

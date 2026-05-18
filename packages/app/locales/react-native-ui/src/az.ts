@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for az. */
-export const az: Partial<ReactNativeUiTranslations> = {}
+export const az: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Ləğv et',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Bağla',
+  'ui.pagination.nav': 'Səhifələmə',
+  'ui.pagination.first': 'Birinci',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Əvvəlki',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Növbəti',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Sonuncu',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{dəyər}} %',
+  'ui.radioGroup.label': 'Radio qrupu',
+  'ui.select.placeholder': 'Seçin…',
+  'ui.select.title': 'Seçin',
+  'ui.spinner.loading': 'Yüklənir',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Məlumat yoxdur',
+  'ui.toast.dismiss': 'Ləğv et',
+  'ui.toast.error.noProvider': 'useToast funksiyası ToastProvider daxilində istifadə olunmalıdır',
+}

@@ -10,4 +10,8 @@ export const vi: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Phổ biến nhất',
   'billing.pricing.tierEyebrow': 'Bậc',
   'billing.pricing.upgradeCta': 'Nâng cấp lên {{tierName}}',
+  'billing.status.currentPlan': 'Kế hoạch hiện tại:<x> {{tierName}}</x>',
+  'billing.status.cancelError': 'Không thể hủy. Vui lòng thử lại.',
+  'billing.pricing.reassurance': 'Hủy bất cứ lúc nào · Không cần thẻ tín dụng để bắt đầu',
+  'billing.pricing.perSeat': 'mỗi chỗ ngồi',
 }

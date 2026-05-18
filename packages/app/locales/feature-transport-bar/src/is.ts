@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for is (stub — falls back to English until reviewed). */
-export const is: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for is. */
+export const is: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': 'Stýringar fyrir spilun',
+  'transportBar.aria.skipBack': 'Hoppa afturábak',
+  'transportBar.aria.skipForward': 'Hoppa áfram',
+  'transportBar.aria.play': 'Spila',
+  'transportBar.aria.pause': 'Gera hlé',
+  'transportBar.aria.stop': 'Stöðva',
+  'transportBar.aria.record': 'Upptaka',
+  'transportBar.aria.stopRecording': 'Hætta upptöku',
+  'transportBar.aria.loopOn': 'Slökkva á lykkju',
+  'transportBar.aria.loopOff': 'Virkja lykkju',
+}

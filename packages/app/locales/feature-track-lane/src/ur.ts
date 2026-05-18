@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for ur — currently mirrors English (translation TBD). */
-export const ur: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for ur. */
+export const ur: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'ٹریک لین<x> {{نام}}</x>',
+  'trackLane.aria.clip':
+    'کلپ<x> {{label}}</x> سے شروع ہو رہا ہے۔<x> {{startTime}}</x> کے لیے<x> {{مدّت}}</x> s',
+  'trackLane.aria.resize': 'کلپ کا سائز تبدیل کریں۔',
+  'trackLane.header': 'ٹریک',
+}

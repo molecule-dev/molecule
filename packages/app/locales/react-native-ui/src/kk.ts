@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for kk. */
-export const kk: Partial<ReactNativeUiTranslations> = {}
+export const kk: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Жабу',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Аватар',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Жабу',
+  'ui.pagination.nav': 'Беттеу',
+  'ui.pagination.first': 'Бірінші',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Алдыңғы',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '...',
+  'ui.pagination.goToPage': 'Келесі',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Соңғы',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{мән}} %',
+  'ui.radioGroup.label': 'Радио тобы',
+  'ui.select.placeholder': 'Таңдау…',
+  'ui.select.title': 'Таңдау',
+  'ui.spinner.loading': 'Жүктелуде',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Деректер жоқ',
+  'ui.toast.dismiss': 'Жабу',
+  'ui.toast.error.noProvider': 'useToast функциясы ToastProvider ішінде пайдаланылуы керек',
+}

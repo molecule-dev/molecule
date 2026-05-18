@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for gl — currently mirrors English (translation TBD). */
-export const gl: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for gl. */
+export const gl: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Consola de mestura de son',
+  'audioMixer.aria.fader': '{{nome}} atenuador',
+  'audioMixer.aria.pan': '{{nome}} tixola',
+  'audioMixer.aria.send': '{{canle}} enviar a<x> {{enviar}}</x>',
+  'audioMixer.button.mute': 'Silenciar',
+  'audioMixer.button.solo': 'Só',
+  'audioMixer.master': 'Mestre',
+  'audioMixer.sends': 'Envía',
+}

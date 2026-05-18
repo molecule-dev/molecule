@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for ca — currently mirrors English (translation TBD). */
-export const ca: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for ca. */
+export const ca: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'llenç d&#39;imatges',
+  'imageCanvas.aria.canvas': 'Arrossega per panoràmica, desplaça&#39;t per ampliar',
+  'imageCanvas.loading': 'S&#39;està carregant la imatge…',
+  'imageCanvas.error': 'No s&#39;ha pogut carregar la imatge.',
+}

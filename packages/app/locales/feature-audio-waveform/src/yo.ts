@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for yo — currently mirrors English (translation TBD). */
-export const yo: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for yo. */
+export const yo: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Ìgbì ohùn',
+  'audioWaveform.aria.seek': 'Wá ohùn náà nípa títẹ ìpele waveform náà',
+  'audioWaveform.empty': 'Ko si data waveform ti o wa.',
+}

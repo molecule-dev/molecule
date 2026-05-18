@@ -1,7 +1,7 @@
 import type { StatusBarTranslations } from './types.js'
 
-/** Status Bar translations for Turkish. */
-export const tr: StatusBarTranslations = {
+/** StatusBar translations for tr. */
+export const tr: Partial<StatusBarTranslations> = {
   'statusBar.error.noProvider':
-    "@molecule/app-status-bar: Sağlayıcı ayarlanmamış. setProvider() işlevini bir StatusBarProvider uygulamasıyla çağırın (ör., @molecule/app-status-bar-capacitor'dan).",
+    '@molecule/app-status-bar: Sağlayıcı ayarlanmadı. Bir StatusBarProvider uygulamasıyla (örneğin, @molecule/app-status-bar-capacitor&#39;dan) setProvider() işlevini çağırın.',
 }

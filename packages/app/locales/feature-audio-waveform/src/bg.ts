@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for bg — currently mirrors English (translation TBD). */
-export const bg: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for bg. */
+export const bg: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Аудио вълнова форма',
+  'audioWaveform.aria.seek': 'Търсете аудиото, като щракнете върху формата на вълната',
+  'audioWaveform.empty': 'Няма налични данни за формата на вълната.',
+}

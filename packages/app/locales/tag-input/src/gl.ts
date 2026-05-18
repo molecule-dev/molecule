@@ -1,4 +1,7 @@
 import type { TagInputTranslations } from './types.js'
 
 /** TagInput translations for gl. */
-export const gl: Partial<TagInputTranslations> = {}
+export const gl: Partial<TagInputTranslations> = {
+  'tagChip.remove': 'Eliminar',
+  'tagInput.placeholder': 'Engadir unha etiqueta…',
+}

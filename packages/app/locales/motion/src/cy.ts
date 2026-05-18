@@ -1,7 +1,7 @@
 import type { MotionTranslations } from './types.js'
 
-/** Motion translations for Welsh. */
-export const cy: MotionTranslations = {
+/** Motion translations for cy. */
+export const cy: Partial<MotionTranslations> = {
   'motion.error.noProvider':
-    "@molecule/app-motion: Nid yw'r darparwr wedi'i osod. Galwch setProvider() gyda gweithrediad MotionProvider (e.e., o @molecule/app-motion-capacitor).",
+    '@molecule/app-motion: Dim darparwr wedi&#39;i osod. Galwch setProvider() gyda gweithrediad MotionProvider (e.e., o @molecule/app-motion-capacitor).',
 }

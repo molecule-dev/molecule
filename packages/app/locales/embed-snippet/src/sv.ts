@@ -9,4 +9,8 @@ export const sv: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.controls.theme': 'Tema',
   'embedSnippet.theme.light': 'Ljust',
   'embedSnippet.theme.dark': 'Mörkt',
+  'embedSnippet.aria.region': 'Bädda in kod ({språk})',
+  'embedSnippet.eyebrow': 'Kopiera inbäddningskod',
+  'embedSnippet.controls.width': 'Bredd',
+  'embedSnippet.theme.auto': 'Bil',
 }

@@ -6,4 +6,5 @@ export const vi: Partial<HttpInspectorTranslations> = {
   'httpInspector.send': 'Gửi',
   'httpInspector.headers': 'Tiêu đề',
   'httpInspector.body': 'Nội dung',
+  'httpInspector.addHeader': 'Thêm tiêu đề',
 }

@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for ur — currently mirrors English (translation TBD). */
-export const ur: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for ur. */
+export const ur: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'آڈیو ویوفارم',
+  'audioWaveform.aria.seek': 'ویوفارم پر کلک کرکے آڈیو تلاش کریں۔',
+  'audioWaveform.empty': 'کوئی ویوفارم ڈیٹا دستیاب نہیں ہے۔',
+}

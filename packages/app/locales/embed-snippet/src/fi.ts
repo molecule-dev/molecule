@@ -8,4 +8,9 @@ export const fi: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.controls.theme': 'Teema',
   'embedSnippet.theme.light': 'Vaalea',
   'embedSnippet.theme.dark': 'Tumma',
+  'embedSnippet.aria.region': 'Upotuskoodi ({language})',
+  'embedSnippet.eyebrow': 'Kopioi upotuskoodi',
+  'embedSnippet.controls.width': 'Leveys',
+  'embedSnippet.controls.height': 'Korkeus',
+  'embedSnippet.theme.auto': 'Auto',
 }

@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for ur — currently mirrors English (translation TBD). */
-export const ur: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for ur. */
+export const ur: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'تشریح کی پرت',
+  'annotationPin.aria.marker': 'تشریح پن',
+  'annotationPin.aria.popup': 'تشریح کی تفصیلات',
+  'annotationPin.empty': 'اس پن کے لیے کوئی نوٹس نہیں ہے۔',
+}

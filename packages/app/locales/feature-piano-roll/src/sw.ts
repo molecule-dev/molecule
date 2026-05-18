@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for sw — currently mirrors English (translation TBD). */
-export const sw: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for sw. */
+export const sw: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Roli ya piano',
+  'pianoRoll.aria.keys': 'Funguo za piano',
+  'pianoRoll.aria.grid': 'Gridi ya madokezo',
+  'pianoRoll.aria.resize': 'Badilisha ukubwa wa dokezo',
+  'pianoRoll.aria.note':
+    'Dokezo<x> {{lami}}</x> kuanzia kwenye mdundo<x> {{startBeat}}</x> kwa<x> {{durationBeats}}</x> midundo',
+}

@@ -4,4 +4,5 @@ import type { PaginationBarTranslations } from './types.js'
 export const ka: Partial<PaginationBarTranslations> = {
   'pagination.previous': 'წინა გვერდი',
   'pagination.next': 'შემდეგი გვერდი',
+  'pagination.pageSize': 'გვერდის ზომა',
 }

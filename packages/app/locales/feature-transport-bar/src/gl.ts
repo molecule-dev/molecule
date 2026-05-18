@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for gl (stub — falls back to English until reviewed). */
-export const gl: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for gl. */
+export const gl: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': 'Controis de transporte de reprodución',
+  'transportBar.aria.skipBack': 'Saltar cara atrás',
+  'transportBar.aria.skipForward': 'Saltar cara adiante',
+  'transportBar.aria.play': 'Reproducir',
+  'transportBar.aria.pause': 'Pausa',
+  'transportBar.aria.stop': 'Parar',
+  'transportBar.aria.record': 'Rexistro',
+  'transportBar.aria.stopRecording': 'Deter a gravación',
+  'transportBar.aria.loopOn': 'Desactivar bucle',
+  'transportBar.aria.loopOff': 'Activar bucle',
+}

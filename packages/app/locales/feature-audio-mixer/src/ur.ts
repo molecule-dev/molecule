@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for ur — currently mirrors English (translation TBD). */
-export const ur: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for ur. */
+export const ur: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'آڈیو مکسر کنسول',
+  'audioMixer.aria.fader': '{{نام}} fader',
+  'audioMixer.aria.pan': '{{نام}} پین',
+  'audioMixer.aria.send': '{{چینل}} کو بھیجیں<x> {{بھیجیں}}</x>',
+  'audioMixer.button.mute': 'خاموش',
+  'audioMixer.button.solo': 'سولو',
+  'audioMixer.master': 'ماسٹر',
+  'audioMixer.sends': 'بھیجتا ہے۔',
+}

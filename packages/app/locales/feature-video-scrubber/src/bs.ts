@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for bs — currently mirrors English (translation TBD). */
-export const bs: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for bs. */
+export const bs: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Video preglednik',
+  'videoScrubber.aria.strip':
+    'Filmska traka — pokazivač reprodukcije na<x> {{vrijeme}}</x> s (okvir<x> {{okvir}}</x> )',
+  'videoScrubber.aria.playhead': 'Položaj za reprodukciju na<x> {{vrijeme}}</x> s',
+  'videoScrubber.aria.frameReadout': 'Okvir<x> {{okvir}}</x> od<x> {{ukupno}}</x>',
+  'videoScrubber.aria.thumbnail': 'Pregled kadra',
+  'videoScrubber.thumbnails.empty': 'Nema pregleda',
+  'videoScrubber.frameReadout.total': '/<x> {{ukupno}}</x> okviri',
+}

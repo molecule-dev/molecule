@@ -4,4 +4,6 @@ import type { OnboardingModalTranslations } from './types.js'
 export const fil: Partial<OnboardingModalTranslations> = {
   'onboarding.back': 'Bumalik',
   'onboarding.done': 'Magsimula',
+  'onboarding.skip': 'Laktawan',
+  'onboarding.next': 'Susunod',
 }

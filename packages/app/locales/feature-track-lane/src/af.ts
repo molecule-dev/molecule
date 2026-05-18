@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for af — currently mirrors English (translation TBD). */
-export const af: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for af. */
+export const af: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Spoorbaan<x> {{naam}}</x>',
+  'trackLane.aria.clip':
+    'Knipsel<x> {{etiket}}</x> begin by<x> {{beginTyd}}</x> s vir<x> {{duur}}</x> s',
+  'trackLane.aria.resize': 'Verander grootte van snit',
+  'trackLane.header': 'Spoor',
+}

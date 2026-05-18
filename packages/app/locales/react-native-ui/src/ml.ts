@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for ml. */
-export const ml: Partial<ReactNativeUiTranslations> = {}
+export const ml: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'നിരസിക്കുക',
+  'ui.icon.close': '✕ ✕ 📺',
+  'ui.avatar.alt': 'അവതാർ',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'അടയ്ക്കുക',
+  'ui.pagination.nav': 'പേജിനേഷൻ',
+  'ui.pagination.first': 'ആദ്യം',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'മുമ്പത്തേത്',
+  'ui.icon.chevronLeft': '‹ ‹   **',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'അടുത്തത്',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'അവസാനത്തെ',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{മൂല്യം}} %',
+  'ui.radioGroup.label': 'റേഡിയോ ഗ്രൂപ്പ്',
+  'ui.select.placeholder': 'തിരഞ്ഞെടുക്കുക...',
+  'ui.select.title': 'തിരഞ്ഞെടുക്കുക',
+  'ui.spinner.loading': 'ലോഡ് ചെയ്യുന്നു',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'ഡാറ്റ ഇല്ല',
+  'ui.toast.dismiss': 'നിരസിക്കുക',
+  'ui.toast.error.noProvider': 'useToast ഒരു ToastProvider-ൽ തന്നെ ഉപയോഗിക്കണം.',
+}

@@ -1,5 +1,19 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for sq — currently mirrors English (translation TBD). */
-export const sq: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for sq. */
+export const sq: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.aria.root': 'Kronologjia e videos',
+  'videoTimeline.aria.ruler': 'Sundimtari i kohës',
+  'videoTimeline.aria.playhead': 'Koka e luajtjes në<x> {{kohë}}</x> s',
+  'videoTimeline.aria.zoom': 'Zmadhimi i kronologjisë',
+  'videoTimeline.aria.mode': 'Modaliteti i modifikimit',
+  'videoTimeline.zoom.in': 'Zmadho',
+  'videoTimeline.zoom.out': 'Zvogëlo',
+  'videoTimeline.zoom.in.icon': '+',
+  'videoTimeline.zoom.out.icon': '−',
+  'videoTimeline.mode.ripple': 'Valëzim',
+  'videoTimeline.mode.insert': 'Vendos',
+  'videoTimeline.trackKind.video': 'Video',
+  'videoTimeline.trackKind.audio': 'Audio',
+  'videoTimeline.trackKind.subtitle': 'Nëntitulli',
+}

@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for hy — currently mirrors English (translation TBD). */
-export const hy: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for hy. */
+export const hy: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Ծանոթագրության շերտ',
+  'annotationPin.aria.marker': 'Ծանոթագրության կոճ',
+  'annotationPin.aria.popup': 'Ծանոթագրության մանրամասներ',
+  'annotationPin.empty': 'Այս PIN-ի համար նշումներ չկան։',
+}

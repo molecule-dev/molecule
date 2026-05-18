@@ -15,4 +15,6 @@ export const ko: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyBody': '새 알림이 여기에 표시됩니다.',
   'notificationsPage.prev': '이전',
   'notificationsPage.next': '다음',
+  'notificationsPage.paginationAriaLabel': '쪽수 매기기',
+  'notificationsPage.pageOf': '페이지<x> {{현재의}}</x> ~의<x> {{총}}</x>',
 }

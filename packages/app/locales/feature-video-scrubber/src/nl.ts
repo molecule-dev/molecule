@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for nl — currently mirrors English (translation TBD). */
-export const nl: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for nl. */
+export const nl: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Video scrubber',
+  'videoScrubber.aria.strip':
+    'Filmstrip — afspeelkop op<x> {{tijd}}</x> s (frame<x> {{kader}}</x> )',
+  'videoScrubber.aria.playhead': 'Playhead bij<x> {{tijd}}</x> S',
+  'videoScrubber.aria.frameReadout': 'Kader<x> {{kader}}</x> van<x> {{totaal}}</x>',
+  'videoScrubber.aria.thumbnail': 'Voorbeeld van een kader',
+  'videoScrubber.thumbnails.empty': 'Geen voorbeeld',
+  'videoScrubber.frameReadout.total': '/<x> {{totaal}}</x> frames',
+}

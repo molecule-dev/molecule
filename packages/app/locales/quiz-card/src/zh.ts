@@ -1,4 +1,6 @@
 import type { QuizCardTranslations } from './types.js'
 
 /** QuizCard translations for zh. */
-export const zh: Partial<QuizCardTranslations> = {}
+export const zh: Partial<QuizCardTranslations> = {
+  'quizCard.submit': '提交答案',
+}

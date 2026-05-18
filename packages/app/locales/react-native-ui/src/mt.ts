@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for mt. */
-export const mt: Partial<ReactNativeUiTranslations> = {}
+export const mt: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Ċaħad',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Agħlaq',
+  'ui.pagination.nav': 'Paġinazzjoni',
+  'ui.pagination.first': 'L-ewwel',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Preċedenti',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '...',
+  'ui.pagination.goToPage': 'Li jmiss',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'L-aħħar',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{valur}} %',
+  'ui.radioGroup.label': 'Grupp tar-radju',
+  'ui.select.placeholder': 'Agħżel…',
+  'ui.select.title': 'Agħżel',
+  'ui.spinner.loading': 'Tagħbija',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'L-ebda dejta',
+  'ui.toast.dismiss': 'Ċaħad',
+  'ui.toast.error.noProvider': 'useToast irid jintuża fi ħdan ToastProvider',
+}

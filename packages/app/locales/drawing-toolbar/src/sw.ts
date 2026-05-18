@@ -1,4 +1,6 @@
 import type { DrawingToolbarTranslations } from './types.js'
 
 /** DrawingToolbar translations for sw. */
-export const sw: Partial<DrawingToolbarTranslations> = {}
+export const sw: Partial<DrawingToolbarTranslations> = {
+  'drawingToolbar.label': 'Zana za kuchora',
+}

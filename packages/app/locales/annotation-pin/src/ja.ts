@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for ja — currently mirrors English (translation TBD). */
-export const ja: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for ja. */
+export const ja: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': '注釈レイヤー',
+  'annotationPin.aria.marker': '注釈ピン',
+  'annotationPin.aria.popup': '注釈の詳細',
+  'annotationPin.empty': 'このピンにはコメントがありません。',
+}

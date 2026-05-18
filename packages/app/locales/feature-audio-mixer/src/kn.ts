@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for kn — currently mirrors English (translation TBD). */
-export const kn: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for kn. */
+export const kn: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'ಆಡಿಯೋ ಮಿಕ್ಸರ್ ಕನ್ಸೋಲ್',
+  'audioMixer.aria.fader': '{{ಹೆಸರು}} ಮಸುಕು',
+  'audioMixer.aria.pan': '{{ಹೆಸರು}} ಪ್ಯಾನ್',
+  'audioMixer.aria.send': '{{ಚಾನಲ್}} ಕಳುಹಿಸಿ<x> {{ಕಳುಹಿಸು}}</x>',
+  'audioMixer.button.mute': 'ಮ್ಯೂಟ್ ಮಾಡಿ',
+  'audioMixer.button.solo': 'ಸೋಲೋ',
+  'audioMixer.master': 'ಮಾಸ್ಟರ್',
+  'audioMixer.sends': 'ಕಳುಹಿಸುತ್ತದೆ',
+}

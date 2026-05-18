@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for gl — currently mirrors English (translation TBD). */
-export const gl: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for gl. */
+export const gl: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Lenzo de imaxes',
+  'imageCanvas.aria.canvas': 'Arrastrar para panorámica, desprazar para ampliar',
+  'imageCanvas.loading': 'Cargando imaxe…',
+  'imageCanvas.error': 'Non se puido cargar a imaxe.',
+}

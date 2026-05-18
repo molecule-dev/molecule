@@ -1,4 +1,6 @@
 import type { DrawingToolbarTranslations } from './types.js'
 
 /** DrawingToolbar translations for hi. */
-export const hi: Partial<DrawingToolbarTranslations> = {}
+export const hi: Partial<DrawingToolbarTranslations> = {
+  'drawingToolbar.label': 'ड्राइंग उपकरण',
+}

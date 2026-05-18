@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for hr — currently mirrors English (translation TBD). */
-export const hr: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for hr. */
+export const hr: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Platno za slike',
+  'imageCanvas.aria.canvas': 'Povucite za pomicanje, pomaknite se za zumiranje',
+  'imageCanvas.loading': 'Učitavanje slike…',
+  'imageCanvas.error': 'Učitavanje slike nije uspjelo.',
+}

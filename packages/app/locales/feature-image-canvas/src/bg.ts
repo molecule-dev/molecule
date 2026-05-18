@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for bg — currently mirrors English (translation TBD). */
-export const bg: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for bg. */
+export const bg: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Изображение на платното',
+  'imageCanvas.aria.canvas': 'Плъзнете за панорамиране, превъртете за мащабиране',
+  'imageCanvas.loading': 'Зареждане на изображението…',
+  'imageCanvas.error': 'Зареждането на изображението не бе успешно.',
+}

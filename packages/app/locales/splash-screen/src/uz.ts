@@ -1,8 +1,8 @@
 import type { SplashScreenTranslations } from './types.js'
 
-/** Splash Screen translations for Uzbek. */
-export const uz: SplashScreenTranslations = {
-  'splashScreen.error.noProvider': "Boshlang'ich ekran provayderi sozlanmagan.",
+/** SplashScreen translations for uz. */
+export const uz: Partial<SplashScreenTranslations> = {
+  'splashScreen.error.noProvider': 'Ekranni ochish provayderi sozlanmagan.',
   'splashScreen.warn.configureNotSupported':
-    "configure() ushbu boshlang'ich ekran provayderi tomonidan qo'llab-quvvatlanmaydi.",
+    'configure() funksiyasi ushbu ekran provayderi tomonidan qo&#39;llab-quvvatlanmaydi.',
 }

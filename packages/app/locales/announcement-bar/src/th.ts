@@ -1,4 +1,6 @@
 import type { AnnouncementBarTranslations } from './types.js'
 
 /** AnnouncementBar translations for th. */
-export const th: Partial<AnnouncementBarTranslations> = {}
+export const th: Partial<AnnouncementBarTranslations> = {
+  'announcement.dismiss': 'อนุญาตให้ออกไป',
+}

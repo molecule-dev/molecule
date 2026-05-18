@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for uz — currently mirrors English (translation TBD). */
-export const uz: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for uz. */
+export const uz: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Izoh qatlami',
+  'annotationPin.aria.marker': 'Izoh pin',
+  'annotationPin.aria.popup': 'Izoh tafsilotlari',
+  'annotationPin.empty': 'Bu pin uchun hech qanday yozuv yo&#39;q.',
+}

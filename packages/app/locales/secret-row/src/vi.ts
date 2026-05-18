@@ -8,4 +8,5 @@ export const vi: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Sao chép',
   'secretRow.rotate': 'Xoay',
   'secretRow.delete': 'Xóa',
+  'secretRow.expired': 'Hết hạn',
 }

@@ -6,4 +6,5 @@ export const zh: Partial<ContactFormTranslations> = {
   'contactForm.message': '我们如何为你提供帮助？',
   'contactForm.sending': '发送中…',
   'contactForm.send': '发送消息',
+  'contactForm.email': 'you@example.com',
 }

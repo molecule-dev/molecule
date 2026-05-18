@@ -1,24 +1,24 @@
 import type { SolidTranslations } from './types.js'
 
-/** Solid translations for Afrikaans. */
-export const af: SolidTranslations = {
+/** Solid translations for af. */
+export const af: Partial<SolidTranslations> = {
   'solid.error.stateOutsideProvider':
-    "getStateProvider moet binne 'n MoleculeProvider met staat gekonfigureer gebruik word",
+    'getStateProvider moet binne &#39;n MoleculeProvider met &#39;n gekonfigureerde toestand gebruik word.',
   'solid.error.authOutsideProvider':
-    "getAuthClient moet binne 'n MoleculeProvider met verifikasie gekonfigureer gebruik word",
+    'getAuthClient moet binne &#39;n MoleculeProvider met auth gekonfigureer gebruik word.',
   'solid.error.themeOutsideProvider':
-    "getThemeProvider moet binne 'n MoleculeProvider met tema gekonfigureer gebruik word",
+    'getThemeProvider moet binne &#39;n MoleculeProvider met tema gekonfigureer gebruik word.',
   'solid.error.routerOutsideProvider':
-    "getRouter moet binne 'n MoleculeProvider met roeteerder gekonfigureer gebruik word",
+    'getRouter moet binne &#39;n MoleculeProvider met &#39;n router gekonfigureer gebruik word.',
   'solid.error.i18nOutsideProvider':
-    "getI18nProvider moet binne 'n MoleculeProvider met i18n gekonfigureer gebruik word",
+    'getI18nProvider moet binne &#39;n Molekuleverskaffer met i18n gekonfigureer gebruik word.',
   'solid.error.httpOutsideProvider':
-    "getHttpClient moet binne 'n MoleculeProvider met HTTP gekonfigureer gebruik word",
+    'getHttpClient moet binne &#39;n MoleculeProvider met http gekonfigureer gebruik word.',
   'solid.error.storageOutsideProvider':
-    "getStorageProvider moet binne 'n MoleculeProvider met berging gekonfigureer gebruik word",
+    'getStorageProvider moet binne &#39;n MoleculeProvider met gekonfigureerde berging gebruik word.',
   'solid.error.loggerOutsideProvider':
-    "getLoggerProvider moet binne 'n MoleculeProvider met logverskaffer gekonfigureer gebruik word",
+    'getLoggerProvider moet binne &#39;n MoleculeProvider met logger gekonfigureer gebruik word.',
   'solid.error.useAccordionOutsideProvider':
-    "Accordion-komponente moet binne 'n Accordion gebruik word",
-  'solid.error.useToastOutsideProvider': "useToast moet binne 'n ToastProvider gebruik word",
+    'Trekklavierkomponente moet binne &#39;n trekklavier gebruik word',
+  'solid.error.useToastOutsideProvider': 'useToast moet binne &#39;n ToastProvider gebruik word',
 }

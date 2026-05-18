@@ -1,7 +1,7 @@
 import type { BrightnessTranslations } from './types.js'
 
-/** Brightness translations for Turkish. */
-export const tr: BrightnessTranslations = {
+/** Brightness translations for tr. */
+export const tr: Partial<BrightnessTranslations> = {
   'brightness.error.noProvider':
-    "@molecule/app-brightness: Sağlayıcı ayarlanmamış. setProvider() işlevini bir BrightnessProvider uygulamasıyla çağırın (ör., @molecule/app-brightness-capacitor'dan).",
+    '@molecule/app-brightness: Sağlayıcı ayarlanmadı. Lütfen bir BrightnessProvider uygulamasıyla (örneğin, @molecule/app-brightness-capacitor&#39;dan) setProvider() işlevini çağırın.',
 }

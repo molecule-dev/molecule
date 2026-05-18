@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for kn. */
-export const kn: Partial<ReactNativeUiTranslations> = {}
+export const kn: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'ವಜಾಗೊಳಿಸಿ',
+  'ui.icon.close': '✕विश्वाली ✕',
+  'ui.avatar.alt': 'ಅವತಾರ್',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'ಮುಚ್ಚಿ',
+  'ui.pagination.nav': 'ಪುಟ ವಿನ್ಯಾಸ',
+  'ui.pagination.first': 'ಮೊದಲು',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'ಹಿಂದಿನದು',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '...',
+  'ui.pagination.goToPage': 'ಮುಂದೆ',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'ಕೊನೆಯದು',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{ಮೌಲ್ಯ}} %',
+  'ui.radioGroup.label': 'ರೇಡಿಯೋ ಗುಂಪು',
+  'ui.select.placeholder': 'ಆಯ್ಕೆ ಮಾಡಿ...',
+  'ui.select.title': 'ಆಯ್ಕೆ ಮಾಡಿ',
+  'ui.spinner.loading': 'ಲೋಡ್ ಆಗುತ್ತಿದೆ',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓ ↓ ಕನ್ನಡ',
+  'ui.table.empty': 'ಡೇಟಾ ಇಲ್ಲ',
+  'ui.toast.dismiss': 'ವಜಾಗೊಳಿಸಿ',
+  'ui.toast.error.noProvider': 'useToast ಅನ್ನು ToastProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು.',
+}

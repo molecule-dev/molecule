@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for ca — currently mirrors English (translation TBD). */
-export const ca: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for ca. */
+export const ca: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': 'Visualitzador de models 3D',
+  'threeViewer.loading': 'S&#39;està carregant el model 3D…',
+  'threeViewer.error': 'No s&#39;ha pogut carregar el model 3D.',
+}

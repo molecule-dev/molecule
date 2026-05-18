@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for lt — currently mirrors English (translation TBD). */
-export const lt: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for lt. */
+export const lt: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Garso bangos forma',
+  'audioWaveform.aria.seek': 'Ieškokite garso įrašo spustelėdami bangos formą',
+  'audioWaveform.empty': 'Bangos formos duomenų nėra.',
+}

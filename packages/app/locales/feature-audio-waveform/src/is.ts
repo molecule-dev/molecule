@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for is — currently mirrors English (translation TBD). */
-export const is: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for is. */
+export const is: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Hljóðbylgjuform',
+  'audioWaveform.aria.seek': 'Leitaðu að hljóðinu með því að smella á bylgjuformið',
+  'audioWaveform.empty': 'Engar bylgjuformsgögn tiltæk',
+}

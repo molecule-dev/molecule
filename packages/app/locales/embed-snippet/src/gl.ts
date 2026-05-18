@@ -1,5 +1,16 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for gl — currently mirrors English (translation TBD). */
-export const gl: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for gl. */
+export const gl: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.aria.region': 'Código incrustado ({idioma})',
+  'embedSnippet.heading': 'Código incrustado',
+  'embedSnippet.eyebrow': 'Copiar o código de inserción',
+  'embedSnippet.copy': 'Copiar',
+  'embedSnippet.copied': 'Copiado!',
+  'embedSnippet.controls.width': 'Largura',
+  'embedSnippet.controls.height': 'Altura',
+  'embedSnippet.controls.theme': 'Tema',
+  'embedSnippet.theme.light': 'Luz',
+  'embedSnippet.theme.dark': 'Escuro',
+  'embedSnippet.theme.auto': 'Automático',
+}

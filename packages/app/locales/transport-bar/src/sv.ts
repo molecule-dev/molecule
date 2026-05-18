@@ -6,4 +6,8 @@ export const sv: Partial<TransportBarTranslations> = {
   'transportBar.aria.pause': 'Pausa',
   'transportBar.aria.record': 'Spela in',
   'transportBar.aria.stopRecording': 'Stoppa inspelning',
+  'transportBar.aria.region': 'Kontroller för uppspelningstransport',
+  'transportBar.aria.skipForward': 'Hoppa framåt',
+  'transportBar.aria.stop': 'Stopp',
+  'transportBar.aria.loopOff': 'Aktivera loop',
 }

@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for hi — currently mirrors English (translation TBD). */
-export const hi: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for hi. */
+export const hi: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'एनोटेशन परत',
+  'annotationPin.aria.marker': 'एनोटेशन पिन',
+  'annotationPin.aria.popup': 'एनोटेशन विवरण',
+  'annotationPin.empty': 'इस पिन के लिए कोई टिप्पणी नहीं है।',
+}

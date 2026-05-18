@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for nl — currently mirrors English (translation TBD). */
-export const nl: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for nl. */
+export const nl: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Wekelijks lesrooster',
+  'classSchedule.aria.event': '{{weekdag}}<x> {{begin}}</x> –<x> {{einde}}</x>',
+  'classSchedule.aria.slot': 'Leeg vak,<x> {{weekdag}}</x><x> {{tijd}}</x>',
+}

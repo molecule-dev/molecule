@@ -6,4 +6,8 @@ export const nl: Partial<FeatureMapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Regel',
   'mapDrawing.tool.select': 'Selecteer',
   'mapDrawing.tool.delete': 'Verwijderen',
+  'mapDrawing.toolbar.aria': 'Kaarttekentools',
+  'mapDrawing.surface.aria': 'Kaarttekenoppervlak',
+  'mapDrawing.tool.polygon': 'Veelhoek',
+  'mapDrawing.tool.circle': 'Cirkel',
 }

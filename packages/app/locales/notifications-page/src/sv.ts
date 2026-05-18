@@ -15,4 +15,6 @@ export const sv: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyBody': 'Nya aviseringar visas här.',
   'notificationsPage.prev': 'Föregående',
   'notificationsPage.next': 'Nästa',
+  'notificationsPage.paginationAriaLabel': 'Paginering',
+  'notificationsPage.pageOf': 'Sida<x> {{nuvarande}}</x> av<x> {{total}}</x>',
 }

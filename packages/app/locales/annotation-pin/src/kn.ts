@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for kn — currently mirrors English (translation TBD). */
-export const kn: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for kn. */
+export const kn: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'ಟಿಪ್ಪಣಿ ಪದರ',
+  'annotationPin.aria.marker': 'ಟಿಪ್ಪಣಿ ಪಿನ್',
+  'annotationPin.aria.popup': 'ಟಿಪ್ಪಣಿ ವಿವರಗಳು',
+  'annotationPin.empty': 'ಈ ಪಿನ್‌ಗೆ ಯಾವುದೇ ಟಿಪ್ಪಣಿಗಳಿಲ್ಲ.',
+}

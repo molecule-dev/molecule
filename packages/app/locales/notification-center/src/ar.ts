@@ -5,4 +5,5 @@ export const ar: Partial<NotificationCenterTranslations> = {
   'notifications.title': 'الإشعارات',
   'notifications.markAllRead': 'تعليم الكل كمقروء',
   'notifications.viewAll': 'عرض الكل',
+  'notifications.empty': 'لا توجد إشعارات',
 }

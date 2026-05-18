@@ -14,4 +14,7 @@ export const vi: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'Nâng cấp',
   'settings.billing.cancel': 'Hủy',
   'settings.billing.subscribe': 'Đăng ký',
+  'settings.darkMode': 'Chế độ tối',
+  'settings.billing.upgradeTitle': 'Nâng cấp gói dịch vụ của bạn',
+  'settings.billing.noTiers': 'Chưa có gói trả phí nào được cấu hình.',
 }

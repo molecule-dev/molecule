@@ -14,4 +14,7 @@ export const id: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'Tingkatkan',
   'settings.billing.cancel': 'Batal',
   'settings.billing.subscribe': 'Berlangganan',
+  'settings.darkMode': 'Mode gelap',
+  'settings.billing.upgradeTitle': 'Tingkatkan paket Anda',
+  'settings.billing.noTiers': 'Tidak ada paket berbayar yang dikonfigurasi.',
 }

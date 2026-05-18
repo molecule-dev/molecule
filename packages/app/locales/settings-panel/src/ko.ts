@@ -14,4 +14,7 @@ export const ko: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': '업그레이드',
   'settings.billing.cancel': '취소',
   'settings.billing.subscribe': '구독하기',
+  'settings.darkMode': '다크 모드',
+  'settings.billing.upgradeTitle': '요금제를 업그레이드하세요',
+  'settings.billing.noTiers': '설정된 유료 플랜이 없습니다.',
 }

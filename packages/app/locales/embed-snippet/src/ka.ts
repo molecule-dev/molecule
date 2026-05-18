@@ -1,5 +1,16 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for ka — currently mirrors English (translation TBD). */
-export const ka: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for ka. */
+export const ka: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.aria.region': 'ჩასმის კოდი ({ენა})',
+  'embedSnippet.heading': 'ჩასმის კოდი',
+  'embedSnippet.eyebrow': 'ჩასმის კოდის კოპირება',
+  'embedSnippet.copy': 'კოპირება',
+  'embedSnippet.copied': 'კოპირებულია!',
+  'embedSnippet.controls.width': 'სიგანე',
+  'embedSnippet.controls.height': 'სიმაღლე',
+  'embedSnippet.controls.theme': 'თემა',
+  'embedSnippet.theme.light': 'სინათლე',
+  'embedSnippet.theme.dark': 'მუქი',
+  'embedSnippet.theme.auto': 'ავტომატური',
+}

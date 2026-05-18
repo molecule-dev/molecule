@@ -6,4 +6,8 @@ export const hi: Partial<FeatureMapDrawingTranslations> = {
   'mapDrawing.tool.line': 'लाइन',
   'mapDrawing.tool.select': 'चुनें',
   'mapDrawing.tool.delete': 'हटाएँ',
+  'mapDrawing.toolbar.aria': 'मानचित्र बनाने के उपकरण',
+  'mapDrawing.surface.aria': 'मानचित्र रेखाचित्र सतह',
+  'mapDrawing.tool.polygon': 'बहुभुज',
+  'mapDrawing.tool.circle': 'घेरा',
 }

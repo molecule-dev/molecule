@@ -1,4 +1,6 @@
 import type { SubscriptionPlanCardTranslations } from './types.js'
 
 /** SubscriptionPlanCard translations for sr. */
-export const sr: Partial<SubscriptionPlanCardTranslations> = {}
+export const sr: Partial<SubscriptionPlanCardTranslations> = {
+  'plan.recommended': 'Препоручено',
+}

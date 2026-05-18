@@ -1,5 +1,53 @@
-import type { AudioEffectsRackTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioEffectsRackTranslations } from './types.js'
 
-/** Audio-effects-rack translations for mn — currently mirrors English (translation TBD). */
-export const mn: AudioEffectsRackTranslations = { ...en }
+/** FeatureAudioEffectsRack translations for mn. */
+export const mn: Partial<FeatureAudioEffectsRackTranslations> = {
+  'audioEffectsRack.aria.rack': 'Аудио эффектийн тавиур',
+  'audioEffectsRack.aria.dragHandle': 'Дахин дараалалд оруулахын тулд чирнэ үү',
+  'audioEffectsRack.button.add': 'Эффект нэмэх',
+  'audioEffectsRack.button.addPlaceholder': 'Эффект нэмэх...',
+  'audioEffectsRack.button.bypass': 'Тойрч өнгөрөх зам',
+  'audioEffectsRack.button.remove': 'Эффектийг арилгах',
+  'audioEffectsRack.empty':
+    'Гинжин хэлхээнд ямар ч нөлөө байхгүй — эхлүүлэхийн тулд нэгийг нэмнэ үү.',
+  'audioEffectsRack.kind.eq': 'EQ',
+  'audioEffectsRack.kind.compressor': 'Компрессор',
+  'audioEffectsRack.kind.reverb': 'Ревербер',
+  'audioEffectsRack.kind.delay': 'Саатал',
+  'audioEffectsRack.kind.distortion': 'Гажуудал',
+  'audioEffectsRack.kind.gate': 'Хаалга',
+  'audioEffectsRack.kind.limiter': 'Хязгаарлагч',
+  'audioEffectsRack.kind.chorus': 'Найрал дуу',
+  'audioEffectsRack.kind.flanger': 'Фланжер',
+  'audioEffectsRack.kind.phaser': 'Фазер',
+  'audioEffectsRack.param.eq.low': 'Бага',
+  'audioEffectsRack.param.eq.mid': 'Дунд',
+  'audioEffectsRack.param.eq.high': 'Өндөр',
+  'audioEffectsRack.param.compressor.threshold': 'Босго',
+  'audioEffectsRack.param.compressor.ratio': 'Харьцаа',
+  'audioEffectsRack.param.compressor.attack': 'Довтолгоо',
+  'audioEffectsRack.param.compressor.release': 'Хувилбар',
+  'audioEffectsRack.param.reverb.mix': 'Микс',
+  'audioEffectsRack.param.reverb.decay': 'Ялзрал',
+  'audioEffectsRack.param.reverb.predelay': 'Урьдчилсан саатал',
+  'audioEffectsRack.param.delay.time': 'Цаг хугацаа',
+  'audioEffectsRack.param.delay.feedback': 'Санал хүсэлт',
+  'audioEffectsRack.param.delay.mix': 'Микс',
+  'audioEffectsRack.param.distortion.drive': 'Жолоодох',
+  'audioEffectsRack.param.distortion.tone': 'Өнгө ая',
+  'audioEffectsRack.param.distortion.mix': 'Микс',
+  'audioEffectsRack.param.gate.threshold': 'Босго',
+  'audioEffectsRack.param.gate.attack': 'Довтолгоо',
+  'audioEffectsRack.param.gate.release': 'Хувилбар',
+  'audioEffectsRack.param.limiter.threshold': 'Босго',
+  'audioEffectsRack.param.limiter.release': 'Хувилбар',
+  'audioEffectsRack.param.chorus.rate': 'Үнэлгээ',
+  'audioEffectsRack.param.chorus.depth': 'Гүн',
+  'audioEffectsRack.param.chorus.mix': 'Микс',
+  'audioEffectsRack.param.flanger.rate': 'Үнэлгээ',
+  'audioEffectsRack.param.flanger.depth': 'Гүн',
+  'audioEffectsRack.param.flanger.feedback': 'Санал хүсэлт',
+  'audioEffectsRack.param.phaser.rate': 'Үнэлгээ',
+  'audioEffectsRack.param.phaser.depth': 'Гүн',
+  'audioEffectsRack.param.phaser.feedback': 'Санал хүсэлт',
+}

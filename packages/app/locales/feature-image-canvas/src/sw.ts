@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for sw — currently mirrors English (translation TBD). */
-export const sw: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for sw. */
+export const sw: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Turubai ya picha',
+  'imageCanvas.aria.canvas': 'Buruta ili kugeuza sehemu, sogeza ili kukuza',
+  'imageCanvas.loading': 'Inapakia picha…',
+  'imageCanvas.error': 'Picha imeshindwa kupakia.',
+}

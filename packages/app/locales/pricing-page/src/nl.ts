@@ -10,4 +10,9 @@ export const nl: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.monthly': 'Maandelijks',
   'pricingPage.periodToggle.yearly': 'Jaarlijks',
   'pricingPage.planUpdated.heading': 'Uw abonnement is bijgewerkt',
+  'pricingPage.heading': 'Kies uw plan',
+  'pricingPage.perSeat': 'per stoel',
+  'pricingPage.periodToggle.label': 'Factureringsperiode',
+  'pricingPage.planUpdated.body':
+    'Bedankt voor uw upgrade. Uw nieuwe abonnement is direct geactiveerd en u heeft een ontvangstbewijs per e-mail ontvangen.',
 }

@@ -4,4 +4,7 @@ import type { FeatureChapterListTranslations } from './types.js'
 export const nl: Partial<FeatureChapterListTranslations> = {
   'chapterList.aria.region': 'Hoofdstukken',
   'chapterList.current': 'Nu aan het afspelen',
+  'chapterList.aria.seek': 'Spring naar<x> {{titel}}</x> bij<x> {{tijdstempel}}</x>',
+  'chapterList.aria.thumbnail': 'Miniatuurafbeelding voor<x> {{titel}}</x>',
+  'chapterList.empty': 'Er zijn geen hoofdstukken beschikbaar voor deze aflevering.',
 }

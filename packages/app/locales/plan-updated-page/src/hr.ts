@@ -1,4 +1,6 @@
 import type { PlanUpdatedPageTranslations } from './types.js'
 
 /** PlanUpdatedPage translations for hr. */
-export const hr: Partial<PlanUpdatedPageTranslations> = {}
+export const hr: Partial<PlanUpdatedPageTranslations> = {
+  'planUpdated.viewReceipt': 'Prikaži račun',
+}

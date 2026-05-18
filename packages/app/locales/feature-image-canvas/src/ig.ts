@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for ig — currently mirrors English (translation TBD). */
-export const ig: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for ig. */
+export const ig: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Kanvas onyonyo',
+  'imageCanvas.aria.canvas': 'Dọrọ gaa na pan, pịgharịa gaa na mbugharị',
+  'imageCanvas.loading': 'Na-ebugo onyonyo…',
+  'imageCanvas.error': 'Foto ahụ abataghị.',
+}

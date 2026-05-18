@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for eu. */
-export const eu: Partial<ReactNativeUiTranslations> = {}
+export const eu: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Baztertu',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatarra',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Itxi',
+  'ui.pagination.nav': 'Orrialde-kopurua',
+  'ui.pagination.first': 'Lehenengoa',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Aurrekoa',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Hurrengoa',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Azkena',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{balioa}} %',
+  'ui.radioGroup.label': 'Irrati taldea',
+  'ui.select.placeholder': 'Hautatu…',
+  'ui.select.title': 'Hautatu',
+  'ui.spinner.loading': 'Kargatzen',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Daturik ez',
+  'ui.toast.dismiss': 'Baztertu',
+  'ui.toast.error.noProvider': 'useToast ToastProvider baten barruan erabili behar da',
+}

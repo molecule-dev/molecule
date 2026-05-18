@@ -1,4 +1,12 @@
 import type { AudioMixerTranslations } from './types.js'
 
 /** AudioMixer translations for gu. */
-export const gu: Partial<AudioMixerTranslations> = {}
+export const gu: Partial<AudioMixerTranslations> = {
+  'audioMixer.aria.console': 'ઓડિયો મિક્સર કન્સોલ',
+  'audioMixer.master': 'માસ્ટર',
+  'audioMixer.button.mute': 'મ્યૂટ કરો',
+  'audioMixer.button.solo': 'સોલો',
+  'audioMixer.aria.fader': '{{નામ}} ફેડર',
+  'audioMixer.aria.pan': '{{નામ}} તપેલી',
+  'audioMixer.aria.send': '{{ચેનલ}} મોકલો<x> {{મોકલો}}</x>',
+}

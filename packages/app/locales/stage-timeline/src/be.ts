@@ -1,4 +1,6 @@
 import type { StageTimelineTranslations } from './types.js'
 
 /** StageTimeline translations for be. */
-export const be: Partial<StageTimelineTranslations> = {}
+export const be: Partial<StageTimelineTranslations> = {
+  'stageTimeline.group': 'Храналогія этапу',
+}

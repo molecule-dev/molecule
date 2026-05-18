@@ -9,4 +9,9 @@ export const cs: Partial<BillingTranslations> = {
   'billing.pricing.checkoutError': 'Nepodařilo se spustit pokladnu. Zkuste to prosím znovu.',
   'billing.pricing.mostPopular': 'Nejoblíbenější',
   'billing.pricing.upgradeCta': 'Přejít na {{tierName}}',
+  'billing.status.currentPlan': 'Aktuální plán:<x> {{tierName}}</x>',
+  'billing.status.cancelError': 'Nepodařilo se zrušit. Zkuste to prosím znovu.',
+  'billing.pricing.reassurance': 'Zrušit kdykoli · K zahájení není nutná kreditní karta',
+  'billing.pricing.tierEyebrow': 'Úroveň',
+  'billing.pricing.perSeat': 'na sedadlo',
 }

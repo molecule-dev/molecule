@@ -1,4 +1,6 @@
 import type { DayTimelineTranslations } from './types.js'
 
 /** DayTimeline translations for el. */
-export const el: Partial<DayTimelineTranslations> = {}
+export const el: Partial<DayTimelineTranslations> = {
+  'dayTimeline.group': 'Χρονολόγιο ημέρας',
+}

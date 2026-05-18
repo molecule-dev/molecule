@@ -1,4 +1,8 @@
 import type { PhotoLightboxTranslations } from './types.js'
 
 /** PhotoLightbox translations for si. */
-export const si: Partial<PhotoLightboxTranslations> = {}
+export const si: Partial<PhotoLightboxTranslations> = {
+  'lightbox.close': 'වසන්න',
+  'lightbox.previous': 'පෙර',
+  'lightbox.next': 'ඊළඟ',
+}

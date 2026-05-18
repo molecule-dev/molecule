@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for sw — currently mirrors English (translation TBD). */
-export const sw: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for sw. */
+export const sw: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Kiweko cha mchanganyiko wa sauti',
+  'audioMixer.aria.fader': '{{jina}} fader',
+  'audioMixer.aria.pan': '{{jina}} sufuria',
+  'audioMixer.aria.send': '{{chaneli}} tuma kwa<x> {{tuma}}</x>',
+  'audioMixer.button.mute': 'Zima sauti',
+  'audioMixer.button.solo': 'Mtu mmoja',
+  'audioMixer.master': 'Mwalimu',
+  'audioMixer.sends': 'Hutuma',
+}

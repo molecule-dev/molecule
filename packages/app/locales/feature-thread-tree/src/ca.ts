@@ -1,5 +1,13 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for ca (stub — falls back to English until reviewed). */
-export const ca: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for ca. */
+export const ca: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.expand': 'Expandir<x> {{count}}</x> respostes',
+  'threadTree.collapse': 'Replega el fil',
+  'threadTree.expandSymbol': '[+]',
+  'threadTree.collapseSymbol': '[−]',
+  'threadTree.score': '{{count}} punts',
+  'threadTree.hiddenReplies': '{{count}} amagat',
+  'threadTree.upvote': 'Vota a favor',
+  'threadTree.reply': 'Resposta',
+}

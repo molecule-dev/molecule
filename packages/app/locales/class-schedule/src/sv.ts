@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for sv — currently mirrors English (translation TBD). */
-export const sv: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for sv. */
+export const sv: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Veckovis klassschema',
+  'classSchedule.aria.event': '{{veckodag}}<x> {{start}}</x> –<x> {{avsluta}}</x>',
+  'classSchedule.aria.slot': 'Tom lucka,<x> {{veckodag}}</x><x> {{tid}}</x>',
+}

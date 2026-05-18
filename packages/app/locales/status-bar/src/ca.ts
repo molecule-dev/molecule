@@ -1,7 +1,7 @@
 import type { StatusBarTranslations } from './types.js'
 
-/** Status Bar translations for Catalan. */
-export const ca: StatusBarTranslations = {
+/** StatusBar translations for ca. */
+export const ca: Partial<StatusBarTranslations> = {
   'statusBar.error.noProvider':
-    "@molecule/app-status-bar: No s'ha establert cap proveïdor. Crideu setProvider() amb una implementació de StatusBarProvider (p. ex., de @molecule/app-status-bar-capacitor).",
+    '@molecule/app-status-bar: No s&#39;ha definit cap proveïdor. Crida setProvider() amb una implementació de StatusBarProvider (per exemple, des de @molecule/app-status-bar-capacitor).',
 }

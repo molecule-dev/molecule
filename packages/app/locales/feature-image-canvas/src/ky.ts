@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for ky — currently mirrors English (translation TBD). */
-export const ky: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for ky. */
+export const ky: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Сүрөт холст',
+  'imageCanvas.aria.canvas': 'Панорамалоо үчүн сүйрөңүз, чоңойтуу үчүн сыдырыңыз',
+  'imageCanvas.loading': 'Сүрөт жүктөлүүдө…',
+  'imageCanvas.error': 'Сүрөт жүктөлбөй калды.',
+}

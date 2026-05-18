@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for gl — currently mirrors English (translation TBD). */
-export const gl: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for gl. */
+export const gl: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Carril de pista<x> {{nome}}</x>',
+  'trackLane.aria.clip':
+    'Clip<x> {{etiqueta}}</x> comezando en<x> {{horadeinicio}}</x> s para<x> {{duración}}</x> s',
+  'trackLane.aria.resize': 'Redimensionar o clip',
+  'trackLane.header': 'Pista',
+}

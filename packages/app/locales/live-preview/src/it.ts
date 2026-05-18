@@ -1,7 +1,7 @@
 import type { LivePreviewTranslations } from './types.js'
 
-/** Live Preview translations for Italian. */
-export const it: LivePreviewTranslations = {
+/** LivePreview translations for it. */
+export const it: Partial<LivePreviewTranslations> = {
   'livePreview.error.noProvider':
-    "Il provider dell'anteprima dal vivo non è configurato. Collega prima un provider di anteprima dal vivo.",
+    'Provider di anteprima live non configurato. Associa prima un provider di anteprima live.',
 }

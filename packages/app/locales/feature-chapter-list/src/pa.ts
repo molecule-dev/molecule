@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for pa — currently mirrors English (translation TBD). */
-export const pa: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for pa. */
+export const pa: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'ਅਧਿਆਇ',
+  'chapterList.aria.seek': 'ਇਸ &#39;ਤੇ ਜਾਓ<x> {{ਸਿਰਲੇਖ}}</x> ਤੇ<x> {{ਟਾਈਮਸਟੈਂਪ}}</x>',
+  'chapterList.aria.thumbnail': 'ਲਈ ਥੰਬਨੇਲ<x> {{ਸਿਰਲੇਖ}}</x>',
+  'chapterList.empty': 'ਇਸ ਐਪੀਸੋਡ ਲਈ ਕੋਈ ਅਧਿਆਇ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।',
+  'chapterList.current': 'ਹੁਣ ਚੱਲ ਰਿਹਾ ਹੈ',
+}

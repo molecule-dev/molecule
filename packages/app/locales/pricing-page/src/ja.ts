@@ -10,4 +10,9 @@ export const ja: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.monthly': '月額',
   'pricingPage.periodToggle.yearly': '年額',
   'pricingPage.planUpdated.heading': 'プランが更新されました',
+  'pricingPage.heading': 'プランを選択してください',
+  'pricingPage.perSeat': '座席あたり',
+  'pricingPage.periodToggle.label': '請求期間',
+  'pricingPage.planUpdated.body':
+    'アップグレードありがとうございます。新しいプランは即日有効となり、領収書をメールでお送りしました。',
 }

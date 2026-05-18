@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for vi — currently mirrors English (translation TBD). */
-export const vi: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for vi. */
+export const vi: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': 'Trình xem mô hình 3D',
+  'threeViewer.loading': 'Đang tải mô hình 3D…',
+  'threeViewer.error': 'Không thể tải mô hình 3D.',
+}

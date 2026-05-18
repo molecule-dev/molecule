@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for mk — currently mirrors English (translation TBD). */
-export const mk: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for mk. */
+export const mk: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Слој за анотации',
+  'annotationPin.aria.marker': 'Анотација pin',
+  'annotationPin.aria.popup': 'Детали за анотацијата',
+  'annotationPin.empty': 'Нема белешки за овој игла.',
+}

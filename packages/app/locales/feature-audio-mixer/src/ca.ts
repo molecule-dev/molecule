@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for ca — currently mirrors English (translation TBD). */
-export const ca: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for ca. */
+export const ca: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Consola de mescla d&#39;àudio',
+  'audioMixer.aria.fader': '{{nom}} atenuador',
+  'audioMixer.aria.pan': '{{nom}} paella',
+  'audioMixer.aria.send': '{{canal}} enviar a<x> {{enviar}}</x>',
+  'audioMixer.button.mute': 'Silenciar',
+  'audioMixer.button.solo': 'Solitari',
+  'audioMixer.master': 'Mestre',
+  'audioMixer.sends': 'Envia',
+}

@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for ml — currently mirrors English (translation TBD). */
-export const ml: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for ml. */
+export const ml: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'ഓഡിയോ തരംഗരൂപം',
+  'audioWaveform.aria.seek': 'തരംഗരൂപത്തിൽ ക്ലിക്ക് ചെയ്ത് ഓഡിയോ തിരയുക.',
+  'audioWaveform.empty': 'തരംഗരൂപ ഡാറ്റ ലഭ്യമല്ല.',
+}

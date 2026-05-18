@@ -10,4 +10,9 @@ export const ro: Partial<BillingTranslations> = {
     'Nu s-a putut iniția casa de plată. Vă rugăm să încercați din nou.',
   'billing.pricing.mostPopular': 'Cel mai popular',
   'billing.pricing.upgradeCta': 'Treceți la {{tierName}}',
+  'billing.status.currentPlan': 'Planul actual:<x> {{tierName}}</x>',
+  'billing.status.cancelError': 'Nu s-a putut anula. Vă rugăm să încercați din nou.',
+  'billing.pricing.reassurance': 'Anulați oricând · Nu este necesar card de credit pentru a începe',
+  'billing.pricing.tierEyebrow': 'Nivel',
+  'billing.pricing.perSeat': 'per loc',
 }

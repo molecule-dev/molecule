@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for yo. */
-export const yo: Partial<ReactNativeUiTranslations> = {}
+export const yo: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Kúrò',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Àfàtà',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Ti pa',
+  'ui.pagination.nav': 'Ìforúkọsílẹ̀ ojú ìwé',
+  'ui.pagination.first': 'Àkọ́kọ́',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Ti tẹ́lẹ̀',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Itele',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Ìkẹ́yìn',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{iye}} %',
+  'ui.radioGroup.label': 'Ẹgbẹ́ rédíò',
+  'ui.select.placeholder': 'Yan…',
+  'ui.select.title': 'Yan',
+  'ui.spinner.loading': 'Nkojọpọ',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Ko si data',
+  'ui.toast.dismiss': 'Kúrò',
+  'ui.toast.error.noProvider': 'a gbọ́dọ̀ lo Toast nínú Olùpèsè Toast',
+}

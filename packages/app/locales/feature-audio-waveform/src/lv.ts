@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for lv — currently mirrors English (translation TBD). */
-export const lv: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for lv. */
+export const lv: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Audio viļņu forma',
+  'audioWaveform.aria.seek': 'Meklējiet audio, noklikšķinot uz viļņu formas',
+  'audioWaveform.empty': 'Viļņu formas dati nav pieejami.',
+}

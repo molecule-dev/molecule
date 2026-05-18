@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for ro — currently mirrors English (translation TBD). */
-export const ro: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for ro. */
+export const ro: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Capitole',
+  'chapterList.aria.seek': 'Sari la<x> {{titlu}}</x> la<x> {{timestamp}}</x>',
+  'chapterList.aria.thumbnail': 'Miniatură pentru<x> {{titlu}}</x>',
+  'chapterList.empty': 'Nu sunt disponibile capitole pentru acest episod.',
+  'chapterList.current': 'Acum se redă',
+}

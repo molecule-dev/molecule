@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for eu — currently mirrors English (translation TBD). */
-export const eu: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for eu. */
+export const eu: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Audio uhin-forma',
+  'audioWaveform.aria.seek': 'Bilatu audioa uhin-forman klik eginez',
+  'audioWaveform.empty': 'Ez dago uhin-formaren daturik eskuragarri.',
+}

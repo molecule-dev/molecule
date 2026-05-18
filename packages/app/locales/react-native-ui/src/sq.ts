@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for sq. */
-export const sq: Partial<ReactNativeUiTranslations> = {}
+export const sq: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Hiq',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Mbyll',
+  'ui.pagination.nav': 'Faqet',
+  'ui.pagination.first': 'Së pari',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Mëparshme',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Tjetra',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'E fundit',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{vlera}} %',
+  'ui.radioGroup.label': 'Grupi i radios',
+  'ui.select.placeholder': 'Zgjidh…',
+  'ui.select.title': 'Zgjidh',
+  'ui.spinner.loading': 'Duke u ngarkuar',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Pa të dhëna',
+  'ui.toast.dismiss': 'Hiq',
+  'ui.toast.error.noProvider': 'useToast duhet të përdoret brenda një ToastProvider',
+}

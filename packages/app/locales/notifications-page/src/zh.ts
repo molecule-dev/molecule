@@ -15,4 +15,6 @@ export const zh: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyBody': '新通知将显示在此处。',
   'notificationsPage.prev': '上一个',
   'notificationsPage.next': '下一步',
+  'notificationsPage.paginationAriaLabel': '分页',
+  'notificationsPage.pageOf': '页{{当前的}}的{{全部的}}',
 }

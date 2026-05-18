@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for is — currently mirrors English (translation TBD). */
-export const is: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for is. */
+export const is: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Myndstrigi',
+  'imageCanvas.aria.canvas': 'Dragðu til að fletta, skrunaðu til að stækka',
+  'imageCanvas.loading': 'Hleður mynd…',
+  'imageCanvas.error': 'Myndin hlaðst ekki.',
+}

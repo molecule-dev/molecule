@@ -1,5 +1,9 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for zu — currently mirrors English (translation TBD). */
-export const zu: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for zu. */
+export const zu: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Uhlelo lwekilasi lamasonto onke',
+  'classSchedule.aria.event': '{{usuku lwesonto}}<x> {{qala}}</x> –<x> {{end}}</x>',
+  'classSchedule.aria.slot':
+    'Isikhala esingenalutho,<x> {{usuku lwesonto}}</x><x> {{isikhathi}}</x>',
+}

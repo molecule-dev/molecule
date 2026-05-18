@@ -1,4 +1,6 @@
 import type { RootErrorBoundaryTranslations } from './types.js'
 
 /** RootErrorBoundary translations for lv. */
-export const lv: Partial<RootErrorBoundaryTranslations> = {}
+export const lv: Partial<RootErrorBoundaryTranslations> = {
+  'error.unknown': 'Radās negaidīta kļūda.',
+}

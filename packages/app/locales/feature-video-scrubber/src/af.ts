@@ -1,5 +1,12 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for af — currently mirrors English (translation TBD). */
-export const af: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for af. */
+export const af: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Video-skropder',
+  'videoScrubber.aria.strip': 'Filmstrook — afspeelkop by<x> {{tyd}}</x> s (raam<x> {{raam}}</x> )',
+  'videoScrubber.aria.playhead': 'Speelkop by<x> {{tyd}}</x> s',
+  'videoScrubber.aria.frameReadout': 'Raam<x> {{raam}}</x> van<x> {{totaal}}</x>',
+  'videoScrubber.aria.thumbnail': 'Raamvoorskou',
+  'videoScrubber.thumbnails.empty': 'Geen voorskou nie',
+  'videoScrubber.frameReadout.total': '/<x> {{totaal}}</x> rame',
+}

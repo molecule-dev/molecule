@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for th — currently mirrors English (translation TBD). */
-export const th: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for th. */
+export const th: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'ตารางเรียนประจำสัปดาห์',
+  'classSchedule.aria.event': '{{วันธรรมดา}}<x> {{เริ่ม}}</x> –<x> {{จบ}}</x>',
+  'classSchedule.aria.slot': 'ช่องว่างเปล่า<x> {{วันธรรมดา}}</x><x> {{เวลา}}</x>',
+}

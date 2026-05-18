@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for mk — currently mirrors English (translation TBD). */
-export const mk: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for mk. */
+export const mk: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Аудио бранова форма',
+  'audioWaveform.aria.seek': 'Побарајте го аудиото со кликнување на брановата форма',
+  'audioWaveform.empty': 'Нема достапни податоци за брановиот облик.',
+}

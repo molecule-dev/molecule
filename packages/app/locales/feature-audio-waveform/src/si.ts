@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for si — currently mirrors English (translation TBD). */
-export const si: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for si. */
+export const si: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'ශ්‍රව්‍ය තරංග ආකාරය',
+  'audioWaveform.aria.seek': 'තරංග ආකෘතිය ක්ලික් කිරීමෙන් ශ්‍රව්‍යය සොයන්න',
+  'audioWaveform.empty': 'තරංග ආකාර දත්ත නොමැත.',
+}

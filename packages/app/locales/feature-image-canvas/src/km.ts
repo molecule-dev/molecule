@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for km — currently mirrors English (translation TBD). */
-export const km: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for km. */
+export const km: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'ផ្ទាំងក្រណាត់រូបភាព',
+  'imageCanvas.aria.canvas': 'អូសដើម្បីរំកិល រំកិលដើម្បីពង្រីក',
+  'imageCanvas.loading': 'កំពុងផ្ទុករូបភាព…',
+  'imageCanvas.error': 'រូបភាព​មិន​អាច​ផ្ទុក​បាន​ទេ។',
+}

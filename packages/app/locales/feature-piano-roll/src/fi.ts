@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for fi — currently mirrors English (translation TBD). */
-export const fi: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for fi. */
+export const fi: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Pianonrulla',
+  'pianoRoll.aria.keys': 'Pianon koskettimet',
+  'pianoRoll.aria.grid': 'Muistiinpanoruudukko',
+  'pianoRoll.aria.resize': 'Muistiinpanon koon muuttaminen',
+  'pianoRoll.aria.note':
+    'Huomautus<x> {{piki}}</x> alkaen tahdista<x> {{startBeat}}</x> varten<x> {{durationBeats}}</x> biitit',
+}

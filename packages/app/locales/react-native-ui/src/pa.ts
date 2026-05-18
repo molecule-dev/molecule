@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for pa. */
-export const pa: Partial<ReactNativeUiTranslations> = {}
+export const pa: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'ਖਾਰਜ ਕਰੋ',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'ਅਵਤਾਰ',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '-',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'ਬੰਦ ਕਰੋ',
+  'ui.pagination.nav': 'ਪੰਨਾਬੰਦੀ',
+  'ui.pagination.first': 'ਪਹਿਲਾ',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'ਪਿਛਲਾ',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'ਅਗਲਾ',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'ਆਖਰੀ',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{ਮੁੱਲ}} %',
+  'ui.radioGroup.label': 'ਰੇਡੀਓ ਸਮੂਹ',
+  'ui.select.placeholder': 'ਚੁਣੋ...',
+  'ui.select.title': 'ਚੁਣੋ',
+  'ui.spinner.loading': 'ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'ਕੋਈ ਡਾਟਾ ਨਹੀਂ',
+  'ui.toast.dismiss': 'ਖਾਰਜ ਕਰੋ',
+  'ui.toast.error.noProvider': 'useToast ਨੂੰ ToastProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
+}

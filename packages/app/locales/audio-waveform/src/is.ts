@@ -1,4 +1,7 @@
 import type { AudioWaveformTranslations } from './types.js'
 
 /** AudioWaveform translations for is. */
-export const is: Partial<AudioWaveformTranslations> = {}
+export const is: Partial<AudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Hljóðbylgjuform',
+  'audioWaveform.aria.seek': 'Leitaðu að hljóðinu með því að smella á bylgjuformið',
+}

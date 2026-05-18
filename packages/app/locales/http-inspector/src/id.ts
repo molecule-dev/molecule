@@ -6,4 +6,5 @@ export const id: Partial<HttpInspectorTranslations> = {
   'httpInspector.send': 'Kirim',
   'httpInspector.headers': 'Header',
   'httpInspector.body': 'Isi',
+  'httpInspector.addHeader': 'Tambahkan header',
 }

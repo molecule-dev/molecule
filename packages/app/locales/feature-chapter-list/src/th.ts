@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for th — currently mirrors English (translation TBD). */
-export const th: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for th. */
+export const th: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'บทต่างๆ',
+  'chapterList.aria.seek': 'ข้ามไปยัง<x> {{ชื่อ}}</x> ที่<x> {{timestamp}}</x>',
+  'chapterList.aria.thumbnail': 'ภาพย่อสำหรับ<x> {{ชื่อ}}</x>',
+  'chapterList.empty': 'ไม่มีบทสำหรับตอนนี้',
+  'chapterList.current': 'กำลังเล่น',
+}

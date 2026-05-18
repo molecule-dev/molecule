@@ -10,4 +10,8 @@ export const zh: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.monthly': '按月',
   'pricingPage.periodToggle.yearly': '按年',
   'pricingPage.planUpdated.heading': '您的套餐已更新',
+  'pricingPage.heading': '选择您的方案',
+  'pricingPage.perSeat': '每座位',
+  'pricingPage.periodToggle.label': '计费周期',
+  'pricingPage.planUpdated.body': '感谢您的升级。您的新套餐已立即生效，收据已发送至您的邮箱。',
 }

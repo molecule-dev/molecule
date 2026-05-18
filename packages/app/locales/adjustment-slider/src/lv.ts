@@ -1,5 +1,7 @@
 import type { AdjustmentSliderTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Adjustment-slider translations for lv — currently mirrors English (translation TBD). */
-export const lv: AdjustmentSliderTranslations = { ...en }
+/** AdjustmentSlider translations for lv. */
+export const lv: Partial<AdjustmentSliderTranslations> = {
+  'adjustmentSlider.aria': '{{label}}',
+  'adjustmentSlider.reset.aria': 'Atjaunot iestatījumus {{label}}',
+}

@@ -1,4 +1,6 @@
 import type { TimeSlotPickerTranslations } from './types.js'
 
 /** TimeSlotPicker translations for lo. */
-export const lo: Partial<TimeSlotPickerTranslations> = {}
+export const lo: Partial<TimeSlotPickerTranslations> = {
+  'timeSlot.aria': 'ຊ່ວງເວລາ',
+}

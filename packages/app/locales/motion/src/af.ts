@@ -1,7 +1,7 @@
 import type { MotionTranslations } from './types.js'
 
-/** Motion translations for Afrikaans. */
-export const af: MotionTranslations = {
+/** Motion translations for af. */
+export const af: Partial<MotionTranslations> = {
   'motion.error.noProvider':
-    "@molecule/app-motion: Geen verskaffer gestel nie. Roep setProvider() met 'n MotionProvider-implementering (bv. van @molecule/app-motion-capacitor).",
+    '@molecule/app-motion: Geen verskaffer gestel nie. Roep setProvider() met &#39;n MotionProvider-implementering (bv. vanaf @molecule/app-motion-capacitor).',
 }

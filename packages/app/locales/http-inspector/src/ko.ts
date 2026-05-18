@@ -6,4 +6,5 @@ export const ko: Partial<HttpInspectorTranslations> = {
   'httpInspector.send': '보내기',
   'httpInspector.headers': '헤더',
   'httpInspector.body': '본문',
+  'httpInspector.addHeader': '헤더 추가',
 }

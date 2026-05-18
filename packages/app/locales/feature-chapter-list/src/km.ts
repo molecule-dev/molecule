@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for km — currently mirrors English (translation TBD). */
-export const km: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for km. */
+export const km: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'ជំពូក',
+  'chapterList.aria.seek': 'លោតទៅ<x> {{ចំណងជើង}}</x> នៅ<x> {{ត្រាពេលវេលា}}</x>',
+  'chapterList.aria.thumbnail': 'រូបភាពតូចសម្រាប់<x> {{ចំណងជើង}}</x>',
+  'chapterList.empty': 'មិនមានជំពូកសម្រាប់វគ្គនេះទេ។',
+  'chapterList.current': 'កំពុងលេង',
+}

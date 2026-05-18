@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for fil — currently mirrors English (translation TBD). */
-export const fil: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for fil. */
+export const fil: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': 'Tagatingin ng 3D na modelo',
+  'threeViewer.loading': 'Naglo-load ng 3D na modelo…',
+  'threeViewer.error': 'Nabigong i-load ang 3D model.',
+}

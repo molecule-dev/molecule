@@ -1,4 +1,6 @@
 import type { SortPickerTranslations } from './types.js'
 
 /** SortPicker translations for be. */
-export const be: Partial<SortPickerTranslations> = {}
+export const be: Partial<SortPickerTranslations> = {
+  'sort.label': 'Сартаваць па',
+}

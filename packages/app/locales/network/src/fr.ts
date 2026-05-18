@@ -4,4 +4,12 @@ import type { NetworkTranslations } from './types.js'
 export const fr: Partial<NetworkTranslations> = {
   'network.none': 'Déconnecté',
   'network.unknown': 'Inconnu',
+  'network.wifi': 'Wi-Fi',
+  'network.cellular': 'Cellulaire',
+  'network.ethernet': 'Ethernet',
+  'network.bluetooth': 'Bluetooth',
+  'network.vpn': 'VPN',
+  'network.other': 'Autre',
+  'network.error.connectionTimeout': 'Délai d&#39;attente de la connexion réseau',
+  'network.error.unavailable': 'Réseau indisponible',
 }

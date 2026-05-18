@@ -15,4 +15,6 @@ export const vi: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyBody': 'Thông báo mới sẽ xuất hiện ở đây.',
   'notificationsPage.prev': 'Trước',
   'notificationsPage.next': 'Tiếp theo',
+  'notificationsPage.paginationAriaLabel': 'Đánh số trang',
+  'notificationsPage.pageOf': 'Trang<x> {{hiện hành}}</x> của<x> {{tổng cộng}}</x>',
 }

@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for zh-TW. */
-export const zhTW: Partial<ReactNativeUiTranslations> = {}
+export const zhTW: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': '解僱',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': '阿凡達',
+  'ui.avatar.fallback': '？',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': '關閉',
+  'ui.pagination.nav': '分頁',
+  'ui.pagination.first': '第一的',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': '以前的',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': '下一個',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': '最後的',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{價值}} %',
+  'ui.radioGroup.label': '廣播集團',
+  'ui.select.placeholder': '選擇…',
+  'ui.select.title': '選擇',
+  'ui.spinner.loading': '載入中',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': '無數據',
+  'ui.toast.dismiss': '解僱',
+  'ui.toast.error.noProvider': 'useToast 必須在 ToastProvider 中使用。',
+}

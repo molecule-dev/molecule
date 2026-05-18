@@ -1,5 +1,22 @@
 import type { ExifPanelTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Exif-panel translations for hy — currently mirrors English (translation TBD). */
-export const hy: ExifPanelTranslations = { ...en }
+/** ExifPanel translations for hy. */
+export const hy: Partial<ExifPanelTranslations> = {
+  'exifPanel.aria.region': 'EXIF մետատվյալներ',
+  'exifPanel.eyebrow': 'Կադրի մետատվյալներ',
+  'exifPanel.heading': 'EXIF',
+  'exifPanel.camera': 'Տեսախցիկ',
+  'exifPanel.lens': 'Լինզա',
+  'exifPanel.exposure': 'Ազդեցության ենթարկում',
+  'exifPanel.aperture': 'Ապերտուրա',
+  'exifPanel.shutter': 'Փակիչի արագություն',
+  'exifPanel.iso': 'ISO',
+  'exifPanel.focalLength': 'Ֆոկուսային հեռավորություն',
+  'exifPanel.focalLength35mm': '35 մմ համարժեք',
+  'exifPanel.gps': 'GPS',
+  'exifPanel.timestamp': 'Գրավված է',
+  'exifPanel.software': 'Ծրագրային ապահովում',
+  'exifPanel.copyright': 'Հեղինակային իրավունք',
+  'exifPanel.orientation': 'Կողմնորոշում',
+  'exifPanel.mapLink': 'Դիտել քարտեզի վրա',
+}

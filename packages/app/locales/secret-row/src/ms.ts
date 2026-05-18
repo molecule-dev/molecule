@@ -6,4 +6,7 @@ export const ms: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Salin',
   'secretRow.rotate': 'Putar',
   'secretRow.delete': 'Padam',
+  'secretRow.expired': 'Tamat tempoh',
+  'secretRow.hide': 'Sembunyikan',
+  'secretRow.show': 'Tunjukkan',
 }

@@ -1,4 +1,6 @@
 import type { AuthShellTranslations } from './types.js'
 
 /** AuthShell translations for mt. */
-export const mt: Partial<AuthShellTranslations> = {}
+export const mt: Partial<AuthShellTranslations> = {
+  'auth.backHome': 'Lura d-dar',
+}

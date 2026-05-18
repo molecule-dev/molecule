@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for lv — currently mirrors English (translation TBD). */
-export const lv: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for lv. */
+export const lv: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Nedēļas nodarbību grafiks',
+  'classSchedule.aria.event': '{{nedēļas diena}}<x> {{sākt}}</x> –<x> {{beigas}}</x>',
+  'classSchedule.aria.slot': 'Tukša vieta,<x> {{nedēļas diena}}</x><x> laiks</x>',
+}

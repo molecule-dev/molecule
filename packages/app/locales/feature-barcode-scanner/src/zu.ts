@@ -1,5 +1,15 @@
-import type { BarcodeScannerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureBarcodeScannerTranslations } from './types.js'
 
-/** Barcode-scanner translations for zu — currently mirrors English (translation TBD). */
-export const zu: BarcodeScannerTranslations = { ...en }
+/** FeatureBarcodeScanner translations for zu. */
+export const zu: Partial<FeatureBarcodeScannerTranslations> = {
+  'barcodeScanner.aria.region': 'Ukubuka kwekhamera yesikena sebhakhodi',
+  'barcodeScanner.error.permission_denied': 'Imvume yekhamera yenqatshiwe',
+  'barcodeScanner.error.no_camera': 'Akukho khamera etholakele',
+  'barcodeScanner.error.unsupported': 'Ikhamera ayisekelwa kulesi siphequluli',
+  'barcodeScanner.error.detector_failure': 'Isitholi sebhakhodi sehlulekile',
+  'barcodeScanner.error.fallback_unavailable':
+    'Umtapo wolwazi weskena sebhakhodi awukwazanga ukulayishwa',
+  'barcodeScanner.status.starting': 'Iqala ikhamera…',
+  'barcodeScanner.status.scanning': 'Iyaskena…',
+  'barcodeScanner.status.stopped': 'Ukuskena kuqediwe',
+}

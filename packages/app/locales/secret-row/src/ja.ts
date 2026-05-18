@@ -8,4 +8,5 @@ export const ja: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'コピー',
   'secretRow.rotate': 'ローテート',
   'secretRow.delete': '削除',
+  'secretRow.expired': '期限切れ',
 }

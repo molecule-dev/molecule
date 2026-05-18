@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for my — currently mirrors English (translation TBD). */
-export const my: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for my. */
+export const my: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'ရုပ်ပုံကင်းဗတ်စ်',
+  'imageCanvas.aria.canvas': 'ရွှေ့ရန် ဖိဆွဲပါ၊ ဇူးမ်ဆွဲရန် လှိမ့်ပါ',
+  'imageCanvas.loading': 'ပုံကို တင်နေသည်…',
+  'imageCanvas.error': 'ပုံကို တင်၍မရပါ။',
+}

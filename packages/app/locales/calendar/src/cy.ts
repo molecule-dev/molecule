@@ -1,7 +1,7 @@
 import type { CalendarTranslations } from './types.js'
 
-/** Calendar translations for Welsh. */
-export const cy: CalendarTranslations = {
+/** Calendar translations for cy. */
+export const cy: Partial<CalendarTranslations> = {
   'calendar.error.noProvider':
-    "@molecule/app-calendar: Nid oes darparwr wedi'i osod. Galwch setProvider() gyda gweithrediad CalendarProvider (e.e., o @molecule/app-calendar-capacitor).",
+    '@molecule/app-calendar: Dim darparwr wedi&#39;i osod. Galwch setProvider() gyda gweithrediad CalendarProvider (e.e., o @molecule/app-calendar-capacitor).',
 }

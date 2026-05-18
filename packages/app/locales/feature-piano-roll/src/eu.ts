@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for eu — currently mirrors English (translation TBD). */
-export const eu: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for eu. */
+export const eu: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Piano-erroilua',
+  'pianoRoll.aria.keys': 'Piano teklak',
+  'pianoRoll.aria.grid': 'Ohar-sareta',
+  'pianoRoll.aria.resize': 'Aldatu oharra tamaina',
+  'pianoRoll.aria.note':
+    'Oharra<x> {{tonua}}</x> erritmoan hasita<x> {{startBeat}}</x> -rako<x> {{iraupenaTaupadak}}</x> taupadak',
+}

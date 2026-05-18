@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for cy — currently mirrors English (translation TBD). */
-export const cy: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for cy. */
+export const cy: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Offer llunio mapiau',
+  'mapDrawing.surface.aria': 'Arwyneb lluniadu map',
+  'mapDrawing.tool.polygon': 'Polygon',
+  'mapDrawing.tool.circle': 'Cylch',
+  'mapDrawing.tool.pin': 'Pin',
+  'mapDrawing.tool.line': 'Llinell',
+  'mapDrawing.tool.select': 'Dewis',
+  'mapDrawing.tool.delete': 'Dileu',
+}

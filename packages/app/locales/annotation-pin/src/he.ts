@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for he — currently mirrors English (translation TBD). */
-export const he: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for he. */
+export const he: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'שכבת ביאור',
+  'annotationPin.aria.marker': 'סיכת ביאור',
+  'annotationPin.aria.popup': 'פרטי ביאור',
+  'annotationPin.empty': 'אין הערות עבור פין זה.',
+}

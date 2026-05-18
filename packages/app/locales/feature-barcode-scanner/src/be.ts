@@ -1,5 +1,15 @@
-import type { BarcodeScannerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureBarcodeScannerTranslations } from './types.js'
 
-/** Barcode-scanner translations for be — currently mirrors English (translation TBD). */
-export const be: BarcodeScannerTranslations = { ...en }
+/** FeatureBarcodeScanner translations for be. */
+export const be: Partial<FeatureBarcodeScannerTranslations> = {
+  'barcodeScanner.aria.region': 'Выгляд камеры сканера штрых-кодаў',
+  'barcodeScanner.error.permission_denied': 'У доступе да камеры забаронена',
+  'barcodeScanner.error.no_camera': 'Камера не знойдзена',
+  'barcodeScanner.error.unsupported': 'Камера не падтрымліваецца ў гэтым браўзеры',
+  'barcodeScanner.error.detector_failure': 'Памылка дэтэктара штрых-кодаў',
+  'barcodeScanner.error.fallback_unavailable':
+    'Не ўдалося загрузіць бібліятэку сканера штрых-кодаў',
+  'barcodeScanner.status.starting': 'Уключэнне камеры…',
+  'barcodeScanner.status.scanning': 'Сканіраванне…',
+  'barcodeScanner.status.stopped': 'Сканаванне завершана',
+}

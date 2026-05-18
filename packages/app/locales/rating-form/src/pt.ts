@@ -5,4 +5,5 @@ export const pt: Partial<RatingFormTranslations> = {
   'rating.label': 'Avaliação',
   'rating.submitting': 'Enviando…',
   'rating.submit': 'Enviar avaliação',
+  'rating.commentPlaceholder': 'Compartilhe suas ideias (opcional)',
 }

@@ -6,4 +6,7 @@ export const ro: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Copiați',
   'secretRow.rotate': 'Rotește',
   'secretRow.delete': 'Ștergeți',
+  'secretRow.expired': 'Expirat',
+  'secretRow.hide': 'Ascunde',
+  'secretRow.show': 'Spectacol',
 }

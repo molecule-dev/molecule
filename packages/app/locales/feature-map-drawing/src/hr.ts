@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for hr — currently mirrors English (translation TBD). */
-export const hr: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for hr. */
+export const hr: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Alati za crtanje karata',
+  'mapDrawing.surface.aria': 'Površina za crtanje karte',
+  'mapDrawing.tool.polygon': 'Poligon',
+  'mapDrawing.tool.circle': 'Krug',
+  'mapDrawing.tool.pin': 'Prikvači',
+  'mapDrawing.tool.line': 'Linija',
+  'mapDrawing.tool.select': 'Odaberite',
+  'mapDrawing.tool.delete': 'Izbrisati',
+}

@@ -9,4 +9,10 @@ export const hu: Partial<PricingPageTranslations> = {
   'pricingPage.currentCta': 'Jelenlegi csomag',
   'pricingPage.periodToggle.monthly': 'Havi',
   'pricingPage.periodToggle.yearly': 'Éves',
+  'pricingPage.heading': 'Válassza ki a csomagját',
+  'pricingPage.perSeat': 'ülésenként',
+  'pricingPage.periodToggle.label': 'Számlázási időszak',
+  'pricingPage.planUpdated.heading': 'A csomagod frissült',
+  'pricingPage.planUpdated.body':
+    'Köszönjük a frissítést. Az új csomagod azonnal aktív, és a nyugtát elküldtük neked e-mailben.',
 }

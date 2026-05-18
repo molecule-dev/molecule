@@ -13,4 +13,15 @@ export const ja: Partial<ReactUiTranslations> = {
   'userMenu.guestName': 'アナリスト',
   'userMenuPopover.guest': 'アカウント',
   'userMenu.navLabel': 'アカウントメニュー',
+  'react.error.useAccordionOutsideProvider':
+    'アコーディオン部品はアコーディオン内で使用する必要があります',
+  'ui.pagination.nav': 'ページネーション',
+  'ui.pagination.first': '最初のページへ移動',
+  'ui.pagination.previous': '前のページへ',
+  'ui.pagination.goToPage': 'ページへ移動{{ページ}}',
+  'ui.pagination.last': '最後のページへ',
+  'ui.radioGroup.label': 'ラジオグループ',
+  'sidebar.memberStatus': 'プレミアム会員',
+  'ui.table.empty': 'データがありません',
+  'react.error.useToastOutsideProvider': 'useToastはToastProvider内で使用する必要があります。',
 }

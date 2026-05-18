@@ -1,7 +1,7 @@
 import type { StatusBarTranslations } from './types.js'
 
-/** Status Bar translations for Uzbek. */
-export const uz: StatusBarTranslations = {
+/** StatusBar translations for uz. */
+export const uz: Partial<StatusBarTranslations> = {
   'statusBar.error.noProvider':
-    "@molecule/app-status-bar: Provayder o'rnatilmagan. setProvider() ni StatusBarProvider amalga oshirishi bilan chaqiring (masalan, @molecule/app-status-bar-capacitor dan).",
+    '@molecule/app-status-bar: Provayder o&#39;rnatilmagan. StatusBarProvider implementatsiyasi bilan setProvider() ni chaqiring (masalan, @molecule/app-status-bar-capacitor dan).',
 }

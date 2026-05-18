@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for mt — currently mirrors English (translation TBD). */
-export const mt: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for mt. */
+export const mt: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Karreġġjata tat-trakka<x> {{isem}}</x>',
+  'trackLane.aria.clip':
+    'Klipp<x> {{tikketta}}</x> jibda minn<x> {{Ħin tal-bidu}}</x> s għal<x> {{tul}}</x> s',
+  'trackLane.aria.resize': 'Ibdel id-daqs tal-klipp',
+  'trackLane.header': 'Trakka',
+}

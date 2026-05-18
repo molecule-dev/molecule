@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for lv — currently mirrors English (translation TBD). */
-export const lv: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for lv. */
+export const lv: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Attēlu audekls',
+  'imageCanvas.aria.canvas': 'Velciet, lai pārvietotos, ritiniet, lai tuvinātu',
+  'imageCanvas.loading': 'Notiek attēla ielāde…',
+  'imageCanvas.error': 'Attēlu neizdevās ielādēt.',
+}

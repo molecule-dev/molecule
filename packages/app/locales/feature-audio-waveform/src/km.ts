@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for km — currently mirrors English (translation TBD). */
-export const km: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for km. */
+export const km: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'រលកសំឡេង',
+  'audioWaveform.aria.seek': 'ស្វែងរកសំឡេងដោយចុចលើរលក',
+  'audioWaveform.empty': 'មិនមានទិន្នន័យរលកទេ។',
+}

@@ -1,5 +1,14 @@
 import type { BiasIndicatorTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Bias-indicator translations for sv — currently mirrors English (translation TBD). */
-export const sv: BiasIndicatorTranslations = { ...en }
+/** BiasIndicator translations for sv. */
+export const sv: Partial<BiasIndicatorTranslations> = {
+  'biasIndicator.bias.farLeft': 'Längst till vänster',
+  'biasIndicator.bias.leftLeaning': 'Vänsterlutande',
+  'biasIndicator.bias.center': 'Centrum',
+  'biasIndicator.bias.rightLeaning': 'Högerlutande',
+  'biasIndicator.bias.farRight': 'Längst till höger',
+  'biasIndicator.reliability.high': 'Tillförlitlighet: hög',
+  'biasIndicator.reliability.medium': 'Tillförlitlighet: medel',
+  'biasIndicator.reliability.low': 'Tillförlitlighet: låg',
+  'biasIndicator.reliability.disputed': 'Tillförlitlighet: omtvistad',
+}

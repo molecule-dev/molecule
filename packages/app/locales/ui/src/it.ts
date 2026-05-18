@@ -8,4 +8,13 @@ export const it: Partial<UiTranslations> = {
   'ui.input.clear': 'Cancella',
   'ui.spinner.loading': 'Caricamento',
   'ui.progress.label': 'Progresso',
+  'ui.pagination.nav': 'Paginazione',
+  'ui.pagination.first': 'Vai alla prima pagina',
+  'ui.pagination.previous': 'Vai alla pagina precedente',
+  'ui.pagination.next': 'Vai alla pagina successiva',
+  'ui.pagination.last': 'Vai all&#39;ultima pagina',
+  'ui.pagination.goToPage': 'Vai alla pagina<x> {{pagina}}</x>',
+  'ui.table.empty': 'Nessun dato disponibile',
+  'ui.avatar.alt': 'Avatar',
+  'ui.radioGroup.label': 'Gruppo radiofonico',
 }

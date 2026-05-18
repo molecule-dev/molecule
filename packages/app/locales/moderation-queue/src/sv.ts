@@ -25,4 +25,11 @@ export const sv: Partial<ModerationQueueTranslations> = {
   'moderationQueue.severity.low': 'Låg',
   'moderationQueue.severity.medium': 'Medel',
   'moderationQueue.severity.high': 'Hög',
+  'moderationQueue.aria.bulkToolbar': 'Massmodereringsåtgärder',
+  'moderationQueue.aria.selectRow': 'Välj objekt',
+  'moderationQueue.loading': 'Läser in modereringskön…',
+  'moderationQueue.empty': 'Inga objekt väntar på moderering.',
+  'moderationQueue.selectedCount': '{{räkna}} vald',
+  'moderationQueue.reportedBy': 'Rapporterad av',
+  'moderationQueue.kind.image': 'Bild',
 }

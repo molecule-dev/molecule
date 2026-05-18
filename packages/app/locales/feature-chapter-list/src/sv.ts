@@ -4,4 +4,7 @@ import type { FeatureChapterListTranslations } from './types.js'
 export const sv: Partial<FeatureChapterListTranslations> = {
   'chapterList.aria.region': 'Kapitel',
   'chapterList.current': 'Spelas nu',
+  'chapterList.aria.seek': 'Hoppa till<x> {{titel}}</x> på<x> {{tidsstämpel}}</x>',
+  'chapterList.aria.thumbnail': 'Miniatyrbild för<x> {{titel}}</x>',
+  'chapterList.empty': 'Inga kapitel tillgängliga för detta avsnitt.',
 }

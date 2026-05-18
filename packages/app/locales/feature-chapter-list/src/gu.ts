@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for gu — currently mirrors English (translation TBD). */
-export const gu: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for gu. */
+export const gu: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'પ્રકરણો',
+  'chapterList.aria.seek': 'અહીં જાઓ<x> {{શીર્ષક}}</x> ખાતે<x> {{ટાઇમસ્ટેમ્પ}}</x>',
+  'chapterList.aria.thumbnail': 'માટે થંબનેલ<x> {{શીર્ષક}}</x>',
+  'chapterList.empty': 'આ એપિસોડ માટે કોઈ પ્રકરણ ઉપલબ્ધ નથી.',
+  'chapterList.current': 'હવે ચાલી રહ્યું છે',
+}

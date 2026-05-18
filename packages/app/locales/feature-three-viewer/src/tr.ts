@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for tr — currently mirrors English (translation TBD). */
-export const tr: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for tr. */
+export const tr: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': '3D model görüntüleyici',
+  'threeViewer.loading': '3D model yükleniyor…',
+  'threeViewer.error': '3D model yüklenemedi.',
+}

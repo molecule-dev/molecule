@@ -1,4 +1,13 @@
 import type { MapDrawingTranslations } from './types.js'
 
 /** MapDrawing translations for az. */
-export const az: Partial<MapDrawingTranslations> = {}
+export const az: Partial<MapDrawingTranslations> = {
+  'mapDrawing.surface.aria': 'Xəritə çəkmə səthi',
+  'mapDrawing.tool.polygon': 'Çoxbucaqlı',
+  'mapDrawing.tool.circle': 'Dairə',
+  'mapDrawing.tool.pin': 'Sancaq',
+  'mapDrawing.tool.line': 'Xətt',
+  'mapDrawing.tool.select': 'Seçin',
+  'mapDrawing.tool.delete': 'Sil',
+  'mapDrawing.toolbar.aria': 'Xəritə çəkmə alətləri',
+}

@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for ar — currently mirrors English (translation TBD). */
-export const ar: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for ar. */
+export const ar: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'طبقة التعليقات التوضيحية',
+  'annotationPin.aria.marker': 'دبوس التوضيح',
+  'annotationPin.aria.popup': 'تفاصيل التعليق',
+  'annotationPin.empty': 'لا توجد ملاحظات لهذا المنشور.',
+}

@@ -9,4 +9,12 @@ export const id: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.services': 'Layanan',
   'statusDashboard.label.incidents': 'Insiden',
   'statusDashboard.label.uptime': 'Waktu aktif',
+  'statusDashboard.error.noProvider': 'Penyedia dasbor status belum dikonfigurasi.',
+  'statusDashboard.error.fetchFailed': 'Gagal mengambil status: HTTP<x> {{status}}</x>',
+  'statusDashboard.label.allOperational': 'Semua Sistem Beroperasi',
+  'statusDashboard.label.someIssues': 'Beberapa Sistem Mengalami Masalah',
+  'statusDashboard.label.majorOutage': 'Gangguan Sistem Utama',
+  'statusDashboard.label.lastChecked': 'Terakhir diperiksa<x> {{waktu}}</x>',
+  'statusDashboard.label.latency': '{{MS}} MS',
+  'statusDashboard.label.noIncidents': 'Tidak ada insiden yang dilaporkan.',
 }

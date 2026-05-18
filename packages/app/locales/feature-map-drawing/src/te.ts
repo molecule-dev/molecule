@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for te — currently mirrors English (translation TBD). */
-export const te: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for te. */
+export const te: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'పటం గీసే సాధనాలు',
+  'mapDrawing.surface.aria': 'పటం గీసే ఉపరితలం',
+  'mapDrawing.tool.polygon': 'బహుభుజి',
+  'mapDrawing.tool.circle': 'వృత్తం',
+  'mapDrawing.tool.pin': 'పిన్',
+  'mapDrawing.tool.line': 'లైన్',
+  'mapDrawing.tool.select': 'ఎంచుకోండి',
+  'mapDrawing.tool.delete': 'తొలగించు',
+}

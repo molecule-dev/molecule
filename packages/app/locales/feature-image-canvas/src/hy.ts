@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for hy — currently mirrors English (translation TBD). */
-export const hy: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for hy. */
+export const hy: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Պատկերի կտավ',
+  'imageCanvas.aria.canvas': 'Քաշեք՝ տեղաշարժելու համար, գլորեք՝ մեծացնելու համար',
+  'imageCanvas.loading': 'Պատկերը բեռնվում է…',
+  'imageCanvas.error': 'Պատկերը չհաջողվեց բեռնել։',
+}

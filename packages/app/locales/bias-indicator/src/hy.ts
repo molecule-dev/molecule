@@ -1,5 +1,14 @@
 import type { BiasIndicatorTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Bias-indicator translations for hy — currently mirrors English (translation TBD). */
-export const hy: BiasIndicatorTranslations = { ...en }
+/** BiasIndicator translations for hy. */
+export const hy: Partial<BiasIndicatorTranslations> = {
+  'biasIndicator.bias.farLeft': 'Ամենաձախ',
+  'biasIndicator.bias.leftLeaning': 'Ձախակողմյան',
+  'biasIndicator.bias.center': 'Կենտրոն',
+  'biasIndicator.bias.rightLeaning': 'Աջակողմյան',
+  'biasIndicator.bias.farRight': 'Աջ ծայրը',
+  'biasIndicator.reliability.high': 'Հուսալիություն՝ բարձր',
+  'biasIndicator.reliability.medium': 'Հուսալիություն՝ միջին',
+  'biasIndicator.reliability.low': 'Հուսալիություն՝ ցածր',
+  'biasIndicator.reliability.disputed': 'Հուսալիություն՝ վիճելի',
+}

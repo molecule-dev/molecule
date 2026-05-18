@@ -1,4 +1,6 @@
 import type { SortPickerTranslations } from './types.js'
 
 /** SortPicker translations for ig. */
-export const ig: Partial<SortPickerTranslations> = {}
+export const ig: Partial<SortPickerTranslations> = {
+  'sort.label': 'Hazie site na',
+}

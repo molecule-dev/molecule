@@ -1,30 +1,15 @@
 import type { IapTranslations } from './types.js'
 
-/** Iap translations for Uzbek. */
-export const uz: IapTranslations = {
-  'iap.error.E_UNKNOWN': "Noma'lum xatolik yuz berdi.",
-  'iap.error.E_SETUP': "Ilova ichidagi xaridlarni sozlash muvaffaqiyatsiz bo'ldi.",
-  'iap.error.E_LOAD': "Mahsulotlarni yuklash muvaffaqiyatsiz bo'ldi.",
-  'iap.error.E_PURCHASE': "Xarid muvaffaqiyatsiz bo'ldi.",
+/** Iap translations for uz. */
+export const uz: Partial<IapTranslations> = {
   'iap.error.E_CANCELLED': 'Xarid bekor qilindi.',
-  'iap.error.E_FINISH': "Tranzaksiyani yakunlash muvaffaqiyatsiz bo'ldi.",
-  'iap.error.E_VERIFICATION': "Xaridni tekshirish muvaffaqiyatsiz bo'ldi.",
-  'iap.error.E_RESTORE': "Xaridlarni tiklash muvaffaqiyatsiz bo'ldi.",
   'iap.error.E_NOT_AVAILABLE': 'Ilova ichidagi xaridlar mavjud emas.',
   'iap.error.E_ALREADY_OWNED': 'Siz allaqachon bu elementga egasiz.',
   'iap.error.E_NOT_OWNED': 'Siz bu elementga ega emassiz.',
   'iap.error.E_DEFERRED': 'Xarid tasdiqlashni talab qiladi.',
-  'iap.error.E_INVALID_PRODUCT': "Noto'g'ri mahsulot.",
   'iap.error.E_NETWORK': 'Tarmoq xatoligi.',
-  'iap.error.0': "Noma'lum xatolik yuz berdi.",
-  'iap.error.E_CLIENT_INVALID': "Mijozga so'rov yuborishga ruxsat berilmagan.",
-  'iap.error.E_PAYMENT_CANCELLED': "Foydalanuvchi so'rovni bekor qildi.",
-  'iap.error.E_PAYMENT_INVALID': "Xarid identifikatori noto'g'ri.",
   'iap.error.E_PAYMENT_NOT_ALLOWED': 'Qurilmaga xarid qilishga ruxsat berilmagan.',
-  'iap.error.E_STORE_PRODUCT_NOT_AVAILABLE': "Mahsulot joriy do'konda mavjud emas.",
   'iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED': 'Bulut xizmati ruxsati rad etildi.',
-  'iap.error.E_CLOUD_SERVICE_NETWORK_CONNECTION_FAILED':
-    "Bulut xizmati tarmog'i muvaffaqiyatsiz bo'ldi.",
   'iap.error.E_CLOUD_SERVICE_REVOKED': 'Bulut xizmati bekor qilindi.',
   'iap.error.-1': 'Xizmat uzildi.',
   'iap.error.1': 'Foydalanuvchi bekor qildi.',
@@ -35,4 +20,19 @@ export const uz: IapTranslations = {
   'iap.error.6': 'Xatolik.',
   'iap.error.7': 'Element allaqachon sotib olingan.',
   'iap.error.8': 'Element sotib olinmagan.',
+  'iap.error.E_UNKNOWN': 'Noma&#39;lum xatolik yuz berdi.',
+  'iap.error.E_SETUP': 'Ilova ichidagi xaridlarni sozlab bo&#39;lmadi.',
+  'iap.error.E_LOAD': 'Mahsulotlarni yuklab bo&#39;lmadi.',
+  'iap.error.E_PURCHASE': 'Xarid amalga oshmadi.',
+  'iap.error.E_FINISH': 'Tranzaksiyani yakunlashda xatolik yuz berdi.',
+  'iap.error.E_VERIFICATION': 'Xaridni tasdiqlab bo&#39;lmadi.',
+  'iap.error.E_RESTORE': 'Xaridlarni tiklashda xatolik yuz berdi.',
+  'iap.error.E_INVALID_PRODUCT': 'Noto&#39;g&#39;ri mahsulot.',
+  'iap.error.0': 'Noma&#39;lum xatolik yuz berdi.',
+  'iap.error.E_CLIENT_INVALID': 'Mijozga so&#39;rov yuborishga ruxsat berilmaydi.',
+  'iap.error.E_PAYMENT_CANCELLED': 'Foydalanuvchi so&#39;rovni bekor qildi.',
+  'iap.error.E_PAYMENT_INVALID': 'Xarid identifikatori noto&#39;g&#39;ri edi.',
+  'iap.error.E_STORE_PRODUCT_NOT_AVAILABLE': 'Mahsulot hozirgi do&#39;konda mavjud emas.',
+  'iap.error.E_CLOUD_SERVICE_NETWORK_CONNECTION_FAILED':
+    'Bulutli xizmat tarmog&#39;i ishlamay qoldi.',
 }

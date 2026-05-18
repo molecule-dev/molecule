@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for ur — currently mirrors English (translation TBD). */
-export const ur: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for ur. */
+export const ur: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'نقشہ ڈرائنگ ٹولز',
+  'mapDrawing.surface.aria': 'نقشہ ڈرائنگ کی سطح',
+  'mapDrawing.tool.polygon': 'کثیر الاضلاع',
+  'mapDrawing.tool.circle': 'دائرہ',
+  'mapDrawing.tool.pin': 'پن',
+  'mapDrawing.tool.line': 'لائن',
+  'mapDrawing.tool.select': 'منتخب کریں۔',
+  'mapDrawing.tool.delete': 'حذف کریں۔',
+}

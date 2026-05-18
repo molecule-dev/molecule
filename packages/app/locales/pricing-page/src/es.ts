@@ -10,4 +10,9 @@ export const es: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.monthly': 'Mensual',
   'pricingPage.periodToggle.yearly': 'Anual',
   'pricingPage.planUpdated.heading': 'Tu plan ha sido actualizado',
+  'pricingPage.heading': 'Elige tu plan',
+  'pricingPage.perSeat': 'por asiento',
+  'pricingPage.periodToggle.label': 'Período de facturación',
+  'pricingPage.planUpdated.body':
+    'Gracias por actualizar tu plan. Tu nuevo plan está activo de inmediato y te hemos enviado un recibo por correo electrónico.',
 }

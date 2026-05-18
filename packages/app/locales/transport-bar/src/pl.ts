@@ -6,4 +6,8 @@ export const pl: Partial<TransportBarTranslations> = {
   'transportBar.aria.pause': 'Pauza',
   'transportBar.aria.record': 'Nagrywaj',
   'transportBar.aria.stopRecording': 'Zatrzymaj nagrywanie',
+  'transportBar.aria.region': 'Sterowanie transportem odtwarzania',
+  'transportBar.aria.skipForward': 'Przejdź do przodu',
+  'transportBar.aria.stop': 'Zatrzymywać się',
+  'transportBar.aria.loopOff': 'Włącz pętlę',
 }

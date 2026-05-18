@@ -10,4 +10,11 @@ export const cs: Partial<SettingsPanelTranslations> = {
   'settings.plan': 'Plán',
   'settings.upgrade': 'Upgradovat',
   'settings.billing.cancel': 'Zrušit',
+  'settings.darkMode': 'Tmavý režim',
+  'theme.toggle': 'Přepnout téma',
+  'settings.billing.cancelConfirm': 'Zrušit předplatné?',
+  'settings.billing.cancelFailed': 'Nepodařilo se zrušit.',
+  'settings.billing.upgradeTitle': 'Upgradujte svůj tarif',
+  'settings.billing.noTiers': 'Nejsou nakonfigurovány žádné placené tarify.',
+  'settings.billing.subscribe': 'Upsat',
 }

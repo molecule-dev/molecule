@@ -1,7 +1,7 @@
 import type { HapticsTranslations } from './types.js'
 
-/** Haptics translations for Uzbek. */
-export const uz: HapticsTranslations = {
+/** Haptics translations for uz. */
+export const uz: Partial<HapticsTranslations> = {
   'haptics.error.noProvider':
-    "@molecule/app-haptics: Provayder o'rnatilmagan. setProvider() ni HapticsProvider ilovasi bilan chaqiring (masalan, @molecule/app-haptics-capacitor dan).",
+    '@molecule/app-haptics: Provayder o&#39;rnatilmagan. HapticsProvider implementatsiyasi bilan setProvider() ni chaqiring (masalan, @molecule/app-haptics-capacitor dan).',
 }

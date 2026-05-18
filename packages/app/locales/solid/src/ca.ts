@@ -1,24 +1,25 @@
 import type { SolidTranslations } from './types.js'
 
-/** Solid translations for Catalan. */
-export const ca: SolidTranslations = {
+/** Solid translations for ca. */
+export const ca: Partial<SolidTranslations> = {
   'solid.error.stateOutsideProvider':
-    "getStateProvider s'ha d'utilitzar dins d'un MoleculeProvider amb estat configurat",
+    'getStateProvider s&#39;ha d&#39;utilitzar dins d&#39;un MoleculeProvider amb l&#39;estat configurat.',
   'solid.error.authOutsideProvider':
-    "getAuthClient s'ha d'utilitzar dins d'un MoleculeProvider amb autenticació configurada",
+    'getAuthClient s&#39;ha d&#39;utilitzar dins d&#39;un MoleculeProvider amb l&#39;autenticació configurada.',
   'solid.error.themeOutsideProvider':
-    "getThemeProvider s'ha d'utilitzar dins d'un MoleculeProvider amb tema configurat",
+    'getThemeProvider s&#39;ha d&#39;utilitzar dins d&#39;un MoleculeProvider amb el tema configurat.',
   'solid.error.routerOutsideProvider':
-    "getRouter s'ha d'utilitzar dins d'un MoleculeProvider amb encaminador configurat",
+    'getRouter s&#39;ha d&#39;utilitzar dins d&#39;un MoleculeProvider amb l&#39;encaminador configurat.',
   'solid.error.i18nOutsideProvider':
-    "getI18nProvider s'ha d'utilitzar dins d'un MoleculeProvider amb i18n configurat",
+    'getI18nProvider s&#39;ha d&#39;utilitzar dins d&#39;un MoleculeProvider amb i18n configurat.',
   'solid.error.httpOutsideProvider':
-    "getHttpClient s'ha d'utilitzar dins d'un MoleculeProvider amb HTTP configurat",
+    'getHttpClient s&#39;ha d&#39;utilitzar dins d&#39;un MoleculeProvider amb http configurat.',
   'solid.error.storageOutsideProvider':
-    "getStorageProvider s'ha d'utilitzar dins d'un MoleculeProvider amb emmagatzematge configurat",
+    'getStorageProvider s&#39;ha d&#39;utilitzar dins d&#39;un MoleculeProvider amb l&#39;emmagatzematge configurat.',
   'solid.error.loggerOutsideProvider':
-    "getLoggerProvider s'ha d'utilitzar dins d'un MoleculeProvider amb registre configurat",
+    'getLoggerProvider s&#39;ha d&#39;utilitzar dins d&#39;un MoleculeProvider amb el logger configurat.',
   'solid.error.useAccordionOutsideProvider':
-    "Els components d'Accordion s'han d'utilitzar dins d'un Accordion",
-  'solid.error.useToastOutsideProvider': "useToast s'ha d'utilitzar dins d'un ToastProvider",
+    'Els components de l&#39;acordió s&#39;han d&#39;utilitzar dins d&#39;un acordió.',
+  'solid.error.useToastOutsideProvider':
+    'useToast s&#39;ha d&#39;utilitzar dins d&#39;un ToastProvider.',
 }

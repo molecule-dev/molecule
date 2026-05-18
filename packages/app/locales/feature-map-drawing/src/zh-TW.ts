@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for zh-TW — currently mirrors English (translation TBD). */
-export const zhTW: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for zh-TW. */
+export const zhTW: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': '地圖繪製工具',
+  'mapDrawing.surface.aria': '地圖繪製表面',
+  'mapDrawing.tool.polygon': '多邊形',
+  'mapDrawing.tool.circle': '圓圈',
+  'mapDrawing.tool.pin': '別針',
+  'mapDrawing.tool.line': '線',
+  'mapDrawing.tool.select': '選擇',
+  'mapDrawing.tool.delete': '刪除',
+}

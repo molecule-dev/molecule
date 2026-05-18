@@ -14,4 +14,7 @@ export const sv: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'Uppgradera',
   'settings.billing.cancel': 'Avbryt',
   'settings.billing.subscribe': 'Prenumerera',
+  'settings.darkMode': 'Mörkt läge',
+  'settings.billing.upgradeTitle': 'Uppgradera din plan',
+  'settings.billing.noTiers': 'Inga betalda planer konfigurerade.',
 }

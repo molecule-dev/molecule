@@ -1,4 +1,6 @@
 import type { BulkActionToolbarTranslations } from './types.js'
 
 /** BulkActionToolbar translations for km. */
-export const km: Partial<BulkActionToolbarTranslations> = {}
+export const km: Partial<BulkActionToolbarTranslations> = {
+  'bulkActions.clear': 'ជម្រះ',
+}

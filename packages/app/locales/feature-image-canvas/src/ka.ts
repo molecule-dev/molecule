@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for ka — currently mirrors English (translation TBD). */
-export const ka: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for ka. */
+export const ka: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'სურათის ტილო',
+  'imageCanvas.aria.canvas': 'გადაათრიეთ პანორამირებისთვის, გადაახვიეთ მასშტაბირებისთვის',
+  'imageCanvas.loading': 'სურათი იტვირთება…',
+  'imageCanvas.error': 'სურათის ჩატვირთვა ვერ მოხერხდა.',
+}

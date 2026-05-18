@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for hr. */
-export const hr: Partial<ReactNativeUiTranslations> = {}
+export const hr: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Odbaciti',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Zatvoriti',
+  'ui.pagination.nav': 'Paginacija',
+  'ui.pagination.first': 'Prvi',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Prethodno',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '...',
+  'ui.pagination.goToPage': 'Sljedeći',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Trajati',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{vrijednost}} %',
+  'ui.radioGroup.label': 'Radio grupa',
+  'ui.select.placeholder': 'Odaberite…',
+  'ui.select.title': 'Odaberite',
+  'ui.spinner.loading': 'Učitavanje',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Nema podataka',
+  'ui.toast.dismiss': 'Odbaciti',
+  'ui.toast.error.noProvider': 'useToast se mora koristiti unutar ToastProvidera',
+}

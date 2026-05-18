@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for he — currently mirrors English (translation TBD). */
-export const he: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for he. */
+export const he: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'פרקים',
+  'chapterList.aria.seek': 'קפיצה אל<x> {{כּוֹתֶרֶת}}</x> בְּ-<x> חותמת זמן</x>',
+  'chapterList.aria.thumbnail': 'תמונה ממוזערת עבור<x> {{כּוֹתֶרֶת}}</x>',
+  'chapterList.empty': 'אין פרקים זמינים לפרק זה.',
+  'chapterList.current': 'מתנגן עכשיו',
+}

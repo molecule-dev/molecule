@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for am (stub — falls back to English until reviewed). */
-export const am: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for am. */
+export const am: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': 'የመልሶ ማጫወት ትራንስፖርት መቆጣጠሪያዎች',
+  'transportBar.aria.skipBack': 'ወደ ኋላ ዝለል',
+  'transportBar.aria.skipForward': 'ወደፊት ዝለል',
+  'transportBar.aria.play': 'ይጫወቱ',
+  'transportBar.aria.pause': 'ለአፍታ አቁም',
+  'transportBar.aria.stop': 'ተወ',
+  'transportBar.aria.record': 'መዝገብ',
+  'transportBar.aria.stopRecording': 'መቅዳት አቁም',
+  'transportBar.aria.loopOn': 'ዑደትን አሰናክል',
+  'transportBar.aria.loopOff': 'ዑደትን አንቃ',
+}

@@ -1,24 +1,24 @@
 import type { SolidTranslations } from './types.js'
 
-/** Solid translations for Maltese. */
-export const mt: SolidTranslations = {
+/** Solid translations for mt. */
+export const mt: Partial<SolidTranslations> = {
   'solid.error.stateOutsideProvider':
-    "getStateProvider irid jintuża fič-ċirku ta' MoleculeProvider b' stat konfigurat",
+    'getStateProvider irid jintuża fi ħdan MoleculeProvider bl-istat ikkonfigurat',
   'solid.error.authOutsideProvider':
-    "getAuthClient irid jintuża fič-ċirku ta' MoleculeProvider b' awtentikazzjoni konfigurata",
+    'getAuthClient irid jintuża fi ħdan MoleculeProvider bl-awtentikazzjoni kkonfigurata',
   'solid.error.themeOutsideProvider':
-    "getThemeProvider irid jintuża fič-ċirku ta' MoleculeProvider b' tema konfigurat",
+    'getThemeProvider irid jintuża fi ħdan MoleculeProvider bit-tema kkonfigurata',
   'solid.error.routerOutsideProvider':
-    "getRouter irid jintuża fič-ċirku ta' MoleculeProvider b' router konfigurat",
+    'getRouter irid jintuża fi ħdan MoleculeProvider bir-router ikkonfigurat',
   'solid.error.i18nOutsideProvider':
-    "getI18nProvider irid jintuża fič-ċirku ta' MoleculeProvider b' i18n konfigurat",
+    'getI18nProvider irid jintuża fi ħdan MoleculeProvider b&#39;i18n ikkonfigurat',
   'solid.error.httpOutsideProvider':
-    "getHttpClient irid jintuża fič-ċirku ta' MoleculeProvider b' HTTP konfigurat",
+    'getHttpClient irid jintuża fi ħdan MoleculeProvider b&#39;http ikkonfigurat',
   'solid.error.storageOutsideProvider':
-    "getStorageProvider irid jintuża fič-ċirku ta' MoleculeProvider b' ħazna konfigurata",
+    'getStorageProvider irid jintuża fi ħdan MoleculeProvider bil-ħażna kkonfigurata',
   'solid.error.loggerOutsideProvider':
-    "getLoggerProvider irid jintuża fič-ċirku ta' MoleculeProvider b' logger konfigurat",
+    'getLoggerProvider irid jintuża fi ħdan MoleculeProvider bil-logger ikkonfigurat',
   'solid.error.useAccordionOutsideProvider':
-    "Il-komponenti ta' Accordion iridu jintużaw fič-ċirku ta' Accordion",
-  'solid.error.useToastOutsideProvider': "useToast irid jintuża fič-ċirku ta' ToastProvider",
+    'Il-komponenti tal-akkordjun għandhom jintużaw fi ħdan l-akkordjun',
+  'solid.error.useToastOutsideProvider': 'useToast irid jintuża fi ħdan ToastProvider',
 }

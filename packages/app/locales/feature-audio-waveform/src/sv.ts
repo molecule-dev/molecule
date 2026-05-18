@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for sv — currently mirrors English (translation TBD). */
-export const sv: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for sv. */
+export const sv: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Ljudvågform',
+  'audioWaveform.aria.seek': 'Sök ljudet genom att klicka på vågformen',
+  'audioWaveform.empty': 'Inga vågformsdata tillgängliga.',
+}

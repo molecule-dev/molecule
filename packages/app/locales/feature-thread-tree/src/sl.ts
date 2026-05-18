@@ -1,5 +1,13 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for sl (stub — falls back to English until reviewed). */
-export const sl: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for sl. */
+export const sl: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.expand': 'Razširi<x> {{število}}</x> odgovori',
+  'threadTree.collapse': 'Strni nit',
+  'threadTree.expandSymbol': '[+]',
+  'threadTree.collapseSymbol': '[−]',
+  'threadTree.score': '{{število}} točke',
+  'threadTree.hiddenReplies': '{{število}} skrito',
+  'threadTree.upvote': 'Glasuj za',
+  'threadTree.reply': 'Odgovori',
+}

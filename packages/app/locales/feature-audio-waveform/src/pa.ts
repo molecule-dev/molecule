@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for pa — currently mirrors English (translation TBD). */
-export const pa: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for pa. */
+export const pa: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'ਆਡੀਓ ਵੇਵਫਾਰਮ',
+  'audioWaveform.aria.seek': 'ਵੇਵਫਾਰਮ &#39;ਤੇ ਕਲਿੱਕ ਕਰਕੇ ਆਡੀਓ ਲੱਭੋ।',
+  'audioWaveform.empty': 'ਕੋਈ ਵੇਵਫਾਰਮ ਡੇਟਾ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।',
+}

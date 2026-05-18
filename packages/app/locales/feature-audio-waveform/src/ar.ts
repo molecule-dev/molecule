@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for ar — currently mirrors English (translation TBD). */
-export const ar: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for ar. */
+export const ar: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'شكل الموجة الصوتية',
+  'audioWaveform.aria.seek': 'ابحث عن الصوت بالنقر على شكل الموجة',
+  'audioWaveform.empty': 'لا تتوفر بيانات شكل الموجة.',
+}

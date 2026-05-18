@@ -1,4 +1,8 @@
 import type { HabitStreakCardTranslations } from './types.js'
 
 /** HabitStreakCard translations for hr. */
-export const hr: Partial<HabitStreakCardTranslations> = {}
+export const hr: Partial<HabitStreakCardTranslations> = {
+  'habit.currentStreak': 'dnevni niz',
+  'habit.bestStreak': 'najbolje',
+  'habit.total': 'ukupno',
+}

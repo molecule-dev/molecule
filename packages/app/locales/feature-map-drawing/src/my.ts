@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for my — currently mirrors English (translation TBD). */
-export const my: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for my. */
+export const my: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'မြေပုံဆွဲကိရိယာများ',
+  'mapDrawing.surface.aria': 'မြေပုံဆွဲမျက်နှာပြင်',
+  'mapDrawing.tool.polygon': 'ပိုလီဂွန်',
+  'mapDrawing.tool.circle': 'စက်ဝိုင်း',
+  'mapDrawing.tool.pin': 'ပင်နံပါတ်',
+  'mapDrawing.tool.line': 'လိုင်း',
+  'mapDrawing.tool.select': 'ရွေးချယ်ပါ',
+  'mapDrawing.tool.delete': 'ဖျက်ရန်',
+}

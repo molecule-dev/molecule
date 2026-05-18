@@ -1,4 +1,8 @@
 import type { ImageCanvasTranslations } from './types.js'
 
 /** ImageCanvas translations for cs. */
-export const cs: Partial<ImageCanvasTranslations> = {}
+export const cs: Partial<ImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Obrazové plátno',
+  'imageCanvas.aria.canvas': 'Přetažením posouváte, posouváním přibližujete',
+  'imageCanvas.error': 'Obrázek se nepodařilo načíst.',
+}

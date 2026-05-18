@@ -1,11 +1,7 @@
 import type { SolidTranslations } from './types.js'
 
-/** Solid translations for French. */
-export const fr: SolidTranslations = {
-  'solid.error.stateOutsideProvider':
-    "getStateProvider doit être utilisé dans un MoleculeProvider avec l'état configuré",
-  'solid.error.authOutsideProvider':
-    "getAuthClient doit être utilisé dans un MoleculeProvider avec l'authentification configurée",
+/** Solid translations for fr. */
+export const fr: Partial<SolidTranslations> = {
   'solid.error.themeOutsideProvider':
     'getThemeProvider doit être utilisé dans un MoleculeProvider avec le thème configuré',
   'solid.error.routerOutsideProvider':
@@ -21,4 +17,8 @@ export const fr: SolidTranslations = {
   'solid.error.useAccordionOutsideProvider':
     'Les composants Accordion doivent être utilisés dans un Accordion',
   'solid.error.useToastOutsideProvider': 'useToast doit être utilisé dans un ToastProvider',
+  'solid.error.stateOutsideProvider':
+    'La méthode getStateProvider doit être utilisée au sein d&#39;un MoleculeProvider dont l&#39;état est configuré.',
+  'solid.error.authOutsideProvider':
+    'La méthode getAuthClient doit être utilisée au sein d&#39;un MoleculeProvider avec l&#39;authentification configurée.',
 }

@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for gu — currently mirrors English (translation TBD). */
-export const gu: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for gu. */
+export const gu: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'ટીકા સ્તર',
+  'annotationPin.aria.marker': 'ટીકા પિન',
+  'annotationPin.aria.popup': 'ટીકા વિગતો',
+  'annotationPin.empty': 'આ પિન માટે કોઈ નોંધ નથી.',
+}

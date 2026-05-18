@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for mn (stub — falls back to English until reviewed). */
-export const mn: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for mn. */
+export const mn: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': 'Тоглуулах дамжуулалтын удирдлага',
+  'transportBar.aria.skipBack': 'Арагш алгасах',
+  'transportBar.aria.skipForward': 'Урагш алгасах',
+  'transportBar.aria.play': 'Тоглох',
+  'transportBar.aria.pause': 'Түр зогсоох',
+  'transportBar.aria.stop': 'Зогсоох',
+  'transportBar.aria.record': 'Бичлэг',
+  'transportBar.aria.stopRecording': 'Бичлэгийг зогсоох',
+  'transportBar.aria.loopOn': 'Давталтыг идэвхгүй болгох',
+  'transportBar.aria.loopOff': 'Давталтыг идэвхжүүлэх',
+}

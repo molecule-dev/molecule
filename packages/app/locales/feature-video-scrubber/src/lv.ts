@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for lv — currently mirrors English (translation TBD). */
-export const lv: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for lv. */
+export const lv: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Video skruberis',
+  'videoScrubber.aria.strip':
+    'Filmas josla — atskaņošanas galviņa plkst.<x> laiks</x> s (kadrs<x> {{kadrs}}</x> )',
+  'videoScrubber.aria.playhead': 'Atskaņošanas galviņa plkst.<x> laiks</x> s',
+  'videoScrubber.aria.frameReadout': 'Rāmis<x> {{kadrs}}</x> no<x> Kopā</x>',
+  'videoScrubber.aria.thumbnail': 'Kadra priekšskatījums',
+  'videoScrubber.thumbnails.empty': 'Nav priekšskatījuma',
+  'videoScrubber.frameReadout.total': '/<x> Kopā</x> rāmji',
+}

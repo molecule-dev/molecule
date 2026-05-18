@@ -5,4 +5,5 @@ export const fi: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'Peruuta',
   'inlineEdit.saving': 'Tallennetaan…',
   'inlineEdit.save': 'Tallenna',
+  'inlineEdit.empty': 'Klikkaa muokataksesi',
 }

@@ -5,4 +5,6 @@ export const fi: Partial<HttpInspectorTranslations> = {
   'httpInspector.sending': 'Lähetetään…',
   'httpInspector.send': 'Lähetä',
   'httpInspector.body': 'Viesti',
+  'httpInspector.headers': 'Ylätunnisteet',
+  'httpInspector.addHeader': 'Lisää otsikko',
 }

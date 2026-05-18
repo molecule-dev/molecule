@@ -1,7 +1,7 @@
 import type { StatusBarTranslations } from './types.js'
 
-/** Status Bar translations for Maltese. */
-export const mt: StatusBarTranslations = {
+/** StatusBar translations for mt. */
+export const mt: Partial<StatusBarTranslations> = {
   'statusBar.error.noProvider':
-    "@molecule/app-status-bar: L-ebda fornitur mhux issettjat. Sejjah setProvider() b'implimentazzjoni ta' StatusBarProvider (ez., minn @molecule/app-status-bar-capacitor).",
+    '@molecule/app-status-bar: L-ebda fornitur ma ġie stabbilit. Sejħa setProvider() b&#39;implimentazzjoni ta&#39; StatusBarProvider (eż., minn @molecule/app-status-bar-capacitor).',
 }

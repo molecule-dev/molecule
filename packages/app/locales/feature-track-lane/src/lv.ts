@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for lv — currently mirrors English (translation TBD). */
-export const lv: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for lv. */
+export const lv: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Sliežu josla<x> {{vārds}}</x>',
+  'trackLane.aria.clip':
+    'Saspraude<x> {{label}}</x> sākot no plkst.<x> {{sākuma laiks}}</x> s priekš<x> {{ilgums}}</x> s',
+  'trackLane.aria.resize': 'Mainīt klipa izmēru',
+  'trackLane.header': 'Trase',
+}

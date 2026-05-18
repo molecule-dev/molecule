@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for fil — currently mirrors English (translation TBD). */
-export const fil: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for fil. */
+export const fil: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Piano roll',
+  'pianoRoll.aria.keys': 'Mga teklado ng piano',
+  'pianoRoll.aria.grid': 'Grid ng tala',
+  'pianoRoll.aria.resize': 'Baguhin ang laki ng tala',
+  'pianoRoll.aria.note':
+    'Tala<x> {{pitch}}</x> nagsisimula sa beat<x> {{startBeat}}</x> para sa<x> {{durationBeats}}</x> mga ritmo',
+}

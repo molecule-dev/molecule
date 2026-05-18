@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for el — currently mirrors English (translation TBD). */
-export const el: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for el. */
+export const el: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Κυματομορφή ήχου',
+  'audioWaveform.aria.seek': 'Αναζητήστε τον ήχο κάνοντας κλικ στην κυματομορφή',
+  'audioWaveform.empty': 'Δεν υπάρχουν διαθέσιμα δεδομένα κυματομορφής.',
+}

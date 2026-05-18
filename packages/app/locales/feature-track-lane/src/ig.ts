@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for ig — currently mirrors English (translation TBD). */
-export const ig: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for ig. */
+export const ig: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Ụzọ egwu<x> {{aha}}</x>',
+  'trackLane.aria.clip':
+    'Klip<x> {{akara}}</x> malite na<x> {{oge mmalite}}</x> s maka<x> {{oge}}</x> s',
+  'trackLane.aria.resize': 'Gbanwee nha mkpachị ahụ',
+  'trackLane.header': 'Ụzọ egwu',
+}

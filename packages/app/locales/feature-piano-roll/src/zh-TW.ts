@@ -1,5 +1,10 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for zh-TW — currently mirrors English (translation TBD). */
-export const zhTW: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for zh-TW. */
+export const zhTW: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': '鋼琴捲簾',
+  'pianoRoll.aria.keys': '鋼琴鍵',
+  'pianoRoll.aria.grid': '筆記網格',
+  'pianoRoll.aria.resize': '調整大小註釋',
+  'pianoRoll.aria.note': '筆記{{瀝青}}從節拍開始{{startBeat}}為了{{durationBeats}}節拍',
+}

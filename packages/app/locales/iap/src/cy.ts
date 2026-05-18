@@ -1,12 +1,11 @@
 import type { IapTranslations } from './types.js'
 
-/** Iap translations for Welsh. */
-export const cy: IapTranslations = {
+/** Iap translations for cy. */
+export const cy: Partial<IapTranslations> = {
   'iap.error.E_UNKNOWN': 'Digwyddodd gwall anhysbys.',
   'iap.error.E_SETUP': 'Methwyd sefydlu pryniannau mewn-app.',
   'iap.error.E_LOAD': 'Methwyd llwytho cynhyrchion.',
   'iap.error.E_PURCHASE': 'Pryniant wedi methu.',
-  'iap.error.E_CANCELLED': "Pryniant wedi'i ganslo.",
   'iap.error.E_FINISH': 'Methwyd cwblhau trafodiad.',
   'iap.error.E_VERIFICATION': 'Methwyd dilysu pryniant.',
   'iap.error.E_RESTORE': 'Methwyd adfer pryniannau.',
@@ -17,14 +16,9 @@ export const cy: IapTranslations = {
   'iap.error.E_INVALID_PRODUCT': 'Cynnyrch annilys.',
   'iap.error.E_NETWORK': 'Gwall rhwydwaith.',
   'iap.error.0': 'Digwyddodd gwall anhysbys.',
-  'iap.error.E_CLIENT_INVALID': "Nid yw'r cleient yn cael gwneud y cais.",
-  'iap.error.E_PAYMENT_CANCELLED': "Defnyddiwr wedi canslo'r cais.",
   'iap.error.E_PAYMENT_INVALID': 'Roedd yr adnabyddwr pryniant yn annilys.',
-  'iap.error.E_PAYMENT_NOT_ALLOWED': "Nid yw'r ddyfais yn cael gwneud pryniannau.",
   'iap.error.E_STORE_PRODUCT_NOT_AVAILABLE': 'Cynnyrch ddim ar gael yn y siop bresennol.',
-  'iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED': "Caniatâd gwasanaeth cwmwl wedi'i wrthod.",
   'iap.error.E_CLOUD_SERVICE_NETWORK_CONNECTION_FAILED': 'Rhwydwaith gwasanaeth cwmwl wedi methu.',
-  'iap.error.E_CLOUD_SERVICE_REVOKED': "Gwasanaeth cwmwl wedi'i ddirymu.",
   'iap.error.-1': 'Gwasanaeth wedi datgysylltu.',
   'iap.error.1': 'Defnyddiwr wedi canslo.',
   'iap.error.2': 'Gwasanaeth ddim ar gael.',
@@ -34,4 +28,10 @@ export const cy: IapTranslations = {
   'iap.error.6': 'Gwall.',
   'iap.error.7': 'Eitem eisoes yn eiddo.',
   'iap.error.8': 'Eitem ddim yn eiddo.',
+  'iap.error.E_CANCELLED': 'Cafodd y pryniant ei ganslo.',
+  'iap.error.E_CLIENT_INVALID': 'Ni chaniateir i&#39;r cleient gyhoeddi&#39;r cais.',
+  'iap.error.E_PAYMENT_CANCELLED': 'Canslodd y defnyddiwr y cais.',
+  'iap.error.E_PAYMENT_NOT_ALLOWED': 'Ni chaniateir i&#39;r ddyfais wneud pryniannau.',
+  'iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED': 'Caniatâd gwasanaeth cwmwl wedi&#39;i wrthod.',
+  'iap.error.E_CLOUD_SERVICE_REVOKED': 'Cafodd gwasanaeth cwmwl ei ddirymu.',
 }

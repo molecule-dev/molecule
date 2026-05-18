@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for mn. */
-export const mn: Partial<ReactNativeUiTranslations> = {}
+export const mn: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Хаах',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Аватар',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Хаах',
+  'ui.pagination.nav': 'Хуудаслалт',
+  'ui.pagination.first': 'Эхний',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Өмнөх',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '...',
+  'ui.pagination.goToPage': 'Дараагийнх',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Сүүлийн',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{утга}} %',
+  'ui.radioGroup.label': 'Радио бүлэг',
+  'ui.select.placeholder': 'Сонгох...',
+  'ui.select.title': 'Сонгох',
+  'ui.spinner.loading': 'Ачааллаж байна',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Өгөгдөл байхгүй',
+  'ui.toast.dismiss': 'Хаах',
+  'ui.toast.error.noProvider': 'useToast нь ToastProvider дотор ашиглагдах ёстой',
+}

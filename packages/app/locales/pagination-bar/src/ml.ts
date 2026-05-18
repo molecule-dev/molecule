@@ -4,4 +4,5 @@ import type { PaginationBarTranslations } from './types.js'
 export const ml: Partial<PaginationBarTranslations> = {
   'pagination.previous': 'മുൻ പേജ്',
   'pagination.next': 'അടുത്ത പേജ്',
+  'pagination.pageSize': 'പേജ് വലുപ്പം',
 }

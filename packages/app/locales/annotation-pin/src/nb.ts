@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for nb — currently mirrors English (translation TBD). */
-export const nb: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for nb. */
+export const nb: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Annotasjonslag',
+  'annotationPin.aria.marker': 'Annotasjonsnål',
+  'annotationPin.aria.popup': 'Detaljer om annotering',
+  'annotationPin.empty': 'Ingen notater for denne pinnen.',
+}

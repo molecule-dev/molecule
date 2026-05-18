@@ -1,7 +1,7 @@
 import type { CodeEditorTranslations } from './types.js'
 
-/** Code Editor translations for Afrikaans. */
-export const af: CodeEditorTranslations = {
+/** CodeEditor translations for af. */
+export const af: Partial<CodeEditorTranslations> = {
   'codeEditor.error.noProvider':
-    "Koderedigeerder-verskaffer is nie opgestel nie. Bind eers 'n koderedigeerder-verskaffer.",
+    'Kode-redigeerderverskaffer nie gekonfigureer nie. Koppel eers &#39;n kode-redigeerderverskaffer.',
 }

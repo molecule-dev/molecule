@@ -10,4 +10,9 @@ export const fr: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.monthly': 'Mensuel',
   'pricingPage.periodToggle.yearly': 'Annuel',
   'pricingPage.planUpdated.heading': 'Votre formule a été mise à jour',
+  'pricingPage.heading': 'Choisissez votre forfait',
+  'pricingPage.perSeat': 'par siège',
+  'pricingPage.periodToggle.label': 'Période de facturation',
+  'pricingPage.planUpdated.body':
+    'Merci pour votre mise à niveau. Votre nouveau forfait est immédiatement actif et un reçu vous a été envoyé par courriel.',
 }

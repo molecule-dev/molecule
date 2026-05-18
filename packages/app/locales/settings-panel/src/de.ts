@@ -14,4 +14,7 @@ export const de: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'Upgraden',
   'settings.billing.cancel': 'Abbrechen',
   'settings.billing.subscribe': 'Abonnieren',
+  'settings.darkMode': 'Dunkelmodus',
+  'settings.billing.upgradeTitle': 'Aktualisieren Sie Ihren Tarif',
+  'settings.billing.noTiers': 'Es sind keine kostenpflichtigen Tarife konfiguriert.',
 }

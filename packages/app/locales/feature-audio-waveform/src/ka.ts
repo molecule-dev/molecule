@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for ka — currently mirrors English (translation TBD). */
-export const ka: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for ka. */
+export const ka: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'აუდიო ტალღის ფორმა',
+  'audioWaveform.aria.seek': 'აუდიოს მოსაძებნად დააჭირეთ ტალღის ფორმას',
+  'audioWaveform.empty': 'ტალღის ფორმის მონაცემები არ არის ხელმისაწვდომი.',
+}

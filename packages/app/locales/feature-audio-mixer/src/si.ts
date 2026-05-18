@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for si — currently mirrors English (translation TBD). */
-export const si: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for si. */
+export const si: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'ශ්‍රව්‍ය මිශ්‍රක කොන්සෝලය',
+  'audioMixer.aria.fader': '{{නම}} ෆේඩර්',
+  'audioMixer.aria.pan': '{{නම}} පෑන්',
+  'audioMixer.aria.send': '{{නාලිකාව}} යවන්න<x> {{යවන්න}}</x>',
+  'audioMixer.button.mute': 'නිහඬ කරන්න',
+  'audioMixer.button.solo': 'ඒකල',
+  'audioMixer.master': 'මාස්ටර්',
+  'audioMixer.sends': 'යවයි',
+}

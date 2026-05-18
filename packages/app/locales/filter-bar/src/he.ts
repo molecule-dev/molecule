@@ -1,4 +1,6 @@
 import type { FilterBarTranslations } from './types.js'
 
 /** FilterBar translations for he. */
-export const he: Partial<FilterBarTranslations> = {}
+export const he: Partial<FilterBarTranslations> = {
+  'filterBar.clear': 'נקה מסננים',
+}

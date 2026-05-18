@@ -1,4 +1,7 @@
 import type { TagInputTranslations } from './types.js'
 
 /** TagInput translations for eu. */
-export const eu: Partial<TagInputTranslations> = {}
+export const eu: Partial<TagInputTranslations> = {
+  'tagChip.remove': 'Kendu',
+  'tagInput.placeholder': 'Gehitu etiketa bat…',
+}

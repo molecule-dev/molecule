@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for ka — currently mirrors English (translation TBD). */
-export const ka: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for ka. */
+export const ka: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': '3D მოდელის მნახველი',
+  'threeViewer.loading': '3D მოდელი იტვირთება…',
+  'threeViewer.error': '3D მოდელის ჩატვირთვა ვერ მოხერხდა.',
+}

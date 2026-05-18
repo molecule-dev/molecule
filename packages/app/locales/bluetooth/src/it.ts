@@ -1,7 +1,7 @@
 import type { BluetoothTranslations } from './types.js'
 
-/** Bluetooth translations for Italian. */
-export const it: BluetoothTranslations = {
+/** Bluetooth translations for it. */
+export const it: Partial<BluetoothTranslations> = {
   'bluetooth.error.noProvider':
-    "@molecule/app-bluetooth: Nessun provider impostato. Chiamare setProvider() con un'implementazione di BluetoothProvider (ad es., da @molecule/app-bluetooth-capacitor).",
+    '@molecule/app-bluetooth: Nessun provider impostato. Chiama setProvider() con un&#39;implementazione di BluetoothProvider (ad esempio, da @molecule/app-bluetooth-capacitor).',
 }

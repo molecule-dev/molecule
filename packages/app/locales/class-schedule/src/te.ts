@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for te — currently mirrors English (translation TBD). */
-export const te: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for te. */
+export const te: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'వారపు తరగతి షెడ్యూల్',
+  'classSchedule.aria.event': '{{వారపు రోజు}}<x> {{ప్రారంభం}}</x> –<x> {{end}}</x>',
+  'classSchedule.aria.slot': 'ఖాళీ స్లాట్,<x> {{వారపు రోజు}}</x><x> {{సమయం}}</x>',
+}

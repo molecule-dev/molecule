@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for ig — currently mirrors English (translation TBD). */
-export const ig: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for ig. */
+export const ig: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Akwa nkọwa',
+  'annotationPin.aria.marker': 'Ntụtụ nkọwa',
+  'annotationPin.aria.popup': 'Nkọwa nkọwa',
+  'annotationPin.empty': 'Enweghị ihe ndetu maka pin a.',
+}

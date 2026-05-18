@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for zu. */
-export const zu: Partial<ReactNativeUiTranslations> = {}
+export const zu: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Lahla',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Isithombe',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Vala',
+  'ui.pagination.nav': 'Ukubhala amakhasi',
+  'ui.pagination.first': 'Okokuqala',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Okwangaphambilini',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Olandelayo',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Okokugcina',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{inani}} %',
+  'ui.radioGroup.label': 'Iqembu lomsakazo',
+  'ui.select.placeholder': 'Khetha…',
+  'ui.select.title': 'Khetha',
+  'ui.spinner.loading': 'Iyalayisha',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Ayikho idatha',
+  'ui.toast.dismiss': 'Lahla',
+  'ui.toast.error.noProvider': 'i-useToast kumele isetshenziswe ngaphakathi kwe-ToastProvider',
+}

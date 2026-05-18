@@ -1,9 +1,9 @@
-import type { ChatTranslations } from './types.js'
+import type { AiChatTranslations } from './types.js'
 
-/** Ai Chat translations for Uzbek. */
-export const uz: ChatTranslations = {
+/** AiChat translations for uz. */
+export const uz: Partial<AiChatTranslations> = {
   'chat.error.httpError': 'HTTP {{status}}: {{text}}',
-  'chat.error.noResponseBody': "Javob tanasi yo'q",
   'chat.error.streamError': 'Oqim xatoligi',
-  'chat.error.unknownError': "Noma'lum xatolik",
+  'chat.error.noResponseBody': 'Javob beruvchi organ yo&#39;q',
+  'chat.error.unknownError': 'Noma&#39;lum xato',
 }

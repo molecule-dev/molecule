@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for cy — currently mirrors English (translation TBD). */
-export const cy: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for cy. */
+export const cy: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Haen anodiadau',
+  'annotationPin.aria.marker': 'Pin anodiad',
+  'annotationPin.aria.popup': 'Manylion anodiadau',
+  'annotationPin.empty': 'Dim nodiadau ar gyfer y pin hwn.',
+}

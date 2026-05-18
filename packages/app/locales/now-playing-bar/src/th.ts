@@ -1,5 +1,13 @@
 import type { NowPlayingBarTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Now-playing-bar translations for th — currently mirrors English (translation TBD). */
-export const th: NowPlayingBarTranslations = { ...en }
+/** NowPlayingBar translations for th. */
+export const th: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.aria.region': 'กำลังฉาย:<x> {{ชื่อ}}</x>',
+  'nowPlaying.aria.artwork': 'งานศิลปะสำหรับ<x> {{ชื่อ}}</x>',
+  'nowPlaying.aria.play': 'เล่น',
+  'nowPlaying.aria.pause': 'หยุดชั่วคราว',
+  'nowPlaying.aria.next': 'เพลงถัดไป',
+  'nowPlaying.aria.prev': 'เพลงก่อนหน้า',
+  'nowPlaying.aria.seek': 'แสวงหา',
+  'nowPlaying.aria.volume': 'ปริมาณ',
+}

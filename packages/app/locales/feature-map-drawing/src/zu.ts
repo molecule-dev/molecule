@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for zu — currently mirrors English (translation TBD). */
-export const zu: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for zu. */
+export const zu: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Amathuluzi okudweba amamephu',
+  'mapDrawing.surface.aria': 'Indawo yokudweba imephu',
+  'mapDrawing.tool.polygon': 'I-Polygon',
+  'mapDrawing.tool.circle': 'Umbuthano',
+  'mapDrawing.tool.pin': 'Iphinikhodi',
+  'mapDrawing.tool.line': 'Umugqa',
+  'mapDrawing.tool.select': 'Khetha',
+  'mapDrawing.tool.delete': 'Susa',
+}

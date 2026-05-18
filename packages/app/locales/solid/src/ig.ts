@@ -1,23 +1,24 @@
 import type { SolidTranslations } from './types.js'
 
-/** Solid translations for Igbo. */
-export const ig: SolidTranslations = {
+/** Solid translations for ig. */
+export const ig: Partial<SolidTranslations> = {
   'solid.error.stateOutsideProvider':
-    "getStateProvider a ga-eji ya n'ime MoleculeProvider nke e haziiri steeti",
+    'A ga-eji getStateProvider mee ihe n&#39;ime MoleculeProvider nke nwere usoro ahaziri ahazi.',
   'solid.error.authOutsideProvider':
-    "getAuthClient a ga-eji ya n'ime MoleculeProvider nke e haziiri ikike",
+    'A ga-eji getAuthClient mee ihe n&#39;ime MoleculeProvider nke nwere nhazi ikike',
   'solid.error.themeOutsideProvider':
-    "getThemeProvider a ga-eji ya n'ime MoleculeProvider nke e haziiri isiokwu",
+    'A ga-eji getThemeProvider mee ihe n&#39;ime MoleculeProvider nke nwere isiokwu ahaziri ahazi',
   'solid.error.routerOutsideProvider':
-    "getRouter a ga-eji ya n'ime MoleculeProvider nke e haziiri rauta",
+    'A ga-eji getRouter mee ihe n&#39;ime MoleculeProvider nke nwere nhazi rawụta ya',
   'solid.error.i18nOutsideProvider':
-    "getI18nProvider a ga-eji ya n'ime MoleculeProvider nke e haziiri i18n",
+    'A ga-eji getI18nProvider mee ihe n&#39;ime MoleculeProvider nke nwere nhazi i18n',
   'solid.error.httpOutsideProvider':
-    "getHttpClient a ga-eji ya n'ime MoleculeProvider nke e haziiri HTTP",
+    'A ga-eji getHttpClient mee ihe n&#39;ime MoleculeProvider yana nhazi http',
   'solid.error.storageOutsideProvider':
-    "getStorageProvider a ga-eji ya n'ime MoleculeProvider nke e haziiri nchekwa",
+    'A ga-eji getStorageProvider mee ihe n&#39;ime MoleculeProvider nke nwere nhazi nchekwa ahaziri ya',
   'solid.error.loggerOutsideProvider':
-    "getLoggerProvider a ga-eji ya n'ime MoleculeProvider nke e haziiri ndekota",
-  'solid.error.useAccordionOutsideProvider': "Nkeji Accordion a ga-eji ya n'ime Accordion",
-  'solid.error.useToastOutsideProvider': "useToast a ga-eji ya n'ime ToastProvider",
+    'A ga-eji getLoggerProvider mee ihe n&#39;ime MoleculeProvider nke nwere nhazi logger ahaziri ya',
+  'solid.error.useAccordionOutsideProvider':
+    'A ga-eji ihe ndị dị na Accordion mee ihe n&#39;ime otu',
+  'solid.error.useToastOutsideProvider': 'A ga-eji Toast mee ihe n&#39;ime Onye Na-enye Toast',
 }

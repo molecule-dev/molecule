@@ -1,4 +1,6 @@
 import type { FilterBarTranslations } from './types.js'
 
 /** FilterBar translations for ha. */
-export const ha: Partial<FilterBarTranslations> = {}
+export const ha: Partial<FilterBarTranslations> = {
+  'filterBar.clear': 'Share matattara',
+}

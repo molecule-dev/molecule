@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for am — currently mirrors English (translation TBD). */
-export const am: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for am. */
+export const am: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'የምስል ሸራ',
+  'imageCanvas.aria.canvas': 'ወደ ፓን ይጎትቱ፣ ለማጉላት ያሸብልሉ',
+  'imageCanvas.loading': 'ምስል በመጫን ላይ…',
+  'imageCanvas.error': 'ምስሉ ሊጫን አልቻለም።',
+}

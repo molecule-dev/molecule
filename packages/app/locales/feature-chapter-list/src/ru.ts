@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for ru — currently mirrors English (translation TBD). */
-export const ru: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for ru. */
+export const ru: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Главы',
+  'chapterList.aria.seek': 'Перейти к<x> {{заголовок}}</x> в<x> {{timestamp}}</x>',
+  'chapterList.aria.thumbnail': 'Миниатюра для<x> {{заголовок}}</x>',
+  'chapterList.empty': 'Для этого эпизода нет доступных глав.',
+  'chapterList.current': 'Сейчас играет',
+}

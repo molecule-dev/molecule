@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for ga — currently mirrors English (translation TBD). */
-export const ga: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for ga. */
+export const ga: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Rolla pianó',
+  'pianoRoll.aria.keys': 'Eochracha pianó',
+  'pianoRoll.aria.grid': 'Greille nótaí',
+  'pianoRoll.aria.resize': 'Athraigh méid an nóta',
+  'pianoRoll.aria.note':
+    'Nóta<x> {{pitch}}</x> ag tosú ag buille<x> {{túsBuille}}</x> do<x> {{durationBeats}}</x> buillí',
+}

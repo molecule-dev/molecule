@@ -8,4 +8,5 @@ export const zh: Partial<SecretRowTranslations> = {
   'secretRow.copy': '复制',
   'secretRow.rotate': '轮换',
   'secretRow.delete': '删除',
+  'secretRow.expired': '已到期',
 }

@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for sl — currently mirrors English (translation TBD). */
-export const sl: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for sl. */
+export const sl: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Sloj opomb',
+  'annotationPin.aria.marker': 'Pritrdilni žebljiček za opombe',
+  'annotationPin.aria.popup': 'Podrobnosti o opombah',
+  'annotationPin.empty': 'Za ta pin ni opomb.',
+}

@@ -5,4 +5,5 @@ export const pt: Partial<OnboardingModalTranslations> = {
   'onboarding.back': 'Voltar',
   'onboarding.done': 'Começar',
   'onboarding.next': 'Próximo',
+  'onboarding.skip': 'Pular',
 }

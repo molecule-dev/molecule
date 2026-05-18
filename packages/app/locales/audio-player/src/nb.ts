@@ -1,4 +1,6 @@
 import type { AudioPlayerTranslations } from './types.js'
 
 /** AudioPlayer translations for nb. */
-export const nb: Partial<AudioPlayerTranslations> = {}
+export const nb: Partial<AudioPlayerTranslations> = {
+  'audio.seek': 'Søke',
+}

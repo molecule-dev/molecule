@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for af. */
-export const af: Partial<ReactNativeUiTranslations> = {}
+export const af: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Maak toe',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Maak toe',
+  'ui.pagination.nav': 'Paginering',
+  'ui.pagination.first': 'Eerste',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Vorige',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Volgende',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Laaste',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{waarde}} %',
+  'ui.radioGroup.label': 'Radiogroep',
+  'ui.select.placeholder': 'Kies…',
+  'ui.select.title': 'Kies',
+  'ui.spinner.loading': 'Laai',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Geen data nie',
+  'ui.toast.dismiss': 'Maak toe',
+  'ui.toast.error.noProvider': 'useToast moet binne &#39;n ToastProvider gebruik word',
+}

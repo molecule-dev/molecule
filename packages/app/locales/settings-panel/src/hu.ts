@@ -10,4 +10,11 @@ export const hu: Partial<SettingsPanelTranslations> = {
   'settings.plan': 'Csomag',
   'settings.upgrade': 'Frissítés',
   'settings.billing.cancel': 'Mégse',
+  'settings.darkMode': 'Sötét mód',
+  'theme.toggle': 'Téma be-/kikapcsolása',
+  'settings.billing.cancelConfirm': 'Lemondja az előfizetését?',
+  'settings.billing.cancelFailed': 'Nem sikerült megszakítani.',
+  'settings.billing.upgradeTitle': 'Frissítse csomagját',
+  'settings.billing.noTiers': 'Nincsenek konfigurált fizetős csomagok.',
+  'settings.billing.subscribe': 'Feliratkozás',
 }

@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for bg — currently mirrors English (translation TBD). */
-export const bg: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for bg. */
+export const bg: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Видео плъзгач',
+  'videoScrubber.aria.strip':
+    'Филмова лента — позиция за възпроизвеждане на<x> {{време}}</x> s (кадър<x> {{кадър}}</x> )',
+  'videoScrubber.aria.playhead': 'Показалец на възпроизвеждане в<x> {{време}}</x> с',
+  'videoScrubber.aria.frameReadout': 'Рамка<x> {{кадър}}</x> от<x> {{общо}}</x>',
+  'videoScrubber.aria.thumbnail': 'Преглед на кадъра',
+  'videoScrubber.thumbnails.empty': 'Без предварителен преглед',
+  'videoScrubber.frameReadout.total': '/<x> {{общо}}</x> рамки',
+}

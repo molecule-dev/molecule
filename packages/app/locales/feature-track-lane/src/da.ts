@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for da — currently mirrors English (translation TBD). */
-export const da: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for da. */
+export const da: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Sporbane<x> {{navn}}</x>',
+  'trackLane.aria.clip':
+    'Klip<x> {{mærke}}</x> starter kl.<x> {{starttidspunkt}}</x> s for<x> {{varighed}}</x> s',
+  'trackLane.aria.resize': 'Ændr størrelse på klip',
+  'trackLane.header': 'Spore',
+}

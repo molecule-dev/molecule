@@ -1,5 +1,19 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for az — currently mirrors English (translation TBD). */
-export const az: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for az. */
+export const az: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.aria.root': 'Video zaman çizelgesi',
+  'videoTimeline.aria.ruler': 'Zaman hökmdarı',
+  'videoTimeline.aria.playhead': 'Oyun başlığı<x> {{time}}</x> s',
+  'videoTimeline.aria.zoom': 'Zaman xəttinin böyüdülməsi',
+  'videoTimeline.aria.mode': 'Redaktə rejimi',
+  'videoTimeline.zoom.in': 'Yaxınlaşdırın',
+  'videoTimeline.zoom.out': 'Uzaqlaşdır',
+  'videoTimeline.zoom.in.icon': '+',
+  'videoTimeline.zoom.out.icon': '−',
+  'videoTimeline.mode.ripple': 'Dalğalanma',
+  'videoTimeline.mode.insert': 'Daxil edin',
+  'videoTimeline.trackKind.video': 'Video',
+  'videoTimeline.trackKind.audio': 'Səs',
+  'videoTimeline.trackKind.subtitle': 'Altyazı',
+}

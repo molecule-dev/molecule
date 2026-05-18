@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for lt. */
-export const lt: Partial<ReactNativeUiTranslations> = {}
+export const lt: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Atmesti',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avataras',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Uždaryti',
+  'ui.pagination.nav': 'Puslapavimas',
+  'ui.pagination.first': 'Pirmas',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Ankstesnis',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Toliau',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Paskutinis',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{vertė}} %',
+  'ui.radioGroup.label': 'Radijo grupė',
+  'ui.select.placeholder': 'Pasirinkite…',
+  'ui.select.title': 'Pasirinkite',
+  'ui.spinner.loading': 'Kraunama',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Nėra duomenų',
+  'ui.toast.dismiss': 'Atmesti',
+  'ui.toast.error.noProvider': '„useToast“ turi būti naudojamas „ToastProvider“ viduje.',
+}

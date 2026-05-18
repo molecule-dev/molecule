@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for pa — currently mirrors English (translation TBD). */
-export const pa: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for pa. */
+export const pa: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'ਨਕਸ਼ਾ ਡਰਾਇੰਗ ਟੂਲ',
+  'mapDrawing.surface.aria': 'ਨਕਸ਼ਾ ਡਰਾਇੰਗ ਸਤ੍ਹਾ',
+  'mapDrawing.tool.polygon': 'ਬਹੁਭੁਜ',
+  'mapDrawing.tool.circle': 'ਚੱਕਰ',
+  'mapDrawing.tool.pin': 'ਪਿੰਨ',
+  'mapDrawing.tool.line': 'ਲਾਈਨ',
+  'mapDrawing.tool.select': 'ਚੁਣੋ',
+  'mapDrawing.tool.delete': 'ਮਿਟਾਓ',
+}

@@ -11,4 +11,10 @@ export const fil: Partial<NotificationsPageTranslations> = {
   'notificationsPage.error': 'Hindi ma-load ang mga abiso.',
   'notificationsPage.emptyBody': 'Ang mga bagong notification ay lalabas dito.',
   'notificationsPage.prev': 'Nakaraan',
+  'notificationsPage.markAllRead': 'Mark<x> {{bilang}}</x> gaya ng nabasa',
+  'notificationsPage.filterUnread': 'Hindi pa nababasa',
+  'notificationsPage.emptyTitle': 'Nahuli na kayong lahat',
+  'notificationsPage.paginationAriaLabel': 'Paginasyon',
+  'notificationsPage.pageOf': 'Pahina<x> {{kasalukuyang}}</x> ng<x> {{kabuuan}}</x>',
+  'notificationsPage.next': 'Susunod',
 }

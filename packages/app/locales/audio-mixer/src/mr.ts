@@ -1,4 +1,12 @@
 import type { AudioMixerTranslations } from './types.js'
 
 /** AudioMixer translations for mr. */
-export const mr: Partial<AudioMixerTranslations> = {}
+export const mr: Partial<AudioMixerTranslations> = {
+  'audioMixer.aria.console': 'ऑडिओ मिक्सर कन्सोल',
+  'audioMixer.master': 'मास्टर',
+  'audioMixer.button.mute': 'म्यूट',
+  'audioMixer.button.solo': 'सोलो',
+  'audioMixer.aria.fader': '{{name}} फॅडर',
+  'audioMixer.aria.pan': '{{name}} पॅन',
+  'audioMixer.aria.send': '{{चॅनल}} पाठवा<x> {{पाठवा}}</x>',
+}

@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for fa — currently mirrors English (translation TBD). */
-export const fa: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for fa. */
+export const fa: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'مسیر آهنگ<x> {{نام}}</x>',
+  'trackLane.aria.clip':
+    'کلیپ<x> {{برچسب}}</x> شروع از<x> {{زمان شروع}}</x> برای<x> {{مدت زمان}}</x> ها',
+  'trackLane.aria.resize': 'تغییر اندازه کلیپ',
+  'trackLane.header': 'آهنگ',
+}

@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for hu — currently mirrors English (translation TBD). */
-export const hu: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for hu. */
+export const hu: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Hanghullámforma',
+  'audioWaveform.aria.seek': 'A hanganyag kereséséhez kattintson a hullámformára',
+  'audioWaveform.empty': 'Nincsenek elérhető hullámforma adatok.',
+}

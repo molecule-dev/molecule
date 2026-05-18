@@ -9,4 +9,10 @@ export const fi: Partial<PricingPageTranslations> = {
   'pricingPage.currentCta': 'Nykyinen suunnitelma',
   'pricingPage.periodToggle.monthly': 'Kuukausittain',
   'pricingPage.periodToggle.yearly': 'Vuosittain',
+  'pricingPage.heading': 'Valitse sopimuksesi',
+  'pricingPage.perSeat': 'istuinta kohden',
+  'pricingPage.periodToggle.label': 'Laskutuskausi',
+  'pricingPage.planUpdated.heading': 'Suunnitelmasi on päivitetty',
+  'pricingPage.planUpdated.body':
+    'Kiitos päivityksestä. Uusi sopimuksesi on heti aktiivinen ja kuitti on lähetetty sinulle sähköpostitse.',
 }

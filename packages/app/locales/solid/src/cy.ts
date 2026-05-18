@@ -1,23 +1,23 @@
 import type { SolidTranslations } from './types.js'
 
-/** Solid translations for Welsh. */
-export const cy: SolidTranslations = {
-  'solid.error.stateOutsideProvider':
-    "getStateProvider rhaid ei ddefnyddio o fewn MoleculeProvider gyda chyflwr wedi'i ffurfweddu",
-  'solid.error.authOutsideProvider':
-    "getAuthClient rhaid ei ddefnyddio o fewn MoleculeProvider gyda dilysu wedi'i ffurfweddu",
-  'solid.error.themeOutsideProvider':
-    "getThemeProvider rhaid ei ddefnyddio o fewn MoleculeProvider gyda thema wedi'i ffurfweddu",
-  'solid.error.routerOutsideProvider':
-    "getRouter rhaid ei ddefnyddio o fewn MoleculeProvider gyda llwybrydd wedi'i ffurfweddu",
-  'solid.error.i18nOutsideProvider':
-    "getI18nProvider rhaid ei ddefnyddio o fewn MoleculeProvider gyda i18n wedi'i ffurfweddu",
-  'solid.error.httpOutsideProvider':
-    "getHttpClient rhaid ei ddefnyddio o fewn MoleculeProvider gyda HTTP wedi'i ffurfweddu",
-  'solid.error.storageOutsideProvider':
-    "getStorageProvider rhaid ei ddefnyddio o fewn MoleculeProvider gyda storio wedi'i ffurfweddu",
-  'solid.error.loggerOutsideProvider':
-    "getLoggerProvider rhaid ei ddefnyddio o fewn MoleculeProvider gyda cofnodwr wedi'i ffurfweddu",
+/** Solid translations for cy. */
+export const cy: Partial<SolidTranslations> = {
   'solid.error.useAccordionOutsideProvider': 'Rhaid defnyddio cydrannau Accordion o fewn Accordion',
   'solid.error.useToastOutsideProvider': 'Rhaid defnyddio useToast o fewn ToastProvider',
+  'solid.error.stateOutsideProvider':
+    'Rhaid defnyddio getStateProvider o fewn MoleculeProvider gyda chyflwr wedi&#39;i ffurfweddu',
+  'solid.error.authOutsideProvider':
+    'Rhaid defnyddio getAuthClient o fewn MoleculeProvider gydag awdurdodiad wedi&#39;i ffurfweddu',
+  'solid.error.themeOutsideProvider':
+    'Rhaid defnyddio getThemeProvider o fewn MoleculeProvider gyda thema wedi&#39;i ffurfweddu',
+  'solid.error.routerOutsideProvider':
+    'Rhaid defnyddio getRouter o fewn MoleculeProvider gyda llwybrydd wedi&#39;i ffurfweddu',
+  'solid.error.i18nOutsideProvider':
+    'Rhaid defnyddio getI18nProvider o fewn MoleculeProvider gydag i18n wedi&#39;i ffurfweddu',
+  'solid.error.httpOutsideProvider':
+    'Rhaid defnyddio getHttpClient o fewn MoleculeProvider gyda http wedi&#39;i ffurfweddu',
+  'solid.error.storageOutsideProvider':
+    'Rhaid defnyddio getStorageProvider o fewn MoleculeProvider gyda storfa wedi&#39;i ffurfweddu',
+  'solid.error.loggerOutsideProvider':
+    'Rhaid defnyddio getLoggerProvider o fewn MoleculeProvider gyda chofnodwr wedi&#39;i ffurfweddu',
 }

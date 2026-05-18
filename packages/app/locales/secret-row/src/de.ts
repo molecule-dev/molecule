@@ -8,4 +8,5 @@ export const de: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopieren',
   'secretRow.rotate': 'Rotieren',
   'secretRow.delete': 'Löschen',
+  'secretRow.expired': 'Abgelaufen',
 }

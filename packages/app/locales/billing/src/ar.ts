@@ -10,4 +10,8 @@ export const ar: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'الأكثر شيوعًا',
   'billing.pricing.tierEyebrow': 'المستوى',
   'billing.pricing.upgradeCta': 'ترقية إلى {{tierName}}',
+  'billing.status.currentPlan': 'الخطة الحالية:<x> {{tierName}}</x>',
+  'billing.status.cancelError': 'تعذر الإلغاء. يرجى المحاولة مرة أخرى.',
+  'billing.pricing.reassurance': 'يمكنك الإلغاء في أي وقت · لا يلزم وجود بطاقة ائتمان للبدء',
+  'billing.pricing.perSeat': 'لكل مقعد',
 }

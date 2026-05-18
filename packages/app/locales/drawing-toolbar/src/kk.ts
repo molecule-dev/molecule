@@ -1,4 +1,6 @@
 import type { DrawingToolbarTranslations } from './types.js'
 
 /** DrawingToolbar translations for kk. */
-export const kk: Partial<DrawingToolbarTranslations> = {}
+export const kk: Partial<DrawingToolbarTranslations> = {
+  'drawingToolbar.label': 'Сурет салу құралдары',
+}

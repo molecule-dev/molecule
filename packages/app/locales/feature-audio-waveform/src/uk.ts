@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for uk — currently mirrors English (translation TBD). */
-export const uk: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for uk. */
+export const uk: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Аудіо сигнал',
+  'audioWaveform.aria.seek': 'Шукайте аудіо, натискаючи на форму хвилі',
+  'audioWaveform.empty': 'Дані форми хвилі недоступні.',
+}

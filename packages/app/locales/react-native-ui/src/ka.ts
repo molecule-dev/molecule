@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for ka. */
-export const ka: Partial<ReactNativeUiTranslations> = {}
+export const ka: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'დახურვა',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'ავატარი',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'დახურვა',
+  'ui.pagination.nav': 'გვერდების დახარისხება',
+  'ui.pagination.first': 'პირველი',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'წინა',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'შემდეგი',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'ბოლო',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{მნიშვნელობა}} %',
+  'ui.radioGroup.label': 'რადიო ჯგუფი',
+  'ui.select.placeholder': 'აირჩიეთ…',
+  'ui.select.title': 'არჩევა',
+  'ui.spinner.loading': 'იტვირთება',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'მონაცემები არ არის',
+  'ui.toast.dismiss': 'დახურვა',
+  'ui.toast.error.noProvider': 'useToast უნდა იქნას გამოყენებული ToastProvider-ის ფარგლებში',
+}

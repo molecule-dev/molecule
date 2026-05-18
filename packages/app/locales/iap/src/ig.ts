@@ -1,16 +1,14 @@
 import type { IapTranslations } from './types.js'
 
-/** Iap translations for Igbo. */
-export const ig: IapTranslations = {
+/** Iap translations for ig. */
+export const ig: Partial<IapTranslations> = {
   'iap.error.E_UNKNOWN': 'Njehie amaghị ama mere.',
-  'iap.error.E_SETUP': "Nhazi ịzụ ihe n'ime ngwa ahụ dara ada.",
   'iap.error.E_LOAD': 'Ibugo ngwaahịa dara ada.',
   'iap.error.E_PURCHASE': 'Ịzụ ahịa dara ada.',
   'iap.error.E_CANCELLED': 'Ekagburu ịzụ ahịa.',
   'iap.error.E_FINISH': 'Imecha azụmahịa dara ada.',
   'iap.error.E_VERIFICATION': 'Inyocha ịzụ ahịa dara ada.',
   'iap.error.E_RESTORE': 'Iweghachi ịzụ ahịa dara ada.',
-  'iap.error.E_NOT_AVAILABLE': "Ịzụ ihe n'ime ngwa adịghị.",
   'iap.error.E_ALREADY_OWNED': 'Ị nweerịla ihe a.',
   'iap.error.E_NOT_OWNED': 'Ị nweghị ihe a.',
   'iap.error.E_DEFERRED': 'Ịzụ ahịa chọrọ nkwenye.',
@@ -34,4 +32,6 @@ export const ig: IapTranslations = {
   'iap.error.6': 'Njehie.',
   'iap.error.7': 'Enwetarịla ihe a.',
   'iap.error.8': 'Enwetaghị ihe a.',
+  'iap.error.E_SETUP': 'Ịtọliteghị ihe ịzụrụ ihe n&#39;ime ngwa.',
+  'iap.error.E_NOT_AVAILABLE': 'Ịzụta ihe n&#39;ime ngwa adịghị.',
 }

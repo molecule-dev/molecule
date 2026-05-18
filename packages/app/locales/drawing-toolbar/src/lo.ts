@@ -1,4 +1,6 @@
 import type { DrawingToolbarTranslations } from './types.js'
 
 /** DrawingToolbar translations for lo. */
-export const lo: Partial<DrawingToolbarTranslations> = {}
+export const lo: Partial<DrawingToolbarTranslations> = {
+  'drawingToolbar.label': 'ເຄື່ອງມືແຕ້ມຮູບ',
+}

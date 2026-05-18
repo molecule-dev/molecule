@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for cs — currently mirrors English (translation TBD). */
-export const cs: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for cs. */
+export const cs: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Vrstva poznámek',
+  'annotationPin.aria.marker': 'Značkovací kolík',
+  'annotationPin.aria.popup': 'Podrobnosti o anotaci',
+  'annotationPin.empty': 'K tomuto příspěvku nejsou žádné poznámky.',
+}

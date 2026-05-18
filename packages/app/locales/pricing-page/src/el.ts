@@ -10,4 +10,10 @@ export const el: Partial<PricingPageTranslations> = {
   'pricingPage.currentCta': 'Τρέχον πλάνο',
   'pricingPage.periodToggle.monthly': 'Μηνιαίο',
   'pricingPage.periodToggle.yearly': 'Ετήσιο',
+  'pricingPage.heading': 'Επιλέξτε το πρόγραμμά σας',
+  'pricingPage.perSeat': 'ανά θέση',
+  'pricingPage.periodToggle.label': 'Περίοδος χρέωσης',
+  'pricingPage.planUpdated.heading': 'Το πρόγραμμά σας έχει ενημερωθεί',
+  'pricingPage.planUpdated.body':
+    'Ευχαριστούμε για την αναβάθμιση. Το νέο σας πρόγραμμα είναι άμεσα ενεργό και σας έχει σταλεί μέσω email μια απόδειξη.',
 }

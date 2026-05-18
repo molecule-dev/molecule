@@ -1,4 +1,36 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for ru. */
-export const ru: Partial<ReactNativeUiTranslations> = {}
+export const ru: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Увольнять',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Аватар',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Закрывать',
+  'ui.pagination.nav': 'Пагинация',
+  'ui.pagination.first': 'Первый',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Предыдущий',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Следующий',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Последний',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{ценить}} %',
+  'ui.radioGroup.label': 'Радиогруппа',
+  'ui.select.placeholder': 'Выбирать…',
+  'ui.select.title': 'Выбирать',
+  'ui.spinner.loading': 'Загрузка',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Нет данных',
+  'ui.toast.dismiss': 'Увольнять',
+  'ui.toast.error.noProvider':
+    'Функция useToast должна использоваться внутри объекта ToastProvider.',
+}

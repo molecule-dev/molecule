@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for eu — currently mirrors English (translation TBD). */
-export const eu: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for eu. */
+export const eu: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Oharren geruza',
+  'annotationPin.aria.marker': 'Oharpen-txintxeta',
+  'annotationPin.aria.popup': 'Oharpen xehetasunak',
+  'annotationPin.empty': 'Ez dago oharrik pin honetarako.',
+}

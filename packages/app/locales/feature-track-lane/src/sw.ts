@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for sw — currently mirrors English (translation TBD). */
-export const sw: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for sw. */
+export const sw: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Njia ya reli<x> {{jina}}</x>',
+  'trackLane.aria.clip':
+    'Klipu<x> {{lebo}}</x> kuanzia saa<x> {{StartTime}}</x> s kwa<x> {{muda}}</x> s',
+  'trackLane.aria.resize': 'Badilisha ukubwa wa klipu',
+  'trackLane.header': 'Wimbo',
+}

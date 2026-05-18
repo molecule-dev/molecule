@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for be — currently mirrors English (translation TBD). */
-export const be: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for be. */
+export const be: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Паласа дарожкі<x> {{імя}}</x>',
+  'trackLane.aria.clip':
+    'Кліп<x> {{label}}</x> пачынаючы з<x> {{час пачатку}}</x> для<x> {{працягласць}}</x> с',
+  'trackLane.aria.resize': 'Змяніць памер кліпа',
+  'trackLane.header': 'Трэк',
+}

@@ -1,5 +1,16 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for is — currently mirrors English (translation TBD). */
-export const is: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for is. */
+export const is: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.aria.region': 'Innfella kóða ({tungumál})',
+  'embedSnippet.heading': 'Innfella kóða',
+  'embedSnippet.eyebrow': 'Afrita innfellingarkóða',
+  'embedSnippet.copy': 'Afrita',
+  'embedSnippet.copied': 'Afritað!',
+  'embedSnippet.controls.width': 'Breidd',
+  'embedSnippet.controls.height': 'Hæð',
+  'embedSnippet.controls.theme': 'Þema',
+  'embedSnippet.theme.light': 'Ljós',
+  'embedSnippet.theme.dark': 'Dökkt',
+  'embedSnippet.theme.auto': 'Sjálfvirkt',
+}

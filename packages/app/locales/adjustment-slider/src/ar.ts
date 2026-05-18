@@ -1,5 +1,7 @@
 import type { AdjustmentSliderTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Adjustment-slider translations for ar — currently mirrors English (translation TBD). */
-export const ar: AdjustmentSliderTranslations = { ...en }
+/** AdjustmentSlider translations for ar. */
+export const ar: Partial<AdjustmentSliderTranslations> = {
+  'adjustmentSlider.aria': '{{label}}',
+  'adjustmentSlider.reset.aria': 'إعادة تعيين {{label}}',
+}

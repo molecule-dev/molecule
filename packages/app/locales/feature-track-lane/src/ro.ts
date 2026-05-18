@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for ro — currently mirrors English (translation TBD). */
-export const ro: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for ro. */
+export const ro: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Bandă de pistă<x> {{nume}}</x>',
+  'trackLane.aria.clip':
+    'Clip<x> {{eticheta}}</x> începând de la<x> {{startTime}}</x> s pentru<x> {{durată}}</x> s',
+  'trackLane.aria.resize': 'Redimensionează clipul',
+  'trackLane.header': 'Urmări',
+}

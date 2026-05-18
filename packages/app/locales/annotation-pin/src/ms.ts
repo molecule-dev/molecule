@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for ms — currently mirrors English (translation TBD). */
-export const ms: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for ms. */
+export const ms: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Lapisan anotasi',
+  'annotationPin.aria.marker': 'Pin anotasi',
+  'annotationPin.aria.popup': 'Butiran anotasi',
+  'annotationPin.empty': 'Tiada nota untuk pin ini.',
+}

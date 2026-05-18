@@ -1,8 +1,8 @@
 import type { IconsTranslations } from './types.js'
 
-/** Icons translations for Uzbek. */
-export const uz: IconsTranslations = {
-  'icons.error.noIconSet':
-    "Hech qanday IconSet o'rnatilmagan. Ilovani ishga tushirishda belgilar kutubxonasi bilan setIconSet() funksiyasini chaqiring (masalan, @molecule/app-icons-molecule).",
+/** Icons translations for uz. */
+export const uz: Partial<IconsTranslations> = {
   'icons.error.notFound': '"{{name}}" belgisi joriy belgilar to\'plamida topilmadi.',
+  'icons.error.noIconSet':
+    'IconSet o&#39;rnatilmagan. Ilova ishga tushirilganda ikonkalar kutubxonasi (masalan, @molecule/app-icons-molecule) bilan setIconSet() funksiyasini chaqiring.',
 }

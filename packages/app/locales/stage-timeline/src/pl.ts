@@ -1,4 +1,6 @@
 import type { StageTimelineTranslations } from './types.js'
 
 /** StageTimeline translations for pl. */
-export const pl: Partial<StageTimelineTranslations> = {}
+export const pl: Partial<StageTimelineTranslations> = {
+  'stageTimeline.group': 'Oś czasu sceny',
+}

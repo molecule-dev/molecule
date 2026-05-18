@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for pa (stub — falls back to English until reviewed). */
-export const pa: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for pa. */
+export const pa: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': 'ਪਲੇਬੈਕ ਟ੍ਰਾਂਸਪੋਰਟ ਕੰਟਰੋਲ',
+  'transportBar.aria.skipBack': 'ਪਿੱਛੇ ਛੱਡੋ',
+  'transportBar.aria.skipForward': 'ਅੱਗੇ ਛੱਡੋ',
+  'transportBar.aria.play': 'ਖੇਡੋ',
+  'transportBar.aria.pause': 'ਵਿਰਾਮ',
+  'transportBar.aria.stop': 'ਰੂਕੋ',
+  'transportBar.aria.record': 'ਰਿਕਾਰਡ',
+  'transportBar.aria.stopRecording': 'ਰਿਕਾਰਡਿੰਗ ਬੰਦ ਕਰੋ',
+  'transportBar.aria.loopOn': 'ਲੂਪ ਬੰਦ ਕਰੋ',
+  'transportBar.aria.loopOff': 'ਲੂਪ ਚਾਲੂ ਕਰੋ',
+}

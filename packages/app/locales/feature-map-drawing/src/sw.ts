@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for sw — currently mirrors English (translation TBD). */
-export const sw: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for sw. */
+export const sw: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Zana za kuchora ramani',
+  'mapDrawing.surface.aria': 'Uso wa kuchora ramani',
+  'mapDrawing.tool.polygon': 'Poligoni',
+  'mapDrawing.tool.circle': 'Mduara',
+  'mapDrawing.tool.pin': 'Pini',
+  'mapDrawing.tool.line': 'Mstari',
+  'mapDrawing.tool.select': 'Chagua',
+  'mapDrawing.tool.delete': 'Futa',
+}

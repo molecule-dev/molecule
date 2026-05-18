@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for mt — currently mirrors English (translation TBD). */
-export const mt: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for mt. */
+export const mt: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Forma tal-mewġa tal-awdjo',
+  'audioWaveform.aria.seek': 'Fittex l-awdjo billi tikklikkja fuq il-forma tal-mewġa',
+  'audioWaveform.empty': 'M&#39;hemm l-ebda dejta dwar il-forma tal-mewġ disponibbli.',
+}

@@ -1,7 +1,7 @@
 import type { VueTranslations } from './types.js'
 
-/** Vue translations for Uzbek. */
-export const uz: VueTranslations = {
+/** Vue translations for uz. */
+export const uz: Partial<VueTranslations> = {
   'vue.error.useRouterOutsideProvider':
     'useRouterInstance RouterProvider ichida ishlatilishi kerak',
   'vue.error.useI18nOutsideProvider': 'useI18nProvider I18nProvider ichida ishlatilishi kerak',
@@ -14,5 +14,5 @@ export const uz: VueTranslations = {
   'vue.error.useLoggerOutsideProvider':
     'useLoggerProvider LoggerProvider ichida ishlatilishi kerak',
   'vue.error.useToastOutsideProvider': 'useToast ToastProvider ichida ishlatilishi kerak',
-  'vue.error.unsupportedMethod': "Qo'llab-quvvatlanmaydigan usul: {{method}}",
+  'vue.error.unsupportedMethod': 'Qo&#39;llab-quvvatlanmaydigan usul:<x> {{method}}</x>',
 }

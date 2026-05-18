@@ -10,4 +10,9 @@ export const tr: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.monthly': 'Aylık',
   'pricingPage.periodToggle.yearly': 'Yıllık',
   'pricingPage.planUpdated.heading': 'Planınız güncellendi',
+  'pricingPage.heading': 'Planınızı seçin',
+  'pricingPage.perSeat': 'koltuk başına',
+  'pricingPage.periodToggle.label': 'Fatura dönemi',
+  'pricingPage.planUpdated.body':
+    'Yükseltme işleminiz için teşekkürler. Yeni planınız hemen aktif hale geldi ve size bir makbuz e-posta ile gönderildi.',
 }

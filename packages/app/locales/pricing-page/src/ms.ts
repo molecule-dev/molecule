@@ -9,4 +9,10 @@ export const ms: Partial<PricingPageTranslations> = {
   'pricingPage.currentCta': 'Pelan semasa',
   'pricingPage.periodToggle.monthly': 'Bulanan',
   'pricingPage.periodToggle.yearly': 'Tahunan',
+  'pricingPage.heading': 'Pilih pelan anda',
+  'pricingPage.perSeat': 'setiap tempat duduk',
+  'pricingPage.periodToggle.label': 'Tempoh pengebilan',
+  'pricingPage.planUpdated.heading': 'Pelan anda telah dikemas kini',
+  'pricingPage.planUpdated.body':
+    'Terima kasih kerana menaik taraf. Pelan baharu anda aktif serta-merta dan resit telah diemelkan kepada anda.',
 }

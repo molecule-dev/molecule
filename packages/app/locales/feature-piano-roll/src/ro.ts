@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for ro — currently mirrors English (translation TBD). */
-export const ro: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for ro. */
+export const ro: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Rolă de pian',
+  'pianoRoll.aria.keys': 'Clape de pian',
+  'pianoRoll.aria.grid': 'Grilă de note',
+  'pianoRoll.aria.resize': 'Redimensionează nota',
+  'pianoRoll.aria.note':
+    'Nota<x> {{pas}}</x> începând din ritm<x> {{startBeat}}</x> pentru<x> {{durationBeats}}</x> bătăi',
+}

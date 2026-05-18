@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for zh-TW (stub — falls back to English until reviewed). */
-export const zhTW: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for zh-TW. */
+export const zhTW: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': '播放傳輸控制',
+  'transportBar.aria.skipBack': '向後跳',
+  'transportBar.aria.skipForward': '向前跳轉',
+  'transportBar.aria.play': '玩',
+  'transportBar.aria.pause': '暫停',
+  'transportBar.aria.stop': '停止',
+  'transportBar.aria.record': '記錄',
+  'transportBar.aria.stopRecording': '停止錄製',
+  'transportBar.aria.loopOn': '禁用循環',
+  'transportBar.aria.loopOff': '啟用迴路',
+}

@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for ig (stub — falls back to English until reviewed). */
-export const ig: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for ig. */
+export const ig: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': 'Njikwa mbugharị ọkpụkpọghachi',
+  'transportBar.aria.skipBack': 'Wụghachi azụ',
+  'transportBar.aria.skipForward': 'Gaa n&#39;ihu',
+  'transportBar.aria.play': 'Gwuo egwu',
+  'transportBar.aria.pause': 'Kwụsịtụ',
+  'transportBar.aria.stop': 'Kwụsị',
+  'transportBar.aria.record': 'Ndekọ',
+  'transportBar.aria.stopRecording': 'Kwụsị ndekọ',
+  'transportBar.aria.loopOn': 'Gbanyụọ akaụntụ',
+  'transportBar.aria.loopOff': 'Gbanye akaụntị',
+}

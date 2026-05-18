@@ -1,7 +1,7 @@
 import type { PushTranslations } from './types.js'
 
-/** Push translations for Uzbek. */
-export const uz: PushTranslations = {
-  'push.error.notSupported': "Push bildirishnomalari qo'llab-quvvatlanmaydi",
+/** Push translations for uz. */
+export const uz: Partial<PushTranslations> = {
   'push.error.permissionNotGranted': 'Bildirishnoma ruxsati berilmagan',
+  'push.error.notSupported': 'Push-bildirishnomalar qo&#39;llab-quvvatlanmaydi',
 }

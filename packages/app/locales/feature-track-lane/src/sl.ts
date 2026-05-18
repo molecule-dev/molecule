@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for sl — currently mirrors English (translation TBD). */
-export const sl: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for sl. */
+export const sl: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Tirni pas<x> {{ime}}</x>',
+  'trackLane.aria.clip':
+    'Sponka<x> {{oznaka}}</x> začenši pri<x> {{začetni čas}}</x> za<x> {{trajanje}}</x> s',
+  'trackLane.aria.resize': 'Spremeni velikost posnetka',
+  'trackLane.header': 'Sled',
+}

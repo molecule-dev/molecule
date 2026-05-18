@@ -1,4 +1,6 @@
 import type { SubscriptionPlanCardTranslations } from './types.js'
 
 /** SubscriptionPlanCard translations for ga. */
-export const ga: Partial<SubscriptionPlanCardTranslations> = {}
+export const ga: Partial<SubscriptionPlanCardTranslations> = {
+  'plan.recommended': 'Molta',
+}

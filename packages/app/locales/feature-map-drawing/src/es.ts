@@ -6,4 +6,8 @@ export const es: Partial<FeatureMapDrawingTranslations> = {
   'mapDrawing.tool.line': 'Línea',
   'mapDrawing.tool.select': 'Seleccionar',
   'mapDrawing.tool.delete': 'Eliminar',
+  'mapDrawing.toolbar.aria': 'Herramientas para dibujar mapas',
+  'mapDrawing.surface.aria': 'Superficie de dibujo de mapas',
+  'mapDrawing.tool.polygon': 'Polígono',
+  'mapDrawing.tool.circle': 'Círculo',
 }

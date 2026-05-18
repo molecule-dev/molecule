@@ -1,5 +1,7 @@
 import type { AdjustmentSliderTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Adjustment-slider translations for is — currently mirrors English (translation TBD). */
-export const is: AdjustmentSliderTranslations = { ...en }
+/** AdjustmentSlider translations for is. */
+export const is: Partial<AdjustmentSliderTranslations> = {
+  'adjustmentSlider.aria': '{{merki}}',
+  'adjustmentSlider.reset.aria': 'Endurstilla<x> {{merki}}</x>',
+}

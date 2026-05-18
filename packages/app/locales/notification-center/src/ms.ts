@@ -5,4 +5,5 @@ export const ms: Partial<NotificationCenterTranslations> = {
   'notifications.title': 'Pemberitahuan',
   'notifications.markAllRead': 'Tandakan semua sebagai dibaca',
   'notifications.viewAll': 'Lihat semua',
+  'notifications.empty': 'Tiada pemberitahuan',
 }

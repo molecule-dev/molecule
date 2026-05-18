@@ -1,5 +1,12 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for fa — currently mirrors English (translation TBD). */
-export const fa: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for fa. */
+export const fa: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'اسکرابر ویدیویی',
+  'videoScrubber.aria.strip': 'فیلم استریپ — پلی‌هد در<x> {{زمان}}</x> ها (قاب<x> {{قاب}}</x> )',
+  'videoScrubber.aria.playhead': 'پلی‌هد در<x> {{زمان}}</x> ها',
+  'videoScrubber.aria.frameReadout': 'قاب<x> {{قاب}}</x> از<x> {{کل}}</x>',
+  'videoScrubber.aria.thumbnail': 'پیش‌نمایش قاب',
+  'videoScrubber.thumbnails.empty': 'بدون پیش‌نمایش',
+  'videoScrubber.frameReadout.total': '/<x> {{کل}}</x> قاب‌ها',
+}

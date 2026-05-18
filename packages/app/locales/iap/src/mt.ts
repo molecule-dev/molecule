@@ -1,7 +1,7 @@
 import type { IapTranslations } from './types.js'
 
-/** Iap translations for Maltese. */
-export const mt: IapTranslations = {
+/** Iap translations for mt. */
+export const mt: Partial<IapTranslations> = {
   'iap.error.E_UNKNOWN': 'Sehhet zball mhux maghruf.',
   'iap.error.E_SETUP': 'Ma rnexxiex twaqqaf xirjiet in-app.',
   'iap.error.E_LOAD': 'Ma rnexxiex taghlaq il-prodotti.',
@@ -11,8 +11,6 @@ export const mt: IapTranslations = {
   'iap.error.E_VERIFICATION': 'Ma rnexxiex tivverifika x-xiri.',
   'iap.error.E_RESTORE': 'Ma rnexxiex tirrestawra x-xirjiet.',
   'iap.error.E_NOT_AVAILABLE': 'Xirjiet in-app mhumiex disponibbli.',
-  'iap.error.E_ALREADY_OWNED': "Diga ghhandek dan l-ogg'ett.",
-  'iap.error.E_NOT_OWNED': "M'ghandekx dan l-ogg'ett.",
   'iap.error.E_DEFERRED': 'Ix-xiri jehtieg approvazzjoni.',
   'iap.error.E_INVALID_PRODUCT': 'Prodott invalidu.',
   'iap.error.E_NETWORK': 'Zball tan-netwerk.',
@@ -29,9 +27,11 @@ export const mt: IapTranslations = {
   'iap.error.1': 'L-utent hassar.',
   'iap.error.2': 'Servizz mhux disponibbli.',
   'iap.error.3': 'Billing mhux disponibbli.',
-  'iap.error.4': "Ogg'ett mhux disponibbli.",
   'iap.error.5': 'Zball tad-developer.',
   'iap.error.6': 'Zball.',
-  'iap.error.7': "Ogg'ett diga proprjeta.",
-  'iap.error.8': "Ogg'ett mhux proprjeta.",
+  'iap.error.E_ALREADY_OWNED': 'Inti diġà sidien ta&#39; dan l-oġġett.',
+  'iap.error.E_NOT_OWNED': 'M&#39;intix is-sid ta&#39; dan l-oġġett.',
+  'iap.error.4': 'Oġġett mhux disponibbli.',
+  'iap.error.7': 'Oġġett diġà tiegħek.',
+  'iap.error.8': 'Oġġett mhux proprjetà ta&#39; xi ħadd.',
 }

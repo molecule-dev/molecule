@@ -8,4 +8,9 @@ export const cs: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.controls.theme': 'Motiv',
   'embedSnippet.theme.light': 'Světlé',
   'embedSnippet.theme.dark': 'Tmavé',
+  'embedSnippet.aria.region': 'Vložený kód ({language})',
+  'embedSnippet.eyebrow': 'Zkopírovat kód pro vložení',
+  'embedSnippet.controls.width': 'Šířka',
+  'embedSnippet.controls.height': 'Výška',
+  'embedSnippet.theme.auto': 'Auto',
 }

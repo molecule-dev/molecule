@@ -1,4 +1,6 @@
 import type { PlanUpdatedPageTranslations } from './types.js'
 
 /** PlanUpdatedPage translations for ky. */
-export const ky: Partial<PlanUpdatedPageTranslations> = {}
+export const ky: Partial<PlanUpdatedPageTranslations> = {
+  'planUpdated.viewReceipt': 'Квитанцияны көрүү',
+}

@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for el — currently mirrors English (translation TBD). */
-export const el: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for el. */
+export const el: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Ρόλος πιάνου',
+  'pianoRoll.aria.keys': 'Πλήκτρα πιάνου',
+  'pianoRoll.aria.grid': 'Πλέγμα σημειώσεων',
+  'pianoRoll.aria.resize': 'Αλλαγή μεγέθους σημείωσης',
+  'pianoRoll.aria.note':
+    'Σημείωμα<x> {{πίσσα}}</x> ξεκινώντας από τον ρυθμό<x> {{startBeat}}</x> για<x> {{διάρκειαΚλείματος}}</x> ρυθμοί',
+}

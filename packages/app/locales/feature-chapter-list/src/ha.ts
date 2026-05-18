@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for ha — currently mirrors English (translation TBD). */
-export const ha: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for ha. */
+export const ha: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Babi-babi',
+  'chapterList.aria.seek': 'Tsallaka zuwa<x> {{take}}</x> a<x> {{tambarin lokaci}}</x>',
+  'chapterList.aria.thumbnail': 'Babban yatsa don<x> {{take}}</x>',
+  'chapterList.empty': 'Babu surori da ake da su don wannan shirin.',
+  'chapterList.current': 'Yanzu ana wasa',
+}

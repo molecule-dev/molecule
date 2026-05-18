@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for ha — currently mirrors English (translation TBD). */
-export const ha: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for ha. */
+export const ha: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Kayan aikin zana taswira',
+  'mapDrawing.surface.aria': 'Taswirar saman zane',
+  'mapDrawing.tool.polygon': 'Polygon',
+  'mapDrawing.tool.circle': 'Da&#39;ira',
+  'mapDrawing.tool.pin': 'fil',
+  'mapDrawing.tool.line': 'Layi',
+  'mapDrawing.tool.select': 'Zaɓi',
+  'mapDrawing.tool.delete': 'Goge',
+}

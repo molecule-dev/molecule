@@ -1,7 +1,7 @@
 import type { MotionTranslations } from './types.js'
 
-/** Motion translations for Uzbek. */
-export const uz: MotionTranslations = {
+/** Motion translations for uz. */
+export const uz: Partial<MotionTranslations> = {
   'motion.error.noProvider':
-    "@molecule/app-motion: Provayder o'rnatilmagan. setProvider() ni MotionProvider ilovasi bilan chaqiring (masalan, @molecule/app-motion-capacitor dan).",
+    '@molecule/app-motion: Provayder o&#39;rnatilmagan. MotionProvider implementatsiyasi bilan setProvider() ni chaqiring (masalan, @molecule/app-motion-capacitor dan).',
 }

@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for si — currently mirrors English (translation TBD). */
-export const si: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for si. */
+export const si: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'ධාවන පථය<x> {{නම}}</x>',
+  'trackLane.aria.clip':
+    'ක්ලිප්<x> {{ලේබලය}}</x> ආරම්භ වන්නේ<x> {{ආරම්භක වේලාව}}</x> සඳහා<x> {{කාලසීමාව}}</x> එස්',
+  'trackLane.aria.resize': 'ක්ලිප් එක ප්‍රතිප්‍රමාණ කරන්න',
+  'trackLane.header': 'ධාවන පථය',
+}

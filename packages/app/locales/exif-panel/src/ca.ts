@@ -1,5 +1,22 @@
 import type { ExifPanelTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Exif-panel translations for ca — currently mirrors English (translation TBD). */
-export const ca: ExifPanelTranslations = { ...en }
+/** ExifPanel translations for ca. */
+export const ca: Partial<ExifPanelTranslations> = {
+  'exifPanel.aria.region': 'Metadades EXIF',
+  'exifPanel.eyebrow': 'Metadades del marc',
+  'exifPanel.heading': 'EXIF',
+  'exifPanel.camera': 'Càmera',
+  'exifPanel.lens': 'Lent',
+  'exifPanel.exposure': 'Exposició',
+  'exifPanel.aperture': 'Obertura',
+  'exifPanel.shutter': 'Velocitat d&#39;obturació',
+  'exifPanel.iso': 'ISO',
+  'exifPanel.focalLength': 'Distància focal',
+  'exifPanel.focalLength35mm': 'Equivalent a 35 mm',
+  'exifPanel.gps': 'GPS',
+  'exifPanel.timestamp': 'Capturat',
+  'exifPanel.software': 'Programari',
+  'exifPanel.copyright': 'Drets d&#39;autor',
+  'exifPanel.orientation': 'Orientació',
+  'exifPanel.mapLink': 'Veure al mapa',
+}

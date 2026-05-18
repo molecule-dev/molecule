@@ -10,4 +10,9 @@ export const vi: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.monthly': 'Hàng tháng',
   'pricingPage.periodToggle.yearly': 'Hàng năm',
   'pricingPage.planUpdated.heading': 'Gói của quý vị đã được cập nhật',
+  'pricingPage.heading': 'Chọn gói dịch vụ của bạn',
+  'pricingPage.perSeat': 'mỗi chỗ ngồi',
+  'pricingPage.periodToggle.label': 'Kỳ thanh toán',
+  'pricingPage.planUpdated.body':
+    'Cảm ơn bạn đã nâng cấp. Gói dịch vụ mới của bạn đã được kích hoạt ngay lập tức và biên lai đã được gửi qua email cho bạn.',
 }

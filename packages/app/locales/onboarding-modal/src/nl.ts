@@ -5,4 +5,5 @@ export const nl: Partial<OnboardingModalTranslations> = {
   'onboarding.back': 'Terug',
   'onboarding.done': 'Aan de slag',
   'onboarding.next': 'Volgende',
+  'onboarding.skip': 'Overslaan',
 }

@@ -1,15 +1,13 @@
 import type { SolidTranslations } from './types.js'
 
-/** Solid translations for Hausa. */
-export const ha: SolidTranslations = {
+/** Solid translations for ha. */
+export const ha: Partial<SolidTranslations> = {
   'solid.error.stateOutsideProvider':
     'getStateProvider dole ne a yi amfani da shi a cikin MoleculeProvider tare da yanayin da aka saita',
   'solid.error.authOutsideProvider':
     'getAuthClient dole ne a yi amfani da shi a cikin MoleculeProvider tare da tantancewar da aka saita',
   'solid.error.themeOutsideProvider':
     'getThemeProvider dole ne a yi amfani da shi a cikin MoleculeProvider tare da jigon da aka saita',
-  'solid.error.routerOutsideProvider':
-    "getRouter dole ne a yi amfani da shi a cikin MoleculeProvider tare da na'urar kewayawa da aka saita",
   'solid.error.i18nOutsideProvider':
     'getI18nProvider dole ne a yi amfani da shi a cikin MoleculeProvider tare da i18n da aka saita',
   'solid.error.httpOutsideProvider':
@@ -22,4 +20,6 @@ export const ha: SolidTranslations = {
     'Abubuwan Accordion dole ne a yi amfani da su a cikin Accordion',
   'solid.error.useToastOutsideProvider':
     'useToast dole ne a yi amfani da shi a cikin ToastProvider',
+  'solid.error.routerOutsideProvider':
+    'Dole ne a yi amfani da getRouter a cikin MoleculeProvider tare da na&#39;urar sadarwa da aka saita',
 }

@@ -1,5 +1,14 @@
-import type { BarcodeScannerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureBarcodeScannerTranslations } from './types.js'
 
-/** Barcode-scanner translations for fil — currently mirrors English (translation TBD). */
-export const fil: BarcodeScannerTranslations = { ...en }
+/** FeatureBarcodeScanner translations for fil. */
+export const fil: Partial<FeatureBarcodeScannerTranslations> = {
+  'barcodeScanner.aria.region': 'View ng kamera ng barcode scanner',
+  'barcodeScanner.error.permission_denied': 'Tinanggihan ang pahintulot sa kamera',
+  'barcodeScanner.error.no_camera': 'Walang nakitang kamera',
+  'barcodeScanner.error.unsupported': 'Hindi sinusuportahan ang kamera sa browser na ito',
+  'barcodeScanner.error.detector_failure': 'Nabigo ang detektor ng barcode',
+  'barcodeScanner.error.fallback_unavailable': 'Hindi ma-load ang library ng barcode scanner',
+  'barcodeScanner.status.starting': 'Sinisimulan ang kamera…',
+  'barcodeScanner.status.scanning': 'Ini-scan…',
+  'barcodeScanner.status.stopped': 'Nakumpleto na ang pag-scan',
+}

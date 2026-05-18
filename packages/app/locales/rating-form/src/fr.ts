@@ -4,5 +4,6 @@ import type { RatingFormTranslations } from './types.js'
 export const fr: Partial<RatingFormTranslations> = {
   'rating.label': 'Note',
   'rating.submitting': 'Envoi…',
-  'rating.submit': "Envoyer l'avis",
+  'rating.commentPlaceholder': 'Partagez vos réflexions (facultatif)',
+  'rating.submit': 'Soumettre un avis',
 }

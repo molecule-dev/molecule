@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for ro — currently mirrors English (translation TBD). */
-export const ro: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for ro. */
+export const ro: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Stratul de adnotare',
+  'annotationPin.aria.marker': 'Pin de adnotare',
+  'annotationPin.aria.popup': 'Detalii adnotări',
+  'annotationPin.empty': 'Nicio notă pentru acest pin.',
+}

@@ -10,4 +10,9 @@ export const de: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.monthly': 'Monatlich',
   'pricingPage.periodToggle.yearly': 'Jährlich',
   'pricingPage.planUpdated.heading': 'Ihr Tarif wurde aktualisiert',
+  'pricingPage.heading': 'Wählen Sie Ihren Tarif',
+  'pricingPage.perSeat': 'pro Sitzplatz',
+  'pricingPage.periodToggle.label': 'Abrechnungszeitraum',
+  'pricingPage.planUpdated.body':
+    'Vielen Dank für Ihr Upgrade. Ihr neuer Tarif ist ab sofort aktiv und Sie haben eine Bestätigung per E-Mail erhalten.',
 }

@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for ha — currently mirrors English (translation TBD). */
-export const ha: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for ha. */
+export const ha: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Mai goge bidiyo',
+  'videoScrubber.aria.strip':
+    'Fim ɗin fim — wasan kwaikwayo a<x> {{lokaci}}</x> s (firam<x> {{firam}}</x> )',
+  'videoScrubber.aria.playhead': 'Shugaban wasa a<x> {{lokaci}}</x> s',
+  'videoScrubber.aria.frameReadout': 'Firam<x> {{firam}}</x> na<x> {{jimla}}</x>',
+  'videoScrubber.aria.thumbnail': 'Samfotin Firam',
+  'videoScrubber.thumbnails.empty': 'Babu samfoti',
+  'videoScrubber.frameReadout.total': '/<x> {{jimla}}</x> firam ɗin',
+}

@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for mk — currently mirrors English (translation TBD). */
-export const mk: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for mk. */
+export const mk: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Видео прегледувач',
+  'videoScrubber.aria.strip':
+    'Филмска лента — глава за репродукција на<x> {{време}}</x> s (рамка<x> {{рамка}}</x> )',
+  'videoScrubber.aria.playhead': 'Глава за репродукција на<x> {{време}}</x> с',
+  'videoScrubber.aria.frameReadout': 'Рамка<x> {{рамка}}</x> од<x> {{вкупно}}</x>',
+  'videoScrubber.aria.thumbnail': 'Преглед на рамката',
+  'videoScrubber.thumbnails.empty': 'Нема преглед',
+  'videoScrubber.frameReadout.total': '/<x> {{вкупно}}</x> рамки',
+}

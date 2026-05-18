@@ -1,7 +1,7 @@
 import type { BrightnessTranslations } from './types.js'
 
-/** Brightness translations for Maltese. */
-export const mt: BrightnessTranslations = {
+/** Brightness translations for mt. */
+export const mt: Partial<BrightnessTranslations> = {
   'brightness.error.noProvider':
-    "@molecule/app-brightness: L-ebda fornitur mhux issettjat. Sejjah setProvider() b'implimentazzjoni ta' BrightnessProvider (eż., minn @molecule/app-brightness-capacitor).",
+    '@molecule/app-brightness: L-ebda fornitur ma ġie stabbilit. Sejħa setProvider() b&#39;implimentazzjoni ta&#39; BrightnessProvider (eż., minn @molecule/app-brightness-capacitor).',
 }

@@ -1,4 +1,6 @@
 import type { SortPickerTranslations } from './types.js'
 
 /** SortPicker translations for eu. */
-export const eu: Partial<SortPickerTranslations> = {}
+export const eu: Partial<SortPickerTranslations> = {
+  'sort.label': 'Ordenatu honen arabera',
+}

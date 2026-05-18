@@ -10,4 +10,11 @@ export const uk: Partial<SettingsPanelTranslations> = {
   'settings.plan': 'План',
   'settings.upgrade': 'Оновити',
   'settings.billing.cancel': 'Скасувати',
+  'settings.darkMode': 'Темний режим',
+  'theme.toggle': 'Перемкнути тему',
+  'settings.billing.cancelConfirm': 'Скасувати підписку?',
+  'settings.billing.cancelFailed': 'Не вдалося скасувати.',
+  'settings.billing.upgradeTitle': 'Оновіть свій план',
+  'settings.billing.noTiers': 'Платні плани не налаштовані.',
+  'settings.billing.subscribe': 'Підписатися',
 }

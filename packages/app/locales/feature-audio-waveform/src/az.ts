@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for az — currently mirrors English (translation TBD). */
-export const az: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for az. */
+export const az: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Səs dalğa forması',
+  'audioWaveform.aria.seek': 'Dalğa formasına klikləyərək səsi axtarın',
+  'audioWaveform.empty': 'Dalğa forması məlumatları mövcud deyil.',
+}

@@ -1,4 +1,6 @@
 import type { SubscriptionPlanCardTranslations } from './types.js'
 
 /** SubscriptionPlanCard translations for zu. */
-export const zu: Partial<SubscriptionPlanCardTranslations> = {}
+export const zu: Partial<SubscriptionPlanCardTranslations> = {
+  'plan.recommended': 'Kunconyiwe',
+}

@@ -1,5 +1,13 @@
 import type { NowPlayingBarTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Now-playing-bar translations for af — currently mirrors English (translation TBD). */
-export const af: NowPlayingBarTranslations = { ...en }
+/** NowPlayingBar translations for af. */
+export const af: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.aria.region': 'Nou speel:<x> {{titel}}</x>',
+  'nowPlaying.aria.artwork': 'Kunswerk vir<x> {{titel}}</x>',
+  'nowPlaying.aria.play': 'Speel',
+  'nowPlaying.aria.pause': 'Pouseer',
+  'nowPlaying.aria.next': 'Volgende snit',
+  'nowPlaying.aria.prev': 'Vorige snit',
+  'nowPlaying.aria.seek': 'Soek',
+  'nowPlaying.aria.volume': 'Volume',
+}

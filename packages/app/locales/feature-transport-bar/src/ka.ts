@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for ka (stub — falls back to English until reviewed). */
-export const ka: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for ka. */
+export const ka: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': 'დაკვრის ტრანსპორტირების კონტროლი',
+  'transportBar.aria.skipBack': 'უკან გადასვლა',
+  'transportBar.aria.skipForward': 'წინ გადასვლა',
+  'transportBar.aria.play': 'თამაში',
+  'transportBar.aria.pause': 'პაუზა',
+  'transportBar.aria.stop': 'გაჩერება',
+  'transportBar.aria.record': 'ჩანაწერი',
+  'transportBar.aria.stopRecording': 'ჩაწერის შეჩერება',
+  'transportBar.aria.loopOn': 'ციკლის გამორთვა',
+  'transportBar.aria.loopOff': 'ციკლის ჩართვა',
+}

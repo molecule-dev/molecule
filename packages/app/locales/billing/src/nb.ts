@@ -9,4 +9,9 @@ export const nb: Partial<BillingTranslations> = {
   'billing.pricing.checkoutError': 'Kunne ikke starte kassen. Prøv igjen.',
   'billing.pricing.mostPopular': 'Mest populær',
   'billing.pricing.upgradeCta': 'Oppgrader til {{tierName}}',
+  'billing.status.currentPlan': 'Nåværende plan:<x> {{tierName}}</x>',
+  'billing.status.cancelError': 'Kunne ikke avbryte. Prøv på nytt.',
+  'billing.pricing.reassurance': 'Avbryt når som helst · Ingen kredittkort kreves for å starte',
+  'billing.pricing.tierEyebrow': 'Nivå',
+  'billing.pricing.perSeat': 'per sete',
 }

@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for he — currently mirrors English (translation TBD). */
-export const he: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for he. */
+export const he: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': 'מציג מודלים תלת-ממדיים',
+  'threeViewer.loading': 'טוען מודל תלת-ממדי…',
+  'threeViewer.error': 'טעינת מודל תלת-ממדי נכשלה.',
+}

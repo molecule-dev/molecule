@@ -25,4 +25,11 @@ export const nl: Partial<ModerationQueueTranslations> = {
   'moderationQueue.severity.low': 'Laag',
   'moderationQueue.severity.medium': 'Gemiddeld',
   'moderationQueue.severity.high': 'Hoog',
+  'moderationQueue.aria.bulkToolbar': 'Massale moderatieacties',
+  'moderationQueue.aria.selectRow': 'Selecteer item',
+  'moderationQueue.loading': 'De moderatie wachtrij wordt geladen…',
+  'moderationQueue.empty': 'Er zijn geen items die nog gemodereerd moeten worden.',
+  'moderationQueue.selectedCount': '{{graaf}} gekozen',
+  'moderationQueue.reportedBy': 'Rapportage door',
+  'moderationQueue.kind.image': 'Afbeelding',
 }

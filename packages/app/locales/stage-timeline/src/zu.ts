@@ -1,4 +1,6 @@
 import type { StageTimelineTranslations } from './types.js'
 
 /** StageTimeline translations for zu. */
-export const zu: Partial<StageTimelineTranslations> = {}
+export const zu: Partial<StageTimelineTranslations> = {
+  'stageTimeline.group': 'Umugqa wesikhathi wesigaba',
+}

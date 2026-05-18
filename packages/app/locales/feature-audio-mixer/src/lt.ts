@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for lt — currently mirrors English (translation TBD). */
-export const lt: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for lt. */
+export const lt: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Garso maišytuvo pultas',
+  'audioMixer.aria.fader': '{{vardas}} faderis',
+  'audioMixer.aria.pan': '{{vardas}} keptuvė',
+  'audioMixer.aria.send': '{{kanalas}} siųsti į<x> {{siųsti}}</x>',
+  'audioMixer.button.mute': 'Nutildyti',
+  'audioMixer.button.solo': 'Solo',
+  'audioMixer.master': 'Meistras',
+  'audioMixer.sends': 'Siunčia',
+}

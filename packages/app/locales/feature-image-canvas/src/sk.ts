@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for sk — currently mirrors English (translation TBD). */
-export const sk: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for sk. */
+export const sk: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Obrazové plátno',
+  'imageCanvas.aria.canvas': 'Potiahnutím posúvate, posúvaním priblížujete',
+  'imageCanvas.loading': 'Načítava sa obrázok…',
+  'imageCanvas.error': 'Obrázok sa nepodarilo načítať.',
+}

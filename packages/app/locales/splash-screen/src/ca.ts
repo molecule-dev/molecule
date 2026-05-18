@@ -1,8 +1,8 @@
 import type { SplashScreenTranslations } from './types.js'
 
-/** Splash Screen translations for Catalan. */
-export const ca: SplashScreenTranslations = {
-  'splashScreen.error.noProvider': "El proveïdor de pantalla d'inici no està configurat.",
+/** SplashScreen translations for ca. */
+export const ca: Partial<SplashScreenTranslations> = {
+  'splashScreen.error.noProvider': 'El proveïdor de la pantalla d&#39;inici no està configurat.',
   'splashScreen.warn.configureNotSupported':
-    "configure() no és compatible amb aquest proveïdor de pantalla d'inici.",
+    'configure() no és compatible amb aquest proveïdor de pantalla de presentació.',
 }

@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for am — currently mirrors English (translation TBD). */
-export const am: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for am. */
+export const am: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'የድምጽ ሞገድቅርፅ',
+  'audioWaveform.aria.seek': 'የሞገድ ፎርሙን ጠቅ በማድረግ ድምፁን ይፈልጉ',
+  'audioWaveform.empty': 'የሞገድ ቅርጽ ውሂብ የለም።',
+}

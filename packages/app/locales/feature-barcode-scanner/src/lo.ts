@@ -1,5 +1,14 @@
-import type { BarcodeScannerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureBarcodeScannerTranslations } from './types.js'
 
-/** Barcode-scanner translations for lo — currently mirrors English (translation TBD). */
-export const lo: BarcodeScannerTranslations = { ...en }
+/** FeatureBarcodeScanner translations for lo. */
+export const lo: Partial<FeatureBarcodeScannerTranslations> = {
+  'barcodeScanner.aria.region': 'ມຸມມອງກ້ອງຖ່າຍຮູບເຄື່ອງສະແກນບາໂຄດ',
+  'barcodeScanner.error.permission_denied': 'ການອະນຸຍາດກ້ອງຖ່າຍຮູບຖືກປະຕິເສດ',
+  'barcodeScanner.error.no_camera': 'ບໍ່ພົບກ້ອງຖ່າຍຮູບ',
+  'barcodeScanner.error.unsupported': 'ໂປຣແກຣມທ່ອງເວັບນີ້ບໍ່ຮອງຮັບກ້ອງຖ່າຍຮູບ',
+  'barcodeScanner.error.detector_failure': 'ເຄື່ອງກວດຈັບບາໂຄດລົ້ມເຫລວ',
+  'barcodeScanner.error.fallback_unavailable': 'ບໍ່ສາມາດໂຫຼດຫ້ອງສະໝຸດເຄື່ອງສະແກນບາໂຄດໄດ້',
+  'barcodeScanner.status.starting': 'ກຳລັງເລີ່ມກ້ອງຖ່າຍຮູບ…',
+  'barcodeScanner.status.scanning': 'ກຳລັງສະແກນ…',
+  'barcodeScanner.status.stopped': 'ສະແກນສຳເລັດແລ້ວ',
+}

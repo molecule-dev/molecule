@@ -1,4 +1,13 @@
 import type { TransportBarTranslations } from './types.js'
 
 /** TransportBar translations for af. */
-export const af: Partial<TransportBarTranslations> = {}
+export const af: Partial<TransportBarTranslations> = {
+  'transportBar.aria.region': 'Terugspeelvervoerkontroles',
+  'transportBar.aria.skipForward': 'Spring vorentoe',
+  'transportBar.aria.play': 'Speel',
+  'transportBar.aria.pause': 'Pouseer',
+  'transportBar.aria.stop': 'Stop',
+  'transportBar.aria.record': 'Rekord',
+  'transportBar.aria.stopRecording': 'Stop opname',
+  'transportBar.aria.loopOff': 'Aktiveer lus',
+}

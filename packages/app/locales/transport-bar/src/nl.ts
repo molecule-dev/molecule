@@ -6,4 +6,8 @@ export const nl: Partial<TransportBarTranslations> = {
   'transportBar.aria.pause': 'Pauzeren',
   'transportBar.aria.record': 'Opnemen',
   'transportBar.aria.stopRecording': 'Opname stoppen',
+  'transportBar.aria.region': 'Afspeelbediening',
+  'transportBar.aria.skipForward': 'Spring vooruit',
+  'transportBar.aria.stop': 'Stop',
+  'transportBar.aria.loopOff': 'Schakel de lus in',
 }

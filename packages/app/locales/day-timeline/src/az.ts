@@ -1,4 +1,6 @@
 import type { DayTimelineTranslations } from './types.js'
 
 /** DayTimeline translations for az. */
-export const az: Partial<DayTimelineTranslations> = {}
+export const az: Partial<DayTimelineTranslations> = {
+  'dayTimeline.group': 'Gün qrafiki',
+}

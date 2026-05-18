@@ -11,4 +11,10 @@ export const ro: Partial<NotificationsPageTranslations> = {
   'notificationsPage.error': 'Nu s-au putut încărca notificările.',
   'notificationsPage.emptyBody': 'Notificările noi vor apărea aici.',
   'notificationsPage.prev': 'Anteriorul',
+  'notificationsPage.markAllRead': 'Marca<x> {{conta}}</x> așa cum este citit',
+  'notificationsPage.filterUnread': 'Necitit',
+  'notificationsPage.emptyTitle': 'Ești la curent cu tot',
+  'notificationsPage.paginationAriaLabel': 'Paginare',
+  'notificationsPage.pageOf': 'Pagină<x> {{actual}}</x> de<x> {{total}}</x>',
+  'notificationsPage.next': 'Următorul',
 }

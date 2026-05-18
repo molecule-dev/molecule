@@ -1,5 +1,13 @@
 import type { NowPlayingBarTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Now-playing-bar translations for lt — currently mirrors English (translation TBD). */
-export const lt: NowPlayingBarTranslations = { ...en }
+/** NowPlayingBar translations for lt. */
+export const lt: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.aria.region': 'Dabar groja:<x> {{title}}</x>',
+  'nowPlaying.aria.artwork': 'Meno kūrinys skirtas<x> {{title}}</x>',
+  'nowPlaying.aria.play': 'Žaisti',
+  'nowPlaying.aria.pause': 'Pauzė',
+  'nowPlaying.aria.next': 'Kitas takelis',
+  'nowPlaying.aria.prev': 'Ankstesnis takelis',
+  'nowPlaying.aria.seek': 'Ieškoti',
+  'nowPlaying.aria.volume': 'Tūris',
+}

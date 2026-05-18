@@ -4,4 +4,8 @@ import type { ThreadTreeTranslations } from './types.js'
 export const sv: Partial<ThreadTreeTranslations> = {
   'threadTree.upvote': 'Upprösta',
   'threadTree.reply': 'Svara',
+  'threadTree.expand': 'Expandera<x> {{räkna}}</x> svar',
+  'threadTree.expandSymbol': '[+]',
+  'threadTree.collapseSymbol': '[−]',
+  'threadTree.score': '{{räkna}} poäng',
 }

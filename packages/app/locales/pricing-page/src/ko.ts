@@ -10,4 +10,9 @@ export const ko: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.monthly': '월간',
   'pricingPage.periodToggle.yearly': '연간',
   'pricingPage.planUpdated.heading': '요금제가 업데이트되었습니다',
+  'pricingPage.heading': '요금제를 선택하세요',
+  'pricingPage.perSeat': '좌석당',
+  'pricingPage.periodToggle.label': '청구 기간',
+  'pricingPage.planUpdated.body':
+    '업그레이드해 주셔서 감사합니다. 새 요금제는 즉시 적용되며, 영수증은 이메일로 발송되었습니다.',
 }

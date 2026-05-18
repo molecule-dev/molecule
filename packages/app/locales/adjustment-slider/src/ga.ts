@@ -1,5 +1,7 @@
 import type { AdjustmentSliderTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Adjustment-slider translations for ga — currently mirrors English (translation TBD). */
-export const ga: AdjustmentSliderTranslations = { ...en }
+/** AdjustmentSlider translations for ga. */
+export const ga: Partial<AdjustmentSliderTranslations> = {
+  'adjustmentSlider.aria': '{{lipéad}}',
+  'adjustmentSlider.reset.aria': 'Athshocraigh<x> {{lipéad}}</x>',
+}

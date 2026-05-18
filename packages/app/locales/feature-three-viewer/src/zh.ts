@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for zh — currently mirrors English (translation TBD). */
-export const zh: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for zh. */
+export const zh: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': '3D模型查看器',
+  'threeViewer.loading': '正在加载3D模型…',
+  'threeViewer.error': '3D模型加载失败。',
+}

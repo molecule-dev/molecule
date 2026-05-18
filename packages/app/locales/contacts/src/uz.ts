@@ -1,6 +1,6 @@
 import type { ContactsTranslations } from './types.js'
 
-/** Contacts translations for Uzbek. */
-export const uz: ContactsTranslations = {
-  'contacts.unknown': "Noma'lum",
+/** Contacts translations for uz. */
+export const uz: Partial<ContactsTranslations> = {
+  'contacts.unknown': 'Noma&#39;lum',
 }

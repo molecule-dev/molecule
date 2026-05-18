@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for fi — currently mirrors English (translation TBD). */
-export const fi: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for fi. */
+export const fi: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Luvut',
+  'chapterList.aria.seek': 'Siirry kohtaan<x> {{title}}</x> klo<x> {{aikaleima}}</x>',
+  'chapterList.aria.thumbnail': 'Pienoiskuva kohteelle<x> {{title}}</x>',
+  'chapterList.empty': 'Tälle jaksolle ei ole saatavilla lukuja.',
+  'chapterList.current': 'Nyt toistetaan',
+}

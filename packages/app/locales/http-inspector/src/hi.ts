@@ -6,4 +6,5 @@ export const hi: Partial<HttpInspectorTranslations> = {
   'httpInspector.send': 'भेजें',
   'httpInspector.headers': 'हेडर',
   'httpInspector.body': 'मुख्य भाग',
+  'httpInspector.addHeader': 'हेडर जोड़ें',
 }

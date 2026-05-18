@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for lv — currently mirrors English (translation TBD). */
-export const lv: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for lv. */
+export const lv: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Kartes zīmēšanas rīki',
+  'mapDrawing.surface.aria': 'Kartes zīmēšanas virsma',
+  'mapDrawing.tool.polygon': 'Daudzstūris',
+  'mapDrawing.tool.circle': 'Aplis',
+  'mapDrawing.tool.pin': 'Piespraust',
+  'mapDrawing.tool.line': 'Līnija',
+  'mapDrawing.tool.select': 'Atlasīt',
+  'mapDrawing.tool.delete': 'Dzēst',
+}

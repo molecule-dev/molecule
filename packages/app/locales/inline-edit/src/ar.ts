@@ -5,4 +5,5 @@ export const ar: Partial<InlineEditTranslations> = {
   'inlineEdit.cancel': 'إلغاء',
   'inlineEdit.saving': 'جارٍ الحفظ…',
   'inlineEdit.save': 'حفظ',
+  'inlineEdit.empty': 'انقر للتحرير',
 }

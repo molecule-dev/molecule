@@ -1,4 +1,6 @@
 import type { AudioPlayerTranslations } from './types.js'
 
 /** AudioPlayer translations for my. */
-export const my: Partial<AudioPlayerTranslations> = {}
+export const my: Partial<AudioPlayerTranslations> = {
+  'audio.seek': 'ရှာဖွေပါ',
+}

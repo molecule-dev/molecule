@@ -9,4 +9,10 @@ export const fil: Partial<PricingPageTranslations> = {
   'pricingPage.currentCta': 'Kasalukuyang plano',
   'pricingPage.periodToggle.monthly': 'Buwanan',
   'pricingPage.periodToggle.yearly': 'Taon-taon',
+  'pricingPage.heading': 'Piliin ang iyong plano',
+  'pricingPage.perSeat': 'bawat upuan',
+  'pricingPage.periodToggle.label': 'Panahon ng pagsingil',
+  'pricingPage.planUpdated.heading': 'Na-update na ang iyong plano',
+  'pricingPage.planUpdated.body':
+    'Salamat sa pag-upgrade. Aktibo na agad ang iyong bagong plano at na-email na sa iyo ang isang resibo.',
 }

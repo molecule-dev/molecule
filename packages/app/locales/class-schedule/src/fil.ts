@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for fil — currently mirrors English (translation TBD). */
-export const fil: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for fil. */
+export const fil: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Iskedyul ng klase sa linggo',
+  'classSchedule.aria.event': '{{araw ng linggo}}<x> {{simulan}}</x> –<x> {{end}}</x>',
+  'classSchedule.aria.slot': 'Walang laman na puwang,<x> {{araw ng linggo}}</x><x> {{oras}}</x>',
+}

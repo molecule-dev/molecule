@@ -1,16 +1,16 @@
 import type { BiometricsTranslations } from './types.js'
 
-/** Biometrics translations for Uzbek. */
-export const uz: BiometricsTranslations = {
-  'biometrics.error.notSupported': "WebAuthn qo'llab-quvvatlanmaydi",
-  'biometrics.error.noPlatformAuth': "Platforma autentifikatori yo'q",
+/** Biometrics translations for uz. */
+export const uz: Partial<BiometricsTranslations> = {
   'biometrics.error.checkFailed': 'Mavjudlikni tekshirishda xatolik',
-  'biometrics.error.noCredential': "Hisob ma'lumotlari qaytarilmadi",
   'biometrics.error.userCancel': 'Foydalanuvchi autentifikatsiyani bekor qildi',
   'biometrics.error.permissionDenied': 'Ruxsat rad etildi',
-  'biometrics.error.unknown': "Noma'lum xatolik",
   'biometrics.device.fingerprint': 'Barmoq izi',
   'biometrics.device.faceId': 'Face ID',
   'biometrics.device.touchId': 'Touch ID',
   'biometrics.device.windowsHello': 'Windows Hello',
+  'biometrics.error.notSupported': 'WebAuthn qo&#39;llab-quvvatlanmaydi',
+  'biometrics.error.noPlatformAuth': 'Platforma autentifikatori yo&#39;q',
+  'biometrics.error.noCredential': 'Hech qanday ishonchnoma qaytarilmadi',
+  'biometrics.error.unknown': 'Noma&#39;lum xato',
 }

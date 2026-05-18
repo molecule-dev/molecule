@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for lo — currently mirrors English (translation TBD). */
-export const lo: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for lo. */
+export const lo: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'ຊັ້ນຄຳອະທິບາຍ',
+  'annotationPin.aria.marker': 'ເຂັມຄຳອະທິບາຍ',
+  'annotationPin.aria.popup': 'ລາຍລະອຽດຄຳອະທິບາຍ',
+  'annotationPin.empty': 'ບໍ່ມີບັນທຶກສຳລັບໝຸດນີ້.',
+}

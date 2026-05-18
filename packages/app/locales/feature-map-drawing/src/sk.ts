@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for sk — currently mirrors English (translation TBD). */
-export const sk: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for sk. */
+export const sk: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Nástroje na kreslenie mapy',
+  'mapDrawing.surface.aria': 'Plocha na kreslenie mapy',
+  'mapDrawing.tool.polygon': 'Polygón',
+  'mapDrawing.tool.circle': 'Kruh',
+  'mapDrawing.tool.pin': 'Pripnúť',
+  'mapDrawing.tool.line': 'Čiara',
+  'mapDrawing.tool.select': 'Vyberte',
+  'mapDrawing.tool.delete': 'Odstrániť',
+}

@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for ja — currently mirrors English (translation TBD). */
-export const ja: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for ja. */
+export const ja: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'ビデオスクラバー',
+  'videoScrubber.aria.strip':
+    'フィルムストリップ — 再生ヘッド{{時間}} s（フレーム）<x> {{フレーム}}</x> ）',
+  'videoScrubber.aria.playhead': 'プレイヘッド{{時間}} s',
+  'videoScrubber.aria.frameReadout': 'フレーム{{フレーム}}の{{合計}}',
+  'videoScrubber.aria.thumbnail': 'フレームプレビュー',
+  'videoScrubber.thumbnails.empty': 'プレビューなし',
+  'videoScrubber.frameReadout.total': '/<x> {{合計}}</x>フレーム',
+}

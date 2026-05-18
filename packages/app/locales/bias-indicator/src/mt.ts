@@ -1,5 +1,14 @@
 import type { BiasIndicatorTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Bias-indicator translations for mt — currently mirrors English (translation TBD). */
-export const mt: BiasIndicatorTranslations = { ...en }
+/** BiasIndicator translations for mt. */
+export const mt: Partial<BiasIndicatorTranslations> = {
+  'biasIndicator.bias.farLeft': 'Xellug estrem',
+  'biasIndicator.bias.leftLeaning': 'Inklinazzjoni tax-xellug',
+  'biasIndicator.bias.center': 'Ċentru',
+  'biasIndicator.bias.rightLeaning': 'Inklinazzjoni lejn il-lemin',
+  'biasIndicator.bias.farRight': 'Lemin estrem',
+  'biasIndicator.reliability.high': 'Affidabbiltà: għolja',
+  'biasIndicator.reliability.medium': 'Affidabbiltà: medja',
+  'biasIndicator.reliability.low': 'Affidabbiltà: baxxa',
+  'biasIndicator.reliability.disputed': 'Affidabbiltà: ikkontestata',
+}

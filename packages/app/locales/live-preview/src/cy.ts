@@ -1,7 +1,7 @@
 import type { LivePreviewTranslations } from './types.js'
 
-/** Live Preview translations for Welsh. */
-export const cy: LivePreviewTranslations = {
+/** LivePreview translations for cy. */
+export const cy: Partial<LivePreviewTranslations> = {
   'livePreview.error.noProvider':
-    "Nid yw darparwr y rhagolwg byw wedi'i ffurfweddu. Bondiwch ddarparwr rhagolwg byw yn gyntaf.",
+    'Darparwr rhagolwg byw heb ei ffurfweddu. Cysylltwch â darparwr rhagolwg byw yn gyntaf.',
 }

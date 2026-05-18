@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for ta — currently mirrors English (translation TBD). */
-export const ta: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for ta. */
+export const ta: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'தடம்<x> {{பெயர்}}</x>',
+  'trackLane.aria.clip':
+    'கிளிப்<x> {{label}}</x> ஆரம்பம்<x> {{startTime}}</x> s க்காக<x> {{duration}}</x> s',
+  'trackLane.aria.resize': 'கிளிப்பை மறுஅளவாக்கு',
+  'trackLane.header': 'தடம்',
+}

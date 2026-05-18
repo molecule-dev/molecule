@@ -8,4 +8,6 @@ export const es: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.aria.prev': 'Canción anterior',
   'nowPlaying.aria.seek': 'Buscar',
   'nowPlaying.aria.volume': 'Volumen',
+  'nowPlaying.aria.region': 'Reproduciendo ahora:<x> {{título}}</x>',
+  'nowPlaying.aria.artwork': 'Obra de arte para<x> {{título}}</x>',
 }

@@ -4,4 +4,5 @@ import type { ShareLinkCardTranslations } from './types.js'
 export const el: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Αντιγράφηκε!',
   'copyLink.copy': 'Αντιγραφή',
+  'shareLink.passwordProtect': 'Προστασία με κωδικό πρόσβασης',
 }

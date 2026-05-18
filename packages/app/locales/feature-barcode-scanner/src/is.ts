@@ -1,5 +1,14 @@
-import type { BarcodeScannerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureBarcodeScannerTranslations } from './types.js'
 
-/** Barcode-scanner translations for is — currently mirrors English (translation TBD). */
-export const is: BarcodeScannerTranslations = { ...en }
+/** FeatureBarcodeScanner translations for is. */
+export const is: Partial<FeatureBarcodeScannerTranslations> = {
+  'barcodeScanner.aria.region': 'Myndavélasýn með strikamerkjaskannara',
+  'barcodeScanner.error.permission_denied': 'Leyfi fyrir myndavél hafnað',
+  'barcodeScanner.error.no_camera': 'Engin myndavél fannst',
+  'barcodeScanner.error.unsupported': 'Myndavélin er ekki studd í þessum vafra',
+  'barcodeScanner.error.detector_failure': 'Strikamerkjaskynjari bilaði',
+  'barcodeScanner.error.fallback_unavailable': 'Ekki tókst að hlaða strikamerkjaskannasafnið',
+  'barcodeScanner.status.starting': 'Ræsir myndavélina…',
+  'barcodeScanner.status.scanning': 'Skanna…',
+  'barcodeScanner.status.stopped': 'Skönnun lokið',
+}

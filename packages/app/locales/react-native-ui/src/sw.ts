@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for sw. */
-export const sw: Partial<ReactNativeUiTranslations> = {}
+export const sw: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Ondoa',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Ishara',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Funga',
+  'ui.pagination.nav': 'Upagani',
+  'ui.pagination.first': 'Kwanza',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Iliyotangulia',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '...',
+  'ui.pagination.goToPage': 'Inayofuata',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Mwisho',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{thamani}} %',
+  'ui.radioGroup.label': 'Kikundi cha redio',
+  'ui.select.placeholder': 'Chagua…',
+  'ui.select.title': 'Chagua',
+  'ui.spinner.loading': 'Inapakia',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Hakuna data',
+  'ui.toast.dismiss': 'Ondoa',
+  'ui.toast.error.noProvider': 'useToast lazima itumike ndani ya ToastProvider',
+}

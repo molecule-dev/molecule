@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for yo — currently mirrors English (translation TBD). */
-export const yo: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for yo. */
+export const yo: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'Àwọn irinṣẹ́ ìyàwòrán máàpù',
+  'mapDrawing.surface.aria': 'Ojú àwòrán máàpù',
+  'mapDrawing.tool.polygon': 'Polygon',
+  'mapDrawing.tool.circle': 'Àyíká',
+  'mapDrawing.tool.pin': 'Pínì',
+  'mapDrawing.tool.line': 'Ìlà',
+  'mapDrawing.tool.select': 'Yan',
+  'mapDrawing.tool.delete': 'Paarẹ́',
+}

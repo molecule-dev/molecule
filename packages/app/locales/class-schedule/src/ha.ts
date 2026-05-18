@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for ha — currently mirrors English (translation TBD). */
-export const ha: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for ha. */
+export const ha: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Jadawalin darasi na mako-mako',
+  'classSchedule.aria.event': '{{ranar mako}}<x> {{fara}}</x> –<x> {{ƙarshen}}</x>',
+  'classSchedule.aria.slot': 'Babu komai a ramin,<x> {{ranar mako}}</x><x> {{lokaci}}</x>',
+}

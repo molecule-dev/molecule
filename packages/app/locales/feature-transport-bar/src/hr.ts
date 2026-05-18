@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for hr (stub — falls back to English until reviewed). */
-export const hr: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for hr. */
+export const hr: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': 'Kontrole prijenosa reprodukcije',
+  'transportBar.aria.skipBack': 'Preskoči unatrag',
+  'transportBar.aria.skipForward': 'Preskoči naprijed',
+  'transportBar.aria.play': 'Igrati',
+  'transportBar.aria.pause': 'Pauza',
+  'transportBar.aria.stop': 'Stop',
+  'transportBar.aria.record': 'Snimiti',
+  'transportBar.aria.stopRecording': 'Zaustavi snimanje',
+  'transportBar.aria.loopOn': 'Onemogući petlju',
+  'transportBar.aria.loopOff': 'Omogući petlju',
+}

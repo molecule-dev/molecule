@@ -15,4 +15,6 @@ export const tr: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyBody': 'Yeni bildirimler burada görünecek.',
   'notificationsPage.prev': 'Önceki',
   'notificationsPage.next': 'Sonraki',
+  'notificationsPage.paginationAriaLabel': 'Sayfalama',
+  'notificationsPage.pageOf': 'Sayfa<x> {{akım}}</x> ile ilgili<x> {{toplam}}</x>',
 }

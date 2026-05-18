@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for gu — currently mirrors English (translation TBD). */
-export const gu: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for gu. */
+export const gu: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'પિયાનો રોલ',
+  'pianoRoll.aria.keys': 'પિયાનો ચાવીઓ',
+  'pianoRoll.aria.grid': 'નોંધ ગ્રીડ',
+  'pianoRoll.aria.resize': 'નોંધનું કદ બદલો',
+  'pianoRoll.aria.note':
+    'નોંધ<x> {{પિચ}}</x> બીટથી શરૂ કરીને<x> {{સ્ટાર્ટબીટ}}</x> માટે<x> {{ડ્યુરેશનબીટ્સ}}</x> ધબકારા',
+}

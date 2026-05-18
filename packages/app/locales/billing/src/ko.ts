@@ -10,4 +10,8 @@ export const ko: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': '가장 인기',
   'billing.pricing.tierEyebrow': '등급',
   'billing.pricing.upgradeCta': '{{tierName}}(으)로 업그레이드',
+  'billing.status.currentPlan': '현재 계획:<x> {{tierName}}</x>',
+  'billing.status.cancelError': '취소할 수 없습니다. 다시 시도해 주세요.',
+  'billing.pricing.reassurance': '언제든지 취소 가능 · 신용카드 없이 시작 가능',
+  'billing.pricing.perSeat': '좌석당',
 }

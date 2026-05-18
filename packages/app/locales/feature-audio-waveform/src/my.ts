@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for my — currently mirrors English (translation TBD). */
-export const my: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for my. */
+export const my: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'အသံလှိုင်းပုံစံ',
+  'audioWaveform.aria.seek': 'လှိုင်းပုံစံကို နှိပ်ခြင်းဖြင့် အသံကို ရှာဖွေပါ',
+  'audioWaveform.empty': 'လှိုင်းပုံစံဒေတာ မရှိပါ။',
+}

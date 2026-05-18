@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for az — currently mirrors English (translation TBD). */
-export const az: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for az. */
+export const az: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Annotasiya təbəqəsi',
+  'annotationPin.aria.marker': 'Annotasiya sancağı',
+  'annotationPin.aria.popup': 'Annotasiya detalları',
+  'annotationPin.empty': 'Bu sancaq üçün heç bir qeyd yoxdur.',
+}

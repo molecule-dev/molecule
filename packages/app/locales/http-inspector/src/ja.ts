@@ -6,4 +6,5 @@ export const ja: Partial<HttpInspectorTranslations> = {
   'httpInspector.send': '送信',
   'httpInspector.headers': 'ヘッダー',
   'httpInspector.body': '本文',
+  'httpInspector.addHeader': 'ヘッダーを追加',
 }

@@ -5,4 +5,5 @@ export const sv: Partial<OnboardingModalTranslations> = {
   'onboarding.back': 'Tillbaka',
   'onboarding.done': 'Kom igång',
   'onboarding.next': 'Nästa',
+  'onboarding.skip': 'Hoppa',
 }

@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for mn — currently mirrors English (translation TBD). */
-export const mn: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for mn. */
+export const mn: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Видео цэвэрлэгч',
+  'videoScrubber.aria.strip':
+    'Кино зурвас — тоглоомын толгой дээр<x> {{цаг}}</x> s (хүрээ<x> {{frame}}</x> )',
+  'videoScrubber.aria.playhead': 'Тоглоомын толгой<x> {{цаг}}</x> с',
+  'videoScrubber.aria.frameReadout': 'Хүрээ<x> {{frame}}</x> -ын<x> {{нийт}}</x>',
+  'videoScrubber.aria.thumbnail': 'Хүрээний урьдчилсан тойм',
+  'videoScrubber.thumbnails.empty': 'Урьдчилан харах боломжгүй',
+  'videoScrubber.frameReadout.total': '/<x> {{нийт}}</x> жааз',
+}

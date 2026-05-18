@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for is. */
-export const is: Partial<ReactNativeUiTranslations> = {}
+export const is: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Hafna',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Loka',
+  'ui.pagination.nav': 'Síðunúmeraskipti',
+  'ui.pagination.first': 'Fyrst',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Fyrri',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Næst',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Síðasta',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{gildi}} %',
+  'ui.radioGroup.label': 'Útvarpshópur',
+  'ui.select.placeholder': 'Veldu…',
+  'ui.select.title': 'Veldu',
+  'ui.spinner.loading': 'Hleður',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Engin gögn',
+  'ui.toast.dismiss': 'Hafna',
+  'ui.toast.error.noProvider': 'useToast verður að vera notað innan ToastProvider',
+}

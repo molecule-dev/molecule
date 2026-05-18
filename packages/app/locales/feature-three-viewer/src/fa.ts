@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for fa — currently mirrors English (translation TBD). */
-export const fa: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for fa. */
+export const fa: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': 'نمایشگر مدل سه‌بعدی',
+  'threeViewer.loading': 'در حال بارگذاری مدل سه‌بعدی…',
+  'threeViewer.error': 'مدل سه‌بعدی بارگذاری نشد.',
+}

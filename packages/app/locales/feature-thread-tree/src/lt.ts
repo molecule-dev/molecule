@@ -1,5 +1,13 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for lt (stub — falls back to English until reviewed). */
-export const lt: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for lt. */
+export const lt: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.expand': 'Išskleisti<x> {{skaičius}}</x> atsakymai',
+  'threadTree.collapse': 'Sutraukti giją',
+  'threadTree.expandSymbol': '[+]',
+  'threadTree.collapseSymbol': '[−]',
+  'threadTree.score': '{{skaičius}} taškai',
+  'threadTree.hiddenReplies': '{{skaičius}} paslėptas',
+  'threadTree.upvote': 'Įvertinti teigiamai',
+  'threadTree.reply': 'Atsakyti',
+}

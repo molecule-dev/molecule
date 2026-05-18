@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for th — currently mirrors English (translation TBD). */
-export const th: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for th. */
+export const th: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'เลเยอร์คำอธิบายประกอบ',
+  'annotationPin.aria.marker': 'หมุดคำอธิบายประกอบ',
+  'annotationPin.aria.popup': 'รายละเอียดคำอธิบายประกอบ',
+  'annotationPin.empty': 'ไม่มีหมายเหตุสำหรับพินนี้',
+}

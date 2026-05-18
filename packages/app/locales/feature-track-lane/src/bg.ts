@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for bg — currently mirrors English (translation TBD). */
-export const bg: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for bg. */
+export const bg: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Пътека<x> {{име}}</x>',
+  'trackLane.aria.clip':
+    'Клип<x> {{етикет}}</x> започвайки от<x> {{стартов час}}</x> за<x> {{продължителност}}</x> с',
+  'trackLane.aria.resize': 'Преоразмеряване на клипа',
+  'trackLane.header': 'Проследяване',
+}

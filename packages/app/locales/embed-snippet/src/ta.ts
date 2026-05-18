@@ -1,5 +1,16 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for ta — currently mirrors English (translation TBD). */
-export const ta: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for ta. */
+export const ta: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.aria.region': 'குறியீட்டை உட்பொதி ({மொழி})',
+  'embedSnippet.heading': 'உட்பொதி குறியீடு',
+  'embedSnippet.eyebrow': 'உட்பொதி குறியீட்டை நகலெடுக்கவும்',
+  'embedSnippet.copy': 'நகல்',
+  'embedSnippet.copied': 'நகலெடுக்கப்பட்டது!',
+  'embedSnippet.controls.width': 'அகலம்',
+  'embedSnippet.controls.height': 'உயரம்',
+  'embedSnippet.controls.theme': 'தீம்',
+  'embedSnippet.theme.light': 'ஒளி',
+  'embedSnippet.theme.dark': 'இருள்',
+  'embedSnippet.theme.auto': 'ஆட்டோ',
+}

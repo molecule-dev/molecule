@@ -1,7 +1,7 @@
 import type { IapTranslations } from './types.js'
 
-/** Iap translations for Hausa. */
-export const ha: IapTranslations = {
+/** Iap translations for ha. */
+export const ha: Partial<IapTranslations> = {
   'iap.error.E_UNKNOWN': 'An sami kuskure da ba a sani ba.',
   'iap.error.E_SETUP': 'An kasa saita sayayya a cikin manhaja.',
   'iap.error.E_LOAD': 'An kasa loda kayayyaki.',
@@ -20,7 +20,6 @@ export const ha: IapTranslations = {
   'iap.error.E_CLIENT_INVALID': 'Ba a yarda abokin ciniki ya yi buƙatar ba.',
   'iap.error.E_PAYMENT_CANCELLED': 'Mai amfani ya soke buƙatar.',
   'iap.error.E_PAYMENT_INVALID': 'Makullin sayayya bai dace ba.',
-  'iap.error.E_PAYMENT_NOT_ALLOWED': "Ba a yarda na'ura ta yi sayayya ba.",
   'iap.error.E_STORE_PRODUCT_NOT_AVAILABLE': 'Kaya ba ya samuwa a shagon yanzu.',
   'iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED': 'An hana izinin sabis na gajimare.',
   'iap.error.E_CLOUD_SERVICE_NETWORK_CONNECTION_FAILED':
@@ -35,4 +34,5 @@ export const ha: IapTranslations = {
   'iap.error.6': 'Kuskure.',
   'iap.error.7': 'An riga an mallaki abu.',
   'iap.error.8': 'Ba a mallaki abu ba.',
+  'iap.error.E_PAYMENT_NOT_ALLOWED': 'Ba a yarda da na&#39;urar yin sayayya ba.',
 }

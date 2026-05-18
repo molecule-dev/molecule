@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for sk — currently mirrors English (translation TBD). */
-export const sk: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for sk. */
+export const sk: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Zvukový priebeh',
+  'audioWaveform.aria.seek': 'Vyhľadajte zvuk kliknutím na priebeh',
+  'audioWaveform.empty': 'Nie sú k dispozícii žiadne údaje o priebehu.',
+}

@@ -1,4 +1,6 @@
 import type { AudioPlayerTranslations } from './types.js'
 
 /** AudioPlayer translations for he. */
-export const he: Partial<AudioPlayerTranslations> = {}
+export const he: Partial<AudioPlayerTranslations> = {
+  'audio.seek': 'לְחַפֵּשׂ',
+}

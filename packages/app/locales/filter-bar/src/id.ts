@@ -1,4 +1,6 @@
 import type { FilterBarTranslations } from './types.js'
 
 /** FilterBar translations for id. */
-export const id: Partial<FilterBarTranslations> = {}
+export const id: Partial<FilterBarTranslations> = {
+  'filterBar.clear': 'Hapus filter',
+}

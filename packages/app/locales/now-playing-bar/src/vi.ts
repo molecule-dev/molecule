@@ -8,4 +8,6 @@ export const vi: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.aria.prev': 'Bài trước',
   'nowPlaying.aria.seek': 'Tua',
   'nowPlaying.aria.volume': 'Khối lượng',
+  'nowPlaying.aria.region': 'Đang chiếu:<x> {{tiêu đề}}</x>',
+  'nowPlaying.aria.artwork': 'Tác phẩm nghệ thuật cho<x> {{tiêu đề}}</x>',
 }

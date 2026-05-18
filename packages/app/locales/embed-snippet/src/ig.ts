@@ -1,5 +1,16 @@
 import type { EmbedSnippetTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Embed-snippet translations for ig — currently mirrors English (translation TBD). */
-export const ig: EmbedSnippetTranslations = { ...en }
+/** EmbedSnippet translations for ig. */
+export const ig: Partial<EmbedSnippetTranslations> = {
+  'embedSnippet.aria.region': 'Tinye koodu ({asụsụ})',
+  'embedSnippet.heading': 'Tinye koodu',
+  'embedSnippet.eyebrow': 'Detuo koodu ntinye',
+  'embedSnippet.copy': 'Detuo',
+  'embedSnippet.copied': 'E depụtaghachiri ya!',
+  'embedSnippet.controls.width': 'Obosara',
+  'embedSnippet.controls.height': 'Ogologo',
+  'embedSnippet.controls.theme': 'Isiokwu',
+  'embedSnippet.theme.light': 'Ìhè',
+  'embedSnippet.theme.dark': 'Ọchịchịrị',
+  'embedSnippet.theme.auto': 'Ụgbọala',
+}

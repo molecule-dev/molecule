@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for ga — currently mirrors English (translation TBD). */
-export const ga: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for ga. */
+export const ga: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Tonnfhoirm fuaime',
+  'audioWaveform.aria.seek': 'Cuardaigh an fhuaim trí chliceáil ar thonnfhoirm',
+  'audioWaveform.empty': 'Níl aon sonraí tonnfhoirme ar fáil.',
+}

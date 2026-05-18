@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for ig — currently mirrors English (translation TBD). */
-export const ig: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for ig. */
+export const ig: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Mpịakọta Piano',
+  'pianoRoll.aria.keys': 'Igodo Piano',
+  'pianoRoll.aria.grid': 'Grid ndetu',
+  'pianoRoll.aria.resize': 'Gbanwee nha ndetu',
+  'pianoRoll.aria.note':
+    'Ihe ndetu<x> {{egwu}}</x> malite na ịkụ ọkpọ<x> {{malite}}</x> maka<x> {{oge egwuregwu}}</x> mbe',
+}

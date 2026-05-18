@@ -5,4 +5,5 @@ export const vi: Partial<OnboardingModalTranslations> = {
   'onboarding.back': 'Quay lại',
   'onboarding.done': 'Bắt đầu',
   'onboarding.next': 'Tiếp theo',
+  'onboarding.skip': 'Nhảy',
 }

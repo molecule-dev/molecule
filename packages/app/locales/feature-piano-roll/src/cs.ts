@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for cs — currently mirrors English (translation TBD). */
-export const cs: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for cs. */
+export const cs: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Klavírní rolování',
+  'pianoRoll.aria.keys': 'Klávesy klavíru',
+  'pianoRoll.aria.grid': 'Mřížka poznámek',
+  'pianoRoll.aria.resize': 'Změnit velikost poznámky',
+  'pianoRoll.aria.note':
+    'Poznámka<x> {{výběr}}</x> začíná v rytmu<x> {{startBeat}}</x> pro<x> {{durationBeats}}</x> beaty',
+}

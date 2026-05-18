@@ -1,4 +1,7 @@
 import type { VideoPlayerTranslations } from './types.js'
 
 /** VideoPlayer translations for lo. */
-export const lo: Partial<VideoPlayerTranslations> = {}
+export const lo: Partial<VideoPlayerTranslations> = {
+  'video.pause': 'ຢຸດຊົ່ວຄາວ',
+  'video.play': 'ຫຼິ້ນ',
+}

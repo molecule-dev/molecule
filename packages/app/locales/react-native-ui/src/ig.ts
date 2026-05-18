@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for ig. */
-export const ig: Partial<ReactNativeUiTranslations> = {}
+export const ig: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Kwụpụ',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Avatar',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Mechie',
+  'ui.pagination.nav': 'Ibe peeji',
+  'ui.pagination.first': 'Mbụ',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Nke gara aga',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Osote',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Ikpeazụ',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{uru}} %',
+  'ui.radioGroup.label': 'Otu redio',
+  'ui.select.placeholder': 'Họrọ…',
+  'ui.select.title': 'Họrọ',
+  'ui.spinner.loading': 'Na-ebugo',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Enweghị data',
+  'ui.toast.dismiss': 'Kwụpụ',
+  'ui.toast.error.noProvider': 'A ga-eji Toast mee ihe n&#39;ime Onye Na-enye Toast',
+}

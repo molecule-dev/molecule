@@ -9,4 +9,8 @@ export const pt: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.controls.theme': 'Tema',
   'embedSnippet.theme.light': 'Claro',
   'embedSnippet.theme.dark': 'Escuro',
+  'embedSnippet.aria.region': 'Código de incorporação ({idioma})',
+  'embedSnippet.eyebrow': 'Copiar código de incorporação',
+  'embedSnippet.controls.width': 'Largura',
+  'embedSnippet.theme.auto': 'Auto',
 }

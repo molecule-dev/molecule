@@ -1,7 +1,7 @@
 import type { HapticsTranslations } from './types.js'
 
-/** Haptics translations for Welsh. */
-export const cy: HapticsTranslations = {
+/** Haptics translations for cy. */
+export const cy: Partial<HapticsTranslations> = {
   'haptics.error.noProvider':
-    "@molecule/app-haptics: Nid yw'r darparwr wedi'i osod. Galwch setProvider() gyda gweithrediad HapticsProvider (e.e., o @molecule/app-haptics-capacitor).",
+    '@molecule/app-haptics: Dim darparwr wedi&#39;i osod. Galwch setProvider() gyda gweithrediad HapticsProvider (e.e., o @molecule/app-haptics-capacitor).',
 }

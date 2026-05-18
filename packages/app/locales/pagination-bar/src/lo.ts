@@ -4,4 +4,5 @@ import type { PaginationBarTranslations } from './types.js'
 export const lo: Partial<PaginationBarTranslations> = {
   'pagination.previous': 'ໜ້າກ່ອນ',
   'pagination.next': 'ໜ້າຖັດໄປ',
+  'pagination.pageSize': 'ຂະໜາດໜ້າ',
 }

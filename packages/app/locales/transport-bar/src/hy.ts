@@ -1,4 +1,13 @@
 import type { TransportBarTranslations } from './types.js'
 
 /** TransportBar translations for hy. */
-export const hy: Partial<TransportBarTranslations> = {}
+export const hy: Partial<TransportBarTranslations> = {
+  'transportBar.aria.region': 'Նվագարկման տեղափոխման կառավարման տարրեր',
+  'transportBar.aria.skipForward': 'Անցնել առաջ',
+  'transportBar.aria.play': 'Նվագարկել',
+  'transportBar.aria.pause': 'Դադար',
+  'transportBar.aria.stop': 'Կանգ առեք',
+  'transportBar.aria.record': 'Ձայնագրություն',
+  'transportBar.aria.stopRecording': 'Դադարեցնել ձայնագրությունը',
+  'transportBar.aria.loopOff': 'Միացնել ցիկլը',
+}

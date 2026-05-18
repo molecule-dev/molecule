@@ -9,4 +9,9 @@ export const da: Partial<BillingTranslations> = {
   'billing.pricing.checkoutError': 'Kunne ikke starte betaling. Prøv venligst igen.',
   'billing.pricing.mostPopular': 'Mest populær',
   'billing.pricing.upgradeCta': 'Opgrader til {{tierName}}',
+  'billing.status.currentPlan': 'Nuværende plan:<x> {{tierName}}</x>',
+  'billing.status.cancelError': 'Kunne ikke annullere. Prøv igen.',
+  'billing.pricing.reassurance': 'Annuller når som helst · Intet kreditkort kræves for at starte',
+  'billing.pricing.tierEyebrow': 'Niveau',
+  'billing.pricing.perSeat': 'pr. sæde',
 }

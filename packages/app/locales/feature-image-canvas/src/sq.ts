@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for sq — currently mirrors English (translation TBD). */
-export const sq: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for sq. */
+export const sq: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Kanavacë imazhi',
+  'imageCanvas.aria.canvas': 'Zvarrit për të panoramuar, rrëshqit për të zmadhuar',
+  'imageCanvas.loading': 'Duke ngarkuar imazhin…',
+  'imageCanvas.error': 'Imazhi dështoi të ngarkohej.',
+}

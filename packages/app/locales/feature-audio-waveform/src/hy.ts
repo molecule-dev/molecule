@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for hy — currently mirrors English (translation TBD). */
-export const hy: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for hy. */
+export const hy: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Աուդիո ալիքաձև',
+  'audioWaveform.aria.seek': 'Որոնեք աուդիոն՝ սեղմելով ալիքաձևի վրա',
+  'audioWaveform.empty': 'Ալիքային ձևի տվյալներ հասանելի չեն։',
+}

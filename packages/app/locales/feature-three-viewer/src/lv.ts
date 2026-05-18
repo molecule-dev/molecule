@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for lv — currently mirrors English (translation TBD). */
-export const lv: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for lv. */
+export const lv: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': '3D modeļu skatītājs',
+  'threeViewer.loading': 'Notiek 3D modeļa ielāde…',
+  'threeViewer.error': 'Neizdevās ielādēt 3D modeli.',
+}

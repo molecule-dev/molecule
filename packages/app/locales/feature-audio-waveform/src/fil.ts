@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for fil — currently mirrors English (translation TBD). */
-export const fil: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for fil. */
+export const fil: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Anyo ng alon ng audio',
+  'audioWaveform.aria.seek': 'Hanapin ang audio sa pamamagitan ng pag-click sa waveform',
+  'audioWaveform.empty': 'Walang magagamit na datos ng waveform.',
+}

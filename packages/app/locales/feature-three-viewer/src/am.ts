@@ -1,5 +1,8 @@
-import type { ThreeViewerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureThreeViewerTranslations } from './types.js'
 
-/** Three-viewer translations for am — currently mirrors English (translation TBD). */
-export const am: ThreeViewerTranslations = { ...en }
+/** FeatureThreeViewer translations for am. */
+export const am: Partial<FeatureThreeViewerTranslations> = {
+  'threeViewer.aria.canvas': '3D ሞዴል መመልከቻ',
+  'threeViewer.loading': 'የ3-ልኬት ሞዴል በመጫን ላይ…',
+  'threeViewer.error': 'የ3-ልኬት ሞዴል መጫን አልተሳካም።',
+}

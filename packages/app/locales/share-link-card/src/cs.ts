@@ -4,4 +4,5 @@ import type { ShareLinkCardTranslations } from './types.js'
 export const cs: Partial<ShareLinkCardTranslations> = {
   'copyLink.copied': 'Zkopírováno!',
   'copyLink.copy': 'Kopírovat',
+  'shareLink.passwordProtect': 'Ochrana heslem',
 }

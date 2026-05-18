@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for ro — currently mirrors English (translation TBD). */
-export const ro: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for ro. */
+export const ro: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Programul săptămânal al cursurilor',
+  'classSchedule.aria.event': '{{zi lucrătoare}}<x> {{început}}</x> –<x> {{Sfârşit}}</x>',
+  'classSchedule.aria.slot': 'Slot gol,<x> {{zi lucrătoare}}</x><x> {{timp}}</x>',
+}

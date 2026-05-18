@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for uz — currently mirrors English (translation TBD). */
-export const uz: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for uz. */
+export const uz: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Yo&#39;l chizig&#39;i<x> {{nom}}</x>',
+  'trackLane.aria.clip':
+    'Klip<x> {{label}}</x> boshlanadigan joy<x> {{startTime}}</x> uchun<x> {{davomiylik}}</x> s',
+  'trackLane.aria.resize': 'Klip o&#39;lchamini o&#39;zgartirish',
+  'trackLane.header': 'Trek',
+}

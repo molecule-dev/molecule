@@ -9,4 +9,10 @@ export const ro: Partial<PricingPageTranslations> = {
   'pricingPage.currentCta': 'Planul curent',
   'pricingPage.periodToggle.monthly': 'Lunar',
   'pricingPage.periodToggle.yearly': 'Anual',
+  'pricingPage.heading': 'Alege-ți planul',
+  'pricingPage.perSeat': 'per loc',
+  'pricingPage.periodToggle.label': 'Perioada de facturare',
+  'pricingPage.planUpdated.heading': 'Planul dumneavoastră a fost actualizat',
+  'pricingPage.planUpdated.body':
+    'Mulțumim pentru actualizare. Noul tău abonament este activ imediat și ți-am trimis o chitanță prin e-mail.',
 }

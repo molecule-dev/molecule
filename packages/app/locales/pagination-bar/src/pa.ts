@@ -4,4 +4,5 @@ import type { PaginationBarTranslations } from './types.js'
 export const pa: Partial<PaginationBarTranslations> = {
   'pagination.previous': 'ਪਿਛਲਾ ਪੰਨਾ',
   'pagination.next': 'ਅਗਲਾ ਪੰਨਾ',
+  'pagination.pageSize': 'ਪੰਨੇ ਦਾ ਆਕਾਰ',
 }

@@ -11,4 +11,18 @@ export const el: Partial<ReactUiTranslations> = {
   'userMenu.guestName': 'Αναλυτής',
   'userMenuPopover.guest': 'Λογαριασμός',
   'userMenu.navLabel': 'Μενού λογαριασμού',
+  'react.error.useAccordionOutsideProvider':
+    'Τα εξαρτήματα ακορντεόν πρέπει να χρησιμοποιούνται μέσα σε ένα ακορντεόν',
+  'ui.avatar.alt': 'Άβαταρ',
+  'ui.pagination.nav': 'Σελιδοποίηση',
+  'ui.pagination.first': 'Μετάβαση στην πρώτη σελίδα',
+  'ui.pagination.previous': 'Μετάβαση στην προηγούμενη σελίδα',
+  'ui.pagination.goToPage': 'Μετάβαση στη σελίδα<x> {{σελίδα}}</x>',
+  'ui.pagination.last': 'Μετάβαση στην τελευταία σελίδα',
+  'ui.radioGroup.label': 'Ομάδα ραδιοφώνου',
+  'sidebar.memberStatus': 'Premium Μέλος',
+  'ui.spinner.loading': 'Φόρτωση',
+  'ui.table.empty': 'Δεν υπάρχουν διαθέσιμα δεδομένα',
+  'react.error.useToastOutsideProvider':
+    'Το useToast πρέπει να χρησιμοποιηθεί εντός ενός ToastProvider',
 }

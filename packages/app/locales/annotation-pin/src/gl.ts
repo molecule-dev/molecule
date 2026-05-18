@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for gl — currently mirrors English (translation TBD). */
-export const gl: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for gl. */
+export const gl: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Capa de anotación',
+  'annotationPin.aria.marker': 'Pin de anotación',
+  'annotationPin.aria.popup': 'Detalles da anotación',
+  'annotationPin.empty': 'Non hai notas para este pin.',
+}

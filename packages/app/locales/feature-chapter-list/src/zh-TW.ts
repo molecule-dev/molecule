@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for zh-TW — currently mirrors English (translation TBD). */
-export const zhTW: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for zh-TW. */
+export const zhTW: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': '章節',
+  'chapterList.aria.seek': '跳轉至{{標題}}在{{timestamp}}',
+  'chapterList.aria.thumbnail': '縮圖{{標題}}',
+  'chapterList.empty': '本集暫無章節可供觀看。',
+  'chapterList.current': '正在播放',
+}

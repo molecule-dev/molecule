@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for si — currently mirrors English (translation TBD). */
-export const si: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for si. */
+export const si: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'සතිපතා පන්ති කාලසටහන',
+  'classSchedule.aria.event': '{{සතියේ දිනය}}<x> {{ආරම්භය}}</x> –<x> {{අවසානය}}</x>',
+  'classSchedule.aria.slot': 'හිස් ඉඩ,<x> {{සතියේ දිනය}}</x><x> {{වේලාව}}</x>',
+}

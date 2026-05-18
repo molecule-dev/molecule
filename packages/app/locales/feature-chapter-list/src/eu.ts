@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for eu — currently mirrors English (translation TBD). */
-export const eu: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for eu. */
+export const eu: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Kapituluak',
+  'chapterList.aria.seek': 'Joan honetara<x> {{izenburua}}</x> -n<x> {{denbora-zigilua}}</x>',
+  'chapterList.aria.thumbnail': 'Txikiagotutako irudia<x> {{izenburua}}</x>',
+  'chapterList.empty': 'Ez dago kapitulurik atal honetarako.',
+  'chapterList.current': 'Orain erreproduzitzen',
+}

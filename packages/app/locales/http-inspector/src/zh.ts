@@ -6,4 +6,5 @@ export const zh: Partial<HttpInspectorTranslations> = {
   'httpInspector.send': '发送',
   'httpInspector.headers': '请求头',
   'httpInspector.body': '正文',
+  'httpInspector.addHeader': '添加标题',
 }

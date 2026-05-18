@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for hy. */
-export const hy: Partial<ReactNativeUiTranslations> = {}
+export const hy: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Փակել',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Ավատար',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Փակել',
+  'ui.pagination.nav': 'Էջերի դասակարգում',
+  'ui.pagination.first': 'Առաջին',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Նախորդը',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Հաջորդը',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Վերջին',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{արժեք}} %',
+  'ui.radioGroup.label': 'Ռադիո խումբ',
+  'ui.select.placeholder': 'Ընտրեք…',
+  'ui.select.title': 'Ընտրել',
+  'ui.spinner.loading': 'Բեռնվում է',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Տվյալներ չկան',
+  'ui.toast.dismiss': 'Փակել',
+  'ui.toast.error.noProvider': 'useToast-ը պետք է օգտագործվի ToastProvider-ի ներսում',
+}

@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for zh — currently mirrors English (translation TBD). */
-export const zh: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for zh. */
+export const zh: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': '标注层',
+  'annotationPin.aria.marker': '注释图钉',
+  'annotationPin.aria.popup': '注释详情',
+  'annotationPin.empty': '此别针没有备注。',
+}

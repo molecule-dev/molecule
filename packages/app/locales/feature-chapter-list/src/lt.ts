@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for lt — currently mirrors English (translation TBD). */
-export const lt: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for lt. */
+export const lt: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Skyriai',
+  'chapterList.aria.seek': 'Pereiti į<x> {{title}}</x> ties<x> {{laiko žymė}}</x>',
+  'chapterList.aria.thumbnail': 'Miniatiūra<x> {{title}}</x>',
+  'chapterList.empty': 'Šiai serijai nėra prieinamų skyrių.',
+  'chapterList.current': 'Dabar grojama',
+}

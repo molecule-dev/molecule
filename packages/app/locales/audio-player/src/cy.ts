@@ -1,4 +1,6 @@
 import type { AudioPlayerTranslations } from './types.js'
 
 /** AudioPlayer translations for cy. */
-export const cy: Partial<AudioPlayerTranslations> = {}
+export const cy: Partial<AudioPlayerTranslations> = {
+  'audio.seek': 'Chwilio',
+}

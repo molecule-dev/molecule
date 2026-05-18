@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for gl — currently mirrors English (translation TBD). */
-export const gl: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for gl. */
+export const gl: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Horario semanal de clases',
+  'classSchedule.aria.event': '{{día laborable}}<x> {{comezo}}</x> –<x> {{fin}}</x>',
+  'classSchedule.aria.slot': 'Ranura baleira,<x> {{día laborable}}</x><x> {{hora}}</x>',
+}

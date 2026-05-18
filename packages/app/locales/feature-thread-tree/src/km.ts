@@ -1,5 +1,13 @@
-import { en } from './en.js'
-import type { ThreadTreeTranslations } from './types.js'
+import type { FeatureThreadTreeTranslations } from './types.js'
 
-/** Thread-tree translations for km (stub — falls back to English until reviewed). */
-export const km: ThreadTreeTranslations = { ...en }
+/** FeatureThreadTree translations for km. */
+export const km: Partial<FeatureThreadTreeTranslations> = {
+  'threadTree.expand': 'ពង្រីក<x> {{រាប់}}</x> ការឆ្លើយតប',
+  'threadTree.collapse': 'បង្រួម​ខ្សែស្រឡាយ',
+  'threadTree.expandSymbol': '[+]',
+  'threadTree.collapseSymbol': '[−]',
+  'threadTree.score': '{{រាប់}} ពិន្ទុ',
+  'threadTree.hiddenReplies': '{{រាប់}} លាក់ទុក',
+  'threadTree.upvote': 'បោះឆ្នោតគាំទ្រ',
+  'threadTree.reply': 'ឆ្លើយតប',
+}

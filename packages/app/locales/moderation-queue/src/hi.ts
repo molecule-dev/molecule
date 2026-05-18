@@ -25,4 +25,11 @@ export const hi: Partial<ModerationQueueTranslations> = {
   'moderationQueue.severity.low': 'निम्न',
   'moderationQueue.severity.medium': 'मध्यम',
   'moderationQueue.severity.high': 'उच्च',
+  'moderationQueue.aria.bulkToolbar': 'बल्क मॉडरेशन कार्रवाइयां',
+  'moderationQueue.aria.selectRow': 'आइटम चुनें',
+  'moderationQueue.loading': 'मॉडरेशन क्यू लोड हो रहा है…',
+  'moderationQueue.empty': 'कोई भी आइटम मॉडरेशन के लिए लंबित नहीं है।',
+  'moderationQueue.selectedCount': '{{गिनती करना}} चयनित',
+  'moderationQueue.reportedBy': 'के द्वारा रिपोर्ट किया गया',
+  'moderationQueue.kind.image': 'छवि',
 }

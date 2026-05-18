@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for nb — currently mirrors English (translation TBD). */
-export const nb: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for nb. */
+export const nb: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Lydbølgeform',
+  'audioWaveform.aria.seek': 'Søk etter lyden ved å klikke på bølgeformen',
+  'audioWaveform.empty': 'Ingen bølgeformdata tilgjengelig.',
+}

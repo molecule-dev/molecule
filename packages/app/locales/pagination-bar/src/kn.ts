@@ -4,4 +4,5 @@ import type { PaginationBarTranslations } from './types.js'
 export const kn: Partial<PaginationBarTranslations> = {
   'pagination.previous': 'ಹಿಂದಿನ ಪುಟ',
   'pagination.next': 'ಮುಂದಿನ ಪುಟ',
+  'pagination.pageSize': 'ಪುಟ ಗಾತ್ರ',
 }

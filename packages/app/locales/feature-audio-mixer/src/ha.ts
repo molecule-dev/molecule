@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for ha — currently mirrors English (translation TBD). */
-export const ha: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for ha. */
+export const ha: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Na&#39;urar haɗa sauti',
+  'audioMixer.aria.fader': '{{suna}} fader',
+  'audioMixer.aria.pan': '{{suna}} kwanon rufi',
+  'audioMixer.aria.send': '{{tashar}} aika zuwa<x> {{aika}}</x>',
+  'audioMixer.button.mute': 'shiru',
+  'audioMixer.button.solo': 'Solo',
+  'audioMixer.master': 'Jagora',
+  'audioMixer.sends': 'Ana aika',
+}

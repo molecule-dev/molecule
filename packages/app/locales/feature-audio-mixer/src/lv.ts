@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for lv — currently mirrors English (translation TBD). */
-export const lv: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for lv. */
+export const lv: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Audio miksera pults',
+  'audioMixer.aria.fader': '{{vārds}} faders',
+  'audioMixer.aria.pan': '{{vārds}} panna',
+  'audioMixer.aria.send': '{{kanāls}} nosūtīt uz<x> {{sūtīt}}</x>',
+  'audioMixer.button.mute': 'Izslēgt skaņu',
+  'audioMixer.button.solo': 'Solo',
+  'audioMixer.master': 'Meistars',
+  'audioMixer.sends': 'Nosūta',
+}

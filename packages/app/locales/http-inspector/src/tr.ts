@@ -6,4 +6,5 @@ export const tr: Partial<HttpInspectorTranslations> = {
   'httpInspector.send': 'Gönder',
   'httpInspector.headers': 'Başlıklar',
   'httpInspector.body': 'Gövde',
+  'httpInspector.addHeader': 'Başlık ekle',
 }

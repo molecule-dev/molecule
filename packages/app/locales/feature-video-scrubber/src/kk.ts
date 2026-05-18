@@ -1,5 +1,12 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for kk — currently mirrors English (translation TBD). */
-export const kk: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for kk. */
+export const kk: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Бейнені скруббер',
+  'videoScrubber.aria.strip': 'Диафильм — ойнату басы<x> {{уақыт}}</x> s (кадр<x> {{frame}}</x> )',
+  'videoScrubber.aria.playhead': 'Ойнату басы<x> {{уақыт}}</x> с',
+  'videoScrubber.aria.frameReadout': 'Рама<x> {{frame}}</x> -ның<x> {{жалпы}}</x>',
+  'videoScrubber.aria.thumbnail': 'Кадрдың алдын ала көрінісі',
+  'videoScrubber.thumbnails.empty': 'Алдын ала қарау жоқ',
+  'videoScrubber.frameReadout.total': '/<x> {{жалпы}}</x> кадрлар',
+}

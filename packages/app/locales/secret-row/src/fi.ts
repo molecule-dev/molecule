@@ -6,4 +6,7 @@ export const fi: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopioi',
   'secretRow.rotate': 'Kierrä',
   'secretRow.delete': 'Poista',
+  'secretRow.expired': 'Vanhentunut',
+  'secretRow.hide': 'Piilottaa',
+  'secretRow.show': 'Show',
 }

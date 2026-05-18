@@ -6,4 +6,7 @@ export const el: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Αντιγραφή',
   'secretRow.rotate': 'Περιστροφή',
   'secretRow.delete': 'Διαγραφή',
+  'secretRow.expired': 'Λήξη',
+  'secretRow.hide': 'Κρύβω',
+  'secretRow.show': 'Επίδειξη',
 }

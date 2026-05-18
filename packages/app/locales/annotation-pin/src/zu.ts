@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for zu — currently mirrors English (translation TBD). */
-export const zu: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for zu. */
+export const zu: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Isendlalelo sesichasiselo',
+  'annotationPin.aria.marker': 'Iphinikhodi yesichasiselo',
+  'annotationPin.aria.popup': 'Imininingwane yesichasiselo',
+  'annotationPin.empty': 'Awekho amanothi ale phinikhodi.',
+}

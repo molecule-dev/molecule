@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for af — currently mirrors English (translation TBD). */
-export const af: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for af. */
+export const af: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'Oudio-golfvorm',
+  'audioWaveform.aria.seek': 'Soek die klank deur op die golfvorm te klik',
+  'audioWaveform.empty': 'Geen golfvormdata beskikbaar nie.',
+}

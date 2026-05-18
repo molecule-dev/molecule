@@ -1,5 +1,7 @@
 import type { AdjustmentSliderTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Adjustment-slider translations for kn — currently mirrors English (translation TBD). */
-export const kn: AdjustmentSliderTranslations = { ...en }
+/** AdjustmentSlider translations for kn. */
+export const kn: Partial<AdjustmentSliderTranslations> = {
+  'adjustmentSlider.aria': '{{ಲೇಬಲ್}}',
+  'adjustmentSlider.reset.aria': 'ಮರುಹೊಂದಿಸಿ<x> {{ಲೇಬಲ್}}</x>',
+}

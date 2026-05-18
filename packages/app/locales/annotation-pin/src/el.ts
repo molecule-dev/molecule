@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for el — currently mirrors English (translation TBD). */
-export const el: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for el. */
+export const el: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Επίπεδο σχολιασμού',
+  'annotationPin.aria.marker': 'Καρφίτσα σημειώσεων',
+  'annotationPin.aria.popup': 'Λεπτομέρειες σχολιασμού',
+  'annotationPin.empty': 'Δεν υπάρχουν σημειώσεις για αυτό το pin.',
+}

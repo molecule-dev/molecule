@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for hy — currently mirrors English (translation TBD). */
-export const hy: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for hy. */
+export const hy: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Գլուխներ',
+  'chapterList.aria.seek': 'Անցնել դեպի<x> {{վերնագիր}}</x> ժամը<x> {{ժամանակային նշան}}</x>',
+  'chapterList.aria.thumbnail': 'Մանրապատկեր<x> {{վերնագիր}}</x>',
+  'chapterList.empty': 'Այս դրվագի համար գլուխներ չկան։',
+  'chapterList.current': 'Հիմա նվագարկվում է',
+}

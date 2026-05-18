@@ -1,5 +1,11 @@
-import type { PianoRollTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeaturePianoRollTranslations } from './types.js'
 
-/** Piano-roll translations for vi — currently mirrors English (translation TBD). */
-export const vi: PianoRollTranslations = { ...en }
+/** FeaturePianoRoll translations for vi. */
+export const vi: Partial<FeaturePianoRollTranslations> = {
+  'pianoRoll.aria.roll': 'Cuộn đàn piano',
+  'pianoRoll.aria.keys': 'Phím đàn piano',
+  'pianoRoll.aria.grid': 'Ghi chú lưới',
+  'pianoRoll.aria.resize': 'Ghi chú thay đổi kích thước',
+  'pianoRoll.aria.note':
+    'Ghi chú<x> {{sân bóng đá}}</x> bắt đầu từ nhịp<x> {{startBeat}}</x> vì<x> {{durationBeats}}</x> nhịp điệu',
+}

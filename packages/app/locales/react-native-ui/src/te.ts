@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for te. */
-export const te: Partial<ReactNativeUiTranslations> = {}
+export const te: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'కొట్టివేయండి',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'అవతార్',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'మూసివేయండి',
+  'ui.pagination.nav': 'పేజీల సంఖ్య',
+  'ui.pagination.first': 'మొదట',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'మునుపటి',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'తరువాత',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'చివరిది',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{విలువ}} %',
+  'ui.radioGroup.label': 'రేడియో సమూహం',
+  'ui.select.placeholder': 'ఎంచుకోండి…',
+  'ui.select.title': 'ఎంచుకోండి',
+  'ui.spinner.loading': 'లోడ్ అవుతోంది',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'డేటా లేదు',
+  'ui.toast.dismiss': 'కొట్టివేయండి',
+  'ui.toast.error.noProvider': 'useToast ను తప్పనిసరిగా ToastProvider లోపల ఉపయోగించాలి',
+}

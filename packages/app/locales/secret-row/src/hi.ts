@@ -8,4 +8,5 @@ export const hi: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'कॉपी करें',
   'secretRow.rotate': 'घुमाएँ',
   'secretRow.delete': 'हटाएँ',
+  'secretRow.expired': 'खत्म हो चुका',
 }

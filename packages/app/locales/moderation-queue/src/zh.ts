@@ -25,4 +25,11 @@ export const zh: Partial<ModerationQueueTranslations> = {
   'moderationQueue.severity.low': '低',
   'moderationQueue.severity.medium': '中',
   'moderationQueue.severity.high': '高',
+  'moderationQueue.aria.bulkToolbar': '批量审核操作',
+  'moderationQueue.aria.selectRow': '选择项目',
+  'moderationQueue.loading': '正在加载审核队列……',
+  'moderationQueue.empty': '没有待审核的项目。',
+  'moderationQueue.selectedCount': '{{数数}}选定',
+  'moderationQueue.reportedBy': '据报道',
+  'moderationQueue.kind.image': '图像',
 }

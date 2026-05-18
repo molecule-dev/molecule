@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for am. */
-export const am: Partial<ReactNativeUiTranslations> = {}
+export const am: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'አሰናብት',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'አምሳያ',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'ገጠመ',
+  'ui.pagination.nav': 'ገጽ አሰጣጥ',
+  'ui.pagination.first': 'አንደኛ',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'ቀዳሚ',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'ቀጣይ',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'የመጨረሻ',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{ዋጋ}} %',
+  'ui.radioGroup.label': 'የሬዲዮ ቡድን',
+  'ui.select.placeholder': 'ምረጥ…',
+  'ui.select.title': 'ምረጥ',
+  'ui.spinner.loading': 'በመጫን ላይ',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'ምንም ውሂብ የለም',
+  'ui.toast.dismiss': 'አሰናብት',
+  'ui.toast.error.noProvider': 'ቶስት በቶስት አቅራቢ ውስጥ ጥቅም ላይ መዋል አለበት',
+}

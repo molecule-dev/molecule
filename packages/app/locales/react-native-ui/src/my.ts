@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for my. */
-export const my: Partial<ReactNativeUiTranslations> = {}
+export const my: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'ပယ်ချပါ',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'ဗီတာ',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'ပိတ်ရန်',
+  'ui.pagination.nav': 'စာမျက်နှာခွဲခြင်း',
+  'ui.pagination.first': 'ပထမဆုံး',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'ယခင်',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'နောက်တစ်ခု',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'နောက်ဆုံး',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{တန်ဖိုး}} %',
+  'ui.radioGroup.label': 'ရေဒီယိုအဖွဲ့',
+  'ui.select.placeholder': 'ရွေးချယ်ပါ…',
+  'ui.select.title': 'ရွေးချယ်ပါ',
+  'ui.spinner.loading': 'တင်နေသည်',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'ဒေတာမရှိပါ',
+  'ui.toast.dismiss': 'ပယ်ချပါ',
+  'ui.toast.error.noProvider': 'useToast ကို ToastProvider အတွင်းတွင် အသုံးပြုရမည်',
+}

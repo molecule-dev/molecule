@@ -25,4 +25,11 @@ export const id: Partial<ModerationQueueTranslations> = {
   'moderationQueue.severity.low': 'Rendah',
   'moderationQueue.severity.medium': 'Sedang',
   'moderationQueue.severity.high': 'Tinggi',
+  'moderationQueue.aria.bulkToolbar': 'Tindakan moderasi massal',
+  'moderationQueue.aria.selectRow': 'Pilih item',
+  'moderationQueue.loading': 'Memuat antrian moderasi…',
+  'moderationQueue.empty': 'Tidak ada item yang menunggu moderasi.',
+  'moderationQueue.selectedCount': '{{menghitung}} terpilih',
+  'moderationQueue.reportedBy': 'Dilaporkan oleh',
+  'moderationQueue.kind.image': 'Gambar',
 }

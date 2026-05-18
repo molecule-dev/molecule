@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for et — currently mirrors English (translation TBD). */
-export const et: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for et. */
+export const et: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'Pildi lõuend',
+  'imageCanvas.aria.canvas': 'Lohistage panoraamimiseks, kerige suumimiseks',
+  'imageCanvas.loading': 'Pildi laadimine…',
+  'imageCanvas.error': 'Pildi laadimine ebaõnnestus.',
+}

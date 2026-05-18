@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for hu — currently mirrors English (translation TBD). */
-export const hu: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for hu. */
+export const hu: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'Megjegyzésréteg',
+  'annotationPin.aria.marker': 'Jelölőcsap',
+  'annotationPin.aria.popup': 'A megjegyzés részletei',
+  'annotationPin.empty': 'Ehhez a bejegyzéshez nincs megjegyzés.',
+}

@@ -10,4 +10,7 @@ export const vi: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'Sáng',
   'embedSnippet.theme.dark': 'Tối',
   'embedSnippet.theme.auto': 'Tự động',
+  'embedSnippet.aria.region': 'Mã nhúng ({language})',
+  'embedSnippet.eyebrow': 'Sao chép mã nhúng',
+  'embedSnippet.controls.width': 'Chiều rộng',
 }

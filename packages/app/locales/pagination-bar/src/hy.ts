@@ -4,4 +4,5 @@ import type { PaginationBarTranslations } from './types.js'
 export const hy: Partial<PaginationBarTranslations> = {
   'pagination.previous': 'Նախորդ էջ',
   'pagination.next': 'Հաջորդ էջ',
+  'pagination.pageSize': 'Էջի չափը',
 }

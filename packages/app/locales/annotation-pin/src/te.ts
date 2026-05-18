@@ -1,5 +1,9 @@
 import type { AnnotationPinTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Annotation-pin translations for te — currently mirrors English (translation TBD). */
-export const te: AnnotationPinTranslations = { ...en }
+/** AnnotationPin translations for te. */
+export const te: Partial<AnnotationPinTranslations> = {
+  'annotationPin.aria.layer': 'అనోటేషన్ లేయర్',
+  'annotationPin.aria.marker': 'అనోటేషన్ పిన్',
+  'annotationPin.aria.popup': 'వ్యాఖ్యాన వివరాలు',
+  'annotationPin.empty': 'ఈ పిన్‌కు గమనికలు లేవు.',
+}

@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for hr — currently mirrors English (translation TBD). */
-export const hr: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for hr. */
+export const hr: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Video preglednik',
+  'videoScrubber.aria.strip':
+    'Filmska vrpca — pokazivač reprodukcije na<x> {{vrijeme}}</x> s (okvir<x> {{okvir}}</x> )',
+  'videoScrubber.aria.playhead': 'Položaj reprodukcije na<x> {{vrijeme}}</x> s',
+  'videoScrubber.aria.frameReadout': 'Okvir<x> {{okvir}}</x> od<x> {{ukupno}}</x>',
+  'videoScrubber.aria.thumbnail': 'Pregled okvira',
+  'videoScrubber.thumbnails.empty': 'Nema pregleda',
+  'videoScrubber.frameReadout.total': '/<x> {{ukupno}}</x> okviri',
+}

@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for kn — currently mirrors English (translation TBD). */
-export const kn: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for kn. */
+export const kn: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'ನಕ್ಷೆ ಚಿತ್ರಿಸುವ ಪರಿಕರಗಳು',
+  'mapDrawing.surface.aria': 'ನಕ್ಷೆ ರೇಖಾಚಿತ್ರ ಮೇಲ್ಮೈ',
+  'mapDrawing.tool.polygon': 'ಬಹುಭುಜಾಕೃತಿ',
+  'mapDrawing.tool.circle': 'ವೃತ್ತ',
+  'mapDrawing.tool.pin': 'ಪಿನ್',
+  'mapDrawing.tool.line': 'ಸಾಲು',
+  'mapDrawing.tool.select': 'ಆಯ್ಕೆ ಮಾಡಿ',
+  'mapDrawing.tool.delete': 'ಅಳಿಸಿ',
+}

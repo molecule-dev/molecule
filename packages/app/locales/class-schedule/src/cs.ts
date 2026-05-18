@@ -1,5 +1,8 @@
 import type { ClassScheduleTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Class-schedule translations for cs — currently mirrors English (translation TBD). */
-export const cs: ClassScheduleTranslations = { ...en }
+/** ClassSchedule translations for cs. */
+export const cs: Partial<ClassScheduleTranslations> = {
+  'classSchedule.aria.region': 'Týdenní rozvrh hodin',
+  'classSchedule.aria.event': '{{všední den}}<x> {{start}}</x> –<x> {{konec}}</x>',
+  'classSchedule.aria.slot': 'Prázdný slot,<x> {{všední den}}</x><x> {{čas}}</x>',
+}

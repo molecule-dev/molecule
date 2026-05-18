@@ -1,7 +1,7 @@
 import type { ScreenOrientationTranslations } from './types.js'
 
-/** Screen Orientation translations for Welsh. */
-export const cy: ScreenOrientationTranslations = {
+/** ScreenOrientation translations for cy. */
+export const cy: Partial<ScreenOrientationTranslations> = {
   'screenOrientation.error.noProvider':
-    "@molecule/app-screen-orientation: Nid yw'r darparwr wedi'i osod. Galwch setProvider() gyda gweithrediad ScreenOrientationProvider (e.e., o @molecule/app-screen-orientation-capacitor).",
+    '@molecule/app-screen-orientation: Dim darparwr wedi&#39;i osod. Galwch setProvider() gyda gweithrediad ScreenOrientationProvider (e.e., o @molecule/app-screen-orientation-capacitor).',
 }

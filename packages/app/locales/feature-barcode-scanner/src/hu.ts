@@ -1,5 +1,14 @@
-import type { BarcodeScannerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureBarcodeScannerTranslations } from './types.js'
 
-/** Barcode-scanner translations for hu — currently mirrors English (translation TBD). */
-export const hu: BarcodeScannerTranslations = { ...en }
+/** FeatureBarcodeScanner translations for hu. */
+export const hu: Partial<FeatureBarcodeScannerTranslations> = {
+  'barcodeScanner.aria.region': 'Vonalkódolvasó kameranézet',
+  'barcodeScanner.error.permission_denied': 'Kameraengedély megtagadva',
+  'barcodeScanner.error.no_camera': 'Nem található kamera',
+  'barcodeScanner.error.unsupported': 'A kamera nem támogatott ebben a böngészőben',
+  'barcodeScanner.error.detector_failure': 'Vonalkód-érzékelő hibás',
+  'barcodeScanner.error.fallback_unavailable': 'A vonalkódolvasó könyvtárát nem sikerült betölteni',
+  'barcodeScanner.status.starting': 'Kamera indítása…',
+  'barcodeScanner.status.scanning': 'Szkennelés…',
+  'barcodeScanner.status.stopped': 'Szkennelés befejezve',
+}

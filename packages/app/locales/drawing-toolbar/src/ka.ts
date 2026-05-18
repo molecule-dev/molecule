@@ -1,4 +1,6 @@
 import type { DrawingToolbarTranslations } from './types.js'
 
 /** DrawingToolbar translations for ka. */
-export const ka: Partial<DrawingToolbarTranslations> = {}
+export const ka: Partial<DrawingToolbarTranslations> = {
+  'drawingToolbar.label': 'ხატვის ხელსაწყოები',
+}

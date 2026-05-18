@@ -10,4 +10,9 @@ export const id: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.monthly': 'Bulanan',
   'pricingPage.periodToggle.yearly': 'Tahunan',
   'pricingPage.planUpdated.heading': 'Paket Anda telah diperbarui',
+  'pricingPage.heading': 'Pilih paket Anda',
+  'pricingPage.perSeat': 'per kursi',
+  'pricingPage.periodToggle.label': 'Periode penagihan',
+  'pricingPage.planUpdated.body':
+    'Terima kasih telah melakukan peningkatan. Paket baru Anda aktif segera dan tanda terima telah dikirimkan melalui email kepada Anda.',
 }

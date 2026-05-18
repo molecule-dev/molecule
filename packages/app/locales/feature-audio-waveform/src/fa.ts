@@ -1,5 +1,8 @@
-import type { AudioWaveformTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioWaveformTranslations } from './types.js'
 
-/** Audio-waveform translations for fa — currently mirrors English (translation TBD). */
-export const fa: AudioWaveformTranslations = { ...en }
+/** FeatureAudioWaveform translations for fa. */
+export const fa: Partial<FeatureAudioWaveformTranslations> = {
+  'audioWaveform.aria.region': 'شکل موج صوتی',
+  'audioWaveform.aria.seek': 'با کلیک روی شکل موج، صدا را جستجو کنید',
+  'audioWaveform.empty': 'هیچ داده‌ای از شکل موج موجود نیست.',
+}

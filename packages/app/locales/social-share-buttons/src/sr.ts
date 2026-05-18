@@ -1,4 +1,6 @@
 import type { SocialShareButtonsTranslations } from './types.js'
 
 /** SocialShareButtons translations for sr. */
-export const sr: Partial<SocialShareButtonsTranslations> = {}
+export const sr: Partial<SocialShareButtonsTranslations> = {
+  'share.copied': 'Копирано!',
+}

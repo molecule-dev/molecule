@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for bg — currently mirrors English (translation TBD). */
-export const bg: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for bg. */
+export const bg: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Глави',
+  'chapterList.aria.seek': 'Премини към<x> {{заглавие}}</x> в<x> {{времева марка}}</x>',
+  'chapterList.aria.thumbnail': 'Миниатюра за<x> {{заглавие}}</x>',
+  'chapterList.empty': 'Няма налични глави за този епизод.',
+  'chapterList.current': 'Сега се възпроизвежда',
+}

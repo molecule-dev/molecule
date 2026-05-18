@@ -5,4 +5,5 @@ export const fi: Partial<NotificationCenterTranslations> = {
   'notifications.title': 'Ilmoitukset',
   'notifications.markAllRead': 'Merkitse kaikki luetuiksi',
   'notifications.viewAll': 'Näytä kaikki',
+  'notifications.empty': 'Ei ilmoituksia',
 }

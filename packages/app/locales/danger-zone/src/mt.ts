@@ -1,4 +1,7 @@
 import type { DangerZoneTranslations } from './types.js'
 
 /** DangerZone translations for mt. */
-export const mt: Partial<DangerZoneTranslations> = {}
+export const mt: Partial<DangerZoneTranslations> = {
+  'confirm.cancel': 'Ikkanċella',
+  'confirm.confirm': 'Ikkonferma',
+}

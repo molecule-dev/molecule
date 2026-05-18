@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for zu — currently mirrors English (translation TBD). */
-export const zu: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for zu. */
+export const zu: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Ikhonsoli yokuxuba umsindo',
+  'audioMixer.aria.fader': '{{igama}} i-fader',
+  'audioMixer.aria.pan': '{{igama}} ipani',
+  'audioMixer.aria.send': '{{isiteshi}} thumela ku-<x> {{thumela}}</x>',
+  'audioMixer.button.mute': 'Thulisa',
+  'audioMixer.button.solo': 'Uyedwa',
+  'audioMixer.master': 'Ingcweti',
+  'audioMixer.sends': 'Ithumela',
+}

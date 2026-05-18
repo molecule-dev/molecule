@@ -1,5 +1,10 @@
-import type { ChapterListTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureChapterListTranslations } from './types.js'
 
-/** Chapter-list translations for nb — currently mirrors English (translation TBD). */
-export const nb: ChapterListTranslations = { ...en }
+/** FeatureChapterList translations for nb. */
+export const nb: Partial<FeatureChapterListTranslations> = {
+  'chapterList.aria.region': 'Kapitler',
+  'chapterList.aria.seek': 'Hopp til<x> {{tittel}}</x> på<x> {{tidsstempel}}</x>',
+  'chapterList.aria.thumbnail': 'Miniatyrbilde for<x> {{tittel}}</x>',
+  'chapterList.empty': 'Ingen kapitler tilgjengelig for denne episoden.',
+  'chapterList.current': 'Spilles nå',
+}

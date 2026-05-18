@@ -1,8 +1,7 @@
 import type { SplashScreenTranslations } from './types.js'
 
-/** Splash Screen translations for Igbo. */
-export const ig: SplashScreenTranslations = {
+/** SplashScreen translations for ig. */
+export const ig: Partial<SplashScreenTranslations> = {
   'splashScreen.error.noProvider': 'Ehichapụtaghị onye na-enye ihuenyo mmalite.',
-  'splashScreen.warn.configureNotSupported':
-    "configure() anaghị akwado site n'onye na-enye ihuenyo mmalite a.",
+  'splashScreen.warn.configureNotSupported': 'onye na-enye ihe ngosi a anaghị akwado nhazi().',
 }

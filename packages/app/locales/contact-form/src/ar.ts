@@ -6,4 +6,5 @@ export const ar: Partial<ContactFormTranslations> = {
   'contactForm.message': 'كيف يمكننا مساعدتك؟',
   'contactForm.sending': 'جارٍ الإرسال…',
   'contactForm.send': 'إرسال الرسالة',
+  'contactForm.email': 'you@example.com',
 }

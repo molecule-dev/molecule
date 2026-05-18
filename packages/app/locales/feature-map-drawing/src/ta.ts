@@ -1,5 +1,13 @@
-import type { MapDrawingTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureMapDrawingTranslations } from './types.js'
 
-/** Map-drawing translations for ta — currently mirrors English (translation TBD). */
-export const ta: MapDrawingTranslations = { ...en }
+/** FeatureMapDrawing translations for ta. */
+export const ta: Partial<FeatureMapDrawingTranslations> = {
+  'mapDrawing.toolbar.aria': 'வரைபட வரைதல் கருவிகள்',
+  'mapDrawing.surface.aria': 'வரைபட மேற்பரப்பு',
+  'mapDrawing.tool.polygon': 'பலகோணம்',
+  'mapDrawing.tool.circle': 'வட்டம்',
+  'mapDrawing.tool.pin': 'பின்',
+  'mapDrawing.tool.line': 'வரி',
+  'mapDrawing.tool.select': 'தேர்ந்தெடுக்கவும்',
+  'mapDrawing.tool.delete': 'நீக்கு',
+}

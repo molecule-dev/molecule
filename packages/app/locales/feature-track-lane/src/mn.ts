@@ -1,5 +1,10 @@
-import type { TrackLaneTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureTrackLaneTranslations } from './types.js'
 
-/** Track-lane translations for mn — currently mirrors English (translation TBD). */
-export const mn: TrackLaneTranslations = { ...en }
+/** FeatureTrackLane translations for mn. */
+export const mn: Partial<FeatureTrackLaneTranslations> = {
+  'trackLane.aria.lane': 'Замын эгнээ<x> {{нэр}}</x>',
+  'trackLane.aria.clip':
+    'Клип<x> {{шошго}}</x> эхлэн<x> {{эхлэхЦаг}}</x> s-ийн төлөө<x> {{үргэлжлэх хугацаа}}</x> с',
+  'trackLane.aria.resize': 'Клипийн хэмжээг өөрчлөх',
+  'trackLane.header': 'Зам',
+}

@@ -5,4 +5,5 @@ export const id: Partial<RatingFormTranslations> = {
   'rating.label': 'Peringkat',
   'rating.submitting': 'Mengirim…',
   'rating.submit': 'Kirim ulasan',
+  'rating.commentPlaceholder': 'Bagikan pendapat Anda (opsional)',
 }

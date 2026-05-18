@@ -1,7 +1,7 @@
 import type { CodeEditorTranslations } from './types.js'
 
-/** Code Editor translations for Welsh. */
-export const cy: CodeEditorTranslations = {
+/** CodeEditor translations for cy. */
+export const cy: Partial<CodeEditorTranslations> = {
   'codeEditor.error.noProvider':
-    "Nid yw darparwr y golygydd cod wedi'i ffurfweddu. Bondiwch ddarparwr golygydd cod yn gyntaf.",
+    'Darparwr golygydd cod heb ei ffurfweddu. Cysylltwch ddarparwr golygydd cod yn gyntaf.',
 }

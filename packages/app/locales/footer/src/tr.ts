@@ -5,4 +5,7 @@ export const tr: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Gizlilik Politikası',
   'footer.termsOfService': 'Hizmet Şartları',
   'footer.language': 'Dil',
+  'footer.version': 'v<x> {{sürüm}}</x>',
+  'content.privacyPolicy': '',
+  'content.termsOfService': '',
 }

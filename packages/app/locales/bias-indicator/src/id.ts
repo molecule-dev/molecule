@@ -1,5 +1,14 @@
 import type { BiasIndicatorTranslations } from './types.js'
-import { en } from './en.js'
 
-/** Bias-indicator translations for id — currently mirrors English (translation TBD). */
-export const id: BiasIndicatorTranslations = { ...en }
+/** BiasIndicator translations for id. */
+export const id: Partial<BiasIndicatorTranslations> = {
+  'biasIndicator.bias.farLeft': 'Paling kiri',
+  'biasIndicator.bias.leftLeaning': 'Berhaluan kiri',
+  'biasIndicator.bias.center': 'Tengah',
+  'biasIndicator.bias.rightLeaning': 'condong ke kanan',
+  'biasIndicator.bias.farRight': 'Paling kanan',
+  'biasIndicator.reliability.high': 'Keandalan: tinggi',
+  'biasIndicator.reliability.medium': 'Keandalan: sedang',
+  'biasIndicator.reliability.low': 'Keandalan: rendah',
+  'biasIndicator.reliability.disputed': 'Keandalan: masih diperdebatkan',
+}

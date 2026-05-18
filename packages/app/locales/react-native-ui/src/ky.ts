@@ -1,4 +1,35 @@
 import type { ReactNativeUiTranslations } from './types.js'
 
 /** ReactNativeUi translations for ky. */
-export const ky: Partial<ReactNativeUiTranslations> = {}
+export const ky: Partial<ReactNativeUiTranslations> = {
+  'ui.icon.chevronUp': '▲',
+  'ui.icon.chevronDown': '▼',
+  'ui.alert.dismiss': 'Жокко чыгаруу',
+  'ui.icon.close': '✕',
+  'ui.avatar.alt': 'Аватар',
+  'ui.avatar.fallback': '?',
+  'ui.icon.check': '✓',
+  'ui.icon.minus': '−',
+  'ui.input.clear': '×',
+  'ui.modal.close': 'Жабуу',
+  'ui.pagination.nav': 'Барактоо',
+  'ui.pagination.first': 'Алгачкы',
+  'ui.icon.chevronsLeft': '«',
+  'ui.pagination.previous': 'Мурунку',
+  'ui.icon.chevronLeft': '‹',
+  'ui.icon.ellipsis': '…',
+  'ui.pagination.goToPage': 'Кийинки',
+  'ui.icon.chevronRight': '›',
+  'ui.pagination.last': 'Акыркы',
+  'ui.icon.chevronsRight': '»',
+  'ui.progress.value': '{{value}} %',
+  'ui.radioGroup.label': 'Радио тобу',
+  'ui.select.placeholder': 'Тандоо…',
+  'ui.select.title': 'Тандоо',
+  'ui.spinner.loading': 'Жүктөлүүдө',
+  'ui.icon.sortAsc': '↑',
+  'ui.icon.sortDesc': '↓',
+  'ui.table.empty': 'Маалымат жок',
+  'ui.toast.dismiss': 'Жокко чыгаруу',
+  'ui.toast.error.noProvider': 'useToast ToastProvider ичинде колдонулушу керек',
+}

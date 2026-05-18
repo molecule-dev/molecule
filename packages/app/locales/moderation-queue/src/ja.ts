@@ -25,4 +25,11 @@ export const ja: Partial<ModerationQueueTranslations> = {
   'moderationQueue.severity.low': '低',
   'moderationQueue.severity.medium': '中',
   'moderationQueue.severity.high': '高',
+  'moderationQueue.aria.bulkToolbar': '一括モデレーションアクション',
+  'moderationQueue.aria.selectRow': 'アイテムを選択してください',
+  'moderationQueue.loading': 'モデレーションキューを読み込んでいます…',
+  'moderationQueue.empty': '審査待ちの項目はありません。',
+  'moderationQueue.selectedCount': '{{カウント}}選択済み',
+  'moderationQueue.reportedBy': '報告者',
+  'moderationQueue.kind.image': '画像',
 }

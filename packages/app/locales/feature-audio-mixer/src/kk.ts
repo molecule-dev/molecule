@@ -1,5 +1,13 @@
-import type { AudioMixerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureAudioMixerTranslations } from './types.js'
 
-/** Audio-mixer translations for kk — currently mirrors English (translation TBD). */
-export const kk: AudioMixerTranslations = { ...en }
+/** FeatureAudioMixer translations for kk. */
+export const kk: Partial<FeatureAudioMixerTranslations> = {
+  'audioMixer.aria.console': 'Аудио микшер консолі',
+  'audioMixer.aria.fader': '{{name}} фейдер',
+  'audioMixer.aria.pan': '{{name}} таба',
+  'audioMixer.aria.send': '{{арна}} жіберу<x> {{жіберу}}</x>',
+  'audioMixer.button.mute': 'Дыбысты өшіру',
+  'audioMixer.button.solo': 'Жеке',
+  'audioMixer.master': 'Шебер',
+  'audioMixer.sends': 'Жібереді',
+}

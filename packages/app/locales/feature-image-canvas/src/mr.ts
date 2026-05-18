@@ -1,5 +1,9 @@
-import type { ImageCanvasTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureImageCanvasTranslations } from './types.js'
 
-/** Image-canvas translations for mr — currently mirrors English (translation TBD). */
-export const mr: ImageCanvasTranslations = { ...en }
+/** FeatureImageCanvas translations for mr. */
+export const mr: Partial<FeatureImageCanvasTranslations> = {
+  'imageCanvas.aria.region': 'प्रतिमा कॅनव्हास',
+  'imageCanvas.aria.canvas': 'पॅन करण्यासाठी ड्रॅग करा, झूम करण्यासाठी स्क्रोल करा',
+  'imageCanvas.loading': 'प्रतिमा लोड होत आहे…',
+  'imageCanvas.error': 'प्रतिमा लोड होण्यात अयशस्वी झाली.',
+}

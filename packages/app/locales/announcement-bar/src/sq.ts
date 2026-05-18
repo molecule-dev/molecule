@@ -1,4 +1,6 @@
 import type { AnnouncementBarTranslations } from './types.js'
 
 /** AnnouncementBar translations for sq. */
-export const sq: Partial<AnnouncementBarTranslations> = {}
+export const sq: Partial<AnnouncementBarTranslations> = {
+  'announcement.dismiss': 'Hiq',
+}

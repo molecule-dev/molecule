@@ -1,5 +1,13 @@
-import type { VideoScrubberTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoScrubberTranslations } from './types.js'
 
-/** Video-scrubber translations for nb — currently mirrors English (translation TBD). */
-export const nb: VideoScrubberTranslations = { ...en }
+/** FeatureVideoScrubber translations for nb. */
+export const nb: Partial<FeatureVideoScrubberTranslations> = {
+  'videoScrubber.aria.root': 'Videoskrubbing',
+  'videoScrubber.aria.strip':
+    'Filmstripe — avspillingshode på<x> {{tid}}</x> s (ramme<x> {{ramme}}</x> )',
+  'videoScrubber.aria.playhead': 'Avspillingshode på<x> {{tid}}</x> s',
+  'videoScrubber.aria.frameReadout': 'Ramme<x> {{ramme}}</x> av<x> {{total}}</x>',
+  'videoScrubber.aria.thumbnail': 'Forhåndsvisning av bilde',
+  'videoScrubber.thumbnails.empty': 'Ingen forhåndsvisning',
+  'videoScrubber.frameReadout.total': '/<x> {{total}}</x> rammer',
+}

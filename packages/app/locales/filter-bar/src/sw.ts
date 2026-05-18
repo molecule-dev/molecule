@@ -1,4 +1,6 @@
 import type { FilterBarTranslations } from './types.js'
 
 /** FilterBar translations for sw. */
-export const sw: Partial<FilterBarTranslations> = {}
+export const sw: Partial<FilterBarTranslations> = {
+  'filterBar.clear': 'Futa vichujio',
+}

@@ -10,4 +10,7 @@ export const ar: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.theme.light': 'فاتح',
   'embedSnippet.theme.dark': 'داكن',
   'embedSnippet.theme.auto': 'تلقائي',
+  'embedSnippet.aria.region': 'تضمين الكود ({language})',
+  'embedSnippet.eyebrow': 'انسخ رمز التضمين',
+  'embedSnippet.controls.width': 'عرض',
 }

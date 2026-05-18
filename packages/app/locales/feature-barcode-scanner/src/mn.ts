@@ -1,5 +1,14 @@
-import type { BarcodeScannerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureBarcodeScannerTranslations } from './types.js'
 
-/** Barcode-scanner translations for mn — currently mirrors English (translation TBD). */
-export const mn: BarcodeScannerTranslations = { ...en }
+/** FeatureBarcodeScanner translations for mn. */
+export const mn: Partial<FeatureBarcodeScannerTranslations> = {
+  'barcodeScanner.aria.region': 'Бар код сканнерын камерын харагдац',
+  'barcodeScanner.error.permission_denied': 'Камерын зөвшөөрөл олгохоос татгалзсан',
+  'barcodeScanner.error.no_camera': 'Камер олдсонгүй',
+  'barcodeScanner.error.unsupported': 'Энэ хөтөч дээр камер дэмжигдээгүй байна',
+  'barcodeScanner.error.detector_failure': 'Бар код илрүүлэгч амжилтгүй болсон',
+  'barcodeScanner.error.fallback_unavailable': 'Бар код сканнерын санг ачаалж чадсангүй',
+  'barcodeScanner.status.starting': 'Камерыг эхлүүлж байна…',
+  'barcodeScanner.status.scanning': 'Скан хийж байна…',
+  'barcodeScanner.status.stopped': 'Скан хийж дууслаа',
+}

@@ -1,5 +1,19 @@
-import type { VideoTimelineTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureVideoTimelineTranslations } from './types.js'
 
-/** Video-timeline translations for ru — currently mirrors English (translation TBD). */
-export const ru: VideoTimelineTranslations = { ...en }
+/** FeatureVideoTimeline translations for ru. */
+export const ru: Partial<FeatureVideoTimelineTranslations> = {
+  'videoTimeline.aria.root': 'Видеохронология',
+  'videoTimeline.aria.ruler': 'линейка времени',
+  'videoTimeline.aria.playhead': 'Playhead на<x> {{время}}</x> с',
+  'videoTimeline.aria.zoom': 'масштабирование временной шкалы',
+  'videoTimeline.aria.mode': 'Режим редактирования',
+  'videoTimeline.zoom.in': 'Увеличить масштаб',
+  'videoTimeline.zoom.out': 'Отдалиться',
+  'videoTimeline.zoom.in.icon': '+',
+  'videoTimeline.zoom.out.icon': '−',
+  'videoTimeline.mode.ripple': 'Рябь',
+  'videoTimeline.mode.insert': 'Вставлять',
+  'videoTimeline.trackKind.video': 'Видео',
+  'videoTimeline.trackKind.audio': 'Аудио',
+  'videoTimeline.trackKind.subtitle': 'Субтитры',
+}

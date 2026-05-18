@@ -1,4 +1,6 @@
 import type { SearchAutocompleteTranslations } from './types.js'
 
 /** SearchAutocomplete translations for bs. */
-export const bs: Partial<SearchAutocompleteTranslations> = {}
+export const bs: Partial<SearchAutocompleteTranslations> = {
+  'search.placeholder': 'Pretraži…',
+}

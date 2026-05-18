@@ -1,5 +1,15 @@
-import { en } from './en.js'
-import type { TransportBarTranslations } from './types.js'
+import type { FeatureTransportBarTranslations } from './types.js'
 
-/** Transport-bar translations for cy (stub — falls back to English until reviewed). */
-export const cy: TransportBarTranslations = { ...en }
+/** FeatureTransportBar translations for cy. */
+export const cy: Partial<FeatureTransportBarTranslations> = {
+  'transportBar.aria.region': 'Rheolyddion cludo chwarae',
+  'transportBar.aria.skipBack': 'Neidio yn ôl',
+  'transportBar.aria.skipForward': 'Neidio ymlaen',
+  'transportBar.aria.play': 'Chwarae',
+  'transportBar.aria.pause': 'Oedi',
+  'transportBar.aria.stop': 'Stopiwch',
+  'transportBar.aria.record': 'Record',
+  'transportBar.aria.stopRecording': 'Stopio recordio',
+  'transportBar.aria.loopOn': 'Analluogi dolen',
+  'transportBar.aria.loopOff': 'Galluogi dolen',
+}

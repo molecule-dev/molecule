@@ -1,5 +1,15 @@
-import type { BarcodeScannerTranslations } from './types.js'
-import { en } from './en.js'
+import type { FeatureBarcodeScannerTranslations } from './types.js'
 
-/** Barcode-scanner translations for bs — currently mirrors English (translation TBD). */
-export const bs: BarcodeScannerTranslations = { ...en }
+/** FeatureBarcodeScanner translations for bs. */
+export const bs: Partial<FeatureBarcodeScannerTranslations> = {
+  'barcodeScanner.aria.region': 'Prikaz kamere skenera barkodova',
+  'barcodeScanner.error.permission_denied': 'Dozvola za kameru je odbijena',
+  'barcodeScanner.error.no_camera': 'Nije pronađena kamera',
+  'barcodeScanner.error.unsupported': 'Kamera nije podržana u ovom pregledniku',
+  'barcodeScanner.error.detector_failure': 'Detektor barkoda nije uspio',
+  'barcodeScanner.error.fallback_unavailable':
+    'Biblioteka skenera barkodova nije mogla biti učitana',
+  'barcodeScanner.status.starting': 'Pokretanje kamere…',
+  'barcodeScanner.status.scanning': 'Skeniranje…',
+  'barcodeScanner.status.stopped': 'Skeniranje završeno',
+}

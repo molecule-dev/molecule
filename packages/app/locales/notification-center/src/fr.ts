@@ -4,4 +4,6 @@ import type { NotificationCenterTranslations } from './types.js'
 export const fr: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Tout marquer comme lu',
   'notifications.viewAll': 'Tout voir',
+  'notifications.title': 'Notifications',
+  'notifications.empty': 'Aucune notification',
 }
