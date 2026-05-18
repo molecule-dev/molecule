@@ -70,4 +70,55 @@ describe('setupI18nDefault', () => {
       .sort()
     expect(codes).toEqual(['en', 'es'])
   })
+
+  it('registers translations from packageLocales bonds at setup time', () => {
+    // Two fake locale bonds, each looking like a `@molecule/app-locales-*`
+    // star import: keys that look like locale codes map to translation
+    // records; everything else (types, helpers) is ignored.
+    const authBond = {
+      en: { 'auth.signIn': 'Sign in' },
+      es: { 'auth.signIn': 'Iniciar sesión' },
+      fr: { 'auth.signIn': 'Se connecter' },
+      // Non-locale exports — must be filtered out, not registered:
+      AuthTranslations: undefined,
+      register: () => {},
+    }
+    const chatBond = {
+      en: { 'chat.send': 'Send' },
+      es: { 'chat.send': 'Enviar' },
+    }
+    const provider = setupI18nDefault({
+      enUi: { 'app.greeting': 'Hello' },
+      lazyLoadUi: () => Promise.resolve({}),
+      supportedLocales: ['es', 'fr'],
+      packageLocales: [authBond, chatBond],
+    })
+    // The English bond translations should be merged into the English
+    // bootstrap (alongside enUi).
+    expect(provider.t('auth.signIn')).toBe('Sign in')
+    expect(provider.t('chat.send')).toBe('Send')
+    expect(provider.t('app.greeting')).toBe('Hello')
+    // And the Spanish bond translations should be ready when the user
+    // switches to Spanish.
+    return provider.setLocale('es').then(() => {
+      expect(provider.t('auth.signIn')).toBe('Iniciar sesión')
+      expect(provider.t('chat.send')).toBe('Enviar')
+    })
+  })
+
+  it('per-app lazyLoadUi overrides packageLocales for the same key', async () => {
+    // Per-app translations should win over per-package translations
+    // because they're the more-specific layer.
+    const authBond = {
+      es: { 'auth.signIn': 'Iniciar sesión' },
+    }
+    const provider = setupI18nDefault({
+      enUi: {},
+      lazyLoadUi: (code) => Promise.resolve(code === 'es' ? { 'auth.signIn': 'Acceder' } : {}),
+      supportedLocales: ['es'],
+      packageLocales: [authBond],
+    })
+    await provider.setLocale('es')
+    expect(provider.t('auth.signIn')).toBe('Acceder')
+  })
 })

@@ -11,6 +11,22 @@ const commonFor = (code: string): Record<string, string> =>
   COMMON[code.replace('-', '')] ?? COMMON.en
 
 /**
+ * Shape of a per-package locale bond passed via `packageLocales`.
+ *
+ * Locale bond packages (`@molecule/app-locales-<name>`) follow a
+ * uniform layout: each `<lang>.ts` file exports a constant matching
+ * the locale code, and the package's `src/index.ts` re-exports all
+ * of them as a barrel. Consumers do `import * as bond from
+ * '@molecule/app-locales-<name>'` to get an object keyed by locale
+ * code (with `types` and a few non-locale exports also present).
+ *
+ * This type captures the "anything except the types module is a
+ * `{lang: translations}` map" shape via Record<string, unknown> with
+ * a per-key runtime filter at registration time.
+ */
+export type PackageLocaleBond = Record<string, unknown>
+
+/**
  * Options accepted by `setupI18nDefault`.
  *
  * `enUi` is the eagerly-loaded English UI translations (typically
@@ -29,6 +45,30 @@ export interface SetupI18nDefaultOptions {
    * package, so callers only need to return the app-specific UI keys.
    */
   lazyLoadUi: (code: string) => Promise<Record<string, string>>
+  /**
+   * Per-package locale bonds to eagerly register with the i18n provider.
+   *
+   * Each entry is a star-imported `@molecule/app-locales-<name>` module.
+   * Every property that LOOKS like a locale (matches `^[a-z]{2,3}(-[A-Z]{2,4})?$`
+   * and resolves to a non-empty object of string values) is registered
+   * via `provider.addTranslations(lang, translations)` at setup time.
+   *
+   * @example
+   * ```ts
+   * import * as authLocales from '@molecule/app-locales-auth'
+   * import * as legalLocales from '@molecule/app-locales-legal-default'
+   *
+   * setupI18nDefault({
+   *   enUi: en,
+   *   lazyLoadUi,
+   *   packageLocales: [authLocales, legalLocales],
+   * })
+   * ```
+   *
+   * Per-app `ui.ts` (registered via `lazyLoadUi`) still overrides
+   * package-locale translations because it's merged in second.
+   */
+  packageLocales?: readonly PackageLocaleBond[]
   /**
    * Optional allowlist of locale codes the app actually supports.
    *
@@ -84,6 +124,7 @@ export interface SetupI18nDefaultOptions {
 export function setupI18nDefault({
   enUi,
   lazyLoadUi,
+  packageLocales,
   supportedLocales,
 }: SetupI18nDefaultOptions): I18nProvider {
   const provider = createSimpleI18nProvider(
@@ -111,6 +152,19 @@ export function setupI18nDefault({
   )
 
   setProvider(provider)
+
+  // Register per-package locale bonds eagerly. Each bond is a
+  // `@molecule/app-locales-<name>` star-import whose properties are
+  // locale codes → translation records. We loop the package's exports,
+  // filter out anything that isn't a locale (types, helpers, etc.),
+  // and call addTranslations once per (bond, lang).
+  //
+  // Order matters: per-package bonds are registered BEFORE the per-app
+  // `lazyLoadUi` resolves, so per-app translations override per-package
+  // ones (preserving the "apps win when they explicitly translate" rule).
+  if (packageLocales && packageLocales.length > 0) {
+    registerPackageLocales(provider, packageLocales)
+  }
 
   // Filter out locales whose app-specific `ui.ts` is empty so the
   // language-picker UI only offers languages the app actually translated.
@@ -148,6 +202,51 @@ export function setupI18nDefault({
     })
 
   return provider
+}
+
+/**
+ * BCP-47-ish locale code matcher used to identify which exports of a
+ * `@molecule/app-locales-<name>` package are actually locale records
+ * (vs. types, registration helpers, etc.). Matches the same shape as
+ * {@link LANGUAGE_DEFINITIONS} entries: 2-3 lowercase letters, optional
+ * regional `-XX` suffix.
+ */
+const LOCALE_CODE_RE = /^[a-z]{2,3}(-[A-Za-z]{2,4})?$/
+
+/**
+ * Check whether an arbitrary value is a non-empty translation record:
+ * a plain object whose values are all strings.
+ */
+function isTranslationRecord(v: unknown): v is Record<string, string> {
+  if (!v || typeof v !== 'object') return false
+  const entries = Object.entries(v as Record<string, unknown>)
+  if (entries.length === 0) return false
+  return entries.every(([, val]) => typeof val === 'string')
+}
+
+/**
+ * Walk each `packageLocales` entry, identify properties whose key matches
+ * a locale code AND whose value is a translation record, and register
+ * those with the provider via `addTranslations`. Silently skips entries
+ * that aren't locale records (e.g. `types`, `register`, etc.) so the
+ * caller can pass a star-import without filtering.
+ */
+function registerPackageLocales(
+  provider: I18nProvider,
+  packageLocales: readonly PackageLocaleBond[],
+): void {
+  for (const bond of packageLocales) {
+    for (const [maybeCode, maybeTranslations] of Object.entries(bond)) {
+      if (!LOCALE_CODE_RE.test(maybeCode)) continue
+      if (!isTranslationRecord(maybeTranslations)) continue
+      // Normalize regional codes: `'zhHant'` exports in the bond should
+      // map to the canonical `'zh-TW'` style used elsewhere in the fleet.
+      // We don't transform anything here — the bond is expected to use
+      // canonical codes (e.g. `'zh-TW'` not `'zhHant'`); registration
+      // mirrors whatever the bond ships.
+      provider.addTranslations(maybeCode, maybeTranslations)
+    }
+  }
 }
 
 /**
