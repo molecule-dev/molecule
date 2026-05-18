@@ -185,4 +185,14 @@ export const sr: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Верификација плаћања није конфигурисана за {{provider}}.',
   'userMenu.open': 'Otvori korisnički meni',
+  'common.justNow': 'управо',
+  'nav.settings': 'Подешавања',
+  'nav.dashboard': 'Контролна табла',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Закаснели задаци',
+  'nav.reports': 'Извештаји',
+  'nav.accountMenu': 'Мени налога',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Започни',
+  'nav.transactions': 'Трансакције',
 }

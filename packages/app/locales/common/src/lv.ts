@@ -185,4 +185,14 @@ export const lv: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Maksājuma verifikācija nav konfigurēta priekš {{provider}}.',
   'userMenu.open': 'Atvērt lietotāja izvēlni',
+  'common.justNow': 'just now',
+  'nav.settings': 'Settings',
+  'nav.dashboard': 'Dashboard',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Overdue Tasks',
+  'nav.reports': 'Reports',
+  'nav.accountMenu': 'Account menu',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Get started',
+  'nav.transactions': 'Transactions',
 }

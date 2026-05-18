@@ -185,4 +185,14 @@ export const eu: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Ordainketa egiaztapena ez dago konfiguratuta {{provider}}-rako.',
   'userMenu.open': 'Ireki erabiltzaile menua',
+  'common.justNow': 'just now',
+  'nav.settings': 'Settings',
+  'nav.dashboard': 'Dashboard',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Overdue Tasks',
+  'nav.reports': 'Reports',
+  'nav.accountMenu': 'Account menu',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Get started',
+  'nav.transactions': 'Transactions',
 }

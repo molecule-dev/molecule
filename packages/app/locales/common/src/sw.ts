@@ -185,4 +185,14 @@ export const sw: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Uthibitishaji wa malipo haujasanidiwa kwa {{provider}}.',
   'userMenu.open': 'Fungua menyu ya mtumiaji',
+  'common.justNow': 'just now',
+  'nav.settings': 'Settings',
+  'nav.dashboard': 'Dashboard',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Overdue Tasks',
+  'nav.reports': 'Reports',
+  'nav.accountMenu': 'Account menu',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Get started',
+  'nav.transactions': 'Transactions',
 }

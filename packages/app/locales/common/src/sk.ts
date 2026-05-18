@@ -185,4 +185,14 @@ export const sk: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Overenie platby nie je nakonfigurované pre {{provider}}.',
   'userMenu.open': 'Otvoriť používateľské menu',
+  'common.justNow': 'just now',
+  'nav.settings': 'Settings',
+  'nav.dashboard': 'Dashboard',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Overdue Tasks',
+  'nav.reports': 'Reports',
+  'nav.accountMenu': 'Account menu',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Get started',
+  'nav.transactions': 'Transactions',
 }

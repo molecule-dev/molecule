@@ -185,4 +185,14 @@ export const cy: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     "Nid yw dilysu taliad wedi'i ffurfweddu ar gyfer {{provider}}.",
   'userMenu.open': 'Agor dewislen defnyddiwr',
+  'common.justNow': 'just now',
+  'nav.settings': 'Settings',
+  'nav.dashboard': 'Dashboard',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Overdue Tasks',
+  'nav.reports': 'Reports',
+  'nav.accountMenu': 'Account menu',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Get started',
+  'nav.transactions': 'Transactions',
 }

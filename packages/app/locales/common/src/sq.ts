@@ -185,4 +185,14 @@ export const sq: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Verifikimi i pageses nuk eshte konfiguruar per {{provider}}.',
   'userMenu.open': 'Hap menynë e përdoruesit',
+  'common.justNow': 'just now',
+  'nav.settings': 'Settings',
+  'nav.dashboard': 'Dashboard',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Overdue Tasks',
+  'nav.reports': 'Reports',
+  'nav.accountMenu': 'Account menu',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Get started',
+  'nav.transactions': 'Transactions',
 }

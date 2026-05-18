@@ -187,4 +187,14 @@ export const my: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     '{{provider}} အတွက် ငွေပေးချေမှု အတည်ပြုခြင်း ပြင်ဆင်မထားပါ။',
   'userMenu.open': 'အသုံးပြုသူ မီနူးဖွင့်ရန်',
+  'common.justNow': 'ယခုပင်',
+  'nav.settings': 'ဆက်တင်များ',
+  'nav.dashboard': 'ဒက်ရှ်ဘုတ်',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'ကျော်လွန်နေသောလုပ်ငန်းများ',
+  'nav.reports': 'အစီရင်ခံစာများ',
+  'nav.accountMenu': 'အကောင့်မီနူး',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'စတင်ပါ',
+  'nav.transactions': 'ငွေပေးငွေယူများ',
 }

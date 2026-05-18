@@ -186,4 +186,14 @@ export const mt: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Il-verifika tal-pagament mhijiex konfigurata ghal {{provider}}.',
   'userMenu.open': 'Iftaħ il-menu tal-utent',
+  'common.justNow': 'just now',
+  'nav.settings': 'Settings',
+  'nav.dashboard': 'Dashboard',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Overdue Tasks',
+  'nav.reports': 'Reports',
+  'nav.accountMenu': 'Account menu',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Get started',
+  'nav.transactions': 'Transactions',
 }

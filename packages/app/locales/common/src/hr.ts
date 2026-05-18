@@ -185,4 +185,14 @@ export const hr: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Verifikacija plaćanja nije konfigurirana za {{provider}}.',
   'userMenu.open': 'Otvori korisnički izbornik',
+  'common.justNow': 'just now',
+  'nav.settings': 'Settings',
+  'nav.dashboard': 'Dashboard',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Overdue Tasks',
+  'nav.reports': 'Reports',
+  'nav.accountMenu': 'Account menu',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Get started',
+  'nav.transactions': 'Transactions',
 }

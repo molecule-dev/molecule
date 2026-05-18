@@ -186,4 +186,14 @@ export const gl: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'A verificación de pagamento non está configurada para {{provider}}.',
   'userMenu.open': 'Abrir menú de usuario',
+  'common.justNow': 'just now',
+  'nav.settings': 'Settings',
+  'nav.dashboard': 'Dashboard',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Overdue Tasks',
+  'nav.reports': 'Reports',
+  'nav.accountMenu': 'Account menu',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Get started',
+  'nav.transactions': 'Transactions',
 }

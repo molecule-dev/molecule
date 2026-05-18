@@ -187,4 +187,14 @@ export const ml: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     '{{provider}}-ന് പേയ്‌മെന്റ് സ്ഥിരീകരണം കോൺഫിഗർ ചെയ്തിട്ടില്ല.',
   'userMenu.open': 'ഉപയോക്തൃ മെനു തുറക്കുക',
+  'common.justNow': 'ഇപ്പോൾ തന്നെ',
+  'nav.settings': 'ക്രമീകരണങ്ങൾ',
+  'nav.dashboard': 'ഡാഷ്ബോർഡ്',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'കാലഹരണപ്പെട്ട ജോലികൾ',
+  'nav.reports': 'റിപ്പോർട്ടുകൾ',
+  'nav.accountMenu': 'അക്കൗണ്ട് മെനു',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'ആരംഭിക്കുക',
+  'nav.transactions': 'ഇടപാടുകൾ',
 }

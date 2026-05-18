@@ -185,4 +185,14 @@ export const bg: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Верификацията на плащането не е конфигурирана за {{provider}}.',
   'userMenu.open': 'Отвори потребителско меню',
+  'common.justNow': 'току-що',
+  'nav.settings': 'Настройки',
+  'nav.dashboard': 'Табло',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Просрочени задачи',
+  'nav.reports': 'Отчети',
+  'nav.accountMenu': 'Меню на акаунта',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Започнете',
+  'nav.transactions': 'Транзакции',
 }

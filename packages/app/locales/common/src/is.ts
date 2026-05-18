@@ -185,4 +185,14 @@ export const is: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Greiðslustaðfesting er ekki stillt fyrir {{provider}}.',
   'userMenu.open': 'Opna notandavalmynd',
+  'common.justNow': 'just now',
+  'nav.settings': 'Settings',
+  'nav.dashboard': 'Dashboard',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Overdue Tasks',
+  'nav.reports': 'Reports',
+  'nav.accountMenu': 'Account menu',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Get started',
+  'nav.transactions': 'Transactions',
 }

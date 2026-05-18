@@ -185,4 +185,14 @@ export const mk: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Верификацијата на плаќањето не е конфигурирана за {{provider}}.',
   'userMenu.open': 'Отвори корисничко мени',
+  'common.justNow': 'токму сега',
+  'nav.settings': 'Поставки',
+  'nav.dashboard': 'Контролна табла',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Задоцнети задачи',
+  'nav.reports': 'Извештаи',
+  'nav.accountMenu': 'Мени за сметка',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Започнете',
+  'nav.transactions': 'Трансакции',
 }

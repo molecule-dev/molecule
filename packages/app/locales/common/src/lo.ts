@@ -184,4 +184,14 @@ export const lo: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'ການຢືນຢັນການຊຳລະເງິນຍັງບໍ່ໄດ້ຕັ້ງຄ່າສຳລັບ {{provider}}.',
   'userMenu.open': 'ເປີດເມນູຜູ້ໃຊ້',
+  'common.justNow': 'ຫາກໍ່',
+  'nav.settings': 'ການຕັ້ງຄ່າ',
+  'nav.dashboard': 'ໜ້າຄວບຄຸມ',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'ວຽກເກີນກຳນົດ',
+  'nav.reports': 'ລາຍງານ',
+  'nav.accountMenu': 'ເມນູບັນຊີ',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'ເລີ່ມຕົ້ນ',
+  'nav.transactions': 'ທຸລະກຳ',
 }

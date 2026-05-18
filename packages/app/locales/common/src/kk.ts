@@ -185,4 +185,14 @@ export const kk: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     '{{provider}} үшін төлем тексеруі конфигурацияланбаған.',
   'userMenu.open': 'Пайдаланушы мәзірін ашу',
+  'common.justNow': 'just now',
+  'nav.settings': 'Settings',
+  'nav.dashboard': 'Dashboard',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Overdue Tasks',
+  'nav.reports': 'Reports',
+  'nav.accountMenu': 'Account menu',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Get started',
+  'nav.transactions': 'Transactions',
 }

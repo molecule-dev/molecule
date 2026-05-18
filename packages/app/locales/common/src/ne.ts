@@ -184,4 +184,14 @@ export const ne: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     '{{provider}} को लागि भुक्तानी प्रमाणीकरण कन्फिगर गरिएको छैन।',
   'userMenu.open': 'प्रयोगकर्ता मेनु खोल्नुहोस्',
+  'common.justNow': 'भर्खरै',
+  'nav.settings': 'सेटिङहरू',
+  'nav.dashboard': 'ड्यासबोर्ड',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'म्याद नाघेका कार्यहरू',
+  'nav.reports': 'प्रतिवेदनहरू',
+  'nav.accountMenu': 'खाता मेनु',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'सुरु गर्नुहोस्',
+  'nav.transactions': 'कारोबारहरू',
 }

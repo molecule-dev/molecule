@@ -185,4 +185,14 @@ export const hy: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Vcharvogi stugumny kargavorvac che {{provider}}-i hamar.',
   'userMenu.open': 'Բացել օգտագործի մենյուն',
+  'common.justNow': 'հենց հիմա',
+  'nav.settings': 'Կարգավորումներ',
+  'nav.dashboard': 'Կառավարման վահանակ',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Ուշացած առաջադրանքներ',
+  'nav.reports': 'Հաշվետվություններ',
+  'nav.accountMenu': 'Հաշվի ընտրացանկ',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Սկսել',
+  'nav.transactions': 'Գործարքներ',
 }

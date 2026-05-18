@@ -184,4 +184,14 @@ export const th: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'ยังไม่ได้กำหนดค่าการยืนยันการชำระเงินสำหรับ {{provider}}',
   'userMenu.open': 'เปิดเมนูผู้ใช้',
+  'common.justNow': 'เมื่อสักครู่',
+  'nav.settings': 'การตั้งค่า',
+  'nav.dashboard': 'แดชบอร์ด',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'งานเกินกำหนด',
+  'nav.reports': 'รายงาน',
+  'nav.accountMenu': 'เมนูบัญชี',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'เริ่มต้น',
+  'nav.transactions': 'ธุรกรรม',
 }

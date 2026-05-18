@@ -185,4 +185,14 @@ export const mn: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     '{{provider}}-д төлбөрийн баталгаажуулалт тохируулагдаагүй байна.',
   'userMenu.open': 'Хэрэглэгчийн цэс нээх',
+  'common.justNow': 'just now',
+  'nav.settings': 'Settings',
+  'nav.dashboard': 'Dashboard',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'Overdue Tasks',
+  'nav.reports': 'Reports',
+  'nav.accountMenu': 'Account menu',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'Get started',
+  'nav.transactions': 'Transactions',
 }

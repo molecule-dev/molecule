@@ -185,4 +185,14 @@ export const ta: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     '{{provider}} க்கான கட்டண சரிபார்ப்பு கட்டமைக்கப்படவில்லை.',
   'userMenu.open': 'பயனர் மெனுவைத் திற',
+  'common.justNow': 'இப்போதே',
+  'nav.settings': 'அமைப்புகள்',
+  'nav.dashboard': 'டாஷ்போர்டு',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'காலாவதியான பணிகள்',
+  'nav.reports': 'அறிக்கைகள்',
+  'nav.accountMenu': 'கணக்கு பட்டியல்',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'தொடங்கு',
+  'nav.transactions': 'பரிவர்த்தனைகள்',
 }

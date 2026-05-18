@@ -186,4 +186,14 @@ export const ka: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     'Gadakhdis veripikacia ar aris konphiguratsirebulia {{provider}}-istvis.',
   'userMenu.open': 'მომხმარებლის მენიუს გახსნა',
+  'common.justNow': 'ახლახან',
+  'nav.settings': 'პარამეტრები',
+  'nav.dashboard': 'დეშბორდი',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'ვადაგადაცილებული დავალებები',
+  'nav.reports': 'რეპორტები',
+  'nav.accountMenu': 'ანგარიშის მენიუ',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'დაწყება',
+  'nav.transactions': 'ტრანზაქციები',
 }

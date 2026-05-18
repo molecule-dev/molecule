@@ -184,4 +184,14 @@ export const mr: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     '{{provider}} साठी पेमेंट सत्यापन कॉन्फिगर केलेले नाही.',
   'userMenu.open': 'वापरकर्ता मेनू उघडा',
+  'common.justNow': 'आत्ताच',
+  'nav.settings': 'सेटिंग्ज',
+  'nav.dashboard': 'डॅशबोर्ड',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'थकित कार्ये',
+  'nav.reports': 'अहवाल',
+  'nav.accountMenu': 'खाते मेनू',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'सुरू करा',
+  'nav.transactions': 'व्यवहार',
 }

@@ -184,4 +184,14 @@ export const te: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     '{{provider}} కోసం చెల్లింపు ధృవీకరణ కాన్ఫిగర్ చేయబడలేదు.',
   'userMenu.open': 'యూజర్ మెనూ తెరవండి',
+  'common.justNow': 'ఇప్పుడే',
+  'nav.settings': 'సెట్టింగ్‌లు',
+  'nav.dashboard': 'డాష్‌బోర్డ్',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'గడువు మీరిన టాస్క్‌లు',
+  'nav.reports': 'నివేదికలు',
+  'nav.accountMenu': 'ఖాతా మెను',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'ప్రారంభించండి',
+  'nav.transactions': 'లావాదేవీలు',
 }

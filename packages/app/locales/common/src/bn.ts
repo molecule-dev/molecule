@@ -185,4 +185,14 @@ export const bn: CommonTranslations = {
   'user.payment.verificationNotConfigured':
     '{{provider}}-এর জন্য পেমেন্ট যাচাইকরণ কনফিগার করা হয়নি।',
   'userMenu.open': 'ব্যবহারকারী মেনু খুলুন',
+  'common.justNow': 'এইমাত্র',
+  'nav.settings': 'সেটিংস',
+  'nav.dashboard': 'ড্যাশবোর্ড',
+  'status.all': 'All ({{count}})',
+  'status.overdue': 'অতিরিক্ত সময় পার হওয়া কাজ',
+  'nav.reports': 'প্রতিবেদন',
+  'nav.accountMenu': 'অ্যাকাউন্ট মেনু',
+  'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'common.getStarted': 'শুরু করুন',
+  'nav.transactions': 'লেনদেন',
 }
