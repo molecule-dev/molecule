@@ -11,7 +11,7 @@ export const en: SettingsPanelTranslations = {
   'settings.billing.cancelConfirm': 'Cancel your subscription?',
   'settings.billing.cancelFailed': 'Could not cancel.',
   'settings.billing': 'Billing',
-  'settings.plan': 'Plan',
+  'settings.plan': 'Plan: ',
   'settings.upgrade': 'Upgrade',
   'settings.billing.cancel': 'Cancel',
   'settings.billing.upgradeTitle': 'Upgrade your plan',
