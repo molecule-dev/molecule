@@ -1,5 +1,5 @@
 /**
- * Static metadata for the 74 languages supported by the molecule
+ * Static metadata for the 79 languages supported by the molecule
  * flagship fleet. Each entry includes the locale code, native name,
  * and text direction.
  *
@@ -13,7 +13,7 @@ export interface LanguageDefinition {
 }
 
 /**
- * Canonical 74-language definition list. The names are written in
+ * Canonical 79-language definition list. The names are written in
  * the language's own script for the language picker dropdown.
  */
 export const LANGUAGE_DEFINITIONS: readonly LanguageDefinition[] = [
@@ -22,6 +22,7 @@ export const LANGUAGE_DEFINITIONS: readonly LanguageDefinition[] = [
   { code: 'am', name: 'አማርኛ', direction: 'ltr' },
   { code: 'ar', name: 'العربية', direction: 'rtl' },
   { code: 'az', name: 'Azərbaycan', direction: 'ltr' },
+  { code: 'be', name: 'Беларуская', direction: 'ltr' },
   { code: 'bg', name: 'Български', direction: 'ltr' },
   { code: 'bn', name: 'বাংলা', direction: 'ltr' },
   { code: 'bs', name: 'Bosanski', direction: 'ltr' },
@@ -41,11 +42,13 @@ export const LANGUAGE_DEFINITIONS: readonly LanguageDefinition[] = [
   { code: 'ga', name: 'Gaeilge', direction: 'ltr' },
   { code: 'gl', name: 'Galego', direction: 'ltr' },
   { code: 'gu', name: 'ગુજરાતી', direction: 'ltr' },
+  { code: 'ha', name: 'Hausa', direction: 'ltr' },
   { code: 'he', name: 'עברית', direction: 'rtl' },
   { code: 'hi', name: 'हिन्दी', direction: 'ltr' },
   { code: 'hr', name: 'Hrvatski', direction: 'ltr' },
   { code: 'hu', name: 'Magyar', direction: 'ltr' },
   { code: 'hy', name: 'Հայերեն', direction: 'ltr' },
+  { code: 'ig', name: 'Igbo', direction: 'ltr' },
   { code: 'id', name: 'Bahasa Indonesia', direction: 'ltr' },
   { code: 'is', name: 'Íslenska', direction: 'ltr' },
   { code: 'it', name: 'Italiano', direction: 'ltr' },
@@ -55,6 +58,7 @@ export const LANGUAGE_DEFINITIONS: readonly LanguageDefinition[] = [
   { code: 'km', name: 'ខ្មែរ', direction: 'ltr' },
   { code: 'kn', name: 'ಕನ್ನಡ', direction: 'ltr' },
   { code: 'ko', name: '한국어', direction: 'ltr' },
+  { code: 'ky', name: 'Кыргызча', direction: 'ltr' },
   { code: 'lo', name: 'ລາວ', direction: 'ltr' },
   { code: 'lt', name: 'Lietuvių', direction: 'ltr' },
   { code: 'lv', name: 'Latviešu', direction: 'ltr' },
@@ -88,6 +92,7 @@ export const LANGUAGE_DEFINITIONS: readonly LanguageDefinition[] = [
   { code: 'ur', name: 'اردو', direction: 'rtl' },
   { code: 'uz', name: 'Oʻzbek', direction: 'ltr' },
   { code: 'vi', name: 'Tiếng Việt', direction: 'ltr' },
+  { code: 'yo', name: 'Yorùbá', direction: 'ltr' },
   { code: 'zh', name: '中文', direction: 'ltr' },
   { code: 'zh-TW', name: '繁體中文', direction: 'ltr' },
   { code: 'zu', name: 'isiZulu', direction: 'ltr' },

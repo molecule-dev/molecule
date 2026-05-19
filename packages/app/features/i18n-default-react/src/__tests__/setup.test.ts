@@ -106,6 +106,27 @@ describe('setupI18nDefault', () => {
     })
   })
 
+  it('silently skips bond langs not in the provider (be, ha, ig, ky, yo etc.)', () => {
+    // Real bonds ship 79 lang files but LANGUAGE_DEFINITIONS only registers
+    // 74 fleet locales. Bonds shipping extras like `be` (Belarusian),
+    // `ha` (Hausa), `ig` (Igbo), `ky` (Kyrgyz), `yo` (Yoruba) must NOT
+    // throw `Locale "be" not found` at setup time. Skip them silently.
+    const bond = {
+      en: { 'feature.greet': 'Hi' },
+      es: { 'feature.greet': 'Hola' },
+      be: { 'feature.greet': 'Прывітанне' }, // Belarusian — NOT in fleet
+      yo: { 'feature.greet': 'Bawo' }, // Yoruba — NOT in fleet
+    }
+    expect(() =>
+      setupI18nDefault({
+        enUi: {},
+        lazyLoadUi: () => Promise.resolve({}),
+        supportedLocales: ['es'],
+        packageLocales: [bond],
+      }),
+    ).not.toThrow()
+  })
+
   it('per-app lazyLoadUi overrides packageLocales for the same key', async () => {
     // Per-app translations should win over per-package translations
     // because they're the more-specific layer.
