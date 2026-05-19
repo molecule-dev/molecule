@@ -118,7 +118,7 @@ interface DragState {
  * starts a drag-to-resize, and a click without movement fires
  * `onClipClick`. All styling routes through `getClassMap()` and all
  * user-visible text routes through `t()` (via the companion
- * `@molecule/app-locales-feature-track-lane-react` locale bond).
+ * `@molecule/app-locales-feature-track-lane` locale bond).
  *
  * @param props - Component props.
  * @returns The track-lane element.

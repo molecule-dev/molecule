@@ -71,7 +71,7 @@ export interface TransportBarProps {
  *
  * All styling routes through `getClassMap()` (no Tailwind / raw class
  * names). All user-visible text (button labels) routes through `t()`
- * via the companion `@molecule/app-locales-feature-transport-bar-react`
+ * via the companion `@molecule/app-locales-feature-transport-bar`
  * locale bond.
  *
  * @param props - Component props.

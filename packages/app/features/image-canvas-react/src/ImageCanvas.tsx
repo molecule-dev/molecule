@@ -294,7 +294,7 @@ function isImageElement(src: string | HTMLImageElement): src is HTMLImageElement
  * All styling routes through `getClassMap()` (no Tailwind / raw class
  * names). All user-visible text routes through `t()` so the canvas
  * translates via the companion
- * `@molecule/app-locales-feature-image-canvas-react` locale bond.
+ * `@molecule/app-locales-feature-image-canvas` locale bond.
  *
  * @param props - Component props.
  * @param ref - Imperative handle (deprecated; prefer `exportRef`).

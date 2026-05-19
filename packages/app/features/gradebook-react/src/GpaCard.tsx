@@ -29,7 +29,7 @@ export interface GpaCardProps {
  * beside the table view.
  *
  * Styling routes through `getClassMap()` and all text routes through `t()`
- * via the companion `@molecule/app-locales-gradebook-react` locale bond.
+ * via the companion `@molecule/app-locales-gradebook` locale bond.
  *
  * @param props - Component props.
  * @returns The GPA hero card element.

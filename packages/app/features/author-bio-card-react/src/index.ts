@@ -28,7 +28,7 @@
  * @remarks
  * All UI text routes through `useTranslation()` from `@molecule/app-react`
  * so apps can override copy via the companion locale bond
- * `@molecule/app-locales-author-bio-card-react`.
+ * `@molecule/app-locales-author-bio-card`.
  *
  * @module
  */

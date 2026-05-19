@@ -178,10 +178,10 @@ Peer dependencies:
 - `react` ^18.0.0 || ^19.0.0
 
 All UI text resolves through `t()` and ships in the companion locale
-bond `@molecule/app-locales-notifications-page-react`. All styling
+bond `@molecule/app-locales-notifications-page`. All styling
 resolves through `getClassMap()` — no Tailwind class names live in
 this package.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-notifications-page-react`.
+Translation strings are provided by `@molecule/app-locales-notifications-page`.

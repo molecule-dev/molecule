@@ -40,9 +40,9 @@ Peer dependencies:
 - `react` ^18.0.0 || ^19.0.0
 
 All UI text routes through `t('heatmap.*')` from `@molecule/app-react`'s
-`useTranslation()`. Drop in `@molecule/app-locales-heatmap-react` for
+`useTranslation()`. Drop in `@molecule/app-locales-heatmap` for
 translated month / weekday / tooltip strings.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-heatmap-react`.
+Translation strings are provided by `@molecule/app-locales-heatmap`.

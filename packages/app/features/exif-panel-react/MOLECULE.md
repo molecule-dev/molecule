@@ -240,4 +240,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-exif-panel-react`.
+Translation strings are provided by `@molecule/app-locales-exif-panel`.

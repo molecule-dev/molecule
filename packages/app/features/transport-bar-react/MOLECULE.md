@@ -5,7 +5,7 @@ for editor playback (music DAW, video editor, animation tool).
 
 Exports `<TransportBar>`. All styling routes through `getClassMap()`
 and all button labels translate via the companion
-`@molecule/app-locales-feature-transport-bar-react` locale bond.
+`@molecule/app-locales-feature-transport-bar` locale bond.
 
 ## Quick Start
 
@@ -45,4 +45,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-transport-bar-react`.
+Translation strings are provided by `@molecule/app-locales-feature-transport-bar`.

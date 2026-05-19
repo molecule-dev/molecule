@@ -75,7 +75,7 @@ export function formatTime(seconds: number): string {
  *
  * All styling routes through `getClassMap()` (no Tailwind / raw class
  * names). All user-visible text routes through `t()` so the bar
- * translates via the companion `@molecule/app-locales-now-playing-bar-react`
+ * translates via the companion `@molecule/app-locales-now-playing-bar`
  * locale bond.
  *
  * @param props - Component props.

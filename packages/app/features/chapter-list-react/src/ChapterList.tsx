@@ -95,7 +95,7 @@ export function findActiveChapterIndex(chapters: Chapter[], currentTime: number)
  * All styling routes through `getClassMap()` (no Tailwind / raw class
  * names). All user-visible text routes through `t()` so the list
  * translates via the companion
- * `@molecule/app-locales-feature-chapter-list-react` locale bond.
+ * `@molecule/app-locales-feature-chapter-list` locale bond.
  *
  * @param props - Component props.
  * @returns The chapter-list element.

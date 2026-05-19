@@ -56,4 +56,4 @@ without disturbing the rest of the lane.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-video-timeline-react`.
+Translation strings are provided by `@molecule/app-locales-feature-video-timeline`.

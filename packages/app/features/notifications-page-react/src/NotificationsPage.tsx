@@ -63,7 +63,7 @@ function buildQuery(filter: NotificationsPageFilter, offset: number, limit: numb
  * bond by hitting the routes exposed by `@molecule/api-resource-notification`.
  *
  * All UI text flows through `t()` so apps can localise via the companion
- * locale bond `@molecule/app-locales-notifications-page-react`. All
+ * locale bond `@molecule/app-locales-notifications-page`. All
  * styling flows through `getClassMap()` — no Tailwind class strings live
  * here.
  *

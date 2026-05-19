@@ -308,4 +308,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-graph-view-react`.
+Translation strings are provided by `@molecule/app-locales-feature-graph-view`.

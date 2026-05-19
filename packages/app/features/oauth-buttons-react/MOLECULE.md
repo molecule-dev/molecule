@@ -26,7 +26,7 @@ on `@molecule/app-oauth-logos-react` for the canonical brand marks.
   composes it above this row.
 
 Companion locale bond:
-`@molecule/app-locales-oauth-buttons-react` (79 languages).
+`@molecule/app-locales-oauth-buttons` (79 languages).
 
 ## Quick Start
 
@@ -278,7 +278,7 @@ Canonical i18n key + English default for each supported provider.
 
 Used by `<OAuthButtons />` to render the localized provider name
 (e.g. `"Continue with {{provider}}"`). The `key` matches the
-companion locale bond `@molecule/app-locales-oauth-buttons-react`.
+companion locale bond `@molecule/app-locales-oauth-buttons`.
 
 ```typescript
 const PROVIDER_LABELS: Readonly<Record<OAuthProviderId, { key: string; default: string; }>>
@@ -296,4 +296,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-oauth-buttons-react`.
+Translation strings are provided by `@molecule/app-locales-oauth-buttons`.

@@ -4,7 +4,7 @@
  *
  * Exports `<TransportBar>`. All styling routes through `getClassMap()`
  * and all button labels translate via the companion
- * `@molecule/app-locales-feature-transport-bar-react` locale bond.
+ * `@molecule/app-locales-feature-transport-bar` locale bond.
  *
  * @example
  * ```tsx

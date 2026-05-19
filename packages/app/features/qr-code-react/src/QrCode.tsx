@@ -85,7 +85,7 @@ export function buildQrPath(
  * Styling routes through `@molecule/app-ui`'s `getClassMap()` for the
  * container; the only inline color attributes are the SVG `fill`s on the
  * background rect and the dark-modules path (real SVG attributes — not
- * Tailwind classes). Translations come from `@molecule/app-locales-qr-code-react`.
+ * Tailwind classes). Translations come from `@molecule/app-locales-qr-code`.
  *
  * Used by coupon-deals-platform (redemption codes), restaurant-ordering
  * (table tokens), event-ticketing (tickets), voting-polling (ballot links).

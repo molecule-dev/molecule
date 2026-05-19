@@ -7,7 +7,7 @@
  * (select-all checkbox + apply-to-selected actions).
  *
  * All user-visible text is i18n'd via the companion locale bond
- * `@molecule/app-locales-moderation-queue-react`.
+ * `@molecule/app-locales-moderation-queue`.
  *
  * @example
  * ```tsx

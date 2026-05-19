@@ -47,10 +47,10 @@ Peer dependencies:
 - `@zxing/library`
 
 All user-visible text routes through the companion locale bond
-`@molecule/app-locales-feature-barcode-scanner-react`. Styling
+`@molecule/app-locales-feature-barcode-scanner`. Styling
 routes through `getClassMap()` from `@molecule/app-ui` — no
 Tailwind utility class names appear in this package.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-barcode-scanner-react`.
+Translation strings are provided by `@molecule/app-locales-feature-barcode-scanner`.

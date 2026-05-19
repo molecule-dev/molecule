@@ -8,7 +8,7 @@ reject / escalate / mute), and a bulk-select toolbar
 (select-all checkbox + apply-to-selected actions).
 
 All user-visible text is i18n'd via the companion locale bond
-`@molecule/app-locales-moderation-queue-react`.
+`@molecule/app-locales-moderation-queue`.
 
 ## Quick Start
 
@@ -57,4 +57,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-moderation-queue-react`.
+Translation strings are provided by `@molecule/app-locales-moderation-queue`.

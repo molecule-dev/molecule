@@ -22,7 +22,7 @@
  *
  * @remarks
  * All UI text routes through `t('heatmap.*')` from `@molecule/app-react`'s
- * `useTranslation()`. Drop in `@molecule/app-locales-heatmap-react` for
+ * `useTranslation()`. Drop in `@molecule/app-locales-heatmap` for
  * translated month / weekday / tooltip strings.
  *
  * @module

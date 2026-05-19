@@ -11,7 +11,7 @@ import type { OAuthProviderId } from '@molecule/app-oauth-logos-react'
  *
  * Used by `<OAuthButtons />` to render the localized provider name
  * (e.g. `"Continue with {{provider}}"`). The `key` matches the
- * companion locale bond `@molecule/app-locales-oauth-buttons-react`.
+ * companion locale bond `@molecule/app-locales-oauth-buttons`.
  */
 export const PROVIDER_LABELS: Readonly<Record<OAuthProviderId, { key: string; default: string }>> =
   Object.freeze({

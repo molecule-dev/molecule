@@ -6,7 +6,7 @@ React reputation/karma surfaces — `<ReputationBadge>` and
 Both components defer styling to the active ClassMap bond (`getClassMap()`
 from `@molecule/app-ui`) and route every user-visible string through
 `useTranslation()` from `@molecule/app-react`. Translations live in the
-companion `@molecule/app-locales-reputation-badge-react` bond.
+companion `@molecule/app-locales-reputation-badge` bond.
 
 ## Quick Start
 
@@ -147,4 +147,4 @@ server-side score/badge issuance.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-reputation-badge-react`.
+Translation strings are provided by `@molecule/app-locales-reputation-badge`.

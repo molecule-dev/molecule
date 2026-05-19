@@ -54,7 +54,7 @@ export interface SurveyQuestionProps {
  *
  * Required-field validation runs only on submit; `onChange` always fires.
  * All styling goes through `getClassMap()`. All UI text goes through `t()`
- * with English fallbacks; translations live in `@molecule/app-locales-survey-question-react`.
+ * with English fallbacks; translations live in `@molecule/app-locales-survey-question`.
  *
  * @param props - Component props.
  * @returns The question element.

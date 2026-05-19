@@ -25,7 +25,7 @@
  *   composes it above this row.
  *
  * Companion locale bond:
- * `@molecule/app-locales-oauth-buttons-react` (79 languages).
+ * `@molecule/app-locales-oauth-buttons` (79 languages).
  *
  * @example
  * ```tsx

@@ -49,4 +49,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-annotation-pin-react`.
+Translation strings are provided by `@molecule/app-locales-annotation-pin`.

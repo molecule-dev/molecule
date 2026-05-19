@@ -26,7 +26,7 @@ export type GradebookColumn = 'title' | 'letter' | 'numeric' | 'weight' | 'contr
  *
  * Pairs with {@link GpaCard} for the hero summary. Styling routes through
  * `getClassMap()`; all visible text routes through `t()` via the companion
- * `@molecule/app-locales-gradebook-react` locale bond.
+ * `@molecule/app-locales-gradebook` locale bond.
  *
  * @param props - Component props.
  * @returns The gradebook element.

@@ -21,7 +21,7 @@
  *
  * @remarks
  * All visible text routes through `t()` via the companion
- * `@molecule/app-locales-gradebook-react` locale bond. All styling routes
+ * `@molecule/app-locales-gradebook` locale bond. All styling routes
  * through `getClassMap()` — no Tailwind utilities appear in this package.
  *
  * @module

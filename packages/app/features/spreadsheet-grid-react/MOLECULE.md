@@ -228,4 +228,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-spreadsheet-grid-react`.
+Translation strings are provided by `@molecule/app-locales-spreadsheet-grid`.

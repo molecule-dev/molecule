@@ -42,4 +42,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-audio-waveform-react`.
+Translation strings are provided by `@molecule/app-locales-feature-audio-waveform`.

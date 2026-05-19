@@ -134,9 +134,9 @@ Peer dependencies:
 - `react` ^18.0.0 || ^19.0.0
 
 All visible text routes through `t()` via the companion
-`@molecule/app-locales-gradebook-react` locale bond. All styling routes
+`@molecule/app-locales-gradebook` locale bond. All styling routes
 through `getClassMap()` — no Tailwind utilities appear in this package.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-gradebook-react`.
+Translation strings are provided by `@molecule/app-locales-gradebook`.

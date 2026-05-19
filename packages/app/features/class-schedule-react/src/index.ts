@@ -25,7 +25,7 @@
  * ```
  *
  * @remarks
- * Pair with `@molecule/app-locales-class-schedule-react` for translations
+ * Pair with `@molecule/app-locales-class-schedule` for translations
  * in 79 languages. All styling routes through `getClassMap()`; all
  * user-facing text routes through `t()`.
  *

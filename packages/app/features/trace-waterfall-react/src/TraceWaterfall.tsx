@@ -70,7 +70,7 @@ export interface TraceWaterfallProps {
  * Styling is fully ClassMap-driven for layout. Only color attributes
  * (status colors, service-tag colors, bar fill) and pixel-perfect axis
  * geometry use inline `style` — these are properties ClassMap does not
- * model. Translations come from `@molecule/app-locales-trace-waterfall-react`.
+ * model. Translations come from `@molecule/app-locales-trace-waterfall`.
  *
  * Used by api-testing-tool, error-tracker, log-viewer, and any other
  * developer tooling that consumes distributed-trace data.

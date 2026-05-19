@@ -12,7 +12,7 @@ Components:
                            Stripe's `success_url` redirect target.
 
 Translations live in the companion locale bond
-`@molecule/app-locales-pricing-page-react`. The Stripe checkout
+`@molecule/app-locales-pricing-page`. The Stripe checkout
 transport lives in `@molecule/app-billing-react`.
 
 ## Quick Start
@@ -20,7 +20,7 @@ transport lives in `@molecule/app-billing-react`.
 ```tsx
 import { PricingPage } from '@molecule/app-pricing-page-react'
 import { addTranslations } from '@molecule/app-i18n'
-import { en } from '@molecule/app-locales-pricing-page-react'
+import { en } from '@molecule/app-locales-pricing-page'
 
 addTranslations('en', en)
 
@@ -49,4 +49,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-pricing-page-react`.
+Translation strings are provided by `@molecule/app-locales-pricing-page`.

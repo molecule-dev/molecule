@@ -102,7 +102,7 @@ export function resolveSocialHref(key: SocialKey, value: string): string {
  *
  * All user-facing strings (Follow / Following labels, social aria-labels)
  * route through `useTranslation()` so apps can override text via the
- * companion locale bond `@molecule/app-locales-author-bio-card-react`.
+ * companion locale bond `@molecule/app-locales-author-bio-card`.
  *
  * @param props - Component props.
  * @param props.author - Author identity + bio + socials.

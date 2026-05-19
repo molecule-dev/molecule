@@ -254,7 +254,7 @@ interface DragState {
  * All styling routes through `getClassMap()` (no Tailwind / raw class
  * names). All user-visible text routes through `t()` so the roll
  * translates via the companion
- * `@molecule/app-locales-feature-piano-roll-react` locale bond.
+ * `@molecule/app-locales-feature-piano-roll` locale bond.
  *
  * @param props - Component props.
  * @returns The piano-roll element.
@@ -297,10 +297,7 @@ export function PianoRoll(props: PianoRollProps) {
     Math.max(
       16,
       Math.ceil(
-        notes.reduce(
-          (max, n) => Math.max(max, (n.startBeat ?? 0) + (n.durationBeats ?? 0)),
-          0,
-        ) + 4,
+        notes.reduce((max, n) => Math.max(max, (n.startBeat ?? 0) + (n.durationBeats ?? 0)), 0) + 4,
       ),
     )
   const gridWidth = beatsToPixels(computedBeats, pixelsPerBeat)
@@ -379,7 +376,16 @@ export function PianoRoll(props: PianoRollProps) {
       window.removeEventListener('pointerup', onUp)
       window.removeEventListener('pointercancel', onUp)
     }
-  }, [pixelsPerBeat, noteHeight, snap, safeHighest, safeLowest, onNoteMove, onNoteResize, bumpDragTick])
+  }, [
+    pixelsPerBeat,
+    noteHeight,
+    snap,
+    safeHighest,
+    safeLowest,
+    onNoteMove,
+    onNoteResize,
+    bumpDragTick,
+  ])
 
   /**
    * Begin a drag gesture on a note body or a resize handle.
@@ -493,12 +499,7 @@ export function PianoRoll(props: PianoRollProps) {
       style={rootStyle}
     >
       {/* Vertical piano keyboard. */}
-      <div
-        role="list"
-        aria-label={keysLabel}
-        data-mol-id="piano-roll-keys"
-        style={keysColumnStyle}
-      >
+      <div role="list" aria-label={keysLabel} data-mol-id="piano-roll-keys" style={keysColumnStyle}>
         {rows.map((pitch) => {
           const black = isBlackKey(pitch)
           const isC = ((pitch % 12) + 12) % 12 === 0
@@ -530,10 +531,7 @@ export function PianoRoll(props: PianoRollProps) {
               style={keyStyle}
             >
               {isC && (
-                <span
-                  data-mol-id="piano-roll-key-label"
-                  className={cm.cn(cm.textSize('xs'))}
-                >
+                <span data-mol-id="piano-roll-key-label" className={cm.cn(cm.textSize('xs'))}>
                   {pitchLabel(pitch)}
                 </span>
               )}

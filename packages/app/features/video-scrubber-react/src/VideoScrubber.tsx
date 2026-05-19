@@ -219,7 +219,7 @@ export function VideoScrubber(props: VideoScrubberProps) {
   const playheadPosition = safeDuration > 0 ? clampedTime / safeDuration : 0
 
   // Translation strings — companion locale bond
-  // (`@molecule/app-locales-feature-video-scrubber-react`) overrides
+  // (`@molecule/app-locales-feature-video-scrubber`) overrides
   // these; the inline default values are the English fallbacks.
   const rootLabel = t('videoScrubber.aria.root', {}, { defaultValue: 'Video scrubber' })
   const stripLabel = t(

@@ -49,10 +49,10 @@ Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 
-Pair with `@molecule/app-locales-now-playing-bar-react` for translations
+Pair with `@molecule/app-locales-now-playing-bar` for translations
 in 79 languages. All styling routes through `getClassMap()`; all
 user-facing text routes through `t()`.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-now-playing-bar-react`.
+Translation strings are provided by `@molecule/app-locales-now-playing-bar`.

@@ -93,10 +93,10 @@ Peer dependencies:
 - `react` ^18.0.0 || ^19.0.0
 
 All UI text resolves through `t()` — install
-`@molecule/app-locales-feature-thread-tree-react` for non-English
+`@molecule/app-locales-feature-thread-tree` for non-English
 locales. All styling resolves through `getClassMap()` — no Tailwind
 utilities live in this package.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-thread-tree-react`.
+Translation strings are provided by `@molecule/app-locales-feature-thread-tree`.

@@ -10,7 +10,7 @@
  * Used by signup, password-change, and password-manager flows to
  * gate weak passwords before submit. All styling flows through
  * `getClassMap()`; all text flows through `t()`; companion locale
- * bond is `@molecule/app-locales-password-strength-meter-react`.
+ * bond is `@molecule/app-locales-password-strength-meter`.
  *
  * @example
  * ```tsx

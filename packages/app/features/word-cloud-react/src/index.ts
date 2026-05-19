@@ -24,7 +24,7 @@
  * @remarks
  * All UI text routes through `t('word-cloud.*')` from
  * `@molecule/app-react`'s `useTranslation()`. Drop in
- * `@molecule/app-locales-word-cloud-react` for translated aria labels.
+ * `@molecule/app-locales-word-cloud` for translated aria labels.
  *
  * The pure helper `packWords()` is exported for testing and for reuse by
  * non-React renderers (canvas, native, server-side).

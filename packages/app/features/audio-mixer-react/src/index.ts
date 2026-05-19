@@ -29,7 +29,7 @@
  *
  * @remarks
  * All user-visible text routes through the companion locale bond
- * `@molecule/app-locales-feature-audio-mixer-react`. Styling routes
+ * `@molecule/app-locales-feature-audio-mixer`. Styling routes
  * through `getClassMap()` from `@molecule/app-ui` — no Tailwind
  * utility class names appear in this package.
  *

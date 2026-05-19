@@ -147,7 +147,7 @@ export function clampPan(value: number): number {
  *
  * Styling routes through `getClassMap()` and all user-visible text
  * routes through `t()` via the companion locale bond
- * `@molecule/app-locales-feature-audio-mixer-react`.
+ * `@molecule/app-locales-feature-audio-mixer`.
  *
  * @param props - Component props.
  * @returns The mixer element.

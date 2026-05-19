@@ -373,4 +373,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-canvas-react`.
+Translation strings are provided by `@molecule/app-locales-feature-canvas`.

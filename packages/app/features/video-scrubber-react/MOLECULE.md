@@ -56,4 +56,4 @@ arrows for ±1 frame, Shift+arrows for ±1 second, PageUp/PageDown for
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-video-scrubber-react`.
+Translation strings are provided by `@molecule/app-locales-feature-video-scrubber`.

@@ -20,7 +20,7 @@
  *
  * @remarks
  * All UI text resolves through `t()` — install
- * `@molecule/app-locales-feature-thread-tree-react` for non-English
+ * `@molecule/app-locales-feature-thread-tree` for non-English
  * locales. All styling resolves through `getClassMap()` — no Tailwind
  * utilities live in this package.
  *

@@ -244,7 +244,7 @@ export function packWords(
  * results, news topics, tag analytics, and any other "weighted vocabulary"
  * surface. All UI text routes through `t('word-cloud.*')` from
  * `@molecule/app-react`'s `useTranslation()`; drop in
- * `@molecule/app-locales-word-cloud-react` for translated aria labels.
+ * `@molecule/app-locales-word-cloud` for translated aria labels.
  *
  * Styling goes through `@molecule/app-ui`'s `getClassMap()`; the only
  * inline styling is the SVG `fill` attribute (a real SVG attribute, not

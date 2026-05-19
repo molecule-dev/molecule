@@ -223,7 +223,7 @@ export function reorderEffects(effects: Effect[], fromIndex: number, toIndex: nu
  * API, native `AudioContext`, etc.). Styling routes through
  * `getClassMap()` from `@molecule/app-ui` and all user-visible text
  * routes through `t()` via the companion locale bond
- * `@molecule/app-locales-feature-audio-effects-rack-react`.
+ * `@molecule/app-locales-feature-audio-effects-rack`.
  *
  * @param props - Component props.
  * @returns The rack element.

@@ -111,7 +111,7 @@ export function seekTimeFromClick(x: number, width: number, duration: number): n
  * All styling routes through `getClassMap()` (no Tailwind / raw class
  * names). All user-visible text routes through `t()` so the waveform
  * translates via the companion
- * `@molecule/app-locales-feature-audio-waveform-react` locale bond.
+ * `@molecule/app-locales-feature-audio-waveform` locale bond.
  *
  * @param props - Component props.
  * @returns The audio-waveform element.

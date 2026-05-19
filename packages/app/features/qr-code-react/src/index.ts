@@ -29,7 +29,7 @@
  * `errorCorrection='H'` and keep the logo at or below ~20% of the QR size.
  * Container styling routes through `@molecule/app-ui`'s `getClassMap()`;
  * the only inline values are SVG `fill` color attributes (real SVG attrs,
- * not Tailwind). Translations come from `@molecule/app-locales-qr-code-react`.
+ * not Tailwind). Translations come from `@molecule/app-locales-qr-code`.
  *
  * @module
  */

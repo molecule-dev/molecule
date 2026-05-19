@@ -99,7 +99,7 @@ export function severityColor(severity: ModerationItemSeverity | undefined): Col
  * (select-all checkbox + apply-to-selected action buttons).
  *
  * All user-visible text comes from i18n keys in
- * `@molecule/app-locales-moderation-queue-react`. Styling is driven
+ * `@molecule/app-locales-moderation-queue`. Styling is driven
  * exclusively through `getClassMap()`.
  *
  * @param props - Component props.

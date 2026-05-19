@@ -22,7 +22,7 @@
  * @remarks
  * All UI text resolves through `useTranslation()` from `@molecule/app-react`
  * with English fallbacks. Companion locale bond:
- * `@molecule/app-locales-embed-snippet-react`.
+ * `@molecule/app-locales-embed-snippet`.
  *
  * @module
  */

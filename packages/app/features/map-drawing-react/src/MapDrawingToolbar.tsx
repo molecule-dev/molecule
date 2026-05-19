@@ -20,7 +20,7 @@ export interface MapDrawingToolbarProps {
 /**
  * Toolbar with one button per drawing tool plus `select` and `delete`.
  * All button labels route through `t()` so the toolbar translates via
- * the companion `@molecule/app-locales-feature-map-drawing-react` bond.
+ * the companion `@molecule/app-locales-feature-map-drawing` bond.
  *
  * @param props - Toolbar props.
  * @returns Toolbar element.

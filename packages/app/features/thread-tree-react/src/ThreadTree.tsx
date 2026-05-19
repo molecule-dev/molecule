@@ -228,7 +228,7 @@ function ThreadTreeNode({
  * with branching replies.
  *
  * All UI text resolves through `t()` so apps localise via the companion
- * `@molecule/app-locales-feature-thread-tree-react` package. All styling
+ * `@molecule/app-locales-feature-thread-tree` package. All styling
  * resolves through `getClassMap()` — no Tailwind utilities live here.
  *
  * @param props - Component props.
