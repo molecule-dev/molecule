@@ -498,4 +498,6 @@ export const ig: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Na-ebugo ọrụ…',
   'nav.browseStays': 'Chọgharịa ọnụnọ',
   'nav.primaryNavigation': 'Ntugharị isi',
+  'auth.login.dontHaveAccount': 'Ị nweghị akaụntụ?',
+  'auth.signup.passwordsDontMatchPeriod': 'Okwuntughe adabaghị.',
 }

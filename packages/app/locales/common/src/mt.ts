@@ -508,4 +508,6 @@ export const mt: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Qed tiċċarġja l-attività…',
   'nav.browseStays': 'Fittex soġġorni',
   'nav.primaryNavigation': 'Navigazzjoni primarja',
+  'auth.login.dontHaveAccount': 'M&#39;għandekx kont?',
+  'auth.signup.passwordsDontMatchPeriod': 'Il-passwords ma jaqblux.',
 }

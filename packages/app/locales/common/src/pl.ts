@@ -505,4 +505,6 @@ export const pl: Partial<CommonTranslations> = {
   'form.model': 'Model',
   'form.format': 'Format',
   'nav.plan': 'Plan',
+  'auth.login.dontHaveAccount': 'Nie masz konta?',
+  'auth.signup.passwordsDontMatchPeriod': 'Hasła nie są takie same.',
 }

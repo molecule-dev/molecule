@@ -15,4 +15,5 @@ export const nl: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': 'Factureringsperiode',
   'pricingPage.planUpdated.body':
     'Bedankt voor uw upgrade. Uw nieuwe abonnement is direct geactiveerd en u heeft een ontvangstbewijs per e-mail ontvangen.',
+  'pricingPage.planUpdated.headingNamed': 'Je bevindt je nu op de<x> {{planName}}</x> plan',
 }

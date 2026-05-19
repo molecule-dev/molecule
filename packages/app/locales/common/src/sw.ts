@@ -507,4 +507,6 @@ export const sw: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Inapakia shughuli…',
   'nav.browseStays': 'Vinjari sehemu za kukaa',
   'nav.primaryNavigation': 'Usogezaji mkuu',
+  'auth.login.dontHaveAccount': 'Huna akaunti?',
+  'auth.signup.passwordsDontMatchPeriod': 'Manenosiri hayalingani.',
 }

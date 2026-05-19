@@ -508,4 +508,6 @@ export const mn: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Үйл ажиллагааг ачаалж байна…',
   'nav.browseStays': 'Буудлуудыг үзэх',
   'nav.primaryNavigation': 'Үндсэн навигаци',
+  'auth.login.dontHaveAccount': 'Бүртгэл байхгүй юу?',
+  'auth.signup.passwordsDontMatchPeriod': 'Нууц үгнүүд таарахгүй байна.',
 }

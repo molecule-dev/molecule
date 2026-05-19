@@ -505,4 +505,6 @@ export const ka: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'აქტივობა იტვირთება…',
   'nav.browseStays': 'დაათვალიერეთ საცხოვრებლები',
   'nav.primaryNavigation': 'ძირითადი ნავიგაცია',
+  'auth.login.dontHaveAccount': 'ანგარიში არ გაქვთ?',
+  'auth.signup.passwordsDontMatchPeriod': 'პაროლები არ ემთხვევა.',
 }

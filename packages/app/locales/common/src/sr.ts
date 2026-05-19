@@ -506,4 +506,6 @@ export const sr: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Учитавање активности…',
   'nav.browseStays': 'Прегледајте боравке',
   'nav.primaryNavigation': 'Примарна навигација',
+  'auth.login.dontHaveAccount': 'Немате налог?',
+  'auth.signup.passwordsDontMatchPeriod': 'Лозинке се не подударају.',
 }

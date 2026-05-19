@@ -503,4 +503,6 @@ export const ky: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Иш-аракет жүктөлүүдө…',
   'nav.browseStays': 'Конокторду карап чыгуу',
   'nav.primaryNavigation': 'Негизги навигация',
+  'auth.login.dontHaveAccount': 'Аккаунтуңуз жокпу?',
+  'auth.signup.passwordsDontMatchPeriod': 'Сырсөздөр дал келген жок.',
 }

@@ -15,4 +15,5 @@ export const es: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': 'Período de facturación',
   'pricingPage.planUpdated.body':
     'Gracias por actualizar tu plan. Tu nuevo plan está activo de inmediato y te hemos enviado un recibo por correo electrónico.',
+  'pricingPage.planUpdated.headingNamed': 'Ahora estás en el<x> {{planName}}</x> plan',
 }

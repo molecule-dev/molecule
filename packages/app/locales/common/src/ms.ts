@@ -504,4 +504,6 @@ export const ms: Partial<CommonTranslations> = {
   'nav.status': 'Status',
   'nav.failedToLoad': 'Gagal memuatkan.',
   'nav.browseStays': 'Layari penginapan',
+  'auth.login.dontHaveAccount': 'Tidak mempunyai akaun?',
+  'auth.signup.passwordsDontMatchPeriod': 'Kata laluan tidak sepadan.',
 }

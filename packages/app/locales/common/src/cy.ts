@@ -505,4 +505,6 @@ export const cy: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Wrthi&#39;n llwytho gweithgaredd…',
   'nav.browseStays': 'Pori arosiadau',
   'nav.primaryNavigation': 'Prif lywio',
+  'auth.login.dontHaveAccount': 'Dim cyfrif gennych chi?',
+  'auth.signup.passwordsDontMatchPeriod': 'Nid yw&#39;r cyfrineiriau&#39;n cyfateb.',
 }

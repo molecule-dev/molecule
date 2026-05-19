@@ -506,4 +506,6 @@ export const es: Partial<CommonTranslations> = {
   'nav.subtotal': 'Total parcial',
   'nav.total': 'Total',
   'nav.plan': 'Plan',
+  'auth.login.dontHaveAccount': '¿No tienes una cuenta?',
+  'auth.signup.passwordsDontMatchPeriod': 'Las contraseñas no coinciden.',
 }

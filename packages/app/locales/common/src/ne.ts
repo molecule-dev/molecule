@@ -504,4 +504,6 @@ export const ne: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'गतिविधि लोड गर्दै...',
   'nav.browseStays': 'बसाइँहरू ब्राउज गर्नुहोस्',
   'nav.primaryNavigation': 'प्राथमिक नेभिगेसन',
+  'auth.login.dontHaveAccount': 'खाता छैन?',
+  'auth.signup.passwordsDontMatchPeriod': 'पासवर्डहरू मेल खाँदैनन्।',
 }

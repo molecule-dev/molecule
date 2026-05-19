@@ -15,4 +15,5 @@ export const sv: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': 'Faktureringsperiod',
   'pricingPage.planUpdated.body':
     'Tack för att du uppgraderade. Din nya plan är aktiv omedelbart och ett kvitto har skickats till dig via e-post.',
+  'pricingPage.planUpdated.headingNamed': 'Du är nu på<x> {{plannamn}}</x> planera',
 }

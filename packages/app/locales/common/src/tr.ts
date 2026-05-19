@@ -506,4 +506,6 @@ export const tr: Partial<CommonTranslations> = {
   'auth.passwordMask': '••••••••',
   'form.model': 'Model',
   'nav.plan': 'Plan',
+  'auth.login.dontHaveAccount': 'Hesabınız yok mu?',
+  'auth.signup.passwordsDontMatchPeriod': 'Şifreler eşleşmiyor.',
 }

@@ -505,4 +505,6 @@ export const fil: Partial<CommonTranslations> = {
   'nav.subtotal': 'Subtotal',
   'nav.failedToLoad': 'Nabigong mag-load.',
   'nav.browseStays': 'Mag-browse ng mga matutuluyan',
+  'auth.login.dontHaveAccount': 'Wala kang account?',
+  'auth.signup.passwordsDontMatchPeriod': 'Hindi magkatugma ang mga password.',
 }

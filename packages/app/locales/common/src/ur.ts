@@ -505,4 +505,6 @@ export const ur: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'سرگرمی لوڈ ہو رہی ہے…',
   'nav.browseStays': 'براؤز رہتا ہے۔',
   'nav.primaryNavigation': 'بنیادی نیویگیشن',
+  'auth.login.dontHaveAccount': 'اکاؤنٹ نہیں ہے؟',
+  'auth.signup.passwordsDontMatchPeriod': 'پاس ورڈز مماثل نہیں ہیں۔',
 }

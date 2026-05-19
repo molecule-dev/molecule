@@ -505,4 +505,6 @@ export const te: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'కార్యకలాపం లోడ్ అవుతోంది…',
   'nav.browseStays': 'బసలను బ్రౌజ్ చేయండి',
   'nav.primaryNavigation': 'ప్రాథమిక నావిగేషన్',
+  'auth.login.dontHaveAccount': 'మీకు ఖాతా లేదా?',
+  'auth.signup.passwordsDontMatchPeriod': 'పాస్‌వర్డ్‌లు సరిపోలడం లేదు.',
 }

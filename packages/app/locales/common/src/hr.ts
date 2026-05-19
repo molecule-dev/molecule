@@ -508,4 +508,6 @@ export const hr: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Učitavanje aktivnosti…',
   'nav.browseStays': 'Pregledajte smještaje',
   'nav.primaryNavigation': 'Primarna navigacija',
+  'auth.login.dontHaveAccount': 'Nemate račun?',
+  'auth.signup.passwordsDontMatchPeriod': 'Lozinke se ne podudaraju.',
 }

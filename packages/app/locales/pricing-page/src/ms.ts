@@ -15,4 +15,5 @@ export const ms: Partial<PricingPageTranslations> = {
   'pricingPage.planUpdated.heading': 'Pelan anda telah dikemas kini',
   'pricingPage.planUpdated.body':
     'Terima kasih kerana menaik taraf. Pelan baharu anda aktif serta-merta dan resit telah diemelkan kepada anda.',
+  'pricingPage.planUpdated.headingNamed': 'Anda kini berada di<x> {{NamaPelan}}</x> rancangan',
 }

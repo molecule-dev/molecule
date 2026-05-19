@@ -508,4 +508,6 @@ export const my: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'လုပ်ဆောင်ချက်ကို တင်နေသည်…',
   'nav.browseStays': 'တည်းခိုမှုများကို ကြည့်ရှုပါ',
   'nav.primaryNavigation': 'အဓိက လမ်းညွှန်ချက်',
+  'auth.login.dontHaveAccount': 'အကောင့်မရှိဘူးလား။',
+  'auth.signup.passwordsDontMatchPeriod': 'စကားဝှက်များ မကိုက်ညီပါ။',
 }

@@ -508,4 +508,6 @@ export const sv: Partial<CommonTranslations> = {
   'form.format': 'Formatera',
   'status.live': 'Bo',
   'nav.status': 'Status',
+  'auth.login.dontHaveAccount': 'Har du inget konto?',
+  'auth.signup.passwordsDontMatchPeriod': 'Lösenorden matchar inte.',
 }

@@ -13,4 +13,5 @@ export const hi: Partial<AuthorBioCardTranslations> = {
   'authorBioCard.social.github': '{{नाम}} GitHub पर',
   'authorBioCard.social.linkedin': '{{नाम}} लिंक्डइन पर',
   'authorBioCard.social.mastodon': '{{नाम}} मैस्टोडॉन पर',
+  'authorBioCard.social.website': '{{नाम}} की वेबसाइट',
 }

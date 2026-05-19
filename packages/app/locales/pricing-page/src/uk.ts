@@ -15,4 +15,5 @@ export const uk: Partial<PricingPageTranslations> = {
   'pricingPage.planUpdated.heading': 'Ваш план оновлено',
   'pricingPage.planUpdated.body':
     'Дякуємо за оновлення. Ваш новий план активний негайно, і вам надіслано квитанцію.',
+  'pricingPage.planUpdated.headingNamed': 'Ви зараз на<x> {{Назва плану}}</x> план',
 }

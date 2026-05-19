@@ -506,4 +506,6 @@ export const mr: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'क्रियाकलाप लोड होत आहे…',
   'nav.browseStays': 'निवास शोधा',
   'nav.primaryNavigation': 'प्राथमिक नेव्हिगेशन',
+  'auth.login.dontHaveAccount': 'तुमचे खाते नाही का?',
+  'auth.signup.passwordsDontMatchPeriod': 'पासवर्ड जुळत नाहीत.',
 }

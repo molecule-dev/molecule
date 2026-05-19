@@ -512,4 +512,6 @@ export const zu: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Ilayisha umsebenzi…',
   'nav.browseStays': 'Phequlula ukuhlala',
   'nav.primaryNavigation': 'Ukuzulazula okuyinhloko',
+  'auth.login.dontHaveAccount': 'Awunayo i-akhawunti?',
+  'auth.signup.passwordsDontMatchPeriod': 'Amaphasiwedi awafani.',
 }

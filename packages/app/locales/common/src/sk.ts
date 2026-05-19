@@ -506,4 +506,6 @@ export const sk: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Načítava sa aktivita…',
   'nav.browseStays': 'Prehliadať pobyty',
   'nav.primaryNavigation': 'Hlavná navigácia',
+  'auth.login.dontHaveAccount': 'Nemáte účet?',
+  'auth.signup.passwordsDontMatchPeriod': 'Heslá sa nezhodujú.',
 }

@@ -13,4 +13,5 @@ export const pl: Partial<AuthorBioCardTranslations> = {
   'authorBioCard.social.github': '{{nazwa}} na GitHubie',
   'authorBioCard.social.linkedin': '{{nazwa}} na LinkedIn',
   'authorBioCard.social.mastodon': '{{nazwa}} na Mastodonie',
+  'authorBioCard.social.website': '{{nazwa}} strona internetowa',
 }

@@ -507,4 +507,6 @@ export const kn: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'ಚಟುವಟಿಕೆಯನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...',
   'nav.browseStays': 'ವಾಸ್ತವ್ಯಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ',
   'nav.primaryNavigation': 'ಪ್ರಾಥಮಿಕ ನ್ಯಾವಿಗೇಷನ್',
+  'auth.login.dontHaveAccount': 'ಖಾತೆ ಇಲ್ಲವೇ?',
+  'auth.signup.passwordsDontMatchPeriod': 'ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ.',
 }

@@ -505,4 +505,6 @@ export const de: Partial<CommonTranslations> = {
   'nav.team': 'Team',
   'nav.details': 'Details',
   'nav.status': 'Status',
+  'auth.login.dontHaveAccount': 'Sie haben noch kein Konto?',
+  'auth.signup.passwordsDontMatchPeriod': 'Die Passwörter stimmen nicht überein.',
 }

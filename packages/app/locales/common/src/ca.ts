@@ -513,4 +513,6 @@ export const ca: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'S&#39;està carregant l&#39;activitat…',
   'nav.browseStays': 'Navega per les estades',
   'nav.primaryNavigation': 'Navegació principal',
+  'auth.login.dontHaveAccount': 'No tens un compte?',
+  'auth.signup.passwordsDontMatchPeriod': 'Les contrasenyes no coincideixen.',
 }

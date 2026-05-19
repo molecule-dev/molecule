@@ -506,4 +506,6 @@ export const af: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Laai aktiwiteit…',
   'nav.browseStays': 'Blaai deur verblyf',
   'nav.primaryNavigation': 'Primêre navigasie',
+  'auth.login.dontHaveAccount': 'Het jy nie &#39;n rekening nie?',
+  'auth.signup.passwordsDontMatchPeriod': 'Wagwoorde stem nie ooreen nie.',
 }

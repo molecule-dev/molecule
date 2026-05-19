@@ -503,4 +503,6 @@ export const ro: Partial<CommonTranslations> = {
   'nav.plan': 'Plan',
   'nav.failedToLoad': 'Încărcarea nu a reușit.',
   'nav.browseStays': 'Răsfoiți sejururile',
+  'auth.login.dontHaveAccount': 'Nu aveți un cont?',
+  'auth.signup.passwordsDontMatchPeriod': 'Parolele nu se potrivesc.',
 }

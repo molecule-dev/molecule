@@ -505,4 +505,6 @@ export const kk: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Әрекет жүктелуде…',
   'nav.browseStays': 'Қонақ үйлерді шолу',
   'nav.primaryNavigation': 'Негізгі навигация',
+  'auth.login.dontHaveAccount': 'Тіркелгіңіз жоқ па?',
+  'auth.signup.passwordsDontMatchPeriod': 'Құпия сөздер сәйкес келмейді.',
 }

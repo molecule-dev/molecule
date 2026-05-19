@@ -15,4 +15,5 @@ export const hu: Partial<PricingPageTranslations> = {
   'pricingPage.planUpdated.heading': 'A csomagod frissült',
   'pricingPage.planUpdated.body':
     'Köszönjük a frissítést. Az új csomagod azonnal aktív, és a nyugtát elküldtük neked e-mailben.',
+  'pricingPage.planUpdated.headingNamed': 'Most rajta vagy a<x> {{tervNév}}</x> terv',
 }

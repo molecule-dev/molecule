@@ -503,4 +503,6 @@ export const si: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'ක්‍රියාකාරකම් පූරණය වෙමින්…',
   'nav.browseStays': 'නවාතැන් බ්‍රවුස් කරන්න',
   'nav.primaryNavigation': 'ප්‍රාථමික සංචාලනය',
+  'auth.login.dontHaveAccount': 'ගිණුමක් නැද්ද?',
+  'auth.signup.passwordsDontMatchPeriod': 'මුරපද නොගැලපේ.',
 }

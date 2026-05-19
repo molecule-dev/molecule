@@ -507,4 +507,6 @@ export const fi: Partial<CommonTranslations> = {
   'nav.details': 'Tiedot',
   'nav.failedToLoad': 'Lataus epäonnistui.',
   'nav.browseStays': 'Selaa majoitusvaihtoehtoja',
+  'auth.login.dontHaveAccount': 'Eikö sinulla ole tiliä?',
+  'auth.signup.passwordsDontMatchPeriod': 'Salasanat eivät täsmää.',
 }

@@ -504,4 +504,6 @@ export const da: Partial<CommonTranslations> = {
   'nav.plan': 'Plan',
   'nav.failedToLoad': 'Kunne ikke indlæses.',
   'nav.browseStays': 'Gennemse ophold',
+  'auth.login.dontHaveAccount': 'Har du ikke en konto?',
+  'auth.signup.passwordsDontMatchPeriod': 'Adgangskoderne stemmer ikke overens.',
 }

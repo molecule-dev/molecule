@@ -500,4 +500,6 @@ export const ar: Partial<CommonTranslations> = {
   'auth.passwordPlaceholderCompanyEmail': 'you@company.com',
   'auth.passwordPlaceholderNameCompany': 'name@company.com',
   'auth.passwordPlaceholderNameExample': 'name@example.com',
+  'auth.login.dontHaveAccount': 'ليس لديك حساب؟',
+  'auth.signup.passwordsDontMatchPeriod': 'كلمات المرور غير متطابقة.',
 }

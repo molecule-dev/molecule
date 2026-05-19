@@ -15,4 +15,5 @@ export const ro: Partial<PricingPageTranslations> = {
   'pricingPage.planUpdated.heading': 'Planul dumneavoastră a fost actualizat',
   'pricingPage.planUpdated.body':
     'Mulțumim pentru actualizare. Noul tău abonament este activ imediat și ți-am trimis o chitanță prin e-mail.',
+  'pricingPage.planUpdated.headingNamed': 'Acum ești pe<x> {{planName}}</x> plan',
 }

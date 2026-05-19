@@ -505,4 +505,6 @@ export const pt: Partial<CommonTranslations> = {
   'nav.editor': 'Editor',
   'nav.subtotal': 'Subtotal',
   'nav.total': 'Total',
+  'auth.login.dontHaveAccount': 'Não tem uma conta?',
+  'auth.signup.passwordsDontMatchPeriod': 'As senhas não coincidem.',
 }

@@ -15,4 +15,5 @@ export const pl: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': 'Okres rozliczeniowy',
   'pricingPage.planUpdated.body':
     'Dziękujemy za uaktualnienie. Twój nowy plan jest natychmiast aktywny, a potwierdzenie zostało wysłane do Ciebie e-mailem.',
+  'pricingPage.planUpdated.headingNamed': 'Jesteś teraz na<x> {{nazwa planu}}</x> plan',
 }

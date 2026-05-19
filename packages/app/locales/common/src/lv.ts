@@ -505,4 +505,6 @@ export const lv: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Notiek darbības ielāde…',
   'nav.browseStays': 'Pārlūkot naktsmītnes',
   'nav.primaryNavigation': 'Galvenā navigācija',
+  'auth.login.dontHaveAccount': 'Vai jums nav konta?',
+  'auth.signup.passwordsDontMatchPeriod': 'Paroles nesakrīt.',
 }

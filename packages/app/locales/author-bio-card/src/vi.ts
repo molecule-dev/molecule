@@ -13,4 +13,5 @@ export const vi: Partial<AuthorBioCardTranslations> = {
   'authorBioCard.social.github': '{{tên}} trên GitHub',
   'authorBioCard.social.linkedin': '{{tên}} trên LinkedIn',
   'authorBioCard.social.mastodon': '{{tên}} trên Mastodon',
+  'authorBioCard.social.website': '{{tên}} Trang web của',
 }

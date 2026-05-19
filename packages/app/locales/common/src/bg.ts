@@ -507,4 +507,6 @@ export const bg: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Зареждане на активността…',
   'nav.browseStays': 'Разгледайте престоите',
   'nav.primaryNavigation': 'Основна навигация',
+  'auth.login.dontHaveAccount': 'Нямате акаунт?',
+  'auth.signup.passwordsDontMatchPeriod': 'Паролите не съвпадат.',
 }

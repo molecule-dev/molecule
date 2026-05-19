@@ -497,4 +497,6 @@ export const am: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'እንቅስቃሴን በመጫን ላይ…',
   'nav.browseStays': 'ቆይታዎችን ያስሱ',
   'nav.primaryNavigation': 'ዋና አሰሳ',
+  'auth.login.dontHaveAccount': 'መለያ የለህም?',
+  'auth.signup.passwordsDontMatchPeriod': 'የይለፍ ቃሎች አይዛመዱም።',
 }

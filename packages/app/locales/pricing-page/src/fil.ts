@@ -15,4 +15,5 @@ export const fil: Partial<PricingPageTranslations> = {
   'pricingPage.planUpdated.heading': 'Na-update na ang iyong plano',
   'pricingPage.planUpdated.body':
     'Salamat sa pag-upgrade. Aktibo na agad ang iyong bagong plano at na-email na sa iyo ang isang resibo.',
+  'pricingPage.planUpdated.headingNamed': 'Nasa<x> {{PlanName}}</x> plano',
 }

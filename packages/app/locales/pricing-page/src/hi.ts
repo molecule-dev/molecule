@@ -15,4 +15,5 @@ export const hi: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': 'बिलिंग अवधि',
   'pricingPage.planUpdated.body':
     'अपग्रेड करने के लिए धन्यवाद। आपका नया प्लान तुरंत सक्रिय हो गया है और इसकी रसीद आपको ईमेल कर दी गई है।',
+  'pricingPage.planUpdated.headingNamed': 'आप अब इस पर हैं<x> {{planName}}</x> योजना',
 }

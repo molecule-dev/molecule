@@ -503,4 +503,6 @@ export const az: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Fəaliyyət yüklənir…',
   'nav.browseStays': 'Qonaqlamalara baxın',
   'nav.primaryNavigation': 'Əsas naviqasiya',
+  'auth.login.dontHaveAccount': 'Hesabınız yoxdur?',
+  'auth.signup.passwordsDontMatchPeriod': 'Parollar uyğun gəlmir.',
 }

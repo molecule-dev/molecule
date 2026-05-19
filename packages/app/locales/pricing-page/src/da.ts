@@ -15,4 +15,5 @@ export const da: Partial<PricingPageTranslations> = {
   'pricingPage.planUpdated.heading': 'Din plan er blevet opdateret',
   'pricingPage.planUpdated.body':
     'Tak for din opgradering. Dit nye abonnement er aktivt med det samme, og du har modtaget en kvittering via e-mail.',
+  'pricingPage.planUpdated.headingNamed': 'Du er nu på<x> {{plannavn}}</x> plan',
 }

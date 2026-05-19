@@ -509,4 +509,6 @@ export const mk: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Се вчитува активноста…',
   'nav.browseStays': 'Прелистајте ги сместувањата',
   'nav.primaryNavigation': 'Примарна навигација',
+  'auth.login.dontHaveAccount': 'Немате сметка?',
+  'auth.signup.passwordsDontMatchPeriod': 'Лозинките не се совпаѓаат.',
 }

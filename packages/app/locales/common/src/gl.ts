@@ -509,4 +509,6 @@ export const gl: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Cargando actividade…',
   'nav.browseStays': 'Explorar aloxamentos',
   'nav.primaryNavigation': 'Navegación principal',
+  'auth.login.dontHaveAccount': 'Non tes unha conta?',
+  'auth.signup.passwordsDontMatchPeriod': 'Os contrasinais non coinciden.',
 }

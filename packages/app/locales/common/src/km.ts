@@ -507,4 +507,6 @@ export const km: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'កំពុងផ្ទុកសកម្មភាព…',
   'nav.browseStays': 'រកមើលការស្នាក់នៅ',
   'nav.primaryNavigation': 'ការរុករកចម្បង',
+  'auth.login.dontHaveAccount': 'មិនមានគណនីទេ?',
+  'auth.signup.passwordsDontMatchPeriod': 'ពាក្យសម្ងាត់មិនត្រូវគ្នា។',
 }

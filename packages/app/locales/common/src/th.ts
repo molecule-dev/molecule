@@ -505,4 +505,6 @@ export const th: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'กำลังโหลด...',
   'nav.browseStays': 'เลือกดูที่พัก',
   'nav.primaryNavigation': 'การนำทางหลัก',
+  'auth.login.dontHaveAccount': 'ยังไม่มีบัญชีใช่ไหม?',
+  'auth.signup.passwordsDontMatchPeriod': 'รหัสผ่านไม่ตรงกัน',
 }

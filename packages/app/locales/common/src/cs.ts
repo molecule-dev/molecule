@@ -504,4 +504,6 @@ export const cs: Partial<CommonTranslations> = {
   'nav.details': 'Podrobnosti',
   'nav.failedToLoad': 'Načtení se nezdařilo.',
   'nav.browseStays': 'Procházet pobyty',
+  'auth.login.dontHaveAccount': 'Nemáte účet?',
+  'auth.signup.passwordsDontMatchPeriod': 'Hesla se neshodují.',
 }

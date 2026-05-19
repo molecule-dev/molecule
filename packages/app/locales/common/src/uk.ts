@@ -504,4 +504,6 @@ export const uk: Partial<CommonTranslations> = {
   'nav.details': 'Деталі',
   'nav.failedToLoad': 'Не вдалося завантажити.',
   'nav.browseStays': 'Переглянути варіанти проживання',
+  'auth.login.dontHaveAccount': 'Немає облікового запису?',
+  'auth.signup.passwordsDontMatchPeriod': 'Паролі не збігаються.',
 }

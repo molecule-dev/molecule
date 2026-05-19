@@ -502,4 +502,6 @@ export const hi: Partial<CommonTranslations> = {
     'भुगतान सत्यापन कॉन्फ़िगर नहीं किया गया है<x> {{प्रदाता}}</x> .',
   'auth.passwordMask': '••••••••',
   'auth.passwordPlaceholderNameCompany': 'name@company.com',
+  'auth.login.dontHaveAccount': 'क्या आपके पास खाता नहीं है?',
+  'auth.signup.passwordsDontMatchPeriod': 'पासवर्ड मेल नहीं खाते।',
 }

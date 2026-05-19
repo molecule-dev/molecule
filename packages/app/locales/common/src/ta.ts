@@ -507,4 +507,6 @@ export const ta: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'செயல்பாடு ஏற்றப்படுகிறது…',
   'nav.browseStays': 'உலாவல் தங்குகிறது',
   'nav.primaryNavigation': 'முதன்மை வழிசெலுத்தல்',
+  'auth.login.dontHaveAccount': 'உங்களிடம் கணக்கு இல்லையா?',
+  'auth.signup.passwordsDontMatchPeriod': 'கடவுச்சொற்கள் பொருந்தவில்லை.',
 }

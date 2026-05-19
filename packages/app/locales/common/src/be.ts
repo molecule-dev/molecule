@@ -500,4 +500,6 @@ export const be: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Загрузка актыўнасці…',
   'nav.browseStays': 'Праглядзець пражыванне',
   'nav.primaryNavigation': 'Асноўная навігацыя',
+  'auth.login.dontHaveAccount': 'Няма ўліковага запісу?',
+  'auth.signup.passwordsDontMatchPeriod': 'Паролі не супадаюць.',
 }

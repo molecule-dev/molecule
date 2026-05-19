@@ -507,4 +507,6 @@ export const et: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Tegevuse laadimine…',
   'nav.browseStays': 'Sirvi majutusi',
   'nav.primaryNavigation': 'Peamine navigeerimine',
+  'auth.login.dontHaveAccount': 'Sul pole kontot?',
+  'auth.signup.passwordsDontMatchPeriod': 'Paroolid ei sobi kokku.',
 }

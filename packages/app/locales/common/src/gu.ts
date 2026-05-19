@@ -504,4 +504,6 @@ export const gu: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'પ્રવૃત્તિ લોડ કરી રહ્યું છે…',
   'nav.browseStays': 'રોકાણ બ્રાઉઝ કરો',
   'nav.primaryNavigation': 'પ્રાથમિક નેવિગેશન',
+  'auth.login.dontHaveAccount': 'ખાતું નથી?',
+  'auth.signup.passwordsDontMatchPeriod': 'પાસવર્ડ્સ મેળ ખાતા નથી.',
 }

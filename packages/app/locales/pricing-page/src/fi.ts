@@ -15,4 +15,6 @@ export const fi: Partial<PricingPageTranslations> = {
   'pricingPage.planUpdated.heading': 'Suunnitelmasi on päivitetty',
   'pricingPage.planUpdated.body':
     'Kiitos päivityksestä. Uusi sopimuksesi on heti aktiivinen ja kuitti on lähetetty sinulle sähköpostitse.',
+  'pricingPage.planUpdated.headingNamed':
+    'Olet nyt paikalla<x> {{suunnitelmanNimi}}</x> suunnitelma',
 }

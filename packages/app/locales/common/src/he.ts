@@ -497,4 +497,6 @@ export const he: Partial<CommonTranslations> = {
   'nav.loadingTemplates': 'טוען תבניות…',
   'nav.loadingActivity': 'טוען פעילות...',
   'nav.browseStays': 'עיין במקומות הלינה',
+  'auth.login.dontHaveAccount': 'אין לך חשבון?',
+  'auth.signup.passwordsDontMatchPeriod': 'הסיסמאות אינן תואמות.',
 }

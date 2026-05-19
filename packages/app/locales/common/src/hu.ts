@@ -506,4 +506,6 @@ export const hu: Partial<CommonTranslations> = {
   'nav.details': 'Részletek',
   'nav.failedToLoad': 'Nem sikerült betölteni.',
   'nav.browseStays': 'Szállások böngészése',
+  'auth.login.dontHaveAccount': 'Nincs fiókod?',
+  'auth.signup.passwordsDontMatchPeriod': 'A jelszavak nem egyeznek.',
 }

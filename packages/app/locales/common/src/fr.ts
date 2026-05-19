@@ -509,4 +509,6 @@ export const fr: Partial<CommonTranslations> = {
   'nav.transactions': 'Transactions',
   'nav.total': 'Total',
   'nav.cancelSubscription': 'Annuler l&#39;abonnement',
+  'auth.login.dontHaveAccount': 'Vous n&#39;avez pas de compte ?',
+  'auth.signup.passwordsDontMatchPeriod': 'Les mots de passe ne correspondent pas.',
 }

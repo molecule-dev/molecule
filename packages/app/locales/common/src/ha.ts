@@ -501,4 +501,6 @@ export const ha: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Ana loda ayyukan…',
   'nav.browseStays': 'Duba wuraren zama',
   'nav.primaryNavigation': 'Babban kewayawa',
+  'auth.login.dontHaveAccount': 'Ba ku da asusu?',
+  'auth.signup.passwordsDontMatchPeriod': 'Kalmomin sirri ba su dace ba.',
 }

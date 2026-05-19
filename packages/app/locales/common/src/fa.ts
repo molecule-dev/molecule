@@ -503,4 +503,6 @@ export const fa: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'در حال بارگذاری فعالیت…',
   'nav.browseStays': 'مرور اقامت‌ها',
   'nav.primaryNavigation': 'ناوبری اولیه',
+  'auth.login.dontHaveAccount': 'حساب کاربری ندارید؟',
+  'auth.signup.passwordsDontMatchPeriod': 'رمزهای عبور مطابقت ندارند.',
 }

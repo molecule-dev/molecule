@@ -506,4 +506,6 @@ export const el: Partial<CommonTranslations> = {
   'nav.details': 'Καθέκαστα',
   'nav.failedToLoad': 'Αποτυχία φόρτωσης.',
   'nav.browseStays': 'Αναζήτηση καταλυμάτων',
+  'auth.login.dontHaveAccount': 'Δεν έχετε λογαριασμό;',
+  'auth.signup.passwordsDontMatchPeriod': 'Οι κωδικοί πρόσβασης δεν ταιριάζουν.',
 }

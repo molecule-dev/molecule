@@ -15,4 +15,5 @@ export const id: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': 'Periode penagihan',
   'pricingPage.planUpdated.body':
     'Terima kasih telah melakukan peningkatan. Paket baru Anda aktif segera dan tanda terima telah dikirimkan melalui email kepada Anda.',
+  'pricingPage.planUpdated.headingNamed': 'Anda sekarang berada di<x> {{planName}}</x> rencana',
 }

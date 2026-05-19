@@ -505,4 +505,6 @@ export const id: Partial<CommonTranslations> = {
   'nav.subtotal': 'Subtotal',
   'nav.total': 'Total',
   'nav.status': 'Status',
+  'auth.login.dontHaveAccount': 'Belum punya akun?',
+  'auth.signup.passwordsDontMatchPeriod': 'Kata sandi tidak cocok.',
 }

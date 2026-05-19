@@ -500,4 +500,6 @@ export const yo: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'N n gbe iṣẹ-ṣiṣe soke…',
   'nav.browseStays': 'Ṣawari awọn iduro',
   'nav.primaryNavigation': 'Lilọ kiri akọkọ',
+  'auth.login.dontHaveAccount': 'Ṣé o kò ní àkọọ́lẹ̀?',
+  'auth.signup.passwordsDontMatchPeriod': 'Àwọn ọ̀rọ̀ ìpamọ́ kò báramu.',
 }

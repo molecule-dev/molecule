@@ -504,4 +504,6 @@ export const lo: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'ກຳລັງໂຫຼດກິດຈະກຳ…',
   'nav.browseStays': 'ເລືອກການພັກເຊົາ',
   'nav.primaryNavigation': 'ການນຳທາງຫຼັກ',
+  'auth.login.dontHaveAccount': 'ຍັງບໍ່ມີບັນຊີບໍ?',
+  'auth.signup.passwordsDontMatchPeriod': 'ລະຫັດຜ່ານບໍ່ກົງກັນ.',
 }

@@ -507,4 +507,6 @@ export const lt: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Kraunama veikla…',
   'nav.browseStays': 'Naršyti apgyvendinimo paslaugas',
   'nav.primaryNavigation': 'Pagrindinė navigacija',
+  'auth.login.dontHaveAccount': 'Neturite paskyros?',
+  'auth.signup.passwordsDontMatchPeriod': 'Slaptažodžiai nesutampa.',
 }

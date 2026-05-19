@@ -510,4 +510,6 @@ export const ml: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'ആക്റ്റിവിറ്റി ലോഡ് ചെയ്യുന്നു...',
   'nav.browseStays': 'താമസ സ്ഥലങ്ങൾ ബ്രൗസ് ചെയ്യുക',
   'nav.primaryNavigation': 'പ്രാഥമിക നാവിഗേഷൻ',
+  'auth.login.dontHaveAccount': 'അക്കൗണ്ട് ഇല്ലേ?',
+  'auth.signup.passwordsDontMatchPeriod': 'പാസ്‌വേഡുകൾ പൊരുത്തപ്പെടുന്നില്ല.',
 }

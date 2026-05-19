@@ -14,4 +14,5 @@ export const zh: Partial<PricingPageTranslations> = {
   'pricingPage.perSeat': '每座位',
   'pricingPage.periodToggle.label': '计费周期',
   'pricingPage.planUpdated.body': '感谢您的升级。您的新套餐已立即生效，收据已发送至您的邮箱。',
+  'pricingPage.planUpdated.headingNamed': '你现在位于{{planName}}计划',
 }

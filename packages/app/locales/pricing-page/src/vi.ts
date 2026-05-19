@@ -15,4 +15,5 @@ export const vi: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': 'Kỳ thanh toán',
   'pricingPage.planUpdated.body':
     'Cảm ơn bạn đã nâng cấp. Gói dịch vụ mới của bạn đã được kích hoạt ngay lập tức và biên lai đã được gửi qua email cho bạn.',
+  'pricingPage.planUpdated.headingNamed': 'Bạn hiện đang ở trên trang<x> {{planName}}</x> kế hoạch',
 }

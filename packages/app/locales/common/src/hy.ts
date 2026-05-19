@@ -506,4 +506,6 @@ export const hy: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Բեռնվում է ակտիվությունը…',
   'nav.browseStays': 'Դիտել կացարանները',
   'nav.primaryNavigation': 'Հիմնական նավիգացիա',
+  'auth.login.dontHaveAccount': 'Հաշիվ չունե՞ք։',
+  'auth.signup.passwordsDontMatchPeriod': 'Գաղտնաբառերը չեն համընկնում։',
 }

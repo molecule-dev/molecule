@@ -15,4 +15,5 @@ export const fr: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': 'Période de facturation',
   'pricingPage.planUpdated.body':
     'Merci pour votre mise à niveau. Votre nouveau forfait est immédiatement actif et un reçu vous a été envoyé par courriel.',
+  'pricingPage.planUpdated.headingNamed': 'Vous êtes maintenant sur le<x> {{planName}}</x> plan',
 }

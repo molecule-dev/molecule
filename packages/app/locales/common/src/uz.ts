@@ -509,4 +509,6 @@ export const uz: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Faoliyat yuklanmoqda…',
   'nav.browseStays': 'Turar joylarni ko&#39;rib chiqing',
   'nav.primaryNavigation': 'Asosiy navigatsiya',
+  'auth.login.dontHaveAccount': 'Hisobingiz yo&#39;qmi?',
+  'auth.signup.passwordsDontMatchPeriod': 'Parollar mos kelmayapti.',
 }

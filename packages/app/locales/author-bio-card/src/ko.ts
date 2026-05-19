@@ -13,4 +13,5 @@ export const ko: Partial<AuthorBioCardTranslations> = {
   'authorBioCard.social.github': '{{이름}} GitHub에서',
   'authorBioCard.social.linkedin': '{{이름}} 링크드인에서',
   'authorBioCard.social.mastodon': '{{이름}} 마스토돈에서',
+  'authorBioCard.social.website': '{{이름}} 웹사이트',
 }

@@ -505,4 +505,6 @@ export const sl: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Nalaganje dejavnosti …',
   'nav.browseStays': 'Brskaj po prenočiščih',
   'nav.primaryNavigation': 'Primarna navigacija',
+  'auth.login.dontHaveAccount': 'Nimate računa?',
+  'auth.signup.passwordsDontMatchPeriod': 'Gesli se ne ujemata.',
 }

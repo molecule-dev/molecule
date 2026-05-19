@@ -508,4 +508,6 @@ export const it: Partial<CommonTranslations> = {
   'nav.dashboard': 'Pannello di controllo',
   'nav.privacy': 'Privacy',
   'nav.editor': 'Redattore',
+  'auth.login.dontHaveAccount': 'Non hai un account?',
+  'auth.signup.passwordsDontMatchPeriod': 'Le password non corrispondono.',
 }

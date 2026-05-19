@@ -15,4 +15,6 @@ export const ko: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': '청구 기간',
   'pricingPage.planUpdated.body':
     '업그레이드해 주셔서 감사합니다. 새 요금제는 즉시 적용되며, 영수증은 이메일로 발송되었습니다.',
+  'pricingPage.planUpdated.headingNamed':
+    '지금 보고 계신 페이지는 다음과 같습니다.<x> {{planName}}</x> 계획',
 }

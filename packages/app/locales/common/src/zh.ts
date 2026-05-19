@@ -494,4 +494,6 @@ export const zh: Partial<CommonTranslations> = {
   'auth.passwordPlaceholderCompanyEmail': 'you@company.com',
   'auth.passwordPlaceholderNameCompany': 'name@company.com',
   'auth.passwordPlaceholderNameExample': 'name@example.com',
+  'auth.login.dontHaveAccount': '还没有账号？',
+  'auth.signup.passwordsDontMatchPeriod': '密码不匹配。',
 }

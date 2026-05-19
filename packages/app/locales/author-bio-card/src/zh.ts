@@ -13,4 +13,5 @@ export const zh: Partial<AuthorBioCardTranslations> = {
   'authorBioCard.social.github': '{{姓名}}在 GitHub 上',
   'authorBioCard.social.linkedin': '{{姓名}}在领英上',
   'authorBioCard.social.mastodon': '{{姓名}}在猛犸象',
+  'authorBioCard.social.website': '{{姓名}}的网站',
 }

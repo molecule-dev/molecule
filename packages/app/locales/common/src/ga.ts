@@ -506,4 +506,6 @@ export const ga: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Gníomhaíocht á lódáil…',
   'nav.browseStays': 'Brabhsáil na lóistín',
   'nav.primaryNavigation': 'Príomh-loingseoireacht',
+  'auth.login.dontHaveAccount': 'Nach bhfuil cuntas agat?',
+  'auth.signup.passwordsDontMatchPeriod': 'Ní hionann na pasfhocail.',
 }

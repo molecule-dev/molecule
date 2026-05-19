@@ -494,4 +494,6 @@ export const zhTW: Partial<CommonTranslations> = {
   'nav.loadingActivity': '正在加載活動…',
   'nav.browseStays': '瀏覽住宿',
   'nav.primaryNavigation': '主導航',
+  'auth.login.dontHaveAccount': '還沒有帳號？',
+  'auth.signup.passwordsDontMatchPeriod': '密碼不符。',
 }

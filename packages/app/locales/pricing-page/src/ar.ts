@@ -15,4 +15,5 @@ export const ar: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': 'فترة الفوترة',
   'pricingPage.planUpdated.body':
     'شكراً لترقية اشتراكك. تم تفعيل خطتك الجديدة فوراً، وقد تم إرسال إيصال إليك عبر البريد الإلكتروني.',
+  'pricingPage.planUpdated.headingNamed': 'أنت الآن على<x> {{planName}}</x> يخطط',
 }

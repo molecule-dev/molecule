@@ -15,4 +15,5 @@ export const cs: Partial<PricingPageTranslations> = {
   'pricingPage.planUpdated.heading': 'Váš tarif byl aktualizován',
   'pricingPage.planUpdated.body':
     'Děkujeme za upgrade. Váš nový tarif je okamžitě aktivní a potvrzení vám bylo zasláno e-mailem.',
+  'pricingPage.planUpdated.headingNamed': 'Nyní jste na<x> {{název plánu}}</x> plán',
 }

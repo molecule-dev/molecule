@@ -504,4 +504,6 @@ export const ru: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Загрузка...',
   'nav.browseStays': 'Просмотрите варианты размещения',
   'nav.primaryNavigation': 'Основная навигация',
+  'auth.login.dontHaveAccount': 'У вас нет аккаунта?',
+  'auth.signup.passwordsDontMatchPeriod': 'Пароли не совпадают.',
 }

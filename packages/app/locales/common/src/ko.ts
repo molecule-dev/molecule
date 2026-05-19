@@ -501,4 +501,6 @@ export const ko: Partial<CommonTranslations> = {
   'auth.passwordPlaceholderCompanyEmail': 'you@company.com',
   'auth.passwordPlaceholderNameCompany': 'name@company.com',
   'auth.passwordPlaceholderNameExample': 'name@example.com',
+  'auth.login.dontHaveAccount': '계정이 없으신가요?',
+  'auth.signup.passwordsDontMatchPeriod': '비밀번호가 일치하지 않습니다.',
 }

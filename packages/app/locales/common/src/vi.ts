@@ -504,4 +504,6 @@ export const vi: Partial<CommonTranslations> = {
   'user.payment.verificationNotConfigured':
     'Tính năng xác minh thanh toán chưa được cấu hình.<x> {{nhà cung cấp}}</x> .',
   'auth.passwordMask': '••••••••',
+  'auth.login.dontHaveAccount': 'Bạn chưa có tài khoản?',
+  'auth.signup.passwordsDontMatchPeriod': 'Mật khẩu không khớp.',
 }

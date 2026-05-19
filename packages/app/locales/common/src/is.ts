@@ -502,4 +502,6 @@ export const is: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Hleður virkni…',
   'nav.browseStays': 'Skoða gistingu',
   'nav.primaryNavigation': 'Aðalflakk',
+  'auth.login.dontHaveAccount': 'Ertu ekki með aðgang?',
+  'auth.signup.passwordsDontMatchPeriod': 'Lykilorðin stemma ekki.',
 }

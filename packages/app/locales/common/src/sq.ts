@@ -506,4 +506,6 @@ export const sq: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Duke ngarkuar aktivitetin…',
   'nav.browseStays': 'Shfletoni qëndrimet',
   'nav.primaryNavigation': 'Navigimi kryesor',
+  'auth.login.dontHaveAccount': 'Nuk keni një llogari?',
+  'auth.signup.passwordsDontMatchPeriod': 'Fjalëkalimet nuk përputhen.',
 }

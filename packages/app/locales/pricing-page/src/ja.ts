@@ -15,4 +15,5 @@ export const ja: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': '請求期間',
   'pricingPage.planUpdated.body':
     'アップグレードありがとうございます。新しいプランは即日有効となり、領収書をメールでお送りしました。',
+  'pricingPage.planUpdated.headingNamed': 'あなたは今{{planName}}プラン',
 }

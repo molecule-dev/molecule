@@ -504,4 +504,6 @@ export const nl: Partial<CommonTranslations> = {
   'nav.product': 'Product',
   'nav.details': 'Details',
   'nav.status': 'Status',
+  'auth.login.dontHaveAccount': 'Nog geen account?',
+  'auth.signup.passwordsDontMatchPeriod': 'De wachtwoorden komen niet overeen.',
 }

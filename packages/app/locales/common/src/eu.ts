@@ -510,4 +510,6 @@ export const eu: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'Jarduera kargatzen…',
   'nav.browseStays': 'Arakatu egonaldiak',
   'nav.primaryNavigation': 'Nabigazio nagusia',
+  'auth.login.dontHaveAccount': 'Ez duzu konturik?',
+  'auth.signup.passwordsDontMatchPeriod': 'Pasahitzak ez datoz bat.',
 }

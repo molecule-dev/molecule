@@ -500,4 +500,6 @@ export const ja: Partial<CommonTranslations> = {
   'auth.passwordPlaceholderCompanyEmail': 'you@company.com',
   'auth.passwordPlaceholderNameCompany': 'name@company.com',
   'auth.passwordPlaceholderNameExample': 'name@example.com',
+  'auth.login.dontHaveAccount': 'アカウントをお持ちではありませんか？',
+  'auth.signup.passwordsDontMatchPeriod': 'パスワードが一致しません。',
 }

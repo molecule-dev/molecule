@@ -502,4 +502,6 @@ export const pa: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'ਗਤੀਵਿਧੀ ਲੋਡ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ…',
   'nav.browseStays': 'ਠਹਿਰਾਅ ਬ੍ਰਾਊਜ਼ ਕਰੋ',
   'nav.primaryNavigation': 'ਪ੍ਰਾਇਮਰੀ ਨੈਵੀਗੇਸ਼ਨ',
+  'auth.login.dontHaveAccount': 'ਕੀ ਤੁਹਾਡਾ ਕੋਈ ਖਾਤਾ ਨਹੀਂ ਹੈ?',
+  'auth.signup.passwordsDontMatchPeriod': 'ਪਾਸਵਰਡ ਮੇਲ ਨਹੀਂ ਖਾਂਦੇ।',
 }

@@ -503,4 +503,6 @@ export const nb: Partial<CommonTranslations> = {
   'nav.plan': 'Plan',
   'nav.failedToLoad': 'Kunne ikke laste inn.',
   'nav.browseStays': 'Bla gjennom opphold',
+  'auth.login.dontHaveAccount': 'Har du ikke en konto?',
+  'auth.signup.passwordsDontMatchPeriod': 'Passordene stemmer ikke overens.',
 }

@@ -504,4 +504,6 @@ export const bn: Partial<CommonTranslations> = {
   'nav.loadingActivity': 'কার্যক্রম লোড হচ্ছে…',
   'nav.browseStays': 'থাকার জায়গা ব্রাউজ করুন',
   'nav.primaryNavigation': 'প্রাথমিক নেভিগেশন',
+  'auth.login.dontHaveAccount': 'আপনার কি অ্যাকাউন্ট নেই?',
+  'auth.signup.passwordsDontMatchPeriod': 'পাসওয়ার্ডগুলো মিলছে না।',
 }
