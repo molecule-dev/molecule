@@ -33,6 +33,7 @@ export const LANGUAGE_DEFINITIONS: readonly LanguageDefinition[] = [
   { code: 'de', name: 'Deutsch', direction: 'ltr' },
   { code: 'el', name: 'Ελληνικά', direction: 'ltr' },
   { code: 'es', name: 'Español', direction: 'ltr' },
+  { code: 'es-MX', name: 'Español (México)', direction: 'ltr' },
   { code: 'et', name: 'Eesti', direction: 'ltr' },
   { code: 'eu', name: 'Euskara', direction: 'ltr' },
   { code: 'fa', name: 'فارسی', direction: 'rtl' },
