@@ -106,7 +106,7 @@ export function ContentPageShell({
               className={cm.cn(
                 cm.textSize('4xl'),
                 cm.fontWeight('extrabold'),
-                'font-headline tracking-tight',
+                'font-display tracking-tight',
               )}
             >
               {title}
