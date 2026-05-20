@@ -12,6 +12,7 @@
  * @module
  */
 
+export * from './ContentPageShell.js'
 export * from './LegalPageLayout.js'
 export * from './LegalPageSection.js'
 export * from './PlanUpdatedPage.js'
