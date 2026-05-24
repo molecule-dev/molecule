@@ -47,7 +47,7 @@ class AnthropicAIProvider implements AIProvider {
     this.apiKey = config.apiKey ?? process.env.ANTHROPIC_API_KEY ?? ''
     this.defaultModel = config.defaultModel ?? 'claude-opus-4-6'
     this.maxTokens = config.maxTokens ?? 4096
-    this.baseUrl = config.baseUrl ?? 'https://api.anthropic.com'
+    this.baseUrl = config.baseUrl ?? process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com'
   }
 
   /**

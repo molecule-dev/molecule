@@ -109,6 +109,38 @@ describe('StabilityAIProvider', () => {
       const p = createProvider({ apiKey: 'test-key', defaultModel: 'core' })
       expect(p.name).toBe('stability')
     })
+
+    it('honours STABILITY_BASE_URL env var', async () => {
+      const prev = process.env['STABILITY_BASE_URL']
+      process.env['STABILITY_BASE_URL'] = 'https://gateway.broker'
+      try {
+        const envProvider = createProvider({ apiKey: 'test-key' })
+        mockFetch.mockResolvedValue(mockJsonImageResponse())
+        await envProvider.generate({ prompt: 'a cat' })
+        expect(mockFetch.mock.calls[0][0]).toBe(
+          'https://gateway.broker/v2beta/stable-image/generate/sd3',
+        )
+      } finally {
+        if (prev === undefined) delete process.env['STABILITY_BASE_URL']
+        else process.env['STABILITY_BASE_URL'] = prev
+      }
+    })
+
+    it('config.baseUrl takes precedence over STABILITY_BASE_URL env var', async () => {
+      const prev = process.env['STABILITY_BASE_URL']
+      process.env['STABILITY_BASE_URL'] = 'https://env.broker'
+      try {
+        const cfgProvider = createProvider({ apiKey: 'test-key', baseUrl: 'https://config.broker' })
+        mockFetch.mockResolvedValue(mockJsonImageResponse())
+        await cfgProvider.generate({ prompt: 'a cat' })
+        expect(mockFetch.mock.calls[0][0]).toBe(
+          'https://config.broker/v2beta/stable-image/generate/sd3',
+        )
+      } finally {
+        if (prev === undefined) delete process.env['STABILITY_BASE_URL']
+        else process.env['STABILITY_BASE_URL'] = prev
+      }
+    })
   })
 
   // =========================================================================

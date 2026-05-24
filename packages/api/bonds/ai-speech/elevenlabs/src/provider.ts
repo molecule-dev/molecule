@@ -59,7 +59,7 @@ class ElevenlabsSpeechProvider implements AISpeechProvider {
     this.apiKey = config.apiKey ?? process.env.ELEVENLABS_API_KEY ?? ''
     this.defaultVoiceId = config.defaultVoiceId ?? 'JBFqnCBsd6RMkjVDRZzb'
     this.defaultModel = config.defaultModel ?? 'eleven_multilingual_v2'
-    this.baseUrl = config.baseUrl ?? 'https://api.elevenlabs.io'
+    this.baseUrl = config.baseUrl ?? process.env.ELEVENLABS_BASE_URL ?? 'https://api.elevenlabs.io'
     this.defaultOutputFormat = config.defaultOutputFormat ?? 'mp3_44100_128'
     this.defaultStability = config.defaultStability ?? 0.5
     this.defaultSimilarityBoost = config.defaultSimilarityBoost ?? 0.75

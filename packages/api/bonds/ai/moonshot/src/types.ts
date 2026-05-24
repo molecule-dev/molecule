@@ -23,4 +23,6 @@ export interface MoonshotConfig {
  */
 export interface ProcessEnv {
   MOONSHOT_API_KEY: string
+  /** Base URL override (for credential brokers / gateways). */
+  MOONSHOT_BASE_URL?: string
 }

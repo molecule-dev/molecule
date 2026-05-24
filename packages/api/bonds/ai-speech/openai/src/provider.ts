@@ -85,7 +85,7 @@ class OpenaiSpeechProvider implements AISpeechProvider {
    */
   constructor(config: OpenaiSpeechConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.OPENAI_API_KEY ?? ''
-    this.baseUrl = config.baseUrl ?? 'https://api.openai.com'
+    this.baseUrl = config.baseUrl ?? process.env.OPENAI_BASE_URL ?? 'https://api.openai.com'
     this.defaultTTSModel = config.defaultTTSModel ?? 'tts-1'
     this.defaultSTTModel = config.defaultSTTModel ?? 'whisper-1'
     this.defaultVoice = config.defaultVoice ?? 'alloy'

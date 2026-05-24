@@ -355,6 +355,56 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
   })
 
   // =========================================================================
+  // Base URL fallback
+  // =========================================================================
+
+  describe('base URL resolution', () => {
+    const okStreamResponse = () => ({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      body: {
+        getReader: () => ({
+          read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+          releaseLock: vi.fn(),
+        }),
+      },
+    })
+
+    it('honours ANTHROPIC_BASE_URL env var', async () => {
+      const prev = process.env.ANTHROPIC_BASE_URL
+      process.env.ANTHROPIC_BASE_URL = 'https://gateway.broker'
+      try {
+        mockFetch.mockResolvedValue(okStreamResponse())
+        const envProvider = createProvider({ apiKey: 'k' })
+        await collectEvents(envProvider.chat(minimalParams))
+        expect((mockFetch.mock.calls[0] as [string, RequestInit])[0]).toBe(
+          'https://gateway.broker/v1/messages',
+        )
+      } finally {
+        if (prev === undefined) delete process.env.ANTHROPIC_BASE_URL
+        else process.env.ANTHROPIC_BASE_URL = prev
+      }
+    })
+
+    it('config.baseUrl takes precedence over ANTHROPIC_BASE_URL env var', async () => {
+      const prev = process.env.ANTHROPIC_BASE_URL
+      process.env.ANTHROPIC_BASE_URL = 'https://env.broker'
+      try {
+        mockFetch.mockResolvedValue(okStreamResponse())
+        const cfgProvider = createProvider({ apiKey: 'k', baseUrl: 'https://config.broker' })
+        await collectEvents(cfgProvider.chat(minimalParams))
+        expect((mockFetch.mock.calls[0] as [string, RequestInit])[0]).toBe(
+          'https://config.broker/v1/messages',
+        )
+      } finally {
+        if (prev === undefined) delete process.env.ANTHROPIC_BASE_URL
+        else process.env.ANTHROPIC_BASE_URL = prev
+      }
+    })
+  })
+
+  // =========================================================================
   // Default timeout
   // =========================================================================
 

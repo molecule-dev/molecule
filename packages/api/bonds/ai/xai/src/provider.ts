@@ -53,7 +53,7 @@ class XaiAIProvider implements AIProvider {
     this.apiKey = config.apiKey ?? process.env.XAI_API_KEY ?? ''
     this.defaultModel = config.defaultModel ?? 'grok-code-fast-1'
     this.maxTokens = config.maxTokens ?? 4096
-    this.baseUrl = config.baseUrl ?? 'https://api.x.ai'
+    this.baseUrl = config.baseUrl ?? process.env.XAI_BASE_URL ?? 'https://api.x.ai'
   }
 
   /**

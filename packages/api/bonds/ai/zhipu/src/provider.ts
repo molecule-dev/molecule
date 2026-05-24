@@ -53,7 +53,7 @@ class ZhipuAIProvider implements AIProvider {
     this.apiKey = config.apiKey ?? process.env.ZHIPU_API_KEY ?? ''
     this.defaultModel = config.defaultModel ?? 'glm-5'
     this.maxTokens = config.maxTokens ?? 4096
-    this.baseUrl = config.baseUrl ?? 'https://api.z.ai/api/paas'
+    this.baseUrl = config.baseUrl ?? process.env.ZHIPU_BASE_URL ?? 'https://api.z.ai/api/paas'
   }
 
   /**

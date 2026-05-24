@@ -88,6 +88,50 @@ describe('chat()', () => {
     )
   })
 
+  it('honours ZHIPU_BASE_URL env var', async () => {
+    const prev = process.env.ZHIPU_BASE_URL
+    process.env.ZHIPU_BASE_URL = 'https://gateway.broker/api/paas'
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockResolvedValue(
+        jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+      )
+      const provider = createProvider({ apiKey: 'k' })
+      for await (const _ of provider.chat({
+        messages: [{ role: 'user', content: 'h' }],
+        stream: false,
+      })) {
+        // drain
+      }
+      expect(fetch.mock.calls[0][0]).toBe('https://gateway.broker/api/paas/v4/chat/completions')
+    } finally {
+      if (prev === undefined) delete process.env.ZHIPU_BASE_URL
+      else process.env.ZHIPU_BASE_URL = prev
+    }
+  })
+
+  it('config.baseUrl takes precedence over ZHIPU_BASE_URL env var', async () => {
+    const prev = process.env.ZHIPU_BASE_URL
+    process.env.ZHIPU_BASE_URL = 'https://env.broker/api/paas'
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockResolvedValue(
+        jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+      )
+      const provider = createProvider({ apiKey: 'k', baseUrl: 'https://config.broker/api/paas' })
+      for await (const _ of provider.chat({
+        messages: [{ role: 'user', content: 'h' }],
+        stream: false,
+      })) {
+        // drain
+      }
+      expect(fetch.mock.calls[0][0]).toBe('https://config.broker/api/paas/v4/chat/completions')
+    } finally {
+      if (prev === undefined) delete process.env.ZHIPU_BASE_URL
+      else process.env.ZHIPU_BASE_URL = prev
+    }
+  })
+
   it('defaults model to glm-5', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(

@@ -73,7 +73,7 @@ export class StabilityAIProvider implements AIImageGenerationProvider {
     }
     this.apiKey = apiKey
     this.defaultModel = config.defaultModel ?? DEFAULT_MODEL
-    this.baseUrl = config.baseUrl ?? DEFAULT_BASE_URL
+    this.baseUrl = config.baseUrl ?? process.env.STABILITY_BASE_URL ?? DEFAULT_BASE_URL
     this.maxRetries = config.maxRetries ?? 3
   }
 

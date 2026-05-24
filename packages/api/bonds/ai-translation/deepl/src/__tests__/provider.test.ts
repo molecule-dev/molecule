@@ -569,6 +569,34 @@ describe('DeeplTranslationProvider', () => {
       expect(url).toBe('https://custom.api/v2/translate')
     })
 
+    it('honours DEEPL_BASE_URL env var (overriding free-vs-pro auto-detection)', async () => {
+      vi.stubEnv('DEEPL_BASE_URL', 'https://gateway.broker')
+      // Free-key shape (:fx) would normally route to api-free.deepl.com; the
+      // env override must win over that branch.
+      const envProvider = createProvider({ apiKey: 'my-key:fx' })
+      mockFetch.mockResolvedValue(
+        mockTranslateResponse([{ detected_source_language: 'EN', text: 'Hallo' }]),
+      )
+
+      await envProvider.translate({ text: 'Hello', targetLang: 'DE' })
+
+      const [url] = mockFetch.mock.calls[0] as [string, RequestInit]
+      expect(url).toBe('https://gateway.broker/v2/translate')
+    })
+
+    it('config.baseUrl takes precedence over DEEPL_BASE_URL env var', async () => {
+      vi.stubEnv('DEEPL_BASE_URL', 'https://env.broker')
+      const cfgProvider = createProvider({ apiKey: 'my-key:fx', baseUrl: 'https://config.broker' })
+      mockFetch.mockResolvedValue(
+        mockTranslateResponse([{ detected_source_language: 'EN', text: 'Hallo' }]),
+      )
+
+      await cfgProvider.translate({ text: 'Hello', targetLang: 'DE' })
+
+      const [url] = mockFetch.mock.calls[0] as [string, RequestInit]
+      expect(url).toBe('https://config.broker/v2/translate')
+    })
+
     it('uses default formality from config', async () => {
       const formalProvider = createProvider({
         apiKey: 'test-key:fx',

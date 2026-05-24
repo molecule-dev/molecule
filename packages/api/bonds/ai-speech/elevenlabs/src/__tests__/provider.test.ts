@@ -469,6 +469,28 @@ describe('ElevenlabsSpeechProvider', () => {
       expect(headers['xi-api-key']).toBe('env-key')
     })
 
+    it('honours ELEVENLABS_BASE_URL env var', async () => {
+      vi.stubEnv('ELEVENLABS_BASE_URL', 'https://gateway.broker')
+      const envProvider = createProvider({ apiKey: 'k' })
+      mockFetch.mockResolvedValue(mockVoicesResponse())
+
+      await envProvider.listVoices()
+
+      const [url] = mockFetch.mock.calls[0] as [string, RequestInit]
+      expect(url).toBe('https://gateway.broker/v1/voices')
+    })
+
+    it('config.baseUrl takes precedence over ELEVENLABS_BASE_URL env var', async () => {
+      vi.stubEnv('ELEVENLABS_BASE_URL', 'https://env.broker')
+      const cfgProvider = createProvider({ apiKey: 'k', baseUrl: 'https://config.broker' })
+      mockFetch.mockResolvedValue(mockVoicesResponse())
+
+      await cfgProvider.listVoices()
+
+      const [url] = mockFetch.mock.calls[0] as [string, RequestInit]
+      expect(url).toBe('https://config.broker/v1/voices')
+    })
+
     it('has correct provider name', () => {
       expect(provider.name).toBe('elevenlabs')
     })

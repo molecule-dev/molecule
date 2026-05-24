@@ -87,8 +87,13 @@ class DeeplTranslationProvider implements AITranslationProvider {
     this.defaultFormality = config.defaultFormality ?? 'default'
     this.defaultModelType = config.defaultModelType ?? 'latency_optimized'
 
+    // Option wins over env, env wins over the free-vs-pro default. The explicit
+    // override (config or DEEPL_BASE_URL) must short-circuit the key-shape branch
+    // so a credential broker can point at a gateway regardless of key type.
     if (config.baseUrl) {
       this.baseUrl = config.baseUrl
+    } else if (process.env.DEEPL_BASE_URL) {
+      this.baseUrl = process.env.DEEPL_BASE_URL
     } else {
       this.baseUrl = isFreeKey(this.apiKey) ? 'https://api-free.deepl.com' : 'https://api.deepl.com'
     }

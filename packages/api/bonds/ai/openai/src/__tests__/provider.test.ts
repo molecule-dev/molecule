@@ -72,6 +72,50 @@ describe('createProvider / constructor', () => {
     const provider = createProvider()
     expect(provider).toBeInstanceOf(OpenaiAIProvider)
   })
+
+  it('honours OPENAI_BASE_URL env var', async () => {
+    const prev = process.env.OPENAI_BASE_URL
+    process.env.OPENAI_BASE_URL = 'https://gateway.broker'
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockResolvedValue(
+        jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+      )
+      const provider = createProvider({ apiKey: 'k' })
+      for await (const _ of provider.chat({
+        messages: [{ role: 'user', content: 'h' }],
+        stream: false,
+      })) {
+        // drain
+      }
+      expect(fetch.mock.calls[0][0]).toBe('https://gateway.broker/v1/chat/completions')
+    } finally {
+      if (prev === undefined) delete process.env.OPENAI_BASE_URL
+      else process.env.OPENAI_BASE_URL = prev
+    }
+  })
+
+  it('config.baseUrl takes precedence over OPENAI_BASE_URL env var', async () => {
+    const prev = process.env.OPENAI_BASE_URL
+    process.env.OPENAI_BASE_URL = 'https://env.broker'
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockResolvedValue(
+        jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+      )
+      const provider = createProvider({ apiKey: 'k', baseUrl: 'https://config.broker' })
+      for await (const _ of provider.chat({
+        messages: [{ role: 'user', content: 'h' }],
+        stream: false,
+      })) {
+        // drain
+      }
+      expect(fetch.mock.calls[0][0]).toBe('https://config.broker/v1/chat/completions')
+    } finally {
+      if (prev === undefined) delete process.env.OPENAI_BASE_URL
+      else process.env.OPENAI_BASE_URL = prev
+    }
+  })
 })
 
 describe('chat() — request shape', () => {

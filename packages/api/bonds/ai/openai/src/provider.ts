@@ -43,7 +43,7 @@ export class OpenaiAIProvider implements AIProvider {
     this.apiKey = config.apiKey ?? process.env.OPENAI_API_KEY ?? ''
     this.defaultModel = config.defaultModel ?? 'gpt-4o-mini'
     this.maxTokens = config.maxTokens ?? 4096
-    this.baseUrl = config.baseUrl ?? 'https://api.openai.com'
+    this.baseUrl = config.baseUrl ?? process.env.OPENAI_BASE_URL ?? 'https://api.openai.com'
   }
 
   /**

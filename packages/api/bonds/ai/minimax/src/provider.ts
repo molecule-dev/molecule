@@ -53,7 +53,7 @@ class MiniMaxAIProvider implements AIProvider {
     this.apiKey = config.apiKey ?? process.env.MINIMAX_API_KEY ?? ''
     this.defaultModel = config.defaultModel ?? 'minimax-m2.5'
     this.maxTokens = config.maxTokens ?? 4096
-    this.baseUrl = config.baseUrl ?? 'https://api.minimax.chat'
+    this.baseUrl = config.baseUrl ?? process.env.MINIMAX_BASE_URL ?? 'https://api.minimax.chat'
   }
 
   /**

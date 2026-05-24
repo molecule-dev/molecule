@@ -117,8 +117,11 @@ describe('OpenaiImageGenerationProvider', () => {
     it('sends custom size and quality', async () => {
       mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/img.png' }]))
 
+      // dall-e-3 accepts 1792x1024 verbatim (gpt-image-1 would be normalized
+      // to 1536x1024 by normalizeSize, so pin the model to test pass-through).
       await provider.generate({
         prompt: 'test',
+        model: 'dall-e-3',
         size: '1792x1024',
         quality: 'hd',
       })
@@ -128,7 +131,7 @@ describe('OpenaiImageGenerationProvider', () => {
       expect(body.quality).toBe('hd')
     })
 
-    it('sends style parameter for DALL-E 3', async () => {
+    it('does not send the removed style parameter for DALL-E 3', async () => {
       mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/img.png' }]))
 
       await provider.generate({
@@ -137,8 +140,10 @@ describe('OpenaiImageGenerationProvider', () => {
         style: 'natural',
       })
 
+      // OpenAI removed `style` from the Images API — the provider deliberately
+      // never forwards it (callers bake style into the prompt instead).
       const body = JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
-      expect(body.style).toBe('natural')
+      expect(body.style).toBeUndefined()
     })
 
     it('uses response_format b64_json for DALL-E base64 mode', async () => {
@@ -429,6 +434,28 @@ describe('OpenaiImageGenerationProvider', () => {
       const [, init] = mockFetch.mock.calls[0] as [string, RequestInit]
       const headers = init.headers as Record<string, string>
       expect(headers['Authorization']).toBe('Bearer env-key')
+    })
+
+    it('honours OPENAI_BASE_URL env var', async () => {
+      vi.stubEnv('OPENAI_BASE_URL', 'https://gateway.broker')
+      const envProvider = createProvider({ apiKey: 'k' })
+      mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/img.png' }]))
+
+      await envProvider.generate({ prompt: 'test' })
+
+      const [url] = mockFetch.mock.calls[0] as [string, RequestInit]
+      expect(url).toBe('https://gateway.broker/v1/images/generations')
+    })
+
+    it('config.baseUrl takes precedence over OPENAI_BASE_URL env var', async () => {
+      vi.stubEnv('OPENAI_BASE_URL', 'https://env.broker')
+      const cfgProvider = createProvider({ apiKey: 'k', baseUrl: 'https://config.broker' })
+      mockFetch.mockResolvedValue(mockImagesResponse([{ url: 'https://example.com/img.png' }]))
+
+      await cfgProvider.generate({ prompt: 'test' })
+
+      const [url] = mockFetch.mock.calls[0] as [string, RequestInit]
+      expect(url).toBe('https://config.broker/v1/images/generations')
     })
 
     it('has correct provider name', () => {

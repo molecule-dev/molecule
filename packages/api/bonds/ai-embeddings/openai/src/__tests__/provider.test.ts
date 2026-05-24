@@ -400,6 +400,28 @@ describe('OpenaiEmbeddingsProvider', () => {
       expect(headers['Authorization']).toBe('Bearer env-key')
     })
 
+    it('honours OPENAI_BASE_URL env var', async () => {
+      vi.stubEnv('OPENAI_BASE_URL', 'https://gateway.broker')
+      const envProvider = createProvider({ apiKey: 'k' })
+      mockFetch.mockResolvedValue(mockEmbeddingsResponse([[0.1]]))
+
+      await envProvider.embed({ input: 'test' })
+
+      const [url] = mockFetch.mock.calls[0] as [string, RequestInit]
+      expect(url).toBe('https://gateway.broker/v1/embeddings')
+    })
+
+    it('config.baseUrl takes precedence over OPENAI_BASE_URL env var', async () => {
+      vi.stubEnv('OPENAI_BASE_URL', 'https://env.broker')
+      const cfgProvider = createProvider({ apiKey: 'k', baseUrl: 'https://config.broker' })
+      mockFetch.mockResolvedValue(mockEmbeddingsResponse([[0.1]]))
+
+      await cfgProvider.embed({ input: 'test' })
+
+      const [url] = mockFetch.mock.calls[0] as [string, RequestInit]
+      expect(url).toBe('https://config.broker/v1/embeddings')
+    })
+
     it('has correct provider name', () => {
       expect(provider.name).toBe('openai')
     })

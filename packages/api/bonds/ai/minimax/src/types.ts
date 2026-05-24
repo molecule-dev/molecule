@@ -23,4 +23,6 @@ export interface MiniMaxConfig {
  */
 export interface ProcessEnv {
   MINIMAX_API_KEY: string
+  /** Base URL override (for credential brokers / gateways). */
+  MINIMAX_BASE_URL?: string
 }
