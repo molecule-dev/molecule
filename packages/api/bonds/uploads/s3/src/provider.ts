@@ -29,8 +29,15 @@ let _s3Client: S3Client | null = null
  */
 function getS3Client(): S3Client {
   if (!_s3Client) {
+    // Optional endpoint + path-style overrides let this provider target an
+    // S3-compatible service (Cloudflare R2, MinIO, DigitalOcean Spaces, or a
+    // credential broker). When `AWS_S3_ENDPOINT` is unset the SDK resolves the
+    // default AWS regional endpoint and `AWS_S3_FORCE_PATH_STYLE` defaults to
+    // the SDK's virtual-hosted-style addressing, so behaviour is unchanged.
     _s3Client = new S3Client({
       region: process.env.AWS_S3_REGION || 'us-east-1',
+      ...(process.env.AWS_S3_ENDPOINT ? { endpoint: process.env.AWS_S3_ENDPOINT } : {}),
+      ...(process.env.AWS_S3_FORCE_PATH_STYLE === 'true' ? { forcePathStyle: true } : {}),
     })
   }
   return _s3Client

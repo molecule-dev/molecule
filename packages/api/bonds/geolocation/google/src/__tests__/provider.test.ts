@@ -410,3 +410,40 @@ describe('google geolocation provider', () => {
     })
   })
 })
+
+describe('google geolocation lazy provider (env)', () => {
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.restoreAllMocks()
+  })
+
+  it('threads GOOGLE_MAPS_BASE_URL into requests when set', async () => {
+    vi.stubEnv('GOOGLE_MAPS_API_KEY', 'env-key')
+    vi.stubEnv('GOOGLE_MAPS_BASE_URL', 'https://broker.example.com')
+    const mockFetch = vi.fn().mockResolvedValue(mockFetchResponse({ status: 'OK', results: [] }))
+    vi.stubGlobal('fetch', mockFetch)
+
+    const { provider } = await import('../provider.js')
+    await provider.geocode('test')
+
+    const calledUrl = mockFetch.mock.calls[0][0] as string
+    expect(calledUrl.startsWith('https://broker.example.com/')).toBe(true)
+  })
+
+  it('falls back to the default Google host when GOOGLE_MAPS_BASE_URL is unset', async () => {
+    vi.stubEnv('GOOGLE_MAPS_API_KEY', 'env-key')
+    vi.stubEnv('GOOGLE_MAPS_BASE_URL', undefined)
+    const mockFetch = vi.fn().mockResolvedValue(mockFetchResponse({ status: 'OK', results: [] }))
+    vi.stubGlobal('fetch', mockFetch)
+
+    const { provider } = await import('../provider.js')
+    await provider.geocode('test')
+
+    const calledUrl = mockFetch.mock.calls[0][0] as string
+    expect(calledUrl.startsWith('https://maps.googleapis.com/')).toBe(true)
+  })
+})

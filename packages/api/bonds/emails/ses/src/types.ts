@@ -29,6 +29,13 @@ declare global {
        * @default us-east-1
        */
       AWS_SES_REGION?: string
+
+      /**
+       * Optional SES service endpoint override (e.g. a credential broker or a
+       * self-hosted / SES-compatible service). When unset, the SDK resolves the
+       * default regional endpoint.
+       */
+      AWS_SES_ENDPOINT?: string
     }
   }
 }

@@ -22,6 +22,13 @@ declare global {
        * The domain for Mailgun emails.
        */
       MAILGUN_DOMAIN?: string
+
+      /**
+       * Optional Mailgun API host override (e.g. `api.eu.mailgun.net` for the
+       * EU region, or a credential-broker / self-hosted endpoint). When unset,
+       * the transport's built-in default host is used.
+       */
+      MAILGUN_API_HOST?: string
     }
   }
 }

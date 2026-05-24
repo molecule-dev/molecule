@@ -462,6 +462,72 @@ describe('S3 Provider', () => {
         region: 'us-east-1',
       })
     })
+
+    it('should not set endpoint or forcePathStyle by default', async () => {
+      vi.resetModules()
+
+      const { S3Client } = await import('@aws-sdk/client-s3')
+      const { s3Client } = await import('../provider.js')
+
+      void s3Client.config
+
+      const config = (S3Client as unknown as ReturnType<typeof vi.fn>).mock.calls[0][0] as Record<
+        string,
+        unknown
+      >
+      expect(config).not.toHaveProperty('endpoint')
+      expect(config).not.toHaveProperty('forcePathStyle')
+    })
+
+    it('should pass endpoint when AWS_S3_ENDPOINT is set (R2/MinIO/Spaces)', async () => {
+      vi.stubEnv('AWS_S3_ENDPOINT', 'https://accountid.r2.cloudflarestorage.com')
+      vi.resetModules()
+
+      const { S3Client } = await import('@aws-sdk/client-s3')
+      const { s3Client } = await import('../provider.js')
+
+      void s3Client.config
+
+      expect(S3Client).toHaveBeenCalledWith(
+        expect.objectContaining({
+          endpoint: 'https://accountid.r2.cloudflarestorage.com',
+        }),
+      )
+    })
+
+    it('should enable forcePathStyle when AWS_S3_FORCE_PATH_STYLE is "true"', async () => {
+      vi.stubEnv('AWS_S3_ENDPOINT', 'http://localhost:9000')
+      vi.stubEnv('AWS_S3_FORCE_PATH_STYLE', 'true')
+      vi.resetModules()
+
+      const { S3Client } = await import('@aws-sdk/client-s3')
+      const { s3Client } = await import('../provider.js')
+
+      void s3Client.config
+
+      expect(S3Client).toHaveBeenCalledWith(
+        expect.objectContaining({
+          endpoint: 'http://localhost:9000',
+          forcePathStyle: true,
+        }),
+      )
+    })
+
+    it('should not enable forcePathStyle for non-"true" values', async () => {
+      vi.stubEnv('AWS_S3_FORCE_PATH_STYLE', '1')
+      vi.resetModules()
+
+      const { S3Client } = await import('@aws-sdk/client-s3')
+      const { s3Client } = await import('../provider.js')
+
+      void s3Client.config
+
+      const config = (S3Client as unknown as ReturnType<typeof vi.fn>).mock.calls[0][0] as Record<
+        string,
+        unknown
+      >
+      expect(config).not.toHaveProperty('forcePathStyle')
+    })
   })
 })
 

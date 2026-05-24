@@ -17,6 +17,13 @@ declare global {
        * The key used for SendGrid's API.
        */
       SENDGRID_API_KEY?: string
+
+      /**
+       * Optional base URL override for the SendGrid client (e.g. a credential
+       * broker or a self-hosted / SendGrid-compatible endpoint). When unset,
+       * the client's built-in default base URL is used.
+       */
+      SENDGRID_BASE_URL?: string
     }
   }
 }

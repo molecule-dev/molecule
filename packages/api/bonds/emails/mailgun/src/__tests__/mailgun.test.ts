@@ -204,4 +204,43 @@ describe('Mailgun Email Provider', () => {
       expect(exports.email).toBeDefined()
     })
   })
+
+  describe('MAILGUN_API_HOST override', () => {
+    it('should pass host to the transport when MAILGUN_API_HOST is set', async () => {
+      process.env.MAILGUN_API_HOST = 'api.eu.mailgun.net'
+      mockSendMail.mockResolvedValue({ accepted: [], rejected: [] })
+
+      const mailgun = (await import('nodemailer-mailgun-transport')).default as ReturnType<
+        typeof vi.fn
+      >
+      const { sendMail } = await import('../provider.js')
+
+      await sendMail({ to: 'test@test.com', subject: 'Test', text: 'x' })
+
+      expect(mailgun).toHaveBeenCalledWith(
+        expect.objectContaining({
+          auth: { api_key: 'test-mailgun-api-key', domain: 'test.mailgun.org' },
+          host: 'api.eu.mailgun.net',
+        }),
+      )
+    })
+
+    it('should not set host when MAILGUN_API_HOST is unset', async () => {
+      delete process.env.MAILGUN_API_HOST
+      mockSendMail.mockResolvedValue({ accepted: [], rejected: [] })
+
+      const mailgun = (await import('nodemailer-mailgun-transport')).default as ReturnType<
+        typeof vi.fn
+      >
+      const { sendMail } = await import('../provider.js')
+
+      await sendMail({ to: 'test@test.com', subject: 'Test', text: 'x' })
+
+      const opts = mailgun.mock.calls[0][0] as Record<string, unknown>
+      expect(opts).not.toHaveProperty('host')
+      expect(opts).toEqual({
+        auth: { api_key: 'test-mailgun-api-key', domain: 'test.mailgun.org' },
+      })
+    })
+  })
 })

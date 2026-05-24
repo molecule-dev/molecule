@@ -9,11 +9,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock @sendgrid/mail before importing the module
 const mockSend = vi.fn()
 const mockSetApiKey = vi.fn()
+const mockSetDefaultRequest = vi.fn()
 
 vi.mock('@sendgrid/mail', () => ({
   default: {
     send: mockSend,
     setApiKey: mockSetApiKey,
+    client: {
+      setDefaultRequest: mockSetDefaultRequest,
+    },
   },
 }))
 
@@ -198,6 +202,26 @@ describe('SendGrid Email Provider', () => {
       await import('../transport.js')
 
       expect(mockSetApiKey).not.toHaveBeenCalled()
+    })
+
+    it('should set the base URL when SENDGRID_BASE_URL is set', async () => {
+      process.env.SENDGRID_BASE_URL = 'https://broker.example.com'
+      vi.resetModules()
+      mockSetDefaultRequest.mockClear()
+
+      await import('../transport.js')
+
+      expect(mockSetDefaultRequest).toHaveBeenCalledWith('baseUrl', 'https://broker.example.com')
+    })
+
+    it('should not set the base URL when SENDGRID_BASE_URL is missing', async () => {
+      delete process.env.SENDGRID_BASE_URL
+      vi.resetModules()
+      mockSetDefaultRequest.mockClear()
+
+      await import('../transport.js')
+
+      expect(mockSetDefaultRequest).not.toHaveBeenCalled()
     })
   })
 

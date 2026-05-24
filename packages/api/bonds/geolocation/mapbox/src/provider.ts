@@ -312,7 +312,9 @@ export const createProvider = (config: MapboxGeolocationConfig): GeolocationProv
 let _provider: GeolocationProvider | null = null
 
 /**
- * The provider implementation, lazily initialized with access token from `MAPBOX_ACCESS_TOKEN` environment variable.
+ * The provider implementation, lazily initialized with access token from
+ * `MAPBOX_ACCESS_TOKEN` and an optional base URL override from `MAPBOX_BASE_URL`
+ * (for proxying through a credential broker or a self-hosted/compatible service).
  */
 export const provider: GeolocationProvider = new Proxy({} as GeolocationProvider, {
   get(_, prop, receiver) {
@@ -323,7 +325,7 @@ export const provider: GeolocationProvider = new Proxy({} as GeolocationProvider
           'MAPBOX_ACCESS_TOKEN environment variable is required for the Mapbox geolocation provider.',
         )
       }
-      _provider = createProvider({ accessToken })
+      _provider = createProvider({ accessToken, baseUrl: process.env['MAPBOX_BASE_URL'] })
     }
     return Reflect.get(_provider, prop, receiver)
   },

@@ -16,10 +16,16 @@ import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/ap
 
 const logger = getLogger()
 
-/** The AWS SES client instance, configured from `AWS_SES_REGION` env var. */
+/**
+ * The AWS SES client instance, configured from `AWS_SES_REGION`. An optional
+ * `AWS_SES_ENDPOINT` overrides the service endpoint (for a credential broker or
+ * a self-hosted / SES-compatible service). When unset, the SDK resolves the
+ * default regional endpoint, so behaviour is unchanged.
+ */
 export const ses = new aws.SESClient({
   region: process.env.AWS_SES_REGION || 'us-east-1',
   credentialDefaultProvider: defaultProvider,
+  ...(process.env.AWS_SES_ENDPOINT ? { endpoint: process.env.AWS_SES_ENDPOINT } : {}),
 })
 
 /**

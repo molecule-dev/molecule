@@ -37,12 +37,17 @@ function getTransport(): nodemailer.Transporter {
     if (!domain) {
       throw new Error('MAILGUN_DOMAIN is not set. Email sending will not work.')
     }
+    // Optional API host override (e.g. EU region `api.eu.mailgun.net`, or a
+    // self-hosted / credential-broker endpoint). When unset, nodemailer-mailgun-transport
+    // uses its built-in default host, so behaviour is unchanged.
+    const host = process.env.MAILGUN_API_HOST
     _transport = nodemailer.createTransport(
       mailgun({
         auth: {
           api_key: apiKey,
           domain,
         },
+        ...(host ? { host } : {}),
       }),
     )
   }

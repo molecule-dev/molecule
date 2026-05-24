@@ -415,6 +415,47 @@ describe('mapbox geolocation provider', () => {
   })
 })
 
+describe('mapbox geolocation lazy provider (env)', () => {
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.restoreAllMocks()
+  })
+
+  it('threads MAPBOX_BASE_URL into requests when set', async () => {
+    vi.stubEnv('MAPBOX_ACCESS_TOKEN', 'env-token')
+    vi.stubEnv('MAPBOX_BASE_URL', 'https://broker.example.com')
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue(mockFetchResponse({ type: 'FeatureCollection', features: [] }))
+    vi.stubGlobal('fetch', mockFetch)
+
+    const { provider } = await import('../provider.js')
+    await provider.geocode('test')
+
+    const calledUrl = mockFetch.mock.calls[0][0] as string
+    expect(calledUrl.startsWith('https://broker.example.com/')).toBe(true)
+  })
+
+  it('falls back to the default Mapbox host when MAPBOX_BASE_URL is unset', async () => {
+    vi.stubEnv('MAPBOX_ACCESS_TOKEN', 'env-token')
+    vi.stubEnv('MAPBOX_BASE_URL', undefined)
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue(mockFetchResponse({ type: 'FeatureCollection', features: [] }))
+    vi.stubGlobal('fetch', mockFetch)
+
+    const { provider } = await import('../provider.js')
+    await provider.geocode('test')
+
+    const calledUrl = mockFetch.mock.calls[0][0] as string
+    expect(calledUrl.startsWith('https://api.mapbox.com/')).toBe(true)
+  })
+})
+
 /** LatLng type alias for test readability. */
 interface LatLng {
   lat: number

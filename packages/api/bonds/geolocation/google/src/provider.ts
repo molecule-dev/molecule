@@ -341,7 +341,10 @@ export const createProvider = (config: GoogleGeolocationConfig): GeolocationProv
 let _provider: GeolocationProvider | null = null
 
 /**
- * The provider implementation, lazily initialized with API key from `GOOGLE_MAPS_API_KEY` environment variable.
+ * The provider implementation, lazily initialized with API key from
+ * `GOOGLE_MAPS_API_KEY` and an optional base URL override from
+ * `GOOGLE_MAPS_BASE_URL` (for proxying through a credential broker or a
+ * self-hosted/compatible service).
  */
 export const provider: GeolocationProvider = new Proxy({} as GeolocationProvider, {
   get(_, prop, receiver) {
@@ -352,7 +355,7 @@ export const provider: GeolocationProvider = new Proxy({} as GeolocationProvider
           'GOOGLE_MAPS_API_KEY environment variable is required for the Google geolocation provider.',
         )
       }
-      _provider = createProvider({ apiKey })
+      _provider = createProvider({ apiKey, baseUrl: process.env['GOOGLE_MAPS_BASE_URL'] })
     }
     return Reflect.get(_provider, prop, receiver)
   },

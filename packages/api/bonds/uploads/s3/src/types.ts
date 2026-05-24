@@ -36,6 +36,22 @@ declare global {
        * The S3 bucket name for uploads.
        */
       AWS_S3_BUCKET?: string
+
+      /**
+       * Optional S3 service endpoint override. Set this to target an
+       * S3-compatible service such as Cloudflare R2, MinIO, DigitalOcean
+       * Spaces, or a credential broker. When unset, the SDK resolves the
+       * default AWS regional endpoint.
+       */
+      AWS_S3_ENDPOINT?: string
+
+      /**
+       * Set to `'true'` to use path-style bucket addressing
+       * (`endpoint/bucket/key`) instead of virtual-hosted-style
+       * (`bucket.endpoint/key`). Required by some S3-compatible services
+       * (e.g. MinIO). When unset, the SDK's default addressing is used.
+       */
+      AWS_S3_FORCE_PATH_STYLE?: string
     }
   }
 }

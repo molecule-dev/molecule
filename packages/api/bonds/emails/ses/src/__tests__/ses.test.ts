@@ -225,6 +225,29 @@ describe('AWS SES Email Provider', () => {
         }),
       )
     })
+
+    it('should pass endpoint when AWS_SES_ENDPOINT is set', async () => {
+      process.env.AWS_SES_ENDPOINT = 'https://broker.example.com'
+      vi.resetModules()
+
+      await import('../provider.js')
+
+      expect(mockSESClient).toHaveBeenCalledWith(
+        expect.objectContaining({
+          endpoint: 'https://broker.example.com',
+        }),
+      )
+    })
+
+    it('should not set endpoint when AWS_SES_ENDPOINT is unset', async () => {
+      delete process.env.AWS_SES_ENDPOINT
+      vi.resetModules()
+
+      await import('../provider.js')
+
+      const config = mockSESClient.mock.calls[0][0] as Record<string, unknown>
+      expect(config).not.toHaveProperty('endpoint')
+    })
   })
 
   describe('transport', () => {
