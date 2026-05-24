@@ -1,0 +1,50 @@
+{
+  "name": "@molecule/api-push-capture",
+  "version": "1.0.0",
+  "description": "Push notification capture provider for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "MOLECULE.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "molecule",
+    "push",
+    "capture",
+    "dev"
+  ],
+  "author": "Molecule",
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-activity": "^1.0.0",
+    "@molecule/api-push-notifications": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-activity": "1.0.0",
+    "@molecule/api-push-notifications": "1.0.0",
+    "typescript": "6.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/push-notifications/capture"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/push-notifications/capture",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
