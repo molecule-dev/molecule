@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for zh. */
-export const zh: Partial<FeatureVideoTimelineTranslations> = {
+export const zh: Partial<VideoTimelineTranslations> = {
   'videoTimeline.zoom.in': '放大',
   'videoTimeline.zoom.out': '缩小',
   'videoTimeline.mode.insert': '插入',

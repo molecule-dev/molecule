@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for fil. */
-export const fil: Partial<FeatureMapDrawingTranslations> = {
+export const fil: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Burahin',
   'mapDrawing.toolbar.aria': 'Mga kagamitan sa pagguhit ng mapa',
   'mapDrawing.surface.aria': 'Ibabaw ng pagguhit ng mapa',

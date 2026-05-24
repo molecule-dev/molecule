@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for hu. */
-export const hu: Partial<FeatureMapDrawingTranslations> = {
+export const hu: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Törlés',
   'mapDrawing.toolbar.aria': 'Térképrajzoló eszközök',
   'mapDrawing.surface.aria': 'Térképrajzolási felület',

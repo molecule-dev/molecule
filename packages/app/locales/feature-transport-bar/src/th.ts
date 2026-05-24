@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for th. */
-export const th: Partial<FeatureTransportBarTranslations> = {
+export const th: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'ปุ่มควบคุมการเล่น',
   'transportBar.aria.skipBack': 'ข้ามไปข้างหลัง',
   'transportBar.aria.skipForward': 'ข้ามไปข้างหน้า',

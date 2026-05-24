@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for hr. */
-export const hr: Partial<FeatureChapterListTranslations> = {
+export const hr: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'Poglavlja',
   'chapterList.aria.seek': 'Skoči na<x> {{titula}}</x> na<x> {{vremenska oznaka}}</x>',
   'chapterList.aria.thumbnail': 'Sličica za<x> {{titula}}</x>',

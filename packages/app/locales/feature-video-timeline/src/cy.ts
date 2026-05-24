@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for cy. */
-export const cy: Partial<FeatureVideoTimelineTranslations> = {
+export const cy: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Llinell amser fideo',
   'videoTimeline.aria.ruler': 'Rheolwr amser',
   'videoTimeline.aria.playhead': 'Pen chwarae yn<x> {{amser}}</x> au',

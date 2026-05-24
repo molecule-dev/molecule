@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for fi. */
-export const fi: Partial<FeatureVideoScrubberTranslations> = {
+export const fi: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Videon valintakytkin',
   'videoScrubber.aria.strip':
     'Filminauha — toistopää kohdassa<x> {{aika}}</x> s (kehys<x> {{kehys}}</x> )',

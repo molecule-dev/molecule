@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for et. */
-export const et: Partial<FeatureTransportBarTranslations> = {
+export const et: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Esituse transpordi juhtnupud',
   'transportBar.aria.skipBack': 'Jäta tagasi vahele',
   'transportBar.aria.skipForward': 'Hüppa edasi',

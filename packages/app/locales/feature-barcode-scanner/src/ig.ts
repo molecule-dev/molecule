@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for ig. */
-export const ig: Partial<FeatureBarcodeScannerTranslations> = {
+export const ig: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Echiche igwefoto nyocha koodu barcode',
   'barcodeScanner.error.permission_denied': 'Ajụrụ ikike igwefoto',
   'barcodeScanner.error.no_camera': 'Achọtaghị igwefoto ọ bụla',

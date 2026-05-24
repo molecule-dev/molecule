@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for am. */
-export const am: Partial<FeatureMapDrawingTranslations> = {
+export const am: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'የካርታ ስዕል መሳሪያዎች',
   'mapDrawing.surface.aria': 'የካርታ ስዕል ወለል',
   'mapDrawing.tool.polygon': 'ፖሊጎን',

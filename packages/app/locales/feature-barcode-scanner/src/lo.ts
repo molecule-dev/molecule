@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for lo. */
-export const lo: Partial<FeatureBarcodeScannerTranslations> = {
+export const lo: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'ມຸມມອງກ້ອງຖ່າຍຮູບເຄື່ອງສະແກນບາໂຄດ',
   'barcodeScanner.error.permission_denied': 'ການອະນຸຍາດກ້ອງຖ່າຍຮູບຖືກປະຕິເສດ',
   'barcodeScanner.error.no_camera': 'ບໍ່ພົບກ້ອງຖ່າຍຮູບ',

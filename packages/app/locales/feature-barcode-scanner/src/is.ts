@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for is. */
-export const is: Partial<FeatureBarcodeScannerTranslations> = {
+export const is: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Myndavélasýn með strikamerkjaskannara',
   'barcodeScanner.error.permission_denied': 'Leyfi fyrir myndavél hafnað',
   'barcodeScanner.error.no_camera': 'Engin myndavél fannst',

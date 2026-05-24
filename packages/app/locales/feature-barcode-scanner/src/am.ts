@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for am. */
-export const am: Partial<FeatureBarcodeScannerTranslations> = {
+export const am: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'የባርኮድ ስካነር ካሜራ እይታ',
   'barcodeScanner.error.permission_denied': 'የካሜራ ፈቃድ ተከልክሏል',
   'barcodeScanner.error.no_camera': 'ምንም ካሜራ አልተገኘም',

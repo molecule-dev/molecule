@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for da. */
-export const da: Partial<FeatureMapDrawingTranslations> = {
+export const da: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Slet',
   'mapDrawing.toolbar.aria': 'Værktøjer til korttegning',
   'mapDrawing.surface.aria': 'Overflade til korttegning',

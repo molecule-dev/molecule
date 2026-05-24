@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for si. */
-export const si: Partial<FeatureBarcodeScannerTranslations> = {
+export const si: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'තීරු කේත ස්කෑනර් කැමරා දර්ශනය',
   'barcodeScanner.error.permission_denied': 'කැමරා අවසරය ප්‍රතික්ෂේප කරන ලදී',
   'barcodeScanner.error.no_camera': 'කැමරාවක් හමු නොවීය.',

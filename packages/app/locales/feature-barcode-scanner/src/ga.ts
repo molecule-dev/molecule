@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for ga. */
-export const ga: Partial<FeatureBarcodeScannerTranslations> = {
+export const ga: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Radharc ceamara scanóir barrachóid',
   'barcodeScanner.error.permission_denied': 'Cead ceamara diúltaithe',
   'barcodeScanner.error.no_camera': 'Níor aimsíodh aon cheamara',

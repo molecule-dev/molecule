@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for af. */
-export const af: Partial<FeatureThreadTreeTranslations> = {
+export const af: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Brei uit<x> {{telling}}</x> antwoorde',
   'threadTree.collapse': 'Vou draad in',
   'threadTree.expandSymbol': '[+]',

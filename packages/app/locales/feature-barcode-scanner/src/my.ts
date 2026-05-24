@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for my. */
-export const my: Partial<FeatureBarcodeScannerTranslations> = {
+export const my: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'ဘားကုဒ်စကင်နာ ကင်မရာမြင်ကွင်း',
   'barcodeScanner.error.permission_denied': 'ကင်မရာခွင့်ပြုချက်ကို ငြင်းပယ်ထားသည်',
   'barcodeScanner.error.no_camera': 'ကင်မရာ မတွေ့ပါ',

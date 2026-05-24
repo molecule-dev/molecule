@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for ms. */
-export const ms: Partial<FeatureChapterListTranslations> = {
+export const ms: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'Bab-bab',
   'chapterList.aria.seek': 'Lompat ke<x> {{tajuk}}</x> pada<x> {{cap masa}}</x>',
   'chapterList.aria.thumbnail': 'Gambar kecil untuk<x> {{tajuk}}</x>',

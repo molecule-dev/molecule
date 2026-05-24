@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for bg. */
-export const bg: Partial<FeatureChapterListTranslations> = {
+export const bg: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'Глави',
   'chapterList.aria.seek': 'Премини към<x> {{заглавие}}</x> в<x> {{времева марка}}</x>',
   'chapterList.aria.thumbnail': 'Миниатюра за<x> {{заглавие}}</x>',

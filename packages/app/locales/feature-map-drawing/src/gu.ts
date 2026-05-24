@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for gu. */
-export const gu: Partial<FeatureMapDrawingTranslations> = {
+export const gu: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'નકશા દોરવાના સાધનો',
   'mapDrawing.surface.aria': 'નકશા દોરવાની સપાટી',
   'mapDrawing.tool.polygon': 'બહુકોણ',

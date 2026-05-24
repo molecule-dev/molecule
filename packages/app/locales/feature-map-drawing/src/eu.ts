@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for eu. */
-export const eu: Partial<FeatureMapDrawingTranslations> = {
+export const eu: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Mapa marrazteko tresnak',
   'mapDrawing.surface.aria': 'Mapa marrazteko gainazala',
   'mapDrawing.tool.polygon': 'Poligonoa',

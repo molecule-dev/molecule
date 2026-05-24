@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for si. */
-export const si: Partial<FeatureChapterListTranslations> = {
+export const si: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'පරිච්ඡේද',
   'chapterList.aria.seek': 'වෙත පනින්න<x> {{මාතෘකාව}}</x> දී<x> {{වේලාමුද්‍රාව}}</x>',
   'chapterList.aria.thumbnail': 'සඳහා සිඟිති රුව<x> {{මාතෘකාව}}</x>',

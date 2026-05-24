@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for lv. */
-export const lv: Partial<FeatureTransportBarTranslations> = {
+export const lv: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Atskaņošanas transportēšanas vadīklas',
   'transportBar.aria.skipBack': 'Pārlēkt atpakaļ',
   'transportBar.aria.skipForward': 'Pārlēkt uz priekšu',

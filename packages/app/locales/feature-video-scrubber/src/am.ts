@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for am. */
-export const am: Partial<FeatureVideoScrubberTranslations> = {
+export const am: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'የቪዲዮ ማጽጃ',
   'videoScrubber.aria.strip': 'የፊልም ስትሪፕ — የመጫወቻ ርዕስ በ<x> {{ጊዜ}}</x> ዎች (ፍሬም)<x> {{ፍሬም}}</x> )',
   'videoScrubber.aria.playhead': 'የጨዋታ መሪ በ<x> {{ጊዜ}}</x> ኤስ',

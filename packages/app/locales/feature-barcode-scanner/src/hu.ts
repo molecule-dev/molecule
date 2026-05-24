@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for hu. */
-export const hu: Partial<FeatureBarcodeScannerTranslations> = {
+export const hu: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Vonalkódolvasó kameranézet',
   'barcodeScanner.error.permission_denied': 'Kameraengedély megtagadva',
   'barcodeScanner.error.no_camera': 'Nem található kamera',

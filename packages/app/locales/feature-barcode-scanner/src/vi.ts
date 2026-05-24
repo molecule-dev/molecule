@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for vi. */
-export const vi: Partial<FeatureBarcodeScannerTranslations> = {
+export const vi: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.status.scanning': 'Đang quét…',
   'barcodeScanner.aria.region': 'chế độ xem camera máy quét mã vạch',
   'barcodeScanner.error.permission_denied': 'Quyền truy cập camera bị từ chối',

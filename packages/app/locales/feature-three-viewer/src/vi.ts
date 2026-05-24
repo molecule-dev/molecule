@@ -1,7 +1,7 @@
-import type { FeatureThreeViewerTranslations } from './types.js'
+import type { ThreeViewerTranslations } from './types.js'
 
 /** FeatureThreeViewer translations for vi. */
-export const vi: Partial<FeatureThreeViewerTranslations> = {
+export const vi: Partial<ThreeViewerTranslations> = {
   'threeViewer.aria.canvas': 'Trình xem mô hình 3D',
   'threeViewer.loading': 'Đang tải mô hình 3D…',
   'threeViewer.error': 'Không thể tải mô hình 3D.',

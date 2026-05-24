@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for af. */
-export const af: Partial<FeatureMapDrawingTranslations> = {
+export const af: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Kaarttekengereedskap',
   'mapDrawing.surface.aria': 'Kaarttekeningoppervlak',
   'mapDrawing.tool.polygon': 'Veelhoek',

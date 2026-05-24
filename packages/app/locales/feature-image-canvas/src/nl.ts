@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for nl. */
-export const nl: Partial<FeatureImageCanvasTranslations> = {
+export const nl: Partial<ImageCanvasTranslations> = {
   'imageCanvas.loading': 'Afbeelding laden…',
   'imageCanvas.aria.region': 'Afbeelding canvas',
   'imageCanvas.aria.canvas': 'Sleep om te pannen, scroll om in te zoomen',

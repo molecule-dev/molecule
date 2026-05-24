@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for lt. */
-export const lt: Partial<FeatureBarcodeScannerTranslations> = {
+export const lt: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Brūkšninių kodų skaitytuvo kameros vaizdas',
   'barcodeScanner.error.permission_denied': 'Kameros leidimas atmestas',
   'barcodeScanner.error.no_camera': 'Nerasta jokių kamerų',

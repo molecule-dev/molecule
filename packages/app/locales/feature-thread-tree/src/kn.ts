@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for kn. */
-export const kn: Partial<FeatureThreadTreeTranslations> = {
+export const kn: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'ವಿಸ್ತರಿಸಿ<x> {{ಎಣಿಕೆ}}</x> ಪ್ರತ್ಯುತ್ತರಗಳು',
   'threadTree.collapse': 'ಥ್ರೆಡ್ ಅನ್ನು ಕುಗ್ಗಿಸಿ',
   'threadTree.expandSymbol': '[+]',

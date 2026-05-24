@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for ca. */
-export const ca: Partial<FeatureVideoTimelineTranslations> = {
+export const ca: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Cronologia del vídeo',
   'videoTimeline.aria.ruler': 'Regle del temps',
   'videoTimeline.aria.playhead': 'Capçal de reproducció a<x> {{hora}}</x> s',

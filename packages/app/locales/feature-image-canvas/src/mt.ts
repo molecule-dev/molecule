@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for mt. */
-export const mt: Partial<FeatureImageCanvasTranslations> = {
+export const mt: Partial<ImageCanvasTranslations> = {
   'imageCanvas.aria.region': 'Kanvas tal-immaġni',
   'imageCanvas.aria.canvas': 'Iddreggja biex tiddraġġja, skrollja biex tiżżumja',
   'imageCanvas.loading': 'Qed tiċċarġja l-immaġni…',

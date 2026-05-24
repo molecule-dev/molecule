@@ -1,7 +1,7 @@
-import type { FeatureAudioWaveformTranslations } from './types.js'
+import type { AudioWaveformTranslations } from './types.js'
 
 /** FeatureAudioWaveform translations for gu. */
-export const gu: Partial<FeatureAudioWaveformTranslations> = {
+export const gu: Partial<AudioWaveformTranslations> = {
   'audioWaveform.aria.region': 'ઑડિઓ વેવફોર્મ',
   'audioWaveform.aria.seek': 'વેવફોર્મ પર ક્લિક કરીને ઑડિઓ શોધો',
   'audioWaveform.empty': 'કોઈ વેવફોર્મ ડેટા ઉપલબ્ધ નથી.',

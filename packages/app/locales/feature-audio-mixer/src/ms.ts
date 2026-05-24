@@ -1,7 +1,7 @@
-import type { FeatureAudioMixerTranslations } from './types.js'
+import type { AudioMixerTranslations } from './types.js'
 
 /** FeatureAudioMixer translations for ms. */
-export const ms: Partial<FeatureAudioMixerTranslations> = {
+export const ms: Partial<AudioMixerTranslations> = {
   'audioMixer.sends': 'Penghantaran',
   'audioMixer.aria.console': 'Konsol pengadun audio',
   'audioMixer.aria.fader': '{{nama}} pudar',

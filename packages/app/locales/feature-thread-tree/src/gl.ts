@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for gl. */
-export const gl: Partial<FeatureThreadTreeTranslations> = {
+export const gl: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Expandir<x> {{conta}}</x> respostas',
   'threadTree.collapse': 'Contraer fío',
   'threadTree.expandSymbol': '[+]',

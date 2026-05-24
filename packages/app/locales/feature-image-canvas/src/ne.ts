@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for ne. */
-export const ne: Partial<FeatureImageCanvasTranslations> = {
+export const ne: Partial<ImageCanvasTranslations> = {
   'imageCanvas.aria.region': 'छवि क्यानभास',
   'imageCanvas.aria.canvas': 'प्यानमा तान्नुहोस्, जुम गर्न स्क्रोल गर्नुहोस्',
   'imageCanvas.loading': 'छवि लोड गर्दै...',

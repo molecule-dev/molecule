@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for eu. */
-export const eu: Partial<FeatureTransportBarTranslations> = {
+export const eu: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Erreprodukzioaren garraio-kontrolak',
   'transportBar.aria.skipBack': 'Atzera salto egin',
   'transportBar.aria.skipForward': 'Aurrera egin',

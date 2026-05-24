@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for kn. */
-export const kn: Partial<FeatureVideoTimelineTranslations> = {
+export const kn: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'ವೀಡಿಯೊ ಟೈಮ್‌ಲೈನ್',
   'videoTimeline.aria.ruler': 'ಸಮಯ ಆಡಳಿತಗಾರ',
   'videoTimeline.aria.playhead': 'ಪ್ಲೇಹೆಡ್ ನಲ್ಲಿ<x> {{ಸಮಯ}}</x> ರು',

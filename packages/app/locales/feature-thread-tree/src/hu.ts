@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for hu. */
-export const hu: Partial<FeatureThreadTreeTranslations> = {
+export const hu: Partial<ThreadTreeTranslations> = {
   'threadTree.reply': 'Válasz',
   'threadTree.expand': 'Kibontás<x> {{count}}</x> válaszok',
   'threadTree.collapse': 'Téma összecsukása',

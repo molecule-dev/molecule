@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for ur. */
-export const ur: Partial<FeatureAudioEffectsRackTranslations> = {
+export const ur: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'آڈیو اثرات ریک',
   'audioEffectsRack.aria.dragHandle': 'دوبارہ ترتیب دینے کے لیے گھسیٹیں۔',
   'audioEffectsRack.button.add': 'اثر شامل کریں۔',

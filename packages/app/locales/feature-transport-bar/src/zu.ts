@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for zu. */
-export const zu: Partial<FeatureTransportBarTranslations> = {
+export const zu: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Izilawuli zokuthutha zokudlala',
   'transportBar.aria.skipBack': 'Yeqa ubuyele emuva',
   'transportBar.aria.skipForward': 'Yeqa uye phambili',

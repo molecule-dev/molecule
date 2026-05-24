@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for lo. */
-export const lo: Partial<FeatureVideoTimelineTranslations> = {
+export const lo: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'ທາມລາຍວິດີໂອ',
   'videoTimeline.aria.ruler': 'ເຄື່ອງໝາຍຈັບເວລາ',
   'videoTimeline.aria.playhead': 'ຫົວຫຼິ້ນຢູ່ທີ່<x> {{ເວລາ}}</x> ສ',

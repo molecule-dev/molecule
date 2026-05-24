@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for km. */
-export const km: Partial<FeatureAudioEffectsRackTranslations> = {
+export const km: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'រ៉ាក់​បែបផែន​សំឡេង',
   'audioEffectsRack.aria.dragHandle': 'អូសដើម្បីតម្រៀបឡើងវិញ',
   'audioEffectsRack.button.add': 'បន្ថែមបែបផែន',

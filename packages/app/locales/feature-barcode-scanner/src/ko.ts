@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for ko. */
-export const ko: Partial<FeatureBarcodeScannerTranslations> = {
+export const ko: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.status.scanning': '스캔 중…',
   'barcodeScanner.aria.region': '바코드 스캐너 카메라 화면',
   'barcodeScanner.error.permission_denied': '카메라 접근 권한이 거부되었습니다.',

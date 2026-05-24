@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for fr. */
-export const fr: Partial<FeatureTrackLaneTranslations> = {
+export const fr: Partial<TrackLaneTranslations> = {
   'trackLane.header': 'Suivre',
   'trackLane.aria.lane': 'Voie de piste<x> {{nom}}</x>',
   'trackLane.aria.clip':

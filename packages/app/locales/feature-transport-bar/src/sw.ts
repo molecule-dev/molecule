@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for sw. */
-export const sw: Partial<FeatureTransportBarTranslations> = {
+export const sw: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Vidhibiti vya usafiri wa uchezaji',
   'transportBar.aria.skipBack': 'Ruka nyuma',
   'transportBar.aria.skipForward': 'Ruka mbele',

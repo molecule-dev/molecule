@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for lv. */
-export const lv: Partial<FeatureThreadTreeTranslations> = {
+export const lv: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Izvērst<x> {{skaits}}</x> atbildes',
   'threadTree.collapse': 'Sakļaut pavedienu',
   'threadTree.expandSymbol': '[+]',

@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for ga. */
-export const ga: Partial<FeatureTrackLaneTranslations> = {
+export const ga: Partial<TrackLaneTranslations> = {
   'trackLane.aria.lane': 'Lána riain<x> {{ainm}}</x>',
   'trackLane.aria.clip':
     'Gearrthóg<x> {{lipéad}}</x> ag tosú ag<x> {{AmTosaigh}}</x> s le haghaidh<x> {{fad}}</x> s',

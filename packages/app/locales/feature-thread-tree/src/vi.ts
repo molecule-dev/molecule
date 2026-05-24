@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for vi. */
-export const vi: Partial<FeatureThreadTreeTranslations> = {
+export const vi: Partial<ThreadTreeTranslations> = {
   'threadTree.upvote': 'Phiếu thuận',
   'threadTree.reply': 'Trả lời',
   'threadTree.expand': 'Mở rộng<x> {{đếm}}</x> trả lời',

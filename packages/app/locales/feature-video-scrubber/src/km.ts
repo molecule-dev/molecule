@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for km. */
-export const km: Partial<FeatureVideoScrubberTranslations> = {
+export const km: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'ឧបករណ៍​សម្អាត​វីដេអូ',
   'videoScrubber.aria.strip':
     'ខ្សែភាពយន្ត — ក្បាលចាក់នៅ<x> {{ពេលវេលា}}</x> ស (ស៊ុម<x> {{ស៊ុម}}</x> )',

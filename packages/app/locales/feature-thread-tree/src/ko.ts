@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for ko. */
-export const ko: Partial<FeatureThreadTreeTranslations> = {
+export const ko: Partial<ThreadTreeTranslations> = {
   'threadTree.upvote': '추천',
   'threadTree.reply': '답글',
   'threadTree.expand': '확장하다<x> {{세다}}</x> 답변',

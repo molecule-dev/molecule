@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for cs. */
-export const cs: Partial<FeatureImageCanvasTranslations> = {
+export const cs: Partial<ImageCanvasTranslations> = {
   'imageCanvas.loading': 'Načítání obrázku…',
   'imageCanvas.aria.region': 'Obrazové plátno',
   'imageCanvas.aria.canvas': 'Přetažením posouváte, posouváním přibližujete',

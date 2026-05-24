@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for sv. */
-export const sv: Partial<FeatureTransportBarTranslations> = {
+export const sv: Partial<TransportBarTranslations> = {
   'transportBar.aria.play': 'Spela',
   'transportBar.aria.pause': 'Pausa',
   'transportBar.aria.record': 'Spela in',

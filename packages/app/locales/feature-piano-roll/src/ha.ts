@@ -1,7 +1,7 @@
-import type { FeaturePianoRollTranslations } from './types.js'
+import type { PianoRollTranslations } from './types.js'
 
 /** FeaturePianoRoll translations for ha. */
-export const ha: Partial<FeaturePianoRollTranslations> = {
+export const ha: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.roll': 'Bulo na Piano',
   'pianoRoll.aria.keys': 'Maɓallan Piano',
   'pianoRoll.aria.grid': 'Grid ɗin bayanin kula',

@@ -1,7 +1,7 @@
-import type { FeatureAudioWaveformTranslations } from './types.js'
+import type { AudioWaveformTranslations } from './types.js'
 
 /** FeatureAudioWaveform translations for zh. */
-export const zh: Partial<FeatureAudioWaveformTranslations> = {
+export const zh: Partial<AudioWaveformTranslations> = {
   'audioWaveform.aria.region': '音频波形',
   'audioWaveform.aria.seek': '点击波形图即可找到音频。',
   'audioWaveform.empty': '无波形数据可用。',

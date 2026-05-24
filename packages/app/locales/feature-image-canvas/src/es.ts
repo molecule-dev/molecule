@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for es. */
-export const es: Partial<FeatureImageCanvasTranslations> = {
+export const es: Partial<ImageCanvasTranslations> = {
   'imageCanvas.loading': 'Cargando imagen…',
   'imageCanvas.aria.region': 'Lienzo de imagen',
   'imageCanvas.aria.canvas': 'Arrastra para desplazar, desplázate para hacer zoom.',

@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for ga. */
-export const ga: Partial<FeatureThreadTreeTranslations> = {
+export const ga: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Leathnaigh<x> {{count}}</x> freagraí',
   'threadTree.collapse': 'Laghdaigh an snáithe',
   'threadTree.expandSymbol': '[+]',

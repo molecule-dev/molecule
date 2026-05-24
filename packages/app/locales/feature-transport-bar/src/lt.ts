@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for lt. */
-export const lt: Partial<FeatureTransportBarTranslations> = {
+export const lt: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Atkūrimo transportavimo valdikliai',
   'transportBar.aria.skipBack': 'Praleisti atgal',
   'transportBar.aria.skipForward': 'Praleisti pirmyn',

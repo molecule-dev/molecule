@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for af. */
-export const af: Partial<FeatureBarcodeScannerTranslations> = {
+export const af: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Kamera-aansig van strepieskodeskandeerder',
   'barcodeScanner.error.permission_denied': 'Kameratoestemming geweier',
   'barcodeScanner.error.no_camera': 'Geen kamera gevind nie',

@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for my. */
-export const my: Partial<FeatureChapterListTranslations> = {
+export const my: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'အခန်းများ',
   'chapterList.aria.seek': 'သို့ ကျော်သွားရန်<x> {{ခေါင်းစဉ်}}</x> မှာ<x> {{အချိန်တံဆိပ်}}</x>',
   'chapterList.aria.thumbnail': 'နမူနာပုံငယ်<x> {{ခေါင်းစဉ်}}</x>',

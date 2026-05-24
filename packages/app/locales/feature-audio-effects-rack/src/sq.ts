@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for sq. */
-export const sq: Partial<FeatureAudioEffectsRackTranslations> = {
+export const sq: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'Rafti i efekteve audio',
   'audioEffectsRack.aria.dragHandle': 'Zvarrit për të rirenditur',
   'audioEffectsRack.button.add': 'Shto efekt',

@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for sl. */
-export const sl: Partial<FeatureAudioEffectsRackTranslations> = {
+export const sl: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'Stojalo za zvočne efekte',
   'audioEffectsRack.aria.dragHandle': 'Povlecite za spremembo vrstnega reda',
   'audioEffectsRack.button.add': 'Dodaj učinek',

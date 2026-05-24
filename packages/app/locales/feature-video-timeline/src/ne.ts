@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for ne. */
-export const ne: Partial<FeatureVideoTimelineTranslations> = {
+export const ne: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'भिडियो टाइमलाइन',
   'videoTimeline.aria.ruler': 'समय नियमक',
   'videoTimeline.aria.playhead': 'प्लेहेडमा<x> {{समय}}</x> को',

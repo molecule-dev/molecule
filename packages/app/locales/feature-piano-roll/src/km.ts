@@ -1,7 +1,7 @@
-import type { FeaturePianoRollTranslations } from './types.js'
+import type { PianoRollTranslations } from './types.js'
 
 /** FeaturePianoRoll translations for km. */
-export const km: Partial<FeaturePianoRollTranslations> = {
+export const km: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.roll': 'រ៉ូល​ព្យាណូ',
   'pianoRoll.aria.keys': 'គ្រាប់ចុចព្យាណូ',
   'pianoRoll.aria.grid': 'ក្រឡាចត្រង្គចំណាំ',

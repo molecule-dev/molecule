@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for lv. */
-export const lv: Partial<FeatureVideoScrubberTranslations> = {
+export const lv: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Video skruberis',
   'videoScrubber.aria.strip':
     'Filmas josla — atskaņošanas galviņa plkst.<x> laiks</x> s (kadrs<x> {{kadrs}}</x> )',

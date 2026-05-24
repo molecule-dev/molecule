@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for az. */
-export const az: Partial<FeatureMapDrawingTranslations> = {
+export const az: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Xəritə çəkmə alətləri',
   'mapDrawing.surface.aria': 'Xəritə çəkmə səthi',
   'mapDrawing.tool.polygon': 'Çoxbucaqlı',

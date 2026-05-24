@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for te. */
-export const te: Partial<FeatureImageCanvasTranslations> = {
+export const te: Partial<ImageCanvasTranslations> = {
   'imageCanvas.aria.region': 'ఇమేజ్ కాన్వాస్',
   'imageCanvas.aria.canvas': 'పాన్ చేయడానికి డ్రాగ్ చేయండి, జూమ్ చేయడానికి స్క్రోల్ చేయండి',
   'imageCanvas.loading': 'చిత్రం లోడ్ అవుతోంది…',

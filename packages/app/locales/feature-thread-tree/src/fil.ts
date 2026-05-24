@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for fil. */
-export const fil: Partial<FeatureThreadTreeTranslations> = {
+export const fil: Partial<ThreadTreeTranslations> = {
   'threadTree.reply': 'Tumugon',
   'threadTree.expand': 'Palawakin<x> {{bilang}}</x> mga tugon',
   'threadTree.collapse': 'I-collapse ang thread',

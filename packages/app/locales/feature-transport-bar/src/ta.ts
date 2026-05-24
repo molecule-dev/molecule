@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for ta. */
-export const ta: Partial<FeatureTransportBarTranslations> = {
+export const ta: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'பின்னணி போக்குவரத்து கட்டுப்பாடுகள்',
   'transportBar.aria.skipBack': 'பின்னோக்கித் தாவிச் செல்',
   'transportBar.aria.skipForward': 'முன்னோக்கிச் செல்',

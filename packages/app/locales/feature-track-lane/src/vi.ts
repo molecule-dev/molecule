@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for vi. */
-export const vi: Partial<FeatureTrackLaneTranslations> = {
+export const vi: Partial<TrackLaneTranslations> = {
   'trackLane.header': 'Theo dõi',
   'trackLane.aria.lane': 'Làn đường ray<x> {{tên}}</x>',
   'trackLane.aria.clip':

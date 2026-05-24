@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for eu. */
-export const eu: Partial<FeatureVideoScrubberTranslations> = {
+export const eu: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Bideo-garbigailua',
   'videoScrubber.aria.strip':
     'Film-banda — erreprodukzio-burua hemen:<x> {{denbora}}</x> s (markoa<x> {{frame}}</x> )',

@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for ig. */
-export const ig: Partial<FeatureVideoTimelineTranslations> = {
+export const ig: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Usoro iheomume vidiyo',
   'videoTimeline.aria.ruler': 'Onye na-achịkwa oge',
   'videoTimeline.aria.playhead': 'Isi egwuregwu na<x> {{oge}}</x> s',

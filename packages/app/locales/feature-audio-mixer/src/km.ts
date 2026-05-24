@@ -1,7 +1,7 @@
-import type { FeatureAudioMixerTranslations } from './types.js'
+import type { AudioMixerTranslations } from './types.js'
 
 /** FeatureAudioMixer translations for km. */
-export const km: Partial<FeatureAudioMixerTranslations> = {
+export const km: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'កុងសូលលាយសំឡេង',
   'audioMixer.aria.fader': '{{ឈ្មោះ}} ហ្វដឌ័រ',
   'audioMixer.aria.pan': '{{ឈ្មោះ}} ខ្ទះ',

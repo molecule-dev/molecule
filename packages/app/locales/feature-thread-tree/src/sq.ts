@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for sq. */
-export const sq: Partial<FeatureThreadTreeTranslations> = {
+export const sq: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Zgjero<x> {{count}}</x> përgjigjet',
   'threadTree.collapse': 'Mbyll fijen',
   'threadTree.expandSymbol': '[+]',

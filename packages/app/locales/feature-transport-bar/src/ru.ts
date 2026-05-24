@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for ru. */
-export const ru: Partial<FeatureTransportBarTranslations> = {
+export const ru: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'элементы управления воспроизведением',
   'transportBar.aria.skipBack': 'Перемотать назад',
   'transportBar.aria.skipForward': 'Перейти вперед',

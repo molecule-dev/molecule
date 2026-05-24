@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for yo. */
-export const yo: Partial<FeatureMapDrawingTranslations> = {
+export const yo: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Àwọn irinṣẹ́ ìyàwòrán máàpù',
   'mapDrawing.surface.aria': 'Ojú àwòrán máàpù',
   'mapDrawing.tool.polygon': 'Polygon',

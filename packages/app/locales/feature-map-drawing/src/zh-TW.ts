@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for zh-TW. */
-export const zhTW: Partial<FeatureMapDrawingTranslations> = {
+export const zhTW: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': '地圖繪製工具',
   'mapDrawing.surface.aria': '地圖繪製表面',
   'mapDrawing.tool.polygon': '多邊形',

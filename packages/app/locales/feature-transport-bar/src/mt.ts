@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for mt. */
-export const mt: Partial<FeatureTransportBarTranslations> = {
+export const mt: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Kontrolli tat-trasport tad-daqq',
   'transportBar.aria.skipBack': 'Aqbeż lura',
   'transportBar.aria.skipForward': 'Aqbeż &#39;il quddiem',

@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for bg. */
-export const bg: Partial<FeatureVideoTimelineTranslations> = {
+export const bg: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Хронология на видеото',
   'videoTimeline.aria.ruler': 'Владетел на времето',
   'videoTimeline.aria.playhead': 'Показалец на възпроизвеждане в<x> {{време}}</x> с',

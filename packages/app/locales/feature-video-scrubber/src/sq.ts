@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for sq. */
-export const sq: Partial<FeatureVideoScrubberTranslations> = {
+export const sq: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Pastrues videosh',
   'videoScrubber.aria.strip':
     'Shirit filmi — kokë luajtjeje në<x> {{kohë}}</x> s (kornizë<x> {{kornizë}}</x> )',

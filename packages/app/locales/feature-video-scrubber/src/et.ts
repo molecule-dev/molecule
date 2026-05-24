@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for et. */
-export const et: Partial<FeatureVideoScrubberTranslations> = {
+export const et: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Video käiguvahetaja',
   'videoScrubber.aria.strip':
     'Filmiriba — esituspea aadressil<x> aeg</x> s (kaader<x> {{raam}}</x> )',

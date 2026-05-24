@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for kn. */
-export const kn: Partial<FeatureAudioEffectsRackTranslations> = {
+export const kn: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'ಆಡಿಯೋ ಎಫೆಕ್ಟ್ಸ್ ರ್ಯಾಕ್',
   'audioEffectsRack.aria.dragHandle': 'ಮರುಕ್ರಮಗೊಳಿಸಲು ಎಳೆಯಿರಿ',
   'audioEffectsRack.button.add': 'ಪರಿಣಾಮವನ್ನು ಸೇರಿಸಿ',

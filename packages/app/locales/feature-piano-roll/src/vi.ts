@@ -1,7 +1,7 @@
-import type { FeaturePianoRollTranslations } from './types.js'
+import type { PianoRollTranslations } from './types.js'
 
 /** FeaturePianoRoll translations for vi. */
-export const vi: Partial<FeaturePianoRollTranslations> = {
+export const vi: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.roll': 'Cuộn đàn piano',
   'pianoRoll.aria.keys': 'Phím đàn piano',
   'pianoRoll.aria.grid': 'Ghi chú lưới',

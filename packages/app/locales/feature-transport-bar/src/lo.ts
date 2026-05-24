@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for lo. */
-export const lo: Partial<FeatureTransportBarTranslations> = {
+export const lo: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'ການຄວບຄຸມການຂົນສົ່ງການຫຼິ້ນ',
   'transportBar.aria.skipBack': 'ຂ້າມໄປທາງຫຼັງ',
   'transportBar.aria.skipForward': 'ຂ້າມໄປໜ້າ',

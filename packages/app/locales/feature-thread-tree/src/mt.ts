@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for mt. */
-export const mt: Partial<FeatureThreadTreeTranslations> = {
+export const mt: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Espandi<x> {{għadd}}</x> tweġibiet',
   'threadTree.collapse': 'Agħlaq il-ħajta',
   'threadTree.expandSymbol': '[+]',

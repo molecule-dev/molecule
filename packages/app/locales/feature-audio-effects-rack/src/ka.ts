@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for ka. */
-export const ka: Partial<FeatureAudioEffectsRackTranslations> = {
+export const ka: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'აუდიო ეფექტების თარო',
   'audioEffectsRack.aria.dragHandle': 'გადაათრიეთ თანმიმდევრობის შესაცვლელად',
   'audioEffectsRack.button.add': 'ეფექტის დამატება',

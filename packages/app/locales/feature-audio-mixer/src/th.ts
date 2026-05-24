@@ -1,7 +1,7 @@
-import type { FeatureAudioMixerTranslations } from './types.js'
+import type { AudioMixerTranslations } from './types.js'
 
 /** FeatureAudioMixer translations for th. */
-export const th: Partial<FeatureAudioMixerTranslations> = {
+export const th: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'คอนโซลผสมเสียง',
   'audioMixer.aria.fader': '{{ชื่อ}} เฟดเดอร์',
   'audioMixer.aria.pan': '{{ชื่อ}} กระทะ',

@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for pa. */
-export const pa: Partial<FeatureMapDrawingTranslations> = {
+export const pa: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'ਨਕਸ਼ਾ ਡਰਾਇੰਗ ਟੂਲ',
   'mapDrawing.surface.aria': 'ਨਕਸ਼ਾ ਡਰਾਇੰਗ ਸਤ੍ਹਾ',
   'mapDrawing.tool.polygon': 'ਬਹੁਭੁਜ',

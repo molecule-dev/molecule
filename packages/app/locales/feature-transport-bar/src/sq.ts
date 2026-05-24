@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for sq. */
-export const sq: Partial<FeatureTransportBarTranslations> = {
+export const sq: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Kontrollet e transportit të riprodhimit',
   'transportBar.aria.skipBack': 'Kapërce prapa',
   'transportBar.aria.skipForward': 'Kapërce përpara',

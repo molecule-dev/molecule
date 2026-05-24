@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for zh. */
-export const zh: Partial<FeatureTransportBarTranslations> = {
+export const zh: Partial<TransportBarTranslations> = {
   'transportBar.aria.play': '播放',
   'transportBar.aria.pause': '暂停',
   'transportBar.aria.record': '录音',

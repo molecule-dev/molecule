@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for gl. */
-export const gl: Partial<FeatureTransportBarTranslations> = {
+export const gl: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Controis de transporte de reprodución',
   'transportBar.aria.skipBack': 'Saltar cara atrás',
   'transportBar.aria.skipForward': 'Saltar cara adiante',

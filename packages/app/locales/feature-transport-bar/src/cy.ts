@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for cy. */
-export const cy: Partial<FeatureTransportBarTranslations> = {
+export const cy: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Rheolyddion cludo chwarae',
   'transportBar.aria.skipBack': 'Neidio yn ôl',
   'transportBar.aria.skipForward': 'Neidio ymlaen',

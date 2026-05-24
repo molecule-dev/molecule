@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for lv. */
-export const lv: Partial<FeatureBarcodeScannerTranslations> = {
+export const lv: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Svītrkodu skenera kameras skats',
   'barcodeScanner.error.permission_denied': 'Kameras atļauja liegta',
   'barcodeScanner.error.no_camera': 'Nav atrasta kamera',

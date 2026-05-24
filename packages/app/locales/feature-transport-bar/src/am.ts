@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for am. */
-export const am: Partial<FeatureTransportBarTranslations> = {
+export const am: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'የመልሶ ማጫወት ትራንስፖርት መቆጣጠሪያዎች',
   'transportBar.aria.skipBack': 'ወደ ኋላ ዝለል',
   'transportBar.aria.skipForward': 'ወደፊት ዝለል',

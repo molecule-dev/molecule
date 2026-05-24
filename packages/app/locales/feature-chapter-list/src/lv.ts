@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for lv. */
-export const lv: Partial<FeatureChapterListTranslations> = {
+export const lv: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'Nodaļas',
   'chapterList.aria.seek': 'Pāriet uz<x> {{title}}</x> plkst.<x> {{laika zīmogs}}</x>',
   'chapterList.aria.thumbnail': 'Sīktēls priekš<x> {{title}}</x>',

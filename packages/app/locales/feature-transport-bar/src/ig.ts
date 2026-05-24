@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for ig. */
-export const ig: Partial<FeatureTransportBarTranslations> = {
+export const ig: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Njikwa mbugharị ọkpụkpọghachi',
   'transportBar.aria.skipBack': 'Wụghachi azụ',
   'transportBar.aria.skipForward': 'Gaa n&#39;ihu',

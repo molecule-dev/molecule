@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for uz. */
-export const uz: Partial<FeatureBarcodeScannerTranslations> = {
+export const uz: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Shtrix-kod skaneri kamerasi ko&#39;rinishi',
   'barcodeScanner.error.permission_denied': 'Kameraga ruxsat berilmadi',
   'barcodeScanner.error.no_camera': 'Kamera topilmadi',

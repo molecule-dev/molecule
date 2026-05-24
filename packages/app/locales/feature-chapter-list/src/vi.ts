@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for vi. */
-export const vi: Partial<FeatureChapterListTranslations> = {
+export const vi: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'Chương',
   'chapterList.current': 'Đang phát',
   'chapterList.aria.seek': 'Chuyển đến<x> {{tiêu đề}}</x> Tại<x> {{timestamp}}</x>',

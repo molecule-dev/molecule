@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for mt. */
-export const mt: Partial<FeatureVideoTimelineTranslations> = {
+export const mt: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Kronoloġija tal-vidjo',
   'videoTimeline.aria.ruler': 'Ħakkiem tal-ħin',
   'videoTimeline.aria.playhead': 'Ras tal-plejbek fuq<x> {{ħin}}</x> s',

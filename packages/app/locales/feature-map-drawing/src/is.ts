@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for is. */
-export const is: Partial<FeatureMapDrawingTranslations> = {
+export const is: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Verkfæri til að teikna kort',
   'mapDrawing.surface.aria': 'Yfirborð kortateikninga',
   'mapDrawing.tool.polygon': 'Marghyrningur',

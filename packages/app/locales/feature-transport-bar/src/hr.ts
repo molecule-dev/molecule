@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for hr. */
-export const hr: Partial<FeatureTransportBarTranslations> = {
+export const hr: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Kontrole prijenosa reprodukcije',
   'transportBar.aria.skipBack': 'Preskoči unatrag',
   'transportBar.aria.skipForward': 'Preskoči naprijed',

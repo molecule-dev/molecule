@@ -1,7 +1,7 @@
-import type { FeatureAudioMixerTranslations } from './types.js'
+import type { AudioMixerTranslations } from './types.js'
 
 /** FeatureAudioMixer translations for ko. */
-export const ko: Partial<FeatureAudioMixerTranslations> = {
+export const ko: Partial<AudioMixerTranslations> = {
   'audioMixer.button.mute': '음소거',
   'audioMixer.sends': '발송 수',
   'audioMixer.aria.console': '오디오 믹서 콘솔',

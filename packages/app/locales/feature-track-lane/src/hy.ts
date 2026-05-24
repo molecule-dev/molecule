@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for hy. */
-export const hy: Partial<FeatureTrackLaneTranslations> = {
+export const hy: Partial<TrackLaneTranslations> = {
   'trackLane.aria.lane': 'Երկաթուղային գոտի<x> {{անուն}}</x>',
   'trackLane.aria.clip':
     'Կտրել<x> {{պիտակ}}</x> սկսած<x> {{մեկնարկի ժամանակը}}</x> s-ի համար<x> {{տևողություն}}</x> ներ',

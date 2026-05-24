@@ -1,7 +1,7 @@
-import type { FeaturePianoRollTranslations } from './types.js'
+import type { PianoRollTranslations } from './types.js'
 
 /** FeaturePianoRoll translations for lt. */
-export const lt: Partial<FeaturePianoRollTranslations> = {
+export const lt: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.roll': 'Fortepijono ritinys',
   'pianoRoll.aria.keys': 'Fortepijono klavišai',
   'pianoRoll.aria.grid': 'Pastabų tinklelis',

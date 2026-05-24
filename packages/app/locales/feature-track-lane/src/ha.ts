@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for ha. */
-export const ha: Partial<FeatureTrackLaneTranslations> = {
+export const ha: Partial<TrackLaneTranslations> = {
   'trackLane.aria.lane': 'Layin hanya<x> {{suna}}</x>',
   'trackLane.aria.clip':
     'Faifan Bidiyo<x> {{lakabi}}</x> farawa daga<x> {{Lokacin Farawa}}</x> s don<x> {{lokaci}}</x> s',

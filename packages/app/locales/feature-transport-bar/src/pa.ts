@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for pa. */
-export const pa: Partial<FeatureTransportBarTranslations> = {
+export const pa: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'ਪਲੇਬੈਕ ਟ੍ਰਾਂਸਪੋਰਟ ਕੰਟਰੋਲ',
   'transportBar.aria.skipBack': 'ਪਿੱਛੇ ਛੱਡੋ',
   'transportBar.aria.skipForward': 'ਅੱਗੇ ਛੱਡੋ',

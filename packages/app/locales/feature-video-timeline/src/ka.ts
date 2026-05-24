@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for ka. */
-export const ka: Partial<FeatureVideoTimelineTranslations> = {
+export const ka: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'ვიდეო ქრონოლოგია',
   'videoTimeline.aria.ruler': 'დროის საზომი',
   'videoTimeline.aria.playhead': 'დაკვრის თავი<x> {{დრო}}</x> ს',

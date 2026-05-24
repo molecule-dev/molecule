@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for et. */
-export const et: Partial<FeatureThreadTreeTranslations> = {
+export const et: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Laienda<x> {{loendus}}</x> vastused',
   'threadTree.collapse': 'Ahenda teema',
   'threadTree.expandSymbol': '[+]',

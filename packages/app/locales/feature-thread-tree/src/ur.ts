@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for ur. */
-export const ur: Partial<FeatureThreadTreeTranslations> = {
+export const ur: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'پھیلائیں۔<x> {{count}}</x> جوابات',
   'threadTree.collapse': 'دھاگے کو سمیٹیں۔',
   'threadTree.expandSymbol': '[+]',

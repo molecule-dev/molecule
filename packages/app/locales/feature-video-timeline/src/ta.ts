@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for ta. */
-export const ta: Partial<FeatureVideoTimelineTranslations> = {
+export const ta: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'வீடியோ காலவரிசை',
   'videoTimeline.aria.ruler': 'நேர ஆட்சியாளர்',
   'videoTimeline.aria.playhead': 'பிளேஹெட் அட்<x> {{நேரம்}}</x> s',

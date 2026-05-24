@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for ne. */
-export const ne: Partial<FeatureMapDrawingTranslations> = {
+export const ne: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'नक्सा रेखाचित्र उपकरणहरू',
   'mapDrawing.surface.aria': 'नक्सा कोर्ने सतह',
   'mapDrawing.tool.polygon': 'बहुभुज',

@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for ml. */
-export const ml: Partial<FeatureMapDrawingTranslations> = {
+export const ml: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'മാപ്പ് വരയ്ക്കൽ ഉപകരണങ്ങൾ',
   'mapDrawing.surface.aria': 'മാപ്പ് ഡ്രോയിംഗ് ഉപരിതലം',
   'mapDrawing.tool.polygon': 'പോളിഗോൺ',

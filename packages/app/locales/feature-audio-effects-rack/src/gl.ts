@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for gl. */
-export const gl: Partial<FeatureAudioEffectsRackTranslations> = {
+export const gl: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'Rack de efectos de audio',
   'audioEffectsRack.aria.dragHandle': 'Arrastrar para reordenar',
   'audioEffectsRack.button.add': 'Engadir efecto',

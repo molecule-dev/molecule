@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for lt. */
-export const lt: Partial<FeatureVideoTimelineTranslations> = {
+export const lt: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Vaizdo įrašo laiko juosta',
   'videoTimeline.aria.ruler': 'Laiko valdovas',
   'videoTimeline.aria.playhead': 'Žaislo galvutė ties<x> laikas</x> s',

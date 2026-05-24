@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for bn. */
-export const bn: Partial<FeatureBarcodeScannerTranslations> = {
+export const bn: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'বারকোড স্ক্যানার ক্যামেরা ভিউ',
   'barcodeScanner.error.permission_denied': 'ক্যামেরার অনুমতি প্রত্যাখ্যান করা হয়েছে',
   'barcodeScanner.error.no_camera': 'কোন ক্যামেরা পাওয়া যায়নি',

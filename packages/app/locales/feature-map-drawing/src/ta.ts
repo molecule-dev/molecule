@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for ta. */
-export const ta: Partial<FeatureMapDrawingTranslations> = {
+export const ta: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'வரைபட வரைதல் கருவிகள்',
   'mapDrawing.surface.aria': 'வரைபட மேற்பரப்பு',
   'mapDrawing.tool.polygon': 'பலகோணம்',

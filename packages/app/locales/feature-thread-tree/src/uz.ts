@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for uz. */
-export const uz: Partial<FeatureThreadTreeTranslations> = {
+export const uz: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Kengaytirish<x> {{count}}</x> javoblar',
   'threadTree.collapse': 'Mavzuni yopish',
   'threadTree.expandSymbol': '[+]',

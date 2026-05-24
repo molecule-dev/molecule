@@ -1,7 +1,7 @@
-import type { FeatureAudioMixerTranslations } from './types.js'
+import type { AudioMixerTranslations } from './types.js'
 
 /** FeatureAudioMixer translations for id. */
-export const id: Partial<FeatureAudioMixerTranslations> = {
+export const id: Partial<AudioMixerTranslations> = {
   'audioMixer.button.mute': 'Bisukan',
   'audioMixer.sends': 'Pengiriman',
   'audioMixer.aria.console': 'Konsol mixer audio',

@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for eu. */
-export const eu: Partial<FeatureBarcodeScannerTranslations> = {
+export const eu: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Barra-kode eskanerra kameraren ikuspegia',
   'barcodeScanner.error.permission_denied': 'Kameraren baimena ukatuta',
   'barcodeScanner.error.no_camera': 'Ez da kamerarik aurkitu',

@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for kk. */
-export const kk: Partial<FeatureTrackLaneTranslations> = {
+export const kk: Partial<TrackLaneTranslations> = {
   'trackLane.aria.lane': 'Трек жолағы<x> {{name}}</x>',
   'trackLane.aria.clip':
     'Қыстырғыш<x> {{label}}</x> бастап<x> {{startTime}}</x> үшін<x> {{ұзақтығы}}</x> с',

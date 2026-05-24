@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for ha. */
-export const ha: Partial<FeatureThreadTreeTranslations> = {
+export const ha: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Faɗaɗa<x> {{ƙidaya}}</x> amsoshi',
   'threadTree.collapse': 'Rufe zaren',
   'threadTree.expandSymbol': '[+]',

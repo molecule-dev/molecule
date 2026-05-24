@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for hy. */
-export const hy: Partial<FeatureTransportBarTranslations> = {
+export const hy: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Նվագարկման տեղափոխման կառավարման տարրեր',
   'transportBar.aria.skipBack': 'Անցնել հետ',
   'transportBar.aria.skipForward': 'Անցնել առաջ',

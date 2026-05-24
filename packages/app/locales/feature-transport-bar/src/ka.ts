@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for ka. */
-export const ka: Partial<FeatureTransportBarTranslations> = {
+export const ka: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'დაკვრის ტრანსპორტირების კონტროლი',
   'transportBar.aria.skipBack': 'უკან გადასვლა',
   'transportBar.aria.skipForward': 'წინ გადასვლა',

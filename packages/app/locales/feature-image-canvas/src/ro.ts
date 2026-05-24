@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for ro. */
-export const ro: Partial<FeatureImageCanvasTranslations> = {
+export const ro: Partial<ImageCanvasTranslations> = {
   'imageCanvas.loading': 'Se încarcă imaginea…',
   'imageCanvas.aria.region': 'Pânză de imagine',
   'imageCanvas.aria.canvas': 'Trageți pentru panoramare, derulați pentru zoom',

@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for gl. */
-export const gl: Partial<FeatureMapDrawingTranslations> = {
+export const gl: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Ferramentas de debuxo de mapas',
   'mapDrawing.surface.aria': 'Superficie de debuxo de mapas',
   'mapDrawing.tool.polygon': 'Polígono',

@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for fa. */
-export const fa: Partial<FeatureVideoTimelineTranslations> = {
+export const fa: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'جدول زمانی ویدیو',
   'videoTimeline.aria.ruler': 'خط کش زمان',
   'videoTimeline.aria.playhead': 'پلی‌هد در<x> {{زمان}}</x> ها',

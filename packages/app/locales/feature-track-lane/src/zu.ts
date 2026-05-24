@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for zu. */
-export const zu: Partial<FeatureTrackLaneTranslations> = {
+export const zu: Partial<TrackLaneTranslations> = {
   'trackLane.aria.lane': 'Umzila wethrekhi<x> {{igama}}</x>',
   'trackLane.aria.clip':
     'Isiqeshana<x> {{ilebula}}</x> kusukela ku-<x> {{Isikhathi sokuqala}}</x> s ye<x> {{ubude}}</x> s',

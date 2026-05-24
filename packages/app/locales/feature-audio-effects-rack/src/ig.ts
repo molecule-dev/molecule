@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for ig. */
-export const ig: Partial<FeatureAudioEffectsRackTranslations> = {
+export const ig: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'Ebe nchekwa mmetụta ọdịyo',
   'audioEffectsRack.aria.dragHandle': 'Dọrọ iji haziegharịa usoro',
   'audioEffectsRack.button.add': 'Tinye mmetụta',

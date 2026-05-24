@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for ig. */
-export const ig: Partial<FeatureVideoScrubberTranslations> = {
+export const ig: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Ihe nhicha vidiyo',
   'videoScrubber.aria.strip':
     'Ihe nkiri — isi egwuregwu na<x> {{oge}}</x> s (fremu<x> {{fremu}}</x> )',

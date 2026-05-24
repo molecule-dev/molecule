@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for lt. */
-export const lt: Partial<FeatureTrackLaneTranslations> = {
+export const lt: Partial<TrackLaneTranslations> = {
   'trackLane.aria.lane': 'Bėgių juosta<x> {{vardas}}</x>',
   'trackLane.aria.clip':
     'Klipas<x> {{etiketė}}</x> pradedant nuo<x> {{pradžios laikas}}</x> s skirtas<x> {{trukmė}}</x> s',

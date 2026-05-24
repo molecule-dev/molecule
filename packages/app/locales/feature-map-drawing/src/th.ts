@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for th. */
-export const th: Partial<FeatureMapDrawingTranslations> = {
+export const th: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'เครื่องมือวาดแผนที่',
   'mapDrawing.surface.aria': 'พื้นผิวสำหรับวาดแผนที่',
   'mapDrawing.tool.polygon': 'รูปหลายเหลี่ยม',

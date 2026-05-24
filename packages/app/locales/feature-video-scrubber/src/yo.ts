@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for yo. */
-export const yo: Partial<FeatureVideoScrubberTranslations> = {
+export const yo: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Fídíò ìfọmọ́',
   'videoScrubber.aria.strip':
     'Fíìmù ìtàgé — orí eré ní<x> {{àkókò}}</x> s (férémù<x> {{férémù}}</x> )',

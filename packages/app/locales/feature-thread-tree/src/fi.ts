@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for fi. */
-export const fi: Partial<FeatureThreadTreeTranslations> = {
+export const fi: Partial<ThreadTreeTranslations> = {
   'threadTree.reply': 'Vastaa',
   'threadTree.expand': 'Laajentaa<x> {{laskea}}</x> vastaukset',
   'threadTree.collapse': 'Pienennä ketju',

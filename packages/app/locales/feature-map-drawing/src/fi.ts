@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for fi. */
-export const fi: Partial<FeatureMapDrawingTranslations> = {
+export const fi: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Poista',
   'mapDrawing.toolbar.aria': 'Kartan piirtotyökalut',
   'mapDrawing.surface.aria': 'Kartan piirustuspinta',

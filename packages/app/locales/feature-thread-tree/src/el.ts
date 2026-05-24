@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for el. */
-export const el: Partial<FeatureThreadTreeTranslations> = {
+export const el: Partial<ThreadTreeTranslations> = {
   'threadTree.reply': 'Απάντηση',
   'threadTree.expand': 'Διαστέλλω<x> {{κόμης}}</x> απαντήσεις',
   'threadTree.collapse': 'Σύμπτυξη νήματος',

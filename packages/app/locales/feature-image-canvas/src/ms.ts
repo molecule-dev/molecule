@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for ms. */
-export const ms: Partial<FeatureImageCanvasTranslations> = {
+export const ms: Partial<ImageCanvasTranslations> = {
   'imageCanvas.loading': 'Memuatkan imej…',
   'imageCanvas.aria.region': 'Kanvas imej',
   'imageCanvas.aria.canvas': 'Seret untuk menyorot, tatal untuk zum',

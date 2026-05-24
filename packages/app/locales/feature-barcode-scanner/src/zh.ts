@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for zh. */
-export const zh: Partial<FeatureBarcodeScannerTranslations> = {
+export const zh: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.status.scanning': '正在扫描…',
   'barcodeScanner.aria.region': '条形码扫描器摄像头视图',
   'barcodeScanner.error.permission_denied': '相机权限被拒绝',

@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for vi. */
-export const vi: Partial<FeatureVideoTimelineTranslations> = {
+export const vi: Partial<VideoTimelineTranslations> = {
   'videoTimeline.zoom.in': 'Phóng to',
   'videoTimeline.zoom.out': 'Thu nhỏ',
   'videoTimeline.mode.insert': 'Chèn',

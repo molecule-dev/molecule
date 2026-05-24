@@ -1,7 +1,7 @@
-import type { FeaturePianoRollTranslations } from './types.js'
+import type { PianoRollTranslations } from './types.js'
 
 /** FeaturePianoRoll translations for ml. */
-export const ml: Partial<FeaturePianoRollTranslations> = {
+export const ml: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.roll': 'പിയാനോ റോൾ',
   'pianoRoll.aria.keys': 'പിയാനോ കീകൾ',
   'pianoRoll.aria.grid': 'കുറിപ്പ് ഗ്രിഡ്',

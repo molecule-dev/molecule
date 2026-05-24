@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for zu. */
-export const zu: Partial<FeatureChapterListTranslations> = {
+export const zu: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'Izahluko',
   'chapterList.aria.seek': 'Yeqa uye ku-<x> {{isihloko}}</x> ku-<x> {{isitembu sesikhathi}}</x>',
   'chapterList.aria.thumbnail': 'Isithonjana se-<x> {{isihloko}}</x>',

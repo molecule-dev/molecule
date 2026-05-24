@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for ko. */
-export const ko: Partial<FeatureTrackLaneTranslations> = {
+export const ko: Partial<TrackLaneTranslations> = {
   'trackLane.header': '추적',
   'trackLane.aria.lane': '트랙 레인<x> {{이름}}</x>',
   'trackLane.aria.clip':

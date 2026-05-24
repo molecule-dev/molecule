@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for be. */
-export const be: Partial<FeatureImageCanvasTranslations> = {
+export const be: Partial<ImageCanvasTranslations> = {
   'imageCanvas.aria.region': 'Палатно выявы',
   'imageCanvas.aria.canvas': 'Перацягніце для панарамавання, пракруціце для павелічэння',
   'imageCanvas.loading': 'Загрузка выявы…',

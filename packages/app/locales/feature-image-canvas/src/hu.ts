@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for hu. */
-export const hu: Partial<FeatureImageCanvasTranslations> = {
+export const hu: Partial<ImageCanvasTranslations> = {
   'imageCanvas.loading': 'Kép betöltése…',
   'imageCanvas.aria.region': 'Képvászon',
   'imageCanvas.aria.canvas': 'Húzással pásztázhatsz, görgetéssel nagyíthatsz',

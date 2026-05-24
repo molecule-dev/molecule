@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for ga. */
-export const ga: Partial<FeatureVideoTimelineTranslations> = {
+export const ga: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Amlíne físe',
   'videoTimeline.aria.ruler': 'Rialóir ama',
   'videoTimeline.aria.playhead': 'Ceann seinnte ag<x> {{am}}</x> s',

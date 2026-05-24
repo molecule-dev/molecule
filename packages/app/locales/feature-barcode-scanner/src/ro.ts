@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for ro. */
-export const ro: Partial<FeatureBarcodeScannerTranslations> = {
+export const ro: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Vizualizare cameră scaner coduri de bare',
   'barcodeScanner.error.permission_denied': 'Permisiunea camerei a fost refuzată',
   'barcodeScanner.error.no_camera': 'Nu a fost găsită nicio cameră',

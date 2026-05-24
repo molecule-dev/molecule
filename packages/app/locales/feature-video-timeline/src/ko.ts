@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for ko. */
-export const ko: Partial<FeatureVideoTimelineTranslations> = {
+export const ko: Partial<VideoTimelineTranslations> = {
   'videoTimeline.zoom.in': '확대',
   'videoTimeline.zoom.out': '축소',
   'videoTimeline.mode.insert': '삽입',

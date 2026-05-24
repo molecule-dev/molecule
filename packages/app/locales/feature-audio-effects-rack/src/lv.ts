@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for lv. */
-export const lv: Partial<FeatureAudioEffectsRackTranslations> = {
+export const lv: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'Audio efektu plaukts',
   'audioEffectsRack.aria.dragHandle': 'Velciet, lai pārkārtotu',
   'audioEffectsRack.button.add': 'Pievienot efektu',

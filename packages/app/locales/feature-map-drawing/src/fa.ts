@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for fa. */
-export const fa: Partial<FeatureMapDrawingTranslations> = {
+export const fa: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'ابزارهای ترسیم نقشه',
   'mapDrawing.surface.aria': 'سطح ترسیم نقشه',
   'mapDrawing.tool.polygon': 'چندضلعی',

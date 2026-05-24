@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for hy. */
-export const hy: Partial<FeatureVideoScrubberTranslations> = {
+export const hy: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Տեսանյութերի սքրաբեր',
   'videoScrubber.aria.strip':
     'Ֆիլմի ժապավեն — նվագարկիչի գլխիկ<x> {{ժամանակ}}</x> վ (շրջանակ<x> {{շրջանակ}}</x> )',

@@ -1,7 +1,7 @@
-import type { FeatureAudioMixerTranslations } from './types.js'
+import type { AudioMixerTranslations } from './types.js'
 
 /** FeatureAudioMixer translations for nl. */
-export const nl: Partial<FeatureAudioMixerTranslations> = {
+export const nl: Partial<AudioMixerTranslations> = {
   'audioMixer.button.mute': 'Dempen',
   'audioMixer.sends': 'Verzendingen',
   'audioMixer.aria.console': 'Audiomixerconsole',

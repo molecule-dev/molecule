@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for uk. */
-export const uk: Partial<FeatureTrackLaneTranslations> = {
+export const uk: Partial<TrackLaneTranslations> = {
   'trackLane.aria.lane': 'Колійна смуга<x> {{ім&#39;я}}</x>',
   'trackLane.aria.clip':
     'Кліп<x> {{мітка}}</x> починаючи з<x> {{час початку}}</x> для<x> {{тривалість}}</x> с',

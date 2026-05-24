@@ -1,7 +1,7 @@
-import type { FeaturePianoRollTranslations } from './types.js'
+import type { PianoRollTranslations } from './types.js'
 
 /** FeaturePianoRoll translations for zh. */
-export const zh: Partial<FeaturePianoRollTranslations> = {
+export const zh: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.roll': '钢琴卷帘',
   'pianoRoll.aria.keys': '钢琴键',
   'pianoRoll.aria.grid': '笔记网格',

@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for ml. */
-export const ml: Partial<FeatureBarcodeScannerTranslations> = {
+export const ml: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'ബാർകോഡ് സ്കാനർ ക്യാമറ കാഴ്ച',
   'barcodeScanner.error.permission_denied': 'ക്യാമറ അനുമതി നിരസിച്ചു',
   'barcodeScanner.error.no_camera': 'ക്യാമറയൊന്നും കണ്ടെത്തിയില്ല',

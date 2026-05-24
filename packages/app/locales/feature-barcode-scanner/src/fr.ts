@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for fr. */
-export const fr: Partial<FeatureBarcodeScannerTranslations> = {
+export const fr: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.status.scanning': 'Analyse en cours…',
   'barcodeScanner.aria.region': 'vue de la caméra du lecteur de codes-barres',
   'barcodeScanner.error.permission_denied': 'Autorisation de prise de vue refusée',

@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for yo. */
-export const yo: Partial<FeatureImageCanvasTranslations> = {
+export const yo: Partial<ImageCanvasTranslations> = {
   'imageCanvas.aria.region': 'Àwòrán kanfásẹ́',
   'imageCanvas.aria.canvas': 'Fa si pan, yi lọ si sun-un',
   'imageCanvas.loading': 'N n gbe aworan soke…',

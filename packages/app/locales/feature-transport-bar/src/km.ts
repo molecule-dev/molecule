@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for km. */
-export const km: Partial<FeatureTransportBarTranslations> = {
+export const km: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'ការគ្រប់គ្រងការដឹកជញ្ជូនការចាក់ឡើងវិញ',
   'transportBar.aria.skipBack': 'រំលង​ទៅ​ក្រោយ',
   'transportBar.aria.skipForward': 'រំលងទៅមុខ',

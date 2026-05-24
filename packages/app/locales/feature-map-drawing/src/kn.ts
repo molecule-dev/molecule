@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for kn. */
-export const kn: Partial<FeatureMapDrawingTranslations> = {
+export const kn: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'ನಕ್ಷೆ ಚಿತ್ರಿಸುವ ಪರಿಕರಗಳು',
   'mapDrawing.surface.aria': 'ನಕ್ಷೆ ರೇಖಾಚಿತ್ರ ಮೇಲ್ಮೈ',
   'mapDrawing.tool.polygon': 'ಬಹುಭುಜಾಕೃತಿ',

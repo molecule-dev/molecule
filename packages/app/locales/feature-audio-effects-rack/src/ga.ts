@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for ga. */
-export const ga: Partial<FeatureAudioEffectsRackTranslations> = {
+export const ga: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'Raic éifeachtaí fuaime',
   'audioEffectsRack.aria.dragHandle': 'Tarraing chun athordú',
   'audioEffectsRack.button.add': 'Cuir éifeacht leis',

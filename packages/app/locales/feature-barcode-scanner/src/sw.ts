@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for sw. */
-export const sw: Partial<FeatureBarcodeScannerTranslations> = {
+export const sw: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Mwonekano wa kamera ya kichanganuzi cha msimbopau',
   'barcodeScanner.error.permission_denied': 'Ruhusa ya kamera imekataliwa',
   'barcodeScanner.error.no_camera': 'Hakuna kamera iliyopatikana',

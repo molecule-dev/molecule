@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for ms. */
-export const ms: Partial<FeatureBarcodeScannerTranslations> = {
+export const ms: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Paparan kamera pengimbas kod bar',
   'barcodeScanner.error.permission_denied': 'Kebenaran kamera ditolak',
   'barcodeScanner.error.no_camera': 'Tiada kamera ditemui',

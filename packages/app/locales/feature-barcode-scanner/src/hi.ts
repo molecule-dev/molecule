@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for hi. */
-export const hi: Partial<FeatureBarcodeScannerTranslations> = {
+export const hi: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.status.scanning': 'स्कैन हो रहा है…',
   'barcodeScanner.aria.region': 'बारकोड स्कैनर कैमरा दृश्य',
   'barcodeScanner.error.permission_denied': 'कैमरा अनुमति अस्वीकृत',

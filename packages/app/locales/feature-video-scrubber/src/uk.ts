@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for uk. */
-export const uk: Partial<FeatureVideoScrubberTranslations> = {
+export const uk: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Відеопомічник',
   'videoScrubber.aria.strip':
     'Кінострічка — позиція відтворення на<x> {{час}}</x> s (кадр<x> {{кадр}}</x> )',

@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for gu. */
-export const gu: Partial<FeatureAudioEffectsRackTranslations> = {
+export const gu: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'ઑડિઓ ઇફેક્ટ્સ રેક',
   'audioEffectsRack.aria.dragHandle': 'ફરીથી ક્રમાંકિત કરવા માટે ખેંચો',
   'audioEffectsRack.button.add': 'અસર ઉમેરો',

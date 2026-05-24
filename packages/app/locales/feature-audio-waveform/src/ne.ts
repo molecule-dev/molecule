@@ -1,7 +1,7 @@
-import type { FeatureAudioWaveformTranslations } from './types.js'
+import type { AudioWaveformTranslations } from './types.js'
 
 /** FeatureAudioWaveform translations for ne. */
-export const ne: Partial<FeatureAudioWaveformTranslations> = {
+export const ne: Partial<AudioWaveformTranslations> = {
   'audioWaveform.aria.region': 'अडियो तरंगरूप',
   'audioWaveform.aria.seek': 'वेभफॉर्ममा क्लिक गरेर अडियो खोज्नुहोस्',
   'audioWaveform.empty': 'कुनै वेभफर्म डेटा उपलब्ध छैन।',

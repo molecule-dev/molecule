@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for lo. */
-export const lo: Partial<FeatureAudioEffectsRackTranslations> = {
+export const lo: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'ຊັ້ນວາງເອັບເຟັກສຽງ',
   'audioEffectsRack.aria.dragHandle': 'ລາກເພື່ອຈັດລຽງລຳດັບຄືນໃໝ່',
   'audioEffectsRack.button.add': 'ເພີ່ມຜົນກະທົບ',

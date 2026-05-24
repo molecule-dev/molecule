@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for bn. */
-export const bn: Partial<FeatureMapDrawingTranslations> = {
+export const bn: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'মানচিত্র আঁকার সরঞ্জাম',
   'mapDrawing.surface.aria': 'মানচিত্র আঁকার পৃষ্ঠতল',
   'mapDrawing.tool.polygon': 'বহুভুজ',

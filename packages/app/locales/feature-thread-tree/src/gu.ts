@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for gu. */
-export const gu: Partial<FeatureThreadTreeTranslations> = {
+export const gu: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'વિસ્તૃત કરો<x> {{ગણતરી}}</x> જવાબો',
   'threadTree.collapse': 'થ્રેડ સંકુચિત કરો',
   'threadTree.expandSymbol': '[+]',

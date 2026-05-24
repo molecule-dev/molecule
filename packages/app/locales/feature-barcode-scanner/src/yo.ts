@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for yo. */
-export const yo: Partial<FeatureBarcodeScannerTranslations> = {
+export const yo: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Wiwo kamẹra ẹrọ barcode',
   'barcodeScanner.error.permission_denied': 'A ti gba àṣẹ kámẹ́rà láàyè',
   'barcodeScanner.error.no_camera': 'A ko ri kamẹra kankan',

@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for is. */
-export const is: Partial<FeatureAudioEffectsRackTranslations> = {
+export const is: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'Hljóðáhrifa rekki',
   'audioEffectsRack.aria.dragHandle': 'Dragðu til að endurraða',
   'audioEffectsRack.button.add': 'Bæta við áhrifum',

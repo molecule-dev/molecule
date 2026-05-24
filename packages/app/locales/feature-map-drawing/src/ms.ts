@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for ms. */
-export const ms: Partial<FeatureMapDrawingTranslations> = {
+export const ms: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Padam',
   'mapDrawing.toolbar.aria': 'Alatan lukisan peta',
   'mapDrawing.surface.aria': 'Permukaan lukisan peta',

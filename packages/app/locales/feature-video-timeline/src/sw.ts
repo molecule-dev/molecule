@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for sw. */
-export const sw: Partial<FeatureVideoTimelineTranslations> = {
+export const sw: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Ratiba ya video',
   'videoTimeline.aria.ruler': 'Mtawala wa wakati',
   'videoTimeline.aria.playhead': 'Kichwa cha kucheza katika<x> {{wakati}}</x> s',

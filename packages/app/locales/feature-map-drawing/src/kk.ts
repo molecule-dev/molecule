@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for kk. */
-export const kk: Partial<FeatureMapDrawingTranslations> = {
+export const kk: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Карта салу құралдары',
   'mapDrawing.surface.aria': 'Карта сызу беті',
   'mapDrawing.tool.polygon': 'Көпбұрыш',

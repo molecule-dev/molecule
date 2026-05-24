@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for yo. */
-export const yo: Partial<FeatureAudioEffectsRackTranslations> = {
+export const yo: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'agbeko awọn ipa ohun',
   'audioEffectsRack.aria.dragHandle': 'Fa lati tunto eto',
   'audioEffectsRack.button.add': 'Fi ipa kun',

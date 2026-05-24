@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for fa. */
-export const fa: Partial<FeatureTrackLaneTranslations> = {
+export const fa: Partial<TrackLaneTranslations> = {
   'trackLane.aria.lane': 'مسیر آهنگ<x> {{نام}}</x>',
   'trackLane.aria.clip':
     'کلیپ<x> {{برچسب}}</x> شروع از<x> {{زمان شروع}}</x> برای<x> {{مدت زمان}}</x> ها',

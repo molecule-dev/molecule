@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for cs. */
-export const cs: Partial<FeatureVideoScrubberTranslations> = {
+export const cs: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Průběžník videa',
   'videoScrubber.aria.strip':
     'Filmový pás – přehrávací bod na<x> {{čas}}</x> s (rámec<x> {{rám}}</x> )',

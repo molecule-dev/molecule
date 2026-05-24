@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for zh. */
-export const zh: Partial<FeatureImageCanvasTranslations> = {
+export const zh: Partial<ImageCanvasTranslations> = {
   'imageCanvas.loading': '正在加载图片……',
   'imageCanvas.aria.region': '图像画布',
   'imageCanvas.aria.canvas': '拖动平移，滚动缩放',

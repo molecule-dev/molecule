@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for fa. */
-export const fa: Partial<FeatureTransportBarTranslations> = {
+export const fa: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'کنترل‌های انتقال پخش',
   'transportBar.aria.skipBack': 'پرش به عقب',
   'transportBar.aria.skipForward': 'پرش به جلو',

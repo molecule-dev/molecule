@@ -1,7 +1,7 @@
-import type { FeatureAudioMixerTranslations } from './types.js'
+import type { AudioMixerTranslations } from './types.js'
 
 /** FeatureAudioMixer translations for vi. */
-export const vi: Partial<FeatureAudioMixerTranslations> = {
+export const vi: Partial<AudioMixerTranslations> = {
   'audioMixer.button.mute': 'Tắt tiếng',
   'audioMixer.sends': 'Lượt gửi',
   'audioMixer.aria.console': 'Bàn trộn âm thanh',

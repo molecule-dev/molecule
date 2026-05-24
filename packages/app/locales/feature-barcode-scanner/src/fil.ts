@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for fil. */
-export const fil: Partial<FeatureBarcodeScannerTranslations> = {
+export const fil: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'View ng kamera ng barcode scanner',
   'barcodeScanner.error.permission_denied': 'Tinanggihan ang pahintulot sa kamera',
   'barcodeScanner.error.no_camera': 'Walang nakitang kamera',

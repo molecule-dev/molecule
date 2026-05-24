@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for cy. */
-export const cy: Partial<FeatureBarcodeScannerTranslations> = {
+export const cy: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Golygfa camera sganiwr cod bar',
   'barcodeScanner.error.permission_denied': 'Caniatâd camera wedi&#39;i wrthod',
   'barcodeScanner.error.no_camera': 'Ni chanfuwyd camera',

@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for lo. */
-export const lo: Partial<FeatureThreadTreeTranslations> = {
+export const lo: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'ຂະຫຍາຍ<x> {{ນັບ}}</x> ຕອບກັບ',
   'threadTree.collapse': 'ຫຍໍ້ກະທູ້',
   'threadTree.expandSymbol': '[+]',

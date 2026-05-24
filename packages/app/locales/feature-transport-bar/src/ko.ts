@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for ko. */
-export const ko: Partial<FeatureTransportBarTranslations> = {
+export const ko: Partial<TransportBarTranslations> = {
   'transportBar.aria.play': '재생',
   'transportBar.aria.pause': '일시정지',
   'transportBar.aria.record': '녹음',

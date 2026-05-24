@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for gl. */
-export const gl: Partial<FeatureBarcodeScannerTranslations> = {
+export const gl: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Vista da cámara do escáner de códigos de barras',
   'barcodeScanner.error.permission_denied': 'Permiso da cámara denegado',
   'barcodeScanner.error.no_camera': 'Non se atopou ningunha cámara',

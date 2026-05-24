@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for ml. */
-export const ml: Partial<FeatureTransportBarTranslations> = {
+export const ml: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'പ്ലേബാക്ക് ട്രാൻസ്പോർട്ട് നിയന്ത്രണങ്ങൾ',
   'transportBar.aria.skipBack': 'പിന്നിലേക്ക് പോകുക',
   'transportBar.aria.skipForward': 'മുന്നോട്ട് പോകുക',

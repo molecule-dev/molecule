@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for ne. */
-export const ne: Partial<FeatureThreadTreeTranslations> = {
+export const ne: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'विस्तार गर्नुहोस्<x> {{गणना}}</x> जवाफहरू',
   'threadTree.collapse': 'थ्रेड संक्षिप्त गर्नुहोस्',
   'threadTree.expandSymbol': '[+]',

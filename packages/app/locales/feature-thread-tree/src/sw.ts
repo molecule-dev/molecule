@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for sw. */
-export const sw: Partial<FeatureThreadTreeTranslations> = {
+export const sw: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Panua<x> {{hesabu}}</x> majibu',
   'threadTree.collapse': 'Kunja uzi',
   'threadTree.expandSymbol': '[+]',

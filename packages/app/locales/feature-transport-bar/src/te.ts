@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for te. */
-export const te: Partial<FeatureTransportBarTranslations> = {
+export const te: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'ప్లేబ్యాక్ రవాణా నియంత్రణలు',
   'transportBar.aria.skipBack': 'వెనుకకు వెళ్లండి',
   'transportBar.aria.skipForward': 'ముందుకు వెళ్లండి',

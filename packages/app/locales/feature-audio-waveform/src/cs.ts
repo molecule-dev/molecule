@@ -1,7 +1,7 @@
-import type { FeatureAudioWaveformTranslations } from './types.js'
+import type { AudioWaveformTranslations } from './types.js'
 
 /** FeatureAudioWaveform translations for cs. */
-export const cs: Partial<FeatureAudioWaveformTranslations> = {
+export const cs: Partial<AudioWaveformTranslations> = {
   'audioWaveform.aria.region': 'Zvukový průběh',
   'audioWaveform.aria.seek': 'Vyhledejte zvuk kliknutím na tvar vlny',
   'audioWaveform.empty': 'Nejsou k dispozici žádná data o průběhu.',

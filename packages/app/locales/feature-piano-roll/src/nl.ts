@@ -1,7 +1,7 @@
-import type { FeaturePianoRollTranslations } from './types.js'
+import type { PianoRollTranslations } from './types.js'
 
 /** FeaturePianoRoll translations for nl. */
-export const nl: Partial<FeaturePianoRollTranslations> = {
+export const nl: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.roll': 'Pianorol',
   'pianoRoll.aria.keys': 'Pianotoetsen',
   'pianoRoll.aria.grid': 'Opmerkingenraster',

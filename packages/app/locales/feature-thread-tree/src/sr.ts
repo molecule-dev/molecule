@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for sr. */
-export const sr: Partial<FeatureThreadTreeTranslations> = {
+export const sr: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Прошири<x> {{број}}</x> одговори',
   'threadTree.collapse': 'Склопи нит',
   'threadTree.expandSymbol': '[+]',

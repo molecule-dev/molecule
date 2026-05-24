@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for az. */
-export const az: Partial<FeatureTransportBarTranslations> = {
+export const az: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Oxutma nəqliyyatı idarəetmələri',
   'transportBar.aria.skipBack': 'Geriyə keçin',
   'transportBar.aria.skipForward': 'İrəli keçin',

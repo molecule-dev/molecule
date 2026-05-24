@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for vi. */
-export const vi: Partial<FeatureAudioEffectsRackTranslations> = {
+export const vi: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.eq.low': 'Thấp',
   'audioEffectsRack.param.eq.high': 'Cao',
   'audioEffectsRack.param.compressor.threshold': 'Ngưỡng',

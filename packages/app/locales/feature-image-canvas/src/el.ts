@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for el. */
-export const el: Partial<FeatureImageCanvasTranslations> = {
+export const el: Partial<ImageCanvasTranslations> = {
   'imageCanvas.loading': 'Φόρτωση εικόνας…',
   'imageCanvas.aria.region': 'Καμβάς εικόνας',
   'imageCanvas.aria.canvas': 'Σύρετε για μετατόπιση, κάντε κύλιση για ζουμ',

@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for my. */
-export const my: Partial<FeatureTransportBarTranslations> = {
+export const my: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'ဖွင့်ခြင်း သယ်ယူပို့ဆောင်ရေး ထိန်းချုပ်မှုများ',
   'transportBar.aria.skipBack': 'နောက်သို့ ကျော်သွားပါ',
   'transportBar.aria.skipForward': 'ရှေ့သို့ကျော်ပါ',

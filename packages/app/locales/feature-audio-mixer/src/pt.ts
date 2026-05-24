@@ -1,7 +1,7 @@
-import type { FeatureAudioMixerTranslations } from './types.js'
+import type { AudioMixerTranslations } from './types.js'
 
 /** FeatureAudioMixer translations for pt. */
-export const pt: Partial<FeatureAudioMixerTranslations> = {
+export const pt: Partial<AudioMixerTranslations> = {
   'audioMixer.button.mute': 'Silenciar',
   'audioMixer.sends': 'Envios',
   'audioMixer.aria.console': 'Mesa de mixagem de áudio',

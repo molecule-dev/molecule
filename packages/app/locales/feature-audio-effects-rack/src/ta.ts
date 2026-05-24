@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for ta. */
-export const ta: Partial<FeatureAudioEffectsRackTranslations> = {
+export const ta: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'ஆடியோ எஃபெக்ட்ஸ் ரேக்',
   'audioEffectsRack.aria.dragHandle': 'மறுவரிசைப்படுத்த இழுக்கவும்',
   'audioEffectsRack.button.add': 'விளைவைச் சேர்ப்பது',

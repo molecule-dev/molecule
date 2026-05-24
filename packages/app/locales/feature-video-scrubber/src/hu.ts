@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for hu. */
-export const hu: Partial<FeatureVideoScrubberTranslations> = {
+export const hu: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Videókereső',
   'videoScrubber.aria.strip':
     'Filmszalag — lejátszófej itt<x> {{idő}}</x> s (keret<x> {{keret}}</x> )',

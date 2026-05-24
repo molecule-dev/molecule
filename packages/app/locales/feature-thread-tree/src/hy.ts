@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for hy. */
-export const hy: Partial<FeatureThreadTreeTranslations> = {
+export const hy: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Ընդարձակել<x> {{քանակ}}</x> պատասխաններ',
   'threadTree.collapse': 'Ծալել թեման',
   'threadTree.expandSymbol': '[+]',

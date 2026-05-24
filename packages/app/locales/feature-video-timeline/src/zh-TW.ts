@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for zh-TW. */
-export const zhTW: Partial<FeatureVideoTimelineTranslations> = {
+export const zhTW: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': '視訊時間軸',
   'videoTimeline.aria.ruler': '時間統治者',
   'videoTimeline.aria.playhead': '播放頭{{時間}} s',

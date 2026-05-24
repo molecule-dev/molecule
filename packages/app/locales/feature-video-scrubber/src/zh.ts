@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for zh. */
-export const zh: Partial<FeatureVideoScrubberTranslations> = {
+export const zh: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': '视频擦除器',
   'videoScrubber.aria.strip': '胶片——播放头{{时间}} s（帧{{框架}} ）',
   'videoScrubber.aria.playhead': '播放头{{时间}} s',

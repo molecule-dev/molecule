@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for ha. */
-export const ha: Partial<FeatureBarcodeScannerTranslations> = {
+export const ha: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Duba kyamarar na&#39;urar daukar hoto ta Barcode',
   'barcodeScanner.error.permission_denied': 'An hana izinin kyamara',
   'barcodeScanner.error.no_camera': 'Ba a sami kyamara ba',

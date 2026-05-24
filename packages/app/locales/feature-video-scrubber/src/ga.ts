@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for ga. */
-export const ga: Partial<FeatureVideoScrubberTranslations> = {
+export const ga: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Scrúdaire físe',
   'videoScrubber.aria.strip':
     'Stiall scannáin — ceann seinnte ag<x> {{am}}</x> s (fráma<x> {{fráma}}</x> )',

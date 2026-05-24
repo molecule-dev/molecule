@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for gl. */
-export const gl: Partial<FeatureVideoTimelineTranslations> = {
+export const gl: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Liña de tempo do vídeo',
   'videoTimeline.aria.ruler': 'Regra do tempo',
   'videoTimeline.aria.playhead': 'Cabeza de reprodución en<x> {{hora}}</x> s',

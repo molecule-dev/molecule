@@ -1,7 +1,7 @@
-import type { FeaturePianoRollTranslations } from './types.js'
+import type { PianoRollTranslations } from './types.js'
 
 /** FeaturePianoRoll translations for lo. */
-export const lo: Partial<FeaturePianoRollTranslations> = {
+export const lo: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.roll': 'ເປຍໂນມ້ວນ',
   'pianoRoll.aria.keys': 'ປຸ່ມເປຍໂນ',
   'pianoRoll.aria.grid': 'ຕາຂ່າຍບັນທຶກ',

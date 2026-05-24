@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for zh-TW. */
-export const zhTW: Partial<FeatureChapterListTranslations> = {
+export const zhTW: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': '章節',
   'chapterList.aria.seek': '跳轉至{{標題}}在{{timestamp}}',
   'chapterList.aria.thumbnail': '縮圖{{標題}}',

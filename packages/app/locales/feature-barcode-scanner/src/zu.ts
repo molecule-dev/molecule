@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for zu. */
-export const zu: Partial<FeatureBarcodeScannerTranslations> = {
+export const zu: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Ukubuka kwekhamera yesikena sebhakhodi',
   'barcodeScanner.error.permission_denied': 'Imvume yekhamera yenqatshiwe',
   'barcodeScanner.error.no_camera': 'Akukho khamera etholakele',

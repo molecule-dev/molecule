@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for si. */
-export const si: Partial<FeatureMapDrawingTranslations> = {
+export const si: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'සිතියම් ඇඳීමේ මෙවලම්',
   'mapDrawing.surface.aria': 'සිතියම් ඇඳීමේ මතුපිට',
   'mapDrawing.tool.polygon': 'බහුඅස්‍රය',

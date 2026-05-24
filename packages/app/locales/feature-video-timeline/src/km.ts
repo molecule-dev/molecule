@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for km. */
-export const km: Partial<FeatureVideoTimelineTranslations> = {
+export const km: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'បន្ទាត់ពេលវេលាវីដេអូ',
   'videoTimeline.aria.ruler': 'អ្នកគ្រប់គ្រងពេលវេលា',
   'videoTimeline.aria.playhead': 'ក្បាលចាក់នៅ<x> {{ពេលវេលា}}</x> ស',

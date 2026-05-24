@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for mk. */
-export const mk: Partial<FeatureImageCanvasTranslations> = {
+export const mk: Partial<ImageCanvasTranslations> = {
   'imageCanvas.aria.region': 'Платно за слики',
   'imageCanvas.aria.canvas': 'Повлечете за панорамирање, скролувајте за зумирање',
   'imageCanvas.loading': 'Се вчитува сликата…',

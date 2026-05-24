@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for gl. */
-export const gl: Partial<FeatureChapterListTranslations> = {
+export const gl: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'Capítulos',
   'chapterList.aria.seek': 'Saltar a<x> {{título}}</x> ás<x> {{marca de tempo}}</x>',
   'chapterList.aria.thumbnail': 'Miniatura para<x> {{título}}</x>',

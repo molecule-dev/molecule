@@ -1,7 +1,7 @@
-import type { FeaturePianoRollTranslations } from './types.js'
+import type { PianoRollTranslations } from './types.js'
 
 /** FeaturePianoRoll translations for ta. */
-export const ta: Partial<FeaturePianoRollTranslations> = {
+export const ta: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.roll': 'பியானோ ரோல்',
   'pianoRoll.aria.keys': 'பியானோ விசைகள்',
   'pianoRoll.aria.grid': 'குறிப்பு கட்டம்',

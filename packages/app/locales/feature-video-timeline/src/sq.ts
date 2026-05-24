@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for sq. */
-export const sq: Partial<FeatureVideoTimelineTranslations> = {
+export const sq: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Kronologjia e videos',
   'videoTimeline.aria.ruler': 'Sundimtari i kohës',
   'videoTimeline.aria.playhead': 'Koka e luajtjes në<x> {{kohë}}</x> s',

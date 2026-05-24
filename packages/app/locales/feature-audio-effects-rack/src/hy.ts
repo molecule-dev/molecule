@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for hy. */
-export const hy: Partial<FeatureAudioEffectsRackTranslations> = {
+export const hy: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'Աուդիո էֆեկտների դարակ',
   'audioEffectsRack.aria.dragHandle': 'Քաշեք՝ վերադասավորելու համար',
   'audioEffectsRack.button.add': 'Ավելացնել էֆեկտ',

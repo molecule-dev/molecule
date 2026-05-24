@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for te. */
-export const te: Partial<FeatureMapDrawingTranslations> = {
+export const te: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'పటం గీసే సాధనాలు',
   'mapDrawing.surface.aria': 'పటం గీసే ఉపరితలం',
   'mapDrawing.tool.polygon': 'బహుభుజి',

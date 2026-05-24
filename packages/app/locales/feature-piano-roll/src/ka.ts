@@ -1,7 +1,7 @@
-import type { FeaturePianoRollTranslations } from './types.js'
+import type { PianoRollTranslations } from './types.js'
 
 /** FeaturePianoRoll translations for ka. */
-export const ka: Partial<FeaturePianoRollTranslations> = {
+export const ka: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.roll': 'ფორტეპიანოს როლი',
   'pianoRoll.aria.keys': 'ფორტეპიანოს კლავიშები',
   'pianoRoll.aria.grid': 'ნოტების ბადე',

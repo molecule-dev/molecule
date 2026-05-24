@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for pl. */
-export const pl: Partial<FeatureTransportBarTranslations> = {
+export const pl: Partial<TransportBarTranslations> = {
   'transportBar.aria.play': 'Odtwórz',
   'transportBar.aria.pause': 'Pauza',
   'transportBar.aria.record': 'Nagrywaj',

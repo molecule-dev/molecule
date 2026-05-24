@@ -1,7 +1,7 @@
-import type { FeatureAudioMixerTranslations } from './types.js'
+import type { AudioMixerTranslations } from './types.js'
 
 /** FeatureAudioMixer translations for gl. */
-export const gl: Partial<FeatureAudioMixerTranslations> = {
+export const gl: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'Consola de mestura de son',
   'audioMixer.aria.fader': '{{nome}} atenuador',
   'audioMixer.aria.pan': '{{nome}} tixola',

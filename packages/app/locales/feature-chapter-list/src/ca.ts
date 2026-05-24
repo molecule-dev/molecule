@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for ca. */
-export const ca: Partial<FeatureChapterListTranslations> = {
+export const ca: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'Capítols',
   'chapterList.aria.seek': 'Salta a<x> {{títol}}</x> a<x> {{marca de temps}}</x>',
   'chapterList.aria.thumbnail': 'Miniatura per a<x> {{títol}}</x>',

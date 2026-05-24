@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for sw. */
-export const sw: Partial<FeatureAudioEffectsRackTranslations> = {
+export const sw: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'Raki ya athari za sauti',
   'audioEffectsRack.aria.dragHandle': 'Buruta ili kupanga upya',
   'audioEffectsRack.button.add': 'Ongeza athari',

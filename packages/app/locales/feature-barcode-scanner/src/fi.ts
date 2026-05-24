@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for fi. */
-export const fi: Partial<FeatureBarcodeScannerTranslations> = {
+export const fi: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Viivakoodiskannerin kameranäkymä',
   'barcodeScanner.error.permission_denied': 'Kameran käyttöoikeus evätty',
   'barcodeScanner.error.no_camera': 'Kameraa ei löytynyt',

@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for cy. */
-export const cy: Partial<FeatureMapDrawingTranslations> = {
+export const cy: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Offer llunio mapiau',
   'mapDrawing.surface.aria': 'Arwyneb lluniadu map',
   'mapDrawing.tool.polygon': 'Polygon',

@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for ky. */
-export const ky: Partial<FeatureMapDrawingTranslations> = {
+export const ky: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Карта чийүү куралдары',
   'mapDrawing.surface.aria': 'Карта чийүү бети',
   'mapDrawing.tool.polygon': 'Көп бурчтук',

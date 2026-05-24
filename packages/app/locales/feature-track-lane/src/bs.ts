@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for bs. */
-export const bs: Partial<FeatureTrackLaneTranslations> = {
+export const bs: Partial<TrackLaneTranslations> = {
   'trackLane.aria.lane': 'Staza<x> {{name}}</x>',
   'trackLane.aria.clip':
     'Isječak<x> {{label}}</x> počevši od<x> {{početno vrijeme}}</x> s za<x> {{trajanje}}</x> s',

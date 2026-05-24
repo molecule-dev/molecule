@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for zh-TW. */
-export const zhTW: Partial<FeatureTransportBarTranslations> = {
+export const zhTW: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': '播放傳輸控制',
   'transportBar.aria.skipBack': '向後跳',
   'transportBar.aria.skipForward': '向前跳轉',

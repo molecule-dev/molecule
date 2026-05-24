@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for th. */
-export const th: Partial<FeatureThreadTreeTranslations> = {
+export const th: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'ขยาย<x> {{นับ}}</x> ตอบกลับ',
   'threadTree.collapse': 'ยุบกระทู้',
   'threadTree.expandSymbol': '[+]',

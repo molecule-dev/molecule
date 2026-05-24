@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for ga. */
-export const ga: Partial<FeatureTransportBarTranslations> = {
+export const ga: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Rialuithe iompair athsheinm',
   'transportBar.aria.skipBack': 'Léim siar',
   'transportBar.aria.skipForward': 'Léim ar aghaidh',

@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for fa. */
-export const fa: Partial<FeatureAudioEffectsRackTranslations> = {
+export const fa: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'قفسه جلوه‌های صوتی',
   'audioEffectsRack.aria.dragHandle': 'برای مرتب سازی مجدد بکشید',
   'audioEffectsRack.button.add': 'اضافه کردن افکت',

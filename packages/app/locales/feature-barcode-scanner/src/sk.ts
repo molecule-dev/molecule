@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for sk. */
-export const sk: Partial<FeatureBarcodeScannerTranslations> = {
+export const sk: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Pohľad kamery skenera čiarových kódov',
   'barcodeScanner.error.permission_denied': 'Prístup k kamere bol zamietnutý',
   'barcodeScanner.error.no_camera': 'Nenašla sa žiadna kamera',

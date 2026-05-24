@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for vi. */
-export const vi: Partial<FeatureVideoScrubberTranslations> = {
+export const vi: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Bộ tua video',
   'videoScrubber.aria.strip':
     'Dải phim — đầu phát tại<x> {{thời gian}}</x> s (khung)<x> {{khung}}</x> )',

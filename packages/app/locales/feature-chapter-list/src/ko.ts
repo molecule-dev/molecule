@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for ko. */
-export const ko: Partial<FeatureChapterListTranslations> = {
+export const ko: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': '챕터',
   'chapterList.current': '재생 중',
   'chapterList.aria.seek': '바로가기<x> {{제목}}</x> ~에<x> {{타임스탬프}}</x>',

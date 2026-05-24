@@ -1,7 +1,7 @@
-import type { FeatureAudioMixerTranslations } from './types.js'
+import type { AudioMixerTranslations } from './types.js'
 
 /** FeatureAudioMixer translations for ig. */
-export const ig: Partial<FeatureAudioMixerTranslations> = {
+export const ig: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'Igwe igwekota ọdịyo',
   'audioMixer.aria.fader': '{{aha}} fader',
   'audioMixer.aria.pan': '{{aha}} pan',

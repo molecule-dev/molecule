@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for et. */
-export const et: Partial<FeatureVideoTimelineTranslations> = {
+export const et: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Video ajajoon',
   'videoTimeline.aria.ruler': 'Ajajoonlaud',
   'videoTimeline.aria.playhead': 'Esituspea kell<x> aeg</x> s',

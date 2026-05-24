@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for nl. */
-export const nl: Partial<FeatureChapterListTranslations> = {
+export const nl: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'Hoofdstukken',
   'chapterList.current': 'Nu aan het afspelen',
   'chapterList.aria.seek': 'Spring naar<x> {{titel}}</x> bij<x> {{tijdstempel}}</x>',

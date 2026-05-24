@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for it. */
-export const it: Partial<FeatureAudioEffectsRackTranslations> = {
+export const it: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.param.eq.low': 'Bassa',
   'audioEffectsRack.param.eq.high': 'Alta',
   'audioEffectsRack.param.compressor.threshold': 'Soglia',

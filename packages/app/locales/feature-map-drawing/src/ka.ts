@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for ka. */
-export const ka: Partial<FeatureMapDrawingTranslations> = {
+export const ka: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'რუკის ხატვის ინსტრუმენტები',
   'mapDrawing.surface.aria': 'რუკის ხატვის ზედაპირი',
   'mapDrawing.tool.polygon': 'პოლიგონი',

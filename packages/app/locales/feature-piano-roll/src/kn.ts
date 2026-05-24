@@ -1,7 +1,7 @@
-import type { FeaturePianoRollTranslations } from './types.js'
+import type { PianoRollTranslations } from './types.js'
 
 /** FeaturePianoRoll translations for kn. */
-export const kn: Partial<FeaturePianoRollTranslations> = {
+export const kn: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.roll': 'ಪಿಯಾನೋ ರೋಲ್',
   'pianoRoll.aria.keys': 'ಪಿಯಾನೋ ಕೀಲಿಗಳು',
   'pianoRoll.aria.grid': 'ಟಿಪ್ಪಣಿ ಗ್ರಿಡ್',

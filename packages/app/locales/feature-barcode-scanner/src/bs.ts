@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for bs. */
-export const bs: Partial<FeatureBarcodeScannerTranslations> = {
+export const bs: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Prikaz kamere skenera barkodova',
   'barcodeScanner.error.permission_denied': 'Dozvola za kameru je odbijena',
   'barcodeScanner.error.no_camera': 'Nije pronađena kamera',

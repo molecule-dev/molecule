@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for lv. */
-export const lv: Partial<FeatureMapDrawingTranslations> = {
+export const lv: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Kartes zīmēšanas rīki',
   'mapDrawing.surface.aria': 'Kartes zīmēšanas virsma',
   'mapDrawing.tool.polygon': 'Daudzstūris',

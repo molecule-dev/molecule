@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for id. */
-export const id: Partial<FeatureVideoTimelineTranslations> = {
+export const id: Partial<VideoTimelineTranslations> = {
   'videoTimeline.zoom.in': 'Perbesar',
   'videoTimeline.zoom.out': 'Perkecil',
   'videoTimeline.mode.insert': 'Sisipkan',

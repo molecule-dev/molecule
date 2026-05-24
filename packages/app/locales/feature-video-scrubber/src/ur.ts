@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for ur. */
-export const ur: Partial<FeatureVideoScrubberTranslations> = {
+export const ur: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'ویڈیو اسکربر',
   'videoScrubber.aria.strip': 'فلم اسٹریپ — پلے ہیڈ پر<x> {{وقت}}</x> s (فریم<x> {{فریم}}</x> )',
   'videoScrubber.aria.playhead': 'پلے ہیڈ پر<x> {{وقت}}</x> s',

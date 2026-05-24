@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for mr. */
-export const mr: Partial<FeatureMapDrawingTranslations> = {
+export const mr: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'नकाशा काढण्याची साधने',
   'mapDrawing.surface.aria': 'नकाशा रेखाटन पृष्ठभाग',
   'mapDrawing.tool.polygon': 'बहुभुज',

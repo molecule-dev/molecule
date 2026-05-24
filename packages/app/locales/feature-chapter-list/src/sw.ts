@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for sw. */
-export const sw: Partial<FeatureChapterListTranslations> = {
+export const sw: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'Sura',
   'chapterList.aria.seek': 'Ruka hadi<x> {{title}}</x> katika<x> {{muhuri wa muda}}</x>',
   'chapterList.aria.thumbnail': 'Kijipicha cha<x> {{title}}</x>',

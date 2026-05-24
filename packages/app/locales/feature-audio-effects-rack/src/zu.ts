@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for zu. */
-export const zu: Partial<FeatureAudioEffectsRackTranslations> = {
+export const zu: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'Irekhi yemiphumela yomsindo',
   'audioEffectsRack.aria.dragHandle': 'Hudula ukuze uhlele kabusha',
   'audioEffectsRack.button.add': 'Engeza umphumela',

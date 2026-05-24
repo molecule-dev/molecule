@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for sv. */
-export const sv: Partial<FeatureImageCanvasTranslations> = {
+export const sv: Partial<ImageCanvasTranslations> = {
   'imageCanvas.loading': 'Laddar bild…',
   'imageCanvas.aria.region': 'Bildduk',
   'imageCanvas.aria.canvas': 'Dra för att panorera, skrolla för att zooma',

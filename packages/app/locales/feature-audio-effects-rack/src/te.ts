@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for te. */
-export const te: Partial<FeatureAudioEffectsRackTranslations> = {
+export const te: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'ఆడియో ఎఫెక్ట్స్ ర్యాక్',
   'audioEffectsRack.aria.dragHandle': 'క్రమాన్ని మార్చడానికి లాగండి',
   'audioEffectsRack.button.add': 'ప్రభావాన్ని జోడించండి',

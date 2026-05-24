@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for ca. */
-export const ca: Partial<FeatureThreadTreeTranslations> = {
+export const ca: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Expandir<x> {{count}}</x> respostes',
   'threadTree.collapse': 'Replega el fil',
   'threadTree.expandSymbol': '[+]',

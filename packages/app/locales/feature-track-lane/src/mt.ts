@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for mt. */
-export const mt: Partial<FeatureTrackLaneTranslations> = {
+export const mt: Partial<TrackLaneTranslations> = {
   'trackLane.aria.lane': 'Karreġġjata tat-trakka<x> {{isem}}</x>',
   'trackLane.aria.clip':
     'Klipp<x> {{tikketta}}</x> jibda minn<x> {{Ħin tal-bidu}}</x> s għal<x> {{tul}}</x> s',

@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for eu. */
-export const eu: Partial<FeatureVideoTimelineTranslations> = {
+export const eu: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Bideoaren denbora-lerroa',
   'videoTimeline.aria.ruler': 'Denbora-erregela',
   'videoTimeline.aria.playhead': 'Erreproduzitzeko burua hemen:<x> {{denbora}}</x> ak',

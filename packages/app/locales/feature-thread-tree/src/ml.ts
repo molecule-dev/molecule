@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for ml. */
-export const ml: Partial<FeatureThreadTreeTranslations> = {
+export const ml: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'വികസിപ്പിക്കുക<x> {{എണ്ണം}}</x> മറുപടികൾ',
   'threadTree.collapse': 'ത്രെഡ് ചുരുക്കുക',
   'threadTree.expandSymbol': '[+]',

@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for de. */
-export const de: Partial<FeatureMapDrawingTranslations> = {
+export const de: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.pin': 'Anheften',
   'mapDrawing.tool.line': 'Zeile',
   'mapDrawing.tool.select': 'Auswählen',

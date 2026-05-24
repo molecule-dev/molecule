@@ -1,7 +1,7 @@
-import type { FeatureTransportBarTranslations } from './types.js'
+import type { TransportBarTranslations } from './types.js'
 
 /** FeatureTransportBar translations for is. */
-export const is: Partial<FeatureTransportBarTranslations> = {
+export const is: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Stýringar fyrir spilun',
   'transportBar.aria.skipBack': 'Hoppa afturábak',
   'transportBar.aria.skipForward': 'Hoppa áfram',

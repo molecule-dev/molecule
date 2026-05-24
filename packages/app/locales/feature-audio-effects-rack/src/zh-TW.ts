@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for zh-TW. */
-export const zhTW: Partial<FeatureAudioEffectsRackTranslations> = {
+export const zhTW: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': '音訊效果機架',
   'audioEffectsRack.aria.dragHandle': '拖曳即可重新排序',
   'audioEffectsRack.button.add': '添加效果',

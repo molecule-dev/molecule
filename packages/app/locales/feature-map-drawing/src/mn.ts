@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for mn. */
-export const mn: Partial<FeatureMapDrawingTranslations> = {
+export const mn: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Газрын зураг зурах хэрэгслүүд',
   'mapDrawing.surface.aria': 'Газрын зураг зурах гадаргуу',
   'mapDrawing.tool.polygon': 'Олон өнцөгт',

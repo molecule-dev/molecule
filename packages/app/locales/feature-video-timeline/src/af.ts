@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for af. */
-export const af: Partial<FeatureVideoTimelineTranslations> = {
+export const af: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Videotydlyn',
   'videoTimeline.aria.ruler': 'Tydsheerser',
   'videoTimeline.aria.playhead': 'Speelkop by<x> {{tyd}}</x> s',

@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for de. */
-export const de: Partial<FeatureImageCanvasTranslations> = {
+export const de: Partial<ImageCanvasTranslations> = {
   'imageCanvas.loading': 'Bild wird geladen…',
   'imageCanvas.aria.region': 'Bildleinwand',
   'imageCanvas.aria.canvas': 'Zum Verschieben ziehen, zum Zoomen scrollen.',

@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for ig. */
-export const ig: Partial<FeatureMapDrawingTranslations> = {
+export const ig: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Ngwaọrụ ise maapụ',
   'mapDrawing.surface.aria': 'Ihu eserese maapụ',
   'mapDrawing.tool.polygon': 'Polygon',

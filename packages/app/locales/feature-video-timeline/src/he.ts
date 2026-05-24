@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for he. */
-export const he: Partial<FeatureVideoTimelineTranslations> = {
+export const he: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'לְהַכנִיס',
   'videoTimeline.aria.root': 'ציר זמן של וידאו',
   'videoTimeline.aria.ruler': 'שליט הזמן',

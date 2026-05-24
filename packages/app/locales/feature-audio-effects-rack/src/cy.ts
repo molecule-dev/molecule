@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for cy. */
-export const cy: Partial<FeatureAudioEffectsRackTranslations> = {
+export const cy: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'Rac effeithiau sain',
   'audioEffectsRack.aria.dragHandle': 'Llusgwch i aildrefnu',
   'audioEffectsRack.button.add': 'Ychwanegu effaith',

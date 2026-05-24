@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for ka. */
-export const ka: Partial<FeatureChapterListTranslations> = {
+export const ka: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'თავები',
   'chapterList.aria.seek': 'გადასვლა<x> {{სათაური}}</x> დროს<x> {{დროის ნიშნული}}</x>',
   'chapterList.aria.thumbnail': 'მინიატურა<x> {{სათაური}}</x>',

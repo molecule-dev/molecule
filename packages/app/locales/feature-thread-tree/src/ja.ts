@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for ja. */
-export const ja: Partial<FeatureThreadTreeTranslations> = {
+export const ja: Partial<ThreadTreeTranslations> = {
   'threadTree.upvote': 'アップボート',
   'threadTree.reply': '返信',
   'threadTree.expand': '拡大する{{カウント}}返信',

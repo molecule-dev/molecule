@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for pa. */
-export const pa: Partial<FeatureThreadTreeTranslations> = {
+export const pa: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'ਫੈਲਾਓ<x> {{ਗਿਣਤੀ}}</x> ਜਵਾਬ',
   'threadTree.collapse': 'ਥ੍ਰੈੱਡ ਨੂੰ ਸਮੇਟੋ',
   'threadTree.expandSymbol': '[+]',

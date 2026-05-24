@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for hy. */
-export const hy: Partial<FeatureMapDrawingTranslations> = {
+export const hy: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Քարտեզի նկարչության գործիքներ',
   'mapDrawing.surface.aria': 'Քարտեզի գծագրման մակերես',
   'mapDrawing.tool.polygon': 'Պոլիգոն',

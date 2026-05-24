@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for lt. */
-export const lt: Partial<FeatureMapDrawingTranslations> = {
+export const lt: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Žemėlapio piešimo įrankiai',
   'mapDrawing.surface.aria': 'Žemėlapio piešimo paviršius',
   'mapDrawing.tool.polygon': 'Daugiakampis',

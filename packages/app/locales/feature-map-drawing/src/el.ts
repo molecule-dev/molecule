@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for el. */
-export const el: Partial<FeatureMapDrawingTranslations> = {
+export const el: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.delete': 'Διαγραφή',
   'mapDrawing.toolbar.aria': 'Εργαλεία σχεδίασης χαρτών',
   'mapDrawing.surface.aria': 'Επιφάνεια σχεδίασης χάρτη',

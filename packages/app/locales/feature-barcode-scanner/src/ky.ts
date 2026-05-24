@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for ky. */
-export const ky: Partial<FeatureBarcodeScannerTranslations> = {
+export const ky: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Штрих-код сканеринин камера көрүнүшү',
   'barcodeScanner.error.permission_denied': 'Камерага уруксат берилген жок',
   'barcodeScanner.error.no_camera': 'Камера табылган жок',

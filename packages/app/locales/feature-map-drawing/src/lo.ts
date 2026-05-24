@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for lo. */
-export const lo: Partial<FeatureMapDrawingTranslations> = {
+export const lo: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'ເຄື່ອງມືແຕ້ມແຜນທີ່',
   'mapDrawing.surface.aria': 'ພື້ນຜິວແຕ້ມແຜນທີ່',
   'mapDrawing.tool.polygon': 'ຮູບຫຼາຍຫຼ່ຽມ',

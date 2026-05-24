@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for am. */
-export const am: Partial<FeatureChapterListTranslations> = {
+export const am: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'ምዕራፎች',
   'chapterList.aria.seek': 'ዝለል ወደ<x> {{ርዕስ}}</x> በ<x> {{የጊዜ ማህተም}}</x>',
   'chapterList.aria.thumbnail': 'የጥፍር አከል<x> {{ርዕስ}}</x>',

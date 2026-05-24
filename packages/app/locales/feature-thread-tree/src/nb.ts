@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for nb. */
-export const nb: Partial<FeatureThreadTreeTranslations> = {
+export const nb: Partial<ThreadTreeTranslations> = {
   'threadTree.reply': 'Svar',
   'threadTree.expand': 'Utvide<x> {{telle}}</x> svar',
   'threadTree.collapse': 'Skjul tråden',

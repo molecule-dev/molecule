@@ -1,7 +1,7 @@
-import type { FeatureBarcodeScannerTranslations } from './types.js'
+import type { BarcodeScannerTranslations } from './types.js'
 
 /** FeatureBarcodeScanner translations for el. */
-export const el: Partial<FeatureBarcodeScannerTranslations> = {
+export const el: Partial<BarcodeScannerTranslations> = {
   'barcodeScanner.aria.region': 'Προβολή κάμερας σαρωτή γραμμωτού κώδικα',
   'barcodeScanner.error.permission_denied': 'Η άδεια χρήσης κάμερας απορρίφθηκε',
   'barcodeScanner.error.no_camera': 'Δεν βρέθηκε κάμερα',

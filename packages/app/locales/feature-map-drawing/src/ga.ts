@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for ga. */
-export const ga: Partial<FeatureMapDrawingTranslations> = {
+export const ga: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Uirlisí líníochta léarscáile',
   'mapDrawing.surface.aria': 'Dromchla líníochta léarscáile',
   'mapDrawing.tool.polygon': 'Polagán',

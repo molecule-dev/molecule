@@ -1,7 +1,7 @@
-import type { FeatureVideoScrubberTranslations } from './types.js'
+import type { VideoScrubberTranslations } from './types.js'
 
 /** FeatureVideoScrubber translations for kk. */
-export const kk: Partial<FeatureVideoScrubberTranslations> = {
+export const kk: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Бейнені скруббер',
   'videoScrubber.aria.strip': 'Диафильм — ойнату басы<x> {{уақыт}}</x> s (кадр<x> {{frame}}</x> )',
   'videoScrubber.aria.playhead': 'Ойнату басы<x> {{уақыт}}</x> с',

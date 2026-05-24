@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for is. */
-export const is: Partial<FeatureThreadTreeTranslations> = {
+export const is: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Stækka<x> {{teljandi}}</x> svör',
   'threadTree.collapse': 'Fella saman þráð',
   'threadTree.expandSymbol': '[+]',

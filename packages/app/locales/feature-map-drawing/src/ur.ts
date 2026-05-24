@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for ur. */
-export const ur: Partial<FeatureMapDrawingTranslations> = {
+export const ur: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'نقشہ ڈرائنگ ٹولز',
   'mapDrawing.surface.aria': 'نقشہ ڈرائنگ کی سطح',
   'mapDrawing.tool.polygon': 'کثیر الاضلاع',

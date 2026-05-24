@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for bg. */
-export const bg: Partial<FeatureAudioEffectsRackTranslations> = {
+export const bg: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'Стойка за аудио ефекти',
   'audioEffectsRack.aria.dragHandle': 'Плъзнете, за да пренаредите',
   'audioEffectsRack.button.add': 'Добавяне на ефект',

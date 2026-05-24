@@ -1,7 +1,7 @@
-import type { FeatureTrackLaneTranslations } from './types.js'
+import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for el. */
-export const el: Partial<FeatureTrackLaneTranslations> = {
+export const el: Partial<TrackLaneTranslations> = {
   'trackLane.aria.lane': 'Λωρίδα τροχιάς<x> {{όνομα}}</x>',
   'trackLane.aria.clip':
     'Συνδετήρας<x> {{επιγραφή}}</x> ξεκινώντας από<x> {{Ώρα έναρξης}}</x> s για<x> {{διάρκεια}}</x> μικρό',

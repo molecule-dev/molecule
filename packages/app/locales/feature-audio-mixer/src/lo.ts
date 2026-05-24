@@ -1,7 +1,7 @@
-import type { FeatureAudioMixerTranslations } from './types.js'
+import type { AudioMixerTranslations } from './types.js'
 
 /** FeatureAudioMixer translations for lo. */
-export const lo: Partial<FeatureAudioMixerTranslations> = {
+export const lo: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'ຄອນໂຊນເຄື່ອງປະສົມສຽງ',
   'audioMixer.aria.fader': '{{ຊື່}} ເຟດເດີ',
   'audioMixer.aria.pan': '{{ຊື່}} ກະທະ',

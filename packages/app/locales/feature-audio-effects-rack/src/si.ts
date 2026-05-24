@@ -1,7 +1,7 @@
-import type { FeatureAudioEffectsRackTranslations } from './types.js'
+import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for si. */
-export const si: Partial<FeatureAudioEffectsRackTranslations> = {
+export const si: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.aria.rack': 'ශ්‍රව්‍ය ප්‍රයෝග රාක්කය',
   'audioEffectsRack.aria.dragHandle': 'නැවත ඇණවුම් කිරීමට අදින්න',
   'audioEffectsRack.button.add': 'ප්‍රයෝගය එක් කරන්න',

@@ -1,7 +1,7 @@
-import type { FeaturePianoRollTranslations } from './types.js'
+import type { PianoRollTranslations } from './types.js'
 
 /** FeaturePianoRoll translations for lv. */
-export const lv: Partial<FeaturePianoRollTranslations> = {
+export const lv: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.roll': 'Klavieru rullis',
   'pianoRoll.aria.keys': 'Klavieru taustiņi',
   'pianoRoll.aria.grid': 'Piezīmju režģis',

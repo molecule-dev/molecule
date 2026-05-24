@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for sl. */
-export const sl: Partial<FeatureMapDrawingTranslations> = {
+export const sl: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Orodja za risanje zemljevidov',
   'mapDrawing.surface.aria': 'Površina za risanje zemljevida',
   'mapDrawing.tool.polygon': 'Poligon',

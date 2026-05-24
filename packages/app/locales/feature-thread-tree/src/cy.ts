@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for cy. */
-export const cy: Partial<FeatureThreadTreeTranslations> = {
+export const cy: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Ehangu<x> {{cyfrif}}</x> atebion',
   'threadTree.collapse': 'Cwympo&#39;r edau',
   'threadTree.expandSymbol': '[+]',

@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for hy. */
-export const hy: Partial<FeatureVideoTimelineTranslations> = {
+export const hy: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Տեսանյութերի ժամանակագրություն',
   'videoTimeline.aria.ruler': 'Ժամանակի քանոն',
   'videoTimeline.aria.playhead': 'Նվագարկիչի գլխիկ<x> {{ժամանակ}}</x> ներ',

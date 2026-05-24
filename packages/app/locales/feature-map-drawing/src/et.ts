@@ -1,7 +1,7 @@
-import type { FeatureMapDrawingTranslations } from './types.js'
+import type { MapDrawingTranslations } from './types.js'
 
 /** FeatureMapDrawing translations for et. */
-export const et: Partial<FeatureMapDrawingTranslations> = {
+export const et: Partial<MapDrawingTranslations> = {
   'mapDrawing.toolbar.aria': 'Kaardi joonistamise tööriistad',
   'mapDrawing.surface.aria': 'Kaardi joonistamise pind',
   'mapDrawing.tool.polygon': 'Polügoon',

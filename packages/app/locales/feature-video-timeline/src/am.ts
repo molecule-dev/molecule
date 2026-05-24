@@ -1,7 +1,7 @@
-import type { FeatureVideoTimelineTranslations } from './types.js'
+import type { VideoTimelineTranslations } from './types.js'
 
 /** FeatureVideoTimeline translations for am. */
-export const am: Partial<FeatureVideoTimelineTranslations> = {
+export const am: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'የቪዲዮ የጊዜ መስመር',
   'videoTimeline.aria.ruler': 'የጊዜ መቆጣጠሪያ',
   'videoTimeline.aria.playhead': 'የጨዋታ መሪ በ<x> {{ጊዜ}}</x> ኤስ',

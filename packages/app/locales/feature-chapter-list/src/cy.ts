@@ -1,7 +1,7 @@
-import type { FeatureChapterListTranslations } from './types.js'
+import type { ChapterListTranslations } from './types.js'
 
 /** FeatureChapterList translations for cy. */
-export const cy: Partial<FeatureChapterListTranslations> = {
+export const cy: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'Penodau',
   'chapterList.aria.seek': 'Neidio i<x> {{teitl}}</x> yn<x> {{stamp amser}}</x>',
   'chapterList.aria.thumbnail': 'Mân-lun ar gyfer<x> {{teitl}}</x>',

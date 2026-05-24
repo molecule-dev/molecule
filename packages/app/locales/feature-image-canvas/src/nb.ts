@@ -1,7 +1,7 @@
-import type { FeatureImageCanvasTranslations } from './types.js'
+import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for nb. */
-export const nb: Partial<FeatureImageCanvasTranslations> = {
+export const nb: Partial<ImageCanvasTranslations> = {
   'imageCanvas.loading': 'Laster bilde…',
   'imageCanvas.aria.region': 'Bildelerret',
   'imageCanvas.aria.canvas': 'Dra for å panorere, bla for å zoome',

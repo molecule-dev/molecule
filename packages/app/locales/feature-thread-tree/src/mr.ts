@@ -1,7 +1,7 @@
-import type { FeatureThreadTreeTranslations } from './types.js'
+import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for mr. */
-export const mr: Partial<FeatureThreadTreeTranslations> = {
+export const mr: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'विस्तार करा<x> {{count}}</x> उत्तर',
   'threadTree.collapse': 'थ्रेड संकुचित करा',
   'threadTree.expandSymbol': '[+]',
