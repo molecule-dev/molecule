@@ -141,6 +141,17 @@ class DockerSandboxProvider implements SandboxProvider {
       [`${this.labelPrefix}.managed`]: 'true',
     }
 
+    // Merge any caller-supplied labels FIRST so the provider's own managed
+    // labels above (set last via reassignment below) always win — a caller can
+    // never clobber `${prefix}.managed`/`projectId`. Additive + backward
+    // compatible: existing callers pass no `labels` and are unaffected.
+    if (config.labels && typeof config.labels === 'object' && !Array.isArray(config.labels)) {
+      for (const [k, v] of Object.entries(config.labels)) {
+        if (k === `${this.labelPrefix}.projectId` || k === `${this.labelPrefix}.managed`) continue
+        labels[k] = String(v)
+      }
+    }
+
     const memoryBytes = memoryMB * 1024 * 1024
     const hostConfig: Record<string, unknown> = {
       NanoCPUs: cpu * 1e9,

@@ -600,6 +600,62 @@ describe('DockerSandboxProvider', () => {
     })
   })
 
+  // ─── Custom labels (additive, backward-compatible) ────────────────────
+
+  describe('custom labels', () => {
+    it('always sets the managed + projectId labels (no custom labels)', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock' })
+
+      enqueueJson(201, { Id: 'container-lbl0' })
+      await provider.create({ projectId: 'proj-lbl0' })
+
+      const body = JSON.parse(httpRequestCalls[0].body!)
+      const labels = body.Labels as Record<string, string>
+      expect(labels['molecule-sandbox.projectId']).toBe('proj-lbl0')
+      expect(labels['molecule-sandbox.managed']).toBe('true')
+      // No production label when none requested (backward compatible).
+      expect(labels['molecule.production']).toBeUndefined()
+    })
+
+    it('merges caller-supplied labels additively (e.g. molecule.production)', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock' })
+
+      enqueueJson(201, { Id: 'container-lbl1' })
+      await provider.create({
+        projectId: 'proj-lbl1',
+        labels: { 'molecule.production': 'proj-lbl1' },
+      })
+
+      const body = JSON.parse(httpRequestCalls[0].body!)
+      const labels = body.Labels as Record<string, string>
+      // Custom label applied alongside the provider's managed labels.
+      expect(labels['molecule.production']).toBe('proj-lbl1')
+      expect(labels['molecule-sandbox.projectId']).toBe('proj-lbl1')
+      expect(labels['molecule-sandbox.managed']).toBe('true')
+    })
+
+    it('never lets a custom label clobber the managed/projectId labels', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock' })
+
+      enqueueJson(201, { Id: 'container-lbl2' })
+      await provider.create({
+        projectId: 'real-project',
+        labels: {
+          'molecule-sandbox.projectId': 'spoofed',
+          'molecule-sandbox.managed': 'false',
+        },
+      })
+
+      const body = JSON.parse(httpRequestCalls[0].body!)
+      const labels = body.Labels as Record<string, string>
+      expect(labels['molecule-sandbox.projectId']).toBe('real-project')
+      expect(labels['molecule-sandbox.managed']).toBe('true')
+    })
+  })
+
   // ─── Socket timeout on spawn ──────────────────────────────────────────
 
   describe('socket timeout on spawn', () => {

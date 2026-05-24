@@ -16,6 +16,15 @@ export interface SandboxConfig {
   env?: Record<string, string>
   /** Docker volume name to mount at /sandbox/project for persistent storage. */
   volumeName?: string
+  /**
+   * Extra provider-level labels merged into the container's labels (additive;
+   * does not replace the provider's own `managed`/`projectId`/`volumeName`
+   * labels). Lets callers tag containers for out-of-band recovery — e.g. a
+   * production runtime applying `molecule.production=<projectId>` so its
+   * long-lived containers are distinguishable from dev sandboxes and
+   * recoverable across control-plane restarts.
+   */
+  labels?: Record<string, string>
   resources?: {
     cpu: number
     memoryMB: number
