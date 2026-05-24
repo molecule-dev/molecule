@@ -313,6 +313,72 @@ export const detachPaymentMethod = async (paymentMethodId: string): Promise<bool
 }
 
 /**
+ * Reports a usage-based OVERAGE charge to Stripe as a one-off invoice item
+ * against an existing customer (and, when given, attached to the open invoice
+ * of a specific subscription so it lands on the next cycle invoice).
+ *
+ * This is the supported, type-safe path on the installed Stripe SDK (v22):
+ * the legacy `subscriptionItems.createUsageRecord` API was removed in favor of
+ * metered-price meter events / invoice items. A positive-amount invoice item
+ * is the simplest cost-plus overage mechanism — Stripe aggregates open invoice
+ * items and bills them at the customer's cycle close, so repeated incremental
+ * calls accrete onto the same upcoming invoice.
+ *
+ * IDEMPOTENCY: the caller MUST pass a stable `idempotencyKey` derived from
+ * `(user, period, amount)` so a retry or a double-run within the same Stripe
+ * idempotency window (24h) is collapsed to a single invoice item and never
+ * double-charges (broker safety invariant 4).
+ *
+ * This function performs NO gating of its own — it charges whatever it is
+ * told to. The decision of WHETHER to charge (configured? opted-in? paid?
+ * over budget?) lives entirely in the molecule-dev billing module, which is
+ * the single inert/opt-in gate (safety invariants 1 + 2).
+ *
+ * @param options - Overage reporting options.
+ * @param options.customerId - The Stripe customer to bill (`cus_...`).
+ * @param options.amountCents - The overage amount in cents (must be `> 0`).
+ * @param options.currency - ISO currency (defaults to `usd`).
+ * @param options.priceId - The metered/overage Price id this reports against;
+ *   recorded in metadata for reconciliation (the invoice item carries an
+ *   explicit `amount`, so the price's unit amount is not used here).
+ * @param options.subscriptionId - Optional subscription to attach the item to
+ *   so it bills on that subscription's cycle invoice.
+ * @param options.description - Human-readable line description.
+ * @param options.metadata - Extra reconciliation metadata (e.g. period).
+ * @param options.idempotencyKey - REQUIRED stable key (see IDEMPOTENCY above).
+ * @returns The created invoice item id + the amount actually reported.
+ */
+export const reportUsageOverage = async (options: {
+  customerId: string
+  amountCents: number
+  currency?: string
+  priceId: string
+  subscriptionId?: string
+  description?: string
+  metadata?: Record<string, string>
+  idempotencyKey: string
+}): Promise<{ id: string; amountCents: number }> => {
+  try {
+    const invoiceItem = await getClient().invoiceItems.create(
+      {
+        customer: options.customerId,
+        amount: Math.round(options.amountCents),
+        currency: options.currency ?? 'usd',
+        description: options.description,
+        ...(options.subscriptionId ? { subscription: options.subscriptionId } : {}),
+        metadata: { ...options.metadata, overagePriceId: options.priceId },
+      },
+      { idempotencyKey: options.idempotencyKey },
+    )
+    return { id: invoiceItem.id, amountCents: invoiceItem.amount }
+  } catch (error) {
+    // Never log the customer id or amounts at error level beyond the bare fact.
+    logger.error('Error reporting Stripe usage overage:', error)
+    throw error
+  }
+}
+
+/**
  * Normalizes a Stripe-specific `SubscriptionResult` to the common
  * `NormalizedSubscription` interface used across all payment providers.
  *

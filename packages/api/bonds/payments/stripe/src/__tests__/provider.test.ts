@@ -33,6 +33,7 @@ let mockSubscriptionsRetrieve: ReturnType<typeof vi.fn>
 let mockSubscriptionsCancel: ReturnType<typeof vi.fn>
 let mockSubscriptionsUpdate: ReturnType<typeof vi.fn>
 let mockWebhooksConstructEvent: ReturnType<typeof vi.fn>
+let mockInvoiceItemsCreate: ReturnType<typeof vi.fn>
 
 // Mock the stripe module before importing provider
 vi.mock('stripe', () => {
@@ -41,6 +42,7 @@ vi.mock('stripe', () => {
   mockSubscriptionsRetrieve = vi.fn().mockResolvedValue(mockSubscription)
   mockSubscriptionsCancel = vi.fn().mockResolvedValue({ ...mockSubscription, status: 'canceled' })
   mockSubscriptionsUpdate = vi.fn().mockResolvedValue(mockSubscription)
+  mockInvoiceItemsCreate = vi.fn().mockResolvedValue({ id: 'ii_123', amount: 300 })
   mockWebhooksConstructEvent = vi.fn().mockImplementation((payload, signature, _secret) => {
     if (signature === 'invalid_signature') {
       throw new Error('Webhook signature verification failed')
@@ -64,6 +66,9 @@ vi.mock('stripe', () => {
         retrieve: mockSubscriptionsRetrieve,
         cancel: mockSubscriptionsCancel,
         update: mockSubscriptionsUpdate,
+      },
+      invoiceItems: {
+        create: mockInvoiceItemsCreate,
       },
       webhooks: {
         constructEvent: mockWebhooksConstructEvent,
@@ -306,6 +311,67 @@ describe('Stripe Provider', () => {
 
       expect(mockLogger.error).toHaveBeenCalledWith(
         'Error updating Stripe subscription:',
+        expect.any(Error),
+      )
+    })
+  })
+
+  describe('reportUsageOverage', () => {
+    it('creates an overage invoice item with the idempotency key', async () => {
+      const { reportUsageOverage, getClient } = await import('../provider.js')
+
+      const result = await reportUsageOverage({
+        customerId: 'cus_123',
+        amountCents: 300,
+        priceId: 'price_meter',
+        subscriptionId: 'sub_123',
+        description: 'Brokered AI usage overage',
+        metadata: { userId: 'u1', periodStart: '2026-05-01T00:00:00.000Z' },
+        idempotencyKey: 'overage:u1:2026-05-01T00:00:00.000Z:300',
+      })
+
+      expect(result).toEqual({ id: 'ii_123', amountCents: 300 })
+      expect(getClient().invoiceItems.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customer: 'cus_123',
+          amount: 300,
+          currency: 'usd',
+          subscription: 'sub_123',
+          metadata: expect.objectContaining({ overagePriceId: 'price_meter', userId: 'u1' }),
+        }),
+        { idempotencyKey: 'overage:u1:2026-05-01T00:00:00.000Z:300' },
+      )
+    })
+
+    it('rounds the amount and omits subscription when not given', async () => {
+      const { reportUsageOverage, getClient } = await import('../provider.js')
+
+      await reportUsageOverage({
+        customerId: 'cus_123',
+        amountCents: 12.6,
+        priceId: 'price_meter',
+        idempotencyKey: 'k1',
+      })
+
+      const params = (getClient().invoiceItems.create as ReturnType<typeof vi.fn>).mock.calls[0][0]
+      expect(params.amount).toBe(13)
+      expect('subscription' in params).toBe(false)
+    })
+
+    it('throws and logs (without payload) when Stripe fails', async () => {
+      mockInvoiceItemsCreate.mockRejectedValueOnce(new Error('Stripe down'))
+      const { reportUsageOverage } = await import('../provider.js')
+
+      await expect(
+        reportUsageOverage({
+          customerId: 'cus_123',
+          amountCents: 300,
+          priceId: 'price_meter',
+          idempotencyKey: 'k2',
+        }),
+      ).rejects.toThrow('Stripe down')
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Error reporting Stripe usage overage:',
         expect.any(Error),
       )
     })
