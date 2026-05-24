@@ -10,6 +10,8 @@ import type { ChatMessage } from '@molecule/app-ai-chat'
 import type { EditorTab, FixWithAIRequest } from '@molecule/app-code-editor'
 import type { DeviceFrame } from '@molecule/app-live-preview'
 
+import type { Activity as ActivityFromCard } from './components/activity-utilities.js'
+
 /**
  * Properties for workspace layout.
  */
@@ -42,6 +44,8 @@ export interface ChatPanelProps {
   onFileDeleted?: (path: string) => void
   /** Called after a successful commit — should refresh file explorer git status. */
   onCommit?: () => void
+  /** Called when an inline activity card is clicked — should open the Activity panel filtered to this activity. */
+  onActivityClick?: (activity: ActivityFromCard) => void
   /** Path of the currently focused file in the editor (shown first in @ picker). */
   activeFile?: string | null
   /** Paths of all open editor tabs (shown after active file in @ picker). */

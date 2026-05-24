@@ -31,6 +31,9 @@ import { useAIModels, useChat, useHttpClient, useThemeMode } from '@molecule/app
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ChatPanelProps } from '../types.js'
+import type { Activity } from './activity-utilities.js'
+import { activityFromEvent } from './activity-utilities.js'
+import { ActivityCard } from './ActivityCard.js'
 import { MarkdownContent } from './MarkdownContent.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
 import { ToolCallCard } from './ToolCallCard.js'
@@ -93,6 +96,14 @@ interface SystemCard {
   action?:
     | { label: string; href?: string; onClick?: () => void }
     | { label: string; href?: string; onClick?: () => void }[]
+}
+
+/** An inline activity card entry in the chat timeline (a captured side effect). */
+interface ActivityCardEntry {
+  id: string
+  activity: Activity
+  /** Numeric timestamp for timeline ordering (derived from the activity's ISO timestamp). */
+  timestamp: number
 }
 
 interface CommandDef {
@@ -1713,6 +1724,8 @@ interface ChatInnerProps {
   onFileDeleted?: (path: string) => void
   onCommit?: () => void
   onConversationId?: (id: string) => void
+  /** Called when an inline activity card is clicked — should open the Activity panel filtered to this activity. */
+  onActivityClick?: (activity: Activity) => void
   pendingMessage?: string
   pendingMessageKey?: number
   /** File path edited by the user in the editor — triggers auto-deletion of queued autofix messages referencing this file. */
@@ -1740,6 +1753,7 @@ interface ChatInnerProps {
  * @param root0.onFileDeleted - Callback fired when a file is deleted.
  * @param root0.onCommit - Callback fired after a successful commit.
  * @param root0.onConversationId - Callback when the conversation ID is assigned.
+ * @param root0.onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
@@ -1764,6 +1778,7 @@ function ChatInner({
   onFileDeleted,
   onCommit,
   onConversationId,
+  onActivityClick,
   pendingMessage,
   pendingMessageKey,
   userEditedFile,
@@ -1835,6 +1850,9 @@ function ChatInner({
   // First reminder after 3 turns, then every 10 turns thereafter.
   const turnCountRef = useRef(0)
   const addSystemCardRef = useRef<(text: string, action?: SystemCard['action']) => void>(() => {})
+  // Ref so the stream-event callback can push activity cards without depending
+  // on the state setter (mirrors addSystemCardRef).
+  const addActivityCardRef = useRef<(activity: Activity) => void>(() => {})
   const GUEST_REMINDER_FIRST = 3
   const GUEST_REMINDER_INTERVAL = 10
 
@@ -1903,6 +1921,23 @@ function ChatInner({
             ],
           )
         }
+      }
+      // Captured outbound side effect (email/sms/push/webhook/channel) — push an
+      // inline activity card into the timeline. Non-text card, mirroring how
+      // system cards are appended.
+      if (event.type === 'activity' && event.activity) {
+        addActivityCardRef.current(
+          activityFromEvent(
+            event.activity as {
+              id?: string
+              type?: string
+              status?: string
+              recipient?: string
+              summary?: string
+              timestamp?: string
+            },
+          ),
+        )
       }
       const cfg = soundsConfigRef.current
       const eventType = event.type as SoundEventType
@@ -2322,6 +2357,31 @@ function ChatInner({
     }
   }, [])
   addSystemCardRef.current = addSystemCard
+
+  // ── Activity cards (captured outbound side effects) ───────────────────────
+  const [activityCards, setActivityCards] = useState<ActivityCardEntry[]>([])
+  const addActivityCard = useCallback((activity: Activity) => {
+    // Place just before an actively-streaming message so the card isn't pinned
+    // below the growing response (same heuristic as addSystemCard).
+    let ts = new Date(activity.timestamp).getTime()
+    if (Number.isNaN(ts)) ts = Date.now()
+    const streaming = messagesRef.current.find((m) => m.isStreaming)
+    if (streaming && streaming.timestamp <= ts) {
+      ts = streaming.timestamp - 1
+    }
+    setActivityCards((prev) =>
+      prev.some((c) => c.id === activity.id)
+        ? prev
+        : [...prev, { id: activity.id, activity, timestamp: ts }],
+    )
+    if (!userScrolledUpRef.current) {
+      setTimeout(() => {
+        const el = messagesContainerRef.current
+        if (el) el.scrollTop = el.scrollHeight
+      }, 50)
+    }
+  }, [])
+  addActivityCardRef.current = addActivityCard
 
   // ── Sounds picker (shown when /sounds is executed) ────────────────────────
   const [soundsPicker, setSoundsPicker] = useState<SoundsPicker | null>(null)
@@ -3727,11 +3787,13 @@ function ChatInner({
     | { kind: 'message'; msg: (typeof messages)[number]; msgIdx: number }
     | { kind: 'commit'; card: CommitCard }
     | { kind: 'system'; card: SystemCard }
+    | { kind: 'activity'; card: ActivityCardEntry }
   const timeline = useMemo<TimelineItem[]>(() => {
     const items: TimelineItem[] = [
       ...messages.map((msg, i) => ({ kind: 'message' as const, msg, msgIdx: i })),
       ...commitCards.map((card) => ({ kind: 'commit' as const, card })),
       ...systemCards.map((card) => ({ kind: 'system' as const, card })),
+      ...activityCards.map((card) => ({ kind: 'activity' as const, card })),
     ]
     items.sort((a, b) => {
       const tA = a.kind === 'message' ? a.msg.timestamp : a.card.timestamp
@@ -3739,7 +3801,7 @@ function ChatInner({
       return tA - tB
     })
     return items
-  }, [messages, commitCards, systemCards])
+  }, [messages, commitCards, systemCards, activityCards])
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -3820,6 +3882,15 @@ function ChatInner({
             if (item.kind === 'commit')
               return (
                 <CommitCardItem key={item.card.id} card={item.card} onRevert={handleRevertCommit} />
+              )
+
+            if (item.kind === 'activity')
+              return (
+                <ActivityCard
+                  key={item.card.id}
+                  activity={item.card.activity}
+                  onActivityClick={onActivityClick}
+                />
               )
 
             if (item.kind === 'system') {
@@ -5668,6 +5739,7 @@ function ChatInner({
  * @param root0.onFileChange - Callback when a file's content changes from AI edits.
  * @param root0.onFileDeleted - Callback fired when a file is deleted.
  * @param root0.onCommit - Callback fired after a successful commit.
+ * @param root0.onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
  * @param root0.gitStatusTick - Counter that increments when git status changes.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
@@ -5692,6 +5764,7 @@ export function ChatPanel({
   onFileChange,
   onFileDeleted,
   onCommit,
+  onActivityClick,
   gitStatusTick,
   pendingMessage,
   pendingMessageKey,
@@ -6010,6 +6083,7 @@ export function ChatPanel({
         onFileDeleted={onFileDeleted}
         onCommit={onCommit}
         onConversationId={persistConversationId}
+        onActivityClick={onActivityClick}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}
         userEditedFile={userEditedFile}

@@ -161,6 +161,17 @@ export type ChatStreamEvent =
     }
   | { type: 'resource_limit'; resource: 'memory'; message: string }
   | { type: 'upgrade_prompt'; feature: string; message: string }
+  | {
+      type: 'activity'
+      activity: {
+        id: string
+        type: 'email' | 'sms' | 'push' | 'webhook' | 'channel'
+        status: 'captured' | 'sent' | 'delivered' | 'failed'
+        recipient?: string
+        summary?: string
+        timestamp: string
+      }
+    }
   | { type: 'done'; usage?: { inputTokens: number; outputTokens: number; contextWindow?: number } }
   | { type: 'error'; message: string; limitType?: string; requiresSignup?: boolean }
 

@@ -4,6 +4,9 @@
  * @module
  */
 
+export * from './activity-utilities.js'
+export type { ActivityCardProps } from './ActivityCard.js'
+export { ActivityCard } from './ActivityCard.js'
 export { ChatPanel } from './ChatPanel.js'
 export { CommandPalette } from './CommandPalette.js'
 export { DeviceFrameSelector } from './DeviceFrameSelector.js'
