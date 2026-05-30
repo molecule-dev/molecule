@@ -97,6 +97,9 @@ class AnthropicAIProvider implements AIProvider {
         }
       }
       body.tools = allTools
+      if (params.toolChoice === 'required') {
+        body.tool_choice = { type: 'any' }
+      }
     }
     if (params.stream !== false) body.stream = true
 

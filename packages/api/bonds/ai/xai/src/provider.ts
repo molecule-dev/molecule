@@ -82,6 +82,9 @@ class XaiAIProvider implements AIProvider {
     const allTools = [...functions, ...serverTools]
     if (allTools.length > 0) {
       body.tools = allTools
+      if (params.toolChoice === 'required') {
+        body.tool_choice = 'required'
+      }
     }
 
     if (params.thinking) {

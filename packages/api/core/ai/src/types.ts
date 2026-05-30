@@ -112,6 +112,8 @@ export interface ChatParams {
   cacheControl?: { type: 'ephemeral' }
   /** Abort signal to cancel in-flight API requests when the client disconnects. */
   signal?: AbortSignal
+  /** Control whether the model must call a tool. 'required' forces at least one tool call; 'auto' (default) lets the model decide. */
+  toolChoice?: 'auto' | 'required'
 }
 
 /**
