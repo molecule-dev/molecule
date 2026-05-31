@@ -71,7 +71,9 @@ Every package with user-facing text has a companion locale bond with translation
 
 ## Quick Start
 
-Go to [molecule.dev](https://molecule.dev), describe what you want to build, and get a full project scaffolded with the right packages wired together. *(Coming soon.)*
+Go to [molecule.dev](https://molecule.dev) and describe what you want to build. Your prompt opens the builder — an AI-powered IDE that scaffolds a real full-stack project with the right packages already wired together, runs it in a live sandbox, and deploys it when you're ready.
+
+Prefer to work locally? The whole ecosystem is open source — install the packages and wire them by hand using the same bond pattern.
 
 ### Example: The Bond Pattern
 
@@ -130,7 +132,7 @@ Fits into existing workflows. Doesn't replace them.
 
 ## Package Ecosystem
 
-Hundreds of packages — eventually thousands — covering full-stack application concerns.
+A growing ecosystem covering full-stack application concerns — with no ceiling. Every new provider, framework, or integration becomes a reusable building block for every project. Any stack, any platform, any library can be added, and the categories below are just where it stands today.
 
 ### Backend (`@molecule/api-*`)
 
