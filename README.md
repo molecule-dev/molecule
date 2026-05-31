@@ -10,17 +10,17 @@ Works for enterprise, startups, and side projects. Same packages, same architect
 
 AI coding tools work best with clean, consistent, well-documented codebases. Molecule is designed to be exactly that:
 
-- **Strict interfaces** — every package defines abstract contracts (types and signatures only), so there's no ambiguity about what to implement or how to consume it
-- **Machine-readable documentation** — every package has a `MOLECULE.md` auto-generated from source code, always accurate, always in sync
-- **Deterministic patterns** — bond system, module organization, naming conventions, and architectural rules are consistent across every package. AI that understands one understands them all.
+- **Strict interfaces**: every package defines abstract contracts (types and signatures only), so there's no ambiguity about what to implement or how to consume it
+- **Machine-readable documentation**: every package has a `MOLECULE.md` auto-generated from source code, always accurate, always in sync
+- **Deterministic patterns**: bond system, module organization, naming conventions, and architectural rules are consistent across every package. AI that understands one understands them all.
 
-AI agents can scaffold entire applications, wire services, swap providers, and generate architecturally correct code — not just autocomplete lines. The same constraints that make this possible also make the codebase cleaner for humans.
+AI agents can scaffold entire applications, wire services, swap providers, and generate architecturally correct code, not just autocomplete lines. The same constraints that make this possible also make the codebase cleaner for humans.
 
 ## Architecture
 
 Every design rule comes from one test:
 
-> **"If we swapped the implementation — different provider, different framework, different database — would this line need to change?"**
+> **"If we swapped the implementation (different provider, different framework, different database), would this line need to change?"**
 >
 > If yes, fix it.
 
@@ -34,10 +34,10 @@ Core Interface          Provider Bond           Your Application
                                                  // nothing else changes
 ```
 
-- **Core packages** — abstract interfaces only, zero implementation
-- **Bond packages** — concrete implementations (PostgreSQL, Redis, Stripe, Mailgun, etc.)
-- **`bond('category', provider)`** — wires a provider at startup; consumers call `require('category')` anywhere
-- **Normalization** — all providers for a category return the same types. `findMany()` works the same on PostgreSQL, MySQL, or SQLite.
+- **Core packages**: abstract interfaces only, zero implementation
+- **Bond packages**: concrete implementations (PostgreSQL, Redis, Stripe, Mailgun, etc.)
+- **`bond('category', provider)`**: wires a provider at startup; consumers call `require('category')` anywhere
+- **Normalization**: all providers for a category return the same types. `findMany()` works the same on PostgreSQL, MySQL, or SQLite.
 
 Applies across backend and frontend:
 
@@ -55,9 +55,9 @@ Applies across backend and frontend:
 
 ### Three-Layer Frontend
 
-- **Layer 1** — framework-agnostic interfaces (`@molecule/app-ui`, `@molecule/app-routing`, `@molecule/app-state`, etc.)
-- **Layer 2** — framework bindings implementing Layer 1 using native idioms (hooks, composables, stores, signals, services). New frameworks added without touching existing code.
-- **Layer 3** — library providers (styling, state management, etc.) wired through bonds. New libraries slot in without changing framework or application code.
+- **Layer 1**: framework-agnostic interfaces (`@molecule/app-ui`, `@molecule/app-routing`, `@molecule/app-state`, etc.)
+- **Layer 2**: framework bindings implementing Layer 1 using native idioms (hooks, composables, stores, signals, services). New frameworks added without touching existing code.
+- **Layer 3**: library providers (styling, state management, etc.) wired through bonds. New libraries slot in without changing framework or application code.
 
 Swap framework by changing Layer 2+3. Application logic stays the same.
 
@@ -67,13 +67,13 @@ Instead of N frameworks x M styling libraries (N*M implementations), Molecule's 
 
 ### i18n and Locale Bonds
 
-Every package with user-facing text has a companion locale bond with translations in dozens of languages. Feature packages use `t('key', values, { defaultValue: 'English' })` — no hardcoded strings. Locale bonds are pure data. Adding a language = adding translation data, no code changes.
+Every package with user-facing text has a companion locale bond with translations in dozens of languages. Feature packages use `t('key', values, { defaultValue: 'English' })`, no hardcoded strings. Locale bonds are pure data. Adding a language = adding translation data, no code changes.
 
 ## Quick Start
 
-Go to [molecule.dev](https://molecule.dev) and describe what you want to build. Your prompt opens the builder — an AI-powered IDE that scaffolds a real full-stack project with the right packages already wired together, runs it in a live sandbox, and deploys it when you're ready.
+Go to [molecule.dev](https://molecule.dev) and describe what you want to build. Your prompt opens the builder, an AI-powered IDE that scaffolds a real full-stack project with the right packages already wired together, runs it in a live sandbox, and deploys it when you're ready.
 
-Prefer to work locally? The whole ecosystem is open source — install the packages and wire them by hand using the same bond pattern.
+Prefer to work locally? The whole ecosystem is open source, install the packages and wire them by hand using the same bond pattern.
 
 ### Example: The Bond Pattern
 
@@ -85,7 +85,7 @@ import { findMany } from '@molecule/api-database'
 // Wire at startup
 bond('database', provider)
 
-// Use anywhere — database-agnostic
+// Use anywhere, database-agnostic
 const users = await findMany<User>('users', {
   where: [{ field: 'status', operator: '=', value: 'active' }],
 })
@@ -103,7 +103,7 @@ Nothing else changes.
 
 ### Self-Documenting Packages
 
-Every package has a `MOLECULE.md` — installation, full API reference, usage examples, provider relationships, environment variables, peer dependencies. Auto-generated from source code JSDoc. Always accurate, always in sync. Consistent format across every package so AI agents can parse any of them the same way.
+Every package has a `MOLECULE.md`, installation, full API reference, usage examples, provider relationships, environment variables, peer dependencies. Auto-generated from source code JSDoc. Always accurate, always in sync. Consistent format across every package so AI agents can parse any of them the same way.
 
 ### AI Code Generation
 
@@ -113,26 +113,26 @@ Molecule's tooling uses AI with tiered context: ecosystem overview for package s
 
 Nothing proprietary. Same tools and processes professional teams already use:
 
-- **TypeScript** — strict mode, ES2022, NodeNext
-- **npm workspaces** — monorepo, `npm install` from root
-- **ESM** — `.js` extensions, no CommonJS
-- **Express** — API layer, with framework abstraction
-- **Any frontend framework** — React, Vue, Svelte, Solid, Angular, React Native, and more
-- **Vite** — frontend builds with HMR (Metro for React Native)
-- **Vitest** — testing, per-package test suites
-- **ESLint + Prettier** — automated code style
-- **Husky** — pre-commit hooks
-- **Changesets** — semver versioning and changelogs
-- **Conventional commits** — `feat:`, `fix:`, `refactor:`
-- **Exact dependency pinning** — no `^`, no `~`, reproducible builds
-- **CI/CD** — standard npm scripts, works with any pipeline
-- **Many more to come!** — no limit to what we can add
+- **TypeScript**: strict mode, ES2022, NodeNext
+- **npm workspaces**: monorepo, `npm install` from root
+- **ESM**: `.js` extensions, no CommonJS
+- **Express**: API layer, with framework abstraction
+- **Any frontend framework**: React, Vue, Svelte, Solid, Angular, React Native, and more
+- **Vite**: frontend builds with HMR (Metro for React Native)
+- **Vitest**: testing, per-package test suites
+- **ESLint + Prettier**: automated code style
+- **Husky**: pre-commit hooks
+- **Changesets**: semver versioning and changelogs
+- **Conventional commits**: `feat:`, `fix:`, `refactor:`
+- **Exact dependency pinning**: no `^`, no `~`, reproducible builds
+- **CI/CD**: standard npm scripts, works with any pipeline
+- **Many more to come!**: no limit to what we can add
 
 Fits into existing workflows. Doesn't replace them.
 
 ## Package Ecosystem
 
-A growing ecosystem covering full-stack application concerns — with no ceiling. Every new provider, framework, or integration becomes a reusable building block for every project. Any stack, any platform, any library can be added, and the categories below are just where it stands today.
+A growing ecosystem covering full-stack application concerns, with no ceiling. Every new provider, framework, or integration becomes a reusable building block for every project. Any stack, any platform, any library can be added, and the categories below are just where it stands today.
 
 ### Backend (`@molecule/api-*`)
 
@@ -211,11 +211,11 @@ Every package has a `MOLECULE.md` with installation, API reference, usage exampl
 
 ## Add Your Service to Molecule
 
-Want your service or integration available to every Molecule application? Open a GitHub issue describing your service and how it works. Our AI-assisted workflow will generate a conformant bond package and open a PR for review. Once approved, it ships as part of the `@molecule` ecosystem — instantly available to every project using that interface.
+Want your service or integration available to every Molecule application? Open a GitHub issue describing your service and how it works. Our AI-assisted workflow will generate a conformant bond package and open a PR for review. Once approved, it ships as part of the `@molecule` ecosystem, instantly available to every project using that interface.
 
-- **For service providers** — describe your API and authentication flow. We handle the bond implementation, documentation, and publishing under `@molecule`.
-- **For developers** — spot a missing provider or integration? Open an issue or submit a PR. The interface contracts are public, so building a conformant bond is straightforward.
-- **For organizations** — you can also create private bonds for internal services, proprietary databases, or custom infrastructure using the same interface contracts and patterns.
+- **For service providers**: describe your API and authentication flow. We handle the bond implementation, documentation, and publishing under `@molecule`.
+- **For developers**: spot a missing provider or integration? Open an issue or submit a PR. The interface contracts are public, so building a conformant bond is straightforward.
+- **For organizations**: you can also create private bonds for internal services, proprietary databases, or custom infrastructure using the same interface contracts and patterns.
 
 ## Analytics and Data-Driven Development
 
@@ -225,10 +225,10 @@ Backend (`@molecule/api-analytics`) and frontend (`@molecule/app-analytics`) use
 
 **What gets measured:**
 
-- **User behavior** — page views, feature usage, click paths, session duration, conversion funnels
-- **Performance** — API response times, render performance, error rates, resource utilization
-- **Business metrics** — signups, retention, revenue events, churn indicators
-- **Infrastructure** — server monitoring (`@molecule/api-monitoring`), structured logging (`@molecule/api-logger`, `@molecule/app-logger`), status dashboards (`@molecule/app-status-dashboard`)
+- **User behavior**: page views, feature usage, click paths, session duration, conversion funnels
+- **Performance**: API response times, render performance, error rates, resource utilization
+- **Business metrics**: signups, retention, revenue events, churn indicators
+- **Infrastructure**: server monitoring (`@molecule/api-monitoring`), structured logging (`@molecule/api-logger`, `@molecule/app-logger`), status dashboards (`@molecule/app-status-dashboard`)
 
 Normalized, provider-agnostic event streams let you build dashboards, alerts, A/B tests, and feedback loops on consistent data. Outgrow a provider, swap it, keep your instrumentation.
 
@@ -240,7 +240,7 @@ Hundreds of TypeScript packages. Multiple frontend frameworks. AI-assisted scaff
 
 ### Where It's Going
 
-**Deeper AI integration.** The structured architecture — normalized interfaces, machine-readable docs, deterministic patterns — is built for a future where AI agents compose entire applications from a conversation, selecting and wiring packages automatically.
+**Deeper AI integration.** The structured architecture, normalized interfaces, machine-readable docs, deterministic patterns, is built for a future where AI agents compose entire applications from a conversation, selecting and wiring packages automatically.
 
 **Every language, every ecosystem.** The bond pattern (abstract interfaces + swappable providers + runtime wiring) is language-agnostic. The same architecture can power any language ecosystem with its own package catalog and provider bonds.
 
@@ -276,4 +276,4 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## License
 
-[Apache-2.0](LICENSE) — Copyright 2026 molecule.dev
+[Apache-2.0](LICENSE), Copyright 2026 molecule.dev
