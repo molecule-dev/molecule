@@ -2,7 +2,7 @@
 
 An AI-first approach to building scalable, composable, and secure full-stack applications.
 
-Molecule is a composable package ecosystem with hundreds of production-ready packages that connect through abstract interfaces and machine-readable documentation. AI agents can read, scaffold, wire, and swap any package because every package follows the same contracts and patterns.
+Molecule is a composable package ecosystem with a growing catalog of battle-tested packages that connect through abstract interfaces and machine-readable documentation. AI agents can read, scaffold, wire, and swap any package because every package follows the same contracts and patterns.
 
 Works for enterprise, startups, and side projects. Same packages, same architecture, same tooling at every scale. Currently available for **TypeScript/Node**, with the architecture designed to expand to any language and platform.
 
@@ -39,19 +39,7 @@ Core Interface          Provider Bond           Your Application
 - **`bond('category', provider)`**: wires a provider at startup; consumers call `require('category')` anywhere
 - **Normalization**: all providers for a category return the same types. `findMany()` works the same on PostgreSQL, MySQL, or SQLite.
 
-Applies across backend and frontend:
-
-- Databases
-- Email
-- Payments
-- Auth / OAuth
-- Caching
-- Queues
-- File uploads
-- AI
-- Analytics
-- Logging
-- And dozens more
+The same pattern applies to every category a full-stack app needs, backend and frontend, from data, auth, and payments to messaging, AI, and analytics. New categories slot in the same way as the ecosystem grows.
 
 ### Three-Layer Frontend
 
@@ -111,24 +99,7 @@ Molecule's tooling uses AI with tiered context: ecosystem overview for package s
 
 ## Standard Tooling
 
-Nothing proprietary. Same tools and processes professional teams already use:
-
-- **TypeScript**: strict mode, ES2022, NodeNext
-- **npm workspaces**: monorepo, `npm install` from root
-- **ESM**: `.js` extensions, no CommonJS
-- **Express**: API layer, with framework abstraction
-- **Any frontend framework**: React, Vue, Svelte, Solid, Angular, React Native, and more
-- **Vite**: frontend builds with HMR (Metro for React Native)
-- **Vitest**: testing, per-package test suites
-- **ESLint + Prettier**: automated code style
-- **Husky**: pre-commit hooks
-- **Changesets**: semver versioning and changelogs
-- **Conventional commits**: `feat:`, `fix:`, `refactor:`
-- **Exact dependency pinning**: no `^`, no `~`, reproducible builds
-- **CI/CD**: standard npm scripts, works with any pipeline
-- **Many more to come!**: no limit to what we can add
-
-Fits into existing workflows. Doesn't replace them.
+Nothing proprietary, just the tools and conventions professional teams already use: strict TypeScript and ESM, npm workspaces, your choice of frontend framework, Vite, Vitest, ESLint and Prettier, semantic versioning, conventional commits, exact dependency pinning, and CI/CD that works with any pipeline. It fits your existing workflow instead of replacing it, and the toolchain keeps growing.
 
 ## Package Ecosystem
 
@@ -136,76 +107,31 @@ A growing ecosystem covering full-stack application concerns, with no ceiling. E
 
 ### Backend (`@molecule/api-*`)
 
-Core interfaces + provider bonds for:
+Core interfaces and provider bonds across every backend concern:
 
-- AI
-- Analytics
-- Caching
-- Code sandboxing
-- Configuration
-- Database
-- Emails
-- HTTP
-- i18n
-- JWT
-- Logging
-- Monitoring
-- OAuth
-- Password hashing
-- Payments
-- Push notifications
-- Queues
-- Scheduling
-- Secrets management
-- Two-factor auth
-- File uploads
-- And more
+- Data and storage
+- Identity and security
+- Payments and billing
+- Messaging and notifications
+- Background work and scheduling
+- AI and agents
+- Analytics and observability
+- And more, added continuously
 
-Also:
-
-- Typed resources (user, project, device, payment, conversation, and any custom resource)
-- Middleware
-- Infrastructure
-- Validation
-- Testing utilities
-- CI/CD (GitHub Actions workflow generation)
-- Staging (ephemeral branch-per-feature environments with Docker Compose)
-- Locale packages
+Plus typed resources, middleware, validation, testing utilities, CI/CD, staging environments, and locale packages.
 
 ### Frontend (`@molecule/app-*`)
 
-Core interfaces + provider bonds for:
+Core interfaces and provider bonds across every frontend concern:
 
-- AI chat
-- Analytics
-- Auth
-- Code editing
-- Device capabilities
-- Fonts
-- Forms
-- HTTP
-- i18n
-- Icons
-- IDE layouts
-- Live preview
-- Logging
-- Platform detection
-- Routing
-- State management
-- Storage
-- Styling
-- Theming
-- UI components
-- Utilities
-- Version management
-- And more
+- UI, styling, and theming
+- Routing and state
+- Forms and data
+- Auth and storage
+- Device and platform capabilities
+- And more, added continuously
 
-Also:
-
-- Framework bindings for every major frontend framework (including React Native for mobile)
-- Features (charts, maps, rich text, video)
-- Native device capabilities (camera, biometrics, geolocation, NFC)
-- Locale translations in dozens of languages
+Plus framework bindings for every major framework (including React Native for mobile), rich features like charts, maps, and rich text, and locale translations in dozens of languages.
 
 Every package has a `MOLECULE.md` with installation, API reference, usage examples, providers, and peer dependencies.
 
@@ -223,20 +149,13 @@ Analytics is a first-class concern, not an afterthought.
 
 Backend (`@molecule/api-analytics`) and frontend (`@molecule/app-analytics`) use the same bond pattern. Track against the abstract interface, wire any provider (Mixpanel, Segment, PostHog, custom). Switch providers without changing tracking calls.
 
-**What gets measured:**
-
-- **User behavior**: page views, feature usage, click paths, session duration, conversion funnels
-- **Performance**: API response times, render performance, error rates, resource utilization
-- **Business metrics**: signups, retention, revenue events, churn indicators
-- **Infrastructure**: server monitoring (`@molecule/api-monitoring`), structured logging (`@molecule/api-logger`, `@molecule/app-logger`), status dashboards (`@molecule/app-status-dashboard`)
-
-Normalized, provider-agnostic event streams let you build dashboards, alerts, A/B tests, and feedback loops on consistent data. Outgrow a provider, swap it, keep your instrumentation.
+Track user behavior, performance, business metrics, and infrastructure health against one normalized interface. Provider-agnostic event streams let you build dashboards, alerts, experiments, and feedback loops on consistent data. Outgrow a provider, swap it, keep your instrumentation.
 
 ## Vision
 
 ### Today
 
-Hundreds of TypeScript packages. Multiple frontend frameworks. AI-assisted scaffolding. Machine-readable docs for every package. Usable now for real applications.
+A growing catalog of TypeScript packages. Multiple frontend frameworks. AI-assisted scaffolding. Machine-readable docs for every package. Usable now for real applications.
 
 ### Where It's Going
 
