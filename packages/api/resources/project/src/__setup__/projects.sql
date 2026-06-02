@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS "projects" (
   "projectType" TEXT NOT NULL DEFAULT 'api',
   "framework" TEXT,
   "packages" JSONB NOT NULL DEFAULT '[]',
+  "templateSlug" TEXT,
+  "brandingSpec" JSONB,
   "envVars" JSONB NOT NULL DEFAULT '{}',
   "sandboxId" TEXT,
   "sandboxStatus" TEXT DEFAULT 'stopped',
