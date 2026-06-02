@@ -48,6 +48,10 @@ export interface ChatPanelProps {
   onActivityClick?: (activity: ActivityFromCard) => void
   /** Called when the server signals (via the `ready_to_build` stream event) that discovery is complete and the sandbox should boot. */
   onReadyToBuild?: () => void
+  /** Changing this value submits the current input draft — used to send a prefilled prompt after the prompt→chat morph docks. */
+  autoSubmitSignal?: number
+  /** Seeds the input with this text on mount (prompt→chat morph), so the chat input shows the prompt before it is sent. */
+  initialInputValue?: string
   /** Path of the currently focused file in the editor (shown first in @ picker). */
   activeFile?: string | null
   /** Paths of all open editor tabs (shown after active file in @ picker). */

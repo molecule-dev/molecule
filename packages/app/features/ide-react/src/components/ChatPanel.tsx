@@ -1728,6 +1728,10 @@ interface ChatInnerProps {
   onActivityClick?: (activity: Activity) => void
   /** Called on the `ready_to_build` stream event — discovery is done; boot the sandbox. */
   onReadyToBuild?: () => void
+  /** Changing this value submits the current input draft (used by the prompt→chat morph). */
+  autoSubmitSignal?: number
+  /** Seeds the input with this text on mount (prompt→chat morph). */
+  initialInputValue?: string
   pendingMessage?: string
   pendingMessageKey?: number
   /** File path edited by the user in the editor — triggers auto-deletion of queued autofix messages referencing this file. */
@@ -1757,6 +1761,8 @@ interface ChatInnerProps {
  * @param root0.onConversationId - Callback when the conversation ID is assigned.
  * @param root0.onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
+ * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
+ * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
@@ -1783,6 +1789,8 @@ function ChatInner({
   onConversationId,
   onActivityClick,
   onReadyToBuild,
+  autoSubmitSignal,
+  initialInputValue,
   pendingMessage,
   pendingMessageKey,
   userEditedFile,
@@ -2131,6 +2139,9 @@ function ChatInner({
   const draftKey = `mol-chat-draft:${projectId}`
   const inputRef = useRef<string>(
     (() => {
+      // Seed from an explicit initial value (prompt→chat morph) first, else the
+      // persisted draft.
+      if (initialInputValue) return initialInputValue
       try {
         return sessionStorage.getItem(draftKey) ?? ''
       } catch {
@@ -3568,6 +3579,17 @@ function ChatInner({
     setAttachmentError(null)
     sendMessage(message, chatAttachments.length > 0 ? chatAttachments : undefined)
   }, [attachedFiles, http, projectId, sendMessage, setInputValue])
+
+  // External auto-submit. When the signal changes, submit the current input —
+  // used by the prompt → chat morph to send the prefilled prompt once the chat
+  // has docked into place (handleSubmit clears the input as it sends).
+  const lastAutoSubmitRef = useRef(autoSubmitSignal)
+  useEffect(() => {
+    if (autoSubmitSignal !== undefined && autoSubmitSignal !== lastAutoSubmitRef.current) {
+      lastAutoSubmitRef.current = autoSubmitSignal
+      if ((inputRef.current as string).trim()) void handleSubmit()
+    }
+  }, [autoSubmitSignal, handleSubmit])
 
   // ── Keyboard ───────────────────────────────────────────────────────────────
   const filteredCmds = commandMenu
@@ -5754,6 +5776,8 @@ function ChatInner({
  * @param root0.onCommit - Callback fired after a successful commit.
  * @param root0.onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
+ * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
+ * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
  * @param root0.gitStatusTick - Counter that increments when git status changes.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
@@ -5780,6 +5804,8 @@ export function ChatPanel({
   onCommit,
   onActivityClick,
   onReadyToBuild,
+  autoSubmitSignal,
+  initialInputValue,
   gitStatusTick,
   pendingMessage,
   pendingMessageKey,
@@ -6100,6 +6126,8 @@ export function ChatPanel({
         onConversationId={persistConversationId}
         onActivityClick={onActivityClick}
         onReadyToBuild={onReadyToBuild}
+        autoSubmitSignal={autoSubmitSignal}
+        initialInputValue={initialInputValue}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}
         userEditedFile={userEditedFile}
