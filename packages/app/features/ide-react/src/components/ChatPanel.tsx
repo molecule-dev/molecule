@@ -5256,7 +5256,7 @@ function ChatInner({
         <div
           className={cm.surfaceSecondary}
           style={{
-            borderRadius: '4px',
+            borderRadius: '8px',
             borderTop: `1px solid ${isFocused ? 'rgba(99,102,241,0.5)' : 'rgba(128,128,128,0.18)'}`,
             borderRight: `1px solid ${isFocused ? 'rgba(99,102,241,0.5)' : 'transparent'}`,
             borderBottom: `1px solid ${isFocused ? 'rgba(99,102,241,0.5)' : 'transparent'}`,
