@@ -1726,6 +1726,8 @@ interface ChatInnerProps {
   onConversationId?: (id: string) => void
   /** Called when an inline activity card is clicked — should open the Activity panel filtered to this activity. */
   onActivityClick?: (activity: Activity) => void
+  /** Called on the `ready_to_build` stream event — discovery is done; boot the sandbox. */
+  onReadyToBuild?: () => void
   pendingMessage?: string
   pendingMessageKey?: number
   /** File path edited by the user in the editor — triggers auto-deletion of queued autofix messages referencing this file. */
@@ -1754,6 +1756,7 @@ interface ChatInnerProps {
  * @param root0.onCommit - Callback fired after a successful commit.
  * @param root0.onConversationId - Callback when the conversation ID is assigned.
  * @param root0.onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
+ * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
@@ -1779,6 +1782,7 @@ function ChatInner({
   onCommit,
   onConversationId,
   onActivityClick,
+  onReadyToBuild,
   pendingMessage,
   pendingMessageKey,
   userEditedFile,
@@ -1853,6 +1857,9 @@ function ChatInner({
   // Ref so the stream-event callback can push activity cards without depending
   // on the state setter (mirrors addSystemCardRef).
   const addActivityCardRef = useRef<(activity: Activity) => void>(() => {})
+  // Kept current each render so handleStreamEvent (memoized) always calls the latest.
+  const onReadyToBuildRef = useRef<(() => void) | undefined>(onReadyToBuild)
+  onReadyToBuildRef.current = onReadyToBuild
   const GUEST_REMINDER_FIRST = 3
   const GUEST_REMINDER_INTERVAL = 10
 
@@ -1938,6 +1945,12 @@ function ChatInner({
             },
           ),
         )
+      }
+      // Discovery finished and the server selected a starting point — boot the
+      // sandbox. The template choice is internal; this event carries no
+      // user-facing payload and is never rendered in the transcript.
+      if (event.type === 'ready_to_build') {
+        onReadyToBuildRef.current?.()
       }
       const cfg = soundsConfigRef.current
       const eventType = event.type as SoundEventType
@@ -5740,6 +5753,7 @@ function ChatInner({
  * @param root0.onFileDeleted - Callback fired when a file is deleted.
  * @param root0.onCommit - Callback fired after a successful commit.
  * @param root0.onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
+ * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
  * @param root0.gitStatusTick - Counter that increments when git status changes.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
@@ -5765,6 +5779,7 @@ export function ChatPanel({
   onFileDeleted,
   onCommit,
   onActivityClick,
+  onReadyToBuild,
   gitStatusTick,
   pendingMessage,
   pendingMessageKey,
@@ -6084,6 +6099,7 @@ export function ChatPanel({
         onCommit={onCommit}
         onConversationId={persistConversationId}
         onActivityClick={onActivityClick}
+        onReadyToBuild={onReadyToBuild}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}
         userEditedFile={userEditedFile}

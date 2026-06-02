@@ -46,6 +46,8 @@ export interface ChatPanelProps {
   onCommit?: () => void
   /** Called when an inline activity card is clicked — should open the Activity panel filtered to this activity. */
   onActivityClick?: (activity: ActivityFromCard) => void
+  /** Called when the server signals (via the `ready_to_build` stream event) that discovery is complete and the sandbox should boot. */
+  onReadyToBuild?: () => void
   /** Path of the currently focused file in the editor (shown first in @ picker). */
   activeFile?: string | null
   /** Paths of all open editor tabs (shown after active file in @ picker). */
