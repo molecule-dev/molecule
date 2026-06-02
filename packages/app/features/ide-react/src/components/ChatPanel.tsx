@@ -5273,6 +5273,7 @@ function ChatInner({
         >
           <textarea
             ref={textareaRef}
+            data-mol-chat-input=""
             defaultValue={inputRef.current as string}
             autoComplete="off"
             onChange={handleInputChange}
