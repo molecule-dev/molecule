@@ -279,27 +279,27 @@ export function StreamingIndicator({
       style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'flex-end',
         gap: '8px',
         padding: '6px 0',
         width: '100%',
       }}
     >
       <MolSpinner size={16} />
-      {/* Label + counter share a baseline-aligned group so the smaller counter
-          sits on the label's text baseline (center-aligning the differently
-          sized fonts made the counter look a pixel high). */}
-      <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: '6px' }}>
-        <span style={{ fontSize: '13px', opacity: 0.7, fontStyle: 'italic' }}>{text}</span>
-        {elapsed && (
-          <span
-            style={{ fontSize: '12px', opacity: 0.45, fontVariantNumeric: 'tabular-nums' }}
-            aria-hidden="true"
-          >
-            {elapsed}
-          </span>
-        )}
-      </span>
+      <span style={{ fontSize: '13px', opacity: 0.7, fontStyle: 'italic' }}>{text}</span>
+      {/* Counter pushed to the right edge; the rest stays left. */}
+      {elapsed && (
+        <span
+          style={{
+            marginLeft: 'auto',
+            fontSize: '12px',
+            opacity: 0.45,
+            fontVariantNumeric: 'tabular-nums',
+          }}
+          aria-hidden="true"
+        >
+          {elapsed}
+        </span>
+      )}
     </div>
   )
 }
