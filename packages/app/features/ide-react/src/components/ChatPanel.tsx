@@ -1801,6 +1801,9 @@ function ChatInner({
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
   const http = useHttpClient()
+  // True while the server is designing the app (post-discovery selection) — a
+  // pause before the sandbox boots. Cleared when the turn ends.
+  const [designing, setDesigning] = useState(false)
   // If there's already a conversation (conversationId in the URL), always load
   // history — even when initialMessage is set. This prevents a refresh from
   // re-sending the initial prompt instead of restoring the existing conversation.
@@ -1954,6 +1957,10 @@ function ChatInner({
           ),
         )
       }
+      // Designing the app (selecting the starting point) — show an indicator
+      // until the turn ends.
+      if (event.type === 'designing') setDesigning(true)
+      if (event.type === 'done') setDesigning(false)
       // Discovery finished and the server selected a starting point — boot the
       // sandbox. The template choice is internal; this event carries no
       // user-facing payload and is never rendered in the transcript.
@@ -5249,6 +5256,34 @@ function ChatInner({
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Designing indicator — shown while the app's starting point is being chosen */}
+        {designing && (
+          <div
+            className={cm.cn(cm.flex({ align: 'center' }), cm.textSize('sm'))}
+            style={{ padding: '6px 4px', gap: 8, opacity: 0.85 }}
+          >
+            <span style={{ display: 'inline-flex', gap: 3 }}>
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  style={{
+                    width: 5,
+                    height: 5,
+                    borderRadius: '50%',
+                    background: 'currentColor',
+                    display: 'inline-block',
+                    animation: 'mol-dot-bounce 1.4s ease-in-out infinite',
+                    animationDelay: `${i * 0.16}s`,
+                  }}
+                />
+              ))}
+            </span>
+            <span>
+              {t('ide.chat.designing', undefined, { defaultValue: 'Designing your app…' })}
+            </span>
           </div>
         )}
 
