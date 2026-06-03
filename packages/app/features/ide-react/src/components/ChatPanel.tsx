@@ -5779,6 +5779,7 @@ function ChatInner({
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
+ * @param root0.hideConversationMenu - Hide the conversation-selector header (e.g. during discovery).
  * @param root0.gitStatusTick - Counter that increments when git status changes.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
@@ -5807,6 +5808,7 @@ export function ChatPanel({
   onReadyToBuild,
   autoSubmitSignal,
   initialInputValue,
+  hideConversationMenu,
   gitStatusTick,
   pendingMessage,
   pendingMessageKey,
@@ -5921,190 +5923,195 @@ export function ChatPanel({
         className,
       )}
     >
-      {/* ── Header: conversation selector ── */}
-      <div
-        ref={dropdownRef}
-        className={cm.cn(
-          cm.flex({ direction: 'row', align: 'center', justify: 'between' }),
-          cm.sp('px', 2),
-          cm.shrink0,
-          cm.borderB,
-        )}
-        style={{ position: 'relative', height: '33px', zIndex: 10 }}
-      >
-        {/* Conversation picker button */}
-        <button
-          type="button"
-          onClick={handleToggleDropdown}
-          className={cm.cn(cm.textSize('xs'), cm.textMuted)}
-          onMouseEnter={(e) => {
-            const s = (e.currentTarget as HTMLElement).querySelector('span')
-            if (s) (s as HTMLElement).style.opacity = '1'
-          }}
-          onMouseLeave={(e) => {
-            const s = (e.currentTarget as HTMLElement).querySelector('span')
-            if (s) (s as HTMLElement).style.opacity = '0.7'
-          }}
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'inherit',
-            padding: '6px 6px 6px 0',
-            textAlign: 'left',
-            overflow: 'hidden',
-            borderRadius: '4px',
-          }}
+      {/* ── Header: conversation selector (hidden during discovery) ── */}
+      {!hideConversationMenu && (
+        <div
+          ref={dropdownRef}
+          className={cm.cn(
+            cm.flex({ direction: 'row', align: 'center', justify: 'between' }),
+            cm.sp('px', 2),
+            cm.shrink0,
+            cm.borderB,
+          )}
+          style={{ position: 'relative', height: '33px', zIndex: 10 }}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            width="16"
-            height="16"
-            style={{
-              display: 'block',
-              flexShrink: 0,
-              opacity: 0.5,
-              transform: showDropdown ? 'rotate(90deg)' : 'rotate(0deg)',
-              transition: 'transform 100ms',
+          {/* Conversation picker button */}
+          <button
+            type="button"
+            onClick={handleToggleDropdown}
+            className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+            onMouseEnter={(e) => {
+              const s = (e.currentTarget as HTMLElement).querySelector('span')
+              if (s) (s as HTMLElement).style.opacity = '1'
             }}
-          >
-            <polyline
-              points="6,4 10,8 6,12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span
+            onMouseLeave={(e) => {
+              const s = (e.currentTarget as HTMLElement).querySelector('span')
+              if (s) (s as HTMLElement).style.opacity = '0.7'
+            }}
             style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'inherit',
+              padding: '6px 6px 6px 0',
+              textAlign: 'left',
               overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              opacity: 0.7,
+              borderRadius: '4px',
             }}
           >
-            {activeConv?.preview ?? 'Chat history'}
-          </span>
-        </button>
-
-        {/* New chat button */}
-        <button
-          type="button"
-          onClick={handleNewChat}
-          className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
-          title={t('ide.chat.newChat', undefined, { defaultValue: 'New chat' })}
-          style={{ flexShrink: 0 }}
-        >
-          +
-        </button>
-
-        {/* Dropdown */}
-        {showDropdown && (
-          <div
-            className={cm.cn(cm.surface, cm.borderAll)}
-            style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              zIndex: 100,
-              maxHeight: '280px',
-              overflowY: 'auto',
-              scrollbarWidth: 'thin',
-              borderRadius: '0 0 6px 6px',
-              boxShadow: '0 6px 20px rgba(0,0,0,0.3)',
-            }}
-          >
-            {/* Search */}
-            <div
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              width="16"
+              height="16"
               style={{
-                padding: '6px 10px',
-                borderBottom: '1px solid rgba(128,128,128,0.12)',
-                position: 'sticky',
-                top: 0,
+                display: 'block',
+                flexShrink: 0,
+                opacity: 0.5,
+                transform: showDropdown ? 'rotate(90deg)' : 'rotate(0deg)',
+                transition: 'transform 100ms',
               }}
-              className={cm.surface}
             >
-              <input
-                value={convSearch}
-                onChange={(e) => setConvSearch(e.target.value)}
-                placeholder={t('ide.chat.searchConversations', undefined, {
-                  defaultValue: 'Search conversations…',
-                })}
-                autoFocus
-                className={cm.textSize('xs')}
-                style={{
-                  width: '100%',
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  color: 'inherit',
-                }}
+              <polyline
+                points="6,4 10,8 6,12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
-            </div>
+            </svg>
+            <span
+              style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                opacity: 0.7,
+              }}
+            >
+              {activeConv?.preview ?? 'Chat history'}
+            </span>
+          </button>
 
-            {/* Conversation list */}
-            {filteredConvs.length === 0 && (
+          {/* New chat button */}
+          <button
+            type="button"
+            onClick={handleNewChat}
+            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+            title={t('ide.chat.newChat', undefined, { defaultValue: 'New chat' })}
+            style={{ flexShrink: 0 }}
+          >
+            +
+          </button>
+
+          {/* Dropdown */}
+          {showDropdown && (
+            <div
+              className={cm.cn(cm.surface, cm.borderAll)}
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                zIndex: 100,
+                maxHeight: '280px',
+                overflowY: 'auto',
+                scrollbarWidth: 'thin',
+                borderRadius: '0 0 6px 6px',
+                boxShadow: '0 6px 20px rgba(0,0,0,0.3)',
+              }}
+            >
+              {/* Search */}
               <div
-                className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                style={{ padding: '10px 12px' }}
-              >
-                No conversations yet
-              </div>
-            )}
-            {filteredConvs.map((conv) => (
-              <button
-                key={conv.id}
-                type="button"
-                onClick={() => handleSelectConversation(conv.id)}
-                className={cm.cn(
-                  cm.w('full'),
-                  conv.id === activeConversationId ? cm.surfaceSecondary : '',
-                )}
-                onMouseEnter={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.1)'
-                }}
-                onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.background = ''
-                }}
                 style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
-                  gap: '2px',
-                  padding: '8px 12px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'inherit',
-                  textAlign: 'left',
+                  padding: '6px 10px',
+                  borderBottom: '1px solid rgba(128,128,128,0.12)',
+                  position: 'sticky',
+                  top: 0,
                 }}
+                className={cm.surface}
               >
-                <span
+                <input
+                  value={convSearch}
+                  onChange={(e) => setConvSearch(e.target.value)}
+                  placeholder={t('ide.chat.searchConversations', undefined, {
+                    defaultValue: 'Search conversations…',
+                  })}
+                  autoFocus
                   className={cm.textSize('xs')}
                   style={{
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
                     width: '100%',
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    color: 'inherit',
+                  }}
+                />
+              </div>
+
+              {/* Conversation list */}
+              {filteredConvs.length === 0 && (
+                <div
+                  className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                  style={{ padding: '10px 12px' }}
+                >
+                  No conversations yet
+                </div>
+              )}
+              {filteredConvs.map((conv) => (
+                <button
+                  key={conv.id}
+                  type="button"
+                  onClick={() => handleSelectConversation(conv.id)}
+                  className={cm.cn(
+                    cm.w('full'),
+                    conv.id === activeConversationId ? cm.surfaceSecondary : '',
+                  )}
+                  onMouseEnter={(e) => {
+                    ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.1)'
+                  }}
+                  onMouseLeave={(e) => {
+                    ;(e.currentTarget as HTMLElement).style.background = ''
+                  }}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    gap: '2px',
+                    padding: '8px 12px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'inherit',
+                    textAlign: 'left',
                   }}
                 >
-                  {conv.preview ?? 'New conversation'}
-                </span>
-                <span className={cm.cn(cm.textMuted, cm.textSize('xs'))} style={{ opacity: 0.55 }}>
-                  {relativeTime(conv.updatedAt)}
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+                  <span
+                    className={cm.textSize('xs')}
+                    style={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      width: '100%',
+                    }}
+                  >
+                    {conv.preview ?? 'New conversation'}
+                  </span>
+                  <span
+                    className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                    style={{ opacity: 0.55 }}
+                  >
+                    {relativeTime(conv.updatedAt)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Chat inner — remounts on conversation switch ── */}
       <ChatInner

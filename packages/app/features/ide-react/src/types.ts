@@ -52,6 +52,8 @@ export interface ChatPanelProps {
   autoSubmitSignal?: number
   /** Seeds the input with this text on mount (prompt→chat morph), so the chat input shows the prompt before it is sent. */
   initialInputValue?: string
+  /** Hide the conversation-selector header (e.g. during discovery, before any history is worth showing). */
+  hideConversationMenu?: boolean
   /** Path of the currently focused file in the editor (shown first in @ picker). */
   activeFile?: string | null
   /** Paths of all open editor tabs (shown after active file in @ picker). */
