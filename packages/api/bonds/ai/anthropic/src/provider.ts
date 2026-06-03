@@ -361,7 +361,17 @@ class AnthropicAIProvider implements AIProvider {
         const lines = buffer.split('\n')
         buffer = lines.pop() ?? ''
 
-        yield* this.processSSELines(lines, state)
+        let yielded = false
+        for (const event of this.processSSELines(lines, state)) {
+          yielded = true
+          yield event
+        }
+        // We received data from the API but it produced no ChatEvent — e.g. a
+        // `ping`, or a buffered `input_json_delta` chunk while a large tool
+        // input (such as a big save_plan) streams in. The model/connection is
+        // still alive, so signal liveness to reset the consumer's inter-event
+        // stream timeout, which would otherwise false-fire mid-generation.
+        if (!yielded) yield { type: 'keep_alive' }
       }
 
       // Flush any remaining data in the buffer after EOF
