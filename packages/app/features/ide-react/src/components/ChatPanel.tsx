@@ -1714,6 +1714,7 @@ interface ChatInnerProps {
   onInitialMessageSent?: () => void
   isAnonymous?: boolean
   isPro?: boolean
+  suppressGuestReminder?: boolean
   activeFile?: string | null
   openTabs?: string[]
   onFileOpen?: (path: string) => void
@@ -1750,6 +1751,7 @@ interface ChatInnerProps {
  * @param root0.initialMessage - Optional message to auto-send on mount.
  * @param root0.onInitialMessageSent - Callback fired after the initial message is sent.
  * @param root0.isAnonymous - Whether the current user is anonymous.
+ * @param root0.suppressGuestReminder - Suppress the periodic sign-up reminder (e.g. during discovery).
  * @param root0.isPro - Whether the current user has a Pro plan.
  * @param root0.activeFile - Path of the currently focused file in the editor.
  * @param root0.openTabs - Paths of all open editor tabs.
@@ -1780,6 +1782,7 @@ function ChatInner({
   onInitialMessageSent,
   isAnonymous,
   isPro,
+  suppressGuestReminder,
   activeFile,
   openTabs,
   onFileOpen,
@@ -1918,8 +1921,9 @@ function ChatInner({
           href: '/pricing',
         })
       }
-      // Periodic sign-up reminder for anonymous users in chat history
-      if (event.type === 'done' && isAnonymous) {
+      // Periodic sign-up reminder for anonymous users in chat history.
+      // Suppressed during discovery — see suppressGuestReminder.
+      if (event.type === 'done' && isAnonymous && !suppressGuestReminder) {
         turnCountRef.current++
         const n = turnCountRef.current
         if (
@@ -1977,7 +1981,7 @@ function ChatInner({
         playTone()
       }
     },
-    [isAnonymous, t],
+    [isAnonymous, suppressGuestReminder, t],
   )
 
   // Countdown timer effect — ticks down and auto-sends fix message
@@ -5841,6 +5845,7 @@ function ChatInner({
  * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
  * @param root0.userEditedFileKey - Key to distinguish repeated edits to the same file.
  * @param root0.isAnonymous - Whether the current user is anonymous.
+ * @param root0.suppressGuestReminder - Suppress the periodic sign-up reminder (e.g. during discovery).
  * @param root0.isPro - Whether the current user has a Pro plan.
  * @param root0.className - Optional CSS class name for the container.
  * @returns The rendered chat panel element.
@@ -5872,6 +5877,7 @@ export function ChatPanel({
   userEditedFileKey,
   isAnonymous,
   isPro,
+  suppressGuestReminder,
   className,
 }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
@@ -6178,6 +6184,7 @@ export function ChatPanel({
         onInitialMessageSent={onInitialMessageSent}
         isAnonymous={isAnonymous}
         isPro={isPro}
+        suppressGuestReminder={suppressGuestReminder}
         activeFile={activeFile}
         openTabs={openTabs}
         onFileOpen={onFileOpen}

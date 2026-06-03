@@ -74,6 +74,12 @@ export interface ChatPanelProps {
   isAnonymous?: boolean
   /** When true, user has a paid plan and can use all models. */
   isPro?: boolean
+  /**
+   * When true, suppress the periodic "sign up to keep your work" reminder card.
+   * Used during the discovery/requirements phase, where nudging an anonymous
+   * user to sign up before they've described what they want is bad UX.
+   */
+  suppressGuestReminder?: boolean
   className?: string
 }
 
