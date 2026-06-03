@@ -204,6 +204,16 @@ function formatElapsed(ms: number): string {
   return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`
 }
 
+/**
+ * Format a token count compactly (e.g. 1234 → "1.2k").
+ * @param n - The token count.
+ * @returns The compact string.
+ */
+function formatTokens(n: number): string {
+  if (n < 1000) return String(n)
+  return `${(n / 1000).toFixed(1)}k`
+}
+
 // ---------------------------------------------------------------------------
 // StreamingIndicator
 // ---------------------------------------------------------------------------
@@ -223,6 +233,11 @@ interface StreamingIndicatorProps {
    * (vs. a frozen spinner) even during long model-latency gaps.
    */
   startedAt?: number
+  /**
+   * Estimated tokens generated so far this turn. When > 0, shown beside the
+   * timer so the user can see how much work is actually being done.
+   */
+  tokens?: number
 }
 
 /**
@@ -234,12 +249,14 @@ interface StreamingIndicatorProps {
  * @param root0.inline - When true, renders only the spinner without status text.
  * @param root0.label - Real current-activity text; overrides the generic rotation.
  * @param root0.startedAt - Turn start timestamp (ms) for the live elapsed counter.
+ * @param root0.tokens - Estimated tokens generated so far (shown beside the timer).
  * @returns The rendered streaming indicator element.
  */
 export function StreamingIndicator({
   inline,
   label,
   startedAt,
+  tokens,
 }: StreamingIndicatorProps): JSX.Element {
   const [msgIdx, setMsgIdx] = useState(0)
   const [now, setNow] = useState(() => Date.now())
@@ -286,19 +303,25 @@ export function StreamingIndicator({
     >
       <MolSpinner size={16} />
       <span style={{ fontSize: '13px', opacity: 0.7, fontStyle: 'italic' }}>{text}</span>
-      {/* Counter pushed to the right edge; the rest stays left. Matches the
-          label's size/color (tabular-nums keeps the digits from jittering). */}
-      {elapsed && (
+      {/* Status metrics pushed to the right edge; the spinner + label stay left.
+          Token estimate + elapsed timer show how much work is happening and that
+          it's still alive. Same size/color as the label; tabular-nums keeps the
+          digits from jittering as they tick. */}
+      {(elapsed || (tokens != null && tokens > 0)) && (
         <span
           style={{
             marginLeft: 'auto',
+            display: 'inline-flex',
+            alignItems: 'baseline',
+            gap: '10px',
             fontSize: '13px',
             opacity: 0.7,
             fontVariantNumeric: 'tabular-nums',
           }}
           aria-hidden="true"
         >
-          {elapsed}
+          {tokens != null && tokens > 0 && <span>~{formatTokens(tokens)} tokens</span>}
+          {elapsed && <span>{elapsed}</span>}
         </span>
       )}
     </div>
