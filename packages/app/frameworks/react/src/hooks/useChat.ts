@@ -460,8 +460,32 @@ export function useChat(options: UseChatOptions): UseChatResult {
           ...(loopLimitReached != null ? { loopLimitReached } : {}),
         })
 
+        // Liveness watchdog + terminal-event tracking. The server has its own
+        // 120s stream timeout, but if it goes silent WITHOUT closing the
+        // connection (e.g. a hung tool that emits nothing), the client would
+        // spin forever. Reset a generous watchdog on every event; if it fires,
+        // abort so the stream can't hang. `receivedTerminal` lets us detect a
+        // stream that closed without a done/error event (→ finalize + reconcile
+        // instead of an eternal spinner).
+        let receivedTerminal = false
+        let stalled = false
+        const STALL_MS = 180_000
+        let stallTimer: ReturnType<typeof setTimeout> | null = null
+        const resetStall = (): void => {
+          if (stallTimer) clearTimeout(stallTimer)
+          stallTimer = setTimeout(() => {
+            stalled = true
+            try {
+              provider.abort()
+            } catch {
+              /* nothing to abort */
+            }
+          }, STALL_MS)
+        }
+
         const onEvent = (event: ChatStreamEvent): void => {
           if (!mountedRef.current) return
+          resetStall()
           onStreamEvent?.(event)
 
           switch (event.type) {
@@ -559,10 +583,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
               scheduleFlush(() => ({ loopLimitReached: event.maxLoops }))
               break
             case 'done':
+              receivedTerminal = true
               // Flush immediately — commit final state and clear streaming flag
               flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
               break
             case 'error':
+              receivedTerminal = true
               setError(event.message)
               setErrorMeta(
                 event.limitType
@@ -603,17 +629,43 @@ export function useChat(options: UseChatOptions): UseChatResult {
           }
         }
 
+        resetStall()
+        let resolvedCleanly = false
         try {
           await provider.sendMessage(currentMsg, config, onEvent, currentAttachments)
+          resolvedCleanly = true
         } catch (err) {
           if (mountedRef.current) {
-            const msg =
-              err instanceof Error
+            const msg = stalled
+              ? t('chat.error.stalled', undefined, {
+                  defaultValue:
+                    'Synthase stopped responding. It may still be finishing in the background — reload to see the latest, or send a new message.',
+                })
+              : err instanceof Error
                 ? err.message
                 : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' })
             setError(msg)
             // Flush immediately on catch — stream is over
             flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
+          }
+        } finally {
+          if (stallTimer) clearTimeout(stallTimer)
+        }
+
+        // Stream closed WITHOUT a terminal (done/error) event — e.g. the server
+        // hit its own timeout and ended the connection without a final `done`,
+        // or the connection dropped. Finalize so the spinner can't hang, then
+        // reconcile with the server's persisted state: the turn has usually
+        // completed (and persisted) server-side even though we lost the stream,
+        // so reloading history surfaces the real result instead of a blank,
+        // forever-spinning placeholder.
+        if (mountedRef.current && resolvedCleanly && !receivedTerminal) {
+          flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
+          try {
+            const history = await provider.loadHistory(config)
+            if (mountedRef.current && history.length > 0) setMessages(history)
+          } catch {
+            /* keep the finalized placeholder if history can't be loaded */
           }
         }
 
