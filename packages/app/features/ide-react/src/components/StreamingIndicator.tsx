@@ -276,7 +276,14 @@ export function StreamingIndicator({
     <div
       role="status"
       aria-label={text}
-      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0' }}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        gap: '8px',
+        padding: '6px 0',
+        width: '100%',
+      }}
     >
       <MolSpinner size={16} />
       {/* Label + counter share a baseline-aligned group so the smaller counter
