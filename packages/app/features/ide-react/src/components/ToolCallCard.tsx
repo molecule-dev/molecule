@@ -16,6 +16,7 @@ import { useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ToolCallCardProps } from '../types.js'
+import { MarkdownContent } from './MarkdownContent.js'
 import type { ToolOutput } from './tool-call-utilities.js'
 import {
   basename,
@@ -27,6 +28,19 @@ import {
 
 type Inp = Record<string, unknown>
 type Out = ToolOutput
+
+/**
+ * Normalize a model-authored string for display: models sometimes double-escape
+ * tool arguments, so a literal "\n"/"\t"/"\r" (backslash + letter) ends up in
+ * the text instead of a real control character. Convert those back so markdown
+ * line breaks render correctly.
+ *
+ * @param s - The raw string.
+ * @returns The string with literal escape sequences turned into real ones.
+ */
+function unescapeLiterals(s: string): string {
+  return s.replace(/\\r\\n|\\n|\\r/g, '\n').replace(/\\t/g, '\t')
+}
 
 // ---------------------------------------------------------------------------
 // Label renderer — turns `backtick` segments into inline <code> spans
@@ -727,16 +741,16 @@ export const ToolCallCard = memo(function ToolCallCard({
           overflow: 'hidden',
         }}
       >
-        {/* Question header */}
+        {/* Question header — rendered as markdown (the model formats questions
+            with **bold**, bullets, and line breaks). */}
         <div
           style={{
-            padding: '10px 12px',
+            padding: '4px 12px 10px',
             fontSize: '13px',
-            fontWeight: 600,
             borderBottom: `1px solid ${borderClr}`,
           }}
         >
-          {askInput.question}
+          <MarkdownContent text={unescapeLiterals(askInput.question ?? '')} isStreaming={false} />
         </div>
 
         {/* Full-width option rows */}
