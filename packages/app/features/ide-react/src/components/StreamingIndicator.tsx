@@ -253,12 +253,16 @@ export function StreamingIndicator({
     return () => clearInterval(id)
   }, [inline, label])
 
-  // Tick the elapsed counter every second while mounted (i.e. while streaming).
+  // Live elapsed time. Tick sub-second while the wait is short so the tenths
+  // are real (and it reads as actively working), then drop to once per second
+  // past 10s to bound re-renders on long turns.
+  const elapsedMs = startedAt !== undefined ? Math.max(0, now - startedAt) : 0
+  const tickFast = startedAt !== undefined && elapsedMs < 10_000
   useEffect(() => {
     if (inline || startedAt === undefined) return
-    const id = setInterval(() => setNow(Date.now()), 1000)
+    const id = setInterval(() => setNow(Date.now()), tickFast ? 100 : 1000)
     return () => clearInterval(id)
-  }, [inline, startedAt])
+  }, [inline, startedAt, tickFast])
 
   if (inline) {
     return <MolSpinner size={14} />
@@ -266,7 +270,7 @@ export function StreamingIndicator({
 
   const generic = MESSAGES[msgIdx]
   const text = label ?? t(generic.key, undefined, { defaultValue: generic.defaultValue })
-  const elapsed = startedAt !== undefined ? formatElapsed(Math.max(0, now - startedAt)) : null
+  const elapsed = startedAt !== undefined ? formatElapsed(elapsedMs) : null
 
   return (
     <div
@@ -275,15 +279,20 @@ export function StreamingIndicator({
       style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0' }}
     >
       <MolSpinner size={16} />
-      <span style={{ fontSize: '13px', opacity: 0.7, fontStyle: 'italic' }}>{text}</span>
-      {elapsed && (
-        <span
-          style={{ fontSize: '12px', opacity: 0.45, fontVariantNumeric: 'tabular-nums' }}
-          aria-hidden="true"
-        >
-          {elapsed}
-        </span>
-      )}
+      {/* Label + counter share a baseline-aligned group so the smaller counter
+          sits on the label's text baseline (center-aligning the differently
+          sized fonts made the counter look a pixel high). */}
+      <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: '6px' }}>
+        <span style={{ fontSize: '13px', opacity: 0.7, fontStyle: 'italic' }}>{text}</span>
+        {elapsed && (
+          <span
+            style={{ fontSize: '12px', opacity: 0.45, fontVariantNumeric: 'tabular-nums' }}
+            aria-hidden="true"
+          >
+            {elapsed}
+          </span>
+        )}
+      </span>
     </div>
   )
 }
