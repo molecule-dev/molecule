@@ -286,13 +286,14 @@ export function StreamingIndicator({
     >
       <MolSpinner size={16} />
       <span style={{ fontSize: '13px', opacity: 0.7, fontStyle: 'italic' }}>{text}</span>
-      {/* Counter pushed to the right edge; the rest stays left. */}
+      {/* Counter pushed to the right edge; the rest stays left. Matches the
+          label's size/color (tabular-nums keeps the digits from jittering). */}
       {elapsed && (
         <span
           style={{
             marginLeft: 'auto',
-            fontSize: '12px',
-            opacity: 0.45,
+            fontSize: '13px',
+            opacity: 0.7,
             fontVariantNumeric: 'tabular-nums',
           }}
           aria-hidden="true"
