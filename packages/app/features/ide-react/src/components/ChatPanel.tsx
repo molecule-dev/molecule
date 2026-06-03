@@ -2058,7 +2058,15 @@ function ChatInner({
   } = useChat({
     endpoint,
     projectId,
-    loadOnMount: hasConversation || !initialMessage,
+    // Skip the on-mount history load when this panel will auto-send a fresh
+    // message — either the `initialMessage` prop or a seeded `initialInputValue`
+    // (the prompt→chat morph). The server creates the conversation with the user
+    // message persisted up front and emits its id mid-stream; that id flips the
+    // endpoint, which would otherwise re-fire loadHistory and overwrite the
+    // still-streaming assistant placeholder with the (assistant-less) history.
+    // loadOnMount is captured once at mount, so a false here stays false even
+    // after the endpoint changes. Existing conversations still load normally.
+    loadOnMount: hasConversation || (!initialMessage && !initialInputValue),
     onFileChange: onFileChangeWrapped,
     onConversationId,
     onStreamEvent: handleStreamEvent,
