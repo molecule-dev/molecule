@@ -233,6 +233,19 @@ export interface UseChatOptions {
 }
 
 /**
+ * Options for {@link UseChatResult.sendMessage}.
+ */
+export interface SendMessageOptions {
+  /**
+   * Skip the optimistic local user-message bubble. The text is still sent to
+   * the server. Used for ask_user responses: the answer is folded into the
+   * ask_user tool card (a checkmark on the chosen option, or the custom text
+   * shown in-card) rather than echoed as a separate message below it.
+   */
+  suppressUserMessage?: boolean
+}
+
+/**
  * Hook result for useChat.
  */
 export interface UseChatResult {
@@ -245,7 +258,11 @@ export interface UseChatResult {
   mode: 'plan' | 'execute'
   /** Update the local mode state (for instant mode toggle without an AI turn). */
   setMode: (mode: 'plan' | 'execute') => void
-  sendMessage: (message: string, attachments?: ChatAttachment[]) => Promise<void>
+  sendMessage: (
+    message: string,
+    attachments?: ChatAttachment[],
+    options?: SendMessageOptions,
+  ) => Promise<void>
   abort: () => void
   clearHistory: () => Promise<void>
   /** Edit the content of a queued (not yet sent) message. */

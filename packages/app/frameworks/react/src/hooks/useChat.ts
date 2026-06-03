@@ -17,7 +17,7 @@ import type {
 import { t } from '@molecule/app-i18n'
 
 import { ChatContext } from '../contexts.js'
-import type { UseChatOptions, UseChatResult } from '../types.js'
+import type { SendMessageOptions, UseChatOptions, UseChatResult } from '../types.js'
 
 // ── Session persistence helpers ──────────────────────────────────────────────
 // Persist the message queue and streaming state to sessionStorage so that
@@ -25,7 +25,12 @@ import type { UseChatOptions, UseChatResult } from '../types.js'
 
 const STORAGE_PREFIX = 'mol-chat-'
 
-type QueueEntry = { message: string; attachments?: ChatAttachment[]; userMsgId?: string }
+type QueueEntry = {
+  message: string
+  attachments?: ChatAttachment[]
+  userMsgId?: string
+  suppressUserMessage?: boolean
+}
 
 /** Prefix used by auto-fix messages so we can identify them in the queue. */
 const AUTOFIX_PREFIX = 'Fix these issues:'
@@ -161,9 +166,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
   const sendingRef = useRef(false)
   const pendingRef = useRef<QueueEntry[]>([])
   // Stable ref to the latest sendMessage so effects can call it without dep issues
-  const sendMessageRef = useRef<(message: string, attachments?: ChatAttachment[]) => Promise<void>>(
-    () => Promise.resolve(),
-  )
+  const sendMessageRef = useRef<
+    (message: string, attachments?: ChatAttachment[], options?: SendMessageOptions) => Promise<void>
+  >(() => Promise.resolve())
   // Stable ref to clearQueuedForFile so stream event handlers can call it
   const clearQueuedForFileRef = useRef<(filePath: string) => void>(() => {})
 
@@ -357,8 +362,13 @@ export function useChat(options: UseChatOptions): UseChatResult {
   }, [endpoint])
 
   const sendMessage = useCallback(
-    async (message: string, attachments?: ChatAttachment[]) => {
+    async (message: string, attachments?: ChatAttachment[], options?: SendMessageOptions) => {
       if (!mountedRef.current) return
+
+      // When suppressed (ask_user responses), the text is still sent to the
+      // server but no local user-message bubble is appended — the answer is
+      // reflected in the ask_user tool card instead.
+      const suppressUserMessage = options?.suppressUserMessage === true
 
       const userMsg: ChatMessage = {
         id: `user-${++idCounterRef.current}`,
@@ -378,14 +388,20 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
       // If a request is already in-flight, mark the message as queued and defer sending
       if (sendingRef.current) {
-        userMsg.queued = true
-        setMessages((prev) => [...prev, userMsg])
-        pendingRef.current.push({ message, attachments, userMsgId: userMsg.id })
+        if (!suppressUserMessage) {
+          userMsg.queued = true
+          setMessages((prev) => [...prev, userMsg])
+        }
+        pendingRef.current.push({
+          message,
+          attachments,
+          ...(suppressUserMessage ? { suppressUserMessage } : { userMsgId: userMsg.id }),
+        })
         persistQueue(storageKey, pendingRef.current)
         return
       }
 
-      setMessages((prev) => [...prev, userMsg])
+      if (!suppressUserMessage) setMessages((prev) => [...prev, userMsg])
 
       sendingRef.current = true
       setIsLoading(true)

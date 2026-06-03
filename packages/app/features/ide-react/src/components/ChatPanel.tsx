@@ -2008,7 +2008,9 @@ function ChatInner({
   }, [autoFixCountdown?.paused, autoFixCountdown?.secondsLeft])
 
   // When countdown reaches 0, send the fix message
-  const sendMessageRef = useRef<(msg: string) => void>(() => {})
+  const sendMessageRef = useRef<
+    (msg: string, attachments?: undefined, options?: { suppressUserMessage?: boolean }) => void
+  >(() => {})
   useEffect(() => {
     if (autoFixCountdown && autoFixCountdown.secondsLeft === 0 && !autoFixCountdown.paused) {
       const msg = `Fix these issues:\n\n${autoFixCountdown.output}`
@@ -2077,8 +2079,11 @@ function ChatInner({
 
   // Ref-stable callback for ToolCallCard's onAskUserResponse — avoids breaking
   // React.memo when sendMessage's identity changes (provider/endpoint deps).
+  // Suppress the optimistic user bubble: the answer is reflected in the ask_user
+  // card itself (a checkmark on the chosen option, or the custom text shown
+  // in-card) rather than echoed as a separate message below it.
   const handleAskUserResponse = useCallback((response: string) => {
-    sendMessageRef.current(response)
+    sendMessageRef.current(response, undefined, { suppressUserMessage: true })
   }, [])
 
   // ── Commit ─────────────────────────────────────────────────────────────────
