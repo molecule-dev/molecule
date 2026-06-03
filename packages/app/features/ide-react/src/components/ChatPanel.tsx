@@ -371,6 +371,58 @@ function formatThinkingDuration(ms: number): string {
 }
 
 /**
+ * Derive a real current-activity label for the streaming indicator from the
+ * in-flight assistant message's latest block, so the user sees what's actually
+ * happening (e.g. "Reading App.tsx", "Writing the plan") instead of a generic
+ * spinner. Returns undefined when there's nothing specific to show (the
+ * indicator then falls back to its rotating generic messages).
+ *
+ * @param msg - The streaming assistant message.
+ * @param msg.blocks - The ordered stream blocks (thinking / tool_use / text).
+ * @param msg.toolCalls - The message's tool calls, looked up by block id.
+ * @returns A short activity label, or undefined.
+ */
+function streamingActivityLabel(msg: {
+  blocks?: Array<{ type: string; id?: string }>
+  toolCalls?: Array<{ id: string; name: string; input?: unknown }>
+}): string | undefined {
+  const blocks = msg.blocks
+  if (!blocks || blocks.length === 0) return undefined
+  const last = blocks[blocks.length - 1]
+  if (last.type === 'thinking')
+    return t('ide.chat.activity.thinking', undefined, { defaultValue: 'Thinking' })
+  if (last.type !== 'tool_use') return undefined
+  const tc = msg.toolCalls?.find((c) => c.id === last.id)
+  if (!tc) return undefined
+  const inp = (tc.input ?? {}) as { path?: string; query?: string; command?: string; url?: string }
+  const base = (p?: string): string => (p ? (p.split('/').filter(Boolean).pop() ?? p) : '')
+  const clip = (s?: string, n = 48): string => (s && s.length > n ? `${s.slice(0, n)}…` : (s ?? ''))
+  switch (tc.name) {
+    case 'read_file':
+      return `${t('ide.chat.activity.reading', undefined, { defaultValue: 'Reading' })} ${base(inp.path)}`
+    case 'write_file':
+      return `${t('ide.chat.activity.writing', undefined, { defaultValue: 'Writing' })} ${base(inp.path)}`
+    case 'edit_file':
+      return `${t('ide.chat.activity.editing', undefined, { defaultValue: 'Editing' })} ${base(inp.path)}`
+    case 'search_files':
+      return `${t('ide.chat.activity.searching', undefined, { defaultValue: 'Searching' })} ${clip(inp.query)}`
+    case 'list_files':
+    case 'find_files':
+      return t('ide.chat.activity.exploring', undefined, { defaultValue: 'Exploring files' })
+    case 'exec_command':
+      return `${t('ide.chat.activity.running', undefined, { defaultValue: 'Running' })} ${clip(inp.command)}`
+    case 'save_plan':
+      return t('ide.chat.activity.writingPlan', undefined, { defaultValue: 'Writing the plan' })
+    case 'sandbox_fetch':
+      return `${t('ide.chat.activity.fetching', undefined, { defaultValue: 'Fetching' })} ${clip(inp.url)}`
+    case 'set_mode':
+      return t('ide.chat.activity.switching', undefined, { defaultValue: 'Switching mode' })
+    default:
+      return undefined
+  }
+}
+
+/**
  * Collapsible block for displaying AI thinking/reasoning content.
  * @param root0 - Component props.
  * @param root0.content - The raw thinking text to render.
@@ -1366,7 +1418,12 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
         <div style={{ paddingLeft: sameRoleAsPrev ? '0' : '0' }}>
           {msg.isStreaming &&
             (!msg.blocks || msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
-            !msg.content && <StreamingIndicator />}
+            !msg.content && (
+              <StreamingIndicator
+                label={streamingActivityLabel(msg)}
+                startedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
+              />
+            )}
 
           {msg.blocks && msg.blocks.length > 0 ? (
             msg.blocks.map((block, bi) => {
@@ -1541,7 +1598,12 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     onFileRevert={handleFileRevert}
                     onAskUserResponse={handleAskUserResponse}
                   />
-                  {isLast && msg.isStreaming && <StreamingIndicator />}
+                  {isLast && msg.isStreaming && (
+                    <StreamingIndicator
+                      label={streamingActivityLabel(msg)}
+                      startedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
+                    />
+                  )}
                 </div>
               )
             })

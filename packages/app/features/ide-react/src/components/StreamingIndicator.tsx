@@ -192,6 +192,18 @@ const MESSAGES: ReadonlyArray<{ key: string; defaultValue: string }> = [
 
 const ROTATE_INTERVAL_MS = 3000
 
+/**
+ * Format elapsed milliseconds as `m:ss` (or `s.s` under 10s for liveliness).
+ * @param ms - Elapsed time in milliseconds.
+ * @returns The formatted elapsed string.
+ */
+function formatElapsed(ms: number): string {
+  const totalSec = ms / 1000
+  if (totalSec < 10) return `${totalSec.toFixed(1)}s`
+  const sec = Math.floor(totalSec)
+  return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`
+}
+
 // ---------------------------------------------------------------------------
 // StreamingIndicator
 // ---------------------------------------------------------------------------
@@ -199,43 +211,79 @@ const ROTATE_INTERVAL_MS = 3000
 interface StreamingIndicatorProps {
   /** When true, renders only the spinner inline (no message text). */
   inline?: boolean
+  /**
+   * Real current-activity label (e.g. "Reading src/App.tsx", "Writing the
+   * plan"). When provided, it replaces the generic rotating messages so the
+   * user sees what's actually happening. Falls back to rotation when absent.
+   */
+  label?: string
+  /**
+   * Turn start timestamp (ms). When provided, a live `m:ss` elapsed counter
+   * ticks beside the label so it's unambiguous the response is still alive
+   * (vs. a frozen spinner) even during long model-latency gaps.
+   */
+  startedAt?: number
 }
 
 /**
- * Animated streaming indicator with molecule spinner and rotating
- * status messages. Pass `inline` for a compact cursor replacement
- * inside flowing text.
+ * Animated streaming indicator with molecule spinner. Shows the real current
+ * activity (when `label` is passed) plus a live elapsed timer (when `startedAt`
+ * is passed); otherwise rotates generic status messages. Pass `inline` for a
+ * compact cursor replacement inside flowing text.
  * @param root0 - Component props.
  * @param root0.inline - When true, renders only the spinner without status text.
+ * @param root0.label - Real current-activity text; overrides the generic rotation.
+ * @param root0.startedAt - Turn start timestamp (ms) for the live elapsed counter.
  * @returns The rendered streaming indicator element.
  */
-export function StreamingIndicator({ inline }: StreamingIndicatorProps): JSX.Element {
+export function StreamingIndicator({
+  inline,
+  label,
+  startedAt,
+}: StreamingIndicatorProps): JSX.Element {
   const [msgIdx, setMsgIdx] = useState(0)
+  const [now, setNow] = useState(() => Date.now())
 
+  // Rotate generic messages only when there's no real activity label.
   useEffect(() => {
-    if (inline) return
+    if (inline || label) return
     const id = setInterval(() => {
       setMsgIdx((prev) => (prev + 1) % MESSAGES.length)
     }, ROTATE_INTERVAL_MS)
     return () => clearInterval(id)
-  }, [inline])
+  }, [inline, label])
+
+  // Tick the elapsed counter every second while mounted (i.e. while streaming).
+  useEffect(() => {
+    if (inline || startedAt === undefined) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [inline, startedAt])
 
   if (inline) {
     return <MolSpinner size={14} />
   }
 
-  const { key, defaultValue } = MESSAGES[msgIdx]
+  const generic = MESSAGES[msgIdx]
+  const text = label ?? t(generic.key, undefined, { defaultValue: generic.defaultValue })
+  const elapsed = startedAt !== undefined ? formatElapsed(Math.max(0, now - startedAt)) : null
 
   return (
     <div
       role="status"
-      aria-label={t(key, undefined, { defaultValue })}
+      aria-label={text}
       style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0' }}
     >
       <MolSpinner size={16} />
-      <span style={{ fontSize: '13px', opacity: 0.7, fontStyle: 'italic' }}>
-        {t(key, undefined, { defaultValue })}
-      </span>
+      <span style={{ fontSize: '13px', opacity: 0.7, fontStyle: 'italic' }}>{text}</span>
+      {elapsed && (
+        <span
+          style={{ fontSize: '12px', opacity: 0.45, fontVariantNumeric: 'tabular-nums' }}
+          aria-hidden="true"
+        >
+          {elapsed}
+        </span>
+      )}
     </div>
   )
 }
