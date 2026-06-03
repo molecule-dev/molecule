@@ -16,7 +16,7 @@
  * @module
  */
 
-import type { JSX } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { ChatMessage } from '@molecule/app-ai-chat'
@@ -1732,6 +1732,8 @@ interface ChatInnerProps {
   autoSubmitSignal?: number
   /** Seeds the input with this text on mount (prompt→chat morph). */
   initialInputValue?: string
+  /** Spinner node for in-chat loading states (falls back to built-in dots). */
+  spinner?: ReactNode
   pendingMessage?: string
   pendingMessageKey?: number
   /** File path edited by the user in the editor — triggers auto-deletion of queued autofix messages referencing this file. */
@@ -1763,6 +1765,7 @@ interface ChatInnerProps {
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
+ * @param root0.spinner - Spinner node for in-chat loading states (falls back to built-in dots).
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
@@ -1791,6 +1794,7 @@ function ChatInner({
   onReadyToBuild,
   autoSubmitSignal,
   initialInputValue,
+  spinner,
   pendingMessage,
   pendingMessageKey,
   userEditedFile,
@@ -5265,22 +5269,24 @@ function ChatInner({
             className={cm.cn(cm.flex({ align: 'center' }), cm.textSize('sm'))}
             style={{ padding: '6px 4px', gap: 8, opacity: 0.85 }}
           >
-            <span style={{ display: 'inline-flex', gap: 3 }}>
-              {[0, 1, 2].map((i) => (
-                <span
-                  key={i}
-                  style={{
-                    width: 5,
-                    height: 5,
-                    borderRadius: '50%',
-                    background: 'currentColor',
-                    display: 'inline-block',
-                    animation: 'mol-dot-bounce 1.4s ease-in-out infinite',
-                    animationDelay: `${i * 0.16}s`,
-                  }}
-                />
-              ))}
-            </span>
+            {spinner ?? (
+              <span style={{ display: 'inline-flex', gap: 3 }}>
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: '50%',
+                      background: 'currentColor',
+                      display: 'inline-block',
+                      animation: 'mol-dot-bounce 1.4s ease-in-out infinite',
+                      animationDelay: `${i * 0.16}s`,
+                    }}
+                  />
+                ))}
+              </span>
+            )}
             <span>
               {t('ide.chat.designing', undefined, { defaultValue: 'Designing your app…' })}
             </span>
@@ -5814,6 +5820,7 @@ function ChatInner({
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
+ * @param root0.spinner - Spinner node for in-chat loading states (falls back to built-in dots).
  * @param root0.hideConversationMenu - Hide the conversation-selector header (e.g. during discovery).
  * @param root0.gitStatusTick - Counter that increments when git status changes.
  * @param root0.pendingMessage - An externally triggered message to send.
@@ -5844,6 +5851,7 @@ export function ChatPanel({
   autoSubmitSignal,
   initialInputValue,
   hideConversationMenu,
+  spinner,
   gitStatusTick,
   pendingMessage,
   pendingMessageKey,
@@ -6171,6 +6179,7 @@ export function ChatPanel({
         onReadyToBuild={onReadyToBuild}
         autoSubmitSignal={autoSubmitSignal}
         initialInputValue={initialInputValue}
+        spinner={spinner}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}
         userEditedFile={userEditedFile}

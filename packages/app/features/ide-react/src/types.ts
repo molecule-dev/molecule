@@ -54,6 +54,8 @@ export interface ChatPanelProps {
   initialInputValue?: string
   /** Hide the conversation-selector header (e.g. during discovery, before any history is worth showing). */
   hideConversationMenu?: boolean
+  /** Spinner/busy indicator node to show for in-chat loading states (e.g. the "designing" indicator). Falls back to a built-in dots animation. */
+  spinner?: ReactNode
   /** Path of the currently focused file in the editor (shown first in @ picker). */
   activeFile?: string | null
   /** Paths of all open editor tabs (shown after active file in @ picker). */
