@@ -289,7 +289,16 @@ export class OpenaiAIProvider implements AIProvider {
         buffer += decoder.decode(value, { stream: true })
         const lines = buffer.split('\n')
         buffer = lines.pop() ?? ''
-        yield* this.processSSELines(lines, state)
+        let yielded = false
+        for (const event of this.processSSELines(lines, state)) {
+          yielded = true
+          yield event
+        }
+        // Received data but produced no ChatEvent (a keepalive comment, an empty
+        // delta, or buffered tool-call arguments streaming in). The model is
+        // still alive — signal liveness so the consumer's inter-event stream
+        // timeout doesn't false-fire mid-generation.
+        if (!yielded) yield { type: 'keep_alive' }
       }
       if (buffer.trim()) yield* this.processSSELines(buffer.split('\n'), state)
 

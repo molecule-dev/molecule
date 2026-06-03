@@ -40,6 +40,14 @@ export type ChatEvent =
   | { type: 'tool_use'; id: string; name: string; input: unknown }
   | { type: 'done'; usage: TokenUsage }
   | { type: 'error'; message: string; errorKey?: string }
+  // Liveness signal. PROVIDER CONTRACT: every streaming provider MUST yield
+  // `keep_alive` whenever it receives data from the upstream API that produces
+  // no other ChatEvent — e.g. an SSE ping/keepalive, an empty delta, or buffered
+  // tool-input/argument chunks streaming in. Consumers use a (long) inter-event
+  // timeout to detect a dead stream; without keep_alive that timeout false-fires
+  // while the model is alive but producing only silent chunks (e.g. streaming a
+  // large tool input). Not forwarded to end clients. Enforced by the provider
+  // conformance test in this package's __tests__.
   | { type: 'keep_alive' }
 
 /**
