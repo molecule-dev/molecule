@@ -48,6 +48,8 @@ export interface ChatPanelProps {
   onActivityClick?: (activity: ActivityFromCard) => void
   /** Called when the server signals (via the `ready_to_build` stream event) that discovery is complete and the sandbox should boot. */
   onReadyToBuild?: () => void
+  /** Called on each stream `done` — host uses it to keep the boot view up until the parallel during-boot plan stream finishes. */
+  onTurnComplete?: () => void
   /** Changing this value submits the current input draft — used to send a prefilled prompt after the prompt→chat morph docks. */
   autoSubmitSignal?: number
   /** Seeds the input with this text on mount (prompt→chat morph), so the chat input shows the prompt before it is sent. */

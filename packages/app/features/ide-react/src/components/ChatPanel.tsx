@@ -1832,6 +1832,9 @@ interface ChatInnerProps {
   onActivityClick?: (activity: Activity) => void
   /** Called on the `ready_to_build` stream event — discovery is done; boot the sandbox. */
   onReadyToBuild?: () => void
+  /** Called on each stream `done`. Lets the host know a turn finished — used to keep the
+   *  boot view up until the parallel during-boot plan stream completes. */
+  onTurnComplete?: () => void
   /** Changing this value submits the current input draft (used by the prompt→chat morph). */
   autoSubmitSignal?: number
   /** Seeds the input with this text on mount (prompt→chat morph). */
@@ -1898,6 +1901,7 @@ function ChatInner({
   onConversationId,
   onActivityClick,
   onReadyToBuild,
+  onTurnComplete,
   autoSubmitSignal,
   initialInputValue,
   pendingMessage,
@@ -1987,6 +1991,8 @@ function ChatInner({
   // Kept current each render so handleStreamEvent (memoized) always calls the latest.
   const onReadyToBuildRef = useRef<(() => void) | undefined>(onReadyToBuild)
   onReadyToBuildRef.current = onReadyToBuild
+  const onTurnCompleteRef = useRef<(() => void) | undefined>(onTurnComplete)
+  onTurnCompleteRef.current = onTurnComplete
   const GUEST_REMINDER_FIRST = 3
   const GUEST_REMINDER_INTERVAL = 10
 
@@ -2079,6 +2085,13 @@ function ChatInner({
       // user-facing payload and is never rendered in the transcript.
       if (event.type === 'ready_to_build') {
         onReadyToBuildRef.current?.()
+      }
+      // Turn finished (done OR error) — let the host know. Used to keep the boot
+      // view up until the parallel during-boot plan stream completes, so the
+      // panel swap can't cut it off. Firing on error too prevents a failed
+      // stream from stranding the boot view forever.
+      if (event.type === 'done' || event.type === 'error') {
+        onTurnCompleteRef.current?.()
       }
       // Model changed (e.g. planner → executor) — drop a marker in the
       // transcript so it's always clear which model is doing the work. Only on
@@ -5975,6 +5988,7 @@ export function ChatPanel({
   onCommit,
   onActivityClick,
   onReadyToBuild,
+  onTurnComplete,
   autoSubmitSignal,
   initialInputValue,
   hideConversationMenu,
@@ -6306,6 +6320,7 @@ export function ChatPanel({
         onConversationId={persistConversationId}
         onActivityClick={onActivityClick}
         onReadyToBuild={onReadyToBuild}
+        onTurnComplete={onTurnComplete}
         autoSubmitSignal={autoSubmitSignal}
         initialInputValue={initialInputValue}
         pendingMessage={pendingMessage}
