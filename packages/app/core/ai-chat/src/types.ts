@@ -174,6 +174,12 @@ export type ChatStreamEvent =
     }
   | { type: 'done'; usage?: { inputTokens: number; outputTokens: number; contextWindow?: number } }
   | { type: 'error'; message: string; limitType?: string; requiresSignup?: boolean }
+  // The active model changed (e.g. planner → executor); surfaced in the chat.
+  | { type: 'model'; model: string; label?: string; mode?: 'plan' | 'execute' }
+  // Post-discovery: the server is selecting a starting point / about to boot.
+  | { type: 'designing' }
+  // Discovery done + starting point chosen — the client boots the sandbox.
+  | { type: 'ready_to_build' }
 
 /**
  * AI chat provider interface that all chat bond packages must implement.

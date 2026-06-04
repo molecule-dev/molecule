@@ -1971,6 +1971,9 @@ function ChatInner({
   // Ref so the stream-event callback can push activity cards without depending
   // on the state setter (mirrors addSystemCardRef).
   const addActivityCardRef = useRef<(activity: Activity) => void>(() => {})
+  // Last model surfaced in the transcript, so we mark a change (planner →
+  // executor) without announcing the same model every turn.
+  const lastShownModelRef = useRef<string | null>(null)
   // Kept current each render so handleStreamEvent (memoized) always calls the latest.
   const onReadyToBuildRef = useRef<(() => void) | undefined>(onReadyToBuild)
   onReadyToBuildRef.current = onReadyToBuild
@@ -2070,6 +2073,18 @@ function ChatInner({
       // user-facing payload and is never rendered in the transcript.
       if (event.type === 'ready_to_build') {
         onReadyToBuildRef.current?.()
+      }
+      // Model changed (e.g. planner → executor) — drop a marker in the
+      // transcript so it's always clear which model is doing the work. Only on
+      // an actual change, not the same model every turn.
+      if (event.type === 'model' && event.model) {
+        const label = (event.label as string) || (event.model as string)
+        if (lastShownModelRef.current && lastShownModelRef.current !== event.model) {
+          addSystemCardRef.current(
+            t('ide.chat.modelInUse', { model: label }, { defaultValue: `Now using ${label}` }),
+          )
+        }
+        lastShownModelRef.current = event.model as string
       }
       const cfg = soundsConfigRef.current
       const eventType = event.type as SoundEventType
