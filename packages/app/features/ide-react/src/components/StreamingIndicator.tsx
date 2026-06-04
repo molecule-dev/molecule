@@ -214,6 +214,14 @@ function formatTokens(n: number): string {
   return `${(n / 1000).toFixed(1)}k`
 }
 
+/**
+ * Minimum estimated tokens before the counter is shown. Below this the number
+ * is noise — e.g. a `set_mode` tool input is ~4 tokens, which looked silly
+ * flashing at the plan switch. Real generation crosses this within a fraction
+ * of a second, so the counter still appears effectively immediately.
+ */
+const MIN_TOKENS_SHOWN = 20
+
 // ---------------------------------------------------------------------------
 // StreamingIndicator
 // ---------------------------------------------------------------------------
@@ -307,7 +315,7 @@ export function StreamingIndicator({
           Token estimate + elapsed timer show how much work is happening and that
           it's still alive. Same size/color as the label; tabular-nums keeps the
           digits from jittering as they tick. */}
-      {(elapsed || (tokens != null && tokens > 0)) && (
+      {(elapsed || (tokens != null && tokens >= MIN_TOKENS_SHOWN)) && (
         <span
           style={{
             marginLeft: 'auto',
@@ -320,7 +328,9 @@ export function StreamingIndicator({
           }}
           aria-hidden="true"
         >
-          {tokens != null && tokens > 0 && <span>~{formatTokens(tokens)} tokens</span>}
+          {tokens != null && tokens >= MIN_TOKENS_SHOWN && (
+            <span>~{formatTokens(tokens)} tokens</span>
+          )}
           {elapsed && <span>{elapsed}</span>}
         </span>
       )}

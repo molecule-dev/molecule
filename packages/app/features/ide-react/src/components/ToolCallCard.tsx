@@ -518,7 +518,7 @@ export const ToolCallCard = memo(function ToolCallCard({
   onFileRevert,
   onAskUserResponse,
   className,
-}: ToolCallCardProps): JSX.Element {
+}: ToolCallCardProps): JSX.Element | null {
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
   const [expanded, setExpanded] = useState(false)
@@ -725,6 +725,13 @@ export const ToolCallCard = memo(function ToolCallCard({
     const selectedAnswer = isResponded ? (askOutput as string) : localAnswer
     const [freeText, setFreeText] = useState('')
     const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+
+    // Don't render until the question has streamed in. `tool_use_start` surfaces
+    // the card the instant the call begins — before its input arrives — which
+    // would otherwise flash an empty question + option list. Once the full input
+    // is parsed (final `tool_use`), the card appears fully formed. (Placed after
+    // the hooks above so the hook order stays stable across renders.)
+    if (!askInput.question) return null
 
     const borderClr = isLight ? '#d0d7de' : '#3d444d'
     const labelChar = (i: number): string => String.fromCharCode(65 + i) // A, B, C, …

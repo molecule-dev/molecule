@@ -16,7 +16,7 @@
  * @module
  */
 
-import type { JSX, ReactNode } from 'react'
+import type { JSX } from 'react'
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { ChatMessage } from '@molecule/app-ai-chat'
@@ -1836,8 +1836,6 @@ interface ChatInnerProps {
   autoSubmitSignal?: number
   /** Seeds the input with this text on mount (prompt→chat morph). */
   initialInputValue?: string
-  /** Spinner node for in-chat loading states (falls back to built-in dots). */
-  spinner?: ReactNode
   pendingMessage?: string
   pendingMessageKey?: number
   /** When true, the pending message is sent on the user's behalf (e.g. the post-boot build kickoff) and is NOT rendered as a user bubble — phase cards convey what's happening instead. */
@@ -1872,7 +1870,6 @@ interface ChatInnerProps {
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
- * @param root0.spinner - Spinner node for in-chat loading states (falls back to built-in dots).
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @param root0.pendingMessageSuppressUser - When true, send the pending message without rendering a user bubble (auto-sent build kickoff).
@@ -1903,7 +1900,6 @@ function ChatInner({
   onReadyToBuild,
   autoSubmitSignal,
   initialInputValue,
-  spinner,
   pendingMessage,
   pendingMessageKey,
   pendingMessageSuppressUser,
@@ -1915,9 +1911,6 @@ function ChatInner({
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
   const http = useHttpClient()
-  // True while the server is designing the app (post-discovery selection) — a
-  // pause before the sandbox boots. Cleared when the turn ends.
-  const [designing, setDesigning] = useState(false)
   // If there's already a conversation (conversationId in the URL), always load
   // history — even when initialMessage is set. This prevents a refresh from
   // re-sending the initial prompt instead of restoring the existing conversation.
@@ -2081,10 +2074,6 @@ function ChatInner({
           ),
         )
       }
-      // Designing the app (selecting the starting point) — show an indicator
-      // until the turn ends.
-      if (event.type === 'designing') setDesigning(true)
-      if (event.type === 'done') setDesigning(false)
       // Discovery finished and the server selected a starting point — boot the
       // sandbox. The template choice is internal; this event carries no
       // user-facing payload and is never rendered in the transcript.
@@ -5430,36 +5419,6 @@ function ChatInner({
           </div>
         )}
 
-        {/* Designing indicator — shown while the app's starting point is being chosen */}
-        {designing && (
-          <div
-            className={cm.cn(cm.flex({ align: 'center' }), cm.textSize('sm'))}
-            style={{ padding: '6px 4px', gap: 8, opacity: 0.85 }}
-          >
-            {spinner ?? (
-              <span style={{ display: 'inline-flex', gap: 3 }}>
-                {[0, 1, 2].map((i) => (
-                  <span
-                    key={i}
-                    style={{
-                      width: 5,
-                      height: 5,
-                      borderRadius: '50%',
-                      background: 'currentColor',
-                      display: 'inline-block',
-                      animation: 'mol-dot-bounce 1.4s ease-in-out infinite',
-                      animationDelay: `${i * 0.16}s`,
-                    }}
-                  />
-                ))}
-              </span>
-            )}
-            <span>
-              {t('ide.chat.designing', undefined, { defaultValue: 'Designing your app…' })}
-            </span>
-          </div>
-        )}
-
         {/* Input container — matches user message card style */}
         <div
           className={cm.surfaceSecondary}
@@ -5987,7 +5946,6 @@ function ChatInner({
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
- * @param root0.spinner - Spinner node for in-chat loading states (falls back to built-in dots).
  * @param root0.hideConversationMenu - Hide the conversation-selector header (e.g. during discovery).
  * @param root0.gitStatusTick - Counter that increments when git status changes.
  * @param root0.pendingMessage - An externally triggered message to send.
@@ -6020,7 +5978,6 @@ export function ChatPanel({
   autoSubmitSignal,
   initialInputValue,
   hideConversationMenu,
-  spinner,
   gitStatusTick,
   pendingMessage,
   pendingMessageKey,
@@ -6351,7 +6308,6 @@ export function ChatPanel({
         onReadyToBuild={onReadyToBuild}
         autoSubmitSignal={autoSubmitSignal}
         initialInputValue={initialInputValue}
-        spinner={spinner}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}
         pendingMessageSuppressUser={pendingMessageSuppressUser}
