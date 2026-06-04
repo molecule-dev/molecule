@@ -225,9 +225,15 @@ class DockerSandboxProvider implements SandboxProvider {
       const info = (await this.dockerApi(`/containers/${id}/json`)) as {
         Id: string
         Config: { Labels: Record<string, string> }
+        State?: { Running?: boolean; Status?: string }
       }
       const projectId = info.Config.Labels[`${this.labelPrefix}.projectId`] ?? ''
-      return this.buildSandbox(info.Id, projectId)
+      // Derive the real status from Docker's container state rather than
+      // hardcoding 'stopped'. Otherwise GET /sandbox/status reports a live
+      // container as stopped, and the status handler syncs that bogus state
+      // back into the DB — corrupting sandboxStatus and stalling the build.
+      const status: Sandbox['status'] = info.State?.Running ? 'running' : 'stopped'
+      return this.buildSandbox(info.Id, projectId, status)
     } catch (error) {
       logger.debug('Failed to get sandbox container', { id, error })
       return null
@@ -247,11 +253,16 @@ class DockerSandboxProvider implements SandboxProvider {
       `/containers/json?all=true&filters=${encodeURIComponent(filters)}`,
     )) as Array<{
       Id: string
+      State?: string
       Labels: Record<string, string>
     }>
 
     return containers.map((c) =>
-      this.buildSandbox(c.Id, c.Labels[`${this.labelPrefix}.projectId`] ?? ''),
+      this.buildSandbox(
+        c.Id,
+        c.Labels[`${this.labelPrefix}.projectId`] ?? '',
+        c.State === 'running' ? 'running' : 'stopped',
+      ),
     )
   }
 
@@ -297,15 +308,22 @@ class DockerSandboxProvider implements SandboxProvider {
    * start/stop/exec/file operations. All file operations are implemented via `docker exec`.
    * @param containerId - The Docker container ID.
    * @param _projectId - The project ID label (stored for metadata reference).
+   * @param initialStatus - The container's current status, derived from Docker
+   *   state by the caller (`get`/`list`). Defaults to 'stopped' for callers that
+   *   create a brand-new (not-yet-started) container.
    * @returns A `Sandbox` with lifecycle and file system methods bound to the container.
    */
-  private buildSandbox(containerId: string, _projectId: string): Sandbox {
+  private buildSandbox(
+    containerId: string,
+    _projectId: string,
+    initialStatus: Sandbox['status'] = 'stopped',
+  ): Sandbox {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const provider = this
 
     return {
       id: containerId,
-      status: 'stopped',
+      status: initialStatus,
       previewUrl: provider.previewUrlTemplate.replace('{port}', '5173'),
 
       async start() {
@@ -338,46 +356,70 @@ class DockerSandboxProvider implements SandboxProvider {
           ? `timeout ${Math.ceil(timeoutMs / 1000)} sh -c ${shellQuote(command)}`
           : command
 
-        const execCreate = (await provider.dockerApi(`/containers/${containerId}/exec`, 'POST', {
-          Cmd: ['sh', '-c', wrappedCommand],
-          AttachStdout: true,
-          AttachStderr: true,
-          WorkingDir: opts?.cwd ?? '/workspace',
-          Env: opts?.env ? Object.entries(opts.env).map(([k, v]) => `${k}=${v}`) : undefined,
-        })) as { Id: string }
+        const attempt = async (): Promise<ExecResult> => {
+          const execCreate = (await provider.dockerApi(`/containers/${containerId}/exec`, 'POST', {
+            Cmd: ['sh', '-c', wrappedCommand],
+            AttachStdout: true,
+            AttachStderr: true,
+            WorkingDir: opts?.cwd ?? '/workspace',
+            Env: opts?.env ? Object.entries(opts.env).map(([k, v]) => `${k}=${v}`) : undefined,
+          })) as { Id: string }
 
-        const rawBuf = await provider.dockerApiRaw(`/exec/${execCreate.Id}/start`, 'POST', {
-          Detach: false,
-          Tty: false,
-        })
+          const rawBuf = await provider.dockerApiRaw(`/exec/${execCreate.Id}/start`, 'POST', {
+            Detach: false,
+            Tty: false,
+          })
 
-        // Docker multiplexed stream: each frame has an 8-byte header
-        // [stream_type(1), 0, 0, 0, size(4 bytes big-endian)] + payload
-        const stdoutChunks: Buffer[] = []
-        const stderrChunks: Buffer[] = []
-        let offset = 0
-        while (offset + 8 <= rawBuf.length) {
-          const streamType = rawBuf[offset]
-          const frameSize = rawBuf.readUInt32BE(offset + 4)
-          offset += 8
-          const end = Math.min(offset + frameSize, rawBuf.length)
-          const payload = rawBuf.subarray(offset, end)
-          if (streamType === 2) {
-            stderrChunks.push(payload)
-          } else {
-            stdoutChunks.push(payload)
+          // Docker multiplexed stream: each frame has an 8-byte header
+          // [stream_type(1), 0, 0, 0, size(4 bytes big-endian)] + payload
+          const stdoutChunks: Buffer[] = []
+          const stderrChunks: Buffer[] = []
+          let offset = 0
+          while (offset + 8 <= rawBuf.length) {
+            const streamType = rawBuf[offset]
+            const frameSize = rawBuf.readUInt32BE(offset + 4)
+            offset += 8
+            const end = Math.min(offset + frameSize, rawBuf.length)
+            const payload = rawBuf.subarray(offset, end)
+            if (streamType === 2) {
+              stderrChunks.push(payload)
+            } else {
+              stdoutChunks.push(payload)
+            }
+            offset = end
           }
-          offset = end
+
+          const inspectRes = (await provider.dockerApi(`/exec/${execCreate.Id}/json`)) as {
+            ExitCode: number
+          }
+
+          return {
+            stdout: Buffer.concat(stdoutChunks).toString(),
+            stderr: Buffer.concat(stderrChunks).toString(),
+            exitCode: inspectRes.ExitCode,
+          }
         }
 
-        const inspectRes = (await provider.dockerApi(`/exec/${execCreate.Id}/json`)) as {
-          ExitCode: number
-        }
-
-        return {
-          stdout: Buffer.concat(stdoutChunks).toString(),
-          stderr: Buffer.concat(stderrChunks).toString(),
-          exitCode: inspectRes.ExitCode,
+        try {
+          return await attempt()
+        } catch (error) {
+          // A stopped/hibernated container returns Docker 409 "is not running".
+          // This happens when the auto-hibernation loop sleeps a sandbox that is
+          // actually still in use (e.g. a long agentic turn, or a brief race at
+          // turn start). Surfacing it as a raw failure makes every file tool
+          // error out mid-build. Instead, transparently start the container and
+          // retry once so the exec succeeds. Any other error is rethrown.
+          const message = error instanceof Error ? error.message : String(error)
+          if (/is not running|\b409\b/.test(message)) {
+            try {
+              await provider.dockerApi(`/containers/${containerId}/start`, 'POST')
+            } catch {
+              // 304 (already started) or a genuine start failure — let the retry
+              // below surface the real error if the container is truly gone.
+            }
+            return await attempt()
+          }
+          throw error
         }
       },
 

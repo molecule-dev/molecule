@@ -1118,4 +1118,46 @@ describe('DockerSandboxProvider', () => {
       expect(httpRequestCalls[0].opts.socketPath).toBe('/custom/path.sock')
     })
   })
+
+  // ─── Status detection from Docker container state ─────────────────────
+
+  describe('status detection', () => {
+    it('get() reports a running container as running', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock' })
+
+      enqueueJson(200, {
+        Id: 'container-run',
+        Config: { Labels: {} },
+        State: { Running: true, Status: 'running' },
+      })
+      const sandbox = await provider.get('container-run')
+      expect(sandbox?.status).toBe('running')
+    })
+
+    it('get() reports a non-running container as stopped', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock' })
+
+      enqueueJson(200, {
+        Id: 'container-down',
+        Config: { Labels: {} },
+        State: { Running: false, Status: 'exited' },
+      })
+      const sandbox = await provider.get('container-down')
+      expect(sandbox?.status).toBe('stopped')
+    })
+
+    it('list() maps each container State to a status', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock' })
+
+      enqueueJson(200, [
+        { Id: 'c-up', State: 'running', Labels: {} },
+        { Id: 'c-exited', State: 'exited', Labels: {} },
+      ])
+      const sandboxes = await provider.list('user-1')
+      expect(sandboxes.map((s) => s.status)).toEqual(['running', 'stopped'])
+    })
+  })
 })
