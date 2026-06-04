@@ -770,6 +770,7 @@ export const ToolCallCard = memo(function ToolCallCard({
             <button
               key={i}
               type="button"
+              data-mol-id={`ask-user-option-${i}`}
               disabled={!isAwaiting}
               onClick={() => {
                 setLocalAnswer(option)
