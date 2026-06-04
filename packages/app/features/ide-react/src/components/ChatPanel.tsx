@@ -1832,8 +1832,7 @@ interface ChatInnerProps {
   onActivityClick?: (activity: Activity) => void
   /** Called on the `ready_to_build` stream event — discovery is done; boot the sandbox. */
   onReadyToBuild?: () => void
-  /** Called on each stream `done`. Lets the host know a turn finished — used to keep the
-   *  boot view up until the parallel during-boot plan stream completes. */
+  /** Called on each stream done/error — host keeps the boot view up until the during-boot plan stream completes. */
   onTurnComplete?: () => void
   /** Changing this value submits the current input draft (used by the prompt→chat morph). */
   autoSubmitSignal?: number
@@ -1871,6 +1870,7 @@ interface ChatInnerProps {
  * @param root0.onConversationId - Callback when the conversation ID is assigned.
  * @param root0.onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
+ * @param root0.onTurnComplete - Callback fired on each stream done/error; host uses it to keep the boot view up until the during-boot plan stream completes.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
  * @param root0.pendingMessage - An externally triggered message to send.
@@ -5957,6 +5957,7 @@ function ChatInner({
  * @param root0.onCommit - Callback fired after a successful commit.
  * @param root0.onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
+ * @param root0.onTurnComplete - Callback fired on each stream done/error; host uses it to keep the boot view up until the during-boot plan stream completes.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
  * @param root0.hideConversationMenu - Hide the conversation-selector header (e.g. during discovery).
