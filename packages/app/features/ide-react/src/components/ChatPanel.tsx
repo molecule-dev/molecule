@@ -2105,21 +2105,17 @@ function ChatInner({
         }
         lastShownModelRef.current = event.model as string
       }
-      // Phase markers — make it unmistakable what the agent is doing right now.
-      // On a mode change, drop a card: planning vs building. Skip during
-      // discovery (also 'plan' mode, but the agent is asking questions, not
-      // planning) — suppressGuestReminder is true exactly during discovery.
+      // Phase marker for the plan→build handoff. We intentionally do NOT add a
+      // "Creating the plan" card: the plan is written as visible streaming text
+      // (so the card is redundant), and the parallel build flow emits a transient
+      // mode:'plan' during the post-boot save+execute turn — that would drop the
+      // card AFTER the plan was already shown, which reads backwards. "Building
+      // your app" stays: it cleanly marks the switch from planning to building.
       if (event.type === 'mode' && event.mode) {
-        if (lastShownModeRef.current !== event.mode) {
-          if (event.mode === 'execute') {
-            addSystemCardRef.current(
-              t('ide.chat.phaseBuilding', undefined, { defaultValue: '🔨 Building your app' }),
-            )
-          } else if (event.mode === 'plan' && !suppressGuestReminder) {
-            addSystemCardRef.current(
-              t('ide.chat.phasePlanning', undefined, { defaultValue: '📋 Creating the plan' }),
-            )
-          }
+        if (lastShownModeRef.current !== event.mode && event.mode === 'execute') {
+          addSystemCardRef.current(
+            t('ide.chat.phaseBuilding', undefined, { defaultValue: '🔨 Building your app' }),
+          )
         }
         lastShownModeRef.current = event.mode as string
       }

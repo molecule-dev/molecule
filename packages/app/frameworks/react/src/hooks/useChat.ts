@@ -4,7 +4,15 @@
  * @module
  */
 
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react'
 
 import type {
   ChatAttachment,
@@ -109,6 +117,93 @@ function consumeStreamingFlag(projectId: string): boolean {
   }
 }
 
+// ── Conversation-keyed message store ─────────────────────────────────────────
+// The chat history and live-stream state live HERE — in a module-level store
+// keyed by conversation — NOT in component state. This is deliberate: a streaming
+// turn writes events into the store regardless of whether (or which) ChatPanel is
+// mounted, and every mounted useChat just subscribes and renders "history + live".
+// So remounting the panel (e.g. the boot view swapping to the IDE), a re-render
+// that would unmount it, or any other lifecycle churn cannot drop history or cut
+// a stream — the store outlives all of it. (A full page refresh clears the store;
+// that path is covered separately by loadHistory + server-side stream resume.)
+
+/**
+ * Live store for one project's active conversation: its messages, whether a stream
+ * is active, subscribers, and the id of the conversation currently held (used to
+ * detect a genuine conversation switch vs a new conversation receiving its id).
+ */
+type MessageStore = {
+  messages: ChatMessage[]
+  streaming: boolean
+  listeners: Set<() => void>
+  conversationId?: string
+}
+
+/** Stable empty array for the SSR/initial snapshot (useSyncExternalStore needs referential stability). */
+const EMPTY_MESSAGES: ChatMessage[] = []
+
+const messageStores = new Map<string, MessageStore>()
+
+/**
+ * Get (creating if needed) the live message store for a conversation key.
+ * @param key - The conversation/project storage key.
+ * @returns The store for that key.
+ */
+function getMessageStore(key: string): MessageStore {
+  let store = messageStores.get(key)
+  if (!store) {
+    store = { messages: [], streaming: false, listeners: new Set() }
+    messageStores.set(key, store)
+  }
+  return store
+}
+
+/**
+ * Notify all subscribers of a conversation's store that it changed.
+ * @param key - The conversation/project storage key.
+ */
+function emitStore(key: string): void {
+  const store = messageStores.get(key)
+  if (store) for (const listener of store.listeners) listener()
+}
+
+/**
+ * Replace or update a conversation's messages and notify subscribers. Safe to call
+ * at any time — including after the component that started the stream has unmounted.
+ * @param key - The conversation/project storage key.
+ * @param updater - The next messages array, or a function of the previous array.
+ */
+function setStoreMessages(
+  key: string,
+  updater: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[]),
+): void {
+  const store = getMessageStore(key)
+  store.messages = typeof updater === 'function' ? updater(store.messages) : updater
+  emitStore(key)
+}
+
+/**
+ * Set whether a conversation has an active stream, notifying subscribers on change.
+ * @param key - The conversation/project storage key.
+ * @param streaming - Whether a stream is currently active.
+ */
+function setStoreStreaming(key: string, streaming: boolean): void {
+  const store = getMessageStore(key)
+  if (store.streaming !== streaming) {
+    store.streaming = streaming
+    emitStore(key)
+  }
+}
+
+/**
+ * Test-only: clear all conversation stores. The store is module-level (it must
+ * outlive component mounts), so it persists across test cases — reset it in a
+ * `beforeEach` the same way tests clear `sessionStorage`.
+ */
+export function __resetChatStoresForTests(): void {
+  messageStores.clear()
+}
+
 /**
  * Access the chat provider from context.
  * @returns The ChatProvider instance from the nearest ChatContext.
@@ -146,8 +241,46 @@ export function useChat(options: UseChatOptions): UseChatResult {
     onConversationId,
     onStreamEvent,
   } = options
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  // Project-scoped key for the message store + sessionStorage. The store is keyed
+  // by project (stable across the whole build flow — the conversation id is
+  // assigned mid-stream, so keying on it directly would swap the store out from
+  // under a live stream). Multi-conversation correctness is handled in the mount
+  // effect, which tracks the store's conversation id and resets only on a genuine
+  // switch (a DIFFERENT id), not when a new conversation first receives its id.
+  const storageKey = projectId ?? 'default'
+  // `messages` and `isLoading` are backed by the module-level conversation store
+  // (getMessageStore) rather than component state, so they survive remounts and a
+  // stream keeps filling them even if this component unmounts mid-turn. Every
+  // mounted useChat for the same project subscribes to the same store.
+  const subscribeStore = useCallback(
+    (onStoreChange: () => void) => {
+      const store = getMessageStore(storageKey)
+      store.listeners.add(onStoreChange)
+      return () => {
+        store.listeners.delete(onStoreChange)
+      }
+    },
+    [storageKey],
+  )
+  const messages = useSyncExternalStore(
+    subscribeStore,
+    () => getMessageStore(storageKey).messages,
+    () => EMPTY_MESSAGES,
+  )
+  const isLoading = useSyncExternalStore(
+    subscribeStore,
+    () => getMessageStore(storageKey).streaming,
+    () => false,
+  )
+  const setMessages = useCallback(
+    (updater: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])) =>
+      setStoreMessages(storageKey, updater),
+    [storageKey],
+  )
+  const setIsLoading = useCallback(
+    (streaming: boolean) => setStoreStreaming(storageKey, streaming),
+    [storageKey],
+  )
   const [error, setError] = useState<string | null>(null)
   const [errorMeta, setErrorMeta] = useState<{
     limitType?: string
@@ -160,8 +293,6 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // (e.g. initialMessage consumed → loadOnMount becomes true → history
   // load overwrites streaming messages).
   const loadOnMountRef = useRef(loadOnMount)
-  // Stable key for sessionStorage — falls back to 'default' when projectId is unset
-  const storageKey = projectId ?? 'default'
   // Queue for messages sent while a request is already in-flight
   const sendingRef = useRef(false)
   const pendingRef = useRef<QueueEntry[]>([])
@@ -298,15 +429,41 @@ export function useChat(options: UseChatOptions): UseChatResult {
       .loadHistory(config)
       .then((history) => {
         if (!mountedRef.current) return
-        if (history.length > 0) {
-          setMessages(history)
-        }
 
-        // Restore mode from server (persisted in conversation.aiContext.mode)
+        // Restore mode from server (persisted in conversation.aiContext.mode).
+        // Idempotent + cheap, so do it regardless of store state.
         const serverMode = (provider as { lastMode?: 'plan' | 'execute' }).lastMode
         if (serverMode && serverMode !== 'execute') {
           setMode(serverMode)
           onModeChange?.(serverMode)
+        }
+
+        // Multi-conversation handling. The store is project-keyed, so we track
+        // which conversation it holds and only blow it away on a GENUINE switch.
+        const store = getMessageStore(storageKey)
+        const endpointConvId = endpoint.match(/conversationId=([^&]+)/)?.[1]
+        // A switch = the endpoint names a DIFFERENT conversation than the store
+        // currently holds. A brand-new conversation that just received its id
+        // (store id undefined → defined) is NOT a switch — adopt the id and keep
+        // the live messages, so the in-flight discovery/plan stream isn't wiped
+        // the moment the conversation is created server-side.
+        const isSwitch =
+          !!endpointConvId && !!store.conversationId && endpointConvId !== store.conversationId
+        if (endpointConvId) store.conversationId = endpointConvId
+
+        // Same conversation with a live/populated store (e.g. the IDE ChatPanel
+        // mounting after the boot panel, or a re-render): the store is the source
+        // of truth — do NOT overwrite with server history (that would wipe
+        // in-flight streaming messages) and do NOT resume (the original stream is
+        // still writing to the store). Hydrate + resume only when the store is
+        // empty (first mount / after refresh) or on a real switch.
+        if (!isSwitch && store.messages.length > 0) return
+
+        if (history.length > 0) {
+          setMessages(history)
+        } else if (isSwitch) {
+          // Switched to an empty conversation — clear the previous one's messages.
+          setMessages([])
         }
 
         // Also check the provider's streaming flag — the server tells us
@@ -484,7 +641,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
         }
 
         const onEvent = (event: ChatStreamEvent): void => {
-          if (!mountedRef.current) return
+          // NB: intentionally NOT gated on mountedRef. Events write to the
+          // conversation store (setMessages/scheduleFlush), which must keep
+          // filling even if this component unmounted mid-turn (e.g. boot→IDE
+          // swap) — a freshly-mounted ChatPanel subscribes to the same store and
+          // sees the live stream. onStreamEvent targets the parent (Workspace),
+          // which stays mounted across the panel swap.
           resetStall()
           onStreamEvent?.(event)
 
@@ -808,8 +970,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
       })
 
       const onEvent = (event: ChatStreamEvent): void => {
-        if (!mountedRef.current) return
-
+        // Not gated on mountedRef — see the sendMessage onEvent above. The resumed
+        // stream writes to the conversation store and must survive a remount too.
         switch (event.type) {
           case 'text': {
             assistantText += event.content

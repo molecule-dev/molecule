@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ChatEventHandler, ChatProvider, ChatStreamEvent } from '@molecule/app-ai-chat'
 
 import { ChatContext } from '../../contexts.js'
-import { useChat } from '../useChat.js'
+import { __resetChatStoresForTests, useChat } from '../useChat.js'
 
 // ── Mock provider factory ─────────────────────────────────────────────────
 
@@ -25,7 +25,14 @@ interface Deferred {
  * the i-th call, or `completeWithError(i, msg)` for an error event.
  * @returns The mock provider, deferred list, and helper methods to control responses.
  */
-function createMockProvider(): { provider: ChatProvider; deferreds: Deferred[]; complete: (index: number) => void; completeWithError: (index: number, message: string) => void; emitText: (index: number, content: string) => void; emit: (index: number, event: ChatStreamEvent) => void } {
+function createMockProvider(): {
+  provider: ChatProvider
+  deferreds: Deferred[]
+  complete: (index: number) => void
+  completeWithError: (index: number, message: string) => void
+  emitText: (index: number, content: string) => void
+  emit: (index: number, event: ChatStreamEvent) => void
+} {
   const deferreds: Deferred[] = []
 
   const provider: ChatProvider = {
@@ -98,7 +105,9 @@ function createMockProvider(): { provider: ChatProvider; deferreds: Deferred[]; 
  * @param chatProvider - The ChatProvider instance to inject into the component tree.
  * @returns A wrapper component that renders children within the ChatContext.
  */
-function createWrapper(chatProvider: ChatProvider): ({ children }: { children: ReactNode }) => React.JSX.Element {
+function createWrapper(
+  chatProvider: ChatProvider,
+): ({ children }: { children: ReactNode }) => React.JSX.Element {
   return function Wrapper({ children }: { children: ReactNode }): React.JSX.Element {
     return <ChatContext.Provider value={chatProvider}>{children}</ChatContext.Provider>
   }
@@ -112,10 +121,14 @@ const ENDPOINT = '/api/chat'
 describe('useChat', () => {
   beforeEach(() => {
     sessionStorage.clear()
+    // The conversation message store is module-level (outlives mounts), so it
+    // leaks across test cases unless reset — same rationale as clearing sessionStorage.
+    __resetChatStoresForTests()
   })
 
   afterEach(() => {
     sessionStorage.clear()
+    __resetChatStoresForTests()
   })
 
   // ── Basic send ────────────────────────────────────────────────────────
