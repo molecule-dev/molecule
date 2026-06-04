@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ChatEventHandler, ChatProvider, ChatStreamEvent } from '@molecule/app-ai-chat'
 
 import { ChatContext } from '../../contexts.js'
-import { __resetChatStoresForTests, useChat } from '../useChat.js'
+import { resetChatStoresForTests, useChat } from '../useChat.js'
 
 // ── Mock provider factory ─────────────────────────────────────────────────
 
@@ -123,12 +123,12 @@ describe('useChat', () => {
     sessionStorage.clear()
     // The conversation message store is module-level (outlives mounts), so it
     // leaks across test cases unless reset — same rationale as clearing sessionStorage.
-    __resetChatStoresForTests()
+    resetChatStoresForTests()
   })
 
   afterEach(() => {
     sessionStorage.clear()
-    __resetChatStoresForTests()
+    resetChatStoresForTests()
   })
 
   // ── Basic send ────────────────────────────────────────────────────────

@@ -200,7 +200,7 @@ function setStoreStreaming(key: string, streaming: boolean): void {
  * outlive component mounts), so it persists across test cases — reset it in a
  * `beforeEach` the same way tests clear `sessionStorage`.
  */
-export function __resetChatStoresForTests(): void {
+export function resetChatStoresForTests(): void {
   messageStores.clear()
 }
 
