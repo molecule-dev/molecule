@@ -66,6 +66,8 @@ export interface ChatPanelProps {
   pendingMessage?: string
   /** Incremented to trigger sending pendingMessage. */
   pendingMessageKey?: number
+  /** When true, the pending message is sent on the user's behalf (e.g. the post-boot build kickoff) and is NOT shown as a user bubble — phase markers convey what's happening instead. */
+  pendingMessageSuppressUser?: boolean
   /** File path the user just edited in the editor — triggers auto-deletion of queued autofix messages. */
   userEditedFile?: string
   /** Incremented to trigger the user-edit check (same path may be edited multiple times). */

@@ -1833,6 +1833,8 @@ interface ChatInnerProps {
   spinner?: ReactNode
   pendingMessage?: string
   pendingMessageKey?: number
+  /** When true, the pending message is sent on the user's behalf (e.g. the post-boot build kickoff) and is NOT rendered as a user bubble — phase cards convey what's happening instead. */
+  pendingMessageSuppressUser?: boolean
   /** File path edited by the user in the editor — triggers auto-deletion of queued autofix messages referencing this file. */
   userEditedFile?: string
   userEditedFileKey?: number
@@ -1866,6 +1868,7 @@ interface ChatInnerProps {
  * @param root0.spinner - Spinner node for in-chat loading states (falls back to built-in dots).
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
+ * @param root0.pendingMessageSuppressUser - When true, send the pending message without rendering a user bubble (auto-sent build kickoff).
  * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
  * @param root0.userEditedFileKey - Key to distinguish repeated edits to the same file.
  * @param root0.gitStatusTick - Counter that increments when git status changes.
@@ -1896,6 +1899,7 @@ function ChatInner({
   spinner,
   pendingMessage,
   pendingMessageKey,
+  pendingMessageSuppressUser,
   userEditedFile,
   userEditedFileKey,
   gitStatusTick: externalGitStatusTick,
@@ -1955,6 +1959,9 @@ function ChatInner({
   // that arrived while the AI was streaming. Sent after streaming ends, unless
   // verification already caught the same errors (to avoid duplicates).
   const deferredPendingRef = useRef<string | null>(null)
+  // Tracks whether a deferred pending message should suppress its user bubble
+  // (mirrors pendingMessageSuppressUser for the deferred-send path).
+  const deferredPendingSuppressRef = useRef(false)
 
   // Clear countdown interval on unmount
   useEffect(
@@ -1974,6 +1981,9 @@ function ChatInner({
   // Last model surfaced in the transcript, so we mark a change (planner →
   // executor) without announcing the same model every turn.
   const lastShownModelRef = useRef<string | null>(null)
+  // Last phase (mode) surfaced as a transcript card, so phase markers appear on
+  // change only (not every turn). See the 'mode' event handler.
+  const lastShownModeRef = useRef<string | null>(null)
   // Kept current each render so handleStreamEvent (memoized) always calls the latest.
   const onReadyToBuildRef = useRef<(() => void) | undefined>(onReadyToBuild)
   onReadyToBuildRef.current = onReadyToBuild
@@ -2085,6 +2095,24 @@ function ChatInner({
           )
         }
         lastShownModelRef.current = event.model as string
+      }
+      // Phase markers — make it unmistakable what the agent is doing right now.
+      // On a mode change, drop a card: planning vs building. Skip during
+      // discovery (also 'plan' mode, but the agent is asking questions, not
+      // planning) — suppressGuestReminder is true exactly during discovery.
+      if (event.type === 'mode' && event.mode) {
+        if (lastShownModeRef.current !== event.mode) {
+          if (event.mode === 'execute') {
+            addSystemCardRef.current(
+              t('ide.chat.phaseBuilding', undefined, { defaultValue: '🔨 Building your app' }),
+            )
+          } else if (event.mode === 'plan' && !suppressGuestReminder) {
+            addSystemCardRef.current(
+              t('ide.chat.phasePlanning', undefined, { defaultValue: '📋 Creating the plan' }),
+            )
+          }
+        }
+        lastShownModeRef.current = event.mode as string
       }
       const cfg = soundsConfigRef.current
       const eventType = event.type as SoundEventType
@@ -2786,22 +2814,26 @@ function ChatInner({
       pendingMessageKey !== lastPendingKeyRef.current
     ) {
       lastPendingKeyRef.current = pendingMessageKey
+      const sendOpts = pendingMessageSuppressUser ? { suppressUserMessage: true } : undefined
       if (isLoading) {
         // AI is busy — defer until streaming ends
         deferredPendingRef.current = pendingMessage
+        deferredPendingSuppressRef.current = !!pendingMessageSuppressUser
       } else {
         deferredPendingRef.current = null
-        sendMessage(pendingMessage)
+        sendMessage(pendingMessage, undefined, sendOpts)
       }
     }
-  }, [pendingMessage, pendingMessageKey, sendMessage, isLoading])
+  }, [pendingMessage, pendingMessageKey, pendingMessageSuppressUser, sendMessage, isLoading])
 
   // When streaming ends, send any deferred message
   useEffect(() => {
     if (!isLoading && deferredPendingRef.current) {
       const msg = deferredPendingRef.current
+      const suppress = deferredPendingSuppressRef.current
       deferredPendingRef.current = null
-      sendMessage(msg)
+      deferredPendingSuppressRef.current = false
+      sendMessage(msg, undefined, suppress ? { suppressUserMessage: true } : undefined)
     }
   }, [isLoading, sendMessage])
 
@@ -5953,6 +5985,7 @@ function ChatInner({
  * @param root0.gitStatusTick - Counter that increments when git status changes.
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
+ * @param root0.pendingMessageSuppressUser - When true, send the pending message without rendering a user bubble (auto-sent build kickoff).
  * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
  * @param root0.userEditedFileKey - Key to distinguish repeated edits to the same file.
  * @param root0.isAnonymous - Whether the current user is anonymous.
@@ -5984,6 +6017,7 @@ export function ChatPanel({
   gitStatusTick,
   pendingMessage,
   pendingMessageKey,
+  pendingMessageSuppressUser,
   userEditedFile,
   userEditedFileKey,
   isAnonymous,
@@ -6313,6 +6347,7 @@ export function ChatPanel({
         spinner={spinner}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}
+        pendingMessageSuppressUser={pendingMessageSuppressUser}
         userEditedFile={userEditedFile}
         userEditedFileKey={userEditedFileKey}
         gitStatusTick={gitStatusTick}
