@@ -675,6 +675,69 @@ describe('chat() — streaming SSE parsing', () => {
     })
   })
 
+  it('emits tool_use_start then tool_input_delta chunks before the final tool_use', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        'data: ' +
+          JSON.stringify({
+            choices: [
+              {
+                delta: {
+                  tool_calls: [
+                    {
+                      index: 0,
+                      id: 'call_x',
+                      function: { name: 'write_file', arguments: '{"path":' },
+                    },
+                  ],
+                },
+              },
+            ],
+          }),
+        'data: ' +
+          JSON.stringify({
+            choices: [
+              {
+                delta: { tool_calls: [{ index: 0, function: { arguments: '"a.ts"}' } }] },
+                finish_reason: 'tool_calls',
+              },
+            ],
+          }),
+        'data: [DONE]',
+      ]),
+    )
+
+    const provider = createProvider({ apiKey: 'k' })
+    const events: Array<{ type: string; id?: string; name?: string; delta?: string }> = []
+    for await (const e of provider.chat({ messages: [{ role: 'user', content: 'h' }] })) {
+      events.push(e as { type: string })
+    }
+
+    // Start surfaces immediately with id + name, before the arguments stream.
+    expect(events.find((e) => e.type === 'tool_use_start')).toMatchObject({
+      type: 'tool_use_start',
+      id: 'call_x',
+      name: 'write_file',
+    })
+    // Each argument chunk streams as a tool_input_delta carrying real progress.
+    const deltas = events.filter((e) => e.type === 'tool_input_delta')
+    expect(deltas.map((d) => d.delta).join('')).toBe('{"path":"a.ts"}')
+    // The final tool_use carries the fully-parsed input.
+    expect(events.find((e) => e.type === 'tool_use')).toMatchObject({
+      type: 'tool_use',
+      id: 'call_x',
+      name: 'write_file',
+      input: { path: 'a.ts' },
+    })
+    // Ordering: start → deltas → final tool_use.
+    const iStart = events.findIndex((e) => e.type === 'tool_use_start')
+    const iDelta = events.findIndex((e) => e.type === 'tool_input_delta')
+    const iUse = events.findIndex((e) => e.type === 'tool_use')
+    expect(iStart).toBeLessThan(iDelta)
+    expect(iDelta).toBeLessThan(iUse)
+  })
+
   it('extracts usage info from final chunk and emits done with token counts', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(

@@ -438,17 +438,24 @@ function streamingActivityLabel(msg: {
 function estimateStreamTokens(msg: {
   content?: string
   blocks?: Array<{ type: string; content?: string }>
-  toolCalls?: Array<{ input?: unknown }>
+  toolCalls?: Array<{ input?: unknown; streamInputChars?: number }>
 }): number {
   let chars = msg.content?.length ?? 0
   for (const b of msg.blocks ?? []) {
     if (b.type === 'thinking') chars += b.content?.length ?? 0
   }
   for (const tc of msg.toolCalls ?? []) {
-    try {
-      chars += JSON.stringify(tc.input ?? '').length
-    } catch {
-      /* unserializable input — skip */
+    // While the input is still streaming (tool_use_start fired but the final
+    // tool_use with the complete input hasn't), count the bytes received so far
+    // so the counter ticks live. Once the full input has arrived, count it.
+    if (tc.input === undefined || tc.input === null) {
+      chars += tc.streamInputChars ?? 0
+    } else {
+      try {
+        chars += JSON.stringify(tc.input).length
+      } catch {
+        /* unserializable input — skip */
+      }
     }
   }
   return Math.round(chars / 4)

@@ -460,3 +460,99 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
     })
   })
 })
+
+describe('AnthropicAIProvider — tool-input streaming events', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', mockFetch)
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  const provider = createProvider({ apiKey: 'k', baseUrl: 'https://test.api' })
+
+  /** Mocks a streaming SSE response from an array of Anthropic event objects. */
+  function streamResponse(events: Array<Record<string, unknown>>): Record<string, unknown> {
+    const text = events.map((e) => `data: ${JSON.stringify(e)}`).join('\n') + '\n'
+    const bytes = new TextEncoder().encode(text)
+    let sent = false
+    return {
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      body: {
+        getReader: () => ({
+          read: () => {
+            if (sent) return Promise.resolve({ done: true, value: undefined })
+            sent = true
+            return Promise.resolve({ done: false, value: bytes })
+          },
+          releaseLock: () => {},
+        }),
+      },
+    }
+  }
+
+  it('emits tool_use_start, then tool_input_delta chunks, then the final tool_use', async () => {
+    mockFetch.mockResolvedValue(
+      streamResponse([
+        { type: 'message_start', message: { usage: { input_tokens: 10 } } },
+        {
+          type: 'content_block_start',
+          index: 0,
+          content_block: { type: 'tool_use', id: 'tool_1', name: 'write_file' },
+        },
+        {
+          type: 'content_block_delta',
+          index: 0,
+          delta: { type: 'input_json_delta', partial_json: '{"path":"a.ts",' },
+        },
+        {
+          type: 'content_block_delta',
+          index: 0,
+          delta: { type: 'input_json_delta', partial_json: '"content":"hi"}' },
+        },
+        { type: 'content_block_stop', index: 0 },
+        { type: 'message_delta', usage: { output_tokens: 5 } },
+        { type: 'message_stop' },
+      ]),
+    )
+
+    const events = await collectEvents(
+      provider.chat({ messages: [{ role: 'user' as const, content: 'go' }] }),
+    )
+
+    // The tool start surfaces immediately with id + name, before the input.
+    expect(events.find((e) => e.type === 'tool_use_start')).toMatchObject({
+      type: 'tool_use_start',
+      id: 'tool_1',
+      name: 'write_file',
+    })
+
+    // Each input chunk streams as a tool_input_delta carrying real progress.
+    const deltas = events.filter((e) => e.type === 'tool_input_delta')
+    expect(deltas.length).toBe(2)
+    expect(deltas.every((d) => d.id === 'tool_1')).toBe(true)
+    expect(deltas.map((d) => d.delta).join('')).toBe('{"path":"a.ts","content":"hi"}')
+
+    // The final tool_use carries the fully-parsed input (drives execution).
+    expect(events.find((e) => e.type === 'tool_use')).toMatchObject({
+      type: 'tool_use',
+      id: 'tool_1',
+      name: 'write_file',
+      input: { path: 'a.ts', content: 'hi' },
+    })
+
+    // Ordering: start → deltas → final tool_use.
+    const iStart = events.findIndex((e) => e.type === 'tool_use_start')
+    const iFirstDelta = events.findIndex((e) => e.type === 'tool_input_delta')
+    const iUse = events.findIndex((e) => e.type === 'tool_use')
+    expect(iStart).toBeLessThan(iFirstDelta)
+    expect(iFirstDelta).toBeLessThan(iUse)
+
+    // The input chunks must NOT have degraded into silent keep_alives.
+    expect(events.some((e) => e.type === 'keep_alive')).toBe(false)
+  })
+})

@@ -362,8 +362,10 @@ class XaiAIProvider implements AIProvider {
     let buffer = ''
     const state: XaiStreamState = { inputTokens: 0, outputTokens: 0, cachedTokens: 0 }
 
-    // Track pending tool calls (accumulated across deltas)
-    const pendingTools: Map<number, { id: string; name: string; args: string }> = new Map()
+    // Track pending tool calls (accumulated across deltas). `started` guards the
+    // one-shot tool_use_start emission once the id + name are first known.
+    const pendingTools: Map<number, { id: string; name: string; args: string; started: boolean }> =
+      new Map()
 
     try {
       while (true) {
@@ -431,7 +433,7 @@ class XaiAIProvider implements AIProvider {
    */
   private *processSSELines(
     lines: string[],
-    pendingTools: Map<number, { id: string; name: string; args: string }>,
+    pendingTools: Map<number, { id: string; name: string; args: string; started: boolean }>,
     state: XaiStreamState,
   ): Iterable<ChatEvent> {
     for (const line of lines) {
@@ -486,13 +488,26 @@ class XaiAIProvider implements AIProvider {
                 id: (tc.id as string) ?? '',
                 name: fn?.name ? (fn.name as string) : '',
                 args: '',
+                started: false,
               })
             }
 
             const pending = pendingTools.get(idx)!
             if (tc.id) pending.id = tc.id as string
             if (fn?.name) pending.name = fn.name as string
-            if (fn?.arguments) pending.args += fn.arguments as string
+            // Surface the tool start once id + name are known, before the
+            // arguments finish streaming, so the client shows activity immediately.
+            if (!pending.started && pending.id && pending.name) {
+              pending.started = true
+              yield { type: 'tool_use_start', id: pending.id, name: pending.name }
+            }
+            if (fn?.arguments) {
+              pending.args += fn.arguments as string
+              // Forward each argument chunk as real progress (drives the live
+              // token counter; re-arms the stream timeout) rather than a silent
+              // keep_alive — fixes the dead loading indicator during long writes.
+              yield { type: 'tool_input_delta', id: pending.id, delta: fn.arguments as string }
+            }
           }
         }
 

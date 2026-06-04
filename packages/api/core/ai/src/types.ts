@@ -38,6 +38,17 @@ export type ChatEvent =
   | { type: 'text'; content: string }
   | { type: 'thinking'; content: string }
   | { type: 'tool_use'; id: string; name: string; input: unknown }
+  // Emitted as soon as the model BEGINS a tool call — id + name are known but the
+  // input is still streaming. Lets consumers show what's happening immediately
+  // (e.g. "Writing the plan") instead of staring at a frozen spinner for the
+  // seconds-to-minutes it takes to generate a large tool input (a file, a plan).
+  | { type: 'tool_use_start'; id: string; name: string }
+  // An incremental chunk of a tool call's input as the model streams its
+  // arguments. Carries real progress: it re-arms the consumer's stream-progress
+  // timeout and lets the UI tick a live token estimate. Previously these chunks
+  // produced only `keep_alive` (no content) — the root cause of the dead
+  // loading indicator while a big tool input was being written.
+  | { type: 'tool_input_delta'; id: string; delta: string }
   | { type: 'done'; usage: TokenUsage }
   | { type: 'error'; message: string; errorKey?: string }
   // Liveness signal. PROVIDER CONTRACT: every streaming provider MUST yield

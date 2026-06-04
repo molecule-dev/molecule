@@ -500,16 +500,50 @@ export function useChat(options: UseChatOptions): UseChatResult {
               scheduleFlush(() => ({ content: assistantText, blocks: [...blocks] }))
               break
             }
-            case 'tool_use':
-              toolCalls!.push({
-                id: event.id,
-                name: event.name,
-                input: event.input,
-                status: 'running',
-              })
-              blocks.push({ type: 'tool_call', id: event.id })
+            case 'tool_use': {
+              // tool_use_start may have already created the entry + block — fill
+              // in the final input rather than pushing a duplicate.
+              const existing = toolCalls!.find((t) => t.id === event.id)
+              if (existing) {
+                existing.name = event.name
+                existing.input = event.input
+                existing.status = 'running'
+              } else {
+                toolCalls!.push({
+                  id: event.id,
+                  name: event.name,
+                  input: event.input,
+                  status: 'running',
+                })
+                blocks.push({ type: 'tool_call', id: event.id })
+              }
               scheduleFlush(() => ({ toolCalls: [...toolCalls!], blocks: [...blocks] }))
               break
+            }
+            case 'tool_use_start': {
+              // The model has begun a tool call — create its entry + block now so
+              // the activity label and tool card appear immediately, before the
+              // (possibly large) input finishes streaming.
+              if (!toolCalls!.some((t) => t.id === event.id)) {
+                toolCalls!.push({
+                  id: event.id,
+                  name: event.name,
+                  input: undefined,
+                  status: 'running',
+                  streamInputChars: 0,
+                })
+                blocks.push({ type: 'tool_call', id: event.id })
+              }
+              scheduleFlush(() => ({ toolCalls: [...toolCalls!], blocks: [...blocks] }))
+              break
+            }
+            case 'tool_input_delta': {
+              // Grow the live token estimate as the tool input streams in.
+              const tc = toolCalls!.find((t) => t.id === event.id)
+              if (tc) tc.streamInputChars = (tc.streamInputChars ?? 0) + event.delta.length
+              scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
+              break
+            }
             case 'tool_result':
               if (toolCalls) {
                 const tc = toolCalls.find((t) => t.id === event.id)
@@ -788,16 +822,49 @@ export function useChat(options: UseChatOptions): UseChatResult {
             scheduleFlush(() => ({ content: assistantText, blocks: [...blocks] }))
             break
           }
-          case 'tool_use':
-            toolCalls!.push({
-              id: event.id,
-              name: event.name,
-              input: event.input,
-              status: 'running',
-            })
-            blocks.push({ type: 'tool_call', id: event.id })
+          case 'tool_use': {
+            // tool_use_start may have already created the entry + block — fill in
+            // the final input rather than pushing a duplicate.
+            const existing = toolCalls!.find((t) => t.id === event.id)
+            if (existing) {
+              existing.name = event.name
+              existing.input = event.input
+              existing.status = 'running'
+            } else {
+              toolCalls!.push({
+                id: event.id,
+                name: event.name,
+                input: event.input,
+                status: 'running',
+              })
+              blocks.push({ type: 'tool_call', id: event.id })
+            }
             scheduleFlush(() => ({ toolCalls: [...toolCalls!], blocks: [...blocks] }))
             break
+          }
+          case 'tool_use_start': {
+            // The model has begun a tool call — create its entry + block now so
+            // the activity label and tool card appear immediately.
+            if (!toolCalls!.some((t) => t.id === event.id)) {
+              toolCalls!.push({
+                id: event.id,
+                name: event.name,
+                input: undefined,
+                status: 'running',
+                streamInputChars: 0,
+              })
+              blocks.push({ type: 'tool_call', id: event.id })
+            }
+            scheduleFlush(() => ({ toolCalls: [...toolCalls!], blocks: [...blocks] }))
+            break
+          }
+          case 'tool_input_delta': {
+            // Grow the live token estimate as the tool input streams in.
+            const tc = toolCalls!.find((t) => t.id === event.id)
+            if (tc) tc.streamInputChars = (tc.streamInputChars ?? 0) + event.delta.length
+            scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
+            break
+          }
           case 'tool_result':
             if (toolCalls) {
               const tc = toolCalls.find((t) => t.id === event.id)

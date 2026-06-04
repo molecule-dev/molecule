@@ -367,10 +367,11 @@ class AnthropicAIProvider implements AIProvider {
           yield event
         }
         // We received data from the API but it produced no ChatEvent — e.g. a
-        // `ping`, or a buffered `input_json_delta` chunk while a large tool
-        // input (such as a big save_plan) streams in. The model/connection is
-        // still alive, so signal liveness to reset the consumer's inter-event
-        // stream timeout, which would otherwise false-fire mid-generation.
+        // `ping` or an empty/keepalive event. (Tool-input chunks now yield a
+        // `tool_input_delta` instead of falling through here, so a large
+        // streaming tool input keeps the UI live rather than going silent.) The
+        // connection is still alive, so signal liveness to reset the consumer's
+        // inter-event stream timeout, which would otherwise false-fire.
         if (!yielded) yield { type: 'keep_alive' }
       }
 
@@ -436,6 +437,15 @@ class AnthropicAIProvider implements AIProvider {
             yield { type: 'text', content: delta.text as string }
           } else if (delta.type === 'input_json_delta' && state.pendingTool) {
             state.pendingTool.inputJson += delta.partial_json as string
+            // Forward the chunk as real progress (re-arms the consumer's stream
+            // timeout and drives the live token counter) instead of letting it
+            // fall through to a silent keep_alive — the root cause of the dead
+            // loading indicator while a large tool input streams in.
+            yield {
+              type: 'tool_input_delta',
+              id: state.pendingTool.id,
+              delta: delta.partial_json as string,
+            }
           } else if (delta.type === 'thinking_delta' && state.pendingThinking !== null) {
             const chunk = delta.thinking as string
             state.pendingThinking += chunk
@@ -449,6 +459,9 @@ class AnthropicAIProvider implements AIProvider {
               name: block.name as string,
               inputJson: '',
             }
+            // Surface the tool start immediately (id + name) so the client shows
+            // activity before the full input finishes streaming.
+            yield { type: 'tool_use_start', id: block.id as string, name: block.name as string }
           } else if (block.type === 'thinking') {
             state.pendingThinking = ''
           }

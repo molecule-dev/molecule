@@ -92,6 +92,13 @@ export interface ToolCall {
   input: unknown
   output?: unknown
   status: 'pending' | 'running' | 'done' | 'error'
+  /**
+   * Characters of this tool's input streamed so far via `tool_input_delta`,
+   * before the complete `input` arrives. Drives the live token estimate while a
+   * large input is still generating. Transient — not persisted; `input` is the
+   * source of truth once the call completes.
+   */
+  streamInputChars?: number
   /** Snapshot of original/modified file content captured at tool-call time (not sent to AI). */
   fileDiff?: { original: string; modified: string }
   /** Whether this tool call's file change has been undone. */
@@ -140,6 +147,12 @@ export type ChatStreamEvent =
   | { type: 'text'; content: string }
   | { type: 'thinking'; content: string }
   | { type: 'tool_use'; id: string; name: string; input: unknown }
+  // The model has BEGUN a tool call (id + name known) but its input is still
+  // streaming — lets the UI show activity ("Writing the plan") immediately.
+  | { type: 'tool_use_start'; id: string; name: string }
+  // An incremental chunk of the in-flight tool call's input — drives the live
+  // token counter while a large input (file / plan) is being generated.
+  | { type: 'tool_input_delta'; id: string; delta: string }
   | { type: 'tool_result'; id: string; output: unknown }
   | { type: 'file_diff'; path: string; oldContent: string | null; newContent: string }
   | { type: 'commit_suggestion'; files: string[] }
