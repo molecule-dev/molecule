@@ -31,6 +31,9 @@ const DEFAULT_DB_NAME = 'myapp'
  */
 function deriveSsl(databaseUrl: string): pg.ConnectionConfig['ssl'] {
   const isLocal =
+    // Explicit SSL opt-out via the standard libpq parameter (see isLocalUrl in
+    // index.ts) — keeps the migrator's SSL decision in lockstep with the pool's.
+    databaseUrl.includes('sslmode=disable') ||
     databaseUrl.includes('localhost') ||
     databaseUrl.includes('127.0.0.1') ||
     databaseUrl.startsWith('postgres:///') ||

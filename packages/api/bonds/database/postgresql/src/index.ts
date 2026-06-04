@@ -88,6 +88,11 @@ let _pool: DatabasePool | null = null
  */
 function isLocalUrl(url: string): boolean {
   return (
+    // Explicit SSL opt-out via the standard libpq parameter. Lets a caller reach
+    // a no-SSL Postgres over a private/non-localhost address (e.g. a sandbox
+    // reaching the host DB via the docker bridge gateway) without us having to
+    // guess from the host. Production URLs without it still default to SSL.
+    url.includes('sslmode=disable') ||
     url.includes('localhost') ||
     url.includes('127.0.0.1') ||
     url.startsWith('postgres:///') ||
