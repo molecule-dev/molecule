@@ -24,8 +24,11 @@ const logger = getLogger()
 
 /** Mutable streaming state for the OpenAI parser. */
 interface OpenaiStreamState {
+  /** Total prompt tokens (cached + uncached), as reported by the API. */
   inputTokens: number
   outputTokens: number
+  /** Cached prompt tokens (subset of inputTokens), from prompt_tokens_details. */
+  cachedTokens: number
   pendingTools: Map<number, { id: string; name: string; argsJson: string }>
 }
 
@@ -252,12 +255,22 @@ export class OpenaiAIProvider implements AIProvider {
       }
     }
 
-    const usage = data.usage as { prompt_tokens?: number; completion_tokens?: number } | undefined
+    const usage = data.usage as
+      | {
+          prompt_tokens?: number
+          completion_tokens?: number
+          prompt_tokens_details?: { cached_tokens?: number }
+        }
+      | undefined
+    const cached = usage?.prompt_tokens_details?.cached_tokens ?? 0
     yield {
       type: 'done',
       usage: {
-        inputTokens: usage?.prompt_tokens ?? 0,
+        // Report uncached input + cached separately (Anthropic semantics) so the
+        // consumer's context/cost math doesn't double-count the cached subset.
+        inputTokens: Math.max(0, (usage?.prompt_tokens ?? 0) - cached),
         outputTokens: usage?.completion_tokens ?? 0,
+        cacheReadInputTokens: cached,
       },
     }
   }
@@ -279,6 +292,7 @@ export class OpenaiAIProvider implements AIProvider {
     const state: OpenaiStreamState = {
       inputTokens: 0,
       outputTokens: 0,
+      cachedTokens: 0,
       pendingTools: new Map(),
     }
 
@@ -319,7 +333,11 @@ export class OpenaiAIProvider implements AIProvider {
 
     yield {
       type: 'done',
-      usage: { inputTokens: state.inputTokens, outputTokens: state.outputTokens },
+      usage: {
+        inputTokens: Math.max(0, state.inputTokens - state.cachedTokens),
+        outputTokens: state.outputTokens,
+        cacheReadInputTokens: state.cachedTokens,
+      },
     }
   }
 
@@ -357,12 +375,18 @@ export class OpenaiAIProvider implements AIProvider {
           }
         }
         const usage = event.usage as
-          | { prompt_tokens?: number; completion_tokens?: number }
+          | {
+              prompt_tokens?: number
+              completion_tokens?: number
+              prompt_tokens_details?: { cached_tokens?: number }
+            }
           | undefined
         if (usage) {
           if (typeof usage.prompt_tokens === 'number') state.inputTokens = usage.prompt_tokens
           if (typeof usage.completion_tokens === 'number')
             state.outputTokens = usage.completion_tokens
+          if (typeof usage.prompt_tokens_details?.cached_tokens === 'number')
+            state.cachedTokens = usage.prompt_tokens_details.cached_tokens
         }
       } catch {
         logger.debug('Skipping malformed OpenAI SSE JSON line', { json })

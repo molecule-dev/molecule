@@ -378,8 +378,36 @@ describe('chat() — non-streaming response parsing', () => {
     }
     expect(events).toEqual([
       { type: 'text', content: 'Hello!' },
-      { type: 'done', usage: { inputTokens: 5, outputTokens: 2 } },
+      { type: 'done', usage: { inputTokens: 5, outputTokens: 2, cacheReadInputTokens: 0 } },
     ])
+  })
+
+  it('reports cached prompt tokens (uncached input + cacheRead) from prompt_tokens_details', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, {
+        choices: [{ message: { content: 'Hi' } }],
+        // prompt_tokens is the TOTAL (cached + uncached); 8 of 10 were cached.
+        usage: {
+          prompt_tokens: 10,
+          completion_tokens: 2,
+          prompt_tokens_details: { cached_tokens: 8 },
+        },
+      }),
+    )
+
+    const provider = createProvider({ apiKey: 'k' })
+    const events: unknown[] = []
+    for await (const e of provider.chat({
+      messages: [{ role: 'user', content: 'x' }],
+      stream: false,
+    })) {
+      events.push(e)
+    }
+    expect(events).toContainEqual({
+      type: 'done',
+      usage: { inputTokens: 2, outputTokens: 2, cacheReadInputTokens: 8 },
+    })
   })
 
   it('emits thinking before text when reasoning_content present', async () => {
@@ -665,9 +693,9 @@ describe('chat() — streaming SSE parsing', () => {
     }
     const done = events.find((e) => (e as { type: string }).type === 'done') as {
       type: string
-      usage: { inputTokens: number; outputTokens: number }
+      usage: { inputTokens: number; outputTokens: number; cacheReadInputTokens?: number }
     }
-    expect(done.usage).toEqual({ inputTokens: 7, outputTokens: 1 })
+    expect(done.usage).toEqual({ inputTokens: 7, outputTokens: 1, cacheReadInputTokens: 0 })
   })
 
   it('emits thinking events from delta.reasoning_content', async () => {
