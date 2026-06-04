@@ -150,9 +150,10 @@ export type ChatStreamEvent =
   // The model has BEGUN a tool call (id + name known) but its input is still
   // streaming — lets the UI show activity ("Writing the plan") immediately.
   | { type: 'tool_use_start'; id: string; name: string }
-  // An incremental chunk of the in-flight tool call's input — drives the live
-  // token counter while a large input (file / plan) is being generated.
-  | { type: 'tool_input_delta'; id: string; delta: string }
+  // Progress for the in-flight tool call's input — `chars` is the number of
+  // input characters since the last delta (coalesced server-side). Drives the
+  // live token counter while a large input (file / plan) is being generated.
+  | { type: 'tool_input_delta'; id: string; chars: number }
   | { type: 'tool_result'; id: string; output: unknown }
   | { type: 'file_diff'; path: string; oldContent: string | null; newContent: string }
   | { type: 'commit_suggestion'; files: string[] }

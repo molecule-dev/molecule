@@ -531,11 +531,14 @@ describe('AnthropicAIProvider — tool-input streaming events', () => {
       name: 'write_file',
     })
 
-    // Each input chunk streams as a tool_input_delta carrying real progress.
+    // Each input chunk streams as a tool_input_delta carrying real progress —
+    // a char count, not the content. The counts sum to the full input length.
     const deltas = events.filter((e) => e.type === 'tool_input_delta')
     expect(deltas.length).toBe(2)
     expect(deltas.every((d) => d.id === 'tool_1')).toBe(true)
-    expect(deltas.map((d) => d.delta).join('')).toBe('{"path":"a.ts","content":"hi"}')
+    expect(deltas.reduce((sum, d) => sum + (d.chars as number), 0)).toBe(
+      '{"path":"a.ts","content":"hi"}'.length,
+    )
 
     // The final tool_use carries the fully-parsed input (drives execution).
     expect(events.find((e) => e.type === 'tool_use')).toMatchObject({

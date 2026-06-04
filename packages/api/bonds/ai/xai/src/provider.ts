@@ -502,11 +502,13 @@ class XaiAIProvider implements AIProvider {
               yield { type: 'tool_use_start', id: pending.id, name: pending.name }
             }
             if (fn?.arguments) {
-              pending.args += fn.arguments as string
-              // Forward each argument chunk as real progress (drives the live
+              const chunk = fn.arguments as string
+              pending.args += chunk
+              // Emit the chunk's char count as real progress (drives the live
               // token counter; re-arms the stream timeout) rather than a silent
               // keep_alive — fixes the dead loading indicator during long writes.
-              yield { type: 'tool_input_delta', id: pending.id, delta: fn.arguments as string }
+              // Just the count, not the content (the consumer coalesces these).
+              yield { type: 'tool_input_delta', id: pending.id, chars: chunk.length }
             }
           }
         }

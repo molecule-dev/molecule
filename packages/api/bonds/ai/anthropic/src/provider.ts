@@ -436,16 +436,15 @@ class AnthropicAIProvider implements AIProvider {
           if (delta.type === 'text_delta') {
             yield { type: 'text', content: delta.text as string }
           } else if (delta.type === 'input_json_delta' && state.pendingTool) {
-            state.pendingTool.inputJson += delta.partial_json as string
-            // Forward the chunk as real progress (re-arms the consumer's stream
-            // timeout and drives the live token counter) instead of letting it
-            // fall through to a silent keep_alive — the root cause of the dead
-            // loading indicator while a large tool input streams in.
-            yield {
-              type: 'tool_input_delta',
-              id: state.pendingTool.id,
-              delta: delta.partial_json as string,
-            }
+            const chunk = delta.partial_json as string
+            state.pendingTool.inputJson += chunk
+            // Emit the chunk's char count as real progress (re-arms the
+            // consumer's stream timeout and drives the live token counter)
+            // instead of letting it fall through to a silent keep_alive — the
+            // root cause of the dead loading indicator while a large tool input
+            // streams in. Just the count, not the content (the consumer
+            // coalesces these and only needs the magnitude).
+            yield { type: 'tool_input_delta', id: state.pendingTool.id, chars: chunk.length }
           } else if (delta.type === 'thinking_delta' && state.pendingThinking !== null) {
             const chunk = delta.thinking as string
             state.pendingThinking += chunk

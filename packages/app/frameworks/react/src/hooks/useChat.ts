@@ -540,7 +540,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
             case 'tool_input_delta': {
               // Grow the live token estimate as the tool input streams in.
               const tc = toolCalls!.find((t) => t.id === event.id)
-              if (tc) tc.streamInputChars = (tc.streamInputChars ?? 0) + event.delta.length
+              if (tc) tc.streamInputChars = (tc.streamInputChars ?? 0) + event.chars
               scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
               break
             }
@@ -861,7 +861,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           case 'tool_input_delta': {
             // Grow the live token estimate as the tool input streams in.
             const tc = toolCalls!.find((t) => t.id === event.id)
-            if (tc) tc.streamInputChars = (tc.streamInputChars ?? 0) + event.delta.length
+            if (tc) tc.streamInputChars = (tc.streamInputChars ?? 0) + event.chars
             scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
             break
           }

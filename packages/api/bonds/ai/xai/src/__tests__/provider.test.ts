@@ -709,7 +709,7 @@ describe('chat() — streaming SSE parsing', () => {
     )
 
     const provider = createProvider({ apiKey: 'k' })
-    const events: Array<{ type: string; id?: string; name?: string; delta?: string }> = []
+    const events: Array<{ type: string; id?: string; name?: string; chars?: number }> = []
     for await (const e of provider.chat({ messages: [{ role: 'user', content: 'h' }] })) {
       events.push(e as { type: string })
     }
@@ -720,9 +720,10 @@ describe('chat() — streaming SSE parsing', () => {
       id: 'call_x',
       name: 'write_file',
     })
-    // Each argument chunk streams as a tool_input_delta carrying real progress.
+    // Each argument chunk streams as a tool_input_delta carrying real progress —
+    // a char count, not the content. The counts sum to the full input length.
     const deltas = events.filter((e) => e.type === 'tool_input_delta')
-    expect(deltas.map((d) => d.delta).join('')).toBe('{"path":"a.ts"}')
+    expect(deltas.reduce((sum, d) => sum + (d.chars ?? 0), 0)).toBe('{"path":"a.ts"}'.length)
     // The final tool_use carries the fully-parsed input.
     expect(events.find((e) => e.type === 'tool_use')).toMatchObject({
       type: 'tool_use',
