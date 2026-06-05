@@ -196,12 +196,15 @@ export const MODELS: readonly ModelDefinition[] = [
     id: 'deepseek-v4-pro',
     provider: 'deepseek',
     label: 'DeepSeek V4 Pro',
-    description: 'Frontier-class reasoning — rivals top models at low cost',
+    description: 'Frontier-class — rivals top models at low cost',
     contextWindow: 1_000_000,
     maxOutputTokens: 64_000,
-    supportsThinking: true,
-    thinkingBudgetTokens: 16_000,
-    thinkingConfigurable: true,
+    // Run non-thinking: DeepSeek V4 thinking mode requires reasoning_content to be
+    // echoed back across turns and is awkward with the tool-calling loop. Synthase
+    // uses Sonnet as the planner, so DeepSeek serves as a non-thinking executor.
+    supportsThinking: false,
+    thinkingBudgetTokens: 0,
+    thinkingConfigurable: false,
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -216,9 +219,11 @@ export const MODELS: readonly ModelDefinition[] = [
     description: 'Ultra-cheap & fast — economical agentic coding',
     contextWindow: 1_000_000,
     maxOutputTokens: 64_000,
-    supportsThinking: true,
-    thinkingBudgetTokens: 8_000,
-    thinkingConfigurable: true,
+    // Non-thinking (see deepseek-v4-pro note) — also the right tradeoff for a
+    // cheap, fast tool-calling executor.
+    supportsThinking: false,
+    thinkingBudgetTokens: 0,
+    thinkingConfigurable: false,
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,

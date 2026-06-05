@@ -84,6 +84,12 @@ describe('chat() — request shape', () => {
     const headers = (init as RequestInit).headers as Record<string, string>
     expect(headers.Authorization).toBe('Bearer ds-key')
     expect((init as RequestInit).method).toBe('POST')
+    const body = JSON.parse((init as RequestInit).body as string)
+    // DeepSeek uses max_tokens (not max_completion_tokens) and V4 defaults thinking
+    // ON, so a non-thinking request must explicitly disable it.
+    expect(body.max_tokens).toBeGreaterThan(0)
+    expect(body.max_completion_tokens).toBeUndefined()
+    expect(body.thinking).toEqual({ type: 'disabled' })
   })
 
   it('defaults baseUrl to https://api.deepseek.com', async () => {
@@ -117,7 +123,7 @@ describe('chat() — request shape', () => {
     }
   })
 
-  it('sends tools in OpenAI function format and maps a high thinking budget to reasoning_effort high', async () => {
+  it('sends tools in OpenAI function format and enables thinking with reasoning_effort max for a large budget', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
     await drain(
@@ -133,10 +139,11 @@ describe('chat() — request shape', () => {
       type: 'function',
       function: { name: 'read_file', description: 'read', parameters: { type: 'object' } },
     })
-    expect(body.reasoning_effort).toBe('high') // 13k >= 12k
+    expect(body.thinking).toEqual({ type: 'enabled' })
+    expect(body.reasoning_effort).toBe('max') // 13k >= 12k → max (V4 accepts high|max)
   })
 
-  it('maps a small thinking budget to reasoning_effort low', async () => {
+  it('maps a small thinking budget to reasoning_effort high', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
     await drain(
@@ -147,7 +154,7 @@ describe('chat() — request shape', () => {
       }),
     )
     const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
-    expect(body.reasoning_effort).toBe('low')
+    expect(body.reasoning_effort).toBe('high')
   })
 })
 

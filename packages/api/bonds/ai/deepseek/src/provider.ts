@@ -35,16 +35,14 @@ interface DeepseekStreamState {
 
 /**
  * Map thinking budget tokens to a DeepSeek reasoning_effort level. DeepSeek V4
- * exposes three reasoning-effort modes, so this maps the requested budget onto
- * low / medium / high.
+ * accepts only `'high'` or `'max'` for `reasoning_effort`, so larger budgets map
+ * to `'max'` and everything else to `'high'`.
  *
  * @param budgetTokens - Requested thinking budget in tokens.
- * @returns `'low'`, `'medium'`, or `'high'` for the upstream effort hint.
+ * @returns `'high'` or `'max'` for the upstream effort hint.
  */
 function budgetToEffort(budgetTokens: number): string {
-  if (budgetTokens >= 12_000) return 'high'
-  if (budgetTokens >= 4_000) return 'medium'
-  return 'low'
+  return budgetTokens >= 12_000 ? 'max' : 'high'
 }
 
 /**
@@ -80,7 +78,9 @@ class DeepseekAIProviderImpl implements AIProvider {
 
     const body: Record<string, unknown> = {
       model,
-      max_completion_tokens: maxTokens,
+      // DeepSeek uses `max_tokens` (not OpenAI's newer `max_completion_tokens`,
+      // which it silently ignores).
+      max_tokens: maxTokens,
       messages,
       stream: params.stream !== false,
       ...(params.stream !== false ? { stream_options: { include_usage: true } } : {}),
@@ -97,10 +97,19 @@ class DeepseekAIProviderImpl implements AIProvider {
       }
     }
 
+    // DeepSeek V4 defaults `thinking` to ENABLED. Thinking mode requires the
+    // assistant's reasoning_content to be echoed back on every subsequent turn
+    // (a 400 otherwise) and is awkward to combine with the tool-calling loop, so
+    // we run non-thinking unless a thinking budget is explicitly requested. The
+    // chat handler gates that on the model's `supportsThinking` flag.
     if (params.thinking) {
+      body.thinking = { type: 'enabled' }
       body.reasoning_effort = budgetToEffort(params.thinking.budgetTokens)
-    } else if (params.temperature !== undefined) {
-      body.temperature = params.temperature
+    } else {
+      body.thinking = { type: 'disabled' }
+      if (params.temperature !== undefined) {
+        body.temperature = params.temperature
+      }
     }
 
     const headers: Record<string, string> = {
