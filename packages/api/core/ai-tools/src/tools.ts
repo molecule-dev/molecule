@@ -209,12 +209,47 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         for (const { old_string: oldString, new_string: newString } of replacements) {
           const count = content.split(oldString).length - 1
           if (count === 0) {
-            // Helpful debug: check if the issue is literal \n vs actual newlines
-            const hasLiteralNewlines = oldString.includes('\\n')
-            const hint = hasLiteralNewlines
-              ? ' (hint: old_string contains literal "\\n" — use actual newlines in JSON strings instead of escaped \\n)'
-              : ''
-            return { error: `old_string not found in ${path}${hint}` }
+            // A bare "old_string not found" gives the model nothing to correct, so
+            // it retries blindly (the #1 edit_file failure mode). Diagnose WHY the
+            // match failed and hand back the file's actual content so it fixes in
+            // one retry instead of many.
+            if (oldString.includes('\\n')) {
+              return {
+                error: `old_string not found in ${path} (hint: old_string contains literal "\\n" — use actual newlines in JSON strings, not escaped \\n)`,
+              }
+            }
+            // Whitespace-only mismatch: the text is there but indentation/spacing
+            // differs (tabs vs spaces, trailing whitespace, blank lines).
+            const normalize = (s: string): string => s.replace(/\s+/g, ' ').trim()
+            const normOld = normalize(oldString)
+            if (normOld && normalize(content).includes(normOld)) {
+              return {
+                error: `old_string not found in ${path} — a match exists but whitespace/indentation differs. Re-read the file and copy the exact text (tabs vs spaces, trailing spaces, blank lines must match).`,
+              }
+            }
+            // Anchor probe: if old_string's first non-blank line exists in the file,
+            // show the real content around it so the model can copy the exact text.
+            const anchor = oldString
+              .split('\n')
+              .find((l) => l.trim().length > 0)
+              ?.trim()
+            if (anchor) {
+              const lines = content.split('\n')
+              const idx = lines.findIndex((l) => l.includes(anchor))
+              if (idx >= 0) {
+                const start = Math.max(0, idx - 2)
+                const snippet = lines
+                  .slice(start, idx + 8)
+                  .map((l, i) => `${start + i + 1}: ${l}`)
+                  .join('\n')
+                return {
+                  error: `old_string not found in ${path}. The file's ACTUAL content near your target (copy the exact text from here):\n${snippet}`,
+                }
+              }
+            }
+            return {
+              error: `old_string not found in ${path}. Re-read the file with read_file and copy the exact current text — do not construct old_string from memory or the plan.`,
+            }
           }
           if (count > 1)
             return {

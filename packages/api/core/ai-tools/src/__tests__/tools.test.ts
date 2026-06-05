@@ -170,6 +170,52 @@ describe('buildTools', () => {
     expect(result.replacementsApplied).toBe(2)
   })
 
+  it('edit_file flags a whitespace-only mismatch instead of a bare not-found', async () => {
+    const backend = mockBackend()
+    // Extra internal spaces — exact match fails, normalized match succeeds.
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('  hello   world  ')
+    const tools = buildTools(backend)
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/file.ts',
+      old_string: 'hello world',
+      new_string: 'hi world',
+    })) as Record<string, unknown>
+    expect(result.ok).toBeUndefined()
+    expect(result.error).toMatch(/whitespace\/indentation differs/i)
+  })
+
+  it('edit_file returns the actual nearby content when an anchor line matches', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(
+      'line1\nfunction target() {\n  return 1\n}\nline5',
+    )
+    const tools = buildTools(backend)
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/file.ts',
+      old_string: 'function target() {\n  return 2\n}',
+      new_string: 'function target() {\n  return 3\n}',
+    })) as Record<string, unknown>
+    expect(result.ok).toBeUndefined()
+    expect(result.error).toMatch(/ACTUAL content/i)
+    expect(result.error).toContain('return 1') // shows the real line so it can fix
+  })
+
+  it('edit_file tells the model to re-read when nothing matches at all', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('completely different')
+    const tools = buildTools(backend)
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/file.ts',
+      old_string: 'nonexistent text',
+      new_string: 'x',
+    })) as Record<string, unknown>
+    expect(result.ok).toBeUndefined()
+    expect(result.error).toMatch(/re-read the file/i)
+  })
+
   it('exec_command blocks dangerous commands when configured', async () => {
     const tools = buildTools(mockBackend(), { blockDangerousCommands: true })
     const execCmd = tools.find((t) => t.name === 'exec_command')!
