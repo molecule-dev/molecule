@@ -75,3 +75,62 @@ describe('PreviewPanel security', () => {
     })
   })
 })
+
+/**
+ * Freeze watchdog: the scaffold posts `molecule:heartbeat` every ~3s; if its main
+ * thread locks up (infinite loop / runaway render) the beats stop and we surface a
+ * reload banner. This package is node-env (no DOM), so — like the sandbox test
+ * above — these assert the wiring against source to catch regressions, notably the
+ * original bug where the heartbeat was collected but never read (dead detection).
+ */
+describe('PreviewPanel freeze watchdog', () => {
+  /** The scaffold's heartbeat cadence (index.html.tpl): `setInterval(post, 3000)`. */
+  const SCAFFOLD_HEARTBEAT_MS = 3000
+
+  async function readSource(): Promise<string> {
+    const fs = await import('node:fs/promises')
+    return fs.readFile(new URL('../components/PreviewPanel.tsx', import.meta.url), 'utf-8')
+  }
+
+  it('declares a freeze threshold longer than the scaffold heartbeat (no false positives)', async () => {
+    const source = await readSource()
+    const m = source.match(/FREEZE_THRESHOLD_MS\s*=\s*([\d_]+)/)
+    expect(m).not.toBeNull()
+    const threshold = Number(m![1].replace(/_/g, ''))
+    // Must tolerate at least two missed beats so brief jank doesn't trip it.
+    expect(threshold).toBeGreaterThan(SCAFFOLD_HEARTBEAT_MS * 2)
+  })
+
+  it('actually reads the heartbeat to detect a freeze (regression: it used to be write-only)', async () => {
+    const source = await readSource()
+    // The watchdog must consume lastHeartbeatRef, not just write it on message.
+    expect(source).toMatch(
+      /Date\.now\(\)\s*-\s*lastHeartbeatRef\.current\s*>\s*FREEZE_THRESHOLD_MS/,
+    )
+    expect(source).toContain('setPreviewFrozen(')
+  })
+
+  it('auto-clears the frozen state when the app is not loaded (transient jank recovers)', async () => {
+    const source = await readSource()
+    // Effect early-returns to setPreviewFrozen(false) when not ready/no url.
+    expect(source).toMatch(
+      /if \(!iframeReady \|\| fadingOut \|\| !state\.url\) \{\s*setPreviewFrozen\(false\)/,
+    )
+  })
+
+  it('renders a reload banner with an i18n message and a reload action', async () => {
+    const source = await readSource()
+    expect(source).toContain('previewFrozen && iframeReady')
+    expect(source).toContain("'ide.preview.frozen'")
+    expect(source).toContain("'ide.preview.frozenReload'")
+    expect(source).toContain('onClick={handleReloadFrozen}')
+  })
+
+  it('reloads a frozen preview by remounting the iframe', async () => {
+    const source = await readSource()
+    // handleReloadFrozen clears the flag, reseeds the heartbeat, and remounts.
+    expect(source).toMatch(
+      /handleReloadFrozen = useCallback\(\(\) => \{[\s\S]*?setPreviewFrozen\(false\)[\s\S]*?handleManualRetry\(\)/,
+    )
+  })
+})

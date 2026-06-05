@@ -12,7 +12,9 @@
  * - Never-give-up polling with exponential backoff (never permanently stuck)
  * - Stuck-load detection: auto-reloads/remounts iframe if molecule:ready never arrives
  * - Pre-render error forwarding: module/import errors sent to Synthase for auto-fix
- * - Heartbeat monitoring: detects alive-but-broken scaffold
+ * - Freeze watchdog: the scaffold heartbeats every ~3s; if its thread locks up the
+ *   beats stop, so we surface a reload banner (the IDE stays responsive because the
+ *   preview origin is isolated via Origin-Agent-Cluster)
  * - Blank page detection: catches pages that render but show nothing
  *
  * @module
@@ -51,6 +53,18 @@ const STUCK_DETECT_MS = 5_000
 const MAX_RECOVERY_CYCLES = 3
 /** Interval between recovery attempts after MAX_RECOVERY_CYCLES exhausted (ms). */
 const STUCK_RETRY_INTERVAL_MS = 10_000
+
+// --- Freeze watchdog constants ---
+
+/**
+ * Heartbeat gap beyond which the preview's main thread is treated as frozen (ms).
+ * The scaffold posts `molecule:heartbeat` every ~3s; this tolerates two missed
+ * beats plus jitter before declaring a freeze, so brief synchronous work (a heavy
+ * one-off render) doesn't trip it.
+ */
+const FREEZE_THRESHOLD_MS = 8_000
+/** How often the watchdog compares `now` against the last heartbeat (ms). */
+const FREEZE_CHECK_INTERVAL_MS = 2_000
 
 // --- Rate-limiting constants ---
 
@@ -130,6 +144,8 @@ export function PreviewPanel({
 
   // --- Heartbeat tracking ---
   const lastHeartbeatRef = useRef<number>(0)
+  // True when heartbeats have stopped for FREEZE_THRESHOLD_MS while the app is up.
+  const [previewFrozen, setPreviewFrozen] = useState(false)
 
   // --- Cycle detection: catch rapid ready↔error oscillations ---
   const transitionTimesRef = useRef<number[]>([])
@@ -466,6 +482,25 @@ export function PreviewPanel({
     }
   }, [iframeReady, fadingOut, state.url])
 
+  // --- Freeze watchdog ---
+  // The scaffold's main thread posts `molecule:heartbeat` every ~3s. If that thread
+  // locks up (an infinite loop or runaway render in the in-progress app), the beats
+  // stop. Origin-Agent-Cluster isolation keeps that freeze off the IDE's thread, so
+  // the IDE can notice the silence and offer a reload — a frozen frame can't recover
+  // on its own. Auto-clears if heartbeats resume (transient jank, not a hard lock).
+  useEffect(() => {
+    if (!iframeReady || fadingOut || !state.url) {
+      setPreviewFrozen(false)
+      return
+    }
+    // Baseline so a stale value from a prior load can't trip us immediately.
+    lastHeartbeatRef.current = Date.now()
+    const timer = setInterval(() => {
+      setPreviewFrozen(Date.now() - lastHeartbeatRef.current > FREEZE_THRESHOLD_MS)
+    }, FREEZE_CHECK_INTERVAL_MS)
+    return () => clearInterval(timer)
+  }, [iframeReady, fadingOut, state.url])
+
   // --- Auto-reload when AI edits files ---
   // When preview is broken: reload quickly so the user sees the fix.
   // When preview is healthy: reload after a longer delay as a safety net in
@@ -492,6 +527,14 @@ export function PreviewPanel({
       setIframeSrc(state.url + (state.url.includes('?') ? '&' : '?') + '_r=' + Date.now())
     }
   }, [state.url])
+
+  // --- Reload a frozen preview ---
+  // Remounts the iframe (fresh load re-runs the app, clearing the locked thread).
+  const handleReloadFrozen = useCallback(() => {
+    setPreviewFrozen(false)
+    lastHeartbeatRef.current = Date.now()
+    handleManualRetry()
+  }, [handleManualRetry])
 
   // --- Rendering ---
   const iframeWidth = deviceWidths[state.device] || '100%'
@@ -636,6 +679,52 @@ export function PreviewPanel({
             {state.isLoading
               ? t('ide.preview.starting', {}, { defaultValue: 'Loading preview...' })
               : t('ide.preview.noPreview', {}, { defaultValue: 'No preview available' })}
+          </div>
+        )}
+
+        {/* Freeze watchdog banner — heartbeats stopped → the app's thread is locked */}
+        {previewFrozen && iframeReady && !fadingOut && (
+          <div
+            className={cm.cn(cm.textSize('xs'), cm.bgErrorSubtle, cm.textError)}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 3,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px',
+              padding: '8px 12px',
+            }}
+          >
+            <span>
+              {t(
+                'ide.preview.frozen',
+                {},
+                {
+                  defaultValue:
+                    'This app stopped responding — an infinite loop or runaway render froze the preview. The IDE is unaffected.',
+                },
+              )}
+            </span>
+            <button
+              type="button"
+              onClick={handleReloadFrozen}
+              style={{
+                flexShrink: 0,
+                padding: '4px 12px',
+                fontSize: '12px',
+                border: '1px solid currentColor',
+                borderRadius: '4px',
+                background: 'transparent',
+                color: 'inherit',
+                cursor: 'pointer',
+              }}
+            >
+              {t('ide.preview.frozenReload', {}, { defaultValue: 'Reload app' })}
+            </button>
           </div>
         )}
 
