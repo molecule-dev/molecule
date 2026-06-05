@@ -186,6 +186,48 @@ export const MODELS: readonly ModelDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // DeepSeek
+  // Verified: https://api-docs.deepseek.com/quick_start/pricing
+  //           https://api-docs.deepseek.com/news/news260424 (V4 preview)
+  // OpenAI/Anthropic-compatible API; text/code only (no vision); 1M context,
+  // 3 reasoning-effort modes, automatic context (prompt) caching.
+  // ---------------------------------------------------------------------------
+  {
+    id: 'deepseek-v4-pro',
+    provider: 'deepseek',
+    label: 'DeepSeek V4 Pro',
+    description: 'Frontier-class reasoning — rivals top models at low cost',
+    contextWindow: 1_000_000,
+    maxOutputTokens: 64_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    supportsVision: false,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    inputPricePerMTok: 1.74,
+    outputPricePerMTok: 3.48,
+    knowledgeCutoff: '2025-07-01',
+  },
+  {
+    id: 'deepseek-v4-flash',
+    provider: 'deepseek',
+    label: 'DeepSeek V4 Flash',
+    description: 'Ultra-cheap & fast — economical agentic coding',
+    contextWindow: 1_000_000,
+    maxOutputTokens: 64_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
+    supportsVision: false,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    inputPricePerMTok: 0.14,
+    outputPricePerMTok: 0.28,
+    knowledgeCutoff: '2025-07-01',
+  },
+
+  // ---------------------------------------------------------------------------
   // Moonshot (Kimi)
   // Verified: https://openrouter.ai/moonshotai/kimi-k2.5
   // ---------------------------------------------------------------------------

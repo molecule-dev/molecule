@@ -17,6 +17,7 @@ export const PROVIDER_BRAND_COLORS: Readonly<Record<AIProviderID, string>> = {
   openai: '#10b981',
   google: '#3b82f6',
   xai: '#ef4444',
+  deepseek: '#4d6bfe',
   meta: '#6366f1',
   moonshot: '#8b5cf6',
   minimax: '#ec4899',
