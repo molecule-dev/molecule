@@ -46,8 +46,8 @@ export interface ChatPanelProps {
   initialMessage?: string
   /** Called after the initial message has been sent — used to clear router state. */
   onInitialMessageSent?: () => void
-  /** Called when a filename in a tool call is clicked — should open the file as a preview tab. */
-  onFileOpen?: (path: string) => void
+  /** Called to open a file as a preview tab. `opts.focus === false` opens it quietly (no pane switch) — e.g. a saved plan or a system-initiated open while the user is busy. */
+  onFileOpen?: (path: string, opts?: { focus?: boolean }) => void
   /** Called when a filename in a tool call is double-clicked — should pin the tab. */
   onFileDoubleClick?: (path: string) => void
   /** Called when a file in the uncommitted list is clicked for diff view. */

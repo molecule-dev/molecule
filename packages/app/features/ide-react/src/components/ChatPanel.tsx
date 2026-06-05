@@ -1820,7 +1820,7 @@ interface ChatInnerProps {
   suppressGuestReminder?: boolean
   activeFile?: string | null
   openTabs?: string[]
-  onFileOpen?: (path: string) => void
+  onFileOpen?: (path: string, opts?: { focus?: boolean }) => void
   onFileDoubleClick?: (path: string) => void
   onFileDiff?: (path: string, diff?: { original: string; modified: string }) => void
   onFileRevert?: (path: string, content: string) => Promise<void>
@@ -2196,10 +2196,13 @@ function ChatInner({
         )
         if (isRelevant) setAutoFixCountdown(null)
       }
-      // Auto-open plan files in the editor when saved
+      // Make a saved plan available as a tab, but DON'T steal focus — the plan is
+      // created automatically (often while the user is watching the preview) and is
+      // already streamed into the chat, so opening it quietly (no pane switch) keeps
+      // the user aware without yanking them off the preview.
       const cleanPath = path.replace(/^\/workspace\//, '')
       if (cleanPath.startsWith('.agents/plans/') && onFileOpen) {
-        onFileOpen(cleanPath)
+        onFileOpen(cleanPath, { focus: false })
       }
       onFileChange?.(path, content)
     },
