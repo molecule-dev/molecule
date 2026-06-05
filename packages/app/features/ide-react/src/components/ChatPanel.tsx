@@ -34,6 +34,7 @@ import type { ChatPanelProps, IdeClientAction } from '../types.js'
 import type { Activity } from './activity-utilities.js'
 import { activityFromEvent } from './activity-utilities.js'
 import { ActivityCard } from './ActivityCard.js'
+import { estimateStreamTokens } from './chat-stream-utilities.js'
 import { MarkdownContent } from './MarkdownContent.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
 import { ToolCallCard } from './ToolCallCard.js'
@@ -422,44 +423,9 @@ function streamingActivityLabel(msg: {
   }
 }
 
-/**
- * Rough estimate of the tokens generated so far in a streaming message, from the
- * text + thinking + tool-call inputs streamed to the client (~4 chars/token).
- * It's an approximation (the server has the exact count only at turn end, and
- * large tool inputs arrive in one chunk), but it grows visibly as the model
- * works — enough to show the user how much is being done while they wait.
- *
- * @param msg - The streaming assistant message.
- * @param msg.content - The accumulated assistant text.
- * @param msg.blocks - The ordered stream blocks (thinking content counts).
- * @param msg.toolCalls - Tool calls (their inputs count as generated output).
- * @returns The estimated token count.
- */
-function estimateStreamTokens(msg: {
-  content?: string
-  blocks?: Array<{ type: string; content?: string }>
-  toolCalls?: Array<{ input?: unknown; streamInputChars?: number }>
-}): number {
-  let chars = msg.content?.length ?? 0
-  for (const b of msg.blocks ?? []) {
-    if (b.type === 'thinking') chars += b.content?.length ?? 0
-  }
-  for (const tc of msg.toolCalls ?? []) {
-    // While the input is still streaming (tool_use_start fired but the final
-    // tool_use with the complete input hasn't), count the bytes received so far
-    // so the counter ticks live. Once the full input has arrived, count it.
-    if (tc.input === undefined || tc.input === null) {
-      chars += tc.streamInputChars ?? 0
-    } else {
-      try {
-        chars += JSON.stringify(tc.input).length
-      } catch {
-        /* unserializable input — skip */
-      }
-    }
-  }
-  return Math.round(chars / 4)
-}
+// estimateStreamTokens lives in ./chat-stream-utilities.js — it runs on every
+// stream flush, so its per-tool-input length is cached there to stay O(1) per call
+// (re-stringifying every write_file's full content per flush was an O(n²) freeze).
 
 /**
  * Collapsible block for displaying AI thinking/reasoning content.
