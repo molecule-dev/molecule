@@ -851,8 +851,11 @@ export const ToolCallCard = memo(function ToolCallCard({
           )
         })}
 
-        {/* Free text input (optional) */}
-        {isAwaiting && askInput.allowFreeText && (
+        {/* Free-text input. Shown by DEFAULT so the user is never stuck on an
+            open-ended question (e.g. "what's your bakery called?") that the model
+            asked without setting allowFreeText. Hidden only if the model
+            explicitly opts out (allowFreeText === false) for a strict pick-one. */}
+        {isAwaiting && askInput.allowFreeText !== false && (
           <div
             style={{
               display: 'flex',
@@ -872,9 +875,15 @@ export const ToolCallCard = memo(function ToolCallCard({
                   setFreeText('')
                 }
               }}
-              placeholder={t('ide.chat.askUserPlaceholder', undefined, {
-                defaultValue: 'Or something else…',
-              })}
+              placeholder={
+                (askInput.options?.length ?? 0) === 0
+                  ? t('ide.chat.askUserPlaceholderEmpty', undefined, {
+                      defaultValue: 'Type your answer…',
+                    })
+                  : t('ide.chat.askUserPlaceholder', undefined, {
+                      defaultValue: 'Or something else…',
+                    })
+              }
               style={{
                 flex: 1,
                 padding: '5px 8px',
