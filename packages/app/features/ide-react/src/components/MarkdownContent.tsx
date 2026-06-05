@@ -298,10 +298,38 @@ export const MarkdownContent = memo(function MarkdownContent({
   text,
   isStreaming,
 }: MarkdownContentProps): JSX.Element {
-  const segments = useMemo(() => (text ? splitSegments(text) : []), [text])
+  // PERF — the single biggest cause of the tab going unresponsive on a long/large
+  // stream: `text` grows on every ~50ms flush, so re-running the markdown parse
+  // (splitSegments + Prose line-splitting + renderInline) over the FULL content
+  // each flush is O(content²) across the stream. For a big streamed message (a
+  // long plan, or file content streamed into the chat) that quadratic blowup pegs
+  // the main thread. So while streaming we do NOT parse at all — we render the raw
+  // text cheaply (one text node, pre-wrap). The expensive parse runs exactly ONCE,
+  // when the stream finalizes (isStreaming flips false and `text` is stable).
+  const segments = useMemo(
+    () => (!isStreaming && text ? splitSegments(text) : []),
+    [text, isStreaming],
+  )
 
   if (!text) {
     return <>{isStreaming && <StreamingIndicator />}</>
+  }
+
+  if (isStreaming) {
+    return (
+      <div
+        style={{
+          fontSize: '13px',
+          lineHeight: 1.6,
+          marginTop: '6px',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+        }}
+      >
+        {text}
+        <StreamingIndicator inline />
+      </div>
+    )
   }
 
   return (
@@ -313,7 +341,6 @@ export const MarkdownContent = memo(function MarkdownContent({
           <Prose key={i} content={seg.content} segIdx={i} />
         ),
       )}
-      {isStreaming && <StreamingIndicator inline />}
     </div>
   )
 })
