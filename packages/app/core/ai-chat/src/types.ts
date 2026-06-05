@@ -194,6 +194,13 @@ export type ChatStreamEvent =
   | { type: 'designing' }
   // Discovery done + starting point chosen — the client boots the sandbox.
   | { type: 'ready_to_build' }
+  // The agent asks the IDE to perform a non-mutating UI action (reload/navigate
+  // the preview, open a file). Handled by the host app, not rendered in the chat.
+  | {
+      type: 'client_action'
+      action: 'reload_preview' | 'navigate_preview' | 'open_file'
+      path?: string
+    }
 
 /**
  * AI chat provider interface that all chat bond packages must implement.

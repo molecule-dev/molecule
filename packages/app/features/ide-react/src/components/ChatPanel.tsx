@@ -30,7 +30,7 @@ import { t } from '@molecule/app-i18n'
 import { useAIModels, useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-import type { ChatPanelProps } from '../types.js'
+import type { ChatPanelProps, IdeClientAction } from '../types.js'
 import type { Activity } from './activity-utilities.js'
 import { activityFromEvent } from './activity-utilities.js'
 import { ActivityCard } from './ActivityCard.js'
@@ -1832,6 +1832,8 @@ interface ChatInnerProps {
   onActivityClick?: (activity: Activity) => void
   /** Called on the `ready_to_build` stream event — discovery is done; boot the sandbox. */
   onReadyToBuild?: () => void
+  /** Called on the `client_action` stream event — the agent wants a preview reload/navigate or a file opened. */
+  onClientAction?: (action: IdeClientAction) => void
   /** Called on each stream done/error — host keeps the boot view up until the during-boot plan stream completes. */
   onTurnComplete?: () => void
   /** Changing this value submits the current input draft (used by the prompt→chat morph). */
@@ -1870,6 +1872,7 @@ interface ChatInnerProps {
  * @param root0.onConversationId - Callback when the conversation ID is assigned.
  * @param root0.onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
+ * @param root0.onClientAction - Callback fired on the client_action stream event (reload/navigate preview, open file).
  * @param root0.onTurnComplete - Callback fired on each stream done/error; host uses it to keep the boot view up until the during-boot plan stream completes.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
@@ -1901,6 +1904,7 @@ function ChatInner({
   onConversationId,
   onActivityClick,
   onReadyToBuild,
+  onClientAction,
   onTurnComplete,
   autoSubmitSignal,
   initialInputValue,
@@ -1991,6 +1995,8 @@ function ChatInner({
   // Kept current each render so handleStreamEvent (memoized) always calls the latest.
   const onReadyToBuildRef = useRef<(() => void) | undefined>(onReadyToBuild)
   onReadyToBuildRef.current = onReadyToBuild
+  const onClientActionRef = useRef<((action: IdeClientAction) => void) | undefined>(onClientAction)
+  onClientActionRef.current = onClientAction
   const onTurnCompleteRef = useRef<(() => void) | undefined>(onTurnComplete)
   onTurnCompleteRef.current = onTurnComplete
   const GUEST_REMINDER_FIRST = 3
@@ -2085,6 +2091,14 @@ function ChatInner({
       // user-facing payload and is never rendered in the transcript.
       if (event.type === 'ready_to_build') {
         onReadyToBuildRef.current?.()
+      }
+      // The agent asked the IDE to reload/navigate the preview or open a file.
+      // Forward to the host (Workspace); not rendered in the transcript.
+      if (event.type === 'client_action') {
+        onClientActionRef.current?.({
+          action: event.action as IdeClientAction['action'],
+          path: event.path as string | undefined,
+        })
       }
       // Turn finished (done OR error) — let the host know. Used to keep the boot
       // view up until the parallel during-boot plan stream completes, so the
@@ -5953,6 +5967,7 @@ function ChatInner({
  * @param root0.onCommit - Callback fired after a successful commit.
  * @param root0.onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
+ * @param root0.onClientAction - Callback fired on the client_action stream event (reload/navigate preview, open file).
  * @param root0.onTurnComplete - Callback fired on each stream done/error; host uses it to keep the boot view up until the during-boot plan stream completes.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
@@ -5985,6 +6000,7 @@ export function ChatPanel({
   onCommit,
   onActivityClick,
   onReadyToBuild,
+  onClientAction,
   onTurnComplete,
   autoSubmitSignal,
   initialInputValue,
@@ -6317,6 +6333,7 @@ export function ChatPanel({
         onConversationId={persistConversationId}
         onActivityClick={onActivityClick}
         onReadyToBuild={onReadyToBuild}
+        onClientAction={onClientAction}
         onTurnComplete={onTurnComplete}
         autoSubmitSignal={autoSubmitSignal}
         initialInputValue={initialInputValue}

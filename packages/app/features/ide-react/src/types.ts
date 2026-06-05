@@ -23,6 +23,22 @@ export interface WorkspaceLayoutProps {
 /**
  * Properties for chat panel.
  */
+/**
+ * A non-mutating UI action the AI agent asks the IDE to perform — reload or
+ * navigate the live preview, or open a file in the editor. Delivered via the
+ * `client_action` chat-stream event.
+ */
+export interface IdeClientAction {
+  action: 'reload_preview' | 'navigate_preview' | 'open_file'
+  /** navigate_preview: a URL path (e.g. "/dashboard"). open_file: a file path. */
+  path?: string
+}
+
+/**
+ * Props for the {@link ChatPanel} component — the IDE chat surface plus the
+ * callbacks the host app uses to react to AI activity (file changes, boot, client
+ * actions, etc.).
+ */
 export interface ChatPanelProps {
   projectId: string
   endpoint?: string
@@ -48,6 +64,8 @@ export interface ChatPanelProps {
   onActivityClick?: (activity: ActivityFromCard) => void
   /** Called when the server signals (via the `ready_to_build` stream event) that discovery is complete and the sandbox should boot. */
   onReadyToBuild?: () => void
+  /** Called when the agent requests a UI action via the `client_action` stream event (reload/navigate the preview, open a file). */
+  onClientAction?: (action: IdeClientAction) => void
   /** Called on each stream `done` — host uses it to keep the boot view up until the parallel during-boot plan stream finishes. */
   onTurnComplete?: () => void
   /** Changing this value submits the current input draft — used to send a prefilled prompt after the prompt→chat morph docks. */

@@ -972,6 +972,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
       const onEvent = (event: ChatStreamEvent): void => {
         // Not gated on mountedRef — see the sendMessage onEvent above. The resumed
         // stream writes to the conversation store and must survive a remount too.
+        // Forward to the parent (like the sendMessage handler) so client_action and
+        // other side-effect events also fire during a resumed/auto-continued turn.
+        onStreamEvent?.(event)
         switch (event.type) {
           case 'text': {
             assistantText += event.content
