@@ -1021,7 +1021,9 @@ describe('JWT Auth Client', () => {
         'https://api.example.com/auth/password/change',
         expect.objectContaining({
           method: 'POST',
-          body: JSON.stringify({ oldPassword: 'oldPassword', newPassword: 'newPassword' }),
+          // Client translates the legacy `oldPassword` arg to the canonical
+          // `currentPassword` field the server (api-resource-user) reads.
+          body: JSON.stringify({ currentPassword: 'oldPassword', newPassword: 'newPassword' }),
         }),
       )
     })
@@ -1084,7 +1086,7 @@ describe('JWT Auth Client', () => {
         'https://api.example.com/users/password',
         expect.objectContaining({
           method: 'POST',
-          body: JSON.stringify({ oldPassword: 'oldPass', newPassword: 'newPass' }),
+          body: JSON.stringify({ currentPassword: 'oldPass', newPassword: 'newPass' }),
         }),
       )
     })

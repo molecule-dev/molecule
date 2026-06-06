@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { LANGUAGE_DEFINITIONS } from '../index.js'
 
 describe('@molecule/app-i18n-default-react', () => {
-  it('exports 79 language definitions', () => {
-    expect(LANGUAGE_DEFINITIONS).toHaveLength(79)
+  it('exports 80 language definitions', () => {
+    expect(LANGUAGE_DEFINITIONS).toHaveLength(80)
   })
 
   it('first entry is English (default locale)', () => {
