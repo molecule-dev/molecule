@@ -29,7 +29,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@googleapis/androidpublisher": "35.3.0"
+    "@googleapis/androidpublisher": "36.0.0"
   },
   "devDependencies": {
     "@types/node": "25.9.2",
