@@ -4,7 +4,7 @@ Translations for @molecule/app-map-drawing-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-feature-map-drawing-react` package which has 8 translation keys.
+Provides translations for the `@molecule/app-feature-map-drawing` package which has 8 translation keys.
 
 ## Languages
 
@@ -35,4 +35,4 @@ import type { MapDrawingTranslationKey, MapDrawingTranslations } from '@molecule
 - **Type:** locales
 - **Category:** i18n
 - **Stack:** app
-- **Translates:** `@molecule/app-feature-map-drawing-react`
+- **Translates:** `@molecule/app-feature-map-drawing`

@@ -55,4 +55,4 @@ user-facing text routes through `t()`.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-now-playing-bar-react`.
+Translation strings are provided by `@molecule/app-locales-now-playing-bar`.

@@ -81,3 +81,7 @@ Peer dependencies:
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-splash-screen` ^1.0.0
 - `expo-splash-screen` >=0.20.0
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-splash-screen`.

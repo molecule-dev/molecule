@@ -46,4 +46,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-track-lane-react`.
+Translation strings are provided by `@molecule/app-locales-feature-track-lane`.

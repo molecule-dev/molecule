@@ -326,4 +326,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-flow-canvas-react`.
+Translation strings are provided by `@molecule/app-locales-flow-canvas`.

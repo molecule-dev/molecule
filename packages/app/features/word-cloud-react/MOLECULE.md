@@ -49,4 +49,4 @@ non-React renderers (canvas, native, server-side).
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-word-cloud-react`.
+Translation strings are provided by `@molecule/app-locales-word-cloud`.

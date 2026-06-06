@@ -4,7 +4,7 @@ Translations for molecule join-code components in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-join-code` package which has 4 translation keys.
+Provides translations for the `@molecule/app-join-code-react` package which has 4 translation keys.
 
 ## Languages
 
@@ -31,4 +31,4 @@ import type { JoinCodeTranslationKey, JoinCodeTranslations } from '@molecule/app
 - **Type:** locales
 - **Category:** i18n
 - **Stack:** app
-- **Translates:** `@molecule/app-join-code`
+- **Translates:** `@molecule/app-join-code-react`

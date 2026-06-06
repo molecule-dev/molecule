@@ -1712,3 +1712,7 @@ Peer dependencies:
 - `@molecule/app-icons` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `vue` ^3.4.0
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-ui`.

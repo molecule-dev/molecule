@@ -86,3 +86,7 @@ Peer dependencies:
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-network` ^1.0.0
 - `@react-native-community/netinfo` >=9.0.0
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-network`.

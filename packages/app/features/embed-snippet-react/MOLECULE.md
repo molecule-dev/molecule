@@ -175,4 +175,4 @@ with English fallbacks. Companion locale bond:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-embed-snippet-react`.
+Translation strings are provided by `@molecule/app-locales-embed-snippet`.

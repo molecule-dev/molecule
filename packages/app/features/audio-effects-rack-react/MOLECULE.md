@@ -59,4 +59,4 @@ Tailwind utility class names appear in this package.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-audio-effects-rack-react`.
+Translation strings are provided by `@molecule/app-locales-feature-audio-effects-rack`.

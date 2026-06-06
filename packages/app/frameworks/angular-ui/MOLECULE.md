@@ -1438,3 +1438,7 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-icons` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-ui`.

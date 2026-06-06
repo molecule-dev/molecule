@@ -560,4 +560,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-canvas-engine-react`.
+Translation strings are provided by `@molecule/app-locales-canvas-engine`.

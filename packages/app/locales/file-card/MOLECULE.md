@@ -8,7 +8,7 @@ translated, so the keys remain type-safe and missing locales never hard-fail.
 
 ## Purpose
 
-Provides translations for the `@molecule/app-file-card` package which has 22 translation keys.
+Provides translations for the `@molecule/app-file-card-react` package which has 22 translation keys.
 
 ## Languages
 
@@ -53,4 +53,4 @@ import type { FileCardTranslationKey, FileCardTranslations } from '@molecule/app
 - **Type:** locales
 - **Category:** i18n
 - **Stack:** app
-- **Translates:** `@molecule/app-file-card`
+- **Translates:** `@molecule/app-file-card-react`

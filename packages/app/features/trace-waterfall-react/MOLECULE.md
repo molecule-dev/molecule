@@ -164,4 +164,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-trace-waterfall-react`.
+Translation strings are provided by `@molecule/app-locales-trace-waterfall`.

@@ -180,3 +180,7 @@ the semantic ClassMap CSS custom properties
 automatically when the ClassMap bond is swapped. All user-facing text
 goes through `t()` with companion locale bond
 `@molecule/app-locales-nps-distribution-react`.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-nps-distribution`.

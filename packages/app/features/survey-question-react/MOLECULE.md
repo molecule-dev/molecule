@@ -315,4 +315,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-survey-question-react`.
+Translation strings are provided by `@molecule/app-locales-survey-question`.

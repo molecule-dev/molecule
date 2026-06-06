@@ -51,4 +51,4 @@ so apps can override copy via the companion locale bond
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-author-bio-card-react`.
+Translation strings are provided by `@molecule/app-locales-author-bio-card`.

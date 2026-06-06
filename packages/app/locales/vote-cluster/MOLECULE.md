@@ -4,7 +4,7 @@ Translations for @molecule/app-vote-cluster-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-vote-cluster` package which has 6 translation keys.
+Provides translations for the `@molecule/app-vote-cluster-react` package which has 6 translation keys.
 
 ## Languages
 
@@ -33,4 +33,4 @@ import type { VoteClusterTranslationKey, VoteClusterTranslations } from '@molecu
 - **Type:** locales
 - **Category:** i18n
 - **Stack:** app
-- **Translates:** `@molecule/app-vote-cluster`
+- **Translates:** `@molecule/app-vote-cluster-react`

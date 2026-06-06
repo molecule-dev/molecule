@@ -86,3 +86,7 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@react-native-clipboard/clipboard` >=1.13.0
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-clipboard`.

@@ -1467,3 +1467,7 @@ Peer dependencies:
 - `@molecule/app-icons` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `solid-js` ^1.8.0
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-ui`.

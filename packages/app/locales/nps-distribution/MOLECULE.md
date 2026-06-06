@@ -4,7 +4,7 @@ Translations for @molecule/app-nps-distribution-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-nps-distribution` package which has 7 translation keys.
+Provides translations for the `@molecule/app-nps-distribution-react` package which has 7 translation keys.
 
 ## Languages
 
@@ -34,4 +34,4 @@ import type { NpsDistributionTranslationKey, NpsDistributionTranslations } from 
 - **Type:** locales
 - **Category:** i18n
 - **Stack:** app
-- **Translates:** `@molecule/app-nps-distribution`
+- **Translates:** `@molecule/app-nps-distribution-react`

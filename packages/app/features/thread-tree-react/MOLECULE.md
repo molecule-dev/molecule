@@ -99,4 +99,4 @@ utilities live in this package.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-thread-tree-react`.
+Translation strings are provided by `@molecule/app-locales-feature-thread-tree`.

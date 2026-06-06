@@ -45,4 +45,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-transport-bar-react`.
+Translation strings are provided by `@molecule/app-locales-feature-transport-bar`.

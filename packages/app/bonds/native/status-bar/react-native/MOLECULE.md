@@ -90,3 +90,7 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-status-bar` ^1.0.0
 - `react-native` >=0.72.0
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-status-bar`.

@@ -168,4 +168,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-layer-panel-react`.
+Translation strings are provided by `@molecule/app-locales-layer-panel`.

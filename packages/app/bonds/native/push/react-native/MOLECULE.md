@@ -90,3 +90,7 @@ Peer dependencies:
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-push` ^1.0.0
 - `expo-notifications` >=0.20.0
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-push`.

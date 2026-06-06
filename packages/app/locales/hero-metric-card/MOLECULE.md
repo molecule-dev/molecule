@@ -4,7 +4,7 @@ Translations for @molecule/app-hero-metric-card-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-hero-metric-card` package which has 3 translation keys.
+Provides translations for the `@molecule/app-hero-metric-card-react` package which has 3 translation keys.
 
 ## Languages
 
@@ -30,4 +30,4 @@ import type { HeroMetricCardTranslationKey, HeroMetricCardTranslations } from '@
 - **Type:** locales
 - **Category:** i18n
 - **Stack:** app
-- **Translates:** `@molecule/app-hero-metric-card`
+- **Translates:** `@molecule/app-hero-metric-card-react`

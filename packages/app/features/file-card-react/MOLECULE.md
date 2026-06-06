@@ -114,3 +114,7 @@ swap the ClassMap bond to restyle without touching this package.
 All user-visible text routes through `t()` and translates via the
 companion `@molecule/app-locales-file-card` locale bond. English
 fallbacks are inlined so the card works without the locale bond present.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-file-card`.

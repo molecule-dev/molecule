@@ -40,4 +40,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-reading-progress-bar-react`.
+Translation strings are provided by `@molecule/app-locales-reading-progress-bar`.

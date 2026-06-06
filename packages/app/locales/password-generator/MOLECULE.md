@@ -4,7 +4,7 @@ Translations for @molecule/app-password-generator-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-password-generator` package which has 13 translation keys.
+Provides translations for the `@molecule/app-password-generator-react` package which has 13 translation keys.
 
 ## Languages
 
@@ -40,4 +40,4 @@ import type { PasswordGeneratorTranslationKey, PasswordGeneratorTranslations } f
 - **Type:** locales
 - **Category:** i18n
 - **Stack:** app
-- **Translates:** `@molecule/app-password-generator`
+- **Translates:** `@molecule/app-password-generator-react`

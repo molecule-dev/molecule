@@ -4,7 +4,7 @@ Translations for @molecule/app-three-viewer-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-feature-three-viewer-react` package which has 3 translation keys.
+Provides translations for the `@molecule/app-feature-three-viewer` package which has 3 translation keys.
 
 ## Languages
 
@@ -30,4 +30,4 @@ import type { ThreeViewerTranslationKey, ThreeViewerTranslations } from '@molecu
 - **Type:** locales
 - **Category:** i18n
 - **Stack:** app
-- **Translates:** `@molecule/app-feature-three-viewer-react`
+- **Translates:** `@molecule/app-feature-three-viewer`

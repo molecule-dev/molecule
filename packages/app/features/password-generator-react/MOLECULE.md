@@ -174,3 +174,7 @@ Peer dependencies:
 - `react` ^18.0.0 || ^19.0.0
 
 Companion locale bond: `@molecule/app-locales-password-generator`.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-password-generator`.
