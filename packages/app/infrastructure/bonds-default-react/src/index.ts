@@ -11,6 +11,22 @@
  * export { setupAppFontsArimo } from '@molecule/app-bonds-default-react'
  * ```
  *
+ * @example
+ * ```tsx
+ * import { bootstrapApp, setupAllDefaultBonds } from '@molecule/app-bonds-default-react'
+ * import { createDefaultAuthClient } from '@molecule/app-bonds-default-react'
+ * import { App } from './App.js'
+ * import { authConfig } from './config.js'
+ *
+ * const { authClient, setupAuthDefault } = createDefaultAuthClient(authConfig)
+ *
+ * bootstrapApp({
+ *   App,
+ *   authClient,
+ *   setupProviders: () => { setupAllDefaultBonds(); setupAuthDefault() },
+ * })
+ * ```
+ *
  * @module
  */
 
