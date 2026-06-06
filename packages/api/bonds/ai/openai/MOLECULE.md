@@ -16,12 +16,18 @@ npm install @molecule/api-ai-openai
 
 #### `OpenaiConfig`
 
-OpenAI provider configuration (TODO: expand required fields).
+OpenAI provider configuration.
 
 ```typescript
 interface OpenaiConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+  /** Override the API key (defaults to `process.env.OPENAI_API_KEY`). */
+  apiKey?: string
+  /** Default model when callers don't specify one. */
+  defaultModel?: string
+  /** Default max output tokens. */
+  maxTokens?: number
+  /** Override the API base URL (for proxies / Azure). */
+  baseUrl?: string
 }
 ```
 
@@ -29,26 +35,42 @@ interface OpenaiConfig {
 
 #### `OpenaiAIProvider`
 
-Stub OpenAI AI provider scaffold (TODO: implement API wiring).
+OpenAI Chat Completions provider implementing the `AIProvider` interface.
 
 ### Functions
 
 #### `createProvider(config)`
 
-Creates an OpenAI AI provider instance for bonding.
+Create an OpenAI AI provider instance.
 
 ```typescript
-function createProvider(config?: OpenaiConfig): OpenaiAIProvider
+function createProvider(config?: OpenaiConfig): AIProvider
 ```
 
-- `config` — OpenAI provider configuration.
+- `config` — OpenAI-specific configuration.
 
-**Returns:** An OpenAI-backed provider instance.
+**Returns:** An `AIProvider` backed by OpenAI's Chat Completions API.
+
+### Constants
+
+#### `provider`
+
+The provider implementation.
+
+```typescript
+const provider: AIProvider
+```
 
 ## Core Interface
 Implements `@molecule/api-ai` interface.
 
 ## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/api-ai` ^1.0.0
+- `@molecule/api-bond` ^1.0.0
 
 ### Environment Variables
 

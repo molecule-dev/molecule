@@ -115,6 +115,14 @@ interface ChatParams {
   cacheControl?: { type: 'ephemeral' }
   /** Abort signal to cancel in-flight API requests when the client disconnects. */
   signal?: AbortSignal
+  /**
+   * Control whether the model must call a tool. 'auto' (default) lets the model
+   * decide; 'required' forces at least one tool call (any tool); `{ type: 'tool',
+   * name }` forces that ONE specific tool — stronger than 'required', which only
+   * guarantees *some* tool and can let the model drift to a different one when the
+   * conversation history is biased toward it.
+   */
+  toolChoice?: 'auto' | 'required' | { type: 'tool'; name: string }
 }
 ```
 
@@ -179,8 +187,30 @@ type ChatEvent =
   | { type: 'text'; content: string }
   | { type: 'thinking'; content: string }
   | { type: 'tool_use'; id: string; name: string; input: unknown }
+  // Emitted as soon as the model BEGINS a tool call — id + name are known but the
+  // input is still streaming. Lets consumers show what's happening immediately
+  // (e.g. "Writing the plan") instead of staring at a frozen spinner for the
+  // seconds-to-minutes it takes to generate a large tool input (a file, a plan).
+  | { type: 'tool_use_start'; id: string; name: string }
+  // Progress for a tool call's input as the model streams its arguments:
+  // `chars` is the number of input characters in this chunk. Carries real
+  // progress (re-arms the stream-progress timeout; ticks the UI's live token
+  // estimate) where previously these chunks produced only `keep_alive` (no
+  // content) — the root cause of the dead loading indicator while a big tool
+  // input was being written. Deliberately a COUNT, not the content: the UI only
+  // needs the magnitude, and forwarding the full input would duplicate what the
+  // final `tool_use` (and `file_diff`, for writes) already carries.
+  | { type: 'tool_input_delta'; id: string; chars: number }
   | { type: 'done'; usage: TokenUsage }
   | { type: 'error'; message: string; errorKey?: string }
+  // Liveness signal. PROVIDER CONTRACT: every streaming provider MUST yield
+  // `keep_alive` whenever it receives data from the upstream API that produces
+  // no other ChatEvent — e.g. an SSE ping/keepalive, an empty delta, or buffered
+  // tool-input/argument chunks streaming in. Consumers use a (long) inter-event
+  // timeout to detect a dead stream; without keep_alive that timeout false-fires
+  // while the model is alive but producing only silent chunks (e.g. streaming a
+  // large tool input). Not forwarded to end clients. Enforced by the provider
+  // conformance test in this package's __tests__.
   | { type: 'keep_alive' }
 ```
 
@@ -219,6 +249,14 @@ function getAllProviders(): Map<string, AIProvider>
 
 Retrieves the singleton AI provider, or `null` if none is bonded.
 
+Falls back to a single named provider when no singleton is bonded —
+this lets apps that wire `bond('ai', 'anthropic', provider)` directly
+(without going through `setProvider`'s singleton-fallback) still work
+with code that uses the simple `getProvider()` / `requireProvider()`
+accessors. When multiple named providers are bonded, the fallback
+declines (returns `null`) because the choice is ambiguous — those
+call sites must use `getProviderByName(name)` explicitly.
+
 ```typescript
 function getProvider(): AIProvider | null
 ```
@@ -254,6 +292,11 @@ function hasProvider(name?: string): boolean
 Retrieves the bonded AI provider, throwing if none is bonded.
 Use this when AI functionality is required.
 
+Routes through `getProvider()` so the same single-named-bond fallback
+applies — apps that wire `bond('ai', 'anthropic', provider)` directly
+still satisfy this call without having to switch to the explicit
+`getProviderByName()` pattern.
+
 ```typescript
 function requireProvider(): AIProvider
 ```
@@ -276,12 +319,16 @@ function setProvider(provider: AIProvider): void
 
 | Provider | Package |
 |----------|---------|
+| Alibaba Qwen | `@molecule/api-ai-alibaba` |
 | Anthropic | `@molecule/api-ai-anthropic` |
 | Ai | `@molecule/api-ai-deepseek` |
 | Ai | `@molecule/api-ai-google` |
 | Ai | `@molecule/api-ai-local` |
+| MiniMax | `@molecule/api-ai-minimax` |
+| Moonshot | `@molecule/api-ai-moonshot` |
 | Ai | `@molecule/api-ai-openai` |
 | xAI | `@molecule/api-ai-xai` |
+| Zhipu GLM | `@molecule/api-ai-zhipu` |
 
 ## Injection Notes
 

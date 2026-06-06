@@ -21,6 +21,8 @@ Process Env interface.
 ```typescript
 interface ProcessEnv {
   XAI_API_KEY: string
+  /** Base URL override (for credential brokers / gateways). */
+  XAI_BASE_URL?: string
 }
 ```
 

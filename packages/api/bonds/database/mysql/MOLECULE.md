@@ -166,16 +166,6 @@ interface Pool extends Connection {
 }
 ```
 
-#### `PoolConnection`
-
-```typescript
-interface PoolConnection extends Connection {
-  release(): void;
-  connection: Connection;
-  [Symbol.asyncDispose](): Promise<void>;
-}
-```
-
 #### `PoolOptions`
 
 ```typescript
@@ -207,6 +197,13 @@ interface PoolOptions extends ConnectionOptions {
    * is no limit to the number of queued connection requests. (Default: 0)
    */
   queueLimit?: number;
+
+  /**
+   * Whether to reset the connection state (user variables, temporary tables, transactions, etc.) when
+   * releasing the connection back to the pool. This ensures each connection starts clean for the next user.
+   * Requires MySQL 5.7.3+. (Default: false)
+   */
+  resetOnRelease?: boolean;
 }
 ```
 
@@ -267,7 +264,25 @@ declare interface RowDataPacket {
 }
 ```
 
+### Classes
+
+#### `PoolConnection`
+
 ### Functions
+
+#### `createMigrator(migrationsDir)`
+
+Returns a `runMigrations()` bound to a migrations directory.
+
+```typescript
+function createMigrator(migrationsDir: string): () => Promise<void>
+```
+
+- `migrationsDir` — Absolute path to the directory of ordered `*.sql`
+
+**Returns:** A no-arg `runMigrations()` that creates the database (if missing) and
+ *   applies every migration file in lexical order using a multi-statement
+ *   connection.
 
 #### `createPool(config)`
 

@@ -21,6 +21,8 @@ Process Env interface.
 ```typescript
 interface ProcessEnv {
   ZHIPU_API_KEY: string
+  /** Base URL override (for credential brokers / gateways). */
+  ZHIPU_BASE_URL?: string
 }
 ```
 

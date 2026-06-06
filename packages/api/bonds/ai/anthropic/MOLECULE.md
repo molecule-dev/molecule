@@ -38,6 +38,8 @@ Process Env interface.
 ```typescript
 interface ProcessEnv {
   ANTHROPIC_API_KEY: string
+  /** Base URL override (for credential brokers / gateways). */
+  ANTHROPIC_BASE_URL?: string
 }
 ```
 

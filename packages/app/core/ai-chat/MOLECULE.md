@@ -161,6 +161,13 @@ interface ToolCall {
   input: unknown
   output?: unknown
   status: 'pending' | 'running' | 'done' | 'error'
+  /**
+   * Characters of this tool's input streamed so far via `tool_input_delta`,
+   * before the complete `input` arrives. Drives the live token estimate while a
+   * large input is still generating. Transient — not persisted; `input` is the
+   * source of truth once the call completes.
+   */
+  streamInputChars?: number
   /** Snapshot of original/modified file content captured at tool-call time (not sent to AI). */
   fileDiff?: { original: string; modified: string }
   /** Whether this tool call's file change has been undone. */
@@ -189,6 +196,13 @@ type ChatStreamEvent =
   | { type: 'text'; content: string }
   | { type: 'thinking'; content: string }
   | { type: 'tool_use'; id: string; name: string; input: unknown }
+  // The model has BEGUN a tool call (id + name known) but its input is still
+  // streaming — lets the UI show activity ("Writing the plan") immediately.
+  | { type: 'tool_use_start'; id: string; name: string }
+  // Progress for the in-flight tool call's input — `chars` is the number of
+  // input characters since the last delta (coalesced server-side). Drives the
+  // live token counter while a large input (file / plan) is being generated.
+  | { type: 'tool_input_delta'; id: string; chars: number }
   | { type: 'tool_result'; id: string; output: unknown }
   | { type: 'file_diff'; path: string; oldContent: string | null; newContent: string }
   | { type: 'commit_suggestion'; files: string[] }
@@ -210,8 +224,32 @@ type ChatStreamEvent =
     }
   | { type: 'resource_limit'; resource: 'memory'; message: string }
   | { type: 'upgrade_prompt'; feature: string; message: string }
+  | {
+      type: 'activity'
+      activity: {
+        id: string
+        type: 'email' | 'sms' | 'push' | 'webhook' | 'channel'
+        status: 'captured' | 'sent' | 'delivered' | 'failed'
+        recipient?: string
+        summary?: string
+        timestamp: string
+      }
+    }
   | { type: 'done'; usage?: { inputTokens: number; outputTokens: number; contextWindow?: number } }
   | { type: 'error'; message: string; limitType?: string; requiresSignup?: boolean }
+  // The active model changed (e.g. planner → executor); surfaced in the chat.
+  | { type: 'model'; model: string; label?: string; mode?: 'plan' | 'execute' }
+  // Post-discovery: the server is selecting a starting point / about to boot.
+  | { type: 'designing' }
+  // Discovery done + starting point chosen — the client boots the sandbox.
+  | { type: 'ready_to_build' }
+  // The agent asks the IDE to perform a non-mutating UI action (reload/navigate
+  // the preview, open a file). Handled by the host app, not rendered in the chat.
+  | {
+      type: 'client_action'
+      action: 'reload_preview' | 'navigate_preview' | 'open_file'
+      path?: string
+    }
 ```
 
 #### `MessageBlock`

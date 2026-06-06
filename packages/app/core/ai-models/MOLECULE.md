@@ -98,6 +98,7 @@ type AIProviderID =
   | 'openai'
   | 'google'
   | 'xai'
+  | 'deepseek'
   | 'meta'
   | 'moonshot'
   | 'minimax'
