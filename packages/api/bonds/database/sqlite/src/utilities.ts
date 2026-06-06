@@ -20,6 +20,15 @@ export const convertPlaceholders = (
     return { text: text.replace(/\$(\d+)/g, '?'), values: [] }
   }
 
+  // SQL that has no $N but uses `?` placeholders (the store builds queries that
+  // way) maps values 1:1 — pass them through. Without this, `?`-style queries
+  // with values lost every value (the $N replace never fired), so `stmt.run()`
+  // got zero params → "Too few parameter values were provided". SQL with neither
+  // placeholder style drops the (unused) values to avoid "too many parameters".
+  if (!/\$\d+/.test(text)) {
+    return { text, values: text.includes('?') ? values : [] }
+  }
+
   const reorderedValues: unknown[] = []
   const convertedText = text.replace(/\$(\d+)/g, (_, num) => {
     const index = parseInt(num, 10) - 1
@@ -60,3 +69,72 @@ export const translateDdlToSqlite = (sql: string): string =>
     .replace(/\bnow\(\)/gi, 'current_timestamp')
     .replace(/::[a-z_]+/gi, '')
     .replace(/\s+USING\s+(gin|btree|hash|gist)\b/gi, '')
+
+/**
+ * Coerce a JS value into something better-sqlite3 can bind. better-sqlite3 only
+ * accepts numbers, strings, bigints, buffers, and null — a JS boolean, plain
+ * object, array, `undefined`, or `Date` throws at bind time, which would crash
+ * every `create()`/`update()` that passes a `boolean` or `jsonb` value (e.g.
+ * `users.twoFactorEnabled`, `projects.packages`). Mirrors what the Postgres
+ * driver accepts: booleans → 0/1, objects/arrays → JSON text, Date → ISO string,
+ * `undefined` → null.
+ *
+ * @param value - The value to bind.
+ * @returns A better-sqlite3-bindable primitive.
+ */
+export const coerceSqliteParam = (value: unknown): unknown => {
+  if (value === undefined || value === null) return null
+  if (typeof value === 'boolean') return value ? 1 : 0
+  if (typeof value === 'number' || typeof value === 'bigint' || typeof value === 'string')
+    return value
+  if (value instanceof Date) return value.toISOString()
+  if (value instanceof Uint8Array) return value // covers Buffer
+  if (typeof value === 'object') return JSON.stringify(value)
+  return value
+}
+
+/** Minimal shape of better-sqlite3's `Statement.columns()` entries we use. */
+export interface SqliteColumnMeta {
+  name: string
+  type: string | null
+}
+
+/**
+ * Normalize a SQLite result set back to JS types using the declared column types,
+ * so values round-trip like the Postgres bond instead of leaking SQLite's storage
+ * form: a `BOOLEAN` column's 0/1 → boolean, a `JSON`/`JSONB` column's text →
+ * parsed value. Columns with an unknown/expression type (null) and values that
+ * aren't in storage form pass through untouched. Mutates rows in place for speed.
+ *
+ * @param rows - Raw rows from `stmt.all()`.
+ * @param columns - `stmt.columns()` metadata for the result set.
+ * @returns The normalized rows.
+ */
+export const normalizeSqliteRows = <T>(
+  rows: Record<string, unknown>[],
+  columns: SqliteColumnMeta[],
+): T[] => {
+  const boolCols: string[] = []
+  const jsonCols: string[] = []
+  for (const c of columns) {
+    const t = (c.type ?? '').toUpperCase()
+    if (t === 'BOOLEAN' || t === 'BOOL') boolCols.push(c.name)
+    else if (t === 'JSON' || t === 'JSONB') jsonCols.push(c.name)
+  }
+  if (boolCols.length === 0 && jsonCols.length === 0) return rows as T[]
+  for (const row of rows) {
+    for (const name of boolCols) {
+      if (typeof row[name] === 'number') row[name] = row[name] !== 0
+    }
+    for (const name of jsonCols) {
+      if (typeof row[name] === 'string') {
+        try {
+          row[name] = JSON.parse(row[name] as string)
+        } catch {
+          // leave the raw string if it isn't valid JSON
+        }
+      }
+    }
+  }
+  return rows as T[]
+}

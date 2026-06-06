@@ -18,7 +18,7 @@ import type {
 } from '@molecule/api-database'
 
 import type { SqliteConfig } from './types.js'
-import { convertPlaceholders } from './utilities.js'
+import { coerceSqliteParam, convertPlaceholders, normalizeSqliteRows } from './utilities.js'
 
 /**
  * Creates a SQLite DatabasePool backed by better-sqlite3.
@@ -54,15 +54,30 @@ export const createPool = (config?: SqliteConfig): DatabasePool => {
       text: string,
       values?: unknown[],
     ): Promise<QueryResult<T>> {
-      const { text: sql, values: params } = convertPlaceholders(text, values)
+      const { text: sql, values: rawParams } = convertPlaceholders(text, values)
+      // better-sqlite3 only binds numbers/strings/bigints/buffers/null — coerce
+      // booleans → 0/1 and objects/arrays → JSON text so create()/update() with a
+      // boolean or jsonb value don't crash at bind time.
+      const params = rawParams.map(coerceSqliteParam)
       const trimmed = sql.trim().toUpperCase()
 
       // SELECT queries and RETURNING queries return rows
       if (trimmed.startsWith('SELECT') || sql.toUpperCase().includes('RETURNING')) {
         const stmt = db.prepare(sql)
-        const rows = (params.length > 0 ? stmt.all(...params) : stmt.all()) as T[]
+        const rows = (params.length > 0 ? stmt.all(...params) : stmt.all()) as Record<
+          string,
+          unknown
+        >[]
+        // Round-trip storage form back to JS types (0/1 → boolean, JSON text →
+        // value) using the declared column types, matching the Postgres driver.
+        let columns: { name: string; type: string | null }[] = []
+        try {
+          columns = stmt.columns()
+        } catch {
+          // non-reader statement — no column metadata, leave rows as-is
+        }
         return {
-          rows,
+          rows: normalizeSqliteRows<T>(rows, columns),
           rowCount: rows.length,
         }
       }

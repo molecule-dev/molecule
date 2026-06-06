@@ -1,7 +1,14 @@
 import Database from 'better-sqlite3'
 import { describe, expect, it } from 'vitest'
 
-import { convertPlaceholders, translateDdlToSqlite } from '../utilities.js'
+import { createPool } from '../pool.js'
+import { createStore } from '../store.js'
+import {
+  coerceSqliteParam,
+  convertPlaceholders,
+  normalizeSqliteRows,
+  translateDdlToSqlite,
+} from '../utilities.js'
 
 describe('convertPlaceholders', () => {
   it('should return text unchanged when there are no placeholders and no values', () => {
@@ -93,6 +100,14 @@ describe('convertPlaceholders', () => {
     expect(result.text).toBe('SELECT ?, ?, ?, ?')
     expect(result.values).toEqual(['c', 'a', 'c', 'b'])
   })
+
+  it('passes values through unchanged for ?-placeholder SQL (the store builds these)', () => {
+    // Regression: this used to return values [] (the $N replace never fired),
+    // dropping every param → "Too few parameter values were provided".
+    const result = convertPlaceholders('INSERT INTO t (a, b) VALUES (?, ?)', ['x', 7])
+    expect(result.text).toBe('INSERT INTO t (a, b) VALUES (?, ?)')
+    expect(result.values).toEqual(['x', 7])
+  })
 })
 
 describe('translateDdlToSqlite', () => {
@@ -137,5 +152,64 @@ describe('translateDdlToSqlite', () => {
     // the resource layer inserts a uuid string id — must be accepted
     db.prepare('INSERT INTO "projects" ("id","userId") VALUES (?,?)').run('uuid-1', 'uuid-2')
     db.close()
+  })
+})
+
+describe('coerceSqliteParam', () => {
+  it('converts booleans to 0/1', () => {
+    expect(coerceSqliteParam(true)).toBe(1)
+    expect(coerceSqliteParam(false)).toBe(0)
+  })
+  it('serializes objects and arrays to JSON text', () => {
+    expect(coerceSqliteParam({ a: 1 })).toBe('{"a":1}')
+    expect(coerceSqliteParam(['x', 'y'])).toBe('["x","y"]')
+  })
+  it('maps undefined → null', () => {
+    expect(coerceSqliteParam(undefined)).toBeNull()
+    expect(coerceSqliteParam(null)).toBeNull()
+  })
+  it('passes through primitives and buffers', () => {
+    expect(coerceSqliteParam(42)).toBe(42)
+    expect(coerceSqliteParam('s')).toBe('s')
+    const buf = new Uint8Array([1, 2])
+    expect(coerceSqliteParam(buf)).toBe(buf)
+  })
+})
+
+describe('normalizeSqliteRows', () => {
+  it('converts BOOLEAN 0/1 → boolean and JSON text → value by column type', () => {
+    const rows = [{ flag: 1, off: 0, data: '{"a":1}', name: 'x' }]
+    const out = normalizeSqliteRows(rows, [
+      { name: 'flag', type: 'BOOLEAN' },
+      { name: 'off', type: 'BOOLEAN' },
+      { name: 'data', type: 'JSONB' },
+      { name: 'name', type: 'TEXT' },
+    ])
+    expect(out[0]).toEqual({ flag: true, off: false, data: { a: 1 }, name: 'x' })
+  })
+  it('leaves rows untouched when no boolean/json columns', () => {
+    const rows = [{ id: '1', n: 5 }]
+    expect(
+      normalizeSqliteRows(rows, [
+        { name: 'id', type: 'TEXT' },
+        { name: 'n', type: 'INTEGER' },
+      ]),
+    ).toEqual([{ id: '1', n: 5 }])
+  })
+})
+
+describe('store + pool round-trip (real better-sqlite3)', () => {
+  it('round-trips boolean + json values through create()/findById()', async () => {
+    const pool = createPool({ path: ':memory:', walMode: false, foreignKeys: false })
+    await pool.query('CREATE TABLE widgets (id TEXT PRIMARY KEY, active BOOLEAN, meta JSONB)')
+    const store = createStore(pool)
+    // Before the fix this threw "can only bind numbers, strings, bigints, ..."
+    await store.create('widgets', { id: 'w1', active: false, meta: { tags: ['a', 'b'], n: 3 } })
+    const row = await store.findById<{ id: string; active: unknown; meta: unknown }>(
+      'widgets',
+      'w1',
+    )
+    expect(row?.active).toBe(false) // 0 → boolean
+    expect(row?.meta).toEqual({ tags: ['a', 'b'], n: 3 }) // JSON text → object
   })
 })
