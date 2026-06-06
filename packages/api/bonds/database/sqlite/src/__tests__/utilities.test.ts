@@ -1,6 +1,7 @@
+import Database from 'better-sqlite3'
 import { describe, expect, it } from 'vitest'
 
-import { convertPlaceholders } from '../utilities.js'
+import { convertPlaceholders, translateDdlToSqlite } from '../utilities.js'
 
 describe('convertPlaceholders', () => {
   it('should return text unchanged when there are no placeholders and no values', () => {
@@ -91,5 +92,50 @@ describe('convertPlaceholders', () => {
     const result = convertPlaceholders('SELECT $3, $1, $3, $2', ['a', 'b', 'c'])
     expect(result.text).toBe('SELECT ?, ?, ?, ?')
     expect(result.values).toEqual(['c', 'a', 'c', 'b'])
+  })
+})
+
+describe('translateDdlToSqlite', () => {
+  it('strips DEFAULT gen_random_uuid() (resource layer provides the id)', () => {
+    expect(translateDdlToSqlite('"id" UUID PRIMARY KEY DEFAULT gen_random_uuid()')).toBe(
+      '"id" UUID PRIMARY KEY',
+    )
+  })
+
+  it('maps now()/NOW() to current_timestamp', () => {
+    expect(translateDdlToSqlite('"createdAt" TIMESTAMPTZ DEFAULT now()')).toBe(
+      '"createdAt" TIMESTAMPTZ DEFAULT current_timestamp',
+    )
+    expect(translateDdlToSqlite('DEFAULT NOW()')).toBe('DEFAULT current_timestamp')
+  })
+
+  it('strips ::type casts', () => {
+    expect(translateDdlToSqlite(`"data" JSONB DEFAULT '{}'::jsonb`)).toBe(
+      `"data" JSONB DEFAULT '{}'`,
+    )
+  })
+
+  it('strips index access methods (USING gin/btree)', () => {
+    expect(translateDdlToSqlite('ON "t" USING GIN ("col")')).toBe('ON "t" ("col")')
+  })
+
+  it('is a no-op on already-SQLite DDL', () => {
+    const sqlite = `CREATE TABLE recipes (\n  id TEXT PRIMARY KEY,\n  created_at TEXT DEFAULT (datetime('now'))\n)`
+    expect(translateDdlToSqlite(sqlite)).toBe(sqlite)
+  })
+
+  it('makes a real Postgres-dialect CREATE TABLE execute on better-sqlite3', () => {
+    const pg = `CREATE TABLE IF NOT EXISTS "projects" (
+      "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      "userId" UUID NOT NULL,
+      "packages" JSONB NOT NULL DEFAULT '[]'::jsonb,
+      "createdAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+    CREATE INDEX "p_idx" ON "projects" USING GIN ("packages");`
+    const db = new Database(':memory:')
+    expect(() => db.exec(translateDdlToSqlite(pg))).not.toThrow()
+    // the resource layer inserts a uuid string id — must be accepted
+    db.prepare('INSERT INTO "projects" ("id","userId") VALUES (?,?)').run('uuid-1', 'uuid-2')
+    db.close()
   })
 })

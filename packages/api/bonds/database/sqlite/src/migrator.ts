@@ -16,6 +16,8 @@ import { dirname, join } from 'node:path'
 
 import Database from 'better-sqlite3'
 
+import { translateDdlToSqlite } from './utilities.js'
+
 /**
  * Returns a `runMigrations()` bound to a migrations directory.
  *
@@ -52,7 +54,12 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
       }
 
       for (const file of sqlFiles) {
-        const sql = readFileSync(join(migrationsDir, file), 'utf-8')
+        // Resource/template setup migrations are authored in Postgres dialect;
+        // translate the few Postgres-only syntax constructs (gen_random_uuid(),
+        // now(), ::casts, index USING <method>) so they apply on SQLite. No-op on
+        // already-SQLite DDL. Without this, those migrations abort with
+        // `near "(": syntax error` and the app never boots.
+        const sql = translateDdlToSqlite(readFileSync(join(migrationsDir, file), 'utf-8'))
         try {
           // exec() (not prepare/run) so a file with multiple statements applies.
           db.exec(sql)
