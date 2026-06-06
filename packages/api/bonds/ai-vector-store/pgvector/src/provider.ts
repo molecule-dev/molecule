@@ -43,6 +43,21 @@ interface VectorRow {
 }
 
 /**
+ * Narrows pgvector's `fromSql()` result to the dense `number[]` this bond stores.
+ * As of pgvector 0.3 `fromSql` returns `number[] | SparseVector | null`; this
+ * bond only ever writes dense, non-null embedding columns, so any other shape
+ * indicates data corruption.
+ *
+ * @param sql - The `embedding::text` value from a query row.
+ * @returns The dense embedding as a number array.
+ */
+function toDenseEmbedding(sql: string): number[] {
+  const parsed = fromSql(sql)
+  if (Array.isArray(parsed)) return parsed
+  throw new Error('pgvector returned a non-dense embedding; expected number[]')
+}
+
+/**
  * Returns the SQL operator for a given distance metric.
  *
  * @param metric - The distance metric.
@@ -414,7 +429,7 @@ class PgvectorProvider implements AIVectorStoreProvider {
       results.push({
         record: {
           id: row.id,
-          embedding: fromSql(row.embedding),
+          embedding: toDenseEmbedding(row.embedding),
           metadata: row.metadata ?? undefined,
           content: row.content ?? undefined,
         },
@@ -447,7 +462,7 @@ class PgvectorProvider implements AIVectorStoreProvider {
 
     return result.rows.map((row) => ({
       id: row.id,
-      embedding: fromSql(row.embedding),
+      embedding: toDenseEmbedding(row.embedding),
       metadata: row.metadata ?? undefined,
       content: row.content ?? undefined,
     }))
