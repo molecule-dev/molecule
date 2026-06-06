@@ -132,13 +132,12 @@ describe('@molecule/app-locales-common', () => {
     expect(bond.en['theme.toggle']).toBe('Toggle theme')
   })
 
-  it('apostrophe-containing values (Catalan) round-trip via double-quoted source', () => {
-    // Catalan has values like "L'inici de sessió ha fallat" with apostrophes;
-    // bond source uses double-quoted strings to avoid escaping. At runtime
-    // both single and double quotes produce the same JS string.
-    expect(bond.ca['auth.error.loginFailed']).toBe('L’inici de sessió ha fallat'.replace('’', "'"))
-    // simpler equivalent assertion
-    expect(bond.ca['auth.error.loginFailed']).toBe("L'inici de sessió ha fallat")
+  it('apostrophe-containing values (Catalan) round-trip with a real apostrophe', () => {
+    // Catalan has values with apostrophes (e.g. "Error d'inici de sessió"); the
+    // runtime value must be a real apostrophe, NOT an HTML entity (&#39;) —
+    // guards against the entity-contamination regression.
+    expect(bond.ca['auth.error.loginFailed']).toBe("Error d'inici de sessió")
+    expect(bond.ca['auth.error.loginFailed']).not.toContain('&#39;')
   })
 
   it('non-Latin scripts round-trip correctly (no double-escape bug)', () => {

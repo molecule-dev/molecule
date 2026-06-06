@@ -13,7 +13,7 @@ export const uz: Partial<FileCardTranslations> = {
   'file-card.kind.other': 'Fayl',
   'file-card.aria.root': '{{nom}} ,<x> {{turli}}</x>',
   'file-card.aria.size': 'Hajmi<x> {{size}}</x>',
-  'file-card.aria.modified': 'O&#39;zgartirilgan<x> {{qachon}}</x>',
+  'file-card.aria.modified': "O'zgartirilgan<x> {{qachon}}</x>",
   'file-card.modified.minute-one': '1 daqiqa oldin',
   'file-card.modified.minute-other': '{{count}} daqiqa oldin',
   'file-card.modified.hour-one': '1 soat oldin',

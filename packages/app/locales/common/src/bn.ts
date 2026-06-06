@@ -106,8 +106,8 @@ export const bn: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'অননুমোদিত।',
   'resource.error.unknownError': 'অজানা ত্রুটি।',
   'routing.error.missingParam':
-    'অনুপস্থিত প্যারামিটার &quot;<x> {{name}}</x> পথের জন্য<x> {{প্যাটার্ন}}</x> &quot;',
-  'routing.error.routeNotFound': 'পথ &quot;<x> {{name}}</x> খুঁজে পাওয়া যায়নি',
+    'অনুপস্থিত প্যারামিটার "<x> {{name}}</x> পথের জন্য<x> {{প্যাটার্ন}}</x> "',
+  'routing.error.routeNotFound': 'পথ "<x> {{name}}</x> খুঁজে পাওয়া যায়নি',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter অবশ্যই একটি MoleculeRouterProvider-এর মধ্যে ব্যবহার করতে হবে।',
   'settings.account': 'অ্যাকাউন্ট',
@@ -164,8 +164,7 @@ export const bn: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'পরিকল্পনা হালনাগাদ করতে ব্যর্থ হয়েছে।',
   'user.error.failedToUpdateSubscription': 'সাবস্ক্রিপশন আপডেট করা সম্ভব হয়নি।',
   'user.error.failedToUpdateUser': 'ব্যবহারকারীকে আপডেট করতে ব্যর্থ হয়েছে।',
-  'user.error.invalidAction':
-    'এটি একটি অবৈধ পদক্ষেপ। &#39;setup&#39;, &#39;enable&#39; বা &#39;disable&#39; ব্যবহার করুন।',
+  'user.error.invalidAction': "এটি একটি অবৈধ পদক্ষেপ। 'setup', 'enable' বা 'disable' ব্যবহার করুন।",
   'user.error.invalidCredentials': 'অবৈধ পরিচয়পত্র।',
   'user.error.invalidPlan': 'পরিকল্পনাটি অবৈধ।',
   'user.error.invalidToken': 'অবৈধ টোকেন।',
@@ -173,7 +172,7 @@ export const bn: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'লগইন ব্যর্থ হয়েছে।',
   'user.error.newPasswordRequired': 'নতুন পাসওয়ার্ড প্রয়োজন।',
   'user.error.noPendingTwoFactorSetup':
-    'কোনো দ্বি-স্তরীয় সেটআপ বাকি নেই। প্রথমে &#39;সেটআপ&#39; অ্যাকশনটি দিয়ে কল করুন।',
+    "কোনো দ্বি-স্তরীয় সেটআপ বাকি নেই। প্রথমে 'সেটআপ' অ্যাকশনটি দিয়ে কল করুন।",
   'user.error.notFound': 'খুঁজে পাওয়া যায়নি।',
   'user.error.oauthLoginFailed': 'OAuth লগইন ব্যর্থ হয়েছে।',
   'user.error.oauthServerNotConfigured': 'OAuth সার্ভার<x> {{সার্ভার}}</x> কনফিগার করা নেই।',

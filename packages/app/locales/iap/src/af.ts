@@ -32,6 +32,6 @@ export const af: Partial<IapTranslations> = {
   'iap.error.6': 'Fout.',
   'iap.error.7': 'Item reeds besit.',
   'iap.error.8': 'Item nie besit nie.',
-  'iap.error.E_UNKNOWN': '&#39;n Onbekende fout het voorgekom.',
-  'iap.error.0': '&#39;n Onbekende fout het voorgekom.',
+  'iap.error.E_UNKNOWN': "'n Onbekende fout het voorgekom.",
+  'iap.error.0': "'n Onbekende fout het voorgekom.",
 }

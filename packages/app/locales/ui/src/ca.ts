@@ -16,5 +16,5 @@ export const ca: Partial<UiTranslations> = {
   'ui.spinner.loading': 'Carregant',
   'ui.radioGroup.label': 'Grup de botons d’opció',
   'ui.progress.label': 'Progrés',
-  'ui.pagination.last': 'Anar a l&#39;última pàgina',
+  'ui.pagination.last': "Anar a l'última pàgina",
 }

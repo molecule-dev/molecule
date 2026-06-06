@@ -323,7 +323,7 @@ export const ms: Partial<CommonTranslations> = {
   'auth.login.twoFactor': 'Token Dua Faktor (Jika diaktifkan)',
   'auth.resetPassword.loggingIn': 'Log masuk...',
   'auth.resetPassword.newPassword': 'Masukkan Kata Laluan Baharu',
-  'auth.resetPassword.submit': 'Tetapkan kata laluan &amp; log masuk',
+  'auth.resetPassword.submit': 'Tetapkan kata laluan & log masuk',
   'auth.resetPassword.token': 'Token Tetapan Semula Kata Laluan',
   'auth.resetPassword.twoFactor': 'Token Dua Faktor (Jika diaktifkan)',
   'auth.signup.email': 'E-mel (Diperlukan)',
@@ -382,8 +382,8 @@ export const ms: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Tidak dibenarkan.',
   'resource.error.unknownError': 'Ralat tidak diketahui.',
   'routing.error.missingParam':
-    'Parameter hilang &quot;<x> {{nama}}</x> &quot;untuk laluan&quot;<x> {{corak}}</x> &quot;',
-  'routing.error.routeNotFound': 'Laluan &quot;<x> {{nama}}</x> &quot;tidak dijumpai',
+    'Parameter hilang "<x> {{nama}}</x> "untuk laluan"<x> {{corak}}</x> "',
+  'routing.error.routeNotFound': 'Laluan "<x> {{nama}}</x> "tidak dijumpai',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter mesti digunakan dalam MoleculeRouterProvider',
   'settings.authentication': 'Pengesahan',
@@ -428,8 +428,7 @@ export const ms: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'Gagal mengemas kini pelan.',
   'user.error.failedToUpdateSubscription': 'Gagal mengemas kini langganan.',
   'user.error.failedToUpdateUser': 'Gagal mengemas kini pengguna.',
-  'user.error.invalidAction':
-    'Tindakan tidak sah. Gunakan &quot;setup&quot;, &quot;enable&quot;, atau &quot;disable&quot;.',
+  'user.error.invalidAction': 'Tindakan tidak sah. Gunakan "setup", "enable", atau "disable".',
   'user.error.invalidCredentials': 'Kelayakan tidak sah.',
   'user.error.invalidPlan': 'Pelan tidak sah.',
   'user.error.invalidToken': 'Token tidak sah.',
@@ -437,11 +436,11 @@ export const ms: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Log masuk gagal.',
   'user.error.newPasswordRequired': 'Kata laluan baharu diperlukan.',
   'user.error.noPendingTwoFactorSetup':
-    'Tiada persediaan dua faktor yang belum selesai. Hubungi dengan tindakan &quot;persediaan&quot; terlebih dahulu.',
+    'Tiada persediaan dua faktor yang belum selesai. Hubungi dengan tindakan "persediaan" terlebih dahulu.',
   'user.error.notFound': 'Tidak dijumpai.',
   'user.error.oauthLoginFailed': 'Log masuk OAuth gagal.',
   'user.error.oauthServerNotConfigured':
-    'Pelayan OAuth &quot;<x> {{pelayan}}</x> &quot; tidak dikonfigurasikan.',
+    'Pelayan OAuth "<x> {{pelayan}}</x> " tidak dikonfigurasikan.',
   'user.error.oauthVerificationFailed': 'Pengesahan OAuth gagal.',
   'user.error.passwordRequired': 'Kata laluan diperlukan.',
   'user.error.planKeyRequired': 'planKey diperlukan.',

@@ -11,6 +11,6 @@ export const cy: Partial<BiometricsTranslations> = {
   'biometrics.device.faceId': 'Face ID',
   'biometrics.device.touchId': 'Touch ID',
   'biometrics.device.windowsHello': 'Windows Hello',
-  'biometrics.error.noCredential': 'Dim tystlythyr wedi&#39;i ddychwelyd',
-  'biometrics.error.permissionDenied': 'Caniatâd wedi&#39;i wrthod',
+  'biometrics.error.noCredential': "Dim tystlythyr wedi'i ddychwelyd",
+  'biometrics.error.permissionDenied': "Caniatâd wedi'i wrthod",
 }

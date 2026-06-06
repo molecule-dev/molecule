@@ -346,7 +346,7 @@ export const fil: Partial<CommonTranslations> = {
   'oauth.github': 'GitHub',
   'oauth.gitlab': 'GitLab',
   'oauth.google': 'Google',
-  'oauth.orContinueWith': 'O kaya&#39;y magpatuloy sa',
+  'oauth.orContinueWith': "O kaya'y magpatuloy sa",
   'oauth.twitter': 'Twitter',
   'project.error.nameAndTypeRequired': 'Kinakailangan ang pangalan at Uri ng proyekto',
   'project.error.notFound': 'Hindi natagpuan',
@@ -362,8 +362,8 @@ export const fil: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Hindi awtorisado.',
   'resource.error.unknownError': 'Hindi kilalang error.',
   'routing.error.missingParam':
-    'Nawawalang parameter &quot;<x> {{pangalan}}</x> &quot;para sa landas&quot;<x> {{padron}}</x> &quot;',
-  'routing.error.routeNotFound': 'Ruta &quot;<x> {{pangalan}}</x> &quot;hindi natagpuan',
+    'Nawawalang parameter "<x> {{pangalan}}</x> "para sa landas"<x> {{padron}}</x> "',
+  'routing.error.routeNotFound': 'Ruta "<x> {{pangalan}}</x> "hindi natagpuan',
   'routing.error.useMoleculeRouterOutsideProvider':
     'Dapat gamitin ang useMoleculeRouter sa loob ng isang MoleculeRouterProvider',
   'settings.account': 'Account',
@@ -411,8 +411,7 @@ export const fil: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'Nabigong i-update ang plano.',
   'user.error.failedToUpdateSubscription': 'Nabigong i-update ang subscription.',
   'user.error.failedToUpdateUser': 'Nabigong i-update ang user.',
-  'user.error.invalidAction':
-    'Hindi wastong aksyon. Gamitin ang &quot;setup&quot;, &quot;enable&quot;, o &quot;disable&quot;.',
+  'user.error.invalidAction': 'Hindi wastong aksyon. Gamitin ang "setup", "enable", o "disable".',
   'user.error.invalidCredentials': 'Mga hindi wastong kredensyal.',
   'user.error.invalidPlan': 'Hindi wastong plano.',
   'user.error.invalidToken': 'Hindi wastong token.',
@@ -420,11 +419,11 @@ export const fil: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Nabigo ang pag-login.',
   'user.error.newPasswordRequired': 'Kinakailangan ang bagong password.',
   'user.error.noPendingTwoFactorSetup':
-    'Walang nakabinbing two-factor setup. Tawagan muna gamit ang aksyon na &quot;setup&quot;.',
+    'Walang nakabinbing two-factor setup. Tawagan muna gamit ang aksyon na "setup".',
   'user.error.notFound': 'Hindi natagpuan.',
   'user.error.oauthLoginFailed': 'Nabigo ang pag-login sa OAuth.',
   'user.error.oauthServerNotConfigured':
-    'OAuth server &quot;<x> {{server}}</x> &quot; ay hindi na-configure.',
+    'OAuth server "<x> {{server}}</x> " ay hindi na-configure.',
   'user.error.oauthVerificationFailed': 'Nabigo ang pag-verify ng OAuth.',
   'user.error.passwordRequired': 'Kinakailangan ang password.',
   'user.error.planKeyRequired': 'Kinakailangan ang planKey.',

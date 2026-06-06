@@ -6,7 +6,7 @@ export const cy: Partial<EmbedSnippetTranslations> = {
   'embedSnippet.heading': 'Mewnosod cod',
   'embedSnippet.eyebrow': 'Copïo cod mewnosod',
   'embedSnippet.copy': 'Copïo',
-  'embedSnippet.copied': 'Wedi&#39;i gopïo!',
+  'embedSnippet.copied': "Wedi'i gopïo!",
   'embedSnippet.controls.width': 'Lled',
   'embedSnippet.controls.height': 'Uchder',
   'embedSnippet.controls.theme': 'Thema',

@@ -427,8 +427,8 @@ export const de: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Nicht autorisiert.',
   'resource.error.unknownError': 'Unbekannter Fehler.',
   'routing.error.missingParam':
-    'Fehlender Parameter &quot;<x> {{Name}}</x> &quot; für Pfad&quot;<x> {{Muster}}</x> &quot;',
-  'routing.error.routeNotFound': 'Route &quot;<x> {{Name}}</x> &quot;nicht gefunden&quot;',
+    'Fehlender Parameter "<x> {{Name}}</x> " für Pfad"<x> {{Muster}}</x> "',
+  'routing.error.routeNotFound': 'Route "<x> {{Name}}</x> "nicht gefunden"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter muss innerhalb eines MoleculeRouterProvider verwendet werden.',
   'settings.authentication': 'Authentifizierung',
@@ -475,7 +475,7 @@ export const de: Partial<CommonTranslations> = {
   'user.error.notFound': 'Nicht gefunden.',
   'user.error.oauthLoginFailed': 'OAuth-Anmeldung fehlgeschlagen.',
   'user.error.oauthServerNotConfigured':
-    'OAuth-Server &quot;<x> {{Server}}</x> &quot; ist nicht konfiguriert.',
+    'OAuth-Server "<x> {{Server}}</x> " ist nicht konfiguriert.',
   'user.error.oauthVerificationFailed': 'OAuth-Verifizierung fehlgeschlagen.',
   'user.error.passwordRequired': 'Ein Passwort ist erforderlich.',
   'user.error.planKeyRequired': 'Ein Plankey ist erforderlich.',

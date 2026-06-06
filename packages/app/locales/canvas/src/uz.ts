@@ -4,6 +4,6 @@ import type { CanvasTranslations } from './types.js'
 export const uz: Partial<CanvasTranslations> = {
   'canvas.aria.edge': 'Tuval cheti',
   'canvas.aria.node': 'Tuval tuguni',
-  'canvas.aria.resizeHandle': 'Tugunni qayta o&#39;lchamlash',
+  'canvas.aria.resizeHandle': "Tugunni qayta o'lchamlash",
   'canvas.aria.surface': 'Tuval yuzasi',
 }

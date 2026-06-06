@@ -432,8 +432,8 @@ export const sv: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Obehörig.',
   'resource.error.unknownError': 'Okänt fel.',
   'routing.error.missingParam':
-    'Parameter saknas &quot;<x> {{namn}}</x> &quot;för sökväg&quot;<x> {{mönster}}</x> &quot;',
-  'routing.error.routeNotFound': 'Rutt &quot;<x> {{namn}}</x> &quot; hittades inte',
+    'Parameter saknas "<x> {{namn}}</x> "för sökväg"<x> {{mönster}}</x> "',
+  'routing.error.routeNotFound': 'Rutt "<x> {{namn}}</x> " hittades inte',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter måste användas inom en MoleculeRouterProvider',
   'settings.authentication': 'Autentisering',
@@ -468,8 +468,7 @@ export const sv: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'Det gick inte att uppdatera planen.',
   'user.error.failedToUpdateSubscription': 'Det gick inte att uppdatera prenumerationen.',
   'user.error.failedToUpdateUser': 'Misslyckades med att uppdatera användaren.',
-  'user.error.invalidAction':
-    'Ogiltig åtgärd. Använd &quot;setup&quot;, &quot;enable&quot; eller &quot;disable&quot;.',
+  'user.error.invalidAction': 'Ogiltig åtgärd. Använd "setup", "enable" eller "disable".',
   'user.error.invalidCredentials': 'Ogiltiga inloggningsuppgifter.',
   'user.error.invalidPlan': 'Ogiltig plan.',
   'user.error.invalidToken': 'Ogiltig token.',
@@ -477,11 +476,10 @@ export const sv: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Inloggningen misslyckades.',
   'user.error.newPasswordRequired': 'Nytt lösenord krävs.',
   'user.error.noPendingTwoFactorSetup':
-    'Ingen väntande tvåfaktorskonfiguration. Anropa först med åtgärden &quot;konfiguration&quot;.',
+    'Ingen väntande tvåfaktorskonfiguration. Anropa först med åtgärden "konfiguration".',
   'user.error.notFound': 'Inte hittad.',
   'user.error.oauthLoginFailed': 'OAuth-inloggning misslyckades.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth-server<x> {{server}}</x> &quot; är inte konfigurerad.',
+  'user.error.oauthServerNotConfigured': 'OAuth-server<x> {{server}}</x> " är inte konfigurerad.',
   'user.error.oauthVerificationFailed': 'OAuth-verifieringen misslyckades.',
   'user.error.passwordRequired': 'Lösenord krävs.',
   'user.error.planKeyRequired': 'planKey krävs.',

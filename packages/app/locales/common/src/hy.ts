@@ -106,7 +106,7 @@ export const hy: Partial<CommonTranslations> = {
   'resource.error.unknownError': 'Անհայտ սխալ։',
   'routing.error.missingParam':
     'Պարամետրը բացակայում է<x> {{անուն}}</x> «ճանապարհի համար»<x> {{նախշ}}</x> «',
-  'routing.error.routeNotFound': 'Երթուղի &quot;<x> {{անուն}}</x> «չի գտնվել»',
+  'routing.error.routeNotFound': 'Երթուղի "<x> {{անուն}}</x> «չի գտնվել»',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter-ը պետք է օգտագործվի MoleculeRouterProvider-ի շրջանակներում։',
   'settings.account': 'Հաշիվ',
@@ -175,8 +175,7 @@ export const hy: Partial<CommonTranslations> = {
     'Երկփուլ կարգավորումը սպասման փուլում չէ։ Սկզբում կանչեք «կարգավորում» գործողությամբ։',
   'user.error.notFound': 'Չի գտնվել։',
   'user.error.oauthLoginFailed': 'OAuth մուտքը ձախողվեց։',
-  'user.error.oauthServerNotConfigured':
-    'OAuth սերվեր<x> {{սերվեր}}</x> &quot; կարգավորված չէ։&quot;',
+  'user.error.oauthServerNotConfigured': 'OAuth սերվեր<x> {{սերվեր}}</x> " կարգավորված չէ։"',
   'user.error.oauthVerificationFailed': 'OAuth ստուգումը ձախողվեց։',
   'user.error.passwordRequired': 'Գաղտնաբառը պարտադիր է։',
   'user.error.planKeyRequired': 'planKey-ը պարտադիր է։',

@@ -14,7 +14,7 @@ export const mt: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Int imlaħħaqt',
   'notificationsPage.emptyBody': 'Notifiki ġodda se jidhru hawn.',
   'notificationsPage.paginationAriaLabel': 'Paġinazzjoni',
-  'notificationsPage.pageOf': 'Paġna<x> {{kurrenti}}</x> ta&#39;<x> {{total}}</x>',
+  'notificationsPage.pageOf': "Paġna<x> {{kurrenti}}</x> ta'<x> {{total}}</x>",
   'notificationsPage.prev': 'Preċedenti',
   'notificationsPage.next': 'Li jmiss',
 }

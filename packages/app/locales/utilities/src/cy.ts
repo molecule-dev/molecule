@@ -8,6 +8,6 @@ export const cy: Partial<UtilitiesTranslations> = {
   'error.validationError': 'Gwiriwch eich mewnbwn a rhowch gynnig arall.',
   'error.serverError': 'Gwall gweinydd. Rhowch gynnig arall yn nes ymlaen.',
   'error.unknown': 'Digwyddodd gwall annisgwyl.',
-  'error.unauthorized': 'Nid oes gennych awdurdod i gyflawni&#39;r weithred hon.',
-  'error.forbidden': 'Mynediad wedi&#39;i wrthod.',
+  'error.unauthorized': "Nid oes gennych awdurdod i gyflawni'r weithred hon.",
+  'error.forbidden': "Mynediad wedi'i wrthod.",
 }

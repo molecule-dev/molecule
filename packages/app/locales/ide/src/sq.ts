@@ -45,11 +45,11 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Kaloi në modalitetin e planit',
   'ide.chat.switchedToExecute': 'Kaloi në modalitetin e ekzekutimit',
   'ide.chat.costError': 'Nuk mund të merren të dhënat e përdorimit.',
-  'ide.chat.undoNoChanges': 'Nuk ka ndryshime në skedar për t&#39;u anuluar.',
+  'ide.chat.undoNoChanges': "Nuk ka ndryshime në skedar për t'u anuluar.",
   'ide.chat.undoComplete': 'Rikthimi i ndryshimeve dështoi.',
   'ide.chat.diffNoChanges': 'Asnjë ndryshim i paangazhuar.',
   'ide.chat.diffError': 'Dështoi në marrjen e ndryshimeve.',
-  'ide.chat.commitNoChanges': 'Nuk ka ndryshime për t&#39;u kryer.',
+  'ide.chat.commitNoChanges': "Nuk ka ndryshime për t'u kryer.",
   'ide.chat.commitError': 'Dështoi në kryerjen e ndryshimeve.',
   'ide.chat.autoFixEnabled': 'Korrigjimi automatik është aktivizuar.',
   'ide.chat.autoFixDisabled': 'Korrigjimi automatik është çaktivizuar.',
@@ -182,7 +182,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Një thirrje mjeti (lexim skedari, komandë, etj.) u përfundua',
   'ide.chat.soundEventDesc.file_diff': 'Një skedar u krijua ose u modifikua',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase po sugjeron skedarë për t&#39;u kryer',
+  'ide.chat.soundEventDesc.commit_suggestion': "Synthase po sugjeron skedarë për t'u kryer",
   'ide.chat.soundEventDesc.mode':
     'Kalova midis modalitetit të planifikimit dhe modalitetit të ekzekutimit',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Arrit limitin maksimal të përsëritjeve të mjetit',

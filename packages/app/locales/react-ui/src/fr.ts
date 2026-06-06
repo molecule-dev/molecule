@@ -13,7 +13,7 @@ export const fr: Partial<ReactUiTranslations> = {
   'userMenuPopover.guest': 'Compte',
   'userMenu.navLabel': 'Menu du compte',
   'react.error.useAccordionOutsideProvider':
-    'Les éléments d&#39;un accordéon doivent être utilisés à l&#39;intérieur d&#39;un accordéon.',
+    "Les éléments d'un accordéon doivent être utilisés à l'intérieur d'un accordéon.",
   'ui.avatar.alt': 'Avatar',
   'ui.pagination.nav': 'Pagination',
   'ui.pagination.first': 'Aller à la première page',
@@ -24,5 +24,5 @@ export const fr: Partial<ReactUiTranslations> = {
   'sidebar.memberStatus': 'Membre Premium',
   'ui.table.empty': 'Aucune donnée disponible',
   'react.error.useToastOutsideProvider':
-    'La méthode useToast doit être utilisée à l&#39;intérieur d&#39;un ToastProvider.',
+    "La méthode useToast doit être utilisée à l'intérieur d'un ToastProvider.",
 }

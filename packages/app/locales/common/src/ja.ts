@@ -429,7 +429,7 @@ export const ja: Partial<CommonTranslations> = {
   'resource.error.unauthorized': '許可されていない。',
   'resource.error.unknownError': '不明なエラー。',
   'routing.error.missingParam': 'パラメータがありません{{名前}} 「パス用」<x> {{パターン}}</x> 「',
-  'routing.error.routeNotFound': 'ルート{{名前}} &quot; 見つかりません',
+  'routing.error.routeNotFound': 'ルート{{名前}} " 見つかりません',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouterはMoleculeRouterProvider内で使用する必要があります。',
   'settings.authentication': '認証',

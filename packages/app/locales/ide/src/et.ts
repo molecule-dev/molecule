@@ -180,7 +180,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Tööriistakutse (faili lugemine, käsk jne) on lõpule viidud',
   'ide.chat.soundEventDesc.file_diff': 'Fail loodi või muudeti',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase soovitab faile commit&#39;imiseks',
+  'ide.chat.soundEventDesc.commit_suggestion': "Synthase soovitab faile commit'imiseks",
   'ide.chat.soundEventDesc.mode': 'Vahetus planeerimisrežiimi ja teostusrežiimi vahel',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Tööriista iteratsioonide maksimaalne piir on saavutatud',

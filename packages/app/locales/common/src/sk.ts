@@ -100,9 +100,8 @@ export const sk: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Nepodarilo sa aktualizovať<x> {{name}}</x> .',
   'resource.error.unauthorized': 'Neoprávnené.',
   'resource.error.unknownError': 'Neznáma chyba.',
-  'routing.error.missingParam':
-    'Chýba parameter &quot;<x> {{name}}</x> „pre cestu“<x> {{vzor}}</x> &quot;',
-  'routing.error.routeNotFound': 'Trasa &quot;<x> {{name}}</x> &quot;nenájdené&quot;',
+  'routing.error.missingParam': 'Chýba parameter "<x> {{name}}</x> „pre cestu“<x> {{vzor}}</x> "',
+  'routing.error.routeNotFound': 'Trasa "<x> {{name}}</x> "nenájdené"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter sa musí použiť v rámci MoleculeRouterProvider',
   'settings.account': 'Účet',
@@ -171,7 +170,7 @@ export const sk: Partial<CommonTranslations> = {
   'user.error.notFound': 'Nenájdené.',
   'user.error.oauthLoginFailed': 'Prihlásenie cez OAuth zlyhalo.',
   'user.error.oauthServerNotConfigured':
-    'OAuth server &quot;<x> {{server}}</x> „nie je nakonfigurované.“',
+    'OAuth server "<x> {{server}}</x> „nie je nakonfigurované.“',
   'user.error.oauthVerificationFailed': 'Overenie OAuth zlyhalo.',
   'user.error.passwordRequired': 'Vyžaduje sa heslo.',
   'user.error.planKeyRequired': 'Vyžaduje sa plánovací kľúč.',

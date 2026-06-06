@@ -4,5 +4,5 @@ import type { IconsTranslations } from './types.js'
 export const cy: Partial<IconsTranslations> = {
   'icons.error.notFound': 'Ni chanfuwyd yr eicon "{{name}}" yn y set eiconau presennol.',
   'icons.error.noIconSet':
-    'Nid oes IconSet wedi&#39;i osod. Galwch setIconSet() wrth gychwyn yr ap gyda llyfrgell eiconau (e.e., @molecule/app-icons-molecule).',
+    "Nid oes IconSet wedi'i osod. Galwch setIconSet() wrth gychwyn yr ap gyda llyfrgell eiconau (e.e., @molecule/app-icons-molecule).",
 }

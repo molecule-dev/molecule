@@ -9,5 +9,5 @@ export const af: Partial<UtilitiesTranslations> = {
   'error.notFound': 'Hulpbron nie gevind nie.',
   'error.validationError': 'Kontroleer asseblief jou invoer en probeer weer.',
   'error.serverError': 'Bedienerfout. Probeer asseblief later weer.',
-  'error.unknown': '&#39;n Onverwagte fout het voorgekom.',
+  'error.unknown': "'n Onverwagte fout het voorgekom.",
 }

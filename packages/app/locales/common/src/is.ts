@@ -97,9 +97,8 @@ export const is: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Ekki tókst að uppfæra<x> {{nafn}}</x> .',
   'resource.error.unauthorized': 'Óheimilt.',
   'resource.error.unknownError': 'Óþekkt villa.',
-  'routing.error.missingParam':
-    'Vantar breytu &quot;<x> {{nafn}}</x> „fyrir slóð“<x> {{mynstur}}</x> &quot;',
-  'routing.error.routeNotFound': 'Leið &quot;<x> {{nafn}}</x> &quot;ekki fundið',
+  'routing.error.missingParam': 'Vantar breytu "<x> {{nafn}}</x> „fyrir slóð“<x> {{mynstur}}</x> "',
+  'routing.error.routeNotFound': 'Leið "<x> {{nafn}}</x> "ekki fundið',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter verður að vera notað innan MoleculeRouterProvider',
   'settings.account': 'Reikningur',

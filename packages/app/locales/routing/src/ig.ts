@@ -5,5 +5,5 @@ export const ig: Partial<RoutingTranslations> = {
   'routing.error.missingParam': 'Achọpụtaghị parameter "{{name}}" maka ụzọ "{{pattern}}"',
   'routing.error.routeNotFound': 'Ahụghị ụzọ "{{name}}"',
   'routing.error.useMoleculeRouterOutsideProvider':
-    'A ga-eji ojijiMoleculeRouter n&#39;ime MoleculeRouterProvider',
+    "A ga-eji ojijiMoleculeRouter n'ime MoleculeRouterProvider",
 }

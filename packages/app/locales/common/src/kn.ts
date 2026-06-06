@@ -105,8 +105,8 @@ export const kn: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'ಅನಧಿಕೃತ.',
   'resource.error.unknownError': 'ಅಜ್ಞಾತ ದೋಷ.',
   'routing.error.missingParam':
-    'ಕಾಣೆಯಾದ ಪ್ಯಾರಮ್ &quot;<x> {{ಹೆಸರು}}</x> &quot;ಮಾರ್ಗಕ್ಕಾಗಿ&quot;<x> {{ಮಾದರಿ}}</x> &quot;',
-  'routing.error.routeNotFound': 'ಮಾರ್ಗ &quot;<x> {{ಹೆಸರು}}</x> &quot;ಕಂಡುಬಂದಿಲ್ಲ',
+    'ಕಾಣೆಯಾದ ಪ್ಯಾರಮ್ "<x> {{ಹೆಸರು}}</x> "ಮಾರ್ಗಕ್ಕಾಗಿ"<x> {{ಮಾದರಿ}}</x> "',
+  'routing.error.routeNotFound': 'ಮಾರ್ಗ "<x> {{ಹೆಸರು}}</x> "ಕಂಡುಬಂದಿಲ್ಲ',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter ಅನ್ನು MoleculeRouterProvider ನಲ್ಲಿ ಬಳಸಬೇಕು',
   'settings.account': 'ಖಾತೆ',
@@ -164,8 +164,7 @@ export const kn: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'ಯೋಜನೆಯನ್ನು ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ.',
   'user.error.failedToUpdateSubscription': 'ಚಂದಾದಾರಿಕೆಯನ್ನು ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ.',
   'user.error.failedToUpdateUser': 'ಬಳಕೆದಾರರನ್ನು ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ.',
-  'user.error.invalidAction':
-    'ಅಮಾನ್ಯ ಕ್ರಿಯೆ. &quot;ಸೆಟಪ್&quot;, &quot;ಸಕ್ರಿಯಗೊಳಿಸಿ&quot; ಅಥವಾ &quot;ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ&quot; ಬಳಸಿ.',
+  'user.error.invalidAction': 'ಅಮಾನ್ಯ ಕ್ರಿಯೆ. "ಸೆಟಪ್", "ಸಕ್ರಿಯಗೊಳಿಸಿ" ಅಥವಾ "ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ" ಬಳಸಿ.',
   'user.error.invalidCredentials': 'ಅಮಾನ್ಯ ರುಜುವಾತುಗಳು.',
   'user.error.invalidPlan': 'ಅಮಾನ್ಯ ಯೋಜನೆ.',
   'user.error.invalidToken': 'ಅಮಾನ್ಯ ಟೋಕನ್.',
@@ -173,11 +172,11 @@ export const kn: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ.',
   'user.error.newPasswordRequired': 'ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ಅಗತ್ಯವಿದೆ.',
   'user.error.noPendingTwoFactorSetup':
-    'ಯಾವುದೇ ಎರಡು-ಅಂಶ ಸೆಟಪ್ ಬಾಕಿ ಇಲ್ಲ. ಮೊದಲು ಕ್ರಿಯೆ &quot;ಸೆಟಪ್&quot; ನೊಂದಿಗೆ ಕರೆ ಮಾಡಿ.',
+    'ಯಾವುದೇ ಎರಡು-ಅಂಶ ಸೆಟಪ್ ಬಾಕಿ ಇಲ್ಲ. ಮೊದಲು ಕ್ರಿಯೆ "ಸೆಟಪ್" ನೊಂದಿಗೆ ಕರೆ ಮಾಡಿ.',
   'user.error.notFound': 'ಸಿಕ್ಕಿಲ್ಲ.',
   'user.error.oauthLoginFailed': 'OAuth ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ.',
   'user.error.oauthServerNotConfigured':
-    '&quot;OAuth ಸರ್ವರ್&quot;<x> {{ಸರ್ವರ್}}</x> &quot; ಅನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ.',
+    '"OAuth ಸರ್ವರ್"<x> {{ಸರ್ವರ್}}</x> " ಅನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ.',
   'user.error.oauthVerificationFailed': 'OAuth ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ.',
   'user.error.passwordRequired': 'ಪಾಸ್‌ವರ್ಡ್ ಅಗತ್ಯವಿದೆ.',
   'user.error.planKeyRequired': 'planKey ಅಗತ್ಯವಿದೆ.',

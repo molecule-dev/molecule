@@ -10,5 +10,5 @@ export const it: Partial<CameraTranslations> = {
     'La registrazione video non è supportata dal provider web. Utilizzare il provider nativo.',
   'camera.error.noVideoTrack': 'Nessuna traccia video',
   'camera.error.previewNotStarted': 'Anteprima non avviata',
-  'camera.error.previewNoParent': 'L&#39;anteprima non ha un genitore',
+  'camera.error.previewNoParent': "L'anteprima non ha un genitore",
 }

@@ -101,8 +101,8 @@ export const eu: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Baimenik gabe.',
   'resource.error.unknownError': 'Errore ezezaguna.',
   'routing.error.missingParam':
-    '&quot;Parametroa falta da&quot;<x> {{izena}}</x> &quot;biderako&quot;<x> {{eredua}}</x> &quot;',
-  'routing.error.routeNotFound': 'Ibilbidea &quot;<x> {{izena}}</x> &quot;ez da aurkitu',
+    '"Parametroa falta da"<x> {{izena}}</x> "biderako"<x> {{eredua}}</x> "',
+  'routing.error.routeNotFound': 'Ibilbidea "<x> {{izena}}</x> "ez da aurkitu',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter MoleculeRouterProvider baten barruan erabili behar da',
   'settings.account': 'Kontua',
@@ -159,8 +159,7 @@ export const eu: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'Plana eguneratzea huts egin da.',
   'user.error.failedToUpdateSubscription': 'Harpidetza eguneratzea huts egin da.',
   'user.error.failedToUpdateUser': 'Erabiltzailea eguneratzea huts egin da.',
-  'user.error.invalidAction':
-    'Ekintza baliogabea. Erabili &quot;konfiguratu&quot;, &quot;gaitu&quot; edo &quot;desgaitu&quot;.',
+  'user.error.invalidAction': 'Ekintza baliogabea. Erabili "konfiguratu", "gaitu" edo "desgaitu".',
   'user.error.invalidCredentials': 'Kredentzial baliogabeak.',
   'user.error.invalidPlan': 'Plan baliogabea.',
   'user.error.invalidToken': 'Token baliogabea.',
@@ -168,11 +167,11 @@ export const eu: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Saioa huts egin du.',
   'user.error.newPasswordRequired': 'Pasahitz berria beharrezkoa da.',
   'user.error.noPendingTwoFactorSetup':
-    'Ez dago bi faktoreko konfiguraziorik zain. Deitu lehenik &quot;konfigurazioa&quot; ekintzarekin.',
+    'Ez dago bi faktoreko konfiguraziorik zain. Deitu lehenik "konfigurazioa" ekintzarekin.',
   'user.error.notFound': 'Ez da aurkitu.',
   'user.error.oauthLoginFailed': 'OAuth saioa hastea huts egin du.',
   'user.error.oauthServerNotConfigured':
-    'OAuth zerbitzaria &quot;<x> {{zerbitzaria}}</x> &quot; ez dago konfiguratuta.',
+    'OAuth zerbitzaria "<x> {{zerbitzaria}}</x> " ez dago konfiguratuta.',
   'user.error.oauthVerificationFailed': 'OAuth egiaztapenak huts egin du.',
   'user.error.passwordRequired': 'Pasahitza beharrezkoa da.',
   'user.error.planKeyRequired': 'planKey beharrezkoa da.',

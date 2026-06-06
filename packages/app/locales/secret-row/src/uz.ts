@@ -8,5 +8,5 @@ export const uz: Partial<SecretRowTranslations> = {
   'secretRow.copied': 'Nusxalandi!',
   'secretRow.copy': 'Nusxalash',
   'secretRow.rotate': 'Aylantirish',
-  'secretRow.delete': 'O&#39;chirish',
+  'secretRow.delete': "O'chirish",
 }

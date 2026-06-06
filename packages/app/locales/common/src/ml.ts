@@ -106,8 +106,8 @@ export const ml: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'അനധികൃതം.',
   'resource.error.unknownError': 'അജ്ഞാത പിശക്.',
   'routing.error.missingParam':
-    'പാരാമീറ്റർ കാണുന്നില്ല &quot;<x> {{പേര്}}</x> &quot;പാതയ്ക്കായി&quot;<x> {{പാറ്റേൺ}}</x> &quot;',
-  'routing.error.routeNotFound': 'റൂട്ട് &quot;<x> {{പേര്}}</x> &quot; കണ്ടെത്തിയില്ല',
+    'പാരാമീറ്റർ കാണുന്നില്ല "<x> {{പേര്}}</x> "പാതയ്ക്കായി"<x> {{പാറ്റേൺ}}</x> "',
+  'routing.error.routeNotFound': 'റൂട്ട് "<x> {{പേര്}}</x> " കണ്ടെത്തിയില്ല',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter ഒരു MoleculeRouterProvider-ൽ തന്നെ ഉപയോഗിക്കണം.',
   'settings.account': 'അക്കൗണ്ട്',
@@ -167,7 +167,7 @@ export const ml: Partial<CommonTranslations> = {
     'സബ്‌സ്‌ക്രിപ്‌ഷൻ അപ്‌ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
   'user.error.failedToUpdateUser': 'ഉപയോക്താവിനെ അപ്ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
   'user.error.invalidAction':
-    'അസാധുവായ പ്രവർത്തനം. &quot;സജ്ജീകരണം&quot;, &quot;സജ്ജമാക്കുക&quot;, അല്ലെങ്കിൽ &quot;അപ്രാപ്തമാക്കുക&quot; എന്നിവ ഉപയോഗിക്കുക.',
+    'അസാധുവായ പ്രവർത്തനം. "സജ്ജീകരണം", "സജ്ജമാക്കുക", അല്ലെങ്കിൽ "അപ്രാപ്തമാക്കുക" എന്നിവ ഉപയോഗിക്കുക.',
   'user.error.invalidCredentials': 'അസാധുവായ ക്രെഡൻഷ്യലുകൾ.',
   'user.error.invalidPlan': 'അസാധുവായ പ്ലാൻ.',
   'user.error.invalidToken': 'അസാധുവായ ടോക്കൺ.',
@@ -175,11 +175,10 @@ export const ml: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'ലോഗിൻ ചെയ്യുന്നത് പരാജയപ്പെട്ടു.',
   'user.error.newPasswordRequired': 'പുതിയ പാസ്‌വേഡ് ആവശ്യമാണ്.',
   'user.error.noPendingTwoFactorSetup':
-    'രണ്ട്-ഘടക സജ്ജീകരണങ്ങൾ ശേഷിക്കുന്നില്ല. ആദ്യം ആക്ഷൻ &quot;സജ്ജീകരണം&quot; ഉപയോഗിച്ച് വിളിക്കുക.',
+    'രണ്ട്-ഘടക സജ്ജീകരണങ്ങൾ ശേഷിക്കുന്നില്ല. ആദ്യം ആക്ഷൻ "സജ്ജീകരണം" ഉപയോഗിച്ച് വിളിക്കുക.',
   'user.error.notFound': 'കണ്ടെത്തിയില്ല.',
   'user.error.oauthLoginFailed': 'OAuth ലോഗിൻ പരാജയപ്പെട്ടു.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth സെർവർ &quot;<x> {{സെർവർ}}</x> &quot; കോൺഫിഗർ ചെയ്തിട്ടില്ല.',
+  'user.error.oauthServerNotConfigured': 'OAuth സെർവർ "<x> {{സെർവർ}}</x> " കോൺഫിഗർ ചെയ്തിട്ടില്ല.',
   'user.error.oauthVerificationFailed': 'OAuth പരിശോധന പരാജയപ്പെട്ടു.',
   'user.error.passwordRequired': 'പാസ്‌വേഡ് ആവശ്യമാണ്.',
   'user.error.planKeyRequired': 'planKey ആവശ്യമാണ്.',

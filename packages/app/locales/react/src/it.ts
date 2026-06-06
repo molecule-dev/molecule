@@ -4,31 +4,31 @@ import type { ReactTranslations } from './types.js'
 export const it: Partial<ReactTranslations> = {
   'react.error.unsupportedMethod': 'Metodo non supportato: {{method}}',
   'react.error.useAccordionOutsideProvider':
-    'I componenti della fisarmonica devono essere utilizzati all&#39;interno di una fisarmonica',
+    "I componenti della fisarmonica devono essere utilizzati all'interno di una fisarmonica",
   'react.error.useAuthOutsideProvider':
-    'useAuthClient deve essere utilizzato all&#39;interno di un AuthProvider',
+    "useAuthClient deve essere utilizzato all'interno di un AuthProvider",
   'react.error.useChatOutsideProvider':
-    'useChatProvider deve essere utilizzato all&#39;interno di un ChatProvider',
+    "useChatProvider deve essere utilizzato all'interno di un ChatProvider",
   'react.error.useEditorOutsideProvider':
-    'useEditorProvider deve essere utilizzato all&#39;interno di un EditorProvider',
+    "useEditorProvider deve essere utilizzato all'interno di un EditorProvider",
   'react.error.useHttpOutsideProvider':
-    'useHttpClient deve essere utilizzato all&#39;interno di un HttpProvider',
+    "useHttpClient deve essere utilizzato all'interno di un HttpProvider",
   'react.error.useI18nOutsideProvider':
-    'useI18nProvider deve essere utilizzato all&#39;interno di un I18nProvider',
+    "useI18nProvider deve essere utilizzato all'interno di un I18nProvider",
   'react.error.useLoggerOutsideProvider':
-    'useLoggerProvider deve essere utilizzato all&#39;interno di un LoggerProvider',
+    "useLoggerProvider deve essere utilizzato all'interno di un LoggerProvider",
   'react.error.usePreviewOutsideProvider':
-    'usePreviewProvider deve essere utilizzato all&#39;interno di un PreviewProvider',
+    "usePreviewProvider deve essere utilizzato all'interno di un PreviewProvider",
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance deve essere utilizzato all&#39;interno di un RouterProvider',
+    "useRouterInstance deve essere utilizzato all'interno di un RouterProvider",
   'react.error.useStoreOutsideProvider':
-    'useStateProvider deve essere utilizzato all&#39;interno di uno StateProvider',
+    "useStateProvider deve essere utilizzato all'interno di uno StateProvider",
   'react.error.useStorageOutsideProvider':
-    'useStorageProvider deve essere utilizzato all&#39;interno di uno StorageProvider',
+    "useStorageProvider deve essere utilizzato all'interno di uno StorageProvider",
   'react.error.useThemeOutsideProvider':
-    'useThemeProvider deve essere utilizzato all&#39;interno di un ThemeProvider',
+    "useThemeProvider deve essere utilizzato all'interno di un ThemeProvider",
   'react.error.useToastOutsideProvider':
-    'useToast deve essere utilizzato all&#39;interno di un ToastProvider',
+    "useToast deve essere utilizzato all'interno di un ToastProvider",
   'react.error.useWorkspaceOutsideProvider':
-    'useWorkspaceProvider deve essere utilizzato all&#39;interno di un WorkspaceProvider',
+    "useWorkspaceProvider deve essere utilizzato all'interno di un WorkspaceProvider",
 }

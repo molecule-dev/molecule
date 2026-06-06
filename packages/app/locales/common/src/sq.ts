@@ -98,8 +98,8 @@ export const sq: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'I paautorizuar.',
   'resource.error.unknownError': 'Gabim i panjohur.',
   'routing.error.missingParam':
-    'Mungon parametri &quot;<x> {{emri}}</x> &quot;për rrugën&quot;<x> {{model}}</x> &quot;',
-  'routing.error.routeNotFound': 'Itinerari &quot;<x> {{emri}}</x> &quot;nuk u gjet',
+    'Mungon parametri "<x> {{emri}}</x> "për rrugën"<x> {{model}}</x> "',
+  'routing.error.routeNotFound': 'Itinerari "<x> {{emri}}</x> "nuk u gjet',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter duhet të përdoret brenda një MoleculeRouterProvider',
   'settings.account': 'Llogari',
@@ -157,7 +157,7 @@ export const sq: Partial<CommonTranslations> = {
   'user.error.failedToUpdateSubscription': 'Abonimi nuk u përditësua.',
   'user.error.failedToUpdateUser': 'Përditësimi i përdoruesit dështoi.',
   'user.error.invalidAction':
-    'Veprim i pavlefshëm. Përdor &quot;konfigurim&quot;, &quot;aktivizim&quot; ose &quot;çaktivizim&quot;.',
+    'Veprim i pavlefshëm. Përdor "konfigurim", "aktivizim" ose "çaktivizim".',
   'user.error.invalidCredentials': 'Kredencialet janë të pavlefshme.',
   'user.error.invalidPlan': 'Plan i pavlefshëm.',
   'user.error.invalidToken': 'Token i pavlefshëm.',
@@ -165,11 +165,11 @@ export const sq: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Hyrja dështoi.',
   'user.error.newPasswordRequired': 'Kërkohet fjalëkalim i ri.',
   'user.error.noPendingTwoFactorSetup':
-    'Nuk ka konfigurim dyfaktorësh në pritje. Thirrni së pari me veprimin &quot;konfigurim&quot;.',
+    'Nuk ka konfigurim dyfaktorësh në pritje. Thirrni së pari me veprimin "konfigurim".',
   'user.error.notFound': 'Nuk u gjet.',
   'user.error.oauthLoginFailed': 'Hyrja në OAuth dështoi.',
   'user.error.oauthServerNotConfigured':
-    'Serveri OAuth &quot;<x> {{server}}</x> &quot;nuk është konfiguruar.',
+    'Serveri OAuth "<x> {{server}}</x> "nuk është konfiguruar.',
   'user.error.oauthVerificationFailed': 'Verifikimi i OAuth dështoi.',
   'user.error.passwordRequired': 'Fjalëkalimi është i nevojshëm.',
   'user.error.planKeyRequired': 'planKey është i nevojshëm.',
@@ -318,7 +318,7 @@ export const sq: Partial<CommonTranslations> = {
   'auth.signup.nameRequired': 'Emri është i detyrueshëm.',
   'auth.forgotPassword.sendResetLink': 'Dërgo lidhjen e rivendosjes',
   'auth.forgotPassword.enterEmailDescription':
-    'Shkruani emailin tuaj dhe ne do t&#39;ju dërgojmë një lidhje rivendosjeje.',
+    "Shkruani emailin tuaj dhe ne do t'ju dërgojmë një lidhje rivendosjeje.",
   'auth.forgotPassword.couldNotSendResetLink': 'Nuk mund të dërgohej lidhja e rivendosjes.',
   'auth.resetPassword.title': 'Rivendos fjalëkalimin tënd',
   'auth.resetPassword.button': 'Rivendos fjalëkalimin',
@@ -384,7 +384,7 @@ export const sq: Partial<CommonTranslations> = {
   'form.checkIn': 'Regjistrohu',
   'form.checkOut': 'Kontrolloni',
   'form.when': 'Kur',
-  'form.due': 'Për t&#39;u paguar',
+  'form.due': "Për t'u paguar",
   'form.summary': 'Përmbledhje',
   'form.notes': 'Shënime',
   'status.active': 'Aktiv',

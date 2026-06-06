@@ -2,8 +2,8 @@ import type { ImageCanvasTranslations } from './types.js'
 
 /** FeatureImageCanvas translations for ca. */
 export const ca: Partial<ImageCanvasTranslations> = {
-  'imageCanvas.aria.region': 'llenç d&#39;imatges',
-  'imageCanvas.aria.canvas': 'Arrossega per panoràmica, desplaça&#39;t per ampliar',
-  'imageCanvas.loading': 'S&#39;està carregant la imatge…',
-  'imageCanvas.error': 'No s&#39;ha pogut carregar la imatge.',
+  'imageCanvas.aria.region': "llenç d'imatges",
+  'imageCanvas.aria.canvas': "Arrossega per panoràmica, desplaça't per ampliar",
+  'imageCanvas.loading': "S'està carregant la imatge…",
+  'imageCanvas.error': "No s'ha pogut carregar la imatge.",
 }

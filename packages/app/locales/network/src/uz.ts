@@ -11,5 +11,5 @@ export const uz: Partial<NetworkTranslations> = {
   'network.none': 'Uzilgan',
   'network.error.connectionTimeout': 'Tarmoq ulanishi vaqti tugadi',
   'network.error.unavailable': 'Tarmoq mavjud emas',
-  'network.unknown': 'Noma&#39;lum',
+  'network.unknown': "Noma'lum",
 }

@@ -105,8 +105,8 @@ export const ru: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Несанкционировано.',
   'resource.error.unknownError': 'Неизвестная ошибка.',
   'routing.error.missingParam':
-    'Отсутствует параметр &quot;<x> {{имя}}</x> &quot;для пути&quot;<x> {{шаблон}}</x> &quot;',
-  'routing.error.routeNotFound': 'Маршрут &quot;<x> {{имя}}</x> &quot; не найдено',
+    'Отсутствует параметр "<x> {{имя}}</x> "для пути"<x> {{шаблон}}</x> "',
+  'routing.error.routeNotFound': 'Маршрут "<x> {{имя}}</x> " не найдено',
   'routing.error.useMoleculeRouterOutsideProvider':
     'Параметр useMoleculeRouter должен использоваться внутри MoleculeRouterProvider.',
   'settings.account': 'Счет',
@@ -174,7 +174,7 @@ export const ru: Partial<CommonTranslations> = {
     'Нет ожидающей настройки двухфакторной аутентификации. Сначала вызовите функцию «настройка».',
   'user.error.notFound': 'Не найдено.',
   'user.error.oauthLoginFailed': 'Вход через OAuth не удался.',
-  'user.error.oauthServerNotConfigured': 'Сервер OAuth<x> {{server}}</x> &quot;не настроен.&quot;',
+  'user.error.oauthServerNotConfigured': 'Сервер OAuth<x> {{server}}</x> "не настроен."',
   'user.error.oauthVerificationFailed': 'Проверка OAuth не удалась.',
   'user.error.passwordRequired': 'Требуется пароль.',
   'user.error.planKeyRequired': 'Требуется ключ плана.',

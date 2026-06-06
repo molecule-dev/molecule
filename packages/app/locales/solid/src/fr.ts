@@ -18,7 +18,7 @@ export const fr: Partial<SolidTranslations> = {
     'Les composants Accordion doivent être utilisés dans un Accordion',
   'solid.error.useToastOutsideProvider': 'useToast doit être utilisé dans un ToastProvider',
   'solid.error.stateOutsideProvider':
-    'La méthode getStateProvider doit être utilisée au sein d&#39;un MoleculeProvider dont l&#39;état est configuré.',
+    "La méthode getStateProvider doit être utilisée au sein d'un MoleculeProvider dont l'état est configuré.",
   'solid.error.authOutsideProvider':
-    'La méthode getAuthClient doit être utilisée au sein d&#39;un MoleculeProvider avec l&#39;authentification configurée.',
+    "La méthode getAuthClient doit être utilisée au sein d'un MoleculeProvider avec l'authentification configurée.",
 }

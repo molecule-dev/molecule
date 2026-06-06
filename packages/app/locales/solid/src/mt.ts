@@ -11,9 +11,9 @@ export const mt: Partial<SolidTranslations> = {
   'solid.error.routerOutsideProvider':
     'getRouter irid jintuża fi ħdan MoleculeProvider bir-router ikkonfigurat',
   'solid.error.i18nOutsideProvider':
-    'getI18nProvider irid jintuża fi ħdan MoleculeProvider b&#39;i18n ikkonfigurat',
+    "getI18nProvider irid jintuża fi ħdan MoleculeProvider b'i18n ikkonfigurat",
   'solid.error.httpOutsideProvider':
-    'getHttpClient irid jintuża fi ħdan MoleculeProvider b&#39;http ikkonfigurat',
+    "getHttpClient irid jintuża fi ħdan MoleculeProvider b'http ikkonfigurat",
   'solid.error.storageOutsideProvider':
     'getStorageProvider irid jintuża fi ħdan MoleculeProvider bil-ħażna kkonfigurata',
   'solid.error.loggerOutsideProvider':

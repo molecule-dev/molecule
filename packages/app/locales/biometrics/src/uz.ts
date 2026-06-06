@@ -9,8 +9,8 @@ export const uz: Partial<BiometricsTranslations> = {
   'biometrics.device.faceId': 'Face ID',
   'biometrics.device.touchId': 'Touch ID',
   'biometrics.device.windowsHello': 'Windows Hello',
-  'biometrics.error.notSupported': 'WebAuthn qo&#39;llab-quvvatlanmaydi',
-  'biometrics.error.noPlatformAuth': 'Platforma autentifikatori yo&#39;q',
+  'biometrics.error.notSupported': "WebAuthn qo'llab-quvvatlanmaydi",
+  'biometrics.error.noPlatformAuth': "Platforma autentifikatori yo'q",
   'biometrics.error.noCredential': 'Hech qanday ishonchnoma qaytarilmadi',
-  'biometrics.error.unknown': 'Noma&#39;lum xato',
+  'biometrics.error.unknown': "Noma'lum xato",
 }

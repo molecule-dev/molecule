@@ -31,5 +31,5 @@ export const ig: Partial<ReactNativeUiTranslations> = {
   'ui.icon.sortDesc': '↓',
   'ui.table.empty': 'Enweghị data',
   'ui.toast.dismiss': 'Kwụpụ',
-  'ui.toast.error.noProvider': 'A ga-eji Toast mee ihe n&#39;ime Onye Na-enye Toast',
+  'ui.toast.error.noProvider': "A ga-eji Toast mee ihe n'ime Onye Na-enye Toast",
 }

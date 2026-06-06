@@ -105,8 +105,8 @@ export const ne: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'अनधिकृत।',
   'resource.error.unknownError': 'अज्ञात त्रुटि।',
   'routing.error.missingParam':
-    '&quot;प्यारामिटर&quot; छुटेको छ<x> {{नाम}}</x> &quot;बाटोको लागि&quot;<x> {{ढाँचा}}</x> &quot;',
-  'routing.error.routeNotFound': 'मार्ग &quot;<x> {{नाम}}</x> &quot; फेला परेन',
+    '"प्यारामिटर" छुटेको छ<x> {{नाम}}</x> "बाटोको लागि"<x> {{ढाँचा}}</x> "',
+  'routing.error.routeNotFound': 'मार्ग "<x> {{नाम}}</x> " फेला परेन',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter MoleculeRouterProvider भित्र प्रयोग गर्नुपर्छ।',
   'settings.account': 'खाता',
@@ -164,7 +164,7 @@ export const ne: Partial<CommonTranslations> = {
   'user.error.failedToUpdateSubscription': 'सदस्यता अद्यावधिक गर्न असफल भयो।',
   'user.error.failedToUpdateUser': 'प्रयोगकर्ता अद्यावधिक गर्न असफल भयो।',
   'user.error.invalidAction':
-    'अमान्य कार्य। &quot;सेटअप&quot;, &quot;सक्षम गर्नुहोस्&quot;, वा &quot;असक्षम गर्नुहोस्&quot; प्रयोग गर्नुहोस्।',
+    'अमान्य कार्य। "सेटअप", "सक्षम गर्नुहोस्", वा "असक्षम गर्नुहोस्" प्रयोग गर्नुहोस्।',
   'user.error.invalidCredentials': 'अमान्य प्रमाणपत्रहरू।',
   'user.error.invalidPlan': 'अमान्य योजना।',
   'user.error.invalidToken': 'अमान्य टोकन।',
@@ -172,11 +172,10 @@ export const ne: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'लगइन असफल भयो।',
   'user.error.newPasswordRequired': 'नयाँ पासवर्ड आवश्यक छ।',
   'user.error.noPendingTwoFactorSetup':
-    'कुनै पनि दुई-कारक सेटअप बाँकी छैन। पहिले &quot;सेटअप&quot; कार्यको साथ कल गर्नुहोस्।',
+    'कुनै पनि दुई-कारक सेटअप बाँकी छैन। पहिले "सेटअप" कार्यको साथ कल गर्नुहोस्।',
   'user.error.notFound': 'भेटिएन।',
   'user.error.oauthLoginFailed': 'OAuth लगइन असफल भयो।',
-  'user.error.oauthServerNotConfigured':
-    'OAuth सर्भर &quot;<x> {{सर्भर}}</x> &quot; कन्फिगर गरिएको छैन।',
+  'user.error.oauthServerNotConfigured': 'OAuth सर्भर "<x> {{सर्भर}}</x> " कन्फिगर गरिएको छैन।',
   'user.error.oauthVerificationFailed': 'OAuth प्रमाणीकरण असफल भयो।',
   'user.error.passwordRequired': 'पासवर्ड आवश्यक छ।',
   'user.error.planKeyRequired': 'planKey आवश्यक छ।',

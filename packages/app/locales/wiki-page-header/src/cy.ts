@@ -4,5 +4,5 @@ import type { WikiPageHeaderTranslations } from './types.js'
 export const cy: Partial<WikiPageHeaderTranslations> = {
   'wiki.edit': 'Golygu',
   'wiki.history': 'Hanes',
-  'wiki.updatedAt': 'Wedi&#39;i ddiweddaru',
+  'wiki.updatedAt': "Wedi'i ddiweddaru",
 }

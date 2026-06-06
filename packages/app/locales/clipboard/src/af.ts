@@ -5,5 +5,5 @@ export const af: Partial<ClipboardTranslations> = {
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange word nie deur die verskaffer ondersteun nie',
   'clipboard.error.noProvider':
-    '@molecule/app-knipbord: Geen verskaffer gestel nie. Roep setProvider() met &#39;n Klembordverskaffer-implementering (bv. vanaf @molecule/app-knipbord-kondensator).',
+    "@molecule/app-knipbord: Geen verskaffer gestel nie. Roep setProvider() met 'n Klembordverskaffer-implementering (bv. vanaf @molecule/app-knipbord-kondensator).",
 }

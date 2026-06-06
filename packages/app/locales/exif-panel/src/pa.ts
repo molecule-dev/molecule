@@ -18,5 +18,5 @@ export const pa: Partial<ExifPanelTranslations> = {
   'exifPanel.software': 'ਸਾਫਟਵੇਅਰ',
   'exifPanel.copyright': 'ਕਾਪੀਰਾਈਟ',
   'exifPanel.orientation': 'ਦਿਸ਼ਾ-ਨਿਰਦੇਸ਼',
-  'exifPanel.mapLink': 'ਨਕਸ਼ੇ &#39;ਤੇ ਦੇਖੋ',
+  'exifPanel.mapLink': "ਨਕਸ਼ੇ 'ਤੇ ਦੇਖੋ",
 }

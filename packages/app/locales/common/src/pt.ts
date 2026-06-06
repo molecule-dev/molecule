@@ -428,8 +428,8 @@ export const pt: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Não autorizado.',
   'resource.error.unknownError': 'Erro desconhecido.',
   'routing.error.missingParam':
-    'Parâmetro ausente &quot;<x> {{nome}}</x> &quot;para o caminho&quot;<x> {{padrão}}</x> &quot;',
-  'routing.error.routeNotFound': 'Rota &quot;<x> {{nome}}</x> &quot;não encontrado&quot;',
+    'Parâmetro ausente "<x> {{nome}}</x> "para o caminho"<x> {{padrão}}</x> "',
+  'routing.error.routeNotFound': 'Rota "<x> {{nome}}</x> "não encontrado"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'O comando useMoleculeRouter deve ser usado dentro de um MoleculeRouterProvider.',
   'settings.authentication': 'Autenticação',
@@ -463,8 +463,7 @@ export const pt: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'Falha ao atualizar o plano.',
   'user.error.failedToUpdateSubscription': 'Falha ao atualizar a assinatura.',
   'user.error.failedToUpdateUser': 'Falha ao atualizar o usuário.',
-  'user.error.invalidAction':
-    'Ação inválida. Use &quot;setup&quot;, &quot;enable&quot; ou &quot;disable&quot;.',
+  'user.error.invalidAction': 'Ação inválida. Use "setup", "enable" ou "disable".',
   'user.error.invalidCredentials': 'Credenciais inválidas.',
   'user.error.invalidPlan': 'Plano inválido.',
   'user.error.invalidToken': 'Token inválido.',
@@ -472,11 +471,11 @@ export const pt: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Falha no login.',
   'user.error.newPasswordRequired': 'É necessária uma nova senha.',
   'user.error.noPendingTwoFactorSetup':
-    'Nenhuma configuração de autenticação de dois fatores pendente. Ligue primeiro com a ação &quot;configurar&quot;.',
+    'Nenhuma configuração de autenticação de dois fatores pendente. Ligue primeiro com a ação "configurar".',
   'user.error.notFound': 'Não encontrado.',
   'user.error.oauthLoginFailed': 'Falha no login OAuth.',
   'user.error.oauthServerNotConfigured':
-    'Servidor OAuth &quot;<x> {{server}}</x> &quot;Não está configurado.&quot;',
+    'Servidor OAuth "<x> {{server}}</x> "Não está configurado."',
   'user.error.oauthVerificationFailed': 'A verificação OAuth falhou.',
   'user.error.passwordRequired': 'É necessário usar uma senha.',
   'user.error.planKeyRequired': 'É necessário o uso de planKey.',

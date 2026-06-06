@@ -7,8 +7,7 @@ export const uz: Partial<UtilitiesTranslations> = {
   'error.forbidden': 'Kirish rad etildi.',
   'error.notFound': 'Resurs topilmadi.',
   'error.unknown': 'Kutilmagan xatolik yuz berdi.',
-  'error.timeout': 'So&#39;rov vaqti tugadi. Qaytadan urinib ko&#39;ring.',
-  'error.validationError':
-    'Iltimos, ma&#39;lumotingizni tekshiring va qaytadan urinib ko&#39;ring.',
-  'error.serverError': 'Serverda xatolik yuz berdi. Keyinroq qayta urinib ko&#39;ring.',
+  'error.timeout': "So'rov vaqti tugadi. Qaytadan urinib ko'ring.",
+  'error.validationError': "Iltimos, ma'lumotingizni tekshiring va qaytadan urinib ko'ring.",
+  'error.serverError': "Serverda xatolik yuz berdi. Keyinroq qayta urinib ko'ring.",
 }

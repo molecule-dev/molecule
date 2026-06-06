@@ -3,7 +3,7 @@ import type { GradebookTranslations } from './types.js'
 /** Gradebook translations for mt. */
 export const mt: Partial<GradebookTranslations> = {
   'gradebook.aria.region': 'Ktieb tal-gradi',
-  'gradebook.empty': 'Għad m&#39;hemm l-ebda gradi.',
+  'gradebook.empty': "Għad m'hemm l-ebda gradi.",
   'gradebook.col.title': 'Kors',
   'gradebook.col.letter': 'Ittra',
   'gradebook.col.numeric': 'Punteġġ',
@@ -13,7 +13,7 @@ export const mt: Partial<GradebookTranslations> = {
   'gradebook.col.posted': 'Ippubblikat',
   'gradebook.gpa.title': 'GPA',
   'gradebook.gpa.outOf': 'barra minn<x> {{massimu}}</x>',
-  'gradebook.gpa.trend.up': 'Xejra &#39;l fuq',
-  'gradebook.gpa.trend.down': 'Xejra &#39;l isfel',
+  'gradebook.gpa.trend.up': "Xejra 'l fuq",
+  'gradebook.gpa.trend.down': "Xejra 'l isfel",
   'gradebook.gpa.trend.flat': 'Kostanti',
 }

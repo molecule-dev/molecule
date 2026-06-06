@@ -3,7 +3,7 @@ import type { SolidUiTranslations } from './types.js'
 /** SolidUi translations for af. */
 export const af: Partial<SolidUiTranslations> = {
   'solid.error.useAccordionOutsideProvider':
-    'Trekklavierkomponente moet binne &#39;n trekklavier gebruik word',
+    "Trekklavierkomponente moet binne 'n trekklavier gebruik word",
   'ui.alert.dismiss': 'Maak toe',
   'ui.avatar.alt': 'Avatar',
   'ui.input.clear': 'Duidelik',
@@ -18,5 +18,5 @@ export const af: Partial<SolidUiTranslations> = {
   'ui.spinner.loading': 'Laai',
   'ui.table.empty': 'Geen data beskikbaar nie',
   'ui.toast.close': 'Maak toe',
-  'solid.error.useToastOutsideProvider': 'useToast moet binne &#39;n ToastProvider gebruik word',
+  'solid.error.useToastOutsideProvider': "useToast moet binne 'n ToastProvider gebruik word",
 }

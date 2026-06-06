@@ -105,8 +105,8 @@ export const si: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'අනවසර.',
   'resource.error.unknownError': 'නොදන්නා දෝෂයකි.',
   'routing.error.missingParam':
-    'පරාමිතිය අතුරුදහන් &quot;<x> {{නම}}</x> &quot;මාර්ගය සඳහා&quot;<x> {{රටාව}}</x> &quot;',
-  'routing.error.routeNotFound': 'මාර්ගය &quot;<x> {{නම}}</x> &quot; හමු වුණේ නැහැ',
+    'පරාමිතිය අතුරුදහන් "<x> {{නම}}</x> "මාර්ගය සඳහා"<x> {{රටාව}}</x> "',
+  'routing.error.routeNotFound': 'මාර්ගය "<x> {{නම}}</x> " හමු වුණේ නැහැ',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter MoleculeRouterProvider එකක් තුළ භාවිතා කළ යුතුය.',
   'settings.account': 'ගිණුම',
@@ -164,7 +164,7 @@ export const si: Partial<CommonTranslations> = {
   'user.error.failedToUpdateSubscription': 'දායකත්වය යාවත්කාලීන කිරීමට අසමත් විය.',
   'user.error.failedToUpdateUser': 'පරිශීලකයා යාවත්කාලීන කිරීමට අසමත් විය.',
   'user.error.invalidAction':
-    'වලංගු නොවන ක්‍රියාවක්. &quot;setup&quot;, &quot;enable&quot;, හෝ &quot;disable&quot; භාවිතා කරන්න.',
+    'වලංගු නොවන ක්‍රියාවක්. "setup", "enable", හෝ "disable" භාවිතා කරන්න.',
   'user.error.invalidCredentials': 'වලංගු නොවන අක්තපත්‍ර.',
   'user.error.invalidPlan': 'වලංගු නොවන සැලැස්ම.',
   'user.error.invalidToken': 'අවලංගු ටෝකනය.',
@@ -172,11 +172,11 @@ export const si: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'ඇතුළු වීම අසාර්ථක විය.',
   'user.error.newPasswordRequired': 'නව මුරපදයක් අවශ්‍යයි.',
   'user.error.noPendingTwoFactorSetup':
-    'පොරොත්තු ද්වි-සාධක සැකසුමක් නොමැත. පළමුව ක්‍රියාව &quot;සැකසුම&quot; සමඟ අමතන්න.',
+    'පොරොත්තු ද්වි-සාධක සැකසුමක් නොමැත. පළමුව ක්‍රියාව "සැකසුම" සමඟ අමතන්න.',
   'user.error.notFound': 'හමු වුණේ නැහැ.',
   'user.error.oauthLoginFailed': 'OAuth පුරනය වීම අසාර්ථක විය.',
   'user.error.oauthServerNotConfigured':
-    '&quot;OAuth සේවාදායකය&quot;<x> {{සේවාදායකය}}</x> &quot; වින්‍යාස කර නොමැත.',
+    '"OAuth සේවාදායකය"<x> {{සේවාදායකය}}</x> " වින්‍යාස කර නොමැත.',
   'user.error.oauthVerificationFailed': 'OAuth සත්‍යාපනය අසාර්ථක විය.',
   'user.error.passwordRequired': 'මුරපදය අවශ්‍යයි.',
   'user.error.planKeyRequired': 'planKey අවශ්‍යයි.',

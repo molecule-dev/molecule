@@ -31,6 +31,5 @@ export const it: Partial<ReactNativeUiTranslations> = {
   'ui.icon.sortAsc': '↑',
   'ui.icon.sortDesc': '↓',
   'ui.table.empty': 'Nessun dato',
-  'ui.toast.error.noProvider':
-    'useToast deve essere utilizzato all&#39;interno di un ToastProvider',
+  'ui.toast.error.noProvider': "useToast deve essere utilizzato all'interno di un ToastProvider",
 }

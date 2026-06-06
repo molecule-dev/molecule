@@ -375,8 +375,8 @@ export const da: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Uberettiget.',
   'resource.error.unknownError': 'Ukendt fejl.',
   'routing.error.missingParam':
-    'Manglende parameter<x> {{navn}}</x> &quot;til sti&quot;<x> {{mønster}}</x> &quot;',
-  'routing.error.routeNotFound': 'Rute &quot;<x> {{navn}}</x> &quot;ikke fundet',
+    'Manglende parameter<x> {{navn}}</x> "til sti"<x> {{mønster}}</x> "',
+  'routing.error.routeNotFound': 'Rute "<x> {{navn}}</x> "ikke fundet',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter skal bruges i en MoleculeRouterProvider',
   'settings.authentication': 'Godkendelse',
@@ -421,8 +421,7 @@ export const da: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'Planen kunne ikke opdateres.',
   'user.error.failedToUpdateSubscription': 'Abonnementet kunne ikke opdateres.',
   'user.error.failedToUpdateUser': 'Brugeren kunne ikke opdateres.',
-  'user.error.invalidAction':
-    'Ugyldig handling. Brug &quot;opsæt&quot;, &quot;aktiver&quot; eller &quot;deaktiver&quot;.',
+  'user.error.invalidAction': 'Ugyldig handling. Brug "opsæt", "aktiver" eller "deaktiver".',
   'user.error.invalidCredentials': 'Ugyldige loginoplysninger.',
   'user.error.invalidPlan': 'Ugyldig plan.',
   'user.error.invalidToken': 'Ugyldig token.',
@@ -430,11 +429,10 @@ export const da: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Login mislykkedes.',
   'user.error.newPasswordRequired': 'Ny adgangskode er påkrævet.',
   'user.error.noPendingTwoFactorSetup':
-    'Ingen afventende tofaktoropsætning. Opkald med handlingen &quot;opsætning&quot; først.',
+    'Ingen afventende tofaktoropsætning. Opkald med handlingen "opsætning" først.',
   'user.error.notFound': 'Ikke fundet.',
   'user.error.oauthLoginFailed': 'OAuth-login mislykkedes.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth-server<x> {{server}}</x> &quot; er ikke konfigureret.',
+  'user.error.oauthServerNotConfigured': 'OAuth-server<x> {{server}}</x> " er ikke konfigureret.',
   'user.error.oauthVerificationFailed': 'OAuth-bekræftelse mislykkedes.',
   'user.error.passwordRequired': 'Adgangskode er påkrævet.',
   'user.error.planKeyRequired': 'planKey er påkrævet.',

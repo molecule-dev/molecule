@@ -5,5 +5,5 @@ export const fr: Partial<RoutingTranslations> = {
   'routing.error.missingParam': 'Paramètre "{{name}}" manquant pour le chemin "{{pattern}}"',
   'routing.error.routeNotFound': 'Route "{{name}}" introuvable',
   'routing.error.useMoleculeRouterOutsideProvider':
-    'La fonction useMoleculeRouter doit être utilisée au sein d&#39;un MoleculeRouterProvider.',
+    "La fonction useMoleculeRouter doit être utilisée au sein d'un MoleculeRouterProvider.",
 }

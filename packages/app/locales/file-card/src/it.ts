@@ -17,7 +17,7 @@ export const it: Partial<FileCardTranslations> = {
   'file-card.aria.modified': 'Modificato<x> {{Quando}}</x>',
   'file-card.modified.minute-one': '1 minuto fa',
   'file-card.modified.hour-one': '1 ora fa',
-  'file-card.modified.hour-other': '{{contare}} un&#39;ora fa',
+  'file-card.modified.hour-other': "{{contare}} un'ora fa",
   'file-card.modified.day-one': 'Ieri',
   'file-card.modified.day-other': '{{contare}} giorni fa',
   'file-card.modified.week-one': '1 settimana fa',

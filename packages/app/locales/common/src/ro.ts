@@ -379,8 +379,8 @@ export const ro: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Neautorizat.',
   'resource.error.unknownError': 'Eroare necunoscută.',
   'routing.error.missingParam':
-    'Parametru lipsă &quot;<x> {{nume}}</x> „pentru cale”<x> {{model}}</x> &quot;',
-  'routing.error.routeNotFound': 'Ruta &quot;<x> {{nume}}</x> &quot; nu a fost găsit',
+    'Parametru lipsă "<x> {{nume}}</x> „pentru cale”<x> {{model}}</x> "',
+  'routing.error.routeNotFound': 'Ruta "<x> {{nume}}</x> " nu a fost găsit',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter trebuie utilizat în cadrul unui MoleculeRouterProvider',
   'settings.authentication': 'Autentificare',

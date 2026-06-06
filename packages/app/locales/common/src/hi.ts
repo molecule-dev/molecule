@@ -431,9 +431,8 @@ export const hi: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'अपडेट करने में असमर्थ<x> {{नाम}}</x> .',
   'resource.error.unauthorized': 'अनधिकृत।',
   'resource.error.unknownError': 'अज्ञात त्रुटि।',
-  'routing.error.missingParam':
-    'पैरामीटर &quot; गायब है<x> {{नाम}}</x> पथ के लिए<x> {{नमूना}}</x> &quot;',
-  'routing.error.routeNotFound': 'मार्ग &quot;<x> {{नाम}}</x> &quot; नहीं मिला',
+  'routing.error.missingParam': 'पैरामीटर " गायब है<x> {{नाम}}</x> पथ के लिए<x> {{नमूना}}</x> "',
+  'routing.error.routeNotFound': 'मार्ग "<x> {{नाम}}</x> " नहीं मिला',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter का उपयोग MoleculeRouterProvider के भीतर ही किया जाना चाहिए।',
   'settings.authentication': 'प्रमाणीकरण',
@@ -466,8 +465,7 @@ export const hi: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'योजना को अपडेट करने में विफल।',
   'user.error.failedToUpdateSubscription': 'सदस्यता अपडेट करने में विफल।',
   'user.error.failedToUpdateUser': 'उपयोगकर्ता को अपडेट करने में विफल।',
-  'user.error.invalidAction':
-    'अमान्य कार्रवाई। &quot;सेटअप&quot;, &quot;इनेबल&quot; या &quot;डिसेबल&quot; का उपयोग करें।',
+  'user.error.invalidAction': 'अमान्य कार्रवाई। "सेटअप", "इनेबल" या "डिसेबल" का उपयोग करें।',
   'user.error.invalidCredentials': 'अवैध प्रत्यय पत्र।',
   'user.error.invalidPlan': 'अमान्य योजना।',
   'user.error.invalidToken': 'अमान्य टोकन।',
@@ -475,11 +473,11 @@ export const hi: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'लॉगिन विफल।',
   'user.error.newPasswordRequired': 'नया पासवर्ड आवश्यक है।',
   'user.error.noPendingTwoFactorSetup':
-    'कोई टू-फैक्टर ऑथेंटिकेशन सेटअप लंबित नहीं है। कृपया पहले &quot;सेटअप&quot; विकल्प के साथ कॉल करें।',
+    'कोई टू-फैक्टर ऑथेंटिकेशन सेटअप लंबित नहीं है। कृपया पहले "सेटअप" विकल्प के साथ कॉल करें।',
   'user.error.notFound': 'नहीं मिला।',
   'user.error.oauthLoginFailed': 'OAuth लॉगिन विफल रहा।',
   'user.error.oauthServerNotConfigured':
-    'OAuth सर्वर &quot;<x> {{server}}</x> &quot; कॉन्फ़िगर नहीं किया गया है।',
+    'OAuth सर्वर "<x> {{server}}</x> " कॉन्फ़िगर नहीं किया गया है।',
   'user.error.oauthVerificationFailed': 'OAuth सत्यापन विफल रहा।',
   'user.error.passwordRequired': 'पासवर्ड आवश्यक है।',
   'user.error.planKeyRequired': 'planKey आवश्यक है।',

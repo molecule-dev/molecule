@@ -99,8 +99,8 @@ export const gl: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Non autorizado.',
   'resource.error.unknownError': 'Erro descoñecido.',
   'routing.error.missingParam':
-    'Falta o parámetro &quot;<x> {{nome}}</x> &quot;para o camiño&quot;<x> {{patrón}}</x> &quot;',
-  'routing.error.routeNotFound': 'Ruta &quot;<x> {{nome}}</x> &quot;non atopado',
+    'Falta o parámetro "<x> {{nome}}</x> "para o camiño"<x> {{patrón}}</x> "',
+  'routing.error.routeNotFound': 'Ruta "<x> {{nome}}</x> "non atopado',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter debe usarse dentro dun MoleculeRouterProvider',
   'settings.account': 'Conta',
@@ -158,8 +158,7 @@ export const gl: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'Non se puido actualizar o plan.',
   'user.error.failedToUpdateSubscription': 'Non se puido actualizar a subscrición.',
   'user.error.failedToUpdateUser': 'Non se puido actualizar o usuario.',
-  'user.error.invalidAction':
-    'Acción non válida. Usa &quot;configurar&quot;, &quot;activar&quot; ou &quot;desactivar&quot;.',
+  'user.error.invalidAction': 'Acción non válida. Usa "configurar", "activar" ou "desactivar".',
   'user.error.invalidCredentials': 'Credenciais non válidas.',
   'user.error.invalidPlan': 'Plan non válido.',
   'user.error.invalidToken': 'Token non válido.',
@@ -167,11 +166,11 @@ export const gl: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Fallou o inicio de sesión.',
   'user.error.newPasswordRequired': 'É necesario un novo contrasinal.',
   'user.error.noPendingTwoFactorSetup':
-    'Non hai configuración de dous factores pendente. Chamada coa acción &quot;configuración&quot; primeiro.',
+    'Non hai configuración de dous factores pendente. Chamada coa acción "configuración" primeiro.',
   'user.error.notFound': 'Non atopado.',
   'user.error.oauthLoginFailed': 'Fallou o inicio de sesión de OAuth.',
   'user.error.oauthServerNotConfigured':
-    'Servidor OAuth &quot;<x> {{servidor}}</x> &quot; non está configurado.',
+    'Servidor OAuth "<x> {{servidor}}</x> " non está configurado.',
   'user.error.oauthVerificationFailed': 'Fallou a verificación de OAuth.',
   'user.error.passwordRequired': 'É necesario o contrasinal.',
   'user.error.planKeyRequired': 'É obrigatorio o campo planKey.',

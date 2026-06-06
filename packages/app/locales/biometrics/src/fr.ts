@@ -12,5 +12,5 @@ export const fr: Partial<BiometricsTranslations> = {
   'biometrics.device.faceId': 'Face ID',
   'biometrics.device.touchId': 'Touch ID',
   'biometrics.device.windowsHello': 'Windows Hello',
-  'biometrics.error.userCancel': 'L&#39;utilisateur a annulé l&#39;authentification',
+  'biometrics.error.userCancel': "L'utilisateur a annulé l'authentification",
 }

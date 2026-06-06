@@ -8,7 +8,7 @@ export const cy: Partial<CameraTranslations> = {
     'Nid yw recordio fideo yn cael ei gefnogi yn y darparwr gwe. Defnyddiwch ddarparwr brodorol.',
   'camera.error.previewNoParent': 'Dim rhiant gan y rhagolwg',
   'camera.error.noVideoTrack': 'Dim trac fideo',
-  'camera.error.noFileSelected': 'Dim ffeil wedi&#39;i dewis',
-  'camera.error.noFilesSelected': 'Dim ffeiliau wedi&#39;u dewis',
+  'camera.error.noFileSelected': "Dim ffeil wedi'i dewis",
+  'camera.error.noFilesSelected': "Dim ffeiliau wedi'u dewis",
   'camera.error.previewNotStarted': 'Rhagolwg heb ei gychwyn',
 }

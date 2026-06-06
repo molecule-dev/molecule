@@ -5,5 +5,5 @@ export const tr: Partial<ClipboardTranslations> = {
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange sağlayıcı tarafından desteklenmiyor',
   'clipboard.error.noProvider':
-    '@molecule/app-clipboard: Sağlayıcı ayarlanmadı. Lütfen bir ClipboardProvider uygulamasıyla (örneğin, @molecule/app-clipboard-capacitor&#39;dan) setProvider() işlevini çağırın.',
+    "@molecule/app-clipboard: Sağlayıcı ayarlanmadı. Lütfen bir ClipboardProvider uygulamasıyla (örneğin, @molecule/app-clipboard-capacitor'dan) setProvider() işlevini çağırın.",
 }

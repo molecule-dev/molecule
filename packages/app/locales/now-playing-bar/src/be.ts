@@ -9,5 +9,5 @@ export const be: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.aria.next': 'Наступны трэк',
   'nowPlaying.aria.prev': 'Папярэдні трэк',
   'nowPlaying.aria.seek': 'Шукаць',
-  'nowPlaying.aria.volume': 'Аб&#39;ём',
+  'nowPlaying.aria.volume': "Аб'ём",
 }

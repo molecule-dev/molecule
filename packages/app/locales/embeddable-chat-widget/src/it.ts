@@ -8,6 +8,6 @@ export const it: Partial<EmbeddableChatWidgetTranslations> = {
   'embeddableChatWidget.panel.headerLabel': 'Chatta con<x> {{brandName}}</x>',
   'embeddableChatWidget.panel.closeLabel': 'Chiudi chat',
   'embeddableChatWidget.panel.emptyState': 'Per iniziare, poni una domanda.',
-  'embeddableChatWidget.panel.assistantTyping': 'L&#39;assistente sta digitando…',
+  'embeddableChatWidget.panel.assistantTyping': "L'assistente sta digitando…",
   'embeddableChatWidget.error.streamError': 'Si è verificato un errore. Riprova.',
 }

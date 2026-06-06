@@ -106,8 +106,8 @@ export const ka: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'არაავტორიზებული.',
   'resource.error.unknownError': 'უცნობი შეცდომა.',
   'routing.error.missingParam':
-    'პარამეტრი აკლია &quot;<x> {{სახელი}}</x> &quot;გზისთვის&quot;<x> {{ნიმუში}}</x> „',
-  'routing.error.routeNotFound': 'მარშრუტი &quot;<x> {{სახელი}}</x> &quot;ვერ მოიძებნა',
+    'პარამეტრი აკლია "<x> {{სახელი}}</x> "გზისთვის"<x> {{ნიმუში}}</x> „',
+  'routing.error.routeNotFound': 'მარშრუტი "<x> {{სახელი}}</x> "ვერ მოიძებნა',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter უნდა იქნას გამოყენებული MoleculeRouterProvider-ში.',
   'settings.account': 'ანგარიში',
@@ -176,7 +176,7 @@ export const ka: Partial<CommonTranslations> = {
   'user.error.notFound': 'ვერ მოიძებნა.',
   'user.error.oauthLoginFailed': 'OAuth-ში შესვლა ვერ მოხერხდა.',
   'user.error.oauthServerNotConfigured':
-    'OAuth სერვერი<x> {{სერვერი}}</x> &quot;კონფიგურირებული არ არის.',
+    'OAuth სერვერი<x> {{სერვერი}}</x> "კონფიგურირებული არ არის.',
   'user.error.oauthVerificationFailed': 'OAuth-ის ვერიფიკაცია ვერ მოხერხდა.',
   'user.error.passwordRequired': 'პაროლი აუცილებელია.',
   'user.error.planKeyRequired': 'planKey საჭიროა.',

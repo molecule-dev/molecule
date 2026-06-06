@@ -26,10 +26,10 @@ export const ca: Partial<ReactNativeUiTranslations> = {
   'ui.radioGroup.label': 'Grup de ràdio',
   'ui.select.placeholder': 'Selecciona…',
   'ui.select.title': 'Selecciona',
-  'ui.spinner.loading': 'S&#39;està carregant',
+  'ui.spinner.loading': "S'està carregant",
   'ui.icon.sortAsc': '↑',
   'ui.icon.sortDesc': '↓',
   'ui.table.empty': 'Sense dades',
   'ui.toast.dismiss': 'Ignora',
-  'ui.toast.error.noProvider': 'useToast s&#39;ha d&#39;utilitzar dins d&#39;un ToastProvider.',
+  'ui.toast.error.noProvider': "useToast s'ha d'utilitzar dins d'un ToastProvider.",
 }

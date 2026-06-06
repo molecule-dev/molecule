@@ -9,6 +9,6 @@ export const ca: Partial<UtilitiesTranslations> = {
   'error.validationError': 'Si us plau, comproveu les vostres dades i torneu-ho a provar.',
   'error.serverError': 'Error del servidor. Si us plau, torneu-ho a provar més tard.',
   'error.timeout':
-    'S&#39;ha esgotat el temps d&#39;espera de la sol·licitud. Si us plau, torneu-ho a intentar.',
-  'error.unknown': 'S&#39;ha produït un error inesperat.',
+    "S'ha esgotat el temps d'espera de la sol·licitud. Si us plau, torneu-ho a intentar.",
+  'error.unknown': "S'ha produït un error inesperat.",
 }

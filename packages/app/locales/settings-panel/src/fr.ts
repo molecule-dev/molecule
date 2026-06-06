@@ -13,8 +13,8 @@ export const fr: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'Mettre à niveau',
   'settings.billing.cancel': 'Annuler',
   'settings.darkMode': 'Mode sombre',
-  'settings.billing.cancelFailed': 'Impossible d&#39;annuler.',
+  'settings.billing.cancelFailed': "Impossible d'annuler.",
   'settings.billing.upgradeTitle': 'Passez à un forfait supérieur',
   'settings.billing.noTiers': 'Aucun forfait payant configuré.',
-  'settings.billing.subscribe': 'S&#39;abonner',
+  'settings.billing.subscribe': "S'abonner",
 }

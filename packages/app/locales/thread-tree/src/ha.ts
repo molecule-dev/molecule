@@ -6,6 +6,6 @@ export const ha: Partial<ThreadTreeTranslations> = {
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',
   'threadTree.score': '{{ƙidaya}} maki',
-  'threadTree.upvote': 'Kuri&#39;a Mai Kyau',
+  'threadTree.upvote': "Kuri'a Mai Kyau",
   'threadTree.reply': 'Amsa',
 }

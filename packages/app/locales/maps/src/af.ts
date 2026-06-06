@@ -4,5 +4,5 @@ import type { MapsTranslations } from './types.js'
 export const af: Partial<MapsTranslations> = {
   'maps.placeholder.title': 'Kaartplekhouer',
   'maps.placeholder.description':
-    'Gebruik &#39;n behoorlike kaartverskaffer (MapBox, Google Maps, ens.)',
+    "Gebruik 'n behoorlike kaartverskaffer (MapBox, Google Maps, ens.)",
 }

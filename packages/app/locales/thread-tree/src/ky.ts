@@ -6,6 +6,6 @@ export const ky: Partial<ThreadTreeTranslations> = {
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',
   'threadTree.score': '{{count}} упайлар',
-  'threadTree.upvote': '&quot;Жакты&quot; деп добуш берүү',
+  'threadTree.upvote': '"Жакты" деп добуш берүү',
   'threadTree.reply': 'Жооп',
 }

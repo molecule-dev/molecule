@@ -10,5 +10,5 @@ export const mt: Partial<CameraTranslations> = {
     'Ir-rekording tal-vidjo mhux supportat fil-provajder tal-web. Uza provajder nattiv.',
   'camera.error.previewNotStarted': 'Il-previżjoni ma nbdietx',
   'camera.error.noVideoTrack': 'Ebda track tal-vidjo',
-  'camera.error.previewNoParent': 'Il-previżjoni m&#39;għandhiex ġenitur',
+  'camera.error.previewNoParent': "Il-previżjoni m'għandhiex ġenitur",
 }

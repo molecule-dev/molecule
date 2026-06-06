@@ -23,5 +23,5 @@ export const uz: Partial<ReactTranslations> = {
   'react.error.useToastOutsideProvider': 'useToast ToastProvider ichida ishlatilishi kerak',
   'react.error.useWorkspaceOutsideProvider':
     'useWorkspaceProvider WorkspaceProvider ichida ishlatilishi kerak',
-  'react.error.unsupportedMethod': 'Qo&#39;llab-quvvatlanmaydigan usul:<x> {{method}}</x>',
+  'react.error.unsupportedMethod': "Qo'llab-quvvatlanmaydigan usul:<x> {{method}}</x>",
 }

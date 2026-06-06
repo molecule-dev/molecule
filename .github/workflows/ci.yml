@@ -23,6 +23,8 @@ jobs:
       - run: npm ci
       - run: npm run check:lockfile
       - run: npm run check:peer-deps
+      # Guard against HTML-entity contamination creeping back into locale data.
+      - run: node scripts/decode-locale-entities.js --check
       - run: npm run build
       - run: npm test
 

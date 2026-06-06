@@ -2,11 +2,10 @@ import type { AudioRecorderTranslations } from './types.js'
 
 /** AudioRecorder translations for mt. */
 export const mt: Partial<AudioRecorderTranslations> = {
-  'audioRecorder.unsupported':
-    'Ir-reġistrazzjoni tal-awdjo mhijiex appoġġjata f&#39;dan il-browser',
-  'audioRecorder.error': 'Ir-reġistrazzjoni falliet. Jekk jogħġbok erġa&#39; pprova.',
+  'audioRecorder.unsupported': "Ir-reġistrazzjoni tal-awdjo mhijiex appoġġjata f'dan il-browser",
+  'audioRecorder.error': "Ir-reġistrazzjoni falliet. Jekk jogħġbok erġa' pprova.",
   'audioRecorder.permissionDenied':
-    'Permess tal-mikrofonu miċħud. Ippermetti l-aċċess u erġa&#39; pprova.',
+    "Permess tal-mikrofonu miċħud. Ippermetti l-aċċess u erġa' pprova.",
   'audioRecorder.pause': 'Pawża',
   'audioRecorder.resume': 'Sommarju',
   'audioRecorder.stop': 'Waqqaf',

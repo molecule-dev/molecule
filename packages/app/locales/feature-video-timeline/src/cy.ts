@@ -5,7 +5,7 @@ export const cy: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Llinell amser fideo',
   'videoTimeline.aria.ruler': 'Rheolwr amser',
   'videoTimeline.aria.playhead': 'Pen chwarae yn<x> {{amser}}</x> au',
-  'videoTimeline.aria.zoom': 'Chwyddo&#39;r llinell amser',
+  'videoTimeline.aria.zoom': "Chwyddo'r llinell amser",
   'videoTimeline.aria.mode': 'Modd golygu',
   'videoTimeline.zoom.in': 'Chwyddo i mewn',
   'videoTimeline.zoom.out': 'Chwyddo allan',

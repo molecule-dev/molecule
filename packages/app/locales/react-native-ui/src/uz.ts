@@ -29,7 +29,7 @@ export const uz: Partial<ReactNativeUiTranslations> = {
   'ui.spinner.loading': 'Yuklanmoqda',
   'ui.icon.sortAsc': '↑',
   'ui.icon.sortDesc': '↓',
-  'ui.table.empty': 'Ma&#39;lumot yo&#39;q',
+  'ui.table.empty': "Ma'lumot yo'q",
   'ui.toast.dismiss': 'Bekor qilish',
   'ui.toast.error.noProvider': 'useToast funksiyasi ToastProvider ichida ishlatilishi kerak',
 }

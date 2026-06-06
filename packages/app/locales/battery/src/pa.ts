@@ -9,5 +9,5 @@ export const pa: Partial<BatteryTranslations> = {
   'battery.remainingUnknown': 'ਅਣਜਾਣ',
   'battery.remainingTime': '{{hours}}ਘੰ {{minutes}}ਮਿ',
   'battery.remainingMinutes': '{{minutes}}ਮਿ',
-  'battery.discharging': 'ਬੈਟਰੀ &#39;ਤੇ',
+  'battery.discharging': "ਬੈਟਰੀ 'ਤੇ",
 }

@@ -104,9 +104,8 @@ export const ur: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'اپ ڈیٹ کرنے سے قاصر<x> {{نام}}</x> .',
   'resource.error.unauthorized': 'غیر مجاز۔',
   'resource.error.unknownError': 'نامعلوم خرابی۔',
-  'routing.error.missingParam':
-    'لاپتہ پرم&quot;<x> {{نام}}</x> &quot;راستے کے لیے&quot;<x> {{نمونہ}}</x> &quot;',
-  'routing.error.routeNotFound': 'راستہ&quot;<x> {{نام}}</x> &quot;نہیں ملا',
+  'routing.error.missingParam': 'لاپتہ پرم"<x> {{نام}}</x> "راستے کے لیے"<x> {{نمونہ}}</x> "',
+  'routing.error.routeNotFound': 'راستہ"<x> {{نام}}</x> "نہیں ملا',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter کو MoleculeRouterProvider کے اندر استعمال کرنا چاہیے۔',
   'settings.account': 'اکاؤنٹ',
@@ -163,8 +162,7 @@ export const ur: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'پلان کو اپ ڈیٹ کرنے میں ناکام۔',
   'user.error.failedToUpdateSubscription': 'سبسکرپشن کو اپ ڈیٹ کرنے میں ناکام۔',
   'user.error.failedToUpdateUser': 'صارف کو اپ ڈیٹ کرنے میں ناکام۔',
-  'user.error.invalidAction':
-    'غلط کارروائی۔ &quot;سیٹ اپ&quot;، &quot;فعال&quot; یا &quot;غیر فعال&quot; کا استعمال کریں۔',
+  'user.error.invalidAction': 'غلط کارروائی۔ "سیٹ اپ"، "فعال" یا "غیر فعال" کا استعمال کریں۔',
   'user.error.invalidCredentials': 'غلط اسناد۔',
   'user.error.invalidPlan': 'غلط منصوبہ۔',
   'user.error.invalidToken': 'غلط ٹوکن۔',
@@ -172,11 +170,10 @@ export const ur: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'لاگ ان ناکام ہو گیا۔',
   'user.error.newPasswordRequired': 'نیا پاس ورڈ درکار ہے۔',
   'user.error.noPendingTwoFactorSetup':
-    'کوئی زیر التواء دو فیکٹر سیٹ اپ نہیں ہے۔ پہلے &quot;سیٹ اپ&quot; کے ساتھ کال کریں۔',
+    'کوئی زیر التواء دو فیکٹر سیٹ اپ نہیں ہے۔ پہلے "سیٹ اپ" کے ساتھ کال کریں۔',
   'user.error.notFound': 'نہیں ملا۔',
   'user.error.oauthLoginFailed': 'OAuth لاگ ان ناکام ہوگیا۔',
-  'user.error.oauthServerNotConfigured':
-    'OAuth سرور&quot;<x> {{سرور}}</x> &quot; ترتیب نہیں دیا گیا ہے۔',
+  'user.error.oauthServerNotConfigured': 'OAuth سرور"<x> {{سرور}}</x> " ترتیب نہیں دیا گیا ہے۔',
   'user.error.oauthVerificationFailed': 'OAuth کی توثیق ناکام ہوگئی۔',
   'user.error.passwordRequired': 'پاس ورڈ درکار ہے۔',
   'user.error.planKeyRequired': 'planKey کی ضرورت ہے۔',

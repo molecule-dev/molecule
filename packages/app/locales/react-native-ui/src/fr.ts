@@ -21,7 +21,7 @@ export const fr: Partial<ReactNativeUiTranslations> = {
   'ui.icon.minus': '−',
   'ui.input.clear': '×',
   'ui.pagination.nav': 'Pagination',
-  'ui.pagination.first': 'D&#39;abord',
+  'ui.pagination.first': "D'abord",
   'ui.icon.chevronsLeft': '«',
   'ui.icon.chevronLeft': '‹',
   'ui.icon.ellipsis': '…',
@@ -32,5 +32,5 @@ export const fr: Partial<ReactNativeUiTranslations> = {
   'ui.icon.sortDesc': '↓',
   'ui.table.empty': 'Aucune donnée',
   'ui.toast.error.noProvider':
-    'La méthode useToast doit être utilisée à l&#39;intérieur d&#39;un ToastProvider.',
+    "La méthode useToast doit être utilisée à l'intérieur d'un ToastProvider.",
 }

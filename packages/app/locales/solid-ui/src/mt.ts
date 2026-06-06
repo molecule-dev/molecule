@@ -10,7 +10,7 @@ export const mt: Partial<SolidUiTranslations> = {
   'ui.modal.close': 'Agħlaq',
   'ui.pagination.nav': 'Paġinazzjoni',
   'ui.pagination.first': 'Mur fl-ewwel paġna',
-  'ui.pagination.previous': 'Mur fil-paġna ta&#39; qabel',
+  'ui.pagination.previous': "Mur fil-paġna ta' qabel",
   'ui.pagination.goToPage': 'Mur fil-paġna<x> {{paġna}}</x>',
   'ui.pagination.last': 'Mur fl-aħħar paġna',
   'ui.progress.label': 'Progress',

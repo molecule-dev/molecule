@@ -105,9 +105,8 @@ export const bg: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Не може да се актуализира<x> {{име}}</x> .',
   'resource.error.unauthorized': 'Неоторизиран.',
   'resource.error.unknownError': 'Неизвестна грешка.',
-  'routing.error.missingParam':
-    'Липсващ параметър &quot;<x> {{име}}</x> „за път“<x> {{шаблон}}</x> &quot;',
-  'routing.error.routeNotFound': 'Маршрут &quot;<x> {{име}}</x> „не е намерено“',
+  'routing.error.missingParam': 'Липсващ параметър "<x> {{име}}</x> „за път“<x> {{шаблон}}</x> "',
+  'routing.error.routeNotFound': 'Маршрут "<x> {{име}}</x> „не е намерено“',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter трябва да се използва в MoleculeRouterProvider',
   'settings.account': 'Профил',
@@ -176,7 +175,7 @@ export const bg: Partial<CommonTranslations> = {
     'Няма чакаща двуфакторна настройка. Първо извикайте с действие „setup“.',
   'user.error.notFound': 'Не е намерено.',
   'user.error.oauthLoginFailed': 'Влизането в OAuth не бе успешно.',
-  'user.error.oauthServerNotConfigured': 'OAuth сървър<x> {{сървър}}</x> &quot; не е конфигуриран.',
+  'user.error.oauthServerNotConfigured': 'OAuth сървър<x> {{сървър}}</x> " не е конфигуриран.',
   'user.error.oauthVerificationFailed': 'OAuth проверката не бе успешна.',
   'user.error.passwordRequired': 'Изисква се парола.',
   'user.error.planKeyRequired': 'Изисква се planKey.',

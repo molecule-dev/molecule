@@ -4,5 +4,5 @@ import type { SettingsActionsBarTranslations } from './types.js'
 export const uz: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Bekor qilish',
   'settingsActions.saving': 'Saqlanmoqda…',
-  'settingsActions.save': 'O&#39;zgarishlarni saqlash',
+  'settingsActions.save': "O'zgarishlarni saqlash",
 }

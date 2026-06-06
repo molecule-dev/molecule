@@ -10,7 +10,7 @@ export const fr: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Niveau',
   'billing.pricing.upgradeCta': 'Passer à {{tierName}}',
   'billing.status.currentPlan': 'Plan actuel :<x> {{tierName}}</x>',
-  'billing.status.cancelCta': 'Annuler l&#39;abonnement',
+  'billing.status.cancelCta': "Annuler l'abonnement",
   'billing.status.cancelError': 'Annulation impossible. Veuillez réessayer.',
   'billing.pricing.reassurance':
     'Annulation possible à tout moment · Aucune carte de crédit requise pour commencer',

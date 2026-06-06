@@ -5,5 +5,5 @@ export const af: Partial<RoutingTranslations> = {
   'routing.error.missingParam': 'Ontbrekende parameter "{{name}}" vir pad "{{pattern}}"',
   'routing.error.routeNotFound': 'Roete "{{name}}" nie gevind nie',
   'routing.error.useMoleculeRouterOutsideProvider':
-    'useMoleculeRouter moet binne &#39;n MoleculeRouterProvider gebruik word.',
+    "useMoleculeRouter moet binne 'n MoleculeRouterProvider gebruik word.",
 }

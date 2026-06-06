@@ -2,9 +2,9 @@ import type { EmbedSnippetTranslations } from './types.js'
 
 /** EmbedSnippet translations for ca. */
 export const ca: Partial<EmbedSnippetTranslations> = {
-  'embedSnippet.aria.region': 'Codi d&#39;incrustació ({language})',
+  'embedSnippet.aria.region': "Codi d'incrustació ({language})",
   'embedSnippet.heading': 'Codi incrustat',
-  'embedSnippet.eyebrow': 'Copia el codi d&#39;incrustació',
+  'embedSnippet.eyebrow': "Copia el codi d'incrustació",
   'embedSnippet.copy': 'Còpia',
   'embedSnippet.copied': 'Copiat!',
   'embedSnippet.controls.width': 'Amplada',

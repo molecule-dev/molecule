@@ -105,8 +105,8 @@ export const km: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'គ្មានការអនុញ្ញាត។',
   'resource.error.unknownError': 'កំហុសមិនស្គាល់។',
   'routing.error.missingParam':
-    'បាត់ប៉ារ៉ាម៉ែត្រ &quot;<x> {{ឈ្មោះ}}</x> &quot;សម្រាប់ផ្លូវ&quot;<x> {{លំនាំ}}</x> &quot;',
-  'routing.error.routeNotFound': 'ផ្លូវ &quot;<x> {{ឈ្មោះ}}</x> &quot;រកមិនឃើញ',
+    'បាត់ប៉ារ៉ាម៉ែត្រ "<x> {{ឈ្មោះ}}</x> "សម្រាប់ផ្លូវ"<x> {{លំនាំ}}</x> "',
+  'routing.error.routeNotFound': 'ផ្លូវ "<x> {{ឈ្មោះ}}</x> "រកមិនឃើញ',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter ត្រូវតែប្រើនៅក្នុង MoleculeRouterProvider',
   'settings.account': 'គណនី',
@@ -163,8 +163,7 @@ export const km: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'មិនអាចធ្វើបច្ចុប្បន្នភាពផែនការបានទេ។',
   'user.error.failedToUpdateSubscription': 'មិនអាចធ្វើបច្ចុប្បន្នភាពការជាវបានទេ។',
   'user.error.failedToUpdateUser': 'បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពអ្នកប្រើប្រាស់។',
-  'user.error.invalidAction':
-    'សកម្មភាពមិនត្រឹមត្រូវ។ សូមប្រើ &quot;ដំឡើង&quot;, &quot;បើក&quot; ឬ &quot;បិទ&quot;។',
+  'user.error.invalidAction': 'សកម្មភាពមិនត្រឹមត្រូវ។ សូមប្រើ "ដំឡើង", "បើក" ឬ "បិទ"។',
   'user.error.invalidCredentials': 'លិខិតសម្គាល់មិនត្រឹមត្រូវ។',
   'user.error.invalidPlan': 'ផែនការមិនត្រឹមត្រូវ។',
   'user.error.invalidToken': 'សញ្ញាសម្ងាត់មិនត្រឹមត្រូវ។',
@@ -172,11 +171,11 @@ export const km: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'ការចូលបានបរាជ័យ។',
   'user.error.newPasswordRequired': 'តម្រូវ​ឱ្យ​មាន​ពាក្យ​សម្ងាត់​ថ្មី។',
   'user.error.noPendingTwoFactorSetup':
-    'គ្មានការរៀបចំពីរកត្តាដែលកំពុងរង់ចាំទេ។ សូមហៅជាមួយសកម្មភាព &quot;ដំឡើង&quot; ជាមុនសិន។',
+    'គ្មានការរៀបចំពីរកត្តាដែលកំពុងរង់ចាំទេ។ សូមហៅជាមួយសកម្មភាព "ដំឡើង" ជាមុនសិន។',
   'user.error.notFound': 'រកមិនឃើញទេ។',
   'user.error.oauthLoginFailed': 'ការចូល OAuth បានបរាជ័យ។',
   'user.error.oauthServerNotConfigured':
-    'ម៉ាស៊ីនបម្រើ OAuth<x> {{ម៉ាស៊ីនបម្រើ}}</x> &quot;មិនត្រូវបានកំណត់រចនាសម្ព័ន្ធទេ។',
+    'ម៉ាស៊ីនបម្រើ OAuth<x> {{ម៉ាស៊ីនបម្រើ}}</x> "មិនត្រូវបានកំណត់រចនាសម្ព័ន្ធទេ។',
   'user.error.oauthVerificationFailed': 'ការផ្ទៀងផ្ទាត់ OAuth បានបរាជ័យ។',
   'user.error.passwordRequired': 'តម្រូវ​ឱ្យ​មាន​ពាក្យ​សម្ងាត់។',
   'user.error.planKeyRequired': 'តម្រូវឲ្យមាន planKey។',

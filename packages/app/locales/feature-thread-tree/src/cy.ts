@@ -3,7 +3,7 @@ import type { ThreadTreeTranslations } from './types.js'
 /** FeatureThreadTree translations for cy. */
 export const cy: Partial<ThreadTreeTranslations> = {
   'threadTree.expand': 'Ehangu<x> {{cyfrif}}</x> atebion',
-  'threadTree.collapse': 'Cwympo&#39;r edau',
+  'threadTree.collapse': "Cwympo'r edau",
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',
   'threadTree.score': '{{cyfrif}} pwyntiau',

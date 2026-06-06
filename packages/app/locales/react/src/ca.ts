@@ -4,31 +4,26 @@ import type { ReactTranslations } from './types.js'
 export const ca: Partial<ReactTranslations> = {
   'react.error.unsupportedMethod': 'Mètode no compatible: {{method}}',
   'react.error.useAccordionOutsideProvider':
-    'Els components de l&#39;acordió s&#39;han d&#39;utilitzar dins d&#39;un acordió.',
-  'react.error.useAuthOutsideProvider':
-    'useAuthClient s&#39;ha d&#39;utilitzar dins d&#39;un AuthProvider.',
-  'react.error.useChatOutsideProvider':
-    'useChatProvider s&#39;ha d&#39;utilitzar dins d&#39;un ChatProvider.',
+    "Els components de l'acordió s'han d'utilitzar dins d'un acordió.",
+  'react.error.useAuthOutsideProvider': "useAuthClient s'ha d'utilitzar dins d'un AuthProvider.",
+  'react.error.useChatOutsideProvider': "useChatProvider s'ha d'utilitzar dins d'un ChatProvider.",
   'react.error.useEditorOutsideProvider':
-    'useEditorProvider s&#39;ha d&#39;utilitzar dins d&#39;un EditorProvider.',
-  'react.error.useHttpOutsideProvider':
-    'useHttpClient s&#39;ha d&#39;utilitzar dins d&#39;un HttpProvider.',
-  'react.error.useI18nOutsideProvider':
-    'useI18nProvider s&#39;ha d&#39;utilitzar dins d&#39;un I18nProvider.',
+    "useEditorProvider s'ha d'utilitzar dins d'un EditorProvider.",
+  'react.error.useHttpOutsideProvider': "useHttpClient s'ha d'utilitzar dins d'un HttpProvider.",
+  'react.error.useI18nOutsideProvider': "useI18nProvider s'ha d'utilitzar dins d'un I18nProvider.",
   'react.error.useLoggerOutsideProvider':
-    'useLoggerProvider s&#39;ha d&#39;utilitzar dins d&#39;un LoggerProvider.',
+    "useLoggerProvider s'ha d'utilitzar dins d'un LoggerProvider.",
   'react.error.usePreviewOutsideProvider':
-    'usePreviewProvider s&#39;ha d&#39;utilitzar dins d&#39;un PreviewProvider.',
+    "usePreviewProvider s'ha d'utilitzar dins d'un PreviewProvider.",
   'react.error.useRouterOutsideProvider':
-    'useRouterInstance s&#39;ha d&#39;utilitzar dins d&#39;un RouterProvider.',
+    "useRouterInstance s'ha d'utilitzar dins d'un RouterProvider.",
   'react.error.useStoreOutsideProvider':
-    'useStateProvider s&#39;ha d&#39;utilitzar dins d&#39;un StateProvider.',
+    "useStateProvider s'ha d'utilitzar dins d'un StateProvider.",
   'react.error.useStorageOutsideProvider':
-    'useStorageProvider s&#39;ha d&#39;utilitzar dins d&#39;un StorageProvider.',
+    "useStorageProvider s'ha d'utilitzar dins d'un StorageProvider.",
   'react.error.useThemeOutsideProvider':
-    'useThemeProvider s&#39;ha d&#39;utilitzar dins d&#39;un ThemeProvider.',
-  'react.error.useToastOutsideProvider':
-    'useToast s&#39;ha d&#39;utilitzar dins d&#39;un ToastProvider.',
+    "useThemeProvider s'ha d'utilitzar dins d'un ThemeProvider.",
+  'react.error.useToastOutsideProvider': "useToast s'ha d'utilitzar dins d'un ToastProvider.",
   'react.error.useWorkspaceOutsideProvider':
-    'useWorkspaceProvider s&#39;ha d&#39;utilitzar dins d&#39;un WorkspaceProvider.',
+    "useWorkspaceProvider s'ha d'utilitzar dins d'un WorkspaceProvider.",
 }

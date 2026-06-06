@@ -29,9 +29,9 @@ export const cy: Partial<IapTranslations> = {
   'iap.error.7': 'Eitem eisoes yn eiddo.',
   'iap.error.8': 'Eitem ddim yn eiddo.',
   'iap.error.E_CANCELLED': 'Cafodd y pryniant ei ganslo.',
-  'iap.error.E_CLIENT_INVALID': 'Ni chaniateir i&#39;r cleient gyhoeddi&#39;r cais.',
+  'iap.error.E_CLIENT_INVALID': "Ni chaniateir i'r cleient gyhoeddi'r cais.",
   'iap.error.E_PAYMENT_CANCELLED': 'Canslodd y defnyddiwr y cais.',
-  'iap.error.E_PAYMENT_NOT_ALLOWED': 'Ni chaniateir i&#39;r ddyfais wneud pryniannau.',
-  'iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED': 'Caniatâd gwasanaeth cwmwl wedi&#39;i wrthod.',
+  'iap.error.E_PAYMENT_NOT_ALLOWED': "Ni chaniateir i'r ddyfais wneud pryniannau.",
+  'iap.error.E_CLOUD_SERVICE_PERMISSION_DENIED': "Caniatâd gwasanaeth cwmwl wedi'i wrthod.",
   'iap.error.E_CLOUD_SERVICE_REVOKED': 'Cafodd gwasanaeth cwmwl ei ddirymu.',
 }

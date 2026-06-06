@@ -168,7 +168,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.sidebar.files': 'Mai bincike',
   'ide.sidebar.search': 'Nema',
   'ide.chat.thoughtBriefly': 'An yi tunani a takaice',
-  'ide.chat.typeErrorCount': 'Kuskuren nau&#39;i 1',
+  'ide.chat.typeErrorCount': "Kuskuren nau'i 1",
   'ide.chat.lintErrorCount': 'Kuskuren lint 1',
   'ide.chat.lintWarningCount': 'Gargaɗi 1',
   'ide.chat.runtimeErrors': 'Kurakuran lokacin gudu',
@@ -208,5 +208,5 @@ export const ha: Partial<IdeTranslations> = {
   'ide.search.replaceConfirmation': 'Akwatin Daidaita Daidaita',
   'ide.search.resultsTruncated': 'Ba a sami sakamako ba',
   'ide.chat.soundEventDesc.verification_result': 'An gama aiki da Lint ko type check',
-  'ide.device.label': 'Tsarin na&#39;ura',
+  'ide.device.label': "Tsarin na'ura",
 }

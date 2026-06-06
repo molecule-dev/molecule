@@ -15,6 +15,6 @@ export const cy: Partial<SettingsPanelTranslations> = {
   'settings.upgrade': 'Uwchraddio',
   'settings.billing.cancel': 'Canslo',
   'settings.billing.upgradeTitle': 'Uwchraddiwch eich cynllun',
-  'settings.billing.noTiers': 'Dim cynlluniau taledig wedi&#39;u ffurfweddu.',
+  'settings.billing.noTiers': "Dim cynlluniau taledig wedi'u ffurfweddu.",
   'settings.billing.subscribe': 'Tanysgrifiwch',
 }

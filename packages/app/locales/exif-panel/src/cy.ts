@@ -14,7 +14,7 @@ export const cy: Partial<ExifPanelTranslations> = {
   'exifPanel.focalLength': 'Hyd ffocal',
   'exifPanel.focalLength35mm': 'Cyfwerth â 35 mm',
   'exifPanel.gps': 'GPS',
-  'exifPanel.timestamp': 'Wedi&#39;i gipio',
+  'exifPanel.timestamp': "Wedi'i gipio",
   'exifPanel.software': 'Meddalwedd',
   'exifPanel.copyright': 'Hawlfraint',
   'exifPanel.orientation': 'Cyfeiriadedd',

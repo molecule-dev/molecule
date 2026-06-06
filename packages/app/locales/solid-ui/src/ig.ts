@@ -2,8 +2,7 @@ import type { SolidUiTranslations } from './types.js'
 
 /** SolidUi translations for ig. */
 export const ig: Partial<SolidUiTranslations> = {
-  'solid.error.useAccordionOutsideProvider':
-    'A ga-eji ihe ndị dị na Accordion mee ihe n&#39;ime otu',
+  'solid.error.useAccordionOutsideProvider': "A ga-eji ihe ndị dị na Accordion mee ihe n'ime otu",
   'ui.alert.dismiss': 'Kwụpụ',
   'ui.avatar.alt': 'Avatar',
   'ui.input.clear': 'Kpochapụ Anya',
@@ -18,5 +17,5 @@ export const ig: Partial<SolidUiTranslations> = {
   'ui.spinner.loading': 'Na-ebugo',
   'ui.table.empty': 'Enweghị data dị',
   'ui.toast.close': 'Mechie',
-  'solid.error.useToastOutsideProvider': 'A ga-eji Toast mee ihe n&#39;ime Onye Na-enye Toast',
+  'solid.error.useToastOutsideProvider': "A ga-eji Toast mee ihe n'ime Onye Na-enye Toast",
 }

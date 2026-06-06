@@ -9,7 +9,7 @@ export const fr: Partial<TransportBarTranslations> = {
   'transportBar.aria.skipBack': 'Sautez en arrière',
   'transportBar.aria.skipForward': 'Passer à la suite',
   'transportBar.aria.stop': 'Arrêt',
-  'transportBar.aria.stopRecording': 'Arrêter l&#39;enregistrement',
+  'transportBar.aria.stopRecording': "Arrêter l'enregistrement",
   'transportBar.aria.loopOn': 'Désactiver la boucle',
-  'transportBar.aria.loopOff': 'Boucle d&#39;activation',
+  'transportBar.aria.loopOff': "Boucle d'activation",
 }

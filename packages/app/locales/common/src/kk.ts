@@ -97,9 +97,8 @@ export const kk: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Жаңарту мүмкін емес<x> {{name}}</x> .',
   'resource.error.unauthorized': 'Рұқсат етілмеген.',
   'resource.error.unknownError': 'Белгісіз қате.',
-  'routing.error.missingParam':
-    '&quot;параметрі жоқ&quot;<x> {{name}}</x> «жол үшін»<x> {{үлгі}}</x> &quot;',
-  'routing.error.routeNotFound': 'Бағыт &quot;<x> {{name}}</x> « табылмады',
+  'routing.error.missingParam': '"параметрі жоқ"<x> {{name}}</x> «жол үшін»<x> {{үлгі}}</x> "',
+  'routing.error.routeNotFound': 'Бағыт "<x> {{name}}</x> « табылмады',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter MoleculeRouterProvider ішінде пайдаланылуы керек',
   'settings.account': 'Тіркелгі',
@@ -165,11 +164,11 @@ export const kk: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Логин кірмеді.',
   'user.error.newPasswordRequired': 'Жаңа құпия сөз қажет.',
   'user.error.noPendingTwoFactorSetup':
-    'Екі факторлы орнату күтілуде емес. Алдымен &quot;орнату&quot; әрекетін шақырыңыз.',
+    'Екі факторлы орнату күтілуде емес. Алдымен "орнату" әрекетін шақырыңыз.',
   'user.error.notFound': 'Табылмады.',
   'user.error.oauthLoginFailed': 'OAuth кіруі сәтсіз аяқталды.',
   'user.error.oauthServerNotConfigured':
-    'OAuth сервері &quot;<x> {{сервер}}</x> &quot; конфигурацияланбаған.',
+    'OAuth сервері "<x> {{сервер}}</x> " конфигурацияланбаған.',
   'user.error.oauthVerificationFailed': 'OAuth тексеруі сәтсіз аяқталды.',
   'user.error.passwordRequired': 'Құпия сөз қажет.',
   'user.error.planKeyRequired': 'planKey қажет.',

@@ -97,9 +97,8 @@ export const sl: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Posodobitev ni mogoča<x> {{ime}}</x> .',
   'resource.error.unauthorized': 'Nepooblaščeno.',
   'resource.error.unknownError': 'Neznana napaka.',
-  'routing.error.missingParam':
-    'Manjka parameter &quot;<x> {{ime}}</x> &quot;za pot&quot;<x> {{vzorec}}</x> &quot;',
-  'routing.error.routeNotFound': 'Pot &quot;<x> {{ime}}</x> &quot;ni najdeno&quot;',
+  'routing.error.missingParam': 'Manjka parameter "<x> {{ime}}</x> "za pot"<x> {{vzorec}}</x> "',
+  'routing.error.routeNotFound': 'Pot "<x> {{ime}}</x> "ni najdeno"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter se mora uporabljati znotraj MoleculeRouterProvider',
   'settings.account': 'Račun',
@@ -167,8 +166,7 @@ export const sl: Partial<CommonTranslations> = {
     'Ni čakajočih dvofaktorskih nastavitev. Najprej pokličite z dejanjem »nastavitev«.',
   'user.error.notFound': 'Ni najdeno.',
   'user.error.oauthLoginFailed': 'Prijava OAuth ni uspela.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth strežnik &quot;<x> {{strežnik}}</x> &quot; ni konfiguriran.',
+  'user.error.oauthServerNotConfigured': 'OAuth strežnik "<x> {{strežnik}}</x> " ni konfiguriran.',
   'user.error.oauthVerificationFailed': 'Preverjanje OAuth ni uspelo.',
   'user.error.passwordRequired': 'Geslo je obvezno.',
   'user.error.planKeyRequired': 'Zahtevan je planKey.',

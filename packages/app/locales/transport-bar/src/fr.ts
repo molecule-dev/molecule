@@ -8,6 +8,6 @@ export const fr: Partial<TransportBarTranslations> = {
   'transportBar.aria.region': 'Commandes de lecture',
   'transportBar.aria.skipForward': 'Passer à la suite',
   'transportBar.aria.stop': 'Arrêt',
-  'transportBar.aria.stopRecording': 'Arrêter l&#39;enregistrement',
-  'transportBar.aria.loopOff': 'Boucle d&#39;activation',
+  'transportBar.aria.stopRecording': "Arrêter l'enregistrement",
+  'transportBar.aria.loopOff': "Boucle d'activation",
 }

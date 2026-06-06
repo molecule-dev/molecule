@@ -31,5 +31,5 @@ export const af: Partial<ReactNativeUiTranslations> = {
   'ui.icon.sortDesc': '↓',
   'ui.table.empty': 'Geen data nie',
   'ui.toast.dismiss': 'Maak toe',
-  'ui.toast.error.noProvider': 'useToast moet binne &#39;n ToastProvider gebruik word',
+  'ui.toast.error.noProvider': "useToast moet binne 'n ToastProvider gebruik word",
 }

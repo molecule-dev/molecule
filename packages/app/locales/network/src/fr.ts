@@ -10,6 +10,6 @@ export const fr: Partial<NetworkTranslations> = {
   'network.bluetooth': 'Bluetooth',
   'network.vpn': 'VPN',
   'network.other': 'Autre',
-  'network.error.connectionTimeout': 'Délai d&#39;attente de la connexion réseau',
+  'network.error.connectionTimeout': "Délai d'attente de la connexion réseau",
   'network.error.unavailable': 'Réseau indisponible',
 }

@@ -369,7 +369,7 @@ export const id: Partial<CommonTranslations> = {
   'auth.resetPassword.email': 'E-mail',
   'auth.resetPassword.loggingIn': 'Sedang masuk...',
   'auth.resetPassword.newPassword': 'Masukkan Kata Sandi Baru',
-  'auth.resetPassword.submit': 'Atur kata sandi &amp; masuk',
+  'auth.resetPassword.submit': 'Atur kata sandi & masuk',
   'auth.resetPassword.token': 'Token Reset Kata Sandi',
   'auth.resetPassword.twoFactor': 'Token Otentikasi Dua Faktor (Jika diaktifkan)',
   'auth.signup.email': 'Email (Wajib diisi)',
@@ -426,9 +426,8 @@ export const id: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Tidak dapat memperbarui<x> {{nama}}</x> .',
   'resource.error.unauthorized': 'Tidak sah.',
   'resource.error.unknownError': 'Kesalahan tidak dikenal.',
-  'routing.error.missingParam':
-    'Parameter hilang<x> {{nama}}</x> &quot;untuk jalur&quot;<x> {{pola}}</x> &quot;',
-  'routing.error.routeNotFound': 'Rute &quot;<x> {{nama}}</x> &quot;tidak ditemukan&quot;',
+  'routing.error.missingParam': 'Parameter hilang<x> {{nama}}</x> "untuk jalur"<x> {{pola}}</x> "',
+  'routing.error.routeNotFound': 'Rute "<x> {{nama}}</x> "tidak ditemukan"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter harus digunakan di dalam MoleculeRouterProvider.',
   'settings.authentication': 'Autentikasi',
@@ -463,8 +462,7 @@ export const id: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'Gagal memperbarui rencana.',
   'user.error.failedToUpdateSubscription': 'Gagal memperbarui langganan.',
   'user.error.failedToUpdateUser': 'Gagal memperbarui pengguna.',
-  'user.error.invalidAction':
-    'Tindakan tidak valid. Gunakan &quot;setup&quot;, &quot;enable&quot;, atau &quot;disable&quot;.',
+  'user.error.invalidAction': 'Tindakan tidak valid. Gunakan "setup", "enable", atau "disable".',
   'user.error.invalidCredentials': 'Kredensial tidak valid.',
   'user.error.invalidPlan': 'Paket tidak valid.',
   'user.error.invalidToken': 'Token tidak valid.',
@@ -472,11 +470,10 @@ export const id: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Login gagal.',
   'user.error.newPasswordRequired': 'Kata sandi baru diperlukan.',
   'user.error.noPendingTwoFactorSetup':
-    'Tidak ada pengaturan otentikasi dua faktor yang tertunda. Lakukan panggilan dengan tindakan &quot;setup&quot; terlebih dahulu.',
+    'Tidak ada pengaturan otentikasi dua faktor yang tertunda. Lakukan panggilan dengan tindakan "setup" terlebih dahulu.',
   'user.error.notFound': 'Tidak ditemukan.',
   'user.error.oauthLoginFailed': 'Login OAuth gagal.',
-  'user.error.oauthServerNotConfigured':
-    'Server OAuth<x> {{server}}</x> &quot; belum dikonfigurasi.',
+  'user.error.oauthServerNotConfigured': 'Server OAuth<x> {{server}}</x> " belum dikonfigurasi.',
   'user.error.oauthVerificationFailed': 'Verifikasi OAuth gagal.',
   'user.error.passwordRequired': 'Kata sandi diperlukan.',
   'user.error.planKeyRequired': 'planKey diperlukan.',

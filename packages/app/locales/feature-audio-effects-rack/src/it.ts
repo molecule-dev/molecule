@@ -19,7 +19,7 @@ export const it: Partial<AudioEffectsRackTranslations> = {
   'audioEffectsRack.button.add': 'Aggiungere espressione',
   'audioEffectsRack.button.addPlaceholder': 'Aggiungi effetto…',
   'audioEffectsRack.button.bypass': 'Bypass',
-  'audioEffectsRack.button.remove': 'Rimuovere l&#39;effetto',
+  'audioEffectsRack.button.remove': "Rimuovere l'effetto",
   'audioEffectsRack.empty': 'Nessun effetto in catena: aggiungine uno per iniziare.',
   'audioEffectsRack.kind.eq': 'EQ',
   'audioEffectsRack.kind.compressor': 'Compressore',

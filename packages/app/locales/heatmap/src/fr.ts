@@ -4,7 +4,7 @@ import type { HeatmapTranslations } from './types.js'
 export const fr: Partial<HeatmapTranslations> = {
   'heatmap.weekday.sun': 'Dim',
   'heatmap.weekday.sat': 'Sam',
-  'heatmap.aria.grid': 'Carte thermique d&#39;activité',
+  'heatmap.aria.grid': "Carte thermique d'activité",
   'heatmap.cell.tooltip': '{{date}} :<x> {{valeur}}</x>',
   'heatmap.month.jan': 'Jan',
   'heatmap.month.feb': 'Fév',

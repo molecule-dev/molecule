@@ -428,9 +428,8 @@ export const ar: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'تعذر التحديث<x> {{اسم}}</x> .',
   'resource.error.unauthorized': 'غير مصرح به.',
   'resource.error.unknownError': 'خطأ غير معروف.',
-  'routing.error.missingParam':
-    'المعلمة المفقودة &quot;<x> {{اسم}}</x> &quot;للمسار&quot;<x> {{نمط}}</x> &quot;',
-  'routing.error.routeNotFound': 'طريق &quot;<x> {{اسم}}</x> &quot;غير موجود&quot;',
+  'routing.error.missingParam': 'المعلمة المفقودة "<x> {{اسم}}</x> "للمسار"<x> {{نمط}}</x> "',
+  'routing.error.routeNotFound': 'طريق "<x> {{اسم}}</x> "غير موجود"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'يجب استخدام useMoleculeRouter داخل MoleculeRouterProvider',
   'settings.authentication': 'المصادقة',
@@ -463,8 +462,7 @@ export const ar: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'فشل تحديث الخطة.',
   'user.error.failedToUpdateSubscription': 'فشل تحديث الاشتراك.',
   'user.error.failedToUpdateUser': 'فشل تحديث المستخدم.',
-  'user.error.invalidAction':
-    'إجراء غير صالح. استخدم &quot;setup&quot; أو &quot;enable&quot; أو &quot;disable&quot;.',
+  'user.error.invalidAction': 'إجراء غير صالح. استخدم "setup" أو "enable" أو "disable".',
   'user.error.invalidCredentials': 'بيانات اعتماد غير صالحة.',
   'user.error.invalidPlan': 'خطة غير صالحة.',
   'user.error.invalidToken': 'رمز غير صالح.',
@@ -472,10 +470,10 @@ export const ar: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'فشل تسجيل الدخول.',
   'user.error.newPasswordRequired': 'كلمة مرور جديدة مطلوبة.',
   'user.error.noPendingTwoFactorSetup':
-    'لا توجد إعدادات مصادقة ثنائية معلقة. قم بإجراء العملية &quot;setup&quot; أولاً.',
+    'لا توجد إعدادات مصادقة ثنائية معلقة. قم بإجراء العملية "setup" أولاً.',
   'user.error.notFound': 'غير موجود.',
   'user.error.oauthLoginFailed': 'فشل تسجيل الدخول عبر OAuth.',
-  'user.error.oauthServerNotConfigured': 'خادم OAuth<x> {{server}}</x> &quot;لم يتم تكوينها.&quot;',
+  'user.error.oauthServerNotConfigured': 'خادم OAuth<x> {{server}}</x> "لم يتم تكوينها."',
   'user.error.oauthVerificationFailed': 'فشلت عملية التحقق من OAuth.',
   'user.error.passwordRequired': 'كلمة المرور مطلوبة.',
   'user.error.planKeyRequired': 'مفتاح الخطة مطلوب.',

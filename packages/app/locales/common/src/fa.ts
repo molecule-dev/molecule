@@ -104,9 +104,8 @@ export const fa: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'امکان به‌روزرسانی وجود ندارد<x> {{نام}}</x> .',
   'resource.error.unauthorized': 'غیرمجاز',
   'resource.error.unknownError': 'خطای ناشناخته.',
-  'routing.error.missingParam':
-    'پارامتر &quot; موجود نیست<x> {{نام}}</x> &quot;برای مسیر&quot;<x> {{الگو}}</x> «',
-  'routing.error.routeNotFound': 'مسیر &quot;<x> {{نام}}</x> &quot; یافت نشد',
+  'routing.error.missingParam': 'پارامتر " موجود نیست<x> {{نام}}</x> "برای مسیر"<x> {{الگو}}</x> «',
+  'routing.error.routeNotFound': 'مسیر "<x> {{نام}}</x> " یافت نشد',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter باید درون یک MoleculeRouterProvider استفاده شود.',
   'settings.account': 'حساب کاربری',
@@ -175,7 +174,7 @@ export const fa: Partial<CommonTranslations> = {
     'هیچ تنظیم دو مرحله‌ای در انتظار نیست. ابتدا با اقدام «تنظیم» تماس بگیرید.',
   'user.error.notFound': 'یافت نشد.',
   'user.error.oauthLoginFailed': 'ورود با OAuth ناموفق بود.',
-  'user.error.oauthServerNotConfigured': 'سرور OAuth &quot;<x> {{سرور}}</x> «پیکربندی نشده است.»',
+  'user.error.oauthServerNotConfigured': 'سرور OAuth "<x> {{سرور}}</x> «پیکربندی نشده است.»',
   'user.error.oauthVerificationFailed': 'تأیید اعتبار OAuth ناموفق بود.',
   'user.error.passwordRequired': 'رمز عبور الزامی است.',
   'user.error.planKeyRequired': 'planKey الزامی است.',

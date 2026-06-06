@@ -11,5 +11,5 @@ export const ca: Partial<NetworkTranslations> = {
   'network.none': 'Desconnectat',
   'network.unknown': 'Desconegut',
   'network.error.unavailable': 'Xarxa no disponible',
-  'network.error.connectionTimeout': 'Temps d&#39;espera de la connexió de xarxa',
+  'network.error.connectionTimeout': "Temps d'espera de la connexió de xarxa",
 }

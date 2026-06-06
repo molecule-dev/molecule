@@ -8,7 +8,7 @@ export const cy: Partial<FormsTranslations> = {
   'forms.invalidEmail': 'Cyfeiriad e-bost annilys',
   'forms.invalidUrl': 'URL annilys',
   'forms.invalidValue': 'Gwerth annilys',
-  'forms.required': 'Mae&#39;r maes hwn yn ofynnol',
-  'forms.min': 'Rhaid i&#39;r gwerth fod o leiaf<x> {{mun}}</x>',
-  'forms.max': 'Rhaid i&#39;r gwerth fod ar y mwyaf<x> {{uchafswm}}</x>',
+  'forms.required': "Mae'r maes hwn yn ofynnol",
+  'forms.min': "Rhaid i'r gwerth fod o leiaf<x> {{mun}}</x>",
+  'forms.max': "Rhaid i'r gwerth fod ar y mwyaf<x> {{uchafswm}}</x>",
 }

@@ -7,7 +7,7 @@ export const uz: Partial<VideoScrubberTranslations> = {
     'Film lentasi — ijro boshi<x> {{vaqt}}</x> s (ramka)<x> {{ramka}}</x> )',
   'videoScrubber.aria.playhead': 'Playhead da<x> {{vaqt}}</x> s',
   'videoScrubber.aria.frameReadout': 'Ramka<x> {{ramka}}</x> ning<x> {{jami}}</x>',
-  'videoScrubber.aria.thumbnail': 'Kadrni oldindan ko&#39;rish',
-  'videoScrubber.thumbnails.empty': 'Oldindan ko&#39;rish imkoniyati yo&#39;q',
+  'videoScrubber.aria.thumbnail': "Kadrni oldindan ko'rish",
+  'videoScrubber.thumbnails.empty': "Oldindan ko'rish imkoniyati yo'q",
   'videoScrubber.frameReadout.total': '/<x> {{jami}}</x> ramkalar',
 }

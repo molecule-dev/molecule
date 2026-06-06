@@ -32,6 +32,6 @@ export const ig: Partial<IapTranslations> = {
   'iap.error.6': 'Njehie.',
   'iap.error.7': 'Enwetarịla ihe a.',
   'iap.error.8': 'Enwetaghị ihe a.',
-  'iap.error.E_SETUP': 'Ịtọliteghị ihe ịzụrụ ihe n&#39;ime ngwa.',
-  'iap.error.E_NOT_AVAILABLE': 'Ịzụta ihe n&#39;ime ngwa adịghị.',
+  'iap.error.E_SETUP': "Ịtọliteghị ihe ịzụrụ ihe n'ime ngwa.",
+  'iap.error.E_NOT_AVAILABLE': "Ịzụta ihe n'ime ngwa adịghị.",
 }

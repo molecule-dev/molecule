@@ -4,7 +4,7 @@ import type { ContactFormTranslations } from './types.js'
 export const uk: Partial<ContactFormTranslations> = {
   'contactForm.email': 'ви@приклад.ua',
   'contactForm.sending': 'Надсилання…',
-  'contactForm.name': 'Ваше ім&#39;я',
+  'contactForm.name': "Ваше ім'я",
   'contactForm.message': 'Як ми можемо допомогти?',
   'contactForm.send': 'Надіслати повідомлення',
 }

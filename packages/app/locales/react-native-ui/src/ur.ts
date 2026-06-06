@@ -14,7 +14,7 @@ export const ur: Partial<ReactNativeUiTranslations> = {
   'ui.modal.close': 'بند',
   'ui.pagination.nav': 'صفحہ بندی',
   'ui.pagination.first': 'سب سے پہلے',
-  'ui.icon.chevronsLeft': '&quot;',
+  'ui.icon.chevronsLeft': '"',
   'ui.pagination.previous': 'پچھلا',
   'ui.icon.chevronLeft': '‹',
   'ui.icon.ellipsis': '…',

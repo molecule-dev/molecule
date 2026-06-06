@@ -380,8 +380,8 @@ export const nb: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Uautorisert.',
   'resource.error.unknownError': 'Ukjent feil.',
   'routing.error.missingParam':
-    'Mangler parameter<x> {{navn}}</x> &quot;for stien&quot;<x> {{mønster}}</x> &quot;',
-  'routing.error.routeNotFound': 'Rute<x> {{navn}}</x> &quot;ikke funnet',
+    'Mangler parameter<x> {{navn}}</x> "for stien"<x> {{mønster}}</x> "',
+  'routing.error.routeNotFound': 'Rute<x> {{navn}}</x> "ikke funnet',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter må brukes i en MoleculeRouterProvider',
   'settings.authentication': 'Autentisering',
@@ -437,8 +437,7 @@ export const nb: Partial<CommonTranslations> = {
     'Ingen ventende tofaktoroppsett. Kall med handlingen «oppsett» først.',
   'user.error.notFound': 'Ikke funnet.',
   'user.error.oauthLoginFailed': 'OAuth-pålogging mislyktes.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth-server<x> {{server}}</x> &quot; er ikke konfigurert.',
+  'user.error.oauthServerNotConfigured': 'OAuth-server<x> {{server}}</x> " er ikke konfigurert.',
   'user.error.oauthVerificationFailed': 'OAuth-verifisering mislyktes.',
   'user.error.passwordRequired': 'Passord er påkrevd.',
   'user.error.planKeyRequired': 'planKey er påkrevd.',

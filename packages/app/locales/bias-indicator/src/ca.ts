@@ -3,7 +3,7 @@ import type { BiasIndicatorTranslations } from './types.js'
 /** BiasIndicator translations for ca. */
 export const ca: Partial<BiasIndicatorTranslations> = {
   'biasIndicator.bias.farLeft': 'Extrema esquerra',
-  'biasIndicator.bias.leftLeaning': 'd&#39;esquerres',
+  'biasIndicator.bias.leftLeaning': "d'esquerres",
   'biasIndicator.bias.center': 'Centre',
   'biasIndicator.bias.rightLeaning': 'inclinació dretana',
   'biasIndicator.bias.farRight': 'Extrema dreta',

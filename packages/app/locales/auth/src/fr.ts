@@ -4,6 +4,6 @@ import type { AuthTranslations } from './types.js'
 export const fr: Partial<AuthTranslations> = {
   'auth.error.loginFailed': 'Échec de la connexion',
   'auth.error.requestFailed': 'La requête a échoué',
-  'auth.error.registrationFailed': 'L&#39;inscription a échoué',
-  'auth.error.noRefreshToken': 'Aucun jeton d&#39;actualisation disponible',
+  'auth.error.registrationFailed': "L'inscription a échoué",
+  'auth.error.noRefreshToken': "Aucun jeton d'actualisation disponible",
 }

@@ -34,5 +34,5 @@ export const ha: Partial<IapTranslations> = {
   'iap.error.6': 'Kuskure.',
   'iap.error.7': 'An riga an mallaki abu.',
   'iap.error.8': 'Ba a mallaki abu ba.',
-  'iap.error.E_PAYMENT_NOT_ALLOWED': 'Ba a yarda da na&#39;urar yin sayayya ba.',
+  'iap.error.E_PAYMENT_NOT_ALLOWED': "Ba a yarda da na'urar yin sayayya ba.",
 }

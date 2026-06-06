@@ -104,9 +104,8 @@ export const ta: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'புதுப்பிக்க முடியவில்லை<x> {{பெயர்}}</x> .',
   'resource.error.unauthorized': 'அனுமதியற்றது.',
   'resource.error.unknownError': 'அறியப்படாத பிழை.',
-  'routing.error.missingParam':
-    'விடுபட்ட அளவுரு<x> {{பெயர்}}</x> பாதைக்காக<x> {{pattern}}</x> &quot;',
-  'routing.error.routeNotFound': 'பாதை<x> {{பெயர்}}</x> &quot;கண்டறியப்படவில்லை&quot;',
+  'routing.error.missingParam': 'விடுபட்ட அளவுரு<x> {{பெயர்}}</x> பாதைக்காக<x> {{pattern}}</x> "',
+  'routing.error.routeNotFound': 'பாதை<x> {{பெயர்}}</x> "கண்டறியப்படவில்லை"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter ஆனது ஒரு MoleculeRouterProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
   'settings.account': 'கணக்கு',
@@ -164,7 +163,7 @@ export const ta: Partial<CommonTranslations> = {
   'user.error.failedToUpdateSubscription': 'சந்தாவைப் புதுப்பிக்க முடியவில்லை.',
   'user.error.failedToUpdateUser': 'பயனரைப் புதுப்பிக்க முடியவில்லை.',
   'user.error.invalidAction':
-    'தவறான செயல்பாடு. &#39;setup&#39;, &#39;enable&#39; அல்லது &#39;disable&#39; ஆகியவற்றைப் பயன்படுத்தவும்.',
+    "தவறான செயல்பாடு. 'setup', 'enable' அல்லது 'disable' ஆகியவற்றைப் பயன்படுத்தவும்.",
   'user.error.invalidCredentials': 'செல்லாத சான்றுகள்.',
   'user.error.invalidPlan': 'செல்லாத திட்டம்.',
   'user.error.invalidToken': 'செல்லாத டோக்கன்.',
@@ -172,11 +171,10 @@ export const ta: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'உள்நுழைவு தோல்வியடைந்தது.',
   'user.error.newPasswordRequired': 'புதிய கடவுச்சொல் தேவைப்படுகிறது.',
   'user.error.noPendingTwoFactorSetup':
-    'நிலுவையில் உள்ள இரு காரணி அங்கீகாரம் எதுவும் இல்லை. முதலில் &quot;setup&quot; என்ற செயலுடன் அழைக்கவும்.',
+    'நிலுவையில் உள்ள இரு காரணி அங்கீகாரம் எதுவும் இல்லை. முதலில் "setup" என்ற செயலுடன் அழைக்கவும்.',
   'user.error.notFound': 'காணப்படவில்லை.',
   'user.error.oauthLoginFailed': 'OAuth உள்நுழைவு தோல்வியடைந்தது.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth சேவையகம்<x> {{server}}</x> &quot; உள்ளமைக்கப்படவில்லை.',
+  'user.error.oauthServerNotConfigured': 'OAuth சேவையகம்<x> {{server}}</x> " உள்ளமைக்கப்படவில்லை.',
   'user.error.oauthVerificationFailed': 'OAuth சரிபார்ப்பு தோல்வியடைந்தது.',
   'user.error.passwordRequired': 'கடவுச்சொல் தேவை.',
   'user.error.planKeyRequired': 'planKey தேவைப்படுகிறது.',

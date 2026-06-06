@@ -6,7 +6,7 @@ export const ca: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.ruler': 'Regle del temps',
   'videoTimeline.aria.playhead': 'Capçal de reproducció a<x> {{hora}}</x> s',
   'videoTimeline.aria.zoom': 'Zoom de la línia de temps',
-  'videoTimeline.aria.mode': 'Mode d&#39;edició',
+  'videoTimeline.aria.mode': "Mode d'edició",
   'videoTimeline.zoom.in': 'Amplia la imatge',
   'videoTimeline.zoom.out': 'Allunya',
   'videoTimeline.zoom.in.icon': '+',

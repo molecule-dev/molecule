@@ -3,7 +3,7 @@ import type { ReactUiTranslations } from './types.js'
 /** ReactUi translations for af. */
 export const af: Partial<ReactUiTranslations> = {
   'react.error.useAccordionOutsideProvider':
-    'Trekklavierkomponente moet binne &#39;n trekklavier gebruik word',
+    "Trekklavierkomponente moet binne 'n trekklavier gebruik word",
   'ui.alert.dismiss': 'Maak toe',
   'ui.avatar.alt': 'Avatar',
   'ui.input.clear': 'Duidelik',
@@ -20,7 +20,7 @@ export const af: Partial<ReactUiTranslations> = {
   'ui.spinner.loading': 'Laai',
   'ui.table.empty': 'Geen data beskikbaar nie',
   'ui.toast.close': 'Maak toe',
-  'react.error.useToastOutsideProvider': 'useToast moet binne &#39;n ToastProvider gebruik word',
+  'react.error.useToastOutsideProvider': "useToast moet binne 'n ToastProvider gebruik word",
   'userMenu.guestName': 'Ontleder',
   'userMenuPopover.guest': 'Rekening',
   'userMenu.navLabel': 'Rekeningkieslys',

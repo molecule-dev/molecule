@@ -100,8 +100,8 @@ export const et: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Volitamata.',
   'resource.error.unknownError': 'Tundmatu viga.',
   'routing.error.missingParam':
-    'Puuduv parameeter &quot;<x> {{nimi}}</x> &quot;tee jaoks&quot;<x> {{muster}}</x> &quot;',
-  'routing.error.routeNotFound': 'Marsruut &quot;<x> {{nimi}}</x> &quot;ei leitud',
+    'Puuduv parameeter "<x> {{nimi}}</x> "tee jaoks"<x> {{muster}}</x> "',
+  'routing.error.routeNotFound': 'Marsruut "<x> {{nimi}}</x> "ei leitud',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter peab olema kasutusel MoleculeRouterProvideri sees.',
   'settings.account': 'Konto',
@@ -166,11 +166,10 @@ export const et: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Sisselogimine ebaõnnestus.',
   'user.error.newPasswordRequired': 'Uus parool on vajalik.',
   'user.error.noPendingTwoFactorSetup':
-    'Kaheastmelist seadistust pole ootel. Kutsu esmalt välja toiming &quot;setup&quot;.',
+    'Kaheastmelist seadistust pole ootel. Kutsu esmalt välja toiming "setup".',
   'user.error.notFound': 'Ei leitud.',
   'user.error.oauthLoginFailed': 'OAuthi sisselogimine ebaõnnestus.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth-server &quot;<x> {{server}}</x> &quot;pole konfigureeritud.',
+  'user.error.oauthServerNotConfigured': 'OAuth-server "<x> {{server}}</x> "pole konfigureeritud.',
   'user.error.oauthVerificationFailed': 'OAuthi kinnitamine ebaõnnestus.',
   'user.error.passwordRequired': 'Parool on nõutav.',
   'user.error.planKeyRequired': 'PlanKey on kohustuslik.',

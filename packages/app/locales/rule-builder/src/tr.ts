@@ -16,7 +16,7 @@ export const tr: Partial<RuleBuilderTranslations> = {
   'ruleBuilder.action.addCondition': '+ Koşul ekle',
   'ruleBuilder.action.addGroup': '+ Grup ekle',
   'ruleBuilder.action.removeGroup': 'Grubu kaldır',
-  'ruleBuilder.aria.toggleOp': 'VE / VEYA&#39;yı Aç/Kapat',
+  'ruleBuilder.aria.toggleOp': "VE / VEYA'yı Aç/Kapat",
   'ruleBuilder.aria.removeGroup': 'Grubu kaldır',
   'ruleBuilder.field.placeholder': 'Alan seçin…',
   'ruleBuilder.between.separator': '–',

@@ -9,5 +9,5 @@ export const cy: Partial<BatteryTranslations> = {
   'battery.remainingUnknown': 'Anhysbys',
   'battery.remainingTime': '{{hours}}a {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
-  'battery.full': 'Wedi&#39;i wefru&#39;n llawn',
+  'battery.full': "Wedi'i wefru'n llawn",
 }

@@ -430,9 +430,8 @@ export const pl: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Nie można zaktualizować<x> {{nazwa}}</x> .',
   'resource.error.unauthorized': 'Nieautoryzowane.',
   'resource.error.unknownError': 'Nieznany błąd.',
-  'routing.error.missingParam':
-    'Brak parametru &quot;<x> {{nazwa}}</x> „dla ścieżki”<x> {{wzór}}</x> &quot;',
-  'routing.error.routeNotFound': 'Trasa &quot;<x> {{nazwa}}</x> „nie znaleziono”',
+  'routing.error.missingParam': 'Brak parametru "<x> {{nazwa}}</x> „dla ścieżki”<x> {{wzór}}</x> "',
+  'routing.error.routeNotFound': 'Trasa "<x> {{nazwa}}</x> „nie znaleziono”',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter musi być używany w ramach MoleculeRouterProvider',
   'settings.authentication': 'Uwierzytelnianie',
@@ -479,7 +478,7 @@ export const pl: Partial<CommonTranslations> = {
   'user.error.notFound': 'Nie znaleziono.',
   'user.error.oauthLoginFailed': 'Logowanie OAuth nie powiodło się.',
   'user.error.oauthServerNotConfigured':
-    'Serwer OAuth<x> {{serwer}}</x> &quot; nie jest skonfigurowany.',
+    'Serwer OAuth<x> {{serwer}}</x> " nie jest skonfigurowany.',
   'user.error.oauthVerificationFailed': 'Weryfikacja OAuth nie powiodła się.',
   'user.error.passwordRequired': 'Hasło jest wymagane.',
   'user.error.planKeyRequired': 'planKey jest wymagany.',

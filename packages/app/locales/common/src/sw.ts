@@ -98,8 +98,8 @@ export const sw: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Hairuhusiwi.',
   'resource.error.unknownError': 'Hitilafu isiyojulikana.',
   'routing.error.missingParam':
-    'Kigezo kinakosekana &quot;<x> {{jina}}</x> &quot;kwa njia&quot;<x> {{muundo}}</x> &quot;',
-  'routing.error.routeNotFound': 'Njia &quot;<x> {{jina}}</x> &quot;haipatikani',
+    'Kigezo kinakosekana "<x> {{jina}}</x> "kwa njia"<x> {{muundo}}</x> "',
+  'routing.error.routeNotFound': 'Njia "<x> {{jina}}</x> "haipatikani',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter lazima itumike ndani ya MoleculeRouterProvider',
   'settings.account': 'Akaunti',
@@ -156,8 +156,7 @@ export const sw: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'Imeshindwa kusasisha mpango.',
   'user.error.failedToUpdateSubscription': 'Imeshindwa kusasisha usajili.',
   'user.error.failedToUpdateUser': 'Imeshindwa kusasisha mtumiaji.',
-  'user.error.invalidAction':
-    'Kitendo si sahihi. Tumia &quot;usanidi&quot;, &quot;wezesha&quot;, au &quot;zima&quot;.',
+  'user.error.invalidAction': 'Kitendo si sahihi. Tumia "usanidi", "wezesha", au "zima".',
   'user.error.invalidCredentials': 'Vitambulisho batili.',
   'user.error.invalidPlan': 'Mpango batili.',
   'user.error.invalidToken': 'Tokeni batili.',
@@ -165,11 +164,10 @@ export const sw: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Imeshindwa kuingia.',
   'user.error.newPasswordRequired': 'Nenosiri jipya linahitajika.',
   'user.error.noPendingTwoFactorSetup':
-    'Hakuna usanidi wa vipengele viwili unaosubiriwa. Piga simu kwa &quot;usanidi&quot; wa kitendo kwanza.',
+    'Hakuna usanidi wa vipengele viwili unaosubiriwa. Piga simu kwa "usanidi" wa kitendo kwanza.',
   'user.error.notFound': 'Haikupatikana.',
   'user.error.oauthLoginFailed': 'Kuingia kwa OAuth kumeshindwa.',
-  'user.error.oauthServerNotConfigured':
-    'Seva ya OAuth &quot;<x> {{seva}}</x> &quot; haijasanidiwa.',
+  'user.error.oauthServerNotConfigured': 'Seva ya OAuth "<x> {{seva}}</x> " haijasanidiwa.',
   'user.error.oauthVerificationFailed': 'Uthibitishaji wa OAuth umeshindwa.',
   'user.error.passwordRequired': 'Nenosiri linahitajika.',
   'user.error.planKeyRequired': 'planKey inahitajika.',

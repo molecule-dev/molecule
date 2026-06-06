@@ -8,6 +8,6 @@ export const uz: Partial<MapDrawingTranslations> = {
   'mapDrawing.tool.pin': 'Pin',
   'mapDrawing.tool.line': 'Chiziq',
   'mapDrawing.tool.select': 'Tanlang',
-  'mapDrawing.tool.delete': 'O&#39;chirish',
+  'mapDrawing.tool.delete': "O'chirish",
   'mapDrawing.toolbar.aria': 'Xarita chizish vositalari',
 }

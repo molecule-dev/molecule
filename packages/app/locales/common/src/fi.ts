@@ -387,9 +387,8 @@ export const fi: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Päivitys epäonnistui<x> {{nimi}}</x> .',
   'resource.error.unauthorized': 'Luvaton.',
   'resource.error.unknownError': 'Tuntematon virhe.',
-  'routing.error.missingParam':
-    'Puuttuva parametri &quot;<x> {{nimi}}</x> &quot;polulle&quot;<x> {{kuvio}}</x> &quot;',
-  'routing.error.routeNotFound': 'Reitti &quot;<x> {{nimi}}</x> &quot;ei löytynyt',
+  'routing.error.missingParam': 'Puuttuva parametri "<x> {{nimi}}</x> "polulle"<x> {{kuvio}}</x> "',
+  'routing.error.routeNotFound': 'Reitti "<x> {{nimi}}</x> "ei löytynyt',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter-parametria on käytettävä MoleculeRouterProvider-parametrin sisällä.',
   'settings.authentication': 'Todennus',
@@ -434,8 +433,7 @@ export const fi: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'Suunnitelman päivittäminen epäonnistui.',
   'user.error.failedToUpdateSubscription': 'Tilauksen päivittäminen epäonnistui.',
   'user.error.failedToUpdateUser': 'Käyttäjän päivittäminen epäonnistui.',
-  'user.error.invalidAction':
-    'Virheellinen toiminto. Käytä arvoa &quot;setup&quot;, &quot;enable&quot; tai &quot;disable&quot;.',
+  'user.error.invalidAction': 'Virheellinen toiminto. Käytä arvoa "setup", "enable" tai "disable".',
   'user.error.invalidCredentials': 'Virheelliset tunnistetiedot.',
   'user.error.invalidPlan': 'Virheellinen suunnitelma.',
   'user.error.invalidToken': 'Virheellinen tunnus.',
@@ -443,11 +441,11 @@ export const fi: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Kirjautuminen epäonnistui.',
   'user.error.newPasswordRequired': 'Uusi salasana vaaditaan.',
   'user.error.noPendingTwoFactorSetup':
-    'Ei odottavia kaksivaiheisia asetuksia. Kutsu ensin toimintoa &quot;setup&quot;.',
+    'Ei odottavia kaksivaiheisia asetuksia. Kutsu ensin toimintoa "setup".',
   'user.error.notFound': 'Ei löytynyt.',
   'user.error.oauthLoginFailed': 'OAuth-kirjautuminen epäonnistui.',
   'user.error.oauthServerNotConfigured':
-    'OAuth-palvelin &quot;<x> {{palvelin}}</x> &quot; ei ole konfiguroitu.',
+    'OAuth-palvelin "<x> {{palvelin}}</x> " ei ole konfiguroitu.',
   'user.error.oauthVerificationFailed': 'OAuth-vahvistus epäonnistui.',
   'user.error.passwordRequired': 'Salasana vaaditaan.',
   'user.error.planKeyRequired': 'planKey on pakollinen.',

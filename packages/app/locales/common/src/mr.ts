@@ -107,9 +107,8 @@ export const mr: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'अपडेट करता आले नाही<x> {{name}}</x> ...',
   'resource.error.unauthorized': 'अनधिकृत.',
   'resource.error.unknownError': 'अज्ञात त्रुटी.',
-  'routing.error.missingParam':
-    'पॅरामीटर गहाळ आहे<x> {{name}}</x> मार्गासाठी<x> {{pattern}}</x> &quot;',
-  'routing.error.routeNotFound': 'मार्ग &quot;<x> {{name}}</x> आढळले नाही',
+  'routing.error.missingParam': 'पॅरामीटर गहाळ आहे<x> {{name}}</x> मार्गासाठी<x> {{pattern}}</x> "',
+  'routing.error.routeNotFound': 'मार्ग "<x> {{name}}</x> आढळले नाही',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter चा वापर MoleculeRouterProvider च्या आतच केला पाहिजे.',
   'settings.account': 'खाते',
@@ -166,8 +165,7 @@ export const mr: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'योजना अद्ययावत करण्यात अयशस्वी झाले.',
   'user.error.failedToUpdateSubscription': 'सदस्यता अद्ययावत करण्यात अयशस्वी झाले.',
   'user.error.failedToUpdateUser': 'वापरकर्त्याला अद्ययावत करण्यात अयशस्वी झाले.',
-  'user.error.invalidAction':
-    'चुकीची कृती. &#39;setup&#39;, &#39;enable&#39; किंवा &#39;disable&#39; वापरा.',
+  'user.error.invalidAction': "चुकीची कृती. 'setup', 'enable' किंवा 'disable' वापरा.",
   'user.error.invalidCredentials': 'अवैध क्रेडेन्शियल्स.',
   'user.error.invalidPlan': 'अमान्य योजना.',
   'user.error.invalidToken': 'अवैध टोकन.',
@@ -175,11 +173,10 @@ export const mr: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'लॉगिन अयशस्वी झाले.',
   'user.error.newPasswordRequired': 'नवीन पासवर्ड आवश्यक आहे.',
   'user.error.noPendingTwoFactorSetup':
-    'कोणतेही प्रलंबित टू-फॅक्टर सेटअप नाही. प्रथम &#39;सेटअप&#39; कृतीसह कॉल करा.',
+    "कोणतेही प्रलंबित टू-फॅक्टर सेटअप नाही. प्रथम 'सेटअप' कृतीसह कॉल करा.",
   'user.error.notFound': 'आढळले नाही.',
   'user.error.oauthLoginFailed': 'OAuth लॉगिन अयशस्वी झाले.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth सर्व्हर &quot;<x> {{server}}</x> कॉन्फिगर केलेले नाही.',
+  'user.error.oauthServerNotConfigured': 'OAuth सर्व्हर "<x> {{server}}</x> कॉन्फिगर केलेले नाही.',
   'user.error.oauthVerificationFailed': 'OAuth पडताळणी अयशस्वी झाली.',
   'user.error.passwordRequired': 'पासवर्ड आवश्यक आहे.',
   'user.error.planKeyRequired': 'planKey आवश्यक आहे.',

@@ -105,9 +105,8 @@ export const gu: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'અપડેટ કરવામાં અસમર્થ<x> {{નામ}}</x> .',
   'resource.error.unauthorized': 'અનધિકૃત.',
   'resource.error.unknownError': 'અજાણી ભૂલ.',
-  'routing.error.missingParam':
-    '&quot;પરિમાણ&quot; ખૂટે છે<x> {{નામ}}</x> &quot;માર્ગ માટે&quot;<x> {{પેટર્ન}}</x> &quot;',
-  'routing.error.routeNotFound': 'રૂટ &quot;<x> {{નામ}}</x> &quot;મળ્યું નથી',
+  'routing.error.missingParam': '"પરિમાણ" ખૂટે છે<x> {{નામ}}</x> "માર્ગ માટે"<x> {{પેટર્ન}}</x> "',
+  'routing.error.routeNotFound': 'રૂટ "<x> {{નામ}}</x> "મળ્યું નથી',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter નો ઉપયોગ MoleculeRouterProvider માં થવો જોઈએ.',
   'settings.account': 'ખાતું',
@@ -164,8 +163,7 @@ export const gu: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'પ્લાન અપડેટ કરવામાં નિષ્ફળ થયાં.',
   'user.error.failedToUpdateSubscription': 'સબ્સ્ક્રિપ્શન અપડેટ કરવામાં નિષ્ફળ થયાં.',
   'user.error.failedToUpdateUser': 'વપરાશકર્તાને અપડેટ કરવામાં નિષ્ફળ થયાં.',
-  'user.error.invalidAction':
-    'અમાન્ય ક્રિયા. &quot;સેટઅપ&quot;, &quot;સક્ષમ કરો&quot;, અથવા &quot;અક્ષમ કરો&quot; નો ઉપયોગ કરો.',
+  'user.error.invalidAction': 'અમાન્ય ક્રિયા. "સેટઅપ", "સક્ષમ કરો", અથવા "અક્ષમ કરો" નો ઉપયોગ કરો.',
   'user.error.invalidCredentials': 'અમાન્ય ઓળખપત્રો.',
   'user.error.invalidPlan': 'અમાન્ય યોજના.',
   'user.error.invalidToken': 'અમાન્ય ટોકન.',
@@ -173,11 +171,10 @@ export const gu: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'લોગિન નિષ્ફળ ગયું.',
   'user.error.newPasswordRequired': 'નવો પાસવર્ડ જરૂરી છે.',
   'user.error.noPendingTwoFactorSetup':
-    'કોઈ બે-પરિબળ સેટઅપ બાકી નથી. પહેલા &quot;સેટઅપ&quot; ક્રિયા સાથે કૉલ કરો.',
+    'કોઈ બે-પરિબળ સેટઅપ બાકી નથી. પહેલા "સેટઅપ" ક્રિયા સાથે કૉલ કરો.',
   'user.error.notFound': 'મળ્યું નથી.',
   'user.error.oauthLoginFailed': 'OAuth લૉગિન નિષ્ફળ ગયું.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth સર્વર &quot;<x> {{સર્વર}}</x> &quot; રૂપરેખાંકિત થયેલ નથી.',
+  'user.error.oauthServerNotConfigured': 'OAuth સર્વર "<x> {{સર્વર}}</x> " રૂપરેખાંકિત થયેલ નથી.',
   'user.error.oauthVerificationFailed': 'OAuth ચકાસણી નિષ્ફળ ગઈ.',
   'user.error.passwordRequired': 'પાસવર્ડ જરૂરી છે.',
   'user.error.planKeyRequired': 'planKey જરૂરી છે.',

@@ -12,7 +12,7 @@ export const mt: Partial<ExifPanelTranslations> = {
   'exifPanel.shutter': 'Veloċità tax-xater',
   'exifPanel.iso': 'ISO',
   'exifPanel.focalLength': 'Tul fokali',
-  'exifPanel.focalLength35mm': 'Ekwivalenti ta&#39; 35 mm',
+  'exifPanel.focalLength35mm': "Ekwivalenti ta' 35 mm",
   'exifPanel.gps': 'GPS',
   'exifPanel.timestamp': 'Maqbud',
   'exifPanel.software': 'Softwer',

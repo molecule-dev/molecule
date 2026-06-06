@@ -388,8 +388,8 @@ export const el: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Ανεξουσιοδότητος.',
   'resource.error.unknownError': 'Άγνωστο σφάλμα.',
   'routing.error.missingParam':
-    'Λείπει η παράμετρος &quot;<x> {{όνομα}}</x> &quot;για διαδρομή&quot;<x> {{πρότυπο}}</x> &quot;',
-  'routing.error.routeNotFound': 'Διαδρομή &quot;<x> {{όνομα}}</x> &quot;δεν βρέθηκε',
+    'Λείπει η παράμετρος "<x> {{όνομα}}</x> "για διαδρομή"<x> {{πρότυπο}}</x> "',
+  'routing.error.routeNotFound': 'Διαδρομή "<x> {{όνομα}}</x> "δεν βρέθηκε',
   'routing.error.useMoleculeRouterOutsideProvider':
     'Το useMoleculeRouter πρέπει να χρησιμοποιείται εντός ενός MoleculeRouterProvider',
   'settings.authentication': 'Πιστοποίηση',
@@ -436,7 +436,7 @@ export const el: Partial<CommonTranslations> = {
   'user.error.failedToUpdateSubscription': 'Η ενημέρωση της συνδρομής απέτυχε.',
   'user.error.failedToUpdateUser': 'Αποτυχία ενημέρωσης χρήστη.',
   'user.error.invalidAction':
-    'Μη έγκυρη ενέργεια. Χρησιμοποιήστε &quot;ρύθμιση&quot;, &quot;ενεργοποίηση&quot; ή &quot;απενεργοποίηση&quot;.',
+    'Μη έγκυρη ενέργεια. Χρησιμοποιήστε "ρύθμιση", "ενεργοποίηση" ή "απενεργοποίηση".',
   'user.error.invalidCredentials': 'Μη έγκυρα διαπιστευτήρια.',
   'user.error.invalidPlan': 'Μη έγκυρο σχέδιο.',
   'user.error.invalidToken': 'Μη έγκυρο διακριτικό.',
@@ -444,11 +444,11 @@ export const el: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Η σύνδεση απέτυχε.',
   'user.error.newPasswordRequired': 'Απαιτείται νέος κωδικός πρόσβασης.',
   'user.error.noPendingTwoFactorSetup':
-    'Δεν υπάρχει εκκρεμής ρύθμιση δύο παραγόντων. Καλέστε πρώτα με την ενέργεια &quot;setup&quot;.',
+    'Δεν υπάρχει εκκρεμής ρύθμιση δύο παραγόντων. Καλέστε πρώτα με την ενέργεια "setup".',
   'user.error.notFound': 'Δεν βρέθηκε.',
   'user.error.oauthLoginFailed': 'Η σύνδεση OAuth απέτυχε.',
   'user.error.oauthServerNotConfigured':
-    'Διακομιστής OAuth &quot;<x> {{υπηρέτης}}</x> &quot;δεν έχει ρυθμιστεί.',
+    'Διακομιστής OAuth "<x> {{υπηρέτης}}</x> "δεν έχει ρυθμιστεί.',
   'user.error.oauthVerificationFailed': 'Η επαλήθευση OAuth απέτυχε.',
   'user.error.passwordRequired': 'Απαιτείται κωδικός πρόσβασης.',
   'user.error.planKeyRequired': 'Απαιτείται το planKey.',

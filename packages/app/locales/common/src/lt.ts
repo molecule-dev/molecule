@@ -100,8 +100,8 @@ export const lt: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Neleistinas.',
   'resource.error.unknownError': 'Nežinoma klaida.',
   'routing.error.missingParam':
-    'Trūksta parametro &quot;<x> {{vardas}}</x> „už kelią“<x> {{modelis}}</x> &quot;',
-  'routing.error.routeNotFound': 'Maršrutas &quot;<x> {{vardas}}</x> &quot;nerasta',
+    'Trūksta parametro "<x> {{vardas}}</x> „už kelią“<x> {{modelis}}</x> "',
+  'routing.error.routeNotFound': 'Maršrutas "<x> {{vardas}}</x> "nerasta',
   'routing.error.useMoleculeRouterOutsideProvider':
     '„useMoleculeRouter“ turi būti naudojamas „MoleculeRouterProvider“ viduje.',
   'settings.account': 'Paskyra',
@@ -170,7 +170,7 @@ export const lt: Partial<CommonTranslations> = {
   'user.error.notFound': 'Nerasta.',
   'user.error.oauthLoginFailed': 'Prisijungimas naudojant „OAuth“ nepavyko.',
   'user.error.oauthServerNotConfigured':
-    'OAuth serveris &quot;<x> {{serveris}}</x> &quot;nėra sukonfigūruotas.',
+    'OAuth serveris "<x> {{serveris}}</x> "nėra sukonfigūruotas.',
   'user.error.oauthVerificationFailed': 'OAuth patvirtinimas nepavyko.',
   'user.error.passwordRequired': 'Reikalingas slaptažodis.',
   'user.error.planKeyRequired': 'Būtinas planKey.',

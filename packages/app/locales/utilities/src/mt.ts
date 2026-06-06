@@ -6,8 +6,8 @@ export const mt: Partial<UtilitiesTranslations> = {
   'error.forbidden': 'Access michud.',
   'error.notFound': 'Rizors ma nstabx.',
   'error.unknown': 'Sehhet zball mhux mistenni.',
-  'error.timeout': 'It-talba skadiet. Jekk jogħġbok erġa&#39; pprova.',
-  'error.unauthorized': 'M&#39;intix awtorizzat li twettaq din l-azzjoni.',
-  'error.validationError': 'Jekk jogħġbok iċċekkja l-input tiegħek u erġa&#39; pprova.',
-  'error.serverError': 'Żball fis-server. Jekk jogħġbok erġa&#39; pprova aktar tard.',
+  'error.timeout': "It-talba skadiet. Jekk jogħġbok erġa' pprova.",
+  'error.unauthorized': "M'intix awtorizzat li twettaq din l-azzjoni.",
+  'error.validationError': "Jekk jogħġbok iċċekkja l-input tiegħek u erġa' pprova.",
+  'error.serverError': "Żball fis-server. Jekk jogħġbok erġa' pprova aktar tard.",
 }

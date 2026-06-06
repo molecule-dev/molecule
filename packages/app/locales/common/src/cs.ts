@@ -385,9 +385,8 @@ export const cs: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Nelze aktualizovat<x> {{jméno}}</x> .',
   'resource.error.unauthorized': 'Neoprávněný.',
   'resource.error.unknownError': 'Neznámá chyba.',
-  'routing.error.missingParam':
-    'Chybí parametr &quot;<x> {{jméno}}</x> „pro cestu“<x> {{vzor}}</x> &quot;',
-  'routing.error.routeNotFound': 'Trasa &quot;<x> {{jméno}}</x> &quot;nenalezen&quot;',
+  'routing.error.missingParam': 'Chybí parametr "<x> {{jméno}}</x> „pro cestu“<x> {{vzor}}</x> "',
+  'routing.error.routeNotFound': 'Trasa "<x> {{jméno}}</x> "nenalezen"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter musí být použit v rámci MoleculeRouterProvider.',
   'settings.authentication': 'Ověřování',
@@ -443,8 +442,7 @@ export const cs: Partial<CommonTranslations> = {
     'Žádné čekající dvoufaktorové nastavení. Nejprve zavolejte s akcí „setup“.',
   'user.error.notFound': 'Nenalezeno.',
   'user.error.oauthLoginFailed': 'Přihlášení přes OAuth se nezdařilo.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth server<x> {{server}}</x> &quot; není nakonfigurováno.',
+  'user.error.oauthServerNotConfigured': 'OAuth server<x> {{server}}</x> " není nakonfigurováno.',
   'user.error.oauthVerificationFailed': 'Ověření OAuth se nezdařilo.',
   'user.error.passwordRequired': 'Je vyžadováno heslo.',
   'user.error.planKeyRequired': 'Je vyžadován parametr planKey.',

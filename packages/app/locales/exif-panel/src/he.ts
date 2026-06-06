@@ -12,7 +12,7 @@ export const he: Partial<ExifPanelTranslations> = {
   'exifPanel.shutter': 'מהירות תריס',
   'exifPanel.iso': 'ISO',
   'exifPanel.focalLength': 'אורך מוקד',
-  'exifPanel.focalLength35mm': 'שווה ערך ל-35 מ&quot;מ',
+  'exifPanel.focalLength35mm': 'שווה ערך ל-35 מ"מ',
   'exifPanel.gps': 'GPS',
   'exifPanel.timestamp': 'נלכד',
   'exifPanel.software': 'תוֹכנָה',

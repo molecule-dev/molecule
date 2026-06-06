@@ -432,9 +432,8 @@ export const vi: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Không thể cập nhật<x> {{tên}}</x> .',
   'resource.error.unauthorized': 'Không được phép.',
   'resource.error.unknownError': 'Lỗi không xác định.',
-  'routing.error.missingParam':
-    'Thiếu tham số &quot;<x> {{tên}}</x> &quot;cho đường dẫn&quot;<x> {{mẫu}}</x> &quot;',
-  'routing.error.routeNotFound': 'Tuyến đường &quot;<x> {{tên}}</x> &quot;không tìm thấy&quot;',
+  'routing.error.missingParam': 'Thiếu tham số "<x> {{tên}}</x> "cho đường dẫn"<x> {{mẫu}}</x> "',
+  'routing.error.routeNotFound': 'Tuyến đường "<x> {{tên}}</x> "không tìm thấy"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter phải được sử dụng trong MoleculeRouterProvider.',
   'settings.authentication': 'Xác thực',
@@ -469,7 +468,7 @@ export const vi: Partial<CommonTranslations> = {
   'user.error.failedToUpdateSubscription': 'Không thể cập nhật gói đăng ký.',
   'user.error.failedToUpdateUser': 'Cập nhật người dùng không thành công.',
   'user.error.invalidAction':
-    'Thao tác không hợp lệ. Hãy sử dụng &quot;setup&quot;, &quot;enable&quot; hoặc &quot;disable&quot;.',
+    'Thao tác không hợp lệ. Hãy sử dụng "setup", "enable" hoặc "disable".',
   'user.error.invalidCredentials': 'Thông tin đăng nhập không hợp lệ.',
   'user.error.invalidPlan': 'Kế hoạch không hợp lệ.',
   'user.error.invalidToken': 'Mã thông báo không hợp lệ.',
@@ -477,11 +476,10 @@ export const vi: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Đăng nhập thất bại.',
   'user.error.newPasswordRequired': 'Cần nhập mật khẩu mới.',
   'user.error.noPendingTwoFactorSetup':
-    'Không có thiết lập xác thực hai yếu tố nào đang chờ xử lý. Hãy gọi điện và chọn &quot;thiết lập&quot; trước.',
+    'Không có thiết lập xác thực hai yếu tố nào đang chờ xử lý. Hãy gọi điện và chọn "thiết lập" trước.',
   'user.error.notFound': 'Không tìm thấy.',
   'user.error.oauthLoginFailed': 'Đăng nhập OAuth thất bại.',
-  'user.error.oauthServerNotConfigured':
-    'Máy chủ OAuth &quot;<x> {{máy chủ}}</x> &quot;Chưa được cấu hình.&quot;',
+  'user.error.oauthServerNotConfigured': 'Máy chủ OAuth "<x> {{máy chủ}}</x> "Chưa được cấu hình."',
   'user.error.oauthVerificationFailed': 'Xác thực OAuth thất bại.',
   'user.error.passwordRequired': 'Cần nhập mật khẩu.',
   'user.error.planKeyRequired': 'Cần có planKey.',

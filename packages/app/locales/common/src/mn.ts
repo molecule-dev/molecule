@@ -99,8 +99,8 @@ export const mn: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Зөвшөөрөлгүй.',
   'resource.error.unknownError': 'Үл мэдэгдэх алдаа.',
   'routing.error.missingParam':
-    '&quot;Параметр дутуу байна&quot;<x> {{нэр}}</x> &quot;Замын төлөө&quot;<x> {{хэв маяг}}</x> &quot;',
-  'routing.error.routeNotFound': 'Маршрут &quot;<x> {{нэр}}</x> &quot;олдсонгүй',
+    '"Параметр дутуу байна"<x> {{нэр}}</x> "Замын төлөө"<x> {{хэв маяг}}</x> "',
+  'routing.error.routeNotFound': 'Маршрут "<x> {{нэр}}</x> "олдсонгүй',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter нь MoleculeRouterProvider дотор ашиглагдах ёстой',
   'settings.account': 'Бүртгэл',
@@ -159,7 +159,7 @@ export const mn: Partial<CommonTranslations> = {
   'user.error.failedToUpdateSubscription': 'Захиалгыг шинэчилж чадсангүй.',
   'user.error.failedToUpdateUser': 'Хэрэглэгчийг шинэчилж чадсангүй.',
   'user.error.invalidAction':
-    'Буруу үйлдэл. &quot;Тохиргоо&quot;, &quot;идэвхжүүлэх&quot; эсвэл &quot;идэвхгүй болгох&quot;-ыг ашиглана уу.',
+    'Буруу үйлдэл. "Тохиргоо", "идэвхжүүлэх" эсвэл "идэвхгүй болгох"-ыг ашиглана уу.',
   'user.error.invalidCredentials': 'Буруу итгэмжлэлүүд.',
   'user.error.invalidPlan': 'Буруу төлөвлөгөө.',
   'user.error.invalidToken': 'Буруу токен.',
@@ -167,11 +167,11 @@ export const mn: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Нэвтрэх амжилтгүй боллоо.',
   'user.error.newPasswordRequired': 'Шинэ нууц үг шаардлагатай.',
   'user.error.noPendingTwoFactorSetup':
-    'Хоёр хүчин зүйлийн тохиргоо хүлээгдэж байна. Эхлээд &quot;тохиргоо&quot;-г үйлдэлтэйгээр дуудна уу.',
+    'Хоёр хүчин зүйлийн тохиргоо хүлээгдэж байна. Эхлээд "тохиргоо"-г үйлдэлтэйгээр дуудна уу.',
   'user.error.notFound': 'Олдсонгүй.',
   'user.error.oauthLoginFailed': 'OAuth нэвтрэх амжилтгүй боллоо.',
   'user.error.oauthServerNotConfigured':
-    'OAuth сервер &quot;<x> {{сервер}}</x> &quot;тохиргоо хийгдээгүй байна.',
+    'OAuth сервер "<x> {{сервер}}</x> "тохиргоо хийгдээгүй байна.',
   'user.error.oauthVerificationFailed': 'OAuth баталгаажуулалт амжилтгүй боллоо.',
   'user.error.passwordRequired': 'Нууц үг шаардлагатай.',
   'user.error.planKeyRequired': 'төлөвлөгөөний түлхүүр шаардлагатай.',

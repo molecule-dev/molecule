@@ -98,9 +98,8 @@ export const hr: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Nije moguće ažurirati<x> {{ime}}</x> .',
   'resource.error.unauthorized': 'Neovlašteno.',
   'resource.error.unknownError': 'Nepoznata greška.',
-  'routing.error.missingParam':
-    'Nedostaje parametar &quot;<x> {{ime}}</x> &quot;za put&quot;<x> {{uzorak}}</x> &quot;',
-  'routing.error.routeNotFound': 'Ruta &quot;<x> {{ime}}</x> &quot;nije pronađeno&quot;',
+  'routing.error.missingParam': 'Nedostaje parametar "<x> {{ime}}</x> "za put"<x> {{uzorak}}</x> "',
+  'routing.error.routeNotFound': 'Ruta "<x> {{ime}}</x> "nije pronađeno"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter se mora koristiti unutar MoleculeRouterProvider-a',
   'settings.account': 'Račun',
@@ -157,8 +156,7 @@ export const hr: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'Ažuriranje plana nije uspjelo.',
   'user.error.failedToUpdateSubscription': 'Ažuriranje pretplate nije uspjelo.',
   'user.error.failedToUpdateUser': 'Ažuriranje korisnika nije uspjelo.',
-  'user.error.invalidAction':
-    'Nevažeća radnja. Koristite &quot;postavi&quot;, &quot;omogući&quot; ili &quot;onemogući&quot;.',
+  'user.error.invalidAction': 'Nevažeća radnja. Koristite "postavi", "omogući" ili "onemogući".',
   'user.error.invalidCredentials': 'Nevažeće vjerodajnice.',
   'user.error.invalidPlan': 'Nevažeći plan.',
   'user.error.invalidToken': 'Nevažeći token.',
@@ -166,11 +164,11 @@ export const hr: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Prijava nije uspjela.',
   'user.error.newPasswordRequired': 'Potrebna je nova lozinka.',
   'user.error.noPendingTwoFactorSetup':
-    'Nema dvofaktorskog postavljanja na čekanju. Prvo pozovite s radnjom &quot;setup&quot;.',
+    'Nema dvofaktorskog postavljanja na čekanju. Prvo pozovite s radnjom "setup".',
   'user.error.notFound': 'Nije pronađeno.',
   'user.error.oauthLoginFailed': 'Prijava putem OAuth-a nije uspjela.',
   'user.error.oauthServerNotConfigured':
-    'OAuth poslužitelj<x> {{poslužitelj}}</x> &quot; nije konfiguriran.',
+    'OAuth poslužitelj<x> {{poslužitelj}}</x> " nije konfiguriran.',
   'user.error.oauthVerificationFailed': 'OAuth provjera nije uspjela.',
   'user.error.passwordRequired': 'Lozinka je obavezna.',
   'user.error.planKeyRequired': 'Potreban je planKey.',

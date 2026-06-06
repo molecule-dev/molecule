@@ -7,7 +7,7 @@ export const tr: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Ekle',
   'videoTimeline.aria.root': 'Video zaman çizelgesi',
   'videoTimeline.aria.ruler': 'Zaman cetveli',
-  'videoTimeline.aria.playhead': 'Playhead&#39;de<x> {{zaman}}</x> S',
+  'videoTimeline.aria.playhead': "Playhead'de<x> {{zaman}}</x> S",
   'videoTimeline.aria.zoom': 'Zaman çizelgesi yakınlaştırması',
   'videoTimeline.aria.mode': 'Düzenleme modu',
   'videoTimeline.zoom.in.icon': '+',

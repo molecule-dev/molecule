@@ -11,5 +11,5 @@ export const ha: Partial<SvelteTranslations> = {
   'svelte.error.noLoggerProvider': 'Ba a sami mai samar da rajista a cikin mahallin ba',
   'svelte.error.unknownPaginationDirection': 'Alkiblar shafin da ba a sani ba: "{{direction}}"',
   'svelte.error.noRouter':
-    'Ba a sami na&#39;ura mai ba da hanya tsakanin hanyoyin sadarwa a cikin mahallin ba',
+    "Ba a sami na'ura mai ba da hanya tsakanin hanyoyin sadarwa a cikin mahallin ba",
 }

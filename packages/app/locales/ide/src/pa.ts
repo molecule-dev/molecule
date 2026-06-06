@@ -38,11 +38,11 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.commitFailed': 'ਕਮਿਟ ਅਸਫਲ ਰਿਹਾ',
   'ide.chat.fileTooLarge':
     'ਫਾਈਲ ਬਹੁਤ ਵੱਡੀ ਹੈ। ਵੱਧ ਤੋਂ ਵੱਧ ਆਕਾਰ ਹੈ<x> {{ਵੱਧ ਤੋਂ ਵੱਧ ਆਕਾਰ}}</x> ਐਮ.ਬੀ.',
-  'ide.chat.modelSet': 'ਚੈਟ ਮਾਡਲ ਇਸ &#39;ਤੇ ਸੈੱਟ ਕੀਤਾ ਗਿਆ ਹੈ<x> {{ਨਾਮ}}</x>',
+  'ide.chat.modelSet': "ਚੈਟ ਮਾਡਲ ਇਸ 'ਤੇ ਸੈੱਟ ਕੀਤਾ ਗਿਆ ਹੈ<x> {{ਨਾਮ}}</x>",
   'ide.chat.compacting': 'ਸੰਖੇਪ ਗੱਲਬਾਤ...',
   'ide.chat.compacted': 'ਸੰਦਰਭ ਦੀ ਵਰਤੋਂ ਘੱਟ ਹੈ — ਕਿਸੇ ਸੰਕੁਚਨ ਦੀ ਲੋੜ ਨਹੀਂ ਹੈ।',
   'ide.chat.compactError': 'ਗੱਲਬਾਤ ਨੂੰ ਸੰਖੇਪ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
-  'ide.chat.switchedToPlan': 'ਪਲਾਨ ਮੋਡ &#39;ਤੇ ਸਵਿੱਚ ਕੀਤਾ ਗਿਆ',
+  'ide.chat.switchedToPlan': "ਪਲਾਨ ਮੋਡ 'ਤੇ ਸਵਿੱਚ ਕੀਤਾ ਗਿਆ",
   'ide.chat.switchedToExecute': 'ਐਗਜ਼ੀਕਿਊਟ ਮੋਡ ਵਿੱਚ ਬਦਲਿਆ ਗਿਆ',
   'ide.chat.costError': 'ਵਰਤੋਂ ਡੇਟਾ ਪ੍ਰਾਪਤ ਕਰਨ ਵਿੱਚ ਅਸਮਰੱਥ।',
   'ide.chat.undoNoChanges': 'ਵਾਪਸ ਕਰਨ ਲਈ ਕੋਈ ਫਾਈਲ ਬਦਲਾਅ ਨਹੀਂ ਹਨ।',
@@ -57,7 +57,7 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.modelUsage':
     'ਵਰਤੋਂ: /ਮਾਡਲ<model-name> (ਉਦਾਹਰਨ ਲਈ ਕਲਾਉਡ-ਓਪਸ-4-6, ਕਲੌਡ-ਸੋਨੈੱਟ-4-6, ਕਲੌਡ-ਹਾਇਕੂ-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':
-    '{{ਮਾਡਲ}} ਪ੍ਰੋ &#39;ਤੇ ਉਪਲਬਧ ਹੈ। ਸਾਰੇ ਮਾਡਲਾਂ ਤੱਕ ਪਹੁੰਚ ਕਰਨ ਲਈ ਅੱਪਗ੍ਰੇਡ ਕਰੋ।',
+    "{{ਮਾਡਲ}} ਪ੍ਰੋ 'ਤੇ ਉਪਲਬਧ ਹੈ। ਸਾਰੇ ਮਾਡਲਾਂ ਤੱਕ ਪਹੁੰਚ ਕਰਨ ਲਈ ਅੱਪਗ੍ਰੇਡ ਕਰੋ।",
   'ide.chat.maxLoopsReached': 'ਵੱਧ ਤੋਂ ਵੱਧ ਲੂਪਸ ਦੀ ਸੀਮਾ ਪੂਰੀ ਹੋ ਗਈ।',
   'ide.chat.maxLoopsError': 'ਵੱਧ ਤੋਂ ਵੱਧ ਟੂਲ ਦੁਹਰਾਓ ਨੂੰ ਅੱਪਡੇਟ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
   'ide.chat.dropFilesHere': 'ਫਾਈਲਾਂ ਇੱਥੇ ਸੁੱਟੋ',
@@ -78,7 +78,7 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.openTab': 'ਖੁੱਲ੍ਹਾ',
   'ide.chat.uncommittedFileCount': '{{ਗਿਣਤੀ}} ਅਣ-ਪ੍ਰਵਾਨਿਤ ਫਾਈਲਾਂ',
   'ide.chat.switchToExecute': 'ਐਗਜ਼ੀਕਿਊਟ ਮੋਡ ਤੇ ਜਾਓ',
-  'ide.chat.switchToPlan': 'ਪਲਾਨ ਮੋਡ &#39;ਤੇ ਜਾਓ',
+  'ide.chat.switchToPlan': "ਪਲਾਨ ਮੋਡ 'ਤੇ ਜਾਓ",
   'ide.chat.attachFile': 'ਫਾਈਲ ਨੱਥੀ ਕਰੋ',
   'ide.chat.newChat': 'ਨਵੀਂ ਚੈਟ',
   'ide.chat.searchConversations': 'ਗੱਲਬਾਤਾਂ ਖੋਜੋ...',
@@ -158,9 +158,9 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.retryCommit': 'ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ',
   'ide.chat.loopLimitReached':
     'ਦੀ ਵੱਧ ਤੋਂ ਵੱਧ ਸੀਮਾ ਤੱਕ ਪਹੁੰਚ ਗਿਆ<x> {{ਵੱਧ ਤੋਂ ਵੱਧ}}</x> ਟੂਲ ਦੁਹਰਾਓ।',
-  'ide.chat.maxLoopsSet': 'ਵੱਧ ਤੋਂ ਵੱਧ ਟੂਲ ਦੁਹਰਾਓ ਇਸ &#39;ਤੇ ਸੈੱਟ ਕੀਤਾ ਗਿਆ ਹੈ<x> {{ਨ}}</x>',
+  'ide.chat.maxLoopsSet': "ਵੱਧ ਤੋਂ ਵੱਧ ਟੂਲ ਦੁਹਰਾਓ ਇਸ 'ਤੇ ਸੈੱਟ ਕੀਤਾ ਗਿਆ ਹੈ<x> {{ਨ}}</x>",
   'ide.chat.modelError': 'ਚੈਟ ਮਾਡਲ ਨੂੰ ਅੱਪਡੇਟ ਕਰਨਾ ਅਸਫਲ ਰਿਹਾ।',
-  'ide.chat.revertFile': 'ਆਖਰੀ ਕਮਿਟ &#39;ਤੇ ਵਾਪਸ ਜਾਓ',
+  'ide.chat.revertFile': "ਆਖਰੀ ਕਮਿਟ 'ਤੇ ਵਾਪਸ ਜਾਓ",
   'ide.chat.signUpRequired': 'ਵਰਤਣ ਲਈ ਸਾਈਨ ਅੱਪ ਕਰੋ',
   'ide.chat.verificationFixing': 'ਗਲਤੀਆਂ ਠੀਕ ਕੀਤੀਆਂ ਜਾ ਰਹੀਆਂ ਹਨ...',
   'ide.chat.cancel': 'ਰੱਦ ਕਰੋ',

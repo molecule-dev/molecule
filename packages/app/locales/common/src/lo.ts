@@ -104,9 +104,8 @@ export const lo: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'ບໍ່ສາມາດອັບເດດໄດ້<x> {{ຊື່}}</x> .',
   'resource.error.unauthorized': 'ບໍ່ໄດ້ຮັບອະນຸຍາດ.',
   'resource.error.unknownError': 'ຂໍ້ຜິດພາດທີ່ບໍ່ຮູ້ຈັກ.',
-  'routing.error.missingParam':
-    'ຂາດພາລາມິເຕີ &quot;<x> {{ຊື່}}</x> &quot;ສຳລັບເສັ້ນທາງ&quot;<x> ຮູບແບບ</x> &quot;',
-  'routing.error.routeNotFound': 'ເສັ້ນທາງ &quot;<x> {{ຊື່}}</x> &quot;ບໍ່ພົບ',
+  'routing.error.missingParam': 'ຂາດພາລາມິເຕີ "<x> {{ຊື່}}</x> "ສຳລັບເສັ້ນທາງ"<x> ຮູບແບບ</x> "',
+  'routing.error.routeNotFound': 'ເສັ້ນທາງ "<x> {{ຊື່}}</x> "ບໍ່ພົບ',
   'routing.error.useMoleculeRouterOutsideProvider':
     'ຕ້ອງໃຊ້ useMoleculeRouter ພາຍໃນ MoleculeRouterProvider',
   'settings.account': 'ບັນຊີ',
@@ -163,8 +162,7 @@ export const lo: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'ອັບເດດແຜນການບໍ່ສຳເລັດ.',
   'user.error.failedToUpdateSubscription': 'ອັບເດດການສະໝັກໃຊ້ບໍ່ສຳເລັດ.',
   'user.error.failedToUpdateUser': 'ອັບເດດຜູ້ໃຊ້ບໍ່ສຳເລັດ.',
-  'user.error.invalidAction':
-    'ການກະທຳບໍ່ຖືກຕ້ອງ. ໃຊ້ &quot;ຕັ້ງຄ່າ&quot;, &quot;ເປີດໃຊ້ງານ&quot;, ຫຼື &quot;ປິດໃຊ້ງານ&quot;.',
+  'user.error.invalidAction': 'ການກະທຳບໍ່ຖືກຕ້ອງ. ໃຊ້ "ຕັ້ງຄ່າ", "ເປີດໃຊ້ງານ", ຫຼື "ປິດໃຊ້ງານ".',
   'user.error.invalidCredentials': 'ຂໍ້ມູນປະຈຳຕົວບໍ່ຖືກຕ້ອງ.',
   'user.error.invalidPlan': 'ແຜນບໍ່ຖືກຕ້ອງ.',
   'user.error.invalidToken': 'ໂທເຄັນບໍ່ຖືກຕ້ອງ.',
@@ -172,10 +170,10 @@ export const lo: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'ເຂົ້າສູ່ລະບົບລົ້ມເຫຼວ.',
   'user.error.newPasswordRequired': 'ຕ້ອງມີລະຫັດຜ່ານໃໝ່.',
   'user.error.noPendingTwoFactorSetup':
-    'ບໍ່ມີການຕັ້ງຄ່າສອງປັດໄຈທີ່ຍັງຄ້າງຢູ່. ໃຫ້ໂທຫາດ້ວຍຄຳສັ່ງ &quot;ຕັ້ງຄ່າ&quot; ກ່ອນ.',
+    'ບໍ່ມີການຕັ້ງຄ່າສອງປັດໄຈທີ່ຍັງຄ້າງຢູ່. ໃຫ້ໂທຫາດ້ວຍຄຳສັ່ງ "ຕັ້ງຄ່າ" ກ່ອນ.',
   'user.error.notFound': 'ບໍ່ພົບ.',
   'user.error.oauthLoginFailed': 'ການເຂົ້າສູ່ລະບົບ OAuth ລົ້ມເຫຼວ.',
-  'user.error.oauthServerNotConfigured': 'ເຊີບເວີ OAuth<x> {{ເຊີບເວີ}}</x> &quot;ບໍ່ໄດ້ຖືກຕັ້ງຄ່າ.',
+  'user.error.oauthServerNotConfigured': 'ເຊີບເວີ OAuth<x> {{ເຊີບເວີ}}</x> "ບໍ່ໄດ້ຖືກຕັ້ງຄ່າ.',
   'user.error.oauthVerificationFailed': 'ການຢືນຢັນ OAuth ລົ້ມເຫຼວ.',
   'user.error.passwordRequired': 'ຕ້ອງມີລະຫັດຜ່ານ.',
   'user.error.planKeyRequired': 'ຕ້ອງມີ planKey.',

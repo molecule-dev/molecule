@@ -5,7 +5,7 @@ export const cy: Partial<BiasIndicatorTranslations> = {
   'biasIndicator.bias.farLeft': 'Chwith eithaf',
   'biasIndicator.bias.leftLeaning': 'Chwith-dueddol',
   'biasIndicator.bias.center': 'Canolfan',
-  'biasIndicator.bias.rightLeaning': 'Tueddu i&#39;r dde',
+  'biasIndicator.bias.rightLeaning': "Tueddu i'r dde",
   'biasIndicator.bias.farRight': 'Dde eithafol',
   'biasIndicator.reliability.high': 'Dibynadwyedd: uchel',
   'biasIndicator.reliability.medium': 'Dibynadwyedd: canolig',

@@ -9,7 +9,7 @@ export const ca: Partial<TransportBarTranslations> = {
   'transportBar.aria.pause': 'Pausa',
   'transportBar.aria.stop': 'Atura',
   'transportBar.aria.record': 'Registre',
-  'transportBar.aria.stopRecording': 'Atura l&#39;enregistrament',
+  'transportBar.aria.stopRecording': "Atura l'enregistrament",
   'transportBar.aria.loopOn': 'Desactiva el bucle',
   'transportBar.aria.loopOff': 'Habilita el bucle',
 }

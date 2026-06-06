@@ -105,8 +105,7 @@ export const te: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'అప్‌డేట్ చేయలేకపోయారు<x> {{name}}</x> .',
   'resource.error.unauthorized': 'అనధికారికం.',
   'resource.error.unknownError': 'తెలియని లోపం.',
-  'routing.error.missingParam':
-    'పరామితి లేదు<x> {{name}}</x> మార్గం కోసం<x> {{pattern}}</x> &quot;',
+  'routing.error.missingParam': 'పరామితి లేదు<x> {{name}}</x> మార్గం కోసం<x> {{pattern}}</x> "',
   'routing.error.routeNotFound': 'మార్గం<x> {{name}}</x> కనుగొనబడలేదు',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouterను తప్పనిసరిగా MoleculeRouterProvider లోపల ఉపయోగించాలి',
@@ -164,8 +163,7 @@ export const te: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'ప్రణాళికను నవీకరించడంలో విఫలమయ్యారు.',
   'user.error.failedToUpdateSubscription': 'సబ్‌స్క్రిప్షన్‌ను అప్‌డేట్ చేయడంలో విఫలమైంది.',
   'user.error.failedToUpdateUser': 'వినియోగదారుని నవీకరించడంలో విఫలమైంది.',
-  'user.error.invalidAction':
-    'చెల్లని చర్య. &quot;setup&quot;, &quot;enable&quot;, లేదా &quot;disable&quot; ఉపయోగించండి.',
+  'user.error.invalidAction': 'చెల్లని చర్య. "setup", "enable", లేదా "disable" ఉపయోగించండి.',
   'user.error.invalidCredentials': 'చెల్లని ఆధారాలు.',
   'user.error.invalidPlan': 'చెల్లని ప్లాన్.',
   'user.error.invalidToken': 'చెల్లని టోకెన్.',
@@ -173,7 +171,7 @@ export const te: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'లాగిన్ విఫలమైంది.',
   'user.error.newPasswordRequired': 'కొత్త పాస్‌వర్డ్ అవసరం.',
   'user.error.noPendingTwoFactorSetup':
-    'పెండింగ్‌లో ఉన్న టూ-ఫ్యాక్టర్ సెటప్ ఏదీ లేదు. ముందుగా &quot;సెటప్&quot; యాక్షన్‌తో కాల్ చేయండి.',
+    'పెండింగ్‌లో ఉన్న టూ-ఫ్యాక్టర్ సెటప్ ఏదీ లేదు. ముందుగా "సెటప్" యాక్షన్‌తో కాల్ చేయండి.',
   'user.error.notFound': 'కనుగొనబడలేదు.',
   'user.error.oauthLoginFailed': 'OAuth లాగిన్ విఫలమైంది.',
   'user.error.oauthServerNotConfigured': 'OAuth సర్వర్<x> {{సర్వర్}}</x> కాన్ఫిగర్ చేయబడలేదు.',
@@ -454,7 +452,7 @@ export const te: Partial<CommonTranslations> = {
   'nav.invoices': 'ఇన్‌వాయిస్‌లు',
   'nav.newInvoice': 'కొత్త ఇన్వాయిస్',
   'nav.newProject': 'కొత్త ప్రాజెక్ట్',
-  'nav.planAndBilling': 'ప్లాన్ &amp; బిల్లింగ్',
+  'nav.planAndBilling': 'ప్లాన్ & బిల్లింగ్',
   'nav.currentPlan': 'ప్రస్తుత ప్రణాళిక',
   'nav.pricing': 'ధర నిర్ణయం',
   'nav.customer': 'కస్టమర్',

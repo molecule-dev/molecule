@@ -3,12 +3,12 @@ import type { GradebookTranslations } from './types.js'
 /** Gradebook translations for uz. */
 export const uz: Partial<GradebookTranslations> = {
   'gradebook.aria.region': 'Baholar kitobi',
-  'gradebook.empty': 'Hali baholar yo&#39;q.',
+  'gradebook.empty': "Hali baholar yo'q.",
   'gradebook.col.title': 'Kurs',
   'gradebook.col.letter': 'Xat',
   'gradebook.col.numeric': 'Xol',
   'gradebook.col.numericPct': 'Xol (%)',
-  'gradebook.col.weight': 'Og&#39;irligi',
+  'gradebook.col.weight': "Og'irligi",
   'gradebook.col.contribution': 'GPA hissasi',
   'gradebook.col.posted': 'Joylashtirilgan',
   'gradebook.gpa.title': 'GPA',

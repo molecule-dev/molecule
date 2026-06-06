@@ -16,5 +16,5 @@ export const be: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.lastChecked': 'Апошняя праверка {{time}}',
   'statusDashboard.label.latency': '{{ms}}ms',
   'statusDashboard.label.noIncidents': 'Інцыдэнтаў не зафіксавана.',
-  'statusDashboard.label.majorOutage': 'Сур&#39;ёзны збой сістэмы',
+  'statusDashboard.label.majorOutage': "Сур'ёзны збой сістэмы",
 }

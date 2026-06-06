@@ -29,9 +29,9 @@ export const mt: Partial<IapTranslations> = {
   'iap.error.3': 'Billing mhux disponibbli.',
   'iap.error.5': 'Zball tad-developer.',
   'iap.error.6': 'Zball.',
-  'iap.error.E_ALREADY_OWNED': 'Inti diġà sidien ta&#39; dan l-oġġett.',
-  'iap.error.E_NOT_OWNED': 'M&#39;intix is-sid ta&#39; dan l-oġġett.',
+  'iap.error.E_ALREADY_OWNED': "Inti diġà sidien ta' dan l-oġġett.",
+  'iap.error.E_NOT_OWNED': "M'intix is-sid ta' dan l-oġġett.",
   'iap.error.4': 'Oġġett mhux disponibbli.',
   'iap.error.7': 'Oġġett diġà tiegħek.',
-  'iap.error.8': 'Oġġett mhux proprjetà ta&#39; xi ħadd.',
+  'iap.error.8': "Oġġett mhux proprjetà ta' xi ħadd.",
 }

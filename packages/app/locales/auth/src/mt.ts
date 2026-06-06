@@ -5,5 +5,5 @@ export const mt: Partial<AuthTranslations> = {
   'auth.error.requestFailed': 'It-talba falliet',
   'auth.error.loginFailed': 'Id-dhul falla',
   'auth.error.registrationFailed': 'Ir-registrazzjoni falliet',
-  'auth.error.noRefreshToken': 'L-ebda token ta&#39; aġġornament disponibbli',
+  'auth.error.noRefreshToken': "L-ebda token ta' aġġornament disponibbli",
 }

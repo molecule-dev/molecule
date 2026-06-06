@@ -12,7 +12,7 @@ export const uk: Partial<FileCardTranslations> = {
   'file-card.kind.audio': 'Аудіофайл',
   'file-card.kind.code': 'Файл коду',
   'file-card.kind.folder': 'Папка',
-  'file-card.aria.root': '{{ім&#39;я}} ,<x> {{вид}}</x>',
+  'file-card.aria.root': "{{ім'я}} ,<x> {{вид}}</x>",
   'file-card.aria.size': 'Розмір<x> {{розмір}}</x>',
   'file-card.aria.modified': 'Змінено<x> {{коли}}</x>',
   'file-card.modified.minute-one': '1 хвилину тому',

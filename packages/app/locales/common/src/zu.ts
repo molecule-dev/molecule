@@ -101,8 +101,8 @@ export const zu: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Akugunyaziwe.',
   'resource.error.unknownError': 'Iphutha elingaziwa.',
   'routing.error.missingParam':
-    'Ipharamitha engekho &quot;<x> {{igama}}</x> &quot;yendlela&quot;<x> {{iphethini}}</x> &quot;',
-  'routing.error.routeNotFound': 'Umzila &quot;<x> {{igama}}</x> &quot; akutholakalanga',
+    'Ipharamitha engekho "<x> {{igama}}</x> "yendlela"<x> {{iphethini}}</x> "',
+  'routing.error.routeNotFound': 'Umzila "<x> {{igama}}</x> " akutholakalanga',
   'routing.error.useMoleculeRouterOutsideProvider':
     'i-useMoleculeRouter kumele isetshenziswe ngaphakathi kwe-MoleculeRouterProvider',
   'settings.account': 'I-akhawunti',
@@ -161,7 +161,7 @@ export const zu: Partial<CommonTranslations> = {
   'user.error.failedToUpdateSubscription': 'Yehlulekile ukubuyekeza okubhaliselwe.',
   'user.error.failedToUpdateUser': 'Yehlulekile ukubuyekeza umsebenzisi.',
   'user.error.invalidAction':
-    'Isenzo esingavumelekile. Sebenzisa &quot;ukusetha&quot;, &quot;vumela&quot;, noma &quot;khubaza&quot;.',
+    'Isenzo esingavumelekile. Sebenzisa "ukusetha", "vumela", noma "khubaza".',
   'user.error.invalidCredentials': 'Iziqinisekiso ezingavumelekile.',
   'user.error.invalidPlan': 'Uhlelo olungavumelekile.',
   'user.error.invalidToken': 'Ithokheni engavumelekile.',
@@ -169,11 +169,10 @@ export const zu: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Ukungena kokuyimfihlo ayiphumelelanga.',
   'user.error.newPasswordRequired': 'Kudingeka iphasiwedi entsha.',
   'user.error.noPendingTwoFactorSetup':
-    'Akukho ukusethwa kwezinto ezimbili okulindile. Shayela ngesenzo &quot;ukusetha&quot; kuqala.',
+    'Akukho ukusethwa kwezinto ezimbili okulindile. Shayela ngesenzo "ukusetha" kuqala.',
   'user.error.notFound': 'Akutholakalanga.',
   'user.error.oauthLoginFailed': 'Ukungena ngemvume kwe-OAuth kwehlulekile.',
-  'user.error.oauthServerNotConfigured':
-    'Iseva ye-OAuth &quot;<x> {{iseva}}</x> &quot;akulungiselelwe.&quot;',
+  'user.error.oauthServerNotConfigured': 'Iseva ye-OAuth "<x> {{iseva}}</x> "akulungiselelwe."',
   'user.error.oauthVerificationFailed': 'Ukuqinisekiswa kwe-OAuth kwehlulekile.',
   'user.error.passwordRequired': 'Iphasiwedi iyadingeka.',
   'user.error.planKeyRequired': 'I-planKey iyadingeka.',

@@ -106,8 +106,8 @@ export const my: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'ခွင့်ပြုချက်မရှိသော။',
   'resource.error.unknownError': 'မသိရသေးသော အမှား။',
   'routing.error.missingParam':
-    '&quot;ပါရမ် ပျောက်ဆုံးနေသည်&quot;<x> {{အမည်}}</x> &quot;လမ်းကြောင်းအတွက်&quot;<x> {{ပုံစံ}}</x> &quot;',
-  'routing.error.routeNotFound': 'လမ်းကြောင်း &quot;<x> {{အမည်}}</x> &quot; မတွေ့ရှိပါ',
+    '"ပါရမ် ပျောက်ဆုံးနေသည်"<x> {{အမည်}}</x> "လမ်းကြောင်းအတွက်"<x> {{ပုံစံ}}</x> "',
+  'routing.error.routeNotFound': 'လမ်းကြောင်း "<x> {{အမည်}}</x> " မတွေ့ရှိပါ',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter ကို MoleculeRouterProvider အတွင်းတွင် အသုံးပြုရမည်။',
   'settings.account': 'အကောင့်',
@@ -165,7 +165,7 @@ export const my: Partial<CommonTranslations> = {
   'user.error.failedToUpdateSubscription': 'စာရင်းသွင်းမှုကို အပ်ဒိတ်လုပ်၍မရပါ။',
   'user.error.failedToUpdateUser': 'အသုံးပြုသူကို အပ်ဒိတ်လုပ်၍မရပါ။',
   'user.error.invalidAction':
-    'လုပ်ဆောင်ချက် မမှန်ကန်ပါ။ &quot;setup&quot;၊ &quot;enable&quot; သို့မဟုတ် &quot;disable&quot; ကိုသုံးပါ။',
+    'လုပ်ဆောင်ချက် မမှန်ကန်ပါ။ "setup"၊ "enable" သို့မဟုတ် "disable" ကိုသုံးပါ။',
   'user.error.invalidCredentials': 'အထောက်အထားများ မမှန်ကန်ပါ။',
   'user.error.invalidPlan': 'အစီအစဉ် မမှန်ကန်ပါ။',
   'user.error.invalidToken': 'တိုကင် မမှန်ကန်ပါ။',
@@ -173,11 +173,10 @@ export const my: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'လော့ဂ်အင်မအောင်မြင်ပါ။',
   'user.error.newPasswordRequired': 'စကားဝှက်အသစ် လိုအပ်ပါသည်။',
   'user.error.noPendingTwoFactorSetup':
-    'ဆိုင်းငံ့ထားသော two-factor setup မရှိပါ။ &quot;setup&quot; လုပ်ဆောင်ချက်ဖြင့် ဦးစွာခေါ်ဆိုပါ။',
+    'ဆိုင်းငံ့ထားသော two-factor setup မရှိပါ။ "setup" လုပ်ဆောင်ချက်ဖြင့် ဦးစွာခေါ်ဆိုပါ။',
   'user.error.notFound': 'မတွေ့ပါ။',
   'user.error.oauthLoginFailed': 'OAuth ဝင်ရောက်ခြင်း မအောင်မြင်ပါ။',
-  'user.error.oauthServerNotConfigured':
-    'OAuth ဆာဗာ &quot;<x> {{ဆာဗာ}}</x> &quot; ကို ပြင်ဆင်သတ်မှတ်မထားပါ။',
+  'user.error.oauthServerNotConfigured': 'OAuth ဆာဗာ "<x> {{ဆာဗာ}}</x> " ကို ပြင်ဆင်သတ်မှတ်မထားပါ။',
   'user.error.oauthVerificationFailed': 'OAuth အတည်ပြုခြင်း မအောင်မြင်ပါ။',
   'user.error.passwordRequired': 'စကားဝှက် လိုအပ်ပါသည်။',
   'user.error.planKeyRequired': 'planKey လိုအပ်ပါသည်။',

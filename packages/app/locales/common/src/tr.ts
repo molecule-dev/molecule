@@ -433,9 +433,8 @@ export const tr: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Güncellenemedi<x> {{isim}}</x> .',
   'resource.error.unauthorized': 'Yetkisiz.',
   'resource.error.unknownError': 'Bilinmeyen hata.',
-  'routing.error.missingParam':
-    'Eksik parametre &quot;<x> {{isim}}</x> &quot;yol için&quot;<x> {{model}}</x> &quot;',
-  'routing.error.routeNotFound': 'Rota &quot;<x> {{isim}}</x> &quot;bulunamadı&quot;',
+  'routing.error.missingParam': 'Eksik parametre "<x> {{isim}}</x> "yol için"<x> {{model}}</x> "',
+  'routing.error.routeNotFound': 'Rota "<x> {{isim}}</x> "bulunamadı"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter, bir MoleculeRouterProvider içinde kullanılmalıdır.',
   'settings.authentication': 'Kimlik doğrulama',
@@ -469,7 +468,7 @@ export const tr: Partial<CommonTranslations> = {
   'user.error.failedToUpdateSubscription': 'Abonelik güncellenemedi.',
   'user.error.failedToUpdateUser': 'Kullanıcı güncellemesi başarısız oldu.',
   'user.error.invalidAction':
-    'Geçersiz işlem. &quot;Kurulum&quot;, &quot;etkinleştir&quot; veya &quot;devre dışı bırak&quot; seçeneklerini kullanın.',
+    'Geçersiz işlem. "Kurulum", "etkinleştir" veya "devre dışı bırak" seçeneklerini kullanın.',
   'user.error.invalidCredentials': 'Geçersiz kimlik bilgileri.',
   'user.error.invalidPlan': 'Geçersiz plan.',
   'user.error.invalidToken': 'Geçersiz belirteç.',
@@ -477,11 +476,10 @@ export const tr: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Giriş başarısız oldu.',
   'user.error.newPasswordRequired': 'Yeni bir şifre gerekiyor.',
   'user.error.noPendingTwoFactorSetup':
-    'Bekleyen iki faktörlü kimlik doğrulama kurulumu yok. Öncelikle &quot;kurulum&quot; işlemiyle arayın.',
+    'Bekleyen iki faktörlü kimlik doğrulama kurulumu yok. Öncelikle "kurulum" işlemiyle arayın.',
   'user.error.notFound': 'Bulunamadı.',
   'user.error.oauthLoginFailed': 'OAuth oturum açma işlemi başarısız oldu.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth sunucusu &quot;<x> {{sunucu}}</x> &quot;yapılandırılmamış.&quot;',
+  'user.error.oauthServerNotConfigured': 'OAuth sunucusu "<x> {{sunucu}}</x> "yapılandırılmamış."',
   'user.error.oauthVerificationFailed': 'OAuth doğrulaması başarısız oldu.',
   'user.error.passwordRequired': 'Şifre gereklidir.',
   'user.error.planKeyRequired': 'planKey gereklidir.',

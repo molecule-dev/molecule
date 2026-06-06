@@ -6,7 +6,7 @@ export const ig: Partial<BiasIndicatorTranslations> = {
   'biasIndicator.bias.leftLeaning': 'Na-adabere aka ekpe',
   'biasIndicator.bias.center': 'Etiti',
   'biasIndicator.bias.rightLeaning': 'Na-adabere aka nri',
-  'biasIndicator.bias.farRight': 'N&#39;ebe dị anya aka nri',
+  'biasIndicator.bias.farRight': "N'ebe dị anya aka nri",
   'biasIndicator.reliability.high': 'Ntụkwasị obi: elu',
   'biasIndicator.reliability.medium': 'Ntụkwasị obi: ọkara',
   'biasIndicator.reliability.low': 'Ntụkwasị obi: dị ala',

@@ -13,8 +13,8 @@ export const cy: Partial<UiTranslations> = {
   'ui.spinner.loading': 'Yn llwytho',
   'ui.radioGroup.label': 'Grŵp radio',
   'ui.progress.label': 'Cynnydd',
-  'ui.pagination.first': 'Ewch i&#39;r dudalen gyntaf',
-  'ui.pagination.previous': 'Mynd i&#39;r dudalen flaenorol',
-  'ui.pagination.next': 'Ewch i&#39;r dudalen nesaf',
-  'ui.pagination.last': 'Mynd i&#39;r dudalen olaf',
+  'ui.pagination.first': "Ewch i'r dudalen gyntaf",
+  'ui.pagination.previous': "Mynd i'r dudalen flaenorol",
+  'ui.pagination.next': "Ewch i'r dudalen nesaf",
+  'ui.pagination.last': "Mynd i'r dudalen olaf",
 }

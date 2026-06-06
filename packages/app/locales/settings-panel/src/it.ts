@@ -14,7 +14,7 @@ export const it: Partial<SettingsPanelTranslations> = {
   'settings.billing.cancel': 'Annulla',
   'settings.billing.subscribe': 'Iscriviti',
   'settings.darkMode': 'Modalità scura',
-  'settings.billing.cancelConfirm': 'Vuoi annullare l&#39;abbonamento?',
+  'settings.billing.cancelConfirm': "Vuoi annullare l'abbonamento?",
   'settings.billing.upgradeTitle': 'Passa a un piano superiore',
   'settings.billing.noTiers': 'Nessun piano a pagamento configurato.',
 }

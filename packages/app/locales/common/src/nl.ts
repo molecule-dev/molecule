@@ -420,8 +420,8 @@ export const nl: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Niet geautoriseerd.',
   'resource.error.unknownError': 'Onbekende fout.',
   'routing.error.missingParam':
-    'Ontbrekende parameter &quot;<x> {{naam}}</x> &quot; voor pad&quot;<x> {{patroon}}</x> &quot;',
-  'routing.error.routeNotFound': 'Route<x> {{naam}}</x> &quot; niet gevonden&quot;',
+    'Ontbrekende parameter "<x> {{naam}}</x> " voor pad"<x> {{patroon}}</x> "',
+  'routing.error.routeNotFound': 'Route<x> {{naam}}</x> " niet gevonden"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter moet binnen een MoleculeRouterProvider worden gebruikt.',
   'settings.authentication': 'Authenticatie',
@@ -456,8 +456,7 @@ export const nl: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'Het plan kon niet worden bijgewerkt.',
   'user.error.failedToUpdateSubscription': 'Abonnement bijwerken mislukt.',
   'user.error.failedToUpdateUser': 'Het bijwerken van de gebruiker is mislukt.',
-  'user.error.invalidAction':
-    'Ongeldige actie. Gebruik &quot;setup&quot;, &quot;enable&quot; of &quot;disable&quot;.',
+  'user.error.invalidAction': 'Ongeldige actie. Gebruik "setup", "enable" of "disable".',
   'user.error.invalidCredentials': 'Ongeldige inloggegevens.',
   'user.error.invalidPlan': 'Ongeldig plan.',
   'user.error.invalidToken': 'Ongeldig token.',
@@ -465,11 +464,10 @@ export const nl: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Aanmelden mislukt.',
   'user.error.newPasswordRequired': 'Een nieuw wachtwoord is vereist.',
   'user.error.noPendingTwoFactorSetup':
-    'Er is geen tweefactorauthenticatie in behandeling. Bel eerst met de actie &quot;setup&quot;.',
+    'Er is geen tweefactorauthenticatie in behandeling. Bel eerst met de actie "setup".',
   'user.error.notFound': 'Niet gevonden.',
   'user.error.oauthLoginFailed': 'OAuth-aanmelding mislukt.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth-server<x> {{server}}</x> &quot; is niet geconfigureerd.',
+  'user.error.oauthServerNotConfigured': 'OAuth-server<x> {{server}}</x> " is niet geconfigureerd.',
   'user.error.oauthVerificationFailed': 'OAuth-verificatie mislukt.',
   'user.error.passwordRequired': 'Een wachtwoord is vereist.',
   'user.error.planKeyRequired': 'planKey is vereist.',

@@ -106,8 +106,8 @@ export const th: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'ไม่ได้รับอนุญาต',
   'resource.error.unknownError': 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ',
   'routing.error.missingParam':
-    'พารามิเตอร์หายไป &quot;<x> {{ชื่อ}}</x> &quot;สำหรับเส้นทาง&quot;<x> {{ลวดลาย}}</x> &quot;',
-  'routing.error.routeNotFound': 'เส้นทาง &quot;<x> {{ชื่อ}}</x> ไม่พบ',
+    'พารามิเตอร์หายไป "<x> {{ชื่อ}}</x> "สำหรับเส้นทาง"<x> {{ลวดลาย}}</x> "',
+  'routing.error.routeNotFound': 'เส้นทาง "<x> {{ชื่อ}}</x> ไม่พบ',
   'routing.error.useMoleculeRouterOutsideProvider':
     'ต้องใช้ useMoleculeRouter ภายใน MoleculeRouterProvider',
   'settings.account': 'บัญชี',
@@ -165,7 +165,7 @@ export const th: Partial<CommonTranslations> = {
   'user.error.failedToUpdateSubscription': 'ไม่สามารถอัปเดตการสมัครสมาชิกได้',
   'user.error.failedToUpdateUser': 'ไม่สามารถอัปเดตข้อมูลผู้ใช้ได้',
   'user.error.invalidAction':
-    'การกระทำไม่ถูกต้อง โปรดใช้ &quot;ตั้งค่า&quot; &quot;เปิดใช้งาน&quot; หรือ &quot;ปิดใช้งาน&quot; แทน',
+    'การกระทำไม่ถูกต้อง โปรดใช้ "ตั้งค่า" "เปิดใช้งาน" หรือ "ปิดใช้งาน" แทน',
   'user.error.invalidCredentials': 'ข้อมูลประจำตัวไม่ถูกต้อง',
   'user.error.invalidPlan': 'แผนไม่ถูกต้อง',
   'user.error.invalidToken': 'โทเค็นไม่ถูกต้อง',
@@ -173,11 +173,11 @@ export const th: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'การเข้าสู่ระบบล้มเหลว',
   'user.error.newPasswordRequired': 'ต้องตั้งรหัสผ่านใหม่',
   'user.error.noPendingTwoFactorSetup':
-    'ไม่มีการตั้งค่าการตรวจสอบสิทธิ์แบบสองขั้นตอนที่ค้างอยู่ กรุณาโทรโดยระบุคำดำเนินการ &quot;setup&quot; ก่อน',
+    'ไม่มีการตั้งค่าการตรวจสอบสิทธิ์แบบสองขั้นตอนที่ค้างอยู่ กรุณาโทรโดยระบุคำดำเนินการ "setup" ก่อน',
   'user.error.notFound': 'ไม่พบข้อมูล',
   'user.error.oauthLoginFailed': 'การเข้าสู่ระบบ OAuth ล้มเหลว',
   'user.error.oauthServerNotConfigured':
-    'เซิร์ฟเวอร์ OAuth &quot;<x> {{เซิร์ฟเวอร์}}</x> &quot; ไม่ได้ตั้งค่าไว้&quot;',
+    'เซิร์ฟเวอร์ OAuth "<x> {{เซิร์ฟเวอร์}}</x> " ไม่ได้ตั้งค่าไว้"',
   'user.error.oauthVerificationFailed': 'การตรวจสอบ OAuth ล้มเหลว',
   'user.error.passwordRequired': 'ต้องใส่รหัสผ่าน',
   'user.error.planKeyRequired': 'จำเป็นต้องระบุ planKey',

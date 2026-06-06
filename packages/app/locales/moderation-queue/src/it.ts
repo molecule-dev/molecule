@@ -26,7 +26,7 @@ export const it: Partial<ModerationQueueTranslations> = {
   'moderationQueue.severity.medium': 'Medio',
   'moderationQueue.severity.high': 'Alta',
   'moderationQueue.aria.bulkToolbar': 'Azioni di moderazione in massa',
-  'moderationQueue.aria.selectRow': 'Seleziona l&#39;articolo',
+  'moderationQueue.aria.selectRow': "Seleziona l'articolo",
   'moderationQueue.loading': 'Caricamento della coda di moderazione…',
   'moderationQueue.empty': 'Nessun elemento in attesa di moderazione.',
   'moderationQueue.selectedCount': '{{contare}} selezionato',

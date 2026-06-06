@@ -6,7 +6,7 @@ export const be: Partial<ExifPanelTranslations> = {
   'exifPanel.eyebrow': 'Метададзеныя фрэйма',
   'exifPanel.heading': 'EXIF',
   'exifPanel.camera': 'Камера',
-  'exifPanel.lens': 'Аб&#39;ектыў',
+  'exifPanel.lens': "Аб'ектыў",
   'exifPanel.exposure': 'Уздзеянне',
   'exifPanel.aperture': 'Дыяфрагма',
   'exifPanel.shutter': 'Вытрымка',

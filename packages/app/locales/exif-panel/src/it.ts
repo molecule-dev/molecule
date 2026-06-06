@@ -9,7 +9,7 @@ export const it: Partial<ExifPanelTranslations> = {
   'exifPanel.lens': 'Lente',
   'exifPanel.exposure': 'Esposizione',
   'exifPanel.aperture': 'Apertura',
-  'exifPanel.shutter': 'velocità dell&#39;otturatore',
+  'exifPanel.shutter': "velocità dell'otturatore",
   'exifPanel.iso': 'ISO',
   'exifPanel.focalLength': 'lunghezza focale',
   'exifPanel.focalLength35mm': 'equivalente a 35 mm',

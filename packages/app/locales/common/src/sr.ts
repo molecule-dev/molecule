@@ -107,8 +107,8 @@ export const sr: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Неовлашћено.',
   'resource.error.unknownError': 'Непозната грешка.',
   'routing.error.missingParam':
-    'Недостаје параметар &quot;<x> {{име}}</x> „за путању“<x> {{шаблон}}</x> &quot;',
-  'routing.error.routeNotFound': 'Рута &quot;<x> {{име}}</x> „није пронађено“',
+    'Недостаје параметар "<x> {{име}}</x> „за путању“<x> {{шаблон}}</x> "',
+  'routing.error.routeNotFound': 'Рута "<x> {{име}}</x> „није пронађено“',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter мора бити коришћен унутар MoleculeRouterProvider-а',
   'settings.account': 'Налог',

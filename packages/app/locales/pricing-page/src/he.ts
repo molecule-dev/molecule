@@ -14,6 +14,6 @@ export const he: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': 'תקופת חיוב',
   'pricingPage.planUpdated.heading': 'התוכנית שלך עודכנה',
   'pricingPage.planUpdated.body':
-    'תודה ששדרגת. התוכנית החדשה שלך פעילה באופן מיידי וקבלה נשלחה אליך בדוא&quot;ל.',
+    'תודה ששדרגת. התוכנית החדשה שלך פעילה באופן מיידי וקבלה נשלחה אליך בדוא"ל.',
   'pricingPage.planUpdated.headingNamed': 'אתה עכשיו על ה<x> {{שם התוכנית}}</x> לְתַכְנֵן',
 }

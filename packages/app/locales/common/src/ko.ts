@@ -428,8 +428,8 @@ export const ko: Partial<CommonTranslations> = {
   'resource.error.unauthorized': '무단 사용.',
   'resource.error.unknownError': '알 수 없는 오류입니다.',
   'routing.error.missingParam':
-    '매개변수가 누락되었습니다.<x> {{이름}}</x> &quot;경로용&quot;<x> {{무늬}}</x> &quot;',
-  'routing.error.routeNotFound': '노선 &quot;<x> {{이름}}</x> &quot;찾을 수 없음&quot;',
+    '매개변수가 누락되었습니다.<x> {{이름}}</x> "경로용"<x> {{무늬}}</x> "',
+  'routing.error.routeNotFound': '노선 "<x> {{이름}}</x> "찾을 수 없음"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter는 MoleculeRouterProvider 내에서 사용해야 합니다.',
   'settings.authentication': '입증',
@@ -462,8 +462,7 @@ export const ko: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': '계획 업데이트에 실패했습니다.',
   'user.error.failedToUpdateSubscription': '구독 업데이트에 실패했습니다.',
   'user.error.failedToUpdateUser': '사용자 정보 업데이트에 실패했습니다.',
-  'user.error.invalidAction':
-    '잘못된 동작입니다. &quot;설정&quot;, &quot;활성화&quot; 또는 &quot;비활성화&quot;를 사용하십시오.',
+  'user.error.invalidAction': '잘못된 동작입니다. "설정", "활성화" 또는 "비활성화"를 사용하십시오.',
   'user.error.invalidCredentials': '잘못된 자격 증명입니다.',
   'user.error.invalidPlan': '유효하지 않은 계획입니다.',
   'user.error.invalidToken': '유효하지 않은 토큰입니다.',
@@ -471,11 +470,11 @@ export const ko: Partial<CommonTranslations> = {
   'user.error.loginFailed': '로그인에 실패했습니다.',
   'user.error.newPasswordRequired': '새 비밀번호가 필요합니다.',
   'user.error.noPendingTwoFactorSetup':
-    '보류 중인 2단계 인증 설정이 없습니다. 먼저 &quot;설정&quot; 작업을 포함하여 전화하십시오.',
+    '보류 중인 2단계 인증 설정이 없습니다. 먼저 "설정" 작업을 포함하여 전화하십시오.',
   'user.error.notFound': '찾을 수 없습니다.',
   'user.error.oauthLoginFailed': 'OAuth 로그인에 실패했습니다.',
   'user.error.oauthServerNotConfigured':
-    'OAuth 서버 &quot;<x> {{섬기는 사람}}</x> &quot;가 구성되지 않았습니다.&quot;',
+    'OAuth 서버 "<x> {{섬기는 사람}}</x> "가 구성되지 않았습니다."',
   'user.error.oauthVerificationFailed': 'OAuth 인증에 실패했습니다.',
   'user.error.passwordRequired': '비밀번호를 입력해야 합니다.',
   'user.error.planKeyRequired': 'planKey가 필요합니다.',

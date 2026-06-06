@@ -5,6 +5,6 @@ export const uz: Partial<HttpInspectorTranslations> = {
   'httpInspector.sending': 'Yuborilmoqda…',
   'httpInspector.send': 'Yuborish',
   'httpInspector.headers': 'Sarlavhalar',
-  'httpInspector.addHeader': 'Sarlavha qo&#39;shish',
+  'httpInspector.addHeader': "Sarlavha qo'shish",
   'httpInspector.body': 'Kuzov',
 }

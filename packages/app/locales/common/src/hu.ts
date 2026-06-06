@@ -388,8 +388,8 @@ export const hu: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Jogosulatlan.',
   'resource.error.unknownError': 'Ismeretlen hiba.',
   'routing.error.missingParam':
-    'Hiányzó paraméter &quot;<x> {{név}}</x> &quot;az útvonalhoz&quot;<x> {{minta}}</x> &quot;',
-  'routing.error.routeNotFound': 'Útvonal &quot;<x> {{név}}</x> &quot;nem található',
+    'Hiányzó paraméter "<x> {{név}}</x> "az útvonalhoz"<x> {{minta}}</x> "',
+  'routing.error.routeNotFound': 'Útvonal "<x> {{név}}</x> "nem található',
   'routing.error.useMoleculeRouterOutsideProvider':
     'A useMoleculeRouter paramétert egy MoleculeRouterProvider-en belül kell használni.',
   'settings.authentication': 'Hitelesítés',
@@ -447,7 +447,7 @@ export const hu: Partial<CommonTranslations> = {
   'user.error.notFound': 'Nem található.',
   'user.error.oauthLoginFailed': 'OAuth bejelentkezés sikertelen.',
   'user.error.oauthServerNotConfigured':
-    'OAuth-kiszolgáló &quot;<x> {{szerver}}</x> &quot;nincs konfigurálva.',
+    'OAuth-kiszolgáló "<x> {{szerver}}</x> "nincs konfigurálva.',
   'user.error.oauthVerificationFailed': 'Az OAuth-ellenőrzés sikertelen.',
   'user.error.passwordRequired': 'Jelszó szükséges.',
   'user.error.planKeyRequired': 'A planKey megadása kötelező.',

@@ -2,7 +2,7 @@ import type { AudioMixerTranslations } from './types.js'
 
 /** AudioMixer translations for ca. */
 export const ca: Partial<AudioMixerTranslations> = {
-  'audioMixer.aria.console': 'Consola de mescla d&#39;àudio',
+  'audioMixer.aria.console': "Consola de mescla d'àudio",
   'audioMixer.master': 'Mestre',
   'audioMixer.button.mute': 'Silenciar',
   'audioMixer.button.solo': 'Solitari',

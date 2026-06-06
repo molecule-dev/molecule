@@ -108,8 +108,8 @@ export const mk: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Неовластено.',
   'resource.error.unknownError': 'Непозната грешка.',
   'routing.error.missingParam':
-    'Недостасува параметар &quot;<x> {{име}}</x> „за патека“<x> {{шема}}</x> „',
-  'routing.error.routeNotFound': 'Рута &quot;<x> {{име}}</x> „не е пронајдено“',
+    'Недостасува параметар "<x> {{име}}</x> „за патека“<x> {{шема}}</x> „',
+  'routing.error.routeNotFound': 'Рута "<x> {{име}}</x> „не е пронајдено“',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter мора да се користи во рамките на MoleculeRouterProvider',
   'settings.account': 'Сметка',
@@ -178,8 +178,7 @@ export const mk: Partial<CommonTranslations> = {
     'Нема двофакторско поставување во исчекување. Прво повикајте со дејство „поставување“.',
   'user.error.notFound': 'Не е пронајдено.',
   'user.error.oauthLoginFailed': 'Најавувањето преку OAuth не успеа.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth сервер &quot;<x> {{сервер}}</x> „не е конфигурирано.“',
+  'user.error.oauthServerNotConfigured': 'OAuth сервер "<x> {{сервер}}</x> „не е конфигурирано.“',
   'user.error.oauthVerificationFailed': 'Потврдата на OAuth не успеа.',
   'user.error.passwordRequired': 'Потребна е лозинка.',
   'user.error.planKeyRequired': 'planKey е потребен.',

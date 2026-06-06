@@ -103,9 +103,8 @@ export const am: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'ማዘመን አልተቻለም<x> {{ስም}}</x> .',
   'resource.error.unauthorized': 'ያልተፈቀደ።',
   'resource.error.unknownError': 'ያልታወቀ ስህተት።',
-  'routing.error.missingParam':
-    '&quot;ፓራም ጠፍቷል&quot;<x> {{ስም}}</x> &quot;ለመንገድ&quot;<x> {{ንድፍ}}</x> &quot;',
-  'routing.error.routeNotFound': 'መንገድ &quot;<x> {{ስም}}</x> &quot;አልተገኘም',
+  'routing.error.missingParam': '"ፓራም ጠፍቷል"<x> {{ስም}}</x> "ለመንገድ"<x> {{ንድፍ}}</x> "',
+  'routing.error.routeNotFound': 'መንገድ "<x> {{ስም}}</x> "አልተገኘም',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter በሞለኪዩልRouterProvider ውስጥ ጥቅም ላይ መዋል አለበት',
   'settings.account': 'መለያ',
@@ -161,8 +160,7 @@ export const am: Partial<CommonTranslations> = {
   'user.error.failedToUpdatePlan': 'ዕቅዱን ማዘመን አልተሳካም።',
   'user.error.failedToUpdateSubscription': 'የደንበኝነት ምዝገባን ማዘመን አልተሳካም።',
   'user.error.failedToUpdateUser': 'ተጠቃሚን ማዘመን አልተሳካም።',
-  'user.error.invalidAction':
-    'ልክ ያልሆነ እርምጃ። &quot;setup&quot;, &quot;enable&quot; ወይም &quot;disable&quot; ይጠቀሙ።',
+  'user.error.invalidAction': 'ልክ ያልሆነ እርምጃ። "setup", "enable" ወይም "disable" ይጠቀሙ።',
   'user.error.invalidCredentials': 'ልክ ያልሆኑ ምስክርነቶች።',
   'user.error.invalidPlan': 'ልክ ያልሆነ ዕቅድ።',
   'user.error.invalidToken': 'ልክ ያልሆነ ቶከን።',
@@ -170,10 +168,10 @@ export const am: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'መግባት አልተሳካም።',
   'user.error.newPasswordRequired': 'አዲስ የይለፍ ቃል ያስፈልጋል።',
   'user.error.noPendingTwoFactorSetup':
-    'በመጠባበቅ ላይ ያለ ባለ ሁለት ደረጃ ማዋቀር የለም። መጀመሪያ እርምጃ &quot;ማዋቀር&quot; የሚለውን በመጠቀም ይደውሉ።',
+    'በመጠባበቅ ላይ ያለ ባለ ሁለት ደረጃ ማዋቀር የለም። መጀመሪያ እርምጃ "ማዋቀር" የሚለውን በመጠቀም ይደውሉ።',
   'user.error.notFound': 'አልተገኘም።',
   'user.error.oauthLoginFailed': 'የOAuth መግቢያ አልተሳካም።',
-  'user.error.oauthServerNotConfigured': 'የOAuth አገልጋይ &quot;<x> {{አገልጋይ}}</x> &quot; አልተዋቀረም።',
+  'user.error.oauthServerNotConfigured': 'የOAuth አገልጋይ "<x> {{አገልጋይ}}</x> " አልተዋቀረም።',
   'user.error.oauthVerificationFailed': 'የOAuth ማረጋገጫ አልተሳካም።',
   'user.error.passwordRequired': 'የይለፍ ቃል ያስፈልጋል።',
   'user.error.planKeyRequired': 'planKey ያስፈልጋል።',

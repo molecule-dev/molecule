@@ -4,6 +4,6 @@ import type { ChatTranslations } from './types.js'
 export const uz: Partial<ChatTranslations> = {
   'chat.error.httpError': 'HTTP {{status}}: {{text}}',
   'chat.error.streamError': 'Oqim xatoligi',
-  'chat.error.noResponseBody': 'Javob beruvchi organ yo&#39;q',
-  'chat.error.unknownError': 'Noma&#39;lum xato',
+  'chat.error.noResponseBody': "Javob beruvchi organ yo'q",
+  'chat.error.unknownError': "Noma'lum xato",
 }

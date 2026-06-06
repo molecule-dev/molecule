@@ -14,7 +14,7 @@ export const fr: Partial<FileCardTranslations> = {
   'file-card.aria.root': '{{nom}} ,<x> {{gentil}}</x>',
   'file-card.aria.size': 'Taille<x> {{taille}}</x>',
   'file-card.aria.modified': 'Modifié<x> {{quand}}</x>',
-  'file-card.modified.just-now': 'tout à l&#39; heure',
+  'file-card.modified.just-now': "tout à l' heure",
   'file-card.modified.minute-one': 'il y a 1 minute',
   'file-card.modified.hour-one': 'Il y a 1 heure',
   'file-card.modified.hour-other': '{{compter}} il y a une heure',

@@ -98,8 +98,8 @@ export const lv: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'Neautorizēts.',
   'resource.error.unknownError': 'Nezināma kļūda.',
   'routing.error.missingParam':
-    'Trūkstošs parametrs &quot;<x> {{vārds}}</x> &quot;ceļam&quot;<x> {{raksts}}</x> &quot;',
-  'routing.error.routeNotFound': 'Maršruts &quot;<x> {{vārds}}</x> &quot;nav atrasts',
+    'Trūkstošs parametrs "<x> {{vārds}}</x> "ceļam"<x> {{raksts}}</x> "',
+  'routing.error.routeNotFound': 'Maršruts "<x> {{vārds}}</x> "nav atrasts',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter ir jāizmanto MoleculeRouterProvider ietvaros.',
   'settings.account': 'Konts',
@@ -164,11 +164,10 @@ export const lv: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Pieteikšanās neizdevās.',
   'user.error.newPasswordRequired': 'Nepieciešama jauna parole.',
   'user.error.noPendingTwoFactorSetup':
-    'Nav gaidāmu divfaktoru iestatījumu. Vispirms izsauciet ar darbību &quot;iestatīšana&quot;.',
+    'Nav gaidāmu divfaktoru iestatījumu. Vispirms izsauciet ar darbību "iestatīšana".',
   'user.error.notFound': 'Nav atrasts.',
   'user.error.oauthLoginFailed': 'OAuth pieteikšanās neizdevās.',
-  'user.error.oauthServerNotConfigured':
-    'OAuth serveris &quot;<x> {{serveris}}</x> &quot;nav konfigurēts.',
+  'user.error.oauthServerNotConfigured': 'OAuth serveris "<x> {{serveris}}</x> "nav konfigurēts.',
   'user.error.oauthVerificationFailed': 'OAuth verifikācija neizdevās.',
   'user.error.passwordRequired': 'Nepieciešama parole.',
   'user.error.planKeyRequired': 'Nepieciešama planKey vērtība.',

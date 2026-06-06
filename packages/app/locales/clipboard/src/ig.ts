@@ -5,5 +5,5 @@ export const ig: Partial<ClipboardTranslations> = {
   'clipboard.error.noProvider':
     '@molecule/app-clipboard: Enweghị onye na-eweta edobere. Kpọọ setProvider() na mmejupụta ClipboardProvider (dịka ọmụmaatụ, site na @molecule/app-clipboard-capacitor).',
   'clipboard.warn.onChangeNotSupported':
-    '@molecule/app-clipboard: onChange anaghị akwado ya site n&#39;aka onye na-eweta ya',
+    "@molecule/app-clipboard: onChange anaghị akwado ya site n'aka onye na-eweta ya",
 }

@@ -98,8 +98,8 @@ export const az: Partial<CommonTranslations> = {
   'resource.error.unauthorized': 'İcazəsiz.',
   'resource.error.unknownError': 'Naməlum xəta.',
   'routing.error.missingParam':
-    '&quot;Parametr çatışmır&quot;<x> {{name}}</x> &quot;yol üçün&quot;<x> {{nümunə}}</x> &quot;',
-  'routing.error.routeNotFound': 'Marşrut &quot;<x> {{name}}</x> &quot;tapılmadı',
+    '"Parametr çatışmır"<x> {{name}}</x> "yol üçün"<x> {{nümunə}}</x> "',
+  'routing.error.routeNotFound': 'Marşrut "<x> {{name}}</x> "tapılmadı',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter, MoleculeRouterProvider daxilində istifadə olunmalıdır',
   'settings.account': 'Hesab',
@@ -157,7 +157,7 @@ export const az: Partial<CommonTranslations> = {
   'user.error.failedToUpdateSubscription': 'Abunəliyi yeniləmək alınmadı.',
   'user.error.failedToUpdateUser': 'İstifadəçini yeniləmək alınmadı.',
   'user.error.invalidAction':
-    'Yanlış əməliyyat. &quot;Quraşdırma&quot;, &quot;aktivləşdir&quot; və ya &quot;deaktiv et&quot; istifadə edin.',
+    'Yanlış əməliyyat. "Quraşdırma", "aktivləşdir" və ya "deaktiv et" istifadə edin.',
   'user.error.invalidCredentials': 'Yanlış etimadnamələr.',
   'user.error.invalidPlan': 'Yanlış plan.',
   'user.error.invalidToken': 'Yanlış token.',
@@ -165,11 +165,11 @@ export const az: Partial<CommonTranslations> = {
   'user.error.loginFailed': 'Giriş uğursuz oldu.',
   'user.error.newPasswordRequired': 'Yeni parol tələb olunur.',
   'user.error.noPendingTwoFactorSetup':
-    'Gözlənilən iki faktorlu quraşdırma yoxdur. Əvvəlcə &quot;quraşdırma&quot; əməliyyatı ilə zəng edin.',
+    'Gözlənilən iki faktorlu quraşdırma yoxdur. Əvvəlcə "quraşdırma" əməliyyatı ilə zəng edin.',
   'user.error.notFound': 'Tapılmadı.',
   'user.error.oauthLoginFailed': 'OAuth girişi uğursuz oldu.',
   'user.error.oauthServerNotConfigured':
-    'OAuth serveri &quot;<x> {{server}}</x> &quot;konfiqurasiya edilməyib.',
+    'OAuth serveri "<x> {{server}}</x> "konfiqurasiya edilməyib.',
   'user.error.oauthVerificationFailed': 'OAuth doğrulaması uğursuz oldu.',
   'user.error.passwordRequired': 'Şifrə tələb olunur.',
   'user.error.planKeyRequired': 'planKey tələb olunur.',

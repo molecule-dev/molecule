@@ -2,12 +2,12 @@ import type { AudioEffectsRackTranslations } from './types.js'
 
 /** FeatureAudioEffectsRack translations for ca. */
 export const ca: Partial<AudioEffectsRackTranslations> = {
-  'audioEffectsRack.aria.rack': 'Prestatge d&#39;efectes d&#39;àudio',
+  'audioEffectsRack.aria.rack': "Prestatge d'efectes d'àudio",
   'audioEffectsRack.aria.dragHandle': 'Arrossega per reordenar',
   'audioEffectsRack.button.add': 'Afegeix un efecte',
   'audioEffectsRack.button.addPlaceholder': 'Afegeix un efecte…',
   'audioEffectsRack.button.bypass': 'Derivació',
-  'audioEffectsRack.button.remove': 'Elimina l&#39;efecte',
+  'audioEffectsRack.button.remove': "Elimina l'efecte",
   'audioEffectsRack.empty': 'No hi ha efectes a la cadena; afegeix-ne un per començar.',
   'audioEffectsRack.kind.eq': 'Equalitzador',
   'audioEffectsRack.kind.compressor': 'Compressor',
