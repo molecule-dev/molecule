@@ -23,7 +23,8 @@ import type {
   QueryResult,
 } from '@molecule/api-database'
 
-import { convertPlaceholders } from './utilities.js'
+import type { MysqlFieldMeta } from './utilities.js'
+import { coerceMysqlParam, convertPlaceholders, normalizeMysqlRows } from './utilities.js'
 
 /**
  * Wraps a MySQL `PoolConnection` to match the `DatabaseConnection` interface,
@@ -38,10 +39,13 @@ const wrapConnection = (connection: PoolConnection): DatabaseConnection => ({
     values?: unknown[],
   ): Promise<QueryResult<T>> {
     const mysqlQuery = convertPlaceholders(text)
-    const [rows, fields] = await connection.query<RowDataPacket[]>(mysqlQuery, values)
+    const [rows, fields] = await connection.query<RowDataPacket[]>(
+      mysqlQuery,
+      values?.map(coerceMysqlParam),
+    )
 
     return {
-      rows: rows as T[],
+      rows: normalizeMysqlRows<T>(rows as Record<string, unknown>[], fields as MysqlFieldMeta[]),
       rowCount: Array.isArray(rows)
         ? rows.length
         : ((rows as ResultSetHeader).affectedRows ?? null),
@@ -70,10 +74,13 @@ const wrapTransaction = (connection: PoolConnection): DatabaseTransaction => ({
     values?: unknown[],
   ): Promise<QueryResult<T>> {
     const mysqlQuery = convertPlaceholders(text)
-    const [rows, fields] = await connection.query<RowDataPacket[]>(mysqlQuery, values)
+    const [rows, fields] = await connection.query<RowDataPacket[]>(
+      mysqlQuery,
+      values?.map(coerceMysqlParam),
+    )
 
     return {
-      rows: rows as T[],
+      rows: normalizeMysqlRows<T>(rows as Record<string, unknown>[], fields as MysqlFieldMeta[]),
       rowCount: Array.isArray(rows)
         ? rows.length
         : ((rows as ResultSetHeader).affectedRows ?? null),
@@ -112,10 +119,13 @@ const createMySQLPool = (mysqlPool: Pool): DatabasePool => ({
     values?: unknown[],
   ): Promise<QueryResult<T>> {
     const mysqlQuery = convertPlaceholders(text)
-    const [rows, fields] = await mysqlPool.query<RowDataPacket[]>(mysqlQuery, values)
+    const [rows, fields] = await mysqlPool.query<RowDataPacket[]>(
+      mysqlQuery,
+      values?.map(coerceMysqlParam),
+    )
 
     return {
-      rows: rows as T[],
+      rows: normalizeMysqlRows<T>(rows as Record<string, unknown>[], fields as MysqlFieldMeta[]),
       rowCount: Array.isArray(rows)
         ? rows.length
         : ((rows as ResultSetHeader).affectedRows ?? null),

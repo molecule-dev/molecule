@@ -68,7 +68,11 @@ describe('createMigrator (mysql)', () => {
     expect(createConnectionMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ database: 'recipes', multipleStatements: true }),
     )
-    expect(migrationQuery).toHaveBeenCalledTimes(1)
+    // The migrator issues two SET statements (ANSI_QUOTES + FK checks) before the
+    // migration files; assert on the file queries (non-SET) only.
+    const fileCalls = migrationQuery.mock.calls.filter((c) => !/^SET /i.test(String(c[0])))
+    expect(fileCalls).toHaveLength(1)
+    expect(migrationQuery).toHaveBeenCalledWith(expect.stringContaining('ANSI_QUOTES'))
     expect(migrationEnd).toHaveBeenCalled()
   })
 
@@ -90,14 +94,16 @@ describe('createMigrator (mysql)', () => {
 
     await createMigrator(migrationsDir)()
 
-    expect(migrationQuery).toHaveBeenCalledTimes(2)
-    expect(migrationQuery.mock.calls[0][0]).toContain('CREATE TABLE a')
-    expect(migrationQuery.mock.calls[1][0]).toContain('CREATE TABLE b')
+    const fileCalls = migrationQuery.mock.calls.filter((c) => !/^SET /i.test(String(c[0])))
+    expect(fileCalls).toHaveLength(2)
+    expect(fileCalls[0][0]).toContain('CREATE TABLE a')
+    expect(fileCalls[1][0]).toContain('CREATE TABLE b')
   })
 
   it('is a no-op (no migration query, no throw) when there are no .sql files', async () => {
     await expect(createMigrator(migrationsDir)()).resolves.toBeUndefined()
-    expect(migrationQuery).not.toHaveBeenCalled()
+    // No migration FILE queries (the two SET statements may still run).
+    expect(migrationQuery.mock.calls.filter((c) => !/^SET /i.test(String(c[0])))).toHaveLength(0)
     expect(migrationEnd).toHaveBeenCalled()
   })
 })

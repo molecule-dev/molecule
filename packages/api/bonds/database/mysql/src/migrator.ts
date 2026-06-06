@@ -16,6 +16,8 @@ import { join } from 'node:path'
 
 import mysql from 'mysql2/promise'
 
+import { translateDdlToMysql } from './utilities.js'
+
 interface MysqlMigrateConfig {
   host: string
   port: number
@@ -95,6 +97,11 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
       multipleStatements: true,
     })
     try {
+      // ANSI_QUOTES so the migrations' "double-quote" identifiers parse; disable
+      // FK checks so cross-table FKs created out of dependency order don't fail.
+      await connection.query("SET SESSION sql_mode=CONCAT(@@sql_mode, ',ANSI_QUOTES')")
+      await connection.query('SET FOREIGN_KEY_CHECKS=0')
+
       const sqlFiles = existsSync(migrationsDir)
         ? readdirSync(migrationsDir)
             .filter((file) => file.endsWith('.sql'))
@@ -107,7 +114,9 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
       }
 
       for (const file of sqlFiles) {
-        const sql = readFileSync(join(migrationsDir, file), 'utf-8')
+        // Migrations are authored in Postgres dialect; translate the strict-MySQL
+        // incompatibilities (types, functions, index syntax/prefixes) before exec.
+        const sql = translateDdlToMysql(readFileSync(join(migrationsDir, file), 'utf-8'))
         try {
           await connection.query(sql)
           console.log(`✓ ${file}`)
