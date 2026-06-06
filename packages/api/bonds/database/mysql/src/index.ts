@@ -6,5 +6,6 @@
  * @module
  */
 
+export * from './migrator.js'
 export * from './provider.js'
 export * from './types.js'
