@@ -29,9 +29,9 @@
   "license": "MIT",
   "devDependencies": {
     "@playwright/test": "1.60.0",
-    "@types/node": "25.8.0",
+    "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.6"
+    "vitest": "4.1.8"
   },
   "peerDependencies": {
     "@playwright/test": "^1.50.0"

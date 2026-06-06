@@ -30,16 +30,16 @@
   "license": "MIT",
   "dependencies": {
     "y-protocols": "1.0.7",
-    "yjs": "13.6.30"
+    "yjs": "13.6.31"
   },
   "peerDependencies": {
     "@molecule/api-realtime": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-realtime": "1.0.0",
-    "@types/node": "25.8.0",
+    "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.6"
+    "vitest": "4.1.8"
   },
   "repository": {
     "type": "git",

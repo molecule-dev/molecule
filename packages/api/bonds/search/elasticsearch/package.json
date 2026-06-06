@@ -27,16 +27,16 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@elastic/elasticsearch": "9.4.0"
+    "@elastic/elasticsearch": "9.4.2"
   },
   "peerDependencies": {
     "@molecule/api-search": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-search": "1.0.0",
-    "@types/node": "25.8.0",
+    "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.6"
+    "vitest": "4.1.8"
   },
   "repository": {
     "type": "git",

@@ -41,12 +41,12 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@changesets/cli": "2.29.8",
+    "@changesets/cli": "2.31.0",
     "@eslint/js": "10.0.1",
     "@tanstack/table-core": "8.21.3",
-    "@tanstack/virtual-core": "3.14.0",
-    "@types/node": "25.8.0",
-    "eslint": "10.3.0",
+    "@tanstack/virtual-core": "3.17.0",
+    "@types/node": "25.9.2",
+    "eslint": "10.4.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-jsdoc": "62.9.0",
     "eslint-plugin-simple-import-sort": "13.0.0",
@@ -55,15 +55,15 @@
     "jimp": "1.6.1",
     "jsdom": "29.1.1",
     "zod": "4.4.3",
-    "mjml": "5.2.1",
+    "mjml": "5.3.0",
     "node-cron": "4.2.1",
     "pdf-lib": "1.17.1",
     "pdfkit": "0.18.0",
     "prettier": "3.8.3",
     "sharp": "0.34.5",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.59.3",
-    "vitest": "4.1.6"
+    "typescript-eslint": "8.60.1",
+    "vitest": "4.1.8"
   },
   "license": "Apache-2.0"
 }

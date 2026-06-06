@@ -27,12 +27,12 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "nodemailer": "8.0.7"
+    "nodemailer": "8.0.10"
   },
   "devDependencies": {
-    "@types/node": "25.8.0",
+    "@types/node": "25.9.2",
     "@types/nodemailer": "8.0.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.6"
+    "vitest": "4.1.8"
   }
 }

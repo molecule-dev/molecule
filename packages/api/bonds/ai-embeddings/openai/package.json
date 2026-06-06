@@ -31,8 +31,8 @@
   },
   "devDependencies": {
     "@molecule/api-ai-embeddings": "1.0.0",
-    "@types/node": "25.8.0",
+    "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.6"
+    "vitest": "4.1.8"
   }
 }

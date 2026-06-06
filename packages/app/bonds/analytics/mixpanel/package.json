@@ -26,16 +26,16 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "mixpanel-browser": "2.78.0"
+    "mixpanel-browser": "2.80.0"
   },
   "peerDependencies": {
     "@molecule/app-analytics": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/app-analytics": "1.0.0",
-    "@types/node": "25.8.0",
+    "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.6"
+    "vitest": "4.1.8"
   },
   "repository": {
     "type": "git",

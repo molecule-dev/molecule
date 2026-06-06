@@ -28,16 +28,16 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "25.8.0",
+    "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.6",
+    "vitest": "4.1.8",
     "@molecule/app-react": "1.0.0",
     "@molecule/app-ui": "1.0.0",
     "@molecule/app-ui-react": "1.0.0",
     "@molecule/app-locales-common": "1.0.0",
-    "@types/react": "19.2.14",
-    "react": "19.2.6",
-    "react-router-dom": "7.15.1"
+    "@types/react": "19.2.17",
+    "react": "19.2.7",
+    "react-router-dom": "7.17.0"
   },
   "peerDependencies": {
     "@molecule/app-react": "^1.0.0",

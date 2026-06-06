@@ -30,9 +30,9 @@
     "@molecule/app-i18n": "1.0.0",
     "@molecule/app-logger": "1.0.0",
     "@molecule/app-splash-screen": "1.0.0",
-    "@types/node": "25.8.0",
+    "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.6"
+    "vitest": "4.1.8"
   },
   "peerDependencies": {
     "@molecule/app-i18n": "^1.0.0",

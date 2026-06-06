@@ -20,13 +20,13 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "i18next": "26.2.0",
+    "i18next": "26.3.1",
     "i18next-browser-languagedetector": "8.2.1"
   },
   "devDependencies": {
-    "@types/node": "25.8.0",
+    "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.6"
+    "vitest": "4.1.8"
   },
   "peerDependencies": {
     "@molecule/app-i18n": "^1.0.0",
