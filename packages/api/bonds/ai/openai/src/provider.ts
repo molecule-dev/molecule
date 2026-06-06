@@ -69,7 +69,14 @@ export class OpenaiAIProvider implements AIProvider {
     if (params.temperature !== undefined) body.temperature = params.temperature
 
     const tools = params.tools?.length ? this.formatTools(params.tools) : null
-    if (tools) body.tools = tools
+    if (tools) {
+      body.tools = tools
+      if (params.toolChoice === 'required') {
+        body.tool_choice = 'required'
+      } else if (typeof params.toolChoice === 'object' && params.toolChoice?.type === 'tool') {
+        body.tool_choice = { type: 'function', function: { name: params.toolChoice.name } }
+      }
+    }
 
     const useStream = params.stream !== false
     if (useStream) {

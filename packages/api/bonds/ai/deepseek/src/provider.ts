@@ -94,6 +94,8 @@ class DeepseekAIProviderImpl implements AIProvider {
       body.tools = allTools
       if (params.toolChoice === 'required') {
         body.tool_choice = 'required'
+      } else if (typeof params.toolChoice === 'object' && params.toolChoice?.type === 'tool') {
+        body.tool_choice = { type: 'function', function: { name: params.toolChoice.name } }
       }
     }
 

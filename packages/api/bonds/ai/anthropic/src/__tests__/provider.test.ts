@@ -355,6 +355,60 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
   })
 
   // =========================================================================
+  // tool_choice mapping
+  // =========================================================================
+
+  describe('tool_choice mapping', () => {
+    const emptyStream = () => ({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      body: {
+        getReader: () => ({
+          read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+          releaseLock: vi.fn(),
+        }),
+      },
+    })
+    const customTool = {
+      name: 'finalize_selection',
+      description: 'Finalize',
+      parameters: { type: 'object', properties: {}, required: [] },
+      execute: vi.fn(),
+    }
+    const bodyOf = () =>
+      JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
+
+    it("maps toolChoice 'required' to { type: 'any' }", async () => {
+      mockFetch.mockResolvedValue(emptyStream())
+      await collectEvents(
+        provider.chat({ ...minimalParams, tools: [customTool], toolChoice: 'required' }),
+      )
+      expect(bodyOf().tool_choice).toEqual({ type: 'any' })
+    })
+
+    it("maps a { type: 'tool', name } toolChoice to a forced specific tool", async () => {
+      mockFetch.mockResolvedValue(emptyStream())
+      await collectEvents(
+        provider.chat({
+          ...minimalParams,
+          tools: [customTool],
+          toolChoice: { type: 'tool', name: 'finalize_selection' },
+        }),
+      )
+      // Regression: 'required' ({type:'any'}) let the model drift to another tool;
+      // forcing the exact tool is how selection guarantees a commit on its last turn.
+      expect(bodyOf().tool_choice).toEqual({ type: 'tool', name: 'finalize_selection' })
+    })
+
+    it('omits tool_choice when none is given (model decides)', async () => {
+      mockFetch.mockResolvedValue(emptyStream())
+      await collectEvents(provider.chat({ ...minimalParams, tools: [customTool] }))
+      expect(bodyOf().tool_choice).toBeUndefined()
+    })
+  })
+
+  // =========================================================================
   // Base URL fallback
   // =========================================================================
 

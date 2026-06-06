@@ -134,8 +134,14 @@ export interface ChatParams {
   cacheControl?: { type: 'ephemeral' }
   /** Abort signal to cancel in-flight API requests when the client disconnects. */
   signal?: AbortSignal
-  /** Control whether the model must call a tool. 'required' forces at least one tool call; 'auto' (default) lets the model decide. */
-  toolChoice?: 'auto' | 'required'
+  /**
+   * Control whether the model must call a tool. 'auto' (default) lets the model
+   * decide; 'required' forces at least one tool call (any tool); `{ type: 'tool',
+   * name }` forces that ONE specific tool — stronger than 'required', which only
+   * guarantees *some* tool and can let the model drift to a different one when the
+   * conversation history is biased toward it.
+   */
+  toolChoice?: 'auto' | 'required' | { type: 'tool'; name: string }
 }
 
 /**

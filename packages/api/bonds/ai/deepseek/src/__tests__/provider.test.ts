@@ -156,6 +156,39 @@ describe('chat() — request shape', () => {
     const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
     expect(body.reasoning_effort).toBe('high')
   })
+
+  const toolChoiceBody = async (
+    toolChoice?: 'auto' | 'required' | { type: 'tool'; name: string },
+  ) => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
+    await drain(
+      createProvider({ apiKey: 'k' }).chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: false,
+        tools: [{ name: 'finalize', description: 'f', parameters: { type: 'object' } }],
+        toolChoice,
+      }),
+    )
+    return JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+  }
+
+  it("maps toolChoice 'required' to 'required'", async () => {
+    expect((await toolChoiceBody('required')).tool_choice).toBe('required')
+  })
+
+  it("maps a { type: 'tool', name } toolChoice to a forced OpenAI function choice", async () => {
+    // Regression: forcing the exact tool is how starting-point selection guarantees
+    // a finalize commit on its last turn instead of drifting back to exploration.
+    expect((await toolChoiceBody({ type: 'tool', name: 'finalize' })).tool_choice).toEqual({
+      type: 'function',
+      function: { name: 'finalize' },
+    })
+  })
+
+  it('omits tool_choice when none is given', async () => {
+    expect((await toolChoiceBody()).tool_choice).toBeUndefined()
+  })
 })
 
 describe('chat() — streaming', () => {

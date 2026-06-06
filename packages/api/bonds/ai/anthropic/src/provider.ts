@@ -99,6 +99,8 @@ class AnthropicAIProvider implements AIProvider {
       body.tools = allTools
       if (params.toolChoice === 'required') {
         body.tool_choice = { type: 'any' }
+      } else if (typeof params.toolChoice === 'object' && params.toolChoice?.type === 'tool') {
+        body.tool_choice = { type: 'tool', name: params.toolChoice.name }
       }
     }
     if (params.stream !== false) body.stream = true

@@ -153,6 +153,40 @@ describe('chat() — request shape', () => {
     }
   })
 
+  const toolChoiceBody = async (
+    toolChoice?: 'auto' | 'required' | { type: 'tool'; name: string },
+  ) => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: '' } }], usage: {} }),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      tools: [{ name: 'finalize', description: 'f', parameters: { type: 'object' } }],
+      toolChoice,
+      stream: false,
+    })) {
+      // drain
+    }
+    return JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+  }
+
+  it("maps toolChoice 'required' to 'required'", async () => {
+    expect((await toolChoiceBody('required')).tool_choice).toBe('required')
+  })
+
+  it("maps a { type: 'tool', name } toolChoice to a forced OpenAI function choice", async () => {
+    expect((await toolChoiceBody({ type: 'tool', name: 'finalize' })).tool_choice).toEqual({
+      type: 'function',
+      function: { name: 'finalize' },
+    })
+  })
+
+  it('omits tool_choice when none is given', async () => {
+    expect((await toolChoiceBody()).tool_choice).toBeUndefined()
+  })
+
   it('includes system prompt as leading {role:system}', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(
