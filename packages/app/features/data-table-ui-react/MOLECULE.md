@@ -14,6 +14,27 @@ Exports:
 Use `DataTableCard` for new screens; use the row-level primitives to
 compose richer custom tables (group-by, expandable rows, etc.).
 
+## Quick Start
+
+```tsx
+import { DataTableCard } from '@molecule/app-data-table-ui-react'
+
+const columns = [
+  { key: 'name', header: 'Name', cell: (row) => row.name },
+  { key: 'email', header: 'Email', cell: (row) => row.email },
+  { key: 'role', header: 'Role', cell: (row) => row.role },
+]
+
+<DataTableCard
+  title="Team members"
+  columns={columns}
+  rows={members}
+  rowKey={(row) => row.id}
+  onRowClick={(row) => navigate(`/members/${row.id}`)}
+  emptyMessage="No members yet."
+/>
+```
+
 ## Type
 `feature`
 

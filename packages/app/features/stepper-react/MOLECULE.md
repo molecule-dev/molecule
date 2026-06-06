@@ -9,6 +9,20 @@ Exports:
 Use for checkout flows, onboarding wizards, course module progress,
 multi-page forms.
 
+## Quick Start
+
+```tsx
+import { Stepper } from '@molecule/app-stepper-react'
+
+const steps = [
+  { id: 'account', label: 'Account' },
+  { id: 'plan', label: 'Choose plan' },
+  { id: 'payment', label: 'Payment' },
+]
+
+<Stepper steps={steps} currentStep={1} variant="dots" />
+```
+
 ## Type
 `feature`
 

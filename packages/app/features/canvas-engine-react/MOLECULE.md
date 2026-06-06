@@ -67,7 +67,7 @@ function Editor() {
 
 ## Installation
 ```bash
-npm install @molecule/app-canvas-engine-react @molecule/app-feature-canvas-react @molecule/app-locales-canvas-engine
+npm install @molecule/app-canvas-engine-react @molecule/app-feature-canvas-react @molecule/app-locales-canvas-engine-react
 ```
 
 ## API
@@ -556,8 +556,8 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-feature-canvas-react`
-- `@molecule/app-locales-canvas-engine`
+- `@molecule/app-locales-canvas-engine-react`
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-canvas-engine`.
+Translation strings are provided by `@molecule/app-locales-canvas-engine-react`.

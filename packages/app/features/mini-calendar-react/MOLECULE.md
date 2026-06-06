@@ -6,6 +6,18 @@ Exports `<MiniCalendar>` — compact day picker with prev/next navigation,
 Intl-localized weekday + month names, controlled-optional `selected` +
 `month` props.
 
+## Quick Start
+
+```tsx
+import { MiniCalendar } from '@molecule/app-mini-calendar-react'
+
+<MiniCalendar
+  selected={new Date('2026-06-15')}
+  onSelect={(date) => console.log(date.toISOString())}
+  locale="en-US"
+/>
+```
+
 ## Type
 `feature`
 

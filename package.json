@@ -36,6 +36,7 @@
     "version": "changeset version",
     "check:lockfile": "node scripts/check-lockfile.js",
     "check:peer-deps": "node scripts/check-peer-deps.js",
+    "check:feature-jsdocs": "node scripts/check-feature-jsdocs.mjs --check",
     "sync:lockfile": "node scripts/sync-lockfile.js",
     "release": "npm run build && changeset publish",
     "prepare": "husky"

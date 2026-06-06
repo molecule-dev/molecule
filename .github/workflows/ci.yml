@@ -25,6 +25,9 @@ jobs:
       - run: npm run check:peer-deps
       # Guard against HTML-entity contamination creeping back into locale data.
       - run: node scripts/decode-locale-entities.js --check
+      # Every app feature package must carry a module-level @example so its
+      # auto-generated MOLECULE.md shows the AI executor how to use the component.
+      - run: npm run check:feature-jsdocs
       - run: npm run build
       - run: npm test
 

@@ -4,6 +4,19 @@ Flashcard study component.
 
 Exports `<FlashcardCard>` and `SrsGrade` type.
 
+## Quick Start
+
+```tsx
+import { FlashcardCard } from '@molecule/app-flashcard-card-react'
+
+<FlashcardCard
+  front={<span>What is the capital of France?</span>}
+  back={<span>Paris</span>}
+  progress="Card 3 of 20"
+  onGrade={(grade) => scheduleNext(card.id, grade)}
+/>
+```
+
 ## Type
 `feature`
 

@@ -53,4 +53,4 @@ Tailwind utility class names appear in this package.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-barcode-scanner`.
+Translation strings are provided by `@molecule/app-locales-feature-barcode-scanner-react`.

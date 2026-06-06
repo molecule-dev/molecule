@@ -61,7 +61,7 @@ function Demo() {
 
 ## Installation
 ```bash
-npm install @molecule/app-whiteboard-canvas-react @molecule/app-feature-canvas-react @molecule/app-locales-whiteboard-canvas
+npm install @molecule/app-whiteboard-canvas-react @molecule/app-feature-canvas-react @molecule/app-locales-whiteboard-canvas-react
 ```
 
 ## API
@@ -379,8 +379,8 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-feature-canvas-react`
-- `@molecule/app-locales-whiteboard-canvas`
+- `@molecule/app-locales-whiteboard-canvas-react`
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-whiteboard-canvas`.
+Translation strings are provided by `@molecule/app-locales-whiteboard-canvas-react`.

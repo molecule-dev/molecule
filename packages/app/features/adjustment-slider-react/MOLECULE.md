@@ -161,4 +161,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-adjustment-slider`.
+Translation strings are provided by `@molecule/app-locales-adjustment-slider-react`.

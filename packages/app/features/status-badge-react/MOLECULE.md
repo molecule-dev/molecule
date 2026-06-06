@@ -7,6 +7,21 @@ Both components map a small `StatusKind` union (`success`/`warning`/
 restyle by swapping the ClassMap bond rather than rewriting
 components.
 
+## Quick Start
+
+```tsx
+import { StatusBadge, StatusPill } from '@molecule/app-status-badge-react'
+
+// Semantic badge in a table row
+<StatusBadge kind="success">Open</StatusBadge>
+
+// Polished-flagship uppercase pill style
+<StatusBadge kind="warning" appearance="uppercase-pill">Pending</StatusBadge>
+
+// Pill with colored dot indicator
+<StatusPill kind="error">Overdue</StatusPill>
+```
+
 ## Type
 `feature`
 

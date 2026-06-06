@@ -53,4 +53,4 @@ utility class names appear in this package.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-audio-mixer`.
+Translation strings are provided by `@molecule/app-locales-feature-audio-mixer-react`.

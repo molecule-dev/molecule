@@ -10,6 +10,24 @@ Mount `AnalyticsRouteListener` once inside a `BrowserRouter`
 subtree — it listens for `useLocation()` changes and forwards each
 pathname / search change to the wired analytics bond's `page()`.
 
+## Quick Start
+
+```tsx
+import { AnalyticsRouteListener } from '@molecule/app-analytics-react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+
+export function App() {
+  return (
+    <BrowserRouter>
+      <AnalyticsRouteListener />
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </BrowserRouter>
+  )
+}
+```
+
 ## Type
 `feature`
 

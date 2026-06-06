@@ -52,4 +52,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-feature-piano-roll`.
+Translation strings are provided by `@molecule/app-locales-feature-piano-roll-react`.

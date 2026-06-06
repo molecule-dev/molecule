@@ -10,6 +10,24 @@
  *
  * Every shell is pure slots — apps decide what renders in each position.
  *
+ * @example
+ * ```tsx
+ * import { AppShellTopNav, AppShellSideNav } from '@molecule/app-nav-chrome-react'
+ *
+ * const navItems = [
+ *   { id: 'home', label: 'Home', to: '/' },
+ *   { id: 'settings', label: 'Settings', to: '/settings' },
+ * ]
+ *
+ * <AppShellTopNav
+ *   logo={<img src="/logo.svg" alt="App" />}
+ *   items={navItems}
+ *   activeId="home"
+ *   onItemClick={(item) => router.push(item.to!)}
+ *   right={<UserMenu />}
+ * />
+ * ```
+ *
  * @module
  */
 

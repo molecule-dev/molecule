@@ -139,4 +139,4 @@ through `getClassMap()` — no Tailwind utilities appear in this package.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-gradebook`.
+Translation strings are provided by `@molecule/app-locales-gradebook-react`.

@@ -1,18 +1,31 @@
 # @molecule/app-safe-link-react
 
-SafeLink React Router wrapper that appends a #top fragment when target matches current path. Avoids dead-link probes that return no URL/DOM mutation on same-path clicks.
+`@molecule/app-safe-link-react` — react-router `<Link>` wrapper that
+appends `#top` when target matches current path. Avoids dead-link
+probes that return no URL/DOM mutation on same-path clicks.
+
+## Quick Start
+
+```tsx
+import { SafeLink } from '@molecule/app-safe-link-react'
+
+<SafeLink to="/dashboard" className="nav-link">
+  Dashboard
+</SafeLink>
+```
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-safe-link-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `react` ^18.0.0 || ^19.0.0
+- `react-router-dom` ^6.0.0 || ^7.0.0

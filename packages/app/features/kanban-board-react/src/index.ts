@@ -12,6 +12,20 @@
  * `@molecule/app-drag-drop` at the column level for fancier
  * interactions (touch, keyboard, animated reorder).
  *
+ * @example
+ * ```tsx
+ * import { KanbanBoard } from '@molecule/app-kanban-board-react'
+ *
+ * <KanbanBoard
+ *   columns={[
+ *     { id: 'todo', title: 'To Do', cards: [{ id: 'c1', title: 'Research API' }] },
+ *     { id: 'doing', title: 'In Progress', accent: 'primary', cards: [{ id: 'c2', title: 'Build UI' }] },
+ *     { id: 'done', title: 'Done', accent: 'success', cards: [] },
+ *   ]}
+ *   onCardMove={(cardId, fromColumnId, toColumnId) => moveCard(cardId, toColumnId)}
+ *   onCardClick={(card, column) => openCardDetail(card.id)}
+ * />
+ * ```
  * @module
  */
 

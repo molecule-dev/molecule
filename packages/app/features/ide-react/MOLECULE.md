@@ -2,6 +2,26 @@
 
 `@molecule/app-ide-react` — React IDE components for molecule.dev workspace.
 
+## Quick Start
+
+```tsx
+import { ChatPanel, EditorPanel, PreviewPanel, WorkspaceLayout } from '@molecule/app-ide-react'
+
+<WorkspaceLayout>
+  <ChatPanel
+    projectId="proj_abc123"
+    onFileOpen={(path) => openTab(path)}
+    onFileChange={(path, content) => refreshEditor(path, content)}
+    onReadyToBuild={() => bootSandbox()}
+  />
+  <EditorPanel
+    onActiveFileChange={(path) => setActiveFile(path)}
+    onFixWithAI={(req) => sendFixRequest(req)}
+  />
+  <PreviewPanel onPreviewError={(errs) => console.error(errs)} />
+</WorkspaceLayout>
+```
+
 ## Type
 `feature`
 
@@ -13,6 +33,28 @@ npm install @molecule/app-ide-react
 ## API
 
 ### Interfaces
+
+#### `Activity`
+
+A single captured activity. Mirrors the SSE `activity.activity` payload; the
+REST list endpoint additionally returns `payload` and `result` for the
+expanded detail view.
+
+```typescript
+interface Activity {
+  id: string
+  type: ActivityType
+  status: ActivityStatus
+  recipient?: string
+  summary?: string
+  /** ISO 8601 timestamp. */
+  timestamp: string
+  /** Full captured payload — only present on the REST detail response (dev only). */
+  payload?: unknown
+  /** Provider result / synthetic success record — only present on the REST detail response. */
+  result?: unknown
+}
+```
 
 #### `ChatMessageItemProps`
 
@@ -27,7 +69,9 @@ interface ChatMessageItemProps {
 
 #### `ChatPanelProps`
 
-Properties for chat panel.
+Props for the {@link ChatPanel} component — the IDE chat surface plus the
+callbacks the host app uses to react to AI activity (file changes, boot, client
+actions, etc.).
 
 ```typescript
 interface ChatPanelProps {
@@ -37,8 +81,8 @@ interface ChatPanelProps {
   initialMessage?: string
   /** Called after the initial message has been sent — used to clear router state. */
   onInitialMessageSent?: () => void
-  /** Called when a filename in a tool call is clicked — should open the file as a preview tab. */
-  onFileOpen?: (path: string) => void
+  /** Called to open a file as a preview tab. `opts.focus === false` opens it quietly (no pane switch) — e.g. a saved plan or a system-initiated open while the user is busy. */
+  onFileOpen?: (path: string, opts?: { focus?: boolean }) => void
   /** Called when a filename in a tool call is double-clicked — should pin the tab. */
   onFileDoubleClick?: (path: string) => void
   /** Called when a file in the uncommitted list is clicked for diff view. */
@@ -51,6 +95,22 @@ interface ChatPanelProps {
   onFileDeleted?: (path: string) => void
   /** Called after a successful commit — should refresh file explorer git status. */
   onCommit?: () => void
+  /** Called when an inline activity card is clicked — should open the Activity panel filtered to this activity. */
+  onActivityClick?: (activity: ActivityFromCard) => void
+  /** Called when the server signals (via the `ready_to_build` stream event) that discovery is complete and the sandbox should boot. */
+  onReadyToBuild?: () => void
+  /** Called when the agent requests a UI action via the `client_action` stream event (reload/navigate the preview, open a file). */
+  onClientAction?: (action: IdeClientAction) => void
+  /** Called on each stream `done` — host uses it to keep the boot view up until the parallel during-boot plan stream finishes. */
+  onTurnComplete?: () => void
+  /** Changing this value submits the current input draft — used to send a prefilled prompt after the prompt→chat morph docks. */
+  autoSubmitSignal?: number
+  /** Seeds the input with this text on mount (prompt→chat morph), so the chat input shows the prompt before it is sent. */
+  initialInputValue?: string
+  /** Hide the conversation-selector header (e.g. during discovery, before any history is worth showing). */
+  hideConversationMenu?: boolean
+  /** Spinner/busy indicator node to show for in-chat loading states (e.g. the "designing" indicator). Falls back to a built-in dots animation. */
+  spinner?: ReactNode
   /** Path of the currently focused file in the editor (shown first in @ picker). */
   activeFile?: string | null
   /** Paths of all open editor tabs (shown after active file in @ picker). */
@@ -61,6 +121,8 @@ interface ChatPanelProps {
   pendingMessage?: string
   /** Incremented to trigger sending pendingMessage. */
   pendingMessageKey?: number
+  /** When true, the pending message is sent on the user's behalf (e.g. the post-boot build kickoff) and is NOT shown as a user bubble — phase markers convey what's happening instead. */
+  pendingMessageSuppressUser?: boolean
   /** File path the user just edited in the editor — triggers auto-deletion of queued autofix messages. */
   userEditedFile?: string
   /** Incremented to trigger the user-edit check (same path may be edited multiple times). */
@@ -69,6 +131,12 @@ interface ChatPanelProps {
   isAnonymous?: boolean
   /** When true, user has a paid plan and can use all models. */
   isPro?: boolean
+  /**
+   * When true, suppress the periodic "sign up to keep your work" reminder card.
+   * Used during the discovery/requirements phase, where nudging an anonymous
+   * user to sign up before they've described what they want is bad UX.
+   */
+  suppressGuestReminder?: boolean
   className?: string
 }
 ```
@@ -195,6 +263,20 @@ interface FileNode {
   gitStatus?: 'modified' | 'added' | 'deleted' | 'untracked'
   /** If this entry is a symlink, the target it points to. */
   symlinkTarget?: string
+}
+```
+
+#### `IdeClientAction`
+
+A non-mutating UI action the AI agent asks the IDE to perform — reload or
+navigate the live preview, or open a file in the editor. Delivered via the
+`client_action` chat-stream event.
+
+```typescript
+interface IdeClientAction {
+  action: 'reload_preview' | 'navigate_preview' | 'open_file'
+  /** navigate_preview: a URL path (e.g. "/dashboard"). open_file: a file path. */
+  path?: string
 }
 ```
 
@@ -454,7 +536,124 @@ interface WorkspaceLayoutProps {
 }
 ```
 
+### Types
+
+#### `ActivityStatus`
+
+Lifecycle status of a captured activity.
+
+```typescript
+type ActivityStatus = 'captured' | 'sent' | 'delivered' | 'failed'
+```
+
+#### `ActivityType`
+
+Channel categories a captured activity can belong to.
+
+```typescript
+type ActivityType = 'email' | 'sms' | 'push' | 'webhook' | 'channel'
+```
+
 ### Functions
+
+#### `activityFromEvent(raw, raw, raw, raw, raw, raw, raw)`
+
+Maps a raw SSE `activity` event payload into a normalized {@link Activity}.
+Tolerates missing optional fields and supplies an id/timestamp if absent.
+
+```typescript
+function activityFromEvent(raw: { id?: string; type?: string; status?: string; recipient?: string; summary?: string; timestamp?: string; }): Activity
+```
+
+- `raw` — The `activity` field from the SSE event.
+- `raw` — .id - Activity id; generated if absent.
+- `raw` — .type - Channel type; defaults to `webhook` if absent.
+- `raw` — .status - Lifecycle status; defaults to `captured` if absent.
+- `raw` — .recipient - Optional recipient.
+- `raw` — .summary - Optional short summary.
+- `raw` — .timestamp - ISO timestamp; defaults to now if absent.
+
+**Returns:** A normalized Activity object.
+
+#### `activityIcon(type)`
+
+Returns the icon glyph for an activity type.
+
+```typescript
+function activityIcon(type: ActivityType): string
+```
+
+- `type` — The activity channel type.
+
+**Returns:** The emoji/glyph string for the type.
+
+#### `activityStatusColors(status)`
+
+Resolves the status-pill colors for a given status. Uses RGBA literals (not
+ClassMap classes) because these semantic status hues are not part of the
+surface/text token set — the same approach `VerificationBadge` takes for its
+pass/fail coloring.
+
+```typescript
+function activityStatusColors(status: ActivityStatus): { fg: string; bg: string; }
+```
+
+- `status` — The activity status.
+
+**Returns:** An object with `fg` (text) and `bg` (background) CSS color strings.
+
+#### `activityStatusLabel(status)`
+
+Human-readable, translated label for a status (shown in the status pill).
+
+```typescript
+function activityStatusLabel(status: ActivityStatus): string
+```
+
+- `status` — The activity status.
+
+**Returns:** The translated status label.
+
+#### `activitySummaryLine(activity)`
+
+Builds the one-line summary shown on the inline card: the activity's own
+summary, with the recipient appended after an arrow when present
+(e.g. `Welcome email → user@example.com`). Falls back to a translated,
+type-specific default when no summary was captured.
+
+```typescript
+function activitySummaryLine(activity: Pick<Activity, "type" | "recipient" | "summary">): string
+```
+
+- `activity` — The activity to summarize.
+
+**Returns:** The single-line summary string.
+
+#### `activityTypeLabel(type)`
+
+Human-readable, translated label for a channel type (used as filter-tab labels).
+
+```typescript
+function activityTypeLabel(type: ActivityType): string
+```
+
+- `type` — The activity channel type.
+
+**Returns:** The translated channel label.
+
+#### `filterActivitiesByType(activities, type)`
+
+Filters a list of activities by channel type. `null` (the "All" tab) returns
+every activity unchanged.
+
+```typescript
+function filterActivitiesByType(activities: Activity[], type: ActivityType | null): Activity[]
+```
+
+- `activities` — The activities to filter.
+- `type` — The channel type to keep, or `null` for all.
+
+**Returns:** The filtered list (a new array unless `type` is null).
 
 #### `isInputFocused(e)`
 
@@ -521,6 +720,14 @@ function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]): void
 
 ### Constants
 
+#### `ACTIVITY_TYPES`
+
+All channel types, in the order their filter tabs should appear.
+
+```typescript
+const ACTIVITY_TYPES: ActivityType[]
+```
+
 #### `IS_MAC`
 
 Detect macOS / iOS for Cmd vs Ctrl.
@@ -535,6 +742,7 @@ const IS_MAC: boolean
 
 Peer dependencies:
 - `@molecule/app-ai-chat` ^1.0.0
+- `@molecule/app-ai-models` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-code-editor` ^1.0.0
 - `@molecule/app-ide` ^1.0.0

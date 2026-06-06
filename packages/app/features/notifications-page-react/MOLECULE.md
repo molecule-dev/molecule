@@ -184,4 +184,4 @@ this package.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-notifications-page`.
+Translation strings are provided by `@molecule/app-locales-notifications-page-react`.

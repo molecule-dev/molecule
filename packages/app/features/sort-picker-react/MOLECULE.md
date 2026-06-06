@@ -4,6 +4,24 @@ React sort-by picker.
 
 Exports `<SortPicker>` — single-select wrapper for "Sort by" controls.
 
+## Quick Start
+
+```tsx
+import { SortPicker } from '@molecule/app-sort-picker-react'
+
+const [sort, setSort] = useState('newest')
+
+<SortPicker
+  value={sort}
+  onChange={setSort}
+  options={[
+    { value: 'newest', label: 'Newest' },
+    { value: 'oldest', label: 'Oldest' },
+    { value: 'popular', label: 'Most Popular' },
+  ]}
+/>
+```
+
 ## Type
 `feature`
 

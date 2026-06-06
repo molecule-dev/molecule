@@ -7,6 +7,23 @@ Exports:
 - `<DefinitionList>` — standalone label/value grid.
 - `DefinitionField` type.
 
+## Quick Start
+
+```tsx
+import { InfoCard, DefinitionList } from '@molecule/app-info-display-react'
+
+<InfoCard
+  title="Company Details"
+  fields={[
+    { label: 'Industry', value: 'Technology' },
+    { label: 'Founded', value: '2018' },
+    { label: 'Employees', value: '120–150' },
+  ]}
+  columns={2}
+  dataMolId="company-info-card"
+/>
+```
+
 ## Type
 `feature`
 

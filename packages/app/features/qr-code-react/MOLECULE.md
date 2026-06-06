@@ -51,4 +51,4 @@ not Tailwind). Translations come from `@molecule/app-locales-qr-code`.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-qr-code`.
+Translation strings are provided by `@molecule/app-locales-qr-code-react`.

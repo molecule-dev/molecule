@@ -5,6 +5,26 @@ Map interface for molecule.dev.
 Provides a unified API for interactive maps that works with
 different map libraries (MapBox, Google Maps, Leaflet, etc.).
 
+## Quick Start
+
+```tsx
+import { createSimpleMapProvider, setProvider, getProvider } from '@molecule/app-maps'
+
+// Wire the placeholder provider at app startup
+// (swap for @molecule/app-maps-mapbox or -google in production)
+setProvider(createSimpleMapProvider())
+
+// Create a map instance mounted to a container element
+const map = await getProvider().createMap({
+  container: document.getElementById('map')!,
+  center: { lat: 37.7749, lng: -122.4194 },
+  zoom: 12,
+})
+
+map.addMarker({ id: 'hq', position: { lat: 37.7749, lng: -122.4194 }, title: 'HQ' })
+map.on('click', (e) => console.log('clicked', e))
+```
+
 ## Type
 `feature`
 
@@ -823,6 +843,17 @@ Default Mapbox style URLs for common map appearances.
 
 ```typescript
 const defaultStyles: { streets: string; outdoors: string; light: string; dark: string; satellite: string; satelliteStreets: string; navigationDay: string; navigationNight: string; }
+```
+
+#### `provider`
+
+Default map provider — the built-in simple provider. Exported so apps can wire
+it with `bond('maps', provider)` (equivalent to `setProvider`), matching the
+convention of other bondable feature packages (e.g. `@molecule/app-data-table-*`).
+Bond a richer `MapProvider` instead to replace it.
+
+```typescript
+const provider: MapProvider
 ```
 
 ## Injection Notes

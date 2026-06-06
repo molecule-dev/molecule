@@ -147,4 +147,4 @@ server-side score/badge issuance.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-reputation-badge`.
+Translation strings are provided by `@molecule/app-locales-reputation-badge-react`.

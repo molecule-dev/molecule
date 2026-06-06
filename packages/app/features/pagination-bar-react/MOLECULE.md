@@ -6,6 +6,22 @@ Built on top of `<Button>` and `<Select>` from `@molecule/app-ui-react`
 so it inherits the wired ClassMap styling. Apps drive the i18n noun via
 the `showingKey` prop ("Showing 1 to 10 of 123 tags" vs. "…orders").
 
+## Quick Start
+
+```tsx
+import { PaginationBar } from '@molecule/app-pagination-bar-react'
+
+<PaginationBar
+  page={currentPage}
+  totalPages={Math.ceil(total / pageSize)}
+  pageSize={pageSize}
+  total={total}
+  onPageChange={(p) => setCurrentPage(p)}
+  pageSizeOptions={[10, 25, 50]}
+  onPageSizeChange={(s) => { setPageSize(s); setCurrentPage(1) }}
+/>
+```
+
 ## Type
 `feature`
 

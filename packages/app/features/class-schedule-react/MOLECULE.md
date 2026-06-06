@@ -49,4 +49,4 @@ user-facing text routes through `t()`.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-class-schedule`.
+Translation strings are provided by `@molecule/app-locales-class-schedule-react`.

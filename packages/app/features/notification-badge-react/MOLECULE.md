@@ -7,6 +7,23 @@ Exports:
 - `<NotificationDot>` — tiny presence indicator.
 - `<NotificationWrapper>` — positions a badge at the corner of any child.
 
+## Quick Start
+
+```tsx
+import { NotificationBadge, NotificationDot, NotificationWrapper } from '@molecule/app-notification-badge-react'
+
+// Count pill on its own
+<NotificationBadge count={5} variant="error" />
+
+// Unread presence dot
+<NotificationDot visible={hasUnread} variant="info" position="corner" />
+
+// Badge overlaid on an icon button
+<NotificationWrapper count={12} placement="top-right">
+  <BellIcon />
+</NotificationWrapper>
+```
+
 ## Type
 `feature`
 

@@ -45,4 +45,4 @@ translated month / weekday / tooltip strings.
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-heatmap`.
+Translation strings are provided by `@molecule/app-locales-heatmap-react`.

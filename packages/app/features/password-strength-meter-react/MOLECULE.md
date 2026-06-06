@@ -140,4 +140,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-password-strength-meter`.
+Translation strings are provided by `@molecule/app-locales-password-strength-meter-react`.

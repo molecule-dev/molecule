@@ -4,6 +4,16 @@ Horizontal divider with optional centered label.
 
 Exports `<SectionDivider>`.
 
+## Quick Start
+
+```tsx
+import { SectionDivider } from '@molecule/app-section-divider-react'
+
+<SectionDivider>OR</SectionDivider>
+
+<SectionDivider align="start">Today</SectionDivider>
+```
+
 ## Type
 `feature`
 

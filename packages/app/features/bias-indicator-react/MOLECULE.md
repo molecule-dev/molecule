@@ -33,4 +33,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-bias-indicator`.
+Translation strings are provided by `@molecule/app-locales-bias-indicator-react`.

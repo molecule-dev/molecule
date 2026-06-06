@@ -296,4 +296,4 @@ Peer dependencies:
 
 ## Translations
 
-Translation strings are provided by `@molecule/app-locales-oauth-buttons`.
+Translation strings are provided by `@molecule/app-locales-oauth-buttons-react`.

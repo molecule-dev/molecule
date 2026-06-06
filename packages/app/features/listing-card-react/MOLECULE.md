@@ -9,6 +9,22 @@ Exports:
 - `<ListingCardActions>` — bottom action row (horizontal or stacked).
 - `<ListingGrid>` — responsive grid for listing cards.
 
+## Quick Start
+
+```tsx
+import { ListingCard, ListingCardMedia, ListingCardBody, ListingCardActions, ListingGrid } from '@molecule/app-listing-card-react'
+
+<ListingGrid columns={3}>
+  <ListingCard onClick={() => navigate(`/listings/${item.id}`)}>
+    <ListingCardMedia src={item.imageUrl} aspect="4/3" alt={item.name} />
+    <ListingCardBody title={item.name} subtitle={item.location} price={`$${item.price}/night`} />
+    <ListingCardActions>
+      <button onClick={(e) => { e.stopPropagation(); saveListing(item.id) }}>Save</button>
+    </ListingCardActions>
+  </ListingCard>
+</ListingGrid>
+```
+
 ## Type
 `feature`
 

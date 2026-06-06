@@ -4,6 +4,20 @@ HTML5 audio player.
 
 Exports `<AudioPlayer>`.
 
+## Quick Start
+
+```tsx
+import { AudioPlayer } from '@molecule/app-audio-player-react'
+
+<AudioPlayer
+  src="/audio/episode-42.mp3"
+  title="Episode 42: Getting Started"
+  subtitle="The Molecule Podcast"
+  onPlay={() => console.log('playing')}
+  onEnded={() => console.log('finished')}
+/>
+```
+
 ## Type
 `feature`
 

@@ -9,6 +9,19 @@ Exports:
 
 Companion locale bond: `@molecule/app-locales-join-code`.
 
+## Quick Start
+
+```tsx
+import { JoinCode } from '@molecule/app-join-code-react'
+
+<JoinCode
+  length={6}
+  alphabet="alphanumeric"
+  onChange={(code) => setCode(code)}
+  onComplete={(code) => verifyCode(code)}
+/>
+```
+
 ## Type
 `feature`
 

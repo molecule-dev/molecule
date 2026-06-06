@@ -7,6 +7,21 @@
  * `AdherenceTriad`) and the single-ring usage in business apps
  * (employee-onboarding, okr-goal-tracking).
  *
+ * @example
+ * ```tsx
+ * import { ProgressRings } from '@molecule/app-progress-rings-react'
+ *
+ * <ProgressRings
+ *   rings={[
+ *     { value: 8200, max: 10000, color: 'var(--color-success)', label: 'Steps' },
+ *     { value: 7, max: 8, color: 'var(--color-info)', label: 'Sleep (hrs)' },
+ *     { value: 35, max: 60, color: 'var(--color-warning)', label: 'Active (min)' },
+ *   ]}
+ *   size={160}
+ *   strokeWidth={12}
+ * />
+ * ```
+ *
  * @module
  */
 

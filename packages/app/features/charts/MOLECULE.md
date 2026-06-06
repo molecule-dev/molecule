@@ -5,6 +5,26 @@ Chart interface for molecule.dev.
 Provides a unified API for data visualization that works with
 different chart libraries (Chart.js, Recharts, D3, etc.).
 
+## Quick Start
+
+```tsx
+import { useEffect, useRef } from 'react'
+import { createLineChart } from '@molecule/app-charts'
+
+export function RevenueChart() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  useEffect(() => {
+    if (!canvasRef.current) return
+    const chart = createLineChart(canvasRef.current, {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+      datasets: [{ label: 'Revenue', data: [4200, 5800, 5100, 7300] }],
+    })
+    return () => chart.destroy()
+  }, [])
+  return <canvas ref={canvasRef} width={600} height={300} />
+}
+```
+
 ## Type
 `feature`
 
@@ -802,6 +822,17 @@ Color palette presets.
 
 ```typescript
 const colorPalettes: { default: string[]; pastel: string[]; vivid: string[]; cool: string[]; warm: string[]; monochrome: string[]; }
+```
+
+#### `provider`
+
+Default chart provider — the built-in simple provider. Exported so apps can
+wire it with `bond('charts', provider)` (equivalent to `setProvider`), matching
+the convention of other bondable feature packages (e.g. `@molecule/app-data-table-*`).
+Bond a richer `ChartProvider` instead to replace it.
+
+```typescript
+const provider: ChartProvider
 ```
 
 ## Injection Notes

@@ -11,6 +11,25 @@
  * accent chrome (dashed borders, gradient CTAs, tinted backgrounds) on
  * top of the structural layout.
  *
+ * @example
+ * ```tsx
+ * import { EmptyState, CtaCard } from '@molecule/app-empty-state-react'
+ *
+ * // Centred empty-state for a list with no items
+ * <EmptyState
+ *   icon={<Icon name="inbox" size={40} />}
+ *   title="No messages yet"
+ *   description="When you receive messages they will appear here."
+ *   action={<Button onClick={() => openCompose()}>Send one</Button>}
+ * />
+ *
+ * // Inline promotional card
+ * <CtaCard
+ *   title="Connect your bank"
+ *   description="Link an account to start tracking transactions."
+ *   action={<Button variant="solid">Connect</Button>}
+ * />
+ * ```
  * @module
  */
 

@@ -1,18 +1,40 @@
 # @molecule/app-home-page-react
 
-Authenticated home page rendering a personalized greeting (h2 with user name or fallback). Reads auth + i18n; styled via ClassMap.
+`<Home />` — authenticated home page with personalized greeting.
+
+Renders a single H2 of the form `{home.greeting}{name|email|home.world}!`
+using the universal common-locale bond. Used as the default
+post-login landing page when the app has no app-specific dashboard.
+
+Replaces the byte-identical `pages/Home.tsx` shipped by 19 of the 38
+flagship apps that have an authenticated Home route. Apps that
+override `home.greeting` per-app (e.g. note-taking's
+"Hello, {{name}}.") get the override automatically — the page reads
+the resolved translation, which spreads the bond default beneath
+any per-app override.
+
+## Quick Start
+
+```tsx
+import { Home } from '@molecule/app-home-page-react'
+
+<Route path="/" element={<Home />} />
+```
 
 ## Type
 `feature`
 
+## Installation
+```bash
+npm install @molecule/app-home-page-react
+```
+
 ## Injection Notes
 
 ### Requirements
-- None
 
-### Post-Injection Steps
-- Run `npm install` to install dependencies
-- Run `npm run build` to compile
-
-### Known Limitations
-- None yet
+Peer dependencies:
+- `@molecule/app-auth` ^1.0.0
+- `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0

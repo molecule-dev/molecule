@@ -4,6 +4,20 @@ Email subscribe form.
 
 Exports `<NewsletterSignup>` with inline + stacked layouts.
 
+## Quick Start
+
+```tsx
+import { NewsletterSignup } from '@molecule/app-newsletter-signup-react'
+
+<NewsletterSignup
+  title="Stay in the loop"
+  description="Get weekly updates delivered to your inbox."
+  onSubscribe={async (email) => { await api.subscribe(email) }}
+  layout="inline"
+  successContent={<p>Thanks for subscribing!</p>}
+/>
+```
+
 ## Type
 `feature`
 

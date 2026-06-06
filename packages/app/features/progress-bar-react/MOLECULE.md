@@ -7,6 +7,22 @@ Exports:
 - `<ProgressCard>` — `<Card>`-wrapped progress display (title, icon,
   description, bar, optional extras slot).
 
+## Quick Start
+
+```tsx
+import { ProgressBar, ProgressCard } from '@molecule/app-progress-bar-react'
+
+<ProgressBar value={65} label="Upload progress" valueLabel="65%" color="primary" />
+
+<ProgressCard
+  title="Storage used"
+  description="8.5 GB of 10 GB"
+  value={85}
+  valueLabel="85%"
+  color="warning"
+/>
+```
+
 ## Type
 `feature`
 
