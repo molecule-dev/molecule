@@ -164,25 +164,25 @@ const INVOICE_STATUSES: readonly ["draft", "sent", "partial", "paid", "overdue",
 #### `invoiceCreateSchema`
 
 ```typescript
-const invoiceCreateSchema: z.ZodObject<{ client_id: z.ZodString; items: z.ZodArray<z.ZodObject<{ description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber; }, "strip", z.ZodTypeAny, { description: string; quantity: number; unit_price: number; }, { description: string; quantity: number; unit_price: number; }>, "many">; due_date: z.ZodOptional<z.ZodString>; notes: z.ZodOptional<z.ZodString>; tax_rate: z.ZodOptional<z.ZodNumber>; currency: z.ZodOptional<z.ZodString>; }, "strip", z.ZodTypeAny, { client_id: string; items: { description: string; quantity: number; unit_price: number; }[]; due_date?: string | undefined; notes?: string | undefined; tax_rate?: number | undefined; currency?: string | undefined; }, { client_id: string; items: { description: string; quantity: number; unit_price: number; }[]; due_date?: string | undefined; notes?: string | undefined; tax_rate?: number | undefined; currency?: string | undefined; }>
+const invoiceCreateSchema: z.ZodObject<{ client_id: z.ZodString; items: z.ZodArray<z.ZodObject<{ description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber; }, z.core.$strip>>; due_date: z.ZodOptional<z.ZodString>; notes: z.ZodOptional<z.ZodString>; tax_rate: z.ZodOptional<z.ZodNumber>; currency: z.ZodOptional<z.ZodString>; }, z.core.$strip>
 ```
 
 #### `invoiceUpdateSchema`
 
 ```typescript
-const invoiceUpdateSchema: z.ZodObject<{ items: z.ZodOptional<z.ZodArray<z.ZodObject<{ description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber; }, "strip", z.ZodTypeAny, { description: string; quantity: number; unit_price: number; }, { description: string; quantity: number; unit_price: number; }>, "many">>; due_date: z.ZodOptional<z.ZodString>; notes: z.ZodOptional<z.ZodString>; tax_rate: z.ZodOptional<z.ZodNumber>; currency: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<["draft", "sent", "partial", "paid", "overdue", "void"]>>; }, "strip", z.ZodTypeAny, { status?: "draft" | "sent" | "partial" | "paid" | "overdue" | "void" | undefined; items?: { description: string; quantity: number; unit_price: number; }[] | undefined; due_date?: string | undefined; notes?: string | undefined; tax_rate?: number | undefined; currency?: string | undefined; }, { status?: "draft" | "sent" | "partial" | "paid" | "overdue" | "void" | undefined; items?: { description: string; quantity: number; unit_price: number; }[] | undefined; due_date?: string | undefined; notes?: string | undefined; tax_rate?: number | undefined; currency?: string | undefined; }>
+const invoiceUpdateSchema: z.ZodObject<{ items: z.ZodOptional<z.ZodArray<z.ZodObject<{ description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber; }, z.core.$strip>>>; due_date: z.ZodOptional<z.ZodString>; notes: z.ZodOptional<z.ZodString>; tax_rate: z.ZodOptional<z.ZodNumber>; currency: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<{ draft: "draft"; sent: "sent"; partial: "partial"; paid: "paid"; overdue: "overdue"; void: "void"; }>>; }, z.core.$strip>
 ```
 
 #### `lineItemSchema`
 
 ```typescript
-const lineItemSchema: z.ZodObject<{ description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber; }, "strip", z.ZodTypeAny, { description: string; quantity: number; unit_price: number; }, { description: string; quantity: number; unit_price: number; }>
+const lineItemSchema: z.ZodObject<{ description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber; }, z.core.$strip>
 ```
 
 #### `recordPaymentSchema`
 
 ```typescript
-const recordPaymentSchema: z.ZodObject<{ amount: z.ZodNumber; }, "strip", z.ZodTypeAny, { amount: number; }, { amount: number; }>
+const recordPaymentSchema: z.ZodObject<{ amount: z.ZodNumber; }, z.core.$strip>
 ```
 
 ## Injection Notes

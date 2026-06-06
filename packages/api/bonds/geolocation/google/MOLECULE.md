@@ -68,7 +68,10 @@ function createProvider(config: GoogleGeolocationConfig): GeolocationProvider
 
 #### `provider`
 
-The provider implementation, lazily initialized with API key from `GOOGLE_MAPS_API_KEY` environment variable.
+The provider implementation, lazily initialized with API key from
+`GOOGLE_MAPS_API_KEY` and an optional base URL override from
+`GOOGLE_MAPS_BASE_URL` (for proxying through a credential broker or a
+self-hosted/compatible service).
 
 ```typescript
 const provider: GeolocationProvider

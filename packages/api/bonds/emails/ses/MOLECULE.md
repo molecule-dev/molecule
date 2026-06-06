@@ -146,7 +146,10 @@ const provider: EmailTransport
 
 #### `ses`
 
-The AWS SES client instance, configured from `AWS_SES_REGION` env var.
+The AWS SES client instance, configured from `AWS_SES_REGION`. An optional
+`AWS_SES_ENDPOINT` overrides the service endpoint (for a credential broker or
+a self-hosted / SES-compatible service). When unset, the SDK resolves the
+default regional endpoint, so behaviour is unchanged.
 
 ```typescript
 const ses: aws.SESClient

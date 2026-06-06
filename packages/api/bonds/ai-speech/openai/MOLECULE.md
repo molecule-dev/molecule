@@ -60,3 +60,7 @@ Implements `@molecule/api-ai-speech` interface.
 
 Peer dependencies:
 - `@molecule/api-ai-speech` >=1.0.0
+
+### Environment Variables
+
+- `OPENAI_API_KEY` *(required)*

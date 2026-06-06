@@ -74,6 +74,18 @@ interface I18nProvider {
   addLocale(config: LocaleConfig): void
 
   /**
+   * Removes a locale by code, notifying subscribers so language pickers
+   * built on `onLocaleChange` re-render their list. If the removed locale
+   * is currently active, the caller is responsible for switching to a
+   * fallback (e.g. `'en'`) BEFORE calling this — the provider will not
+   * auto-fall-back on its own.
+   *
+   * Returns `true` if the locale was registered and removed, `false`
+   * otherwise.
+   */
+  removeLocale(code: string): boolean
+
+  /**
    * Adds translations to a locale.
    */
   addTranslations(locale: string, translations: Translations, namespace?: string): void

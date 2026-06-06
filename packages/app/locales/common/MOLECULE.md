@@ -6,7 +6,7 @@ supported molecule.dev languages.
 
 ## Purpose
 
-Provides translations for the `@molecule/app-common` package which has 178 translation keys.
+Provides translations for the `@molecule/app-common` package which has 492 translation keys.
 
 ## Languages
 
@@ -138,7 +138,7 @@ import type { CommonTranslations, UiTranslations } from '@molecule/app-locales-c
 | `settings.email` | Email |
 | `settings.failedToDeleteAccount` | Failed to delete account. |
 | `settings.failedToUpdateEmail` | Failed to update email. |
-| `settings.logOut` | Log out |
+| `settings.logOut` | Sign out |
 | `settings.network` | Network |
 | `settings.noDevices` | No devices found |
 | `settings.notifications` | Notifications |
@@ -201,6 +201,320 @@ import type { CommonTranslations, UiTranslations } from '@molecule/app-locales-c
 | `user.payment.verificationFailed` | Payment verification failed for {{provider}}. |
 | `user.payment.verificationNotConfigured` | Payment verification is not configured for {{provider}}. |
 | `userMenu.open` | Open user menu |
+| `common.loadingEllipsis` | Loading… |
+| `common.savingEllipsis` | Saving… |
+| `common.sendingEllipsis` | Sending… |
+| `common.signingInEllipsis` | Signing in… |
+| `common.creatingAccountEllipsis` | Creating account… |
+| `common.creatingEllipsis` | Creating… |
+| `common.resettingEllipsis` | Resetting… |
+| `common.addingEllipsis` | Adding… |
+| `common.markingEllipsis` | Marking… |
+| `common.cancellingEllipsis` | Cancelling… |
+| `common.publishingEllipsis` | Publishing… |
+| `common.sendingLinkEllipsis` | Sending link… |
+| `common.deletingEllipsis` | Deleting… |
+| `common.updatingEllipsis` | Updating… |
+| `common.searchingEllipsis` | Searching… |
+| `common.startingEllipsis` | Starting… |
+| `common.creatingYourAccountEllipsis` | Creating your account… |
+| `common.creatingWorkspaceEllipsis` | Creating workspace… |
+| `common.submittingEllipsis` | Submitting… |
+| `common.postingEllipsis` | Posting… |
+| `common.exportingEllipsis` | Exporting… |
+| `common.cancel` | Cancel |
+| `common.save` | Save |
+| `common.delete` | Delete |
+| `common.remove` | Remove |
+| `common.edit` | Edit |
+| `common.add` | Add |
+| `common.search` | Search |
+| `common.send` | Send |
+| `common.copy` | Copy |
+| `common.copied` | Copied |
+| `common.copiedBang` | Copied! |
+| `common.share` | Share |
+| `common.open` | Open |
+| `common.upload` | Upload |
+| `common.download` | Download |
+| `common.export` | Export |
+| `common.exportCsv` | Export CSV |
+| `common.create` | Create |
+| `common.back` | Back |
+| `common.viewAll` | View all |
+| `common.viewAllArrow` | View all → |
+| `common.connect` | Connect |
+| `common.disconnect` | Disconnect |
+| `common.revoke` | Revoke |
+| `common.pause` | Pause |
+| `common.resume` | Resume |
+| `common.publish` | Publish |
+| `common.follow` | Follow |
+| `common.following` | Following |
+| `common.start` | Start |
+| `common.manage` | Manage |
+| `common.reply` | Reply |
+| `common.archive` | Archive |
+| `common.play` | Play |
+| `common.usename` | Use template |
+| `common.saved` | Saved |
+| `common.savedPeriod` | Saved. |
+| `common.saveChanges` | Save changes |
+| `common.saveDraft` | Save draft |
+| `common.saveProfile` | Save profile |
+| `common.saveFailed` | Save failed. |
+| `common.couldNotSaveChanges` | Could not save changes. |
+| `common.couldNotSaveProfile` | Could not save profile. |
+| `common.profileSavedPeriod` | Profile saved. |
+| `common.settingsSavedPeriod` | Settings saved. |
+| `common.markAllRead` | Mark all read |
+| `common.markAllAsRead` | Mark all as read |
+| `common.markRead` | Mark read |
+| `common.markAsRead` | Mark as read |
+| `common.getStarted` | Get started |
+| `common.browseTemplates` | Browse templates |
+| `common.complete` | Complete |
+| `common.completed` | Completed |
+| `common.checkYourInbox` | Check your inbox |
+| `common.checkYourEmail` | Check your email. |
+| `common.requestANewLink` | Request a new link |
+| `common.startFree` | Start free |
+| `common.startFreeTrial` | Start free trial |
+| `common.howItWorks` | How it works |
+| `common.whatYouGet` | What you get |
+| `common.advancedFeatures` | Advanced features |
+| `common.dataExport` | Data export |
+| `common.endToEndEncrypted` | End-to-end encrypted |
+| `common.atLeast8Characters` | At least 8 characters |
+| `common.atLeast12Characters` | At least 12 characters |
+| `common.or` | or |
+| `common.justNow` | just now |
+| `common.toggleLightDark` | Toggle between light and dark mode. |
+| `common.chooseTheLanguage` | Choose the language used throughout the app. |
+| `common.copyrightBuiltWithMolecule` | © {{year}} {{app}}. Built with Molecule. |
+| `common.copyrightAllRightsReserved` | © {{year}} {{app}}. All rights reserved. |
+| `common.countUnread` | {{count}} unread |
+| `common.countNew` | {{count}} new |
+| `common.countViews` | {{count}} views |
+| `common.countReviews` | {{count}} reviews |
+| `common.countGuests` | {{count}} guests |
+| `common.countWords` | {{count}} words |
+| `common.minutesMin` | {{minutes}} min |
+| `common.photographOf` | Photograph of {{name}} |
+| `common.savedAt` | Saved at {{time}} |
+| `common.weSentAPasswordResetLink` | We sent a password reset link to {{email}}. |
+| `auth.login.signInButton` | Sign in |
+| `auth.login.signInTitle` | Welcome back |
+| `auth.login.signingInButton` | Signing in… |
+| `auth.login.dontHaveAccount` | Don |
+| `auth.login.alreadyHaveAccount` | Already have an account? |
+| `auth.login.rememberedYourPassword` | Remembered your password? |
+| `auth.login.rememberedIt` | Remembered it? |
+| `auth.login.rememberMe` | Remember me |
+| `auth.login.forgotShort` | Forgot? |
+| `auth.signup.createAccount` | Create account |
+| `auth.signup.createYourAccount` | Create your account |
+| `auth.signup.createAnAccount` | Create an account |
+| `auth.signup.createYourWorkspace` | Create your workspace |
+| `auth.signup.creatingAccount` | Creating account… |
+| `auth.signup.creatingYourAccount` | Creating your account… |
+| `auth.signup.confirmPassword` | Confirm password |
+| `auth.signup.confirmNewPassword` | Confirm new password |
+| `auth.signup.repeatYourPassword` | Repeat your password |
+| `auth.signup.passwordsDoNotMatchPeriod` | Passwords do not match. |
+| `auth.signup.passwordsDoNotMatchNoPeriod` | Passwords do not match |
+| `auth.signup.passwordsDontMatchPeriod` | Passwords don |
+| `auth.signup.nameRequired` | Name is required. |
+| `auth.forgotPassword.sendResetLink` | Send reset link |
+| `auth.forgotPassword.enterEmailDescription` | Enter your email and we will send you a reset link. |
+| `auth.forgotPassword.couldNotSendResetLink` | Could not send reset link. |
+| `auth.resetPassword.title` | Reset your password |
+| `auth.resetPassword.button` | Reset password |
+| `auth.resetPassword.setNewPassword` | Set a new password |
+| `auth.resetPassword.setNewPasswordShort` | Set new password |
+| `auth.resetPassword.chooseNewPassword` | Choose a new password |
+| `auth.resetPassword.enterNewPasswordBelow` | Enter your new password below to regain access. |
+| `auth.resetPassword.resetToken` | Reset token |
+| `auth.resetPassword.resetCode` | Reset code |
+| `auth.resetPassword.fromTheEmailWeSent` | From the email we sent |
+| `auth.resetPassword.pasteTokenFromEmail` | Paste the token from your email |
+| `auth.resetPassword.accountRecovery` | Account recovery |
+| `auth.resetPassword.couldNotReset` | Could not reset password. |
+| `auth.resetPassword.passwordUpdated` | Password updated. |
+| `auth.resetPassword.updatePassword` | Update password |
+| `auth.backToSignIn` | Back to sign in |
+| `auth.backToSignInArrow` | ← Back to sign in |
+| `auth.backToHome` | Back to home |
+| `auth.backToHomeArrow` | ← Back to home |
+| `auth.backToLanding` | Back to landing |
+| `auth.backToDashboard` | Back to dashboard |
+| `auth.passwordMask` | •••••••• |
+| `auth.passwordPlaceholderEmail` | you@example.com |
+| `auth.passwordPlaceholderCompanyEmail` | you@company.com |
+| `auth.passwordPlaceholderNameCompany` | name@company.com |
+| `auth.passwordPlaceholderNameExample` | name@example.com |
+| `auth.workEmail` | Work email |
+| `auth.emailAddress` | Email address |
+| `auth.username` | Username |
+| `form.name` | Name |
+| `form.firstName` | First name |
+| `form.lastName` | Last name |
+| `form.fullName` | Full name |
+| `form.displayName` | Display name |
+| `form.company` | Company |
+| `form.organization` | Organization |
+| `form.phone` | Phone |
+| `form.address` | Address |
+| `form.role` | Role |
+| `form.timezone` | Timezone |
+| `form.title` | Title |
+| `form.description` | Description |
+| `form.descriptionOptional` | Description (optional) |
+| `form.category` | Category |
+| `form.type` | Type |
+| `form.amount` | Amount |
+| `form.date` | Date |
+| `form.startDate` | Start date |
+| `form.duration` | Duration |
+| `form.priority` | Priority |
+| `form.tags` | Tags |
+| `form.size` | Size |
+| `form.kind` | Kind |
+| `form.model` | Model |
+| `form.format` | Format |
+| `form.bio` | Bio |
+| `form.location` | Location |
+| `form.rating` | Rating |
+| `form.rate` | Rate |
+| `form.tax` | Tax |
+| `form.price` | Price |
+| `form.checkIn` | Check in |
+| `form.checkOut` | Check out |
+| `form.when` | When |
+| `form.due` | Due |
+| `form.summary` | Summary |
+| `form.notes` | Notes |
+| `status.all` | All |
+| `status.active` | Active |
+| `status.paused` | Paused |
+| `status.pending` | Pending |
+| `status.completed` | Completed |
+| `status.live` | Live |
+| `status.published` | Published |
+| `status.failed` | Failed |
+| `status.queued` | Queued |
+| `status.outstanding` | Outstanding |
+| `status.overdue` | Overdue |
+| `status.inProgress` | In progress |
+| `status.connected` | Connected |
+| `status.unassigned` | Unassigned |
+| `status.resolved` | Resolved |
+| `status.unread` | Unread |
+| `status.shared` | Shared |
+| `status.recent` | Recent |
+| `status.today` | Today |
+| `status.upcoming` | Upcoming |
+| `status.thisWeek` | This week |
+| `status.last30Days` | Last 30 days |
+| `status.upNext` | Up next |
+| `status.starred` | Starred |
+| `status.off` | Off |
+| `status.mostPopular` | Most popular |
+| `status.untitled` | Untitled |
+| `status.new` | New |
+| `status.member` | Member |
+| `status.monthly` | Monthly |
+| `nav.settings` | Settings |
+| `nav.settingsSections` | Settings sections |
+| `nav.profile` | Profile |
+| `nav.dashboard` | Dashboard |
+| `nav.workspace` | Workspace |
+| `nav.appearance` | Appearance |
+| `nav.about` | About |
+| `nav.security` | Security |
+| `nav.preferences` | Preferences |
+| `nav.privacy` | Privacy |
+| `nav.terms` | Terms |
+| `nav.contact` | Contact |
+| `nav.accountMenu` | Account menu |
+| `nav.yourAccount` | Your account |
+| `nav.notificationPreferences` | Notification preferences |
+| `nav.team` | Team |
+| `nav.library` | Library |
+| `nav.yourLibrary` | Your library |
+| `nav.templates` | Templates |
+| `nav.features` | Features |
+| `nav.reports` | Reports |
+| `nav.history` | History |
+| `nav.activity` | Activity |
+| `nav.recentActivity` | Recent activity |
+| `nav.activityFeed` | Activity feed |
+| `nav.auditLog` | Audit log |
+| `nav.activeSessions` | Active sessions |
+| `nav.connections` | Connections |
+| `nav.alerts` | Alerts |
+| `nav.integrations` | Integrations |
+| `nav.identity` | Identity |
+| `nav.discover` | Discover |
+| `nav.editor` | Editor |
+| `nav.editProfile` | Edit profile |
+| `nav.dangerZone` | Danger zone |
+| `nav.subscription` | Subscription |
+| `nav.invoices` | Invoices |
+| `nav.newInvoice` | New invoice |
+| `nav.newProject` | New project |
+| `nav.planAndBilling` | Plan & billing |
+| `nav.currentPlan` | Current plan |
+| `nav.pricing` | Pricing |
+| `nav.customer` | Customer |
+| `nav.client` | Client |
+| `nav.you` | You |
+| `nav.members` | Members |
+| `nav.guests` | Guests |
+| `nav.subscribers` | Subscribers |
+| `nav.reviews` | Reviews |
+| `nav.messages` | Messages |
+| `nav.product` | Product |
+| `nav.projects` | Projects |
+| `nav.analytics` | Analytics |
+| `nav.actions` | Actions |
+| `nav.achievements` | Achievements |
+| `nav.models` | Models |
+| `nav.schedule` | Schedule |
+| `nav.inbox` | Inbox |
+| `nav.invite` | Send invite |
+| `nav.transactions` | Transactions |
+| `nav.theme` | Theme |
+| `nav.course` | Course |
+| `nav.details` | Details |
+| `nav.subtotal` | Subtotal |
+| `nav.total` | Total |
+| `nav.status` | Status |
+| `nav.progress` | Progress |
+| `nav.plan` | Plan |
+| `nav.free` | Free |
+| `nav.current` | Current |
+| `nav.paymentMethod` | Payment method |
+| `nav.orderSummary` | Order summary |
+| `nav.cancelSubscription` | Cancel subscription |
+| `nav.subscriptionCancelled` | Subscription cancelled. |
+| `nav.subscriptionUpdated` | Subscription updated. |
+| `nav.couldNotStartCheckout` | Could not start checkout. |
+| `nav.failedToLoadNotifications` | Failed to load notifications. |
+| `nav.couldNotLoadNotifications` | Could not load notifications. |
+| `nav.noNewNotifications` | No new notifications. |
+| `nav.failedToLoadDashboard` | Failed to load dashboard. |
+| `nav.failedToLoad` | Failed to load. |
+| `nav.failedToLoadReports` | Failed to load reports. |
+| `nav.failedToLoadProfile` | Failed to load profile. |
+| `nav.couldNotLoadProfile` | Could not load profile. |
+| `nav.loadingNotifications` | Loading notifications… |
+| `nav.loadingProfile` | Loading profile… |
+| `nav.loadingPlans` | Loading plans… |
+| `nav.loadingTemplates` | Loading templates… |
+| `nav.loadingActivity` | Loading activity… |
+| `nav.browseStays` | Browse stays |
+| `nav.primaryNavigation` | Primary navigation |
 
 ## Metadata
 

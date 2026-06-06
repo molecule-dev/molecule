@@ -71,7 +71,7 @@ interface ZodType<out Output = unknown, out Input = unknown, out Internals exten
     safeEncodeAsync(data: core.output<this>, params?: core.ParseContext<core.$ZodIssue>): Promise<parse.ZodSafeParseResult<core.input<this>>>;
     safeDecodeAsync(data: core.input<this>, params?: core.ParseContext<core.$ZodIssue>): Promise<parse.ZodSafeParseResult<core.output<this>>>;
     refine<Ch extends (arg: core.output<this>) => unknown | Promise<unknown>>(check: Ch, params?: string | core.$ZodCustomParams): Ch extends (arg: any) => arg is infer R ? this & ZodType<R, core.input<this>> : this;
-    superRefine(refinement: (arg: core.output<this>, ctx: core.$RefinementCtx<core.output<this>>) => void | Promise<void>): this;
+    superRefine(refinement: (arg: core.output<this>, ctx: core.$RefinementCtx<core.output<this>>) => void | Promise<void>, params?: core.$ZodSuperRefineParams): this;
     overwrite(fn: (x: core.output<this>) => core.output<this>): this;
     optional(): ZodOptional<this>;
     exactOptional(): ZodExactOptional<this>;

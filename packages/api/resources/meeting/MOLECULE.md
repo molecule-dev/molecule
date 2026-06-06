@@ -134,13 +134,13 @@ function updateMeetingForOwner(meetingId: string, ownerId: string, patch: Partia
 #### `actionItemCreateSchema`
 
 ```typescript
-const actionItemCreateSchema: z.ZodObject<{ description: z.ZodString; assignee: z.ZodOptional<z.ZodNullable<z.ZodString>>; due_date: z.ZodOptional<z.ZodNullable<z.ZodString>>; source_excerpt: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, "strip", z.ZodTypeAny, { description: string; assignee?: string | null | undefined; due_date?: string | null | undefined; source_excerpt?: string | null | undefined; }, { description: string; assignee?: string | null | undefined; due_date?: string | null | undefined; source_excerpt?: string | null | undefined; }>
+const actionItemCreateSchema: z.ZodObject<{ description: z.ZodString; assignee: z.ZodOptional<z.ZodNullable<z.ZodString>>; due_date: z.ZodOptional<z.ZodNullable<z.ZodString>>; source_excerpt: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
 ```
 
 #### `actionItemUpdateSchema`
 
 ```typescript
-const actionItemUpdateSchema: z.ZodObject<{ description: z.ZodOptional<z.ZodString>; assignee: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; due_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; source_excerpt: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; } & { is_completed: z.ZodOptional<z.ZodBoolean>; }, "strip", z.ZodTypeAny, { description?: string | undefined; assignee?: string | null | undefined; due_date?: string | null | undefined; source_excerpt?: string | null | undefined; is_completed?: boolean | undefined; }, { description?: string | undefined; assignee?: string | null | undefined; due_date?: string | null | undefined; source_excerpt?: string | null | undefined; is_completed?: boolean | undefined; }>
+const actionItemUpdateSchema: z.ZodObject<{ description: z.ZodOptional<z.ZodString>; assignee: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; due_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; source_excerpt: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; is_completed: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
 ```
 
 #### `MEETING_STATUSES`
@@ -152,13 +152,13 @@ const MEETING_STATUSES: readonly ["scheduled", "in_progress", "completed", "canc
 #### `meetingCreateSchema`
 
 ```typescript
-const meetingCreateSchema: z.ZodObject<{ title: z.ZodString; description: z.ZodOptional<z.ZodNullable<z.ZodString>>; scheduled_at: z.ZodOptional<z.ZodNullable<z.ZodString>>; attendees: z.ZodOptional<z.ZodArray<z.ZodObject<{ name: z.ZodString; email: z.ZodOptional<z.ZodString>; }, "strip", z.ZodTypeAny, { name: string; email?: string | undefined; }, { name: string; email?: string | undefined; }>, "many">>; }, "strip", z.ZodTypeAny, { title: string; description?: string | null | undefined; scheduled_at?: string | null | undefined; attendees?: { name: string; email?: string | undefined; }[] | undefined; }, { title: string; description?: string | null | undefined; scheduled_at?: string | null | undefined; attendees?: { name: string; email?: string | undefined; }[] | undefined; }>
+const meetingCreateSchema: z.ZodObject<{ title: z.ZodString; description: z.ZodOptional<z.ZodNullable<z.ZodString>>; scheduled_at: z.ZodOptional<z.ZodNullable<z.ZodString>>; attendees: z.ZodOptional<z.ZodArray<z.ZodObject<{ name: z.ZodString; email: z.ZodOptional<z.ZodString>; }, z.core.$strip>>>; }, z.core.$strip>
 ```
 
 #### `meetingUpdateSchema`
 
 ```typescript
-const meetingUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodNullable<z.ZodString>>; status: z.ZodOptional<z.ZodEnum<["scheduled", "in_progress", "completed", "cancelled"]>>; scheduled_at: z.ZodOptional<z.ZodNullable<z.ZodString>>; started_at: z.ZodOptional<z.ZodNullable<z.ZodString>>; ended_at: z.ZodOptional<z.ZodNullable<z.ZodString>>; recording_url: z.ZodOptional<z.ZodNullable<z.ZodString>>; transcript: z.ZodOptional<z.ZodNullable<z.ZodString>>; summary: z.ZodOptional<z.ZodNullable<z.ZodString>>; attendees: z.ZodOptional<z.ZodArray<z.ZodObject<{ name: z.ZodString; email: z.ZodOptional<z.ZodString>; }, "strip", z.ZodTypeAny, { name: string; email?: string | undefined; }, { name: string; email?: string | undefined; }>, "many">>; }, "strip", z.ZodTypeAny, { title?: string | undefined; description?: string | null | undefined; scheduled_at?: string | null | undefined; status?: "scheduled" | "in_progress" | "completed" | "cancelled" | undefined; attendees?: { name: string; email?: string | undefined; }[] | undefined; started_at?: string | null | undefined; ended_at?: string | null | undefined; recording_url?: string | null | undefined; transcript?: string | null | undefined; summary?: string | null | undefined; }, { title?: string | undefined; description?: string | null | undefined; scheduled_at?: string | null | undefined; status?: "scheduled" | "in_progress" | "completed" | "cancelled" | undefined; attendees?: { name: string; email?: string | undefined; }[] | undefined; started_at?: string | null | undefined; ended_at?: string | null | undefined; recording_url?: string | null | undefined; transcript?: string | null | undefined; summary?: string | null | undefined; }>
+const meetingUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodNullable<z.ZodString>>; status: z.ZodOptional<z.ZodEnum<{ scheduled: "scheduled"; in_progress: "in_progress"; completed: "completed"; cancelled: "cancelled"; }>>; scheduled_at: z.ZodOptional<z.ZodNullable<z.ZodString>>; started_at: z.ZodOptional<z.ZodNullable<z.ZodString>>; ended_at: z.ZodOptional<z.ZodNullable<z.ZodString>>; recording_url: z.ZodOptional<z.ZodNullable<z.ZodString>>; transcript: z.ZodOptional<z.ZodNullable<z.ZodString>>; summary: z.ZodOptional<z.ZodNullable<z.ZodString>>; attendees: z.ZodOptional<z.ZodArray<z.ZodObject<{ name: z.ZodString; email: z.ZodOptional<z.ZodString>; }, z.core.$strip>>>; }, z.core.$strip>
 ```
 
 ## Injection Notes

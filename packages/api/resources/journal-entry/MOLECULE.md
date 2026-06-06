@@ -258,7 +258,7 @@ function updateEntryForOwner(userId: string, id: string, input: UpdateEntryInput
 Validator for creating a new journal entry.
 
 ```typescript
-const createEntrySchema: z.ZodObject<{ mood: z.ZodOptional<z.ZodEnum<["radiant", "good", "neutral", "low", "struggling"]>>; title: z.ZodOptional<z.ZodString>; body: z.ZodString; tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>; prompt_id: z.ZodOptional<z.ZodString>; written_at: z.ZodOptional<z.ZodString>; }, "strip", z.ZodTypeAny, { body: string; mood?: "radiant" | "good" | "neutral" | "low" | "struggling" | undefined; title?: string | undefined; tags?: string[] | undefined; prompt_id?: string | undefined; written_at?: string | undefined; }, { body: string; mood?: "radiant" | "good" | "neutral" | "low" | "struggling" | undefined; title?: string | undefined; tags?: string[] | undefined; prompt_id?: string | undefined; written_at?: string | undefined; }>
+const createEntrySchema: z.ZodObject<{ mood: z.ZodOptional<z.ZodEnum<{ radiant: "radiant"; good: "good"; neutral: "neutral"; low: "low"; struggling: "struggling"; }>>; title: z.ZodOptional<z.ZodString>; body: z.ZodString; tags: z.ZodOptional<z.ZodArray<z.ZodString>>; prompt_id: z.ZodOptional<z.ZodString>; written_at: z.ZodOptional<z.ZodString>; }, z.core.$strip>
 ```
 
 #### `moodLevelSchema`
@@ -266,7 +266,7 @@ const createEntrySchema: z.ZodObject<{ mood: z.ZodOptional<z.ZodEnum<["radiant",
 Mood level enum used by journal-entry payloads.
 
 ```typescript
-const moodLevelSchema: z.ZodEnum<["radiant", "good", "neutral", "low", "struggling"]>
+const moodLevelSchema: z.ZodEnum<{ radiant: "radiant"; good: "good"; neutral: "neutral"; low: "low"; struggling: "struggling"; }>
 ```
 
 #### `SCORE_BY_LEVEL`
@@ -280,7 +280,7 @@ const SCORE_BY_LEVEL: Record<MoodLevel, number>
 Validator for updating an existing journal entry.
 
 ```typescript
-const updateEntrySchema: z.ZodObject<{ mood: z.ZodOptional<z.ZodOptional<z.ZodEnum<["radiant", "good", "neutral", "low", "struggling"]>>>; title: z.ZodOptional<z.ZodOptional<z.ZodString>>; tags: z.ZodOptional<z.ZodOptional<z.ZodArray<z.ZodString, "many">>>; prompt_id: z.ZodOptional<z.ZodOptional<z.ZodString>>; written_at: z.ZodOptional<z.ZodOptional<z.ZodString>>; } & { body: z.ZodOptional<z.ZodString>; }, "strip", z.ZodTypeAny, { mood?: "radiant" | "good" | "neutral" | "low" | "struggling" | undefined; title?: string | undefined; body?: string | undefined; tags?: string[] | undefined; prompt_id?: string | undefined; written_at?: string | undefined; }, { mood?: "radiant" | "good" | "neutral" | "low" | "struggling" | undefined; title?: string | undefined; body?: string | undefined; tags?: string[] | undefined; prompt_id?: string | undefined; written_at?: string | undefined; }>
+const updateEntrySchema: z.ZodObject<{ mood: z.ZodOptional<z.ZodOptional<z.ZodEnum<{ radiant: "radiant"; good: "good"; neutral: "neutral"; low: "low"; struggling: "struggling"; }>>>; title: z.ZodOptional<z.ZodOptional<z.ZodString>>; tags: z.ZodOptional<z.ZodOptional<z.ZodArray<z.ZodString>>>; prompt_id: z.ZodOptional<z.ZodOptional<z.ZodString>>; written_at: z.ZodOptional<z.ZodOptional<z.ZodString>>; body: z.ZodOptional<z.ZodString>; }, z.core.$strip>
 ```
 
 ## Injection Notes

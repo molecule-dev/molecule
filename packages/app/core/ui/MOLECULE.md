@@ -2205,6 +2205,8 @@ interface UIClassMap {
   borderAll: string
   /** Primary-colored bottom border (e.g. active tab indicator). */
   borderBPrimary: string
+  /** Primary-colored top border accent (e.g. highlighted pricing card). */
+  borderTPrimary: string
 
   // ---- Background utility tokens ----
 
@@ -2212,6 +2214,28 @@ interface UIClassMap {
   bgErrorSubtle: string
   /** Border color used as element background (e.g. resize handles, separators). */
   bgBorder: string
+  /** Subtle primary-tinted background (e.g. icon halo, callout banner). */
+  bgPrimarySubtle: string
+  /** Solid primary background (e.g. CTA fill). */
+  bgPrimary: string
+  /** Pure white background (uses `--color-surface-container-lowest` if defined). */
+  bgWhite: string
+
+  // ---- Premium typography utilities ----
+
+  /** Italic style for emphasized headlines (e.g. tier name in pricing card). */
+  italic: string
+  /** ALL CAPS letter transform for eyebrow labels. */
+  uppercase: string
+  /** Wide letter-spacing for caps eyebrow / button labels. */
+  trackingWide: string
+
+  // ---- Premium decoration tokens ----
+
+  /** Linear gradient using the app's primary color (e.g. hero CTAs). */
+  gradientPrimary: string
+  /** Soft elevation suitable for "lifted" cards (e.g. popular pricing tier). */
+  shadowLifted: string
 
   // ---- Composite style tokens ----
 
@@ -2244,6 +2268,8 @@ interface UIClassMap {
   languageOption: string
   /** Language option item (active/selected state). */
   languageActive: string
+  /** Trigger button for `<LanguagePicker />` (globe icon + current locale name). */
+  languagePickerTrigger: string
 
   // ---- Spacing utilities ----
 
@@ -2682,7 +2708,7 @@ Abstract spacing scale. Each styling library maps these to its own units.
 For Tailwind: 0 → 0, 1 → 0.25rem, 4 → 1rem, 8 → 2rem, etc.
 
 ```typescript
-type SpacingScale = 0 | 1 | 2 | 2.5 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16 | 20 | 24
+type SpacingScale = 0 | 0.5 | 1 | 1.5 | 2 | 2.5 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16 | 20 | 24
 ```
 
 #### `TailwindArbitraryBracket`

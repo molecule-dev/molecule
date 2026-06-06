@@ -225,7 +225,7 @@ function updateFirmwareForOwner(userId: string, id: string, patch: Record<string
 Validator for creating a draft firmware version.
 
 ```typescript
-const createFirmwareSchema: z.ZodObject<{ version: z.ZodString; device_type: z.ZodString; release_notes: z.ZodOptional<z.ZodString>; download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>; checksum: z.ZodOptional<z.ZodNullable<z.ZodString>>; file_size: z.ZodOptional<z.ZodNumber>; }, "strip", z.ZodTypeAny, { version: string; device_type: string; release_notes?: string | undefined; download_url?: string | null | undefined; checksum?: string | null | undefined; file_size?: number | undefined; }, { version: string; device_type: string; release_notes?: string | undefined; download_url?: string | null | undefined; checksum?: string | null | undefined; file_size?: number | undefined; }>
+const createFirmwareSchema: z.ZodObject<{ version: z.ZodString; device_type: z.ZodString; release_notes: z.ZodOptional<z.ZodString>; download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>; checksum: z.ZodOptional<z.ZodNullable<z.ZodString>>; file_size: z.ZodOptional<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>
 ```
 
 #### `createRolloutSchema`
@@ -233,13 +233,13 @@ const createFirmwareSchema: z.ZodObject<{ version: z.ZodString; device_type: z.Z
 Validator for creating a rollout.
 
 ```typescript
-const createRolloutSchema: z.ZodObject<{ firmware_id: z.ZodString; device_ids: z.ZodOptional<z.ZodArray<z.ZodString, "many">>; fleet_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; strategy: z.ZodOptional<z.ZodEnum<["immediate", "canary", "gradual"]>>; }, "strip", z.ZodTypeAny, { firmware_id: string; device_ids?: string[] | undefined; fleet_id?: string | null | undefined; strategy?: "immediate" | "canary" | "gradual" | undefined; }, { firmware_id: string; device_ids?: string[] | undefined; fleet_id?: string | null | undefined; strategy?: "immediate" | "canary" | "gradual" | undefined; }>
+const createRolloutSchema: z.ZodObject<{ firmware_id: z.ZodString; device_ids: z.ZodOptional<z.ZodArray<z.ZodString>>; fleet_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; strategy: z.ZodOptional<z.ZodEnum<{ immediate: "immediate"; canary: "canary"; gradual: "gradual"; }>>; }, z.core.$strip>
 ```
 
 #### `firmwareStatusSchema`
 
 ```typescript
-const firmwareStatusSchema: z.ZodEnum<["draft", "published", "deprecated"]>
+const firmwareStatusSchema: z.ZodEnum<{ draft: "draft"; published: "published"; deprecated: "deprecated"; }>
 ```
 
 #### `listFirmwareQuerySchema`
@@ -247,7 +247,7 @@ const firmwareStatusSchema: z.ZodEnum<["draft", "published", "deprecated"]>
 Validator for the firmware-version list query params.
 
 ```typescript
-const listFirmwareQuerySchema: z.ZodObject<{ device_type: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<["draft", "published", "deprecated"]>>; page: z.ZodDefault<z.ZodNumber>; limit: z.ZodDefault<z.ZodNumber>; }, "strip", z.ZodTypeAny, { page: number; limit: number; device_type?: string | undefined; status?: "draft" | "published" | "deprecated" | undefined; }, { device_type?: string | undefined; status?: "draft" | "published" | "deprecated" | undefined; page?: number | undefined; limit?: number | undefined; }>
+const listFirmwareQuerySchema: z.ZodObject<{ device_type: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<{ draft: "draft"; published: "published"; deprecated: "deprecated"; }>>; page: z.ZodDefault<z.ZodCoercedNumber<unknown>>; limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>
 ```
 
 #### `listRolloutsQuerySchema`
@@ -255,7 +255,7 @@ const listFirmwareQuerySchema: z.ZodObject<{ device_type: z.ZodOptional<z.ZodStr
 Validator for the rollout-list query params.
 
 ```typescript
-const listRolloutsQuerySchema: z.ZodObject<{ firmware_id: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<["pending", "active", "completed", "failed", "canceled"]>>; page: z.ZodDefault<z.ZodNumber>; limit: z.ZodDefault<z.ZodNumber>; }, "strip", z.ZodTypeAny, { page: number; limit: number; status?: "pending" | "completed" | "failed" | "active" | "canceled" | undefined; firmware_id?: string | undefined; }, { status?: "pending" | "completed" | "failed" | "active" | "canceled" | undefined; page?: number | undefined; limit?: number | undefined; firmware_id?: string | undefined; }>
+const listRolloutsQuerySchema: z.ZodObject<{ firmware_id: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<{ pending: "pending"; completed: "completed"; failed: "failed"; active: "active"; canceled: "canceled"; }>>; page: z.ZodDefault<z.ZodCoercedNumber<unknown>>; limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>
 ```
 
 #### `rolloutDeviceStatusSchema`
@@ -263,19 +263,19 @@ const listRolloutsQuerySchema: z.ZodObject<{ firmware_id: z.ZodOptional<z.ZodStr
 Validator for a per-device rollout status report.
 
 ```typescript
-const rolloutDeviceStatusSchema: z.ZodObject<{ status: z.ZodEnum<["pending", "in_progress", "completed", "failed"]>; error_message: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, "strip", z.ZodTypeAny, { status: "pending" | "in_progress" | "completed" | "failed"; error_message?: string | null | undefined; }, { status: "pending" | "in_progress" | "completed" | "failed"; error_message?: string | null | undefined; }>
+const rolloutDeviceStatusSchema: z.ZodObject<{ status: z.ZodEnum<{ pending: "pending"; in_progress: "in_progress"; completed: "completed"; failed: "failed"; }>; error_message: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
 ```
 
 #### `rolloutStatusSchema`
 
 ```typescript
-const rolloutStatusSchema: z.ZodEnum<["pending", "active", "completed", "failed", "canceled"]>
+const rolloutStatusSchema: z.ZodEnum<{ pending: "pending"; completed: "completed"; failed: "failed"; active: "active"; canceled: "canceled"; }>
 ```
 
 #### `rolloutStrategySchema`
 
 ```typescript
-const rolloutStrategySchema: z.ZodEnum<["immediate", "canary", "gradual"]>
+const rolloutStrategySchema: z.ZodEnum<{ immediate: "immediate"; canary: "canary"; gradual: "gradual"; }>
 ```
 
 #### `updateFirmwareSchema`
@@ -283,7 +283,7 @@ const rolloutStrategySchema: z.ZodEnum<["immediate", "canary", "gradual"]>
 Validator for patching a firmware version (release notes, status, etc).
 
 ```typescript
-const updateFirmwareSchema: z.ZodObject<{ release_notes: z.ZodOptional<z.ZodString>; download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>; checksum: z.ZodOptional<z.ZodNullable<z.ZodString>>; file_size: z.ZodOptional<z.ZodNumber>; status: z.ZodOptional<z.ZodEnum<["draft", "published", "deprecated"]>>; }, "strip", z.ZodTypeAny, { release_notes?: string | undefined; download_url?: string | null | undefined; checksum?: string | null | undefined; file_size?: number | undefined; status?: "draft" | "published" | "deprecated" | undefined; }, { release_notes?: string | undefined; download_url?: string | null | undefined; checksum?: string | null | undefined; file_size?: number | undefined; status?: "draft" | "published" | "deprecated" | undefined; }>
+const updateFirmwareSchema: z.ZodObject<{ release_notes: z.ZodOptional<z.ZodString>; download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>; checksum: z.ZodOptional<z.ZodNullable<z.ZodString>>; file_size: z.ZodOptional<z.ZodCoercedNumber<unknown>>; status: z.ZodOptional<z.ZodEnum<{ draft: "draft"; published: "published"; deprecated: "deprecated"; }>>; }, z.core.$strip>
 ```
 
 ## Injection Notes

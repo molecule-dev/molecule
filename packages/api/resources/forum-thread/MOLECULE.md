@@ -166,7 +166,7 @@ function updateThread(threadId: string, userId: string, isModerator: boolean, pa
 #### `replyCreateSchema`
 
 ```typescript
-const replyCreateSchema: z.ZodObject<{ body: z.ZodString; parent_reply_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, "strip", z.ZodTypeAny, { body: string; parent_reply_id?: string | null | undefined; }, { body: string; parent_reply_id?: string | null | undefined; }>
+const replyCreateSchema: z.ZodObject<{ body: z.ZodString; parent_reply_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
 ```
 
 #### `THREAD_STATUSES`
@@ -178,25 +178,25 @@ const THREAD_STATUSES: readonly ["open", "closed", "locked", "archived"]
 #### `threadCreateSchema`
 
 ```typescript
-const threadCreateSchema: z.ZodObject<{ title: z.ZodString; body: z.ZodString; category_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, "strip", z.ZodTypeAny, { title: string; body: string; category_id?: string | null | undefined; }, { title: string; body: string; category_id?: string | null | undefined; }>
+const threadCreateSchema: z.ZodObject<{ title: z.ZodString; body: z.ZodString; category_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
 ```
 
 #### `threadListQuerySchema`
 
 ```typescript
-const threadListQuerySchema: z.ZodObject<{ category_id: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<["open", "closed", "locked", "archived"]>>; sort: z.ZodOptional<z.ZodEnum<["recent", "top", "pinned"]>>; page: z.ZodDefault<z.ZodNumber>; limit: z.ZodDefault<z.ZodNumber>; }, "strip", z.ZodTypeAny, { page: number; limit: number; category_id?: string | undefined; sort?: "recent" | "top" | "pinned" | undefined; status?: "open" | "closed" | "locked" | "archived" | undefined; }, { category_id?: string | undefined; sort?: "recent" | "top" | "pinned" | undefined; status?: "open" | "closed" | "locked" | "archived" | undefined; page?: number | undefined; limit?: number | undefined; }>
+const threadListQuerySchema: z.ZodObject<{ category_id: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<{ open: "open"; closed: "closed"; locked: "locked"; archived: "archived"; }>>; sort: z.ZodOptional<z.ZodEnum<{ recent: "recent"; top: "top"; pinned: "pinned"; }>>; page: z.ZodDefault<z.ZodCoercedNumber<unknown>>; limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>
 ```
 
 #### `threadUpdateSchema`
 
 ```typescript
-const threadUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; body: z.ZodOptional<z.ZodString>; category_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; status: z.ZodOptional<z.ZodEnum<["open", "closed", "locked", "archived"]>>; is_pinned: z.ZodOptional<z.ZodBoolean>; }, "strip", z.ZodTypeAny, { title?: string | undefined; body?: string | undefined; category_id?: string | null | undefined; status?: "open" | "closed" | "locked" | "archived" | undefined; is_pinned?: boolean | undefined; }, { title?: string | undefined; body?: string | undefined; category_id?: string | null | undefined; status?: "open" | "closed" | "locked" | "archived" | undefined; is_pinned?: boolean | undefined; }>
+const threadUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; body: z.ZodOptional<z.ZodString>; category_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; status: z.ZodOptional<z.ZodEnum<{ open: "open"; closed: "closed"; locked: "locked"; archived: "archived"; }>>; is_pinned: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
 ```
 
 #### `voteSchema`
 
 ```typescript
-const voteSchema: z.ZodObject<{ value: z.ZodUnion<[z.ZodLiteral<1>, z.ZodLiteral<-1>]>; }, "strip", z.ZodTypeAny, { value: 1 | -1; }, { value: 1 | -1; }>
+const voteSchema: z.ZodObject<{ value: z.ZodUnion<readonly [z.ZodLiteral<1>, z.ZodLiteral<-1>]>; }, z.core.$strip>
 ```
 
 ## Injection Notes

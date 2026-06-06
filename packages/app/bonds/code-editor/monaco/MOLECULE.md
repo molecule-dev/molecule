@@ -61,6 +61,28 @@ function createProvider(config?: MonacoConfig): MonacoEditorProvider
 
 **Returns:** A `MonacoEditorProvider` that manages Monaco Editor instances.
 
+#### `preloadMonaco()`
+
+Warm the Monaco core bundle ahead of the first {@link MonacoEditorProvider.mount}.
+
+Monaco is a large library loaded via `await import('monaco-editor')` inside
+`mount()`, which lets it code-split out of the initial app bundle. The cost is
+that the first editor mount has to download ~1 MB before it can paint. Call
+this during idle time (e.g. while the user is still on the landing page) to
+fetch that exact chunk into the browser cache in advance — `mount()` then
+resolves its `import('monaco-editor')` from cache and the editor appears with
+no network wait.
+
+Uses the identical bare specifier as `mount()`, so the bundler resolves both
+to the same chunk and they share one download and one cache entry. Idempotent
+and best-effort: the returned promise never rejects the caller's flow.
+
+```typescript
+function preloadMonaco(): Promise<unknown>
+```
+
+**Returns:** A promise that resolves once the Monaco core module is fetched.
+
 ### Constants
 
 #### `provider`

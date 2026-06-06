@@ -68,7 +68,9 @@ function createProvider(config: MapboxGeolocationConfig): GeolocationProvider
 
 #### `provider`
 
-The provider implementation, lazily initialized with access token from `MAPBOX_ACCESS_TOKEN` environment variable.
+The provider implementation, lazily initialized with access token from
+`MAPBOX_ACCESS_TOKEN` and an optional base URL override from `MAPBOX_BASE_URL`
+(for proxying through a credential broker or a self-hosted/compatible service).
 
 ```typescript
 const provider: GeolocationProvider

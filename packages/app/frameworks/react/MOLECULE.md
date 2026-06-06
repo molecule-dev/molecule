@@ -610,6 +610,22 @@ interface RouterProviderProps extends ProviderProps {
 }
 ```
 
+#### `SendMessageOptions`
+
+Options for {@link UseChatResult.sendMessage}.
+
+```typescript
+interface SendMessageOptions {
+  /**
+   * Skip the optimistic local user-message bubble. The text is still sent to
+   * the server. Used for ask_user responses: the answer is folded into the
+   * ask_user tool card (a checkmark on the chosen option, or the custom text
+   * shown in-card) rather than echoed as a separate message below it.
+   */
+  suppressUserMessage?: boolean
+}
+```
+
 #### `StateProviderProps`
 
 Props for state provider component.
@@ -808,7 +824,11 @@ interface UseChatResult {
   mode: 'plan' | 'execute'
   /** Update the local mode state (for instant mode toggle without an AI turn). */
   setMode: (mode: 'plan' | 'execute') => void
-  sendMessage: (message: string, attachments?: ChatAttachment[]) => Promise<void>
+  sendMessage: (
+    message: string,
+    attachments?: ChatAttachment[],
+    options?: SendMessageOptions,
+  ) => Promise<void>
   abort: () => void
   clearHistory: () => Promise<void>
   /** Edit the content of a queued (not yet sent) message. */
@@ -1253,6 +1273,16 @@ refetches. Exposed for unit tests; do not call from production code.
 
 ```typescript
 function resetAIModelsCache(): void
+```
+
+#### `resetChatStoresForTests()`
+
+Test-only: clear all conversation stores. The store is module-level (it must
+outlive component mounts), so it persists across test cases — reset it in a
+`beforeEach` the same way tests clear `sessionStorage`.
+
+```typescript
+function resetChatStoresForTests(): void
 ```
 
 #### `useAIModels()`

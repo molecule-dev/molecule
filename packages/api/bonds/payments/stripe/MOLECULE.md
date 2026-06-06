@@ -604,6 +604,45 @@ function processConnectWebhook(headers: Record<string, string | string[] | undef
 
 **Returns:** The verified, normalized Connect webhook event.
 
+#### `reportUsageOverage(options, options, options, options, options, options, options, options, options)`
+
+Reports a usage-based OVERAGE charge to Stripe as a one-off invoice item
+against an existing customer (and, when given, attached to the open invoice
+of a specific subscription so it lands on the next cycle invoice).
+
+This is the supported, type-safe path on the installed Stripe SDK (v22):
+the legacy `subscriptionItems.createUsageRecord` API was removed in favor of
+metered-price meter events / invoice items. A positive-amount invoice item
+is the simplest cost-plus overage mechanism — Stripe aggregates open invoice
+items and bills them at the customer's cycle close, so repeated incremental
+calls accrete onto the same upcoming invoice.
+
+IDEMPOTENCY: the caller MUST pass a stable `idempotencyKey` derived from
+`(user, period, amount)` so a retry or a double-run within the same Stripe
+idempotency window (24h) is collapsed to a single invoice item and never
+double-charges (broker safety invariant 4).
+
+This function performs NO gating of its own — it charges whatever it is
+told to. The decision of WHETHER to charge (configured? opted-in? paid?
+over budget?) lives entirely in the molecule-dev billing module, which is
+the single inert/opt-in gate (safety invariants 1 + 2).
+
+```typescript
+function reportUsageOverage(options: { customerId: string; amountCents: number; currency?: string; priceId: string; subscriptionId?: string; description?: string; metadata?: Record<string, string>; idempotencyKey: string; }): Promise<{ id: string; amountCents: number; }>
+```
+
+- `options` — Overage reporting options.
+- `options` — .customerId - The Stripe customer to bill (`cus_...`).
+- `options` — .amountCents - The overage amount in cents (must be `> 0`).
+- `options` — .currency - ISO currency (defaults to `usd`).
+- `options` — .priceId - The metered/overage Price id this reports against;
+- `options` — .subscriptionId - Optional subscription to attach the item to
+- `options` — .description - Human-readable line description.
+- `options` — .metadata - Extra reconciliation metadata (e.g. period).
+- `options` — .idempotencyKey - REQUIRED stable key (see IDEMPOTENCY above).
+
+**Returns:** The created invoice item id + the amount actually reported.
+
 #### `retrievePaymentMethod(paymentMethodId)`
 
 Retrieves a saved Stripe payment method (card) and returns normalized metadata.

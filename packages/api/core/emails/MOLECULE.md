@@ -206,6 +206,7 @@ function setTransport(transport: EmailTransport): void
 | SendGrid | `@molecule/api-emails-sendgrid` |
 | Sendmail | `@molecule/api-emails-sendmail` |
 | AWS SES | `@molecule/api-emails-ses` |
+| Capture | `@molecule/api-emails-capture` |
 
 ## Injection Notes
 

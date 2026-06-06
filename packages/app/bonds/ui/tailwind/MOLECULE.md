@@ -109,7 +109,7 @@ const accordionTriggerBase: "w-full text-left"
 Action sheet: bottom-anchored panel for pickers and action menus.
 
 ```typescript
-const actionSheet: "fixed bottom-0 left-0 right-0 z-modal bg-surface rounded-t-2xl max-h-[50vh] overflow-hidden"
+const actionSheet: "fixed bottom-0 left-0 right-0 z-[1300] bg-surface rounded-t-2xl max-h-[50vh] overflow-hidden"
 ```
 
 #### `actionSheetHeader`
@@ -643,7 +643,7 @@ const dialogHeader: "flex-shrink-0 flex items-center justify-between px-6 py-2"
 Modal/Dialog overlay classes.
 
 ```typescript
-const dialogOverlay: "fixed inset-0 z-modal bg-overlay backdrop-blur-[2px] pointer-events-none"
+const dialogOverlay: "fixed inset-0 z-[1300] bg-overlay backdrop-blur-[2px] pointer-events-none"
 ```
 
 #### `dialogTitle`
@@ -659,7 +659,7 @@ const dialogTitle: "text-xl font-semibold leading-tight tracking-tight"
 The dialog wrapper.
 
 ```typescript
-const dialogWrapper: "fixed inset-0 z-modal flex items-center justify-center px-4 py-10"
+const dialogWrapper: "fixed inset-0 z-[1300] flex items-center justify-center px-4 py-10"
 ```
 
 #### `displayBlock`
@@ -691,7 +691,7 @@ const displayInlineBlock: "inline-block"
 Dropdown menu content container classes.
 
 ```typescript
-const dropdownContent: "z-dropdown min-w-[8rem] overflow-hidden rounded-md border bg-surface p-1 text-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+const dropdownContent: "z-[1000] min-w-[8rem] overflow-hidden rounded-md border bg-surface p-1 text-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
 ```
 
 #### `dropdownItem`
@@ -1076,6 +1076,16 @@ Language option (inactive) classes.
 
 ```typescript
 const languageOption: "px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors hover:bg-surface-secondary"
+```
+
+#### `languagePickerTrigger`
+
+Language picker trigger button classes (globe icon + native locale name).
+Inherits surface/foreground tokens so it sits cleanly inside Settings
+cards, header chrome, or footers without forcing a specific background.
+
+```typescript
+const languagePickerTrigger: "inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium bg-transparent text-foreground-secondary hover:text-foreground hover:bg-surface-secondary border border-border-secondary cursor-pointer transition-colors"
 ```
 
 #### `logoIcon`
@@ -1826,7 +1836,7 @@ const toastTitle: "text-sm font-semibold"
 Toast viewport container classes (positioned fixed, stacked).
 
 ```typescript
-const toastViewport: "fixed top-0 z-toast flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]"
+const toastViewport: "fixed top-0 z-[1600] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]"
 ```
 
 #### `tooltipContent`
@@ -1834,7 +1844,7 @@ const toastViewport: "fixed top-0 z-toast flex max-h-screen w-full flex-col-reve
 Tooltip content container classes.
 
 ```typescript
-const tooltipContent: "z-tooltip overflow-hidden rounded-md border bg-surface px-3 py-1.5 text-sm text-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+const tooltipContent: "z-[1500] overflow-hidden rounded-md border bg-surface px-3 py-1.5 text-sm text-foreground shadow-md animate-in fade-in-0 zoom-in-95"
 ```
 
 #### `tooltipTrigger`

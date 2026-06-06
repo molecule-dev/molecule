@@ -238,6 +238,7 @@ function setProvider(provider: SMSProvider): void
 |----------|---------|
 | Sms | `@molecule/api-sms-twilio` |
 | Sms | `@molecule/api-sms-vonage` |
+| Capture | `@molecule/api-sms-capture` |
 
 ## Injection Notes
 

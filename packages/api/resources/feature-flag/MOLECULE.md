@@ -166,25 +166,25 @@ const FLAG_TYPES: readonly ["boolean", "multivariate", "string", "number"]
 #### `flagCreateSchema`
 
 ```typescript
-const flagCreateSchema: z.ZodObject<{ project_id: z.ZodOptional<z.ZodString>; key: z.ZodString; name: z.ZodString; description: z.ZodOptional<z.ZodString>; flag_type: z.ZodOptional<z.ZodEnum<["boolean", "multivariate", "string", "number"]>>; default_value: z.ZodOptional<z.ZodUnknown>; rollout_percentage: z.ZodOptional<z.ZodNumber>; is_enabled: z.ZodOptional<z.ZodBoolean>; environment: z.ZodOptional<z.ZodString>; stale_days: z.ZodOptional<z.ZodNumber>; }, "strip", z.ZodTypeAny, { key: string; name: string; project_id?: string | undefined; description?: string | undefined; flag_type?: "string" | "number" | "boolean" | "multivariate" | undefined; default_value?: unknown; rollout_percentage?: number | undefined; is_enabled?: boolean | undefined; environment?: string | undefined; stale_days?: number | undefined; }, { key: string; name: string; project_id?: string | undefined; description?: string | undefined; flag_type?: "string" | "number" | "boolean" | "multivariate" | undefined; default_value?: unknown; rollout_percentage?: number | undefined; is_enabled?: boolean | undefined; environment?: string | undefined; stale_days?: number | undefined; }>
+const flagCreateSchema: z.ZodObject<{ project_id: z.ZodOptional<z.ZodString>; key: z.ZodString; name: z.ZodString; description: z.ZodOptional<z.ZodString>; flag_type: z.ZodOptional<z.ZodEnum<{ string: "string"; number: "number"; boolean: "boolean"; multivariate: "multivariate"; }>>; default_value: z.ZodOptional<z.ZodUnknown>; rollout_percentage: z.ZodOptional<z.ZodNumber>; is_enabled: z.ZodOptional<z.ZodBoolean>; environment: z.ZodOptional<z.ZodString>; stale_days: z.ZodOptional<z.ZodNumber>; }, z.core.$strip>
 ```
 
 #### `flagListQuerySchema`
 
 ```typescript
-const flagListQuerySchema: z.ZodObject<{ page: z.ZodDefault<z.ZodNumber>; limit: z.ZodDefault<z.ZodNumber>; project_id: z.ZodOptional<z.ZodString>; environment: z.ZodOptional<z.ZodString>; state: z.ZodOptional<z.ZodEnum<["on", "off", "killed", "scheduled"]>>; }, "strip", z.ZodTypeAny, { page: number; limit: number; project_id?: string | undefined; environment?: string | undefined; state?: "on" | "off" | "killed" | "scheduled" | undefined; }, { project_id?: string | undefined; environment?: string | undefined; state?: "on" | "off" | "killed" | "scheduled" | undefined; page?: number | undefined; limit?: number | undefined; }>
+const flagListQuerySchema: z.ZodObject<{ page: z.ZodDefault<z.ZodCoercedNumber<unknown>>; limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>; project_id: z.ZodOptional<z.ZodString>; environment: z.ZodOptional<z.ZodString>; state: z.ZodOptional<z.ZodEnum<{ on: "on"; off: "off"; killed: "killed"; scheduled: "scheduled"; }>>; }, z.core.$strip>
 ```
 
 #### `flagUpdateSchema`
 
 ```typescript
-const flagUpdateSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodString>; default_value: z.ZodOptional<z.ZodUnknown>; rollout_percentage: z.ZodOptional<z.ZodNumber>; is_enabled: z.ZodOptional<z.ZodBoolean>; state: z.ZodOptional<z.ZodEnum<["on", "off", "killed", "scheduled"]>>; environment: z.ZodOptional<z.ZodString>; stale_days: z.ZodOptional<z.ZodNumber>; }, "strip", z.ZodTypeAny, { name?: string | undefined; description?: string | undefined; default_value?: unknown; rollout_percentage?: number | undefined; is_enabled?: boolean | undefined; environment?: string | undefined; stale_days?: number | undefined; state?: "on" | "off" | "killed" | "scheduled" | undefined; }, { name?: string | undefined; description?: string | undefined; default_value?: unknown; rollout_percentage?: number | undefined; is_enabled?: boolean | undefined; environment?: string | undefined; stale_days?: number | undefined; state?: "on" | "off" | "killed" | "scheduled" | undefined; }>
+const flagUpdateSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodString>; default_value: z.ZodOptional<z.ZodUnknown>; rollout_percentage: z.ZodOptional<z.ZodNumber>; is_enabled: z.ZodOptional<z.ZodBoolean>; state: z.ZodOptional<z.ZodEnum<{ on: "on"; off: "off"; killed: "killed"; scheduled: "scheduled"; }>>; environment: z.ZodOptional<z.ZodString>; stale_days: z.ZodOptional<z.ZodNumber>; }, z.core.$strip>
 ```
 
 #### `ruleSchema`
 
 ```typescript
-const ruleSchema: z.ZodObject<{ attribute: z.ZodString; operator: z.ZodString; value: z.ZodOptional<z.ZodUnknown>; serve_value: z.ZodOptional<z.ZodUnknown>; priority: z.ZodOptional<z.ZodNumber>; description: z.ZodOptional<z.ZodString>; }, "strip", z.ZodTypeAny, { attribute: string; operator: string; description?: string | undefined; value?: unknown; serve_value?: unknown; priority?: number | undefined; }, { attribute: string; operator: string; description?: string | undefined; value?: unknown; serve_value?: unknown; priority?: number | undefined; }>
+const ruleSchema: z.ZodObject<{ attribute: z.ZodString; operator: z.ZodString; value: z.ZodOptional<z.ZodUnknown>; serve_value: z.ZodOptional<z.ZodUnknown>; priority: z.ZodOptional<z.ZodNumber>; description: z.ZodOptional<z.ZodString>; }, z.core.$strip>
 ```
 
 ## Injection Notes

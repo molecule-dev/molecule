@@ -122,3 +122,7 @@ export function setupAiSpeechElevenlabs(): void {
 
 Peer dependencies:
 - `@molecule/api-ai-speech` >=1.0.0
+
+### Environment Variables
+
+- `ELEVENLABS_API_KEY` *(required)*

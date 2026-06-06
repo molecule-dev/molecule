@@ -431,6 +431,7 @@ function setProvider(provider: ChannelProvider): void
 | Slack | `@molecule/api-channel-slack` |
 | Telegram | `@molecule/api-channel-telegram` |
 | WhatsApp | `@molecule/api-channel-whatsapp` |
+| Capture | `@molecule/api-channel-capture` |
 
 ## Injection Notes
 

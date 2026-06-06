@@ -625,8 +625,12 @@ Peer dependencies:
 - `@molecule/api-two-factor-otplib` ^1.0.0
 - `@molecule/api-emails` ^1.0.0
 - `@molecule/api-emails-mailgun` ^1.0.0
+- `@molecule/api-payments` ^1.0.0
 - `@molecule/api-payments-stripe` ^1.0.0
+- `@molecule/api-entitlements` ^1.0.0
+- `@molecule/api-middleware-validation` ^1.0.0
 - `@molecule/api-resource-payment` ^1.0.0
+- `@molecule/api-resource-user` ^1.0.0
 - `@molecule/api-search` ^1.0.0
 - `@molecule/api-search-meilisearch` ^1.0.0
 - `@molecule/api-uploads` ^1.0.0

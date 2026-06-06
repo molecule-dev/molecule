@@ -319,6 +319,7 @@ function unregister(webhookId: string): Promise<void>
 |----------|---------|
 | Webhook | `@molecule/api-webhook-http` |
 | Webhook | `@molecule/api-webhook-queue` |
+| Capture | `@molecule/api-webhook-capture` |
 
 ## Injection Notes
 

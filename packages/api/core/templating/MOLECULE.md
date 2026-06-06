@@ -19,7 +19,7 @@ setProvider(handlebars)
 const html = await render('Hello {{name}}!', { name: 'World' })
 
 const compiled = await compile('Hello {{name}}!')
-const fast = renderCompiled(compiled, { name: 'Fast' })
+const fast = await renderCompiled(compiled, { name: 'Fast' })
 ```
 
 ## Type
@@ -125,7 +125,7 @@ interface TemplateProvider {
    * @param data - Key-value pairs to inject into the template.
    * @returns The rendered output string.
    */
-  renderCompiled(compiled: CompiledTemplate, data: Record<string, unknown>): string
+  renderCompiled(compiled: CompiledTemplate, data: Record<string, unknown>): Promise<string>
 
   /**
    * Registers a named helper function available in all templates.
@@ -231,7 +231,7 @@ function render(template: string, data: Record<string, unknown>, options?: Rende
 Renders a previously compiled template with the provided data.
 
 ```typescript
-function renderCompiled(compiled: CompiledTemplate, data: Record<string, unknown>): string
+function renderCompiled(compiled: CompiledTemplate, data: Record<string, unknown>): Promise<string>
 ```
 
 - `compiled` — A compiled template from `compile()`.

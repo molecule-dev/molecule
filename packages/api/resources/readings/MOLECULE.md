@@ -123,19 +123,19 @@ const GRANULARITIES: readonly ["raw", "5min", "hour", "day"]
 #### `readingBulkSchema`
 
 ```typescript
-const readingBulkSchema: z.ZodObject<{ readings: z.ZodArray<z.ZodObject<{ sensor_id: z.ZodString; metric: z.ZodString; value: z.ZodNumber; unit: z.ZodOptional<z.ZodNullable<z.ZodString>>; recorded_at: z.ZodOptional<z.ZodString>; metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; }, "strip", z.ZodTypeAny, { sensor_id: string; metric: string; value: number; unit?: string | null | undefined; recorded_at?: string | undefined; metadata?: Record<string, unknown> | undefined; }, { sensor_id: string; metric: string; value: number; unit?: string | null | undefined; recorded_at?: string | undefined; metadata?: Record<string, unknown> | undefined; }>, "many">; }, "strip", z.ZodTypeAny, { readings: { sensor_id: string; metric: string; value: number; unit?: string | null | undefined; recorded_at?: string | undefined; metadata?: Record<string, unknown> | undefined; }[]; }, { readings: { sensor_id: string; metric: string; value: number; unit?: string | null | undefined; recorded_at?: string | undefined; metadata?: Record<string, unknown> | undefined; }[]; }>
+const readingBulkSchema: z.ZodObject<{ readings: z.ZodArray<z.ZodObject<{ sensor_id: z.ZodString; metric: z.ZodString; value: z.ZodNumber; unit: z.ZodOptional<z.ZodNullable<z.ZodString>>; recorded_at: z.ZodOptional<z.ZodString>; metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; }, z.core.$strip>>; }, z.core.$strip>
 ```
 
 #### `readingCreateSchema`
 
 ```typescript
-const readingCreateSchema: z.ZodObject<{ sensor_id: z.ZodString; metric: z.ZodString; value: z.ZodNumber; unit: z.ZodOptional<z.ZodNullable<z.ZodString>>; recorded_at: z.ZodOptional<z.ZodString>; metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; }, "strip", z.ZodTypeAny, { sensor_id: string; metric: string; value: number; unit?: string | null | undefined; recorded_at?: string | undefined; metadata?: Record<string, unknown> | undefined; }, { sensor_id: string; metric: string; value: number; unit?: string | null | undefined; recorded_at?: string | undefined; metadata?: Record<string, unknown> | undefined; }>
+const readingCreateSchema: z.ZodObject<{ sensor_id: z.ZodString; metric: z.ZodString; value: z.ZodNumber; unit: z.ZodOptional<z.ZodNullable<z.ZodString>>; recorded_at: z.ZodOptional<z.ZodString>; metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; }, z.core.$strip>
 ```
 
 #### `readingQuerySchema`
 
 ```typescript
-const readingQuerySchema: z.ZodObject<{ sensor_id: z.ZodOptional<z.ZodString>; metric: z.ZodOptional<z.ZodString>; from: z.ZodOptional<z.ZodString>; to: z.ZodOptional<z.ZodString>; granularity: z.ZodOptional<z.ZodEnum<["raw", "5min", "hour", "day"]>>; limit: z.ZodOptional<z.ZodNumber>; }, "strip", z.ZodTypeAny, { sensor_id?: string | undefined; metric?: string | undefined; from?: string | undefined; to?: string | undefined; granularity?: "raw" | "5min" | "hour" | "day" | undefined; limit?: number | undefined; }, { sensor_id?: string | undefined; metric?: string | undefined; from?: string | undefined; to?: string | undefined; granularity?: "raw" | "5min" | "hour" | "day" | undefined; limit?: number | undefined; }>
+const readingQuerySchema: z.ZodObject<{ sensor_id: z.ZodOptional<z.ZodString>; metric: z.ZodOptional<z.ZodString>; from: z.ZodOptional<z.ZodString>; to: z.ZodOptional<z.ZodString>; granularity: z.ZodOptional<z.ZodEnum<{ raw: "raw"; "5min": "5min"; hour: "hour"; day: "day"; }>>; limit: z.ZodOptional<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>
 ```
 
 ## Injection Notes

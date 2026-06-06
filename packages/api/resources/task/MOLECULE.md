@@ -151,19 +151,19 @@ function updateTaskForOwner(taskId: string, ownerId: string, patch: Partial<{ ti
 #### `reorderSchema`
 
 ```typescript
-const reorderSchema: z.ZodObject<{ tasks: z.ZodArray<z.ZodObject<{ id: z.ZodString; position: z.ZodNumber; }, "strip", z.ZodTypeAny, { position: number; id: string; }, { position: number; id: string; }>, "many">; }, "strip", z.ZodTypeAny, { tasks: { position: number; id: string; }[]; }, { tasks: { position: number; id: string; }[]; }>
+const reorderSchema: z.ZodObject<{ tasks: z.ZodArray<z.ZodObject<{ id: z.ZodString; position: z.ZodNumber; }, z.core.$strip>>; }, z.core.$strip>
 ```
 
 #### `taskCreateSchema`
 
 ```typescript
-const taskCreateSchema: z.ZodObject<{ title: z.ZodString; description: z.ZodOptional<z.ZodString>; parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; priority: z.ZodOptional<z.ZodNumber>; due_date: z.ZodOptional<z.ZodNullable<z.ZodString>>; due_time: z.ZodOptional<z.ZodNullable<z.ZodString>>; recurrence_rule: z.ZodOptional<z.ZodNullable<z.ZodString>>; position: z.ZodOptional<z.ZodNumber>; }, "strip", z.ZodTypeAny, { title: string; description?: string | undefined; parent_id?: string | null | undefined; priority?: number | undefined; due_date?: string | null | undefined; due_time?: string | null | undefined; recurrence_rule?: string | null | undefined; position?: number | undefined; }, { title: string; description?: string | undefined; parent_id?: string | null | undefined; priority?: number | undefined; due_date?: string | null | undefined; due_time?: string | null | undefined; recurrence_rule?: string | null | undefined; position?: number | undefined; }>
+const taskCreateSchema: z.ZodObject<{ title: z.ZodString; description: z.ZodOptional<z.ZodString>; parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; priority: z.ZodOptional<z.ZodNumber>; due_date: z.ZodOptional<z.ZodNullable<z.ZodString>>; due_time: z.ZodOptional<z.ZodNullable<z.ZodString>>; recurrence_rule: z.ZodOptional<z.ZodNullable<z.ZodString>>; position: z.ZodOptional<z.ZodNumber>; }, z.core.$strip>
 ```
 
 #### `taskListQuerySchema`
 
 ```typescript
-const taskListQuerySchema: z.ZodObject<{ parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; completed: z.ZodOptional<z.ZodBoolean>; due_date: z.ZodOptional<z.ZodString>; filter: z.ZodOptional<z.ZodEnum<["today", "upcoming"]>>; limit: z.ZodOptional<z.ZodNumber>; offset: z.ZodOptional<z.ZodNumber>; }, "strip", z.ZodTypeAny, { parent_id?: string | null | undefined; due_date?: string | undefined; filter?: "today" | "upcoming" | undefined; completed?: boolean | undefined; limit?: number | undefined; offset?: number | undefined; }, { parent_id?: string | null | undefined; due_date?: string | undefined; filter?: "today" | "upcoming" | undefined; completed?: boolean | undefined; limit?: number | undefined; offset?: number | undefined; }>
+const taskListQuerySchema: z.ZodObject<{ parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; completed: z.ZodOptional<z.ZodCoercedBoolean<unknown>>; due_date: z.ZodOptional<z.ZodString>; filter: z.ZodOptional<z.ZodEnum<{ today: "today"; upcoming: "upcoming"; }>>; limit: z.ZodOptional<z.ZodCoercedNumber<unknown>>; offset: z.ZodOptional<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>
 ```
 
 #### `taskRouter`
@@ -175,7 +175,7 @@ const taskRouter: Router
 #### `taskUpdateSchema`
 
 ```typescript
-const taskUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodOptional<z.ZodString>>; parent_id: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; priority: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; due_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; due_time: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; recurrence_rule: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; position: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; } & { is_completed: z.ZodOptional<z.ZodBoolean>; }, "strip", z.ZodTypeAny, { title?: string | undefined; description?: string | undefined; parent_id?: string | null | undefined; priority?: number | undefined; due_date?: string | null | undefined; due_time?: string | null | undefined; recurrence_rule?: string | null | undefined; position?: number | undefined; is_completed?: boolean | undefined; }, { title?: string | undefined; description?: string | undefined; parent_id?: string | null | undefined; priority?: number | undefined; due_date?: string | null | undefined; due_time?: string | null | undefined; recurrence_rule?: string | null | undefined; position?: number | undefined; is_completed?: boolean | undefined; }>
+const taskUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodOptional<z.ZodString>>; parent_id: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; priority: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; due_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; due_time: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; recurrence_rule: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; position: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; is_completed: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
 ```
 
 ## Injection Notes

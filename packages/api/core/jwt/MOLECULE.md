@@ -278,7 +278,7 @@ Throws at startup if neither source provides a key — running with an
 empty secret would allow anyone to forge valid JWTs.
 
 ```typescript
-const JWT_PRIVATE_KEY: string | NonSharedBuffer
+const JWT_PRIVATE_KEY: string | Buffer<ArrayBufferLike>
 ```
 
 #### `JWT_PUBLIC_KEY`
@@ -289,7 +289,7 @@ environment variable, or loaded from the PEM file on disk.
 Throws at startup if neither source provides a key.
 
 ```typescript
-const JWT_PUBLIC_KEY: string | NonSharedBuffer
+const JWT_PUBLIC_KEY: string | Buffer<ArrayBufferLike>
 ```
 
 #### `JWT_REFRESH_TIME`

@@ -12,6 +12,26 @@ npm install @molecule/api-resource-device
 
 ## API
 
+### Interfaces
+
+#### `DeviceRequestHandlerMap`
+
+Shape of the device request-handler map produced by `createRequestHandlerMap`.
+Names match the route definitions in `routes.ts`. Exported so helpers that
+accept the map (e.g. `mountDefaultDeviceRoutes`) can type their parameter
+precisely instead of widening to `Record<string, MoleculeRequestHandler>`.
+
+```typescript
+interface DeviceRequestHandlerMap {
+  auth: MoleculeRequestHandler
+  authUser: MoleculeRequestHandler
+  del: MoleculeRequestHandler
+  query: MoleculeRequestHandler
+  read: MoleculeRequestHandler
+  update: MoleculeRequestHandler
+}
+```
+
 ### Types
 
 #### `APNPushSubscription`
@@ -79,12 +99,12 @@ route definitions) to Express middleware: `auth`, `authUser` (authorizers), and 
 `read`, `update` (CRUD handlers).
 
 ```typescript
-function createRequestHandlerMap(createRequestHandler: (handler: Handler) => (req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction) => Promise<void>): Record<string, MoleculeRequestHandler>
+function createRequestHandlerMap(createRequestHandler: (handler: Handler) => (req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction) => Promise<void>): DeviceRequestHandlerMap
 ```
 
 - `createRequestHandler` — Factory from `@molecule/api-resource` that wraps handler configs into Express middleware.
 
-**Returns:** A record mapping handler names to Express middleware functions.
+**Returns:** A `DeviceRequestHandlerMap` of handler names to Express middleware.
 
 ### Constants
 

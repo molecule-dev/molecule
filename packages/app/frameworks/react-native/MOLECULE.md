@@ -38,6 +38,13 @@ interface AuthClient<T = UserProfile> {
      */
     getUser(): T | null;
     /**
+     * Updates the cached user object (state + persistent storage) without
+     * hitting the network. Intended for local refreshes after a per-app
+     * mutation (e.g., the user just PATCHed their own profile and the
+     * server returned the canonical row). Does NOT change tokens.
+     */
+    setUser(user: T | null): void;
+    /**
      * Gets the current access token.
      */
     getAccessToken(): string | null;
@@ -559,6 +566,22 @@ interface RouterProviderProps extends ProviderProps {
 }
 ```
 
+#### `SendMessageOptions`
+
+Options for {@link UseChatResult.sendMessage}.
+
+```typescript
+interface SendMessageOptions {
+    /**
+     * Skip the optimistic local user-message bubble. The text is still sent to
+     * the server. Used for ask_user responses: the answer is folded into the
+     * ask_user tool card (a checkmark on the chosen option, or the custom text
+     * shown in-card) rather than echoed as a separate message below it.
+     */
+    suppressUserMessage?: boolean;
+}
+```
+
 #### `StateProviderProps`
 
 Props for state provider component.
@@ -658,6 +681,23 @@ interface ThemeProviderProps extends ProviderProps {
 }
 ```
 
+#### `UseAIModelsResult`
+
+Result returned by `useAIModels`.
+
+```typescript
+interface UseAIModelsResult {
+    /** Available models, or an empty array while loading. */
+    models: AppModelDefinition[];
+    /** The single model marked `freeTier: true`, or `undefined`. */
+    freeTierModel: AppModelDefinition | undefined;
+    /** `true` while the initial fetch is in flight. */
+    loading: boolean;
+    /** Error from the initial fetch, or `null`. */
+    error: Error | null;
+}
+```
+
 #### `UseAppStateResult`
 
 Result from the useAppState hook.
@@ -695,6 +735,7 @@ interface UseAuthResult<T = unknown> {
     logout: AuthClient<T>['logout'];
     register: AuthClient<T>['register'];
     refresh: AuthClient<T>['refresh'];
+    setUser: AuthClient<T>['setUser'];
     isAuthenticated: boolean;
     isLoading: boolean;
     user: T | null;
@@ -766,7 +807,7 @@ interface UseChatResult {
     mode: 'plan' | 'execute';
     /** Update the local mode state (for instant mode toggle without an AI turn). */
     setMode: (mode: 'plan' | 'execute') => void;
-    sendMessage: (message: string, attachments?: ChatAttachment[]) => Promise<void>;
+    sendMessage: (message: string, attachments?: ChatAttachment[], options?: SendMessageOptions) => Promise<void>;
     abort: () => void;
     clearHistory: () => Promise<void>;
     /** Edit the content of a queued (not yet sent) message. */
@@ -1338,6 +1379,25 @@ function PreviewProvider({ provider, children }: PreviewProviderProps): React.Re
 
 **Returns:** The rendered preview provider element.
 
+#### `resetAIModelsCache()`
+
+Test-only: drops the cached model list so the next `useAIModels` call
+refetches. Exposed for unit tests; do not call from production code.
+
+```typescript
+function resetAIModelsCache(): void
+```
+
+#### `resetChatStoresForTests()`
+
+Test-only: clear all conversation stores. The store is module-level (it must
+outlive component mounts), so it persists across test cases — reset it in a
+`beforeEach` the same way tests clear `sessionStorage`.
+
+```typescript
+function resetChatStoresForTests(): void
+```
+
 #### `RouterProvider(root0, root0, root0)`
 
 Provider for routing.
@@ -1393,6 +1453,17 @@ function ThemeProvider({ provider, children }: ThemeProviderProps): React.ReactE
 - `root0` — .children - The child elements to render.
 
 **Returns:** The rendered theme provider element.
+
+#### `useAIModels()`
+
+Subscribes to the cached AI model catalog. The first mount triggers a single
+`GET /ai/models` fetch; subsequent mounts return the cached result.
+
+```typescript
+function useAIModels(): UseAIModelsResult
+```
+
+**Returns:** Models, free-tier model, loading flag, and error.
 
 #### `useAppState()`
 

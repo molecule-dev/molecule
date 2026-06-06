@@ -58,3 +58,7 @@ Implements `@molecule/api-ai-translation` interface.
 
 Peer dependencies:
 - `@molecule/api-ai-translation` >=1.0.0
+
+### Environment Variables
+
+- `DEEPL_API_KEY` *(required)*

@@ -157,19 +157,19 @@ const slugRegex: RegExp
 #### `wikiPageCreateSchema`
 
 ```typescript
-const wikiPageCreateSchema: z.ZodObject<{ space_id: z.ZodString; parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; slug: z.ZodOptional<z.ZodString>; title: z.ZodString; body: z.ZodOptional<z.ZodString>; position: z.ZodOptional<z.ZodNumber>; is_published: z.ZodOptional<z.ZodBoolean>; }, "strip", z.ZodTypeAny, { space_id: string; title: string; parent_id?: string | null | undefined; slug?: string | undefined; body?: string | undefined; position?: number | undefined; is_published?: boolean | undefined; }, { space_id: string; title: string; parent_id?: string | null | undefined; slug?: string | undefined; body?: string | undefined; position?: number | undefined; is_published?: boolean | undefined; }>
+const wikiPageCreateSchema: z.ZodObject<{ space_id: z.ZodString; parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; slug: z.ZodOptional<z.ZodString>; title: z.ZodString; body: z.ZodOptional<z.ZodString>; position: z.ZodOptional<z.ZodNumber>; is_published: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
 ```
 
 #### `wikiPageQuerySchema`
 
 ```typescript
-const wikiPageQuerySchema: z.ZodObject<{ space_id: z.ZodOptional<z.ZodString>; parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; is_published: z.ZodOptional<z.ZodBoolean>; q: z.ZodOptional<z.ZodString>; }, "strip", z.ZodTypeAny, { space_id?: string | undefined; parent_id?: string | null | undefined; is_published?: boolean | undefined; q?: string | undefined; }, { space_id?: string | undefined; parent_id?: string | null | undefined; is_published?: boolean | undefined; q?: string | undefined; }>
+const wikiPageQuerySchema: z.ZodObject<{ space_id: z.ZodOptional<z.ZodString>; parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; is_published: z.ZodOptional<z.ZodCoercedBoolean<unknown>>; q: z.ZodOptional<z.ZodString>; }, z.core.$strip>
 ```
 
 #### `wikiPageUpdateSchema`
 
 ```typescript
-const wikiPageUpdateSchema: z.ZodObject<{ parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; slug: z.ZodOptional<z.ZodString>; title: z.ZodOptional<z.ZodString>; body: z.ZodOptional<z.ZodString>; position: z.ZodOptional<z.ZodNumber>; is_published: z.ZodOptional<z.ZodBoolean>; }, "strip", z.ZodTypeAny, { parent_id?: string | null | undefined; slug?: string | undefined; title?: string | undefined; body?: string | undefined; position?: number | undefined; is_published?: boolean | undefined; }, { parent_id?: string | null | undefined; slug?: string | undefined; title?: string | undefined; body?: string | undefined; position?: number | undefined; is_published?: boolean | undefined; }>
+const wikiPageUpdateSchema: z.ZodObject<{ parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; slug: z.ZodOptional<z.ZodString>; title: z.ZodOptional<z.ZodString>; body: z.ZodOptional<z.ZodString>; position: z.ZodOptional<z.ZodNumber>; is_published: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
 ```
 
 ## Injection Notes
@@ -181,6 +181,7 @@ Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-middleware-validation` ^1.0.0
+- `@molecule/api-search` ^1.0.0
 - `express` ^5.0.0
 - `zod` ^4.0.0
 

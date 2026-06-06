@@ -116,15 +116,9 @@ interface EmailTransport {
 
 #### `sendMail(message)`
 
-Sends an email through the Mailgun API via nodemailer.
-
 ```typescript
 function sendMail(message: EmailMessage): Promise<EmailSendResult>
 ```
-
-- `message` — The email message (to, from, subject, text/html, attachments).
-
-**Returns:** Send result with accepted/rejected addresses and message ID.
 
 ### Constants
 

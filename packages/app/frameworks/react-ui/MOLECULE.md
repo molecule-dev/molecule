@@ -1370,6 +1370,7 @@ function cn(inputs?: (string | false | null | undefined)[]): string
 Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-icons` ^1.0.0
+- `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-dom` ^18.0.0 || ^19.0.0

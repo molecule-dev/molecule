@@ -388,6 +388,58 @@ function setClient(client: HttpClient): void
 
 - `client` — The HTTP client implementation to bond.
 
+#### `unwrapList(res)`
+
+Normalize an unknown response body into a typed array.
+
+Accepts:
+  - a bare array → returned as-is (cast)
+  - `{ data: T[] }` envelope → the inner array
+  - `HttpResponse<T[]>` (i.e. `{ data: T[], status, ... }`) → the inner array
+  - `HttpResponse<{ data: T[] }>` (the response of an envelope-returning
+    endpoint as it arrives from `@molecule/app-http`'s `HttpClient`) → the
+    doubly-nested inner array
+  - anything else → `[]`
+
+Callers commonly pass either the raw JSON body (e.g. from `fetch().then(r =>
+r.json())`) or the `HttpResponse` returned by `useHttpClient().get(...)`.
+Both shapes are handled here so pages don't have to remember to call
+`unwrapList(res.data)` vs `unwrapList(res)`.
+
+```typescript
+function unwrapList(res: unknown): T[]
+```
+
+- `res` — Raw response body OR an `HttpResponse` envelope from `@molecule/app-http`.
+
+**Returns:** A typed array `T[]`; never `null`/`undefined`.
+
+#### `unwrapSingle(res)`
+
+Normalize an unknown response body into a single typed resource.
+
+Accepts:
+  - a non-empty plain object → returned as-is (cast)
+  - `{ data: T }` envelope → the inner value
+  - `{ data: null }`, `{ data: undefined }`, `{ data: [] }`, or
+    `{ data: {} }` (mock-server's no-match shape) → `null`
+  - an empty object `{}` → `null`
+  - arrays, primitives, `null`, `undefined` → `null`
+
+The "envelope contains an array → null" branch handles the case
+where the mock server returns `[]` for unmatched endpoints but the
+caller expects a single resource.
+
+```typescript
+function unwrapSingle(res: unknown): T | null
+```
+
+- `res` — Raw response body (e.g. `HttpResponse.data` from `@molecule/app-http`).
+
+**Returns:** The typed resource `T`, or `null` when the response shape
+ *   indicates "no resource" (including the various empty envelopes
+ *   above).
+
 ### Constants
 
 #### `fetchClient`

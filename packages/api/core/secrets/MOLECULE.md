@@ -481,6 +481,7 @@ const COMMON_SECRETS: Record<string, SecretDefinition>
 | Provider | Package |
 |----------|---------|
 | Doppler | `@molecule/api-secrets-doppler` |
+| Molecule Vault | `@molecule/api-secrets-molecule` |
 | Environment Variables | `@molecule/api-secrets-env` |
 
 ## Injection Notes
