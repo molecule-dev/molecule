@@ -12,6 +12,14 @@ import type { MapConfig, MapInstance, MapProvider } from './types.js'
 const BOND_TYPE = 'maps'
 
 /**
+ * Default map provider — the built-in simple provider. Exported so apps can wire
+ * it with `bond('maps', provider)` (equivalent to `setProvider`), matching the
+ * convention of other bondable feature packages (e.g. `@molecule/app-data-table-*`).
+ * Bond a richer `MapProvider` instead to replace it.
+ */
+export const provider: MapProvider = createSimpleMapProvider()
+
+/**
  * Set the map provider.
  * @param provider - MapProvider implementation to register.
  */

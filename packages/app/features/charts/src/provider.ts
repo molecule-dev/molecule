@@ -12,6 +12,14 @@ import type { ChartConfig, ChartInstance, ChartProvider } from './types.js'
 const BOND_TYPE = 'charts'
 
 /**
+ * Default chart provider — the built-in simple provider. Exported so apps can
+ * wire it with `bond('charts', provider)` (equivalent to `setProvider`), matching
+ * the convention of other bondable feature packages (e.g. `@molecule/app-data-table-*`).
+ * Bond a richer `ChartProvider` instead to replace it.
+ */
+export const provider: ChartProvider = createSimpleChartProvider()
+
+/**
  * Sets the chart provider.
  * @param provider - The chart provider implementation to bond.
  */
