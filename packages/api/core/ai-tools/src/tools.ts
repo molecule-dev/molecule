@@ -191,10 +191,15 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       let replacements = input.replacements as
         | Array<{ old_string: string; new_string: string }>
         | undefined
-      if (!replacements?.length && input.old_string && input.new_string) {
-        replacements = [
-          { old_string: input.old_string as string, new_string: input.new_string as string },
-        ]
+      // Accept the single format when BOTH are strings — `typeof` (not truthy) so
+      // a deletion (new_string: "") is honoured rather than falling through to
+      // "No replacements provided".
+      if (
+        !replacements?.length &&
+        typeof input.old_string === 'string' &&
+        typeof input.new_string === 'string'
+      ) {
+        replacements = [{ old_string: input.old_string, new_string: input.new_string }]
       }
       if (!replacements?.length)
         return {
@@ -208,6 +213,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         const oldContent = content
 
         for (const { old_string: oldString, new_string: newString } of replacements) {
+          // Validate each replacement is well-formed BEFORE touching content. A
+          // weak model sometimes emits a batch element missing a field or with a
+          // non-string value; left unchecked that either crashes (`undefined`
+          // method access) or silently inserts the literal "undefined" (a missing
+          // new_string). Fail fast with an actionable message instead.
+          if (typeof oldString !== 'string' || oldString === '' || typeof newString !== 'string') {
+            return {
+              error: `edit_file: each replacement needs a non-empty string old_string and a string new_string (got old_string: ${oldString === '' ? 'empty' : typeof oldString}, new_string: ${typeof newString}). To delete text, pass new_string: "".`,
+            }
+          }
           const count = content.split(oldString).length - 1
           if (count === 0) {
             // A bare "old_string not found" gives the model nothing to correct, so

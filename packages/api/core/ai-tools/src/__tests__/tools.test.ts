@@ -170,6 +170,44 @@ describe('buildTools', () => {
     expect(result.replacementsApplied).toBe(2)
   })
 
+  it('edit_file rejects a batch element missing new_string (no silent "undefined" insert)', async () => {
+    const backend = mockBackend()
+    let written: string | null = null
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('aaa bbb')
+    ;(backend.writeFile as ReturnType<typeof vi.fn>).mockImplementation(
+      async (_p: string, c: string) => {
+        written = c
+      },
+    )
+    const tools = buildTools(backend)
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/file.ts',
+      replacements: [{ old_string: 'aaa' }], // new_string omitted
+    })) as Record<string, unknown>
+    expect(result.error).toMatch(/new_string/)
+    expect(written).toBeNull() // nothing written — fails fast, no corruption
+  })
+
+  it('edit_file allows new_string: "" (deletion) but rejects empty old_string', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('keep DELETE keep')
+    const tools = buildTools(backend)
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const del = (await editFile.execute({
+      path: '/test/file.ts',
+      old_string: 'DELETE ',
+      new_string: '',
+    })) as Record<string, unknown>
+    expect(del.ok).toBe(true)
+    const empty = (await editFile.execute({
+      path: '/test/file.ts',
+      old_string: '',
+      new_string: 'x',
+    })) as Record<string, unknown>
+    expect(empty.error).toMatch(/non-empty string old_string/)
+  })
+
   it('edit_file auto-applies a UNIQUE whitespace-only mismatch (rescues indentation churn)', async () => {
     const backend = mockBackend()
     // Extra spaces — exact match fails, but a unique normalized line-run matches,
