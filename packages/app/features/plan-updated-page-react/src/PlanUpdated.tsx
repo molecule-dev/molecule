@@ -5,6 +5,27 @@ import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-react'
 
 /**
+ * Props for {@link PlanUpdated}. All optional — defaults reproduce the original
+ * hardcoded copy, so existing `<PlanUpdated />` usages are unchanged.
+ */
+interface PlanUpdatedProps {
+  /** i18n key for the confirmation message. */
+  messageKey?: string
+  /** Default confirmation message when the key is missing. */
+  messageDefault?: string
+  /** i18n key for the thank-you line. */
+  thankYouKey?: string
+  /** Default thank-you line when the key is missing. */
+  thankYouDefault?: string
+  /** i18n key for the return-home action label. */
+  actionKey?: string
+  /** Default action label when the key is missing. */
+  actionDefault?: string
+  /** Href the return-home action navigates to. Defaults to `/`. */
+  actionHref?: string
+}
+
+/**
  * Post-purchase confirmation page rendered after a plan upgrade.
  *
  * Reads auth state via `useAuth`; while it's still initializing, shows
@@ -18,8 +39,27 @@ import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-react'
  * to declare them locally. Visual layout uses only ClassMap tokens so
  * it inherits the app's theme (radius, color tokens, spacing) with no
  * per-app override.
+ *
+ * @param root0 - Optional copy/navigation overrides (all default to the
+ *   universal common-locale keys + sensible English fallbacks).
+ * @param root0.messageKey - i18n key for the confirmation message.
+ * @param root0.messageDefault - Default confirmation message.
+ * @param root0.thankYouKey - i18n key for the thank-you line.
+ * @param root0.thankYouDefault - Default thank-you line.
+ * @param root0.actionKey - i18n key for the return-home action label.
+ * @param root0.actionDefault - Default action label.
+ * @param root0.actionHref - Href the return-home action navigates to.
+ * @returns The plan-updated confirmation page element.
  */
-export function PlanUpdated() {
+export function PlanUpdated({
+  messageKey = 'planUpdated.message',
+  messageDefault = 'Your plan has been updated.',
+  thankYouKey = 'planUpdated.thankYou',
+  thankYouDefault = 'Thank you!',
+  actionKey = 'planUpdated.returnHome',
+  actionDefault = 'Return home',
+  actionHref = '/',
+}: PlanUpdatedProps = {}): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const { state } = useAuth()
@@ -65,22 +105,22 @@ export function PlanUpdated() {
         style={{ fontFamily: 'var(--font-headline, inherit)' }}
         data-mol-id="plan-updated-heading"
       >
-        {t('planUpdated.message')}
+        {t(messageKey, {}, { defaultValue: messageDefault })}
       </h2>
       <h2
         className={cm.cn(cm.textSize('lg'), cm.fontWeight('normal'), cm.textMuted, cm.sp('mb', 10))}
         data-mol-id="plan-updated-subheading"
       >
-        {t('planUpdated.thankYou')}
+        {t(thankYouKey, {}, { defaultValue: thankYouDefault })}
       </h2>
-      <Link to="/">
+      <Link to={actionHref}>
         <Button
           variant="solid"
           size="lg"
           className={cm.cn(cm.gradientPrimary, cm.uppercase, cm.trackingWide)}
           data-mol-id="plan-updated-return-home"
         >
-          {t('planUpdated.returnHome')}
+          {t(actionKey, {}, { defaultValue: actionDefault })}
         </Button>
       </Link>
       <div className={cm.sp('mt', 6)}>
