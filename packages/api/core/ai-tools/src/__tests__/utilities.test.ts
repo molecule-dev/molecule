@@ -8,6 +8,7 @@ import {
   shellQuote,
   stripControlChars,
   truncate,
+  whitespaceTolerantReplace,
 } from '../utilities.js'
 
 describe('shellQuote', () => {
@@ -221,5 +222,45 @@ describe('truncate', () => {
   it('handles maxLength = 0', () => {
     const out = truncate('hello', 0)
     expect(out).toContain('(truncated)')
+  })
+})
+
+describe('whitespaceTolerantReplace', () => {
+  const file = ['function f() {', '    const x = 1', '    return x', '}', ''].join('\n')
+
+  it('applies an edit when only indentation differs (unique match)', () => {
+    // old_string uses 2-space indent; file uses 4-space — exact match would fail.
+    const out = whitespaceTolerantReplace(file, '  const x = 1\n  return x', '  return 2')
+    expect(out).toBe(['function f() {', '  return 2', '}', ''].join('\n'))
+  })
+
+  it('tolerates trailing whitespace differences', () => {
+    const f = 'const a = 1   \nconst b = 2'
+    const out = whitespaceTolerantReplace(f, 'const a = 1', 'const a = 99')
+    expect(out).toBe('const a = 99\nconst b = 2')
+  })
+
+  it('refuses an ambiguous match (returns null)', () => {
+    const f = ['x()', 'x()', 'y()'].join('\n')
+    expect(whitespaceTolerantReplace(f, 'x()', 'z()')).toBeNull()
+  })
+
+  it('returns null when no line-run matches even normalized', () => {
+    expect(whitespaceTolerantReplace(file, 'const y = 9', 'const y = 0')).toBeNull()
+  })
+
+  it('refuses a degenerate all-blank search block', () => {
+    expect(whitespaceTolerantReplace('a\n\nb', '   \n\t', 'x')).toBeNull()
+  })
+
+  it('preserves surrounding lines exactly (only the matched run changes)', () => {
+    const f = ['header', '   target line', 'footer'].join('\n')
+    const out = whitespaceTolerantReplace(f, 'target line', 'new line')
+    expect(out).toBe(['header', 'new line', 'footer'].join('\n'))
+  })
+
+  it('applies a multi-line replacement verbatim', () => {
+    const out = whitespaceTolerantReplace(file, '  return x', 'const y = x\n  return y')
+    expect(out).toContain('const y = x\n  return y')
   })
 })

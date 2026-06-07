@@ -24,6 +24,7 @@ import {
   shellQuote,
   stripControlChars,
   truncate,
+  whitespaceTolerantReplace,
 } from './utilities.js'
 
 /**
@@ -219,12 +220,20 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               }
             }
             // Whitespace-only mismatch: the text is there but indentation/spacing
-            // differs (tabs vs spaces, trailing whitespace, blank lines).
+            // differs (tabs vs spaces, trailing whitespace). If a UNIQUE line-run
+            // matches ignoring per-line whitespace, APPLY it instead of bouncing
+            // the (weak) executor into a re-read/retry loop — the #1 edit_file
+            // churn source. Uniqueness keeps this safe; ambiguous matches error.
+            const fuzzy = whitespaceTolerantReplace(content, oldString, newString)
+            if (fuzzy !== null) {
+              content = fuzzy
+              continue
+            }
             const normalize = (s: string): string => s.replace(/\s+/g, ' ').trim()
             const normOld = normalize(oldString)
             if (normOld && normalize(content).includes(normOld)) {
               return {
-                error: `old_string not found in ${path} — a match exists but whitespace/indentation differs. Re-read the file and copy the exact text (tabs vs spaces, trailing spaces, blank lines must match).`,
+                error: `old_string not found in ${path} — a match exists but whitespace/indentation differs and is not unique enough to apply automatically. Re-read the file and copy the exact text (tabs vs spaces, trailing spaces, blank lines must match), or include more surrounding context.`,
               }
             }
             // Anchor probe: if old_string's first non-blank line exists in the file,

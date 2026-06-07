@@ -170,16 +170,39 @@ describe('buildTools', () => {
     expect(result.replacementsApplied).toBe(2)
   })
 
-  it('edit_file flags a whitespace-only mismatch instead of a bare not-found', async () => {
+  it('edit_file auto-applies a UNIQUE whitespace-only mismatch (rescues indentation churn)', async () => {
     const backend = mockBackend()
-    // Extra internal spaces — exact match fails, normalized match succeeds.
+    // Extra spaces — exact match fails, but a unique normalized line-run matches,
+    // so the edit is applied instead of bouncing the model into a re-read loop.
+    let written = ''
     ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('  hello   world  ')
+    ;(backend.writeFile as ReturnType<typeof vi.fn>).mockImplementation(
+      async (_p: string, c: string) => {
+        written = c
+      },
+    )
     const tools = buildTools(backend)
     const editFile = tools.find((t) => t.name === 'edit_file')!
     const result = (await editFile.execute({
       path: '/test/file.ts',
       old_string: 'hello world',
       new_string: 'hi world',
+    })) as Record<string, unknown>
+    expect(result.ok).toBe(true)
+    expect(written).toBe('hi world')
+  })
+
+  it('edit_file still errors on an AMBIGUOUS whitespace mismatch (not unique)', async () => {
+    const backend = mockBackend()
+    // old_string (4-space indent) matches neither line exactly, but normalizes to
+    // BOTH — ambiguous, so it must NOT be auto-applied.
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('\ttarget()\n  target()')
+    const tools = buildTools(backend)
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/file.ts',
+      old_string: '    target()',
+      new_string: 'x()',
     })) as Record<string, unknown>
     expect(result.ok).toBeUndefined()
     expect(result.error).toMatch(/whitespace\/indentation differs/i)

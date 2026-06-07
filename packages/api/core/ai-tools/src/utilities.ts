@@ -141,3 +141,53 @@ export function truncate(s: string, maxLength: number): string {
   if (s.length <= maxLength) return s
   return s.substring(0, maxLength) + '\n\n... (truncated)'
 }
+
+/**
+ * Attempt a whitespace-tolerant replacement when an exact `old_string` match
+ * failed. Finds a contiguous run of lines in `content` whose per-line
+ * whitespace-normalized form (runs of whitespace collapsed to one space, then
+ * trimmed) equals the normalized `oldString` lines, and replaces that run with
+ * `newString` verbatim. Applies ONLY when exactly one such run exists —
+ * uniqueness keeps it safe; an ambiguous (or zero) match is refused (returns
+ * null) so the caller falls back to its existing error path.
+ *
+ * This rescues the most common edit_file failure: a (weak) executor reproduces
+ * the target text correctly but with different indentation or trailing
+ * whitespace, which would otherwise bounce it into a re-read/retry loop — the
+ * single biggest source of wasted edit turns.
+ *
+ * @param content - Current file content.
+ * @param oldString - The search text (an exact match has already failed).
+ * @param newString - The replacement text, applied verbatim.
+ * @returns The new content if a unique fuzzy run matched, else null.
+ */
+export function whitespaceTolerantReplace(
+  content: string,
+  oldString: string,
+  newString: string,
+): string | null {
+  const norm = (s: string): string => s.replace(/\s+/g, ' ').trim()
+  const fileLines = content.split('\n')
+  const normOld = oldString.split('\n').map(norm)
+  // Refuse a degenerate all-blank search block (would match any blank run).
+  if (normOld.length === 0 || normOld.every((l) => l === '')) return null
+  const matches: number[] = []
+  for (let i = 0; i + normOld.length <= fileLines.length; i++) {
+    let ok = true
+    for (let j = 0; j < normOld.length; j++) {
+      if (norm(fileLines[i + j]) !== normOld[j]) {
+        ok = false
+        break
+      }
+    }
+    if (ok) {
+      matches.push(i)
+      if (matches.length > 1) return null // ambiguous — refuse
+    }
+  }
+  if (matches.length !== 1) return null
+  const start = matches[0]
+  return [...fileLines.slice(0, start), newString, ...fileLines.slice(start + normOld.length)].join(
+    '\n',
+  )
+}
