@@ -140,6 +140,7 @@ Sorted by: `node:` builtins → external packages → `@molecule/*` → relative
 11. Unpinned dependency versions (`^1.0.0` or `~2.3.0` instead of exact `1.0.0`)
 12. Inline styles that override ClassMap classes (e.g., `style={{ background: 'transparent' }}` silently kills `cm.surface`)
 13. Using ClassMap classes without checking their definitions in the bond package first
+14. Baking consumer-specific stream events or cards into a shared package. App-specific chat/stream events (e.g. molecule.dev's `build_degraded` upgrade notice) must NOT be added to the core `@molecule/app-ai-chat` event union or hardcoded in `@molecule/app-ide-react`'s ChatPanel. Use the generic `{ type: 'custom', name, data }` event + the `registerCustomEventCard(name, factory)` registry, and implement the specifics in the consuming app (e.g. `molecule-dev/`). The shared package stays generic; only the app knows about its own events. Same test as the Decoupling Principle: "would a *different* app using this package ever want this exact event/card?" If no, it belongs in the app, not the package.
 
 ---
 

@@ -30,6 +30,7 @@ import { t } from '@molecule/app-i18n'
 import { useAIModels, useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+import { getCustomEventCardFactory } from '../customEventCards.js'
 import type { ChatPanelProps, IdeClientAction } from '../types.js'
 import type { Activity } from './activity-utilities.js'
 import { activityFromEvent } from './activity-utilities.js'
@@ -2007,6 +2008,15 @@ function ChatInner({
           label: t('upgrade.viewPlans', undefined, { defaultValue: 'Upgrade' }),
           href: '/pricing',
         })
+      }
+      // App-specific custom event: look up a renderer the host app registered via
+      // registerCustomEventCard and surface it as a system card. Keeps app-specific
+      // events (e.g. a host app's build/billing notices) out of this shared component.
+      if (event.type === 'custom') {
+        const card = getCustomEventCardFactory(event.name as string)?.(
+          event.data as Record<string, unknown> | undefined,
+        )
+        if (card) addSystemCardRef.current(card.text, card.action)
       }
       // Periodic sign-up reminder for anonymous users in chat history.
       // Suppressed during discovery — see suppressGuestReminder.

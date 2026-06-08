@@ -175,6 +175,12 @@ export type ChatStreamEvent =
     }
   | { type: 'resource_limit'; resource: 'memory'; message: string }
   | { type: 'upgrade_prompt'; feature: string; message: string }
+  // Generic extension point for app-specific stream events the SHARED package knows
+  // nothing about. A consuming app emits `{ type: 'custom', name, data }` and (for
+  // the react IDE) registers a renderer via `registerCustomEventCard(name, …)` from
+  // `@molecule/app-ide-react` to surface it as a chat card. Keeps app-specific events
+  // (e.g. a host app's build/billing notices) OUT of this core union.
+  | { type: 'custom'; name: string; data?: Record<string, unknown> }
   | {
       type: 'activity'
       activity: {
