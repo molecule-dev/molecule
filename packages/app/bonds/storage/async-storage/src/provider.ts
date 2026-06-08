@@ -50,7 +50,7 @@ async function getAsyncStorage(): Promise<AsyncStorageAPI> {
     const storage = (mod.default ?? mod) as AsyncStorageAPI
     resolvedAsyncStorage = storage
     return storage
-  } catch {
+  } catch (error) {
     throw new Error(
       t(
         'storage.error.asyncStorageUnavailable',
@@ -60,6 +60,7 @@ async function getAsyncStorage(): Promise<AsyncStorageAPI> {
             '@react-native-async-storage/async-storage is not installed. Install it with: npm install @react-native-async-storage/async-storage',
         },
       ),
+      { cause: error },
     )
   }
 }

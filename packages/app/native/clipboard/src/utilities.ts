@@ -36,7 +36,9 @@ export async function copyTextWithFallback(text: string): Promise<boolean> {
     }
 
     return false
-  } catch {
+  } catch (_error) {
+    // Clipboard write can fail due to missing permissions or unsupported environment;
+    // returning false is the documented contract and the caller decides how to handle it.
     return false
   }
 }
@@ -50,7 +52,9 @@ export async function isTextInClipboard(text: string): Promise<boolean> {
   try {
     const clipboardText = await readText()
     return clipboardText === text
-  } catch {
+  } catch (_error) {
+    // Clipboard read can fail due to missing permissions or unsupported environment;
+    // returning false is the documented contract and the caller decides how to handle it.
     return false
   }
 }

@@ -52,7 +52,9 @@ export const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
             <h1 className={cm.pageHeaderTitle}>{title}</h1>
             {description && <p className={cm.pageHeaderDescription}>{description}</p>}
           </div>
-          {actions ? <div className={cm.pageHeaderActions}>{actions as React.ReactNode}</div> : null}
+          {actions ? (
+            <div className={cm.pageHeaderActions}>{actions as React.ReactNode}</div>
+          ) : null}
         </div>
       </div>
     )

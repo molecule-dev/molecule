@@ -12,7 +12,6 @@
 // Register Angular's JIT compiler facade before any @Component class loads —
 // evaluating the decorators otherwise throws "needs the JIT compiler".
 import '@angular/compiler'
-
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({

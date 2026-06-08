@@ -36,13 +36,14 @@ async function getReactNativeStatusBar(): Promise<RNStatusBar> {
     // @ts-expect-error — react-native is a peer dependency loaded at runtime
     const RN = (await import('react-native')) as unknown as { StatusBar: RNStatusBar }
     return RN.StatusBar
-  } catch {
+  } catch (error) {
     throw new Error(
       t(
         'statusBar.error.missingDependency',
         { library: 'react-native' },
         { defaultValue: 'react-native is required but not installed.' },
       ),
+      { cause: error },
     )
   }
 }

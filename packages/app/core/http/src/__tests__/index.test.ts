@@ -721,8 +721,8 @@ describe('@molecule/app-http', () => {
 
       try {
         await client.get('/protected')
-      } catch {
-        // Expected error
+      } catch (_error) {
+        // Expected: the 401 always throws an HttpError; this test only asserts on handler call counts, not the error itself.
       }
 
       expect(handler1).toHaveBeenCalledTimes(1)
@@ -743,8 +743,8 @@ describe('@molecule/app-http', () => {
 
       try {
         await client.get('/protected')
-      } catch {
-        // Expected error
+      } catch (_error) {
+        // Expected: the 401 always throws an HttpError; this test only asserts on handler subscription state, not the error itself.
       }
 
       expect(handler1).not.toHaveBeenCalled()

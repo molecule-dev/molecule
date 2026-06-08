@@ -57,8 +57,10 @@ export function useKeyboardHeight(): UseKeyboardHeightResult {
         setKeyboardHeight(0)
       })
       cleanups.push(() => hideSub.remove())
-    } catch {
-      // Not running in React Native — no-op
+    } catch (_error) {
+      // Not running in React Native (e.g. web/SSR); the Keyboard API is
+      // unavailable and the hook falls back to the hidden-state default.
+      // Ignoring is safe because no keyboard subscriptions were registered.
     }
 
     return () => cleanups.forEach((fn) => fn())

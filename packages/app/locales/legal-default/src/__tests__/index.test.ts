@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import * as bond from '../index.js'
+
 import type { LegalContent } from '../index.js'
+import * as bond from '../index.js'
 
 const LANGUAGES = [
   'af',

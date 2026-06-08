@@ -27,8 +27,9 @@ export function waitForConnection(timeout = 30000, checkInterval = 1000): Promis
           resolve(true)
           return
         }
-      } catch {
-        // Ignore errors during check
+      } catch (_error) {
+        // Best-effort: a transient error during a single connectivity poll is safe to ignore —
+        // the loop will retry on the next interval rather than surfacing a spurious failure.
       }
 
       if (Date.now() - startTime >= timeout) {

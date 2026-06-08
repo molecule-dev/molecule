@@ -68,8 +68,8 @@ export const detectHardwareInfo = (): HardwareInfo => {
           )
         }
       }
-    } catch {
-      // WebGL not supported
+    } catch (_error) {
+      // WebGL probe failed (unsupported or security-restricted); hasWebGL stays false, which is the correct fallback.
     }
   }
 

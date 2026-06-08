@@ -233,8 +233,8 @@ export class DefaultAssistantProvider implements AIAssistantProvider {
 
     try {
       await fetch(url, { method: 'DELETE', headers })
-    } catch {
-      // Best-effort — local state is cleared regardless
+    } catch (_error) {
+      // Best-effort — local state is cleared regardless; a failed DELETE is non-fatal
     }
 
     this.messageCounter = 0
@@ -280,7 +280,8 @@ export class DefaultAssistantProvider implements AIAssistantProvider {
       this.messageCounter = messages.length
       this.setState({ messages })
       return messages
-    } catch {
+    } catch (_error) {
+      // Best-effort — network or parse failure returns an empty history; caller handles gracefully
       return []
     }
   }
@@ -339,7 +340,8 @@ export class DefaultAssistantProvider implements AIAssistantProvider {
           let event: AssistantStreamEvent
           try {
             event = JSON.parse(json) as AssistantStreamEvent
-          } catch {
+          } catch (_error) {
+            // Malformed SSE line — skip and continue processing the stream
             continue
           }
 
@@ -355,8 +357,8 @@ export class DefaultAssistantProvider implements AIAssistantProvider {
           const event = JSON.parse(json) as AssistantStreamEvent
           onEvent(event)
           this.applyStreamEvent(event, assistantMsgId)
-        } catch {
-          // Incomplete data — ignore
+        } catch (_error) {
+          // Incomplete trailing SSE data — safe to ignore; stream finalization handles state
         }
       }
     } finally {

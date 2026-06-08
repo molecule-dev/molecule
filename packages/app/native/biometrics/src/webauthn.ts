@@ -3,6 +3,8 @@
  * WebAuthn-based biometrics provider implementation.
  */
 
+import { warn } from '@molecule/app-logger'
+
 import type {
   AuthenticateOptions,
   AuthenticateResult,
@@ -103,7 +105,8 @@ export const createWebAuthnProvider = (
           description,
           hasEnrolled: true, // WebAuthn doesn't expose this directly
         }
-      } catch {
+      } catch (error) {
+        warn('checkAvailability: platform authenticator check failed', { error })
         return {
           available: false,
           biometricType: 'none',
@@ -184,7 +187,9 @@ export const createWebAuthnProvider = (
       try {
         const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
         return available
-      } catch {
+      } catch (_error) {
+        // isUserVerifyingPlatformAuthenticatorAvailable() throws on unsupported
+        // platforms — returning false is correct and safe; no degradation to report.
         return false
       }
     },

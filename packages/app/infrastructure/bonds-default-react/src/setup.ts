@@ -41,6 +41,7 @@ import { classMap } from '@molecule/app-ui-tailwind'
  * incomplete localStorage shims).
  */
 let _defaultThemeProvider: ReturnType<typeof createCSSVariablesThemeProvider> | null = null
+/** Returns (and lazily constructs) the shared default CSS-variables theme provider. */
 export function getDefaultThemeProvider(): ReturnType<typeof createCSSVariablesThemeProvider> {
   if (!_defaultThemeProvider) {
     _defaultThemeProvider = createCSSVariablesThemeProvider({

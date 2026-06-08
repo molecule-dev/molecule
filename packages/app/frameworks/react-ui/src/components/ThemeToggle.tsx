@@ -56,7 +56,7 @@ export function ThemeToggle({
   iconSize = 20,
   className,
   ...rest
-}: ThemeToggleProps = {}) {
+}: ThemeToggleProps = {}): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const { mode, toggleTheme } = useTheme()

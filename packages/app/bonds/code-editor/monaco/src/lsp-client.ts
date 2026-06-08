@@ -334,8 +334,9 @@ export class LspClient {
         this.sendNotification('shutdown', null)
         this.sendNotification('exit', null)
       }
-    } catch {
-      // Ignore errors during shutdown
+    } catch (_error) {
+      // Sending shutdown/exit notifications is best-effort; the socket is
+      // closing regardless, so failures here are safely ignored.
     }
     this.ws.close()
     this.ws = null
@@ -586,7 +587,10 @@ export function registerLspProviders(
             incomplete: result.isIncomplete,
             suggestions: result.items.map(convertCompletionItem),
           }
-        } catch {
+        } catch (_error) {
+          // LSP request may fail transiently (e.g. server restart, network
+          // blip); returning an empty list is the correct Monaco provider
+          // contract and avoids flooding logs on every keystroke.
           return { suggestions: [] }
         }
       },
@@ -657,7 +661,9 @@ export function registerLspProviders(
           }
 
           return results
-        } catch {
+        } catch (_error) {
+          // LSP request or model-resolve may fail transiently; returning an
+          // empty definition list is the correct Monaco provider contract.
           return []
         }
       },
@@ -703,7 +709,9 @@ export function registerLspProviders(
             },
             dispose() {},
           }
-        } catch {
+        } catch (_error) {
+          // LSP request may fail transiently; returning null is the correct
+          // Monaco provider contract for an unavailable signature help result.
           return null
         }
       },

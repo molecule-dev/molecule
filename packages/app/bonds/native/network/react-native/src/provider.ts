@@ -47,7 +47,7 @@ async function getNetInfo(): Promise<NetInfoModule> {
       default?: NetInfoModule
     } & NetInfoModule
     return (mod.default ?? mod) as NetInfoModule
-  } catch {
+  } catch (error) {
     throw new Error(
       t(
         'network.error.missingDependency',
@@ -57,6 +57,7 @@ async function getNetInfo(): Promise<NetInfoModule> {
             '@react-native-community/netinfo is required but not installed. Install it with: npm install @react-native-community/netinfo',
         },
       ),
+      { cause: error },
     )
   }
 }

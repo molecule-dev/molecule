@@ -84,7 +84,8 @@ export const createWebGeolocationProvider = (
       try {
         const result = await navigator.permissions.query({ name: 'geolocation' })
         return result.state as LocationPermission
-      } catch {
+      } catch (_error) {
+        // Permissions API query failed (e.g. unsupported browser); fall back to 'prompt' safely.
         return 'prompt'
       }
     },

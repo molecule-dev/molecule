@@ -53,7 +53,7 @@ export function useAppState(): UseAppStateResult {
         setAppState((nextState as AppStateStatus) || 'active')
       })
       cleanup = () => subscription.remove()
-    } catch {
+    } catch (_error) {
       // Not running in React Native — stay 'active'
     }
 

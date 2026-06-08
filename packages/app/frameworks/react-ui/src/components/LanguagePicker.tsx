@@ -1,4 +1,4 @@
-import { useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { type ButtonHTMLAttributes, type ReactNode, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -77,7 +77,7 @@ export function LanguagePicker({
   className,
   renderTrigger,
   ...rest
-}: LanguagePickerProps = {}) {
+}: LanguagePickerProps = {}): JSX.Element {
   const cm = getClassMap()
   const { t, locale, setLocale, locales } = useTranslation()
   const [open, setOpen] = useState(false)

@@ -9,8 +9,8 @@
  * @module
  */
 
-import { createRequire } from 'node:module'
 import Module from 'node:module'
+import { createRequire } from 'node:module'
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 

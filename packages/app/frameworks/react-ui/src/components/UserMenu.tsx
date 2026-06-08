@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
@@ -69,7 +69,7 @@ export function UserMenu({
   dataMolId = 'user-menu',
   className,
   disabled,
-}: UserMenuProps) {
+}: UserMenuProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)

@@ -43,7 +43,7 @@ async function getRNClipboard(): Promise<RNClipboard> {
       default?: RNClipboard
     } & RNClipboard
     return (mod.default ?? mod) as RNClipboard
-  } catch {
+  } catch (error) {
     throw new Error(
       t(
         'clipboard.error.missingDependency',
@@ -53,6 +53,7 @@ async function getRNClipboard(): Promise<RNClipboard> {
             '@react-native-clipboard/clipboard is required but not installed. Install it with: npm install @react-native-clipboard/clipboard',
         },
       ),
+      { cause: error },
     )
   }
 }

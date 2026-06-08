@@ -1,10 +1,11 @@
+// @vitest-environment jsdom
+
 /**
  * Render tests for the close-on-route-change behavior shared by the
  * overlay components (`UserMenu`, `SidebarUserCard`, `Dropdown`):
  * opening the overlay and then changing the route must dismiss it (an
  * overlay left mounted over the next page blocks clicks underneath).
  *
- * @vitest-environment jsdom
  * @module
  */
 import { fireEvent, render, screen } from '@testing-library/react'
@@ -99,7 +100,8 @@ describe('SidebarUserCard — close on route change', () => {
 
 describe('usePanelClose — panel content dismisses its drawer', () => {
   it('lets UserMenu panel children close the drawer via context', () => {
-    function ClosingPanel() {
+    /** Panel that calls `usePanelClose` to dismiss its parent drawer. */
+    function ClosingPanel(): JSX.Element {
       const close = usePanelClose()
       return (
         <button type="button" onClick={close}>

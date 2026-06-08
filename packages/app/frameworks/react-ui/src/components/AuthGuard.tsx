@@ -74,7 +74,7 @@ export function AuthGuard({
   loginPath = '/login',
   onAuthenticated,
   children,
-}: AuthGuardProps = {}) {
+}: AuthGuardProps = {}): ReactNode {
   const { isAuthenticated, state } = useAuth()
   const { t } = useTranslation()
   const location = useLocation()

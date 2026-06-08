@@ -40,7 +40,7 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
   // without hiding genuine network failures.
   let navigationInProgress = false
   if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-    const markNav = () => {
+    const markNav = (): void => {
       navigationInProgress = true
       // Auto-clear shortly after; if the navigation is real, the page
       // will unload and we won't see anything else from this client
@@ -169,7 +169,10 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
             const text = await fetchResponse.text()
             try {
               data = text ? JSON.parse(text) : null
-            } catch {
+            } catch (_error) {
+              // Safe to ignore: the raw text is already captured above and used
+              // as the fallback value. Non-JSON responses (plain text, HTML errors)
+              // are a known valid case for some APIs.
               logger.debug('Response is not JSON, using raw text', url)
               data = text as T
             }

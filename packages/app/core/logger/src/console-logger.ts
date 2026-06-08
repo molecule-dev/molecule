@@ -58,8 +58,9 @@ export const createConsoleLogger = (config: LoggerConfig = {}): Logger => {
     transports.forEach((transport) => {
       try {
         transport(entry)
-      } catch {
-        // Ignore transport errors
+      } catch (_error) {
+        // Intentional noop: a failing transport must not disrupt the logger or
+        // other transports — transports are best-effort side-channels.
       }
     })
   }

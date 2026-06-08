@@ -136,7 +136,10 @@ export const validateValue = async (
       typeof schema.url === 'string' ? schema.url : msg('forms.invalidUrl', 'Invalid URL')
     try {
       new URL(value as string)
-    } catch {
+    } catch (_error) {
+      // URL constructor throws a TypeError for invalid URLs; the error carries no
+      // actionable detail beyond the fact that parsing failed, which is expressed
+      // by returning the validation message to the caller.
       return message
     }
   }

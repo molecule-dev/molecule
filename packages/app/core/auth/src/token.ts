@@ -73,7 +73,8 @@ export const createTokenStorage = (
       if (!data) return null
       try {
         return JSON.parse(data) as T
-      } catch {
+      } catch (_error) {
+        // Stored value is not valid JSON (corrupted/stale); returning null is safe
         return null
       }
     },
@@ -102,7 +103,8 @@ export const parseJWT = <T = Record<string, unknown>>(token: string): T | null =
     const payload = parts[1]
     const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
     return JSON.parse(decoded) as T
-  } catch {
+  } catch (_error) {
+    // Malformed base64 or invalid JSON payload; returning null is the documented contract
     return null
   }
 }

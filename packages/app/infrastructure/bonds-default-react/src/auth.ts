@@ -1,5 +1,5 @@
-import { createJWTAuthClient, setClient } from '@molecule/app-auth'
 import type { AuthClient, AuthClientConfig, UserProfile } from '@molecule/app-auth'
+import { createJWTAuthClient, setClient } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
 import {
   createFetchClient,

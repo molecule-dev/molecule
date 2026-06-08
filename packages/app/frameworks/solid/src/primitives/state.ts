@@ -146,8 +146,8 @@ export function createPersistedStore<T>(
     if (stored) {
       initialValue = JSON.parse(stored)
     }
-  } catch {
-    // Use default
+  } catch (_error) {
+    // Safe to ignore: corrupt/stale storage data; initial value is the correct fallback
   }
 
   const [state, setState] = createSignal<T>(initialValue)
@@ -156,8 +156,8 @@ export function createPersistedStore<T>(
   createEffect(() => {
     try {
       storage.setItem(key, JSON.stringify(state()))
-    } catch {
-      // Ignore storage errors
+    } catch (_error) {
+      // Safe to ignore: persistence is best-effort; in-memory signal still works correctly
     }
   })
 

@@ -50,13 +50,14 @@ async function getReactNativeKeyboard(): Promise<{
       Dimensions: RNDimensions
     }
     return { Keyboard: RN.Keyboard, Dimensions: RN.Dimensions }
-  } catch {
+  } catch (error) {
     throw new Error(
       t(
         'keyboard.error.missingDependency',
         { library: 'react-native' },
         { defaultValue: 'react-native is required but not installed.' },
       ),
+      { cause: error },
     )
   }
 }

@@ -92,7 +92,7 @@ export class DefaultCopilotProvider implements AICopilotProvider {
         try {
           const body = JSON.parse(text) as Record<string, unknown>
           if (typeof body.error === 'string') errorMessage = body.error
-        } catch {
+        } catch (_error) {
           // Not JSON — use raw text
         }
         onEvent({
@@ -138,7 +138,7 @@ export class DefaultCopilotProvider implements AICopilotProvider {
           try {
             const event = JSON.parse(data) as CopilotEvent
             onEvent(event)
-          } catch {
+          } catch (_error) {
             // Skip malformed SSE data lines
           }
         }
@@ -154,7 +154,7 @@ export class DefaultCopilotProvider implements AICopilotProvider {
           try {
             const event = JSON.parse(data) as CopilotEvent
             onEvent(event)
-          } catch {
+          } catch (_error) {
             // Skip malformed data
           }
         }
@@ -197,7 +197,7 @@ export class DefaultCopilotProvider implements AICopilotProvider {
           metadata: suggestion.metadata,
         }),
       })
-    } catch {
+    } catch (_error) {
       // Feedback is best-effort — do not propagate errors
     }
   }
@@ -223,7 +223,7 @@ export class DefaultCopilotProvider implements AICopilotProvider {
           metadata: suggestion.metadata,
         }),
       })
-    } catch {
+    } catch (_error) {
       // Feedback is best-effort — do not propagate errors
     }
   }

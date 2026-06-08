@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import * as bond from '../index.js'
 import type { CommonTranslations } from '../index.js'
+import * as bond from '../index.js'
 
 // Sample of the 178 keys — the test confirms every language has these specific
 // values and that escape sequences round-trip correctly. Full key list lives

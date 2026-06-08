@@ -94,7 +94,9 @@ export const createWebCameraProvider = (): CameraProvider => {
       try {
         const result = await navigator.permissions.query({ name: 'camera' as PermissionName })
         return result.state as CameraPermission
-      } catch {
+      } catch (_error) {
+        // Permissions API may reject for unsupported permission names in some browsers;
+        // returning 'prompt' is safe — it causes the caller to attempt the request anyway.
         return 'prompt'
       }
     },

@@ -21,7 +21,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
     const isControlled = valueProp !== undefined
     const value = isControlled ? valueProp : internalValue
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
       if (!isControlled) {
         setInternalValue(e.target.value)
       }

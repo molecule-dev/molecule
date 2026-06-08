@@ -163,7 +163,7 @@ function createInstance(
       }
 
       emit()
-    } catch {
+    } catch (_error) {
       // Polling failures are silent — next poll will retry
     }
   }
@@ -244,7 +244,7 @@ function createInstance(
         notifications = [...notifications, ...newItems]
         nextCursor = result.nextCursor
         hasMorePages = result.hasMore
-      } catch {
+      } catch (_error) {
         // loadMore failures are non-fatal — consumer can retry
       } finally {
         loading = false
@@ -271,7 +271,7 @@ function createInstance(
         nextCursor = result.nextCursor
         hasMorePages = result.hasMore
         unreadCount = count
-      } catch {
+      } catch (_error) {
         // refresh failures are non-fatal
       } finally {
         loading = false

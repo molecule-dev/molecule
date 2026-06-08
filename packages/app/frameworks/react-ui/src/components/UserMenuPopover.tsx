@@ -23,8 +23,14 @@
  * @module
  */
 
-import type { ReactNode } from 'react'
-import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import React, {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { useAuth, useTranslation } from '@molecule/app-react'
@@ -50,6 +56,9 @@ interface UserMenuPopoverContextValue {
 
 const UserMenuPopoverContext = createContext<UserMenuPopoverContextValue | null>(null)
 
+/**
+ * Returns the nearest `UserMenuPopoverContext` value, throwing if not inside a `UserMenuPopover`.
+ */
 function usePopoverContext(component: string): UserMenuPopoverContextValue {
   const ctx = useContext(UserMenuPopoverContext)
   if (!ctx) {
@@ -85,7 +94,11 @@ export interface UserMenuPopoverProps {
  * @param props - The popover children, optional guest label, and className.
  * @returns The relative-positioned popover container.
  */
-export function UserMenuPopover({ children, guestName, className }: UserMenuPopoverProps) {
+export function UserMenuPopover({
+  children,
+  guestName,
+  className,
+}: UserMenuPopoverProps): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const auth = useAuth<AccountUser>()
@@ -102,7 +115,7 @@ export function UserMenuPopover({ children, guestName, className }: UserMenuPopo
   // Also close on a raw `popstate` — `useLocation()` only fires when a
   // URL part changes, but a same-route SPA navigation still pops.
   useEffect(() => {
-    const onPopState = () => setOpen(false)
+    const onPopState = (): void => setOpen(false)
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
@@ -110,12 +123,12 @@ export function UserMenuPopover({ children, guestName, className }: UserMenuPopo
   // Close on outside click and Escape while the panel is open.
   useEffect(() => {
     if (!open) return
-    const onMouseDown = (event: MouseEvent) => {
+    const onMouseDown = (event: MouseEvent): void => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setOpen(false)
       }
     }
-    const onKeyDown = (event: KeyboardEvent) => {
+    const onKeyDown = (event: KeyboardEvent): void => {
       if (event.key === 'Escape') setOpen(false)
     }
     document.addEventListener('mousedown', onMouseDown)
@@ -165,7 +178,7 @@ export function UserMenuPopoverTrigger({
   ariaLabelDefault = 'Open user menu',
   dataMolId = 'user-menu',
   className,
-}: UserMenuPopoverTriggerProps) {
+}: UserMenuPopoverTriggerProps): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const { open, setOpen, displayName, email } = usePopoverContext('UserMenuPopoverTrigger')
@@ -258,7 +271,7 @@ export function UserMenuPopoverPanel({
   ariaLabelKey = 'userMenu.panelLabel',
   ariaLabelDefault = 'Account menu',
   dataMolId = 'user-menu-panel',
-}: UserMenuPopoverPanelProps) {
+}: UserMenuPopoverPanelProps): React.JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
   const { open, displayName, email } = usePopoverContext('UserMenuPopoverPanel')
@@ -329,7 +342,7 @@ export function UserMenuPopoverSignOut({
   labelDefault = 'Sign out',
   dataMolId = 'user-menu-sign-out',
   className,
-}: UserMenuPopoverSignOutProps) {
+}: UserMenuPopoverSignOutProps): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const auth = useAuth()
@@ -342,8 +355,10 @@ export function UserMenuPopoverSignOut({
         setOpen(false)
         try {
           await auth.logout()
-        } catch {
-          // A logout failure should not crash the panel.
+        } catch (_error) {
+          // A logout failure should not crash the panel — the user is already
+          // treated as signed-out from the UI perspective; the provider may
+          // clean up asynchronously or retry on the next request.
         }
       }}
       className={cm.cn(

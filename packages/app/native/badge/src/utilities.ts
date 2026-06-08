@@ -31,7 +31,8 @@ export async function setWithPermission(count: number): Promise<boolean> {
 
     await set(count)
     return true
-  } catch {
+  } catch (_error) {
+    // Native badge API may be unavailable or restricted — returning false is the safe fallback
     return false
   }
 }
@@ -51,8 +52,8 @@ export function syncBadge(getValue: () => number | Promise<number>, interval = 5
     try {
       const count = await getValue()
       await set(count)
-    } catch {
-      // Ignore errors during sync
+    } catch (_error) {
+      // Ignore errors during sync — getValue/set failures are best-effort in a polling loop
     }
 
     if (running) {

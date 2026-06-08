@@ -649,7 +649,7 @@ describe('@molecule/app-routing', () => {
         expect(typeof router.navigate).toBe('function')
         expect(typeof router.getLocation).toBe('function')
         router.destroy()
-      } catch {
+      } catch (_error) {
         // In environments without proper window.location, just verify function exists
         expect(true).toBe(true)
       }
@@ -666,7 +666,8 @@ describe('@molecule/app-routing', () => {
         })
         expect(router).toBeDefined()
         router.destroy()
-      } catch {
+      } catch (_error) {
+        // Environment doesn't support browser router with this config; verify function shape only
         expect(true).toBe(true)
       }
     })
@@ -676,7 +677,7 @@ describe('@molecule/app-routing', () => {
         const router = createBrowserRouter({ mode: 'history' })
         expect(router.getLocation()).toBeDefined()
         router.destroy()
-      } catch {
+      } catch (_error) {
         // Environment doesn't support browser router
         expect(typeof createBrowserRouter).toBe('function')
       }
@@ -687,7 +688,7 @@ describe('@molecule/app-routing', () => {
         const router = createBrowserRouter({ mode: 'hash' })
         expect(router.getLocation()).toBeDefined()
         router.destroy()
-      } catch {
+      } catch (_error) {
         // Environment doesn't support browser router
         expect(typeof createBrowserRouter).toBe('function')
       }

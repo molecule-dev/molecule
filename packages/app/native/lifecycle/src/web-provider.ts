@@ -168,7 +168,9 @@ export const createWebLifecycleProvider = (): LifecycleProvider => {
       if (!battery && typeof navigator !== 'undefined' && 'getBattery' in navigator) {
         try {
           battery = (await (navigator as NavigatorWithBattery).getBattery?.()) || null
-        } catch {
+        } catch (_error) {
+          // Battery API is an optional browser capability; denial or lack of
+          // support is expected — returning null is the correct fallback.
           return null
         }
       }

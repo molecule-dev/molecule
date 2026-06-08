@@ -124,8 +124,8 @@ export const createPersistentAtom = <T>(
     if (stored) {
       storedValue = JSON.parse(stored)
     }
-  } catch {
-    // Ignore storage errors
+  } catch (_error) {
+    // Ignore storage errors — storage may be unavailable (SSR, private browsing, quota exceeded); initialValue is used as fallback.
   }
 
   const primitiveAtom = atom<T>(storedValue)
@@ -146,8 +146,8 @@ export const createPersistentAtom = <T>(
 
       try {
         storage.setItem(key, JSON.stringify(newValue))
-      } catch {
-        // Ignore storage errors
+      } catch (_error) {
+        // Ignore storage errors — write failure (quota exceeded, private browsing, SSR) is non-fatal; in-memory atom state is still updated.
       }
     },
   }

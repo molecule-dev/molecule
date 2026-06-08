@@ -135,7 +135,7 @@ export class HttpChatProvider implements ChatProvider {
           if (typeof body.limitType === 'string') limitType = body.limitType
           if (typeof body.requiresSignup === 'boolean') requiresSignup = body.requiresSignup
           if (typeof body.error === 'string') errorMessage = body.error
-        } catch {
+        } catch (_error) {
           // Not JSON — use raw text
         }
         onEvent({
@@ -181,7 +181,7 @@ export class HttpChatProvider implements ChatProvider {
           try {
             const event = JSON.parse(data) as ChatStreamEvent
             onEvent(event)
-          } catch {
+          } catch (_error) {
             // Skip malformed SSE data lines
           }
         }
@@ -198,7 +198,7 @@ export class HttpChatProvider implements ChatProvider {
           try {
             const event = JSON.parse(data) as ChatStreamEvent
             onEvent(event)
-          } catch {
+          } catch (_error) {
             // Skip malformed data
           }
         }

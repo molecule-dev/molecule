@@ -62,8 +62,8 @@ export function createLocalStorageProvider(config: LocalStorageConfig = {}): Sto
       storage.setItem(testKey, testKey)
       storage.removeItem(testKey)
       return true
-    } catch {
-      logger.warn('localStorage is not available')
+    } catch (error) {
+      logger.warn('localStorage is not available', { error })
       return false
     }
   }

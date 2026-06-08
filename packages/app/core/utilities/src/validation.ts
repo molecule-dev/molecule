@@ -32,7 +32,9 @@ export const isUrl = (value: string): boolean => {
   try {
     new URL(value)
     return true
-  } catch {
+  } catch (_error) {
+    // URL constructor throws for any malformed input — that is the validation
+    // signal, not an unexpected failure, so ignoring the error here is safe.
     return false
   }
 }

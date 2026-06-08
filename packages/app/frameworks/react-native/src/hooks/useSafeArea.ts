@@ -40,7 +40,9 @@ export function useSafeArea(): SafeAreaInsets {
       useSafeAreaInsets: () => SafeAreaInsets
     }
     return useSafeAreaInsets()
-  } catch {
+  } catch (_error) {
+    // Safe to ignore: react-native-safe-area-context is an optional peer dep;
+    // if it is absent or the provider is not mounted, zero insets are the documented fallback.
     return { top: 0, right: 0, bottom: 0, left: 0 }
   }
 }

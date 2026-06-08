@@ -57,8 +57,8 @@ export const createStore = <T>(config: ZustandStoreConfig<T>): Store<T> => {
           const parsed = JSON.parse(stored) as Partial<T>
           zustandStore.setState((state: T) => ({ ...state, ...parsed }))
         }
-      } catch {
-        // Ignore storage errors
+      } catch (_error) {
+        // Ignore: storage may be unavailable (private browsing, quota exceeded, etc.) — safe to start with in-memory state.
       }
 
       // Subscribe to changes and persist
@@ -66,8 +66,8 @@ export const createStore = <T>(config: ZustandStoreConfig<T>): Store<T> => {
         try {
           const toPersist = persistConfig.partialize ? persistConfig.partialize(state) : state
           storage.setItem(persistConfig.name, JSON.stringify(toPersist))
-        } catch {
-          // Ignore storage errors
+        } catch (_error) {
+          // Ignore: write failures (quota, serialization errors) do not corrupt in-memory state — persistence is best-effort.
         }
       })
     }

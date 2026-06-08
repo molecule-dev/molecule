@@ -206,4 +206,5 @@ export type IdeTranslationKey =
   | 'ide.search.replaceConfirmation'
   | 'ide.search.resultsTruncated'
 
+/** Translation record mapping ide keys to translated strings. */
 export type IdeTranslations = Record<IdeTranslationKey, string>

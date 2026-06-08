@@ -145,8 +145,8 @@ describe('useLogin', () => {
     await act(async () => {
       try {
         await result.current.login({ email: 'test@example.com', password: 'wrong' })
-      } catch {
-        // Expected rejection
+      } catch (_error) {
+        // Expected rejection — hook captures the error in result.current.error
       }
     })
 
@@ -228,8 +228,8 @@ describe('useSignup', () => {
     await act(async () => {
       try {
         await result.current.signup({ email: 'existing@example.com', password: 'password' })
-      } catch {
-        // Expected rejection
+      } catch (_error) {
+        // Expected rejection — hook captures the error in result.current.error
       }
     })
 
@@ -279,8 +279,8 @@ describe('useChangePassword', () => {
     await act(async () => {
       try {
         await result.current.changePassword('wrongOld', 'newPass')
-      } catch {
-        // Expected rejection
+      } catch (_error) {
+        // Expected rejection — hook captures the error in result.current.error
       }
     })
 

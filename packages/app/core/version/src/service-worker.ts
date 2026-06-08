@@ -57,7 +57,8 @@ export const createServiceWorkerController = (
         await registration.unregister()
         registration = null
         return true
-      } catch {
+      } catch (_error) {
+        // Unregistration failure is non-critical; returning false signals the caller.
         return false
       }
     },

@@ -1,4 +1,4 @@
-import type { SVGProps } from 'react'
+import React, { type SVGProps } from 'react'
 
 import { getIcon } from '@molecule/app-icons'
 
@@ -39,7 +39,7 @@ export interface IconProps extends Omit<
  * @param props - {@link IconProps}
  * @returns An `<svg>` element rendering the named glyph.
  */
-export function Icon({ name, size = 20, className, ...rest }: IconProps) {
+export function Icon({ name, size = 20, className, ...rest }: IconProps): React.JSX.Element {
   const icon = getIcon(name)
   const viewBox = icon.viewBox || '0 0 20 20'
 

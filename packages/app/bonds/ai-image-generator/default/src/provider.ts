@@ -130,8 +130,8 @@ export class HttpImageGeneratorProvider implements AIImageGeneratorProvider {
         try {
           const body = JSON.parse(text)
           if (typeof body.error === 'string') errorMessage = body.error
-        } catch {
-          // Not JSON — use raw text
+        } catch (_error) {
+          // Not JSON — use raw text as-is; parse failure is expected for plain-text error bodies
         }
         onEvent({
           type: 'error',
@@ -223,8 +223,8 @@ export class HttpImageGeneratorProvider implements AIImageGeneratorProvider {
             images.push(event.image)
           }
           onEvent(event)
-        } catch {
-          // Skip malformed SSE data
+        } catch (_error) {
+          // Skip malformed SSE data — a single bad line should not abort the stream
         }
       }
 
@@ -244,8 +244,8 @@ export class HttpImageGeneratorProvider implements AIImageGeneratorProvider {
             images.push(event.image)
           }
           onEvent(event)
-        } catch {
-          // Skip malformed data
+        } catch (_error) {
+          // Skip malformed data in the trailing buffer — safe to discard incomplete/invalid events
         }
       }
     }
@@ -324,7 +324,8 @@ export class HttpImageGeneratorProvider implements AIImageGeneratorProvider {
       }
 
       return (data.images ?? []).map((raw, i) => normalizeImage(raw, i))
-    } catch {
+    } catch (_error) {
+      // Network or parse failure — history is optional; returning [] degrades gracefully
       return []
     }
   }

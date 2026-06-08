@@ -208,8 +208,9 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
           if (result) {
             return result
           }
-        } catch {
-          // Continue to next interceptor
+        } catch (_error) {
+          // Intentional noop: an interceptor throwing must not abort the chain; the
+          // original httpError is still rethrown below, so swallowing this is safe.
         }
       }
 

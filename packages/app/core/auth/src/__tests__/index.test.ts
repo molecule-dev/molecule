@@ -635,8 +635,8 @@ describe('JWT Auth Client', () => {
 
       try {
         await client.login({ email: 'test@example.com', password: 'wrong' })
-      } catch {
-        // Expected
+      } catch (_error) {
+        // Expected — the test only checks the emitted event, not the thrown error
       }
 
       expect(eventHandler).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
@@ -1290,8 +1290,8 @@ describe('JWT Auth Client', () => {
       mockFetch.mockImplementation(() => createMockResponse({}))
       try {
         await client.logout()
-      } catch {
-        // May throw but that's ok
+      } catch (_error) {
+        // Safe to ignore — the test only verifies that callbacks are not called after destroy
       }
 
       expect(stateCallback).not.toHaveBeenCalled()

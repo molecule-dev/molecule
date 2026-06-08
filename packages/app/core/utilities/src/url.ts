@@ -69,8 +69,9 @@ export const isInternalUrl = (url: string): boolean => {
   try {
     const parsed = new URL(url, window.location.origin)
     return parsed.origin === window.location.origin
-  } catch {
-    // Relative URLs are internal
+  } catch (_error) {
+    // new URL() throws on malformed input; the prefix check below is the
+    // intended fallback — no logging needed, this is best-effort parsing.
     return !url.startsWith('http://') && !url.startsWith('https://')
   }
 }

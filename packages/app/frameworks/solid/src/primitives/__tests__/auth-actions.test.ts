@@ -111,8 +111,8 @@ describe('createLogin', () => {
 
         try {
           await promise
-        } catch {
-          // expected
+        } catch (_error) {
+          // expected rejection — test asserts state below, not the error value
         }
 
         expect(state().status).toBe('rejected')
@@ -198,8 +198,8 @@ describe('createSignup', () => {
 
         try {
           await signup({ email: 'taken@example.com', password: 'pass' })
-        } catch {
-          // expected
+        } catch (_error) {
+          // expected rejection — test asserts state below, not the error value
         }
 
         expect(state().status).toBe('rejected')
@@ -248,8 +248,8 @@ describe('createChangePassword', () => {
 
         try {
           await changePassword('wrong', 'newPass')
-        } catch {
-          // expected
+        } catch (_error) {
+          // expected rejection — test asserts state below, not the error value
         }
 
         expect(state().status).toBe('rejected')

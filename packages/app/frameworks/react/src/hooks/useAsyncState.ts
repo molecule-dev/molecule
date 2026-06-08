@@ -63,7 +63,7 @@ export const useAsyncState = <T>(initialState: T): [T, AsyncSetState<T>, AsyncEx
         }
         return nextState as T
       })
-    } catch {
+    } catch (_error) {
       // Silently swallow errors from resolved Promises to avoid unhandled rejections
     }
   }, [])
@@ -85,7 +85,7 @@ export const useAsyncState = <T>(initialState: T): [T, AsyncSetState<T>, AsyncEx
 
         return { ...prev, ...resolved }
       })
-    } catch {
+    } catch (_error) {
       // Silently swallow errors from resolved Promises to avoid unhandled rejections
     }
   }, [])

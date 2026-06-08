@@ -39,7 +39,7 @@ export interface PanelCloseProviderProps {
  * @param props - The close callback and the panel content.
  * @returns The children wrapped in the close-context provider.
  */
-export function PanelCloseProvider({ close, children }: PanelCloseProviderProps) {
+export function PanelCloseProvider({ close, children }: PanelCloseProviderProps): JSX.Element {
   return <PanelCloseContext.Provider value={close}>{children}</PanelCloseContext.Provider>
 }
 

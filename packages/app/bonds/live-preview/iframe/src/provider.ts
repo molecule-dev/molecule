@@ -101,8 +101,8 @@ export class IframePreviewProvider implements PreviewProvider {
         if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
           window.open(this.state.url, '_blank', 'noopener,noreferrer')
         }
-      } catch {
-        // Invalid URL — silently ignore
+      } catch (_error) {
+        // Invalid URL — silently ignore; nothing to open, no state is broken
       }
     }
   }

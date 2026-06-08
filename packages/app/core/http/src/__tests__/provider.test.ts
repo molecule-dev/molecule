@@ -283,8 +283,8 @@ describe('HTTP Provider', () => {
 
       try {
         await client.get('/protected')
-      } catch {
-        // Expected error
+      } catch (_error) {
+        // Intentionally ignored — the 401 error is expected and the test only asserts the auth handler was called
       }
 
       expect(authHandler).toHaveBeenCalled()
@@ -300,8 +300,8 @@ describe('HTTP Provider', () => {
 
       try {
         await client.get('/protected')
-      } catch {
-        // Expected error
+      } catch (_error) {
+        // Intentionally ignored — the 401 error is expected and the test only asserts the auth handler was not called
       }
 
       expect(authHandler).not.toHaveBeenCalled()

@@ -33,7 +33,9 @@ export const timeAgo = (time: number | string | Date, abbreviate = false): strin
   } else {
     try {
       timestamp = new Date(time).getTime()
-    } catch {
+    } catch (_error) {
+      // new Date() throws only for certain invalid inputs in some environments;
+      // falling back to 'unknown' is the correct safe no-op here.
       return 'unknown'
     }
   }

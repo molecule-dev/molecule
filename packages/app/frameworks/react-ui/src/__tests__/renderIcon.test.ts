@@ -1,5 +1,6 @@
-import type { IconData } from '@molecule/app-icons'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import type { IconData } from '@molecule/app-icons'
 
 vi.mock('@molecule/app-icons', () => ({
   getIcon: vi.fn(),

@@ -186,7 +186,8 @@ function uploadWithXHR(
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
           resolve(JSON.parse(xhr.responseText))
-        } catch {
+        } catch (_error) {
+          // Response is not valid JSON — treat it as a plain-text string, which is safe.
           resolve(xhr.responseText)
         }
       } else {
@@ -259,7 +260,8 @@ function uploadWithFetch(
       const text = await res.text()
       try {
         return JSON.parse(text)
-      } catch {
+      } catch (_error) {
+        // Response is not valid JSON — treat it as a plain-text string, which is safe.
         return text
       }
     })

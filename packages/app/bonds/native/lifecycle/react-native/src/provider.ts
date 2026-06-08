@@ -45,13 +45,14 @@ async function getReactNative(): Promise<ReactNativeModule> {
   try {
     // @ts-expect-error — react-native is a peer dependency loaded at runtime
     return (await import('react-native')) as unknown as ReactNativeModule
-  } catch {
+  } catch (error) {
     throw new Error(
       t(
         'lifecycle.error.missingDependency',
         { library: 'react-native' },
         { defaultValue: 'react-native is required but not installed.' },
       ),
+      { cause: error },
     )
   }
 }
@@ -191,7 +192,8 @@ export function createReactNativeLifecycleProvider(
           coldStart: true,
           url: initialUrl ?? undefined,
         }
-      } catch {
+      } catch (_error) {
+        // Linking.getInitialURL() is unavailable on some platforms; returning null is the correct fallback.
         return null
       }
     },

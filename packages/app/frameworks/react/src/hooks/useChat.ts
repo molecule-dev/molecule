@@ -55,8 +55,8 @@ function persistQueue(projectId: string, queue: QueueEntry[]): void {
     } else {
       sessionStorage.removeItem(`${STORAGE_PREFIX}queue-${projectId}`)
     }
-  } catch {
-    // sessionStorage unavailable (SSR, private browsing quota exceeded)
+  } catch (_error) {
+    // sessionStorage unavailable (SSR, private browsing quota exceeded) — safe to skip persistence
   }
 }
 
@@ -72,8 +72,8 @@ function loadPersistedQueue(projectId: string): QueueEntry[] {
       sessionStorage.removeItem(`${STORAGE_PREFIX}queue-${projectId}`)
       return JSON.parse(raw) as QueueEntry[]
     }
-  } catch {
-    // Ignore parse errors or unavailable storage
+  } catch (_error) {
+    // Ignore parse errors or unavailable storage — fall through to return []
   }
   return []
 }
@@ -85,8 +85,8 @@ function loadPersistedQueue(projectId: string): QueueEntry[] {
 function setStreamingFlag(projectId: string): void {
   try {
     sessionStorage.setItem(`${STORAGE_PREFIX}streaming-${projectId}`, '1')
-  } catch {
-    // Ignore
+  } catch (_error) {
+    // sessionStorage unavailable — flag loss is safe; resume detection falls back gracefully
   }
 }
 
@@ -97,8 +97,8 @@ function setStreamingFlag(projectId: string): void {
 function clearStreamingFlag(projectId: string): void {
   try {
     sessionStorage.removeItem(`${STORAGE_PREFIX}streaming-${projectId}`)
-  } catch {
-    // Ignore
+  } catch (_error) {
+    // sessionStorage unavailable — clearing the flag is best-effort, no functional impact
   }
 }
 
@@ -112,7 +112,8 @@ function consumeStreamingFlag(projectId: string): boolean {
     const val = sessionStorage.getItem(`${STORAGE_PREFIX}streaming-${projectId}`)
     sessionStorage.removeItem(`${STORAGE_PREFIX}streaming-${projectId}`)
     return val === '1'
-  } catch {
+  } catch (_error) {
+    // sessionStorage unavailable — treat as no interrupted stream
     return false
   }
 }
@@ -634,8 +635,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
             stalled = true
             try {
               provider.abort()
-            } catch {
-              /* nothing to abort */
+            } catch (_error) {
+              // provider.abort() may throw when no stream is active — safe to ignore in stall watchdog
             }
           }, STALL_MS)
         }
@@ -860,8 +861,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
           try {
             const history = await provider.loadHistory(config)
             if (mountedRef.current && history.length > 0) setMessages(history)
-          } catch {
-            /* keep the finalized placeholder if history can't be loaded */
+          } catch (_error) {
+            // Best-effort reconciliation — the finalized placeholder is already shown; dropping history here is safe
           }
         }
 
@@ -928,8 +929,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
           }
 
           if (streamingProvider.isServerStreaming === false) break
-        } catch {
-          // loadHistory failure — keep polling
+        } catch (_error) {
+          // loadHistory failure during resume poll — keep polling until MAX_POLLS
         }
       }
 
@@ -1184,8 +1185,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
   const abort = useCallback(() => {
     try {
       provider.abort()
-    } catch {
-      /* no active stream to abort */
+    } catch (_error) {
+      // provider.abort() may throw when no stream is active — safe to ignore on user-initiated abort
     }
     // Also kill the server-side stream so it doesn't continue running
     const p = provider as { abortOnServer?: (config: ChatConfig, cid?: string) => void }

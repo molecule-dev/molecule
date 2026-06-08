@@ -145,7 +145,8 @@ export class DefaultVoiceProvider implements AIVoiceProvider {
       if (this.shouldRestart && !this.disposed && this.state === 'listening') {
         try {
           recognition.start()
-        } catch {
+        } catch (_error) {
+          // Auto-restart failed (e.g. recognition already running); fall back to idle safely
           this.setState('idle')
         }
         return
@@ -175,8 +176,8 @@ export class DefaultVoiceProvider implements AIVoiceProvider {
     if (this.recognition) {
       try {
         this.recognition.abort()
-      } catch {
-        // Already stopped
+      } catch (_error) {
+        // Already stopped — abort() on a non-running recognition is safe to ignore
       }
       this.recognition = null
     }

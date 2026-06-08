@@ -47,7 +47,7 @@ export function useBackHandler(handler: () => boolean, options: UseBackHandlerOp
       }
       const subscription = BackHandler.addEventListener('hardwareBackPress', handler)
       cleanup = () => subscription.remove()
-    } catch {
+    } catch (_error) {
       // Not running in React Native — no-op
     }
 

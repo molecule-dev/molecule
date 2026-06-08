@@ -59,8 +59,8 @@ describe('usePromise', () => {
       reject(new Error('something went wrong'))
       try {
         await callPromise
-      } catch {
-        // expected
+      } catch (_error) {
+        // expected rejection — the promise rejects by design; ignoring here is safe
       }
     })
 

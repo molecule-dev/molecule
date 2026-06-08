@@ -30,6 +30,6 @@
  * @module
  */
 
-export * from './setup.js'
 export * from './auth.js'
 export * from './bootstrap.js'
+export * from './setup.js'

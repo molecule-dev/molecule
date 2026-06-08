@@ -67,16 +67,16 @@ export const persistMiddleware = <T>(
         const parsed = JSON.parse(stored) as Partial<T>
         set(parsed)
       }
-    } catch {
-      // Ignore storage errors
+    } catch (_error) {
+      // Safe to ignore: corrupt/missing stored value — state initialises from defaults.
     }
 
     return (partial) => {
       set(partial)
       try {
         storage.setItem(key, JSON.stringify(get()))
-      } catch {
-        // Ignore storage errors
+      } catch (_error) {
+        // Safe to ignore: storage write failure is non-fatal; in-memory state is still updated.
       }
     }
   }

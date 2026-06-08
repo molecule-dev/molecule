@@ -42,10 +42,7 @@ export const PageShell = forwardRef<HTMLDivElement, PageShellProps>(
       >
         {sidebar ? (
           <aside
-            className={cm.cn(
-              cm.pageShellSidebar,
-              sidebarCollapsed && cm.pageShellSidebarCollapsed,
-            )}
+            className={cm.cn(cm.pageShellSidebar, sidebarCollapsed && cm.pageShellSidebarCollapsed)}
           >
             {onSidebarToggle ? (
               <button

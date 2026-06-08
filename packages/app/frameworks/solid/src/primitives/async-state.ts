@@ -72,7 +72,7 @@ export function createAsyncState<T>(initialState: T): CreateAsyncStateReturn<T> 
         }
         return nextState as T
       })
-    } catch {
+    } catch (_error) {
       // Silently swallow errors from resolved Promises to avoid unhandled rejections
     }
   }
@@ -99,7 +99,7 @@ export function createAsyncState<T>(initialState: T): CreateAsyncStateReturn<T> 
 
         return { ...prev, ...resolved }
       })
-    } catch {
+    } catch (_error) {
       // Silently swallow errors from resolved Promises to avoid unhandled rejections
     }
   }

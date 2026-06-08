@@ -76,8 +76,8 @@ export function useOAuth(config?: {
       // Store which provider initiated the flow for callback handling
       try {
         sessionStorage.setItem('oauth_provider', provider)
-      } catch {
-        /* SSR-safe */
+      } catch (_error) {
+        /* SSR-safe — sessionStorage is unavailable in SSR/sandboxed environments */
       }
       window.location.href = getOAuthUrl(provider)
     },
@@ -96,8 +96,8 @@ export function useOAuth(config?: {
     let provider: string | null = null
     try {
       provider = sessionStorage.getItem('oauth_provider')
-    } catch {
-      /* SSR-safe */
+    } catch (_error) {
+      /* SSR-safe — sessionStorage is unavailable in SSR/sandboxed environments */
     }
     if (!provider) return
 
@@ -108,8 +108,8 @@ export function useOAuth(config?: {
     window.history.replaceState({}, '', cleanUrl.toString())
     try {
       sessionStorage.removeItem('oauth_provider')
-    } catch {
-      /* SSR-safe */
+    } catch (_error) {
+      /* SSR-safe — sessionStorage is unavailable in SSR/sandboxed environments */
     }
 
     // Exchange code for session
@@ -141,8 +141,8 @@ export function useOAuth(config?: {
           const token = authHeader.replace('Bearer ', '')
           try {
             localStorage.setItem('molecule:auth:accessToken', token)
-          } catch {
-            /* SSR-safe */
+          } catch (_error) {
+            /* SSR-safe — localStorage is unavailable in SSR/sandboxed environments */
           }
         }
 

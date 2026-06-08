@@ -1,10 +1,10 @@
+// @vitest-environment jsdom
 /**
  * Render tests for the `UserMenuPopover` inline-popover account-menu
  * family: trigger toggles the panel, the panel renders identity +
  * children only while open, sign-out closes + logs out, and the popover
  * auto-dismisses on route change.
  *
- * @vitest-environment jsdom
  * @module
  */
 import { fireEvent, render, screen } from '@testing-library/react'
@@ -166,7 +166,8 @@ describe('UserMenuPopover — close on route change', () => {
 
 describe('useUserMenuPopoverClose', () => {
   it('lets a nav child close the popover', () => {
-    function ClosingLink() {
+    /** A nav child that closes the popover when clicked. */
+    function ClosingLink(): JSX.Element {
       const close = useUserMenuPopoverClose()
       return (
         <button type="button" onClick={close}>

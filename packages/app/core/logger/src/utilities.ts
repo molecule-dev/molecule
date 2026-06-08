@@ -56,8 +56,11 @@ export const createRemoteTransport = (options: {
         },
         body: JSON.stringify({ logs: entries }),
       })
-    } catch {
-      // Silently fail for remote logging
+    } catch (_error) {
+      // Intentional noop: remote log delivery is best-effort. Surfacing transport
+      // failures via the logger would cause infinite recursion (log failure → log
+      // the failure → transport fails → …). Entries are already removed from the
+      // buffer above, so the next flush starts clean.
     }
   }
 

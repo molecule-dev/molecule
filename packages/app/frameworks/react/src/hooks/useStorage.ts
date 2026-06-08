@@ -122,8 +122,9 @@ export function useStorageValue<T>(
         try {
           const newValue = JSON.parse(event.newValue) as T
           setValueState(newValue)
-        } catch {
-          // Invalid JSON, ignore
+        } catch (_error) {
+          // JSON.parse failed on newValue — the cross-tab sync is best-effort and the
+          // local state already holds the last good value, so ignoring is safe here.
         }
       }
     }

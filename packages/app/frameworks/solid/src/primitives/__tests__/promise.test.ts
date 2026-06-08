@@ -62,8 +62,8 @@ describe('createPromise', () => {
 
         try {
           await promise
-        } catch {
-          // expected
+        } catch (_error) {
+          // expected — test asserts the rejected state below; swallowing is safe here
         }
 
         expect(state().status).toBe('rejected')
@@ -187,8 +187,8 @@ describe('createPromise', () => {
 
         try {
           await call()
-        } catch {
-          // expected
+        } catch (_error) {
+          // expected — test asserts the rejected state below; swallowing is safe here
         }
 
         expect(state().status).toBe('rejected')

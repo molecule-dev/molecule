@@ -23,6 +23,11 @@ import type {
 
 import type { ReactNativePushConfig } from './types.js'
 
+// React Native's Metro bundler provides a global CommonJS `require` at runtime;
+// declare it for TS (this app-stack package has no node types). Used below to
+// lazily detect Platform without a static import that would break non-RN builds.
+declare const require: (id: string) => unknown
+
 /** Minimal notification content shape from expo-notifications. */
 interface ExpoNotificationContent {
   title: string | null
@@ -117,7 +122,7 @@ async function getExpoNotifications(): Promise<ExpoNotificationsModule> {
   try {
     // @ts-expect-error — expo-notifications is a peer dependency loaded at runtime
     return (await import('expo-notifications')) as unknown as ExpoNotificationsModule
-  } catch {
+  } catch (error) {
     throw new Error(
       t(
         'push.error.missingDependency',
@@ -127,6 +132,7 @@ async function getExpoNotifications(): Promise<ExpoNotificationsModule> {
             'expo-notifications is required but not installed. Install it with: npx expo install expo-notifications',
         },
       ),
+      { cause: error },
     )
   }
 }
@@ -164,11 +170,11 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
   // Detect platform at runtime instead of hardcoding
   let runtimePlatform: 'ios' | 'android' | 'web' = 'android'
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { Platform } = require('react-native') as { Platform: { OS: string } }
     runtimePlatform = Platform.OS as 'ios' | 'android' | 'web'
-  } catch {
-    // Fallback to android if react-native is not available
+  } catch (_error) {
+    // Fallback to android if react-native is not available; the package is optional
+    // in non-RN environments (e.g. tests, storybook) so the load failure is safe to ignore.
   }
 
   const provider: PushProvider = {

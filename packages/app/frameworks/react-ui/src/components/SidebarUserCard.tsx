@@ -90,7 +90,7 @@ export function SidebarUserCard({
   dataMolId = 'sidebar-user-card',
   className,
   ...rest
-}: SidebarUserCardProps) {
+}: SidebarUserCardProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const auth = useAuth<AccountUserShape>()

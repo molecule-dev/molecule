@@ -29,7 +29,10 @@ export const copyToClipboard = async (text: string): Promise<boolean> => {
     const success = document.execCommand('copy')
     document.body.removeChild(textarea)
     return success
-  } catch {
+  } catch (_error) {
+    // Best-effort: clipboard access can legitimately be denied (permissions,
+    // insecure context, unsupported browser) — returning false is the
+    // documented contract and the caller handles it gracefully.
     return false
   }
 }
@@ -45,7 +48,9 @@ export const readFromClipboard = async (): Promise<string | null> => {
       return await navigator.clipboard.readText()
     }
     return null
-  } catch {
+  } catch (_error) {
+    // Best-effort: readText can fail due to permissions denial or lack of
+    // Clipboard API support — returning null is the documented contract.
     return null
   }
 }

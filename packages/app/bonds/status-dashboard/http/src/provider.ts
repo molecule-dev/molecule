@@ -110,15 +110,17 @@ export class HttpStatusDashboardProvider implements StatusDashboardProvider {
       try {
         const status = await this.fetchStatus(config)
         onUpdate(status)
-      } catch {
-        // Silently skip failed polls
+      } catch (_error) {
+        // Best-effort poll — network blips are transient; the next interval will retry.
       }
     }, intervalMs)
     this.pollingTimers.add(timer)
     // Fetch immediately
     this.fetchStatus(config)
       .then(onUpdate)
-      .catch(() => {})
+      .catch((_error) => {
+        // Best-effort immediate fetch — the polling interval will retry shortly.
+      })
     return () => {
       clearInterval(timer)
       this.pollingTimers.delete(timer)

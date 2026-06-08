@@ -4,6 +4,9 @@
  * @module
  */
 
+/**
+ * Type-safe map of every translation key used across all shared molecule app components.
+ */
 export interface CommonTranslations {
   'common.close': string
   'common.continue': string

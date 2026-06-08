@@ -170,8 +170,8 @@ export class DefaultWorkspaceProvider implements WorkspaceProvider {
         collapsedPanels: [...this.state.collapsedPanels],
       }
       this.storage.setItem(this.storageKey, JSON.stringify(serializable))
-    } catch {
-      // storage may be unavailable
+    } catch (_error) {
+      // storage may be unavailable (quota exceeded, security restrictions) — persistence is best-effort
     }
   }
 
@@ -186,7 +186,8 @@ export class DefaultWorkspaceProvider implements WorkspaceProvider {
       if (!saved) return null
       const parsed = JSON.parse(saved) as { layout?: WorkspaceLayout }
       return parsed.layout ?? null
-    } catch {
+    } catch (_error) {
+      // corrupted or unreadable saved data — fall back to the default layout
       return null
     }
   }

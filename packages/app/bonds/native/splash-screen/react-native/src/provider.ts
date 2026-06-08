@@ -33,7 +33,7 @@ async function getExpoSplashScreen(): Promise<ExpoSplashScreenModule> {
     // @ts-expect-error — expo-splash-screen is a peer dependency loaded at runtime
     const mod = (await import('expo-splash-screen')) as unknown as ExpoSplashScreenModule
     return mod
-  } catch {
+  } catch (error) {
     throw new Error(
       t(
         'splashScreen.error.missingDependency',
@@ -43,6 +43,7 @@ async function getExpoSplashScreen(): Promise<ExpoSplashScreenModule> {
             'expo-splash-screen is required but not installed. Install it with: npx expo install expo-splash-screen',
         },
       ),
+      { cause: error },
     )
   }
 }
