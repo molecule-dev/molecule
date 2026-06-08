@@ -176,20 +176,6 @@ export type ChatStreamEvent =
   | { type: 'resource_limit'; resource: 'memory'; message: string }
   | { type: 'upgrade_prompt'; feature: string; message: string }
   | {
-      /**
-       * A build finished in failure (verify=error) or hit a wall (loop limit) on a
-       * non-paid plan. Surfaces an honest notice that the cheap free-tier executor
-       * can struggle with demanding builds (especially custom apps) that stronger
-       * paid-tier models handle more reliably, that the team has been notified, and
-       * offers the choice to upgrade or wait for free-tier support to improve.
-       */
-      type: 'build_degraded'
-      reason: 'verify_error' | 'loop_limit'
-      isCustomBuild: boolean
-      canUpgrade: boolean
-      message: string
-    }
-  | {
       type: 'activity'
       activity: {
         id: string
