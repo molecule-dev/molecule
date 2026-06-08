@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-
 /**
  * Render tests for the close-on-route-change behavior shared by the
  * overlay components (`UserMenu`, `SidebarUserCard`, `Dropdown`):
@@ -9,6 +8,7 @@
  * @module
  */
 import { fireEvent, render, screen } from '@testing-library/react'
+import type { JSX } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A mutable location the mocked `useLocation` returns — tests advance it

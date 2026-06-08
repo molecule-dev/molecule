@@ -8,6 +8,7 @@
  * @module
  */
 import { fireEvent, render, screen } from '@testing-library/react'
+import type { JSX } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // A mutable location the mocked `useLocation` returns — tests advance it

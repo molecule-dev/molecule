@@ -7,13 +7,6 @@ dist
 *.js.map
 *.d.ts
 !packages/app/frameworks/react-native-ui/src/react-native.d.ts
-# Hand-written global-JSX-namespace shims for React 19 (see fix(app) commit) —
-# type-only, restore the global JSX namespace @types/react 19 removed.
-!packages/app/features/ide-react/src/jsx-global.d.ts
-!packages/app/features/plan-updated-page-react/src/jsx-global.d.ts
-!packages/app/frameworks/react/src/jsx-global.d.ts
-!packages/app/frameworks/react-ui/src/jsx-global.d.ts
-!packages/app/bonds/routing/react-router/src/jsx-global.d.ts
 *.d.ts.map
 
 # compiled JS from TypeScript (keep hand-written .js like eslint.config.js)

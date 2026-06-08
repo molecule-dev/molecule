@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from 'react'
+import type { ButtonHTMLAttributes, JSX } from 'react'
 
 import { useTheme, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
