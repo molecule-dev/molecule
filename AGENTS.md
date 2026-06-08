@@ -123,6 +123,19 @@ All exported functions, classes, interfaces, types, and constants require JSDoc 
 
 Sorted by: `node:` builtins → external packages → `@molecule/*` → relative paths. Enforced by `eslint-plugin-simple-import-sort`.
 
+### 14. No Silent Error Swallows
+
+Never discard a caught error silently. Every `catch` (and `.catch()`) must do **one** of:
+
+1. **Re-throw** — optionally wrapped with more context (`throw new Error('...', { cause: error })`).
+2. **Log the error** via the logger, severity chosen by impact, always including the error:
+   - `logger.error('what failed and why it matters', { error })` — the operation failed and something is now broken or degraded.
+   - `logger.warn('...', { error })` — recoverable/degraded, but worth knowing.
+   - `logger.debug('...', { error })` — genuinely best-effort (cleanup, optional cache, a retry that will retry).
+3. **Explicit, documented noop** — bind as `catch (_error)` (the `_` prefix marks "intentionally ignored") **and** add a comment explaining *why* ignoring is correct/safe at that exact spot.
+
+Always **bind** the error (`catch (error)`) — never bindingless `catch {}`; you can't log what you don't bind. `.catch(() => {})` with no log and no justifying comment is forbidden. The log message must give a future debugger a starting point (which operation, which resource) — a vague `logger.warn('failed')` that drops the actual `error` is itself a silent swallow. This rule exists because a single swallowed provisioning `catch` made an entire class of "api server down" failures nearly impossible to trace.
+
 ---
 
 ## Anti-Patterns
@@ -141,6 +154,7 @@ Sorted by: `node:` builtins → external packages → `@molecule/*` → relative
 12. Inline styles that override ClassMap classes (e.g., `style={{ background: 'transparent' }}` silently kills `cm.surface`)
 13. Using ClassMap classes without checking their definitions in the bond package first
 14. Baking consumer-specific stream events or cards into a shared package. App-specific chat/stream events (e.g. molecule.dev's `build_degraded` upgrade notice) must NOT be added to the core `@molecule/app-ai-chat` event union or hardcoded in `@molecule/app-ide-react`'s ChatPanel. Use the generic `{ type: 'custom', name, data }` event + the `registerCustomEventCard(name, factory)` registry, and implement the specifics in the consuming app (e.g. `molecule-dev/`). The shared package stays generic; only the app knows about its own events. Same test as the Decoupling Principle: "would a *different* app using this package ever want this exact event/card?" If no, it belongs in the app, not the package.
+15. Silent error swallows — `} catch {}`, `} catch { return null }` with no log, `.catch(() => {})`, or a vague `logger.warn('failed')` that drops the actual `error`. Bind the error and log it (severity by impact), re-throw it, or document why the noop is safe with a `catch (_error)` + comment. See Rule 14.
 
 ---
 
