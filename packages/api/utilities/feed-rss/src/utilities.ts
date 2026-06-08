@@ -98,7 +98,7 @@ export function toHhMmSs(seconds: number | undefined | null): string | undefined
  *
  * @param feed - Feed input.
  * @param format - Target serialization format.
- * @throws {@link FeedSerializeError} if a required field is missing.
+ * @throws {FeedSerializeError} if a required field is missing.
  */
 export function assertFeedShape(feed: Feed, format: FeedOutputFormat): void {
   if (!feed || typeof feed !== 'object') {

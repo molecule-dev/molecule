@@ -43,11 +43,12 @@ export const setProvider = (provider: SearchProvider): void => {
 export const getProvider = (): SearchProvider => {
   try {
     return bondRequire<SearchProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('search.error.noProvider', undefined, {
         defaultValue: 'Search provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

@@ -12,7 +12,7 @@
  * @module
  */
 
-import { type Request, type Response, Router } from 'express'
+import { type Request, type RequestHandler, type Response, Router } from 'express'
 
 import { getParamId, requireUser } from '@molecule/api-bonds-default-express'
 import { t } from '@molecule/api-i18n'
@@ -28,10 +28,11 @@ import {
 } from './service.js'
 import { invoiceCreateSchema, invoiceUpdateSchema, recordPaymentSchema } from './validation.js'
 
-const validateBody = validateBodyRaw as unknown as (
-  schema: unknown,
-) => import('express').RequestHandler
+const validateBody = validateBodyRaw as unknown as (schema: unknown) => RequestHandler
 
+/**
+ * Creates and returns an Express router with all CRUD + payment routes for invoices.
+ */
 export function createInvoiceRouter(): Router {
   const router = Router()
 

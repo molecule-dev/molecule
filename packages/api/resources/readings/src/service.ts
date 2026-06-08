@@ -18,6 +18,9 @@ import type { AggregatedPoint, Granularity, ReadingPoint, ReadingRow } from './t
 
 const TABLE = 'readings'
 
+/**
+ * Persist a single sensor reading row for the given owner.
+ */
 export async function ingestReading(
   ownerId: string,
   data: {
@@ -41,6 +44,9 @@ export async function ingestReading(
   return result.data!
 }
 
+/**
+ * Persist multiple sensor readings in sequence, returning the number successfully inserted.
+ */
 export async function ingestBulk(
   ownerId: string,
   readings: Array<{
@@ -60,6 +66,9 @@ export async function ingestBulk(
   return n
 }
 
+/**
+ * Fetch raw, unaggregated reading points for an owner, optionally filtered by sensor, metric, and time range.
+ */
 export async function listRawReadings(
   ownerId: string,
   opts: {
@@ -160,6 +169,9 @@ export async function listAggregatedReadings(
   }))
 }
 
+/**
+ * Return the total number of readings stored for the given owner.
+ */
 export async function countReadings(ownerId: string): Promise<number> {
   return dbCount(TABLE, [{ field: 'owner_id', operator: '=', value: ownerId }])
 }

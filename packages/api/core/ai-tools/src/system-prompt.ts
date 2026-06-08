@@ -54,8 +54,8 @@ export async function discoverSkills(backend: ExecutionBackend): Promise<SkillEn
     let entries: Array<{ name: string; type: 'file' | 'directory' }>
     try {
       entries = await backend.readDir(dirPath)
-    } catch {
-      continue // directory doesn't exist
+    } catch (_error) {
+      continue // directory doesn't exist — skill dirs are optional
     }
 
     for (const entry of entries) {
@@ -65,8 +65,8 @@ export async function discoverSkills(backend: ExecutionBackend): Promise<SkillEn
       let content: string
       try {
         content = await backend.readFile(skillMdPath)
-      } catch {
-        continue // no SKILL.md in this subdirectory
+      } catch (_error) {
+        continue // no SKILL.md in this subdirectory — individual skill files are optional
       }
 
       // Parse YAML frontmatter (--- delimited block at file start)

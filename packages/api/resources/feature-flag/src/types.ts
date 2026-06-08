@@ -4,9 +4,18 @@
  * @module
  */
 
+/**
+ * Discriminates the value type carried by a feature flag.
+ */
 export type FlagType = 'boolean' | 'multivariate' | 'string' | 'number'
+/**
+ * Lifecycle state of a feature flag (active, disabled, killed, or time-gated).
+ */
 export type FlagState = 'on' | 'off' | 'killed' | 'scheduled'
 
+/**
+ * Database row shape for a feature flag definition.
+ */
 export interface FeatureFlagRow {
   id: string
   user_id: string
@@ -25,6 +34,9 @@ export interface FeatureFlagRow {
   updated_at: string | Date
 }
 
+/**
+ * Database row shape for a targeting rule that overrides a flag's value for matching users.
+ */
 export interface FeatureFlagTargetingRuleRow {
   id: string
   flag_id: string

@@ -22,12 +22,8 @@ import { createHash } from 'node:crypto'
 
 import forge from 'node-forge'
 
+import type { ApplePassAssets, ApplePassCertificates, ApplePassData } from './types.js'
 import { buildZipBuffer, type ZipFileEntry } from './zip.js'
-import type {
-  ApplePassAssets,
-  ApplePassCertificates,
-  ApplePassData,
-} from './types.js'
 
 /**
  * Generate a fully-signed Apple Wallet `.pkpass` archive.
@@ -121,14 +117,14 @@ function signManifest(manifest: Buffer, certificates: ApplePassCertificates): Bu
 
   try {
     signerCert = forge.pki.certificateFromPem(certificates.signerCertPem)
-  } catch {
-    throw new Error('Invalid Apple Wallet signer certificate (signerCertPem).')
+  } catch (error) {
+    throw new Error('Invalid Apple Wallet signer certificate (signerCertPem).', { cause: error })
   }
 
   try {
     wwdrCert = forge.pki.certificateFromPem(certificates.wwdrCertPem)
-  } catch {
-    throw new Error('Invalid Apple WWDR intermediate certificate (wwdrCertPem).')
+  } catch (error) {
+    throw new Error('Invalid Apple WWDR intermediate certificate (wwdrCertPem).', { cause: error })
   }
 
   try {
@@ -138,8 +134,8 @@ function signManifest(manifest: Buffer, certificates: ApplePassCertificates): Bu
     if (!signerKey) {
       throw new Error('decrypt failed')
     }
-  } catch {
-    throw new Error('Invalid Apple Wallet signer private key (signerKeyPem).')
+  } catch (error) {
+    throw new Error('Invalid Apple Wallet signer private key (signerKeyPem).', { cause: error })
   }
 
   const p7 = forge.pkcs7.createSignedData()

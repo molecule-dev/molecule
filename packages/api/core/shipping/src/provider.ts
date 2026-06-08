@@ -34,11 +34,12 @@ export const setProvider = (provider: ShippingProvider): void => {
 export const getProvider = (): ShippingProvider => {
   try {
     return bondRequire<ShippingProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('shipping.error.noProvider', undefined, {
         defaultValue: 'Shipping provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

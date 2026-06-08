@@ -44,11 +44,12 @@ export const setProvider = (provider: FlightsProvider): void => {
 export const getProvider = (): FlightsProvider => {
   try {
     return bondRequire<FlightsProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('flights.error.noProvider', undefined, {
         defaultValue: 'Flights provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

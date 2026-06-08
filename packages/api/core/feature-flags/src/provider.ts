@@ -35,11 +35,12 @@ export const setProvider = (provider: FeatureFlagProvider): void => {
 export const getProvider = (): FeatureFlagProvider => {
   try {
     return bondRequire<FeatureFlagProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('featureFlags.error.noProvider', undefined, {
         defaultValue: 'Feature flag provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

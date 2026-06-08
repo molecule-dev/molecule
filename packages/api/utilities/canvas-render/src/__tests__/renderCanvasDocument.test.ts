@@ -17,17 +17,17 @@
  * which keeps the test runner fast and offline.
  */
 
-import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createCanvasRenderHandler } from '../handler.js'
+import type { CanvasDocument, CanvasRenderRequest, CanvasRenderResponse } from '../index.js'
 import {
   PDF_CONTENT_TYPE,
   PNG_CONTENT_TYPE,
   renderCanvasDocument,
   SVG_CONTENT_TYPE,
 } from '../renderCanvasDocument.js'
-import { setCanvasModule, type Canvas2DContext, type CanvasModule } from '../renderPng.js'
-import type { CanvasDocument, CanvasRenderRequest, CanvasRenderResponse } from '../index.js'
+import { type Canvas2DContext, type CanvasModule, setCanvasModule } from '../renderPng.js'
 
 /**
  * Build a fake 2D context with vitest spies on every method we care about.

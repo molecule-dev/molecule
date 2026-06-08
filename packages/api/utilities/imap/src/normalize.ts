@@ -109,6 +109,11 @@ export function detectHasAttachments(root: ImapBodyNode | undefined): boolean {
   return walkForAttachment(root)
 }
 
+/**
+ * Recursively walk a BODYSTRUCTURE node tree, returning `true` on the first
+ * part whose disposition is `attachment` or whose filename is non-empty and
+ * not `inline`.
+ */
 function walkForAttachment(node: ImapBodyNode): boolean {
   const disposition = node.disposition?.toLowerCase()
   const filename = node.dispositionParameters?.filename ?? node.parameters?.name ?? undefined

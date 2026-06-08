@@ -23,6 +23,9 @@ export function collectReferences(node: AstNode): CellCoord[] {
   return acc
 }
 
+/**
+ * Recursively walk an AST node and push every referenced coordinate into `acc`.
+ */
 function walk(node: AstNode, acc: CellCoord[]): void {
   switch (node.kind) {
     case 'reference':

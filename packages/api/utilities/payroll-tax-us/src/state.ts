@@ -77,6 +77,9 @@ const CA_BRACKETS_MFJ: TaxBracket[] = [
   { thresholdCents: 2_518_346_00, rate: 0.1463 },
 ]
 
+/**
+ * Compute California state income-tax withholding using Method B (Exact-Calculation), 2025 schedules.
+ */
 function caCalculator(input: PayrollTaxInput): number {
   const taxable = stateTaxableWageCents(input)
   if (taxable <= 0) return 0
@@ -119,6 +122,9 @@ const NY_BRACKETS_MFJ: TaxBracket[] = [
   { thresholdCents: 25_000_000_00, rate: 0.109 },
 ]
 
+/**
+ * Compute New York State income-tax withholding using 2025 Publication NYS-50-T-NYS schedules.
+ */
 function nyCalculator(input: PayrollTaxInput): number {
   const taxable = stateTaxableWageCents(input)
   if (taxable <= 0) return 0
@@ -135,6 +141,9 @@ function nyCalculator(input: PayrollTaxInput): number {
 const IL_RATE = 0.0495
 const IL_PERSONAL_EXEMPTION_CENTS = 2_775_00 // per allowance, annual
 
+/**
+ * Compute Illinois state income-tax withholding at the flat 4.95% rate with per-allowance personal exemptions, 2025.
+ */
 function ilCalculator(input: PayrollTaxInput): number {
   const taxable = stateTaxableWageCents(input)
   if (taxable <= 0) return 0
@@ -152,6 +161,9 @@ function ilCalculator(input: PayrollTaxInput): number {
 
 const MA_RATE = 0.05
 
+/**
+ * Compute Massachusetts state income-tax withholding at the flat 5.0% rate on Massachusetts-source wages, 2025.
+ */
 function maCalculator(input: PayrollTaxInput): number {
   const taxable = stateTaxableWageCents(input)
   if (taxable <= 0) return 0
@@ -162,6 +174,9 @@ function maCalculator(input: PayrollTaxInput): number {
 /* TX, FL — no state income tax.                                       */
 /* ------------------------------------------------------------------ */
 
+/**
+ * No-op calculator for states with no state income tax (TX, FL); always returns 0.
+ */
 function noTaxCalculator(): number {
   return 0
 }

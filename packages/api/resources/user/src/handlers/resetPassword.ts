@@ -146,8 +146,8 @@ export const resetPassword = ({ name: _name, tableName, schema: _schema }: types
         await get<{ deleteByUserId(userId: string): Promise<void> }>('device')?.deleteByUserId(
           userId,
         )
-      } catch {
-        logger.warn('Failed to invalidate sessions after password reset', { userId })
+      } catch (error) {
+        logger.warn('Failed to invalidate sessions after password reset', { userId, error })
       }
 
       analytics.track({ name: 'user.password_reset_completed', userId }).catch(() => {})

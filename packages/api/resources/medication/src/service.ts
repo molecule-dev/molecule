@@ -20,6 +20,7 @@ import type { MedicationFrequency, MedicationLogRow, MedicationRow } from './typ
 const MEDS_TABLE = 'medications'
 const LOGS_TABLE = 'medication_logs'
 
+/** Returns all medications belonging to the given owner, optionally including inactive ones. */
 export async function listMedicationsForOwner(
   ownerId: string,
   opts: { include_inactive?: boolean } = {},
@@ -30,6 +31,7 @@ export async function listMedicationsForOwner(
   return findMany<MedicationRow>(MEDS_TABLE, { where, orderBy })
 }
 
+/** Fetches a single medication by ID, returning null if not found or not owned by the given owner. */
 export async function getMedicationForOwner(
   medicationId: string,
   ownerId: string,
@@ -39,6 +41,7 @@ export async function getMedicationForOwner(
   return row
 }
 
+/** Creates a new medication record owned by the given owner and returns the persisted row. */
 export async function createMedicationForOwner(
   ownerId: string,
   data: {
@@ -69,6 +72,7 @@ export async function createMedicationForOwner(
   return result.data!
 }
 
+/** Applies a partial patch to a medication, returning the updated row or null if not found or not owned. */
 export async function updateMedicationForOwner(
   medicationId: string,
   ownerId: string,
@@ -80,6 +84,7 @@ export async function updateMedicationForOwner(
   return findById<MedicationRow>(MEDS_TABLE, medicationId)
 }
 
+/** Deletes a medication by ID, returning true on success or false if not found or not owned. */
 export async function deleteMedicationForOwner(
   medicationId: string,
   ownerId: string,
@@ -112,6 +117,7 @@ export async function logDose(
   return result.data!
 }
 
+/** Returns dose logs for a medication within an optional time window, or null if the medication is not found or not owned. */
 export async function listLogs(
   medicationId: string,
   ownerId: string,

@@ -19,30 +19,37 @@ import type { Invoice, InvoiceRow, InvoiceStatus, LineItem } from './types.js'
 
 const TABLE = 'invoices'
 
+/** Round a number to two decimal places for currency precision. */
 function round2(n: number): number {
   return Math.round(n * 100) / 100
 }
 
 /** Compute subtotal/tax/total from line items + tax rate (percent 0-100). */
-export function computeTotals(items: LineItem[], taxRate: number) {
+export function computeTotals(
+  items: LineItem[],
+  taxRate: number,
+): { subtotal: number; tax_amount: number; total: number } {
   const subtotal = round2(items.reduce((sum, i) => sum + i.quantity * i.unit_price, 0))
-  const tax_amount = round2(subtotal * (taxRate / 100))
-  const total = round2(subtotal + tax_amount)
-  return { subtotal, tax_amount, total }
+  const taxAmount = round2(subtotal * (taxRate / 100))
+  const total = round2(subtotal + taxAmount)
+  return { subtotal, tax_amount: taxAmount, total }
 }
 
+/** Convert a string, Date, or null to an ISO 8601 string, or null if absent. */
 function toIso(value: string | Date | null): string | null {
   if (!value) return null
   if (value instanceof Date) return value.toISOString()
   return String(value)
 }
 
+/** Convert a string, Date, or null to a YYYY-MM-DD date string, or null if absent. */
 function toDateString(value: string | Date | null): string | null {
   const iso = toIso(value)
   if (!iso) return null
   return iso.length >= 10 ? iso.slice(0, 10) : iso
 }
 
+/** Map a raw database InvoiceRow to a normalized Invoice with ISO date strings. */
 export function toInvoice(row: InvoiceRow): Invoice {
   return {
     ...row,
@@ -61,6 +68,7 @@ async function nextInvoiceNumber(userId: string): Promise<string> {
   return `INV-${year}-${String(existing + 1).padStart(4, '0')}`
 }
 
+/** List all invoices for a user, with optional client/status filters and pagination. */
 export async function listInvoicesForUser(
   userId: string,
   opts: {
@@ -87,6 +95,7 @@ export async function listInvoicesForUser(
   return { data: rows.map(toInvoice), total, page, limit }
 }
 
+/** Fetch a single invoice by ID, returning null if not found or not owned by the user. */
 export async function getInvoiceForUser(
   invoiceId: string,
   userId: string,
@@ -96,6 +105,7 @@ export async function getInvoiceForUser(
   return toInvoice(row)
 }
 
+/** Create a new draft invoice for a user, computing totals from line items and tax rate. */
 export async function createInvoiceForUser(
   userId: string,
   data: {
@@ -131,6 +141,7 @@ export async function createInvoiceForUser(
   return toInvoice(result.data!)
 }
 
+/** Apply a partial update to a user-owned invoice, recomputing totals and marking paid_at when status becomes paid. */
 export async function updateInvoiceForUser(
   invoiceId: string,
   userId: string,
@@ -165,6 +176,7 @@ export async function updateInvoiceForUser(
   return next ? toInvoice(next) : null
 }
 
+/** Delete a user-owned invoice by ID, returning false if not found or not owned by the user. */
 export async function deleteInvoiceForUser(invoiceId: string, userId: string): Promise<boolean> {
   const row = await findById<InvoiceRow>(TABLE, invoiceId)
   if (!row || row.user_id !== userId) return false
@@ -172,6 +184,7 @@ export async function deleteInvoiceForUser(invoiceId: string, userId: string): P
   return true
 }
 
+/** Record a payment amount against an invoice, updating amount_paid and transitioning status to partial or paid. */
 export async function recordPayment(
   invoiceId: string,
   userId: string,

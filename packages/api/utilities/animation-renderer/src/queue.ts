@@ -91,6 +91,8 @@ export class RenderQueue {
   private readonly runner: RenderQueueOptions['runner']
 
   /**
+   * Create a new render queue with the given configuration.
+   *
    * @param options - Queue configuration. The `runner` is required.
    */
   constructor(options: RenderQueueOptions) {
@@ -149,7 +151,9 @@ export class RenderQueue {
       format: job.format,
       totalFrames: job.totalFrames,
       framesRendered: job.framesRendered,
-      ...(job.result ? { contentType: job.result.contentType, extension: job.result.extension } : {}),
+      ...(job.result
+        ? { contentType: job.result.contentType, extension: job.result.extension }
+        : {}),
       ...(job.error ? { error: job.error } : {}),
     }
   }
@@ -237,7 +241,10 @@ function isTerminal(s: RenderJobStatus): boolean {
 export function makeStandardRunner(adapters: {
   canvas?: CanvasRenderAdapter
   ffmpeg?: FfmpegAdapter
-  toLottie: (doc: AnimationDocument, opts: { fps: number; width: number; height: number }) => unknown
+  toLottie: (
+    doc: AnimationDocument,
+    opts: { fps: number; width: number; height: number },
+  ) => unknown
   snapshotAtTime: (doc: AnimationDocument, t: number) => unknown
 }): RenderQueueOptions['runner'] {
   return async (doc, options, signal, onProgress) => {

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+/** Valid dosing frequency options for a medication schedule. */
 export const MEDICATION_FREQUENCIES = [
   'once',
   'daily',
@@ -11,8 +12,10 @@ export const MEDICATION_FREQUENCIES = [
   'custom',
 ] as const
 
+/** Valid status values for a medication dose log entry. */
 export const LOG_STATUSES = ['taken', 'skipped', 'late', 'missed'] as const
 
+/** Zod schema for validating medication creation request payloads. */
 export const medicationCreateSchema = z.object({
   name: z.string().min(1).max(255),
   generic_name: z.string().max(255).nullable().optional(),
@@ -25,10 +28,12 @@ export const medicationCreateSchema = z.object({
   notes: z.string().max(2000).nullable().optional(),
 })
 
+/** Zod schema for validating medication update request payloads; all create fields become optional and `is_active` is added. */
 export const medicationUpdateSchema = medicationCreateSchema.partial().extend({
   is_active: z.boolean().optional(),
 })
 
+/** Zod schema for validating medication dose log creation request payloads. */
 export const logCreateSchema = z.object({
   taken_at: z.string().optional(),
   status: z.enum(LOG_STATUSES).optional(),

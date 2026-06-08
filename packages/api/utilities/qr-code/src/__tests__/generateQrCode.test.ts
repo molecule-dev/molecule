@@ -16,16 +16,16 @@ import { unzipSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
 
 import { buildMatrix } from '../buildMatrix.js'
-import { createQrCodeHandler } from '../handler.js'
 import { generateQrCode } from '../generateQrCode.js'
+import type { QrCodeRequest, QrCodeResponse } from '../handler.js'
+import { createQrCodeHandler } from '../handler.js'
 import { parseColor } from '../renderPng.js'
 import {
   PNG_CONTENT_TYPE,
-  SVG_CONTENT_TYPE,
   type QrCodeFormat,
   type QrErrorCorrectionLevel,
+  SVG_CONTENT_TYPE,
 } from '../types.js'
-import type { QrCodeRequest, QrCodeResponse } from '../handler.js'
 
 /** Canonical 8-byte PNG signature: 89 50 4E 47 0D 0A 1A 0A. */
 const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])

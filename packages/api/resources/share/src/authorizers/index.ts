@@ -44,7 +44,7 @@ export async function resolveRole(
  * @param required - Minimum role required.
  * @param userId - User ID, or `null` for anonymous.
  * @param teamIds - Team IDs the user belongs to.
- * @throws Error tagged 'forbidden' when access is denied.
+ * @throws {Error} Error tagged 'forbidden' when access is denied.
  */
 export async function requireRole(
   resourceType: string,

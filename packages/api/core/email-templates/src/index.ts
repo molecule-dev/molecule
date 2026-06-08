@@ -32,8 +32,8 @@
  * @module
  */
 
-export * from './types.js'
 export * from './defaults.js'
 export * from './registry.js'
 export * from './render.js'
 export * from './send.js'
+export * from './types.js'

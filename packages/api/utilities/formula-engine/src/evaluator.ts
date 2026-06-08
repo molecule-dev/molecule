@@ -42,6 +42,9 @@ export function evaluate(
   return evalNode(node, resolveCell, ctx)
 }
 
+/**
+ * Recursively evaluate a single AST node and return its cell value.
+ */
 function evalNode(node: AstNode, resolveCell: ResolveCell, ctx: FunctionContext): CellValue {
   switch (node.kind) {
     case 'number':
@@ -70,6 +73,9 @@ function evalNode(node: AstNode, resolveCell: ResolveCell, ctx: FunctionContext)
   }
 }
 
+/**
+ * Apply a unary operator (`+`, `-`, `%`) to a cell value and return the result.
+ */
 function evalUnary(op: '+' | '-' | '%', operand: CellValue): CellValue {
   if (isError(operand)) return operand
   const n = toNumber(operand)
@@ -84,6 +90,9 @@ function evalUnary(op: '+' | '-' | '%', operand: CellValue): CellValue {
   }
 }
 
+/**
+ * Apply a binary operator to two cell values and return the result.
+ */
 function evalBinary(op: string, left: CellValue, right: CellValue): CellValue {
   if (isError(left)) return left
   if (isError(right)) return right
@@ -137,6 +146,9 @@ function evalBinary(op: string, left: CellValue, right: CellValue): CellValue {
   }
 }
 
+/**
+ * Look up and invoke a built-in function by name, expanding range arguments into arrays.
+ */
 function evalCall(
   name: string,
   argNodes: AstNode[],

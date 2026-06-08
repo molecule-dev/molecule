@@ -16,11 +16,7 @@ import {
   createGoogleWalletPassHandler,
   type WalletPassResponse,
 } from '../handlers.js'
-import {
-  PKPASS_CONTENT_TYPE,
-  type ApplePassCertificates,
-  type ApplePassData,
-} from '../types.js'
+import { type ApplePassCertificates, type ApplePassData, PKPASS_CONTENT_TYPE } from '../types.js'
 
 /**
  * Build a fresh test cert bundle (mirrors the helper in

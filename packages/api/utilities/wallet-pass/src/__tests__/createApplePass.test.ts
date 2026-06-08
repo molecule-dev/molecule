@@ -17,7 +17,6 @@ import { describe, expect, test } from 'vitest'
 
 import { createApplePass } from '../createApplePass.js'
 import type { ApplePassData } from '../types.js'
-
 import { readZipBuffer } from './zip-reader.js'
 
 interface TestCertBundle {

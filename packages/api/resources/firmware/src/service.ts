@@ -121,6 +121,7 @@ export async function publishFirmwareForOwner(
   return (result.data as FirmwareVersionRow | null) ?? null
 }
 
+/** Returns all device IDs owned by the given user. */
 async function ownerDeviceIds(userId: string): Promise<string[]> {
   const rows = await findMany<{ id: string }>(DEVICE_TABLE, {
     where: [{ field: 'owner_id', operator: '=', value: userId }],
@@ -129,6 +130,7 @@ async function ownerDeviceIds(userId: string): Promise<string[]> {
   return rows.map((r) => r.id)
 }
 
+/** Returns all device IDs belonging to a fleet that the given user owns. */
 async function fleetDeviceIds(userId: string, fleetId: string): Promise<string[]> {
   const fleet = await findById<Record<string, unknown>>('fleets', fleetId)
   if (!fleet || fleet.owner_id !== userId) return []
@@ -219,11 +221,11 @@ export async function createRolloutForOwner(
           rollout_id: rolloutRow.id,
         })
         await broadcast(`commands:${deviceId}`, 'command', { command: cmd.data })
-      } catch {
-        /* realtime is best-effort */
+      } catch (_error) {
+        /* realtime is best-effort — a failed broadcast does not block the rollout */
       }
-    } catch {
-      /* per-target failure already recorded as failed task; continue */
+    } catch (_error) {
+      /* per-target failure already recorded as failed task; continue with remaining targets */
     }
   }
   return { ok: true, rollout: rolloutRow, targets }

@@ -50,8 +50,9 @@ export const read = ({ name: _name, tableName, schema: _schema }: types.Resource
             body.twoFactorEnabled = user.twoFactorEnabled || false
             body.hasPendingTwoFactor = Boolean(secrets.pendingTwoFactorSecret)
           }
-        } catch {
-          // Non-critical.
+        } catch (_error) {
+          // Non-critical: the secrets table may not exist yet (pre-migration) or the row may be absent.
+          // Omitting twoFactorEnabled/hasPendingTwoFactor from the response is safe — callers treat absence as false.
         }
       }
 

@@ -5,12 +5,12 @@
  * @module
  */
 
-import { getTransport } from '@molecule/api-emails'
 import type { EmailMessage, EmailSendResult } from '@molecule/api-emails'
+import { getTransport } from '@molecule/api-emails'
 import { t } from '@molecule/api-i18n'
 
-import { renderTemplate } from './render.js'
 import { getTemplate } from './registry.js'
+import { renderTemplate } from './render.js'
 import type { SendTemplateOptions } from './types.js'
 
 /**

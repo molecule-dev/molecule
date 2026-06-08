@@ -43,12 +43,7 @@ export interface ApplePassBarcode {
  * Apple Wallet pass-style discriminator. Drives the visual layout of the
  * pass on-device.
  */
-export type ApplePassStyle =
-  | 'boardingPass'
-  | 'coupon'
-  | 'eventTicket'
-  | 'generic'
-  | 'storeCard'
+export type ApplePassStyle = 'boardingPass' | 'coupon' | 'eventTicket' | 'generic' | 'storeCard'
 
 /**
  * A single primary/secondary/auxiliary/back/header field on an Apple Wallet

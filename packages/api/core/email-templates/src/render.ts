@@ -76,7 +76,9 @@ const normalizeVariables = (
     }
     try {
       out[key] = JSON.stringify(value)
-    } catch {
+    } catch (_error) {
+      // JSON.stringify can throw for circular references or BigInt values;
+      // String() is a safe best-effort fallback so the template still renders.
       out[key] = String(value)
     }
   }

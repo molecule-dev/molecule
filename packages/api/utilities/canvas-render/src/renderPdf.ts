@@ -84,6 +84,9 @@ function buildPdf(args: BuildPdfArgs): string {
 
   let body = '%PDF-1.4\n%\xe2\xe3\xcf\xd3\n'
 
+  /**
+   * Appends a PDF object to the body, records its byte offset, and returns its 1-based object id.
+   */
   function pushObject(content: string): number {
     const id = objects.length + 1
     objectByteOffsets.push(Buffer.byteLength(body, 'binary'))
@@ -162,6 +165,8 @@ function parseColor(color: string): [number, number, number] {
 }
 
 /**
+ * Formats a number as a compact PDF-safe decimal string, omitting trailing zeros.
+ *
  * @param value
  */
 function num(value: number): string {

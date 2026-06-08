@@ -1,4 +1,4 @@
-import { type Request, type Response, Router } from 'express'
+import { type Request, type RequestHandler, type Response, Router } from 'express'
 
 import { getParamId, requireUser } from '@molecule/api-bonds-default-express'
 import { t } from '@molecule/api-i18n'
@@ -17,10 +17,9 @@ import {
 import type { MedicationRow } from './types.js'
 import { logCreateSchema, medicationCreateSchema, medicationUpdateSchema } from './validation.js'
 
-const validateBody = validateBodyRaw as unknown as (
-  schema: unknown,
-) => import('express').RequestHandler
+const validateBody = validateBodyRaw as unknown as (schema: unknown) => RequestHandler
 
+/** Creates and returns the Express router for medication CRUD and dose-logging endpoints. */
 export function createMedicationRouter(): Router {
   const router = Router()
 

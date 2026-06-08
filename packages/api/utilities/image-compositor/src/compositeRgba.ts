@@ -18,9 +18,9 @@ import type {
   GradientLayer,
   ImageLayer,
   Layer,
+  LayeredImage,
   LayerMask,
   LayerPosition,
-  LayeredImage,
   RasterCodec,
   RawImage,
 } from './types.js'

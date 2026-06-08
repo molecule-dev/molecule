@@ -6,6 +6,7 @@
 
 import { z } from 'zod'
 
+/** Validates the request body for creating a new task. */
 export const taskCreateSchema = z.object({
   title: z.string().min(1).max(1000),
   description: z.string().max(10_000).optional(),
@@ -17,10 +18,12 @@ export const taskCreateSchema = z.object({
   position: z.number().optional(),
 })
 
+/** Validates the request body for updating an existing task (all fields optional, plus completion flag). */
 export const taskUpdateSchema = taskCreateSchema.partial().extend({
   is_completed: z.boolean().optional(),
 })
 
+/** Validates the request body for bulk-reordering tasks (array of id + position pairs). */
 export const reorderSchema = z.object({
   tasks: z
     .array(
@@ -32,6 +35,7 @@ export const reorderSchema = z.object({
     .min(1),
 })
 
+/** Validates query parameters for listing tasks (filtering, pagination, and due-date constraints). */
 export const taskListQuerySchema = z.object({
   parent_id: z.string().uuid().nullable().optional(),
   completed: z.coerce.boolean().optional(),

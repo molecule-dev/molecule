@@ -4,13 +4,13 @@
  * @module
  */
 
+import { versionCount } from './handlers/count.js'
 import { create } from './handlers/create.js'
 import { diff } from './handlers/diff.js'
 import { list } from './handlers/list.js'
 import { read } from './handlers/read.js'
 import { readByNumber } from './handlers/readByNumber.js'
 import { restore } from './handlers/restore.js'
-import { versionCount } from './handlers/count.js'
 
 /**
  * Handler map for version-history routes.

@@ -65,6 +65,8 @@ export class Sheet {
   private readonly config: Required<SheetConfig>
 
   /**
+   * Create a new Sheet with optional dimension limits.
+   *
    * @param config - Sheet configuration.
    */
   constructor(config: SheetConfig = {}) {
@@ -192,6 +194,9 @@ export class Sheet {
 
   // --- Internals ---
 
+  /**
+   * Parse an A1-style reference string into a validated CellCoord.
+   */
   private refToCoord(ref: string): CellCoord {
     const coord = parseCellReference(ref)
     if (!coord) throw new Error(`Invalid cell reference: ${ref}`)
@@ -201,6 +206,9 @@ export class Sheet {
     return coord
   }
 
+  /**
+   * Write a cell record, rewire dependency edges, and trigger downstream recompute.
+   */
   private assignCell(
     coord: CellCoord,
     value: CellValue,
@@ -240,6 +248,9 @@ export class Sheet {
     this.recomputeDownstream(key, options)
   }
 
+  /**
+   * Recompute all formula cells that transitively depend on the given key.
+   */
   private recomputeDownstream(rootKey: string, options: EvaluateOptions): void {
     // Find every transitive dependent of the changed cell.
     const affected = new Set<string>()
@@ -266,6 +277,9 @@ export class Sheet {
     }
   }
 
+  /**
+   * Evaluate (or propagate) the computed value for a single cell key.
+   */
   private evaluateKey(key: string, options: EvaluateOptions, cycleSet: ReadonlySet<string>): void {
     const cell = this.cells.get(key)
     if (!cell) return

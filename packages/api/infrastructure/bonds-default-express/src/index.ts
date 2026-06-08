@@ -14,11 +14,11 @@
  * @module
  */
 
-export * from './setup.js'
+export * from './billing.js'
+export * from './handlers.js'
+export * from './middleware.js'
 export * from './migrate.js'
 export * from './resources.js'
 export * from './routes.js'
-export * from './middleware.js'
-export * from './handlers.js'
 export * from './schemas.js'
-export * from './billing.js'
+export * from './setup.js'

@@ -17,7 +17,7 @@ interface ParseJsonFeedArgs {
  * @param args.body
  * @param args.sanitize
  * @returns Normalized feed + items.
- * @throws {@link FeedParseError} when the body is not valid JSON or lacks a `feed` shape.
+ * @throws {FeedParseError} when the body is not valid JSON or lacks a `feed` shape.
  */
 export function parseJsonFeed({ body, sanitize }: ParseJsonFeedArgs): ParsedFeed {
   let parsed: unknown
@@ -51,7 +51,7 @@ export function parseJsonFeed({ body, sanitize }: ParseJsonFeedArgs): ParsedFeed
 }
 
 /**
- *
+ * Returns the trimmed string value, or undefined if the value is not a non-empty string.
  * @param value
  */
 function stringOrUndefined(value: unknown): string | undefined {
@@ -61,7 +61,7 @@ function stringOrUndefined(value: unknown): string | undefined {
 }
 
 /**
- *
+ * Extracts a displayable author name from a JSON Feed author object, array, or string.
  * @param value
  */
 function extractJsonAuthor(value: unknown): string | undefined {
@@ -75,7 +75,7 @@ function extractJsonAuthor(value: unknown): string | undefined {
 }
 
 /**
- *
+ * Maps a raw JSON Feed item object to a normalized {@link NormalizedFeedItem}.
  * @param raw
  * @param sanitize
  */

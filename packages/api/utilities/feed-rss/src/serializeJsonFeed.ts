@@ -56,7 +56,7 @@ function jsonAuthor(author: FeedAuthor): Record<string, string> {
  * @param feed - The feed structure to serialize.
  * @param options - See {@link SerializeJsonFeedOptions}.
  * @returns Complete JSON Feed 1.1 document string.
- * @throws {@link FeedSerializeError} when required fields are missing.
+ * @throws {FeedSerializeError} when required fields are missing.
  */
 export function serializeJsonFeed(feed: Feed, options: SerializeJsonFeedOptions = {}): string {
   assertFeedShape(feed, 'json-feed')

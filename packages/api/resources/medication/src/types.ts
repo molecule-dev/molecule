@@ -1,3 +1,6 @@
+/**
+ * Describes how often a medication is taken (e.g. daily, twice daily, as needed).
+ */
 export type MedicationFrequency =
   | 'once'
   | 'daily'
@@ -8,6 +11,9 @@ export type MedicationFrequency =
   | 'weekly'
   | 'custom'
 
+/**
+ * Database row shape for a medication record.
+ */
 export interface MedicationRow {
   id: string
   owner_id: string
@@ -25,6 +31,9 @@ export interface MedicationRow {
   updated_at: string | Date
 }
 
+/**
+ * Database row shape for a medication intake log entry.
+ */
 export interface MedicationLogRow {
   id: string
   medication_id: string

@@ -59,11 +59,12 @@ export function hasProvider(): boolean {
 export function requireProvider(): SandboxProvider {
   try {
     return bondRequire<SandboxProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('codeSandbox.error.noProvider', undefined, {
         defaultValue: 'Code sandbox provider not configured. Bond a code-sandbox provider first.',
       }),
+      { cause: error },
     )
   }
 }

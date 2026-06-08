@@ -1,5 +1,7 @@
+/** Lifecycle states a meeting can occupy from creation through completion. */
 export type MeetingStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
 
+/** Raw database row shape for a meeting record. */
 export interface MeetingRow {
   id: string
   owner_id: string
@@ -18,6 +20,7 @@ export interface MeetingRow {
   updated_at: string | Date
 }
 
+/** Raw database row shape for an action item linked to a meeting. */
 export interface ActionItemRow {
   id: string
   meeting_id: string

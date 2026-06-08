@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { getLinkPreview } from '../preview.js'
-import { LinkPreview, LinkPreviewError } from '../types.js'
+import { type LinkPreview, LinkPreviewError } from '../types.js'
 
 /**
  * Build a minimal `Response`-like object compatible with what

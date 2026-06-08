@@ -45,7 +45,8 @@ export async function loadState(projectPath: string): Promise<StagingState> {
   try {
     const content = await readFile(statePath(projectPath), 'utf-8')
     return JSON.parse(content) as StagingState
-  } catch {
+  } catch (_error) {
+    // File missing or unreadable is the expected cold-start case; return empty state.
     return emptyState()
   }
 }

@@ -114,7 +114,7 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
             }
           }
         }
-      } catch {
+      } catch (_error) {
         // Scanner is optional; ignore failures when handlers/fixtures are absent.
       }
     }

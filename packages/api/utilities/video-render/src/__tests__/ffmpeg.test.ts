@@ -8,10 +8,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   defaultFfmpegRunner,
+  type FfmpegProcess,
   getFfmpegRunner,
   parseFfmpegProgressSeconds,
   setFfmpegRunner,
-  type FfmpegProcess,
 } from '../ffmpeg.js'
 
 describe('parseFfmpegProgressSeconds', () => {

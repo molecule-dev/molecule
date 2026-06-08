@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
+/** Regex that matches a valid wiki-page slug: lowercase alphanumeric with interior hyphens. */
 export const slugRegex = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/
 
+/** Converts an arbitrary string into a URL-safe lowercase slug. */
 export function slugify(input: string): string {
   return input
     .toLowerCase()
@@ -9,6 +11,7 @@ export function slugify(input: string): string {
     .replace(/^-|-$/g, '')
 }
 
+/** Zod schema for validating wiki-page creation payloads. */
 export const wikiPageCreateSchema = z.object({
   space_id: z.string().uuid(),
   parent_id: z.string().uuid().nullable().optional(),
@@ -19,6 +22,7 @@ export const wikiPageCreateSchema = z.object({
   is_published: z.boolean().optional(),
 })
 
+/** Zod schema for validating wiki-page update payloads. */
 export const wikiPageUpdateSchema = z.object({
   parent_id: z.string().uuid().nullable().optional(),
   slug: z.string().min(1).max(120).regex(slugRegex).optional(),
@@ -28,6 +32,7 @@ export const wikiPageUpdateSchema = z.object({
   is_published: z.boolean().optional(),
 })
 
+/** Zod schema for validating wiki-page list/query parameters. */
 export const wikiPageQuerySchema = z.object({
   space_id: z.string().uuid().optional(),
   parent_id: z.string().uuid().nullable().optional(),

@@ -35,11 +35,12 @@ export const setProvider = (provider: EsignProvider): void => {
 export const getProvider = (): EsignProvider => {
   try {
     return bondRequire<EsignProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('esign.error.noProvider', undefined, {
         defaultValue: 'E-signature provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

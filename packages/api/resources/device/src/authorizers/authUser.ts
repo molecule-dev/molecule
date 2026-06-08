@@ -26,8 +26,11 @@ export const authUser =
         res.locals.device = device
         return next()
       }
-    } catch {
-      /* no-op */
+    } catch (_error) {
+      // Database lookup failure is treated the same as "device not found":
+      // execution falls through to the unauthorized response below, which is
+      // the correct outcome regardless of whether the device is missing or
+      // unreachable. No logging needed — the caller receives a clear 401.
     }
     return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }))
   }

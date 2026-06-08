@@ -19,7 +19,7 @@ import type { RankAlgorithm, RankContext, RankItem } from './types.js'
  * @param item - Item being ranked.
  * @param ctx - Reference time + optional gravity.
  * @returns Numeric score; semantics depend on the chosen algorithm.
- * @throws If `algorithm` is not a known identifier.
+ * @throws {Error} If `algorithm` is not a known identifier.
  */
 export const rankScore = (algorithm: RankAlgorithm, item: RankItem, ctx: RankContext): number => {
   switch (algorithm) {

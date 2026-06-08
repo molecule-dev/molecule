@@ -56,7 +56,9 @@ const toScopes = (value: string[] | string | null | undefined): string[] => {
     try {
       const parsed = JSON.parse(value)
       return Array.isArray(parsed) ? parsed.map(String) : []
-    } catch {
+    } catch (_error) {
+      // JSON.parse failure means the stored value is not valid JSON; returning
+      // an empty array is the correct safe fallback — no action needed.
       return []
     }
   }

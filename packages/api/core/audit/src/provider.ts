@@ -42,11 +42,12 @@ export const setProvider = (provider: AuditProvider): void => {
 export const getProvider = (): AuditProvider => {
   try {
     return bondRequire<AuditProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('audit.error.noProvider', undefined, {
         defaultValue: 'Audit provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

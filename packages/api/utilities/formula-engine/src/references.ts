@@ -102,7 +102,7 @@ export function formatCellReference(coord: CellCoord): string {
  * Iterate every coordinate in a range. Yields top-to-bottom, left-to-right.
  *
  * @param range - Cell range.
- * @yields Each cell coordinate inside the range, inclusive of both corners.
+ * @yields {CellCoord} Each cell coordinate inside the range, inclusive of both corners.
  */
 export function* iterateRange(range: CellRange): Generator<CellCoord> {
   for (let r = range.start.row; r <= range.end.row; r++) {

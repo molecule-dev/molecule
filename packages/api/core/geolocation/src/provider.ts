@@ -42,11 +42,12 @@ export const setProvider = (provider: GeolocationProvider): void => {
 export const getProvider = (): GeolocationProvider => {
   try {
     return bondRequire<GeolocationProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('geolocation.error.noProvider', undefined, {
         defaultValue: 'Geolocation provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

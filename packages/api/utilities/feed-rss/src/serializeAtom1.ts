@@ -136,7 +136,7 @@ function renderEntry(item: FeedItem, feedUpdated: string, pretty: boolean): stri
  * @param feed - The feed structure to serialize.
  * @param options - See {@link SerializeAtom1Options}.
  * @returns Complete Atom 1.0 XML document string.
- * @throws {@link FeedSerializeError} when required fields are missing.
+ * @throws {FeedSerializeError} when required fields are missing.
  */
 export function serializeAtom1(feed: Feed, options: SerializeAtom1Options = {}): string {
   assertFeedShape(feed, 'atom-1.0')

@@ -6,7 +6,7 @@
  */
 
 import { isPrivateHost } from './ssrf.js'
-import { GetLinkPreviewOptions, LinkPreviewError, LinkPreviewErrorCode } from './types.js'
+import { type GetLinkPreviewOptions, LinkPreviewError, type LinkPreviewErrorCode } from './types.js'
 
 /**
  * Default polite User-Agent. Many CDNs serve different (or denied)
@@ -58,7 +58,9 @@ export function validateUrl(rawUrl: string, allowPrivate: boolean): URL {
   let parsed: URL
   try {
     parsed = new URL(rawUrl)
-  } catch {
+  } catch (_error) {
+    // The URL constructor's error message is not user-friendly; we surface
+    // our own typed LinkPreviewError instead via fail().
     fail('invalid-url', `Invalid URL: ${rawUrl}`, rawUrl)
   }
   if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
@@ -113,7 +115,6 @@ export async function fetchHtml(
   const timer = setTimeout(() => controller.abort(), timeoutMs)
 
   try {
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       let response: Response
       try {
@@ -152,7 +153,9 @@ export async function fetchHtml(
         let nextUrl: string
         try {
           nextUrl = new URL(location, currentUrl).toString()
-        } catch {
+        } catch (_error) {
+          // The URL constructor's parse error is replaced by our typed
+          // LinkPreviewError via fail(); the raw error has no extra info.
           fail('http-error', `Invalid redirect target: ${location}`, currentUrl)
         }
         validateUrl(nextUrl, allowPrivate)
@@ -208,7 +211,6 @@ async function readTruncated(response: Response, maxBytes: number): Promise<stri
   const chunks: string[] = []
   let received = 0
   try {
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const { value, done } = await reader.read()
       if (done) break
@@ -230,8 +232,8 @@ async function readTruncated(response: Response, maxBytes: number): Promise<stri
   } finally {
     try {
       reader.releaseLock()
-    } catch {
-      // already released
+    } catch (_error) {
+      // already released — safe to ignore
     }
   }
   return chunks.join('')

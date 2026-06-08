@@ -35,11 +35,12 @@ export const setProvider = (provider: EncryptionProvider): void => {
 export const getProvider = (): EncryptionProvider => {
   try {
     return bondRequire<EncryptionProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('encryption.error.noProvider', undefined, {
         defaultValue: 'Encryption provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

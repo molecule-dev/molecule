@@ -18,7 +18,8 @@ export function parseStringArray(raw: string | null | undefined): string[] {
   try {
     const parsed = JSON.parse(raw) as unknown
     return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === 'string') : []
-  } catch {
+  } catch (_error) {
+    // Malformed JSON is treated as an empty list — safe fallback, no state is lost.
     return []
   }
 }
@@ -38,7 +39,8 @@ export function parseMetadata(raw: string | null | undefined): Record<string, un
       return parsed as Record<string, unknown>
     }
     return undefined
-  } catch {
+  } catch (_error) {
+    // Malformed JSON is treated as absent metadata — safe fallback, caller omits the field.
     return undefined
   }
 }

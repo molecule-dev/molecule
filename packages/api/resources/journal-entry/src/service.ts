@@ -20,24 +20,28 @@ import {
 const TABLE = 'journal_entries'
 const MOOD_TABLE = 'mood_entries'
 
+/** Coerce a date-like value to an ISO-8601 string, defaulting to now. */
 function toIso(d: string | Date | null | undefined): string {
   if (!d) return new Date().toISOString()
   return new Date(d).toISOString()
 }
 
+/** Parse a JSON string into a typed array, returning `[]` on invalid input. */
 function toJsonArray<T = unknown>(raw: unknown): T[] {
   if (Array.isArray(raw)) return raw as T[]
   if (typeof raw === 'string') {
     try {
       const parsed = JSON.parse(raw) as unknown
       return Array.isArray(parsed) ? (parsed as T[]) : []
-    } catch {
+    } catch (_error) {
+      // raw is not valid JSON — safe to return an empty array
       return []
     }
   }
   return []
 }
 
+/** Trim an entry body to a 200-character preview, collapsing whitespace. */
 function previewText(body: string): string {
   const collapsed = body.replace(/\s+/g, ' ').trim()
   if (collapsed.length <= 200) return collapsed
@@ -49,13 +53,14 @@ export async function decryptIfNeeded(row: JournalEntryRow): Promise<string> {
   if (row.body_encrypted && hasEncryption()) {
     try {
       return await decrypt(row.body_encrypted, row.user_id)
-    } catch {
-      /* fall back to plaintext column */
+    } catch (_error) {
+      // Decryption failed — fall back to the plaintext column so the entry remains readable
     }
   }
   return row.body ?? ''
 }
 
+/** Resolve the mood level for a journal entry by looking up its linked mood row. */
 async function moodLevelForEntry(entry: JournalEntryRow): Promise<MoodLevel> {
   if (entry.mood_id) {
     const mood = await findById<MoodEntryRow>(MOOD_TABLE, entry.mood_id)
@@ -109,6 +114,7 @@ export async function getEntryForOwner(
   return shapeEntry(row, await decryptIfNeeded(row))
 }
 
+/** Input fields accepted when creating a new journal entry. */
 export interface CreateEntryInput {
   mood?: MoodLevel
   title?: string
@@ -186,6 +192,7 @@ export async function createEntryForOwner(
   return shapeEntry(full, await decryptIfNeeded(full))
 }
 
+/** Fields that can be patched on an existing journal entry. */
 export interface UpdateEntryInput {
   mood?: MoodLevel
   title?: string
@@ -269,6 +276,7 @@ export async function computeStreak(userId: string): Promise<number> {
   return streak
 }
 
+/** Flattened, export-friendly representation of a single journal entry. */
 export interface ExportRecord {
   id: string
   date: string
@@ -300,6 +308,7 @@ export async function exportEntries(userId: string, max = 10_000): Promise<Expor
   )
 }
 
+/** Escape a value for inclusion in a CSV cell, quoting if necessary. */
 function csvEscape(v: unknown): string {
   const s = v == null ? '' : String(v)
   if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`

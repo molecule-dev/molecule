@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as CacheModule from '../cache.js'
 import type { UserPlanFields } from '../types.js'
 
 vi.mock('@molecule/api-database', () => {
@@ -8,7 +9,7 @@ vi.mock('@molecule/api-database', () => {
   }
 })
 
-let cacheModule: typeof import('../cache.js')
+let cacheModule: typeof CacheModule
 let findByIdMock: ReturnType<typeof vi.fn>
 
 const setUser = (user: UserPlanFields | null): void => {

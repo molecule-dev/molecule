@@ -147,7 +147,11 @@ export async function bulkUpdate(req: MoleculeRequest, res: MoleculeResponse): P
           stock: toStockInfo(row),
         })
         succeeded++
-      } catch {
+      } catch (error) {
+        logger.warn('Failed to process stock adjustment', {
+          error,
+          productId: adjustment.productId,
+        })
         results.push({
           productId: adjustment.productId ?? 'unknown',
           variantId: adjustment.variantId,

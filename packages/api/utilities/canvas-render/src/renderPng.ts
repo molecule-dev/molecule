@@ -40,12 +40,12 @@ export interface CanvasLike {
   toBuffer(mimeType: 'image/png'): Buffer
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Subset of the HTML5 2D canvas API used by the renderer. Real
  * `@napi-rs/canvas` contexts satisfy this; tests can satisfy it with
  * spy-backed objects.
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Canvas2DContext {
   fillStyle: string
   strokeStyle: string
@@ -79,7 +79,7 @@ export interface Canvas2DContext {
   strokeText(text: string, x: number, y: number): void
   fillRect(x: number, y: number, w: number, h: number): void
   drawImage(image: any, x: number, y: number, w: number, h: number): void
-  // eslint-disable-next-line @typescript-eslint/method-signature-style
+
   loadImage?: (source: any) => Promise<any>
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -212,6 +212,8 @@ function applyTransform(ctx: Canvas2DContext, t: Transform): void {
 }
 
 /**
+ * Rasterize a rectangle layer, with optional rounded corners.
+ *
  * @param ctx
  * @param layer
  */
@@ -227,6 +229,8 @@ function drawRect(ctx: Canvas2DContext, layer: RectLayer): void {
 }
 
 /**
+ * Trace a rounded-rectangle path onto the context using lineTo segments.
+ *
  * @param ctx
  * @param x
  * @param y
@@ -258,6 +262,8 @@ function pathRoundedRect(
 }
 
 /**
+ * Rasterize an ellipse layer using the canvas ellipse() primitive.
+ *
  * @param ctx
  * @param layer
  */
@@ -272,6 +278,8 @@ function drawEllipse(ctx: Canvas2DContext, layer: EllipseLayer): void {
 }
 
 /**
+ * Rasterize a line segment layer (fill is ignored; only stroke is applied).
+ *
  * @param ctx
  * @param layer
  */
@@ -283,6 +291,8 @@ function drawLine(ctx: Canvas2DContext, layer: LineLayer): void {
 }
 
 /**
+ * Rasterize an SVG path-data layer by walking its commands onto the context.
+ *
  * @param ctx
  * @param layer
  */
@@ -392,6 +402,8 @@ function walkPathData(ctx: Canvas2DContext, d: string): void {
 }
 
 /**
+ * Rasterize a text layer, applying font/alignment and fill + stroke as configured.
+ *
  * @param ctx
  * @param layer
  */
@@ -416,6 +428,8 @@ function drawText(ctx: Canvas2DContext, layer: TextLayer): void {
 }
 
 /**
+ * Rasterize an image layer by forwarding its resolved source handle to drawImage().
+ *
  * @param ctx
  * @param layer
  */

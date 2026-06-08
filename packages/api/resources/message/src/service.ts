@@ -20,12 +20,12 @@ import {
 import { broadcast, hasProvider as hasRealtimeProvider } from '@molecule/api-realtime'
 
 import {
-  MESSAGE_REALTIME_EVENTS,
-  threadRoomId,
   type ListMessagesOptions,
   type Message,
+  MESSAGE_REALTIME_EVENTS,
   type MessageAttachment,
   type Thread,
+  threadRoomId,
 } from './types.js'
 
 const THREADS_TABLE = 'message_threads'
@@ -194,7 +194,7 @@ export async function sendMessage(
   if (hasRealtimeProvider()) {
     try {
       await broadcast(threadRoomId(threadId), MESSAGE_REALTIME_EVENTS.messageSent, result.data)
-    } catch {
+    } catch (_error) {
       // Realtime delivery is best-effort; persistence already succeeded.
     }
   }
@@ -235,8 +235,8 @@ export async function markRead(threadId: string, readerId: string): Promise<void
         readerId,
         readAt: now,
       })
-    } catch {
-      // Best-effort.
+    } catch (_error) {
+      // Best-effort; read-state is updated, broadcast failure is non-critical.
     }
   }
 }
@@ -359,6 +359,9 @@ export async function countMessages(threadId: string): Promise<number> {
   return count(MESSAGES_TABLE, [{ field: 'threadId', operator: '=', value: threadId }])
 }
 
+/**
+ * Clamps a caller-supplied page-size to `[1, MAX_PAGE_SIZE]`, falling back to `fallback` when absent or invalid.
+ */
 function clampLimit(value: number | undefined, fallback: number): number {
   if (!value || value <= 0) return fallback
   return Math.min(value, MAX_PAGE_SIZE)

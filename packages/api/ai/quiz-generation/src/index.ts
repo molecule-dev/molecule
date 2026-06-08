@@ -28,9 +28,12 @@
 
 import { requireProvider as requireAI } from '@molecule/api-ai'
 
+/** Union of supported quiz question formats. */
 export type QuestionType = 'multiple_choice' | 'true_false' | 'short_answer' | 'fill_in_the_blank'
+/** Relative difficulty level for a question or generated quiz. */
 export type Difficulty = 'easy' | 'medium' | 'hard'
 
+/** A single quiz question with prompt, answer, and optional metadata. */
 export interface Question {
   id: string
   type: QuestionType
@@ -44,11 +47,13 @@ export interface Question {
   difficulty?: Difficulty
 }
 
+/** A generated quiz containing an ordered list of questions and an optional source summary. */
 export interface Quiz {
   questions: Question[]
   source_summary?: string
 }
 
+/** AI-graded result for a single student response, including correctness, score, and feedback. */
 export interface GradedResponse {
   question_id: string
   submitted: string
@@ -57,6 +62,7 @@ export interface GradedResponse {
   feedback?: string
 }
 
+/** Aggregated grading outcome for a full set of student responses. */
 export interface GradeResult {
   responses: GradedResponse[]
   total: number
@@ -64,6 +70,7 @@ export interface GradeResult {
   percentage: number
 }
 
+/** Sends a single-turn chat prompt to the bonded AI provider and returns the full text response. */
 async function callAI(prompt: string, model?: string, temperature = 0.3): Promise<string> {
   const ai = requireAI()
   let raw = ''
@@ -78,6 +85,7 @@ async function callAI(prompt: string, model?: string, temperature = 0.3): Promis
   return raw
 }
 
+/** Strips optional markdown code fences from an AI response and parses the result as JSON, returning null on parse failure. */
 function parseJson<T>(raw: string): T | null {
   try {
     const json = raw
@@ -85,7 +93,8 @@ function parseJson<T>(raw: string): T | null {
       .replace(/\s*```\s*$/, '')
       .trim()
     return JSON.parse(json) as T
-  } catch {
+  } catch (_error) {
+    // Intentional noop: AI may return malformed or non-JSON output; callers handle the null return.
     return null
   }
 }
@@ -117,6 +126,7 @@ Return ONLY a JSON object:
 Source:
 {{SOURCE}}`
 
+/** Generates a quiz from source material using the bonded AI provider, returning structured questions. */
 export async function generateQuiz(opts: {
   source: string
   questionCount?: number
@@ -149,6 +159,7 @@ Answer key:
 Student responses:
 {{RESPONSES}}`
 
+/** Grades a set of student responses against the quiz answer key using the bonded AI provider. */
 export async function gradeResponses(opts: {
   quiz: Quiz
   responses: Array<{ question_id: string; submitted: string }>

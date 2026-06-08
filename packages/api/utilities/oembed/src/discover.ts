@@ -64,7 +64,9 @@ export function discoverOembedUrl(html: string, baseUrl: string): string | undef
   if (!href) return undefined
   try {
     return new URL(href, baseUrl).toString()
-  } catch {
+  } catch (_error) {
+    // Malformed href is an expected/normal case (bad publisher markup);
+    // returning undefined is the correct contract — no log needed.
     return undefined
   }
 }

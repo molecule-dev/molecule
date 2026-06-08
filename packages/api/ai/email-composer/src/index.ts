@@ -12,6 +12,7 @@
 
 import { requireProvider as requireAI } from '@molecule/api-ai'
 
+/** Tone preset controlling the voice and register of the generated email. */
 export type EmailTone =
   | 'professional'
   | 'friendly'
@@ -19,14 +20,17 @@ export type EmailTone =
   | 'persuasive'
   | 'apologetic'
   | 'enthusiastic'
+/** Length preset controlling how many sentences / paragraphs the draft contains. */
 export type EmailLength = 'short' | 'medium' | 'long'
 
+/** AI-generated email draft returned by {@link composeEmail}. */
 export interface EmailDraft {
   subject: string
   body: string
   reasoning?: string
 }
 
+/** Options accepted by {@link composeEmail} to control the generated draft. */
 export interface ComposeOptions {
   /** Plain-English description of what the email should say. */
   brief: string
@@ -75,6 +79,7 @@ Respond with ONLY a JSON object:
 
 Body should be the email text (no headers). Use \\n for line breaks. End with the sender's name if a sender was specified.`
 
+/** Generates an email draft (subject + body) from a plain-English brief using the wired AI provider. */
 export async function composeEmail(opts: ComposeOptions): Promise<EmailDraft> {
   const ai = requireAI()
   const tone = opts.tone ?? 'professional'
@@ -108,7 +113,9 @@ export async function composeEmail(opts: ComposeOptions): Promise<EmailDraft> {
       .replace(/\s*```\s*$/, '')
       .trim()
     return JSON.parse(json) as EmailDraft
-  } catch {
+  } catch (_error) {
+    // Safe to ignore: the AI returned non-JSON output (e.g. plain text or markdown fence);
+    // we degrade gracefully by surfacing the raw text as the body so the user still gets something usable.
     return { subject: '(draft failed)', body: raw, reasoning: 'malformed JSON' }
   }
 }

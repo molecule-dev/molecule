@@ -12,7 +12,7 @@
 
 import { send as queueSend } from '@molecule/api-queue'
 
-import { assertValidTimeline, assertSafePath } from './buildFfmpegArgs.js'
+import { assertSafePath, assertValidTimeline } from './buildFfmpegArgs.js'
 import { getJobStore } from './jobStore.js'
 import type {
   RenderJob,
@@ -42,8 +42,12 @@ export function generateJobId(): string {
     return `vrj_${cryptoObj.randomUUID().replace(/-/g, '').slice(0, 16)}`
   }
   // Fallback: 64-bit random hex.
-  const r = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(16).padStart(13, '0')
-  const r2 = Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')
+  const r = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
+    .toString(16)
+    .padStart(13, '0')
+  const r2 = Math.floor(Math.random() * 0xffffff)
+    .toString(16)
+    .padStart(6, '0')
   return `vrj_${(r + r2).slice(0, 16)}`
 }
 

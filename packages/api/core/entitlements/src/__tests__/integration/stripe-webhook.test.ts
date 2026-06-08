@@ -18,6 +18,7 @@
  * @module
  */
 
+import type Stripe from 'stripe'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
@@ -27,10 +28,10 @@ const skipIfNoCreds = !STRIPE_SECRET_KEY || !STRIPE_WEBHOOK_SECRET
 const describeOrSkip = skipIfNoCreds ? describe.skip : describe
 
 describeOrSkip('Stripe live integration', () => {
-  let stripe: import('stripe').default
-  let testProduct: import('stripe').default.Product
-  let testPrice: import('stripe').default.Price
-  let testCustomer: import('stripe').default.Customer
+  let stripe: Stripe
+  let testProduct: Stripe.Product
+  let testPrice: Stripe.Price
+  let testCustomer: Stripe.Customer
 
   beforeAll(async () => {
     if (skipIfNoCreds) return
@@ -58,8 +59,8 @@ describeOrSkip('Stripe live integration', () => {
       if (testCustomer?.id) await stripe.customers.del(testCustomer.id)
       if (testPrice?.id) await stripe.prices.update(testPrice.id, { active: false })
       if (testProduct?.id) await stripe.products.update(testProduct.id, { active: false })
-    } catch {
-      // best-effort cleanup
+    } catch (_error) {
+      // best-effort cleanup — test teardown; Stripe resources may already be gone
     }
   }, 60_000)
 

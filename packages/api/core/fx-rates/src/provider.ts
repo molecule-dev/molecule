@@ -36,11 +36,12 @@ export const setProvider = (provider: FxRatesProvider): void => {
 export const getProvider = (): FxRatesProvider => {
   try {
     return bondRequire<FxRatesProvider>(BOND_TYPE)
-  } catch {
+  } catch (_error) {
     throw new Error(
       t('fxRates.error.noProvider', undefined, {
         defaultValue: 'FX-rates provider not configured. Call setProvider() first.',
       }),
+      { cause: _error },
     )
   }
 }

@@ -14,6 +14,7 @@
  */
 export class RoomError extends Error {
   /**
+   * Creates a new RoomError with the given message.
    * @param message - English fallback message.
    */
   constructor(message: string) {
@@ -27,6 +28,7 @@ export class RoomError extends Error {
  */
 export class RoomNotFoundError extends RoomError {
   /**
+   * Creates a RoomNotFoundError for the given room id.
    * @param roomId - The room id that was not found.
    */
   constructor(public readonly roomId: string) {
@@ -40,6 +42,7 @@ export class RoomNotFoundError extends RoomError {
  */
 export class RoomCapacityExceededError extends RoomError {
   /**
+   * Creates a RoomCapacityExceededError for the given room and capacity.
    * @param roomId - The room that is full.
    * @param capacity - The configured capacity.
    */
@@ -57,6 +60,7 @@ export class RoomCapacityExceededError extends RoomError {
  */
 export class InvalidJoinCodeError extends RoomError {
   /**
+   * Creates an InvalidJoinCodeError for the given room.
    * @param roomId - The room that rejected the join.
    */
   constructor(public readonly roomId: string) {
@@ -74,6 +78,7 @@ export class InvalidJoinCodeError extends RoomError {
  */
 export class UnauthorizedRoomActionError extends RoomError {
   /**
+   * Creates an UnauthorizedRoomActionError for the given room, user, and optional role.
    * @param roomId - The room the action was attempted on.
    * @param userId - The user id that attempted the action.
    * @param requiredRole - Optional minimum role that was required.

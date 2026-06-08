@@ -56,7 +56,8 @@ const toScopes = (value: string[] | string | null | undefined): string[] => {
     try {
       const parsed = JSON.parse(value)
       return Array.isArray(parsed) ? parsed.map(String) : []
-    } catch {
+    } catch (_error) {
+      // JSON.parse failed — malformed scopes column; treat as empty, safe to ignore
       return []
     }
   }

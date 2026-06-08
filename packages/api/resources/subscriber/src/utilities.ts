@@ -108,7 +108,9 @@ export function parseMetadata(
     return typeof parsed === 'object' && parsed !== null
       ? (parsed as Record<string, unknown>)
       : null
-  } catch {
+  } catch (_error) {
+    // JSON.parse failed — raw value is not valid JSON; returning null is the
+    // documented contract for invalid input, so ignoring the error is safe.
     return null
   }
 }

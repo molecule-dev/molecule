@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { oembed } from '../oembed.js'
-import { OEmbedError, OEmbedResponse } from '../types.js'
+import { OEmbedError, type OEmbedResponse } from '../types.js'
 
 /**
  * Build a minimal `Response`-like object compatible with what the

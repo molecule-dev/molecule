@@ -80,7 +80,7 @@ export function createPgRemoteDb(pool: PgPoolLike, readonly: boolean): RemoteDb 
         // Defensive: release the client with an error so pg discards it.
         try {
           client.release(new Error('query timeout'))
-        } catch {
+        } catch (_error) {
           // ignore — release errors shouldn't surface a second time
         }
       })
@@ -110,8 +110,8 @@ export function createPgRemoteDb(pool: PgPoolLike, readonly: boolean): RemoteDb 
     } finally {
       try {
         client.release()
-      } catch {
-        // ignore
+      } catch (_error) {
+        // ignore — double-release after a successful query; pg discards it
       }
     }
   }
@@ -271,7 +271,7 @@ export function createPgRemoteDb(pool: PgPoolLike, readonly: boolean): RemoteDb 
     connected = false
     try {
       await pool.end()
-    } catch {
+    } catch (_error) {
       // ignore — closing a closed pool shouldn't surface
     }
   }
@@ -309,6 +309,8 @@ export async function defaultPgPoolFactory(): Promise<PgPoolFactory> {
 }
 
 /**
+ * Aggregate flat per-column index rows into a deduplicated list of {@link IndexSchema} objects.
+ *
  * @param rows
  * @internal
  */
@@ -328,6 +330,8 @@ export function collectIndexes(
 }
 
 /**
+ * Aggregate flat per-column foreign-key rows into a deduplicated list of {@link ForeignKeySchema} objects.
+ *
  * @param rows
  * @internal
  */

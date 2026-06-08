@@ -3,16 +3,17 @@
  *
  * Wires together:
  *   real Stripe-signed webhook payload
- *   → @molecule/api-payments-stripe bondAdapter.handleWebhookEvent (verifies signature)
+ *   → `@molecule/api-payments-stripe` bondAdapter.handleWebhookEvent (verifies signature)
  *   → simulated planKey update on a stateful in-memory user store
- *   → @molecule/api-entitlements getCachedPlanKey (sees the update)
- *   → @molecule/api-entitlements enforceLimit middleware (allows previously-blocked POST)
+ *   → `@molecule/api-entitlements` getCachedPlanKey (sees the update)
+ *   → `@molecule/api-entitlements` enforceLimit middleware (allows previously-blocked POST)
  *
  * Skipped when Stripe credentials are not in the environment.
  *
  * @module
  */
 
+import type Stripe from 'stripe'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
@@ -47,16 +48,25 @@ interface BlogLimits {
   canExport: boolean
 }
 
-describeOrSkip('Full Stripe → entitlements flow', () => {
-  let stripe: import('stripe').default
-  let testProduct: import('stripe').default.Product
-  let testPrice: import('stripe').default.Price
-  let testCustomer: import('stripe').default.Customer
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- typeof import() required for dynamic-reimport module typing
+type RegistryModule = typeof import('../../registry.js')
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- typeof import() required for dynamic-reimport module typing
+type ProviderModule = typeof import('../../provider.js')
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- typeof import() required for dynamic-reimport module typing
+type CacheModule = typeof import('../../cache.js')
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- typeof import() required for dynamic-reimport module typing
+type MiddlewareModule = typeof import('../../middleware.js')
 
-  let registryModule: typeof import('../../registry.js')
-  let providerModule: typeof import('../../provider.js')
-  let cacheModule: typeof import('../../cache.js')
-  let middlewareModule: typeof import('../../middleware.js')
+describeOrSkip('Full Stripe → entitlements flow', () => {
+  let stripe: Stripe
+  let testProduct: Stripe.Product
+  let testPrice: Stripe.Price
+  let testCustomer: Stripe.Customer
+
+  let registryModule: RegistryModule
+  let providerModule: ProviderModule
+  let cacheModule: CacheModule
+  let middlewareModule: MiddlewareModule
 
   beforeAll(async () => {
     if (skipIfNoCreds) return

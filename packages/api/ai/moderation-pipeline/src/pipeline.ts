@@ -46,6 +46,7 @@ Format:
 Content:
 {{CONTENT}}`
 
+/** Default moderation policy applied when no explicit policy is provided. */
 export const DEFAULT_POLICY: ModerationPolicy = {
   thresholds: {
     hate: 0.7,
@@ -92,7 +93,9 @@ export async function classify(content: string): Promise<{
       score: Math.max(0, Math.min(1, Number(score) || 0)),
     }))
     return { scores, reasoning: parsed.reasoning ?? '' }
-  } catch {
+  } catch (_error) {
+    // AI returned non-JSON or structurally invalid output; safe to ignore and
+    // fall back — the caller receives empty scores and a descriptive reasoning string.
     return { scores: [], reasoning: 'classifier returned malformed JSON' }
   }
 }
@@ -149,8 +152,10 @@ export async function moderate(opts: {
         resource_type: opts.resource?.type ?? null,
         resource_id: opts.resource?.id ?? null,
       } as Partial<AuditLogRow>)
-    } catch {
-      // Audit is best-effort.
+    } catch (_error) {
+      // Audit is best-effort: a DB write failure must not block the moderation
+      // decision returned to the caller. The pipeline still functions correctly
+      // without the audit row.
     }
   }
 

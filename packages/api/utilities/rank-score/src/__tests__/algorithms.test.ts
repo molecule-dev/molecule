@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import type { RankItem } from '../index.js'
 import {
   hnScore,
   pureScore,
@@ -9,7 +10,6 @@ import {
   redditControversialScore,
   redditHotScore,
 } from '../index.js'
-import type { RankItem } from '../index.js'
 
 const HOUR = 3_600_000
 const NOW_MS = Date.parse('2026-05-01T12:00:00Z')

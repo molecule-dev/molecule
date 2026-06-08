@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as CacheModule from '../cache.js'
+import type * as MiddlewareModule from '../middleware.js'
+import type * as ProviderModule from '../provider.js'
+import type * as RegistryModule from '../registry.js'
 import type { UserPlanFields } from '../types.js'
 
 vi.mock('@molecule/api-database', () => {
@@ -12,10 +16,10 @@ interface TestLimits {
   maxItems: number
 }
 
-let middlewareModule: typeof import('../middleware.js')
-let providerModule: typeof import('../provider.js')
-let registryModule: typeof import('../registry.js')
-let cacheModule: typeof import('../cache.js')
+let middlewareModule: typeof MiddlewareModule
+let providerModule: typeof ProviderModule
+let registryModule: typeof RegistryModule
+let cacheModule: typeof CacheModule
 let findByIdMock: ReturnType<typeof vi.fn>
 
 const tierOptions = () => ({

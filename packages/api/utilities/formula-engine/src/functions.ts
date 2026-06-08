@@ -38,6 +38,9 @@ function flatten(arg: CellValue | ReadonlyArray<CellValue>): CellValue[] {
   return [arg as CellValue]
 }
 
+/**
+ * Flatten all argument values (scalars and ranges) into a single `CellValue[]`.
+ */
 function flattenAll(args: ReadonlyArray<CellValue | ReadonlyArray<CellValue>>): CellValue[] {
   const out: CellValue[] = []
   for (const a of args) {
@@ -67,6 +70,9 @@ function asScalarNumber(arg: CellValue | ReadonlyArray<CellValue>): number | { e
   return n
 }
 
+/**
+ * Extract the first element of a range argument, or return the scalar as-is.
+ */
 function asScalar(arg: CellValue | ReadonlyArray<CellValue>): CellValue {
   if (Array.isArray(arg)) return arg.length === 0 ? null : (arg[0] as CellValue)
   return arg as CellValue

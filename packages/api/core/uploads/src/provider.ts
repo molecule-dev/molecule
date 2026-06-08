@@ -35,11 +35,12 @@ export const setProvider = (provider: UploadProvider): void => {
 export const getProvider = (): UploadProvider => {
   try {
     return bondRequire<UploadProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('uploads.error.noProvider', undefined, {
         defaultValue: 'Upload provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { buildTransportOptions, connectSmtp } from '../connect.js'
-import { SmtpConfig, SmtpError } from '../types.js'
+import { type SmtpConfig, SmtpError } from '../types.js'
 
 /**
  * Build a minimal fake nodemailer-like transporter. The real

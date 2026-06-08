@@ -34,11 +34,13 @@ export const setProvider = (provider: CacheProvider): void => {
 export const getProvider = (): CacheProvider => {
   try {
     return bondRequire<CacheProvider>(BOND_TYPE)
-  } catch {
+  } catch (_error) {
+    // Re-throw as a descriptive user-facing error; the raw bond error is not meaningful to callers.
     throw new Error(
       t('cache.error.noProvider', undefined, {
         defaultValue: 'Cache provider not configured. Call setProvider() first.',
       }),
+      { cause: _error },
     )
   }
 }

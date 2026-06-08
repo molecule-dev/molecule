@@ -84,13 +84,15 @@ export const provider: StagingDriver = {
 
     try {
       await execAsync('docker --version')
-    } catch {
+    } catch (_error) {
+      // docker not found — prerequisite check adds it to missing list
       missing.push('docker')
     }
 
     try {
       await execAsync('docker compose version')
-    } catch {
+    } catch (_error) {
+      // docker compose plugin not found — prerequisite check adds it to missing list
       missing.push('docker-compose')
     }
 
@@ -150,7 +152,7 @@ export const provider: StagingDriver = {
   async down(env: StagingEnvironment, config: StagingDriverConfig): Promise<void> {
     try {
       await compose(config.projectPath, env.slug, 'down -v')
-    } catch {
+    } catch (_error) {
       // Containers may already be stopped — not an error
     }
 
@@ -168,8 +170,8 @@ export const provider: StagingDriver = {
     for (const filePath of filesToRemove) {
       try {
         await rm(filePath)
-      } catch {
-        // File may not exist
+      } catch (_error) {
+        // File may not exist — safe to ignore
       }
     }
   },
@@ -186,7 +188,8 @@ export const provider: StagingDriver = {
         .map((line) => {
           try {
             return JSON.parse(line) as { Service: string; State: string; Health: string }
-          } catch {
+          } catch (_error) {
+            // Malformed JSON line from docker compose ps — skip it
             return null
           }
         })
@@ -203,7 +206,8 @@ export const provider: StagingDriver = {
         api: { status: apiContainer?.State ?? 'not found' },
         app: { status: appContainer?.State ?? 'not found' },
       }
-    } catch {
+    } catch (_error) {
+      // docker compose ps failed (e.g. no containers running) — return degraded health
       return {
         healthy: false,
         api: { status: 'unreachable' },
@@ -239,7 +243,8 @@ export const provider: StagingDriver = {
 
     try {
       await access(stagingDir)
-    } catch {
+    } catch (_error) {
+      // Staging directory does not exist yet — no environments to list
       return []
     }
 

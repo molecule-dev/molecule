@@ -1,3 +1,4 @@
+/** Database row shape for a wiki page record. */
 export interface WikiPageRow {
   id: string
   space_id: string
@@ -11,6 +12,7 @@ export interface WikiPageRow {
   updated_at: string | Date
 }
 
+/** Database row shape for a wiki space record. */
 export interface WikiSpaceRow {
   id: string
   owner_id: string
@@ -18,6 +20,7 @@ export interface WikiSpaceRow {
   visibility?: string
 }
 
+/** Breadcrumb entry used when rendering a wiki page's ancestor trail. */
 export interface WikiPageBreadcrumb {
   id: string
   slug: string

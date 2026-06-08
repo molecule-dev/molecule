@@ -41,11 +41,12 @@ export const setProvider = (provider: OAuthClientProvider): void => {
 export const getProvider = (): OAuthClientProvider => {
   try {
     return bondRequire<OAuthClientProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('oauthClient.error.noProvider', undefined, {
         defaultValue: 'OAuth client provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

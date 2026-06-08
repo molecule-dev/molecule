@@ -25,4 +25,4 @@ export const userRequestHandlerMap = createUserRequestHandlerMap(createRequestHa
 /** Pre-wired request handler map for `@molecule/api-resource-device`. */
 export const deviceRequestHandlerMap = createDeviceRequestHandlerMap(createRequestHandler)
 
-export { authorization as userAuthorization, deviceService }
+export { deviceService, authorization as userAuthorization }

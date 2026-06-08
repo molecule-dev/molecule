@@ -49,11 +49,12 @@ export const setProvider = (provider: EquityPricesProvider): void => {
 export const getProvider = (): EquityPricesProvider => {
   try {
     return bondRequire<EquityPricesProvider>(BOND_TYPE)
-  } catch {
+  } catch (_error) {
     throw new Error(
       t('equityPrices.error.noProvider', undefined, {
         defaultValue: 'Equity-prices provider not configured. Call setProvider() first.',
       }),
+      { cause: _error },
     )
   }
 }
@@ -101,7 +102,7 @@ export const getHistorical = async (
  * provider.
  *
  * @param symbol - Ticker symbol to load fundamentals for.
- * @returns {@link EquityFundamentals} snapshot.
+ * @returns snapshot.
  * @throws {Error} If no equity-prices provider has been bonded.
  */
 export const getFundamentals = async (symbol: EquitySymbol): Promise<EquityFundamentals> => {

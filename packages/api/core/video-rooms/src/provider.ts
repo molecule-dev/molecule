@@ -35,11 +35,12 @@ export const setProvider = (provider: VideoRoomsProvider): void => {
 export const getProvider = (): VideoRoomsProvider => {
   try {
     return bondRequire<VideoRoomsProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('videoRooms.error.noProvider', undefined, {
         defaultValue: 'Video rooms provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

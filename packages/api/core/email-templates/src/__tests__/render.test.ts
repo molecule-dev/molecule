@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { renderTemplate as RenderTemplateFn } from '../render.js'
+
 vi.mock('@molecule/api-i18n', () => {
   return {
     t: vi.fn(
@@ -22,7 +24,7 @@ vi.mock('@molecule/api-i18n', () => {
   }
 })
 
-let renderTemplate: typeof import('../render.js').renderTemplate
+let renderTemplate: typeof RenderTemplateFn
 let tMock: ReturnType<typeof vi.fn>
 
 const minimalTemplate = {

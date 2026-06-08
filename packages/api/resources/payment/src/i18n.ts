@@ -9,7 +9,7 @@ import { registerLocaleModule } from '@molecule/api-i18n'
 try {
   const locales = await import('@molecule/api-locales-payment')
   registerLocaleModule(locales)
-} catch {
+} catch (_error) {
   // Locale package not available — translations will fall back to defaults
 }
 

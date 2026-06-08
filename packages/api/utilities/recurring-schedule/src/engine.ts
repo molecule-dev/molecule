@@ -83,6 +83,9 @@ export function validateRule(rule: RecurrenceRule): void {
   }
 }
 
+/**
+ * Returns true if `value` is one of the four supported frequency strings.
+ */
 function isValidFrequency(value: unknown): value is Frequency {
   return value === 'DAILY' || value === 'WEEKLY' || value === 'MONTHLY' || value === 'YEARLY'
 }
@@ -158,6 +161,8 @@ export function expandOccurrences(
  * Internal generator yielding `Date` objects for each occurrence in
  * order, terminating on `count` / `until` / a hard 100k iteration ceiling
  * (in case a malformed rule somehow slipped past validation).
+ *
+ * @yields {Date} Each occurrence date in chronological order.
  */
 function* iterateOccurrences(rule: RecurrenceRule): Generator<Date> {
   const seed = new Date(rule.startDate)
@@ -370,6 +375,9 @@ function resolveMonthDay(year: number, month: number, day: number): number | nul
   return resolved
 }
 
+/**
+ * Coerces a string or `Date` value into a `Date` object.
+ */
 function toDate(d: string | Date): Date {
   return d instanceof Date ? d : new Date(d)
 }

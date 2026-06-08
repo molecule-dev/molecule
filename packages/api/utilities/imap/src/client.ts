@@ -93,6 +93,9 @@ async function defaultFactory(): Promise<ImapFlowFactory> {
   return (options) => new mod.ImapFlow(options)
 }
 
+/**
+ * Convert an {@link ImapConfig} auth block into the shape expected by `imapflow`.
+ */
 function toDriverAuth(config: ImapConfig): { user: string; pass?: string; accessToken?: string } {
   if ('accessToken' in config.auth) {
     return { user: config.auth.user, accessToken: config.auth.accessToken }
@@ -100,6 +103,9 @@ function toDriverAuth(config: ImapConfig): { user: string; pass?: string; access
   return { user: config.auth.user, pass: config.auth.pass }
 }
 
+/**
+ * Return `true` if the raw imapflow error indicates an authentication failure.
+ */
 function isAuthError(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false
   const candidate = error as { authenticationFailed?: boolean; code?: string }
@@ -108,6 +114,9 @@ function isAuthError(error: unknown): boolean {
   return false
 }
 
+/**
+ * Concrete {@link ImapClient} backed by a live `imapflow.ImapFlow` connection.
+ */
 class ImapClientImpl implements ImapClient {
   private readonly driver: ImapFlowLike
   private currentFolder: string | undefined
@@ -118,12 +127,18 @@ class ImapClientImpl implements ImapClient {
     this.connected = true
   }
 
+  /**
+   * Throw an {@link ImapError} if the connection has already been closed.
+   */
   private ensureConnected(): void {
     if (!this.connected) {
       throw new ImapError('not-connected', 'IMAP client has been disconnected')
     }
   }
 
+  /**
+   * Assert that a folder has been selected and return its name, or throw if not.
+   */
   private ensureFolder(): string {
     this.ensureConnected()
     if (!this.currentFolder) {
@@ -135,6 +150,9 @@ class ImapClientImpl implements ImapClient {
     return this.currentFolder
   }
 
+  /**
+   * List all mailbox folders available on the server.
+   */
   async listFolders(): Promise<ImapFolder[]> {
     this.ensureConnected()
     try {
@@ -145,6 +163,9 @@ class ImapClientImpl implements ImapClient {
     }
   }
 
+  /**
+   * Open the named mailbox folder so subsequent operations target it.
+   */
   async selectFolder(name: string): Promise<void> {
     this.ensureConnected()
     try {
@@ -158,6 +179,9 @@ class ImapClientImpl implements ImapClient {
     }
   }
 
+  /**
+   * Return a paginated, newest-first list of message summaries from the target folder.
+   */
   async listMessages(options: ListMessagesOptions): Promise<MessageSummary[]> {
     this.ensureConnected()
     if (this.currentFolder !== options.folder) {
@@ -214,6 +238,9 @@ class ImapClientImpl implements ImapClient {
     return summaries
   }
 
+  /**
+   * Fetch the full content (headers, text, HTML, attachments) of a single message by UID.
+   */
   async fetchMessage(uid: number): Promise<FullMessage> {
     this.ensureFolder()
     let raw: ImapFetchMessage | false
@@ -301,6 +328,9 @@ class ImapClientImpl implements ImapClient {
     return message
   }
 
+  /**
+   * Add the `\Seen` flag to the message identified by `uid`.
+   */
   async markRead(uid: number): Promise<void> {
     this.ensureFolder()
     try {
@@ -310,6 +340,9 @@ class ImapClientImpl implements ImapClient {
     }
   }
 
+  /**
+   * Remove the `\Seen` flag from the message identified by `uid`.
+   */
   async markUnread(uid: number): Promise<void> {
     this.ensureFolder()
     try {
@@ -319,6 +352,9 @@ class ImapClientImpl implements ImapClient {
     }
   }
 
+  /**
+   * Move the message identified by `uid` to `toFolder` on the same server.
+   */
   async moveMessage(uid: number, toFolder: string): Promise<void> {
     this.ensureFolder()
     try {
@@ -331,6 +367,9 @@ class ImapClientImpl implements ImapClient {
     }
   }
 
+  /**
+   * Permanently delete the message identified by `uid` from the current folder.
+   */
   async deleteMessage(uid: number): Promise<void> {
     this.ensureFolder()
     try {
@@ -340,28 +379,38 @@ class ImapClientImpl implements ImapClient {
     }
   }
 
+  /**
+   * Gracefully log out and close the IMAP connection; safe to call multiple times.
+   */
   async disconnect(): Promise<void> {
     if (!this.connected) return
     this.connected = false
     this.currentFolder = undefined
     try {
       await this.driver.logout()
-    } catch {
+    } catch (_error) {
       // logout failure shouldn't surface — fall back to forced close.
       try {
         this.driver.close()
-      } catch {
-        // ignore
+      } catch (_error) {
+        // close() is a last-resort cleanup; ignoring is safe because the
+        // connection is already being torn down unconditionally.
       }
     }
   }
 }
 
+/**
+ * Wrap an unexpected driver error in a typed {@link ImapError} with a descriptive message.
+ */
 function wrapProtocolError(action: string, error: unknown): ImapError {
   const message = error instanceof Error ? error.message : String(error)
   return new ImapError('protocol-error', `IMAP ${action} failed: ${message}`, { cause: error })
 }
 
+/**
+ * Return `true` if the raw imapflow error indicates the requested mailbox does not exist.
+ */
 function isFolderNotFound(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false
   const candidate = error as { code?: string; serverResponseCode?: string; message?: string }
@@ -376,11 +425,15 @@ function isFolderNotFound(error: unknown): boolean {
   return false
 }
 
+/**
+ * Decode a raw byte buffer to a string using the given charset, falling back to UTF-8.
+ */
 function decodeText(buffer: Uint8Array, charset: string | undefined): string {
   const encoding = (charset ?? 'utf-8').toLowerCase()
   try {
     return new TextDecoder(encoding, { fatal: false }).decode(buffer)
-  } catch {
+  } catch (_error) {
+    // Unsupported/unknown charset label — fall back to UTF-8, which is always available.
     return new TextDecoder('utf-8', { fatal: false }).decode(buffer)
   }
 }

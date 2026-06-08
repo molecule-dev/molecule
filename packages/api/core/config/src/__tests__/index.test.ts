@@ -100,7 +100,8 @@ function createTestEnvProvider(): ConfigProvider {
         if (config.type === 'json') {
           try {
             JSON.parse(value)
-          } catch {
+          } catch (_error) {
+            // JSON.parse throws on invalid input; the exception itself is the signal — push the validation error instead of logging
             errors.push({
               key: config.key,
               message: `Configuration '${config.key}' must be valid JSON.`,

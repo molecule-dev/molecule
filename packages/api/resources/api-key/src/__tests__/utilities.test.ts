@@ -9,8 +9,8 @@ import {
   DEFAULT_PREFIX,
   generatePlaintextToken,
   hashPlaintextToken,
-  maskPlaintextToken,
   MASKED_TAIL_LENGTH,
+  maskPlaintextToken,
   PLAINTEXT_BYTES,
 } from '../utilities.js'
 

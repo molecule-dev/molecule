@@ -74,9 +74,9 @@ describe('computeTotals', () => {
 
   it('rounds to 2 decimal places to avoid float drift', () => {
     const items: LineItem[] = [{ description: 'A', quantity: 3, unit_price: 9.99 }]
-    const { subtotal, tax_amount, total } = computeTotals(items, 7)
+    const { subtotal, tax_amount: taxAmount, total } = computeTotals(items, 7)
     expect(subtotal).toBe(29.97)
-    expect(tax_amount).toBe(2.1) // 29.97 * 0.07 = 2.0979 → 2.10 (round-to-even 2.10 / display 2.1)
+    expect(taxAmount).toBe(2.1) // 29.97 * 0.07 = 2.0979 → 2.10 (round-to-even 2.10 / display 2.1)
     expect(total).toBe(32.07)
   })
 

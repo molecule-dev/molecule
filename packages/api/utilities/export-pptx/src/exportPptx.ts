@@ -163,7 +163,7 @@ function addElement(slide: PptxSlide, element: SlideElement): void {
 }
 
 /**
- *
+ * Render a text element onto a slide, splitting body newlines into paragraph runs.
  * @param slide
  * @param element
  */
@@ -185,7 +185,7 @@ function addText(slide: PptxSlide, element: TextElement): void {
 }
 
 /**
- *
+ * Render an image element onto a slide, resolving src/data/buffer to a pptxgenjs image option.
  * @param slide
  * @param element
  */
@@ -220,7 +220,7 @@ function addImage(slide: PptxSlide, element: ImageElement): void {
 }
 
 /**
- *
+ * Render a shape element (rect, ellipse, line, etc.) onto a slide with optional fill and border.
  * @param slide
  * @param element
  */
@@ -249,7 +249,7 @@ function addShape(slide: PptxSlide, element: ShapeElement): void {
 }
 
 /**
- *
+ * Render a chart element (bar, line, pie) onto a slide using pptxgenjs series data.
  * @param slide
  * @param element
  */
@@ -278,7 +278,7 @@ function addChart(slide: PptxSlide, element: ChartElement): void {
 }
 
 /**
- *
+ * Map a molecule shape kind string to the corresponding pptxgenjs shape name.
  * @param kind
  */
 function mapShape(kind: ShapeElement['shape']): string {
@@ -295,7 +295,7 @@ function mapShape(kind: ShapeElement['shape']): string {
 }
 
 /**
- *
+ * Map a molecule chart kind string to the corresponding pptxgenjs chart type name.
  * @param kind
  */
 function mapChart(kind: ChartElement['chart']): string {
@@ -310,7 +310,7 @@ function mapChart(kind: ChartElement['chart']): string {
 }
 
 /**
- *
+ * Convert a molecule {@link TextStyle} to a flat pptxgenjs text-options object.
  * @param style
  */
 function textStyleToPptx(style: TextStyle): Record<string, unknown> {
@@ -329,7 +329,7 @@ function textStyleToPptx(style: TextStyle): Record<string, unknown> {
 }
 
 /**
- *
+ * Strip a leading `#` from a CSS hex color string so pptxgenjs receives bare hex.
  * @param color
  */
 function stripHash(color: string): string {
@@ -366,7 +366,7 @@ function sanitizeFilename(name: string): string {
 }
 
 /**
- *
+ * Coerce the raw output of `pptxgenjs.write()` to a Node `Buffer`, handling all known return shapes.
  * @param value
  */
 function toBuffer(value: unknown): Buffer {

@@ -28,8 +28,8 @@ export function toBooking(row: BookingRow): Booking {
   if (row.metadata) {
     try {
       booking.metadata = JSON.parse(row.metadata) as Record<string, unknown>
-    } catch {
-      /* ignore malformed JSON */
+    } catch (_error) {
+      /* ignore malformed JSON — missing metadata is non-fatal, booking is still usable */
     }
   }
   return booking

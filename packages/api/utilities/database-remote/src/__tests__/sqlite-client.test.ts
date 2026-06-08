@@ -3,7 +3,7 @@
  * binding is replaced with a hand-rolled mock satisfying {@link SqliteDbLike}.
  */
 
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { connectRemote } from '../connect.js'
 import type { SqliteDbLike, SqliteStatementLike } from '../driverTypes.js'

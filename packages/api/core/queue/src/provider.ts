@@ -42,11 +42,12 @@ export const setProvider = (provider: QueueProvider): void => {
 export const getProvider = (): QueueProvider => {
   try {
     return bondRequire<QueueProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('queue.error.noProvider', undefined, {
         defaultValue: 'Queue provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

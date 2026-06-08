@@ -79,7 +79,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         return 'Access denied: path resolves outside the project workspace'
       }
       return null
-    } catch {
+    } catch (_error) {
+      // readlink unavailable or timed out — deny access conservatively
       return 'Unable to verify path safety — access denied'
     }
   }
@@ -165,8 +166,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         let oldContent: string | null = null
         try {
           oldContent = await backend.readFile(path)
-        } catch {
-          /* file doesn't exist yet */
+        } catch (_error) {
+          /* file doesn't exist yet — oldContent stays null */
         }
 
         if (onFileDiff) onFileDiff({ path, oldContent, newContent: content })
@@ -429,7 +430,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         try {
           const content = await backend.readFile(path)
           return { name, path, content: sanitizeOutput(content) }
-        } catch {
+        } catch (_error) {
+          // File not present at the given path — fall through to the error return below
           return { error: `Skill not found at path: ${name}` }
         }
       }
@@ -441,7 +443,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         try {
           const content = await backend.readFile(skillPath)
           return { name, path: `${dir}/${name}/SKILL.md`, content: sanitizeOutput(content) }
-        } catch {
+        } catch (_error) {
+          // Skill file not present in this directory — try the next candidate
           continue
         }
       }
@@ -473,8 +476,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             const m = e.name.match(/^(\d+)-/)
             if (m) nextNum = Math.max(nextNum, parseInt(m[1]) + 1)
           }
-        } catch {
-          /* dir may not exist yet */
+        } catch (_error) {
+          /* plans dir may not exist yet — start sequence at 1 */
         }
 
         const filename = `${String(nextNum).padStart(2, '0')}-${slug}-${date}.md`

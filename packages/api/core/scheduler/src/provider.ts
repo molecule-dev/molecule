@@ -29,11 +29,12 @@ export const setProvider = (provider: SchedulerProvider): void => {
 export const getProvider = (): SchedulerProvider => {
   try {
     return bondRequire<SchedulerProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('scheduler.error.noProvider', undefined, {
         defaultValue: 'Scheduler provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

@@ -44,11 +44,12 @@ export const setProvider = (provider: ComplianceProvider): void => {
 export const getProvider = (): ComplianceProvider => {
   try {
     return bondRequire<ComplianceProvider>(BOND_TYPE)
-  } catch {
+  } catch (_error) {
     throw new Error(
       t('compliance.error.noProvider', undefined, {
         defaultValue: 'Compliance provider not configured. Call setProvider() first.',
       }),
+      { cause: _error },
     )
   }
 }

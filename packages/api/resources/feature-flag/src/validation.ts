@@ -1,8 +1,11 @@
 import { z } from 'zod'
 
+/** Allowed value types for a feature flag. */
 export const FLAG_TYPES = ['boolean', 'multivariate', 'string', 'number'] as const
+/** Allowed lifecycle states for a feature flag. */
 export const FLAG_STATES = ['on', 'off', 'killed', 'scheduled'] as const
 
+/** Zod schema for validating a feature flag creation payload. */
 export const flagCreateSchema = z.object({
   project_id: z.string().uuid().optional(),
   key: z
@@ -20,6 +23,7 @@ export const flagCreateSchema = z.object({
   stale_days: z.number().int().min(0).optional(),
 })
 
+/** Zod schema for validating a feature flag update payload. */
 export const flagUpdateSchema = z.object({
   name: z.string().min(1).max(255).optional(),
   description: z.string().max(2000).optional(),
@@ -31,6 +35,7 @@ export const flagUpdateSchema = z.object({
   stale_days: z.number().int().min(0).optional(),
 })
 
+/** Zod schema for validating feature flag list query parameters. */
 export const flagListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(200).default(50),
@@ -39,6 +44,7 @@ export const flagListQuerySchema = z.object({
   state: z.enum(FLAG_STATES).optional(),
 })
 
+/** Zod schema for validating a targeting rule on a feature flag. */
 export const ruleSchema = z.object({
   attribute: z.string().min(1).max(120),
   operator: z.string().min(1).max(40),

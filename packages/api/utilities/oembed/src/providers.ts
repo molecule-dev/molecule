@@ -17,7 +17,7 @@
  * @module
  */
 
-import { OEmbedProvider } from './types.js'
+import type { OEmbedProvider } from './types.js'
 
 /**
  * Built-in provider table. Order matters: more-specific entries (e.g.

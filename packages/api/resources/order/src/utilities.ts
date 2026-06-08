@@ -47,8 +47,8 @@ export function toOrderEvent(row: OrderEventRow): OrderEvent {
   if (row.metadata) {
     try {
       event.metadata = JSON.parse(row.metadata) as Record<string, unknown>
-    } catch {
-      /* ignore malformed JSON */
+    } catch (_error) {
+      /* safe to ignore — metadata is optional; malformed JSON means we simply omit it */
     }
   }
   return event
@@ -63,7 +63,8 @@ function parseAddress(json: string | null): Address | undefined {
   if (!json) return undefined
   try {
     return JSON.parse(json) as Address
-  } catch {
+  } catch (_error) {
+    /* safe to ignore — address field is optional; malformed JSON means we return undefined */
     return undefined
   }
 }

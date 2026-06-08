@@ -13,6 +13,7 @@
  * @module
  */
 
+import type { RequestHandler } from 'express'
 import { type Request, type Response, Router } from 'express'
 
 import { getParamId, requireUser } from '@molecule/api-bonds-default-express'
@@ -40,13 +41,12 @@ import {
   wikiPageUpdateSchema,
 } from './validation.js'
 
-const validateBody = validateBodyRaw as unknown as (
-  schema: unknown,
-) => import('express').RequestHandler
-const validateQuery = validateQueryRaw as unknown as (
-  schema: unknown,
-) => import('express').RequestHandler
+const validateBody = validateBodyRaw as unknown as (schema: unknown) => RequestHandler
+const validateQuery = validateQueryRaw as unknown as (schema: unknown) => RequestHandler
 
+/**
+ * Creates and returns the Express router with all wiki-page CRUD routes.
+ */
 export function createWikiPageRouter(): Router {
   const router = Router()
 

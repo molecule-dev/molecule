@@ -39,12 +39,13 @@ export const setProvider = <TLimits = unknown>(provider: TierRegistry<TLimits>):
 export const getProvider = <TLimits = unknown>(): TierRegistry<TLimits> => {
   try {
     return bondRequire<TierRegistry<TLimits>>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('entitlements.error.noProvider', undefined, {
         defaultValue:
           'Entitlements provider not configured. Call setProvider(tierRegistry) at startup.',
       }),
+      { cause: error },
     )
   }
 }

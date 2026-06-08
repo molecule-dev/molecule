@@ -40,11 +40,12 @@ export const setProvider = (provider: MonitoringProvider): void => {
 export const getProvider = (): MonitoringProvider => {
   try {
     return bondRequire<MonitoringProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('monitoring.error.noProvider', undefined, {
         defaultValue: 'Monitoring provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

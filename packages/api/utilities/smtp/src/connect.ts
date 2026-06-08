@@ -13,12 +13,12 @@ import nodemailer, { type Transporter } from 'nodemailer'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport/index.js'
 
 import {
-  SmtpClient,
-  SmtpConfig,
+  type SendResult,
+  type SmtpClient,
+  type SmtpConfig,
   SmtpError,
-  SmtpErrorCode,
-  SmtpMessage,
-  SendResult,
+  type SmtpErrorCode,
+  type SmtpMessage,
 } from './types.js'
 
 /**

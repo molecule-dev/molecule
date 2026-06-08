@@ -41,6 +41,9 @@ export function flattenBodyStructure(root: ImapBodyNode | undefined): Discovered
   return out
 }
 
+/**
+ * Recursively walk a single `BODYSTRUCTURE` node, appending leaf parts to `out`.
+ */
 function walkPart(node: ImapBodyNode, out: DiscoveredPart[], path: string): void {
   if (Array.isArray(node.childNodes) && node.childNodes.length > 0) {
     for (let i = 0; i < node.childNodes.length; i++) {
@@ -68,6 +71,9 @@ function walkPart(node: ImapBodyNode, out: DiscoveredPart[], path: string): void
   })
 }
 
+/**
+ * Remove surrounding angle brackets from a Content-ID string, e.g. `<foo@bar>` → `foo@bar`.
+ */
 function stripAngleBrackets(value: string): string {
   if (value.startsWith('<') && value.endsWith('>')) {
     return value.slice(1, -1)

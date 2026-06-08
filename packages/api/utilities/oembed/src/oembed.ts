@@ -14,7 +14,7 @@ import { discoverOembedUrl } from './discover.js'
 import { fetchText, validateUrl } from './fetcher.js'
 import { buildProviderEndpoint, findProvider } from './providers.js'
 import { sanitizeHtml } from './sanitize.js'
-import { OEmbedError, OEmbedOptions, OEmbedResponse, OEmbedType } from './types.js'
+import { OEmbedError, type OEmbedOptions, type OEmbedResponse, type OEmbedType } from './types.js'
 
 const VALID_TYPES: ReadonlySet<OEmbedType> = new Set(['photo', 'video', 'link', 'rich'])
 
@@ -35,7 +35,10 @@ function parseOembed(raw: string, sourceUrl: string): OEmbedResponse {
   let parsed: unknown
   try {
     parsed = JSON.parse(raw)
-  } catch {
+  } catch (_error) {
+    // JSON.parse threw — re-throw as a typed OEmbedError; the raw
+    // parse error is not useful to callers and is replaced by the
+    // structured code + message below.
     throw new OEmbedError('invalid-oembed-payload', 'oEmbed payload is not valid JSON', sourceUrl)
   }
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
@@ -159,7 +162,10 @@ export async function oembed(url: string, options: OEmbedOptions = {}): Promise<
         if (typeof options.maxHeight === 'number')
           u.searchParams.set('maxheight', String(options.maxHeight))
         endpointUrl = u.toString()
-      } catch {
+      } catch (_error) {
+        // `new URL(discovered)` can fail if the provider returns a
+        // relative or malformed URL — fall back to the raw string and
+        // let the subsequent fetch produce a meaningful error.
         endpointUrl = discovered
       }
     } else {

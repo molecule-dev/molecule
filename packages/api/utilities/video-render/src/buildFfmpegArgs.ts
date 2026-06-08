@@ -54,9 +54,7 @@ export function assertSafePath(value: unknown, label: string): asserts value is 
     throw new TypeError(`${label} must not start with '-' (would be parsed as ffmpeg option)`)
   }
   if (!SAFE_PATH_RE.test(value)) {
-    throw new TypeError(
-      `${label} contains characters outside the safe set [A-Za-z0-9_./:\\-+@%]`,
-    )
+    throw new TypeError(`${label} contains characters outside the safe set [A-Za-z0-9_./:\\-+@%]`)
   }
 }
 
@@ -274,7 +272,10 @@ export function buildFfmpegArgs(message: RenderJobMessage): readonly string[] {
   // Codec + container + framerate.
   args.push('-c:v', options.codec)
   args.push('-r', String(options.fps ?? timeline.fps))
-  args.push('-s', `${options.resolution?.width ?? timeline.resolution.width}x${options.resolution?.height ?? timeline.resolution.height}`)
+  args.push(
+    '-s',
+    `${options.resolution?.width ?? timeline.resolution.width}x${options.resolution?.height ?? timeline.resolution.height}`,
+  )
 
   if (options.crf !== undefined) {
     if (
@@ -295,9 +296,7 @@ export function buildFfmpegArgs(message: RenderJobMessage): readonly string[] {
   // This catches programmer errors that would otherwise be silently broken.
   const iFlagCount = args.filter((a) => a === '-i').length
   if (iFlagCount !== inputCount) {
-    throw new Error(
-      `internal: argv has ${iFlagCount} -i flags, expected ${inputCount}`,
-    )
+    throw new Error(`internal: argv has ${iFlagCount} -i flags, expected ${inputCount}`)
   }
 
   return Object.freeze(args)

@@ -27,8 +27,8 @@ export function toCartItem(row: CartItemRow): CartItem {
   if (row.metadata) {
     try {
       item.metadata = JSON.parse(row.metadata) as Record<string, unknown>
-    } catch {
-      /* ignore malformed JSON */
+    } catch (_error) {
+      /* ignore malformed JSON — metadata is optional, a parse failure is safe to skip */
     }
   }
   return item

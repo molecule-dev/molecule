@@ -12,7 +12,7 @@
  * @module
  */
 
-import { type Request, type Response, Router } from 'express'
+import { type Request, type RequestHandler, type Response, Router } from 'express'
 
 import { getParamId, requireUser } from '@molecule/api-bonds-default-express'
 import { t } from '@molecule/api-i18n'
@@ -23,12 +23,8 @@ import {
 
 // Cast through unknown to bridge zod v3/v4 type drift between this pkg's
 // zod and the validation pkg's zod peerDep. Behaviour-equivalent.
-const validateBody = validateBodyRaw as unknown as (
-  schema: unknown,
-) => import('express').RequestHandler
-const validateQuery = validateQueryRaw as unknown as (
-  schema: unknown,
-) => import('express').RequestHandler
+const validateBody = validateBodyRaw as unknown as (schema: unknown) => RequestHandler
+const validateQuery = validateQueryRaw as unknown as (schema: unknown) => RequestHandler
 
 import {
   createTaskForOwner,
@@ -45,6 +41,9 @@ import {
   taskUpdateSchema,
 } from './validation.js'
 
+/**
+ * Creates and returns an Express Router with all task CRUD and reorder endpoints mounted.
+ */
 export function createTaskRouter(): Router {
   const router = Router()
 
@@ -125,4 +124,7 @@ export function createTaskRouter(): Router {
   return router
 }
 
+/**
+ * Singleton task router instance created from {@link createTaskRouter}.
+ */
 export const taskRouter = createTaskRouter()

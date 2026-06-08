@@ -87,7 +87,7 @@ export function detectFeedFormat(
  * @param body - The full HTTP response body. Required, must be non-empty.
  * @param options - Parser options. See {@link ParseFeedOptions}.
  * @returns Normalized feed + items.
- * @throws {@link FeedParseError} when the body cannot be classified or parsed.
+ * @throws {FeedParseError} when the body cannot be classified or parsed.
  */
 export function parseFeed(body: string, options: ParseFeedOptions = {}): ParsedFeed {
   if (typeof body !== 'string' || body.trim() === '') {

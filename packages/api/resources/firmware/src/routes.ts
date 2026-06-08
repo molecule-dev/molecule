@@ -9,11 +9,12 @@
  * @module
  */
 
-import { Router, type Request, type RequestHandler, type Response } from 'express'
+import { type Request, type RequestHandler, type Response, Router } from 'express'
 import type { z } from 'zod'
 
 import { getParamId, getUserId } from '@molecule/api-bonds-default-express'
 import { t } from '@molecule/api-i18n'
+import { logger } from '@molecule/api-logger'
 import {
   validateBody as validateBodyRaw,
   validateQuery as validateQueryRaw,
@@ -38,12 +39,8 @@ import {
   updateFirmwareSchema,
 } from './validation.js'
 
-const validateBody = validateBodyRaw as unknown as (
-  schema: unknown,
-) => import('express').RequestHandler
-const validateQuery = validateQueryRaw as unknown as (
-  schema: unknown,
-) => import('express').RequestHandler
+const validateBody = validateBodyRaw as unknown as (schema: unknown) => RequestHandler
+const validateQuery = validateQueryRaw as unknown as (schema: unknown) => RequestHandler
 
 /**
  * Caller-supplied device-token authorization. Should set
@@ -57,18 +54,21 @@ interface DeviceAuthLocals {
   ownerId: string
 }
 
+/** Responds with a 401 Unauthorized JSON error. */
 function unauthorized(res: Response): Response {
   return res.status(401).json({
     error: t('auth.unauthorized', undefined, { defaultValue: 'Authentication required.' }),
   })
 }
 
+/** Responds with a 404 Not Found JSON error for a missing firmware version. */
 function firmwareNotFound(res: Response): Response {
   return res.status(404).json({
     error: t('firmware.notFound', undefined, { defaultValue: 'Firmware version not found.' }),
   })
 }
 
+/** Responds with a 500 Internal Server Error JSON error. */
 function internalError(res: Response): Response {
   return res.status(500).json({
     error: t('errors.internalServer', undefined, { defaultValue: 'Internal server error.' }),
@@ -85,7 +85,8 @@ export function createFirmwareRouter(opts: { requireDeviceToken: DeviceTokenMidd
       if (!userId) return unauthorized(res)
       const q = req.query as unknown as z.infer<typeof listFirmwareQuerySchema>
       res.json(await listFirmwareForOwner(userId, q))
-    } catch {
+    } catch (error) {
+      logger.error('listFirmwareForOwner failed', { error })
       internalError(res)
     }
   })
@@ -99,7 +100,8 @@ export function createFirmwareRouter(opts: { requireDeviceToken: DeviceTokenMidd
         if (!userId) return unauthorized(res)
         const q = req.query as unknown as z.infer<typeof listRolloutsQuerySchema>
         res.json(await listRolloutsForOwner(userId, q))
-      } catch {
+      } catch (error) {
+        logger.error('listRolloutsForOwner failed', { error })
         internalError(res)
       }
     },
@@ -112,7 +114,8 @@ export function createFirmwareRouter(opts: { requireDeviceToken: DeviceTokenMidd
       const row = await getFirmwareForOwner(userId, getParamId(req))
       if (!row) return firmwareNotFound(res)
       res.json(row)
-    } catch {
+    } catch (error) {
+      logger.error('getFirmwareForOwner failed', { error })
       internalError(res)
     }
   })
@@ -127,7 +130,8 @@ export function createFirmwareRouter(opts: { requireDeviceToken: DeviceTokenMidd
       )
       if (!created) return internalError(res)
       res.status(201).json(created)
-    } catch {
+    } catch (error) {
+      logger.error('createFirmwareForOwner failed', { error })
       internalError(res)
     }
   })
@@ -143,7 +147,8 @@ export function createFirmwareRouter(opts: { requireDeviceToken: DeviceTokenMidd
       )
       if (!updated) return firmwareNotFound(res)
       res.json(updated)
-    } catch {
+    } catch (error) {
+      logger.error('updateFirmwareForOwner failed', { error })
       internalError(res)
     }
   })
@@ -155,7 +160,8 @@ export function createFirmwareRouter(opts: { requireDeviceToken: DeviceTokenMidd
       const published = await publishFirmwareForOwner(userId, getParamId(req))
       if (!published) return firmwareNotFound(res)
       res.json(published)
-    } catch {
+    } catch (error) {
+      logger.error('publishFirmwareForOwner failed', { error })
       internalError(res)
     }
   })
@@ -185,7 +191,8 @@ export function createFirmwareRouter(opts: { requireDeviceToken: DeviceTokenMidd
           })
         }
         res.status(201).json(result.rollout)
-      } catch {
+      } catch (error) {
+        logger.error('createRolloutForOwner failed', { error })
         internalError(res)
       }
     },
@@ -230,7 +237,8 @@ export function createFirmwareRouter(opts: { requireDeviceToken: DeviceTokenMidd
           })
         }
         res.json({ ok: true })
-      } catch {
+      } catch (error) {
+        logger.error('recordRolloutDeviceStatus failed', { error })
         internalError(res)
       }
     },

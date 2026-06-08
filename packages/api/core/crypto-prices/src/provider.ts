@@ -49,11 +49,12 @@ export const setProvider = (provider: CryptoPricesProvider): void => {
 export const getProvider = (): CryptoPricesProvider => {
   try {
     return bondRequire<CryptoPricesProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('cryptoPrices.error.noProvider', undefined, {
         defaultValue: 'Crypto-prices provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

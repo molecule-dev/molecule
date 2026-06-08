@@ -43,11 +43,12 @@ export const setProvider = (provider: AnalyticsProvider): void => {
 export const getProvider = (): AnalyticsProvider => {
   try {
     return bondRequire<AnalyticsProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('analytics.error.noProvider', undefined, {
         defaultValue: 'Analytics provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

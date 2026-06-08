@@ -1,13 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { buildLimitError as BuildLimitError } from '../error.js'
+import type { setProvider as SetProvider } from '../provider.js'
 import { defineTiers } from '../registry.js'
 
 interface TestLimits {
   maxItems: number
 }
 
-let buildLimitError: typeof import('../error.js').buildLimitError
-let setProvider: typeof import('../provider.js').setProvider
+let buildLimitError: typeof BuildLimitError
+let setProvider: typeof SetProvider
 
 const baseOptions = () => ({
   tiers: {

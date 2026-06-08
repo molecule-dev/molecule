@@ -52,6 +52,7 @@ export function parseAtom({ doc, sanitize }: ParseAtomArgs): ParsedFeed {
 }
 
 /**
+ * Select the first href from an array of Atom link objects that matches the given `rel` value.
  *
  * @param links
  * @param rel
@@ -78,6 +79,7 @@ function pickLink(links: unknown[], rel: string | undefined): string | undefined
 }
 
 /**
+ * Extract a display name or email string from an Atom `<author>` value.
  *
  * @param value
  */
@@ -93,6 +95,7 @@ function extractAtomAuthor(value: unknown): string | undefined {
 }
 
 /**
+ * Build a `NormalizedFeedItem` from a raw Atom `<entry>` object.
  *
  * @param raw
  * @param sanitize

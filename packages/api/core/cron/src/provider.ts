@@ -34,11 +34,12 @@ export const setProvider = (provider: CronProvider): void => {
 export const getProvider = (): CronProvider => {
   try {
     return bondRequire<CronProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('cron.error.noProvider', undefined, {
         defaultValue: 'Cron provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

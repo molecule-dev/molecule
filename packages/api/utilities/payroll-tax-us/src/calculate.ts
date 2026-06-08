@@ -6,8 +6,8 @@
  * @module
  */
 
-import { calculateAdditionalMedicare, calculateMedicare, calculateSocialSecurity } from './fica.js'
 import { calculateFederal } from './federal.js'
+import { calculateAdditionalMedicare, calculateMedicare, calculateSocialSecurity } from './fica.js'
 import { calculateState } from './state.js'
 import type { PayrollTaxInput, PayrollTaxResult } from './types.js'
 

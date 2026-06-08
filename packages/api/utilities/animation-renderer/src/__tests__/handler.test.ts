@@ -5,13 +5,13 @@
 
 import { describe, expect, it, vi } from 'vitest'
 
+import type { AnimationRenderResponse } from '../handler.js'
 import {
+  createAnimationCancelHandler,
   createAnimationRenderHandler,
   createAnimationStatusHandler,
-  createAnimationCancelHandler,
 } from '../handler.js'
 import { configureAnimationRenderer } from '../renderAnimation.js'
-import type { AnimationRenderResponse } from '../handler.js'
 
 function makeRes(): AnimationRenderResponse & {
   status?: number
@@ -127,7 +127,10 @@ describe('createAnimationStatusHandler', () => {
     const status = createAnimationStatusHandler()
 
     const submitRes = makeRes()
-    await submit({ body: { ...validBody, options: { ...validBody.options, jobId: 'fixed' } } }, submitRes)
+    await submit(
+      { body: { ...validBody, options: { ...validBody.options, jobId: 'fixed' } } },
+      submitRes,
+    )
 
     // Wait for completion before polling — the renderer for lottie is
     // synchronous-ish on the microtask queue.
@@ -154,7 +157,10 @@ describe('createAnimationCancelHandler', () => {
   it('returns 409 if the job has already finished', async () => {
     configureAnimationRenderer()
     const submit = createAnimationRenderHandler()
-    await submit({ body: { ...validBody, options: { ...validBody.options, jobId: 'finished' } } }, makeRes())
+    await submit(
+      { body: { ...validBody, options: { ...validBody.options, jobId: 'finished' } } },
+      makeRes(),
+    )
     await new Promise((r) => setTimeout(r, 5))
 
     const handle = createAnimationCancelHandler()

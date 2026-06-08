@@ -4,11 +4,16 @@
  * @module
  */
 
+/** Lifecycle state of a firmware version. */
 export type FirmwareStatus = 'draft' | 'published' | 'deprecated'
+/** Deployment strategy used when rolling out a firmware version to devices. */
 export type RolloutStrategy = 'immediate' | 'canary' | 'gradual'
+/** Current state of a firmware rollout operation. */
 export type RolloutStatus = 'pending' | 'active' | 'completed' | 'failed' | 'canceled'
+/** Current state of an individual device update task within a rollout. */
 export type RolloutTaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed'
 
+/** Database row representing a firmware version artifact and its metadata. */
 export interface FirmwareVersionRow {
   id: string
   owner_id: string
@@ -24,6 +29,7 @@ export interface FirmwareVersionRow {
   updated_at: string | Date
 }
 
+/** Database row representing a firmware rollout targeting a fleet or set of devices. */
 export interface FirmwareRolloutRow {
   id: string
   owner_id: string
@@ -40,6 +46,7 @@ export interface FirmwareRolloutRow {
   updated_at: string | Date
 }
 
+/** Database row representing a single device's update task within a rollout. */
 export interface FirmwareUpdateTaskRow {
   id: string
   rollout_id: string

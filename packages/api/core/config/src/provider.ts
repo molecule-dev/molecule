@@ -33,8 +33,8 @@ export const setProvider = (provider: ConfigProvider): void => {
 export const getProvider = (): ConfigProvider => {
   try {
     return bondRequire<ConfigProvider>(BOND_TYPE)
-  } catch {
-    throw new Error('No configuration provider set. Call setProvider() first.')
+  } catch (error) {
+    throw new Error('No configuration provider set. Call setProvider() first.', { cause: error })
   }
 }
 
@@ -129,7 +129,8 @@ export const getJson = <T = unknown>(key: string, defaultValue?: T): T | undefin
   }
   try {
     return JSON.parse(value) as T
-  } catch {
+  } catch (_error) {
+    // JSON.parse failed — value is malformed; return defaultValue as documented.
     return defaultValue
   }
 }

@@ -1,4 +1,4 @@
-import { type Request, type Response, Router } from 'express'
+import { type Request, type RequestHandler, type Response, Router } from 'express'
 
 import { requireUser } from '@molecule/api-bonds-default-express'
 import {
@@ -9,13 +9,10 @@ import {
 import { ingestBulk, ingestReading, listAggregatedReadings, listRawReadings } from './service.js'
 import { readingBulkSchema, readingCreateSchema, readingQuerySchema } from './validation.js'
 
-const validateBody = validateBodyRaw as unknown as (
-  schema: unknown,
-) => import('express').RequestHandler
-const validateQuery = validateQueryRaw as unknown as (
-  schema: unknown,
-) => import('express').RequestHandler
+const validateBody = validateBodyRaw as unknown as (schema: unknown) => RequestHandler
+const validateQuery = validateQueryRaw as unknown as (schema: unknown) => RequestHandler
 
+/** Creates and returns the Express router for the readings resource endpoints. */
 export function createReadingsRouter(): Router {
   const router = Router()
 

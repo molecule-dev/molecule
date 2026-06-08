@@ -42,11 +42,12 @@ export const setProvider = (provider: ImageProvider): void => {
 export const getProvider = (): ImageProvider => {
   try {
     return bondRequire<ImageProvider>(BOND_TYPE)
-  } catch {
+  } catch (_error) {
     throw new Error(
       t('image.error.noProvider', undefined, {
         defaultValue: 'Image provider not configured. Call setProvider() first.',
       }),
+      { cause: _error },
     )
   }
 }

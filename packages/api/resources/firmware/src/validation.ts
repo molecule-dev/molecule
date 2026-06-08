@@ -6,8 +6,11 @@
 
 import { z } from 'zod'
 
+/** Allowed lifecycle states for a firmware version. */
 export const firmwareStatusSchema = z.enum(['draft', 'published', 'deprecated'])
+/** Allowed rollout delivery strategies. */
 export const rolloutStrategySchema = z.enum(['immediate', 'canary', 'gradual'])
+/** Allowed progress states for a firmware rollout. */
 export const rolloutStatusSchema = z.enum(['pending', 'active', 'completed', 'failed', 'canceled'])
 
 /** Validator for creating a draft firmware version. */

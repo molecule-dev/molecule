@@ -197,7 +197,8 @@ export const createSimpleI18nProvider = (defaultLocale = 'en'): I18nProvider => 
         return new Intl.ListFormat(currentLocale, { type: options?.type || 'conjunction' }).format(
           values,
         )
-      } catch {
+      } catch (_error) {
+        // Intl.ListFormat is not available in all environments; the join fallback is always safe.
         return values.join(', ')
       }
     },

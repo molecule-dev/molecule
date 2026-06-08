@@ -21,6 +21,7 @@ import type { ActionItemRow, MeetingRow, MeetingStatus } from './types.js'
 const MEETINGS_TABLE = 'meetings'
 const ACTION_ITEMS_TABLE = 'meeting_action_items'
 
+/** Returns a paginated list of meetings belonging to the given owner, optionally filtered by status. */
 export async function listMeetingsForOwner(
   ownerId: string,
   opts: {
@@ -42,6 +43,7 @@ export async function listMeetingsForOwner(
   return { data, total }
 }
 
+/** Fetches a single meeting by ID, returning null if it does not exist or does not belong to the owner. */
 export async function getMeetingForOwner(
   meetingId: string,
   ownerId: string,
@@ -51,6 +53,7 @@ export async function getMeetingForOwner(
   return row
 }
 
+/** Creates a new meeting record owned by the given owner and returns the inserted row. */
 export async function createMeetingForOwner(
   ownerId: string,
   data: {
@@ -77,6 +80,7 @@ export async function createMeetingForOwner(
   return result.data!
 }
 
+/** Applies a partial patch to a meeting, recomputing duration_seconds when both timestamps are present, and returns the updated row or null if not found/owned. */
 export async function updateMeetingForOwner(
   meetingId: string,
   ownerId: string,
@@ -97,6 +101,7 @@ export async function updateMeetingForOwner(
   return findById<MeetingRow>(MEETINGS_TABLE, meetingId)
 }
 
+/** Deletes a meeting by ID if it belongs to the given owner; returns true on success, false if not found or not owned. */
 export async function deleteMeetingForOwner(meetingId: string, ownerId: string): Promise<boolean> {
   const row = await findById<MeetingRow>(MEETINGS_TABLE, meetingId)
   if (!row || row.owner_id !== ownerId) return false
@@ -104,6 +109,7 @@ export async function deleteMeetingForOwner(meetingId: string, ownerId: string):
   return true
 }
 
+/** Returns all action items for a meeting in creation order, or null if the meeting is not found/owned. */
 export async function listActionItems(
   meetingId: string,
   ownerId: string,
@@ -116,6 +122,7 @@ export async function listActionItems(
   })
 }
 
+/** Creates a new action item under a meeting owned by the given owner; returns the inserted row or null if the meeting is not found/owned. */
 export async function createActionItem(
   meetingId: string,
   ownerId: string,
@@ -139,6 +146,7 @@ export async function createActionItem(
   return result.data!
 }
 
+/** Applies a partial patch to an action item; returns the updated row or null if the meeting or item is not found/owned. */
 export async function updateActionItem(
   itemId: string,
   meetingId: string,
@@ -153,6 +161,7 @@ export async function updateActionItem(
   return findById<ActionItemRow>(ACTION_ITEMS_TABLE, itemId)
 }
 
+/** Deletes an action item by ID if its parent meeting belongs to the given owner; returns true on success, false if not found or not owned. */
 export async function deleteActionItem(
   itemId: string,
   meetingId: string,

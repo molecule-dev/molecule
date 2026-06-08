@@ -99,15 +99,17 @@ export async function connectRemote(
         const probe = await pool.connect()
         try {
           probe.release()
-        } catch {
-          // ignore
+        } catch (_error) {
+          // release() may throw if the connection was already closed; the
+          // probe succeeded so this is safe to ignore.
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
         try {
           await pool.end()
-        } catch {
-          // ignore
+        } catch (_error) {
+          // Best-effort cleanup before re-throwing the real error; if end()
+          // also fails there is nothing actionable to do here.
         }
         throw new RemoteDbError('connection-failed', `Postgres connect failed: ${message}`, {
           cause: error,
@@ -138,8 +140,9 @@ export async function connectRemote(
         const message = error instanceof Error ? error.message : String(error)
         try {
           await pool.end()
-        } catch {
-          // ignore
+        } catch (_error) {
+          // Best-effort cleanup before re-throwing the real error; if end()
+          // also fails there is nothing actionable to do here.
         }
         throw new RemoteDbError('connection-failed', `MySQL connect failed: ${message}`, {
           cause: error,

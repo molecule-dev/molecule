@@ -115,11 +115,13 @@ export function hasProvider(name?: string): boolean {
 export function requireProvider(): ChannelProvider {
   try {
     return bondRequire<ChannelProvider>(BOND_TYPE)
-  } catch {
+  } catch (_error) {
+    // bondRequire throws a generic bond error; replace it with an i18n-aware message.
     throw new Error(
       t('channel.error.noProvider', undefined, {
         defaultValue: 'Channel provider not configured. Bond a channel provider first.',
       }),
+      { cause: _error },
     )
   }
 }

@@ -34,9 +34,9 @@
  * @module
  */
 
-export * from './types.js'
-export * from './provider.js'
-export * from './registry.js'
 export * from './cache.js'
 export * from './error.js'
 export * from './middleware.js'
+export * from './provider.js'
+export * from './registry.js'
+export * from './types.js'

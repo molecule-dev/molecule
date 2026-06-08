@@ -40,11 +40,12 @@ export const setProvider = (provider: ImportExportProvider): void => {
 export const getProvider = (): ImportExportProvider => {
   try {
     return bondRequire<ImportExportProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('importExport.error.noProvider', undefined, {
         defaultValue: 'ImportExport provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

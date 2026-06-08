@@ -1,5 +1,7 @@
+/** The medium through which an event type meeting takes place. */
 export type LocationKind = 'video' | 'phone' | 'in_person' | 'custom'
 
+/** Database row shape for a bookable event type owned by a user. */
 export interface EventTypeRow {
   id: string
   owner_id: string
@@ -21,6 +23,7 @@ export interface EventTypeRow {
   updated_at: string | Date
 }
 
+/** Database row shape for a recurring weekly availability rule belonging to a user. */
 export interface AvailabilityRuleRow {
   id: string
   user_id: string
@@ -31,6 +34,7 @@ export interface AvailabilityRuleRow {
   created_at: string | Date
 }
 
+/** A discrete time window indicating whether a booking slot is open or blocked. */
 export interface AvailabilitySlot {
   start: string // ISO datetime
   end: string

@@ -14,8 +14,9 @@ try {
   // @ts-expect-error — locale package may not be installed yet
   const locales = await import('@molecule/api-locales-resource-subscriber')
   registerLocaleModule(locales)
-} catch {
+} catch (_error) {
   // Locale package not available — handler errors fall back to inline English defaultValues.
+  // Ignoring is safe: the package is optional and all t() calls supply defaultValue fallbacks.
 }
 
 /**

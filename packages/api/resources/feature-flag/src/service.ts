@@ -11,8 +11,8 @@ import {
   findById,
   findMany,
   type OrderBy,
-  type WhereCondition,
   updateById,
+  type WhereCondition,
 } from '@molecule/api-database'
 
 import type { FeatureFlagRow, FeatureFlagTargetingRuleRow, FlagState, FlagType } from './types.js'
@@ -20,6 +20,7 @@ import type { FeatureFlagRow, FeatureFlagTargetingRuleRow, FlagState, FlagType }
 const FLAGS_TABLE = 'feature_flags'
 const RULES_TABLE = 'feature_flag_targeting_rules'
 
+/** Returns a paginated list of feature flags owned by the given user, with optional project/environment/state filters. */
 export async function listFlagsForUser(
   userId: string,
   opts: {
@@ -50,6 +51,7 @@ export async function listFlagsForUser(
   return { data, total, page, limit }
 }
 
+/** Fetches a single feature flag by ID, returning null if it does not exist or is not owned by the user. */
 export async function getFlagForUser(
   flagId: string,
   userId: string,
@@ -59,6 +61,7 @@ export async function getFlagForUser(
   return row
 }
 
+/** Creates a new feature flag owned by the given user and returns the persisted row. */
 export async function createFlagForUser(
   userId: string,
   data: {
@@ -91,6 +94,7 @@ export async function createFlagForUser(
   return result.data!
 }
 
+/** Applies a partial patch to a feature flag owned by the user and returns the updated row, or null if not found. */
 export async function updateFlagForUser(
   flagId: string,
   userId: string,
@@ -111,6 +115,7 @@ export async function updateFlagForUser(
   return await findById<FeatureFlagRow>(FLAGS_TABLE, flagId)
 }
 
+/** Deletes a feature flag owned by the user, returning true on success or false if not found. */
 export async function deleteFlagForUser(flagId: string, userId: string): Promise<boolean> {
   const row = await findById<FeatureFlagRow>(FLAGS_TABLE, flagId)
   if (!row || row.user_id !== userId) return false
@@ -118,6 +123,7 @@ export async function deleteFlagForUser(flagId: string, userId: string): Promise
   return true
 }
 
+/** Returns all targeting rules for a flag in priority order, or null if the flag is not found or not owned by the user. */
 export async function listRulesForFlag(
   flagId: string,
   userId: string,
@@ -130,6 +136,7 @@ export async function listRulesForFlag(
   })
 }
 
+/** Appends a new targeting rule to a flag owned by the user and returns the persisted rule row. */
 export async function addRuleToFlag(
   flagId: string,
   userId: string,
@@ -156,6 +163,7 @@ export async function addRuleToFlag(
   return result.data!
 }
 
+/** Deletes a targeting rule from a flag owned by the user, returning true on success or false if not found. */
 export async function deleteRule(ruleId: string, flagId: string, userId: string): Promise<boolean> {
   const flag = await getFlagForUser(flagId, userId)
   if (!flag) return false

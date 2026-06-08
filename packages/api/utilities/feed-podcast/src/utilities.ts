@@ -56,7 +56,7 @@ export function wrapCdata(value: string | undefined | null): string {
  * @param seconds - Non-negative finite integer or float; fractional
  *                  seconds are rounded down.
  * @returns Zero-padded duration string.
- * @throws RangeError when `seconds` is negative or non-finite.
+ * @throws {RangeError} when `seconds` is negative or non-finite.
  */
 export function formatItunesDuration(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) {
@@ -68,7 +68,7 @@ export function formatItunesDuration(seconds: number): string {
   const hours = Math.floor(total / 3600)
   const minutes = Math.floor((total % 3600) / 60)
   const secs = total % 60
-  const pad = (n: number) => n.toString().padStart(2, '0')
+  const pad = (n: number): string => n.toString().padStart(2, '0')
   if (hours > 0) {
     return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`
   }
@@ -82,7 +82,7 @@ export function formatItunesDuration(seconds: number): string {
  *
  * @param input - Date instance or any string parseable by `Date`.
  * @returns RFC 822 date string (e.g. `Mon, 01 May 2026 12:34:56 GMT`).
- * @throws RangeError when the input cannot be parsed into a valid date.
+ * @throws {RangeError} when the input cannot be parsed into a valid date.
  */
 export function formatRfc822(input: Date | string): string {
   const date = input instanceof Date ? input : new Date(input)

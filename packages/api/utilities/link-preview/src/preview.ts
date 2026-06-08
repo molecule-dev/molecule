@@ -6,7 +6,7 @@
 
 import { fetchHtml } from './fetcher.js'
 import { parseHtml } from './parse.js'
-import { GetLinkPreviewOptions, LinkPreview } from './types.js'
+import type { GetLinkPreviewOptions, LinkPreview } from './types.js'
 
 /**
  * Fetch `url`, extract Open Graph / Twitter Card / oEmbed metadata, and

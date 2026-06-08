@@ -54,6 +54,7 @@ export function renderSvg(doc: CanvasDocument, options: RenderOptions): Buffer {
 }
 
 /**
+ * Dispatch a {@link Layer} to its kind-specific SVG serializer.
  * @param layer
  */
 function layerToSvg(layer: Layer): string {
@@ -80,6 +81,7 @@ function layerToSvg(layer: Layer): string {
 }
 
 /**
+ * Serialize a {@link RectLayer} to an SVG `<rect>` element string.
  * @param layer
  */
 function rectSvg(layer: RectLayer): string {
@@ -91,6 +93,7 @@ function rectSvg(layer: RectLayer): string {
 }
 
 /**
+ * Serialize a {@link EllipseLayer} to an SVG `<ellipse>` element string.
  * @param layer
  */
 function ellipseSvg(layer: EllipseLayer): string {
@@ -102,6 +105,7 @@ function ellipseSvg(layer: EllipseLayer): string {
 }
 
 /**
+ * Serialize a {@link LineLayer} to an SVG `<line>` element string.
  * @param layer
  */
 function lineSvg(layer: LineLayer): string {
@@ -112,6 +116,7 @@ function lineSvg(layer: LineLayer): string {
 }
 
 /**
+ * Serialize a {@link PathLayer} to an SVG `<path>` element string.
  * @param layer
  */
 function pathSvg(layer: PathLayer): string {
@@ -119,6 +124,7 @@ function pathSvg(layer: PathLayer): string {
 }
 
 /**
+ * Serialize a {@link TextLayer} to an SVG `<text>` element string.
  * @param layer
  */
 function textSvg(layer: TextLayer): string {
@@ -140,6 +146,7 @@ function textSvg(layer: TextLayer): string {
 }
 
 /**
+ * Serialize a {@link ImageLayer} to an SVG `<image>` element string.
  * @param layer
  */
 function imageSvg(layer: ImageLayer): string {
@@ -165,6 +172,7 @@ function imageSvg(layer: ImageLayer): string {
 }
 
 /**
+ * Serialize a group layer to an SVG `<g>` element string, recursively rendering children.
  * @param layer
  */
 function groupSvg(layer: { children: Layer[] } & Transform): string {
@@ -173,6 +181,7 @@ function groupSvg(layer: { children: Layer[] } & Transform): string {
 }
 
 /**
+ * Build SVG fill/stroke attribute string for a shape layer.
  * @param layer
  */
 function shapeAttrs(layer: { fill?: string; stroke?: string; strokeWidth?: number }): string {
@@ -189,6 +198,7 @@ function shapeAttrs(layer: { fill?: string; stroke?: string; strokeWidth?: numbe
 }
 
 /**
+ * Build SVG transform and opacity attribute string from a {@link Transform}.
  * @param t
  */
 function transformAttr(t: Transform): string {
@@ -207,6 +217,7 @@ function transformAttr(t: Transform): string {
 }
 
 /**
+ * Map a {@link TextLayer} `align` value to the corresponding SVG `text-anchor` value.
  * @param align
  */
 function mapTextAnchor(align: TextLayer['align']): string {
@@ -221,6 +232,7 @@ function mapTextAnchor(align: TextLayer['align']): string {
 }
 
 /**
+ * Map a {@link TextLayer} `baseline` value to the corresponding SVG `dominant-baseline` value.
  * @param baseline
  */
 function mapDominantBaseline(baseline: TextLayer['baseline']): string {
@@ -237,6 +249,7 @@ function mapDominantBaseline(baseline: TextLayer['baseline']): string {
 }
 
 /**
+ * Format a number as a compact string, trimming trailing zeros after the decimal point.
  * @param value
  */
 function num(value: number): string {
@@ -245,6 +258,7 @@ function num(value: number): string {
 }
 
 /**
+ * Escape a string for safe use in an SVG attribute value (inside double-quotes).
  * @param value
  */
 function escapeAttr(value: string): string {
@@ -252,6 +266,7 @@ function escapeAttr(value: string): string {
 }
 
 /**
+ * Escape a string for safe use as SVG text content.
  * @param value
  */
 function escapeText(value: string): string {

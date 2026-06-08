@@ -15,9 +15,10 @@
  * @module
  */
 
-import { Router, type Request, type Response, type Router as ExpressRouter } from 'express'
+import { type Request, type Response, type Router as ExpressRouter, Router } from 'express'
 
 import { get as bondGet } from '@molecule/api-bond'
+import { logger } from '@molecule/api-logger'
 
 import type { BillingErrorBody, BillingProvider, BillingRoutesOptions } from './types.js'
 
@@ -146,7 +147,8 @@ export const createBillingRoutes = <
         return
       }
       sendError(res, 502, 'billing.checkoutFailed', 'Could not start checkout. Try again later.')
-    } catch {
+    } catch (error) {
+      logger.warn('billing.checkout: provider.updateSubscription failed', { error })
       sendError(res, 502, 'billing.checkoutFailed', 'Could not start checkout. Try again later.')
     }
   })
@@ -176,7 +178,8 @@ export const createBillingRoutes = <
         return
       }
       res.json({ canceled: true })
-    } catch {
+    } catch (error) {
+      logger.warn('billing.cancel: provider.cancelSubscription failed', { error })
       sendError(res, 502, 'billing.cancelFailed', 'No active subscription to cancel.')
     }
   })
@@ -223,7 +226,8 @@ export const createBillingRoutes = <
         return
       }
       res.json({ url: session.url })
-    } catch {
+    } catch (error) {
+      logger.warn('billing.portal: provider.createPortalSession failed', { error })
       sendError(
         res,
         502,

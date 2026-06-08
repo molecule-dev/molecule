@@ -90,7 +90,9 @@ export const defaultClient: HttpClient = {
     } else {
       try {
         data = (await response.json()) as T
-      } catch {
+      } catch (_error) {
+        // Non-JSON response body — fall back to null; callers relying on
+        // typed data will see an empty value, which is the intended fallback.
         data = null as T
       }
     }

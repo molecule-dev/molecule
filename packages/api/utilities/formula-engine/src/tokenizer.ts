@@ -213,10 +213,16 @@ export function tokenize(input: string): Token[] {
   return tokens
 }
 
+/**
+ * Returns true if the character is an ASCII decimal digit (0–9).
+ */
 function isDigit(ch: string): boolean {
   return ch >= '0' && ch <= '9'
 }
 
+/**
+ * Returns true if the character is an ASCII letter (A–Z or a–z).
+ */
 function isLetter(ch: string): boolean {
   return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')
 }

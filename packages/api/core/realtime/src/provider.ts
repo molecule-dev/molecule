@@ -34,11 +34,12 @@ export const setProvider = (provider: RealtimeProvider): void => {
 export const getProvider = (): RealtimeProvider => {
   try {
     return bondRequire<RealtimeProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('realtime.error.noProvider', undefined, {
         defaultValue: 'Realtime provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

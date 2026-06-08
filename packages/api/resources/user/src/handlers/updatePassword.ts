@@ -107,9 +107,9 @@ export const updatePassword = ({ name: _name, tableName, schema: _schema }: type
       // from persisting after a password change.
       try {
         await get<{ deleteByUserId(userId: string): Promise<void> }>('device')?.deleteByUserId(id)
-      } catch {
+      } catch (error) {
         // Non-critical — password was already changed successfully
-        logger.warn('Failed to invalidate sessions after password change', { userId: id })
+        logger.warn('Failed to invalidate sessions after password change', { error, userId: id })
       }
 
       analytics.track({ name: 'user.password_changed', userId: id }).catch(() => {})

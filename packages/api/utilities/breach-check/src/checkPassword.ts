@@ -61,7 +61,7 @@ export const findCountForSuffix = (body: string, suffix: string): number => {
  * @param options - Optional behavior overrides — see {@link CheckPasswordOptions}.
  * @returns Promise resolving to a {@link BreachCheckResult} with `pwned`
  *   (true when count > 0) and `count` (number of breach occurrences).
- * @throws When the HIBP API returns a non-2xx status, the request times out,
+ * @throws {Error} When the HIBP API returns a non-2xx status, the request times out,
  *   or `fetch` rejects. The error message is generic — never includes the
  *   plaintext password.
  */

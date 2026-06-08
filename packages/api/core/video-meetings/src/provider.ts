@@ -36,11 +36,12 @@ export const setProvider = (provider: VideoMeetingsProvider): void => {
 export const getProvider = (): VideoMeetingsProvider => {
   try {
     return bondRequire<VideoMeetingsProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('videoMeetings.error.noProvider', undefined, {
         defaultValue: 'Video meetings provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

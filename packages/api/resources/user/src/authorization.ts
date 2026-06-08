@@ -24,7 +24,8 @@ const logger = getLogger()
 const getJwtRefreshTime = (): number => {
   try {
     return Number(getConfig('JWT_REFRESH_TIME', '30d')) || 1000 * 60 * 30 // 30 minutes
-  } catch {
+  } catch (_error) {
+    // Config read is optional — fall back to the hard-coded default safely.
     return 1000 * 60 * 30 // 30 minutes default
   }
 }
@@ -117,7 +118,7 @@ export const verifyMiddleware = (): MoleculeRequestHandler => async (req, res, n
 
     try {
       session = jwtVerify(token) as Session
-    } catch {
+    } catch (_error) {
       // Token is invalid or expired — do NOT accept unverified tokens.
       // Previous code used decode() (no signature check) as a fallback,
       // which allowed expired/tampered tokens to be accepted if a cookie matched.
@@ -142,8 +143,8 @@ export const verifyMiddleware = (): MoleculeRequestHandler => async (req, res, n
             set(req, res, session)
           }
         }
-      } catch {
-        // Non-critical - continue with existing session.
+      } catch (_error) {
+        // Non-critical — token refresh is best-effort; continue with existing session.
       }
     }
   } catch (error) {

@@ -40,11 +40,12 @@ export const setProvider = (provider: PDFProvider): void => {
 export const getProvider = (): PDFProvider => {
   try {
     return bondRequire<PDFProvider>(BOND_TYPE)
-  } catch {
+  } catch (_error) {
     throw new Error(
       t('pdf.error.noProvider', undefined, {
         defaultValue: 'PDF provider not configured. Call setProvider() first.',
       }),
+      { cause: _error },
     )
   }
 }

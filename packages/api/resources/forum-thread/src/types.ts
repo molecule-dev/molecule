@@ -1,5 +1,7 @@
+/** Possible lifecycle states for a forum thread. */
 export type ThreadStatus = 'open' | 'closed' | 'locked' | 'archived'
 
+/** Raw database row for a forum thread record. */
 export interface ForumThreadRow {
   id: string
   author_id: string
@@ -17,6 +19,7 @@ export interface ForumThreadRow {
   updated_at: string | Date
 }
 
+/** Raw database row for a reply to a forum thread. */
 export interface ForumReplyRow {
   id: string
   thread_id: string
@@ -29,6 +32,7 @@ export interface ForumReplyRow {
   updated_at: string | Date
 }
 
+/** Raw database row for a vote cast on a thread or reply. */
 export interface ForumVoteRow {
   id: string
   user_id: string

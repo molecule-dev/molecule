@@ -169,8 +169,12 @@ function toLottieTransform(layer: AnimationLayer, fps: number): LottieTransform 
   if (xTrack || yTrack) {
     const times = mergeKeyframeTimes(xTrack, yTrack)
     const keyframes = times.map((time, i) => {
-      const xValue = xTrack ? (toNumber(xTrack[Math.min(i, xTrack.length - 1)]?.value) ?? t.x ?? 0) : (t.x ?? 0)
-      const yValue = yTrack ? (toNumber(yTrack[Math.min(i, yTrack.length - 1)]?.value) ?? t.y ?? 0) : (t.y ?? 0)
+      const xValue = xTrack
+        ? (toNumber(xTrack[Math.min(i, xTrack.length - 1)]?.value) ?? t.x ?? 0)
+        : (t.x ?? 0)
+      const yValue = yTrack
+        ? (toNumber(yTrack[Math.min(i, yTrack.length - 1)]?.value) ?? t.y ?? 0)
+        : (t.y ?? 0)
       const easing = (xTrack?.[i] ?? yTrack?.[i])?.easing
       return {
         t: Math.round(time * fps),

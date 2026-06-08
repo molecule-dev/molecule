@@ -34,11 +34,12 @@ export const setProvider = (provider: WebhookProvider): void => {
 export const getProvider = (): WebhookProvider => {
   try {
     return bondRequire<WebhookProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('webhook.error.noProvider', undefined, {
         defaultValue: 'Webhook provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

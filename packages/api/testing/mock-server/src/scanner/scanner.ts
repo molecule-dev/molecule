@@ -386,8 +386,8 @@ function parseZodField(zodType: string, args: string, chain: string): ZodSchemaD
     let defaultValue: unknown = defaultMatch[1]
     try {
       defaultValue = JSON.parse(defaultMatch[1].replace(/'/g, '"'))
-    } catch {
-      // Keep as string
+    } catch (_error) {
+      // JSON.parse failed (e.g. unquoted identifier like `undefined`) — keep the raw string as-is.
     }
     return { type: 'ZodDefault', innerType: inner, defaultValue }
   }

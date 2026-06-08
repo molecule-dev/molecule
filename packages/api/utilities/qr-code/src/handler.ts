@@ -11,9 +11,9 @@
 import { generateQrCode } from './generateQrCode.js'
 import {
   PNG_CONTENT_TYPE,
-  SVG_CONTENT_TYPE,
   type QrCodeFormat,
   type QrErrorCorrectionLevel,
+  SVG_CONTENT_TYPE,
 } from './types.js'
 
 /**
@@ -158,7 +158,9 @@ function decodeRouteValue(raw: string | undefined): string | undefined {
   if (typeof raw !== 'string' || raw.length === 0) return undefined
   try {
     return decodeURIComponent(raw)
-  } catch {
+  } catch (_error) {
+    // decodeURIComponent throws on malformed percent-sequences; falling back to
+    // the raw value is safe — qrcode will encode it verbatim.
     return raw
   }
 }

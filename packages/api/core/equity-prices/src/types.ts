@@ -181,7 +181,7 @@ export interface EquityPricesProvider {
    * EquityFundamentals.symbol} field populated.
    *
    * @param symbol - Ticker symbol to load fundamentals for.
-   * @returns {@link EquityFundamentals} snapshot.
+   * @returns snapshot.
    */
   getFundamentals(symbol: EquitySymbol): Promise<EquityFundamentals>
 

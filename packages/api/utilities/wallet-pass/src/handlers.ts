@@ -12,13 +12,13 @@
 import { createApplePass } from './createApplePass.js'
 import { createGoogleWalletJwt } from './createGoogleWalletJwt.js'
 import {
-  PKPASS_CONTENT_TYPE,
   type ApplePassAssets,
   type ApplePassCertificates,
   type ApplePassData,
   type GoogleWalletClass,
   type GoogleWalletObject,
   type GoogleWalletServiceAccount,
+  PKPASS_CONTENT_TYPE,
 } from './types.js'
 
 /**
@@ -50,9 +50,7 @@ export interface WalletPassResponse {
  * The handler stays decoupled from the storage layer (DataStore, files,
  * cache, etc.) by accepting the resolver as a closure.
  */
-export type ApplePassResolver = (
-  passId: string,
-) => Promise<
+export type ApplePassResolver = (passId: string) => Promise<
   | {
       passData: ApplePassData
       certificates: ApplePassCertificates
@@ -65,9 +63,7 @@ export type ApplePassResolver = (
  * Resolver that loads Google Wallet pass class + object + signing service
  * account for a given passId.
  */
-export type GoogleWalletPassResolver = (
-  passId: string,
-) => Promise<
+export type GoogleWalletPassResolver = (passId: string) => Promise<
   | {
       passClass: GoogleWalletClass
       passObject: GoogleWalletObject
@@ -138,11 +134,7 @@ export function createApplePassHandler(
       return
     }
 
-    const buffer = await createApplePass(
-      resolved.passData,
-      resolved.certificates,
-      resolved.assets,
-    )
+    const buffer = await createApplePass(resolved.passData, resolved.certificates, resolved.assets)
 
     res.setHeader('Content-Type', PKPASS_CONTENT_TYPE)
     res.setHeader('Content-Length', String(buffer.byteLength))
@@ -212,7 +204,10 @@ function decodeId(raw: string | undefined): string | undefined {
   if (typeof raw !== 'string' || raw.length === 0) return undefined
   try {
     return decodeURIComponent(raw)
-  } catch {
+  } catch (_error) {
+    // decodeURIComponent throws only for malformed percent-sequences; returning
+    // the raw value is a safe fallback — the caller or downstream validation
+    // will reject it if it turns out to be genuinely invalid.
     return raw
   }
 }

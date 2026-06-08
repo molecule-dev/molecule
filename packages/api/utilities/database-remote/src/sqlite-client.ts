@@ -197,8 +197,9 @@ export function createSqliteRemoteDb(db: SqliteDbLike, readonly: boolean): Remot
     connected = false
     try {
       db.close()
-    } catch {
-      // ignore
+    } catch (_error) {
+      // db.close() may throw if the handle is already closed — safe to ignore
+      // because we are tearing down and the resource is gone either way.
     }
   }
 

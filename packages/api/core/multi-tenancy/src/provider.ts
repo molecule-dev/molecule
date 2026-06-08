@@ -35,11 +35,12 @@ export const setProvider = (provider: TenancyProvider): void => {
 export const getProvider = (): TenancyProvider => {
   try {
     return bondRequire<TenancyProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('multiTenancy.error.noProvider', undefined, {
         defaultValue: 'Multi-tenancy provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

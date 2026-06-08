@@ -6,27 +6,22 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { setProvider as setQueueProvider } from '@molecule/api-queue'
 import type { Queue, QueueProvider } from '@molecule/api-queue'
+import { setProvider as setQueueProvider } from '@molecule/api-queue'
 
 import {
   createCancelRenderHandler,
   createEnqueueRenderHandler,
   createGetRenderStatusHandler,
 } from '../handler.js'
-import { setJobStore } from '../jobStore.js'
-import {
-  cancelRender,
-  generateJobId,
-  getRenderStatus,
-  renderVideo,
-} from '../renderVideo.js'
 import type {
   RenderVideoOptions,
   VideoRenderRequest,
   VideoRenderResponse,
   VideoTimeline,
 } from '../index.js'
+import { setJobStore } from '../jobStore.js'
+import { cancelRender, generateJobId, getRenderStatus, renderVideo } from '../renderVideo.js'
 
 interface MockQueueState {
   sent: Array<{ queueName: string; message: { id?: string; body: unknown } }>
@@ -119,17 +114,14 @@ describe('renderVideo', () => {
   })
 
   it('rejects malicious outputPath at the public API', async () => {
-    await expect(
-      renderVideo(baseTimeline, { outputPath: '/tmp/$(rm -rf /)' }),
-    ).rejects.toThrow(/outputPath/)
+    await expect(renderVideo(baseTimeline, { outputPath: '/tmp/$(rm -rf /)' })).rejects.toThrow(
+      /outputPath/,
+    )
   })
 
   it('rejects malformed timelines', async () => {
     await expect(
-      renderVideo(
-        { ...baseTimeline, fps: -1 } as unknown as VideoTimeline,
-        baseOptions,
-      ),
+      renderVideo({ ...baseTimeline, fps: -1 } as unknown as VideoTimeline, baseOptions),
     ).rejects.toThrow(/fps/)
   })
 })

@@ -5,13 +5,13 @@
  */
 
 import {
+  type GradedAnswer,
   gradeFillBlank,
   gradeMatching,
   gradeMultiChoice,
   gradeNumeric,
   gradeTrueFalse,
   gradeTypeAnswer,
-  type GradedAnswer,
 } from './graders.js'
 import type { AnswerFor, GradeOptions, GradeResult, Question } from './types.js'
 
@@ -104,11 +104,11 @@ export const gradeAnswer = <Q extends Question>(
       ? computeSpeedFactor(options?.elapsedMs, question.timeLimitMs, maxFactor)
       : 1
 
-  const points_earned = points * graded.fraction * speedFactor
+  const pointsEarned = points * graded.fraction * speedFactor
 
   return {
     is_correct: graded.isCorrect,
-    points_earned,
+    points_earned: pointsEarned,
     explanation: graded.explanation,
   }
 }

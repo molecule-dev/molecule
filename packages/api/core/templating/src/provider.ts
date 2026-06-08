@@ -34,11 +34,12 @@ export const setProvider = (provider: TemplateProvider): void => {
 export const getProvider = (): TemplateProvider => {
   try {
     return bondRequire<TemplateProvider>(BOND_TYPE)
-  } catch {
+  } catch (_error) {
     throw new Error(
       t('templating.error.noProvider', undefined, {
         defaultValue: 'Template provider not configured. Call setProvider() first.',
       }),
+      { cause: _error },
     )
   }
 }

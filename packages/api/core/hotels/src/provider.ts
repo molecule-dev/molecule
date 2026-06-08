@@ -49,11 +49,12 @@ export const setProvider = (provider: HotelsProvider): void => {
 export const getProvider = (): HotelsProvider => {
   try {
     return bondRequire<HotelsProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('hotels.error.noProvider', undefined, {
         defaultValue: 'Hotels provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

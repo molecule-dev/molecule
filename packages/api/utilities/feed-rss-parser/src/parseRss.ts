@@ -51,7 +51,7 @@ export function parseRss({ doc, sanitize }: ParseRssArgs): ParsedFeed {
 }
 
 /**
- *
+ * Extract the primary HTML link URL from an RSS channel or item element.
  * @param channel
  */
 function extractRssLink(channel: Record<string, unknown>): string | undefined {
@@ -68,7 +68,7 @@ function extractRssLink(channel: Record<string, unknown>): string | undefined {
 }
 
 /**
- *
+ * Extract the feed image URL from RSS `<image>` or iTunes `<itunes:image>` elements.
  * @param channel
  */
 function extractRssImage(channel: Record<string, unknown>): string | undefined {
@@ -86,7 +86,7 @@ function extractRssImage(channel: Record<string, unknown>): string | undefined {
 }
 
 /**
- *
+ * Map a raw RSS `<item>` element into a {@link NormalizedFeedItem}.
  * @param raw
  * @param sanitize
  */
@@ -126,7 +126,7 @@ function buildRssItem(raw: Record<string, unknown>, sanitize: boolean): Normaliz
 }
 
 /**
- *
+ * Collect all category strings from RSS `<category>` and iTunes `<itunes:category>` elements.
  * @param raw
  */
 function extractRssCategories(raw: Record<string, unknown>): string[] {
@@ -145,7 +145,7 @@ function extractRssCategories(raw: Record<string, unknown>): string[] {
 }
 
 /**
- *
+ * Collect all enclosures from RSS `<enclosure>` elements, enriched with iTunes duration.
  * @param raw
  */
 function extractRssEnclosures(raw: Record<string, unknown>): FeedEnclosure[] {

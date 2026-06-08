@@ -57,12 +57,13 @@ export function hasProvider(): boolean {
 export function requireProvider(): ContentModerationProvider {
   try {
     return bondRequire<ContentModerationProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('contentModeration.error.noProvider', undefined, {
         defaultValue:
           'Content moderation provider not configured. Bond a content-moderation provider first.',
       }),
+      { cause: error },
     )
   }
 }

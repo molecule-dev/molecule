@@ -13,7 +13,7 @@
  */
 
 import { isPrivateHost } from './ssrf.js'
-import { OEmbedError, OEmbedErrorCode, OEmbedOptions } from './types.js'
+import { OEmbedError, type OEmbedErrorCode, type OEmbedOptions } from './types.js'
 
 /**
  * Default polite User-Agent — matches the link-preview convention.
@@ -45,7 +45,10 @@ export function validateUrl(rawUrl: string, allowPrivate: boolean): URL {
   let parsed: URL
   try {
     parsed = new URL(rawUrl)
-  } catch {
+  } catch (_error) {
+    // URL constructor throws a TypeError for malformed input; the error
+    // object adds no diagnostic value — the raw string is already in the
+    // OEmbedError we're about to throw.
     fail('invalid-url', `Invalid URL: ${rawUrl}`, rawUrl)
   }
   if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
@@ -142,7 +145,6 @@ export async function fetchText(
   const timer = setTimeout(() => controller.abort(), timeoutMs)
 
   try {
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       let response: Response
       try {
@@ -180,7 +182,9 @@ export async function fetchText(
         let nextUrl: string
         try {
           nextUrl = new URL(location, currentUrl).toString()
-        } catch {
+        } catch (_error) {
+          // URL constructor throws for a malformed Location header; the
+          // error adds no value beyond what we include in the OEmbedError.
           fail('http-error', `Invalid redirect target: ${location}`, currentUrl)
         }
         validateUrl(nextUrl, allowPrivate)
@@ -232,7 +236,6 @@ async function readTruncated(response: Response, maxBytes: number): Promise<stri
   const chunks: string[] = []
   let received = 0
   try {
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const { value, done } = await reader.read()
       if (done) break
@@ -254,8 +257,9 @@ async function readTruncated(response: Response, maxBytes: number): Promise<stri
   } finally {
     try {
       reader.releaseLock()
-    } catch {
-      // already released
+    } catch (_error) {
+      // releaseLock() throws if the lock was already released (e.g. the
+      // reader was cancelled above); safe to ignore — the stream is gone.
     }
   }
   return chunks.join('')

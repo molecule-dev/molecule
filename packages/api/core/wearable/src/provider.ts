@@ -58,7 +58,7 @@ export const setProvider = (name: string, provider: WearableProvider): void => {
 export const getProvider = (name: string): WearableProvider => {
   try {
     return bondRequire<WearableProvider>(BOND_TYPE, name)
-  } catch {
+  } catch (error) {
     throw new Error(
       t(
         'wearable.error.noProvider',
@@ -67,6 +67,7 @@ export const getProvider = (name: string): WearableProvider => {
           defaultValue: `Wearable provider '${name}' not configured. Call setProvider('${name}', provider) first.`,
         },
       ),
+      { cause: error },
     )
   }
 }

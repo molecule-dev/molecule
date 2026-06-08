@@ -20,6 +20,9 @@ import type { AvailabilityRuleRow, AvailabilitySlot, EventTypeRow, LocationKind 
 const EVENT_TYPES_TABLE = 'event_types'
 const RULES_TABLE = 'availability_rules'
 
+/**
+ * List all event types owned by the given user, optionally including inactive ones.
+ */
 export async function listEventTypesForOwner(
   ownerId: string,
   opts: { include_inactive?: boolean } = {},
@@ -33,6 +36,9 @@ export async function listEventTypesForOwner(
   return findMany<EventTypeRow>(EVENT_TYPES_TABLE, { where, orderBy })
 }
 
+/**
+ * Look up an active event type by its URL slug.
+ */
 export async function getEventTypeBySlug(slug: string): Promise<EventTypeRow | null> {
   const row = await findOne<EventTypeRow>(EVENT_TYPES_TABLE, [
     { field: 'slug', operator: '=', value: slug },
@@ -41,6 +47,9 @@ export async function getEventTypeBySlug(slug: string): Promise<EventTypeRow | n
   return row ?? null
 }
 
+/**
+ * Fetch a single event type by ID, returning null if it does not belong to the given owner.
+ */
 export async function getEventTypeForOwner(
   eventTypeId: string,
   ownerId: string,
@@ -50,6 +59,9 @@ export async function getEventTypeForOwner(
   return row
 }
 
+/**
+ * Create a new event type for the given owner with the supplied configuration.
+ */
 export async function createEventTypeForOwner(
   ownerId: string,
   data: {
@@ -89,6 +101,9 @@ export async function createEventTypeForOwner(
   return result.data!
 }
 
+/**
+ * Apply a partial patch to an event type, returning null if the record does not belong to the owner.
+ */
 export async function updateEventTypeForOwner(
   eventTypeId: string,
   ownerId: string,
@@ -100,6 +115,9 @@ export async function updateEventTypeForOwner(
   return findById<EventTypeRow>(EVENT_TYPES_TABLE, eventTypeId)
 }
 
+/**
+ * Delete an event type by ID, returning false if it does not belong to the given owner.
+ */
 export async function deleteEventTypeForOwner(
   eventTypeId: string,
   ownerId: string,
@@ -110,6 +128,9 @@ export async function deleteEventTypeForOwner(
   return true
 }
 
+/**
+ * Return all availability rules for the given user, ordered by day and start time.
+ */
 export async function listAvailabilityRulesForUser(userId: string): Promise<AvailabilityRuleRow[]> {
   return findMany<AvailabilityRuleRow>(RULES_TABLE, {
     where: [{ field: 'user_id', operator: '=', value: userId }],
@@ -120,6 +141,9 @@ export async function listAvailabilityRulesForUser(userId: string): Promise<Avai
   })
 }
 
+/**
+ * Replace all availability rules for the given user with the supplied set.
+ */
 export async function setAvailabilityRulesForUser(
   userId: string,
   rules: Array<{

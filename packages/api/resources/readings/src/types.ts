@@ -1,5 +1,7 @@
+/** Time-bucket granularity options for aggregating sensor readings. */
 export type Granularity = 'raw' | '5min' | 'hour' | 'day'
 
+/** Raw database row shape for a single sensor reading record. */
 export interface ReadingRow {
   id: string
   owner_id: string
@@ -11,6 +13,7 @@ export interface ReadingRow {
   metadata: Record<string, unknown> | null
 }
 
+/** A single sensor reading data point returned from a query. */
 export interface ReadingPoint {
   recorded_at: string
   value: number
@@ -19,6 +22,7 @@ export interface ReadingPoint {
   unit: string | null
 }
 
+/** A time-bucketed aggregate of sensor readings (min/max/avg/sum/count per bucket). */
 export interface AggregatedPoint {
   bucket_at: string
   metric: string

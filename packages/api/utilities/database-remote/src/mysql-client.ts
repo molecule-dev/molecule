@@ -258,8 +258,9 @@ export function createMysqlRemoteDb(
     connected = false
     try {
       await pool.end()
-    } catch {
-      // ignore
+    } catch (_error) {
+      // best-effort cleanup — pool.end() failing is non-fatal because
+      // `connected` is already false and no further queries will be issued
     }
   }
 
@@ -314,7 +315,8 @@ export function parseMysqlDatabase(uri: string): string {
     const path = parsed.pathname
     if (!path || path === '/') return ''
     return decodeURIComponent(path.startsWith('/') ? path.slice(1) : path)
-  } catch {
+  } catch (_error) {
+    // URI is not parseable — return empty string as a safe default
     return ''
   }
 }

@@ -43,11 +43,12 @@ export const setProvider = (provider: KycProvider): void => {
 export const getProvider = (): KycProvider => {
   try {
     return bondRequire<KycProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('kyc.error.noProvider', undefined, {
         defaultValue: 'KYC provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

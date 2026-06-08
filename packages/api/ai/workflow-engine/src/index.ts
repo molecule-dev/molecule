@@ -35,14 +35,17 @@
 
 import { hasProvider as hasAI, requireProvider as requireAI } from '@molecule/api-ai'
 
+/** Union of all supported step type discriminants. */
 export type WorkflowStepType = 'condition' | 'action' | 'delay' | 'http' | 'ai_prompt'
 
+/** A step that evaluates a JS expression and short-circuits the run on false. */
 export interface ConditionStep {
   type: 'condition'
   /** JS expression evaluated against `$` (the workflow context). */
   expression: string
 }
 
+/** A step that invokes a registered action handler with resolved params. */
 export interface ActionStep {
   type: 'action'
   /** Action key registered with the engine. */
@@ -53,12 +56,14 @@ export interface ActionStep {
   output?: string
 }
 
+/** A step that pauses workflow execution for a fixed number of milliseconds. */
 export interface DelayStep {
   type: 'delay'
   /** Milliseconds to sleep. */
   ms: number
 }
 
+/** A step that sends a prompt to the bonded AI provider and writes the response into context. */
 export interface AIPromptStep {
   type: 'ai_prompt'
   prompt: string
@@ -66,14 +71,17 @@ export interface AIPromptStep {
   output: string
 }
 
+/** Discriminated union of all step types that a workflow definition may contain. */
 export type WorkflowStep = ConditionStep | ActionStep | DelayStep | AIPromptStep
 
+/** Describes a complete workflow: which trigger fires it and what steps to run. */
 export interface WorkflowDefinition {
   trigger: string
   triggerInput?: Record<string, unknown>
   steps: WorkflowStep[]
 }
 
+/** Result returned by `WorkflowEngine.execute` — overall outcome plus per-step trace. */
 export interface WorkflowRun {
   ok: boolean
   context: Record<string, unknown>
@@ -86,24 +94,29 @@ export interface WorkflowRun {
   }>
 }
 
+/** Public interface for the workflow engine returned by `createWorkflowEngine`. */
 export interface WorkflowEngine {
   execute(definition: WorkflowDefinition): Promise<WorkflowRun>
 }
 
+/** Configuration passed to `createWorkflowEngine` — trigger and action handler maps. */
 export interface EngineOptions {
   triggers: Record<string, (ctx: Record<string, unknown>) => Promise<unknown> | unknown>
   actions: Record<string, (params: Record<string, unknown>) => Promise<unknown> | unknown>
 }
 
+/** Evaluates a JS expression string against the workflow context, returning false on syntax or runtime errors. */
 function evaluateExpression(expr: string, ctx: Record<string, unknown>): boolean {
   try {
     const fn = new Function('$', `return (${expr})`)
     return Boolean(fn(ctx))
-  } catch {
+  } catch (_error) {
+    // An unparseable or throwing expression counts as a non-matching condition — safe to suppress.
     return false
   }
 }
 
+/** Recursively replaces `${$.path}` placeholders in strings (and nested structures) with values from context. */
 function resolveTemplates(value: unknown, ctx: Record<string, unknown>): unknown {
   if (typeof value === 'string') {
     return value.replace(/\$\{\$\.([^}]+)\}/g, (_, path: string) => {
@@ -126,6 +139,7 @@ function resolveTemplates(value: unknown, ctx: Record<string, unknown>): unknown
   return value
 }
 
+/** Writes a value into the workflow context at a dot-separated path, creating intermediate objects as needed. */
 function setContextPath(ctx: Record<string, unknown>, path: string, value: unknown): void {
   const parts = path.split('.')
   let cur: Record<string, unknown> = ctx
@@ -137,6 +151,7 @@ function setContextPath(ctx: Record<string, unknown>, path: string, value: unkno
   cur[parts[parts.length - 1]] = value
 }
 
+/** Creates a `WorkflowEngine` instance wired with the provided trigger and action handlers. */
 export function createWorkflowEngine(opts: EngineOptions): WorkflowEngine {
   return {
     async execute(def) {

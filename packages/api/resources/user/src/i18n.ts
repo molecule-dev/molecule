@@ -9,14 +9,14 @@ import { registerLocaleModule } from '@molecule/api-i18n'
 try {
   const userLocales = await import('@molecule/api-locales-user')
   registerLocaleModule(userLocales)
-} catch {
+} catch (_error) {
   // Locale package not available (not built or not installed).
 }
 
 try {
   const paymentLocales = await import('@molecule/api-locales-user-payments')
   registerLocaleModule(paymentLocales)
-} catch {
+} catch (_error) {
   // Locale package not available (not built or not installed).
 }
 

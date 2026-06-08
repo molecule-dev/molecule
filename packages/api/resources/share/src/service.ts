@@ -18,7 +18,6 @@ import {
   updateById,
 } from '@molecule/api-database'
 
-import { SHARE_ROLES } from './types.js'
 import type {
   CreateShareLinkInput,
   GrantShareInput,
@@ -29,6 +28,7 @@ import type {
   ShareQuery,
   ShareRole,
 } from './types.js'
+import { SHARE_ROLES } from './types.js'
 
 const SHARES_TABLE = 'resource-shares'
 const LINKS_TABLE = 'resource-share-links'

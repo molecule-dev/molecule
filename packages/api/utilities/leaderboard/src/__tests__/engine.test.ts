@@ -11,8 +11,8 @@ import { computeLeaderboard } from '../engine.js'
 import type { LeaderboardEvent } from '../types.js'
 import { isInWindow, resolveWindow } from '../window.js'
 
-function event(user_id: string, value: number, when: string, scopeKey?: string): LeaderboardEvent {
-  return { user_id, value, when: new Date(when), scopeKey }
+function event(userId: string, value: number, when: string, scopeKey?: string): LeaderboardEvent {
+  return { user_id: userId, value, when: new Date(when), scopeKey }
 }
 
 describe('@molecule/api-leaderboard engine', () => {

@@ -19,9 +19,9 @@
 
 import { buildFfmpegArgs } from './buildFfmpegArgs.js'
 import {
+  type FfmpegRunner,
   getFfmpegRunner as getDefaultFfmpegRunner,
   parseFfmpegProgressSeconds,
-  type FfmpegRunner,
 } from './ffmpeg.js'
 import { getJobStore as getDefaultJobStore, type JobStore } from './jobStore.js'
 import type { RenderJobMessage, RenderJobStatus } from './types.js'
@@ -99,8 +99,8 @@ export async function processRenderJob(
       if (snapshot?.status === 'cancelled') {
         try {
           child.kill('SIGTERM')
-        } catch {
-          // Already exited.
+        } catch (_error) {
+          // Already exited — kill() on a dead process throws; safe to ignore.
         }
       }
     })()

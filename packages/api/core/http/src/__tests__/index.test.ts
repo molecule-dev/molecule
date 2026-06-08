@@ -9,6 +9,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as IndexModule from '../index.js'
 import type {
   ErrorInterceptor,
   HttpClient,
@@ -18,7 +19,6 @@ import type {
   RequestInterceptor,
   ResponseInterceptor,
 } from '../index.js'
-import type * as IndexModule from '../index.js'
 
 // We need to reset the module state between tests
 let setClient: typeof IndexModule.setClient

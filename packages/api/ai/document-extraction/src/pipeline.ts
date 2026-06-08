@@ -11,11 +11,17 @@ import { requireProvider as requireAI } from '@molecule/api-ai'
 
 import type { ExtractionField, ExtractionResult } from './types.js'
 
+/**
+ * Format a single extraction field as a prompt line describing its name, type, and constraints.
+ */
 function describeField(f: ExtractionField): string {
   const req = f.required ? ' (REQUIRED)' : ''
   return `- "${f.name}" (${f.type})${req}: ${f.description}`
 }
 
+/**
+ * Build the AI prompt that instructs the model to extract the specified fields from a document.
+ */
 function buildExtractionPrompt(opts: {
   text: string
   fields: ExtractionField[]
@@ -70,7 +76,9 @@ export async function extractFields<T = Record<string, unknown>>(opts: {
       .trim()
     const parsed = JSON.parse(json) as ExtractionResult<T>
     return parsed
-  } catch {
+  } catch (_error) {
+    // Safe to ignore: the AI returned non-JSON text; we surface a normalized fallback result
+    // rather than throwing, so the caller always gets a typed ExtractionResult.
     return {
       data: {} as T,
       reasoning: 'AI returned malformed JSON',

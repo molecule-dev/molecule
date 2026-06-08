@@ -57,6 +57,7 @@ export interface PublicJournalEntry {
   prompt: string | null
 }
 
+/** Maps each MoodLevel label to its corresponding numeric score (1..5). */
 export const SCORE_BY_LEVEL: Record<MoodLevel, number> = {
   radiant: 5,
   good: 4,

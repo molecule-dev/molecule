@@ -41,11 +41,12 @@ export const setProvider = (provider: StreamingProvider): void => {
 export const getProvider = (): StreamingProvider => {
   try {
     return bondRequire<StreamingProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('mediaStreaming.error.noProvider', undefined, {
         defaultValue: 'Media streaming provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

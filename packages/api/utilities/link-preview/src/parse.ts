@@ -8,7 +8,7 @@
  * @module
  */
 
-import { LinkPreview } from './types.js'
+import type { LinkPreview } from './types.js'
 
 /**
  * Decode the most common HTML entities found in `content` attributes.
@@ -125,7 +125,9 @@ export function resolveUrl(maybeRelative: string | undefined, baseUrl: string): 
   if (!maybeRelative) return undefined
   try {
     return new URL(maybeRelative, baseUrl).toString()
-  } catch {
+  } catch (_error) {
+    // Malformed or unsupported URL — returning undefined is the correct
+    // fallback; the caller omits the field rather than surfacing a broken link.
     return undefined
   }
 }
@@ -168,7 +170,9 @@ export function parseHtml(html: string, finalUrl: string): LinkPreview {
   if (!siteName) {
     try {
       siteName = new URL(finalUrl).hostname
-    } catch {
+    } catch (_error) {
+      // finalUrl is malformed — siteName stays undefined, which is acceptable;
+      // the rest of the preview record is still populated.
       siteName = undefined
     }
   }

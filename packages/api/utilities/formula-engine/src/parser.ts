@@ -19,8 +19,8 @@
  */
 
 import { parseCellRange, parseCellReference } from './references.js'
-import { tokenize } from './tokenizer.js'
 import type { Token } from './tokenizer.js'
+import { tokenize } from './tokenizer.js'
 import type { AstNode, BinaryOperator } from './types.js'
 
 /**
@@ -45,18 +45,30 @@ export function parseFormula(input: string): AstNode {
   return node
 }
 
+/**
+ * Recursive-descent parser that converts a token stream into an AST.
+ */
 class Parser {
   private pos = 0
   constructor(private readonly tokens: Token[]) {}
 
+  /**
+   * Returns true when all tokens have been consumed.
+   */
   atEnd(): boolean {
     return this.pos >= this.tokens.length
   }
 
+  /**
+   * Returns the current token without advancing the position.
+   */
   peek(): Token | undefined {
     return this.tokens[this.pos]
   }
 
+  /**
+   * Advances past the current token and returns it, throwing if the stream is exhausted.
+   */
   private consume(): Token {
     const t = this.tokens[this.pos]
     if (!t) throw new Error('Unexpected end of formula')
@@ -64,10 +76,16 @@ class Parser {
     return t
   }
 
+  /**
+   * Entry point for expression parsing; delegates to the lowest-precedence level.
+   */
   parseExpression(): AstNode {
     return this.parseComparison()
   }
 
+  /**
+   * Parses comparison operators (`=`, `<>`, `<`, `<=`, `>`, `>=`).
+   */
   private parseComparison(): AstNode {
     let left = this.parseConcat()
     while (true) {
@@ -91,6 +109,9 @@ class Parser {
     return left
   }
 
+  /**
+   * Parses the string concatenation operator (`&`).
+   */
   private parseConcat(): AstNode {
     let left = this.parseAddSub()
     while (true) {
@@ -106,6 +127,9 @@ class Parser {
     return left
   }
 
+  /**
+   * Parses addition and subtraction operators (`+`, `-`).
+   */
   private parseAddSub(): AstNode {
     let left = this.parseMulDiv()
     while (true) {
@@ -121,6 +145,9 @@ class Parser {
     return left
   }
 
+  /**
+   * Parses multiplication and division operators (`*`, `/`).
+   */
   private parseMulDiv(): AstNode {
     let left = this.parsePower()
     while (true) {
@@ -136,6 +163,9 @@ class Parser {
     return left
   }
 
+  /**
+   * Parses the right-associative exponentiation operator (`^`).
+   */
   private parsePower(): AstNode {
     const left = this.parsePercent()
     const t = this.peek()
@@ -147,6 +177,9 @@ class Parser {
     return left
   }
 
+  /**
+   * Parses the postfix percent operator (`%`).
+   */
   private parsePercent(): AstNode {
     const operand = this.parseUnary()
     const t = this.peek()
@@ -157,6 +190,9 @@ class Parser {
     return operand
   }
 
+  /**
+   * Parses unary prefix operators (`+`, `-`).
+   */
   private parseUnary(): AstNode {
     const t = this.peek()
     if (t?.kind === 'op' && (t.value === '+' || t.value === '-')) {
@@ -167,6 +203,9 @@ class Parser {
     return this.parsePrimary()
   }
 
+  /**
+   * Parses atomic values: literals, references, ranges, function calls, and parenthesised sub-expressions.
+   */
   private parsePrimary(): AstNode {
     const t = this.consume()
     switch (t.kind) {

@@ -8,9 +8,15 @@
 
 import { describe, expect, it, vi } from 'vitest'
 
-import { makeStandardRunner, RenderQueue } from '../queue.js'
-import { createAnimationRenderer, renderAnimation, getRenderStatus, cancelRender, configureAnimationRenderer } from '../renderAnimation.js'
 import { toLottie } from '../lottie.js'
+import { makeStandardRunner, RenderQueue } from '../queue.js'
+import {
+  cancelRender,
+  configureAnimationRenderer,
+  createAnimationRenderer,
+  getRenderStatus,
+  renderAnimation,
+} from '../renderAnimation.js'
 import { snapshotAtTime } from '../snapshot.js'
 import type { AnimationDocument, CanvasRenderAdapter, FfmpegAdapter } from '../types.js'
 
@@ -19,9 +25,7 @@ const makeDoc = (overrides: Partial<AnimationDocument> = {}): AnimationDocument 
   height: 100,
   fps: 10,
   duration: 1,
-  layers: [
-    { id: 'r', kind: 'rect', shape: { width: 10, height: 10 } },
-  ],
+  layers: [{ id: 'r', kind: 'rect', shape: { width: 10, height: 10 } }],
   ...overrides,
 })
 
@@ -89,9 +93,10 @@ describe('RenderQueue mp4/gif path', () => {
   it('passes resolution to the canvas adapter', async () => {
     const adapters = makeAdapters()
     const renderer = createAnimationRenderer(adapters)
-    await renderer
-      .renderAnimation(makeDoc(), { format: 'mp4', resolution: { width: 320, height: 240 } })
-      .done
+    await renderer.renderAnimation(makeDoc(), {
+      format: 'mp4',
+      resolution: { width: 320, height: 240 },
+    }).done
     expect(adapters.canvas.renderFrame).toHaveBeenCalledWith(
       expect.any(Object),
       expect.objectContaining({ format: 'png', width: 320, height: 240 }),
@@ -119,7 +124,9 @@ describe('RenderQueue mp4/gif path', () => {
 describe('cancellation', () => {
   it('cancels a queued job before it can run', async () => {
     const adapters = {
-      canvas: { renderFrame: vi.fn(async () => ({ buffer: Buffer.from([0]) })) } as CanvasRenderAdapter,
+      canvas: {
+        renderFrame: vi.fn(async () => ({ buffer: Buffer.from([0]) })),
+      } as CanvasRenderAdapter,
       ffmpeg: {
         encodeMp4: vi.fn(async () => Buffer.from([0])),
         encodeGif: vi.fn(async () => Buffer.from([0])),
@@ -284,22 +291,30 @@ describe('low-level RenderQueue', () => {
         }
       },
     })
-    const job1 = queue.submit(makeDoc(), {
-      format: 'lottie',
-      width: 100,
-      height: 100,
-      fps: 10,
-      totalFrames: 10,
-      jobId: 'A',
-    }, 'A')
-    const job2 = queue.submit(makeDoc(), {
-      format: 'lottie',
-      width: 100,
-      height: 100,
-      fps: 10,
-      totalFrames: 10,
-      jobId: 'B',
-    }, 'B')
+    const job1 = queue.submit(
+      makeDoc(),
+      {
+        format: 'lottie',
+        width: 100,
+        height: 100,
+        fps: 10,
+        totalFrames: 10,
+        jobId: 'A',
+      },
+      'A',
+    )
+    const job2 = queue.submit(
+      makeDoc(),
+      {
+        format: 'lottie',
+        width: 100,
+        height: 100,
+        fps: 10,
+        totalFrames: 10,
+        jobId: 'B',
+      },
+      'B',
+    )
     await Promise.all([job1.done, job2.done])
     expect(order).toEqual(['start-A', 'end-A', 'start-B', 'end-B'])
   })

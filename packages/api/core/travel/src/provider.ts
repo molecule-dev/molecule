@@ -47,11 +47,12 @@ export const setProvider = (provider: TravelProvider): void => {
 export const getProvider = (): TravelProvider => {
   try {
     return bondRequire<TravelProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('travel.error.noProvider', undefined, {
         defaultValue: 'Travel provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

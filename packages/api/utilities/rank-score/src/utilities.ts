@@ -8,7 +8,7 @@
  *
  * @param value - Date instance, ISO-8601 string, or epoch ms number.
  * @returns Epoch milliseconds.
- * @throws If the value cannot be parsed into a finite timestamp.
+ * @throws {TypeError} If the value cannot be parsed into a finite timestamp.
  */
 export const toEpochMs = (value: Date | string | number): number => {
   const ms =

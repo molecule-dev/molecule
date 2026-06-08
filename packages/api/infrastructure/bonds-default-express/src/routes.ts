@@ -29,11 +29,11 @@ type UserMap = UserRequestHandlerMap
  * - `PATCH /devices/:id` (authUser+update)
  * - `DELETE /devices/:id` (authUser+del)
  */
-export function mountDefaultDeviceRoutes(router: Router, Device: DeviceMap): void {
-  router.get('/devices', Device.auth, Device.query)
-  router.get('/devices/:id', Device.authUser, Device.read)
-  router.patch('/devices/:id', Device.authUser, Device.update)
-  router.delete('/devices/:id', Device.authUser, Device.del)
+export function mountDefaultDeviceRoutes(router: Router, device: DeviceMap): void {
+  router.get('/devices', device.auth, device.query)
+  router.get('/devices/:id', device.authUser, device.read)
+  router.patch('/devices/:id', device.authUser, device.update)
+  router.delete('/devices/:id', device.authUser, device.del)
 }
 
 /**
@@ -43,10 +43,10 @@ export function mountDefaultDeviceRoutes(router: Router, Device: DeviceMap): voi
  * - `POST /users/log-in` (logIn)
  * - `POST /users/forgot-password` (forgotPassword)
  */
-export function mountDefaultUserAuthRoutes(router: Router, User: UserMap): void {
-  router.post('/users', User.create)
-  router.post('/users/log-in', User.logIn)
-  router.post('/users/forgot-password', User.forgotPassword)
+export function mountDefaultUserAuthRoutes(router: Router, user: UserMap): void {
+  router.post('/users', user.create)
+  router.post('/users/log-in', user.logIn)
+  router.post('/users/forgot-password', user.forgotPassword)
 }
 
 /**
@@ -54,9 +54,9 @@ export function mountDefaultUserAuthRoutes(router: Router, User: UserMap): void 
  * Only mount when the app uses the pkg's resetPassword handler
  * rather than a custom local handler.
  */
-export function mountDefaultUserResetPasswordRoute(router: Router, User: UserMap): void {
-  if (!User.resetPassword) return
-  router.post('/users/reset-password', User.resetPassword)
+export function mountDefaultUserResetPasswordRoute(router: Router, user: UserMap): void {
+  if (!user.resetPassword) return
+  router.post('/users/reset-password', user.resetPassword)
 }
 
 /**
@@ -66,10 +66,10 @@ export function mountDefaultUserResetPasswordRoute(router: Router, User: UserMap
  * - `PATCH /users/:id` (authSelf+update)
  * - `DELETE /users/:id` (authSelf+del)
  */
-export function mountDefaultUserCrudRoutes(router: Router, User: UserMap): void {
-  router.get('/users/:id', User.authSelf, User.read)
-  router.patch('/users/:id', User.authSelf, User.update)
-  router.delete('/users/:id', User.authSelf, User.del)
+export function mountDefaultUserCrudRoutes(router: Router, user: UserMap): void {
+  router.get('/users/:id', user.authSelf, user.read)
+  router.patch('/users/:id', user.authSelf, user.update)
+  router.delete('/users/:id', user.authSelf, user.del)
 }
 
 /**
@@ -78,12 +78,12 @@ export function mountDefaultUserCrudRoutes(router: Router, User: UserMap): void 
  * - `PATCH /users/:id/password` (authSelf+updatePassword)
  * - `POST /users/:id/verify-two-factor` (authSelf+verifyTwoFactor)
  */
-export function mountDefaultUserSecurityRoutes(router: Router, User: UserMap): void {
-  router.patch('/users/:id/password', User.authSelf, User.updatePassword)
+export function mountDefaultUserSecurityRoutes(router: Router, user: UserMap): void {
+  router.patch('/users/:id/password', user.authSelf, user.updatePassword)
   // POST alias for clients that use the auth-client `changePassword` flow,
   // which historically dispatches POST. Same handler; both verbs accepted.
-  router.post('/users/:id/password', User.authSelf, User.updatePassword)
-  router.post('/users/:id/verify-two-factor', User.authSelf, User.verifyTwoFactor)
+  router.post('/users/:id/password', user.authSelf, user.updatePassword)
+  router.post('/users/:id/verify-two-factor', user.authSelf, user.verifyTwoFactor)
 }
 
 /**
@@ -92,10 +92,10 @@ export function mountDefaultUserSecurityRoutes(router: Router, User: UserMap): v
  * - `PATCH /users/:id/plan` (authSelf+updatePlan)
  * - `POST /users/payment-notification/:provider` (handlePaymentNotification, public)
  */
-export function mountDefaultUserBillingRoutes(router: Router, User: UserMap): void {
-  router.patch('/users/:id/plan', User.authSelf, User.updatePlan)
-  if (User.handlePaymentNotification) {
-    router.post('/users/payment-notification/:provider', User.handlePaymentNotification)
+export function mountDefaultUserBillingRoutes(router: Router, user: UserMap): void {
+  router.patch('/users/:id/plan', user.authSelf, user.updatePlan)
+  if (user.handlePaymentNotification) {
+    router.post('/users/payment-notification/:provider', user.handlePaymentNotification)
   }
 }
 
@@ -106,8 +106,8 @@ export function mountDefaultUserBillingRoutes(router: Router, User: UserMap): vo
  * - `GET /users/:id/verify-payment/:provider` (verifyPayment)
  * - `POST /users/:id/verify-payment/:provider` (verifyPayment)
  */
-export function mountDefaultUserVerifyPaymentRoutes(router: Router, User: UserMap): void {
-  if (!User.verifyPayment) return
-  router.get('/users/:id/verify-payment/:provider', User.verifyPayment)
-  router.post('/users/:id/verify-payment/:provider', User.verifyPayment)
+export function mountDefaultUserVerifyPaymentRoutes(router: Router, user: UserMap): void {
+  if (!user.verifyPayment) return
+  router.get('/users/:id/verify-payment/:provider', user.verifyPayment)
+  router.post('/users/:id/verify-payment/:provider', user.verifyPayment)
 }

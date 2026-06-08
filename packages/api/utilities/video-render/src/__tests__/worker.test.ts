@@ -7,10 +7,10 @@ import { EventEmitter } from 'node:events'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { createMemoryJobStore, type JobStore } from '../jobStore.js'
 import type { FfmpegProcess, FfmpegRunner } from '../ffmpeg.js'
-import { processRenderJob } from '../worker.js'
+import { createMemoryJobStore, type JobStore } from '../jobStore.js'
 import type { RenderJobMessage } from '../types.js'
+import { processRenderJob } from '../worker.js'
 
 /**
  * Build a fake ffmpeg child that records the argv it was invoked with and

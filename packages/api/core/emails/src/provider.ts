@@ -34,11 +34,12 @@ export const setTransport = (transport: EmailTransport): void => {
 export const getTransport = (): EmailTransport => {
   try {
     return bondRequire<EmailTransport>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('emails.error.noProvider', undefined, {
         defaultValue: 'Email transport not configured. Call setTransport() first.',
       }),
+      { cause: error },
     )
   }
 }

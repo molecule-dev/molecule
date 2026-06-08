@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
+/** All valid status values a meeting can be in. */
 export const MEETING_STATUSES = ['scheduled', 'in_progress', 'completed', 'cancelled'] as const
 
+/** Zod schema for validating meeting creation payloads. */
 export const meetingCreateSchema = z.object({
   title: z.string().min(1).max(255),
   description: z.string().max(2000).nullable().optional(),
@@ -11,6 +13,7 @@ export const meetingCreateSchema = z.object({
     .optional(),
 })
 
+/** Zod schema for validating meeting update payloads. */
 export const meetingUpdateSchema = z.object({
   title: z.string().min(1).max(255).optional(),
   description: z.string().max(2000).nullable().optional(),
@@ -26,6 +29,7 @@ export const meetingUpdateSchema = z.object({
     .optional(),
 })
 
+/** Zod schema for validating action item creation payloads. */
 export const actionItemCreateSchema = z.object({
   description: z.string().min(1).max(2000),
   assignee: z.string().nullable().optional(),
@@ -33,6 +37,7 @@ export const actionItemCreateSchema = z.object({
   source_excerpt: z.string().nullable().optional(),
 })
 
+/** Zod schema for validating action item update payloads. */
 export const actionItemUpdateSchema = actionItemCreateSchema.partial().extend({
   is_completed: z.boolean().optional(),
 })

@@ -34,11 +34,12 @@ export const setProvider = (provider: SMSProvider): void => {
 export const getProvider = (): SMSProvider => {
   try {
     return bondRequire<SMSProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('sms.error.noProvider', undefined, {
         defaultValue: 'SMS provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

@@ -34,6 +34,7 @@ export async function getAccessibleSpace(
   return space
 }
 
+/** List pages in a space, optionally filtered by parent and publish status. */
 export async function listPagesInSpace(
   spaceId: string,
   opts: {
@@ -56,10 +57,12 @@ export async function listPagesInSpace(
   return findMany<WikiPageRow>(PAGES_TABLE, { where, orderBy })
 }
 
+/** Fetch a single wiki page by its primary-key ID. */
 export async function getPageById(pageId: string): Promise<WikiPageRow | null> {
   return findById<WikiPageRow>(PAGES_TABLE, pageId)
 }
 
+/** Fetch a single wiki page by its space and URL slug. */
 export async function getPageBySlug(spaceId: string, slug: string): Promise<WikiPageRow | null> {
   return findOne<WikiPageRow>(PAGES_TABLE, [
     { field: 'space_id', operator: '=', value: spaceId },
@@ -81,6 +84,7 @@ export async function getBreadcrumbs(pageId: string, maxDepth = 10): Promise<Wik
   return trail
 }
 
+/** Index a wiki page into the search bond if a search provider is active. */
 async function indexPage(page: WikiPageRow): Promise<void> {
   if (!hasSearch()) return
   try {
@@ -91,11 +95,12 @@ async function indexPage(page: WikiPageRow): Promise<void> {
       slug: page.slug,
       is_published: page.is_published,
     })
-  } catch {
-    // Best-effort — search is decorative.
+  } catch (_error) {
+    // Best-effort — search is decorative; a missing index entry never breaks page reads/writes.
   }
 }
 
+/** Create a new wiki page and trigger search indexing. */
 export async function createPage(data: {
   space_id: string
   parent_id?: string | null
@@ -119,6 +124,7 @@ export async function createPage(data: {
   return page
 }
 
+/** Apply a partial patch to a wiki page and re-index it in search. */
 export async function updatePage(
   pageId: string,
   patch: Partial<WikiPageRow>,
@@ -129,6 +135,7 @@ export async function updatePage(
   return next
 }
 
+/** Recursively delete a wiki page and all its children. */
 export async function deletePage(pageId: string): Promise<boolean> {
   // Delete children first (recursive)
   const children = await findMany<WikiPageRow>(PAGES_TABLE, {
@@ -139,6 +146,7 @@ export async function deletePage(pageId: string): Promise<boolean> {
   return true
 }
 
+/** Count total pages belonging to a given space. */
 export async function countPagesInSpace(spaceId: string): Promise<number> {
   return count(PAGES_TABLE, [{ field: 'space_id', operator: '=', value: spaceId }])
 }

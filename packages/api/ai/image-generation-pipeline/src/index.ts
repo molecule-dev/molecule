@@ -27,9 +27,9 @@
  */
 
 import {
+  type AIProvider,
   getProvider as getAIProvider,
   getProviderByName as getAIProviderByName,
-  type AIProvider,
 } from '@molecule/api-ai'
 import {
   getProvider as getImageProvider,
@@ -37,8 +37,10 @@ import {
   type ImageGenerationResult,
 } from '@molecule/api-ai-image-generation'
 
+/** Union of terminal + intermediate image-generation states. */
 export type GenerationStatus = 'succeeded' | 'failed' | 'queued'
 
+/** Normalized outcome returned by {@link runImageGeneration} for all terminal states. */
 export interface ImageGenerationOutcome {
   imageUrl: string | null
   revisedPrompt: string | null
@@ -70,6 +72,7 @@ export function defaultResolveModel(
   return undefined
 }
 
+/** Options accepted by {@link runImageGeneration}. */
 export interface RunImageGenerationOptions {
   prompt: string
   size?: string
@@ -121,6 +124,7 @@ export async function runImageGeneration(
   }
 }
 
+/** Options accepted by {@link enhancePrompt}. */
 export interface EnhancePromptOptions {
   prompt: string
   /** AI provider name (e.g. 'anthropic'); falls back to default-bonded provider. */
@@ -131,6 +135,7 @@ export interface EnhancePromptOptions {
   temperature?: number
 }
 
+/** Result returned by {@link enhancePrompt}. */
 export interface EnhancePromptResult {
   text: string
   enhanced: boolean
@@ -139,6 +144,7 @@ export interface EnhancePromptResult {
 const DEFAULT_ENHANCE_SYSTEM =
   'You are an expert prompt engineer for AI image generators. Rewrite the user-supplied prompt so it produces a more striking image. Keep the subject identical; add concrete composition, lighting, lens and material direction. Respond with ONLY the rewritten prompt, no preamble.'
 
+/** Stream a single chat turn from `provider` and collect the text response as a string, or `null` on failure. */
 async function chatToString(
   provider: AIProvider,
   opts: EnhancePromptOptions,
@@ -156,7 +162,9 @@ async function chatToString(
       if (e.type === 'text') collected.push(e.content ?? e.text ?? '')
       if (e.type === 'error') return null
     }
-  } catch {
+  } catch (_error) {
+    // Stream iteration failed (network/provider error); caller treats null as
+    // "no enhancement available" and falls back to the original prompt safely.
     return null
   }
   const out = collected.join('').trim()

@@ -5,7 +5,7 @@
  * @module
  */
 
-import { type AddressInfo } from 'node:net'
+import type { AddressInfo } from 'node:net'
 
 import express, { type Express } from 'express'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

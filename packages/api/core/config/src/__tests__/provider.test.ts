@@ -95,7 +95,8 @@ function createTestEnvProvider(): ConfigProvider {
         if (config.type === 'json') {
           try {
             JSON.parse(value)
-          } catch {
+          } catch (_error) {
+            // JSON.parse threw — the parse failure is surfaced via the errors array below; no further logging needed.
             errors.push({
               key: config.key,
               message: `Configuration '${config.key}' must be valid JSON.`,

@@ -2,6 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/api-emails'
 
+import type {
+  clearRegistry as clearRegistryFn,
+  registerTemplate as registerTemplateFn,
+} from '../registry.js'
+import type { sendTemplate as sendTemplateFn } from '../send.js'
+
 const sendMailMock = vi.fn<(message: EmailMessage) => Promise<EmailSendResult>>()
 const transportMock: EmailTransport = {
   sendMail: sendMailMock,
@@ -28,9 +34,9 @@ vi.mock('@molecule/api-i18n', () => {
   }
 })
 
-let sendTemplate: typeof import('../send.js').sendTemplate
-let registerTemplate: typeof import('../registry.js').registerTemplate
-let clearRegistry: typeof import('../registry.js').clearRegistry
+let sendTemplate: typeof sendTemplateFn
+let registerTemplate: typeof registerTemplateFn
+let clearRegistry: typeof clearRegistryFn
 
 const sendResult: EmailSendResult = {
   accepted: ['user@example.com'],

@@ -472,7 +472,9 @@ describe('@molecule/api-database', () => {
 
       try {
         await transaction.query('INSERT INTO users (name) VALUES ($1)', ['Test'])
-      } catch {
+      } catch (_error) {
+        // Error is expected (mocked Constraint violation) — rollback is the correct response;
+        // the error content is irrelevant to the test which only verifies rollback was called.
         await transaction.rollback()
       }
 

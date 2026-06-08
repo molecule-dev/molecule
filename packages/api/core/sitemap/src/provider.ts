@@ -34,11 +34,12 @@ export const setProvider = (provider: SitemapProvider): void => {
 export const getProvider = (): SitemapProvider => {
   try {
     return bondRequire<SitemapProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('sitemap.error.noProvider', undefined, {
         defaultValue: 'Sitemap provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

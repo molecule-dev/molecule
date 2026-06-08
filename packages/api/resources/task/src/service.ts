@@ -17,6 +17,7 @@ import type { Task, TaskPriority, TaskRow } from './types.js'
 
 const TABLE = 'tasks'
 
+/** Normalise a Date or ISO string to a YYYY-MM-DD date string, or null. */
 function toDateString(value: string | Date | null): string | null {
   if (value === null || value === undefined) return null
   if (value instanceof Date) {
@@ -29,18 +30,21 @@ function toDateString(value: string | Date | null): string | null {
   return null
 }
 
+/** Normalise a Date or string value to an ISO-8601 string, or null. */
 function toIsoString(value: string | Date | null): string | null {
   if (value === null || value === undefined) return null
   if (value instanceof Date) return value.toISOString()
   return String(value)
 }
 
+/** Coerce a raw DB priority value to a valid TaskPriority (1–4), defaulting to 4. */
 function priorityFromDb(raw: number | null | undefined): TaskPriority {
   const n = typeof raw === 'number' ? raw : 0
   if (n >= 1 && n <= 4) return n as TaskPriority
   return 4
 }
 
+/** Map a raw recurrence_rule string to a human-readable Task recurring label, or null. */
 function recurringSummary(rule: string | null): Task['recurring'] {
   if (!rule) return null
   const m = rule.match(/^every\s+\d+\s+(day|week|month|year)s?$/i)
@@ -121,6 +125,7 @@ export async function getTaskForOwner(taskId: string, ownerId: string): Promise<
   return toTask(row)
 }
 
+/** Create a new task owned by the given user and return the serialised Task. */
 export async function createTaskForOwner(
   ownerId: string,
   data: {
@@ -150,6 +155,7 @@ export async function createTaskForOwner(
   return toTask(result.data!)
 }
 
+/** Apply a partial patch to a task owned by the given user; returns the updated Task or null if not found/owned. */
 export async function updateTaskForOwner(
   taskId: string,
   ownerId: string,
@@ -182,6 +188,7 @@ export async function updateTaskForOwner(
   return next ? toTask(next) : null
 }
 
+/** Delete a task owned by the given user; returns true if deleted, false if not found/owned. */
 export async function deleteTaskForOwner(taskId: string, ownerId: string): Promise<boolean> {
   const row = await findById<TaskRow>(TABLE, taskId)
   if (!row || row.owner_id !== ownerId) return false
@@ -189,6 +196,7 @@ export async function deleteTaskForOwner(taskId: string, ownerId: string): Promi
   return true
 }
 
+/** Update the position field for a batch of tasks owned by the given user; returns the count of rows updated. */
 export async function reorderTasksForOwner(
   ownerId: string,
   items: Array<{ id: string; position: number }>,

@@ -22,6 +22,7 @@ const THREADS_TABLE = 'forum_threads'
 const REPLIES_TABLE = 'forum_replies'
 const VOTES_TABLE = 'forum_votes'
 
+/** Convert a thread title into a URL-safe slug (max 120 chars). */
 function slugify(title: string): string {
   return title
     .toLowerCase()
@@ -30,6 +31,7 @@ function slugify(title: string): string {
     .slice(0, 120)
 }
 
+/** List forum threads with optional category/status filtering, sorting, and pagination. */
 export async function listThreads(opts: {
   category_id?: string
   status?: ThreadStatus
@@ -61,10 +63,12 @@ export async function listThreads(opts: {
   return { data, total }
 }
 
+/** Fetch a single forum thread by ID, or null if not found. */
 export async function getThread(threadId: string): Promise<ForumThreadRow | null> {
   return findById<ForumThreadRow>(THREADS_TABLE, threadId)
 }
 
+/** Create a new forum thread and return the persisted row. */
 export async function createThread(
   authorId: string,
   data: { title: string; body: string; category_id?: string | null },
@@ -86,6 +90,7 @@ export async function createThread(
   return result.data!
 }
 
+/** Apply a partial patch to a thread; enforces author/moderator ownership and returns the updated row. */
 export async function updateThread(
   threadId: string,
   userId: string,
@@ -107,6 +112,7 @@ export async function updateThread(
   return findById<ForumThreadRow>(THREADS_TABLE, threadId)
 }
 
+/** Delete a thread; enforces author/moderator ownership and returns true on success. */
 export async function deleteThread(
   threadId: string,
   userId: string,
@@ -119,6 +125,7 @@ export async function deleteThread(
   return true
 }
 
+/** Atomically increment the view_count of a thread. */
 export async function incrementViewCount(threadId: string): Promise<void> {
   const thread = await findById<ForumThreadRow>(THREADS_TABLE, threadId)
   if (!thread) return
@@ -127,6 +134,7 @@ export async function incrementViewCount(threadId: string): Promise<void> {
   } as Partial<ForumThreadRow>)
 }
 
+/** Return all replies for a thread in chronological order. */
 export async function listReplies(threadId: string): Promise<ForumReplyRow[]> {
   return findMany<ForumReplyRow>(REPLIES_TABLE, {
     where: [{ field: 'thread_id', operator: '=', value: threadId }],
@@ -134,6 +142,7 @@ export async function listReplies(threadId: string): Promise<ForumReplyRow[]> {
   })
 }
 
+/** Add a reply (or nested reply) to an open thread; bumps reply_count and last_activity_at. */
 export async function createReply(
   threadId: string,
   authorId: string,
@@ -160,6 +169,7 @@ export async function createReply(
   return result.data!
 }
 
+/** Soft-delete a reply (body → "[deleted]"); enforces author/moderator ownership. */
 export async function deleteReply(
   replyId: string,
   userId: string,

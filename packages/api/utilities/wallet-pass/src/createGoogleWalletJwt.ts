@@ -16,11 +16,7 @@
 
 import { createSign } from 'node:crypto'
 
-import type {
-  GoogleWalletClass,
-  GoogleWalletObject,
-  GoogleWalletServiceAccount,
-} from './types.js'
+import type { GoogleWalletClass, GoogleWalletObject, GoogleWalletServiceAccount } from './types.js'
 
 /**
  * Default audience Google Wallet expects in `aud`.
@@ -96,9 +92,11 @@ export function createGoogleWalletJwt(
     signer.update(signingInput)
     signer.end()
     signatureB64 = base64UrlEncode(signer.sign(serviceAccount.privateKey))
-  } catch {
-    // Never let the private key leak into the error path.
-    throw new Error('Failed to sign Google Wallet JWT — invalid service-account private key.')
+  } catch (error) {
+    // Never let the private key leak into the error path — wrap without re-exposing it.
+    throw new Error('Failed to sign Google Wallet JWT — invalid service-account private key.', {
+      cause: error,
+    })
   }
 
   return `${signingInput}.${signatureB64}`

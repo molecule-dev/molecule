@@ -148,7 +148,7 @@ function renderItem(item: FeedItem, podcastMode: boolean, pretty: boolean): stri
  * @param feed - The feed structure to serialize.
  * @param options - See {@link SerializeRss2Options}.
  * @returns Complete RSS 2.0 XML document string.
- * @throws {@link FeedSerializeError} when required fields are missing.
+ * @throws {FeedSerializeError} when required fields are missing.
  */
 export function serializeRss2(feed: Feed, options: SerializeRss2Options = {}): string {
   assertFeedShape(feed, 'rss-2.0')

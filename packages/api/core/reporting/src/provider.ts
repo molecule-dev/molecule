@@ -42,11 +42,12 @@ export const setProvider = (provider: ReportProvider): void => {
 export const getProvider = (): ReportProvider => {
   try {
     return bondRequire<ReportProvider>(BOND_TYPE)
-  } catch {
+  } catch (_error) {
     throw new Error(
       t('reporting.error.noProvider', undefined, {
         defaultValue: 'Reporting provider not configured. Call setProvider() first.',
       }),
+      { cause: _error },
     )
   }
 }

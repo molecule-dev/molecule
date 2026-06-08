@@ -35,11 +35,12 @@ export const setPool = (pool: DatabasePool): void => {
 export const getPool = (): DatabasePool => {
   try {
     return bondRequire<DatabasePool>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('database.error.noProvider', undefined, {
         defaultValue: 'Database pool not configured. Call setPool() first.',
       }),
+      { cause: error },
     )
   }
 }

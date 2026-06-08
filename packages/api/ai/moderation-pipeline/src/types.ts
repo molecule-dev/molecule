@@ -1,3 +1,4 @@
+/** Content category assigned by the moderation pipeline. */
 export type ModerationCategory =
   | 'hate'
   | 'harassment'
@@ -10,14 +11,17 @@ export type ModerationCategory =
   | 'pii'
   | 'safe'
 
+/** Action the pipeline takes after evaluating content against policy. */
 export type ModerationAction = 'allow' | 'flag' | 'block' | 'redact'
 
+/** Per-category confidence score produced by a moderation classifier. */
 export interface ModerationScore {
   category: ModerationCategory
   /** 0..1 confidence. */
   score: number
 }
 
+/** Final verdict returned by the pipeline for a piece of content. */
 export interface ModerationDecision {
   action: ModerationAction
   scores: ModerationScore[]
@@ -28,6 +32,7 @@ export interface ModerationDecision {
   flagged: boolean
 }
 
+/** Per-category thresholds and actions that govern moderation decisions. */
 export interface ModerationPolicy {
   /** Threshold per category — content above this score triggers the action. */
   thresholds: Partial<Record<ModerationCategory, number>>
@@ -37,6 +42,7 @@ export interface ModerationPolicy {
   defaultAction?: ModerationAction
 }
 
+/** Database row shape for a single moderation audit-log entry. */
 export interface AuditLogRow {
   id: string
   owner_id: string | null

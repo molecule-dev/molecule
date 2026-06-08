@@ -44,11 +44,12 @@ export const setProvider = (provider: CalendarProvider): void => {
 export const getProvider = (): CalendarProvider => {
   try {
     return bondRequire<CalendarProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('calendar.error.noProvider', undefined, {
         defaultValue: 'Calendar provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

@@ -1,11 +1,14 @@
+/** Lifecycle states an invoice can be in, from initial draft through payment or cancellation. */
 export type InvoiceStatus = 'draft' | 'sent' | 'partial' | 'paid' | 'overdue' | 'void'
 
+/** A single billable line on an invoice, with description, quantity, and unit price. */
 export interface LineItem {
   description: string
   quantity: number
   unit_price: number
 }
 
+/** Raw database row shape for an invoice, with date fields typed as string or Date. */
 export interface InvoiceRow {
   id: string
   user_id: string
@@ -27,6 +30,7 @@ export interface InvoiceRow {
   updated_at: string | Date
 }
 
+/** Normalized invoice with all date fields serialized to ISO strings for API responses. */
 export interface Invoice extends Omit<
   InvoiceRow,
   'issue_date' | 'due_date' | 'paid_at' | 'created_at' | 'updated_at'

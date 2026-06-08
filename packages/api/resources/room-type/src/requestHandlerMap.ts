@@ -10,6 +10,9 @@ import { list } from './handlers/list.js'
 import { read } from './handlers/read.js'
 import { update } from './handlers/update.js'
 
+/**
+ * Maps route handler names to their request handler implementations for the room-type resource.
+ */
 export const requestHandlerMap = {
   create,
   list,

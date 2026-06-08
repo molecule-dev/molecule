@@ -44,11 +44,12 @@ export const setProvider = (provider: InboundEmailProvider): void => {
 export const getProvider = (): InboundEmailProvider => {
   try {
     return bondRequire<InboundEmailProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('emailsInbound.error.noProvider', undefined, {
         defaultValue: 'Inbound-emails provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

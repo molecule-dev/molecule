@@ -11,6 +11,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as IndexModule from '../index.js'
 import type {
   EmailAddress,
   EmailAttachment,
@@ -18,7 +19,6 @@ import type {
   EmailSendResult,
   EmailTransport,
 } from '../index.js'
-import type * as IndexModule from '../index.js'
 
 // We need to reset the module state between tests for isolation
 let setTransport: typeof IndexModule.setTransport

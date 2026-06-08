@@ -35,11 +35,12 @@ export const setProvider = (provider: NotificationCenterProvider): void => {
 export const getProvider = (): NotificationCenterProvider => {
   try {
     return bondRequire<NotificationCenterProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('notificationCenter.error.noProvider', undefined, {
         defaultValue: 'Notification center provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }

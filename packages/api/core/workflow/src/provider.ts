@@ -40,11 +40,12 @@ export const setProvider = (provider: WorkflowProvider): void => {
 export const getProvider = (): WorkflowProvider => {
   try {
     return bondRequire<WorkflowProvider>(BOND_TYPE)
-  } catch {
+  } catch (error) {
     throw new Error(
       t('workflow.error.noProvider', undefined, {
         defaultValue: 'Workflow provider not configured. Call setProvider() first.',
       }),
+      { cause: error },
     )
   }
 }
