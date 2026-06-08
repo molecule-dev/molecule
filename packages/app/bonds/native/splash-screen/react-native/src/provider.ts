@@ -18,20 +18,13 @@ import type {
 
 import type { ReactNativeSplashScreenConfig } from './types.js'
 
-/** Minimal shape of expo-splash-screen module. */
-interface ExpoSplashScreenModule {
-  preventAutoHideAsync(): Promise<boolean>
-  hideAsync(): Promise<boolean>
-}
-
 /**
  * Dynamically loads expo-splash-screen.
  * @returns The expo-splash-screen module.
  */
-async function getExpoSplashScreen(): Promise<ExpoSplashScreenModule> {
+async function getExpoSplashScreen(): Promise<typeof import('expo-splash-screen')> {
   try {
-    // @ts-expect-error — expo-splash-screen is a peer dependency loaded at runtime
-    const mod = (await import('expo-splash-screen')) as unknown as ExpoSplashScreenModule
+    const mod = await import('expo-splash-screen')
     return mod
   } catch (error) {
     throw new Error(

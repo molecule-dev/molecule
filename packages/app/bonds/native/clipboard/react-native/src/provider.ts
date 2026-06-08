@@ -19,30 +19,16 @@ import { getLogger } from '@molecule/app-logger'
 
 import type { ReactNativeClipboardConfig } from './types.js'
 
-/** Minimal shape of `@react-native-clipboard/clipboard`. */
-interface RNClipboard {
-  getString(): Promise<string>
-  setString(content: string): void
-  hasString(): Promise<boolean>
-  getImage?(): Promise<string | null>
-  setImage?(image: string): void
-  hasImage?(): Promise<boolean>
-  hasURL?(): Promise<boolean>
-  getStringAsync?(): Promise<string>
-  setStringAsync?(content: string): Promise<boolean>
-}
-
 /**
  * Dynamically loads `@react-native-clipboard/clipboard`.
  * @returns The Clipboard module.
  */
-async function getRNClipboard(): Promise<RNClipboard> {
+async function getRNClipboard(): Promise<
+  typeof import('@react-native-clipboard/clipboard').default
+> {
   try {
-    // @ts-expect-error — @react-native-clipboard/clipboard is a peer dependency loaded at runtime
-    const mod = (await import('@react-native-clipboard/clipboard')) as unknown as {
-      default?: RNClipboard
-    } & RNClipboard
-    return (mod.default ?? mod) as RNClipboard
+    const mod = await import('@react-native-clipboard/clipboard')
+    return mod.default
   } catch (error) {
     throw new Error(
       t(

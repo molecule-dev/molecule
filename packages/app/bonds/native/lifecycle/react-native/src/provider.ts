@@ -22,29 +22,13 @@ import { getLogger } from '@molecule/app-logger'
 
 import type { ReactNativeLifecycleConfig } from './types.js'
 
-/** Minimal shape of the react-native module used by this provider. */
-interface ReactNativeModule {
-  AppState: {
-    currentState: string
-    addEventListener: (type: string, handler: (state: string) => void) => { remove: () => void }
-  }
-  Linking: {
-    addEventListener: (
-      type: string,
-      handler: (event: { url: string }) => void,
-    ) => { remove: () => void }
-    getInitialURL: () => Promise<string | null>
-  }
-}
-
 /**
  * Dynamically loads the react-native module.
  * @returns The react-native module.
  */
-async function getReactNative(): Promise<ReactNativeModule> {
+async function getReactNative(): Promise<typeof import('react-native')> {
   try {
-    // @ts-expect-error — react-native is a peer dependency loaded at runtime
-    return (await import('react-native')) as unknown as ReactNativeModule
+    return await import('react-native')
   } catch (error) {
     throw new Error(
       t(

@@ -6,6 +6,8 @@
  * @module
  */
 
+import type { StatusBarStatic } from 'react-native'
+
 import { t } from '@molecule/app-i18n'
 import type {
   StatusBarAnimation,
@@ -18,24 +20,14 @@ import type {
 
 import type { ReactNativeStatusBarConfig } from './types.js'
 
-/** Minimal shape of react-native StatusBar static API. */
-interface RNStatusBar {
-  setBarStyle(style: string, animated?: boolean): void
-  setBackgroundColor(color: string, animated?: boolean): void
-  setHidden(hidden: boolean, animation?: string): void
-  setTranslucent(translucent: boolean): void
-  currentHeight?: number
-}
-
 /**
  * Dynamically loads react-native StatusBar.
  * @returns The StatusBar module.
  */
-async function getReactNativeStatusBar(): Promise<RNStatusBar> {
+async function getReactNativeStatusBar(): Promise<StatusBarStatic> {
   try {
-    // @ts-expect-error — react-native is a peer dependency loaded at runtime
-    const RN = (await import('react-native')) as unknown as { StatusBar: RNStatusBar }
-    return RN.StatusBar
+    const { StatusBar } = await import('react-native')
+    return StatusBar
   } catch (error) {
     throw new Error(
       t(

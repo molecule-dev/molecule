@@ -6,6 +6,13 @@
  * @module
  */
 
+import type {
+  DevicePushToken as ExpoDevicePushToken,
+  Notification as ExpoNotification,
+  NotificationResponse as ExpoNotificationResponse,
+  ScheduledNotification as ExpoScheduledNotification,
+} from 'expo-notifications'
+
 import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
 import type {
@@ -23,105 +30,13 @@ import type {
 
 import type { ReactNativePushConfig } from './types.js'
 
-// React Native's Metro bundler provides a global CommonJS `require` at runtime;
-// declare it for TS (this app-stack package has no node types). Used below to
-// lazily detect Platform without a static import that would break non-RN builds.
-declare const require: (id: string) => unknown
-
-/** Minimal notification content shape from expo-notifications. */
-interface ExpoNotificationContent {
-  title: string | null
-  body: string | null
-  data: Record<string, unknown>
-  badge: number | null
-  sound: string | { [key: string]: string } | null
-}
-
-/** Minimal notification request shape from expo-notifications. */
-interface ExpoNotificationRequest {
-  identifier: string
-  content: ExpoNotificationContent
-}
-
-/** Minimal notification shape from expo-notifications. */
-interface ExpoNotification {
-  request: ExpoNotificationRequest
-}
-
-/** Minimal notification response shape from expo-notifications. */
-interface ExpoNotificationResponse {
-  notification: ExpoNotification
-  actionIdentifier: string
-}
-
-/** Minimal push token data shape from expo-notifications. */
-interface ExpoPushTokenData {
-  data: string
-}
-
-/** Minimal DevicePushToken shape from expo-notifications. */
-interface ExpoDevicePushToken {
-  data: string | object
-}
-
-/** Minimal scheduled notification shape from expo-notifications. */
-interface ExpoScheduledNotification {
-  identifier: string
-  content: ExpoNotificationContent
-}
-
-/** Subscription handle from expo-notifications. */
-interface ExpoSubscription {
-  remove(): void
-}
-
-/** Minimal shape of the expo-notifications module used by this provider. */
-interface ExpoNotificationsModule {
-  getPermissionsAsync(): Promise<{ status: string }>
-  requestPermissionsAsync(): Promise<{ status: string }>
-  getExpoPushTokenAsync(): Promise<ExpoPushTokenData>
-  setNotificationHandler(handler: {
-    handleNotification: (notification: ExpoNotification) => Promise<{
-      shouldShowAlert: boolean
-      shouldPlaySound: boolean
-      shouldSetBadge: boolean
-    }>
-  }): void
-  addNotificationReceivedListener(
-    callback: (notification: ExpoNotification) => void,
-  ): ExpoSubscription
-  addNotificationResponseReceivedListener(
-    callback: (response: ExpoNotificationResponse) => void,
-  ): ExpoSubscription
-  addPushTokenListener(callback: (tokenData: ExpoDevicePushToken) => void): ExpoSubscription
-  scheduleNotificationAsync(request: {
-    content: {
-      title: string
-      body?: string
-      data?: Record<string, unknown>
-      sound?: boolean
-      badge?: number
-    }
-    trigger: { date: Date } | null
-  }): Promise<string>
-  cancelScheduledNotificationAsync(id: string): Promise<void>
-  cancelAllScheduledNotificationsAsync(): Promise<void>
-  getAllScheduledNotificationsAsync(): Promise<ExpoScheduledNotification[]>
-  getPresentedNotificationsAsync(): Promise<ExpoNotification[]>
-  dismissNotificationAsync(id: string): Promise<void>
-  dismissAllNotificationsAsync(): Promise<void>
-  setBadgeCountAsync(count: number): Promise<boolean>
-  getBadgeCountAsync(): Promise<number>
-}
-
 /**
  * Dynamically loads expo-notifications.
  * @returns The expo-notifications module.
  */
-async function getExpoNotifications(): Promise<ExpoNotificationsModule> {
+async function getExpoNotifications(): Promise<typeof import('expo-notifications')> {
   try {
-    // @ts-expect-error — expo-notifications is a peer dependency loaded at runtime
-    return (await import('expo-notifications')) as unknown as ExpoNotificationsModule
+    return await import('expo-notifications')
   } catch (error) {
     throw new Error(
       t(
@@ -167,14 +82,21 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
   const subscriptions: Array<{ remove(): void }> = []
   let currentToken: PushToken | null = null
 
-  // Detect platform at runtime instead of hardcoding
-  let runtimePlatform: 'ios' | 'android' | 'web' = 'android'
-  try {
-    const { Platform } = require('react-native') as { Platform: { OS: string } }
-    runtimePlatform = Platform.OS as 'ios' | 'android' | 'web'
-  } catch (_error) {
-    // Fallback to android if react-native is not available; the package is optional
-    // in non-RN environments (e.g. tests, storybook) so the load failure is safe to ignore.
+  /**
+   * Resolves the runtime platform, falling back to 'android' when react-native
+   * is not available (e.g. tests, Storybook, non-RN environments).
+   */
+  async function getRuntimePlatform(): Promise<'ios' | 'android' | 'web'> {
+    try {
+      const { Platform } = await import('react-native')
+      const os = Platform.OS
+      if (os === 'ios' || os === 'android' || os === 'web') return os
+      return 'android'
+    } catch (_error) {
+      // react-native is not installed in this environment; 'android' is a safe
+      // fallback that keeps the rest of the provider functional.
+      return 'android'
+    }
   }
 
   const provider: PushProvider = {
@@ -192,10 +114,13 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
 
     async register(): Promise<PushToken> {
       const Notifications = await getExpoNotifications()
-      const tokenData = await Notifications.getExpoPushTokenAsync()
+      const [tokenData, platform] = await Promise.all([
+        Notifications.getExpoPushTokenAsync(),
+        getRuntimePlatform(),
+      ])
       const token: PushToken = {
         value: tokenData.data,
-        platform: runtimePlatform,
+        platform,
         timestamp: Date.now(),
       }
       currentToken = token
@@ -291,12 +216,12 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
     onTokenChange(listener: TokenChangeListener): () => void {
       let subscription: { remove(): void } | undefined
 
-      void getExpoNotifications()
-        .then((notifications) => {
+      void Promise.all([getExpoNotifications(), getRuntimePlatform()])
+        .then(([notifications, platform]) => {
           subscription = notifications.addPushTokenListener((tokenData: ExpoDevicePushToken) => {
             const token: PushToken = {
               value: tokenData.data as string,
-              platform: runtimePlatform,
+              platform,
               timestamp: Date.now(),
             }
             currentToken = token

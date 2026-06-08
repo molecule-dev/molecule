@@ -178,6 +178,27 @@ export default tseslint.config(
     },
   },
   {
+    // Native bond providers load their peer (react-native, expo-*, @react-native-*)
+    // lazily via dynamic `import()` and type the result with `typeof import('peer')`.
+    // That peer is an AMBIENT `declare module` (the real package ships Flow syntax
+    // that breaks Vite/Vitest, so it's deliberately never installed) — and a
+    // top-level `import type * as X` of an ambient module is unusable as a type
+    // (TS2709 "namespace as type"). `typeof import('peer')` is therefore the ONLY
+    // correct typing for these loaders, so allow the `import()` type annotation that
+    // consistent-type-imports forbids elsewhere. Deliberate, scoped policy — not a
+    // per-line suppression (CLAUDE Rule 9).
+    files: [
+      'packages/app/bonds/native/**/*.ts',
+      'packages/app/bonds/storage/async-storage/**/*.ts',
+    ],
+    rules: {
+      '@typescript-eslint/consistent-type-imports': [
+        'warn',
+        { prefer: 'type-imports', fixStyle: 'inline-type-imports', disallowTypeAnnotations: false },
+      ],
+    },
+  },
+  {
     files: ['packages/app/bonds/icons/molecule/src/icons/**/*.ts'],
     rules: {
       'jsdoc/require-description': 'off',

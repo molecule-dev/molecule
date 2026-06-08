@@ -6,6 +6,8 @@
  * @module
  */
 
+import type { NetInfoModule, NetInfoState } from '@react-native-community/netinfo'
+
 import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
 import type {
@@ -19,33 +21,13 @@ import type {
 
 import type { ReactNativeNetworkConfig } from './types.js'
 
-/** NetInfo state shape from `@react-native-community/netinfo`. */
-interface NetInfoState {
-  isConnected: boolean | null
-  isInternetReachable: boolean | null
-  type: string
-  details: {
-    cellularGeneration?: string
-    isConnectionExpensive?: boolean
-  } | null
-}
-
-/** NetInfo module shape. */
-interface NetInfoModule {
-  fetch(): Promise<NetInfoState>
-  addEventListener(callback: (state: NetInfoState) => void): () => void
-}
-
 /**
  * Dynamically loads `@react-native-community/netinfo`.
  * @returns The NetInfo module.
  */
 async function getNetInfo(): Promise<NetInfoModule> {
   try {
-    // @ts-expect-error — @react-native-community/netinfo is a peer dependency loaded at runtime
-    const mod = (await import('@react-native-community/netinfo')) as unknown as {
-      default?: NetInfoModule
-    } & NetInfoModule
+    const mod = await import('@react-native-community/netinfo')
     return (mod.default ?? mod) as NetInfoModule
   } catch (error) {
     throw new Error(

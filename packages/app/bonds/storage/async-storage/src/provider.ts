@@ -42,12 +42,8 @@ async function getAsyncStorage(): Promise<AsyncStorageAPI> {
   try {
     // Dynamic import returns the module namespace; `.default` holds the AsyncStorage instance.
     // CJS interop may nest the default export, so we resolve both shapes.
-    // @ts-expect-error — runtime-only RN dependency, not available at compile time
-    const mod = (await import('@react-native-async-storage/async-storage')) as Record<
-      string,
-      unknown
-    >
-    const storage = (mod.default ?? mod) as AsyncStorageAPI
+    const mod = await import('@react-native-async-storage/async-storage')
+    const storage = (mod.default ?? (mod as unknown as AsyncStorageAPI)) as AsyncStorageAPI
     resolvedAsyncStorage = storage
     return storage
   } catch (error) {

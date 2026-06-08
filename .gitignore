@@ -7,6 +7,9 @@ dist
 *.js.map
 *.d.ts
 !packages/app/frameworks/react-native-ui/src/react-native.d.ts
+# Hand-written ambient declare-module typings for runtime-loaded native peers
+# (react-native, expo-*, @react-native-*) live in src/ and must be tracked.
+!packages/app/bonds/**/src/**/*.d.ts
 *.d.ts.map
 
 # compiled JS from TypeScript (keep hand-written .js like eslint.config.js)

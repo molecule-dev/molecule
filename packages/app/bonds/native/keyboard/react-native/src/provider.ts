@@ -44,11 +44,7 @@ async function getReactNativeKeyboard(): Promise<{
   Dimensions: RNDimensions
 }> {
   try {
-    // @ts-expect-error — react-native is a peer dependency loaded at runtime
-    const RN = (await import('react-native')) as unknown as {
-      Keyboard: RNKeyboard
-      Dimensions: RNDimensions
-    }
+    const RN = await import('react-native')
     return { Keyboard: RN.Keyboard, Dimensions: RN.Dimensions }
   } catch (error) {
     throw new Error(
