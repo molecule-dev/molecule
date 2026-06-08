@@ -16,6 +16,11 @@
 import type Stripe from 'stripe'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as CacheModule from '../../cache.js'
+import type * as MiddlewareModule from '../../middleware.js'
+import type * as ProviderModule from '../../provider.js'
+import type * as RegistryModule from '../../registry.js'
+
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
 
@@ -47,15 +52,6 @@ interface BlogLimits {
   maxPosts: number
   canExport: boolean
 }
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- typeof import() required for dynamic-reimport module typing
-type RegistryModule = typeof import('../../registry.js')
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- typeof import() required for dynamic-reimport module typing
-type ProviderModule = typeof import('../../provider.js')
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- typeof import() required for dynamic-reimport module typing
-type CacheModule = typeof import('../../cache.js')
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- typeof import() required for dynamic-reimport module typing
-type MiddlewareModule = typeof import('../../middleware.js')
 
 describeOrSkip('Full Stripe → entitlements flow', () => {
   let stripe: Stripe
