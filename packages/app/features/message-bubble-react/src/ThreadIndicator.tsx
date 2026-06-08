@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -28,7 +28,7 @@ export function ThreadIndicator({
   lastReplyAt,
   onOpen,
   className,
-}: ThreadIndicatorProps) {
+}: ThreadIndicatorProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   return (

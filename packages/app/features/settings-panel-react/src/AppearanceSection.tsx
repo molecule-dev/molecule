@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { useTheme, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, Switch } from '@molecule/app-ui-react'
@@ -9,7 +11,7 @@ import { Flex, Switch } from '@molecule/app-ui-react'
  * can either add more sub-components to this package or render their
  * own section in line with `<AppearanceSection>` via children.
  */
-export function AppearanceSection() {
+export function AppearanceSection(): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const { mode, toggleTheme } = useTheme()

@@ -16,7 +16,7 @@ import { useSettingsPanelContext } from './context.js'
  * the `<SettingsContainer>` context to dismiss the panel after either
  * action and navigates to `/login`.
  */
-export function LogOutDeleteSection() {
+export function LogOutDeleteSection(): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -29,13 +29,13 @@ export function LogOutDeleteSection() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleLogout = async () => {
+  const handleLogout = async (): Promise<void> => {
     await logout()
     onClose()
     navigate('/login')
   }
 
-  const handleDelete = async (e: React.FormEvent) => {
+  const handleDelete = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
     setLoading(true)
     setError('')

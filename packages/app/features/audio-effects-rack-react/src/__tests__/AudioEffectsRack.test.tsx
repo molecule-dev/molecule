@@ -12,9 +12,9 @@ import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 import {
   AudioEffectsRack,
   type Effect,
-  type EffectChangePatch,
   EFFECT_KINDS,
   EFFECT_PARAM_SCHEMAS,
+  type EffectChangePatch,
   reorderEffects,
   resolveParamValue,
 } from '../AudioEffectsRack.js'
@@ -33,7 +33,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_t, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token

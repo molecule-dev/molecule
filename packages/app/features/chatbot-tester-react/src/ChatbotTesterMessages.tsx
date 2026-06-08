@@ -5,8 +5,9 @@
  * @module
  */
 
+import { type JSX, useEffect, useRef } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import { useEffect, useRef } from 'react'
 
 import type { TesterMessage } from './types.js'
 
@@ -21,7 +22,7 @@ export function ChatbotTesterMessages({
   messages,
   loading,
   emptyState,
-}: ChatbotTesterMessagesProps) {
+}: ChatbotTesterMessagesProps): JSX.Element {
   const cm = getClassMap()
   const endRef = useRef<HTMLDivElement>(null)
   useEffect(() => {

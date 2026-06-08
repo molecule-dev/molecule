@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { type JSX, useMemo } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -23,7 +23,7 @@ interface DiffLine {
 }
 
 /**
- *
+ * Compute a line-by-line diff between two strings using an LCS DP algorithm.
  * @param a
  * @param b
  */
@@ -94,17 +94,17 @@ export function DiffViewer({
   showLineNumbers = true,
   filename,
   className,
-}: DiffViewerProps) {
+}: DiffViewerProps): JSX.Element {
   const cm = getClassMap()
   const lines = useMemo(() => diffLines(before, after), [before, after])
 
   /**
-   *
+   * Render a single diff row with background highlight, sign, and optional line number.
    * @param text
    * @param type
    * @param n
    */
-  function row(text: string, type: DiffLine['type'], n: number) {
+  function row(text: string, type: DiffLine['type'], n: number): JSX.Element {
     return (
       <div
         style={{ background: COLOR[type], display: 'flex', fontFamily: 'monospace', fontSize: 12 }}

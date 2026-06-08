@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -77,7 +77,7 @@ export interface TransportBarProps {
  * @param props - Component props.
  * @returns The transport-bar element.
  */
-export function TransportBar(props: TransportBarProps) {
+export function TransportBar(props: TransportBarProps): JSX.Element {
   const {
     isPlaying,
     isRecording,

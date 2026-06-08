@@ -31,7 +31,7 @@ vi.mock('@molecule/app-react', () => ({
 
 const { TimeSlotPicker } = await import('../TimeSlotPicker.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const slots = [
   { id: 'am', label: 'Morning (9–12)', meta: 'Free' },

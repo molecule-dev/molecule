@@ -24,6 +24,6 @@
  * @module
  */
 
-export * from './types.js'
-export * from './format.js'
 export * from './ExifPanel.js'
+export * from './format.js'
+export * from './types.js'

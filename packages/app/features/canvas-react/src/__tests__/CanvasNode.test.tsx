@@ -13,7 +13,7 @@ import { CanvasNode } from '../CanvasNode.js'
 import type { CanvasDragInfo, CanvasResizeInfo } from '../types.js'
 
 /**
- *
+ * Builds a stub UIClassMap where every class accessor returns the property name as a string.
  */
 function buildStubClassMap(): UIClassMap {
   const handler: ProxyHandler<Record<string, unknown>> = {
@@ -23,7 +23,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_tt, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
@@ -36,7 +36,7 @@ function buildStubClassMap(): UIClassMap {
 }
 
 /**
- *
+ * Wraps children with I18nProvider using a simple English i18n provider.
  * @param root0
  * @param root0.children
  */

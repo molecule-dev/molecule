@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -24,7 +24,13 @@ interface ListingCardBodyProps {
  * @param root0.meta
  * @param root0.className
  */
-export function ListingCardBody({ title, subtitle, price, meta, className }: ListingCardBodyProps) {
+export function ListingCardBody({
+  title,
+  subtitle,
+  price,
+  meta,
+  className,
+}: ListingCardBodyProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.stack(1 as const), cm.sp('p', 3), className)}>

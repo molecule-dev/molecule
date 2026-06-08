@@ -1,5 +1,5 @@
-import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import type { I18nProvider } from '@molecule/app-i18n'
+import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 import * as common from '@molecule/app-locales-common'
 
 import { LANGUAGE_DEFINITIONS } from './languages.js'
@@ -259,12 +259,21 @@ function registerPackageLocales(
  */
 const PROBE_CONCURRENCY = 6
 
+/**
+ * Asynchronously probes each non-English locale via `lazyLoadUi` and removes
+ * any that return an empty translation object, keeping the language picker in
+ * sync with what the app has actually translated.
+ */
 async function pruneUnsupportedLocalesAsync(
   provider: I18nProvider,
   lazyLoadUi: (code: string) => Promise<Record<string, string>>,
 ): Promise<void> {
   const candidates = LANGUAGE_DEFINITIONS.map((l) => l.code).filter((c) => c !== 'en')
   let i = 0
+  /**
+   * Processes locale candidates in the shared `candidates` array up to
+   * concurrency limit, probing each and removing unsupported ones.
+   */
   async function worker(): Promise<void> {
     while (i < candidates.length) {
       const code = candidates[i++]
@@ -276,14 +285,14 @@ async function pruneUnsupportedLocalesAsync(
           }
           provider.removeLocale(code)
         }
-      } catch {
+      } catch (_error) {
         // Loader failure (missing file, network error, etc.) — treat as
         // unsupported and drop. The provider's removeLocale notifies
         // listeners so any language picker re-renders.
         if (provider.getLocale() === code) {
           try {
             await provider.setLocale('en')
-          } catch {
+          } catch (_error) {
             // best-effort; if en somehow isn't registered, nothing we can do
           }
         }

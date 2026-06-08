@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { EditorLayout } = await import('../EditorLayout.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const topBar = createElement('div', { 'data-topbar': '' })
 const canvas = createElement('div', { 'data-canvas': '' })

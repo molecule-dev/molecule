@@ -29,7 +29,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { LeaderboardRow } = await import('../LeaderboardRow.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('LeaderboardRow', () => {
   it('renders the name, score, and avatar', () => {

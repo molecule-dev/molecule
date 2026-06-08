@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
@@ -29,7 +29,14 @@ interface UserChipProps {
  * @param root0.size
  * @param root0.className
  */
-export function UserChip({ name, src, subtitle, trailing, size = 'sm', className }: UserChipProps) {
+export function UserChip({
+  name,
+  src,
+  subtitle,
+  trailing,
+  size = 'sm',
+  className,
+}: UserChipProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.flex({ align: 'center', gap: 'sm' }), className)}>

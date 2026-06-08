@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -199,7 +199,7 @@ export function BiasIndicator({
   sourceLabel,
   className,
   dataMolId,
-}: BiasIndicatorProps) {
+}: BiasIndicatorProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   const bucket = biasToBucket(bias)

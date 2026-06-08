@@ -1,13 +1,11 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** A single selectable answer option in a quiz question. */
 export interface QuizOption {
   id: string
   label: ReactNode
@@ -55,16 +53,14 @@ export function QuizCard({
   timer,
   explanation,
   className,
-}: QuizCardProps) {
+}: QuizCardProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [selected, setSelected] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
 
-  /**
-   *
-   */
-  function submit() {
+  /** Validate selection and fire onAnswer with correctness flag. */
+  function submit(): void {
     if (!selected || submitted) return
     setSubmitted(true)
     onAnswer?.(selected, correctId ? selected === correctId : undefined)

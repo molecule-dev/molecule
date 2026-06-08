@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -32,7 +32,7 @@ export function LeaderboardList({
   actions,
   emptyState,
   className,
-}: LeaderboardListProps) {
+}: LeaderboardListProps): JSX.Element {
   const cm = getClassMap()
   const childCount = Array.isArray(children) ? children.length : children ? 1 : 0
   return (

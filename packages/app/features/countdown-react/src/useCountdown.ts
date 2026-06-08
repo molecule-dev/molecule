@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 
-/**
- *
- */
+/** Snapshot of time remaining until a target date. */
 export interface CountdownState {
   /** Days remaining. */
   days: number
@@ -19,6 +17,7 @@ export interface CountdownState {
 }
 
 /**
+ * Computes the countdown state for a given epoch-ms target.
  *
  * @param target
  */

@@ -27,6 +27,7 @@ import {
   PROVIDER_BRAND_COLORS,
 } from '@molecule/app-ai-models'
 import { t } from '@molecule/app-i18n'
+import { getLogger } from '@molecule/app-logger'
 import { useAIModels, useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -39,6 +40,8 @@ import { estimateStreamTokens } from './chat-stream-utilities.js'
 import { MarkdownContent } from './MarkdownContent.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
 import { ToolCallCard } from './ToolCallCard.js'
+
+const logger = getLogger('chat-panel')
 
 // ---------------------------------------------------------------------------
 // Types
@@ -274,8 +277,8 @@ function playTone(): void {
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15)
     osc.start(audioCtx.currentTime)
     osc.stop(audioCtx.currentTime + 0.15)
-  } catch {
-    // AudioContext not available — silently skip
+  } catch (_error) {
+    // AudioContext not available in this environment — silently skip
   }
 }
 
@@ -2309,7 +2312,8 @@ function ChatInner({
       if (initialInputValue) return initialInputValue
       try {
         return sessionStorage.getItem(draftKey) ?? ''
-      } catch {
+      } catch (_error) {
+        // sessionStorage unavailable (e.g. private browsing restrictions) — fall back to empty
         return ''
       }
     })(),
@@ -2346,8 +2350,8 @@ function ChatInner({
       if (!val) {
         try {
           sessionStorage.removeItem(draftKey)
-        } catch {
-          /* unavailable */
+        } catch (_error) {
+          /* sessionStorage unavailable — safe to ignore, draft simply persists */
         }
       }
     },
@@ -2363,8 +2367,8 @@ function ChatInner({
         const v = inputRef.current
         if (v) sessionStorage.setItem(draftKey, v)
         else sessionStorage.removeItem(draftKey)
-      } catch {
-        /* quota exceeded or unavailable */
+      } catch (_error) {
+        /* quota exceeded or sessionStorage unavailable — draft persistence is best-effort */
       }
     }, 500)
   }, [draftKey])
@@ -2599,7 +2603,8 @@ function ChatInner({
       setSoundsConfig(updated)
       try {
         await http.patch(`/projects/${projectId}`, { settings: { sounds: updated } })
-      } catch {
+      } catch (error) {
+        logger.warn('Failed to persist sound settings to server', { error })
         addSystemCard(
           t('ide.chat.soundsError', undefined, {
             defaultValue: 'Failed to update sound settings.',
@@ -2888,7 +2893,8 @@ function ChatInner({
         setCommitCards((prev) => prev.filter((c) => c.id !== cardId))
         setCommitState(null)
       }
-    } catch {
+    } catch (error) {
+      logger.warn('Commit request failed', { error })
       setCommitCards((prev) =>
         prev.map((c) =>
           c.id === cardId
@@ -2920,8 +2926,8 @@ function ChatInner({
           onCommit?.()
           return result.data.hash
         }
-      } catch {
-        // handled by caller
+      } catch (_error) {
+        // network/server failure — caller receives `undefined` and can show its own error UI
       }
       return undefined
     },
@@ -2944,7 +2950,8 @@ function ChatInner({
             f.startsWith('/workspace/') ? f.slice('/workspace/'.length) : f,
           )
           allFilesFetchedRef.current = true
-        } catch {
+        } catch (_error) {
+          // File list fetch failed — close the picker gracefully rather than showing stale entries
           setFilePicker(null)
           return
         }
@@ -3160,7 +3167,8 @@ function ChatInner({
             },
           ),
         )
-      } catch {
+      } catch (error) {
+        logger.warn('Failed to update chat model', { error })
         addSystemCard(
           t('ide.chat.modelError', undefined, {
             defaultValue: 'Failed to update chat model.',
@@ -3273,7 +3281,8 @@ function ChatInner({
               }),
             )
           }
-        } catch {
+        } catch (error) {
+          logger.warn('Failed to compact conversation', { error })
           addSystemCard(
             t('ide.chat.compactError', undefined, {
               defaultValue: 'Failed to compact conversation.',
@@ -3323,7 +3332,8 @@ function ChatInner({
               ].join('\n'),
             }),
           )
-        } catch {
+        } catch (error) {
+          logger.warn('Failed to fetch chat usage data', { error })
           addSystemCard(
             t('ide.chat.costError', undefined, { defaultValue: 'Unable to fetch usage data.' }),
           )
@@ -3395,7 +3405,8 @@ function ChatInner({
               },
             ),
           )
-        } catch {
+        } catch (error) {
+          logger.warn('Failed to revert file changes for undo', { error })
           addSystemCard(
             t('ide.chat.undoError', undefined, { defaultValue: 'Failed to revert changes.' }),
           )
@@ -3423,7 +3434,8 @@ function ChatInner({
               }),
             )
           }
-        } catch {
+        } catch (error) {
+          logger.warn('Failed to fetch git diff/status', { error })
           addSystemCard(
             t('ide.chat.diffError', undefined, { defaultValue: 'Failed to fetch changes.' }),
           )
@@ -3459,7 +3471,8 @@ function ChatInner({
             ])
             refreshGitStatus()
           }
-        } catch {
+        } catch (error) {
+          logger.warn('Failed to commit changes via /commit command', { error })
           addSystemCard(
             t('ide.chat.commitError', undefined, { defaultValue: 'Failed to commit changes.' }),
           )
@@ -3491,7 +3504,8 @@ function ChatInner({
                   defaultValue: 'Auto-fix disabled.',
                 }),
           )
-        } catch {
+        } catch (error) {
+          logger.warn('Failed to update auto-fix setting', { error })
           addSystemCard(
             t('ide.chat.autoFixError', undefined, {
               defaultValue: 'Failed to update auto-fix setting.',
@@ -3599,7 +3613,8 @@ function ChatInner({
                 },
               ),
             )
-          } catch {
+          } catch (error) {
+            logger.warn('Failed to update chat model via /model command', { error })
             addSystemCard(
               t('ide.chat.modelError', undefined, {
                 defaultValue: 'Failed to update chat model.',
@@ -3725,7 +3740,9 @@ function ChatInner({
             message =
               (message ? `${message}\n\n` : '') +
               `<file path="${displayPath}">\n\`\`\`${ext}\n${res.data.content}\n\`\`\`\n</file>`
-          } catch {
+          } catch (_error) {
+            // File unreadable (sandbox not responding, permission error, etc.) — include a
+            // placeholder so the AI still sees which file was intended
             message =
               (message ? `${message}\n\n` : '') +
               `<file path="${displayPath}">[Could not read file]</file>`
@@ -6023,8 +6040,8 @@ export function ChatPanel({
         `/projects/${projectId}/conversations`,
       )
       setConversations(res.data.conversations)
-    } catch {
-      // non-critical
+    } catch (_error) {
+      // non-critical — conversation list is display-only; header works fine without it
     }
   }, [http, projectId])
 
@@ -6054,7 +6071,9 @@ export function ChatPanel({
       const res = await http.post<{ id: string }>(`/projects/${projectId}/conversations`, {})
       persistConversationId(res.data.id)
       setChatKey(res.data.id)
-    } catch {
+    } catch (_error) {
+      // Server conversation creation failed — fall back to a client-side key so
+      // the user can still start a new chat without a persisted conversation id
       persistConversationId(null)
       setChatKey(`new-${Date.now()}`)
     }

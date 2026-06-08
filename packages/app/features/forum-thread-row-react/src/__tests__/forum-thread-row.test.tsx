@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { ForumThreadRow } = await import('../ForumThreadRow.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('ForumThreadRow', () => {
   it('renders the title inside an <h3>', () => {

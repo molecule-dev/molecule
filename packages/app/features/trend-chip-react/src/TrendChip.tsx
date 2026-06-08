@@ -1,3 +1,4 @@
+import type React from 'react'
 import type { ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
@@ -43,7 +44,7 @@ export function TrendChip({
   variant = 'subtle',
   ariaLabel,
   className,
-}: TrendChipProps) {
+}: TrendChipProps): React.JSX.Element {
   const cm = getClassMap()
   const dir = direction ?? (delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat')
   const color = COLOR[dir]

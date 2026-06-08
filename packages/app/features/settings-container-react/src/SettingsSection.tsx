@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
@@ -36,7 +36,7 @@ export function SettingsSection({
   footer,
   className,
   dataMolId,
-}: SettingsSectionProps) {
+}: SettingsSectionProps): JSX.Element {
   const cm = getClassMap()
   return (
     <Card className={className} data-mol-id={dataMolId}>

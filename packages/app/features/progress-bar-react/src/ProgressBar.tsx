@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -42,7 +42,7 @@ export function ProgressBar({
   size = 'md',
   color = 'primary',
   className,
-}: ProgressBarProps) {
+}: ProgressBarProps): JSX.Element {
   const cm = getClassMap()
   const pct = max === 0 ? 0 : Math.max(0, Math.min(100, (value / max) * 100))
   return (

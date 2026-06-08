@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import * as PricingPageModule from '../index.js'
 import type { PlanUpdatedPageProps, PricingPagePeriod, PricingPageProps } from '../index.js'
+import * as PricingPageModule from '../index.js'
 
 describe('@molecule/app-pricing-page-react module shape', () => {
   it('exports both page components', () => {

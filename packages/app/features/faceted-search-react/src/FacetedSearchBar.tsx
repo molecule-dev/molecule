@@ -6,8 +6,9 @@
  * @module
  */
 
+import type { JSX, ReactNode } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
 
 interface FacetedSearchBarProps {
   children: ReactNode
@@ -17,7 +18,11 @@ interface FacetedSearchBarProps {
 }
 
 /** Sticky filter-bar container. */
-export function FacetedSearchBar({ children, topOffsetPx = 64, className }: FacetedSearchBarProps) {
+export function FacetedSearchBar({
+  children,
+  topOffsetPx = 64,
+  className,
+}: FacetedSearchBarProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

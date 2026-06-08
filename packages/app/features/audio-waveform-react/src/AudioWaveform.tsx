@@ -1,4 +1,4 @@
-import type { CSSProperties, MouseEvent } from 'react'
+import type { CSSProperties, MouseEvent, ReactElement } from 'react'
 import { useCallback, useId, useRef } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -116,7 +116,7 @@ export function seekTimeFromClick(x: number, width: number, duration: number): n
  * @param props - Component props.
  * @returns The audio-waveform element.
  */
-export function AudioWaveform(props: AudioWaveformProps) {
+export function AudioWaveform(props: AudioWaveformProps): ReactElement {
   const {
     peaks,
     duration,

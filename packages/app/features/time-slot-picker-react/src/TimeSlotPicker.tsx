@@ -1,11 +1,9 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Represents a single selectable time slot with an optional meta line and disabled state. */
 export interface TimeSlot {
   id: string
   /** Display label — `'14:00–16:00'`, `'Morning (9–12)'`, etc. */
@@ -53,7 +51,7 @@ export function TimeSlotPicker({
   columns = 2,
   title,
   className,
-}: TimeSlotPickerProps) {
+}: TimeSlotPickerProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   return (

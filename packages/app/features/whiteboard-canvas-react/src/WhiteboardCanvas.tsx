@@ -1,4 +1,4 @@
-import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
+import type { CSSProperties, JSX, PointerEvent as ReactPointerEvent } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
 import {
@@ -128,7 +128,7 @@ export interface WhiteboardCanvasProps {
  * />
  * ```
  */
-export function WhiteboardCanvas(props: WhiteboardCanvasProps) {
+export function WhiteboardCanvas(props: WhiteboardCanvasProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const {
@@ -213,7 +213,7 @@ export function WhiteboardCanvas(props: WhiteboardCanvasProps) {
       activePointerId.current = e.pointerId
       try {
         e.currentTarget.setPointerCapture(e.pointerId)
-      } catch {
+      } catch (_error) {
         /* jsdom can throw — safe to ignore. */
       }
       const point = eventToCanvas(e)
@@ -303,7 +303,7 @@ export function WhiteboardCanvas(props: WhiteboardCanvasProps) {
       activePointerId.current = null
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
-      } catch {
+      } catch (_error) {
         /* jsdom — safe to ignore. */
       }
       if (activeStroke) {

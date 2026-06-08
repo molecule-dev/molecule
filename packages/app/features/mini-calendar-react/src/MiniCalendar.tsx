@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { type JSX, useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
@@ -21,7 +21,7 @@ interface MiniCalendarProps {
 }
 
 /**
- *
+ * Coerces a Date or ISO string to a Date, returning undefined for invalid values.
  * @param v
  */
 function toDate(v: Date | string | undefined): Date | undefined {
@@ -32,7 +32,7 @@ function toDate(v: Date | string | undefined): Date | undefined {
 }
 
 /**
- *
+ * Returns a new Date set to the first day of the given date's month.
  * @param d
  */
 function startOfMonth(d: Date): Date {
@@ -40,7 +40,7 @@ function startOfMonth(d: Date): Date {
 }
 
 /**
- *
+ * Returns true if two Date values represent the same calendar day.
  * @param a
  * @param b
  */
@@ -73,7 +73,7 @@ export function MiniCalendar({
   locale,
   isDisabled,
   className,
-}: MiniCalendarProps) {
+}: MiniCalendarProps): JSX.Element {
   const cm = getClassMap()
   const selectedDate = toDate(selected)
   const [internalMonth, setInternalMonth] = useState(
@@ -82,10 +82,10 @@ export function MiniCalendar({
   const visibleMonth = monthProp ? startOfMonth(monthProp) : internalMonth
 
   /**
-   *
+   * Advances the visible month by the given number of months (negative to go back).
    * @param delta
    */
-  function navigate(delta: number) {
+  function navigate(delta: number): void {
     const next = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + delta, 1)
     if (!monthProp) setInternalMonth(next)
     onMonthChange?.(next)

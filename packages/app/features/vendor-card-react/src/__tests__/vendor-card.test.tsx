@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -32,7 +32,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { VendorCard } = await import('../VendorCard.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('VendorCard', () => {
   it('renders the name in an <h3> and the avatar', () => {

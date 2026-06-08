@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { SafeLink } from '../index.js'
 
 describe('@molecule/app-safe-link-react', () => {

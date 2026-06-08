@@ -1,4 +1,4 @@
-import type { ChangeEvent, KeyboardEvent } from 'react'
+import type { ChangeEvent, KeyboardEvent, ReactElement } from 'react'
 import { useCallback, useMemo, useRef } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -52,7 +52,7 @@ export function AdjustmentSlider({
   onReset,
   className,
   dataMolId,
-}: AdjustmentSliderProps) {
+}: AdjustmentSliderProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement | null>(null)

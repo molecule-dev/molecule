@@ -57,7 +57,7 @@ export async function readChatStream(
   } finally {
     try {
       reader.releaseLock()
-    } catch {
+    } catch (_error) {
       // Some polyfills don't support releaseLock — safe to swallow.
     }
   }
@@ -102,7 +102,7 @@ function dispatch(data: string, onEvent: (event: EmbeddableChatStreamEvent) => v
       onEvent({ type: 'content', delta: fallback })
       return
     }
-  } catch {
+  } catch (_error) {
     // Not JSON — pass through as raw text.
     onEvent({ type: 'content', delta: data })
   }

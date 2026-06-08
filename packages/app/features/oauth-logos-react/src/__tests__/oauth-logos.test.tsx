@@ -16,7 +16,7 @@ import {
 } from '../index.js'
 
 /** SSR-render an element to HTML — these are pure SVG, so no jsdom needed. */
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 // [component name, component, default aria-label]. Twitter's mark is the
 // post-rebrand "X", but its accessible name still carries "(Twitter)".
@@ -33,45 +33,45 @@ const LOGOS = [
 ] as const
 
 describe('individual provider logos', () => {
-  it.each(LOGOS)('%s renders an <svg> with its default brand aria-label', (_n, Logo, label) => {
-    const markup = html(createElement(Logo))
+  it.each(LOGOS)('%s renders an <svg> with its default brand aria-label', (_n, logo, label) => {
+    const markup = html(createElement(logo))
     expect(markup.startsWith('<svg')).toBe(true)
     expect(markup).toContain(`aria-label="${label}"`)
     expect(markup).toContain('role="img"')
     expect(markup).toContain('viewBox="0 0 24 24"')
   })
 
-  it.each(LOGOS)('%s defaults to a 20px square', (_n, Logo) => {
-    const markup = html(createElement(Logo))
+  it.each(LOGOS)('%s defaults to a 20px square', (_n, logo) => {
+    const markup = html(createElement(logo))
     expect(markup).toContain('width="20"')
     expect(markup).toContain('height="20"')
   })
 
-  it.each(LOGOS)('%s honours an explicit size', (_n, Logo) => {
-    const markup = html(createElement(Logo, { size: 32 }))
+  it.each(LOGOS)('%s honours an explicit size', (_n, logo) => {
+    const markup = html(createElement(logo, { size: 32 }))
     expect(markup).toContain('width="32"')
     expect(markup).toContain('height="32"')
   })
 
-  it.each(LOGOS)('%s renders aria-hidden (no role/label) when ariaLabel is ""', (_n, Logo) => {
-    const markup = html(createElement(Logo, { ariaLabel: '' }))
+  it.each(LOGOS)('%s renders aria-hidden (no role/label) when ariaLabel is ""', (_n, logo) => {
+    const markup = html(createElement(logo, { ariaLabel: '' }))
     expect(markup).toContain('aria-hidden="true"')
     expect(markup).not.toContain('role="img"')
     expect(markup).not.toContain('aria-label=')
   })
 
-  it.each(LOGOS)('%s renders a <title> element when title is set', (_n, Logo) => {
-    const markup = html(createElement(Logo, { title: 'Sign in' }))
+  it.each(LOGOS)('%s renders a <title> element when title is set', (_n, logo) => {
+    const markup = html(createElement(logo, { title: 'Sign in' }))
     expect(markup).toContain('<title>Sign in</title>')
   })
 
-  it.each(LOGOS)('%s forwards className to the <svg>', (_n, Logo) => {
-    const markup = html(createElement(Logo, { className: 'logo-cls' }))
+  it.each(LOGOS)('%s forwards className to the <svg>', (_n, logo) => {
+    const markup = html(createElement(logo, { className: 'logo-cls' }))
     expect(markup).toContain('class="logo-cls"')
   })
 
-  it.each(LOGOS)('%s emits drawable geometry (<path> or <rect>)', (_n, Logo) => {
-    const markup = html(createElement(Logo))
+  it.each(LOGOS)('%s emits drawable geometry (<path> or <rect>)', (_n, logo) => {
+    const markup = html(createElement(logo))
     // 8 marks use <path>; Microsoft's mark is 4 colored <rect> squares.
     expect(/<(path|rect)\b/.test(markup)).toBe(true)
   })

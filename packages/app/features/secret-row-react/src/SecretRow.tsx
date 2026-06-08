@@ -1,13 +1,11 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useCallback, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** Data model for a single secret/credential entry in a vault UI. */
 export interface SecretRowData {
   id: string
   key: string
@@ -51,7 +49,7 @@ export function SecretRow({
   onDelete,
   maskChar = '•',
   className,
-}: SecretRowProps) {
+}: SecretRowProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [revealed, setRevealed] = useState(false)

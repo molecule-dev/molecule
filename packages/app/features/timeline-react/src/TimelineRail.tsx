@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -19,7 +19,11 @@ interface TimelineRailProps {
  * @param root0.connector
  * @param root0.className
  */
-export function TimelineRail({ marker, connector = true, className }: TimelineRailProps) {
+export function TimelineRail({
+  marker,
+  connector = true,
+  className,
+}: TimelineRailProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.flex({ direction: 'col', align: 'center' }), cm.shrink0, className)}>

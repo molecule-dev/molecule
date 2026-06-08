@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -20,7 +20,11 @@ interface SectionDividerProps {
  * @param root0.align
  * @param root0.className
  */
-export function SectionDivider({ children, align = 'center', className }: SectionDividerProps) {
+export function SectionDivider({
+  children,
+  align = 'center',
+  className,
+}: SectionDividerProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

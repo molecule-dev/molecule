@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 
 import type { NavItem } from './types.js'
@@ -25,7 +27,7 @@ export function AppShellBottomNav({
   activeId,
   onItemClick,
   className,
-}: AppShellBottomNavProps) {
+}: AppShellBottomNavProps): JSX.Element {
   const cm = getClassMap()
   return (
     <nav aria-label="Bottom" className={cm.cn(cm.flex({ align: 'stretch' }), className)}>

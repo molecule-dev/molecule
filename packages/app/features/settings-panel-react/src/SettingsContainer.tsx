@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo } from 'react'
+import { type ReactElement, type ReactNode, useMemo } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -16,7 +16,7 @@ export function SettingsContainer({
 }: {
   onClose: () => void
   children: ReactNode
-}) {
+}): ReactElement {
   const cm = getClassMap()
   const value = useMemo(() => ({ onClose }), [onClose])
   return (

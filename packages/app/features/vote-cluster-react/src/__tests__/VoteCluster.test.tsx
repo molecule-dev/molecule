@@ -7,9 +7,8 @@
 
 // @vitest-environment jsdom
 
-import { useState } from 'react'
-
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import React, { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -43,7 +42,11 @@ afterEach(() => {
 })
 
 /** Helper that grabs the up/down/score elements via stable `data-vote` hooks. */
-function getParts(container: HTMLElement) {
+function getParts(container: HTMLElement): {
+  up: HTMLButtonElement
+  down: HTMLButtonElement
+  score: HTMLSpanElement
+} {
   return {
     up: container.querySelector('[data-vote="up"]') as HTMLButtonElement,
     down: container.querySelector('[data-vote="down"]') as HTMLButtonElement,
@@ -178,7 +181,8 @@ describe('<VoteCluster>', () => {
     it('toggles via the parent state machine — 1 → 0 → -1', () => {
       const calls: VoteValue[] = []
 
-      function Host() {
+      /** Controlled host component that threads its own state through `myVote`. */
+      function Host(): React.JSX.Element {
         const [vote, setVote] = useState<VoteValue>(0)
         return (
           <VoteCluster
@@ -193,7 +197,11 @@ describe('<VoteCluster>', () => {
       }
 
       const { container } = render(<Host />)
-      const parts = () => getParts(container)
+      const parts = (): {
+        up: HTMLButtonElement
+        down: HTMLButtonElement
+        score: HTMLSpanElement
+      } => getParts(container)
       fireEvent.click(parts().up) // 0 → 1
       fireEvent.click(parts().up) // 1 → 0
       fireEvent.click(parts().down) // 0 → -1

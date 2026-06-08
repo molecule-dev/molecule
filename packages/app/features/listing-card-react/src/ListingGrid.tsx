@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -20,7 +20,12 @@ interface ListingGridProps {
  * @param root0.gap
  * @param root0.className
  */
-export function ListingGrid({ children, columns = 3, gap = 'md', className }: ListingGridProps) {
+export function ListingGrid({
+  children,
+  columns = 3,
+  gap = 'md',
+  className,
+}: ListingGridProps): JSX.Element {
   const cm = getClassMap()
   return <div className={cm.cn(cm.grid({ cols: columns, gap }), className)}>{children}</div>
 }

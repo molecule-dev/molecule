@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { DiffViewer } = await import('../DiffViewer.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const before = 'line one\nline two\nline three'
 const after = 'line one\nline TWO\nline three'

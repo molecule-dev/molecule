@@ -38,7 +38,7 @@ export function NotificationWrapper({
   variant = 'error',
   placement = 'top-right',
   className,
-}: NotificationWrapperProps) {
+}: NotificationWrapperProps): React.JSX.Element {
   const cm = getClassMap()
   const style: React.CSSProperties = { position: 'absolute' }
   if (placement.includes('top')) style.top = -4

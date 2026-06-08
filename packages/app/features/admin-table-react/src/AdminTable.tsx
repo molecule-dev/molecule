@@ -6,8 +6,9 @@
  * @module
  */
 
+import { type JSX, type ReactNode, useState } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import { type ReactNode, useState } from 'react'
 
 import { AdminTableRowActions } from './AdminTableRowActions.js'
 import type { AdminTableColumn, AdminTableRowAction } from './types.js'
@@ -50,11 +51,11 @@ export function AdminTable<T>({
   footer,
   className,
   tbodyDataMolId,
-}: AdminTableProps<T>) {
+}: AdminTableProps<T>): JSX.Element {
   const cm = getClassMap()
   const [internalSelected, setInternalSelected] = useState<string[]>([])
   const selected = onSelectedIdsChange ? selectedIds : internalSelected
-  const setSelected = (next: string[]) => {
+  const setSelected = (next: string[]): void => {
     if (onSelectedIdsChange) onSelectedIdsChange(next)
     else setInternalSelected(next)
   }

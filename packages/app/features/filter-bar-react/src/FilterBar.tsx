@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -49,16 +49,16 @@ export function FilterBar({
   actions,
   showLabels = false,
   className,
-}: FilterBarProps) {
+}: FilterBarProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
 
   /**
-   *
+   * Updates a single field in the filter values and notifies the parent.
    * @param id
    * @param v
    */
-  function set(id: string, v: FilterValues[string]) {
+  function set(id: string, v: FilterValues[string]): void {
     onChange({ ...values, [id]: v })
   }
 

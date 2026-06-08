@@ -100,7 +100,7 @@ export function findActiveChapterIndex(chapters: Chapter[], currentTime: number)
  * @param props - Component props.
  * @returns The chapter-list element.
  */
-export function ChapterList(props: ChapterListProps) {
+export function ChapterList(props: ChapterListProps): ReactNode {
   const { chapters, currentTime, onSeek, className, rowTrailing } = props
   const cm = getClassMap()
   const { t } = useTranslation()

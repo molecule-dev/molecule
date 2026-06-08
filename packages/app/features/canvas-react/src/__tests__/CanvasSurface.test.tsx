@@ -21,7 +21,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_tt, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
@@ -34,7 +34,7 @@ function buildStubClassMap(): UIClassMap {
 }
 
 /**
- *
+ * Wraps children with the I18nProvider required by CanvasSurface.
  * @param root0
  * @param root0.children
  */
@@ -78,9 +78,9 @@ describe('<CanvasSurface>', () => {
   it('zooms on wheel and keeps the focal point fixed', () => {
     const onChange = vi.fn<(v: CanvasViewport) => void>()
     /**
-     *
+     * Controlled host component for testing zoom/wheel interactions.
      */
-    function Host() {
+    function Host(): React.ReactElement {
       const [vp, setVp] = useState<CanvasViewport>({ x: 0, y: 0, zoom: 1 })
       return (
         <CanvasSurface
@@ -135,9 +135,9 @@ describe('<CanvasSurface>', () => {
   it('pans on primary-button drag of the empty surface', () => {
     const onChange = vi.fn<(v: CanvasViewport) => void>()
     /**
-     *
+     * Controlled host component for testing pan/drag interactions.
      */
-    function Host() {
+    function Host(): React.ReactElement {
       const [vp, setVp] = useState<CanvasViewport>({ x: 0, y: 0, zoom: 1 })
       return (
         <CanvasSurface

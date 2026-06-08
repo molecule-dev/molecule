@@ -29,7 +29,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { InboxRow } = await import('../InboxRow.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('InboxRow', () => {
   it('renders the sender and subject', () => {

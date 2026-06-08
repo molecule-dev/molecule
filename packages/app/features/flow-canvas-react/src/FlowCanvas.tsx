@@ -1,7 +1,8 @@
-import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
 import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+import { useTranslation } from '@molecule/app-react'
+import { getClassMap } from '@molecule/app-ui'
 
 import {
   addEdge,
@@ -97,7 +98,7 @@ const DEFAULT_VIEWPORT: FlowViewport = { x: 0, y: 0, zoom: 1 }
  * />
  * ```
  */
-export function FlowCanvas(props: FlowCanvasProps) {
+export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 
@@ -222,8 +223,9 @@ export function FlowCanvas(props: FlowCanvasProps) {
     dragRef.current = { id: node.id, pointerId: e.pointerId, lastWorld: world }
     try {
       ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
-    } catch {
-      // ignore — jsdom / very old browsers may not support pointer capture
+    } catch (_error) {
+      // Safe to ignore: setPointerCapture is unsupported in jsdom and very old
+      // browsers; dragging still works, just without implicit pointer capture.
     }
     setSelectionAndNotify({ nodeIds: [node.id], edgeIds: [] })
     onNodeClick?.(node)
@@ -256,8 +258,9 @@ export function FlowCanvas(props: FlowCanvasProps) {
     if (dragRef.current?.pointerId === e.pointerId) {
       try {
         ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
-      } catch {
-        // ignore
+      } catch (_error) {
+        // Safe to ignore: releasePointerCapture may throw in jsdom or if
+        // the pointer was never captured (e.g. drag started outside window).
       }
       dragRef.current = null
     }
@@ -287,8 +290,9 @@ export function FlowCanvas(props: FlowCanvasProps) {
     }
     try {
       rootRef.current.setPointerCapture(e.pointerId)
-    } catch {
-      // ignore
+    } catch (_error) {
+      // Safe to ignore: setPointerCapture is unsupported in jsdom and very old
+      // browsers; panning still works, just without implicit pointer capture.
     }
     setSelectionAndNotify({ nodeIds: [], edgeIds: [] })
   }
@@ -322,8 +326,9 @@ export function FlowCanvas(props: FlowCanvasProps) {
     if (panRef.current?.pointerId === e.pointerId) {
       try {
         rootRef.current?.releasePointerCapture(e.pointerId)
-      } catch {
-        // ignore
+      } catch (_error) {
+        // Safe to ignore: releasePointerCapture may throw in jsdom or if the
+        // pointer was never captured (e.g. pan started outside window).
       }
       panRef.current = null
     }
@@ -380,8 +385,9 @@ export function FlowCanvas(props: FlowCanvasProps) {
     setPendingConnection({ sourceId: node.id, sourceHandle: handle, pointer: world })
     try {
       rootRef.current?.setPointerCapture(e.pointerId)
-    } catch {
-      // ignore
+    } catch (_error) {
+      // Safe to ignore: setPointerCapture is unsupported in jsdom and very old
+      // browsers; connection drawing still works without pointer capture.
     }
   }
 

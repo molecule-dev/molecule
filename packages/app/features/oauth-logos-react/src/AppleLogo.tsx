@@ -1,3 +1,5 @@
+import type React from 'react'
+
 import type { OAuthLogoProps } from './types.js'
 
 const PATH =
@@ -11,7 +13,12 @@ const PATH =
  * @param root0.ariaLabel
  * @param root0.title
  */
-export function AppleLogo({ size = 20, className, ariaLabel = 'Apple', title }: OAuthLogoProps) {
+export function AppleLogo({
+  size = 20,
+  className,
+  ariaLabel = 'Apple',
+  title,
+}: OAuthLogoProps): React.JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

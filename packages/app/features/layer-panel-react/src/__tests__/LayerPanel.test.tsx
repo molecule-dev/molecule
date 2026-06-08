@@ -9,7 +9,7 @@ import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { I18nProvider } from '@molecule/app-react'
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
-import { formatOpacityPercent, Layer, LayerPanel, moveLayer } from '../index.js'
+import { formatOpacityPercent, type Layer, LayerPanel, moveLayer } from '../index.js'
 
 /**
  * Build a UIClassMap stub via Proxy: `cn(...)` joins truthy strings,
@@ -25,9 +25,9 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
-        get(_t, key) {
+        get(_t, key): (() => string) | undefined {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
           return undefined
         },

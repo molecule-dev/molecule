@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { ComparisonRow } = await import('../ComparisonRow.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('ComparisonRow', () => {
   it('renders the label and current value', () => {

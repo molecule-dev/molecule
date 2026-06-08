@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -43,7 +43,12 @@ export function statusOf(i: number, currentIndex: number): StageStatus {
  * />
  * ```
  */
-export function StageTimeline({ stages, currentIndex, dataMolId, className }: StageTimelineProps) {
+export function StageTimeline({
+  stages,
+  currentIndex,
+  dataMolId,
+  className,
+}: StageTimelineProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 
@@ -143,7 +148,7 @@ interface StageDotProps {
  * @param props - Internal sub-props.
  * @returns The rendered stage marker + label.
  */
-function StageDot({ stage, status, index, total, t }: StageDotProps) {
+function StageDot({ stage, status, index, total, t }: StageDotProps): JSX.Element {
   const cm = getClassMap()
   const dotSize = 28
   const isCompleted = status === 'completed'

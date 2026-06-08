@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -48,7 +48,7 @@ export function HeroSection({
   align = 'start',
   className,
   dataMolId,
-}: HeroSectionProps) {
+}: HeroSectionProps): JSX.Element {
   const cm = getClassMap()
   return (
     <section

@@ -1,5 +1,6 @@
 import type {
   CSSProperties,
+  JSX,
   KeyboardEvent as ReactKeyboardEvent,
   PointerEvent as ReactPointerEvent,
 } from 'react'
@@ -182,7 +183,7 @@ export function formatFrameNumber(frame: number): string {
  * @param props - Component props.
  * @returns The scrubber element.
  */
-export function VideoScrubber(props: VideoScrubberProps) {
+export function VideoScrubber(props: VideoScrubberProps): JSX.Element {
   const {
     duration,
     currentTime,
@@ -264,13 +265,13 @@ export function VideoScrubber(props: VideoScrubberProps) {
    *
    * @param event - React pointer event from the strip body.
    */
-  function onStripPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+  function onStripPointerDown(event: ReactPointerEvent<HTMLDivElement>): void {
     if (event.button !== undefined && event.button !== 0) return
     if (!onSeek) return
     seekDragRef.current = { pointerId: event.pointerId }
     try {
       event.currentTarget.setPointerCapture(event.pointerId)
-    } catch {
+    } catch (_error) {
       // jsdom + some older browsers may throw — ignore.
     }
     onSeek(clientXToTime(event.clientX))
@@ -282,7 +283,7 @@ export function VideoScrubber(props: VideoScrubberProps) {
    *
    * @param event - React pointer event from the strip body.
    */
-  function onStripPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+  function onStripPointerMove(event: ReactPointerEvent<HTMLDivElement>): void {
     const drag = seekDragRef.current
     if (!drag || drag.pointerId !== event.pointerId) return
     onSeek?.(clientXToTime(event.clientX))
@@ -293,14 +294,14 @@ export function VideoScrubber(props: VideoScrubberProps) {
    *
    * @param event - React pointer event from the strip body.
    */
-  function onStripPointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+  function onStripPointerUp(event: ReactPointerEvent<HTMLDivElement>): void {
     const drag = seekDragRef.current
     if (!drag || drag.pointerId !== event.pointerId) return
     seekDragRef.current = null
     try {
       event.currentTarget.releasePointerCapture(event.pointerId)
-    } catch {
-      // ignore
+    } catch (_error) {
+      // releasePointerCapture may throw if the pointer was never captured — safe to ignore.
     }
   }
 
@@ -311,7 +312,7 @@ export function VideoScrubber(props: VideoScrubberProps) {
    *
    * @param event - React keyboard event.
    */
-  function onKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+  function onKeyDown(event: ReactKeyboardEvent<HTMLDivElement>): void {
     if (!onSeek) return
     const { key, shiftKey } = event
     let next: number | null = null

@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { useState } from 'react'
 
 import { usePush, useTranslation } from '@molecule/app-react'
@@ -8,13 +9,13 @@ import { Flex, Switch } from '@molecule/app-ui-react'
  * Push-notification toggle section. Requests browser permission +
  * registers/unregisters the push subscription via `@molecule/app-push`.
  */
-export function NotificationsSection() {
+export function NotificationsSection(): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const { permission, requestPermission, register, unregister } = usePush()
   const [enabled, setEnabled] = useState(permission === 'granted')
 
-  const handleToggle = async (next: boolean) => {
+  const handleToggle = async (next: boolean): Promise<void> => {
     try {
       if (next) {
         await requestPermission()
@@ -24,8 +25,9 @@ export function NotificationsSection() {
         await unregister()
         setEnabled(false)
       }
-    } catch {
-      // Permission may be denied
+    } catch (_error) {
+      // Safe to ignore: browser permission denied or service worker unavailable;
+      // the switch simply stays in its previous visual state — no data loss, no broken state.
     }
   }
 

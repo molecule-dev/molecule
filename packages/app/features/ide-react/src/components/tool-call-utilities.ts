@@ -59,7 +59,8 @@ export function toolLabel(name: string, input: unknown): string {
     case 'web_fetch': {
       try {
         return `Fetch ${new URL(url ?? '').hostname}`
-      } catch {
+      } catch (_error) {
+        // URL parsing failed (malformed/empty URL) — fall back to raw URL string, safe to ignore.
         return `Fetch ${url ?? ''}`
       }
     }

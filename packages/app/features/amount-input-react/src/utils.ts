@@ -7,7 +7,7 @@
  */
 
 /**
- *
+ * Formats a numeric amount as a localized currency string.
  * @param amount
  * @param currency
  * @param locale

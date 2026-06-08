@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -31,7 +31,7 @@ export function SettingsLayout({
   header,
   className,
   dataMolId,
-}: SettingsLayoutProps) {
+}: SettingsLayoutProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div data-mol-id={dataMolId} className={cm.cn(cm.stack(4), className)}>

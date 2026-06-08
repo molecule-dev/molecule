@@ -9,10 +9,13 @@ import type { JSX } from 'react'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import { getLogger } from '@molecule/app-logger'
 import { useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { SearchPanelProps, SearchResponse, SearchResult } from '../types.js'
+
+const logger = getLogger('search')
 
 /**
  * Extract the filename from a full path for the file icon.
@@ -357,8 +360,9 @@ export function SearchPanel({
         setTotalCount(res.data.totalCount)
         setTruncated(res.data.truncated)
         setSearched(true)
-      } catch {
+      } catch (error) {
         if (!controller.signal.aborted) {
+          logger.warn('Search request failed', { error })
           setResults([])
           setTotalCount(0)
           setSearched(true)
@@ -399,7 +403,7 @@ export function SearchPanel({
         })
         // Re-search to update results
         await doSearch(query)
-      } catch {
+      } catch (_error) {
         // Silently fail — search will show current state
       } finally {
         setReplacing(false)

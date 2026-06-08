@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -26,7 +26,12 @@ interface ActivityFeedProps {
  * @param root0.footer
  * @param root0.className
  */
-export function ActivityFeed({ items, emptyState, footer, className }: ActivityFeedProps) {
+export function ActivityFeed({
+  items,
+  emptyState,
+  footer,
+  className,
+}: ActivityFeedProps): JSX.Element {
   const cm = getClassMap()
   if (items.length === 0 && emptyState) return <>{emptyState}</>
   return (

@@ -37,7 +37,7 @@ export function Countdown({
   render,
   expired,
   className,
-}: CountdownProps) {
+}: CountdownProps): ReactNode {
   const cm = getClassMap()
   const state = useCountdown(target)
   if (state.expired && expired !== undefined) return <>{expired}</>
@@ -45,7 +45,7 @@ export function Countdown({
   const { days, hours, minutes, seconds } = state
   let display: string
   if (format === 'colon') {
-    const pad = (n: number) => String(n).padStart(2, '0')
+    const pad = (n: number): string => String(n).padStart(2, '0')
     display = `${pad(days)}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
   } else if (format === 'long') {
     const parts: string[] = []

@@ -25,7 +25,7 @@ vi.mock('@molecule/app-ui', () => ({
 const { AuditLogRow } = await import('../AuditLogRow.js')
 import type { AuditLogEntry } from '../AuditLogRow.js'
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const entry = (over: Partial<AuditLogEntry> = {}): AuditLogEntry => ({
   id: '1',

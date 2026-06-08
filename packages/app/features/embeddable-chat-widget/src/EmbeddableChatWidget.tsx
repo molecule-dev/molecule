@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { type JSX, useState } from 'react'
 
 import { EmbeddableChatLauncher } from './EmbeddableChatLauncher.js'
 import { EmbeddableChatPanel } from './EmbeddableChatPanel.js'
@@ -25,7 +25,10 @@ interface EmbeddableChatWidgetProps {
  * @param root0.config Widget configuration.
  * @param root0.defaultOpen Whether the panel starts expanded.
  */
-export function EmbeddableChatWidget({ config, defaultOpen = false }: EmbeddableChatWidgetProps) {
+export function EmbeddableChatWidget({
+  config,
+  defaultOpen = false,
+}: EmbeddableChatWidgetProps): JSX.Element {
   const [open, setOpen] = useState(defaultOpen)
   const position = config.position ?? 'bottom-right'
 

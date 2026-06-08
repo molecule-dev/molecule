@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { type JSX, useEffect, useState } from 'react'
 
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -28,7 +28,7 @@ interface Tier {
  * checkout URL; paid users see a Cancel button that POSTs to
  * `/api/billing/cancel`.
  */
-export function TiersUpgradeSection() {
+export function TiersUpgradeSection(): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const http = useHttpClient()
@@ -80,7 +80,7 @@ export function TiersUpgradeSection() {
     }
   }, [http])
 
-  const handleStartCheckout = async (stripePriceId: string) => {
+  const handleStartCheckout = async (stripePriceId: string): Promise<void> => {
     setUpgradeError('')
     setUpgradeLoading(stripePriceId)
     try {
@@ -115,7 +115,7 @@ export function TiersUpgradeSection() {
     }
   }
 
-  const handleCancelSubscription = async () => {
+  const handleCancelSubscription = async (): Promise<void> => {
     if (
       !window.confirm(
         t('settings.billing.cancelConfirm', undefined, {

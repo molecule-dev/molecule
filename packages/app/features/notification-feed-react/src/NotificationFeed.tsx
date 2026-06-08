@@ -1,9 +1,13 @@
+import type { JSX } from 'react'
 import { Link } from 'react-router-dom'
 
 import { getClassMap } from '@molecule/app-ui'
 
 import { fmtRelativeShort } from './fmtRelativeShort.js'
 
+/**
+ * A single item rendered inside a NotificationFeed list.
+ */
 export interface FeedItem {
   /** Stable identifier (used as React key). */
   id: string
@@ -21,6 +25,9 @@ export interface FeedItem {
   unread?: boolean
 }
 
+/**
+ * Props for the NotificationFeed component.
+ */
 export interface NotificationFeedProps {
   /** Items to render, top to bottom. */
   items: ReadonlyArray<FeedItem>
@@ -51,15 +58,11 @@ export function NotificationFeed({
   ariaLabel,
   className,
   dataMolId,
-}: NotificationFeedProps) {
+}: NotificationFeedProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <ul
-      className={cm.cn('space-y-2', className)}
-      aria-label={ariaLabel}
-      data-mol-id={dataMolId}
-    >
-      {items.map(item => {
+    <ul className={cm.cn('space-y-2', className)} aria-label={ariaLabel} data-mol-id={dataMolId}>
+      {items.map((item) => {
         const content = (
           <div
             className={cm.cn(
@@ -69,12 +72,24 @@ export function NotificationFeed({
               item.unread ? 'border-l-4 border-primary' : '',
             )}
           >
-            <div className={cm.cn(cm.shrink0, cm.flex({ align: 'center', justify: 'center' }), cm.roundedFull, cm.textPrimary, 'h-10 w-10 bg-primary-container')}>
-              <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
+            <div
+              className={cm.cn(
+                cm.shrink0,
+                cm.flex({ align: 'center', justify: 'center' }),
+                cm.roundedFull,
+                cm.textPrimary,
+                'h-10 w-10 bg-primary-container',
+              )}
+            >
+              <span className="material-symbols-outlined" aria-hidden="true">
+                {item.icon}
+              </span>
             </div>
             <div className={cm.cn(cm.flex1, 'min-w-0')}>
               <div className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
-                <h2 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>{item.title}</h2>
+                <h2 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
+                  {item.title}
+                </h2>
                 <span className={cm.cn(cm.textSize('xs'), cm.textMuted, 'whitespace-nowrap')}>
                   {fmtRelativeShort(item.createdAt)}
                 </span>
@@ -85,7 +100,13 @@ export function NotificationFeed({
         )
         return (
           <li key={item.id}>
-            {item.href ? <Link to={item.href} className="block">{content}</Link> : content}
+            {item.href ? (
+              <Link to={item.href} className="block">
+                {content}
+              </Link>
+            ) : (
+              content
+            )}
           </li>
         )
       })}

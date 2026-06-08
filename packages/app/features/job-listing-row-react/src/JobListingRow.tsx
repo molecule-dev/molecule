@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -54,7 +54,7 @@ export function JobListingRow({
   tags,
   onClick,
   className,
-}: JobListingRowProps) {
+}: JobListingRowProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

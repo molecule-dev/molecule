@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { DetailPageLayout } = await import('../DetailPageLayout.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('DetailPageLayout', () => {
   it('renders the main content', () => {

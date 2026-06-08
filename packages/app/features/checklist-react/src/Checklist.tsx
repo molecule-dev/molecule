@@ -1,12 +1,10 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Checkbox } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** A single item in the checklist, tracking its label, description, and completion state. */
 export interface ChecklistItem {
   id: string
   label: ReactNode
@@ -46,7 +44,7 @@ export function Checklist({
   showProgress = true,
   title,
   className,
-}: ChecklistProps) {
+}: ChecklistProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const total = items.length

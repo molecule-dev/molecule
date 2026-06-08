@@ -68,7 +68,12 @@ export function ExifPanel(props: ExifPanelProps): ReactElement {
    * @param molId - Stable `data-mol-id` token for the row.
    * @returns The row element, or `null` when there is no value.
    */
-  const renderRow = (key: string, label: string, value: ReactNode, molId: string) => {
+  const renderRow = (
+    key: string,
+    label: string,
+    value: ReactNode,
+    molId: string,
+  ): ReactElement | null => {
     if (value === null || value === undefined || value === '') return null
     return (
       <div

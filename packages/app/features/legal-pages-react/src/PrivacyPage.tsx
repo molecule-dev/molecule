@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import type { SpacingScale } from '@molecule/app-ui'
@@ -40,7 +40,7 @@ export function PrivacyPage({
   introDefault = 'This is the Privacy page. Replace this placeholder with real content.',
   children,
   stackGap,
-}: PrivacyPageProps) {
+}: PrivacyPageProps): JSX.Element {
   const { t } = useTranslation()
   return (
     <LegalPageLayout

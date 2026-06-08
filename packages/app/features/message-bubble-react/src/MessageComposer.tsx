@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -41,15 +41,13 @@ export function MessageComposer({
   trailing,
   disabled,
   className,
-}: MessageComposerProps) {
+}: MessageComposerProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [value, setValue] = useState('')
 
-  /**
-   *
-   */
-  function submit() {
+  /** Trims the current value and calls onSubmit, then resets the textarea. */
+  function submit(): void {
     const v = value.trim()
     if (!v) return
     onSubmit(v)

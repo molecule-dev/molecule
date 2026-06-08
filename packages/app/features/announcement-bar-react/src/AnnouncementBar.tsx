@@ -1,12 +1,10 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Semantic kind that controls the default styling of an AnnouncementBar. */
 export type AnnouncementKind = 'info' | 'success' | 'warning' | 'error' | 'promo'
 
 interface AnnouncementBarProps {
@@ -56,17 +54,15 @@ export function AnnouncementBar({
   visible,
   className,
   dataMolId,
-}: AnnouncementBarProps) {
+}: AnnouncementBarProps): JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [internalVisible, setInternalVisible] = useState(true)
   const isVisible = visible ?? internalVisible
   if (!isVisible) return null
 
-  /**
-   *
-   */
-  function dismiss() {
+  /** Hides the bar (internal state) and fires the onDismiss callback. */
+  function dismiss(): void {
     if (visible === undefined) setInternalVisible(false)
     onDismiss?.()
   }

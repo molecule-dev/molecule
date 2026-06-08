@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 
 import { formatCurrency, formatCurrencyCompact } from './formatCurrency.js'
@@ -57,7 +59,7 @@ export function CurrencyDisplay({
   showSavings = true,
   savingsLabel,
   className,
-}: CurrencyDisplayProps) {
+}: CurrencyDisplayProps): JSX.Element {
   const cm = getClassMap()
   const fmt = compact ? formatCurrencyCompact : formatCurrency
   const discounted = originalAmount !== undefined && originalAmount > amount

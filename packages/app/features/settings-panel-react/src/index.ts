@@ -43,14 +43,14 @@
  * @module
  */
 
-export * from './context.js'
-export * from './SettingsContainer.js'
 export * from './AccountSection.js'
-export * from './AuthSection.js'
-export * from './NotificationsSection.js'
-export * from './BillingSection.js'
-export * from './DevicesSection.js'
-export * from './ThisDeviceSection.js'
-export * from './LogOutDeleteSection.js'
 export * from './AppearanceSection.js'
+export * from './AuthSection.js'
+export * from './BillingSection.js'
+export * from './context.js'
+export * from './DevicesSection.js'
+export * from './LogOutDeleteSection.js'
+export * from './NotificationsSection.js'
+export * from './SettingsContainer.js'
+export * from './ThisDeviceSection.js'
 export * from './TiersUpgradeSection.js'

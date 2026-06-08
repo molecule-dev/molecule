@@ -31,7 +31,7 @@ const { TableEmpty } = await import('../TableEmpty.js')
 const { TableFooter } = await import('../TableFooter.js')
 const { TableToolbar } = await import('../TableToolbar.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 interface Row {
   id: string
@@ -46,7 +46,7 @@ const rows: Row[] = [
   { id: '1', name: 'alpha' },
   { id: '2', name: 'beta' },
 ]
-const rowKey = (r: Row) => r.id
+const rowKey = (r: Row): string => r.id
 
 describe('DataTableCard', () => {
   it('renders the title and titleAction in the header row', () => {

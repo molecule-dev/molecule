@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { TrendChip } = await import('../TrendChip.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('TrendChip', () => {
   it('renders an up arrow + green for a positive delta', () => {

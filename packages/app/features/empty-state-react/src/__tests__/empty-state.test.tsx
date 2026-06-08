@@ -28,7 +28,7 @@ vi.mock('@molecule/app-ui', () => ({
 const { CtaCard } = await import('../CtaCard.js')
 const { EmptyState } = await import('../EmptyState.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('EmptyState', () => {
   it('renders the title inside an <h3>', () => {

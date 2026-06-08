@@ -1,5 +1,6 @@
 import type {
   CSSProperties,
+  JSX,
   KeyboardEvent as ReactKeyboardEvent,
   PointerEvent as ReactPointerEvent,
 } from 'react'
@@ -93,7 +94,7 @@ export interface MindMapCanvasProps {
  * <MindMapCanvas root={root} onChange={setRoot} layout="radial" />
  * ```
  */
-export function MindMapCanvas(props: MindMapCanvasProps) {
+export function MindMapCanvas(props: MindMapCanvasProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 
@@ -200,17 +201,6 @@ export function MindMapCanvas(props: MindMapCanvasProps) {
       e.preventDefault()
       cancelEdit()
     }
-  }
-
-  /**
-   * Find a node by id from the visible-nodes set (lookup is O(1) via
-   * the layout map, but we still need the node for callbacks).
-   *
-   * @param id - Node id.
-   * @returns The node, or `undefined` if no visible node has that id.
-   */
-  function findVisible(id: string): MindMapNode | undefined {
-    return visibleNodes.find((n) => n.id === id)
   }
 
   // Compute edge endpoints by reading positions; positions are top-left,

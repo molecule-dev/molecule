@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -50,7 +50,7 @@ export function HelpButton({
   position = 'bottom-right',
   hasNotification,
   className,
-}: HelpButtonProps) {
+}: HelpButtonProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [hovered, setHovered] = useState(false)

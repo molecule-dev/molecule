@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { TickerRow } = await import('../TickerRow.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('TickerRow', () => {
   it('renders the symbol, name, and price', () => {

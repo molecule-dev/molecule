@@ -19,7 +19,7 @@ export function DiscordLogo({
   mode = 'brand',
   ariaLabel = 'Discord',
   title,
-}: OAuthLogoProps) {
+}: OAuthLogoProps): React.JSX.Element {
   const fill = mode === 'mono' ? 'currentColor' : '#5865F2'
   return (
     <svg

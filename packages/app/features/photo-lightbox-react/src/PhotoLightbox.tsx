@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -6,7 +6,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
 /**
- *
+ * A single photo entry for the lightbox, with src, optional alt text, and optional caption.
  */
 export interface LightboxPhoto {
   src: string
@@ -43,7 +43,7 @@ export function PhotoLightbox({
   onClose,
   initialIndex = 0,
   onIndexChange,
-}: PhotoLightboxProps) {
+}: PhotoLightboxProps): JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [index, setIndex] = useState(initialIndex)
@@ -65,10 +65,10 @@ export function PhotoLightbox({
   useEffect(() => {
     if (!open) return
     /**
-     *
+     * Handles keyboard events for lightbox navigation and closing.
      * @param e
      */
-    function onKey(e: KeyboardEvent) {
+    function onKey(e: KeyboardEvent): void {
       if (e.key === 'Escape') onClose()
       else if (e.key === 'ArrowLeft') setIdx(index - 1)
       else if (e.key === 'ArrowRight') setIdx(index + 1)

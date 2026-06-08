@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** A single step in an order or shipment progress timeline. */
 export interface OrderMilestone {
   id: string
   /** Display label ("Placed", "Shipped", "Delivered"). */
@@ -46,7 +44,7 @@ export function OrderTimeline({
   eta,
   orientation = 'horizontal',
   className,
-}: OrderTimelineProps) {
+}: OrderTimelineProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.stack(3), className)}>

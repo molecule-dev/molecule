@@ -5,8 +5,9 @@
  * @module
  */
 
+import type { JSX, ReactNode } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
 
 interface NodeEditorRadioOption<T extends string> {
   value: T
@@ -24,7 +25,7 @@ export function NodeEditorRadioGroup<T extends string>({
   options,
   value,
   onChange,
-}: NodeEditorRadioGroupProps<T>) {
+}: NodeEditorRadioGroupProps<T>): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.grid({ cols: 1, gap: 2 }))}>

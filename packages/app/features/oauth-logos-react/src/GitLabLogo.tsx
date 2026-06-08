@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import type { OAuthLogoProps } from './types.js'
 
 /**
@@ -16,7 +18,7 @@ export function GitLabLogo({
   mode = 'brand',
   ariaLabel = 'GitLab',
   title,
-}: OAuthLogoProps) {
+}: OAuthLogoProps): JSX.Element {
   const isMono = mode === 'mono'
   return (
     <svg

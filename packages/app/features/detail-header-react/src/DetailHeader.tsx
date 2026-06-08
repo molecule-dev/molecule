@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -54,7 +54,7 @@ export function DetailHeader({
   sticky,
   className,
   dataMolId,
-}: DetailHeaderProps) {
+}: DetailHeaderProps): JSX.Element {
   const cm = getClassMap()
   return (
     <header

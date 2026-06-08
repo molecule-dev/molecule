@@ -2,6 +2,7 @@ import type {
   CSSProperties,
   MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
+  ReactElement,
 } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -259,7 +260,7 @@ interface DragState {
  * @param props - Component props.
  * @returns The piano-roll element.
  */
-export function PianoRoll(props: PianoRollProps) {
+export function PianoRoll(props: PianoRollProps): ReactElement {
   const {
     notes,
     pixelsPerBeat = 80,
@@ -306,7 +307,7 @@ export function PianoRoll(props: PianoRollProps) {
   const keysLabel = t('pianoRoll.aria.keys', {}, { defaultValue: 'Piano keys' })
   const gridLabel = t('pianoRoll.aria.grid', {}, { defaultValue: 'Note grid' })
   const resizeLabel = t('pianoRoll.aria.resize', {}, { defaultValue: 'Resize note' })
-  const noteAria = (n: MidiNote) =>
+  const noteAria = (n: MidiNote): string =>
     t(
       'pianoRoll.aria.note',
       {
@@ -325,7 +326,7 @@ export function PianoRoll(props: PianoRollProps) {
      *
      * @param event - Native pointer event.
      */
-    function onMove(event: PointerEvent) {
+    function onMove(event: PointerEvent): void {
       const drag = dragRef.current
       if (!drag || event.pointerId !== drag.pointerId) return
       const dx = event.clientX - drag.startX
@@ -362,7 +363,7 @@ export function PianoRoll(props: PianoRollProps) {
      *
      * @param event - Native pointer event.
      */
-    function onUp(event: PointerEvent) {
+    function onUp(event: PointerEvent): void {
       const drag = dragRef.current
       if (!drag || event.pointerId !== drag.pointerId) return
       dragRef.current = null
@@ -398,7 +399,7 @@ export function PianoRoll(props: PianoRollProps) {
     event: ReactPointerEvent<HTMLDivElement>,
     note: MidiNote,
     mode: DragState['mode'],
-  ) {
+  ): void {
     if (event.button !== undefined && event.button !== 0) return
     event.stopPropagation()
     dragRef.current = {
@@ -420,7 +421,7 @@ export function PianoRoll(props: PianoRollProps) {
    *
    * @param event - React click event from the grid surface.
    */
-  function handleGridClick(event: ReactMouseEvent<HTMLDivElement>) {
+  function handleGridClick(event: ReactMouseEvent<HTMLDivElement>): void {
     // Suppress synthetic clicks fired at the end of a drag.
     if (dragRef.current && dragRef.current.moved) return
     if (!onNoteAdd) return
@@ -449,7 +450,7 @@ export function PianoRoll(props: PianoRollProps) {
    * @param event - React mouse event.
    * @param note - The note to delete.
    */
-  function handleNoteContextMenu(event: ReactMouseEvent<HTMLDivElement>, note: MidiNote) {
+  function handleNoteContextMenu(event: ReactMouseEvent<HTMLDivElement>, note: MidiNote): void {
     if (!onNoteDelete) return
     event.preventDefault()
     event.stopPropagation()

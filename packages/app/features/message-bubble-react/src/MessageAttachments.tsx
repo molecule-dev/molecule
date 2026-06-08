@@ -1,8 +1,6 @@
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Describes a single file attachment rendered inside a message bubble. */
 export interface MessageAttachment {
   id: string
   name: string
@@ -27,7 +25,10 @@ interface MessageAttachmentsProps {
  * @param root0.attachments
  * @param root0.className
  */
-export function MessageAttachments({ attachments, className }: MessageAttachmentsProps) {
+export function MessageAttachments({
+  attachments,
+  className,
+}: MessageAttachmentsProps): React.JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.stack(1 as const), className)}>

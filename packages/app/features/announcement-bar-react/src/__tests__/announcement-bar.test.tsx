@@ -31,7 +31,7 @@ vi.mock('@molecule/app-react', () => ({
 
 const { AnnouncementBar } = await import('../AnnouncementBar.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('AnnouncementBar', () => {
   it('renders the message with role="status" and the kind data attribute', () => {

@@ -42,7 +42,7 @@ export function InlineEdit({
   renderRead,
   placeholder,
   className,
-}: InlineEditProps) {
+}: InlineEditProps): ReactNode {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [editing, setEditing] = useState(false)
@@ -58,9 +58,9 @@ export function InlineEdit({
   }, [value])
 
   /**
-   *
+   * Submits the current draft value by calling onSubmit, then closes the editor.
    */
-  async function commit() {
+  async function commit(): Promise<void> {
     if (saving) return
     setSaving(true)
     try {
@@ -71,17 +71,17 @@ export function InlineEdit({
     }
   }
   /**
-   *
+   * Cancels editing, restoring the draft to the current committed value.
    */
-  function cancel() {
+  function cancel(): void {
     setDraft(value)
     setEditing(false)
   }
   /**
-   *
+   * Handles keyboard events: Escape cancels, Enter (or Cmd/Ctrl+Enter for textarea) submits.
    * @param e
    */
-  function onKey(e: KeyboardEvent) {
+  function onKey(e: KeyboardEvent): void {
     if (e.key === 'Escape') {
       e.preventDefault()
       cancel()

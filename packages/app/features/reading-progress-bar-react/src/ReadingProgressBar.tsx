@@ -1,4 +1,4 @@
-import type { CSSProperties, RefObject } from 'react'
+import type { CSSProperties, ReactElement, RefObject } from 'react'
 import { useEffect, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -54,7 +54,7 @@ export function computeWindowProgress(): number {
 }
 
 /**
- *
+ * Props for the {@link ReadingProgressBar} component.
  */
 export interface ReadingProgressBarProps {
   /**
@@ -115,7 +115,7 @@ export function ReadingProgressBar({
   color,
   className,
   dataMolId,
-}: ReadingProgressBarProps) {
+}: ReadingProgressBarProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [progress, setProgress] = useState<number>(0)
@@ -131,7 +131,7 @@ export function ReadingProgressBar({
      * flag (rather than checking `rafId`) so the guard works correctly
      * even when the rAF callback runs synchronously (e.g. under tests).
      */
-    function schedule() {
+    function schedule(): void {
       if (pending) return
       pending = true
       rafId = requestAnimationFrame(() => {

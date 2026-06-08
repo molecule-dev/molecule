@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -19,7 +19,7 @@ interface TableEmptyProps {
  * @param root0.children
  * @param root0.className
  */
-export function TableEmpty({ colSpan, children, className }: TableEmptyProps) {
+export function TableEmpty({ colSpan, children, className }: TableEmptyProps): JSX.Element {
   const cm = getClassMap()
   return (
     <tr>

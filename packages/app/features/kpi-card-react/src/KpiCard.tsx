@@ -1,11 +1,9 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** Direction of a KPI trend indicator: rising, falling, or unchanged. */
 export type KpiTrendDirection = 'up' | 'down' | 'flat'
 
 /**
@@ -107,7 +105,7 @@ export function KpiCard({
   hoverLift = false,
   className,
   dataMolId,
-}: KpiCardProps) {
+}: KpiCardProps): JSX.Element {
   const cm = getClassMap()
   const accentClass =
     accentSide === 'left'
@@ -117,10 +115,7 @@ export function KpiCard({
         : ''
   const liftClass = hoverLift ? 'hover:-translate-y-0.5 transition-transform' : ''
   return (
-    <Card
-      className={cm.cn(accentClass, liftClass, className)}
-      data-mol-id={dataMolId}
-    >
+    <Card className={cm.cn(accentClass, liftClass, className)} data-mol-id={dataMolId}>
       <div className={cm.stack(3)}>
         <div className={cm.flex({ justify: 'between', align: 'center', gap: 'sm' })}>
           <div className={cm.flex({ align: 'center', gap: 'sm' })}>
@@ -128,7 +123,11 @@ export function KpiCard({
             <span
               className={cm.cn(
                 upperLabel
-                  ? cm.cn(cm.textSize('xs'), cm.fontWeight('bold'), 'uppercase tracking-widest text-on-surface-variant')
+                  ? cm.cn(
+                      cm.textSize('xs'),
+                      cm.fontWeight('bold'),
+                      'uppercase tracking-widest text-on-surface-variant',
+                    )
                   : cm.cn(cm.textSize('sm'), cm.fontWeight('medium')),
               )}
             >

@@ -10,11 +10,14 @@
  * @module
  */
 
-import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
+import { getClassMap } from '@molecule/app-ui'
+
+/** Severity level for a weather alert badge. */
 export type WeatherAlertLevel = 'watch' | 'warning' | 'emergency'
 
+/** A single hour's temperature measurement in the 24h sparkline trace. */
 export interface WeatherTracePoint {
   hour: string
   temperature: number
@@ -52,6 +55,7 @@ const ALERT_TONE: Record<WeatherAlertLevel, string> = {
   emergency: 'bg-error/60 text-white',
 }
 
+/** Computes SVG fill and stroke path data for the 24h temperature sparkline. */
 function buildSparkline(trace: ReadonlyArray<WeatherTracePoint> | undefined): {
   fill: string
   stroke: string
@@ -95,7 +99,7 @@ export function WeatherCard({
   feelsLikeLabel,
   highLowLabel,
   className,
-}: WeatherCardProps) {
+}: WeatherCardProps): ReactElement {
   const cm = getClassMap()
   const sparkline = buildSparkline(trace)
 

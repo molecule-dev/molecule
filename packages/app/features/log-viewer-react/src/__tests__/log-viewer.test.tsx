@@ -25,7 +25,7 @@ vi.mock('@molecule/app-ui', () => ({
 const { LogViewer } = await import('../LogViewer.js')
 import type { LogEntry } from '../LogViewer.js'
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const entries: LogEntry[] = [
   { id: '1', timestamp: '10:00', level: 'info', message: 'started up', service: 'auth-api' },

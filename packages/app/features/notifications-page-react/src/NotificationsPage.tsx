@@ -126,7 +126,7 @@ export function NotificationsPage({
   const onMarkAllRead = useCallback(async () => {
     try {
       await http.post(markAllReadEndpoint, undefined)
-    } catch {
+    } catch (_error) {
       // Swallow — mark-all-read is best-effort. The reload below
       // will surface any persistent error via the normal load() path.
     }

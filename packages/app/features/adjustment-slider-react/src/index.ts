@@ -24,6 +24,6 @@
  * @module
  */
 
+export * from './AdjustmentSlider.js'
 export * from './types.js'
 export * from './utilities.js'
-export * from './AdjustmentSlider.js'

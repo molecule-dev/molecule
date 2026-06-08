@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -152,7 +154,7 @@ export function Heatmap({
   tooltipFormatter,
   ariaLabel,
   className,
-}: HeatmapProps) {
+}: HeatmapProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 

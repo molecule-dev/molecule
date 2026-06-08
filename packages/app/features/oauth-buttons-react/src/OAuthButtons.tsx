@@ -1,16 +1,17 @@
+import type { JSX } from 'react'
+
 /**
  * `<OAuthButtons />` — config-driven OAuth provider button row.
  *
  * @module
  */
-
 import { OAuthProviderLogo } from '@molecule/app-oauth-logos-react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { getBrandStyle } from './brand-styles.js'
-import { getButtonLayoutStyle, getLayoutStyle } from './layout.js'
 import { dedupeProviders, getProviderLabel } from './labels.js'
+import { getButtonLayoutStyle, getLayoutStyle } from './layout.js'
 import type { OAuthButtonsProps } from './types.js'
 
 /**
@@ -59,7 +60,7 @@ export function OAuthButtons({
   brandButtons = false,
   showLabels = false,
   className,
-}: OAuthButtonsProps) {
+}: OAuthButtonsProps): JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
 

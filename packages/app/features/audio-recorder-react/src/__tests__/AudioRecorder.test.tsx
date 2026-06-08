@@ -42,6 +42,9 @@ interface FakeRecorderListeners {
   error?: () => void
 }
 
+/**
+ * Minimal in-memory stub that replaces the browser MediaRecorder in jsdom tests.
+ */
 class FakeMediaRecorder {
   static instances: FakeMediaRecorder[] = []
   state: 'inactive' | 'recording' | 'paused' = 'inactive'
@@ -53,30 +56,48 @@ class FakeMediaRecorder {
     FakeMediaRecorder.instances.push(this)
   }
 
+  /**
+   * Registers a listener for the given recorder event type.
+   */
   addEventListener<K extends keyof FakeRecorderListeners>(
     type: K,
     listener: NonNullable<FakeRecorderListeners[K]>,
-  ) {
+  ): void {
     this.listeners[type] = listener as FakeRecorderListeners[K]
   }
 
-  removeEventListener() {
+  /**
+   * No-op stub satisfying the EventTarget interface shape.
+   */
+  removeEventListener(): void {
     /* no-op */
   }
 
-  start() {
+  /**
+   * Transitions state to recording.
+   */
+  start(): void {
     this.state = 'recording'
   }
 
-  pause() {
+  /**
+   * Transitions state to paused.
+   */
+  pause(): void {
     this.state = 'paused'
   }
 
-  resume() {
+  /**
+   * Transitions state back to recording from paused.
+   */
+  resume(): void {
     this.state = 'recording'
   }
 
-  stop() {
+  /**
+   * Finalises recording: fires the dataavailable and stop events then marks state inactive.
+   */
+  stop(): void {
     this.state = 'inactive'
     this.listeners.dataavailable?.({
       data: new Blob(['hello'], { type: this.mimeType }),
@@ -84,7 +105,10 @@ class FakeMediaRecorder {
     this.listeners.stop?.()
   }
 
-  triggerError() {
+  /**
+   * Simulates a MediaRecorder error event for testing error-handling paths.
+   */
+  triggerError(): void {
     this.listeners.error?.()
   }
 }

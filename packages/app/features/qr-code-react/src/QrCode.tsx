@@ -1,4 +1,5 @@
 import qrcode from 'qrcode-generator'
+import type { JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -112,7 +113,7 @@ export function QrCode({
   logo,
   ariaLabel,
   className,
-}: QrCodeProps) {
+}: QrCodeProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 

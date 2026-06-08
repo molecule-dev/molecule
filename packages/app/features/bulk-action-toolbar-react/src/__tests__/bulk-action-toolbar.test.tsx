@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -44,7 +44,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { BulkActionToolbar } = await import('../BulkActionToolbar.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const actions = [
   { id: 'archive', label: 'Archive', onClick: () => {} },

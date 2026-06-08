@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
@@ -43,7 +43,12 @@ interface ListingCardProps {
  * </ListingCard>
  * ```
  */
-export function ListingCard({ children, onClick, className, dataMolId }: ListingCardProps) {
+export function ListingCard({
+  children,
+  onClick,
+  className,
+  dataMolId,
+}: ListingCardProps): JSX.Element {
   const cm = getClassMap()
   return (
     <Card

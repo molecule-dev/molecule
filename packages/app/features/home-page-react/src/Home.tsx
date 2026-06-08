@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import type { UserProfile } from '@molecule/app-auth'
 import { useAuth, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -14,7 +16,7 @@ import { getClassMap } from '@molecule/app-ui'
  * per-app (e.g. note-taking's "Hello, {{name}}.") simply by including
  * the key in their own locale `ui.ts`.
  */
-export function Home() {
+export function Home(): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const { user } = useAuth<UserProfile>()

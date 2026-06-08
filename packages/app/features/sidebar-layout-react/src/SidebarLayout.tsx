@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Describes a single item in the sidebar's vertical navigation list. */
 export interface SidebarNavItem {
   /** Route path the link goes to. */
   to: string
@@ -14,6 +15,7 @@ export interface SidebarNavItem {
   label: string
 }
 
+/** Props accepted by the {@link SidebarLayout} component. */
 export interface SidebarLayoutProps {
   /** Brand text shown at the top of the sidebar (typically the app name). */
   appName: string
@@ -58,7 +60,7 @@ export function SidebarLayout({
   sidebarWidthClass = 'w-60',
   className,
   dataMolId,
-}: SidebarLayoutProps) {
+}: SidebarLayoutProps): ReactElement {
   const cm = getClassMap()
   const { pathname } = useLocation()
 

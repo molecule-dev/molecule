@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { SlideThumbnail } = await import('../SlideThumbnail.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('SlideThumbnail', () => {
   it('renders a button labelled with the slide index', () => {

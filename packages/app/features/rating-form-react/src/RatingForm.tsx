@@ -1,4 +1,4 @@
-import type { FormEvent, ReactNode } from 'react'
+import type { FormEvent, JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -46,7 +46,7 @@ export function RatingForm({
   commentPlaceholder,
   submitLabel,
   className,
-}: RatingFormProps) {
+}: RatingFormProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [rating, setRating] = useState(defaultRating)
@@ -56,10 +56,10 @@ export function RatingForm({
   const display = hover || rating
 
   /**
-   *
-   * @param e
+   * Handles form submission: validates state, delegates to onSubmit, and manages submitting flag.
+   * @param e - The form submit event.
    */
-  async function handle(e: FormEvent) {
+  async function handle(e: FormEvent): Promise<void> {
     e.preventDefault()
     if (submitting || !rating) return
     if (requireComment && !comment.trim()) return

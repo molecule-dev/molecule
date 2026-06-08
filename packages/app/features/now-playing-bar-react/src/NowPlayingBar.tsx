@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -81,7 +81,7 @@ export function formatTime(seconds: number): string {
  * @param props - Component props.
  * @returns The now-playing bar element.
  */
-export function NowPlayingBar(props: NowPlayingBarProps) {
+export function NowPlayingBar(props: NowPlayingBarProps): JSX.Element {
   const {
     track,
     isPlaying,
@@ -121,7 +121,7 @@ export function NowPlayingBar(props: NowPlayingBarProps) {
   /**
    * Handle the play/pause toggle press.
    */
-  function handleToggle() {
+  function handleToggle(): void {
     if (isPlaying) onPause()
     else onPlay()
   }

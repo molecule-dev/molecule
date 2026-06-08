@@ -1,3 +1,5 @@
+import type React from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 
 interface PriceRangeSliderProps {
@@ -42,7 +44,7 @@ export function PriceRangeSlider({
   formatValue,
   label,
   className,
-}: PriceRangeSliderProps) {
+}: PriceRangeSliderProps): React.ReactElement {
   const cm = getClassMap()
   const [low, high] = value
   const fmt = formatValue ?? ((n: number) => `$${n.toLocaleString()}`)

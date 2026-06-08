@@ -12,7 +12,7 @@ import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 import {
   beatsToPixels,
   isBlackKey,
-  MidiNote,
+  type MidiNote,
   PianoRoll,
   pitchLabel,
   pitchToY,
@@ -37,7 +37,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_t, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
@@ -69,7 +69,7 @@ function Wrap({ children }: { children: ReactNode }): React.ReactElement {
  * @param width - Box width in pixels.
  * @param height - Box height in pixels.
  */
-function stubRect(node: HTMLElement, width: number, height: number) {
+function stubRect(node: HTMLElement, width: number, height: number): void {
   node.getBoundingClientRect = () =>
     ({
       left: 0,
@@ -196,7 +196,11 @@ describe('<PianoRoll>', () => {
     const labels = container.querySelectorAll('[data-mol-id="piano-roll-key-label"]')
     // Visible range 60..72 has C4 (60) and C5 (72) → two labels.
     expect(labels.length).toBe(2)
-    expect(Array.from(labels).map((l) => l.textContent).sort()).toEqual(['C4', 'C5'])
+    expect(
+      Array.from(labels)
+        .map((l) => l.textContent)
+        .sort(),
+    ).toEqual(['C4', 'C5'])
   })
 
   it('marks black-key rows with data-key-color="black"', () => {
@@ -355,9 +359,7 @@ describe('<PianoRoll>', () => {
         />
       </Wrap>,
     )
-    const handle = container.querySelector(
-      '[data-mol-id="piano-roll-note-handle"]',
-    ) as HTMLElement
+    const handle = container.querySelector('[data-mol-id="piano-roll-note-handle"]') as HTMLElement
     fireEvent.pointerDown(handle, { pointerId: 2, button: 0, clientX: 0, clientY: 0 })
     fireEvent.pointerMove(window, { pointerId: 2, clientX: 80, clientY: 0 })
     fireEvent.pointerUp(window, { pointerId: 2, clientX: 80, clientY: 0 })
@@ -386,9 +388,7 @@ describe('<PianoRoll>', () => {
         <PianoRoll notes={[]} pixelsPerBeat={40} beatsCount={16} />
       </Wrap>,
     )
-    const bars = container.querySelectorAll(
-      '[data-mol-id="piano-roll-beat-line"][data-bar="true"]',
-    )
+    const bars = container.querySelectorAll('[data-mol-id="piano-roll-beat-line"][data-bar="true"]')
     // 16 beats → bar lines at 0, 4, 8, 12, 16 → 5 lines.
     expect(bars.length).toBe(5)
   })

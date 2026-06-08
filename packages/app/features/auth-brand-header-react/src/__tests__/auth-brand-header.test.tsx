@@ -32,7 +32,7 @@ vi.mock('@molecule/app-react', () => ({
 const { AuthBrandHeader, AuthBrandHeaderChip, AuthBrandHeaderWordmark, AuthBrandHeaderTagline } =
   await import('../AuthBrandHeader.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('AuthBrandHeader (preset mode)', () => {
   it('renders the appName in an <h1> and the tagline in a <p>', () => {

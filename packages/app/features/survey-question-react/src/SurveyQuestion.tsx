@@ -1,10 +1,10 @@
-import type { ChangeEvent } from 'react'
+import type { ChangeEvent, ReactElement } from 'react'
 import { useCallback, useState } from 'react'
 
+import { FileDropzone } from '@molecule/app-file-dropzone-react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
-import { FileDropzone } from '@molecule/app-file-dropzone-react'
 
 import type {
   DateQuestion,
@@ -59,7 +59,7 @@ export interface SurveyQuestionProps {
  * @param props - Component props.
  * @returns The question element.
  */
-export function SurveyQuestion(props: SurveyQuestionProps) {
+export function SurveyQuestion(props: SurveyQuestionProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   const { question, value, onChange, onSubmit, readOnly, className } = props
@@ -187,7 +187,7 @@ function renderControl(
   value: SurveyAnswerValue | undefined,
   setValue: (v: SurveyAnswerValue) => void,
   readOnly?: boolean,
-) {
+): ReactElement | null {
   switch (q.kind) {
     case 'multi-choice-single':
       return (
@@ -317,7 +317,7 @@ function MultiChoiceSingleControl({
   value,
   onChange,
   readOnly,
-}: ControlProps<MultiChoiceSingleQuestion, string>) {
+}: ControlProps<MultiChoiceSingleQuestion, string>): ReactElement {
   const cm = getClassMap()
   return (
     <div className={cm.stack(2)} role="radiogroup">
@@ -366,9 +366,12 @@ function MultiChoiceMultiControl({
   value,
   onChange,
   readOnly,
-}: ControlProps<MultiChoiceMultiQuestion, string[]>) {
+}: ControlProps<MultiChoiceMultiQuestion, string[]>): ReactElement {
   const cm = getClassMap()
-  function toggle(v: string) {
+  /**
+   * Toggles an option in or out of the selected values array.
+   */
+  function toggle(v: string): void {
     if (readOnly) return
     if (value.includes(v)) onChange(value.filter((x) => x !== v))
     else onChange([...value, v])
@@ -423,7 +426,7 @@ function TrueFalseControl({
   value,
   onChange,
   readOnly,
-}: ControlProps<TrueFalseQuestion, boolean | undefined>) {
+}: ControlProps<TrueFalseQuestion, boolean | undefined>): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   const trueLabel =
@@ -469,7 +472,7 @@ function ShortTextControl({
   value,
   onChange,
   readOnly,
-}: ControlProps<ShortTextQuestion, string>) {
+}: ControlProps<ShortTextQuestion, string>): ReactElement {
   const cm = getClassMap()
   return (
     <input
@@ -503,7 +506,7 @@ function LongTextControl({
   value,
   onChange,
   readOnly,
-}: ControlProps<LongTextQuestion, string>) {
+}: ControlProps<LongTextQuestion, string>): ReactElement {
   const cm = getClassMap()
   return (
     <textarea
@@ -538,7 +541,7 @@ function NumericControl({
   value,
   onChange,
   readOnly,
-}: ControlProps<NumericQuestion, number | ''>) {
+}: ControlProps<NumericQuestion, number | ''>): ReactElement {
   const cm = getClassMap()
   return (
     <div className={cm.flex({ align: 'center', gap: 'xs' })}>
@@ -592,7 +595,7 @@ function RatingScaleControl({
   value,
   onChange,
   readOnly,
-}: ControlProps<RatingScaleQuestion, number | undefined>) {
+}: ControlProps<RatingScaleQuestion, number | undefined>): ReactElement {
   const cm = getClassMap()
   const min = question.min ?? 1
   const max = question.max ?? 5
@@ -649,7 +652,7 @@ function NPSControl({
   value,
   onChange,
   readOnly,
-}: ControlProps<NPSQuestion, number | undefined>) {
+}: ControlProps<NPSQuestion, number | undefined>): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   const lowLabel =
@@ -702,7 +705,12 @@ function NPSControl({
  * @param props - Control props.
  * @returns The date input.
  */
-function DateControl({ question, value, onChange, readOnly }: ControlProps<DateQuestion, string>) {
+function DateControl({
+  question,
+  value,
+  onChange,
+  readOnly,
+}: ControlProps<DateQuestion, string>): ReactElement {
   const cm = getClassMap()
   return (
     <input
@@ -735,7 +743,7 @@ function FileUploadControl({
   value,
   onChange,
   readOnly,
-}: ControlProps<FileUploadQuestion, File[]>) {
+}: ControlProps<FileUploadQuestion, File[]>): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
@@ -776,9 +784,12 @@ function MatrixControl({
   value,
   onChange,
   readOnly,
-}: ControlProps<MatrixQuestion, Record<string, string>>) {
+}: ControlProps<MatrixQuestion, Record<string, string>>): ReactElement {
   const cm = getClassMap()
-  function setRow(rowId: string, colValue: string) {
+  /**
+   * Updates a single matrix row's selected column value.
+   */
+  function setRow(rowId: string, colValue: string): void {
     if (readOnly) return
     onChange({ ...value, [rowId]: colValue })
   }

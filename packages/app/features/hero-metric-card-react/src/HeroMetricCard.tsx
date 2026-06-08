@@ -67,7 +67,7 @@ export function HeroMetricCard({
   loading = false,
   className,
   dataMolId,
-}: HeroMetricCardProps) {
+}: HeroMetricCardProps): React.ReactElement {
   const cm = getClassMap()
   const interactive = Boolean(onClick)
   const accentStyle = accent ? resolveAccentStyle(accent) : undefined

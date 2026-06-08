@@ -7,6 +7,8 @@
  */
 
 /**
+ * Formats a date, timestamp, or epoch number as a human-readable relative time
+ * string (e.g. "5 minutes ago", "in 3 days") using {@link Intl.RelativeTimeFormat}.
  *
  * @param input
  * @param now
@@ -44,8 +46,9 @@ export function formatRelativeTime(
   }
   try {
     return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(value, unit)
-  } catch {
-    // Fallback short form
+  } catch (_error) {
+    // Intl.RelativeTimeFormat is unavailable (old runtime or unsupported locale) —
+    // the short-form fallback below is intentional and complete; ignoring safe.
     if (value === 0) return 'just now'
     const past = value < 0
     const n = Math.abs(value)

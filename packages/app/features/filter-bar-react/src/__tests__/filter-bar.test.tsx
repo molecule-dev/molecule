@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -59,7 +59,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 const { FilterBar } = await import('../FilterBar.js')
 import type { FilterField } from '../types.js'
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('FilterBar', () => {
   it('renders a text input with the field label as aria-label', () => {

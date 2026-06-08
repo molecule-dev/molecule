@@ -1,8 +1,8 @@
+import type React from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Union of supported user-presence states displayed by the dot. */
 export type PresenceStatus = 'online' | 'away' | 'busy' | 'offline'
 
 interface PresenceDotProps {
@@ -45,7 +45,7 @@ export function PresenceDot({
   corner = 'bottom-right',
   ariaLabel,
   className,
-}: PresenceDotProps) {
+}: PresenceDotProps): React.JSX.Element {
   const cm = getClassMap()
   const style: React.CSSProperties = {
     display: 'inline-block',

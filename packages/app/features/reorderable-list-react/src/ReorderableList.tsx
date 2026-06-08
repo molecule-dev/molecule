@@ -1,10 +1,10 @@
-import type { DragEvent, ReactNode } from 'react'
+import type { DragEvent, ReactElement, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
 /**
- *
+ * A single item in a ReorderableList, pairing a stable string id with arbitrary data.
  */
 export interface ReorderableItem<T> {
   id: string
@@ -42,37 +42,37 @@ export function ReorderableList<T>({
   renderItem,
   renderHandle,
   className,
-}: ReorderableListProps<T>) {
+}: ReorderableListProps<T>): ReactElement {
   const cm = getClassMap()
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [overId, setOverId] = useState<string | null>(null)
 
   /**
-   *
+   * Initiates a drag operation, storing the dragged item id in the transfer payload.
    * @param id
    * @param e
    */
-  function onDragStart(id: string, e: DragEvent) {
+  function onDragStart(id: string, e: DragEvent): void {
     e.dataTransfer.setData('text/plain', id)
     e.dataTransfer.effectAllowed = 'move'
     setDraggingId(id)
   }
   /**
-   *
+   * Marks the hovered item as the current drop target and allows the drop.
    * @param id
    * @param e
    */
-  function onDragOver(id: string, e: DragEvent) {
+  function onDragOver(id: string, e: DragEvent): void {
     e.preventDefault()
     e.dataTransfer.dropEffect = 'move'
     setOverId(id)
   }
   /**
-   *
+   * Handles a drop event by computing the new item order and calling onReorder.
    * @param targetId
    * @param e
    */
-  function onDrop(targetId: string, e: DragEvent) {
+  function onDrop(targetId: string, e: DragEvent): void {
     e.preventDefault()
     const sourceId = e.dataTransfer.getData('text/plain')
     if (!sourceId || sourceId === targetId) {
@@ -92,9 +92,9 @@ export function ReorderableList<T>({
     reset()
   }
   /**
-   *
+   * Clears dragging and over-target state after a drop or drag-end event.
    */
-  function reset() {
+  function reset(): void {
     setDraggingId(null)
     setOverId(null)
   }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { type ReactElement, useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -26,7 +26,7 @@ interface VideoPlayerProps {
 }
 
 /**
- *
+ * Formats a time value in seconds as `m:ss`.
  * @param s
  */
 function fmtTime(s: number): string {
@@ -63,7 +63,7 @@ export function VideoPlayer({
   onPause,
   onEnded,
   className,
-}: VideoPlayerProps) {
+}: VideoPlayerProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   const ref = useRef<HTMLVideoElement>(null)
@@ -75,36 +75,26 @@ export function VideoPlayer({
   useEffect(() => {
     const v = ref.current
     if (!v) return
-    /**
-     *
-     */
-    function onTime() {
+    /** Updates current-time state on each timeupdate event. */
+    function onTime(): void {
       setCurrent(v!.currentTime)
     }
-    /**
-     *
-     */
-    function onMeta() {
+    /** Stores video duration once metadata is loaded. */
+    function onMeta(): void {
       setDuration(v!.duration)
     }
-    /**
-     *
-     */
-    function onP() {
+    /** Syncs playing state and calls the onPlay callback. */
+    function onP(): void {
       setPlaying(true)
       onPlay?.()
     }
-    /**
-     *
-     */
-    function onPa() {
+    /** Syncs playing state and calls the onPause callback. */
+    function onPa(): void {
       setPlaying(false)
       onPause?.()
     }
-    /**
-     *
-     */
-    function onE() {
+    /** Syncs playing state and calls the onEnded callback. */
+    function onE(): void {
       setPlaying(false)
       onEnded?.()
     }
@@ -122,37 +112,31 @@ export function VideoPlayer({
     }
   }, [onPlay, onPause, onEnded])
 
-  /**
-   *
-   */
-  function toggle() {
+  /** Toggles play/pause on the video element. */
+  function toggle(): void {
     const v = ref.current
     if (!v) return
     if (v.paused) void v.play()
     else v.pause()
   }
   /**
-   *
+   * Seeks the video to the given time in seconds.
    * @param s
    */
-  function seek(s: number) {
+  function seek(s: number): void {
     const v = ref.current
     if (!v) return
     v.currentTime = s
   }
-  /**
-   *
-   */
-  function toggleMute() {
+  /** Toggles the muted state of the video element. */
+  function toggleMute(): void {
     const v = ref.current
     if (!v) return
     v.muted = !v.muted
     setMuted(v.muted)
   }
-  /**
-   *
-   */
-  function toggleFullscreen() {
+  /** Requests or exits fullscreen for the video element. */
+  function toggleFullscreen(): void {
     const v = ref.current
     if (!v) return
     if (document.fullscreenElement) void document.exitFullscreen()

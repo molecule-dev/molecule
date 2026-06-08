@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -31,12 +31,12 @@ vi.mock('react-router-dom', () => ({
 const { NotificationFeed } = await import('../NotificationFeed.js')
 const { fmtRelativeShort } = await import('../fmtRelativeShort.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const item = (
   id: string,
   over: Partial<Parameters<typeof NotificationFeed>[0]['items'][number]> = {},
-) => ({
+): Parameters<typeof NotificationFeed>[0]['items'][number] => ({
   id,
   icon: 'check_circle',
   title: `title-${id}`,

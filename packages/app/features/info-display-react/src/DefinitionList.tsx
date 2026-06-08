@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** A single label/value pair rendered inside a DefinitionList. */
 export interface DefinitionField {
   /** Label text (usually `t('...')`). */
   label: ReactNode
@@ -32,7 +30,11 @@ interface DefinitionListProps {
  * @param root0.columns
  * @param root0.className
  */
-export function DefinitionList({ fields, columns = 1, className }: DefinitionListProps) {
+export function DefinitionList({
+  fields,
+  columns = 1,
+  className,
+}: DefinitionListProps): JSX.Element {
   const cm = getClassMap()
   return (
     <dl

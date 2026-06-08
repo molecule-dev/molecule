@@ -1,10 +1,8 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { CSSProperties, ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Data descriptor for a single cell in a BentoGrid layout. */
 export interface BentoItem {
   /** Unique item identifier (React key). */
   id: string
@@ -45,7 +43,13 @@ interface BentoGridProps {
  * @param root0.gap
  * @param root0.className
  */
-export function BentoGrid({ items, areas, columns = 12, gap = 'md', className }: BentoGridProps) {
+export function BentoGrid({
+  items,
+  areas,
+  columns = 12,
+  gap = 'md',
+  className,
+}: BentoGridProps): ReactElement {
   const cm = getClassMap()
   const gridStyle: CSSProperties = areas
     ? { display: 'grid', gridTemplateAreas: areas }

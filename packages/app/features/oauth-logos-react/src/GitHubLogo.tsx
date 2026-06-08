@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import type { OAuthLogoProps } from './types.js'
 
 const PATH =
@@ -15,7 +17,12 @@ const PATH =
  * @param root0.ariaLabel
  * @param root0.title
  */
-export function GitHubLogo({ size = 20, className, ariaLabel = 'GitHub', title }: OAuthLogoProps) {
+export function GitHubLogo({
+  size = 20,
+  className,
+  ariaLabel = 'GitHub',
+  title,
+}: OAuthLogoProps): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

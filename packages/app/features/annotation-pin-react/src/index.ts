@@ -31,5 +31,5 @@
  * @module
  */
 
-export * from './AnnotationPin.js'
 export * from './AnnotationLayer.js'
+export * from './AnnotationPin.js'

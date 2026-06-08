@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -23,7 +23,12 @@ interface CardGridProps {
  * @param root0.gap
  * @param root0.className
  */
-export function CardGrid({ children, columns = 3, gap = 'md', className }: CardGridProps) {
+export function CardGrid({
+  children,
+  columns = 3,
+  gap = 'md',
+  className,
+}: CardGridProps): JSX.Element {
   const cm = getClassMap()
   return <div className={cm.cn(cm.grid({ cols: columns, gap }), className)}>{children}</div>
 }

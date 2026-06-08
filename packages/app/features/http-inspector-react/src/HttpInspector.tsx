@@ -1,23 +1,17 @@
-import type { ReactNode } from 'react'
+import type { JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Select, Textarea } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** HTTP method verb for a request. */
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS'
-/**
- *
- */
+/** A single HTTP request or response header key/value pair. */
 export interface HttpHeader {
   key: string
   value: string
 }
-/**
- *
- */
+/** Parsed HTTP response returned after a request completes. */
 export interface HttpResponse {
   statusCode: number
   statusText?: string
@@ -44,7 +38,7 @@ interface HttpInspectorProps {
 const METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']
 
 /**
- *
+ * Returns a hex color representing the severity of an HTTP status code.
  * @param code
  */
 function statusColor(code: number): string {
@@ -87,16 +81,16 @@ export function HttpInspector({
   sending,
   response,
   className,
-}: HttpInspectorProps) {
+}: HttpInspectorProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   /**
-   *
+   * Updates a single header entry at index i with new key and value.
    * @param i
    * @param key
    * @param value
    */
-  function setHeader(i: number, key: string, value: string) {
+  function setHeader(i: number, key: string, value: string): void {
     const next = [...headers]
     next[i] = { key, value }
     onHeadersChange(next)

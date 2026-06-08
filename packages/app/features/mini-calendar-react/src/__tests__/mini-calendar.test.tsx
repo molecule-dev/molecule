@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -35,7 +35,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { MiniCalendar } = await import('../MiniCalendar.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 // Pin the visible month to March 2026 for deterministic grid output.
 const march2026 = new Date(2026, 2, 15)

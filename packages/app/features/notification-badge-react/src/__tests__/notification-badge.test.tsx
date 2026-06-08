@@ -27,7 +27,7 @@ const { NotificationBadge } = await import('../NotificationBadge.js')
 const { NotificationDot } = await import('../NotificationDot.js')
 const { NotificationWrapper } = await import('../NotificationWrapper.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('NotificationBadge', () => {
   it('renders the count', () => {

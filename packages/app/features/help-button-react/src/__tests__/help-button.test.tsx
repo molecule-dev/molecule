@@ -31,7 +31,7 @@ vi.mock('@molecule/app-react', () => ({
 
 const { HelpButton } = await import('../HelpButton.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('HelpButton', () => {
   it('renders a <button> when no href is supplied', () => {

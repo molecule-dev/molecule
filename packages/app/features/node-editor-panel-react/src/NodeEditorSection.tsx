@@ -6,8 +6,9 @@
  * @module
  */
 
+import type { JSX, ReactNode } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
 
 interface NodeEditorSectionProps {
   label: ReactNode
@@ -19,7 +20,12 @@ interface NodeEditorSectionProps {
 }
 
 /** Labeled section. */
-export function NodeEditorSection({ label, children, trailing, gap = 3 }: NodeEditorSectionProps) {
+export function NodeEditorSection({
+  label,
+  children,
+  trailing,
+  gap = 3,
+}: NodeEditorSectionProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.stack(gap)}>

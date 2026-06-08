@@ -1,4 +1,4 @@
-import type { FormEvent, ReactNode } from 'react'
+import type { FormEvent, JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -46,7 +46,7 @@ export function NewsletterSignup({
   successContent,
   layout = 'inline',
   className,
-}: NewsletterSignupProps) {
+}: NewsletterSignupProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [email, setEmail] = useState('')
@@ -55,10 +55,10 @@ export function NewsletterSignup({
   const [error, setError] = useState<string | null>(null)
 
   /**
-   *
+   * Handles form submit: calls onSubscribe and tracks submitting/error/success state.
    * @param e
    */
-  async function handle(e: FormEvent) {
+  async function handle(e: FormEvent): Promise<void> {
     e.preventDefault()
     if (submitting) return
     setSubmitting(true)

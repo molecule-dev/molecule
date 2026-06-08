@@ -1,12 +1,10 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** A single notification entry rendered inside the notification panel. */
 export interface NotificationItem {
   id: string
   title: ReactNode
@@ -55,7 +53,7 @@ export function NotificationCenter({
   emptyState,
   title,
   className,
-}: NotificationCenterProps) {
+}: NotificationCenterProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   const hasItems = items.length > 0

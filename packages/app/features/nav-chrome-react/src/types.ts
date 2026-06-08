@@ -21,7 +21,7 @@ export interface NavItem {
 }
 
 /**
- *
+ * A labeled group of NavItems rendered as a collapsible section in side/bottom nav shells.
  */
 export interface NavGroup {
   /** Group id. */

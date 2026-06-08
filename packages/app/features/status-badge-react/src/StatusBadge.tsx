@@ -1,11 +1,9 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Badge } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** Semantic status kind used to select badge color variants. */
 export type StatusKind = 'success' | 'warning' | 'error' | 'info' | 'neutral'
 
 interface StatusBadgeProps {
@@ -72,7 +70,7 @@ export function StatusBadge({
   icon,
   appearance = 'ui',
   className,
-}: StatusBadgeProps) {
+}: StatusBadgeProps): JSX.Element {
   const cm = getClassMap()
   if (appearance === 'uppercase-pill') {
     return (

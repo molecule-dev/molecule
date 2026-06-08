@@ -10,8 +10,9 @@
  * @module
  */
 
+import { type JSX, type ReactNode, useState } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import { type ReactNode, useState } from 'react'
 
 import { ChatbotTesterInput } from './ChatbotTesterInput.js'
 import { ChatbotTesterMessages } from './ChatbotTesterMessages.js'
@@ -50,10 +51,10 @@ export function ChatbotTester({
   inputPlaceholder,
   sendLabel,
   className,
-}: ChatbotTesterProps) {
+}: ChatbotTesterProps): JSX.Element {
   const cm = getClassMap()
   const [input, setInput] = useState('')
-  const handleSend = async () => {
+  const handleSend = async (): Promise<void> => {
     const text = input.trim()
     if (!text) return
     setInput('')

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { type JSX, useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -37,11 +37,11 @@ export function ImageGallery({
   maxThumbnails = 4,
   alts,
   className,
-}: ImageGalleryProps) {
+}: ImageGalleryProps): JSX.Element | null {
   const cm = getClassMap()
   const [internalIndex, setInternalIndex] = useState(0)
   const idx = selectedIndex ?? internalIndex
-  const setIdx = (i: number) => {
+  const setIdx = (i: number): void => {
     if (selectedIndex === undefined) setInternalIndex(i)
     onSelect?.(i)
   }

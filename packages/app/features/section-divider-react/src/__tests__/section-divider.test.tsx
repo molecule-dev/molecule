@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { SectionDivider } = await import('../SectionDivider.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('SectionDivider', () => {
   it('exposes a horizontal separator role', () => {

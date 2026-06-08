@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Container } from '@molecule/app-ui-react'
@@ -50,7 +50,7 @@ export function AppShellLayout({
   className,
   mainClassName,
   dataMolId,
-}: AppShellLayoutProps) {
+}: AppShellLayoutProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.page, cm.appLayout, className)} data-mol-id={dataMolId}>

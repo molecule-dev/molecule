@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -23,7 +23,7 @@ interface TagChipProps {
  * @param root0.onClick
  * @param root0.className
  */
-export function TagChip({ children, onRemove, onClick, className }: TagChipProps) {
+export function TagChip({ children, onRemove, onClick, className }: TagChipProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   return (

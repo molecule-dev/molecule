@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Describes a single crumb entry in a breadcrumb trail. */
 export interface BreadcrumbItem {
   /** Display text or React node for the crumb. */
   label: ReactNode
@@ -53,7 +51,7 @@ export function Breadcrumb({
   separator,
   className,
   dataMolId,
-}: BreadcrumbProps) {
+}: BreadcrumbProps): ReactElement {
   const cm = getClassMap()
   const sep = separator ?? <span aria-hidden>/</span>
   return (

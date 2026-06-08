@@ -36,9 +36,7 @@ export const DEFAULT_CHARSET: PasswordCharsetOptions = {
 
 /** Minimum / maximum allowed length for the slider. */
 export const MIN_LENGTH = 8
-/**
- *
- */
+/** Maximum allowed length for the slider. */
 export const MAX_LENGTH = 64
 
 /**

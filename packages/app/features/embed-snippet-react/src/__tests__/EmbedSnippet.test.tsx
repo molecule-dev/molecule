@@ -26,9 +26,9 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
-        get(_t, key) {
+        get(_t, key): (() => string) | undefined {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
           return undefined
         },
@@ -207,7 +207,10 @@ describe('<EmbedSnippet>', () => {
   })
 
   it('lets a controlled wrapper update the rendered snippet on change', () => {
-    function Controlled() {
+    /**
+     * Controlled wrapper that passes its own state as values and onChange.
+     */
+    function Controlled(): React.ReactElement {
       const [v, setV] = useState<EmbedSnippetValues>({ width: 640, height: 480, theme: 'light' })
       return (
         <EmbedSnippet

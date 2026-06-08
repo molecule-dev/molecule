@@ -26,8 +26,8 @@ import {
   useState,
 } from 'react'
 
-import { CanvasSurface, screenToCanvas } from '@molecule/app-feature-canvas-react'
 import type { Bounds, CanvasViewport } from '@molecule/app-feature-canvas-react'
+import { CanvasSurface, screenToCanvas } from '@molecule/app-feature-canvas-react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -305,8 +305,8 @@ export const CanvasEngine = forwardRef(function CanvasEngine(
       }
       try {
         e.currentTarget.setPointerCapture(e.pointerId)
-      } catch {
-        /* jsdom may throw — ignore. */
+      } catch (_error) {
+        /* jsdom may throw — ignore: pointer capture is best-effort. */
       }
     },
     [commitSelection, screenToDocCoords, selection, document],
@@ -347,8 +347,8 @@ export const CanvasEngine = forwardRef(function CanvasEngine(
     dragStateRef.current = null
     try {
       e.currentTarget.releasePointerCapture(e.pointerId)
-    } catch {
-      /* ignore */
+    } catch (_error) {
+      /* jsdom may throw — ignore: pointer release is best-effort. */
     }
   }, [])
 

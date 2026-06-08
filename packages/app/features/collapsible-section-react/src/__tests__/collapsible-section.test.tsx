@@ -31,7 +31,7 @@ vi.mock('@molecule/app-react', () => ({
 
 const { CollapsibleSection, ShowMore } = await import('../CollapsibleSection.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('CollapsibleSection', () => {
   it('renders the title and starts collapsed', () => {
@@ -96,7 +96,7 @@ describe('CollapsibleSection', () => {
 })
 
 describe('ShowMore', () => {
-  const items = (n: number) =>
+  const items = (n: number): ReturnType<typeof createElement>[] =>
     Array.from({ length: n }, (_, i) => createElement('div', { 'data-item': i }, `item-${i}`))
 
   it('renders only the initialCount items by default', () => {

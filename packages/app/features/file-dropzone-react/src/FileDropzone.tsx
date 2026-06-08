@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -48,7 +48,7 @@ export function FileDropzone({
   children,
   disabled,
   className,
-}: FileDropzoneProps) {
+}: FileDropzoneProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [dragging, setDragging] = useState(false)
@@ -95,10 +95,10 @@ export function FileDropzone({
   )
 
   /**
-   *
+   * Filters the given file list and dispatches kept/rejected files to callbacks.
    * @param list
    */
-  function dispatch(list: FileList | File[]) {
+  function dispatch(list: FileList | File[]): void {
     const { kept, rejected } = filter(list)
     if (kept.length > 0) onFiles(multiple ? kept : [kept[0]])
     if (rejected.length > 0) onRejected?.(rejected)

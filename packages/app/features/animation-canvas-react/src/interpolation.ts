@@ -8,9 +8,7 @@ import type { AnimationKeyframe, Easing, ShapeState } from './types.js'
  * @module
  */
 
-const ANIMATABLE_PROPS = ['x', 'y', 'rotation', 'scale', 'opacity'] as const
-
-type AnimatableProp = (typeof ANIMATABLE_PROPS)[number]
+type AnimatableProp = 'x' | 'y' | 'rotation' | 'scale' | 'opacity'
 
 /**
  * Linear interpolation between two scalars.

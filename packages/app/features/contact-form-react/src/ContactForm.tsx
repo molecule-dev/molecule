@@ -1,13 +1,11 @@
-import type { FormEvent, ReactNode } from 'react'
+import type { FormEvent, JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** Shape of values collected by the contact form and passed to `onSubmit`. */
 export interface ContactFormValues {
   name: string
   email: string
@@ -54,7 +52,7 @@ export function ContactForm({
   successContent,
   extraFields,
   className,
-}: ContactFormProps) {
+}: ContactFormProps): JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [name, setName] = useState('')
@@ -65,10 +63,10 @@ export function ContactForm({
   const [error, setError] = useState<string | null>(null)
 
   /**
-   *
+   * Handles form submission: calls `onSubmit` with collected values and manages submitting/error state.
    * @param e
    */
-  async function handle(e: FormEvent) {
+  async function handle(e: FormEvent): Promise<void> {
     e.preventDefault()
     if (submitting) return
     setSubmitting(true)

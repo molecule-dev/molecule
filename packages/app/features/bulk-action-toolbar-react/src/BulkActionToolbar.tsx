@@ -1,12 +1,10 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** Descriptor for a single action button rendered inside BulkActionToolbar. */
 export interface BulkAction {
   id: string
   label: ReactNode
@@ -46,7 +44,7 @@ export function BulkActionToolbar({
   onClearSelection,
   position = 'sticky-bottom',
   className,
-}: BulkActionToolbarProps) {
+}: BulkActionToolbarProps): ReactElement | null {
   const cm = getClassMap()
   const { t } = useTranslation()
   if (count <= 0) return null

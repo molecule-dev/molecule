@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react'
 import { useCallback, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -37,7 +38,7 @@ export function CopyLinkField({
   feedbackMs = 1500,
   size = 'sm',
   className,
-}: CopyLinkFieldProps) {
+}: CopyLinkFieldProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)

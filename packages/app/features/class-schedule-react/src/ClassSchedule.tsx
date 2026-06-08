@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -38,9 +38,7 @@ export interface ScheduleSlot {
   start: number
 }
 
-/**
- *
- */
+/** Props for the {@link ClassSchedule} weekly timetable component. */
 export interface ClassScheduleProps {
   /** Events to render. */
   events: ScheduleEvent[]
@@ -154,7 +152,7 @@ export function ClassSchedule({
   onEventClick,
   onSlotClick,
   className,
-}: ClassScheduleProps) {
+}: ClassScheduleProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
 
@@ -178,8 +176,10 @@ export function ClassSchedule({
   // so each weekday number maps to a real Date the formatter can render.
   const weekdayFmt = new Intl.DateTimeFormat(locale, { weekday: 'short' })
   /**
+   * Returns the localized short weekday name for a given ISO weekday number.
    *
-   * @param weekday
+   * @param weekday - ISO weekday number (0 = Sunday … 6 = Saturday).
+   * @returns Localized short weekday name, e.g. `"Mon"`.
    */
   function weekdayLabel(weekday: number): string {
     // 1970-01-04 = Sunday → add `weekday` days to get the right name.

@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { CSSProperties, JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -57,7 +57,7 @@ export function ContentPageShell({
   children,
   bare = false,
   containerSize = 'md',
-}: ContentPageShellProps) {
+}: ContentPageShellProps): JSX.Element {
   const cm = getClassMap()
 
   const heroStyle: CSSProperties = {

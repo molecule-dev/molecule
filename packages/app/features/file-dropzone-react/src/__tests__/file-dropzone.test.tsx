@@ -31,7 +31,7 @@ vi.mock('@molecule/app-react', () => ({
 
 const { FileDropzone } = await import('../FileDropzone.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('FileDropzone', () => {
   it('renders the default upload copy', () => {

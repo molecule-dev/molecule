@@ -29,14 +29,23 @@ interface State {
 export class RootErrorBoundary extends Component<Props, State> {
   override state: State = { hasError: false }
 
+  /**
+   * Transitions the component into error state when a render error is caught.
+   */
   static getDerivedStateFromError(): State {
     return { hasError: true }
   }
 
+  /**
+   * Logs the caught render error and its component stack via the bonded logger.
+   */
   override componentDidCatch(err: Error, info: ErrorInfo): void {
     logError(err, info.componentStack ?? '')
   }
 
+  /**
+   * Renders children normally, or a localized fallback UI when an error has been caught.
+   */
   override render(): ReactNode {
     if (this.state.hasError) {
       const cm = getClassMap()

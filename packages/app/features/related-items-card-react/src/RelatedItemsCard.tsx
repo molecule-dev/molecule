@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
@@ -56,7 +56,7 @@ export function RelatedItemsCard<T>({
   headerActions,
   className,
   dataMolId,
-}: RelatedItemsCardProps<T>) {
+}: RelatedItemsCardProps<T>): JSX.Element {
   const cm = getClassMap()
   return (
     <Card className={className} data-mol-id={dataMolId}>

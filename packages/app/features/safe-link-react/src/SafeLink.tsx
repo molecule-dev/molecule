@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from 'react'
+import type { ComponentProps, JSX, ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 /**
@@ -14,7 +14,7 @@ export function SafeLink({
   to,
   children,
   ...rest
-}: Omit<ComponentProps<typeof Link>, 'to'> & { to: string; children?: ReactNode }) {
+}: Omit<ComponentProps<typeof Link>, 'to'> & { to: string; children?: ReactNode }): JSX.Element {
   const location = useLocation()
   const samePath = location.pathname === to || location.pathname + '/' === to
   const target = samePath ? `${to.replace(/\/$/, '')}#top` : to

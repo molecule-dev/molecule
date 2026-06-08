@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Shape of a single audit / activity log entry displayed by AuditLogRow. */
 export interface AuditLogEntry {
   id: string
   /** Actor name or id. */
@@ -41,7 +39,7 @@ interface AuditLogRowProps {
  * @param root0.onClick
  * @param root0.className
  */
-export function AuditLogRow({ entry, onClick, className }: AuditLogRowProps) {
+export function AuditLogRow({ entry, onClick, className }: AuditLogRowProps): JSX.Element {
   const cm = getClassMap()
   const { actor, action, target, timestamp, oldValue, newValue, environment, traceId } = entry
   const showDelta = oldValue !== undefined || newValue !== undefined

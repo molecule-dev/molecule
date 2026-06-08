@@ -1,3 +1,4 @@
+import type React from 'react'
 import type { CSSProperties } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -84,7 +85,7 @@ export function LoyaltyTierBadge({
   size = 'md',
   dataMolId,
   className,
-}: LoyaltyTierBadgeProps) {
+}: LoyaltyTierBadgeProps): React.ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
 

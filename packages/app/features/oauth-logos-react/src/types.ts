@@ -17,9 +17,7 @@ export type OAuthProviderId =
   | 'linkedin'
   | 'discord'
 
-/**
- *
- */
+/** Props shared by all OAuth provider logo components. */
 export interface OAuthLogoProps {
   /**
    * Rendered size in pixels (applied to both width and height). Defaults to 20.

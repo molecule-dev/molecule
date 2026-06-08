@@ -24,14 +24,16 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { ReorderableList } = await import('../ReorderableList.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const items = [
   { id: 'a', data: { label: 'Alpha' } },
   { id: 'b', data: { label: 'Beta' } },
 ]
-const renderItem = (it: { id: string; data: { label: string } }) =>
-  createElement('span', { 'data-item': it.id }, it.data.label)
+const renderItem = (it: {
+  id: string
+  data: { label: string }
+}): ReturnType<typeof createElement> => createElement('span', { 'data-item': it.id }, it.data.label)
 
 describe('ReorderableList', () => {
   it('renders a list with one row per item', () => {

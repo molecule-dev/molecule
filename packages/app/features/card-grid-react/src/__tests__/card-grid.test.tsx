@@ -28,7 +28,7 @@ vi.mock('@molecule/app-ui', () => ({
 const { BentoGrid } = await import('../BentoGrid.js')
 const { CardGrid } = await import('../CardGrid.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('CardGrid', () => {
   it('renders its children', () => {

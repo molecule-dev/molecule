@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { useState } from 'react'
 
 import type { UserProfile } from '@molecule/app-auth'
@@ -11,7 +12,7 @@ import { Alert, Button, Flex, Input, Modal, Switch } from '@molecule/app-ui-reac
  * Auto-hides for OAuth-only users (`user.oauthServer` truthy) since
  * password / 2FA wouldn't apply.
  */
-export function AuthSection() {
+export function AuthSection(): JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
   const { user } = useAuth<UserProfile>()
@@ -28,7 +29,7 @@ export function AuthSection() {
   // OAuth users skip this section entirely.
   if ((user as unknown as Record<string, unknown>)?.oauthServer) return null
 
-  const handleChangePassword = async (e: React.FormEvent) => {
+  const handleChangePassword = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
     try {
       await changePassword(currentPassword, newPassword)
@@ -36,18 +37,20 @@ export function AuthSection() {
       setCurrentPassword('')
       setNewPassword('')
       reset()
-    } catch {
-      // Error tracked in hook state
+    } catch (_error) {
+      // Error tracked in hook state — useChangePassword surfaces it via `error`
+      // already; re-throwing here would leave the modal open with no benefit.
     }
   }
 
-  const handleToggleTwoFactor = async (enabled: boolean) => {
+  const handleToggleTwoFactor = async (enabled: boolean): Promise<void> => {
     setTwoFactorLoading(true)
     try {
       await http.patch(`/api/users/${user?.id}`, { twoFactorEnabled: enabled })
       setTwoFactorEnabled(enabled)
-    } catch {
-      // Revert on failure
+    } catch (_error) {
+      // Best-effort optimistic update — the switch reverts visually because
+      // `setTwoFactorEnabled(enabled)` was not called; `finally` clears loading.
     } finally {
       setTwoFactorLoading(false)
     }

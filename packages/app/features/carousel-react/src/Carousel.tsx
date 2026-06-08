@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -51,7 +51,7 @@ export function Carousel({
   pauseOnHover = true,
   loop = true,
   className,
-}: CarouselProps) {
+}: CarouselProps): JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
   const total = children.length

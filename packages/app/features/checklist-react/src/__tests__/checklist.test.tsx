@@ -42,7 +42,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { Checklist } = await import('../Checklist.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const items = [
   { id: 'a', label: 'Set up profile', completed: true },

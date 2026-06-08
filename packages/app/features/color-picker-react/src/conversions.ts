@@ -51,7 +51,7 @@ export function hexToRgb(hex: string): RgbColor {
  * @returns The hex string.
  */
 export function rgbToHex({ r, g, b }: RgbColor): string {
-  const to = (n: number) => clamp(Math.round(n), 0, 255).toString(16).padStart(2, '0')
+  const to = (n: number): string => clamp(Math.round(n), 0, 255).toString(16).padStart(2, '0')
   return `#${to(r)}${to(g)}${to(b)}`
 }
 

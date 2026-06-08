@@ -5,8 +5,9 @@
  * @module
  */
 
+import { type JSX, useEffect, useState } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import { useEffect, useState } from 'react'
 
 import type { AdminTableRowAction } from './types.js'
 
@@ -17,12 +18,16 @@ interface AdminTableRowActionsProps<T> {
 }
 
 /** Three-dots row actions menu. */
-export function AdminTableRowActions<T>({ row, actions, ariaLabel }: AdminTableRowActionsProps<T>) {
+export function AdminTableRowActions<T>({
+  row,
+  actions,
+  ariaLabel,
+}: AdminTableRowActionsProps<T>): JSX.Element {
   const cm = getClassMap()
   const [open, setOpen] = useState(false)
   useEffect(() => {
     if (!open) return
-    const handler = () => setOpen(false)
+    const handler = (): void => setOpen(false)
     document.addEventListener('click', handler)
     return () => document.removeEventListener('click', handler)
   }, [open])

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -19,7 +19,7 @@ interface MessageMetaProps {
  * @param root0.timestamp
  * @param root0.className
  */
-export function MessageMeta({ author, timestamp, className }: MessageMetaProps) {
+export function MessageMeta({ author, timestamp, className }: MessageMetaProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.flex({ align: 'baseline', gap: 'sm' }), cm.textSize('xs'), className)}>

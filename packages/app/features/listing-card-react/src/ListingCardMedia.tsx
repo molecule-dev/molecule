@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -34,7 +34,7 @@ export function ListingCardMedia({
   aspect = '4/3',
   overlay,
   className,
-}: ListingCardMediaProps) {
+}: ListingCardMediaProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

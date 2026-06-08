@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactElement } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -60,7 +60,7 @@ export function AudioRecorder({
   maxDurationSeconds = 0,
   dataMolId,
   className,
-}: AudioRecorderProps) {
+}: AudioRecorderProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
 
@@ -84,8 +84,8 @@ export function AudioRecorder({
       if (recorderRef.current && recorderRef.current.state !== 'inactive') {
         try {
           recorderRef.current.stop()
-        } catch {
-          /* ignore */
+        } catch (_error) {
+          // Best-effort cleanup on unmount; recorder may already be inactive or torn down.
         }
       }
     }
@@ -110,8 +110,8 @@ export function AudioRecorder({
         // Auto-stop.
         try {
           recorderRef.current?.stop()
-        } catch {
-          /* ignore */
+        } catch (_error) {
+          // Best-effort auto-stop at max duration; recorder may have already stopped or been torn down.
         }
       }
     }, 250)

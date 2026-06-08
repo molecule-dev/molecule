@@ -1,5 +1,8 @@
+import type { JSX } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 
+/** A single step entry in a StatusTimeline. */
 export interface StatusTimelineStep {
   /** Stable identifier for this step (used as the React key). */
   key: string
@@ -7,6 +10,7 @@ export interface StatusTimelineStep {
   label: string
 }
 
+/** Props for the StatusTimeline component. */
 export interface StatusTimelineProps {
   /** Ordered list of steps from earliest to latest. */
   steps: ReadonlyArray<StatusTimelineStep>
@@ -40,9 +44,9 @@ export function StatusTimeline({
   ariaLabel,
   className,
   dataMolId,
-}: StatusTimelineProps) {
+}: StatusTimelineProps): JSX.Element {
   const cm = getClassMap()
-  const currentIdx = steps.findIndex(s => s.key === currentKey)
+  const currentIdx = steps.findIndex((s) => s.key === currentKey)
   return (
     <ol
       className={cm.cn('space-y-2', cm.textSize('sm'), className)}
@@ -55,7 +59,11 @@ export function StatusTimeline({
         return (
           <li key={step.key} className={cm.flex({ align: 'center', gap: 'sm' })}>
             <span
-              className={cm.cn(cm.roundedFull, 'h-2 w-2', reached ? 'bg-primary' : 'bg-outline-variant')}
+              className={cm.cn(
+                cm.roundedFull,
+                'h-2 w-2',
+                reached ? 'bg-primary' : 'bg-outline-variant',
+              )}
               aria-hidden="true"
             />
             <span

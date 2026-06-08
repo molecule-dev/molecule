@@ -34,15 +34,17 @@ export function toolInputChars(tc: { input?: unknown; streamInputChars?: number 
     let len = 0
     try {
       len = JSON.stringify(input).length
-    } catch {
-      /* unserializable input — skip */
+    } catch (_error) {
+      // Unserializable input (circular refs, BigInt, etc.) — 0 is a safe fallback;
+      // the token estimate degrades gracefully and the caller never throws.
     }
     toolInputCharCache.set(input, len)
     return len
   }
   try {
     return JSON.stringify(input).length
-  } catch {
+  } catch (_error) {
+    // Unserializable primitive (e.g. BigInt) — 0 is a safe fallback for the token estimate.
     return 0
   }
 }

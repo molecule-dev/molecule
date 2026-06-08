@@ -28,6 +28,8 @@ export class HistoryStack {
   private readonly limit: number
 
   /**
+   * Create a new history stack with the given undo/redo entry cap.
+   *
    * @param limit - Max number of undo entries kept. Defaults to 100.
    */
   constructor(limit: number = DEFAULT_HISTORY_LIMIT) {

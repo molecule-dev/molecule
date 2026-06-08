@@ -1,12 +1,13 @@
 import type {
   CSSProperties,
+  JSX,
   PointerEvent as ReactPointerEvent,
   WheelEvent as ReactWheelEvent,
 } from 'react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 import type { Clip } from '@molecule/app-feature-track-lane-react'
-import { TrackLane, clipToPixels, pixelsToTime } from '@molecule/app-feature-track-lane-react'
+import { clipToPixels, pixelsToTime, TrackLane } from '@molecule/app-feature-track-lane-react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -233,7 +234,7 @@ interface SeekDragState {
  * @param props - Component props.
  * @returns The multi-track timeline element.
  */
-export function VideoTimeline(props: VideoTimelineProps) {
+export function VideoTimeline(props: VideoTimelineProps): JSX.Element {
   const {
     tracks,
     currentTime,
@@ -307,13 +308,13 @@ export function VideoTimeline(props: VideoTimelineProps) {
    *
    * @param event - React pointer event from the ruler body.
    */
-  function onRulerPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+  function onRulerPointerDown(event: ReactPointerEvent<HTMLDivElement>): void {
     if (event.button !== undefined && event.button !== 0) return
     if (!onSeek) return
     seekDragRef.current = { pointerId: event.pointerId }
     try {
       event.currentTarget.setPointerCapture(event.pointerId)
-    } catch {
+    } catch (_error) {
       // jsdom doesn't always implement setPointerCapture; ignore.
     }
     onSeek(clientXToTime(event.clientX))
@@ -325,7 +326,7 @@ export function VideoTimeline(props: VideoTimelineProps) {
    *
    * @param event - React pointer event from the ruler body.
    */
-  function onRulerPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+  function onRulerPointerMove(event: ReactPointerEvent<HTMLDivElement>): void {
     const drag = seekDragRef.current
     if (!drag || drag.pointerId !== event.pointerId) return
     onSeek?.(clientXToTime(event.clientX))
@@ -336,14 +337,14 @@ export function VideoTimeline(props: VideoTimelineProps) {
    *
    * @param event - React pointer event from the ruler body.
    */
-  function onRulerPointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+  function onRulerPointerUp(event: ReactPointerEvent<HTMLDivElement>): void {
     const drag = seekDragRef.current
     if (!drag || drag.pointerId !== event.pointerId) return
     seekDragRef.current = null
     try {
       event.currentTarget.releasePointerCapture(event.pointerId)
-    } catch {
-      // ignore
+    } catch (_error) {
+      // releasePointerCapture may throw in jsdom/headless; pointer state already cleared above.
     }
   }
 
@@ -353,7 +354,7 @@ export function VideoTimeline(props: VideoTimelineProps) {
    *
    * @param event - React wheel event from the body.
    */
-  function onBodyWheel(event: ReactWheelEvent<HTMLDivElement>) {
+  function onBodyWheel(event: ReactWheelEvent<HTMLDivElement>): void {
     if (!event.ctrlKey) return
     if (!onZoomChange) return
     event.preventDefault()
@@ -369,7 +370,7 @@ export function VideoTimeline(props: VideoTimelineProps) {
    * @param clipId - The id of the dragged clip.
    * @param proposedStartTime - The candidate new `startTime`.
    */
-  function handleClipMove(trackId: string, clipId: string, proposedStartTime: number) {
+  function handleClipMove(trackId: string, clipId: string, proposedStartTime: number): void {
     if (!onClipMove) return
     const track = tracks.find((tr) => tr.id === trackId)
     if (!track) {

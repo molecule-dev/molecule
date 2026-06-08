@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import type { OAuthLogoProps } from './types.js'
 
 const IN_PATH =
@@ -21,7 +23,7 @@ export function LinkedInLogo({
   mode = 'brand',
   ariaLabel = 'LinkedIn',
   title,
-}: OAuthLogoProps) {
+}: OAuthLogoProps): JSX.Element {
   const isMono = mode === 'mono'
   return (
     <svg

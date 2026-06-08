@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -31,7 +33,7 @@ export type GradebookColumn = 'title' | 'letter' | 'numeric' | 'weight' | 'contr
  * @param props - Component props.
  * @returns The gradebook element.
  */
-export function Gradebook(props: GradebookProps) {
+export function Gradebook(props: GradebookProps): JSX.Element {
   const { grades, gpaScale, onCellClick, className } = props
   const cm = getClassMap()
   const { t } = useTranslation()
@@ -72,7 +74,7 @@ export function Gradebook(props: GradebookProps) {
    * @param column - The column identifier.
    * @returns A click handler or `undefined` when no callback was given.
    */
-  function handlerFor(grade: Grade, column: GradebookColumn) {
+  function handlerFor(grade: Grade, column: GradebookColumn): (() => void) | undefined {
     if (!onCellClick) return undefined
     return () => onCellClick(grade, column)
   }

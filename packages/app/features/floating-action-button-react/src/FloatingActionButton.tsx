@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -57,7 +57,7 @@ export function FloatingActionButton({
   size = 'md',
   showTooltip = true,
   className,
-}: FloatingActionButtonProps) {
+}: FloatingActionButtonProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const dim = SIZE_MAP[size] * 4 // px

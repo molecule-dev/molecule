@@ -6,9 +6,8 @@
 
 // @vitest-environment jsdom
 
-import { useState } from 'react'
-
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import React, { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -137,7 +136,8 @@ describe('<ColorPicker>', () => {
   })
 
   it('reflects parent-driven value updates in controlled mode', () => {
-    function Host() {
+    /** Controlled host component that drives ColorPicker value from parent state. */
+    function Host(): React.JSX.Element {
       const [c, setC] = useState('#000000')
       return (
         <div>

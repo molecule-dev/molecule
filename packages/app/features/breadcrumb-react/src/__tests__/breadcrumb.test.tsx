@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { Breadcrumb } = await import('../Breadcrumb.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const items = [
   { label: 'Home', to: '/' },

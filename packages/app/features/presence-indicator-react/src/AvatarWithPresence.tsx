@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -33,7 +33,7 @@ export function AvatarWithPresence({
   corner = 'bottom-right',
   dotSize,
   className,
-}: AvatarWithPresenceProps) {
+}: AvatarWithPresenceProps): JSX.Element {
   const cm = getClassMap()
   return (
     <span className={cm.cn(cm.position('relative'), className)} style={{ display: 'inline-block' }}>

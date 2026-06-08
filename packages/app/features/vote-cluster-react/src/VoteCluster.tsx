@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, JSX } from 'react'
 import { useCallback, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -33,7 +33,7 @@ function nextVote(current: VoteValue, direction: 1 | -1): VoteValue {
  * @param root0.size - Pixel size of the arrow.
  * @returns The rendered up-arrow SVG.
  */
-function UpArrow({ size }: { size: number }) {
+function UpArrow({ size }: { size: number }): JSX.Element {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden focusable={false}>
       <path d="M12 5l7 9H5l7-9z" fill="currentColor" />
@@ -42,11 +42,13 @@ function UpArrow({ size }: { size: number }) {
 }
 
 /**
+ * Inline down-arrow SVG, mirroring UpArrow.
+ *
  * @param root0 - Component props.
  * @param root0.size - Pixel size of the arrow.
  * @returns The rendered down-arrow SVG.
  */
-function DownArrow({ size }: { size: number }) {
+function DownArrow({ size }: { size: number }): JSX.Element {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden focusable={false}>
       <path d="M12 19l-7-9h14l-7 9z" fill="currentColor" />
@@ -80,7 +82,7 @@ export function VoteCluster({
   ariaLabel,
   dataMolId,
   className,
-}: VoteClusterProps) {
+}: VoteClusterProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
@@ -50,7 +50,7 @@ export function LeaderboardRow({
   isMe,
   onClick,
   className,
-}: LeaderboardRowProps) {
+}: LeaderboardRowProps): ReactElement {
   const cm = getClassMap()
   const dispName = typeof name === 'string' ? name : 'Player'
   return (

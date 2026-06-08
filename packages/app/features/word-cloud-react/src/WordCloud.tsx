@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -274,7 +276,7 @@ export function WordCloud({
   onWordClick,
   ariaLabel,
   className,
-}: WordCloudProps) {
+}: WordCloudProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 

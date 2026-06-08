@@ -16,9 +16,7 @@ export interface KanbanCardData {
   footer?: ReactNode
 }
 
-/**
- *
- */
+/** Data for a single kanban column, including its heading, optional accent, and ordered card list. */
 export interface KanbanColumnData {
   /** Column id. */
   id: string

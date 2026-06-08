@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -41,7 +41,7 @@ export function KanbanColumn({
   headerActions,
   footer,
   className,
-}: KanbanColumnProps) {
+}: KanbanColumnProps): JSX.Element {
   const cm = getClassMap()
   return (
     <section

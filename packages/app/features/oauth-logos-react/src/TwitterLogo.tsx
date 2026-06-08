@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import type { OAuthLogoProps } from './types.js'
 
 const PATH =
@@ -19,7 +21,7 @@ export function TwitterLogo({
   className,
   ariaLabel = 'X (Twitter)',
   title,
-}: OAuthLogoProps) {
+}: OAuthLogoProps): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

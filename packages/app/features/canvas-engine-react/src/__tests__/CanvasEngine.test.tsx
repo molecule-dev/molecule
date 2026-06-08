@@ -21,7 +21,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_tt, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
@@ -33,6 +33,7 @@ function buildStubClassMap(): UIClassMap {
   return new Proxy({}, handler) as unknown as UIClassMap
 }
 
+/** Wraps children with I18nProvider for test rendering. */
 function Wrap({ children }: { children: ReactNode }): React.ReactElement {
   return <I18nProvider provider={createSimpleI18nProvider('en')}>{children}</I18nProvider>
 }
@@ -121,7 +122,7 @@ describe('<CanvasEngine>', () => {
   it('exposes alignment via the imperative handle', () => {
     const ref = createRef<CanvasEngineHandle>()
     let current = baseDoc()
-    const onChange = (next: CanvasDocument) => {
+    const onChange = (next: CanvasDocument): void => {
       current = next
     }
     render(
@@ -151,10 +152,10 @@ describe('<CanvasEngine>', () => {
     const ref = createRef<CanvasEngineHandle>()
     let doc = baseDoc()
     let sel: readonly string[] = ['a', 'b']
-    const setSel = (next: readonly string[]) => {
+    const setSel = (next: readonly string[]): void => {
       sel = next
     }
-    const Host = () => (
+    const Host = (): React.ReactElement => (
       <CanvasEngine
         ref={ref}
         document={doc}
@@ -199,7 +200,7 @@ describe('<CanvasEngine>', () => {
   it('supports undo/redo round trips', () => {
     const ref = createRef<CanvasEngineHandle>()
     let doc = baseDoc()
-    const Host = () => (
+    const Host = (): React.ReactElement => (
       <CanvasEngine
         ref={ref}
         document={doc}

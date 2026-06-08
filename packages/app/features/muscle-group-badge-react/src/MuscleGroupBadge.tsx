@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -83,7 +83,7 @@ function MuscleGlyph({
   group: MuscleGroup
   accent: string
   size: number
-}) {
+}): JSX.Element {
   // Highlight regions per group. Coordinates are in a 24x24 viewBox.
   const highlight = (() => {
     switch (group) {
@@ -187,7 +187,7 @@ export function MuscleGroupBadge({
   accentColor,
   dataMolId,
   className,
-}: MuscleGroupBadgeProps) {
+}: MuscleGroupBadgeProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 

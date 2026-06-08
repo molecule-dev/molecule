@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, JSX } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -145,6 +145,7 @@ export interface ZxingReader {
  *
  * @param ctor - Constructor stub or `null`/`undefined`.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export function __setBarcodeDetectorOverride(
   ctor: BarcodeDetectorConstructor | null | undefined,
 ): void {
@@ -159,6 +160,7 @@ export function __setBarcodeDetectorOverride(
  *
  * @param loader - Loader stub or `null`/`undefined`.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export function __setZxingLoaderOverride(loader: ZxingLoader | null | undefined): void {
   zxingLoaderOverride = loader
 }
@@ -248,7 +250,7 @@ function mapMediaErrorCode(error: unknown): BarcodeScannerErrorCode {
  * @param props - Component props.
  * @returns The scanner element.
  */
-export function BarcodeScanner(props: BarcodeScannerProps) {
+export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element {
   const {
     formats = DEFAULT_FORMATS,
     onScan,
@@ -327,8 +329,8 @@ export function BarcodeScanner(props: BarcodeScannerProps) {
       if (zxingReader !== null) {
         try {
           zxingReader.reset()
-        } catch {
-          /* ignore — best-effort teardown */
+        } catch (_error) {
+          // best-effort teardown — reader may already be disposed; safe to ignore
         }
         zxingReader = null
       }
@@ -341,8 +343,8 @@ export function BarcodeScanner(props: BarcodeScannerProps) {
       if (video !== null) {
         try {
           video.pause()
-        } catch {
-          /* ignore — element may be detached */
+        } catch (_error) {
+          // best-effort teardown — video element may already be detached; safe to ignore
         }
         video.srcObject = null
       }
@@ -499,9 +501,9 @@ export function BarcodeScanner(props: BarcodeScannerProps) {
             handleResult({ format: result.format ?? 'unknown', value: result.text })
             if (!continuous) return
           }
-        } catch {
-          // NotFoundException and friends are normal misses; ignore
-          // them and keep polling.
+        } catch (_error) {
+          // NotFoundException and friends are normal misses from zxing; safe to
+          // ignore — the loop continues to the next tick regardless.
         }
         if (!cancelledRef.current) {
           pollHandle = setTimeout(() => {

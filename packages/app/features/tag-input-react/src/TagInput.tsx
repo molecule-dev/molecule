@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from 'react'
+import type { JSX, KeyboardEvent } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -25,7 +25,7 @@ interface TagInputProps {
 }
 
 /**
- *
+ * Default normalization: trims whitespace, rejects empty strings and duplicates.
  * @param raw
  * @param current
  */
@@ -55,15 +55,15 @@ export function TagInput({
   normalize = defaultNormalize,
   maxTags,
   className,
-}: TagInputProps) {
+}: TagInputProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [draft, setDraft] = useState('')
 
   /**
-   *
+   * Validates and commits the current draft value as a new tag.
    */
-  function commit() {
+  function commit(): void {
     if (maxTags !== undefined && value.length >= maxTags) {
       setDraft('')
       return
@@ -74,10 +74,10 @@ export function TagInput({
   }
 
   /**
-   *
+   * Handles Enter/comma/Tab to commit a tag, and Backspace to remove the last tag.
    * @param e
    */
-  function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+  function onKeyDown(e: KeyboardEvent<HTMLInputElement>): void {
     if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab') {
       if (draft.trim()) {
         e.preventDefault()

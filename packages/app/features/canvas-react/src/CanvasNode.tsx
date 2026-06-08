@@ -1,4 +1,4 @@
-import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from 'react'
+import type { CSSProperties, JSX, PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { useCallback, useRef } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -82,7 +82,7 @@ function readSurfaceZoom(el: Element | null): number {
  * @param props - Component props.
  * @returns The node element.
  */
-export function CanvasNode(props: CanvasNodeProps) {
+export function CanvasNode(props: CanvasNodeProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 
@@ -119,8 +119,8 @@ export function CanvasNode(props: CanvasNodeProps) {
       movedDuringGesture.current = false
       try {
         e.currentTarget.setPointerCapture(e.pointerId)
-      } catch {
-        /* jsdom */
+      } catch (_error) {
+        // setPointerCapture throws in jsdom; drag still works without exclusive capture.
       }
     },
     [position],
@@ -160,8 +160,8 @@ export function CanvasNode(props: CanvasNodeProps) {
       dragLastScreen.current = null
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
-      } catch {
-        /* ignore */
+      } catch (_error) {
+        // releasePointerCapture throws in jsdom; safe to ignore — capture was never held.
       }
       if (movedDuringGesture.current) {
         onDrag?.({
@@ -188,8 +188,8 @@ export function CanvasNode(props: CanvasNodeProps) {
       resizeStartSize.current = { ...size }
       try {
         e.currentTarget.setPointerCapture(e.pointerId)
-      } catch {
-        /* jsdom */
+      } catch (_error) {
+        // setPointerCapture throws in jsdom; resize still works without exclusive capture.
       }
     },
     [onResize, size],
@@ -226,8 +226,8 @@ export function CanvasNode(props: CanvasNodeProps) {
       resizeStartSize.current = null
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
-      } catch {
-        /* ignore */
+      } catch (_error) {
+        // releasePointerCapture throws in jsdom; safe to ignore — capture was never held.
       }
       if (onResize && startSize) {
         onResize({

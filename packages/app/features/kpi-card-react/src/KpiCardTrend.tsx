@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 
 import type { KpiTrendDirection } from './KpiCard.js'
@@ -25,7 +27,12 @@ interface KpiCardTrendProps {
  * @param root0.suffix
  * @param root0.className
  */
-export function KpiCardTrend({ delta, direction, suffix = '%', className }: KpiCardTrendProps) {
+export function KpiCardTrend({
+  delta,
+  direction,
+  suffix = '%',
+  className,
+}: KpiCardTrendProps): JSX.Element {
   const cm = getClassMap()
   const dir: KpiTrendDirection = direction ?? (delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat')
   const arrow = dir === 'up' ? '▲' : dir === 'down' ? '▼' : '–'

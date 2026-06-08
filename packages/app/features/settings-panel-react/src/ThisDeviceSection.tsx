@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { useDevice, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex } from '@molecule/app-ui-react'
@@ -8,7 +10,7 @@ import { Flex } from '@molecule/app-ui-react'
  * Reads from `@molecule/app-device` (useDevice hook) + browser
  * `navigator.onLine`. No side effects, no app-specific state.
  */
-export function ThisDeviceSection() {
+export function ThisDeviceSection(): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const { deviceInfo } = useDevice()

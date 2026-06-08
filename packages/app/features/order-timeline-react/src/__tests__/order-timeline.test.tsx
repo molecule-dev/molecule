@@ -25,7 +25,7 @@ vi.mock('@molecule/app-ui', () => ({
 const { OrderTimeline } = await import('../OrderTimeline.js')
 import type { OrderMilestone } from '../OrderTimeline.js'
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const milestones: OrderMilestone[] = [
   { id: 'placed', label: 'Placed', detail: 'Mar 1', completed: true },

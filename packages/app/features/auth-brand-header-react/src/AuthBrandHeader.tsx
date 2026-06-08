@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -32,11 +32,14 @@ export interface AuthBrandHeaderChipProps {
   chipShape?: 'round' | 'square'
 }
 
+/**
+ * Renders the gradient material-symbols chip shown above the wordmark.
+ */
 export function AuthBrandHeaderChip({
   icon,
   chipGradient,
   chipShape = 'round',
-}: AuthBrandHeaderChipProps) {
+}: AuthBrandHeaderChipProps): JSX.Element {
   const cm = getClassMap()
   // When no `chipGradient` is supplied, fall back to `bg-primary` so the
   // white icon glyph always has a colored backdrop. Without this, apps
@@ -78,11 +81,14 @@ export interface AuthBrandHeaderWordmarkProps {
   className?: string
 }
 
+/**
+ * Renders the wordmark `<h1>` with optional inline color and extra classes.
+ */
 export function AuthBrandHeaderWordmark({
   children,
   color,
   className,
-}: AuthBrandHeaderWordmarkProps) {
+}: AuthBrandHeaderWordmarkProps): JSX.Element {
   const cm = getClassMap()
   // Default to `text-on-surface` so the wordmark renders with the
   // correct contrast in both light and dark themes when the parent
@@ -113,7 +119,13 @@ export interface AuthBrandHeaderTaglineProps {
   className?: string
 }
 
-export function AuthBrandHeaderTagline({ children, className }: AuthBrandHeaderTaglineProps) {
+/**
+ * Renders the tagline `<p>` with a muted style and optional extra classes.
+ */
+export function AuthBrandHeaderTagline({
+  children,
+  className,
+}: AuthBrandHeaderTaglineProps): JSX.Element {
   const cm = getClassMap()
   return (
     <p
@@ -160,6 +172,9 @@ export interface AuthBrandHeaderProps {
   wordmarkColor?: string
 }
 
+/**
+ * Centered auth-page brand header supporting both composable children and preset mode.
+ */
 export function AuthBrandHeader({
   children,
   className,
@@ -169,7 +184,7 @@ export function AuthBrandHeader({
   chipGradient,
   chipShape,
   wordmarkColor,
-}: AuthBrandHeaderProps) {
+}: AuthBrandHeaderProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 

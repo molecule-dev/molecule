@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -52,16 +52,20 @@ export function KanbanBoard({
   renderHeaderActions,
   renderFooter,
   className,
-}: KanbanBoardProps) {
+}: KanbanBoardProps): JSX.Element {
   const cm = getClassMap()
 
   /**
-   *
+   * Stores card identity in the drag payload so the drop handler knows the source column.
    * @param card
    * @param column
    * @param e
    */
-  function onCardDragStart(card: KanbanCardData, column: KanbanColumnData, e: React.DragEvent) {
+  function onCardDragStart(
+    card: KanbanCardData,
+    column: KanbanColumnData,
+    e: React.DragEvent,
+  ): void {
     e.dataTransfer.setData(
       'text/molecule-kanban',
       JSON.stringify({ cardId: card.id, fromColumnId: column.id }),
@@ -70,11 +74,11 @@ export function KanbanBoard({
   }
 
   /**
-   *
+   * Handles a card drop onto a column, parsing the drag payload and invoking onCardMove.
    * @param column
    * @param e
    */
-  function onDrop(column: KanbanColumnData, e: React.DragEvent) {
+  function onDrop(column: KanbanColumnData, e: React.DragEvent): void {
     e.preventDefault()
     const payload = e.dataTransfer.getData('text/molecule-kanban')
     if (!payload || !onCardMove) return
@@ -84,8 +88,8 @@ export function KanbanBoard({
         fromColumnId: string
       }
       if (fromColumnId !== column.id) onCardMove(cardId, fromColumnId, column.id)
-    } catch {
-      // ignore malformed drop payloads
+    } catch (_error) {
+      // Safe to ignore: dataTransfer payload is untrusted/malformed — we simply cancel the drop.
     }
   }
 

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -33,7 +33,12 @@ const DOT_COLOR: Record<StatusKind, string> = {
  * @param root0.dot
  * @param root0.className
  */
-export function StatusPill({ kind = 'neutral', children, dot = true, className }: StatusPillProps) {
+export function StatusPill({
+  kind = 'neutral',
+  children,
+  dot = true,
+  className,
+}: StatusPillProps): JSX.Element {
   const cm = getClassMap()
   return (
     <span

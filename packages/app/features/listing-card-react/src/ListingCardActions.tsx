@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -22,7 +22,7 @@ export function ListingCardActions({
   children,
   layout = 'horizontal',
   className,
-}: ListingCardActionsProps) {
+}: ListingCardActionsProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

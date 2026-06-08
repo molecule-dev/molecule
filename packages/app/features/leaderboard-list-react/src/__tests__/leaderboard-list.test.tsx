@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { LeaderboardList } = await import('../LeaderboardList.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('LeaderboardList', () => {
   it('renders its children', () => {

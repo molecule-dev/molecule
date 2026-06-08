@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
@@ -44,7 +44,7 @@ export function AchievementCard({
   progress,
   tier,
   className,
-}: AchievementCardProps) {
+}: AchievementCardProps): ReactElement {
   const cm = getClassMap()
   return (
     <Card

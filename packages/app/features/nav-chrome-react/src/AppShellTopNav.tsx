@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -38,7 +38,7 @@ export function AppShellTopNav({
   onItemClick,
   right,
   className,
-}: AppShellTopNavProps) {
+}: AppShellTopNavProps): JSX.Element {
   const cm = getClassMap()
   return (
     <header

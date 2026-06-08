@@ -1,13 +1,11 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Switch } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** Describes a single cookie category offered in the granular consent UI. */
 export interface CookieCategory {
   id: string
   label: ReactNode
@@ -70,7 +68,7 @@ export function CookieBanner({
   visible = true,
   onDismiss,
   className,
-}: CookieBannerProps) {
+}: CookieBannerProps): ReactElement | null {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [showDetails, setShowDetails] = useState(false)
@@ -81,10 +79,10 @@ export function CookieBanner({
   })
   if (!visible) return null
   /**
-   *
+   * Calls the optional callback then fires the shared onDismiss handler.
    * @param fn
    */
-  function dismissAfter(fn?: () => void) {
+  function dismissAfter(fn?: () => void): void {
     fn?.()
     onDismiss?.()
   }

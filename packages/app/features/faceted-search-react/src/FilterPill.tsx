@@ -7,8 +7,9 @@
  * @module
  */
 
+import { type JSX, type ReactNode, useEffect, useRef, useState } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import { type ReactNode, useEffect, useRef, useState } from 'react'
 
 interface FilterPillProps {
   label: ReactNode
@@ -34,13 +35,13 @@ export function FilterPill({
   leadingIcon,
   panelAlign = 'left',
   dataMolId,
-}: FilterPillProps) {
+}: FilterPillProps): JSX.Element {
   const cm = getClassMap()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!open) return
-    const handler = (e: MouseEvent) => {
+    const handler = (e: MouseEvent): void => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }
     document.addEventListener('mousedown', handler)

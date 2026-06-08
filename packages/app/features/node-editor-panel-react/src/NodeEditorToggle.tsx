@@ -5,8 +5,9 @@
  * @module
  */
 
+import type { JSX, ReactNode } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
 
 interface NodeEditorToggleProps {
   title: ReactNode
@@ -26,7 +27,7 @@ export function NodeEditorToggle({
   checked,
   onChange,
   ariaLabel,
-}: NodeEditorToggleProps) {
+}: NodeEditorToggleProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

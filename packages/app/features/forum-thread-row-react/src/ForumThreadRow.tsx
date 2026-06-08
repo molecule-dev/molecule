@@ -63,7 +63,7 @@ export function ForumThreadRow({
   voteControls,
   onClick,
   className,
-}: ForumThreadRowProps) {
+}: ForumThreadRowProps): ReactNode {
   const cm = getClassMap()
   return (
     <article

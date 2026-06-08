@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -32,7 +32,7 @@ export function RowWithActions({
   onClick,
   selected,
   className,
-}: RowWithActionsProps) {
+}: RowWithActionsProps): JSX.Element {
   const cm = getClassMap()
   return (
     <tr

@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -46,7 +46,7 @@ const { SettingsSection } = await import('../SettingsSection.js')
 const { SettingsSidebar } = await import('../SettingsSidebar.js')
 import type { SettingsSidebarItem } from '../SettingsSidebar.js'
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('SettingsContent', () => {
   it('renders its children', () => {

@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactElement } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -51,7 +51,7 @@ export function DayTimeline({
   showAxisLabels = true,
   dataMolId,
   className,
-}: DayTimelineProps) {
+}: DayTimelineProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
 
@@ -162,7 +162,7 @@ interface DayEventProps {
  * @param props - Internal sub-props.
  * @returns The rendered event card.
  */
-function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps) {
+function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactElement {
   const cm = getClassMap()
   const safeEnd = Math.max(event.endHour, event.startHour + 0.25)
   const top = (event.startHour - startHour) * pxPerHour

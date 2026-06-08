@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 /**
  * Single dot + icon marker used by `<ActivityTimeline>`. Exposed so
  * consumers can compose their own timeline layouts when the default
@@ -5,7 +7,6 @@
  *
  * @module
  */
-
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TimelineKindTone } from './types.js'
@@ -16,7 +17,7 @@ interface ActivityTimelineDotProps {
 }
 
 /** Dot + icon marker. */
-export function ActivityTimelineDot({ tone, className }: ActivityTimelineDotProps) {
+export function ActivityTimelineDot({ tone, className }: ActivityTimelineDotProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

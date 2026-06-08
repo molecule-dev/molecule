@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -20,7 +20,12 @@ interface KanbanColumnHeaderProps {
  * @param root0.actions
  * @param root0.className
  */
-export function KanbanColumnHeader({ title, count, actions, className }: KanbanColumnHeaderProps) {
+export function KanbanColumnHeader({
+  title,
+  count,
+  actions,
+  className,
+}: KanbanColumnHeaderProps): JSX.Element {
   const cm = getClassMap()
   return (
     <header

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 /**
  * Supported file kinds. Drives icon selection and the "<kind>" portion of
@@ -96,7 +96,7 @@ const PATHS: Record<FileKind, ReactNode> = {
  * @param props.ariaLabel - Optional aria-label; when omitted the icon is decorative.
  * @returns The SVG icon element.
  */
-export function FileIcon({ kind, size = 24, ariaLabel }: FileIconProps) {
+export function FileIcon({ kind, size = 24, ariaLabel }: FileIconProps): JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

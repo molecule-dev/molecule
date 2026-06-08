@@ -6,7 +6,7 @@
  * @module
  */
 
-import { useCallback, useState } from 'react'
+import { type JSX, useCallback, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -18,12 +18,13 @@ interface CopyLinkFieldProps {
 }
 
 /**
+ * Renders a read-only text input paired with a copy button that writes the given URL to the clipboard.
  *
  * @param root0
  * @param root0.value
  * @param root0.className
  */
-export function CopyLinkField({ value, className }: CopyLinkFieldProps) {
+export function CopyLinkField({ value, className }: CopyLinkFieldProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)

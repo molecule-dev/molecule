@@ -37,7 +37,7 @@
  * @module
  */
 
-import { test as base, expect, type ConsoleMessage } from '@playwright/test'
+import { type ConsoleMessage, expect, test as base } from '@playwright/test'
 
 interface ConsoleErrorEntry {
   type: 'pageerror' | 'console.error'

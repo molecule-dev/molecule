@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { ListItemRow } = await import('../ListItemRow.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('ListItemRow', () => {
   it('renders the title', () => {

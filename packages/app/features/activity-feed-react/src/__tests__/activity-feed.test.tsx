@@ -34,7 +34,7 @@ const { ActivityFeedGroup } = await import('../ActivityFeedGroup.js')
 const { ActivityFeedItem } = await import('../ActivityFeedItem.js')
 import type { ActivityFeedItemData } from '../types.js'
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const item = (id: string, over: Partial<ActivityFeedItemData> = {}): ActivityFeedItemData => ({
   id,

@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { RatingDisplay } = await import('../RatingDisplay.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('RatingDisplay', () => {
   it('renders one star svg per max with role="img" and a default aria-label', () => {

@@ -26,7 +26,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_t, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
@@ -235,7 +235,8 @@ describe('<PasswordStrengthMeter>', () => {
         <PasswordStrengthMeter password="abc" minScore={2} />
       </Wrap>,
     )
-    const bar = () => container.querySelector('[data-mol-id="password-strength-meter-bar"]')!
+    const bar = (): Element =>
+      container.querySelector('[data-mol-id="password-strength-meter-bar"]')!
     expect(bar().getAttribute('data-meets-min')).toBe('false')
     rerender(
       <Wrap>

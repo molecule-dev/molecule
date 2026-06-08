@@ -1,17 +1,13 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Switch } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** Discriminant for the kind of feature flag (boolean, multivariate, percentage rollout, or string variant). */
 export type FlagType = 'boolean' | 'multivariate' | 'percentage' | 'string'
 
-/**
- *
- */
+/** Per-environment state for a feature flag, including enabled status and optional rollout percentage. */
 export interface FeatureFlagEnvironment {
   /** Environment id (e.g. "production", "staging"). */
   id: string
@@ -23,9 +19,7 @@ export interface FeatureFlagEnvironment {
   rolloutPct?: number
 }
 
-/**
- *
- */
+/** Complete definition of a feature flag including its key, display name, type, and per-environment configuration. */
 export interface FeatureFlag {
   key: string
   name: ReactNode
@@ -50,7 +44,7 @@ interface FeatureFlagRowProps {
  * @param root0.onToggle
  * @param root0.className
  */
-export function FeatureFlagRow({ flag, onToggle, className }: FeatureFlagRowProps) {
+export function FeatureFlagRow({ flag, onToggle, className }: FeatureFlagRowProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   return (

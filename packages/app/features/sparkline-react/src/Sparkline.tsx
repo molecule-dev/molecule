@@ -1,3 +1,5 @@
+import type { ReactElement } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 
 interface SparklineProps {
@@ -38,14 +40,14 @@ export function Sparkline({
   color = 'currentColor',
   ariaLabel,
   className,
-}: SparklineProps) {
+}: SparklineProps): ReactElement | null {
   const cm = getClassMap()
   if (values.length === 0) return null
   const min = Math.min(...values)
   const max = Math.max(...values)
   const range = max - min || 1
   const stepX = values.length === 1 ? 0 : width / (values.length - 1)
-  const y = (v: number) => height - ((v - min) / range) * height
+  const y = (v: number): number => height - ((v - min) / range) * height
   return (
     <svg
       width={width}

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
@@ -51,7 +51,7 @@ export function ChartCard({
   minChartHeight = 240,
   className,
   dataMolId,
-}: ChartCardProps) {
+}: ChartCardProps): JSX.Element {
   const cm = getClassMap()
   return (
     <Card className={className} data-mol-id={dataMolId}>

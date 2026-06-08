@@ -25,7 +25,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_t, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
@@ -132,7 +132,7 @@ describe('<NowPlayingBar>', () => {
         />
       </Wrap>,
     )
-    const btn = () => container.querySelector('[data-mol-id="now-playing-bar-play"]')!
+    const btn = (): Element => container.querySelector('[data-mol-id="now-playing-bar-play"]')!
     expect(btn().getAttribute('aria-label')).toBe('Play')
     expect(btn().getAttribute('aria-pressed')).toBe('false')
 

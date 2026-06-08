@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -25,7 +25,12 @@ interface TimelineProps {
  * @param root0.emptyState
  * @param root0.className
  */
-export function Timeline({ events, renderDateSeparator, emptyState, className }: TimelineProps) {
+export function Timeline({
+  events,
+  renderDateSeparator,
+  emptyState,
+  className,
+}: TimelineProps): ReactElement {
   const cm = getClassMap()
   if (events.length === 0 && emptyState) return <>{emptyState}</>
   return (

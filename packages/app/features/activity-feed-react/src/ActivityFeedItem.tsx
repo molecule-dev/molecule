@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
@@ -17,7 +19,7 @@ interface ActivityFeedItemProps {
  * @param root0.item
  * @param root0.className
  */
-export function ActivityFeedItem({ item, className }: ActivityFeedItemProps) {
+export function ActivityFeedItem({ item, className }: ActivityFeedItemProps): JSX.Element {
   const cm = getClassMap()
   return (
     <article className={cm.cn(cm.flex({ align: 'start', gap: 'sm' }), className)}>

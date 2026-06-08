@@ -31,6 +31,6 @@
  * @module
  */
 
-export * from './NpsDistribution.js'
 export * from './computeNps.js'
+export * from './NpsDistribution.js'
 export * from './types.js'

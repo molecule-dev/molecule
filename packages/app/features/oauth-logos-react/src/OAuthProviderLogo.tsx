@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { AppleLogo } from './AppleLogo.js'
 import { DiscordLogo } from './DiscordLogo.js'
 import { FacebookLogo } from './FacebookLogo.js'
@@ -31,7 +33,11 @@ interface OAuthProviderLogoProps extends OAuthLogoProps {
  * <OAuthProviderLogo provider="google" size={24} />
  * ```
  */
-export function OAuthProviderLogo({ provider, fallback = null, ...rest }: OAuthProviderLogoProps) {
+export function OAuthProviderLogo({
+  provider,
+  fallback = null,
+  ...rest
+}: OAuthProviderLogoProps): JSX.Element {
   switch (provider) {
     case 'github':
       return <GitHubLogo {...rest} />

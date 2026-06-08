@@ -41,7 +41,7 @@
  * @module
  */
 
-export * from './types.js'
+export * from './BillingStatusBadge.js'
 export * from './hooks.js'
 export * from './PricingPage.js'
-export * from './BillingStatusBadge.js'
+export * from './types.js'

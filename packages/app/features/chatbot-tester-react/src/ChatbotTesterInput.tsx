@@ -5,6 +5,8 @@
  * @module
  */
 
+import type { JSX } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 
 interface ChatbotTesterInputProps {
@@ -24,7 +26,7 @@ export function ChatbotTesterInput({
   loading,
   placeholder = 'Type a message…',
   sendLabel = 'Send',
-}: ChatbotTesterInputProps) {
+}: ChatbotTesterInputProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

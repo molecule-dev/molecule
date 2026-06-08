@@ -32,7 +32,7 @@ vi.mock('@molecule/app-react', () => ({
 const { TagChip } = await import('../TagChip.js')
 const { TagInput } = await import('../TagInput.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('TagChip', () => {
   it('renders its children', () => {

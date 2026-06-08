@@ -5,6 +5,7 @@ import { useTranslation, useVersion } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Icon, Modal } from '@molecule/app-ui-react'
 
+/** Props for the AppFooter component. */
 export interface AppFooterProps {
   /** Display name interpolated into the "About {{appName}}" link. */
   appName: string
@@ -60,7 +61,7 @@ export function AppFooter({
   termsTo = '/terms',
   className,
   dataMolId,
-}: AppFooterProps) {
+}: AppFooterProps): React.JSX.Element {
   const cm = getClassMap()
   const { t, locale, setLocale, locales } = useTranslation()
   const { state: versionState } = useVersion()
@@ -76,12 +77,12 @@ export function AppFooter({
 
   const aboutLabel = t('footer.about', { appName }, { defaultValue: 'About {{appName}}' })
 
-  const openPrivacy = async () => {
+  const openPrivacy = async (): Promise<void> => {
     if (loadContent) await loadContent('privacyPolicy')
     setPrivacyOpen(true)
   }
 
-  const openTerms = async () => {
+  const openTerms = async (): Promise<void> => {
     if (loadContent) await loadContent('termsOfService')
     setTermsOpen(true)
   }
@@ -89,26 +90,34 @@ export function AppFooter({
   return (
     <>
       <section className={cm.cn(cm.footerBar, className)} data-mol-id={dataMolId}>
-        {isExternalHref(aboutHref)
-          ? <a href={aboutHref} target="_blank" rel="noopener noreferrer" className={cm.footerLink}>{aboutLabel}</a>
-          : <Link to={aboutHref} className={cm.footerLink}>{aboutLabel}</Link>}
-        {legalMode === 'modal'
-          ? <>
-              <button type="button" onClick={openPrivacy} className={cm.footerButton}>
-                {t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
-              </button>
-              <button type="button" onClick={openTerms} className={cm.footerButton}>
-                {t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
-              </button>
-            </>
-          : <>
-              <Link to={privacyTo} className={cm.footerButton}>
-                {t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
-              </Link>
-              <Link to={termsTo} className={cm.footerButton}>
-                {t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
-              </Link>
-            </>}
+        {isExternalHref(aboutHref) ? (
+          <a href={aboutHref} target="_blank" rel="noopener noreferrer" className={cm.footerLink}>
+            {aboutLabel}
+          </a>
+        ) : (
+          <Link to={aboutHref} className={cm.footerLink}>
+            {aboutLabel}
+          </Link>
+        )}
+        {legalMode === 'modal' ? (
+          <>
+            <button type="button" onClick={openPrivacy} className={cm.footerButton}>
+              {t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
+            </button>
+            <button type="button" onClick={openTerms} className={cm.footerButton}>
+              {t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to={privacyTo} className={cm.footerButton}>
+              {t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
+            </Link>
+            <Link to={termsTo} className={cm.footerButton}>
+              {t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
+            </Link>
+          </>
+        )}
         <button
           type="button"
           onClick={() => setLanguageOpen(true)}

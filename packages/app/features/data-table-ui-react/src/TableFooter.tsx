@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -18,7 +18,7 @@ interface TableFooterProps {
  * @param root0.right
  * @param root0.className
  */
-export function TableFooter({ left, right, className }: TableFooterProps) {
+export function TableFooter({ left, right, className }: TableFooterProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

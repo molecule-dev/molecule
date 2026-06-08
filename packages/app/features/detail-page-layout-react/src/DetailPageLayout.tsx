@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -48,7 +48,7 @@ export function DetailPageLayout({
   sidebarWidth = 'md',
   className,
   dataMolId,
-}: DetailPageLayoutProps) {
+}: DetailPageLayoutProps): JSX.Element {
   const cm = getClassMap()
   const sidebarStyle = { flexBasis: `${SIDEBAR_WIDTH[sidebarWidth] * 4}px`, flexShrink: 0 }
   return (

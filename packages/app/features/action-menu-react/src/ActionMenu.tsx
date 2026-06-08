@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
 /**
- *
+ * A single item in the ActionMenu list.
  */
 export interface ActionMenuItem {
   /** Unique id. */
@@ -58,24 +58,24 @@ export function ActionMenu({
   align = 'right',
   triggerAriaLabel = 'Actions',
   className,
-}: ActionMenuProps) {
+}: ActionMenuProps): ReactElement {
   const cm = getClassMap()
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLSpanElement>(null)
   useEffect(() => {
     if (!open) return
     /**
-     *
+     * Close the menu when a mousedown occurs outside the wrapper element.
      * @param e
      */
-    function onDoc(e: MouseEvent) {
+    function onDoc(e: MouseEvent): void {
       if (!wrapRef.current?.contains(e.target as Node)) setOpen(false)
     }
     /**
-     *
+     * Close the menu when the Escape key is pressed.
      * @param e
      */
-    function onEsc(e: KeyboardEvent) {
+    function onEsc(e: KeyboardEvent): void {
       if (e.key === 'Escape') setOpen(false)
     }
     document.addEventListener('mousedown', onDoc)

@@ -31,7 +31,7 @@ vi.mock('@molecule/app-react', () => ({
 
 const { EmojiReactions } = await import('../EmojiReactions.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const reactions = [
   { emoji: '👍', count: 3 },

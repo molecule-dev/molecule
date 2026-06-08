@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** A single navigable item in the settings sidebar. */
 export interface SettingsSidebarItem {
   id: string
   label: ReactNode
@@ -36,7 +34,7 @@ export function SettingsSidebar({
   onSelect,
   footer,
   className,
-}: SettingsSidebarProps) {
+}: SettingsSidebarProps): JSX.Element {
   const cm = getClassMap()
   return (
     <nav className={cm.cn(cm.stack(1 as const), className)} aria-label="Settings">

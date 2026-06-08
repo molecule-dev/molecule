@@ -1,4 +1,4 @@
-import { type ReactNode, useCallback, useEffect, useState } from 'react'
+import { type JSX, type ReactNode, useCallback, useEffect, useState } from 'react'
 
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -23,19 +23,19 @@ export function DevicesSection({
   renderRowIcon,
 }: {
   renderRowIcon?: (device: Device) => ReactNode
-} = {}) {
+} = {}): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const http = useHttpClient()
   const [devices, setDevices] = useState<Device[]>([])
   const [loading, setLoading] = useState(true)
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (): Promise<void> => {
     try {
       const response = await http.get<{ data: Device[] }>('/api/devices')
       setDevices(response.data.data || [])
-    } catch {
-      // Devices may not be available
+    } catch (_error) {
+      // Devices endpoint is optional; the section renders empty when unavailable.
     } finally {
       setLoading(false)
     }

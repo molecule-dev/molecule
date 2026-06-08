@@ -1,5 +1,5 @@
 /**
- * React ChartCard + ChartLegend wrappers around @molecule/app-charts.
+ * React ChartCard + ChartLegend wrappers around `@molecule/app-charts`.
  *
  * Exports:
  * - `<ChartCard>` — uniform chrome (title / description / actions / summary /

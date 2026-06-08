@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -55,7 +55,7 @@ export function ListItemRow({
   disabled,
   density = 'comfortable',
   className,
-}: ListItemRowProps) {
+}: ListItemRowProps): JSX.Element {
   const cm = getClassMap()
   const padY = density === 'compact' ? 2 : 3
   return (

@@ -1,4 +1,4 @@
-import type { KeyboardEvent, PointerEvent } from 'react'
+import type { JSX, KeyboardEvent, PointerEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -51,7 +51,7 @@ export interface LayerPanelProps {
  * @param props - {@link LayerPanelProps}.
  * @returns The layer panel element.
  */
-export function LayerPanel(props: LayerPanelProps) {
+export function LayerPanel(props: LayerPanelProps): JSX.Element {
   const {
     layers,
     onReorder,
@@ -81,7 +81,7 @@ export function LayerPanel(props: LayerPanelProps) {
    * @param id - Id of the layer in that row.
    * @param event - The originating pointer event.
    */
-  function onRowPointerDown(index: number, id: string, event: PointerEvent<HTMLLIElement>) {
+  function onRowPointerDown(index: number, id: string, event: PointerEvent<HTMLLIElement>): void {
     if (event.button !== 0) return
     const layer = layers[index]
     if (!layer || layer.locked) return
@@ -99,7 +99,7 @@ export function LayerPanel(props: LayerPanelProps) {
    *
    * @param event - The pointer-move event.
    */
-  function onRowPointerMove(event: PointerEvent<HTMLLIElement>) {
+  function onRowPointerMove(event: PointerEvent<HTMLLIElement>): void {
     if (draggingId === null) return
     const target = document.elementFromPoint(event.clientX, event.clientY)
     if (!target) return
@@ -114,7 +114,7 @@ export function LayerPanel(props: LayerPanelProps) {
    * destination differs from the source — and reset all transient drag
    * state.
    */
-  function endDrag() {
+  function endDrag(): void {
     if (draggingId !== null && dragStartIndexRef.current !== null && overIndex !== null) {
       const next = moveLayer(layers, dragStartIndexRef.current, overIndex)
       if (next !== layers) onReorder(next)
@@ -130,7 +130,7 @@ export function LayerPanel(props: LayerPanelProps) {
    *
    * @param layer - The layer to rename.
    */
-  function startRename(layer: Layer) {
+  function startRename(layer: Layer): void {
     if (layer.locked) return
     editingValueRef.current = layer.name
     setEditingId(layer.id)
@@ -142,7 +142,7 @@ export function LayerPanel(props: LayerPanelProps) {
    *
    * @param layer - The layer whose rename is being committed.
    */
-  function commitRename(layer: Layer) {
+  function commitRename(layer: Layer): void {
     const next = editingValueRef.current.trim()
     if (next.length > 0 && next !== layer.name) {
       onRename(layer.id, next)
@@ -151,7 +151,7 @@ export function LayerPanel(props: LayerPanelProps) {
   }
 
   /** Cancel an inline rename without persisting. */
-  function cancelRename() {
+  function cancelRename(): void {
     setEditingId(null)
   }
 
@@ -162,7 +162,7 @@ export function LayerPanel(props: LayerPanelProps) {
    * @param event - The keyboard event.
    * @param layer - The layer being renamed.
    */
-  function onRenameKeyDown(event: KeyboardEvent<HTMLInputElement>, layer: Layer) {
+  function onRenameKeyDown(event: KeyboardEvent<HTMLInputElement>, layer: Layer): void {
     if (event.key === 'Enter') {
       event.preventDefault()
       commitRename(layer)

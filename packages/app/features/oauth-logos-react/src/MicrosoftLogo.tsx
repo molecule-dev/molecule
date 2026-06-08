@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import type { OAuthLogoProps } from './types.js'
 
 /**
@@ -17,7 +19,7 @@ export function MicrosoftLogo({
   mode = 'brand',
   ariaLabel = 'Microsoft',
   title,
-}: OAuthLogoProps) {
+}: OAuthLogoProps): JSX.Element {
   const isMono = mode === 'mono'
   return (
     <svg

@@ -2,9 +2,7 @@ import type { ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Shape of a single webhook delivery attempt shown in the inspector. */
 export interface WebhookDelivery {
   id: string
   /** Event type name (e.g. "payment.succeeded"). */
@@ -39,7 +37,7 @@ interface WebhookInspectorProps {
 }
 
 /**
- *
+ * Returns a hex color string for the given delivery status.
  * @param s
  */
 function statusColor(s: WebhookDelivery['status']): string {
@@ -65,10 +63,10 @@ export function WebhookInspector({
   onSelect,
   selectedId,
   className,
-}: WebhookInspectorProps) {
+}: WebhookInspectorProps): ReactNode {
   const cm = getClassMap()
   /**
-   *
+   * Serialises a request/response body value to a display string.
    * @param v
    */
   function stringify(v: string | unknown | undefined): string {
@@ -76,7 +74,8 @@ export function WebhookInspector({
     if (typeof v === 'string') return v
     try {
       return JSON.stringify(v, null, 2)
-    } catch {
+    } catch (_error) {
+      // JSON.stringify can throw for circular references; String() fallback is safe here.
       return String(v)
     }
   }

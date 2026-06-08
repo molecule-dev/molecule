@@ -1,3 +1,5 @@
+import type React from 'react'
+
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -39,7 +41,12 @@ interface BadgeShelfProps {
  * @param root0.className - Extra wrapper classes.
  * @returns The rendered shelf, or `null` if no badges are supplied.
  */
-export function BadgeShelf({ badges, limit = 5, onClick, className }: BadgeShelfProps) {
+export function BadgeShelf({
+  badges,
+  limit = 5,
+  onClick,
+  className,
+}: BadgeShelfProps): React.JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
 

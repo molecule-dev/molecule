@@ -1,3 +1,5 @@
+import type React from 'react'
+
 import { t } from '@molecule/app-i18n'
 import type { CSSProperties } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -38,7 +40,7 @@ export function NpsDistribution({
   passiveMax = 8,
   className,
   dataMolId,
-}: NpsDistributionProps) {
+}: NpsDistributionProps): React.ReactElement {
   const cm = getClassMap()
   const result = computeNps(scores, detractorMax, passiveMax)
   const maxBucket = result.buckets.reduce((m, b) => (b.count > m ? b.count : m), 0)

@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Select } from '@molecule/app-ui-react'
@@ -26,7 +28,7 @@ interface PaginationBarProps {
 }
 
 /**
- *
+ * Builds the visible page-number window (with ellipsis sentinels) for the given page and total.
  * @param page
  * @param totalPages
  */
@@ -73,7 +75,7 @@ export function PaginationBar({
   showingKey = 'pagination.showing',
   showingDefault = 'Showing {{start}} to {{end}} of {{total}} items',
   className,
-}: PaginationBarProps) {
+}: PaginationBarProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1

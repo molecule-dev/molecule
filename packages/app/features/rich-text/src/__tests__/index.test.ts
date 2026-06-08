@@ -461,8 +461,8 @@ describe('@molecule/app-rich-text', () => {
       originalProvider = null
       try {
         originalProvider = getProvider()
-      } catch {
-        // No provider set
+      } catch (_error) {
+        // No provider set — getProvider() throws when uninitialized; null is the correct sentinel.
       }
     })
 

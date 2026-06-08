@@ -58,7 +58,7 @@ function buildStubClassMap(): Record<string, unknown> {
             .join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_target, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token

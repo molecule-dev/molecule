@@ -1,3 +1,5 @@
+import type React from 'react'
+
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -21,7 +23,10 @@ interface HeroMetricTrendChipProps {
  * @param props - Component props.
  * @returns The rendered trend chip element.
  */
-export function HeroMetricTrendChip({ trend, className }: HeroMetricTrendChipProps) {
+export function HeroMetricTrendChip({
+  trend,
+  className,
+}: HeroMetricTrendChipProps): React.ReactElement {
   const cm = getClassMap()
   const arrow = trend.direction === 'up' ? '▲' : '▼'
   const label =

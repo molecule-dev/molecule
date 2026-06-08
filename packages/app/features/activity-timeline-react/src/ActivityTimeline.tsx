@@ -4,8 +4,9 @@
  * @module
  */
 
+import type { JSX, ReactNode } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
 
 import { ActivityTimelineRow } from './ActivityTimelineRow.js'
 import type { TimelineEventData, TimelineKindTone } from './types.js'
@@ -44,7 +45,7 @@ export function ActivityTimeline({
   header,
   footer,
   className,
-}: ActivityTimelineProps) {
+}: ActivityTimelineProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

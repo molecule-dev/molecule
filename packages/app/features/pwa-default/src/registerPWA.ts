@@ -59,7 +59,7 @@ export function registerPWA(): void {
           await registration.unregister()
           window.location.reload()
         }
-      } catch {
+      } catch (_error) {
         // Ignore — if SW isn't ready, nothing to recover
       }
     }

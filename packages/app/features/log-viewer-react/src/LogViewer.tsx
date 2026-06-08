@@ -1,16 +1,12 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Severity level of a log entry, ordered from lowest to highest. */
 export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'
 
-/**
- *
- */
+/** Shape of a single structured log entry rendered by LogViewer. */
 export interface LogEntry {
   id: string
   /** ISO timestamp or formatted string. */
@@ -58,15 +54,20 @@ const LEVEL_COLOR: Record<LogLevel, string> = {
  * @param root0.className
  * @param root0.emptyState
  */
-export function LogViewer({ entries, onToggle, className, emptyState }: LogViewerProps) {
+export function LogViewer({
+  entries,
+  onToggle,
+  className,
+  emptyState,
+}: LogViewerProps): JSX.Element {
   const cm = getClassMap()
   const [openIds, setOpenIds] = useState<Set<string>>(new Set())
 
   /**
-   *
+   * Toggles the expanded state of the entry with the given id.
    * @param id
    */
-  function toggle(id: string) {
+  function toggle(id: string): void {
     setOpenIds((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)

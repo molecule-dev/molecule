@@ -1,4 +1,4 @@
-import type { ChangeEvent, CSSProperties, MouseEvent, PointerEvent, ReactNode } from 'react'
+import type { ChangeEvent, CSSProperties, JSX, MouseEvent, PointerEvent, ReactNode } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -228,7 +228,7 @@ export function reorderEffects(effects: Effect[], fromIndex: number, toIndex: nu
  * @param props - Component props.
  * @returns The rack element.
  */
-export function AudioEffectsRack(props: AudioEffectsRackProps) {
+export function AudioEffectsRack(props: AudioEffectsRackProps): JSX.Element {
   const { effects, onChange, onReorder, onAdd, onRemove, className } = props
 
   const cm = getClassMap()
@@ -434,7 +434,7 @@ interface EffectPanelProps {
  * @param props - Panel props.
  * @returns The panel element.
  */
-function EffectPanel(props: EffectPanelProps) {
+function EffectPanel(props: EffectPanelProps): JSX.Element {
   const {
     effect,
     index,
@@ -492,24 +492,39 @@ function EffectPanel(props: EffectPanelProps) {
     color: 'transparent',
   }
 
+  /**
+   * Toggles the bypass state for this effect and emits an `onChange` patch.
+   */
   function handleBypass(event: MouseEvent<HTMLButtonElement>): void {
     event.preventDefault()
     onChange?.({ id: effect.id, enabled: !effect.enabled })
   }
 
+  /**
+   * Requests removal of this effect via the `onRemove` callback.
+   */
   function handleRemove(event: MouseEvent<HTMLButtonElement>): void {
     event.preventDefault()
     onRemove?.(effect.id)
   }
 
+  /**
+   * Emits an `onChange` patch for a single parameter slider movement.
+   */
   function handleParam(paramId: string, value: number): void {
     onChange?.({ id: effect.id, paramId, paramValue: value })
   }
 
+  /**
+   * Forwards a pointer-down on the drag handle up to the rack's drag-start handler.
+   */
   function handleDragHandlePointerDown(event: PointerEvent<HTMLButtonElement>): void {
     onDragStart(index, event)
   }
 
+  /**
+   * Notifies the rack that the pointer is hovering over this panel during a drag.
+   */
   function handlePanelPointerEnter(): void {
     onDragOver(index)
   }

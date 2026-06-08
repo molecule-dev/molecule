@@ -4,9 +4,10 @@
  * @module
  */
 
-import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+
+import { getClassMap } from '@molecule/app-ui'
 
 interface StorefrontAnnouncementBarProps {
   message: ReactNode
@@ -19,7 +20,7 @@ export function StorefrontAnnouncementBar({
   message,
   cta,
   className,
-}: StorefrontAnnouncementBarProps) {
+}: StorefrontAnnouncementBarProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

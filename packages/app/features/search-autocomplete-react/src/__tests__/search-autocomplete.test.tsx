@@ -53,7 +53,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { SearchAutocomplete } = await import('../SearchAutocomplete.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 // The suggestion popover only opens on focus/typing — SSR covers the closed
 // input surface.

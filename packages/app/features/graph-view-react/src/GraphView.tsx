@@ -1,7 +1,8 @@
+import type { CSSProperties, ReactElement } from 'react'
+import { useMemo } from 'react'
+
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-import type { CSSProperties } from 'react'
-import { useMemo } from 'react'
 
 import { boundingBox, type ForceLayoutOptions, layoutNodes } from './layout.js'
 import type {
@@ -46,7 +47,7 @@ const NODE_RADIUS = 8
  * @param isSelected - Whether the node is currently selected.
  * @returns The default node SVG markup.
  */
-function defaultNodeRenderer(node: PositionedNode, isSelected: boolean) {
+function defaultNodeRenderer(node: PositionedNode, isSelected: boolean): ReactElement {
   const r = NODE_RADIUS * Math.sqrt(Math.max(0.25, node.weight ?? 1))
   return (
     <g
@@ -101,7 +102,7 @@ function defaultNodeRenderer(node: PositionedNode, isSelected: boolean) {
  * />
  * ```
  */
-export function GraphView(props: GraphViewProps) {
+export function GraphView(props: GraphViewProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
 

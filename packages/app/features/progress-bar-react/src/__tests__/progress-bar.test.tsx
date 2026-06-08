@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -31,7 +31,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 const { ProgressBar } = await import('../ProgressBar.js')
 const { ProgressCard } = await import('../ProgressCard.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('ProgressBar', () => {
   it('renders the label and valueLabel header row when given', () => {

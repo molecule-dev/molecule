@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 
 interface TypingIndicatorProps {
@@ -30,7 +32,7 @@ export function TypingIndicator({
   durationMs = 1200,
   ariaLabel = 'Typing…',
   className,
-}: TypingIndicatorProps) {
+}: TypingIndicatorProps): JSX.Element | null {
   const cm = getClassMap()
   if (!visible) return null
   const keyName = 'molecule-typing-pulse'

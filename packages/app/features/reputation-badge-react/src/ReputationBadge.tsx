@@ -1,3 +1,5 @@
+import type React from 'react'
+
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Badge } from '@molecule/app-ui-react'
@@ -49,7 +51,7 @@ export function ReputationBadge({
   thresholds = DEFAULT_THRESHOLDS,
   variant = 'compact',
   className,
-}: ReputationBadgeProps) {
+}: ReputationBadgeProps): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 

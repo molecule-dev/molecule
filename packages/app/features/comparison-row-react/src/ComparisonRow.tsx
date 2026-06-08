@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -19,8 +19,8 @@ interface ComparisonRowProps {
   className?: string
 }
 
-const ARROW = (n: number) => (n > 0 ? '▲' : n < 0 ? '▼' : '–')
-const COLOR = (n: number) => (n > 0 ? '#22c55e' : n < 0 ? '#ef4444' : '#94a3b8')
+const ARROW = (n: number): string => (n > 0 ? '▲' : n < 0 ? '▼' : '–')
+const COLOR = (n: number): string => (n > 0 ? '#22c55e' : n < 0 ? '#ef4444' : '#94a3b8')
 
 /**
  * Period-over-period stat comparison row — current value, optional
@@ -43,7 +43,7 @@ export function ComparisonRow({
   formatDelta,
   periodLabel,
   className,
-}: ComparisonRowProps) {
+}: ComparisonRowProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

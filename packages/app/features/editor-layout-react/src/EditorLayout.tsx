@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -42,7 +42,7 @@ export function EditorLayout({
   sidePanelOpen = true,
   className,
   dataMolId,
-}: EditorLayoutProps) {
+}: EditorLayoutProps): JSX.Element {
   const cm = getClassMap()
   const showPanel = sidePanel && sidePanelOpen
   return (

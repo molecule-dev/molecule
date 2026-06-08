@@ -29,14 +29,14 @@ function buildStubClassMap(): UIClassMap {
   const handler: ProxyHandler<Record<string, unknown>> = {
     get(_target, prop): unknown {
       if (prop === 'cn') {
-        return (...classes: unknown[]) =>
+        return (...classes: unknown[]): string =>
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
-        get(_t, key) {
-          if (key === Symbol.toPrimitive || key === 'toString') return () => token
+        get(_t, key): (() => string) | undefined {
+          if (key === Symbol.toPrimitive || key === 'toString') return (): string => token
           return undefined
         },
       })
@@ -146,7 +146,10 @@ describe('<BarcodeScanner> — getUserMedia', () => {
     // Native detector that never finds anything keeps the loop quiet.
     __setBarcodeDetectorOverride(
       class FakeDetector {
-        async detect() {
+        /**
+         * Fake detect that always returns no barcodes.
+         */
+        async detect(): Promise<[]> {
           return []
         }
       } as unknown as never,
@@ -224,6 +227,9 @@ describe('<BarcodeScanner> — native BarcodeDetector path', () => {
       .mockResolvedValue([])
 
     const ctorSpy = vi.fn()
+    /**
+     * Fake BarcodeDetector that records constructor args and delegates detect to a mock.
+     */
     class FakeDetector {
       constructor(init?: { formats?: string[] }) {
         ctorSpy(init)
@@ -253,6 +259,9 @@ describe('<BarcodeScanner> — native BarcodeDetector path', () => {
       .mockResolvedValueOnce([{ rawValue: '4006381333931', format: 'ean_13' }])
       .mockResolvedValue([])
 
+    /**
+     * Fake BarcodeDetector that delegates detect to a mock.
+     */
     class FakeDetector {
       detect = detectMock
     }
@@ -284,6 +293,9 @@ describe('<BarcodeScanner> — native BarcodeDetector path', () => {
       .mockResolvedValueOnce([{ rawValue: 'Y', format: 'qr_code' }])
       .mockResolvedValue([])
 
+    /**
+     * Fake BarcodeDetector that delegates detect to a mock.
+     */
     class FakeDetector {
       detect = detectMock
     }
@@ -304,8 +316,14 @@ describe('<BarcodeScanner> — native BarcodeDetector path', () => {
     const { stream } = createFakeStream()
     installGetUserMedia(() => Promise.resolve(stream))
 
+    /**
+     * Fake BarcodeDetector whose detect always throws to simulate a detector failure.
+     */
     class FakeDetector {
-      async detect() {
+      /**
+       * Always throws to trigger the detector_failure error code.
+       */
+      async detect(): Promise<never> {
         throw new Error('boom')
       }
     }
@@ -370,8 +388,14 @@ describe('<BarcodeScanner> — cleanup', () => {
   it('stops camera tracks on unmount', async () => {
     const { stream, stop } = createFakeStream()
     installGetUserMedia(() => Promise.resolve(stream))
+    /**
+     * Fake BarcodeDetector that always returns no barcodes, keeping the scan loop quiet.
+     */
     class FakeDetector {
-      async detect() {
+      /**
+       * Returns an empty result set so the scan loop runs without emitting scans.
+       */
+      async detect(): Promise<[]> {
         return []
       }
     }

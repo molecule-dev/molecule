@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** A single navigable link rendered in the footer link row. */
 export interface FooterLink {
   label: ReactNode
   to?: string
@@ -33,7 +31,13 @@ interface AppShellFooterProps {
  * @param root0.right
  * @param root0.className
  */
-export function AppShellFooter({ logo, copyright, links, right, className }: AppShellFooterProps) {
+export function AppShellFooter({
+  logo,
+  copyright,
+  links,
+  right,
+  className,
+}: AppShellFooterProps): JSX.Element {
   const cm = getClassMap()
   return (
     <footer

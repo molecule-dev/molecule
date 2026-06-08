@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -38,7 +38,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 const { StatusBadge } = await import('../StatusBadge.js')
 const { StatusPill } = await import('../StatusPill.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('StatusBadge', () => {
   it('renders the ui-appearance Badge by default with the kind-mapped color', () => {

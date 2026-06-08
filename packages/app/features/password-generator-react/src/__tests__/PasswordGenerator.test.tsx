@@ -9,7 +9,7 @@
 
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
@@ -68,7 +68,7 @@ afterEach(() => {
  * Wires a stub clipboard with a tracked `writeText` so tests can assert
  * exactly what gets copied.
  */
-function installClipboardStub() {
+function installClipboardStub(): ReturnType<typeof vi.fn> {
   const writeText = vi.fn().mockResolvedValue(undefined)
   Object.defineProperty(navigator, 'clipboard', {
     configurable: true,

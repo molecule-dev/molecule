@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { NoteCard } = await import('../NoteCard.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('NoteCard', () => {
   it('renders the body text', () => {

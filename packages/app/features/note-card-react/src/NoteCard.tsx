@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -44,7 +44,7 @@ export function NoteCard({
   actions,
   onClick,
   className,
-}: NoteCardProps) {
+}: NoteCardProps): JSX.Element {
   const cm = getClassMap()
   return (
     <article

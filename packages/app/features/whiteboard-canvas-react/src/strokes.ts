@@ -243,7 +243,7 @@ export function defaultStickyNoteStyle(): {
  * @returns `true` if the segments cross or share a touching point.
  */
 export function segmentsIntersect(a1: Point, a2: Point, b1: Point, b2: Point): boolean {
-  const ccw = (p: Point, q: Point, r: Point) =>
+  const ccw = (p: Point, q: Point, r: Point): number =>
     (r.y - p.y) * (q.x - p.x) - (q.y - p.y) * (r.x - p.x)
   const d1 = ccw(b1, b2, a1)
   const d2 = ccw(b1, b2, a2)
@@ -253,7 +253,7 @@ export function segmentsIntersect(a1: Point, a2: Point, b1: Point, b2: Point): b
     return true
   }
   // Collinear case — require bounding-box overlap before declaring a hit.
-  const onSegment = (p: Point, q: Point, r: Point) =>
+  const onSegment = (p: Point, q: Point, r: Point): boolean =>
     Math.min(p.x, r.x) <= q.x &&
     q.x <= Math.max(p.x, r.x) &&
     Math.min(p.y, r.y) <= q.y &&

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -23,7 +23,7 @@ interface TableToolbarProps {
  * @param root0.below
  * @param root0.className
  */
-export function TableToolbar({ left, right, below, className }: TableToolbarProps) {
+export function TableToolbar({ left, right, below, className }: TableToolbarProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.stack(2), className)}>

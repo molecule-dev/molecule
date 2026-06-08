@@ -43,7 +43,7 @@ const { KpiCard } = await import('../KpiCard.js')
 const { KpiCardTrend } = await import('../KpiCardTrend.js')
 const { KpiCardGrid } = await import('../KpiCardGrid.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('KpiCardTrend', () => {
   it('derives "up" (▲) from a positive delta', () => {

@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** A single navigation item rendered in the top nav bar. */
 export interface TopNavItem {
   /** Route path the link goes to. */
   to: string
@@ -14,6 +15,7 @@ export interface TopNavItem {
   label: string
 }
 
+/** Props for the {@link TopNavLayout} shell component. */
 export interface TopNavLayoutProps {
   /** Brand text shown in the top-left link (typically the app name). */
   appName: string
@@ -51,7 +53,7 @@ export function TopNavLayout({
   navAriaLabel = 'Primary navigation',
   className,
   dataMolId,
-}: TopNavLayoutProps) {
+}: TopNavLayoutProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div
@@ -72,7 +74,7 @@ export function TopNavLayout({
             {appName}
           </Link>
           <nav className={cm.flex({ align: 'center', gap: 'md' })} aria-label={navAriaLabel}>
-            {navItems.map(item => (
+            {navItems.map((item) => (
               <NavLink
                 key={item.key}
                 to={item.to}
@@ -90,9 +92,11 @@ export function TopNavLayout({
                   )
                 }
               >
-                {item.icon
-                  ? <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
-                  : null}
+                {item.icon ? (
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    {item.icon}
+                  </span>
+                ) : null}
                 <span className="hidden md:inline">{item.label}</span>
               </NavLink>
             ))}

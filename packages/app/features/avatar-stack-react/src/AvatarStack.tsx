@@ -1,9 +1,9 @@
+import type { JSX } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** Represents a single person entry rendered inside an AvatarStack. */
 export interface AvatarStackPerson {
   /** Display name (also used to generate the text fallback). */
   name: string
@@ -35,7 +35,12 @@ interface AvatarStackProps {
  * @param root0.size
  * @param root0.className
  */
-export function AvatarStack({ people, max = 4, size = 'sm', className }: AvatarStackProps) {
+export function AvatarStack({
+  people,
+  max = 4,
+  size = 'sm',
+  className,
+}: AvatarStackProps): JSX.Element {
   const cm = getClassMap()
   const visible = people.slice(0, max)
   const overflow = Math.max(0, people.length - visible.length)

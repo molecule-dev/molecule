@@ -32,5 +32,5 @@
  * @module
  */
 
-export * from './types.js'
 export * from './SurveyQuestion.js'
+export * from './types.js'

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -15,7 +15,7 @@ interface TimelineDateProps {
  * @param root0.children
  * @param root0.className
  */
-export function TimelineDate({ children, className }: TimelineDateProps) {
+export function TimelineDate({ children, className }: TimelineDateProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

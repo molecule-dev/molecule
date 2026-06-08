@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Column definition for a DataTableCard — specifies key, header, and cell renderer. */
 export interface DataTableColumn<Row> {
   /** Stable key for React. */
   key: string
@@ -79,7 +77,7 @@ export function DataTableCard<Row>({
   emptyMessage,
   className,
   dataMolId,
-}: DataTableCardProps<Row>) {
+}: DataTableCardProps<Row>): JSX.Element {
   const cm = getClassMap()
   return (
     <section
@@ -126,55 +124,55 @@ export function DataTableCard<Row>({
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-container">
-            {loading
-              ? Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={`skeleton-${i}`} aria-hidden="true">
-                    <td colSpan={columns.length} className={cm.cn(cm.sp('px', 8), cm.sp('py', 5))}>
-                      <div
-                        className={cm.cn(cm.h(4), 'bg-surface-container-low rounded animate-pulse')}
-                      />
-                    </td>
-                  </tr>
-                ))
-              : rows.length === 0
-                ? (
-                  <tr>
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={`skeleton-${i}`} aria-hidden="true">
+                  <td colSpan={columns.length} className={cm.cn(cm.sp('px', 8), cm.sp('py', 5))}>
+                    <div
+                      className={cm.cn(cm.h(4), 'bg-surface-container-low rounded animate-pulse')}
+                    />
+                  </td>
+                </tr>
+              ))
+            ) : rows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className={cm.cn(
+                    cm.sp('px', 8),
+                    cm.sp('py', 12),
+                    cm.textCenter,
+                    'text-on-surface-variant',
+                  )}
+                >
+                  {emptyMessage}
+                </td>
+              </tr>
+            ) : (
+              rows.map((row) => (
+                <tr
+                  key={rowKey(row)}
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  className={cm.cn(
+                    onRowClick ? cm.cursorPointer : '',
+                    'hover:bg-surface-container-low transition-colors',
+                  )}
+                >
+                  {columns.map((col, idx) => (
                     <td
-                      colSpan={columns.length}
+                      key={col.key}
                       className={cm.cn(
-                        cm.sp('px', 8),
-                        cm.sp('py', 12),
-                        cm.textCenter,
-                        'text-on-surface-variant',
+                        idx === 0 ? cm.sp('px', 8) : cm.sp('px', 4),
+                        cm.sp('py', 5),
+                        col.cellClassName,
                       )}
                     >
-                      {emptyMessage}
+                      {col.cell(row)}
                     </td>
-                  </tr>
-                )
-                : rows.map((row) => (
-                    <tr
-                      key={rowKey(row)}
-                      onClick={onRowClick ? () => onRowClick(row) : undefined}
-                      className={cm.cn(
-                        onRowClick ? cm.cursorPointer : '',
-                        'hover:bg-surface-container-low transition-colors',
-                      )}
-                    >
-                      {columns.map((col, idx) => (
-                        <td
-                          key={col.key}
-                          className={cm.cn(
-                            idx === 0 ? cm.sp('px', 8) : cm.sp('px', 4),
-                            cm.sp('py', 5),
-                            col.cellClassName,
-                          )}
-                        >
-                          {col.cell(row)}
-                        </td>
-                      ))}
-                    </tr>
                   ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

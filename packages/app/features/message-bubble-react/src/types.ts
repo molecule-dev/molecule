@@ -15,7 +15,7 @@ export interface MessageAuthor {
 }
 
 /**
- *
+ * Data shape for a single chat message rendered by the bubble component.
  */
 export interface MessageData {
   id: string

@@ -1,15 +1,11 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Possible visual/semantic states for a single stepper step. */
 export type StepStatus = 'completed' | 'current' | 'pending' | 'error'
 
-/**
- *
- */
+/** Descriptor for a single step rendered inside a Stepper. */
 export interface StepperStep {
   /** Step id. */
   id: string
@@ -59,10 +55,10 @@ export function Stepper({
   orientation = 'horizontal',
   onStepClick,
   className,
-}: StepperProps) {
+}: StepperProps): JSX.Element {
   const cm = getClassMap()
   /**
-   *
+   * Derives the display status for step at index `i`.
    * @param i
    * @param explicit
    */

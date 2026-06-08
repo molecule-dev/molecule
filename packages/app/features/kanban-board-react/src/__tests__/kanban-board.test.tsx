@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -39,7 +39,7 @@ const { KanbanColumn } = await import('../KanbanColumn.js')
 const { KanbanColumnHeader } = await import('../KanbanColumnHeader.js')
 import type { KanbanCardData, KanbanColumnData } from '../types.js'
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const card = (id: string, over: Partial<KanbanCardData> = {}): KanbanCardData => ({
   id,

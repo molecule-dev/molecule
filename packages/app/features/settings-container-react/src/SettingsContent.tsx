@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -17,7 +17,7 @@ interface SettingsContentProps {
  * @param root0.children
  * @param root0.className
  */
-export function SettingsContent({ children, className }: SettingsContentProps) {
+export function SettingsContent({ children, className }: SettingsContentProps): JSX.Element {
   const cm = getClassMap()
   return <div className={cm.cn(cm.stack(6), className)}>{children}</div>
 }

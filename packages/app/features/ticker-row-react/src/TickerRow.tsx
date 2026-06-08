@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -51,7 +51,7 @@ export function TickerRow({
   meta,
   onClick,
   className,
-}: TickerRowProps) {
+}: TickerRowProps): ReactElement {
   const cm = getClassMap()
   const positive = changePct !== undefined && changePct > 0
   const negative = changePct !== undefined && changePct < 0

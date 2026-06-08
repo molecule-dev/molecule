@@ -9,14 +9,14 @@ import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { I18nProvider } from '@molecule/app-react'
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
-import type { WhiteboardChange, WhiteboardCanvasProps } from '../WhiteboardCanvas.js'
-import { WhiteboardCanvas } from '../WhiteboardCanvas.js'
 import type {
   WhiteboardShape,
   WhiteboardStickyNote,
   WhiteboardStroke,
   WhiteboardTool,
 } from '../types.js'
+import type { WhiteboardCanvasProps, WhiteboardChange } from '../WhiteboardCanvas.js'
+import { WhiteboardCanvas } from '../WhiteboardCanvas.js'
 
 /** Build a UIClassMap stub via Proxy. */
 function buildStubClassMap(): UIClassMap {
@@ -27,7 +27,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_tt, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
@@ -39,6 +39,7 @@ function buildStubClassMap(): UIClassMap {
   return new Proxy({}, handler) as unknown as UIClassMap
 }
 
+/** Wraps children in the i18n provider required by WhiteboardCanvas. */
 function Wrap({ children }: { children: ReactNode }): React.ReactElement {
   return <I18nProvider provider={createSimpleI18nProvider('en')}>{children}</I18nProvider>
 }
@@ -79,6 +80,7 @@ interface HostHandle {
   change: WhiteboardChange | null
 }
 
+/** Creates a stateful Host component wired to a given tool and change handle. */
 function makeHost(
   initialTool: WhiteboardTool,
   handle: HostHandle,

@@ -1,11 +1,11 @@
-import { useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
 /**
- *
+ * Supported social/sharing platforms for the share-buttons widget.
  */
 export type SocialPlatform = 'twitter' | 'x' | 'linkedin' | 'facebook' | 'reddit' | 'email' | 'copy'
 
@@ -35,7 +35,7 @@ const ICON: Record<SocialPlatform, string> = {
 }
 
 /**
- *
+ * Returns the share-sheet URL for a given platform, URL, and optional title.
  * @param platform
  * @param url
  * @param title
@@ -78,7 +78,7 @@ export function SocialShareButtons({
   platforms = DEFAULT_PLATFORMS,
   size = 'sm',
   className,
-}: SocialShareButtonsProps) {
+}: SocialShareButtonsProps): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)

@@ -1,5 +1,6 @@
 import type {
   CSSProperties,
+  JSX,
   PointerEvent as ReactPointerEvent,
   ReactNode,
   WheelEvent as ReactWheelEvent,
@@ -92,7 +93,7 @@ export interface CanvasSurfaceProps {
  * </CanvasSurface>
  * ```
  */
-export function CanvasSurface(props: CanvasSurfaceProps) {
+export function CanvasSurface(props: CanvasSurfaceProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 
@@ -136,7 +137,7 @@ export function CanvasSurface(props: CanvasSurfaceProps) {
       lastScreen.current = { x: e.clientX, y: e.clientY }
       try {
         e.currentTarget.setPointerCapture(e.pointerId)
-      } catch {
+      } catch (_error) {
         /* setPointerCapture can throw in jsdom; ignore. */
       }
     },
@@ -162,8 +163,8 @@ export function CanvasSurface(props: CanvasSurfaceProps) {
     lastScreen.current = null
     try {
       e.currentTarget.releasePointerCapture(e.pointerId)
-    } catch {
-      /* ignore */
+    } catch (_error) {
+      /* releasePointerCapture can throw in jsdom; ignore. */
     }
   }, [])
 

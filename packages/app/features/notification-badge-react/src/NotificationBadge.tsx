@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactElement } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -40,7 +40,7 @@ export function NotificationBadge({
   max = 99,
   variant = 'error',
   className,
-}: NotificationBadgeProps) {
+}: NotificationBadgeProps): ReactElement | null {
   const cm = getClassMap()
   if (hideOnZero && count <= 0) return null
   const display = count > max ? `${max}+` : String(count)

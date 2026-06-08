@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, JSX } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -44,7 +44,7 @@ export function PasswordGenerator({
   ariaLabel,
   dataMolId,
   className,
-}: PasswordGeneratorProps) {
+}: PasswordGeneratorProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 

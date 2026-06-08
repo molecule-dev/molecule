@@ -10,8 +10,9 @@
  * @module
  */
 
+import { type JSX, type ReactNode, useRef, useState } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import { type ReactNode, useRef, useState } from 'react'
 
 interface ImageGalleryEditorProps {
   /** Ordered slots, `null` for empty. Length determines slot count. */
@@ -44,12 +45,12 @@ export function ImageGalleryEditor({
   confirmRemoveMessage = 'Remove this image?',
   statusMessage,
   emptySlotIcon = 'image',
-}: ImageGalleryEditorProps) {
+}: ImageGalleryEditorProps): JSX.Element {
   const cm = getClassMap()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null)
 
-  const handleSlotClick = (index: number) => {
+  const handleSlotClick = (index: number): void => {
     if (slots[index]) {
       if (!window.confirm(confirmRemoveMessage)) return
       const next = [...slots]
@@ -61,12 +62,12 @@ export function ImageGalleryEditor({
     }
   }
 
-  const handleUploadAreaClick = () => {
+  const handleUploadAreaClick = (): void => {
     setUploadingSlot(null)
     fileInputRef.current?.click()
   }
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     const files = e.target.files
     if (!files?.length) return
     const urls = onPickFiles

@@ -35,7 +35,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 const { AvatarStack } = await import('../AvatarStack.js')
 const { UserChip } = await import('../UserChip.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const people = [
   { name: 'Alice' },

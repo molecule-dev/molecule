@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { type JSX, useCallback, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -43,7 +43,7 @@ export function CodeBlock({
   showCopy = true,
   filename,
   className,
-}: CodeBlockProps) {
+}: CodeBlockProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)

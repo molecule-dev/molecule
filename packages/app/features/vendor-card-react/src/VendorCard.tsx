@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar, Card } from '@molecule/app-ui-react'
@@ -52,7 +52,7 @@ export function VendorCard({
   actions,
   onClick,
   className,
-}: VendorCardProps) {
+}: VendorCardProps): JSX.Element {
   const cm = getClassMap()
   const displayName = typeof name === 'string' ? name : 'Vendor'
   return (

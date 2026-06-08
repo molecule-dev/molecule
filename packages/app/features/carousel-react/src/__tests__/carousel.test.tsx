@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -42,9 +42,9 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { Carousel } = await import('../Carousel.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
-const slides = (n: number) =>
+const slides = (n: number): ReturnType<typeof createElement>[] =>
   Array.from({ length: n }, (_, i) => createElement('div', { 'data-slide': i }, `slide-${i}`))
 
 describe('Carousel', () => {

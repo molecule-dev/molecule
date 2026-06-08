@@ -4,9 +4,10 @@
  * @module
  */
 
-import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+
+import { getClassMap } from '@molecule/app-ui'
 
 import type { FooterColumn } from './types.js'
 
@@ -25,7 +26,7 @@ export function StorefrontFooter({
   columns = [],
   copyright,
   className,
-}: StorefrontFooterProps) {
+}: StorefrontFooterProps): ReactElement {
   const cm = getClassMap()
   return (
     <footer

@@ -26,7 +26,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_t, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
@@ -70,9 +70,7 @@ describe('<AnnotationPin>', () => {
     expect(marker.getAttribute('data-mol-id')).toBe('annotation-pin-marker')
     expect(marker.getAttribute('aria-label')).toBe('Annotation pin')
     expect(marker.getAttribute('aria-expanded')).toBe('false')
-    expect(
-      container.querySelector('[data-mol-id="annotation-pin-label"]')?.textContent,
-    ).toBe('7')
+    expect(container.querySelector('[data-mol-id="annotation-pin-label"]')?.textContent).toBe('7')
   })
 
   it('positions the wrapper using % when normalised (default)', () => {
@@ -81,9 +79,7 @@ describe('<AnnotationPin>', () => {
         <AnnotationPin position={{ x: 0.4, y: 0.6 }} label={1} />
       </Wrap>,
     )
-    const wrapper = container.querySelector(
-      '[data-mol-id="annotation-pin"]',
-    ) as HTMLElement | null
+    const wrapper = container.querySelector('[data-mol-id="annotation-pin"]') as HTMLElement | null
     expect(wrapper?.style.left).toBe('40%')
     expect(wrapper?.style.top).toBe('60%')
   })
@@ -94,9 +90,7 @@ describe('<AnnotationPin>', () => {
         <AnnotationPin position={{ x: 120, y: 80 }} label={1} normalised={false} />
       </Wrap>,
     )
-    const wrapper = container.querySelector(
-      '[data-mol-id="annotation-pin"]',
-    ) as HTMLElement | null
+    const wrapper = container.querySelector('[data-mol-id="annotation-pin"]') as HTMLElement | null
     expect(wrapper?.style.left).toBe('120px')
     expect(wrapper?.style.top).toBe('80px')
   })
@@ -145,13 +139,7 @@ describe('<AnnotationPin>', () => {
   it('uses the popupSide prop on the popup data attribute', () => {
     const { container } = render(
       <Wrap>
-        <AnnotationPin
-          position={{ x: 0.5, y: 0.5 }}
-          label={1}
-          note="x"
-          selected
-          popupSide="top"
-        />
+        <AnnotationPin position={{ x: 0.5, y: 0.5 }} label={1} note="x" selected popupSide="top" />
       </Wrap>,
     )
     const popup = container.querySelector(
@@ -167,9 +155,7 @@ describe('<AnnotationPin>', () => {
         <AnnotationPin position={{ x: 0.5, y: 0.5 }} label={1} onClick={onClick} />
       </Wrap>,
     )
-    const marker = container.querySelector(
-      '[data-mol-id="annotation-pin-marker"]',
-    ) as HTMLElement
+    const marker = container.querySelector('[data-mol-id="annotation-pin-marker"]') as HTMLElement
     fireEvent.click(marker)
     expect(onClick).toHaveBeenCalledTimes(1)
   })
@@ -207,9 +193,7 @@ describe('<AnnotationLayer>', () => {
         <AnnotationLayer pins={samplePins} onPinClick={onPinClick} />
       </Wrap>,
     )
-    const markers = container.querySelectorAll(
-      '[data-mol-id="annotation-pin-marker"]',
-    )
+    const markers = container.querySelectorAll('[data-mol-id="annotation-pin-marker"]')
     fireEvent.click(markers[1])
     expect(onPinClick).toHaveBeenCalledTimes(1)
     expect(onPinClick).toHaveBeenCalledWith('b')
@@ -227,9 +211,7 @@ describe('<AnnotationLayer>', () => {
         />
       </Wrap>,
     )
-    const markers = container.querySelectorAll(
-      '[data-mol-id="annotation-pin-marker"]',
-    )
+    const markers = container.querySelectorAll('[data-mol-id="annotation-pin-marker"]')
     fireEvent.click(markers[0])
     expect(onPinClick).toHaveBeenCalledTimes(1)
     expect(onSurfaceClick).not.toHaveBeenCalled()
@@ -242,9 +224,7 @@ describe('<AnnotationLayer>', () => {
         <AnnotationLayer pins={[]} onSurfaceClick={onSurfaceClick} />
       </Wrap>,
     )
-    const layer = container.querySelector(
-      '[data-mol-id="annotation-layer"]',
-    ) as HTMLElement
+    const layer = container.querySelector('[data-mol-id="annotation-layer"]') as HTMLElement
     // jsdom default getBoundingClientRect returns 0×0 — stub it for a
     // realistic test of the normalisation maths.
     layer.getBoundingClientRect = (() =>
@@ -261,9 +241,7 @@ describe('<AnnotationLayer>', () => {
         <AnnotationLayer pins={[]} onSurfaceClick={onSurfaceClick} normalised={false} />
       </Wrap>,
     )
-    const layer = container.querySelector(
-      '[data-mol-id="annotation-layer"]',
-    ) as HTMLElement
+    const layer = container.querySelector('[data-mol-id="annotation-layer"]') as HTMLElement
     layer.getBoundingClientRect = (() =>
       ({ left: 10, top: 5, width: 200, height: 100 }) as DOMRect) as () => DOMRect
     fireEvent.click(layer, { clientX: 60, clientY: 25 })
@@ -274,16 +252,10 @@ describe('<AnnotationLayer>', () => {
     const onSurfaceClick = vi.fn()
     const { container } = render(
       <Wrap>
-        <AnnotationLayer
-          pins={samplePins}
-          activePinId="a"
-          onSurfaceClick={onSurfaceClick}
-        />
+        <AnnotationLayer pins={samplePins} activePinId="a" onSurfaceClick={onSurfaceClick} />
       </Wrap>,
     )
-    const popup = container.querySelector(
-      '[data-mol-id="annotation-pin-popup"]',
-    ) as HTMLElement
+    const popup = container.querySelector('[data-mol-id="annotation-pin-popup"]') as HTMLElement
     fireEvent.click(popup)
     expect(onSurfaceClick).not.toHaveBeenCalled()
   })
@@ -291,15 +263,10 @@ describe('<AnnotationLayer>', () => {
   it('forwards normalised=false to child pins (positions in px)', () => {
     const { container } = render(
       <Wrap>
-        <AnnotationLayer
-          pins={[{ id: 'p', position: { x: 30, y: 40 } }]}
-          normalised={false}
-        />
+        <AnnotationLayer pins={[{ id: 'p', position: { x: 30, y: 40 } }]} normalised={false} />
       </Wrap>,
     )
-    const pin = container.querySelector(
-      '[data-mol-id="annotation-pin"]',
-    ) as HTMLElement | null
+    const pin = container.querySelector('[data-mol-id="annotation-pin"]') as HTMLElement | null
     expect(pin?.style.left).toBe('30px')
     expect(pin?.style.top).toBe('40px')
   })

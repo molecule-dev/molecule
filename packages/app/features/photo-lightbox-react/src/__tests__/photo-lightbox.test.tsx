@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -42,7 +42,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { PhotoLightbox } = await import('../PhotoLightbox.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const photos = [
   { src: '/1.jpg', alt: 'first', caption: 'Caption one' },

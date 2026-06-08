@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -59,7 +59,7 @@ const { PlanUpdatedPage } = await import('../PlanUpdatedPage.js')
 const { PrivacyPage } = await import('../PrivacyPage.js')
 const { TermsPage } = await import('../TermsPage.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 beforeEach(() => {
   vi.resetAllMocks()

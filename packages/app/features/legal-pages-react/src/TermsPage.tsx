@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import type { SpacingScale } from '@molecule/app-ui'
@@ -41,7 +41,7 @@ export function TermsPage({
   introDefault = 'This is the Terms page. Replace this placeholder with real content.',
   children,
   stackGap,
-}: TermsPageProps) {
+}: TermsPageProps): JSX.Element {
   const { t } = useTranslation()
   return (
     <LegalPageLayout

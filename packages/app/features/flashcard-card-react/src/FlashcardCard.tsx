@@ -1,13 +1,11 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** SM-2-compatible grade values the caller uses to schedule the next review. */
 export type SrsGrade = 'again' | 'hard' | 'good' | 'easy'
 
 interface FlashcardCardProps {
@@ -44,16 +42,16 @@ export function FlashcardCard({
   progress,
   defaultRevealed,
   className,
-}: FlashcardCardProps) {
+}: FlashcardCardProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [revealed, setRevealed] = useState(!!defaultRevealed)
 
   /**
-   *
+   * Forwards the selected grade to the parent and resets the card to hidden.
    * @param g
    */
-  function grade(g: SrsGrade) {
+  function grade(g: SrsGrade): void {
     onGrade?.(g)
     setRevealed(false)
   }

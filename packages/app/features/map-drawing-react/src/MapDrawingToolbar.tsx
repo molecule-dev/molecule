@@ -1,3 +1,5 @@
+import type { ReactElement } from 'react'
+
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -25,7 +27,7 @@ export interface MapDrawingToolbarProps {
  * @param props - Toolbar props.
  * @returns Toolbar element.
  */
-export function MapDrawingToolbar(props: MapDrawingToolbarProps) {
+export function MapDrawingToolbar(props: MapDrawingToolbarProps): ReactElement {
   const { tools, activeTool, onActiveToolChange, onDeleteSelected, hasSelection } = props
   const cm = getClassMap()
   const { t } = useTranslation()

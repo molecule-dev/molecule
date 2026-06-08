@@ -1,4 +1,4 @@
-import type { MouseEvent, ReactNode } from 'react'
+import type { JSX, MouseEvent, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -143,7 +143,7 @@ export function FileCard({
   now,
   className,
   dataMolId,
-}: FileCardProps) {
+}: FileCardProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 
@@ -183,7 +183,7 @@ export function FileCard({
    *
    * @param event - DOM mouse event.
    */
-  const handleClick = (event: MouseEvent<HTMLElement>) => {
+  const handleClick = (event: MouseEvent<HTMLElement>): void => {
     if (!onClick) return
     // Don't fire body click for events that originated inside the actions slot.
     const target = event.target as HTMLElement | null
@@ -196,7 +196,7 @@ export function FileCard({
    *
    * @param event - DOM mouse event.
    */
-  const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
+  const handleContextMenu = (event: MouseEvent<HTMLElement>): void => {
     if (onContextMenu) onContextMenu(file, event)
   }
 

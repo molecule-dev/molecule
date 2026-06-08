@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -23,7 +23,11 @@ interface ActivityFeedGroupProps {
  * @param root0.items
  * @param root0.className
  */
-export function ActivityFeedGroup({ heading, items, className }: ActivityFeedGroupProps) {
+export function ActivityFeedGroup({
+  heading,
+  items,
+  className,
+}: ActivityFeedGroupProps): JSX.Element {
   const cm = getClassMap()
   return (
     <section className={cm.cn(cm.stack(3), className)}>

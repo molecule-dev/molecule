@@ -1,3 +1,4 @@
+import type * as React from 'react'
 import type { ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
@@ -65,7 +66,7 @@ export function InboxRow({
   onClick,
   onToggleStar,
   className,
-}: InboxRowProps) {
+}: InboxRowProps): React.JSX.Element {
   const cm = getClassMap()
   const senderName = typeof sender === 'string' ? sender : 'Sender'
   return (

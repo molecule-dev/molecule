@@ -1,12 +1,10 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Select } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** A single option entry for the SortPicker select list. */
 export interface SortOption<T extends string = string> {
   value: T
   label: ReactNode
@@ -44,7 +42,7 @@ export function SortPicker<T extends string = string>({
   label,
   labelPosition = 'inline',
   className,
-}: SortPickerProps<T>) {
+}: SortPickerProps<T>): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
   const labelText = label ?? t('sort.label', {}, { defaultValue: 'Sort by' })

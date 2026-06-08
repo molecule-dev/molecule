@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -64,7 +64,7 @@ export function buildEdgePath(from: Point, to: Point, kind: CanvasEdgeKind): str
  * @param props - Component props.
  * @returns The edge element.
  */
-export function CanvasEdge(props: CanvasEdgeProps) {
+export function CanvasEdge(props: CanvasEdgeProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 

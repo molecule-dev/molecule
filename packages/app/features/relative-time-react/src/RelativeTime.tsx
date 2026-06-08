@@ -1,3 +1,4 @@
+import type React from 'react'
 import { useEffect, useState } from 'react'
 
 import { formatRelativeTime } from './formatRelativeTime.js'
@@ -34,7 +35,7 @@ export function RelativeTime({
   refreshMs = 60_000,
   titleLocale,
   className,
-}: RelativeTimeProps) {
+}: RelativeTimeProps): React.JSX.Element {
   const [, setTick] = useState(0)
   useEffect(() => {
     if (refreshMs <= 0) return

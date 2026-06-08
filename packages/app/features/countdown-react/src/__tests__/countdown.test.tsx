@@ -26,7 +26,7 @@ vi.mock('@molecule/app-ui', () => ({
 const { Countdown } = await import('../Countdown.js')
 const { useCountdown } = await import('../useCountdown.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 // 1d 2h 3m 4s in ms — used as the target with the clock pinned to epoch 0.
 const ONE_D_TWO_H_THREE_M_FOUR_S = 86_400_000 + 2 * 3_600_000 + 3 * 60_000 + 4_000
@@ -42,8 +42,14 @@ afterEach(() => {
 
 describe('useCountdown', () => {
   // SSR-render a probe so the hook's initial computed state is inspectable.
-  function probe(target: number) {
-    function Probe() {
+  /**
+   * SSR-renders a Probe component using the given target timestamp and returns the parsed countdown state.
+   */
+  function probe(target: number): ReturnType<typeof useCountdown> {
+    /**
+     * Minimal React component that renders the countdown state as JSON for inspection.
+     */
+    function Probe(): ReturnType<typeof createElement> {
       const s = useCountdown(target)
       return createElement('span', null, JSON.stringify(s))
     }

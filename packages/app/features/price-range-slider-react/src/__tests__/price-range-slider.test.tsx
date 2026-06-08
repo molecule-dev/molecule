@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { PriceRangeSlider } = await import('../PriceRangeSlider.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('PriceRangeSlider', () => {
   it('renders two range inputs with min/max aria-labels', () => {

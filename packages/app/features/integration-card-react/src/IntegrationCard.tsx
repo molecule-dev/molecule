@@ -1,11 +1,9 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** Connection status for an integration. */
 export type IntegrationStatus = 'connected' | 'disconnected' | 'pending' | 'error'
 
 interface IntegrationCardProps {
@@ -56,7 +54,7 @@ export function IntegrationCard({
   variant = 'card',
   className,
   dataMolId,
-}: IntegrationCardProps) {
+}: IntegrationCardProps): JSX.Element {
   const cm = getClassMap()
   const actionNode = action ? (
     action.href ? (
@@ -98,11 +96,11 @@ export function IntegrationCard({
 }
 
 /**
- *
+ * Renders a small status badge for the current integration connection state.
  * @param root0
  * @param root0.status
  */
-function StatusLabel({ status }: { status: IntegrationStatus }) {
+function StatusLabel({ status }: { status: IntegrationStatus }): JSX.Element {
   const cm = getClassMap()
   const label =
     status === 'connected'

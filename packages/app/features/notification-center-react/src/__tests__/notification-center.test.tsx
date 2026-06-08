@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -37,7 +37,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { NotificationCenter } = await import('../NotificationCenter.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const items = [
   { id: '1', title: 'New comment', body: 'on your post', timestamp: '2m', read: false },

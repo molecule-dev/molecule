@@ -1,13 +1,11 @@
-import type { ChangeEvent } from 'react'
+import type { ChangeEvent, ReactElement } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
 import { formatCurrency } from './utils.js'
 
-/**
- *
- */
+/** Transaction type used to categorise an amount entry. */
 export type AmountType = 'income' | 'expense' | 'transfer' | 'other'
 
 interface AmountInputProps {
@@ -59,13 +57,13 @@ export function AmountInput({
   currencySymbol = '$',
   size = 'lg',
   className,
-}: AmountInputProps) {
+}: AmountInputProps): ReactElement {
   const cm = getClassMap()
   /**
-   *
+   * Parses the raw input value and fires onAmountChange with a number or empty string.
    * @param e
    */
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+  function handleChange(e: ChangeEvent<HTMLInputElement>): void {
     const raw = e.target.value.replace(/[^0-9.-]/g, '')
     if (raw === '' || raw === '-') {
       onAmountChange('')

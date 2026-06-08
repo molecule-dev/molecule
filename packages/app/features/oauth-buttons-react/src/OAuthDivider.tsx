@@ -1,9 +1,10 @@
+import type { JSX } from 'react'
+
 /**
  * `<OAuthDivider />` — the "or continue with" rule above an OAuth row.
  *
  * @module
  */
-
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -24,7 +25,7 @@ export function OAuthDivider({
   labelKey = 'oauth.orContinueWith',
   labelDefault = 'or continue with',
   className,
-}: OAuthDividerProps = {}) {
+}: OAuthDividerProps = {}): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   return (

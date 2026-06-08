@@ -13,6 +13,7 @@ export interface SettingsPanelContextValue {
 
 const ctx = createContext<SettingsPanelContextValue | null>(null)
 
+/** React context object for the settings panel; consume via `useSettingsPanelContext`. */
 export const SettingsPanelContext = ctx
 
 /**

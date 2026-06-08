@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 
 interface NotificationDotProps {
@@ -37,7 +39,7 @@ export function NotificationDot({
   size = 8,
   position = 'inline',
   className,
-}: NotificationDotProps) {
+}: NotificationDotProps): JSX.Element | null {
   const cm = getClassMap()
   if (!visible) return null
   return (

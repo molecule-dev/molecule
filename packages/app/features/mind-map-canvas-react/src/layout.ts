@@ -55,6 +55,7 @@ export function walkVisible(
   root: MindMapNode,
   visit: (node: MindMapNode, parent: MindMapNode | null, depth: number) => void,
 ): void {
+  /** Recurse into `node`, visiting it then descending into non-collapsed children. */
   function rec(node: MindMapNode, parent: MindMapNode | null, depth: number): void {
     visit(node, parent, depth)
     if (node.collapsed) return

@@ -27,7 +27,7 @@
  * @module
  */
 
+export * from './GpaCard.js'
+export * from './Gradebook.js'
 export * from './types.js'
 export * from './utilities.js'
-export * from './Gradebook.js'
-export * from './GpaCard.js'

@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { OAuthButtons as OAuthButtonRow, OAuthDivider } from '@molecule/app-oauth-buttons-react'
 import { useOAuth } from '@molecule/app-react'
 
@@ -49,7 +51,7 @@ export function OAuthButtons({
   showLabels = false,
   dividerKey = 'oauth.orContinueWith',
   dividerDefault = 'or continue with',
-}: OAuthButtonsProps) {
+}: OAuthButtonsProps): JSX.Element | null {
   const { providers, redirect } = useOAuth(oauthConfig)
 
   if (!providers.length) return null

@@ -12,7 +12,7 @@ import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 import { buildEdgePath, CanvasEdge } from '../CanvasEdge.js'
 
 /**
- *
+ * Builds a stub UIClassMap that returns each token as its own class name string.
  */
 function buildStubClassMap(): UIClassMap {
   const handler: ProxyHandler<Record<string, unknown>> = {
@@ -22,7 +22,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_tt, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
@@ -35,7 +35,7 @@ function buildStubClassMap(): UIClassMap {
 }
 
 /**
- *
+ * Wraps children in an I18nProvider for test rendering.
  * @param root0
  * @param root0.children
  */

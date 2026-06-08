@@ -31,7 +31,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_t, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
@@ -60,7 +60,10 @@ function Wrap({ children }: { children: ReactNode }): React.ReactElement {
  *
  * @returns The stubbed context recorder.
  */
-function stubCanvasContext() {
+function stubCanvasContext(): {
+  ctx: CanvasRenderingContext2D
+  calls: { method: string; args: unknown[] }[]
+} {
   const calls: { method: string; args: unknown[] }[] = []
   let lastFilter = 'none'
   const ctx = {

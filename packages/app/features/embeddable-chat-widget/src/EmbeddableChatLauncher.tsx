@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -40,7 +40,7 @@ export function EmbeddableChatLauncher({
   position,
   theme,
   className,
-}: EmbeddableChatLauncherProps) {
+}: EmbeddableChatLauncherProps): JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
   if (!visible) return null

@@ -33,7 +33,7 @@ vi.mock('@molecule/app-logger', () => ({
 
 const { RootErrorBoundary } = await import('../RootErrorBoundary.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('RootErrorBoundary', () => {
   it('renders its children when no error is thrown', () => {

@@ -1,12 +1,10 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** Represents a single day's completion data for the heatmap strip. */
 export interface StreakDay {
   /** ISO date (yyyy-mm-dd). */
   date: string
@@ -34,7 +32,7 @@ interface HabitStreakCardProps {
 }
 
 /**
- *
+ * Returns a green rgba color whose opacity scales with completion intensity.
  * @param count
  * @param max
  */
@@ -68,7 +66,7 @@ export function HabitStreakCard({
   heatmap,
   heatmapDays = 30,
   className,
-}: HabitStreakCardProps) {
+}: HabitStreakCardProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const days = (heatmap ?? []).slice(-heatmapDays)

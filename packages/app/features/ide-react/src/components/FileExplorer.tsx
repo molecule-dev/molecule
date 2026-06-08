@@ -87,8 +87,8 @@ function loadExpandState(persistKey: string): ExpandState {
       const parsed = JSON.parse(raw) as { expanded: string[]; collapsed: string[] }
       return { expanded: new Set(parsed.expanded), collapsed: new Set(parsed.collapsed) }
     }
-  } catch {
-    /* ignored */
+  } catch (_error) {
+    // Safe to ignore: corrupt/unparseable localStorage data — fall back to empty state
   }
   return { expanded: new Set(), collapsed: new Set() }
 }
@@ -104,8 +104,8 @@ function saveExpandState(persistKey: string, state: ExpandState): void {
       persistKey,
       JSON.stringify({ expanded: [...state.expanded], collapsed: [...state.collapsed] }),
     )
-  } catch {
-    /* ignored */
+  } catch (_error) {
+    // Safe to ignore: localStorage write can fail (quota exceeded, private browsing) — expand state simply won't persist
   }
 }
 

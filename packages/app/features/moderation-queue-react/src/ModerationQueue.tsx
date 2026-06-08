@@ -1,4 +1,4 @@
-import type { ChangeEvent, ReactNode } from 'react'
+import type { ChangeEvent, JSX, ReactNode } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -115,7 +115,7 @@ export function ModerationQueue({
   loading,
   emptyState,
   className,
-}: ModerationQueueProps) {
+}: ModerationQueueProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [selected, setSelected] = useState<Set<string>>(() => new Set())
@@ -328,7 +328,7 @@ function ModerationQueueRow({
   onReject,
   onEscalate,
   onMute,
-}: ModerationQueueRowProps) {
+}: ModerationQueueRowProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const sevColor = severityColor(item.severity)

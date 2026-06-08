@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -9,7 +9,7 @@ import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { I18nProvider } from '@molecule/app-react'
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
-import { type Clip, clampClipMove, clipToPixels, pixelsToTime, TrackLane } from '../TrackLane.js'
+import { clampClipMove, type Clip, clipToPixels, pixelsToTime, TrackLane } from '../TrackLane.js'
 
 /**
  * Build a UIClassMap stub via Proxy.
@@ -20,14 +20,14 @@ function buildStubClassMap(): UIClassMap {
   const handler: ProxyHandler<Record<string, unknown>> = {
     get(_target, prop): unknown {
       if (prop === 'cn') {
-        return (...classes: unknown[]) =>
+        return (...classes: unknown[]): string =>
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
-        get(_t, key) {
-          if (key === Symbol.toPrimitive || key === 'toString') return () => token
+        get(_t, key): (() => string) | undefined {
+          if (key === Symbol.toPrimitive || key === 'toString') return (): string => token
           return undefined
         },
       })
@@ -58,7 +58,7 @@ function dispatchPointer(
   target: Element | Window,
   type: 'pointerdown' | 'pointermove' | 'pointerup',
   init: { clientX?: number; clientY?: number; pointerId?: number; button?: number },
-) {
+): void {
   const event = new Event(type, { bubbles: true, cancelable: true }) as Event & {
     clientX: number
     clientY: number

@@ -1,11 +1,9 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** Fields describing a contact rendered by ContactDisplay. */
 export interface ContactFields {
   name: string
   email?: string
@@ -45,7 +43,7 @@ export function ContactDisplay({
   actions,
   onClick,
   className,
-}: ContactDisplayProps) {
+}: ContactDisplayProps): JSX.Element {
   const cm = getClassMap()
   const { name, email, phone, role, avatarSrc, address, company } = contact
   const isCompact = layout === 'compact'

@@ -1,11 +1,9 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Union of possible component health states. */
 export type ComponentStatus =
   | 'operational'
   | 'degraded'
@@ -13,9 +11,7 @@ export type ComponentStatus =
   | 'major-outage'
   | 'maintenance'
 
-/**
- *
- */
+/** A single monitored component with its current health status. */
 export interface StatusComponent {
   id: string
   name: ReactNode
@@ -24,9 +20,7 @@ export interface StatusComponent {
   subtitle?: ReactNode
 }
 
-/**
- *
- */
+/** A named group of related StatusComponent entries. */
 export interface StatusGroup {
   id: string
   name: ReactNode
@@ -62,7 +56,7 @@ const STATUS_COLOR: Record<ComponentStatus, string> = {
 }
 
 /**
- *
+ * Returns the most severe status from an array of ComponentStatus values.
  * @param statuses
  */
 function worst(statuses: ComponentStatus[]): ComponentStatus {
@@ -95,7 +89,7 @@ export function StatusSummary({
   header,
   footer,
   className,
-}: StatusSummaryProps) {
+}: StatusSummaryProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const allStatuses = groups.flatMap((g) => g.components.map((c) => c.status))

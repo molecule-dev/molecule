@@ -22,31 +22,38 @@ const ctx = vi.hoisted(() => {
   const rendererInstances: any[] = []
   const controlsInstances: any[] = []
 
-  function FakeMaterial(this: any) {
+  /** Minimal three.js Material stub with a dispose spy. */
+  function FakeMaterial(this: any): void {
     this.dispose = vi.fn()
   }
-  function FakeMeshStandardMaterial(this: any) {
+  /** Minimal three.js MeshStandardMaterial stub with a dispose spy. */
+  function FakeMeshStandardMaterial(this: any): void {
     this.dispose = vi.fn()
   }
-  function FakeGeometry(this: any) {
+  /** Minimal three.js BufferGeometry stub with a dispose spy. */
+  function FakeGeometry(this: any): void {
     this.dispose = vi.fn()
   }
-  function FakeMesh(this: any) {
+  /** Minimal three.js Mesh stub with geometry, material, and traverse. */
+  function FakeMesh(this: any): void {
     this.geometry = new (FakeGeometry as any)()
     this.material = new (FakeMaterial as any)()
     this.traverse = (cb: (o: unknown) => void) => cb(this)
   }
-  function FakeObject3D(this: any) {
+  /** Minimal three.js Object3D stub with children list and traverse. */
+  function FakeObject3D(this: any): void {
     this.children = []
     this.traverse = (cb: (o: unknown) => void) => cb(this)
   }
-  function FakeScene(this: any) {
+  /** Minimal three.js Scene stub with add/remove spies and a children list. */
+  function FakeScene(this: any): void {
     this.children = []
     this.background = null
     this.add = vi.fn()
     this.remove = vi.fn()
   }
-  function FakePerspectiveCamera(this: any) {
+  /** Minimal three.js PerspectiveCamera stub with projection matrix spy. */
+  function FakePerspectiveCamera(this: any): void {
     this.fov = 45
     this.aspect = 1
     this.near = 0.1
@@ -54,7 +61,8 @@ const ctx = vi.hoisted(() => {
     this.position = { copy: vi.fn(), addScaledVector: vi.fn(), set: vi.fn() }
     this.updateProjectionMatrix = vi.fn()
   }
-  function FakeWebGLRenderer(this: any) {
+  /** Minimal three.js WebGLRenderer stub that records instances and exposes spies. */
+  function FakeWebGLRenderer(this: any): void {
     this.domElement = document.createElement('canvas')
     this.setPixelRatio = vi.fn()
     this.setSize = vi.fn()
@@ -62,7 +70,8 @@ const ctx = vi.hoisted(() => {
     this.dispose = vi.fn()
     rendererInstances.push(this)
   }
-  function FakeBox3(this: any) {
+  /** Minimal three.js Box3 stub with setFromObject, getSize, and getCenter helpers. */
+  function FakeBox3(this: any): void {
     this.setFromObject = function (this: any) {
       return this
     }
@@ -77,7 +86,8 @@ const ctx = vi.hoisted(() => {
       v.z = 0
     }
   }
-  function FakeVector3(this: any, x = 0, y = 0, z = 0) {
+  /** Minimal three.js Vector3 stub supporting copy, addScaledVector, and normalize. */
+  function FakeVector3(this: any, x = 0, y = 0, z = 0): void {
     this.x = x
     this.y = y
     this.z = z
@@ -94,18 +104,23 @@ const ctx = vi.hoisted(() => {
       return this
     }
   }
-  function FakeColor(_v?: string) {}
-  function FakeAmbientLight() {}
-  function FakeDirectionalLight(this: any) {
+  /** Minimal three.js Color stub that accepts an optional color value. */
+  function FakeColor(_v?: string): void {}
+  /** Minimal three.js AmbientLight stub. */
+  function FakeAmbientLight(): void {}
+  /** Minimal three.js DirectionalLight stub with a position.set spy. */
+  function FakeDirectionalLight(this: any): void {
     this.position = { set: vi.fn() }
   }
-  function FakeHemisphereLight() {}
+  /** Minimal three.js HemisphereLight stub. */
+  function FakeHemisphereLight(): void {}
 
   // `loadOverride` lets a test inject a synchronous `load` impl (e.g. one
   // that fires its error callback) used by the next FakeGLTFLoader that
   // gets constructed.
   const loadOverrides: { gltf: ((...a: unknown[]) => void) | null } = { gltf: null }
-  function FakeGLTFLoader(this: any) {
+  /** Minimal GLTFLoader stub that records instances and supports load override injection. */
+  function FakeGLTFLoader(this: any): void {
     this.load = loadOverrides.gltf ? vi.fn(loadOverrides.gltf) : vi.fn()
     loaderInstances.push(this)
   }
@@ -113,15 +128,18 @@ const ctx = vi.hoisted(() => {
   ;(FakeGLTFLoader as any)._setNextLoad = (fn: ((...a: unknown[]) => void) | null) => {
     loadOverrides.gltf = fn
   }
-  function FakeOBJLoader(this: any) {
+  /** Minimal OBJLoader stub that records instances and provides a load spy. */
+  function FakeOBJLoader(this: any): void {
     this.load = vi.fn()
     loaderInstances.push(this)
   }
-  function FakeSTLLoader(this: any) {
+  /** Minimal STLLoader stub that records instances and provides a load spy. */
+  function FakeSTLLoader(this: any): void {
     this.load = vi.fn()
     loaderInstances.push(this)
   }
-  function FakeOrbitControls(this: any) {
+  /** Minimal OrbitControls stub with target, damping, autoRotate, update, and dispose spies. */
+  function FakeOrbitControls(this: any): void {
     this.target = { copy: vi.fn() }
     this.enableDamping = false
     this.autoRotate = false
@@ -199,7 +217,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_t, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token

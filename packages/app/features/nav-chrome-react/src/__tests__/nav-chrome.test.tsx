@@ -31,7 +31,7 @@ const { AppShellSideNav } = await import('../AppShellSideNav.js')
 const { AppShellTopNav } = await import('../AppShellTopNav.js')
 import type { NavItem } from '../types.js'
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const nav = (id: string, over: Partial<NavItem> = {}): NavItem => ({
   id,

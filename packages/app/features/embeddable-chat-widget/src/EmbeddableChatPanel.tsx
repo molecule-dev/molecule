@@ -1,4 +1,4 @@
-import type { CSSProperties, FormEvent } from 'react'
+import type { CSSProperties, FormEvent, JSX } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -40,7 +40,7 @@ export function EmbeddableChatPanel({
   onClose,
   position,
   config,
-}: EmbeddableChatPanelProps) {
+}: EmbeddableChatPanelProps): JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [input, setInput] = useState('')
@@ -148,7 +148,7 @@ export function EmbeddableChatPanel({
    * message and an empty assistant placeholder, and streams the response
    * into the placeholder until the server signals done or errors.
    */
-  async function handleSubmit(e?: FormEvent) {
+  async function handleSubmit(e?: FormEvent): Promise<void> {
     e?.preventDefault()
     const text = input.trim()
     if (!text || isStreaming) return
@@ -307,7 +307,7 @@ interface PanelMessageProps {
  * @param root0.message The message to render.
  * @param root0.theme Theme overrides.
  */
-function PanelMessage({ message, theme }: PanelMessageProps) {
+function PanelMessage({ message, theme }: PanelMessageProps): JSX.Element {
   const isSelf = message.role === 'user'
   const wrapperStyle: CSSProperties = {
     display: 'flex',
@@ -340,7 +340,7 @@ function PanelMessage({ message, theme }: PanelMessageProps) {
  * @param root0 Props.
  * @param root0.label Accessible label.
  */
-function PanelTyping({ label }: { label: string }) {
+function PanelTyping({ label }: { label: string }): JSX.Element {
   const dotStyle = (delay: number): CSSProperties => ({
     display: 'inline-block',
     width: '6px',

@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -49,8 +49,8 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
         const candidate = resolve(dir, 'node_modules/@molecule')
         readdirSync(candidate)
         return candidate
-      } catch {
-        /* keep walking */
+      } catch (_error) {
+        /* keep walking — readdirSync throws when the candidate path does not exist, which is expected on every parent dir until @molecule is found */
       }
       const parent = dirname(dir)
       if (parent === dir) break
@@ -79,8 +79,8 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
         for (const dep of pkg.molecule?.viteOptimizeInclude ?? []) {
           declaredOptimizeIncludes.add(dep)
         }
-      } catch {
-        /* missing/invalid package.json — skip */
+      } catch (_error) {
+        /* missing/invalid package.json — skip; not all @molecule dirs have a parseable package.json */
       }
     }
   }

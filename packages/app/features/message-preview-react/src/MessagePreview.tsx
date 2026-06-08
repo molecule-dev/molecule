@@ -7,10 +7,12 @@
  * @module
  */
 
-import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
+import { getClassMap } from '@molecule/app-ui'
+
+/** Presence state of the contact shown in the avatar dot. */
 export type MessagePreviewPresence = 'online' | 'away' | 'offline'
 
 interface MessagePreviewProps {
@@ -38,6 +40,7 @@ const PRESENCE_COLOR: Record<MessagePreviewPresence, string> = {
   offline: 'bg-[#9ca3af]',
 }
 
+/** Derives up to two uppercase initials from a string ReactNode. */
 function deriveInitials(value: ReactNode): string {
   if (typeof value !== 'string') return ''
   return value
@@ -62,7 +65,7 @@ export function MessagePreview({
   onClick,
   unreadAriaLabel,
   className,
-}: MessagePreviewProps) {
+}: MessagePreviewProps): JSX.Element {
   const cm = getClassMap()
   const initialsLabel = initials ?? deriveInitials(name)
 

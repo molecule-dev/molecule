@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -47,7 +47,7 @@ export function CtaCard({
   layout = 'vertical',
   dataMolId,
   className,
-}: CtaCardProps) {
+}: CtaCardProps): JSX.Element {
   const cm = getClassMap()
   const direction = layout === 'horizontal' ? 'row' : 'col'
   return (

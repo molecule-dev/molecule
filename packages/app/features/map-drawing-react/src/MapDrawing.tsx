@@ -2,6 +2,7 @@ import type {
   CSSProperties,
   KeyboardEvent,
   PointerEvent as ReactPointerEvent,
+  ReactElement,
   ReactNode,
 } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -119,7 +120,7 @@ export interface MapDrawingProps {
  * @param props - Component props.
  * @returns Rendered map-drawing surface.
  */
-export function MapDrawing(props: MapDrawingProps) {
+export function MapDrawing(props: MapDrawingProps): ReactElement {
   const {
     initialShapes,
     onChange,

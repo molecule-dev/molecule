@@ -26,7 +26,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_t, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
@@ -53,7 +53,12 @@ beforeEach(() => {
   setClassMap(buildStubClassMap())
 })
 
-const oneShape = (id: string, x: number, y: number, opacity = 1) => ({
+const oneShape = (
+  id: string,
+  x: number,
+  y: number,
+  opacity = 1,
+): { id: string; x: number; y: number; rotation: number; scale: number; opacity: number } => ({
   id,
   x,
   y,

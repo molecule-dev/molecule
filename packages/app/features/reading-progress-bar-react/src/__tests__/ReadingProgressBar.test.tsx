@@ -29,7 +29,7 @@ function buildStubClassMap(): UIClassMap {
           classes.filter((c) => typeof c === 'string' && c.length > 0).join(' ')
       }
       const token = String(prop)
-      const fn = (..._args: unknown[]) => token
+      const fn = (..._args: unknown[]): string => token
       return new Proxy(fn, {
         get(_t, key) {
           if (key === Symbol.toPrimitive || key === 'toString') return () => token
@@ -59,7 +59,7 @@ function Wrap({ children }: { children: ReactNode }): React.ReactElement {
  * (see `beforeEach`), so this just flushes any microtasks/state updates
  * inside an `act()` boundary.
  */
-async function flushFrames() {
+async function flushFrames(): Promise<void> {
   await act(async () => {
     await Promise.resolve()
   })

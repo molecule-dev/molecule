@@ -29,7 +29,9 @@ export function formatCurrencyCompact(
       notation: 'compact',
       maximumFractionDigits: 1,
     }).format(amount)
-  } catch {
+  } catch (_error) {
+    // `notation: 'compact'` is not supported in all environments (e.g. older Safari / Node).
+    // Falling back to the standard formatter is safe and recovers correctly.
     return formatCurrency(amount, currency, locale)
   }
 }

@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { type JSX, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex } from '@molecule/app-ui-react'
-import { useNavigate } from 'react-router-dom'
 
 /**
  * Billing section — current plan + Upgrade button.
@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom'
 export function BillingSection({
   plan = 'Free',
   upgradeTo = '/settings',
-}: { plan?: string; upgradeTo?: string } = {}) {
+}: { plan?: string; upgradeTo?: string } = {}): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const navigate = useNavigate()

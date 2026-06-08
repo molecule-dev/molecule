@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -46,7 +46,7 @@ const { ListingCardBody } = await import('../ListingCardBody.js')
 const { ListingCardMedia } = await import('../ListingCardMedia.js')
 const { ListingGrid } = await import('../ListingGrid.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('ListingCardActions', () => {
   it('renders its children', () => {

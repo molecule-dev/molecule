@@ -40,7 +40,7 @@ vi.mock('@molecule/app-oauth-logos-react', () => ({
 
 const { OAuthButtons } = await import('../OAuthButtons.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('OAuthButtons', () => {
   it('renders nothing when there are no providers', () => {

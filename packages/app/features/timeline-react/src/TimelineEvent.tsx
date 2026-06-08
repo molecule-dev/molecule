@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 
 import { TimelineRail } from './TimelineRail.js'
@@ -18,7 +20,7 @@ interface TimelineEventProps {
  * @param root0.isLast
  * @param root0.className
  */
-export function TimelineEvent({ event, isLast, className }: TimelineEventProps) {
+export function TimelineEvent({ event, isLast, className }: TimelineEventProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.flex({ align: 'stretch', gap: 'sm' }), className)}>

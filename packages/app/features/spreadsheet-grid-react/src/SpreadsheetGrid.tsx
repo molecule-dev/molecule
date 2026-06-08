@@ -1,5 +1,3 @@
-import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
 import {
   type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -10,6 +8,9 @@ import {
   useRef,
   useState,
 } from 'react'
+
+import { useTranslation } from '@molecule/app-react'
+import { getClassMap } from '@molecule/app-ui'
 
 import type { CellMap, CellRef, CellValue, SpreadsheetSelection } from './types.js'
 import {
@@ -235,7 +236,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
     if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
       try {
         await navigator.clipboard.writeText(tsv)
-      } catch {
+      } catch (_error) {
         /* clipboard may be unavailable in some contexts; ignore */
       }
     }

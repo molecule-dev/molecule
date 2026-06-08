@@ -39,7 +39,7 @@
  * @module
  */
 
-export * from './MindMapCanvas.js'
 export * from './layout.js'
+export * from './MindMapCanvas.js'
 export * from './tree.js'
 export * from './types.js'

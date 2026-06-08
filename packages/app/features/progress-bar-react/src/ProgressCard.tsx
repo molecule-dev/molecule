@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
@@ -50,7 +50,7 @@ export function ProgressCard({
   color = 'primary',
   className,
   children,
-}: ProgressCardProps) {
+}: ProgressCardProps): JSX.Element {
   const cm = getClassMap()
   return (
     <Card className={className}>

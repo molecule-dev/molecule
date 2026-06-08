@@ -92,7 +92,8 @@ async function isServerUp(url: string): Promise<boolean> {
     await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal })
     clearTimeout(timeout)
     return true
-  } catch {
+  } catch (_error) {
+    // Fetch failure means server is not yet up — expected during polling. `false` is the correct result.
     clearTimeout(timeout)
     return false
   }

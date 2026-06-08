@@ -5,8 +5,9 @@
  * @module
  */
 
+import type { JSX, ReactNode } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
 
 interface SegmentedControlOption<T extends string> {
   value: T
@@ -27,7 +28,7 @@ export function SegmentedControl<T extends string>({
   value,
   onChange,
   className,
-}: SegmentedControlProps<T>) {
+}: SegmentedControlProps<T>): JSX.Element {
   const cm = getClassMap()
   return (
     <div

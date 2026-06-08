@@ -1,12 +1,12 @@
+import type { ReactElement, ReactNode } from 'react'
 import { createElement } from 'react'
-import type { ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
     const handler: ProxyHandler<Record<string, unknown>> = {
-      get(_t, prop) {
+      get(_t, prop): (...args: unknown[]) => string {
         if (prop === 'cn') {
           return (...cls: unknown[]) =>
             cls
@@ -18,8 +18,8 @@ vi.mock('@molecule/app-ui', () => ({
         const token = String(prop)
         // Callable for method-style props, and stringifies to the token so
         // bare `className={cm.cursorPointer}` usage stays inspectable.
-        const fn = (..._args: unknown[]) => token
-        fn.toString = () => token
+        const fn = (..._args: unknown[]): string => token
+        fn.toString = (): string => token
         return fn
       },
     }
@@ -41,10 +41,10 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { RelatedItemsCard } = await import('../RelatedItemsCard.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const items = [{ name: 'Deal A' }, { name: 'Deal B' }]
-const renderItem = (it: { name: string }) =>
+const renderItem = (it: { name: string }): ReactElement =>
   createElement('span', { 'data-item': it.name }, it.name)
 
 describe('RelatedItemsCard', () => {

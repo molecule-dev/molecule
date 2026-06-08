@@ -1,4 +1,4 @@
-import type { CSSProperties, MouseEvent, ReactNode } from 'react'
+import type { CSSProperties, JSX, MouseEvent, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -75,7 +75,7 @@ export interface AnnotationPinProps {
  * @param props - Component props.
  * @returns The pin element.
  */
-export function AnnotationPin(props: AnnotationPinProps) {
+export function AnnotationPin(props: AnnotationPinProps): JSX.Element {
   const {
     position,
     label,
@@ -89,21 +89,9 @@ export function AnnotationPin(props: AnnotationPinProps) {
   const cm = getClassMap()
   const { t } = useTranslation()
 
-  const markerLabel = t(
-    'annotationPin.aria.marker',
-    {},
-    { defaultValue: 'Annotation pin' },
-  )
-  const popupLabel = t(
-    'annotationPin.aria.popup',
-    {},
-    { defaultValue: 'Annotation details' },
-  )
-  const emptyNote = t(
-    'annotationPin.empty',
-    {},
-    { defaultValue: 'No notes for this pin.' },
-  )
+  const markerLabel = t('annotationPin.aria.marker', {}, { defaultValue: 'Annotation pin' })
+  const popupLabel = t('annotationPin.aria.popup', {}, { defaultValue: 'Annotation details' })
+  const emptyNote = t('annotationPin.empty', {}, { defaultValue: 'No notes for this pin.' })
 
   const x = normalised ? `${position.x * 100}%` : `${position.x}px`
   const y = normalised ? `${position.y * 100}%` : `${position.y}px`

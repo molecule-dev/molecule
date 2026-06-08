@@ -9,9 +9,10 @@
  * @module
  */
 
-import { getClassMap } from '@molecule/app-ui'
-import { type ReactNode, useEffect, useRef, useState } from 'react'
+import { type JSX, type ReactNode, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+
+import { getClassMap } from '@molecule/app-ui'
 
 import type { NavActionSpec, NavLinkSpec, ProfileMenuItem } from './types.js'
 
@@ -44,14 +45,14 @@ export function StorefrontTopNav({
   onSignOut,
   signOutLabel = 'Sign Out',
   className,
-}: StorefrontTopNavProps) {
+}: StorefrontTopNavProps): JSX.Element {
   const cm = getClassMap()
   const [profileOpen, setProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!profileOpen) return
-    const handler = (e: MouseEvent) => {
+    const handler = (e: MouseEvent): void => {
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
         setProfileOpen(false)
       }

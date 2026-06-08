@@ -25,7 +25,7 @@ vi.mock('@molecule/app-ui', () => ({
 const { AvatarWithPresence } = await import('../AvatarWithPresence.js')
 const { PresenceDot } = await import('../PresenceDot.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('PresenceDot', () => {
   it('renders role="status" with a default presence aria-label', () => {

@@ -1,11 +1,9 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** A single action item rendered as a button (or linked button) in the toolbar. */
 export interface ToolbarAction {
   id: string
   label: ReactNode
@@ -39,11 +37,11 @@ interface EditorToolbarProps {
 }
 
 /**
- *
+ * Renders a single toolbar action as a Button, optionally wrapped in an anchor.
  * @param a
  * @param key
  */
-function renderAction(a: ToolbarAction, key: string) {
+function renderAction(a: ToolbarAction, key: string): JSX.Element {
   const btn = (
     <Button
       key={key}
@@ -90,7 +88,7 @@ export function EditorToolbar({
   sticky = true,
   className,
   dataMolId,
-}: EditorToolbarProps) {
+}: EditorToolbarProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

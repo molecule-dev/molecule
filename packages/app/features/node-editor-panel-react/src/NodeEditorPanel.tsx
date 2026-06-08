@@ -5,8 +5,9 @@
  * @module
  */
 
+import type { JSX, ReactNode } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
 
 interface NodeEditorPanelProps {
   title: ReactNode
@@ -28,7 +29,7 @@ export function NodeEditorPanel({
   onClose,
   closeAriaLabel = 'Close panel',
   widthClass,
-}: NodeEditorPanelProps) {
+}: NodeEditorPanelProps): JSX.Element {
   const cm = getClassMap()
   return (
     <aside

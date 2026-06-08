@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -52,7 +52,7 @@ const { MessageReactions } = await import('../MessageReactions.js')
 const { ThreadIndicator } = await import('../ThreadIndicator.js')
 import type { MessageData } from '../types.js'
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const msg = (id: string, over: Partial<MessageData> = {}): MessageData => ({
   id,
@@ -78,7 +78,11 @@ describe('MessageMeta', () => {
 })
 
 describe('MessageAttachments', () => {
-  const att = (id: string, over = {}) => ({ id, name: `file-${id}`, ...over })
+  const att = (id: string, over = {}): { id: string; name: string } => ({
+    id,
+    name: `file-${id}`,
+    ...over,
+  })
 
   it('renders every attachment name', () => {
     const markup = html(createElement(MessageAttachments, { attachments: [att('a'), att('b')] }))

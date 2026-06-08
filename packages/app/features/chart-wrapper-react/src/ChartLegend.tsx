@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Describes a single series entry rendered in the chart legend. */
 export interface ChartLegendItem {
   id: string
   label: ReactNode
@@ -41,7 +39,7 @@ export function ChartLegend({
   onToggle,
   layout = 'horizontal',
   className,
-}: ChartLegendProps) {
+}: ChartLegendProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div

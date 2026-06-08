@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -32,7 +32,7 @@ export function MessageList({
   renderDateSeparator,
   emptyState,
   className,
-}: MessageListProps) {
+}: MessageListProps): JSX.Element {
   const cm = getClassMap()
   if (messages.length === 0 && emptyState) return <>{emptyState}</>
   return (

@@ -1,7 +1,8 @@
+import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactElement } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
+
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
-import { useCallback, useMemo, useRef } from 'react'
 
 import { interpolateState } from './interpolation.js'
 import type { AnimationKeyframe, ShapeState } from './types.js'
@@ -60,7 +61,7 @@ const DEFAULT_SHAPE_SIZE = 24
  * />
  * ```
  */
-export function AnimationCanvas(props: AnimationCanvasProps) {
+export function AnimationCanvas(props: AnimationCanvasProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
 

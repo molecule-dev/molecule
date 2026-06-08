@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { AddressDisplay } = await import('../AddressDisplay.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const address = {
   line1: '123 Main St',

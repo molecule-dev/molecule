@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Structured postal address with optional individual fields. */
 export interface Address {
   /** First line — street + number. */
   line1?: string
@@ -38,7 +36,7 @@ interface AddressDisplayProps {
 }
 
 /**
- *
+ * Converts an Address object into an ordered array of non-empty display lines.
  * @param a
  */
 function joinAddress(a: Address): string[] {
@@ -73,7 +71,7 @@ export function AddressDisplay({
   actions,
   inline,
   className,
-}: AddressDisplayProps) {
+}: AddressDisplayProps): ReactElement {
   const cm = getClassMap()
   const lines = joinAddress(address)
   const body = inline ? (

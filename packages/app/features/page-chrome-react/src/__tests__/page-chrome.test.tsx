@@ -25,7 +25,7 @@ vi.mock('@molecule/app-ui', () => ({
 const { HeroSection } = await import('../HeroSection.js')
 const { PageHeader } = await import('../PageHeader.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('HeroSection', () => {
   it('renders the title inside an <h1>', () => {

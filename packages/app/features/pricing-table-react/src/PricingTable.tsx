@@ -3,9 +3,7 @@ import type { ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** Describes a single plan column in the pricing table. */
 export interface PricingPlan {
   id: string
   name: ReactNode
@@ -18,9 +16,7 @@ export interface PricingPlan {
   recommended?: boolean
 }
 
-/**
- *
- */
+/** Describes a single feature row and its per-plan values in the pricing table. */
 export interface PricingFeature {
   /** Row label. */
   label: ReactNode
@@ -38,7 +34,7 @@ interface PricingTableProps {
 }
 
 /**
- *
+ * Renders a feature cell value: `true` → ✓, `false` → —, anything else pass-through.
  * @param v
  */
 function renderValue(v: boolean | string | ReactNode): ReactNode {
@@ -56,7 +52,7 @@ function renderValue(v: boolean | string | ReactNode): ReactNode {
  * @param root0.features
  * @param root0.className
  */
-export function PricingTable({ plans, features, className }: PricingTableProps) {
+export function PricingTable({ plans, features, className }: PricingTableProps): ReactNode {
   const cm = getClassMap()
   const cols = plans.length
   return (

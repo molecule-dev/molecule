@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Shape of a single tab entry passed to {@link TabFilter}. */
 export interface TabFilterTab {
   /** Unique id / state key. */
   id: string
@@ -60,7 +58,7 @@ export function TabFilter({
   scrollable = true,
   filled = true,
   className,
-}: TabFilterProps) {
+}: TabFilterProps): ReactElement {
   const cm = getClassMap()
   return (
     <div

@@ -9,8 +9,9 @@
  * @module
  */
 
+import type { JSX, ReactNode } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
 
 import type { CategoryStyle, TransactionRowData } from './types.js'
 
@@ -57,7 +58,7 @@ const DEFAULT_DATE_FORMAT = (d: string | Date): string => {
   })
 }
 
-/** Transactions table. */
+/** Renders a pageable financial transactions table with loading, error, and empty states. */
 export function TransactionsTable({
   transactions,
   loading,
@@ -72,7 +73,7 @@ export function TransactionsTable({
   emptyState,
   footer,
   className,
-}: TransactionsTableProps) {
+}: TransactionsTableProps): JSX.Element {
   const cm = getClassMap()
 
   if (loading) {

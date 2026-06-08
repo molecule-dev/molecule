@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -110,7 +112,7 @@ export function ProgressRings({
   className,
   dataMolId,
   ariaLabel,
-}: ProgressRingsProps) {
+}: ProgressRingsProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 

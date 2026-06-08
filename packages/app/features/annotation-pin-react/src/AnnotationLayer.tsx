@@ -1,4 +1,4 @@
-import type { CSSProperties, MouseEvent, ReactNode } from 'react'
+import type { CSSProperties, JSX, MouseEvent, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -64,7 +64,7 @@ export interface AnnotationLayerProps {
  * @param props - Component props.
  * @returns The annotation-layer element.
  */
-export function AnnotationLayer(props: AnnotationLayerProps) {
+export function AnnotationLayer(props: AnnotationLayerProps): JSX.Element {
   const {
     pins,
     children,
@@ -79,11 +79,7 @@ export function AnnotationLayer(props: AnnotationLayerProps) {
   const cm = getClassMap()
   const { t } = useTranslation()
 
-  const regionLabel = t(
-    'annotationPin.aria.layer',
-    {},
-    { defaultValue: 'Annotation layer' },
-  )
+  const regionLabel = t('annotationPin.aria.layer', {}, { defaultValue: 'Annotation layer' })
 
   const rootStyle: CSSProperties = {
     position: 'relative',

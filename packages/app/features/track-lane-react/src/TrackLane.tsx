@@ -1,4 +1,4 @@
-import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from 'react'
+import type { CSSProperties, JSX, PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -123,7 +123,7 @@ interface DragState {
  * @param props - Component props.
  * @returns The track-lane element.
  */
-export function TrackLane(props: TrackLaneProps) {
+export function TrackLane(props: TrackLaneProps): JSX.Element {
   const {
     name,
     clips,
@@ -151,7 +151,7 @@ export function TrackLane(props: TrackLaneProps) {
   )
   const headerLabel = t('trackLane.header', {}, { defaultValue: 'Track' })
   const resizeLabel = t('trackLane.aria.resize', {}, { defaultValue: 'Resize clip' })
-  const clipAriaLabel = (clip: Clip) =>
+  const clipAriaLabel = (clip: Clip): string =>
     t(
       'trackLane.aria.clip',
       {
@@ -170,7 +170,7 @@ export function TrackLane(props: TrackLaneProps) {
      *
      * @param event - Native pointer event.
      */
-    function onMove(event: PointerEvent) {
+    function onMove(event: PointerEvent): void {
       const drag = dragRef.current
       if (!drag || event.pointerId !== drag.pointerId) return
       const dx = event.clientX - drag.startX
@@ -191,7 +191,7 @@ export function TrackLane(props: TrackLaneProps) {
      *
      * @param event - Native pointer event.
      */
-    function onUp(event: PointerEvent) {
+    function onUp(event: PointerEvent): void {
       const drag = dragRef.current
       if (!drag || event.pointerId !== drag.pointerId) return
       const wasClick = !drag.moved
@@ -224,7 +224,7 @@ export function TrackLane(props: TrackLaneProps) {
     event: ReactPointerEvent<HTMLDivElement>,
     clip: Clip,
     mode: DragState['mode'],
-  ) {
+  ): void {
     if (event.button !== undefined && event.button !== 0) return
     event.stopPropagation()
     dragRef.current = {

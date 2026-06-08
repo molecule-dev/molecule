@@ -1,12 +1,10 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** A single drawing tool entry rendered as a toolbar button. */
 export interface DrawingTool {
   id: string
   label: string
@@ -58,7 +56,7 @@ export function DrawingToolbar({
   extras,
   orientation = 'horizontal',
   className,
-}: DrawingToolbarProps) {
+}: DrawingToolbarProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   return (

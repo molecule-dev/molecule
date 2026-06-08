@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import type { SpacingScale } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -20,7 +20,11 @@ interface LegalPageSectionProps {
  * @param root0.children
  * @param root0.stackGap
  */
-export function LegalPageSection({ title, children, stackGap = 2 }: LegalPageSectionProps) {
+export function LegalPageSection({
+  title,
+  children,
+  stackGap = 2,
+}: LegalPageSectionProps): JSX.Element {
   const cm = getClassMap()
   return (
     <section className={cm.stack(stackGap)}>

@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useAuth, useTranslation } from '@molecule/app-react'
@@ -44,7 +45,7 @@ export function PlanUpdatedPage({
   actionKey = 'planUpdated.returnHome',
   actionDefault = 'Return to Home',
   actionHref = '/',
-}: PlanUpdatedPageProps = {}) {
+}: PlanUpdatedPageProps = {}): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const { state } = useAuth()
@@ -58,10 +59,7 @@ export function PlanUpdatedPage({
   }
 
   return (
-    <main
-      data-mol-id="page-plan-updated"
-      className={cm.cn(cm.textCenter, cm.sp('py', 12))}
-    >
+    <main data-mol-id="page-plan-updated" className={cm.cn(cm.textCenter, cm.sp('py', 12))}>
       <h2 className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 2))}>
         {t(messageKey, {}, { defaultValue: messageDefault })}
       </h2>

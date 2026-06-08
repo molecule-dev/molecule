@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -26,7 +26,7 @@ interface SettingsActionsBarProps {
 }
 
 /**
- *
+ * Formats an epoch-ms timestamp as a short human-readable relative string (e.g. "3m ago").
  * @param epochMs
  */
 function formatRelativeShort(epochMs: number): string {
@@ -68,7 +68,7 @@ export function SettingsActionsBar({
   sticky = true,
   leading,
   className,
-}: SettingsActionsBarProps) {
+}: SettingsActionsBarProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   return (

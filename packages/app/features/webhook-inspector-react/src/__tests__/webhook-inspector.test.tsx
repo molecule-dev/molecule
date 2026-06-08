@@ -25,7 +25,7 @@ vi.mock('@molecule/app-ui', () => ({
 const { WebhookInspector } = await import('../WebhookInspector.js')
 import type { WebhookDelivery } from '../WebhookInspector.js'
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const deliveries: WebhookDelivery[] = [
   {

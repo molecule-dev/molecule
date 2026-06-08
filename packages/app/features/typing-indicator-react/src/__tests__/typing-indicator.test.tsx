@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { TypingIndicator } = await import('../TypingIndicator.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('TypingIndicator', () => {
   it('renders nothing when visible is false', () => {

@@ -1,4 +1,4 @@
-import type { ChangeEvent, CSSProperties, MouseEvent, ReactNode } from 'react'
+import type { ChangeEvent, CSSProperties, JSX, MouseEvent, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -152,7 +152,7 @@ export function clampPan(value: number): number {
  * @param props - Component props.
  * @returns The mixer element.
  */
-export function AudioMixer(props: AudioMixerProps) {
+export function AudioMixer(props: AudioMixerProps): JSX.Element {
   const { channels, onChannelChange, master, onMasterChange, faderHeight = 180, className } = props
 
   const cm = getClassMap()
@@ -162,11 +162,11 @@ export function AudioMixer(props: AudioMixerProps) {
   const masterLabel = t('audioMixer.master', {}, { defaultValue: 'Master' })
   const muteLabel = t('audioMixer.button.mute', {}, { defaultValue: 'Mute' })
   const soloLabel = t('audioMixer.button.solo', {}, { defaultValue: 'Solo' })
-  const faderAria = (channelName: string) =>
+  const faderAria = (channelName: string): string =>
     t('audioMixer.aria.fader', { name: channelName }, { defaultValue: '{{name}} fader' })
-  const panAria = (channelName: string) =>
+  const panAria = (channelName: string): string =>
     t('audioMixer.aria.pan', { name: channelName }, { defaultValue: '{{name}} pan' })
-  const sendAria = (channelName: string, sendName: string) =>
+  const sendAria = (channelName: string, sendName: string): string =>
     t(
       'audioMixer.aria.send',
       { channel: channelName, send: sendName },
@@ -257,7 +257,7 @@ interface ChannelStripProps {
  * @param props - Strip props.
  * @returns The channel-strip element.
  */
-function ChannelStrip(props: ChannelStripProps) {
+function ChannelStrip(props: ChannelStripProps): JSX.Element {
   const {
     channel,
     faderHeight,

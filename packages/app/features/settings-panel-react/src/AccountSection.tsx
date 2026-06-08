@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { type JSX, useEffect, useState } from 'react'
 
 import type { UserProfile } from '@molecule/app-auth'
 import { useAuthClient, useHttpClient, useTranslation } from '@molecule/app-react'
@@ -19,7 +19,7 @@ interface ApiUserResponse {
  * field, PATCHes `/api/users/:id` with the new email; reverts + shows
  * an inline error if the request fails.
  */
-export function AccountSection() {
+export function AccountSection(): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const authClient = useAuthClient<UserProfile>()
@@ -57,7 +57,7 @@ export function AccountSection() {
     }
   }, [http, authClient, cachedUser?.email])
 
-  const handleBlur = async () => {
+  const handleBlur = async (): Promise<void> => {
     const currentUser = authClient.getState().user
     if (email === currentUser?.email || !email) return
     setSaving(true)

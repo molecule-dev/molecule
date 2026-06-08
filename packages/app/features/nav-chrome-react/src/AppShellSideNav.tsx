@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -41,13 +41,13 @@ export function AppShellSideNav({
   header,
   footer,
   className,
-}: AppShellSideNavProps) {
+}: AppShellSideNavProps): JSX.Element {
   const cm = getClassMap()
   /**
-   *
+   * Renders a single nav item as a button with icon, label, and optional badge.
    * @param it
    */
-  function renderItem(it: NavItem) {
+  function renderItem(it: NavItem): JSX.Element {
     return (
       <button
         key={it.id}

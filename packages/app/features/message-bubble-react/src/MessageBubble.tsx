@@ -1,3 +1,5 @@
+import type { JSX } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
@@ -27,7 +29,12 @@ interface MessageBubbleProps {
  * @param root0.showMeta
  * @param root0.className
  */
-export function MessageBubble({ message, isSelf, showMeta = true, className }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  isSelf,
+  showMeta = true,
+  className,
+}: MessageBubbleProps): JSX.Element {
   const cm = getClassMap()
   const { author, body, timestamp, attachments, reactions, thread } = message
   return (

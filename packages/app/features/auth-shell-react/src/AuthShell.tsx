@@ -1,4 +1,4 @@
-import type { CSSProperties, HTMLAttributes, ReactNode } from 'react'
+import type { CSSProperties, ElementType, HTMLAttributes, JSX, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useTranslation } from '@molecule/app-react'
@@ -20,12 +20,15 @@ export interface AuthShellContainerProps {
   layout?: 'centered' | 'column'
 }
 
+/**
+ * Full-screen container with centered-flex or column layout and optional background decoration support.
+ */
 export function AuthShellContainer({
   children,
   style,
   className,
   layout = 'centered',
-}: AuthShellContainerProps) {
+}: AuthShellContainerProps): JSX.Element {
   const cm = getClassMap()
   const base =
     layout === 'column'
@@ -52,7 +55,7 @@ export function AuthShellContainer({
  * radial glows. Children render inside a `pointer-events-none absolute
  * inset-0 -z-10 overflow-hidden` wrapper.
  */
-export function AuthShellDecoration({ children }: { children: ReactNode }) {
+export function AuthShellDecoration({ children }: { children: ReactNode }): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn('pointer-events-none absolute inset-0 -z-10 overflow-hidden')}>
@@ -85,6 +88,9 @@ export interface AuthShellCardProps {
 const DEFAULT_SURFACE_CLASSES =
   'rounded-3xl border border-white/40 bg-surface-container-lowest/80 backdrop-blur-2xl shadow-[0_30px_80px_-20px_rgba(116,47,229,0.30)]'
 
+/**
+ * Centered glassmorphic card surface with fixed flex-column layout and configurable surface treatment.
+ */
 export function AuthShellCard({
   children,
   surfaceClassName,
@@ -92,7 +98,7 @@ export function AuthShellCard({
   outerClassName,
   dataMolId,
   style,
-}: AuthShellCardProps) {
+}: AuthShellCardProps): JSX.Element {
   const cm = getClassMap()
   const outer = outerClassName ?? cm.cn(cm.w('full'), 'max-w-md relative z-10')
   return (
@@ -127,13 +133,16 @@ export interface AuthShellHeadingProps {
   headingStyle?: CSSProperties
 }
 
+/**
+ * Centered heading block with optional eyebrow tag, h1 title, and subheading paragraph.
+ */
 export function AuthShellHeading({
   heading,
   subheading,
   eyebrow,
   headingClassName,
   headingStyle,
-}: AuthShellHeadingProps) {
+}: AuthShellHeadingProps): JSX.Element {
   const cm = getClassMap()
   return (
     <header className={cm.flex({ direction: 'col', align: 'center', gap: 'xs' })}>
@@ -171,7 +180,7 @@ export function AuthShellHeading({
 /**
  * Footer inside the card — small text with a top border.
  */
-export function AuthShellFooter({ children }: { children: ReactNode }) {
+export function AuthShellFooter({ children }: { children: ReactNode }): JSX.Element {
   const cm = getClassMap()
   return (
     <footer
@@ -195,7 +204,10 @@ export interface AuthShellBackLinkProps {
   label?: string
 }
 
-export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps) {
+/**
+ * Back-navigation link rendered below the card, defaulting to "Back to home" via i18n.
+ */
+export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
@@ -237,7 +249,10 @@ export interface AuthShellSplitProps extends HTMLAttributes<HTMLDivElement> {
   className?: string
 }
 
-export function AuthShellSplit({ children, className, ...rest }: AuthShellSplitProps) {
+/**
+ * Outer min-h-screen flex-col frame for the two-column brand-panel + card auth layout.
+ */
+export function AuthShellSplit({ children, className, ...rest }: AuthShellSplitProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.flex({ direction: 'col' }), cm.minH('screen'), className)} {...rest}>
@@ -267,7 +282,14 @@ export interface AuthShellSplitRowProps extends HTMLAttributes<HTMLElement> {
   className?: string
 }
 
-export function AuthShellSplitRow({ children, className, ...rest }: AuthShellSplitRowProps) {
+/**
+ * Vertically-filling flex-1 row inside AuthShellSplit that holds the brand panel and card column.
+ */
+export function AuthShellSplitRow({
+  children,
+  className,
+  ...rest
+}: AuthShellSplitRowProps): JSX.Element {
   const cm = getClassMap()
   // `<main>` — the row is the auth page's primary content landmark.
   return (
@@ -292,7 +314,10 @@ export interface AuthShellPanelProps extends HTMLAttributes<HTMLElement> {
   className?: string
 }
 
-export function AuthShellPanel({ children, className, ...rest }: AuthShellPanelProps) {
+/**
+ * Decorative aside that collapses on mobile (hidden lg:flex) for the brand-panel half of a split auth layout.
+ */
+export function AuthShellPanel({ children, className, ...rest }: AuthShellPanelProps): JSX.Element {
   const cm = getClassMap()
   return (
     <aside className={cm.cn('hidden lg:flex', className)} {...rest}>
@@ -321,15 +346,19 @@ export interface AuthShellCardColumnProps extends HTMLAttributes<HTMLElement> {
   as?: 'section' | 'main'
 }
 
+/**
+ * Centered-flex section or main column for the form-card half of a split or stacked auth layout.
+ */
 export function AuthShellCardColumn({
   children,
   className,
-  as: As = 'section',
+  as = 'section',
   ...rest
-}: AuthShellCardColumnProps) {
+}: AuthShellCardColumnProps): JSX.Element {
   const cm = getClassMap()
+  const Tag = as as ElementType
   return (
-    <As
+    <Tag
       className={cm.cn(
         cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
         className,
@@ -337,7 +366,7 @@ export function AuthShellCardColumn({
       {...rest}
     >
       {children}
-    </As>
+    </Tag>
   )
 }
 
@@ -362,6 +391,9 @@ export interface AuthShellProps {
   showBackLink?: boolean
 }
 
+/**
+ * Convenience preset composing container, decoration, card, heading, footer, and back-link into a single component.
+ */
 export function AuthShell({
   heading,
   subheading,
@@ -371,7 +403,7 @@ export function AuthShell({
   decoration,
   backTo = '/',
   showBackLink = true,
-}: AuthShellProps) {
+}: AuthShellProps): JSX.Element {
   return (
     <AuthShellContainer>
       {decoration ? <AuthShellDecoration>{decoration}</AuthShellDecoration> : null}

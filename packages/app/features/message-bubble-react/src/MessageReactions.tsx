@@ -1,8 +1,8 @@
+import type { JSX } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** A single emoji reaction with its count and current-user state. */
 export interface MessageReaction {
   /** Emoji or symbol. */
   emoji: string
@@ -31,7 +31,12 @@ interface MessageReactionsProps {
  * @param root0.onAdd
  * @param root0.className
  */
-export function MessageReactions({ reactions, onToggle, onAdd, className }: MessageReactionsProps) {
+export function MessageReactions({
+  reactions,
+  onToggle,
+  onAdd,
+  className,
+}: MessageReactionsProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }), className)}>

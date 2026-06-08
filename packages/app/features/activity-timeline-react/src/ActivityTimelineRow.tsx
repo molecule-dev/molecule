@@ -6,8 +6,9 @@
  * @module
  */
 
+import type { JSX, ReactNode } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
 
 import { ActivityTimelineDot } from './ActivityTimelineDot.js'
 import type { TimelineEventData, TimelineKindTone } from './types.js'
@@ -22,7 +23,11 @@ interface ActivityTimelineRowProps {
 const DEFAULT_TONE: TimelineKindTone = { icon: 'event' }
 
 /** A single timeline row. */
-export function ActivityTimelineRow({ event, tone, wrapper }: ActivityTimelineRowProps) {
+export function ActivityTimelineRow({
+  event,
+  tone,
+  wrapper,
+}: ActivityTimelineRowProps): JSX.Element {
   const cm = getClassMap()
   const inner = (
     <>

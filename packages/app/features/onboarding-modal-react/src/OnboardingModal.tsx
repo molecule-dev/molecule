@@ -1,13 +1,11 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Modal } from '@molecule/app-ui-react'
 
-/**
- *
- */
+/** A single step in an onboarding flow, with a title, body, and optional media. */
 export interface OnboardingStep {
   id: string
   title: ReactNode
@@ -49,7 +47,7 @@ export function OnboardingModal({
   onComplete,
   allowSkip = true,
   defaultStep = 0,
-}: OnboardingModalProps) {
+}: OnboardingModalProps): JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [step, setStep] = useState(defaultStep)
@@ -58,10 +56,8 @@ export function OnboardingModal({
   const current = steps[Math.max(0, Math.min(step, total - 1))]
   const isLast = step >= total - 1
 
-  /**
-   *
-   */
-  function next() {
+  /** Advance to the next step, or complete and close if on the last step. */
+  function next(): void {
     if (isLast) {
       onComplete?.()
       onClose()

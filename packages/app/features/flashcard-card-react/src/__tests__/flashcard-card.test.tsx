@@ -1,5 +1,5 @@
-import { createElement } from 'react'
 import type { ReactNode } from 'react'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -39,7 +39,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { FlashcardCard } = await import('../FlashcardCard.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('FlashcardCard', () => {
   it('shows the front and a "Show answer" button before reveal', () => {

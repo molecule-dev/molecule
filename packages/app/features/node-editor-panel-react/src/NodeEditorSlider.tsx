@@ -5,8 +5,9 @@
  * @module
  */
 
+import type { JSX, ReactNode } from 'react'
+
 import { getClassMap } from '@molecule/app-ui'
-import type { ReactNode } from 'react'
 
 import { NodeEditorSection } from './NodeEditorSection.js'
 
@@ -30,7 +31,7 @@ export function NodeEditorSlider({
   max = 1,
   step = 0.1,
   valueDisplay,
-}: NodeEditorSliderProps) {
+}: NodeEditorSliderProps): JSX.Element {
   const cm = getClassMap()
   return (
     <NodeEditorSection

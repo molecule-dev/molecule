@@ -1,9 +1,10 @@
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, ThemeToggle } from '@molecule/app-ui-react'
 
+/** Props for the {@link AppHeader} component. */
 export interface AppHeaderProps {
   /** Brand display name shown next to the logo. */
   appName: string
@@ -42,8 +43,10 @@ export interface AppHeaderProps {
  * (`cm.headerBar`, `cm.headerFixed`, `cm.logoText`) so the bonded styling layer
  * controls the visual treatment.
  */
+/** Default theme-toggle node used when the `themeToggle` prop is omitted. */
 const DEFAULT_THEME_TOGGLE = <ThemeToggle />
 
+/** Renders the {@link AppHeader} component. */
 export function AppHeader({
   appName,
   logoSrc = '/logo.svg',
@@ -55,7 +58,7 @@ export function AppHeader({
   fixed = true,
   className,
   dataMolId,
-}: AppHeaderProps) {
+}: AppHeaderProps): ReactElement {
   const cm = getClassMap()
   return (
     <header

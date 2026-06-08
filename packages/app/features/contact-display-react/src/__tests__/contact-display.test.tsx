@@ -29,7 +29,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 
 const { ContactDisplay } = await import('../ContactDisplay.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const contact = {
   name: 'Jane Doe',

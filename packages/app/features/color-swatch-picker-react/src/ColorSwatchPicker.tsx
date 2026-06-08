@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** A single color option in the swatch picker with its value, CSS color, and optional label. */
 export interface ColorSwatch {
   /** Value stored in state (can be the raw color or a semantic id). */
   value: string
@@ -55,7 +53,7 @@ export function ColorSwatchPicker({
   preview,
   className,
   ariaLabel,
-}: ColorSwatchPickerProps) {
+}: ColorSwatchPickerProps): JSX.Element {
   const cm = getClassMap()
   return (
     <div className={cm.cn(cm.stack(2), className)}>

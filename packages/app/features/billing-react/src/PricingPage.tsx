@@ -339,6 +339,9 @@ interface TierCardProps<TLimits> {
   headlineStyle: React.CSSProperties | undefined
 }
 
+/**
+ * Renders a single pricing tier card with its price, limits, and upgrade CTA.
+ */
 function TierCard<TLimits>({
   tier,
   period,
@@ -580,6 +583,9 @@ function DefaultLimits<TLimits>({ limits, cm }: DefaultLimitsProps<TLimits>): Re
   )
 }
 
+/**
+ * Converts a camelCase or snake_case key into a human-readable label (e.g. `maxBlocks` → `Max blocks`).
+ */
 function humanizeKey(key: string): string {
   // 'maxBlocks' → 'Max blocks'; 'canExport' → 'Can export';
   // 'max_blocks' → 'Max blocks'. The PricingPage caller can always
@@ -591,6 +597,9 @@ function humanizeKey(key: string): string {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1)
 }
 
+/**
+ * Formats a raw limit value (boolean, number, string, or object) into a display string.
+ */
 function formatLimitValue(value: unknown): string {
   if (typeof value === 'boolean') return value ? '✓' : '—'
   if (typeof value === 'number') {
@@ -601,7 +610,8 @@ function formatLimitValue(value: unknown): string {
   if (typeof value === 'string') return value
   try {
     return JSON.stringify(value)
-  } catch {
+  } catch (_error) {
+    // JSON.stringify can throw on circular references; String() is always safe.
     return String(value)
   }
 }
@@ -629,6 +639,9 @@ function autoSelectPopular<TLimits>(
   return bestKey
 }
 
+/**
+ * Parses a price label string (e.g. `"$12.99/mo"`) into an integer cent value for comparison.
+ */
 function priceToCents(label: string | null | undefined): number {
   if (!label) return 0
   // Accept "$12", "$12.99/mo", "€12,99" — strip currency + suffix, parse the number.

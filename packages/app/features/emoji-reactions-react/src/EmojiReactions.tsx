@@ -1,12 +1,10 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-/**
- *
- */
+/** Represents a single emoji reaction with its aggregated count and current-user state. */
 export interface EmojiReaction {
   emoji: string
   count: number
@@ -50,7 +48,7 @@ export function EmojiReactions({
   onAdd,
   className,
   renderTooltip,
-}: EmojiReactionsProps) {
+}: EmojiReactionsProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [pickerOpen, setPickerOpen] = useState(false)

@@ -1,4 +1,4 @@
-import type { DragEvent, ReactNode } from 'react'
+import type { DragEvent, JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
@@ -28,7 +28,12 @@ interface KanbanCardProps {
  * @param root0.onDragStart
  * @param root0.className
  */
-export function KanbanCard({ card, onClick, onDragStart, className }: KanbanCardProps) {
+export function KanbanCard({
+  card,
+  onClick,
+  onDragStart,
+  className,
+}: KanbanCardProps): JSX.Element {
   const cm = getClassMap()
   const body: ReactNode = (
     <Card

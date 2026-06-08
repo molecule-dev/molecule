@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -6,7 +6,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { Input } from '@molecule/app-ui-react'
 
 /**
- *
+ * A single suggestion entry returned by `onSearch` or passed via `suggestions`.
  */
 export interface SuggestionItem<T = unknown> {
   id: string
@@ -62,7 +62,7 @@ export function SearchAutocomplete<T = unknown>({
   debounceMs = 200,
   minChars = 1,
   className,
-}: SearchAutocompleteProps<T>) {
+}: SearchAutocompleteProps<T>): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [internal, setInternal] = useState<SuggestionItem<T>[]>([])
@@ -85,10 +85,10 @@ export function SearchAutocomplete<T = unknown>({
   useEffect(() => {
     if (!open) return
     /**
-     *
+     * Closes the dropdown when a click occurs outside the wrapper element.
      * @param e
      */
-    function onDoc(e: MouseEvent) {
+    function onDoc(e: MouseEvent): void {
       if (!wrapRef.current?.contains(e.target as Node)) setOpen(false)
     }
     document.addEventListener('mousedown', onDoc)

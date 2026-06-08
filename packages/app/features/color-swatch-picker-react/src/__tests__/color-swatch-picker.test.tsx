@@ -24,7 +24,7 @@ vi.mock('@molecule/app-ui', () => ({
 
 const { ColorSwatchPicker } = await import('../ColorSwatchPicker.js')
 
-const html = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el)
+const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 const swatches = [
   { value: 'red', color: '#ff0000', label: 'Red' },

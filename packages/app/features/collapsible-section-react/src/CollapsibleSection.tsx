@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
@@ -52,14 +52,12 @@ export function CollapsibleSection({
   actions,
   level = 3,
   className,
-}: CollapsibleSectionProps) {
+}: CollapsibleSectionProps): JSX.Element {
   const cm = getClassMap()
   const [internal, setInternal] = useState(defaultExpanded)
   const isOpen = expanded ?? internal
-  /**
-   *
-   */
-  function toggle() {
+  /** Toggles expansion state, updating internal state when uncontrolled. */
+  function toggle(): void {
     const next = !isOpen
     if (expanded === undefined) setInternal(next)
     onExpandedChange?.(next)
@@ -122,7 +120,7 @@ export function ShowMore({
   moreKey = 'showMore.more',
   lessKey = 'showMore.less',
   className,
-}: ShowMoreProps) {
+}: ShowMoreProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)

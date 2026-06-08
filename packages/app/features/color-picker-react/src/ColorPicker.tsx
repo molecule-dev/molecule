@@ -28,7 +28,12 @@ import type { ColorPickerProps } from './types.js'
  * <ColorPicker value={color} onChange={setColor} />
  * ```
  */
-export function ColorPicker({ value, onChange, dataMolId, className }: ColorPickerProps) {
+export function ColorPicker({
+  value,
+  onChange,
+  dataMolId,
+  className,
+}: ColorPickerProps): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
 
@@ -40,12 +45,18 @@ export function ColorPicker({ value, onChange, dataMolId, className }: ColorPick
   const [hexDraft, setHexDraft] = useState<string | null>(null)
   const hexShown = hexDraft ?? rgbToHex(rgb)
 
-  function emitFromHsv(next: { h?: number; s?: number; v?: number }) {
+  /**
+   * Merges partial HSV overrides with the current HSV value and emits the result via `onChange`.
+   */
+  function emitFromHsv(next: { h?: number; s?: number; v?: number }): void {
     const merged = { h: next.h ?? hsv.h, s: next.s ?? hsv.s, v: next.v ?? hsv.v }
     onChange(rgbToHex(hsvToRgb(merged)))
   }
 
-  function emitFromRgb(next: { r?: number; g?: number; b?: number }) {
+  /**
+   * Merges partial RGB overrides with the current RGB value and emits the result via `onChange`.
+   */
+  function emitFromRgb(next: { r?: number; g?: number; b?: number }): void {
     onChange(
       rgbToHex({
         r: next.r ?? rgb.r,
@@ -55,7 +66,10 @@ export function ColorPicker({ value, onChange, dataMolId, className }: ColorPick
     )
   }
 
-  function commitHex(raw: string) {
+  /**
+   * Validates and commits the raw hex string: normalises and calls `onChange`, then clears the draft.
+   */
+  function commitHex(raw: string): void {
     if (isValidHex(raw)) {
       const norm = rgbToHex(hexToRgb(raw))
       onChange(norm)

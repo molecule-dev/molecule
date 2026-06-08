@@ -20,5 +20,5 @@
  * @module
  */
 
-export * from './NotificationFeed.js'
 export { fmtRelativeShort } from './fmtRelativeShort.js'
+export * from './NotificationFeed.js'

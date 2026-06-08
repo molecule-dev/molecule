@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { type JSX, useEffect, useRef, useState } from 'react'
 import {
   AmbientLight,
   Box3,
   Color,
   DirectionalLight,
   HemisphereLight,
-  Material,
+  type Material,
   Mesh,
   MeshStandardMaterial,
   type Object3D,
@@ -14,10 +14,10 @@ import {
   Vector3,
   WebGLRenderer,
 } from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -258,7 +258,7 @@ function loadModel(src: string, format: ThreeViewerFormat): Promise<Object3D> {
  * @param props - Component props.
  * @returns The rendered viewer.
  */
-export function ThreeViewer(props: ThreeViewerProps) {
+export function ThreeViewer(props: ThreeViewerProps): JSX.Element {
   const {
     src,
     format,
@@ -308,7 +308,7 @@ export function ThreeViewer(props: ThreeViewerProps) {
     /**
      * Per-frame animation loop.
      */
-    function animate() {
+    function animate(): void {
       if (disposed) return
       controls.update()
       renderer.render(scene, camera)
@@ -318,7 +318,7 @@ export function ThreeViewer(props: ThreeViewerProps) {
     /**
      * Handle window resize by adjusting the renderer + camera aspect.
      */
-    function handleResize() {
+    function handleResize(): void {
       if (!container || disposed) return
       const w = container.clientWidth || 1
       const h = container.clientHeight || 1

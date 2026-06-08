@@ -21,7 +21,7 @@ export function FacebookLogo({
   mode = 'brand',
   ariaLabel = 'Facebook',
   title,
-}: OAuthLogoProps) {
+}: OAuthLogoProps): React.JSX.Element {
   const isMono = mode === 'mono'
   return (
     <svg
