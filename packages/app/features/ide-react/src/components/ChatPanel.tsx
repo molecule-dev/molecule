@@ -2008,6 +2008,18 @@ function ChatInner({
           href: '/pricing',
         })
       }
+      // Graceful-degradation notice: a build failed / hit a wall on the free tier.
+      // The backend message honestly explains that the cheap free-tier model can
+      // struggle with demanding builds (esp. custom apps) that stronger paid models
+      // handle better, that we've been notified, and that they can upgrade OR keep
+      // building on the free tier while we improve. Render it as a system card with
+      // an Upgrade affordance; continuing on the free tier needs no action.
+      if (event.type === 'build_degraded') {
+        addSystemCardRef.current(event.message as string, {
+          label: t('upgrade.viewPlans', undefined, { defaultValue: 'Upgrade' }),
+          href: '/pricing',
+        })
+      }
       // Periodic sign-up reminder for anonymous users in chat history.
       // Suppressed during discovery — see suppressGuestReminder.
       if (event.type === 'done' && isAnonymous && !suppressGuestReminder) {
