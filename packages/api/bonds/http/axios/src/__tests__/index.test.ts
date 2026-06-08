@@ -1205,8 +1205,8 @@ describe('@molecule/api-http-axios', () => {
 
       try {
         await httpClient.get('/test')
-      } catch {
-        // expected
+      } catch (_error) {
+        // expected — test only asserts on `logs`, not the thrown error itself
       }
 
       expect(logs).toEqual(['request', 'error'])
@@ -1409,8 +1409,8 @@ describe('@molecule/api-http-axios', () => {
       mockAxiosInstance.request.mockRejectedValueOnce(axiosError)
       try {
         await httpClient.get('/failure')
-      } catch {
-        // expected
+      } catch (_error) {
+        // expected — test only asserts on `logs`, not the thrown error itself
       }
 
       expect(logs).toEqual([

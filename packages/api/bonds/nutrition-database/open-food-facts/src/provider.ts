@@ -175,7 +175,7 @@ const parseRetryAfter = (value: string | null): number | null => {
  * {@link OpenFoodFactsRateLimitedError}; other non-OK statuses raise
  * {@link OpenFoodFactsHttpError}.
  *
- * @typeParam T - Expected JSON response shape.
+ * @template T - Expected JSON response shape.
  * @param url - Fully-constructed request URL including query params.
  * @param config - Provider configuration (used for User-Agent + timeout).
  * @returns Parsed JSON body cast to `T`.

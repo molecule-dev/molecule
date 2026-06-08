@@ -178,7 +178,8 @@ class AnthropicAIProvider implements AIProvider {
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
         if (parsed.error?.message) detail = parsed.error.message
-      } catch {
+      } catch (_error) {
+        // Best-effort: if the error body isn't valid JSON, use it as plain text
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
       // Log full detail server-side for debugging
@@ -387,8 +388,8 @@ class AnthropicAIProvider implements AIProvider {
         let input: unknown = {}
         try {
           input = JSON.parse(state.pendingTool.inputJson)
-        } catch {
-          // Fall back to empty object if JSON is malformed
+        } catch (_error) {
+          // Best-effort: malformed JSON from a truncated stream yields an empty input object
         }
         yield {
           type: 'tool_use',
@@ -472,8 +473,8 @@ class AnthropicAIProvider implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(state.pendingTool.inputJson)
-            } catch {
-              // Fall back to empty object if JSON is malformed
+            } catch (_error) {
+              // Best-effort: malformed accumulated JSON falls back to empty input object
             }
             yield {
               type: 'tool_use',
@@ -505,8 +506,8 @@ class AnthropicAIProvider implements AIProvider {
           if (usage?.cache_read_input_tokens)
             state.cacheReadInputTokens = usage.cache_read_input_tokens
         }
-      } catch {
-        logger.debug('Skipping malformed SSE JSON line', { json })
+      } catch (error) {
+        logger.debug('Skipping malformed SSE JSON line', { json, error })
       }
     }
   }

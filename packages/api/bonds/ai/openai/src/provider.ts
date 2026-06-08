@@ -137,7 +137,8 @@ export class OpenaiAIProvider implements AIProvider {
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
         if (parsed.error?.message) detail = parsed.error.message
-      } catch {
+      } catch (_error) {
+        // Best-effort: detail already has an HTTP-status fallback; malformed body just stays as-is.
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
       logger.error('OpenAI API error', { status: response!.status, detail })
@@ -235,7 +236,12 @@ export class OpenaiAIProvider implements AIProvider {
     }))
   }
 
-  /** Parse a non-streaming `/v1/chat/completions` response. */
+  /**
+   * Parse a non-streaming `/v1/chat/completions` response.
+   *
+   * @param data - The parsed JSON response body.
+   * @yields {ChatEvent} Text, tool-use, and done events extracted from the response.
+   */
   private *parseNonStreamingResponse(data: Record<string, unknown>): Iterable<ChatEvent> {
     const choices = data.choices as Array<Record<string, unknown>> | undefined
     const message = choices?.[0]?.message as Record<string, unknown> | undefined
@@ -250,8 +256,8 @@ export class OpenaiAIProvider implements AIProvider {
         let input: unknown = {}
         try {
           input = fn?.arguments ? JSON.parse(fn.arguments) : {}
-        } catch {
-          // leave input = {}
+        } catch (_error) {
+          // Best-effort: malformed tool-call arguments are unusable; fall back to empty object.
         }
         yield {
           type: 'tool_use',
@@ -282,7 +288,12 @@ export class OpenaiAIProvider implements AIProvider {
     }
   }
 
-  /** Parse a streaming SSE response from `/v1/chat/completions`. */
+  /**
+   * Parse a streaming SSE response from `/v1/chat/completions`.
+   *
+   * @param response - The fetch Response whose body is an SSE stream.
+   * @yields {ChatEvent} Incremental text, keep-alive, tool-use, and done events.
+   */
   private async *parseStreamingResponse(response: Response): AsyncIterable<ChatEvent> {
     const reader = response.body?.getReader()
     if (!reader) {
@@ -328,8 +339,8 @@ export class OpenaiAIProvider implements AIProvider {
         let input: unknown = {}
         try {
           input = tool.argsJson ? JSON.parse(tool.argsJson) : {}
-        } catch {
-          // leave input = {}
+        } catch (_error) {
+          // Best-effort: streaming tool arguments arrived malformed; fall back to empty object.
         }
         yield { type: 'tool_use', id: tool.id, name: tool.name, input }
       }
@@ -348,7 +359,13 @@ export class OpenaiAIProvider implements AIProvider {
     }
   }
 
-  /** Process SSE lines from OpenAI's `chat/completions` stream. */
+  /**
+   * Process SSE lines from OpenAI's `chat/completions` stream.
+   *
+   * @param lines - Individual SSE lines to parse.
+   * @param state - Mutable stream state tracking tokens and pending tool calls.
+   * @yields {ChatEvent} Text and no-op events parsed from the SSE data lines.
+   */
   private *processSSELines(lines: string[], state: OpenaiStreamState): Iterable<ChatEvent> {
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue
@@ -395,8 +412,8 @@ export class OpenaiAIProvider implements AIProvider {
           if (typeof usage.prompt_tokens_details?.cached_tokens === 'number')
             state.cachedTokens = usage.prompt_tokens_details.cached_tokens
         }
-      } catch {
-        logger.debug('Skipping malformed OpenAI SSE JSON line', { json })
+      } catch (error) {
+        logger.debug('Skipping malformed OpenAI SSE JSON line', { json, error })
       }
     }
   }

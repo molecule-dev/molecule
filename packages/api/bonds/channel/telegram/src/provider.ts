@@ -235,9 +235,10 @@ export class TelegramChannelProvider implements ChannelProvider {
     let parsed: { ok: boolean; result?: T; description?: string }
     try {
       parsed = (await response.json()) as { ok: boolean; result?: T; description?: string }
-    } catch {
+    } catch (error) {
       throw new Error(
         `Telegram Bot API returned non-JSON response (${safeUrl}, HTTP ${response.status}).`,
+        { cause: error },
       )
     }
 

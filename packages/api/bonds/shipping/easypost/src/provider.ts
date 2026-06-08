@@ -144,7 +144,9 @@ const sanitize = (input: unknown): string => {
   } else {
     try {
       text = JSON.stringify(input)
-    } catch {
+    } catch (_error) {
+      // JSON.stringify can throw for circular references or BigInt values;
+      // String() is always safe and this is best-effort sanitization.
       text = String(input)
     }
   }

@@ -45,17 +45,17 @@ import type {
   SearchActivitiesOptions,
   SearchCarsOptions,
   SearchTripOptions,
-  TravelProvider,
   TravelerCounts,
+  TravelProvider,
   TripSearchResult,
 } from '@molecule/api-travel'
 
+import type { AmadeusTravelConfig } from './types.js'
 import {
   AmadeusTravelMissingCredentialsError,
   AmadeusTravelTokenMintError,
   AmadeusTravelUpstreamError,
 } from './types.js'
-import type { AmadeusTravelConfig } from './types.js'
 
 /** Default Self-Service test (sandbox) base URL. */
 const DEFAULT_TEST_BASE_URL = 'https://test.api.amadeus.com'
@@ -69,12 +69,16 @@ const DEFAULT_TIMEOUT = 15_000
 /** Default token-skew window in seconds. */
 const DEFAULT_TOKEN_SKEW_SECONDS = 30
 
-/** Maximum number of hotelIds the provider batches into a single
- * `/v3/shopping/hotel-offers` call. */
+/**
+ * Maximum number of hotelIds the provider batches into a single
+ * `/v3/shopping/hotel-offers` call.
+ */
 const HOTEL_IDS_BATCH_SIZE = 20
 
-/** Maximum number of hotels to enrich with priced offers when no
- * explicit `maxResultsPerCategory` is supplied. */
+/**
+ * Maximum number of hotels to enrich with priced offers when no
+ * explicit `maxResultsPerCategory` is supplied.
+ */
 const DEFAULT_MAX_HOTELS = 20
 
 /** Resolve the effective base URL given the configuration. */
@@ -106,8 +110,10 @@ interface CachedToken {
   expiresAtMs: number
 }
 
-/** Resolves the configured client credentials, throwing a sanitized
- * error (NEVER containing the secret) if either is missing. */
+/**
+ * Resolves the configured client credentials, throwing a sanitized
+ * error (NEVER containing the secret) if either is missing.
+ */
 const requireCredentials = (
   config: AmadeusTravelConfig,
 ): { clientId: string; clientSecret: string } => {
@@ -122,8 +128,10 @@ const requireCredentials = (
   return { clientId, clientSecret }
 }
 
-/** Mints a fresh OAuth2 token. The `client_secret` NEVER appears in
- * any thrown error. */
+/**
+ * Mints a fresh OAuth2 token. The `client_secret` NEVER appears in
+ * any thrown error.
+ */
 const mintToken = async (
   baseUrl: string,
   clientId: string,
@@ -198,8 +206,10 @@ const createTokenCache = (
   }
 }
 
-/** Issues an authenticated GET against an Amadeus data endpoint and
- * parses the JSON response. Errors NEVER contain the OAuth secret. */
+/**
+ * Issues an authenticated GET against an Amadeus data endpoint and
+ * parses the JSON response. Errors NEVER contain the OAuth secret.
+ */
 const fetchAmadeus = async <T extends AmadeusErrorEnvelope>(
   baseUrl: string,
   path: string,
@@ -224,8 +234,9 @@ const fetchAmadeus = async <T extends AmadeusErrorEnvelope>(
       try {
         const body = (await response.json()) as AmadeusErrorEnvelope
         detail = body.errors?.[0]?.detail ?? body.errors?.[0]?.title
-      } catch {
-        // Ignore parse failures.
+      } catch (_error) {
+        // Ignore parse failures — the error-body JSON is best-effort detail
+        // extraction; the upstream HTTP error is already captured above.
       }
       throw new AmadeusTravelUpstreamError(response.status, detail)
     }
@@ -287,8 +298,10 @@ const sumItineraryDurations = (itineraries: AmadeusItinerary[]): IsoDuration => 
   return `PT${String(hh)}H${String(mm)}M`
 }
 
-/** Maps a raw Amadeus flight segment to a normalized
- * {@link FlightSegment}. */
+/**
+ * Maps a raw Amadeus flight segment to a normalized
+ * {@link FlightSegment}.
+ */
 const mapFlightSegment = (raw: AmadeusFlightSegment): FlightSegment => {
   const departure: FlightSegmentEndpoint = {
     airport: raw.departure.iataCode,
@@ -309,8 +322,10 @@ const mapFlightSegment = (raw: AmadeusFlightSegment): FlightSegment => {
   }
 }
 
-/** Maps a raw Amadeus flight offer to a normalized
- * {@link FlightOffer}. */
+/**
+ * Maps a raw Amadeus flight offer to a normalized
+ * {@link FlightOffer}.
+ */
 const mapFlightOffer = (raw: AmadeusFlightOfferRaw): FlightOffer => {
   const segments: FlightSegment[] = []
   for (const itinerary of raw.itineraries) {
@@ -388,8 +403,10 @@ const chunk = <T>(items: T[], size: number): T[][] => {
   return out
 }
 
-/** Parses an Amadeus rating field (string or number) into a plain
- * integer. Returns `undefined` for unparseable / missing values. */
+/**
+ * Parses an Amadeus rating field (string or number) into a plain
+ * integer. Returns `undefined` for unparseable / missing values.
+ */
 const parseOptionalRating = (value: string | number | undefined): number | undefined => {
   if (value == null) return undefined
   if (typeof value === 'number') return Number.isFinite(value) ? value : undefined
@@ -398,8 +415,10 @@ const parseOptionalRating = (value: string | number | undefined): number | undef
   return Number.isFinite(parsed) ? parsed : undefined
 }
 
-/** Maps a raw Amadeus hotel-offer row + hit envelope to a normalized
- * {@link HotelOffer}. */
+/**
+ * Maps a raw Amadeus hotel-offer row + hit envelope to a normalized
+ * {@link HotelOffer}.
+ */
 const mapHotelOffer = (
   hit: AmadeusHotelOffersHit,
   raw: AmadeusHotelOfferRow,
@@ -478,8 +497,10 @@ interface AmadeusActivitiesResponse extends AmadeusErrorEnvelope {
   data?: AmadeusActivityRow[]
 }
 
-/** Maps a raw Amadeus activity row to a normalized
- * {@link ActivityOffer}. */
+/**
+ * Maps a raw Amadeus activity row to a normalized
+ * {@link ActivityOffer}.
+ */
 const mapActivity = (raw: AmadeusActivityRow): ActivityOffer | undefined => {
   if (typeof raw.id !== 'string' || raw.id.length === 0) return undefined
   if (typeof raw.name !== 'string' || raw.name.length === 0) return undefined
@@ -523,9 +544,11 @@ const mapActivity = (raw: AmadeusActivityRow): ActivityOffer | undefined => {
   return out
 }
 
-/** Resolves an IATA city code to a geographic point via the Amadeus
+/**
+ * Resolves an IATA city code to a geographic point via the Amadeus
  * cities reference-data endpoint. Returns `null` when the upstream
- * does not supply geo coordinates for the code. */
+ * does not supply geo coordinates for the code.
+ */
 const resolveCityGeo = async (
   baseUrl: string,
   cityCode: string,
@@ -650,7 +673,7 @@ export const createProvider = (config: AmadeusTravelConfig = {}): TravelProvider
             if (mapped) out.push(mapped)
           }
         }
-      } catch {
+      } catch (_error) {
         // Swallow per-batch enrichment failures — partial hotel
         // results are more useful than failing the whole trip search.
       }

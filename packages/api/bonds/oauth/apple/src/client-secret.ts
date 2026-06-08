@@ -79,8 +79,8 @@ export const createAppleClientSecret = ({
         keyid: keyId,
       },
     )
-  } catch {
+  } catch (error) {
     // Re-throw with a sanitized message so the private key never appears in logs.
-    throw new Error(`Failed to sign Apple client-secret JWT.`)
+    throw new Error(`Failed to sign Apple client-secret JWT.`, { cause: error })
   }
 }

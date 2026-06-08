@@ -234,7 +234,10 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
           }
           try {
             parsed = JSON.parse(body) as typeof parsed
-          } catch {
+          } catch (_error) {
+            // Client sent malformed JSON; the 400 response fully conveys the
+            // failure — the parse error itself carries no additional context
+            // worth surfacing in server logs.
             res.writeHead(400, {
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin': corsOrigin,

@@ -346,7 +346,8 @@ export class StabilityAIProvider implements AIImageGenerationProvider {
         try {
           const errorBody = (await response.json()) as { message?: string; name?: string }
           message = errorBody.message ?? errorBody.name ?? response.statusText
-        } catch {
+        } catch (_error) {
+          // Best-effort: if the error body isn't valid JSON, fall back to the HTTP status text.
           message = response.statusText
         }
         throw new Error(`Stability AI API error (${response.status}): ${message}`)

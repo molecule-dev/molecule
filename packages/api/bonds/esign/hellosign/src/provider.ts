@@ -383,7 +383,9 @@ const verifyEventHash = (
   if (expected.length !== providedHash.length) return false
   try {
     return timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(providedHash, 'hex'))
-  } catch {
+  } catch (_error) {
+    // timingSafeEqual throws if buffers differ in byte length (e.g. malformed
+    // hex input); treat any such failure as a non-matching hash — safe noop.
     return false
   }
 }

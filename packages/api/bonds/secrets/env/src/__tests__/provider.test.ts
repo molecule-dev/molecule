@@ -37,8 +37,8 @@ describe('@molecule/api-secrets-env', () => {
     // Try to clean up temp files
     try {
       await unlink(testEnvPath)
-    } catch {
-      /* no-op */
+    } catch (_error) {
+      // Safe to ignore: file may not exist if the test never wrote it
     }
   })
 

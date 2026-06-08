@@ -121,8 +121,10 @@ const oneHotelOffersFixture = {
   ],
 }
 
-/** Sets up a fetch mock that responds to the token mint and one or more
- * data calls in order. */
+/**
+ * Sets up a fetch mock that responds to the token mint and one or more
+ * data calls in order.
+ */
 const stubAmadeus = (
   responses: Array<{ data?: unknown; status?: number }>,
 ): ReturnType<typeof vi.fn> => {

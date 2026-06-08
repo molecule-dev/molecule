@@ -57,8 +57,10 @@ const DEFAULT_TIMEOUT = 15_000
 /** Default offer cache size. */
 const DEFAULT_OFFER_CACHE_SIZE = 1000
 
-/** Number of seconds shaved off the OAuth token expiry to avoid edge-case
- *  races where the token expires mid-request. */
+/**
+ * Number of seconds shaved off the OAuth token expiry to avoid edge-case
+ *  races where the token expires mid-request.
+ */
 const TOKEN_EXPIRY_SAFETY_MARGIN_S = 30
 
 /** Default cabin class when the caller omits the option. */
@@ -383,6 +385,9 @@ class OfferCache {
     this.capacity = capacity
   }
 
+  /**
+   * Inserts or updates an offer entry, evicting the oldest when capacity is exceeded.
+   */
   public set(id: string, offer: AmadeusFlightOffer): void {
     if (this.entries.has(id)) {
       this.entries.delete(id)
@@ -397,6 +402,9 @@ class OfferCache {
     }
   }
 
+  /**
+   * Retrieves an offer by id, or `undefined` if not cached.
+   */
   public get(id: string): AmadeusFlightOffer | undefined {
     return this.entries.get(id)
   }
@@ -470,7 +478,7 @@ const fetchToken = async (
  * — they are sent only in the OAuth body, never in URLs or auth-failure
  * messages.
  *
- * @typeParam T - Expected JSON response shape.
+ * @template T - Expected JSON response shape.
  * @param url - Fully-constructed request URL.
  * @param init - Fetch init options (method, body, headers).
  * @param token - Current bearer token.

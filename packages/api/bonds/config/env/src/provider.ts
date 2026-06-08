@@ -119,7 +119,9 @@ export const envProvider: ConfigProvider = {
       if (config.type === 'json') {
         try {
           JSON.parse(value)
-        } catch {
+        } catch (_error) {
+          // JSON.parse throws on invalid input; the error object itself is not needed
+          // because the validation failure is already recorded in the errors array below.
           errors.push({
             key: config.key,
             message: t(

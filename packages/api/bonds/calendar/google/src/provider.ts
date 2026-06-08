@@ -28,8 +28,8 @@ import type {
   FreeSlot,
   ListEventsOptions,
 } from '@molecule/api-calendar'
-import { del, get, patch, post } from '@molecule/api-http'
 import type { HttpError, HttpRequestOptions, HttpResponse } from '@molecule/api-http'
+import { del, get, patch, post } from '@molecule/api-http'
 
 import type { GoogleCalendarProviderOptions } from './types.js'
 

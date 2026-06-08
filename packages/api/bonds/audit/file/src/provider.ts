@@ -128,8 +128,8 @@ export const createProvider = (config?: FileAuditConfig): AuditProvider => {
           `${filePrefix}-${new Date().toISOString().slice(0, 10)}-${timestamp}.ndjson`,
         )
       }
-    } catch {
-      // File doesn't exist yet — use the default path
+    } catch (_error) {
+      // File doesn't exist yet — use the default path; ignore is safe here.
     }
     return filePath
   }
@@ -147,7 +147,8 @@ export const createProvider = (config?: FileAuditConfig): AuditProvider => {
         .sort()
         .reverse()
       return logFiles.map((f) => join(directory, f))
-    } catch {
+    } catch (_error) {
+      // Directory doesn't exist yet — treat as empty log set; ignore is safe here.
       return []
     }
   }
@@ -174,8 +175,8 @@ export const createProvider = (config?: FileAuditConfig): AuditProvider => {
             records.push(record)
           }
         }
-      } catch {
-        // Skip unreadable files
+      } catch (_error) {
+        // Skip unreadable or corrupt log files; ignore is safe — other files still load.
       }
     }
 
@@ -204,8 +205,8 @@ export const createProvider = (config?: FileAuditConfig): AuditProvider => {
       let existing = ''
       try {
         existing = await readFile(filePath, 'utf-8')
-      } catch {
-        // File doesn't exist yet
+      } catch (_error) {
+        // File doesn't exist yet — start with empty content; ignore is safe here.
       }
       await writeFile(filePath, existing + line, 'utf-8')
     },

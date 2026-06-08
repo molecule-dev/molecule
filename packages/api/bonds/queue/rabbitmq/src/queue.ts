@@ -149,7 +149,8 @@ export const createReceivedMessageFromGet = <T>(
   let body: T
   try {
     body = JSON.parse(msg.content.toString()) as T
-  } catch {
+  } catch (_error) {
+    // JSON parse failure is expected for non-JSON payloads; fall back to raw string body.
     body = msg.content.toString() as unknown as T
   }
 
@@ -185,7 +186,8 @@ export const createReceivedMessage = <T>(
   let body: T
   try {
     body = JSON.parse(msg.content.toString()) as T
-  } catch {
+  } catch (_error) {
+    // JSON parse failure is expected for non-JSON payloads; fall back to raw string body.
     body = msg.content.toString() as unknown as T
   }
 

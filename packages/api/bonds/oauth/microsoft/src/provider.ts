@@ -10,7 +10,6 @@ import type { OAuthVerifier } from '@molecule/api-oauth'
 
 import { verifyMicrosoftIdToken } from './jwks.js'
 import type {
-  MicrosoftIdTokenClaims,
   MicrosoftOAuthConfig,
   MicrosoftTokenSet,
   OAuthProvider,
@@ -41,7 +40,9 @@ const authorizeEndpointFor = (tenantId: string): string =>
  * @param overrides - Partial configuration to merge over env defaults.
  * @returns The fully-resolved configuration.
  */
-export const resolveConfig = (overrides?: MicrosoftOAuthConfig) => {
+export const resolveConfig = (
+  overrides?: MicrosoftOAuthConfig,
+): { tenantId: string; clientId: string; clientSecret: string; defaultScope: string } => {
   const tenantId = overrides?.tenantId || process.env.OAUTH_MICROSOFT_TENANT_ID || `common`
   const clientId = overrides?.clientId || process.env.OAUTH_MICROSOFT_CLIENT_ID || ``
   const clientSecret = overrides?.clientSecret || process.env.OAUTH_MICROSOFT_CLIENT_SECRET || ``

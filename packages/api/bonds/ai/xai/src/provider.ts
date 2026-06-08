@@ -152,7 +152,8 @@ class XaiAIProvider implements AIProvider {
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
         if (parsed.error?.message) detail = parsed.error.message
-      } catch {
+      } catch (_error) {
+        // errorBody is not valid JSON; use the raw text as the detail string instead
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
       logger.error('xAI API error', { status: response!.status, detail, errorBody })
@@ -308,8 +309,8 @@ class XaiAIProvider implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(fn.arguments as string)
-            } catch {
-              // Fall back to empty object
+            } catch (_error) {
+              // API returned unparseable arguments JSON; fall back to empty object so tool_use is still emitted
             }
             yield {
               type: 'tool_use',
@@ -403,8 +404,8 @@ class XaiAIProvider implements AIProvider {
           let input: unknown = {}
           try {
             input = JSON.parse(pending.args)
-          } catch {
-            // Fall back to empty object
+          } catch (_error) {
+            // Accumulated args are not valid JSON (e.g. partial stream); fall back to empty object
           }
           yield { type: 'tool_use', id: pending.id, name: pending.name, input }
         }
@@ -523,8 +524,8 @@ class XaiAIProvider implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(pending.args)
-            } catch {
-              // Fall back to empty object
+            } catch (_error) {
+              // Accumulated args are not valid JSON (e.g. partial stream); fall back to empty object
             }
             yield {
               type: 'tool_use',
@@ -535,8 +536,8 @@ class XaiAIProvider implements AIProvider {
           }
           pendingTools.clear()
         }
-      } catch {
-        logger.debug('Skipping malformed SSE JSON line', { json })
+      } catch (error) {
+        logger.debug('Skipping malformed SSE JSON line', { json, error })
       }
     }
   }

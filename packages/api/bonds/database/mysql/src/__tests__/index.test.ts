@@ -661,8 +661,9 @@ describe('@molecule/api-database-mysql index exports', () => {
       // Second query fails
       try {
         await tx.query('UPDATE invalid_table SET value = $1', [1])
-      } catch {
-        // Rollback on error
+      } catch (_error) {
+        // Intentionally ignored — this error is expected (invalid table) and
+        // the test only verifies that rollback is called in response to it.
         await tx.rollback()
       }
 

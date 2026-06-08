@@ -261,7 +261,8 @@ class ElevenlabsSpeechProvider implements AISpeechProvider {
     try {
       const parsed = JSON.parse(errorBody) as ElevenLabsErrorResponse
       if (parsed.detail?.message) detail = parsed.detail.message
-    } catch {
+    } catch (_error) {
+      // JSON.parse failure is safe to ignore — errorBody fallback covers the non-JSON case.
       if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
     }
 

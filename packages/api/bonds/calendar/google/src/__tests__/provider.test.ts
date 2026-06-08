@@ -22,8 +22,8 @@ vi.mock('@molecule/api-bond', () => ({
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import * as http from '@molecule/api-http'
 import type { CalendarUserCredentials } from '@molecule/api-calendar'
+import * as http from '@molecule/api-http'
 
 import { computeFreeSlots, createProvider } from '../provider.js'
 

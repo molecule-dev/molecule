@@ -72,8 +72,8 @@ function toWorkflowEvent(row: WorkflowEventRow): WorkflowEvent {
   if (row.data) {
     try {
       event.data = JSON.parse(row.data) as Record<string, unknown>
-    } catch {
-      /* ignore malformed JSON */
+    } catch (_error) {
+      /* ignore malformed JSON — event.data is optional; a parse failure leaves it undefined */
     }
   }
   return event

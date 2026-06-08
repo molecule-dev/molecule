@@ -279,8 +279,8 @@ class DockerSandboxProvider implements SandboxProvider {
         Config: { Labels: Record<string, string> }
       }
       volumeName = info.Config.Labels[`${this.labelPrefix}.volumeName`]
-    } catch {
-      // Container may already be gone
+    } catch (_error) {
+      // Container may already be gone — reading labels is best-effort; destroy proceeds regardless
     }
 
     try {
@@ -413,7 +413,7 @@ class DockerSandboxProvider implements SandboxProvider {
           if (/is not running|\b409\b/.test(message)) {
             try {
               await provider.dockerApi(`/containers/${containerId}/start`, 'POST')
-            } catch {
+            } catch (_error) {
               // 304 (already started) or a genuine start failure — let the retry
               // below surface the real error if the container is truly gone.
             }
@@ -618,7 +618,8 @@ class DockerSandboxProvider implements SandboxProvider {
     try {
       await this.dockerApi(`/volumes/${name}`)
       return true
-    } catch {
+    } catch (_error) {
+      // 404 means the volume does not exist — that is the expected "false" result
       return false
     }
   }
@@ -658,7 +659,8 @@ class DockerSandboxProvider implements SandboxProvider {
           }
           try {
             resolve(JSON.parse(text))
-          } catch {
+          } catch (_error) {
+            // Non-JSON response (e.g. plain-text or empty body) — return raw text
             resolve(text)
           }
         })

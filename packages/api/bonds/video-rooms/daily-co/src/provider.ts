@@ -198,7 +198,8 @@ export function createProvider(config: DailyCoVideoRoomsConfig = {}): VideoRooms
     if (text.length > 0) {
       try {
         body = JSON.parse(text)
-      } catch {
+      } catch (_error) {
+        // Non-JSON body — fall back to the raw text string; parse failure is not actionable here.
         body = text
       }
     }

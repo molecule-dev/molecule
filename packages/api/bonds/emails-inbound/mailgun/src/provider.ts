@@ -73,7 +73,10 @@ const safeEqualHex = (a: string, b: string): boolean => {
   if (a.length !== b.length) return false
   try {
     return timingSafeEqual(Buffer.from(a, 'hex'), Buffer.from(b, 'hex'))
-  } catch {
+  } catch (_error) {
+    // timingSafeEqual throws if the two Buffers have different byte lengths,
+    // which cannot happen here after the length guard above. Any other failure
+    // (e.g. invalid hex encoding) also means the signature is invalid.
     return false
   }
 }
@@ -99,7 +102,9 @@ export const verifySignature = async (
   let apiKey: string
   try {
     apiKey = getApiKey()
-  } catch {
+  } catch (_error) {
+    // MAILGUN_API_KEY is not configured — cannot verify. Treat as invalid rather
+    // than throwing so the caller receives a clean false instead of a 500.
     return false
   }
 
@@ -152,7 +157,10 @@ const parseFormAttachments = (fields: Record<string, string>): InboundEmailAttac
       if (candidate && typeof candidate === 'object' && !Array.isArray(candidate)) {
         parsed = candidate as Record<string, unknown>
       }
-    } catch {
+    } catch (_error) {
+      // Mailgun sent a malformed attachment JSON field — skip this entry rather
+      // than aborting the whole parse; other attachments and the email body are
+      // still valid.
       continue
     }
     if (!parsed) continue

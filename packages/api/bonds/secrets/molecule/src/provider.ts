@@ -222,7 +222,9 @@ export function createMoleculeSecretsProvider(
       try {
         await fetchSecrets()
         return true
-      } catch {
+      } catch (_error) {
+        // Availability probe — any failure means the vault is unreachable; returning
+        // false is the correct contract. The actual error is surfaced by get/getMany.
         return false
       }
     },

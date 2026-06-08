@@ -322,7 +322,8 @@ class OpenaiSpeechProvider implements AISpeechProvider {
         if (parsed.error?.message) {
           detail = parsed.error.message
         }
-      } catch {
+      } catch (_error) {
+        // JSON.parse failed — errorBody is not valid JSON; fall back to raw text as detail.
         if (errorBody.length > 0 && errorBody.length < 200) {
           detail = errorBody
         }

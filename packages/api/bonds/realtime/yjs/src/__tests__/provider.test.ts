@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
 import { Awareness, encodeAwarenessUpdate } from 'y-protocols/awareness'
 import * as Y from 'yjs'
 
@@ -10,9 +9,9 @@ import type {
 } from '@molecule/api-realtime'
 
 import {
+  createProvider,
   YJS_AWARENESS_EVENT,
   YJS_UPDATE_EVENT,
-  createProvider,
   type YjsProviderExtras,
 } from '../provider.js'
 import type { YjsOutboundMessage } from '../types.js'

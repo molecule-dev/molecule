@@ -154,7 +154,10 @@ export function createProvider(config: QueueWebhookConfig = {}): WebhookProvider
       })
       status = response.status
       success = response.ok
-    } catch {
+    } catch (_error) {
+      // Network/timeout errors are normalized into the delivery result (status: 0,
+      // success: false). The caller (processJob) surfaces failures via retry logic
+      // and the final DeliveryJob status, so ignoring the raw error object here is safe.
       status = 0
       success = false
     }

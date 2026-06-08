@@ -9,6 +9,7 @@
 
 import { createHmac, randomUUID } from 'node:crypto'
 
+import { logger } from '@molecule/api-logger'
 import type {
   PaginationOptions,
   WebhookDelivery,
@@ -103,7 +104,8 @@ export function createProvider(config: HttpWebhookConfig = {}): WebhookProvider 
       })
       status = response.status
       success = response.ok
-    } catch {
+    } catch (error) {
+      logger.warn('Webhook delivery failed (network/timeout)', { error })
       status = 0
       success = false
     }

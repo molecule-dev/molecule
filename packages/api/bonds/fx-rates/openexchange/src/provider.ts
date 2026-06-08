@@ -122,9 +122,10 @@ const sanitizeUrlForError = (url: string): string => {
     const parsed = new URL(url)
     parsed.searchParams.delete('app_id')
     return parsed.toString()
-  } catch {
+  } catch (_error) {
     // If `url` isn't a valid URL, fall back to a path-only string by
-    // dropping any query string entirely.
+    // dropping any query string entirely. The parse error carries no
+    // actionable information — the URL itself is the diagnostic.
     const queryIndex = url.indexOf('?')
     return queryIndex >= 0 ? url.slice(0, queryIndex) : url
   }
@@ -143,7 +144,9 @@ const tryGetCacheBond = (): MinimalCacheBond | undefined => {
       return undefined
     }
     return getBond<MinimalCacheBond>('cache')
-  } catch {
+  } catch (_error) {
+    // Bond infrastructure may not be registered in all environments; a
+    // missing cache bond is non-fatal for the FX provider.
     return undefined
   }
 }
@@ -335,7 +338,7 @@ export const createProvider = (config: OpenExchangeFxRatesConfig = {}): FxRatesP
         await cacheBond.set(`${CACHE_KEY_PREFIX}${key}`, snapshot, {
           ttl: Math.max(1, Math.floor(cacheTtlMs / 1000)),
         })
-      } catch {
+      } catch (_error) {
         // Cache write-throughs are best-effort: a failure must not bubble
         // up and break a successful FX-rate lookup.
       }
@@ -373,7 +376,7 @@ export const createProvider = (config: OpenExchangeFxRatesConfig = {}): FxRatesP
         }
         return rehydrated
       }
-    } catch {
+    } catch (_error) {
       // Cache read failures are best-effort; fall through to upstream fetch.
     }
     return undefined

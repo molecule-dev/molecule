@@ -73,7 +73,7 @@ export const createPool = (config?: SqliteConfig): DatabasePool => {
         let columns: { name: string; type: string | null }[] = []
         try {
           columns = stmt.columns()
-        } catch {
+        } catch (_error) {
           // non-reader statement — no column metadata, leave rows as-is
         }
         return {

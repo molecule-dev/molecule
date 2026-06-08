@@ -10,6 +10,7 @@
 import Twilio from 'twilio'
 import type { MessageListInstanceCreateOptions } from 'twilio/lib/rest/api/v2010/account/message.js'
 
+import { logger } from '@molecule/api-logger'
 import type {
   BulkSMSMessage,
   BulkSMSResult,
@@ -114,7 +115,8 @@ export function createProvider(config: TwilioSMSConfig = {}): SMSProvider {
           } else {
             successful += 1
           }
-        } catch {
+        } catch (error) {
+          logger.warn('Twilio SMS send failed for recipient', { error, to: msg.to })
           results.push({ id: '', status: 'failed', to: msg.to })
           failed += 1
         }

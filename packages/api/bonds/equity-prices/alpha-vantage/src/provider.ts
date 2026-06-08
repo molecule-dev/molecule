@@ -29,8 +29,8 @@ import type {
   ExchangeCode,
 } from '@molecule/api-equity-prices'
 
-import { MISSING_API_KEY, RATE_LIMITED, UPSTREAM_ERROR } from './types.js'
 import type { AlphaVantageEquityPricesConfig } from './types.js'
+import { MISSING_API_KEY, RATE_LIMITED, UPSTREAM_ERROR } from './types.js'
 
 /** Default Alpha Vantage public endpoint base URL. */
 const DEFAULT_BASE_URL = 'https://www.alphavantage.co'

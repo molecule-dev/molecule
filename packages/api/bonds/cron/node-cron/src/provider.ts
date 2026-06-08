@@ -11,6 +11,7 @@
 import cron from 'node-cron'
 
 import type { CronJob, CronOptions, CronProvider } from '@molecule/api-cron'
+import { logger } from '@molecule/api-logger'
 
 import type { NodeCronConfig } from './types.js'
 
@@ -94,7 +95,12 @@ export const createProvider = (config: NodeCronConfig = {}): CronProvider => {
 
           try {
             await handler()
-          } catch {
+          } catch (error) {
+            logger.warn('Cron job handler threw — marking job as failed', {
+              error,
+              jobId: record.id,
+              name: record.name,
+            })
             record.status = 'failed'
             task.stop()
             return

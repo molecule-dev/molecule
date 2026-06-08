@@ -288,7 +288,8 @@ class OpenaiImageGenerationProvider implements AIImageGenerationProvider {
       try {
         const parsed = JSON.parse(errorBody) as OpenAIErrorResponse
         if (parsed.error?.message) detail = parsed.error.message
-      } catch {
+      } catch (_error) {
+        // JSON.parse failed — errorBody is not JSON; fall back to the raw text detail set above.
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
 

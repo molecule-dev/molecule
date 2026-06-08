@@ -220,7 +220,10 @@ const safeEqualHex = (a: string, b: string): boolean => {
   if (a.length !== b.length) return false
   try {
     return timingSafeEqual(Buffer.from(a, 'utf8'), Buffer.from(b, 'utf8'))
-  } catch {
+  } catch (_error) {
+    // timingSafeEqual can throw if the Buffer lengths differ (shouldn't happen
+    // given the length guard above, but defensive). Safe to return false — the
+    // caller treats any non-match as a signature failure.
     return false
   }
 }
@@ -234,7 +237,6 @@ const safeEqualHex = (a: string, b: string): boolean => {
  * @param secret - The webhook signing secret.
  * @param toleranceSeconds - Allowed clock-drift between hosts.
  * @param now - Current epoch millis (injectable for tests).
- * @returns Nothing on success.
  * @throws {Error} If the signature is missing, malformed, expired, or invalid.
  */
 export const verifyStripeSignature = (
@@ -316,7 +318,7 @@ const stripeFetch = async <T>(
       try {
         const errorJson = (await response.json()) as { error?: { code?: string } }
         code = errorJson?.error?.code
-      } catch {
+      } catch (_error) {
         // Body wasn't JSON — keep code undefined; the message stays safe.
       }
       throw sanitizeError(scope, response.status, code)
@@ -466,8 +468,12 @@ export const createProvider = (options: StripeIdentityProviderOptions = {}): Kyc
       let event: StripeWebhookEvent
       try {
         event = JSON.parse(payloadString) as StripeWebhookEvent
-      } catch {
-        throw new Error('Stripe Identity webhook payload is not valid JSON')
+      } catch (_error) {
+        // Replace the parse error with a safe, generic message that reveals
+        // nothing about the raw body. The original SyntaxError is chained as
+        // cause for debuggability (its message only describes parse position,
+        // not the payload content).
+        throw new Error('Stripe Identity webhook payload is not valid JSON', { cause: _error })
       }
 
       const normalizedType = mapWebhookEventType(event.type)

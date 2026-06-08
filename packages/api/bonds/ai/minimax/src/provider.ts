@@ -144,7 +144,8 @@ class MiniMaxAIProvider implements AIProvider {
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
         if (parsed.error?.message) detail = parsed.error.message
-      } catch {
+      } catch (_error) {
+        // JSON.parse of error body failed — fall back to raw text; parse failure is not actionable
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
       logger.error('MiniMax API error', { status: response!.status, detail, errorBody })
@@ -311,8 +312,8 @@ class MiniMaxAIProvider implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(fn.arguments as string)
-            } catch {
-              // Fall back to empty object
+            } catch (_error) {
+              // Fall back to empty object — malformed tool arguments are non-fatal
             }
             yield {
               type: 'tool_use',
@@ -394,8 +395,8 @@ class MiniMaxAIProvider implements AIProvider {
           let input: unknown = {}
           try {
             input = JSON.parse(pending.args)
-          } catch {
-            // Fall back to empty object
+          } catch (_error) {
+            // Fall back to empty object — incomplete args at stream end are non-fatal
           }
           yield { type: 'tool_use', id: pending.id, name: pending.name, input }
         }
@@ -492,8 +493,8 @@ class MiniMaxAIProvider implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(pending.args)
-            } catch {
-              // Fall back to empty object
+            } catch (_error) {
+              // Fall back to empty object — malformed tool arguments are non-fatal
             }
             yield {
               type: 'tool_use',
@@ -504,8 +505,8 @@ class MiniMaxAIProvider implements AIProvider {
           }
           pendingTools.clear()
         }
-      } catch {
-        logger.debug('Skipping malformed SSE JSON line', { json })
+      } catch (error) {
+        logger.debug('Skipping malformed SSE JSON line', { json, error })
       }
     }
   }

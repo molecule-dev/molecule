@@ -176,7 +176,7 @@ const resolveBaseUrl = (config: CoinGeckoCryptoPricesConfig): string => {
  * non-OK statuses raise {@link CoinGeckoHttpError}. The provided API key is
  * never included in error messages.
  *
- * @typeParam T - Expected JSON response shape.
+ * @template T - Expected JSON response shape.
  * @param url - Fully-constructed request URL including query params.
  * @param config - Provider configuration (used for auth header + timeout).
  * @returns Parsed JSON body cast to `T`.

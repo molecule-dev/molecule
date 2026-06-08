@@ -203,7 +203,8 @@ export function createDopplerProvider(options: DopplerProviderOptions = {}): Sec
       try {
         await fetchSecrets()
         return true
-      } catch {
+      } catch (_error) {
+        // Best-effort availability probe — a fetch failure just means Doppler is unavailable.
         return false
       }
     },

@@ -320,7 +320,8 @@ class DeeplTranslationProvider implements AITranslationProvider {
     try {
       const parsed = JSON.parse(errorBody) as DeepLErrorResponse
       if (parsed.message) detail = parsed.message
-    } catch {
+    } catch (_error) {
+      // JSON.parse failed — error body is not JSON; fall back to raw text if short enough.
       if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
     }
 

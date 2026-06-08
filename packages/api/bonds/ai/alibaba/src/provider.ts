@@ -148,7 +148,8 @@ class AlibabaAIProvider implements AIProvider {
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
         if (parsed.error?.message) detail = parsed.error.message
-      } catch {
+      } catch (_error) {
+        // JSON.parse failed — use raw text as detail if it is short enough to be readable
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
       logger.error('Alibaba DashScope API error', { status: response!.status, detail, errorBody })
@@ -320,8 +321,9 @@ class AlibabaAIProvider implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(fn.arguments as string)
-            } catch {
-              // Fall back to empty object
+            } catch (_error) {
+              // Malformed JSON arguments from the API — fall back to empty object so the
+              // tool call is still forwarded and the executor can handle the bad input.
             }
             yield {
               type: 'tool_use',
@@ -403,8 +405,9 @@ class AlibabaAIProvider implements AIProvider {
           let input: unknown = {}
           try {
             input = JSON.parse(pending.args)
-          } catch {
-            // Fall back to empty object
+          } catch (_error) {
+            // Malformed JSON arguments accumulated from stream deltas — fall back to empty
+            // object so the tool call is still emitted and the executor can handle it.
           }
           yield { type: 'tool_use', id: pending.id, name: pending.name, input }
         }
@@ -501,8 +504,9 @@ class AlibabaAIProvider implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(pending.args)
-            } catch {
-              // Fall back to empty object
+            } catch (_error) {
+              // Malformed JSON arguments accumulated from stream deltas — fall back to empty
+              // object so the tool call is still emitted and the executor can handle it.
             }
             yield {
               type: 'tool_use',
@@ -513,8 +517,8 @@ class AlibabaAIProvider implements AIProvider {
           }
           pendingTools.clear()
         }
-      } catch {
-        logger.debug('Skipping malformed SSE JSON line', { json })
+      } catch (error) {
+        logger.debug('Skipping malformed SSE JSON line', { json, error })
       }
     }
   }

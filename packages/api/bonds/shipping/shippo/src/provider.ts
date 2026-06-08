@@ -161,7 +161,8 @@ const sanitize = (input: unknown): string => {
   } else {
     try {
       text = JSON.stringify(input)
-    } catch {
+    } catch (_error) {
+      // JSON.stringify can throw on circular/non-serializable values; String() is a safe fallback.
       text = String(input)
     }
   }

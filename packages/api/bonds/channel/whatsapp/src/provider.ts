@@ -582,9 +582,10 @@ export class WhatsAppChannelProvider implements ChannelProvider {
     let parsed: unknown
     try {
       parsed = await response.json()
-    } catch {
+    } catch (error) {
       throw new Error(
         `WhatsApp Cloud API returned non-JSON response (${url}, HTTP ${response.status}).`,
+        { cause: error },
       )
     }
 

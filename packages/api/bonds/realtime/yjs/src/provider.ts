@@ -19,7 +19,7 @@
 
 import { randomUUID } from 'node:crypto'
 
-import { Awareness, applyAwarenessUpdate, encodeAwarenessUpdate } from 'y-protocols/awareness'
+import { applyAwarenessUpdate, Awareness, encodeAwarenessUpdate } from 'y-protocols/awareness'
 import * as Y from 'yjs'
 
 import type {
@@ -32,12 +32,7 @@ import type {
   RoomOptions,
 } from '@molecule/api-realtime'
 
-import type {
-  YjsInboundMessage,
-  YjsOutboundMessage,
-  YjsRealtimeConfig,
-  YjsTransport,
-} from './types.js'
+import type { YjsInboundMessage, YjsOutboundMessage, YjsRealtimeConfig } from './types.js'
 
 /**
  * Event name reserved for binary CRDT document updates.
@@ -120,7 +115,7 @@ export interface YjsProviderExtras {
 export function createProvider(
   config: YjsRealtimeConfig = {},
 ): RealtimeProvider & YjsProviderExtras {
-  const generateClientId = config.generateClientId ?? (() => randomUUID())
+  const _generateClientId = config.generateClientId ?? (() => randomUUID())
   const generateRoomId = (() => {
     if (config.generateRoomId) {
       return config.generateRoomId

@@ -51,7 +51,8 @@ function deriveSsl(databaseUrl: string): pg.ConnectionConfig['ssl'] {
 function deriveDbName(databaseUrl: string): string {
   try {
     return new URL(databaseUrl).pathname.replace(/^\//, '') || DEFAULT_DB_NAME
-  } catch {
+  } catch (_error) {
+    // URL parsing failed (e.g. plain host string without a scheme); fall back to default.
     return DEFAULT_DB_NAME
   }
 }

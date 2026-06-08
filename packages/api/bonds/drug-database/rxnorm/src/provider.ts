@@ -570,7 +570,11 @@ export const createProvider = (config: RxNormConfig = {}): DrugDatabaseProvider 
       let related: RxRelatedResponse | null
       try {
         related = await fetchJson<RxRelatedResponse>(buildRelatedUrl(baseUrl, id), config)
-      } catch {
+      } catch (_error) {
+        // Best-effort: a failure to fetch related concepts (e.g. network
+        // blip, upstream 404 on a new RxCUI) must not mask the primary
+        // properties response. Callers receive a valid DrugDetail with
+        // empty ingredients/dosageForms rather than a thrown error.
         related = null
       }
 

@@ -44,13 +44,13 @@ import type {
   HotelsProvider,
 } from '@molecule/api-hotels'
 
+import type { AmadeusHotelsConfig } from './types.js'
 import {
   BOOKING_NOT_SUPPORTED,
   MISSING_CREDENTIALS,
   TOKEN_MINT_FAILED,
   UPSTREAM_ERROR,
 } from './types.js'
-import type { AmadeusHotelsConfig } from './types.js'
 
 /** Default Amadeus production endpoint base URL. */
 const DEFAULT_BASE_URL = 'https://api.amadeus.com'
@@ -61,10 +61,12 @@ const DEFAULT_TIMEOUT = 10_000
 /** Default token-skew window in seconds. */
 const DEFAULT_TOKEN_SKEW_SECONDS = 30
 
-/** Maximum number of hotelIds the provider will batch into a single
+/**
+ * Maximum number of hotelIds the provider will batch into a single
  * `/v3/shopping/hotel-offers` call when fanning out a city-coded
  * search. Amadeus enforces a `hotelIds` length limit; 20 is a safe
- * default for the production tier. */
+ * default for the production tier.
+ */
 const HOTEL_IDS_BATCH_SIZE = 20
 
 /** OAuth2 token-cache slot for one provider instance. */
@@ -95,8 +97,10 @@ interface AmadeusErrorEnvelope {
   }>
 }
 
-/** A single row from `/v1/reference-data/locations/hotels/by-city` or
- * `.../by-geocode`. */
+/**
+ * A single row from `/v1/reference-data/locations/hotels/by-city` or
+ * `.../by-geocode`.
+ */
 interface AmadeusHotelLocationRow {
   hotelId?: string
   name?: string
@@ -117,8 +121,10 @@ interface AmadeusHotelLocationResponse extends AmadeusErrorEnvelope {
   data?: AmadeusHotelLocationRow[]
 }
 
-/** A single offer row inside `data[].offers[]` from
- * `/v3/shopping/hotel-offers`. */
+/**
+ * A single offer row inside `data[].offers[]` from
+ * `/v3/shopping/hotel-offers`.
+ */
 interface AmadeusOfferRow {
   id?: string
   checkInDate?: string
@@ -374,7 +380,7 @@ const fetchAmadeus = async <T extends AmadeusErrorEnvelope>(
       try {
         const body = (await response.json()) as AmadeusErrorEnvelope
         detail = body.errors?.[0]?.detail ?? body.errors?.[0]?.title
-      } catch {
+      } catch (_error) {
         // Ignore JSON parse failures; the status is enough.
       }
       const suffix = detail ? `: ${sanitizeErrorMessage(detail)}` : ''
@@ -671,7 +677,7 @@ export const createProvider = (config: AmadeusHotelsConfig = {}): HotelsProvider
               target.fromPrice = { total: cheapest.price.total, currency: cheapest.price.currency }
             }
           }
-        } catch {
+        } catch (_error) {
           // Swallow per-batch enrichment failures — the search list is
           // still useful without prices, and an explicit getHotelOffers
           // call will surface any persistent upstream issue.

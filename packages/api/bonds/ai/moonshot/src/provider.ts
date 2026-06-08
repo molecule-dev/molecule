@@ -165,7 +165,8 @@ class MoonshotAIProvider implements AIProvider {
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
         if (parsed.error?.message) detail = parsed.error.message
-      } catch {
+      } catch (_error) {
+        // Error body is not JSON — use raw text as detail if short enough
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
       logger.error('Moonshot API error', { status: response!.status, detail, errorBody })
@@ -323,8 +324,8 @@ class MoonshotAIProvider implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(fn.arguments as string)
-            } catch {
-              // Fall back to empty object
+            } catch (_error) {
+              // API returned malformed tool argument JSON — fall back to empty object
             }
             yield {
               type: 'tool_use',
@@ -406,8 +407,8 @@ class MoonshotAIProvider implements AIProvider {
           let input: unknown = {}
           try {
             input = JSON.parse(pending.args)
-          } catch {
-            // Fall back to empty object
+          } catch (_error) {
+            // Accumulated streaming tool args are malformed JSON — fall back to empty object
           }
           yield { type: 'tool_use', id: pending.id, name: pending.name, input }
         }
@@ -504,8 +505,8 @@ class MoonshotAIProvider implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(pending.args)
-            } catch {
-              // Fall back to empty object
+            } catch (_error) {
+              // Tool args accumulated from SSE deltas are malformed JSON — fall back to empty object
             }
             yield {
               type: 'tool_use',
@@ -516,7 +517,7 @@ class MoonshotAIProvider implements AIProvider {
           }
           pendingTools.clear()
         }
-      } catch {
+      } catch (_error) {
         logger.debug('Skipping malformed SSE JSON line', { json })
       }
     }

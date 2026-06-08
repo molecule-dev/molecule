@@ -26,9 +26,11 @@
   ],
   "license": "MIT",
   "peerDependencies": {
+    "@molecule/api-logger": "^1.0.0",
     "@molecule/api-webhook": "1.0.0"
   },
   "devDependencies": {
+    "@molecule/api-logger": "1.0.0",
     "@molecule/api-webhook": "1.0.0",
     "@types/node": "25.9.2",
     "typescript": "6.0.3",

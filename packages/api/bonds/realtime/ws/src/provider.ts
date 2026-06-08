@@ -97,7 +97,8 @@ export function createProvider(config: WsRealtimeConfig = {}): RealtimeProvider 
       let parsed: { event?: string; data?: unknown; room?: string }
       try {
         parsed = JSON.parse(text) as { event?: string; data?: unknown; room?: string }
-      } catch {
+      } catch (_error) {
+        // Malformed JSON from a client is expected noise; drop the message silently.
         return
       }
 

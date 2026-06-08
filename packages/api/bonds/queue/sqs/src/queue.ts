@@ -208,7 +208,8 @@ export const createReceivedMessage = <T>(
   let body: T
   try {
     body = JSON.parse(msg.Body ?? '{}') as T
-  } catch {
+  } catch (_error) {
+    // JSON.parse failed — body is not JSON; fall back to the raw string value
     body = msg.Body as unknown as T
   }
 

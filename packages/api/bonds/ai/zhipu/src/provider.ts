@@ -144,7 +144,8 @@ class ZhipuAIProvider implements AIProvider {
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
         if (parsed.error?.message) detail = parsed.error.message
-      } catch {
+      } catch (_error) {
+        // JSON.parse failed — fall back to the raw errorBody string; ignoring parse error is safe here
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
       logger.error('Zhipu API error', { status: response!.status, detail, errorBody })
@@ -300,8 +301,8 @@ class ZhipuAIProvider implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(fn.arguments as string)
-            } catch {
-              // Fall back to empty object
+            } catch (_error) {
+              // JSON.parse failed — fall back to empty object; invalid arguments are non-fatal
             }
             yield {
               type: 'tool_use',
@@ -383,8 +384,8 @@ class ZhipuAIProvider implements AIProvider {
           let input: unknown = {}
           try {
             input = JSON.parse(pending.args)
-          } catch {
-            // Fall back to empty object
+          } catch (_error) {
+            // JSON.parse failed — fall back to empty object; unparseable args are non-fatal
           }
           yield { type: 'tool_use', id: pending.id, name: pending.name, input }
         }
@@ -481,8 +482,8 @@ class ZhipuAIProvider implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(pending.args)
-            } catch {
-              // Fall back to empty object
+            } catch (_error) {
+              // JSON.parse failed — fall back to empty object; unparseable args are non-fatal
             }
             yield {
               type: 'tool_use',
@@ -493,8 +494,8 @@ class ZhipuAIProvider implements AIProvider {
           }
           pendingTools.clear()
         }
-      } catch {
-        logger.debug('Skipping malformed SSE JSON line', { json })
+      } catch (error) {
+        logger.debug('Skipping malformed SSE JSON line', { json, error })
       }
     }
   }

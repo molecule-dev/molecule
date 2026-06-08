@@ -141,8 +141,8 @@ export function createEnvProvider(options: EnvProviderOptions = {}): SecretsProv
         const content = await readFile(layerPath, 'utf-8')
         const parsed = parseEnvFile(content)
         Object.assign(merged, parsed)
-      } catch {
-        // Layer file doesn't exist — skip silently
+      } catch (_error) {
+        // Layer file doesn't exist — skip silently; missing layers are optional
       }
     }
 
@@ -211,7 +211,7 @@ export function createEnvProvider(options: EnvProviderOptions = {}): SecretsProv
       try {
         await access(envPath)
         return true
-      } catch {
+      } catch (_error) {
         // .env file doesn't exist, but we can still use process.env
         return true
       }

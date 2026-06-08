@@ -192,7 +192,7 @@ const resolveBaseUrl = (config: CoinMarketCapCryptoPricesConfig): string => {
  * other non-OK statuses raise {@link CoinMarketCapHttpError}. The provided
  * API key is never included in error messages.
  *
- * @typeParam T - Expected JSON response shape.
+ * @template T - Expected JSON response shape.
  * @param url - Fully-constructed request URL including query params.
  * @param config - Provider configuration (used for auth header + timeout).
  * @returns Parsed JSON body cast to `T`.
@@ -499,7 +499,7 @@ export const createProvider = (
       // paging until a short page is returned.
       // (The free Basic tier caps total accessible coins below this; the
       // bond returns whatever the configured key has access to.)
-      // eslint-disable-next-line no-constant-condition
+
       while (true) {
         const url = buildListingsForSymbolsUrl(baseUrl, start, LISTINGS_MAX_LIMIT)
         const data = await fetchJson<CmcListingsLatestResponse>(url, config)

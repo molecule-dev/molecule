@@ -50,7 +50,8 @@ export const createProvider = (options?: MemcachedOptions): CacheProvider => {
         if (data === undefined) return undefined
         try {
           return JSON.parse(data) as T
-        } catch {
+        } catch (_error) {
+          // data is not JSON-serialized; return as-is (e.g. a plain string value)
           return data as unknown as T
         }
       } catch (error) {
@@ -100,7 +101,8 @@ export const createProvider = (options?: MemcachedOptions): CacheProvider => {
       try {
         const value = await ops.get(fullKey)
         return value !== undefined
-      } catch {
+      } catch (_error) {
+        // Memcached error treated as a cache miss; safe to return false
         return false
       }
     },
@@ -116,7 +118,8 @@ export const createProvider = (options?: MemcachedOptions): CacheProvider => {
           const key = fullKey.slice(keyPrefix.length)
           try {
             results.set(key, JSON.parse(value) as T)
-          } catch {
+          } catch (_error) {
+            // value is not JSON-serialized; store as-is (e.g. a plain string value)
             results.set(key, value as unknown as T)
           }
         }

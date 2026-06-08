@@ -177,7 +177,10 @@ export const parseMailgunMessageHeaders = (
   let parsed: unknown
   try {
     parsed = JSON.parse(raw)
-  } catch {
+  } catch (_error) {
+    // Intentional noop: invalid JSON in message-headers is a Mailgun data
+    // anomaly; falling back to an empty record is safe because callers treat
+    // a missing headers map as degraded-but-recoverable.
     return {}
   }
   if (!Array.isArray(parsed)) return {}

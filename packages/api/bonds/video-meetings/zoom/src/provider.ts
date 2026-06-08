@@ -299,7 +299,9 @@ export function createProvider(config: ZoomVideoMeetingsConfig = {}): VideoMeeti
     if (text.length > 0) {
       try {
         body = JSON.parse(text) as ZoomTokenResponse
-      } catch {
+      } catch (_error) {
+        // Malformed JSON from the OAuth endpoint — leave body null so the
+        // `!body` check below throws a descriptive error with the HTTP status.
         body = null
       }
     }
@@ -363,7 +365,9 @@ export function createProvider(config: ZoomVideoMeetingsConfig = {}): VideoMeeti
     if (text.length > 0) {
       try {
         body = JSON.parse(text)
-      } catch {
+      } catch (_error) {
+        // Non-JSON response body — fall back to the raw text so the error
+        // message below still surfaces the server's response verbatim.
         body = text
       }
     }

@@ -122,8 +122,8 @@ describe('@molecule/api-realtime-ws', () => {
   afterEach(async () => {
     try {
       await provider.close()
-    } catch {
-      // already closed
+    } catch (_error) {
+      // already closed — best-effort cleanup; safe to ignore
     }
   })
 

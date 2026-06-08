@@ -130,7 +130,7 @@ export const normalizeSqliteRows = <T>(
       if (typeof row[name] === 'string') {
         try {
           row[name] = JSON.parse(row[name] as string)
-        } catch {
+        } catch (_error) {
           // leave the raw string if it isn't valid JSON
         }
       }

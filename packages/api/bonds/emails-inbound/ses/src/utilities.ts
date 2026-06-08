@@ -9,8 +9,9 @@
 
 import { Buffer } from 'node:buffer'
 
-import type { InboundEmail, InboundEmailAttachment } from '@molecule/api-emails-inbound'
 import { simpleParser } from 'mailparser'
+
+import type { InboundEmail, InboundEmailAttachment } from '@molecule/api-emails-inbound'
 
 import { SNS_SIGNING_CERT_HOSTNAME_SUFFIXES } from './types.js'
 
@@ -103,7 +104,9 @@ export const isAllowedSigningCertUrl = (url: string): boolean => {
   let parsed: URL
   try {
     parsed = new URL(url)
-  } catch {
+  } catch (_error) {
+    // URL constructor throws on malformed input — a parse failure IS the
+    // validation signal; returning false is the correct, safe response.
     return false
   }
   if (parsed.protocol !== 'https:') return false

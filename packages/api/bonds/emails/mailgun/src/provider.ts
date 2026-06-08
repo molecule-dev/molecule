@@ -85,6 +85,12 @@ function isTestMode(): boolean {
   return /^sandbox.*\.mailgun\.org$/i.test(domain)
 }
 
+/**
+ * Sends an email message via the Mailgun API, with automatic test-mode handling for sandbox domains.
+ *
+ * @param message - The email message (to, from, subject, text/html, attachments).
+ * @returns Send result with accepted/rejected addresses and message ID.
+ */
 export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> => {
   const sendOptions = message as nodemailer.SendMailOptions & Record<string, unknown>
   const testMode = isTestMode()

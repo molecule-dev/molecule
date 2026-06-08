@@ -98,7 +98,8 @@ export function createProvider(config: VonageSMSConfig = {}): SMSProvider {
           } else {
             successful += 1
           }
-        } catch {
+        } catch (_error) {
+          // Individual send failure is captured as a failed result; bulk operation continues.
           results.push({ id: '', status: 'failed', to: msg.to })
           failed += 1
         }

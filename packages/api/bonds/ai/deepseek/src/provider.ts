@@ -168,7 +168,8 @@ class DeepseekAIProviderImpl implements AIProvider {
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
         if (parsed.error?.message) detail = parsed.error.message
-      } catch {
+      } catch (_error) {
+        // JSON.parse failed — raw text is already in `errorBody`; use it as-is.
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
       logger.error('DeepSeek API error', { status: response!.status, detail, errorBody })
@@ -324,8 +325,8 @@ class DeepseekAIProviderImpl implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(fn.arguments as string)
-            } catch {
-              // Fall back to empty object
+            } catch (_error) {
+              // JSON.parse failed — fall back to empty object; malformed args are non-fatal.
             }
             yield {
               type: 'tool_use',
@@ -419,8 +420,8 @@ class DeepseekAIProviderImpl implements AIProvider {
           let input: unknown = {}
           try {
             input = JSON.parse(pending.args)
-          } catch {
-            // Fall back to empty object
+          } catch (_error) {
+            // JSON.parse failed — fall back to empty object; malformed args are non-fatal.
           }
           yield { type: 'tool_use', id: pending.id, name: pending.name, input }
         }
@@ -538,8 +539,8 @@ class DeepseekAIProviderImpl implements AIProvider {
             let input: unknown = {}
             try {
               input = JSON.parse(pending.args)
-            } catch {
-              // Fall back to empty object
+            } catch (_error) {
+              // JSON.parse failed — fall back to empty object; malformed args are non-fatal.
             }
             yield {
               type: 'tool_use',
@@ -550,8 +551,8 @@ class DeepseekAIProviderImpl implements AIProvider {
           }
           pendingTools.clear()
         }
-      } catch {
-        logger.debug('Skipping malformed SSE JSON line', { json })
+      } catch (error) {
+        logger.debug('Skipping malformed SSE JSON line', { json, error })
       }
     }
   }

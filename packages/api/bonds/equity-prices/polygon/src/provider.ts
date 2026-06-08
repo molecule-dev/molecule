@@ -31,8 +31,8 @@ import type {
   ExchangeCode,
 } from '@molecule/api-equity-prices'
 
-import { MISSING_API_KEY, RATE_LIMITED, UPSTREAM_ERROR } from './types.js'
 import type { PolygonEquityPricesConfig } from './types.js'
+import { MISSING_API_KEY, RATE_LIMITED, UPSTREAM_ERROR } from './types.js'
 
 /** Default Polygon.io public REST endpoint base URL. */
 const DEFAULT_BASE_URL = 'https://api.polygon.io'

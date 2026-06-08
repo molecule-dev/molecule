@@ -406,8 +406,8 @@ describe('S3 Provider', () => {
 
       try {
         await deleteFile('test-file-id')
-      } catch {
-        // Expected
+      } catch (_error) {
+        // Expected rejection — this test only verifies that logger.error was called, not the thrown value.
       }
 
       expect(mockLogger.error).toHaveBeenCalled()

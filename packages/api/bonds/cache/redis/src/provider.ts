@@ -54,7 +54,8 @@ export const createProvider = (options?: RedisOptions): CacheProvider => {
       if (value === null) return undefined
       try {
         return JSON.parse(value) as T
-      } catch {
+      } catch (_error) {
+        // Value is not valid JSON — return the raw string as-is (safe: best-effort parse)
         return value as unknown as T
       }
     },
@@ -95,7 +96,8 @@ export const createProvider = (options?: RedisOptions): CacheProvider => {
         if (value !== null) {
           try {
             results.set(keys[i], JSON.parse(value) as T)
-          } catch {
+          } catch (_error) {
+            // Value is not valid JSON — store the raw string as-is (safe: best-effort parse)
             results.set(keys[i], value as unknown as T)
           }
         }

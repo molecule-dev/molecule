@@ -63,8 +63,8 @@ const handleMultipart = (req: express.Request): Promise<void> =>
       try {
         // Attempt to parse field value as JSON
         value = JSON.parse(value)
-      } catch {
-        // Keep as string if not valid JSON
+      } catch (_error) {
+        // Keep as string if not valid JSON — JSON.parse failure here is expected and safe to ignore.
       }
 
       req.body[key] = value

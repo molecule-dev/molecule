@@ -512,8 +512,8 @@ describe('Filesystem Provider', () => {
 
       try {
         await deleteFile('test-file-id')
-      } catch {
-        // Expected
+      } catch (_error) {
+        // Expected rejection — test only cares that the logger was called, not the thrown value
       }
 
       expect(mockLogger.error).toHaveBeenCalledWith(

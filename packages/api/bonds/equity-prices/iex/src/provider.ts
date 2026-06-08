@@ -29,8 +29,8 @@ import type {
   ExchangeCode,
 } from '@molecule/api-equity-prices'
 
-import { MISSING_API_KEY, RATE_LIMITED, UPSTREAM_ERROR } from './types.js'
 import type { IexEquityPricesConfig } from './types.js'
+import { MISSING_API_KEY, RATE_LIMITED, UPSTREAM_ERROR } from './types.js'
 
 /** Default IEX Cloud public endpoint base URL. */
 const DEFAULT_BASE_URL = 'https://cloud.iexapis.com/stable'

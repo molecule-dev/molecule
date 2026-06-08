@@ -175,7 +175,8 @@ export class DiscordChannelProvider implements ChannelProvider {
     let signatureBytes: Buffer
     try {
       signatureBytes = Buffer.from(signatureHex, 'hex')
-    } catch {
+    } catch (_error) {
+      // Malformed hex in the signature header — treat as invalid, not a server error.
       return false
     }
     if (signatureBytes.length !== 64) return false
@@ -187,13 +188,15 @@ export class DiscordChannelProvider implements ChannelProvider {
     try {
       const keyDer = Buffer.concat([ED25519_DER_PREFIX, Buffer.from(this.publicKeyHex, 'hex')])
       publicKey = createPublicKey({ key: keyDer, format: 'der', type: 'spki' })
-    } catch {
+    } catch (_error) {
+      // Malformed public key config — treat as unverifiable rather than crashing per-request.
       return false
     }
 
     try {
       return cryptoVerify(null, signedPayload, publicKey, signatureBytes)
-    } catch {
+    } catch (_error) {
+      // cryptoVerify throws on invalid input (wrong key type, etc.) — treat as failed verification.
       return false
     }
   }

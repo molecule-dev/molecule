@@ -11,9 +11,9 @@
  * @module
  */
 
-import { get as getBond, isBonded } from '@molecule/api-bond'
 import { XMLParser } from 'fast-xml-parser'
 
+import { get as getBond, isBonded } from '@molecule/api-bond'
 import type {
   CurrencyCode,
   FxDailyRates,
@@ -246,7 +246,9 @@ const tryGetCacheBond = (): MinimalCacheBond | undefined => {
       return undefined
     }
     return getBond<MinimalCacheBond>('cache')
-  } catch {
+  } catch (_error) {
+    // Bond infrastructure may not recognise 'cache' as a valid category in
+    // all configurations; treat any failure as "no cache bond present".
     return undefined
   }
 }
@@ -333,7 +335,7 @@ export const createProvider = (config: EcbFxRatesConfig = {}): FxRatesProvider =
         await cacheBond.set(`${CACHE_KEY_PREFIX}${key}`, snapshot, {
           ttl: Math.max(1, Math.floor(cacheTtlMs / 1000)),
         })
-      } catch {
+      } catch (_error) {
         // Cache write-throughs are best-effort: a failure must not bubble
         // up and break a successful FX-rate lookup.
       }
@@ -370,7 +372,7 @@ export const createProvider = (config: EcbFxRatesConfig = {}): FxRatesProvider =
         }
         return rehydrated
       }
-    } catch {
+    } catch (_error) {
       // Cache read failures are best-effort; fall through to upstream fetch.
     }
     return undefined

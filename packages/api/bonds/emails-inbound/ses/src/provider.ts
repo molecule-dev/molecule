@@ -77,7 +77,9 @@ const fetchSigningCert = async (url: string): Promise<string | undefined> => {
     if (!pem.includes('BEGIN CERTIFICATE')) return undefined
     certCache.set(url, pem)
     return pem
-  } catch {
+  } catch (_error) {
+    // Best-effort fetch — network failures are surfaced as `undefined`; the
+    // caller treats a missing cert as a signature-verification failure (false).
     return undefined
   }
 }
@@ -131,7 +133,8 @@ export const verifySignature = async (
   let parsed: unknown
   try {
     parsed = parseJsonBody(body)
-  } catch {
+  } catch (_error) {
+    // Malformed body — not a valid SNS notification; return false (no signature).
     return false
   }
   if (!isSnsPayload(parsed)) return false
@@ -155,14 +158,16 @@ export const verifySignature = async (
   let canonical: string
   try {
     canonical = buildSnsCanonicalString(parsed)
-  } catch {
+  } catch (_error) {
+    // Malformed payload fields — cannot build the canonical string; treat as invalid.
     return false
   }
 
   let signatureBuffer: Buffer
   try {
     signatureBuffer = Buffer.from(parsed.Signature, 'base64')
-  } catch {
+  } catch (_error) {
+    // Invalid base64 signature value — cannot decode; treat as invalid.
     return false
   }
   if (signatureBuffer.length === 0) return false
@@ -173,7 +178,8 @@ export const verifySignature = async (
     verifier.update(canonical, 'utf8')
     verifier.end()
     return verifier.verify(publicKey, signatureBuffer)
-  } catch {
+  } catch (_error) {
+    // Crypto errors (bad PEM, unsupported key, verify failure) — treat as invalid signature.
     return false
   }
 }
@@ -240,8 +246,8 @@ export const parseWebhookPayload = async (
   let parsed: unknown
   try {
     parsed = parseJsonBody(body)
-  } catch {
-    throw new Error('SES inbound webhook body is not valid JSON.')
+  } catch (error) {
+    throw new Error('SES inbound webhook body is not valid JSON.', { cause: error })
   }
   if (!isSnsPayload(parsed)) {
     throw new Error('SES inbound webhook body is not an SNS notification payload.')
@@ -264,8 +270,8 @@ export const parseWebhookPayload = async (
   let sesMessage: SesInboundNotificationMessage
   try {
     sesMessage = JSON.parse(parsed.Message) as SesInboundNotificationMessage
-  } catch {
-    throw new Error('SES inbound notification `Message` is not valid JSON.')
+  } catch (error) {
+    throw new Error('SES inbound notification `Message` is not valid JSON.', { cause: error })
   }
   if (!sesMessage || typeof sesMessage !== 'object' || !sesMessage.mail) {
     throw new Error('SES inbound notification is missing the `mail` field.')

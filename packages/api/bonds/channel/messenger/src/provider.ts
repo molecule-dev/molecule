@@ -293,9 +293,10 @@ export class MessengerChannelProvider implements ChannelProvider {
     }
     try {
       parsed = (await response.json()) as typeof parsed
-    } catch {
+    } catch (error) {
       throw new Error(
         `Messenger Send API returned non-JSON response (${safeUrl}, HTTP ${response.status}).`,
+        { cause: error },
       )
     }
 

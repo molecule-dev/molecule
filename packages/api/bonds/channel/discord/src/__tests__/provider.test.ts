@@ -8,7 +8,12 @@
  * is exercised end-to-end.
  */
 
-import { createPrivateKey, generateKeyPairSync, KeyObject, sign as cryptoSign } from 'node:crypto'
+import {
+  createPrivateKey,
+  generateKeyPairSync,
+  type KeyObject,
+  sign as cryptoSign,
+} from 'node:crypto'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
