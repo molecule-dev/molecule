@@ -121,6 +121,29 @@ describe('@molecule/api-realtime-socketio', () => {
       createProvider()
       expect(MockServer).toHaveBeenCalledWith(3000, {})
     })
+
+    it('deferAttach: does NOT bind a server until attachHttpServer is called', async () => {
+      // Regression (probe #11): binding a standalone port at create time left
+      // Socket.io on an unexposed port in the sandbox. Deferred mode waits for the
+      // API's HTTP server so realtime shares the API port at /socket.io/.
+      vi.clearAllMocks()
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider({ deferAttach: true })
+      expect(MockServer).not.toHaveBeenCalled()
+      const httpServer = {} as Server
+      p.attachHttpServer?.(httpServer)
+      expect(MockServer).toHaveBeenCalledWith(httpServer, {})
+    })
+
+    it('attachHttpServer binds once (idempotent)', async () => {
+      vi.clearAllMocks()
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider({ deferAttach: true })
+      const httpServer = {} as Server
+      p.attachHttpServer?.(httpServer)
+      p.attachHttpServer?.(httpServer)
+      expect(MockServer).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('createRoom', () => {

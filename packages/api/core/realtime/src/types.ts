@@ -6,6 +6,9 @@
  * @module
  */
 
+import type { Server as HttpServer } from 'node:http'
+import type { Server as HttpsServer } from 'node:https'
+
 /**
  * A real-time communication room.
  */
@@ -167,6 +170,18 @@ export interface RealtimeProvider {
    * @returns Array of active rooms.
    */
   getRooms(): Promise<Room[]>
+
+  /**
+   * Optionally attach the provider's transport to an already-created HTTP(S)
+   * server (e.g. the API's server) so realtime shares the API's port — rather
+   * than binding a separate standalone port that a containerized/proxied
+   * deployment may not expose. Providers that bind their transport eagerly at
+   * creation may leave this undefined. When present it is called once, with the
+   * real HTTP(S) server, before the server starts listening.
+   *
+   * @param server - The HTTP(S) server to attach the realtime transport to.
+   */
+  attachHttpServer?(server: HttpServer | HttpsServer): void
 
   /**
    * Shuts down the realtime provider and cleans up resources.

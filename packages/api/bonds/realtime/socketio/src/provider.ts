@@ -7,7 +7,10 @@
  * @module
  */
 
-import { Server } from 'socket.io'
+import type { Server as HttpServer } from 'node:http'
+import type { Server as HttpsServer } from 'node:https'
+
+import { type Namespace, Server } from 'socket.io'
 
 import type {
   ConnectionHandler,
@@ -42,7 +45,7 @@ interface RoomState {
  * @returns A fully initialised `RealtimeProvider` backed by Socket.io.
  */
 export function createProvider(config: SocketioRealtimeConfig = {}): RealtimeProvider {
-  const { serverOptions = {}, httpServer, namespace = '/' } = config
+  const { serverOptions = {}, httpServer, namespace = '/', deferAttach = false } = config
 
   // Resolve port with sensible per-deployment defaults so multiple flagships
   // can run side-by-side on the same machine without colliding on port 3000:
@@ -58,12 +61,6 @@ export function createProvider(config: SocketioRealtimeConfig = {}): RealtimePro
     (apiPort && Number.isFinite(apiPort) ? apiPort + 1000 : undefined) ??
     3000
 
-  const io: Server = httpServer
-    ? new Server(httpServer, serverOptions)
-    : new Server(port, serverOptions)
-
-  const nsp = io.of(namespace)
-
   /** Rooms managed through the provider API. */
   const rooms = new Map<string, RoomState>()
 
@@ -72,41 +69,60 @@ export function createProvider(config: SocketioRealtimeConfig = {}): RealtimePro
   const connectionHandlers: ConnectionHandler[] = []
   const disconnectionHandlers: DisconnectionHandler[] = []
 
-  /* ------------------------------------------------------------------ */
-  /*  Wire Socket.io events to molecule handlers                        */
-  /* ------------------------------------------------------------------ */
+  // The Socket.io server + namespace are created lazily so the provider can
+  // either bind eagerly (a standalone `port`, for examples / standalone use) OR
+  // defer until the API's HTTP server exists and attach to it via
+  // `attachHttpServer` (the server factory's path — so realtime shares the API
+  // port at `/socket.io/` instead of a separate port a sandbox/proxy may not
+  // expose). The same connection wiring is applied once the namespace exists.
+  let io: Server | undefined
+  let nsp: Namespace | undefined
 
-  nsp.on('connection', (socket) => {
-    for (const handler of connectionHandlers) {
-      handler(socket.id, { remoteAddress: socket.handshake.address })
-    }
+  /**
+   * Create the Socket.io server (attached to `server` if given, else a standalone
+   * `port` listener) and wire connection/message/disconnect handlers. Idempotent.
+   */
+  const initIo = (server?: HttpServer | HttpsServer): void => {
+    if (io) return
+    io = server ? new Server(server, serverOptions) : new Server(port, serverOptions)
+    nsp = io.of(namespace)
 
-    socket.onAny((event: string, data: unknown) => {
-      // Determine which managed rooms this socket belongs to
-      for (const [roomId, state] of rooms) {
-        if (state.room.clients.includes(socket.id)) {
-          for (const handler of messageHandlers) {
-            handler(roomId, socket.id, event, data)
+    /* Wire Socket.io events to molecule handlers. */
+    nsp.on('connection', (socket) => {
+      for (const handler of connectionHandlers) {
+        handler(socket.id, { remoteAddress: socket.handshake.address })
+      }
+
+      socket.onAny((event: string, data: unknown) => {
+        // Determine which managed rooms this socket belongs to
+        for (const [roomId, state] of rooms) {
+          if (state.room.clients.includes(socket.id)) {
+            for (const handler of messageHandlers) {
+              handler(roomId, socket.id, event, data)
+            }
           }
         }
-      }
-    })
+      })
 
-    socket.on('disconnect', (reason: string) => {
-      // Remove from all managed rooms
-      for (const [, state] of rooms) {
-        const idx = state.room.clients.indexOf(socket.id)
-        if (idx !== -1) {
-          state.room.clients.splice(idx, 1)
-          state.presence.delete(socket.id)
+      socket.on('disconnect', (reason: string) => {
+        // Remove from all managed rooms
+        for (const [, state] of rooms) {
+          const idx = state.room.clients.indexOf(socket.id)
+          if (idx !== -1) {
+            state.room.clients.splice(idx, 1)
+            state.presence.delete(socket.id)
+          }
         }
-      }
 
-      for (const handler of disconnectionHandlers) {
-        handler(socket.id, reason)
-      }
+        for (const handler of disconnectionHandlers) {
+          handler(socket.id, reason)
+        }
+      })
     })
-  })
+  }
+
+  // Bind eagerly unless deferred; deferred providers wait for attachHttpServer().
+  if (!deferAttach) initIo(httpServer)
 
   /* ------------------------------------------------------------------ */
   /*  Provider implementation                                           */
@@ -138,7 +154,7 @@ export function createProvider(config: SocketioRealtimeConfig = {}): RealtimePro
       }
 
       // Have the Socket.io socket join the native room
-      const socket = nsp.sockets.get(clientId)
+      const socket = nsp?.sockets.get(clientId)
       if (socket) {
         socket.join(roomId)
       }
@@ -158,7 +174,7 @@ export function createProvider(config: SocketioRealtimeConfig = {}): RealtimePro
         return
       }
 
-      const socket = nsp.sockets.get(clientId)
+      const socket = nsp?.sockets.get(clientId)
       if (socket) {
         socket.leave(roomId)
       }
@@ -177,11 +193,11 @@ export function createProvider(config: SocketioRealtimeConfig = {}): RealtimePro
       // there are simply no subscribers to deliver to. Match Socket.IO
       // semantics (always-safe emit) instead of throwing — callers should
       // not need to coordinate with the receiver's join lifecycle.
-      nsp.to(roomId).emit(event, data)
+      nsp?.to(roomId).emit(event, data)
     },
 
     async sendTo(clientId: string, event: string, data: unknown): Promise<void> {
-      const socket = nsp.sockets.get(clientId)
+      const socket = nsp?.sockets.get(clientId)
       if (!socket) {
         throw new Error(`Client "${clientId}" is not connected`)
       }
@@ -214,12 +230,22 @@ export function createProvider(config: SocketioRealtimeConfig = {}): RealtimePro
       return [...rooms.values()].map((s) => ({ ...s.room }))
     },
 
+    attachHttpServer(server: HttpServer | HttpsServer): void {
+      // Deferred path: bind Socket.io to the API's HTTP server now that it exists,
+      // so realtime shares the API port at `/socket.io/`. No-op if already bound.
+      initIo(server)
+    },
+
     async close(): Promise<void> {
       rooms.clear()
       messageHandlers.length = 0
       connectionHandlers.length = 0
       disconnectionHandlers.length = 0
       await new Promise<void>((resolve) => {
+        if (!io) {
+          resolve()
+          return
+        }
         io.close(() => {
           resolve()
         })

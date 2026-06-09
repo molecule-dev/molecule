@@ -100,6 +100,18 @@ builds the canonical molecule fleet server:
 function createServerFactory(opts: CreateServerOptions): (port?: number) => Promise<express.Express | https.Server>
 ```
 
+#### `registerServerCreatedHook(hook)`
+
+Register a hook to run with the HTTP(S) server right before it listens.
+Typically called from a bond's setup (e.g. `setupRealtimeSocketio`) during
+`setupBonds()`, which runs earlier in `create()` than server construction.
+
+```typescript
+function registerServerCreatedHook(hook: (server: http.Server | https.Server) => void | Promise<void>): void
+```
+
+- `hook` — Receives the real `http.Server`/`https.Server`.
+
 ## Injection Notes
 
 ### Requirements

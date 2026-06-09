@@ -1,3 +1,4 @@
+import http from 'node:http'
 import https from 'node:https'
 import process from 'node:process'
 
@@ -39,6 +40,39 @@ export interface CreateServerOptions {
    * resource router.
    */
   preApiRouter?: (app: express.Express) => Promise<void> | void
+}
+
+/**
+ * Generic server-lifecycle hooks invoked with the real HTTP(S) server once it
+ * has been created in `createServerFactory`, before it starts listening. Lets a
+ * bond that must bind to the HTTP server itself — e.g. a Socket.IO realtime
+ * provider sharing the API's port at `/socket.io/` — attach at the right moment,
+ * without the factory hardcoding any specific bond. Drained (run once then
+ * cleared) per `create()` so repeat calls (tests) don't accumulate stale hooks.
+ */
+const serverCreatedHooks: Array<(server: http.Server | https.Server) => void | Promise<void>> = []
+
+/**
+ * Register a hook to run with the HTTP(S) server right before it listens.
+ * Typically called from a bond's setup (e.g. `setupRealtimeSocketio`) during
+ * `setupBonds()`, which runs earlier in `create()` than server construction.
+ *
+ * @param hook - Receives the real `http.Server`/`https.Server`.
+ */
+export function registerServerCreatedHook(
+  hook: (server: http.Server | https.Server) => void | Promise<void>,
+): void {
+  serverCreatedHooks.push(hook)
+}
+
+/**
+ * Run and drain all registered server-created hooks.
+ *
+ * @param server - The HTTP(S) server to hand to each hook.
+ */
+async function runServerCreatedHooks(server: http.Server | https.Server): Promise<void> {
+  const hooks = serverCreatedHooks.splice(0)
+  for (const hook of hooks) await hook(server)
 }
 
 let processHandlersRegistered = false
@@ -140,7 +174,17 @@ export function createServerFactory(
       })
     }
 
-    server.listen(port, () => {
+    // The real HTTP(S) server that lifecycle-coupled bonds (e.g. a Socket.IO
+    // realtime provider) must bind to. In HTTP mode `server` is the Express app,
+    // whose underlying http.Server is otherwise created+discarded by
+    // `app.listen()`; create it explicitly so server-created hooks attach to the
+    // SAME server the API listens on (Socket.IO then serves `/socket.io/` on the
+    // API port). Hooks run before `listen()` so the upgrade handler is ready.
+    const httpServer: http.Server | https.Server = process.env.HTTPS
+      ? (server as https.Server)
+      : http.createServer(app)
+    await runServerCreatedHooks(httpServer)
+    httpServer.listen(port, () => {
       logger.info(
         `Started ${process.env.NODE_ENV} ${process.env.HTTPS ? 'HTTPS' : 'HTTP'} server on port ${port}.`,
       )

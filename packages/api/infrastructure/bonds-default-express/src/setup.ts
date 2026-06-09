@@ -155,11 +155,20 @@ export async function setupReportingDatabase(): Promise<void> {
 
 /** Wires `@molecule/api-realtime-socketio` to `@molecule/api-realtime`. */
 export async function setupRealtimeSocketio(): Promise<void> {
-  const [{ setProvider: setRealtime }, { createProvider }] = await Promise.all([
-    import('@molecule/api-realtime'),
-    import('@molecule/api-realtime-socketio'),
-  ])
-  setRealtime(createProvider())
+  const [{ setProvider: setRealtime }, { createProvider }, { registerServerCreatedHook }] =
+    await Promise.all([
+      import('@molecule/api-realtime'),
+      import('@molecule/api-realtime-socketio'),
+      import('@molecule/api-server-default-express'),
+    ])
+  // Defer Socket.io binding and attach to the API's HTTP server once the factory
+  // creates it — so realtime shares the API port at `/socket.io/` instead of a
+  // standalone port that a containerized sandbox / proxied deploy may not expose
+  // (the previous `createProvider()` bound a standalone port, silently breaking
+  // realtime in the sandbox preview for every realtime-socketio template).
+  const provider = createProvider({ deferAttach: true })
+  setRealtime(provider)
+  registerServerCreatedHook((server) => provider.attachHttpServer?.(server))
 }
 
 /** Wires `@molecule/api-cron-node-cron` to `@molecule/api-cron`. */

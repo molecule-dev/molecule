@@ -82,6 +82,7 @@
     "@molecule/api-realtime-socketio": "1.0.0",
     "@molecule/api-reporting": "1.0.0",
     "@molecule/api-reporting-database": "1.0.0",
+    "@molecule/api-server-default-express": "1.0.0",
     "@molecule/api-ai-anthropic": "1.0.0",
     "@molecule/api-audit": "1.0.0",
     "@molecule/api-audit-database": "1.0.0",
