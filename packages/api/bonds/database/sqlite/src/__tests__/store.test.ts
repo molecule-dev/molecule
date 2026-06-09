@@ -237,36 +237,70 @@ describe('createStore', () => {
   })
 
   describe('create', () => {
-    it('should insert a record and return MutationResult', async () => {
+    it('should insert a record and return MutationResult (explicit id skips id-gen)', async () => {
       const created = { id: '1', name: 'Alice', email: 'alice@example.com' }
       mockPool.query.mockResolvedValueOnce({ rows: [created], rowCount: 1 })
 
-      const result = await store.create('users', { name: 'Alice', email: 'alice@example.com' })
+      const result = await store.create('users', {
+        id: '1',
+        name: 'Alice',
+        email: 'alice@example.com',
+      })
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        'INSERT INTO "users" ("name", "email") VALUES (?, ?) RETURNING *',
-        ['Alice', 'alice@example.com'],
+        'INSERT INTO "users" ("id", "name", "email") VALUES (?, ?, ?) RETURNING *',
+        ['1', 'Alice', 'alice@example.com'],
       )
       expect(result).toEqual({ data: created, affected: 1 })
     })
 
-    it('should handle single field insert', async () => {
+    it('should handle single field insert (explicit id)', async () => {
       mockPool.query.mockResolvedValueOnce({ rows: [{ id: '1', name: 'Bob' }], rowCount: 1 })
 
-      await store.create('users', { name: 'Bob' })
+      await store.create('users', { id: '1', name: 'Bob' })
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        'INSERT INTO "users" ("name") VALUES (?) RETURNING *',
-        ['Bob'],
+        'INSERT INTO "users" ("id", "name") VALUES (?, ?) RETURNING *',
+        ['1', 'Bob'],
       )
     })
 
     it('should return null data when no rows are returned', async () => {
-      mockPool.query.mockResolvedValueOnce({ rows: [], rowCount: 0 })
+      mockPool.query.mockResolvedValueOnce({ rows: [{ x: 1 }], rowCount: 1 }) // pragma: has id
+      mockPool.query.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // insert
 
       const result = await store.create('users', { name: 'Alice' })
 
       expect(result).toEqual({ data: null, affected: 0 })
+    })
+
+    it('generates a uuid id when omitted and the table has an id column', async () => {
+      mockPool.query.mockResolvedValueOnce({ rows: [{ x: 1 }], rowCount: 1 }) // pragma: has id
+      mockPool.query.mockResolvedValueOnce({ rows: [{ id: 'gen', name: 'Cara' }], rowCount: 1 })
+
+      await store.create('contacts', { name: 'Cara' })
+
+      // calls[0] is the id-column probe, calls[1] is the insert with a generated id
+      const insertCall = mockPool.query.mock.calls[1]
+      expect(insertCall[0]).toBe('INSERT INTO "contacts" ("id", "name") VALUES (?, ?) RETURNING *')
+      expect(insertCall[1][0]).toMatch(/^[0-9a-f-]{36}$/) // a uuid
+      expect(insertCall[1][1]).toBe('Cara')
+    })
+
+    it('does NOT inject an id into a composite-PK table with no id column', async () => {
+      mockPool.query.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // pragma: no id column
+      mockPool.query.mockResolvedValueOnce({
+        rows: [{ group_id: 'g', user_id: 'u' }],
+        rowCount: 1,
+      })
+
+      await store.create('group_members', { group_id: 'g', user_id: 'u' })
+
+      const insertCall = mockPool.query.mock.calls[1]
+      expect(insertCall[0]).toBe(
+        'INSERT INTO "group_members" ("group_id", "user_id") VALUES (?, ?) RETURNING *',
+      )
+      expect(insertCall[1]).toEqual(['g', 'u'])
     })
   })
 

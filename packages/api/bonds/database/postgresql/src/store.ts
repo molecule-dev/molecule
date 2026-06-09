@@ -6,6 +6,8 @@
  * @module
  */
 
+import { randomUUID } from 'node:crypto'
+
 import type {
   DatabasePool,
   DataStore,
@@ -132,6 +134,27 @@ function buildOrderBy(orderBy?: { field: string; direction: 'asc' | 'desc' }[]):
  * @returns A `DataStore` that translates CRUD operations to SQL queries.
  */
 export function createStore(pool: DatabasePool): DataStore {
+  // Cache of "does this table have an `id` column" so we don't re-introspect per insert.
+  const hasIdColumnCache = new Map<string, boolean>()
+  /**
+   * Returns whether `table` has an `id` column (cached), used to decide if `create()`
+   * should auto-generate an id when the caller omits one.
+   * @param table - The table name to introspect.
+   * @returns True if the table has an `id` column.
+   */
+  async function tableHasIdColumn(table: string): Promise<boolean> {
+    const cached = hasIdColumnCache.get(table)
+    if (cached !== undefined) return cached
+    const result = await pool.query(
+      `SELECT 1 FROM information_schema.columns
+       WHERE table_schema = current_schema() AND table_name = $1 AND column_name = 'id' LIMIT 1`,
+      [table],
+    )
+    const has = (result.rows?.length ?? 0) > 0
+    hasIdColumnCache.set(table, has)
+    return has
+  }
+
   return {
     async findById<T = Record<string, unknown>>(
       table: string,
@@ -200,6 +223,16 @@ export function createStore(pool: DatabasePool): DataStore {
       data: Record<string, unknown>,
     ): Promise<MutationResult<T>> {
       assertSafeIdentifier(table)
+      // The documented bare-create pattern — create('table', { ...fields }) with no
+      // explicit id — relies on the row getting an id. The molecule id convention is a
+      // uuid PK, but a hand-written migration may declare `id uuid NOT NULL` with no DB
+      // default (resource tables generate it in code via createResource; custom handlers
+      // don't), so a bare insert would violate NOT NULL. Generate one when the caller
+      // omits it AND the table actually has an `id` column — composite-PK join tables
+      // (no id column) are left untouched. No-op when the caller already supplies id.
+      if (data.id == null && (await tableHasIdColumn(table))) {
+        data = { id: randomUUID(), ...data }
+      }
       const keys = Object.keys(data)
       for (const k of keys) assertSafeIdentifier(k)
       const columns = keys.map((k) => `"${k}"`).join(', ')
