@@ -192,6 +192,20 @@ describe('Mailgun Email Provider', () => {
         'MAILGUN_API_KEY is not set',
       )
     })
+
+    it('tags the missing-key error as a config-missing 503 (statusCode + errorKey)', async () => {
+      // The API middleware (classifyTaggedError) maps this to a clean 503 +
+      // 'config.notConfigured' instead of an opaque 500.
+      delete process.env.MAILGUN_API_KEY
+      vi.resetModules()
+      const { sendMail } = await import('../provider.js')
+      let caught: unknown
+      await sendMail({ to: 'test@test.com', subject: 'Test' }).catch((e: unknown) => {
+        caught = e
+      })
+      expect((caught as { statusCode?: number }).statusCode).toBe(503)
+      expect((caught as { errorKey?: string }).errorKey).toBe('config.notConfigured')
+    })
   })
 
   describe('index exports', () => {

@@ -31,11 +31,19 @@ function getTransport(): nodemailer.Transporter {
   if (!_transport) {
     const apiKey = process.env.MAILGUN_API_KEY
     if (!apiKey) {
-      throw new Error('MAILGUN_API_KEY is not set. Email sending will not work.')
+      // Tagged config-missing error → the API middleware returns a clean 503 +
+      // 'config.notConfigured' instead of an opaque 500 (see classifyTaggedError).
+      throw Object.assign(new Error('MAILGUN_API_KEY is not set. Email sending will not work.'), {
+        statusCode: 503,
+        errorKey: 'config.notConfigured',
+      })
     }
     const domain = process.env.MAILGUN_DOMAIN
     if (!domain) {
-      throw new Error('MAILGUN_DOMAIN is not set. Email sending will not work.')
+      throw Object.assign(new Error('MAILGUN_DOMAIN is not set. Email sending will not work.'), {
+        statusCode: 503,
+        errorKey: 'config.notConfigured',
+      })
     }
     // Optional API host override (e.g. EU region `api.eu.mailgun.net`, or a
     // self-hosted / credential-broker endpoint). When unset, nodemailer-mailgun-transport

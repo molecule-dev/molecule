@@ -44,7 +44,11 @@ import {
 const getApiKey = (): string => {
   const apiKey = process.env.MAILGUN_API_KEY
   if (!apiKey) {
-    throw new Error('MAILGUN_API_KEY is not set. Inbound webhook verification will not work.')
+    // Tagged config-missing error → clean 503 + 'config.notConfigured' (see classifyTaggedError).
+    throw Object.assign(
+      new Error('MAILGUN_API_KEY is not set. Inbound webhook verification will not work.'),
+      { statusCode: 503, errorKey: 'config.notConfigured' },
+    )
   }
   return apiKey
 }
