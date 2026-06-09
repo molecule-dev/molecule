@@ -9,6 +9,49 @@ import { bodyParser as bodyParserMiddleware } from '@molecule/api-middleware-bod
 import { cookieParser as cookieParserMiddleware } from '@molecule/api-middleware-cookie-parser'
 import { cors as corsMiddleware } from '@molecule/api-middleware-cors'
 
+/** A deliberately-tagged molecule error mapped to a real HTTP status by the API. */
+export interface TaggedError {
+  /** HTTP status to return (e.g. 503 for a missing provider config). */
+  statusCode: number
+  /** Machine-readable key the app/IDE maps to a friendly message. */
+  errorKey: string
+  /** Human-readable message. */
+  message: string
+}
+
+/**
+ * Classify a thrown value for the API error middleware. Returns a {@link TaggedError}
+ * ONLY for values deliberately tagged by molecule with BOTH a numeric `statusCode`
+ * AND a string `errorKey` — e.g. a provider's config-missing throw (`statusCode: 503`,
+ * `errorKey: 'config.notConfigured'`). These are expected, actionable conditions a
+ * user must resolve (a missing `STRIPE_SECRET_KEY` is theirs to set, not a server bug),
+ * so the middleware surfaces the real status + errorKey instead of an opaque 500 — the
+ * app/IDE can then show "configure X to enable this feature".
+ *
+ * Requiring BOTH fields is deliberate: it keeps arbitrary library errors that merely
+ * carry a `.statusCode` (e.g. an AWS SDK error) from being silently surfaced with a
+ * status molecule never chose. Returns `null` for everything else (→ default 500 path).
+ *
+ * @param error - The thrown value caught by the error middleware.
+ * @returns The classified tagged error, or `null` if it isn't a molecule-tagged error.
+ */
+export function classifyTaggedError(error: unknown): TaggedError | null {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    typeof (error as { statusCode?: unknown }).statusCode === 'number' &&
+    typeof (error as { errorKey?: unknown }).errorKey === 'string'
+  ) {
+    const e = error as { statusCode: number; errorKey: string; message?: unknown }
+    return {
+      statusCode: e.statusCode,
+      errorKey: e.errorKey,
+      message: typeof e.message === 'string' ? e.message : 'Error',
+    }
+  }
+  return null
+}
+
 /** Options for `createServerFactory`. */
 export interface CreateServerOptions {
   /** App-specific bond wiring (resolves secrets + wires providers). */
@@ -147,6 +190,20 @@ export function createServerFactory(
       if (typeof error === 'string' && /^Unauthorized\.?$/.test(error)) {
         res.status(401)
         res.send(error)
+        return
+      }
+      // Deliberately-tagged molecule errors (e.g. a provider config-missing throw:
+      // 503 + 'config.notConfigured') are expected, user-actionable conditions — not
+      // internal bugs. Surface the real status + errorKey so the app/IDE can render a
+      // clean "configure X to enable this feature" instead of an opaque 500.
+      const tagged = classifyTaggedError(error)
+      if (tagged) {
+        // 5xx here means a dependency/config isn't ready, not a server fault — warn,
+        // don't error (an error-level log would falsely read as an app defect).
+        if (tagged.statusCode >= 500) {
+          logger.warn(tagged.message, { errorKey: tagged.errorKey })
+        }
+        res.status(tagged.statusCode).json({ error: tagged.message, errorKey: tagged.errorKey })
         return
       }
       logger.error(error)

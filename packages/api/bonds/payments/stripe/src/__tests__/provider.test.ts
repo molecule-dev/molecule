@@ -97,6 +97,25 @@ describe('Stripe Provider', () => {
     vi.clearAllMocks()
   })
 
+  describe('getClient (config-missing handling)', () => {
+    it('throws a config-tagged 503 error (statusCode + errorKey) when STRIPE_SECRET_KEY is unset', async () => {
+      // The API error middleware maps this to a clean 503 ("add STRIPE_SECRET_KEY to
+      // enable payments") instead of an opaque 500 — see classifyTaggedError.
+      vi.stubEnv('STRIPE_SECRET_KEY', '')
+      const { getClient } = await import('../provider.js')
+      let caught: unknown
+      try {
+        getClient()
+      } catch (error) {
+        caught = error
+      }
+      expect(caught).toBeInstanceOf(Error)
+      expect((caught as Error).message).toContain('STRIPE_SECRET_KEY is not set')
+      expect((caught as { statusCode?: number }).statusCode).toBe(503)
+      expect((caught as { errorKey?: string }).errorKey).toBe('config.notConfigured')
+    })
+  })
+
   describe('createCheckoutSession', () => {
     it('should create a checkout session', async () => {
       const { createCheckoutSession } = await import('../provider.js')

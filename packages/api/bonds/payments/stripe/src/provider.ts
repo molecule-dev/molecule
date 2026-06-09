@@ -34,7 +34,16 @@ let _client: Stripe | null = null
 export const getClient = (): Stripe => {
   if (!_client) {
     const key = process.env.STRIPE_SECRET_KEY
-    if (!key) throw new Error('STRIPE_SECRET_KEY is not set.')
+    if (!key) {
+      // Tag as a config-missing condition (not an internal error): the API error
+      // middleware maps `statusCode` + `errorKey` to a clean 503 so the user sees
+      // "add STRIPE_SECRET_KEY to enable payments" instead of an opaque 500 — the
+      // exact moment they're trying to upgrade to a paid plan.
+      throw Object.assign(new Error('STRIPE_SECRET_KEY is not set.'), {
+        statusCode: 503,
+        errorKey: 'config.notConfigured',
+      })
+    }
     _client = new Stripe(key)
   }
   return _client
