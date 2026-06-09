@@ -164,16 +164,37 @@ describe('buildTools', () => {
     expect(result.error).toMatch(/requires a non-empty "path"/)
   })
 
-  it('read_file steers to list_files when the target is a directory', async () => {
-    // Regression: a real build read_file'd handlers/ and migrations/ (directories); a
-    // bare "Is a directory" gave the model nothing, so it retried blindly.
+  it('read_file returns the directory listing (DWIM) when the target is a directory', async () => {
+    // A real custom build read_file'd handlers/ and migrations/ (directories) — 3 such
+    // misses + a follow-up list_files each. Rather than erroring and costing a retry loop,
+    // read_file now returns the directory's contents directly so the model proceeds.
     const backend = mockBackend()
     ;(backend.readFile as ReturnType<typeof vi.fn>).mockRejectedValue(
       new Error('cat: /workspace/api/src/handlers: Is a directory'),
     )
     const tools = buildTools(backend)
     const readFile = tools.find((t) => t.name === 'read_file')!
-    const result = (await readFile.execute({ path: '/test/handlers' })) as { error?: string }
+    const result = (await readFile.execute({ path: '/test/handlers' })) as {
+      error?: string
+      isDirectory?: boolean
+      entries?: { name: string; type: string }[]
+      note?: string
+    }
+    expect(result.error).toBeUndefined()
+    expect(result.isDirectory).toBe(true)
+    expect(result.entries).toEqual([{ name: 'file.ts', type: 'file' }])
+    expect(result.note).toMatch(/directory/i)
+  })
+
+  it('read_file falls back to the list_files hint when the directory listing also fails', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('cat: /x: Is a directory'),
+    )
+    ;(backend.readDir as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('permission denied'))
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: '/x' })) as { error?: string }
     expect(result.error).toMatch(/is a directory/i)
     expect(result.error).toMatch(/list_files/)
   })

@@ -154,8 +154,23 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         return { path, content: sanitizeOutput(content) }
       } catch (e: unknown) {
         const message = (e as Error).message
-        // A weak model often read_file's a directory (handlers/, migrations/); a bare
-        // "Is a directory" gives it nothing, so it retries blindly. Steer it to list_files.
+        // A weak model often read_file's a directory (handlers/, migrations/). Rather than
+        // erroring and costing it a retry loop (observed: 3 such misses + follow-up
+        // list_files in one custom build), DWIM: return the directory's listing — what it
+        // almost certainly wanted — with a note so it read_file's a specific entry next.
+        if (directoryReadHint(message, path)) {
+          try {
+            const entries = await backend.readDir(path)
+            return {
+              path,
+              isDirectory: true,
+              note: `${path} is a directory, not a file — returning its contents. read_file a specific entry inside it to see that file's content.`,
+              entries: entries.map((entry) => ({ name: entry.name, type: entry.type })),
+            }
+          } catch (_dirErr) {
+            // readDir also failed — fall through to the steer-to-list_files hint below.
+          }
+        }
         return { error: directoryReadHint(message, path) ?? `Failed to read ${path}: ${message}` }
       }
     },
