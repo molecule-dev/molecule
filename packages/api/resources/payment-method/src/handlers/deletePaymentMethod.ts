@@ -5,8 +5,7 @@
  */
 
 import { t } from '@molecule/api-i18n'
-import { logger } from '@molecule/api-logger'
-import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
+import { type MoleculeRequest, type MoleculeResponse, respondError } from '@molecule/api-resource'
 
 import { deletePaymentMethod as deleteService } from '../service.js'
 
@@ -53,9 +52,9 @@ export async function deletePaymentMethod(
     }
     res.status(204).end()
   } catch (error) {
-    logger.error('Failed to delete payment method', { userId, id, error })
-    res.status(500).json({
-      error: t('paymentMethod.error.deleteFailed', undefined, {
+    respondError(res, error, {
+      status: 500,
+      message: t('paymentMethod.error.deleteFailed', undefined, {
         defaultValue: 'Failed to delete payment method',
       }),
       errorKey: 'paymentMethod.error.deleteFailed',

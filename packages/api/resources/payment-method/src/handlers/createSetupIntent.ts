@@ -6,8 +6,7 @@
  */
 
 import { t } from '@molecule/api-i18n'
-import { logger } from '@molecule/api-logger'
-import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
+import { type MoleculeRequest, type MoleculeResponse, respondError } from '@molecule/api-resource'
 
 import { createSetupIntent as createSetupIntentService } from '../service.js'
 
@@ -34,9 +33,11 @@ export async function createSetupIntent(
     const intent = await createSetupIntentService(userId)
     res.status(201).json(intent)
   } catch (error) {
-    logger.error('Failed to create payment-method setup intent', { userId, error })
-    res.status(500).json({
-      error: t('paymentMethod.error.setupIntentFailed', undefined, {
+    // A tagged provider error (e.g. missing STRIPE_SECRET_KEY → 503 + 'config.notConfigured')
+    // surfaces its real status/errorKey; anything else falls back to the generic 500.
+    respondError(res, error, {
+      status: 500,
+      message: t('paymentMethod.error.setupIntentFailed', undefined, {
         defaultValue: 'Failed to create setup intent',
       }),
       errorKey: 'paymentMethod.error.setupIntentFailed',

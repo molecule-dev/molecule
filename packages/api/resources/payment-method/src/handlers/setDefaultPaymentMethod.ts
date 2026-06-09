@@ -5,8 +5,7 @@
  */
 
 import { t } from '@molecule/api-i18n'
-import { logger } from '@molecule/api-logger'
-import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
+import { type MoleculeRequest, type MoleculeResponse, respondError } from '@molecule/api-resource'
 
 import { setDefaultPaymentMethod as setDefaultService } from '../service.js'
 
@@ -54,9 +53,9 @@ export async function setDefaultPaymentMethod(
     }
     res.json(updated)
   } catch (error) {
-    logger.error('Failed to set default payment method', { userId, id, error })
-    res.status(500).json({
-      error: t('paymentMethod.error.setDefaultFailed', undefined, {
+    respondError(res, error, {
+      status: 500,
+      message: t('paymentMethod.error.setDefaultFailed', undefined, {
         defaultValue: 'Failed to set default payment method',
       }),
       errorKey: 'paymentMethod.error.setDefaultFailed',

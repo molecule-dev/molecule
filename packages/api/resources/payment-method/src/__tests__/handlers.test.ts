@@ -18,6 +18,15 @@ vi.mock('@molecule/api-database', () => ({
 
 vi.mock('@molecule/api-bond', () => ({
   get: mockGet,
+  // api-resource's respondError (imported by the handlers) calls getLogger() at
+  // module load — provide a noop logger so the barrel import resolves.
+  getLogger: () => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    trace: vi.fn(),
+  }),
 }))
 
 vi.mock('@molecule/api-i18n', () => ({
@@ -121,6 +130,31 @@ describe('@molecule/api-resource-payment-method handlers', () => {
       expect(res.status).toHaveBeenCalledWith(500)
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({ errorKey: 'paymentMethod.error.setupIntentFailed' }),
+      )
+    })
+
+    it('returns 503 config.notConfigured when the provider throws a tagged config error (missing STRIPE_SECRET_KEY)', async () => {
+      // The conversion-path payoff: instead of an opaque 500 at "add a card", the user
+      // gets an actionable 503 + 'config.notConfigured' (→ "add STRIPE_SECRET_KEY").
+      const provider = {
+        providerName: 'stripe',
+        createSetupIntent: vi.fn().mockRejectedValue(
+          Object.assign(new Error('STRIPE_SECRET_KEY is not set.'), {
+            statusCode: 503,
+            errorKey: 'config.notConfigured',
+          }),
+        ),
+      }
+      mockGet.mockReturnValue(provider)
+      mockFindMany.mockResolvedValueOnce([ROW])
+      const req = mockReq()
+      const res = mockRes()
+
+      await createSetupIntent(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(503)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'config.notConfigured' }),
       )
     })
   })

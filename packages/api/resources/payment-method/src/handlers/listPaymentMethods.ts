@@ -5,8 +5,7 @@
  */
 
 import { t } from '@molecule/api-i18n'
-import { logger } from '@molecule/api-logger'
-import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
+import { type MoleculeRequest, type MoleculeResponse, respondError } from '@molecule/api-resource'
 
 import { listPaymentMethods as listPaymentMethodsService } from '../service.js'
 
@@ -33,9 +32,9 @@ export async function listPaymentMethods(
     const methods = await listPaymentMethodsService(userId)
     res.json(methods)
   } catch (error) {
-    logger.error('Failed to list payment methods', { userId, error })
-    res.status(500).json({
-      error: t('paymentMethod.error.listFailed', undefined, {
+    respondError(res, error, {
+      status: 500,
+      message: t('paymentMethod.error.listFailed', undefined, {
         defaultValue: 'Failed to list payment methods',
       }),
       errorKey: 'paymentMethod.error.listFailed',
