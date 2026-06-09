@@ -50,8 +50,14 @@ export const convertPlaceholders = (
  * rewrites the handful of constructs that actually appear across the resource
  * library so those migrations apply on SQLite:
  *
- * - `DEFAULT gen_random_uuid()` → removed. The resource layer always sets
- *   `id = id || uuid()` on create, so the column never relies on a DB default.
+ * - `DEFAULT gen_random_uuid()` → `DEFAULT (lower(hex(randomblob(16))))`, the
+ *   SQLite equivalent random-id default. Resource handlers set `id = id || uuid()`
+ *   so they don't need it, but a custom handler using the bare `create('t', {…})`
+ *   (no explicit id — the documented pattern) DOES rely on the column default;
+ *   stripping it left `id … NOT NULL` with no default, so every such insert hit
+ *   `NOT NULL constraint failed: t.id`. Translating (not stripping) keeps both
+ *   paths working: resource handlers pass an id that overrides the default, custom
+ *   handlers get one generated.
  * - `now()` / `NOW()` → `current_timestamp` (a SQLite keyword).
  * - `::type` casts (e.g. `'{}'::jsonb`) → removed (Postgres-only syntax).
  * - `USING <method>` on an index (`gin`/`btree`/`hash`/`gist`) → removed
@@ -65,7 +71,7 @@ export const convertPlaceholders = (
  */
 export const translateDdlToSqlite = (sql: string): string =>
   sql
-    .replace(/\s+DEFAULT\s+gen_random_uuid\(\)/gi, '')
+    .replace(/DEFAULT\s+gen_random_uuid\(\)/gi, 'DEFAULT (lower(hex(randomblob(16))))')
     .replace(/\bnow\(\)/gi, 'current_timestamp')
     .replace(/::[a-z_]+/gi, '')
     .replace(/\s+USING\s+(gin|btree|hash|gist)\b/gi, '')

@@ -111,9 +111,12 @@ describe('convertPlaceholders', () => {
 })
 
 describe('translateDdlToSqlite', () => {
-  it('strips DEFAULT gen_random_uuid() (resource layer provides the id)', () => {
+  it('translates DEFAULT gen_random_uuid() to the SQLite random-id default', () => {
+    // Must TRANSLATE, not strip: a custom handler using the bare create('t', {…})
+    // (no explicit id) relies on the column default. Stripping left `id … NOT NULL`
+    // with no default → every such insert hit `NOT NULL constraint failed: t.id`.
     expect(translateDdlToSqlite('"id" UUID PRIMARY KEY DEFAULT gen_random_uuid()')).toBe(
-      '"id" UUID PRIMARY KEY',
+      '"id" UUID PRIMARY KEY DEFAULT (lower(hex(randomblob(16))))',
     )
   })
 
@@ -151,6 +154,13 @@ describe('translateDdlToSqlite', () => {
     expect(() => db.exec(translateDdlToSqlite(pg))).not.toThrow()
     // the resource layer inserts a uuid string id — must be accepted
     db.prepare('INSERT INTO "projects" ("id","userId") VALUES (?,?)').run('uuid-1', 'uuid-2')
+    // a custom handler's bare create() inserts NO id — the translated column
+    // default must supply one (regression: this used to throw NOT NULL on id).
+    db.prepare('INSERT INTO "projects" ("userId") VALUES (?)').run('uuid-3')
+    const generated = db.prepare(`SELECT id FROM "projects" WHERE "userId" = ?`).get('uuid-3') as {
+      id: string
+    }
+    expect(generated.id).toMatch(/^[0-9a-f]{32}$/)
     db.close()
   })
 })
