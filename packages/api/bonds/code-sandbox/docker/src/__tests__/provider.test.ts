@@ -1160,4 +1160,97 @@ describe('DockerSandboxProvider', () => {
       expect(sandboxes.map((s) => s.status)).toEqual(['running', 'stopped'])
     })
   })
+
+  // ─── withTransientRetry (boot resilience) ─────────────────────────────
+  // Guards the fix for the recurring "first cold boot dies on `Docker API timeout:
+  // POST /containers/create`" failure: transient daemon faults are retried; real
+  // HTTP errors are not; and a timed-out create adopts an already-made container
+  // (via onRetry) instead of leaking a duplicate.
+  describe('withTransientRetry — boot resilience', () => {
+    const fastDelay = () => 1 // keep tests instant
+
+    it('retries a transient timeout, then succeeds', async () => {
+      const { withTransientRetry } = await import('../provider.js')
+      let calls = 0
+      const result = await withTransientRetry(
+        async () => {
+          calls++
+          if (calls < 2) throw new Error('Docker API timeout: POST /containers/create')
+          return { Id: 'created-on-retry' }
+        },
+        { label: 'create', delayMs: fastDelay },
+      )
+      expect(calls).toBe(2)
+      expect(result).toEqual({ Id: 'created-on-retry' })
+    })
+
+    it('does NOT retry a non-transient error (real HTTP failure)', async () => {
+      const { withTransientRetry } = await import('../provider.js')
+      let calls = 0
+      await expect(
+        withTransientRetry(
+          async () => {
+            calls++
+            throw new Error('Docker API POST /containers/create: 404 no such image')
+          },
+          { label: 'create', delayMs: fastDelay },
+        ),
+      ).rejects.toThrow('no such image')
+      expect(calls).toBe(1) // failed once, not retried
+    })
+
+    it('retries connection-level resets (ECONNRESET) up to the attempt cap', async () => {
+      const { withTransientRetry } = await import('../provider.js')
+      let calls = 0
+      await expect(
+        withTransientRetry(
+          async () => {
+            calls++
+            throw new Error('socket hang up (ECONNRESET)')
+          },
+          { label: 'create', attempts: 3, delayMs: fastDelay },
+        ),
+      ).rejects.toThrow('ECONNRESET')
+      expect(calls).toBe(3) // exhausted the cap, then threw the last error
+    })
+
+    it('adopts an already-created container via onRetry instead of duplicating it', async () => {
+      const { withTransientRetry } = await import('../provider.js')
+      let opCalls = 0
+      let onRetryCalls = 0
+      const result = await withTransientRetry(
+        async () => {
+          opCalls++
+          throw new Error('Docker API timeout: POST /containers/create')
+        },
+        {
+          label: 'create',
+          delayMs: fastDelay,
+          // The timed-out create actually made the container — adopt it.
+          onRetry: async () => {
+            onRetryCalls++
+            return { Id: 'adopted-existing' }
+          },
+        },
+      )
+      expect(result).toEqual({ Id: 'adopted-existing' })
+      expect(opCalls).toBe(1) // op tried once; adopted instead of re-issuing
+      expect(onRetryCalls).toBe(1)
+    })
+
+    it('re-issues the op when onRetry finds nothing to adopt (returns null)', async () => {
+      const { withTransientRetry } = await import('../provider.js')
+      let opCalls = 0
+      const result = await withTransientRetry(
+        async () => {
+          opCalls++
+          if (opCalls < 2) throw new Error('Docker API timeout')
+          return { Id: 'created-second-try' }
+        },
+        { label: 'create', delayMs: fastDelay, onRetry: async () => null },
+      )
+      expect(result).toEqual({ Id: 'created-second-try' })
+      expect(opCalls).toBe(2)
+    })
+  })
 })

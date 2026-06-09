@@ -101,6 +101,70 @@ class DockerMuxParser {
 }
 
 /**
+ * Retry a Docker API operation that failed with a TRANSIENT fault — a request
+ * timeout or a connection-level reset, i.e. the daemon was momentarily overwhelmed,
+ * not the request malformed. This is the fix for the observed "first cold boot of a
+ * concurrent batch dies on `Docker API timeout: POST /containers/create`" failure:
+ * a single 30 s create timeout under daemon load currently kills the whole boot.
+ *
+ * HTTP error responses (4xx/5xx) are deliberately NOT retried — those are real
+ * answers (no-such-image, name conflict), not transient network faults. Bounded
+ * attempts with linear backoff.
+ *
+ * `onRetry` is the idempotency guard: a create that TIMED OUT client-side may have
+ * still succeeded server-side, so before re-issuing it the caller can adopt the
+ * already-created resource (looked up by a unique label) instead of leaking a
+ * duplicate container. If `onRetry` returns non-null, that value is used and the
+ * operation is not re-issued.
+ *
+ * @param op - the operation to attempt.
+ * @param opts - tuning + the optional adopt-on-retry guard.
+ * @param opts.label - short operation name for log lines.
+ * @param opts.attempts - max attempts (default 3).
+ * @param opts.onRetry - adopt-an-existing-resource guard, run before each retry.
+ * @param opts.delayMs - backoff for attempt N (default `400 * N` ms).
+ * @param opts.log - optional logger for retry warnings.
+ * @returns the operation's result, or an adopted result from `onRetry`.
+ */
+export async function withTransientRetry<T>(
+  op: () => Promise<T>,
+  opts: {
+    label: string
+    attempts?: number
+    onRetry?: () => Promise<T | null>
+    delayMs?: (attempt: number) => number
+    log?: { warn: (message: string, meta?: unknown) => void }
+  },
+): Promise<T> {
+  const attempts = opts.attempts ?? 3
+  const backoff = opts.delayMs ?? ((n) => 400 * n)
+  let lastError: unknown
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return await op()
+    } catch (error) {
+      lastError = error
+      const message = String((error as { message?: string })?.message ?? error)
+      const transient =
+        /Docker API timeout|ECONNRESET|EPIPE|socket hang ?up|ECONNREFUSED|EAI_AGAIN|ETIMEDOUT/i.test(
+          message,
+        )
+      if (!transient || attempt === attempts) break
+      if (opts.onRetry) {
+        const adopted = await opts.onRetry().catch(() => null)
+        if (adopted != null) return adopted
+      }
+      opts.log?.warn(
+        `Docker API transient failure on ${opts.label} (attempt ${attempt}/${attempts}) — retrying`,
+        { error: message },
+      )
+      await new Promise((resolve) => setTimeout(resolve, backoff(attempt)))
+    }
+  }
+  throw lastError
+}
+
+/**
  * Docker-based implementation of `SandboxProvider`. Each sandbox runs as an isolated
  * Docker container with configurable CPU/memory limits. Communicates with the Docker
  * Engine API over a Unix socket.
@@ -210,9 +274,43 @@ class DockerSandboxProvider implements SandboxProvider {
       },
     }
 
-    const createRes = (await this.dockerApi('/containers/create', 'POST', body)) as { Id: string }
+    // Retry a transient create timeout (daemon momentarily overwhelmed under
+    // concurrent boots) instead of failing the whole sandbox boot. The onRetry
+    // guard adopts a container a timed-out create may have already made — keyed on
+    // the unique volumeName label — so a retry never leaks a duplicate.
+    const createRes = (await withTransientRetry(
+      () => this.dockerApi('/containers/create', 'POST', body),
+      {
+        label: 'containers/create',
+        log: logger,
+        onRetry: config.volumeName
+          ? async () =>
+              await this.findContainerIdByLabel(
+                `${this.labelPrefix}.volumeName`,
+                config.volumeName as string,
+              ).then((id) => (id ? { Id: id } : null))
+          : undefined,
+      },
+    )) as { Id: string }
 
     return this.buildSandbox(createRes.Id, config.projectId)
+  }
+
+  /**
+   * Finds the id of a managed container by an exact `label=value` match. Used by
+   * the create-retry adoption guard to detect a container a timed-out create may
+   * have already produced (keyed on the unique volumeName label), so a retry adopts
+   * it rather than leaking a duplicate.
+   * @param key - the full label key (e.g. `molecule-sandbox.volumeName`).
+   * @param value - the exact label value to match.
+   * @returns the matching container id, or `null` if none exists.
+   */
+  private async findContainerIdByLabel(key: string, value: string): Promise<string | null> {
+    const filters = JSON.stringify({ label: [`${key}=${value}`] })
+    const containers = (await this.dockerApi(
+      `/containers/json?all=true&filters=${encodeURIComponent(filters)}`,
+    )) as Array<{ Id: string }>
+    return Array.isArray(containers) && containers[0]?.Id ? containers[0].Id : null
   }
 
   /**
