@@ -252,25 +252,50 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 error: `old_string not found in ${path} — a match exists but whitespace/indentation differs and is not unique enough to apply automatically. Re-read the file and copy the exact text (tabs vs spaces, trailing spaces, blank lines must match), or include more surrounding context.`,
               }
             }
-            // Anchor probe: if old_string's first non-blank line exists in the file,
-            // show the real content around it so the model can copy the exact text.
-            const anchor = oldString
+            // Anchor probe: locate the target region by the most DISTINCTIVE line
+            // of old_string (longest non-trivial line first, requiring a UNIQUE
+            // file match), not just the first line. The first line is often a
+            // generic token (`return (`, `<div>`, `}`) that either matches nowhere
+            // or everywhere; when the model mis-remembers that line but a later,
+            // more specific line (a JSX prop, an identifier) is intact, anchoring
+            // on the distinctive line still finds the region. Show the file's real
+            // content there so the model copies exact text in ONE retry. Only show
+            // a UNIQUE match so the snippet is reliably the right place.
+            const fileLines = content.split('\n')
+            const showSnippet = (idx: number): { error: string } => {
+              const start = Math.max(0, idx - 3)
+              const snippet = fileLines
+                .slice(start, idx + 8)
+                .map((l, i) => `${start + i + 1}: ${l}`)
+                .join('\n')
+              return {
+                error: `old_string not found in ${path}. The file's ACTUAL content near your target (copy the exact text from here):\n${snippet}`,
+              }
+            }
+            const distinctiveLines = [
+              ...new Set(
+                oldString
+                  .split('\n')
+                  .map((l) => l.trim())
+                  .filter((l) => l.length >= 8),
+              ),
+            ].sort((a, b) => b.length - a.length)
+            for (const anchor of distinctiveLines) {
+              const hits = fileLines.reduce<number[]>((acc, l, i) => {
+                if (l.includes(anchor)) acc.push(i)
+                return acc
+              }, [])
+              if (hits.length === 1) return showSnippet(hits[0])
+            }
+            // Fallback: the first non-blank line, even if not unique (better than a
+            // bare "re-read" when the model just needs to see nearby real content).
+            const firstLine = oldString
               .split('\n')
               .find((l) => l.trim().length > 0)
               ?.trim()
-            if (anchor) {
-              const lines = content.split('\n')
-              const idx = lines.findIndex((l) => l.includes(anchor))
-              if (idx >= 0) {
-                const start = Math.max(0, idx - 2)
-                const snippet = lines
-                  .slice(start, idx + 8)
-                  .map((l, i) => `${start + i + 1}: ${l}`)
-                  .join('\n')
-                return {
-                  error: `old_string not found in ${path}. The file's ACTUAL content near your target (copy the exact text from here):\n${snippet}`,
-                }
-              }
+            if (firstLine) {
+              const idx = fileLines.findIndex((l) => l.includes(firstLine))
+              if (idx >= 0) return showSnippet(idx)
             }
             return {
               error: `old_string not found in ${path}. Re-read the file with read_file and copy the exact current text — do not construct old_string from memory or the plan.`,

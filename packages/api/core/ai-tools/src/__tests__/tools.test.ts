@@ -277,6 +277,35 @@ describe('buildTools', () => {
     expect(result.error).toContain('return 1') // shows the real line so it can fix
   })
 
+  it('edit_file anchors on a DISTINCTIVE later line when the first line is mis-remembered', async () => {
+    const backend = mockBackend()
+    // The model mis-remembered the wrapper lines (function name + return tag) but
+    // the distinctive middle line is intact. The first-line probe would miss
+    // (`ScoreCard` ≠ `ScorePanel`), so the distinctive-line probe must find it.
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(
+      'export function ScorePanel({ player }) {\n' +
+        '  const points = tallyPlayerPoints(player.id, session.rounds)\n' +
+        '  return <span className="score">{points}</span>\n' +
+        '}',
+    )
+    const tools = buildTools(backend)
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/ScorePanel.tsx',
+      old_string:
+        'export function ScoreCard({ player }) {\n' +
+        '  const points = tallyPlayerPoints(player.id, session.rounds)\n' +
+        '  return <div>{points}</div>\n' +
+        '}',
+      new_string: 'x',
+    })) as Record<string, unknown>
+    expect(result.ok).toBeUndefined()
+    expect(result.error).toMatch(/ACTUAL content/i)
+    // shows the real region anchored on the distinctive line, not a bare re-read
+    expect(result.error).toContain('tallyPlayerPoints')
+    expect(result.error).not.toMatch(/^.*re-read the file with read_file/)
+  })
+
   it('edit_file tells the model to re-read when nothing matches at all', async () => {
     const backend = mockBackend()
     ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('completely different')
