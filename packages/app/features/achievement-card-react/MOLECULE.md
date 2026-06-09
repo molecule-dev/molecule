@@ -27,6 +27,38 @@ import { AchievementCard } from '@molecule/app-achievement-card-react'
 npm install @molecule/app-achievement-card-react
 ```
 
+## API
+
+### Functions
+
+#### `AchievementCard(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Badge / achievement unlock card — icon + name + description + earned
+state. Locked achievements render greyed-out.
+
+```typescript
+function AchievementCard({
+  name,
+  description,
+  icon,
+  earned,
+  earnedAt,
+  progress,
+  tier,
+  className,
+}: AchievementCardProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .name
+- `root0` — .description
+- `root0` — .icon
+- `root0` — .earned
+- `root0` — .earnedAt
+- `root0` — .progress
+- `root0` — .tier
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

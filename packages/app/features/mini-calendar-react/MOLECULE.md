@@ -26,6 +26,37 @@ import { MiniCalendar } from '@molecule/app-mini-calendar-react'
 npm install @molecule/app-mini-calendar-react
 ```
 
+## API
+
+### Functions
+
+#### `MiniCalendar(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Compact month-view calendar. Supports controlled `selected` + `month`
+props or runs uncontrolled. Weekday / month names come from
+`Intl.DateTimeFormat` so locales render correctly without extra data.
+
+```typescript
+function MiniCalendar({
+  selected,
+  onSelect,
+  month: monthProp,
+  onMonthChange,
+  locale,
+  isDisabled,
+  className,
+}: MiniCalendarProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .selected
+- `root0` — .onSelect
+- `root0` — .month
+- `root0` — .onMonthChange
+- `root0` — .locale
+- `root0` — .isDisabled
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

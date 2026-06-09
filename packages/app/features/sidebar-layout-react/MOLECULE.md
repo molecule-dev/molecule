@@ -38,6 +38,84 @@ export function AppShell() {
 npm install @molecule/app-sidebar-layout-react
 ```
 
+## API
+
+### Interfaces
+
+#### `SidebarLayoutProps`
+
+Props accepted by the {@link SidebarLayout} component.
+
+```typescript
+interface SidebarLayoutProps {
+  /** Brand text shown at the top of the sidebar (typically the app name). */
+  appName: string
+  /** Path the brand link navigates to. Defaults to `'/'`. */
+  logoTo?: string
+  /** Vertical nav items rendered in the sidebar. */
+  navItems: ReadonlyArray<SidebarNavItem>
+  /** Slot rendered at the bottom of the sidebar (typically a `<UserMenu />`). */
+  userMenu?: ReactNode
+  /** Optional slot rendered next to the user menu (typically a `<ThemeToggle />`). */
+  themeToggle?: ReactNode
+  /** Aria-label for the primary <nav>. */
+  navAriaLabel?: string
+  /** Tailwind width utility for the sidebar (e.g. `'w-60'`, `'w-64'`). Defaults to `'w-60'`. */
+  sidebarWidthClass?: string
+  /** Extra classes on the outer wrapper. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+```
+
+#### `SidebarNavItem`
+
+Describes a single item in the sidebar's vertical navigation list.
+
+```typescript
+interface SidebarNavItem {
+  /** Route path the link goes to. */
+  to: string
+  /** Stable key — used for React keys and i18n key suffix. */
+  key: string
+  /** Material symbol icon name. */
+  icon?: string
+  /** Visible label. Apps that route this through `t(...)` should pass the resolved string. */
+  label: string
+}
+```
+
+### Functions
+
+#### `SidebarLayout(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Vertical sidebar shell with brand + vertical nav + bottom user-menu slot.
+
+```typescript
+function SidebarLayout({
+  appName,
+  logoTo = '/',
+  navItems,
+  userMenu,
+  themeToggle,
+  navAriaLabel = 'Primary navigation',
+  sidebarWidthClass = 'w-60',
+  className,
+  dataMolId,
+}: SidebarLayoutProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .appName
+- `root0` — .logoTo
+- `root0` — .navItems
+- `root0` — .userMenu
+- `root0` — .navAriaLabel
+- `root0` — .sidebarWidthClass
+- `root0` — .className
+- `root0` — .dataMolId
+
 ## Injection Notes
 
 ### Requirements

@@ -37,6 +37,29 @@ npm install @molecule/app-routing-react-router
 
 ### Interfaces
 
+#### `MoleculeRouterProviderProps`
+
+Provider props.
+
+```typescript
+interface MoleculeRouterProviderProps {
+  /**
+   * Child components.
+   */
+  children: ReactNode
+
+  /**
+   * Optional route definitions for named routes.
+   */
+  routes?: RouteDefinition[]
+
+  /**
+   * Callback when router is ready.
+   */
+  onRouterReady?: (router: Router) => void
+}
+```
+
 #### `NavigateOptions`
 
 Options for programmatic navigation (replace vs push, carry state, preserve query/hash).
@@ -428,6 +451,25 @@ function matchPath(pattern: string, pathname: string, exact?: boolean): RouteMat
 
 **Returns:** A `RouteMatch` with extracted params, or `null` if no match.
 
+#### `MoleculeRouterProvider(root0, root0, root0, root0)`
+
+Provider component that creates a molecule Router from React Router hooks.
+
+```typescript
+function MoleculeRouterProvider({
+  children,
+  routes = [],
+  onRouterReady,
+}: MoleculeRouterProviderProps): React.JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .children - Child components to render within the router context.
+- `root0` — .routes - Optional route definitions for named routes.
+- `root0` — .onRouterReady - Callback invoked when the router instance is ready.
+
+**Returns:** The rendered provider wrapping children with the router context.
+
 #### `normalizePath(path)`
 
 Removes trailing slashes from a path. Returns `'/'` for root/empty paths.
@@ -479,6 +521,49 @@ function stringifyQuery(params: QueryParams): string
 - `params` — The query parameters to stringify.
 
 **Returns:** A URL search string starting with `?`, or empty string if no params.
+
+#### `useIsActive(path, exact)`
+
+Hook to check if a path is currently active.
+
+```typescript
+function useIsActive(path: string, exact?: boolean): boolean
+```
+
+- `path` — Path to check
+- `exact` — Whether to require exact match
+
+**Returns:** Whether the path is active
+
+#### `useMoleculeNavigate()`
+
+Hook to get a navigate function with molecule Router options.
+
+```typescript
+function useMoleculeNavigate(): (path: string, options?: NavigateOptions) => void
+```
+
+**Returns:** Navigate function
+
+#### `useMoleculeQuery()`
+
+Hook to get current query params as an object.
+
+```typescript
+function useMoleculeQuery(): QueryParams
+```
+
+**Returns:** Query params object
+
+#### `useMoleculeRouter()`
+
+Hook to get the molecule Router.
+
+```typescript
+function useMoleculeRouter(): Router
+```
+
+**Returns:** The molecule Router instance
 
 ### Constants
 

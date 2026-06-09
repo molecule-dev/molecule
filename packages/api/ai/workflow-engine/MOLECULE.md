@@ -46,6 +46,8 @@ npm install @molecule/api-ai-workflow-engine
 
 #### `ActionStep`
 
+A step that invokes a registered action handler with resolved params.
+
 ```typescript
 interface ActionStep {
   type: 'action'
@@ -60,6 +62,8 @@ interface ActionStep {
 
 #### `AIPromptStep`
 
+A step that sends a prompt to the bonded AI provider and writes the response into context.
+
 ```typescript
 interface AIPromptStep {
   type: 'ai_prompt'
@@ -71,6 +75,8 @@ interface AIPromptStep {
 
 #### `ConditionStep`
 
+A step that evaluates a JS expression and short-circuits the run on false.
+
 ```typescript
 interface ConditionStep {
   type: 'condition'
@@ -80,6 +86,8 @@ interface ConditionStep {
 ```
 
 #### `DelayStep`
+
+A step that pauses workflow execution for a fixed number of milliseconds.
 
 ```typescript
 interface DelayStep {
@@ -91,6 +99,8 @@ interface DelayStep {
 
 #### `EngineOptions`
 
+Configuration passed to `createWorkflowEngine` — trigger and action handler maps.
+
 ```typescript
 interface EngineOptions {
   triggers: Record<string, (ctx: Record<string, unknown>) => Promise<unknown> | unknown>
@@ -99,6 +109,8 @@ interface EngineOptions {
 ```
 
 #### `WorkflowDefinition`
+
+Describes a complete workflow: which trigger fires it and what steps to run.
 
 ```typescript
 interface WorkflowDefinition {
@@ -110,6 +122,8 @@ interface WorkflowDefinition {
 
 #### `WorkflowEngine`
 
+Public interface for the workflow engine returned by `createWorkflowEngine`.
+
 ```typescript
 interface WorkflowEngine {
   execute(definition: WorkflowDefinition): Promise<WorkflowRun>
@@ -117,6 +131,8 @@ interface WorkflowEngine {
 ```
 
 #### `WorkflowRun`
+
+Result returned by `WorkflowEngine.execute` — overall outcome plus per-step trace.
 
 ```typescript
 interface WorkflowRun {
@@ -136,11 +152,15 @@ interface WorkflowRun {
 
 #### `WorkflowStep`
 
+Discriminated union of all step types that a workflow definition may contain.
+
 ```typescript
 type WorkflowStep = ConditionStep | ActionStep | DelayStep | AIPromptStep
 ```
 
 #### `WorkflowStepType`
+
+Union of all supported step type discriminants.
 
 ```typescript
 type WorkflowStepType = 'condition' | 'action' | 'delay' | 'http' | 'ai_prompt'
@@ -149,6 +169,8 @@ type WorkflowStepType = 'condition' | 'action' | 'delay' | 'http' | 'ai_prompt'
 ### Functions
 
 #### `createWorkflowEngine(opts)`
+
+Creates a `WorkflowEngine` instance wired with the provided trigger and action handlers.
 
 ```typescript
 function createWorkflowEngine(opts: EngineOptions): WorkflowEngine

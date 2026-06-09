@@ -33,6 +33,60 @@ const [type, setType] = useState<'income' | 'expense'>('expense')
 npm install @molecule/app-amount-input-react
 ```
 
+## API
+
+### Types
+
+#### `AmountType`
+
+Transaction type used to categorise an amount entry.
+
+```typescript
+type AmountType = 'income' | 'expense' | 'transfer' | 'other'
+```
+
+### Functions
+
+#### `AmountInput(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Large transaction-style amount input with optional type toggle +
+currency symbol. Common in budgeting, expense-reporting, and
+financial-form UX.
+
+```typescript
+function AmountInput({
+  amount,
+  onAmountChange,
+  type,
+  onTypeChange,
+  typeOptions = ['income', 'expense'],
+  currencySymbol = '$',
+  size = 'lg',
+  className,
+}: AmountInputProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .amount
+- `root0` — .onAmountChange
+- `root0` — .type
+- `root0` — .onTypeChange
+- `root0` — .typeOptions
+- `root0` — .currencySymbol
+- `root0` — .size
+- `root0` — .className
+
+#### `formatCurrency(amount, currency, locale)`
+
+Formats a numeric amount as a localized currency string.
+
+```typescript
+function formatCurrency(amount: number, currency?: string, locale?: string): string
+```
+
+- `amount` — *
+- `currency` — *
+
 ## Injection Notes
 
 ### Requirements

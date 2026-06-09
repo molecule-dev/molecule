@@ -62,6 +62,62 @@ interface ActivityFeedItemData {
 }
 ```
 
+### Functions
+
+#### `ActivityFeed(root0, root0, root0, root0, root0)`
+
+Simple activity feed — renders each `ActivityFeedItemData` via
+`<ActivityFeedItem>` and stacks them. For date-grouped feeds use
+`<ActivityFeedGroup>`.
+
+```typescript
+function ActivityFeed({
+  items,
+  emptyState,
+  footer,
+  className,
+}: ActivityFeedProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .items
+- `root0` — .emptyState
+- `root0` — .footer
+- `root0` — .className
+
+#### `ActivityFeedGroup(root0, root0, root0, root0)`
+
+Date-grouped activity section — a heading followed by a stack of items.
+Compose multiple `<ActivityFeedGroup>`s together for an organized
+"Today / Yesterday / Last week" feed.
+
+```typescript
+function ActivityFeedGroup({
+  heading,
+  items,
+  className,
+}: ActivityFeedGroupProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .heading
+- `root0` — .items
+- `root0` — .className
+
+#### `ActivityFeedItem(root0, root0, root0)`
+
+One entry in an `<ActivityFeed>`.
+
+Shape: `[avatar|icon] [actor verb target · timestamp] [body]`.
+
+```typescript
+function ActivityFeedItem({ item, className }: ActivityFeedItemProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .item
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

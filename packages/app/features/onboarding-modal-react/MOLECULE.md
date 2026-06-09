@@ -31,6 +31,50 @@ const steps: OnboardingStep[] = [
 npm install @molecule/app-onboarding-modal-react
 ```
 
+## API
+
+### Interfaces
+
+#### `OnboardingStep`
+
+A single step in an onboarding flow, with a title, body, and optional media.
+
+```typescript
+interface OnboardingStep {
+  id: string
+  title: ReactNode
+  body: ReactNode
+  /** Optional media / illustration. */
+  media?: ReactNode
+}
+```
+
+### Functions
+
+#### `OnboardingModal(root0, root0, root0, root0, root0, root0, root0)`
+
+Multi-step onboarding overlay — title + body + media, with prev/next
+navigation and an optional Skip link. Tracks its own step state.
+
+```typescript
+function OnboardingModal({
+  open,
+  onClose,
+  steps,
+  onComplete,
+  allowSkip = true,
+  defaultStep = 0,
+}: OnboardingModalProps): JSX.Element | null
+```
+
+- `root0` — *
+- `root0` — .open
+- `root0` — .onClose
+- `root0` — .steps
+- `root0` — .onComplete
+- `root0` — .allowSkip
+- `root0` — .defaultStep
+
 ## Injection Notes
 
 ### Requirements

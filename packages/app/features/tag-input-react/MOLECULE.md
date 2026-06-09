@@ -32,6 +32,50 @@ import { TagChip, TagInput } from '@molecule/app-tag-input-react'
 npm install @molecule/app-tag-input-react
 ```
 
+## API
+
+### Functions
+
+#### `TagChip(root0, root0, root0, root0, root0)`
+
+Small labeled chip with an optional close button. Used inside
+`<TagInput>` but also usable standalone as a label display element.
+
+```typescript
+function TagChip({ children, onRemove, onClick, className }: TagChipProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .children
+- `root0` — .onRemove
+- `root0` — .onClick
+- `root0` — .className
+
+#### `TagInput(root0, root0, root0, root0, root0, root0, root0)`
+
+Tokenized tag-input with chip display, Enter-to-add + Backspace-to-remove.
+
+Controlled component — callers own the `value` array.
+
+```typescript
+function TagInput({
+  value,
+  onChange,
+  placeholder,
+  normalize = defaultNormalize,
+  maxTags,
+  className,
+}: TagInputProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .value
+- `root0` — .onChange
+- `root0` — .placeholder
+- `root0` — .normalize
+- `root0` — .maxTags
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

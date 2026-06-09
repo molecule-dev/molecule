@@ -47,6 +47,8 @@ npm install @molecule/app-chatbot-tester-react
 
 #### `TesterBotOption`
 
+A selectable bot/agent option shown in the chatbot tester sandbox UI.
+
 ```typescript
 interface TesterBotOption {
   id: string
@@ -56,7 +58,7 @@ interface TesterBotOption {
 
 #### `TesterMessage`
 
-Types for the chatbot-tester sandbox UI.
+A single chat message displayed in the chatbot tester sandbox UI.
 
 ```typescript
 interface TesterMessage {
@@ -65,6 +67,80 @@ interface TesterMessage {
   content: string
   timestamp?: string
 }
+```
+
+### Functions
+
+#### `ChatbotTester({
+  messages,
+  loading,
+  onSend,
+  bots,
+  botId,
+  onBotChange,
+  error,
+  emptyState,
+  botPickerLabel = 'Test bot',
+  inputPlaceholder,
+  sendLabel,
+  className,
+})`
+
+Full chatbot tester sandbox.
+
+```typescript
+function ChatbotTester({
+  messages,
+  loading,
+  onSend,
+  bots,
+  botId,
+  onBotChange,
+  error,
+  emptyState,
+  botPickerLabel = 'Test bot',
+  inputPlaceholder,
+  sendLabel,
+  className,
+}: ChatbotTesterProps): JSX.Element
+```
+
+#### `ChatbotTesterInput({
+  value,
+  onChange,
+  onSend,
+  loading,
+  placeholder = 'Type a message…',
+  sendLabel = 'Send',
+})`
+
+Message composer + send button.
+
+```typescript
+function ChatbotTesterInput({
+  value,
+  onChange,
+  onSend,
+  loading,
+  placeholder = 'Type a message…',
+  sendLabel = 'Send',
+}: ChatbotTesterInputProps): JSX.Element
+```
+
+#### `ChatbotTesterMessages({
+  messages,
+  loading,
+  emptyState,
+})`
+
+Scrollable transcript pane.
+
+```typescript
+function ChatbotTesterMessages({
+  messages,
+  loading,
+  emptyState,
+}: ChatbotTesterMessagesProps): JSX.Element
 ```
 
 ## Injection Notes

@@ -29,6 +29,40 @@ import { LeaderboardRow } from '@molecule/app-leaderboard-row-react'
 npm install @molecule/app-leaderboard-row-react
 ```
 
+## API
+
+### Functions
+
+#### `LeaderboardRow(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Leaderboard row — rank + avatar + name + score + optional rank-delta
+arrow. Top 3 ranks render a medal in place of the numeric rank.
+
+```typescript
+function LeaderboardRow({
+  rank,
+  name,
+  avatarSrc,
+  score,
+  rankDelta,
+  subtitle,
+  isMe,
+  onClick,
+  className,
+}: LeaderboardRowProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .rank
+- `root0` — .name
+- `root0` — .avatarSrc
+- `root0` — .score
+- `root0` — .rankDelta
+- `root0` — .subtitle
+- `root0` — .isMe
+- `root0` — .onClick
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

@@ -82,6 +82,45 @@ interface ThreadTreeProps {
 }
 ```
 
+### Functions
+
+#### `ThreadTree(props, props, props, props, props, props, props, props)`
+
+Recursive nested-comment tree with per-node collapse / expand,
+depth-based indentation, and reply / upvote slots. Apps own the data;
+the component handles rendering, collapse state, and event dispatch.
+
+Intended for link-aggregator threads (HN-style), blog comments,
+podcast / video comment sections, and AI-conversation transcripts
+with branching replies.
+
+All UI text resolves through `t()` so apps localise via the companion
+`@molecule/app-locales-feature-thread-tree` package. All styling
+resolves through `getClassMap()` — no Tailwind utilities live here.
+
+```typescript
+function ThreadTree({
+  comments,
+  onReply,
+  onUpvote,
+  onCollapse,
+  defaultCollapsedDepth = DEFAULT_COLLAPSED_DEPTH,
+  className,
+  dataMolId,
+}: ThreadTreeProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+- `props` — .comments - Top-level comments (each may carry `children`).
+- `props` — .onReply - Reply-button handler.
+- `props` — .onUpvote - Upvote-button handler.
+- `props` — .onCollapse - Optional handler called on collapse / expand.
+- `props` — .defaultCollapsedDepth - Depth at which nodes auto-collapse (default 4).
+- `props` — .className - Extra classes appended to the outer wrapper.
+- `props` — .dataMolId - `data-mol-id` selector for AI-agent interaction.
+
+**Returns:** The rendered tree element.
+
 ## Injection Notes
 
 ### Requirements

@@ -149,6 +149,35 @@ function computeNps(scores: number[], detractorMax?: number, passiveMax?: number
 
 **Returns:** The {@link NpsResult} with score, totals, and per-score buckets.
 
+#### `NpsDistribution(props)`
+
+Net Promoter Score distribution chart — survey-feedback-tool flagship.
+
+Renders an 11-row horizontal bar chart (one row per score 0..10) with
+detractor / passive / promoter color tiers. Bar widths are scaled
+relative to the tallest bucket so the busiest score always reaches
+100% of the track. Below the bars an optional NPS score line shows
+the computed score (range -100..100) and total response count.
+
+Color tiers and the score line both pull from semantic
+`var(--mol-color-*)` custom properties, so swapping the ClassMap bond
+(Tailwind → Bootstrap → …) re-themes the chart automatically.
+
+```typescript
+function NpsDistribution({
+  scores,
+  showScore = true,
+  detractorMax = 6,
+  passiveMax = 8,
+  className,
+  dataMolId,
+}: NpsDistributionProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered NPS distribution element.
+
 #### `tierFor(score, detractorMax, passiveMax)`
 
 Resolve the tier for a single score given the configured cutoffs.

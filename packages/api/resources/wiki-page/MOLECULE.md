@@ -38,6 +38,8 @@ npm install @molecule/api-resource-wiki-page
 
 #### `WikiPageBreadcrumb`
 
+Breadcrumb entry used when rendering a wiki page's ancestor trail.
+
 ```typescript
 interface WikiPageBreadcrumb {
   id: string
@@ -47,6 +49,8 @@ interface WikiPageBreadcrumb {
 ```
 
 #### `WikiPageRow`
+
+Database row shape for a wiki page record.
 
 ```typescript
 interface WikiPageRow {
@@ -65,6 +69,8 @@ interface WikiPageRow {
 
 #### `WikiSpaceRow`
 
+Database row shape for a wiki space record.
+
 ```typescript
 interface WikiSpaceRow {
   id: string
@@ -78,11 +84,15 @@ interface WikiSpaceRow {
 
 #### `countPagesInSpace(spaceId)`
 
+Count total pages belonging to a given space.
+
 ```typescript
 function countPagesInSpace(spaceId: string): Promise<number>
 ```
 
 #### `createPage(data)`
+
+Create a new wiki page and trigger search indexing.
 
 ```typescript
 function createPage(data: { space_id: string; parent_id?: string | null; slug: string; title: string; body?: string; position?: number; is_published?: boolean; }): Promise<WikiPageRow>
@@ -90,11 +100,15 @@ function createPage(data: { space_id: string; parent_id?: string | null; slug: s
 
 #### `createWikiPageRouter()`
 
+Creates and returns the Express router with all wiki-page CRUD routes.
+
 ```typescript
 function createWikiPageRouter(): Router
 ```
 
 #### `deletePage(pageId)`
+
+Recursively delete a wiki page and all its children.
 
 ```typescript
 function deletePage(pageId: string): Promise<boolean>
@@ -118,11 +132,15 @@ function getBreadcrumbs(pageId: string, maxDepth?: number): Promise<WikiPageBrea
 
 #### `getPageById(pageId)`
 
+Fetch a single wiki page by its primary-key ID.
+
 ```typescript
 function getPageById(pageId: string): Promise<WikiPageRow | null>
 ```
 
 #### `getPageBySlug(spaceId, slug)`
+
+Fetch a single wiki page by its space and URL slug.
 
 ```typescript
 function getPageBySlug(spaceId: string, slug: string): Promise<WikiPageRow | null>
@@ -130,17 +148,23 @@ function getPageBySlug(spaceId: string, slug: string): Promise<WikiPageRow | nul
 
 #### `listPagesInSpace(spaceId, opts?)`
 
+List pages in a space, optionally filtered by parent and publish status.
+
 ```typescript
 function listPagesInSpace(spaceId: string, opts?: { parent_id?: string | null; is_published?: boolean; }): Promise<WikiPageRow[]>
 ```
 
 #### `slugify(input)`
 
+Converts an arbitrary string into a URL-safe lowercase slug.
+
 ```typescript
 function slugify(input: string): string
 ```
 
 #### `updatePage(pageId, patch)`
+
+Apply a partial patch to a wiki page and re-index it in search.
 
 ```typescript
 function updatePage(pageId: string, patch: Partial<WikiPageRow>): Promise<WikiPageRow | null>
@@ -150,11 +174,15 @@ function updatePage(pageId: string, patch: Partial<WikiPageRow>): Promise<WikiPa
 
 #### `slugRegex`
 
+Regex that matches a valid wiki-page slug: lowercase alphanumeric with interior hyphens.
+
 ```typescript
 const slugRegex: RegExp
 ```
 
 #### `wikiPageCreateSchema`
+
+Zod schema for validating wiki-page creation payloads.
 
 ```typescript
 const wikiPageCreateSchema: z.ZodObject<{ space_id: z.ZodString; parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; slug: z.ZodOptional<z.ZodString>; title: z.ZodString; body: z.ZodOptional<z.ZodString>; position: z.ZodOptional<z.ZodNumber>; is_published: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
@@ -162,11 +190,15 @@ const wikiPageCreateSchema: z.ZodObject<{ space_id: z.ZodString; parent_id: z.Zo
 
 #### `wikiPageQuerySchema`
 
+Zod schema for validating wiki-page list/query parameters.
+
 ```typescript
 const wikiPageQuerySchema: z.ZodObject<{ space_id: z.ZodOptional<z.ZodString>; parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; is_published: z.ZodOptional<z.ZodCoercedBoolean<unknown>>; q: z.ZodOptional<z.ZodString>; }, z.core.$strip>
 ```
 
 #### `wikiPageUpdateSchema`
+
+Zod schema for validating wiki-page update payloads.
 
 ```typescript
 const wikiPageUpdateSchema: z.ZodObject<{ parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; slug: z.ZodOptional<z.ZodString>; title: z.ZodOptional<z.ZodString>; body: z.ZodOptional<z.ZodString>; position: z.ZodOptional<z.ZodNumber>; is_published: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>

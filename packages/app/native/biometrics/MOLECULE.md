@@ -278,6 +278,7 @@ function setProvider(provider: BiometricsProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+- `@molecule/app-logger` ^1.0.0
 
 ## Translations
 

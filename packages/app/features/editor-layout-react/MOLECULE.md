@@ -26,6 +26,39 @@ import { EditorLayout } from '@molecule/app-editor-layout-react'
 npm install @molecule/app-editor-layout-react
 ```
 
+## API
+
+### Functions
+
+#### `EditorLayout(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Three-region editor scaffold: sticky top bar + main canvas + optional
+collapsible side panel.
+
+Used by blog post editors, product-listing editors, chatbot flow
+editors, design canvases, etc.
+
+```typescript
+function EditorLayout({
+  topBar,
+  canvas,
+  sidePanel,
+  sidePanelPosition = 'right',
+  sidePanelOpen = true,
+  className,
+  dataMolId,
+}: EditorLayoutProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .topBar
+- `root0` — .canvas
+- `root0` — .sidePanel
+- `root0` — .sidePanelPosition
+- `root0` — .sidePanelOpen
+- `root0` — .className
+- `root0` — .dataMolId
+
 ## Injection Notes
 
 ### Requirements

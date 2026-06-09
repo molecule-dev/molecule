@@ -29,6 +29,45 @@ import { DetailHeader } from '@molecule/app-detail-header-react'
 npm install @molecule/app-detail-header-react
 ```
 
+## API
+
+### Functions
+
+#### `DetailHeader(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Header row for a detail page — leading slot + title/subtitle + status +
+actions, with optional meta row and search slot.
+
+Different from `<PageHeader>` (used at the top of list/index pages)
+in prioritising status + search + stickiness.
+
+```typescript
+function DetailHeader({
+  title,
+  subtitle,
+  leading,
+  status,
+  actions,
+  meta,
+  search,
+  sticky,
+  className,
+  dataMolId,
+}: DetailHeaderProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .title
+- `root0` — .subtitle
+- `root0` — .leading
+- `root0` — .status
+- `root0` — .actions
+- `root0` — .meta
+- `root0` — .search
+- `root0` — .sticky
+- `root0` — .className
+- `root0` — .dataMolId
+
 ## Injection Notes
 
 ### Requirements

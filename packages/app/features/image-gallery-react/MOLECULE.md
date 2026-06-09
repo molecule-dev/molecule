@@ -31,6 +31,36 @@ const images = [
 npm install @molecule/app-image-gallery-react
 ```
 
+## API
+
+### Functions
+
+#### `ImageGallery(root0, root0, root0, root0, root0, root0, root0)`
+
+Main image + thumbnail grid gallery. Controlled-optional: when
+`selectedIndex` is omitted the component tracks its own selection.
+
+Used for product images, property listings, portfolio galleries.
+
+```typescript
+function ImageGallery({
+  images,
+  selectedIndex,
+  onSelect,
+  maxThumbnails = 4,
+  alts,
+  className,
+}: ImageGalleryProps): JSX.Element | null
+```
+
+- `root0` — *
+- `root0` — .images
+- `root0` — .selectedIndex
+- `root0` — .onSelect
+- `root0` — .maxThumbnails
+- `root0` — .alts
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

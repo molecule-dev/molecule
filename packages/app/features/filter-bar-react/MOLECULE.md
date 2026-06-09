@@ -42,6 +42,8 @@ npm install @molecule/app-filter-bar-react
 
 #### `FilterFieldBase`
 
+Common properties shared by every filter field variant.
+
 ```typescript
 interface FilterFieldBase {
   /** Unique field id — used as the state key. */
@@ -55,6 +57,8 @@ interface FilterFieldBase {
 
 #### `FilterFieldDateRange`
 
+A date-range filter field with optional from/to bounds.
+
 ```typescript
 interface FilterFieldDateRange extends FilterFieldBase {
   type: 'date-range'
@@ -62,6 +66,8 @@ interface FilterFieldDateRange extends FilterFieldBase {
 ```
 
 #### `FilterFieldMulti`
+
+A multi-select filter field allowing multiple chosen values.
 
 ```typescript
 interface FilterFieldMulti extends FilterFieldBase {
@@ -72,6 +78,8 @@ interface FilterFieldMulti extends FilterFieldBase {
 
 #### `FilterFieldSelect`
 
+A single-value dropdown select filter field.
+
 ```typescript
 interface FilterFieldSelect extends FilterFieldBase {
   type: 'select'
@@ -80,6 +88,8 @@ interface FilterFieldSelect extends FilterFieldBase {
 ```
 
 #### `FilterFieldText`
+
+A free-text input filter field.
 
 ```typescript
 interface FilterFieldText extends FilterFieldBase {
@@ -90,6 +100,8 @@ interface FilterFieldText extends FilterFieldBase {
 ### Types
 
 #### `FilterField`
+
+Discriminated union of all supported filter field types.
 
 ```typescript
 type FilterField =
@@ -109,6 +121,35 @@ type FilterValues = Record<
   string | string[] | { from?: string; to?: string } | undefined
 >
 ```
+
+### Functions
+
+#### `FilterBar(root0, root0, root0, root0, root0, root0, root0)`
+
+Data-driven filter bar. Renders one control per field in `fields`,
+emits a full updated values map on each change so parents can store
+filters in URL params, zustand, etc. Multi-select uses a comma-joined
+`<Input>` fallback since multi-select UI isn't in the primitives yet.
+
+```typescript
+function FilterBar({
+  fields,
+  values,
+  onChange,
+  onClear,
+  actions,
+  showLabels = false,
+  className,
+}: FilterBarProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .fields
+- `root0` — .values
+- `root0` — .onChange
+- `root0` — .onClear
+- `root0` — .actions
+- `root0` — .className
 
 ## Injection Notes
 

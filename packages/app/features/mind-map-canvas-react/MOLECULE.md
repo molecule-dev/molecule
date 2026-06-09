@@ -71,6 +71,46 @@ interface LayoutOptions {
 }
 ```
 
+#### `MindMapCanvasProps`
+
+`<MindMapCanvas>` props.
+
+```typescript
+interface MindMapCanvasProps {
+  /**
+   * Root of the mind-map tree. The canvas is fully-controlled when
+   * `onChange` is supplied; otherwise the component manages its own
+   * mirror via `useState`.
+   */
+  root: MindMapNode
+  /**
+   * Optional change callback. When provided, the canvas runs in
+   * controlled mode — every fold/edit/add-child mutation calls
+   * `onChange(nextRoot)` and the parent decides whether to commit.
+   */
+  onChange?: (next: MindMapNode) => void
+  /** Layout strategy. Defaults to `'radial'`. */
+  layout?: MindMapLayout
+  /** Width of the surface in CSS pixels. Defaults to `800`. */
+  width?: number
+  /** Height of the surface in CSS pixels. Defaults to `600`. */
+  height?: number
+  /** Node width in canvas units. Defaults to {@link DEFAULT_NODE_WIDTH}. */
+  nodeWidth?: number
+  /** Node height in canvas units. Defaults to {@link DEFAULT_NODE_HEIGHT}. */
+  nodeHeight?: number
+  /** Fired when a node is clicked (single click, no drag). */
+  onNodeClick?: (node: MindMapNode) => void
+  /**
+   * Fired when a node's text is committed via inline edit. Receives the
+   * node id and the new text. Useful for analytics / autosave.
+   */
+  onNodeEdit?: (id: string, text: string) => void
+  /** Extra classes merged onto the outer wrapper. */
+  className?: string
+}
+```
+
 #### `MindMapLayoutResult`
 
 Result of a layout computation: a flat map of `nodeId` → canvas-space
@@ -191,6 +231,37 @@ function findNode(root: MindMapNode, id: string): MindMapNode | null
 - `id` — Id of the node to locate.
 
 **Returns:** The node, or `null` if no node has that id.
+
+#### `MindMapCanvas(props)`
+
+Mind-map canvas — a thin domain wrapper over
+`@molecule/app-feature-canvas-react`. Composes `<CanvasSurface>` for
+pan/zoom, `<CanvasNode>` for each tree node, and `<CanvasEdge
+kind="bezier">` for parent → child links. Domain-specific behavior
+lives here, not in the base:
+
+- **Auto-layout** — radial / horizontal / vertical positions are
+  computed from the tree shape via the pure helpers in `./layout.js`.
+- **Fold / unfold** — the +/- toggle on a non-leaf node flips
+  `collapsed`, hiding (or revealing) the entire subtree.
+- **Inline edit** — double-click any node body to enter an inline
+  `<input>`; commit on Enter / blur, cancel on Escape.
+- **Add child** — the `+` button on every node appends a new child
+  ("New idea") and auto-expands the parent.
+
+Pan / zoom is owned by `<CanvasSurface>`; this wrapper never
+re-implements those mechanics.
+
+Style is driven by `getClassMap()`. Inline styles are reserved for
+canvas-space geometry and the optional accent border.
+
+```typescript
+function MindMapCanvas(props: MindMapCanvasProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The mind-map canvas element.
 
 #### `removeNode(root, id)`
 

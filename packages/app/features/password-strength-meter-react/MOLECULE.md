@@ -84,6 +84,30 @@ interface PasswordScoreResult {
 }
 ```
 
+#### `PasswordStrengthMeterProps`
+
+Props accepted by {@link PasswordStrengthMeter}.
+
+```typescript
+interface PasswordStrengthMeterProps {
+  /** Password value to score (controlled by the parent form). */
+  password: string
+  /**
+   * Fires whenever the score changes — used by signup forms to gate
+   * the submit button on `score >= minScore`.
+   */
+  onScore?: (score: PasswordScore) => void
+  /** Minimum acceptable score for surrounding form validation. Default: `2`. */
+  minScore?: PasswordScore
+  /** Whether the textual strength label (e.g. "Strong") is shown. Default: `true`. */
+  showLabel?: boolean
+  /** Whether the optional rule checklist is rendered below the bar. Default: `false`. */
+  showChecklist?: boolean
+  /** Extra classes appended to the outer wrapper. */
+  className?: string
+}
+```
+
 ### Types
 
 #### `PasswordScore`
@@ -97,6 +121,25 @@ type PasswordScore = 0 | 1 | 2 | 3 | 4
 ```
 
 ### Functions
+
+#### `PasswordStrengthMeter(props)`
+
+Real-time password strength meter.
+
+Renders a 5-segment colored bar (red → green) plus an optional textual
+label and rule checklist. Scoring is performed by an in-package
+lightweight scorer (no zxcvbn dependency). All UI text flows through
+`t()` so locale bonds can override translations; all styling flows
+through `getClassMap()` so the meter restyles via the wired ClassMap
+bond. Colors come from molecule's `--mol-color-*` design tokens.
+
+```typescript
+function PasswordStrengthMeter(props: PasswordStrengthMeterProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — {@link PasswordStrengthMeterProps}.
+
+**Returns:** The rendered meter element tree.
 
 #### `scorePassword(password)`
 

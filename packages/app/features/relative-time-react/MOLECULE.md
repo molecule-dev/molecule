@@ -33,12 +33,40 @@ npm install @molecule/app-relative-time-react
 
 #### `formatRelativeTime(input, now, locale)`
 
+Formats a date, timestamp, or epoch number as a human-readable relative time
+string (e.g. "5 minutes ago", "in 3 days") using {@link Intl.RelativeTimeFormat}.
+
 ```typescript
 function formatRelativeTime(input: string | number | Date, now?: number | Date, locale?: string): string
 ```
 
 - `input` — *
 - `now` — *
+
+#### `RelativeTime(root0, root0, root0, root0, root0, root0)`
+
+Live-updating relative time display ("5 minutes ago"). Re-computes on
+a timer so the text stays accurate as the user leaves the page open.
+
+Pass `refreshMs={0}` for a one-shot render (cheaper in long lists;
+the parent can provide a single ticker).
+
+```typescript
+function RelativeTime({
+  date,
+  locale,
+  refreshMs = 60_000,
+  titleLocale,
+  className,
+}: RelativeTimeProps): React.JSX.Element
+```
+
+- `root0` — *
+- `root0` — .date
+- `root0` — .locale
+- `root0` — .refreshMs
+- `root0` — .titleLocale
+- `root0` — .className
 
 ## Injection Notes
 

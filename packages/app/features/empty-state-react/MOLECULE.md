@@ -41,6 +41,72 @@ import { EmptyState, CtaCard } from '@molecule/app-empty-state-react'
 npm install @molecule/app-empty-state-react
 ```
 
+## API
+
+### Functions
+
+#### `CtaCard(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+A "soft sell" card used to promote a next-step action inside a page
+body (e.g., "Connect your bank", "Invite teammates").
+
+Differs from `<EmptyState>` in being positioned in a list of cards
+rather than filling the void. Supports a horizontal layout with the
+media slot beside the text.
+
+```typescript
+function CtaCard({
+  eyebrow,
+  title,
+  description,
+  action,
+  media,
+  layout = 'vertical',
+  dataMolId,
+  className,
+}: CtaCardProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .eyebrow
+- `root0` — .title
+- `root0` — .description
+- `root0` — .action
+- `root0` — .media
+- `root0` — .layout
+- `root0` — .dataMolId
+- `root0` — .className
+
+#### `EmptyState(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Generic centred empty-state panel for lists, feeds, boards, and tables.
+
+Renders a vertical stack of [icon, title, description, action]. Typography
+and spacing come from the wired ClassMap; per-app accent chrome (dashed
+borders, tinted backgrounds, gradient CTAs) is passed via `className`
+on the outer element.
+
+```typescript
+function EmptyState({
+  icon,
+  title,
+  description,
+  action,
+  dataMolId,
+  className,
+  iconWrapperClassName,
+}: EmptyStateProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .icon
+- `root0` — .title
+- `root0` — .description
+- `root0` — .action
+- `root0` — .dataMolId
+- `root0` — .className
+- `root0` — .iconWrapperClassName
+
 ## Injection Notes
 
 ### Requirements

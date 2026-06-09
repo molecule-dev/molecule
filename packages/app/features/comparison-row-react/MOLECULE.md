@@ -26,6 +26,37 @@ import { ComparisonRow } from '@molecule/app-comparison-row-react'
 npm install @molecule/app-comparison-row-react
 ```
 
+## API
+
+### Functions
+
+#### `ComparisonRow(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Period-over-period stat comparison row — current value, optional
+previous value, and a coloured delta% chip. Used in dashboards,
+report summaries, finance overviews.
+
+```typescript
+function ComparisonRow({
+  label,
+  current,
+  previous,
+  deltaPct,
+  formatDelta,
+  periodLabel,
+  className,
+}: ComparisonRowProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .label
+- `root0` — .current
+- `root0` — .previous
+- `root0` — .deltaPct
+- `root0` — .formatDelta
+- `root0` — .periodLabel
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

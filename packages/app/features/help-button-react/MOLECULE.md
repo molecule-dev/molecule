@@ -30,6 +30,41 @@ import { HelpButton } from '@molecule/app-help-button-react'
 npm install @molecule/app-help-button-react
 ```
 
+## API
+
+### Functions
+
+#### `HelpButton(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Floating (or inline) help button — opens a support panel, chat
+widget, or docs. Default icon is "?" but apps can swap in their own.
+
+Use `position="inline"` inside other UI to drop the fixed
+positioning and render as a normal in-flow button.
+
+```typescript
+function HelpButton({
+  icon,
+  label,
+  onClick,
+  href,
+  size = 'md',
+  position = 'bottom-right',
+  hasNotification,
+  className,
+}: HelpButtonProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .icon
+- `root0` — .label
+- `root0` — .onClick
+- `root0` — .href
+- `root0` — .size
+- `root0` — .position
+- `root0` — .hasNotification
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

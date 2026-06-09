@@ -31,6 +31,60 @@ import { PricingTable } from '@molecule/app-pricing-table-react'
 npm install @molecule/app-pricing-table-react
 ```
 
+## API
+
+### Interfaces
+
+#### `PricingFeature`
+
+Describes a single feature row and its per-plan values in the pricing table.
+
+```typescript
+interface PricingFeature {
+  /** Row label. */
+  label: ReactNode
+  /** Per-plan-id values: `true` / `false` / a string / a node. */
+  values: Record<string, boolean | string | ReactNode>
+  /** Optional category / group heading rendered above this row. */
+  groupHeading?: ReactNode
+}
+```
+
+#### `PricingPlan`
+
+Describes a single plan column in the pricing table.
+
+```typescript
+interface PricingPlan {
+  id: string
+  name: ReactNode
+  description?: ReactNode
+  price: ReactNode
+  interval?: ReactNode
+  /** CTA renders as primary button on this column. */
+  cta?: { label: ReactNode; onClick?: () => void; href?: string }
+  /** Visually emphasise as recommended / featured. */
+  recommended?: boolean
+}
+```
+
+### Functions
+
+#### `PricingTable(root0, root0, root0, root0)`
+
+Side-by-side pricing comparison — features × plans matrix. Sticky
+header row holds plan names, prices, and CTAs; following rows show
+per-feature availability.
+
+```typescript
+function PricingTable({ plans, features, className }: PricingTableProps): ReactNode
+```
+
+- `root0` — *
+- `root0` — .plans
+- `root0` — .features
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

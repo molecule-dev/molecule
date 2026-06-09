@@ -194,7 +194,7 @@ The router is NOT mounted under any prefix — callers wire it via
 `app.use('/billing', createBillingRoutes(...))`.
 
 ```typescript
-function createBillingRoutes(options: BillingRoutesOptions<TLimits>): Router
+function createBillingRoutes(options: BillingRoutesOptions<TLimits>): ExpressRouter
 ```
 
 - `options` — Tier accessors plus optional provider/auth overrides.

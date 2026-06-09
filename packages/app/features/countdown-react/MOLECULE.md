@@ -35,6 +35,8 @@ npm install @molecule/app-countdown-react
 
 #### `CountdownState`
 
+Snapshot of time remaining until a target date.
+
 ```typescript
 interface CountdownState {
   /** Days remaining. */
@@ -53,6 +55,32 @@ interface CountdownState {
 ```
 
 ### Functions
+
+#### `Countdown(root0, root0, root0, root0, root0, root0)`
+
+Live countdown display with three default formats:
+- `'compact'` — `3d 4h 12m 5s` (skips zero leading units)
+- `'long'` — `3 days 4 hours 12 minutes 5 seconds`
+- `'colon'` — `03:04:12:05`
+
+Pass `render` for full control over markup.
+
+```typescript
+function Countdown({
+  target,
+  format = 'compact',
+  render,
+  expired,
+  className,
+}: CountdownProps): ReactNode
+```
+
+- `root0` — *
+- `root0` — .target
+- `root0` — .format
+- `root0` — .render
+- `root0` — .expired
+- `root0` — .className
 
 #### `useCountdown(target, tickMs)`
 

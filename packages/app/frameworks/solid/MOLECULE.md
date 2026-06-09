@@ -1941,6 +1941,18 @@ function getThemeProvider(): ThemeProvider
 
 **Returns:** The theme provider instance.
 
+#### `MoleculeProvider(props)`
+
+MoleculeProvider component that provides all molecule services to the component tree.
+
+```typescript
+function MoleculeProvider(props: ParentProps<{ config: MoleculeConfig; }>): JSX.Element
+```
+
+- `props` — Component props containing the molecule config.
+
+**Returns:** The nested provider tree wrapping children.
+
 #### `useComponentLogger(componentName)`
 
 Create a component logger that includes component name in context.

@@ -28,6 +28,44 @@ import { JobListingRow } from '@molecule/app-job-listing-row-react'
 npm install @molecule/app-job-listing-row-react
 ```
 
+## API
+
+### Functions
+
+#### `JobListingRow(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Job-board row — title + company + location + type + salary + posted
+date with optional tags and right-side actions.
+
+```typescript
+function JobListingRow({
+  title,
+  company,
+  location,
+  type,
+  salary,
+  postedAt,
+  leading,
+  actions,
+  tags,
+  onClick,
+  className,
+}: JobListingRowProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .title
+- `root0` — .company
+- `root0` — .location
+- `root0` — .type
+- `root0` — .salary
+- `root0` — .postedAt
+- `root0` — .leading
+- `root0` — .actions
+- `root0` — .tags
+- `root0` — .onClick
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

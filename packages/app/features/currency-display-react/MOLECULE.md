@@ -37,6 +37,39 @@ npm install @molecule/app-currency-display-react
 
 ### Functions
 
+#### `CurrencyDisplay(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Display a monetary amount with optional original price (strikethrough)
+and a "saved X%" chip. Uses `Intl.NumberFormat` under the hood.
+
+Use the `formatCurrency` / `formatCurrencyCompact` utilities directly
+when you just need a string without rendering chrome.
+
+```typescript
+function CurrencyDisplay({
+  amount,
+  originalAmount,
+  currency = 'USD',
+  locale,
+  size = 'md',
+  compact,
+  showSavings = true,
+  savingsLabel,
+  className,
+}: CurrencyDisplayProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .amount
+- `root0` — .originalAmount
+- `root0` — .currency
+- `root0` — .locale
+- `root0` — .size
+- `root0` — .compact
+- `root0` — .showSavings
+- `root0` — .savingsLabel
+- `root0` — .className
+
 #### `formatCurrency(amount, currency, locale)`
 
 Formats a numeric amount as currency using `Intl.NumberFormat`.

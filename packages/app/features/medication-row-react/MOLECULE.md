@@ -29,6 +29,44 @@ import { MedicationRow } from '@molecule/app-medication-row-react'
 npm install @molecule/app-medication-row-react
 ```
 
+## API
+
+### Functions
+
+#### `MedicationRow(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Medication record row — drug name, dosage/form, instructions,
+prescriber, supply countdown, refills remaining. Used in
+medication-reminder, patient-facing health portals, pharmacy
+dashboards.
+
+```typescript
+function MedicationRow({
+  name,
+  dosage,
+  form,
+  color,
+  instructions,
+  prescriber,
+  supplyDays,
+  refills,
+  actions,
+  className,
+}: MedicationRowProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .name
+- `root0` — .dosage
+- `root0` — .form
+- `root0` — .color
+- `root0` — .instructions
+- `root0` — .prescriber
+- `root0` — .supplyDays
+- `root0` — .refills
+- `root0` — .actions
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

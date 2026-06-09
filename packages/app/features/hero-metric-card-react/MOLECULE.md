@@ -122,6 +122,66 @@ Direction of a hero-metric trend chip.
 type HeroMetricTrendDirection = 'up' | 'down'
 ```
 
+### Functions
+
+#### `HeroMetricCard(props)`
+
+Top-of-dashboard hero metric card.
+
+Replaces the bespoke `*HeroCard` components found across flagship
+dashboards (CalorieRingCard, TodayHeroCard, MoodHeroCard,
+SleepScoreHeroCard, PetSnapshotHero, NextAppointmentCard,
+WorkoutHeroCard, VitalsHeroCard, …) with a single composable
+primitive.
+
+Layout: large value left (with optional unit + trend chip + subtitle),
+`progressRing` or `icon` slot to the right.
+
+Styling is fully delegated to `getClassMap()`; the only inline style
+is the optional colored top-border accent, which the molecule design
+system explicitly permits.
+
+```typescript
+function HeroMetricCard({
+  title,
+  value,
+  unit,
+  trend,
+  subtitle,
+  progressRing,
+  icon,
+  accent,
+  onClick,
+  loading = false,
+  className,
+  dataMolId,
+}: HeroMetricCardProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered hero metric card element.
+
+#### `HeroMetricTrendChip(props)`
+
+Compact trend indicator rendered below the hero value.
+
+Shows a directional arrow (▲ / ▼) followed by the caller-provided
+delta string. The arrow's `aria-label` is localized via
+`@molecule/app-i18n` so screen readers announce "Trending up" or
+"Trending down" rather than the bare glyph.
+
+```typescript
+function HeroMetricTrendChip({
+  trend,
+  className,
+}: HeroMetricTrendChipProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered trend chip element.
+
 ## Injection Notes
 
 ### Requirements

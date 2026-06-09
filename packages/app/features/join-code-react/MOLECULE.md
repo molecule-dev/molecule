@@ -91,6 +91,36 @@ Alphabet a join code may use.
 type JoinCodeAlphabet = 'numeric' | 'letters' | 'alphanumeric'
 ```
 
+### Functions
+
+#### `JoinCode(props)`
+
+Multi-slot join-code input. Renders one single-character `<input>` per slot
+with auto-advance focus, backspace-to-previous, and paste-to-fill behaviour.
+
+- **Controlled** when `value` is provided; the parent must update it via
+  `onChange`. The displayed code is clamped to `length` characters.
+- **Uncontrolled** otherwise; `defaultValue` seeds the initial state.
+
+Calls `onComplete(code)` once the code reaches `length` characters and every
+character matches `alphabet`. The fire is suppressed while `autoSubmit`
+is `false`.
+
+All user-visible text (label, slot aria-labels) flows through `t()` so
+apps can localise via the companion `@molecule/app-locales-join-code`
+bond.
+
+Styling is delegated to `getClassMap()` — no Tailwind utility strings live
+in this package.
+
+```typescript
+function JoinCode(props: JoinCodeProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — See `JoinCodeProps`.
+
+**Returns:** The rendered join-code input.
+
 ## Injection Notes
 
 ### Requirements

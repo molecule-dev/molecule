@@ -39,6 +39,71 @@ import { WeatherCard } from '@molecule/app-weather-card-react'
 npm install @molecule/app-weather-card-react
 ```
 
+## API
+
+### Interfaces
+
+#### `WeatherTracePoint`
+
+A single hour's temperature measurement in the 24h sparkline trace.
+
+```typescript
+interface WeatherTracePoint {
+  hour: string
+  temperature: number
+}
+```
+
+### Types
+
+#### `WeatherAlertLevel`
+
+Severity level for a weather alert badge.
+
+```typescript
+type WeatherAlertLevel = 'watch' | 'warning' | 'emergency'
+```
+
+### Functions
+
+#### `WeatherCard({
+  locationName,
+  region,
+  temperature,
+  condition,
+  conditionIcon = 'partly_cloudy_day',
+  alertLevel,
+  alertLabel,
+  updatedLabel,
+  unit = '°F',
+  eyebrow,
+  trace,
+  feelsLikeLabel,
+  highLowLabel,
+  className,
+})`
+
+Atmospheric current-conditions hero.
+
+```typescript
+function WeatherCard({
+  locationName,
+  region,
+  temperature,
+  condition,
+  conditionIcon = 'partly_cloudy_day',
+  alertLevel,
+  alertLabel,
+  updatedLabel,
+  unit = '°F',
+  eyebrow,
+  trace,
+  feelsLikeLabel,
+  highLowLabel,
+  className,
+}: WeatherCardProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
 ## Injection Notes
 
 ### Requirements

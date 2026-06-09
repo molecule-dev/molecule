@@ -39,6 +39,8 @@ npm install @molecule/api-ai-quiz-generation
 
 #### `GradedResponse`
 
+AI-graded result for a single student response, including correctness, score, and feedback.
+
 ```typescript
 interface GradedResponse {
   question_id: string
@@ -51,6 +53,8 @@ interface GradedResponse {
 
 #### `GradeResult`
 
+Aggregated grading outcome for a full set of student responses.
+
 ```typescript
 interface GradeResult {
   responses: GradedResponse[]
@@ -61,6 +65,8 @@ interface GradeResult {
 ```
 
 #### `Question`
+
+A single quiz question with prompt, answer, and optional metadata.
 
 ```typescript
 interface Question {
@@ -79,6 +85,8 @@ interface Question {
 
 #### `Quiz`
 
+A generated quiz containing an ordered list of questions and an optional source summary.
+
 ```typescript
 interface Quiz {
   questions: Question[]
@@ -90,11 +98,15 @@ interface Quiz {
 
 #### `Difficulty`
 
+Relative difficulty level for a question or generated quiz.
+
 ```typescript
 type Difficulty = 'easy' | 'medium' | 'hard'
 ```
 
 #### `QuestionType`
+
+Union of supported quiz question formats.
 
 ```typescript
 type QuestionType = 'multiple_choice' | 'true_false' | 'short_answer' | 'fill_in_the_blank'
@@ -104,11 +116,15 @@ type QuestionType = 'multiple_choice' | 'true_false' | 'short_answer' | 'fill_in
 
 #### `generateQuiz(opts)`
 
+Generates a quiz from source material using the bonded AI provider, returning structured questions.
+
 ```typescript
 function generateQuiz(opts: { source: string; questionCount?: number; types?: QuestionType[]; difficulty?: Difficulty; model?: string; }): Promise<Quiz>
 ```
 
 #### `gradeResponses(opts)`
+
+Grades a set of student responses against the quiz answer key using the bonded AI provider.
 
 ```typescript
 function gradeResponses(opts: { quiz: Quiz; responses: Array<{ question_id: string; submitted: string; }>; model?: string; }): Promise<GradeResult>

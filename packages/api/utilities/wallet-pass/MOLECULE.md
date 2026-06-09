@@ -398,9 +398,7 @@ The handler stays decoupled from the storage layer (DataStore, files,
 cache, etc.) by accepting the resolver as a closure.
 
 ```typescript
-type ApplePassResolver = (
-  passId: string,
-) => Promise<
+type ApplePassResolver = (passId: string) => Promise<
   | {
       passData: ApplePassData
       certificates: ApplePassCertificates
@@ -416,12 +414,7 @@ Apple Wallet pass-style discriminator. Drives the visual layout of the
 pass on-device.
 
 ```typescript
-type ApplePassStyle =
-  | 'boardingPass'
-  | 'coupon'
-  | 'eventTicket'
-  | 'generic'
-  | 'storeCard'
+type ApplePassStyle = 'boardingPass' | 'coupon' | 'eventTicket' | 'generic' | 'storeCard'
 ```
 
 #### `GoogleWalletPassResolver`
@@ -430,9 +423,7 @@ Resolver that loads Google Wallet pass class + object + signing service
 account for a given passId.
 
 ```typescript
-type GoogleWalletPassResolver = (
-  passId: string,
-) => Promise<
+type GoogleWalletPassResolver = (passId: string) => Promise<
   | {
       passClass: GoogleWalletClass
       passObject: GoogleWalletObject

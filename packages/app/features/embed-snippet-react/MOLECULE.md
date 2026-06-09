@@ -141,6 +141,26 @@ function coerceDimension(value: string | number | null | undefined): string
 
 **Returns:** A string ready for substitution.
 
+#### `EmbedSnippet(props)`
+
+`<EmbedSnippet>` — the "Copy embed code" panel.
+
+Renders a substituted snippet inside a `<pre>` element, a copy-to-clipboard
+button with "Copied!" feedback, and (optionally) inline width / height /
+theme controls bound to `values` + `onChange`.
+
+All styling resolves through `getClassMap()` and all user-facing text
+resolves through `useTranslation()` — no hardcoded UI strings or
+styling-library class names.
+
+```typescript
+function EmbedSnippet(props: EmbedSnippetProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — {@link EmbedSnippetProps}.
+
+**Returns:** The rendered embed-snippet panel.
+
 #### `substituteTemplate(template, values)`
 
 Substitute `{{width}}`, `{{height}}`, `{{theme}}` (case-sensitive,

@@ -30,6 +30,39 @@ const [range, setRange] = useState<[number, number]>([50, 500])
 npm install @molecule/app-price-range-slider-react
 ```
 
+## API
+
+### Functions
+
+#### `PriceRangeSlider(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Dual-handle numeric range slider using two native `<input type="range">`
+controls. Apps supply min/max/step and a `formatValue` to render the
+endpoint labels (typical use: currency-formatted prices).
+
+```typescript
+function PriceRangeSlider({
+  min,
+  max,
+  value,
+  onChange,
+  step = 1,
+  formatValue,
+  label,
+  className,
+}: PriceRangeSliderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .min
+- `root0` — .max
+- `root0` — .value
+- `root0` — .onChange
+- `root0` — .step
+- `root0` — .formatValue
+- `root0` — .label
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

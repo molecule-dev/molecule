@@ -29,6 +29,42 @@ import { VendorCard } from '@molecule/app-vendor-card-react'
 npm install @molecule/app-vendor-card-react
 ```
 
+## API
+
+### Functions
+
+#### `VendorCard(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Vendor / seller / agent profile card. Used in marketplaces, agent
+directories, multi-tenant catalogs.
+
+```typescript
+function VendorCard({
+  name,
+  logoSrc,
+  description,
+  rating,
+  reviewCount,
+  memberSince,
+  badges,
+  actions,
+  onClick,
+  className,
+}: VendorCardProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .name
+- `root0` — .logoSrc
+- `root0` — .description
+- `root0` — .rating
+- `root0` — .reviewCount
+- `root0` — .memberSince
+- `root0` — .badges
+- `root0` — .actions
+- `root0` — .onClick
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

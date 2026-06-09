@@ -128,6 +128,43 @@ interface CanvasEngineHandle {
 }
 ```
 
+#### `CanvasEngineProps`
+
+`<CanvasEngine>` props.
+
+```typescript
+interface CanvasEngineProps {
+  /** Document to render. Treated as controlled when `onChange` is set. */
+  document: CanvasDocument
+  /**
+   * Called whenever the engine mutates the document (drag, align,
+   * group, undo, redo). Required for controlled mode; absent in
+   * uncontrolled mode.
+   */
+  onChange?: (next: CanvasDocument) => void
+  /** Currently-selected element ids. Treated as controlled when `onSelectionChange` is set. */
+  selection?: CanvasSelection
+  /** Notified whenever the selection set changes. */
+  onSelectionChange?: (next: CanvasSelection) => void
+  /** Snap newly-positioned elements to the nearest grid line. Defaults to `true`. */
+  snapToGrid?: boolean
+  /** Grid spacing in canvas units (visual + snap target). Defaults to `8`. */
+  gridSize?: number
+  /** Width of the surface in CSS pixels. Defaults to `document.width`. */
+  width?: number
+  /** Height of the surface in CSS pixels. Defaults to `document.height`. */
+  height?: number
+  /** Whether to draw the snap grid. Defaults to `true` when snap on. */
+  showGrid?: boolean
+  /** Optional aria-label override (defaults to a translated label). */
+  ariaLabel?: string
+  /** Maximum number of undo entries kept. Defaults to 100. */
+  historyLimit?: number
+  /** Extra classes merged onto the outer surface. */
+  className?: string
+}
+```
+
 #### `HistoryEntry`
 
 Snapshot of the editor state used by the history stack.
@@ -149,6 +186,19 @@ interface VectorElementBase extends VectorStyle {
   id: VectorElementId
   /** Optional transform around the element centre. */
   transform?: VectorTransform
+}
+```
+
+#### `VectorElementSvgProps`
+
+`<VectorElementSvg>` props.
+
+```typescript
+interface VectorElementSvgProps {
+  /** Element to draw. */
+  element: VectorElement
+  /** Whether the element is currently selected (drives `data-selected`). */
+  selected?: boolean
 }
 ```
 
@@ -533,7 +583,30 @@ function unionBounds(a: Bounds, b: Bounds): Bounds
 
 **Returns:** The union rectangle.
 
+#### `VectorElementSvg(props)`
+
+Render a single vector element as SVG. Group children render
+recursively. The element is wrapped in a `<g>` so callers can
+attach data attributes consistently.
+
+```typescript
+function VectorElementSvg(props: VectorElementSvgProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered SVG element.
+
 ### Constants
+
+#### `CanvasEngine`
+
+Vector design-tool canvas engine. Read the module-level docstring
+for the high-level behaviour summary.
+
+```typescript
+const CanvasEngine: ForwardRefExoticComponent<CanvasEngineProps & RefAttributes<CanvasEngineHandle>>
+```
 
 #### `DEFAULT_HISTORY_LIMIT`
 

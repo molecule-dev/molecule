@@ -117,6 +117,78 @@ type EmbeddableChatWidgetPosition = 'bottom-right' | 'bottom-left'
 
 ### Functions
 
+#### `EmbeddableChatLauncher(root0, root0, root0, root0, root0, root0)`
+
+Floating circular launcher rendered in the corner of the host page.
+Click expands the chat panel.
+
+Uses inline-style positioning + sizing because the host page might
+not load the molecule stylesheet — this component is intentionally
+self-sufficient for color and geometry. ClassMap is still used for
+layout primitives that don't conflict with host CSS.
+
+```typescript
+function EmbeddableChatLauncher({
+  visible,
+  onOpen,
+  position,
+  theme,
+  className,
+}: EmbeddableChatLauncherProps): JSX.Element | null
+```
+
+- `root0` — Component props.
+- `root0` — .visible Whether to render.
+- `root0` — .onOpen Open-panel callback.
+- `root0` — .position Floating corner.
+- `root0` — .theme Optional theme.
+- `root0` — .className Extra classes.
+
+#### `EmbeddableChatPanel(root0, root0, root0, root0, root0)`
+
+Expanded chat panel — header + scrollable message list + composer.
+
+State is local — each open conversation lives in `messages`. The widget
+is intentionally storage-agnostic; integrations that want persistence
+should wrap this with their own resume logic.
+
+```typescript
+function EmbeddableChatPanel({
+  visible,
+  onClose,
+  position,
+  config,
+}: EmbeddableChatPanelProps): JSX.Element | null
+```
+
+- `root0` — Component props.
+- `root0` — .visible Render gate.
+- `root0` — .onClose Close-panel callback.
+- `root0` — .position Floating corner.
+- `root0` — .config Widget config.
+
+#### `EmbeddableChatWidget(root0, root0, root0)`
+
+Drop-in floating chat widget for third-party sites. Renders a
+collapsed launcher in the configured corner; clicking expands a
+360x540px panel with a message list, typing indicator, and input.
+
+The widget is intentionally self-contained — all geometry, colors,
+and shadows are inlined so the host site does not need to ship the
+molecule stylesheet. Pair with `@molecule/app-locales-embeddable-chat-widget`
+for translations.
+
+```typescript
+function EmbeddableChatWidget({
+  config,
+  defaultOpen = false,
+}: EmbeddableChatWidgetProps): JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .config Widget configuration.
+- `root0` — .defaultOpen Whether the panel starts expanded.
+
 #### `readChatStream(body, onEvent)`
 
 Reads a fetch Response body and yields normalized stream events. Tolerates

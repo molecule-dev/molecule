@@ -117,6 +117,29 @@ function buildMapLink(latitude: number | undefined, longitude: number | undefine
 **Returns:** An `https://www.openstreetmap.org/?...` URL, or `null` when
  *   either input is missing.
 
+#### `ExifPanel(props)`
+
+Render parsed EXIF metadata as a structured panel — camera, lens,
+exposure (aperture + shutter + ISO + focal length), GPS (with optional
+map link), and capture timestamp.
+
+The component is purely presentational: callers parse the binary EXIF
+payload elsewhere (e.g. via the `exifr` library) and pass the
+normalized {@link ExifPanelProps.exif} object in. Empty / undefined
+fields are silently skipped.
+
+All styling resolves through `getClassMap()` and all user-facing text
+resolves through `useTranslation()` — no hardcoded UI strings or
+styling-library class names.
+
+```typescript
+function ExifPanel(props: ExifPanelProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — {@link ExifPanelProps}.
+
+**Returns:** The rendered panel element.
+
 #### `formatAperture(fNumber)`
 
 Format an aperture f-number as `f/N` with one decimal place dropped

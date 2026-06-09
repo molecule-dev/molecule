@@ -79,4 +79,5 @@ Implements `@molecule/api-webhook` interface.
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-logger` ^1.0.0
 - `@molecule/api-webhook` 1.0.0

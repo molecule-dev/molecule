@@ -66,6 +66,61 @@ Standard loyalty tier rungs.
 type LoyaltyTier = 'bronze' | 'silver' | 'gold' | 'platinum'
 ```
 
+### Functions
+
+#### `computeProgress(points, threshold)`
+
+Compute progress (0–1) toward the next tier given current points + threshold.
+
+```typescript
+function computeProgress(points?: number, threshold?: number): number
+```
+
+- `points` — Current points balance.
+- `threshold` — Points needed to reach the next tier.
+
+**Returns:** Clamped 0–1 progress ratio.
+
+#### `LoyaltyTierBadge(props)`
+
+Loyalty tier badge — renders a colored glyph + tier label + (optional)
+"X / Y to next tier" progress bar. Used by hotel-booking, online-store,
+and travel-booking flagship loyalty programs.
+
+Tier glyph colors fall back to standard metallic accents when no theme
+tokens are wired; pass `tierLabel` / `nextTierLabel` to override the
+translated defaults for branded programs (e.g. "Member" / "Elite").
+
+```typescript
+function LoyaltyTierBadge({
+  tier,
+  points,
+  nextTierThreshold,
+  nextTierLabel,
+  tierLabel,
+  size = 'md',
+  dataMolId,
+  className,
+}: LoyaltyTierBadgeProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered tier badge.
+
+#### `nextTierOf(tier)`
+
+Resolve the next tier name (lowercase) given the current tier. Returns
+`null` when the member is already at the highest tier.
+
+```typescript
+function nextTierOf(tier: LoyaltyTier): LoyaltyTier | null
+```
+
+- `tier` — Current tier.
+
+**Returns:** The next-tier name or `null` if at the top.
+
 ## Injection Notes
 
 ### Requirements

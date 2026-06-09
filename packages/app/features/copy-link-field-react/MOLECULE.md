@@ -25,6 +25,34 @@ import { CopyLinkField } from '@molecule/app-copy-link-field-react'
 npm install @molecule/app-copy-link-field-react
 ```
 
+## API
+
+### Functions
+
+#### `CopyLinkField(root0, root0, root0, root0, root0, root0, root0)`
+
+Read-only input + copy-to-clipboard button. Common in share-link
+panels, API-key cards, webhook URLs.
+
+```typescript
+function CopyLinkField({
+  value,
+  label,
+  onCopy,
+  feedbackMs = 1500,
+  size = 'sm',
+  className,
+}: CopyLinkFieldProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .value
+- `root0` — .label
+- `root0` — .onCopy
+- `root0` — .feedbackMs
+- `root0` — .size
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

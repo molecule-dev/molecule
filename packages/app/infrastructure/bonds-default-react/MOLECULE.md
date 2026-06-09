@@ -41,6 +41,19 @@ npm install @molecule/app-bonds-default-react
 
 ### Functions
 
+#### `bootstrapApp(opts)`
+
+Boot the React app: wire bonds, kick off auth initialization, mount
+`<App />` inside `<StrictMode>` to `#root`, and (optionally) register
+the PWA service worker.
+
+Replaces the 20-line per-app `src/main.tsx` that 97 fleet apps shipped
+byte-identically.
+
+```typescript
+function bootstrapApp(opts: { App: ComponentType; authClient: { initialize: () => Promise<void>; }; setupProviders: () => void; registerPWA?: () => void; }): void
+```
+
 #### `createDefaultAuthClient(authConfig)`
 
 Builds the default JWT auth client + wires it into `@molecule/app-auth`.
@@ -108,6 +121,8 @@ function createDefaultHttpClientWithAuthBearer(opts: { baseURL: string; withCred
 ```
 
 #### `getDefaultThemeProvider()`
+
+Returns (and lazily constructs) the shared default CSS-variables theme provider.
 
 ```typescript
 function getDefaultThemeProvider(): ThemeProvider

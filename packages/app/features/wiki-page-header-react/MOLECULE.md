@@ -29,6 +29,43 @@ import { WikiPageHeader } from '@molecule/app-wiki-page-header-react'
 npm install @molecule/app-wiki-page-header-react
 ```
 
+## API
+
+### Functions
+
+#### `WikiPageHeader(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Wiki / docs / knowledge-base page header — breadcrumb +
+title + meta row (version, updated time/by, tags) + Edit/History
+action buttons.
+
+```typescript
+function WikiPageHeader({
+  title,
+  breadcrumb,
+  version,
+  updatedAt,
+  updatedBy,
+  tags,
+  onEdit,
+  onHistory,
+  extraActions,
+  className,
+}: WikiPageHeaderProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .title
+- `root0` — .breadcrumb
+- `root0` — .version
+- `root0` — .updatedAt
+- `root0` — .updatedBy
+- `root0` — .tags
+- `root0` — .onEdit
+- `root0` — .onHistory
+- `root0` — .extraActions
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

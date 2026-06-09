@@ -32,6 +32,55 @@ const navigate = useNavigate()
 npm install @molecule/app-breadcrumb-react
 ```
 
+## API
+
+### Interfaces
+
+#### `BreadcrumbItem`
+
+Describes a single crumb entry in a breadcrumb trail.
+
+```typescript
+interface BreadcrumbItem {
+  /** Display text or React node for the crumb. */
+  label: ReactNode
+  /**
+   * Optional `to` target. When absent the crumb renders as plain text
+   * (typically the current page).
+   */
+  to?: string
+  /** Optional leading icon. */
+  icon?: ReactNode
+}
+```
+
+### Functions
+
+#### `Breadcrumb(root0, root0, root0, root0, root0, root0)`
+
+Breadcrumb navigation.
+
+Each item before the last is rendered as a link; the last item is
+rendered as plain text (the "current page"). Pass `onNavigate` to
+intercept clicks (e.g. hand off to `useNavigate()` from react-router).
+
+```typescript
+function Breadcrumb({
+  items,
+  onNavigate,
+  separator,
+  className,
+  dataMolId,
+}: BreadcrumbProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .items
+- `root0` — .onNavigate
+- `root0` — .separator
+- `root0` — .className
+- `root0` — .dataMolId
+
 ## Injection Notes
 
 ### Requirements

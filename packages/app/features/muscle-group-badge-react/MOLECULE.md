@@ -78,6 +78,49 @@ Display variant.
 type MuscleGroupBadgeVariant = 'default' | 'compact'
 ```
 
+### Functions
+
+#### `defaultLabelFor(group)`
+
+Default English label for a muscle group, used when no `label` is given
+and the i18n bond doesn't have a translation. Returns the same string
+the `t()` `defaultValue` would surface — exposed for tests and downstream
+consumers that need to label buttons / menus / search filters by group.
+
+```typescript
+function defaultLabelFor(group: MuscleGroup): string
+```
+
+- `group` — The muscle group.
+
+**Returns:** A short, capitalized English label.
+
+#### `MuscleGroupBadge(props)`
+
+Anatomical muscle-group badge — a small body-silhouette glyph with the
+targeted muscle highlighted, plus a translated label. Used by
+workout-tracker exercise-detail pages.
+
+Two variants:
+- `default` — glyph + label side-by-side.
+- `compact` — glyph + label inline, smaller padding (good for chips).
+
+```typescript
+function MuscleGroupBadge({
+  group,
+  label,
+  variant = 'default',
+  size = 'md',
+  accentColor,
+  dataMolId,
+  className,
+}: MuscleGroupBadgeProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered badge element.
+
 ## Injection Notes
 
 ### Requirements

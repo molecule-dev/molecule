@@ -30,6 +30,69 @@ import { StatusBadge, StatusPill } from '@molecule/app-status-badge-react'
 npm install @molecule/app-status-badge-react
 ```
 
+## API
+
+### Types
+
+#### `StatusKind`
+
+Semantic status kind used to select badge color variants.
+
+```typescript
+type StatusKind = 'success' | 'warning' | 'error' | 'info' | 'neutral'
+```
+
+### Functions
+
+#### `StatusBadge(root0, root0, root0, root0, root0, root0)`
+
+Semantic status badge — maps status kinds to ClassMap color variants.
+Use for "Open / Closed / Pending / Archived" row labels, deal stages,
+ticket priorities, etc.
+
+The `appearance` prop selects between the ClassMap-helper variant
+(`'ui'`, default) and the polished-flagship inline pattern
+(`'uppercase-pill'`). Pass `appearance="uppercase-pill"` in dashboard
+tables and list rows to match crm/helpdesk-ticketing/online-store.
+
+```typescript
+function StatusBadge({
+  kind = 'neutral',
+  children,
+  icon,
+  appearance = 'ui',
+  className,
+}: StatusBadgeProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .kind
+- `root0` — .children
+- `root0` — .icon
+- `root0` — .appearance
+- `root0` — .className
+
+#### `StatusPill(root0, root0, root0, root0, root0)`
+
+Rounded status pill with an optional leading colored dot.
+Taller and more visually distinct than `<StatusBadge>` — useful as
+a primary row indicator in tables and cards.
+
+```typescript
+function StatusPill({
+  kind = 'neutral',
+  children,
+  dot = true,
+  className,
+}: StatusPillProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .kind
+- `root0` — .children
+- `root0` — .dot
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

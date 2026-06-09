@@ -34,6 +34,54 @@ import { MessagePreview } from '@molecule/app-message-preview-react'
 npm install @molecule/app-message-preview-react
 ```
 
+## API
+
+### Types
+
+#### `MessagePreviewPresence`
+
+Presence state of the contact shown in the avatar dot.
+
+```typescript
+type MessagePreviewPresence = 'online' | 'away' | 'offline'
+```
+
+### Functions
+
+#### `MessagePreview({
+  name,
+  preview,
+  timestamp,
+  unread = 0,
+  presence,
+  active = false,
+  channelIcon,
+  initials,
+  to,
+  onClick,
+  unreadAriaLabel,
+  className,
+})`
+
+Conversation / thread preview row.
+
+```typescript
+function MessagePreview({
+  name,
+  preview,
+  timestamp,
+  unread = 0,
+  presence,
+  active = false,
+  channelIcon,
+  initials,
+  to,
+  onClick,
+  unreadAriaLabel,
+  className,
+}: MessagePreviewProps): JSX.Element
+```
+
 ## Injection Notes
 
 ### Requirements

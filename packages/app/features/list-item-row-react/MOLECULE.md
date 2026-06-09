@@ -28,6 +28,46 @@ import { ListItemRow } from '@molecule/app-list-item-row-react'
 npm install @molecule/app-list-item-row-react
 ```
 
+## API
+
+### Functions
+
+#### `ListItemRow(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Generic "thumbnail + text + actions" row — used everywhere:
+navigation lists, mobile menus, inbox-style threads, search
+results, picker dialogs, bookmark lists, etc.
+
+Different from `<RowWithActions>` in `@molecule/app-data-table-ui-react`
+in NOT being a `<tr>` — use this for non-table lists.
+
+```typescript
+function ListItemRow({
+  title,
+  subtitle,
+  metadata,
+  leading,
+  actions,
+  onClick,
+  selected,
+  disabled,
+  density = 'comfortable',
+  className,
+}: ListItemRowProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .title
+- `root0` — .subtitle
+- `root0` — .metadata
+- `root0` — .leading
+- `root0` — .actions
+- `root0` — .onClick
+- `root0` — .selected
+- `root0` — .disabled
+- `root0` — .density
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

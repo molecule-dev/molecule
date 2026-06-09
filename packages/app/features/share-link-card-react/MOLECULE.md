@@ -30,6 +30,41 @@ export function SharePanel() {
 npm install @molecule/app-share-link-card-react
 ```
 
+## API
+
+### Functions
+
+#### `ShareLinkCard(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Share-link card — bundles a read-only URL field + copy button, an
+optional QR code slot, and an optional password-protect toggle.
+
+QR rendering is slot-based so apps can bring their own QR library
+(`qrcode.react`, `@molecule/app-qr-code` when it exists, etc.).
+
+```typescript
+function ShareLinkCard({
+  title,
+  description,
+  url,
+  qr,
+  showQR,
+  passwordProtect,
+  className,
+  dataMolId,
+}: ShareLinkCardProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .title
+- `root0` — .description
+- `root0` — .url
+- `root0` — .qr
+- `root0` — .showQR
+- `root0` — .passwordProtect
+- `root0` — .className
+- `root0` — .dataMolId
+
 ## Injection Notes
 
 ### Requirements

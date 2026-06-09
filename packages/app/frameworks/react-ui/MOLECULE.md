@@ -117,6 +117,57 @@ interface AlertProps extends HTMLElementProps {
 }
 ```
 
+#### `AuthGuardProps`
+
+Props for {@link AuthGuard}.
+
+All props are optional — the default behavior (loading tag → redirect
+to `/login` → `<Outlet />`) matches the bare-bones guard apps were
+shipping locally. The props let apps customize per-call without
+forking the component.
+
+```typescript
+interface AuthGuardProps {
+  /**
+   * Element rendered while `useAuth().state.initialized` is `false`.
+   * Overrides the default `<div data-mol-id="auth-guard-loading">…</div>`
+   * loading tag — pass a full-page spinner or any other UI you want
+   * during the auth bootstrap window.
+   */
+  loadingFallback?: ReactNode
+  /**
+   * i18n key used for the default loading-tag text. Defaults to
+   * `'common.loading'`. Ignored when `loadingFallback` is set.
+   */
+  loadingKey?: string
+  /**
+   * Fallback text if the i18n key is missing. Defaults to `'Loading...'`
+   * (the project-canonical ASCII glyph — Phase C of the locale
+   * canonicalization plan). Ignored when `loadingFallback` is set.
+   */
+  loadingDefault?: string
+  /**
+   * Path to redirect to when the user is not authenticated. Defaults to
+   * `'/login'`. The current `useLocation()` is preserved as `state.from`
+   * for post-login restoration.
+   */
+  loginPath?: string
+  /**
+   * Callback invoked when `isAuthenticated` transitions to `true` (or is
+   * already `true` on first render). Useful for one-shot per-app
+   * bootstrap effects (e.g. seeding fixture data). The caller is
+   * responsible for idempotency if the auth state can flip back and
+   * forth — this fires on every transition.
+   */
+  onAuthenticated?: () => void
+  /**
+   * Children to render when authenticated. Defaults to `<Outlet />`,
+   * which is the React Router pattern this guard is designed for.
+   */
+  children?: ReactNode
+}
+```
+
 #### `AvatarProps`
 
 Props for the Avatar component.
@@ -532,6 +583,29 @@ interface HTMLElementProps extends BaseProps {
 }
 ```
 
+#### `IconProps`
+
+Props for {@link Icon}.
+
+Extends `SVGProps<SVGSVGElement>` so callers can pass any SVG / HTML
+attribute the underlying `<svg>` accepts, including `data-mol-id`,
+`aria-*`, `role`, event handlers, `style`, etc. — without the
+component needing to enumerate them.
+
+```typescript
+interface IconProps extends Omit<
+  SVGProps<SVGSVGElement>,
+  'width' | 'height' | 'viewBox' | 'fill'
+> {
+  /** Name of the glyph to look up in the bonded icon set. */
+  name: string
+  /** Width and height of the rendered SVG in pixels. Defaults to 20. */
+  size?: number
+  /** Class name forwarded to the root `<svg>`. */
+  className?: string
+}
+```
+
 #### `InputElementProps`
 
 Base props for input elements.
@@ -601,6 +675,49 @@ interface InputProps extends InputElementProps {
      * @default 'Clear'
      */
     clearLabel?: string;
+}
+```
+
+#### `LanguagePickerProps`
+
+Props for {@link LanguagePicker}.
+
+Extends standard `<button>` attributes so callers can pass any extra
+`data-*`, `aria-*`, event handler, or `style` prop without forking the
+component. The named props let apps customize the trigger label, icon,
+size, and modal heading without spreading attribute concerns.
+
+```typescript
+interface LanguagePickerProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'aria-label' | 'onClick' | 'type' | 'children'
+> {
+  /** i18n key for the trigger button label / aria-label. Defaults to `'footer.language'`. */
+  labelKey?: string
+  /** Fallback label if the i18n key is missing. Defaults to `'Language'`. */
+  labelDefault?: string
+  /** i18n key for the modal title. Defaults to `'languagePicker.modalTitle'`. */
+  modalTitleKey?: string
+  /** Fallback modal title if the i18n key is missing. Defaults to `'Choose language'`. */
+  modalTitleDefault?: string
+  /** Icon glyph to render before the current locale name. Defaults to `'globe'`. */
+  icon?: string
+  /** Pixel size for the rendered icon. Defaults to `16`. */
+  iconSize?: number
+  /**
+   * What to render inside the trigger button.
+   *
+   * - `'name'` — globe icon + current locale's native name (e.g. `🌐 English`).
+   *   This is the default; matches the molecule-dev footer pattern.
+   * - `'code'` — globe icon + lowercase locale code (e.g. `🌐 en`). Useful in
+   *   tight chrome where the long native name (e.g. "Bahasa Indonesia") would wrap.
+   * - `'icon'` — globe icon only. Useful in icon-bar headers.
+   */
+  display?: 'name' | 'code' | 'icon'
+  /** Optional className appended to the trigger button. */
+  className?: string
+  /** Optional render override: receives `{ open }` and replaces the default trigger. */
+  renderTrigger?: (open: () => void) => ReactNode
 }
 ```
 
@@ -711,6 +828,62 @@ interface PaginationProps extends BaseProps {
         last?: string;
         goToPage?: (page: number) => string;
     };
+}
+```
+
+#### `PanelCloseProviderProps`
+
+Props for {@link PanelCloseProvider}.
+
+```typescript
+interface PanelCloseProviderProps {
+  /** Callback that dismisses the enclosing drawer/modal. */
+  close: () => void
+  /** Panel content that may call {@link usePanelClose}. */
+  children: ReactNode
+}
+```
+
+#### `ProgressProps`
+
+Props for the Progress component.
+
+```typescript
+interface ProgressProps extends BaseProps {
+  /**
+   * Progress value (0-100).
+   */
+  value: number
+
+  /**
+   * Maximum value.
+   */
+  max?: number
+
+  /**
+   * Progress size.
+   */
+  size?: Size
+
+  /**
+   * Progress color.
+   */
+  color?: ColorVariant
+
+  /**
+   * Whether to show the value label.
+   */
+  showValue?: boolean
+
+  /**
+   * Accessible label.
+   */
+  label?: string
+
+  /**
+   * Whether the progress is indeterminate.
+   */
+  indeterminate?: boolean
 }
 ```
 
@@ -853,6 +1026,70 @@ interface SelectProps<T = string> extends SelectElementProps {
      * Whether to allow clearing the selection.
      */
     clearable?: boolean;
+}
+```
+
+#### `SeparatorProps`
+
+Props for the Separator component.
+
+```typescript
+interface SeparatorProps extends BaseProps {
+  /**
+   * Orientation of the separator.
+   */
+  orientation?: 'horizontal' | 'vertical'
+
+  /**
+   * Decorative separators are purely visual.
+   */
+  decorative?: boolean
+}
+```
+
+#### `SidebarUserCardProps`
+
+Props for the {@link SidebarUserCard} component.
+
+Extends standard `<button>` attributes so callers can pass extra
+`data-*`, `aria-*`, `style`, or event handler props onto the trigger
+button without forking. The named props below cover the common
+customization points.
+
+```typescript
+interface SidebarUserCardProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'aria-label' | 'onClick' | 'children'
+> {
+  /**
+   * Panel content shown inside the drawer/modal (typically the app's
+   * `SettingsPanel`). It can dismiss the drawer by calling
+   * `usePanelClose()` — no `onClose` prop-threading required.
+   */
+  children: ReactNode
+  /**
+   * Display name override. When omitted, falls back to
+   * `useAuth().user?.name`, then `email`, then a guest label.
+   */
+  name?: string
+  /**
+   * Secondary line under the name (role, plan, status, etc.).
+   * Apps typically pass something like `t('sidebar.memberStatus', {}, { defaultValue: 'Premium Member' })`.
+   * When omitted and the auth user has an email, the email is shown instead.
+   */
+  secondaryLine?: string
+  /** Optional avatar image URL — overrides `useAuth().user?.avatarUrl`. */
+  avatarUrl?: string
+  /** i18n key for the trigger button's aria-label. Default: `'sidebarUserCard.open'`. */
+  ariaLabelKey?: string
+  /** Fallback aria-label if the i18n key is missing. Default: `'Open account menu'`. */
+  ariaLabelDefault?: string
+  /**
+   * `data-mol-id` for the trigger button. Defaults to
+   * `'sidebar-user-card'`. Pass a different value (e.g. `'user-menu'`)
+   * to disambiguate or align with an app's existing e2e selectors.
+   */
+  dataMolId?: string
 }
 ```
 
@@ -1167,6 +1404,33 @@ interface TextareaProps extends TextareaElementProps {
 }
 ```
 
+#### `ThemeToggleProps`
+
+Props for {@link ThemeToggle}.
+
+Extends standard `<button>` attributes so callers can pass any extra
+`data-*`, `aria-*`, event handler, or `style` prop without forking the
+component. The handful of explicitly named props below let apps swap
+the icon glyphs, label, or size without spreading attribute concerns.
+
+```typescript
+interface ThemeToggleProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'aria-label' | 'aria-pressed' | 'onClick' | 'type'
+> {
+  /** i18n key for the `aria-label`. Defaults to `'theme.toggle'`. */
+  ariaLabelKey?: string
+  /** Fallback `aria-label` if the i18n key is missing. Defaults to `'Toggle theme'`. */
+  ariaLabelDefault?: string
+  /** Icon name to render in dark mode. Defaults to `'moon'`. */
+  darkIcon?: string
+  /** Icon name to render in light mode. Defaults to `'sun'`. */
+  lightIcon?: string
+  /** Pixel size for the rendered icon. Defaults to `20`. */
+  iconSize?: number
+}
+```
+
 #### `ToastProps`
 
 Props for the Toast/notification component.
@@ -1239,6 +1503,127 @@ interface TooltipProps extends HTMLElementProps {
      * Whether the tooltip has an arrow.
      */
     hasArrow?: boolean;
+}
+```
+
+#### `UserMenuPopoverPanelProps`
+
+Props for {@link UserMenuPopoverPanel}.
+
+```typescript
+interface UserMenuPopoverPanelProps {
+  /**
+   * Panel body — typically a set of `<Link>` nav items and a
+   * `<UserMenuPopoverSignOut />`. Rendered inside a `<nav>` below the
+   * built-in identity header.
+   */
+  children: ReactNode
+  /** Extra className composed onto the absolute-positioned panel. */
+  className?: string
+  /** i18n key for the panel's aria-label. Default: `'userMenu.panelLabel'`. */
+  ariaLabelKey?: string
+  /** Fallback aria-label if the i18n key is missing. Default: `'Account menu'`. */
+  ariaLabelDefault?: string
+  /** `data-mol-id` for the panel. Default: `'user-menu-panel'`. */
+  dataMolId?: string
+}
+```
+
+#### `UserMenuPopoverProps`
+
+Props for {@link UserMenuPopover}.
+
+```typescript
+interface UserMenuPopoverProps {
+  /**
+   * The trigger and panel — typically `<UserMenuPopoverTrigger />` and
+   * `<UserMenuPopoverPanel>`.
+   */
+  children: ReactNode
+  /**
+   * Label shown when there is no authenticated user. Defaults to the
+   * `userMenuPopover.guest` translation (English fallback `"Account"`).
+   */
+  guestName?: string
+  /** Extra className composed onto the relative-positioned container. */
+  className?: string
+}
+```
+
+#### `UserMenuPopoverSignOutProps`
+
+Props for {@link UserMenuPopoverSignOut}.
+
+```typescript
+interface UserMenuPopoverSignOutProps {
+  /** i18n key for the button label. Default: `'userMenu.signOut'`. */
+  labelKey?: string
+  /** Fallback label if the i18n key is missing. Default: `'Sign out'`. */
+  labelDefault?: string
+  /** `data-mol-id` for the button. Default: `'user-menu-sign-out'`. */
+  dataMolId?: string
+  /** Extra className composed onto the button. */
+  className?: string
+}
+```
+
+#### `UserMenuPopoverTriggerProps`
+
+Props for {@link UserMenuPopoverTrigger}.
+
+```typescript
+interface UserMenuPopoverTriggerProps {
+  /** i18n key for the trigger's aria-label. Default: `'userMenu.open'`. */
+  ariaLabelKey?: string
+  /** Fallback aria-label if the i18n key is missing. Default: `'Open user menu'`. */
+  ariaLabelDefault?: string
+  /** `data-mol-id` for the trigger button. Default: `'user-menu'`. */
+  dataMolId?: string
+  /** Extra className composed onto the trigger button. */
+  className?: string
+}
+```
+
+#### `UserMenuProps`
+
+Props for {@link UserMenu}.
+
+The inner trigger is a Molecule `<Button>` whose own prop set
+conflicts with raw `ButtonHTMLAttributes` (color, value, size enums),
+so this component exposes a curated set of customization points
+instead of extending HTML attributes. For one-off extra attributes,
+pass them via `dataMolId` / `className` / `style` props.
+
+```typescript
+interface UserMenuProps {
+  /**
+   * Panel content shown inside the drawer/modal (typically the app's
+   * `SettingsPanel`). It can dismiss the drawer by calling
+   * `usePanelClose()` — no `onClose` prop-threading required.
+   */
+  children: ReactNode
+  /**
+   * i18n key for the trigger button's aria-label. Defaults to
+   * `'userMenu.open'`. Apps whose existing locales use a different key
+   * (e.g. `'userMenu.openButton'`) can override.
+   */
+  ariaLabelKey?: string
+  /** Fallback aria-label if the i18n key is missing. Defaults to `"Open user menu"`. */
+  ariaLabelDefault?: string
+  /** Icon name for the trigger button. Defaults to `'user'`. */
+  triggerIcon?: string
+  /** Pixel size for the trigger icon. Defaults to 20. */
+  triggerIconSize?: number
+  /**
+   * `data-mol-id` for the trigger button. Defaults to `'user-menu'`.
+   * Pass an explicit value to disambiguate when the same page mounts
+   * more than one UserMenu.
+   */
+  dataMolId?: string
+  /** Extra className composed onto the trigger button. */
+  className?: string
+  /** Whether the trigger button is disabled. */
+  disabled?: boolean
 }
 ```
 
@@ -1351,6 +1736,34 @@ type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top
 
 ### Functions
 
+#### `AuthGuard(props)`
+
+Route-element guard for authenticated sections of a React Router tree.
+
+- While `useAuth().state.initialized` is `false`, renders the
+  `loadingFallback` (or the default `<div data-mol-id="auth-guard-loading">{t('common.loading')}</div>`).
+- If the user is not authenticated, redirects to `loginPath` carrying
+  the attempted location in `state.from` for post-login restoration.
+- Otherwise renders `children` (or `<Outlet />` if none).
+
+The default loading tag carries `data-mol-id="auth-guard-loading"`
+so AI agents and e2e tests can target it reliably. When the caller
+passes a custom `loadingFallback`, it's the caller's responsibility
+to include any data-mol-id they need.
+
+```typescript
+function AuthGuard({
+  loadingFallback,
+  loadingKey = 'common.loading',
+  loadingDefault = 'Loading...',
+  loginPath = '/login',
+  onAuthenticated,
+  children,
+}?: AuthGuardProps): ReactNode
+```
+
+- `props` — {@link AuthGuardProps}
+
 #### `cn(inputs)`
 
 Merge class name strings, filtering out falsy values (undefined, null, false).
@@ -1362,6 +1775,699 @@ function cn(inputs?: (string | false | null | undefined)[]): string
 - `inputs` — Class name strings or falsy values to be filtered out.
 
 **Returns:** A single space-separated class string.
+
+#### `Icon(props)`
+
+Renders an SVG glyph looked up by `name` from the bonded
+`@molecule/app-icons` set.
+
+Handles two icon-data shapes returned by the bond:
+  1. Pre-rendered SVG markup (`icon.svg`) — injected via
+     `dangerouslySetInnerHTML`. The bond is the trust boundary; only
+     bond a set that controls its own SVG strings.
+  2. Structured paths (`icon.paths`) — rendered as discrete `<path>`
+     children, with optional stroke styling forwarded from the icon set.
+
+Any extra HTML/SVG attribute (e.g. `data-mol-id`, `aria-label`,
+`role="img"`, `onClick`) is forwarded to the root `<svg>` via spread.
+
+```typescript
+function Icon({ name, size = 20, className, ...rest }: IconProps): React.JSX.Element
+```
+
+- `props` — {@link IconProps}
+
+**Returns:** An `<svg>` element rendering the named glyph.
+
+#### `LanguagePicker(props)`
+
+Globe-icon button that opens a modal grid of every locale registered
+with the bonded i18n provider. Clicking a locale calls `setLocale`
+and closes the modal.
+
+Reads `locale`, `setLocale`, and `locales` from {@link useTranslation},
+so the list of choices stays in sync with whatever set the
+`setupI18nDefault` (or any other i18n setup) registered. No hardcoded
+language list — adding a locale to the i18n bond adds it to the picker.
+
+Molecule-convention defaults baked in:
+
+- `data-mol-id="language-picker-trigger"` on the trigger button
+- `data-mol-id="language-picker-modal"` on the modal dialog
+- `data-mol-id="language-picker-option-<code>"` on each locale button
+- `data-active` on the currently-selected locale button
+- `aria-label` from the `footer.language` i18n key (default `"Language"`)
+
+```typescript
+function LanguagePicker({
+  labelKey = 'footer.language',
+  labelDefault = 'Language',
+  modalTitleKey = 'languagePicker.modalTitle',
+  modalTitleDefault = 'Choose language',
+  icon = 'globe',
+  iconSize = 16,
+  display = 'name',
+  className,
+  renderTrigger,
+  ...rest
+}?: LanguagePickerProps): JSX.Element
+```
+
+- `props` — {@link LanguagePickerProps}
+
+#### `PanelCloseProvider(props)`
+
+Provides the panel-close callback to descendants. Rendered internally
+by `UserMenu` and `SidebarUserCard` around their `children`; apps do
+not normally render this directly.
+
+```typescript
+function PanelCloseProvider({ close, children }: PanelCloseProviderProps): JSX.Element
+```
+
+- `props` — The close callback and the panel content.
+
+**Returns:** The children wrapped in the close-context provider.
+
+#### `SidebarUserCard({
+  children,
+  name,
+  secondaryLine,
+  avatarUrl,
+  ariaLabelKey = 'sidebarUserCard.open',
+  ariaLabelDefault = 'Open account menu',
+  dataMolId = 'sidebar-user-card',
+  className,
+  ...rest
+})`
+
+Sidebar-resident user-account card: avatar + name + status line, opens
+the app's settings drawer on click.
+
+Drop-in replacement for `<UserMenu />` when the trigger lives inside a
+vertical sidebar (e.g. as the `userMenu` slot of `<SidebarLayout>`).
+Reads name/email/avatar from `useAuth()` by default; pass explicit
+`name` / `secondaryLine` / `avatarUrl` props to override.
+
+Ships with `data-mol-id="sidebar-user-card"` on the trigger button
+by default for AI-agent / e2e selection. Callers can override by
+passing `data-mol-id` as an extra prop.
+
+```typescript
+function SidebarUserCard({
+  children,
+  name,
+  secondaryLine,
+  avatarUrl,
+  ariaLabelKey = 'sidebarUserCard.open',
+  ariaLabelDefault = 'Open account menu',
+  dataMolId = 'sidebar-user-card',
+  className,
+  ...rest
+}: SidebarUserCardProps): JSX.Element
+```
+
+#### `ThemeToggle(props)`
+
+Button that flips the wired theme bond between light and dark.
+
+Reads `mode` and `toggleTheme` from `useTheme()` and shows the
+configured dark/light icon accordingly. Ships with molecule
+conventions out of the box:
+
+- `data-mol-id="theme-toggle"` for AI-agent / e2e selection
+- `data-mode={mode}` so tests can assert current state via DOM
+- `aria-pressed={mode === 'dark'}` for screen-reader state
+- `aria-label` from the `theme.toggle` i18n key (default `"Toggle theme"`)
+
+Every per-app variant the fleet was carrying — extra `data-*` attrs,
+additional `aria-*` flags, custom event handlers — is now absorbed
+via the spread of unknown props. Apps that need different icons or
+label text use the named props.
+
+```typescript
+function ThemeToggle({
+  ariaLabelKey = 'theme.toggle',
+  ariaLabelDefault = 'Toggle theme',
+  darkIcon = 'moon',
+  lightIcon = 'sun',
+  iconSize = 20,
+  className,
+  ...rest
+}?: ThemeToggleProps): JSX.Element
+```
+
+- `props` — {@link ThemeToggleProps}
+
+#### `ToastProvider(root0, root0, root0)`
+
+Provider component that manages global toast state.
+
+```typescript
+function ToastProvider({
+  children,
+  position = 'bottom-right',
+}: ToastProviderProps): React.JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .children - The child elements to render within the provider.
+- `root0` — .position - The default position for toasts.
+
+**Returns:** The rendered provider with toast container.
+
+#### `usePanelClose()`
+
+Returns the callback that dismisses the drawer the current panel is
+mounted in. Safe to call anywhere — returns a no-op when no enclosing
+`UserMenu` / `SidebarUserCard` provides one (e.g. a `SettingsPanel`
+rendered as a standalone page).
+
+```typescript
+function usePanelClose(): () => void
+```
+
+**Returns:** A function that closes the enclosing drawer, or a no-op.
+
+#### `UserMenu({
+  children,
+  ariaLabelKey = 'userMenu.open',
+  ariaLabelDefault = 'Open user menu',
+  triggerIcon = 'user',
+  triggerIconSize = 20,
+  dataMolId = 'user-menu',
+  className,
+  disabled,
+})`
+
+Avatar-style trigger that opens the app's settings panel in a drawer.
+
+The panel content is passed as `children` so apps can mount their own
+`SettingsPanel` (which diverges per app) inside the shared drawer
+chrome. Panel content dismisses the drawer via `usePanelClose()`.
+
+Ships with `data-mol-id="user-menu"` on the trigger button by
+default for AI-agent / e2e selection.
+
+```typescript
+function UserMenu({
+  children,
+  ariaLabelKey = 'userMenu.open',
+  ariaLabelDefault = 'Open user menu',
+  triggerIcon = 'user',
+  triggerIconSize = 20,
+  dataMolId = 'user-menu',
+  className,
+  disabled,
+}: UserMenuProps): JSX.Element
+```
+
+#### `UserMenuPopover(props)`
+
+Container for the inline popover account menu. Owns the open state and
+the auto-dismiss behaviour (route change, `popstate`, outside click,
+`Escape`), and provides the resolved account identity to its
+sub-components via context.
+
+```typescript
+function UserMenuPopover({
+  children,
+  guestName,
+  className,
+}: UserMenuPopoverProps): React.JSX.Element
+```
+
+- `props` — The popover children, optional guest label, and className.
+
+**Returns:** The relative-positioned popover container.
+
+#### `UserMenuPopoverPanel(props)`
+
+The popover panel: an absolutely-positioned card with a built-in
+identity header (name + email) and a `<nav>` wrapping the caller's nav
+items. Renders nothing while the popover is closed.
+
+Provides only the structural concerns (absolute positioning above the
+trigger, `rounded-xl` border frame, the header/nav layout). Cosmetic
+choices — width, background, padding, shadow — are per-app: pass them
+via `className`. `cn()` concatenates (it does not tailwind-merge), so
+the panel never bakes a width/background the caller would have to
+fight.
+
+```typescript
+function UserMenuPopoverPanel({
+  children,
+  className,
+  ariaLabelKey = 'userMenu.panelLabel',
+  ariaLabelDefault = 'Account menu',
+  dataMolId = 'user-menu-panel',
+}: UserMenuPopoverPanelProps): React.JSX.Element | null
+```
+
+- `props` — The nav children, className, and aria-label overrides.
+
+**Returns:** The popover panel, or `null` when closed.
+
+#### `UserMenuPopoverSignOut(props)`
+
+The sign-out nav item — closes the popover and calls `auth.logout()`.
+Drop it in as the last child of `<UserMenuPopoverPanel>`.
+
+```typescript
+function UserMenuPopoverSignOut({
+  labelKey = 'userMenu.signOut',
+  labelDefault = 'Sign out',
+  dataMolId = 'user-menu-sign-out',
+  className,
+}: UserMenuPopoverSignOutProps): React.JSX.Element
+```
+
+- `props` — Label overrides, `data-mol-id`, and className.
+
+**Returns:** The sign-out button.
+
+#### `UserMenuPopoverTrigger(props)`
+
+The trigger button: an initials avatar plus the account name and email,
+styled as a full-width sidebar card. Toggles the popover panel.
+
+```typescript
+function UserMenuPopoverTrigger({
+  ariaLabelKey = 'userMenu.open',
+  ariaLabelDefault = 'Open user menu',
+  dataMolId = 'user-menu',
+  className,
+}: UserMenuPopoverTriggerProps): React.JSX.Element
+```
+
+- `props` — aria-label overrides, `data-mol-id`, and className.
+
+**Returns:** The popover trigger button.
+
+#### `useToast()`
+
+Hook to access the toast context for adding and removing toasts.
+
+```typescript
+function useToast(): ToastContextValue
+```
+
+**Returns:** The toast context value with toast management methods.
+
+#### `useUserMenuPopoverClose()`
+
+Returns a callback that closes the enclosing `UserMenuPopover`. Useful
+for nav-item `onClick` handlers that should dismiss the popover even
+when they don't change the route. Returns a no-op when called outside
+a `UserMenuPopover`.
+
+```typescript
+function useUserMenuPopoverClose(): () => void
+```
+
+**Returns:** A function that closes the popover.
+
+### Constants
+
+#### `Accordion`
+
+Accordion component.
+
+```typescript
+const Accordion: React.ForwardRefExoticComponent<AccordionProps<string> & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Alert`
+
+Alert component.
+
+```typescript
+const Alert: React.ForwardRefExoticComponent<AlertProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Avatar`
+
+Avatar component.
+
+```typescript
+const Avatar: React.ForwardRefExoticComponent<AvatarProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Badge`
+
+Badge component.
+
+```typescript
+const Badge: React.ForwardRefExoticComponent<BadgeProps & React.RefAttributes<HTMLSpanElement>>
+```
+
+#### `Button`
+
+Button component.
+
+```typescript
+const Button: React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLButtonElement>>
+```
+
+#### `Card`
+
+Card component.
+
+```typescript
+const Card: React.ForwardRefExoticComponent<CardProps & { 'data-mol-id'?: string; } & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `CardContent`
+
+Card content component.
+
+```typescript
+const CardContent: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `CardDescription`
+
+Card description component.
+
+```typescript
+const CardDescription: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLParagraphElement> & React.RefAttributes<HTMLParagraphElement>>
+```
+
+#### `CardFooter`
+
+Card footer component.
+
+```typescript
+const CardFooter: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `CardHeader`
+
+Card header component.
+
+```typescript
+const CardHeader: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `CardTitle`
+
+Card title component.
+
+```typescript
+const CardTitle: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLHeadingElement> & React.RefAttributes<HTMLHeadingElement>>
+```
+
+#### `Checkbox`
+
+Checkbox component.
+
+```typescript
+const Checkbox: React.ForwardRefExoticComponent<CheckboxProps & React.RefAttributes<HTMLInputElement>>
+```
+
+#### `Container`
+
+Container component.
+
+```typescript
+const Container: React.ForwardRefExoticComponent<ContainerProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Dropdown`
+
+Dropdown component.
+
+```typescript
+const Dropdown: React.ForwardRefExoticComponent<DropdownProps<string> & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `DropdownLabel`
+
+Dropdown label for grouping items.
+
+```typescript
+const DropdownLabel: React.ForwardRefExoticComponent<{ children: React.ReactNode; className?: string; } & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `DropdownSeparator`
+
+Dropdown separator for dividing groups.
+
+```typescript
+const DropdownSeparator: React.ForwardRefExoticComponent<{ className?: string; } & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `EmptyState`
+
+EmptyState component.
+
+Displays a centered placeholder with an optional icon, title, description,
+and a primary action when a list or section has no content.
+
+```typescript
+const EmptyState: React.ForwardRefExoticComponent<EmptyStateProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Flex`
+
+Flex container component.
+
+```typescript
+const Flex: React.ForwardRefExoticComponent<FlexProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `FloatingInput`
+
+An input with a floating label.
+
+Shows the placeholder text as a small uppercase label always visible at
+the top of the input. On focus the label turns primary-colored.
+
+Works as both a controlled and an uncontrolled input: when `value` is
+omitted, the component tracks its own state seeded from `defaultValue`
+and still forwards every `onChange` event to the caller.
+
+```typescript
+const FloatingInput: ForwardRefExoticComponent<FloatingInputProps & RefAttributes<HTMLInputElement>>
+```
+
+#### `Form`
+
+Form component.
+
+```typescript
+const Form: React.ForwardRefExoticComponent<FormProps & React.RefAttributes<HTMLFormElement>>
+```
+
+#### `FormField`
+
+Form field wrapper component.
+
+```typescript
+const FormField: React.ForwardRefExoticComponent<FormFieldProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Grid`
+
+Grid container component.
+
+```typescript
+const Grid: React.ForwardRefExoticComponent<GridProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Input`
+
+Input component.
+
+```typescript
+const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<HTMLInputElement>>
+```
+
+#### `Label`
+
+Label component.
+
+```typescript
+const Label: React.ForwardRefExoticComponent<React.LabelHTMLAttributes<HTMLLabelElement> & { required?: boolean; } & React.RefAttributes<HTMLLabelElement>>
+```
+
+#### `Modal`
+
+Modal component.
+
+Renders into a `document.body` portal. Forwards any extra `data-*` or
+`aria-*` props on the rest spread to the inner dialog `<div>` (e.g.
+callers commonly pass `data-mol-id="some-modal"` for AI-agent / e2e
+selectors).
+
+The internal close button always carries `data-mol-id="modal-close"`
+as the molecule-convention default for the one fixed interactive
+element inside the chrome.
+
+```typescript
+const Modal: React.ForwardRefExoticComponent<ModalProps & { 'data-mol-id'?: string; } & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `PageHeader`
+
+PageHeader component.
+
+Renders a page title with optional breadcrumb trail, description, and
+action buttons for a consistent page heading area.
+
+```typescript
+const PageHeader: React.ForwardRefExoticComponent<PageHeaderProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `PageShell`
+
+PageShell component.
+
+Provides the top-level layout for authenticated pages with an optional
+collapsible sidebar, a top bar, and a scrollable main content area.
+
+```typescript
+const PageShell: React.ForwardRefExoticComponent<PageShellProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Pagination`
+
+Pagination component.
+
+```typescript
+const Pagination: React.ForwardRefExoticComponent<PaginationProps & React.RefAttributes<HTMLElement>>
+```
+
+#### `Progress`
+
+Progress component.
+
+```typescript
+const Progress: React.ForwardRefExoticComponent<ProgressProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `RadioGroup`
+
+RadioGroup component.
+
+```typescript
+const RadioGroup: React.ForwardRefExoticComponent<RadioGroupProps<string> & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Select`
+
+Select component.
+
+```typescript
+const Select: React.ForwardRefExoticComponent<SelectProps<string> & React.RefAttributes<HTMLSelectElement>>
+```
+
+#### `Separator`
+
+Separator component.
+
+```typescript
+const Separator: React.ForwardRefExoticComponent<SeparatorProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Skeleton`
+
+Skeleton component.
+
+```typescript
+const Skeleton: React.ForwardRefExoticComponent<SkeletonProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `SkeletonCircle`
+
+Skeleton circle (avatar placeholder).
+
+```typescript
+const SkeletonCircle: React.ForwardRefExoticComponent<{ size?: number; className?: string; } & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `SkeletonText`
+
+Skeleton text line.
+
+```typescript
+const SkeletonText: React.ForwardRefExoticComponent<{ lines?: number; className?: string; } & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Spacer`
+
+Spacer component.
+
+```typescript
+const Spacer: React.ForwardRefExoticComponent<SpacerProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Spinner`
+
+Spinner component.
+
+Extracts data-* and aria-* props from the rest spread so callers can
+pass `data-mol-id`, custom `aria-*` overrides, etc. without forking.
+
+```typescript
+const Spinner: React.ForwardRefExoticComponent<SpinnerProps & { 'data-mol-id'?: string; } & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Switch`
+
+Switch component.
+
+```typescript
+const Switch: React.ForwardRefExoticComponent<SwitchProps & React.RefAttributes<HTMLButtonElement>>
+```
+
+#### `Table`
+
+Table component.
+
+```typescript
+const Table: React.ForwardRefExoticComponent<TableProps<Record<string, unknown>> & React.RefAttributes<HTMLTableElement>>
+```
+
+#### `Tabs`
+
+Tabs component.
+
+```typescript
+const Tabs: React.ForwardRefExoticComponent<TabsProps<string> & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Textarea`
+
+Textarea component.
+
+```typescript
+const Textarea: React.ForwardRefExoticComponent<TextareaProps & React.RefAttributes<HTMLTextAreaElement>>
+```
+
+#### `Toast`
+
+Single Toast component.
+
+```typescript
+const Toast: React.ForwardRefExoticComponent<ToastProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `ToastContainer`
+
+Container that positions toasts on screen via a portal.
+
+```typescript
+const ToastContainer: React.ForwardRefExoticComponent<ToastContainerProps & React.RefAttributes<HTMLDivElement>>
+```
+
+#### `Tooltip`
+
+Tooltip component.
+
+```typescript
+const Tooltip: React.ForwardRefExoticComponent<TooltipProps & React.RefAttributes<HTMLDivElement>>
+```
 
 ## Injection Notes
 

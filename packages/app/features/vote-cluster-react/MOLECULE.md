@@ -111,6 +111,40 @@ Allowed vote values:
 type VoteValue = 1 | -1 | 0
 ```
 
+### Functions
+
+#### `VoteCluster(props)`
+
+Reddit/HN-style stacked up-arrow + score + down-arrow cluster.
+
+Renders two arrow buttons with a score readout between them. Click
+semantics follow link-aggregator convention (toggling the same arrow
+clears the vote; clicking the opposite arrow swaps it). The score is
+**not** mutated by the cluster — parents own that calculation and pass
+the new score back via `score` after handling `onVote`.
+
+Styling is delegated entirely to `getClassMap()`. The active arrow is
+painted via a CSS custom property (`--mol-color-*`) — no Tailwind /
+raw class strings escape this component.
+
+```typescript
+function VoteCluster({
+  score,
+  myVote,
+  defaultVote = 0,
+  onVote,
+  disabled,
+  direction = 'vertical',
+  ariaLabel,
+  dataMolId,
+  className,
+}: VoteClusterProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered cluster element.
+
 ## Injection Notes
 
 ### Requirements

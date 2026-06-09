@@ -325,8 +325,6 @@ function verifyStripeSignature(payload: string | Buffer<ArrayBufferLike>, signat
 - `toleranceSeconds` — Allowed clock-drift between hosts.
 - `now` — Current epoch millis (injectable for tests).
 
-**Returns:** Nothing on success.
-
 ### Constants
 
 #### `provider`

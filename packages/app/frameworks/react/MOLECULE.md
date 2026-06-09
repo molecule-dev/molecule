@@ -1266,6 +1266,149 @@ type UseCapacitorAppResult = CapacitorAppState & {
 
 ### Functions
 
+#### `AuthProvider(root0, root0, root0)`
+
+Provider for authentication.
+
+```typescript
+function AuthProvider({
+  client,
+  children,
+}: AuthProviderProps<T>): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .client - The auth client instance.
+- `root0` — .children - The child elements to render.
+
+**Returns:** The rendered auth provider element.
+
+#### `ChatProvider(root0, root0, root0)`
+
+Provider for AI chat.
+
+```typescript
+function ChatProvider({ provider, children }: ChatProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .provider - The chat provider instance.
+- `root0` — .children - The child elements to render.
+
+**Returns:** The rendered chat provider element.
+
+#### `EditorProvider(root0, root0, root0)`
+
+Provider for code editor.
+
+```typescript
+function EditorProvider({ provider, children }: EditorProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .provider - The editor provider instance.
+- `root0` — .children - The child elements to render.
+
+**Returns:** The rendered editor provider element.
+
+#### `HttpProvider(root0, root0, root0)`
+
+Provider for HTTP client.
+
+```typescript
+function HttpProvider({ client, children }: HttpProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .client - The HTTP client instance.
+- `root0` — .children - The child elements to render.
+
+**Returns:** The rendered HTTP provider element.
+
+#### `I18nProvider(root0, root0, root0)`
+
+Provider for internationalization.
+
+```typescript
+function I18nProvider({ provider, children }: I18nProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .provider - The i18n provider instance.
+- `root0` — .children - The child elements to render.
+
+**Returns:** The rendered i18n provider element.
+
+#### `LoggerProvider(root0, root0, root0)`
+
+Provider for logging.
+
+```typescript
+function LoggerProvider({ provider, children }: LoggerProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .provider - The logger provider instance.
+- `root0` — .children - The child elements to render.
+
+**Returns:** The rendered logger provider element.
+
+#### `MoleculeProvider(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Combined provider for all molecule services.
+
+Provides a convenient way to wrap your app with all molecule providers at once.
+Only providers that are passed will be included.
+
+```typescript
+function MoleculeProvider({
+  children,
+  state,
+  auth,
+  theme,
+  router,
+  i18n,
+  http,
+  storage,
+  logger,
+  chat,
+  workspace,
+  editor,
+  preview,
+}: MoleculeProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .children - The child elements to render.
+- `root0` — .state - Optional state provider.
+- `root0` — .auth - Optional auth client.
+- `root0` — .theme - Optional theme provider.
+- `root0` — .router - Optional router instance.
+- `root0` — .i18n - Optional i18n provider.
+- `root0` — .http - Optional HTTP client.
+- `root0` — .storage - Optional storage provider.
+- `root0` — .logger - Optional logger provider.
+- `root0` — .chat - Optional chat provider.
+- `root0` — .workspace - Optional workspace provider.
+- `root0` — .editor - Optional editor provider.
+- `root0` — .preview - Optional preview provider.
+
+**Returns:** The rendered combined provider element.
+
+#### `PreviewProvider(root0, root0, root0)`
+
+Provider for live preview.
+
+```typescript
+function PreviewProvider({ provider, children }: PreviewProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .provider - The preview provider instance.
+- `root0` — .children - The child elements to render.
+
+**Returns:** The rendered preview provider element.
+
 #### `resetAIModelsCache()`
 
 Test-only: drops the cached model list so the next `useAIModels` call
@@ -1284,6 +1427,62 @@ outlive component mounts), so it persists across test cases — reset it in a
 ```typescript
 function resetChatStoresForTests(): void
 ```
+
+#### `RouterProvider(root0, root0, root0)`
+
+Provider for routing.
+
+```typescript
+function RouterProvider({ router, children }: RouterProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .router - The router instance.
+- `root0` — .children - The child elements to render.
+
+**Returns:** The rendered router provider element.
+
+#### `StateProvider(root0, root0, root0)`
+
+Provider for state management.
+
+```typescript
+function StateProvider({ provider, children }: StateProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .provider - The state provider instance.
+- `root0` — .children - The child elements to render.
+
+**Returns:** The rendered state provider element.
+
+#### `StorageProvider(root0, root0, root0)`
+
+Provider for storage.
+
+```typescript
+function StorageProvider({ provider, children }: StorageProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .provider - The storage provider instance.
+- `root0` — .children - The child elements to render.
+
+**Returns:** The rendered storage provider element.
+
+#### `ThemeProvider(root0, root0, root0)`
+
+Provider for theming.
+
+```typescript
+function ThemeProvider({ provider, children }: ThemeProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .provider - The theme provider instance.
+- `root0` — .children - The child elements to render.
+
+**Returns:** The rendered theme provider element.
 
 #### `useAIModels()`
 
@@ -2024,6 +2223,23 @@ function useWorkspaceProvider(): WorkspaceProvider
 ```
 
 **Returns:** The result.
+
+#### `WorkspaceProvider(root0, root0, root0)`
+
+Provider for IDE workspace.
+
+```typescript
+function WorkspaceProvider({
+  provider,
+  children,
+}: WorkspaceProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `root0` — The component props.
+- `root0` — .provider - The workspace provider instance.
+- `root0` — .children - The child elements to render.
+
+**Returns:** The rendered workspace provider element.
 
 ### Constants
 

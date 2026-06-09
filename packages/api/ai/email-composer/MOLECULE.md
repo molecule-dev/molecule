@@ -22,6 +22,8 @@ npm install @molecule/api-ai-email-composer
 
 #### `ComposeOptions`
 
+Options accepted by {@link composeEmail} to control the generated draft.
+
 ```typescript
 interface ComposeOptions {
   /** Plain-English description of what the email should say. */
@@ -43,6 +45,8 @@ interface ComposeOptions {
 
 #### `EmailDraft`
 
+AI-generated email draft returned by {@link composeEmail}.
+
 ```typescript
 interface EmailDraft {
   subject: string
@@ -55,11 +59,15 @@ interface EmailDraft {
 
 #### `EmailLength`
 
+Length preset controlling how many sentences / paragraphs the draft contains.
+
 ```typescript
 type EmailLength = 'short' | 'medium' | 'long'
 ```
 
 #### `EmailTone`
+
+Tone preset controlling the voice and register of the generated email.
 
 ```typescript
 type EmailTone =
@@ -74,6 +82,8 @@ type EmailTone =
 ### Functions
 
 #### `composeEmail(opts)`
+
+Generates an email draft (subject + body) from a plain-English brief using the wired AI provider.
 
 ```typescript
 function composeEmail(opts: ComposeOptions): Promise<EmailDraft>

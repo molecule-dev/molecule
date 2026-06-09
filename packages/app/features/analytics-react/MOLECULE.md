@@ -36,6 +36,24 @@ export function App() {
 npm install @molecule/app-analytics-react
 ```
 
+## API
+
+### Functions
+
+#### `AnalyticsRouteListener()`
+
+Records a `page_view` on client-side route changes.
+
+Mount once inside a `BrowserRouter` subtree. On every pathname /
+search change, dispatches a `page` event through the wired analytics
+bond. Renders nothing.
+
+```typescript
+function AnalyticsRouteListener(): null
+```
+
+**Returns:** Always `null` — this component renders nothing.
+
 ## Injection Notes
 
 ### Requirements

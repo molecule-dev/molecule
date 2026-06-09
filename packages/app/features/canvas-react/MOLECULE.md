@@ -113,6 +113,79 @@ interface CanvasDragInfo {
 }
 ```
 
+#### `CanvasEdgeProps`
+
+`<CanvasEdge>` props.
+
+```typescript
+interface CanvasEdgeProps {
+  /** Edge starting point in canvas-space. */
+  from: Point
+  /** Edge ending point in canvas-space. */
+  to: Point
+  /**
+   * Edge geometry. `'line'` is a straight segment, `'bezier'` is a
+   * cubic with horizontal-first handles, `'orthogonal'` is a
+   * right-angle path that goes horizontal-then-vertical from `from`.
+   * Defaults to `'line'`.
+   */
+  kind?: CanvasEdgeKind
+  /** Stroke width in canvas units. Defaults to `2`. */
+  strokeWidth?: number
+  /** SVG `stroke` attribute (color). Defaults to `'currentColor'`. */
+  stroke?: string
+  /** Optional aria-label override (defaults to a translated label). */
+  ariaLabel?: string
+  /** Extra classes merged onto the wrapper. */
+  className?: string
+}
+```
+
+#### `CanvasNodeProps`
+
+`<CanvasNode>` props.
+
+```typescript
+interface CanvasNodeProps {
+  /** Optional id, surfaced on `data-canvas-node-id` and via `onSelect`. */
+  id?: CanvasItemId
+  /** Canvas-space top-left position of the node. */
+  position: Point
+  /** Optional canvas-space size. If omitted, the node sizes to content. */
+  size?: Size
+  /** Whether the node is currently selected (drives data attributes only). */
+  selected?: boolean
+  /**
+   * Called when the user activates the node (pointerdown that doesn't
+   * become a drag). Receives the node id (if set) and the original
+   * pointer event so consumers can read modifier keys for additive
+   * selection.
+   */
+  onSelect?: (id: CanvasItemId | undefined, e: ReactPointerEvent<HTMLDivElement>) => void
+  /**
+   * Called continuously during a drag gesture. The base does NOT
+   * mutate `position` itself — consumers update their own state from
+   * `info.position` and feed it back through props.
+   *
+   * Drag deltas are computed in CANVAS-space using the surface's
+   * current zoom (read from the parent surface's `data-canvas-zoom`).
+   */
+  onDrag?: (info: CanvasDragInfo) => void
+  /**
+   * Called continuously during a resize gesture from the SE corner.
+   * `info.size` is canvas-space; `info.position` matches the original
+   * top-left (resize-from-SE doesn't shift the origin).
+   */
+  onResize?: (info: CanvasResizeInfo) => void
+  /** Optional aria-label override (defaults to a translated label). */
+  ariaLabel?: string
+  /** Children render inside the node, in canvas-space. */
+  children?: ReactNode
+  /** Extra classes merged onto the wrapper. */
+  className?: string
+}
+```
+
 #### `CanvasResizeInfo`
 
 Resize callback payload for `<CanvasNode>`. `size` is the new
@@ -127,6 +200,58 @@ interface CanvasResizeInfo {
   size: Size
   /** `true` on the final pointer-up of a gesture. */
   end: boolean
+}
+```
+
+#### `CanvasSurfaceProps`
+
+`<CanvasSurface>` props.
+
+```typescript
+interface CanvasSurfaceProps {
+  /**
+   * Controlled viewport. If omitted, the surface manages its own
+   * viewport state via {@link useCanvasViewport}.
+   */
+  viewport?: CanvasViewport
+  /**
+   * Initial viewport (uncontrolled mode only). Ignored when `viewport`
+   * is supplied.
+   */
+  initialViewport?: CanvasViewport
+  /**
+   * Called whenever the viewport changes (pan, zoom, or external set).
+   * Required when `viewport` is supplied (controlled mode).
+   */
+  onViewportChange?: (next: CanvasViewport) => void
+  /** Optional clamping limits applied on every viewport update. */
+  limits?: ViewportLimits
+  /**
+   * Wheel-zoom factor per scroll tick. Multiplied for zoom-in (deltaY < 0)
+   * and divided for zoom-out (deltaY > 0). Defaults to `1.1`.
+   */
+  zoomFactor?: number
+  /**
+   * If `true`, dragging anywhere on the surface pans (children that
+   * stop propagation on pointerdown will still capture their own
+   * gestures — the typical pattern for nodes). Defaults to `true`.
+   */
+  panOnDrag?: boolean
+  /**
+   * Called when an empty-area pointerdown fires. Useful for clearing
+   * selection on background clicks.
+   */
+  onBackgroundPointerDown?: (e: ReactPointerEvent<HTMLDivElement>) => void
+  /** Width of the surface in CSS pixels. */
+  width: number
+  /** Height of the surface in CSS pixels. */
+  height: number
+  /** Optional aria-label override (defaults to a translated label). */
+  ariaLabel?: string
+  /** Children render in canvas-coordinate-space (transformed by viewport). */
+  children?: ReactNode
+  /** Extra classes merged onto the outer wrapper. */
+  className?: string
 }
 ```
 
@@ -257,6 +382,88 @@ type CanvasItemId = string
 ```
 
 ### Functions
+
+#### `buildEdgePath(from, to, kind)`
+
+Build the SVG `path` `d` attribute for one of the supported edge kinds.
+
+```typescript
+function buildEdgePath(from: Point, to: Point, kind: CanvasEdgeKind): string
+```
+
+- `from` — Edge start in canvas-space.
+- `to` — Edge end in canvas-space.
+- `kind` — Edge geometry.
+
+**Returns:** SVG path data.
+
+#### `CanvasEdge(props)`
+
+Generic edge between two canvas-space points. Renders an absolutely-
+positioned SVG that spans the bounding box of the two endpoints (with
+a small overflow margin so curves and bezier handles aren't clipped).
+
+Domain semantics (which nodes are connected, edge labels, arrowheads,
+directionality) live in wrapper packages — this base just draws the
+geometry.
+
+```typescript
+function CanvasEdge(props: CanvasEdgeProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The edge element.
+
+#### `CanvasNode(props)`
+
+Generic positioned + draggable + resizable wrapper. Renders into the
+canvas-coordinate-space layer of `<CanvasSurface>`.
+
+The base is intentionally minimal — it owns:
+  - absolute positioning at `position` (canvas units).
+  - optional explicit `size` (canvas units).
+  - `onSelect` on pointerdown (with `e.stopPropagation()` so the
+    surface doesn't pan).
+  - `onDrag` from any pointerdown on the node body.
+  - `onResize` from a SE-corner handle (only rendered if `onResize`
+    is supplied).
+
+It does NOT own visual chrome — wrapper packages compose chrome on
+top via `children`.
+
+```typescript
+function CanvasNode(props: CanvasNodeProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The node element.
+
+#### `CanvasSurface(props)`
+
+Pan/zoom container — the shared base every canvas variant builds on.
+
+Wheel scroll zooms around the cursor; primary-button drag on the
+empty surface pans; children render inside a CSS-transformed inner
+layer so they live in canvas-coordinate-space (use
+`screenToCanvas` / `canvasToScreen` to translate as needed).
+
+Children that handle their own pointer gestures (e.g.
+`<CanvasNode>`) should call `e.stopPropagation()` on pointerdown to
+suppress surface pan.
+
+Style is driven entirely by `getClassMap()`; inline styles are
+reserved for things ClassMap can't express (transforms,
+touch-action, viewport-derived offsets).
+
+```typescript
+function CanvasSurface(props: CanvasSurfaceProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The canvas surface element.
 
 #### `canvasToScreen(point, viewport)`
 

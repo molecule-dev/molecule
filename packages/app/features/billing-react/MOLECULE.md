@@ -93,6 +93,29 @@ interface BillingStatus<TLimits = unknown> {
 }
 ```
 
+#### `BillingStatusBadgeProps`
+
+Props for `<BillingStatusBadge />`.
+
+```typescript
+interface BillingStatusBadgeProps {
+  /**
+   * Optional callback invoked after a successful cancel. Most apps will
+   * navigate the user back to settings or refresh the page from here.
+   */
+  onCanceled?: () => void
+
+  /** Optional className applied to the outer wrapper. */
+  className?: string
+
+  /**
+   * Whether to render the cancel-subscription button when the user is
+   * on a paid tier. Defaults to `true`.
+   */
+  showCancel?: boolean
+}
+```
+
 #### `CancelResponse`
 
 Response from `POST /api/billing/cancel`.
@@ -124,6 +147,94 @@ interface CheckoutResponse {
     expiresAt?: string
     autoRenews?: boolean
   }
+}
+```
+
+#### `LimitsItemProps`
+
+Props for `<LimitsItem>`.
+
+```typescript
+interface LimitsItemProps {
+  /** Row content (typically a translated label + number). */
+  children: ReactNode
+  /**
+   * Whether this feature is included in the tier. When `false`, the row
+   * renders with a muted line-through and a dash glyph instead of the
+   * check icon. Defaults to `true`.
+   */
+  included?: boolean
+}
+```
+
+#### `PricingPageProps`
+
+Props for `<PricingPage />`.
+
+```typescript
+interface PricingPageProps<TLimits = unknown> {
+  /**
+   * Optional billing-period selector. Defaults to `'month'`. Pass `'year'`
+   * to render the yearly column. The component falls back to whatever the
+   * tier provides when the requested period is missing.
+   */
+  period?: PricingTierPrice['period']
+
+  /**
+   * Optional render function for the tier-specific limits column. Defaults
+   * to a stacked checklist rendering numeric / boolean values with a green
+   * check glyph. Apps with rich limit shapes can supply a custom renderer.
+   */
+  renderLimits?: (limits: TLimits) => React.ReactNode
+
+  /**
+   * Optional override for the page-level heading translation key.
+   * Defaults to `'billing.pricing.heading'`.
+   */
+  headingKey?: string
+
+  /** Optional English fallback for the heading. Defaults to `'Choose your plan'`. */
+  headingDefault?: string
+
+  /**
+   * Optional sub-heading shown under the page heading. Pass `null` to
+   * suppress. Defaults to a translated "Pick the plan that fits…" line.
+   */
+  subheadingKey?: string | null
+  /** English fallback for the sub-heading. */
+  subheadingDefault?: string
+
+  /**
+   * Optional className applied to the outer wrapper, useful when embedding
+   * the page in an existing layout.
+   */
+  className?: string
+
+  /**
+   * Path the browser is sent to when an anonymous visitor clicks a paid
+   * tier's upgrade CTA. Defaults to `/login`. Set to `null` to disable
+   * the redirect (e.g. when the app handles the auth gate at a higher
+   * level via routing guards).
+   */
+  unauthenticatedRedirect?: string | null
+
+  /**
+   * Optional tier key to highlight as "most popular" — receives the
+   * elevated card variant, a popular-badge in the header, and a
+   * primary-tone CTA. When omitted (default), the highest-priced tier
+   * with a real stripePriceId for the selected period is auto-selected.
+   * Pass `null` to disable highlighting entirely.
+   */
+  popularTierKey?: string | null
+
+  /**
+   * Optional font-family stack applied inline to the page heading,
+   * tier names, and hero price. Defaults to a system-serif cascade
+   * (Georgia, Iowan Old Style, …) matching the flagship-app
+   * convention. Pass `null` to disable inline font and inherit from
+   * the theme.
+   */
+  headlineFontFamily?: string | null
 }
 ```
 
@@ -188,6 +299,61 @@ interface PricingTiersResponse<TLimits = unknown> {
 ```
 
 ### Functions
+
+#### `BillingStatusBadge(props)`
+
+Compact billing-status display for the user's account/settings page.
+Shows the current tier name and offers a cancel button on paid tiers.
+
+```typescript
+function BillingStatusBadge(props: BillingStatusBadgeProps): ReactElement<unknown, string | JSXElementConstructor<any>> | null
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered status badge.
+
+#### `LimitsItem({ children, included = true })`
+
+Single row in a tier's feature list — a check (or em-dash) icon
+followed by the row label. Use inside `<LimitsList>`.
+
+```typescript
+function LimitsItem({ children, included = true }: LimitsItemProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+#### `LimitsList({ children })`
+
+Container for a tier's feature list. Apps use this in their
+`renderLimits` prop with `<LimitsItem>` children to get the polished
+stacked-checklist layout (check icon prefix, muted/primary colors,
+spacing) that matches the rest of `<PricingPage />`.
+
+```typescript
+function LimitsList({ children }: { children: ReactNode; }): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+#### `PricingPage(props)`
+
+Renders the public pricing page. Fetches `/api/billing/tiers` on mount
+and lays out one card per tier with the price for the selected period
+and a CTA that starts a Stripe Checkout session via
+`/api/billing/checkout`. Tiers without a Stripe priceId (e.g. the free
+tier or local-dev) render a disabled CTA so users still see the row.
+
+The highest-priced paid tier is highlighted as "most popular" by
+default — the card uses the elevated variant, the header carries a
+star badge, and its CTA renders in the primary color. Apps that want
+a different tier in the spotlight can pass `popularTierKey` (or
+`null` to suppress).
+
+```typescript
+function PricingPage(props: PricingPageProps<TLimits>): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — Component props (see `PricingPageProps`).
+
+**Returns:** The rendered pricing page.
 
 #### `useBillingStatus()`
 

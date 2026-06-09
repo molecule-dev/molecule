@@ -354,6 +354,31 @@ function truncate(s: string, maxLength: number): string
 
 **Returns:** Either the original string or a shortened copy with a trailing notice.
 
+#### `whitespaceTolerantReplace(content, oldString, newString)`
+
+Attempt a whitespace-tolerant replacement when an exact `old_string` match
+failed. Finds a contiguous run of lines in `content` whose per-line
+whitespace-normalized form (runs of whitespace collapsed to one space, then
+trimmed) equals the normalized `oldString` lines, and replaces that run with
+`newString` verbatim. Applies ONLY when exactly one such run exists —
+uniqueness keeps it safe; an ambiguous (or zero) match is refused (returns
+null) so the caller falls back to its existing error path.
+
+This rescues the most common edit_file failure: a (weak) executor reproduces
+the target text correctly but with different indentation or trailing
+whitespace, which would otherwise bounce it into a re-read/retry loop — the
+single biggest source of wasted edit turns.
+
+```typescript
+function whitespaceTolerantReplace(content: string, oldString: string, newString: string): string | null
+```
+
+- `content` — Current file content.
+- `oldString` — The search text (an exact match has already failed).
+- `newString` — The replacement text, applied verbatim.
+
+**Returns:** The new content if a unique fuzzy run matched, else null.
+
 ### Constants
 
 #### `MAX_FIND_RESULTS`

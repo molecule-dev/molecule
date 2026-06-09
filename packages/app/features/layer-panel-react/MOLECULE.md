@@ -86,6 +86,37 @@ interface Layer {
 }
 ```
 
+#### `LayerPanelProps`
+
+Public props for `<LayerPanel>`.
+
+```typescript
+interface LayerPanelProps {
+  /**
+   * Ordered layers, **top-down** (index 0 renders as the first row and
+   * represents the top-most layer in Photoshop terms).
+   */
+  layers: Layer[]
+  /** Called with the full reordered list after a drag completes. */
+  onReorder: (next: Layer[]) => void
+  /** Called when the eye icon is clicked. */
+  onVisibilityToggle: (id: string) => void
+  /** Called when the lock icon is clicked. */
+  onLockToggle: (id: string) => void
+  /** Called when a row is clicked (single click, anywhere in the row body). */
+  onSelect: (id: string) => void
+  /** Called when an inline rename commits with a non-empty trimmed value. */
+  onRename: (id: string, name: string) => void
+  /**
+   * Currently active layer id — drives `aria-selected` and a "selected"
+   * highlight on the row. Optional; when omitted no row is highlighted.
+   */
+  activeId?: string
+  /** Optional extra classes appended to the panel root. */
+  className?: string
+}
+```
+
 ### Types
 
 #### `LayerBlendMode`
@@ -132,6 +163,28 @@ function formatOpacityPercent(opacity: number | undefined): string
 - `opacity` — The 0–1 opacity, or `undefined`.
 
 **Returns:** A locale-agnostic `"NN%"` string, or `""` when opacity is undefined.
+
+#### `LayerPanel(props)`
+
+Photoshop / Figma–style layer panel.
+
+Renders a vertical, drag-to-reorder list of layers with eye/lock
+toggles, inline rename (double-click), and click-to-select. All
+interactions emit intent callbacks; the host application owns the
+data and re-renders with the next `layers` array.
+
+Drag-to-reorder uses pointer events (no `@dnd-kit` or HTML5 DnD
+dependency), so it works on touch surfaces and inside transformed
+canvases without quirks. The visual convention is top-down — index 0
+is the front-most layer.
+
+```typescript
+function LayerPanel(props: LayerPanelProps): JSX.Element
+```
+
+- `props` — {@link LayerPanelProps}.
+
+**Returns:** The layer panel element.
 
 #### `moveLayer(layers, fromIndex, toIndex)`
 

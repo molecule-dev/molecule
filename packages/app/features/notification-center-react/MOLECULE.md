@@ -27,6 +27,57 @@ import { NotificationCenter } from '@molecule/app-notification-center-react'
 npm install @molecule/app-notification-center-react
 ```
 
+## API
+
+### Interfaces
+
+#### `NotificationItem`
+
+A single notification entry rendered inside the notification panel.
+
+```typescript
+interface NotificationItem {
+  id: string
+  title: ReactNode
+  body?: ReactNode
+  /** Display timestamp. */
+  timestamp?: ReactNode
+  /** Optional leading icon / avatar. */
+  leading?: ReactNode
+  /** Whether the user has read this. */
+  read?: boolean
+  /** Click handler — typically navigates and marks as read. */
+  onClick?: () => void
+}
+```
+
+### Functions
+
+#### `NotificationCenter(root0, root0, root0, root0, root0, root0, root0)`
+
+Standalone notification panel — title + mark-all-read action +
+scrollable item list + footer "View all". Drop inside a popover /
+dropdown / drawer to make a full notification center.
+
+```typescript
+function NotificationCenter({
+  items,
+  onMarkAllRead,
+  onViewAll,
+  emptyState,
+  title,
+  className,
+}: NotificationCenterProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .items
+- `root0` — .onMarkAllRead
+- `root0` — .onViewAll
+- `root0` — .emptyState
+- `root0` — .title
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

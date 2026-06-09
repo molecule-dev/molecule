@@ -22,6 +22,29 @@ import { SectionDivider } from '@molecule/app-section-divider-react'
 npm install @molecule/app-section-divider-react
 ```
 
+## API
+
+### Functions
+
+#### `SectionDivider(root0, root0, root0, root0)`
+
+Horizontal divider with an optional centered label, common as
+"OR" between auth options, "Today" between feed days, "—" between
+sections.
+
+```typescript
+function SectionDivider({
+  children,
+  align = 'center',
+  className,
+}: SectionDividerProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .children
+- `root0` — .align
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

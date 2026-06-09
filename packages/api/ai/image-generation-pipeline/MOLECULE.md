@@ -39,6 +39,8 @@ npm install @molecule/api-ai-image-generation-pipeline
 
 #### `EnhancePromptOptions`
 
+Options accepted by {@link enhancePrompt}.
+
 ```typescript
 interface EnhancePromptOptions {
   prompt: string
@@ -53,6 +55,8 @@ interface EnhancePromptOptions {
 
 #### `EnhancePromptResult`
 
+Result returned by {@link enhancePrompt}.
+
 ```typescript
 interface EnhancePromptResult {
   text: string
@@ -61,6 +65,8 @@ interface EnhancePromptResult {
 ```
 
 #### `ImageGenerationOutcome`
+
+Normalized outcome returned by {@link runImageGeneration} for all terminal states.
 
 ```typescript
 interface ImageGenerationOutcome {
@@ -72,6 +78,8 @@ interface ImageGenerationOutcome {
 ```
 
 #### `RunImageGenerationOptions`
+
+Options accepted by {@link runImageGeneration}.
 
 ```typescript
 interface RunImageGenerationOptions {
@@ -90,6 +98,8 @@ interface RunImageGenerationOptions {
 ### Types
 
 #### `GenerationStatus`
+
+Union of terminal + intermediate image-generation states.
 
 ```typescript
 type GenerationStatus = 'succeeded' | 'failed' | 'queued'

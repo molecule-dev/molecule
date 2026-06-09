@@ -89,3 +89,4 @@ export function setupCronNodeCron(): void {
 
 Peer dependencies:
 - `@molecule/api-cron` ^1.0.0
+- `@molecule/api-logger` ^1.0.0

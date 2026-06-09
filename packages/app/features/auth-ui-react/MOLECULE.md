@@ -28,6 +28,43 @@ import { oauthConfig } from './config.js'
 npm install @molecule/app-auth-ui-react
 ```
 
+## API
+
+### Functions
+
+#### `OAuthButtons(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Config-driven OAuth provider button row rendered beneath a
+login/signup form.
+
+This is the convenience layer over the primitives in
+`@molecule/app-oauth-buttons-react`: it reads `providers` + `redirect`
+from `useOAuth(oauthConfig)`, then composes `<OAuthDivider>` (the "or
+continue with" rule) above `<OAuthButtons>` (the button row). Apps
+with an `oauthConfig` object use this; apps that already hold a raw
+provider list use the lower-level `<OAuthButtons>` directly.
+
+```typescript
+function OAuthButtons({
+  oauthConfig,
+  className,
+  iconSize = 30,
+  iconMode = 'brand',
+  showLabels = false,
+  dividerKey = 'oauth.orContinueWith',
+  dividerDefault = 'or continue with',
+}: OAuthButtonsProps): JSX.Element | null
+```
+
+- `root0` — See `OAuthButtonsProps`.
+- `root0` — .oauthConfig - Config object passed to `useOAuth()`.
+- `root0` — .className - Extra class on the outer wrapper.
+- `root0` — .iconSize - Logo size in pixels (default 30).
+- `root0` — .iconMode - Logo color mode (`'brand'` | `'mono'`).
+- `root0` — .showLabels - Render provider label text next to the logo.
+- `root0` — .dividerKey - i18n key for the divider label.
+- `root0` — .dividerDefault - Fallback divider text.
+
 ## Injection Notes
 
 ### Requirements

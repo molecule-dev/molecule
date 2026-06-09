@@ -83,6 +83,46 @@ interface DayTimelineProps {
 }
 ```
 
+### Functions
+
+#### `DayTimeline(props)`
+
+Vertical 24h day-of-events timeline. Events are absolutely positioned
+over a 1-hour-tick axis; their height reflects duration. Designed for
+itinerary planners, daily agendas, and schedule views.
+
+Pure presentation — drag-to-resize and click-to-add-event are out of
+scope here (parents wire those via `event.onClick` and external pointer
+handlers if needed).
+
+```typescript
+function DayTimeline({
+  events,
+  startHour = 0,
+  endHour = 24,
+  pxPerHour = 60,
+  showAxisLabels = true,
+  dataMolId,
+  className,
+}: DayTimelineProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered timeline element.
+
+#### `formatHour(hour)`
+
+Format a fractional 24h hour as `H AM/PM` (e.g. `9.5` → `9:30 AM`).
+
+```typescript
+function formatHour(hour: number): string
+```
+
+- `hour` — Fractional 24h hour value.
+
+**Returns:** A short clock-style label.
+
 ## Injection Notes
 
 ### Requirements

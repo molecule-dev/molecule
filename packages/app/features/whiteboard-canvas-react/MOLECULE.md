@@ -68,6 +68,77 @@ npm install @molecule/app-whiteboard-canvas-react @molecule/app-feature-canvas-r
 
 ### Interfaces
 
+#### `WhiteboardCanvasProps`
+
+{@link WhiteboardCanvas} props.
+
+```typescript
+interface WhiteboardCanvasProps {
+  /**
+   * Free-form strokes (pen / marker / eraser) currently on the board.
+   * Controlled — feed back through `onChange`.
+   */
+  strokes: WhiteboardStroke[]
+  /** Vector shapes on the board. Controlled. */
+  shapes: WhiteboardShape[]
+  /** Sticky notes / text boxes on the board. Controlled. */
+  stickyNotes: WhiteboardStickyNote[]
+  /**
+   * Called whenever the user finishes a tool gesture that mutates the
+   * board (stroke ended, shape committed, sticky placed). The payload
+   * is the COMPLETE post-gesture state — replace your local arrays
+   * with it.
+   */
+  onChange: (change: WhiteboardChange) => void
+  /** Active drawing tool. */
+  tool: WhiteboardTool
+  /**
+   * Optional override for in-flight stroke color (pen / marker only).
+   * If omitted, uses {@link defaultStrokeColor} for the tool.
+   */
+  strokeColor?: string
+  /** Optional override for stroke width. */
+  strokeWidth?: number
+  /**
+   * Optional sticky-note background color override (used by the
+   * sticky tool when placing a new note).
+   */
+  stickyBackground?: string
+  /** Surface width in CSS pixels. */
+  width: number
+  /** Surface height in CSS pixels. */
+  height: number
+  /** Optional initial viewport (uncontrolled CanvasSurface viewport). */
+  initialViewport?: CanvasViewport
+  /** Optional viewport clamping limits forwarded to `<CanvasSurface>`. */
+  viewportLimits?: ViewportLimits
+  /**
+   * If true, every drawing tool is disabled (background pan still
+   * works). Useful for read-only viewers / playback mode.
+   */
+  readOnly?: boolean
+  /** Optional aria-label override (defaults to a translated label). */
+  ariaLabel?: string
+  /** Extra classes merged onto the wrapper. */
+  className?: string
+}
+```
+
+#### `WhiteboardChange`
+
+`onChange` payload for {@link WhiteboardCanvas}.
+
+```typescript
+interface WhiteboardChange {
+  /** Updated stroke list (controlled). */
+  strokes: WhiteboardStroke[]
+  /** Updated shape list (controlled). */
+  shapes: WhiteboardShape[]
+  /** Updated sticky-note list (controlled). */
+  stickyNotes: WhiteboardStickyNote[]
+}
+```
+
 #### `WhiteboardShape`
 
 A vector shape defined by two canvas-space corner points (`from`,
@@ -365,6 +436,30 @@ function strokeIntersectsPath(eraser: WhiteboardStroke, target: WhiteboardStroke
 - `target` — Target stroke to test against.
 
 **Returns:** `true` when the two paths cross.
+
+#### `WhiteboardCanvas(props)`
+
+React whiteboard canvas — pen / marker / eraser / sticky-note /
+line / arrow / shape / text tools layered on top of
+{@link CanvasSurface} from `@molecule/app-feature-canvas-react`.
+
+Pan + zoom are delegated entirely to the base — this component only
+handles tool-specific pointer-event interpretation and rendering of
+strokes, shapes, and sticky notes inside the canvas-space inner
+layer. All styling goes through `getClassMap()`; all user-facing
+text goes through `t()` — both per molecule architecture rules.
+
+Controlled state model: pass `strokes` / `shapes` / `stickyNotes`
+and listen for `onChange`. Each completed gesture fires `onChange`
+with the full post-gesture state.
+
+```typescript
+function WhiteboardCanvas(props: WhiteboardCanvasProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The whiteboard canvas element.
 
 ## Injection Notes
 

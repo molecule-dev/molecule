@@ -110,6 +110,33 @@ interface GraphPoint {
 }
 ```
 
+#### `GraphViewProps`
+
+`<GraphView>` props.
+
+```typescript
+interface GraphViewProps {
+  /** Nodes to render. */
+  nodes: GraphNode[]
+  /** Edges to render. */
+  edges: GraphEdge[]
+  /** Fired when the user clicks (or activates) a node. */
+  onNodeClick?: (node: GraphNode) => void
+  /** Currently-selected node id (highlighted in the view). */
+  selectedNodeId?: string
+  /** Layout strategy. Defaults to `'force'`. */
+  layout?: GraphLayout
+  /** Custom node renderer (overrides the default circle + label). */
+  nodeRenderer?: GraphNodeRenderer
+  /** Custom edge renderer (overrides the default `<line>`). */
+  edgeRenderer?: GraphEdgeRenderer
+  /** Force-layout tunables; ignored for non-force layouts. */
+  forceOptions?: ForceLayoutOptions
+  /** Extra classes merged onto the outer wrapper. */
+  className?: string
+}
+```
+
 #### `PositionedNode`
 
 Internal positioned node used by the renderer; the `x`/`y` coordinates
@@ -218,6 +245,27 @@ function forceLayout(nodes: GraphNode[], edges: GraphEdge[], options?: ForceLayo
 - `options` — Force-layout tunables.
 
 **Returns:** Positioned nodes, in input order.
+
+#### `GraphView(props)`
+
+Force-directed graph view (Obsidian-style).
+
+Renders nodes + edges into an SVG, computing positions via a built-in
+minimal velocity-Verlet simulation. Three layouts are supported —
+`force` (default), `circular` and `grid` — and either nodes or edges
+can be overridden via custom renderers.
+
+Style is driven by `getClassMap()`. Inline styles are reserved for
+SVG geometry — `transform`, viewBox computation, stroke widths — which
+classes can't express.
+
+```typescript
+function GraphView(props: GraphViewProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+
+**Returns:** The graph-view element.
 
 #### `gridLayout(nodes, spacing)`
 

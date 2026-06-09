@@ -31,6 +31,48 @@ const [items, setItems] = useState<ReorderableItem<{ label: string }>[]>([
 npm install @molecule/app-reorderable-list-react
 ```
 
+## API
+
+### Interfaces
+
+#### `ReorderableItem`
+
+A single item in a ReorderableList, pairing a stable string id with arbitrary data.
+
+```typescript
+interface ReorderableItem<T> {
+  id: string
+  data: T
+}
+```
+
+### Functions
+
+#### `ReorderableList(root0, root0, root0, root0, root0, root0)`
+
+Drag-handle reorderable list with HTML5 DnD. Apps own the data; this
+component only renders + emits new order on `onReorder`.
+
+Use the optional `renderHandle` slot to limit drag to a specific
+element (e.g. a "≡" handle on the left).
+
+```typescript
+function ReorderableList({
+  items,
+  onReorder,
+  renderItem,
+  renderHandle,
+  className,
+}: ReorderableListProps<T>): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .items
+- `root0` — .onReorder
+- `root0` — .renderItem
+- `root0` — .renderHandle
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

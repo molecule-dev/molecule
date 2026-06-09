@@ -31,6 +31,61 @@ const deliveries: WebhookDelivery[] = [
 npm install @molecule/app-webhook-inspector-react
 ```
 
+## API
+
+### Interfaces
+
+#### `WebhookDelivery`
+
+Shape of a single webhook delivery attempt shown in the inspector.
+
+```typescript
+interface WebhookDelivery {
+  id: string
+  /** Event type name (e.g. "payment.succeeded"). */
+  eventType: string
+  /** ISO timestamp or formatted string. */
+  timestamp: ReactNode
+  /** Response status. */
+  statusCode: number
+  /** Success / failure / pending. */
+  status: 'success' | 'failure' | 'pending'
+  /** Latency in ms. */
+  durationMs?: number
+  /** Request payload (string or JSON). */
+  requestBody?: string | unknown
+  /** Response body. */
+  responseBody?: string | unknown
+  /** Optional attempt number. */
+  attempt?: number
+}
+```
+
+### Functions
+
+#### `WebhookInspector(root0, root0, root0, root0, root0, root0)`
+
+Webhook delivery log — one row per event with expandable
+request/response JSON panels. Pass `onRetry` to show a retry button
+per failed delivery.
+
+```typescript
+function WebhookInspector({
+  deliveries,
+  onRetry,
+  onSelect,
+  selectedId,
+  className,
+}: WebhookInspectorProps): ReactNode
+```
+
+- `root0` — *
+- `root0` — .deliveries
+- `root0` — .onRetry
+- `root0` — .onSelect
+- `root0` — .selectedId
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

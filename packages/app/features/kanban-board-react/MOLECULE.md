@@ -60,6 +60,8 @@ interface KanbanCardData {
 
 #### `KanbanColumnData`
 
+Data for a single kanban column, including its heading, optional accent, and ordered card list.
+
 ```typescript
 interface KanbanColumnData {
   /** Column id. */
@@ -72,6 +74,103 @@ interface KanbanColumnData {
   cards: KanbanCardData[]
 }
 ```
+
+### Functions
+
+#### `KanbanBoard(root0, root0, root0, root0, root0, root0, root0)`
+
+Kanban board with HTML5 drag-drop between columns.
+
+Pure UI — consumers own the card data and call back on `onCardMove`
+to persist reorder. For fancier drag experiences, wire
+`@molecule/app-drag-drop` at the column level instead.
+
+```typescript
+function KanbanBoard({
+  columns,
+  onCardMove,
+  onCardClick,
+  renderHeaderActions,
+  renderFooter,
+  className,
+}: KanbanBoardProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .columns
+- `root0` — .onCardMove
+- `root0` — .onCardClick
+- `root0` — .renderHeaderActions
+- `root0` — .renderFooter
+- `root0` — .className
+
+#### `KanbanCard(root0, root0, root0, root0, root0)`
+
+Single card inside a Kanban column. Drag-drop is opt-in via the
+`onDragStart` prop — wire it to the `@molecule/app-drag-drop` bond or
+HTML5 drag-drop directly.
+
+The outer `<div>` wrapper carries the drag handlers so we don't rely
+on `<Card>` forwarding drag events (which it doesn't).
+
+```typescript
+function KanbanCard({
+  card,
+  onClick,
+  onDragStart,
+  className,
+}: KanbanCardProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .card
+- `root0` — .onClick
+- `root0` — .onDragStart
+- `root0` — .className
+
+#### `KanbanColumn(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+One Kanban column — sticky header + scrollable card list + optional footer.
+
+```typescript
+function KanbanColumn({
+  column,
+  onCardClick,
+  onDrop,
+  onCardDragStart,
+  headerActions,
+  footer,
+  className,
+}: KanbanColumnProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .column
+- `root0` — .onCardClick
+- `root0` — .onDrop
+- `root0` — .onCardDragStart
+- `root0` — .headerActions
+- `root0` — .footer
+- `root0` — .className
+
+#### `KanbanColumnHeader(root0, root0, root0, root0, root0)`
+
+Kanban column heading row — title + count + right actions.
+
+```typescript
+function KanbanColumnHeader({
+  title,
+  count,
+  actions,
+  className,
+}: KanbanColumnHeaderProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .title
+- `root0` — .count
+- `root0` — .actions
+- `root0` — .className
 
 ## Injection Notes
 

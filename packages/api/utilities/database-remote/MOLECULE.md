@@ -534,6 +534,8 @@ Strongly-typed error thrown by {@link connectRemote} and any
 
 #### `collectForeignKeys(rows)`
 
+Aggregate flat per-column foreign-key rows into a deduplicated list of {@link ForeignKeySchema} objects.
+
 ```typescript
 function collectForeignKeys(rows: { constraint_name: string; column_name: string; foreign_schema: string; foreign_table: string; foreign_column: string; }[]): ForeignKeySchema[]
 ```
@@ -541,6 +543,8 @@ function collectForeignKeys(rows: { constraint_name: string; column_name: string
 - `rows` — *
 
 #### `collectIndexes(rows)`
+
+Aggregate flat per-column index rows into a deduplicated list of {@link IndexSchema} objects.
 
 ```typescript
 function collectIndexes(rows: { index_name: string; column_name: string; is_unique: boolean; }[]): IndexSchema[]

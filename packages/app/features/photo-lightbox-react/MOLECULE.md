@@ -30,6 +30,46 @@ const photos: LightboxPhoto[] = [
 npm install @molecule/app-photo-lightbox-react
 ```
 
+## API
+
+### Interfaces
+
+#### `LightboxPhoto`
+
+A single photo entry for the lightbox, with src, optional alt text, and optional caption.
+
+```typescript
+interface LightboxPhoto {
+  src: string
+  alt?: string
+  caption?: ReactNode
+}
+```
+
+### Functions
+
+#### `PhotoLightbox(root0, root0, root0, root0, root0, root0)`
+
+Fullscreen photo viewer with prev/next arrows, keyboard navigation
+(← → Esc), close button, and optional captions.
+
+```typescript
+function PhotoLightbox({
+  photos,
+  open,
+  onClose,
+  initialIndex = 0,
+  onIndexChange,
+}: PhotoLightboxProps): JSX.Element | null
+```
+
+- `root0` — *
+- `root0` — .photos
+- `root0` — .open
+- `root0` — .onClose
+- `root0` — .initialIndex
+- `root0` — .onIndexChange
+
 ## Injection Notes
 
 ### Requirements

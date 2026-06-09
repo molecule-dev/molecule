@@ -37,6 +37,73 @@ import { AvatarStack, UserChip } from '@molecule/app-avatar-stack-react'
 npm install @molecule/app-avatar-stack-react
 ```
 
+## API
+
+### Interfaces
+
+#### `AvatarStackPerson`
+
+Represents a single person entry rendered inside an AvatarStack.
+
+```typescript
+interface AvatarStackPerson {
+  /** Display name (also used to generate the text fallback). */
+  name: string
+  /** Optional avatar image URL. */
+  src?: string
+  /** Optional alt text — defaults to `name`. */
+  alt?: string
+}
+```
+
+### Functions
+
+#### `AvatarStack(root0, root0, root0, root0, root0)`
+
+Horizontal stack of overlapping avatars (assignees, attendees, etc.).
+
+Renders up to `max` avatars; any remaining are summarised as `+N` in a
+trailing chip.
+
+```typescript
+function AvatarStack({
+  people,
+  max = 4,
+  size = 'sm',
+  className,
+}: AvatarStackProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .people
+- `root0` — .max
+- `root0` — .size
+- `root0` — .className
+
+#### `UserChip(root0, root0, root0, root0, root0, root0, root0)`
+
+Avatar + name + optional subtitle row — useful in dropdowns, mention
+pickers, assignment popovers, and row-level user references.
+
+```typescript
+function UserChip({
+  name,
+  src,
+  subtitle,
+  trailing,
+  size = 'sm',
+  className,
+}: UserChipProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .name
+- `root0` — .src
+- `root0` — .subtitle
+- `root0` — .trailing
+- `root0` — .size
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

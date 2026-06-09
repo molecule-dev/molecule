@@ -92,6 +92,57 @@ type AdjustmentSliderFormatter = (value: number) => string
 
 ### Functions
 
+#### `AdjustmentSlider(props, props, props, props, props, props, props, props, props, props, props, props, props)`
+
+Bipolar (zero-center) adjustment slider — a labelled `<input type="range">`
+tuned for photo-editor / DAW / animation parameter controls (brightness,
+contrast, saturation, exposure, gain, pan, etc.).
+
+Behaviour:
+- When `bipolar` is `true` (default), a center mark is rendered at zero
+  and the reset target is `0`. When `false`, the slider is unipolar and
+  the reset target is `min`.
+- Double-clicking the input resets the value (calling `onReset` if
+  provided, otherwise emitting `defaultResetValue(min, bipolar)` via
+  `onChange`).
+- Up/Right arrows nudge by `step`; Down/Left arrows nudge by `-step`.
+  Holding Shift multiplies the nudge by 10.
+- The numeric value display is formatted via `format` if supplied,
+  otherwise via `value + (unit || '')`.
+
+```typescript
+function AdjustmentSlider({
+  label,
+  value,
+  onChange,
+  min = -100,
+  max = 100,
+  step = 1,
+  bipolar = true,
+  unit,
+  format,
+  onReset,
+  className,
+  dataMolId,
+}: AdjustmentSliderProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+- `props` — .label - Visible control label.
+- `props` — .value - Current numeric value.
+- `props` — .onChange - Called whenever the value changes.
+- `props` — .min - Lower bound (default `-100`).
+- `props` — .max - Upper bound (default `100`).
+- `props` — .step - Step increment (default `1`).
+- `props` — .bipolar - Bipolar / zero-center mode (default `true`).
+- `props` — .unit - Optional unit suffix appended to the default formatter.
+- `props` — .format - Optional custom value formatter.
+- `props` — .onReset - Optional reset handler (overrides default reset).
+- `props` — .className - Optional extra classes for the outer container.
+- `props` — .dataMolId - Optional `data-mol-id` for the outer container.
+
+**Returns:** The rendered adjustment slider.
+
 #### `clampStep(value, min, max, step)`
 
 Clamp a numeric value to the inclusive `[min, max]` range, snapping to the

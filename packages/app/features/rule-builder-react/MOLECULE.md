@@ -53,6 +53,26 @@ npm install @molecule/app-rule-builder-react
 
 ### Interfaces
 
+#### `RuleBuilderProps`
+
+Public component props.
+
+```typescript
+interface RuleBuilderProps {
+  /** Field catalog the user picks from. */
+  schema: RuleSchema
+  /** Current rule tree (controlled). */
+  rules: Rule
+  /**
+   * Called whenever the user mutates the tree — receives the full new
+   * root rule. Output is a deterministic JSON-serializable structure.
+   */
+  onChange: (next: Rule) => void
+  /** Optional extra root-level class. */
+  className?: string
+}
+```
+
 #### `RuleField`
 
 Field descriptor in the schema — the rule builder uses it to render
@@ -306,6 +326,25 @@ function replaceById(tree: Rule, targetId: string, replacement: Rule): Rule
 - `replacement` — Replacement rule (same id is not required).
 
 **Returns:** New tree with the replacement applied.
+
+#### `RuleBuilder(props, props, props, props, props)`
+
+Visual rule / predicate builder. The rendered tree is a recursive
+`RuleGroup` of `RuleLeaf` predicates joined by `AND` or `OR`. The
+component is fully controlled — every interaction emits a new root
+rule via `onChange`.
+
+```typescript
+function RuleBuilder({ schema, rules, onChange, className }: RuleBuilderProps): ReactNode
+```
+
+- `props` — Component props.
+- `props` — .schema
+- `props` — .rules
+- `props` — .onChange
+- `props` — .className
+
+**Returns:** The rendered rule builder.
 
 #### `toggleGroupOp(tree, groupId)`
 

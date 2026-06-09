@@ -26,6 +26,67 @@ const entries: LogEntry[] = [
 npm install @molecule/app-log-viewer-react
 ```
 
+## API
+
+### Interfaces
+
+#### `LogEntry`
+
+Shape of a single structured log entry rendered by LogViewer.
+
+```typescript
+interface LogEntry {
+  id: string
+  /** ISO timestamp or formatted string. */
+  timestamp: ReactNode
+  /** Severity level. */
+  level: LogLevel
+  /** Single-line message. */
+  message: ReactNode
+  /** Optional service / component label (e.g. "auth-api"). */
+  service?: ReactNode
+  /** Optional trace id / request id. */
+  traceId?: ReactNode
+  /** Optional structured data shown in the expandable panel. */
+  data?: unknown
+}
+```
+
+### Types
+
+#### `LogLevel`
+
+Severity level of a log entry, ordered from lowest to highest.
+
+```typescript
+type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'
+```
+
+### Functions
+
+#### `LogViewer(root0, root0, root0, root0, root0)`
+
+Structured log list — one `<details>` per entry with timestamp +
+level badge + service label + single-line message, expanding to
+show trace id + JSON-formatted structured data.
+
+Use for operational tooling, admin dashboards, debug views.
+
+```typescript
+function LogViewer({
+  entries,
+  onToggle,
+  className,
+  emptyState,
+}: LogViewerProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .entries
+- `root0` — .onToggle
+- `root0` — .className
+- `root0` — .emptyState
+
 ## Injection Notes
 
 ### Requirements

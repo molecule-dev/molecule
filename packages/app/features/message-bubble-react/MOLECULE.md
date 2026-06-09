@@ -38,6 +38,23 @@ npm install @molecule/app-message-bubble-react
 
 ### Interfaces
 
+#### `MessageAttachment`
+
+Describes a single file attachment rendered inside a message bubble.
+
+```typescript
+interface MessageAttachment {
+  id: string
+  name: string
+  /** Size label (e.g. "2.3 MB"). */
+  size?: string
+  /** Action slot — typically a download button. */
+  action?: React.ReactNode
+  /** Optional leading icon. */
+  icon?: React.ReactNode
+}
+```
+
 #### `MessageAuthor`
 
 Message / chat types.
@@ -55,6 +72,8 @@ interface MessageAuthor {
 
 #### `MessageData`
 
+Data shape for a single chat message rendered by the bubble component.
+
 ```typescript
 interface MessageData {
   id: string
@@ -71,6 +90,163 @@ interface MessageData {
   thread?: ReactNode
 }
 ```
+
+#### `MessageReaction`
+
+A single emoji reaction with its count and current-user state.
+
+```typescript
+interface MessageReaction {
+  /** Emoji or symbol. */
+  emoji: string
+  /** Reaction count. */
+  count: number
+  /** Whether the current user reacted. */
+  reactedByMe?: boolean
+}
+```
+
+### Functions
+
+#### `MessageAttachments(root0, root0, root0)`
+
+Vertical list of attachment rows below a message body.
+Each row: `[icon] [name · size] [action]`.
+
+```typescript
+function MessageAttachments({
+  attachments,
+  className,
+}: MessageAttachmentsProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .attachments
+- `root0` — .className
+
+#### `MessageBubble(root0, root0, root0, root0, root0)`
+
+One message in a chat thread — avatar, author/timestamp row, body,
+plus optional attachments/reactions/thread indicator passed in via
+`message.attachments` / `message.reactions` / `message.thread`.
+
+`isSelf` flips the alignment and accent so the viewer's own messages
+appear on the right with a primary-tinted bubble.
+
+```typescript
+function MessageBubble({
+  message,
+  isSelf,
+  showMeta = true,
+  className,
+}: MessageBubbleProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .message
+- `root0` — .isSelf
+- `root0` — .showMeta
+- `root0` — .className
+
+#### `MessageComposer(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Message input row — text area + optional leading/trailing slots + submit button.
+
+```typescript
+function MessageComposer({
+  onSubmit,
+  placeholder,
+  submitOnEnter = true,
+  leading,
+  trailing,
+  disabled,
+  className,
+}: MessageComposerProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .onSubmit
+- `root0` — .placeholder
+- `root0` — .submitOnEnter
+- `root0` — .leading
+- `root0` — .trailing
+- `root0` — .disabled
+- `root0` — .className
+
+#### `MessageList(root0, root0, root0, root0, root0, root0)`
+
+Vertical list of `<MessageBubble>`s with optional date separators.
+
+```typescript
+function MessageList({
+  messages,
+  selfAuthorId,
+  renderDateSeparator,
+  emptyState,
+  className,
+}: MessageListProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .messages
+- `root0` — .selfAuthorId
+- `root0` — .renderDateSeparator
+- `root0` — .emptyState
+- `root0` — .className
+
+#### `MessageMeta(root0, root0, root0, root0)`
+
+Small `[author · timestamp]` row rendered above a message body. Broken
+out so apps can reuse it in notification rows, quote blocks, etc.
+
+```typescript
+function MessageMeta({ author, timestamp, className }: MessageMetaProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .author
+- `root0` — .timestamp
+- `root0` — .className
+
+#### `MessageReactions(root0, root0, root0, root0, root0)`
+
+Row of reaction chips below a message body. Each chip shows emoji +
+count and highlights when the current user reacted.
+
+```typescript
+function MessageReactions({
+  reactions,
+  onToggle,
+  onAdd,
+  className,
+}: MessageReactionsProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .reactions
+- `root0` — .onToggle
+- `root0` — .onAdd
+- `root0` — .className
+
+#### `ThreadIndicator(root0, root0, root0, root0, root0)`
+
+"3 replies · last Monday" indicator rendered below a message bubble.
+Clicking opens the thread view.
+
+```typescript
+function ThreadIndicator({
+  replyCount,
+  lastReplyAt,
+  onOpen,
+  className,
+}: ThreadIndicatorProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .replyCount
+- `root0` — .lastReplyAt
+- `root0` — .onOpen
+- `root0` — .className
 
 ## Injection Notes
 

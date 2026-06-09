@@ -26,6 +26,59 @@ const tabs = [
 npm install @molecule/app-tab-filter-react
 ```
 
+## API
+
+### Interfaces
+
+#### `TabFilterTab`
+
+Shape of a single tab entry passed to {@link TabFilter}.
+
+```typescript
+interface TabFilterTab {
+  /** Unique id / state key. */
+  id: string
+  /** Display label. */
+  label: ReactNode
+  /** Optional leading icon. */
+  icon?: ReactNode
+  /** Optional count badge (e.g. number of items matching this filter). */
+  count?: number
+  /** When true, the tab renders disabled. */
+  disabled?: boolean
+}
+```
+
+### Functions
+
+#### `TabFilter(root0, root0, root0, root0, root0, root0, root0)`
+
+Horizontal pill-style tab row used as a segmented filter. Different
+from `<Tabs>` from `@molecule/app-ui-react` in surfacing inline count
+badges per tab and scrolling horizontally on overflow.
+
+Typical uses: "All (42) | Open (8) | Closed (34)", activity-type
+filters, comment-thread filters, status switchers.
+
+```typescript
+function TabFilter({
+  tabs,
+  activeId,
+  onChange,
+  scrollable = true,
+  filled = true,
+  className,
+}: TabFilterProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .tabs
+- `root0` — .activeId
+- `root0` — .onChange
+- `root0` — .scrollable
+- `root0` — .filled
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

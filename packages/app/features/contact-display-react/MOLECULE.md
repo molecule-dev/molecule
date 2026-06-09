@@ -30,6 +30,51 @@ import { ContactDisplay } from '@molecule/app-contact-display-react'
 npm install @molecule/app-contact-display-react
 ```
 
+## API
+
+### Interfaces
+
+#### `ContactFields`
+
+Fields describing a contact rendered by ContactDisplay.
+
+```typescript
+interface ContactFields {
+  name: string
+  email?: string
+  phone?: string
+  role?: ReactNode
+  avatarSrc?: string
+  address?: ReactNode
+  company?: ReactNode
+}
+```
+
+### Functions
+
+#### `ContactDisplay(root0, root0, root0, root0, root0, root0)`
+
+Formatted contact display — avatar + name + role + email/phone with
+leading icons + optional address and company. Three layouts for
+different densities.
+
+```typescript
+function ContactDisplay({
+  contact,
+  layout = 'card',
+  actions,
+  onClick,
+  className,
+}: ContactDisplayProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .contact
+- `root0` — .layout
+- `root0` — .actions
+- `root0` — .onClick
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

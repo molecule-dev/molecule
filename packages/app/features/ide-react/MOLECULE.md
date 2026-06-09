@@ -56,6 +56,35 @@ interface Activity {
 }
 ```
 
+#### `ActivityCardProps`
+
+Props for the inline {@link ActivityCard}.
+
+```typescript
+interface ActivityCardProps {
+  /** The captured activity to render. */
+  activity: Activity
+  /** Called when the card is clicked — should open the Activity panel filtered to this activity. */
+  onActivityClick?: (activity: Activity) => void
+}
+```
+
+#### `ChatEventCard`
+
+A chat system card: a short message with an optional action (or actions). Mirrors
+the system-card shape ChatPanel renders for upgrade prompts, guest reminders, etc.
+
+```typescript
+interface ChatEventCard {
+  /** The card's text. */
+  text: string
+  /** An optional action button (or buttons): a link (`href`) and/or a click handler. */
+  action?:
+    | { label: string; href?: string; onClick?: () => void }
+    | { label: string; href?: string; onClick?: () => void }[]
+}
+```
+
 #### `ChatMessageItemProps`
 
 Properties for the chat message item component.
@@ -554,7 +583,32 @@ Channel categories a captured activity can belong to.
 type ActivityType = 'email' | 'sms' | 'push' | 'webhook' | 'channel'
 ```
 
+#### `ChatEventCardFactory`
+
+Turns a custom event's `data` payload into a chat card, or returns null to render
+nothing for that event.
+
+```typescript
+type ChatEventCardFactory = (
+  data: Record<string, unknown> | undefined,
+) => ChatEventCard | null
+```
+
 ### Functions
+
+#### `ActivityCard(root0, root0, root0)`
+
+Compact, clickable inline card for a single captured activity.
+
+```typescript
+function ActivityCard({ activity, onActivityClick }: ActivityCardProps): JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .activity - The captured activity to render.
+- `root0` — .onActivityClick - Callback fired when the card is clicked.
+
+**Returns:** The rendered activity card element.
 
 #### `activityFromEvent(raw, raw, raw, raw, raw, raw, raw)`
 
@@ -641,6 +695,190 @@ function activityTypeLabel(type: ActivityType): string
 
 **Returns:** The translated channel label.
 
+#### `ChatPanel(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+AI chat panel with conversation history dropdown and Claude Code-style tool display.
+
+```typescript
+function ChatPanel({
+  projectId,
+  endpoint,
+  initialMessage,
+  onInitialMessageSent,
+  activeFile,
+  openTabs,
+  onFileOpen,
+  onFileDoubleClick,
+  onFileDiff,
+  onFileRevert,
+  onFileChange,
+  onFileDeleted,
+  onCommit,
+  onActivityClick,
+  onReadyToBuild,
+  onClientAction,
+  onTurnComplete,
+  autoSubmitSignal,
+  initialInputValue,
+  hideConversationMenu,
+  gitStatusTick,
+  pendingMessage,
+  pendingMessageKey,
+  pendingMessageSuppressUser,
+  userEditedFile,
+  userEditedFileKey,
+  isAnonymous,
+  isPro,
+  suppressGuestReminder,
+  className,
+}: ChatPanelProps): JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .projectId - The project ID for the chat session.
+- `root0` — .endpoint - Optional custom chat API endpoint URL.
+- `root0` — .initialMessage - Optional initial message to auto-send on mount.
+- `root0` — .onInitialMessageSent - Callback fired after the initial message is sent.
+- `root0` — .activeFile - Path of the currently focused file in the editor.
+- `root0` — .openTabs - Paths of all open editor tabs.
+- `root0` — .onFileOpen - Callback to preview a file in the editor.
+- `root0` — .onFileDoubleClick - Callback to pin a file tab in the editor.
+- `root0` — .onFileDiff - Callback to open a side-by-side diff view.
+- `root0` — .onFileRevert - Callback to revert a file to previous content.
+- `root0` — .onFileChange - Callback when a file's content changes from AI edits.
+- `root0` — .onFileDeleted - Callback fired when a file is deleted.
+- `root0` — .onCommit - Callback fired after a successful commit.
+- `root0` — .onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
+- `root0` — .onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
+- `root0` — .onClientAction - Callback fired on the client_action stream event (reload/navigate preview, open file).
+- `root0` — .onTurnComplete - Callback fired on each stream done/error; host uses it to keep the boot view up until the during-boot plan stream completes.
+- `root0` — .autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
+- `root0` — .initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
+- `root0` — .hideConversationMenu - Hide the conversation-selector header (e.g. during discovery).
+- `root0` — .gitStatusTick - Counter that increments when git status changes.
+- `root0` — .pendingMessage - An externally triggered message to send.
+- `root0` — .pendingMessageKey - Key to distinguish repeated pending messages.
+- `root0` — .pendingMessageSuppressUser - When true, send the pending message without rendering a user bubble (auto-sent build kickoff).
+- `root0` — .userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
+- `root0` — .userEditedFileKey - Key to distinguish repeated edits to the same file.
+- `root0` — .isAnonymous - Whether the current user is anonymous.
+- `root0` — .suppressGuestReminder - Suppress the periodic sign-up reminder (e.g. during discovery).
+- `root0` — .isPro - Whether the current user has a Pro plan.
+- `root0` — .className - Optional CSS class name for the container.
+
+**Returns:** The rendered chat panel element.
+
+#### `CommandPalette(root0, root0, root0)`
+
+Command Palette overlay.
+
+```typescript
+function CommandPalette({ commands, onDismiss }: CommandPaletteProps): JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .commands - Array of available commands.
+- `root0` — .onDismiss - Called when the palette is dismissed.
+
+**Returns:** The command palette element.
+
+#### `DeviceFrameSelector(root0, root0, root0, root0)`
+
+Radio group for selecting a device frame in the preview panel.
+
+```typescript
+function DeviceFrameSelector({
+  current,
+  onChange,
+  className,
+}: DeviceFrameSelectorProps): JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .current - The currently selected device frame.
+- `root0` — .onChange - Callback invoked when a device frame is selected.
+- `root0` — .className - Optional CSS class name for the container.
+
+**Returns:** The rendered device frame selector element.
+
+#### `EditorPanel(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Code editor panel with tab bar and Monaco integration.
+
+```typescript
+function EditorPanel({
+  className,
+  onActiveFileChange,
+  onEditorReady,
+  onTabsChange,
+  fileStatuses,
+  formattingFile,
+  countdownFile,
+  countdownKey,
+  formatEstimate = 2000,
+  onFixWithAI,
+  onTabDoubleClick,
+}: EditorPanelProps): JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .className - Optional CSS class name for the container.
+- `root0` — .onActiveFileChange - Callback when the active file tab changes.
+- `root0` — .onEditorReady - Callback when the Monaco editor finishes mounting.
+- `root0` — .onTabsChange - Callback when the list of open tabs changes.
+- `root0` — .fileStatuses - Git status map keyed by file path.
+- `root0` — .formattingFile - Path of the file currently being formatted.
+- `root0` — .countdownFile - Path of the file showing the format countdown bar.
+- `root0` — .countdownKey - React key to re-trigger the countdown animation.
+- `root0` — .formatEstimate - Estimated formatting duration in milliseconds.
+- `root0` — .onFixWithAI - Callback to request AI-assisted diagnostic fix.
+- `root0` — .onTabDoubleClick - Override double-click on a tab. Return true to skip default pin behavior.
+
+**Returns:** The rendered editor panel element.
+
+#### `FileExplorer(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Tree-view file explorer component with multi-select, keyboard navigation, and drag-and-drop.
+
+```typescript
+function FileExplorer({
+  files,
+  onFileSelect,
+  onFileDoubleClick,
+  onDirExpand,
+  onRename,
+  onDelete,
+  onDeleteMultiple,
+  onMoveFiles,
+  onNewFile,
+  onNewFolder,
+  onCollapseAll,
+  className,
+  persistKey,
+  activeFile,
+  fileStatuses,
+}: FileExplorerProps): JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .files - The root file nodes to display.
+- `root0` — .onFileSelect - Callback invoked when a file is selected.
+- `root0` — .onFileDoubleClick - Callback invoked when a file is double-clicked (pin tab).
+- `root0` — .onDirExpand - Callback invoked when a directory is expanded.
+- `root0` — .onRename - Callback invoked for the "Rename" context menu action.
+- `root0` — .onDelete - Callback invoked for the "Delete" context menu action.
+- `root0` — .onDeleteMultiple - Callback invoked for bulk delete.
+- `root0` — .onMoveFiles - Callback invoked when files are moved via drag-and-drop or cut+paste.
+- `root0` — .onNewFile - Callback invoked for the "New File" context menu action.
+- `root0` — .onNewFolder - Callback invoked for the "New Folder" context menu action.
+- `root0` — .onCollapseAll - Callback invoked for the "Collapse All" context menu action.
+- `root0` — .className - Optional CSS class name for the container.
+- `root0` — .persistKey - localStorage key for persisting expand/collapse state.
+- `root0` — .activeFile - The currently active file path for highlighting.
+- `root0` — .fileStatuses - Git status map keyed by file path.
+
+**Returns:** The rendered file explorer element.
+
 #### `filterActivitiesByType(activities, type)`
 
 Filters a list of activities by channel type. `null` (the "All" tab) returns
@@ -654,6 +892,18 @@ function filterActivitiesByType(activities: Activity[], type: ActivityType | nul
 - `type` — The channel type to keep, or `null` for all.
 
 **Returns:** The filtered list (a new array unless `type` is null).
+
+#### `getCustomEventCardFactory(name)`
+
+Resolve the registered card factory for a custom event name, if any.
+
+```typescript
+function getCustomEventCardFactory(name: string): ChatEventCardFactory | undefined
+```
+
+- `name` — The custom event `name`.
+
+**Returns:** The registered factory, or undefined if none is registered.
 
 #### `isInputFocused(e)`
 
@@ -680,6 +930,23 @@ function isMonacoFocused(e: KeyboardEvent): boolean
 
 **Returns:** Whether the target is inside `.monaco-editor`.
 
+#### `KeyboardShortcutsPanel(root0, root0, root0)`
+
+Keyboard shortcuts reference panel.
+
+```typescript
+function KeyboardShortcutsPanel({
+  shortcuts,
+  onDismiss,
+}: KeyboardShortcutsPanelProps): JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .shortcuts - Shortcut entries to display.
+- `root0` — .onDismiss - Called on Escape or backdrop click.
+
+**Returns:** The keyboard shortcuts panel element.
+
 #### `normalizeKeys(keys)`
 
 Normalize a shortcut definition string into the same format produced by
@@ -692,6 +959,125 @@ function normalizeKeys(keys: string): string
 - `keys` — Raw shortcut string.
 
 **Returns:** Normalized lowercase combo string.
+
+#### `PreviewPanel(root0, root0, root0, root0, root0, root0, root0)`
+
+Live preview panel with iframe, device frame selector, and URL bar.
+
+```typescript
+function PreviewPanel({
+  loadingIndicator,
+  restartingIndicator,
+  className,
+  onPreviewError,
+  onPreviewStuck,
+  fileChangeTick,
+}: PreviewPanelProps): JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .loadingIndicator - Custom loading indicator for initial start.
+- `root0` — .restartingIndicator - Custom loading indicator for mid-session restarts.
+- `root0` — .onPreviewError - Called when the preview iframe reports runtime JS errors.
+- `root0` — .onPreviewStuck - Called when the preview fails to load after multiple recovery attempts.
+- `root0` — .className - Optional CSS class name for the container.
+- `root0` — .fileChangeTick - Incremented when the user edits a file, used to cancel queued autofix messages.
+
+**Returns:** The rendered preview panel element.
+
+#### `QuickOpen(root0, root0, root0, root0)`
+
+Quick Open file finder overlay.
+
+```typescript
+function QuickOpen({ projectId, onFileOpen, onDismiss }: QuickOpenProps): JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .projectId - The project to list files for.
+- `root0` — .onFileOpen - Called when a file is selected.
+- `root0` — .onDismiss - Called when the picker is dismissed.
+
+**Returns:** The quick open element.
+
+#### `QuickPicker(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Quick picker overlay with keyboard navigation.
+
+```typescript
+function QuickPicker({
+  items,
+  placeholder,
+  onSelect,
+  onDismiss,
+  loading,
+  initialQuery,
+  className,
+}: QuickPickerProps): JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .items - Items to display.
+- `root0` — .placeholder - Input placeholder.
+- `root0` — .onSelect - Called when an item is selected.
+- `root0` — .onDismiss - Called on Escape or backdrop click.
+- `root0` — .loading - Show loading indicator.
+- `root0` — .initialQuery - Pre-fill the search input.
+- `root0` — .className - Optional CSS class name.
+
+**Returns:** The quick picker element.
+
+#### `registerCustomEventCard(name, factory)`
+
+Register a renderer for a custom chat-stream event. Consuming apps call this at
+startup so their own `{ type: 'custom', name }` events surface as chat cards —
+keeping app-specific events out of the core ai-chat union and this package's
+ChatPanel. Re-registering the same name overwrites the previous factory.
+
+```typescript
+function registerCustomEventCard(name: string, factory: ChatEventCardFactory): void
+```
+
+- `name` — The custom event `name` to handle (matches the emitted event's `name`).
+- `factory` — Builds the card from the event's `data` (or returns null to skip).
+
+#### `ResizeHandle(root0, root0, root0, root0)`
+
+Draggable handle for resizing adjacent panels.
+
+```typescript
+function ResizeHandle({
+  onResize,
+  direction = 'horizontal',
+  className,
+}: ResizeHandleProps): JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .onResize - Callback invoked with the pixel delta on drag.
+- `root0` — .direction - The resize direction, horizontal or vertical.
+- `root0` — .className - Optional CSS class name for the handle.
+
+**Returns:** The rendered resize handle element.
+
+#### `SearchPanel(root0, root0, root0, root0)`
+
+Search-in-files panel for the IDE sidebar with find-and-replace support.
+
+```typescript
+function SearchPanel({
+  projectId,
+  onResultClick,
+  className,
+}: SearchPanelProps): JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .projectId - The project to search in.
+- `root0` — .onResultClick - Called when a match is clicked.
+- `root0` — .className - Optional CSS class name.
+
+**Returns:** The search panel element.
 
 #### `serializeEvent(e, isMac)`
 
@@ -708,6 +1094,54 @@ function serializeEvent(e: KeyboardEvent, isMac?: boolean): string
 
 **Returns:** Serialized combo string.
 
+#### `SidebarTabs(root0, root0, root0, root0, root0)`
+
+Sidebar tab strip with file explorer and search icons.
+
+```typescript
+function SidebarTabs({
+  activeTab,
+  onTabChange,
+  children,
+  className,
+}: SidebarTabsProps): JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .activeTab - The currently selected tab.
+- `root0` — .onTabChange - Callback when tab is clicked.
+- `root0` — .children - Content to render below the tab strip.
+- `root0` — .className - Optional CSS class name.
+
+**Returns:** The sidebar tabs element.
+
+#### `TabBar(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Horizontally scrollable tab bar for open editor files.
+
+```typescript
+function TabBar({
+  tabs,
+  activeFile,
+  onSelect,
+  onClose,
+  onDoubleClick,
+  fileStatuses,
+  className,
+}: TabBarProps): JSX.Element | null
+```
+
+- `root0` — The component props.
+- `root0` — .tabs - The list of open file tabs.
+- `root0` — .activeFile - The path of the currently active file.
+- `root0` — .onSelect - Callback invoked when a tab is clicked.
+- `root0` — .onClose - Callback invoked when a tab's close button is clicked.
+- `root0` — .onDoubleClick - Callback invoked when a tab is double-clicked (pin).
+- `root0` — .fileStatuses - Git status map keyed by file path.
+- `root0` — .className - Optional CSS class name for the tab bar.
+
+**Returns:** The rendered tab bar element, or null if no tabs are open.
+
 #### `useKeyboardShortcuts(shortcuts)`
 
 Registers global keyboard shortcuts on the document.
@@ -717,6 +1151,20 @@ function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]): void
 ```
 
 - `shortcuts` — Array of shortcut definitions. Callers should wrap
+
+#### `WorkspaceLayout(root0, root0, root0)`
+
+Top-level workspace layout that arranges child panels with resize handles.
+
+```typescript
+function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): JSX.Element
+```
+
+- `root0` — The component props.
+- `root0` — .children - The panel components to render in the layout.
+- `root0` — .className - Optional CSS class name for the layout container.
+
+**Returns:** The rendered workspace layout element.
 
 ### Constants
 
@@ -736,6 +1184,14 @@ Detect macOS / iOS for Cmd vs Ctrl.
 const IS_MAC: boolean
 ```
 
+#### `ToolCallCard`
+
+Compact tool-call row with status dot, label, summary, and expandable detail pane.
+
+```typescript
+const ToolCallCard: MemoExoticComponent<({ id, name, input, output, status, fileDiff, isUndone: isUndoneProp, onUndoToggle, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onAskUserResponse, className, }: ToolCallCardProps) => JSX.Element | null>
+```
+
 ## Injection Notes
 
 ### Requirements
@@ -747,6 +1203,7 @@ Peer dependencies:
 - `@molecule/app-code-editor` ^1.0.0
 - `@molecule/app-ide` ^1.0.0
 - `@molecule/app-live-preview` ^1.0.0
+- `@molecule/app-logger` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

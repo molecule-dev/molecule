@@ -32,6 +32,55 @@ const slots = [
 npm install @molecule/app-time-slot-picker-react
 ```
 
+## API
+
+### Interfaces
+
+#### `TimeSlot`
+
+Represents a single selectable time slot with an optional meta line and disabled state.
+
+```typescript
+interface TimeSlot {
+  id: string
+  /** Display label — `'14:00–16:00'`, `'Morning (9–12)'`, etc. */
+  label: ReactNode
+  /** Optional secondary line — date, fee, capacity. */
+  meta?: ReactNode
+  /** When true, slot is disabled (full / past / unavailable). */
+  disabled?: boolean
+}
+```
+
+### Functions
+
+#### `TimeSlotPicker(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Picker for delivery / appointment / reservation time slots. Each slot
+shows a label + optional secondary meta (date, fee, remaining
+capacity). Disabled slots are dimmed and not clickable.
+
+```typescript
+function TimeSlotPicker({
+  slots,
+  selectedId,
+  onSelect,
+  layout = 'list',
+  columns = 2,
+  title,
+  className,
+}: TimeSlotPickerProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .slots
+- `root0` — .selectedId
+- `root0` — .onSelect
+- `root0` — .layout
+- `root0` — .columns
+- `root0` — .title
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

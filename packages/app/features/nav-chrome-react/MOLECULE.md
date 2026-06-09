@@ -42,7 +42,20 @@ npm install @molecule/app-nav-chrome-react
 
 ### Interfaces
 
+#### `FooterLink`
+
+A single navigable link rendered in the footer link row.
+
+```typescript
+interface FooterLink {
+  label: ReactNode
+  to?: string
+}
+```
+
 #### `NavGroup`
+
+A labeled group of NavItems rendered as a collapsible section in side/bottom nav shells.
 
 ```typescript
 interface NavGroup {
@@ -75,6 +88,103 @@ interface NavItem {
   disabled?: boolean
 }
 ```
+
+### Functions
+
+#### `AppShellBottomNav(root0, root0, root0, root0, root0)`
+
+Mobile/tablet bottom tab bar — typically 3–5 primary nav destinations.
+Each item shows icon + short label. On desktop layouts this is usually
+hidden via parent-level responsive chrome.
+
+```typescript
+function AppShellBottomNav({
+  items,
+  activeId,
+  onItemClick,
+  className,
+}: AppShellBottomNavProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .items
+- `root0` — .activeId
+- `root0` — .onItemClick
+- `root0` — .className
+
+#### `AppShellFooter(root0, root0, root0, root0, root0, root0)`
+
+Bottom page footer shell. All content is optional — apps mix and match
+logo / copyright / links / right-slot as the design demands.
+
+```typescript
+function AppShellFooter({
+  logo,
+  copyright,
+  links,
+  right,
+  className,
+}: AppShellFooterProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .logo
+- `root0` — .copyright
+- `root0` — .links
+- `root0` — .right
+- `root0` — .className
+
+#### `AppShellSideNav(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Vertical side nav shell. Pass either `items` for a flat list or
+`groups` for a sectioned layout ("Main / Teams / Settings"). Header
+and footer slots remain fixed while the middle scrolls.
+
+```typescript
+function AppShellSideNav({
+  items,
+  groups,
+  activeId,
+  onItemClick,
+  header,
+  footer,
+  className,
+}: AppShellSideNavProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .items
+- `root0` — .groups
+- `root0` — .activeId
+- `root0` — .onItemClick
+- `root0` — .header
+- `root0` — .footer
+- `root0` — .className
+
+#### `AppShellTopNav(root0, root0, root0, root0, root0, root0, root0)`
+
+Top navigation shell — logo on the left, nav items in the centre,
+app-level actions on the right. Fully slot-driven; apps decide what
+to render in each position.
+
+```typescript
+function AppShellTopNav({
+  logo,
+  items,
+  activeId,
+  onItemClick,
+  right,
+  className,
+}: AppShellTopNavProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .logo
+- `root0` — .items
+- `root0` — .activeId
+- `root0` — .onItemClick
+- `root0` — .right
+- `root0` — .className
 
 ## Injection Notes
 

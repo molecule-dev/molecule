@@ -103,7 +103,7 @@ interface Canvas2DContext {
   strokeText(text: string, x: number, y: number): void
   fillRect(x: number, y: number, w: number, h: number): void
   drawImage(image: any, x: number, y: number, w: number, h: number): void
-  // eslint-disable-next-line @typescript-eslint/method-signature-style
+
   loadImage?: (source: any) => Promise<any>
 }
 ```

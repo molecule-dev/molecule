@@ -230,6 +230,27 @@ interface SurveyQuestionBase {
 }
 ```
 
+#### `SurveyQuestionProps`
+
+Props for the `<SurveyQuestion>` renderer.
+
+```typescript
+interface SurveyQuestionProps {
+  /** Discriminated-union question payload — drives which sub-component is rendered. */
+  question: SurveyQuestionDef
+  /** Current answer value (kind-dependent shape). */
+  value?: SurveyAnswerValue
+  /** Called whenever the answer value changes. */
+  onChange?: (value: SurveyAnswerValue) => void
+  /** Called when the user clicks "Submit" — only fires when the answer passes required-field validation. */
+  onSubmit?: (value: SurveyAnswerValue) => void
+  /** When true, every input is disabled and no controls fire change events. */
+  readOnly?: boolean
+  /** Optional extra classes on the root wrapper. */
+  className?: string
+}
+```
+
 #### `TrueFalseQuestion`
 
 Boolean true/false question.
@@ -301,6 +322,35 @@ type SurveyQuestionKind =
   | 'file-upload'
   | 'matrix'
 ```
+
+### Functions
+
+#### `SurveyQuestion(props)`
+
+Multi-type survey question renderer. Discriminates on `question.kind` and
+renders the matching sub-component for one of 11 supported kinds:
+
+- `multi-choice-single`, `multi-choice-multi`
+- `true-false`
+- `short-text`, `long-text`
+- `numeric` (with optional unit)
+- `rating-scale` (configurable min/max, defaults to 1–5)
+- `nps` (0–10)
+- `date`
+- `file-upload` (delegates to `<FileDropzone>`)
+- `matrix` (sub-questions × shared options)
+
+Required-field validation runs only on submit; `onChange` always fires.
+All styling goes through `getClassMap()`. All UI text goes through `t()`
+with English fallbacks; translations live in `@molecule/app-locales-survey-question`.
+
+```typescript
+function SurveyQuestion(props: SurveyQuestionProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+
+**Returns:** The question element.
 
 ## Injection Notes
 

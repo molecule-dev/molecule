@@ -26,6 +26,37 @@ import { Sparkline } from '@molecule/app-sparkline-react'
 npm install @molecule/app-sparkline-react
 ```
 
+## API
+
+### Functions
+
+#### `Sparkline(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Tiny inline trend chart — line, bar, or dot variants. Uses SVG with
+no external library so it works inside cards, table cells, KPI tiles,
+etc. without a chart bond.
+
+```typescript
+function Sparkline({
+  values,
+  variant = 'line',
+  width = 80,
+  height = 24,
+  color = 'currentColor',
+  ariaLabel,
+  className,
+}: SparklineProps): ReactElement<unknown, string | JSXElementConstructor<any>> | null
+```
+
+- `root0` — *
+- `root0` — .values
+- `root0` — .variant
+- `root0` — .width
+- `root0` — .height
+- `root0` — .color
+- `root0` — .ariaLabel
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

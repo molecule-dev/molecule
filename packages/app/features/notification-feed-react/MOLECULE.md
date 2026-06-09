@@ -29,6 +29,48 @@ npm install @molecule/app-notification-feed-react
 
 ## API
 
+### Interfaces
+
+#### `FeedItem`
+
+A single item rendered inside a NotificationFeed list.
+
+```typescript
+interface FeedItem {
+  /** Stable identifier (used as React key). */
+  id: string
+  /** Material symbol icon name (e.g. `'check_circle'`, `'chat'`). */
+  icon: string
+  /** Bolded headline string. */
+  title: string
+  /** Secondary body string. */
+  body: string
+  /** ISO timestamp shown as relative time on the right. */
+  createdAt: string
+  /** Optional route — when set, wraps the row in `<Link>`. */
+  href?: string | null
+  /** When true, the row gets a left primary-accent border. */
+  unread?: boolean
+}
+```
+
+#### `NotificationFeedProps`
+
+Props for the NotificationFeed component.
+
+```typescript
+interface NotificationFeedProps {
+  /** Items to render, top to bottom. */
+  items: ReadonlyArray<FeedItem>
+  /** Aria-label for the underlying `<ul>`. */
+  ariaLabel?: string
+  /** Extra classes on the outer `<ul>`. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+```
+
 ### Functions
 
 #### `fmtRelativeShort(iso)`
@@ -45,6 +87,30 @@ function fmtRelativeShort(iso: string): string
 - `iso` — ISO 8601 timestamp string
 
 **Returns:** short relative string (e.g. "12m", "3h", "5d")
+
+#### `NotificationFeed(root0, root0, root0, root0, root0)`
+
+Vertical notification feed: typed icon + title + body + relative time
+with optional unread border-l accent and optional per-row Link.
+
+Apps build their own typed-icon mapping (notif.type → icon name) and
+pass the resolved icon string in. Keeps this package free of per-app
+type unions.
+
+```typescript
+function NotificationFeed({
+  items,
+  ariaLabel,
+  className,
+  dataMolId,
+}: NotificationFeedProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .items
+- `root0` — .ariaLabel
+- `root0` — .className
+- `root0` — .dataMolId
 
 ## Injection Notes
 

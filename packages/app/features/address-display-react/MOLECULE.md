@@ -32,6 +32,60 @@ import { AddressDisplay } from '@molecule/app-address-display-react'
 npm install @molecule/app-address-display-react
 ```
 
+## API
+
+### Interfaces
+
+#### `Address`
+
+Structured postal address with optional individual fields.
+
+```typescript
+interface Address {
+  /** First line — street + number. */
+  line1?: string
+  /** Second line — apartment, suite, unit. */
+  line2?: string
+  /** City. */
+  city?: string
+  /** State / province / region. */
+  state?: string
+  /** ZIP / postal code. */
+  postalCode?: string
+  /** Country. */
+  country?: string
+}
+```
+
+### Functions
+
+#### `AddressDisplay(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Formatted multi-line address display with optional name, phone,
+leading slot, and right-side actions. Set `inline` to render all
+fields on a single line (e.g., in a table cell).
+
+```typescript
+function AddressDisplay({
+  address,
+  name,
+  phone,
+  leading,
+  actions,
+  inline,
+  className,
+}: AddressDisplayProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .address
+- `root0` — .name
+- `root0` — .phone
+- `root0` — .leading
+- `root0` — .actions
+- `root0` — .inline
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

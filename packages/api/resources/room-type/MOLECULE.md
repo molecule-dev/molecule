@@ -342,6 +342,8 @@ const i18nRegistered: true
 
 #### `requestHandlerMap`
 
+Maps route handler names to their request handler implementations for the room-type resource.
+
 ```typescript
 const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; }
 ```

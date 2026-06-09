@@ -33,6 +33,8 @@ npm install @molecule/api-resource-journal-entry
 
 #### `CreateEntryInput`
 
+Input fields accepted when creating a new journal entry.
+
 ```typescript
 interface CreateEntryInput {
   mood?: MoodLevel
@@ -45,6 +47,8 @@ interface CreateEntryInput {
 ```
 
 #### `ExportRecord`
+
+Flattened, export-friendly representation of a single journal entry.
 
 ```typescript
 interface ExportRecord {
@@ -124,6 +128,8 @@ interface PublicJournalEntry {
 ```
 
 #### `UpdateEntryInput`
+
+Fields that can be patched on an existing journal entry.
 
 ```typescript
 interface UpdateEntryInput {
@@ -271,6 +277,8 @@ const moodLevelSchema: z.ZodEnum<{ radiant: "radiant"; good: "good"; neutral: "n
 
 #### `SCORE_BY_LEVEL`
 
+Maps each MoodLevel label to its corresponding numeric score (1..5).
+
 ```typescript
 const SCORE_BY_LEVEL: Record<MoodLevel, number>
 ```
@@ -289,6 +297,7 @@ const updateEntrySchema: z.ZodObject<{ mood: z.ZodOptional<z.ZodOptional<z.ZodEn
 
 Peer dependencies:
 - `@molecule/api-bonds-default-express` ^1.0.0
+- `@molecule/api-logger` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-encryption` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0

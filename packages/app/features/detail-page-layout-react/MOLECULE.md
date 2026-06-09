@@ -28,6 +28,41 @@ import { DetailPageLayout } from '@molecule/app-detail-page-layout-react'
 npm install @molecule/app-detail-page-layout-react
 ```
 
+## API
+
+### Functions
+
+#### `DetailPageLayout(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Two- or three-row detail-page scaffold.
+
+Layout: breadcrumb (optional), top bar (optional sticky), two-column
+body with a main region and an optional sidebar on either side.
+Apps fill the slots with their own cards/sections.
+
+```typescript
+function DetailPageLayout({
+  breadcrumb,
+  topBar,
+  main,
+  sidebar,
+  sidebarPosition = 'right',
+  sidebarWidth = 'md',
+  className,
+  dataMolId,
+}: DetailPageLayoutProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .breadcrumb
+- `root0` — .topBar
+- `root0` — .main
+- `root0` — .sidebar
+- `root0` — .sidebarPosition
+- `root0` — .sidebarWidth
+- `root0` — .className
+- `root0` — .dataMolId
+
 ## Injection Notes
 
 ### Requirements

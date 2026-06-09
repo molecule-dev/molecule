@@ -47,6 +47,47 @@ npm install @molecule/app-flow-canvas-react
 
 ### Interfaces
 
+#### `FlowCanvasProps`
+
+`<FlowCanvas>` props.
+
+```typescript
+interface FlowCanvasProps {
+  /** Nodes (controlled) or initial nodes (uncontrolled). */
+  nodes: FlowNode[]
+  /** Edges (controlled) or initial edges (uncontrolled). */
+  edges: FlowEdge[]
+  /**
+   * If provided, the canvas runs in **controlled** mode: built-in
+   * interactions (drag, connect, delete) call `onChange` instead of
+   * mutating internal state.
+   */
+  onChange?: (next: FlowChange) => void
+  /** Map of node `type` → renderer. */
+  nodeRenderers?: FlowNodeRenderers
+  /** Fallback children rendered inside every node when `nodeRenderers` has no match. */
+  children?: ReactNode
+  /** Fired when the selection changes. */
+  onSelectionChange?: (selection: FlowSelection) => void
+  /** Fired when an edge is clicked. */
+  onEdgeClick?: (edge: FlowEdge) => void
+  /** Fired when a node is clicked. */
+  onNodeClick?: (node: FlowNode) => void
+  /** Disables the built-in delete-key shortcut. */
+  disableDeleteShortcut?: boolean
+  /** Disables panning of the canvas. */
+  disablePan?: boolean
+  /** Disables zooming via mouse wheel. */
+  disableZoom?: boolean
+  /** Show the dotted background grid. Defaults to true. */
+  showGrid?: boolean
+  /** Initial viewport (uncontrolled only). */
+  initialViewport?: FlowViewport
+  /** Extra classes merged onto the outer wrapper. */
+  className?: string
+}
+```
+
 #### `FlowChange`
 
 Change payload emitted by `<FlowCanvas>` when the graph is mutated by
@@ -240,6 +281,34 @@ function defaultTargetPort(node: FlowNode<unknown>): FlowPoint
 - `node` — The target node.
 
 **Returns:** Centre-left anchor point in world coordinates.
+
+#### `FlowCanvas(props)`
+
+Visual flow / DAG editor.
+
+Renders nodes as absolutely-positioned `<div>` slots and edges as a
+single `<svg>` overlay containing one `<path>` per edge. Built-in
+interactions:
+
+- **Drag a node** — press on a node body and drag to reposition.
+- **Pan the canvas** — press on empty space and drag.
+- **Zoom** — mouse-wheel scroll (anchored on the cursor).
+- **Connect ports** — press on a source handle (right edge of a node)
+  and drag onto another node to create an edge.
+- **Select** — click a node or edge; Backspace / Delete removes
+  everything in the selection.
+
+Style is driven entirely by `getClassMap()`. Inline styles are reserved
+for geometry — node `transform: translate(...)`, viewport pan/zoom,
+SVG attributes — which classes can't express.
+
+```typescript
+function FlowCanvas(props: FlowCanvasProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The flow canvas element.
 
 #### `moveNode(nodes, id, position)`
 

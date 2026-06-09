@@ -33,6 +33,8 @@ npm install @molecule/api-ai-moderation-pipeline
 
 #### `AuditLogRow`
 
+Database row shape for a single moderation audit-log entry.
+
 ```typescript
 interface AuditLogRow {
   id: string
@@ -50,6 +52,8 @@ interface AuditLogRow {
 
 #### `ModerationDecision`
 
+Final verdict returned by the pipeline for a piece of content.
+
 ```typescript
 interface ModerationDecision {
   action: ModerationAction
@@ -64,6 +68,8 @@ interface ModerationDecision {
 
 #### `ModerationPolicy`
 
+Per-category thresholds and actions that govern moderation decisions.
+
 ```typescript
 interface ModerationPolicy {
   /** Threshold per category — content above this score triggers the action. */
@@ -77,6 +83,8 @@ interface ModerationPolicy {
 
 #### `ModerationScore`
 
+Per-category confidence score produced by a moderation classifier.
+
 ```typescript
 interface ModerationScore {
   category: ModerationCategory
@@ -89,11 +97,15 @@ interface ModerationScore {
 
 #### `ModerationAction`
 
+Action the pipeline takes after evaluating content against policy.
+
 ```typescript
 type ModerationAction = 'allow' | 'flag' | 'block' | 'redact'
 ```
 
 #### `ModerationCategory`
+
+Content category assigned by the moderation pipeline.
 
 ```typescript
 type ModerationCategory =
@@ -138,6 +150,8 @@ function moderate(opts: { content: string; policy?: ModerationPolicy; ownerId?: 
 ### Constants
 
 #### `DEFAULT_POLICY`
+
+Default moderation policy applied when no explicit policy is provided.
 
 ```typescript
 const DEFAULT_POLICY: ModerationPolicy

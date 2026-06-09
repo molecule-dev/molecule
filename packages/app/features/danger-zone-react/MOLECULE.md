@@ -36,6 +36,75 @@ import { ConfirmDialog, DangerZoneSection } from '@molecule/app-danger-zone-reac
 npm install @molecule/app-danger-zone-react
 ```
 
+## API
+
+### Functions
+
+#### `ConfirmDialog(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Are-you-sure-style confirmation modal for destructive actions.
+
+Use standalone (around delete buttons, revoke tokens, irreversible
+migrations) or wrap DangerZoneSection's action with this dialog.
+
+```typescript
+function ConfirmDialog({
+  open,
+  onClose,
+  title,
+  description,
+  confirmLabel,
+  cancelLabel,
+  onConfirm,
+  destructive = true,
+  children,
+  loading,
+}: ConfirmDialogProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .open
+- `root0` — .onClose
+- `root0` — .title
+- `root0` — .description
+- `root0` — .confirmLabel
+- `root0` — .cancelLabel
+- `root0` — .onConfirm
+- `root0` — .destructive
+- `root0` — .children
+- `root0` — .loading
+
+#### `DangerZoneSection(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Card-wrapped section for destructive actions — delete account,
+reset data, revoke access. Uses the error/danger accent color and
+puts the action on the right.
+
+```typescript
+function DangerZoneSection({
+  title,
+  description,
+  actionLabel,
+  onAction,
+  loading,
+  disabled,
+  children,
+  className,
+  dataMolId,
+}: DangerZoneSectionProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .title
+- `root0` — .description
+- `root0` — .actionLabel
+- `root0` — .onAction
+- `root0` — .loading
+- `root0` — .disabled
+- `root0` — .children
+- `root0` — .className
+- `root0` — .dataMolId
+
 ## Injection Notes
 
 ### Requirements

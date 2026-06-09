@@ -33,6 +33,207 @@ import { BarcodeScanner } from '@molecule/app-feature-barcode-scanner-react'
 npm install @molecule/app-feature-barcode-scanner-react @zxing/library
 ```
 
+## API
+
+### Interfaces
+
+#### `BarcodeScannerError`
+
+Error shape passed to `onError`.
+
+```typescript
+interface BarcodeScannerError {
+  /** Stable machine-readable error code. */
+  code: BarcodeScannerErrorCode
+  /** Localized human-readable message. */
+  message: string
+  /** Original underlying error, if any. */
+  cause?: unknown
+}
+```
+
+#### `BarcodeScannerProps`
+
+Props for `<BarcodeScanner>`.
+
+```typescript
+interface BarcodeScannerProps {
+  /**
+   * Symbologies the scanner should accept. Defaults to the four most
+   * common retail / logistics codes:
+   * `['ean_13', 'upc_a', 'code_128', 'qr_code']`.
+   */
+  formats?: BarcodeFormat[]
+  /** Fired with the decoded result on every successful scan. */
+  onScan: (result: BarcodeScanResult) => void
+  /** Fired when camera acquisition or detection fails. */
+  onError?: (error: BarcodeScannerError) => void
+  /**
+   * When `true`, keeps scanning after each detection (deduped on the
+   * decoded value). When `false` (default), stops the camera and the
+   * detection loop on the first successful scan.
+   */
+  continuous?: boolean
+  /**
+   * Polling interval, in milliseconds, between detector frames.
+   * Defaults to `200`. Lower values increase responsiveness at higher
+   * CPU cost.
+   */
+  scanIntervalMs?: number
+  /** Pixel width hint passed as the camera constraint. Defaults to 640. */
+  width?: number
+  /** Pixel height hint passed as the camera constraint. Defaults to 480. */
+  height?: number
+  /** Extra classes merged onto the root element. */
+  className?: string
+}
+```
+
+#### `BarcodeScanResult`
+
+Result emitted from a successful scan.
+
+```typescript
+interface BarcodeScanResult {
+  /** Format of the detected symbology (e.g. `'ean_13'`). */
+  format: BarcodeFormat | string
+  /** Raw decoded value as produced by the underlying detector. */
+  value: string
+}
+```
+
+#### `ZxingReader`
+
+Minimal subset of `BrowserMultiFormatReader` we depend on.
+
+```typescript
+interface ZxingReader {
+  /**
+   * Decode a single frame from a `<video>` element. Returns
+   * `{ text, format }` when a barcode is detected, otherwise `null` or
+   * throws a `NotFoundException` (caller treats both as "no match").
+   */
+  decodeOnceFromVideoElement(video: HTMLVideoElement): Promise<{ text: string; format?: string }>
+  /** Stop any internal scanning loop and release decoders. */
+  reset(): void
+}
+```
+
+### Types
+
+#### `BarcodeFormat`
+
+Supported barcode/symbology formats. Mirrors the W3C Shape Detection
+`BarcodeFormat` enum so values can be passed straight through to the
+native `BarcodeDetector` constructor when present, and mapped to
+equivalents in the `@zxing/library` fallback.
+
+```typescript
+type BarcodeFormat =
+  | 'aztec'
+  | 'code_128'
+  | 'code_39'
+  | 'code_93'
+  | 'codabar'
+  | 'data_matrix'
+  | 'ean_8'
+  | 'ean_13'
+  | 'itf'
+  | 'pdf417'
+  | 'qr_code'
+  | 'upc_a'
+  | 'upc_e'
+```
+
+#### `BarcodeScannerErrorCode`
+
+Reasons the scanner can fail at runtime — surfaced via `onError` and
+via i18n-keyed status messages on the rendered overlay.
+
+```typescript
+type BarcodeScannerErrorCode =
+  /** `getUserMedia()` rejected with `NotAllowedError` or `SecurityError`. */
+  | 'permission_denied'
+  /** `getUserMedia()` rejected with `NotFoundError` (no camera attached). */
+  | 'no_camera'
+  /** Browser does not expose `navigator.mediaDevices.getUserMedia`. */
+  | 'unsupported'
+  /** A detector instance threw while decoding a frame. */
+  | 'detector_failure'
+  /** The fallback `@zxing/library` import failed (offline / blocked). */
+  | 'fallback_unavailable'
+```
+
+#### `ZxingLoader`
+
+Loader function returning a `@zxing/library`-compatible reader.
+Indirection lets us pin to a small subset of the surface area we
+actually depend on and lets tests stub the fallback path.
+
+```typescript
+type ZxingLoader = () => Promise<ZxingReader>
+```
+
+### Functions
+
+#### `__setBarcodeDetectorOverride(ctor)`
+
+Override the `BarcodeDetector` constructor used by the next mounted
+scanner. Pass `null` to force the fallback path even when the
+native API is present. Pass `undefined` to revert to the browser
+default.
+
+```typescript
+function __setBarcodeDetectorOverride(ctor: BarcodeDetectorConstructor | null | undefined): void
+```
+
+- `ctor` — Constructor stub or `null`/`undefined`.
+
+#### `__setZxingLoaderOverride(loader)`
+
+Override the `@zxing/library` loader used by the next mounted
+scanner. Pass `null` to force the loader to fail (simulating an
+offline bundle). Pass `undefined` to revert to the real dynamic
+import.
+
+```typescript
+function __setZxingLoaderOverride(loader: ZxingLoader | null | undefined): void
+```
+
+- `loader` — Loader stub or `null`/`undefined`.
+
+#### `BarcodeScanner(props)`
+
+Browser-side barcode scanner. Acquires a rear-facing camera via
+`navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })`,
+then drives a detection loop using the native `BarcodeDetector` API
+when available and falling back to `@zxing/library` otherwise.
+
+The component is purely presentational on top of the camera stream
+— it renders a `<video>` plus a small status overlay routed through
+the companion locale bond and `getClassMap()`. Detected results are
+delivered to the caller through `onScan`; failures through
+`onError`. The camera stream and detection loop are torn down on
+unmount and on every prop change that affects acquisition.
+
+```typescript
+function BarcodeScanner(props: BarcodeScannerProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The scanner element.
+
+### Constants
+
+#### `DEFAULT_FORMATS`
+
+Default formats accepted when the caller doesn't pass `formats`.
+
+```typescript
+const DEFAULT_FORMATS: BarcodeFormat[]
+```
+
 ## Injection Notes
 
 ### Requirements

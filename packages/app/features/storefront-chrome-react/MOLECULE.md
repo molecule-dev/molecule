@@ -55,6 +55,8 @@ npm install @molecule/app-storefront-chrome-react
 
 #### `FooterColumn`
 
+Describes a single column of links rendered in the storefront footer.
+
 ```typescript
 interface FooterColumn {
   heading: ReactNode
@@ -63,6 +65,8 @@ interface FooterColumn {
 ```
 
 #### `NavActionSpec`
+
+Describes an icon-button action (e.g. cart, search) shown in the storefront header.
 
 ```typescript
 interface NavActionSpec {
@@ -78,6 +82,8 @@ interface NavActionSpec {
 
 #### `NavLinkSpec`
 
+Describes a navigation link rendered in the storefront header nav bar.
+
 ```typescript
 interface NavLinkSpec {
   to: string
@@ -90,12 +96,86 @@ interface NavLinkSpec {
 
 #### `ProfileMenuItem`
 
+Describes a single item in the storefront header profile dropdown menu.
+
 ```typescript
 interface ProfileMenuItem {
   to: string
   label: ReactNode
   dataMolId?: string
 }
+```
+
+### Functions
+
+#### `StorefrontAnnouncementBar({
+  message,
+  cta,
+  className,
+})`
+
+Storefront announcement / promo bar.
+
+```typescript
+function StorefrontAnnouncementBar({
+  message,
+  cta,
+  className,
+}: StorefrontAnnouncementBarProps): JSX.Element
+```
+
+#### `StorefrontFooter({
+  brand,
+  tagline,
+  columns = [],
+  copyright,
+  className,
+})`
+
+Storefront footer with brand block + columns + copyright.
+
+```typescript
+function StorefrontFooter({
+  brand,
+  tagline,
+  columns = [],
+  copyright,
+  className,
+}: StorefrontFooterProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+#### `StorefrontTopNav({
+  brand,
+  brandTo = '/',
+  links = [],
+  actions = [],
+  isAuthenticated,
+  profileImageUrl,
+  profileImageAlt = 'User profile',
+  authedMenu = [],
+  unauthedMenu = [],
+  onSignOut,
+  signOutLabel = 'Sign Out',
+  className,
+})`
+
+Storefront top navigation bar.
+
+```typescript
+function StorefrontTopNav({
+  brand,
+  brandTo = '/',
+  links = [],
+  actions = [],
+  isAuthenticated,
+  profileImageUrl,
+  profileImageAlt = 'User profile',
+  authedMenu = [],
+  unauthedMenu = [],
+  onSignOut,
+  signOutLabel = 'Sign Out',
+  className,
+}: StorefrontTopNavProps): JSX.Element
 ```
 
 ## Injection Notes

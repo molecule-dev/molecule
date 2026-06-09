@@ -33,6 +33,75 @@ import { CardGrid, BentoGrid } from '@molecule/app-card-grid-react'
 npm install @molecule/app-card-grid-react
 ```
 
+## API
+
+### Interfaces
+
+#### `BentoItem`
+
+Data descriptor for a single cell in a BentoGrid layout.
+
+```typescript
+interface BentoItem {
+  /** Unique item identifier (React key). */
+  id: string
+  /** Card content. */
+  content: ReactNode
+  /** CSS grid-column-span (1-12). Defaults to 4. */
+  colSpan?: number
+  /** CSS grid-row-span (1-6). Defaults to 1. */
+  rowSpan?: number
+  /** Named grid-area when using `areas` layout. */
+  area?: string
+}
+```
+
+### Functions
+
+#### `BentoGrid(root0, root0, root0, root0, root0, root0)`
+
+Bento-style grid — items span multiple cells for a magazine / dashboard
+layout. Works in two modes: (a) col/row-span driven, (b) named-areas
+driven via the `areas` prop.
+
+```typescript
+function BentoGrid({
+  items,
+  areas,
+  columns = 12,
+  gap = 'md',
+  className,
+}: BentoGridProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .items
+- `root0` — .areas
+- `root0` — .columns
+- `root0` — .gap
+- `root0` — .className
+
+#### `CardGrid(root0, root0, root0, root0, root0)`
+
+Generic responsive card grid. Collapses to one column on narrow viewports
+and grows to `columns` on md+. Typical uses: product grids, post grids,
+dashboard widget rows.
+
+```typescript
+function CardGrid({
+  children,
+  columns = 3,
+  gap = 'md',
+  className,
+}: CardGridProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .children
+- `root0` — .columns
+- `root0` — .gap
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

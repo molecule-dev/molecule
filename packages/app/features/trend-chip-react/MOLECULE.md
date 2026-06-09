@@ -24,6 +24,37 @@ import { TrendChip } from '@molecule/app-trend-chip-react'
 npm install @molecule/app-trend-chip-react
 ```
 
+## API
+
+### Functions
+
+#### `TrendChip(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Standalone trend delta chip — `▲ 12%` style display for inline
+placement in row/header/cell contexts. Different from
+`<KpiCardTrend>` in being usable outside of a KPI card.
+
+```typescript
+function TrendChip({
+  delta,
+  direction,
+  suffix = '%',
+  prefix,
+  variant = 'subtle',
+  ariaLabel,
+  className,
+}: TrendChipProps): React.JSX.Element
+```
+
+- `root0` — *
+- `root0` — .delta
+- `root0` — .direction
+- `root0` — .suffix
+- `root0` — .prefix
+- `root0` — .variant
+- `root0` — .ariaLabel
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

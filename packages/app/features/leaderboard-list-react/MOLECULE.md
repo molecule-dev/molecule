@@ -25,6 +25,33 @@ import { LeaderboardRow } from '@molecule/app-leaderboard-row-react'
 npm install @molecule/app-leaderboard-list-react
 ```
 
+## API
+
+### Functions
+
+#### `LeaderboardList(root0, root0, root0, root0, root0, root0)`
+
+Container above a stack of `<LeaderboardRow>`s — header + actions +
+scrollable list. Doesn't itself render rank logic; pair with
+`<LeaderboardRow>` from `@molecule/app-leaderboard-row-react`.
+
+```typescript
+function LeaderboardList({
+  children,
+  title,
+  actions,
+  emptyState,
+  className,
+}: LeaderboardListProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .children
+- `root0` — .title
+- `root0` — .actions
+- `root0` — .emptyState
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

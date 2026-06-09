@@ -128,6 +128,60 @@ interface MapDrawingBackend {
 }
 ```
 
+#### `MapDrawingProps`
+
+MapDrawing component props.
+
+```typescript
+interface MapDrawingProps {
+  /** Initial shapes to seed the surface with. */
+  initialShapes?: MapShape[]
+  /** Called whenever the shape list changes (add / edit / delete). */
+  onChange: (shapes: MapShape[]) => void
+  /** Drawing tools to expose. Defaults to the four built-in tools. */
+  tools?: DrawingTool[]
+  /** Externally controlled active tool. When omitted, the component manages tool state internally. */
+  activeTool?: ActiveTool
+  /** Called when the active tool changes (drives the toolbar regardless of internal/external state). */
+  onActiveToolChange?: (tool: ActiveTool) => void
+  /**
+   * Map backend used to project between geographic and screen coordinates.
+   * Defaults to an identity backend that treats `lng → x`, `lat → y` so
+   * the component can be exercised in tests without a real map provider.
+   * In production, callers wire this up against a `MapInstance` from
+   * `@molecule/app-maps`.
+   */
+  mapBackend?: MapDrawingBackend
+  /** Optional render slot for the map background (e.g. `<MapView />`). */
+  mapSlot?: ReactNode
+  /** Width of the surface (CSS) — defaults to `100%`. */
+  width?: number | string
+  /** Height of the surface (CSS) — defaults to `400`. */
+  height?: number | string
+  /** Extra classes merged onto the root element. */
+  className?: string
+}
+```
+
+#### `MapDrawingToolbarProps`
+
+MapDrawingToolbar component props.
+
+```typescript
+interface MapDrawingToolbarProps {
+  /** Drawing tools to expose (in declaration order). */
+  tools: DrawingTool[]
+  /** Currently active tool. */
+  activeTool: ActiveTool
+  /** Called when the user clicks a tool button. */
+  onActiveToolChange: (tool: ActiveTool) => void
+  /** Called when the user clicks the delete-selected button. */
+  onDeleteSelected: () => void
+  /** Whether anything is currently selected (drives delete-button enabled state). */
+  hasSelection: boolean
+}
+```
+
 #### `MapShape`
 
 Drawn shape carried by the component. The `kind` discriminator is
@@ -237,6 +291,47 @@ function haversineDistanceMeters(a: [number, number], b: [number, number]): numb
 - `b` — Second position.
 
 **Returns:** Distance in meters.
+
+#### `MapDrawing(props)`
+
+Map-drawing surface for geofence editing. Renders a toolbar plus an
+interaction layer overlaid on top of the (optional) map slot. The
+component handles four drawing tools — polygon, circle, pin, line —
+plus a select / delete action group.
+
+Drawing semantics:
+- **polygon / line**: click adds vertices; double-click finalises.
+- **circle**: pointer-down sets the center; pointer-up commits with
+  radius equal to the great-circle distance from center to release.
+- **pin**: each pointer-down adds one new pin shape.
+- **select**: pointer-drag draws a marquee; any shape whose anchor
+  point lies inside the marquee is added to the selection.
+
+Pressing `Backspace` or `Delete` while focused removes the current
+selection. All UI text routes through `t()` so the component
+translates via the companion locale bond.
+
+```typescript
+function MapDrawing(props: MapDrawingProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+
+**Returns:** Rendered map-drawing surface.
+
+#### `MapDrawingToolbar(props)`
+
+Toolbar with one button per drawing tool plus `select` and `delete`.
+All button labels route through `t()` so the toolbar translates via
+the companion `@molecule/app-locales-feature-map-drawing` bond.
+
+```typescript
+function MapDrawingToolbar(props: MapDrawingToolbarProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — Toolbar props.
+
+**Returns:** Toolbar element.
 
 #### `pointInRect(point, a, b)`
 

@@ -36,6 +36,40 @@ export function Shell() {
 npm install @molecule/app-shell-layout-react
 ```
 
+## API
+
+### Functions
+
+#### `AppShellLayout(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Top-level page scaffold: header → main (constrained by Container) → footer.
+
+The page frame uses ClassMap tokens (`cm.page`, `cm.appLayout`) so the
+styling library can be swapped without touching consumers. The header and
+footer are slot props so consumers retain full control over branding,
+navigation, and footer copy.
+
+```typescript
+function AppShellLayout({
+  header,
+  footer,
+  children,
+  maxWidth = 'xl',
+  className,
+  mainClassName,
+  dataMolId,
+}: AppShellLayoutProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .header
+- `root0` — .footer
+- `root0` — .children
+- `root0` — .maxWidth
+- `root0` — .className
+- `root0` — .mainClassName
+- `root0` — .dataMolId
+
 ## Injection Notes
 
 ### Requirements

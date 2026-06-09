@@ -25,6 +25,44 @@ import { SocialShareButtons } from '@molecule/app-social-share-buttons-react'
 npm install @molecule/app-social-share-buttons-react
 ```
 
+## API
+
+### Types
+
+#### `SocialPlatform`
+
+Supported social/sharing platforms for the share-buttons widget.
+
+```typescript
+type SocialPlatform = 'twitter' | 'x' | 'linkedin' | 'facebook' | 'reddit' | 'email' | 'copy'
+```
+
+### Functions
+
+#### `SocialShareButtons(root0, root0, root0, root0, root0, root0)`
+
+Row of share buttons — opens each platform's share sheet in a new
+tab. `'copy'` copies the URL to the clipboard with "Copied!"
+feedback. Keep the component itself cosmetic-only; apps override
+icons via `className` on the wrapping element.
+
+```typescript
+function SocialShareButtons({
+  url,
+  title,
+  platforms = DEFAULT_PLATFORMS,
+  size = 'sm',
+  className,
+}: SocialShareButtonsProps): React.JSX.Element
+```
+
+- `root0` — *
+- `root0` — .url
+- `root0` — .title
+- `root0` — .platforms
+- `root0` — .size
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

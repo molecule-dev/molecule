@@ -32,6 +32,75 @@ import { StatusSummary } from '@molecule/app-status-summary-react'
 npm install @molecule/app-status-summary-react
 ```
 
+## API
+
+### Interfaces
+
+#### `StatusComponent`
+
+A single monitored component with its current health status.
+
+```typescript
+interface StatusComponent {
+  id: string
+  name: ReactNode
+  status: ComponentStatus
+  /** Optional sub-label (SLA %, region, etc.). */
+  subtitle?: ReactNode
+}
+```
+
+#### `StatusGroup`
+
+A named group of related StatusComponent entries.
+
+```typescript
+interface StatusGroup {
+  id: string
+  name: ReactNode
+  components: StatusComponent[]
+}
+```
+
+### Types
+
+#### `ComponentStatus`
+
+Union of possible component health states.
+
+```typescript
+type ComponentStatus =
+  | 'operational'
+  | 'degraded'
+  | 'partial-outage'
+  | 'major-outage'
+  | 'maintenance'
+```
+
+### Functions
+
+#### `StatusSummary(root0, root0, root0, root0, root0, root0)`
+
+Status-page summary — grouped component list with colored badges and
+an overall banner derived from the worst child status.
+
+```typescript
+function StatusSummary({
+  groups,
+  overallStatus,
+  header,
+  footer,
+  className,
+}: StatusSummaryProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .groups
+- `root0` — .overallStatus
+- `root0` — .header
+- `root0` — .footer
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

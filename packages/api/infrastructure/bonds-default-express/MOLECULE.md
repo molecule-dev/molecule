@@ -89,7 +89,7 @@ catches don't ship to prod under green tests.
 function internalError(res: Response<any, Record<string, any>>, error?: unknown): void
 ```
 
-#### `mountDefaultDeviceRoutes(router, Device)`
+#### `mountDefaultDeviceRoutes(router, device)`
 
 Mounts the standard 4-method device CRUD routes:
 
@@ -99,10 +99,10 @@ Mounts the standard 4-method device CRUD routes:
 - `DELETE /devices/:id` (authUser+del)
 
 ```typescript
-function mountDefaultDeviceRoutes(router: Router, Device: DeviceRequestHandlerMap): void
+function mountDefaultDeviceRoutes(router: Router, device: DeviceRequestHandlerMap): void
 ```
 
-#### `mountDefaultUserAuthRoutes(router, User)`
+#### `mountDefaultUserAuthRoutes(router, user)`
 
 Mounts the public auth endpoints:
 
@@ -111,10 +111,10 @@ Mounts the public auth endpoints:
 - `POST /users/forgot-password` (forgotPassword)
 
 ```typescript
-function mountDefaultUserAuthRoutes(router: Router, User: UserRequestHandlerMap): void
+function mountDefaultUserAuthRoutes(router: Router, user: UserRequestHandlerMap): void
 ```
 
-#### `mountDefaultUserBillingRoutes(router, User)`
+#### `mountDefaultUserBillingRoutes(router, user)`
 
 Mounts plan/billing routes:
 
@@ -122,10 +122,10 @@ Mounts plan/billing routes:
 - `POST /users/payment-notification/:provider` (handlePaymentNotification, public)
 
 ```typescript
-function mountDefaultUserBillingRoutes(router: Router, User: UserRequestHandlerMap): void
+function mountDefaultUserBillingRoutes(router: Router, user: UserRequestHandlerMap): void
 ```
 
-#### `mountDefaultUserCrudRoutes(router, User)`
+#### `mountDefaultUserCrudRoutes(router, user)`
 
 Mounts the authed-self user CRUD routes:
 
@@ -134,20 +134,20 @@ Mounts the authed-self user CRUD routes:
 - `DELETE /users/:id` (authSelf+del)
 
 ```typescript
-function mountDefaultUserCrudRoutes(router: Router, User: UserRequestHandlerMap): void
+function mountDefaultUserCrudRoutes(router: Router, user: UserRequestHandlerMap): void
 ```
 
-#### `mountDefaultUserResetPasswordRoute(router, User)`
+#### `mountDefaultUserResetPasswordRoute(router, user)`
 
 Optional reset-password route: `POST /users/reset-password`.
 Only mount when the app uses the pkg's resetPassword handler
 rather than a custom local handler.
 
 ```typescript
-function mountDefaultUserResetPasswordRoute(router: Router, User: UserRequestHandlerMap): void
+function mountDefaultUserResetPasswordRoute(router: Router, user: UserRequestHandlerMap): void
 ```
 
-#### `mountDefaultUserSecurityRoutes(router, User)`
+#### `mountDefaultUserSecurityRoutes(router, user)`
 
 Mounts password + 2FA security routes:
 
@@ -155,10 +155,10 @@ Mounts password + 2FA security routes:
 - `POST /users/:id/verify-two-factor` (authSelf+verifyTwoFactor)
 
 ```typescript
-function mountDefaultUserSecurityRoutes(router: Router, User: UserRequestHandlerMap): void
+function mountDefaultUserSecurityRoutes(router: Router, user: UserRequestHandlerMap): void
 ```
 
-#### `mountDefaultUserVerifyPaymentRoutes(router, User)`
+#### `mountDefaultUserVerifyPaymentRoutes(router, user)`
 
 Optional payment-verification routes for apps that support
 client-driven payment confirmation (Apple/Google receipt verify).
@@ -167,7 +167,7 @@ client-driven payment confirmation (Apple/Google receipt verify).
 - `POST /users/:id/verify-payment/:provider` (verifyPayment)
 
 ```typescript
-function mountDefaultUserVerifyPaymentRoutes(router: Router, User: UserRequestHandlerMap): void
+function mountDefaultUserVerifyPaymentRoutes(router: Router, user: UserRequestHandlerMap): void
 ```
 
 #### `requireAuth(_req, res, next)`

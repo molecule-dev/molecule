@@ -28,6 +28,51 @@ import { Checklist } from '@molecule/app-checklist-react'
 npm install @molecule/app-checklist-react
 ```
 
+## API
+
+### Interfaces
+
+#### `ChecklistItem`
+
+A single item in the checklist, tracking its label, description, and completion state.
+
+```typescript
+interface ChecklistItem {
+  id: string
+  label: ReactNode
+  /** Optional description / hint shown under the label. */
+  description?: ReactNode
+  /** Completion state. */
+  completed: boolean
+  /** When true, the item is rendered disabled and uncheckable. */
+  disabled?: boolean
+}
+```
+
+### Functions
+
+#### `Checklist(root0, root0, root0, root0, root0, root0)`
+
+Onboarding-style checklist with checkboxes, optional descriptions,
+and an overall progress bar derived from `items`.
+
+```typescript
+function Checklist({
+  items,
+  onToggle,
+  showProgress = true,
+  title,
+  className,
+}: ChecklistProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .items
+- `root0` — .onToggle
+- `root0` — .showProgress
+- `root0` — .title
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

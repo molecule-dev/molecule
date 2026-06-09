@@ -47,6 +47,68 @@ import {
 npm install @molecule/app-faceted-search-react
 ```
 
+## API
+
+### Functions
+
+#### `FacetedSearchBar({
+  children,
+  topOffsetPx = 64,
+  className,
+})`
+
+Sticky filter-bar container.
+
+```typescript
+function FacetedSearchBar({
+  children,
+  topOffsetPx = 64,
+  className,
+}: FacetedSearchBarProps): JSX.Element
+```
+
+#### `FilterPill({
+  label,
+  active,
+  children,
+  hideChevron,
+  leadingIcon,
+  panelAlign = 'left',
+  dataMolId,
+})`
+
+Pill button + dropdown panel.
+
+```typescript
+function FilterPill({
+  label,
+  active,
+  children,
+  hideChevron,
+  leadingIcon,
+  panelAlign = 'left',
+  dataMolId,
+}: FilterPillProps): JSX.Element
+```
+
+#### `SegmentedControl({
+  options,
+  value,
+  onChange,
+  className,
+})`
+
+Pill segmented control.
+
+```typescript
+function SegmentedControl({
+  options,
+  value,
+  onChange,
+  className,
+}: SegmentedControlProps<T>): JSX.Element
+```
+
 ## Injection Notes
 
 ### Requirements

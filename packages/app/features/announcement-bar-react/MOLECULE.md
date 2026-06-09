@@ -28,6 +28,52 @@ import { AnnouncementBar } from '@molecule/app-announcement-bar-react'
 npm install @molecule/app-announcement-bar-react
 ```
 
+## API
+
+### Types
+
+#### `AnnouncementKind`
+
+Semantic kind that controls the default styling of an AnnouncementBar.
+
+```typescript
+type AnnouncementKind = 'info' | 'success' | 'warning' | 'error' | 'promo'
+```
+
+### Functions
+
+#### `AnnouncementBar(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Persistent announcement banner — product updates, promos, outage
+notices, feature callouts. Different from `<Toast>` in being
+long-lived and prominent (top-of-page), and from `<Alert>` in
+including an action slot + dismiss.
+
+```typescript
+function AnnouncementBar({
+  children,
+  icon,
+  action,
+  kind = 'info',
+  dismissible = true,
+  onDismiss,
+  visible,
+  className,
+  dataMolId,
+}: AnnouncementBarProps): JSX.Element | null
+```
+
+- `root0` — *
+- `root0` — .children
+- `root0` — .icon
+- `root0` — .action
+- `root0` — .kind
+- `root0` — .dismissible
+- `root0` — .onDismiss
+- `root0` — .visible
+- `root0` — .className
+- `root0` — .dataMolId
+
 ## Injection Notes
 
 ### Requirements

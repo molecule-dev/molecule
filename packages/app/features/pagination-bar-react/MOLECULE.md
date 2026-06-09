@@ -30,6 +30,45 @@ import { PaginationBar } from '@molecule/app-pagination-bar-react'
 npm install @molecule/app-pagination-bar-react
 ```
 
+## API
+
+### Functions
+
+#### `PaginationBar(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Paginator with a `[showing text, prev, page-window, next, size-select]` layout.
+
+The "Showing X to Y of Z items" text is driven by an i18n key so apps can
+specialize the noun ("tags", "orders", "transactions"). Page-size selector
+is hidden unless `pageSizeOptions` + `onPageSizeChange` are supplied.
+
+```typescript
+function PaginationBar({
+  page,
+  totalPages,
+  pageSize,
+  total,
+  onPageChange,
+  onPageSizeChange,
+  pageSizeOptions,
+  showingKey = 'pagination.showing',
+  showingDefault = 'Showing {{start}} to {{end}} of {{total}} items',
+  className,
+}: PaginationBarProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .page
+- `root0` — .totalPages
+- `root0` — .pageSize
+- `root0` — .total
+- `root0` — .onPageChange
+- `root0` — .onPageSizeChange
+- `root0` — .pageSizeOptions
+- `root0` — .showingKey
+- `root0` — .showingDefault
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

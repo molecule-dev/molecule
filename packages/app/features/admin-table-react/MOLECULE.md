@@ -88,6 +88,62 @@ interface AdminTableRowAction<T> {
 }
 ```
 
+### Functions
+
+#### `AdminTable({
+  rows,
+  columns,
+  rowKey,
+  loading,
+  skeletonRowCount = 8,
+  onRowClick,
+  bulkSelect,
+  selectedIds = [],
+  onSelectedIdsChange,
+  rowActions,
+  rowActionsAriaLabel,
+  footer,
+  className,
+  tbodyDataMolId,
+})`
+
+Admin-style data table.
+
+```typescript
+function AdminTable({
+  rows,
+  columns,
+  rowKey,
+  loading,
+  skeletonRowCount = 8,
+  onRowClick,
+  bulkSelect,
+  selectedIds = [],
+  onSelectedIdsChange,
+  rowActions,
+  rowActionsAriaLabel,
+  footer,
+  className,
+  tbodyDataMolId,
+}: AdminTableProps<T>): JSX.Element
+```
+
+#### `AdminTableRowActions({
+  row,
+  actions,
+  ariaLabel,
+})`
+
+Three-dots row actions menu.
+
+```typescript
+function AdminTableRowActions({
+  row,
+  actions,
+  ariaLabel,
+}: AdminTableRowActionsProps<T>): JSX.Element
+```
+
 ## Injection Notes
 
 ### Requirements

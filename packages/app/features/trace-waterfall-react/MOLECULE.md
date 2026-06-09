@@ -100,6 +100,25 @@ interface SpanRow {
 }
 ```
 
+#### `TraceWaterfallProps`
+
+Public props for `<TraceWaterfall>`.
+
+```typescript
+interface TraceWaterfallProps {
+  /** Flat list of spans; tree is derived from `parentId` references. */
+  spans: Span[]
+  /** Optional root span id to focus the view on a single subtree. */
+  rootSpanId?: string
+  /** Click handler invoked when a span row (label or bar) is selected. */
+  onSpanClick?: (span: Span) => void
+  /** Optional content shown when `spans` is empty. */
+  emptyState?: React.ReactNode
+  /** Extra classes merged onto the root via `cm.cn`. */
+  className?: string
+}
+```
+
 ### Types
 
 #### `SpanStatus`
@@ -111,6 +130,20 @@ type SpanStatus = 'ok' | 'error' | 'pending'
 ```
 
 ### Functions
+
+#### `formatDurationLabel(value)`
+
+Format a duration value (in the same unit as `Span.startTime`) as a
+short, human-readable string: `< 1` → microseconds, `< 1000` → ms,
+otherwise seconds with one decimal.
+
+```typescript
+function formatDurationLabel(value: number): string
+```
+
+- `value` — The numeric value to format.
+
+**Returns:** A short label string.
 
 #### `layoutSpans(spans, rootSpanId)`
 
@@ -151,6 +184,41 @@ function serviceColor(service: string): string
 - `service` — Service / component label.
 
 **Returns:** A hex color string suitable for an inline `style.background`.
+
+#### `TraceWaterfall(props, props, props, props, props, props)`
+
+Datadog/Jaeger-style distributed-trace waterfall. Renders each span as
+a horizontal bar positioned by `startTime`, scaled to total trace
+duration, indented by parent depth. A time axis is rendered along the
+top with `AXIS_TICK_COUNT` evenly spaced ticks. Service name is shown
+as a colored tag next to the operation name; bar color encodes status.
+
+Styling is fully ClassMap-driven for layout. Only color attributes
+(status colors, service-tag colors, bar fill) and pixel-perfect axis
+geometry use inline `style` — these are properties ClassMap does not
+model. Translations come from `@molecule/app-locales-trace-waterfall`.
+
+Used by api-testing-tool, error-tracker, log-viewer, and any other
+developer tooling that consumes distributed-trace data.
+
+```typescript
+function TraceWaterfall({
+  spans,
+  rootSpanId,
+  onSpanClick,
+  emptyState,
+  className,
+}: TraceWaterfallProps): ReactElement<unknown, string | JSXElementConstructor<any>> | null
+```
+
+- `props` — Component props.
+- `props` — .spans - Flat list of spans.
+- `props` — .rootSpanId - Optional focus span id.
+- `props` — .onSpanClick - Optional row-click callback.
+- `props` — .emptyState - Optional fallback when `spans` is empty.
+- `props` — .className - Extra classes for the root.
+
+**Returns:** The waterfall element tree.
 
 ## Injection Notes
 

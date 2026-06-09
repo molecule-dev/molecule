@@ -23,6 +23,8 @@ npm install @molecule/api-resource-readings
 
 #### `AggregatedPoint`
 
+A time-bucketed aggregate of sensor readings (min/max/avg/sum/count per bucket).
+
 ```typescript
 interface AggregatedPoint {
   bucket_at: string
@@ -38,6 +40,8 @@ interface AggregatedPoint {
 
 #### `ReadingPoint`
 
+A single sensor reading data point returned from a query.
+
 ```typescript
 interface ReadingPoint {
   recorded_at: string
@@ -49,6 +53,8 @@ interface ReadingPoint {
 ```
 
 #### `ReadingRow`
+
+Raw database row shape for a single sensor reading record.
 
 ```typescript
 interface ReadingRow {
@@ -67,6 +73,8 @@ interface ReadingRow {
 
 #### `Granularity`
 
+Time-bucket granularity options for aggregating sensor readings.
+
 ```typescript
 type Granularity = 'raw' | '5min' | 'hour' | 'day'
 ```
@@ -75,11 +83,15 @@ type Granularity = 'raw' | '5min' | 'hour' | 'day'
 
 #### `countReadings(ownerId)`
 
+Return the total number of readings stored for the given owner.
+
 ```typescript
 function countReadings(ownerId: string): Promise<number>
 ```
 
 #### `createReadingsRouter()`
+
+Creates and returns the Express router for the readings resource endpoints.
 
 ```typescript
 function createReadingsRouter(): Router
@@ -87,11 +99,15 @@ function createReadingsRouter(): Router
 
 #### `ingestBulk(ownerId, readings)`
 
+Persist multiple sensor readings in sequence, returning the number successfully inserted.
+
 ```typescript
 function ingestBulk(ownerId: string, readings: { sensor_id: string; metric: string; value: number; unit?: string | null; recorded_at?: string; metadata?: Record<string, unknown>; }[]): Promise<number>
 ```
 
 #### `ingestReading(ownerId, data)`
+
+Persist a single sensor reading row for the given owner.
 
 ```typescript
 function ingestReading(ownerId: string, data: { sensor_id: string; metric: string; value: number; unit?: string | null; recorded_at?: string; metadata?: Record<string, unknown>; }): Promise<ReadingRow>
@@ -108,6 +124,8 @@ function listAggregatedReadings(ownerId: string, opts: { granularity: Exclude<Gr
 
 #### `listRawReadings(ownerId, opts?)`
 
+Fetch raw, unaggregated reading points for an owner, optionally filtered by sensor, metric, and time range.
+
 ```typescript
 function listRawReadings(ownerId: string, opts?: { sensor_id?: string; metric?: string; from?: string; to?: string; limit?: number; }): Promise<ReadingPoint[]>
 ```
@@ -116,11 +134,15 @@ function listRawReadings(ownerId: string, opts?: { sensor_id?: string; metric?: 
 
 #### `GRANULARITIES`
 
+Supported time-bucket granularities for reading aggregation queries.
+
 ```typescript
 const GRANULARITIES: readonly ["raw", "5min", "hour", "day"]
 ```
 
 #### `readingBulkSchema`
+
+Zod schema for validating a bulk readings creation payload (1–10 000 entries).
 
 ```typescript
 const readingBulkSchema: z.ZodObject<{ readings: z.ZodArray<z.ZodObject<{ sensor_id: z.ZodString; metric: z.ZodString; value: z.ZodNumber; unit: z.ZodOptional<z.ZodNullable<z.ZodString>>; recorded_at: z.ZodOptional<z.ZodString>; metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; }, z.core.$strip>>; }, z.core.$strip>
@@ -128,11 +150,15 @@ const readingBulkSchema: z.ZodObject<{ readings: z.ZodArray<z.ZodObject<{ sensor
 
 #### `readingCreateSchema`
 
+Zod schema for validating a single reading creation payload.
+
 ```typescript
 const readingCreateSchema: z.ZodObject<{ sensor_id: z.ZodString; metric: z.ZodString; value: z.ZodNumber; unit: z.ZodOptional<z.ZodNullable<z.ZodString>>; recorded_at: z.ZodOptional<z.ZodString>; metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; }, z.core.$strip>
 ```
 
 #### `readingQuerySchema`
+
+Zod schema for validating reading list/query filter parameters.
 
 ```typescript
 const readingQuerySchema: z.ZodObject<{ sensor_id: z.ZodOptional<z.ZodString>; metric: z.ZodOptional<z.ZodString>; from: z.ZodOptional<z.ZodString>; to: z.ZodOptional<z.ZodString>; granularity: z.ZodOptional<z.ZodEnum<{ raw: "raw"; "5min": "5min"; hour: "hour"; day: "day"; }>>; limit: z.ZodOptional<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>

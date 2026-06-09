@@ -54,6 +54,37 @@ npm install @molecule/app-feature-animation-canvas-react
 
 ### Interfaces
 
+#### `AnimationCanvasProps`
+
+`<AnimationCanvas>` props.
+
+```typescript
+interface AnimationCanvasProps {
+  /**
+   * Keyframes (sorted ascending by `time`). Each entry is a snapshot of
+   * every shape's state at a moment in time.
+   */
+  keyframes: AnimationKeyframe[]
+  /**
+   * Optional callback fired when the consumer mutates keyframes via a
+   * built-in interaction. (Currently the canvas itself never mutates;
+   * the prop exists so consumers can adopt the controlled / uncontrolled
+   * pattern as the feature grows.)
+   */
+  onChange?: (next: AnimationKeyframe[]) => void
+  /** Current playhead time. Clamped to the keyframe range internally. */
+  currentTime: number
+  /** Optional callback fired when the user scrubs the timeline. */
+  onSeek?: (next: number) => void
+  /** Canvas width in CSS pixels. */
+  width: number
+  /** Canvas height in CSS pixels. */
+  height: number
+  /** Extra classes merged onto the outer wrapper. */
+  className?: string
+}
+```
+
 #### `AnimationKeyframe`
 
 Single keyframe — a snapshot of every shape's state at a point in
@@ -161,6 +192,26 @@ type EasingPreset = 'linear' | 'easeIn' | 'easeOut' | 'easeInOut'
 
 ### Functions
 
+#### `AnimationCanvas(props)`
+
+SVG animation canvas. Renders the interpolated shape state at
+`currentTime` between the two bracketing keyframes, applying any
+per-property bezier easing curves declared on the target keyframe.
+
+The canvas itself is rendering-only — mutations to keyframes are
+delegated to the consumer via `onChange`. Scrub via `onSeek` (clicking
+the canvas seeks to the corresponding time linearly mapped across
+width). Style is driven entirely by `getClassMap()`; inline styles
+are reserved for SVG attributes that classes can't express.
+
+```typescript
+function AnimationCanvas(props: AnimationCanvasProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+
+**Returns:** The animation canvas element.
+
 #### `bracketKeyframes(keyframes, time)`
 
 Find the bracketing keyframe pair `[a, b]` for a given time.
@@ -246,7 +297,7 @@ Resolution order (first match wins):
 3. Linear (returned as `undefined`).
 
 ```typescript
-function pickEasing(target: ShapeState, prop: "x" | "y" | "rotation" | "scale" | "opacity"): Easing | undefined
+function pickEasing(target: ShapeState, prop: AnimatableProp): Easing | undefined
 ```
 
 - `target` — The target shape state (the keyframe being eased

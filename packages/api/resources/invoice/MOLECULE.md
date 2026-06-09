@@ -39,6 +39,8 @@ npm install @molecule/api-resource-invoice
 
 #### `Invoice`
 
+Normalized invoice with all date fields serialized to ISO strings for API responses.
+
 ```typescript
 interface Invoice extends Omit<
   InvoiceRow,
@@ -53,6 +55,8 @@ interface Invoice extends Omit<
 ```
 
 #### `InvoiceRow`
+
+Raw database row shape for an invoice, with date fields typed as string or Date.
 
 ```typescript
 interface InvoiceRow {
@@ -79,6 +83,8 @@ interface InvoiceRow {
 
 #### `LineItem`
 
+A single billable line on an invoice, with description, quantity, and unit price.
+
 ```typescript
 interface LineItem {
   description: string
@@ -90,6 +96,8 @@ interface LineItem {
 ### Types
 
 #### `InvoiceStatus`
+
+Lifecycle states an invoice can be in, from initial draft through payment or cancellation.
 
 ```typescript
 type InvoiceStatus = 'draft' | 'sent' | 'partial' | 'paid' | 'overdue' | 'void'
@@ -107,11 +115,15 @@ function computeTotals(items: LineItem[], taxRate: number): { subtotal: number; 
 
 #### `createInvoiceForUser(userId, data)`
 
+Create a new draft invoice for a user, computing totals from line items and tax rate.
+
 ```typescript
 function createInvoiceForUser(userId: string, data: { client_id: string; items: LineItem[]; due_date?: string; notes?: string; tax_rate?: number; currency?: string; }): Promise<Invoice>
 ```
 
 #### `createInvoiceRouter()`
+
+Creates and returns an Express router with all CRUD + payment routes for invoices.
 
 ```typescript
 function createInvoiceRouter(): Router
@@ -119,11 +131,15 @@ function createInvoiceRouter(): Router
 
 #### `deleteInvoiceForUser(invoiceId, userId)`
 
+Delete a user-owned invoice by ID, returning false if not found or not owned by the user.
+
 ```typescript
 function deleteInvoiceForUser(invoiceId: string, userId: string): Promise<boolean>
 ```
 
 #### `getInvoiceForUser(invoiceId, userId)`
+
+Fetch a single invoice by ID, returning null if not found or not owned by the user.
 
 ```typescript
 function getInvoiceForUser(invoiceId: string, userId: string): Promise<Invoice | null>
@@ -131,11 +147,15 @@ function getInvoiceForUser(invoiceId: string, userId: string): Promise<Invoice |
 
 #### `listInvoicesForUser(userId, opts?)`
 
+List all invoices for a user, with optional client/status filters and pagination.
+
 ```typescript
 function listInvoicesForUser(userId: string, opts?: { client_id?: string; status?: InvoiceStatus; page?: number; limit?: number; }): Promise<{ data: Invoice[]; total: number; page: number; limit: number; }>
 ```
 
 #### `recordPayment(invoiceId, userId, amount)`
+
+Record a payment amount against an invoice, updating amount_paid and transitioning status to partial or paid.
 
 ```typescript
 function recordPayment(invoiceId: string, userId: string, amount: number): Promise<Invoice | null>
@@ -143,11 +163,15 @@ function recordPayment(invoiceId: string, userId: string, amount: number): Promi
 
 #### `toInvoice(row)`
 
+Map a raw database InvoiceRow to a normalized Invoice with ISO date strings.
+
 ```typescript
 function toInvoice(row: InvoiceRow): Invoice
 ```
 
 #### `updateInvoiceForUser(invoiceId, userId, patch)`
+
+Apply a partial update to a user-owned invoice, recomputing totals and marking paid_at when status becomes paid.
 
 ```typescript
 function updateInvoiceForUser(invoiceId: string, userId: string, patch: Partial<{ items: LineItem[]; due_date: string; notes: string; tax_rate: number; currency: string; status: InvoiceStatus; }>): Promise<Invoice | null>
@@ -157,11 +181,15 @@ function updateInvoiceForUser(invoiceId: string, userId: string, patch: Partial<
 
 #### `INVOICE_STATUSES`
 
+All valid lifecycle statuses an invoice can hold.
+
 ```typescript
 const INVOICE_STATUSES: readonly ["draft", "sent", "partial", "paid", "overdue", "void"]
 ```
 
 #### `invoiceCreateSchema`
+
+Zod schema for creating a new invoice (client, items, optional due date / notes / tax / currency).
 
 ```typescript
 const invoiceCreateSchema: z.ZodObject<{ client_id: z.ZodString; items: z.ZodArray<z.ZodObject<{ description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber; }, z.core.$strip>>; due_date: z.ZodOptional<z.ZodString>; notes: z.ZodOptional<z.ZodString>; tax_rate: z.ZodOptional<z.ZodNumber>; currency: z.ZodOptional<z.ZodString>; }, z.core.$strip>
@@ -169,17 +197,23 @@ const invoiceCreateSchema: z.ZodObject<{ client_id: z.ZodString; items: z.ZodArr
 
 #### `invoiceUpdateSchema`
 
+Zod schema for partially updating an existing invoice (all fields optional).
+
 ```typescript
 const invoiceUpdateSchema: z.ZodObject<{ items: z.ZodOptional<z.ZodArray<z.ZodObject<{ description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber; }, z.core.$strip>>>; due_date: z.ZodOptional<z.ZodString>; notes: z.ZodOptional<z.ZodString>; tax_rate: z.ZodOptional<z.ZodNumber>; currency: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<{ draft: "draft"; sent: "sent"; partial: "partial"; paid: "paid"; overdue: "overdue"; void: "void"; }>>; }, z.core.$strip>
 ```
 
 #### `lineItemSchema`
 
+Zod schema for a single invoice line item (description, quantity, unit price).
+
 ```typescript
 const lineItemSchema: z.ZodObject<{ description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber; }, z.core.$strip>
 ```
 
 #### `recordPaymentSchema`
+
+Zod schema for recording a payment against an invoice (positive amount required).
 
 ```typescript
 const recordPaymentSchema: z.ZodObject<{ amount: z.ZodNumber; }, z.core.$strip>

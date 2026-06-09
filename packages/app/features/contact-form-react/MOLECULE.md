@@ -27,6 +27,53 @@ import { ContactForm } from '@molecule/app-contact-form-react'
 npm install @molecule/app-contact-form-react
 ```
 
+## API
+
+### Interfaces
+
+#### `ContactFormValues`
+
+Shape of values collected by the contact form and passed to `onSubmit`.
+
+```typescript
+interface ContactFormValues {
+  name: string
+  email: string
+  message: string
+  /** App-supplied additional fields. */
+  [key: string]: string
+}
+```
+
+### Functions
+
+#### `ContactForm(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Generic name + email + message contact form with submit handling and
+success state. `extraFields` slot lets apps add domain-specific
+inputs (subject, phone, agent id, etc.).
+
+```typescript
+function ContactForm({
+  onSubmit,
+  title,
+  description,
+  submitLabel,
+  successContent,
+  extraFields,
+  className,
+}: ContactFormProps): JSX.Element | null
+```
+
+- `root0` — *
+- `root0` — .onSubmit
+- `root0` — .title
+- `root0` — .description
+- `root0` — .submitLabel
+- `root0` — .successContent
+- `root0` — .extraFields
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

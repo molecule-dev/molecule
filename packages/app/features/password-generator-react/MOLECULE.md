@@ -138,6 +138,42 @@ function generatePassword(length: number, charset: PasswordCharsetOptions): stri
 
 **Returns:** A freshly-generated password.
 
+#### `PasswordGenerator(props, props, props, props, props, props, props, props)`
+
+Cryptographically-secure password generator UI.
+
+Renders a length slider (`MIN_LENGTH`-`MAX_LENGTH`), six character-class
+toggles (uppercase / lowercase / digits / symbols / no-similar /
+no-ambiguous), a copyable read-only output, a regenerate button, and
+a "Use this password" picker that fires `onPick(password)`.
+
+Randomness is sourced via `crypto.getRandomValues` (see `./generator.ts`).
+All styling flows through `getClassMap()` and all user-visible strings
+through `t()` — no Tailwind class strings, no hardcoded text.
+
+```typescript
+function PasswordGenerator({
+  defaultLength = 20,
+  defaultCharset,
+  onPick,
+  autoCopy = false,
+  ariaLabel,
+  dataMolId,
+  className,
+}: PasswordGeneratorProps): JSX.Element
+```
+
+- `props` — Component props.
+- `props` — .defaultLength
+- `props` — .defaultCharset
+- `props` — .onPick
+- `props` — .autoCopy
+- `props` — .ariaLabel
+- `props` — .dataMolId
+- `props` — .className
+
+**Returns:** The rendered password generator.
+
 ### Constants
 
 #### `DEFAULT_CHARSET`
@@ -149,6 +185,8 @@ const DEFAULT_CHARSET: PasswordCharsetOptions
 ```
 
 #### `MAX_LENGTH`
+
+Maximum allowed length for the slider.
 
 ```typescript
 const MAX_LENGTH: 64

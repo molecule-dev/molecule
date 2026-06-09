@@ -40,6 +40,103 @@ import { NowPlayingBar } from '@molecule/app-now-playing-bar-react'
 npm install @molecule/app-now-playing-bar-react
 ```
 
+## API
+
+### Interfaces
+
+#### `NowPlayingBarProps`
+
+Now-playing bar component props.
+
+```typescript
+interface NowPlayingBarProps {
+  /** The currently loaded track. Pass `null` to render the bar in an empty / collapsed state (caller usually hides the bar instead). */
+  track: NowPlayingTrack
+  /** True when the track is actively playing. Drives the play/pause toggle. */
+  isPlaying: boolean
+  /** Called when the user presses play. */
+  onPlay: () => void
+  /** Called when the user presses pause. */
+  onPause: () => void
+  /** Optional next-track handler. When omitted the next button is hidden. */
+  onNext?: () => void
+  /** Optional previous-track handler. When omitted the previous button is hidden. */
+  onPrev?: () => void
+  /** Current playback position in seconds. */
+  currentTime: number
+  /** Total track duration in seconds. */
+  duration: number
+  /** Called when the user scrubs to a new position (in seconds). */
+  onSeek: (seconds: number) => void
+  /** Volume level in `[0, 1]`. Optional — when omitted the volume control is hidden. */
+  volume?: number
+  /** Called when the volume slider changes (in `[0, 1]`). Required to render the volume control. */
+  onVolumeChange?: (volume: number) => void
+  /** Optional slot rendered at the right edge (e.g. queue button, share button). */
+  trailing?: ReactNode
+  /** Extra classes merged onto the root element. */
+  className?: string
+}
+```
+
+#### `NowPlayingTrack`
+
+A track currently loaded in the now-playing bar. Only `id`, `title`, and
+`artist` are required; `artwork` is an optional image URL displayed on the
+left edge of the bar.
+
+```typescript
+interface NowPlayingTrack {
+  /** Stable identifier for the track (used as a React key by parent lists). */
+  id: string
+  /** Track title shown as the primary label in the bar. */
+  title: string
+  /** Artist / podcast / source label shown below the title. */
+  artist: string
+  /** Optional artwork image URL (square). */
+  artwork?: string
+}
+```
+
+### Functions
+
+#### `formatTime(seconds)`
+
+Format a number of seconds as `m:ss` (or `0:00` for non-finite input).
+
+```typescript
+function formatTime(seconds: number): string
+```
+
+- `seconds` — Seconds to format.
+
+**Returns:** The formatted `m:ss` string.
+
+#### `NowPlayingBar(props)`
+
+Persistent now-playing bar: track artwork, title/artist, transport controls
+(prev/play-pause/next), scrubber, and volume slider. Used by
+music-streaming, podcast, audiobook, and "what's playing" UIs.
+
+Sticky positioning is intentionally NOT enforced inside the component — the
+caller decides where it lives. Common pattern: wrap the bar in a parent
+container styled with `cm.position('sticky')` (or `cm.position('fixed')`)
+plus `bottom: 0` and a `z-index`, so the same bar can serve as a
+page-level dock or a panel-level chrome without changing this component.
+
+All styling routes through `getClassMap()` (no Tailwind / raw class
+names). All user-visible text routes through `t()` so the bar
+translates via the companion `@molecule/app-locales-now-playing-bar`
+locale bond.
+
+```typescript
+function NowPlayingBar(props: NowPlayingBarProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The now-playing bar element.
+
 ## Injection Notes
 
 ### Requirements

@@ -35,6 +35,42 @@ const [slots, setSlots] = useState<(string | null)[]>(Array(4).fill(null))
 npm install @molecule/app-image-gallery-editor-react
 ```
 
+## API
+
+### Functions
+
+#### `ImageGalleryEditor({
+  slots,
+  onChange,
+  onPickFiles,
+  maxImages = 24,
+  header,
+  counter,
+  dropZoneTitle = 'Drag and drop assets here',
+  dropZoneHint = 'or click to browse local files',
+  confirmRemoveMessage = 'Remove this image?',
+  statusMessage,
+  emptySlotIcon = 'image',
+})`
+
+Editable image gallery primitive.
+
+```typescript
+function ImageGalleryEditor({
+  slots,
+  onChange,
+  onPickFiles,
+  maxImages = 24,
+  header,
+  counter,
+  dropZoneTitle = 'Drag and drop assets here',
+  dropZoneHint = 'or click to browse local files',
+  confirmRemoveMessage = 'Remove this image?',
+  statusMessage,
+  emptySlotIcon = 'image',
+}: ImageGalleryEditorProps): JSX.Element
+```
+
 ## Injection Notes
 
 ### Requirements

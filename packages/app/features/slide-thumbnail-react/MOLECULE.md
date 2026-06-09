@@ -36,6 +36,38 @@ export function SlideStrip({ slides, activeIndex, onSelect }) {
 npm install @molecule/app-slide-thumbnail-react
 ```
 
+## API
+
+### Functions
+
+#### `SlideThumbnail(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Slide thumbnail tile for presentation editors / slideshow navigators.
+Apps render the live scaled-down preview as `children`; this
+component provides the surrounding chrome (active outline + index
+label).
+
+```typescript
+function SlideThumbnail({
+  index,
+  children,
+  active,
+  onClick,
+  aspect = '16/9',
+  width = 160,
+  className,
+}: SlideThumbnailProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .index
+- `root0` — .children
+- `root0` — .active
+- `root0` — .onClick
+- `root0` — .aspect
+- `root0` — .width
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

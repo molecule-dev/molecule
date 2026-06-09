@@ -27,6 +27,42 @@ import { TickerRow } from '@molecule/app-ticker-row-react'
 npm install @molecule/app-ticker-row-react
 ```
 
+## API
+
+### Functions
+
+#### `TickerRow(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Financial ticker row — symbol + price + change% + optional sparkline.
+Use for crypto trackers, stock watchlists, market dashboards.
+
+```typescript
+function TickerRow({
+  symbol,
+  name,
+  icon,
+  price,
+  changePct,
+  changeDisplay,
+  sparkline,
+  meta,
+  onClick,
+  className,
+}: TickerRowProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `root0` — *
+- `root0` — .symbol
+- `root0` — .name
+- `root0` — .icon
+- `root0` — .price
+- `root0` — .changePct
+- `root0` — .changeDisplay
+- `root0` — .sparkline
+- `root0` — .meta
+- `root0` — .onClick
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

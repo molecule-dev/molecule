@@ -92,6 +92,36 @@ Recorder lifecycle states.
 type AudioRecorderState = 'idle' | 'recording' | 'paused' | 'processed' | 'error'
 ```
 
+### Functions
+
+#### `AudioRecorder(props)`
+
+Mic-permission + MediaRecorder UI primitive — emits a `Blob` once the user
+finishes recording. Pure browser API; no upload, no transcription. Wire to
+any backend by listening to `onRecorded` and POST-ing the blob.
+
+Renders a status badge, an elapsed-time readout, and three buttons:
+Record (idle/processed) → Pause/Resume + Stop (recording/paused).
+All button labels and status text flow through `t()` with English
+`defaultValue` fallbacks; drop in a companion locale bond to translate.
+
+Styling is delegated to `getClassMap()` — no Tailwind / raw class names.
+
+```typescript
+function AudioRecorder({
+  onRecorded,
+  onError,
+  mimeType,
+  maxDurationSeconds = 0,
+  dataMolId,
+  className,
+}: AudioRecorderProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered recorder element.
+
 ## Injection Notes
 
 ### Requirements

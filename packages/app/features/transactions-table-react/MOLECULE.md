@@ -86,6 +86,44 @@ interface TransactionRowData {
 }
 ```
 
+### Functions
+
+#### `TransactionsTable({
+  transactions,
+  loading,
+  error,
+  onRetry,
+  retryLabel = 'Try again',
+  categoryStyles,
+  formatAmount = DEFAULT_AMOUNT_FORMAT,
+  formatDate = DEFAULT_DATE_FORMAT,
+  onRowClick,
+  headers,
+  emptyState,
+  footer,
+  className,
+})`
+
+Renders a pageable financial transactions table with loading, error, and empty states.
+
+```typescript
+function TransactionsTable({
+  transactions,
+  loading,
+  error,
+  onRetry,
+  retryLabel = 'Try again',
+  categoryStyles,
+  formatAmount = DEFAULT_AMOUNT_FORMAT,
+  formatDate = DEFAULT_DATE_FORMAT,
+  onRowClick,
+  headers,
+  emptyState,
+  footer,
+  className,
+}: TransactionsTableProps): JSX.Element
+```
+
 ## Injection Notes
 
 ### Requirements

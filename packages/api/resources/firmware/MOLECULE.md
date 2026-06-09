@@ -42,6 +42,8 @@ npm install @molecule/api-resource-firmware
 
 #### `FirmwareRolloutRow`
 
+Database row representing a firmware rollout targeting a fleet or set of devices.
+
 ```typescript
 interface FirmwareRolloutRow {
   id: string
@@ -62,6 +64,8 @@ interface FirmwareRolloutRow {
 
 #### `FirmwareUpdateTaskRow`
 
+Database row representing a single device's update task within a rollout.
+
 ```typescript
 interface FirmwareUpdateTaskRow {
   id: string
@@ -77,6 +81,8 @@ interface FirmwareUpdateTaskRow {
 ```
 
 #### `FirmwareVersionRow`
+
+Database row representing a firmware version artifact and its metadata.
 
 ```typescript
 interface FirmwareVersionRow {
@@ -109,7 +115,7 @@ type DeviceTokenMiddleware = RequestHandler
 
 #### `FirmwareStatus`
 
-Types for firmware versions + rollouts.
+Lifecycle state of a firmware version.
 
 ```typescript
 type FirmwareStatus = 'draft' | 'published' | 'deprecated'
@@ -117,17 +123,23 @@ type FirmwareStatus = 'draft' | 'published' | 'deprecated'
 
 #### `RolloutStatus`
 
+Current state of a firmware rollout operation.
+
 ```typescript
 type RolloutStatus = 'pending' | 'active' | 'completed' | 'failed' | 'canceled'
 ```
 
 #### `RolloutStrategy`
 
+Deployment strategy used when rolling out a firmware version to devices.
+
 ```typescript
 type RolloutStrategy = 'immediate' | 'canary' | 'gradual'
 ```
 
 #### `RolloutTaskStatus`
+
+Current state of an individual device update task within a rollout.
 
 ```typescript
 type RolloutTaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed'
@@ -238,6 +250,8 @@ const createRolloutSchema: z.ZodObject<{ firmware_id: z.ZodString; device_ids: z
 
 #### `firmwareStatusSchema`
 
+Allowed lifecycle states for a firmware version.
+
 ```typescript
 const firmwareStatusSchema: z.ZodEnum<{ draft: "draft"; published: "published"; deprecated: "deprecated"; }>
 ```
@@ -268,11 +282,15 @@ const rolloutDeviceStatusSchema: z.ZodObject<{ status: z.ZodEnum<{ pending: "pen
 
 #### `rolloutStatusSchema`
 
+Allowed progress states for a firmware rollout.
+
 ```typescript
 const rolloutStatusSchema: z.ZodEnum<{ pending: "pending"; completed: "completed"; failed: "failed"; active: "active"; canceled: "canceled"; }>
 ```
 
 #### `rolloutStrategySchema`
+
+Allowed rollout delivery strategies.
 
 ```typescript
 const rolloutStrategySchema: z.ZodEnum<{ immediate: "immediate"; canary: "canary"; gradual: "gradual"; }>
@@ -294,6 +312,7 @@ Peer dependencies:
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+- `@molecule/api-logger` ^1.0.0
 - `@molecule/api-middleware-validation` ^1.0.0
 - `@molecule/api-realtime` ^1.0.0
 - `express` ^5.0.0

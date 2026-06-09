@@ -139,6 +139,41 @@ type NotificationsPageTypeIconMap = Readonly<Record<string, string>>
 
 ### Functions
 
+#### `NotificationsPage(props, props, props, props, props, props, props)`
+
+Drop-in `/notifications` page used by every flagship app.
+
+Composes `<NotificationFeed>` with a header (eyebrow + title +
+mark-all-read action), a row of filter chips (all / unread / mentions),
+a paginated body, and an empty state. All data is loaded over the HTTP
+bond by hitting the routes exposed by `@molecule/api-resource-notification`.
+
+All UI text flows through `t()` so apps can localise via the companion
+locale bond `@molecule/app-locales-notifications-page`. All
+styling flows through `getClassMap()` — no Tailwind class strings live
+here.
+
+```typescript
+function NotificationsPage({
+  pageSize = DEFAULT_PAGE_SIZE,
+  endpoint = DEFAULT_ENDPOINT,
+  markAllReadEndpoint = DEFAULT_MARK_ALL_READ_ENDPOINT,
+  typeIcons,
+  className,
+  dataMolId,
+}?: NotificationsPageProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+```
+
+- `props` — Configuration props.
+- `props` — .pageSize - Items per page (default 20).
+- `props` — .endpoint - Override the `GET /notifications` URL.
+- `props` — .markAllReadEndpoint - Override the `POST /notifications/read-all` URL.
+- `props` — .typeIcons - Optional `type → material-symbol` overrides.
+- `props` — .className - Extra classes appended to the outer wrapper.
+- `props` — .dataMolId - `data-mol-id` selector for AI-agent interaction.
+
+**Returns:** The rendered page element.
+
 #### `resolveTypeIcon(type, overrides)`
 
 Resolve an icon name for the given notification type, applying caller

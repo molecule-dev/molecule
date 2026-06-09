@@ -27,6 +27,38 @@ import { RatingForm } from '@molecule/app-rating-form-react'
 npm install @molecule/app-rating-form-react
 ```
 
+## API
+
+### Functions
+
+#### `RatingForm(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Interactive star-rating + comment form. Used for review submission
+(product reviews, course feedback, support-ticket CSAT).
+
+```typescript
+function RatingForm({
+  onSubmit,
+  max = 5,
+  defaultRating = 0,
+  requireComment,
+  title,
+  commentPlaceholder,
+  submitLabel,
+  className,
+}: RatingFormProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .onSubmit
+- `root0` — .max
+- `root0` — .defaultRating
+- `root0` — .requireComment
+- `root0` — .title
+- `root0` — .commentPlaceholder
+- `root0` — .submitLabel
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

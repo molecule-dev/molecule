@@ -26,6 +26,37 @@ import { DiffViewer } from '@molecule/app-diff-viewer-react'
 npm install @molecule/app-diff-viewer-react
 ```
 
+## API
+
+### Functions
+
+#### `DiffViewer(root0, root0, root0, root0, root0, root0, root0)`
+
+Text diff viewer — unified or split layout with line-by-line
+add/remove highlighting. Pure JS (no library) so apps don't pull
+in megabytes for simple diffs.
+
+For large diffs (10k+ lines), wrap with virtualization upstream.
+
+```typescript
+function DiffViewer({
+  before,
+  after,
+  mode = 'unified',
+  showLineNumbers = true,
+  filename,
+  className,
+}: DiffViewerProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .before
+- `root0` — .after
+- `root0` — .mode
+- `root0` — .showLineNumbers
+- `root0` — .filename
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

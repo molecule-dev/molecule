@@ -904,6 +904,954 @@ interface TooltipProps extends HTMLElementProps {
 }
 ```
 
+### Functions
+
+#### `Accordion(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders an Accordion component.
+
+```typescript
+function Accordion({
+  items = [],
+  multiple = false,
+  defaultValue,
+  value: controlledValue,
+  onChange,
+  collapsible = true,
+  className,
+  testId,
+}: AccordionProps<string>): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .items - Accordion items array.
+- `root0` — .multiple - Whether multiple items can be open.
+- `root0` — .defaultValue - Initial open value.
+- `root0` — .value - Controlled open value.
+- `root0` — .onChange - Change handler.
+- `root0` — .collapsible - Whether items collapse.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Accordion element.
+
+#### `Alert(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders an Alert component.
+
+```typescript
+function Alert({
+  children,
+  title,
+  variant: _variant = 'subtle',
+  status,
+  icon,
+  dismissible,
+  onDismiss,
+  className,
+  testId,
+}: AlertProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Alert body content.
+- `root0` — .title - Alert title text.
+- `root0` — .variant - Visual variant.
+- `root0` — .status - Status type.
+- `root0` — .icon - Leading icon element.
+- `root0` — .dismissible - Whether dismissible.
+- `root0` — .onDismiss - Dismiss handler.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Alert element.
+
+#### `Avatar(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders an Avatar component.
+
+```typescript
+function Avatar({
+  src,
+  alt,
+  name,
+  fallback,
+  size = 'md',
+  rounded = true,
+  className,
+  testId,
+}: AvatarProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .src - Image source URL.
+- `root0` — .alt - Alt text for image.
+- `root0` — .name - Display name for initials.
+- `root0` — .fallback - Fallback element when image unavailable.
+- `root0` — .size - Avatar size.
+- `root0` — .rounded - Whether rounded (circular).
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Avatar element.
+
+#### `Badge(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Badge component.
+
+```typescript
+function Badge({
+  children,
+  color = 'primary',
+  variant: _variant = 'solid',
+  size = 'md',
+  rounded = true,
+  className,
+  testId,
+}: BadgeProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Badge content.
+- `root0` — .color - Badge color.
+- `root0` — .variant - Visual variant style.
+- `root0` — .size - Badge size.
+- `root0` — .rounded - Whether rounded.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Badge element.
+
+#### `Button(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Button component.
+
+```typescript
+function Button({
+  children,
+  variant = 'solid',
+  color = 'primary',
+  size = 'md',
+  loading = false,
+  loadingText,
+  fullWidth = false,
+  leftIcon,
+  rightIcon,
+  className,
+  testId,
+  disabled,
+  onClick,
+}: ButtonProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Button content.
+- `root0` — .variant - Visual variant.
+- `root0` — .color - Color theme.
+- `root0` — .size - Button size.
+- `root0` — .loading - Whether loading.
+- `root0` — .loadingText - Text while loading.
+- `root0` — .fullWidth - Whether full width.
+- `root0` — .leftIcon - Left icon element.
+- `root0` — .rightIcon - Right icon element.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+- `root0` — .disabled - Whether disabled.
+- `root0` — .onClick - Click handler.
+
+**Returns:** The rendered Button element.
+
+#### `Card(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Card component.
+
+```typescript
+function Card({
+  children,
+  variant = 'elevated',
+  padding = 'md',
+  interactive,
+  className,
+  style,
+  testId,
+  onClick,
+}: CardProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Card content.
+- `root0` — .variant - Visual variant.
+- `root0` — .padding - Padding size.
+- `root0` — .interactive - Whether interactive.
+- `root0` — .className - CSS class name override.
+- `root0` — .style - Inline style object.
+- `root0` — .testId - Test identifier.
+- `root0` — .onClick - Click handler.
+
+**Returns:** The rendered Card element.
+
+#### `CardContent(root0, root0, root0)`
+
+Renders a CardContent component.
+
+```typescript
+function CardContent({
+  children,
+  className,
+}: { children: unknown; className?: string; }): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Body content.
+- `root0` — .className - CSS class name override.
+
+**Returns:** The rendered CardContent element.
+
+#### `CardDescription(root0, root0, root0)`
+
+Renders a CardDescription component.
+
+```typescript
+function CardDescription({
+  children,
+  className,
+}: { children: unknown; className?: string; }): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Description content.
+- `root0` — .className - CSS class name override.
+
+**Returns:** The rendered CardDescription element.
+
+#### `CardFooter(root0, root0, root0)`
+
+Renders a CardFooter component.
+
+```typescript
+function CardFooter({
+  children,
+  className,
+}: { children: unknown; className?: string; }): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Footer content.
+- `root0` — .className - CSS class name override.
+
+**Returns:** The rendered CardFooter element.
+
+#### `CardHeader(root0, root0, root0)`
+
+Renders a CardHeader component.
+
+```typescript
+function CardHeader({
+  children,
+  className,
+}: { children: unknown; className?: string; }): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Header content.
+- `root0` — .className - CSS class name override.
+
+**Returns:** The rendered CardHeader element.
+
+#### `CardTitle(root0, root0, root0)`
+
+Renders a CardTitle component.
+
+```typescript
+function CardTitle({
+  children,
+  className,
+}: { children: unknown; className?: string; }): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Title content.
+- `root0` — .className - CSS class name override.
+
+**Returns:** The rendered CardTitle element.
+
+#### `Checkbox(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Checkbox component.
+
+```typescript
+function Checkbox({
+  label,
+  checked,
+  indeterminate,
+  onChange,
+  error,
+  disabled,
+  className,
+  testId,
+}: CheckboxProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .label - Checkbox label text.
+- `root0` — .checked - Whether checked.
+- `root0` — .indeterminate - Whether indeterminate.
+- `root0` — .onChange - Change handler.
+- `root0` — .error - Error message.
+- `root0` — .disabled - Whether disabled.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Checkbox element.
+
+#### `Container(root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Container component.
+
+```typescript
+function Container({
+  children,
+  maxWidth = 'lg',
+  centered = true,
+  className,
+  style,
+  testId,
+}: ContainerProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Container content.
+- `root0` — .maxWidth - Maximum width constraint.
+- `root0` — .centered - Whether centered.
+- `root0` — .className - CSS class name override.
+- `root0` — .style - Inline style object.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Container element.
+
+#### `Dropdown(root0, root0, root0, root0, root0, root0)`
+
+Renders a Dropdown component.
+
+```typescript
+function Dropdown({
+  trigger,
+  items = [],
+  onSelect,
+  className,
+  testId,
+}: DropdownProps<string>): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .trigger - Trigger element.
+- `root0` — .items - Menu items array.
+- `root0` — .onSelect - Item selection handler.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Dropdown element.
+
+#### `DropdownLabel(root0, root0)`
+
+Renders a DropdownLabel component.
+
+```typescript
+function DropdownLabel({ children }: { children: unknown; }): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Label content.
+
+**Returns:** The rendered DropdownLabel element.
+
+#### `DropdownSeparator()`
+
+Renders a DropdownSeparator component.
+
+```typescript
+function DropdownSeparator(): React.JSX.Element
+```
+
+**Returns:** The rendered DropdownSeparator element.
+
+#### `Flex(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Flex component.
+
+```typescript
+function Flex({
+  children,
+  direction = 'row',
+  justify,
+  align,
+  wrap,
+  gap,
+  className,
+  style,
+  testId,
+  onClick,
+}: FlexProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Flex content.
+- `root0` — .direction - Flex direction.
+- `root0` — .justify - Justify content.
+- `root0` — .align - Align items.
+- `root0` — .wrap - Flex wrap behavior.
+- `root0` — .gap - Gap between items.
+- `root0` — .className - CSS class name override.
+- `root0` — .style - Inline style object.
+- `root0` — .testId - Test identifier.
+- `root0` — .onClick - Click handler.
+
+**Returns:** The rendered Flex element.
+
+#### `Form(root0, root0, root0, root0, root0)`
+
+Renders a Form component.
+
+In React Native there is no `<form>` element. This is a View wrapper
+that provides consistent spacing.
+
+```typescript
+function Form({ children, onSubmit: _onSubmit, className, testId }: FormProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Form content.
+- `root0` — .onSubmit - Submit handler (unused in RN).
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Form element.
+
+#### `FormField(root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a FormField component.
+
+```typescript
+function FormField({
+  children,
+  label,
+  error,
+  hint,
+  required,
+  className,
+}: FormFieldProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Field input content.
+- `root0` — .label - Field label text.
+- `root0` — .error - Error message.
+- `root0` — .hint - Hint text.
+- `root0` — .required - Whether required.
+- `root0` — .className - CSS class name override.
+
+**Returns:** The rendered FormField element.
+
+#### `Grid(root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Grid component.
+
+```typescript
+function Grid({ children, columns, gap, className, style, testId }: GridProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Grid content.
+- `root0` — .columns - Number of columns.
+- `root0` — .gap - Gap between items.
+- `root0` — .className - CSS class name override.
+- `root0` — .style - Inline style object.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Grid element.
+
+#### `Label(root0, root0, root0, root0)`
+
+Renders a Label component.
+
+```typescript
+function Label({ children, required, className }: LabelProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Label content.
+- `root0` — .required - Whether required.
+- `root0` — .className - CSS class name override.
+
+**Returns:** The rendered Label element.
+
+#### `Modal(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Modal component.
+
+```typescript
+function Modal({
+  children,
+  open,
+  onClose,
+  title,
+  size = 'md',
+  footer,
+  className,
+  testId,
+}: ModalProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Modal body content.
+- `root0` — .open - Whether open.
+- `root0` — .onClose - Close handler.
+- `root0` — .title - Modal title text.
+- `root0` — .size - Modal size.
+- `root0` — .footer - Footer content.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Modal element.
+
+#### `Pagination(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Pagination component.
+
+```typescript
+function Pagination({
+  page,
+  totalPages,
+  onChange,
+  siblings = 1,
+  boundaries = 1,
+  size = 'md',
+  showFirstLast,
+  className,
+  testId,
+}: PaginationProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .page - Current page number.
+- `root0` — .totalPages - Total number of pages.
+- `root0` — .onChange - Page change handler.
+- `root0` — .siblings - Visible sibling pages.
+- `root0` — .boundaries - Boundary page count.
+- `root0` — .size - Pagination size.
+- `root0` — .showFirstLast - Show first/last buttons.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Pagination element.
+
+#### `Progress(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Progress component.
+
+```typescript
+function Progress({
+  value = 0,
+  max = 100,
+  label,
+  showValue,
+  color = 'primary',
+  size = 'md',
+  indeterminate,
+  className,
+  testId,
+}: ProgressProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .value - Current progress value.
+- `root0` — .max - Maximum progress value.
+- `root0` — .label - Progress label text.
+- `root0` — .showValue - Whether to show value.
+- `root0` — .color - Progress bar color.
+- `root0` — .size - Progress bar size.
+- `root0` — .indeterminate - Whether indeterminate.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Progress element.
+
+#### `RadioGroup(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a RadioGroup component.
+
+```typescript
+function RadioGroup({
+  label,
+  options = [],
+  value,
+  onChange,
+  direction = 'vertical',
+  error,
+  disabled,
+  className,
+  testId,
+}: RadioGroupProps<string>): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .label - Group label text.
+- `root0` — .options - Radio options array.
+- `root0` — .value - Selected value.
+- `root0` — .onChange - Change handler.
+- `root0` — .direction - Layout direction.
+- `root0` — .error - Error message.
+- `root0` — .disabled - Whether disabled.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered RadioGroup element.
+
+#### `Select(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Select component.
+
+```typescript
+function Select({
+  label,
+  options = [],
+  value,
+  onChange,
+  placeholder,
+  error,
+  hint,
+  size = 'md',
+  disabled,
+  required,
+  className,
+  testId,
+}: SelectProps<string>): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .label - Select label text.
+- `root0` — .options - Select options array.
+- `root0` — .value - Selected value.
+- `root0` — .onChange - Change handler.
+- `root0` — .placeholder - Placeholder text.
+- `root0` — .error - Error message.
+- `root0` — .hint - Hint text.
+- `root0` — .size - Select size.
+- `root0` — .disabled - Whether disabled.
+- `root0` — .required - Whether required.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Select element.
+
+#### `Separator(root0, root0, root0, root0, root0)`
+
+Renders a Separator component.
+
+```typescript
+function Separator({
+  orientation = 'horizontal',
+  decorative = true,
+  className,
+  testId,
+}: SeparatorProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .orientation - Horizontal or vertical.
+- `root0` — .decorative - Whether purely decorative.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Separator element.
+
+#### `Skeleton(root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Skeleton component.
+
+```typescript
+function Skeleton({
+  width,
+  height,
+  circle,
+  animation = 'pulse',
+  className,
+  testId,
+}: SkeletonProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .width - Skeleton width.
+- `root0` — .height - Skeleton height.
+- `root0` — .circle - Whether circular.
+- `root0` — .animation - Animation type.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Skeleton element.
+
+#### `SkeletonCircle(root0, root0, root0, root0)`
+
+Renders a SkeletonCircle component.
+
+```typescript
+function SkeletonCircle({ size = 40, className, testId }: { size?: number; className?: string; testId?: string; }): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .size - Circle diameter.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered SkeletonCircle element.
+
+#### `SkeletonText(root0, root0, root0, root0)`
+
+Renders a SkeletonText component.
+
+```typescript
+function SkeletonText({ lines = 3, className, testId }: { lines?: number; className?: string; testId?: string; }): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .lines - Number of text lines.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered SkeletonText element.
+
+#### `Spacer(root0, root0, root0, root0, root0, root0)`
+
+Renders a Spacer component.
+
+```typescript
+function Spacer({
+  size = 'md',
+  horizontal,
+  className,
+  style,
+  testId,
+}: SpacerProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .size - Spacer size.
+- `root0` — .horizontal - Whether horizontal.
+- `root0` — .className - CSS class name override.
+- `root0` — .style - Inline style object.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Spacer element.
+
+#### `Spinner(root0, root0, root0, root0)`
+
+Renders a Spinner component.
+
+```typescript
+function Spinner({ size = 'md', className, testId }: SpinnerProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .size - Spinner size.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Spinner element.
+
+#### `Switch(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Switch component.
+
+```typescript
+function Switch({
+  label,
+  checked,
+  onChange,
+  size: _size = 'md',
+  disabled,
+  className,
+  testId,
+}: SwitchProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .label - Switch label text.
+- `root0` — .checked - Whether checked.
+- `root0` — .onChange - Change handler.
+- `root0` — .size - Switch size (unused in RN).
+- `root0` — .disabled - Whether disabled.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Switch element.
+
+#### `Table(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Table component.
+
+```typescript
+function Table({
+  columns = [],
+  data = [],
+  rowKey,
+  onRowClick,
+  striped,
+  bordered,
+  hoverable,
+  loading,
+  emptyContent: emptyMessage,
+  sort,
+  onSort,
+  className,
+  testId,
+}: TableProps<Record<string, unknown>>): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .columns - Column definitions.
+- `root0` — .data - Table row data.
+- `root0` — .rowKey - Row key accessor.
+- `root0` — .onRowClick - Row click handler.
+- `root0` — .striped - Whether striped rows.
+- `root0` — .bordered - Whether bordered.
+- `root0` — .hoverable - Whether rows hoverable.
+- `root0` — .loading - Whether loading.
+- `root0` — .emptyContent - Empty state message.
+- `root0` — .sort - Active sort state.
+- `root0` — .onSort - Sort handler.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Table element.
+
+#### `Tabs(root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Tabs component.
+
+```typescript
+function Tabs({
+  items = [],
+  value: controlledValue,
+  defaultValue,
+  onChange,
+  fitted,
+  className,
+  testId,
+}: TabsProps<string>): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .items - Tab items array.
+- `root0` — .value - Controlled active tab.
+- `root0` — .defaultValue - Default active tab.
+- `root0` — .onChange - Tab change handler.
+- `root0` — .fitted - Whether tabs fill width.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Tabs element.
+
+#### `Toast(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Renders a Toast component.
+
+```typescript
+function Toast({
+  title,
+  description,
+  status,
+  duration = 5000,
+  dismissible = true,
+  onDismiss,
+  className,
+  testId,
+}: ToastProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .title - Toast title text.
+- `root0` — .description - Toast description text.
+- `root0` — .status - Status type.
+- `root0` — .duration - Auto-dismiss duration (ms).
+- `root0` — .dismissible - Whether dismissible.
+- `root0` — .onDismiss - Dismiss handler.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Toast element.
+
+#### `ToastContainer(root0, root0, root0)`
+
+Renders a ToastContainer component.
+
+```typescript
+function ToastContainer({ children, position = 'bottom-right' }: { children: React.ReactNode; position?: "top" | "top-right" | "top-left" | "bottom" | "bottom-right" | "bottom-left"; }): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Toast elements.
+- `root0` — .position - Screen position.
+
+**Returns:** The rendered ToastContainer element.
+
+#### `ToastProvider(root0, root0, root0)`
+
+Renders a ToastProvider component.
+
+```typescript
+function ToastProvider({ children, position = 'bottom-right' }: { children: React.ReactNode; position?: "top" | "top-right" | "top-left" | "bottom" | "bottom-right" | "bottom-left"; }): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - App content.
+- `root0` — .position - Toast position.
+
+**Returns:** The rendered ToastProvider element.
+
+#### `Tooltip(root0, root0, root0, root0, root0)`
+
+Renders a Tooltip component.
+
+```typescript
+function Tooltip({ children, content, className, testId }: TooltipProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .children - Trigger element.
+- `root0` — .content - Tooltip content.
+- `root0` — .className - CSS class name override.
+- `root0` — .testId - Test identifier.
+
+**Returns:** The rendered Tooltip element.
+
+#### `useToast()`
+
+Hook for toast notifications.
+
+```typescript
+function useToast(): ToastContextValue
+```
+
+**Returns:** The toast context value.
+
+### Constants
+
+#### `Input`
+
+Text input component.
+
+```typescript
+const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<TextInput>>
+```
+
+#### `Textarea`
+
+Multi-line text input component.
+
+```typescript
+const Textarea: React.ForwardRefExoticComponent<TextareaProps & React.RefAttributes<TextInput>>
+```
+
 ## Injection Notes
 
 ### Requirements

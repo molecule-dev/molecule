@@ -44,6 +44,8 @@ npm install @molecule/api-resource-event-type
 
 #### `AvailabilityRuleRow`
 
+Database row shape for a recurring weekly availability rule belonging to a user.
+
 ```typescript
 interface AvailabilityRuleRow {
   id: string
@@ -58,6 +60,8 @@ interface AvailabilityRuleRow {
 
 #### `AvailabilitySlot`
 
+A discrete time window indicating whether a booking slot is open or blocked.
+
 ```typescript
 interface AvailabilitySlot {
   start: string // ISO datetime
@@ -67,6 +71,8 @@ interface AvailabilitySlot {
 ```
 
 #### `EventTypeRow`
+
+Database row shape for a bookable event type owned by a user.
 
 ```typescript
 interface EventTypeRow {
@@ -95,6 +101,8 @@ interface EventTypeRow {
 
 #### `LocationKind`
 
+The medium through which an event type meeting takes place.
+
 ```typescript
 type LocationKind = 'video' | 'phone' | 'in_person' | 'custom'
 ```
@@ -103,17 +111,23 @@ type LocationKind = 'video' | 'phone' | 'in_person' | 'custom'
 
 #### `createEventTypeForOwner(ownerId, data)`
 
+Create a new event type for the given owner with the supplied configuration.
+
 ```typescript
 function createEventTypeForOwner(ownerId: string, data: { name: string; slug: string; description?: string | null; duration_minutes?: number; location_kind?: LocationKind; location_value?: unknown; buffer_before_minutes?: number; buffer_after_minutes?: number; min_notice_minutes?: number; max_per_day?: number | null; requires_confirmation?: boolean; color?: string | null; is_active?: boolean; position?: number; }): Promise<EventTypeRow>
 ```
 
 #### `createEventTypeRouter()`
 
+Creates and returns the Express router for event-type and availability endpoints.
+
 ```typescript
 function createEventTypeRouter(): Router
 ```
 
 #### `deleteEventTypeForOwner(eventTypeId, ownerId)`
+
+Delete an event type by ID, returning false if it does not belong to the given owner.
 
 ```typescript
 function deleteEventTypeForOwner(eventTypeId: string, ownerId: string): Promise<boolean>
@@ -132,11 +146,15 @@ function generateSlots(opts: { date: string; durationMinutes: number; bufferBefo
 
 #### `getEventTypeBySlug(slug)`
 
+Look up an active event type by its URL slug.
+
 ```typescript
 function getEventTypeBySlug(slug: string): Promise<EventTypeRow | null>
 ```
 
 #### `getEventTypeForOwner(eventTypeId, ownerId)`
+
+Fetch a single event type by ID, returning null if it does not belong to the given owner.
 
 ```typescript
 function getEventTypeForOwner(eventTypeId: string, ownerId: string): Promise<EventTypeRow | null>
@@ -144,11 +162,15 @@ function getEventTypeForOwner(eventTypeId: string, ownerId: string): Promise<Eve
 
 #### `listAvailabilityRulesForUser(userId)`
 
+Return all availability rules for the given user, ordered by day and start time.
+
 ```typescript
 function listAvailabilityRulesForUser(userId: string): Promise<AvailabilityRuleRow[]>
 ```
 
 #### `listEventTypesForOwner(ownerId, opts?)`
+
+List all event types owned by the given user, optionally including inactive ones.
 
 ```typescript
 function listEventTypesForOwner(ownerId: string, opts?: { include_inactive?: boolean; }): Promise<EventTypeRow[]>
@@ -156,11 +178,15 @@ function listEventTypesForOwner(ownerId: string, opts?: { include_inactive?: boo
 
 #### `setAvailabilityRulesForUser(userId, rules)`
 
+Replace all availability rules for the given user with the supplied set.
+
 ```typescript
 function setAvailabilityRulesForUser(userId: string, rules: { day_of_week: number; start_minute: number; end_minute: number; timezone: string; }[]): Promise<AvailabilityRuleRow[]>
 ```
 
 #### `updateEventTypeForOwner(eventTypeId, ownerId, patch)`
+
+Apply a partial patch to an event type, returning null if the record does not belong to the owner.
 
 ```typescript
 function updateEventTypeForOwner(eventTypeId: string, ownerId: string, patch: Partial<EventTypeRow>): Promise<EventTypeRow | null>
@@ -170,11 +196,15 @@ function updateEventTypeForOwner(eventTypeId: string, ownerId: string, patch: Pa
 
 #### `availabilityQuerySchema`
 
+Zod schema for the query parameters when fetching availability slots (requires a YYYY-MM-DD date).
+
 ```typescript
 const availabilityQuerySchema: z.ZodObject<{ date: z.ZodString; }, z.core.$strip>
 ```
 
 #### `availabilityRuleSchema`
+
+Zod schema for a single availability rule defining a recurring weekly time block.
 
 ```typescript
 const availabilityRuleSchema: z.ZodObject<{ day_of_week: z.ZodNumber; start_minute: z.ZodNumber; end_minute: z.ZodNumber; timezone: z.ZodString; }, z.core.$strip>
@@ -182,11 +212,15 @@ const availabilityRuleSchema: z.ZodObject<{ day_of_week: z.ZodNumber; start_minu
 
 #### `eventTypeCreateSchema`
 
+Zod schema for validating the request body when creating a new event type.
+
 ```typescript
 const eventTypeCreateSchema: z.ZodObject<{ name: z.ZodString; slug: z.ZodString; description: z.ZodOptional<z.ZodNullable<z.ZodString>>; duration_minutes: z.ZodOptional<z.ZodNumber>; location_kind: z.ZodOptional<z.ZodEnum<{ video: "video"; phone: "phone"; in_person: "in_person"; custom: "custom"; }>>; location_value: z.ZodOptional<z.ZodUnknown>; buffer_before_minutes: z.ZodOptional<z.ZodNumber>; buffer_after_minutes: z.ZodOptional<z.ZodNumber>; min_notice_minutes: z.ZodOptional<z.ZodNumber>; max_per_day: z.ZodOptional<z.ZodNullable<z.ZodNumber>>; requires_confirmation: z.ZodOptional<z.ZodBoolean>; color: z.ZodOptional<z.ZodNullable<z.ZodString>>; is_active: z.ZodOptional<z.ZodBoolean>; position: z.ZodOptional<z.ZodNumber>; }, z.core.$strip>
 ```
 
 #### `eventTypeUpdateSchema`
+
+Zod schema for validating the request body when updating an existing event type (all fields optional).
 
 ```typescript
 const eventTypeUpdateSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; slug: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; duration_minutes: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; location_kind: z.ZodOptional<z.ZodOptional<z.ZodEnum<{ video: "video"; phone: "phone"; in_person: "in_person"; custom: "custom"; }>>>; location_value: z.ZodOptional<z.ZodOptional<z.ZodUnknown>>; buffer_before_minutes: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; buffer_after_minutes: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; min_notice_minutes: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; max_per_day: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodNumber>>>; requires_confirmation: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>; color: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; is_active: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>; position: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; }, z.core.$strip>
@@ -194,11 +228,15 @@ const eventTypeUpdateSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; slu
 
 #### `LOCATION_KINDS`
 
+Allowed location kinds for an event type.
+
 ```typescript
 const LOCATION_KINDS: readonly ["video", "phone", "in_person", "custom"]
 ```
 
 #### `slugRegex`
+
+Regex that validates a lowercase kebab-case slug (no leading/trailing hyphens).
 
 ```typescript
 const slugRegex: RegExp

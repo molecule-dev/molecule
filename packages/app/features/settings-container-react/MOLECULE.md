@@ -46,6 +46,105 @@ export function SettingsPage() {
 npm install @molecule/app-settings-container-react
 ```
 
+## API
+
+### Interfaces
+
+#### `SettingsSidebarItem`
+
+A single navigable item in the settings sidebar.
+
+```typescript
+interface SettingsSidebarItem {
+  id: string
+  label: ReactNode
+  icon?: ReactNode
+}
+```
+
+### Functions
+
+#### `SettingsContent(root0, root0, root0)`
+
+Wrapper for the right-hand column of `<SettingsLayout>`. Just a
+vertically-stacked container for one or more `<SettingsSection>`s —
+useful as a semantic landmark and for consistent spacing.
+
+```typescript
+function SettingsContent({ children, className }: SettingsContentProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .children
+- `root0` — .className
+
+#### `SettingsLayout(root0, root0, root0, root0, root0, root0)`
+
+Two-column Settings page scaffold: sidebar on the left, content on the
+right, optional sticky header above both.
+
+```typescript
+function SettingsLayout({
+  sidebar,
+  children,
+  header,
+  className,
+  dataMolId,
+}: SettingsLayoutProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .sidebar
+- `root0` — .children
+- `root0` — .header
+- `root0` — .className
+- `root0` — .dataMolId
+
+#### `SettingsSection(root0, root0, root0, root0, root0, root0, root0)`
+
+One configuration section inside a Settings page — Card-wrapped, with
+title / description header, body slot, and optional footer action row.
+
+```typescript
+function SettingsSection({
+  title,
+  description,
+  children,
+  footer,
+  className,
+  dataMolId,
+}: SettingsSectionProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .title
+- `root0` — .description
+- `root0` — .children
+- `root0` — .footer
+- `root0` — .className
+- `root0` — .dataMolId
+
+#### `SettingsSidebar(root0, root0, root0, root0, root0, root0)`
+
+Vertical side-nav for Settings pages. Controlled — caller owns `activeId`.
+
+```typescript
+function SettingsSidebar({
+  items,
+  activeId,
+  onSelect,
+  footer,
+  className,
+}: SettingsSidebarProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .items
+- `root0` — .activeId
+- `root0` — .onSelect
+- `root0` — .footer
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

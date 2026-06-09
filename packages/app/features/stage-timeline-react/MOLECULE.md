@@ -81,6 +81,44 @@ Per-stage rendering state.
 type StageStatus = 'completed' | 'current' | 'upcoming'
 ```
 
+### Functions
+
+#### `StageTimeline(props)`
+
+Multi-stage horizontal progress timeline with a current-stage marker.
+Each stage renders as a labeled circle on a connecting rail; completed
+stages fill in, the current stage gets a highlighted ring, and upcoming
+stages stay outlined.
+
+Designed for employee-onboarding, applicant-tracking, kanban-board
+status flows, and order-fulfillment progress trackers.
+
+```typescript
+function StageTimeline({
+  stages,
+  currentIndex,
+  dataMolId,
+  className,
+}: StageTimelineProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered timeline.
+
+#### `statusOf(i, currentIndex)`
+
+Resolve a stage's rendering status given its index and the current index.
+
+```typescript
+function statusOf(i: number, currentIndex: number): StageStatus
+```
+
+- `i` — Zero-based stage index.
+- `currentIndex` — Index of the current stage (`-1` = none, `len` = all done).
+
+**Returns:** The rendering status for stage `i`.
+
 ## Injection Notes
 
 ### Requirements

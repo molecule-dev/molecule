@@ -94,17 +94,23 @@ type TaskPriority = 1 | 2 | 3 | 4
 
 #### `createTaskForOwner(ownerId, data)`
 
+Create a new task owned by the given user and return the serialised Task.
+
 ```typescript
 function createTaskForOwner(ownerId: string, data: { title: string; description?: string; parent_id?: string | null; priority?: number; due_date?: string | null; due_time?: string | null; recurrence_rule?: string | null; position?: number; }): Promise<Task>
 ```
 
 #### `createTaskRouter()`
 
+Creates and returns an Express Router with all task CRUD and reorder endpoints mounted.
+
 ```typescript
 function createTaskRouter(): Router
 ```
 
 #### `deleteTaskForOwner(taskId, ownerId)`
+
+Delete a task owned by the given user; returns true if deleted, false if not found/owned.
 
 ```typescript
 function deleteTaskForOwner(taskId: string, ownerId: string): Promise<boolean>
@@ -128,6 +134,8 @@ function listTasksForOwner(ownerId: string, opts?: { parent_id?: string | null; 
 
 #### `reorderTasksForOwner(ownerId, items)`
 
+Update the position field for a batch of tasks owned by the given user; returns the count of rows updated.
+
 ```typescript
 function reorderTasksForOwner(ownerId: string, items: { id: string; position: number; }[]): Promise<number>
 ```
@@ -142,6 +150,8 @@ function toTask(row: TaskRow): Task
 
 #### `updateTaskForOwner(taskId, ownerId, patch)`
 
+Apply a partial patch to a task owned by the given user; returns the updated Task or null if not found/owned.
+
 ```typescript
 function updateTaskForOwner(taskId: string, ownerId: string, patch: Partial<{ title: string; description: string | null; parent_id: string | null; priority: number; due_date: string | null; due_time: string | null; recurrence_rule: string | null; position: number; is_completed: boolean; }>): Promise<Task | null>
 ```
@@ -150,11 +160,15 @@ function updateTaskForOwner(taskId: string, ownerId: string, patch: Partial<{ ti
 
 #### `reorderSchema`
 
+Validates the request body for bulk-reordering tasks (array of id + position pairs).
+
 ```typescript
 const reorderSchema: z.ZodObject<{ tasks: z.ZodArray<z.ZodObject<{ id: z.ZodString; position: z.ZodNumber; }, z.core.$strip>>; }, z.core.$strip>
 ```
 
 #### `taskCreateSchema`
+
+Validates the request body for creating a new task.
 
 ```typescript
 const taskCreateSchema: z.ZodObject<{ title: z.ZodString; description: z.ZodOptional<z.ZodString>; parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; priority: z.ZodOptional<z.ZodNumber>; due_date: z.ZodOptional<z.ZodNullable<z.ZodString>>; due_time: z.ZodOptional<z.ZodNullable<z.ZodString>>; recurrence_rule: z.ZodOptional<z.ZodNullable<z.ZodString>>; position: z.ZodOptional<z.ZodNumber>; }, z.core.$strip>
@@ -162,17 +176,23 @@ const taskCreateSchema: z.ZodObject<{ title: z.ZodString; description: z.ZodOpti
 
 #### `taskListQuerySchema`
 
+Validates query parameters for listing tasks (filtering, pagination, and due-date constraints).
+
 ```typescript
 const taskListQuerySchema: z.ZodObject<{ parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; completed: z.ZodOptional<z.ZodCoercedBoolean<unknown>>; due_date: z.ZodOptional<z.ZodString>; filter: z.ZodOptional<z.ZodEnum<{ today: "today"; upcoming: "upcoming"; }>>; limit: z.ZodOptional<z.ZodCoercedNumber<unknown>>; offset: z.ZodOptional<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>
 ```
 
 #### `taskRouter`
 
+Singleton task router instance created from {@link createTaskRouter}.
+
 ```typescript
 const taskRouter: Router
 ```
 
 #### `taskUpdateSchema`
+
+Validates the request body for updating an existing task (all fields optional, plus completion flag).
 
 ```typescript
 const taskUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodOptional<z.ZodString>>; parent_id: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; priority: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; due_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; due_time: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; recurrence_rule: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; position: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; is_completed: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>

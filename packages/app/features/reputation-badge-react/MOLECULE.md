@@ -92,6 +92,34 @@ type ReputationLevel = 'newcomer' | 'contributor' | 'trusted' | 'veteran' | 'leg
 
 ### Functions
 
+#### `BadgeShelf(root0, root0, root0, root0, root0)`
+
+Horizontal row of small badge icons earned by a user — used alongside
+`<ReputationBadge>` to surface community achievements on profile
+headers, post bylines, and detail pages.
+
+Each icon shows its name in a native `title` tooltip for low-friction
+accessibility. Clicking a badge invokes `onClick(badge)`; clicking the
+trailing `+N` chip invokes `onClick(null)` so the host page can expand
+a full list.
+
+```typescript
+function BadgeShelf({
+  badges,
+  limit = 5,
+  onClick,
+  className,
+}: BadgeShelfProps): React.JSX.Element | null
+```
+
+- `root0` — Component props.
+- `root0` — .badges - Badges to display.
+- `root0` — .limit - Maximum visible badges (default `5`).
+- `root0` — .onClick - Optional click handler.
+- `root0` — .className - Extra wrapper classes.
+
+**Returns:** The rendered shelf, or `null` if no badges are supplied.
+
 #### `colorForLevel(level)`
 
 Return the semantic Badge color for a given level.
@@ -121,6 +149,36 @@ function levelForScore(score: number, thresholds?: ReputationThresholds): Reputa
 - `thresholds` — Optional override thresholds; defaults to {@link DEFAULT_THRESHOLDS}.
 
 **Returns:** The derived reputation level.
+
+#### `ReputationBadge(root0, root0, root0, root0, root0, root0)`
+
+User reputation / karma display.
+
+Renders a numeric score paired with a tier chip whose color reflects the
+derived (or explicit) {@link ReputationLevel}. Used by discussion-boards,
+forum, and social-media flagships to surface community standing.
+
+Tier color comes from the active ClassMap bond's `cm.badge()` helper, so
+apps swapping styling libraries restyle these chips for free.
+
+```typescript
+function ReputationBadge({
+  score,
+  level,
+  thresholds = DEFAULT_THRESHOLDS,
+  variant = 'compact',
+  className,
+}: ReputationBadgeProps): React.JSX.Element
+```
+
+- `root0` — Component props.
+- `root0` — .score - Numeric reputation score.
+- `root0` — .level - Optional explicit level override.
+- `root0` — .thresholds - Optional threshold overrides.
+- `root0` — .variant - Layout variant (`'compact'` default).
+- `root0` — .className - Extra wrapper classes.
+
+**Returns:** The rendered reputation badge element.
 
 ### Constants
 

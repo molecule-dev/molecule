@@ -57,6 +57,51 @@ npm install @molecule/app-spreadsheet-grid-react
 
 ### Interfaces
 
+#### `SpreadsheetGridProps`
+
+Props for `<SpreadsheetGrid>`.
+
+```typescript
+interface SpreadsheetGridProps {
+  /** Total number of rows in the grid. */
+  rows: number
+  /** Total number of columns in the grid. */
+  columns: number
+  /** Sparse cell-data map. Cells not present render as empty. */
+  cells: CellMap
+  /** Called when the user commits an edit (Enter, Tab, or focus loss). */
+  onCellChange: (ref: CellRef, value: CellValue) => void
+  /** Current selection. */
+  selection: SpreadsheetSelection
+  /** Called when the user changes the selection (click, drag, Shift+click). */
+  onSelectionChange: (selection: SpreadsheetSelection) => void
+  /** Number of rows frozen at the top (default `0`). */
+  frozenRows?: number
+  /** Number of columns frozen on the left (default `0`). */
+  frozenCols?: number
+  /** Per-cell width in pixels (default `96`). */
+  cellWidth?: number
+  /** Per-cell height in pixels (default `28`). */
+  cellHeight?: number
+  /** Width of the row-number gutter on the left (default `48`). */
+  gutterWidth?: number
+  /** Height of the column-letter header (default `28`). */
+  headerHeight?: number
+  /** Visible viewport width in pixels (default `720`). */
+  viewportWidth?: number
+  /** Visible viewport height in pixels (default `360`). */
+  viewportHeight?: number
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+  /**
+   * Optional cell renderer. Receives the cached display string plus the
+   * raw value. Defaults to plain text. Use to render formula results
+   * (`'=A1+B1'` → evaluated number) or custom formatting.
+   */
+  renderCell?: (value: CellValue | undefined, ref: CellRef) => ReactElement | string
+}
+```
+
 #### `SpreadsheetSelection`
 
 Inclusive rectangular selection — `r1`/`c1` is the anchor (where the
@@ -215,6 +260,30 @@ function serializeSelectionTsv(cells: CellMap, sel: SpreadsheetSelection): strin
 - `sel` — Selection to serialize.
 
 **Returns:** TSV-formatted string with `\n` row separators.
+
+#### `SpreadsheetGrid(props)`
+
+High-performance virtualized spreadsheet cell grid.
+
+Renders an `rows × columns` grid backed by a sparse `Map<cellRef, value>`,
+with frozen rows/columns, range selection (click + drag, Shift+click),
+copy/paste through the system clipboard as TSV, and in-cell editing
+(double-click → input; Enter commits, Escape cancels).
+
+Only the cells inside the visible viewport (plus a small overscan
+margin) are rendered, so 10k × 10k grids stay responsive.
+
+Pairs with `@molecule/api-formula-engine` for formula evaluation —
+pass an evaluated `cells` map and a `renderCell` that can look up
+formula results.
+
+```typescript
+function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+```
+
+- `props` — Component props (see {@link SpreadsheetGridProps}).
+
+**Returns:** The rendered grid.
 
 ## Injection Notes
 

@@ -116,9 +116,15 @@ interface EmailTransport {
 
 #### `sendMail(message)`
 
+Sends an email message via the Mailgun API, with automatic test-mode handling for sandbox domains.
+
 ```typescript
 function sendMail(message: EmailMessage): Promise<EmailSendResult>
 ```
+
+- `message` — The email message (to, from, subject, text/html, attachments).
+
+**Returns:** Send result with accepted/rejected addresses and message ID.
 
 ### Constants
 

@@ -503,3 +503,7 @@ function updateEvent(eventId: string, event: Partial<EventInput>): Promise<Calen
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-calendar`.

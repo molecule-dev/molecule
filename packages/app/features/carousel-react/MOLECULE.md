@@ -24,6 +24,41 @@ import { Carousel } from '@molecule/app-carousel-react'
 npm install @molecule/app-carousel-react
 ```
 
+## API
+
+### Functions
+
+#### `Carousel(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Generic image / card carousel with arrows + dots + optional autoplay.
+Controlled-optional: omit `index` to let the component manage its own
+state.
+
+```typescript
+function Carousel({
+  children,
+  index,
+  onChange,
+  showArrows = true,
+  showDots = true,
+  autoplayMs = 0,
+  pauseOnHover = true,
+  loop = true,
+  className,
+}: CarouselProps): JSX.Element | null
+```
+
+- `root0` — *
+- `root0` — .children
+- `root0` — .index
+- `root0` — .onChange
+- `root0` — .showArrows
+- `root0` — .showDots
+- `root0` — .autoplayMs
+- `root0` — .pauseOnHover
+- `root0` — .loop
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

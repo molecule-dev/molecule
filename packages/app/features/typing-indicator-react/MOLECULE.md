@@ -21,6 +21,33 @@ import { TypingIndicator } from '@molecule/app-typing-indicator-react'
 npm install @molecule/app-typing-indicator-react
 ```
 
+## API
+
+### Functions
+
+#### `TypingIndicator(root0, root0, root0, root0, root0, root0)`
+
+Three-dot "typing…" animation. CSS-only (no library dependency) —
+uses `@keyframes` defined via inline style tag. Renders three dots
+that pulse in sequence.
+
+```typescript
+function TypingIndicator({
+  visible = true,
+  dotSize = 6,
+  durationMs = 1200,
+  ariaLabel = 'Typing…',
+  className,
+}: TypingIndicatorProps): JSX.Element | null
+```
+
+- `root0` — *
+- `root0` — .visible
+- `root0` — .dotSize
+- `root0` — .durationMs
+- `root0` — .ariaLabel
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

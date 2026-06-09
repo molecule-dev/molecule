@@ -27,6 +27,55 @@ const milestones: OrderMilestone[] = [
 npm install @molecule/app-order-timeline-react
 ```
 
+## API
+
+### Interfaces
+
+#### `OrderMilestone`
+
+A single step in an order or shipment progress timeline.
+
+```typescript
+interface OrderMilestone {
+  id: string
+  /** Display label ("Placed", "Shipped", "Delivered"). */
+  label: ReactNode
+  /** Optional description / timestamp / location. */
+  detail?: ReactNode
+  /** Is this milestone completed? */
+  completed?: boolean
+  /** Is this the current (in-progress) milestone? */
+  current?: boolean
+}
+```
+
+### Functions
+
+#### `OrderTimeline(root0, root0, root0, root0, root0)`
+
+Order / shipment progress timeline — typical e-commerce flow:
+"Placed → Confirmed → Shipped → Out for delivery → Delivered".
+
+Different from `<Stepper>` in two ways:
+- Focuses on milestones (with optional per-step detail) rather than
+  multi-page wizard steps.
+- Horizontal layout is responsive with connector lines between nodes.
+
+```typescript
+function OrderTimeline({
+  milestones,
+  eta,
+  orientation = 'horizontal',
+  className,
+}: OrderTimelineProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .milestones
+- `root0` — .eta
+- `root0` — .orientation
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

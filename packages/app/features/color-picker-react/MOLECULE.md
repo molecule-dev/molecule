@@ -89,6 +89,32 @@ function clamp(n: number, lo: number, hi: number): number
 
 **Returns:** The clamped value.
 
+#### `ColorPicker(props)`
+
+Controlled color picker — HSV (hue + saturation + value) sliders, RGB
+sliders, and a HEX text input. All four representations stay in lockstep
+with the controlling `value`.
+
+Designed for design canvases, photo editors, animation tools, and brand
+editors. Pure UI — no popover/anchor logic; parents render this inside
+whatever portal/popover they prefer.
+
+Styling is delegated to `getClassMap()`; only inline styles are used for
+the live swatch background and slider track gradients.
+
+```typescript
+function ColorPicker({
+  value,
+  onChange,
+  dataMolId,
+  className,
+}: ColorPickerProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered picker element.
+
 #### `hexToRgb(hex)`
 
 Parse a `#rgb`/`#rrggbb` hex string into an RGB color. Falls back to black

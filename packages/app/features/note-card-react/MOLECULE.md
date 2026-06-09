@@ -27,6 +27,39 @@ import { NoteCard } from '@molecule/app-note-card-react'
 npm install @molecule/app-note-card-react
 ```
 
+## API
+
+### Functions
+
+#### `NoteCard(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Sticky-note style card with optional color tint, pinned indicator,
+and bottom-right actions. Use for note-taking apps, digital
+post-its, dashboard quick-notes.
+
+```typescript
+function NoteCard({
+  title,
+  body,
+  color,
+  pinned,
+  modifiedAt,
+  actions,
+  onClick,
+  className,
+}: NoteCardProps): JSX.Element
+```
+
+- `root0` — *
+- `root0` — .title
+- `root0` — .body
+- `root0` — .color
+- `root0` — .pinned
+- `root0` — .modifiedAt
+- `root0` — .actions
+- `root0` — .onClick
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

@@ -29,6 +29,49 @@ import { ForumThreadRow } from '@molecule/app-forum-thread-row-react'
 npm install @molecule/app-forum-thread-row-react
 ```
 
+## API
+
+### Functions
+
+#### `ForumThreadRow(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+
+Forum / discussion-board thread row. Shows the title, optional
+excerpt, vote score + reply/view counts, pin/lock badges, author,
+and timestamp. Pass `voteControls` to render up/down buttons inline.
+
+```typescript
+function ForumThreadRow({
+  title,
+  excerpt,
+  voteScore,
+  replyCount,
+  viewCount,
+  pinned,
+  locked,
+  author,
+  createdAt,
+  tags,
+  voteControls,
+  onClick,
+  className,
+}: ForumThreadRowProps): ReactNode
+```
+
+- `root0` — *
+- `root0` — .title
+- `root0` — .excerpt
+- `root0` — .voteScore
+- `root0` — .replyCount
+- `root0` — .viewCount
+- `root0` — .pinned
+- `root0` — .locked
+- `root0` — .author
+- `root0` — .createdAt
+- `root0` — .tags
+- `root0` — .voteControls
+- `root0` — .onClick
+- `root0` — .className
+
 ## Injection Notes
 
 ### Requirements

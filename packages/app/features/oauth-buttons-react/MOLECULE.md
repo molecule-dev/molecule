@@ -257,6 +257,58 @@ function getProviderLabel(provider: string): { key: string; default: string; }
 
 **Returns:** Translation key + English default for the provider.
 
+#### `OAuthButtons(props)`
+
+Renders one styled button per OAuth provider.
+
+Composes the canonical brand logos from
+`@molecule/app-oauth-logos-react` and pulls layout / chrome from
+the wired ClassMap (`cm.oauthButtonGroup`, `cm.oauthButton`,
+`cm.oauthButtonIcon`). When `brandButtons` is set, each button also
+gets its provider's exact brand-spec background via inline `style`
+(ClassMap intentionally does not encode provider brand colors).
+
+This is the lower-level primitive — host apps that have an
+`oauthConfig` object typically use the config-driven
+`<OAuthButtons>` from `@molecule/app-auth-ui-react`, which composes
+this row plus `<OAuthDivider>`.
+
+```typescript
+function OAuthButtons({
+  providers,
+  onSelect,
+  onSuccess: _onSuccess,
+  layout = 'horizontal',
+  iconSize = 30,
+  iconMode = 'brand',
+  brandButtons = false,
+  showLabels = false,
+  className,
+}: OAuthButtonsProps): JSX.Element | null
+```
+
+- `props` — See `OAuthButtonsProps`.
+
+#### `OAuthDivider(props)`
+
+Renders a horizontal rule with centered label text — the "or
+continue with" divider shown between a login/signup form and the
+OAuth button row.
+
+Split out as its own sub-component so the config-driven
+`<OAuthButtons>` in `@molecule/app-auth-ui-react` can compose it
+above `<OAuthButtons>` (the row) without re-implementing the markup.
+
+```typescript
+function OAuthDivider({
+  labelKey = 'oauth.orContinueWith',
+  labelDefault = 'or continue with',
+  className,
+}?: OAuthDividerProps): JSX.Element
+```
+
+- `props` — See `OAuthDividerProps`.
+
 ### Constants
 
 #### `BRAND_STYLES`

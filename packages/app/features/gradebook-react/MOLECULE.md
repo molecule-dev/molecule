@@ -33,6 +33,27 @@ npm install @molecule/app-gradebook-react
 
 ### Interfaces
 
+#### `GpaCardProps`
+
+Props for {@link GpaCard}.
+
+```typescript
+interface GpaCardProps {
+  /** The numeric GPA value (or percentage when `scale='percentage'`). */
+  gpa: number
+  /** Which scale `gpa` is expressed on. Drives formatting + the "out of" text. */
+  scale: GpaScale
+  /** Override the maximum value shown in the "out of" caption. */
+  max?: number
+  /** Optional trend chip — render up/down/flat with localized label. */
+  trend?: GpaTrend
+  /** Optional caption rendered below the trend (e.g. "vs. last semester"). */
+  trendLabel?: ReactNode
+  /** Extra classes merged onto the root element. */
+  className?: string
+}
+```
+
 #### `Grade`
 
 A single row in the gradebook. Rows can represent either a course
@@ -60,6 +81,23 @@ interface Grade {
 }
 ```
 
+#### `GradebookProps`
+
+Props for {@link Gradebook}.
+
+```typescript
+interface GradebookProps {
+  /** Rows to display. Each row may represent a course or an assignment — caller's choice. */
+  grades: Grade[]
+  /** GPA scale used for numeric rendering of contribution / score columns. */
+  gpaScale: GpaScale
+  /** Optional cell-click handler — fires with the grade row + the column key clicked. */
+  onCellClick?: (grade: Grade, column: GradebookColumn) => void
+  /** Extra classes merged onto the root `<table>` wrapper. */
+  className?: string
+}
+```
+
 ### Types
 
 #### `GpaScale`
@@ -80,6 +118,14 @@ Trend direction for the GPA trend chip.
 
 ```typescript
 type GpaTrend = 'up' | 'down' | 'flat'
+```
+
+#### `GradebookColumn`
+
+Column identifiers exposed via `onCellClick`.
+
+```typescript
+type GradebookColumn = 'title' | 'letter' | 'numeric' | 'weight' | 'contribution' | 'posted'
 ```
 
 ### Functions
@@ -122,6 +168,41 @@ function formatGpa(value: number, scale: GpaScale): string
 - `scale` — The scale being displayed.
 
 **Returns:** A locale-independent string representation.
+
+#### `GpaCard(props)`
+
+Hero card displaying the user's GPA — large primary value, "out of"
+caption, and optional trend chip. Pairs with {@link Gradebook} above /
+beside the table view.
+
+Styling routes through `getClassMap()` and all text routes through `t()`
+via the companion `@molecule/app-locales-gradebook` locale bond.
+
+```typescript
+function GpaCard(props: GpaCardProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The GPA hero card element.
+
+#### `Gradebook(props)`
+
+Unified gradebook table — title, letter grade, numeric score, weight, and
+contribution-to-GPA. Rows can be either courses or assignments; the caller
+decides which granularity to pass.
+
+Pairs with {@link GpaCard} for the hero summary. Styling routes through
+`getClassMap()`; all visible text routes through `t()` via the companion
+`@molecule/app-locales-gradebook` locale bond.
+
+```typescript
+function Gradebook(props: GradebookProps): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The gradebook element.
 
 ## Injection Notes
 
