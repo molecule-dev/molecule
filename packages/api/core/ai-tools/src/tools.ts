@@ -336,6 +336,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const pattern = input.pattern as string
       const path = resolve((input.path as string) || '')
 
+      // A missing/empty pattern would otherwise reach shellQuote(undefined) and throw
+      // the cryptic "Cannot read properties of undefined (reading 'replace')" — give the
+      // executor a clear, actionable error so it can retry instead of losing the call.
+      if (typeof pattern !== 'string' || pattern.trim() === '')
+        return {
+          error:
+            'find_files requires a non-empty "pattern" argument (a filename or glob, e.g. "*.tsx" or "index.ts").',
+        }
       if (!isValidGlob(pattern))
         return { error: 'Invalid pattern. Only alphanumeric, *, ?, ., _, -, / allowed.' }
 

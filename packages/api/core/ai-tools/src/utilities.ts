@@ -15,6 +15,13 @@ import { posix } from 'path'
  * @returns A single-quoted shell literal representing `s`.
  */
 export function shellQuote(s: string): string {
+  // Defensive: a tool handler passing a missing arg (undefined) would otherwise throw
+  // the cryptic "Cannot read properties of undefined (reading 'replace')". Fail with a
+  // clear message so the surrounding handler's catch reports something actionable.
+  if (typeof s !== 'string')
+    throw new Error(
+      `shellQuote expected a string, received ${s === undefined ? 'undefined' : typeof s}`,
+    )
   return "'" + s.replace(/'/g, "'\\''") + "'"
 }
 

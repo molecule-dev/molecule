@@ -22,6 +22,12 @@ describe('shellQuote', () => {
   it('escapes single quotes', () => {
     expect(shellQuote("it's")).toBe("'it'\\''s'")
   })
+
+  it('throws a clear error on a non-string (missing tool arg)', () => {
+    // deliberately invalid input — a tool handler passing a missing arg used to throw
+    // the cryptic "Cannot read properties of undefined (reading 'replace')".
+    expect(() => shellQuote(undefined as unknown as string)).toThrow(/expected a string/)
+  })
 })
 
 describe('resolvePath', () => {
@@ -116,6 +122,14 @@ describe('buildTools', () => {
     expect(names).toContain('list_files')
     expect(names).toContain('find_files')
     expect(names).toContain('load_skill')
+  })
+
+  it('find_files returns a clear error when pattern is missing (no crash)', async () => {
+    const tools = buildTools(mockBackend())
+    const findFiles = tools.find((t) => t.name === 'find_files')
+    expect(findFiles).toBeDefined()
+    const result = (await findFiles!.execute({})) as { error?: string }
+    expect(result.error).toMatch(/requires a non-empty "pattern"/)
   })
 
   it('respects include filter', () => {
