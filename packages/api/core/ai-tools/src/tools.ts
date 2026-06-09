@@ -13,12 +13,14 @@ import { TOOL_SCHEMAS } from './schemas.js'
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
   checkBlockedCommand,
+  directoryReadHint,
   isValidGlob,
   MAX_FIND_RESULTS,
   MAX_OUTPUT_SIZE,
   MAX_READ_SIZE,
   MAX_SEARCH_RESULTS,
   MAX_WRITE_SIZE,
+  pathArgError,
   redactSecrets,
   resolvePath,
   shellQuote,
@@ -138,6 +140,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     },
 
     async read_file(input) {
+      const argErr = pathArgError(input.path, 'read_file')
+      if (argErr) return { error: argErr }
       const path = resolve(input.path as string)
       const symlinkErr = await checkSymlink(path)
       if (symlinkErr) return { error: symlinkErr }
@@ -149,11 +153,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           }
         return { path, content: sanitizeOutput(content) }
       } catch (e: unknown) {
-        return { error: `Failed to read ${path}: ${(e as Error).message}` }
+        const message = (e as Error).message
+        // A weak model often read_file's a directory (handlers/, migrations/); a bare
+        // "Is a directory" gives it nothing, so it retries blindly. Steer it to list_files.
+        return { error: directoryReadHint(message, path) ?? `Failed to read ${path}: ${message}` }
       }
     },
 
     async write_file(input) {
+      const argErr = pathArgError(input.path, 'write_file')
+      if (argErr) return { error: argErr }
       const path = resolve(input.path as string)
       const content = input.content as string
       if (content.length > MAX_WRITE_SIZE)
@@ -187,6 +196,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     },
 
     async edit_file(input) {
+      const argErr = pathArgError(input.path, 'edit_file')
+      if (argErr) return { error: argErr }
       const path = resolve(input.path as string)
       // Support both formats: { replacements: [...] } (batch) and { old_string, new_string } (single, backwards-compatible)
       let replacements = input.replacements as

@@ -124,6 +124,39 @@ export function isValidGlob(pattern: string): boolean {
   return /^[a-zA-Z0-9*?._\-/]+$/.test(pattern)
 }
 
+/**
+ * Validate a file tool's `path` argument is a non-empty string. A weak model
+ * sometimes omits it or passes a non-string, which would otherwise crash
+ * `resolvePath` (`path.replace` on undefined) with the cryptic, unactionable
+ * "Cannot read properties of undefined (reading 'replace')" — wasting executor
+ * turns. Returns an actionable message, or null when the path is usable.
+ *
+ * @param path - The raw `path` argument from the tool input.
+ * @param tool - The tool name, for the error message (e.g. 'read_file').
+ * @returns An actionable error string, or null when `path` is a non-empty string.
+ */
+export function pathArgError(path: unknown, tool: string): string | null {
+  if (typeof path !== 'string' || path.trim() === '')
+    return `${tool} requires a non-empty "path" argument (a file path relative to the project root, e.g. "api/src/handlers/index.ts").`
+  return null
+}
+
+/**
+ * Detect a "read/edit targeted a directory, not a file" failure from a backend
+ * error message (local fs `EISDIR` or the sandbox's `cat: X: Is a directory`),
+ * and return an actionable message steering the model to `list_files`. Returns
+ * null when the error is not a directory error.
+ *
+ * @param message - The backend error message.
+ * @param path - The resolved path that was targeted.
+ * @returns An actionable directory-error string, or null.
+ */
+export function directoryReadHint(message: string, path: string): string | null {
+  if (/EISDIR|is a directory/i.test(message))
+    return `${path} is a directory, not a file. Use list_files to see its contents, then read_file a specific file inside it.`
+  return null
+}
+
 // ── Output truncation ─────────────────────────────────────────────────────────
 
 /** Max file size for read_file (5MB). */

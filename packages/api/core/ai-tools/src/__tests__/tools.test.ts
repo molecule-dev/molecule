@@ -154,6 +154,40 @@ describe('buildTools', () => {
     expect(result.content).toBe('file content')
   })
 
+  it('read_file returns a clear error when path is missing (no undefined.replace crash)', async () => {
+    // Regression: a real build crashed with "Cannot read properties of undefined
+    // (reading 'replace')" when the model called read_file with no path — resolvePath
+    // did path.replace on undefined. Validate first, with an actionable message.
+    const tools = buildTools(mockBackend())
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({})) as { error?: string }
+    expect(result.error).toMatch(/requires a non-empty "path"/)
+  })
+
+  it('read_file steers to list_files when the target is a directory', async () => {
+    // Regression: a real build read_file'd handlers/ and migrations/ (directories); a
+    // bare "Is a directory" gave the model nothing, so it retried blindly.
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('cat: /workspace/api/src/handlers: Is a directory'),
+    )
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: '/test/handlers' })) as { error?: string }
+    expect(result.error).toMatch(/is a directory/i)
+    expect(result.error).toMatch(/list_files/)
+  })
+
+  it('write_file and edit_file also guard a missing path (no crash)', async () => {
+    const tools = buildTools(mockBackend())
+    const writeFile = tools.find((t) => t.name === 'write_file')!
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const w = (await writeFile.execute({ content: 'x' })) as { error?: string }
+    const e = (await editFile.execute({ old_string: 'a', new_string: 'b' })) as { error?: string }
+    expect(w.error).toMatch(/requires a non-empty "path"/)
+    expect(e.error).toMatch(/requires a non-empty "path"/)
+  })
+
   it('edit_file supports backwards-compatible single replacement', async () => {
     const backend = mockBackend()
     ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('hello world')
