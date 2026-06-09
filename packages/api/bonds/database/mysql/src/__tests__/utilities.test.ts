@@ -51,9 +51,12 @@ describe('translateDdlToMysql', () => {
     expect(out).toContain('JSON')
     expect(out).not.toMatch(/\bUUID\b|TIMESTAMPTZ|JSONB/)
   })
-  it('strips gen_random_uuid default, ::casts, USING method, and INDEX IF NOT EXISTS', () => {
+  it('translates gen_random_uuid default to (UUID()), and strips ::casts, USING method, INDEX IF NOT EXISTS', () => {
+    // Must TRANSLATE (not strip): a bare create('t', {…}) with no explicit id relies
+    // on the column default; stripping left `id … NOT NULL` with no default. The
+    // translation runs AFTER UUID→CHAR(36) so the introduced UUID() isn't corrupted.
     expect(translateDdlToMysql('"id" UUID PRIMARY KEY DEFAULT gen_random_uuid()')).toBe(
-      '"id" CHAR(36) PRIMARY KEY',
+      '"id" CHAR(36) PRIMARY KEY DEFAULT (UUID())',
     )
     expect(translateDdlToMysql(`DEFAULT '{}'::jsonb`)).toBe(`DEFAULT '{}'`)
     expect(translateDdlToMysql('CREATE INDEX IF NOT EXISTS "i" ON "t" ("c");')).toBe(

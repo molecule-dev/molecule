@@ -41,7 +41,8 @@ const prefixColRef = (ref: string, types: Record<string, string>): string => {
  * out of order). Verified: all 56 resource setup migrations + the base tables
  * execute on MySQL 8 after this. Transforms:
  * - types: `uuid`→`CHAR(36)`, `timestamptz`→`TIMESTAMP`, `jsonb`→`JSON`.
- * - functions/casts: strip `DEFAULT gen_random_uuid()`, `::type` casts, index
+ * - functions/casts: `DEFAULT gen_random_uuid()`→`DEFAULT (UUID())` (so bare
+ *   create() inserts without an id still get one), strip `::type` casts, index
  *   `USING <method>`; `DEFAULT CURRENT_DATE/TIME`→`DEFAULT (expr)`.
  * - defaults: literal `DEFAULT` on TEXT/BLOB/JSON columns → `DEFAULT (expr)`.
  * - indexes: drop unsupported `IF NOT EXISTS`; add prefix lengths to TEXT/long-
@@ -55,7 +56,6 @@ const prefixColRef = (ref: string, types: Record<string, string>): string => {
  */
 export const translateDdlToMysql = (sql: string): string => {
   let s = sql
-    .replace(/\s+DEFAULT\s+gen_random_uuid\(\)/gi, '')
     .replace(/::[a-z_]+/gi, '')
     .replace(
       /\bCREATE\s+(UNIQUE\s+)?INDEX\s+IF\s+NOT\s+EXISTS\b/gi,
@@ -63,6 +63,14 @@ export const translateDdlToMysql = (sql: string): string => {
     )
     .replace(/\s+USING\s+(gin|btree|hash|gist)\b/gi, '')
     .replace(/\bUUID\b/gi, 'CHAR(36)')
+    // gen_random_uuid() → (UUID()) AFTER the UUID→CHAR(36) pass, so the introduced
+    // UUID() isn't itself rewritten to CHAR(36)(). MySQL 8.0.13+ allows (UUID()) as
+    // an expression default. Must TRANSLATE, not strip: a custom handler using the
+    // bare create('t', {…}) (no explicit id — the documented pattern) relies on the
+    // column default; stripping left `id … NOT NULL` with no default → every such
+    // insert hit `Field 'id' doesn't have a default value` / NOT NULL. Resource
+    // handlers pass an explicit id that overrides it, so they were unaffected.
+    .replace(/DEFAULT\s+gen_random_uuid\(\)/gi, 'DEFAULT (UUID())')
     .replace(/\bTIMESTAMPTZ\b/gi, 'TIMESTAMP')
     .replace(/\bJSONB\b/gi, 'JSON')
     .replace(/\bDEFAULT\s+(CURRENT_DATE|CURRENT_TIME)\b/gi, 'DEFAULT ($1)')
