@@ -10,7 +10,7 @@ import type { Request, Response } from 'express'
 
 import { getPreferences } from '@molecule/api-notification-center'
 
-import type { AuthenticatedUser } from '../types.js'
+import { getSessionUserId } from '../utilities.js'
 
 /**
  * Handles GET /notifications/preferences requests.
@@ -18,8 +18,12 @@ import type { AuthenticatedUser } from '../types.js'
  * @param req - Express request with authenticated user.
  * @param res - Express response.
  */
-export async function getPreferencesHandler(req: Request, res: Response): Promise<void> {
-  const user = (req as Request & { user: AuthenticatedUser }).user
-  const preferences = await getPreferences(user.id)
+export async function getPreferencesHandler(_req: Request, res: Response): Promise<void> {
+  const userId = getSessionUserId(res)
+  if (!userId) {
+    res.status(401).json({ error: 'Unauthorized' })
+    return
+  }
+  const preferences = await getPreferences(userId)
   res.json(preferences)
 }

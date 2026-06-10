@@ -10,7 +10,7 @@ import type { Request, Response } from 'express'
 
 import { getAll } from '@molecule/api-notification-center'
 
-import type { AuthenticatedUser } from '../types.js'
+import { getSessionUserId } from '../utilities.js'
 
 /**
  * Handles GET /notifications requests.
@@ -19,10 +19,14 @@ import type { AuthenticatedUser } from '../types.js'
  * @param res - Express response.
  */
 export async function list(req: Request, res: Response): Promise<void> {
-  const user = (req as Request & { user: AuthenticatedUser }).user
+  const userId = getSessionUserId(res)
+  if (!userId) {
+    res.status(401).json({ error: 'Unauthorized' })
+    return
+  }
   const { limit, offset, read, type } = req.query
 
-  const result = await getAll(user.id, {
+  const result = await getAll(userId, {
     limit: limit ? Number(limit) : undefined,
     offset: offset ? Number(offset) : undefined,
     read: read !== undefined ? read === 'true' : undefined,

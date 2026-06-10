@@ -10,7 +10,7 @@ import type { Request, Response } from 'express'
 
 import { markAllRead } from '@molecule/api-notification-center'
 
-import type { AuthenticatedUser } from '../types.js'
+import { getSessionUserId } from '../utilities.js'
 
 /**
  * Handles POST /notifications/read-all requests.
@@ -18,8 +18,12 @@ import type { AuthenticatedUser } from '../types.js'
  * @param req - Express request with authenticated user.
  * @param res - Express response.
  */
-export async function markAllReadHandler(req: Request, res: Response): Promise<void> {
-  const user = (req as Request & { user: AuthenticatedUser }).user
-  await markAllRead(user.id)
+export async function markAllReadHandler(_req: Request, res: Response): Promise<void> {
+  const userId = getSessionUserId(res)
+  if (!userId) {
+    res.status(401).json({ error: 'Unauthorized' })
+    return
+  }
+  await markAllRead(userId)
   res.status(204).end()
 }

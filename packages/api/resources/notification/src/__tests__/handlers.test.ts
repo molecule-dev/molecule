@@ -30,16 +30,20 @@ interface MockResponse {
   statusCode: number
   body: unknown
   ended: boolean
+  // Handlers read the authenticated user id off res.locals.session.userId
+  // (the molecule JWT convention), so the mock must carry it.
+  locals: { session?: { userId?: string } }
   json: (data: unknown) => MockResponse
   status: (code: number) => MockResponse
   end: () => void
 }
 
-function createMockRes(): MockResponse {
+function createMockRes(session: { userId?: string } | null = { userId: 'user-1' }): MockResponse {
   const res: MockResponse = {
     statusCode: 200,
     body: null,
     ended: false,
+    locals: session ? { session } : {},
     json(data: unknown) {
       res.body = data
       return res
@@ -57,7 +61,6 @@ function createMockRes(): MockResponse {
 
 function createMockReq(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    user: { id: 'user-1' },
     params: {},
     query: {},
     body: {},
@@ -111,6 +114,17 @@ describe('@molecule/api-resource-notification handlers', () => {
         read: false,
         type: 'alert',
       })
+    })
+
+    it('returns 401 (not a 500) when there is no authenticated session', async () => {
+      const { list } = await import('../handlers/list.js')
+      const req = createMockReq({ query: {} })
+      const res = createMockRes(null) // no res.locals.session
+
+      await list(req as never, res as never)
+
+      expect(res.statusCode).toBe(401)
+      expect(mockGetAll).not.toHaveBeenCalled()
     })
   })
 
