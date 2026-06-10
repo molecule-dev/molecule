@@ -160,6 +160,18 @@ describe('realtime provider', () => {
       onConnection(handler)
       expect(mockProvider.onConnection).toHaveBeenCalledWith(handler)
     })
+
+    it('buffers a handler registered BEFORE setProvider and flushes it on setProvider', () => {
+      // The socketio bond binds its provider at SERVER-CREATION — after the
+      // postBondsSetup hook where presence/connection handlers are naturally
+      // registered. So onConnection() must buffer (not throw "Realtime provider
+      // not configured") and flush when setProvider() runs. (Observed boot crash.)
+      const handler: ConnectionHandler = vi.fn()
+      expect(() => onConnection(handler)).not.toThrow() // no provider bonded yet
+      const mockProvider = createMockProvider({ onConnection: vi.fn() })
+      setProvider(mockProvider)
+      expect(mockProvider.onConnection).toHaveBeenCalledWith(handler)
+    })
   })
 
   describe('onDisconnection', () => {

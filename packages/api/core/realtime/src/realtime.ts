@@ -4,7 +4,12 @@
  * @module
  */
 
-import { getProvider } from './provider.js'
+import {
+  getProvider,
+  registerConnection,
+  registerDisconnection,
+  registerMessage,
+} from './provider.js'
 import type {
   ConnectionHandler,
   DisconnectionHandler,
@@ -77,33 +82,36 @@ export const sendTo = async (clientId: string, event: string, data: unknown): Pr
 }
 
 /**
- * Registers a handler for incoming messages via the bonded realtime provider.
+ * Registers a handler for incoming messages. Buffered + flushed on setProvider
+ * if no provider is bonded yet, so it is safe to call before the realtime bond
+ * binds at server-creation (e.g. in postBondsSetup).
  *
  * @param handler - The message handler callback.
- * @throws {Error} If no realtime provider has been bonded.
  */
 export const onMessage = (handler: MessageHandler): void => {
-  getProvider().onMessage(handler)
+  registerMessage(handler)
 }
 
 /**
- * Registers a handler for client connections via the bonded realtime provider.
+ * Registers a handler for client connections. Buffered + flushed on setProvider
+ * if no provider is bonded yet, so it is safe to call before the realtime bond
+ * binds at server-creation (e.g. presence handlers in postBondsSetup).
  *
  * @param handler - The connection handler callback.
- * @throws {Error} If no realtime provider has been bonded.
  */
 export const onConnection = (handler: ConnectionHandler): void => {
-  getProvider().onConnection(handler)
+  registerConnection(handler)
 }
 
 /**
- * Registers a handler for client disconnections via the bonded realtime provider.
+ * Registers a handler for client disconnections. Buffered + flushed on
+ * setProvider if no provider is bonded yet, so it is safe to call before the
+ * realtime bond binds at server-creation (e.g. in postBondsSetup).
  *
  * @param handler - The disconnection handler callback.
- * @throws {Error} If no realtime provider has been bonded.
  */
 export const onDisconnection = (handler: DisconnectionHandler): void => {
-  getProvider().onDisconnection(handler)
+  registerDisconnection(handler)
 }
 
 /**
