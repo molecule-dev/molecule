@@ -1020,6 +1020,16 @@ export const ToolCallCard = memo(function ToolCallCard({
             >
               {renderLabel(name, input, filePath, onFileOpen, onFileDoubleClick)}
             </span>
+            {/* One-line status ("Running…"/"Done"/error count), on the SAME row as the
+                label and pushed to the right edge by the label's flex:1. */}
+            {summary && (
+              <span
+                className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                style={{ flexShrink: 0, marginLeft: '8px', whiteSpace: 'nowrap' }}
+              >
+                {summary}
+              </span>
+            )}
             {canRevert && (
               <span
                 role="button"
@@ -1073,14 +1083,6 @@ export const ToolCallCard = memo(function ToolCallCard({
               </span>
             )}
           </span>
-          {summary && (
-            <span
-              className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-              style={{ display: 'block', marginTop: '1px', textAlign: 'right' }}
-            >
-              {summary}
-            </span>
-          )}
         </span>
 
         {/* Line diff stats for file-changing tools */}
