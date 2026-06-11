@@ -146,6 +146,13 @@ export interface PreviewPanelProps {
   ) => void
   /** Incremented when AI edits files. Triggers an iframe reload only when the preview is broken. */
   fileChangeTick?: number
+  /**
+   * Active-build hint (e.g. a basename like `GuestMenu.tsx`) the host sets while the
+   * AI is editing files. When non-null the overlay is forced on — covering the
+   * blank-white iframe reload a build triggers — and shows "Updating `<hint>`…" so
+   * the user sees what's being worked on. Null when no build edit is in flight.
+   */
+  buildingHint?: string | null
   /** Called when the preview fails to load after multiple recovery attempts. */
   onPreviewStuck?: () => void
   className?: string

@@ -117,6 +117,7 @@ export function PreviewPanel({
   onPreviewError,
   onPreviewStuck,
   fileChangeTick,
+  buildingHint,
 }: PreviewPanelProps): JSX.Element {
   const cm = getClassMap()
   const { state, setUrl, refresh, setDevice, openExternal } = usePreview()
@@ -539,24 +540,28 @@ export function PreviewPanel({
 
   // --- Rendering ---
   const iframeWidth = deviceWidths[state.device] || '100%'
-  const showOverlay = Boolean(state.url) && (!iframeReady || fadingOut)
+  // An active build forces the overlay even when the iframe was "ready": a file
+  // edit triggers a Vite reload that blanks the iframe white for a while, and the
+  // overlay covers that with the current edit instead of a blank wall.
+  const building = buildingHint != null
+  const showOverlay = Boolean(state.url) && (!iframeReady || fadingOut || building)
 
-  const overlayContent = everLoaded
-    ? (restartingIndicator ??
-      loadingIndicator ?? (
-        <DefaultLoadingIndicator
-          restarting
-          retryCount={stuckRetryCount}
-          onManualRetry={handleManualRetry}
-        />
-      ))
-    : (loadingIndicator ?? (
-        <DefaultLoadingIndicator
-          restarting={false}
-          retryCount={stuckRetryCount}
-          onManualRetry={handleManualRetry}
-        />
-      ))
+  const overlayContent = building ? (
+    <DefaultLoadingIndicator
+      hint={buildingHint}
+      retryCount={stuckRetryCount}
+      onManualRetry={handleManualRetry}
+    />
+  ) : everLoaded ? (
+    (restartingIndicator ??
+    loadingIndicator ?? (
+      <DefaultLoadingIndicator retryCount={stuckRetryCount} onManualRetry={handleManualRetry} />
+    ))
+  ) : (
+    (loadingIndicator ?? (
+      <DefaultLoadingIndicator retryCount={stuckRetryCount} onManualRetry={handleManualRetry} />
+    ))
+  )
 
   return (
     <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, className)}>
@@ -662,9 +667,11 @@ export function PreviewPanel({
                 ? 'color-mix(in srgb, var(--mol-color-surface-secondary, #f5f5f5) 78%, transparent)'
                 : 'var(--mol-color-surface-secondary, #f5f5f5)',
               backdropFilter: everLoaded ? 'blur(2px)' : undefined,
-              opacity: fadingOut ? 0 : 1,
+              // A build forces the overlay fully visible (it may have already faded
+              // out from a prior ready state); otherwise honor the fade-out.
+              opacity: building ? 1 : fadingOut ? 0 : 1,
               transition: 'opacity 0.5s ease-out',
-              pointerEvents: fadingOut ? 'none' : 'auto',
+              pointerEvents: building || !fadingOut ? 'auto' : 'none',
             }}
             onTransitionEnd={() => {
               if (fadingOut) setFadingOut(false)
@@ -786,30 +793,36 @@ const PREVIEW_MESSAGES: ReadonlyArray<{ key: string; defaultValue: string }> = [
 ]
 
 /**
- * Default preview-overlay content: pulsing dots, a rotating molecule-themed status
- * phrase, and (after repeated recovery cycles) a manual retry button.
+ * Default preview-overlay content: pulsing dots, a status message, and (after
+ * repeated recovery cycles) a manual retry button. With a `hint` it shows
+ * "Updating `<hint>`" (the file the build is currently editing); without one it
+ * rotates molecule-themed phrases so the overlay never reads as frozen.
  * @param root0 - Component props.
+ * @param root0.hint - Current build edit target (e.g. a basename), or null to rotate phrases.
  * @param root0.retryCount - Number of auto-recovery cycles attempted so far.
  * @param root0.onManualRetry - Invoked when the user clicks "Retry now".
  * @returns The rendered loading indicator.
  */
 function DefaultLoadingIndicator({
+  hint,
   retryCount,
   onManualRetry,
 }: {
-  restarting: boolean
+  hint?: string | null
   retryCount: number
   onManualRetry?: () => void
 }): JSX.Element {
   // Rotate the themed phrases (~2.4s each) so the overlay never reads as a frozen
-  // "Loading preview…" while the build thrashes the preview with reloads.
+  // "Loading preview…" while the build thrashes the preview with reloads. (When a
+  // specific edit `hint` is present we show that instead — the changing filenames
+  // are their own liveliness.)
   const [msgIdx, setMsgIdx] = useState(0)
   useEffect(() => {
+    if (hint) return
     const id = setInterval(() => setMsgIdx((i) => (i + 1) % PREVIEW_MESSAGES.length), 2400)
     return () => clearInterval(id)
-  }, [])
+  }, [hint])
   const phrase = PREVIEW_MESSAGES[msgIdx]
-  const message = t(phrase.key, {}, { defaultValue: phrase.defaultValue })
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
@@ -827,8 +840,23 @@ function DefaultLoadingIndicator({
           />
         ))}
       </div>
-      <span style={{ fontSize: '13px', color: 'var(--mol-color-text-muted, #888)' }}>
-        {message}
+      <span
+        style={{
+          fontSize: '13px',
+          color: 'var(--mol-color-text-muted, #888)',
+          textAlign: 'center',
+        }}
+      >
+        {hint ? (
+          <>
+            {t('ide.preview.updating', {}, { defaultValue: 'Updating' })}{' '}
+            <code style={{ fontFamily: 'monospace', fontSize: 'inherit', opacity: 0.9 }}>
+              {hint}
+            </code>
+          </>
+        ) : (
+          t(phrase.key, {}, { defaultValue: phrase.defaultValue })
+        )}
       </span>
       {retryCount > 0 && (
         <span style={{ fontSize: '11px', color: 'var(--mol-color-text-muted, #888)' }}>
