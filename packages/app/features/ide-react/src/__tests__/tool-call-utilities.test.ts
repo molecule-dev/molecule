@@ -102,6 +102,11 @@ describe('toolLabel', () => {
     expect(toolLabel('web_fetch', { url: 'not-a-url' })).toBe('Fetch not-a-url')
   })
 
+  it('labels load_skill with the skill name', () => {
+    expect(toolLabel('load_skill', { name: 'styling' })).toBe('Load skill `styling`')
+    expect(toolLabel('load_skill', {})).toBe('Load skill')
+  })
+
   it('labels exec_command with truncated command', () => {
     expect(toolLabel('exec_command', { command: 'npm test' })).toBe('Bash `npm test`')
   })

@@ -555,8 +555,13 @@ export const ToolCallCard = memo(function ToolCallCard({
 
   const summary = toolSummary(name, output as Out, status)
 
-  // File path for the clickable filename <code> in the label.
-  const filePath = extractFilePath(name, input)
+  // File path for the clickable filename <code> in the label. For load_skill the
+  // path isn't in the input — the loaded skill's SKILL.md path comes back in the
+  // output ({ name, path, content }) — so clicking the skill name opens its markdown.
+  const filePath =
+    name === 'load_skill'
+      ? (((output as Out as { path?: string } | null)?.path ?? null) as string | null)
+      : extractFilePath(name, input)
 
   // New files open directly (no diff to show); edits/modifications open the diff viewer.
   const isNewFile =

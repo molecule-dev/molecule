@@ -63,6 +63,8 @@ export function toolLabel(name: string, input: unknown): string {
       return `Delete${code(basename(path))}`
     case 'find_files':
       return `Find${code(pattern ?? '')}`
+    case 'load_skill':
+      return `Load skill${code((inp.name as string | undefined) ?? '')}`
     case 'web_fetch': {
       try {
         return `Fetch ${new URL(url ?? '').hostname}`

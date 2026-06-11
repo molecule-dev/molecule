@@ -1230,10 +1230,17 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
   const borderClr = isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'
 
   const sameRoleAsPrev = prevMsg?.role === msg.role
+  // Tighten the gap between consecutive SAME-ROLE messages (e.g. a run of
+  // single-tool-call assistant messages — load_skill, search, one-file reads —
+  // each of which the model emits as its own message). Without this they sit a
+  // full 16px apart while a message that batches several tool cards shows them
+  // only ~4px apart, so the spacing looked inconsistent. The flex column doesn't
+  // collapse margins, so a -12px top pulls the gap from 16px back to ~4px; role
+  // boundaries (user↔assistant) keep the full 16px. See marginBottom below.
   const isUser = msg.role === 'user'
 
   return (
-    <div style={{ marginBottom: '16px' }}>
+    <div style={{ marginBottom: '16px', ...(sameRoleAsPrev ? { marginTop: '-12px' } : {}) }}>
       {isUser ? (
         <div
           className={cm.cn(cm.surfaceSecondary, cm.textSize('sm'))}
