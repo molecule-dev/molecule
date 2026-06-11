@@ -124,8 +124,14 @@ describe('toolLabel', () => {
     expect(toolLabel('custom_tool', {})).toBe('Custom tool')
   })
 
-  it('handles null input', () => {
-    expect(toolLabel('read_file', null)).toBe('Read ``')
+  it('handles null/empty input without flashing empty backticks', () => {
+    // While a tool call streams, its input arrives a beat after the block is
+    // created — the label must omit the backticks entirely (not render `Read ``)
+    // until the path is known.
+    expect(toolLabel('read_file', null)).toBe('Read')
+    expect(toolLabel('read_file', {})).toBe('Read')
+    expect(toolLabel('search_files', {})).toBe('Search')
+    expect(toolLabel('exec_command', {})).toBe('Bash')
   })
 })
 

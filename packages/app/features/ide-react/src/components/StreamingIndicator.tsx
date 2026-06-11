@@ -304,9 +304,6 @@ export function StreamingIndicator({
       style={{
         display: 'flex',
         alignItems: 'center',
-        // Right-align the activity (spinner + label + metrics) so the status text
-        // sits on the right edge of the chat, distinct from the assistant content.
-        justifyContent: 'flex-end',
         gap: '8px',
         padding: '6px 0',
         width: '100%',
@@ -314,16 +311,17 @@ export function StreamingIndicator({
     >
       <MolSpinner size={16} />
       <span style={{ fontSize: '13px', opacity: 0.7, fontStyle: 'italic' }}>{text}</span>
-      {/* Token estimate + elapsed timer show how much work is happening and that
+      {/* Status metrics pushed to the right edge; the spinner + label stay left.
+          Token estimate + elapsed timer show how much work is happening and that
           it's still alive. Same size/color as the label; tabular-nums keeps the
-          digits from jittering as they tick. Sits just after the label (the whole
-          row is right-aligned via the container's justifyContent). */}
+          digits from jittering as they tick. A separator divides the two. */}
       {(elapsed || (tokens != null && tokens >= MIN_TOKENS_SHOWN)) && (
         <span
           style={{
+            marginLeft: 'auto',
             display: 'inline-flex',
             alignItems: 'baseline',
-            gap: '10px',
+            gap: '8px',
             fontSize: '13px',
             opacity: 0.7,
             fontVariantNumeric: 'tabular-nums',
@@ -333,6 +331,7 @@ export function StreamingIndicator({
           {tokens != null && tokens >= MIN_TOKENS_SHOWN && (
             <span>~{formatTokens(tokens)} tokens</span>
           )}
+          {tokens != null && tokens >= MIN_TOKENS_SHOWN && elapsed && <span>·</span>}
           {elapsed && <span>{elapsed}</span>}
         </span>
       )}

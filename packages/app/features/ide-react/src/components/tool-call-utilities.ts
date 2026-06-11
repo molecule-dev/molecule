@@ -37,25 +37,32 @@ export function toolLabel(name: string, input: unknown): string {
   const pattern = inp.pattern as string | undefined
   const url = inp.url as string | undefined
 
+  // Wrap a value in a leading-space + backticks, or return '' when it's empty.
+  // While a tool call streams, its input arrives a beat after the block is
+  // created, so path/pattern/command are briefly undefined — emitting `Read ``
+  // (empty backticks) flashed before the real filename. Drop the backticks
+  // entirely until there's a value, so the label reads "Read" then "Read `x.ts`".
+  const code = (value: string): string => (value ? ` \`${value}\`` : '')
+
   switch (name) {
     case 'list_files':
-      return `List \`${basename(path) || 'project'}\``
+      return `List${code(basename(path) || 'project')}`
     case 'read_file':
-      return `Read \`${basename(path)}\``
+      return `Read${code(basename(path))}`
     case 'write_file':
-      return `Write \`${basename(path)}\``
+      return `Write${code(basename(path))}`
     case 'edit_file':
-      return `Edit \`${basename(path)}\``
+      return `Edit${code(basename(path))}`
     case 'search_files':
-      return `Search \`${pattern ?? ''}\``
+      return `Search${code(pattern ?? '')}`
     case 'create_directory':
-      return `Create dir \`${basename(path)}\``
+      return `Create dir${code(basename(path))}`
     case 'rename_file':
-      return `Rename \`${basename(inp.old_path as string | undefined)}\``
+      return `Rename${code(basename(inp.old_path as string | undefined))}`
     case 'delete_file':
-      return `Delete \`${basename(path)}\``
+      return `Delete${code(basename(path))}`
     case 'find_files':
-      return `Find \`${pattern ?? ''}\``
+      return `Find${code(pattern ?? '')}`
     case 'web_fetch': {
       try {
         return `Fetch ${new URL(url ?? '').hostname}`
@@ -65,8 +72,9 @@ export function toolLabel(name: string, input: unknown): string {
       }
     }
     case 'exec_command': {
-      const short = (cmd ?? '').slice(0, 60)
-      return `Bash \`${short}${(cmd ?? '').length > 60 ? '…' : ''}\``
+      const full = cmd ?? ''
+      const short = full.slice(0, 60) + (full.length > 60 ? '…' : '')
+      return `Bash${code(short)}`
     }
     case 'save_plan': {
       const planName = (inp.name as string) ?? ''

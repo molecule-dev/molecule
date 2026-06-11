@@ -1076,7 +1076,7 @@ export const ToolCallCard = memo(function ToolCallCard({
           {summary && (
             <span
               className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-              style={{ display: 'block', marginTop: '1px' }}
+              style={{ display: 'block', marginTop: '1px', textAlign: 'right' }}
             >
               {summary}
             </span>
