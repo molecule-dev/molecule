@@ -1004,13 +1004,18 @@ function CommitCardItem({
             <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px' }}>
               <span
                 style={{
+                  // flex:1 so the message fills the row and pushes the revert icon to
+                  // the right edge (directly left of the chevron), matching the
+                  // tool-call cards instead of letting it hug the commit text.
+                  flex: 1,
+                  minWidth: 0,
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: expanded ? 'normal' : 'nowrap',
                 }}
               >
                 {isRunning ? (
-                  t('ide.chat.committing', undefined, { defaultValue: 'Committing...' })
+                  t('ide.chat.committing', undefined, { defaultValue: 'Committing' })
                 ) : (
                   <>
                     {t('ide.chat.commitLabel', undefined, { defaultValue: 'Commit' })}{' '}
