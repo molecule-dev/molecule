@@ -653,7 +653,15 @@ export function PreviewPanel({
               alignItems: 'center',
               justifyContent: 'center',
               zIndex: 1,
-              background: 'var(--mol-color-surface-secondary, #f5f5f5)',
+              // Once the preview has loaded at least once, a restart overlay is
+              // semi-transparent so the last rendered UI stays dimly visible behind
+              // the rotating status — the user keeps "something to look at" instead
+              // of a blank wall on every build-triggered reload. The very first load
+              // (nothing rendered yet) stays fully opaque.
+              background: everLoaded
+                ? 'color-mix(in srgb, var(--mol-color-surface-secondary, #f5f5f5) 78%, transparent)'
+                : 'var(--mol-color-surface-secondary, #f5f5f5)',
+              backdropFilter: everLoaded ? 'blur(2px)' : undefined,
               opacity: fadingOut ? 0 : 1,
               transition: 'opacity 0.5s ease-out',
               pointerEvents: fadingOut ? 'none' : 'auto',
@@ -758,8 +766,34 @@ PreviewPanel.displayName = 'PreviewPanel'
  * @param root0.onManualRetry - Callback to trigger a manual retry.
  * @returns The rendered loading indicator element.
  */
+/**
+ * Molecule-themed status phrases rotated in the preview overlay. A build edits
+ * files rapidly, so the preview can reload (or briefly blank) many times before it
+ * settles — a static "Loading preview…" left users wondering what was happening.
+ * Rotating phrases read as "Synthase is actively working", not "broken".
+ */
+const PREVIEW_MESSAGES: ReadonlyArray<{ key: string; defaultValue: string }> = [
+  { key: 'ide.preview.msg.synthesizing', defaultValue: 'Synthesizing components…' },
+  { key: 'ide.preview.msg.bonding', defaultValue: 'Bonding the modules…' },
+  { key: 'ide.preview.msg.assembling', defaultValue: 'Assembling the build…' },
+  { key: 'ide.preview.msg.reacting', defaultValue: 'Reacting to your edits…' },
+  { key: 'ide.preview.msg.composing', defaultValue: 'Composing the interface…' },
+  { key: 'ide.preview.msg.catalyzing', defaultValue: 'Catalyzing your changes…' },
+  { key: 'ide.preview.msg.stabilizing', defaultValue: 'Stabilizing the structure…' },
+  { key: 'ide.preview.msg.crystallizing', defaultValue: 'Crystallizing the UI…' },
+  { key: 'ide.preview.msg.workingOnIt', defaultValue: 'Working on it…' },
+  { key: 'ide.preview.msg.almostThere', defaultValue: 'Almost there…' },
+]
+
+/**
+ * Default preview-overlay content: pulsing dots, a rotating molecule-themed status
+ * phrase, and (after repeated recovery cycles) a manual retry button.
+ * @param root0 - Component props.
+ * @param root0.retryCount - Number of auto-recovery cycles attempted so far.
+ * @param root0.onManualRetry - Invoked when the user clicks "Retry now".
+ * @returns The rendered loading indicator.
+ */
 function DefaultLoadingIndicator({
-  restarting,
   retryCount,
   onManualRetry,
 }: {
@@ -767,9 +801,15 @@ function DefaultLoadingIndicator({
   retryCount: number
   onManualRetry?: () => void
 }): JSX.Element {
-  const message = restarting
-    ? t('ide.preview.restarting', {}, { defaultValue: 'Loading preview...' })
-    : t('ide.preview.starting', {}, { defaultValue: 'Loading preview...' })
+  // Rotate the themed phrases (~2.4s each) so the overlay never reads as a frozen
+  // "Loading preview…" while the build thrashes the preview with reloads.
+  const [msgIdx, setMsgIdx] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setMsgIdx((i) => (i + 1) % PREVIEW_MESSAGES.length), 2400)
+    return () => clearInterval(id)
+  }, [])
+  const phrase = PREVIEW_MESSAGES[msgIdx]
+  const message = t(phrase.key, {}, { defaultValue: phrase.defaultValue })
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
