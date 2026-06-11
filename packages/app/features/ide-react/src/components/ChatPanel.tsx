@@ -1178,11 +1178,6 @@ interface MessageItemProps {
   sendMessage: (msg: string) => void
   handleAskUserResponse: (response: string) => void
   isLoading: boolean
-  /**
-   * Transient background-phase label (e.g. "Type-checking the API") shown in the
-   * streaming spinner in place of the generic rotating messages; null when idle.
-   */
-  streamingStatus: string | null
   undoneTcIds: Set<string>
   handleUndoToggle: (tcId: string, undone: boolean) => void
   onFileOpen?: (path: string) => void
@@ -1213,7 +1208,6 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     sendMessage,
     handleAskUserResponse,
     isLoading,
-    streamingStatus,
     undoneTcIds,
     handleUndoToggle,
     onFileOpen,
@@ -1447,7 +1441,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
             (!msg.blocks || msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
             !msg.content && (
               <StreamingIndicator
-                label={streamingStatus ?? streamingActivityLabel(msg)}
+                label={streamingActivityLabel(msg)}
                 tokens={estimateStreamTokens(msg)}
                 startedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
               />
@@ -1628,7 +1622,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   />
                   {isLast && msg.isStreaming && (
                     <StreamingIndicator
-                      label={streamingStatus ?? streamingActivityLabel(msg)}
+                      label={streamingActivityLabel(msg)}
                       tokens={estimateStreamTokens(msg)}
                       startedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
                     />
@@ -4284,7 +4278,6 @@ function ChatInner({
                 sendMessage={sendMessage}
                 handleAskUserResponse={handleAskUserResponse}
                 isLoading={isLoading}
-                streamingStatus={streamingStatus}
                 undoneTcIds={undoneTcIds}
                 handleUndoToggle={handleUndoToggle}
                 onFileOpen={onFileOpen}
@@ -4326,6 +4319,29 @@ function ChatInner({
 
         <div ref={messagesEndRef} />
       </div>
+
+      {/* ── Verification status row (type-check / lint / preview checks) ──
+          A pinned chat-level row, NOT the streaming message's own spinner: the
+          post-loop verification runs after the last assistant message has settled,
+          so that spinner often isn't rendering then and the step labels were
+          invisible ("just a spinner until Checks passed"). Driven by `status`
+          stream events, this shows the current step regardless of message state. */}
+      {streamingStatus && (
+        <div
+          className={cm.cn(cm.shrink0, cm.borderT)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '6px 12px',
+            fontSize: 12,
+            background: 'rgba(64,112,224,0.05)',
+          }}
+        >
+          <StreamingIndicator inline />
+          <span style={{ flex: 1, opacity: 0.8, fontStyle: 'italic' }}>{streamingStatus}</span>
+        </div>
+      )}
 
       {/* ── Auto-fix countdown banner ── */}
       {autoFixCountdown && (
