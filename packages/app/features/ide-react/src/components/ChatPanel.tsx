@@ -680,8 +680,8 @@ function VerificationBadge({
         className={cm.textMuted}
       >
         <svg
-          width="12"
-          height="12"
+          width="10"
+          height="10"
           viewBox="0 0 10 10"
           style={{ flexShrink: 0, alignSelf: 'center', position: 'relative', top: '-1px' }}
         >
@@ -970,7 +970,7 @@ function CommitCardItem({
           style={{
             display: 'flex',
             alignItems: 'flex-start',
-            gap: '4px',
+            gap: '6px',
             background: 'none',
             border: 'none',
             cursor: hasFiles ? 'pointer' : 'default',
