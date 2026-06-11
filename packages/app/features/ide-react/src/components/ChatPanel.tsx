@@ -1173,6 +1173,11 @@ interface MessageItemProps {
   sendMessage: (msg: string) => void
   handleAskUserResponse: (response: string) => void
   isLoading: boolean
+  /**
+   * Transient background-phase label (e.g. "Type-checking the API") shown in the
+   * streaming spinner in place of the generic rotating messages; null when idle.
+   */
+  streamingStatus: string | null
   undoneTcIds: Set<string>
   handleUndoToggle: (tcId: string, undone: boolean) => void
   onFileOpen?: (path: string) => void
@@ -1203,6 +1208,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     sendMessage,
     handleAskUserResponse,
     isLoading,
+    streamingStatus,
     undoneTcIds,
     handleUndoToggle,
     onFileOpen,
@@ -1429,7 +1435,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
             (!msg.blocks || msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
             !msg.content && (
               <StreamingIndicator
-                label={streamingActivityLabel(msg)}
+                label={streamingStatus ?? streamingActivityLabel(msg)}
                 tokens={estimateStreamTokens(msg)}
                 startedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
               />
@@ -1610,7 +1616,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   />
                   {isLast && msg.isStreaming && (
                     <StreamingIndicator
-                      label={streamingActivityLabel(msg)}
+                      label={streamingStatus ?? streamingActivityLabel(msg)}
                       tokens={estimateStreamTokens(msg)}
                       startedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
                     />
@@ -2194,6 +2200,7 @@ function ChatInner({
     error,
     errorMeta,
     mode,
+    streamingStatus,
     setMode,
     sendMessage,
     abort,
@@ -4265,6 +4272,7 @@ function ChatInner({
                 sendMessage={sendMessage}
                 handleAskUserResponse={handleAskUserResponse}
                 isLoading={isLoading}
+                streamingStatus={streamingStatus}
                 undoneTcIds={undoneTcIds}
                 handleUndoToggle={handleUndoToggle}
                 onFileOpen={onFileOpen}

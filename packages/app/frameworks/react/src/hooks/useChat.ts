@@ -288,6 +288,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
     requiresSignup?: boolean
   } | null>(null)
   const [mode, setMode] = useState<'plan' | 'execute'>('execute')
+  // Transient label for a background phase (e.g. the verification pass) surfaced
+  // by `status` stream events. Shown in place of the spinner's rotating messages
+  // so the user sees the current step; cleared (null) by the server's status
+  // event when the phase ends, and defensively on send/stream-end.
+  const [streamingStatus, setStreamingStatus] = useState<string | null>(null)
   const mountedRef = useRef(true)
   const idCounterRef = useRef(0)
   // Capture loadOnMount at mount time — prevents mid-session flips
@@ -565,6 +570,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       setIsLoading(true)
       setError(null)
       setErrorMeta(null)
+      setStreamingStatus(null)
       setStreamingFlag(storageKey)
 
       let current: QueueEntry | undefined = {
@@ -818,6 +824,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
               setMode(event.mode)
               onModeChange?.(event.mode)
               break
+            case 'status':
+              setStreamingStatus(event.label)
+              break
             case 'conversation':
               onConversationId?.(event.id)
               break
@@ -901,6 +910,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       setIsLoading(true)
       setError(null)
       setErrorMeta(null)
+      setStreamingStatus(null)
       setStreamingFlag(storageKey)
 
       // ── Phase 1: wait for the server to finish the old request ────────
@@ -1134,6 +1144,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
             setMode(event.mode)
             onModeChange?.(event.mode)
             break
+          case 'status':
+            setStreamingStatus(event.label)
+            break
           case 'conversation':
             onConversationId?.(event.id)
             break
@@ -1279,6 +1292,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
     error,
     errorMeta,
     mode,
+    streamingStatus,
     setMode: exposedSetMode,
     sendMessage,
     abort,

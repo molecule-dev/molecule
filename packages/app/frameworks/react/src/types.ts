@@ -256,6 +256,13 @@ export interface UseChatResult {
   errorMeta: { limitType?: string; requiresSignup?: boolean } | null
   /** Current agent mode — plan (read-only research) or execute (full access). */
   mode: 'plan' | 'execute'
+  /**
+   * Transient label for a background phase (e.g. the post-response verification
+   * pass — "Type-checking the API", "Linting"), set by `status` stream events.
+   * The UI shows it in place of the spinner's generic rotating messages; `null`
+   * when no such phase is active.
+   */
+  streamingStatus: string | null
   /** Update the local mode state (for instant mode toggle without an AI turn). */
   setMode: (mode: 'plan' | 'execute') => void
   sendMessage: (

@@ -192,6 +192,14 @@ export type ChatStreamEvent =
         timestamp: string
       }
     }
+  // A transient, human-readable status for a background phase that is neither a
+  // token stream nor a tool call — e.g. the post-response verification pass
+  // ("Type-checking the API", "Linting the app", "Checking the preview loads").
+  // The UI shows `label` in place of the rotating spinner messages so it's clear
+  // what's happening right now; `label: null` clears it. Generic on purpose: the
+  // app supplies the label text, so this core union stays free of any app-specific
+  // phase vocabulary (same decoupling rule as the `custom` event above).
+  | { type: 'status'; label: string | null }
   | { type: 'done'; usage?: { inputTokens: number; outputTokens: number; contextWindow?: number } }
   | { type: 'error'; message: string; limitType?: string; requiresSignup?: boolean }
   // The active model changed (e.g. planner → executor); surfaced in the chat.
