@@ -293,6 +293,49 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // so the user sees the current step; cleared (null) by the server's status
   // event when the phase ends, and defensively on send/stream-end.
   const [streamingStatus, setStreamingStatus] = useState<string | null>(null)
+  // Pace status labels. A small change's verification (type-check + lint over a
+  // couple of files) finishes in well under a second, so its step labels were
+  // emitted in a rapid burst — they flashed by unreadably, or React batched the
+  // burst down to just the final clear and the spinner showed no text at all.
+  // Queue them and surface each for a minimum dwell so the progression is legible
+  // regardless of how fast (or how batched) they arrive.
+  const STATUS_MIN_DWELL_MS = 650
+  const statusQueueRef = useRef<Array<string | null>>([])
+  const statusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pumpStatusRef = useRef<() => void>(() => {})
+  pumpStatusRef.current = (): void => {
+    const next = statusQueueRef.current.shift()
+    if (next === undefined) {
+      statusTimerRef.current = null
+      return
+    }
+    setStreamingStatus(next)
+    // Non-null labels dwell so they're readable; a null (phase end) clears at once.
+    statusTimerRef.current = setTimeout(
+      () => pumpStatusRef.current(),
+      next === null ? 0 : STATUS_MIN_DWELL_MS,
+    )
+  }
+  const enqueueStatus = useCallback((label: string | null): void => {
+    const q = statusQueueRef.current
+    if (q.length > 0 && q[q.length - 1] === label) return // collapse consecutive dups
+    q.push(label)
+    if (!statusTimerRef.current) pumpStatusRef.current()
+  }, [])
+  const resetStatusQueue = useCallback((): void => {
+    if (statusTimerRef.current) {
+      clearTimeout(statusTimerRef.current)
+      statusTimerRef.current = null
+    }
+    statusQueueRef.current = []
+    setStreamingStatus(null)
+  }, [])
+  useEffect(
+    () => () => {
+      if (statusTimerRef.current) clearTimeout(statusTimerRef.current)
+    },
+    [],
+  )
   const mountedRef = useRef(true)
   const idCounterRef = useRef(0)
   // Capture loadOnMount at mount time — prevents mid-session flips
@@ -570,7 +613,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       setIsLoading(true)
       setError(null)
       setErrorMeta(null)
-      setStreamingStatus(null)
+      resetStatusQueue()
       setStreamingFlag(storageKey)
 
       let current: QueueEntry | undefined = {
@@ -825,7 +868,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
               onModeChange?.(event.mode)
               break
             case 'status':
-              setStreamingStatus(event.label)
+              enqueueStatus(event.label)
               break
             case 'conversation':
               onConversationId?.(event.id)
@@ -910,7 +953,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       setIsLoading(true)
       setError(null)
       setErrorMeta(null)
-      setStreamingStatus(null)
+      resetStatusQueue()
       setStreamingFlag(storageKey)
 
       // ── Phase 1: wait for the server to finish the old request ────────
@@ -1145,7 +1188,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
             onModeChange?.(event.mode)
             break
           case 'status':
-            setStreamingStatus(event.label)
+            enqueueStatus(event.label)
             break
           case 'conversation':
             onConversationId?.(event.id)

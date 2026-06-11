@@ -269,14 +269,18 @@ export function StreamingIndicator({
   const [msgIdx, setMsgIdx] = useState(0)
   const [now, setNow] = useState(() => Date.now())
 
-  // Rotate generic messages only when there's no real activity label.
+  // A real, non-empty label (current activity / verification step) takes over;
+  // otherwise rotate generic phrases. Guard on a TRIMMED non-empty string so the
+  // spinner is NEVER text-less — there should always be some signal of what's
+  // happening, even if it's just "Working on it…".
+  const hasLabel = label != null && label.trim() !== ''
   useEffect(() => {
-    if (inline || label) return
+    if (inline || hasLabel) return
     const id = setInterval(() => {
       setMsgIdx((prev) => (prev + 1) % MESSAGES.length)
     }, ROTATE_INTERVAL_MS)
     return () => clearInterval(id)
-  }, [inline, label])
+  }, [inline, hasLabel])
 
   // Live elapsed time. Tick sub-second while the wait is short so the tenths
   // are real (and it reads as actively working), then drop to once per second
@@ -294,7 +298,8 @@ export function StreamingIndicator({
   }
 
   const generic = MESSAGES[msgIdx]
-  const text = label ?? t(generic.key, undefined, { defaultValue: generic.defaultValue })
+  const text =
+    hasLabel && label ? label : t(generic.key, undefined, { defaultValue: generic.defaultValue })
   const elapsed = startedAt !== undefined ? formatElapsed(elapsedMs) : null
 
   return (
