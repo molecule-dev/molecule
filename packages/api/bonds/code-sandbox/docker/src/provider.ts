@@ -422,7 +422,7 @@ class DockerSandboxProvider implements SandboxProvider {
     return {
       id: containerId,
       status: initialStatus,
-      previewUrl: provider.previewUrlTemplate.replace('{port}', '5173'),
+      previewUrl: provider.previewUrlTemplate.replace(/\{port\}/g, '5173'),
 
       async start() {
         await provider.dockerApi(`/containers/${containerId}/start`, 'POST')
@@ -599,7 +599,9 @@ class DockerSandboxProvider implements SandboxProvider {
       },
 
       getPreviewUrl(port?: number): string {
-        return provider.previewUrlTemplate.replace('{port}', String(port ?? 5173))
+        // Replace ALL {port} occurrences — the template may use it more than once
+        // (e.g. a per-sandbox subdomain `sb-{port}.preview.localhost:{port}`).
+        return provider.previewUrlTemplate.replace(/\{port\}/g, String(port ?? 5173))
       },
 
       async spawn(command: string, opts?: ExecOptions): Promise<SpawnHandle> {
