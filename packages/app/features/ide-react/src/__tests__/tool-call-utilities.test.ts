@@ -144,8 +144,8 @@ describe('toolSummary', () => {
     expect(toolSummary('read_file', null, 'pending')).toBe('')
   })
 
-  it('returns Running… for running status', () => {
-    expect(toolSummary('read_file', null, 'running')).toBe('Running…')
+  it('returns Running (no ellipsis) for running status', () => {
+    expect(toolSummary('read_file', null, 'running')).toBe('Running')
   })
 
   it('returns Not found for "not found" errors', () => {

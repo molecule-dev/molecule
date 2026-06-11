@@ -103,7 +103,7 @@ export function toolLabel(name: string, input: unknown): string {
 export function toolSummary(name: string, output: ToolOutput, status: string): string {
   if (status === 'pending') return ''
   if (status === 'running')
-    return t('ide.toolCall.statusRunning', undefined, { defaultValue: 'Running…' })
+    return t('ide.toolCall.statusRunning', undefined, { defaultValue: 'Running' })
 
   const out = output as Inp | undefined
   const hasError = typeof out === 'object' && out !== null && 'error' in out

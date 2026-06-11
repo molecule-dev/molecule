@@ -1030,7 +1030,7 @@ export const ToolCallCard = memo(function ToolCallCard({
                 {summary}
               </span>
             )}
-            {canRevert && (
+            {canRevert && status !== 'running' && (
               <span
                 role="button"
                 tabIndex={0}
@@ -1062,6 +1062,9 @@ export const ToolCallCard = memo(function ToolCallCard({
                   height: 20,
                   borderRadius: 4,
                   flexShrink: 0,
+                  // Nudge up 1px: the 13px glyph sat slightly below the text's optical center.
+                  position: 'relative',
+                  top: '-1px',
                   cursor: isReverting ? 'wait' : 'pointer',
                   opacity: isReverting ? 0.3 : isHovered ? 0.6 : 0,
                   transition: 'opacity 100ms, background 100ms',
