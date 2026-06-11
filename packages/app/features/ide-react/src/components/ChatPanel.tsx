@@ -1181,6 +1181,11 @@ interface MessageItemProps {
   handleFileRevert: (path: string, content: string) => Promise<void>
   setInputAndCursorEnd: (val: string) => void
   setModelPicker: React.Dispatch<React.SetStateAction<ModelPicker | null>>
+  /**
+   * True while the post-loop build verification is running — the streaming
+   * activity then shows "Checking your app & API…" instead of a generic spinner.
+   */
+  verifying?: boolean
 }
 
 /**
@@ -1429,7 +1434,13 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
             (!msg.blocks || msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
             !msg.content && (
               <StreamingIndicator
-                label={streamingActivityLabel(msg)}
+                label={
+                  props.verifying
+                    ? t('ide.chat.activity.checking', undefined, {
+                        defaultValue: 'Checking your app & API…',
+                      })
+                    : streamingActivityLabel(msg)
+                }
                 tokens={estimateStreamTokens(msg)}
                 startedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
               />
@@ -1610,7 +1621,13 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   />
                   {isLast && msg.isStreaming && (
                     <StreamingIndicator
-                      label={streamingActivityLabel(msg)}
+                      label={
+                        props.verifying
+                          ? t('ide.chat.activity.checking', undefined, {
+                              defaultValue: 'Checking your app & API…',
+                            })
+                          : streamingActivityLabel(msg)
+                      }
                       tokens={estimateStreamTokens(msg)}
                       startedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
                     />
@@ -1916,6 +1933,11 @@ function ChatInner({
       })
   }, [endpoint, hasConversation, http])
 
+  // True while the post-loop build verification (type-check / lint / health probe)
+  // is running, so the streaming indicator shows "Checking your app & API…" instead
+  // of a generic spinner — making it obvious the build is being checked.
+  const [verifying, setVerifying] = useState(false)
+
   // ── Auto-fix countdown state ──────────────────────────────────────────────
   // After the AI finishes, if verification found errors, show a countdown
   // before auto-sending a fix message. User can cancel/pause.
@@ -1985,6 +2007,12 @@ function ChatInner({
           contextWindow: event.usage.contextWindow,
         })
       }
+      // Show a clear "Checking your app & API…" status while the post-loop build
+      // verification runs; clear it once results arrive or the turn ends.
+      if (event.type === 'verification_started') setVerifying(true)
+      if (event.type === 'verification_result' || event.type === 'done' || event.type === 'error')
+        setVerifying(false)
+
       // Capture verification errors to trigger countdown after stream ends.
       // Also drop any deferred preview error — verification's countdown handles it.
       if (event.type === 'verification_result' && event.status === 'error' && event.output) {
@@ -4273,6 +4301,7 @@ function ChatInner({
                 handleFileRevert={handleFileRevert}
                 setInputAndCursorEnd={setInputAndCursorEnd}
                 setModelPicker={setModelPicker}
+                verifying={verifying}
               />
             )
           },
