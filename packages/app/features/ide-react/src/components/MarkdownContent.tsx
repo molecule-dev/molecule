@@ -9,7 +9,7 @@
  */
 
 import type { JSX, ReactNode } from 'react'
-import { memo, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -313,18 +313,41 @@ export const MarkdownContent = memo(function MarkdownContent({
   statusLabel,
   statusStartedAt,
 }: MarkdownContentProps): JSX.Element {
-  // PERF — the single biggest cause of the tab going unresponsive on a long/large
-  // stream: `text` grows on every ~50ms flush, so re-running the markdown parse
-  // (splitSegments + Prose line-splitting + renderInline) over the FULL content
-  // each flush is O(content²) across the stream. For a big streamed message (a
-  // long plan, or file content streamed into the chat) that quadratic blowup pegs
-  // the main thread. So while streaming we do NOT parse at all — we render the raw
-  // text cheaply (one text node, pre-wrap). The expensive parse runs exactly ONCE,
-  // when the stream finalizes (isStreaming flips false and `text` is stable).
-  const segments = useMemo(
-    () => (!isStreaming && text ? splitSegments(text) : []),
-    [text, isStreaming],
-  )
+  // Markdown is parsed + rendered LIVE while streaming (not deferred until the
+  // stream finalizes). The page freezes that originally motivated deferring it
+  // were caused by stale Vite pre-bundle caches serving a duplicate React, NOT
+  // by this parse.
+  //
+  // One real concern from that era remains: `text` grows on every ~50ms flush, so
+  // re-parsing the FULL content on every flush is O(content²) over a long stream
+  // (a big plan / file content streamed into chat) — sustained main-thread CPU.
+  // We keep it live but THROTTLE the parse input to ~120ms (≈8 renders/sec, still
+  // visually live) so the per-flush re-parse work is bounded. On finalize we parse
+  // the complete text immediately so the last tokens never lag.
+  const PARSE_THROTTLE_MS = 120
+  const [parseText, setParseText] = useState(text)
+  const lastParseAtRef = useRef(0)
+  useEffect(() => {
+    if (!isStreaming) {
+      setParseText(text) // finalized (or non-streaming) — parse the full, stable text now
+      return
+    }
+    const elapsed = Date.now() - lastParseAtRef.current
+    if (elapsed >= PARSE_THROTTLE_MS) {
+      lastParseAtRef.current = Date.now()
+      setParseText(text)
+      return
+    }
+    // Leading+trailing throttle: schedule the pending update so continuous
+    // streaming still refreshes ~every PARSE_THROTTLE_MS (a plain debounce here
+    // would defer ALL rendering to the end — the very bug we're removing).
+    const id = setTimeout(() => {
+      lastParseAtRef.current = Date.now()
+      setParseText(text)
+    }, PARSE_THROTTLE_MS - elapsed)
+    return () => clearTimeout(id)
+  }, [text, isStreaming])
+  const segments = useMemo(() => (parseText ? splitSegments(parseText) : []), [parseText])
 
   // A real status label (verification step) makes the trailing indicator a
   // labeled block; otherwise it's the bare end-of-text cursor used during
@@ -348,15 +371,18 @@ export const MarkdownContent = memo(function MarkdownContent({
     return (
       <>
         <div
-          style={{
-            fontSize: '13px',
-            lineHeight: 1.6,
-            marginTop: '6px',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-          }}
+          style={{ fontSize: '13px', lineHeight: 1.6, marginTop: '6px', wordBreak: 'break-word' }}
         >
-          {text}
+          {/* Live markdown — parsed segments render as they stream in. An
+              incomplete construct (e.g. an unclosed ``` fence) falls back to
+              prose via splitSegments until its closer arrives, then upgrades. */}
+          {segments.map((seg, i) =>
+            seg.type === 'code' ? (
+              <CodeBlock key={i} lang={seg.lang} content={seg.content} />
+            ) : (
+              <Prose key={i} content={seg.content} segIdx={i} />
+            ),
+          )}
           {/* Bare end-of-text cursor only while the MODEL is still generating
               tokens (no status label yet). Once the text is done and the server
               is verifying, `statusLabel` is set and we show the labeled block
