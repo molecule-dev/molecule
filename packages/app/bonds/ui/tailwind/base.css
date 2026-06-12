@@ -1,3 +1,23 @@
+/* =============================================================================
+ * Theming model — how a color reaches the screen (and where to recolor).
+ *
+ * Layer 1 (this file): the `@theme` block below defines every Tailwind/ClassMap
+ *   color token. The ~15 CORE tokens read `--color-X: var(--mol-color-X, <default>)`
+ *   — i.e. from the theme bond, with a literal fallback. Every other token
+ *   (hover/active, Material containers, on-*, surface tiers, fixed, inverse) is
+ *   AUTO-DERIVED from the cores via color-mix(). So changing a core recolors all
+ *   of its shades for free.
+ * Layer 2 (theme bond, app/src/bonds/app-theme-css-variables.ts): sets the
+ *   `--mol-color-*` the cores fall back to, and toggles light/dark via
+ *   `data-mol-mode`. This is the palette for CUSTOM builds (no theme.css).
+ * Layer 3 (app/src/theme.css, template apps only): hardcodes `--color-*` on
+ *   `:root` / `[data-mol-mode='dark']`. Same :root specificity as Layer 1 and
+ *   loaded last, so it OVERRIDES (shadows) Layers 1+2. When present, theme.css
+ *   is the single source of truth for colors — recolor THERE, not the bond.
+ *
+ * Precedence: theme.css (L3) > bond `--mol-color-*` (L2) > base defaults (L1).
+ * ============================================================================= */
+
 @source inline("{p,px,py,pt,pb,pl,pr}-{0,1,2,3,4,5,6,8,10,12,16}");
 
 /* cm.sp('m'|'mx'|'my'|'mt'|'mb'|'ml'|'mr', scale) */
