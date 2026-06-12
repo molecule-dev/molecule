@@ -44,6 +44,22 @@ npm install @molecule/api-resource
 
 ### Interfaces
 
+#### `ErrorFallback`
+
+Fallback HTTP response used when a caught error is NOT a molecule-tagged error
+(i.e. a genuinely-unexpected failure).
+
+```typescript
+interface ErrorFallback {
+  /** HTTP status for the fallback (typically 500). */
+  status: number
+  /** Human-readable fallback message (already localized by the caller). */
+  message: string
+  /** Machine-readable key the frontend maps to a localized message. */
+  errorKey: string
+}
+```
+
 #### `MoleculeRequest`
 
 Framework-agnostic HTTP request interface. Structurally compatible with Express's
@@ -334,6 +350,35 @@ function read({
 
 **Returns:** A curried async function that accepts `{ id, props? }` and returns a `{ statusCode, body }` response.
 
+#### `respondError(res, error, fallback)`
+
+Respond to a caught handler error, honoring molecule's "tagged error" convention.
+
+A tagged error carries BOTH a numeric `statusCode` AND a string `errorKey` — the same
+contract `@molecule/api-server-default-express`'s error middleware (`classifyTaggedError`)
+uses. Providers throw these for expected, user-actionable conditions — e.g. a
+config-missing throw (`503` + `'config.notConfigured'`) when `STRIPE_SECRET_KEY` is unset.
+
+Handlers that catch errors MUST funnel through this instead of a blanket
+`res.status(500)`, so a tagged error surfaces its REAL status + errorKey rather than
+being flattened to a generic 500. Otherwise the app looks broken at the exact moment the
+user tries to use the feature — the worst possible time for a payment (the conversion
+path). A swallowed tag is why the middleware-only fix was insufficient: ~185 handlers
+catch-and-500, so the tag never reached the middleware.
+
+Tagged errors are logged at `warn` (expected/actionable, not a server fault); everything
+else is logged at `error` and returns the caller's `fallback`. Requiring BOTH fields is
+deliberate: it keeps arbitrary library errors that merely carry a `.statusCode` (e.g. an
+AWS SDK 403) from being surfaced with a status molecule never chose.
+
+```typescript
+function respondError(res: MoleculeResponse, error: unknown, fallback: ErrorFallback): void
+```
+
+- `res` — The response object.
+- `error` — The caught error.
+- `fallback` — Status/message/errorKey to use when `error` isn't a tagged error.
+
 #### `update(resource, resource, resource, resource)`
 
 Creates a handler to update a resource by its `id` and some `props`.
@@ -408,6 +453,28 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-resource` ^1.0.0
 - `@molecule/api-utilities-validation` ^1.0.0
+
+Working WITH installed `@molecule/api-resource-*` packages (auth `getUserId`,
+table ownership, migrations) — what generated code most often breaks:
+
+- **Auth inside a handler is `const userId = getUserId(res)`** (from the
+  resource utilities) → return 401 if it's missing. There is NO `requireAuth`
+  middleware or file to import or create; auth is applied at the router level.
+- **A selected `@molecule/api-resource-*` package OWNS its table AND its
+  already-wired routes with a FIXED schema** (e.g. `api-resource-project` owns
+  `projects` keyed by `user_id` with a live `/projects` handler). Do NOT write
+  a migration that re-creates such a table with a different schema — your
+  `CREATE TABLE` shadows theirs (or vice-versa) and the package's still-wired
+  handler then 500s (`column "user_id" does not exist`). To model a different
+  shape, use a DIFFERENT table name (e.g. `workspace_projects`) + your own
+  handler. Check `api/migrations/*` + `api/__setup__/` for tables packages
+  already provide.
+- **Adding a resource package AFTER scaffold? Copy its migration.** Such a
+  package ships its table DDL at `node_modules/@molecule/<pkg>/src/__setup__/*.sql`
+  — copy it into `api/migrations/<next-number>_<name>.sql`. Wiring its
+  routes/handler alone does NOT create the table: every request 500s with
+  "relation does not exist" even though the build type-checks clean. (Only
+  packages present at scaffold time get their migration auto-created.)
 
 ## Translations
 

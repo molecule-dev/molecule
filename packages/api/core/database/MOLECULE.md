@@ -610,6 +610,29 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
+Data-access contract — the rules code generators most often get wrong:
+
+- **CRUD goes through the exported data functions** (`findById`, `findOne`,
+  `findMany`, `count`, `create`, `updateById`, `deleteById`). Filter with a
+  `where` ARRAY of `{ field, operator, value }`:
+  `findMany('plants', { where: [{ field: 'speciesId', operator: '=', value: id }], limit: 50 })`.
+  A bare key object — `findMany('plants', { speciesId: id })` — is NOT a valid
+  `FindManyOptions` and will not filter.
+- **Raw SQL: import the standalone `query(sql, values)` from this package** —
+  NOT `getStore().query()`. The DataStore has no `query`; raw parameterized
+  query lives on the pool/provider. The store also has NO `.exec()`,
+  `.prepare()`, `.run()`, `.get()`, or `.all()` — those are driver methods
+  (better-sqlite3 / pg) and calling them fails the type-check.
+- **Create tables only via timestamped `.sql` files in `migrations/`** (the
+  migration runner applies them on startup) — NEVER programmatically through
+  the store. Seed rows with `create()`.
+- **Every `id` is a UUID string** (the resource layer sets `id = id || uuid()`
+  on create). So every primary key AND foreign key is a UUID-string column:
+  `id TEXT PRIMARY KEY` (SQLite) / `id UUID PRIMARY KEY` (Postgres); FKs
+  likewise (`user_id TEXT` / `user_id UUID`). NEVER `INTEGER PRIMARY KEY
+  AUTOINCREMENT` or `SERIAL` — inserting a UUID string into an integer key
+  fails at runtime (`datatype mismatch`) and breaks every create endpoint.
+
 ## Translations
 
 Translation strings are provided by `@molecule/api-locales-database`.

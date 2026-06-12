@@ -4,6 +4,22 @@
  * Provides a unified API for translations and localization that works
  * with different i18n libraries (react-i18next, FormatJS, etc.).
  *
+ * @example
+ * ```tsx
+ * import { t } from '@molecule/app-i18n'
+ * // ALWAYS pass a defaultValue — it renders immediately as the English text.
+ * <button>{t('settings.save', undefined, { defaultValue: 'Save' })}</button>
+ * ```
+ *
+ * @remarks
+ * Every user-visible string must go through `t()` — never hardcode UI text. And
+ * ALWAYS supply `{ defaultValue: 'English text' }`: a bare `t('settings.save')`
+ * renders the raw KEY string ("settings.save") in the UI until a translation for
+ * that key loads, so the default is what the user actually sees. Translation keys
+ * are optional polish layered on top; the `defaultValue` is the real copy. Add
+ * keys to the app's `locales/en/ui.ts` (and per-locale `{code}/ui.ts`) — not in
+ * feature packages.
+ *
  * @module
  */
 

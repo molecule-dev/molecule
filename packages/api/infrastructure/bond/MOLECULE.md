@@ -427,3 +427,20 @@ Contains both singleton providers (one per category) and named providers
 ```typescript
 const registry: ProviderRegistry
 ```
+
+## Injection Notes
+
+**NEVER call a bond-backed function at module top-level.** Bond accessors —
+`require()`/`get()`/`getProvider()` and anything built on them (cron
+`schedule()`, cache get/set, queue enqueue, notification-center `send()`) —
+THROW if their provider isn't bonded yet (`"<X> provider not configured"`).
+Module top-level runs at IMPORT time, which is BEFORE `server.ts` calls
+`setupBonds()`. So a top-level `schedule('reminders', …)` (e.g. in a new
+`jobs/*.ts` or `cron-*.ts`) crashes the API at boot — the build type-checks
+clean but the server never comes up.
+
+Wrap such work in a function and invoke it AFTER bonds are wired — e.g.
+`export function startReminders() { schedule(…) }`, then call
+`startReminders()` near the end of `server.ts` startup (after `setupBonds()`),
+or call it inside a request handler. Keep module top-level to imports + pure
+declarations only.
