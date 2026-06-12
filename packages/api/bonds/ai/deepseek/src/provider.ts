@@ -526,7 +526,7 @@ class DeepseekAIProviderImpl implements AIProvider {
               // Emit the chunk's char count as real progress (drives the live
               // token counter; re-arms the stream timeout) rather than a silent
               // keep_alive — just the count, not the content.
-              yield { type: 'tool_input_delta', id: pending.id, chars: chunk.length }
+              yield { type: 'tool_input_delta', id: pending.id, chars: chunk.length, text: chunk }
             }
           }
         }

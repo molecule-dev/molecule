@@ -511,7 +511,7 @@ class XaiAIProvider implements AIProvider {
               // token counter; re-arms the stream timeout) rather than a silent
               // keep_alive — fixes the dead loading indicator during long writes.
               // Just the count, not the content (the consumer coalesces these).
-              yield { type: 'tool_input_delta', id: pending.id, chars: chunk.length }
+              yield { type: 'tool_input_delta', id: pending.id, chars: chunk.length, text: chunk }
             }
           }
         }

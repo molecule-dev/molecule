@@ -153,7 +153,15 @@ export type ChatStreamEvent =
   // Progress for the in-flight tool call's input — `chars` is the number of
   // input characters since the last delta (coalesced server-side). Drives the
   // live token counter while a large input (file / plan) is being generated.
-  | { type: 'tool_input_delta'; id: string; chars: number }
+  // `partialInput` carries short display fields (e.g. file `path`, plan `name`)
+  // extracted server-side from the partial args as soon as they're known, so the
+  // tool card can label itself ("Write `app.ts`") before the full input arrives.
+  | {
+      type: 'tool_input_delta'
+      id: string
+      chars: number
+      partialInput?: Record<string, string>
+    }
   | { type: 'tool_result'; id: string; output: unknown }
   | { type: 'file_diff'; path: string; oldContent: string | null; newContent: string }
   | { type: 'commit_suggestion'; files: string[] }

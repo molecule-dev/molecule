@@ -758,7 +758,17 @@ export function useChat(options: UseChatOptions): UseChatResult {
             case 'tool_input_delta': {
               // Grow the live token estimate as the tool input streams in.
               const tc = toolCalls!.find((t) => t.id === event.id)
-              if (tc) tc.streamInputChars = (tc.streamInputChars ?? 0) + event.chars
+              if (tc) {
+                tc.streamInputChars = (tc.streamInputChars ?? 0) + event.chars
+                // Merge display fields extracted server-side (path/name/…) so the
+                // in-flight card labels with the filename before args finish.
+                if (event.partialInput) {
+                  tc.input = {
+                    ...(tc.input as Record<string, unknown> | undefined),
+                    ...event.partialInput,
+                  }
+                }
+              }
               scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
               break
             }
@@ -1086,7 +1096,17 @@ export function useChat(options: UseChatOptions): UseChatResult {
           case 'tool_input_delta': {
             // Grow the live token estimate as the tool input streams in.
             const tc = toolCalls!.find((t) => t.id === event.id)
-            if (tc) tc.streamInputChars = (tc.streamInputChars ?? 0) + event.chars
+            if (tc) {
+              tc.streamInputChars = (tc.streamInputChars ?? 0) + event.chars
+              // Merge display fields extracted server-side (path/name/…) so the
+              // in-flight card labels with the filename before args finish.
+              if (event.partialInput) {
+                tc.input = {
+                  ...(tc.input as Record<string, unknown> | undefined),
+                  ...event.partialInput,
+                }
+              }
+            }
             scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
             break
           }

@@ -48,10 +48,14 @@ export type ChatEvent =
   // progress (re-arms the stream-progress timeout; ticks the UI's live token
   // estimate) where previously these chunks produced only `keep_alive` (no
   // content) — the root cause of the dead loading indicator while a big tool
-  // input was being written. Deliberately a COUNT, not the content: the UI only
-  // needs the magnitude, and forwarding the full input would duplicate what the
-  // final `tool_use` (and `file_diff`, for writes) already carries.
-  | { type: 'tool_input_delta'; id: string; chars: number }
+  // input was being written. `chars` is a COUNT, not the full content (the UI
+  // only needs the magnitude, and forwarding the whole input would duplicate the
+  // final `tool_use`). `text` is the raw partial-JSON CHUNK for this delta —
+  // consumed SERVER-SIDE only (a coalescing consumer accumulates it to extract a
+  // few short display fields, e.g. the file `path`, so the UI can label the
+  // in-flight tool card before the args finish). It is never echoed wholesale to
+  // the client. Optional so non-streaming/legacy providers can omit it.
+  | { type: 'tool_input_delta'; id: string; chars: number; text?: string }
   | { type: 'done'; usage: TokenUsage }
   | { type: 'error'; message: string; errorKey?: string }
   // Liveness signal. PROVIDER CONTRACT: every streaming provider MUST yield

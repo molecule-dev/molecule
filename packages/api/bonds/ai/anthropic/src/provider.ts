@@ -447,7 +447,15 @@ class AnthropicAIProvider implements AIProvider {
             // root cause of the dead loading indicator while a large tool input
             // streams in. Just the count, not the content (the consumer
             // coalesces these and only needs the magnitude).
-            yield { type: 'tool_input_delta', id: state.pendingTool.id, chars: chunk.length }
+            yield {
+              type: 'tool_input_delta',
+              id: state.pendingTool.id,
+              chars: chunk.length,
+              // Raw partial-JSON chunk — server-side only; the handler accumulates
+              // it to extract short display fields (e.g. file path) for the live
+              // tool-card label before the args finish streaming.
+              text: chunk,
+            }
           } else if (delta.type === 'thinking_delta' && state.pendingThinking !== null) {
             const chunk = delta.thinking as string
             state.pendingThinking += chunk
