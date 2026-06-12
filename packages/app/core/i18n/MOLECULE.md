@@ -604,6 +604,14 @@ are optional polish layered on top; the `defaultValue` is the real copy. Add
 keys to the app's `locales/en/ui.ts` (and per-locale `{code}/ui.ts`) — not in
 feature packages.
 
+Interpolation tokens use **DOUBLE braces** `{{var}}`, never single `{var}` — a
+single brace is NOT interpolated and renders LITERALLY (you see "{name}" on the
+page). This applies to BOTH the `defaultValue` and any matching locale-file
+entry: `t('hero', { tagline }, { defaultValue: 'Eat well — {{tagline}}' })` and
+`heroTitle: 'Eat well — {{tagline}}'`. The locale entry takes priority over the
+`defaultValue`, so a single-brace locale entry shows `{tagline}` even when the
+default is correct — the #1 i18n footgun.
+
 ## Translations
 
 Translation strings are provided by `@molecule/app-locales-i18n`.
