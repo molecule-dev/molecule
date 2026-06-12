@@ -64,6 +64,13 @@ export interface ChatPanelProps {
   onActivityClick?: (activity: ActivityFromCard) => void
   /** Called when the server signals (via the `ready_to_build` stream event) that discovery is complete and the sandbox should boot. */
   onReadyToBuild?: () => void
+  /**
+   * True while the plan has finished streaming but the sandbox is still booting
+   * (after `ready_to_build`, before the post-boot build kickoff). When set and no
+   * message is actively streaming, the chat shows a "waiting for the development
+   * environment" indicator so the conversation doesn't appear to silently stall.
+   */
+  awaitingSandboxBoot?: boolean
   /** Called when the agent requests a UI action via the `client_action` stream event (reload/navigate the preview, open a file). */
   onClientAction?: (action: IdeClientAction) => void
   /** Called on each stream `done` — host uses it to keep the boot view up until the parallel during-boot plan stream finishes. */

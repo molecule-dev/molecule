@@ -1827,6 +1827,8 @@ interface ChatInnerProps {
   onActivityClick?: (activity: Activity) => void
   /** Called on the `ready_to_build` stream event — discovery is done; boot the sandbox. */
   onReadyToBuild?: () => void
+  /** True after the plan streams but while the sandbox is still booting (pre-kickoff) — drives the chat "waiting for environment" indicator. */
+  awaitingSandboxBoot?: boolean
   /** Called on the `client_action` stream event — the agent wants a preview reload/navigate or a file opened. */
   onClientAction?: (action: IdeClientAction) => void
   /** Called on each stream done/error — host keeps the boot view up until the during-boot plan stream completes. */
@@ -1899,6 +1901,7 @@ function ChatInner({
   onConversationId,
   onActivityClick,
   onReadyToBuild,
+  awaitingSandboxBoot,
   onClientAction,
   onTurnComplete,
   autoSubmitSignal,
@@ -4331,6 +4334,19 @@ function ChatInner({
             </div>
           ))}
 
+        {/* The plan finished streaming but the sandbox is still booting (after
+            ready_to_build, before the post-boot build kickoff). The turn has
+            ended so nothing is streaming — without this the chat looks stalled.
+            Show a labeled waiting indicator until the kickoff request starts
+            (isLoading flips true) or the host clears awaitingSandboxBoot. */}
+        {awaitingSandboxBoot && !isLoading && (
+          <StreamingIndicator
+            label={t('ide.chat.awaitingSandbox', undefined, {
+              defaultValue: 'Waiting for the development environment to finish starting…',
+            })}
+          />
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -6023,6 +6039,7 @@ export function ChatPanel({
   onCommit,
   onActivityClick,
   onReadyToBuild,
+  awaitingSandboxBoot,
   onClientAction,
   onTurnComplete,
   autoSubmitSignal,
@@ -6358,6 +6375,7 @@ export function ChatPanel({
         onConversationId={persistConversationId}
         onActivityClick={onActivityClick}
         onReadyToBuild={onReadyToBuild}
+        awaitingSandboxBoot={awaitingSandboxBoot}
         onClientAction={onClientAction}
         onTurnComplete={onTurnComplete}
         autoSubmitSignal={autoSubmitSignal}
