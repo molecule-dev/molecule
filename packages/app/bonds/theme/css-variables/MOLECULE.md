@@ -149,3 +149,20 @@ export function setupThemeCssVariables(): void {
 
 Peer dependencies:
 - `@molecule/app-theme` ^1.0.0
+
+Recoloring a scaffolded app — where the palette actually lives:
+
+This bond writes `--mol-color-*` variables and toggles light/dark via a
+`data-mol-mode` attribute. In `@molecule/app-ui-tailwind`'s `base.css` the
+Tailwind `@theme` reads each core token as
+`--color-primary: var(--mol-color-primary, <default>)`, so for a CUSTOM build
+(no per-app `theme.css`) this bond's `Theme` objects ARE the palette — edit
+`colors` here to recolor.
+
+BUT template-based apps ship `app/src/theme.css` that hardcodes `--color-*` on
+`:root` / `[data-mol-mode='dark']`. Those have the same `:root` specificity and
+load last, so they SHADOW the `var(--mol-color-*)` reference — the visible
+colors come only from `theme.css`. When `theme.css` defines colors, editing
+this bond has NO visible effect; recolor by editing `app/src/theme.css`. This
+bond still drives light/dark mode and is the palette for non-Tailwind targets
+(e.g. React Native). Precedence: `theme.css` > this bond > base defaults.
