@@ -283,6 +283,17 @@ interface MarkdownContentProps {
   text: string
   /** When true, appends a blinking cursor at the end (streaming indicator). */
   isStreaming?: boolean
+  /**
+   * Current activity/status label (e.g. a verification step like "Type-checking
+   * the app"). When set WHILE streaming, the trailing indicator switches from a
+   * bare inline cursor to a labeled block below the finalized text — so the
+   * post-response check phase is never an unlabeled spinner. This is the window
+   * after the model's text is done but `isStreaming` is still true because the
+   * server is running type-check / lint / runtime probes.
+   */
+  statusLabel?: string | null
+  /** Turn start (ms) for the labeled indicator's elapsed timer. */
+  statusStartedAt?: number
 }
 
 /**
@@ -292,11 +303,15 @@ interface MarkdownContentProps {
  * @param root0 - Component props.
  * @param root0.text - The raw markdown text to render.
  * @param root0.isStreaming - Whether to show a streaming indicator at the end.
+ * @param root0.statusLabel - Current status label; shown as a labeled block while streaming.
+ * @param root0.statusStartedAt - Turn start (ms) for the labeled indicator's timer.
  * @returns The rendered markdown content element.
  */
 export const MarkdownContent = memo(function MarkdownContent({
   text,
   isStreaming,
+  statusLabel,
+  statusStartedAt,
 }: MarkdownContentProps): JSX.Element {
   // PERF — the single biggest cause of the tab going unresponsive on a long/large
   // stream: `text` grows on every ~50ms flush, so re-running the markdown parse
@@ -311,24 +326,45 @@ export const MarkdownContent = memo(function MarkdownContent({
     [text, isStreaming],
   )
 
+  // A real status label (verification step) makes the trailing indicator a
+  // labeled block; otherwise it's the bare end-of-text cursor used during
+  // token-by-token streaming.
+  const hasStatus = statusLabel != null && statusLabel.trim() !== ''
+
   if (!text) {
-    return <>{isStreaming && <StreamingIndicator />}</>
+    return (
+      <>
+        {isStreaming && (
+          <StreamingIndicator
+            label={hasStatus ? statusLabel! : undefined}
+            startedAt={statusStartedAt}
+          />
+        )}
+      </>
+    )
   }
 
   if (isStreaming) {
     return (
-      <div
-        style={{
-          fontSize: '13px',
-          lineHeight: 1.6,
-          marginTop: '6px',
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
-        }}
-      >
-        {text}
-        <StreamingIndicator inline />
-      </div>
+      <>
+        <div
+          style={{
+            fontSize: '13px',
+            lineHeight: 1.6,
+            marginTop: '6px',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+          }}
+        >
+          {text}
+          {/* Bare end-of-text cursor only while the MODEL is still generating
+              tokens (no status label yet). Once the text is done and the server
+              is verifying, `statusLabel` is set and we show the labeled block
+              below instead — never an unlabeled spinner. */}
+          {!hasStatus && <StreamingIndicator inline />}
+        </div>
+        {hasStatus && <StreamingIndicator label={statusLabel!} startedAt={statusStartedAt} />}
+      </>
     )
   }
 

@@ -319,6 +319,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
   const enqueueStatus = useCallback((label: string | null): void => {
     const q = statusQueueRef.current
     if (q.length > 0 && q[q.length - 1] === label) return // collapse consecutive dups
+    // Collapse a pending clear that's immediately superseded by a real label.
+    // runVerification emits a trailing `null` before the runtime-probe phase
+    // re-labels ("Checking the server responds", …); without this the queued
+    // null would still get its turn and blank the spinner for one dwell between
+    // phases. A standalone trailing null (genuine end of phase) is preserved.
+    if (label !== null && q.length > 0 && q[q.length - 1] === null) q.pop()
     q.push(label)
     if (!statusTimerRef.current) pumpStatusRef.current()
   }, [])

@@ -1572,6 +1572,8 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     key={bi}
                     text={textContent}
                     isStreaming={isLast && msg.isStreaming}
+                    statusLabel={isLast && msg.isStreaming ? streamingStatus : undefined}
+                    statusStartedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
                   />
                 )
               }
@@ -1637,7 +1639,12 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
               )
             })
           ) : msg.content ? (
-            <MarkdownContent text={msg.content} isStreaming={msg.isStreaming} />
+            <MarkdownContent
+              text={msg.content}
+              isStreaming={msg.isStreaming}
+              statusLabel={msg.isStreaming ? streamingStatus : undefined}
+              statusStartedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
+            />
           ) : null}
 
           {msg.toolCalls &&
