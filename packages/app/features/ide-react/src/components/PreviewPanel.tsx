@@ -503,21 +503,24 @@ export function PreviewPanel({
     return () => clearInterval(timer)
   }, [iframeReady, fadingOut, state.url])
 
-  // --- Auto-reload when AI edits files ---
-  // When preview is broken: reload quickly so the user sees the fix.
-  // When preview is healthy: reload after a longer delay as a safety net in
-  // case Vite HMR didn't pick up the change (common for auth/routing changes).
+  // --- Auto-reload when AI edits files — ONLY while the preview is broken ---
+  // A healthy preview needs nothing from us: Vite HMR applies every edit live,
+  // and Vite itself broadcasts a full reload when a change can't hot-apply. The
+  // old "safety net" (force-reload 3s after EVERY edit even when healthy) made
+  // each HMR-applied change get wiped by a redundant full reload moments later —
+  // the "theme updated, then the whole preview reloaded anyway" flash. When the
+  // preview IS broken (crashed / failed to mount), the document may be an error
+  // page without a live Vite client, so HMR can't deliver the fix — there a
+  // debounced reload after the next edit is the genuine recovery path.
   const fileChangTickRef = useRef(fileChangeTick)
   useEffect(() => {
     if (fileChangTickRef.current === fileChangeTick) return
     fileChangTickRef.current = fileChangeTick
     if (!everLoaded || !state.url) return
-    // Shorter debounce when broken (overlay visible), longer when healthy
-    // to give HMR a chance before force-reloading.
-    const delay = iframeReady ? 3000 : 1500
+    if (iframeReady) return // healthy — trust HMR / Vite's own full-reload
     const timer = setTimeout(() => {
       setIframeSrc(state.url + (state.url.includes('?') ? '&' : '?') + '_r=' + Date.now())
-    }, delay)
+    }, 1500)
     return () => clearTimeout(timer)
   }, [fileChangeTick, iframeReady, everLoaded, state.url])
 
@@ -540,11 +543,13 @@ export function PreviewPanel({
 
   // --- Rendering ---
   const iframeWidth = deviceWidths[state.device] || '100%'
-  // An active build forces the overlay even when the iframe was "ready": a file
-  // edit triggers a Vite reload that blanks the iframe white for a while, and the
-  // overlay covers that with the current edit instead of a blank wall.
+  // `building` selects the overlay CONTENT ("Updating `X`…") while the overlay
+  // is shown for a BROKEN preview during edits — it no longer forces the overlay
+  // over a healthy iframe. It existed to mask the white flash of the old
+  // reload-after-every-edit safety net; with that gone, a healthy preview stays
+  // visible and HMR updates are seen live, uncovered.
   const building = buildingHint != null
-  const showOverlay = Boolean(state.url) && (!iframeReady || fadingOut || building)
+  const showOverlay = Boolean(state.url) && (!iframeReady || fadingOut)
 
   const overlayContent = building ? (
     <DefaultLoadingIndicator
