@@ -297,7 +297,9 @@ export function TabBar({
             isPreview={tab.isPreview}
             isDiff={tab.isDiff}
             gitStatus={fileStatuses?.[tab.path]}
-            diagnostics={tab.diagnostics}
+            // Diff tabs show historical content — error/warning coloring from the
+            // live file's diagnostics would misread as "the diff has errors".
+            diagnostics={tab.isDiff ? undefined : tab.diagnostics}
             onSelect={onSelect}
             onClose={onClose}
             onDoubleClick={onDoubleClick}

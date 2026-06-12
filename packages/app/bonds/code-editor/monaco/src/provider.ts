@@ -948,6 +948,11 @@ export class MonacoEditorProvider implements EditorProvider {
       automaticLayout: true,
       renderSideBySide: true,
       minimap: { enabled: false },
+      // Never render type-check/lint squiggles or gutter marks in a diff view.
+      // The diff panes are ISOLATED single-file models (imports unresolvable, no
+      // project context) and the original side is historical content — any
+      // diagnostics painted on them are misleading noise, not real problems.
+      renderValidationDecorations: 'off',
     } as Record<string, unknown>)
 
     // Create models with explicit URIs so the TS worker can resolve them
@@ -1108,6 +1113,11 @@ export class MonacoEditorProvider implements EditorProvider {
         if (!path) continue
         const tab = this.tabs.get(path)
         if (!tab) continue
+        // Never attach diagnostics to a diff tab. It reuses the real file's path,
+        // so live-file LSP markers would land on it and read as "the diff has
+        // errors" — misleading: the user is reviewing historical content, not
+        // the live file. Diagnostics resume on the normal tab when the diff closes.
+        if (tab.isDiff) continue
         const model = this.monacoModels.get(path)
         if (!model) continue
 
