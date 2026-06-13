@@ -323,6 +323,11 @@ export interface UsePreviewResult {
   refresh: () => void
   setDevice: (device: DeviceFrame) => void
   openExternal: () => void
+  /**
+   * Records a navigation the running preview reported via its `molecule:navigate`
+   * message — updates the displayed current location without reloading the iframe.
+   */
+  recordNavigation: (url: string) => void
 }
 
 // Re-export core types for convenience

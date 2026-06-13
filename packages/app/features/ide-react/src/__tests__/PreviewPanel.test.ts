@@ -134,3 +134,46 @@ describe('PreviewPanel freeze watchdog', () => {
     )
   })
 })
+
+/**
+ * URL bar (PV2): the preview reports its own client-side location via a
+ * `molecule:navigate` postMessage; the panel forwards it to `recordNavigation`
+ * (which updates the URL bar without reloading the iframe). The bar reflects the
+ * preview's CURRENT location and stays editable, committing on Enter. This
+ * package is node-env (no DOM), so these assert the wiring against source.
+ */
+describe('PreviewPanel URL bar (current location)', () => {
+  async function readSource(): Promise<string> {
+    const fs = await import('node:fs/promises')
+    return fs.readFile(new URL('../components/PreviewPanel.tsx', import.meta.url), 'utf-8')
+  }
+
+  it('handles the molecule:navigate message and forwards it to recordNavigation', async () => {
+    const source = await readSource()
+    expect(source).toContain("event.data?.type === 'molecule:navigate'")
+    expect(source).toMatch(
+      /molecule:navigate'[\s\S]*?if \(typeof event\.data\.url === 'string'\) recordNavigation\(event\.data\.url\)/,
+    )
+  })
+
+  it('subscribes recordNavigation as a dependency of the message listener', async () => {
+    const source = await readSource()
+    // The message effect must re-bind when recordNavigation changes.
+    expect(source).toMatch(/\}, \[clearPoll, onPreviewError, recordNavigation\]\)/)
+  })
+
+  it('binds the URL bar to the live current location, not the raw load target', async () => {
+    const source = await readSource()
+    expect(source).toContain('const currentLocation = state.currentUrl || state.url')
+    // The input is a controlled draft synced to the current location.
+    expect(source).toContain('value={urlDraft}')
+    expect(source).toMatch(/if \(!urlEditing\) setUrlDraft\(currentLocation\)/)
+  })
+
+  it('commits a typed URL on Enter (a real load), not on every keystroke', async () => {
+    const source = await readSource()
+    expect(source).toMatch(/if \(e\.key === 'Enter'\)[\s\S]*?if \(next\) setUrl\(next\)/)
+    // No per-keystroke navigation.
+    expect(source).not.toContain('onChange={(e) => setUrl(e.target.value)}')
+  })
+})

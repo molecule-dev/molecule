@@ -121,8 +121,13 @@ export function PreviewPanel({
   buildingHint,
 }: PreviewPanelProps): JSX.Element {
   const cm = getClassMap()
-  const { state, setUrl, refresh, setDevice, openExternal } = usePreview()
+  const { state, setUrl, refresh, setDevice, openExternal, recordNavigation } = usePreview()
   const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  // The preview's actual current location (updated by the scaffold's
+  // `molecule:navigate` message), falling back to the load target before the
+  // preview has reported a location.
+  const currentLocation = state.currentUrl || state.url
 
   // Has the server ever responded successfully?
   const [everLoaded, setEverLoaded] = useState(false)
@@ -153,6 +158,16 @@ export function PreviewPanel({
   // --- Cycle detection: catch rapid ready↔error oscillations ---
   const transitionTimesRef = useRef<number[]>([])
   const suppressedRef = useRef(false)
+
+  // --- URL bar (browser-style: reflects the preview's CURRENT location) ---
+  // A local draft so the user can type freely; it's committed on Enter (a real
+  // load) and resynced to the live location whenever the preview navigates and
+  // the user isn't mid-edit. Editing never reloads per-keystroke.
+  const [urlDraft, setUrlDraft] = useState(currentLocation)
+  const [urlEditing, setUrlEditing] = useState(false)
+  useEffect(() => {
+    if (!urlEditing) setUrlDraft(currentLocation)
+  }, [currentLocation, urlEditing])
 
   // --- Clear poll timer ---
   const clearPoll = useCallback(() => {
@@ -292,6 +307,7 @@ export function PreviewPanel({
   // molecule:runtime-error = JS runtime error in the iframe   → forward to chat
   // molecule:heartbeat   = scaffold alive signal
   // molecule:blank       = page rendered but appears empty
+  // molecule:navigate    = preview's client-side location changed → update URL bar
   useEffect(() => {
     // Debounce runtime errors — HMR triggers rapid error/recovery cycles
     let errorBatch: Array<{ message: string; source?: string; line?: number; column?: number }> = []
@@ -411,6 +427,11 @@ export function PreviewPanel({
         })
       } else if (event.data?.type === 'molecule:heartbeat') {
         lastHeartbeatRef.current = Date.now()
+      } else if (event.data?.type === 'molecule:navigate') {
+        // The preview reported a client-side navigation (see the scaffold-injected
+        // sender). recordNavigation validates the URL and updates the URL bar
+        // (state.currentUrl) without reloading the iframe.
+        if (typeof event.data.url === 'string') recordNavigation(event.data.url)
       } else if (event.data?.type === 'molecule:blank') {
         // Page rendered but appears blank — notify Synthase
         if (onPreviewError) {
@@ -431,7 +452,7 @@ export function PreviewPanel({
       if (debounceTimer) clearTimeout(debounceTimer)
       if (pendingMsg) clearTimeout(pendingMsg)
     }
-  }, [clearPoll, onPreviewError])
+  }, [clearPoll, onPreviewError, recordNavigation])
 
   // --- iframe onError: server unreachable, poll and reload when ready ---
   const handleIframeError = useCallback(() => {
@@ -611,8 +632,20 @@ export function PreviewPanel({
           <input
             type="text"
             data-mol-id="preview-url"
-            value={state.url}
-            onChange={(e) => setUrl(e.target.value)}
+            value={urlDraft}
+            onChange={(e) => setUrlDraft(e.target.value)}
+            onFocus={() => setUrlEditing(true)}
+            onBlur={() => setUrlEditing(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const next = urlDraft.trim()
+                if (next) setUrl(next)
+                e.currentTarget.blur()
+              } else if (e.key === 'Escape') {
+                setUrlDraft(currentLocation)
+                e.currentTarget.blur()
+              }
+            }}
             aria-label={t('ide.preview.urlBar', {}, { defaultValue: 'Preview URL' })}
             className={cm.cn(cm.textSize('xs'), cm.sp('px', 2), cm.sp('py', 1))}
             style={{

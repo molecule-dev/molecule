@@ -44,6 +44,7 @@ export function usePreview(): UsePreviewResult {
     if (
       prev &&
       prev.url === next.url &&
+      prev.currentUrl === next.currentUrl &&
       prev.isLoading === next.isLoading &&
       prev.device === next.device &&
       prev.error === next.error &&
@@ -68,6 +69,7 @@ export function usePreview(): UsePreviewResult {
   const refresh = useCallback(() => provider.refresh(), [provider])
   const setDevice = useCallback((device: DeviceFrame) => provider.setDevice(device), [provider])
   const openExternal = useCallback(() => provider.openExternal(), [provider])
+  const recordNavigation = useCallback((url: string) => provider.recordNavigation(url), [provider])
 
-  return { state, setUrl, refresh, setDevice, openExternal }
+  return { state, setUrl, refresh, setDevice, openExternal, recordNavigation }
 }

@@ -12,6 +12,29 @@ import type { DeviceFrame, PreviewProvider, PreviewState } from '@molecule/app-l
 import type { IframePreviewConfig } from './types.js'
 
 /**
+ * Validates a URL reported by the preview's `molecule:navigate` message. Only
+ * absolute `http`/`https` URLs are accepted — this rejects `javascript:`,
+ * `data:`, `blob:`, `about:` and any unparseable value so a hostile preview can
+ * never inject a dangerous string into the host URL bar. The reported value is
+ * returned unchanged when valid (the preview sends a canonical `location.href`),
+ * so a dedupe against the displayed location stays exact.
+ * @param url - The candidate URL from the navigation message.
+ * @returns The original URL when it is a safe absolute `http(s)` URL, else `null`.
+ */
+function validateNavigationUrl(url: unknown): string | null {
+  if (typeof url !== 'string' || url.length === 0) return null
+  try {
+    const parsed = new URL(url)
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null
+    return url
+  } catch (_error) {
+    // Unparseable URL (e.g. a relative path or garbage) — not a usable absolute
+    // location for the URL bar; ignoring it is the correct, safe behavior.
+    return null
+  }
+}
+
+/**
  * Iframe-based implementation of `PreviewProvider`. Manages preview URL, device frame selection,
  * loading state, and connection status. The actual iframe rendering is handled by a companion React component.
  */
@@ -24,6 +47,7 @@ export class IframePreviewProvider implements PreviewProvider {
   constructor(config: IframePreviewConfig = {}) {
     this.state = {
       url: config.defaultUrl ?? '',
+      currentUrl: config.defaultUrl ?? '',
       isLoading: false,
       device: config.defaultDevice ?? 'none',
       error: null,
@@ -32,11 +56,29 @@ export class IframePreviewProvider implements PreviewProvider {
   }
 
   /**
-   * Sets the preview URL and marks the iframe as loading.
-   * @param url - The new URL to display in the preview iframe.
+   * Sets the preview URL (load target) and marks the iframe as loading. Also
+   * optimistically updates {@link PreviewState.currentUrl} to the new URL; the
+   * preview will confirm (or correct, e.g. on a redirect) the actual location
+   * via {@link IframePreviewProvider.recordNavigation}.
+   * @param url - The new URL to load in the preview iframe.
    */
   setUrl(url: string): void {
-    this.state = { ...this.state, url, isLoading: true, error: null }
+    this.state = { ...this.state, url, currentUrl: url, isLoading: true, error: null }
+    this.notify()
+  }
+
+  /**
+   * Records a navigation reported by the running preview via the
+   * `molecule:navigate` iframe message. Updates {@link PreviewState.currentUrl}
+   * (the URL bar) WITHOUT reloading the document — the preview already navigated
+   * client-side. Non-`http(s)` or unparseable URLs are ignored so a hostile
+   * `javascript:`/`data:` URL can never reach the URL bar.
+   * @param url - The preview's new location (absolute `http`/`https` URL).
+   */
+  recordNavigation(url: string): void {
+    const validated = validateNavigationUrl(url)
+    if (!validated || validated === this.state.currentUrl) return
+    this.state = { ...this.state, currentUrl: validated }
     this.notify()
   }
 
@@ -92,14 +134,16 @@ export class IframePreviewProvider implements PreviewProvider {
     return () => this.subscribers.delete(callback)
   }
 
-  /** Opens the current preview URL in a new browser tab. */
+  /** Opens the preview's current location in a new browser tab. */
   openExternal(): void {
-    if (this.state.url) {
+    // Prefer the actual current location (in-app navigations) over the load target.
+    const target = this.state.currentUrl || this.state.url
+    if (target) {
       try {
-        const parsed = new URL(this.state.url)
+        const parsed = new URL(target)
         // Only allow http/https — block javascript:, data:, and other dangerous schemes
         if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
-          window.open(this.state.url, '_blank', 'noopener,noreferrer')
+          window.open(target, '_blank', 'noopener,noreferrer')
         }
       } catch (_error) {
         // Invalid URL — silently ignore; nothing to open, no state is broken

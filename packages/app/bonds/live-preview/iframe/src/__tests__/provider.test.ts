@@ -115,6 +115,74 @@ describe('@molecule/app-live-preview-iframe', () => {
     })
   })
 
+  describe('currentUrl', () => {
+    it('should default currentUrl to the configured defaultUrl', () => {
+      const provider = new IframePreviewProvider({ defaultUrl: 'http://localhost:3000' })
+      expect(provider.getState().currentUrl).toBe('http://localhost:3000')
+    })
+
+    it('should default currentUrl to empty string with no config', () => {
+      const provider = new IframePreviewProvider()
+      expect(provider.getState().currentUrl).toBe('')
+    })
+
+    it('setUrl should optimistically update currentUrl to the load target', () => {
+      const provider = new IframePreviewProvider()
+      provider.setUrl('http://localhost:5173/foo')
+      expect(provider.getState().currentUrl).toBe('http://localhost:5173/foo')
+    })
+  })
+
+  describe('recordNavigation', () => {
+    it('should update currentUrl (not the load target) and notify', () => {
+      const provider = new IframePreviewProvider({ defaultUrl: 'http://localhost:3000' })
+      const callback = vi.fn()
+      provider.subscribe(callback)
+
+      provider.recordNavigation('http://localhost:3000/about')
+
+      const state = provider.getState()
+      expect(state.currentUrl).toBe('http://localhost:3000/about')
+      // The load target (iframe src) is unchanged — no reload.
+      expect(state.url).toBe('http://localhost:3000')
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('should ignore a duplicate navigation (no notify)', () => {
+      const provider = new IframePreviewProvider({ defaultUrl: 'http://localhost:3000' })
+      const callback = vi.fn()
+      provider.subscribe(callback)
+
+      // currentUrl already equals defaultUrl
+      provider.recordNavigation('http://localhost:3000')
+
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['javascript: scheme', 'javascript:alert(1)'],
+      ['data: scheme', 'data:text/html,<script>1</script>'],
+      ['relative path', '/about'],
+      ['empty string', ''],
+      ['garbage', 'not a url'],
+    ])('should ignore an unsafe/invalid URL: %s', (_label, badUrl) => {
+      const provider = new IframePreviewProvider({ defaultUrl: 'http://localhost:3000' })
+      const callback = vi.fn()
+      provider.subscribe(callback)
+
+      provider.recordNavigation(badUrl)
+
+      expect(provider.getState().currentUrl).toBe('http://localhost:3000')
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('should accept https URLs', () => {
+      const provider = new IframePreviewProvider({ defaultUrl: 'http://localhost:3000' })
+      provider.recordNavigation('https://example.com/page')
+      expect(provider.getState().currentUrl).toBe('https://example.com/page')
+    })
+  })
+
   describe('subscribe', () => {
     it('should return unsubscribe function', () => {
       const provider = new IframePreviewProvider()
