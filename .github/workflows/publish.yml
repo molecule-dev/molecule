@@ -1,0 +1,67 @@
+name: Publish (@molecule/*)
+
+# Explicit, dry-run-first publish of every @molecule/* package via changesets.
+#
+# This is the "big red button": a manually-dispatched (defaults to dry-run) and
+# on-tag publish path, complementary to release.yml (the changesets "Version
+# Packages" PR automation that auto-publishes on merge to main). Use this to
+# validate the publish (dry run) or to publish a tagged release on demand.
+#
+# PARKED — decision D1 (registry + token) is the user's, see
+# molecule-dev/docs/mvp/NPM-PUBLISH-PLAN.md. NOTHING here publishes until BOTH:
+#   1. an `NPM_TOKEN` repo secret is configured (granular, scoped to @molecule), and
+#   2. a real publish is requested (a `v*` tag push, or a manual run with the
+#      `dry_run` input explicitly unchecked).
+# The token is referenced as a secret only — never embedded. The dry-run path
+# needs no secret and no network publish, so the workflow is testable today.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Pack + validate only — do NOT publish to the registry'
+        type: boolean
+        default: true
+  push:
+    tags:
+      - 'v*'
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: read
+  id-token: write # required for npm provenance (signed supply-chain attestations)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          # Writes ~/.npmrc wiring //registry.npmjs.org/:_authToken to
+          # ${NODE_AUTH_TOKEN}. Swap this host if D1 picks a different registry.
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm run build
+
+      # Dry run (default for manual dispatch): pack every workspace and report the
+      # tarball contents. Contacts no registry and needs no token, so it validates
+      # the publish surface without any of the D1 prerequisites.
+      - name: Publish dry run (pack all @molecule/* — no registry, no token)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: npm publish --workspaces --access public --dry-run
+
+      # Real publish: on a v* tag, or a manual run with dry_run unchecked.
+      # `changeset publish` (= `npm run release` minus the rebuild we already did
+      # above) only publishes packages whose local version is newer than the
+      # registry, so re-runs are idempotent. Fails fast if NPM_TOKEN is unset.
+      - name: Publish @molecule/* via changesets
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.dry_run }}
+        run: npx changeset publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true

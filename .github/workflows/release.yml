@@ -12,6 +12,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      id-token: write # npm provenance (signed attestations) on the auto-publish path
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,4 +29,9 @@ jobs:
           commit: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Referenced only — never embedded. Until this secret is configured
+          # (decision D1) the publish step is a no-op auth failure, so nothing
+          # ships. See molecule-dev/docs/mvp/NPM-PUBLISH-PLAN.md.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
