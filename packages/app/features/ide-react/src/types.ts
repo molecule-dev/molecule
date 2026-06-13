@@ -150,6 +150,31 @@ export interface ChatPanelProps {
    * the icon.
    */
   userAvatar?: string | null
+  /**
+   * Display name of the AI coding agent, interpolated into all shared chat copy
+   * that refers to it (the stalled-stream notice, sound-event descriptions, the
+   * `/help` body, tips, `/settings` and command descriptions, the `/scripts`
+   * empty state). The shared IDE owns NO product branding, so the host passes its
+   * own agent brand name. Defaults to the neutral `'the assistant'`
+   * (`DEFAULT_AGENT_NAME` from `@molecule/app-react`) so the package alone never
+   * names a specific product.
+   */
+  agentName?: string
+  /**
+   * Display name of the host product / IDE, interpolated into shared chat copy
+   * that refers to the product (the `/help` intro, the report-confirmation and
+   * report-modal subheading, the command-menu version line). The host passes its
+   * own product brand name; defaults to the neutral `'the IDE'`
+   * (`DEFAULT_PRODUCT_NAME` from `@molecule/app-react`).
+   */
+  productName?: string
+  /**
+   * URL the command-menu "Report a problem" link points at (the host's own issue
+   * tracker / feedback page). The shared IDE owns no product URLs, so when this
+   * is omitted (the default) the link is not rendered. The in-chat `/report`
+   * modal — which POSTs to the project's own backend — is unaffected.
+   */
+  feedbackUrl?: string
   className?: string
 }
 

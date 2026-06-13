@@ -11,7 +11,7 @@
  * Recovery features:
  * - Never-give-up polling with exponential backoff (never permanently stuck)
  * - Stuck-load detection: auto-reloads/remounts iframe if molecule:ready never arrives
- * - Pre-render error forwarding: module/import errors sent to Synthase for auto-fix
+ * - Pre-render error forwarding: module/import errors sent to the agent for auto-fix
  * - Freeze watchdog: the scaffold heartbeats every ~3s; if its thread locks up the
  *   beats stop, so we surface a reload banner (the IDE stays responsive because the
  *   preview origin is isolated via Origin-Agent-Cluster)
@@ -416,7 +416,7 @@ export function PreviewPanel({
         }, MSG_RATE_LIMIT_MS)
       } else if (event.data?.type === 'molecule:error' && !event.data.crash && event.data.message) {
         // Pre-render error — app failed to mount (e.g., module export missing, import error).
-        // Forward to Synthase so it can fix the issue.
+        // Forward to the agent so it can fix the issue.
         queueError({
           message: String(event.data.message),
           source: event.data.source ? String(event.data.source) : 'pre-render',
@@ -438,7 +438,7 @@ export function PreviewPanel({
         // (state.currentUrl) without reloading the iframe.
         if (typeof event.data.url === 'string') recordNavigation(event.data.url)
       } else if (event.data?.type === 'molecule:blank') {
-        // Page rendered but appears blank — notify Synthase
+        // Page rendered but appears blank — notify the agent
         if (onPreviewError) {
           onPreviewError([
             {
@@ -882,7 +882,7 @@ function BarButton({
  * Molecule-themed status phrases rotated in the preview overlay. A build edits
  * files rapidly, so the preview can reload (or briefly blank) many times before it
  * settles — a static "Loading preview…" left users wondering what was happening.
- * Rotating phrases read as "Synthase is actively working", not "broken".
+ * Rotating phrases read as "the agent is actively working", not "broken".
  */
 const PREVIEW_MESSAGES: ReadonlyArray<{ key: string; defaultValue: string }> = [
   { key: 'ide.preview.msg.synthesizing', defaultValue: 'Synthesizing components…' },

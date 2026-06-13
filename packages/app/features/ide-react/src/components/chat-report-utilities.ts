@@ -106,8 +106,10 @@ export function isReportFormValid(form: ReportFormState): boolean {
 
 /**
  * Builds the confirmation message shown after a report is submitted. Returns the
- * English defaults; the component passes these through `t()` at render. When the
- * result is not `ok`, returns the failure message.
+ * English defaults; the component passes these through `t()` at render. The
+ * success `defaultValue` may contain the `{{productName}}` interpolation token,
+ * which the caller fills in from the host's product identity (neutral default:
+ * "the IDE"). When the result is not `ok`, returns the failure message.
  *
  * @param result - The `POST /projects/:id/report` response.
  * @returns `{ key, defaultValue }` for the confirmation/failure message.
@@ -130,6 +132,6 @@ export function formatReportConfirmation(result: ReportResult): {
   }
   return {
     key: 'ide.chat.report.submitted',
-    defaultValue: 'Thanks! Your report was submitted to the Molecule.dev team.',
+    defaultValue: "Thanks! Your report was submitted to {{productName}}'s team.",
   }
 }

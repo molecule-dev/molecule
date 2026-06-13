@@ -6,6 +6,8 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { DEFAULT_AGENT_IDENTITY } from '@molecule/app-react'
+
 import { COMMAND_CATEGORIES, COMMANDS } from '../components/chat-commands.js'
 import { buildHelpText } from '../components/chat-help-utilities.js'
 
@@ -39,18 +41,34 @@ describe('buildHelpText', () => {
   })
 
   it('reflects new registry entries automatically (cannot drift)', () => {
-    const custom = buildHelpText(
-      [
-        {
-          id: 'frobnicate',
-          label: '/frobnicate',
-          description: 'do the thing',
-          category: 'support',
-        },
-      ],
-      COMMAND_CATEGORIES,
-    )
+    const custom = buildHelpText(DEFAULT_AGENT_IDENTITY, [
+      {
+        id: 'frobnicate',
+        label: '/frobnicate',
+        description: 'do the thing',
+        category: 'support',
+      },
+    ])
     expect(custom).toContain('/frobnicate')
     expect(custom).toContain('do the thing')
+  })
+
+  // PKG1 (molecule.dev-leaks-in-core): the shared package must NOT hardcode a
+  // product's agent/product name. With the neutral default identity the help
+  // copy reads "the assistant" / "the IDE" and contains no product tell.
+  it('uses the neutral default identity — no Synthase / Molecule.dev product tell', () => {
+    expect(help).not.toMatch(/Synthase/)
+    expect(help).not.toMatch(/Molecule\.dev/)
+    expect(help).toContain('the assistant')
+    expect(help).toContain('the IDE')
+  })
+
+  it('interpolates a host-supplied agent + product name into the help copy', () => {
+    const custom = buildHelpText({ agentName: 'Fable', productName: 'Acme Studio' })
+    expect(custom).toContain('Fable')
+    expect(custom).toContain('Acme Studio')
+    // No stray, un-substituted interpolation tokens leak into the rendered copy.
+    expect(custom).not.toContain('{{agentName}}')
+    expect(custom).not.toContain('{{productName}}')
   })
 })

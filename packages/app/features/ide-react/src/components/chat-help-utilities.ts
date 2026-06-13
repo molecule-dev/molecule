@@ -12,6 +12,7 @@
  */
 
 import { t } from '@molecule/app-i18n'
+import { type AgentIdentity, DEFAULT_AGENT_IDENTITY } from '@molecule/app-react'
 
 import type { CommandCategory, CommandDef } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
@@ -21,22 +22,32 @@ import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
  * conversation modes, and efficiency tips. Generated from the command registry
  * so it stays in sync automatically.
  *
+ * @param identity - Agent/product display identity used to interpolate the
+ *   `{{agentName}}` / `{{productName}}` tokens in the help copy (defaults to the
+ *   neutral {@link DEFAULT_AGENT_IDENTITY} so the shared package never hardcodes
+ *   a product name).
  * @param commands - Command registry to enumerate (defaults to {@link COMMANDS}).
  * @param categories - Ordered categories used as section headings (defaults to {@link COMMAND_CATEGORIES}).
  * @returns The fully-formatted, newline-delimited help text.
  */
 export function buildHelpText(
+  identity: AgentIdentity = DEFAULT_AGENT_IDENTITY,
   commands: readonly CommandDef[] = COMMANDS,
   categories: readonly CommandCategory[] = COMMAND_CATEGORIES,
 ): string {
+  const { agentName, productName } = identity
   const lines: string[] = []
 
   lines.push(
     t('ide.chat.help.introHeading', undefined, { defaultValue: '── Getting Started ──' }),
-    t('ide.chat.help.intro', undefined, {
-      defaultValue:
-        "Synthase is Molecule.dev's AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.",
-    }),
+    t(
+      'ide.chat.help.intro',
+      { agentName, productName },
+      {
+        defaultValue:
+          "{{agentName}} is {{productName}}'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.",
+      },
+    ),
     '',
   )
 
@@ -49,9 +60,13 @@ export function buildHelpText(
       t(`ide.chat.help.category.${category.key}`, undefined, { defaultValue: category.label }),
     )
     for (const cmd of inCategory) {
-      const description = t(`ide.chat.cmd.${cmd.id}.desc`, undefined, {
-        defaultValue: cmd.description,
-      })
+      const description = t(
+        `ide.chat.cmd.${cmd.id}.desc`,
+        { agentName },
+        {
+          defaultValue: cmd.description,
+        },
+      )
       lines.push(`  ${cmd.label} — ${description}`)
     }
     lines.push('')
@@ -60,18 +75,30 @@ export function buildHelpText(
   // ── Modes ──
   lines.push(
     t('ide.chat.help.modesHeading', undefined, { defaultValue: '── Modes ──' }),
-    t('ide.chat.help.modeDiscovery', undefined, {
-      defaultValue:
-        'Discovery — new conversations start here. Synthase asks clarifying questions to nail down requirements before writing any code.',
-    }),
-    t('ide.chat.help.modePlan', undefined, {
-      defaultValue:
-        'Plan — Synthase researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
-    }),
-    t('ide.chat.help.modeExecute', undefined, {
-      defaultValue:
-        'Execute — the default working mode. Synthase writes code, runs tools, and applies changes, then verifies them.',
-    }),
+    t(
+      'ide.chat.help.modeDiscovery',
+      { agentName },
+      {
+        defaultValue:
+          'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
+      },
+    ),
+    t(
+      'ide.chat.help.modePlan',
+      { agentName },
+      {
+        defaultValue:
+          'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
+      },
+    ),
+    t(
+      'ide.chat.help.modeExecute',
+      { agentName },
+      {
+        defaultValue:
+          'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
+      },
+    ),
     '',
   )
 
@@ -85,9 +112,13 @@ export function buildHelpText(
     t('ide.chat.help.tipSlash', undefined, {
       defaultValue: '• Type / to browse every command above.',
     }),
-    t('ide.chat.help.tipPlan', undefined, {
-      defaultValue: '• Use /plan to have Synthase research before making changes.',
-    }),
+    t(
+      'ide.chat.help.tipPlan',
+      { agentName },
+      {
+        defaultValue: '• Use /plan to have {{agentName}} research before making changes.',
+      },
+    ),
     t('ide.chat.help.tipUndo', undefined, {
       defaultValue: "• Use /undo to revert the last AI turn's file changes if it goes off track.",
     }),

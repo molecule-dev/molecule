@@ -20,7 +20,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
-import { useHttpClient, useThemeMode } from '@molecule/app-react'
+import { DEFAULT_PRODUCT_NAME, useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ReportFormState, ReportResult } from './chat-report-utilities.js'
@@ -42,6 +42,7 @@ const logger = getLogger('report-modal')
  * @param root0.initialTitle - Seed title from `/report <title>` (empty otherwise).
  * @param root0.onClose - Called when the modal is dismissed (Cancel, Escape, backdrop).
  * @param root0.onSubmitted - Called with the server result after a successful POST.
+ * @param root0.productName - Display name of the host product, interpolated into the subheading (neutral default: "the IDE").
  * @returns The rendered report modal.
  */
 export function ReportModal({
@@ -50,12 +51,14 @@ export function ReportModal({
   initialTitle,
   onClose,
   onSubmitted,
+  productName = DEFAULT_PRODUCT_NAME,
 }: {
   projectId: string
   conversationId?: string | null
   initialTitle?: string
   onClose: () => void
   onSubmitted: (result: ReportResult) => void
+  productName?: string
 }): JSX.Element {
   const cm = getClassMap()
   const http = useHttpClient()
@@ -148,10 +151,14 @@ export function ReportModal({
           {t('ide.chat.report.heading', undefined, { defaultValue: 'Report a bug' })}
         </div>
         <div className={cm.textMuted} style={{ marginBottom: 12, lineHeight: 1.4 }}>
-          {t('ide.chat.report.subheading', undefined, {
-            defaultValue:
-              'Tell us what went wrong or what you’d like to see. Goes to the Molecule.dev team.',
-          })}
+          {t(
+            'ide.chat.report.subheading',
+            { productName },
+            {
+              defaultValue:
+                'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
+            },
+          )}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

@@ -1,5 +1,5 @@
 /**
- * `@molecule/app-ide-react` — React IDE components for molecule.dev workspace.
+ * `@molecule/app-ide-react` — React IDE components for an AI-powered workspace.
  *
  * @example
  * ```tsx

@@ -7,7 +7,7 @@
  * deliberately NOT a re-use of `@molecule/app-ui-react`'s `Icon`: that package
  * has no subpath exports, so importing it would pull its whole barrel — and its
  * `react-router-dom` peer — into this feature package. The contract is all the
- * IDE needs, and the host app (molecule.dev) already wires the icon set.
+ * IDE needs, and the host app already wires the icon set.
  *
  * @module
  */

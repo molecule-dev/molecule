@@ -5,7 +5,7 @@
  * (`.agents/scripts/<name>.sh`) carrying a YAML frontmatter header (`name`,
  * `description`, `createdAt`). The UI lists them via `GET /projects/:id/scripts`,
  * runs one via `POST /projects/:id/scripts/:name/run`, and saves a new one (e.g.
- * one Synthase just generated) via `POST /projects/:id/scripts`.
+ * one the agent just generated) via `POST /projects/:id/scripts`.
  *
  * These helpers parse the slash commands, normalize a script name into the safe
  * filename base the backend expects, resolve a typed `/run` argument against the

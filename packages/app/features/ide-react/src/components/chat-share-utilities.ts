@@ -2,8 +2,8 @@
  * Pure helpers backing the `/share <role>` command and the header share button.
  *
  * `/share` creates a public share link for the current project by POSTing
- * `{ role }` to `POST /projects/:projectId/shares`. The backend (wired in
- * molecule-dev) mints a slug-bearing link row and returns it; anyone who opens
+ * `{ role }` to `POST /projects/:projectId/shares`. The backend (wired in the
+ * host app) mints a slug-bearing link row and returns it; anyone who opens
  * `GET /share/:slug` is granted that role — a `viewer` link is an
  * unauthenticated read. Roles, least- to most-privileged: viewer, commenter,
  * editor, owner. The default — and the safest — role is `viewer`.

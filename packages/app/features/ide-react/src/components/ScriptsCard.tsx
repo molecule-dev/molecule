@@ -6,7 +6,7 @@
  * loaded via `GET /projects/:id/scripts`. A search box filters by name or
  * description (seeded from `/scripts <query>`), each row has a "Run" action that
  * `POST`s to the run endpoint and shows the captured output inline, and a
- * collapsible "New script" creator `POST`s a script the user (or Synthase) just
+ * collapsible "New script" creator `POST`s a script the user (or the agent) just
  * authored back to `POST /projects/:id/scripts`.
  *
  * Styling uses `getClassMap()` (`cm.*`); the only inline styles are layout the
@@ -20,7 +20,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
-import { useHttpClient } from '@molecule/app-react'
+import { DEFAULT_AGENT_NAME, useHttpClient } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ScriptInfo, ScriptRunResult } from './chat-scripts-utilities.js'
@@ -47,16 +47,19 @@ type RunState = 'running' | ScriptRunResult
  * @param root0.projectId - The project whose scripts to list and run.
  * @param root0.initialQuery - Seed query from `/scripts <query>` (empty for a bare `/scripts`).
  * @param root0.isLight - Whether the current theme is light mode (drives subtle tints).
+ * @param root0.agentName - Display name of the AI coding agent, interpolated into the empty-state copy (neutral default: "the assistant").
  * @returns The rendered scripts card.
  */
 export function ScriptsCard({
   projectId,
   initialQuery,
   isLight,
+  agentName = DEFAULT_AGENT_NAME,
 }: {
   projectId: string
   initialQuery: string
   isLight: boolean
+  agentName?: string
 }): JSX.Element {
   const cm = getClassMap()
   const http = useHttpClient()
@@ -283,10 +286,14 @@ export function ScriptsCard({
                 { query: query.trim() },
                 { defaultValue: `No scripts match “${query.trim()}”.` },
               )
-            : t('ide.chat.scripts.empty', undefined, {
-                defaultValue:
-                  'No saved scripts yet. Create one above, or ask Synthase to write and save one.',
-              })}
+            : t(
+                'ide.chat.scripts.empty',
+                { agentName },
+                {
+                  defaultValue:
+                    'No saved scripts yet. Create one above, or ask {{agentName}} to write and save one.',
+                },
+              )}
         </div>
       )}
 

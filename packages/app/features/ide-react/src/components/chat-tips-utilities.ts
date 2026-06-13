@@ -14,7 +14,11 @@
 export interface TipDef {
   /** Stable id (also used as the i18n key suffix). */
   id: string
-  /** English default text, rendered via `t('ide.chat.tip.<id>', …, { defaultValue })`. */
+  /**
+   * English default text, rendered via `t('ide.chat.tip.<id>', { agentName }, { defaultValue })`.
+   * May contain the `{{agentName}}` interpolation token, filled in by the caller
+   * from the host's agent identity (neutral default: "the assistant").
+   */
   text: string
 }
 
@@ -26,7 +30,7 @@ export interface TipDef {
 export const CHAT_TIPS: readonly TipDef[] = [
   {
     id: 'mention',
-    text: 'Tip: type @filename to attach a project file as context — Synthase reads it directly.',
+    text: 'Tip: type @filename to attach a project file as context — {{agentName}} reads it directly.',
   },
   {
     id: 'slash',
@@ -34,7 +38,7 @@ export const CHAT_TIPS: readonly TipDef[] = [
   },
   {
     id: 'plan',
-    text: 'Tip: use /plan to have Synthase research and propose a plan before it edits any files.',
+    text: 'Tip: use /plan to have {{agentName}} research and propose a plan before it edits any files.',
   },
   {
     id: 'undo',

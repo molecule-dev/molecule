@@ -42,7 +42,12 @@ export interface CommandDef {
   id: string
   /** Display label including the leading slash (e.g. `'/help'`). */
   label: string
-  /** Short description shown in the menu and in `/help` (English default). */
+  /**
+   * Short description shown in the menu and in `/help` (English default). May
+   * contain the `{{agentName}}` interpolation token, filled in by the render
+   * sites (command menu, `/help`, `/settings` card) from the host's agent
+   * identity (neutral default: "the assistant").
+   */
   description: string
   /** Category this command is grouped under. */
   category: CommandCategoryKey
@@ -176,7 +181,7 @@ export const COMMANDS: readonly CommandDef[] = [
   {
     id: 'settings',
     label: '/settings',
-    description: 'View & change Synthase settings',
+    description: "View & change {{agentName}}'s settings",
     category: 'settings',
   },
   {

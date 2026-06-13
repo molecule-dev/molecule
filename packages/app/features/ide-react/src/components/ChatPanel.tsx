@@ -37,7 +37,14 @@ import {
 } from '@molecule/app-ai-models'
 import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
-import { useAIModels, useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
+import {
+  DEFAULT_AGENT_NAME,
+  DEFAULT_PRODUCT_NAME,
+  useAIModels,
+  useChat,
+  useHttpClient,
+  useThemeMode,
+} from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ChatEventCardAction, ChatEventCardSegment } from '../customEventCards.js'
@@ -281,11 +288,11 @@ const SOUND_EVENT_LABELS: Record<SoundEventType, string> = {
 
 /** Brief descriptions for each sound event. */
 const SOUND_EVENT_DESCRIPTIONS: Record<SoundEventType, string> = {
-  done: 'Synthase finished responding',
+  done: '{{agentName}} finished responding',
   error: 'Something went wrong during a response',
   tool_result: 'A tool call (file read, command, etc.) completed',
   file_diff: 'A file was created or modified',
-  commit_suggestion: 'Synthase is suggesting files to commit',
+  commit_suggestion: '{{agentName}} is suggesting files to commit',
   mode: 'Switched between plan mode and execute mode',
   loop_limit_reached: 'Hit the max tool iterations limit',
   verification_result: 'Lint or type-check finished running',
@@ -1928,6 +1935,12 @@ interface ChatInnerProps {
   gitStatusTick?: number
   /** Signed-in user's avatar shown beside their own messages (SOC1) — see {@link ChatPanelProps.userAvatar}. */
   userAvatar?: string | null
+  /** Display name of the AI coding agent — see {@link ChatPanelProps.agentName}. */
+  agentName?: string
+  /** Display name of the host product / IDE — see {@link ChatPanelProps.productName}. */
+  productName?: string
+  /** Command-menu "Report a problem" URL — see {@link ChatPanelProps.feedbackUrl}. */
+  feedbackUrl?: string
 }
 
 /**
@@ -2003,6 +2016,9 @@ function ChatInner({
   userEditedFileKey,
   gitStatusTick: externalGitStatusTick,
   userAvatar,
+  agentName = DEFAULT_AGENT_NAME,
+  productName = DEFAULT_PRODUCT_NAME,
+  feedbackUrl,
 }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
   const themeMode = useThemeMode()
@@ -2131,7 +2147,7 @@ function ChatInner({
       }
       // App-specific custom event: look up a renderer the host app registered via
       // registerCustomEventCard and surface it as a system card. This is how host
-      // apps deliver their OWN notices (e.g. molecule.dev's upgrade_prompt /
+      // apps deliver their OWN notices (e.g. the host app's upgrade_prompt /
       // guest_reminder / build_degraded cards) — including the periodic sign-up
       // reminder, now emitted by the host's backend rather than counted here — so
       // their copy/routes stay out of this shared component. `emphasized` lets the
@@ -2317,6 +2333,7 @@ function ChatInner({
   } = useChat({
     endpoint,
     projectId,
+    agentName,
     // Skip the on-mount history load when this panel will auto-send a fresh
     // message — either the `initialMessage` prop or a seeded `initialInputValue`
     // (the prompt→chat morph). The server creates the conversation with the user
@@ -2769,7 +2786,7 @@ function ChatInner({
       const tip = pickIdleTip(shownTipIdsRef.current, Math.random())
       shownTipIdsRef.current = [...shownTipIdsRef.current, tip.id]
       lastTipAtRef.current = Date.now()
-      const text = t(`ide.chat.tip.${tip.id}`, undefined, { defaultValue: tip.text })
+      const text = t(`ide.chat.tip.${tip.id}`, { agentName }, { defaultValue: tip.text })
       setTipCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
     }, TIP_IDLE_MS)
     return () => clearTimeout(timer)
@@ -3560,7 +3577,7 @@ function ChatInner({
         setInputValue('')
         // Generated from the COMMANDS registry so it can never drift — lists every
         // command grouped by category, the modes, and efficiency tips.
-        const lines = [buildHelpText()]
+        const lines = [buildHelpText({ agentName, productName })]
         // Any plan/upgrade blurb is app-specific (pricing, plan names, model lists),
         // so the host supplies it via buildHelpUpgradeSection — this shared package
         // hardcodes none. When unset, /help shows just the command reference.
@@ -4723,6 +4740,7 @@ function ChatInner({
                     settings={settings}
                     onRunCommand={(commandId) => void executeCommand(commandId)}
                     isLight={isLight}
+                    agentName={agentName}
                   />
                 )
               }
@@ -4744,6 +4762,7 @@ function ChatInner({
                     projectId={projectId}
                     initialQuery={item.card.query ?? ''}
                     isLight={isLight}
+                    agentName={agentName}
                   />
                 )
               }
@@ -5317,7 +5336,13 @@ function ChatInner({
                               {cmd.label}
                             </span>
                             <span className={cm.textMuted} style={{ fontSize: '12px' }}>
-                              {cmd.description}
+                              {t(
+                                `ide.chat.cmd.${cmd.id}.desc`,
+                                { agentName },
+                                {
+                                  defaultValue: cmd.description,
+                                },
+                              )}
                               {suffix && (
                                 <span
                                   style={{
@@ -5349,17 +5374,25 @@ function ChatInner({
                     flexShrink: 0,
                   }}
                 >
-                  <a
-                    href="https://github.com/molecule-dev/molecule/issues"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: 'inherit', opacity: 0.7, textDecoration: 'underline' }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {t('ide.chat.reportProblem', undefined, { defaultValue: 'Report a problem' })}
-                  </a>
+                  {feedbackUrl ? (
+                    <a
+                      href={feedbackUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'inherit', opacity: 0.7, textDecoration: 'underline' }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {t('ide.chat.reportProblem', undefined, { defaultValue: 'Report a problem' })}
+                    </a>
+                  ) : (
+                    <span />
+                  )}
                   <span style={{ opacity: 0.5 }}>
-                    {t('ide.chat.version', undefined, { defaultValue: 'Molecule.dev v0.1.0' })}
+                    {t(
+                      'ide.chat.version',
+                      { productName },
+                      { defaultValue: '{{productName}} v0.1.0' },
+                    )}
                   </span>
                 </div>
               </div>
@@ -5868,9 +5901,13 @@ function ChatInner({
                       className={cm.textMuted}
                       style={{ fontSize: '11px', marginTop: '2px', opacity: 0.7 }}
                     >
-                      {t(`ide.chat.soundEventDesc.${eventType}`, undefined, {
-                        defaultValue: SOUND_EVENT_DESCRIPTIONS[eventType],
-                      })}
+                      {t(
+                        `ide.chat.soundEventDesc.${eventType}`,
+                        { agentName },
+                        {
+                          defaultValue: SOUND_EVENT_DESCRIPTIONS[eventType],
+                        },
+                      )}
                     </div>
                   </button>
                 )
@@ -6703,12 +6740,13 @@ function ChatInner({
           projectId={projectId}
           conversationId={conversationId}
           initialTitle={reportModal.title}
+          productName={productName}
           onClose={() => setReportModal(null)}
           onSubmitted={(result: ReportResult) => {
             setReportModal(null)
             const { key, defaultValue } = formatReportConfirmation(result)
             addSystemCard(
-              t(key, undefined, { defaultValue }),
+              t(key, { productName }, { defaultValue }),
               result.url
                 ? {
                     label: t('ide.chat.report.viewIssue', undefined, {
@@ -6823,6 +6861,9 @@ export function ChatPanel({
   buildUpgradeCta,
   buildHelpUpgradeSection,
   userAvatar,
+  agentName,
+  productName,
+  feedbackUrl,
   className,
 }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
@@ -7211,6 +7252,9 @@ export function ChatPanel({
         userEditedFileKey={userEditedFileKey}
         gitStatusTick={gitStatusTick}
         userAvatar={userAvatar}
+        agentName={agentName}
+        productName={productName}
+        feedbackUrl={feedbackUrl}
       />
     </div>
   )

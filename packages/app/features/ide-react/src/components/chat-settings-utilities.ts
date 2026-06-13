@@ -1,7 +1,7 @@
 /**
  * Pure helpers backing the `/settings` view.
  *
- * Enumerates every user-controllable Synthase setting that ChatPanel keeps in
+ * Enumerates every user-controllable agent setting that ChatPanel keeps in
  * client state (model, mode, max tool loops, auto-fix, notification sounds)
  * into a flat, declarative list of {@link SettingDescriptor}s. Splitting the
  * enumeration out of the React component lets it be unit tested without
@@ -58,9 +58,13 @@ export interface SettingsDisplayValues {
 }
 
 /**
- * Builds the ordered list of user-controllable Synthase settings, each tagged
+ * Builds the ordered list of user-controllable agent settings, each tagged
  * with the slash command that edits it. Reflects the values passed in so the
  * `/settings` card always shows the live state.
+ *
+ * Each `description` may contain the `{{agentName}}` interpolation token; the
+ * caller ({@link SettingsCard}) fills it in from the host's agent identity
+ * (neutral default: "the assistant") at render time.
  *
  * @param values - Display-ready current values for each setting.
  * @returns One {@link SettingDescriptor} per controllable setting, in display order.
@@ -70,7 +74,7 @@ export function buildSettingsList(values: SettingsDisplayValues): SettingDescrip
     {
       id: 'model',
       label: 'Model',
-      description: 'The AI model Synthase uses to plan and write code.',
+      description: 'The AI model {{agentName}} uses to plan and write code.',
       value: values.model,
       editCommand: 'model',
     },
@@ -86,7 +90,7 @@ export function buildSettingsList(values: SettingsDisplayValues): SettingDescrip
       id: 'maxLoops',
       label: 'Max tool iterations',
       description:
-        'Upper bound on the tool calls Synthase runs in one turn before it pauses for you.',
+        'Upper bound on the tool calls {{agentName}} runs in one turn before it pauses for you.',
       value: values.maxLoops,
       editCommand: 'maxloops',
     },
@@ -94,7 +98,7 @@ export function buildSettingsList(values: SettingsDisplayValues): SettingDescrip
       id: 'autoFix',
       label: 'Auto-fix',
       description:
-        'After AI edits, re-run type-check and lint and feed any errors back so Synthase fixes them.',
+        'After AI edits, re-run type-check and lint and feed any errors back so {{agentName}} fixes them.',
       value: values.autoFix,
       editCommand: 'autofix',
     },

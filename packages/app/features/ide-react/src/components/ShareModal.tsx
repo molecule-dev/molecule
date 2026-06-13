@@ -4,7 +4,7 @@
  * A centered modal that creates a public share link for the current project. The
  * user picks a role (viewer / commenter / editor / owner — default viewer) and
  * the modal POSTs `{ role }` to `POST /projects/:projectId/shares`. The backend
- * (wired in molecule-dev) mints a slug-bearing link and returns it; the modal
+ * (wired in the host app) mints a slug-bearing link and returns it; the modal
  * then renders the resulting URL in a read-only field with a copy-to-clipboard
  * button so the user can hand it out. Opening `GET /share/:slug` grants that
  * role (a `viewer` link is an unauthenticated read).

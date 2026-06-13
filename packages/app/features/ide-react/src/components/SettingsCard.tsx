@@ -3,7 +3,7 @@
  *
  * Renders an in-timeline card with two sections:
  *
- * 1. **Settings** — every user-controllable Synthase setting (model, mode, max
+ * 1. **Settings** — every user-controllable agent setting (model, mode, max
  *    tool iterations, auto-fix, notification sounds) with its current value, a
  *    one-line description, and an inline "Edit" affordance that runs the slash
  *    command which changes it (so the picker/toggle opens in the chat input).
@@ -21,6 +21,7 @@
 import type { JSX } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import { DEFAULT_AGENT_NAME } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { CommandId } from './chat-commands.js'
@@ -34,16 +35,19 @@ import type { SettingDescriptor } from './chat-settings-utilities.js'
  * @param root0.settings - The enumerated, display-ready user-controllable settings.
  * @param root0.onRunCommand - Runs a slash command (used by the inline "Edit" buttons).
  * @param root0.isLight - Whether the current theme is light mode (drives subtle tints).
+ * @param root0.agentName - Display name of the AI coding agent, interpolated into the setting/command descriptions (neutral default: "the assistant").
  * @returns The rendered settings card.
  */
 export function SettingsCard({
   settings,
   onRunCommand,
   isLight,
+  agentName = DEFAULT_AGENT_NAME,
 }: {
   settings: readonly SettingDescriptor[]
   onRunCommand: (id: CommandId) => void
   isLight: boolean
+  agentName?: string
 }): JSX.Element {
   const cm = getClassMap()
   const groups = groupCommandsByCategory()
@@ -96,9 +100,13 @@ export function SettingsCard({
                 </span>
               </div>
               <div className={cm.textMuted} style={{ marginTop: 2, lineHeight: 1.4 }}>
-                {t(`ide.chat.settings.${setting.id}.desc`, undefined, {
-                  defaultValue: setting.description,
-                })}
+                {t(
+                  `ide.chat.settings.${setting.id}.desc`,
+                  { agentName },
+                  {
+                    defaultValue: setting.description,
+                  },
+                )}
               </div>
             </div>
             {setting.editCommand && (
@@ -152,7 +160,11 @@ export function SettingsCard({
                   {cmd.usage ?? cmd.label}
                 </code>
                 <span className={cm.textMuted} style={{ lineHeight: 1.4 }}>
-                  {t(`ide.chat.cmd.${cmd.id}.desc`, undefined, { defaultValue: cmd.description })}
+                  {t(
+                    `ide.chat.cmd.${cmd.id}.desc`,
+                    { agentName },
+                    { defaultValue: cmd.description },
+                  )}
                 </span>
               </div>
             ))}
