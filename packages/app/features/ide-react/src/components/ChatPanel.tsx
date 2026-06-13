@@ -55,6 +55,15 @@ import {
 } from './chat-autocommit-utilities.js'
 import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
+import type { EffortLevel } from './chat-effort-utilities.js'
+import {
+  DEFAULT_EFFORT_LEVEL,
+  EFFORT_LEVEL_LABELS,
+  EFFORT_LEVELS,
+  isEffortLevel,
+  modelsSupportingEffort,
+  parseEffortCommand,
+} from './chat-effort-utilities.js'
 import { buildHelpText } from './chat-help-utilities.js'
 import type { ModelMode } from './chat-model-mode-utilities.js'
 import {
@@ -2753,6 +2762,8 @@ function ChatInner({
   // falls back to currentModel (the legacy single chatModel) for back-compat.
   const [planModel, setPlanModel] = useState<string>('')
   const [executeModel, setExecuteModel] = useState<string>('')
+  // Reasoning effort level (SYN6) — applied by the backend at chat-call time.
+  const [effortLevel, setEffortLevel] = useState<EffortLevel>(DEFAULT_EFFORT_LEVEL)
   const [currentMaxLoops, setCurrentMaxLoops] = useState<number>(100)
   const [autoFixEnabled, setAutoFixEnabled] = useState<boolean>(true)
   // Adopt the free-tier model id as soon as the catalog resolves, unless the
@@ -2770,6 +2781,9 @@ function ChatInner({
         if (typeof s?.chatModel === 'string') setCurrentModel(s.chatModel)
         if (typeof s?.planModel === 'string') setPlanModel(s.planModel)
         if (typeof s?.executeModel === 'string') setExecuteModel(s.executeModel)
+        if (typeof s?.effortLevel === 'string' && isEffortLevel(s.effortLevel)) {
+          setEffortLevel(s.effortLevel)
+        }
         if (typeof s?.maxToolLoops === 'number') setCurrentMaxLoops(s.maxToolLoops)
         if (typeof s?.autoFix === 'boolean') setAutoFixEnabled(s.autoFix)
         if (s?.sounds && typeof s.sounds === 'object') {
@@ -3474,6 +3488,9 @@ function ChatInner({
         }
       } else if (id === 'maxloops') {
         setInputAndCursorEnd('/maxloops ')
+      } else if (id === 'effort') {
+        // Prefill so the user types a level; /effort ? (or bare) shows status.
+        setInputAndCursorEnd('/effort ')
       } else if (id === 'help') {
         setInputValue('')
         // Generated from the COMMANDS registry so it can never drift — lists every
@@ -4009,6 +4026,76 @@ function ChatInner({
       }
       setInputValue('')
       setModelPicker(null)
+      return
+    }
+
+    // Handle /effort <S|M|L|XL> and /effort ? locally — persists effortLevel;
+    // the backend applies it to the provider reasoning/budget param (and the
+    // agent-loop budget) at chat-call time.
+    const effortCmd = parseEffortCommand(trimmed)
+    if (effortCmd) {
+      setInputValue('')
+      if (effortCmd.kind === 'invalid') {
+        addSystemCard(
+          t('ide.chat.effort.usage', undefined, {
+            defaultValue: 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+          }),
+        )
+      } else if (effortCmd.kind === 'query') {
+        const supported = modelsSupportingEffort(AVAILABLE_MODELS)
+        const lines: string[] = [
+          t(
+            'ide.chat.effort.current',
+            { level: effortLevel, label: EFFORT_LEVEL_LABELS[effortLevel] },
+            {
+              defaultValue: `Reasoning effort: ${effortLevel} (${EFFORT_LEVEL_LABELS[effortLevel]})`,
+            },
+          ),
+          '',
+          t('ide.chat.effort.levelsHeader', undefined, { defaultValue: 'Levels:' }),
+          ...EFFORT_LEVELS.map((lvl) =>
+            t(
+              'ide.chat.effort.levelLine',
+              { level: lvl, label: EFFORT_LEVEL_LABELS[lvl] },
+              { defaultValue: `  ${lvl} — ${EFFORT_LEVEL_LABELS[lvl]}` },
+            ),
+          ),
+          '',
+          supported.length
+            ? t(
+                'ide.chat.effort.supported',
+                { models: supported.map((m) => m.label).join(', ') },
+                {
+                  defaultValue: `Tunes the reasoning budget on: ${supported.map((m) => m.label).join(', ')}. Other models still get the effort applied to the agent loop budget.`,
+                },
+              )
+            : t('ide.chat.effort.noneSupported', undefined, {
+                defaultValue:
+                  'No bonded model exposes a configurable reasoning budget — effort still scales the agent loop budget.',
+              }),
+        ]
+        addSystemCard(lines.join('\n'))
+      } else {
+        const level = effortCmd.level
+        try {
+          await http.patch(`/projects/${projectId}`, { settings: { effortLevel: level } })
+          setEffortLevel(level)
+          addSystemCard(
+            t(
+              'ide.chat.effort.set',
+              { level, label: EFFORT_LEVEL_LABELS[level] },
+              { defaultValue: `Reasoning effort set to ${level} (${EFFORT_LEVEL_LABELS[level]}).` },
+            ),
+          )
+        } catch (error) {
+          logger.warn('Failed to update reasoning effort level', { error })
+          addSystemCard(
+            t('ide.chat.effort.error', undefined, {
+              defaultValue: 'Failed to update reasoning effort.',
+            }),
+          )
+        }
+      }
       return
     }
 

@@ -148,6 +148,13 @@ export const COMMANDS: readonly CommandDef[] = [
     category: 'model',
     usage: '/maxloops <n>',
   },
+  {
+    id: 'effort',
+    label: '/effort',
+    description: 'Set reasoning effort (S/M/L/XL); /effort ? shows current',
+    category: 'model',
+    usage: '/effort <S|M|L|XL>',
+  },
 
   // Settings
   {
