@@ -11,6 +11,18 @@ import { z } from 'zod'
 import { basePropsSchema } from '@molecule/api-resource/schema'
 
 /**
+ * Maximum length (in characters) of a user's `bio`.
+ */
+export const MAX_BIO_LENGTH = 1000
+
+/**
+ * Maximum length (in characters) of a user's `avatar`. Sized to permit a small
+ * inline data-URI (~256KB) without requiring an external upload/storage bond.
+ * Larger avatars must be hosted elsewhere and referenced by URL.
+ */
+export const MAX_AVATAR_LENGTH = 256 * 1024
+
+/**
  * Creates a full schema for user props.
  *
  * OAuth servers and plan keys can be constrained by passing them as options.
@@ -40,6 +52,18 @@ export const createSchema = <
      * The user's email address.
      */
     email: z.string().email().nullable().optional(),
+    /**
+     * The user's avatar — either a URL or a small inline data-URI
+     * (capped at {@link MAX_AVATAR_LENGTH} characters / ~256KB). Optional and
+     * nullable so it can be cleared and remains back-compatible with existing rows.
+     */
+    avatar: z.string().max(MAX_AVATAR_LENGTH).nullable().optional(),
+    /**
+     * A short free-text biography for the user
+     * (capped at {@link MAX_BIO_LENGTH} characters). Optional and nullable for
+     * back-compat and clearing.
+     */
+    bio: z.string().max(MAX_BIO_LENGTH).nullable().optional(),
     /**
      * Whether two-factor authentication is enabled.
      */
@@ -159,12 +183,14 @@ export const createOAuthPropsSchema = propsSchema.pick({
  */
 export type CreateOAuthProps = z.infer<typeof createOAuthPropsSchema>
 
-/** Schema for updating a user (partial username, name, email). */
+/** Schema for updating a user (partial username, name, email, avatar, bio). */
 export const updatePropsSchema = propsSchema
   .pick({
     username: true,
     name: true,
     email: true,
+    avatar: true,
+    bio: true,
   })
   .partial()
 

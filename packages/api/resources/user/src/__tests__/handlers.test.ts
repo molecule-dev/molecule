@@ -106,9 +106,10 @@ import * as authorization from '../authorization.js'
 import { create } from '../handlers/create.js'
 import { logIn } from '../handlers/logIn.js'
 import { logInOAuth } from '../handlers/logInOAuth.js'
+import { update } from '../handlers/update.js'
 import { updatePassword } from '../handlers/updatePassword.js'
 import { updatePlan } from '../handlers/updatePlan.js'
-import { propsSchema } from '../schema.js'
+import { MAX_AVATAR_LENGTH, MAX_BIO_LENGTH, propsSchema } from '../schema.js'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -1030,5 +1031,125 @@ describe('updatePlan handler — privilege escalation prevention', () => {
       expect(result?.body?.errorKey).toBe('user.error.failedToUpdatePlan')
       expect(mockResourceUpdate).not.toHaveBeenCalled()
     }
+  })
+})
+
+// ===== 9. Profile avatar + bio updates (update.ts) =========================
+
+describe('update handler — avatar + bio profile fields', () => {
+  const handler = update(testResource)
+
+  beforeEach(() => {
+    mockResourceUpdate.mockResolvedValue({
+      statusCode: 200,
+      body: { props: { id: 'user-1' } },
+    })
+  })
+
+  it('should accept and persist avatar + bio together', async () => {
+    const avatar = 'data:image/png;base64,iVBORw0KGgoAAAANS'
+    const bio = 'Full-stack developer who loves composable systems.'
+    const req = makeReq({ params: { id: 'user-1' }, body: { avatar, bio } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(200)
+    expect(mockResourceUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'user-1',
+        props: expect.objectContaining({ avatar, bio }),
+      }),
+    )
+  })
+
+  it('should reject an avatar larger than the cap (and not persist)', async () => {
+    const req = makeReq({
+      params: { id: 'user-1' },
+      body: { avatar: 'a'.repeat(MAX_AVATAR_LENGTH + 1) },
+    })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        statusCode: 400,
+        body: expect.objectContaining({ errorKey: 'user.error.avatarTooLarge' }),
+      }),
+    )
+    expect(mockResourceUpdate).not.toHaveBeenCalled()
+  })
+
+  it('should accept an avatar exactly at the cap', async () => {
+    const req = makeReq({
+      params: { id: 'user-1' },
+      body: { avatar: 'a'.repeat(MAX_AVATAR_LENGTH) },
+    })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).not.toBe(400)
+    expect(mockResourceUpdate).toHaveBeenCalled()
+  })
+
+  it('should reject a bio longer than the cap (and not persist)', async () => {
+    const req = makeReq({
+      params: { id: 'user-1' },
+      body: { bio: 'a'.repeat(MAX_BIO_LENGTH + 1) },
+    })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        statusCode: 400,
+        body: expect.objectContaining({ errorKey: 'user.error.bioTooLong' }),
+      }),
+    )
+    expect(mockResourceUpdate).not.toHaveBeenCalled()
+  })
+
+  it('should accept a bio exactly at the cap', async () => {
+    const req = makeReq({
+      params: { id: 'user-1' },
+      body: { bio: 'a'.repeat(MAX_BIO_LENGTH) },
+    })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).not.toBe(400)
+    expect(mockResourceUpdate).toHaveBeenCalled()
+  })
+
+  it('should clear the avatar when null is provided', async () => {
+    const req = makeReq({ params: { id: 'user-1' }, body: { avatar: null } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(200)
+    expect(mockResourceUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ props: expect.objectContaining({ avatar: null }) }),
+    )
+  })
+
+  it('should clear the avatar when an empty string is provided', async () => {
+    const req = makeReq({ params: { id: 'user-1' }, body: { avatar: '' } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(200)
+    expect(mockResourceUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ props: expect.objectContaining({ avatar: null }) }),
+    )
+  })
+
+  it('should clear the bio when null is provided', async () => {
+    const req = makeReq({ params: { id: 'user-1' }, body: { bio: null } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(200)
+    expect(mockResourceUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ props: expect.objectContaining({ bio: null }) }),
+    )
   })
 })

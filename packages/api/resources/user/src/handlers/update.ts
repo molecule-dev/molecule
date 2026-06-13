@@ -6,7 +6,7 @@ import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest } from '@molecule/api-resource'
 import { update as resourceUpdate } from '@molecule/api-resource'
 
-import { propsSchema, updatePropsSchema } from '../schema.js'
+import { MAX_AVATAR_LENGTH, MAX_BIO_LENGTH, propsSchema, updatePropsSchema } from '../schema.js'
 import type * as types from '../types.js'
 
 /**
@@ -111,6 +111,56 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
               },
             }
           }
+        }
+      }
+
+      if (req.body.avatar !== undefined) {
+        // `null` or '' clears the avatar; anything else is coerced to a string and length-capped.
+        if (req.body.avatar === null || req.body.avatar === '') {
+          props.avatar = null
+        } else {
+          const avatar = String(req.body.avatar)
+          if (avatar.length > MAX_AVATAR_LENGTH) {
+            return {
+              statusCode: 400,
+              body: {
+                error: t(
+                  'user.error.avatarTooLarge',
+                  { max: MAX_AVATAR_LENGTH },
+                  {
+                    defaultValue: 'Avatar must be {{max}} characters or fewer.',
+                  },
+                ),
+                errorKey: 'user.error.avatarTooLarge',
+              },
+            }
+          }
+          props.avatar = avatar
+        }
+      }
+
+      if (req.body.bio !== undefined) {
+        // `null` clears the bio; otherwise coerce to a string and length-cap (empty string is allowed).
+        if (req.body.bio === null) {
+          props.bio = null
+        } else {
+          const bio = String(req.body.bio)
+          if (bio.length > MAX_BIO_LENGTH) {
+            return {
+              statusCode: 400,
+              body: {
+                error: t(
+                  'user.error.bioTooLong',
+                  { max: MAX_BIO_LENGTH },
+                  {
+                    defaultValue: 'Bio must be {{max}} characters or fewer.',
+                  },
+                ),
+                errorKey: 'user.error.bioTooLong',
+              },
+            }
+          }
+          props.bio = bio
         }
       }
 

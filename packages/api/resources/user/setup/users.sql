@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS "users" (
   "username" varchar(255),
   "name" text,
   "email" varchar(1023) UNIQUE,
+  "avatar" text,
+  "bio" text,
   "twoFactorEnabled" boolean DEFAULT false,
   "oauthServer" text,
   "oauthId" text,

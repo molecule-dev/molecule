@@ -10,6 +10,8 @@ import {
   createPropsSchema,
   createSchema,
   createSecretPropsSchema,
+  MAX_AVATAR_LENGTH,
+  MAX_BIO_LENGTH,
   propsSchema,
   secretPropsSchema,
   sessionSchema,
@@ -261,6 +263,60 @@ describe('propsSchema', () => {
     const result = propsSchema.safeParse(props)
     expect(result.success).toBe(true)
   })
+
+  it('should accept avatar and bio within their limits', () => {
+    const props = {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      username: 'johndoe',
+      avatar: 'a'.repeat(MAX_AVATAR_LENGTH),
+      bio: 'a'.repeat(MAX_BIO_LENGTH),
+    }
+
+    const result = propsSchema.safeParse(props)
+    expect(result.success).toBe(true)
+  })
+
+  it('should accept null avatar and bio', () => {
+    const props = {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      username: 'johndoe',
+      avatar: null,
+      bio: null,
+    }
+
+    const result = propsSchema.safeParse(props)
+    expect(result.success).toBe(true)
+  })
+
+  it('should reject an avatar exceeding the size cap', () => {
+    const props = {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      username: 'johndoe',
+      avatar: 'a'.repeat(MAX_AVATAR_LENGTH + 1),
+    }
+
+    const result = propsSchema.safeParse(props)
+    expect(result.success).toBe(false)
+  })
+
+  it('should reject a bio exceeding the length cap', () => {
+    const props = {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      username: 'johndoe',
+      bio: 'a'.repeat(MAX_BIO_LENGTH + 1),
+    }
+
+    const result = propsSchema.safeParse(props)
+    expect(result.success).toBe(false)
+  })
 })
 
 describe('secretPropsSchema', () => {
@@ -439,6 +495,29 @@ describe('updatePropsSchema', () => {
     }
 
     const result = updatePropsSchema.safeParse(invalidProps)
+    expect(result.success).toBe(false)
+  })
+
+  it('should accept avatar and bio', () => {
+    const result = updatePropsSchema.safeParse({
+      avatar: 'data:image/png;base64,iVBORw0KGgo',
+      bio: 'Hello world.',
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('should accept null avatar and bio (clearing)', () => {
+    const result = updatePropsSchema.safeParse({ avatar: null, bio: null })
+    expect(result.success).toBe(true)
+  })
+
+  it('should reject an oversized avatar', () => {
+    const result = updatePropsSchema.safeParse({ avatar: 'a'.repeat(MAX_AVATAR_LENGTH + 1) })
+    expect(result.success).toBe(false)
+  })
+
+  it('should reject an oversized bio', () => {
+    const result = updatePropsSchema.safeParse({ bio: 'a'.repeat(MAX_BIO_LENGTH + 1) })
     expect(result.success).toBe(false)
   })
 })
