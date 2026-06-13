@@ -3491,6 +3491,9 @@ function ChatInner({
       } else if (id === 'effort') {
         // Prefill so the user types a level; /effort ? (or bare) shows status.
         setInputAndCursorEnd('/effort ')
+      } else if (id === 'autocommit') {
+        // Prefill so the user types the cadence (seconds); 0 cancels.
+        setInputAndCursorEnd('/autocommit ')
       } else if (id === 'help') {
         setInputValue('')
         // Generated from the COMMANDS registry so it can never drift — lists every
