@@ -28,6 +28,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { PreviewPanelProps } from '../types.js'
 import { DeviceFrameSelector } from './DeviceFrameSelector.js'
+import { Icon } from './Icon.js'
 
 const deviceWidths: Record<string, string> = {
   none: '100%',
@@ -570,57 +571,68 @@ export function PreviewPanel({
 
   return (
     <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, className)}>
-      {/* Header */}
-      <div
-        className={cm.cn(
-          cm.flex({ direction: 'row', align: 'center', justify: 'between' }),
-          cm.sp('px', 3),
-          cm.sp('py', 2),
-          cm.shrink0,
-          cm.borderB,
-        )}
-      >
-        <div className={cm.flex({ direction: 'row', align: 'center', gap: 'sm' })}>
-          <DeviceFrameSelector current={state.device} onChange={setDevice} />
-          <button
-            type="button"
-            onClick={refresh}
-            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.borderAll)}
-            aria-label={t('ide.preview.refresh')}
-          >
-            {'\u21BB'}
-          </button>
-          <button
-            type="button"
-            onClick={openExternal}
-            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.borderAll)}
-            aria-label={t('ide.preview.openNewTab')}
-          >
-            {'\u2197'}
-          </button>
-        </div>
-      </div>
-
-      {/* URL bar */}
-      <div className={cm.cn(cm.sp('px', 3), cm.sp('py', 1), cm.shrink0, cm.borderB)}>
-        <input
-          type="text"
-          value={state.url}
-          onChange={(e) => setUrl(e.target.value)}
+      {/* Browser-style URL bar: a single rounded, subtly-bordered bar holding
+          the device-cycle, back/forward, refresh, the URL input, and open-in-
+          new-tab \u2014 left \u2192 right, like a real browser toolbar. */}
+      <div className={cm.cn(cm.sp('px', 3), cm.sp('py', 2), cm.shrink0, cm.borderB)}>
+        <div
           className={cm.cn(
-            cm.w('full'),
-            cm.textSize('xs'),
-            cm.sp('p', 1),
+            cm.flex({ direction: 'row', align: 'center', gap: 'xs' }),
+            cm.sp('px', 1),
             cm.surfaceSecondary,
             cm.borderAll,
           )}
-          style={{
-            borderRadius: '4px',
-            color: 'inherit',
-            outline: 'none',
-            fontFamily: 'monospace',
-          }}
-        />
+          style={{ borderRadius: '8px' }}
+        >
+          <DeviceFrameSelector current={state.device} onChange={setDevice} />
+
+          {/* Back / Forward \u2014 disabled placeholders until PV3 (iframe
+              postMessage navigation protocol) is implemented. */}
+          <BarButton
+            icon="arrow-left"
+            molId="preview-back"
+            disabled
+            title={t('ide.preview.back', {}, { defaultValue: 'Back' })}
+          />
+          <BarButton
+            icon="arrow-right"
+            molId="preview-forward"
+            disabled
+            title={t('ide.preview.forward', {}, { defaultValue: 'Forward' })}
+          />
+
+          <BarButton
+            icon="sync"
+            molId="preview-refresh"
+            onClick={refresh}
+            title={t('ide.preview.refresh', {}, { defaultValue: 'Reload' })}
+          />
+
+          <input
+            type="text"
+            data-mol-id="preview-url"
+            value={state.url}
+            onChange={(e) => setUrl(e.target.value)}
+            aria-label={t('ide.preview.urlBar', {}, { defaultValue: 'Preview URL' })}
+            className={cm.cn(cm.textSize('xs'), cm.sp('px', 2), cm.sp('py', 1))}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              background: 'transparent',
+              border: 'none',
+              color: 'inherit',
+              outline: 'none',
+              fontFamily: 'monospace',
+            }}
+          />
+
+          <BarButton
+            icon="link-external"
+            molId="preview-open-external"
+            onClick={openExternal}
+            title={t('ide.preview.openNewTab', {}, { defaultValue: 'Open in new tab' })}
+          />
+        </div>
       </div>
 
       {/* Preview area */}
@@ -769,6 +781,48 @@ export function PreviewPanel({
 }
 
 PreviewPanel.displayName = 'PreviewPanel'
+
+/**
+ * A single icon button inside the preview URL bar. Renders a ghost button with
+ * an icon-set glyph and a tooltip; `disabled` buttons (e.g. back/forward before
+ * the navigation protocol exists) are dimmed and non-interactive via the
+ * ClassMap button's built-in disabled styling.
+ * @param root0 - Component props.
+ * @param root0.icon - Icon-set glyph name.
+ * @param root0.title - Tooltip + accessible label.
+ * @param root0.molId - `data-mol-id` for AI-agent / test targeting.
+ * @param root0.onClick - Click handler (omitted for disabled placeholders).
+ * @param root0.disabled - Whether the button is a disabled placeholder.
+ * @returns The rendered button element.
+ */
+function BarButton({
+  icon,
+  title,
+  molId,
+  onClick,
+  disabled,
+}: {
+  icon: string
+  title: string
+  molId: string
+  onClick?: () => void
+  disabled?: boolean
+}): JSX.Element {
+  const cm = getClassMap()
+  return (
+    <button
+      type="button"
+      data-mol-id={molId}
+      aria-label={title}
+      title={title}
+      onClick={onClick}
+      disabled={disabled}
+      className={cm.button({ variant: 'ghost', size: 'xs' })}
+    >
+      <Icon name={icon} size={16} aria-hidden="true" />
+    </button>
+  )
+}
 
 /**
  * Fallback loading indicator when no custom one is provided.

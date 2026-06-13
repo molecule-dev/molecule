@@ -23,6 +23,7 @@
     "@molecule/app-ai-chat": "^1.0.0",
     "@molecule/app-ai-models": "^1.0.0",
     "@molecule/app-i18n": "^1.0.0",
+    "@molecule/app-icons": "^1.0.0",
     "@molecule/app-code-editor": "^1.0.0",
     "@molecule/app-ide": "^1.0.0",
     "@molecule/app-live-preview": "^1.0.0",
@@ -36,6 +37,7 @@
   },
   "devDependencies": {
     "@molecule/app-ai-models": "1.0.0",
+    "@molecule/app-icons": "1.0.0",
     "@molecule/app-logger": "1.0.0",
     "@types/node": "25.9.2",
     "@types/react": "19.2.17",
