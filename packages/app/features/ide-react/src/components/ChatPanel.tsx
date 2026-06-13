@@ -39,10 +39,13 @@ import { ActivityCard } from './ActivityCard.js'
 import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 import { buildHelpText } from './chat-help-utilities.js'
+import { buildSettingsList, summarizeSounds } from './chat-settings-utilities.js'
 import { estimateStreamTokens } from './chat-stream-utilities.js'
 import { selectTip, TIP_INTERVAL } from './chat-tips-utilities.js'
+import { Icon } from './Icon.js'
 import { MarkdownContent } from './MarkdownContent.js'
 import { ModelsTable } from './ModelsTable.js'
+import { SettingsCard } from './SettingsCard.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
 import { TipCard } from './TipCard.js'
 import { ToolCallCard } from './ToolCallCard.js'
@@ -108,10 +111,14 @@ interface SystemCard {
     | { label: string; href?: string; onClick?: () => void }
     | { label: string; href?: string; onClick?: () => void }[]
   /**
-   * Optional rich-content variant. `'models'` renders the sortable `/models`
-   * comparison table in place of the plain text; default (undefined) is text.
+   * Optional rich-content variant rendered in place of the plain text:
+   * `'models'` → the sortable `/models` comparison table; `'settings'` → the
+   * `/settings` view; `'skills'` → the `/skills` browser. Default (undefined)
+   * is plain text.
    */
-  variant?: 'models'
+  variant?: 'models' | 'settings' | 'skills'
+  /** Seed query for the `'skills'` variant (from `/skills <query>`). */
+  query?: string
 }
 
 /** A dismissable auto-tip entry in the chat timeline. */
@@ -1787,6 +1794,8 @@ interface ChatInnerProps {
   onTurnComplete?: () => void
   /** Changing this value submits the current input draft (used by the prompt→chat morph). */
   autoSubmitSignal?: number
+  /** Changing this value opens the `/settings` view (used by the header gear button). */
+  openSettingsSignal?: number
   /** Seeds the input with this text on mount (prompt→chat morph). */
   initialInputValue?: string
   pendingMessage?: string
@@ -1824,6 +1833,7 @@ interface ChatInnerProps {
  * @param root0.onClientAction - Callback fired on the client_action stream event (reload/navigate preview, open file).
  * @param root0.onTurnComplete - Callback fired on each stream done/error; host uses it to keep the boot view up until the during-boot plan stream completes.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
+ * @param root0.openSettingsSignal - Changing this opens the /settings view (header gear button).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
@@ -1857,6 +1867,7 @@ function ChatInner({
   onClientAction,
   onTurnComplete,
   autoSubmitSignal,
+  openSettingsSignal,
   initialInputValue,
   pendingMessage,
   pendingMessageKey,
@@ -1933,7 +1944,12 @@ function ChatInner({
   // First reminder after 3 turns, then every 10 turns thereafter.
   const turnCountRef = useRef(0)
   const addSystemCardRef = useRef<
-    (text: string, action?: SystemCard['action'], variant?: SystemCard['variant']) => void
+    (
+      text: string,
+      action?: SystemCard['action'],
+      variant?: SystemCard['variant'],
+      query?: string,
+    ) => void
   >(() => {})
   // Ref so the stream-event callback can push activity cards without depending
   // on the state setter (mirrors addSystemCardRef).
@@ -2516,7 +2532,12 @@ function ChatInner({
   const messagesRef = useRef(messages)
   messagesRef.current = messages
   const addSystemCard = useCallback(
-    (text: string, action?: SystemCard['action'], variant?: SystemCard['variant']) => {
+    (
+      text: string,
+      action?: SystemCard['action'],
+      variant?: SystemCard['variant'],
+      query?: string,
+    ) => {
       // If a message is actively streaming, place the card just before it so
       // it doesn't get pinned below the growing response.
       let ts = Date.now()
@@ -2526,7 +2547,7 @@ function ChatInner({
       }
       setSystemCards((prev) => [
         ...prev,
-        { id: crypto.randomUUID(), text, timestamp: ts, action, variant },
+        { id: crypto.randomUUID(), text, timestamp: ts, action, variant, query },
       ])
       // Auto-scroll after the card renders so the user sees it immediately
       if (!userScrolledUpRef.current) {
@@ -3556,6 +3577,10 @@ function ChatInner({
       } else if (id === 'sounds') {
         setInputValue('')
         setSoundsPicker({ selectedIdx: -1 })
+      } else if (id === 'settings') {
+        setInputValue('')
+        // Renders the settings + command-reference card (see the 'settings' variant branch).
+        addSystemCard('', undefined, 'settings')
       }
     },
     [
@@ -3594,6 +3619,12 @@ function ChatInner({
     if (/^\/sounds$/i.test(trimmed)) {
       setInputValue('')
       setSoundsPicker({ selectedIdx: -1 })
+      return
+    }
+
+    // Handle /settings command locally
+    if (/^\/settings$/i.test(trimmed)) {
+      void executeCommand('settings')
       return
     }
 
@@ -3818,6 +3849,16 @@ function ChatInner({
       if ((inputRef.current as string).trim()) void handleSubmit()
     }
   }, [autoSubmitSignal, handleSubmit])
+
+  // External "open settings" trigger from the header gear button. When the
+  // signal changes, open the /settings view (same path as the slash command).
+  const lastOpenSettingsRef = useRef(openSettingsSignal)
+  useEffect(() => {
+    if (openSettingsSignal !== undefined && openSettingsSignal !== lastOpenSettingsRef.current) {
+      lastOpenSettingsRef.current = openSettingsSignal
+      void executeCommand('settings')
+    }
+  }, [openSettingsSignal, executeCommand])
 
   // ── Keyboard ───────────────────────────────────────────────────────────────
   const filteredCmds = commandMenu
@@ -4174,6 +4215,38 @@ function ChatInner({
                     key={item.card.id}
                     models={partitionByDeprecation(AVAILABLE_MODELS).current}
                     currentModelId={currentModel}
+                    isLight={isLight}
+                  />
+                )
+              }
+              if (item.card.variant === 'settings') {
+                const soundsSummary = summarizeSounds(soundsConfig)
+                const settings = buildSettingsList({
+                  model:
+                    AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ||
+                    currentModel ||
+                    t('ide.chat.settings.modelUnset', undefined, { defaultValue: 'Not set' }),
+                  mode:
+                    mode === 'plan'
+                      ? t('ide.chat.settings.modePlan', undefined, { defaultValue: 'Plan' })
+                      : t('ide.chat.settings.modeExecute', undefined, { defaultValue: 'Execute' }),
+                  maxLoops: String(currentMaxLoops),
+                  autoFix: autoFixEnabled
+                    ? t('ide.chat.settings.on', undefined, { defaultValue: 'On' })
+                    : t('ide.chat.settings.off', undefined, { defaultValue: 'Off' }),
+                  sounds: t(
+                    'ide.chat.settings.soundsSummary',
+                    { enabled: soundsSummary.enabled, total: soundsSummary.total },
+                    {
+                      defaultValue: `${soundsSummary.enabled} of ${soundsSummary.total} events enabled`,
+                    },
+                  ),
+                })
+                return (
+                  <SettingsCard
+                    key={item.card.id}
+                    settings={settings}
+                    onRunCommand={(commandId) => void executeCommand(commandId)}
                     isLight={isLight}
                   />
                 )
@@ -6107,6 +6180,9 @@ export function ChatPanel({
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [convSearch, setConvSearch] = useState('')
   const dropdownRef = useRef<HTMLDivElement>(null)
+  // Incremented by the header gear button to open the /settings view inside
+  // ChatInner (which owns the slash-command dispatch + system-card timeline).
+  const [openSettingsSignal, setOpenSettingsSignal] = useState(0)
 
   const chatEndpoint = activeConversationId
     ? `${baseEndpoint}?conversationId=${activeConversationId}`
@@ -6271,6 +6347,19 @@ export function ChatPanel({
             </span>
           </button>
 
+          {/* Settings button — opens the /settings view */}
+          <button
+            type="button"
+            data-mol-id="chat-settings-button"
+            onClick={() => setOpenSettingsSignal((n) => n + 1)}
+            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+            title={t('ide.chat.openSettings', undefined, { defaultValue: 'Settings' })}
+            aria-label={t('ide.chat.openSettings', undefined, { defaultValue: 'Settings' })}
+            style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}
+          >
+            <Icon name="gear" size={14} aria-hidden="true" />
+          </button>
+
           {/* New chat button */}
           <button
             type="button"
@@ -6413,6 +6502,7 @@ export function ChatPanel({
         onClientAction={onClientAction}
         onTurnComplete={onTurnComplete}
         autoSubmitSignal={autoSubmitSignal}
+        openSettingsSignal={openSettingsSignal}
         initialInputValue={initialInputValue}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}

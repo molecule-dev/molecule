@@ -39,6 +39,12 @@ export interface CommandDef {
   description: string
   /** Category this command is grouped under. */
   category: CommandCategoryKey
+  /**
+   * Argument syntax for commands that take options, shown in the `/settings`
+   * command reference (English default). `[…]` = optional, `<…>` = required.
+   * Omit for commands that take no arguments.
+   */
+  usage?: string
 }
 
 /**
@@ -69,9 +75,22 @@ export const COMMANDS: readonly CommandDef[] = [
     label: '/explain',
     description: 'Explain code (e.g. /explain @file)',
     category: 'code',
+    usage: '/explain [@file | topic]',
   },
-  { id: 'lint', label: '/lint', description: 'Run linter and fix issues', category: 'code' },
-  { id: 'test', label: '/test', description: 'Run project test suite', category: 'code' },
+  {
+    id: 'lint',
+    label: '/lint',
+    description: 'Run linter and fix issues',
+    category: 'code',
+    usage: '/lint [path]',
+  },
+  {
+    id: 'test',
+    label: '/test',
+    description: 'Run project test suite',
+    category: 'code',
+    usage: '/test [args]',
+  },
   {
     id: 'undo',
     label: '/undo',
@@ -80,7 +99,13 @@ export const COMMANDS: readonly CommandDef[] = [
   },
 
   // Model
-  { id: 'model', label: '/model', description: 'Switch model...', category: 'model' },
+  {
+    id: 'model',
+    label: '/model',
+    description: 'Switch model...',
+    category: 'model',
+    usage: '/model [name]',
+  },
   {
     id: 'models',
     label: '/models',
@@ -88,9 +113,21 @@ export const COMMANDS: readonly CommandDef[] = [
     category: 'model',
   },
   { id: 'plan', label: '/plan', description: 'Toggle plan/execute mode', category: 'model' },
-  { id: 'maxloops', label: '/maxloops', description: 'Set max tool iterations', category: 'model' },
+  {
+    id: 'maxloops',
+    label: '/maxloops',
+    description: 'Set max tool iterations',
+    category: 'model',
+    usage: '/maxloops <n>',
+  },
 
   // Settings
+  {
+    id: 'settings',
+    label: '/settings',
+    description: 'View & change Synthase settings',
+    category: 'settings',
+  },
   {
     id: 'autofix',
     label: '/autofix',
@@ -105,3 +142,33 @@ export const COMMANDS: readonly CommandDef[] = [
 
 /** Union of all command ids (loosely `string`, since {@link CommandDef.id} is a string). */
 export type CommandId = CommandDef['id']
+
+/** A category paired with the commands that belong to it. */
+export interface CommandGroup {
+  /** The category metadata (key + label). */
+  category: CommandCategory
+  /** Commands in this category, in registry order. */
+  commands: CommandDef[]
+}
+
+/**
+ * Groups commands under their categories, preserving category and command
+ * order and dropping empty categories. Used by the `/settings` command
+ * reference (and any other view that lists commands by section) so the
+ * grouping stays in sync with the registry automatically.
+ *
+ * @param commands - Command registry to group (defaults to {@link COMMANDS}).
+ * @param categories - Ordered categories (defaults to {@link COMMAND_CATEGORIES}).
+ * @returns One {@link CommandGroup} per non-empty category, in category order.
+ */
+export function groupCommandsByCategory(
+  commands: readonly CommandDef[] = COMMANDS,
+  categories: readonly CommandCategory[] = COMMAND_CATEGORIES,
+): CommandGroup[] {
+  const groups: CommandGroup[] = []
+  for (const category of categories) {
+    const inCategory = commands.filter((c) => c.category === category.key)
+    if (inCategory.length > 0) groups.push({ category, commands: inCategory })
+  }
+  return groups
+}
