@@ -182,12 +182,13 @@ export type ChatStreamEvent =
       errors: Array<{ message: string; source?: string; line?: number; column?: number }>
     }
   | { type: 'resource_limit'; resource: 'memory'; message: string }
-  | { type: 'upgrade_prompt'; feature: string; message: string }
   // Generic extension point for app-specific stream events the SHARED package knows
   // nothing about. A consuming app emits `{ type: 'custom', name, data }` and (for
   // the react IDE) registers a renderer via `registerCustomEventCard(name, …)` from
-  // `@molecule/app-ide-react` to surface it as a chat card. Keeps app-specific events
-  // (e.g. a host app's build/billing notices) OUT of this core union.
+  // `@molecule/app-ide-react` to surface it as a chat card. This is how an app-specific
+  // notice (e.g. molecule.dev's `upgrade_prompt` / `guest_reminder` / `build_degraded`
+  // upgrade-and-billing cards) stays OUT of this core union — the app owns its own
+  // event names + copy + routes, not this package.
   | { type: 'custom'; name: string; data?: Record<string, unknown> }
   | {
       type: 'activity'
