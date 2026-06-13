@@ -118,6 +118,13 @@ export const COMMANDS: readonly CommandDef[] = [
     category: 'code',
     usage: '/run <name>',
   },
+  {
+    id: 'autocommit',
+    label: '/autocommit',
+    description: 'Auto-commit N seconds after the last file change (0 cancels)',
+    category: 'code',
+    usage: '/autocommit <seconds>',
+  },
 
   // Model
   {

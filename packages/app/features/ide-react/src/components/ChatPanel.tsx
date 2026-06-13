@@ -17,7 +17,16 @@
  */
 
 import type { JSX } from 'react'
-import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  Fragment,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react'
 
 import type { ChatMessage } from '@molecule/app-ai-chat'
 import {
@@ -36,6 +45,14 @@ import type { ChatPanelProps, IdeClientAction } from '../types.js'
 import type { Activity } from './activity-utilities.js'
 import { activityFromEvent } from './activity-utilities.js'
 import { ActivityCard } from './ActivityCard.js'
+import { AutoCommitBadge } from './AutoCommitBadge.js'
+import {
+  AUTO_COMMIT_DISABLED,
+  autoCommitReducer,
+  isAutoCommitArmed,
+  isAutoCommitDue,
+  parseAutoCommitCommand,
+} from './chat-autocommit-utilities.js'
 import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 import { buildHelpText } from './chat-help-utilities.js'
@@ -2182,8 +2199,16 @@ function ChatInner({
   }, [])
 
   // Cancel countdown when file changes arrive (AI likely fixing things in a new turn)
+  // ── Auto-commit (/autocommit) ───────────────────────────────────────────────
+  // Debounce-style countdown: every file change restarts the timer; when it hits
+  // zero we fire the existing /commit path, then pause until the next change so a
+  // clean tree is never re-committed. State machine lives in the pure reducer.
+  const [autoCommit, dispatchAutoCommit] = useReducer(autoCommitReducer, AUTO_COMMIT_DISABLED)
+
   const onFileChangeWrapped = useCallback(
     (path: string, content: string) => {
+      // A file changed (AI write) — restart the auto-commit countdown if armed.
+      dispatchAutoCommit({ type: 'reset' })
       if (autoFixCountdown) {
         const norm = path.replace(/^\/workspace\//, '')
         const isRelevant = autoFixCountdown.changedPaths.some(
@@ -2857,6 +2882,23 @@ function ChatInner({
     if (!externalGitStatusTick) return
     debouncedFetchPendingFiles()
   }, [externalGitStatusTick, debouncedFetchPendingFiles])
+
+  // A user-side file mutation (edit/rename/delete) also restarts the auto-commit
+  // countdown — the parent's externalGitStatusTick is the canonical "files moved"
+  // signal. Skipped on the initial 0 so opening a project doesn't arm anything.
+  useEffect(() => {
+    if (!externalGitStatusTick) return
+    dispatchAutoCommit({ type: 'reset' })
+  }, [externalGitStatusTick])
+
+  // Tick the auto-commit countdown once per second while it is armed (counting
+  // down). When paused/disabled (remaining === null) no interval runs.
+  const autoCommitArmed = isAutoCommitArmed(autoCommit)
+  useEffect(() => {
+    if (!autoCommitArmed) return
+    const id = setInterval(() => dispatchAutoCommit({ type: 'tick' }), 1000)
+    return () => clearInterval(id)
+  }, [autoCommitArmed])
 
   // Wrap onFileRevert so undo/redo also refreshes git status
   const handleFileRevert = useCallback(
@@ -3728,6 +3770,15 @@ function ChatInner({
     ],
   )
 
+  // When the auto-commit countdown reaches zero, fire the existing /commit path
+  // (no new backend) and pause until the next file change re-arms it. /commit
+  // itself no-ops on a clean tree, so a stray fire is harmless.
+  useEffect(() => {
+    if (!isAutoCommitDue(autoCommit)) return
+    void executeCommand('commit')
+    dispatchAutoCommit({ type: 'fired' })
+  }, [autoCommit, executeCommand])
+
   // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(async () => {
     // Stop voice recognition on submit
@@ -3796,6 +3847,38 @@ function ChatInner({
     if (reportMatch) {
       setInputValue('')
       setReportModal({ title: reportMatch.title })
+      return
+    }
+
+    // Handle /autocommit <seconds> locally — arms/cancels the countdown that
+    // auto-fires the existing /commit path N seconds after the last file change.
+    const autoCommitMatch = parseAutoCommitCommand(trimmed)
+    if (autoCommitMatch) {
+      setInputValue('')
+      if (autoCommitMatch.seconds === null) {
+        addSystemCard(
+          t('ide.chat.autoCommit.usage', undefined, {
+            defaultValue:
+              'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+          }),
+        )
+      } else if (autoCommitMatch.seconds <= 0) {
+        dispatchAutoCommit({ type: 'set', seconds: 0 })
+        addSystemCard(
+          t('ide.chat.autoCommit.cancelled', undefined, { defaultValue: 'Auto-commit cancelled.' }),
+        )
+      } else {
+        dispatchAutoCommit({ type: 'set', seconds: autoCommitMatch.seconds })
+        addSystemCard(
+          t(
+            'ide.chat.autoCommit.enabled',
+            { seconds: autoCommitMatch.seconds },
+            {
+              defaultValue: `Auto-commit on: committing ${autoCommitMatch.seconds}s after the last file change. /autocommit 0 to cancel.`,
+            },
+          ),
+        )
+      }
       return
     }
 
@@ -4749,6 +4832,12 @@ function ChatInner({
 
       {/* ── Input area ── */}
       <div className={cm.cn(cm.shrink0, cm.borderT)} style={{ position: 'relative' }}>
+        {/* Auto-commit countdown badge — informational, never blocks input. */}
+        <AutoCommitBadge
+          state={autoCommit}
+          onCancel={() => dispatchAutoCommit({ type: 'set', seconds: 0 })}
+        />
+
         {/* Attachment error */}
         {attachmentError && (
           <div className={cm.cn(cm.textSize('xs'), cm.textError)} style={{ padding: '4px 10px' }}>
