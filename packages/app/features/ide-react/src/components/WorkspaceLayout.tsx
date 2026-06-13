@@ -5,16 +5,19 @@
  */
 
 import type { JSX } from 'react'
-import { Children, isValidElement, useCallback } from 'react'
+import { Children, Fragment, isValidElement, useCallback } from 'react'
 
 import { useWorkspace } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { WorkspaceLayoutProps } from '../types.js'
 import { ResizeHandle } from './ResizeHandle.js'
+import { clampPanelSize, livePanelSize } from './workspace-layout-utilities.js'
 
 /**
- * Top-level workspace layout that arranges child panels with resize handles.
+ * Top-level workspace layout that arranges child panels in a row with draggable
+ * vertical dividers between them. Each divider resizes its left panel; the new
+ * size is written back through `resizePanel`, so it persists in workspace state.
  * @param root0 - The component props.
  * @param root0.children - The panel components to render in the layout.
  * @param root0.className - Optional CSS class name for the layout container.
@@ -30,28 +33,16 @@ export function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): 
   // Map panel positions from layout
   const panelConfigs = layout.panels.filter((p) => p.visible !== false)
 
-  // Calculate flex values from panel configs
-  const getFlexBasis = (index: number): string => {
-    const config = panelConfigs[index]
-    if (config) {
-      return `${config.defaultSize || Math.floor(100 / panelConfigs.length)}%`
-    }
-    return `${Math.floor(100 / panels.length)}%`
-  }
-
   const handleResize = useCallback(
     (index: number, delta: number) => {
       const config = panelConfigs[index]
-      if (config) {
-        const currentSize = config.defaultSize || Math.floor(100 / panelConfigs.length)
-        const containerWidth =
-          document.querySelector('[data-workspace-layout]')?.clientWidth || 1000
-        const percentDelta = (delta / containerWidth) * 100
-        const newSize = Math.max(10, Math.min(80, currentSize + percentDelta))
-        resizePanel(config.id, newSize)
-      }
+      if (!config) return
+      const containerWidth = document.querySelector('[data-workspace-layout]')?.clientWidth || 1000
+      const currentSize = livePanelSize(layout, panelConfigs, index)
+      const newSize = clampPanelSize(currentSize, delta, containerWidth)
+      resizePanel(config.id, newSize)
     },
-    [panelConfigs, resizePanel],
+    [layout, panelConfigs, resizePanel],
   )
 
   return (
@@ -64,23 +55,27 @@ export function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): 
       }}
     >
       {panels.map((panel, i) => (
-        <div
-          key={i}
-          className={cm.flex({ direction: 'col' })}
-          style={{
-            flexBasis: getFlexBasis(i),
-            flexShrink: 1,
-            flexGrow: 1,
-            minWidth: 0,
-            overflow: 'hidden',
-            position: 'relative',
-          }}
-        >
-          {panel}
+        <Fragment key={i}>
+          <div
+            className={cm.flex({ direction: 'col' })}
+            style={{
+              flexBasis: `${livePanelSize(layout, panelConfigs, i)}%`,
+              flexShrink: 1,
+              flexGrow: 1,
+              minWidth: 0,
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
+            {panel}
+          </div>
+          {/* Draggable vertical divider between this panel and the next. As a
+              direct flex-row sibling it spans the full height (a real vertical
+              divider) instead of being clipped inside a panel's column. */}
           {i < panels.length - 1 && (
             <ResizeHandle direction="horizontal" onResize={(delta) => handleResize(i, delta)} />
           )}
-        </div>
+        </Fragment>
       ))}
     </div>
   )
