@@ -2,7 +2,10 @@ import type { CSSProperties, ElementType, HTMLAttributes, JSX, ReactNode } from 
 import { Link } from 'react-router-dom'
 
 import { useTranslation } from '@molecule/app-react'
+import type { StorageProvider } from '@molecule/app-storage'
 import { getClassMap } from '@molecule/app-ui'
+
+import { AuthFormStateProvider } from './AuthFormStateProvider.js'
 
 /**
  * Outer full-screen container — centered Flex, padded, with optional
@@ -389,10 +392,26 @@ export interface AuthShellProps {
   decoration?: ReactNode
   backTo?: string
   showBackLink?: boolean
+  /**
+   * Storage provider backing the cross-view auth form persistence
+   * (email shared across Login/Signup/Forgot/Reset, cleared on success).
+   * Defaults to a process-shared in-memory store; inject
+   * `createSessionStorageProvider()` from
+   * `@molecule/app-storage-localstorage` for tab-scoped persistence. The
+   * shell renders an `<AuthFormStateProvider>`, so forms inside read it
+   * via `useAuthFormStateContext()`.
+   */
+  formStateStorage?: StorageProvider
+  /** Storage key for the persisted auth form state. */
+  formStateKey?: string
 }
 
 /**
  * Convenience preset composing container, decoration, card, heading, footer, and back-link into a single component.
+ *
+ * Wraps its content in an `<AuthFormStateProvider>` so every form
+ * rendered inside inherits cross-view email persistence via
+ * `useAuthFormStateContext()`.
  */
 export function AuthShell({
   heading,
@@ -403,20 +422,24 @@ export function AuthShell({
   decoration,
   backTo = '/',
   showBackLink = true,
+  formStateStorage,
+  formStateKey,
 }: AuthShellProps): JSX.Element {
   return (
-    <AuthShellContainer>
-      {decoration ? <AuthShellDecoration>{decoration}</AuthShellDecoration> : null}
-      <div>
-        <AuthShellCard>
-          {brand}
-          <AuthShellHeading heading={heading} subheading={subheading} />
-          {children}
-          {footer ? <AuthShellFooter>{footer}</AuthShellFooter> : null}
-        </AuthShellCard>
-        {showBackLink ? <AuthShellBackLink to={backTo} /> : null}
-      </div>
-    </AuthShellContainer>
+    <AuthFormStateProvider storage={formStateStorage} storageKey={formStateKey}>
+      <AuthShellContainer>
+        {decoration ? <AuthShellDecoration>{decoration}</AuthShellDecoration> : null}
+        <div>
+          <AuthShellCard>
+            {brand}
+            <AuthShellHeading heading={heading} subheading={subheading} />
+            {children}
+            {footer ? <AuthShellFooter>{footer}</AuthShellFooter> : null}
+          </AuthShellCard>
+          {showBackLink ? <AuthShellBackLink to={backTo} /> : null}
+        </div>
+      </AuthShellContainer>
+    </AuthFormStateProvider>
   )
 }
 
