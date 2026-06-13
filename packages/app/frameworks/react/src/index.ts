@@ -1,5 +1,5 @@
 /**
- * React framework bindings for molecule.dev.
+ * React framework bindings for the Molecule app stack.
  *
  * Provides React-specific hooks, contexts, and providers for all molecule
  * core interfaces. This package enables the use of molecule's framework-agnostic
@@ -50,6 +50,7 @@
  * @module
  */
 
+export * from './agent-identity.js'
 export * from './contexts.js'
 export * from './hooks/index.js'
 export * from './providers.js'

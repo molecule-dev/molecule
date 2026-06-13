@@ -24,6 +24,7 @@ import type {
 } from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
 
+import { DEFAULT_AGENT_NAME } from '../agent-identity.js'
 import { ChatContext } from '../contexts.js'
 import type { SendMessageOptions, UseChatOptions, UseChatResult } from '../types.js'
 
@@ -236,6 +237,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
   const {
     endpoint,
     projectId,
+    agentName = DEFAULT_AGENT_NAME,
     loadOnMount = true,
     onFileChange,
     onModeChange,
@@ -902,10 +904,14 @@ export function useChat(options: UseChatOptions): UseChatResult {
         } catch (err) {
           if (mountedRef.current) {
             const msg = stalled
-              ? t('chat.error.stalled', undefined, {
-                  defaultValue:
-                    'Synthase stopped responding. It may still be finishing in the background — reload to see the latest, or send a new message.',
-                })
+              ? t(
+                  'chat.error.stalled',
+                  { agentName },
+                  {
+                    defaultValue:
+                      '{{agentName}} stopped responding. It may still be finishing in the background — reload to see the latest, or send a new message.',
+                  },
+                )
               : err instanceof Error
                 ? err.message
                 : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' })
@@ -952,7 +958,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         persistQueue(storageKey, [])
       }
     },
-    [provider, endpoint],
+    [provider, endpoint, agentName],
   )
 
   // Resume an interrupted stream after a page refresh. Two phases:

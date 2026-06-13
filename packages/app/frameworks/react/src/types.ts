@@ -1,5 +1,5 @@
 /**
- * React-specific types for molecule.dev framework bindings.
+ * React-specific types for the Molecule framework bindings.
  *
  * @module
  */
@@ -220,6 +220,13 @@ export interface UseChatOptions {
   endpoint: string
   /** Project ID for context. */
   projectId?: string
+  /**
+   * Display name of the AI coding agent, interpolated into user-facing chat
+   * copy (e.g. the stalled-stream notice). The host passes its own agent brand
+   * name; defaults to the neutral `DEFAULT_AGENT_NAME` so the shared hook never
+   * names a specific product.
+   */
+  agentName?: string
   /** Load history on mount. */
   loadOnMount?: boolean
   /** Called when a file is created or modified by a tool call (path + new content). */

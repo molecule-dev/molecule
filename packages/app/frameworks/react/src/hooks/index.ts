@@ -1,5 +1,5 @@
 /**
- * React hooks for molecule.dev framework bindings.
+ * React hooks for the Molecule framework bindings.
  *
  * @module
  */

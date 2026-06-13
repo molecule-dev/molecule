@@ -1,5 +1,5 @@
 /**
- * React provider components for molecule.dev framework bindings.
+ * React provider components for the Molecule framework bindings.
  *
  * @module
  */

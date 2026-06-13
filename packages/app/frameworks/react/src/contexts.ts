@@ -1,5 +1,5 @@
 /**
- * React contexts for molecule.dev framework bindings.
+ * React contexts for the Molecule framework bindings.
  *
  * These contexts provide access to core molecule providers throughout
  * the React component tree.
