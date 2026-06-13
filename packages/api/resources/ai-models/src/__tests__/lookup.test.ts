@@ -180,6 +180,47 @@ describe('MODEL_IDS', () => {
 })
 
 // ---------------------------------------------------------------------------
+// Pricing integrity — spend-accounting invariant
+//
+// Every offered model MUST carry finite, non-negative per-MTok prices. The cost
+// accumulator (molecule-dev ai-cost.ts `computeAiCostCents`) prices each turn from
+// these and returns 0 for any model it can't price — so an offered-but-unpriced
+// model would silently fall through as FREE and under-count real spend. Since
+// chat dispatch is clamped to MODEL_IDS, "every MODELS entry is priced" is exactly
+// the guarantee that no usable model escapes metering.
+// ---------------------------------------------------------------------------
+
+describe('pricing integrity (spend accounting)', () => {
+  it('every model has finite, non-negative input + output per-MTok prices', () => {
+    for (const model of MODELS) {
+      expect(
+        Number.isFinite(model.inputPricePerMTok),
+        `${model.id} inputPricePerMTok must be a finite number`,
+      ).toBe(true)
+      expect(
+        Number.isFinite(model.outputPricePerMTok),
+        `${model.id} outputPricePerMTok must be a finite number`,
+      ).toBe(true)
+      expect(
+        model.inputPricePerMTok,
+        `${model.id} inputPricePerMTok must be >= 0`,
+      ).toBeGreaterThanOrEqual(0)
+      expect(
+        model.outputPricePerMTok,
+        `${model.id} outputPricePerMTok must be >= 0`,
+      ).toBeGreaterThanOrEqual(0)
+    }
+  })
+
+  it('every model has a non-empty id and label', () => {
+    for (const model of MODELS) {
+      expect(typeof model.id === 'string' && model.id.length > 0).toBe(true)
+      expect(typeof model.label === 'string' && model.label.length > 0).toBe(true)
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
 // getModelsByProvider
 // ---------------------------------------------------------------------------
 
