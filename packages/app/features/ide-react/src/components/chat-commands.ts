@@ -130,9 +130,9 @@ export const COMMANDS: readonly CommandDef[] = [
   {
     id: 'model',
     label: '/model',
-    description: 'Switch model...',
+    description: 'Switch model (use --plan / --execute for per-mode models)',
     category: 'model',
-    usage: '/model [name]',
+    usage: '/model [name | --plan | --execute]',
   },
   {
     id: 'models',

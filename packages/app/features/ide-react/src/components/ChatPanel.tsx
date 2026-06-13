@@ -56,6 +56,13 @@ import {
 import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 import { buildHelpText } from './chat-help-utilities.js'
+import type { ModelMode } from './chat-model-mode-utilities.js'
+import {
+  isModeModelLocked,
+  modeSettingKey,
+  parseModelModeCommand,
+  resolveModeModel,
+} from './chat-model-mode-utilities.js'
 import type { ReportResult } from './chat-report-utilities.js'
 import { formatReportConfirmation, parseReportCommand } from './chat-report-utilities.js'
 import type { ScriptInfo, ScriptRunResult } from './chat-scripts-utilities.js'
@@ -172,6 +179,13 @@ interface ActivityCardEntry {
 
 interface ModelPicker {
   selectedIdx: number
+  /**
+   * When set, the picker is scoped to a conversation mode (`/model --plan` /
+   * `--execute`): selections persist to `settings.planModel` / `executeModel`
+   * and the free-tier clamp is the mode's clamped model. Unset = the legacy
+   * single `chatModel`.
+   */
+  mode?: ModelMode
 }
 
 // ---------------------------------------------------------------------------
@@ -2735,6 +2749,10 @@ function ChatInner({
   const DEFAULT_MODEL = FREE_TIER_MODEL
   const isFreeTier = !isPro
   const [currentModel, setCurrentModel] = useState<string>('')
+  // Per-mode model overrides (SYN5). Empty string = unset; resolveModeModel then
+  // falls back to currentModel (the legacy single chatModel) for back-compat.
+  const [planModel, setPlanModel] = useState<string>('')
+  const [executeModel, setExecuteModel] = useState<string>('')
   const [currentMaxLoops, setCurrentMaxLoops] = useState<number>(100)
   const [autoFixEnabled, setAutoFixEnabled] = useState<boolean>(true)
   // Adopt the free-tier model id as soon as the catalog resolves, unless the
@@ -2750,6 +2768,8 @@ function ChatInner({
       .then((res) => {
         const s = res.data.settings
         if (typeof s?.chatModel === 'string') setCurrentModel(s.chatModel)
+        if (typeof s?.planModel === 'string') setPlanModel(s.planModel)
+        if (typeof s?.executeModel === 'string') setExecuteModel(s.executeModel)
         if (typeof s?.maxToolLoops === 'number') setCurrentMaxLoops(s.maxToolLoops)
         if (typeof s?.autoFix === 'boolean') setAutoFixEnabled(s.autoFix)
         if (s?.sounds && typeof s.sounds === 'object') {
@@ -3336,10 +3356,11 @@ function ChatInner({
       }
       setFilePicker(null)
 
-      // Show model picker when typing "/model <filter>"
+      // Show model picker when typing "/model <filter>" — scoped to a mode when
+      // the input carries a --plan / --execute flag.
       const modelMatch = val.match(/^\/model\s+/i)
       if (modelMatch) {
-        setModelPicker({ selectedIdx: -1 })
+        setModelPicker({ selectedIdx: -1, mode: parseModelModeCommand(val)?.mode })
         setCommandMenu(null)
         return
       }
@@ -3371,23 +3392,49 @@ function ChatInner({
     [setInputValue, autoResize],
   )
 
-  /** Select and apply a model by ID. */
+  /**
+   * Select and apply a model by ID. When `mode` is given the choice persists to
+   * that mode's per-mode field (`planModel` / `executeModel`); otherwise it sets
+   * the legacy single `chatModel`.
+   */
   const selectModel = useCallback(
-    async (modelId: string, displayName?: string) => {
+    async (modelId: string, displayName?: string, mode?: ModelMode) => {
       setModelPicker(null)
       setInputValue('')
+      const name = displayName ?? modelId
       try {
-        await http.patch(`/projects/${projectId}`, { settings: { chatModel: modelId } })
-        setCurrentModel(modelId)
-        addSystemCard(
-          t(
-            'ide.chat.modelSet',
-            { name: displayName ?? modelId },
-            {
-              defaultValue: `Chat model set to ${displayName ?? modelId}`,
-            },
-          ),
-        )
+        if (mode) {
+          await http.patch(`/projects/${projectId}`, {
+            settings: { [modeSettingKey(mode)]: modelId },
+          })
+          if (mode === 'plan') setPlanModel(modelId)
+          else setExecuteModel(modelId)
+          addSystemCard(
+            mode === 'plan'
+              ? t(
+                  'ide.chat.planModelSet',
+                  { name },
+                  { defaultValue: `Plan-mode model set to ${name}` },
+                )
+              : t(
+                  'ide.chat.executeModelSet',
+                  { name },
+                  { defaultValue: `Execute-mode model set to ${name}` },
+                ),
+          )
+        } else {
+          await http.patch(`/projects/${projectId}`, { settings: { chatModel: modelId } })
+          setCurrentModel(modelId)
+          addSystemCard(
+            t(
+              'ide.chat.modelSet',
+              { name },
+              {
+                defaultValue: `Chat model set to ${name}`,
+              },
+            ),
+          )
+        }
       } catch (error) {
         logger.warn('Failed to update chat model', { error })
         addSystemCard(
@@ -3882,6 +3929,16 @@ function ChatInner({
       return
     }
 
+    // Handle /model --plan / --execute locally — opens the picker scoped to that
+    // mode so a selection persists to planModel / executeModel. Must run BEFORE
+    // the generic /model handler so the flag isn't treated as a model name.
+    const modelModeMatch = parseModelModeCommand(trimmed)
+    if (modelModeMatch) {
+      setInputValue('')
+      setModelPicker({ selectedIdx: -1, mode: modelModeMatch.mode })
+      return
+    }
+
     // Handle /model <name> command locally
     const modelCmdMatch = trimmed.match(/^\/model(?:\s+(.+))?$/i)
     if (modelCmdMatch) {
@@ -4132,8 +4189,12 @@ function ChatInner({
   const filteredModels = useMemo(() => {
     if (!modelPicker) return []
     const val = inputRef.current as string
-    const match = val.match(/^\/model\s+(.*)/i)
-    const q = (match?.[1] ?? '').trim().toLowerCase()
+    // For a mode-scoped command the filter is the text after the flag; otherwise
+    // it's the text after "/model ".
+    const modeMatch = parseModelModeCommand(val)
+    const q = (modeMatch ? modeMatch.query : (val.match(/^\/model\s+(.*)/i)?.[1] ?? ''))
+      .trim()
+      .toLowerCase()
     if (!q) return AVAILABLE_MODELS
     return AVAILABLE_MODELS.filter(
       (m) => m.id.toLowerCase().includes(q) || m.label.toLowerCase().includes(q),
@@ -4270,21 +4331,29 @@ function ChatInner({
       if (e.key === 'ArrowDown') {
         e.preventDefault()
         setModelPicker((m) =>
-          m ? { selectedIdx: wrapIdx(m.selectedIdx, 1, visibleModels.length) } : null,
+          m ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, 1, visibleModels.length) } : null,
         )
         return
       }
       if (e.key === 'ArrowUp') {
         e.preventDefault()
         setModelPicker((m) =>
-          m ? { selectedIdx: wrapIdx(m.selectedIdx, -1, visibleModels.length) } : null,
+          m ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, -1, visibleModels.length) } : null,
         )
         return
       }
       if (e.key === 'Enter' || e.key === 'Tab') {
         e.preventDefault()
         const model = visibleModels[modelPicker.selectedIdx >= 0 ? modelPicker.selectedIdx : 0]
-        if (model) void selectModel(model.id, model.label)
+        if (model) {
+          // Honor the free-tier clamp for the active mode; ignore Enter on a
+          // locked model (the click path shows the upgrade card).
+          const pickerMode = modelPicker.mode
+          const isLocked = pickerMode
+            ? isModeModelLocked(model.id, pickerMode, isFreeTier, AVAILABLE_MODELS, FREE_TIER_MODEL)
+            : isFreeTier && model.id !== FREE_TIER_MODEL
+          if (!isLocked) void selectModel(model.id, model.label, pickerMode)
+        }
         return
       }
     }
@@ -5087,20 +5156,37 @@ function ChatInner({
                 }}
               >
                 <span>
-                  {t('ide.chat.selectModel', undefined, { defaultValue: 'Select model' })}
+                  {modelPicker.mode === 'plan'
+                    ? t('ide.chat.selectPlanModel', undefined, {
+                        defaultValue: 'Select plan-mode model',
+                      })
+                    : modelPicker.mode === 'execute'
+                      ? t('ide.chat.selectExecuteModel', undefined, {
+                          defaultValue: 'Select execute-mode model',
+                        })
+                      : t('ide.chat.selectModel', undefined, { defaultValue: 'Select model' })}
                 </span>
-                <span>
-                  {t(
-                    'ide.chat.currentModelLabel',
-                    {
-                      model:
-                        AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel,
-                    },
-                    {
-                      defaultValue: `Current: ${AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel}`,
-                    },
-                  )}
-                </span>
+                {(() => {
+                  // Mode-scoped current model (with back-compat fallback to the
+                  // single chatModel) so the picker always shows the active value.
+                  const effectiveId = modelPicker.mode
+                    ? (resolveModeModel(
+                        { planModel, executeModel, chatModel: currentModel },
+                        modelPicker.mode,
+                      ) ?? currentModel)
+                    : currentModel
+                  const effectiveLabel =
+                    AVAILABLE_MODELS.find((m) => m.id === effectiveId)?.label ?? effectiveId
+                  return (
+                    <span>
+                      {t(
+                        'ide.chat.currentModelLabel',
+                        { model: effectiveLabel },
+                        { defaultValue: `Current: ${effectiveLabel}` },
+                      )}
+                    </span>
+                  )
+                })()}
               </div>
               {modelsLoading ? (
                 <div className={cm.cn(cm.textSize('sm'), cm.textMuted)} style={{ padding: 12 }}>
@@ -5144,7 +5230,18 @@ function ChatInner({
                         fg: isLight ? 'rgb(180,83,9)' : 'rgb(251,191,36)',
                       })
                     const accent = PROVIDER_BRAND_COLORS[model.provider] ?? '#888'
-                    const locked = isFreeTier && model.id !== FREE_TIER_MODEL
+                    // Free tier is clamped per mode (plan → Sonnet, execute →
+                    // deepseek-v4-flash); the unscoped picker keeps the single
+                    // free-tier model.
+                    const locked = modelPicker.mode
+                      ? isModeModelLocked(
+                          model.id,
+                          modelPicker.mode,
+                          isFreeTier,
+                          AVAILABLE_MODELS,
+                          FREE_TIER_MODEL,
+                        )
+                      : isFreeTier && model.id !== FREE_TIER_MODEL
                     // Price-based color: green ≤$1, yellow ≤$3, red >$3 (input per MTok)
                     const priceColor =
                       model.inputPricePerMTok <= 1
@@ -5220,7 +5317,7 @@ function ChatInner({
                                     },
                               )
                             } else {
-                              void selectModel(model.id, model.label)
+                              void selectModel(model.id, model.label, modelPicker.mode)
                             }
                           }}
                           onMouseEnter={(e) => {
