@@ -153,4 +153,22 @@ describe('molecule icon set', () => {
       expect(name, `"${name}" should be kebab-case`).toMatch(/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/)
     }
   })
+
+  it('should include the IDE preview device-frame icons', () => {
+    // Consumed by @molecule/app-ide-react's PreviewPanel device-cycle button.
+    // browser → "responsive" (no frame); the three device-* → desktop/tablet/mobile.
+    for (const name of ['browser', 'device-desktop', 'device-mobile', 'device-tablet']) {
+      const icon = icons[name]
+      expect(icon, `Missing device-frame icon: ${name}`).toBeDefined()
+      expect(icon!.paths.length, `${name} should have at least one path`).toBeGreaterThan(0)
+      expect(icon!.paths.every((p) => p.d)).toBe(true)
+    }
+  })
+
+  it('should cut out the tablet screen with the evenodd fill rule', () => {
+    // The authored tablet glyph relies on evenodd to punch the screen hole; a
+    // nonzero rule would fill the whole body solid.
+    const tablet = icons['device-tablet']!
+    expect(tablet.paths[0]!.fillRule).toBe('evenodd')
+  })
 })
