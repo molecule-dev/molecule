@@ -312,6 +312,101 @@ describe('@molecule/api-resource-project handlers', () => {
       expect(updateData.envVars).toBe('{"API_KEY":"abc"}')
     })
 
+    it('should merge incoming settings/envVars keys onto existing ones (not overwrite)', async () => {
+      mockFindById.mockResolvedValue({
+        id: '1',
+        settings: { planModel: 'Claude Opus', executeModel: 'DeepSeek', maxToolLoops: 40 },
+        envVars: { EXISTING: 'keep' },
+      })
+      mockUpdateById.mockResolvedValue({ data: { id: '1' } })
+
+      const req = mockReq({
+        params: { id: '1' },
+        body: { settings: { effortLevel: 'L' }, envVars: { API_KEY: 'abc' } },
+      })
+      const res = mockRes()
+
+      await update(req, res)
+
+      const updateData = mockUpdateById.mock.calls[0][2] as Record<string, unknown>
+      expect(JSON.parse(updateData.settings as string)).toEqual({
+        planModel: 'Claude Opus',
+        executeModel: 'DeepSeek',
+        maxToolLoops: 40,
+        effortLevel: 'L',
+      })
+      expect(JSON.parse(updateData.envVars as string)).toEqual({
+        EXISTING: 'keep',
+        API_KEY: 'abc',
+      })
+    })
+
+    it('should parse a stringified settings column before merging (SQLite/MySQL text)', async () => {
+      // Non-Postgres bonds hand back the JSON bag as a raw string, not an object.
+      mockFindById.mockResolvedValue({
+        id: '1',
+        settings: '{"planModel":"Claude Opus"}',
+      })
+      mockUpdateById.mockResolvedValue({ data: { id: '1' } })
+
+      const req = mockReq({
+        params: { id: '1' },
+        body: { settings: { effortLevel: 'XL' } },
+      })
+      const res = mockRes()
+
+      await update(req, res)
+
+      const updateData = mockUpdateById.mock.calls[0][2] as Record<string, unknown>
+      expect(JSON.parse(updateData.settings as string)).toEqual({
+        planModel: 'Claude Opus',
+        effortLevel: 'XL',
+      })
+    })
+
+    it('should not clobber sibling settings across sequential single-key PATCHes (SYN5/SYN6)', async () => {
+      // Stateful column: each PATCH persists, the next read sees it — mirroring
+      // the JSONB round-trip the IDE slash-commands rely on between requests.
+      let stored: Record<string, unknown> = {}
+      mockFindById.mockImplementation(async () => ({ id: '1', settings: stored }))
+      mockUpdateById.mockImplementation(
+        async (_table: string, _id: string, data: Record<string, unknown>) => {
+          stored = JSON.parse(data.settings as string) as Record<string, unknown>
+          return { data: { id: '1', settings: stored } }
+        },
+      )
+
+      // /model --plan, /model --execute, /effort L, /maxloops 80, /autofix off
+      await update(
+        mockReq({ params: { id: '1' }, body: { settings: { planModel: 'Claude Opus' } } }),
+        mockRes(),
+      )
+      await update(
+        mockReq({ params: { id: '1' }, body: { settings: { executeModel: 'DeepSeek' } } }),
+        mockRes(),
+      )
+      await update(
+        mockReq({ params: { id: '1' }, body: { settings: { effortLevel: 'L' } } }),
+        mockRes(),
+      )
+      await update(
+        mockReq({ params: { id: '1' }, body: { settings: { maxToolLoops: 80 } } }),
+        mockRes(),
+      )
+      await update(
+        mockReq({ params: { id: '1' }, body: { settings: { autoFix: false } } }),
+        mockRes(),
+      )
+
+      expect(stored).toEqual({
+        planModel: 'Claude Opus',
+        executeModel: 'DeepSeek',
+        effortLevel: 'L',
+        maxToolLoops: 80,
+        autoFix: false,
+      })
+    })
+
     it('should return 500 on database error', async () => {
       mockFindById.mockResolvedValue({ id: '1' })
       mockUpdateById.mockRejectedValue(new Error('DB error'))
