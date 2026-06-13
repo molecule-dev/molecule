@@ -619,6 +619,66 @@ describe('logInOAuth handler — CSRF state validation', () => {
   })
 })
 
+// ===== 5b. OAuth email-collision account-takeover guard (logInOAuth.ts) =====
+
+describe('logInOAuth handler — email-collision account-takeover guard', () => {
+  const handler = logInOAuth(testResource)
+  const oauthProviderFor = (email?: string) => ({
+    verify: vi.fn().mockResolvedValue({
+      oauthServer: 'google',
+      oauthId: 'new-google-id',
+      username: 'newuser',
+      name: 'New User',
+      email,
+      oauthData: {},
+    }),
+  })
+  const wireGet = (provider: unknown) =>
+    mockGet.mockImplementation((category: string) => {
+      if (category === 'oauth') return provider
+      if (category === 'device') return { createOrUpdate: vi.fn().mockResolvedValue('device-id') }
+      return null
+    })
+
+  it('rejects with 409 when the OAuth email already belongs to another account', async () => {
+    wireGet(oauthProviderFor('taken@example.com'))
+    // 1st findOne (oauthServer+oauthId) → no match; 2nd (email) → an existing account.
+    mockFindOne
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ id: 'other-user-id', email: 'taken@example.com' })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(409)
+    expect(result?.body?.errorKey).toBe('user.error.emailAlreadyRegistered')
+    // Must NOT create a second account or auto-link the unverified email.
+    expect(mockResourceCreate).not.toHaveBeenCalled()
+  })
+
+  it('creates the account when the OAuth email is not already registered', async () => {
+    wireGet(oauthProviderFor('fresh@example.com'))
+    // No oauth match, no email collision, username free → all findOne → null.
+    mockFindOne.mockResolvedValue(null)
+    mockResourceCreate.mockResolvedValue({
+      statusCode: 201,
+      body: { props: { id: 'created-id', username: 'newuser', email: 'fresh@example.com' } },
+    })
+    mockStoreCreate.mockResolvedValue({ affected: 1 })
+    vi.spyOn(authorization, 'set').mockImplementation(() => {})
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    expect(mockResourceCreate).toHaveBeenCalled()
+  })
+})
+
 // ===== 6. Session invalidation on password change (updatePassword.ts) ======
 
 describe('updatePassword handler — session invalidation', () => {

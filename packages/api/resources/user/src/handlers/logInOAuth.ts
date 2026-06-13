@@ -127,6 +127,41 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
       ])
 
       if (!user) {
+        // Account-takeover + UNIQUE-crash guard: an OAuth login whose email already
+        // belongs to ANOTHER account must not (a) silently create a second user —
+        // the email column is UNIQUE, so that throws and surfaces as an opaque 500 —
+        // nor (b) be auto-linked into the existing account. The provider email is
+        // unverified at this layer, so auto-linking would let a compromised or
+        // typo-squatted OAuth email hijack an account created by another method or
+        // provider. Reject with an actionable error instead; the user signs in with
+        // their original method and links this provider from account settings.
+        // (Verified-email auto-linking is the scoped follow-up — see mvp SEC2 — and
+        // needs provider email-verification plumbed through the normalized verify()
+        // return plus an `emailVerified` column.)
+        if (oauthProps.email) {
+          const existingByEmail = await findOne<{ id: string }>(tableName, [
+            { field: 'email', operator: '=', value: oauthProps.email },
+          ])
+          if (existingByEmail) {
+            analytics
+              .track({
+                name: 'user.login_failed',
+                properties: { reason: 'oauth_email_collision', provider: oauthProps.oauthServer },
+              })
+              .catch(() => {})
+            return {
+              statusCode: 409,
+              body: {
+                error: t('user.error.emailAlreadyRegistered', undefined, {
+                  defaultValue:
+                    'An account already exists for this email. Please sign in with your original method, then link this provider from your account settings.',
+                }),
+                errorKey: 'user.error.emailAlreadyRegistered',
+              },
+            }
+          }
+        }
+
         // Create a new user.
         const id = uuid()
 
