@@ -42,6 +42,19 @@ export interface PreviewState {
   device: DeviceFrame
   error: string | null
   isConnected: boolean
+  /** Whether there is a previous entry in the navigation history (enables Back). */
+  canGoBack: boolean
+  /** Whether there is a forward entry in the navigation history (enables Forward). */
+  canGoForward: boolean
+  /**
+   * Monotonically increasing counter bumped whenever the preview should
+   * (re)load its current {@link PreviewState.url} — `setUrl`, `navigateTo`,
+   * `refresh`, `back`, and `forward` all bump it. A renderer keys its iframe
+   * (re)load off this so a `back`/`forward`/`refresh` to the SAME url string
+   * still reloads. {@link PreviewProvider.recordNavigation} does NOT bump it
+   * (an in-app navigation already happened — no reload).
+   */
+  loadNonce: number
 }
 
 /**
@@ -77,6 +90,28 @@ export interface PreviewProvider {
    * @param url - The preview's new location (absolute `http`/`https` URL).
    */
   recordNavigation(url: string): void
+  /**
+   * Navigates the preview to the previous entry in its navigation history (the
+   * history is built from {@link PreviewProvider.recordNavigation} and
+   * {@link PreviewProvider.setUrl} calls). No-op when {@link PreviewState.canGoBack}
+   * is `false`.
+   */
+  back(): void
+  /**
+   * Navigates the preview to the next entry in its navigation history. No-op
+   * when {@link PreviewState.canGoForward} is `false`.
+   */
+  forward(): void
+  /**
+   * Reports whether the preview can navigate back in its history.
+   * @returns Whether a Back navigation is currently possible.
+   */
+  canGoBack(): boolean
+  /**
+   * Reports whether the preview can navigate forward in its history.
+   * @returns Whether a Forward navigation is currently possible.
+   */
+  canGoForward(): boolean
   subscribe(callback: (state: PreviewState) => void): () => void
   openExternal(): void
 }

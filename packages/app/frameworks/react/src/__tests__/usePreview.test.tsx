@@ -23,19 +23,43 @@ function createMockPreviewProvider(initialUrl = ''): PreviewProvider {
     device: 'none',
     error: null,
     isConnected: false,
+    canGoBack: false,
+    canGoForward: false,
+    loadNonce: 0,
   }
+  const history: string[] = []
+  let index = -1
   const listeners = new Set<(s: PreviewState) => void>()
   const notify = (): void => listeners.forEach((l) => l(state))
+  const flags = (): { canGoBack: boolean; canGoForward: boolean } => ({
+    canGoBack: index > 0,
+    canGoForward: index < history.length - 1,
+  })
+  const push = (url: string): void => {
+    history.length = index + 1
+    if (history[index] === url) return
+    history.push(url)
+    index = history.length - 1
+  }
 
   return {
     name: 'mock',
     setUrl: (url: string) => {
-      state = { ...state, url, currentUrl: url, isLoading: true, error: null }
+      push(url)
+      state = {
+        ...state,
+        url,
+        currentUrl: url,
+        isLoading: true,
+        error: null,
+        loadNonce: state.loadNonce + 1,
+        ...flags(),
+      }
       notify()
     },
     getUrl: () => state.url,
     refresh: () => {
-      state = { ...state, isLoading: true }
+      state = { ...state, isLoading: true, loadNonce: state.loadNonce + 1 }
       notify()
     },
     setDevice: (device: DeviceFrame) => {
@@ -45,14 +69,32 @@ function createMockPreviewProvider(initialUrl = ''): PreviewProvider {
     getState: () => state,
     navigateTo: (path: string) => {
       const url = `${state.url.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`
-      state = { ...state, url, currentUrl: url, isLoading: true }
+      push(url)
+      state = { ...state, url, currentUrl: url, isLoading: true, ...flags() }
       notify()
     },
     recordNavigation: (url: string) => {
       if (url === state.currentUrl) return
-      state = { ...state, currentUrl: url }
+      push(url)
+      state = { ...state, currentUrl: url, ...flags() }
       notify()
     },
+    back: () => {
+      if (index <= 0) return
+      index--
+      const url = history[index]
+      state = { ...state, url, currentUrl: url, loadNonce: state.loadNonce + 1, ...flags() }
+      notify()
+    },
+    forward: () => {
+      if (index >= history.length - 1) return
+      index++
+      const url = history[index]
+      state = { ...state, url, currentUrl: url, loadNonce: state.loadNonce + 1, ...flags() }
+      notify()
+    },
+    canGoBack: () => index > 0,
+    canGoForward: () => index < history.length - 1,
     subscribe: (cb: (s: PreviewState) => void) => {
       listeners.add(cb)
       return () => listeners.delete(cb)
@@ -101,5 +143,30 @@ describe('usePreview', () => {
 
     expect(result.current.state.url).toBe('http://localhost:3000/dashboard')
     expect(result.current.state.currentUrl).toBe('http://localhost:3000/dashboard')
+  })
+
+  it('exposes back/forward and re-renders the canGoBack/canGoForward flags reactively', () => {
+    const provider = createMockPreviewProvider()
+    const { result } = renderHook(() => usePreview(), { wrapper: wrap(provider) })
+
+    expect(typeof result.current.back).toBe('function')
+    expect(typeof result.current.forward).toBe('function')
+    expect(result.current.state.canGoBack).toBe(false)
+
+    act(() => {
+      result.current.setUrl('http://localhost:3000/a')
+      result.current.recordNavigation('http://localhost:3000/b')
+    })
+    expect(result.current.state.canGoBack).toBe(true)
+    expect(result.current.state.canGoForward).toBe(false)
+
+    const nonceBefore = result.current.state.loadNonce
+    act(() => {
+      result.current.back()
+    })
+    // Back loads the previous entry (url + a loadNonce bump) and enables Forward.
+    expect(result.current.state.url).toBe('http://localhost:3000/a')
+    expect(result.current.state.canGoForward).toBe(true)
+    expect(result.current.state.loadNonce).toBe(nonceBefore + 1)
   })
 })

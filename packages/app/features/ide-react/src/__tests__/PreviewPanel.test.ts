@@ -177,3 +177,48 @@ describe('PreviewPanel URL bar (current location)', () => {
     expect(source).not.toContain('onChange={(e) => setUrl(e.target.value)}')
   })
 })
+
+/**
+ * Back/Forward (PV3): the panel drives the preview provider's own navigation
+ * history. The buttons are wired to back()/forward() and disabled from the
+ * canGoBack/canGoForward state flags. A loadNonce-keyed reload makes back/forward
+ * (and refresh) reload even when the target URL string is unchanged. Node-env, so
+ * assert against source.
+ */
+describe('PreviewPanel back/forward navigation', () => {
+  async function readSource(): Promise<string> {
+    const fs = await import('node:fs/promises')
+    return fs.readFile(new URL('../components/PreviewPanel.tsx', import.meta.url), 'utf-8')
+  }
+
+  it('pulls back/forward off the preview hook', async () => {
+    const source = await readSource()
+    expect(source).toMatch(/recordNavigation, back, forward \} =\s*\n?\s*usePreview\(\)/)
+  })
+
+  it('wires the Back button to back() and disables it via canGoBack', async () => {
+    const source = await readSource()
+    expect(source).toMatch(
+      /molId="preview-back"[\s\S]*?onClick=\{back\}[\s\S]*?disabled=\{!state\.canGoBack\}/,
+    )
+  })
+
+  it('wires the Forward button to forward() and disables it via canGoForward', async () => {
+    const source = await readSource()
+    expect(source).toMatch(
+      /molId="preview-forward"[\s\S]*?onClick=\{forward\}[\s\S]*?disabled=\{!state\.canGoForward\}/,
+    )
+  })
+
+  it('does not leave the back/forward buttons as hardcoded-disabled placeholders', async () => {
+    const source = await readSource()
+    expect(source).not.toMatch(/molId="preview-back"\s*\n\s*disabled\s*\n/)
+  })
+
+  it('keys the iframe reload off loadNonce so back/forward/refresh reload at the same URL', async () => {
+    const source = await readSource()
+    expect(source).toMatch(
+      /\}, \[state\.url, state\.loadNonce, startPolling, clearPoll, clearStuckTimer\]\)/,
+    )
+  })
+})

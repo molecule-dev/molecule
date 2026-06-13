@@ -43,6 +43,13 @@ export class IframePreviewProvider implements PreviewProvider {
   private state: PreviewState
   private refreshKey = 0
   private subscribers: Set<(state: PreviewState) => void> = new Set()
+  /**
+   * Navigation history (browser-style). Entries are pushed by `setUrl` and by
+   * `recordNavigation` (the preview's reported locations); `back`/`forward` move
+   * `historyIndex` within it. Empty until the first navigation is recorded.
+   */
+  private history: string[] = []
+  private historyIndex = -1
 
   constructor(config: IframePreviewConfig = {}) {
     this.state = {
@@ -52,7 +59,50 @@ export class IframePreviewProvider implements PreviewProvider {
       device: config.defaultDevice ?? 'none',
       error: null,
       isConnected: false,
+      canGoBack: false,
+      canGoForward: false,
+      loadNonce: 0,
     }
+  }
+
+  /**
+   * Pushes a URL onto the navigation history, truncating any forward entries
+   * (a new navigation replaces the forward stack) and collapsing a consecutive
+   * duplicate (a reload or a redirect to the same URL doesn't add an entry).
+   * @param url - The URL that was navigated to.
+   */
+  private pushHistory(url: string): void {
+    // Drop any forward history beyond the current position.
+    this.history = this.history.slice(0, this.historyIndex + 1)
+    if (this.history[this.historyIndex] === url) return
+    this.history.push(url)
+    this.historyIndex = this.history.length - 1
+  }
+
+  /**
+   * Derives the navigation flags from the current history position.
+   * @returns The current `canGoBack`/`canGoForward` flags derived from the history index.
+   */
+  private navFlags(): { canGoBack: boolean; canGoForward: boolean } {
+    return {
+      canGoBack: this.historyIndex > 0,
+      canGoForward: this.historyIndex < this.history.length - 1,
+    }
+  }
+
+  /** Loads the history entry at the current index (used by `back`/`forward`). */
+  private loadHistoryEntry(): void {
+    const url = this.history[this.historyIndex]
+    this.state = {
+      ...this.state,
+      url,
+      currentUrl: url,
+      isLoading: true,
+      error: null,
+      loadNonce: this.state.loadNonce + 1,
+      ...this.navFlags(),
+    }
+    this.notify()
   }
 
   /**
@@ -63,7 +113,16 @@ export class IframePreviewProvider implements PreviewProvider {
    * @param url - The new URL to load in the preview iframe.
    */
   setUrl(url: string): void {
-    this.state = { ...this.state, url, currentUrl: url, isLoading: true, error: null }
+    this.pushHistory(url)
+    this.state = {
+      ...this.state,
+      url,
+      currentUrl: url,
+      isLoading: true,
+      error: null,
+      loadNonce: this.state.loadNonce + 1,
+      ...this.navFlags(),
+    }
     this.notify()
   }
 
@@ -78,7 +137,10 @@ export class IframePreviewProvider implements PreviewProvider {
   recordNavigation(url: string): void {
     const validated = validateNavigationUrl(url)
     if (!validated || validated === this.state.currentUrl) return
-    this.state = { ...this.state, currentUrl: validated }
+    // Record the navigation in history (so Back/Forward work) but do NOT bump
+    // loadNonce or change the load target — the preview already navigated.
+    this.pushHistory(validated)
+    this.state = { ...this.state, currentUrl: validated, ...this.navFlags() }
     this.notify()
   }
 
@@ -90,11 +152,53 @@ export class IframePreviewProvider implements PreviewProvider {
     return this.state.url
   }
 
-  /** Forces a refresh by incrementing the refresh key, which triggers an iframe reload. */
+  /** Forces a refresh — bumps `loadNonce` (so the renderer reloads even at the same URL) and the refresh key. */
   refresh(): void {
     this.refreshKey++
-    this.state = { ...this.state, isLoading: true, error: null }
+    this.state = {
+      ...this.state,
+      isLoading: true,
+      error: null,
+      loadNonce: this.state.loadNonce + 1,
+    }
     this.notify()
+  }
+
+  /**
+   * Navigates to the previous entry in the navigation history (browser Back).
+   * No-op when there is no previous entry. Bumps `loadNonce` so the renderer
+   * reloads the target even if it equals the current load URL.
+   */
+  back(): void {
+    if (this.historyIndex <= 0) return
+    this.historyIndex--
+    this.loadHistoryEntry()
+  }
+
+  /**
+   * Navigates to the next entry in the navigation history (browser Forward).
+   * No-op when there is no forward entry.
+   */
+  forward(): void {
+    if (this.historyIndex >= this.history.length - 1) return
+    this.historyIndex++
+    this.loadHistoryEntry()
+  }
+
+  /**
+   * Reports whether the preview can navigate back in its history.
+   * @returns Whether a Back navigation is currently possible.
+   */
+  canGoBack(): boolean {
+    return this.historyIndex > 0
+  }
+
+  /**
+   * Reports whether the preview can navigate forward in its history.
+   * @returns Whether a Forward navigation is currently possible.
+   */
+  canGoForward(): boolean {
+    return this.historyIndex < this.history.length - 1
   }
 
   /**

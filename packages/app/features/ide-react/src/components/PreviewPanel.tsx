@@ -121,7 +121,8 @@ export function PreviewPanel({
   buildingHint,
 }: PreviewPanelProps): JSX.Element {
   const cm = getClassMap()
-  const { state, setUrl, refresh, setDevice, openExternal, recordNavigation } = usePreview()
+  const { state, setUrl, refresh, setDevice, openExternal, recordNavigation, back, forward } =
+    usePreview()
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   // The preview's actual current location (updated by the scaffold's
@@ -236,7 +237,11 @@ export function PreviewPanel({
       clearPoll()
       clearStuckTimer()
     }
-  }, [state.url, startPolling, clearPoll, clearStuckTimer])
+    // state.loadNonce forces a reload even when the URL string is unchanged
+    // (refresh, or back/forward to the same load target). recordNavigation does
+    // NOT bump loadNonce, so an in-app navigation updates the URL bar without
+    // reloading here.
+  }, [state.url, state.loadNonce, startPolling, clearPoll, clearStuckTimer])
 
   // --- When iframeReady becomes true, trigger fade-out ---
   useEffect(() => {
@@ -607,18 +612,21 @@ export function PreviewPanel({
         >
           <DeviceFrameSelector current={state.device} onChange={setDevice} />
 
-          {/* Back / Forward \u2014 disabled placeholders until PV3 (iframe
-              postMessage navigation protocol) is implemented. */}
+          {/* Back / Forward \u2014 navigate the preview's own history (built from
+              the molecule:navigate messages it reports). Disabled when there's
+              no entry to go to. */}
           <BarButton
             icon="arrow-left"
             molId="preview-back"
-            disabled
+            onClick={back}
+            disabled={!state.canGoBack}
             title={t('ide.preview.back', {}, { defaultValue: 'Back' })}
           />
           <BarButton
             icon="arrow-right"
             molId="preview-forward"
-            disabled
+            onClick={forward}
+            disabled={!state.canGoForward}
             title={t('ide.preview.forward', {}, { defaultValue: 'Forward' })}
           />
 
@@ -817,8 +825,8 @@ PreviewPanel.displayName = 'PreviewPanel'
 
 /**
  * A single icon button inside the preview URL bar. Renders a ghost button with
- * an icon-set glyph and a tooltip; `disabled` buttons (e.g. back/forward before
- * the navigation protocol exists) are dimmed and non-interactive via the
+ * an icon-set glyph and a tooltip; `disabled` buttons (e.g. Back/Forward when
+ * there's no history entry to go to) are dimmed and non-interactive via the
  * ClassMap button's built-in disabled styling.
  * @param root0 - Component props.
  * @param root0.icon - Icon-set glyph name.

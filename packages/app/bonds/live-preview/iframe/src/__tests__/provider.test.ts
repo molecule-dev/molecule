@@ -183,6 +183,113 @@ describe('@molecule/app-live-preview-iframe', () => {
     })
   })
 
+  describe('navigation history (back/forward)', () => {
+    it('starts with no history — back/forward are no-ops and flags are false', () => {
+      const provider = new IframePreviewProvider({ defaultUrl: 'http://localhost:3000' })
+      expect(provider.canGoBack()).toBe(false)
+      expect(provider.canGoForward()).toBe(false)
+
+      const callback = vi.fn()
+      provider.subscribe(callback)
+      provider.back()
+      provider.forward()
+      expect(callback).not.toHaveBeenCalled()
+      expect(provider.getState().canGoBack).toBe(false)
+      expect(provider.getState().canGoForward).toBe(false)
+    })
+
+    it('records setUrl + reported navigations and walks back/forward', () => {
+      const provider = new IframePreviewProvider()
+
+      provider.setUrl('http://localhost:3000/')
+      expect(provider.canGoBack()).toBe(false)
+
+      provider.recordNavigation('http://localhost:3000/about')
+      provider.recordNavigation('http://localhost:3000/contact')
+
+      // At /contact: can go back, not forward.
+      let state = provider.getState()
+      expect(state.currentUrl).toBe('http://localhost:3000/contact')
+      expect(state.canGoBack).toBe(true)
+      expect(state.canGoForward).toBe(false)
+
+      // Back → /about (loads it, can now go forward).
+      provider.back()
+      state = provider.getState()
+      expect(state.url).toBe('http://localhost:3000/about')
+      expect(state.currentUrl).toBe('http://localhost:3000/about')
+      expect(state.isLoading).toBe(true)
+      expect(state.canGoBack).toBe(true)
+      expect(state.canGoForward).toBe(true)
+
+      // Back → / (no further back).
+      provider.back()
+      state = provider.getState()
+      expect(state.url).toBe('http://localhost:3000/')
+      expect(state.canGoBack).toBe(false)
+      expect(state.canGoForward).toBe(true)
+
+      // Forward → /about.
+      provider.forward()
+      expect(provider.getState().url).toBe('http://localhost:3000/about')
+      expect(provider.getState().canGoForward).toBe(true)
+    })
+
+    it('truncates the forward stack when a new navigation happens after going back', () => {
+      const provider = new IframePreviewProvider()
+      provider.setUrl('http://localhost:3000/a')
+      provider.recordNavigation('http://localhost:3000/b')
+      provider.recordNavigation('http://localhost:3000/c')
+
+      provider.back() // → /b (forward stack holds /c)
+      expect(provider.canGoForward()).toBe(true)
+
+      // A fresh navigation from /b drops /c.
+      provider.recordNavigation('http://localhost:3000/d')
+      const state = provider.getState()
+      expect(state.currentUrl).toBe('http://localhost:3000/d')
+      expect(state.canGoForward).toBe(false)
+      expect(state.canGoBack).toBe(true)
+
+      // Forward is a no-op now.
+      const callback = vi.fn()
+      provider.subscribe(callback)
+      provider.forward()
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('does not add a history entry for a reload (consecutive duplicate)', () => {
+      const provider = new IframePreviewProvider()
+      provider.setUrl('http://localhost:3000/x')
+      // Re-loading the same URL must not create a phantom back entry.
+      provider.setUrl('http://localhost:3000/x')
+      expect(provider.canGoBack()).toBe(false)
+    })
+  })
+
+  describe('loadNonce (reload trigger)', () => {
+    it('bumps on setUrl, refresh, back, and forward — but NOT on recordNavigation', () => {
+      const provider = new IframePreviewProvider()
+      expect(provider.getState().loadNonce).toBe(0)
+
+      provider.setUrl('http://localhost:3000/a')
+      expect(provider.getState().loadNonce).toBe(1)
+
+      // recordNavigation is an in-app nav — the document already moved, no reload.
+      provider.recordNavigation('http://localhost:3000/b')
+      expect(provider.getState().loadNonce).toBe(1)
+
+      provider.refresh()
+      expect(provider.getState().loadNonce).toBe(2)
+
+      provider.back() // → /a
+      expect(provider.getState().loadNonce).toBe(3)
+
+      provider.forward() // → /b
+      expect(provider.getState().loadNonce).toBe(4)
+    })
+  })
+
   describe('subscribe', () => {
     it('should return unsubscribe function', () => {
       const provider = new IframePreviewProvider()

@@ -328,6 +328,10 @@ export interface UsePreviewResult {
    * message — updates the displayed current location without reloading the iframe.
    */
   recordNavigation: (url: string) => void
+  /** Navigates the preview to the previous navigation-history entry (Back). */
+  back: () => void
+  /** Navigates the preview to the next navigation-history entry (Forward). */
+  forward: () => void
 }
 
 // Re-export core types for convenience
