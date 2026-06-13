@@ -828,6 +828,11 @@ PreviewPanel.displayName = 'PreviewPanel'
  * an icon-set glyph and a tooltip; `disabled` buttons (e.g. Back/Forward when
  * there's no history entry to go to) are dimmed and non-interactive via the
  * ClassMap button's built-in disabled styling.
+ *
+ * The compact `xs` size is ~26px tall — fine for a mouse but below the WCAG
+ * 2.5.5 minimum tap target. `cm.touchTarget` grows the hit-area to >=44x44px on
+ * coarse-pointer (touch) devices ONLY, so the toolbar stays compact on desktop
+ * but is comfortably tappable on phones/tablets.
  * @param root0 - Component props.
  * @param root0.icon - Icon-set glyph name.
  * @param root0.title - Tooltip + accessible label.
@@ -858,7 +863,7 @@ function BarButton({
       title={title}
       onClick={onClick}
       disabled={disabled}
-      className={cm.button({ variant: 'ghost', size: 'xs' })}
+      className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
     >
       <Icon name={icon} size={16} aria-hidden="true" />
     </button>

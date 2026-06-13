@@ -7,6 +7,9 @@
  * a click will switch to. Icons come from the bonded `@molecule/app-icons` set
  * (no unicode glyphs, no ad-hoc SVG paths).
  *
+ * The button carries `cm.touchTarget`, so its compact `xs` desktop size grows to
+ * a WCAG-compliant >=44x44px hit-area on touch (coarse-pointer) devices.
+ *
  * @module
  */
 
@@ -55,7 +58,7 @@ export function DeviceFrameSelector({
       aria-label={title}
       title={title}
       onClick={() => onChange(next)}
-      className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), className)}
+      className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget, className)}
     >
       <Icon name={deviceIconName(current)} size={16} aria-hidden="true" />
     </button>
