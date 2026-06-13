@@ -16,7 +16,7 @@
  * @module
  */
 
-import type { JSX } from 'react'
+import type { JSX, ReactNode } from 'react'
 import {
   Fragment,
   memo,
@@ -40,7 +40,7 @@ import { getLogger } from '@molecule/app-logger'
 import { useAIModels, useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-import type { ChatEventCardAction } from '../customEventCards.js'
+import type { ChatEventCardAction, ChatEventCardSegment } from '../customEventCards.js'
 import { getCustomEventCardFactory } from '../customEventCards.js'
 import type { ChatPanelProps, IdeClientAction } from '../types.js'
 import type { Activity } from './activity-utilities.js'
@@ -169,6 +169,13 @@ interface SystemCard {
   text: string
   timestamp: number
   action?: ChatEventCardAction | ChatEventCardAction[]
+  /**
+   * Composable inline body for a `tone` (tip) card — an ordered list of segments
+   * (plain strings + inline link actions) rendered in sequence, used INSTEAD of
+   * `text` + appended `action`s so a link can sit mid-sentence (see
+   * {@link ChatEventCard.content}). `text` stays the plain-text fallback.
+   */
+  content?: ChatEventCardSegment[]
   /**
    * Optional rich-content variant rendered in place of the plain text:
    * `'models'` → the sortable `/models` comparison table; `'settings'` → the
@@ -2055,6 +2062,7 @@ function ChatInner({
       query?: string,
       emphasized?: boolean,
       tone?: SystemCard['tone'],
+      content?: SystemCard['content'],
     ) => void
   >(() => {})
   // Ref so the stream-event callback can push activity cards without depending
@@ -2126,6 +2134,7 @@ function ChatInner({
             undefined,
             card.emphasized,
             card.tone,
+            card.content,
           )
         }
       }
@@ -2636,6 +2645,7 @@ function ChatInner({
       query?: string,
       emphasized?: boolean,
       tone?: SystemCard['tone'],
+      content?: SystemCard['content'],
     ) => {
       // If a message is actively streaming, place the card just before it so
       // it doesn't get pinned below the growing response.
@@ -2646,7 +2656,17 @@ function ChatInner({
       }
       setSystemCards((prev) => [
         ...prev,
-        { id: crypto.randomUUID(), text, timestamp: ts, action, variant, query, emphasized, tone },
+        {
+          id: crypto.randomUUID(),
+          text,
+          timestamp: ts,
+          action,
+          variant,
+          query,
+          emphasized,
+          tone,
+          content,
+        },
       ])
       // Auto-scroll after the card renders so the user sees it immediately
       if (!userScrolledUpRef.current) {
@@ -4725,6 +4745,39 @@ function ChatInner({
                     ? item.card.action
                     : [item.card.action]
                   : []
+                const toneLinkStyle = {
+                  color: 'var(--color-primary, #4070e0)',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                } as const
+                // One inline action → an underlined link (href) or link-styled button (onClick).
+                const renderToneAction = (act: ChatEventCardAction, key: number): ReactNode =>
+                  act.href ? (
+                    <a
+                      key={key}
+                      href={act.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={toneLinkStyle}
+                    >
+                      {act.label}
+                    </a>
+                  ) : (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={act.onClick}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        font: 'inherit',
+                        ...toneLinkStyle,
+                      }}
+                    >
+                      {act.label}
+                    </button>
+                  )
                 return (
                   <div
                     key={item.card.id}
@@ -4753,42 +4806,25 @@ function ChatInner({
                       <path d="M10 2a6 6 0 0 0-3.5 10.9c.3.2.5.6.5 1V15h6v-1.1c0-.4.2-.8.5-1A6 6 0 0 0 10 2zM7 17a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-.5H7V17z" />
                     </svg>
                     <span style={{ flex: 1 }}>
-                      {item.card.text}
-                      {toneActions.map((act, i) => (
-                        <span key={i}>
-                          {' '}
-                          {act.href ? (
-                            <a
-                              href={act.href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                color: 'var(--color-primary, #4070e0)',
-                                textDecoration: 'underline',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              {act.label}
-                            </a>
+                      {item.card.content ? (
+                        // Composable inline body: render each segment in order — strings as
+                        // text, actions as inline links — so prose + links + trailing
+                        // punctuation flow naturally. Segments carry their own spacing.
+                        item.card.content.map((seg, i) =>
+                          typeof seg === 'string' ? (
+                            <span key={i}>{seg}</span>
                           ) : (
-                            <button
-                              type="button"
-                              onClick={act.onClick}
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                padding: 0,
-                                font: 'inherit',
-                                color: 'var(--color-primary, #4070e0)',
-                                textDecoration: 'underline',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              {act.label}
-                            </button>
-                          )}
-                        </span>
-                      ))}
+                            renderToneAction(seg, i)
+                          ),
+                        )
+                      ) : (
+                        <>
+                          {item.card.text}
+                          {toneActions.map((act, i) => (
+                            <span key={i}> {renderToneAction(act, i)}</span>
+                          ))}
+                        </>
+                      )}
                     </span>
                   </div>
                 )

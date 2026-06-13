@@ -26,6 +26,12 @@ export interface ChatEventCardAction {
 }
 
 /**
+ * One inline segment of a toned tip card's composable body: either literal text, or a
+ * labelled link/action ({@link ChatEventCardAction}). See {@link ChatEventCard.content}.
+ */
+export type ChatEventCardSegment = string | ChatEventCardAction
+
+/**
  * A chat system card: a short message with an optional action (or actions). Mirrors
  * the system-card shape ChatPanel renders for upgrade prompts, guest reminders, etc.
  */
@@ -34,6 +40,16 @@ export interface ChatEventCard {
   text: string
   /** An optional action button (or buttons): a link (`href`) and/or a click handler. */
   action?: ChatEventCardAction | ChatEventCardAction[]
+  /**
+   * Composable inline body for a `tone` (tip) card: an ordered list of segments rendered
+   * in sequence — plain strings as text, {@link ChatEventCardAction}s as inline underlined
+   * links — so prose and links interleave freely (e.g. text → an inline link → a trailing
+   * period). When set, the renderer uses this INSTEAD of `text` + appended `action`s, so a
+   * link can sit mid-sentence rather than only at the end. Segments carry their own spacing
+   * (no auto-space is inserted between them). Keep `text` populated with a plain-text
+   * equivalent for accessibility / non-toned consumers. Only honored when `tone` is set.
+   */
+  content?: ChatEventCardSegment[]
   /**
    * When true, ChatPanel renders the card in its emphasized (highlighted box) style
    * instead of the muted inline style — e.g. a sign-up / upgrade nudge the app wants
