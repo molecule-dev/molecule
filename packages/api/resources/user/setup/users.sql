@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS "users" (
   "username" varchar(255),
   "name" text,
   "email" varchar(1023) UNIQUE,
+  "emailVerified" boolean DEFAULT false NOT NULL,
   "avatar" text,
   "bio" text,
   "twoFactorEnabled" boolean DEFAULT false,

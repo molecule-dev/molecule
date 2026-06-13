@@ -680,6 +680,180 @@ describe('logInOAuth handler — email-collision account-takeover guard', () => 
   })
 })
 
+// ===== 5c. OAuth email verification + verified-trust linking (logInOAuth.ts) =
+
+describe('logInOAuth handler — email verification + verified-trust linking', () => {
+  const handler = logInOAuth(testResource)
+
+  const oauthProviderFor = (props: {
+    email?: string
+    emailVerified?: boolean
+    oauthId?: string
+  }) => ({
+    verify: vi.fn().mockResolvedValue({
+      oauthServer: 'google',
+      oauthId: props.oauthId ?? 'new-google-id',
+      username: 'newuser',
+      name: 'New User',
+      email: props.email,
+      emailVerified: props.emailVerified,
+      oauthData: { sub: props.oauthId ?? 'new-google-id' },
+    }),
+  })
+
+  const wireGet = (provider: unknown) =>
+    mockGet.mockImplementation((category: string) => {
+      if (category === 'oauth') return provider
+      if (category === 'device') return { createOrUpdate: vi.fn().mockResolvedValue('device-id') }
+      return null
+    })
+
+  beforeEach(() => {
+    vi.spyOn(authorization, 'set').mockImplementation(() => 'mock-jwt-token')
+  })
+
+  it('links a provider-VERIFIED email into an existing UNVERIFIED account (anti-squatting)', async () => {
+    wireGet(oauthProviderFor({ email: 'owner@example.com', emailVerified: true }))
+    // 1st findOne (oauthServer+oauthId) → no match.
+    // 2nd findOne (email) → an existing, *unverified* local account (the squatter).
+    mockFindOne.mockResolvedValueOnce(null).mockResolvedValueOnce({
+      id: 'squatter-id',
+      email: 'owner@example.com',
+      emailVerified: false,
+    })
+    mockUpdateById.mockResolvedValue({ affected: 1 })
+    // The merged row after linking.
+    mockFindById.mockResolvedValue({
+      id: 'squatter-id',
+      email: 'owner@example.com',
+      emailVerified: true,
+      oauthServer: 'google',
+      oauthId: 'new-google-id',
+    })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    // No second account created — the OAuth identity is linked into the existing row.
+    expect(mockResourceCreate).not.toHaveBeenCalled()
+    // The existing account is claimed: OAuth identity attached + marked verified.
+    expect(mockUpdateById).toHaveBeenCalledWith(
+      'users',
+      'squatter-id',
+      expect.objectContaining({
+        oauthServer: 'google',
+        oauthId: 'new-google-id',
+        emailVerified: true,
+      }),
+    )
+  })
+
+  it('does NOT take over an already-VERIFIED account even with a verified OAuth email', async () => {
+    wireGet(oauthProviderFor({ email: 'owner@example.com', emailVerified: true }))
+    mockFindOne
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ id: 'rightful-id', email: 'owner@example.com', emailVerified: true })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(409)
+    expect(result?.body?.errorKey).toBe('user.error.emailAlreadyRegistered')
+    expect(mockUpdateById).not.toHaveBeenCalled()
+    expect(mockResourceCreate).not.toHaveBeenCalled()
+  })
+
+  it('does NOT link when the OAuth email is UNVERIFIED, even against an unverified account', async () => {
+    wireGet(oauthProviderFor({ email: 'owner@example.com', emailVerified: false }))
+    mockFindOne
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ id: 'other-id', email: 'owner@example.com', emailVerified: false })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(409)
+    expect(mockUpdateById).not.toHaveBeenCalled()
+  })
+
+  it('normalizes the OAuth email (case/whitespace) before the collision lookup', async () => {
+    wireGet(oauthProviderFor({ email: '  Owner@Example.COM ', emailVerified: false }))
+    mockFindOne
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ id: 'other-id', email: 'owner@example.com', emailVerified: false })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(409)
+    // The email lookup must use the normalized (trimmed + lowercased) form so a
+    // case variant cannot slip past the UNIQUE column.
+    expect(mockFindOne).toHaveBeenCalledWith('users', [
+      { field: 'email', operator: '=', value: 'owner@example.com' },
+    ])
+  })
+
+  it('persists emailVerified when creating a brand-new OAuth user', async () => {
+    wireGet(oauthProviderFor({ email: 'fresh@example.com', emailVerified: true }))
+    // No oauth match, no email collision, username free → all findOne → null.
+    mockFindOne.mockResolvedValue(null)
+    mockResourceCreate.mockResolvedValue({
+      statusCode: 201,
+      body: { props: { id: 'created-id', username: 'newuser', email: 'fresh@example.com' } },
+    })
+    mockStoreCreate.mockResolvedValue({ affected: 1 })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    expect(mockResourceCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        props: expect.objectContaining({
+          email: 'fresh@example.com',
+          emailVerified: true,
+        }),
+      }),
+    )
+  })
+
+  it('converts a TOCTOU UNIQUE-collision (create fails, email now exists) into 409, not 500', async () => {
+    wireGet(oauthProviderFor({ email: 'race@example.com', emailVerified: false }))
+    // Pre-checks: no oauth match, no email collision, username free.
+    // Post-create re-check (4th findOne): the email now exists (a concurrent
+    // request inserted it between our check and our insert).
+    mockFindOne
+      .mockResolvedValueOnce(null) // oauthServer+oauthId
+      .mockResolvedValueOnce(null) // email pre-check
+      .mockResolvedValueOnce(null) // username uniqueness
+      .mockResolvedValueOnce({ id: 'raced-id', email: 'race@example.com' }) // post-create race re-check
+    // The insert is rejected by the UNIQUE constraint → resource returns non-201.
+    mockResourceCreate.mockResolvedValue({
+      statusCode: 400,
+      body: { error: 'duplicate key', errorKey: 'resource.error.unableToCreate' },
+    })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(409)
+    expect(result?.body?.errorKey).toBe('user.error.emailAlreadyRegistered')
+  })
+})
+
 // ===== 6. Session invalidation on password change (updatePassword.ts) ======
 
 describe('updatePassword handler — session invalidation', () => {

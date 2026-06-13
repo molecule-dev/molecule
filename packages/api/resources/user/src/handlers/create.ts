@@ -9,6 +9,7 @@ import { create as resourceCreate } from '@molecule/api-resource'
 
 import * as authorization from '../authorization.js'
 import type * as types from '../types.js'
+import { normalizeEmail } from '../utilities/normalizeEmail.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -87,9 +88,14 @@ export const create = ({ name, tableName, schema }: types.Resource) => {
       }
 
       if (props.email) {
-        props.email = props.email.substring(0, 1023)
+        // Normalize (trim + lowercase) BEFORE validation/storage so case and
+        // whitespace variants of the same mailbox can't bypass the `email`
+        // UNIQUE constraint or the OAuth collision lookup (which also
+        // normalizes). Keep the existing length cap.
+        const normalizedEmail = normalizeEmail(props.email)?.substring(0, 1023)
+        props.email = (normalizedEmail ?? null) as unknown as string
         // Basic email validation
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.email)) {
+        if (props.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.email)) {
           return {
             statusCode: 400,
             body: { error: t('user.error.emailInvalid'), errorKey: 'user.error.emailInvalid' },

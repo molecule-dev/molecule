@@ -1,13 +1,14 @@
 import { v4 as uuid } from 'uuid'
 
 import { get, getAnalytics, getLogger } from '@molecule/api-bond'
-import { create as storeCreate, findOne, updateById } from '@molecule/api-database'
+import { create as storeCreate, findById, findOne, updateById } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import { create as resourceCreate } from '@molecule/api-resource'
 
 import * as authorization from '../authorization.js'
 import type * as types from '../types.js'
+import { normalizeEmail } from '../utilities/normalizeEmail.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -85,6 +86,12 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         username?: string
         name?: string
         email?: string
+        /**
+         * Whether the provider affirmatively verified the user controls this
+         * email mailbox. Only an explicit `true` is trusted — see
+         * `@molecule/api-oauth`'s `OAuthUserProps.emailVerified`.
+         */
+        emailVerified?: boolean
         oauthServer: string
         oauthId: string
         oauthData: unknown
@@ -120,6 +127,15 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         }
       }
 
+      // Normalize the provider email once so storage and every collision
+      // lookup compare the same canonical form — a case/whitespace variant
+      // (`Foo@x.com` vs `foo@x.com`) must not slip past the UNIQUE column.
+      const email = normalizeEmail(oauthProps.email)
+      // Only an explicit provider-verified flag counts as proof of mailbox
+      // ownership. Undefined/false from a provider that can't confirm is
+      // treated as unverified.
+      const oauthEmailVerified = oauthProps.emailVerified === true
+
       // Check if a user already exists with this OAuth ID.
       let user = await findOne<types.Props>(tableName, [
         { field: 'oauthServer', operator: '=', value: oauthProps.oauthServer },
@@ -127,41 +143,83 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
       ])
 
       if (!user) {
-        // Account-takeover + UNIQUE-crash guard: an OAuth login whose email already
-        // belongs to ANOTHER account must not (a) silently create a second user —
-        // the email column is UNIQUE, so that throws and surfaces as an opaque 500 —
-        // nor (b) be auto-linked into the existing account. The provider email is
-        // unverified at this layer, so auto-linking would let a compromised or
-        // typo-squatted OAuth email hijack an account created by another method or
-        // provider. Reject with an actionable error instead; the user signs in with
-        // their original method and links this provider from account settings.
-        // (Verified-email auto-linking is the scoped follow-up — see mvp SEC2 — and
-        // needs provider email-verification plumbed through the normalized verify()
-        // return plus an `emailVerified` column.)
-        if (oauthProps.email) {
-          const existingByEmail = await findOne<{ id: string }>(tableName, [
-            { field: 'email', operator: '=', value: oauthProps.email },
+        // Account-takeover + UNIQUE-crash guard. An OAuth login whose email
+        // already belongs to ANOTHER account must never silently create a
+        // second user (the `email` column is UNIQUE, so that throws and
+        // surfaces as an opaque 500). What we do on collision depends on who
+        // can prove they own the mailbox:
+        //
+        //  • OAuth email is provider-VERIFIED and the existing account is
+        //    UNVERIFIED → the OAuth user is the proven owner and the existing
+        //    account never proved ownership (classic squatting: an unverified
+        //    local signup at someone else's address). Link this provider into
+        //    the existing account so the verified owner isn't locked out.
+        //  • Otherwise (OAuth email unverified, OR the existing account is
+        //    already verified) → do NOT auto-link; an unverified provider email
+        //    could be typo-squatted/compromised, and we never wrest a verified
+        //    account away. Reject with an actionable 409.
+        if (email) {
+          const existingByEmail = await findOne<types.Props>(tableName, [
+            { field: 'email', operator: '=', value: email },
           ])
           if (existingByEmail) {
-            analytics
-              .track({
-                name: 'user.login_failed',
-                properties: { reason: 'oauth_email_collision', provider: oauthProps.oauthServer },
+            const existingVerified = existingByEmail.emailVerified === true
+
+            if (oauthEmailVerified && !existingVerified) {
+              // Trust the provider-verified owner: link this OAuth identity
+              // into the existing (unverified) account and mark it verified.
+              await updateById(tableName, existingByEmail.id, {
+                oauthServer: oauthProps.oauthServer,
+                oauthId: oauthProps.oauthId,
+                oauthData: JSON.stringify(oauthProps.oauthData),
+                emailVerified: true,
+                email,
+                updatedAt: new Date().toISOString(),
               })
-              .catch(() => {})
-            return {
-              statusCode: 409,
-              body: {
-                error: t('user.error.emailAlreadyRegistered', undefined, {
-                  defaultValue:
-                    'An account already exists for this email. Please sign in with your original method, then link this provider from your account settings.',
-                }),
-                errorKey: 'user.error.emailAlreadyRegistered',
-              },
+
+              analytics
+                .track({
+                  name: 'user.oauth_linked',
+                  userId: existingByEmail.id,
+                  properties: {
+                    provider: oauthProps.oauthServer,
+                    reason: 'verified_email_claimed_unverified_account',
+                  },
+                })
+                .catch((err) => {
+                  logger.debug('Failed to track user.oauth_linked', { error: err })
+                })
+
+              // Re-read the merged row so the response + session reflect DB truth.
+              user = (await findById<types.Props>(tableName, existingByEmail.id)) ?? existingByEmail
+            } else {
+              analytics
+                .track({
+                  name: 'user.login_failed',
+                  properties: {
+                    reason: 'oauth_email_collision',
+                    provider: oauthProps.oauthServer,
+                  },
+                })
+                .catch((err) => {
+                  logger.debug('Failed to track user.login_failed', { error: err })
+                })
+              return {
+                statusCode: 409,
+                body: {
+                  error: t('user.error.emailAlreadyRegistered', undefined, {
+                    defaultValue:
+                      'An account already exists for this email. Please sign in with your original method, then link this provider from your account settings.',
+                  }),
+                  errorKey: 'user.error.emailAlreadyRegistered',
+                },
+              }
             }
           }
         }
+      }
 
+      if (!user) {
         // Create a new user.
         const id = uuid()
 
@@ -182,7 +240,8 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
           props: {
             username,
             name: oauthProps.name,
-            email: oauthProps.email || null,
+            email: email || null,
+            emailVerified: oauthEmailVerified,
             oauthServer: oauthProps.oauthServer,
             oauthId: oauthProps.oauthId,
             oauthData: oauthProps.oauthData,
@@ -195,6 +254,41 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         }
 
         if (!user) {
+          // The insert failed. The most likely non-bug cause is a TOCTOU race:
+          // a concurrent request created an account with this same email
+          // between our pre-check and this insert, so the UNIQUE constraint
+          // rejected it. Detect that DB-agnostically (no provider-specific
+          // error codes) by re-checking the email, and surface a clean 409
+          // instead of an opaque 500.
+          if (email) {
+            const racedByEmail = await findOne<{ id: string }>(tableName, [
+              { field: 'email', operator: '=', value: email },
+            ])
+            if (racedByEmail) {
+              analytics
+                .track({
+                  name: 'user.login_failed',
+                  properties: {
+                    reason: 'oauth_email_collision_race',
+                    provider: oauthProps.oauthServer,
+                  },
+                })
+                .catch((err) => {
+                  logger.debug('Failed to track user.login_failed', { error: err })
+                })
+              return {
+                statusCode: 409,
+                body: {
+                  error: t('user.error.emailAlreadyRegistered', undefined, {
+                    defaultValue:
+                      'An account already exists for this email. Please sign in with your original method, then link this provider from your account settings.',
+                  }),
+                  errorKey: 'user.error.emailAlreadyRegistered',
+                },
+              }
+            }
+          }
+
           return {
             statusCode: 500,
             body: {

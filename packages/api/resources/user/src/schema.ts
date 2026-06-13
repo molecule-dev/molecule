@@ -53,6 +53,16 @@ export const createSchema = <
      */
     email: z.string().email().nullable().optional(),
     /**
+     * Whether the user's email address has been verified — either by an OAuth
+     * provider that affirmatively confirmed mailbox ownership (Google/Apple
+     * `email_verified`, GitHub public email, GitLab `confirmed_at`) or by a
+     * post-signup email-confirmation flow. Defaults to `false`. Used to decide
+     * whether a provider-supplied email may be trusted over an existing,
+     * unverified account so an unverified squatter cannot block the verified
+     * mailbox owner.
+     */
+    emailVerified: z.boolean().optional(),
+    /**
      * The user's avatar — either a URL or a small inline data-URI
      * (capped at {@link MAX_AVATAR_LENGTH} characters / ~256KB). Optional and
      * nullable so it can be cleared and remains back-compatible with existing rows.
@@ -173,6 +183,7 @@ export const createOAuthPropsSchema = propsSchema.pick({
   username: true,
   name: true,
   email: true,
+  emailVerified: true,
   oauthServer: true,
   oauthId: true,
   oauthData: true,
