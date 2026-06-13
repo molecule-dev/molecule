@@ -36,9 +36,15 @@ import type { ChatPanelProps, IdeClientAction } from '../types.js'
 import type { Activity } from './activity-utilities.js'
 import { activityFromEvent } from './activity-utilities.js'
 import { ActivityCard } from './ActivityCard.js'
+import type { CommandId } from './chat-commands.js'
+import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
+import { buildHelpText } from './chat-help-utilities.js'
 import { estimateStreamTokens } from './chat-stream-utilities.js'
+import { selectTip, TIP_INTERVAL } from './chat-tips-utilities.js'
 import { MarkdownContent } from './MarkdownContent.js'
+import { ModelsTable } from './ModelsTable.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
+import { TipCard } from './TipCard.js'
 import { ToolCallCard } from './ToolCallCard.js'
 
 const logger = getLogger('chat-panel')
@@ -101,6 +107,21 @@ interface SystemCard {
   action?:
     | { label: string; href?: string; onClick?: () => void }
     | { label: string; href?: string; onClick?: () => void }[]
+  /**
+   * Optional rich-content variant. `'models'` renders the sortable `/models`
+   * comparison table in place of the plain text; default (undefined) is text.
+   */
+  variant?: 'models'
+}
+
+/** A dismissable auto-tip entry in the chat timeline. */
+interface TipCardEntry {
+  id: string
+  /** Tip slot index — drives deterministic tip selection via `selectTip`. */
+  slot: number
+  text: string
+  /** Numeric timestamp for timeline ordering. */
+  timestamp: number
 }
 
 /** An inline activity card entry in the chat timeline (a captured side effect). */
@@ -110,75 +131,6 @@ interface ActivityCardEntry {
   /** Numeric timestamp for timeline ordering (derived from the activity's ISO timestamp). */
   timestamp: number
 }
-
-interface CommandDef {
-  id: string
-  label: string
-  description: string
-  category: 'context' | 'code' | 'model' | 'settings' | 'support'
-}
-
-const COMMAND_CATEGORIES = [
-  { key: 'context' as const, label: 'Context' },
-  { key: 'code' as const, label: 'Code' },
-  { key: 'model' as const, label: 'Model' },
-  { key: 'settings' as const, label: 'Settings' },
-  { key: 'support' as const, label: 'Support' },
-] as const
-
-const COMMANDS: CommandDef[] = [
-  // Context
-  { id: 'clear', label: '/clear', description: 'Clear conversation', category: 'context' },
-  {
-    id: 'compact',
-    label: '/compact',
-    description: 'Compress context to free space',
-    category: 'context',
-  },
-  {
-    id: 'cost',
-    label: '/cost',
-    description: 'Show token usage & estimated cost',
-    category: 'context',
-  },
-
-  // Code
-  { id: 'commit', label: '/commit', description: 'Commit current changes', category: 'code' },
-  { id: 'diff', label: '/diff', description: 'Show uncommitted changes', category: 'code' },
-  {
-    id: 'explain',
-    label: '/explain',
-    description: 'Explain code (e.g. /explain @file)',
-    category: 'code',
-  },
-  { id: 'lint', label: '/lint', description: 'Run linter and fix issues', category: 'code' },
-  { id: 'test', label: '/test', description: 'Run project test suite', category: 'code' },
-  {
-    id: 'undo',
-    label: '/undo',
-    description: "Revert last AI turn's file changes",
-    category: 'code',
-  },
-
-  // Model
-  { id: 'model', label: '/model', description: 'Switch model...', category: 'model' },
-  { id: 'plan', label: '/plan', description: 'Toggle plan/execute mode', category: 'model' },
-  { id: 'maxloops', label: '/maxloops', description: 'Set max tool iterations', category: 'model' },
-
-  // Settings
-  {
-    id: 'autofix',
-    label: '/autofix',
-    description: 'Toggle auto-fix after AI file changes',
-    category: 'settings',
-  },
-  { id: 'sounds', label: '/sounds', description: 'Notification sounds', category: 'settings' },
-
-  // Support
-  { id: 'help', label: '/help', description: 'Workflow guide & tips', category: 'support' },
-]
-
-type CommandId = CommandDef['id']
 
 interface ModelPicker {
   selectedIdx: number
@@ -1980,7 +1932,9 @@ function ChatInner({
   // Track completed assistant turns to inject periodic sign-up reminders.
   // First reminder after 3 turns, then every 10 turns thereafter.
   const turnCountRef = useRef(0)
-  const addSystemCardRef = useRef<(text: string, action?: SystemCard['action']) => void>(() => {})
+  const addSystemCardRef = useRef<
+    (text: string, action?: SystemCard['action'], variant?: SystemCard['variant']) => void
+  >(() => {})
   // Ref so the stream-event callback can push activity cards without depending
   // on the state setter (mirrors addSystemCardRef).
   const addActivityCardRef = useRef<(activity: Activity) => void>(() => {})
@@ -2561,23 +2515,29 @@ function ChatInner({
   // every streaming chunk).
   const messagesRef = useRef(messages)
   messagesRef.current = messages
-  const addSystemCard = useCallback((text: string, action?: SystemCard['action']) => {
-    // If a message is actively streaming, place the card just before it so
-    // it doesn't get pinned below the growing response.
-    let ts = Date.now()
-    const streaming = messagesRef.current.find((m) => m.isStreaming)
-    if (streaming && streaming.timestamp <= ts) {
-      ts = streaming.timestamp - 1
-    }
-    setSystemCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: ts, action }])
-    // Auto-scroll after the card renders so the user sees it immediately
-    if (!userScrolledUpRef.current) {
-      setTimeout(() => {
-        const el = messagesContainerRef.current
-        if (el) el.scrollTop = el.scrollHeight
-      }, 50)
-    }
-  }, [])
+  const addSystemCard = useCallback(
+    (text: string, action?: SystemCard['action'], variant?: SystemCard['variant']) => {
+      // If a message is actively streaming, place the card just before it so
+      // it doesn't get pinned below the growing response.
+      let ts = Date.now()
+      const streaming = messagesRef.current.find((m) => m.isStreaming)
+      if (streaming && streaming.timestamp <= ts) {
+        ts = streaming.timestamp - 1
+      }
+      setSystemCards((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), text, timestamp: ts, action, variant },
+      ])
+      // Auto-scroll after the card renders so the user sees it immediately
+      if (!userScrolledUpRef.current) {
+        setTimeout(() => {
+          const el = messagesContainerRef.current
+          if (el) el.scrollTop = el.scrollHeight
+        }, 50)
+      }
+    },
+    [],
+  )
   addSystemCardRef.current = addSystemCard
 
   // ── Activity cards (captured outbound side effects) ───────────────────────
@@ -2604,6 +2564,64 @@ function ChatInner({
     }
   }, [])
   addActivityCardRef.current = addActivityCard
+
+  // ── Auto-tips (dismissable onboarding hints) ──────────────────────────────
+  // A non-interrupting tip card surfaced on a fresh conversation and then every
+  // TIP_INTERVAL messages. Which tip shows for a given slot is deterministic
+  // (see selectTip) — no randomness — so behavior is reproducible. Dismissing a
+  // tip removes it; a slot is only ever shown once (guarded by lastTipSlotRef),
+  // so a dismissed tip never reappears.
+  const [tipCards, setTipCards] = useState<TipCardEntry[]>([])
+  const lastTipSlotRef = useRef<number>(-1)
+  const dismissTip = useCallback((id: string) => {
+    setTipCards((prev) => prev.filter((c) => c.id !== id))
+  }, [])
+  const pushTip = useCallback((slot: number) => {
+    const tip = selectTip(slot)
+    const text = t(`ide.chat.tip.${tip.id}`, undefined, { defaultValue: tip.text })
+    let ts = Date.now()
+    const streaming = messagesRef.current.find((m) => m.isStreaming)
+    if (streaming && streaming.timestamp <= ts) ts = streaming.timestamp - 1
+    setTipCards((prev) =>
+      prev.some((c) => c.slot === slot)
+        ? prev
+        : [...prev, { id: crypto.randomUUID(), slot, text, timestamp: ts }],
+    )
+  }, [])
+
+  // Reset tips when switching to a *different* existing conversation. The
+  // null→id transition (a brand-new conversation getting its server id) is NOT
+  // a switch, so the fresh-conversation tip survives the first message.
+  const prevConvIdRef = useRef<string | null>(conversationId)
+  useEffect(() => {
+    if (prevConvIdRef.current === conversationId) return
+    const switchedConversation = prevConvIdRef.current != null
+    prevConvIdRef.current = conversationId
+    if (switchedConversation) {
+      setTipCards([])
+      lastTipSlotRef.current = -1
+    }
+  }, [conversationId])
+
+  // Surface a tip on a fresh (empty) conversation, then one every TIP_INTERVAL
+  // messages. Opening an existing non-empty history adopts the current slot
+  // without dumping a tip into it.
+  useEffect(() => {
+    const slot = Math.floor(messages.length / TIP_INTERVAL)
+    if (lastTipSlotRef.current < 0) {
+      if (messages.length === 0) {
+        lastTipSlotRef.current = 0
+        pushTip(0)
+      } else {
+        lastTipSlotRef.current = slot
+      }
+      return
+    }
+    if (slot > lastTipSlotRef.current) {
+      lastTipSlotRef.current = slot
+      pushTip(slot)
+    }
+  }, [messages.length, pushTip])
 
   // ── Sounds picker (shown when /sounds is executed) ────────────────────────
   const [soundsPicker, setSoundsPicker] = useState<SoundsPicker | null>(null)
@@ -3221,31 +3239,25 @@ function ChatInner({
       } else if (id === 'model') {
         setInputAndCursorEnd('/model ')
         setModelPicker({ selectedIdx: -1 })
+      } else if (id === 'models') {
+        setInputValue('')
+        if (AVAILABLE_MODELS.length === 0) {
+          addSystemCard(
+            t('ide.chat.modelsNone', undefined, {
+              defaultValue: 'No models are available yet — ask your admin to wire an AI provider.',
+            }),
+          )
+        } else {
+          // Renders the sortable comparison table (see the 'models' variant branch).
+          addSystemCard('', undefined, 'models')
+        }
       } else if (id === 'maxloops') {
         setInputAndCursorEnd('/maxloops ')
       } else if (id === 'help') {
         setInputValue('')
-        const lines = [
-          '── Getting Started ──',
-          "Synthase is Molecule.dev's AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.",
-          '',
-          '── Workflow ──',
-          '1. Describe your app or feature in plain language',
-          '2. Synthase writes code, creates files, and runs tools',
-          '3. See changes live in the preview panel',
-          '4. Use @filename to reference project files, or drag & drop any file as context',
-          "5. Use /commit when you're happy with the changes",
-          '6. Deploy from the project dashboard',
-          '',
-          '── Tips ──',
-          '• Be specific — "Add a login page with email/password and Google OAuth" works better than "add auth"',
-          '• Use /plan to have the AI research before making changes',
-          '• Use /undo if the AI goes in the wrong direction',
-          '• Use /compact if the conversation gets long',
-          '• Type / to see all available commands',
-          '',
-          'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
-        ]
+        // Generated from the COMMANDS registry so it can never drift — lists every
+        // command grouped by category, the modes, and efficiency tips.
+        const lines = [buildHelpText()]
         if (isAnonymous) {
           lines.push(
             '',
@@ -3559,6 +3571,7 @@ function ChatInner({
       messages,
       sendMessage,
       refreshGitStatus,
+      AVAILABLE_MODELS,
     ],
   )
 
@@ -4038,12 +4051,14 @@ function ChatInner({
     | { kind: 'commit'; card: CommitCard }
     | { kind: 'system'; card: SystemCard }
     | { kind: 'activity'; card: ActivityCardEntry }
+    | { kind: 'tip'; card: TipCardEntry }
   const timeline = useMemo<TimelineItem[]>(() => {
     const items: TimelineItem[] = [
       ...messages.map((msg, i) => ({ kind: 'message' as const, msg, msgIdx: i })),
       ...commitCards.map((card) => ({ kind: 'commit' as const, card })),
       ...systemCards.map((card) => ({ kind: 'system' as const, card })),
       ...activityCards.map((card) => ({ kind: 'activity' as const, card })),
+      ...tipCards.map((card) => ({ kind: 'tip' as const, card })),
     ]
     items.sort((a, b) => {
       const tA = a.kind === 'message' ? a.msg.timestamp : a.card.timestamp
@@ -4051,7 +4066,7 @@ function ChatInner({
       return tA - tB
     })
     return items
-  }, [messages, commitCards, systemCards, activityCards])
+  }, [messages, commitCards, systemCards, activityCards, tipCards])
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -4143,7 +4158,26 @@ function ChatInner({
                 />
               )
 
+            if (item.kind === 'tip')
+              return (
+                <TipCard
+                  key={item.card.id}
+                  text={item.card.text}
+                  onDismiss={() => dismissTip(item.card.id)}
+                />
+              )
+
             if (item.kind === 'system') {
+              if (item.card.variant === 'models') {
+                return (
+                  <ModelsTable
+                    key={item.card.id}
+                    models={partitionByDeprecation(AVAILABLE_MODELS).current}
+                    currentModelId={currentModel}
+                    isLight={isLight}
+                  />
+                )
+              }
               const isMultiLine = item.card.text.includes('\n')
               const actions = item.card.action
                 ? Array.isArray(item.card.action)
