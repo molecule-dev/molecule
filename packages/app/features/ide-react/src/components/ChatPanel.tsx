@@ -110,6 +110,7 @@ import { SkillsCard } from './SkillsCard.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
 import { TipCard } from './TipCard.js'
 import { ToolCallCard } from './ToolCallCard.js'
+import { UserAvatar } from './UserAvatar.js'
 
 const logger = getLogger('chat-panel')
 
@@ -1254,6 +1255,8 @@ interface MessageItemProps {
   handleFileRevert: (path: string, content: string) => Promise<void>
   setInputAndCursorEnd: (val: string) => void
   setModelPicker: React.Dispatch<React.SetStateAction<ModelPicker | null>>
+  /** Signed-in user's avatar shown beside their own messages (SOC1); icon fallback when absent/unsafe. */
+  userAvatar?: string | null
 }
 
 /**
@@ -1285,6 +1288,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     handleFileRevert,
     setInputAndCursorEnd,
     setModelPicker,
+    userAvatar,
   } = props
 
   const cm = getClassMap()
@@ -1305,204 +1309,210 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
   return (
     <div style={{ marginBottom: '16px', ...(sameRoleAsPrev ? { marginTop: '-12px' } : {}) }}>
       {isUser ? (
-        <div
-          className={cm.cn(cm.surfaceSecondary, cm.textSize('sm'))}
-          style={{
-            borderRadius: '4px',
-            borderLeft: '2px solid var(--mol-color-primary, #6366f1)',
-            paddingLeft: '10px',
-            paddingTop: '4px',
-            paddingBottom: '4px',
-          }}
-        >
-          <CollapsibleUserMessage content={msg.content} isLight={isLight} />
-          {msg.attachments && msg.attachments.length > 0 && (
-            <div style={{ marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-              {msg.attachments.map((att, ai) => (
-                <span
-                  key={ai}
-                  className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}
-                >
-                  {att.mediaType.startsWith('image/')
-                    ? '\uD83D\uDDBC\uFE0F'
-                    : att.mediaType.startsWith('audio/')
-                      ? '\uD83C\uDFB5'
-                      : att.mediaType.startsWith('video/')
-                        ? '\uD83C\uDFA5'
-                        : '\uD83D\uDCC4'}{' '}
-                  {att.filename}
-                  <span style={{ fontSize: 10, opacity: 0.7 }}>({formatSize(att.size)})</span>
-                </span>
-              ))}
-            </div>
-          )}
-          {msg.queued && (
-            <div style={{ marginTop: 6 }}>
-              {editingQueuedId === msg.id ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <textarea
-                    autoFocus
-                    defaultValue={editingQueuedText}
-                    onChange={(e) => setEditingQueuedText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        const trimmed = editingQueuedText.trim()
-                        if (trimmed) editQueuedMessage(msg.id, trimmed)
-                        else deleteQueuedMessage(msg.id)
-                        setEditingQueuedId(null)
-                      }
-                      if (e.key === 'Escape') setEditingQueuedId(null)
-                    }}
-                    className={cm.cn(cm.surface, cm.textSize('sm'))}
-                    style={{
-                      width: '100%',
-                      minHeight: '60px',
-                      padding: '8px 10px',
-                      border: `1px solid ${borderClr}`,
-                      borderRadius: '6px',
-                      resize: 'vertical',
-                      color: 'inherit',
-                      fontFamily: 'inherit',
-                    }}
-                  />
-                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                    <button
-                      type="button"
-                      onClick={() => setEditingQueuedId(null)}
-                      className={cm.textSize('xs')}
-                      style={{
-                        padding: '4px 12px',
-                        border: `1px solid ${borderClr}`,
-                        borderRadius: '4px',
-                        background: 'transparent',
-                        color: 'inherit',
-                        cursor: 'pointer',
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+          {/* The user's real profile avatar (SOC1) beside their own message. */}
+          <UserAvatar userAvatar={userAvatar} />
+          <div
+            className={cm.cn(cm.surfaceSecondary, cm.textSize('sm'))}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              borderRadius: '4px',
+              borderLeft: '2px solid var(--mol-color-primary, #6366f1)',
+              paddingLeft: '10px',
+              paddingTop: '4px',
+              paddingBottom: '4px',
+            }}
+          >
+            <CollapsibleUserMessage content={msg.content} isLight={isLight} />
+            {msg.attachments && msg.attachments.length > 0 && (
+              <div style={{ marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                {msg.attachments.map((att, ai) => (
+                  <span
+                    key={ai}
+                    className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}
+                  >
+                    {att.mediaType.startsWith('image/')
+                      ? '\uD83D\uDDBC\uFE0F'
+                      : att.mediaType.startsWith('audio/')
+                        ? '\uD83C\uDFB5'
+                        : att.mediaType.startsWith('video/')
+                          ? '\uD83C\uDFA5'
+                          : '\uD83D\uDCC4'}{' '}
+                    {att.filename}
+                    <span style={{ fontSize: 10, opacity: 0.7 }}>({formatSize(att.size)})</span>
+                  </span>
+                ))}
+              </div>
+            )}
+            {msg.queued && (
+              <div style={{ marginTop: 6 }}>
+                {editingQueuedId === msg.id ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <textarea
+                      autoFocus
+                      defaultValue={editingQueuedText}
+                      onChange={(e) => setEditingQueuedText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          const trimmed = editingQueuedText.trim()
+                          if (trimmed) editQueuedMessage(msg.id, trimmed)
+                          else deleteQueuedMessage(msg.id)
+                          setEditingQueuedId(null)
+                        }
+                        if (e.key === 'Escape') setEditingQueuedId(null)
                       }}
+                      className={cm.cn(cm.surface, cm.textSize('sm'))}
+                      style={{
+                        width: '100%',
+                        minHeight: '60px',
+                        padding: '8px 10px',
+                        border: `1px solid ${borderClr}`,
+                        borderRadius: '6px',
+                        resize: 'vertical',
+                        color: 'inherit',
+                        fontFamily: 'inherit',
+                      }}
+                    />
+                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                      <button
+                        type="button"
+                        onClick={() => setEditingQueuedId(null)}
+                        className={cm.textSize('xs')}
+                        style={{
+                          padding: '4px 12px',
+                          border: `1px solid ${borderClr}`,
+                          borderRadius: '4px',
+                          background: 'transparent',
+                          color: 'inherit',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const trimmed = editingQueuedText.trim()
+                          if (trimmed) editQueuedMessage(msg.id, trimmed)
+                          else deleteQueuedMessage(msg.id)
+                          setEditingQueuedId(null)
+                        }}
+                        className={cm.textSize('xs')}
+                        style={{
+                          padding: '4px 12px',
+                          border: `1px solid ${borderClr}`,
+                          borderRadius: '4px',
+                          background: 'rgba(128,128,128,0.1)',
+                          color: 'inherit',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {t('common.save', undefined, { defaultValue: 'Save' })}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      gap: 6,
+                      paddingRight: 4,
+                    }}
+                  >
+                    <span
+                      className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                      style={{ fontStyle: 'italic', marginRight: 'auto' }}
                     >
-                      {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
-                    </button>
+                      {t('ide.chat.queued', undefined, { defaultValue: 'Queued' })}
+                    </span>
                     <button
                       type="button"
                       onClick={() => {
-                        const trimmed = editingQueuedText.trim()
-                        if (trimmed) editQueuedMessage(msg.id, trimmed)
-                        else deleteQueuedMessage(msg.id)
-                        setEditingQueuedId(null)
+                        setEditingQueuedId(msg.id)
+                        setEditingQueuedText(msg.content)
                       }}
                       className={cm.textSize('xs')}
                       style={{
-                        padding: '4px 12px',
+                        padding: '3px 10px',
                         border: `1px solid ${borderClr}`,
                         borderRadius: '4px',
                         background: 'rgba(128,128,128,0.1)',
                         color: 'inherit',
                         cursor: 'pointer',
+                        fontWeight: 500,
+                        transition: 'background 100ms',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(128,128,128,0.1)'
                       }}
                     >
-                      {t('common.save', undefined, { defaultValue: 'Save' })}
+                      {t('ide.chat.editQueued', undefined, { defaultValue: 'Edit' })}
                     </button>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    gap: 6,
-                    paddingRight: 4,
-                  }}
-                >
-                  <span
-                    className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                    style={{ fontStyle: 'italic', marginRight: 'auto' }}
-                  >
-                    {t('ide.chat.queued', undefined, { defaultValue: 'Queued' })}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingQueuedId(msg.id)
-                      setEditingQueuedText(msg.content)
-                    }}
-                    className={cm.textSize('xs')}
-                    style={{
-                      padding: '3px 10px',
-                      border: `1px solid ${borderClr}`,
-                      borderRadius: '4px',
-                      background: 'rgba(128,128,128,0.1)',
-                      color: 'inherit',
-                      cursor: 'pointer',
-                      fontWeight: 500,
-                      transition: 'background 100ms',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(128,128,128,0.1)'
-                    }}
-                  >
-                    {t('ide.chat.editQueued', undefined, { defaultValue: 'Edit' })}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => deleteQueuedMessage(msg.id)}
-                    className={cm.textSize('xs')}
-                    style={{
-                      padding: '3px 10px',
-                      border: '1px solid rgba(220,38,38,0.3)',
-                      borderRadius: '4px',
-                      background: 'rgba(220,38,38,0.08)',
-                      color: isLight ? 'rgb(185,28,28)' : 'rgb(248,113,113)',
-                      cursor: 'pointer',
-                      fontWeight: 500,
-                      transition: 'background 100ms',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(220,38,38,0.18)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(220,38,38,0.08)'
-                    }}
-                  >
-                    {t('ide.chat.deleteQueued', undefined, { defaultValue: 'Delete' })}
-                  </button>
-                  {!isLoading && (
                     <button
                       type="button"
-                      onClick={() => {
-                        const content = msg.content
-                        deleteQueuedMessage(msg.id)
-                        sendMessage(content)
-                      }}
+                      onClick={() => deleteQueuedMessage(msg.id)}
                       className={cm.textSize('xs')}
                       style={{
                         padding: '3px 10px',
-                        border: '1px solid rgba(34,197,94,0.4)',
+                        border: '1px solid rgba(220,38,38,0.3)',
                         borderRadius: '4px',
-                        background: 'rgba(34,197,94,0.12)',
-                        color: isLight ? 'rgb(21,128,61)' : 'rgb(74,222,128)',
+                        background: 'rgba(220,38,38,0.08)',
+                        color: isLight ? 'rgb(185,28,28)' : 'rgb(248,113,113)',
                         cursor: 'pointer',
                         fontWeight: 500,
                         transition: 'background 100ms',
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(34,197,94,0.22)'
+                        e.currentTarget.style.background = 'rgba(220,38,38,0.18)'
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(34,197,94,0.12)'
+                        e.currentTarget.style.background = 'rgba(220,38,38,0.08)'
                       }}
                     >
-                      {t('ide.chat.sendQueued', undefined, { defaultValue: 'Send' })}
+                      {t('ide.chat.deleteQueued', undefined, { defaultValue: 'Delete' })}
                     </button>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+                    {!isLoading && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const content = msg.content
+                          deleteQueuedMessage(msg.id)
+                          sendMessage(content)
+                        }}
+                        className={cm.textSize('xs')}
+                        style={{
+                          padding: '3px 10px',
+                          border: '1px solid rgba(34,197,94,0.4)',
+                          borderRadius: '4px',
+                          background: 'rgba(34,197,94,0.12)',
+                          color: isLight ? 'rgb(21,128,61)' : 'rgb(74,222,128)',
+                          cursor: 'pointer',
+                          fontWeight: 500,
+                          transition: 'background 100ms',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(34,197,94,0.22)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(34,197,94,0.12)'
+                        }}
+                      >
+                        {t('ide.chat.sendQueued', undefined, { defaultValue: 'Send' })}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         <div style={{ paddingLeft: sameRoleAsPrev ? '0' : '0' }}>
@@ -1916,6 +1926,8 @@ interface ChatInnerProps {
   userEditedFile?: string
   userEditedFileKey?: number
   gitStatusTick?: number
+  /** Signed-in user's avatar shown beside their own messages (SOC1) — see {@link ChatPanelProps.userAvatar}. */
+  userAvatar?: string | null
 }
 
 /**
@@ -1953,6 +1965,7 @@ interface ChatInnerProps {
  * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
  * @param root0.userEditedFileKey - Key to distinguish repeated edits to the same file.
  * @param root0.gitStatusTick - Counter that increments when git status changes.
+ * @param root0.userAvatar - Signed-in user's avatar shown beside their own messages (SOC1).
  * @returns The rendered chat inner component.
  */
 function ChatInner({
@@ -1989,6 +2002,7 @@ function ChatInner({
   userEditedFile,
   userEditedFileKey,
   gitStatusTick: externalGitStatusTick,
+  userAvatar,
 }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
   const themeMode = useThemeMode()
@@ -4984,6 +4998,7 @@ function ChatInner({
                 handleFileRevert={handleFileRevert}
                 setInputAndCursorEnd={setInputAndCursorEnd}
                 setModelPicker={setModelPicker}
+                userAvatar={userAvatar}
               />
             )
           },
@@ -6807,6 +6822,7 @@ export function ChatPanel({
   isPro,
   buildUpgradeCta,
   buildHelpUpgradeSection,
+  userAvatar,
   className,
 }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
@@ -7194,6 +7210,7 @@ export function ChatPanel({
         userEditedFile={userEditedFile}
         userEditedFileKey={userEditedFileKey}
         gitStatusTick={gitStatusTick}
+        userAvatar={userAvatar}
       />
     </div>
   )

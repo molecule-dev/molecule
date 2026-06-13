@@ -141,6 +141,15 @@ export interface ChatPanelProps {
     | { lines: string[]; action?: ChatEventCardAction | ChatEventCardAction[] }
     | null
     | undefined
+  /**
+   * The signed-in user's profile avatar (SOC1) — an inline `data:image/*` URI or
+   * an `http(s)` URL — rendered beside their own messages in the chat timeline.
+   * The host passes whatever value its user metadata holds; the shared IDE gates
+   * it (`resolveUserAvatar`) so only a safe, renderable source reaches the DOM and
+   * falls back to a generic icon otherwise. Omit it (the default) to always show
+   * the icon.
+   */
+  userAvatar?: string | null
   className?: string
 }
 
