@@ -39,6 +39,7 @@
     "@molecule/app-ai-models": "1.0.0",
     "@molecule/app-i18n": "1.0.0",
     "@molecule/app-icons": "1.0.0",
+    "@molecule/app-locales-ide": "1.0.0",
     "@molecule/app-live-preview": "1.0.0",
     "@molecule/app-logger": "1.0.0",
     "@molecule/app-react": "1.0.0",
