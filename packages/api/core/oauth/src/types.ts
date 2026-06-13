@@ -28,6 +28,23 @@ export interface OAuthUserProps {
   email?: string
 
   /**
+   * Whether the OAuth provider has affirmatively verified that the user
+   * controls this `email` mailbox.
+   *
+   * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
+   * `email_verified`, Apple's `email_verified` ID-token claim). When the
+   * provider exposes no trustworthy verification signal in the profile data
+   * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
+   * `true`) — consumers treat only an explicit `true` as verified.
+   *
+   * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
+   * decide whether a provider-supplied email may be trusted over an existing,
+   * unverified local account — preventing an unverified squatter from blocking
+   * the verified mailbox owner.
+   */
+  emailVerified?: boolean
+
+  /**
    * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
    */
   oauthServer: string

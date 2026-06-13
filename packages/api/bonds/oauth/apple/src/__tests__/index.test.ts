@@ -416,10 +416,27 @@ describe('Apple OAuth Provider', () => {
 
       expect(result.username).toBe('tester@privaterelay.appleid.com@apple')
       expect(result.email).toBe('tester@privaterelay.appleid.com')
+      // Apple's ID token carries email_verified ('true' string here) — it must
+      // be surfaced, not dropped (the exact SEC2 gap).
+      expect(result.emailVerified).toBe(true)
       expect(result.oauthServer).toBe('apple')
       expect(result.oauthId).toBe('001234.apple.user')
       expect(result.oauthData.access_token).toBe('at')
       expect(result.oauthData.refresh_token).toBe('rt')
+    })
+
+    it('reports emailVerified=false when Apple marks the email unverified', async () => {
+      mockJwksOk()
+      const idToken = signAppleIdToken({ email_verified: 'false' })
+      mockPost.mockResolvedValue({
+        data: { access_token: 'at', expires_in: 3600, id_token: idToken, token_type: 'Bearer' },
+      })
+
+      const { verify } = await import('../verify.js')
+      const result = await verify('the-code')
+
+      expect(result.email).toBe('tester@privaterelay.appleid.com')
+      expect(result.emailVerified).toBe(false)
     })
 
     it('falls back to oauthId in username when email is omitted', async () => {

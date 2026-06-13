@@ -97,6 +97,8 @@ describe('Twitter OAuth Provider', () => {
       expect(result).toEqual({
         username: 'testuser@twitter',
         email: 'testuser@example.com',
+        // Twitter exposes no email-verification signal → unverified default.
+        emailVerified: false,
         oauthServer: 'twitter',
         oauthId: '12345678901234567890',
         oauthData: {

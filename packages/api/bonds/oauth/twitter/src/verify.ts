@@ -63,6 +63,11 @@ export const verify: OAuthVerifier = async (
     return {
       username: `${oauthData.username}@twitter`,
       email: (oauthData.email as string) || undefined,
+      // Twitter's OAuth2 `/users/me` does not return an email-verification
+      // signal (and typically no email at all without the legacy elevated
+      // access). We cannot affirm mailbox ownership, so report unverified —
+      // the conservative, safe default.
+      emailVerified: false,
       oauthServer: serverName,
       oauthId: oauthData.id ? String(oauthData.id) : ``,
       oauthData,

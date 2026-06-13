@@ -289,6 +289,11 @@ export const verify: OAuthVerifier = async (
     username: `${userInfo.email || userInfo.id}@${serverName}`,
     name: userInfo.name,
     email: userInfo.email,
+    // Microsoft Graph `/me` exposes no email-verification signal (neither
+    // `mail` nor `userPrincipalName` carries a verified flag, and consumer
+    // MSA accounts don't surface `email_verified`). We cannot affirm mailbox
+    // ownership, so report unverified — the conservative, safe default.
+    emailVerified: false,
     oauthServer: serverName,
     oauthId: userInfo.id || '',
     oauthData,

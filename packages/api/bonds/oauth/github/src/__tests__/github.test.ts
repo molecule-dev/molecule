@@ -91,6 +91,9 @@ describe('GitHub OAuth Provider', () => {
       expect(result).toEqual({
         username: 'testuser@github',
         email: 'testuser@example.com',
+        // GitHub only allows a verified address to be the public profile email,
+        // so a present `/user.email` is verified by construction.
+        emailVerified: true,
         oauthServer: 'github',
         oauthId: '12345',
         oauthData: {
@@ -154,6 +157,8 @@ describe('GitHub OAuth Provider', () => {
 
       expect(result.email).toBeUndefined()
       expect(result.username).toBe('testuser@github')
+      // No public email → cannot affirm verification → unverified default.
+      expect(result.emailVerified).toBe(false)
     })
 
     it('should handle user without id', async () => {

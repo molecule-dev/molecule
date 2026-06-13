@@ -93,9 +93,19 @@ export const verify: OAuthVerifier = async (
       },
     )
 
+    const email = (oauthData.email as string) || undefined
+
+    // GitLab's `/user` (current user) endpoint exposes `confirmed_at` — the
+    // timestamp the account's primary email was confirmed. A confirmed primary
+    // email means GitLab verified mailbox ownership. Treat only a present
+    // `confirmed_at` as verified; absent means unverified (the safe default,
+    // e.g. self-hosted instances with email confirmation disabled).
+    const emailVerified = email !== undefined && Boolean(oauthData.confirmed_at)
+
     return {
       username: `${oauthData.username}@gitlab`,
-      email: (oauthData.email as string) || undefined,
+      email,
+      emailVerified,
       oauthServer: serverName,
       oauthId: oauthData.id ? String(oauthData.id) : ``,
       oauthData,

@@ -69,9 +69,19 @@ export const verify: OAuthVerifier = async (
       timeout: 15_000,
     })
 
+    const email = (oauthData.email as string) || undefined
+
+    // Google's OpenID `userinfo` response carries an `email_verified` boolean
+    // (and historically `verified_email` on the v1/v2 endpoints). Trust only
+    // an explicit `true`; absent/false means the address is unverified.
+    const emailVerified =
+      email !== undefined &&
+      (oauthData.email_verified === true || oauthData.verified_email === true)
+
     return {
       username: `${oauthData.email || oauthData.sub}@google`,
-      email: (oauthData.email as string) || undefined,
+      email,
+      emailVerified,
       oauthServer: serverName,
       oauthId: oauthData.sub ? String(oauthData.sub) : ``,
       oauthData,

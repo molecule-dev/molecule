@@ -54,9 +54,16 @@ export const verify: OAuthVerifier = async (
     const email = typeof claims.email === `string` ? claims.email : undefined
     const oauthId = String(claims.sub || ``)
 
+    // Apple encodes `email_verified` as either a boolean `true` or the
+    // string `'true'` depending on the token. Treat only an affirmative
+    // value as verified; anything else (absent/false/'false') is unverified.
+    const emailVerified =
+      email !== undefined && (claims.email_verified === true || claims.email_verified === `true`)
+
     return {
       username: `${email || oauthId}@${serverName}`,
       email,
+      emailVerified,
       oauthServer: serverName,
       oauthId,
       oauthData: {

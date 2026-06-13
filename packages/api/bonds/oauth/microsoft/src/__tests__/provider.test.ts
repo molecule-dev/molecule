@@ -286,6 +286,8 @@ describe('Microsoft OAuth provider', () => {
         username: 'carol@contoso.com@microsoft',
         name: 'Carol',
         email: 'carol@contoso.com',
+        // Microsoft Graph /me exposes no verification signal → unverified default.
+        emailVerified: false,
         oauthServer: 'microsoft',
         oauthId: 'AAD-789',
         oauthData: {

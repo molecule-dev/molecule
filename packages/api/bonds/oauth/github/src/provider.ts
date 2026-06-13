@@ -94,9 +94,19 @@ export const verify: OAuthVerifier = async (code: string, codeVerifier?: string)
       timeout: 15_000,
     })
 
+    const email = (oauthData.email as string) || undefined
+
+    // GitHub's `/user.email` is the user's *public profile* email, and GitHub
+    // only permits a **verified** address to be set as the public email — an
+    // unverified address can never appear here. So a present `/user.email` is
+    // verified by construction. (A null public email yields `undefined` here →
+    // unverified, which is the safe default.)
+    const emailVerified = email !== undefined
+
     return {
       username: `${oauthData.login}@github`,
-      email: (oauthData.email as string) || undefined,
+      email,
+      emailVerified,
       oauthServer: serverName,
       oauthId: oauthData.id ? String(oauthData.id) : ``,
       oauthData,

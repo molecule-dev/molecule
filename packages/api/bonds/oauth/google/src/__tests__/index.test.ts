@@ -56,6 +56,7 @@ describe('Google OAuth Provider', () => {
         data: {
           sub: '123456789',
           email: 'testuser@gmail.com',
+          email_verified: true,
           name: 'Test User',
           picture: 'https://example.com/avatar.jpg',
         },
@@ -94,15 +95,42 @@ describe('Google OAuth Provider', () => {
       expect(result).toEqual({
         username: 'testuser@gmail.com@google',
         email: 'testuser@gmail.com',
+        emailVerified: true,
         oauthServer: 'google',
         oauthId: '123456789',
         oauthData: {
           sub: '123456789',
           email: 'testuser@gmail.com',
+          email_verified: true,
           name: 'Test User',
           picture: 'https://example.com/avatar.jpg',
         },
       })
+    })
+
+    it('should report emailVerified=false when Google has not verified the email', async () => {
+      mockPost.mockResolvedValue({
+        data: {
+          access_token: 'test-access-token',
+          token_type: 'bearer',
+          scope: 'openid email profile',
+        },
+      })
+
+      mockGet.mockResolvedValue({
+        data: {
+          sub: '123456789',
+          email: 'unverified@gmail.com',
+          email_verified: false,
+        },
+      })
+
+      const { verify } = await import('../verify.js')
+
+      const result = await verify('test-auth-code')
+
+      expect(result.email).toBe('unverified@gmail.com')
+      expect(result.emailVerified).toBe(false)
     })
 
     it('should handle code_verifier for PKCE flow', async () => {

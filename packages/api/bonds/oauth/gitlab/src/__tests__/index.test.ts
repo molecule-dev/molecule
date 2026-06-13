@@ -57,6 +57,7 @@ describe('GitLab OAuth Provider', () => {
           id: 12345,
           username: 'testuser',
           email: 'testuser@example.com',
+          confirmed_at: '2020-01-01T00:00:00Z',
           name: 'Test User',
           avatar_url: 'https://example.com/avatar.jpg',
         },
@@ -95,16 +96,39 @@ describe('GitLab OAuth Provider', () => {
       expect(result).toEqual({
         username: 'testuser@gitlab',
         email: 'testuser@example.com',
+        emailVerified: true,
         oauthServer: 'gitlab',
         oauthId: '12345',
         oauthData: {
           id: 12345,
           username: 'testuser',
           email: 'testuser@example.com',
+          confirmed_at: '2020-01-01T00:00:00Z',
           name: 'Test User',
           avatar_url: 'https://example.com/avatar.jpg',
         },
       })
+    })
+
+    it('should report emailVerified=false when GitLab has no confirmed_at', async () => {
+      mockPost.mockResolvedValue({
+        data: { access_token: 'test-access-token', token_type: 'bearer', scope: 'read_user' },
+      })
+
+      mockGet.mockResolvedValue({
+        data: {
+          id: 12345,
+          username: 'testuser',
+          email: 'unconfirmed@example.com',
+        },
+      })
+
+      const { verify } = await import('../provider.js')
+
+      const result = await verify('test-auth-code')
+
+      expect(result.email).toBe('unconfirmed@example.com')
+      expect(result.emailVerified).toBe(false)
     })
 
     it('should handle code_verifier for PKCE flow', async () => {
