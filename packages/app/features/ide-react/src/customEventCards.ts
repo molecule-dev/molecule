@@ -13,6 +13,19 @@
  */
 
 /**
+ * A single call-to-action on a chat card: a labelled link (`href`) and/or click
+ * handler. The app supplies any route/copy — the shared package never hardcodes one.
+ */
+export interface ChatEventCardAction {
+  /** Button label (already localized by the app). */
+  label: string
+  /** Link target. App-owned — e.g. the host's own pricing/auth route. */
+  href?: string
+  /** Click handler (alternative to, or alongside, `href`). */
+  onClick?: () => void
+}
+
+/**
  * A chat system card: a short message with an optional action (or actions). Mirrors
  * the system-card shape ChatPanel renders for upgrade prompts, guest reminders, etc.
  */
@@ -20,9 +33,14 @@ export interface ChatEventCard {
   /** The card's text. */
   text: string
   /** An optional action button (or buttons): a link (`href`) and/or a click handler. */
-  action?:
-    | { label: string; href?: string; onClick?: () => void }
-    | { label: string; href?: string; onClick?: () => void }[]
+  action?: ChatEventCardAction | ChatEventCardAction[]
+  /**
+   * When true, ChatPanel renders the card in its emphasized (highlighted box) style
+   * instead of the muted inline style — e.g. a sign-up / upgrade nudge the app wants
+   * to stand out. The app opts in; the shared package never infers emphasis from a
+   * card's route or copy.
+   */
+  emphasized?: boolean
 }
 
 /**

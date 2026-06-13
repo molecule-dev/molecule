@@ -11,6 +11,7 @@ import type { EditorTab, FixWithAIRequest } from '@molecule/app-code-editor'
 import type { DeviceFrame } from '@molecule/app-live-preview'
 
 import type { Activity as ActivityFromCard } from './components/activity-utilities.js'
+import type { ChatEventCardAction } from './customEventCards.js'
 
 /**
  * Properties for workspace layout.
@@ -99,16 +100,47 @@ export interface ChatPanelProps {
   userEditedFile?: string
   /** Incremented to trigger the user-edit check (same path may be edited multiple times). */
   userEditedFileKey?: number
-  /** When true, model picker shows non-default models as locked (sign-up required). */
+  /**
+   * Whether the current user is anonymous. The shared IDE no longer renders any
+   * built-in sign-up/guest card itself — guest reminders now arrive as a `custom`
+   * stream event the host registers via {@link registerCustomEventCard}, and upgrade
+   * call-to-actions come from {@link ChatPanelProps.buildUpgradeCta}. Retained so the
+   * host can still pass it; the host's own `buildUpgradeCta` closure decides whether
+   * an anonymous user should sign up vs. upgrade.
+   */
   isAnonymous?: boolean
-  /** When true, user has a paid plan and can use all models. */
+  /** When true, user has a paid plan and can use all models (drives locked-model display). */
   isPro?: boolean
   /**
-   * When true, suppress the periodic "sign up to keep your work" reminder card.
-   * Used during the discovery/requirements phase, where nudging an anonymous
-   * user to sign up before they've described what they want is bad UX.
+   * Retained for call-site compatibility. The periodic "sign up to keep your work"
+   * reminder is no longer generated client-side — the host's backend decides when to
+   * emit it as a `guest_reminder` `custom` stream event (so it can be suppressed during
+   * discovery server-side). This prop no longer drives any built-in behavior.
+   * @deprecated Guest reminders moved to the host-emitted `custom` event + registry.
    */
   suppressGuestReminder?: boolean
+  /**
+   * Builds the call-to-action button(s) shown when the chat surfaces an upgrade /
+   * sign-in nudge — a locked model the user can't select, or a usage/resource limit
+   * the backend reported. The shared IDE owns NO pricing or auth routes, so the host
+   * supplies the button(s) here (e.g. its own `/pricing` or `/signup`). Return
+   * `null`/`undefined` (the default) to render the nudge text with no button.
+   * `requiresSignup`, when set, is the backend's flag that the user must sign up
+   * rather than upgrade an existing plan; when unset the host's own auth state decides.
+   */
+  buildUpgradeCta?: (context: {
+    requiresSignup?: boolean
+  }) => ChatEventCardAction | ChatEventCardAction[] | null | undefined
+  /**
+   * Optional app-specific section appended to the `/help` output — e.g. a plan /
+   * upgrade blurb. The shared IDE has no pricing or plan copy, so the host supplies
+   * the (already-localized) lines plus any call-to-action. Return `null` (the default)
+   * to append nothing.
+   */
+  buildHelpUpgradeSection?: () =>
+    | { lines: string[]; action?: ChatEventCardAction | ChatEventCardAction[] }
+    | null
+    | undefined
   className?: string
 }
 

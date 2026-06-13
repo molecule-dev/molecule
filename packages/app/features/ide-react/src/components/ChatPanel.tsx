@@ -40,6 +40,7 @@ import { getLogger } from '@molecule/app-logger'
 import { useAIModels, useChat, useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+import type { ChatEventCardAction } from '../customEventCards.js'
 import { getCustomEventCardFactory } from '../customEventCards.js'
 import type { ChatPanelProps, IdeClientAction } from '../types.js'
 import type { Activity } from './activity-utilities.js'
@@ -154,9 +155,7 @@ interface SystemCard {
   id: string
   text: string
   timestamp: number
-  action?:
-    | { label: string; href?: string; onClick?: () => void }
-    | { label: string; href?: string; onClick?: () => void }[]
+  action?: ChatEventCardAction | ChatEventCardAction[]
   /**
    * Optional rich-content variant rendered in place of the plain text:
    * `'models'` → the sortable `/models` comparison table; `'settings'` → the
@@ -166,6 +165,27 @@ interface SystemCard {
   variant?: 'models' | 'settings' | 'skills' | 'scripts'
   /** Seed query for the `'skills'`/`'scripts'` variants (from `/skills <query>` or `/scripts <query>`). */
   query?: string
+  /**
+   * When true, render with the emphasized (highlighted box) style instead of the
+   * muted inline style — e.g. a host-supplied sign-up / upgrade nudge. The caller
+   * opts in explicitly; the styling is never inferred from the card's route or copy.
+   */
+  emphasized?: boolean
+}
+
+/**
+ * Returns the first action carrying an `href` from a single action or an array of
+ * actions (or undefined). Used to feed host-supplied upgrade CTAs into the
+ * single-link {@link ResourceLimitBanner}.
+ * @param action - One action, an array of actions, or null/undefined.
+ * @returns The first action with an `href`, or undefined.
+ */
+function firstLinkAction(
+  action: ChatEventCardAction | ChatEventCardAction[] | null | undefined,
+): ChatEventCardAction | undefined {
+  if (!action) return undefined
+  const list = Array.isArray(action) ? action : [action]
+  return list.find((a) => !!a.href)
 }
 
 /** A dismissable auto-tip entry in the chat timeline. */
@@ -884,34 +904,38 @@ function ResourceLimitBanner({
         <span className={cm.textSize('xs')} style={{ display: 'block' }}>
           {message}
         </span>
-        <a
-          href={ctaHref ?? '/pricing'}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'inline-block',
-            marginTop: 8,
-            fontSize: 12,
-            fontWeight: 600,
-            padding: '5px 14px',
-            borderRadius: 6,
-            cursor: 'pointer',
-            textDecoration: 'none',
-            transition: 'opacity 100ms',
-            fontFamily: 'inherit',
-            border: 'none',
-            background: 'var(--color-primary)',
-            color: '#fff',
-          }}
-          onMouseEnter={(e) => {
-            ;(e.currentTarget as HTMLElement).style.background = 'var(--color-primary-hover)'
-          }}
-          onMouseLeave={(e) => {
-            ;(e.currentTarget as HTMLElement).style.background = 'var(--color-primary)'
-          }}
-        >
-          {ctaLabel ?? t('ide.chat.viewPlans', undefined, { defaultValue: 'View plans' })}
-        </a>
+        {/* The CTA route is owned by the host app (passed as `ctaHref`); the shared
+            package hardcodes none. Render the button only when the host supplies a link. */}
+        {ctaHref && (
+          <a
+            href={ctaHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-block',
+              marginTop: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              padding: '5px 14px',
+              borderRadius: 6,
+              cursor: 'pointer',
+              textDecoration: 'none',
+              transition: 'opacity 100ms',
+              fontFamily: 'inherit',
+              border: 'none',
+              background: 'var(--color-primary)',
+              color: '#fff',
+            }}
+            onMouseEnter={(e) => {
+              ;(e.currentTarget as HTMLElement).style.background = 'var(--color-primary-hover)'
+            }}
+            onMouseLeave={(e) => {
+              ;(e.currentTarget as HTMLElement).style.background = 'var(--color-primary)'
+            }}
+          >
+            {ctaLabel ?? t('ide.chat.viewPlans', undefined, { defaultValue: 'View plans' })}
+          </a>
+        )}
       </div>
     </div>
   )
@@ -1823,9 +1847,11 @@ interface ChatInnerProps {
   endpoint: string
   initialMessage?: string
   onInitialMessageSent?: () => void
-  isAnonymous?: boolean
   isPro?: boolean
-  suppressGuestReminder?: boolean
+  /** Host-supplied upgrade/sign-in CTA builder — see {@link ChatPanelProps.buildUpgradeCta}. */
+  buildUpgradeCta?: ChatPanelProps['buildUpgradeCta']
+  /** Host-supplied `/help` upgrade section builder — see {@link ChatPanelProps.buildHelpUpgradeSection}. */
+  buildHelpUpgradeSection?: ChatPanelProps['buildHelpUpgradeSection']
   activeFile?: string | null
   openTabs?: string[]
   onFileOpen?: (path: string, opts?: { focus?: boolean }) => void
@@ -1871,9 +1897,9 @@ interface ChatInnerProps {
  * @param root0.endpoint - The chat API endpoint URL.
  * @param root0.initialMessage - Optional message to auto-send on mount.
  * @param root0.onInitialMessageSent - Callback fired after the initial message is sent.
- * @param root0.isAnonymous - Whether the current user is anonymous.
- * @param root0.suppressGuestReminder - Suppress the periodic sign-up reminder (e.g. during discovery).
  * @param root0.isPro - Whether the current user has a Pro plan.
+ * @param root0.buildUpgradeCta - Host-supplied builder for upgrade/sign-in CTA buttons.
+ * @param root0.buildHelpUpgradeSection - Host-supplied builder for the `/help` upgrade section.
  * @param root0.activeFile - Path of the currently focused file in the editor.
  * @param root0.openTabs - Paths of all open editor tabs.
  * @param root0.onFileOpen - Callback to preview a file in the editor.
@@ -1905,9 +1931,9 @@ function ChatInner({
   endpoint,
   initialMessage,
   onInitialMessageSent,
-  isAnonymous,
   isPro,
-  suppressGuestReminder,
+  buildUpgradeCta,
+  buildHelpUpgradeSection,
   activeFile,
   openTabs,
   onFileOpen,
@@ -1998,15 +2024,13 @@ function ChatInner({
     [],
   )
 
-  // Track completed assistant turns to inject periodic sign-up reminders.
-  // First reminder after 3 turns, then every 10 turns thereafter.
-  const turnCountRef = useRef(0)
   const addSystemCardRef = useRef<
     (
       text: string,
       action?: SystemCard['action'],
       variant?: SystemCard['variant'],
       query?: string,
+      emphasized?: boolean,
     ) => void
   >(() => {})
   // Ref so the stream-event callback can push activity cards without depending
@@ -2025,8 +2049,6 @@ function ChatInner({
   onClientActionRef.current = onClientAction
   const onTurnCompleteRef = useRef<(() => void) | undefined>(onTurnComplete)
   onTurnCompleteRef.current = onTurnComplete
-  const GUEST_REMINDER_FIRST = 3
-  const GUEST_REMINDER_INTERVAL = 10
 
   const handleStreamEvent = useCallback(
     (event: {
@@ -2061,47 +2083,19 @@ function ChatInner({
       if (event.type === 'verification_result' && event.status === 'ok') {
         pendingVerificationRef.current = null
       }
-      // Upgrade prompt from backend (e.g. free user tried to raise max loops)
-      if (event.type === 'upgrade_prompt') {
-        addSystemCardRef.current(event.message as string, {
-          label: t('upgrade.viewPlans', undefined, { defaultValue: 'Upgrade' }),
-          href: '/pricing',
-        })
-      }
       // App-specific custom event: look up a renderer the host app registered via
-      // registerCustomEventCard and surface it as a system card. Keeps app-specific
-      // events (e.g. a host app's build/billing notices) out of this shared component.
+      // registerCustomEventCard and surface it as a system card. This is how host
+      // apps deliver their OWN notices (e.g. molecule.dev's upgrade_prompt /
+      // guest_reminder / build_degraded cards) — including the periodic sign-up
+      // reminder, now emitted by the host's backend rather than counted here — so
+      // their copy/routes stay out of this shared component. `emphasized` lets the
+      // app opt a card into the highlighted box style without route-sniffing.
       if (event.type === 'custom') {
         const card = getCustomEventCardFactory(event.name as string)?.(
           event.data as Record<string, unknown> | undefined,
         )
-        if (card) addSystemCardRef.current(card.text, card.action)
-      }
-      // Periodic sign-up reminder for anonymous users in chat history.
-      // Suppressed during discovery — see suppressGuestReminder.
-      if (event.type === 'done' && isAnonymous && !suppressGuestReminder) {
-        turnCountRef.current++
-        const n = turnCountRef.current
-        if (
-          n === GUEST_REMINDER_FIRST ||
-          (n > GUEST_REMINDER_FIRST && (n - GUEST_REMINDER_FIRST) % GUEST_REMINDER_INTERVAL === 0)
-        ) {
-          addSystemCardRef.current(
-            t('guest.reminder.message', undefined, {
-              defaultValue:
-                'Sign up or log in to keep your work \u2014 guest sessions expire after 72 hours.',
-            }),
-            [
-              {
-                label: t('upgrade.signUp', undefined, { defaultValue: 'Sign up' }),
-                href: '/signup',
-              },
-              {
-                label: t('guest.reminder.logIn', undefined, { defaultValue: 'Log in' }),
-                href: '/login',
-              },
-            ],
-          )
+        if (card) {
+          addSystemCardRef.current(card.text, card.action, undefined, undefined, card.emphasized)
         }
       }
       // Captured outbound side effect (email/sms/push/webhook/channel) — push an
@@ -2174,7 +2168,7 @@ function ChatInner({
         playTone()
       }
     },
-    [isAnonymous, suppressGuestReminder, t],
+    [t],
   )
 
   // Countdown timer effect — ticks down and auto-sends fix message
@@ -2606,6 +2600,7 @@ function ChatInner({
       action?: SystemCard['action'],
       variant?: SystemCard['variant'],
       query?: string,
+      emphasized?: boolean,
     ) => {
       // If a message is actively streaming, place the card just before it so
       // it doesn't get pinned below the growing response.
@@ -2616,7 +2611,7 @@ function ChatInner({
       }
       setSystemCards((prev) => [
         ...prev,
-        { id: crypto.randomUUID(), text, timestamp: ts, action, variant, query },
+        { id: crypto.randomUUID(), text, timestamp: ts, action, variant, query, emphasized },
       ])
       // Auto-scroll after the card renders so the user sees it immediately
       if (!userScrolledUpRef.current) {
@@ -3499,43 +3494,14 @@ function ChatInner({
         // Generated from the COMMANDS registry so it can never drift — lists every
         // command grouped by category, the modes, and efficiency tips.
         const lines = [buildHelpText()]
-        if (isAnonymous) {
-          lines.push(
-            '',
-            '── Upgrade ──',
-            "You're using Molecule.dev as a guest. Sign up for free to unlock:",
-            '• Deployments & environment variable management',
-            '• 50 AI messages/day (vs 30 as guest)',
-            '• Persistent project history',
-            '',
-            'Go Pro ($19/mo) for even more:',
-            '• All models — Opus 4.6, Sonnet 4.6, GPT-5.4, Gemini 3.1 Pro, and more',
-            '• 500 AI messages/day',
-            '• Larger sandboxes — 2 CPU, 2 GB RAM, 30 min timeout',
-            '• 10 projects, 10 deployments, custom domains',
-            '• 5 GB storage & email support',
-          )
-        } else {
-          lines.push(
-            '',
-            '── Upgrade to Pro ──',
-            'Unlock the full Molecule.dev experience ($19/mo):',
-            '• All models — Opus 4.6, Sonnet 4.6, GPT-5.4, Gemini 3.1 Pro, and more',
-            '• 500 AI messages/day (vs 50 on free)',
-            '• Larger sandboxes — 2 CPU, 2 GB RAM, 30 min timeout',
-            '• 10 projects, 10 deployments, custom domains',
-            '• 5 GB storage & email support',
-          )
+        // Any plan/upgrade blurb is app-specific (pricing, plan names, model lists),
+        // so the host supplies it via buildHelpUpgradeSection — this shared package
+        // hardcodes none. When unset, /help shows just the command reference.
+        const upgradeSection = buildHelpUpgradeSection?.()
+        if (upgradeSection && upgradeSection.lines.length > 0) {
+          lines.push('', ...upgradeSection.lines)
         }
-        addSystemCard(
-          lines.join('\n'),
-          isAnonymous
-            ? [
-                { label: 'Sign up free', href: '/signup' },
-                { label: 'Log in', href: '/login' },
-              ]
-            : { label: 'View plans', href: '/pricing' },
-        )
+        addSystemCard(lines.join('\n'), upgradeSection?.action ?? undefined)
       } else if (id === 'compact') {
         setInputValue('')
         addSystemCard(
@@ -3985,24 +3951,11 @@ function ChatInner({
               'ide.chat.modelUpgradeRequired',
               { model: resolved?.label ?? name },
               {
-                defaultValue: `${resolved?.label ?? name} is available on Pro. Upgrade to access all models.`,
+                defaultValue: `${resolved?.label ?? name} is available on a paid plan. Upgrade to access all models.`,
               },
             ),
-            isAnonymous
-              ? [
-                  {
-                    label: t('upgrade.signUp', undefined, { defaultValue: 'Sign up' }),
-                    href: '/signup',
-                  },
-                  {
-                    label: t('upgrade.viewPlans', undefined, { defaultValue: 'View plans' }),
-                    href: '/pricing',
-                  },
-                ]
-              : {
-                  label: t('upgrade.viewPlans', undefined, { defaultValue: 'Upgrade' }),
-                  href: '/pricing',
-                },
+            // The upgrade/sign-in button(s) are the host's (its own routes/copy).
+            buildUpgradeCta?.({}) ?? undefined,
           )
         } else {
           try {
@@ -4130,12 +4083,9 @@ function ChatInner({
               t('ide.chat.maxLoopsReached', undefined, {
                 defaultValue: 'Max loops limit reached.',
               }),
-            {
-              label: data.requiresSignup
-                ? t('upgrade.signUp', undefined, { defaultValue: 'Sign up' })
-                : t('upgrade.viewPlans', undefined, { defaultValue: 'Upgrade' }),
-              href: data.requiresSignup ? '/signup' : '/pricing',
-            },
+            // Host owns the upgrade/sign-in button(s); `requiresSignup` is the
+            // backend's hint that the user must sign up rather than upgrade.
+            buildUpgradeCta?.({ requiresSignup: data.requiresSignup }) ?? undefined,
           )
         } else {
           addSystemCard(
@@ -4696,23 +4646,19 @@ function ChatInner({
                 )
               }
               const isMultiLine = item.card.text.includes('\n')
-              const actions = item.card.action
-                ? Array.isArray(item.card.action)
-                  ? item.card.action
-                  : [item.card.action]
-                : []
-              const isGuestReminder = actions.some(
-                (a) => a.href === '/signup' || a.href === '/login',
-              )
+              // The card opts into the emphasized (highlighted box) style explicitly
+              // via `emphasized` — never inferred from its route/copy (those are the
+              // host's, not this shared package's). See SystemCard.emphasized.
+              const isEmphasized = item.card.emphasized ?? false
               return (
                 <div
                   key={item.card.id}
                   className={cm.cn(
-                    cm.textSize(isGuestReminder ? 'sm' : 'xs'),
-                    isGuestReminder ? undefined : cm.textMuted,
+                    cm.textSize(isEmphasized ? 'sm' : 'xs'),
+                    isEmphasized ? undefined : cm.textMuted,
                   )}
                   style={
-                    isGuestReminder
+                    isEmphasized
                       ? {
                           textAlign: 'center',
                           padding: '10px 16px',
@@ -4861,15 +4807,20 @@ function ChatInner({
 
         {error &&
           (errorMeta?.limitType ? (
-            <ResourceLimitBanner
-              message={error}
-              ctaLabel={
-                errorMeta.requiresSignup
-                  ? t('upgrade.signUp', undefined, { defaultValue: 'Sign up' })
-                  : t('upgrade.viewPlans', undefined, { defaultValue: 'Upgrade' })
-              }
-              ctaHref={errorMeta.requiresSignup ? '/signup' : '/pricing'}
-            />
+            // The CTA route/copy are the host's — ask buildUpgradeCta for the
+            // upgrade/sign-in link (none rendered if the host supplies nothing).
+            (() => {
+              const limitCta = firstLinkAction(
+                buildUpgradeCta?.({ requiresSignup: errorMeta.requiresSignup }),
+              )
+              return (
+                <ResourceLimitBanner
+                  message={error}
+                  ctaLabel={limitCta?.label}
+                  ctaHref={limitCta?.href}
+                />
+              )
+            })()
           ) : (
             <div
               className={cm.cn(
@@ -5381,30 +5332,11 @@ function ChatInner({
                                   'ide.chat.modelUpgradeRequired',
                                   { model: model.label },
                                   {
-                                    defaultValue: `${model.label} is available on Pro. Upgrade to access all models.`,
+                                    defaultValue: `${model.label} is available on a paid plan. Upgrade to access all models.`,
                                   },
                                 ),
-                                isAnonymous
-                                  ? [
-                                      {
-                                        label: t('upgrade.signUp', undefined, {
-                                          defaultValue: 'Sign up',
-                                        }),
-                                        href: '/signup',
-                                      },
-                                      {
-                                        label: t('upgrade.viewPlans', undefined, {
-                                          defaultValue: 'View plans',
-                                        }),
-                                        href: '/pricing',
-                                      },
-                                    ]
-                                  : {
-                                      label: t('upgrade.viewPlans', undefined, {
-                                        defaultValue: 'Upgrade',
-                                      }),
-                                      href: '/pricing',
-                                    },
+                                // Host owns the upgrade/sign-in button(s) (its routes/copy).
+                                buildUpgradeCta?.({}) ?? undefined,
                               )
                             } else {
                               void selectModel(model.id, model.label, modelPicker.mode)
@@ -6627,9 +6559,9 @@ function ChatInner({
  * @param root0.pendingMessageSuppressUser - When true, send the pending message without rendering a user bubble (auto-sent build kickoff).
  * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
  * @param root0.userEditedFileKey - Key to distinguish repeated edits to the same file.
- * @param root0.isAnonymous - Whether the current user is anonymous.
- * @param root0.suppressGuestReminder - Suppress the periodic sign-up reminder (e.g. during discovery).
  * @param root0.isPro - Whether the current user has a Pro plan.
+ * @param root0.buildUpgradeCta - Host-supplied builder for upgrade/sign-in CTA buttons.
+ * @param root0.buildHelpUpgradeSection - Host-supplied builder for the `/help` upgrade section.
  * @param root0.className - Optional CSS class name for the container.
  * @returns The rendered chat panel element.
  */
@@ -6661,9 +6593,9 @@ export function ChatPanel({
   pendingMessageSuppressUser,
   userEditedFile,
   userEditedFileKey,
-  isAnonymous,
   isPro,
-  suppressGuestReminder,
+  buildUpgradeCta,
+  buildHelpUpgradeSection,
   className,
 }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
@@ -7004,9 +6936,9 @@ export function ChatPanel({
         endpoint={chatEndpoint}
         initialMessage={initialMessage}
         onInitialMessageSent={onInitialMessageSent}
-        isAnonymous={isAnonymous}
         isPro={isPro}
-        suppressGuestReminder={suppressGuestReminder}
+        buildUpgradeCta={buildUpgradeCta}
+        buildHelpUpgradeSection={buildHelpUpgradeSection}
         activeFile={activeFile}
         openTabs={openTabs}
         onFileOpen={onFileOpen}
