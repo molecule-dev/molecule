@@ -41,6 +41,14 @@ export interface ChatEventCard {
    * card's route or copy.
    */
   emphasized?: boolean
+  /**
+   * Optional tip-style tone: `'info'` (blue) or `'gold'`. When set, ChatPanel renders
+   * the card in the dismissable tip-box style (rounded, tinted, with a lightbulb glyph)
+   * in that tone, and renders any `action`(s) as inline underlined links rather than
+   * buttons — for low-key, honest notices (e.g. a "what powers this" model note). The
+   * app opts in; omit for the default muted / emphasized styles.
+   */
+  tone?: 'info' | 'gold'
 }
 
 /**

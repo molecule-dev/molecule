@@ -93,7 +93,12 @@ import {
 } from './chat-share-utilities.js'
 import type { SkillInfo } from './chat-skills-utilities.js'
 import { estimateStreamTokens } from './chat-stream-utilities.js'
-import { selectTip, TIP_INTERVAL } from './chat-tips-utilities.js'
+import {
+  pickIdleTip,
+  shouldShowIdleTip,
+  TIP_IDLE_MS,
+  TIP_MIN_MESSAGES,
+} from './chat-tips-utilities.js'
 import { Icon } from './Icon.js'
 import { MarkdownContent } from './MarkdownContent.js'
 import { ModelsTable } from './ModelsTable.js'
@@ -179,6 +184,14 @@ interface SystemCard {
    * opts in explicitly; the styling is never inferred from the card's route or copy.
    */
   emphasized?: boolean
+  /**
+   * Optional tip-style tone: `'info'` (blue) or `'gold'`. When set, the card renders
+   * in the dismissable tip-box style (rounded, tinted, with a lightbulb glyph) in that
+   * tone, and any actions render as inline underlined links rather than buttons — for
+   * low-key, honest notices (e.g. a "what powers this" model note). Mutually exclusive
+   * with `emphasized` in practice; the caller opts in.
+   */
+  tone?: 'info' | 'gold'
 }
 
 /**
@@ -199,8 +212,6 @@ function firstLinkAction(
 /** A dismissable auto-tip entry in the chat timeline. */
 interface TipCardEntry {
   id: string
-  /** Tip slot index — drives deterministic tip selection via `selectTip`. */
-  slot: number
   text: string
   /** Numeric timestamp for timeline ordering. */
   timestamp: number
@@ -2043,6 +2054,7 @@ function ChatInner({
       variant?: SystemCard['variant'],
       query?: string,
       emphasized?: boolean,
+      tone?: SystemCard['tone'],
     ) => void
   >(() => {})
   // Ref so the stream-event callback can push activity cards without depending
@@ -2107,7 +2119,14 @@ function ChatInner({
           event.data as Record<string, unknown> | undefined,
         )
         if (card) {
-          addSystemCardRef.current(card.text, card.action, undefined, undefined, card.emphasized)
+          addSystemCardRef.current(
+            card.text,
+            card.action,
+            undefined,
+            undefined,
+            card.emphasized,
+            card.tone,
+          )
         }
       }
       // Captured outbound side effect (email/sms/push/webhook/channel) — push an
@@ -2616,6 +2635,7 @@ function ChatInner({
       variant?: SystemCard['variant'],
       query?: string,
       emphasized?: boolean,
+      tone?: SystemCard['tone'],
     ) => {
       // If a message is actively streaming, place the card just before it so
       // it doesn't get pinned below the growing response.
@@ -2626,7 +2646,7 @@ function ChatInner({
       }
       setSystemCards((prev) => [
         ...prev,
-        { id: crypto.randomUUID(), text, timestamp: ts, action, variant, query, emphasized },
+        { id: crypto.randomUUID(), text, timestamp: ts, action, variant, query, emphasized, tone },
       ])
       // Auto-scroll after the card renders so the user sees it immediately
       if (!userScrolledUpRef.current) {
@@ -2666,32 +2686,20 @@ function ChatInner({
   addActivityCardRef.current = addActivityCard
 
   // ── Auto-tips (dismissable onboarding hints) ──────────────────────────────
-  // A non-interrupting tip card surfaced on a fresh conversation and then every
-  // TIP_INTERVAL messages. Which tip shows for a given slot is deterministic
-  // (see selectTip) — no randomness — so behavior is reproducible. Dismissing a
-  // tip removes it; a slot is only ever shown once (guarded by lastTipSlotRef),
-  // so a dismissed tip never reappears.
+  // Tips are NEVER shown on the first prompt / a fresh conversation. Instead one
+  // MAY surface after the conversation has sat idle for a while — gated by a
+  // cooldown and a random roll (see shouldShowIdleTip) so the timeline never fills
+  // with tips. The idle clock resets on any message activity. Dismissing a tip
+  // removes it; a shown tip never reappears (tracked in shownTipIdsRef).
   const [tipCards, setTipCards] = useState<TipCardEntry[]>([])
-  const lastTipSlotRef = useRef<number>(-1)
+  const lastTipAtRef = useRef<number>(0)
+  const shownTipIdsRef = useRef<string[]>([])
   const dismissTip = useCallback((id: string) => {
     setTipCards((prev) => prev.filter((c) => c.id !== id))
   }, [])
-  const pushTip = useCallback((slot: number) => {
-    const tip = selectTip(slot)
-    const text = t(`ide.chat.tip.${tip.id}`, undefined, { defaultValue: tip.text })
-    let ts = Date.now()
-    const streaming = messagesRef.current.find((m) => m.isStreaming)
-    if (streaming && streaming.timestamp <= ts) ts = streaming.timestamp - 1
-    setTipCards((prev) =>
-      prev.some((c) => c.slot === slot)
-        ? prev
-        : [...prev, { id: crypto.randomUUID(), slot, text, timestamp: ts }],
-    )
-  }, [])
 
-  // Reset tips when switching to a *different* existing conversation. The
-  // null→id transition (a brand-new conversation getting its server id) is NOT
-  // a switch, so the fresh-conversation tip survives the first message.
+  // Reset tips when switching to a *different* existing conversation. The null→id
+  // transition (a brand-new conversation getting its server id) is NOT a switch.
   const prevConvIdRef = useRef<string | null>(conversationId)
   useEffect(() => {
     if (prevConvIdRef.current === conversationId) return
@@ -2699,29 +2707,39 @@ function ChatInner({
     prevConvIdRef.current = conversationId
     if (switchedConversation) {
       setTipCards([])
-      lastTipSlotRef.current = -1
+      lastTipAtRef.current = 0
+      shownTipIdsRef.current = []
     }
   }, [conversationId])
 
-  // Surface a tip on a fresh (empty) conversation, then one every TIP_INTERVAL
-  // messages. Opening an existing non-empty history adopts the current slot
-  // without dumping a tip into it.
+  // Surface an occasional idle tip. This effect re-runs on every message change, so
+  // the idle timer is continually reset by activity; it only fires once the
+  // conversation has been quiet for TIP_IDLE_MS — and even then only when the
+  // cooldown + random roll allow, and never before TIP_MIN_MESSAGES (so never on the
+  // first prompt). Skipped entirely while a message is streaming.
   useEffect(() => {
-    const slot = Math.floor(messages.length / TIP_INTERVAL)
-    if (lastTipSlotRef.current < 0) {
-      if (messages.length === 0) {
-        lastTipSlotRef.current = 0
-        pushTip(0)
-      } else {
-        lastTipSlotRef.current = slot
-      }
-      return
-    }
-    if (slot > lastTipSlotRef.current) {
-      lastTipSlotRef.current = slot
-      pushTip(slot)
-    }
-  }, [messages.length, pushTip])
+    if (messages.some((m) => m.isStreaming) || messages.length < TIP_MIN_MESSAGES) return
+    const armedAt = Date.now()
+    const timer = setTimeout(() => {
+      const show = shouldShowIdleTip(
+        {
+          messageCount: messagesRef.current.length,
+          msSinceLastActivity: Date.now() - armedAt,
+          msSinceLastTip: lastTipAtRef.current
+            ? Date.now() - lastTipAtRef.current
+            : Number.POSITIVE_INFINITY,
+        },
+        Math.random(),
+      )
+      if (!show) return
+      const tip = pickIdleTip(shownTipIdsRef.current, Math.random())
+      shownTipIdsRef.current = [...shownTipIdsRef.current, tip.id]
+      lastTipAtRef.current = Date.now()
+      const text = t(`ide.chat.tip.${tip.id}`, undefined, { defaultValue: tip.text })
+      setTipCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
+    }, TIP_IDLE_MS)
+    return () => clearTimeout(timer)
+  }, [messages])
 
   // ── Sounds picker (shown when /sounds is executed) ────────────────────────
   const [soundsPicker, setSoundsPicker] = useState<SoundsPicker | null>(null)
@@ -4693,6 +4711,86 @@ function ChatInner({
                     initialQuery={item.card.query ?? ''}
                     isLight={isLight}
                   />
+                )
+              }
+              if (item.card.tone) {
+                // Tip-style toned card (info=blue / gold): the dismissable tip-box look
+                // with any actions rendered as inline underlined links (not buttons).
+                const gold = item.card.tone === 'gold'
+                const accent = gold ? '#d4a017' : 'var(--mol-color-primary, #6366f1)'
+                const border = gold ? 'rgba(234,179,8,0.30)' : 'rgba(99,102,241,0.25)'
+                const bg = gold ? 'rgba(234,179,8,0.08)' : 'rgba(99,102,241,0.08)'
+                const toneActions = item.card.action
+                  ? Array.isArray(item.card.action)
+                    ? item.card.action
+                    : [item.card.action]
+                  : []
+                return (
+                  <div
+                    key={item.card.id}
+                    data-mol-id="chat-tone-card"
+                    className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 8,
+                      margin: '8px 0',
+                      padding: '8px 10px',
+                      borderRadius: 8,
+                      border: `1px solid ${border}`,
+                      background: bg,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                      style={{ flexShrink: 0, marginTop: 1, opacity: 0.85, color: accent }}
+                    >
+                      <path d="M10 2a6 6 0 0 0-3.5 10.9c.3.2.5.6.5 1V15h6v-1.1c0-.4.2-.8.5-1A6 6 0 0 0 10 2zM7 17a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-.5H7V17z" />
+                    </svg>
+                    <span style={{ flex: 1 }}>
+                      {item.card.text}
+                      {toneActions.map((act, i) => (
+                        <span key={i}>
+                          {' '}
+                          {act.href ? (
+                            <a
+                              href={act.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                color: 'var(--color-primary, #4070e0)',
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {act.label}
+                            </a>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={act.onClick}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: 0,
+                                font: 'inherit',
+                                color: 'var(--color-primary, #4070e0)',
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {act.label}
+                            </button>
+                          )}
+                        </span>
+                      ))}
+                    </span>
+                  </div>
                 )
               }
               const isMultiLine = item.card.text.includes('\n')
