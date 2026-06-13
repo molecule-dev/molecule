@@ -39,6 +39,8 @@ import { ActivityCard } from './ActivityCard.js'
 import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 import { buildHelpText } from './chat-help-utilities.js'
+import type { ReportResult } from './chat-report-utilities.js'
+import { formatReportConfirmation, parseReportCommand } from './chat-report-utilities.js'
 import type { ScriptInfo, ScriptRunResult } from './chat-scripts-utilities.js'
 import {
   findScriptByName,
@@ -54,6 +56,7 @@ import { selectTip, TIP_INTERVAL } from './chat-tips-utilities.js'
 import { Icon } from './Icon.js'
 import { MarkdownContent } from './MarkdownContent.js'
 import { ModelsTable } from './ModelsTable.js'
+import { ReportModal } from './ReportModal.js'
 import { ScriptsCard } from './ScriptsCard.js'
 import { SettingsCard } from './SettingsCard.js'
 import { SkillsCard } from './SkillsCard.js'
@@ -1807,6 +1810,8 @@ interface ChatInnerProps {
   autoSubmitSignal?: number
   /** Changing this value opens the `/settings` view (used by the header gear button). */
   openSettingsSignal?: number
+  /** Changing this value opens the `/report` bug-report modal (used by the header bug button). */
+  openReportSignal?: number
   /** Seeds the input with this text on mount (prompt→chat morph). */
   initialInputValue?: string
   pendingMessage?: string
@@ -1845,6 +1850,7 @@ interface ChatInnerProps {
  * @param root0.onTurnComplete - Callback fired on each stream done/error; host uses it to keep the boot view up until the during-boot plan stream completes.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.openSettingsSignal - Changing this opens the /settings view (header gear button).
+ * @param root0.openReportSignal - Changing this opens the /report bug-report modal (header bug button).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
@@ -1879,6 +1885,7 @@ function ChatInner({
   onTurnComplete,
   autoSubmitSignal,
   openSettingsSignal,
+  openReportSignal,
   initialInputValue,
   pendingMessage,
   pendingMessageKey,
@@ -2537,6 +2544,9 @@ function ChatInner({
 
   // ── System cards (persistent inline notifications in chat history) ────────
   const [systemCards, setSystemCards] = useState<SystemCard[]>([])
+  // Bug-report modal — `{ title }` (seed) when open, null when closed. Opened by
+  // the /report and /bug commands and the header bug-report button.
+  const [reportModal, setReportModal] = useState<{ title: string } | null>(null)
   // Keep a ref to the latest messages so addSystemCard can read them
   // without adding messages to its dependency array (avoids re-creation on
   // every streaming chunk).
@@ -3696,6 +3706,9 @@ function ChatInner({
         // /run needs a script name — prefill so the user can type it (the run is
         // dispatched from handleSubmit via runSavedScript).
         setInputAndCursorEnd('/run ')
+      } else if (id === 'report' || id === 'bug') {
+        setInputValue('')
+        setReportModal({ title: '' })
       }
     },
     [
@@ -3774,6 +3787,15 @@ function ChatInner({
       } else {
         void runSavedScript(runMatch.name)
       }
+      return
+    }
+
+    // Handle /report [title] and /bug [title] commands locally — opens the
+    // bug-report modal, seeding the title from any trailing text.
+    const reportMatch = parseReportCommand(trimmed)
+    if (reportMatch) {
+      setInputValue('')
+      setReportModal({ title: reportMatch.title })
       return
     }
 
@@ -4008,6 +4030,16 @@ function ChatInner({
       void executeCommand('settings')
     }
   }, [openSettingsSignal, executeCommand])
+
+  // External "open report" trigger from the header bug-report button. When the
+  // signal changes, open the bug-report modal (same path as /report and /bug).
+  const lastOpenReportRef = useRef(openReportSignal)
+  useEffect(() => {
+    if (openReportSignal !== undefined && openReportSignal !== lastOpenReportRef.current) {
+      lastOpenReportRef.current = openReportSignal
+      setReportModal({ title: '' })
+    }
+  }, [openReportSignal])
 
   // ── Keyboard ───────────────────────────────────────────────────────────────
   const filteredCmds = commandMenu
@@ -6257,6 +6289,31 @@ function ChatInner({
           </div>
         </div>
       </div>
+
+      {/* ── Bug-report modal (/report, /bug, header bug button) ── */}
+      {reportModal && (
+        <ReportModal
+          projectId={projectId}
+          conversationId={conversationId}
+          initialTitle={reportModal.title}
+          onClose={() => setReportModal(null)}
+          onSubmitted={(result: ReportResult) => {
+            setReportModal(null)
+            const { key, defaultValue } = formatReportConfirmation(result)
+            addSystemCard(
+              t(key, undefined, { defaultValue }),
+              result.url
+                ? {
+                    label: t('ide.chat.report.viewIssue', undefined, {
+                      defaultValue: 'View issue',
+                    }),
+                    href: result.url,
+                  }
+                : undefined,
+            )
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -6353,6 +6410,9 @@ export function ChatPanel({
   // Incremented by the header gear button to open the /settings view inside
   // ChatInner (which owns the slash-command dispatch + system-card timeline).
   const [openSettingsSignal, setOpenSettingsSignal] = useState(0)
+  // Incremented by the header bug-report button to open the /report modal inside
+  // ChatInner (same dispatch target as the /report and /bug commands).
+  const [openReportSignal, setOpenReportSignal] = useState(0)
 
   const chatEndpoint = activeConversationId
     ? `${baseEndpoint}?conversationId=${activeConversationId}`
@@ -6517,6 +6577,21 @@ export function ChatPanel({
             </span>
           </button>
 
+          {/* Bug-report button — opens the /report modal */}
+          <button
+            type="button"
+            data-mol-id="chat-report-button"
+            onClick={() => setOpenReportSignal((n) => n + 1)}
+            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+            title={t('ide.chat.report.openReport', undefined, { defaultValue: 'Report a bug' })}
+            aria-label={t('ide.chat.report.openReport', undefined, {
+              defaultValue: 'Report a bug',
+            })}
+            style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}
+          >
+            <Icon name="exclamation-triangle" size={14} aria-hidden="true" />
+          </button>
+
           {/* Settings button — opens the /settings view */}
           <button
             type="button"
@@ -6673,6 +6748,7 @@ export function ChatPanel({
         onTurnComplete={onTurnComplete}
         autoSubmitSignal={autoSubmitSignal}
         openSettingsSignal={openSettingsSignal}
+        openReportSignal={openReportSignal}
         initialInputValue={initialInputValue}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}

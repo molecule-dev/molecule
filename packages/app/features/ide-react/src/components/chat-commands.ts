@@ -159,6 +159,20 @@ export const COMMANDS: readonly CommandDef[] = [
 
   // Support
   { id: 'help', label: '/help', description: 'Workflow guide & tips', category: 'support' },
+  {
+    id: 'report',
+    label: '/report',
+    description: 'Report a bug or send feedback',
+    category: 'support',
+    usage: '/report [title]',
+  },
+  {
+    id: 'bug',
+    label: '/bug',
+    description: 'Report a bug (alias for /report)',
+    category: 'support',
+    usage: '/bug [title]',
+  },
 ] as const
 
 /** Union of all command ids (loosely `string`, since {@link CommandDef.id} is a string). */
