@@ -445,4 +445,19 @@ describe('classMap', () => {
       }
     })
   })
+
+  describe('touchTarget (WCAG 2.5.5)', () => {
+    it('enforces a >=44px minimum height and width', () => {
+      expect(classMap.touchTarget).toContain('min-h-[44px]')
+      expect(classMap.touchTarget).toContain('min-w-[44px]')
+    })
+
+    it('scopes the minimum to coarse-pointer (touch) devices only', () => {
+      // Every sizing token must carry the `pointer-coarse` variant so a
+      // fine-pointer (mouse) desktop layout keeps its compact control sizing.
+      for (const cls of classMap.touchTarget.split(/\s+/).filter(Boolean)) {
+        expect(cls.startsWith('pointer-coarse:'), `${cls} must be coarse-pointer scoped`).toBe(true)
+      }
+    })
+  })
 })

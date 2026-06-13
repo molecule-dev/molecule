@@ -137,6 +137,11 @@ export const classMap: UIClassMap = {
   cursorPointer: '',
   tableRowHoverable: 'active:bg-muted/50',
 
+  // Touch target (WCAG 2.5.5 / Apple HIG / Material): React Native is touch-first,
+  // so the `pointer-coarse` variant the web bond uses is not meaningful here —
+  // apply the >=44x44px minimum unconditionally to every control that opts in.
+  touchTarget: 'min-h-[44px] min-w-[44px]',
+
   // Display utilities: RN doesn't have inline-block or block/inline distinction
   displayBlock: '',
   displayInlineBlock: '',

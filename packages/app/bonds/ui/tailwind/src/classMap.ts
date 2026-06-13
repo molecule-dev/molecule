@@ -1025,6 +1025,14 @@ export const classMap: UIClassMap = {
 
   shrink0: 'shrink-0',
 
+  // Touch target (WCAG 2.5.5): grow small controls to >=44x44px ONLY on
+  // coarse-pointer (touch) devices — iPhone/iPad/touch laptops — via the
+  // `pointer-coarse` variant. Fine-pointer (mouse) layouts are untouched, so
+  // compact desktop toolbars keep their size. Width-based breakpoints are the
+  // wrong signal here (an iPad in portrait is >=768px yet still needs 44px
+  // targets); `pointer-coarse` keys off the actual input modality.
+  touchTarget: 'pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]',
+
   // ---- Position utilities ----
 
   position(value: 'relative' | 'absolute' | 'fixed' | 'sticky'): string {

@@ -579,4 +579,17 @@ describe('@molecule/app-ui-nativewind classMap', () => {
       })
     }
   })
+
+  describe('touchTarget (WCAG 2.5.5)', () => {
+    it('enforces a >=44px minimum height and width', () => {
+      expect(classMap.touchTarget).toContain('min-h-[44px]')
+      expect(classMap.touchTarget).toContain('min-w-[44px]')
+    })
+
+    it('applies the minimum unconditionally (RN is touch-first, no pointer variant)', () => {
+      // React Native has no fine-pointer mode, so — unlike the web bond — the
+      // minimum must NOT be gated behind the `pointer-coarse` variant.
+      expect(classMap.touchTarget).not.toContain('pointer-coarse:')
+    })
+  })
 })

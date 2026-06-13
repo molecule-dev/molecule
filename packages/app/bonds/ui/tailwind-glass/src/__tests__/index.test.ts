@@ -59,6 +59,13 @@ describe('@molecule/app-ui-tailwind-glass', () => {
       expect(buttonClasses).toContain('inline-flex')
       expect(buttonClasses).not.toContain('backdrop-blur')
     })
+
+    it('inherits the base touchTarget token (glass adds no touch override)', () => {
+      // Glass is a web Tailwind variant — touch detection is identical to the
+      // base bond, so the coarse-pointer-scoped >=44px token must pass through.
+      expect(classMap.touchTarget).toContain('pointer-coarse:min-h-[44px]')
+      expect(classMap.touchTarget).toContain('pointer-coarse:min-w-[44px]')
+    })
   })
 
   describe('glassOverrides', () => {
