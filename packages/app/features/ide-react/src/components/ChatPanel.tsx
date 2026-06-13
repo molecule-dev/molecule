@@ -40,12 +40,14 @@ import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 import { buildHelpText } from './chat-help-utilities.js'
 import { buildSettingsList, summarizeSounds } from './chat-settings-utilities.js'
+import type { SkillInfo } from './chat-skills-utilities.js'
 import { estimateStreamTokens } from './chat-stream-utilities.js'
 import { selectTip, TIP_INTERVAL } from './chat-tips-utilities.js'
 import { Icon } from './Icon.js'
 import { MarkdownContent } from './MarkdownContent.js'
 import { ModelsTable } from './ModelsTable.js'
 import { SettingsCard } from './SettingsCard.js'
+import { SkillsCard } from './SkillsCard.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
 import { TipCard } from './TipCard.js'
 import { ToolCallCard } from './ToolCallCard.js'
@@ -3072,6 +3074,43 @@ function ChatInner({
     })
   }, [])
 
+  /**
+   * Loads a skill from the `/skills` browser: opens it in the editor and
+   * attaches its content as context for the next message (reusing the same
+   * attachment mechanism as @-mentions), then confirms with a system card.
+   */
+  const loadSkill = useCallback(
+    (skill: SkillInfo) => {
+      // Open in the editor — onFileOpen expects a project-relative path (no leading slash).
+      onFileOpen?.(skill.path, { focus: true })
+      // Attach the skill file so its content is injected into the next message.
+      const attachPath = '/' + skill.path
+      setAttachedFiles((prev) =>
+        prev.some((f) => f.path === attachPath)
+          ? prev
+          : [
+              ...prev,
+              {
+                path: attachPath,
+                filename: skill.path.split('/').pop() ?? skill.path,
+                mediaType: 'text/plain',
+                size: 0,
+              },
+            ],
+      )
+      addSystemCard(
+        t(
+          'ide.chat.skills.loaded',
+          { name: skill.name },
+          {
+            defaultValue: `Loaded skill “${skill.name}” — opened in the editor and attached as context for your next message.`,
+          },
+        ),
+      )
+    },
+    [onFileOpen, addSystemCard],
+  )
+
   // ── File attachment handlers ──────────────────────────────────────────────
 
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -3581,6 +3620,11 @@ function ChatInner({
         setInputValue('')
         // Renders the settings + command-reference card (see the 'settings' variant branch).
         addSystemCard('', undefined, 'settings')
+      } else if (id === 'skills') {
+        setInputValue('')
+        // Renders the skills browser (see the 'skills' variant branch). A query,
+        // if any, is supplied via the /skills <query> path in handleSubmit.
+        addSystemCard('', undefined, 'skills')
       }
     },
     [
@@ -3625,6 +3669,15 @@ function ChatInner({
     // Handle /settings command locally
     if (/^\/settings$/i.test(trimmed)) {
       void executeCommand('settings')
+      return
+    }
+
+    // Handle /skills [query] command locally — renders the skills browser,
+    // seeded with the query (if any) so the card opens pre-filtered.
+    const skillsMatch = trimmed.match(/^\/skills(?:\s+(.*))?$/i)
+    if (skillsMatch) {
+      setInputValue('')
+      addSystemCard('', undefined, 'skills', skillsMatch[1]?.trim() ?? '')
       return
     }
 
@@ -4247,6 +4300,17 @@ function ChatInner({
                     key={item.card.id}
                     settings={settings}
                     onRunCommand={(commandId) => void executeCommand(commandId)}
+                    isLight={isLight}
+                  />
+                )
+              }
+              if (item.card.variant === 'skills') {
+                return (
+                  <SkillsCard
+                    key={item.card.id}
+                    projectId={projectId}
+                    initialQuery={item.card.query ?? ''}
+                    onLoad={loadSkill}
                     isLight={isLight}
                   />
                 )

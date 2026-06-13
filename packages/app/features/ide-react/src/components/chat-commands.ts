@@ -66,6 +66,13 @@ export const COMMANDS: readonly CommandDef[] = [
     description: 'Show token usage & estimated cost',
     category: 'context',
   },
+  {
+    id: 'skills',
+    label: '/skills',
+    description: 'Browse & load project skills',
+    category: 'context',
+    usage: '/skills [query]',
+  },
 
   // Code
   { id: 'commit', label: '/commit', description: 'Commit current changes', category: 'code' },
