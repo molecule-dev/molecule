@@ -84,6 +84,13 @@ import {
   runSucceeded,
 } from './chat-scripts-utilities.js'
 import { buildSettingsList, summarizeSounds } from './chat-settings-utilities.js'
+import type { ShareLinkResult, ShareRole } from './chat-share-utilities.js'
+import {
+  buildShareUrl,
+  DEFAULT_SHARE_ROLE,
+  parseShareCommand,
+  SHARE_ROLES,
+} from './chat-share-utilities.js'
 import type { SkillInfo } from './chat-skills-utilities.js'
 import { estimateStreamTokens } from './chat-stream-utilities.js'
 import { selectTip, TIP_INTERVAL } from './chat-tips-utilities.js'
@@ -93,6 +100,7 @@ import { ModelsTable } from './ModelsTable.js'
 import { ReportModal } from './ReportModal.js'
 import { ScriptsCard } from './ScriptsCard.js'
 import { SettingsCard } from './SettingsCard.js'
+import { ShareModal } from './ShareModal.js'
 import { SkillsCard } from './SkillsCard.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
 import { TipCard } from './TipCard.js'
@@ -1878,6 +1886,8 @@ interface ChatInnerProps {
   openSettingsSignal?: number
   /** Changing this value opens the `/report` bug-report modal (used by the header bug button). */
   openReportSignal?: number
+  /** Changing this value opens the `/share` link modal (used by the header share button). */
+  openShareSignal?: number
   /** Seeds the input with this text on mount (prompt→chat morph). */
   initialInputValue?: string
   pendingMessage?: string
@@ -1917,6 +1927,7 @@ interface ChatInnerProps {
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.openSettingsSignal - Changing this opens the /settings view (header gear button).
  * @param root0.openReportSignal - Changing this opens the /report bug-report modal (header bug button).
+ * @param root0.openShareSignal - Changing this opens the /share link modal (header share button).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
@@ -1952,6 +1963,7 @@ function ChatInner({
   autoSubmitSignal,
   openSettingsSignal,
   openReportSignal,
+  openShareSignal,
   initialInputValue,
   pendingMessage,
   pendingMessageKey,
@@ -2589,6 +2601,9 @@ function ChatInner({
   // Bug-report modal — `{ title }` (seed) when open, null when closed. Opened by
   // the /report and /bug commands and the header bug-report button.
   const [reportModal, setReportModal] = useState<{ title: string } | null>(null)
+  // Share-link modal — `{ role }` (seed) when open, null when closed. Opened by
+  // the /share command and the header share button.
+  const [shareModal, setShareModal] = useState<{ role: ShareRole } | null>(null)
   // Keep a ref to the latest messages so addSystemCard can read them
   // without adding messages to its dependency array (avoids re-creation on
   // every streaming chunk).
@@ -3784,6 +3799,9 @@ function ChatInner({
       } else if (id === 'report' || id === 'bug') {
         setInputValue('')
         setReportModal({ title: '' })
+      } else if (id === 'share') {
+        setInputValue('')
+        setShareModal({ role: DEFAULT_SHARE_ROLE })
       }
     },
     [
@@ -3880,6 +3898,28 @@ function ChatInner({
     if (reportMatch) {
       setInputValue('')
       setReportModal({ title: reportMatch.title })
+      return
+    }
+
+    // Handle /share [role] locally — opens the share-link modal at the requested
+    // role (default viewer). An unrecognized role shows usage instead.
+    const shareMatch = parseShareCommand(trimmed)
+    if (shareMatch) {
+      setInputValue('')
+      if (shareMatch.kind === 'invalid') {
+        addSystemCard(
+          t(
+            'ide.chat.share.usage',
+            { roles: SHARE_ROLES.join(', ') },
+            {
+              defaultValue:
+                'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
+            },
+          ),
+        )
+      } else {
+        setShareModal({ role: shareMatch.role })
+      }
       return
     }
 
@@ -4220,6 +4260,16 @@ function ChatInner({
       setReportModal({ title: '' })
     }
   }, [openReportSignal])
+
+  // External "open share" trigger from the header share button. When the signal
+  // changes, open the share-link modal (same path as the /share command).
+  const lastOpenShareRef = useRef(openShareSignal)
+  useEffect(() => {
+    if (openShareSignal !== undefined && openShareSignal !== lastOpenShareRef.current) {
+      lastOpenShareRef.current = openShareSignal
+      setShareModal({ role: DEFAULT_SHARE_ROLE })
+    }
+  }, [openShareSignal])
 
   // ── Keyboard ───────────────────────────────────────────────────────────────
   const filteredCmds = commandMenu
@@ -6522,6 +6572,33 @@ function ChatInner({
           }}
         />
       )}
+
+      {/* ── Share-link modal (/share, header share button) ── */}
+      {shareModal && (
+        <ShareModal
+          projectId={projectId}
+          initialRole={shareModal.role}
+          onClose={() => setShareModal(null)}
+          onCreated={(result: ShareLinkResult) => {
+            // Surface the created link in the timeline so it persists after the
+            // modal closes — the role label and the public URL are both shown.
+            addSystemCard(
+              t(
+                'ide.chat.share.created',
+                { role: result.role },
+                { defaultValue: 'Created a {{role}} share link.' },
+              ),
+              {
+                label: t('ide.chat.share.openLink', undefined, { defaultValue: 'Open link' }),
+                href: buildShareUrl(
+                  result,
+                  typeof window !== 'undefined' ? window.location.origin : '',
+                ),
+              },
+            )
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -6621,6 +6698,9 @@ export function ChatPanel({
   // Incremented by the header bug-report button to open the /report modal inside
   // ChatInner (same dispatch target as the /report and /bug commands).
   const [openReportSignal, setOpenReportSignal] = useState(0)
+  // Incremented by the header share button to open the /share modal inside
+  // ChatInner (same dispatch target as the /share command).
+  const [openShareSignal, setOpenShareSignal] = useState(0)
 
   const chatEndpoint = activeConversationId
     ? `${baseEndpoint}?conversationId=${activeConversationId}`
@@ -6783,6 +6863,21 @@ export function ChatPanel({
             >
               {activeConv?.preview ?? 'Chat history'}
             </span>
+          </button>
+
+          {/* Share button — opens the /share link modal */}
+          <button
+            type="button"
+            data-mol-id="chat-share-button"
+            onClick={() => setOpenShareSignal((n) => n + 1)}
+            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+            title={t('ide.chat.share.openShare', undefined, { defaultValue: 'Share project' })}
+            aria-label={t('ide.chat.share.openShare', undefined, {
+              defaultValue: 'Share project',
+            })}
+            style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}
+          >
+            <Icon name="share" size={14} aria-hidden="true" />
           </button>
 
           {/* Bug-report button — opens the /report modal */}
@@ -6957,6 +7052,7 @@ export function ChatPanel({
         autoSubmitSignal={autoSubmitSignal}
         openSettingsSignal={openSettingsSignal}
         openReportSignal={openReportSignal}
+        openShareSignal={openShareSignal}
         initialInputValue={initialInputValue}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}

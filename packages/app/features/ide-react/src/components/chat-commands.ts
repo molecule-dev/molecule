@@ -10,7 +10,13 @@
  */
 
 /** Category keys used to group commands in the menu and in `/help`. */
-export type CommandCategoryKey = 'context' | 'code' | 'model' | 'settings' | 'support'
+export type CommandCategoryKey =
+  | 'context'
+  | 'code'
+  | 'collaborate'
+  | 'model'
+  | 'settings'
+  | 'support'
 
 /** A command category with its display label. */
 export interface CommandCategory {
@@ -24,6 +30,7 @@ export interface CommandCategory {
 export const COMMAND_CATEGORIES: readonly CommandCategory[] = [
   { key: 'context', label: 'Context' },
   { key: 'code', label: 'Code' },
+  { key: 'collaborate', label: 'Collaborate' },
   { key: 'model', label: 'Model' },
   { key: 'settings', label: 'Settings' },
   { key: 'support', label: 'Support' },
@@ -124,6 +131,15 @@ export const COMMANDS: readonly CommandDef[] = [
     description: 'Auto-commit N seconds after the last file change (0 cancels)',
     category: 'code',
     usage: '/autocommit <seconds>',
+  },
+
+  // Collaborate
+  {
+    id: 'share',
+    label: '/share',
+    description: 'Create a public share link for this project',
+    category: 'collaborate',
+    usage: '/share [viewer | commenter | editor | owner]',
   },
 
   // Model
