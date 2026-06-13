@@ -119,7 +119,7 @@ export const en: IdeTranslations = {
   'ide.search.toggleFilters': 'Toggle Filters',
   'ide.search.includeFiles': 'Files to include (e.g. *.ts)',
   'ide.search.excludeFiles': 'Files to exclude (e.g. *.min.js)',
-  'ide.search.resultsTruncated': 'No results found',
+  'ide.search.resultsTruncated': '{{count}} results in {{files}} files (truncated)',
   'ide.search.searching': 'Searching…',
   'ide.sidebar.files': 'Explorer',
   'ide.sidebar.search': 'Search',
@@ -192,7 +192,6 @@ export const en: IdeTranslations = {
   'ide.preview.openNewTab': 'Open in new tab',
   'ide.preview.livePreview': 'Live Preview',
   'ide.preview.retryButton': 'Retry now',
-  'ide.device.label': 'Device frame',
   'ide.device.responsive': 'Responsive',
   'ide.device.desktop': 'Desktop',
   'ide.device.tablet': 'Tablet',
@@ -207,4 +206,27 @@ export const en: IdeTranslations = {
   'ide.tabs.close': 'Close {{fileName}}',
   'ide.search.caseSensitive': 'Match Case',
   'ide.search.noResults': 'No results found',
+  // Preview toolbar (PV1 URL bar, PV5 back/forward + freeze recovery).
+  'ide.preview.back': 'Back',
+  'ide.preview.forward': 'Forward',
+  'ide.preview.urlBar': 'Preview URL',
+  'ide.preview.updating': 'Updating',
+  'ide.preview.frozen':
+    'This app stopped responding — an infinite loop or runaway render froze the preview. The IDE is unaffected.',
+  'ide.preview.frozenReload': 'Reload app',
+  // Device-frame cycler tooltip.
+  'ide.device.cycleHint': '{{current}} — click for {{next}}',
+  // Search result counts.
+  'ide.search.results': '{{count}} results in {{files}} files',
+  // Activity panel (captured email/SMS/push/webhook/channel events).
+  'ide.activity.cardAria': 'View captured activity',
+  'ide.activity.type.email': 'Email',
+  'ide.activity.type.sms': 'SMS',
+  'ide.activity.type.push': 'Push',
+  'ide.activity.type.webhook': 'Webhooks',
+  'ide.activity.type.channel': 'Channel',
+  'ide.activity.status.captured': 'Captured',
+  'ide.activity.status.sent': 'Sent',
+  'ide.activity.status.delivered': 'Delivered',
+  'ide.activity.status.failed': 'Failed',
 }
