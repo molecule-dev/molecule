@@ -66,7 +66,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Pawża',
   'ide.chat.autoFixCancel': 'Ikkanċella',
   'ide.chat.reportProblem': 'Irrapporta problema',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Agħżel mudell',
   'ide.chat.currentModelLabel': 'Kurrenti:<x> {{isem}}</x>',
   'ide.chat.currentBadge': 'kurrenti',
@@ -180,7 +180,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result': "Sejħa ta' għodda (qari ta' fajl, kmand, eċċ.) kompluta",
   'ide.chat.soundEventDesc.file_diff': 'Fajl inħoloq jew ġie modifikat',
   'ide.chat.soundEventDesc.commit_suggestion':
-    'Synthase qed tissuġġerixxi fajls biex jiġu kkommessi',
+    '{{agentName}} qed tissuġġerixxi fajls biex jiġu kkommessi',
   'ide.chat.soundEventDesc.mode': 'Inbidel bejn il-modalità tal-pjan u l-modalità tal-eżekuzzjoni',
   'ide.chat.soundEventDesc.loop_limit_reached':
     "Laħaq il-limitu massimu ta' iterazzjonijiet tal-għodda",

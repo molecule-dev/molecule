@@ -67,7 +67,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Misa isikhashana',
   'ide.chat.autoFixCancel': 'Khansela',
   'ide.chat.reportProblem': 'Bika inkinga',
-  'ide.chat.version': 'I-Molecule.dev v0.1.0',
+  'ide.chat.version': 'I-{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Khetha imodeli',
   'ide.chat.currentModelLabel': 'Okwamanje:<x> {{igama}}</x>',
   'ide.chat.currentBadge': 'okwamanje',
@@ -177,12 +177,13 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Umkhawulo we-loop ufinyelelwe',
   'ide.chat.soundEvent.verification_result': 'Umphumela wokuqinisekisa',
   'ide.chat.soundEvent.preview_error': 'Iphutha lokubuka kuqala',
-  'ide.chat.soundEventDesc.done': 'I-Synthase iqedile ukuphendula',
+  'ide.chat.soundEventDesc.done': 'I-{{agentName}} iqedile ukuphendula',
   'ide.chat.soundEventDesc.error': 'Kukhona okungahambanga kahle ngesikhathi sempendulo',
   'ide.chat.soundEventDesc.tool_result':
     'Ucingo lwethuluzi (ukufundwa kwefayela, umyalo, njll.) luqediwe',
   'ide.chat.soundEventDesc.file_diff': 'Ifayela ladalwa noma lashintshwa',
-  'ide.chat.soundEventDesc.commit_suggestion': 'I-Synthase iphakamisa amafayela okufanele afakwe',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    'I-{{agentName}} iphakamisa amafayela okufanele afakwe',
   'ide.chat.soundEventDesc.mode': 'Kushintshwe phakathi kwemodi yohlelo kanye nemodi yokusebenzisa',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Finyelela umkhawulo ophezulu wokuphindaphinda kwamathuluzi',

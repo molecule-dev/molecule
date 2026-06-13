@@ -66,7 +66,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Pozastaviť',
   'ide.chat.autoFixCancel': 'Zrušiť',
   'ide.chat.reportProblem': 'Nahlásiť problém',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Vyberte model',
   'ide.chat.currentModelLabel': 'Aktuálne:<x> {{name}}</x>',
   'ide.chat.currentBadge': 'prúd',
@@ -179,7 +179,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Volanie nástroja (čítanie súboru, príkaz atď.) bolo dokončené',
   'ide.chat.soundEventDesc.file_diff': 'Súbor bol vytvorený alebo upravený',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase navrhuje súbory na commit',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} navrhuje súbory na commit',
   'ide.chat.soundEventDesc.mode': 'Prepínanie medzi režimom plánovania a režimom vykonávania',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Dosiahnutie maximálneho limitu iterácií nástroja',
   'ide.chat.soundEventDesc.verification_result':

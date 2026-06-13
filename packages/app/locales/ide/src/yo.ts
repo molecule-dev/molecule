@@ -97,7 +97,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result':
     '\\u00C0b\\u00E1j\\u00E1de \\u00E0y\\u1EB9\\u0300w\\u00F2',
   'ide.chat.soundEvent.preview_error': '\\u00C0\\u1E63\\u00ECse \\u00E0w\\u00F2\\u1E63e',
-  'ide.chat.soundEventDesc.done': 'Synthase ti par\\u00ED \\u00ECd\\u00E1h\\u00F9n',
+  'ide.chat.soundEventDesc.done': '{{agentName}} ti par\\u00ED \\u00ECd\\u00E1h\\u00F9n',
   'ide.chat.soundEventDesc.error':
     'N\\u1ECD\\u0301nkan k\\u00F2 l\\u1ECD n\\u00EDgb\\u00E0 \\u00ECd\\u00E1h\\u00F9n',
   'ide.chat.soundEventDesc.tool_result':
@@ -105,7 +105,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.file_diff':
     'A ti \\u1E63\\u1EB9\\u0300d\\u00E1 f\\u00E1\\u00ECl\\u00EC kan t\\u00E0b\\u00ED a \\u1E63\\u00E0t\\u00FAn\\u1E63e r\\u1EB9\\u0300',
   'ide.chat.soundEventDesc.commit_suggestion':
-    'Synthase n\\u0301 d\\u00E1b\\u00E0 \\u00E0w\\u1ECDn f\\u00E1\\u00ECl\\u00EC l\\u00E1ti fi pam\\u1ECD\\u0301',
+    '{{agentName}} n\\u0301 d\\u00E1b\\u00E0 \\u00E0w\\u1ECDn f\\u00E1\\u00ECl\\u00EC l\\u00E1ti fi pam\\u1ECD\\u0301',
   'ide.chat.soundEventDesc.mode':
     'Y\\u00ED pad\\u00E0 l\\u00E1\\u00E0r\\u00EDn m\\u00F3\\u00F2d\\u00F9 \\u00E8t\\u00F2 \\u00E0ti m\\u00F3\\u00F2d\\u00F9 \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300',
   'ide.chat.soundEventDesc.loop_limit_reached':
@@ -237,7 +237,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Dúró díẹ̀',
   'ide.chat.autoFixCancel': 'Fagilee',
   'ide.chat.reportProblem': 'Ṣe ijabọ iṣoro kan',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.activeFile': 'ti nṣiṣe lọwọ',
   'ide.chat.openTab': 'ṣii',
   'ide.chat.switchToExecute': 'Yípadà sí ipò ìṣe',

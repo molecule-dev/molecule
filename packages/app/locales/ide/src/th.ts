@@ -66,7 +66,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'หยุดชั่วคราว',
   'ide.chat.autoFixCancel': 'ยกเลิก',
   'ide.chat.reportProblem': 'รายงานปัญหา',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'เลือกโมเดล',
   'ide.chat.currentModelLabel': 'ปัจจุบัน:<x> {{ชื่อ}}</x>',
   'ide.chat.currentBadge': 'ปัจจุบัน',
@@ -179,7 +179,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'การเรียกใช้เครื่องมือ (อ่านไฟล์, คำสั่ง ฯลฯ) เสร็จสมบูรณ์แล้ว',
   'ide.chat.soundEventDesc.file_diff': 'มีการสร้างหรือแก้ไขไฟล์',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase กำลังแนะนำไฟล์ที่จะทำการคอมมิต',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} กำลังแนะนำไฟล์ที่จะทำการคอมมิต',
   'ide.chat.soundEventDesc.mode': 'สลับระหว่างโหมดวางแผนและโหมดดำเนินการ',
   'ide.chat.soundEventDesc.loop_limit_reached': 'ถึงขีดจำกัดจำนวนการวนซ้ำสูงสุดของเครื่องมือแล้ว',
   'ide.chat.soundEventDesc.verification_result':

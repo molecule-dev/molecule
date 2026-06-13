@@ -91,7 +91,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'Korábbi üzenetek megjelenítése',
   'ide.chat.autoFixPaused': 'Automatikus javítás szünetel',
   'ide.chat.reportProblem': 'Probléma jelentése',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Válasszon modellt',
   'ide.chat.currentBadge': 'jelenlegi',
   'ide.chat.proRequired': 'Profi',
@@ -182,7 +182,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.error': 'Valami hiba történt a válaszadás során',
   'ide.chat.soundEventDesc.tool_result': 'Eszközhívás (fájlolvasás, parancs stb.) befejeződött',
   'ide.chat.soundEventDesc.file_diff': 'Létrehoztak vagy módosítottak egy fájlt',
-  'ide.chat.soundEventDesc.commit_suggestion': 'A Synthase fájlokat javasol commitolásra.',
+  'ide.chat.soundEventDesc.commit_suggestion': 'A {{agentName}} fájlokat javasol commitolásra.',
   'ide.chat.soundEventDesc.mode': 'Váltás a tervezési és a végrehajtási mód között',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Elérte a maximális eszköz iterációs korlátot',
   'ide.chat.soundEventDesc.verification_result':

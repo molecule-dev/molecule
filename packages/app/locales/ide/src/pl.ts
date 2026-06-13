@@ -100,7 +100,7 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'Pokaż wcześniejsze wiadomości',
   'ide.chat.autoFixPaused': 'Wstrzymano automatyczną naprawę',
   'ide.chat.reportProblem': 'Zgłoś problem',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Wybierz model',
   'ide.chat.currentBadge': 'aktualny',
   'ide.chat.proRequired': 'Zawodowiec',
@@ -185,7 +185,7 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Zakończono wywołanie narzędzia (odczyt pliku, polecenie itp.)',
   'ide.chat.soundEventDesc.file_diff': 'Plik został utworzony lub zmodyfikowany',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase sugeruje pliki do zatwierdzenia',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} sugeruje pliki do zatwierdzenia',
   'ide.chat.soundEventDesc.mode': 'Przełączanie między trybem planowania a trybem wykonywania',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Osiągnięto maksymalny limit iteracji narzędzia',
   'ide.chat.soundEventDesc.verification_result':

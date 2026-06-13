@@ -88,7 +88,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'Ipakita ang mga naunang mensahe',
   'ide.chat.autoFixPaused': 'Na-pause ang awtomatikong pag-aayos',
   'ide.chat.reportProblem': 'Mag-ulat ng problema',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pumili ng modelo',
   'ide.chat.currentBadge': 'kasalukuyan',
   'ide.chat.proRequired': 'Propesyonal',
@@ -182,7 +182,7 @@ export const fil: Partial<IdeTranslations> = {
     'Nakumpleto ang isang tool call (pagbasa ng file, utos, atbp.)',
   'ide.chat.soundEventDesc.file_diff': 'Isang file ang nilikha o binago',
   'ide.chat.soundEventDesc.commit_suggestion':
-    'Nagmumungkahi ang Synthase ng mga file na iko-commit',
+    'Nagmumungkahi ang {{agentName}} ng mga file na iko-commit',
   'ide.chat.soundEventDesc.mode': 'Lumipat sa pagitan ng plan mode at execute mode',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Abutin ang pinakamataas na limitasyon sa mga pag-ulit ng tool',

@@ -97,7 +97,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'Eerdere berichten weergeven',
   'ide.chat.autoFixPaused': 'Automatische correctie gepauzeerd',
   'ide.chat.reportProblem': 'Een probleem melden',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Selecteer model',
   'ide.chat.currentBadge': 'huidig',
   'ide.chat.proRequired': 'Pro',
@@ -180,12 +180,12 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Luslimiet bereikt',
   'ide.chat.soundEvent.verification_result': 'Verificatieresultaat',
   'ide.chat.soundEvent.preview_error': 'Voorbeeldfout',
-  'ide.chat.soundEventDesc.done': 'Synthase reageerde niet meer',
+  'ide.chat.soundEventDesc.done': '{{agentName}} reageerde niet meer',
   'ide.chat.soundEventDesc.error': 'Er is iets misgegaan tijdens een reactie.',
   'ide.chat.soundEventDesc.tool_result':
     'Een toolaanroep (bestand lezen, commando, enz.) is voltooid.',
   'ide.chat.soundEventDesc.file_diff': 'Er is een bestand aangemaakt of gewijzigd.',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase stelt bestanden voor om te committen',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} stelt bestanden voor om te committen',
   'ide.chat.soundEventDesc.mode': 'Geschakeld tussen planningsmodus en uitvoeringsmodus.',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Het maximale aantal iteraties van de tool is bereikt.',

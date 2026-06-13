@@ -66,7 +66,7 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'توقف',
   'ide.chat.autoFixCancel': 'منسوخ کریں۔',
   'ide.chat.reportProblem': 'ایک مسئلہ کی اطلاع دیں۔',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'ماڈل منتخب کریں۔',
   'ide.chat.currentModelLabel': 'موجودہ:<x> {{نام}}</x>',
   'ide.chat.currentBadge': 'موجودہ',
@@ -179,7 +179,8 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.error': 'جواب کے دوران کچھ غلط ہو گیا۔',
   'ide.chat.soundEventDesc.tool_result': 'ایک ٹول کال (فائل ریڈ، کمانڈ، وغیرہ) مکمل ہو گئی۔',
   'ide.chat.soundEventDesc.file_diff': 'ایک فائل بنائی گئی تھی یا اس میں ترمیم کی گئی تھی۔',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase فائلوں کو کمٹ کرنے کا مشورہ دے رہا ہے۔',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    '{{agentName}} فائلوں کو کمٹ کرنے کا مشورہ دے رہا ہے۔',
   'ide.chat.soundEventDesc.mode': 'پلان موڈ اور ایگزیکیوٹ موڈ کے درمیان سوئچ کیا گیا۔',
   'ide.chat.soundEventDesc.loop_limit_reached': 'زیادہ سے زیادہ ٹول کی تکرار کی حد کو ماریں۔',
   'ide.chat.soundEventDesc.verification_result': 'لنٹ یا ٹائپ چیک چل رہا ہے۔',

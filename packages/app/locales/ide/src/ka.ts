@@ -66,7 +66,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'პაუზა',
   'ide.chat.autoFixCancel': 'გაუქმება',
   'ide.chat.reportProblem': 'პრობლემის შესახებ შეტყობინება',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'მოდელის არჩევა',
   'ide.chat.currentModelLabel': 'მიმდინარე:<x> {{სახელი}}</x>',
   'ide.chat.currentBadge': 'მიმდინარე',

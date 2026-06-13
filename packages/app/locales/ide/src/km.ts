@@ -66,7 +66,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'ផ្អាក',
   'ide.chat.autoFixCancel': 'បោះបង់',
   'ide.chat.reportProblem': 'រាយការណ៍បញ្ហា',
-  'ide.chat.version': 'Molecule.dev កំណែ ០.១.០',
+  'ide.chat.version': '{{productName}} កំណែ ០.១.០',
   'ide.chat.selectModel': 'ជ្រើសរើសម៉ូដែល',
   'ide.chat.currentModelLabel': 'បច្ចុប្បន្ន៖<x> {{ឈ្មោះ}}</x>',
   'ide.chat.currentBadge': 'បច្ចុប្បន្ន',
@@ -178,7 +178,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.error': 'មានអ្វីមួយខុសប្រក្រតីអំឡុងពេលឆ្លើយតប',
   'ide.chat.soundEventDesc.tool_result': 'ការហៅឧបករណ៍ (អានឯកសារ ពាក្យបញ្ជា។ល។) បានបញ្ចប់',
   'ide.chat.soundEventDesc.file_diff': 'ឯកសារមួយត្រូវបានបង្កើត ឬកែប្រែ',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase កំពុងណែនាំឯកសារដើម្បីបញ្ជូន',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} កំពុងណែនាំឯកសារដើម្បីបញ្ជូន',
   'ide.chat.soundEventDesc.mode': 'បានប្តូររវាងរបៀបផែនការ និងរបៀបប្រតិបត្តិ',
   'ide.chat.soundEventDesc.loop_limit_reached': 'ឈានដល់ដែនកំណត់អតិបរមានៃការផលិតឡើងវិញនៃឧបករណ៍',
   'ide.chat.soundEventDesc.verification_result':

@@ -66,7 +66,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Pauze',
   'ide.chat.autoFixCancel': 'Atcelt',
   'ide.chat.reportProblem': 'Ziņot par problēmu',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Izvēlieties modeli',
   'ide.chat.currentModelLabel': 'Pašreizējā:<x> {{vārds}}</x>',
   'ide.chat.currentBadge': 'strāva',
@@ -179,7 +179,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Rīka izsaukums (faila nolasīšana, komanda utt.) ir pabeigts',
   'ide.chat.soundEventDesc.file_diff': 'Fails tika izveidots vai modificēts',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase iesaka failus, ko komentēt.',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} iesaka failus, ko komentēt.',
   'ide.chat.soundEventDesc.mode': 'Pārslēgts starp plānošanas režīmu un izpildes režīmu',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Sasniegts maksimālais rīka iterāciju ierobežojums',
   'ide.chat.soundEventDesc.verification_result': 'Lint vai tipa pārbaudes izpilde ir pabeigta.',

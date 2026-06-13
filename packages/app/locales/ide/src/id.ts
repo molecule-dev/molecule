@@ -97,7 +97,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'Tampilkan pesan sebelumnya',
   'ide.chat.autoFixPaused': 'Perbaikan otomatis dijeda',
   'ide.chat.reportProblem': 'Laporkan masalah',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pilih model',
   'ide.chat.currentBadge': 'saat ini',
   'ide.chat.proRequired': 'Pro',
@@ -182,7 +182,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.error': 'Terjadi kesalahan selama respons.',
   'ide.chat.soundEventDesc.tool_result': 'Panggilan alat (pembacaan file, perintah, dll.) selesai',
   'ide.chat.soundEventDesc.file_diff': 'Sebuah berkas telah dibuat atau dimodifikasi.',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase menyarankan file untuk di-commit.',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} menyarankan file untuk di-commit.',
   'ide.chat.soundEventDesc.mode': 'Beralih antara mode perencanaan dan mode eksekusi',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Mencapai batas iterasi alat maksimum',
   'ide.chat.soundEventDesc.verification_result':

@@ -66,7 +66,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Pauzė',
   'ide.chat.autoFixCancel': 'Atšaukti',
   'ide.chat.reportProblem': 'Pranešti apie problemą',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pasirinkite modelį',
   'ide.chat.currentModelLabel': 'Dabartinis:<x> {{vardas}}</x>',
   'ide.chat.currentBadge': 'srovė',
@@ -180,7 +180,7 @@ export const lt: Partial<IdeTranslations> = {
     'Įrankio iškvietimas (failo nuskaitymas, komanda ir pan.) baigtas',
   'ide.chat.soundEventDesc.file_diff': 'Failas buvo sukurtas arba modifikuotas',
   'ide.chat.soundEventDesc.commit_suggestion':
-    '„Synthase“ siūlo failus, kuriuos reikia įkelti į komandą.',
+    '„{{agentName}}“ siūlo failus, kuriuos reikia įkelti į komandą.',
   'ide.chat.soundEventDesc.mode': 'Perjungta tarp planavimo režimo ir vykdymo režimo',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Pasiekta maksimali įrankio iteracijų riba',
   'ide.chat.soundEventDesc.verification_result': 'Lint arba tipo patikrinimas baigtas',

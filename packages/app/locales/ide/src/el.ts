@@ -92,7 +92,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'Εμφάνιση προηγούμενων μηνυμάτων',
   'ide.chat.autoFixPaused': 'Η αυτόματη διόρθωση τέθηκε σε παύση',
   'ide.chat.reportProblem': 'Αναφορά προβλήματος',
-  'ide.chat.version': 'Molecule.dev έκδοση 0.1.0',
+  'ide.chat.version': '{{productName}} έκδοση 0.1.0',
   'ide.chat.selectModel': 'Επιλέξτε μοντέλο',
   'ide.chat.currentBadge': 'ρεύμα',
   'ide.chat.proRequired': 'Επαγγελματίας',
@@ -184,7 +184,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Ολοκληρώθηκε μια κλήση εργαλείου (ανάγνωση αρχείου, εντολή κ.λπ.)',
   'ide.chat.soundEventDesc.file_diff': 'Δημιουργήθηκε ή τροποποιήθηκε ένα αρχείο',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Το Synthase προτείνει αρχεία για ολοκλήρωση',
+  'ide.chat.soundEventDesc.commit_suggestion': 'Το {{agentName}} προτείνει αρχεία για ολοκλήρωση',
   'ide.chat.soundEventDesc.mode':
     'Εναλλαγή μεταξύ λειτουργίας σχεδιασμού και λειτουργίας εκτέλεσης',
   'ide.chat.soundEventDesc.loop_limit_reached':

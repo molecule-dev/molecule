@@ -100,7 +100,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'Önceki mesajları göster',
   'ide.chat.autoFixPaused': 'Otomatik düzeltme duraklatıldı',
   'ide.chat.reportProblem': 'Bir sorun bildirin',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Model seçin',
   'ide.chat.currentBadge': 'akım',
   'ide.chat.proRequired': 'Profesyonel',
@@ -183,7 +183,8 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.error': 'Yanıt sırasında bir sorun oluştu.',
   'ide.chat.soundEventDesc.tool_result': 'Bir araç çağrısı (dosya okuma, komut vb.) tamamlandı.',
   'ide.chat.soundEventDesc.file_diff': 'Bir dosya oluşturuldu veya değiştirildi.',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase, taahhüt edilecek dosyaları öneriyor.',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    '{{agentName}}, taahhüt edilecek dosyaları öneriyor.',
   'ide.chat.soundEventDesc.mode': 'Planlama modu ve uygulama modu arasında geçiş yapıldı.',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Maksimum araç yineleme sınırına ulaşıldı.',
   'ide.chat.soundEventDesc.verification_result': 'Kod denetimi veya tür kontrolü tamamlandı.',

@@ -67,7 +67,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Pausatu',
   'ide.chat.autoFixCancel': 'Utzi',
   'ide.chat.reportProblem': 'Arazo baten berri eman',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Hautatu modeloa',
   'ide.chat.currentModelLabel': 'Oraingoa:<x> {{izena}}</x>',
   'ide.chat.currentBadge': 'uneko',
@@ -181,7 +181,7 @@ export const eu: Partial<IdeTranslations> = {
     'Tresna-dei bat (fitxategi-irakurketa, komandoa, etab.) osatu da',
   'ide.chat.soundEventDesc.file_diff': 'Fitxategi bat sortu edo aldatu da',
   'ide.chat.soundEventDesc.commit_suggestion':
-    'Synthase-k fitxategiak konfirmatzeko iradokitzen ari da',
+    '{{agentName}}-k fitxategiak konfirmatzeko iradokitzen ari da',
   'ide.chat.soundEventDesc.mode': 'Planifikazio moduaren eta exekuzio moduaren artean aldatu da',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Tresnaren iterazio muga maximoa lortu',
   'ide.chat.soundEventDesc.verification_result': 'Lint edo mota egiaztapena amaitu da',

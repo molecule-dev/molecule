@@ -103,7 +103,7 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'Afficher les messages précédents',
   'ide.chat.autoFixPaused': 'Correction automatique suspendue',
   'ide.chat.reportProblem': 'Signaler un problème',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Sélectionner le modèle',
   'ide.chat.currentBadge': 'actuel',
   'ide.chat.proRequired': 'Pro',
@@ -184,12 +184,12 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Limite de boucle atteinte',
   'ide.chat.soundEvent.verification_result': 'Résultat de la vérification',
   'ide.chat.soundEvent.preview_error': "Erreur d'aperçu",
-  'ide.chat.soundEventDesc.done': 'Synthase a terminé sa réponse',
+  'ide.chat.soundEventDesc.done': '{{agentName}} a terminé sa réponse',
   'ide.chat.soundEventDesc.error': 'Un problème est survenu lors de la réponse.',
   'ide.chat.soundEventDesc.tool_result':
     "Appel d'outil (lecture de fichier, commande, etc.) terminé",
   'ide.chat.soundEventDesc.file_diff': 'Un fichier a été créé ou modifié.',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase suggère des fichiers à valider',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} suggère des fichiers à valider',
   'ide.chat.soundEventDesc.mode': 'Basculement entre le mode planification et le mode exécution',
   'ide.chat.soundEventDesc.loop_limit_reached': "Limite maximale d'itérations de l'outil atteinte",
   'ide.chat.soundEventDesc.verification_result':

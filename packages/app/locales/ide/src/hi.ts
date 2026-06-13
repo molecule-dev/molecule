@@ -102,7 +102,7 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'पहले के संदेश दिखाएँ',
   'ide.chat.autoFixPaused': 'ऑटो-फिक्स रुका हुआ है',
   'ide.chat.reportProblem': 'एक समस्या का आख्या',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'मॉडल चुनें',
   'ide.chat.currentBadge': 'मौजूदा',
   'ide.chat.notificationSounds': 'अधिसूचना ध्वनियाँ',

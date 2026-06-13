@@ -183,7 +183,8 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Uma chamada de ferramenta (leitura de arquivo, comando, etc.) foi concluída.',
   'ide.chat.soundEventDesc.file_diff': 'Um arquivo foi criado ou modificado.',
-  'ide.chat.soundEventDesc.commit_suggestion': 'A Synthase está sugerindo arquivos para commit.',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    'A {{agentName}} está sugerindo arquivos para commit.',
   'ide.chat.soundEventDesc.mode': 'Alternado entre o modo de planejamento e o modo de execução.',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'A ferramenta atingiu o limite máximo de iterações.',

@@ -69,7 +69,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'קוֹרוֹת חַיִים',
   'ide.chat.autoFixPause': 'הַפסָקָה',
   'ide.chat.reportProblem': 'דווח על בעיה',
-  'ide.chat.version': 'Molecule.dev גרסה 0.1.0',
+  'ide.chat.version': '{{productName}} גרסה 0.1.0',
   'ide.chat.selectModel': 'בחר דגם',
   'ide.chat.currentModelLabel': 'נוֹכְחִי:<x> {{שֵׁם}}</x>',
   'ide.chat.currentBadge': 'נוֹכְחִי',

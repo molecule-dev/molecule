@@ -67,7 +67,7 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Пауза',
   'ide.chat.autoFixCancel': 'Отмена',
   'ide.chat.reportProblem': 'Сообщить о проблеме',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Выберите модель',
   'ide.chat.currentModelLabel': 'Текущий:<x> {{имя}}</x>',
   'ide.chat.currentBadge': 'текущий',
@@ -181,7 +181,8 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Вызов инструмента (чтение файла, команда и т. д.) завершен.',
   'ide.chat.soundEventDesc.file_diff': 'Был создан или изменен файл.',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase предлагает файлы для фиксации изменений.',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    '{{agentName}} предлагает файлы для фиксации изменений.',
   'ide.chat.soundEventDesc.mode': 'Переключение между режимом планирования и режимом выполнения.',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Достигнут лимит итераций инструмента.',
   'ide.chat.soundEventDesc.verification_result': 'Проверка синтаксиса или типизация завершена.',

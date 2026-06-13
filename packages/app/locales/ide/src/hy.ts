@@ -66,7 +66,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Դադար',
   'ide.chat.autoFixCancel': 'Չեղարկել',
   'ide.chat.reportProblem': 'Հաղորդել խնդրի մասին',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Ընտրեք մոդել',
   'ide.chat.currentModelLabel': 'Ընթացիկ՝<x> {{անուն}}</x>',
   'ide.chat.currentBadge': 'հոսանք',

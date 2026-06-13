@@ -92,7 +92,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'Afișează mesajele anterioare',
   'ide.chat.autoFixPaused': 'Corecția automată a fost întreruptă',
   'ide.chat.reportProblem': 'Raportați o problemă',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Selectați modelul',
   'ide.chat.currentBadge': 'actual',
   'ide.chat.proRequired': 'Pro',
@@ -185,7 +185,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Un apel de instrument (citire fișier, comandă etc.) s-a finalizat',
   'ide.chat.soundEventDesc.file_diff': 'Un fișier a fost creat sau modificat',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase sugerează fișiere pentru comitere',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} sugerează fișiere pentru comitere',
   'ide.chat.soundEventDesc.mode': 'Comutare între modul de planificare și modul de execuție',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Atingeți limita maximă de iterații ale instrumentului',

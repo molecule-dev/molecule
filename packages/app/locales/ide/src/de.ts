@@ -100,7 +100,7 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'Frühere Nachrichten anzeigen',
   'ide.chat.autoFixPaused': 'Automatische Fehlerbehebung pausiert',
   'ide.chat.reportProblem': 'Problem melden',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Modell auswählen',
   'ide.chat.currentBadge': 'aktuell',
   'ide.chat.proRequired': 'Pro',
@@ -182,12 +182,12 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Schleifenlimit erreicht',
   'ide.chat.soundEvent.verification_result': 'Verifizierungsergebnis',
   'ide.chat.soundEvent.preview_error': 'Vorschaufehler',
-  'ide.chat.soundEventDesc.done': 'Synthase hat reagiert',
+  'ide.chat.soundEventDesc.done': '{{agentName}} hat reagiert',
   'ide.chat.soundEventDesc.error': 'Bei der Beantwortung ist ein Fehler aufgetreten.',
   'ide.chat.soundEventDesc.tool_result':
     'Ein Toolaufruf (Datei lesen, Befehl usw.) wurde abgeschlossen',
   'ide.chat.soundEventDesc.file_diff': 'Eine Datei wurde erstellt oder geändert',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase schlägt Dateien zum Commit vor.',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} schlägt Dateien zum Commit vor.',
   'ide.chat.soundEventDesc.mode': 'Zwischen Planungsmodus und Ausführungsmodus umgeschaltet.',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Die maximale Anzahl an Werkzeugiterationen wurde erreicht.',

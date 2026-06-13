@@ -101,7 +101,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': '以前のメッセージを表示',
   'ide.chat.autoFixPaused': '自動修復が一時停止されました',
   'ide.chat.reportProblem': '問題を報告する',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'モデルを選択',
   'ide.chat.currentBadge': '現在',
   'ide.chat.notificationSounds': '通知音',
@@ -184,7 +184,8 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'ツール呼び出し（ファイル読み込み、コマンドなど）が完了しました',
   'ide.chat.soundEventDesc.file_diff': 'ファイルが作成されるか変更されました',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase はコミットするファイルを提案しています',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    '{{agentName}} はコミットするファイルを提案しています',
   'ide.chat.soundEventDesc.mode': 'プランモードと実行モードを切り替えました',
   'ide.chat.soundEventDesc.loop_limit_reached': 'ツール反復回数の上限に達しました',
   'ide.chat.soundEventDesc.verification_result':

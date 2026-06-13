@@ -66,7 +66,7 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'पज गर्नुहोस्',
   'ide.chat.autoFixCancel': 'रद्द गर्नुहोस्',
   'ide.chat.reportProblem': 'समस्या रिपोर्ट गर्नुहोस्',
-  'ide.chat.version': 'Molecule.dev v0.1.0 का थप वस्तुहरू',
+  'ide.chat.version': '{{productName}} v0.1.0 का थप वस्तुहरू',
   'ide.chat.selectModel': 'मोडेल चयन गर्नुहोस्',
   'ide.chat.currentModelLabel': 'हाल:<x> {{नाम}}</x>',
   'ide.chat.currentBadge': 'वर्तमान',

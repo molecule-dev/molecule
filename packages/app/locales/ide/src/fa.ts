@@ -67,7 +67,7 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'مکث',
   'ide.chat.autoFixCancel': 'لغو',
   'ide.chat.reportProblem': 'گزارش مشکل',
-  'ide.chat.version': 'Molecule.dev نسخه ۰.۱.۰',
+  'ide.chat.version': '{{productName}} نسخه ۰.۱.۰',
   'ide.chat.selectModel': 'مدل را انتخاب کنید',
   'ide.chat.currentModelLabel': 'فعلی:<x> {{نام}}</x>',
   'ide.chat.currentBadge': 'فعلی',

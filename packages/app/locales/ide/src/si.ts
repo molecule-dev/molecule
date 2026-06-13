@@ -66,7 +66,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'විරාමය',
   'ide.chat.autoFixCancel': 'අවලංගු කරන්න',
   'ide.chat.reportProblem': 'ගැටලුවක් වාර්තා කරන්න',
-  'ide.chat.version': 'Molecule.dev v0.1.0 විසින් තවත්',
+  'ide.chat.version': '{{productName}} v0.1.0 විසින් තවත්',
   'ide.chat.selectModel': 'මාදිලිය තෝරන්න',
   'ide.chat.currentModelLabel': 'වර්තමාන:<x> {{නම}}</x>',
   'ide.chat.currentBadge': 'වත්මන්',

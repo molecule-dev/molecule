@@ -100,7 +100,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'عرض الرسائل السابقة',
   'ide.chat.autoFixPaused': 'تم إيقاف التصحيح التلقائي مؤقتًا',
   'ide.chat.reportProblem': 'الإبلاغ عن مشكلة',
-  'ide.chat.version': 'Molecule.dev الإصدار 0.1.0',
+  'ide.chat.version': '{{productName}} الإصدار 0.1.0',
   'ide.chat.selectModel': 'اختر الطراز',
   'ide.chat.currentBadge': 'حاضِر',
   'ide.chat.proRequired': 'محترف',
@@ -184,7 +184,8 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.error': 'حدث خطأ ما أثناء الاستجابة',
   'ide.chat.soundEventDesc.tool_result': 'تم إكمال استدعاء الأداة (قراءة ملف، أمر، إلخ).',
   'ide.chat.soundEventDesc.file_diff': 'تم إنشاء ملف أو تعديله',
-  'ide.chat.soundEventDesc.commit_suggestion': 'يقترح برنامج Synthase ملفات لإضافتها إلى المستودع.',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    'يقترح برنامج {{agentName}} ملفات لإضافتها إلى المستودع.',
   'ide.chat.soundEventDesc.mode': 'تم التبديل بين وضع التخطيط ووضع التنفيذ',
   'ide.chat.soundEventDesc.loop_limit_reached': 'تم الوصول إلى الحد الأقصى لعدد تكرارات الأداة',
   'ide.chat.soundEventDesc.verification_result': 'انتهى تشغيل فحص الأخطاء أو التدقيق الإملائي',

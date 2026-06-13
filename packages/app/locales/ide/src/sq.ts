@@ -67,7 +67,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Pauzë',
   'ide.chat.autoFixCancel': 'Anulo',
   'ide.chat.reportProblem': 'Raporto një problem',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Zgjidh modelin',
   'ide.chat.currentModelLabel': 'Aktual:<x> {{emri}}</x>',
   'ide.chat.currentBadge': 'aktuale',
@@ -181,7 +181,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Një thirrje mjeti (lexim skedari, komandë, etj.) u përfundua',
   'ide.chat.soundEventDesc.file_diff': 'Një skedar u krijua ose u modifikua',
-  'ide.chat.soundEventDesc.commit_suggestion': "Synthase po sugjeron skedarë për t'u kryer",
+  'ide.chat.soundEventDesc.commit_suggestion': "{{agentName}} po sugjeron skedarë për t'u kryer",
   'ide.chat.soundEventDesc.mode':
     'Kalova midis modalitetit të planifikimit dhe modalitetit të ekzekutimit',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Arrit limitin maksimal të përsëritjeve të mjetit',

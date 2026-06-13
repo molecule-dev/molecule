@@ -66,7 +66,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Paus',
   'ide.chat.autoFixCancel': 'Tühista',
   'ide.chat.reportProblem': 'Teata probleemist',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Valige mudel',
   'ide.chat.currentModelLabel': 'Praegune:<x> {{nimi}}</x>',
   'ide.chat.currentBadge': 'praegune',
@@ -179,7 +179,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Tööriistakutse (faili lugemine, käsk jne) on lõpule viidud',
   'ide.chat.soundEventDesc.file_diff': 'Fail loodi või muudeti',
-  'ide.chat.soundEventDesc.commit_suggestion': "Synthase soovitab faile commit'imiseks",
+  'ide.chat.soundEventDesc.commit_suggestion': "{{agentName}} soovitab faile commit'imiseks",
   'ide.chat.soundEventDesc.mode': 'Vahetus planeerimisrežiimi ja teostusrežiimi vahel',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Tööriista iteratsioonide maksimaalne piir on saavutatud',

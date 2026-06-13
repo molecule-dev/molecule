@@ -91,7 +91,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'Показати попередні повідомлення',
   'ide.chat.autoFixPaused': 'Автоматичне виправлення призупинено',
   'ide.chat.reportProblem': 'Повідомити про проблему',
-  'ide.chat.version': 'Molecule.dev версії 0.1.0',
+  'ide.chat.version': '{{productName}} версії 0.1.0',
   'ide.chat.selectModel': 'Виберіть модель',
   'ide.chat.currentBadge': 'поточний',
   'ide.chat.proRequired': 'Професіонал',
@@ -183,7 +183,8 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Виклик інструменту (читання файлу, команда тощо) завершено',
   'ide.chat.soundEventDesc.file_diff': 'Файл було створено або змінено',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase пропонує файли для фіксації (коміту).',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    '{{agentName}} пропонує файли для фіксації (коміту).',
   'ide.chat.soundEventDesc.mode': 'Перемикання між режимом планування та режимом виконання',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Досягнуто максимальної кількості ітерацій інструменту',

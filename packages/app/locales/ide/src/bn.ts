@@ -66,7 +66,7 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'বিরতি',
   'ide.chat.autoFixCancel': 'বাতিল করুন',
   'ide.chat.reportProblem': 'একটি সমস্যা রিপোর্ট করুন',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'মডেল নির্বাচন করুন',
   'ide.chat.currentModelLabel': 'বর্তমান:<x> {{name}}</x>',
   'ide.chat.currentBadge': 'বর্তমান',

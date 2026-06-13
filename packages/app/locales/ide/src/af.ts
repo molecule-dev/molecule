@@ -174,11 +174,11 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Luslimiet bereik',
   'ide.chat.soundEvent.verification_result': 'Verifikasieresultaat',
   'ide.chat.soundEvent.preview_error': 'Voorskoufout',
-  'ide.chat.soundEventDesc.done': 'Synthase het klaar gereageer',
+  'ide.chat.soundEventDesc.done': '{{agentName}} het klaar gereageer',
   'ide.chat.soundEventDesc.error': "Iets het verkeerd geloop tydens 'n antwoord",
   'ide.chat.soundEventDesc.tool_result': "'n Gereedskapoproep (lêerlees, opdrag, ens.) is voltooi",
   'ide.chat.soundEventDesc.file_diff': "'n Lêer is geskep of gewysig",
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase stel lêers voor om te commit',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} stel lêers voor om te commit',
   'ide.chat.soundEventDesc.mode': 'Gewissel tussen planmodus en uitvoermodus',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Bereik die maksimum limiet vir gereedskapherhalings',

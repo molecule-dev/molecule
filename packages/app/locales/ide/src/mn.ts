@@ -67,7 +67,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Түр зогсоох',
   'ide.chat.autoFixCancel': 'Цуцлах',
   'ide.chat.reportProblem': 'Асуудлыг мэдээлэх',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Загвар сонгох',
   'ide.chat.currentModelLabel': 'Одоогийн:<x> {{нэр}}</x>',
   'ide.chat.currentBadge': 'одоогийн',
@@ -182,7 +182,7 @@ export const mn: Partial<IdeTranslations> = {
     'Хэрэгслийн дуудлага (файл унших, команд өгөх гэх мэт) дууссан',
   'ide.chat.soundEventDesc.file_diff': 'Файл үүсгэгдсэн эсвэл өөрчлөгдсөн',
   'ide.chat.soundEventDesc.commit_suggestion':
-    'Synthase нь файлуудыг коммит хийхийг санал болгож байна',
+    '{{agentName}} нь файлуудыг коммит хийхийг санал болгож байна',
   'ide.chat.soundEventDesc.mode': 'Төлөвлөлтийн горим болон гүйцэтгэх горимын хооронд шилжсэн',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Хэрэгслийн давталтын дээд хязгаарт хүрнэ үү',
   'ide.chat.soundEventDesc.verification_result': 'Утас эсвэл төрөл шалгах ажиллагаа дууссан',

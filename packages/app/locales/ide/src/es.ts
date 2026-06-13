@@ -99,7 +99,7 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.showEarlier': 'Mostrar mensajes anteriores',
   'ide.chat.autoFixPaused': 'La corrección automática se ha pausado.',
   'ide.chat.reportProblem': 'Informar de un problema',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Seleccione el modelo',
   'ide.chat.currentBadge': 'actual',
   'ide.chat.proRequired': 'Pro',
@@ -186,7 +186,8 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Se ha completado una llamada a una herramienta (lectura de archivo, comando, etc.)',
   'ide.chat.soundEventDesc.file_diff': 'Se creó o modificó un archivo.',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase está sugiriendo archivos para confirmar',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    '{{agentName}} está sugiriendo archivos para confirmar',
   'ide.chat.soundEventDesc.mode':
     'Se cambió entre el modo de planificación y el modo de ejecución.',
   'ide.chat.soundEventDesc.loop_limit_reached':

@@ -66,7 +66,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Pausa',
   'ide.chat.autoFixCancel': 'Cancel·la',
   'ide.chat.reportProblem': "Informar d'un problema",
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Selecciona el model',
   'ide.chat.currentModelLabel': 'Actual:<x> {{nom}}</x>',
   'ide.chat.currentBadge': 'corrent',

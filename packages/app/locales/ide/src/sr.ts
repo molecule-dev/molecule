@@ -66,7 +66,7 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Пауза',
   'ide.chat.autoFixCancel': 'Откажи',
   'ide.chat.reportProblem': 'Пријави проблем',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Изаберите модел',
   'ide.chat.currentModelLabel': 'Тренутно:<x> {{име}}</x>',
   'ide.chat.currentBadge': 'тренутни',

@@ -66,7 +66,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'ခေတ္တရပ်ပါ',
   'ide.chat.autoFixCancel': 'ပယ်ဖျက်ရန်',
   'ide.chat.reportProblem': 'ပြဿနာတစ်ခုကို အစီရင်ခံပါ',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'မော်ဒယ်ကို ရွေးချယ်ပါ',
   'ide.chat.currentModelLabel': 'လက်ရှိ:<x> {{အမည်}}</x>',
   'ide.chat.currentBadge': 'လက်ရှိ',
@@ -176,13 +176,13 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ကွင်းဆက်ကန့်သတ်ချက်သို့ ရောက်ရှိပါပြီ',
   'ide.chat.soundEvent.verification_result': 'အတည်ပြုချက်ရလဒ်',
   'ide.chat.soundEvent.preview_error': 'အစမ်းကြည့်ရှုမှု အမှား',
-  'ide.chat.soundEventDesc.done': 'Synthase က တုံ့ပြန်ပြီးပါပြီ',
+  'ide.chat.soundEventDesc.done': '{{agentName}} က တုံ့ပြန်ပြီးပါပြီ',
   'ide.chat.soundEventDesc.error': 'တုံ့ပြန်ချက်ပေးနေစဉ် တစ်စုံတစ်ခု မှားယွင်းသွားပါသည်',
   'ide.chat.soundEventDesc.tool_result':
     'ကိရိယာခေါ်ဆိုမှု (ဖိုင်ဖတ်ခြင်း၊ အမိန့်ပေးခြင်း စသည်) ပြီးစီးပါပြီ',
   'ide.chat.soundEventDesc.file_diff': 'ဖိုင်တစ်ခုကို ဖန်တီးထားသည် သို့မဟုတ် ပြုပြင်ထားသည်',
   'ide.chat.soundEventDesc.commit_suggestion':
-    'Synthase က ဖိုင်တွေကို commit လုပ်ဖို့ အကြံပြုနေပါတယ်',
+    '{{agentName}} က ဖိုင်တွေကို commit လုပ်ဖို့ အကြံပြုနေပါတယ်',
   'ide.chat.soundEventDesc.mode': 'အစီအစဉ်မုဒ်နှင့် အကောင်အထည်ဖော်မုဒ်အကြား ပြောင်းထားသည်',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'ကိရိယာထပ်ခါတလဲလဲ အများဆုံးကန့်သတ်ချက်ကို ရောက်ရှိပါ',

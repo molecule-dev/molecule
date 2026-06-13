@@ -66,7 +66,7 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.autoFixPause': 'Začasno ustavi',
   'ide.chat.autoFixCancel': 'Prekliči',
   'ide.chat.reportProblem': 'Prijavi težavo',
-  'ide.chat.version': 'Molecule.dev v0.1.0',
+  'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Izberite model',
   'ide.chat.currentModelLabel': 'Trenutno:<x> {{ime}}</x>',
   'ide.chat.currentBadge': 'tok',
@@ -179,7 +179,8 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.tool_result':
     'Klic orodja (branje datoteke, ukaz itd.) je bil zaključen',
   'ide.chat.soundEventDesc.file_diff': 'Datoteka je bila ustvarjena ali spremenjena',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Synthase predlaga datoteke za potrditev (commit).',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    '{{agentName}} predlaga datoteke za potrditev (commit).',
   'ide.chat.soundEventDesc.mode': 'Preklop med načinom načrtovanja in načinom izvajanja',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Doseženo je največje število iteracij orodja',
   'ide.chat.soundEventDesc.verification_result': 'Preverjanje lint ali tipa je končano',
