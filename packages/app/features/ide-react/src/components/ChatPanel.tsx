@@ -39,6 +39,14 @@ import { ActivityCard } from './ActivityCard.js'
 import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 import { buildHelpText } from './chat-help-utilities.js'
+import type { ScriptInfo, ScriptRunResult } from './chat-scripts-utilities.js'
+import {
+  findScriptByName,
+  formatRunOutput,
+  parseRunCommand,
+  parseScriptsCommand,
+  runSucceeded,
+} from './chat-scripts-utilities.js'
 import { buildSettingsList, summarizeSounds } from './chat-settings-utilities.js'
 import type { SkillInfo } from './chat-skills-utilities.js'
 import { estimateStreamTokens } from './chat-stream-utilities.js'
@@ -46,6 +54,7 @@ import { selectTip, TIP_INTERVAL } from './chat-tips-utilities.js'
 import { Icon } from './Icon.js'
 import { MarkdownContent } from './MarkdownContent.js'
 import { ModelsTable } from './ModelsTable.js'
+import { ScriptsCard } from './ScriptsCard.js'
 import { SettingsCard } from './SettingsCard.js'
 import { SkillsCard } from './SkillsCard.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
@@ -115,11 +124,11 @@ interface SystemCard {
   /**
    * Optional rich-content variant rendered in place of the plain text:
    * `'models'` → the sortable `/models` comparison table; `'settings'` → the
-   * `/settings` view; `'skills'` → the `/skills` browser. Default (undefined)
-   * is plain text.
+   * `/settings` view; `'skills'` → the `/skills` browser; `'scripts'` → the
+   * `/scripts` browser. Default (undefined) is plain text.
    */
-  variant?: 'models' | 'settings' | 'skills'
-  /** Seed query for the `'skills'` variant (from `/skills <query>`). */
+  variant?: 'models' | 'settings' | 'skills' | 'scripts'
+  /** Seed query for the `'skills'`/`'scripts'` variants (from `/skills <query>` or `/scripts <query>`). */
   query?: string
 }
 
@@ -3111,6 +3120,59 @@ function ChatInner({
     [onFileOpen, addSystemCard],
   )
 
+  // Runs a saved script by name (the /run <name> command). Fetches the script
+  // list to resolve the (possibly partial) name, runs the match, and reports the
+  // captured output + exit status as a system card.
+  const runSavedScript = useCallback(
+    async (rawName: string) => {
+      try {
+        const listed = await http.get<{ scripts: ScriptInfo[] }>(`/projects/${projectId}/scripts`)
+        const scripts = listed.data.scripts ?? []
+        const target = findScriptByName(scripts, rawName)
+        if (!target) {
+          addSystemCard(
+            scripts.length
+              ? t(
+                  'ide.chat.scripts.runNotFound',
+                  { name: rawName, names: scripts.map((s) => s.name).join(', ') },
+                  {
+                    defaultValue: `No script named “${rawName}”. Available: ${scripts
+                      .map((s) => s.name)
+                      .join(', ')}`,
+                  },
+                )
+              : t('ide.chat.scripts.runNone', undefined, {
+                  defaultValue: 'No saved scripts yet. Open /scripts to create one.',
+                }),
+          )
+          return
+        }
+        const run = await http.post<ScriptRunResult>(
+          `/projects/${projectId}/scripts/${encodeURIComponent(target.name)}/run`,
+        )
+        const output = formatRunOutput(run.data)
+        const status = runSucceeded(run.data)
+          ? t(
+              'ide.chat.scripts.cmdExitOk',
+              { name: target.name },
+              { defaultValue: `${target.name} exited 0` },
+            )
+          : t(
+              'ide.chat.scripts.cmdExitFail',
+              { name: target.name, code: run.data.exitCode },
+              { defaultValue: `${target.name} exited with code ${run.data.exitCode}` },
+            )
+        addSystemCard(output ? `${status}\n${output}` : status)
+      } catch (error) {
+        logger.warn('Failed to run script via /run command', { error })
+        addSystemCard(
+          t('ide.chat.scripts.runError', undefined, { defaultValue: 'Failed to run the script.' }),
+        )
+      }
+    },
+    [http, projectId, addSystemCard],
+  )
+
   // ── File attachment handlers ──────────────────────────────────────────────
 
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -3625,6 +3687,15 @@ function ChatInner({
         // Renders the skills browser (see the 'skills' variant branch). A query,
         // if any, is supplied via the /skills <query> path in handleSubmit.
         addSystemCard('', undefined, 'skills')
+      } else if (id === 'scripts') {
+        setInputValue('')
+        // Renders the scripts browser (see the 'scripts' variant branch). A query,
+        // if any, is supplied via the /scripts <query> path in handleSubmit.
+        addSystemCard('', undefined, 'scripts')
+      } else if (id === 'run') {
+        // /run needs a script name — prefill so the user can type it (the run is
+        // dispatched from handleSubmit via runSavedScript).
+        setInputAndCursorEnd('/run ')
       }
     },
     [
@@ -3678,6 +3749,31 @@ function ChatInner({
     if (skillsMatch) {
       setInputValue('')
       addSystemCard('', undefined, 'skills', skillsMatch[1]?.trim() ?? '')
+      return
+    }
+
+    // Handle /scripts [query] command locally — renders the scripts browser,
+    // seeded with the query (if any) so the card opens pre-filtered.
+    const scriptsMatch = parseScriptsCommand(trimmed)
+    if (scriptsMatch) {
+      setInputValue('')
+      addSystemCard('', undefined, 'scripts', scriptsMatch.query)
+      return
+    }
+
+    // Handle /run <name> command locally — resolves + runs a saved script.
+    const runMatch = parseRunCommand(trimmed)
+    if (runMatch) {
+      setInputValue('')
+      if (!runMatch.name) {
+        addSystemCard(
+          t('ide.chat.scripts.runUsage', undefined, {
+            defaultValue: 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
+          }),
+        )
+      } else {
+        void runSavedScript(runMatch.name)
+      }
       return
     }
 
@@ -3890,7 +3986,7 @@ function ChatInner({
     setAttachedFiles([])
     setAttachmentError(null)
     sendMessage(message, chatAttachments.length > 0 ? chatAttachments : undefined)
-  }, [attachedFiles, http, projectId, sendMessage, setInputValue])
+  }, [attachedFiles, http, projectId, sendMessage, setInputValue, runSavedScript])
 
   // External auto-submit. When the signal changes, submit the current input —
   // used by the prompt → chat morph to send the prefilled prompt once the chat
@@ -4311,6 +4407,16 @@ function ChatInner({
                     projectId={projectId}
                     initialQuery={item.card.query ?? ''}
                     onLoad={loadSkill}
+                    isLight={isLight}
+                  />
+                )
+              }
+              if (item.card.variant === 'scripts') {
+                return (
+                  <ScriptsCard
+                    key={item.card.id}
+                    projectId={projectId}
+                    initialQuery={item.card.query ?? ''}
                     isLight={isLight}
                   />
                 )

@@ -104,6 +104,20 @@ export const COMMANDS: readonly CommandDef[] = [
     description: "Revert last AI turn's file changes",
     category: 'code',
   },
+  {
+    id: 'scripts',
+    label: '/scripts',
+    description: 'Browse & run saved project scripts',
+    category: 'code',
+    usage: '/scripts [query]',
+  },
+  {
+    id: 'run',
+    label: '/run',
+    description: 'Run a saved script by name',
+    category: 'code',
+    usage: '/run <name>',
+  },
 
   // Model
   {
