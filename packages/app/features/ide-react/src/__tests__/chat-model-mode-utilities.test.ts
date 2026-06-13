@@ -41,6 +41,8 @@ function model(overrides: Partial<AppModelDefinition>): AppModelDefinition {
     supportsTools: true,
     inputPricePerMTok: 3,
     outputPricePerMTok: 15,
+    cacheReadPricePerMTok: 0.3,
+    cacheWritePricePerMTok: 3.75,
     knowledgeCutoff: '2025-01-01',
     ...overrides,
   }

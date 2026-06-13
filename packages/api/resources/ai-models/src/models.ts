@@ -50,6 +50,9 @@ export const MODELS: readonly ModelDefinition[] = [
     webFetchToolType: 'web_fetch_20260209',
     inputPricePerMTok: 5,
     outputPricePerMTok: 25,
+    // Anthropic 5-minute prompt cache: read 0.1× input, write 1.25× input.
+    cacheReadPricePerMTok: 0.5,
+    cacheWritePricePerMTok: 6.25,
     knowledgeCutoff: '2025-05-01',
   },
   {
@@ -70,6 +73,9 @@ export const MODELS: readonly ModelDefinition[] = [
     webFetchToolType: 'web_fetch_20260209',
     inputPricePerMTok: 3,
     outputPricePerMTok: 15,
+    // Anthropic 5-minute prompt cache: read 0.1× input, write 1.25× input.
+    cacheReadPricePerMTok: 0.3,
+    cacheWritePricePerMTok: 3.75,
     knowledgeCutoff: '2025-08-01',
   },
   {
@@ -89,6 +95,9 @@ export const MODELS: readonly ModelDefinition[] = [
     webFetchToolType: 'web_fetch_20250910',
     inputPricePerMTok: 1,
     outputPricePerMTok: 5,
+    // Anthropic 5-minute prompt cache: read 0.1× input, write 1.25× input.
+    cacheReadPricePerMTok: 0.1,
+    cacheWritePricePerMTok: 1.25,
     knowledgeCutoff: '2025-02-01',
   },
 
@@ -114,6 +123,9 @@ export const MODELS: readonly ModelDefinition[] = [
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 2.5,
     outputPricePerMTok: 15,
+    // OpenAI auto-caches at no write premium; cached input billed at 0.1× input.
+    cacheReadPricePerMTok: 0.25,
+    cacheWritePricePerMTok: 2.5,
     knowledgeCutoff: '2025-08-31',
   },
 
@@ -141,6 +153,9 @@ export const MODELS: readonly ModelDefinition[] = [
     webFetchToolType: 'url_context',
     inputPricePerMTok: 2,
     outputPricePerMTok: 12,
+    // Gemini context cache: read at a discount (≈0.25× input), no write premium.
+    cacheReadPricePerMTok: 0.5,
+    cacheWritePricePerMTok: 2,
     knowledgeCutoff: '2025-01-01',
   },
 
@@ -164,6 +179,9 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsTools: true,
     inputPricePerMTok: 2,
     outputPricePerMTok: 6,
+    // xAI cached input billed at a discount (≈0.25× input), no write premium.
+    cacheReadPricePerMTok: 0.5,
+    cacheWritePricePerMTok: 2,
     knowledgeCutoff: '2024-11-01',
   },
   {
@@ -182,6 +200,9 @@ export const MODELS: readonly ModelDefinition[] = [
     freeTier: true,
     inputPricePerMTok: 0.2,
     outputPricePerMTok: 1.5,
+    // xAI cached input billed at a discount (≈0.25× input), no write premium.
+    cacheReadPricePerMTok: 0.05,
+    cacheWritePricePerMTok: 0.2,
     knowledgeCutoff: '2024-11-01',
   },
 
@@ -210,6 +231,9 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsTools: true,
     inputPricePerMTok: 1.74,
     outputPricePerMTok: 3.48,
+    // DeepSeek automatic context cache: cache-hit reads at 0.1× input, no write premium.
+    cacheReadPricePerMTok: 0.174,
+    cacheWritePricePerMTok: 1.74,
     knowledgeCutoff: '2025-07-01',
   },
   {
@@ -229,6 +253,9 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsTools: true,
     inputPricePerMTok: 0.14,
     outputPricePerMTok: 0.28,
+    // DeepSeek automatic context cache: cache-hit reads at 0.1× input, no write premium.
+    cacheReadPricePerMTok: 0.014,
+    cacheWritePricePerMTok: 0.14,
     knowledgeCutoff: '2025-07-01',
   },
 
@@ -251,6 +278,9 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsTools: true,
     inputPricePerMTok: 0.45,
     outputPricePerMTok: 2.2,
+    // Cached input billed at a discount (≈0.25× input), no write premium.
+    cacheReadPricePerMTok: 0.1125,
+    cacheWritePricePerMTok: 0.45,
     knowledgeCutoff: '2024-04-01',
   },
 
@@ -273,6 +303,9 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsTools: true,
     inputPricePerMTok: 0.25,
     outputPricePerMTok: 1.2,
+    // Cached input billed at a discount (≈0.25× input), no write premium.
+    cacheReadPricePerMTok: 0.0625,
+    cacheWritePricePerMTok: 0.25,
     knowledgeCutoff: '2025-01-01',
   },
 
@@ -296,6 +329,9 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsTools: true,
     inputPricePerMTok: 0.65,
     outputPricePerMTok: 3.25,
+    // Cached input billed at a discount (≈0.25× input), no write premium.
+    cacheReadPricePerMTok: 0.1625,
+    cacheWritePricePerMTok: 0.65,
     knowledgeCutoff: '2025-06-01',
   },
 
@@ -321,6 +357,9 @@ export const MODELS: readonly ModelDefinition[] = [
     webSearchToolType: 'web_search',
     inputPricePerMTok: 0.72,
     outputPricePerMTok: 2.3,
+    // GLM context cache (docs.z.ai/guides/capabilities/cache): read ≈0.2× input, no write premium.
+    cacheReadPricePerMTok: 0.144,
+    cacheWritePricePerMTok: 0.72,
     knowledgeCutoff: '2025-01-01',
   },
 ] as const

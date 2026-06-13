@@ -63,10 +63,14 @@ export interface AppModelDefinition {
   webFetchToolType?: string
   /** Whether this model is available on the free tier. */
   freeTier?: boolean
-  /** Input price per million tokens in USD. */
+  /** Input price per million *uncached* (fresh) input tokens in USD. */
   inputPricePerMTok: number
   /** Output price per million tokens in USD. */
   outputPricePerMTok: number
+  /** Price per million prompt-cache *read* (cache-hit) input tokens in USD. */
+  cacheReadPricePerMTok: number
+  /** Price per million prompt-cache *write* (cache-creation) input tokens in USD. */
+  cacheWritePricePerMTok: number
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
   /**

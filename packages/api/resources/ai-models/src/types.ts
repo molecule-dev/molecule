@@ -78,10 +78,35 @@ export interface ModelDefinition {
   webFetchToolType?: string
   /** Whether this model is available on the free tier (only one model should be true). */
   freeTier?: boolean
-  /** Input price per million tokens in USD. */
+  /** Input price per million *uncached* (fresh) input tokens in USD. */
   inputPricePerMTok: number
   /** Output price per million tokens in USD. */
   outputPricePerMTok: number
+  /**
+   * Price per million prompt-cache *read* (cache-hit) input tokens in USD.
+   *
+   * REQUIRED — never omit. Prompt caching is enabled for the agentic loop, so
+   * for a long conversation the cache-read tokens are the DOMINANT input
+   * category. Pricing them at `0` (the bug this field fixes) systematically
+   * under-measures real upstream spend and lets cost-gated budgets be blown
+   * past their caps. Conventionally a steep discount on `inputPricePerMTok`
+   * (e.g. Anthropic / OpenAI / DeepSeek bill cache reads at ~0.1×). MUST be
+   * `<= inputPricePerMTok` — a cache hit is never more expensive than fresh
+   * input.
+   */
+  cacheReadPricePerMTok: number
+  /**
+   * Price per million prompt-cache *write* (cache-creation) input tokens in USD.
+   *
+   * REQUIRED — never omit. The first time a prefix is cached the provider may
+   * charge a premium (Anthropic's 5-minute cache write is ~1.25× input);
+   * providers that auto-cache at no extra charge (OpenAI, DeepSeek) set this
+   * equal to `inputPricePerMTok`. MUST be `>= inputPricePerMTok` — a cache
+   * write is never cheaper than fresh input. Only the Anthropic bond currently
+   * emits `cacheCreationInputTokens`, but every model declares this so a new
+   * cache-emitting bond can never silently bill cache writes at `0`.
+   */
+  cacheWritePricePerMTok: number
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
   /**

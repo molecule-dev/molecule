@@ -212,6 +212,48 @@ describe('pricing integrity (spend accounting)', () => {
     }
   })
 
+  it('every model has finite, non-negative cache read + write per-MTok prices', () => {
+    // With prompt caching on, cache-read tokens are the DOMINANT input category
+    // for the agentic loop. A model that shipped without cache prices (or with
+    // them left at 0) would bill the bulk of real spend as FREE — the exact
+    // under-counting CST1 fixed. Requiring finite, non-negative cache prices on
+    // every offered model is the compile-and-test guard against that regression.
+    for (const model of MODELS) {
+      expect(
+        Number.isFinite(model.cacheReadPricePerMTok),
+        `${model.id} cacheReadPricePerMTok must be a finite number`,
+      ).toBe(true)
+      expect(
+        Number.isFinite(model.cacheWritePricePerMTok),
+        `${model.id} cacheWritePricePerMTok must be a finite number`,
+      ).toBe(true)
+      expect(
+        model.cacheReadPricePerMTok,
+        `${model.id} cacheReadPricePerMTok must be >= 0`,
+      ).toBeGreaterThanOrEqual(0)
+      expect(
+        model.cacheWritePricePerMTok,
+        `${model.id} cacheWritePricePerMTok must be >= 0`,
+      ).toBeGreaterThanOrEqual(0)
+    }
+  })
+
+  it('cache reads are never costlier than fresh input; cache writes never cheaper', () => {
+    // Sanity bounds that catch a swapped read/write or a misplaced decimal: a
+    // cache HIT is always a discount on fresh input, and a cache WRITE never
+    // costs less than fresh input (it may carry a premium, e.g. Anthropic 1.25×).
+    for (const model of MODELS) {
+      expect(
+        model.cacheReadPricePerMTok,
+        `${model.id} cache read must be <= input price`,
+      ).toBeLessThanOrEqual(model.inputPricePerMTok)
+      expect(
+        model.cacheWritePricePerMTok,
+        `${model.id} cache write must be >= input price`,
+      ).toBeGreaterThanOrEqual(model.inputPricePerMTok)
+    }
+  })
+
   it('every model has a non-empty id and label', () => {
     for (const model of MODELS) {
       expect(typeof model.id === 'string' && model.id.length > 0).toBe(true)

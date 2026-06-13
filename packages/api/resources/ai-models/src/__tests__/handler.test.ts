@@ -93,6 +93,11 @@ describe('list handler', () => {
       expect(m.inputPricePerMTok).toBeGreaterThan(0)
       expect(typeof m.outputPricePerMTok).toBe('number')
       expect(m.outputPricePerMTok).toBeGreaterThan(0)
+      // Cache prices ship over the wire too — clients price cached turns with them.
+      expect(typeof m.cacheReadPricePerMTok).toBe('number')
+      expect(m.cacheReadPricePerMTok).toBeGreaterThanOrEqual(0)
+      expect(typeof m.cacheWritePricePerMTok).toBe('number')
+      expect(m.cacheWritePricePerMTok).toBeGreaterThan(0)
     }
   })
 
