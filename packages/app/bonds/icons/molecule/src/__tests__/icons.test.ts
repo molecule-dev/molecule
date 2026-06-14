@@ -76,6 +76,7 @@ const REQUIRED_ICONS: ComponentIconName[] = [
   'code',
   'mail',
   // Misc
+  'bug',
   'question',
   'bookmark',
   'pin',

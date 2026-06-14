@@ -7089,7 +7089,7 @@ export function ChatPanel({
             })}
             style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}
           >
-            <Icon name="exclamation-triangle" size={14} aria-hidden="true" />
+            <Icon name="bug" size={14} aria-hidden="true" />
           </button>
 
           {/* Settings button — opens the /settings view */}
