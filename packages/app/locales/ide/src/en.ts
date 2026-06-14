@@ -3,6 +3,22 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for en. */
 export const en: IdeTranslations = {
   'ide.chat.thoughtBriefly': 'Thought briefly',
+  // Thinking duration. Singular/plural split (count supplied by the call site);
+  // the plural form interpolates {{count}} so the bond value never overrides a
+  // JS-literal default.
+  'ide.chat.thoughtForSecond': 'Thought for 1 second',
+  'ide.chat.thoughtForSeconds': 'Thought for {{count}} seconds',
+  'ide.chat.thoughtForMinute': 'Thought for 1 minute',
+  'ide.chat.thoughtForMinutes': 'Thought for {{count}} minutes',
+  // Streaming indicator — rotating generic status while the AI responds.
+  'ide.chat.streaming.thinking': 'Thinking...',
+  'ide.chat.streaming.analyzing': 'Analyzing...',
+  'ide.chat.streaming.reasoning': 'Reasoning...',
+  'ide.chat.streaming.crafting': 'Crafting a response...',
+  'ide.chat.streaming.working': 'Working on it...',
+  'ide.chat.streaming.processing': 'Processing...',
+  'ide.chat.streaming.connecting': 'Connecting the dots...',
+  'ide.chat.streaming.almostThere': 'Almost there...',
   'ide.chat.thinking': 'Thinking',
   'ide.chat.verificationPassed': 'Checks passed',
   'ide.chat.typeErrorCount': '1 type error',
@@ -351,6 +367,13 @@ export const en: IdeTranslations = {
   'ide.chat.help.tipUndo':
     "• Use /undo to revert the last AI turn's file changes if it goes off track.",
   'ide.chat.help.tipsHeading': '── Tips ──',
+  // Interactive help card (/help) — section titles + per-command usage tooltip.
+  // usageHint carries literal command-arg syntax (< > [ ]); see types.ts note.
+  'ide.chat.help.card.heading': 'Help',
+  'ide.chat.help.card.commandsTitle': 'Commands',
+  'ide.chat.help.card.modesTitle': 'Modes',
+  'ide.chat.help.card.tipsTitle': 'Tips',
+  'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   // Bug report modal (/report, /bug).
   'ide.chat.report.heading': 'Report a bug',
   'ide.chat.report.openReport': 'Report a bug',
@@ -367,6 +390,11 @@ export const en: IdeTranslations = {
   'ide.chat.report.submitting': 'Submitting…',
   'ide.chat.report.error': 'Could not submit your report. Please try again.',
   'ide.chat.report.viewIssue': 'View issue',
+  // Post-submit confirmation cards ({{productName}} threaded from the host).
+  'ide.chat.report.failed': 'Could not submit your report. Please try again.',
+  'ide.chat.report.submitted': "Thanks! Your report was submitted to {{productName}}'s team.",
+  'ide.chat.report.submittedWithLink':
+    'Thanks! Your report was submitted — track it on the linked issue.',
   // Scripts browser + runner (/scripts, /run).
   'ide.chat.scripts.heading': 'Scripts',
   'ide.chat.scripts.new': 'New script',
@@ -407,6 +435,8 @@ export const en: IdeTranslations = {
   'ide.chat.settings.off': 'Off',
   'ide.chat.settings.on': 'On',
   'ide.chat.settings.soundsSummary': '{{enabled}} of {{total}} events enabled',
+  'ide.chat.settings.modelFollowsDefault': 'Follows default model',
+  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   // Share modal (/share).
   'ide.chat.share.heading': 'Share project',
   'ide.chat.share.openShare': 'Share project',
@@ -438,4 +468,6 @@ export const en: IdeTranslations = {
   'ide.chat.skills.noMatch': 'No skills match “{{query}}”.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
+  // Resize sash between chat and preview (PV6).
+  'ide.resizeHandle.label': 'Resize panels',
 }

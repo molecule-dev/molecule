@@ -25,8 +25,6 @@
     "app/health::health.sleep",
     "app/health::health.steps",
     "app/i18n::i18n.error.localeNotFound",
-    "app/ide::ide.chat.thoughtForMinutes",
-    "app/ide::ide.chat.thoughtForSeconds",
     "app/ide::ide.error.noProvider",
     "app/keyboard::keyboard.error.missingDependency",
     "app/loyalty-tier-badge::loyaltyTierBadge.remaining",

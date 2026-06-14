@@ -24,7 +24,7 @@ import { cleanup, fireEvent, render } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
+import { createSimpleI18nProvider, setProvider, t } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
 import type { DeviceFrame, PreviewProvider, PreviewState } from '@molecule/app-live-preview'
 import * as ideLocales from '@molecule/app-locales-ide'
@@ -36,6 +36,7 @@ import type { AutoCommitState } from '../components/chat-autocommit-utilities.js
 import { DEVICE_META, nextDevice } from '../components/device-cycle.js'
 import { DeviceFrameSelector } from '../components/DeviceFrameSelector.js'
 import { PreviewPanel } from '../components/PreviewPanel.js'
+import { StreamingIndicator } from '../components/StreamingIndicator.js'
 
 const fr = ideLocales.fr as Record<string, string>
 const en = ideLocales.en as Record<string, string>
@@ -274,6 +275,101 @@ describe('Synthase chat surface i18n resolves through the locale bond (cross-cut
     ]) {
       expect(typeof en[key], `${key} missing from en`).toBe('string')
       expect(fr[key], `${key} should be the parked English fallback, not translated`).toBe(en[key])
+    }
+  })
+})
+
+describe('IDE chat/activity i18n debt closed (cross-cutting-i18n, final wave)', () => {
+  // The trailing inline-only surfaces from later MVP waves (SYN13 help card,
+  // SYN11 settings rows, the streaming indicator, the report-confirmation cards,
+  // the PV6 resize sash, and the thinking-duration counter) shipped as inline
+  // defaultValue with the key never added to @molecule/app-locales-ide. This
+  // block proves they are now in the bond and render the bonded value.
+  it('the bond defines every newly-synced chat/activity key', () => {
+    for (const key of [
+      'ide.chat.streaming.thinking',
+      'ide.chat.streaming.analyzing',
+      'ide.chat.streaming.almostThere',
+      'ide.chat.help.card.heading',
+      'ide.chat.help.card.commandsTitle',
+      'ide.chat.help.card.modesTitle',
+      'ide.chat.help.card.tipsTitle',
+      'ide.chat.report.failed',
+      'ide.chat.report.submitted',
+      'ide.chat.report.submittedWithLink',
+      'ide.chat.settings.modelFollowsDefault',
+      'ide.chat.settings.effortValue',
+      'ide.resizeHandle.label',
+      'ide.chat.thoughtForSecond',
+      'ide.chat.thoughtForSeconds',
+      'ide.chat.thoughtForMinute',
+      'ide.chat.thoughtForMinutes',
+    ]) {
+      expect(typeof fr[key], `${key} missing from app-locales-ide`).toBe('string')
+      expect(fr[key].length, `${key} empty in app-locales-ide`).toBeGreaterThan(0)
+    }
+  })
+
+  it('renders the streaming indicator status from the bonded French, not the English default', () => {
+    // No `label` and msgIdx starts at 0, so the indicator deterministically shows
+    // MESSAGES[0] = `ide.chat.streaming.thinking`. With the key absent from the
+    // bond it would fall back to the English default "Thinking..." — the exact gap.
+    const { container } = render(<StreamingIndicator />)
+    const status = container.querySelector('[role="status"]') as HTMLElement
+    expect(status, 'streaming indicator did not render').not.toBeNull()
+    expect(status.textContent).toBe(fr['ide.chat.streaming.thinking'])
+    expect(status.getAttribute('aria-label')).toBe(fr['ide.chat.streaming.thinking'])
+    // The pre-fix bug: with the key absent, the English "Thinking..." rendered.
+    expect(status.textContent).not.toBe('Thinking...')
+  })
+
+  it('translates the human chat/help/report copy (not stuck on the English default)', () => {
+    // These carry no DeepL-hostile syntax, so they ARE machine-translated; a
+    // regression to English-only for these surfaces would fail here.
+    for (const key of [
+      'ide.chat.streaming.thinking',
+      'ide.chat.help.card.heading',
+      'ide.chat.report.submittedWithLink',
+      'ide.resizeHandle.label',
+    ]) {
+      expect(fr[key], `${key} should be translated, not the English fallback`).not.toBe(en[key])
+    }
+  })
+
+  it('the thinking-duration keys interpolate {{count}} through the bond (override-safe split)', () => {
+    // The source was refactored off a JS `${seconds} second${...}` template onto
+    // the codebase's singular/plural key convention, so each bond value is a clean
+    // {{count}} template a bond override can safely interpolate. The {{count}}
+    // round-trip is the proof the `${}`→key split landed.
+    expect(
+      t(
+        'ide.chat.thoughtForSeconds',
+        { count: 5 },
+        { defaultValue: 'Thought for {{count}} seconds' },
+      ),
+    ).toBe(fr['ide.chat.thoughtForSeconds'].replace('{{count}}', '5'))
+    expect(
+      t('ide.chat.thoughtForMinute', { count: 1 }, { defaultValue: 'Thought for 1 minute' }),
+    ).toBe(fr['ide.chat.thoughtForMinute'])
+    // The plural template must carry the placeholder; the singular must not.
+    expect(fr['ide.chat.thoughtForSeconds']).toContain('{{count}}')
+    expect(fr['ide.chat.thoughtForSecond']).not.toContain('{{count}}')
+  })
+
+  it('parks the thinking-duration + help-card usage keys as the English fallback (MT-unsafe)', () => {
+    // thoughtFor* is an elliptical "Thought for {{count}}…" fragment DeepL mangles
+    // (gluing the masked number into a word); help.card.usageHint carries literal
+    // <…>/[…] command-arg syntax DeepL's XML masking can't round-trip. Both are
+    // kept as the canonical English value in every locale — honest over mangled.
+    for (const key of [
+      'ide.chat.thoughtForSecond',
+      'ide.chat.thoughtForSeconds',
+      'ide.chat.thoughtForMinute',
+      'ide.chat.thoughtForMinutes',
+      'ide.chat.help.card.usageHint',
+    ]) {
+      expect(typeof en[key], `${key} missing from en`).toBe('string')
+      expect(fr[key], `${key} should be the parked English fallback`).toBe(en[key])
     }
   })
 })

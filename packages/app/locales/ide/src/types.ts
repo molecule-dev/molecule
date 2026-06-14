@@ -166,6 +166,18 @@ export type IdeTranslationKey =
 
   /** Translation record mapping ide keys to translated strings. */
   | 'ide.chat.thoughtBriefly'
+  | 'ide.chat.thoughtForSecond'
+  | 'ide.chat.thoughtForSeconds'
+  | 'ide.chat.thoughtForMinute'
+  | 'ide.chat.thoughtForMinutes'
+  | 'ide.chat.streaming.thinking'
+  | 'ide.chat.streaming.analyzing'
+  | 'ide.chat.streaming.reasoning'
+  | 'ide.chat.streaming.crafting'
+  | 'ide.chat.streaming.working'
+  | 'ide.chat.streaming.processing'
+  | 'ide.chat.streaming.connecting'
+  | 'ide.chat.streaming.almostThere'
   | 'ide.chat.typeErrorCount'
   | 'ide.chat.lintErrorCount'
   | 'ide.chat.lintWarningCount'
@@ -306,6 +318,13 @@ export type IdeTranslationKey =
   | 'ide.chat.help.tipSpecific'
   | 'ide.chat.help.tipUndo'
   | 'ide.chat.help.tipsHeading'
+  | 'ide.chat.help.card.heading'
+  | 'ide.chat.help.card.commandsTitle'
+  | 'ide.chat.help.card.modesTitle'
+  | 'ide.chat.help.card.tipsTitle'
+  // Carries literal command-arg syntax (< > [ ]); kept as the English fallback
+  // in non-en locales (DeepL's XML masking can't safely round-trip raw <…>).
+  | 'ide.chat.help.card.usageHint'
   | 'ide.chat.report.heading'
   | 'ide.chat.report.openReport'
   | 'ide.chat.report.subheading'
@@ -320,6 +339,9 @@ export type IdeTranslationKey =
   | 'ide.chat.report.submitting'
   | 'ide.chat.report.error'
   | 'ide.chat.report.viewIssue'
+  | 'ide.chat.report.failed'
+  | 'ide.chat.report.submitted'
+  | 'ide.chat.report.submittedWithLink'
   | 'ide.chat.scripts.heading'
   | 'ide.chat.scripts.new'
   | 'ide.chat.scripts.cancelNew'
@@ -357,6 +379,8 @@ export type IdeTranslationKey =
   | 'ide.chat.settings.off'
   | 'ide.chat.settings.on'
   | 'ide.chat.settings.soundsSummary'
+  | 'ide.chat.settings.modelFollowsDefault'
+  | 'ide.chat.settings.effortValue'
   | 'ide.chat.share.heading'
   | 'ide.chat.share.openShare'
   | 'ide.chat.share.subheading'
@@ -383,6 +407,7 @@ export type IdeTranslationKey =
   | 'ide.chat.skills.noMatch'
   | 'ide.chat.skills.relevant.label'
   | 'ide.chat.skills.relevant.dismiss'
+  | 'ide.resizeHandle.label'
 
 /** Translation record mapping ide keys to translated strings. */
 export type IdeTranslations = Record<IdeTranslationKey, string>

@@ -438,18 +438,30 @@ function formatThinkingDuration(ms: number): string {
   if (ms < 1000) return t('ide.chat.thoughtBriefly', undefined, { defaultValue: 'Thought briefly' })
   const seconds = Math.round(ms / 1000)
   if (seconds < 60) {
-    return t(
-      'ide.chat.thoughtForSeconds',
-      { count: seconds },
-      { defaultValue: `Thought for ${seconds} second${seconds === 1 ? '' : 's'}` },
-    )
+    // Singular/plural split (the codebase's pluralization convention, e.g.
+    // typeErrorCount/typeErrorsCount): each key is a clean i18n template so the
+    // bond value matches the inline default verbatim and interpolates {{count}}
+    // — never a JS `${}` literal, which a bond value would silently override.
+    return seconds === 1
+      ? t('ide.chat.thoughtForSecond', { count: seconds }, { defaultValue: 'Thought for 1 second' })
+      : t(
+          'ide.chat.thoughtForSeconds',
+          { count: seconds },
+          {
+            defaultValue: 'Thought for {{count}} seconds',
+          },
+        )
   }
   const minutes = Math.round(seconds / 60)
-  return t(
-    'ide.chat.thoughtForMinutes',
-    { count: minutes },
-    { defaultValue: `Thought for ${minutes} minute${minutes === 1 ? '' : 's'}` },
-  )
+  return minutes === 1
+    ? t('ide.chat.thoughtForMinute', { count: minutes }, { defaultValue: 'Thought for 1 minute' })
+    : t(
+        'ide.chat.thoughtForMinutes',
+        { count: minutes },
+        {
+          defaultValue: 'Thought for {{count}} minutes',
+        },
+      )
 }
 
 /**
