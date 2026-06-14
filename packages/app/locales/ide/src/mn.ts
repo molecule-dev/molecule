@@ -214,6 +214,8 @@ export const mn: Partial<IdeTranslations> = {
   'ide.preview.back': 'Буцах',
   'ide.preview.forward': 'Урагшлах',
   'ide.preview.urlBar': 'Урьдчилан харах URL',
+  'ide.preview.secure': 'Аюулгүй (HTTPS)',
+  'ide.preview.address': 'Урьдчилан үзэх хаяг',
   'ide.preview.updating': 'Шинэчилж байна',
   'ide.preview.frozen':
     'Энэ апп хариу өгөхөө больсон — хязгааргүй давталт эсвэл алдаатай дүрслэл нь урьдчилж харахыг гацаасан. IDE-д нөлөөлөөгүй.',

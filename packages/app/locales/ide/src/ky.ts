@@ -211,6 +211,8 @@ export const ky: Partial<IdeTranslations> = {
   'ide.preview.back': 'Артка',
   'ide.preview.forward': 'Алга',
   'ide.preview.urlBar': "Алдын ала көрүү URL'и",
+  'ide.preview.secure': 'Коопсуз (HTTPS)',
+  'ide.preview.address': 'Алдын ала көрүү дареги',
   'ide.preview.updating': 'Жаңыртылууда',
   'ide.preview.frozen':
     'Бул колдонмо жооп бербей калды — чексиз цикл же рендерингдин үзгүлтүккө учурашы алдын ала көрүүнү тоңдуруп койду. IDEге таасир этпейт.',

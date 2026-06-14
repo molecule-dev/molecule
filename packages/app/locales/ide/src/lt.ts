@@ -213,6 +213,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.preview.back': 'Atgal',
   'ide.preview.forward': 'Pirmyn',
   'ide.preview.urlBar': 'Peržiūros URL',
+  'ide.preview.secure': 'Saugu (HTTPS)',
+  'ide.preview.address': 'Peržiūros adresas',
   'ide.preview.updating': 'Atnaujinimas',
   'ide.preview.frozen':
     'Ši programa nustojo reaguoti – peržiūra įstrigo dėl begalinės kilpos arba nekontroliuojamo atvaizdavimo. Tai neturi įtakos IDE.',

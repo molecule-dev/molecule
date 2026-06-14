@@ -211,6 +211,8 @@ export const be: Partial<IdeTranslations> = {
   'ide.preview.back': 'Назад',
   'ide.preview.forward': 'Наперад',
   'ide.preview.urlBar': 'URL-адрас папярэдняга прагляду',
+  'ide.preview.secure': 'Бяспечна (HTTPS)',
+  'ide.preview.address': 'Адрас папярэдняга прагляду',
   'ide.preview.updating': 'Абнаўленне',
   'ide.preview.frozen':
     'Гэта праграма перастала адказваць — бясконцы цыкл або некантраляваны рэндэрынг замарозілі папярэдні прагляд. IDE не змянілася.',

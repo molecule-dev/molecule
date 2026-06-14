@@ -211,6 +211,8 @@ export const af: Partial<IdeTranslations> = {
   'ide.preview.back': 'Terug',
   'ide.preview.forward': 'Vorentoe',
   'ide.preview.urlBar': 'Voorskou-URL',
+  'ide.preview.secure': 'Veilig (HTTPS)',
+  'ide.preview.address': 'Voorskou-adres',
   'ide.preview.updating': 'Opdatering',
   'ide.preview.frozen':
     "Hierdie toepassing het opgehou reageer — 'n oneindige lus of weghol-weergawe het die voorskou gevries. Die IDE word nie beïnvloed nie.",

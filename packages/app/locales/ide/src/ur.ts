@@ -212,6 +212,8 @@ export const ur: Partial<IdeTranslations> = {
   'ide.preview.back': 'پیچھے',
   'ide.preview.forward': 'آگے',
   'ide.preview.urlBar': 'پیش نظارہ URL',
+  'ide.preview.secure': 'محفوظ (HTTPS)',
+  'ide.preview.address': 'پیش منظر کا پتہ',
   'ide.preview.updating': 'اپ ڈیٹ کر رہا ہے۔',
   'ide.preview.frozen':
     'اس ایپ نے جواب دینا بند کر دیا — ایک لامحدود لوپ یا رن وے رینڈر نے پیش منظر کو منجمد کر دیا۔ IDE غیر متاثر ہے۔',

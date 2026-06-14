@@ -212,6 +212,8 @@ export const vi: Partial<IdeTranslations> = {
   'ide.preview.back': 'Mặt sau',
   'ide.preview.forward': 'Phía trước',
   'ide.preview.urlBar': 'URL xem trước',
+  'ide.preview.secure': 'Bảo mật (HTTPS)',
+  'ide.preview.address': 'Địa chỉ xem trước',
   'ide.preview.updating': 'Đang cập nhật',
   'ide.preview.frozen':
     'Ứng dụng này ngừng phản hồi — một vòng lặp vô hạn hoặc quá trình hiển thị bị lỗi đã làm đóng băng bản xem trước. Môi trường phát triển tích hợp (IDE) không bị ảnh hưởng.',

@@ -214,6 +214,8 @@ export const bg: Partial<IdeTranslations> = {
   'ide.preview.back': 'Назад',
   'ide.preview.forward': 'Напред',
   'ide.preview.urlBar': 'URL за предварително преглед',
+  'ide.preview.secure': 'Защитено (HTTPS)',
+  'ide.preview.address': 'Адрес за преглед',
   'ide.preview.updating': 'Актуализиране',
   'ide.preview.frozen':
     'Приложението спря да отговаря — безкраен цикъл или извън контрол излизане на рендеринга блокираха предварителния преглед. IDE не е засегната.',

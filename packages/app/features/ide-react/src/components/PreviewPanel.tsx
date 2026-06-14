@@ -131,6 +131,11 @@ export function PreviewPanel({
   // preview has reported a location.
   const currentLocation = state.currentUrl || state.url
 
+  // Whether the current location is served over a secure (https) origin. Drives
+  // the address bar's leading site-info glyph — a lock when secure, a globe
+  // otherwise — exactly like a real browser omnibox.
+  const isSecureLocation = /^https:/i.test(currentLocation)
+
   // Has the server ever responded successfully?
   const [everLoaded, setEverLoaded] = useState(false)
   // Is the iframe content ready to show?
@@ -638,35 +643,90 @@ export function PreviewPanel({
             title={t('ide.preview.refresh', {}, { defaultValue: 'Reload' })}
           />
 
-          <input
-            type="text"
-            data-mol-id="preview-url"
-            value={urlDraft}
-            onChange={(e) => setUrlDraft(e.target.value)}
-            onFocus={() => setUrlEditing(true)}
-            onBlur={() => setUrlEditing(false)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                const next = urlDraft.trim()
-                if (next) setUrl(next)
-                e.currentTarget.blur()
-              } else if (e.key === 'Escape') {
-                setUrlDraft(currentLocation)
-                e.currentTarget.blur()
-              }
-            }}
-            aria-label={t('ide.preview.urlBar', {}, { defaultValue: 'Preview URL' })}
-            className={cm.cn(cm.textSize('xs'), cm.sp('px', 2), cm.sp('py', 1))}
+          {/* Address field — a browser-style omnibox: a recessed `surface`
+              panel (visually distinct from the toolbar's surfaceSecondary) with
+              a leading site-info glyph and a focus ring. The lock/globe glyph
+              comes from the shared SVG icon set (lock = served over https, globe
+              = otherwise), wrapped in the same styled Tooltip the toolbar
+              buttons use — not a native `title`. The border lights up in the
+              primary brand color while the input is focused — the same focus
+              token as the chat input — restoring the visible-focus indicator
+              (WCAG 2.4.7) that the previous bare `outline: none` had stripped.
+              ClassMap can't express a state-driven border color, so the focus
+              ring is inline and driven by the theme's `--mol-color-*` tokens. */}
+          <div
+            data-mol-id="preview-url-field"
+            className={cm.cn(
+              cm.flex({ direction: 'row', align: 'center', gap: 'xs' }),
+              cm.sp('px', 2),
+              cm.surface,
+            )}
             style={{
               flex: 1,
               minWidth: 0,
-              background: 'transparent',
-              border: 'none',
-              color: 'inherit',
-              outline: 'none',
-              fontFamily: 'monospace',
+              borderRadius: '6px',
+              border: `1px solid ${
+                urlEditing
+                  ? 'var(--mol-color-primary, #6366f1)'
+                  : 'var(--mol-color-border, rgba(128,128,128,0.2))'
+              }`,
+              transition: 'border-color 120ms',
             }}
-          />
+          >
+            <Tooltip
+              content={
+                isSecureLocation
+                  ? t('ide.preview.secure', {}, { defaultValue: 'Secure (HTTPS)' })
+                  : t('ide.preview.address', {}, { defaultValue: 'Preview address' })
+              }
+              placement="bottom"
+            >
+              <Icon
+                name={isSecureLocation ? 'lock' : 'globe'}
+                size={16}
+                data-mol-id="preview-site-info"
+                className={cm.textMuted}
+                aria-hidden="true"
+              />
+            </Tooltip>
+            <input
+              type="text"
+              data-mol-id="preview-url"
+              value={urlDraft}
+              onChange={(e) => setUrlDraft(e.target.value)}
+              onFocus={(e) => {
+                setUrlEditing(true)
+                // Select-all on focus so one click readies the whole address to
+                // overtype or copy — standard browser omnibox behavior.
+                e.currentTarget.select()
+              }}
+              onBlur={() => setUrlEditing(false)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const next = urlDraft.trim()
+                  if (next) setUrl(next)
+                  e.currentTarget.blur()
+                } else if (e.key === 'Escape') {
+                  setUrlDraft(currentLocation)
+                  e.currentTarget.blur()
+                }
+              }}
+              aria-label={t('ide.preview.urlBar', {}, { defaultValue: 'Preview URL' })}
+              className={cm.cn(cm.textSize('xs'), cm.sp('py', 1))}
+              style={{
+                flex: 1,
+                minWidth: 0,
+                background: 'transparent',
+                border: 'none',
+                color: 'inherit',
+                // The wrapping address field carries the visible focus indicator
+                // (border → primary while focused), so the input's own outline is
+                // intentionally suppressed here — matching the chat input.
+                outline: 'none',
+                fontFamily: 'monospace',
+              }}
+            />
+          </div>
 
           <BarButton
             icon="link-external"

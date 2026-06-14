@@ -213,6 +213,8 @@ export const nl: Partial<IdeTranslations> = {
   'ide.preview.back': 'Terug',
   'ide.preview.forward': 'Doorsturen',
   'ide.preview.urlBar': 'Voorbeeld-URL',
+  'ide.preview.secure': 'Beveiligd (HTTPS)',
+  'ide.preview.address': 'Voorbeeldadres',
   'ide.preview.updating': 'Bijwerken',
   'ide.preview.frozen':
     'Deze app reageert niet meer — een eindeloze lus of een uit de hand gelopen weergave heeft het voorbeeld vastgelopen. De IDE ondervindt hier geen hinder van.',

@@ -212,6 +212,8 @@ export const hy: Partial<IdeTranslations> = {
   'ide.preview.back': 'Հետ',
   'ide.preview.forward': 'Առաջ',
   'ide.preview.urlBar': 'Նախադիտման URL',
+  'ide.preview.secure': 'Անվտանգ (HTTPS)',
+  'ide.preview.address': 'Նախադիտման հասցե',
   'ide.preview.updating': 'Թարմացվում է',
   'ide.preview.frozen':
     'Այս հավելվածը դադարեց արձագանքել՝ անվերջ ցիկլը կամ անկանոն ռենդերինգը սառեցրել է նախադիտումը։ IDE-ն չի տուժել։',

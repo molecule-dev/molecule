@@ -212,6 +212,8 @@ export const ha: Partial<IdeTranslations> = {
   'ide.preview.back': 'Baya',
   'ide.preview.forward': 'Gaba',
   'ide.preview.urlBar': 'Duba URL ɗin',
+  'ide.preview.secure': 'Amintacce (HTTPS)',
+  'ide.preview.address': 'Adireshin samfoti',
   'ide.preview.updating': 'Sabuntawa',
   'ide.preview.frozen':
     'Wannan manhajar ta daina amsawa — wani madauki mara iyaka ko kuma wani abu mai gudu ya danne samfoti. IDE ba shi da tasiri.',

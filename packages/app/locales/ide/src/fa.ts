@@ -211,6 +211,8 @@ export const fa: Partial<IdeTranslations> = {
   'ide.preview.back': 'برگشت',
   'ide.preview.forward': 'به جلو',
   'ide.preview.urlBar': 'پیش‌نمایش آدرس اینترنتی',
+  'ide.preview.secure': 'ایمن (HTTPS)',
+  'ide.preview.address': 'نشانی پیش‌نمایش',
   'ide.preview.updating': 'در حال به‌روزرسانی',
   'ide.preview.frozen':
     'این برنامه از کار افتاد - یک حلقه بی‌نهایت یا رندر خارج از کنترل، پیش‌نمایش را متوقف کرد. IDE تحت تأثیر قرار نگرفته است.',

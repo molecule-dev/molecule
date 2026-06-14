@@ -211,6 +211,8 @@ export const si: Partial<IdeTranslations> = {
   'ide.preview.back': 'ආපසු',
   'ide.preview.forward': 'ඉදිරියට',
   'ide.preview.urlBar': 'URL පෙරදසුන් කරන්න',
+  'ide.preview.secure': 'ආරක්ෂිතයි (HTTPS)',
+  'ide.preview.address': 'පෙරදසුන් ලිපිනය',
   'ide.preview.updating': 'යාවත්කාලීන කිරීම',
   'ide.preview.frozen':
     'මෙම යෙදුම ප්‍රතිචාර දැක්වීම නැවැත්වීය — අනන්ත ලූපයක් හෝ ධාවන විදැහුම්කරණයක් පෙරදසුන නිශ්චල කළේය. IDE බලපෑමට ලක් නොවේ.',

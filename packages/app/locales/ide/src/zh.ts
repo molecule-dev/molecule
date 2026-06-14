@@ -208,6 +208,8 @@ export const zh: Partial<IdeTranslations> = {
   'ide.preview.back': '返回',
   'ide.preview.forward': '前言',
   'ide.preview.urlBar': '预览网址',
+  'ide.preview.secure': '安全连接 (HTTPS)',
+  'ide.preview.address': '预览地址',
   'ide.preview.updating': '正在更新',
   'ide.preview.frozen':
     '该应用程序已停止响应——可能是无限循环或渲染失控导致预览界面卡死。IDE 未受影响。',

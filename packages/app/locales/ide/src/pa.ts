@@ -212,6 +212,8 @@ export const pa: Partial<IdeTranslations> = {
   'ide.preview.back': 'ਪਿੱਛੇ',
   'ide.preview.forward': 'ਅੱਗੇ',
   'ide.preview.urlBar': 'URL ਦਾ ਪੂਰਵਦਰਸ਼ਨ ਕਰੋ',
+  'ide.preview.secure': 'ਸੁਰੱਖਿਅਤ (HTTPS)',
+  'ide.preview.address': 'ਝਲਕ ਪਤਾ',
   'ide.preview.updating': 'ਅੱਪਡੇਟ ਕਰਨਾ',
   'ide.preview.frozen':
     'ਇਸ ਐਪ ਨੇ ਜਵਾਬ ਦੇਣਾ ਬੰਦ ਕਰ ਦਿੱਤਾ — ਇੱਕ ਅਨੰਤ ਲੂਪ ਜਾਂ ਰਨਅਵੇ ਰੈਂਡਰ ਨੇ ਪ੍ਰੀਵਿਊ ਨੂੰ ਫ੍ਰੀਜ਼ ਕਰ ਦਿੱਤਾ। IDE ਪ੍ਰਭਾਵਿਤ ਨਹੀਂ ਹੋਇਆ।',

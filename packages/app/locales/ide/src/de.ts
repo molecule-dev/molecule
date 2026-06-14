@@ -214,6 +214,8 @@ export const de: Partial<IdeTranslations> = {
   'ide.preview.back': 'Zurück',
   'ide.preview.forward': 'Weiter',
   'ide.preview.urlBar': 'Vorschau-URL',
+  'ide.preview.secure': 'Sicher (HTTPS)',
+  'ide.preview.address': 'Vorschau-Adresse',
   'ide.preview.updating': 'Aktualisieren',
   'ide.preview.frozen':
     'Diese App reagiert nicht mehr – eine Endlosschleife oder ein außer Kontrolle geratener Rendering-Vorgang hat die Vorschau eingefroren. Die IDE ist davon nicht betroffen.',

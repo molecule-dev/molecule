@@ -213,6 +213,8 @@ export const ml: Partial<IdeTranslations> = {
   'ide.preview.back': 'തിരികെ',
   'ide.preview.forward': 'മുന്നോട്ട്',
   'ide.preview.urlBar': 'URL പ്രിവ്യൂ ചെയ്യുക',
+  'ide.preview.secure': 'സുരക്ഷിതം (HTTPS)',
+  'ide.preview.address': 'പ്രിവ്യൂ വിലാസം',
   'ide.preview.updating': 'അപ്ഡേറ്റുചെയ്യുന്നു',
   'ide.preview.frozen':
     'ഈ ആപ്പ് പ്രതികരിക്കുന്നത് നിർത്തി — ഒരു ഇൻഫിനിറ്റ് ലൂപ്പ് അല്ലെങ്കിൽ റൺഅവേ റെൻഡർ പ്രിവ്യൂ മരവിപ്പിച്ചു. IDE ബാധിക്കപ്പെട്ടിട്ടില്ല.',

@@ -214,6 +214,8 @@ export const ru: Partial<IdeTranslations> = {
   'ide.preview.back': 'Назад',
   'ide.preview.forward': 'Вперед',
   'ide.preview.urlBar': 'URL предварительного просмотра',
+  'ide.preview.secure': 'Защищено (HTTPS)',
+  'ide.preview.address': 'Адрес предпросмотра',
   'ide.preview.updating': 'Обновление',
   'ide.preview.frozen':
     'Приложение перестало отвечать — бесконечный цикл или сбой рендеринга привели к зависанию окна предварительного просмотра. Работа IDE не затронута.',

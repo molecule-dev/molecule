@@ -213,6 +213,8 @@ export const el: Partial<IdeTranslations> = {
   'ide.preview.back': 'Πίσω',
   'ide.preview.forward': 'Προώθηση',
   'ide.preview.urlBar': 'Διεύθυνση URL προεπισκόπησης',
+  'ide.preview.secure': 'Ασφαλές (HTTPS)',
+  'ide.preview.address': 'Διεύθυνση προεπισκόπησης',
   'ide.preview.updating': 'Ενημέρωση',
   'ide.preview.frozen':
     'Η εφαρμογή σταμάτησε να ανταποκρίνεται — ένας ατέρμονος βρόχος ή μια ανεξέλεγκτη διαδικασία απόδοσης προκάλεσε το πάγωμα της προεπισκόπησης. Το IDE δεν επηρεάστηκε.',

@@ -212,6 +212,8 @@ export const ja: Partial<IdeTranslations> = {
   'ide.preview.back': '戻る',
   'ide.preview.forward': '次へ',
   'ide.preview.urlBar': 'プレビューURL',
+  'ide.preview.secure': '保護された通信 (HTTPS)',
+  'ide.preview.address': 'プレビューのアドレス',
   'ide.preview.updating': '更新中',
   'ide.preview.frozen':
     'このアプリが応答しなくなりました。無限ループか、レンダリングの暴走によりプレビューがフリーズしたようです。IDEには影響はありません。',

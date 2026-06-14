@@ -210,6 +210,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.preview.back': '뒤로',
   'ide.preview.forward': '다음',
   'ide.preview.urlBar': '미리보기 URL',
+  'ide.preview.secure': '보안 연결 (HTTPS)',
+  'ide.preview.address': '미리보기 주소',
   'ide.preview.updating': '업데이트 중',
   'ide.preview.frozen':
     '이 앱이 응답하지 않습니다. 무한 루프나 렌더링 오류로 인해 미리 보기가 멈췄습니다. IDE는 정상적으로 작동합니다.',

@@ -213,6 +213,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.preview.back': 'Înapoi',
   'ide.preview.forward': 'Înainte',
   'ide.preview.urlBar': 'URL de previzualizare',
+  'ide.preview.secure': 'Securizat (HTTPS)',
+  'ide.preview.address': 'Adresa de previzualizare',
   'ide.preview.updating': 'Actualizare',
   'ide.preview.frozen':
     'Această aplicație nu mai răspunde — o buclă infinită sau o randare scăpată de sub control a blocat previzualizarea. IDE-ul nu este afectat.',

@@ -213,6 +213,8 @@ export const eu: Partial<IdeTranslations> = {
   'ide.preview.back': 'Atzera',
   'ide.preview.forward': 'Aurrera',
   'ide.preview.urlBar': 'Aurreikuspen URLa',
+  'ide.preview.secure': 'Segurua (HTTPS)',
+  'ide.preview.address': 'Aurrebistaren helbidea',
   'ide.preview.updating': 'Eguneratzen',
   'ide.preview.frozen':
     'Aplikazio honek erantzuteari utzi dio — begizta infinitu edo errendatze iheskor batek aurrebista blokeatu du. IDEak ez du eraginik izan.',

@@ -212,6 +212,8 @@ export const th: Partial<IdeTranslations> = {
   'ide.preview.back': 'กลับ',
   'ide.preview.forward': 'ซึ่งไปข้างหน้า',
   'ide.preview.urlBar': 'ดูตัวอย่าง URL',
+  'ide.preview.secure': 'ปลอดภัย (HTTPS)',
+  'ide.preview.address': 'ที่อยู่ตัวอย่าง',
   'ide.preview.updating': 'กำลังอัปเดต',
   'ide.preview.frozen':
     'แอปนี้หยุดทำงาน - เกิดลูปไม่สิ้นสุดหรือการเรนเดอร์ที่ทำงานผิดปกติทำให้หน้าตัวอย่างค้าง IDE ไม่ได้รับผลกระทบ',

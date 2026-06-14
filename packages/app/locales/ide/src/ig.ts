@@ -209,6 +209,8 @@ export const ig: Partial<IdeTranslations> = {
   'ide.preview.back': 'Azụ',
   'ide.preview.forward': "Gaa n'ihu",
   'ide.preview.urlBar': 'Lee URL nlele',
+  'ide.preview.secure': 'Echekwabara (HTTPS)',
+  'ide.preview.address': 'Adreesị nlele',
   'ide.preview.updating': 'Na-emelite',
   'ide.preview.frozen':
     'Ngwa a kwụsịrị ịzaghachi — okirikiri na-enweghị ngwụcha ma ọ bụ ihe ngosi na-agba ọsọ na-eme ka nlele ahụ sie ike. IDE ahụ enweghị mmetụta ọ bụla.',

@@ -214,6 +214,8 @@ export const uz: Partial<IdeTranslations> = {
   'ide.preview.back': 'Orqaga',
   'ide.preview.forward': 'Oldinga',
   'ide.preview.urlBar': "Ko'rib chiqish URL manzili",
+  'ide.preview.secure': 'Xavfsiz (HTTPS)',
+  'ide.preview.address': "Ko'rib chiqish manzili",
   'ide.preview.updating': 'Yangilanmoqda',
   'ide.preview.frozen':
     "Bu ilova javob berishni to'xtatdi — cheksiz sikl yoki qochqinli render oldindan ko'rishni muzlatib qo'ydi. IDE ta'sirlanmagan.",

@@ -212,6 +212,8 @@ export const ca: Partial<IdeTranslations> = {
   'ide.preview.back': 'Enrere',
   'ide.preview.forward': 'Endavant',
   'ide.preview.urlBar': 'URL de previsualització',
+  'ide.preview.secure': 'Segur (HTTPS)',
+  'ide.preview.address': 'Adreça de visualització prèvia',
   'ide.preview.updating': 'Actualitzant',
   'ide.preview.frozen':
     "Aquesta aplicació ha deixat de respondre: un bucle infinit o un renderitzat descontrolat ha congelat la previsualització. L'IDE no s'ha vist afectat.",

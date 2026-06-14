@@ -211,6 +211,8 @@ export const cy: Partial<IdeTranslations> = {
   'ide.preview.back': 'Yn ôl',
   'ide.preview.forward': 'Ymlaen',
   'ide.preview.urlBar': 'URL Rhagolwg',
+  'ide.preview.secure': 'Diogel (HTTPS)',
+  'ide.preview.address': 'Cyfeiriad rhagolwg',
   'ide.preview.updating': 'Diweddaru',
   'ide.preview.frozen':
     "Stopiodd yr ap hwn ymateb — rhewodd dolen ddiddiwedd neu rendr rhedegog y rhagolwg. Nid yw'r IDE wedi'i effeithio.",

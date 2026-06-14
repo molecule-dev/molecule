@@ -211,6 +211,8 @@ export const ka: Partial<IdeTranslations> = {
   'ide.preview.back': 'უკან',
   'ide.preview.forward': 'წინ',
   'ide.preview.urlBar': 'URL-ის გადახედვა',
+  'ide.preview.secure': 'უსაფრთხო (HTTPS)',
+  'ide.preview.address': 'გადახედვის მისამართი',
   'ide.preview.updating': 'განახლება',
   'ide.preview.frozen':
     'ამ აპლიკაციამ შეწყვიტა რეაგირება — უსასრულო ციკლის ან რენდერის გაშვების გამო წინასწარი გადახედვა გაყინული იყო. IDE-ზე გავლენა არ მოუხდენია.',

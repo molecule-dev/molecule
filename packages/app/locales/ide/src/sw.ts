@@ -212,6 +212,8 @@ export const sw: Partial<IdeTranslations> = {
   'ide.preview.back': 'Rudi',
   'ide.preview.forward': 'Mbele',
   'ide.preview.urlBar': 'Hakiki URL',
+  'ide.preview.secure': 'Salama (HTTPS)',
+  'ide.preview.address': 'Anwani ya onyesho la awali',
   'ide.preview.updating': 'Inasasisha',
   'ide.preview.frozen':
     'Programu hii iliacha kujibu — mzunguko usio na kikomo au onyesho lisilo na kikomo lilisimamisha onyesho la awali. IDE haiathiriwi.',

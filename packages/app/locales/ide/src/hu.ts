@@ -210,6 +210,8 @@ export const hu: Partial<IdeTranslations> = {
   'ide.preview.back': 'Vissza',
   'ide.preview.forward': 'Tovább',
   'ide.preview.urlBar': 'Előnézeti URL',
+  'ide.preview.secure': 'Biztonságos (HTTPS)',
+  'ide.preview.address': 'Előnézeti cím',
   'ide.preview.updating': 'Frissítés',
   'ide.preview.frozen':
     'Az alkalmazás nem reagál – egy végtelen ciklus vagy egy elszabadult renderelés miatt lefagyott az előnézet. Az IDE működése nem érintett.',

@@ -211,6 +211,8 @@ export const km: Partial<IdeTranslations> = {
   'ide.preview.back': 'ថយក្រោយ',
   'ide.preview.forward': 'ទៅមុខ',
   'ide.preview.urlBar': 'មើល URL ជាមុន',
+  'ide.preview.secure': 'សុវត្ថិភាព (HTTPS)',
+  'ide.preview.address': 'អាសយដ្ឋានមើលជាមុន',
   'ide.preview.updating': 'កំពុងធ្វើបច្ចុប្បន្នភាព',
   'ide.preview.frozen':
     'កម្មវិធីនេះឈប់ឆ្លើយតប — រង្វិលជុំគ្មានកំណត់ ឬការបង្ហាញដែលរត់គេចខ្លួនបានបង្កកការមើលជាមុន។ IDE មិនត្រូវបានប៉ះពាល់ទេ។',

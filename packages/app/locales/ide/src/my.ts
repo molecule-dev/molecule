@@ -216,6 +216,8 @@ export const my: Partial<IdeTranslations> = {
   'ide.preview.back': 'နောက်သို့',
   'ide.preview.forward': 'ရှေ့သို့',
   'ide.preview.urlBar': 'အစမ်းကြည့်ရှုရန် URL',
+  'ide.preview.secure': 'လုံခြုံသည် (HTTPS)',
+  'ide.preview.address': 'အစမ်းကြည့်ရှုလိပ်စာ',
   'ide.preview.updating': 'အပ်ဒိတ်လုပ်နေသည်',
   'ide.preview.frozen':
     'ဒီအက်ပ်က တုံ့ပြန်မှုရပ်တန့်သွားပါတယ် — အဆုံးမရှိ loop တစ်ခု ဒါမှမဟုတ် runaway render တစ်ခုကြောင့် preview ကို ရပ်တန့်သွားစေခဲ့ပါတယ်။ IDE ကို ထိခိုက်မှုမရှိပါဘူး။',

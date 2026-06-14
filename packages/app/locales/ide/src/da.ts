@@ -210,6 +210,8 @@ export const da: Partial<IdeTranslations> = {
   'ide.preview.back': 'Tilbage',
   'ide.preview.forward': 'Videre',
   'ide.preview.urlBar': 'URL til forhåndsvisning',
+  'ide.preview.secure': 'Sikker (HTTPS)',
+  'ide.preview.address': 'Forhåndsvisningsadresse',
   'ide.preview.updating': 'Opdatering',
   'ide.preview.frozen':
     "Denne app reagerer ikke længere — en uendelig løkke eller en renderingsfejl har fået forhåndsvisningen til at fryse. IDE'en er ikke påvirket.",

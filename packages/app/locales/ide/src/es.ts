@@ -217,6 +217,8 @@ export const es: Partial<IdeTranslations> = {
   'ide.preview.back': 'Atrás',
   'ide.preview.forward': 'Adelante',
   'ide.preview.urlBar': 'URL de vista previa',
+  'ide.preview.secure': 'Seguro (HTTPS)',
+  'ide.preview.address': 'Dirección de vista previa',
   'ide.preview.updating': 'Actualización',
   'ide.preview.frozen':
     'Esta aplicación ha dejado de responder: un bucle infinito o un proceso de renderizado descontrolado ha bloqueado la vista previa. El IDE no se ve afectado.',

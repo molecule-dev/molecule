@@ -210,6 +210,8 @@ export const lo: Partial<IdeTranslations> = {
   'ide.preview.back': 'ກັບຄືນ',
   'ide.preview.forward': 'ສົ່ງຕໍ່',
   'ide.preview.urlBar': 'ຕົວຢ່າງ URL',
+  'ide.preview.secure': 'ປອດໄພ (HTTPS)',
+  'ide.preview.address': 'ທີ່ຢູ່ສະແດງຕົວຢ່າງ',
   'ide.preview.updating': 'ກຳລັງອັບເດດ',
   'ide.preview.frozen':
     'ແອັບນີ້ຢຸດການຕອບສະໜອງ — ການວົນຊ້ຳທີ່ບໍ່ມີສິ້ນສຸດ ຫຼື ການສະແດງຜົນທີ່ບໍ່ສາມາດຄວບຄຸມໄດ້ເຮັດໃຫ້ການສະແດງຕົວຢ່າງຄ້າງໄວ້. IDE ບໍ່ໄດ້ຮັບຜົນກະທົບ.',

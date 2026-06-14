@@ -210,6 +210,8 @@ export const mr: Partial<IdeTranslations> = {
   'ide.preview.back': 'मागे',
   'ide.preview.forward': 'पुढे',
   'ide.preview.urlBar': 'पूर्वावलोकन URL',
+  'ide.preview.secure': 'सुरक्षित (HTTPS)',
+  'ide.preview.address': 'पूर्वावलोकन पत्ता',
   'ide.preview.updating': 'अद्ययावत करत आहे',
   'ide.preview.frozen':
     'या ॲपने प्रतिसाद देणे थांबवले आहे — एका अनंत लूपमुळे किंवा अनियंत्रित रेंडरमुळे प्रिव्ह्यू गोठला आहे. आयडीईवर कोणताही परिणाम झालेला नाही.',

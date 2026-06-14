@@ -210,6 +210,8 @@ export const ms: Partial<IdeTranslations> = {
   'ide.preview.back': 'Kembali',
   'ide.preview.forward': 'Ke hadapan',
   'ide.preview.urlBar': 'URL Pratonton',
+  'ide.preview.secure': 'Selamat (HTTPS)',
+  'ide.preview.address': 'Alamat pratonton',
   'ide.preview.updating': 'Mengemas kini',
   'ide.preview.frozen':
     'Aplikasi ini berhenti bertindak balas — gelung tanpa henti atau pemaparan yang tidak terkawal telah membekukan pratonton. IDE tidak terjejas.',

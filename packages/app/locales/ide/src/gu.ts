@@ -211,6 +211,8 @@ export const gu: Partial<IdeTranslations> = {
   'ide.preview.back': 'પાછળ',
   'ide.preview.forward': 'આગળ',
   'ide.preview.urlBar': 'પૂર્વાવલોકન URL',
+  'ide.preview.secure': 'સુરક્ષિત (HTTPS)',
+  'ide.preview.address': 'પૂર્વાવલોકન સરનામું',
   'ide.preview.updating': 'અપડેટ કરી રહ્યું છે',
   'ide.preview.frozen':
     'આ એપ્લિકેશને જવાબ આપવાનું બંધ કરી દીધું — એક અનંત લૂપ અથવા રનઅવે રેન્ડરે પ્રીવ્યૂને સ્થિર કરી દીધો. IDE પર કોઈ અસર થઈ નથી.',

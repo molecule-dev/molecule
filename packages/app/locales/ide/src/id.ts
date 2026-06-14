@@ -212,6 +212,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.preview.back': 'Kembali',
   'ide.preview.forward': 'Lanjut',
   'ide.preview.urlBar': 'URL Pratinjau',
+  'ide.preview.secure': 'Aman (HTTPS)',
+  'ide.preview.address': 'Alamat pratinjau',
   'ide.preview.updating': 'Pembaruan',
   'ide.preview.frozen':
     'Aplikasi ini tidak merespons — loop tak berujung atau proses rendering yang tidak terkendali telah membuat tampilan pratinjau macet. IDE tidak terpengaruh.',

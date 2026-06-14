@@ -211,6 +211,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.preview.back': 'Takaisin',
   'ide.preview.forward': 'Eteenpäin',
   'ide.preview.urlBar': 'Esikatselu-URL',
+  'ide.preview.secure': 'Suojattu (HTTPS)',
+  'ide.preview.address': 'Esikatseluosoite',
   'ide.preview.updating': 'Päivittäminen',
   'ide.preview.frozen':
     'Sovellus lakkasi vastaamasta — esikatselu jumittui loputtomaan silmukkaan tai hallitsemattomaan renderointiin. Tämä ei vaikuta kehitysympäristöön.',

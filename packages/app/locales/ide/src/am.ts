@@ -208,6 +208,8 @@ export const am: Partial<IdeTranslations> = {
   'ide.preview.back': 'ተመለስ',
   'ide.preview.forward': 'ወደፊት',
   'ide.preview.urlBar': 'ዩአርኤልን አስቀድመው ይመልከቱ',
+  'ide.preview.secure': 'ደህንነቱ የተጠበቀ (HTTPS)',
+  'ide.preview.address': 'የቅድመ-እይታ አድራሻ',
   'ide.preview.updating': 'በማዘመን ላይ',
   'ide.preview.frozen':
     'ይህ መተግበሪያ ምላሽ መስጠት አቁሟል - ማለቂያ የሌለው ዑደት ወይም የሸሸ ምስል ቅድመ እይታውን አቁሟል። IDE ምንም ተጽእኖ የለውም።',

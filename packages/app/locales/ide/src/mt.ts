@@ -213,6 +213,8 @@ export const mt: Partial<IdeTranslations> = {
   'ide.preview.back': 'Lura',
   'ide.preview.forward': "'Il Quddiem",
   'ide.preview.urlBar': 'URL tal-previżjoni',
+  'ide.preview.secure': 'Sigur (HTTPS)',
+  'ide.preview.address': 'Indirizz tal-previżjoni',
   'ide.preview.updating': 'Aġġornament',
   'ide.preview.frozen':
     "Din l-app waqfet tirrispondi — linja infinita jew rendering li ma kienx qed jiġi implimentat b'mod korrett iffriża l-preview. L-IDE mhux affettwat.",

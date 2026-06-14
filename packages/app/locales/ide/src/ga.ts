@@ -210,6 +210,8 @@ export const ga: Partial<IdeTranslations> = {
   'ide.preview.back': 'Ar ais',
   'ide.preview.forward': 'Ar Aghaidh',
   'ide.preview.urlBar': 'URL Réamhamhairc',
+  'ide.preview.secure': 'Slán (HTTPS)',
+  'ide.preview.address': 'Seoladh réamhamhairc',
   'ide.preview.updating': 'Nuashonrú',
   'ide.preview.frozen':
     'Stop an aip seo ag freagairt — reo lúb gan teorainn nó rindreáil theithiúil an réamhamharc. Níl aon tionchar ar an IDE.',

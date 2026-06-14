@@ -207,6 +207,8 @@ export type IdeTranslationKey =
   | 'ide.preview.back'
   | 'ide.preview.forward'
   | 'ide.preview.urlBar'
+  | 'ide.preview.secure'
+  | 'ide.preview.address'
   | 'ide.preview.updating'
   | 'ide.preview.frozen'
   | 'ide.preview.frozenReload'

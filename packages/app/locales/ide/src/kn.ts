@@ -211,6 +211,8 @@ export const kn: Partial<IdeTranslations> = {
   'ide.preview.back': 'ಹಿಂದೆ',
   'ide.preview.forward': 'ಮುಂದೆ',
   'ide.preview.urlBar': 'URL ಪೂರ್ವವೀಕ್ಷಣೆ ಮಾಡಿ',
+  'ide.preview.secure': 'ಸುರಕ್ಷಿತ (HTTPS)',
+  'ide.preview.address': 'ಮುನ್ನೋಟ ವಿಳಾಸ',
   'ide.preview.updating': 'ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ',
   'ide.preview.frozen':
     'ಈ ಅಪ್ಲಿಕೇಶನ್ ಪ್ರತಿಕ್ರಿಯಿಸುವುದನ್ನು ನಿಲ್ಲಿಸಿದೆ - ಅನಂತ ಲೂಪ್ ಅಥವಾ ರನ್‌ಅವೇ ರೆಂಡರ್ ಪೂರ್ವವೀಕ್ಷಣೆಯನ್ನು ಸ್ಥಗಿತಗೊಳಿಸಿದೆ. IDE ಮೇಲೆ ಯಾವುದೇ ಪರಿಣಾಮ ಬೀರುವುದಿಲ್ಲ.',

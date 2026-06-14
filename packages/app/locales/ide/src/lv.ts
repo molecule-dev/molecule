@@ -211,6 +211,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.preview.back': 'Atpakaļ',
   'ide.preview.forward': 'Uz priekšu',
   'ide.preview.urlBar': 'Priekšskatīšanas URL',
+  'ide.preview.secure': 'Drošs (HTTPS)',
+  'ide.preview.address': 'Priekšskatījuma adrese',
   'ide.preview.updating': 'Atjaunināšana',
   'ide.preview.frozen':
     'Šī lietotne vairs nereaģē — bezgalīga cilpa vai nekontrolējama renderēšana ir bloķējusi priekšskatījumu. Tas neietekmē IDE.',

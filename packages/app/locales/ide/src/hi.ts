@@ -211,6 +211,8 @@ export const hi: Partial<IdeTranslations> = {
   'ide.preview.back': 'पीछे',
   'ide.preview.forward': 'आगे',
   'ide.preview.urlBar': 'पूर्वावलोकन यूआरएल',
+  'ide.preview.secure': 'सुरक्षित (HTTPS)',
+  'ide.preview.address': 'पूर्वावलोकन पता',
   'ide.preview.updating': 'अद्यतन करने',
   'ide.preview.frozen':
     'यह ऐप प्रतिक्रिया देना बंद कर दिया है — एक अनंत लूप या अनियंत्रित रेंडरिंग के कारण पूर्वावलोकन रुक गया है। IDE अप्रभावित है।',

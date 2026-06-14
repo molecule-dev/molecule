@@ -214,6 +214,8 @@ export const fil: Partial<IdeTranslations> = {
   'ide.preview.back': 'Balik',
   'ide.preview.forward': 'Pasulong',
   'ide.preview.urlBar': 'I-preview ang URL',
+  'ide.preview.secure': 'Ligtas (HTTPS)',
+  'ide.preview.address': 'Address ng preview',
   'ide.preview.updating': 'Ina-update',
   'ide.preview.frozen':
     'Huminto sa pagtugon ang app na ito — isang infinite loop o runaway render ang nagpatigil sa preview. Hindi maaapektuhan ang IDE.',

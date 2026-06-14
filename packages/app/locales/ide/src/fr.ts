@@ -216,6 +216,8 @@ export const fr: Partial<IdeTranslations> = {
   'ide.preview.back': 'Retour',
   'ide.preview.forward': 'Suivant',
   'ide.preview.urlBar': "URL de l'aperçu",
+  'ide.preview.secure': 'Sécurisé (HTTPS)',
+  'ide.preview.address': "Adresse de l'aperçu",
   'ide.preview.updating': 'Mise à jour',
   'ide.preview.frozen':
     "Cette application a cessé de répondre : une boucle infinie ou un rendu incontrôlable a bloqué l'aperçu. L'IDE n'est pas affecté.",

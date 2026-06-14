@@ -218,6 +218,8 @@ export const it: Partial<IdeTranslations> = {
   'ide.preview.back': 'Indietro',
   'ide.preview.forward': 'Avanti',
   'ide.preview.urlBar': "URL dell'anteprima",
+  'ide.preview.secure': 'Sicuro (HTTPS)',
+  'ide.preview.address': 'Indirizzo anteprima',
   'ide.preview.updating': 'Aggiornamento',
   'ide.preview.frozen':
     "L'app ha smesso di rispondere: un ciclo infinito o un rendering fuori controllo ha bloccato l'anteprima. L'IDE non è interessato dal problema.",

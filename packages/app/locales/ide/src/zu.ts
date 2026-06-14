@@ -216,6 +216,8 @@ export const zu: Partial<IdeTranslations> = {
   'ide.preview.back': 'Emuva',
   'ide.preview.forward': 'Phambili',
   'ide.preview.urlBar': 'I-URL Yokubuka Kuqala',
+  'ide.preview.secure': 'Kuphephile (HTTPS)',
+  'ide.preview.address': 'Ikheli lokuhlola kuqala',
   'ide.preview.updating': 'Iyabuyekeza',
   'ide.preview.frozen':
     'Lolu hlelo lokusebenza luyeke ukuphendula — i-loop engapheli noma i-runaway render imise ukubuka kuqala. I-IDE ayithinteki.',

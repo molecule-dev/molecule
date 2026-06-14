@@ -211,6 +211,8 @@ export const kk: Partial<IdeTranslations> = {
   'ide.preview.back': 'Артқа',
   'ide.preview.forward': 'Алға',
   'ide.preview.urlBar': 'Алдын ала қарау URL мекенжайы',
+  'ide.preview.secure': 'Қауіпсіз (HTTPS)',
+  'ide.preview.address': 'Алдын ала қарау мекенжайы',
   'ide.preview.updating': 'Жаңартылуда',
   'ide.preview.frozen':
     'Бұл қолданба жауап беруді тоқтатты — шексіз цикл немесе рендерингтің бұзылуы алдын ала қарауды тоқтатты. IDE әсер етпейді.',

@@ -208,6 +208,8 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.preview.back': '返回',
   'ide.preview.forward': '前言',
   'ide.preview.urlBar': '預覽網址',
+  'ide.preview.secure': '安全連線 (HTTPS)',
+  'ide.preview.address': '預覽網址',
   'ide.preview.updating': '更新中',
   'ide.preview.frozen':
     '此應用程式已停止回應——可能是無限迴圈或渲染失控導致預覽畫面凍結。此情況不會影響 IDE。',

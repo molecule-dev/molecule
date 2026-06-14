@@ -209,6 +209,8 @@ export const cs: Partial<IdeTranslations> = {
   'ide.preview.back': 'Zpět',
   'ide.preview.forward': 'Dále',
   'ide.preview.urlBar': 'Adresa URL náhledu',
+  'ide.preview.secure': 'Zabezpečeno (HTTPS)',
+  'ide.preview.address': 'Adresa náhledu',
   'ide.preview.updating': 'Aktualizace',
   'ide.preview.frozen':
     'Tato aplikace přestala reagovat – náhled zamrzl kvůli nekonečné smyčce nebo nekontrolovanému vykreslování. IDE tím není ovlivněno.',

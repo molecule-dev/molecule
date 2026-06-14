@@ -211,6 +211,8 @@ export const ar: Partial<IdeTranslations> = {
   'ide.preview.back': 'العودة',
   'ide.preview.forward': 'إلى الأمام',
   'ide.preview.urlBar': 'رابط المعاينة',
+  'ide.preview.secure': 'آمن (HTTPS)',
+  'ide.preview.address': 'عنوان المعاينة',
   'ide.preview.updating': 'التحديث',
   'ide.preview.frozen':
     'توقف هذا التطبيق عن الاستجابة — تسبب حلقة لا نهائية أو عملية عرض خارجة عن السيطرة في تجميد المعاينة. ولم يتأثر بيئة تطوير التطبيقات (IDE) بذلك.',

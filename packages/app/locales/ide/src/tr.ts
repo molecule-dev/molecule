@@ -210,6 +210,8 @@ export const tr: Partial<IdeTranslations> = {
   'ide.preview.back': 'Geri',
   'ide.preview.forward': 'İleri',
   'ide.preview.urlBar': "Önizleme URL'si",
+  'ide.preview.secure': 'Güvenli (HTTPS)',
+  'ide.preview.address': 'Önizleme adresi',
   'ide.preview.updating': 'Güncelleme',
   'ide.preview.frozen':
     'Bu uygulama yanıt vermiyor — sonsuz bir döngü ya da kontrolsüz bir render işlemi önizlemeyi dondurdu. IDE bundan etkilenmedi.',

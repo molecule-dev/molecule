@@ -213,6 +213,8 @@ export const pl: Partial<IdeTranslations> = {
   'ide.preview.back': 'Powrót',
   'ide.preview.forward': 'Dalej',
   'ide.preview.urlBar': 'Adres URL podglądu',
+  'ide.preview.secure': 'Bezpieczne (HTTPS)',
+  'ide.preview.address': 'Adres podglądu',
   'ide.preview.updating': 'Aktualizacja',
   'ide.preview.frozen':
     'Ta aplikacja przestała odpowiadać — pętla nieskończona lub niekontrolowane renderowanie spowodowały zawieszenie podglądu. Nie ma to wpływu na środowisko IDE.',

@@ -212,6 +212,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.preview.back': 'Tagasi',
   'ide.preview.forward': 'Edasi',
   'ide.preview.urlBar': 'Eelvaate URL',
+  'ide.preview.secure': 'Turvaline (HTTPS)',
+  'ide.preview.address': 'Eelvaate aadress',
   'ide.preview.updating': 'Ajakohastamine',
   'ide.preview.frozen':
     'Rakendus ei vasta enam – eelvaade on hangunud lõputu tsükli või kontrolli alt väljunud renderdamise tõttu. See ei mõjuta IDE-d.',

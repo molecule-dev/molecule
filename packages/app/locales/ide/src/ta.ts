@@ -214,6 +214,8 @@ export const ta: Partial<IdeTranslations> = {
   'ide.preview.back': 'திரும்பி',
   'ide.preview.forward': 'முன்னோக்கி',
   'ide.preview.urlBar': 'முன்னோட்ட URL',
+  'ide.preview.secure': 'பாதுகாப்பானது (HTTPS)',
+  'ide.preview.address': 'முன்னோட்ட முகவரி',
   'ide.preview.updating': 'புதுப்பித்தல்',
   'ide.preview.frozen':
     'இந்தச் செயலி பதிலளிப்பதை நிறுத்திவிட்டது — ஒரு முடிவற்ற சுழற்சி அல்லது கட்டுப்பாடற்ற ரெண்டரிங் முன்னோட்டத்தை முடக்கிவிட்டது. IDE பாதிக்கப்படவில்லை.',

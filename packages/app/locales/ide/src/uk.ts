@@ -213,6 +213,8 @@ export const uk: Partial<IdeTranslations> = {
   'ide.preview.back': 'Назад',
   'ide.preview.forward': 'Вперед',
   'ide.preview.urlBar': 'Попередній перегляд URL-адреси',
+  'ide.preview.secure': 'Захищено (HTTPS)',
+  'ide.preview.address': 'Адреса попереднього перегляду',
   'ide.preview.updating': 'Оновлення',
   'ide.preview.frozen':
     'Ця програма перестала відповідати — попередній перегляд завис через нескінченний цикл або неконтрольований процес рендерингу. Це не вплинуло на роботу IDE.',

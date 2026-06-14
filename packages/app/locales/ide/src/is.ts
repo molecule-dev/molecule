@@ -210,6 +210,8 @@ export const is: Partial<IdeTranslations> = {
   'ide.preview.back': 'Til baka',
   'ide.preview.forward': 'Áfram',
   'ide.preview.urlBar': 'Forskoðunarvefslóð',
+  'ide.preview.secure': 'Öruggt (HTTPS)',
+  'ide.preview.address': 'Forskoðunarslóð',
   'ide.preview.updating': 'Uppfærsla',
   'ide.preview.frozen':
     'Þetta forrit hætti að svara — óendanleg lykkja eða óútreiknanlegur flutningur frysti forskoðunina. IDE-ið er óbreytt.',

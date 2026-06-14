@@ -215,6 +215,8 @@ export const sq: Partial<IdeTranslations> = {
   'ide.preview.back': 'Mbrapa',
   'ide.preview.forward': 'Përpara',
   'ide.preview.urlBar': 'URL-ja paraprake',
+  'ide.preview.secure': 'I sigurt (HTTPS)',
+  'ide.preview.address': 'Adresa e pamjes paraprake',
   'ide.preview.updating': 'Duke u përditësuar',
   'ide.preview.frozen':
     'Ky aplikacion ndaloi së përgjigjuri — një cikël i pafund ose një renderim i pakontrolluar e ngriu pamjen paraprake. IDE-ja nuk ndikohet.',

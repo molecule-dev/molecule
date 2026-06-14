@@ -214,6 +214,8 @@ export const gl: Partial<IdeTranslations> = {
   'ide.preview.back': 'Volver',
   'ide.preview.forward': 'Adiante',
   'ide.preview.urlBar': 'URL de vista previa',
+  'ide.preview.secure': 'Seguro (HTTPS)',
+  'ide.preview.address': 'Enderezo de vista previa',
   'ide.preview.updating': 'Actualizando',
   'ide.preview.frozen':
     'Esta aplicación deixou de responder: un bucle infinito ou unha renderización descontrolada conxelou a vista previa. O IDE non se viu afectado.',

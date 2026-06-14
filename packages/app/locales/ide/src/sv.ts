@@ -210,6 +210,8 @@ export const sv: Partial<IdeTranslations> = {
   'ide.preview.back': 'Tillbaka',
   'ide.preview.forward': 'Framåt',
   'ide.preview.urlBar': 'Förhandsgransknings-URL',
+  'ide.preview.secure': 'Säker (HTTPS)',
+  'ide.preview.address': 'Förhandsgranskningsadress',
   'ide.preview.updating': 'Uppdatering',
   'ide.preview.frozen':
     'Den här appen svarar inte längre – en oändlig loop eller en okontrollerad rendering har fått förhandsvisningen att hänga sig. IDE:n påverkas inte.',

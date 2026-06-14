@@ -212,6 +212,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.preview.back': 'Späť',
   'ide.preview.forward': 'Ďalej',
   'ide.preview.urlBar': 'URL náhľadu',
+  'ide.preview.secure': 'Zabezpečené (HTTPS)',
+  'ide.preview.address': 'Adresa náhľadu',
   'ide.preview.updating': 'Aktualizácia',
   'ide.preview.frozen':
     'Táto aplikácia prestala reagovať – nekonečná slučka alebo nekontrolovateľné vykresľovanie spôsobili zamrznutie náhľadu. IDE to neovplyvnilo.',

@@ -209,6 +209,8 @@ export const he: Partial<IdeTranslations> = {
   'ide.preview.back': 'בְּחֲזָרָה',
   'ide.preview.forward': 'קָדִימָה',
   'ide.preview.urlBar': 'כתובת URL לתצוגה מקדימה',
+  'ide.preview.secure': 'מאובטח (HTTPS)',
+  'ide.preview.address': 'כתובת התצוגה המקדימה',
   'ide.preview.updating': 'עִדכּוּן',
   'ide.preview.frozen':
     'אפליקציה זו הפסיקה להגיב - לולאה אינסופית או רינדור רדום קפאו את התצוגה המקדימה. ה-IDE לא הושפע.',

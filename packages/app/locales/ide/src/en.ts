@@ -210,6 +210,9 @@ export const en: IdeTranslations = {
   'ide.preview.back': 'Back',
   'ide.preview.forward': 'Forward',
   'ide.preview.urlBar': 'Preview URL',
+  // PV5 — site-info glyph tooltip (lock for https, globe otherwise).
+  'ide.preview.secure': 'Secure (HTTPS)',
+  'ide.preview.address': 'Preview address',
   'ide.preview.updating': 'Updating',
   'ide.preview.frozen':
     'This app stopped responding — an infinite loop or runaway render froze the preview. The IDE is unaffected.',

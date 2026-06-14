@@ -211,6 +211,8 @@ export const bn: Partial<IdeTranslations> = {
   'ide.preview.back': 'ফিরে যান',
   'ide.preview.forward': 'ফরোয়ার্ড',
   'ide.preview.urlBar': 'প্রিভিউ ইউআরএল',
+  'ide.preview.secure': 'নিরাপদ (HTTPS)',
+  'ide.preview.address': 'প্রিভিউ ঠিকানা',
   'ide.preview.updating': 'আপডেট করা হচ্ছে',
   'ide.preview.frozen':
     'এই অ্যাপটি সাড়া দেওয়া বন্ধ করে দিয়েছে — একটি অনন্ত লুপ বা অনিয়ন্ত্রিত রেন্ডারের কারণে প্রিভিউটি আটকে গেছে। IDE-টি প্রভাবিত হয়নি।',

@@ -212,6 +212,8 @@ export const pt: Partial<IdeTranslations> = {
   'ide.preview.back': 'Voltar',
   'ide.preview.forward': 'Avançar',
   'ide.preview.urlBar': 'URL da pré-visualização',
+  'ide.preview.secure': 'Seguro (HTTPS)',
+  'ide.preview.address': 'Endereço da pré-visualização',
   'ide.preview.updating': 'Atualizando',
   'ide.preview.frozen':
     'Este aplicativo parou de responder — um loop infinito ou uma renderização descontrolada congelou a visualização. O IDE não foi afetado.',

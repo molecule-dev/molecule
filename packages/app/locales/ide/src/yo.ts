@@ -247,6 +247,8 @@ export const yo: Partial<IdeTranslations> = {
   'ide.preview.back': 'Pada',
   'ide.preview.forward': 'Iwaju',
   'ide.preview.urlBar': 'Ṣàyẹ̀wò URL',
+  'ide.preview.secure': 'Ààbò (HTTPS)',
+  'ide.preview.address': 'Àdírẹ́sì àyẹ̀wò',
   'ide.preview.updating': 'Àtúnṣe',
   'ide.preview.frozen':
     'Àpù yìí kò dáhùn mọ́ — ìyípo àìlópin tàbí ìṣàn àtúnṣe tó sá lọ mú kí àwòkọ́ náà di ohun tó ń wò. Kò ní ipa kankan lórí IDE náà.',

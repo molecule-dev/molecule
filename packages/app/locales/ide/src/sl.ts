@@ -212,6 +212,8 @@ export const sl: Partial<IdeTranslations> = {
   'ide.preview.back': 'Nazaj',
   'ide.preview.forward': 'Naprej',
   'ide.preview.urlBar': 'URL predogleda',
+  'ide.preview.secure': 'Varno (HTTPS)',
+  'ide.preview.address': 'Naslov predogleda',
   'ide.preview.updating': 'Posodabljanje',
   'ide.preview.frozen':
     'Ta aplikacija se je prenehala odzivati – predogled se je zamrznil zaradi neskončne zanke ali nezaželenega renderiranja. To ni vplivalo na IDE.',

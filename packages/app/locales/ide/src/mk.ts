@@ -212,6 +212,8 @@ export const mk: Partial<IdeTranslations> = {
   'ide.preview.back': 'Назад',
   'ide.preview.forward': 'Напред',
   'ide.preview.urlBar': 'Преглед на URL-адреса',
+  'ide.preview.secure': 'Безбедно (HTTPS)',
+  'ide.preview.address': 'Адреса за преглед',
   'ide.preview.updating': 'Ажурирање',
   'ide.preview.frozen':
     'Оваа апликација престана да реагира — бесконечна јамка или ненадејно рендерирање го замрзнаа прегледот. IDE не е засегнато.',

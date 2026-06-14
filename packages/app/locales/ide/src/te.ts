@@ -211,6 +211,8 @@ export const te: Partial<IdeTranslations> = {
   'ide.preview.back': 'వెనుక',
   'ide.preview.forward': 'ముందుకు',
   'ide.preview.urlBar': 'ప్రివ్యూ URL',
+  'ide.preview.secure': 'సురక్షితం (HTTPS)',
+  'ide.preview.address': 'మునుజూపు చిరునామా',
   'ide.preview.updating': 'నవీకరిస్తోంది',
   'ide.preview.frozen':
     'ఈ యాప్ స్పందించడం ఆగిపోయింది — అనంతమైన లూప్ లేదా అనియంత్రిత రెండర్ కారణంగా ప్రివ్యూ స్తంభించిపోయింది. IDEకి ఎలాంటి ప్రభావం లేదు.',

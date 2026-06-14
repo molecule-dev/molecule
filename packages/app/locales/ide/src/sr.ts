@@ -211,6 +211,8 @@ export const sr: Partial<IdeTranslations> = {
   'ide.preview.back': 'Назад',
   'ide.preview.forward': 'Напред',
   'ide.preview.urlBar': 'Преглед URL-а',
+  'ide.preview.secure': 'Безбедно (HTTPS)',
+  'ide.preview.address': 'Адреса прегледа',
   'ide.preview.updating': 'Ажурирање',
   'ide.preview.frozen':
     'Ова апликација је престала да реагује — бесконачна петља или неконтролисано рендеровање је замрзнуло преглед. IDE није погођен.',

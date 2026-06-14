@@ -210,6 +210,8 @@ export const ne: Partial<IdeTranslations> = {
   'ide.preview.back': 'पछाडि',
   'ide.preview.forward': 'अगाडि',
   'ide.preview.urlBar': 'पूर्वावलोकन URL',
+  'ide.preview.secure': 'सुरक्षित (HTTPS)',
+  'ide.preview.address': 'पूर्वावलोकन ठेगाना',
   'ide.preview.updating': 'अद्यावधिक गर्दै',
   'ide.preview.frozen':
     'यो एपले प्रतिक्रिया दिन छोड्यो — अनन्त लूप वा रनअवे रेन्डरले पूर्वावलोकनलाई स्थिर बनायो। IDE अप्रभावित छ।',
