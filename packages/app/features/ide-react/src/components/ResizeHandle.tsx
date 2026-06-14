@@ -4,15 +4,36 @@
  * @module
  */
 
-import type { JSX } from 'react'
-import { useCallback, useRef } from 'react'
+import type {
+  JSX,
+  KeyboardEvent as ReactKeyboardEvent,
+  PointerEvent as ReactPointerEvent,
+} from 'react'
+import { useCallback, useRef, useState } from 'react'
 
+import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ResizeHandleProps } from '../types.js'
 
 /**
- * Draggable handle for resizing adjacent panels.
+ * Width (px) of the invisible grab zone — far wider than the visible line so it
+ * is a comfortable target for both a mouse and a finger (WCAG 2.5.5).
+ */
+const GRAB_PX = 11
+/** Visible line thickness (px) at rest. */
+const LINE_PX = 1
+/** Visible line thickness (px) while hovered or actively dragging. */
+const LINE_ACTIVE_PX = 3
+/** Pixels moved per arrow-key press for keyboard resize. */
+const KEYBOARD_STEP_PX = 24
+
+/**
+ * Draggable handle for resizing adjacent panels. Uses Pointer Events so it works
+ * with mouse, touch, and pen (an iPad drag resizes just like a desktop drag); a
+ * wide invisible grab zone wraps a thin visible line that brightens to the
+ * primary color on hover/drag for a clear affordance. Arrow keys nudge the split
+ * for keyboard users.
  * @param root0 - The component props.
  * @param root0.onResize - Callback invoked with the pixel delta on drag.
  * @param root0.direction - The resize direction, horizontal or vertical.
@@ -26,57 +47,110 @@ export function ResizeHandle({
 }: ResizeHandleProps): JSX.Element {
   const cm = getClassMap()
   const startRef = useRef<number>(0)
-  const activeRef = useRef(false)
-
-  const onMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault()
-      activeRef.current = true
-      startRef.current = direction === 'horizontal' ? e.clientX : e.clientY
-
-      const onMouseMove = (moveEvent: MouseEvent): void => {
-        if (!activeRef.current) return
-        const current = direction === 'horizontal' ? moveEvent.clientX : moveEvent.clientY
-        const delta = current - startRef.current
-        startRef.current = current
-        onResize(delta)
-      }
-
-      const onMouseUp = (): void => {
-        activeRef.current = false
-        document.removeEventListener('mousemove', onMouseMove)
-        document.removeEventListener('mouseup', onMouseUp)
-        document.body.style.cursor = ''
-        document.body.style.userSelect = ''
-      }
-
-      document.body.style.cursor = direction === 'horizontal' ? 'col-resize' : 'row-resize'
-      document.body.style.userSelect = 'none'
-      document.addEventListener('mousemove', onMouseMove)
-      document.addEventListener('mouseup', onMouseUp)
-    },
-    [onResize, direction],
-  )
+  const draggingRef = useRef(false)
+  const [dragging, setDragging] = useState(false)
+  const [hovered, setHovered] = useState(false)
 
   const isHorizontal = direction === 'horizontal'
 
+  const onPointerDown = useCallback(
+    (e: ReactPointerEvent<HTMLDivElement>) => {
+      e.preventDefault()
+      draggingRef.current = true
+      setDragging(true)
+      startRef.current = isHorizontal ? e.clientX : e.clientY
+      // Capture the pointer so move/up keep firing on THIS element even when the
+      // cursor leaves it mid-drag — the touch-safe replacement for global
+      // document mousemove/mouseup listeners.
+      e.currentTarget.setPointerCapture(e.pointerId)
+      document.body.style.cursor = isHorizontal ? 'col-resize' : 'row-resize'
+      document.body.style.userSelect = 'none'
+    },
+    [isHorizontal],
+  )
+
+  const onPointerMove = useCallback(
+    (e: ReactPointerEvent<HTMLDivElement>) => {
+      if (!draggingRef.current) return
+      const current = isHorizontal ? e.clientX : e.clientY
+      const delta = current - startRef.current
+      if (delta === 0) return
+      startRef.current = current
+      onResize(delta)
+    },
+    [isHorizontal, onResize],
+  )
+
+  const endDrag = useCallback((e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!draggingRef.current) return
+    draggingRef.current = false
+    setDragging(false)
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    }
+    document.body.style.cursor = ''
+    document.body.style.userSelect = ''
+  }, [])
+
+  const onKeyDown = useCallback(
+    (e: ReactKeyboardEvent<HTMLDivElement>) => {
+      const decreaseKey = isHorizontal ? 'ArrowLeft' : 'ArrowUp'
+      const increaseKey = isHorizontal ? 'ArrowRight' : 'ArrowDown'
+      if (e.key === decreaseKey) {
+        e.preventDefault()
+        onResize(-KEYBOARD_STEP_PX)
+      } else if (e.key === increaseKey) {
+        e.preventDefault()
+        onResize(KEYBOARD_STEP_PX)
+      }
+    },
+    [isHorizontal, onResize],
+  )
+
+  const highlighted = dragging || hovered
+  const lineThickness = highlighted ? LINE_ACTIVE_PX : LINE_PX
+
   return (
     <div
+      data-mol-id="workspace-resize-handle"
+      role="separator"
+      aria-orientation={isHorizontal ? 'vertical' : 'horizontal'}
+      aria-label={t('ide.resizeHandle.label', undefined, { defaultValue: 'Resize panels' })}
+      tabIndex={0}
       className={cm.cn(
         cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
-        isHorizontal ? cm.w(1) : cm.h(1),
         cm.shrink0,
-        cm.bgBorder,
         className,
       )}
       style={{
         cursor: isHorizontal ? 'col-resize' : 'row-resize',
-        transition: 'background-color 150ms',
+        // Stop the browser claiming the gesture for scroll/zoom on touch devices.
+        touchAction: 'none',
+        width: isHorizontal ? GRAB_PX : '100%',
+        height: isHorizontal ? '100%' : GRAB_PX,
       }}
-      onMouseDown={onMouseDown}
-      role="separator"
-      aria-orientation={isHorizontal ? 'vertical' : 'horizontal'}
-    />
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+      onKeyDown={onKeyDown}
+    >
+      {/* Thin visible line, centered in the grab zone. Background comes from a
+          ClassMap token (not inline) so the theme controls the color and the
+          hover/active state swaps token rather than fighting CSS specificity. */}
+      <div
+        aria-hidden="true"
+        className={cm.cn(highlighted ? cm.bgPrimary : cm.bgBorder)}
+        style={{
+          width: isHorizontal ? lineThickness : '100%',
+          height: isHorizontal ? '100%' : lineThickness,
+          borderRadius: 9999,
+          transition: 'background-color 150ms ease, width 150ms ease, height 150ms ease',
+        }}
+      />
+    </div>
   )
 }
 

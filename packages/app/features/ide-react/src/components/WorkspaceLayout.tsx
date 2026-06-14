@@ -30,8 +30,12 @@ export function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): 
   // Collect children into an array
   const panels = Children.toArray(children).filter(isValidElement)
 
-  // Map panel positions from layout
-  const panelConfigs = layout.panels.filter((p) => p.visible !== false)
+  // Reconcile the panel configs to the children actually rendered. The default
+  // layout declares 3 panels (chat/editor/preview), but a host commonly renders
+  // only 2 (chat + a combined main pane). Feeding 2 children against 3 configs
+  // made the divider start at the wrong split and lag the cursor, so take
+  // exactly one config per rendered child (in order).
+  const panelConfigs = layout.panels.filter((p) => p.visible !== false).slice(0, panels.length)
 
   const handleResize = useCallback(
     (index: number, delta: number) => {
@@ -54,29 +58,38 @@ export function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): 
         minHeight: 0,
       }}
     >
-      {panels.map((panel, i) => (
-        <Fragment key={i}>
-          <div
-            className={cm.flex({ direction: 'col' })}
-            style={{
-              flexBasis: `${livePanelSize(layout, panelConfigs, i)}%`,
-              flexShrink: 1,
-              flexGrow: 1,
-              minWidth: 0,
-              overflow: 'hidden',
-              position: 'relative',
-            }}
-          >
-            {panel}
-          </div>
-          {/* Draggable vertical divider between this panel and the next. As a
-              direct flex-row sibling it spans the full height (a real vertical
-              divider) instead of being clipped inside a panel's column. */}
-          {i < panels.length - 1 && (
-            <ResizeHandle direction="horizontal" onResize={(delta) => handleResize(i, delta)} />
-          )}
-        </Fragment>
-      ))}
+      {panels.map((panel, i) => {
+        // Only the trailing pane flex-grows; every leading pane honors its
+        // flex-basis EXACTLY (no grow/shrink). This is what makes the drag
+        // 1:1 with the cursor — a leading pane's pixel width equals its basis,
+        // so dragging its divider moves the edge by the same amount the pointer
+        // moved (the old "every pane grows" diluted the change → 2× lag). The
+        // last pane absorbs whatever space is left over.
+        const isTrailing = i === panels.length - 1
+        return (
+          <Fragment key={i}>
+            <div
+              className={cm.flex({ direction: 'col' })}
+              style={{
+                flexBasis: `${livePanelSize(layout, panelConfigs, i)}%`,
+                flexShrink: isTrailing ? 1 : 0,
+                flexGrow: isTrailing ? 1 : 0,
+                minWidth: 0,
+                overflow: 'hidden',
+                position: 'relative',
+              }}
+            >
+              {panel}
+            </div>
+            {/* Draggable vertical divider between this panel and the next. As a
+                direct flex-row sibling it spans the full height (a real vertical
+                divider) instead of being clipped inside a panel's column. */}
+            {i < panels.length - 1 && (
+              <ResizeHandle direction="horizontal" onResize={(delta) => handleResize(i, delta)} />
+            )}
+          </Fragment>
+        )
+      })}
     </div>
   )
 }
