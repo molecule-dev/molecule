@@ -25,6 +25,7 @@ import { type JSX, useCallback, useEffect, useRef, useState } from 'react'
 import { t } from '@molecule/app-i18n'
 import { usePreview } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
 import type { PreviewPanelProps } from '../types.js'
 import { DeviceFrameSelector } from './DeviceFrameSelector.js'
@@ -825,9 +826,17 @@ PreviewPanel.displayName = 'PreviewPanel'
 
 /**
  * A single icon button inside the preview URL bar. Renders a ghost button with
- * an icon-set glyph and a tooltip; `disabled` buttons (e.g. Back/Forward when
- * there's no history entry to go to) are dimmed and non-interactive via the
- * ClassMap button's built-in disabled styling.
+ * an icon-set glyph wrapped in the framework's REAL styled {@link Tooltip} —
+ * instant, themed via ClassMap tokens, and focus-aware — NOT the delayed,
+ * unstyled, touch-blind native `title` attribute it replaces. `disabled` buttons
+ * (e.g. Back/Forward when there's no history entry to go to) are dimmed and
+ * non-interactive via the ClassMap button's built-in disabled styling.
+ *
+ * The Tooltip is imported via its dedicated subpath
+ * (`@molecule/app-ui-react/components/Tooltip.js`) so the IDE pulls only the
+ * Tooltip, never the package barrel (which would drag in `react-router-dom`).
+ * This BarButton is the reference pattern other IDE affordances should follow
+ * when replacing native `title` tooltips.
  *
  * The compact `xs` size is ~26px tall — fine for a mouse but below the WCAG
  * 2.5.5 minimum tap target. `cm.touchTarget` grows the hit-area to >=44x44px on
@@ -856,17 +865,18 @@ function BarButton({
 }): JSX.Element {
   const cm = getClassMap()
   return (
-    <button
-      type="button"
-      data-mol-id={molId}
-      aria-label={title}
-      title={title}
-      onClick={onClick}
-      disabled={disabled}
-      className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
-    >
-      <Icon name={icon} size={16} aria-hidden="true" />
-    </button>
+    <Tooltip content={title} placement="bottom">
+      <button
+        type="button"
+        data-mol-id={molId}
+        aria-label={title}
+        onClick={onClick}
+        disabled={disabled}
+        className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
+      >
+        <Icon name={icon} size={16} aria-hidden="true" />
+      </button>
+    </Tooltip>
   )
 }
 

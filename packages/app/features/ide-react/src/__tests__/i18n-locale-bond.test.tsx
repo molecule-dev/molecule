@@ -20,7 +20,7 @@
  * @module
  */
 
-import { render } from '@testing-library/react'
+import { cleanup, fireEvent, render } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
@@ -136,7 +136,9 @@ beforeEach(async () => {
 })
 
 afterEach(() => {
-  document.body.innerHTML = ''
+  // Unmount the React tree the proper way so the styled Tooltip's portal nodes
+  // are removed by React (nuking innerHTML races React's portal unmount).
+  cleanup()
 })
 
 describe('IDE-shell i18n resolves through the locale bond (cross-cutting-i18n)', () => {
@@ -154,19 +156,33 @@ describe('IDE-shell i18n resolves through the locale bond (cross-cutting-i18n)',
     }
   })
 
-  it('renders the preview toolbar back/forward titles from the bond, not the English default', () => {
+  it('renders the preview toolbar back/forward tooltips from the bond, not the English default', () => {
     const { container } = render(
       <Wrap>
         <PreviewPanel />
       </Wrap>,
     )
-    const back = container.querySelector('[data-mol-id="preview-back"]')
-    const forward = container.querySelector('[data-mol-id="preview-forward"]')
-    expect(back?.getAttribute('title')).toBe(fr['ide.preview.back'])
-    expect(forward?.getAttribute('title')).toBe(fr['ide.preview.forward'])
+    const back = container.querySelector('[data-mol-id="preview-back"]') as HTMLElement
+    const forward = container.querySelector('[data-mol-id="preview-forward"]') as HTMLElement
+    // The styled Tooltip replaced the native `title`; the bonded text now shows on
+    // hover via the Tooltip's `role="tooltip"` popover (not a `title` attribute).
+    expect(back.hasAttribute('title')).toBe(false)
+    expect(forward.hasAttribute('title')).toBe(false)
+
+    fireEvent.mouseEnter(back.parentElement as HTMLElement)
+    expect(document.body.querySelector('[role="tooltip"]')?.textContent).toBe(
+      fr['ide.preview.back'],
+    )
     // The pre-fix bug: with the key absent, the default English "Back" rendered.
-    expect(back?.getAttribute('title')).not.toBe('Back')
-    expect(forward?.getAttribute('title')).not.toBe('Forward')
+    expect(document.body.querySelector('[role="tooltip"]')?.textContent).not.toBe('Back')
+    fireEvent.mouseLeave(back.parentElement as HTMLElement)
+
+    fireEvent.mouseEnter(forward.parentElement as HTMLElement)
+    expect(document.body.querySelector('[role="tooltip"]')?.textContent).toBe(
+      fr['ide.preview.forward'],
+    )
+    expect(document.body.querySelector('[role="tooltip"]')?.textContent).not.toBe('Forward')
+    fireEvent.mouseLeave(forward.parentElement as HTMLElement)
   })
 
   it('renders the device-cycle tooltip interpolated from the bonded template', () => {
@@ -181,10 +197,14 @@ describe('IDE-shell i18n resolves through the locale bond (cross-cutting-i18n)',
         <DeviceFrameSelector current={current} onChange={() => {}} />
       </Wrap>,
     )
-    const button = container.querySelector('[data-mol-id="preview-device-cycle"]')
-    expect(button?.getAttribute('title')).toBe(expected)
+    const button = container.querySelector('[data-mol-id="preview-device-cycle"]') as HTMLElement
+    // Bonded interpolated text shows through the styled Tooltip, not a `title` attr.
+    expect(button.hasAttribute('title')).toBe(false)
+    fireEvent.mouseEnter(button.parentElement as HTMLElement)
+    const tooltip = document.body.querySelector('[role="tooltip"]')
+    expect(tooltip?.textContent).toBe(expected)
     // The English default template would have produced "… — click for …".
-    expect(button?.getAttribute('title')).not.toContain('click for')
+    expect(tooltip?.textContent).not.toContain('click for')
   })
 })
 

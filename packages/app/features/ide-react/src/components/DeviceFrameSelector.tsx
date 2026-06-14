@@ -7,6 +7,13 @@
  * a click will switch to. Icons come from the bonded `@molecule/app-icons` set
  * (no unicode glyphs, no ad-hoc SVG paths).
  *
+ * The tooltip is the framework's REAL styled {@link Tooltip} (instant, themed via
+ * ClassMap tokens, focus-aware, touch-friendly) — NOT the delayed, unstyled,
+ * touch-blind native `title` attribute. It is imported via the dedicated subpath
+ * (`@molecule/app-ui-react/components/Tooltip.js`) so the IDE pulls only the
+ * Tooltip, never the package barrel (which would drag in `react-router-dom`).
+ * This is the reference pattern every other IDE affordance should follow.
+ *
  * The button carries `cm.touchTarget`, so its compact `xs` desktop size grows to
  * a WCAG-compliant >=44x44px hit-area on touch (coarse-pointer) devices.
  *
@@ -17,6 +24,7 @@ import type { JSX } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
+import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
 import type { DeviceFrameSelectorProps } from '../types.js'
 import { DEVICE_META, deviceIconName, nextDevice } from './device-cycle.js'
@@ -52,16 +60,17 @@ export function DeviceFrameSelector({
   )
 
   return (
-    <button
-      type="button"
-      data-mol-id="preview-device-cycle"
-      aria-label={title}
-      title={title}
-      onClick={() => onChange(next)}
-      className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget, className)}
-    >
-      <Icon name={deviceIconName(current)} size={16} aria-hidden="true" />
-    </button>
+    <Tooltip content={title} placement="bottom">
+      <button
+        type="button"
+        data-mol-id="preview-device-cycle"
+        aria-label={title}
+        onClick={() => onChange(next)}
+        className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget, className)}
+      >
+        <Icon name={deviceIconName(current)} size={16} aria-hidden="true" />
+      </button>
+    </Tooltip>
   )
 }
 
