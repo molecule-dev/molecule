@@ -1,10 +1,18 @@
 /**
- * `/help` text generation.
+ * `/help` content model + plain-text generation.
  *
- * The help body is built from the {@link COMMANDS} registry rather than a
- * hand-maintained string, so a newly-added command can never be missing from
- * `/help`. It enumerates every command grouped by category, explains the three
- * conversation modes (discovery / plan / execute), and lists efficiency tips.
+ * The help content is built from the {@link COMMANDS} registry and the
+ * structured {@link HELP_MODES} / {@link HELP_TIPS} constants below — never a
+ * hand-maintained string — so a newly-added command can never be missing from
+ * `/help`, and the rich {@link module:./HelpCard | HelpCard} and this plain-text
+ * fallback can never drift (both read the SAME constants). It enumerates every
+ * command grouped by category, explains the three conversation modes (discovery
+ * / plan / execute), and lists efficiency tips.
+ *
+ * `buildHelpText` is the i18n plain-text fallback (used as the system card's
+ * copy/screen-reader text and in any non-React consumer); `HelpCard` renders the
+ * same model as an interactive card matching the `/models` / `/settings` /
+ * `/skills` cards.
  *
  * All prose is i18n-ready via `t(key, values, { defaultValue })`.
  *
@@ -18,9 +26,124 @@ import type { CommandCategory, CommandDef } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 
 /**
+ * The `/help` intro paragraph (i18n key + English default). Shared by the
+ * plain-text {@link buildHelpText} fallback and the rich `HelpCard`. May
+ * interpolate the `{{agentName}}` / `{{productName}}` tokens.
+ */
+export const HELP_INTRO = {
+  /** i18n key for the intro paragraph. */
+  key: 'ide.chat.help.intro',
+  /** English default for {@link HELP_INTRO.key}. */
+  defaultValue:
+    "{{agentName}} is {{productName}}'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.",
+} as const
+
+/** A conversation mode shown in `/help`, with its icon-set glyph and i18n copy. */
+export interface HelpMode {
+  /** Mode id (also the `data-mol-id` suffix in the card). */
+  id: 'discovery' | 'plan' | 'execute'
+  /**
+   * Icon-set glyph name rendered beside the mode in the rich `HelpCard`
+   * (ignored by the plain-text {@link buildHelpText} fallback).
+   */
+  icon: string
+  /** i18n key for the one-line mode description (may interpolate `{{agentName}}`). */
+  key: string
+  /** English default for {@link HelpMode.key}. */
+  defaultValue: string
+}
+
+/**
+ * The three conversation modes, in the order shown in `/help`. The single
+ * source of truth for both the plain-text fallback and the `HelpCard`.
+ */
+export const HELP_MODES: readonly HelpMode[] = [
+  {
+    id: 'discovery',
+    icon: 'question',
+    key: 'ide.chat.help.modeDiscovery',
+    defaultValue:
+      'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
+  },
+  {
+    id: 'plan',
+    icon: 'search',
+    key: 'ide.chat.help.modePlan',
+    defaultValue:
+      'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
+  },
+  {
+    id: 'execute',
+    icon: 'pencil',
+    key: 'ide.chat.help.modeExecute',
+    defaultValue:
+      'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
+  },
+] as const
+
+/** An efficiency tip shown in `/help`. */
+export interface HelpTip {
+  /** Tip id (also the `data-mol-id` suffix in the card). */
+  id: string
+  /** i18n key for the tip (may interpolate `{{agentName}}`). */
+  key: string
+  /**
+   * English default for {@link HelpTip.key}, INCLUDING the leading `•` bullet so
+   * it matches the values shipped in the companion locale bonds (and so the
+   * plain-text fallback stays byte-identical).
+   */
+  defaultValue: string
+}
+
+/** The efficiency tips, in the order shown in `/help`. */
+export const HELP_TIPS: readonly HelpTip[] = [
+  {
+    id: 'mention',
+    key: 'ide.chat.help.tipMention',
+    defaultValue: '• Type @filename to attach a project file as context (or drag & drop any file).',
+  },
+  {
+    id: 'slash',
+    key: 'ide.chat.help.tipSlash',
+    defaultValue: '• Type / to browse every command above.',
+  },
+  {
+    id: 'plan',
+    key: 'ide.chat.help.tipPlan',
+    defaultValue: '• Use /plan to have {{agentName}} research before making changes.',
+  },
+  {
+    id: 'undo',
+    key: 'ide.chat.help.tipUndo',
+    defaultValue: "• Use /undo to revert the last AI turn's file changes if it goes off track.",
+  },
+  {
+    id: 'compact',
+    key: 'ide.chat.help.tipCompact',
+    defaultValue: '• Use /compact to compress context when the conversation gets long.',
+  },
+  {
+    id: 'specific',
+    key: 'ide.chat.help.tipSpecific',
+    defaultValue:
+      '• Be specific — "Add a login page with email/password and Google OAuth" beats "add auth".',
+  },
+] as const
+
+/** The keyboard-shortcuts footer line shown at the end of `/help`. */
+export const HELP_SHORTCUTS = {
+  /** i18n key for the shortcuts footer. */
+  key: 'ide.chat.help.shortcuts',
+  /** English default for {@link HELP_SHORTCUTS.key}. */
+  defaultValue: 'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
+} as const
+
+/**
  * Builds the `/help` body listing every command grouped by category, the
  * conversation modes, and efficiency tips. Generated from the command registry
- * so it stays in sync automatically.
+ * and the shared {@link HELP_MODES} / {@link HELP_TIPS} constants so it stays in
+ * sync automatically — and never drifts from the rich `HelpCard`, which renders
+ * the same model.
  *
  * @param identity - Agent/product display identity used to interpolate the
  *   `{{agentName}}` / `{{productName}}` tokens in the help copy (defaults to the
@@ -36,18 +159,13 @@ export function buildHelpText(
   categories: readonly CommandCategory[] = COMMAND_CATEGORIES,
 ): string {
   const { agentName, productName } = identity
+  const values = { agentName, productName }
   const lines: string[] = []
 
+  // ── Getting started ──
   lines.push(
     t('ide.chat.help.introHeading', undefined, { defaultValue: '── Getting Started ──' }),
-    t(
-      'ide.chat.help.intro',
-      { agentName, productName },
-      {
-        defaultValue:
-          "{{agentName}} is {{productName}}'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.",
-      },
-    ),
+    t(HELP_INTRO.key, values, { defaultValue: HELP_INTRO.defaultValue }),
     '',
   )
 
@@ -73,67 +191,18 @@ export function buildHelpText(
   }
 
   // ── Modes ──
-  lines.push(
-    t('ide.chat.help.modesHeading', undefined, { defaultValue: '── Modes ──' }),
-    t(
-      'ide.chat.help.modeDiscovery',
-      { agentName },
-      {
-        defaultValue:
-          'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
-      },
-    ),
-    t(
-      'ide.chat.help.modePlan',
-      { agentName },
-      {
-        defaultValue:
-          'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
-      },
-    ),
-    t(
-      'ide.chat.help.modeExecute',
-      { agentName },
-      {
-        defaultValue:
-          'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
-      },
-    ),
-    '',
-  )
+  lines.push(t('ide.chat.help.modesHeading', undefined, { defaultValue: '── Modes ──' }))
+  for (const helpMode of HELP_MODES) {
+    lines.push(t(helpMode.key, values, { defaultValue: helpMode.defaultValue }))
+  }
+  lines.push('')
 
   // ── Efficiency tips ──
-  lines.push(
-    t('ide.chat.help.tipsHeading', undefined, { defaultValue: '── Tips ──' }),
-    t('ide.chat.help.tipMention', undefined, {
-      defaultValue:
-        '• Type @filename to attach a project file as context (or drag & drop any file).',
-    }),
-    t('ide.chat.help.tipSlash', undefined, {
-      defaultValue: '• Type / to browse every command above.',
-    }),
-    t(
-      'ide.chat.help.tipPlan',
-      { agentName },
-      {
-        defaultValue: '• Use /plan to have {{agentName}} research before making changes.',
-      },
-    ),
-    t('ide.chat.help.tipUndo', undefined, {
-      defaultValue: "• Use /undo to revert the last AI turn's file changes if it goes off track.",
-    }),
-    t('ide.chat.help.tipCompact', undefined, {
-      defaultValue: '• Use /compact to compress context when the conversation gets long.',
-    }),
-    t('ide.chat.help.tipSpecific', undefined, {
-      defaultValue:
-        '• Be specific — "Add a login page with email/password and Google OAuth" beats "add auth".',
-    }),
-    '',
-    t('ide.chat.help.shortcuts', undefined, {
-      defaultValue: 'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
-    }),
-  )
+  lines.push(t('ide.chat.help.tipsHeading', undefined, { defaultValue: '── Tips ──' }))
+  for (const tip of HELP_TIPS) {
+    lines.push(t(tip.key, values, { defaultValue: tip.defaultValue }))
+  }
+  lines.push('', t(HELP_SHORTCUTS.key, undefined, { defaultValue: HELP_SHORTCUTS.defaultValue }))
 
   return lines.join('\n')
 }

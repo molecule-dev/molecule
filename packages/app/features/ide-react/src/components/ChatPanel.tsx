@@ -106,6 +106,7 @@ import {
   TIP_IDLE_MS,
   TIP_MIN_MESSAGES,
 } from './chat-tips-utilities.js'
+import { HelpCard } from './HelpCard.js'
 import { Icon } from './Icon.js'
 import { MarkdownContent } from './MarkdownContent.js'
 import { ModelsTable } from './ModelsTable.js'
@@ -188,9 +189,11 @@ interface SystemCard {
    * Optional rich-content variant rendered in place of the plain text:
    * `'models'` → the sortable `/models` comparison table; `'settings'` → the
    * `/settings` view; `'skills'` → the `/skills` browser; `'scripts'` → the
-   * `/scripts` browser. Default (undefined) is plain text.
+   * `/scripts` browser; `'help'` → the interactive `/help` card (real category
+   * hierarchy + clickable command rows). Default (undefined) is plain text. For
+   * `'help'`, `text` still carries the {@link buildHelpText} plain-text fallback.
    */
-  variant?: 'models' | 'settings' | 'skills' | 'scripts'
+  variant?: 'models' | 'settings' | 'skills' | 'scripts' | 'help'
   /** Seed query for the `'skills'`/`'scripts'` variants (from `/skills <query>` or `/scripts <query>`). */
   query?: string
   /**
@@ -3580,17 +3583,12 @@ function ChatInner({
         setInputAndCursorEnd('/autocommit ')
       } else if (id === 'help') {
         setInputValue('')
-        // Generated from the COMMANDS registry so it can never drift — lists every
-        // command grouped by category, the modes, and efficiency tips.
-        const lines = [buildHelpText({ agentName, productName })]
-        // Any plan/upgrade blurb is app-specific (pricing, plan names, model lists),
-        // so the host supplies it via buildHelpUpgradeSection — this shared package
-        // hardcodes none. When unset, /help shows just the command reference.
-        const upgradeSection = buildHelpUpgradeSection?.()
-        if (upgradeSection && upgradeSection.lines.length > 0) {
-          lines.push('', ...upgradeSection.lines)
-        }
-        addSystemCard(lines.join('\n'), upgradeSection?.action ?? undefined)
+        // Render the rich, interactive HelpCard variant (real category hierarchy,
+        // clickable command rows) — see the 'help' variant branch, which reads the
+        // host-supplied upgrade blurb at render time. The plain-text buildHelpText()
+        // is still computed and stored as the card's `text` so it remains the i18n
+        // fallback (and the copy/screen-reader text) if the rich variant is ever off.
+        addSystemCard(buildHelpText({ agentName, productName }), undefined, 'help')
       } else if (id === 'compact') {
         setInputValue('')
         addSystemCard(
@@ -4773,6 +4771,23 @@ function ChatInner({
                     initialQuery={item.card.query ?? ''}
                     isLight={isLight}
                     agentName={agentName}
+                  />
+                )
+              }
+              if (item.card.variant === 'help') {
+                // The plan/upgrade blurb is app-specific (pricing, plan names), so the
+                // host supplies it via buildHelpUpgradeSection — this shared package
+                // hardcodes none. Read at render time (like the settings card's list).
+                const upgradeSection = buildHelpUpgradeSection?.()
+                return (
+                  <HelpCard
+                    key={item.card.id}
+                    onRunCommand={(commandId) => void executeCommand(commandId)}
+                    isLight={isLight}
+                    agentName={agentName}
+                    productName={productName}
+                    upgradeLines={upgradeSection?.lines}
+                    upgradeAction={upgradeSection?.action ?? undefined}
                   />
                 )
               }
