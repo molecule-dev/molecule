@@ -30,8 +30,12 @@ import { OpenFoodFactsRateLimitedError } from './types.js'
 /** Default Open Food Facts API base URL. */
 const DEFAULT_BASE_URL = 'https://world.openfoodfacts.org'
 
-/** Default polite User-Agent string. */
-const DEFAULT_USER_AGENT = 'molecule.dev/1.0 (https://molecule.dev)'
+/**
+ * Default polite, brand-neutral User-Agent string. Open Food Facts asks
+ * callers to identify their own app + a contact, so production deployments
+ * SHOULD override this via `config.userAgent` / `OPEN_FOOD_FACTS_USER_AGENT`.
+ */
+const DEFAULT_USER_AGENT = 'OpenFoodFactsClient/1.0'
 
 /** Default request timeout, in milliseconds. */
 const DEFAULT_TIMEOUT = 10_000

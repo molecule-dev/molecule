@@ -58,7 +58,23 @@ describe('http activity sink', () => {
     expect(JSON.parse(init.body)).toEqual(sampleEvent)
   })
 
-  it('falls back to env vars and the default URL', async () => {
+  it('does not phone home when no activity URL is configured', async () => {
+    // Even with auth env present, an unconfigured sink must have NO destination.
+    process.env.MOLECULE_VAULT_TOKEN = 'mvt_env'
+    process.env.MOLECULE_APP_ID = 'app-env'
+    const fetchMock = vi.fn(() => Promise.resolve(new Response(null, { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const sink = createHttpSink()
+    await expect(sink.record(sampleEvent)).resolves.toBeUndefined()
+
+    // A generic HTTP sink must never assume a baked-in endpoint (e.g.
+    // molecule.dev) when unconfigured — that would be silent exfiltration.
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('reads the endpoint from MOLECULE_VAULT_TOKEN/APP_ID env auth when a URL is set', async () => {
+    process.env.MOLECULE_ACTIVITY_URL = 'https://ingest.example.test/v1/activity'
     process.env.MOLECULE_VAULT_TOKEN = 'mvt_env'
     process.env.MOLECULE_APP_ID = 'app-env'
     const fetchMock = vi.fn(() => Promise.resolve(new Response(null, { status: 200 })))
@@ -68,7 +84,7 @@ describe('http activity sink', () => {
     await sink.record(sampleEvent)
 
     const [url, init] = fetchMock.mock.calls[0]
-    expect(url).toBe('https://api.molecule.dev/v1/activity')
+    expect(url).toBe('https://ingest.example.test/v1/activity')
     expect(init.headers.Authorization).toBe('Bearer mvt_env')
     expect(init.headers['X-Molecule-App-Id']).toBe('app-env')
   })

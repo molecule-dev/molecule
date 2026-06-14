@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-activity-http",
   "version": "1.0.0",
-  "description": "HTTP activity sink for molecule.dev",
+  "description": "Generic HTTP activity sink — POSTs captured activity events to a configured ingest endpoint",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

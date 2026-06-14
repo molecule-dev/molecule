@@ -1,5 +1,5 @@
 /**
- * Secrets management core interface for molecule.dev.
+ * Secrets management core interface.
  *
  * Provides a standardized way to:
  * - Define required secrets for packages

@@ -1,5 +1,5 @@
 /**
- * Open Food Facts nutrition-database provider for molecule.dev.
+ * Open Food Facts nutrition-database provider.
  *
  * Implements the `NutritionDatabaseProvider` interface against the
  * public Open Food Facts API at `https://world.openfoodfacts.org`. The

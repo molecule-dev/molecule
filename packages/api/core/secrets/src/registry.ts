@@ -115,13 +115,15 @@ export const COMMON_SECRETS: Record<string, SecretDefinition> = {
   // JWT
   JWT_PRIVATE_KEY: {
     key: 'JWT_PRIVATE_KEY',
-    description: 'RSA private key for signing JWTs',
-    helpUrl: 'https://molecule.dev/docs/secrets/jwt-keys',
+    description:
+      'RSA private key (PEM) for signing JWTs. Generate with: ' +
+      'openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048',
   },
   JWT_PUBLIC_KEY: {
     key: 'JWT_PUBLIC_KEY',
-    description: 'RSA public key for verifying JWTs',
-    helpUrl: 'https://molecule.dev/docs/secrets/jwt-keys',
+    description:
+      'RSA public key (PEM) for verifying JWTs. Derive from the private key with: ' +
+      'openssl rsa -pubout -in private.pem -out public.pem',
   },
 
   // App

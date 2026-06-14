@@ -1,5 +1,5 @@
 /**
- * URL preview / OG-image scraper for molecule.dev.
+ * URL preview / OG-image scraper.
  *
  * Fetches a URL and returns normalized
  * `{ title, description, image, siteName, url, type, oembedUrl }`

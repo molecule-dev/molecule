@@ -1,5 +1,5 @@
 /**
- * oEmbed consumer for molecule.dev.
+ * oEmbed consumer.
  *
  * Resolves a URL into a normalized
  * `{ type, version, title?, author_name?, provider_name?,

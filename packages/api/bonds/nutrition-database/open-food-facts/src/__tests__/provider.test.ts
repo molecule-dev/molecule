@@ -181,7 +181,7 @@ describe('open-food-facts nutrition-database provider', () => {
   })
 
   describe('User-Agent', () => {
-    it('should send a default polite User-Agent identifying molecule.dev', async () => {
+    it('should send a default polite, brand-neutral User-Agent', async () => {
       const fetchMock = vi.fn().mockResolvedValue(mockFetchResponse(NUTELLA_PRODUCT_FIXTURE))
       vi.stubGlobal('fetch', fetchMock)
 
@@ -189,7 +189,10 @@ describe('open-food-facts nutrition-database provider', () => {
 
       const init = fetchMock.mock.calls[0]?.[1] as RequestInit | undefined
       const headers = init?.headers as Record<string, string> | undefined
-      expect(headers?.['User-Agent']).toBe('molecule.dev/1.0 (https://molecule.dev)')
+      // A shared package must not brand outbound traffic as any specific product
+      // (e.g. molecule.dev) — the default UA is generic; hosts override it.
+      expect(headers?.['User-Agent']).toBe('OpenFoodFactsClient/1.0')
+      expect(headers?.['User-Agent']).not.toMatch(/molecule\.dev/i)
       expect(headers?.['Accept']).toBe('application/json')
     })
 

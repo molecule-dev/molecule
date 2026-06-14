@@ -1,6 +1,6 @@
 # @molecule/api-oembed
 
-oEmbed consumer for molecule.dev.
+oEmbed consumer.
 
 Resolves a URL into a normalized
 `{ type, version, title?, author_name?, provider_name?,
@@ -587,10 +587,13 @@ const builtinProviders: OEmbedProvider[]
 
 #### `DEFAULT_USER_AGENT`
 
-Default polite User-Agent — matches the link-preview convention.
+Default polite, brand-neutral User-Agent — matches the link-preview
+convention. Identifies the request as an oEmbed fetcher without claiming any
+specific product; hosts should pass their own `userAgent` (with a contact
+URL/email) in production.
 
 ```typescript
-const DEFAULT_USER_AGENT: "Mozilla/5.0 (compatible; molecule-oembed/1.0; +https://molecule.dev/bot)"
+const DEFAULT_USER_AGENT: "Mozilla/5.0 (compatible; oEmbedBot/1.0)"
 ```
 
 ## Injection Notes

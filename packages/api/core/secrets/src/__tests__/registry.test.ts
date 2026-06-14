@@ -156,6 +156,16 @@ describe('secrets registry', () => {
       expect(COMMON_SECRETS.JWT_PUBLIC_KEY.description).toBeTruthy()
     })
 
+    it('does not brand help links with a specific product (no molecule.dev)', () => {
+      // This is a shared, app-agnostic core package — a baked-in vendor docs URL
+      // is a product leak. Guidance lives in the (vendor-neutral) description.
+      for (const def of Object.values(COMMON_SECRETS)) {
+        expect(def.helpUrl ?? '').not.toMatch(/molecule\.dev/i)
+      }
+      expect(COMMON_SECRETS.JWT_PRIVATE_KEY.helpUrl).toBeUndefined()
+      expect(COMMON_SECRETS.JWT_PRIVATE_KEY.description).toMatch(/openssl/i)
+    })
+
     it('should contain NODE_ENV with default', () => {
       expect(COMMON_SECRETS.NODE_ENV).toBeDefined()
       expect(COMMON_SECRETS.NODE_ENV.default).toBe('development')

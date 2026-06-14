@@ -1,6 +1,6 @@
 # @molecule/api-secrets
 
-Secrets management core interface for molecule.dev.
+Secrets management core interface.
 
 Provides a standardized way to:
 - Define required secrets for packages
@@ -481,8 +481,8 @@ const COMMON_SECRETS: Record<string, SecretDefinition>
 | Provider | Package |
 |----------|---------|
 | Doppler | `@molecule/api-secrets-doppler` |
-| Molecule Vault | `@molecule/api-secrets-molecule` |
 | Environment Variables | `@molecule/api-secrets-env` |
+| Molecule Vault | `@molecule/api-secrets-molecule` |
 
 ## Injection Notes
 

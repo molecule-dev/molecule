@@ -16,10 +16,12 @@ import { isPrivateHost } from './ssrf.js'
 import { OEmbedError, type OEmbedErrorCode, type OEmbedOptions } from './types.js'
 
 /**
- * Default polite User-Agent — matches the link-preview convention.
+ * Default polite, brand-neutral User-Agent — matches the link-preview
+ * convention. Identifies the request as an oEmbed fetcher without claiming any
+ * specific product; hosts should pass their own `userAgent` (with a contact
+ * URL/email) in production.
  */
-export const DEFAULT_USER_AGENT =
-  'Mozilla/5.0 (compatible; molecule-oembed/1.0; +https://molecule.dev/bot)'
+export const DEFAULT_USER_AGENT = 'Mozilla/5.0 (compatible; oEmbedBot/1.0)'
 
 /**
  * Throw an {@link OEmbedError} with the given code/message/url.

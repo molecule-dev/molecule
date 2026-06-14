@@ -34,9 +34,10 @@ export interface OpenFoodFactsConfig {
    * asks callers to identify themselves so abusive traffic can be
    * contacted before being blocked.
    *
-   * Defaults to a generic `molecule.dev/1.0 (https://molecule.dev)` when
-   * omitted; overrides should follow the form
-   * `<app-name>/<version> (<contact-email-or-url>)`.
+   * Defaults to a generic, brand-neutral `OpenFoodFactsClient/1.0` when
+   * omitted. Open Food Facts asks callers to identify their own app, so
+   * production deployments SHOULD override this (via `OPEN_FOOD_FACTS_USER_AGENT`)
+   * with the form `<app-name>/<version> (<contact-email-or-url>)`.
    */
   userAgent?: string
 

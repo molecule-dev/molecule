@@ -1,6 +1,6 @@
 # @molecule/api-link-preview
 
-URL preview / OG-image scraper for molecule.dev.
+URL preview / OG-image scraper.
 
 Fetches a URL and returns normalized
 `{ title, description, image, siteName, url, type, oembedUrl }`
@@ -389,12 +389,13 @@ function validateUrl(rawUrl: string, allowPrivate: boolean): URL
 
 #### `DEFAULT_USER_AGENT`
 
-Default polite User-Agent. Many CDNs serve different (or denied)
-markup to bare/empty UAs, so we identify ourselves as a link-preview
-bot.
+Default polite, brand-neutral User-Agent. Many CDNs serve different (or
+denied) markup to bare/empty UAs, so we identify ourselves as a link-preview
+bot without claiming any specific product; hosts should pass their own
+`userAgent` (with a contact URL/email) in production.
 
 ```typescript
-const DEFAULT_USER_AGENT: "Mozilla/5.0 (compatible; molecule-link-preview/1.0; +https://molecule.dev/bot)"
+const DEFAULT_USER_AGENT: "Mozilla/5.0 (compatible; LinkPreviewBot/1.0)"
 ```
 
 ## Injection Notes
