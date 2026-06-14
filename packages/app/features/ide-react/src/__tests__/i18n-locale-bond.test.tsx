@@ -31,11 +31,14 @@ import * as ideLocales from '@molecule/app-locales-ide'
 import { PreviewProvider as PreviewContextProvider } from '@molecule/app-react'
 import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
+import { AutoCommitBadge } from '../components/AutoCommitBadge.js'
+import type { AutoCommitState } from '../components/chat-autocommit-utilities.js'
 import { DEVICE_META, nextDevice } from '../components/device-cycle.js'
 import { DeviceFrameSelector } from '../components/DeviceFrameSelector.js'
 import { PreviewPanel } from '../components/PreviewPanel.js'
 
 const fr = ideLocales.fr as Record<string, string>
+const en = ideLocales.en as Record<string, string>
 
 /**
  * A ClassMap stub whose every member resolves to its key as a class token
@@ -182,5 +185,75 @@ describe('IDE-shell i18n resolves through the locale bond (cross-cutting-i18n)',
     expect(button?.getAttribute('title')).toBe(expected)
     // The English default template would have produced "… — click for …".
     expect(button?.getAttribute('title')).not.toContain('click for')
+  })
+})
+
+describe('Synthase chat surface i18n resolves through the locale bond (cross-cutting-i18n)', () => {
+  // The chat surface (models table, scripts/skills browsers, effort, share,
+  // report, autocommit, activity status, help) shipped ~140 strings as inline
+  // defaultValue only — never added to @molecule/app-locales-ide. This block
+  // proves the merge: the keys exist in the bond and the components render the
+  // bonded translation, including interpolation through the `${x}` → `{{x}}`
+  // defaultValue refactor that makes the bond override safe.
+  it('the bond defines the chat-surface keys the components render', () => {
+    for (const key of [
+      'ide.chat.activity.thinking',
+      'ide.chat.autoCommit.badge',
+      'ide.chat.autoCommit.cancel',
+      'ide.chat.effort.current',
+      'ide.chat.models.colName',
+      'ide.chat.modelRemoved',
+      'ide.chat.report.heading',
+      'ide.chat.scripts.heading',
+      'ide.chat.settings.heading',
+      'ide.chat.share.heading',
+      'ide.chat.skills.heading',
+      'ide.activity.defaultSummary',
+      'ide.chat.diffSummary',
+    ]) {
+      expect(typeof fr[key], `${key} missing from app-locales-ide`).toBe('string')
+      expect(fr[key].length, `${key} empty in app-locales-ide`).toBeGreaterThan(0)
+    }
+  })
+
+  it('renders the auto-commit badge from the bond, interpolated, not the English default', () => {
+    const state: AutoCommitState = { intervalSeconds: 30, remaining: 12 }
+    const { container } = render(<AutoCommitBadge state={state} onCancel={() => {}} />)
+    const badge = container.querySelector('[data-mol-id="chat-autocommit-badge"]')
+    expect(badge, 'auto-commit badge did not render').not.toBeNull()
+
+    // The title is the cancel label, resolved from the bond (not the English default).
+    expect(badge?.getAttribute('title')).toBe(fr['ide.chat.autoCommit.cancel'])
+    expect(badge?.getAttribute('title')).not.toBe('Cancel auto-commit')
+
+    // The aria-label interpolates the live countdown into the BONDED template —
+    // this only works because the inline default was refactored from a JS
+    // `${countdown}` template literal to an i18n `{{countdown}}` placeholder, so
+    // the bond override interpolates the same value the inline default would.
+    const expectedBadge = fr['ide.chat.autoCommit.badge'].replace('{{countdown}}', '12s')
+    expect(badge?.getAttribute('aria-label')).toBe(
+      `${expectedBadge} — ${fr['ide.chat.autoCommit.cancel']}`,
+    )
+    // The pre-fix bug: with the key absent, the English `Auto-commit in 12s` rendered.
+    expect(badge?.getAttribute('aria-label')).not.toContain('Auto-commit in')
+    expect(badge?.textContent).toContain('12s')
+  })
+
+  it('parks the four DeepL-unsafe command-usage keys as the English fallback (not machine-translated)', () => {
+    // These carry literal <arg>/& command syntax that DeepL's XML tag handling
+    // rejects and the Google path mangles, so they are intentionally NOT
+    // machine-translated. The bond requires every locale to define every key
+    // (see the bond's own index.test.ts), so they are present in every locale
+    // as the canonical English value — a safe fallback, never a mangled one.
+    // Guarding this makes a future real fan-out a conscious change.
+    for (const key of [
+      'ide.chat.autoCommit.usage',
+      'ide.chat.effort.usage',
+      'ide.chat.scripts.runUsage',
+      'ide.chat.help.tipMention',
+    ]) {
+      expect(typeof en[key], `${key} missing from en`).toBe('string')
+      expect(fr[key], `${key} should be the parked English fallback, not translated`).toBe(en[key])
+    }
   })
 })

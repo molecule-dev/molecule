@@ -780,7 +780,7 @@ function VerificationBadge({
     parts.push(
       n === 1
         ? t('ide.chat.typeErrorCount', { count: 1 }, { defaultValue: '1 type error' })
-        : t('ide.chat.typeErrorsCount', { count: n }, { defaultValue: `${n} type errors` }),
+        : t('ide.chat.typeErrorsCount', { count: n }, { defaultValue: '{{count}} type errors' }),
     )
   }
   if (cats.includes('lint')) {
@@ -790,13 +790,13 @@ function VerificationBadge({
       parts.push(
         n === 1
           ? t('ide.chat.lintErrorCount', { count: 1 }, { defaultValue: '1 lint error' })
-          : t('ide.chat.lintErrorsCount', { count: n }, { defaultValue: `${n} lint errors` }),
+          : t('ide.chat.lintErrorsCount', { count: n }, { defaultValue: '{{count}} lint errors' }),
       )
     if (w > 0)
       parts.push(
         w === 1
           ? t('ide.chat.lintWarningCount', { count: 1 }, { defaultValue: '1 warning' })
-          : t('ide.chat.lintWarningsCount', { count: w }, { defaultValue: `${w} warnings` }),
+          : t('ide.chat.lintWarningsCount', { count: w }, { defaultValue: '{{count}} warnings' }),
       )
   }
   if (cats.includes('runtime')) {
@@ -2213,7 +2213,7 @@ function ChatInner({
         const label = (event.label as string) || (event.model as string)
         if (lastShownModelRef.current && lastShownModelRef.current !== event.model) {
           addSystemCardRef.current(
-            t('ide.chat.modelInUse', { model: label }, { defaultValue: `Now using ${label}` }),
+            t('ide.chat.modelInUse', { model: label }, { defaultValue: 'Now using {{model}}' }),
           )
         }
         lastShownModelRef.current = event.model as string
@@ -2890,15 +2890,23 @@ function ChatInner({
     const removedId = currentModel
     const fallback = FREE_TIER_MODEL || AVAILABLE_MODELS[0]?.id
     addSystemCard(
-      t(
-        'ide.chat.modelRemoved',
-        { removed: removedId, fallback: fallback ?? '' },
-        {
-          defaultValue: fallback
-            ? `Your selected model "${removedId}" is no longer available. Switched to "${fallback}". Type /model to pick another.`
-            : `Your selected model "${removedId}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.`,
-        },
-      ),
+      fallback
+        ? t(
+            'ide.chat.modelRemoved',
+            { removed: removedId, fallback },
+            {
+              defaultValue:
+                'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
+            },
+          )
+        : t(
+            'ide.chat.modelRemovedNoFallback',
+            { removed: removedId },
+            {
+              defaultValue:
+                'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
+            },
+          ),
     )
     if (fallback) {
       setCurrentModel(fallback)
@@ -3277,7 +3285,8 @@ function ChatInner({
           'ide.chat.skills.loaded',
           { name: skill.name },
           {
-            defaultValue: `Loaded skill “${skill.name}” — opened in the editor and attached as context for your next message.`,
+            defaultValue:
+              'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
           },
         ),
       )
@@ -3300,11 +3309,7 @@ function ChatInner({
               ? t(
                   'ide.chat.scripts.runNotFound',
                   { name: rawName, names: scripts.map((s) => s.name).join(', ') },
-                  {
-                    defaultValue: `No script named “${rawName}”. Available: ${scripts
-                      .map((s) => s.name)
-                      .join(', ')}`,
-                  },
+                  { defaultValue: 'No script named “{{name}}”. Available: {{names}}' },
                 )
               : t('ide.chat.scripts.runNone', undefined, {
                   defaultValue: 'No saved scripts yet. Open /scripts to create one.',
@@ -3320,12 +3325,12 @@ function ChatInner({
           ? t(
               'ide.chat.scripts.cmdExitOk',
               { name: target.name },
-              { defaultValue: `${target.name} exited 0` },
+              { defaultValue: '{{name}} exited 0' },
             )
           : t(
               'ide.chat.scripts.cmdExitFail',
               { name: target.name, code: run.data.exitCode },
-              { defaultValue: `${target.name} exited with code ${run.data.exitCode}` },
+              { defaultValue: '{{name}} exited with code {{code}}' },
             )
         addSystemCard(output ? `${status}\n${output}` : status)
       } catch (error) {
@@ -3507,12 +3512,12 @@ function ChatInner({
               ? t(
                   'ide.chat.planModelSet',
                   { name },
-                  { defaultValue: `Plan-mode model set to ${name}` },
+                  { defaultValue: 'Plan-mode model set to {{name}}' },
                 )
               : t(
                   'ide.chat.executeModelSet',
                   { name },
-                  { defaultValue: `Execute-mode model set to ${name}` },
+                  { defaultValue: 'Execute-mode model set to {{name}}' },
                 ),
           )
         } else {
@@ -3655,14 +3660,19 @@ function ChatInner({
                 ? (n / 1_000).toFixed(1) + 'K'
                 : String(n)
           addSystemCard(
-            t('ide.chat.costSummary', undefined, {
-              defaultValue: [
-                `Model:  ${d.model}`,
-                `Input:  ${fmt(d.inputTokens)} tokens`,
-                `Output: ${fmt(d.outputTokens)} tokens`,
-                `Cost:   ~$${d.estimatedCost.toFixed(4)}`,
-              ].join('\n'),
-            }),
+            t(
+              'ide.chat.costSummary',
+              {
+                model: d.model,
+                input: fmt(d.inputTokens),
+                output: fmt(d.outputTokens),
+                cost: d.estimatedCost.toFixed(4),
+              },
+              {
+                defaultValue:
+                  'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
+              },
+            ),
           )
         } catch (error) {
           logger.warn('Failed to fetch chat usage data', { error })
@@ -3761,9 +3771,11 @@ function ChatInner({
               return `${f.status.padEnd(10)} ${f.path}${adds}${dels}`
             })
             addSystemCard(
-              t('ide.chat.diffSummary', undefined, {
-                defaultValue: `${files.length} changed file(s):\n${lines.join('\n')}`,
-              }),
+              t(
+                'ide.chat.diffSummary',
+                { count: files.length, files: lines.join('\n') },
+                { defaultValue: '{{count}} changed file(s):\n{{files}}' },
+              ),
             )
           }
         } catch (error) {
@@ -4016,7 +4028,8 @@ function ChatInner({
             'ide.chat.autoCommit.enabled',
             { seconds: autoCommitMatch.seconds },
             {
-              defaultValue: `Auto-commit on: committing ${autoCommitMatch.seconds}s after the last file change. /autocommit 0 to cancel.`,
+              defaultValue:
+                'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
             },
           ),
         )
@@ -4112,9 +4125,7 @@ function ChatInner({
           t(
             'ide.chat.effort.current',
             { level: effortLevel, label: EFFORT_LEVEL_LABELS[effortLevel] },
-            {
-              defaultValue: `Reasoning effort: ${effortLevel} (${EFFORT_LEVEL_LABELS[effortLevel]})`,
-            },
+            { defaultValue: 'Reasoning effort: {{level}} ({{label}})' },
           ),
           '',
           t('ide.chat.effort.levelsHeader', undefined, { defaultValue: 'Levels:' }),
@@ -4122,7 +4133,7 @@ function ChatInner({
             t(
               'ide.chat.effort.levelLine',
               { level: lvl, label: EFFORT_LEVEL_LABELS[lvl] },
-              { defaultValue: `  ${lvl} — ${EFFORT_LEVEL_LABELS[lvl]}` },
+              { defaultValue: '  {{level}} — {{label}}' },
             ),
           ),
           '',
@@ -4131,7 +4142,8 @@ function ChatInner({
                 'ide.chat.effort.supported',
                 { models: supported.map((m) => m.label).join(', ') },
                 {
-                  defaultValue: `Tunes the reasoning budget on: ${supported.map((m) => m.label).join(', ')}. Other models still get the effort applied to the agent loop budget.`,
+                  defaultValue:
+                    'Tunes the reasoning budget on: {{models}}. Other models still get the effort applied to the agent loop budget.',
                 },
               )
             : t('ide.chat.effort.noneSupported', undefined, {
@@ -4149,7 +4161,7 @@ function ChatInner({
             t(
               'ide.chat.effort.set',
               { level, label: EFFORT_LEVEL_LABELS[level] },
-              { defaultValue: `Reasoning effort set to ${level} (${EFFORT_LEVEL_LABELS[level]}).` },
+              { defaultValue: 'Reasoning effort set to {{level}} ({{label}}).' },
             ),
           )
         } catch (error) {
@@ -4729,9 +4741,7 @@ function ChatInner({
                   sounds: t(
                     'ide.chat.settings.soundsSummary',
                     { enabled: soundsSummary.enabled, total: soundsSummary.total },
-                    {
-                      defaultValue: `${soundsSummary.enabled} of ${soundsSummary.total} events enabled`,
-                    },
+                    { defaultValue: '{{enabled}} of {{total}} events enabled' },
                   ),
                 })
                 return (
@@ -5547,9 +5557,7 @@ function ChatInner({
                             {t(
                               'ide.chat.olderModelsCollapse',
                               { count: deprecatedModels.length },
-                              {
-                                defaultValue: `Older models ⌃ (${deprecatedModels.length})`,
-                              },
+                              { defaultValue: 'Older models ⌃ ({{count}})' },
                             )}
                           </button>
                         )}
@@ -5703,9 +5711,7 @@ function ChatInner({
                       {t(
                         'ide.chat.olderModelsExpand',
                         { count: deprecatedModels.length },
-                        {
-                          defaultValue: `Older models ⌄ (${deprecatedModels.length})`,
-                        },
+                        { defaultValue: 'Older models ⌄ ({{count}})' },
                       )}
                     </button>
                   )}

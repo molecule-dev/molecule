@@ -118,7 +118,7 @@ export function ModelsTable({
                     aria-label={t(
                       'ide.chat.models.sortBy',
                       { column: col.label },
-                      { defaultValue: `Sort by ${col.label}` },
+                      { defaultValue: 'Sort by {{column}}' },
                     )}
                     onClick={() =>
                       setSort((prev) =>

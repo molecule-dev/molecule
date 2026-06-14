@@ -135,7 +135,7 @@ export function activitySummaryLine(
     t(
       'ide.activity.defaultSummary',
       { type: activityTypeLabel(activity.type) },
-      { defaultValue: `${activityTypeLabel(activity.type)} captured` },
+      { defaultValue: '{{type}} captured' },
     )
   if (activity.recipient?.trim()) {
     return `${base} → ${activity.recipient.trim()}`

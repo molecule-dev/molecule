@@ -45,7 +45,7 @@ export function AutoCommitBadge({
   const label = t(
     'ide.chat.autoCommit.badge',
     { countdown },
-    { defaultValue: `Auto-commit in ${countdown}` },
+    { defaultValue: 'Auto-commit in {{countdown}}' },
   )
   const cancelLabel = t('ide.chat.autoCommit.cancel', undefined, {
     defaultValue: 'Cancel auto-commit',

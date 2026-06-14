@@ -140,7 +140,7 @@ export function SkillsCard({
             ? t(
                 'ide.chat.skills.noMatch',
                 { query: query.trim() },
-                { defaultValue: `No skills match “${query.trim()}”.` },
+                { defaultValue: 'No skills match “{{query}}”.' },
               )
             : t('ide.chat.skills.empty', undefined, {
                 defaultValue: 'No skills found in .agents/skills/ for this project.',

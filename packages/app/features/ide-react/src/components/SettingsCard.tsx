@@ -119,7 +119,7 @@ export function SettingsCard({
                 title={t(
                   'ide.chat.settings.editVia',
                   { command: `/${setting.editCommand}` },
-                  { defaultValue: `Edit via /${setting.editCommand}` },
+                  { defaultValue: 'Edit via {{command}}' },
                 )}
               >
                 {t('ide.chat.settings.edit', undefined, { defaultValue: 'Edit' })}

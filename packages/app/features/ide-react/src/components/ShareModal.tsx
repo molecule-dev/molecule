@@ -220,7 +220,7 @@ export function ShareModal({
                   <Icon name={copied ? 'check' : 'copy'} size={14} aria-hidden="true" />
                   {copied
                     ? t('ide.chat.share.copied', undefined, { defaultValue: 'Copied' })
-                    : t('ide.chat.share.copy', undefined, { defaultValue: 'Copy' })}
+                    : t('ide.chat.share.copyShort', undefined, { defaultValue: 'Copy' })}
                 </button>
               </div>
               <span className={cm.cn(cm.textMuted, cm.textSize('xs'))} style={{ lineHeight: 1.4 }}>

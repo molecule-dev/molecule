@@ -284,7 +284,7 @@ export function ScriptsCard({
             ? t(
                 'ide.chat.scripts.noMatch',
                 { query: query.trim() },
-                { defaultValue: `No scripts match “${query.trim()}”.` },
+                { defaultValue: 'No scripts match “{{query}}”.' },
               )
             : t(
                 'ide.chat.scripts.empty',
@@ -349,7 +349,7 @@ export function ScriptsCard({
                       : t(
                           'ide.chat.scripts.exitFail',
                           { code: run.exitCode },
-                          { defaultValue: `Exited ${run.exitCode}` },
+                          { defaultValue: 'Exited {{code}}' },
                         )}
                   </div>
                   {formatRunOutput(run) ? (
