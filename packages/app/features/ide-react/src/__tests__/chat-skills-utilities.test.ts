@@ -12,7 +12,9 @@ import {
   isSkillFile,
   loadProjectSkills,
   parseSkillMeta,
+  recentUserText,
   type SkillInfo,
+  suggestRelevantSkills,
   toRelativePath,
 } from '../components/chat-skills-utilities.js'
 
@@ -24,19 +26,34 @@ describe('toRelativePath', () => {
   })
 })
 
-describe('isSkillFile', () => {
-  it('matches Markdown files under .agents/skills/ (any prefix form)', () => {
-    expect(isSkillFile('.agents/skills/patterns/styling.md')).toBe(true)
-    expect(isSkillFile('/workspace/.agents/skills/examples/SKILL.md')).toBe(true)
-    expect(isSkillFile('.agents/skills/auth.md')).toBe(true)
+describe('isSkillFile (SKILL.md folder convention)', () => {
+  it('matches a SKILL.md entry inside a skill folder (any prefix form)', () => {
+    expect(isSkillFile('.agents/skills/auth/SKILL.md')).toBe(true)
+    expect(isSkillFile('/workspace/.agents/skills/styling/SKILL.md')).toBe(true)
+    expect(isSkillFile('/.agents/skills/bond-system/SKILL.md')).toBe(true)
+    // The entry filename is matched case-insensitively.
+    expect(isSkillFile('.agents/skills/auth/skill.md')).toBe(true)
   })
 
-  it('rejects non-skill or non-markdown paths', () => {
+  it('excludes loose pattern fragments and the examples corpus (the buried-skills bug)', () => {
+    // The exact corpus the audit flagged: ~15 pattern fragments + ~52 example
+    // READMEs must NOT be surfaced as skills, only the real SKILL.md folders.
+    expect(isSkillFile('.agents/skills/patterns/dashboard-shell-layout.md')).toBe(false)
+    expect(isSkillFile('.agents/skills/patterns/SKILL.md')).toBe(false)
+    expect(isSkillFile('/workspace/.agents/skills/examples/SKILL.md')).toBe(false)
+    expect(isSkillFile('.agents/skills/examples/personal-finance/README.md')).toBe(false)
+  })
+
+  it('rejects non-skill, loose, or non-markdown paths', () => {
     expect(isSkillFile('src/index.ts')).toBe(false)
     expect(isSkillFile('README.md')).toBe(false)
     expect(isSkillFile('.agents/plans/plan.md')).toBe(false)
     expect(isSkillFile('.agents/skills/notes.txt')).toBe(false)
     expect(isSkillFile('.agents/skills')).toBe(false)
+    // A loose .md directly inside a skill folder is not the SKILL.md entry file.
+    expect(isSkillFile('.agents/skills/auth/NOTES.md')).toBe(false)
+    // A bare .md directly under skills/ (no enclosing folder) is not a skill.
+    expect(isSkillFile('.agents/skills/auth.md')).toBe(false)
   })
 })
 
@@ -117,16 +134,20 @@ describe('filterSkills', () => {
 })
 
 describe('loadProjectSkills', () => {
-  it('discovers, parses, and sorts skills by name', async () => {
+  it('discovers only SKILL.md folders (skipping patterns/examples noise), parses, and sorts', async () => {
     const files = [
-      '/workspace/.agents/skills/patterns/styling.md',
-      '/workspace/.agents/skills/auth.md',
+      '/workspace/.agents/skills/styling/SKILL.md',
+      '/workspace/.agents/skills/auth/SKILL.md',
+      // Noise that the SKILL.md-folder convention must exclude:
+      '/workspace/.agents/skills/patterns/dashboard-shell-layout.md',
+      '/workspace/.agents/skills/examples/SKILL.md',
+      '/workspace/.agents/skills/examples/personal-finance/README.md',
       '/workspace/src/index.ts',
       '/workspace/README.md',
     ]
     const contents: Record<string, string> = {
-      '.agents/skills/patterns/styling.md': '---\nname: styling\ndescription: Styling.\n---\n',
-      '.agents/skills/auth.md': '---\nname: auth\ndescription: Auth.\n---\n',
+      '.agents/skills/styling/SKILL.md': '---\nname: styling\ndescription: Styling.\n---\n',
+      '.agents/skills/auth/SKILL.md': '---\nname: auth\ndescription: Auth.\n---\n',
     }
     const skills = await loadProjectSkills(
       async () => files,
@@ -134,14 +155,14 @@ describe('loadProjectSkills', () => {
     )
     expect(skills.map((s) => s.name)).toEqual(['auth', 'styling'])
     expect(skills.map((s) => s.path)).toEqual([
-      '.agents/skills/auth.md',
-      '.agents/skills/patterns/styling.md',
+      '.agents/skills/auth/SKILL.md',
+      '.agents/skills/styling/SKILL.md',
     ])
   })
 
   it('tolerates an unreadable skill file (path-derived name, no description)', async () => {
     const skills = await loadProjectSkills(
-      async () => ['.agents/skills/patterns/styling.md'],
+      async () => ['.agents/skills/styling/SKILL.md'],
       async () => {
         throw new Error('boom')
       },
@@ -149,5 +170,73 @@ describe('loadProjectSkills', () => {
     expect(skills).toHaveLength(1)
     expect(skills[0].name).toBe('styling')
     expect(skills[0].description).toBe('')
+  })
+})
+
+describe('recentUserText', () => {
+  const messages = [
+    { role: 'user', content: 'first ask' },
+    { role: 'assistant', content: 'sure thing' },
+    { role: 'user', content: 'second ask' },
+    { role: 'system', content: 'noise' },
+    { role: 'user', content: 'third ask' },
+  ]
+
+  it('joins only the trailing user messages, excluding assistant/system turns', () => {
+    expect(recentUserText(messages)).toBe('first ask\nsecond ask\nthird ask')
+    expect(recentUserText(messages, 2)).toBe('second ask\nthird ask')
+  })
+
+  it('returns an empty string when there are no user messages', () => {
+    expect(recentUserText([{ role: 'assistant', content: 'hi' }])).toBe('')
+  })
+})
+
+describe('suggestRelevantSkills', () => {
+  const skills: SkillInfo[] = [
+    {
+      path: '.agents/skills/auth/SKILL.md',
+      name: 'auth',
+      description: 'Authentication, login, OAuth and sessions.',
+    },
+    {
+      path: '.agents/skills/styling/SKILL.md',
+      name: 'styling',
+      description: 'ClassMap styling and theme tokens.',
+    },
+    {
+      path: '.agents/skills/database/SKILL.md',
+      name: 'database',
+      description: 'DataStore CRUD and migrations.',
+    },
+  ]
+
+  it('ranks the skill whose description matches the recent text first', () => {
+    const out = suggestRelevantSkills(skills, 'How do I add a login page with OAuth sessions?')
+    expect(out).toHaveLength(1)
+    expect(out[0].skill.name).toBe('auth')
+    expect(out[0].score).toBeGreaterThanOrEqual(2)
+  })
+
+  it('weighs a name match heavier than a single description term', () => {
+    // "styling" hits the skill NAME (×3), so it wins over a lone description hit.
+    const out = suggestRelevantSkills(skills, 'fix the styling', { max: 3 })
+    expect(out[0].skill.name).toBe('styling')
+  })
+
+  it('suggests nothing when nothing clears the threshold (or the text is empty)', () => {
+    expect(suggestRelevantSkills(skills, 'deploy to production tomorrow')).toEqual([])
+    expect(suggestRelevantSkills(skills, '')).toEqual([])
+  })
+
+  it('respects the max cap and orders by score then name', () => {
+    const out = suggestRelevantSkills(
+      skills,
+      'login oauth sessions classmap theme migrations crud',
+      { max: 2, minScore: 1 },
+    )
+    expect(out).toHaveLength(2)
+    expect(out[0].skill.name).toBe('auth')
+    expect(out.map((s) => s.skill.name)).not.toContain('styling') // tie lost to 'database' by name
   })
 })

@@ -451,4 +451,6 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.skills.error': 'Could not load skills for this project.',
   'ide.chat.skills.empty': 'No skills found in .agents/skills/ for this project.',
   'ide.chat.skills.noMatch': 'No skills match “{{query}}”.',
+  'ide.chat.skills.relevant.label': 'Relevant skill',
+  'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
 }

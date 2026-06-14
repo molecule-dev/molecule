@@ -427,4 +427,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
+  'ide.chat.skills.relevant.label': 'Relevant skill',
+  'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
 }

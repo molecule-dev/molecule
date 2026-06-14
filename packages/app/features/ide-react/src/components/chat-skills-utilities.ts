@@ -1,13 +1,20 @@
 /**
- * Pure helpers backing the `/skills` browser.
+ * Pure helpers backing the `/skills` browser and the proactive "Relevant skill"
+ * suggestion.
  *
- * Skills live as Markdown files under the project's `.agents/skills/` tree
- * (e.g. `.agents/skills/patterns/styling.md`, `.agents/skills/examples/SKILL.md`)
- * and carry a Claude-style YAML frontmatter block declaring `name` and
- * `description`. These helpers discover those files via the SAME file-list /
+ * Following the 2026 Agent Skills folder convention, a skill is a *directory*
+ * under the project's `.agents/skills/` tree whose entry file is `SKILL.md`
+ * (e.g. `.agents/skills/auth/SKILL.md`), carrying a YAML frontmatter block that
+ * declares `name` and `description`. Discovery deliberately matches ONLY those
+ * `SKILL.md` entry files — loose Markdown fragments under `patterns/` and the
+ * `examples/` reference corpus are scaffold support material, NOT user-facing
+ * skills, so surfacing them would bury the real skills (the bug this convention
+ * fixes). These helpers discover skill files via the SAME file-list /
  * file-content API the chat already uses for `@`-mentions (injected as
  * functions so this layer stays decoupled from any HTTP client), parse each
- * skill's metadata, and filter the list by a query.
+ * skill's metadata, filter the list by a query, and run a lightweight relevance
+ * pass over recent messages so the most relevant skill can be offered with a
+ * one-click load.
  *
  * All functions here are deterministic and side-effect free (apart from the
  * caller-supplied fetchers in {@link loadProjectSkills}), so they can be unit
@@ -38,16 +45,31 @@ export function toRelativePath(path: string): string {
 }
 
 /**
- * Whether a path points at a skill file: a Markdown file anywhere under an
- * `.agents/skills/` directory. Tolerant of `/workspace/`-prefixed or
+ * Reserved directory names directly under `.agents/skills/` that are NOT
+ * user-facing skills: `patterns/` holds layout/styling fragments synced from the
+ * polish pipeline, and `examples/` is a large reference corpus. A `SKILL.md`
+ * inside either is scaffold support material, so discovery skips them — that is
+ * the whole point of the SKILL.md-folder convention (keep the ~9 real skills
+ * from being buried under pattern fragments + example READMEs).
+ */
+const RESERVED_SKILL_DIRS = new Set(['patterns', 'examples'])
+
+/**
+ * Whether a path points at a skill's entry file under the 2026 Agent Skills
+ * folder convention: a `SKILL.md` directly inside a skill directory under
+ * `.agents/skills/` (i.e. `.agents/skills/<name>/SKILL.md`). Loose `*.md`
+ * fragments and the reserved `patterns/` + `examples/` support trees are NOT
+ * skills and return `false`. Tolerant of `/workspace/`-prefixed or
  * leading-slash paths.
  *
  * @param path - The file path to test.
- * @returns `true` if the path is a skill Markdown file.
+ * @returns `true` if the path is a skill's `SKILL.md` entry file.
  */
 export function isSkillFile(path: string): boolean {
   const rel = toRelativePath(path)
-  return /(^|\/)\.agents\/skills\/.+\.md$/i.test(rel)
+  const match = rel.match(/(?:^|\/)\.agents\/skills\/([^/]+)\/SKILL\.md$/i)
+  if (!match) return false
+  return !RESERVED_SKILL_DIRS.has(match[1].toLowerCase())
 }
 
 /**
@@ -177,4 +199,134 @@ export async function loadProjectSkills(
     }),
   )
   return skills.sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/** A skill the relevance pass judged relevant to the recent conversation. */
+export interface SkillSuggestion {
+  /** The relevant skill. */
+  skill: SkillInfo
+  /** Relevance score (higher = more relevant); name matches weigh heavier. */
+  score: number
+}
+
+/**
+ * Common words ignored by the relevance pass so generic chatter ("how do I add
+ * this for you") doesn't manufacture spurious skill matches.
+ */
+const RELEVANCE_STOPWORDS = new Set([
+  'the',
+  'and',
+  'for',
+  'with',
+  'this',
+  'that',
+  'you',
+  'your',
+  'are',
+  'can',
+  'from',
+  'have',
+  'how',
+  'what',
+  'when',
+  'where',
+  'will',
+  'would',
+  'should',
+  'could',
+  'about',
+  'into',
+  'use',
+  'using',
+  'used',
+  'add',
+  'make',
+  'need',
+  'want',
+  'please',
+  'help',
+  'some',
+  'any',
+  'all',
+  'not',
+  'but',
+  'was',
+  'were',
+  'has',
+  'had',
+  'out',
+  'our',
+  'let',
+  'get',
+  'got',
+  'new',
+])
+
+/** Lowercases text and splits it into meaningful word tokens (≥3 chars, no stopwords). */
+function tokenize(text: string): string[] {
+  return (text.toLowerCase().match(/[a-z0-9]+/g) ?? []).filter(
+    (w) => w.length >= 3 && !RELEVANCE_STOPWORDS.has(w),
+  )
+}
+
+/**
+ * Joins the text of the most recent USER messages into a single relevance
+ * signal. Assistant/system turns are excluded so the suggestion tracks what the
+ * user is actually asking for, not the agent's own verbiage.
+ *
+ * @param messages - Conversation messages (newest last), each with a `role` and `content`.
+ * @param count - How many trailing user messages to include. Defaults to 3.
+ * @returns The concatenated text of the recent user messages.
+ */
+export function recentUserText(
+  messages: ReadonlyArray<{ role: string; content: string }>,
+  count = 3,
+): string {
+  const userContent = messages.filter((m) => m.role === 'user').map((m) => m.content)
+  return userContent.slice(-count).join('\n')
+}
+
+/**
+ * Runs a lightweight relevance pass: scores each skill by how many of its
+ * name/description keywords appear in `recentText` (name matches weigh heavier),
+ * and returns the top matches above a minimum score. Deterministic and
+ * side-effect free, so the caller can recompute it as the conversation grows.
+ *
+ * @param skills - The candidate skills (already excluding loaded/dismissed ones).
+ * @param recentText - Recent conversation text (see {@link recentUserText}).
+ * @param options - Tuning: `max` results (default 1) and `minScore` threshold (default 2).
+ * @param options.max - Maximum number of suggestions to return.
+ * @param options.minScore - Minimum score a skill must reach to be suggested.
+ * @returns The most relevant skills, highest score first (ties broken by name).
+ */
+export function suggestRelevantSkills(
+  skills: readonly SkillInfo[],
+  recentText: string,
+  options: { max?: number; minScore?: number } = {},
+): SkillSuggestion[] {
+  const { max = 1, minScore = 2 } = options
+  const textTokens = tokenize(recentText)
+  if (textTokens.length === 0) return []
+
+  const textCounts = new Map<string, number>()
+  for (const token of textTokens) textCounts.set(token, (textCounts.get(token) ?? 0) + 1)
+
+  return skills
+    .map((skill): SkillSuggestion => {
+      const nameTokens = new Set(tokenize(skill.name))
+      const descTokens = new Set(tokenize(skill.description))
+      let score = 0
+      for (const token of nameTokens) {
+        // A skill whose NAME the user typed is a strong signal — weigh it ×3.
+        score += (textCounts.get(token) ?? 0) * 3
+      }
+      for (const token of descTokens) {
+        if (nameTokens.has(token)) continue
+        score += textCounts.get(token) ?? 0
+      }
+      return { skill, score }
+    })
+    .filter((s) => s.score >= minScore)
+    .sort((a, b) => b.score - a.score || a.skill.name.localeCompare(b.skill.name))
+    .slice(0, max)
 }

@@ -381,6 +381,8 @@ export type IdeTranslationKey =
   | 'ide.chat.skills.error'
   | 'ide.chat.skills.empty'
   | 'ide.chat.skills.noMatch'
+  | 'ide.chat.skills.relevant.label'
+  | 'ide.chat.skills.relevant.dismiss'
 
 /** Translation record mapping ide keys to translated strings. */
 export type IdeTranslations = Record<IdeTranslationKey, string>

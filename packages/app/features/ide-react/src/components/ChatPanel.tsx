@@ -99,6 +99,11 @@ import {
   SHARE_ROLES,
 } from './chat-share-utilities.js'
 import type { SkillInfo } from './chat-skills-utilities.js'
+import {
+  loadProjectSkills,
+  recentUserText,
+  suggestRelevantSkills,
+} from './chat-skills-utilities.js'
 import { estimateStreamTokens } from './chat-stream-utilities.js'
 import {
   ENTRY_TIP,
@@ -111,6 +116,7 @@ import { HelpCard } from './HelpCard.js'
 import { Icon } from './Icon.js'
 import { MarkdownContent } from './MarkdownContent.js'
 import { ModelsTable } from './ModelsTable.js'
+import { RelevantSkillSuggestion } from './RelevantSkillSuggestion.js'
 import { ReportModal } from './ReportModal.js'
 import { ScriptsCard } from './ScriptsCard.js'
 import { SettingsCard } from './SettingsCard.js'
@@ -3317,6 +3323,63 @@ function ChatInner({
     [onFileOpen, addSystemCard],
   )
 
+  // ── Proactive "Relevant skill" suggestion (SYN4) ──────────────────────────
+  // The auto-suggest half of /skills: once the conversation has a user message,
+  // load the project's skills once and run a relevance pass over the recent
+  // messages, offering the best match with a one-click Load just above the
+  // composer. Dismissed (or already-loaded) skills are excluded so the hint is
+  // never nagging.
+  const [projectSkills, setProjectSkills] = useState<SkillInfo[]>([])
+  const skillsLoadedRef = useRef(false)
+  const [dismissedSkillPaths, setDismissedSkillPaths] = useState<readonly string[]>([])
+
+  useEffect(() => {
+    if (skillsLoadedRef.current) return
+    if (!messages.some((m) => m.role === 'user')) return
+    skillsLoadedRef.current = true
+    void (async () => {
+      try {
+        const loaded = await loadProjectSkills(
+          async () =>
+            (await http.get<{ files: string[] }>(`/projects/${projectId}/files-list`)).data.files ??
+            [],
+          async (relativePath) =>
+            (await http.get<{ content: string }>(`/projects/${projectId}/files/${relativePath}`))
+              .data.content,
+        )
+        setProjectSkills(loaded)
+      } catch (error) {
+        // Best-effort proactive hint — a failed skills fetch must never disrupt
+        // the chat; we simply skip the suggestion for this conversation.
+        logger.debug('Skipping relevant-skill suggestion; failed to load project skills', { error })
+      }
+    })()
+  }, [messages, http, projectId])
+
+  const relevantSkill = useMemo<SkillInfo | null>(() => {
+    if (projectSkills.length === 0) return null
+    const attached = new Set(attachedFiles.map((f) => f.path))
+    const candidates = projectSkills.filter(
+      (s) => !dismissedSkillPaths.includes(s.path) && !attached.has('/' + s.path),
+    )
+    if (candidates.length === 0) return null
+    return suggestRelevantSkills(candidates, recentUserText(messages))[0]?.skill ?? null
+  }, [projectSkills, attachedFiles, dismissedSkillPaths, messages])
+
+  const dismissRelevantSkill = useCallback((skill: SkillInfo) => {
+    setDismissedSkillPaths((prev) => (prev.includes(skill.path) ? prev : [...prev, skill.path]))
+  }, [])
+
+  const loadRelevantSkill = useCallback(
+    (skill: SkillInfo) => {
+      loadSkill(skill)
+      // Drop it from the suggestion immediately (loadSkill also attaches it, which
+      // the memo excludes — this just avoids a one-render flash).
+      dismissRelevantSkill(skill)
+    },
+    [loadSkill, dismissRelevantSkill],
+  )
+
   // Runs a saved script by name (the /run <name> command). Fetches the script
   // list to resolve the (possibly partial) name, runs the match, and reports the
   // captured output + exit status as a system card.
@@ -5210,6 +5273,16 @@ function ChatInner({
           state={autoCommit}
           onCancel={() => dispatchAutoCommit({ type: 'set', seconds: 0 })}
         />
+
+        {/* Proactive "Relevant skill" suggestion (SYN4) — one-click Load, just
+            above the composer; appears only when the relevance pass matches. */}
+        {relevantSkill && (
+          <RelevantSkillSuggestion
+            skill={relevantSkill}
+            onLoad={loadRelevantSkill}
+            onDismiss={dismissRelevantSkill}
+          />
+        )}
 
         {/* Attachment error */}
         {attachmentError && (
