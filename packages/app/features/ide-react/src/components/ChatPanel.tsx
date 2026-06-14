@@ -4806,15 +4806,29 @@ function ChatInner({
               }
               if (item.card.variant === 'settings') {
                 const soundsSummary = summarizeSounds(soundsConfig)
+                const notSet = t('ide.chat.settings.modelUnset', undefined, {
+                  defaultValue: 'Not set',
+                })
+                const modelLabel = (id: string): string =>
+                  AVAILABLE_MODELS.find((m) => m.id === id)?.label || id
+                // Per-mode models fall back to the default model when unset; show
+                // that explicitly so the panel never understates the config (SYN11).
+                const followsDefault = t('ide.chat.settings.modelFollowsDefault', undefined, {
+                  defaultValue: 'Follows default model',
+                })
                 const settings = buildSettingsList({
-                  model:
-                    AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ||
-                    currentModel ||
-                    t('ide.chat.settings.modelUnset', undefined, { defaultValue: 'Not set' }),
+                  model: currentModel ? modelLabel(currentModel) : notSet,
+                  planModel: planModel ? modelLabel(planModel) : followsDefault,
+                  executeModel: executeModel ? modelLabel(executeModel) : followsDefault,
                   mode:
                     mode === 'plan'
                       ? t('ide.chat.settings.modePlan', undefined, { defaultValue: 'Plan' })
                       : t('ide.chat.settings.modeExecute', undefined, { defaultValue: 'Execute' }),
+                  effort: t(
+                    'ide.chat.settings.effortValue',
+                    { level: effortLevel, label: EFFORT_LEVEL_LABELS[effortLevel] },
+                    { defaultValue: '{{label}} ({{level}})' },
+                  ),
                   maxLoops: String(currentMaxLoops),
                   autoFix: autoFixEnabled
                     ? t('ide.chat.settings.on', undefined, { defaultValue: 'On' })
@@ -4830,6 +4844,7 @@ function ChatInner({
                     key={item.card.id}
                     settings={settings}
                     onRunCommand={(commandId) => void executeCommand(commandId)}
+                    onPrefillInput={(input) => setInputAndCursorEnd(`${input} `)}
                     isLight={isLight}
                     agentName={agentName}
                   />

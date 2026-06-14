@@ -82,7 +82,10 @@ function buildStubClassMap(): UIClassMap {
 
 const SAMPLE_SETTINGS: SettingsDisplayValues = {
   model: 'Claude Opus 4.6',
+  planModel: 'Claude Sonnet 4.6',
+  executeModel: 'DeepSeek V4 Flash',
   mode: 'Execute',
+  effort: 'Balanced (M)',
   maxLoops: '100',
   autoFix: 'On',
   sounds: '3 of 9 events enabled',

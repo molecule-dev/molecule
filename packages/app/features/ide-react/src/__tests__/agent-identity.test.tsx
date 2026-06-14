@@ -148,7 +148,10 @@ function buildThemeProvider(): ThemeProviderType {
 
 const SAMPLE_SETTINGS: SettingsDisplayValues = {
   model: 'Claude Opus 4.6',
+  planModel: 'Claude Sonnet 4.6',
+  executeModel: 'DeepSeek V4 Flash',
   mode: 'Execute',
+  effort: 'Balanced (M)',
   maxLoops: '100',
   autoFix: 'On',
   sounds: '3 of 9 events enabled',
@@ -193,7 +196,7 @@ describe('agent identity threads into the IDE chat copy (PKG1)', () => {
     )
     const text = container.textContent ?? ''
     // The model-setting description interpolates the supplied agent name…
-    expect(text).toContain('The AI model Fable uses to plan and write code.')
+    expect(text).toContain("The model Fable uses when a mode-specific model isn't set.")
     // …and so does the /settings command description in the command reference.
     expect(text).toContain("View & change Fable's settings")
     // The pre-fix leak: 'Synthase' was hardcoded into these strings.
@@ -211,7 +214,7 @@ describe('agent identity threads into the IDE chat copy (PKG1)', () => {
       />,
     )
     const text = container.textContent ?? ''
-    expect(text).toContain('The AI model the assistant uses to plan and write code.')
+    expect(text).toContain("The model the assistant uses when a mode-specific model isn't set.")
     expect(text).not.toContain('Synthase')
     expect(text).not.toContain('{{agentName}}')
   })

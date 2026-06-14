@@ -1,115 +1,66 @@
 /**
  * Pure helpers backing the `/settings` view.
  *
- * Enumerates every user-controllable agent setting that ChatPanel keeps in
- * client state (model, mode, max tool loops, auto-fix, notification sounds)
- * into a flat, declarative list of {@link SettingDescriptor}s. Splitting the
- * enumeration out of the React component lets it be unit tested without
- * rendering, and ties each setting to the slash command that edits it so the
- * settings card and the command menu can never drift apart.
+ * The list of user-controllable settings itself now lives in the React-free
+ * {@link module:../settings-metadata | settings-metadata} module at the package
+ * root — the **single source of truth** that can be imported on either side of
+ * the api/app boundary (the IDE `/settings` card here, and the molecule.dev API
+ * system prompt's "User-Controllable Settings" section via the package's
+ * `./settings-metadata` subpath export). This module adds no settings of its
+ * own; it zips that canonical metadata together with the already-formatted,
+ * display-ready current values into a flat list of {@link SettingDescriptor}s
+ * the React {@link SettingsCard} renders. Splitting the value-binding out of the
+ * component lets it be unit tested without rendering, and deriving from the
+ * shared metadata is what keeps the settings card and the canonical list (and
+ * the command menu) from ever drifting apart — the SYN11 fix.
  *
- * All prose here is the English default; the {@link SettingsCard} wraps each
- * `label`/`description` in `t('ide.chat.settings.<id>.…', …, { defaultValue })`
- * at render time. The `value` is the already-formatted, display-ready current
- * value supplied by the caller (so dynamic, possibly-localized fragments stay
- * out of this pure layer).
+ * All prose in the metadata is the English default; the {@link SettingsCard}
+ * wraps each `label`/`description` in `t('ide.chat.settings.<id>.…', …,
+ * { defaultValue })` at render time. The `value` is the already-formatted,
+ * display-ready current value supplied by the caller (so dynamic,
+ * possibly-localized fragments stay out of this pure layer).
  *
  * @module
  */
 
-import type { CommandId } from './chat-commands.js'
+import type { SettingKey, SettingMeta } from '../settings-metadata.js'
+import { SETTINGS } from '../settings-metadata.js'
 
 /** Notification-sound mode for a single event (mirrors ChatPanel's `SoundMode`). */
 export type SoundEventMode = 'off' | 'whenNotFocused' | 'always'
 
-/** Describes a single user-controllable setting for the `/settings` view. */
-export interface SettingDescriptor {
-  /** Stable id (also the i18n key suffix, e.g. `'maxLoops'`). */
-  id: string
-  /** Human-readable label (English default). */
-  label: string
-  /** One-line explanation of what the setting does (English default). */
-  description: string
+/**
+ * A canonical {@link SettingMeta} paired with its display-ready current value —
+ * what the `/settings` card renders for one row.
+ */
+export type SettingDescriptor = SettingMeta & {
   /** The formatted, display-ready current value (already localized by caller). */
   value: string
-  /**
-   * The slash command that edits this setting client-side, if any. Drives the
-   * inline "Edit" affordance. Omitted for read-only settings.
-   */
-  editCommand?: CommandId
 }
 
 /**
- * Display-ready current values for the user-controllable settings. The caller
- * resolves these (model label from the catalog, on/off and mode words via
- * `t()`, sounds summary via {@link summarizeSounds}) so this layer stays pure.
+ * Display-ready current values for the user-controllable settings, keyed by the
+ * canonical {@link SettingKey}. The caller resolves these (model labels from the
+ * catalog, on/off and mode words via `t()`, the effort label, the sounds summary
+ * via {@link summarizeSounds}) so this layer stays pure.
  */
-export interface SettingsDisplayValues {
-  /** Current chat model's display label (or its id as a fallback). */
-  model: string
-  /** Current conversation mode, e.g. `'Plan'` or `'Execute'`. */
-  mode: string
-  /** Max tool iterations per turn, formatted as a string. */
-  maxLoops: string
-  /** Auto-fix state, e.g. `'On'` or `'Off'`. */
-  autoFix: string
-  /** Notification-sounds summary, e.g. `'3 of 9 events enabled'`. */
-  sounds: string
-}
+export type SettingsDisplayValues = Record<SettingKey, string>
 
 /**
- * Builds the ordered list of user-controllable agent settings, each tagged
- * with the slash command that edits it. Reflects the values passed in so the
- * `/settings` card always shows the live state.
+ * Builds the ordered list of user-controllable agent settings by zipping the
+ * canonical {@link SETTINGS} metadata together with the supplied display-ready
+ * values, so the `/settings` card always shows the live state AND can never
+ * drift from the shared single source of truth.
  *
  * Each `description` may contain the `{{agentName}}` interpolation token; the
  * caller ({@link SettingsCard}) fills it in from the host's agent identity
  * (neutral default: "the assistant") at render time.
  *
- * @param values - Display-ready current values for each setting.
- * @returns One {@link SettingDescriptor} per controllable setting, in display order.
+ * @param values - Display-ready current values for each setting, keyed by {@link SettingKey}.
+ * @returns One {@link SettingDescriptor} per setting in {@link SETTINGS}, in display order.
  */
 export function buildSettingsList(values: SettingsDisplayValues): SettingDescriptor[] {
-  return [
-    {
-      id: 'model',
-      label: 'Model',
-      description: 'The AI model {{agentName}} uses to plan and write code.',
-      value: values.model,
-      editCommand: 'model',
-    },
-    {
-      id: 'mode',
-      label: 'Mode',
-      description:
-        'Plan mode researches and proposes without editing files; execute mode writes code.',
-      value: values.mode,
-      editCommand: 'plan',
-    },
-    {
-      id: 'maxLoops',
-      label: 'Max tool iterations',
-      description:
-        'Upper bound on the tool calls {{agentName}} runs in one turn before it pauses for you.',
-      value: values.maxLoops,
-      editCommand: 'maxloops',
-    },
-    {
-      id: 'autoFix',
-      label: 'Auto-fix',
-      description:
-        'After AI edits, re-run type-check and lint and feed any errors back so {{agentName}} fixes them.',
-      value: values.autoFix,
-      editCommand: 'autofix',
-    },
-    {
-      id: 'sounds',
-      label: 'Notification sounds',
-      description: 'Per-event notification sounds for responses, errors, file changes, and more.',
-      value: values.sounds,
-      editCommand: 'sounds',
-    },
-  ]
+  return SETTINGS.map((meta) => ({ ...meta, value: values[meta.id] }))
 }
 
 /** Aggregate enabled/total counts for a notification-sounds config. */

@@ -3,17 +3,21 @@
  *
  * Renders an in-timeline card with two sections:
  *
- * 1. **Settings** — every user-controllable agent setting (model, mode, max
- *    tool iterations, auto-fix, notification sounds) with its current value, a
- *    one-line description, and an inline "Edit" affordance that runs the slash
- *    command which changes it (so the picker/toggle opens in the chat input).
+ * 1. **Settings** — every user-controllable agent setting (default model, the
+ *    per-mode plan/execute models, mode, reasoning effort, max tool iterations,
+ *    auto-fix, notification sounds) with its current value, a one-line
+ *    description, and an inline "Edit" affordance that runs (or prefills) the
+ *    slash command which changes it (so the picker/toggle opens in the chat
+ *    input). The rows are derived from the shared {@link SETTINGS} metadata via
+ *    `buildSettingsList`, so the panel can never understate the configuration.
  * 2. **Slash commands** — every command from the {@link COMMANDS} registry,
  *    grouped by category, with its argument syntax and explanation.
  *
- * Both lists are generated from the registry / the settings enumeration helper
- * so they can never drift from what the chat actually supports. Styling uses
- * `getClassMap()` (`cm.*`); the only inline styles are layout/spacing the
- * ClassMap can't express.
+ * Both lists are generated from the shared metadata / the registry so they can
+ * never drift from what the chat actually supports. Styling uses
+ * `getClassMap()` (`cm.*`); each edit affordance reveals the command it runs via
+ * the framework styled {@link Tooltip} (never a native `title`). The only inline
+ * styles are layout/spacing the ClassMap can't express.
  *
  * @module
  */
@@ -23,6 +27,7 @@ import type { JSX } from 'react'
 import { t } from '@molecule/app-i18n'
 import { DEFAULT_AGENT_NAME } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
 import type { CommandId } from './chat-commands.js'
 import { groupCommandsByCategory } from './chat-commands.js'
@@ -33,7 +38,8 @@ import type { SettingDescriptor } from './chat-settings-utilities.js'
  *
  * @param root0 - Component props.
  * @param root0.settings - The enumerated, display-ready user-controllable settings.
- * @param root0.onRunCommand - Runs a slash command (used by the inline "Edit" buttons).
+ * @param root0.onRunCommand - Runs a slash command (used by the inline "Edit" buttons whose setting has no scoped `editInput`).
+ * @param root0.onPrefillInput - Prefills an exact slash-command input (e.g. `/model --plan`) for settings whose bare command is not specific enough; falls back to `onRunCommand` when omitted.
  * @param root0.isLight - Whether the current theme is light mode (drives subtle tints).
  * @param root0.agentName - Display name of the AI coding agent, interpolated into the setting/command descriptions (neutral default: "the assistant").
  * @returns The rendered settings card.
@@ -41,11 +47,13 @@ import type { SettingDescriptor } from './chat-settings-utilities.js'
 export function SettingsCard({
   settings,
   onRunCommand,
+  onPrefillInput,
   isLight,
   agentName = DEFAULT_AGENT_NAME,
 }: {
   settings: readonly SettingDescriptor[]
   onRunCommand: (id: CommandId) => void
+  onPrefillInput?: (input: string) => void
   isLight: boolean
   agentName?: string
 }): JSX.Element {
@@ -110,20 +118,29 @@ export function SettingsCard({
               </div>
             </div>
             {setting.editCommand && (
-              <button
-                type="button"
-                data-mol-id={`setting-edit-${setting.id}`}
-                onClick={() => onRunCommand(setting.editCommand as CommandId)}
-                className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
-                style={{ flexShrink: 0 }}
-                title={t(
-                  'ide.chat.settings.editVia',
-                  { command: `/${setting.editCommand}` },
-                  { defaultValue: 'Edit via {{command}}' },
-                )}
-              >
-                {t('ide.chat.settings.edit', undefined, { defaultValue: 'Edit' })}
-              </button>
+              <div style={{ flexShrink: 0 }}>
+                <Tooltip
+                  content={t(
+                    'ide.chat.settings.editVia',
+                    { command: setting.editInput ?? `/${setting.editCommand}` },
+                    { defaultValue: 'Edit via {{command}}' },
+                  )}
+                  placement="top"
+                >
+                  <button
+                    type="button"
+                    data-mol-id={`setting-edit-${setting.id}`}
+                    onClick={() =>
+                      setting.editInput && onPrefillInput
+                        ? onPrefillInput(setting.editInput)
+                        : onRunCommand(setting.editCommand as CommandId)
+                    }
+                    className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+                  >
+                    {t('ide.chat.settings.edit', undefined, { defaultValue: 'Edit' })}
+                  </button>
+                </Tooltip>
+              </div>
             )}
           </div>
         ))}

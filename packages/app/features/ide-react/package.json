@@ -13,6 +13,10 @@
     "./command-metadata": {
       "types": "./dist/command-metadata.d.ts",
       "import": "./dist/command-metadata.js"
+    },
+    "./settings-metadata": {
+      "types": "./dist/settings-metadata.d.ts",
+      "import": "./dist/settings-metadata.js"
     }
   },
   "files": [
