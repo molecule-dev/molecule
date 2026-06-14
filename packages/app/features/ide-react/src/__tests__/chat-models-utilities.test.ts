@@ -8,12 +8,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { AppModelDefinition } from '@molecule/app-ai-models'
 
-import {
-  compareModels,
-  modelSpeedTier,
-  modelTotalCost,
-  sortModels,
-} from '../components/chat-models-utilities.js'
+import { compareModels, modelTotalCost, sortModels } from '../components/chat-models-utilities.js'
 
 /**
  * Builds a minimal model definition for testing, overriding only the fields
@@ -50,6 +45,7 @@ const cheapFree = model({
   contextWindow: 200_000,
   inputPricePerMTok: 0.5,
   outputPricePerMTok: 2,
+  knowledgeCutoff: '2024-04-01',
   freeTier: true,
 })
 const mid = model({
@@ -58,6 +54,7 @@ const mid = model({
   contextWindow: 400_000,
   inputPricePerMTok: 3,
   outputPricePerMTok: 15,
+  knowledgeCutoff: '2024-10-01',
   freeTier: false,
 })
 const expensive = model({
@@ -66,6 +63,7 @@ const expensive = model({
   contextWindow: 1_000_000,
   inputPricePerMTok: 15,
   outputPricePerMTok: 75,
+  knowledgeCutoff: '2025-06-01',
   freeTier: false,
 })
 
@@ -75,14 +73,6 @@ describe('modelTotalCost', () => {
   it('sums input and output price per million tokens', () => {
     expect(modelTotalCost(cheapFree)).toBe(2.5)
     expect(modelTotalCost(expensive)).toBe(90)
-  })
-})
-
-describe('modelSpeedTier', () => {
-  it('classifies by input price into Fast / Balanced / Powerful', () => {
-    expect(modelSpeedTier(cheapFree)).toEqual({ rank: 0, label: 'Fast' })
-    expect(modelSpeedTier(mid)).toEqual({ rank: 1, label: 'Balanced' })
-    expect(modelSpeedTier(expensive)).toEqual({ rank: 2, label: 'Powerful' })
   })
 })
 
@@ -103,9 +93,10 @@ describe('compareModels', () => {
     expect(compareModels(expensive, cheapFree, 'cost')).toBeGreaterThan(0)
   })
 
-  it('orders by tier ascending (Fast before Powerful)', () => {
-    expect(compareModels(cheapFree, expensive, 'tier')).toBeLessThan(0)
-    expect(compareModels(mid, cheapFree, 'tier')).toBeGreaterThan(0)
+  it('orders by knowledge cutoff ascending (oldest training data first)', () => {
+    // cheapFree (2024-04) < mid (2024-10) < expensive (2025-06)
+    expect(compareModels(cheapFree, expensive, 'cutoff')).toBeLessThan(0)
+    expect(compareModels(mid, cheapFree, 'cutoff')).toBeGreaterThan(0)
   })
 
   it('orders free-tier models first ascending', () => {

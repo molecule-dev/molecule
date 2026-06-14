@@ -62,6 +62,7 @@ export type ComponentIconName =
   | 'chevron-down'
   | 'chevrons-left'
   | 'chevrons-right'
+  | 'chevrons-up-down'
   // Common actions
   | 'search'
   | 'plus'

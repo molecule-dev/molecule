@@ -10,19 +10,20 @@
 
 import type { AppModelDefinition } from '@molecule/app-ai-models'
 
-/** Sortable columns in the `/models` table. */
-export type ModelSortColumn = 'name' | 'context' | 'cost' | 'tier' | 'free'
+/**
+ * Sortable columns in the `/models` table.
+ *
+ * `cutoff` (knowledge-cutoff date) replaced a former `tier` column that was
+ * fabricated from input price: it duplicated the `cost` axis and was sometimes
+ * factually wrong (a slow reasoning model could read "Balanced"). The catalog
+ * has no latency field, so rather than invent one we expose `knowledgeCutoff` —
+ * a real, factual axis that is genuinely independent of price, context, and
+ * output size.
+ */
+export type ModelSortColumn = 'name' | 'context' | 'cost' | 'cutoff' | 'free'
 
 /** Sort direction. */
 export type SortDirection = 'asc' | 'desc'
-
-/** A derived speed/tier classification for a model. */
-export interface ModelSpeedTier {
-  /** Ordering rank (lower = faster/cheaper). */
-  rank: number
-  /** Display label. */
-  label: string
-}
 
 /**
  * Combined input + output price per million tokens, used as the table's
@@ -33,22 +34,6 @@ export interface ModelSpeedTier {
  */
 export function modelTotalCost(model: AppModelDefinition): number {
   return model.inputPricePerMTok + model.outputPricePerMTok
-}
-
-/**
- * Derives a speed/tier classification from the model's input price. There is no
- * dedicated latency field in the catalog, so price is used as a stable,
- * provider-agnostic proxy: cheaper models are generally the faster/lighter
- * tiers. Thresholds mirror the price-color buckets used in the model picker
- * (≤ $1, ≤ $3, > $3 input per million tokens).
- *
- * @param model - The model metadata.
- * @returns The model's tier rank and display label.
- */
-export function modelSpeedTier(model: AppModelDefinition): ModelSpeedTier {
-  if (model.inputPricePerMTok <= 1) return { rank: 0, label: 'Fast' }
-  if (model.inputPricePerMTok <= 3) return { rank: 1, label: 'Balanced' }
-  return { rank: 2, label: 'Powerful' }
 }
 
 /**
@@ -77,8 +62,11 @@ export function compareModels(
     case 'cost':
       primary = modelTotalCost(a) - modelTotalCost(b)
       break
-    case 'tier':
-      primary = modelSpeedTier(a).rank - modelSpeedTier(b).rank
+    case 'cutoff':
+      // Knowledge-cutoff dates are YYYY-MM-DD strings, which sort
+      // lexicographically as dates. Ascending puts the oldest training data
+      // first.
+      primary = a.knowledgeCutoff.localeCompare(b.knowledgeCutoff)
       break
     case 'free':
       // Free-tier models sort first in ascending order.

@@ -277,9 +277,10 @@ export const en: IdeTranslations = {
   // Models table + model selection (/model, /models).
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCost': 'Cost / 1M',
+  'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
   'ide.chat.models.colName': 'Model',
-  'ide.chat.models.colTier': 'Speed',
+  'ide.chat.models.costBreakdown': 'Input ${{input}} + output ${{output}} per 1M tokens',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Free',
   'ide.chat.models.sortBy': 'Sort by {{column}}',

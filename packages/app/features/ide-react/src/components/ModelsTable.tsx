@@ -2,13 +2,20 @@
  * `/models` comparison table.
  *
  * Renders the available models in a sortable table: name, context window,
- * combined cost per 1M tokens, derived speed tier, and free-tier availability.
- * Clicking a column header sorts ascending, then toggles to descending.
+ * combined cost per 1M tokens, knowledge cutoff, and free-tier availability.
+ * Clicking a column header sorts ascending, then toggles to descending; every
+ * header carries a neutral SVG sort glyph (`chevrons-up-down`) that resolves to
+ * an up/down chevron on the active column — never a unicode arrow or emoji.
  * Free-tier-available models are visually highlighted.
  *
- * Styling uses `getClassMap()` (`cm.*`) for structure/typography/spacing; the
- * only inline styles are for the free-tier highlight tint, the sort-direction
- * arrow, and the per-tier accent color — things the ClassMap can't express.
+ * The "Cutoff" column replaced a former "Speed" column that was fabricated from
+ * input price (it duplicated Cost and could be factually wrong). Knowledge
+ * cutoff is a real, factual axis genuinely independent of the price/size axes.
+ *
+ * Styling uses `getClassMap()` (`cm.*`) for structure/typography/spacing and the
+ * `--color-primary` theme token for the active-header accent; the only inline
+ * styles are the free-tier highlight tint and the provider accent stripe —
+ * things the ClassMap can't express.
  *
  * @module
  */
@@ -20,14 +27,30 @@ import type { AppModelDefinition } from '@molecule/app-ai-models'
 import { formatTokenCount, PROVIDER_BRAND_COLORS } from '@molecule/app-ai-models'
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
+import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
 import type { ModelSortColumn, SortDirection } from './chat-models-utilities.js'
-import { modelSpeedTier, modelTotalCost, sortModels } from './chat-models-utilities.js'
+import { modelTotalCost, sortModels } from './chat-models-utilities.js'
+import { Icon } from './Icon.js'
 
 /** Column definition for the models table header. */
 interface ColumnDef {
   key: ModelSortColumn
   label: string
+}
+
+/**
+ * Picks the SVG sort glyph for a header: the neutral `chevrons-up-down` when the
+ * column is not the active sort, or a single up/down chevron matching the active
+ * direction. Keeps one consistent icon family across every header.
+ *
+ * @param active - Whether this column is the current sort column.
+ * @param direction - The current sort direction (only meaningful when `active`).
+ * @returns The icon-set glyph name to render.
+ */
+function sortGlyph(active: boolean, direction: SortDirection): string {
+  if (!active) return 'chevrons-up-down'
+  return direction === 'asc' ? 'chevron-up' : 'chevron-down'
 }
 
 /**
@@ -69,24 +92,15 @@ export function ModelsTable({
       key: 'cost',
       label: t('ide.chat.models.colCost', undefined, { defaultValue: 'Cost / 1M' }),
     },
-    { key: 'tier', label: t('ide.chat.models.colTier', undefined, { defaultValue: 'Speed' }) },
+    {
+      key: 'cutoff',
+      label: t('ide.chat.models.colCutoff', undefined, { defaultValue: 'Cutoff' }),
+    },
     { key: 'free', label: t('ide.chat.models.colFree', undefined, { defaultValue: 'Free' }) },
   ]
 
   const freeHighlightBg = isLight ? 'rgba(34,197,94,0.10)' : 'rgba(34,197,94,0.14)'
   const freeBadgeFg = isLight ? 'rgb(21,128,61)' : 'rgb(74,222,128)'
-  const tierColor = (rank: number): string =>
-    rank === 0
-      ? isLight
-        ? 'rgb(22,163,74)'
-        : 'rgb(74,222,128)'
-      : rank === 1
-        ? isLight
-          ? 'rgb(161,98,7)'
-          : 'rgb(250,204,21)'
-        : isLight
-          ? 'rgb(220,38,38)'
-          : 'rgb(248,113,113)'
 
   const cellPad = cm.sp('px', 2)
   const cellPadY = cm.sp('py', 1)
@@ -144,9 +158,13 @@ export function ModelsTable({
                     }}
                   >
                     {col.label}
-                    <span style={{ width: 8, display: 'inline-block', fontSize: 9, opacity: 0.8 }}>
-                      {active ? (sort.direction === 'asc' ? '▲' : '▼') : ''}
-                    </span>
+                    <Icon
+                      name={sortGlyph(active, sort.direction)}
+                      size={12}
+                      aria-hidden="true"
+                      data-mol-id={`models-sort-glyph-${col.key}`}
+                      style={{ flexShrink: 0, opacity: active ? 1 : 0.6 }}
+                    />
                   </button>
                 </th>
               )
@@ -156,7 +174,6 @@ export function ModelsTable({
         <tbody>
           {sorted.map((model) => {
             const accent = PROVIDER_BRAND_COLORS[model.provider] ?? '#888'
-            const tier = modelSpeedTier(model)
             const isCurrent = model.id === currentModelId
             return (
               <tr
@@ -191,16 +208,30 @@ export function ModelsTable({
                   {formatTokenCount(model.contextWindow)}
                 </td>
                 <td className={cm.cn(cellPad, cellPadY)} style={{ whiteSpace: 'nowrap' }}>
-                  ${modelTotalCost(model).toFixed(2)}
-                  <span className={cm.textMuted} style={{ fontSize: 10, marginLeft: 4 }}>
-                    (${model.inputPricePerMTok.toFixed(2)}+${model.outputPricePerMTok.toFixed(2)})
-                  </span>
+                  {/*
+                    Collapse the wide "$X.XX ($in+$out)" breakdown into a single
+                    figure + the framework styled Tooltip, so the cost column
+                    stays narrow enough to read in the chat panel. The breakdown
+                    is revealed on hover/focus — not crammed inline.
+                  */}
+                  <Tooltip
+                    content={t(
+                      'ide.chat.models.costBreakdown',
+                      {
+                        input: model.inputPricePerMTok.toFixed(2),
+                        output: model.outputPricePerMTok.toFixed(2),
+                      },
+                      { defaultValue: 'Input ${{input}} + output ${{output}} per 1M tokens' },
+                    )}
+                    placement="top"
+                  >
+                    <span data-mol-id={`models-cost-${model.id}`}>
+                      ${modelTotalCost(model).toFixed(2)}
+                    </span>
+                  </Tooltip>
                 </td>
-                <td
-                  className={cm.cn(cellPad, cellPadY)}
-                  style={{ whiteSpace: 'nowrap', color: tierColor(tier.rank), fontWeight: 500 }}
-                >
-                  {t(`ide.chat.models.tier.${tier.rank}`, undefined, { defaultValue: tier.label })}
+                <td className={cm.cn(cellPad, cellPadY)} style={{ whiteSpace: 'nowrap' }}>
+                  {model.knowledgeCutoff}
                 </td>
                 <td className={cm.cn(cellPad, cellPadY)}>
                   {model.freeTier ? (
