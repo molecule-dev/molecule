@@ -248,6 +248,26 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': '履歴書',
   'ide.chat.openSettings': '設定',
   'ide.chat.tip.dismiss': 'ヒントを閉じる',
+  'ide.chat.tip.getStarted':
+    'ヒント：すべてのコマンドを表示するには「/」と入力し、{{agentName}}に処理対象のファイルを指定するにはファイル名の前に「@」を付けて入力してください。',
+  'ide.chat.tip.mention':
+    'ヒント：@filename と入力すると、プロジェクトファイルをコンテキストとして添付できます。{{agentName}} がそのファイルを直接読み込みます。',
+  'ide.chat.tip.slash':
+    'ヒント：/ と入力すると、すべてのコマンド（commit、diff、model など）を表示できます。',
+  'ide.chat.tip.plan':
+    'ヒント：/plan オプションを使用すると、{{agentName}}がファイルを編集する前に調査を行い、計画を提案します。',
+  'ide.chat.tip.undo':
+    'ヒント：AIのターンでファイルの変更が思わしくない結果になった場合は、/undo コマンドを使って直ちに元に戻すことができます。',
+  'ide.chat.tip.compact':
+    'ヒント：会話が長くなっていませんか？ /compact を使えば、会話の文脈を圧縮して、作業スペースを確保できます。',
+  'ide.chat.tip.commit':
+    'ヒント：/commit を使用すると、変更内容を Git コミットとして保存でき、いつでもその状態に戻すことができます。',
+  'ide.chat.tip.diff':
+    'ヒント：変更を確定またはコミットする前に、/diff コマンドを使ってコミットされていないすべての変更内容を確認しましょう。',
+  'ide.chat.tip.models':
+    'ヒント：/models と入力すると、利用可能なすべてのAIモデルを比較し、{{agentName}} を実行しているモデルに切り替えることができます。',
+  'ide.chat.tip.report':
+    'ヒント：何かおかしいですか？ /report と入力すると、最近のチャット履歴を添付して、バグやフィードバックをチームに送信できます。',
   'ide.chat.undoError': '変更の取り消しに失敗しました。',
   'ide.chat.autoCommit.badge': '{{countdown}} における自動コミット',
   'ide.chat.autoCommit.cancel': '自動コミットを無効にする',

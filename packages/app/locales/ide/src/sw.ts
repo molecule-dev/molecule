@@ -248,6 +248,25 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Kidokezo: andika / ili kuona kila amri, au @ jina la faili ili kutoa{{agentName}} faili ya kufanya kazi kutoka.',
+  'ide.chat.tip.mention':
+    'Kidokezo: andika @filename ili kuambatisha faili ya mradi kama muktadha —{{agentName}} anasoma moja kwa moja.',
+  'ide.chat.tip.slash': 'Kidokezo: type / ili kuvinjari kila amri (commit, diff, model, na zaidi).',
+  'ide.chat.tip.plan':
+    'Ushauri: tumia/panga kuwa na{{agentName}} fanya utafiti na upendekeze mpango kabla ya kuhariri faili zozote.',
+  'ide.chat.tip.undo':
+    'Ushauri: tumia /tendua ili kurejesha mara moja mabadiliko ya faili ya zamu ya mwisho ya AI ikiwa ilienda vibaya.',
+  'ide.chat.tip.compact':
+    'Ushauri: mazungumzo marefu? /fupi hubana muktadha ili uweze kuweka nafasi ya kufanya kazi.',
+  'ide.chat.tip.commit':
+    'Ushauri: tumia /commit kuhifadhi mabadiliko yako kama git commit ambayo unaweza kurudia kila wakati.',
+  'ide.chat.tip.diff':
+    'Ushauri: tumia /diff kukagua kila mabadiliko ambayo hayajafanywa kabla ya kuyaweka au kuyaweka.',
+  'ide.chat.tip.models':
+    'Kidokezo: aina /modeli ili kulinganisha kila modeli ya AI inayopatikana na ubadilishe inayofanya kazi{{agentName}} .',
+  'ide.chat.tip.report':
+    'Ushauri: kuna kitu kibaya? /ripoti hutuma hitilafu au maoni kwa timu ukiwa umeambatanisha gumzo lako la hivi karibuni.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   CHAT_TIPS,
+  ENTRY_TIP,
   pickIdleTip,
   selectTip,
   shouldShowIdleTip,
@@ -48,6 +49,53 @@ describe('selectTip', () => {
   it('covers the core efficiency features', () => {
     const ids = CHAT_TIPS.map((t) => t.id)
     expect(ids).toEqual(expect.arrayContaining(['mention', 'slash', 'plan', 'undo', 'compact']))
+  })
+})
+
+describe('ENTRY_TIP (SYN12 — the onboarding entry tip)', () => {
+  it('is the high-value getStarted hint pointing at / and @', () => {
+    expect(ENTRY_TIP.id).toBe('getStarted')
+    expect(ENTRY_TIP.text).toContain('/')
+    expect(ENTRY_TIP.text).toContain('@')
+    // Personalised with the host agent identity.
+    expect(ENTRY_TIP.text).toContain('{{agentName}}')
+  })
+
+  it('is NOT part of the idle rotation, so it never repeats as a random tip', () => {
+    expect(CHAT_TIPS.map((tip) => tip.id)).not.toContain(ENTRY_TIP.id)
+  })
+
+  it('every tip id (entry + rotation) is unique — they double as i18n key suffixes', () => {
+    const ids = [ENTRY_TIP.id, ...CHAT_TIPS.map((tip) => tip.id)]
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+})
+
+describe('pool growth + loosened gating (SYN12)', () => {
+  it('grew the rotation pool beyond the original five tips', () => {
+    expect(CHAT_TIPS.length).toBeGreaterThanOrEqual(9)
+    expect(CHAT_TIPS.map((tip) => tip.id)).toEqual(
+      expect.arrayContaining(['commit', 'diff', 'models', 'report']),
+    )
+  })
+
+  it('loosened the gate so a typical short session can reach a tip', () => {
+    // A real session reaches its first idle tip after one back-and-forth, a
+    // sub-minute pause, and a better-than-even roll — not the old 4-message,
+    // 60s, 40% combination that left new users with zero tips.
+    expect(TIP_MIN_MESSAGES).toBeLessThanOrEqual(2)
+    expect(TIP_IDLE_MS).toBeLessThanOrEqual(45_000)
+    expect(TIP_IDLE_PROBABILITY).toBeGreaterThanOrEqual(0.6)
+    expect(
+      shouldShowIdleTip(
+        {
+          messageCount: TIP_MIN_MESSAGES,
+          msSinceLastActivity: TIP_IDLE_MS,
+          msSinceLastTip: Number.POSITIVE_INFINITY,
+        },
+        TIP_IDLE_PROBABILITY - 0.01,
+      ),
+    ).toBe(true)
   })
 })
 

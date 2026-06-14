@@ -246,6 +246,26 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Özgeçmiş',
   'ide.chat.openSettings': 'Ayarlar',
   'ide.chat.tip.dismiss': 'İpucunu kapat',
+  'ide.chat.tip.getStarted':
+    "İpucu: Tüm komutları görmek için / yazın ya d{{agentName}}'a üzerinde çalışacağı bir dosya belirtmek için @ işareti ile dosya adını girin.",
+  'ide.chat.tip.mention':
+    'İpucu: Bir proje dosyasını bağlam olarak eklemek için @dosyaadı yazın — {{agentName}} bunu doğrudan okur.',
+  'ide.chat.tip.slash':
+    'İpucu: / yazarak tüm komutları (commit, diff, model ve daha fazlasını) görebilirsiniz.',
+  'ide.chat.tip.plan':
+    "İpucu: /plan komutunu kullanarak, {{agentName}}'un herhangi bir dosyayı düzenlemeden önce bir plan hazırlamasını ve önermesini sağlayabilirsiniz.",
+  'ide.chat.tip.undo':
+    'İpucu: Son AI hamlesinde yapılan dosya değişiklikleri istenmeyen bir sonuca yol açtıysa, /undo komutunu kullanarak bunları anında geri alabilirsiniz.',
+  'ide.chat.tip.compact':
+    'İpucu: Uzun bir sohbet mi var? /compact komutu, sohbet içeriğini sıkıştırarak size çalışma alanı açar.',
+  'ide.chat.tip.commit':
+    "İpucu: Değişikliklerinizi, istediğiniz zaman geri dönebileceğiniz bir Git commit'i olarak kaydetmek için /commit komutunu kullanın.",
+  'ide.chat.tip.diff':
+    'İpucu: Herhangi bir değişikliği kaydetmeden veya commit etmeden önce, /diff komutunu kullanarak bu değişiklikleri gözden geçirin.',
+  'ide.chat.tip.models':
+    'İpucu: /models komutunu yazarak mevcut tüm AI modellerini karşılaştırın ve {{agentName}} adresinde çalışan modeli seçin.',
+  'ide.chat.tip.report':
+    'İpucu: Bir sorun mu var? /report komutunu kullanarak, son sohbet geçmişinizi ekleyerek ekibe bir hata bildirimi veya geri bildirim gönderebilirsiniz.',
   'ide.chat.undoError': 'Değişiklikler geri alınamadı.',
   'ide.chat.autoCommit.badge': "{{countdown}}'da otomatik kaydetme",
   'ide.chat.autoCommit.cancel': 'Otomatik kaydetmeyi iptal et',

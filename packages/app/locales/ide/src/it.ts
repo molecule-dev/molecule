@@ -255,6 +255,26 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Curriculum',
   'ide.chat.openSettings': 'Impostazioni',
   'ide.chat.tip.dismiss': 'Ignora il suggerimento',
+  'ide.chat.tip.getStarted':
+    'Suggerimento: digita / per visualizzare tutti i comandi, oppure @ seguito dal nome di un file per specificare un file su cui lavorare c{{agentName}}.',
+  'ide.chat.tip.mention':
+    'Suggerimento: digita @nomefile per allegare un file di progetto come contesto — {{agentName}} lo legge direttamente.',
+  'ide.chat.tip.slash':
+    "Suggerimento: digita / per visualizzare l'elenco completo dei comandi (commit, diff, model e altri).",
+  'ide.chat.tip.plan':
+    'Suggerimento: usa /plan per far sì che {{agentName}} analizzi la situazione e proponga un piano prima di modificare qualsiasi file.',
+  'ide.chat.tip.undo':
+    "Suggerimento: usa /undo per annullare immediatamente le modifiche apportate al file nell'ultimo turno dell'IA, se qualcosa è andato storto.",
+  'ide.chat.tip.compact':
+    'Suggerimento: la conversazione è lunga? /compact comprime il contesto, così avrai più spazio per lavorare.',
+  'ide.chat.tip.commit':
+    'Suggerimento: usa /commit per salvare le modifiche come commit Git a cui potrai sempre tornare.',
+  'ide.chat.tip.diff':
+    'Suggerimento: usa /diff per controllare tutte le modifiche non ancora salvate prima di confermarle o salvarle.',
+  'ide.chat.tip.models':
+    'Suggerimento: digita /models per confrontare tutti i modelli di IA disponibili e selezionare quello che gestisc{{agentName}}',
+  'ide.chat.tip.report':
+    "Suggerimento: c'è qualcosa che non va? /report invia una segnalazione di bug o un feedback al team allegando la tua chat più recente.",
   'ide.chat.undoError': 'Impossibile ripristinare le modifiche.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Annulla il salvataggio automatico',

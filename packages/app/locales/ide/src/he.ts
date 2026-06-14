@@ -245,6 +245,24 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'טיפ: הקלד / כדי לראות כל פקודה, או @ כדי לתת שם קובץ{{agentName}} קובץ לעבוד ממנו.',
+  'ide.chat.tip.mention':
+    'טיפ: הקלד @filename כדי לצרף קובץ פרויקט כהקשר —{{agentName}} קורא את זה ישירות.',
+  'ide.chat.tip.slash': 'טיפ: הקלד / כדי לעיין בכל פקודה (commit, diff, model ועוד).',
+  'ide.chat.tip.plan':
+    'טיפ: השתמשו/תכננו שיהיה לכם{{agentName}} לחקור ולהציע תוכנית לפני שהוא עורך קבצים כלשהם.',
+  'ide.chat.tip.undo':
+    'טיפ: השתמשו בפונקציה /undo כדי לבטל באופן מיידי את השינויים בקובץ של תור הבינה המלאכותית האחרון אם זה הלך בכיוון הלא נכון.',
+  'ide.chat.tip.compact': 'טיפ: שיחה ארוכה? /compact דוחס את ההקשר כך שיהיה מקום לעבודה.',
+  'ide.chat.tip.commit':
+    'טיפ: השתמשו בפונקציה /commit כדי לשמור את השינויים שלכם כקובץ git commit שתוכלו לחזור אליו תמיד.',
+  'ide.chat.tip.diff':
+    'טיפ: השתמשו בפונקציה /diff כדי לבדוק כל שינוי שלא בוצע לפני שאתם שומרים או בוצעו בו ביצוע commit.',
+  'ide.chat.tip.models':
+    'טיפ: הקלד /models כדי להשוות כל מודל בינה מלאכותית זמין ולהחליף את זה שפועל{{agentName}} .',
+  'ide.chat.tip.report':
+    'טיפ: משהו לא בסדר? /report שולח באג או משוב לצוות עם הצ&#39;אט האחרון שלך מצורף.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

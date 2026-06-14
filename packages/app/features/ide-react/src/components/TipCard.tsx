@@ -35,8 +35,11 @@ export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => vo
         margin: '8px 0',
         padding: '8px 10px',
         borderRadius: 8,
-        border: '1px solid rgba(99,102,241,0.25)',
-        background: 'rgba(99,102,241,0.08)',
+        // Tint follows the active theme's primary color (light/dark + per-app
+        // brand) via color-mix on the theme token — never a hardcoded indigo, so
+        // the card recolors with the theme instead of clashing with it.
+        border: '1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 28%, transparent)',
+        background: 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 8%, transparent)',
         lineHeight: 1.5,
       }}
     >

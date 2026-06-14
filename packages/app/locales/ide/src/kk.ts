@@ -247,6 +247,26 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Кеңес: әрбір команданы көру үшін / пернесін басыңыз немесе @ файл атауын беріңіз{{agentName}} жұмыс істеуге арналған файл.',
+  'ide.chat.tip.mention':
+    'Кеңес: жоба файлын контекст ретінде тіркеу үшін @filename теріңіз —{{agentName}} оны тікелей оқиды.',
+  'ide.chat.tip.slash':
+    'Кеңес: әрбір команданы (commit, diff, model және т.б.) шолу үшін / теріңіз.',
+  'ide.chat.tip.plan':
+    'Кеңес: /plan пайдаланыңыз{{agentName}} кез келген файлдарды өңдемес бұрын зерттеу жүргізіп, жоспар ұсыныңыз.',
+  'ide.chat.tip.undo':
+    'Кеңес: егер қате кетсе, соңғы жасанды интеллект кезегінің файл өзгерістерін бірден қайтару үшін /undo пернесін пайдаланыңыз.',
+  'ide.chat.tip.compact':
+    'Кеңес: ұзақ әңгіме? /compact контекстті қысады, сондықтан жұмыс істеуге орын қалдырасыз.',
+  'ide.chat.tip.commit':
+    'Кеңес: өзгертулерді әрқашан оралуға болатын git commit ретінде сақтау үшін /commit пайдаланыңыз.',
+  'ide.chat.tip.diff':
+    'Кеңес: әрбір бекітілмеген өзгерісті сақтамас бұрын немесе бекітпес бұрын қарап шығу үшін /diff пайдаланыңыз.',
+  'ide.chat.tip.models':
+    'Кеңес: әрбір қолжетімді жасанды интеллект моделін салыстыру үшін /models теріп, жұмыс істеп тұрған моделін ауыстырыңыз{{agentName}} .',
+  'ide.chat.tip.report':
+    'Кеңес: бірдеңе дұрыс емес пе? /report командаға қате туралы немесе пікірді соңғы чатыңызды тіркеп жібереді.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

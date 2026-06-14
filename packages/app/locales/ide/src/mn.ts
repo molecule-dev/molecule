@@ -250,6 +250,26 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Зөвлөгөө: бүх командыг харахын тулд / гэж бичнэ үү, эсвэл @ файлын нэрийг өгнө үү{{agentName}} ажиллах файл.',
+  'ide.chat.tip.mention':
+    'Зөвлөгөө: төслийн файлыг контекст болгон хавсаргахын тулд @filename гэж бичнэ үү —{{agentName}} үүнийг шууд уншдаг.',
+  'ide.chat.tip.slash':
+    'Зөвлөгөө: бүх командыг (commit, diff, model гэх мэт) үзэхийн тулд / гэж бичнэ үү.',
+  'ide.chat.tip.plan':
+    'Зөвлөгөө: байхын тулд /plan ашиглана уу{{agentName}} ямар нэгэн файлыг засахаасаа өмнө судалгаа хийж, төлөвлөгөө санал болгох.',
+  'ide.chat.tip.undo':
+    'Зөвлөгөө: Хэрэв буруу чиглэлд явсан бол сүүлийн хиймэл оюун ухааны ээлжийн файлын өөрчлөлтийг шууд буцаахын тулд /undo товчийг ашиглана уу.',
+  'ide.chat.tip.compact':
+    'Зөвлөгөө: урт яриа уу? /compact нь хам сэдвийг шахаж, ингэснээр та ажиллах зай үлдээнэ.',
+  'ide.chat.tip.commit':
+    'Зөвлөгөө: өөрчлөлтүүдээ үргэлж буцаж болох git commit болгон хадгалахын тулд /commit ашиглана уу.',
+  'ide.chat.tip.diff':
+    'Зөвлөгөө: хадгалах эсвэл баталгаажуулахаасаа өмнө хийгдээгүй өөрчлөлт бүрийг хянахын тулд /diff ашиглана уу.',
+  'ide.chat.tip.models':
+    'Зөвлөгөө: боломжтой бүх хиймэл оюун ухааны загваруудыг харьцуулахын тулд /models гэж бичээд ажиллаж байгаа загварыг соль{{agentName}} .',
+  'ide.chat.tip.report':
+    'Зөвлөгөө: ямар нэгэн алдаа байна уу? /report нь таны саяхны чатыг хавсаргасан алдаа эсвэл санал хүсэлтийг багтаа илгээдэг.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

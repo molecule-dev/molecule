@@ -250,6 +250,26 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Tip: i-type ang / para makita ang bawat command, o @ isang filename para ibigay{{agentName}} isang file na mapagtatrabahuhan.',
+  'ide.chat.tip.mention':
+    'Tip: i-type ang @filename para ilakip ang isang project file bilang konteksto —{{agentName}} direktang binabasa ito.',
+  'ide.chat.tip.slash':
+    'Tip: i-type ang / para i-browse ang bawat command (commit, diff, model, at higit pa).',
+  'ide.chat.tip.plan':
+    'Tip: gamitin /planong magkaroon{{agentName}} magsaliksik at magmungkahi ng plano bago nito i-edit ang anumang mga file.',
+  'ide.chat.tip.undo':
+    'Tip: gamitin ang /undo para agad na ibalik ang mga pagbabago sa file ng huling AI turn kung mali ang naging resulta.',
+  'ide.chat.tip.compact':
+    'Tip: mahabang usapan? /compact ay nagpipiga sa konteksto para may espasyo kang mapagtatrabahuhan.',
+  'ide.chat.tip.commit':
+    'Tip: gamitin ang /commit upang i-save ang iyong mga pagbabago bilang isang git commit na maaari mong balikan anumang oras.',
+  'ide.chat.tip.diff':
+    'Tip: gamitin ang /diff para suriin ang bawat hindi nai-commit na pagbabago bago mo ito itago o i-commit.',
+  'ide.chat.tip.models':
+    'Tip: i-type ang /models para ihambing ang bawat available na modelo ng AI at palitan ang tumatakbo{{agentName}} .',
+  'ide.chat.tip.report':
+    'Tip: may mali? Ang /report ay nagpapadala ng bug o feedback sa team kasama ang iyong kamakailang chat.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

@@ -248,6 +248,26 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Совет: напишете / за да ја видите секоја команда или @ за да го дадете името на датотеката{{agentName}} датотека од која ќе се работи.',
+  'ide.chat.tip.mention':
+    'Совет: напишете @именадатотека за да прикачите проектна датотека како контекст —{{agentName}} го чита директно.',
+  'ide.chat.tip.slash':
+    'Совет: напишете / за да ги прелистате сите команди (commit, diff, model и друго).',
+  'ide.chat.tip.plan':
+    'Совет: користете /планирајте да имате{{agentName}} истражува и предлага план пред да уредува какви било датотеки.',
+  'ide.chat.tip.undo':
+    'Совет: користете /undo за моментално враќање на промените во датотеката од последниот круг на вештачката интелигенција ако сè тргнало на погрешен пат.',
+  'ide.chat.tip.compact':
+    'Совет: долг разговор? /compact го компресира контекстот за да оставите простор за работа.',
+  'ide.chat.tip.commit':
+    'Совет: користете /commit за да ги зачувате вашите промени како git commit на кој секогаш можете да се вратите.',
+  'ide.chat.tip.diff':
+    'Совет: користете /diff за да ги прегледате сите некомитирани промени пред да ги задржите или комитирате.',
+  'ide.chat.tip.models':
+    'Совет: напишете /models за да ги споредите сите достапни модели на вештачка интелигенција и да го промените оној што работи.{{agentName}} .',
+  'ide.chat.tip.report':
+    'Совет: нешто не е во ред? /report испраќа грешка или повратни информации до тимот со прикачен вашиот неодамнешен разговор.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

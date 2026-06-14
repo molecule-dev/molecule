@@ -246,6 +246,26 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Petua: taip / untuk melihat setiap arahan, atau @ nama fail untuk diberikan{{agentName}} fail untuk digunakan.',
+  'ide.chat.tip.mention':
+    'Petua: taip @namafail untuk melampirkan fail projek sebagai konteks —{{agentName}} membacanya secara langsung.',
+  'ide.chat.tip.slash':
+    'Petua: taip / untuk menyemak imbas setiap arahan (commit, diff, model dan banyak lagi).',
+  'ide.chat.tip.plan':
+    'Petua: gunakan /rancang untuk dimiliki{{agentName}} menyelidik dan mencadangkan pelan sebelum ia mengedit sebarang fail.',
+  'ide.chat.tip.undo':
+    'Petua: gunakan /undo untuk segera mengembalikan perubahan fail giliran AI terakhir jika ia salah arah.',
+  'ide.chat.tip.compact':
+    'Petua: perbualan panjang? /compact memampatkan konteks supaya anda mempunyai ruang untuk bekerja.',
+  'ide.chat.tip.commit':
+    'Petua: gunakan /commit untuk menyimpan perubahan anda sebagai git commit yang anda sentiasa boleh kembali.',
+  'ide.chat.tip.diff':
+    'Petua: gunakan /diff untuk menyemak setiap perubahan yang tidak dikomit sebelum anda menyimpan atau mengkomitnya.',
+  'ide.chat.tip.models':
+    'Petua: taip /models untuk membandingkan setiap model AI yang tersedia dan tukar yang sedang berjalan{{agentName}} .',
+  'ide.chat.tip.report':
+    'Petua: ada sesuatu yang tidak kena? /laporan menghantar pepijat atau maklum balas kepada pasukan dengan sembang terbaru anda dilampirkan.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

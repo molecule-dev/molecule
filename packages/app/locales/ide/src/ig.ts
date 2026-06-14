@@ -245,6 +245,26 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Ndụmọdụ: pịnye / iji hụ iwu ọ bụla, ma ọ bụ @ aha faịlụ iji nye{{agentName}} faịlụ iji rụọ ọrụ.',
+  'ide.chat.tip.mention':
+    'Ndụmọdụ: pịnye @filename iji tinye faịlụ ọrụ dịka ihe dị na ya —{{agentName}} na-agụ ya ozugbo.',
+  'ide.chat.tip.slash':
+    'Ndụmọdụ: pịnye / iji lelee iwu ọ bụla (nkwenye, mgbanwe, ụdị, na ihe ndị ọzọ).',
+  'ide.chat.tip.plan':
+    'Ndụmọdụ: iji/atụmatụ inwe{{agentName}} mee nnyocha ma tụọ aro atụmatụ tupu ọ dezie faịlụ ọ bụla.',
+  'ide.chat.tip.undo':
+    'Ndụmọdụ: jiri /megharịa iji weghachite mgbanwe faịlụ AI ikpeazụ ozugbo ma ọ bụrụ na ọ gara n&#39;ụzọ na-ezighi ezi.',
+  'ide.chat.tip.compact':
+    'Ndụmọdụ: mkparịta ụka dị ogologo? /kọmpat na-eme ka ihe dị n&#39;ime ya sie ike ka i wee nwee ohere ịrụ ọrụ.',
+  'ide.chat.tip.commit':
+    'Ndụmọdụ: jiri /commit chekwaa mgbanwe gị dị ka git commit ị nwere ike ịlaghachi na ya mgbe niile.',
+  'ide.chat.tip.diff':
+    'Ndụmọdụ: jiri /diff lelee mgbanwe ọ bụla a na-emebeghị tupu i debe ma ọ bụ mee ya.',
+  'ide.chat.tip.models':
+    'Ndụmọdụ: pịnye/ụdị iji tụnyere ụdị AI ọ bụla dị ma gbanwee nke na-agba ọsọ{{agentName}} .',
+  'ide.chat.tip.report':
+    'Ndụmọdụ: ihe adịghị mma? /akụkọ na-eziga njehie ma ọ bụ nzaghachi nye ndị otu ahụ yana nkata gị nke dị nso.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

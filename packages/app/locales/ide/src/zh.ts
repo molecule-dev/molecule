@@ -244,6 +244,23 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': '简历',
   'ide.chat.openSettings': '设置',
   'ide.chat.tip.dismiss': '关闭提示',
+  'ide.chat.tip.getStarted':
+    '提示：输入 / 可查看所有命令，或在文件名前加 @ 符号，为 `{{agentName}}` 指定要处理的文件。',
+  'ide.chat.tip.mention':
+    '提示：输入 @filename 可将项目文件作为上下文附加——{{agentName}} 会直接读取该文件。',
+  'ide.chat.tip.slash': '提示：输入 / 可浏览所有命令（commit、diff、model 等）。',
+  'ide.chat.tip.plan':
+    '提示：使用 /plan 命令，{{agentName}} 会在编辑任何文件之前进行调研并提出方案。',
+  'ide.chat.tip.undo':
+    '提示：如果AI的最后一步操作出了问题，可以使用 /undo 命令立即撤销该步骤对文件的更改。',
+  'ide.chat.tip.compact': '提示：对话太长？使用 /compact 命令可压缩对话内容，为你腾出操作空间。',
+  'ide.chat.tip.commit':
+    '提示：使用 /commit 命令将更改保存为 Git 提交，这样你随时可以回溯到该提交。',
+  'ide.chat.tip.diff': '提示：在保留或提交更改之前，请使用 /diff 命令查看所有未提交的更改。',
+  'ide.chat.tip.models':
+    '提示：输入 /models 可比较所有可用的 AI 模型，并切换正在运行的模型 {{agentName}}。',
+  'ide.chat.tip.report':
+    '提示：发现问题？发送 /report 指令，即可将您的近期聊天记录作为附件一并发送给团队，以便反馈问题或提出建议。',
   'ide.chat.undoError': '无法撤销更改。',
   'ide.chat.autoCommit.badge': '{{countdown}} 中的自动提交',
   'ide.chat.autoCommit.cancel': '取消自动提交',

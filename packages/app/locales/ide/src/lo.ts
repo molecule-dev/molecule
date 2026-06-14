@@ -246,6 +246,25 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'ຄຳແນະນຳ: ພິມ / ເພື່ອເບິ່ງທຸກໆຄຳສັ່ງ, ຫຼື @ ຊື່ໄຟລ໌ເພື່ອໃຫ້{{agentName}} ໄຟລ໌ເພື່ອເຮັດວຽກຈາກ.',
+  'ide.chat.tip.mention':
+    'ຄຳແນະນຳ: ພິມ @filename ເພື່ອແນບໄຟລ໌ໂຄງການເປັນບໍລິບົດ —{{agentName}} ອ່ານມັນໂດຍກົງ.',
+  'ide.chat.tip.slash': 'ຄຳແນະນຳ: ພິມ / ເພື່ອເບິ່ງທຸກໆຄຳສັ່ງ (commit, diff, model, ແລະອື່ນໆ).',
+  'ide.chat.tip.plan':
+    'ຄຳແນະນຳ: ໃຊ້ /ວາງແຜນທີ່ຈະມີ{{agentName}} ຄົ້ນຄວ້າ ແລະ ສະເໜີແຜນການກ່ອນທີ່ມັນຈະແກ້ໄຂໄຟລ໌ໃດໆ.',
+  'ide.chat.tip.undo':
+    'ຄຳແນະນຳ: ໃຊ້ /undo ເພື່ອປ່ຽນກັບຄືນການປ່ຽນແປງໄຟລ໌ຂອງ AI turn ສຸດທ້າຍທັນທີ ຖ້າມັນໄປຜິດທາງ.',
+  'ide.chat.tip.compact':
+    'ຄຳແນະນຳ: ການສົນທະນາຍາວບໍ? /compact ຈະບີບອັດສະພາບການເພື່ອໃຫ້ທ່ານມີພື້ນທີ່ສຳລັບເຮັດວຽກ.',
+  'ide.chat.tip.commit':
+    'ຄຳແນະນຳ: ໃຊ້ /commit ເພື່ອບັນທຶກການປ່ຽນແປງຂອງທ່ານເປັນ git commit ທີ່ທ່ານສາມາດກັບຄືນມາໄດ້ສະເໝີ.',
+  'ide.chat.tip.diff':
+    'ຄຳແນະນຳ: ໃຊ້ /diff ເພື່ອທົບທວນທຸກໆການປ່ຽນແປງທີ່ຍັງບໍ່ໄດ້ຢືນຢັນກ່ອນທີ່ທ່ານຈະເກັບ ຫຼື ຢືນຢັນມັນ.',
+  'ide.chat.tip.models':
+    'ຄຳແນະນຳ: ພິມ /models ເພື່ອປຽບທຽບທຸກຮູບແບບ AI ທີ່ມີຢູ່ ແລະ ປ່ຽນຮູບແບບທີ່ໃຊ້ງານຢູ່{{agentName}} .',
+  'ide.chat.tip.report':
+    'ຄຳແນະນຳ: ມີບາງຢ່າງຜິດປົກກະຕິບໍ? /report ສົ່ງຂໍ້ຜິດພາດ ຫຼື ຄຳຕິຊົມໄປຫາທີມງານພ້ອມກັບການສົນທະນາຫຼ້າສຸດຂອງທ່ານທີ່ແນບມານຳ.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

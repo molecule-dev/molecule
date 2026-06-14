@@ -248,6 +248,26 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Shawara: rubuta / don ganin kowane umarni, ko @ sunan fayil don bayarwa{{agentName}} fayil ɗin da za a yi aiki da shi.',
+  'ide.chat.tip.mention':
+    'Shawara: rubuta @filename don haɗa fayil ɗin aiki a matsayin mahallin -{{agentName}} yana karanta shi kai tsaye.',
+  'ide.chat.tip.slash':
+    'Shawara: rubuta / don bincika kowace umarni (alƙawari, bambanci, samfuri, da ƙari).',
+  'ide.chat.tip.plan':
+    'Shawara: amfani/shirin samun{{agentName}} bincike da kuma gabatar da wani shiri kafin ya gyara duk wani fayil.',
+  'ide.chat.tip.undo':
+    'Shawara: yi amfani da / gyara don dawo da canje-canjen fayil ɗin AI na ƙarshe idan ya tafi ba daidai ba.',
+  'ide.chat.tip.compact':
+    'Shawara: dogon tattaunawa? /compact yana matse mahallin don haka kuna da isasshen sarari don yin aiki.',
+  'ide.chat.tip.commit':
+    'Shawara: yi amfani da /commit don adana canje-canjenku azaman git commit da zaku iya komawa akai-akai.',
+  'ide.chat.tip.diff':
+    'Shawara: yi amfani da /diff don sake duba kowane canji da ba a yi ba kafin ka ci gaba ko ka aiwatar da shi.',
+  'ide.chat.tip.models':
+    'Shawara: rubuta/samfura don kwatanta kowane samfurin AI da ake da shi kuma canza wanda ke gudana{{agentName}} .',
+  'ide.chat.tip.report':
+    'Shawara: wani abu ya lalace? /rahoton yana aika kuskure ko ra&#39;ayi ga ƙungiyar tare da an haɗa tattaunawar ku ta baya-bayan nan.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

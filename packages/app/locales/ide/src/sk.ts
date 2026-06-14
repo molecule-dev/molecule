@@ -248,6 +248,26 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Životopis',
   'ide.chat.openSettings': 'Nastavenia',
   'ide.chat.tip.dismiss': 'Zatvoriť tip',
+  'ide.chat.tip.getStarted':
+    'Tip: Zadajte znak /, ak chcete zobraziť všetky príkazy, alebo @ a názov súboru, ak chcete nastaviť súbor, s ktorým má program {{agentName}} pracovať.',
+  'ide.chat.tip.mention':
+    'Tip: napíšte @názov_súboru, aby ste priložili súbor projektu ako kontext – program {{agentName}} ho prečíta priamo.',
+  'ide.chat.tip.slash':
+    'Tip: Zadajte /, aby ste si prezreli všetky príkazy (commit, diff, model a ďalšie).',
+  'ide.chat.tip.plan':
+    'Tip: Použite príkaz /plan, aby program {{agentName}} najprv vyhodnotil situáciu a navrhol plán, než začne upravovať akékoľvek súbory.',
+  'ide.chat.tip.undo':
+    'Tip: Ak sa posledný ťah umelej inteligencie nepodaril, použite príkaz /undo, aby ste okamžite vrátili späť zmeny v súbore.',
+  'ide.chat.tip.compact':
+    'Tip: dlhá konverzácia? Príkaz /compact skráti kontext, aby ste mali dostatok miesta na prácu.',
+  'ide.chat.tip.commit':
+    'Tip: Použite príkaz /commit na uloženie zmien ako git commit, ku ktorému sa môžete kedykoľvek vrátiť.',
+  'ide.chat.tip.diff':
+    'Tip: Použite príkaz /diff na kontrolu všetkých nezaznamenaných zmien, než ich potvrdíte alebo zaznamenáte.',
+  'ide.chat.tip.models':
+    'Tip: Zadajte príkaz /models, aby ste porovnali všetky dostupné modely umelej inteligencie a prepnuli ten, ktorý práve beží, pomocou príkazu {{agentName}}.',
+  'ide.chat.tip.report':
+    'Tip: Niečo nefunguje? Pomocou príkazu /report môžete tímu nahlásiť chybu alebo poslať spätnú väzbu spolu s priloženým záznamom z posledného chatu.',
   'ide.chat.undoError': 'Zrušenie zmien sa nepodarilo.',
   'ide.chat.autoCommit.badge': 'Automatické potvrdzovanie v {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Zrušiť automatické potvrdzovanie',

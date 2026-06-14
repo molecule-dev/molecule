@@ -247,6 +247,26 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'គន្លឹះ៖ វាយ / ដើម្បីមើលពាក្យបញ្ជានីមួយៗ ឬ @ ឈ្មោះឯកសារដើម្បីផ្តល់{{agentName}} ឯកសារមួយដើម្បីធ្វើការពី។',
+  'ide.chat.tip.mention':
+    'គន្លឹះ៖ វាយ @filename ដើម្បីភ្ជាប់ឯកសារគម្រោងជាបរិបទ —{{agentName}} អានវាដោយផ្ទាល់។',
+  'ide.chat.tip.slash':
+    'គន្លឹះ៖ វាយ / ដើម្បីរកមើលពាក្យបញ្ជានីមួយៗ (commit, diff, model និងច្រើនទៀត)។',
+  'ide.chat.tip.plan':
+    'គន្លឹះ៖ ប្រើ / ផែនការដើម្បីមាន{{agentName}} ស្រាវជ្រាវ និងស្នើផែនការមួយ មុនពេលវាកែសម្រួលឯកសារណាមួយ។',
+  'ide.chat.tip.undo':
+    'គន្លឹះ៖ ប្រើ /undo ដើម្បីត្រឡប់ការផ្លាស់ប្តូរឯកសារនៃវេន AI ចុងក្រោយភ្លាមៗ ប្រសិនបើវាទៅខុសផ្លូវ។',
+  'ide.chat.tip.compact':
+    'គន្លឹះ៖ ការសន្ទនាវែងមែនទេ? /បង្រួម បង្រួមបរិបទ ដើម្បីឱ្យអ្នកទុកកន្លែងសម្រាប់ធ្វើការ។',
+  'ide.chat.tip.commit':
+    'គន្លឹះ៖ ប្រើ /commit ដើម្បីរក្សាទុកការផ្លាស់ប្តូររបស់អ្នកជា git commit ដែលអ្នកអាចត្រឡប់មកប្រើវិញបានគ្រប់ពេល។',
+  'ide.chat.tip.diff':
+    'គន្លឹះ៖ ប្រើ /diff ដើម្បីពិនិត្យមើលរាល់ការផ្លាស់ប្តូរដែលមិនទាន់បានប្តេជ្ញាចិត្ត មុនពេលអ្នករក្សាទុក ឬប្តេជ្ញាចិត្តវា។',
+  'ide.chat.tip.models':
+    'គន្លឹះ៖ វាយបញ្ចូល /models ដើម្បីប្រៀបធៀបម៉ូដែល AI ដែលមានទាំងអស់ ហើយប្តូរម៉ូដែលដែលកំពុងដំណើរការ{{agentName}} ។',
+  'ide.chat.tip.report':
+    'គន្លឹះ៖ មានអ្វីខុសប្រក្រតី? /report ផ្ញើកំហុស ឬមតិកែលម្អទៅក្រុមជាមួយនឹងការជជែកថ្មីៗរបស់អ្នកភ្ជាប់មកជាមួយ។',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

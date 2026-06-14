@@ -252,6 +252,26 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'အကြံပြုချက်: command တိုင်းကိုကြည့်ရန် / ဟုရိုက်ထည့်ပါ၊ သို့မဟုတ် ပေးရန်အတွက် ဖိုင်အမည် @ ကိုရိုက်ထည့်ပါ။{{agentName}} အလုပ်လုပ်ရန် ဖိုင်တစ်ခု။',
+  'ide.chat.tip.mention':
+    'အကြံပြုချက်- ပရောဂျက်ဖိုင်တစ်ခုကို အကြောင်းအရာအဖြစ် ပူးတွဲရန် @filename ကို ရိုက်ထည့်ပါ —{{agentName}} ၎င်းကို တိုက်ရိုက်ဖတ်သည်။',
+  'ide.chat.tip.slash':
+    'အကြံပြုချက်: command တိုင်းကို ကြည့်ရှုရန် (commit, diff, model နှင့် အခြား) / ဟု ရိုက်ပါ။',
+  'ide.chat.tip.plan':
+    'အကြံပြုချက်: ရှိရန် /စီစဉ်ပါ{{agentName}} ဖိုင်များကို မတည်းဖြတ်မီ သုတေသနပြုပြီး အစီအစဉ်တစ်ခုကို အဆိုပြုပါ။',
+  'ide.chat.tip.undo':
+    'အကြံပြုချက်: AI အလှည့်ရဲ့ နောက်ဆုံးဖိုင်ပြောင်းလဲမှုတွေကို မှားယွင်းတဲ့နည်းလမ်းနဲ့ ပြန်ပြောင်းဖို့ /undo ကိုသုံးပါ။',
+  'ide.chat.tip.compact':
+    'အကြံပြုချက်- စကားပြောတာ ရှည်လား။ /compact က အခြေအနေကို ချုံ့ပေးတာကြောင့် အလုပ်လုပ်ဖို့ နေရာလွတ်ရှိနေမှာပါ။',
+  'ide.chat.tip.commit':
+    'အကြံပြုချက်: သင့်ရဲ့ပြောင်းလဲမှုတွေကို git commit အနေနဲ့ သိမ်းဆည်းဖို့ /commit ကိုသုံးပါ။ သင်အမြဲတမ်းပြန်သွားလို့ရတဲ့ commit ပါ။',
+  'ide.chat.tip.diff':
+    'အကြံပြုချက်: ကတိမတည်ရသေးသော ပြောင်းလဲမှုတိုင်းကို သိမ်းဆည်းခြင်း သို့မဟုတ် commit မလုပ်မီ ပြန်လည်သုံးသပ်ရန် /diff ကို အသုံးပြုပါ။',
+  'ide.chat.tip.models':
+    'အကြံပြုချက်- ရရှိနိုင်သော AI မော်ဒယ်တိုင်းကို နှိုင်းယှဉ်ရန်နှင့် လုပ်ဆောင်နေသော AI မော်ဒယ်ကို ပြောင်းလဲရန် /models ဟု ရိုက်ထည့်ပါ။{{agentName}} ။',
+  'ide.chat.tip.report':
+    'အကြံပြုချက်- တစ်ခုခု မှားနေလား။ /report က သင့်ရဲ့ မကြာသေးမီက ချတ်နဲ့အတူ bug ဒါမှမဟုတ် feedback ကို အဖွဲ့ဆီ ပို့ပေးပါတယ်။',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

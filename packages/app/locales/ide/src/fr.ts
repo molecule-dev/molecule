@@ -254,6 +254,26 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Paramètres',
   'ide.chat.tip.dismiss': 'Ignorer le conseil',
+  'ide.chat.tip.getStarted':
+    "Astuce : tapez / pour afficher toutes les commandes, ou @ suivi du nom d'un fichier pour indiquer à {{agentName}} le fichier sur lequel il doit travailler.",
+  'ide.chat.tip.mention':
+    'Astuce : tapez @nom_fichier pour joindre un fichier de projet en tant que contexte — {{agentName}} le lit directement.',
+  'ide.chat.tip.slash':
+    'Astuce : tapez / pour parcourir toutes les commandes (commit, diff, model, etc.).',
+  'ide.chat.tip.plan':
+    "Astuce : utilisez la commande /plan pour qu'{{agentName}} effectue une analyse et propose un plan avant de modifier des fichiers.",
+  'ide.chat.tip.undo':
+    "Astuce : utilisez la commande /undo pour annuler instantanément les modifications apportées au fichier lors du dernier tour de l'IA si celui-ci s'est mal passé.",
+  'ide.chat.tip.compact':
+    'Astuce : une longue conversation ? La commande /compact condense le contexte pour vous laisser de la place pour travailler.',
+  'ide.chat.tip.commit':
+    'Astuce : utilisez /commit pour enregistrer vos modifications sous forme de commit Git auquel vous pourrez toujours revenir.',
+  'ide.chat.tip.diff':
+    'Astuce : utilisez la commande /diff pour passer en revue toutes les modifications non validées avant de les conserver ou de les valider.',
+  'ide.chat.tip.models':
+    "Astuce : tapez /models pour comparer tous les modèles d'IA disponibles et sélectionner celui qui exécute l'{{agentName}}",
+  'ide.chat.tip.report':
+    "Astuce : quelque chose ne va pas ? La commande /report permet d'envoyer un rapport de bug ou un commentaire à l'équipe, avec l'historique de votre conversation récente en pièce jointe.",
   'ide.chat.undoError': 'Échec de la restauration des modifications.',
   'ide.chat.autoCommit.badge': "Validation automatique dans l'{{countdown}}",
   'ide.chat.autoCommit.cancel': 'Annuler la validation automatique',

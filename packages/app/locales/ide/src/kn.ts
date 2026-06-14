@@ -247,6 +247,26 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'ಸಲಹೆ: ಪ್ರತಿ ಆಜ್ಞೆಯನ್ನು ನೋಡಲು / ಎಂದು ಟೈಪ್ ಮಾಡಿ, ಅಥವಾ ನೀಡಲು @ ಫೈಲ್ ಹೆಸರನ್ನು ಟೈಪ್ ಮಾಡಿ{{agentName}} ಕೆಲಸ ಮಾಡಲು ಒಂದು ಫೈಲ್.',
+  'ide.chat.tip.mention':
+    'ಸಲಹೆ: ಪ್ರಾಜೆಕ್ಟ್ ಫೈಲ್ ಅನ್ನು ಸಂದರ್ಭಕ್ಕೆ ತಕ್ಕಂತೆ ಲಗತ್ತಿಸಲು @filename ಎಂದು ಟೈಪ್ ಮಾಡಿ —{{agentName}} ಅದನ್ನು ನೇರವಾಗಿ ಓದುತ್ತದೆ.',
+  'ide.chat.tip.slash':
+    'ಸಲಹೆ: ಪ್ರತಿಯೊಂದು ಆಜ್ಞೆಯನ್ನು ಬ್ರೌಸ್ ಮಾಡಲು / ಎಂದು ಟೈಪ್ ಮಾಡಿ (commit, diff, model, ಮತ್ತು ಇನ್ನಷ್ಟು).',
+  'ide.chat.tip.plan':
+    'ಸಲಹೆ: ಬಳಸಲು /plan ಮಾಡಿ{{agentName}} ಯಾವುದೇ ಫೈಲ್‌ಗಳನ್ನು ಸಂಪಾದಿಸುವ ಮೊದಲು ಸಂಶೋಧಿಸಿ ಮತ್ತು ಯೋಜನೆಯನ್ನು ಪ್ರಸ್ತಾಪಿಸಿ.',
+  'ide.chat.tip.undo':
+    'ಸಲಹೆ: ಕೊನೆಯ AI ತಿರುವಿನ ಫೈಲ್ ಬದಲಾವಣೆಗಳು ತಪ್ಪಾಗಿದ್ದರೆ, ಅದನ್ನು ತಕ್ಷಣವೇ ಹಿಂತಿರುಗಿಸಲು /ರದ್ದುಮಾಡು ಬಳಸಿ.',
+  'ide.chat.tip.compact':
+    'ಸಲಹೆ: ದೀರ್ಘ ಸಂಭಾಷಣೆ? /ಸಂಕ್ಷೇಪಣವು ಸಂದರ್ಭವನ್ನು ಸಂಕುಚಿತಗೊಳಿಸುತ್ತದೆ ಆದ್ದರಿಂದ ನೀವು ಕೆಲಸ ಮಾಡಲು ಸ್ಥಳಾವಕಾಶವನ್ನು ಉಳಿಸಿಕೊಳ್ಳುತ್ತೀರಿ.',
+  'ide.chat.tip.commit':
+    'ಸಲಹೆ: ನಿಮ್ಮ ಬದಲಾವಣೆಗಳನ್ನು ನೀವು ಯಾವಾಗಲೂ ಹಿಂತಿರುಗಬಹುದಾದ git ಕಮಿಟ್ ಆಗಿ ಉಳಿಸಲು /commit ಬಳಸಿ.',
+  'ide.chat.tip.diff':
+    'ಸಲಹೆ: ನೀವು ಪ್ರತಿ ಬದ್ಧತೆಯಿಲ್ಲದ ಬದಲಾವಣೆಯನ್ನು ಇರಿಸಿಕೊಳ್ಳುವ ಅಥವಾ ಬದ್ಧಗೊಳಿಸುವ ಮೊದಲು ಪರಿಶೀಲಿಸಲು /diff ಬಳಸಿ.',
+  'ide.chat.tip.models':
+    'ಸಲಹೆ: ಲಭ್ಯವಿರುವ ಪ್ರತಿಯೊಂದು AI ಮಾದರಿಯನ್ನು ಹೋಲಿಸಲು /models ಎಂದು ಟೈಪ್ ಮಾಡಿ ಮತ್ತು ಚಾಲನೆಯಲ್ಲಿರುವ ಒಂದನ್ನು ಬದಲಾಯಿಸಿ.{{agentName}} .',
+  'ide.chat.tip.report':
+    'ಸಲಹೆ: ಏನಾದರೂ ತಪ್ಪಾಗಿದೆಯೇ? /report ನಿಮ್ಮ ಇತ್ತೀಚಿನ ಚಾಟ್ ಲಗತ್ತಿಸಿ ತಂಡಕ್ಕೆ ದೋಷ ಅಥವಾ ಪ್ರತಿಕ್ರಿಯೆಯನ್ನು ಕಳುಹಿಸುತ್ತದೆ.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

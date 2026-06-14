@@ -250,6 +250,26 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Maslahat: har bir buyruqni ko&#39;rish uchun / ni kiriting yoki fayl nomini berish uchun @ ni kiriting{{agentName}} ishlash uchun fayl.',
+  'ide.chat.tip.mention':
+    'Maslahat: loyiha faylini kontekst sifatida biriktirish uchun @filename ni kiriting —{{agentName}} uni to&#39;g&#39;ridan-to&#39;g&#39;ri o&#39;qiydi.',
+  'ide.chat.tip.slash':
+    'Maslahat: har bir buyruqni (commit, diff, model va boshqalar) ko&#39;rib chiqish uchun / ni kiriting.',
+  'ide.chat.tip.plan':
+    'Maslahat: ega bo&#39;lish uchun /plan dan foydalaning{{agentName}} biron bir faylni tahrirlashdan oldin tadqiqot o&#39;tkazing va reja taklif qiling.',
+  'ide.chat.tip.undo':
+    'Maslahat: agar noto&#39;g&#39;ri yo&#39;ldan ketgan bo&#39;lsa, oxirgi AI navbati faylidagi o&#39;zgarishlarni darhol qaytarish uchun /undo tugmasidan foydalaning.',
+  'ide.chat.tip.compact':
+    'Maslahat: uzoq suhbatmi? /compact kontekstni siqib chiqaradi, shuning uchun siz ishlash uchun joy qoldirasiz.',
+  'ide.chat.tip.commit':
+    'Maslahat: o&#39;zgarishlarni istalgan vaqtda qaytishingiz mumkin bo&#39;lgan git commit sifatida saqlash uchun /commit dan foydalaning.',
+  'ide.chat.tip.diff':
+    'Maslahat: har bir majburiyatsiz o&#39;zgarishni saqlash yoki tasdiqlashdan oldin uni ko&#39;rib chiqish uchun /diff dan foydalaning.',
+  'ide.chat.tip.models':
+    'Maslahat: mavjud bo&#39;lgan har bir AI modelini taqqoslash va ishlayotganini almashtirish uchun /models ni kiriting{{agentName}} .',
+  'ide.chat.tip.report':
+    'Maslahat: biron bir xatolik bormi? /report xatolik yoki fikr-mulohazani jamoaga so&#39;nggi chatingiz ilova qilingan holda yuboradi.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

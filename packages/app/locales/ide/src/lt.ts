@@ -249,6 +249,26 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Gyvenimo aprašymas',
   'ide.chat.openSettings': 'Nustatymai',
   'ide.chat.tip.dismiss': 'Uždaryti patarimą',
+  'ide.chat.tip.getStarted':
+    'Patarimas: įveskite /, kad peržiūrėtumėte visas komandas, arba @ ir failo pavadinimą, kad nurodytumėte „{{agentName}}“ failą, su kuriuo dirbti.',
+  'ide.chat.tip.mention':
+    'Patarimas: įveskite @filename, kad pridėtumėte projekto failą kaip kontekstą – „{{agentName}}“ jį perskaitys tiesiogiai.',
+  'ide.chat.tip.slash':
+    'Patarimas: įveskite /, kad peržiūrėtumėte visas komandas (commit, diff, model ir kt.).',
+  'ide.chat.tip.plan':
+    'Patarimas: naudokite komandą /plan, kad „{{agentName}}“ išanalizuotų situaciją ir pasiūlytų planą prieš pradėdama redaguoti bet kokius failus.',
+  'ide.chat.tip.undo':
+    'Patarimas: jei paskutiniame AI ėjime padarėte klaidą, naudokite komandą /undo, kad iškart atšauktumėte failo pakeitimus.',
+  'ide.chat.tip.compact':
+    'Patarimas: ilgas pokalbis? Komanda /compact sutrumpina kontekstą, kad liktų vietos darbui.',
+  'ide.chat.tip.commit':
+    'Patarimas: naudokite komandą /commit, kad išsaugotumėte pakeitimus kaip „git“ įrašą, prie kurio visada galėsite grįžti.',
+  'ide.chat.tip.diff':
+    'Patarimas: naudokite komandą /diff, kad peržiūrėtumėte visus neįrašytus pakeitimus prieš juos išsaugodami ar įrašydami.',
+  'ide.chat.tip.models':
+    'Patarimas: įveskite komandą /models, kad palygintumėte visus galimus AI modelius ir perjungtumėte į tą, kuris naudoja „{{agentName}}“.',
+  'ide.chat.tip.report':
+    'Patarimas: kažkas ne taip? /report – šiuo komandu komandai nusiųsite pranešimą apie klaidą arba atsiliepimą, pridėdami paskutinį pokalbio įrašą.',
   'ide.chat.undoError': 'Nepavyko atšaukti pakeitimų.',
   'ide.chat.autoCommit.badge': 'Automatinis įrašymas „{{countdown}}“',
   'ide.chat.autoCommit.cancel': 'Atšaukti automatinį įrašymą',

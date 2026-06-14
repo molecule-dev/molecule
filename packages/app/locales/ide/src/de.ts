@@ -252,6 +252,26 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Lebenslauf',
   'ide.chat.openSettings': 'Einstellungen',
   'ide.chat.tip.dismiss': 'Tipp schließen',
+  'ide.chat.tip.getStarted':
+    'Tipp: Geben Sie „/“ ein, um alle Befehle anzuzeigen, oder „@“ gefolgt von einem Dateinamen, um „{{agentName}}“ eine Datei als Ausgangsbasis zu übergeben.',
+  'ide.chat.tip.mention':
+    'Tipp: Gib @Dateiname ein, um eine Projektdatei als Kontext anzuhängen – „{{agentName}}“ liest diese direkt ein.',
+  'ide.chat.tip.slash':
+    'Tipp: Gib „/“ ein, um alle Befehle anzuzeigen (commit, diff, model und mehr).',
+  'ide.chat.tip.plan':
+    'Tipp: Verwenden Sie den Befehl „/plan“, damit „{{agentName}}“ zunächst eine Analyse durchführt und einen Plan vorschlägt, bevor Dateien bearbeitet werden.',
+  'ide.chat.tip.undo':
+    'Tipp: Verwende den Befehl „/undo“, um die Dateiänderungen des letzten KI-Zugs sofort rückgängig zu machen, falls dieser nicht wie gewünscht verlaufen ist.',
+  'ide.chat.tip.compact':
+    'Tipp: Lange Unterhaltung? Mit /compact wird der Chatverlauf komprimiert, damit du genug Platz zum Arbeiten hast.',
+  'ide.chat.tip.commit':
+    'Tipp: Verwende /commit, um deine Änderungen als Git-Commit zu speichern, auf den du jederzeit zurückgreifen kannst.',
+  'ide.chat.tip.diff':
+    'Tipp: Verwende den Befehl „/diff“, um jede noch nicht festgeschriebene Änderung zu überprüfen, bevor du sie beibehältst oder festschreibst.',
+  'ide.chat.tip.models':
+    'Tipp: Geben Sie „/models“ ein, um alle verfügbaren KI-Modelle zu vergleichen und dasjenige auszuwählen, das „{{agentName}}“ ausführt.',
+  'ide.chat.tip.report':
+    'Tipp: Stimmt etwas nicht? Mit dem Befehl /report kannst du dem Team einen Fehler oder Feedback senden, wobei dein letzter Chatverlauf angehängt wird.',
   'ide.chat.undoError': 'Die Änderungen konnten nicht rückgängig gemacht werden.',
   'ide.chat.autoCommit.badge': 'Auto-Commit in „{{countdown}}“',
   'ide.chat.autoCommit.cancel': 'Automatisches Speichern deaktivieren',

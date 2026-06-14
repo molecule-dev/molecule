@@ -247,6 +247,26 @@ export const bs: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Savjet: upišite / da biste vidjeli svaku naredbu ili @ u ime datoteke da biste dali{{agentName}} datoteka s koje se može raditi.',
+  'ide.chat.tip.mention':
+    'Savjet: upišite @filename da biste priložili datoteku projekta kao kontekst —{{agentName}} čita ga direktno.',
+  'ide.chat.tip.slash':
+    'Savjet: ukucajte / da biste pregledali svaku komandu (commit, diff, model i ostale).',
+  'ide.chat.tip.plan':
+    'Savjet: koristite /planirajte da imate{{agentName}} istražiti i predložiti plan prije nego što uredi bilo koje datoteke.',
+  'ide.chat.tip.undo':
+    'Savjet: koristite /undo da biste odmah vratili promjene u datoteci posljednjeg poteza umjetne inteligencije ako je sve krenulo po zlu.',
+  'ide.chat.tip.compact':
+    'Savjet: dug razgovor? /compact komprimira kontekst tako da imate prostora za rad.',
+  'ide.chat.tip.commit':
+    'Savjet: koristite /commit da sačuvate promjene kao git commit kojem se uvijek možete vratiti.',
+  'ide.chat.tip.diff':
+    'Savjet: koristite /diff za pregled svake nepotvrđene promjene prije nego što je zadržite ili potvrdite.',
+  'ide.chat.tip.models':
+    'Savjet: upišite /models da biste uporedili sve dostupne AI modele i prebacili se na onaj koji se izvršava{{agentName}} .',
+  'ide.chat.tip.report':
+    'Savjet: nešto nije u redu? /report šalje grešku ili povratne informacije timu s priloženim vašim nedavnim chatom.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

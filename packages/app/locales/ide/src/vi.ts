@@ -248,6 +248,26 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Mẹo: gõ / để xem tất cả các lệnh, hoặc @ tên tệp để hiển thị thông tin chi tiết.{{agentName}} một tập tin để làm việc.',
+  'ide.chat.tip.mention':
+    'Mẹo: gõ @filename để đính kèm tệp dự án làm ngữ cảnh —{{agentName}} Đọc trực tiếp.',
+  'ide.chat.tip.slash':
+    'Mẹo: gõ / để xem tất cả các lệnh (commit, diff, model, và nhiều lệnh khác).',
+  'ide.chat.tip.plan':
+    'Mẹo: sử dụng /plan để có{{agentName}} Hãy nghiên cứu và đề xuất kế hoạch trước khi chỉnh sửa bất kỳ tập tin nào.',
+  'ide.chat.tip.undo':
+    'Mẹo: Sử dụng lệnh /undo để hoàn tác ngay lập tức các thay đổi trong tệp của lượt chơi AI cuối cùng nếu nó diễn ra không như ý muốn.',
+  'ide.chat.tip.compact':
+    'Mẹo: Cuộc trò chuyện dài? /compact sẽ thu gọn ngữ cảnh để bạn có thêm không gian làm việc.',
+  'ide.chat.tip.commit':
+    'Mẹo: Sử dụng lệnh `/commit` để lưu các thay đổi của bạn dưới dạng một commit Git mà bạn có thể quay lại bất cứ lúc nào.',
+  'ide.chat.tip.diff':
+    'Mẹo: Sử dụng lệnh /diff để xem xét mọi thay đổi chưa được lưu trước khi bạn giữ lại hoặc lưu chúng.',
+  'ide.chat.tip.models':
+    'Mẹo: gõ /models để so sánh tất cả các mô hình AI có sẵn và chuyển sang mô hình đang chạy.{{agentName}} .',
+  'ide.chat.tip.report':
+    'Mẹo: Có vấn đề gì không ổn? Lệnh /report sẽ gửi báo cáo lỗi hoặc phản hồi đến nhóm kèm theo đoạn chat gần đây nhất của bạn.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

@@ -101,6 +101,7 @@ import {
 import type { SkillInfo } from './chat-skills-utilities.js'
 import { estimateStreamTokens } from './chat-stream-utilities.js'
 import {
+  ENTRY_TIP,
   pickIdleTip,
   shouldShowIdleTip,
   TIP_IDLE_MS,
@@ -2740,14 +2741,17 @@ function ChatInner({
   addActivityCardRef.current = addActivityCard
 
   // ── Auto-tips (dismissable onboarding hints) ──────────────────────────────
-  // Tips are NEVER shown on the first prompt / a fresh conversation. Instead one
-  // MAY surface after the conversation has sat idle for a while — gated by a
-  // cooldown and a random roll (see shouldShowIdleTip) so the timeline never fills
-  // with tips. The idle clock resets on any message activity. Dismissing a tip
-  // removes it; a shown tip never reappears (tracked in shownTipIdsRef).
+  // Two surfaces (see chat-tips-utilities): an ENTRY_TIP shown once on a fresh
+  // conversation so a brand-new user always sees how to drive the agent, plus an
+  // idle rotation that MAY surface more tips after the conversation has sat idle
+  // for a while — gated by a cooldown and a random roll (see shouldShowIdleTip) so
+  // the timeline never fills with tips. The idle clock resets on any message
+  // activity. Dismissing a tip removes it; a shown tip never reappears (tracked in
+  // shownTipIdsRef).
   const [tipCards, setTipCards] = useState<TipCardEntry[]>([])
   const lastTipAtRef = useRef<number>(0)
   const shownTipIdsRef = useRef<string[]>([])
+  const entryTipShownRef = useRef(false)
   const dismissTip = useCallback((id: string) => {
     setTipCards((prev) => prev.filter((c) => c.id !== id))
   }, [])
@@ -2763,8 +2767,24 @@ function ChatInner({
       setTipCards([])
       lastTipAtRef.current = 0
       shownTipIdsRef.current = []
+      // Re-arm the entry tip so a freshly-started chat shows the onboarding hint.
+      entryTipShownRef.current = false
     }
   }, [conversationId])
+
+  // Entry tip: the onboarding moment. Show ONE high-value hint as soon as a fresh
+  // conversation opens (no server id yet AND no messages) — before the first
+  // prompt — so a new user is never left with zero tips. It is dismissable like
+  // any tip and never reappears for this conversation. Resuming an existing
+  // conversation (conversationId set) is NOT a fresh start, so no entry tip there.
+  useEffect(() => {
+    if (entryTipShownRef.current) return
+    if (conversationId != null || messages.length > 0) return
+    entryTipShownRef.current = true
+    shownTipIdsRef.current = [...shownTipIdsRef.current, ENTRY_TIP.id]
+    const text = t(`ide.chat.tip.${ENTRY_TIP.id}`, { agentName }, { defaultValue: ENTRY_TIP.text })
+    setTipCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
+  }, [conversationId, messages.length, agentName])
 
   // Surface an occasional idle tip. This effect re-runs on every message change, so
   // the idle timer is continually reset by activity; it only fires once the

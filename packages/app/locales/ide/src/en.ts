@@ -254,6 +254,28 @@ export const en: IdeTranslations = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  // Auto-tips (dismissable onboarding hints). getStarted is the entry tip shown on
+  // a fresh conversation; the rest rotate occasionally while idle. {{agentName}} is
+  // the host's agent identity. Keep in sync with CHAT_TIPS/ENTRY_TIP in ide-react.
+  'ide.chat.tip.getStarted':
+    'Tip: type / to see every command, or @ a filename to give {{agentName}} a file to work from.',
+  'ide.chat.tip.mention':
+    'Tip: type @filename to attach a project file as context — {{agentName}} reads it directly.',
+  'ide.chat.tip.slash': 'Tip: type / to browse every command (commit, diff, model, and more).',
+  'ide.chat.tip.plan':
+    'Tip: use /plan to have {{agentName}} research and propose a plan before it edits any files.',
+  'ide.chat.tip.undo':
+    "Tip: use /undo to instantly revert the last AI turn's file changes if it went the wrong way.",
+  'ide.chat.tip.compact':
+    'Tip: long conversation? /compact compresses the context so you keep room to work.',
+  'ide.chat.tip.commit':
+    'Tip: use /commit to save your changes as a git commit you can always return to.',
+  'ide.chat.tip.diff':
+    'Tip: use /diff to review every uncommitted change before you keep or commit it.',
+  'ide.chat.tip.models':
+    'Tip: type /models to compare every available AI model and switch the one running {{agentName}}.',
+  'ide.chat.tip.report':
+    'Tip: something off? /report sends a bug or feedback to the team with your recent chat attached.',
   'ide.chat.undoError': 'Failed to revert changes.',
   // Auto-commit countdown (/autocommit).
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',

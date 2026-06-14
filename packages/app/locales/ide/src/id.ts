@@ -249,6 +249,26 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Daftar Riwayat Hidup',
   'ide.chat.openSettings': 'Pengaturan',
   'ide.chat.tip.dismiss': 'Abaikan saran',
+  'ide.chat.tip.getStarted':
+    'Tips: ketik / untuk melihat semua perintah, atau @ diikuti nama file untuk memberi tahu `{{agentName}}` file mana yang akan diproses.',
+  'ide.chat.tip.mention':
+    'Tips: ketik @nama_file untuk melampirkan berkas proyek sebagai konteks — {{agentName}} akan membacanya secara langsung.',
+  'ide.chat.tip.slash':
+    'Tips: ketik / untuk melihat daftar semua perintah (commit, diff, model, dan lainnya).',
+  'ide.chat.tip.plan':
+    'Tips: gunakan perintah /plan agar{{agentName}}meneliti dan mengusulkan rencana sebelum mengedit berkas apa pun.',
+  'ide.chat.tip.undo':
+    'Tips: Gunakan perintah /undo untuk langsung membatalkan perubahan file pada giliran AI terakhir jika hasilnya tidak sesuai harapan.',
+  'ide.chat.tip.compact':
+    'Tips: Percakapan panjang? Perintah /compact akan meringkas konteksnya sehingga Anda tetap punya ruang untuk bekerja.',
+  'ide.chat.tip.commit':
+    'Tips: gunakan perintah /commit untuk menyimpan perubahan Anda sebagai commit Git yang dapat Anda akses kembali kapan saja.',
+  'ide.chat.tip.diff':
+    'Tips: Gunakan perintah /diff untuk memeriksa setiap perubahan yang belum dikomit sebelum Anda menyimpannya atau mengomitnya.',
+  'ide.chat.tip.models':
+    'Tips: ketik /models untuk membandingkan semua model AI yang tersedia dan mengganti model yang sedang dijalankan dengan model lain {{agentName}}.',
+  'ide.chat.tip.report':
+    'Tips: Ada yang aneh? /report akan mengirimkan laporan bug atau masukan kepada tim, lengkap dengan riwayat obrolan terbaru Anda.',
   'ide.chat.undoError': 'Gagal mengembalikan perubahan.',
   'ide.chat.autoCommit.badge': 'Auto-commit di {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Batalkan penyimpanan otomatis',

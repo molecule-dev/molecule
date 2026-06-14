@@ -247,6 +247,25 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'ટિપ: દરેક આદેશ જોવા માટે / ટાઈપ કરો, અથવા @ ફાઇલનામ આપવા માટે{{agentName}} કામ કરવા માટે એક ફાઇલ.',
+  'ide.chat.tip.mention':
+    'ટિપ: પ્રોજેક્ટ ફાઇલને સંદર્ભ તરીકે જોડવા માટે @filename લખો —{{agentName}} તેને સીધું વાંચે છે.',
+  'ide.chat.tip.slash': 'ટીપ: દરેક આદેશ (કમિટ, ડિફ, મોડેલ અને વધુ) બ્રાઉઝ કરવા માટે / ટાઈપ કરો.',
+  'ide.chat.tip.plan':
+    'ટિપ: ઉપયોગ કરો / યોજના બનાવો{{agentName}} કોઈપણ ફાઇલો સંપાદિત કરતા પહેલા સંશોધન કરો અને યોજના પ્રસ્તાવિત કરો.',
+  'ide.chat.tip.undo':
+    'ટિપ: જો છેલ્લા AI ટર્નની ફાઇલમાં થયેલા ફેરફારો ખોટા રસ્તે ગયા હોય તો તેને તાત્કાલિક પાછું લાવવા માટે /undo નો ઉપયોગ કરો.',
+  'ide.chat.tip.compact':
+    'ટિપ: લાંબી વાતચીત? /કોમ્પેક્ટ સંદર્ભને સંકુચિત કરે છે જેથી તમે કામ કરવા માટે જગ્યા રાખો.',
+  'ide.chat.tip.commit':
+    'ટિપ: તમારા ફેરફારોને ગિટ કમિટ તરીકે સાચવવા માટે /commit નો ઉપયોગ કરો જેના પર તમે હંમેશા પાછા આવી શકો છો.',
+  'ide.chat.tip.diff':
+    'ટિપ: દરેક બિન-પ્રતિબદ્ધ ફેરફારને રાખો અથવા પ્રતિબદ્ધ કરો તે પહેલાં તેની સમીક્ષા કરવા માટે /diff નો ઉપયોગ કરો.',
+  'ide.chat.tip.models':
+    'ટિપ: દરેક ઉપલબ્ધ AI મોડેલની તુલના કરવા માટે /models લખો અને ચાલી રહેલ મોડેલને સ્વિચ કરો.{{agentName}} .',
+  'ide.chat.tip.report':
+    'ટિપ: કંઈક ખોટું છે? /report તમારી તાજેતરની ચેટ સાથે ટીમને બગ અથવા પ્રતિસાદ મોકલે છે.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

@@ -250,6 +250,26 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Consello: escribe / para ver todos os comandos ou @ para darlle un nome de ficheiro{{agentName}} un ficheiro desde o que traballar.',
+  'ide.chat.tip.mention':
+    'Consello: escribe @nome_do_ficheiro para anexar un ficheiro de proxecto como contexto —{{agentName}} léao directamente.',
+  'ide.chat.tip.slash':
+    'Consello: escribe / para explorar todos os comandos (commit, diff, model e moitos máis).',
+  'ide.chat.tip.plan':
+    'Consello: usa /plan para ter{{agentName}} investigar e propoñer un plan antes de editar calquera ficheiro.',
+  'ide.chat.tip.undo':
+    'Consello: usa /desfacer para reverter instantaneamente os cambios no ficheiro do último turno da IA se este foi na dirección incorrecta.',
+  'ide.chat.tip.compact':
+    'Consello: conversa longa? /compact comprime o contexto para que teñas espazo para traballar.',
+  'ide.chat.tip.commit':
+    'Consello: usa /commit para gardar os cambios como un commit de git ao que sempre podes volver.',
+  'ide.chat.tip.diff':
+    'Consello: usa /diff para revisar cada cambio non confirmado antes de gardalo ou confirmalo.',
+  'ide.chat.tip.models':
+    'Consello: escribe /models para comparar todos os modelos de IA dispoñibles e cambiar o que estea a executarse{{agentName}} .',
+  'ide.chat.tip.report':
+    'Consello: hai algo raro? /report envía un erro ou comentarios ao equipo co teu chat recente adxunto.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

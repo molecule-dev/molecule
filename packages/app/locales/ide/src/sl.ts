@@ -248,6 +248,26 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Življenjepis',
   'ide.chat.openSettings': 'Nastavitve',
   'ide.chat.tip.dismiss': 'Zaprite nasvet',
+  'ide.chat.tip.getStarted':
+    'Nasvet: vpišite /, da si ogledate vse ukaze, ali @ ime_datoteke, da programu »{{agentName}}« določite datoteko, s katero naj dela.',
+  'ide.chat.tip.mention':
+    'Nasvet: vpišite @ime_datoteke, da priložite projektno datoteko kot kontekst – program »{{agentName}}« jo bo prebral neposredno.',
+  'ide.chat.tip.slash':
+    'Nasvet: vpišite /, da si ogledate vse ukaze (commit, diff, model in druge).',
+  'ide.chat.tip.plan':
+    'Nasvet: uporabite ukaz /plan, da program »{{agentName}}« najprej preuči situacijo in predlaga načrt, preden začne urejati datoteke.',
+  'ide.chat.tip.undo':
+    'Nasvet: uporabi ukaz /undo, da takoj razveljaviš spremembe v datoteki iz zadnjega poteza AI, če se je ta iztekla narobe.',
+  'ide.chat.tip.compact':
+    'Nasvet: dolg pogovor? /compact skrajša besedilo, da ti ostane dovolj prostora za delo.',
+  'ide.chat.tip.commit':
+    'Nasvet: uporabi ukaz /commit, da svoje spremembe shraniš kot git commit, h kateremu se lahko kadarkoli vrneš.',
+  'ide.chat.tip.diff':
+    'Nasvet: uporabi ukaz /diff, da pregledaš vsako spremembo, ki še ni bila potrjena, preden jo shraniš ali potrdiš.',
+  'ide.chat.tip.models':
+    'Nasvet: vpišite /models, da primerjate vse razpoložljive modele umetne inteligence in preklopite na tistega, ki uporablja sistem »{{agentName}}«.',
+  'ide.chat.tip.report':
+    'Nasvet: nekaj ni v redu? S sporočilom /report lahko ekipi pošlješ poročilo o napaki ali povratne informacije, pri čemer se priloži tvoj zadnji pogovor.',
   'ide.chat.undoError': 'Povrnitev sprememb ni uspela.',
   'ide.chat.autoCommit.badge': 'Samodejno potrjevanje v{{countdown}}',
   'ide.chat.autoCommit.cancel': 'Prekliči samodejno shranjevanje',

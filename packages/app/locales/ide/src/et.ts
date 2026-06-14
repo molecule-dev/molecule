@@ -248,6 +248,25 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Seaded',
   'ide.chat.tip.dismiss': 'Näpunäide sulgeda',
+  'ide.chat.tip.getStarted':
+    'Nõuanne: kirjuta /, et näha kõiki käske, või @ failinimi, et anda käskule „{{agentName}}“ töötamiseks vajalik fail.',
+  'ide.chat.tip.mention':
+    'Nõuanne: kirjuta @failinimi, et lisada projektifail kontekstina – käsk „{{agentName}}“ loeb seda otse.',
+  'ide.chat.tip.slash': 'Nõuanne: kirjuta /, et vaadata kõiki käske (commit, diff, model jm).',
+  'ide.chat.tip.plan':
+    'Nõuanne: kasuta käsku /plan, et programm „{{agentName}}“ uuriks olukorda ja pakuks välja plaani enne failide muutmist.',
+  'ide.chat.tip.undo':
+    'Nõuanne: kasuta käsku /undo, et viimase AI käigu failimuudatused kohe tagasi võtta, kui need ei läinud plaanipäraselt.',
+  'ide.chat.tip.compact':
+    'Nõuanne: pikk vestlus? /compact tihendab konteksti, et sul jääks ruumi töötamiseks.',
+  'ide.chat.tip.commit':
+    'Nõuanne: kasuta käsku /commit, et salvestada muudatused Git-i kinnitusena, millele saad alati tagasi pöörduda.',
+  'ide.chat.tip.diff':
+    'Nõuanne: kasuta käsku /diff, et vaadata läbi kõik salvestamata muudatused enne nende säilitamist või salvestamist.',
+  'ide.chat.tip.models':
+    'Nõuanne: kirjuta /models, et võrrelda kõiki saadaval olevaid AI-mudeleid ja vahetada seda, mis hetkel töötab {{agentName}}.',
+  'ide.chat.tip.report':
+    'Nõuanne: midagi ei klapi? /report saadab meeskonnale veateate või tagasiside koos sinu viimase vestlusega.',
   'ide.chat.undoError': 'Muudatuste taastamine ebaõnnestus.',
   'ide.chat.autoCommit.badge': '{{countdown}}i automaatne salvestamine',
   'ide.chat.autoCommit.cancel': 'Tühista automaatne salvestamine',

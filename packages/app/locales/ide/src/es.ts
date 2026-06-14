@@ -253,6 +253,26 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Currículum',
   'ide.chat.openSettings': 'Configuración',
   'ide.chat.tip.dismiss': 'Ignorar consejo',
+  'ide.chat.tip.getStarted':
+    'Consejo: escribe / para ver todos los comandos, o @ seguido del nombre de un archivo para indicar a «{{agentName}}» el archivo con el que debe trabajar.',
+  'ide.chat.tip.mention':
+    'Consejo: escribe @nombre_archivo para adjuntar un archivo de proyecto como contexto; «{{agentName}}» lo lee directamente.',
+  'ide.chat.tip.slash':
+    'Consejo: escribe / para ver todos los comandos (commit, diff, model y muchos más).',
+  'ide.chat.tip.plan':
+    'Consejo: utiliza /plan para que «{{agentName}}» analice la situación y proponga un plan antes de editar ningún archivo.',
+  'ide.chat.tip.undo':
+    'Consejo: utiliza /undo para revertir al instante los cambios realizados en el archivo durante el último turno de la IA si el resultado no ha sido el esperado.',
+  'ide.chat.tip.compact':
+    'Consejo: ¿Una conversación larga? /compact comprime el contexto para que tengas espacio para trabajar.',
+  'ide.chat.tip.commit':
+    'Consejo: utiliza /commit para guardar los cambios como una confirmación de Git a la que siempre podrás volver.',
+  'ide.chat.tip.diff':
+    'Consejo: utiliza /diff para revisar todos los cambios que aún no se han confirmado antes de conservarlos o confirmarlos.',
+  'ide.chat.tip.models':
+    'Consejo: escribe /models para comparar todos los modelos de IA disponibles y cambiar el que se está ejecutando {{agentName}}.',
+  'ide.chat.tip.report':
+    'Consejo: ¿algo no va bien? /report envía un informe de error o un comentario al equipo con tu chat reciente adjunto.',
   'ide.chat.undoError': 'No se han podido revertir los cambios.',
   'ide.chat.autoCommit.badge': 'Confirmación automática en {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancelar la grabación automática',

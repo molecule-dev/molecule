@@ -248,6 +248,26 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Consell: escriviu / per veure totes les ordres o @ un nom de fitxer per donar{{agentName}} un fitxer des del qual treballar.',
+  'ide.chat.tip.mention':
+    'Consell: escriviu @nom_fitxer per adjuntar un fitxer de projecte com a context —{{agentName}} ho llegeix directament.',
+  'ide.chat.tip.slash':
+    'Consell: escriviu / per navegar per totes les ordres (commit, diff, model i més).',
+  'ide.chat.tip.plan':
+    'Consell: feu servir /planificar per tenir{{agentName}} investigar i proposar un pla abans d&#39;editar cap fitxer.',
+  'ide.chat.tip.undo':
+    'Consell: feu servir /desfés per revertir instantàniament els canvis de fitxer de l&#39;últim torn de la IA si ha anat en la direcció incorrecta.',
+  'ide.chat.tip.compact':
+    'Consell: conversa llarga? /compact comprimeix el context per mantenir espai per treballar.',
+  'ide.chat.tip.commit':
+    'Consell: feu servir /commit per desar els canvis com un commit de git al qual sempre podeu tornar.',
+  'ide.chat.tip.diff':
+    'Consell: feu servir /diff per revisar tots els canvis no confirmats abans de conservar-los o confirmar-los.',
+  'ide.chat.tip.models':
+    'Consell: escriviu /models per comparar tots els models d&#39;IA disponibles i canviar el que s&#39;està executant.{{agentName}} .',
+  'ide.chat.tip.report':
+    'Consell: hi ha alguna cosa malament? /report envia un error o comentaris a l&#39;equip amb el vostre xat recent adjunt.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

@@ -245,6 +245,26 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Innstillinger',
   'ide.chat.tip.dismiss': 'Lukk tips',
+  'ide.chat.tip.getStarted':
+    'Tips: Skriv inn / for å se alle kommandoer, eller @ et filnavn for å gi «{{agentName}}» en fil å jobbe med.',
+  'ide.chat.tip.mention':
+    'Tips: Skriv inn @filnavn for å legge ved en prosjektfil som kontekst — {{agentName}} leser den direkte.',
+  'ide.chat.tip.slash':
+    'Tips: Skriv inn / for å se alle kommandoene (commit, diff, model og flere).',
+  'ide.chat.tip.plan':
+    'Tips: Bruk /plan for å la {{agentName}} undersøke saken og foreslå en plan før den redigerer noen filer.',
+  'ide.chat.tip.undo':
+    'Tips: Bruk /undo for å umiddelbart tilbakestille filendringene fra den siste AI-runden hvis det gikk galt.',
+  'ide.chat.tip.compact':
+    'Tips: Lang samtale? /compact komprimerer konteksten, slik at du får mer plass til å jobbe.',
+  'ide.chat.tip.commit':
+    'Tips: Bruk /commit for å lagre endringene dine som en Git-commit du alltid kan gå tilbake til.',
+  'ide.chat.tip.diff':
+    'Tips: Bruk /diff til å gå gjennom alle endringer som ikke er lagt inn, før du beholder eller legger dem inn.',
+  'ide.chat.tip.models':
+    'Tips: Skriv inn /models for å sammenligne alle tilgjengelige AI-modeller og bytte til den som kjører «{{agentName}}».',
+  'ide.chat.tip.report':
+    'Tips: Er det noe som ikke stemmer? /report sender en feilmelding eller tilbakemelding til teamet, med den siste chat-historikken din vedlagt.',
   'ide.chat.undoError': 'Det lyktes ikke å tilbakestille endringene.',
   'ide.chat.autoCommit.badge': 'Automatisk lagring i {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Avbryt automatisk lagring',

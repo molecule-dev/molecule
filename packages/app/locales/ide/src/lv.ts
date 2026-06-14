@@ -247,6 +247,26 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Iestatījumi',
   'ide.chat.tip.dismiss': 'Aizvērt padomu',
+  'ide.chat.tip.getStarted':
+    'Padoms: ievadiet /, lai apskatītu visas komandas, vai @ faila nosaukumu, lai norādītu programmai „{{agentName}}“ failu, ar kuru strādāt.',
+  'ide.chat.tip.mention':
+    'Padoms: ievadiet @filename, lai pievienotu projekta failu kā kontekstu — komanda „{{agentName}}“ to nolasīs tieši.',
+  'ide.chat.tip.slash':
+    'Padoms: ievadiet /, lai apskatītu visas komandas (commit, diff, model un citas).',
+  'ide.chat.tip.plan':
+    'Padoms: izmantojiet komandu /plan, lai programma „{{agentName}}“ izpētītu situāciju un ieteiktu rīcības plānu, pirms tā sāk rediģēt failus.',
+  'ide.chat.tip.undo':
+    'Padoms: izmanto komandu /undo, lai nekavējoties atceltu pēdējā AI gājiena izmaiņas failā, ja tas izvēlējās nepareizo virzienu.',
+  'ide.chat.tip.compact':
+    'Padoms: gara saruna? Komanda /compact saspiež kontekstu, lai tev paliktu vieta darbam.',
+  'ide.chat.tip.commit':
+    'Padoms: izmanto komandu /commit, lai saglabātu izmaiņas kā Git komitu, uz kuru vienmēr vari atgriezties.',
+  'ide.chat.tip.diff':
+    'Padoms: izmantojiet komandu /diff, lai pārskatītu visas neiesniegtās izmaiņas, pirms tās saglabājat vai iesniedzat.',
+  'ide.chat.tip.models':
+    'Padoms: ievadiet komandu /models, lai salīdzinātu visus pieejamos AI modeļus un pārslēgtos uz to, kas darbojas ar komandu {{agentName}}.',
+  'ide.chat.tip.report':
+    'Padoms: kaut kas ne kārtībā? /report nosūta komandai ziņojumu par kļūdu vai atsauksmi, pievienojot tavu pēdējo tērzēšanu.',
   'ide.chat.undoError': 'Neizdevās atcelt izmaiņas.',
   'ide.chat.autoCommit.badge': 'Automātiskā apstiprināšana programmā „{{countdown}}“',
   'ide.chat.autoCommit.cancel': 'Atcelt automātisko apstiprināšanu',

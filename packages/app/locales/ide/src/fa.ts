@@ -247,6 +247,26 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'نکته: برای دیدن هر دستور، / را تایپ کنید، یا برای دادن نام فایل، @ را تایپ کنید.{{agentName}} یک فایل برای کار کردن روی آن.',
+  'ide.chat.tip.mention':
+    'نکته: برای پیوست کردن یک فایل پروژه به عنوان متن، ‎@filename‎ را تایپ کنید —{{agentName}} آن را مستقیماً می‌خواند.',
+  'ide.chat.tip.slash':
+    'نکته: برای مرور هر دستور (commit، diff، model و موارد دیگر) / را تایپ کنید.',
+  'ide.chat.tip.plan':
+    'نکته: از /plan to have استفاده کنید{{agentName}} قبل از ویرایش هر فایلی، تحقیق و طرحی ارائه دهد.',
+  'ide.chat.tip.undo':
+    'نکته: اگر آخرین نوبت هوش مصنوعی شما اشتباه پیش رفته باشد، می‌توانید از /undo برای برگرداندن فوری تغییرات فایل استفاده کنید.',
+  'ide.chat.tip.compact':
+    'نکته: مکالمه طولانی؟ /compact متن را فشرده می‌کند تا فضای کافی برای کار داشته باشید.',
+  'ide.chat.tip.commit':
+    'نکته: از /commit برای ذخیره تغییرات خود به عنوان یک commit گیت که همیشه می‌توانید به آن برگردید، استفاده کنید.',
+  'ide.chat.tip.diff':
+    'نکته: قبل از نگه داشتن یا انجام تغییرات، از /diff برای بررسی هر تغییر ثبت نشده استفاده کنید.',
+  'ide.chat.tip.models':
+    'نکته: برای مقایسه تمام مدل‌های هوش مصنوعی موجود و تغییر مدل در حال اجرا، عبارت /models را تایپ کنید.{{agentName}} .',
+  'ide.chat.tip.report':
+    'نکته: مشکلی پیش آمده؟ /report یک اشکال یا بازخورد را به همراه چت اخیر شما به تیم ارسال می‌کند.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

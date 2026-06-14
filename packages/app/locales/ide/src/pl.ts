@@ -250,6 +250,26 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Ustawienia',
   'ide.chat.tip.dismiss': 'Zignoruj wskazówkę',
+  'ide.chat.tip.getStarted':
+    'Wskazówka: wpisz /, aby wyświetlić listę wszystkich poleceń, lub @ nazwa_pliku, aby wskazać programowi „{{agentName}}” plik, na którym ma pracować.',
+  'ide.chat.tip.mention':
+    'Wskazówka: wpisz @nazwa_pliku, aby dołączyć plik projektu jako kontekst — program „{{agentName}}” odczyta go bezpośrednio.',
+  'ide.chat.tip.slash':
+    'Wskazówka: wpisz /, aby wyświetlić listę wszystkich poleceń (commit, diff, model i inne).',
+  'ide.chat.tip.plan':
+    'Wskazówka: użyj opcji /plan, aby program „{{agentName}}” przeanalizował sytuację i zaproponował plan działania, zanim przystąpi do edycji plików.',
+  'ide.chat.tip.undo':
+    'Wskazówka: użyj polecenia /undo, aby natychmiast cofnąć zmiany wprowadzone w pliku podczas ostatniej tury AI, jeśli nie poszło zgodnie z planem.',
+  'ide.chat.tip.compact':
+    'Wskazówka: długa rozmowa? Polecenie /compact skompresuje kontekst, dzięki czemu zachowasz miejsce do pracy.',
+  'ide.chat.tip.commit':
+    'Wskazówka: użyj polecenia /commit, aby zapisać zmiany jako commit w systemie Git, do którego zawsze możesz wrócić.',
+  'ide.chat.tip.diff':
+    'Wskazówka: użyj polecenia /diff, aby przejrzeć wszystkie niezapisane zmiany, zanim je zachowasz lub zatwierdzisz.',
+  'ide.chat.tip.models':
+    'Wskazówka: wpisz /models, aby porównać wszystkie dostępne modele AI i przełączyć ten, który obsługuje funkcję „{{agentName}}”.',
+  'ide.chat.tip.report':
+    'Wskazówka: coś nie gra? Polecenie /report pozwala zgłosić błąd lub opinię zespołowi wraz z załączoną historią ostatniej rozmowy.',
   'ide.chat.undoError': 'Nie udało się cofnąć zmian.',
   'ide.chat.autoCommit.badge': 'Automatyczne zatwierdzanie w programie „{{countdown}}”',
   'ide.chat.autoCommit.cancel': 'Wyłącz automatyczne zatwierdzanie',

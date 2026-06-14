@@ -247,6 +247,25 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Awgrym: teipiwch / i weld pob gorchymyn, neu @ enw ffeil i roi{{agentName}} ffeil i weithio ohoni.',
+  'ide.chat.tip.mention':
+    'Awgrym: teipiwch @filename i atodi ffeil prosiect fel cyd-destun —{{agentName}} yn ei ddarllen yn uniongyrchol.',
+  'ide.chat.tip.slash': 'Awgrym: teipiwch / i bori pob gorchymyn (commit, diff, model, a mwy).',
+  'ide.chat.tip.plan':
+    'Awgrym: defnyddiwch / cynlluniwch i gael{{agentName}} ymchwilio a chynnig cynllun cyn iddo olygu unrhyw ffeiliau.',
+  'ide.chat.tip.undo':
+    'Awgrym: defnyddiwch /undo i wrthdroi newidiadau ffeil y tro AI diwethaf ar unwaith os aeth y ffordd anghywir.',
+  'ide.chat.tip.compact':
+    'Awgrym: sgwrs hir? Mae /compact yn cywasgu&#39;r cyd-destun fel eich bod chi&#39;n cadw lle i weithio.',
+  'ide.chat.tip.commit':
+    'Awgrym: defnyddiwch /commit i gadw eich newidiadau fel commit git y gallwch chi ddychwelyd ato bob amser.',
+  'ide.chat.tip.diff':
+    'Awgrym: defnyddiwch /diff i adolygu pob newid heb ei ymrwymo cyn i chi ei gadw neu ei ymrwymo.',
+  'ide.chat.tip.models':
+    'Awgrym: teipiwch /models i gymharu pob model AI sydd ar gael a newid yr un sy&#39;n rhedeg{{agentName}} .',
+  'ide.chat.tip.report':
+    'Awgrym: rhywbeth o&#39;i le? Mae /report yn anfon nam neu adborth at y tîm gyda&#39;ch sgwrs ddiweddar ynghlwm.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

@@ -246,6 +246,25 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Inställningar',
   'ide.chat.tip.dismiss': 'Stäng tipset',
+  'ide.chat.tip.getStarted':
+    'Tips: Skriv / för att se alla kommandon, eller @ följt av ett filnamn för att ange en fil som utgångspunkt för {{agentName}}.',
+  'ide.chat.tip.mention':
+    'Tips: skriv @filnamn för att bifoga en projektfil som kontext — {{agentName}} läser den direkt.',
+  'ide.chat.tip.slash': 'Tips: Skriv / för att se alla kommandon (commit, diff, model och fler).',
+  'ide.chat.tip.plan':
+    'Tips: Använd /plan för att låt{{agentName}}en undersöka situationen och föreslå en plan innan den redigerar några filer.',
+  'ide.chat.tip.undo':
+    'Tips: Använd /undo för att omedelbart ångra de senaste filändringarna från AI-turen om det gick snett.',
+  'ide.chat.tip.compact':
+    'Tips: Lång konversation? /compact komprimerar kontexten så att du får mer utrymme att arbeta på.',
+  'ide.chat.tip.commit':
+    'Tips: Använd /commit för att spara dina ändringar som en Git-commit som du alltid kan återgå till.',
+  'ide.chat.tip.diff':
+    'Tips: Använd /diff för att granska alla ändringar som inte har checkats in innan du behåller eller checkar in dem.',
+  'ide.chat.tip.models':
+    'Tips: Skriv /models för att jämföra alla tillgängliga AI-modeller och byta till den som körs {{agentName}}.',
+  'ide.chat.tip.report':
+    'Tips: Är något fel? Med /report skickar du en felrapport eller feedback till teamet tillsammans med din senaste chattkonversation.',
   'ide.chat.undoError': 'Det gick inte att återställa ändringarna.',
   'ide.chat.autoCommit.badge': 'Automatisk bekräftelse i {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Avbryt automatisk bekräftelse',

@@ -249,6 +249,25 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Tip: ittajpja / biex tara kull kmand, jew @ isem ta&#39; fajl biex tagħti{{agentName}} fajl biex taħdem minnu.',
+  'ide.chat.tip.mention':
+    'Suġġeriment: ittajpja @filename biex tehmeż fajl tal-proġett bħala kuntest —{{agentName}} jaqraha direttament.',
+  'ide.chat.tip.slash': 'Tip: ittajpja / biex tfittex kull kmand (commit, diff, model, u aktar).',
+  'ide.chat.tip.plan':
+    'Tip: uża /ippjana li jkollok{{agentName}} riċerka u tipproponi pjan qabel ma teditja xi fajls.',
+  'ide.chat.tip.undo':
+    'Tip: uża /undo biex treġġa&#39; lura istantanjament il-bidliet fil-fajl tal-aħħar dawra tal-AI jekk marret fid-direzzjoni żbaljata.',
+  'ide.chat.tip.compact':
+    'Ħjiel: konverżazzjoni twila? /compact jikkompressa l-kuntest sabiex ikollok spazju biex taħdem.',
+  'ide.chat.tip.commit':
+    'Tip: uża /commit biex issalva l-bidliet tiegħek bħala git commit li dejjem tista&#39; terġa&#39; lura għalih.',
+  'ide.chat.tip.diff':
+    'Tip: uża /diff biex tirrevedi kull bidla mhux impenjata qabel ma żżommha jew timpenjaha.',
+  'ide.chat.tip.models':
+    'Tip: ittajpja /models biex tqabbel kull mudell tal-AI disponibbli u ibdel dak li qed jaħdem{{agentName}} .',
+  'ide.chat.tip.report':
+    'Ħjiel: xi ħaġa mhux sew? /report jibgħat bug jew feedback lit-tim biċ-chat reċenti tiegħek mehmuża.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

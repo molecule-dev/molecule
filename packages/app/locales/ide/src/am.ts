@@ -244,6 +244,22 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'ጠቃሚ ምክር፡ እያንዳንዱን ትዕዛዝ ለማየት / ወይም የፋይል ስም @ ለመስጠት ይተይቡ{{agentName}} የሚሰራ ፋይል።',
+  'ide.chat.tip.mention':
+    'ጠቃሚ ምክር፡ የፕሮጀክት ፋይልን እንደ አውድ ለማያያዝ @filename ብለው ይተይቡ —{{agentName}} በቀጥታ ያነበዋል።',
+  'ide.chat.tip.slash': 'ጠቃሚ ምክር፡ እያንዳንዱን ትዕዛዝ ለማሰስ / ይተይቡ (commit፣ diff፣ model፣ እና ሌሎችም)።',
+  'ide.chat.tip.plan':
+    'ጠቃሚ ምክር፡ ለመጠቀም/ለማቀድ እቅድ ማውጣት{{agentName}} ማንኛውንም ፋይል ከማስተካከልዎ በፊት አንድ ዕቅድ ይመርምሩ እና ያቅርቡ።',
+  'ide.chat.tip.undo': 'ጠቃሚ ምክር፡ የመጨረሻውን የAI ተርን ፋይል ለውጦች በተሳሳተ መንገድ ከሄዱ ወዲያውኑ ለመመለስ /ቀልብሱ ይጠቀሙ።',
+  'ide.chat.tip.compact': 'ጠቃሚ ምክር፡ ረጅም ውይይት? /ኮምፓክት አውዱን ስለሚያጨምቅ ለስራ ቦታ እንዲኖርዎት ያደርጋል።',
+  'ide.chat.tip.commit':
+    'ጠቃሚ ምክር፡- ለውጦችንዎን እንደ git commit ለማስቀመጥ /commit ን ይጠቀሙ እና ሁልጊዜም ወደ እሱ መመለስ ይችላሉ።',
+  'ide.chat.tip.diff': 'ጠቃሚ ምክር፡- እያንዳንዱን ያልተገደበ ለውጥ ከመቀጠልዎ ወይም ከማስገባትዎ በፊት ለመገምገም /diff ይጠቀሙ።',
+  'ide.chat.tip.models':
+    'ጠቃሚ ምክር፡ እያንዳንዱን የሚገኝ የAI ሞዴል ለማነፃፀር እና የሚሰራውን ለመቀየር /ሞዴሎችን ይተይቡ{{agentName}} .',
+  'ide.chat.tip.report':
+    'ጠቃሚ ምክር፡ የሆነ ችግር አለ? /ሪፖርት የቅርብ ጊዜ ውይይትዎ ተያይዟል እና ለቡድኑ ሳንካ ወይም ግብረመልስ ይልካል።',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

@@ -249,6 +249,25 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Instellingen',
   'ide.chat.tip.dismiss': 'Tip negeren',
+  'ide.chat.tip.getStarted':
+    'Tip: typ / om alle opdrachten te bekijken, of @ gevolgd door een bestandsnaam om `{{agentName}}` een bestand te geven om mee te werken.',
+  'ide.chat.tip.mention':
+    'Tip: typ @bestandsnaam om een projectbestand als context bij te voegen — {{agentName}} leest het direct.',
+  'ide.chat.tip.slash': 'Tip: typ / om alle commando’s te bekijken (commit, diff, model en meer).',
+  'ide.chat.tip.plan':
+    "Tip: gebruik /plan om '{{agentName}}' een plan te laten onderzoeken en voorstellen voordat het bestanden bewerkt.",
+  'ide.chat.tip.undo':
+    'Tip: gebruik /undo om de bestandswijzigingen van de laatste AI-beurt onmiddellijk ongedaan te maken als het mis is gegaan.',
+  'ide.chat.tip.compact':
+    'Tip: lang gesprek? /compact vouwt de context samen, zodat je ruimte overhoudt om te werken.',
+  'ide.chat.tip.commit':
+    'Tip: gebruik /commit om je wijzigingen op te slaan als een Git-commit waarnaar je altijd terug kunt gaan.',
+  'ide.chat.tip.diff':
+    'Tip: gebruik /diff om elke nog niet vastgelegde wijziging te controleren voordat je deze behoudt of vastlegt.',
+  'ide.chat.tip.models':
+    'Tip: typ /models om alle beschikbare AI-modellen te vergelijken en het model te selecteren dat momenteel actief is {{agentName}}.',
+  'ide.chat.tip.report':
+    'Tip: klopt er iets niet? Met /report stuur je een bugmelding of feedback naar het team, waarbij je recente chatgesprek wordt bijgevoegd.',
   'ide.chat.undoError': 'Het is niet gelukt om de wijzigingen ongedaan te maken.',
   'ide.chat.autoCommit.badge': 'Automatisch vastleggen in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Automatisch opslaan annuleren',

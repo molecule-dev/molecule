@@ -251,6 +251,26 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Këshillë: shkruani / për të parë çdo komandë, ose @ një emër skedari për të dhënë{{agentName}} një skedar për të punuar.',
+  'ide.chat.tip.mention':
+    'Këshillë: shkruani @emri i skedarit për të bashkëngjitur një skedar projekti si kontekst —{{agentName}} e lexon drejtpërdrejt.',
+  'ide.chat.tip.slash':
+    'Këshillë: shtypni / për të shfletuar çdo komandë (commit, diff, model dhe më shumë).',
+  'ide.chat.tip.plan':
+    'Këshillë: përdor /planifiko të kesh{{agentName}} të bëjë kërkime dhe të propozojë një plan përpara se të redaktojë ndonjë skedar.',
+  'ide.chat.tip.undo':
+    'Këshillë: përdor /undo për të rikthyer menjëherë ndryshimet e skedarit të raundit të fundit të IA-së nëse gjërat kanë shkuar keq.',
+  'ide.chat.tip.compact':
+    'Këshillë: bisedë e gjatë? /compact e kompreson kontekstin në mënyrë që të kesh hapësirë për të punuar.',
+  'ide.chat.tip.commit':
+    'Këshillë: përdorni /commit për të ruajtur ndryshimet tuaja si një commit git në të cilin mund të ktheheni gjithmonë.',
+  'ide.chat.tip.diff':
+    'Këshillë: përdorni /diff për të shqyrtuar çdo ndryshim të paangazhuar përpara se ta ruani ose taangazhoni atë.',
+  'ide.chat.tip.models':
+    'Këshillë: shkruani /models për të krahasuar çdo model të disponueshëm të IA-së dhe për të ndryshuar atë që është në punë.{{agentName}} .',
+  'ide.chat.tip.report':
+    'Këshillë: ka ndonjë problem? /report i dërgon ekipit një gabim ose reagim bashkëngjitur bisedës suaj të fundit.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

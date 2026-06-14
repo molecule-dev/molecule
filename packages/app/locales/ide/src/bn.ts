@@ -247,6 +247,26 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'পরামর্শ: প্রতিটি কমান্ড দেখতে / টাইপ করুন, অথবা একটি ফাইলের নাম দিতে @ টাইপ করুন।{{agentName}} কাজ করার জন্য একটি ফাইল।',
+  'ide.chat.tip.mention':
+    'পরামর্শ: প্রজেক্ট ফাইলটিকে কনটেক্সট হিসেবে সংযুক্ত করতে @filename টাইপ করুন —{{agentName}} সরাসরি পড়ে।',
+  'ide.chat.tip.slash':
+    'পরামর্শ: প্রতিটি কমান্ড (কমিট, ডিফারেন্স, মডেল এবং আরও অনেক কিছু) ব্রাউজ করতে / টাইপ করুন।',
+  'ide.chat.tip.plan':
+    'পরামর্শ: /plan to have ব্যবহার করুন{{agentName}} কোনো ফাইল সম্পাদনা করার আগে গবেষণা করে একটি পরিকল্পনা প্রস্তাব করুন।',
+  'ide.chat.tip.undo':
+    'পরামর্শ: শেষ AI টার্নের ফাইল পরিবর্তনগুলো ভুল হলে, তা তাৎক্ষণিকভাবে পূর্বাবস্থায় ফিরিয়ে আনতে /undo ব্যবহার করুন।',
+  'ide.chat.tip.compact':
+    'পরামর্শ: কথোপকথন দীর্ঘ হলে, /compact কোডটি মূল বিষয়বস্তুকে সংকুচিত করে, ফলে আপনি কাজ করার জন্য জায়গা পান।',
+  'ide.chat.tip.commit':
+    'পরামর্শ: আপনার পরিবর্তনগুলো একটি গিট কমিট হিসেবে সংরক্ষণ করতে /commit ব্যবহার করুন, যাতে আপনি যেকোনো সময় সেখানে ফিরে আসতে পারেন।',
+  'ide.chat.tip.diff':
+    'পরামর্শ: কোনো পরিবর্তন রাখা বা কমিট করার আগে, প্রতিটি অকমিটেড পরিবর্তন পর্যালোচনা করতে /diff ব্যবহার করুন।',
+  'ide.chat.tip.models':
+    'পরামর্শ: উপলব্ধ প্রতিটি এআই মডেলের তুলনা করতে এবং চলমান মডেলটি পরিবর্তন করতে /models টাইপ করুন।{{agentName}} .',
+  'ide.chat.tip.report':
+    'পরামর্শ: কিছু অস্বাভাবিক লাগছে? /report কমান্ডটি আপনার সাম্প্রতিক চ্যাট সংযুক্ত করে টিমের কাছে একটি বাগ বা মতামত পাঠায়।',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

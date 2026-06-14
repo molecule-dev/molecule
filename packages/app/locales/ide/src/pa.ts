@@ -248,6 +248,25 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'ਸੁਝਾਅ: ਹਰੇਕ ਕਮਾਂਡ ਦੇਖਣ ਲਈ / ਟਾਈਪ ਕਰੋ, ਜਾਂ ਦੇਣ ਲਈ @ ਇੱਕ ਫਾਈਲ ਨਾਮ ਟਾਈਪ ਕਰੋ{{agentName}} ਕੰਮ ਕਰਨ ਲਈ ਇੱਕ ਫਾਈਲ।',
+  'ide.chat.tip.mention':
+    'ਸੁਝਾਅ: ਪ੍ਰੋਜੈਕਟ ਫਾਈਲ ਨੂੰ ਸੰਦਰਭ ਵਜੋਂ ਜੋੜਨ ਲਈ @filename ਟਾਈਪ ਕਰੋ —{{agentName}} ਇਸਨੂੰ ਸਿੱਧਾ ਪੜ੍ਹਦਾ ਹੈ।',
+  'ide.chat.tip.slash': 'ਸੁਝਾਅ: ਹਰੇਕ ਕਮਾਂਡ (ਕਮਿਟ, ਡਿਫ, ਮਾਡਲ, ਅਤੇ ਹੋਰ) ਬ੍ਰਾਊਜ਼ ਕਰਨ ਲਈ / ਟਾਈਪ ਕਰੋ।',
+  'ide.chat.tip.plan':
+    'ਸੁਝਾਅ: ਵਰਤੋਂ / ਯੋਜਨਾ ਬਣਾਓ{{agentName}} ਕਿਸੇ ਵੀ ਫਾਈਲ ਨੂੰ ਸੰਪਾਦਿਤ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਖੋਜ ਕਰੋ ਅਤੇ ਯੋਜਨਾ ਦਾ ਪ੍ਰਸਤਾਵ ਦਿਓ।',
+  'ide.chat.tip.undo':
+    'ਸੁਝਾਅ: ਜੇਕਰ ਆਖਰੀ AI ਮੋੜ ਦੀ ਫਾਈਲ ਤਬਦੀਲੀਆਂ ਗਲਤ ਹੋ ਗਈਆਂ ਹਨ ਤਾਂ ਉਹਨਾਂ ਨੂੰ ਤੁਰੰਤ ਵਾਪਸ ਕਰਨ ਲਈ /undo ਦੀ ਵਰਤੋਂ ਕਰੋ।',
+  'ide.chat.tip.compact':
+    'ਸੁਝਾਅ: ਲੰਬੀ ਗੱਲਬਾਤ? /compact ਸੰਦਰਭ ਨੂੰ ਸੰਕੁਚਿਤ ਕਰਦਾ ਹੈ ਤਾਂ ਜੋ ਤੁਸੀਂ ਕੰਮ ਕਰਨ ਲਈ ਜਗ੍ਹਾ ਰੱਖ ਸਕੋ।',
+  'ide.chat.tip.commit':
+    'ਸੁਝਾਅ: ਆਪਣੇ ਬਦਲਾਵਾਂ ਨੂੰ ਇੱਕ git commit ਦੇ ਤੌਰ &#39;ਤੇ ਸੁਰੱਖਿਅਤ ਕਰਨ ਲਈ /commit ਦੀ ਵਰਤੋਂ ਕਰੋ ਜਿਸ &#39;ਤੇ ਤੁਸੀਂ ਹਮੇਸ਼ਾ ਵਾਪਸ ਜਾ ਸਕਦੇ ਹੋ।',
+  'ide.chat.tip.diff':
+    'ਸੁਝਾਅ: ਹਰ ਅਣ-ਪ੍ਰਤੀਬੱਧ ਤਬਦੀਲੀ ਨੂੰ ਰੱਖਣ ਜਾਂ ਪ੍ਰਤੀਬੱਧ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਸਮੀਖਿਆ ਕਰਨ ਲਈ /diff ਦੀ ਵਰਤੋਂ ਕਰੋ।',
+  'ide.chat.tip.models':
+    'ਸੁਝਾਅ: ਹਰੇਕ ਉਪਲਬਧ AI ਮਾਡਲ ਦੀ ਤੁਲਨਾ ਕਰਨ ਲਈ /models ਟਾਈਪ ਕਰੋ ਅਤੇ ਚੱਲ ਰਹੇ ਮਾਡਲ ਨੂੰ ਬਦਲੋ।{{agentName}} .',
+  'ide.chat.tip.report':
+    'ਸੁਝਾਅ: ਕੁਝ ਗਲਤ ਹੈ? /report ਤੁਹਾਡੀ ਹਾਲੀਆ ਚੈਟ ਨਾਲ ਜੁੜੀ ਟੀਮ ਨੂੰ ਇੱਕ ਬੱਗ ਜਾਂ ਫੀਡਬੈਕ ਭੇਜਦਾ ਹੈ।',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

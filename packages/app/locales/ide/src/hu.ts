@@ -246,6 +246,26 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Önéletrajz',
   'ide.chat.openSettings': 'Beállítások',
   'ide.chat.tip.dismiss': 'Tipp elrejtése',
+  'ide.chat.tip.getStarted':
+    'Tipp: Írja be a / parancsot az összes parancs megtekintéséhez, vagy a @ jel után egy fájlnevet, hogy megadja az „{{agentName}}” parancsnak a feldolgozandó fájlt.',
+  'ide.chat.tip.mention':
+    'Tipp: Írja be az @filename parancsot, ha egy projektfájlt szeretne kontextusként csatolni – az {{agentName}} közvetlenül beolvassa azt.',
+  'ide.chat.tip.slash':
+    'Tipp: Írja be a / parancsot az összes parancs (commit, diff, model stb.) megtekintéséhez.',
+  'ide.chat.tip.plan':
+    'Tipp: A /plan parancs használatával elérheted, hogy {{agentName}} a fájlok szerkesztése előtt felmérje a helyzetet és javaslatot tegyen egy tervre.',
+  'ide.chat.tip.undo':
+    'Tipp: a /undo parancs segítségével azonnal visszaállíthatod az AI legutóbbi lépése során végrehajtott fájlváltozásokat, ha az nem a kívánt eredményt hozta.',
+  'ide.chat.tip.compact':
+    'Tipp: Hosszú beszélgetés? A /compact parancs összefoglalja a kontextust, így marad helyed a munkához.',
+  'ide.chat.tip.commit':
+    'Tipp: Használd a /commit parancsot, hogy a módosításokat git-commitként mentsd el, amelyhez bármikor visszatérhetsz.',
+  'ide.chat.tip.diff':
+    'Tipp: Használd a /diff parancsot, hogy áttekintsd az összes még el nem mentett módosítást, mielőtt megtartanád vagy elküldenéd őket.',
+  'ide.chat.tip.models':
+    'Tipp: Írja be a /models parancsot az összes elérhető AI-modell összehasonlításához, és váltson át az éppen futó modellre a {{agentName}} oldalon.',
+  'ide.chat.tip.report':
+    'Tipp: Valami nem stimmel? A /report parancs segítségével hibajelentést vagy visszajelzést küldhetsz a csapatnak, a legutóbbi csevegésed mellékletként csatolva.',
   'ide.chat.undoError': 'A módosítások visszaállítása nem sikerült.',
   'ide.chat.autoCommit.badge': 'Az automatikus elküldés az „{{countdown}}” verzióban',
   'ide.chat.autoCommit.cancel': 'Az automatikus mentés törlése',

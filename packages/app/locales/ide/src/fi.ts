@@ -247,6 +247,26 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Ansioluettelo',
   'ide.chat.openSettings': 'Asetukset',
   'ide.chat.tip.dismiss': 'Hylkää vinkki',
+  'ide.chat.tip.getStarted':
+    'Vinkki: kirjoita / nähdäksesi kaikki komennot tai @ tiedostonimi, jotta {{agentName}} voi käyttää kyseistä tiedostoa.',
+  'ide.chat.tip.mention':
+    'Vinkki: kirjoita @tiedostonimi liittääksesi projektitiedoston kontekstiksi — {{agentName}} lukee sen suoraan.',
+  'ide.chat.tip.slash':
+    'Vinkki: kirjoita / nähdäksesi kaikki komennot (commit, diff, model ja muut).',
+  'ide.chat.tip.plan':
+    'Vinkki: käytä komentoa /plan, jotta {{agentName}} tutkii tilanteen ja ehdottaa toimintasuunnitelmaa ennen tiedostojen muokkaamista.',
+  'ide.chat.tip.undo':
+    'Vinkki: käytä komentoa /undo, jos haluat kumota viimeisen tekoälykierroksen tiedostomuutokset välittömästi, jos ne menivät pieleen.',
+  'ide.chat.tip.compact':
+    'Vinkki: Pitkä keskustelu? /compact tiivistää keskustelun, jotta sinulle jää tilaa työskennellä.',
+  'ide.chat.tip.commit':
+    'Vinkki: käytä komentoa /commit tallentaaksesi muutokset Git-komitoksi, johon voit palata milloin tahansa.',
+  'ide.chat.tip.diff':
+    'Vinkki: käytä komentoa /diff tarkistaaksesi kaikki tallentamattomat muutokset ennen kuin hyväksyt tai tallennat ne.',
+  'ide.chat.tip.models':
+    'Vinkki: kirjoita /models, jos haluat vertailla kaikkia käytettävissä olevia tekoälymalleja ja vaihtaa sen, joka on käynnissä osoitteessa {{agentName}}.',
+  'ide.chat.tip.report':
+    'Vinkki: huomasitko jotain outoa? /report-komennolla voit lähettää tiimille vikailmoituksen tai palautetta, johon liitetään viimeisimmät keskustelusi.',
   'ide.chat.undoError': 'Muutosten palauttaminen epäonnistui.',
   'ide.chat.autoCommit.badge': 'Automaattinen tallennus ({{countdown}})',
   'ide.chat.autoCommit.cancel': 'Peruuta automaattinen tallennus',

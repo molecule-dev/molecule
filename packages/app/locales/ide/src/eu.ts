@@ -249,6 +249,26 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Aholkua: idatzi / komando guztiak ikusteko, edo @ fitxategi-izen bat emateko{{agentName}} lan egiteko fitxategi bat.',
+  'ide.chat.tip.mention':
+    'Aholkua: idatzi @filename proiektu-fitxategi bat testuinguru gisa eransteko —{{agentName}} zuzenean irakurtzen du.',
+  'ide.chat.tip.slash':
+    'Aholkua: idatzi / komando guztiak arakatzeko (commit, diff, model eta gehiago).',
+  'ide.chat.tip.plan':
+    'Aholkua: erabili /planifikatu edukitzeko{{agentName}} fitxategiak editatu aurretik ikertu eta plan bat proposatu.',
+  'ide.chat.tip.undo':
+    'Aholkua: erabili /desegin azken AI txandaren fitxategi aldaketak berehala leheneratzeko, okerreko norabidean joan bada.',
+  'ide.chat.tip.compact':
+    'Aholkua: elkarrizketa luzea? /compact-ek testuingurua konprimitzen du lan egiteko lekua izan dezazun.',
+  'ide.chat.tip.commit':
+    'Aholkua: erabili /commit aldaketak git commit gisa gordetzeko, eta beti itzul zaitezke bertara.',
+  'ide.chat.tip.diff':
+    'Aholkua: erabili /diff aldaketa guztiak berrikusteko, gorde edo konfirmatu aurretik.',
+  'ide.chat.tip.models':
+    'Aholkua: idatzi /models eskuragarri dauden IA eredu guztiak alderatzeko eta martxan dagoena aldatzeko{{agentName}} .',
+  'ide.chat.tip.report':
+    'Aholkua: zerbait gaizki? /report-ek akats bat edo feedback bat bidaltzen dio taldeari zure azken txata erantsita.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

@@ -246,6 +246,26 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'सुझाव: प्रत्येक आदेश हेर्न / टाइप गर्नुहोस्, वा @ फाइलनाम दिनको लागि टाइप गर्नुहोस्{{agentName}} काम गर्नको लागि एउटा फाइल।',
+  'ide.chat.tip.mention':
+    'सुझाव: प्रोजेक्ट फाइललाई सन्दर्भको रूपमा संलग्न गर्न @filename टाइप गर्नुहोस् —{{agentName}} सिधै पढ्छ।',
+  'ide.chat.tip.slash':
+    'सुझाव: प्रत्येक आदेश (कमिट, डिफ, मोडेल, र थप) ब्राउज गर्न / टाइप गर्नुहोस्।',
+  'ide.chat.tip.plan':
+    'सुझाव: प्रयोग गर्नुहोस् / योजना बनाउनुहोस्{{agentName}} कुनै पनि फाइल सम्पादन गर्नु अघि अनुसन्धान गर्नुहोस् र योजना प्रस्ताव गर्नुहोस्।',
+  'ide.chat.tip.undo':
+    'सुझाव: यदि अन्तिम AI पालोको फाइल परिवर्तनहरू गलत बाटोमा गयो भने तुरुन्तै उल्टाउन /अन्डु प्रयोग गर्नुहोस्।',
+  'ide.chat.tip.compact':
+    'सुझाव: लामो कुराकानी? /कम्प्याक्टले सन्दर्भलाई संकुचित गर्छ ताकि तपाईं काम गर्न ठाउँ छोड्नुहोस्।',
+  'ide.chat.tip.commit':
+    'सुझाव: तपाईं जहिले पनि फर्कन सक्ने गिट कमिटको रूपमा आफ्ना परिवर्तनहरू बचत गर्न /commit प्रयोग गर्नुहोस्।',
+  'ide.chat.tip.diff':
+    'सुझाव: प्रत्येक अप्रतिबद्ध परिवर्तनलाई राख्नु वा प्रतिबद्ध गर्नु अघि समीक्षा गर्न /diff प्रयोग गर्नुहोस्।',
+  'ide.chat.tip.models':
+    'सुझाव: उपलब्ध प्रत्येक AI मोडेलको तुलना गर्न /models टाइप गर्नुहोस् र चलिरहेको मोडेल स्विच गर्नुहोस्।{{agentName}} ।',
+  'ide.chat.tip.report':
+    'सुझाव: केही गडबड छ? /report ले तपाईंको हालसालैको च्याट संलग्न गरी टोलीलाई बग वा प्रतिक्रिया पठाउँछ।',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

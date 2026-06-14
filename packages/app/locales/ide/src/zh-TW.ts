@@ -244,6 +244,21 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': '履歷',
   'ide.chat.openSettings': '設定',
   'ide.chat.tip.dismiss': '關閉提示',
+  'ide.chat.tip.getStarted':
+    '提示：輸入 / 可查看所有指令，或輸入 @ 加上檔案名稱，讓 `{{agentName}}` 從該檔案開始處理。',
+  'ide.chat.tip.mention':
+    '提示：輸入 @filename 可將專案檔案作為參數附加 — {{agentName}} 會直接讀取該檔案。',
+  'ide.chat.tip.slash': '提示：輸入 / 可瀏覽所有指令（commit、diff、model 等）。',
+  'ide.chat.tip.plan':
+    '提示：使用 /plan 指令，可讓 {{agentName}} 在編輯任何檔案之前先進行研究並提出計畫。',
+  'ide.chat.tip.undo': '提示：若 AI 的上一次回合所做的檔案變更不理想，可使用 /undo 指令立即還原。',
+  'ide.chat.tip.compact': '提示：對話太長？使用 /compact 指令可壓縮對話內容，讓您保留操作空間。',
+  'ide.chat.tip.commit': '提示：使用 /commit 將變更儲存為 Git 提交，日後隨時都能回溯至該提交。',
+  'ide.chat.tip.diff': '提示：在保留或提交變更之前，請使用 /diff 檢視所有尚未提交的變更。',
+  'ide.chat.tip.models':
+    '提示：輸入 /models 可比較所有可用的 AI 模型，並切換正在運行的模型 {{agentName}}。',
+  'ide.chat.tip.report':
+    '提示：發現問題嗎？使用 /report 指令即可將錯誤回報或意見回饋連同您最近的聊天記錄一併傳送給團隊。',
   'ide.chat.undoError': '無法還原變更。',
   'ide.chat.autoCommit.badge': '{{countdown}} 中的自動提交',
   'ide.chat.autoCommit.cancel': '取消自動提交',

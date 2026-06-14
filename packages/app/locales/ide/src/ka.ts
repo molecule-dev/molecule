@@ -247,6 +247,26 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'რჩევა: აკრიფეთ / ყველა ბრძანების სანახავად, ან @ ფაილის სახელის მისაცემად{{agentName}} ფაილი, საიდანაც მუშაობა იქნება შესაძლებელი.',
+  'ide.chat.tip.mention':
+    'რჩევა: პროექტის ფაილის კონტექსტის სახით მისამაგრებლად აკრიფეთ @filename —{{agentName}} პირდაპირ კითხულობს.',
+  'ide.chat.tip.slash':
+    'რჩევა: აკრიფეთ / ყველა ბრძანების (commit, diff, model და სხვა) დასათვალიერებლად.',
+  'ide.chat.tip.plan':
+    'რჩევა: გამოიყენეთ /დაგეგმეთ რომ გქონდეთ{{agentName}} ნებისმიერი ფაილის რედაქტირებამდე, ჩაატაროს კვლევა და შესთავაზოს გეგმა.',
+  'ide.chat.tip.undo':
+    'რჩევა: თუ ხელოვნური ინტელექტის ბოლო რაუნდის ფაილის ცვლილებები არასწორად წავიდა, გამოიყენეთ /undo.',
+  'ide.chat.tip.compact':
+    'რჩევა: ხანგრძლივი საუბარი? /compact იკუმშება კონტექსტი, რათა სამუშაოდ ადგილი დარჩეს.',
+  'ide.chat.tip.commit':
+    'რჩევა: გამოიყენეთ /commit, რათა შეინახოთ ცვლილებები git commit-ის სახით, რომელზეც დაბრუნება ყოველთვის შეგიძლიათ.',
+  'ide.chat.tip.diff':
+    'რჩევა: შეინახეთ ან დააკოპირეთ ყველა დაუდასტურებელი ცვლილება /diff-ის გამოყენებით.',
+  'ide.chat.tip.models':
+    'რჩევა: აკრიფეთ /models, რათა შეადაროთ ყველა არსებული ხელოვნური ინტელექტის მოდელი და შეცვალოთ ერთი, რომელიც მუშაობს.{{agentName}} .',
+  'ide.chat.tip.report':
+    'რჩევა: რამე პრობლემაა? /report გუნდს უგზავნის შეცდომას ან გამოხმაურებას თქვენი ბოლო ჩატის თანდართული ინფორმაციით.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

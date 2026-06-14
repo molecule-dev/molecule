@@ -247,6 +247,25 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Wenk: tik / om elke opdrag te sien, of @ &#39;n lêernaam om te gee{{agentName}} &#39;n lêer om van te werk.',
+  'ide.chat.tip.mention':
+    'Wenk: tik @lêernaam om &#39;n projeklêer as konteks aan te heg —{{agentName}} lees dit direk.',
+  'ide.chat.tip.slash': 'Wenk: tik / om deur elke opdrag te blaai (commit, diff, model, en meer).',
+  'ide.chat.tip.plan':
+    'Wenk: gebruik / beplan om te hê{{agentName}} navorsing doen en &#39;n plan voorstel voordat dit enige lêers wysig.',
+  'ide.chat.tip.undo':
+    'Wenk: gebruik /undo om die laaste KI-beurt se lêerveranderinge onmiddellik terug te keer as dit verkeerd gegaan het.',
+  'ide.chat.tip.compact':
+    'Wenk: lang gesprek? /kompakteer die konteks sodat jy ruimte oorhou om te werk.',
+  'ide.chat.tip.commit':
+    'Wenk: gebruik /commit om jou veranderinge as &#39;n git commit te stoor waarna jy altyd kan terugkeer.',
+  'ide.chat.tip.diff':
+    'Wenk: gebruik /diff om elke ontoegewyde verandering te hersien voordat jy dit behou of toepas.',
+  'ide.chat.tip.models':
+    'Wenk: tik /models om elke beskikbare KI-model te vergelyk en skakel die een wat loop oor{{agentName}} .',
+  'ide.chat.tip.report':
+    'Wenk: iets verkeerd? /rapporteer stuur &#39;n fout of terugvoer na die span met jou onlangse klets aangeheg.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

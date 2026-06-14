@@ -248,6 +248,25 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'ٹپ: ہر کمانڈ کو دیکھنے کے لیے ٹائپ کریں، یا @ دینے کے لیے فائل کا نام{{agentName}} ایک فائل جس سے کام کرنا ہے۔',
+  'ide.chat.tip.mention':
+    'ٹپ: پروجیکٹ فائل کو سیاق و سباق کے طور پر منسلک کرنے کے لیے @filename ٹائپ کریں۔{{agentName}} اسے براہ راست پڑھتا ہے.',
+  'ide.chat.tip.slash': 'ٹپ: ہر کمانڈ کو براؤز کرنے کے لیے ٹائپ کریں (کمٹ، ڈیف، ماڈل، اور مزید)۔',
+  'ide.chat.tip.plan':
+    'مشورہ: استعمال کرنے کے لیے/منصوبہ کریں۔{{agentName}} کسی بھی فائل میں ترمیم کرنے سے پہلے تحقیق کریں اور ایک منصوبہ تجویز کریں۔',
+  'ide.chat.tip.undo':
+    'اشارہ: آخری AI ٹرن کی فائل کی تبدیلیوں کو فوری طور پر واپس کرنے کے لیے /undo کا استعمال کریں اگر یہ غلط طریقے سے چلا گیا ہے۔',
+  'ide.chat.tip.compact':
+    'ٹپ: طویل گفتگو؟ /compact سیاق و سباق کو کمپریس کرتا ہے تاکہ آپ کام کرنے کے لیے جگہ رکھیں۔',
+  'ide.chat.tip.commit':
+    'ٹپ: اپنی تبدیلیوں کو محفوظ کرنے کے لیے /commit کو بطور گٹ کمٹ استعمال کریں جس پر آپ ہمیشہ واپس جا سکتے ہیں۔',
+  'ide.chat.tip.diff':
+    'ٹپ: ہر غیر متعین تبدیلی کو برقرار رکھنے یا کرنے سے پہلے اس کا جائزہ لینے کے لیے /diff کا استعمال کریں۔',
+  'ide.chat.tip.models':
+    'ٹپ: ہر دستیاب AI ماڈل کا موازنہ کرنے کے لیے /models ٹائپ کریں اور چلنے والے کو تبدیل کریں۔{{agentName}} .',
+  'ide.chat.tip.report':
+    'ٹپ: کچھ بند؟ /report ٹیم کو آپ کی حالیہ چیٹ کے ساتھ ایک بگ یا تاثرات بھیجتا ہے۔',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

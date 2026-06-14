@@ -247,6 +247,26 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Кеңеш: ар бир буйрукту көрүү үчүн / териңиз, же @ файл атын берүү үчүн{{agentName}} иштөө үчүн файл.',
+  'ide.chat.tip.mention':
+    'Кеңеш: долбоор файлын контекст катары тиркөө үчүн @filename териңиз —{{agentName}} аны түз окуйт.',
+  'ide.chat.tip.slash':
+    'Кеңеш: ар бир буйрукту (commit, diff, model жана башкалар) карап чыгуу үчүн / деп териңиз.',
+  'ide.chat.tip.plan':
+    'Кеңеш: ээ болуу үчүн /plan колдонуңуз{{agentName}} кандайдыр бир файлдарды түзөтүүдөн мурун изилдөө жүргүзүп, план сунуштаңыз.',
+  'ide.chat.tip.undo':
+    'Кеңеш: акыркы жасалма интеллекттин файл өзгөрүүлөрү туура эмес болуп калса, аларды заматта кайтаруу үчүн /undo колдонуңуз.',
+  'ide.chat.tip.compact':
+    'Кеңеш: узак сүйлөшүү? /compact функциясы контекстти кысып, иштөөгө орун калтырат.',
+  'ide.chat.tip.commit':
+    'Кеңеш: өзгөртүүлөрүңүздү каалаган убакта кайтып келе турган git commit катары сактоо үчүн /commit колдонуңуз.',
+  'ide.chat.tip.diff':
+    'Кеңеш: ар бир милдеттенме алынбаган өзгөртүүнү сактоодон же бекитүүдөн мурун карап чыгуу үчүн /diff колдонуңуз.',
+  'ide.chat.tip.models':
+    'Кеңеш: ар бир жеткиликтүү AI моделин салыштыруу үчүн /models деп терип, иштеп жаткан моделин которуштуруңуз{{agentName}} .',
+  'ide.chat.tip.report':
+    'Кеңеш: бир нерсе туура эмеспи? /report ката же пикир билдирүүнү командага акыркы баарлашууңуз тиркелген билдирүү менен жөнөтөт.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

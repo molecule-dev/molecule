@@ -246,6 +246,26 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Indstillinger',
   'ide.chat.tip.dismiss': 'Skjul tip',
+  'ide.chat.tip.getStarted':
+    'Tip: Skriv / for at se alle kommandoer, eller @ efterfulgt af et filnavn for at angive en fil, s{{agentName}}en skal arbejde ud fra.',
+  'ide.chat.tip.mention':
+    'Tip: Skriv @filnavn for at vedhæfte en projektfil som kontekst — {{agentName}} læser den direkte.',
+  'ide.chat.tip.slash':
+    'Tip: Skriv / for at få vist alle kommandoer (commit, diff, model og flere).',
+  'ide.chat.tip.plan':
+    'Tip: Brug kommandoen /plan for at få {{agentName}} til at undersøge sagen og foreslå en løsning, inden der foretages ændringer i filerne.',
+  'ide.chat.tip.undo':
+    'Tip: Brug /undo til straks at fortryde de filændringer, der blev foretaget i det sidste AI-træk, hvis det gik galt.',
+  'ide.chat.tip.compact':
+    'Tip: Lang samtale? /compact komprimerer teksten, så du har plads til at arbejde.',
+  'ide.chat.tip.commit':
+    'Tip: Brug /commit til at gemme dine ændringer som en Git-commit, som du altid kan vende tilbage til.',
+  'ide.chat.tip.diff':
+    'Tip: Brug /diff til at gennemgå alle ændringer, der endnu ikke er commitet, før du vælger at beholde eller commit dem.',
+  'ide.chat.tip.models':
+    'Tip: Skriv /models for at sammenligne alle tilgængelige AI-modeller og skifte til den, der kører »{{agentName}}«.',
+  'ide.chat.tip.report':
+    'Tip: Er der noget galt? /report sender en fejlmelding eller feedback til teamet med din seneste chat vedhæftet.',
   'ide.chat.undoError': 'Det lykkedes ikke at fortryde ændringerne.',
   'ide.chat.autoCommit.badge': 'Automatisk bekræftelse i {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Annuller automatisk gemning',

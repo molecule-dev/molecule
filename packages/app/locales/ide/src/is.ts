@@ -246,6 +246,26 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Ráð: sláðu inn / til að sjá allar skipanir eða @ til að gefa upp skráarnafn{{agentName}} skrá til að vinna úr.',
+  'ide.chat.tip.mention':
+    'Ráð: sláðu inn @skráarnafn til að hengja við verkefnisskrá sem samhengi —{{agentName}} les það beint.',
+  'ide.chat.tip.slash':
+    'Ráð: sláðu inn / til að skoða allar skipanir (commit, diff, model og fleira).',
+  'ide.chat.tip.plan':
+    'Ráð: nota / ætla að hafa{{agentName}} rannsaka og leggja til áætlun áður en það breytir neinum skrám.',
+  'ide.chat.tip.undo':
+    'Ráð: notaðu /undo til að afturkalla strax breytingar á skrá síðustu AI-beygju ef hún fór úrskeiðis.',
+  'ide.chat.tip.compact':
+    'Ráð: langt samtal? /compact þjappar samhenginu saman svo þú hafir pláss til að vinna.',
+  'ide.chat.tip.commit':
+    'Ráð: notaðu /commit til að vista breytingarnar þínar sem git commit sem þú getur alltaf farið aftur í.',
+  'ide.chat.tip.diff':
+    'Ráð: notaðu /diff til að yfirfara allar óskráðar breytingar áður en þú geymir þær eða skráir þær.',
+  'ide.chat.tip.models':
+    'Ráð: sláðu inn /models til að bera saman allar tiltækar gervigreindarlíkön og skipta um það sem er í gangi.{{agentName}} .',
+  'ide.chat.tip.report':
+    'Ábending: Er eitthvað að? /report sendir villu eða ábendingu til teymisins með nýlegu spjalli þínu sem viðhengi.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

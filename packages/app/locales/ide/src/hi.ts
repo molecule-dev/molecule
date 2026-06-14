@@ -247,6 +247,26 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'सुझाव: सभी कमांड देखने के लिए / टाइप करें, या फ़ाइल नाम देने के लिए @ टाइप करें।{{agentName}} काम करने के लिए एक फाइल।',
+  'ide.chat.tip.mention':
+    'सुझाव: प्रोजेक्ट फ़ाइल को संदर्भ के रूप में संलग्न करने के लिए @filename टाइप करें —{{agentName}} इसे सीधे पढ़ता है।',
+  'ide.chat.tip.slash':
+    'सुझाव: सभी कमांड (कमिट, डिफ, मॉडल, और अन्य) को ब्राउज़ करने के लिए / टाइप करें।',
+  'ide.chat.tip.plan':
+    'सुझाव: /plan to have का उपयोग करें{{agentName}} किसी भी फाइल को संपादित करने से पहले शोध करें और एक योजना प्रस्तावित करें।',
+  'ide.chat.tip.undo':
+    'सलाह: यदि पिछली एआई बारी में फ़ाइल में कोई बदलाव गलत तरीके से हुआ हो, तो उसे तुरंत वापस लाने के लिए /undo का उपयोग करें।',
+  'ide.chat.tip.compact':
+    'सुझाव: लंबी बातचीत? /compact संदर्भ को संकुचित कर देता है ताकि आपके पास काम करने के लिए जगह बनी रहे।',
+  'ide.chat.tip.commit':
+    'सुझाव: अपने बदलावों को गिट कमिट के रूप में सहेजने के लिए /commit का उपयोग करें, जिसे आप हमेशा वापस देख सकते हैं।',
+  'ide.chat.tip.diff':
+    'सलाह: किसी भी अप्रतिबद्ध परिवर्तन को रखने या कमिट करने से पहले उसकी समीक्षा करने के लिए /diff का उपयोग करें।',
+  'ide.chat.tip.models':
+    'सुझाव: उपलब्ध सभी AI मॉडल की तुलना करने और चल रहे मॉडल को बदलने के लिए /models टाइप करें।{{agentName}} .',
+  'ide.chat.tip.report':
+    'सुझाव: कुछ गड़बड़ लग रही है? /report कमांड आपकी हालिया चैट के साथ बग या फीडबैक टीम को भेजता है।',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

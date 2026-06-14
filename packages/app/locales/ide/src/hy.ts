@@ -248,6 +248,26 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Հուշում. մուտքագրեք /՝ յուրաքանչյուր հրամանը տեսնելու համար, կամ @՝ ֆայլի անունը տալու համար{{agentName}} ֆայլ՝ աշխատելու համար։',
+  'ide.chat.tip.mention':
+    'Հուշում. մուտքագրեք @filename՝ նախագծի ֆայլը որպես համատեքստ կցելու համար —{{agentName}} ուղղակիորեն կարդում է այն։',
+  'ide.chat.tip.slash':
+    'Հուշում. մուտքագրեք /՝ բոլոր հրամանները (commit, diff, model և այլն) դիտելու համար։',
+  'ide.chat.tip.plan':
+    'Հուշում. օգտագործեք /պլանավորեք ունենալ{{agentName}} որևէ ֆայլ խմբագրելուց առաջ ուսումնասիրել և ծրագիր առաջարկել։',
+  'ide.chat.tip.undo':
+    'Հուշում. օգտագործեք /undo՝ ակնթարթորեն չեղարկելու համար վերջին արհեստական ինտելեկտի շրջադարձի ֆայլի փոփոխությունները, եթե դրանք սխալ ուղղությամբ են ընթացել։',
+  'ide.chat.tip.compact':
+    'Հուշում. երկար զրույց՞ /compact-ը սեղմում է համատեքստը, որպեսզի տեղ մնա աշխատելու համար։',
+  'ide.chat.tip.commit':
+    'Հուշում. օգտագործեք /commit-ը՝ ձեր փոփոխությունները git commit-ի տեսքով պահպանելու համար, որին միշտ կարող եք վերադառնալ։',
+  'ide.chat.tip.diff':
+    'Հուշում. օգտագործեք /diff-ը՝ բոլոր չհաստատված փոփոխությունները պահպանելուց կամ հաստատելուց առաջ դրանք վերանայելու համար։',
+  'ide.chat.tip.models':
+    'Հուշում. մուտքագրեք /models՝ բոլոր առկա արհեստական բանականության մոդելները համեմատելու և աշխատողը փոխելու համար։{{agentName}} .',
+  'ide.chat.tip.report':
+    'Հուշում. ինչ-որ բան այն չէ՞: /report-ը թիմին ուղարկում է սխալ կամ արձագանք՝ կցելով ձեր վերջին զրույցը:',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

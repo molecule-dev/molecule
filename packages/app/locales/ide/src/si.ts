@@ -247,6 +247,26 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'ඉඟිය: සෑම විධානයක්ම බැලීමට / ටයිප් කරන්න, නැතහොත් ලබා දීමට ගොනු නාමයක් @ ටයිප් කරන්න{{agentName}} වැඩ කිරීමට ගොනුවක්.',
+  'ide.chat.tip.mention':
+    'ඉඟිය: ව්‍යාපෘති ගොනුවක් සන්දර්භය ලෙස ඇමිණීමට @filename ටයිප් කරන්න —{{agentName}} එය කෙලින්ම කියවයි.',
+  'ide.chat.tip.slash':
+    'ඉඟිය: සෑම විධානයක්ම (commit, diff, model, සහ තවත්) බ්‍රවුස් කිරීමට / ටයිප් කරන්න.',
+  'ide.chat.tip.plan':
+    'ඉඟිය: භාවිතා කරන්න /plan කිරීමට{{agentName}} ඕනෑම ගොනුවක් සංස්කරණය කිරීමට පෙර ඒ පිළිබඳව පර්යේෂණ කර සැලැස්මක් යෝජනා කරන්න.',
+  'ide.chat.tip.undo':
+    'ඉඟිය: අවසාන AI වාරයේ ගොනු වෙනස්කම් වැරදි මාර්ගයකට ගියහොත් ක්ෂණිකව ප්‍රතිවර්තනය කිරීමට /undo භාවිතා කරන්න.',
+  'ide.chat.tip.compact':
+    'ඉඟිය: දිගු සංවාදයක්ද? /සංයුක්ත මඟින් සන්දර්භය සම්පීඩනය කරයි, එවිට ඔබට වැඩ කිරීමට ඉඩ ඉතිරි වේ.',
+  'ide.chat.tip.commit':
+    'ඉඟිය: ඔබට සැමවිටම ආපසු යා හැකි git commit එකක් ලෙස ඔබගේ වෙනස්කම් සුරැකීමට /commit භාවිතා කරන්න.',
+  'ide.chat.tip.diff':
+    'ඉඟිය: ඔබ එය තබා ගැනීමට හෝ සිදු කිරීමට පෙර සෑම කැප නොවූ වෙනසක්ම සමාලෝචනය කිරීමට /diff භාවිතා කරන්න.',
+  'ide.chat.tip.models':
+    'ඉඟිය: සෑම ලබා ගත හැකි AI ආකෘතියක්ම සංසන්දනය කිරීමට /models ටයිප් කර ක්‍රියාත්මක වන එක මාරු කරන්න.{{agentName}} .',
+  'ide.chat.tip.report':
+    'ඉඟිය: යම් වරදක් තිබේද? /report ඔබගේ මෑත කාලීන කතාබහ අමුණා කණ්ඩායමට දෝෂයක් හෝ ප්‍රතිපෝෂණයක් යවයි.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

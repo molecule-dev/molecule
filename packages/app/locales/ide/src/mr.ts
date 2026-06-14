@@ -246,6 +246,26 @@ export const mr: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'टीप: प्रत्येक कमांड पाहण्यासाठी / टाइप करा, किंवा फाइलच्या नावापुढे @ टाइप करा.{{agentName}} काम करण्यासाठी एक फाईल.',
+  'ide.chat.tip.mention':
+    'टीप: प्रोजेक्ट फाईल संदर्भ म्हणून जोडण्यासाठी @filename टाईप करा —{{agentName}} ते थेट वाचते.',
+  'ide.chat.tip.slash':
+    'टीप: प्रत्येक कमांड (commit, diff, model, आणि बरेच काही) ब्राउझ करण्यासाठी / टाइप करा.',
+  'ide.chat.tip.plan':
+    'टीप: /plan to have वापरा{{agentName}} कोणत्याही फाईल्स संपादित करण्यापूर्वी संशोधन करून योजना सादर करा.',
+  'ide.chat.tip.undo':
+    'टीप: जर शेवटच्या AI पाळीतील फाईल बदल चुकीच्या दिशेने गेले असतील, तर ते त्वरित पूर्ववत करण्यासाठी /undo वापरा.',
+  'ide.chat.tip.compact':
+    'सूचना: संभाषण लांबलचक आहे का? /compact कमांड संदर्भाला संकुचित करते, जेणेकरून तुम्हाला काम करण्यासाठी जागा मिळेल.',
+  'ide.chat.tip.commit':
+    'टीप: तुमचे बदल git commit म्हणून सेव्ह करण्यासाठी /commit वापरा, जेणेकरून तुम्ही कधीही परत येऊ शकाल.',
+  'ide.chat.tip.diff':
+    'टीप: प्रत्येक अप्रतिबद्ध बदल ठेवण्यापूर्वी किंवा प्रतिबद्ध करण्यापूर्वी त्याचे पुनरावलोकन करण्यासाठी /diff वापरा.',
+  'ide.chat.tip.models':
+    'टीप: उपलब्ध असलेल्या प्रत्येक AI मॉडेलची तुलना करण्यासाठी /models टाईप करा आणि चालू असलेले मॉडेल बदला.{{agentName}} ...',
+  'ide.chat.tip.report':
+    'सूचना: काहीतरी गडबड आहे का? /report कमांड वापरून तुम्ही तुमच्या अलीकडील चॅटसह टीमला बग किंवा फीडबॅक पाठवू शकता.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

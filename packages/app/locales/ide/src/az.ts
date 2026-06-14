@@ -246,6 +246,25 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'İpucu: hər əmri görmək üçün / yazın və ya @ fayl adını verin{{agentName}} işləmək üçün bir fayl.',
+  'ide.chat.tip.mention':
+    'İpucu: layihə faylını kontekst kimi əlavə etmək üçün @filename yazın —{{agentName}} birbaşa oxuyur.',
+  'ide.chat.tip.slash': 'Məsləhət: hər əmrə (commit, diff, model və daha çox) baxmaq üçün / yazın.',
+  'ide.chat.tip.plan':
+    'Məsləhət: sahib olmaq üçün /plan istifadə edin{{agentName}} hər hansı bir faylı redaktə etməzdən əvvəl araşdırma aparın və bir plan təklif edin.',
+  'ide.chat.tip.undo':
+    'İpucu: Əgər səhv getmişsə, son süni intellekt növbəsinin fayl dəyişikliklərini dərhal geri qaytarmaq üçün /undo istifadə edin.',
+  'ide.chat.tip.compact':
+    'Məsləhət: Uzun söhbət? /compact konteksti sıxışdırır ki, işləmək üçün yer saxlayasınız.',
+  'ide.chat.tip.commit':
+    'İpucu: dəyişikliklərinizi həmişə geri qayıda biləcəyiniz git commit kimi saxlamaq üçün /commit istifadə edin.',
+  'ide.chat.tip.diff':
+    'Məsləhət: saxlamadan və ya təsdiqləmədən əvvəl hər bir təsdiqlənməmiş dəyişikliyi nəzərdən keçirmək üçün /diff istifadə edin.',
+  'ide.chat.tip.models':
+    'Məsləhət: mövcud olan hər bir süni intellekt modelini müqayisə etmək və işləyən modeli dəyişdirmək üçün /models yazın{{agentName}} .',
+  'ide.chat.tip.report':
+    'İpucu: nəsə səhvdir? /report komandaya son söhbətinizi əlavə etməklə birlikdə bir səhv və ya rəy göndərir.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

@@ -248,6 +248,25 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'คำแนะนำ: พิมพ์ / เพื่อดูคำสั่งทั้งหมด หรือพิมพ์ @ ตามด้วยชื่อไฟล์เพื่อระบุคำสั่ง{{agentName}} ไฟล์สำหรับใช้เป็นข้อมูลอ้างอิง',
+  'ide.chat.tip.mention':
+    'คำแนะนำ: พิมพ์ @filename เพื่อแนบไฟล์โปรเจ็กต์เป็นบริบท —{{agentName}} อ่านโดยตรง',
+  'ide.chat.tip.slash': 'คำแนะนำ: พิมพ์ / เพื่อดูคำสั่งทั้งหมด (commit, diff, model และอื่นๆ)',
+  'ide.chat.tip.plan':
+    'คำแนะนำ: ใช้ /plan เพื่อให้มี{{agentName}} ทำการวิจัยและเสนอแผนก่อนที่จะทำการแก้ไขไฟล์ใดๆ',
+  'ide.chat.tip.undo':
+    'คำแนะนำ: ใช้คำสั่ง /undo เพื่อย้อนกลับการเปลี่ยนแปลงไฟล์ของ AI ในเทิร์นล่าสุดทันที หากการเปลี่ยนแปลงนั้นผิดพลาด',
+  'ide.chat.tip.compact':
+    'คำแนะนำ: บทสนทนายาว? /compact จะย่อเนื้อหาให้กระชับขึ้น เพื่อให้คุณมีพื้นที่ทำงานมากขึ้น',
+  'ide.chat.tip.commit':
+    'คำแนะนำ: ใช้คำสั่ง /commit เพื่อบันทึกการเปลี่ยนแปลงของคุณเป็น git commit ซึ่งคุณสามารถย้อนกลับไปยังเวอร์ชันเดิมได้เสมอ',
+  'ide.chat.tip.diff':
+    'คำแนะนำ: ใช้คำสั่ง /diff เพื่อตรวจสอบการเปลี่ยนแปลงที่ยังไม่ได้บันทึกทั้งหมดก่อนที่จะบันทึกหรือยืนยันการเปลี่ยนแปลงนั้น',
+  'ide.chat.tip.models':
+    'คำแนะนำ: พิมพ์ /models เพื่อเปรียบเทียบโมเดล AI ที่มีอยู่ทั้งหมด และสลับโมเดลที่กำลังทำงานอยู่{{agentName}} .',
+  'ide.chat.tip.report':
+    'คำแนะนำ: มีอะไรผิดปกติหรือเปล่า? /report จะส่งรายงานข้อผิดพลาดหรือข้อเสนอแนะไปยังทีม พร้อมแนบไฟล์แชทล่าสุดของคุณไปด้วย',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

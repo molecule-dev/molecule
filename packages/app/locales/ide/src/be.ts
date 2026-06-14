@@ -247,6 +247,26 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Парада: увядзіце /, каб убачыць усе каманды, або @ перад назвай файла, каб даць{{agentName}} файл, з якім можна працаваць.',
+  'ide.chat.tip.mention':
+    'Парада: увядзіце @filename, каб далучыць файл праекта ў якасці кантэксту —{{agentName}} чытае яго непасрэдна.',
+  'ide.chat.tip.slash':
+    'Парада: увядзіце /, каб праглядзець усе каманды (commit, diff, model і іншыя).',
+  'ide.chat.tip.plan':
+    'Парада: выкарыстоўвайце /плануйце мець{{agentName}} даследаваць і прапанаваць план, перш чым рэдагаваць якія-небудзь файлы.',
+  'ide.chat.tip.undo':
+    'Парада: выкарыстоўвайце /undo, каб імгненна адмяніць змены ў файле апошняга ходу штучнага інтэлекту, калі ўсё пайшло не так.',
+  'ide.chat.tip.compact':
+    'Парада: доўгая размова? /compact сціскае кантэкст, каб вы маглі працаваць.',
+  'ide.chat.tip.commit':
+    'Парада: выкарыстоўвайце /commit, каб захаваць змены ў выглядзе git-каміта, да якога заўсёды можна вярнуцца.',
+  'ide.chat.tip.diff':
+    'Парада: выкарыстоўвайце /diff для прагляду кожнай незафіксаванай змены, перш чым захаваць або зафіксаваць яе.',
+  'ide.chat.tip.models':
+    'Парада: увядзіце /models, каб параўнаць усе даступныя мадэлі штучнага інтэлекту і пераключыць тую, якая працуе{{agentName}} .',
+  'ide.chat.tip.report':
+    'Парада: штосьці не так? /report адпраўляе камандзе паведамленне пра памылку або водгук з вашым нядаўнім чатам у далучэнні.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

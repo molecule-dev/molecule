@@ -249,6 +249,26 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Setări',
   'ide.chat.tip.dismiss': 'Ignoră sfatul',
+  'ide.chat.tip.getStarted':
+    'Sfat: tastează / pentru a vedea toate comenzile sau @ urmat de numele unui fișier pentru a-i indica programului „{{agentName}}” fișierul pe care să-l proceseze.',
+  'ide.chat.tip.mention':
+    'Sfat: tastează @numele_fișierului pentru a atașa un fișier de proiect ca context — {{agentName}} îl citește direct.',
+  'ide.chat.tip.slash':
+    'Sfat: tastează / pentru a vedea lista tuturor comenzilor (commit, diff, model și altele).',
+  'ide.chat.tip.plan':
+    'Sfat: folosește comanda /plan pentru ca programul „{{agentName}}” să analizeze situația și să propună un plan înainte de a modifica orice fișier.',
+  'ide.chat.tip.undo':
+    'Sfat: folosește comanda /undo pentru a anula instantaneu modificările aduse fișierului în ultima rundă a IA, în cazul în care lucrurile au luat o turnură neașteptată.',
+  'ide.chat.tip.compact':
+    'Sfat: ai o conversație lungă? Comanda /compact comprimă contextul, astfel încât să ai spațiu suficient pentru a lucra.',
+  'ide.chat.tip.commit':
+    'Sfat: folosește comanda /commit pentru a salva modificările sub forma unui commit Git la care poți reveni oricând.',
+  'ide.chat.tip.diff':
+    'Sfat: folosește comanda /diff pentru a verifica fiecare modificare neconfirmată înainte de a o păstra sau de a o confirma.',
+  'ide.chat.tip.models':
+    'Sfat: tastează /models pentru a compara toate modelele de IA disponibile și a-l schimba pe cel care rulează în prezent {{agentName}}.',
+  'ide.chat.tip.report':
+    'Sfat: ceva nu e în regulă? Comanda /report trimite o sesizare sau un feedback către echipă, împreună cu istoricul conversației tale recente.',
   'ide.chat.undoError': 'Nu s-au putut reveni la modificările anterioare.',
   'ide.chat.autoCommit.badge': 'Auto-commit în{{countdown}}',
   'ide.chat.autoCommit.cancel': 'Anulează salvarea automată',

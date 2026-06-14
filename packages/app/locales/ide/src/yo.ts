@@ -283,6 +283,25 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Ìmọ̀ràn: tẹ / láti wo gbogbo àṣẹ, tàbí @ orúkọ fáìlì láti fúnni{{agentName}} fáìlì láti ṣiṣẹ́ láti.',
+  'ide.chat.tip.mention':
+    'Àmọ̀ràn: tẹ @filename láti so fáìlì iṣẹ́ àgbékalẹ̀ kan mọ́ gẹ́gẹ́ bí ìtumọ̀ —{{agentName}} kà á tààrà.',
+  'ide.chat.tip.slash': 'Ìmọ̀ràn: tẹ / láti wo gbogbo àṣẹ (ìdámọ̀ràn, ìyàtọ̀, àwòṣe, àti bẹ́ẹ̀ bẹ́ẹ̀ lọ).',
+  'ide.chat.tip.plan':
+    'Ìmọ̀ràn: lo/gbero lati ni{{agentName}} ṣe ìwádìí kí o sì dábàá ètò kan kí ó tó ṣe àtúnṣe sí èyíkéyìí àwọn fáìlì.',
+  'ide.chat.tip.undo':
+    'Ìmọ̀ràn: lo /túnṣe láti dá àwọn àyípadà fáìlì AI tó kẹ́yìn padà lẹ́sẹ̀kẹsẹ̀ tí ó bá lọ lọ́nà tí kò tọ́.',
+  'ide.chat.tip.compact':
+    'Ìmọ̀ràn: ìjíròrò gígùn? /ìwọ̀n ìpele máa ń mú kí àyíká ọ̀rọ̀ náà rọ̀pọ̀ kí o lè máa ṣiṣẹ́ dáadáa.',
+  'ide.chat.tip.commit':
+    'Ìmọ̀ràn: lo /commit láti fi àwọn àtúnṣe rẹ pamọ́ gẹ́gẹ́ bí git commit tí o lè padà sí nígbà gbogbo.',
+  'ide.chat.tip.diff':
+    'Ìmọ̀ràn: lo /diff láti ṣe àtúnyẹ̀wò gbogbo ìyípadà tí a kò ṣe kí o tó pa tàbí kí o ṣe é.',
+  'ide.chat.tip.models':
+    'Ìmọ̀ràn: tẹ/àwọn àwòṣe láti fi wé gbogbo àwòṣe AI tó wà kí o sì yí èyí tó ń ṣiṣẹ́ padà{{agentName}} .',
+  'ide.chat.tip.report':
+    'Ìmọ̀ràn: nǹkan kan ti bàjẹ́? /ìròyìn fi àṣìṣe tàbí èsì ránṣẹ́ sí ẹgbẹ́ náà pẹ̀lú ìfọ̀rọ̀wérọ̀ tuntun rẹ tí a so mọ́ ọn.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

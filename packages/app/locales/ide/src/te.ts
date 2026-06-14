@@ -247,6 +247,26 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'సూచన: ప్రతి ఆదేశాన్ని చూడటానికి / అని టైప్ చేయండి, లేదా ఫైల్ పేరును చూపించడానికి @ అని టైప్ చేయండి.{{agentName}} పని చేయడానికి ఒక ఫైల్.',
+  'ide.chat.tip.mention':
+    'సూచన: ప్రాజెక్ట్ ఫైల్‌ను కాంటెక్స్ట్‌గా జోడించడానికి @filename అని టైప్ చేయండి —{{agentName}} దాన్ని నేరుగా చదువుతుంది.',
+  'ide.chat.tip.slash':
+    'చిట్కా: ప్రతి కమాండ్‌ను (కమిట్, డిఫ్, మోడల్ మరియు మరిన్ని) బ్రౌజ్ చేయడానికి / అని టైప్ చేయండి.',
+  'ide.chat.tip.plan':
+    'సూచన: ఉపయోగించండి / కలిగి ఉండటానికి ప్రణాళిక వేసుకోండి{{agentName}} ఏవైనా ఫైళ్లను సవరించడానికి ముందు పరిశోధన చేసి, ఒక ప్రణాళికను ప్రతిపాదించండి.',
+  'ide.chat.tip.undo':
+    'చిట్కా: చివరి AI టర్న్‌లో ఫైల్ మార్పులు తప్పుగా జరిగితే, వాటిని తక్షణమే రద్దు చేయడానికి /undo ను ఉపయోగించండి.',
+  'ide.chat.tip.compact':
+    'చిట్కా: సంభాషణ సుదీర్ఘంగా ఉందా? /compact సందర్భాన్ని కుదిస్తుంది, తద్వారా మీరు పని చేయడానికి వీలుంటుంది.',
+  'ide.chat.tip.commit':
+    'చిట్కా: మీ మార్పులను మీరు ఎప్పుడైనా తిరిగి పొందగలిగే గిట్ కమిట్‌గా సేవ్ చేయడానికి /commitని ఉపయోగించండి.',
+  'ide.chat.tip.diff':
+    'చిట్కా: మీరు చేసే లేదా కమిట్ చేసే ప్రతి మార్పును సమీక్షించే ముందు /diff ను ఉపయోగించండి.',
+  'ide.chat.tip.models':
+    'చిట్కా: అందుబాటులో ఉన్న అన్ని AI మోడల్‌లను పోల్చి, నడుస్తున్న దానికి మారడానికి /models అని టైప్ చేయండి.{{agentName}} .',
+  'ide.chat.tip.report':
+    'సూచన: ఏదైనా సరిగ్గా లేదా? /report కమాండ్ మీ ఇటీవలి చాట్‌ను జతచేసి, ఒక బగ్ లేదా ఫీడ్‌బ్యాక్‌ను బృందానికి పంపుతుంది.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

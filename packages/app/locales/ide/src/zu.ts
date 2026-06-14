@@ -252,6 +252,26 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Icebiso: thayipha / ukuze ubone yonke imiyalo, noma @ igama lefayela ukuze ulinikeze{{agentName}} ifayela ongasebenza kulo.',
+  'ide.chat.tip.mention':
+    'Icebiso: thayipha i-@filename ukuze unamathisele ifayela lephrojekthi njengomongo —{{agentName}} ikufunda ngqo.',
+  'ide.chat.tip.slash':
+    'Icebiso: thayipha / ukuze uphequlule yonke imiyalo (commit, diff, model, nokuningi).',
+  'ide.chat.tip.plan':
+    'Icebiso: sebenzisa/hlela ukuba nakho{{agentName}} cwaninga futhi uphakamise uhlelo ngaphambi kokuthi luhlele noma yimaphi amafayela.',
+  'ide.chat.tip.undo':
+    'Icebiso: sebenzisa i-/undo ukuze ubuyisele ngokushesha izinguquko zefayela le-AI lokugcina uma lihambe ngendlela engafanele.',
+  'ide.chat.tip.compact':
+    'Icebiso: ingxoxo ende? /i-compact icindezela umongo ukuze ugcine isikhala sokusebenza.',
+  'ide.chat.tip.commit':
+    'Icebiso: sebenzisa i-/commit ukuze ulondoloze izinguquko zakho njenge-git commit ongabuyela kuyo njalo.',
+  'ide.chat.tip.diff':
+    'Icebiso: sebenzisa i-/diff ukuze ubuyekeze yonke inguquko engakaqinisekiswa ngaphambi kokuthi uyigcine noma uyibophezele.',
+  'ide.chat.tip.models':
+    'Icebiso: thayipha /amamodeli ukuze uqhathanise yonke imodeli ye-AI etholakalayo bese ushintsha leyo esebenzayo{{agentName}} .',
+  'ide.chat.tip.report':
+    'Icebiso: kukhona okungahambi kahle? /umbiko uthumela iphutha noma impendulo eqenjini ngengxoxo yakho yakamuva enamathiselwe.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

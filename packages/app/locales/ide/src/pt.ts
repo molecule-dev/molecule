@@ -248,6 +248,25 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Currículo',
   'ide.chat.openSettings': 'Configurações',
   'ide.chat.tip.dismiss': 'Ignorar dica',
+  'ide.chat.tip.getStarted':
+    'Dica: digite / para ver todos os comandos ou @ seguido do nome de um arquivo para indicar ao `{{agentName}}` um arquivo a partir do qual trabalhar.',
+  'ide.chat.tip.mention':
+    'Dica: digite @nome_do_arquivo para anexar um arquivo de projeto como contexto — o `{{agentName}}` o lê diretamente.',
+  'ide.chat.tip.slash': 'Dica: digite / para ver todos os comandos (commit, diff, model e outros).',
+  'ide.chat.tip.plan':
+    'Dica: use /plan para que o `{{agentName}}` analise a situação e sugira um plano antes de editar qualquer arquivo.',
+  'ide.chat.tip.undo':
+    'Dica: use /undo para reverter instantaneamente as alterações feitas no arquivo durante o último turno da IA, caso algo tenha dado errado.',
+  'ide.chat.tip.compact':
+    'Dica: conversa longa? O comando /compact compacta o contexto para você ter espaço para trabalhar.',
+  'ide.chat.tip.commit':
+    'Dica: use /commit para salvar suas alterações como um commit do Git, ao qual você sempre poderá voltar.',
+  'ide.chat.tip.diff':
+    'Dica: use o comando /diff para revisar todas as alterações não confirmadas antes de mantê-las ou confirmá-las.',
+  'ide.chat.tip.models':
+    'Dica: digite /models para comparar todos os modelos de IA disponíveis e selecionar aquele que está em execução {{agentName}}.',
+  'ide.chat.tip.report':
+    'Dica: algo errado? O comando /report envia um relatório de bug ou feedback para a equipe, anexando seu histórico recente de bate-papo.',
   'ide.chat.undoError': 'Não foi possível reverter as alterações.',
   'ide.chat.autoCommit.badge': 'Auto-commit no `{{countdown}}`',
   'ide.chat.autoCommit.cancel': 'Cancelar a confirmação automática',

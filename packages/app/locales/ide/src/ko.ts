@@ -246,6 +246,26 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': '이력서',
   'ide.chat.openSettings': '설정',
   'ide.chat.tip.dismiss': '팁 닫기',
+  'ide.chat.tip.getStarted':
+    '팁: 모든 명령어를 보려면 /를 입력하거나, @와 파일 이름을 함께 입력하여 `{{agentName}}`에 처리할 파일을 지정하세요.',
+  'ide.chat.tip.mention':
+    '팁: @filename을 입력하면 프로젝트 파일을 컨텍스트로 첨부할 수 있습니다. — {{agentName}}에서 해당 파일을 직접 읽어옵니다.',
+  'ide.chat.tip.slash':
+    '팁: /을 입력하면 모든 명령어(commit, diff, model 등)를 확인할 수 있습니다.',
+  'ide.chat.tip.plan':
+    '팁: /plan 명령어를 사용하면 {{agentName}}가 파일을 수정하기 전에 계획을 조사하고 제안합니다.',
+  'ide.chat.tip.undo':
+    '팁: AI 턴에서 파일 변경 내용이 마음에 들지 않는다면 /undo 명령어를 사용해 즉시 되돌릴 수 있습니다.',
+  'ide.chat.tip.compact':
+    '팁: 대화가 길어지나요? /compact 명령어를 사용하면 대화 내용을 압축해 작업 공간을 확보할 수 있습니다.',
+  'ide.chat.tip.commit':
+    '팁: /commit 명령어를 사용하면 변경 내용을 Git 커밋으로 저장하여 나중에 언제든지 해당 커밋으로 되돌릴 수 있습니다.',
+  'ide.chat.tip.diff':
+    '팁: 변경 내용을 유지하거나 커밋하기 전에 /diff 명령어를 사용하여 커밋되지 않은 모든 변경 사항을 검토하세요.',
+  'ide.chat.tip.models':
+    '팁: /models를 입력하면 사용 가능한 모든 AI 모델을 비교하고, 현재 실행 중인 모델을 다른 모델로 변경할 수 있습니다. {{agentName}}',
+  'ide.chat.tip.report':
+    '팁: 문제가 있나요? /report 명령어를 입력하면 최근 대화 내역이 첨부된 상태로 버그나 피드백이 팀에 전송됩니다.',
   'ide.chat.undoError': '변경 사항을 되돌리지 못했습니다.',
   'ide.chat.autoCommit.badge': '{{countdown}}의 자동 커밋',
   'ide.chat.autoCommit.cancel': '자동 커밋 취소',

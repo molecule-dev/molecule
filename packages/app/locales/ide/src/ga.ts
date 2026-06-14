@@ -246,6 +246,26 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.getStarted':
+    'Leid: clóscríobh / chun gach ordú a fheiceáil, nó @ ainm comhaid chun é a thabhairt{{agentName}} comhad le hoibriú uaidh.',
+  'ide.chat.tip.mention':
+    'Leid: clóscríobh @filename chun comhad tionscadail a cheangal mar chomhthéacs —{{agentName}} léann sé go díreach é.',
+  'ide.chat.tip.slash':
+    'Leid: clóscríobh / chun gach ordú (commit, diff, model, agus tuilleadh) a bhrabhsáil.',
+  'ide.chat.tip.plan':
+    'Leid: bain úsáid as / pleanáil a bheith agat{{agentName}} taighde a dhéanamh agus plean a mholadh sula ndéanann sé aon chomhaid a chur in eagar.',
+  'ide.chat.tip.undo':
+    'Leid: bain úsáid as /undo chun athruithe comhaid an seal deireanach san AI a aisiompú láithreach má chuaigh sé sa treo mícheart.',
+  'ide.chat.tip.compact':
+    'Leid: comhrá fada? Comhbhrúnn /compact an comhthéacs ionas go mbeidh spás agat le hobair a dhéanamh.',
+  'ide.chat.tip.commit':
+    'Leid: bain úsáid as /commit chun do chuid athruithe a shábháil mar git commit ar féidir leat filleadh air i gcónaí.',
+  'ide.chat.tip.diff':
+    'Leid: bain úsáid as /diff chun athbhreithniú a dhéanamh ar gach athrú neamhthiomanta sula gcoinníonn tú nó sula ndéanann tú é a thiomnú.',
+  'ide.chat.tip.models':
+    'Leid: clóscríobh /models chun gach samhail AI atá ar fáil a chur i gcomparáid agus an ceann atá ag rith a athrú{{agentName}} .',
+  'ide.chat.tip.report':
+    'Leid: rud éigin as riocht? Seolann /report fabht nó aiseolas chuig an bhfoireann agus do chomhrá le déanaí ceangailte leis.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',
