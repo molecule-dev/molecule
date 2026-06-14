@@ -179,11 +179,14 @@ describe('PreviewPanel URL bar (current location)', () => {
 })
 
 /**
- * Back/Forward (PV3): the panel drives the preview provider's own navigation
- * history. The buttons are wired to back()/forward() and disabled from the
- * canGoBack/canGoForward state flags. A loadNonce-keyed reload makes back/forward
- * (and refresh) reload even when the target URL string is unchanged. Node-env, so
- * assert against source.
+ * Back/Forward (PV2/PV3): the panel drives the preview provider's own navigation
+ * history. The buttons are wired to handleBack/handleForward — which move the
+ * provider's history cursor AND post a `molecule:nav-command` to the iframe so
+ * the preview runs its OWN client-side `history.back()`/`forward()` (preserving
+ * scroll + SPA state) — and are disabled from the canGoBack/canGoForward flags.
+ * Crucially this is NOT a loadNonce-keyed cold reload (that path is reserved for
+ * setUrl/refresh). Node-env, so assert the wiring against source; the live
+ * behavior is covered by PreviewPanel.navigation.test.tsx.
  */
 describe('PreviewPanel back/forward navigation', () => {
   async function readSource(): Promise<string> {
@@ -196,17 +199,17 @@ describe('PreviewPanel back/forward navigation', () => {
     expect(source).toMatch(/recordNavigation, back, forward \} =\s*\n?\s*usePreview\(\)/)
   })
 
-  it('wires the Back button to back() and disables it via canGoBack', async () => {
+  it('wires the Back button to handleBack and disables it via canGoBack', async () => {
     const source = await readSource()
     expect(source).toMatch(
-      /molId="preview-back"[\s\S]*?onClick=\{back\}[\s\S]*?disabled=\{!state\.canGoBack\}/,
+      /molId="preview-back"[\s\S]*?onClick=\{handleBack\}[\s\S]*?disabled=\{!state\.canGoBack\}/,
     )
   })
 
-  it('wires the Forward button to forward() and disables it via canGoForward', async () => {
+  it('wires the Forward button to handleForward and disables it via canGoForward', async () => {
     const source = await readSource()
     expect(source).toMatch(
-      /molId="preview-forward"[\s\S]*?onClick=\{forward\}[\s\S]*?disabled=\{!state\.canGoForward\}/,
+      /molId="preview-forward"[\s\S]*?onClick=\{handleForward\}[\s\S]*?disabled=\{!state\.canGoForward\}/,
     )
   })
 
@@ -215,7 +218,22 @@ describe('PreviewPanel back/forward navigation', () => {
     expect(source).not.toMatch(/molId="preview-back"\s*\n\s*disabled\s*\n/)
   })
 
-  it('keys the iframe reload off loadNonce so back/forward/refresh reload at the same URL', async () => {
+  it('posts a molecule:nav-command to the iframe for Back/Forward (client-side nav)', async () => {
+    const source = await readSource()
+    // The handlers move the provider cursor then post a command to the iframe's
+    // OWN history — NOT a host-side reload.
+    expect(source).toMatch(
+      /handleBack = useCallback\(\(\) => \{\s*back\(\)\s*postNavCommand\('back'\)/,
+    )
+    expect(source).toMatch(
+      /handleForward = useCallback\(\(\) => \{\s*forward\(\)\s*postNavCommand\('forward'\)/,
+    )
+    expect(source).toMatch(
+      /iframeRef\.current\?\.contentWindow\?\.postMessage\(\{ type: 'molecule:nav-command', action \}/,
+    )
+  })
+
+  it('keys the iframe cold-reload off loadNonce (bumped by setUrl/refresh, not back/forward)', async () => {
     const source = await readSource()
     expect(source).toMatch(
       /\}, \[state\.url, state\.loadNonce, startPolling, clearPoll, clearStuckTimer\]\)/,

@@ -23,6 +23,7 @@
 import { type JSX, useCallback, useEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import { withCacheBuster } from '@molecule/app-live-preview'
 import { usePreview } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
@@ -278,9 +279,7 @@ export function PreviewPanel({
         if (cycleCount <= MAX_RECOVERY_CYCLES) {
           if (cycleCount % 2 === 1) {
             // Odd cycles: force-reload iframe with cache buster
-            setIframeSrc(
-              urlRef.current + (urlRef.current.includes('?') ? '&' : '?') + '_r=' + Date.now(),
-            )
+            setIframeSrc(withCacheBuster(urlRef.current))
           } else {
             // Even cycles: full iframe remount (unmount + remount)
             setIframeMountKey((k) => k + 1)
@@ -501,7 +500,7 @@ export function PreviewPanel({
           if (cancelled || urlRef.current !== url) return
           if (back) {
             // Force-reload iframe with cache buster
-            setIframeSrc(url + (url.includes('?') ? '&' : '?') + '_r=' + Date.now())
+            setIframeSrc(withCacheBuster(url))
           } else {
             setTimeout(poll, interval)
             interval = Math.min(interval * POLL_BACKOFF_FACTOR, POLL_MAX_MS)
@@ -552,7 +551,7 @@ export function PreviewPanel({
     if (!everLoaded || !state.url) return
     if (iframeReady) return // healthy — trust HMR / Vite's own full-reload
     const timer = setTimeout(() => {
-      setIframeSrc(state.url + (state.url.includes('?') ? '&' : '?') + '_r=' + Date.now())
+      setIframeSrc(withCacheBuster(state.url))
     }, 1500)
     return () => clearTimeout(timer)
   }, [fileChangeTick, iframeReady, everLoaded, state.url])
@@ -562,7 +561,7 @@ export function PreviewPanel({
     setIframeMountKey((k) => k + 1)
     setStuckRetryCount(0)
     if (state.url) {
-      setIframeSrc(state.url + (state.url.includes('?') ? '&' : '?') + '_r=' + Date.now())
+      setIframeSrc(withCacheBuster(state.url))
     }
   }, [state.url])
 
@@ -573,6 +572,32 @@ export function PreviewPanel({
     lastHeartbeatRef.current = Date.now()
     handleManualRetry()
   }, [handleManualRetry])
+
+  // --- Back / Forward: client-side history, NOT a cold reload ---
+  // Browser-grade Back/Forward must preserve scroll position + SPA state, so we
+  // do NOT bump loadNonce (which would re-mount the iframe and re-run the app).
+  // Instead we (1) move the host's history cursor via the provider — updating the
+  // URL bar + button gating with NO reload — and (2) post a `molecule:nav-command`
+  // to the iframe, whose scaffold-injected receiver runs `history.back()`/
+  // `forward()` inside the preview. The resulting `molecule:navigate` dedupes
+  // against the cursor we just moved, so the forward stack survives.
+  //
+  // Order matters: move the cursor FIRST (synchronously sets currentUrl) so the
+  // reported navigation dedupes; posting first would let recordNavigation push a
+  // fresh entry and truncate the forward stack. Back/Forward are only enabled once
+  // the preview has reported navigations (history is built from them), so the
+  // scaffold nav-bridge receiver is always present when these fire.
+  const postNavCommand = useCallback((action: 'back' | 'forward'): void => {
+    iframeRef.current?.contentWindow?.postMessage({ type: 'molecule:nav-command', action }, '*')
+  }, [])
+  const handleBack = useCallback(() => {
+    back()
+    postNavCommand('back')
+  }, [back, postNavCommand])
+  const handleForward = useCallback(() => {
+    forward()
+    postNavCommand('forward')
+  }, [forward, postNavCommand])
 
   // --- Rendering ---
   const iframeWidth = deviceWidths[state.device] || '100%'
@@ -624,14 +649,14 @@ export function PreviewPanel({
           <BarButton
             icon="arrow-left"
             molId="preview-back"
-            onClick={back}
+            onClick={handleBack}
             disabled={!state.canGoBack}
             title={t('ide.preview.back', {}, { defaultValue: 'Back' })}
           />
           <BarButton
             icon="arrow-right"
             molId="preview-forward"
-            onClick={forward}
+            onClick={handleForward}
             disabled={!state.canGoForward}
             title={t('ide.preview.forward', {}, { defaultValue: 'Forward' })}
           />

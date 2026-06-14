@@ -74,6 +74,27 @@ describe('@molecule/app-live-preview-iframe', () => {
       expect(state.isLoading).toBe(true)
       expect(state.error).toBeNull()
     })
+
+    it('reloads the CURRENT location (currentUrl), not the boot/load url', () => {
+      // PV2: after navigating to /settings inside the preview, Refresh must reload
+      // the route you are ON — not dump you back at the page you first opened.
+      const provider = new IframePreviewProvider({ defaultUrl: 'http://localhost:3000/' })
+      provider.recordNavigation('http://localhost:3000/settings')
+
+      // Before refresh: the iframe's load target still points at the boot url
+      // while the live route has moved ahead.
+      expect(provider.getState().url).toBe('http://localhost:3000/')
+      expect(provider.getState().currentUrl).toBe('http://localhost:3000/settings')
+
+      provider.refresh()
+
+      // After refresh: the load target is retargeted to the live route, so the
+      // renderer reloads /settings (a real reload of where the user is).
+      const state = provider.getState()
+      expect(state.url).toBe('http://localhost:3000/settings')
+      expect(state.currentUrl).toBe('http://localhost:3000/settings')
+      expect(state.loadNonce).toBeGreaterThan(0)
+    })
   })
 
   describe('setDevice', () => {
@@ -181,6 +202,33 @@ describe('@molecule/app-live-preview-iframe', () => {
       provider.recordNavigation('https://example.com/page')
       expect(provider.getState().currentUrl).toBe('https://example.com/page')
     })
+
+    it('strips the host internal _r cache-buster from the URL bar (PV2)', () => {
+      // The renderer appends ?_r=<ts> to FORCE recovery reloads; the preview
+      // echoes that full location.href back. It must not leak into the URL bar.
+      const provider = new IframePreviewProvider({ defaultUrl: 'http://localhost:3000/' })
+      provider.recordNavigation('http://localhost:3000/dashboard?_r=1718000000000')
+      expect(provider.getState().currentUrl).toBe('http://localhost:3000/dashboard')
+    })
+
+    it('strips _r but preserves the app’s own query params + hash', () => {
+      const provider = new IframePreviewProvider({ defaultUrl: 'http://localhost:3000/' })
+      provider.recordNavigation('http://localhost:3000/list?tab=active&_r=42&page=2#row-9')
+      expect(provider.getState().currentUrl).toBe(
+        'http://localhost:3000/list?tab=active&page=2#row-9',
+      )
+    })
+
+    it('strips _r before recording history (no _r leaks into Back/Forward)', () => {
+      const provider = new IframePreviewProvider()
+      provider.setUrl('http://localhost:3000/a')
+      // A recovery reload reports the cache-busted href.
+      provider.recordNavigation('http://localhost:3000/a?_r=999')
+      // Cleaned to /a — which equals the existing entry, so it's a dedup no-op:
+      // no phantom Back entry is created from the host's own cache-buster.
+      expect(provider.canGoBack()).toBe(false)
+      expect(provider.getState().currentUrl).toBe('http://localhost:3000/a')
+    })
   })
 
   describe('navigation history (back/forward)', () => {
@@ -206,32 +254,40 @@ describe('@molecule/app-live-preview-iframe', () => {
 
       provider.recordNavigation('http://localhost:3000/about')
       provider.recordNavigation('http://localhost:3000/contact')
+      // Simulate the iframe finishing its load so isLoading is false — this lets
+      // the assertion below prove Back does NOT flip it back to true (no reload).
+      provider.notifyLoaded()
 
       // At /contact: can go back, not forward.
       let state = provider.getState()
       expect(state.currentUrl).toBe('http://localhost:3000/contact')
+      expect(state.isLoading).toBe(false)
       expect(state.canGoBack).toBe(true)
       expect(state.canGoForward).toBe(false)
 
-      // Back → /about (loads it, can now go forward).
+      // Back → /about. A client-side history move: the URL bar (currentUrl) +
+      // nav flags update, but the load target (url), loadNonce, and isLoading stay
+      // put — no cold reload. The renderer drives the nav via molecule:nav-command.
+      const nonceBeforeBack = state.loadNonce
       provider.back()
       state = provider.getState()
-      expect(state.url).toBe('http://localhost:3000/about')
       expect(state.currentUrl).toBe('http://localhost:3000/about')
-      expect(state.isLoading).toBe(true)
+      expect(state.url).toBe('http://localhost:3000/') // load target unchanged
+      expect(state.loadNonce).toBe(nonceBeforeBack) // NOT a reload
+      expect(state.isLoading).toBe(false)
       expect(state.canGoBack).toBe(true)
       expect(state.canGoForward).toBe(true)
 
       // Back → / (no further back).
       provider.back()
       state = provider.getState()
-      expect(state.url).toBe('http://localhost:3000/')
+      expect(state.currentUrl).toBe('http://localhost:3000/')
       expect(state.canGoBack).toBe(false)
       expect(state.canGoForward).toBe(true)
 
       // Forward → /about.
       provider.forward()
-      expect(provider.getState().url).toBe('http://localhost:3000/about')
+      expect(provider.getState().currentUrl).toBe('http://localhost:3000/about')
       expect(provider.getState().canGoForward).toBe(true)
     })
 
@@ -268,7 +324,7 @@ describe('@molecule/app-live-preview-iframe', () => {
   })
 
   describe('loadNonce (reload trigger)', () => {
-    it('bumps on setUrl, refresh, back, and forward — but NOT on recordNavigation', () => {
+    it('bumps on setUrl + refresh — but NOT on recordNavigation, back, or forward', () => {
       const provider = new IframePreviewProvider()
       expect(provider.getState().loadNonce).toBe(0)
 
@@ -282,11 +338,15 @@ describe('@molecule/app-live-preview-iframe', () => {
       provider.refresh()
       expect(provider.getState().loadNonce).toBe(2)
 
+      // Back/Forward are client-side history moves (the renderer posts a
+      // molecule:nav-command); they must NOT bump loadNonce / cold-reload.
       provider.back() // → /a
-      expect(provider.getState().loadNonce).toBe(3)
+      expect(provider.getState().loadNonce).toBe(2)
+      expect(provider.getState().currentUrl).toBe('http://localhost:3000/a')
 
       provider.forward() // → /b
-      expect(provider.getState().loadNonce).toBe(4)
+      expect(provider.getState().loadNonce).toBe(2)
+      expect(provider.getState().currentUrl).toBe('http://localhost:3000/b')
     })
   })
 

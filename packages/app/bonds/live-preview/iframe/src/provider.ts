@@ -7,7 +7,12 @@
  * @module
  */
 
-import type { DeviceFrame, PreviewProvider, PreviewState } from '@molecule/app-live-preview'
+import {
+  type DeviceFrame,
+  type PreviewProvider,
+  type PreviewState,
+  stripCacheBuster,
+} from '@molecule/app-live-preview'
 
 import type { IframePreviewConfig } from './types.js'
 
@@ -90,16 +95,23 @@ export class IframePreviewProvider implements PreviewProvider {
     }
   }
 
-  /** Loads the history entry at the current index (used by `back`/`forward`). */
-  private loadHistoryEntry(): void {
+  /**
+   * Moves the URL bar + nav flags to the history entry at the current index
+   * WITHOUT reloading the document (used by `back`/`forward`). It updates
+   * `currentUrl` (the displayed location) and the nav flags but deliberately
+   * leaves `url` (the iframe's load target) and `loadNonce` untouched — a
+   * browser's Back/Forward is a client-side history move, not a cold reload.
+   * The actual in-iframe navigation is driven by the renderer posting a
+   * `molecule:nav-command` (see the {@link PreviewProvider} `@remarks`); the
+   * preview then reports the resulting location via `molecule:navigate`, which
+   * {@link IframePreviewProvider.recordNavigation} dedupes against this
+   * optimistically-set `currentUrl` — so the forward stack is preserved.
+   */
+  private stepHistory(): void {
     const url = this.history[this.historyIndex]
     this.state = {
       ...this.state,
-      url,
       currentUrl: url,
-      isLoading: true,
-      error: null,
-      loadNonce: this.state.loadNonce + 1,
       ...this.navFlags(),
     }
     this.notify()
@@ -136,11 +148,17 @@ export class IframePreviewProvider implements PreviewProvider {
    */
   recordNavigation(url: string): void {
     const validated = validateNavigationUrl(url)
-    if (!validated || validated === this.state.currentUrl) return
+    if (!validated) return
+    // Strip the host's own `_r` cache-buster: the renderer appends it to the
+    // iframe src to FORCE recovery reloads, and the preview faithfully echoes
+    // that full `location.href` back here — so without this the internal param
+    // would leak into the URL bar AND the Back/Forward history.
+    const cleaned = stripCacheBuster(validated)
+    if (cleaned === this.state.currentUrl) return
     // Record the navigation in history (so Back/Forward work) but do NOT bump
     // loadNonce or change the load target — the preview already navigated.
-    this.pushHistory(validated)
-    this.state = { ...this.state, currentUrl: validated, ...this.navFlags() }
+    this.pushHistory(cleaned)
+    this.state = { ...this.state, currentUrl: cleaned, ...this.navFlags() }
     this.notify()
   }
 
@@ -152,11 +170,21 @@ export class IframePreviewProvider implements PreviewProvider {
     return this.state.url
   }
 
-  /** Forces a refresh — bumps `loadNonce` (so the renderer reloads even at the same URL) and the refresh key. */
+  /**
+   * Forces a reload of the preview's CURRENT location — like a browser's reload
+   * button, which reloads the route you are ON, not the page you first opened.
+   * After an in-app navigation `currentUrl` (the live route) has moved ahead of
+   * `url` (the last document the iframe loaded), so reload retargets `url` to
+   * `currentUrl` before bumping `loadNonce` (which makes the renderer reload even
+   * when the string is unchanged) and the refresh key.
+   */
   refresh(): void {
     this.refreshKey++
+    const target = this.state.currentUrl || this.state.url
     this.state = {
       ...this.state,
+      url: target,
+      currentUrl: target,
       isLoading: true,
       error: null,
       loadNonce: this.state.loadNonce + 1,
@@ -165,24 +193,27 @@ export class IframePreviewProvider implements PreviewProvider {
   }
 
   /**
-   * Navigates to the previous entry in the navigation history (browser Back).
-   * No-op when there is no previous entry. Bumps `loadNonce` so the renderer
-   * reloads the target even if it equals the current load URL.
+   * Navigates to the previous entry in the navigation history (browser Back) via
+   * a client-side history move — it updates the URL bar + nav flags but does NOT
+   * reload the document (no `loadNonce` bump). The renderer posts a
+   * `molecule:nav-command` so the preview runs its own `history.back()`, which
+   * preserves scroll position + SPA state. No-op when there is no previous entry.
    */
   back(): void {
     if (this.historyIndex <= 0) return
     this.historyIndex--
-    this.loadHistoryEntry()
+    this.stepHistory()
   }
 
   /**
-   * Navigates to the next entry in the navigation history (browser Forward).
-   * No-op when there is no forward entry.
+   * Navigates to the next entry in the navigation history (browser Forward) — a
+   * client-side history move (see {@link IframePreviewProvider.back}), not a
+   * reload. No-op when there is no forward entry.
    */
   forward(): void {
     if (this.historyIndex >= this.history.length - 1) return
     this.historyIndex++
-    this.loadHistoryEntry()
+    this.stepHistory()
   }
 
   /**

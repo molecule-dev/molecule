@@ -48,11 +48,13 @@ export interface PreviewState {
   canGoForward: boolean
   /**
    * Monotonically increasing counter bumped whenever the preview should
-   * (re)load its current {@link PreviewState.url} — `setUrl`, `navigateTo`,
-   * `refresh`, `back`, and `forward` all bump it. A renderer keys its iframe
-   * (re)load off this so a `back`/`forward`/`refresh` to the SAME url string
-   * still reloads. {@link PreviewProvider.recordNavigation} does NOT bump it
-   * (an in-app navigation already happened — no reload).
+   * (re)load its current {@link PreviewState.url} — `setUrl`, `navigateTo`, and
+   * `refresh` bump it. A renderer keys its iframe (re)load off this so a
+   * `refresh` (or a `setUrl` to the SAME url string) still reloads.
+   * {@link PreviewProvider.recordNavigation}, {@link PreviewProvider.back}, and
+   * {@link PreviewProvider.forward} do NOT bump it: a reported in-app navigation
+   * already happened, and Back/Forward are client-side history moves driven by a
+   * `molecule:nav-command` to the iframe — none of the three is a cold reload.
    */
   loadNonce: number
 }
@@ -86,20 +88,27 @@ export interface PreviewProvider {
   /**
    * Records a navigation the running preview reported (via the
    * `molecule:navigate` message — see the interface `@remarks`). Updates the
-   * current location for the URL bar; invalid or non-`http(s)` URLs are ignored.
+   * current location for the URL bar; invalid or non-`http(s)` URLs are ignored,
+   * and the host's internal cache-buster ({@link PREVIEW_CACHE_BUSTER_PARAM}) is
+   * stripped so it never leaks into the URL bar or the Back/Forward history.
    * @param url - The preview's new location (absolute `http`/`https` URL).
    */
   recordNavigation(url: string): void
   /**
    * Navigates the preview to the previous entry in its navigation history (the
    * history is built from {@link PreviewProvider.recordNavigation} and
-   * {@link PreviewProvider.setUrl} calls). No-op when {@link PreviewState.canGoBack}
-   * is `false`.
+   * {@link PreviewProvider.setUrl} calls). This is a CLIENT-SIDE history move,
+   * NOT a reload: it updates {@link PreviewState.currentUrl} + the nav flags and
+   * leaves {@link PreviewState.url}/`loadNonce` untouched. The renderer posts a
+   * `molecule:nav-command` so the preview runs its own `history.back()`,
+   * preserving scroll position + SPA state. No-op when
+   * {@link PreviewState.canGoBack} is `false`.
    */
   back(): void
   /**
-   * Navigates the preview to the next entry in its navigation history. No-op
-   * when {@link PreviewState.canGoForward} is `false`.
+   * Navigates the preview to the next entry in its navigation history — a
+   * client-side history move (see {@link PreviewProvider.back}), not a reload.
+   * No-op when {@link PreviewState.canGoForward} is `false`.
    */
   forward(): void
   /**
