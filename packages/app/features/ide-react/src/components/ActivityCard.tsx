@@ -16,11 +16,12 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { Activity } from './activity-utilities.js'
 import {
-  activityIcon,
+  activityIconName,
   activityStatusColors,
   activityStatusLabel,
   activitySummaryLine,
 } from './activity-utilities.js'
+import { Icon } from './Icon.js'
 
 /**
  * Props for the inline {@link ActivityCard}.
@@ -82,9 +83,12 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
           : undefined
       }
     >
-      <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 14, lineHeight: 1 }}>
-        {activityIcon(activity.type)}
-      </span>
+      <Icon
+        name={activityIconName(activity.type)}
+        size={16}
+        aria-hidden="true"
+        style={{ flexShrink: 0 }}
+      />
       <span
         className={cm.textSize('sm')}
         style={{

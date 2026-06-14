@@ -3,9 +3,9 @@
  *
  * The chat handler streams an `activity` SSE event for every captured outbound
  * side effect (email/sms/push/webhook/channel). These helpers turn that event
- * into the bits of UI state the inline card and the panel render — icon glyph,
- * one-line summary, status-pill styling — without any React/DOM dependency so
- * they can be unit-tested in a node environment.
+ * into the bits of UI state the inline card and the panel render — themed-icon
+ * name, one-line summary, status-pill styling — without any React/DOM dependency
+ * so they can be unit-tested in a node environment.
  *
  * @module
  */
@@ -37,22 +37,34 @@ export interface Activity {
   result?: unknown
 }
 
-/** Emoji glyph per channel type (📧 / 💬 / 🔔 / 🪝 / #). */
-const ACTIVITY_ICONS: Record<ActivityType, string> = {
-  email: '📧', // 📧
-  sms: '💬', // 💬
-  push: '🔔', // 🔔
-  webhook: '🪝', // 🪝
-  channel: '#',
+/**
+ * Glyph NAME (in the bonded `@molecule/app-icons` set) per channel type, so the
+ * Activity card + panel render the same themed SVG `<Icon>` family as the rest
+ * of the IDE instead of raw emoji (the audit's IDE8 finding — emoji read as
+ * lower-quality than every other glyph and ignore the theme). Every value MUST
+ * resolve via `getIcon` (which throws on an unknown name): `mail`/`bell`/`link`
+ * are in the base set's required-icon contract, and `chat` (SMS) + `hash`
+ * (channel) were added to `@molecule/app-icons-molecule` for exactly these two
+ * channels the base set lacked a glyph for.
+ */
+const ACTIVITY_ICON_NAMES: Record<ActivityType, string> = {
+  email: 'mail',
+  sms: 'chat',
+  push: 'bell',
+  webhook: 'link',
+  channel: 'hash',
 }
 
 /**
- * Returns the icon glyph for an activity type.
+ * Returns the bonded-icon-set glyph NAME for an activity type — pass it to
+ * `<Icon name={…} />` to render the themed SVG. Unknown/future types (which
+ * {@link activityFromEvent} normalizes to `webhook`) reuse the `link` glyph
+ * rather than risk a `getIcon` throw.
  * @param type - The activity channel type.
- * @returns The emoji/glyph string for the type.
+ * @returns The icon-set glyph name for the type.
  */
-export function activityIcon(type: ActivityType): string {
-  return ACTIVITY_ICONS[type] ?? ACTIVITY_ICONS.webhook
+export function activityIconName(type: ActivityType): string {
+  return ACTIVITY_ICON_NAMES[type] ?? ACTIVITY_ICON_NAMES.webhook
 }
 
 /**

@@ -1,6 +1,6 @@
 # @molecule/app-ide-react
 
-`@molecule/app-ide-react` — React IDE components for molecule.dev workspace.
+`@molecule/app-ide-react` — React IDE components for an AI-powered workspace.
 
 ## Quick Start
 
@@ -79,9 +79,48 @@ interface ChatEventCard {
   /** The card's text. */
   text: string
   /** An optional action button (or buttons): a link (`href`) and/or a click handler. */
-  action?:
-    | { label: string; href?: string; onClick?: () => void }
-    | { label: string; href?: string; onClick?: () => void }[]
+  action?: ChatEventCardAction | ChatEventCardAction[]
+  /**
+   * Composable inline body for a `tone` (tip) card: an ordered list of segments rendered
+   * in sequence — plain strings as text, {@link ChatEventCardAction}s as inline underlined
+   * links — so prose and links interleave freely (e.g. text → an inline link → a trailing
+   * period). When set, the renderer uses this INSTEAD of `text` + appended `action`s, so a
+   * link can sit mid-sentence rather than only at the end. Segments carry their own spacing
+   * (no auto-space is inserted between them). Keep `text` populated with a plain-text
+   * equivalent for accessibility / non-toned consumers. Only honored when `tone` is set.
+   */
+  content?: ChatEventCardSegment[]
+  /**
+   * When true, ChatPanel renders the card in its emphasized (highlighted box) style
+   * instead of the muted inline style — e.g. a sign-up / upgrade nudge the app wants
+   * to stand out. The app opts in; the shared package never infers emphasis from a
+   * card's route or copy.
+   */
+  emphasized?: boolean
+  /**
+   * Optional tip-style tone: `'info'` (blue) or `'gold'`. When set, ChatPanel renders
+   * the card in the dismissable tip-box style (rounded, tinted, with a lightbulb glyph)
+   * in that tone, and renders any `action`(s) as inline underlined links rather than
+   * buttons — for low-key, honest notices (e.g. a "what powers this" model note). The
+   * app opts in; omit for the default muted / emphasized styles.
+   */
+  tone?: 'info' | 'gold'
+}
+```
+
+#### `ChatEventCardAction`
+
+A single call-to-action on a chat card: a labelled link (`href`) and/or click
+handler. The app supplies any route/copy — the shared package never hardcodes one.
+
+```typescript
+interface ChatEventCardAction {
+  /** Button label (already localized by the app). */
+  label: string
+  /** Link target. App-owned — e.g. the host's own pricing/auth route. */
+  href?: string
+  /** Click handler (alternative to, or alongside, `href`). */
+  onClick?: () => void
 }
 ```
 
@@ -128,6 +167,13 @@ interface ChatPanelProps {
   onActivityClick?: (activity: ActivityFromCard) => void
   /** Called when the server signals (via the `ready_to_build` stream event) that discovery is complete and the sandbox should boot. */
   onReadyToBuild?: () => void
+  /**
+   * True while the plan has finished streaming but the sandbox is still booting
+   * (after `ready_to_build`, before the post-boot build kickoff). When set and no
+   * message is actively streaming, the chat shows a "waiting for the development
+   * environment" indicator so the conversation doesn't appear to silently stall.
+   */
+  awaitingSandboxBoot?: boolean
   /** Called when the agent requests a UI action via the `client_action` stream event (reload/navigate the preview, open a file). */
   onClientAction?: (action: IdeClientAction) => void
   /** Called on each stream `done` — host uses it to keep the boot view up until the parallel during-boot plan stream finishes. */
@@ -156,16 +202,81 @@ interface ChatPanelProps {
   userEditedFile?: string
   /** Incremented to trigger the user-edit check (same path may be edited multiple times). */
   userEditedFileKey?: number
-  /** When true, model picker shows non-default models as locked (sign-up required). */
+  /**
+   * Whether the current user is anonymous. The shared IDE no longer renders any
+   * built-in sign-up/guest card itself — guest reminders now arrive as a `custom`
+   * stream event the host registers via {@link registerCustomEventCard}, and upgrade
+   * call-to-actions come from {@link ChatPanelProps.buildUpgradeCta}. Retained so the
+   * host can still pass it; the host's own `buildUpgradeCta` closure decides whether
+   * an anonymous user should sign up vs. upgrade.
+   */
   isAnonymous?: boolean
-  /** When true, user has a paid plan and can use all models. */
+  /** When true, user has a paid plan and can use all models (drives locked-model display). */
   isPro?: boolean
   /**
-   * When true, suppress the periodic "sign up to keep your work" reminder card.
-   * Used during the discovery/requirements phase, where nudging an anonymous
-   * user to sign up before they've described what they want is bad UX.
+   * Retained for call-site compatibility. The periodic "sign up to keep your work"
+   * reminder is no longer generated client-side — the host's backend decides when to
+   * emit it as a `guest_reminder` `custom` stream event (so it can be suppressed during
+   * discovery server-side). This prop no longer drives any built-in behavior.
+   * @deprecated Guest reminders moved to the host-emitted `custom` event + registry.
    */
   suppressGuestReminder?: boolean
+  /**
+   * Builds the call-to-action button(s) shown when the chat surfaces an upgrade /
+   * sign-in nudge — a locked model the user can't select, or a usage/resource limit
+   * the backend reported. The shared IDE owns NO pricing or auth routes, so the host
+   * supplies the button(s) here (e.g. its own `/pricing` or `/signup`). Return
+   * `null`/`undefined` (the default) to render the nudge text with no button.
+   * `requiresSignup`, when set, is the backend's flag that the user must sign up
+   * rather than upgrade an existing plan; when unset the host's own auth state decides.
+   */
+  buildUpgradeCta?: (context: {
+    requiresSignup?: boolean
+  }) => ChatEventCardAction | ChatEventCardAction[] | null | undefined
+  /**
+   * Optional app-specific section appended to the `/help` output — e.g. a plan /
+   * upgrade blurb. The shared IDE has no pricing or plan copy, so the host supplies
+   * the (already-localized) lines plus any call-to-action. Return `null` (the default)
+   * to append nothing.
+   */
+  buildHelpUpgradeSection?: () =>
+    | { lines: string[]; action?: ChatEventCardAction | ChatEventCardAction[] }
+    | null
+    | undefined
+  /**
+   * The signed-in user's profile avatar (SOC1) — an inline `data:image/*` URI or
+   * an `http(s)` URL — rendered beside their own messages in the chat timeline.
+   * The host passes whatever value its user metadata holds; the shared IDE gates
+   * it (`resolveUserAvatar`) so only a safe, renderable source reaches the DOM and
+   * falls back to a generic icon otherwise. Omit it (the default) to always show
+   * the icon.
+   */
+  userAvatar?: string | null
+  /**
+   * Display name of the AI coding agent, interpolated into all shared chat copy
+   * that refers to it (the stalled-stream notice, sound-event descriptions, the
+   * `/help` body, tips, `/settings` and command descriptions, the `/scripts`
+   * empty state). The shared IDE owns NO product branding, so the host passes its
+   * own agent brand name. Defaults to the neutral `'the assistant'`
+   * (`DEFAULT_AGENT_NAME` from `@molecule/app-react`) so the package alone never
+   * names a specific product.
+   */
+  agentName?: string
+  /**
+   * Display name of the host product / IDE, interpolated into shared chat copy
+   * that refers to the product (the `/help` intro, the report-confirmation and
+   * report-modal subheading, the command-menu version line). The host passes its
+   * own product brand name; defaults to the neutral `'the IDE'`
+   * (`DEFAULT_PRODUCT_NAME` from `@molecule/app-react`).
+   */
+  productName?: string
+  /**
+   * URL the command-menu "Report a problem" link points at (the host's own issue
+   * tracker / feedback page). The shared IDE owns no product URLs, so when this
+   * is omitted (the default) the link is not rendered. The in-chat `/report`
+   * modal — which POSTs to the project's own backend — is unaffected.
+   */
+  feedbackUrl?: string
   className?: string
 }
 ```
@@ -186,6 +297,60 @@ interface Command {
   execute: () => void
   /** Category prefix (e.g. "View", "File"). */
   category?: string
+}
+```
+
+#### `CommandCategory`
+
+A command category with its display label.
+
+```typescript
+interface CommandCategory {
+  /** Stable category key referenced by {@link CommandDef.category}. */
+  key: CommandCategoryKey
+  /** Human-readable category heading (English default; wrapped in `t()` at render). */
+  label: string
+}
+```
+
+#### `CommandDef`
+
+Metadata describing a single slash command.
+
+```typescript
+interface CommandDef {
+  /** Command id (the part after the slash, e.g. `'help'`). */
+  id: string
+  /** Display label including the leading slash (e.g. `'/help'`). */
+  label: string
+  /**
+   * Short description shown in the menu and in `/help` (English default). May
+   * contain the `{{agentName}}` interpolation token, filled in by the render
+   * sites (command menu, `/help`, `/settings` card) from the host's agent
+   * identity (neutral default: "the assistant").
+   */
+  description: string
+  /** Category this command is grouped under. */
+  category: CommandCategoryKey
+  /**
+   * Argument syntax for commands that take options, shown in the `/settings`
+   * command reference (English default). `[…]` = optional, `<…>` = required.
+   * Omit for commands that take no arguments.
+   */
+  usage?: string
+}
+```
+
+#### `CommandGroup`
+
+A category paired with the commands that belong to it.
+
+```typescript
+interface CommandGroup {
+  /** The category metadata (key + label). */
+  category: CommandCategory
+  /** Commands in this category, in registry order. */
+  commands: CommandDef[]
 }
 ```
 
@@ -295,6 +460,26 @@ interface FileNode {
 }
 ```
 
+#### `IconProps`
+
+Props for {@link Icon}. Extends `SVGProps` so callers can forward any SVG/HTML
+attribute (`data-mol-id`, `aria-*`, `role`, event handlers, `style`) to the
+root `<svg>` without the component enumerating them.
+
+```typescript
+interface IconProps extends Omit<
+  SVGProps<SVGSVGElement>,
+  'width' | 'height' | 'viewBox' | 'fill'
+> {
+  /** Name of the glyph to look up in the bonded icon set (e.g. `'sync'`). */
+  name: string
+  /** Width and height of the rendered SVG in pixels. Defaults to 16. */
+  size?: number
+  /** Class name forwarded to the root `<svg>`. */
+  className?: string
+}
+```
+
 #### `IdeClientAction`
 
 A non-mutating UI action the AI agent asks the IDE to perform — reload or
@@ -357,6 +542,13 @@ interface PreviewPanelProps {
   ) => void
   /** Incremented when AI edits files. Triggers an iframe reload only when the preview is broken. */
   fileChangeTick?: number
+  /**
+   * Active-build hint (e.g. a basename like `GuestMenu.tsx`) the host sets while the
+   * AI is editing files. When non-null the overlay is forced on — covering the
+   * blank-white iframe reload a build triggers — and shows "Updating `<hint>`…" so
+   * the user sees what's being worked on. Null when no build edit is in flight.
+   */
+  buildingHint?: string | null
   /** Called when the preview fails to load after multiple recovery attempts. */
   onPreviewStuck?: () => void
   className?: string
@@ -554,6 +746,23 @@ interface ToolCallCardProps {
 }
 ```
 
+#### `UserAvatarProps`
+
+Props for {@link UserAvatar}.
+
+```typescript
+interface UserAvatarProps {
+  /**
+   * The signed-in user's avatar — an inline `data:image/*` URI or an `http(s)`
+   * URL from their profile metadata. Unsafe / unset / oversized values are
+   * ignored (see {@link resolveUserAvatar}) and the generic icon is shown.
+   */
+  userAvatar?: string | null
+  /** Diameter of the avatar in pixels. Defaults to 24. */
+  size?: number
+}
+```
+
 #### `WorkspaceLayoutProps`
 
 Properties for workspace layout.
@@ -594,6 +803,37 @@ type ChatEventCardFactory = (
 ) => ChatEventCard | null
 ```
 
+#### `ChatEventCardSegment`
+
+One inline segment of a toned tip card's composable body: either literal text, or a
+labelled link/action ({@link ChatEventCardAction}). See {@link ChatEventCard.content}.
+
+```typescript
+type ChatEventCardSegment = string | ChatEventCardAction
+```
+
+#### `CommandCategoryKey`
+
+Category keys used to group commands in the menu and in `/help`.
+
+```typescript
+type CommandCategoryKey =
+  | 'context'
+  | 'code'
+  | 'collaborate'
+  | 'model'
+  | 'settings'
+  | 'support'
+```
+
+#### `CommandId`
+
+Union of all command ids (loosely `string`, since {@link CommandDef.id} is a string).
+
+```typescript
+type CommandId = CommandDef['id']
+```
+
 ### Functions
 
 #### `ActivityCard(root0, root0, root0)`
@@ -629,17 +869,20 @@ function activityFromEvent(raw: { id?: string; type?: string; status?: string; r
 
 **Returns:** A normalized Activity object.
 
-#### `activityIcon(type)`
+#### `activityIconName(type)`
 
-Returns the icon glyph for an activity type.
+Returns the bonded-icon-set glyph NAME for an activity type — pass it to
+`<Icon name={…} />` to render the themed SVG. Unknown/future types (which
+{@link activityFromEvent} normalizes to `webhook`) reuse the `link` glyph
+rather than risk a `getIcon` throw.
 
 ```typescript
-function activityIcon(type: ActivityType): string
+function activityIconName(type: ActivityType): string
 ```
 
 - `type` — The activity channel type.
 
-**Returns:** The emoji/glyph string for the type.
+**Returns:** The icon-set glyph name for the type.
 
 #### `activityStatusColors(status)`
 
@@ -716,6 +959,7 @@ function ChatPanel({
   onCommit,
   onActivityClick,
   onReadyToBuild,
+  awaitingSandboxBoot,
   onClientAction,
   onTurnComplete,
   autoSubmitSignal,
@@ -727,9 +971,13 @@ function ChatPanel({
   pendingMessageSuppressUser,
   userEditedFile,
   userEditedFileKey,
-  isAnonymous,
   isPro,
-  suppressGuestReminder,
+  buildUpgradeCta,
+  buildHelpUpgradeSection,
+  userAvatar,
+  agentName,
+  productName,
+  feedbackUrl,
   className,
 }: ChatPanelProps): JSX.Element
 ```
@@ -761,12 +1009,28 @@ function ChatPanel({
 - `root0` — .pendingMessageSuppressUser - When true, send the pending message without rendering a user bubble (auto-sent build kickoff).
 - `root0` — .userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
 - `root0` — .userEditedFileKey - Key to distinguish repeated edits to the same file.
-- `root0` — .isAnonymous - Whether the current user is anonymous.
-- `root0` — .suppressGuestReminder - Suppress the periodic sign-up reminder (e.g. during discovery).
 - `root0` — .isPro - Whether the current user has a Pro plan.
+- `root0` — .buildUpgradeCta - Host-supplied builder for upgrade/sign-in CTA buttons.
+- `root0` — .buildHelpUpgradeSection - Host-supplied builder for the `/help` upgrade section.
 - `root0` — .className - Optional CSS class name for the container.
 
 **Returns:** The rendered chat panel element.
+
+#### `clampPanelSize(currentSize, deltaPx, containerWidth, min, max)`
+
+Clamp a panel's new size after a pixel drag delta.
+
+```typescript
+function clampPanelSize(currentSize: number, deltaPx: number, containerWidth: number, min?: number, max?: number): number
+```
+
+- `currentSize` — The panel's current size as a percentage.
+- `deltaPx` — The drag delta in pixels (positive = grow the left panel).
+- `containerWidth` — The layout container width in pixels.
+- `min` — Minimum allowed percentage. Defaults to {@link MIN_PANEL_PERCENT}.
+- `max` — Maximum allowed percentage. Defaults to {@link MAX_PANEL_PERCENT}.
+
+**Returns:** The new size as a percentage, clamped to `[min, max]`.
 
 #### `CommandPalette(root0, root0, root0)`
 
@@ -784,7 +1048,7 @@ function CommandPalette({ commands, onDismiss }: CommandPaletteProps): JSX.Eleme
 
 #### `DeviceFrameSelector(root0, root0, root0, root0)`
 
-Radio group for selecting a device frame in the preview panel.
+A single button that cycles the preview device frame on click.
 
 ```typescript
 function DeviceFrameSelector({
@@ -796,10 +1060,22 @@ function DeviceFrameSelector({
 
 - `root0` — The component props.
 - `root0` — .current - The currently selected device frame.
-- `root0` — .onChange - Callback invoked when a device frame is selected.
-- `root0` — .className - Optional CSS class name for the container.
+- `root0` — .onChange - Callback invoked with the next frame when clicked.
+- `root0` — .className - Optional CSS class name for the button.
 
-**Returns:** The rendered device frame selector element.
+**Returns:** The rendered device-cycle button element.
+
+#### `deviceIconName(device)`
+
+Returns the icon-set glyph name for a device frame.
+
+```typescript
+function deviceIconName(device: DeviceFrame): string
+```
+
+- `device` — The device frame.
+
+**Returns:** The icon name registered in the bonded icon set.
 
 #### `EditorPanel(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
 
@@ -905,6 +1181,46 @@ function getCustomEventCardFactory(name: string): ChatEventCardFactory | undefin
 
 **Returns:** The registered factory, or undefined if none is registered.
 
+#### `groupCommandsByCategory(commands, categories)`
+
+Groups commands under their categories, preserving category and command
+order and dropping empty categories. Used by the `/settings` command
+reference (and any other view that lists commands by section) so the
+grouping stays in sync with the registry automatically.
+
+```typescript
+function groupCommandsByCategory(commands?: readonly CommandDef[], categories?: readonly CommandCategory[]): CommandGroup[]
+```
+
+- `commands` — Command registry to group (defaults to {@link COMMANDS}).
+- `categories` — Ordered categories (defaults to {@link COMMAND_CATEGORIES}).
+
+**Returns:** One {@link CommandGroup} per non-empty category, in category order.
+
+#### `hasRenderableAvatar(avatar)`
+
+Whether a stored avatar value is renderable (vs. needing the icon fallback).
+
+```typescript
+function hasRenderableAvatar(avatar?: string | null): boolean
+```
+
+- `avatar` — The avatar value from user metadata.
+
+**Returns:** `true` when {@link resolveUserAvatar} would return a src.
+
+#### `Icon(props)`
+
+Renders the named glyph from the bonded icon set.
+
+```typescript
+function Icon({ name, size = 16, className, ...rest }: IconProps): JSX.Element
+```
+
+- `props` — {@link IconProps}.
+
+**Returns:** An `<svg>` element rendering the named glyph.
+
 #### `isInputFocused(e)`
 
 Returns true when the event target is an interactive input element
@@ -947,6 +1263,35 @@ function KeyboardShortcutsPanel({
 
 **Returns:** The keyboard shortcuts panel element.
 
+#### `livePanelSize(layout, panelConfigs, index)`
+
+The live size (percentage) of the visible panel at `index`, read from
+`layout.sizes` keyed by the panel's position group (where `resizePanel`
+writes), falling back to the panel's `defaultSize`, then to an equal split.
+
+```typescript
+function livePanelSize(layout: WorkspaceLayout, panelConfigs: PanelConfig[], index: number): number
+```
+
+- `layout` — The current workspace layout.
+- `panelConfigs` — The visible panel configs, in render order.
+- `index` — The index of the panel within `panelConfigs`.
+
+**Returns:** The panel size as a percentage.
+
+#### `nextDevice(current)`
+
+Returns the next device frame in the cycle, wrapping at the end. An unknown
+frame falls back to the first entry so a click always advances.
+
+```typescript
+function nextDevice(current: DeviceFrame): DeviceFrame
+```
+
+- `current` — The currently selected device frame.
+
+**Returns:** The next device frame in {@link DEVICE_CYCLE}.
+
 #### `normalizeKeys(keys)`
 
 Normalize a shortcut definition string into the same format produced by
@@ -972,6 +1317,7 @@ function PreviewPanel({
   onPreviewError,
   onPreviewStuck,
   fileChangeTick,
+  buildingHint,
 }: PreviewPanelProps): JSX.Element
 ```
 
@@ -1059,6 +1405,19 @@ function ResizeHandle({
 - `root0` — .className - Optional CSS class name for the handle.
 
 **Returns:** The rendered resize handle element.
+
+#### `resolveUserAvatar(avatar)`
+
+Resolve a stored avatar value to a safe `<img>` src, or `null` to fall back to
+the generic icon.
+
+```typescript
+function resolveUserAvatar(avatar?: string | null): string | null
+```
+
+- `avatar` — The avatar value from user metadata (data-URI, URL, or absent).
+
+**Returns:** A safe image src string, or `null` when there is no renderable avatar.
 
 #### `SearchPanel(root0, root0, root0, root0)`
 
@@ -1152,9 +1511,24 @@ function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]): void
 
 - `shortcuts` — Array of shortcut definitions. Callers should wrap
 
+#### `UserAvatar(props)`
+
+Renders the user's avatar image, or the generic `user` icon when there is no
+safe, renderable avatar.
+
+```typescript
+function UserAvatar({ userAvatar, size = 24 }: UserAvatarProps): JSX.Element
+```
+
+- `props` — {@link UserAvatarProps}.
+
+**Returns:** The avatar image or icon fallback.
+
 #### `WorkspaceLayout(root0, root0, root0)`
 
-Top-level workspace layout that arranges child panels with resize handles.
+Top-level workspace layout that arranges child panels in a row with draggable
+vertical dividers between them. Each divider resizes its left panel; the new
+size is written back through `resizePanel`, so it persists in workspace state.
 
 ```typescript
 function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): JSX.Element
@@ -1176,12 +1550,72 @@ All channel types, in the order their filter tabs should appear.
 const ACTIVITY_TYPES: ActivityType[]
 ```
 
+#### `COMMAND_CATEGORIES`
+
+Ordered list of command categories used as section headings.
+
+```typescript
+const COMMAND_CATEGORIES: readonly CommandCategory[]
+```
+
+#### `COMMANDS`
+
+Every available slash command, grouped by category order. This is the
+authoritative list — the menu, key handling, `/help`, AND the system prompt's
+"Available Commands" section all read from it.
+
+```typescript
+const COMMANDS: readonly CommandDef[]
+```
+
+#### `DEVICE_CYCLE`
+
+The order the device-cycle button advances through on each click, wrapping
+back to the start. `none` = responsive (no fixed frame, full width).
+
+```typescript
+const DEVICE_CYCLE: readonly DeviceFrame[]
+```
+
+#### `DEVICE_META`
+
+Per-frame display metadata: the icon-set glyph name and the i18n label
+(key + English default) shown in the button tooltip.
+
+```typescript
+const DEVICE_META: Record<DeviceFrame, { readonly icon: string; readonly labelKey: string; readonly label: string; }>
+```
+
 #### `IS_MAC`
 
 Detect macOS / iOS for Cmd vs Ctrl.
 
 ```typescript
 const IS_MAC: boolean
+```
+
+#### `MAX_AVATAR_SRC_LENGTH`
+
+Maximum avatar source length we will render inline (~256 KB data-URI).
+
+```typescript
+const MAX_AVATAR_SRC_LENGTH: 262144
+```
+
+#### `MAX_PANEL_PERCENT`
+
+Largest a panel may grow to, as a percentage of the container.
+
+```typescript
+const MAX_PANEL_PERCENT: 80
+```
+
+#### `MIN_PANEL_PERCENT`
+
+Smallest a panel may shrink to, as a percentage of the container.
+
+```typescript
+const MIN_PANEL_PERCENT: 10
 ```
 
 #### `ToolCallCard`
@@ -1200,13 +1634,16 @@ Peer dependencies:
 - `@molecule/app-ai-chat` ^1.0.0
 - `@molecule/app-ai-models` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+- `@molecule/app-icons` ^1.0.0
 - `@molecule/app-code-editor` ^1.0.0
 - `@molecule/app-ide` ^1.0.0
 - `@molecule/app-live-preview` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
+- `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+- `react-dom` ^18.0.0 || ^19.0.0
 
 ## Translations
 

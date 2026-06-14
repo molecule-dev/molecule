@@ -14,7 +14,7 @@ import type { Activity } from '../components/activity-utilities.js'
 import {
   ACTIVITY_TYPES,
   activityFromEvent,
-  activityIcon,
+  activityIconName,
   activityStatusColors,
   activityStatusLabel,
   activitySummaryLine,
@@ -33,21 +33,30 @@ function act(overrides: Partial<Activity> = {}): Activity {
 }
 
 // ---------------------------------------------------------------------------
-// activityIcon
+// activityIconName
 // ---------------------------------------------------------------------------
 
-describe('activityIcon', () => {
-  it('returns a distinct glyph per type', () => {
-    const icons = ACTIVITY_TYPES.map(activityIcon)
-    expect(new Set(icons).size).toBe(ACTIVITY_TYPES.length)
+describe('activityIconName', () => {
+  it('returns a distinct bonded-icon-set glyph name per type', () => {
+    const names = ACTIVITY_TYPES.map(activityIconName)
+    expect(new Set(names).size).toBe(ACTIVITY_TYPES.length)
   })
 
-  it('uses the documented email glyph', () => {
-    expect(activityIcon('email')).toBe('\u{1F4E7}')
+  it('maps each channel to a themed SVG glyph name (never an emoji)', () => {
+    expect(activityIconName('email')).toBe('mail')
+    expect(activityIconName('sms')).toBe('chat')
+    expect(activityIconName('push')).toBe('bell')
+    expect(activityIconName('webhook')).toBe('link')
+    expect(activityIconName('channel')).toBe('hash')
   })
 
-  it('uses # for channel', () => {
-    expect(activityIcon('channel')).toBe('#')
+  it('never returns a raw emoji or the bare # text glyph', () => {
+    const emojiRe = /\p{Extended_Pictographic}/u
+    for (const type of ACTIVITY_TYPES) {
+      const name = activityIconName(type)
+      expect(name, `${type} icon name should be a plain glyph name`).toMatch(/^[a-z][a-z-]*$/)
+      expect(emojiRe.test(name), `${type} icon name must not be an emoji`).toBe(false)
+    }
   })
 })
 

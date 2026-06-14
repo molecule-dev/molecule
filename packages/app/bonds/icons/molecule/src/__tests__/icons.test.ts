@@ -167,6 +167,18 @@ describe('molecule icon set', () => {
     }
   })
 
+  it('should include the Activity-panel channel icons', () => {
+    // Consumed by @molecule/app-ide-react's ActivityCard + the molecule-dev
+    // ActivityPanel — the themed SVG replacements for the old channel emoji
+    // (sms → chat, channel → hash). The base set lacked these two glyphs.
+    for (const name of ['chat', 'hash']) {
+      const icon = icons[name]
+      expect(icon, `Missing Activity channel icon: ${name}`).toBeDefined()
+      expect(icon!.paths.length, `${name} should have at least one path`).toBeGreaterThan(0)
+      expect(icon!.paths.every((p) => p.d)).toBe(true)
+    }
+  })
+
   it('should cut out the tablet screen with the evenodd fill rule', () => {
     // The authored tablet glyph relies on evenodd to punch the screen hole; a
     // nonzero rule would fill the whole body solid.
