@@ -333,8 +333,11 @@ export interface UsePreviewResult {
   /**
    * Records a navigation the running preview reported via its `molecule:navigate`
    * message — updates the displayed current location without reloading the iframe.
+   * Pass `isReplace` when the preview REPLACED its current history entry (a
+   * `replaceState` redirect/canonicalization) so the forward stack is preserved
+   * instead of truncated (a `pushState`, the default, truncates forward).
    */
-  recordNavigation: (url: string) => void
+  recordNavigation: (url: string, isReplace?: boolean) => void
   /** Navigates the preview to the previous navigation-history entry (Back). */
   back: () => void
   /** Navigates the preview to the next navigation-history entry (Forward). */

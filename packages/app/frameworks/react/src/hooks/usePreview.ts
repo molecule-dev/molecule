@@ -72,7 +72,10 @@ export function usePreview(): UsePreviewResult {
   const refresh = useCallback(() => provider.refresh(), [provider])
   const setDevice = useCallback((device: DeviceFrame) => provider.setDevice(device), [provider])
   const openExternal = useCallback(() => provider.openExternal(), [provider])
-  const recordNavigation = useCallback((url: string) => provider.recordNavigation(url), [provider])
+  const recordNavigation = useCallback(
+    (url: string, isReplace?: boolean) => provider.recordNavigation(url, isReplace),
+    [provider],
+  )
   const back = useCallback(() => provider.back(), [provider])
   const forward = useCallback(() => provider.forward(), [provider])
 

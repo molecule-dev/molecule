@@ -440,8 +440,11 @@ export function PreviewPanel({
       } else if (event.data?.type === 'molecule:navigate') {
         // The preview reported a client-side navigation (see the scaffold-injected
         // sender). recordNavigation validates the URL and updates the URL bar
-        // (state.currentUrl) without reloading the iframe.
-        if (typeof event.data.url === 'string') recordNavigation(event.data.url)
+        // (state.currentUrl) without reloading the iframe. `isReplace` (set by the
+        // sender for replaceState) preserves the Forward stack on a redirect-on-load
+        // instead of truncating it; a missing/garbage value coerces to false (push).
+        if (typeof event.data.url === 'string')
+          recordNavigation(event.data.url, event.data.isReplace === true)
       } else if (event.data?.type === 'molecule:blank') {
         // Page rendered but appears blank — notify the agent
         if (onPreviewError) {

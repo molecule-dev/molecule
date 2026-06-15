@@ -291,7 +291,10 @@ describe('@molecule/app-live-preview-iframe', () => {
       expect(provider.getState().canGoForward).toBe(true)
     })
 
-    it('truncates the forward stack when a new navigation happens after going back', () => {
+    it('truncates the forward stack on a NEW (pushState) navigation after going back', () => {
+      // A genuine new navigation (pushState — `isReplace` falsy, the default) opens
+      // a new branch and drops the forward stack, exactly like a browser. This is
+      // the PUSH counterpart to the replaceState case below, which PRESERVES it.
       const provider = new IframePreviewProvider()
       provider.setUrl('http://localhost:3000/a')
       provider.recordNavigation('http://localhost:3000/b')
@@ -300,7 +303,7 @@ describe('@molecule/app-live-preview-iframe', () => {
       provider.back() // → /b (forward stack holds /c)
       expect(provider.canGoForward()).toBe(true)
 
-      // A fresh navigation from /b drops /c.
+      // A fresh pushState navigation from /b drops /c.
       provider.recordNavigation('http://localhost:3000/d')
       const state = provider.getState()
       expect(state.currentUrl).toBe('http://localhost:3000/d')
@@ -312,6 +315,42 @@ describe('@molecule/app-live-preview-iframe', () => {
       provider.subscribe(callback)
       provider.forward()
       expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('preserves the forward stack on a replaceState redirect-on-load (PV3 regression)', () => {
+      // PV3 regression: a `replaceState` redirect/canonicalization (e.g. an auth
+      // guard rewriting the URL when a route loads) must SWAP the current entry in
+      // place and KEEP the forward stack — unlike a fresh pushState, which opens a
+      // new branch and truncates forward. The old sender patched pushState and
+      // replaceState identically (no flag), so the host truncated forward on a
+      // replaceState-redirect-on-load and Forward went dead. `recordNavigation`'s
+      // `isReplace` argument (set by the sender for replaceState) is the fix.
+      const provider = new IframePreviewProvider()
+      provider.setUrl('http://localhost:3000/a')
+      provider.recordNavigation('http://localhost:3000/b')
+      provider.recordNavigation('http://localhost:3000/c')
+
+      provider.back() // → /b, forward stack holds /c
+      expect(provider.canGoForward()).toBe(true)
+
+      // The /b document redirects itself on load via replaceState → /b-canonical.
+      provider.recordNavigation('http://localhost:3000/b-canonical', true)
+
+      const state = provider.getState()
+      // The current entry was REPLACED in place (not pushed) ...
+      expect(state.currentUrl).toBe('http://localhost:3000/b-canonical')
+      // ... so the forward stack (/c) survives and Forward stays enabled.
+      expect(state.canGoForward).toBe(true)
+      expect(state.canGoBack).toBe(true)
+
+      // Forward now lands on the PRESERVED /c (proving it was not truncated).
+      provider.forward()
+      expect(provider.getState().currentUrl).toBe('http://localhost:3000/c')
+
+      // Back from /c returns to the REPLACED entry (/b-canonical), not the
+      // pre-redirect /b — confirming the entry was swapped, not pushed.
+      provider.back()
+      expect(provider.getState().currentUrl).toBe('http://localhost:3000/b-canonical')
     })
 
     it('does not add a history entry for a reload (consecutive duplicate)', () => {

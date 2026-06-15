@@ -148,11 +148,14 @@ describe('PreviewPanel URL bar (current location)', () => {
     return fs.readFile(new URL('../components/PreviewPanel.tsx', import.meta.url), 'utf-8')
   }
 
-  it('handles the molecule:navigate message and forwards it to recordNavigation', async () => {
+  it('handles the molecule:navigate message and forwards url + isReplace to recordNavigation', async () => {
     const source = await readSource()
     expect(source).toContain("event.data?.type === 'molecule:navigate'")
+    // Forwards BOTH the url AND the isReplace flag (PV3): a replaceState
+    // redirect-on-load must preserve the Forward stack, so the panel passes
+    // event.data.isReplace through to recordNavigation rather than dropping it.
     expect(source).toMatch(
-      /molecule:navigate'[\s\S]*?if \(typeof event\.data\.url === 'string'\) recordNavigation\(event\.data\.url\)/,
+      /molecule:navigate'[\s\S]*?if \(typeof event\.data\.url === 'string'\)\s*recordNavigation\(event\.data\.url, event\.data\.isReplace === true\)/,
     )
   })
 

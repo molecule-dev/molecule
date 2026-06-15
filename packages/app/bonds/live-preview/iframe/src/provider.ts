@@ -71,12 +71,24 @@ export class IframePreviewProvider implements PreviewProvider {
   }
 
   /**
-   * Pushes a URL onto the navigation history, truncating any forward entries
-   * (a new navigation replaces the forward stack) and collapsing a consecutive
-   * duplicate (a reload or a redirect to the same URL doesn't add an entry).
+   * Records a URL in the navigation history. A PUSH (the default — `pushState`,
+   * `setUrl`, a popstate/hashchange move) truncates any forward entries (a new
+   * branch replaces the forward stack) and collapses a consecutive duplicate (a
+   * reload or a redirect to the same URL adds no entry). A REPLACE
+   * (`replaceState` — a redirect/canonicalization that swaps the current entry)
+   * overwrites the current entry IN PLACE and PRESERVES the forward stack, so a
+   * replaceState-redirect-on-load no longer disables Forward.
    * @param url - The URL that was navigated to.
+   * @param isReplace - Whether to replace the current entry (preserving forward)
+   * instead of pushing a new one. Defaults to `false`.
    */
-  private pushHistory(url: string): void {
+  private pushHistory(url: string, isReplace = false): void {
+    // A replace swaps the current entry in place and leaves the forward stack
+    // intact. (With no current entry yet, fall through to seed the first one.)
+    if (isReplace && this.historyIndex >= 0) {
+      this.history[this.historyIndex] = url
+      return
+    }
     // Drop any forward history beyond the current position.
     this.history = this.history.slice(0, this.historyIndex + 1)
     if (this.history[this.historyIndex] === url) return
@@ -145,8 +157,12 @@ export class IframePreviewProvider implements PreviewProvider {
    * client-side. Non-`http(s)` or unparseable URLs are ignored so a hostile
    * `javascript:`/`data:` URL can never reach the URL bar.
    * @param url - The preview's new location (absolute `http`/`https` URL).
+   * @param isReplace - Whether the preview REPLACED its current history entry (a
+   * `replaceState` redirect/canonicalization) rather than ADDING one (a
+   * `pushState`). A replace swaps the current entry in place and PRESERVES the
+   * forward stack; a push (the default) truncates forward. Defaults to `false`.
    */
-  recordNavigation(url: string): void {
+  recordNavigation(url: string, isReplace = false): void {
     const validated = validateNavigationUrl(url)
     if (!validated) return
     // Strip the host's own `_r` cache-buster: the renderer appends it to the
@@ -156,8 +172,10 @@ export class IframePreviewProvider implements PreviewProvider {
     const cleaned = stripCacheBuster(validated)
     if (cleaned === this.state.currentUrl) return
     // Record the navigation in history (so Back/Forward work) but do NOT bump
-    // loadNonce or change the load target — the preview already navigated.
-    this.pushHistory(cleaned)
+    // loadNonce or change the load target — the preview already navigated. A
+    // replaceState (redirect/canonicalization) swaps the current entry and keeps
+    // the forward stack; a pushState opens a new branch and truncates forward.
+    this.pushHistory(cleaned, isReplace)
     this.state = { ...this.state, currentUrl: cleaned, ...this.navFlags() }
     this.notify()
   }

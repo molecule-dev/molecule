@@ -48,8 +48,13 @@ interface PreviewProvider {
    * and the host's internal cache-buster ({@link PREVIEW_CACHE_BUSTER_PARAM}) is
    * stripped so it never leaks into the URL bar or the Back/Forward history.
    * @param url - The preview's new location (absolute `http`/`https` URL).
+   * @param isReplace - Whether the preview REPLACED its current history entry (a
+   * `replaceState` redirect/canonicalization) rather than ADDING one (a
+   * `pushState`). A replace swaps the current entry in place and PRESERVES the
+   * forward stack (so Forward stays enabled); a push (the default) opens a new
+   * branch and truncates forward. Defaults to `false`.
    */
-  recordNavigation(url: string): void
+  recordNavigation(url: string, isReplace?: boolean): void
   /**
    * Navigates the preview to the previous entry in its navigation history (the
    * history is built from {@link PreviewProvider.recordNavigation} and
