@@ -149,6 +149,7 @@ export const mr: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'तुम्हाला काय बांधायचे आहे त्याचे वर्णन करा...',
   'ide.chat.you': 'तुम्ही',
   'ide.chat.molecule': 'रेणू',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'थांबा',
   'ide.chat.send': 'पाठवा',
   'ide.chat.commit': 'वचनबद्ध व्हा',

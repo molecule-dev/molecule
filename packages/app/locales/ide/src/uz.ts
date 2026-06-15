@@ -150,6 +150,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Nimani qurmoqchi ekanligingizni tasvirlab bering...',
   'ide.chat.you': 'Siz',
   'ide.chat.molecule': 'Molekula',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'STOP',
   'ide.chat.send': 'Yuborish',
   'ide.chat.commit': 'Majburiyat',

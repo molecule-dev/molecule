@@ -147,6 +147,7 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'ምን መገንባት እንደሚፈልጉ ይግለጹ...',
   'ide.chat.you': 'አንተ',
   'ide.chat.molecule': 'ሞለኪውል',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'ተወ',
   'ide.chat.send': 'ላክ',
   'ide.chat.commit': 'ቃል መግባት',

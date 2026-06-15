@@ -5,6 +5,7 @@ export type IdeTranslationKey =
   | 'ide.chat.emptyState'
   | 'ide.chat.you'
   | 'ide.chat.molecule'
+  | 'ide.chat.automatic'
   | 'ide.chat.stop'
   | 'ide.chat.send'
   | 'ide.chat.mention'

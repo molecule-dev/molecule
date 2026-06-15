@@ -154,6 +154,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Magpadala ng mensahe...',
   'ide.chat.emptyState': 'Ilarawan kung ano ang gusto mong itayo...',
   'ide.chat.molecule': 'Molekula',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Huminto',
   'ide.chat.commit': 'Mangako',
   'ide.chat.committed': 'Nakatuon',

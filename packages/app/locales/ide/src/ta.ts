@@ -149,6 +149,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'நீங்கள் என்ன உருவாக்க விரும்புகிறீர்கள் என்பதை விவரிக்கவும்...',
   'ide.chat.you': 'நீங்கள்',
   'ide.chat.molecule': 'மூலக்கூறு',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'நிறுத்து',
   'ide.chat.send': 'அனுப்பு',
   'ide.chat.commit': 'உறுதியளி',

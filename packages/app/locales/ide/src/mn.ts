@@ -150,6 +150,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Юу барихыг хүсч байгаагаа тайлбарлана уу...',
   'ide.chat.you': 'Чи',
   'ide.chat.molecule': 'Молекул',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Зогсоох',
   'ide.chat.send': 'Илгээх',
   'ide.chat.commit': 'Амлалт өгөх',

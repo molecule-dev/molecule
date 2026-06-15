@@ -149,6 +149,7 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Опишете што сакате да изградите...',
   'ide.chat.you': 'Ти',
   'ide.chat.molecule': 'Молекула',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Стоп',
   'ide.chat.send': 'Испрати',
   'ide.chat.commit': 'Изврши',

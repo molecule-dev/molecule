@@ -157,6 +157,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Надіслати повідомлення...',
   'ide.chat.emptyState': 'Опишіть, що ви хочете побудувати...',
   'ide.chat.molecule': 'Молекула',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'СТІЙ',
   'ide.chat.commit': 'Здійснити',
   'ide.chat.committed': "Зобов'язаний",

@@ -71,6 +71,21 @@ export interface ChatMessage {
   commitSuggestion?: CommitSuggestion
   /** File attachments sent with this message (metadata only — no base64 data in history). */
   attachments?: AttachmentMeta[]
+  /**
+   * Internal driver message (e.g. the post-boot build kickoff) that the user
+   * must NEVER see: it is filtered from history on read and never rendered,
+   * though the model still reads it during the turn it drives. This persisted
+   * flag is the deterministic replacement for the legacy `[auto-continue]`
+   * content-prefix hack — a hidden message can never reappear after a refresh.
+   */
+  hidden?: boolean
+  /**
+   * A message sent automatically on the user's behalf (e.g. an auto-fix prompt)
+   * that SHOULD stay visible — but rendered so it is obvious it was sent
+   * automatically on behalf of the agent, not typed by the user (distinct
+   * avatar + accent border), never styled like a real user message.
+   */
+  automatic?: boolean
 }
 
 /**
@@ -120,6 +135,20 @@ export interface ChatConfig {
   model?: string
   /** When true, resume the last interrupted assistant response without adding a user message. */
   resume?: boolean
+  /**
+   * When true, this send is an internal driver (e.g. the post-boot build
+   * kickoff): the server persists the user message as `hidden` so it never
+   * appears in history, and the optimistic local bubble is suppressed. The text
+   * is still sent to the model. (Sent to the server in the request body — this
+   * is NOT a client-only toggle.)
+   */
+  suppressUserMessage?: boolean
+  /**
+   * When true, this send was issued automatically on the user's behalf (e.g. an
+   * auto-fix prompt): the server persists the user message with `automatic` set
+   * so it stays visible but renders in the distinct auto-sent style.
+   */
+  automatic?: boolean
 }
 
 /**

@@ -149,6 +149,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Aprakstiet, ko vēlaties uzbūvēt...',
   'ide.chat.you': 'Tu',
   'ide.chat.molecule': 'Molekula',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Apstāties',
   'ide.chat.send': 'Sūtīt',
   'ide.chat.commit': 'Apņemties',

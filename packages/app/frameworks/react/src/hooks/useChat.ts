@@ -39,6 +39,7 @@ type QueueEntry = {
   attachments?: ChatAttachment[]
   userMsgId?: string
   suppressUserMessage?: boolean
+  automatic?: boolean
 }
 
 /** Prefix used by auto-fix messages so we can identify them in the queue. */
@@ -353,6 +354,13 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // Queue for messages sent while a request is already in-flight
   const sendingRef = useRef(false)
   const pendingRef = useRef<QueueEntry[]>([])
+  // Set when the user clicks Stop, so the post-send reconcile does NOT overwrite
+  // the locally-finalized streamed content with server history. The abort()
+  // callback already finalizes the streaming message (keeping every streamed
+  // char + tool card, flagged aborted); reloading history here could otherwise
+  // win a race against the server's own post-abort persist and momentarily wipe
+  // the streamed turn (C4 — "everything streamed disappeared, returned on refresh").
+  const userAbortedRef = useRef(false)
   // Stable ref to the latest sendMessage so effects can call it without dep issues
   const sendMessageRef = useRef<
     (message: string, attachments?: ChatAttachment[], options?: SendMessageOptions) => Promise<void>
@@ -579,16 +587,22 @@ export function useChat(options: UseChatOptions): UseChatResult {
     async (message: string, attachments?: ChatAttachment[], options?: SendMessageOptions) => {
       if (!mountedRef.current) return
 
-      // When suppressed (ask_user responses), the text is still sent to the
-      // server but no local user-message bubble is appended — the answer is
-      // reflected in the ask_user tool card instead.
+      // When suppressed (ask_user responses, the post-boot kickoff), the text is
+      // still sent to the server but no local user-message bubble is appended —
+      // the answer is reflected in the ask_user tool card, and the server marks
+      // the persisted message hidden so it never reappears on refresh.
       const suppressUserMessage = options?.suppressUserMessage === true
+      // Auto-sent on the user's behalf (e.g. an auto-fix prompt): kept visible
+      // but flagged so it renders in the distinct auto-sent style, not like a
+      // typed user message.
+      const automatic = options?.automatic === true
 
       const userMsg: ChatMessage = {
         id: `user-${++idCounterRef.current}`,
         role: 'user',
         content: message,
         timestamp: Date.now(),
+        ...(automatic ? { automatic: true } : {}),
         ...(attachments?.length
           ? {
               attachments: attachments.map((a) => ({
@@ -609,6 +623,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         pendingRef.current.push({
           message,
           attachments,
+          ...(automatic ? { automatic: true } : {}),
           ...(suppressUserMessage ? { suppressUserMessage } : { userMsgId: userMsg.id }),
         })
         persistQueue(storageKey, pendingRef.current)
@@ -617,6 +632,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
       if (!suppressUserMessage) setMessages((prev) => [...prev, userMsg])
 
+      // A fresh user-initiated send clears any prior stop so the reconcile path
+      // works normally for this turn.
+      userAbortedRef.current = false
       sendingRef.current = true
       setIsLoading(true)
       setError(null)
@@ -627,6 +645,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
       let current: QueueEntry | undefined = {
         message,
         attachments,
+        ...(suppressUserMessage ? { suppressUserMessage: true } : {}),
+        ...(automatic ? { automatic: true } : {}),
       }
 
       while (current) {
@@ -898,8 +918,16 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
         resetStall()
         let resolvedCleanly = false
+        // Per-send config carries the intent flags to the server so it can tag
+        // the persisted message (hidden / automatic). config holds the stable
+        // endpoint + projectId; spread the per-message flags on top.
+        const sendConfig: ChatConfig = {
+          ...config,
+          ...(current.suppressUserMessage ? { suppressUserMessage: true } : {}),
+          ...(current.automatic ? { automatic: true } : {}),
+        }
         try {
-          await provider.sendMessage(currentMsg, config, onEvent, currentAttachments)
+          await provider.sendMessage(currentMsg, sendConfig, onEvent, currentAttachments)
           resolvedCleanly = true
         } catch (err) {
           if (mountedRef.current) {
@@ -930,7 +958,14 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // completed (and persisted) server-side even though we lost the stream,
         // so reloading history surfaces the real result instead of a blank,
         // forever-spinning placeholder.
-        if (mountedRef.current && resolvedCleanly && !receivedTerminal) {
+        //
+        // EXCEPT on a user Stop (userAbortedRef): the abort() callback already
+        // finalized this message with every streamed char + tool card kept. The
+        // server is still persisting the partial turn, so a reload here can race
+        // ahead of that write and momentarily replace the streamed content with
+        // stale history (C4 — the bug where stopping wiped the chat until a
+        // refresh). Trust the local finalization; a later manual reload reconciles.
+        if (mountedRef.current && resolvedCleanly && !receivedTerminal && !userAbortedRef.current) {
           flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
           try {
             const history = await provider.loadHistory(config)
@@ -1271,6 +1306,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
   resumeStreamRef.current = resumeStream
 
   const abort = useCallback(() => {
+    // Mark this as a user Stop so the in-flight send's reconcile path leaves the
+    // locally-finalized streamed content alone (see the reconcile guard above).
+    userAbortedRef.current = true
     try {
       provider.abort()
     } catch (_error) {
@@ -1279,11 +1317,14 @@ export function useChat(options: UseChatOptions): UseChatResult {
     // Also kill the server-side stream so it doesn't continue running
     const p = provider as { abortOnServer?: (config: ChatConfig, cid?: string) => void }
     p.abortOnServer?.({ endpoint, projectId }, undefined)
-    // Cancel any pending throttled flush — we're about to set final state directly
+    // Apply the last throttled delta (the up-to-50ms of text/tool progress that
+    // hadn't flushed yet) BEFORE finalizing, so Stop keeps every streamed char —
+    // not just whatever landed in the previous flush window.
     if (flushTimerRef.current !== null) {
       clearTimeout(flushTimerRef.current)
       flushTimerRef.current = null
     }
+    pendingFlushFnRef.current?.()
     pendingFlushFnRef.current = null
     pendingRef.current.length = 0
     sendingRef.current = false

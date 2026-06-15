@@ -158,6 +158,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.placeholder': '发送消息……',
   'ide.chat.emptyState': '描述一下你想建造什么……',
   'ide.chat.molecule': '分子',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': '停止',
   'ide.chat.committed': '坚定的',
   'ide.chat.loopLimitReached': '达到最大值{{最大限度}}工具迭代。',

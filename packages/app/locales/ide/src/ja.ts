@@ -159,6 +159,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'メッセージを送信する...',
   'ide.chat.emptyState': '構築したいものを説明してください...',
   'ide.chat.molecule': '分子',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': '停止',
   'ide.chat.committed': '献身的',
   'ide.chat.loopLimitReached': '最大値に達しました<x>最大</x>ツールの反復開発。',

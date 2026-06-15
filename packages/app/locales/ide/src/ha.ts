@@ -7,6 +7,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Bayyana abin da kuke son ginawa...',
   'ide.chat.you': 'Kai',
   'ide.chat.molecule': 'Molecule',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Tsaya',
   'ide.chat.send': 'Aika',
   'ide.chat.commit': 'Tabbatar',

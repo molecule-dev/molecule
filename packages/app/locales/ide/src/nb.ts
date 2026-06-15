@@ -156,6 +156,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Send en melding...',
   'ide.chat.emptyState': 'Beskriv hva du ønsker å bygge ...',
   'ide.chat.molecule': 'Molekyl',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stoppe',
   'ide.chat.send': 'Sende',
   'ide.chat.commit': 'Begå',

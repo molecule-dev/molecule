@@ -158,6 +158,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Lähetä viesti...',
   'ide.chat.emptyState': 'Kuvaile, mitä haluat rakentaa...',
   'ide.chat.molecule': 'Molekyyli',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',
   'ide.chat.commit': 'Sitoudu',
   'ide.chat.committed': 'Sitoutunut',

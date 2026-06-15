@@ -149,6 +149,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Disgrifiwch beth rydych chi eisiau ei adeiladu...',
   'ide.chat.you': 'Chi',
   'ide.chat.molecule': 'Moleciwl',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stopiwch',
   'ide.chat.send': 'Anfon',
   'ide.chat.commit': 'Ymrwymo',

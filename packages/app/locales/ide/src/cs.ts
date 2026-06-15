@@ -157,6 +157,7 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Poslat zprávu...',
   'ide.chat.emptyState': 'Popište, co chcete postavit...',
   'ide.chat.molecule': 'Molekula',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Zastávka',
   'ide.chat.commit': 'Spáchat',
   'ide.chat.committed': 'Angažovaný',

@@ -1326,6 +1326,46 @@ export function CommitCardItem({
 }
 
 // ---------------------------------------------------------------------------
+// MoleculeAvatar — the agent's molecule logo, shown beside a message that was
+// sent automatically on the user's behalf (C2), so it's obvious the agent sent
+// it rather than the user. Mirrors UserAvatar's icon-fallback circle, swapping
+// the `user` glyph for the molecule `logo-mark` tinted with the success accent.
+// ---------------------------------------------------------------------------
+
+/**
+ * Renders the molecule logo glyph in a circle, the avatar for auto-sent messages.
+ * @param root0 - Props.
+ * @param root0.size - Diameter of the avatar in pixels (default 20).
+ * @returns The molecule-logo avatar.
+ */
+function MoleculeAvatar({ size = 20 }: { size?: number }): JSX.Element {
+  const cm = getClassMap()
+  const label = t('ide.chat.molecule', undefined, { defaultValue: 'Molecule' })
+  return (
+    <span
+      className={cm.surfaceSecondary}
+      data-mol-id="chat-automatic-avatar"
+      role="img"
+      aria-label={label}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        // The accent tint is a property ClassMap doesn't manage here, so it's
+        // safe to set inline; it ties the avatar to the green auto-sent border.
+        color: 'var(--mol-color-success, #16a34a)',
+      }}
+    >
+      <Icon name="logo-mark" size={Math.round(size * 0.7)} aria-hidden="true" />
+    </span>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // MessageItem — memo'd to avoid re-rendering all messages when one changes
 // ---------------------------------------------------------------------------
 
@@ -1356,6 +1396,8 @@ interface MessageItemProps {
   setModelPicker: React.Dispatch<React.SetStateAction<ModelPicker | null>>
   /** Signed-in user's avatar shown beside their own messages (SOC1); icon fallback when absent/unsafe. */
   userAvatar?: string | null
+  /** Discovery phase — gives consecutive question/answer cards roomier, uncollapsed spacing (B3). */
+  discovery?: boolean
 }
 
 /**
@@ -1388,6 +1430,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     setInputAndCursorEnd,
     setModelPicker,
     userAvatar,
+    discovery,
   } = props
 
   const cm = getClassMap()
@@ -1396,18 +1439,27 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
   const borderClr = isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'
 
   const sameRoleAsPrev = prevMsg?.role === msg.role
-  // Tighten the gap between consecutive SAME-ROLE messages (e.g. a run of
-  // single-tool-call assistant messages — load_skill, search, one-file reads —
-  // each of which the model emits as its own message). Without this they sit a
-  // full 16px apart while a message that batches several tool cards shows them
-  // only ~4px apart, so the spacing looked inconsistent. The flex column doesn't
-  // collapse margins, so a -12px top pulls the gap from 16px back to ~4px; role
-  // boundaries (user↔assistant) keep the full 16px. See marginBottom below.
-  const isUser = msg.role === 'user'
+  // A message sent automatically on the user's behalf (e.g. an auto-fix prompt):
+  // it has role 'user' but must NOT look like the user typed it (C2).
+  const isAutomatic = msg.role === 'user' && !!msg.automatic
+  // A real, user-typed message (the only one styled with the blue border + the
+  // user's own avatar).
+  const isUser = msg.role === 'user' && !isAutomatic
+
+  // Spacing. In the discovery phase the timeline is a column of question/answer
+  // cards; collapsing consecutive same-role cards to ~4px crammed them together
+  // (B3), so give discovery roomy, uncollapsed breathing room. Outside discovery,
+  // keep the original behavior: tighten consecutive SAME-ROLE messages (a run of
+  // single-tool-call assistant messages) with a -12px top so they don't sit a
+  // full 16px apart while a multi-tool-card message shows ~4px; role boundaries
+  // (user↔assistant) keep the full 16px.
+  const wrapperSpacing: React.CSSProperties = discovery
+    ? { marginBottom: '24px' }
+    : { marginBottom: '16px', ...(sameRoleAsPrev ? { marginTop: '-12px' } : {}) }
 
   return (
-    <div style={{ marginBottom: '16px', ...(sameRoleAsPrev ? { marginTop: '-12px' } : {}) }}>
-      {isUser ? (
+    <div style={wrapperSpacing}>
+      {isUser || isAutomatic ? (
         <div
           className={cm.cn(cm.surfaceSecondary, cm.textSize('sm'))}
           style={{
@@ -1416,17 +1468,40 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
             gap: '8px',
             minWidth: 0,
             borderRadius: '4px',
-            borderLeft: '2px solid var(--mol-color-primary, #6366f1)',
+            // Real user message → blue (primary). Auto-sent on the user's behalf
+            // → green (success), so it's obvious the agent sent it, not the user.
+            borderLeft: isAutomatic
+              ? '2px solid var(--mol-color-success, #16a34a)'
+              : '2px solid var(--mol-color-primary, #6366f1)',
             paddingLeft: '10px',
             paddingTop: '6px',
             paddingBottom: '6px',
             paddingRight: '8px',
           }}
+          data-mol-id={isAutomatic ? 'chat-automatic-message' : 'chat-user-message'}
         >
-          {/* The user's real profile avatar (SOC1) sits INSIDE the card, just right of
-              the blue border, so it reads as part of the message. */}
-          <UserAvatar userAvatar={userAvatar} size={20} />
+          {/* Avatar sits INSIDE the card, just right of the accent border, so it
+              reads as part of the message. User messages show the user's real
+              profile avatar (SOC1); an auto-sent message shows the molecule logo
+              so it's unmistakably from the agent, not the user (C2). */}
+          {isAutomatic ? (
+            <MoleculeAvatar size={20} />
+          ) : (
+            <UserAvatar userAvatar={userAvatar} size={20} />
+          )}
           <div style={{ flex: 1, minWidth: 0 }}>
+            {isAutomatic && (
+              <div
+                className={cm.cn(cm.textSize('xs'))}
+                style={{
+                  color: 'var(--mol-color-success, #16a34a)',
+                  fontWeight: 600,
+                  marginBottom: 2,
+                }}
+              >
+                {t('ide.chat.automatic', undefined, { defaultValue: 'Sent automatically' })}
+              </div>
+            )}
             <CollapsibleUserMessage content={msg.content} isLight={isLight} />
             {msg.attachments && msg.attachments.length > 0 && (
               <div style={{ marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
@@ -2369,13 +2444,20 @@ function ChatInner({
 
   // When countdown reaches 0, send the fix message
   const sendMessageRef = useRef<
-    (msg: string, attachments?: undefined, options?: { suppressUserMessage?: boolean }) => void
+    (
+      msg: string,
+      attachments?: undefined,
+      options?: { suppressUserMessage?: boolean; automatic?: boolean },
+    ) => void
   >(() => {})
   useEffect(() => {
     if (autoFixCountdown && autoFixCountdown.secondsLeft === 0 && !autoFixCountdown.paused) {
       const msg = `Fix these issues:\n\n${autoFixCountdown.output}`
       setAutoFixCountdown(null)
-      sendMessageRef.current(msg)
+      // Auto-sent on the user's behalf — flag it so the chat renders it in the
+      // distinct auto-sent style (agent avatar + green border), not as if the
+      // user typed it (C2).
+      sendMessageRef.current(msg, undefined, { automatic: true })
     }
   }, [autoFixCountdown])
 
@@ -4871,6 +4953,12 @@ function ChatInner({
     return () => ta.removeEventListener('keydown', handler)
   }, [])
 
+  // Never render hidden driver messages (the post-boot kickoff etc.). The server
+  // already filters them on read, but guard here too so the client NEVER shows
+  // one — even an optimistic/in-flight hidden message. msgIdx (used for the
+  // same-role spacing's prevMsg lookup) indexes into this filtered list.
+  const visibleMessages = useMemo(() => messages.filter((m) => !m.hidden), [messages])
+
   // Build a unified timeline so commit cards appear at the correct position
   type TimelineItem =
     | { kind: 'message'; msg: (typeof messages)[number]; msgIdx: number }
@@ -4880,7 +4968,7 @@ function ChatInner({
     | { kind: 'tip'; card: TipCardEntry }
   const timeline = useMemo<TimelineItem[]>(() => {
     const items: TimelineItem[] = [
-      ...messages.map((msg, i) => ({ kind: 'message' as const, msg, msgIdx: i })),
+      ...visibleMessages.map((msg, i) => ({ kind: 'message' as const, msg, msgIdx: i })),
       ...commitCards.map((card) => ({ kind: 'commit' as const, card })),
       ...systemCards.map((card) => ({ kind: 'system' as const, card })),
       ...activityCards.map((card) => ({ kind: 'activity' as const, card })),
@@ -4892,7 +4980,7 @@ function ChatInner({
       return tA - tB
     })
     return items
-  }, [messages, commitCards, systemCards, activityCards, tipCards])
+  }, [visibleMessages, commitCards, systemCards, activityCards, tipCards])
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -5297,7 +5385,7 @@ function ChatInner({
               <MessageItem
                 key={msg.id}
                 msg={msg}
-                prevMsg={messages[msgIdx - 1]}
+                prevMsg={visibleMessages[msgIdx - 1]}
                 editingQueuedId={editingQueuedId}
                 editingQueuedText={editingQueuedText}
                 setEditingQueuedId={setEditingQueuedId}
@@ -5317,6 +5405,7 @@ function ChatInner({
                 setInputAndCursorEnd={setInputAndCursorEnd}
                 setModelPicker={setModelPicker}
                 userAvatar={userAvatar}
+                discovery={discovery}
               />
             )
           },

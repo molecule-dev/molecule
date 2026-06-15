@@ -158,6 +158,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Στείλτε ένα μήνυμα...',
   'ide.chat.emptyState': 'Περιγράψτε τι θέλετε να κατασκευάσετε...',
   'ide.chat.molecule': 'Μόριο',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Στάση',
   'ide.chat.commit': 'Διαπράττω',
   'ide.chat.committed': 'Δεσμευμένος',

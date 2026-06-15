@@ -150,6 +150,7 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'আপনি কী তৈরি করতে চান তা বর্ণনা করুন...',
   'ide.chat.you': 'তুমি',
   'ide.chat.molecule': 'অণু',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'থামুন',
   'ide.chat.send': 'পাঠান',
   'ide.chat.commit': 'প্রতিশ্রুতি',

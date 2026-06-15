@@ -161,6 +161,7 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Sende eine Nachricht...',
   'ide.chat.emptyState': 'Beschreiben Sie, was Sie bauen möchten...',
   'ide.chat.molecule': 'Molekül',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stoppen',
   'ide.chat.commit': 'Begehen',
   'ide.chat.committed': 'Engagiert',

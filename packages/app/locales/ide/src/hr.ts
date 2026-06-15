@@ -150,6 +150,7 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Opišite što želite izgraditi...',
   'ide.chat.you': 'Vas',
   'ide.chat.molecule': 'Molekula',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',
   'ide.chat.send': 'Poslati',
   'ide.chat.commit': 'Potvrdi',

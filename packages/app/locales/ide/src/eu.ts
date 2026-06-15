@@ -150,6 +150,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Deskribatu zer eraiki nahi duzun...',
   'ide.chat.you': 'Zu',
   'ide.chat.molecule': 'Molekula',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Gelditu',
   'ide.chat.send': 'Bidali',
   'ide.chat.commit': 'Konprometitu',

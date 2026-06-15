@@ -150,6 +150,7 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Не құрғыңыз келетінін сипаттаңыз...',
   'ide.chat.you': 'Сен',
   'ide.chat.molecule': 'Молекула',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Тоқта',
   'ide.chat.send': 'Жіберу',
   'ide.chat.commit': 'Міндеттеме беру',

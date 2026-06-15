@@ -151,6 +151,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Përshkruani se çfarë doni të ndërtoni...',
   'ide.chat.you': 'Ti',
   'ide.chat.molecule': 'Molekulë',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Ndalo',
   'ide.chat.send': 'Dërgo',
   'ide.chat.commit': 'Kryej',

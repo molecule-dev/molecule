@@ -159,6 +159,7 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Wyślij wiadomość...',
   'ide.chat.emptyState': 'Opisz, co chcesz zbudować...',
   'ide.chat.molecule': 'Cząsteczka',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Zatrzymywać się',
   'ide.chat.commit': 'Popełniać',
   'ide.chat.committed': 'Zaangażowany',

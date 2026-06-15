@@ -161,6 +161,7 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'एक संदेश भेजो...',
   'ide.chat.emptyState': 'आप क्या बनाना चाहते हैं, इसका वर्णन करें...',
   'ide.chat.molecule': 'अणु',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'रुकना',
   'ide.chat.committed': 'प्रतिबद्ध',
   'ide.chat.loopLimitReached': 'अधिकतम सीमा तक पहुँच गया<x> {{max}}</x> टूल पुनरावृति।',

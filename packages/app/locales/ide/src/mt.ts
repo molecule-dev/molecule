@@ -149,6 +149,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.emptyState': "Iddeskrivi x'tixtieq tibni...",
   'ide.chat.you': 'Int',
   'ide.chat.molecule': 'Molekula',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Waqqaf',
   'ide.chat.send': 'Ibgħat',
   'ide.chat.commit': 'Impenja',

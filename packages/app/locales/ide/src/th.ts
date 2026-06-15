@@ -149,6 +149,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'อธิบายสิ่งที่คุณต้องการสร้าง...',
   'ide.chat.you': 'คุณ',
   'ide.chat.molecule': 'โมเลกุล',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'หยุด',
   'ide.chat.send': 'ส่ง',
   'ide.chat.commit': 'ให้สัญญา',

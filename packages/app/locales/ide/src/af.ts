@@ -149,6 +149,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Beskryf wat jy wil bou...',
   'ide.chat.you': 'Jy',
   'ide.chat.molecule': 'Molekule',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',
   'ide.chat.send': 'Stuur',
   'ide.chat.commit': 'Verbind',

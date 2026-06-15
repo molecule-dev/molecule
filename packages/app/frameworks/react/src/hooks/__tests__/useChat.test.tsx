@@ -437,6 +437,101 @@ describe('useChat', () => {
     }
   })
 
+  // ── Auto-sent / suppressed message flags (C2 + C3) ─────────────────────
+
+  it('forwards the automatic flag to the server config and flags the optimistic message (C2)', async () => {
+    const { provider, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('Fix these issues', undefined, { automatic: true })
+    })
+
+    // The optimistic user bubble is flagged so it renders in the auto-sent style.
+    const userMsg = result.current.messages.find((m) => m.role === 'user')
+    expect(userMsg?.automatic).toBe(true)
+
+    // The flag reaches the provider via the per-send config (so the server can
+    // persist it) — it is NOT a client-only display toggle.
+    const cfg = (provider.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][1] as {
+      automatic?: boolean
+    }
+    expect(cfg.automatic).toBe(true)
+
+    await act(async () => {
+      complete(0)
+    })
+  })
+
+  it('forwards suppressUserMessage to the server config and appends no optimistic bubble (C3)', async () => {
+    const { provider, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('internal driver', undefined, { suppressUserMessage: true })
+    })
+
+    // No optimistic user bubble for a suppressed send.
+    expect(result.current.messages.filter((m) => m.role === 'user')).toHaveLength(0)
+
+    // The flag must reach the server (this was the C3 root cause: it was never
+    // transmitted, so the server persisted the message as an ordinary user
+    // message that reappeared on refresh).
+    const cfg = (provider.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][1] as {
+      suppressUserMessage?: boolean
+    }
+    expect(cfg.suppressUserMessage).toBe(true)
+
+    await act(async () => {
+      complete(0)
+    })
+  })
+
+  // ── Stop keeps streamed content (C4) ───────────────────────────────────
+
+  it('keeps streamed content on user abort and does NOT overwrite it with reloaded history (C4)', async () => {
+    const { provider, emitText } = createMockProvider()
+    // A reload here would return STALE history lacking this in-flight turn — the
+    // exact race that wiped the chat on Stop. The guard must skip this reload.
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: 'old', role: 'user', content: 'previous turn', timestamp: 1 },
+    ])
+
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('go')
+    })
+    await act(async () => {
+      emitText(0, 'partial streamed answer')
+    })
+
+    // User clicks Stop. The mock's abort() resolves the in-flight send promise,
+    // so the send loop reaches the reconcile branch — which must be skipped.
+    await act(async () => {
+      result.current.abort()
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    // The streamed content is preserved (including the last un-flushed delta),
+    // flagged aborted.
+    const assistant = result.current.messages.find((m) => m.role === 'assistant')
+    expect(assistant?.content).toContain('partial streamed answer')
+    expect(assistant?.aborted).toBe(true)
+
+    // The stale reloaded history did NOT replace the live, finalized messages.
+    expect(result.current.messages.some((m) => m.content === 'previous turn')).toBe(false)
+  })
+
   // ── Clear history ─────────────────────────────────────────────────────
 
   it('clearHistory clears the queue, messages, and sessionStorage', async () => {

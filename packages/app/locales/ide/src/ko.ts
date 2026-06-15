@@ -160,6 +160,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.placeholder': '메시지를 보내세요...',
   'ide.chat.emptyState': '만들고 싶은 것을 설명해 주세요...',
   'ide.chat.molecule': '분자',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': '멈추다',
   'ide.chat.committed': '헌신적인',
   'ide.chat.loopLimitReached': '최대치에 도달했습니다<x> {{max}}</x> 도구 반복.',

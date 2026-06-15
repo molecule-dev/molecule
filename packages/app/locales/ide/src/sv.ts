@@ -156,6 +156,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Skicka ett meddelande...',
   'ide.chat.emptyState': 'Beskriv vad du vill bygga...',
   'ide.chat.molecule': 'Molekyl',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stopp',
   'ide.chat.commit': 'Begå',
   'ide.chat.committed': 'Engagerad',

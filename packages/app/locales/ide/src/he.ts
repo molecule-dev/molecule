@@ -150,6 +150,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'תאר מה אתה רוצה לבנות...',
   'ide.chat.you': 'אַתָה',
   'ide.chat.molecule': 'מולקולה',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'לְהַפְסִיק',
   'ide.chat.send': 'לִשְׁלוֹחַ',
   'ide.chat.commit': 'לְבַצֵעַ',

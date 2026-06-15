@@ -157,6 +157,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Kirim pesan...',
   'ide.chat.emptyState': 'Jelaskan apa yang ingin Anda bangun...',
   'ide.chat.molecule': 'Molekul',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Berhenti',
   'ide.chat.commit': 'Melakukan',
   'ide.chat.committed': 'Berkomitmen',

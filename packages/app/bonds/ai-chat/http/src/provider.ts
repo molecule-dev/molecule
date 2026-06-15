@@ -92,6 +92,13 @@ export class HttpChatProvider implements ChatProvider {
             model: config.model,
             ...(attachments?.length ? { attachments } : {}),
             ...(config.resume ? { resume: true } : {}),
+            // Per-send intent flags — the server tags the persisted user message
+            // so a suppressed driver message is hidden on read and an auto-sent
+            // message keeps its distinct style. Without forwarding these, a
+            // suppressed message would persist as an ordinary user message and
+            // reappear on refresh.
+            ...(config.suppressUserMessage ? { suppressUserMessage: true } : {}),
+            ...(config.automatic ? { automatic: true } : {}),
           }),
           signal,
         })

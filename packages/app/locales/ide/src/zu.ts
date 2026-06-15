@@ -151,6 +151,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Chaza ukuthi yini ofuna ukuyakha...',
   'ide.chat.you': 'Wena',
   'ide.chat.molecule': 'I-molecule',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Ima',
   'ide.chat.send': 'Thumela',
   'ide.chat.commit': 'Ukuzibophezela',

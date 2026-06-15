@@ -7,6 +7,7 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Апішыце, што вы хочаце стварыць...',
   'ide.chat.you': 'Вы',
   'ide.chat.molecule': 'Molecule',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Спыніць',
   'ide.chat.send': 'Адправіць',
   'ide.chat.commit': 'Зацвердзіць',

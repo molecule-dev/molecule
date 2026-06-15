@@ -149,6 +149,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Nə tikmək istədiyinizi təsvir edin...',
   'ide.chat.you': 'Sən',
   'ide.chat.molecule': 'Molekul',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Dayan',
   'ide.chat.send': 'Göndər',
   'ide.chat.commit': 'Öhdəlik götür',

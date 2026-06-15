@@ -159,6 +159,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Stuur een bericht...',
   'ide.chat.emptyState': 'Beschrijf wat je wilt bouwen...',
   'ide.chat.molecule': 'Molecuul',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',
   'ide.chat.commit': 'Verbinden',
   'ide.chat.committed': 'Betrokken',

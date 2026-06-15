@@ -7,6 +7,7 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Kọwaa ihe ị chọrọ iwu...',
   'ide.chat.you': 'Gị',
   'ide.chat.molecule': 'Molecule',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Kwụsị',
   'ide.chat.send': 'Zipu',
   'ide.chat.commit': 'Kwenye',

@@ -149,6 +149,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'ඔබට ගොඩනගා ගැනීමට අවශ්‍ය දේ විස්තර කරන්න...',
   'ide.chat.you': 'ඔබ',
   'ide.chat.molecule': 'අණුව',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'නවත්වන්න',
   'ide.chat.send': 'යවන්න',
   'ide.chat.commit': 'කැප කරන්න',

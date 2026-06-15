@@ -149,6 +149,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Déan cur síos ar a bhfuil tú ag iarraidh a thógáil...',
   'ide.chat.you': 'Tusa',
   'ide.chat.molecule': 'Móilín',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',
   'ide.chat.send': 'Seol',
   'ide.chat.commit': 'Tiomantas',

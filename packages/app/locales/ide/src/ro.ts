@@ -159,6 +159,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Trimite un mesaj...',
   'ide.chat.emptyState': 'Descrie ce vrei să construiești...',
   'ide.chat.molecule': 'Moleculă',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',
   'ide.chat.commit': 'Angajare',
   'ide.chat.committed': 'Angajat',

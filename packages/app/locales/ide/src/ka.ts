@@ -149,6 +149,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'აღწერეთ, რისი აშენება გსურთ...',
   'ide.chat.you': 'შენ',
   'ide.chat.molecule': 'მოლეკულა',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'გაჩერება',
   'ide.chat.send': 'გაგზავნა',
   'ide.chat.commit': 'დადასტურება',

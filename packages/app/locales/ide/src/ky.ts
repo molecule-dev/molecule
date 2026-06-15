@@ -7,6 +7,7 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Эмнени куруп чыгууну каалаганыңызды сүрөттөңүз...',
   'ide.chat.you': 'Сиз',
   'ide.chat.molecule': 'Molecule',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Токтотуу',
   'ide.chat.send': 'Жөнөтүү',
   'ide.chat.commit': 'Жайгаштыруу',

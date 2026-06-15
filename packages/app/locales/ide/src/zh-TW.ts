@@ -147,6 +147,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.emptyState': '描述一下你想建造什麼…',
   'ide.chat.you': '你',
   'ide.chat.molecule': '分子',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': '停止',
   'ide.chat.send': '傳送',
   'ide.chat.commit': '犯罪',

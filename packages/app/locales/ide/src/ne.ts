@@ -149,6 +149,7 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'तपाईं के निर्माण गर्न चाहनुहुन्छ वर्णन गर्नुहोस्...',
   'ide.chat.you': 'तपाईं',
   'ide.chat.molecule': 'अणु',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'रोक्नुहोस्',
   'ide.chat.send': 'पठाउनुहोस्',
   'ide.chat.commit': 'प्रतिबद्ध गर्नुहोस्',

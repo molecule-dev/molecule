@@ -149,6 +149,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Kirjelda, mida sa ehitada tahad...',
   'ide.chat.you': 'Sina',
   'ide.chat.molecule': 'Molekul',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stopp',
   'ide.chat.send': 'Saada',
   'ide.chat.commit': 'Kinnita',

@@ -149,6 +149,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Descriu què vols construir...',
   'ide.chat.you': 'Tu',
   'ide.chat.molecule': 'Molècula',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Atura',
   'ide.chat.send': 'Enviar',
   'ide.chat.commit': 'Compromís',

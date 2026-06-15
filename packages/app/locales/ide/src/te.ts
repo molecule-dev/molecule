@@ -150,6 +150,7 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'మీరు ఏమి నిర్మించాలనుకుంటున్నారో వివరించండి...',
   'ide.chat.you': 'మీరు',
   'ide.chat.molecule': 'అణువు',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'ఆపండి',
   'ide.chat.send': 'పంపండి',
   'ide.chat.commit': 'కమిట్',

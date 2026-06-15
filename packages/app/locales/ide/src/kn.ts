@@ -149,6 +149,7 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'ನೀವು ಏನನ್ನು ನಿರ್ಮಿಸಲು ಬಯಸುತ್ತೀರಿ ಎಂಬುದನ್ನು ವಿವರಿಸಿ...',
   'ide.chat.you': 'ನೀವು',
   'ide.chat.molecule': 'ಅಣು',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'ನಿಲ್ಲಿಸಿ',
   'ide.chat.send': 'ಕಳುಹಿಸಿ',
   'ide.chat.commit': 'ಬದ್ಧತೆ',

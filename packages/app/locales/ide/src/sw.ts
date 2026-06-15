@@ -150,6 +150,7 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Eleza unachotaka kujenga...',
   'ide.chat.you': 'Wewe',
   'ide.chat.molecule': 'Molekuli',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Simamisha',
   'ide.chat.send': 'Tuma',
   'ide.chat.commit': 'Kujitolea',

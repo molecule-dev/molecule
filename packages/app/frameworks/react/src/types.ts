@@ -250,6 +250,13 @@ export interface SendMessageOptions {
    * shown in-card) rather than echoed as a separate message below it.
    */
   suppressUserMessage?: boolean
+  /**
+   * Mark this send as issued automatically on the user's behalf (e.g. an
+   * auto-fix prompt). The optimistic local bubble and the persisted message are
+   * flagged `automatic` so the chat renders it in the distinct auto-sent style
+   * (agent avatar + accent border) instead of looking like the user typed it.
+   */
+  automatic?: boolean
 }
 
 /**

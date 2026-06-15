@@ -150,6 +150,7 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Describe o que queres construír...',
   'ide.chat.you': 'Ti',
   'ide.chat.molecule': 'Molécula',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Parar',
   'ide.chat.send': 'Enviar',
   'ide.chat.commit': 'Confirmar',

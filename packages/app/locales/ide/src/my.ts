@@ -149,6 +149,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'ဘာတည်ဆောက်ချင်လဲဆိုတာ ရှင်းပြပါ...',
   'ide.chat.you': 'မင်း',
   'ide.chat.molecule': 'မော်လီကျူး',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'ရပ်',
   'ide.chat.send': 'ပို့ပါ',
   'ide.chat.commit': 'ကတိပြုပါ',

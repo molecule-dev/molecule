@@ -148,6 +148,7 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'ອະທິບາຍສິ່ງທີ່ເຈົ້າຕ້ອງການສ້າງ...',
   'ide.chat.you': 'ເຈົ້າ',
   'ide.chat.molecule': 'ໂມເລກຸນ',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'ຢຸດ',
   'ide.chat.send': 'ສົ່ງ',
   'ide.chat.commit': 'ດຳເນີນການ',

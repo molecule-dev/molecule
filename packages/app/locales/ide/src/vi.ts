@@ -159,6 +159,7 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Gửi tin nhắn...',
   'ide.chat.emptyState': 'Hãy mô tả những gì bạn muốn xây dựng...',
   'ide.chat.molecule': 'Phân tử',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Dừng lại',
   'ide.chat.commit': 'Làm',
   'ide.chat.committed': 'Tận tụy',

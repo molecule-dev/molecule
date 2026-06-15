@@ -149,6 +149,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'សូមពណ៌នាអំពីអ្វីដែលអ្នកចង់សាងសង់...',
   'ide.chat.you': 'អ្នក',
   'ide.chat.molecule': 'ម៉ូលេគុល',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'ឈប់',
   'ide.chat.send': 'ផ្ញើ',
   'ide.chat.commit': 'ប្តេជ្ញាចិត្ត',

@@ -160,6 +160,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'أرسل رسالة...',
   'ide.chat.emptyState': 'صف ما تريد بناءه...',
   'ide.chat.molecule': 'جزيء',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'قف',
   'ide.chat.committed': 'ملتزم',
   'ide.chat.loopLimitReached': 'بلغ الحد الأقصى لـ<x> {{الأعلى}}</x> تكرارات الأدوات.',

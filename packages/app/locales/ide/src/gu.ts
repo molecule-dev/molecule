@@ -149,6 +149,7 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'તમે શું બનાવવા માંગો છો તેનું વર્ણન કરો...',
   'ide.chat.you': 'તમે',
   'ide.chat.molecule': 'અણુ',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'બંધ',
   'ide.chat.send': 'મોકલો',
   'ide.chat.commit': 'પ્રતિબદ્ધ',

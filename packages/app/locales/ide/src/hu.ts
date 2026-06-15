@@ -157,6 +157,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Küldj üzenetet...',
   'ide.chat.emptyState': 'Írd le, mit szeretnél építeni...',
   'ide.chat.molecule': 'Molekula',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',
   'ide.chat.commit': 'Kötelezettségvállalás',
   'ide.chat.committed': 'Elkötelezett',

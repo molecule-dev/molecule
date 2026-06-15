@@ -149,6 +149,7 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'Lýstu því sem þú vilt byggja upp...',
   'ide.chat.you': 'Þú',
   'ide.chat.molecule': 'Sameind',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stöðva',
   'ide.chat.send': 'Senda',
   'ide.chat.commit': 'Skuldbinda sig',

@@ -149,6 +149,7 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'بیان کریں کہ آپ کیا بنانا چاہتے ہیں...',
   'ide.chat.you': 'آپ',
   'ide.chat.molecule': 'مالیکیول',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'رک جاؤ',
   'ide.chat.send': 'بھیجیں۔',
   'ide.chat.commit': 'عزم',

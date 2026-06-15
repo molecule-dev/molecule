@@ -9,6 +9,7 @@ export const yo: Partial<IdeTranslations> = {
     '\\u1E62\\u00E0p\\u00E8j\\u00FAwe ohun t\\u00ED o f\\u1EB9\\u0301 k\\u1ECD\\u0301...',
   'ide.chat.you': '\\u00CCw\\u1ECD',
   'ide.chat.molecule': 'Molecule',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'D\\u00FAr\\u00F3',
   'ide.chat.send': 'Fir\\u00E1n\\u1E63\\u1EB9\\u0301',
   'ide.chat.commit': 'Fi pam\\u1ECD\\u0301',

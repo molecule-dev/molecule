@@ -159,6 +159,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Mesaj gönder...',
   'ide.chat.emptyState': 'Ne inşa etmek istediğinizi açıklayın...',
   'ide.chat.molecule': 'Molekül',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Durmak',
   'ide.chat.committed': 'Bağlılık',
   'ide.chat.loopLimitReached': 'Maksimum seviyeye ulaşıldı<x> {{maks}}</x> araç yinelemeleri.',

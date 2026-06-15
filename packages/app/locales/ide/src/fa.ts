@@ -150,6 +150,7 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.emptyState': 'چیزی که می‌خوای بسازی رو توصیف کن...',
   'ide.chat.you': 'شما',
   'ide.chat.molecule': 'مولکول',
+  'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'توقف',
   'ide.chat.send': 'ارسال',
   'ide.chat.commit': 'متعهد شدن',
