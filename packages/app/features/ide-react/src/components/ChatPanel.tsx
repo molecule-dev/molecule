@@ -64,6 +64,7 @@ import {
 } from './chat-autocommit-utilities.js'
 import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
+import { stripCommitCoauthorTrailer } from './chat-commit-utilities.js'
 import type { EffortLevel } from './chat-effort-utilities.js'
 import {
   DEFAULT_EFFORT_LEVEL,
@@ -1016,7 +1017,7 @@ function ResourceLimitBanner({
  * @param root0.onRevert - Callback to revert a commit by hash. Returns the new commit hash on success.
  * @returns The rendered commit card element.
  */
-function CommitCardItem({
+export function CommitCardItem({
   card,
   onRevert,
 }: {
@@ -1127,7 +1128,7 @@ function CommitCardItem({
                         fontSize: 'inherit',
                       }}
                     >
-                      {card.message}
+                      {stripCommitCoauthorTrailer(card.message)}
                     </code>
                   </>
                 )}
@@ -6283,7 +6284,7 @@ function ChatInner({
                 </svg>
                 <span className={cm.cn(cm.textMuted, cm.textSize('xs'))}>
                   {commitState?.status === 'committed'
-                    ? commitState.message
+                    ? stripCommitCoauthorTrailer(commitState.message ?? '')
                     : commitState?.status === 'error'
                       ? t('ide.chat.commitFailed')
                       : t(
