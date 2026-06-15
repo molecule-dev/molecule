@@ -59,6 +59,7 @@ import {
   autoCommitReducer,
   isAutoCommitArmed,
   isAutoCommitDue,
+  isAutoCommitEnabled,
   parseAutoCommitCommand,
 } from './chat-autocommit-utilities.js'
 import type { CommandId } from './chat-commands.js'
@@ -4915,6 +4916,16 @@ function ChatInner({
                   autoFix: autoFixEnabled
                     ? t('ide.chat.settings.on', undefined, { defaultValue: 'On' })
                     : t('ide.chat.settings.off', undefined, { defaultValue: 'Off' }),
+                  autoCommit: isAutoCommitEnabled(autoCommit)
+                    ? t(
+                        'ide.chat.settings.autoCommitEvery',
+                        { seconds: autoCommit.intervalSeconds },
+                        { defaultValue: 'Every {{seconds}}s' },
+                      )
+                    : t('ide.chat.settings.off', undefined, { defaultValue: 'Off' }),
+                  hooks: t('ide.chat.settings.hooksValue', undefined, {
+                    defaultValue: 'In project settings',
+                  }),
                   sounds: t(
                     'ide.chat.settings.soundsSummary',
                     { enabled: soundsSummary.enabled, total: soundsSummary.total },

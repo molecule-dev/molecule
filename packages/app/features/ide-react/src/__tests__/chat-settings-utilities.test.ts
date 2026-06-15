@@ -28,6 +28,8 @@ const sampleValues: SettingsDisplayValues = {
   effort: 'Balanced (M)',
   maxLoops: '100',
   autoFix: 'On',
+  autoCommit: 'Every 60s',
+  hooks: 'In project settings',
   sounds: '3 of 9 events enabled',
 }
 
@@ -36,8 +38,10 @@ describe('buildSettingsList', () => {
 
   it('enumerates every user-controllable setting in display order', () => {
     // SYN11: Effort is surfaced (no longer hidden while its /effort command is
-    // listed), and the per-mode plan/execute models are split out from the
-    // single default-model row rather than collapsed into it.
+    // listed), the per-mode plan/execute models are split out from the single
+    // default-model row rather than collapsed into it, and Auto-commit + Hooks —
+    // previously absent from the panel — are now listed (Auto-commit's
+    // /autocommit command was shown with no matching row; Hooks had no row at all).
     expect(settings.map((s) => s.id)).toEqual([
       'model',
       'planModel',
@@ -46,6 +50,8 @@ describe('buildSettingsList', () => {
       'effort',
       'maxLoops',
       'autoFix',
+      'autoCommit',
+      'hooks',
       'sounds',
     ])
   })
@@ -60,6 +66,10 @@ describe('buildSettingsList', () => {
       effort: 'effort',
       maxLoops: 'maxloops',
       autoFix: 'autofix',
+      autoCommit: 'autocommit',
+      // Hooks are configured in a file, not via a slash command — a command-less
+      // row (SettingsCard omits its Edit affordance).
+      hooks: undefined,
       sounds: 'sounds',
     })
   })
@@ -90,6 +100,8 @@ describe('buildSettingsList', () => {
     expect(byId.effort).toBe('Balanced (M)')
     expect(byId.maxLoops).toBe('100')
     expect(byId.autoFix).toBe('On')
+    expect(byId.autoCommit).toBe('Every 60s')
+    expect(byId.hooks).toBe('In project settings')
     expect(byId.sounds).toBe('3 of 9 events enabled')
   })
 
@@ -127,6 +139,45 @@ describe('the settings view is derived from the shared SETTINGS metadata (SYN11 
       const { value, ...meta } = row
       expect(typeof value).toBe('string')
       expect(SETTINGS).toContainEqual(meta)
+    }
+  })
+
+  it('lists Auto-commit and Hooks (the two rows the panel previously omitted)', () => {
+    // The autocommit row is the inconsistency SYN11 targets: the panel listed the
+    // `/autocommit` command in its command reference but had NO matching setting
+    // row. Hooks had no row at all despite being enumerated in the spec.
+    const autoCommit = settings.find((s) => s.id === 'autoCommit')
+    expect(autoCommit, 'the Auto-commit setting must have a row').toBeDefined()
+    expect(autoCommit?.editCommand).toBe('autocommit')
+    const hooks = settings.find((s) => s.id === 'hooks')
+    expect(hooks, 'the Hooks setting must have a row').toBeDefined()
+    // Hooks is configured in a file, not a slash command — a command-less row.
+    expect(hooks?.editCommand).toBeUndefined()
+  })
+
+  it('has a setting row for EVERY listed command that edits a setting (no orphan command)', () => {
+    // The structural guard for the SYN11 inconsistency: a command shown in the
+    // settings card whose sole purpose is to change a user-controllable setting
+    // must have a corresponding row, or the panel "shows a command for a hidden
+    // setting" again. `/autocommit` is the case that regressed before this fix.
+    const editedByARow = new Set(
+      settings.map((s) => s.editCommand).filter((id): id is NonNullable<typeof id> => Boolean(id)),
+    )
+    const settingChangingCommands: ReadonlyArray<(typeof COMMANDS)[number]['id']> = [
+      'model',
+      'plan',
+      'maxloops',
+      'effort',
+      'autofix',
+      'autocommit',
+      'sounds',
+    ]
+    for (const id of settingChangingCommands) {
+      expect(
+        COMMANDS.some((c) => c.id === id),
+        `${id} must be a real registered command`,
+      ).toBe(true)
+      expect(editedByARow.has(id), `command /${id} is listed but has no settings row`).toBe(true)
     }
   })
 })

@@ -154,6 +154,8 @@ const SAMPLE_SETTINGS: SettingsDisplayValues = {
   effort: 'Balanced (M)',
   maxLoops: '100',
   autoFix: 'On',
+  autoCommit: 'Every 60s',
+  hooks: 'In project settings',
   sounds: '3 of 9 events enabled',
 }
 

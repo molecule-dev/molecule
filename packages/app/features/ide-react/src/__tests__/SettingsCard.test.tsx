@@ -15,8 +15,10 @@
  * This is a real jsdom render of {@link SettingsCard} with the REAL
  * `@molecule/app-ui-tailwind` ClassMap, so the class/token + Tooltip assertions
  * bite. It would fail if anyone re-collapsed the per-mode models, dropped the
- * Effort row, forked the view off the shared metadata, or reverted the edit
- * affordance from the framework styled Tooltip back to a native `title`.
+ * Effort / Auto-commit / Hooks rows (the last two being the rows the panel
+ * previously omitted while still listing the `/autocommit` command), forked the
+ * view off the shared metadata, or reverted the edit affordance from the
+ * framework styled Tooltip back to a native `title`.
  *
  * @module
  */
@@ -46,6 +48,8 @@ const SAMPLE_VALUES: SettingsDisplayValues = {
   effort: 'Maximum (XL)',
   maxLoops: '100',
   autoFix: 'On',
+  autoCommit: 'Every 60s',
+  hooks: 'In project settings',
   sounds: '3 of 9 events enabled',
 }
 
@@ -86,6 +90,35 @@ describe('SettingsCard (SYN11 — complete settings view, single source of truth
     )
     // Same ids, same order as the shared source — the panel cannot drift from it.
     expect(renderedIds).toEqual(SETTINGS.map((s) => s.id))
+  })
+
+  it('surfaces the Auto-commit row with its Edit affordance (its /autocommit command was shown with no row)', () => {
+    const { container } = render(
+      <Wrap>
+        <SettingsCard settings={buildSettingsList(SAMPLE_VALUES)} onRunCommand={vi.fn()} isLight />
+      </Wrap>,
+    )
+    const row = container.querySelector('[data-mol-id="setting-row-autoCommit"]')
+    expect(row, 'the Auto-commit setting must appear in the panel').not.toBeNull()
+    expect(row?.textContent).toContain('Every 60s')
+    // Its /autocommit command is editable inline, and the command is also in the
+    // command reference (so the row and the command can no longer disagree).
+    expect(container.querySelector('[data-mol-id="setting-edit-autoCommit"]')).not.toBeNull()
+    expect(container.querySelector('[data-mol-id="settings-command-autocommit"]')).not.toBeNull()
+  })
+
+  it('renders the Hooks row as a command-less row (no Edit button, file-configured)', () => {
+    const { container } = render(
+      <Wrap>
+        <SettingsCard settings={buildSettingsList(SAMPLE_VALUES)} onRunCommand={vi.fn()} isLight />
+      </Wrap>,
+    )
+    const row = container.querySelector('[data-mol-id="setting-row-hooks"]')
+    expect(row, 'the Hooks setting must appear in the panel').not.toBeNull()
+    expect(row?.textContent).toContain('In project settings')
+    // Hooks have no editing slash command, so the row renders without an Edit
+    // affordance — proving SettingsCard supports command-less rows.
+    expect(container.querySelector('[data-mol-id="setting-edit-hooks"]')).toBeNull()
   })
 
   it('surfaces the Effort row (no longer hidden while its /effort command is listed)', () => {

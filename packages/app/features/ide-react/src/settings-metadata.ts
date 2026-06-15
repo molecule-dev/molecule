@@ -13,17 +13,24 @@
  * the settings the agent claims to respect can never drift from the settings
  * the panel actually shows.
  *
- * This closes the SYN11 inconsistency: the panel previously hid the Effort
- * setting while listing its `/effort` command in the very same card, and
- * collapsed the per-mode plan/execute models into a single "Model" row — so a
- * user's actual configuration was understated. Splitting the default model from
- * the per-mode `planModel` / `executeModel` rows and adding the Effort row makes
- * the panel a faithful, complete view; sourcing both the panel and the prompt
- * from this one array makes the parity structural rather than hand-maintained.
+ * This closes the SYN11 inconsistency: the panel previously hid settings while
+ * listing their commands in the very same card. The Effort setting was hidden
+ * while its `/effort` command was shown; the per-mode plan/execute models were
+ * collapsed into a single "Model" row; the Auto-commit setting had its
+ * `/autocommit` command shown with no matching row; and Hooks were enumerated in
+ * the spec but absent entirely — so a user's actual configuration was
+ * understated. Listing EVERY setting here (the per-mode models split out, plus
+ * Effort, Auto-commit, and Hooks) makes the panel a faithful, complete view;
+ * sourcing both the panel and the prompt from this one array makes the parity
+ * structural rather than hand-maintained.
  *
  * Add a setting here (plus its display value in the card and a branch wherever
  * it is persisted) and it shows up in the `/settings` panel automatically — and
- * in the system prompt once that consumer reads this array.
+ * in the system prompt once that consumer reads this array. Because the consuming
+ * side keys an exhaustive `Record<SettingKey, …>` off this union (the IDE card's
+ * display values, the API's `project.settings` storage keys), adding a key here
+ * fails those builds until each consumer binds the new setting — the compile-time
+ * guarantee the lists can never silently drift.
  *
  * @module
  */
@@ -39,6 +46,8 @@ export type SettingKey =
   | 'effort'
   | 'maxLoops'
   | 'autoFix'
+  | 'autoCommit'
+  | 'hooks'
   | 'sounds'
 
 /** Canonical, value-free metadata for a single user-controllable setting. */
@@ -74,9 +83,10 @@ export interface SettingMeta {
  * the `/settings` view (via `buildSettingsList`) and the system prompt both read
  * from it, so they cannot drift. The default `model` and the per-mode
  * `planModel` / `executeModel` rows are kept distinct (rather than collapsed
- * into one "Model" row), and the `effort` setting is listed alongside the
- * `/effort` command the panel already references — so a user's actual
- * configuration is never understated.
+ * into one "Model" row); `effort`, `autoCommit`, and `hooks` are each listed
+ * alongside (or in `hooks`' case, instead of) the command the panel references —
+ * so a user's actual configuration is never understated and the panel never
+ * shows a command for a setting it hides.
  */
 export const SETTINGS: readonly SettingMeta[] = [
   {
@@ -126,6 +136,19 @@ export const SETTINGS: readonly SettingMeta[] = [
     description:
       'After AI edits, re-run type-check and lint and feed any errors back so {{agentName}} fixes them.',
     editCommand: 'autofix',
+  },
+  {
+    id: 'autoCommit',
+    label: 'Auto-commit',
+    description:
+      'Automatically commit your work a set number of seconds after the last file change (0 = off). Each change restarts the countdown, then it pauses after committing so a clean tree is never re-committed.',
+    editCommand: 'autocommit',
+  },
+  {
+    id: 'hooks',
+    label: 'Hooks',
+    description:
+      "Shell commands that run before tool actions and can gate them — for example previewing a change before {{agentName}} overwrites or deletes a file. Configure them in your project's agent settings file.",
   },
   {
     id: 'sounds',

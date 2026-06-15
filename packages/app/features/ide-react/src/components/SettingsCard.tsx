@@ -5,11 +5,13 @@
  *
  * 1. **Settings** — every user-controllable agent setting (default model, the
  *    per-mode plan/execute models, mode, reasoning effort, max tool iterations,
- *    auto-fix, notification sounds) with its current value, a one-line
- *    description, and an inline "Edit" affordance that runs (or prefills) the
- *    slash command which changes it (so the picker/toggle opens in the chat
- *    input). The rows are derived from the shared {@link SETTINGS} metadata via
- *    `buildSettingsList`, so the panel can never understate the configuration.
+ *    auto-fix, auto-commit, hooks, notification sounds) with its current value, a
+ *    one-line description, and — for settings a slash command edits — an inline
+ *    "Edit" affordance that runs (or prefills) that command (so the picker/toggle
+ *    opens in the chat input). Settings with no editing command (e.g. hooks,
+ *    configured in a file) render the row without an Edit button. The rows are
+ *    derived from the shared {@link SETTINGS} metadata via `buildSettingsList`,
+ *    so the panel can never understate the configuration.
  * 2. **Slash commands** — every command from the {@link COMMANDS} registry,
  *    grouped by category, with its argument syntax and explanation.
  *
