@@ -2029,6 +2029,8 @@ interface ChatInnerProps {
   userEditedFile?: string
   userEditedFileKey?: number
   gitStatusTick?: number
+  /** True during the initial discovery phase — suppresses the onboarding/idle tip cards so no blue tip shows during discovery (mvp B1). */
+  discovery?: boolean
   /** Signed-in user's avatar shown beside their own messages (SOC1) — see {@link ChatPanelProps.userAvatar}. */
   userAvatar?: string | null
   /** Display name of the AI coding agent — see {@link ChatPanelProps.agentName}. */
@@ -2111,6 +2113,7 @@ function ChatInner({
   userEditedFile,
   userEditedFileKey,
   gitStatusTick: externalGitStatusTick,
+  discovery,
   userAvatar,
   agentName = DEFAULT_AGENT_NAME,
   productName = DEFAULT_PRODUCT_NAME,
@@ -2882,12 +2885,15 @@ function ChatInner({
   // conversation (conversationId set) is NOT a fresh start, so no entry tip there.
   useEffect(() => {
     if (entryTipShownRef.current) return
+    // No onboarding tip during the initial discovery phase (mvp B1) — discovery is
+    // its own guided Q&A; a blue tip there is noise.
+    if (discovery) return
     if (conversationId != null || messages.length > 0) return
     entryTipShownRef.current = true
     shownTipIdsRef.current = [...shownTipIdsRef.current, ENTRY_TIP.id]
     const text = t(`ide.chat.tip.${ENTRY_TIP.id}`, { agentName }, { defaultValue: ENTRY_TIP.text })
     setTipCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
-  }, [conversationId, messages.length, agentName])
+  }, [conversationId, messages.length, agentName, discovery])
 
   // Surface an occasional idle tip. This effect re-runs on every message change, so
   // the idle timer is continually reset by activity; it only fires once the
@@ -2895,6 +2901,8 @@ function ChatInner({
   // cooldown + random roll allow, and never before TIP_MIN_MESSAGES (so never on the
   // first prompt). Skipped entirely while a message is streaming.
   useEffect(() => {
+    // No idle tips during the initial discovery phase (mvp B1).
+    if (discovery) return
     if (messages.some((m) => m.isStreaming) || messages.length < TIP_MIN_MESSAGES) return
     const armedAt = Date.now()
     const timer = setTimeout(() => {
@@ -2916,7 +2924,7 @@ function ChatInner({
       setTipCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
     }, TIP_IDLE_MS)
     return () => clearTimeout(timer)
-  }, [messages])
+  }, [messages, discovery])
 
   // ── Sounds picker (shown when /sounds is executed) ────────────────────────
   const [soundsPicker, setSoundsPicker] = useState<SoundsPicker | null>(null)
@@ -7556,6 +7564,7 @@ export function ChatPanel({
         userEditedFile={userEditedFile}
         userEditedFileKey={userEditedFileKey}
         gitStatusTick={gitStatusTick}
+        discovery={hideConversationMenu}
         userAvatar={userAvatar}
         agentName={agentName}
         productName={productName}
