@@ -460,4 +460,5 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.slashCommands': 'Slash commands',
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
+  'ide.chat.viewProfile': 'View profile',
 }

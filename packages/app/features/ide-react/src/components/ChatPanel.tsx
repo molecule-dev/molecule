@@ -53,7 +53,7 @@ import type {
   ChatEventCardSegment,
 } from '../customEventCards.js'
 import { getCustomEventCardFactory } from '../customEventCards.js'
-import type { ChatPanelProps, IdeClientAction } from '../types.js'
+import type { ChatPanelProps, ChatUserIdentity, IdeClientAction } from '../types.js'
 import type { Activity } from './activity-utilities.js'
 import { activityFromEvent } from './activity-utilities.js'
 import { ActivityCard } from './ActivityCard.js'
@@ -1396,6 +1396,8 @@ interface MessageItemProps {
   setModelPicker: React.Dispatch<React.SetStateAction<ModelPicker | null>>
   /** Signed-in user's avatar shown beside their own messages (SOC1); icon fallback when absent/unsafe. */
   userAvatar?: string | null
+  /** When set, the user avatar becomes clickable and fires this to open the user's profile (C5). */
+  onAvatarClick?: () => void
   /** Discovery phase — gives consecutive question/answer cards roomier, uncollapsed spacing (B3). */
   discovery?: boolean
 }
@@ -1430,6 +1432,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     setInputAndCursorEnd,
     setModelPicker,
     userAvatar,
+    onAvatarClick,
     discovery,
   } = props
 
@@ -1487,7 +1490,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
           {isAutomatic ? (
             <MoleculeAvatar size={20} />
           ) : (
-            <UserAvatar userAvatar={userAvatar} size={20} />
+            <UserAvatar userAvatar={userAvatar} size={20} onClick={onAvatarClick} />
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
             {isAutomatic && (
@@ -2078,6 +2081,8 @@ interface ChatInnerProps {
   onConversationId?: (id: string) => void
   /** Called when an inline activity card is clicked — should open the Activity panel filtered to this activity. */
   onActivityClick?: (activity: Activity) => void
+  /** Called when a user avatar in the chat timeline is clicked — see {@link ChatPanelProps.onProfileClick}. */
+  onProfileClick?: ChatPanelProps['onProfileClick']
   /** Called on the `ready_to_build` stream event — discovery is done; boot the sandbox. */
   onReadyToBuild?: () => void
   /** True after the plan streams but while the sandbox is still booting (pre-kickoff) — drives the chat "waiting for environment" indicator. */
@@ -2173,6 +2178,7 @@ function ChatInner({
   onCommit,
   onConversationId,
   onActivityClick,
+  onProfileClick,
   onReadyToBuild,
   awaitingSandboxBoot,
   onClientAction,
@@ -2198,6 +2204,17 @@ function ChatInner({
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
   const http = useHttpClient()
+  // Bind the host's profile-click callback to the clicked user's identity once
+  // (the chat is solo, so every user avatar is the signed-in user — the only
+  // known identity is `userAvatar`). Stable so MessageItem's memo isn't broken;
+  // `undefined` when the host opts out, which keeps every avatar non-interactive.
+  const onUserAvatarClick = useMemo<(() => void) | undefined>(
+    () =>
+      onProfileClick
+        ? (): void => onProfileClick({ avatar: userAvatar } satisfies ChatUserIdentity)
+        : undefined,
+    [onProfileClick, userAvatar],
+  )
   // If there's already a conversation (conversationId in the URL), always load
   // history — even when initialMessage is set. This prevents a refresh from
   // re-sending the initial prompt instead of restoring the existing conversation.
@@ -5405,6 +5422,7 @@ function ChatInner({
                 setInputAndCursorEnd={setInputAndCursorEnd}
                 setModelPicker={setModelPicker}
                 userAvatar={userAvatar}
+                onAvatarClick={onUserAvatarClick}
                 discovery={discovery}
               />
             )
@@ -7246,6 +7264,7 @@ export function ChatPanel({
   onFileDeleted,
   onCommit,
   onActivityClick,
+  onProfileClick,
   onReadyToBuild,
   awaitingSandboxBoot,
   onClientAction,
@@ -7672,6 +7691,7 @@ export function ChatPanel({
         onCommit={onCommit}
         onConversationId={reportConversationId}
         onActivityClick={onActivityClick}
+        onProfileClick={onProfileClick}
         onReadyToBuild={onReadyToBuild}
         awaitingSandboxBoot={awaitingSandboxBoot}
         onClientAction={onClientAction}

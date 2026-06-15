@@ -36,6 +36,20 @@ export interface IdeClientAction {
 }
 
 /**
+ * Identity of the user whose avatar was clicked in the chat timeline, passed to
+ * {@link ChatPanelProps.onProfileClick} so the host can open that user's profile.
+ *
+ * Today the chat is solo — the only avatar shown is the signed-in user's own —
+ * so the only known field is the avatar value. The interface is intentionally
+ * forward-compatible: collaborator fields (id, name) can be added here when
+ * multi-user chat lands, without changing the callback signature.
+ */
+export interface ChatUserIdentity {
+  /** The clicked user's avatar value (data-URI / URL), if any. */
+  avatar?: string | null
+}
+
+/**
  * Props for the {@link ChatPanel} component — the IDE chat surface plus the
  * callbacks the host app uses to react to AI activity (file changes, boot, client
  * actions, etc.).
@@ -63,6 +77,14 @@ export interface ChatPanelProps {
   onCommit?: () => void
   /** Called when an inline activity card is clicked — should open the Activity panel filtered to this activity. */
   onActivityClick?: (activity: ActivityFromCard) => void
+  /**
+   * Called when a user avatar in the chat timeline is clicked — the host opens
+   * that user's profile (e.g. molecule.dev's profile modal). Receives the clicked
+   * user's {@link ChatUserIdentity}. Omit it (the default) to render the avatars
+   * non-interactive (static image/icon, exactly as before). Only real user
+   * avatars are clickable — the molecule glyph on auto-sent messages is not.
+   */
+  onProfileClick?: (user: ChatUserIdentity) => void
   /** Called when the server signals (via the `ready_to_build` stream event) that discovery is complete and the sandbox should boot. */
   onReadyToBuild?: () => void
   /**

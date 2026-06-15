@@ -23,9 +23,9 @@
  * @module
  */
 
-import { render, waitFor } from '@testing-library/react'
+import { fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatConfig, ChatMessage, ChatProvider } from '@molecule/app-ai-chat'
 import type { HttpClient } from '@molecule/app-http'
@@ -194,9 +194,17 @@ function seededHistory(): ChatMessage[] {
  *
  * @param props - Render props.
  * @param props.userAvatar - The avatar value to thread into the panel.
+ * @param props.onProfileClick - Optional profile-click handler (C5). When set,
+ *   the user avatar is rendered as a clickable button.
  * @returns The wrapped element.
  */
-function renderChatPanel({ userAvatar }: { userAvatar?: string | null }): ReactElement {
+function renderChatPanel({
+  userAvatar,
+  onProfileClick,
+}: {
+  userAvatar?: string | null
+  onProfileClick?: (user: { avatar?: string | null }) => void
+}): ReactElement {
   const wrap = (children: ReactNode): ReactElement => (
     <I18nProvider provider={createSimpleI18nProvider('en')}>
       <ThemeProvider provider={buildThemeProvider()}>
@@ -208,7 +216,9 @@ function renderChatPanel({ userAvatar }: { userAvatar?: string | null }): ReactE
       </ThemeProvider>
     </I18nProvider>
   )
-  return wrap(<ChatPanel projectId="proj-soc1" userAvatar={userAvatar} />)
+  return wrap(
+    <ChatPanel projectId="proj-soc1" userAvatar={userAvatar} onProfileClick={onProfileClick} />,
+  )
 }
 
 beforeEach(() => {
@@ -293,5 +303,55 @@ describe('ChatPanel user avatar (SOC1)', () => {
     const avatar = container.querySelector('[data-mol-id="chat-user-avatar"]') as HTMLElement
     expect(avatar.tagName).not.toBe('IMG')
     expect(avatar.querySelector('svg')).not.toBeNull()
+  })
+})
+
+describe('ChatPanel user avatar clickability (C5)', () => {
+  it('is NOT interactive when no onProfileClick is supplied (backward-compatible)', async () => {
+    const { container } = render(renderChatPanel({ userAvatar: AVATAR_DATA_URI }))
+
+    await waitFor(() => {
+      expect(container.querySelector('[data-mol-id="chat-user-avatar"]')).not.toBeNull()
+    })
+
+    // No button wrapper — the avatar renders as the bare image, exactly as before.
+    expect(container.querySelector('[data-mol-id="chat-user-avatar-button"]')).toBeNull()
+  })
+
+  it('opens the profile (fires onProfileClick with the clicked identity) when the avatar is clicked', async () => {
+    const onProfileClick = vi.fn()
+    const { container } = render(renderChatPanel({ userAvatar: AVATAR_DATA_URI, onProfileClick }))
+
+    const button = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="chat-user-avatar-button"]')
+      expect(el, 'a clickable avatar button should render for the user message').not.toBeNull()
+      return el as HTMLButtonElement
+    })
+
+    // Real button — keyboard-focusable and screen-reader-labelled.
+    expect(button.tagName).toBe('BUTTON')
+    expect(button.getAttribute('aria-label')).toBe('View profile')
+    // It still renders the real avatar image inside.
+    expect(button.querySelector('img[data-mol-id="chat-user-avatar"]')).not.toBeNull()
+
+    fireEvent.click(button)
+    expect(onProfileClick).toHaveBeenCalledTimes(1)
+    expect(onProfileClick).toHaveBeenCalledWith({ avatar: AVATAR_DATA_URI })
+  })
+
+  it('makes the icon-fallback avatar clickable too (no real avatar set)', async () => {
+    const onProfileClick = vi.fn()
+    const { container } = render(renderChatPanel({ userAvatar: null, onProfileClick }))
+
+    const button = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="chat-user-avatar-button"]')
+      expect(el).not.toBeNull()
+      return el as HTMLButtonElement
+    })
+
+    // The fallback glyph is wrapped in the same accessible button.
+    expect(button.querySelector('svg')).not.toBeNull()
+    fireEvent.click(button)
+    expect(onProfileClick).toHaveBeenCalledWith({ avatar: null })
   })
 })

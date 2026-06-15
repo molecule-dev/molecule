@@ -164,6 +164,7 @@ export const en: IdeTranslations = {
   'ide.chat.placeholder': 'Send a message...',
   'ide.chat.emptyState': 'Describe what you want to build...',
   'ide.chat.you': 'You',
+  'ide.chat.viewProfile': 'View profile',
   'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',
