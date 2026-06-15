@@ -635,53 +635,7 @@ export function PreviewPanel({
           the device-cycle, back/forward, refresh, the URL input, and open-in-
           new-tab \u2014 left \u2192 right, like a real browser toolbar. */}
       <div className={cm.cn(cm.sp('px', 3), cm.sp('py', 2), cm.shrink0, cm.borderB)}>
-        <div
-          className={cm.cn(
-            cm.flex({ direction: 'row', align: 'center', gap: 'xs' }),
-            cm.sp('px', 1),
-            cm.surfaceSecondary,
-            cm.borderAll,
-          )}
-          style={{ borderRadius: '8px' }}
-        >
-          <DeviceFrameSelector current={state.device} onChange={setDevice} />
-
-          {/* Back / Forward \u2014 navigate the preview's own history (built from
-              the molecule:navigate messages it reports). Disabled when there's
-              no entry to go to. */}
-          <BarButton
-            icon="arrow-left"
-            molId="preview-back"
-            onClick={handleBack}
-            disabled={!state.canGoBack}
-            title={t('ide.preview.back', {}, { defaultValue: 'Back' })}
-          />
-          <BarButton
-            icon="arrow-right"
-            molId="preview-forward"
-            onClick={handleForward}
-            disabled={!state.canGoForward}
-            title={t('ide.preview.forward', {}, { defaultValue: 'Forward' })}
-          />
-
-          <BarButton
-            icon="sync"
-            molId="preview-refresh"
-            onClick={refresh}
-            title={t('ide.preview.refresh', {}, { defaultValue: 'Reload' })}
-          />
-
-          {/* Address field — a browser-style omnibox: a recessed `surface`
-              panel (visually distinct from the toolbar's surfaceSecondary) with
-              a leading site-info glyph and a focus ring. The lock/globe glyph
-              comes from the shared SVG icon set (lock = served over https, globe
-              = otherwise), wrapped in the same styled Tooltip the toolbar
-              buttons use — not a native `title`. The border lights up in the
-              primary brand color while the input is focused — the same focus
-              token as the chat input — restoring the visible-focus indicator
-              (WCAG 2.4.7) that the previous bare `outline: none` had stripped.
-              ClassMap can't express a state-driven border color, so the focus
-              ring is inline and driven by the theme's `--mol-color-*` tokens. */}
+        <div className={cm.cn(cm.flex({ direction: 'row', align: 'center', gap: 'xs' }))}>
           <div
             data-mol-id="preview-url-field"
             className={cm.cn(
@@ -755,7 +709,29 @@ export function PreviewPanel({
               }}
             />
           </div>
-
+          {/* All controls grouped on the right: back/forward navigate the preview's own */}
+          {/* history, refresh reloads, the device selector cycles frames, open pops out. */}
+          <BarButton
+            icon="arrow-left"
+            molId="preview-back"
+            onClick={handleBack}
+            disabled={!state.canGoBack}
+            title={t('ide.preview.back', {}, { defaultValue: 'Back' })}
+          />
+          <BarButton
+            icon="arrow-right"
+            molId="preview-forward"
+            onClick={handleForward}
+            disabled={!state.canGoForward}
+            title={t('ide.preview.forward', {}, { defaultValue: 'Forward' })}
+          />
+          <BarButton
+            icon="sync"
+            molId="preview-refresh"
+            onClick={refresh}
+            title={t('ide.preview.refresh', {}, { defaultValue: 'Reload' })}
+          />
+          <DeviceFrameSelector current={state.device} onChange={setDevice} />
           <BarButton
             icon="link-external"
             molId="preview-open-external"

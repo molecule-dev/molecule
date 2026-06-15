@@ -126,8 +126,24 @@ export function ResizeHandle({
         cursor: isHorizontal ? 'col-resize' : 'row-resize',
         // Stop the browser claiming the gesture for scroll/zoom on touch devices.
         touchAction: 'none',
+        // Keep the comfortable GRAB_PX touch target, but collapse its LAYOUT
+        // footprint to the 1px line with symmetric negative margins, so the divider
+        // reads as a single flush line between the panels (no gap) while the extra
+        // grab width overflows onto the panel edges. Raised above the panes so that
+        // overflow stays grabbable.
+        position: 'relative',
+        zIndex: 1,
         width: isHorizontal ? GRAB_PX : '100%',
         height: isHorizontal ? '100%' : GRAB_PX,
+        ...(isHorizontal
+          ? {
+              marginLeft: -(GRAB_PX - LINE_PX) / 2,
+              marginRight: -(GRAB_PX - LINE_PX) / 2,
+            }
+          : {
+              marginTop: -(GRAB_PX - LINE_PX) / 2,
+              marginBottom: -(GRAB_PX - LINE_PX) / 2,
+            }),
       }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}

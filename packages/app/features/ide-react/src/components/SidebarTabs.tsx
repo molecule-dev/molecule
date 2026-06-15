@@ -10,56 +10,7 @@ import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { SidebarTabsProps } from '../types.js'
-
-/**
- * SVG icon for the file tree tab.
- * @param root0 - The component props.
- * @param root0.active - Whether this tab is currently active.
- * @returns The rendered SVG icon element.
- */
-function FilesIcon({ active }: { active: boolean }): JSX.Element {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={active ? 'currentColor' : 'currentColor'}
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ opacity: active ? 1 : 0.6 }}
-    >
-      <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
-      <polyline points="13 2 13 9 20 9" />
-    </svg>
-  )
-}
-
-/**
- * SVG icon for the search tab (magnifying glass).
- * @param root0 - The component props.
- * @param root0.active - Whether this tab is currently active.
- * @returns The rendered SVG icon element.
- */
-function SearchIcon({ active }: { active: boolean }): JSX.Element {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ opacity: active ? 1 : 0.6 }}
-    >
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  )
-}
+import { Icon } from './Icon.js'
 
 /**
  * Sidebar tab strip with file explorer and search icons.
@@ -109,7 +60,12 @@ export function SidebarTabs({
             activeTab === 'files' && cm.borderBPrimary,
           )}
         >
-          <FilesIcon active={activeTab === 'files'} />
+          <Icon
+            name="folder"
+            size={16}
+            aria-hidden="true"
+            style={{ opacity: activeTab === 'files' ? 1 : 0.6 }}
+          />
         </button>
         <button
           type="button"
@@ -127,7 +83,12 @@ export function SidebarTabs({
             activeTab === 'search' && cm.borderBPrimary,
           )}
         >
-          <SearchIcon active={activeTab === 'search'} />
+          <Icon
+            name="search"
+            size={16}
+            aria-hidden="true"
+            style={{ opacity: activeTab === 'search' ? 1 : 0.6 }}
+          />
         </button>
       </div>
       <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>{children}</div>
