@@ -451,4 +451,14 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Следва стандартния модел',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Промяна на размера на панелите',
+  'ide.chat.settings.autoCommitEvery': 'Всички {{seconds}}',
+  'ide.chat.settings.hooksValue': 'В настройките на проекта',
+  'ide.chat.skills.new': 'Ново умение',
+  'ide.chat.skills.newTitle': 'Създаване на ново умение за проект',
+  'ide.chat.skills.newPlaceholder': 'Име на ново умение…',
+  'ide.chat.skills.create': 'Създаване',
+  'ide.chat.skills.cancel': 'Отмени',
+  'ide.chat.skills.createError': 'Не е възможно да се създаде умението — моля, опитайте отново.',
+  'ide.chat.skills.created':
+    'Създадена е умението „{{name}}“ — отворено е в редактора. Попълнете описанието и стъпките.',
 }

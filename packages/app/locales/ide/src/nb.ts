@@ -443,4 +443,14 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Følger standardmodellen',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Endre størrelsen på panelene',
+  'ide.chat.settings.autoCommitEvery': 'Hver {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'I prosjektinnstillingene',
+  'ide.chat.skills.new': 'Ny ferdighet',
+  'ide.chat.skills.newTitle': 'Opprett en ny prosjektkompetanse',
+  'ide.chat.skills.newPlaceholder': 'Nytt navn på ferdigheten…',
+  'ide.chat.skills.create': 'Opprett',
+  'ide.chat.skills.cancel': 'Avbryt',
+  'ide.chat.skills.createError': 'Det gikk ikke å opprette ferdigheten – prøv på nytt.',
+  'ide.chat.skills.created':
+    'Opprettet ferdigheten «{{name}}» — åpnet i redigeringsverktøyet. Fyll ut beskrivelsen og trinnene.',
 }

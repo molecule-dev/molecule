@@ -434,4 +434,13 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': '遵循默认模型',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': '调整面板大小',
+  'ide.chat.settings.autoCommitEvery': '每个 {{seconds}} s',
+  'ide.chat.settings.hooksValue': '在项目设置中',
+  'ide.chat.skills.new': '新技能',
+  'ide.chat.skills.newTitle': '创建一个新的项目技能',
+  'ide.chat.skills.newPlaceholder': '新技能名称……',
+  'ide.chat.skills.create': '创建',
+  'ide.chat.skills.cancel': '取消',
+  'ide.chat.skills.createError': '无法创建该技能——请重试。',
+  'ide.chat.skills.created': '创建了技能“{{name}}”——已在编辑器中打开。请填写其描述和操作步骤。',
 }

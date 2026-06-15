@@ -454,4 +454,15 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Ακολουθεί το προεπιλεγμένο μοντέλο',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Αλλαγή μεγέθους πλαισίων',
+  'ide.chat.settings.autoCommitEvery': 'Κάθε {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'Στις ρυθμίσεις του έργου',
+  'ide.chat.skills.new': 'Νέα ικανότητα',
+  'ide.chat.skills.newTitle': 'Δημιουργία νέας δεξιότητας έργου',
+  'ide.chat.skills.newPlaceholder': 'Νέο όνομα δεξιότητας…',
+  'ide.chat.skills.create': 'Δημιουργία',
+  'ide.chat.skills.cancel': 'Ακύρωση',
+  'ide.chat.skills.createError':
+    'Δεν ήταν δυνατή η δημιουργία της δεξιότητας — παρακαλώ δοκιμάστε ξανά.',
+  'ide.chat.skills.created':
+    'Δημιουργήθηκε η δεξιότητα «{{name}}» — ανοίγει στον επεξεργαστή. Συμπληρώστε την περιγραφή και τα βήματα.',
 }

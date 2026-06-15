@@ -447,4 +447,14 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Varsayılan modeli takip eder',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Panellerin boyutunu değiştir',
+  'ide.chat.settings.autoCommitEvery': 'Her {{seconds}}',
+  'ide.chat.settings.hooksValue': 'Proje ayarlarında',
+  'ide.chat.skills.new': 'Yeni beceri',
+  'ide.chat.skills.newTitle': 'Yeni bir proje becerisi oluştur',
+  'ide.chat.skills.newPlaceholder': 'Yeni beceri adı…',
+  'ide.chat.skills.create': 'Oluştur',
+  'ide.chat.skills.cancel': 'İptal et',
+  'ide.chat.skills.createError': 'Beceri oluşturulamadı — lütfen tekrar deneyin.',
+  'ide.chat.skills.created':
+    '"{{name}}" becerisi oluşturuldu — düzenleyicide açıldı. Açıklamasını ve adımlarını girin.',
 }

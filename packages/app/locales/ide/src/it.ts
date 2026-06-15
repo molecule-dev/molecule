@@ -456,4 +456,14 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Segue il modello predefinito',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Ridimensiona i pannelli',
+  'ide.chat.settings.autoCommitEvery': 'Tutte le {{seconds}}',
+  'ide.chat.settings.hooksValue': 'Nelle impostazioni del progetto',
+  'ide.chat.skills.new': 'Nuova abilità',
+  'ide.chat.skills.newTitle': 'Crea una nuova competenza di progetto',
+  'ide.chat.skills.newPlaceholder': "Nuovo nome dell'abilità…",
+  'ide.chat.skills.create': 'Crea',
+  'ide.chat.skills.cancel': 'Annulla',
+  'ide.chat.skills.createError': 'Impossibile creare la skill — riprova.',
+  'ide.chat.skills.created':
+    'Ho creato la skill "{{name}}" — ora è aperta nell\'editor. Compila la descrizione e i passaggi.',
 }

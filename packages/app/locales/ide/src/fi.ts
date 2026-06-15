@@ -448,4 +448,14 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Noudattaa oletusmallia',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Muuta paneelien kokoa',
+  'ide.chat.settings.autoCommitEvery': 'Kaikki {{seconds}}-sivustot',
+  'ide.chat.settings.hooksValue': 'Projektin asetuksissa',
+  'ide.chat.skills.new': 'Uusi taito',
+  'ide.chat.skills.newTitle': 'Luo uusi projektitaito',
+  'ide.chat.skills.newPlaceholder': 'Uuden taidon nimi…',
+  'ide.chat.skills.create': 'Luo',
+  'ide.chat.skills.cancel': 'Peruuta',
+  'ide.chat.skills.createError': 'Taitoa ei voitu luoda – yritä uudelleen.',
+  'ide.chat.skills.created':
+    'Luotu taito ”{{name}}” — avattu editorissa. Täytä sen kuvaus ja vaiheet.',
 }

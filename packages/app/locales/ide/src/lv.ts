@@ -448,4 +448,14 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Atbilst standarta modelim',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Mainīt paneļu izmēru',
+  'ide.chat.settings.autoCommitEvery': 'Katrs {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'Projekta iestatījumos',
+  'ide.chat.skills.new': 'Jauna prasme',
+  'ide.chat.skills.newTitle': 'Izveidot jaunu projekta prasmi',
+  'ide.chat.skills.newPlaceholder': 'Jauna prasmes nosaukums…',
+  'ide.chat.skills.create': 'Izveidot',
+  'ide.chat.skills.cancel': 'Atcelt',
+  'ide.chat.skills.createError': 'Neizdevās izveidot prasmi — lūdzu, mēģiniet vēlreiz.',
+  'ide.chat.skills.created':
+    'Izveidota prasme „{{name}}“ — atvērta redaktorā. Aizpildiet tās aprakstu un soļus.',
 }

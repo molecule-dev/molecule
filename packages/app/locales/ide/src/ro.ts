@@ -451,4 +451,14 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Urmează modelul implicit',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Redimensionare panouri',
+  'ide.chat.settings.autoCommitEvery': 'Toate articolele de pe {{seconds}}',
+  'ide.chat.settings.hooksValue': 'În setările proiectului',
+  'ide.chat.skills.new': 'Abilitate nouă',
+  'ide.chat.skills.newTitle': 'Creează o nouă competență de proiect',
+  'ide.chat.skills.newPlaceholder': 'Un nou nume de abilitate…',
+  'ide.chat.skills.create': 'Creează',
+  'ide.chat.skills.cancel': 'Anulează',
+  'ide.chat.skills.createError': 'Nu s-a putut crea abilitatea — te rugăm să încerci din nou.',
+  'ide.chat.skills.created':
+    'Am creat abilitatea „{{name}}” — aceasta s-a deschis în editor. Completați descrierea și pașii.',
 }

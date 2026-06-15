@@ -446,4 +446,14 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Följer standardmodellen',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Ändra storlek på paneler',
+  'ide.chat.settings.autoCommitEvery': 'Alla {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'I projektinställningarna',
+  'ide.chat.skills.new': 'Ny färdighet',
+  'ide.chat.skills.newTitle': 'Skapa en ny projektkompetens',
+  'ide.chat.skills.newPlaceholder': 'Nytt namn på färdigheten…',
+  'ide.chat.skills.create': 'Skapa',
+  'ide.chat.skills.cancel': 'Avbryt',
+  'ide.chat.skills.createError': 'Det gick inte att skapa färdigheten – försök igen.',
+  'ide.chat.skills.created':
+    'Skapade färdigheten ”{{name}}” – öppnade den i redigeraren. Fyll i beskrivningen och stegen.',
 }

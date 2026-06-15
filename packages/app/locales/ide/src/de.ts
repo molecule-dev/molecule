@@ -457,4 +457,15 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Entspricht dem Standardmodell',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Größe der Fenster anpassen',
+  'ide.chat.settings.autoCommitEvery': 'Jedes Jahr {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'In den Projekteinstellungen',
+  'ide.chat.skills.new': 'Neue Fähigkeit',
+  'ide.chat.skills.newTitle': 'Eine neue Projektkompetenz erstellen',
+  'ide.chat.skills.newPlaceholder': 'Neuer Name der Fertigkeit…',
+  'ide.chat.skills.create': 'Erstellen',
+  'ide.chat.skills.cancel': 'Abbrechen',
+  'ide.chat.skills.createError':
+    'Die Funktion konnte nicht erstellt werden – bitte versuche es erneut.',
+  'ide.chat.skills.created':
+    'Die Fertigkeit „{{name}}“ wurde erstellt – sie ist im Editor geöffnet. Füge die Beschreibung und die einzelnen Schritte ein.',
 }

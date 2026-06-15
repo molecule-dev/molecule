@@ -450,4 +450,14 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Atitinka numatytąjį modelį',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Pakeisti langų dydį',
+  'ide.chat.settings.autoCommitEvery': 'Kiekvienas „{{seconds}}“',
+  'ide.chat.settings.hooksValue': 'Projekto nustatymuose',
+  'ide.chat.skills.new': 'Naujas įgūdis',
+  'ide.chat.skills.newTitle': 'Sukurti naują projekto įgūdį',
+  'ide.chat.skills.newPlaceholder': 'Naujo įgūdžio pavadinimas…',
+  'ide.chat.skills.create': 'Sukurti',
+  'ide.chat.skills.cancel': 'Atšaukti',
+  'ide.chat.skills.createError': 'Nepavyko sukurti įgūdžio — pabandykite dar kartą.',
+  'ide.chat.skills.created':
+    'Sukurtas įgūdis „{{name}}“ — atidarytas redaktoriuje. Užpildykite jo aprašymą ir veiksmus.',
 }

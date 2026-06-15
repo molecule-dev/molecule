@@ -451,4 +451,14 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Zgodny z modelem domyślnym',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Zmiana rozmiaru paneli',
+  'ide.chat.settings.autoCommitEvery': 'Wszystkie strony z serii „{{seconds}}”',
+  'ide.chat.settings.hooksValue': 'W ustawieniach projektu',
+  'ide.chat.skills.new': 'Nowa umiejętność',
+  'ide.chat.skills.newTitle': 'Utwórz nową umiejętność w projekcie',
+  'ide.chat.skills.newPlaceholder': 'Nowa nazwa umiejętności…',
+  'ide.chat.skills.create': 'Utwórz',
+  'ide.chat.skills.cancel': 'Anuluj',
+  'ide.chat.skills.createError': 'Nie udało się utworzyć umiejętności — spróbuj ponownie.',
+  'ide.chat.skills.created':
+    'Utworzono umiejętność „{{name}}” — otworzyła się w edytorze. Wpisz jej opis i poszczególne kroki.',
 }

@@ -448,4 +448,14 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Mengikuti model default',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Ubah ukuran panel',
+  'ide.chat.settings.autoCommitEvery': 'Setiap {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'Di pengaturan proyek',
+  'ide.chat.skills.new': 'Keterampilan baru',
+  'ide.chat.skills.newTitle': 'Buat keterampilan proyek baru',
+  'ide.chat.skills.newPlaceholder': 'Nama keterampilan baru…',
+  'ide.chat.skills.create': 'Buat',
+  'ide.chat.skills.cancel': 'Batal',
+  'ide.chat.skills.createError': 'Tidak dapat membuat keterampilan — silakan coba lagi.',
+  'ide.chat.skills.created':
+    'Telah dibuat keterampilan "{{name}}" — terbuka di editor. Isi deskripsi dan langkah-langkahnya.',
 }

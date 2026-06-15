@@ -445,4 +445,14 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': '기본 모델을 따릅니다',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': '패널 크기 조정',
+  'ide.chat.settings.autoCommitEvery': '모든 {{seconds}} s',
+  'ide.chat.settings.hooksValue': '프로젝트 설정에서',
+  'ide.chat.skills.new': '새로운 기술',
+  'ide.chat.skills.newTitle': '새 프로젝트 스킬 만들기',
+  'ide.chat.skills.newPlaceholder': '새로운 기술 이름…',
+  'ide.chat.skills.create': '만들기',
+  'ide.chat.skills.cancel': '취소',
+  'ide.chat.skills.createError': '스킬을 생성할 수 없습니다. 다시 시도해 주세요.',
+  'ide.chat.skills.created':
+    '“{{name}}” 스킬을 생성했습니다. 편집기가 열렸습니다. 설명과 단계를 입력하세요.',
 }

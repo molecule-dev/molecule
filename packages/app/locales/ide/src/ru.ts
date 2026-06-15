@@ -451,4 +451,14 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Использует модель по умолчанию',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Изменить размер панелей',
+  'ide.chat.settings.autoCommitEvery': 'Каждый сайт {{seconds}}',
+  'ide.chat.settings.hooksValue': 'В настройках проекта',
+  'ide.chat.skills.new': 'Новый навык',
+  'ide.chat.skills.newTitle': 'Создать новый навык проекта',
+  'ide.chat.skills.newPlaceholder': 'Новое название навыка…',
+  'ide.chat.skills.create': 'Создать',
+  'ide.chat.skills.cancel': 'Отменить',
+  'ide.chat.skills.createError': 'Не удалось создать навык — попробуйте ещё раз.',
+  'ide.chat.skills.created':
+    'Создан навык «{{name}}» — открыт в редакторе. Заполните его описание и пошаговую инструкцию.',
 }

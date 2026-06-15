@@ -442,4 +442,14 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Follows default model',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Resize panels',
+  'ide.chat.settings.autoCommitEvery': 'Every {{seconds}}s',
+  'ide.chat.settings.hooksValue': 'In project settings',
+  'ide.chat.skills.new': 'New skill',
+  'ide.chat.skills.newTitle': 'Create a new project skill',
+  'ide.chat.skills.newPlaceholder': 'New skill name…',
+  'ide.chat.skills.create': 'Create',
+  'ide.chat.skills.cancel': 'Cancel',
+  'ide.chat.skills.createError': 'Could not create the skill — please try again.',
+  'ide.chat.skills.created':
+    'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
 }

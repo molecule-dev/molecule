@@ -437,6 +437,8 @@ export const en: IdeTranslations = {
   'ide.chat.settings.soundsSummary': '{{enabled}} of {{total}} events enabled',
   'ide.chat.settings.modelFollowsDefault': 'Follows default model',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.autoCommitEvery': 'Every {{seconds}}s',
+  'ide.chat.settings.hooksValue': 'In project settings',
   // Share modal (/share).
   'ide.chat.share.heading': 'Share project',
   'ide.chat.share.openShare': 'Share project',
@@ -468,6 +470,15 @@ export const en: IdeTranslations = {
   'ide.chat.skills.noMatch': 'No skills match “{{query}}”.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
+  // Skill authoring (/new-skill + the "New skill" form, SYN4).
+  'ide.chat.skills.new': 'New skill',
+  'ide.chat.skills.newTitle': 'Create a new project skill',
+  'ide.chat.skills.newPlaceholder': 'New skill name…',
+  'ide.chat.skills.create': 'Create',
+  'ide.chat.skills.cancel': 'Cancel',
+  'ide.chat.skills.createError': 'Could not create the skill — please try again.',
+  'ide.chat.skills.created':
+    'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
   // Resize sash between chat and preview (PV6).
   'ide.resizeHandle.label': 'Resize panels',
 }

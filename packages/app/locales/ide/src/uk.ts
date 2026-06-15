@@ -451,4 +451,14 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Відповідає стандартній моделі',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Змінити розмір панелей',
+  'ide.chat.settings.autoCommitEvery': 'Кожен {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'У налаштуваннях проєкту',
+  'ide.chat.skills.new': 'Нова навичка',
+  'ide.chat.skills.newTitle': 'Створити нову навичку для проєкту',
+  'ide.chat.skills.newPlaceholder': 'Нова назва навички…',
+  'ide.chat.skills.create': 'Створити',
+  'ide.chat.skills.cancel': 'Скасувати',
+  'ide.chat.skills.createError': 'Не вдалося створити навичку — спробуйте ще раз.',
+  'ide.chat.skills.created':
+    'Створено навичку «{{name}}» — вона відкрилася в редакторі. Заповніть її опис та покрокові інструкції.',
 }

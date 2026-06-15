@@ -431,4 +431,13 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': '遵循預設模型',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': '調整面板大小',
+  'ide.chat.settings.autoCommitEvery': '每個 {{seconds}} s',
+  'ide.chat.settings.hooksValue': '在專案設定中',
+  'ide.chat.skills.new': '新技能',
+  'ide.chat.skills.newTitle': '建立新的專案技能',
+  'ide.chat.skills.newPlaceholder': '新技能名稱……',
+  'ide.chat.skills.create': '建立',
+  'ide.chat.skills.cancel': '取消',
+  'ide.chat.skills.createError': '無法建立該技能 — 請重試。',
+  'ide.chat.skills.created': '已建立技能「{{name}}」——已在編輯器中開啟。請填寫其說明與步驟。',
 }

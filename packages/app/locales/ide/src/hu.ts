@@ -447,4 +447,14 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Az alapértelmezett modellt követi',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'A panelek méretének módosítása',
+  'ide.chat.settings.autoCommitEvery': 'Minden {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'A projektbeállításokban',
+  'ide.chat.skills.new': 'Új képesség',
+  'ide.chat.skills.newTitle': 'Új projektkészség létrehozása',
+  'ide.chat.skills.newPlaceholder': 'Új képesség neve…',
+  'ide.chat.skills.create': 'Létrehozás',
+  'ide.chat.skills.cancel': 'Mégse',
+  'ide.chat.skills.createError': 'A készség létrehozása nem sikerült – kérjük, próbálja meg újra.',
+  'ide.chat.skills.created':
+    'Létrehoztam a „{{name}}” nevű feladatot – megnyitottam a szerkesztőben. Töltöttem ki a leírását és a lépéseket.',
 }

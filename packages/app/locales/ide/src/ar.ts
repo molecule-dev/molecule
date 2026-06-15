@@ -443,4 +443,14 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'يتبع النموذج الافتراضي',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'تغيير حجم الألواح',
+  'ide.chat.settings.autoCommitEvery': 'كل {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'في إعدادات المشروع',
+  'ide.chat.skills.new': 'مهارة جديدة',
+  'ide.chat.skills.newTitle': 'إنشاء مهارة مشروع جديدة',
+  'ide.chat.skills.newPlaceholder': 'اسم المهارة الجديدة…',
+  'ide.chat.skills.create': 'إنشاء',
+  'ide.chat.skills.cancel': 'إلغاء',
+  'ide.chat.skills.createError': 'تعذر إنشاء المهارة — يرجى المحاولة مرة أخرى.',
+  'ide.chat.skills.created':
+    'تم إنشاء المهارة "{{name}}" — وهي مفتوحة الآن في المحرر. قم بملء الوصف والخطوات الخاصة بها.',
 }

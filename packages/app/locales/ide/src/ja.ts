@@ -450,4 +450,14 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'デフォルトのモデルに従います',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'パネルのサイズ変更',
+  'ide.chat.settings.autoCommitEvery': 'すべての{{seconds}}',
+  'ide.chat.settings.hooksValue': 'プロジェクト設定で',
+  'ide.chat.skills.new': '新しいスキル',
+  'ide.chat.skills.newTitle': '新しいプロジェクトスキルを作成する',
+  'ide.chat.skills.newPlaceholder': '新しいスキルの名前…',
+  'ide.chat.skills.create': '作成',
+  'ide.chat.skills.cancel': 'キャンセル',
+  'ide.chat.skills.createError': 'スキルを作成できませんでした。もう一度お試しください。',
+  'ide.chat.skills.created':
+    'スキル「{{name}}」を作成しました。エディタで開きました。説明と手順を入力してください。',
 }

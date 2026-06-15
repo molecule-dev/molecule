@@ -448,4 +448,14 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Sledi privzetemu modelu',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Sprememba velikosti plošč',
+  'ide.chat.settings.autoCommitEvery': 'Vsak {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'V nastavitvah projekta',
+  'ide.chat.skills.new': 'Nova veščina',
+  'ide.chat.skills.newTitle': 'Ustvari novo projektno veščino',
+  'ide.chat.skills.newPlaceholder': 'Ime nove veščine…',
+  'ide.chat.skills.create': 'Ustvari',
+  'ide.chat.skills.cancel': 'Prekliči',
+  'ide.chat.skills.createError': 'Veščine ni bilo mogoče ustvariti – poskusite znova.',
+  'ide.chat.skills.created':
+    'Ustvaril sem veščino »{{name}}« – odprl sem jo v urejevalniku. Vnesel sem njen opis in posamezne korake.',
 }

@@ -456,4 +456,14 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Conforme au modèle par défaut',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Redimensionner les panneaux',
+  'ide.chat.settings.autoCommitEvery': 'Toutes les {{seconds}}s',
+  'ide.chat.settings.hooksValue': 'Dans les paramètres du projet',
+  'ide.chat.skills.new': 'Nouvelle compétence',
+  'ide.chat.skills.newTitle': 'Créer une nouvelle compétence de projet',
+  'ide.chat.skills.newPlaceholder': 'Nouveau nom de compétence…',
+  'ide.chat.skills.create': 'Créer',
+  'ide.chat.skills.cancel': 'Annuler',
+  'ide.chat.skills.createError': 'Impossible de créer la compétence — veuillez réessayer.',
+  'ide.chat.skills.created':
+    "J'ai créé la compétence « {{name}} » — elle s'est ouverte dans l'éditeur. Remplis sa description et les étapes.",
 }

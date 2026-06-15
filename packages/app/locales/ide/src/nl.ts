@@ -450,4 +450,15 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Volgt het standaardmodel',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Het formaat van panelen aanpassen',
+  'ide.chat.settings.autoCommitEvery': 'Elke {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'In de projectinstellingen',
+  'ide.chat.skills.new': 'Nieuwe vaardigheid',
+  'ide.chat.skills.newTitle': 'Maak een nieuwe projectvaardigheid aan',
+  'ide.chat.skills.newPlaceholder': 'Nieuwe vaardigheidsnaam…',
+  'ide.chat.skills.create': 'Maken',
+  'ide.chat.skills.cancel': 'Annuleren',
+  'ide.chat.skills.createError':
+    'De vaardigheid kon niet worden aangemaakt — probeer het nog eens.',
+  'ide.chat.skills.created':
+    'De vaardigheid "{{name}}" is aangemaakt — deze is geopend in de editor. Vul de beschrijving en de stappen in.',
 }

@@ -447,4 +447,14 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Vychází z výchozího modelu',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Změnit velikost panelů',
+  'ide.chat.settings.autoCommitEvery': 'Všechny stránky {{seconds}}',
+  'ide.chat.settings.hooksValue': 'V nastavení projektu',
+  'ide.chat.skills.new': 'Nová dovednost',
+  'ide.chat.skills.newTitle': 'Vytvořit novou dovednost projektu',
+  'ide.chat.skills.newPlaceholder': 'Název nové dovednosti…',
+  'ide.chat.skills.create': 'Vytvořit',
+  'ide.chat.skills.cancel': 'Zrušit',
+  'ide.chat.skills.createError': 'Nelze vytvořit dovednost – zkuste to prosím znovu.',
+  'ide.chat.skills.created':
+    'Vytvořili jste dovednost „{{name}}“ – otevřela se v editoru. Vyplňte její popis a jednotlivé kroky.',
 }

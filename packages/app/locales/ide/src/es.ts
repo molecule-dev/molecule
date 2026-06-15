@@ -453,4 +453,14 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Sigue el modelo predeterminado',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Cambiar el tamaño de los paneles',
+  'ide.chat.settings.autoCommitEvery': 'Todos los {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'En la configuración del proyecto',
+  'ide.chat.skills.new': 'Nueva habilidad',
+  'ide.chat.skills.newTitle': 'Crear una nueva habilidad de proyecto',
+  'ide.chat.skills.newPlaceholder': 'Nuevo nombre de la habilidad…',
+  'ide.chat.skills.create': 'Crear',
+  'ide.chat.skills.cancel': 'Cancelar',
+  'ide.chat.skills.createError': 'No se ha podido crear la habilidad. Inténtalo de nuevo.',
+  'ide.chat.skills.created':
+    'He creado la habilidad «{{name}}» y la he abierto en el editor. Rellena su descripción y los pasos.',
 }

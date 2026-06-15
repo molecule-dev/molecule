@@ -447,4 +447,14 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Järgib vaikimisi mudelit',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Paneelide suuruse muutmine',
+  'ide.chat.settings.autoCommitEvery': 'Kõik {{seconds}} s',
+  'ide.chat.settings.hooksValue': 'Projekti seaded',
+  'ide.chat.skills.new': 'Uus oskus',
+  'ide.chat.skills.newTitle': 'Loo uus projektioskus',
+  'ide.chat.skills.newPlaceholder': 'Uue oskuse nimi…',
+  'ide.chat.skills.create': 'Loo',
+  'ide.chat.skills.cancel': 'Tühista',
+  'ide.chat.skills.createError': 'Oskust ei õnnestunud luua – palun proovi uuesti.',
+  'ide.chat.skills.created':
+    'Loodud oskus „{{name}}“ – avatud toimetajas. Täida selle kirjeldus ja sammud.',
 }

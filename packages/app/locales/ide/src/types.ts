@@ -381,6 +381,8 @@ export type IdeTranslationKey =
   | 'ide.chat.settings.soundsSummary'
   | 'ide.chat.settings.modelFollowsDefault'
   | 'ide.chat.settings.effortValue'
+  | 'ide.chat.settings.autoCommitEvery'
+  | 'ide.chat.settings.hooksValue'
   | 'ide.chat.share.heading'
   | 'ide.chat.share.openShare'
   | 'ide.chat.share.subheading'
@@ -407,6 +409,13 @@ export type IdeTranslationKey =
   | 'ide.chat.skills.noMatch'
   | 'ide.chat.skills.relevant.label'
   | 'ide.chat.skills.relevant.dismiss'
+  | 'ide.chat.skills.new'
+  | 'ide.chat.skills.newTitle'
+  | 'ide.chat.skills.newPlaceholder'
+  | 'ide.chat.skills.create'
+  | 'ide.chat.skills.cancel'
+  | 'ide.chat.skills.createError'
+  | 'ide.chat.skills.created'
   | 'ide.resizeHandle.label'
 
 /** Translation record mapping ide keys to translated strings. */

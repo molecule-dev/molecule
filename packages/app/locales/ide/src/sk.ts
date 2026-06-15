@@ -450,4 +450,14 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.settings.modelFollowsDefault': 'Vychádza z predvoleného modelu',
   'ide.chat.settings.effortValue': '{{label}} ({{level}})',
   'ide.resizeHandle.label': 'Zmena veľkosti panelov',
+  'ide.chat.settings.autoCommitEvery': 'Všetky stránky {{seconds}}',
+  'ide.chat.settings.hooksValue': 'V nastaveniach projektu',
+  'ide.chat.skills.new': 'Nová zručnosť',
+  'ide.chat.skills.newTitle': 'Vytvoriť novú zručnosť v projekte',
+  'ide.chat.skills.newPlaceholder': 'Názov novej schopnosti…',
+  'ide.chat.skills.create': 'Vytvoriť',
+  'ide.chat.skills.cancel': 'Zrušiť',
+  'ide.chat.skills.createError': 'Skill sa nepodarilo vytvoriť – skúste to prosím znova.',
+  'ide.chat.skills.created':
+    'Vytvorili ste zručnosť „{{name}}“ – otvorila sa v editore. Vyplňte jej popis a jednotlivé kroky.',
 }
