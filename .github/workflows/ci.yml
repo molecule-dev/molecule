@@ -23,6 +23,9 @@ jobs:
       - run: npm ci
       - run: npm run check:lockfile
       - run: npm run check:peer-deps
+      # Guard the SEC3 security gates below from silent removal/weakening (e.g.
+      # the audit level relaxed under `moderate`, or the secret scan dropped).
+      - run: npm run check:security-workflow
       # Guard against HTML-entity contamination creeping back into locale data.
       - run: node scripts/decode-locale-entities.js --check
       # Every app feature package must carry a module-level @example so its
@@ -42,3 +45,34 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run format:check
+
+  # Security scanning (SEC3) — the core @molecule/* library publishes to npm, so
+  # it must carry the same secure-by-default gates mlcl ships in its own CI and
+  # scaffolds into every generated project. Two independent gates:
+  #   - npm audit  — fails on a moderate-or-higher dependency advisory
+  #   - gitleaks   — fails if a credential is committed to the working tree
+  #
+  # USER ACTION (platform toggle — cannot be set from a workflow): also enable
+  # GitHub-native secret scanning + push protection in the repo's
+  # Settings → Code security and analysis. That blocks a known secret pattern at
+  # `git push` time (before it ever lands), complementing the post-checkout
+  # gitleaks scan below. https://docs.github.com/code-security/secret-scanning
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Fail on a moderate-or-higher dependency advisory. Mirrors mlcl's gate —
+      # do NOT relax below `moderate` to dodge findings (that hides real debt).
+      - run: npm audit --audit-level=moderate
+      # Working-tree secret scan via gitleaks (Docker on the runner — no
+      # marketplace-action license needed). `--no-git` catches a leaked
+      # credential in an open PR before it is merged.
+      - name: Scan for committed secrets (gitleaks)
+        run: >-
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest
+          detect --source=/repo --no-git --redact --verbose
