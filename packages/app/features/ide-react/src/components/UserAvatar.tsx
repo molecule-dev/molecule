@@ -106,6 +106,8 @@ export function UserAvatar({ userAvatar, size = 24, onClick }: UserAvatarProps):
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      onFocus={() => setHover(true)}
+      onBlur={() => setHover(false)}
       data-mol-id="chat-user-avatar-button"
       aria-label={t('ide.chat.viewProfile', undefined, { defaultValue: 'View profile' })}
       style={{
