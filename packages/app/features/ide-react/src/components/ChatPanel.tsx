@@ -100,7 +100,10 @@ import {
 } from './chat-share-utilities.js'
 import type { SkillInfo } from './chat-skills-utilities.js'
 import {
+  buildNewSkillTemplate,
   loadProjectSkills,
+  newSkillPath,
+  parseSkillMeta,
   recentUserText,
   suggestRelevantSkills,
 } from './chat-skills-utilities.js'
@@ -203,6 +206,11 @@ interface SystemCard {
   variant?: 'models' | 'settings' | 'skills' | 'scripts' | 'help'
   /** Seed query for the `'skills'`/`'scripts'` variants (from `/skills <query>` or `/scripts <query>`). */
   query?: string
+  /**
+   * For the `'skills'` variant: mount the card with its inline "New skill" form
+   * already open (used by a bare `/new-skill` command, which has no name yet).
+   */
+  skillsCreate?: boolean
   /**
    * When true, render with the emphasized (highlighted box) style instead of the
    * muted inline style — e.g. a host-supplied sign-up / upgrade nudge. The caller
@@ -2699,6 +2707,7 @@ function ChatInner({
       emphasized?: boolean,
       tone?: SystemCard['tone'],
       content?: SystemCard['content'],
+      skillsCreate?: boolean,
     ) => {
       // If a message is actively streaming, place the card just before it so
       // it doesn't get pinned below the growing response.
@@ -2719,6 +2728,7 @@ function ChatInner({
           emphasized,
           tone,
           content,
+          skillsCreate,
         },
       ])
       // Auto-scroll after the card renders so the user sees it immediately
@@ -3333,6 +3343,48 @@ function ChatInner({
       )
     },
     [onFileOpen, addSystemCard],
+  )
+
+  /**
+   * Creates a new project skill (the `/new-skill` command + the `/skills`
+   * browser's "New skill" form): writes a starter `.agents/skills/<slug>/SKILL.md`
+   * (name + description frontmatter), opens it in the editor for authoring, and
+   * confirms with a system card. Resolves the created skill (so the browser can
+   * list it without a re-fetch) or `null` if the write failed.
+   */
+  const createSkill = useCallback(
+    async (name: string): Promise<SkillInfo | null> => {
+      const display = name.trim()
+      if (!display) return null
+      const path = newSkillPath(display)
+      const content = buildNewSkillTemplate(display)
+      try {
+        await http.put(`/projects/${projectId}/files/${path}`, { content })
+      } catch (error) {
+        logger.warn('Failed to create skill', { error })
+        addSystemCard(
+          t('ide.chat.skills.createError', undefined, {
+            defaultValue: 'Could not create the skill — please try again.',
+          }),
+        )
+        return null
+      }
+      // Open the new SKILL.md so the user can author it right away.
+      onFileOpen?.(path, { focus: true })
+      addSystemCard(
+        t(
+          'ide.chat.skills.created',
+          { name: display },
+          {
+            defaultValue:
+              'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
+          },
+        ),
+      )
+      const meta = parseSkillMeta(path, content)
+      return { path, name: meta.name, description: meta.description }
+    },
+    [http, projectId, onFileOpen, addSystemCard],
   )
 
   // ── Proactive "Relevant skill" suggestion (SYN4) ──────────────────────────
@@ -3961,6 +4013,12 @@ function ChatInner({
         // Renders the skills browser (see the 'skills' variant branch). A query,
         // if any, is supplied via the /skills <query> path in handleSubmit.
         addSystemCard('', undefined, 'skills')
+      } else if (id === 'new-skill') {
+        setInputValue('')
+        // From the command menu there's no name yet — open the skills browser
+        // with its inline "New skill" form expanded (skillsCreate = true). The
+        // /new-skill <name> path in handleSubmit creates directly instead.
+        addSystemCard('', undefined, 'skills', '', undefined, undefined, undefined, true)
       } else if (id === 'scripts') {
         setInputValue('')
         // Renders the scripts browser (see the 'scripts' variant branch). A query,
@@ -4038,6 +4096,18 @@ function ChatInner({
     if (skillsMatch) {
       setInputValue('')
       addSystemCard('', undefined, 'skills', skillsMatch[1]?.trim() ?? '')
+      return
+    }
+
+    // Handle /new-skill [name] command locally — with a name, create the skill
+    // straight away (write + open + confirm); bare, open the skills browser with
+    // its inline "New skill" form expanded so the user can type the name.
+    const newSkillMatch = trimmed.match(/^\/new-skill(?:\s+(.*))?$/i)
+    if (newSkillMatch) {
+      setInputValue('')
+      const skillName = newSkillMatch[1]?.trim()
+      if (skillName) void createSkill(skillName)
+      else addSystemCard('', undefined, 'skills', '', undefined, undefined, undefined, true)
       return
     }
 
@@ -4869,6 +4939,8 @@ function ChatInner({
                     projectId={projectId}
                     initialQuery={item.card.query ?? ''}
                     onLoad={loadSkill}
+                    onCreate={createSkill}
+                    startCreating={item.card.skillsCreate}
                     isLight={isLight}
                   />
                 )

@@ -94,6 +94,13 @@ export const COMMANDS: readonly CommandDef[] = [
     category: 'context',
     usage: '/skills [query]',
   },
+  {
+    id: 'new-skill',
+    label: '/new-skill',
+    description: 'Create a new project skill',
+    category: 'context',
+    usage: '/new-skill [name]',
+  },
 
   // Code
   { id: 'commit', label: '/commit', description: 'Commit current changes', category: 'code' },

@@ -91,6 +91,64 @@ export function deriveSkillNameFromPath(path: string): string {
   return base
 }
 
+/**
+ * Slugifies a skill display name into a filesystem-safe directory name for its
+ * folder under `.agents/skills/`: lowercased, with every run of non-alphanumeric
+ * characters collapsed to a single hyphen and surrounding hyphens trimmed. Falls
+ * back to `'new-skill'` when the name has no usable characters, so the derived
+ * path is always valid.
+ *
+ * @param name - The skill's display name.
+ * @returns A safe directory slug for the skill.
+ */
+export function slugifySkillName(name: string): string {
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return slug || 'new-skill'
+}
+
+/**
+ * The project-relative path of a new skill's entry file under the 2026 Agent
+ * Skills folder convention: `.agents/skills/<slug>/SKILL.md` (no leading slash),
+ * where `<slug>` is {@link slugifySkillName} of the display name. The result is
+ * exactly the shape {@link isSkillFile} recognizes, so a freshly created skill is
+ * immediately discoverable by the same `/skills` browser.
+ *
+ * @param name - The skill's display name.
+ * @returns The new skill's `SKILL.md` relative path.
+ */
+export function newSkillPath(name: string): string {
+  return `.agents/skills/${slugifySkillName(name)}/SKILL.md`
+}
+
+/**
+ * Builds the starter `SKILL.md` content for a new skill: a YAML frontmatter
+ * block declaring the `name` and a `description` placeholder (so the skill shows
+ * up — with a clear "edit me" hint — in the `/skills` browser right away),
+ * followed by a short authoring scaffold. The content round-trips through
+ * {@link parseSkillMeta} (the same parser discovery uses), so a created skill's
+ * metadata is identical whether read from this template or re-discovered on disk.
+ *
+ * @param name - The skill's display name (used verbatim as the frontmatter `name`).
+ * @returns The `SKILL.md` file content for a new skill.
+ */
+export function buildNewSkillTemplate(name: string): string {
+  const display = name.trim() || slugifySkillName(name)
+  return [
+    '---',
+    `name: ${display}`,
+    'description: One-line summary of when this skill applies (edit me).',
+    '---',
+    '',
+    `# ${display}`,
+    '',
+    'Describe when this skill applies and the steps to follow.',
+    '',
+  ].join('\n')
+}
+
 /** Parses a leading YAML frontmatter block into a flat key→value map. */
 function parseFrontmatter(content: string): Record<string, string> {
   const match = content.match(/^\uFEFF?---\r?\n([\s\S]*?)\r?\n---/)

@@ -1,5 +1,5 @@
 /**
- * `/skills` browser.
+ * `/skills` browser + skill authoring.
  *
  * Renders an in-timeline card listing the project's skills (Markdown files
  * under `.agents/skills/` with `name`/`description` frontmatter), discovered
@@ -7,6 +7,17 @@
  * A search box filters by name/description/path (seeded from `/skills <query>`),
  * and each row has a "Load" action that opens the skill in the editor and
  * injects its content as context for the next message.
+ *
+ * It also hosts the skill-authoring affordance (the UI half of `/new-skill`): a
+ * "New skill" button reveals an inline name form whose submit calls `onCreate`,
+ * and the freshly created skill is added to the list immediately. The card can
+ * also mount with that form already open (`startCreating`) for a bare
+ * `/new-skill` command.
+ *
+ * Per-control hints surface through the framework's REAL styled {@link Tooltip}
+ * (instant, theme-aware, focus/hover-aware) — never the delayed, touch-blind
+ * native `title`. The "New skill" glyph is a real SVG from the bonded icon set
+ * ({@link Icon}), never a unicode character.
  *
  * Styling uses `getClassMap()` (`cm.*`); the only inline styles are layout the
  * ClassMap can't express.
@@ -21,9 +32,11 @@ import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
 import { useHttpClient } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
 import type { SkillInfo } from './chat-skills-utilities.js'
 import { filterSkills, loadProjectSkills } from './chat-skills-utilities.js'
+import { Icon } from './Icon.js'
 
 const logger = getLogger('skills-card')
 
@@ -31,12 +44,16 @@ const logger = getLogger('skills-card')
 type SkillsStatus = 'loading' | 'ready' | 'error'
 
 /**
- * The skills browser shown by `/skills`.
+ * The skills browser shown by `/skills`, with the inline skill-authoring form.
  *
  * @param root0 - Component props.
  * @param root0.projectId - The project whose skills to list.
  * @param root0.initialQuery - Seed query from `/skills <query>` (empty for a bare `/skills`).
  * @param root0.onLoad - Called when a skill's "Load" action is clicked.
+ * @param root0.onCreate - Creates a new skill from a display name and resolves the created
+ *   skill (or `null` on failure). When omitted, the "New skill" affordance is hidden.
+ * @param root0.startCreating - When `true`, mount with the inline "New skill" form already
+ *   open (used by a bare `/new-skill` command).
  * @param root0.isLight - Whether the current theme is light mode (drives subtle tints).
  * @returns The rendered skills card.
  */
@@ -44,11 +61,15 @@ export function SkillsCard({
   projectId,
   initialQuery,
   onLoad,
+  onCreate,
+  startCreating,
   isLight,
 }: {
   projectId: string
   initialQuery: string
   onLoad: (skill: SkillInfo) => void
+  onCreate?: (name: string) => Promise<SkillInfo | null>
+  startCreating?: boolean
   isLight: boolean
 }): JSX.Element {
   const cm = getClassMap()
@@ -56,6 +77,9 @@ export function SkillsCard({
   const [status, setStatus] = useState<SkillsStatus>('loading')
   const [skills, setSkills] = useState<SkillInfo[]>([])
   const [query, setQuery] = useState(initialQuery)
+  const [creating, setCreating] = useState(!!startCreating && !!onCreate)
+  const [newName, setNewName] = useState('')
+  const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -86,6 +110,32 @@ export function SkillsCard({
   const filtered = useMemo(() => filterSkills(skills, query), [skills, query])
   const rowBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'
 
+  /**
+   * Submits the inline "New skill" form: delegates creation to `onCreate`, and on
+   * success adds the new skill to the list (so it appears without a re-fetch),
+   * clears any active filter so it's visible, and closes the form.
+   */
+  async function submitNewSkill(): Promise<void> {
+    const name = newName.trim()
+    if (!name || !onCreate || busy) return
+    setBusy(true)
+    try {
+      const created = await onCreate(name)
+      if (created) {
+        setSkills((prev) =>
+          prev.some((s) => s.path === created.path)
+            ? prev
+            : [...prev, created].sort((a, b) => a.name.localeCompare(b.name)),
+        )
+        setQuery('')
+        setNewName('')
+        setCreating(false)
+      }
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div
       data-mol-id="skills-card"
@@ -93,11 +143,91 @@ export function SkillsCard({
       style={{ margin: '6px 0', borderRadius: 6, padding: '10px 12px' }}
     >
       <div
-        className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}
-        style={{ marginBottom: 6 }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+          marginBottom: 6,
+        }}
       >
-        {t('ide.chat.skills.heading', undefined, { defaultValue: 'Skills' })}
+        <div className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}>
+          {t('ide.chat.skills.heading', undefined, { defaultValue: 'Skills' })}
+        </div>
+        {onCreate && !creating && (
+          <Tooltip
+            content={t('ide.chat.skills.newTitle', undefined, {
+              defaultValue: 'Create a new project skill',
+            })}
+            placement="top"
+          >
+            <button
+              type="button"
+              data-mol-id="skill-new"
+              onClick={() => setCreating(true)}
+              className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0 }}
+            >
+              <Icon name="plus" size={12} aria-hidden="true" />
+              {t('ide.chat.skills.new', undefined, { defaultValue: 'New skill' })}
+            </button>
+          </Tooltip>
+        )}
       </div>
+
+      {/* New skill — inline authoring form */}
+      {onCreate && creating && (
+        <form
+          data-mol-id="skill-create-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            void submitNewSkill()
+          }}
+          style={{ display: 'flex', gap: 6, marginBottom: 6 }}
+        >
+          <input
+            autoFocus
+            value={newName}
+            data-mol-id="skill-create-name"
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder={t('ide.chat.skills.newPlaceholder', undefined, {
+              defaultValue: 'New skill name…',
+            })}
+            className={cm.cn(cm.textSize('xs'))}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              padding: '4px 6px',
+              borderRadius: 4,
+              border: `1px solid ${rowBorder}`,
+              background: 'transparent',
+              color: 'inherit',
+              outline: 'none',
+            }}
+          />
+          <button
+            type="submit"
+            data-mol-id="skill-create-submit"
+            disabled={!newName.trim() || busy}
+            className={cm.cn(cm.button({ variant: 'solid', size: 'xs' }))}
+            style={{ flexShrink: 0 }}
+          >
+            {t('ide.chat.skills.create', undefined, { defaultValue: 'Create' })}
+          </button>
+          <button
+            type="button"
+            data-mol-id="skill-create-cancel"
+            onClick={() => {
+              setCreating(false)
+              setNewName('')
+            }}
+            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+            style={{ flexShrink: 0 }}
+          >
+            {t('ide.chat.skills.cancel', undefined, { defaultValue: 'Cancel' })}
+          </button>
+        </form>
+      )}
 
       {/* Search / filter */}
       <input
@@ -180,18 +310,22 @@ export function SkillsCard({
                 {skill.path}
               </div>
             </div>
-            <button
-              type="button"
-              data-mol-id={`skill-load-${skill.name}`}
-              onClick={() => onLoad(skill)}
-              className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
-              style={{ flexShrink: 0 }}
-              title={t('ide.chat.skills.loadTitle', undefined, {
+            <Tooltip
+              content={t('ide.chat.skills.loadTitle', undefined, {
                 defaultValue: 'Open in editor and attach as context',
               })}
+              placement="top"
             >
-              {t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
-            </button>
+              <button
+                type="button"
+                data-mol-id={`skill-load-${skill.name}`}
+                onClick={() => onLoad(skill)}
+                className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+                style={{ flexShrink: 0 }}
+              >
+                {t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
+              </button>
+            </Tooltip>
           </div>
         ))}
     </div>

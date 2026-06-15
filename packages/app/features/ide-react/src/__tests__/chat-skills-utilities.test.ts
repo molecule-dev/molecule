@@ -7,13 +7,16 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  buildNewSkillTemplate,
   deriveSkillNameFromPath,
   filterSkills,
   isSkillFile,
   loadProjectSkills,
+  newSkillPath,
   parseSkillMeta,
   recentUserText,
   type SkillInfo,
+  slugifySkillName,
   suggestRelevantSkills,
   toRelativePath,
 } from '../components/chat-skills-utilities.js'
@@ -66,6 +69,48 @@ describe('deriveSkillNameFromPath', () => {
     expect(deriveSkillNameFromPath('.agents/skills/examples/SKILL.md')).toBe('examples')
     expect(deriveSkillNameFromPath('.agents/skills/examples/INDEX.md')).toBe('examples')
     expect(deriveSkillNameFromPath('/workspace/.agents/skills/foo/README.md')).toBe('foo')
+  })
+})
+
+describe('slugifySkillName (SYN4 — skill authoring)', () => {
+  it('lowercases and hyphenates a display name', () => {
+    expect(slugifySkillName('Auth & Sessions')).toBe('auth-sessions')
+    expect(slugifySkillName('My New Skill')).toBe('my-new-skill')
+  })
+
+  it('collapses runs of non-alphanumerics and trims surrounding hyphens', () => {
+    expect(slugifySkillName('  Payments / Stripe!!  ')).toBe('payments-stripe')
+    expect(slugifySkillName('--edge--case--')).toBe('edge-case')
+  })
+
+  it('falls back to "new-skill" when the name has no usable characters', () => {
+    expect(slugifySkillName('   ')).toBe('new-skill')
+    expect(slugifySkillName('!@#$')).toBe('new-skill')
+  })
+})
+
+describe('newSkillPath (SYN4 — skill authoring)', () => {
+  it('builds a .agents/skills/<slug>/SKILL.md path the browser will rediscover', () => {
+    const path = newSkillPath('Auth & Sessions')
+    expect(path).toBe('.agents/skills/auth-sessions/SKILL.md')
+    // The created path must be exactly the shape discovery recognizes, else the
+    // new skill would never show up in the /skills browser.
+    expect(isSkillFile(path)).toBe(true)
+  })
+})
+
+describe('buildNewSkillTemplate (SYN4 — skill authoring)', () => {
+  it('emits frontmatter that round-trips through the SAME parser discovery uses', () => {
+    const content = buildNewSkillTemplate('My New Skill')
+    // The starter file must parse back to a real name + a non-empty description,
+    // so the freshly created skill is listed (not blank) right away.
+    const meta = parseSkillMeta(newSkillPath('My New Skill'), content)
+    expect(meta.name).toBe('My New Skill')
+    expect(meta.description.length).toBeGreaterThan(0)
+    // Frontmatter block + a body heading the author fills in.
+    expect(content.startsWith('---\n')).toBe(true)
+    expect(content).toContain('name: My New Skill')
+    expect(content).toContain('# My New Skill')
   })
 })
 
