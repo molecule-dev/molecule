@@ -441,4 +441,8 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': '無法建立該技能 — 請重試。',
   'ide.chat.skills.created': '已建立技能「{{name}}」——已在編輯器中開啟。請填寫其說明與步驟。',
   'ide.chat.autoCommit.on': '啟用自動提交',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

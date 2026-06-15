@@ -457,4 +457,8 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Oprettet færdighed „{{name}}“ — åbnet i redigeringsværktøjet. Udfyld beskrivelsen og trinene.',
   'ide.chat.autoCommit.on': 'Automatisk gemning aktiveret',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

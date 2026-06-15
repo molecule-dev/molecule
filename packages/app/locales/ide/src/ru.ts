@@ -462,4 +462,8 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Создан навык «{{name}}» — открыт в редакторе. Заполните его описание и пошаговую инструкцию.',
   'ide.chat.autoCommit.on': 'Включить автофиксацию',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

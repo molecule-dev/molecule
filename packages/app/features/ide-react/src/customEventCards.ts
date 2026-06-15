@@ -23,13 +23,29 @@ export interface ChatEventCardAction {
   href?: string
   /** Click handler (alternative to, or alongside, `href`). */
   onClick?: () => void
+  /**
+   * Render the action's label as inline monospace code — a command/identifier like
+   * `/report` or a skill name — so it stands out from prose while staying clickable.
+   */
+  code?: boolean
 }
 
 /**
- * One inline segment of a toned tip card's composable body: either literal text, or a
- * labelled link/action ({@link ChatEventCardAction}). See {@link ChatEventCard.content}.
+ * A non-interactive inline monospace code span in a card body — a command or identifier
+ * the prose refers to (`/report`, a skill name) that should read as code but isn't
+ * clickable. For a *clickable* command, use {@link ChatEventCardAction} with `code: true`.
  */
-export type ChatEventCardSegment = string | ChatEventCardAction
+export interface ChatEventCardCode {
+  /** The code text, rendered monospaced/tinted. */
+  code: string
+}
+
+/**
+ * One inline segment of a card's composable body: literal text, an inline monospace
+ * {@link ChatEventCardCode} span, or a labelled link/action ({@link ChatEventCardAction}).
+ * See {@link ChatEventCard.content}.
+ */
+export type ChatEventCardSegment = string | ChatEventCardCode | ChatEventCardAction
 
 /**
  * A chat system card: a short message with an optional action (or actions). Mirrors

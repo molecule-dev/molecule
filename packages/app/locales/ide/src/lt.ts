@@ -461,4 +461,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Sukurtas įgūdis „{{name}}“ — atidarytas redaktoriuje. Užpildykite jo aprašymą ir veiksmus.',
   'ide.chat.autoCommit.on': 'Įjungti automatinį įrašymą',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

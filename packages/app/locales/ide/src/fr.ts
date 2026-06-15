@@ -467,4 +467,8 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     "J'ai créé la compétence « {{name}} » — elle s'est ouverte dans l'éditeur. Remplis sa description et les étapes.",
   'ide.chat.autoCommit.on': 'Valider automatiquement',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

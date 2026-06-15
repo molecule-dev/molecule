@@ -469,4 +469,8 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Die Fertigkeit „{{name}}“ wurde erstellt – sie ist im Editor geöffnet. Füge die Beschreibung und die einzelnen Schritte ein.',
   'ide.chat.autoCommit.on': 'Auto-Commit aktivieren',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

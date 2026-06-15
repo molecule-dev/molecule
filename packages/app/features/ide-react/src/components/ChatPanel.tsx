@@ -47,7 +47,11 @@ import {
 } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-import type { ChatEventCardAction, ChatEventCardSegment } from '../customEventCards.js'
+import type {
+  ChatEventCardAction,
+  ChatEventCardCode,
+  ChatEventCardSegment,
+} from '../customEventCards.js'
 import { getCustomEventCardFactory } from '../customEventCards.js'
 import type { ChatPanelProps, IdeClientAction } from '../types.js'
 import type { Activity } from './activity-utilities.js'
@@ -183,6 +187,62 @@ interface CommitCard {
   timestamp: number
   status: 'running' | 'done' | 'error'
   hash?: string
+}
+
+/** Subtle inline monospace code style for command/identifier spans in chat cards. */
+const CHAT_CARD_CODE_STYLE: React.CSSProperties = {
+  fontFamily: 'var(--mol-font-mono, monospace)',
+  fontSize: '0.92em',
+  padding: '1px 5px',
+  borderRadius: 4,
+  background: 'rgba(128,128,128,0.16)',
+  border: '1px solid rgba(128,128,128,0.18)',
+  whiteSpace: 'nowrap',
+}
+
+/** Inline link style for action segments in chat cards (theme primary, underlined). */
+const CHAT_CARD_LINK_STYLE: React.CSSProperties = {
+  color: 'var(--color-primary, #4070e0)',
+  textDecoration: 'underline',
+  cursor: 'pointer',
+}
+
+/**
+ * Render one composable card-body segment: a plain string, an inline monospace
+ * {@link ChatEventCardCode} span, or a {@link ChatEventCardAction} (link/button,
+ * optionally monospace via `code`). Shared by the tip (toned) and default system cards.
+ *
+ * @param seg - The segment to render.
+ * @param key - React list key.
+ * @returns The rendered node.
+ */
+function renderCardSegment(seg: ChatEventCardSegment, key: number): ReactNode {
+  if (typeof seg === 'string') return <span key={key}>{seg}</span>
+  if ('code' in seg && !('label' in seg)) {
+    return (
+      <code key={key} style={CHAT_CARD_CODE_STYLE}>
+        {(seg as ChatEventCardCode).code}
+      </code>
+    )
+  }
+  const act = seg as ChatEventCardAction
+  const linkStyle: React.CSSProperties = act.code
+    ? { ...CHAT_CARD_CODE_STYLE, color: CHAT_CARD_LINK_STYLE.color, cursor: 'pointer' }
+    : CHAT_CARD_LINK_STYLE
+  return act.href ? (
+    <a key={key} href={act.href} target="_blank" rel="noopener noreferrer" style={linkStyle}>
+      {act.label}
+    </a>
+  ) : (
+    <button
+      key={key}
+      type="button"
+      onClick={act.onClick}
+      style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', ...linkStyle }}
+    >
+      {act.label}
+    </button>
+  )
 }
 
 interface SystemCard {
@@ -1348,21 +1408,25 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
   return (
     <div style={{ marginBottom: '16px', ...(sameRoleAsPrev ? { marginTop: '-12px' } : {}) }}>
       {isUser ? (
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-          {/* The user's real profile avatar (SOC1) beside their own message. */}
-          <UserAvatar userAvatar={userAvatar} />
-          <div
-            className={cm.cn(cm.surfaceSecondary, cm.textSize('sm'))}
-            style={{
-              flex: 1,
-              minWidth: 0,
-              borderRadius: '4px',
-              borderLeft: '2px solid var(--mol-color-primary, #6366f1)',
-              paddingLeft: '10px',
-              paddingTop: '4px',
-              paddingBottom: '4px',
-            }}
-          >
+        <div
+          className={cm.cn(cm.surfaceSecondary, cm.textSize('sm'))}
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '8px',
+            minWidth: 0,
+            borderRadius: '4px',
+            borderLeft: '2px solid var(--mol-color-primary, #6366f1)',
+            paddingLeft: '10px',
+            paddingTop: '6px',
+            paddingBottom: '6px',
+            paddingRight: '8px',
+          }}
+        >
+          {/* The user's real profile avatar (SOC1) sits INSIDE the card, just right of
+              the blue border, so it reads as part of the message. */}
+          <UserAvatar userAvatar={userAvatar} size={20} />
+          <div style={{ flex: 1, minWidth: 0 }}>
             <CollapsibleUserMessage content={msg.content} isLight={isLight} />
             {msg.attachments && msg.attachments.length > 0 && (
               <div style={{ marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
@@ -3027,7 +3091,6 @@ function ChatInner({
   const [editingQueuedText, setEditingQueuedText] = useState('')
 
   // ── Input focus ────────────────────────────────────────────────────────────
-  const [isFocused, setIsFocused] = useState(false)
 
   // ── Scroll ─────────────────────────────────────────────────────────────────
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -3361,32 +3424,32 @@ function ChatInner({
    */
   const loadSkill = useCallback(
     (skill: SkillInfo) => {
-      // Open in the editor — onFileOpen expects a project-relative path (no leading slash).
+      // Open the skill in the editor (onFileOpen expects a project-relative path, no
+      // leading slash). Loading a skill does NOT attach it as context — it just opens
+      // it; the agent reads the skill file on demand, like every other harness.
       onFileOpen?.(skill.path, { focus: true })
-      // Attach the skill file so its content is injected into the next message.
-      const attachPath = '/' + skill.path
-      setAttachedFiles((prev) =>
-        prev.some((f) => f.path === attachPath)
-          ? prev
-          : [
-              ...prev,
-              {
-                path: attachPath,
-                filename: skill.path.split('/').pop() ?? skill.path,
-                mediaType: 'text/plain',
-                size: 0,
-              },
-            ],
-      )
+      // Confirm with a compact card: "Loaded `<skill>` skill" — the name rendered as a
+      // clickable monospace span that re-opens it in the editor. No attachment wording.
       addSystemCard(
         t(
           'ide.chat.skills.loaded',
           { name: skill.name },
-          {
-            defaultValue:
-              'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
-          },
+          { defaultValue: 'Loaded {{name}} skill' },
         ),
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        [
+          t('ide.chat.skills.loadedPrefix', undefined, { defaultValue: 'Loaded ' }),
+          {
+            label: skill.name,
+            code: true,
+            onClick: () => onFileOpen?.(skill.path, { focus: true }),
+          },
+          t('ide.chat.skills.loadedSuffix', undefined, { defaultValue: ' skill' }),
+        ],
       )
     },
     [onFileOpen, addSystemCard],
@@ -3484,8 +3547,8 @@ function ChatInner({
   const loadRelevantSkill = useCallback(
     (skill: SkillInfo) => {
       loadSkill(skill)
-      // Drop it from the suggestion immediately (loadSkill also attaches it, which
-      // the memo excludes — this just avoids a one-render flash).
+      // Drop it from the suggestion immediately (loadSkill opens it + confirms with a
+      // card; dismissing here just avoids a one-render flash).
       dismissRelevantSkill(skill)
     },
     [loadSkill, dismissRelevantSkill],
@@ -5042,39 +5105,6 @@ function ChatInner({
                     ? item.card.action
                     : [item.card.action]
                   : []
-                const toneLinkStyle = {
-                  color: 'var(--color-primary, #4070e0)',
-                  textDecoration: 'underline',
-                  cursor: 'pointer',
-                } as const
-                // One inline action → an underlined link (href) or link-styled button (onClick).
-                const renderToneAction = (act: ChatEventCardAction, key: number): ReactNode =>
-                  act.href ? (
-                    <a
-                      key={key}
-                      href={act.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={toneLinkStyle}
-                    >
-                      {act.label}
-                    </a>
-                  ) : (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={act.onClick}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        padding: 0,
-                        font: 'inherit',
-                        ...toneLinkStyle,
-                      }}
-                    >
-                      {act.label}
-                    </button>
-                  )
                 return (
                   <div
                     key={item.card.id}
@@ -5084,7 +5114,7 @@ function ChatInner({
                       display: 'flex',
                       alignItems: 'flex-start',
                       gap: 8,
-                      margin: '8px 0',
+                      margin: '8px 0 14px',
                       padding: '8px 10px',
                       borderRadius: 8,
                       border: `1px solid ${border}`,
@@ -5105,20 +5135,14 @@ function ChatInner({
                     <span style={{ flex: 1 }}>
                       {item.card.content ? (
                         // Composable inline body: render each segment in order — strings as
-                        // text, actions as inline links — so prose + links + trailing
-                        // punctuation flow naturally. Segments carry their own spacing.
-                        item.card.content.map((seg, i) =>
-                          typeof seg === 'string' ? (
-                            <span key={i}>{seg}</span>
-                          ) : (
-                            renderToneAction(seg, i)
-                          ),
-                        )
+                        // text, monospace code spans, actions as inline links — so prose, code,
+                        // links + trailing punctuation flow naturally.
+                        item.card.content.map((seg, i) => renderCardSegment(seg, i))
                       ) : (
                         <>
                           {item.card.text}
                           {toneActions.map((act, i) => (
-                            <span key={i}> {renderToneAction(act, i)}</span>
+                            <span key={i}> {renderCardSegment(act, i)}</span>
                           ))}
                         </>
                       )}
@@ -5152,13 +5176,16 @@ function ChatInner({
                       : {
                           textAlign: isMultiLine ? 'left' : 'center',
                           padding: isMultiLine ? '8px 12px' : '6px 0',
+                          marginBottom: 10,
                           whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
                           fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
                           lineHeight: isMultiLine ? 1.5 : undefined,
                         }
                   }
                 >
-                  {item.card.text}
+                  {item.card.content
+                    ? item.card.content.map((seg, i) => renderCardSegment(seg, i))
+                    : item.card.text}
                   {item.card.action &&
                     (() => {
                       const btnStyle: React.CSSProperties = {
@@ -5423,7 +5450,7 @@ function ChatInner({
       )}
 
       {/* ── Input area ── */}
-      <div className={cm.cn(cm.shrink0, cm.borderT)} style={{ position: 'relative' }}>
+      <div className={cm.shrink0} style={{ position: 'relative' }}>
         {/* Auto-commit countdown badge — informational, never blocks input. */}
         <AutoCommitBadge
           state={autoCommit}
@@ -5436,6 +5463,7 @@ function ChatInner({
           <RelevantSkillSuggestion
             skill={relevantSkill}
             onLoad={loadRelevantSkill}
+            onOpen={(s) => onFileOpen?.(s.path, { focus: true })}
             onDismiss={dismissRelevantSkill}
           />
         )}
@@ -6508,12 +6536,9 @@ function ChatInner({
         <div
           className={cm.surfaceSecondary}
           style={{
-            borderRadius: '8px',
-            borderTop: `1px solid ${isFocused ? 'rgba(99,102,241,0.5)' : 'rgba(128,128,128,0.18)'}`,
-            borderRight: `1px solid ${isFocused ? 'rgba(99,102,241,0.5)' : 'transparent'}`,
-            borderBottom: `1px solid ${isFocused ? 'rgba(99,102,241,0.5)' : 'transparent'}`,
-            borderLeft: `1px solid ${isFocused ? 'rgba(99,102,241,0.5)' : 'transparent'}`,
-            transition: 'border-color 120ms',
+            // Flush with the panel's left/right/bottom edges — no rounded floating card,
+            // no side/bottom/focus border. The only divider above the composer is the
+            // commit bar's own top border, shown when there are uncommitted files.
             padding: '8px 10px',
             cursor: 'text',
           }}
@@ -6530,8 +6555,6 @@ function ChatInner({
             autoComplete="off"
             onChange={handleInputChange}
             onPaste={handlePaste}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
             placeholder={t('ide.chat.placeholder')}
             rows={1}
             className={cm.textSize('sm')}
@@ -6593,14 +6616,19 @@ function ChatInner({
                 justifyContent: 'center',
                 width: 24,
                 height: 24,
-                background: 'none',
+                background:
+                  mode === 'plan'
+                    ? isLight
+                      ? 'rgba(217,119,6,0.14)'
+                      : 'rgba(234,179,8,0.13)'
+                    : 'none',
                 border:
                   mode === 'plan'
-                    ? `1px solid ${isLight ? 'rgba(180,130,0,0.45)' : 'rgba(234,179,8,0.5)'}`
+                    ? `1px solid ${isLight ? 'rgba(217,119,6,0.55)' : 'rgba(234,179,8,0.5)'}`
                     : 'none',
                 borderRadius: '3px',
                 cursor: 'pointer',
-                color: mode === 'plan' ? (isLight ? '#a16207' : '#eab308') : 'inherit',
+                color: mode === 'plan' ? (isLight ? '#d97706' : '#eab308') : 'inherit',
                 opacity: mode === 'plan' ? 1 : 0.4,
                 padding: 0,
                 transition: 'opacity 100ms, color 100ms',
@@ -6736,6 +6764,7 @@ function ChatInner({
                   sym: '@',
                   nudgeY: 0,
                   size: 15,
+                  title: t('ide.chat.mention', undefined, { defaultValue: 'Reference a file' }),
                   onClick: () => {
                     const val = inputRef.current as string
                     const pos = textareaRef.current?.selectionStart ?? val.length
@@ -6755,6 +6784,9 @@ function ChatInner({
                   sym: 'slash',
                   nudgeY: 1,
                   size: 15,
+                  title: t('ide.chat.slashCommands', undefined, {
+                    defaultValue: 'Slash commands',
+                  }),
                   onClick: () => {
                     if (!(inputRef.current as string)) {
                       setInputValue('/')
@@ -6767,11 +6799,12 @@ function ChatInner({
                   },
                 },
               ] as const
-            ).map(({ sym, nudgeY, size: fontSize, onClick }) => (
+            ).map(({ sym, nudgeY, size: fontSize, title, onClick }) => (
               <button
                 key={sym}
                 type="button"
                 onClick={onClick}
+                title={title}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -6936,6 +6969,7 @@ function ChatInner({
                 <button
                   type="button"
                   onClick={abort}
+                  title={t('ide.chat.stop', undefined, { defaultValue: 'Stop' })}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = 'rgba(248,81,73,0.3)'
                     e.currentTarget.style.borderColor = 'rgba(248,81,73,0.65)'
@@ -6964,6 +6998,7 @@ function ChatInner({
               <button
                 type="button"
                 onClick={() => void handleSubmit()}
+                title={t('ide.chat.send', undefined, { defaultValue: 'Send' })}
                 disabled={!hasInput && attachedFiles.length === 0}
                 onMouseEnter={(e) => {
                   if (!e.currentTarget.disabled) {

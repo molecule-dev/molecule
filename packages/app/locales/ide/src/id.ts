@@ -459,4 +459,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Telah dibuat keterampilan "{{name}}" — terbuka di editor. Isi deskripsi dan langkah-langkahnya.',
   'ide.chat.autoCommit.on': 'Aktifkan auto-commit',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

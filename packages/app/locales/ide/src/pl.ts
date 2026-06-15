@@ -462,4 +462,8 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Utworzono umiejętność „{{name}}” — otworzyła się w edytorze. Wpisz jej opis i poszczególne kroki.',
   'ide.chat.autoCommit.on': 'Włącz automatyczne zatwierdzanie',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

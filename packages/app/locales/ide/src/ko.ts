@@ -456,4 +456,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     '“{{name}}” 스킬을 생성했습니다. 편집기가 열렸습니다. 설명과 단계를 입력하세요.',
   'ide.chat.autoCommit.on': '자동 커밋 켜기',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

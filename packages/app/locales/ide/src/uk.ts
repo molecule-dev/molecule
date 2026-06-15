@@ -462,4 +462,8 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Створено навичку «{{name}}» — вона відкрилася в редакторі. Заповніть її опис та покрокові інструкції.',
   'ide.chat.autoCommit.on': 'Увімкнути автоматичне підтвердження',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

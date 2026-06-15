@@ -458,4 +458,8 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     '"{{name}}" becerisi oluşturuldu — düzenleyicide açıldı. Açıklamasını ve adımlarını girin.',
   'ide.chat.autoCommit.on': 'Otomatik kaydetme açık',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

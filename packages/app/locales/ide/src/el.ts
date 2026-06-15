@@ -466,4 +466,8 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Δημιουργήθηκε η δεξιότητα «{{name}}» — ανοίγει στον επεξεργαστή. Συμπληρώστε την περιγραφή και τα βήματα.',
   'ide.chat.autoCommit.on': 'Ενεργοποίηση αυτόματης αποθήκευσης',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

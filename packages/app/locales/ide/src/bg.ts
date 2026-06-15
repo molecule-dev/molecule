@@ -462,4 +462,8 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Създадена е умението „{{name}}“ — отворено е в редактора. Попълнете описанието и стъпките.',
   'ide.chat.autoCommit.on': 'Включване на автоматичното записване',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

@@ -459,4 +459,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Luotu taito ”{{name}}” — avattu editorissa. Täytä sen kuvaus ja vaiheet.',
   'ide.chat.autoCommit.on': 'Automaattinen tallennus päällä',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

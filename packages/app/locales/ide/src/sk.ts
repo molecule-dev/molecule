@@ -461,4 +461,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Vytvorili ste zručnosť „{{name}}“ – otvorila sa v editore. Vyplňte jej popis a jednotlivé kroky.',
   'ide.chat.autoCommit.on': 'Zapnúť automatické potvrdzovanie',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

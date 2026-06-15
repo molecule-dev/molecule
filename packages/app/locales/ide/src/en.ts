@@ -167,6 +167,8 @@ export const en: IdeTranslations = {
   'ide.chat.molecule': 'Molecule',
   'ide.chat.stop': 'Stop',
   'ide.chat.send': 'Send',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
   'ide.chat.commit': 'Commit',
   'ide.chat.committed': 'Committed',
   'ide.chat.retryCommit': 'Retry',
@@ -462,9 +464,12 @@ export const en: IdeTranslations = {
   'ide.chat.skills.heading': 'Skills',
   'ide.chat.skills.searchPlaceholder': 'Filter skills…',
   'ide.chat.skills.load': 'Load',
-  'ide.chat.skills.loadTitle': 'Open in editor and attach as context',
-  'ide.chat.skills.loaded':
-    'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
+  'ide.chat.skills.loadTitle': 'Open in the editor',
+  'ide.chat.skills.loaded': 'Loaded {{name}} skill',
+  // Composable segments for the "Loaded `<skill>` skill" card — the name renders as a
+  // clickable monospace span between these two: "Loaded " + `name` + " skill".
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.skills.loading': 'Loading skills…',
   'ide.chat.skills.error': 'Could not load skills for this project.',
   'ide.chat.skills.empty': 'No skills found in .agents/skills/ for this project.',

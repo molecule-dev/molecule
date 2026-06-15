@@ -454,4 +454,8 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'تم إنشاء المهارة "{{name}}" — وهي مفتوحة الآن في المحرر. قم بملء الوصف والخطوات الخاصة بها.',
   'ide.chat.autoCommit.on': 'تشغيل ميزة "التسجيل التلقائي"',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

@@ -461,4 +461,8 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'スキル「{{name}}」を作成しました。エディタで開きました。説明と手順を入力してください。',
   'ide.chat.autoCommit.on': '自動コミットを有効にする',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

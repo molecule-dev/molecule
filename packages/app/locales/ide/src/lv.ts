@@ -459,4 +459,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Izveidota prasme „{{name}}“ — atvērta redaktorā. Aizpildiet tās aprakstu un soļus.',
   'ide.chat.autoCommit.on': 'Automātiskā apstiprināšana ieslēgta',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

@@ -467,4 +467,8 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Ho creato la skill "{{name}}" — ora è aperta nell\'editor. Compila la descrizione e i passaggi.',
   'ide.chat.autoCommit.on': "Attivazione dell'auto-commit",
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

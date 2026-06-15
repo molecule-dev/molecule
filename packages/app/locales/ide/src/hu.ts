@@ -458,4 +458,8 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Létrehoztam a „{{name}}” nevű feladatot – megnyitottam a szerkesztőben. Töltöttem ki a leírását és a lépéseket.',
   'ide.chat.autoCommit.on': 'Automatikus mentés bekapcsolva',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

@@ -462,4 +462,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Am creat abilitatea „{{name}}” — aceasta s-a deschis în editor. Completați descrierea și pașii.',
   'ide.chat.autoCommit.on': 'Activare auto-commit',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }

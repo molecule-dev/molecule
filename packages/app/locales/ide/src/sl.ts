@@ -459,4 +459,8 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.skills.created':
     'Ustvaril sem veščino »{{name}}« – odprl sem jo v urejevalniku. Vnesel sem njen opis in posamezne korake.',
   'ide.chat.autoCommit.on': 'Samodejno potrjevanje vklopljeno',
+  'ide.chat.mention': 'Reference a file',
+  'ide.chat.slashCommands': 'Slash commands',
+  'ide.chat.skills.loadedPrefix': 'Loaded ',
+  'ide.chat.skills.loadedSuffix': ' skill',
 }
