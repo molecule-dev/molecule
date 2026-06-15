@@ -7164,6 +7164,13 @@ export function ChatPanel({
   autoSubmitSignal,
   initialInputValue,
   hideConversationMenu,
+  renderConversationHeader = true,
+  conversationId: controlledConversationId,
+  chatKey: controlledChatKey,
+  onConversationId: controlledOnConversationId,
+  openShareSignal: controlledShareSignal,
+  openReportSignal: controlledReportSignal,
+  openSettingsSignal: controlledSettingsSignal,
   gitStatusTick,
   pendingMessage,
   pendingMessageKey,
@@ -7183,28 +7190,46 @@ export function ChatPanel({
   const http = useHttpClient()
   const baseEndpoint = endpoint ?? `/projects/${projectId}/chat`
 
+  // When the host renders its own conversation chrome (headless mode), it drives
+  // the active conversation through the controlled props; otherwise the panel
+  // owns it internally (localStorage-backed). `controlledConversationId !==
+  // undefined` is the switch — `null` is a valid controlled "no conversation".
+  const isConversationControlled = controlledConversationId !== undefined
+
   const storageKey = `mol-chat-conv:${projectId}`
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(() =>
+  const [internalActiveConversationId, setActiveConversationId] = useState<string | null>(() =>
     localStorage.getItem(storageKey),
   )
   // Separate key that only changes on *user-initiated* conversation switches
   // (new chat, select conversation). The backend assigns a conversation ID
   // mid-stream which updates activeConversationId, but must NOT remount
   // ChatInner (that would lose the in-flight messages).
-  const [chatKey, setChatKey] = useState(() => localStorage.getItem(storageKey) ?? 'default')
+  const [internalChatKey, setChatKey] = useState(
+    () => localStorage.getItem(storageKey) ?? 'default',
+  )
   const [showDropdown, setShowDropdown] = useState(false)
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [convSearch, setConvSearch] = useState('')
   const dropdownRef = useRef<HTMLDivElement>(null)
   // Incremented by the header gear button to open the /settings view inside
   // ChatInner (which owns the slash-command dispatch + system-card timeline).
-  const [openSettingsSignal, setOpenSettingsSignal] = useState(0)
+  // A host-supplied signal prop (headless mode) overrides the internal one.
+  const [internalOpenSettingsSignal, setOpenSettingsSignal] = useState(0)
   // Incremented by the header bug-report button to open the /report modal inside
   // ChatInner (same dispatch target as the /report and /bug commands).
-  const [openReportSignal, setOpenReportSignal] = useState(0)
+  const [internalOpenReportSignal, setOpenReportSignal] = useState(0)
   // Incremented by the header share button to open the /share modal inside
   // ChatInner (same dispatch target as the /share command).
-  const [openShareSignal, setOpenShareSignal] = useState(0)
+  const [internalOpenShareSignal, setOpenShareSignal] = useState(0)
+
+  // Effective values: host-controlled when provided, else internal.
+  const activeConversationId = isConversationControlled
+    ? controlledConversationId
+    : internalActiveConversationId
+  const chatKey = controlledChatKey ?? internalChatKey
+  const effectiveSettingsSignal = controlledSettingsSignal ?? internalOpenSettingsSignal
+  const effectiveReportSignal = controlledReportSignal ?? internalOpenReportSignal
+  const effectiveShareSignal = controlledShareSignal ?? internalOpenShareSignal
 
   const chatEndpoint = activeConversationId
     ? `${baseEndpoint}?conversationId=${activeConversationId}`
@@ -7221,10 +7246,13 @@ export function ChatPanel({
     }
   }, [http, projectId])
 
-  // Fetch conversations on mount so the header shows the current chat title
+  // Fetch conversations on mount so the header shows the current chat title.
+  // Skipped in headless mode — the host owns the conversation list/picker and
+  // this internal fetch would be redundant.
   useEffect(() => {
+    if (!renderConversationHeader) return
     void fetchConversations()
-  }, [fetchConversations])
+  }, [fetchConversations, renderConversationHeader])
 
   const handleToggleDropdown = useCallback(() => {
     setShowDropdown((v) => {
@@ -7241,6 +7269,11 @@ export function ChatPanel({
     },
     [storageKey],
   )
+
+  // What ChatInner reports a (backend-assigned or switched) conversation id to:
+  // the host's handler in controlled/headless mode (it owns the picker +
+  // persistence), else the internal localStorage-backed persist.
+  const reportConversationId = controlledOnConversationId ?? persistConversationId
 
   const handleNewChat = useCallback(async () => {
     try {
@@ -7295,8 +7328,9 @@ export function ChatPanel({
         className,
       )}
     >
-      {/* ── Header: conversation selector (hidden during discovery) ── */}
-      {!hideConversationMenu && (
+      {/* ── Header: conversation selector (hidden during discovery, and entirely
+          in headless mode where the host renders its own conversation chrome) ── */}
+      {renderConversationHeader && !hideConversationMenu && (
         <div
           ref={dropdownRef}
           className={cm.cn(
@@ -7547,16 +7581,16 @@ export function ChatPanel({
         onFileChange={onFileChange}
         onFileDeleted={onFileDeleted}
         onCommit={onCommit}
-        onConversationId={persistConversationId}
+        onConversationId={reportConversationId}
         onActivityClick={onActivityClick}
         onReadyToBuild={onReadyToBuild}
         awaitingSandboxBoot={awaitingSandboxBoot}
         onClientAction={onClientAction}
         onTurnComplete={onTurnComplete}
         autoSubmitSignal={autoSubmitSignal}
-        openSettingsSignal={openSettingsSignal}
-        openReportSignal={openReportSignal}
-        openShareSignal={openShareSignal}
+        openSettingsSignal={effectiveSettingsSignal}
+        openReportSignal={effectiveReportSignal}
+        openShareSignal={effectiveShareSignal}
         initialInputValue={initialInputValue}
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}

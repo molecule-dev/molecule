@@ -82,6 +82,44 @@ export interface ChatPanelProps {
   initialInputValue?: string
   /** Hide the conversation-selector header (e.g. during discovery, before any history is worth showing). */
   hideConversationMenu?: boolean
+  /**
+   * Whether to render the built-in conversation header (the picker + searchable
+   * history dropdown, the share / bug-report / settings buttons, and the
+   * new-chat "+"). Defaults to `true` (the package owns that chrome). Pass
+   * `false` to operate **headless** — the host renders those controls itself
+   * (e.g. molecule.dev's Workspace top bar) and drives the chat through the
+   * controlled props below: {@link ChatPanelProps.conversationId} /
+   * {@link ChatPanelProps.chatKey} / {@link ChatPanelProps.onConversationId} for
+   * the conversation, and {@link ChatPanelProps.openShareSignal} /
+   * {@link ChatPanelProps.openReportSignal} to open the in-chat modals.
+   */
+  renderConversationHeader?: boolean
+  /**
+   * Host-controlled active conversation id (headless mode). Drives the chat
+   * endpoint's `?conversationId=`. When `undefined` (the default) the panel owns
+   * the active conversation internally (localStorage-backed). `null` is a valid
+   * controlled value meaning "no conversation yet".
+   */
+  conversationId?: string | null
+  /**
+   * Host-controlled remount key for the inner chat (headless mode). Changing it
+   * remounts the conversation timeline (a new chat or a switch); the backend
+   * assigning an id mid-stream must NOT change it (that would drop in-flight
+   * messages). Falls back to the internal key when omitted.
+   */
+  chatKey?: string
+  /**
+   * Called whenever the active conversation id changes — the backend assigns one
+   * mid-stream and the host needs it to keep its own picker in sync WITHOUT
+   * remounting (do not change {@link ChatPanelProps.chatKey} in response).
+   */
+  onConversationId?: (id: string | null) => void
+  /** Changing this opens the in-chat `/share` modal (host-driven, e.g. a top-bar share button). Overrides the built-in header's share button signal. */
+  openShareSignal?: number
+  /** Changing this opens the in-chat `/report` modal (host-driven). Overrides the built-in header's bug-report button signal. */
+  openReportSignal?: number
+  /** Changing this opens the in-chat `/settings` view (host-driven). Overrides the built-in header's settings button signal. */
+  openSettingsSignal?: number
   /** Spinner/busy indicator node to show for in-chat loading states (e.g. the "designing" indicator). Falls back to a built-in dots animation. */
   spinner?: ReactNode
   /** Path of the currently focused file in the editor (shown first in @ picker). */
