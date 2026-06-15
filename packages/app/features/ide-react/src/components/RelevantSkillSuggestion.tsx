@@ -160,11 +160,16 @@ export function RelevantSkillSuggestion({
           color: 'inherit',
           cursor: 'pointer',
           opacity: 0.55,
-          fontSize: 15,
-          lineHeight: 1,
         }}
       >
-        {'×'}
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="M3 3l10 10M13 3L3 13"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
+        </svg>
       </button>
     </div>
   )

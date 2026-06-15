@@ -9,10 +9,43 @@
  * @module
  */
 
-import type { JSX } from 'react'
+import type { CSSProperties, JSX, ReactNode } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
+
+/** Inline monospace code style for command/`@file` tokens in a tip (mvp #10). */
+const TIP_CODE_STYLE: CSSProperties = {
+  fontFamily: 'var(--mol-font-mono, monospace)',
+  fontSize: '0.92em',
+  padding: '1px 5px',
+  borderRadius: 4,
+  background: 'rgba(128,128,128,0.16)',
+  border: '1px solid rgba(128,128,128,0.18)',
+  whiteSpace: 'nowrap',
+}
+
+/** Matches a slash-command or `@file` token (`/plan`, `@filename`, or a bare `/` or `@`). */
+const TIP_TOKEN_RE = /([@/][\w-]*)/g
+
+/**
+ * Render tip text with command / `@file` tokens as inline monospace code so they
+ * stand out (mvp #10) — e.g. "type `/` to browse, or `@filename` to attach".
+ *
+ * @param text - The (already-localized) tip text.
+ * @returns The text split into plain spans + monospace code tokens.
+ */
+function renderTipText(text: string): ReactNode[] {
+  return text.split(TIP_TOKEN_RE).map((part, i) =>
+    part && /^[@/]/.test(part) ? (
+      <code key={i} style={TIP_CODE_STYLE}>
+        {part}
+      </code>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  )
+}
 
 /**
  * Renders a single dismissable onboarding tip.
@@ -32,7 +65,7 @@ export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => vo
         display: 'flex',
         alignItems: 'flex-start',
         gap: 8,
-        margin: '8px 0',
+        margin: '8px 0 14px',
         padding: '8px 10px',
         borderRadius: 8,
         // Tint follows the active theme's primary color (light/dark + per-app
@@ -58,7 +91,7 @@ export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => vo
       >
         <path d="M10 2a6 6 0 0 0-3.5 10.9c.3.2.5.6.5 1V15h6v-1.1c0-.4.2-.8.5-1A6 6 0 0 0 10 2zM7 17a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-.5H7V17z" />
       </svg>
-      <span style={{ flex: 1 }}>{text}</span>
+      <span style={{ flex: 1 }}>{renderTipText(text)}</span>
       <button
         type="button"
         data-mol-id="chat-tip-dismiss"
