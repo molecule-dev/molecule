@@ -461,4 +461,5 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Не е възможно да се създаде умението — моля, опитайте отново.',
   'ide.chat.skills.created':
     'Създадена е умението „{{name}}“ — отворено е в редактора. Попълнете описанието и стъпките.',
+  'ide.chat.autoCommit.on': 'Включване на автоматичното записване',
 }

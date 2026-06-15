@@ -458,4 +458,5 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Tidak dapat membuat keterampilan — silakan coba lagi.',
   'ide.chat.skills.created':
     'Telah dibuat keterampilan "{{name}}" — terbuka di editor. Isi deskripsi dan langkah-langkahnya.',
+  'ide.chat.autoCommit.on': 'Aktifkan auto-commit',
 }

@@ -468,4 +468,5 @@ export const de: Partial<IdeTranslations> = {
     'Die Funktion konnte nicht erstellt werden – bitte versuche es erneut.',
   'ide.chat.skills.created':
     'Die Fertigkeit „{{name}}“ wurde erstellt – sie ist im Editor geöffnet. Füge die Beschreibung und die einzelnen Schritte ein.',
+  'ide.chat.autoCommit.on': 'Auto-Commit aktivieren',
 }

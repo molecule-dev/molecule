@@ -443,4 +443,5 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.skills.cancel': '取消',
   'ide.chat.skills.createError': '无法创建该技能——请重试。',
   'ide.chat.skills.created': '创建了技能“{{name}}”——已在编辑器中打开。请填写其描述和操作步骤。',
+  'ide.chat.autoCommit.on': '启用自动提交',
 }

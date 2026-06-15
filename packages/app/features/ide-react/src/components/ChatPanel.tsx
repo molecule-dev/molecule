@@ -2323,6 +2323,15 @@ function ChatInner({
   // zero we fire the existing /commit path, then pause until the next change so a
   // clean tree is never re-committed. State machine lives in the pure reducer.
   const [autoCommit, dispatchAutoCommit] = useReducer(autoCommitReducer, AUTO_COMMIT_DISABLED)
+  // Auto-commit persistence (project.settings.autoCommitSeconds). The cadence is
+  // a first-class persisted setting, not a per-session toggle: the GET effect
+  // hydrates it on load and a debounced PATCH mirrors changes back. `…LoadedRef`
+  // gates persistence until the server value is known (so we never blindly
+  // overwrite it), and `…PersistedRef` tracks the value we believe is on the
+  // server so we only PATCH genuine changes (never the value we just hydrated).
+  const [autoCommitLoaded, setAutoCommitLoaded] = useState(false)
+  const autoCommitPersistedRef = useRef<number>(0)
+  const autoCommitPatchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const onFileChangeWrapped = useCallback(
     (path: string, content: string) => {
@@ -2921,11 +2930,47 @@ function ChatInner({
         if (s?.sounds && typeof s.sounds === 'object') {
           setSoundsConfig((prev) => ({ ...prev, ...(s.sounds as Partial<SoundsConfig>) }))
         }
+        // Restore the persisted auto-commit cadence in the paused state (it
+        // re-arms on the next file change). Missing/invalid → off (0).
+        const savedAutoCommit =
+          typeof s?.autoCommitSeconds === 'number' && s.autoCommitSeconds > 0
+            ? Math.floor(s.autoCommitSeconds)
+            : 0
+        autoCommitPersistedRef.current = savedAutoCommit
+        if (savedAutoCommit > 0) dispatchAutoCommit({ type: 'hydrate', seconds: savedAutoCommit })
+        setAutoCommitLoaded(true)
       })
       .catch(() => {
-        /* ignore */
+        // Settings load failed: treat auto-commit as off so a later explicit
+        // /autocommit still persists (we never silently lose a user choice).
+        autoCommitPersistedRef.current = 0
+        setAutoCommitLoaded(true)
       })
   }, [http, projectId])
+
+  // Persist the auto-commit cadence to project.settings (debounced) so it
+  // survives a reload/reconnect like every other setting. The reducer is the
+  // live source of truth; this mirrors intervalSeconds (0 = off) back to the
+  // server whenever the user changes it (/autocommit or the badge's cancel),
+  // skipping the value just hydrated on load and gated until that load resolves.
+  useEffect(() => {
+    if (!autoCommitLoaded) return
+    const seconds = autoCommit.intervalSeconds
+    if (autoCommitPersistedRef.current === seconds) return
+    if (autoCommitPatchTimerRef.current) clearTimeout(autoCommitPatchTimerRef.current)
+    autoCommitPatchTimerRef.current = setTimeout(() => {
+      autoCommitPatchTimerRef.current = null
+      autoCommitPersistedRef.current = seconds
+      http
+        .patch(`/projects/${projectId}`, { settings: { autoCommitSeconds: seconds } })
+        .catch((error) => {
+          logger.warn('Failed to persist auto-commit cadence to server', { error })
+        })
+    }, 500)
+    return () => {
+      if (autoCommitPatchTimerRef.current) clearTimeout(autoCommitPatchTimerRef.current)
+    }
+  }, [autoCommit.intervalSeconds, autoCommitLoaded, http, projectId])
 
   // ── Removed-model recovery ──────────────────────────────────────────────────
   // If the saved chatModel is no longer in the catalog (a provider retired it,

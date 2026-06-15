@@ -463,4 +463,5 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'No se ha podido crear la habilidad. Inténtalo de nuevo.',
   'ide.chat.skills.created':
     'He creado la habilidad «{{name}}» y la he abierto en el editor. Rellena su descripción y los pasos.',
+  'ide.chat.autoCommit.on': 'Activación de la grabación automática',
 }

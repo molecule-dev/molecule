@@ -65,6 +65,43 @@ describe('autoCommitReducer — set', () => {
   })
 })
 
+describe('autoCommitReducer — hydrate (restore persisted cadence on load)', () => {
+  it('restores a positive cadence in the PAUSED state (enabled but not counting down)', () => {
+    const s = autoCommitReducer(AUTO_COMMIT_DISABLED, { type: 'hydrate', seconds: 30 })
+    expect(s).toEqual({ intervalSeconds: 30, remaining: null })
+    // Enabled (badge shows "on") but NOT armed — so reopening a project never
+    // auto-commits a tree the user hasn't touched; it re-arms on the next change.
+    expect(isAutoCommitEnabled(s)).toBe(true)
+    expect(isAutoCommitArmed(s)).toBe(false)
+  })
+
+  it('re-arms only on the next file change after hydrating', () => {
+    let s = autoCommitReducer(AUTO_COMMIT_DISABLED, { type: 'hydrate', seconds: 15 })
+    expect(s.remaining).toBeNull()
+    // a tick while paused does nothing (no countdown is running yet)
+    expect(autoCommitReducer(s, { type: 'tick' })).toEqual(s)
+    // the first file change arms the full countdown
+    s = autoCommitReducer(s, { type: 'reset' })
+    expect(s).toEqual({ intervalSeconds: 15, remaining: 15 })
+  })
+
+  it('treats a non-positive persisted value as off (disabled)', () => {
+    expect(autoCommitReducer(AUTO_COMMIT_DISABLED, { type: 'hydrate', seconds: 0 })).toEqual(
+      AUTO_COMMIT_DISABLED,
+    )
+    expect(autoCommitReducer(AUTO_COMMIT_DISABLED, { type: 'hydrate', seconds: -3 })).toEqual(
+      AUTO_COMMIT_DISABLED,
+    )
+  })
+
+  it('does NOT start a countdown, unlike `set` (the load vs. user-action distinction)', () => {
+    const hydrated = autoCommitReducer(AUTO_COMMIT_DISABLED, { type: 'hydrate', seconds: 45 })
+    const setByUser = autoCommitReducer(AUTO_COMMIT_DISABLED, { type: 'set', seconds: 45 })
+    expect(hydrated.remaining).toBeNull() // restored, paused
+    expect(setByUser.remaining).toBe(45) // explicit user choice, counting down
+  })
+})
+
 describe('autoCommitReducer — tick', () => {
   it('decrements toward zero', () => {
     const s: AutoCommitState = { intervalSeconds: 10, remaining: 3 }

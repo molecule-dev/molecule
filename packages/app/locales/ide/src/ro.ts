@@ -461,4 +461,5 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Nu s-a putut crea abilitatea — te rugăm să încerci din nou.',
   'ide.chat.skills.created':
     'Am creat abilitatea „{{name}}” — aceasta s-a deschis în editor. Completați descrierea și pașii.',
+  'ide.chat.autoCommit.on': 'Activare auto-commit',
 }

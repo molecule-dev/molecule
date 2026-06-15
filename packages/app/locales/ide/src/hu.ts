@@ -457,4 +457,5 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'A készség létrehozása nem sikerült – kérjük, próbálja meg újra.',
   'ide.chat.skills.created':
     'Létrehoztam a „{{name}}” nevű feladatot – megnyitottam a szerkesztőben. Töltöttem ki a leírását és a lépéseket.',
+  'ide.chat.autoCommit.on': 'Automatikus mentés bekapcsolva',
 }

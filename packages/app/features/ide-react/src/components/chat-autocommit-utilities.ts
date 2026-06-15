@@ -8,12 +8,18 @@
  * disarms (pauses) until the next file change, so a clean tree is never
  * committed in a loop. `/autocommit 0` cancels it entirely.
  *
- * The countdown is modelled as a pure reducer here so the arm/reset/tick/fire
- * state machine can be unit tested without React, timers, or a backend. The
- * component owns only the side effects: a 1s interval dispatching `tick`, a
- * file-change effect dispatching `reset`, and a `fire`-when-due effect that runs
- * `/commit` then dispatches `fired`. Any user-facing prose lives in the
- * component via `t()`, never here.
+ * The cadence is a PERSISTED project setting (`project.settings.autoCommitSeconds`),
+ * not a per-session toggle: the component debounce-PATCHes it whenever the user
+ * changes it and, on load, dispatches `hydrate` to restore it in the paused
+ * state — so it survives a reload/reconnect (it re-arms on the next file change).
+ *
+ * The countdown is modelled as a pure reducer here so the
+ * arm/hydrate/reset/tick/fire state machine can be unit tested without React,
+ * timers, or a backend. The component owns only the side effects: the GET that
+ * hydrates the persisted cadence, the debounced PATCH that persists changes, a
+ * 1s interval dispatching `tick`, a file-change effect dispatching `reset`, and
+ * a `fire`-when-due effect that runs `/commit` then dispatches `fired`. Any
+ * user-facing prose lives in the component via `t()`, never here.
  *
  * @module
  */
@@ -36,13 +42,19 @@ export interface AutoCommitState {
 /**
  * Actions the countdown reducer accepts.
  *
- * - `set` — apply a `/autocommit <seconds>` command (`seconds <= 0` disables).
+ * - `set` — apply a `/autocommit <seconds>` command (`seconds <= 0` disables);
+ *   arms AND starts a fresh countdown (an explicit, just-now user choice).
+ * - `hydrate` — restore a cadence persisted on the project (e.g. on reload),
+ *   enabled but PAUSED (`seconds <= 0` disables). Unlike `set`, it does NOT
+ *   start counting down — the countdown only re-arms on the next file change —
+ *   so reopening a project never auto-commits a tree the user hasn't touched.
  * - `reset` — a file changed; restart the full countdown (no-op when disabled).
  * - `tick` — one second elapsed; decrement toward zero (no-op when paused).
  * - `fired` — a commit was just dispatched; pause until the next file change.
  */
 export type AutoCommitAction =
   | { type: 'set'; seconds: number }
+  | { type: 'hydrate'; seconds: number }
   | { type: 'reset' }
   | { type: 'tick' }
   | { type: 'fired' }
@@ -68,6 +80,12 @@ export function autoCommitReducer(
       // <= 0 cancels; a positive cadence arms and starts the first countdown.
       if (action.seconds <= 0) return AUTO_COMMIT_DISABLED
       return { intervalSeconds: action.seconds, remaining: action.seconds }
+    case 'hydrate':
+      // Restore a persisted cadence in the paused state: enabled (so the badge
+      // shows "on") but NOT counting down — it re-arms via `reset` on the next
+      // file change. <= 0 means auto-commit was off on the project.
+      if (action.seconds <= 0) return AUTO_COMMIT_DISABLED
+      return { intervalSeconds: action.seconds, remaining: null }
     case 'reset':
       // A file changed: re-arm the full countdown — but only when enabled.
       if (state.intervalSeconds <= 0) return state

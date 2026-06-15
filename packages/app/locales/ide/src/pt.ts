@@ -457,4 +457,5 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Não foi possível criar a habilidade — tente novamente.',
   'ide.chat.skills.created':
     'Criei a habilidade “{{name}}” — ela foi aberta no editor. Preencha a descrição e as etapas.',
+  'ide.chat.autoCommit.on': 'Ativar o auto-commit',
 }

@@ -266,6 +266,7 @@ export type IdeTranslationKey =
   | 'ide.chat.tip.report'
   | 'ide.chat.undoError'
   | 'ide.chat.autoCommit.badge'
+  | 'ide.chat.autoCommit.on'
   | 'ide.chat.autoCommit.cancel'
   | 'ide.chat.autoCommit.cancelled'
   | 'ide.chat.autoCommit.enabled'

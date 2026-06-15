@@ -456,4 +456,5 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Det gick inte att skapa färdigheten – försök igen.',
   'ide.chat.skills.created':
     'Skapade färdigheten ”{{name}}” – öppnade den i redigeraren. Fyll i beskrivningen och stegen.',
+  'ide.chat.autoCommit.on': 'Automatisk bekräftelse på',
 }

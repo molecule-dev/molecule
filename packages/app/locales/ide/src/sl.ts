@@ -458,4 +458,5 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Veščine ni bilo mogoče ustvariti – poskusite znova.',
   'ide.chat.skills.created':
     'Ustvaril sem veščino »{{name}}« – odprl sem jo v urejevalniku. Vnesel sem njen opis in posamezne korake.',
+  'ide.chat.autoCommit.on': 'Samodejno potrjevanje vklopljeno',
 }

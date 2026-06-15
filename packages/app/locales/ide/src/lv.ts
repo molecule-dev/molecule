@@ -458,4 +458,5 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Neizdevās izveidot prasmi — lūdzu, mēģiniet vēlreiz.',
   'ide.chat.skills.created':
     'Izveidota prasme „{{name}}“ — atvērta redaktorā. Aizpildiet tās aprakstu un soļus.',
+  'ide.chat.autoCommit.on': 'Automātiskā apstiprināšana ieslēgta',
 }

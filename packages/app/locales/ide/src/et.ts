@@ -457,4 +457,5 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Oskust ei õnnestunud luua – palun proovi uuesti.',
   'ide.chat.skills.created':
     'Loodud oskus „{{name}}“ – avatud toimetajas. Täida selle kirjeldus ja sammud.',
+  'ide.chat.autoCommit.on': 'Automaatne salvestamine sisse lülitatud',
 }

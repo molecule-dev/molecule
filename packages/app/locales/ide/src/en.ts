@@ -295,6 +295,7 @@ export const en: IdeTranslations = {
   'ide.chat.undoError': 'Failed to revert changes.',
   // Auto-commit countdown (/autocommit).
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
+  'ide.chat.autoCommit.on': 'Auto-commit on',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',
   'ide.chat.autoCommit.cancelled': 'Auto-commit cancelled.',
   'ide.chat.autoCommit.enabled':

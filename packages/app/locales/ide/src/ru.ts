@@ -461,4 +461,5 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Не удалось создать навык — попробуйте ещё раз.',
   'ide.chat.skills.created':
     'Создан навык «{{name}}» — открыт в редакторе. Заполните его описание и пошаговую инструкцию.',
+  'ide.chat.autoCommit.on': 'Включить автофиксацию',
 }

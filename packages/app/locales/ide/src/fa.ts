@@ -452,4 +452,5 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Could not create the skill — please try again.',
   'ide.chat.skills.created':
     'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
+  'ide.chat.autoCommit.on': 'Auto-commit on',
 }

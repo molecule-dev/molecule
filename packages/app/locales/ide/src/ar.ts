@@ -453,4 +453,5 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'تعذر إنشاء المهارة — يرجى المحاولة مرة أخرى.',
   'ide.chat.skills.created':
     'تم إنشاء المهارة "{{name}}" — وهي مفتوحة الآن في المحرر. قم بملء الوصف والخطوات الخاصة بها.',
+  'ide.chat.autoCommit.on': 'تشغيل ميزة "التسجيل التلقائي"',
 }

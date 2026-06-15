@@ -460,4 +460,5 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'スキルを作成できませんでした。もう一度お試しください。',
   'ide.chat.skills.created':
     'スキル「{{name}}」を作成しました。エディタで開きました。説明と手順を入力してください。',
+  'ide.chat.autoCommit.on': '自動コミットを有効にする',
 }

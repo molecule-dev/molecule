@@ -461,4 +461,5 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Не вдалося створити навичку — спробуйте ще раз.',
   'ide.chat.skills.created':
     'Створено навичку «{{name}}» — вона відкрилася в редакторі. Заповніть її опис та покрокові інструкції.',
+  'ide.chat.autoCommit.on': 'Увімкнути автоматичне підтвердження',
 }

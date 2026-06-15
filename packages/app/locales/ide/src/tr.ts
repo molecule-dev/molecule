@@ -457,4 +457,5 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Beceri oluşturulamadı — lütfen tekrar deneyin.',
   'ide.chat.skills.created':
     '"{{name}}" becerisi oluşturuldu — düzenleyicide açıldı. Açıklamasını ve adımlarını girin.',
+  'ide.chat.autoCommit.on': 'Otomatik kaydetme açık',
 }

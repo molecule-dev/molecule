@@ -455,4 +455,5 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': '스킬을 생성할 수 없습니다. 다시 시도해 주세요.',
   'ide.chat.skills.created':
     '“{{name}}” 스킬을 생성했습니다. 편집기가 열렸습니다. 설명과 단계를 입력하세요.',
+  'ide.chat.autoCommit.on': '자동 커밋 켜기',
 }

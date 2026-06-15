@@ -460,4 +460,5 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Skill sa nepodarilo vytvoriť – skúste to prosím znova.',
   'ide.chat.skills.created':
     'Vytvorili ste zručnosť „{{name}}“ – otvorila sa v editore. Vyplňte jej popis a jednotlivé kroky.',
+  'ide.chat.autoCommit.on': 'Zapnúť automatické potvrdzovanie',
 }

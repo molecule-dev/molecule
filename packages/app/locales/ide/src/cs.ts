@@ -457,4 +457,5 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Nelze vytvořit dovednost – zkuste to prosím znovu.',
   'ide.chat.skills.created':
     'Vytvořili jste dovednost „{{name}}“ – otevřela se v editoru. Vyplňte její popis a jednotlivé kroky.',
+  'ide.chat.autoCommit.on': 'Automatické potvrzování zapnuto',
 }

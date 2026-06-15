@@ -456,4 +456,5 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Det var ikke muligt at oprette færdigheden — prøv igen.',
   'ide.chat.skills.created':
     'Oprettet færdighed „{{name}}“ — åbnet i redigeringsværktøjet. Udfyld beskrivelsen og trinene.',
+  'ide.chat.autoCommit.on': 'Automatisk gemning aktiveret',
 }

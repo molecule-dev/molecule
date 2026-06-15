@@ -461,4 +461,5 @@ export const nl: Partial<IdeTranslations> = {
     'De vaardigheid kon niet worden aangemaakt — probeer het nog eens.',
   'ide.chat.skills.created':
     'De vaardigheid "{{name}}" is aangemaakt — deze is geopend in de editor. Vul de beschrijving en de stappen in.',
+  'ide.chat.autoCommit.on': 'Automatisch vastleggen ingeschakeld',
 }

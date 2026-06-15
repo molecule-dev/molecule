@@ -458,4 +458,5 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Taitoa ei voitu luoda – yritä uudelleen.',
   'ide.chat.skills.created':
     'Luotu taito ”{{name}}” — avattu editorissa. Täytä sen kuvaus ja vaiheet.',
+  'ide.chat.autoCommit.on': 'Automaattinen tallennus päällä',
 }

@@ -460,4 +460,5 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Nepavyko sukurti įgūdžio — pabandykite dar kartą.',
   'ide.chat.skills.created':
     'Sukurtas įgūdis „{{name}}“ — atidarytas redaktoriuje. Užpildykite jo aprašymą ir veiksmus.',
+  'ide.chat.autoCommit.on': 'Įjungti automatinį įrašymą',
 }

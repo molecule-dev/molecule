@@ -461,4 +461,5 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.skills.createError': 'Nie udało się utworzyć umiejętności — spróbuj ponownie.',
   'ide.chat.skills.created':
     'Utworzono umiejętność „{{name}}” — otworzyła się w edytorze. Wpisz jej opis i poszczególne kroki.',
+  'ide.chat.autoCommit.on': 'Włącz automatyczne zatwierdzanie',
 }
