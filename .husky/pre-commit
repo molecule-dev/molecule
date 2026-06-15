@@ -26,3 +26,9 @@ fi
 
 npm run check:lockfile
 npm run check:peer-deps
+# i18n parity (cross-cutting-i18n) — full-tree scan, but fast (~0.1s) and it
+# only fails on NEW missing keys vs the baseline, so a string shipped as an
+# inline defaultValue without its bond key is caught here at commit time, not
+# weeks later. (Whole-tree, not staged-only: a key added in package A must be
+# checked against its owning locale bond in package B.)
+npm run check:i18n-parity

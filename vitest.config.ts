@@ -39,6 +39,9 @@ export default defineConfig({
       'packages/api/locales/*/vitest.config.ts',
       'packages/app/locales/*/vitest.config.ts',
 
+      // Repo-meta guards (CI gate scripts under scripts/__tests__).
+      'scripts/vitest.config.ts',
+
       // (No catchall project — each package's own vitest.config.ts
       // declares its environment, mocks, and includes. monaco-editor and
       // other Vite-unfriendly deps stay outside the runner: run their

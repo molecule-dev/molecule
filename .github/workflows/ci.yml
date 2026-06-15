@@ -31,6 +31,13 @@ jobs:
       # Every app feature package must carry a module-level @example so its
       # auto-generated MOLECULE.md shows the AI executor how to use the component.
       - run: npm run check:feature-jsdocs
+      # i18n parity (cross-cutting-i18n): a literal `t('ns.key')` whose namespace
+      # is owned by a single locale bond must exist in that bond's en.ts — else
+      # English speakers see the inline defaultValue but every other locale is
+      # stuck on English for that surface. Fails ONLY on NEW gaps vs the
+      # scripts/i18n-parity-baseline.json debt list, so the historical backlog is
+      # paid down without turning the gate red today.
+      - run: npm run check:i18n-parity
       - run: npm run build
       - run: npm test
 
