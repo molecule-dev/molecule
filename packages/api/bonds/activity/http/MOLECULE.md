@@ -110,4 +110,4 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `MOLECULE_ACTIVITY_URL` *(optional)* — default: `https://api.molecule.dev/v1/activity`
+- `MOLECULE_ACTIVITY_URL` *(optional)*
