@@ -31,6 +31,7 @@ import { cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { addTranslations, t } from '@molecule/app-i18n'
+import { setIconSet } from '@molecule/app-icons'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
@@ -44,6 +45,19 @@ const ENTRY_TIP_EN =
 beforeEach(() => {
   // The REAL themed ClassMap, so the card's resolved classes are actual tokens.
   setClassMap(classMap)
+  // Stub the bonded icon set so the lightbulb <Icon> resolves to a real <svg>
+  // (TipCard now renders the bonded Icon instead of a hardcoded inline svg — P3-01).
+  setIconSet(
+    new Proxy(
+      {},
+      {
+        get: (_target, name) => ({
+          paths: [{ d: `glyph:${String(name)}` }],
+          viewBox: '0 0 16 16',
+        }),
+      },
+    ),
+  )
   // Register the bond's English strings on the live i18n singleton TipCard reads
   // through. A WRONG default is passed at the call site below, so resolving the
   // real text proves it comes from the registry (the bond), not the inline default.

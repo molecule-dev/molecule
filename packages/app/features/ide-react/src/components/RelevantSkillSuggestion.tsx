@@ -99,7 +99,7 @@ export function RelevantSkillSuggestion({
       <Tooltip content={tooltip} placement="top">
         <Icon
           name="lightbulb"
-          size={14}
+          size={18}
           data-mol-id="relevant-skill-icon"
           aria-hidden="true"
           style={{ color: 'var(--mol-color-primary, #6366f1)', opacity: 0.9 }}

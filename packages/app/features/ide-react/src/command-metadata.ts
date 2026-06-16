@@ -94,13 +94,6 @@ export const COMMANDS: readonly CommandDef[] = [
     category: 'context',
     usage: '/skills [query]',
   },
-  {
-    id: 'newskill',
-    label: '/newskill',
-    description: 'Create a new project skill',
-    category: 'context',
-    usage: '/newskill [name]',
-  },
 
   // Code
   { id: 'commit', label: '/commit', description: 'Commit current changes', category: 'code' },
@@ -152,6 +145,12 @@ export const COMMANDS: readonly CommandDef[] = [
     category: 'code',
     usage: '/autocommit <seconds>',
   },
+  {
+    id: 'autofix',
+    label: '/autofix',
+    description: 'Toggle auto-fix after AI file changes',
+    category: 'code',
+  },
 
   // Collaborate
   {
@@ -193,12 +192,6 @@ export const COMMANDS: readonly CommandDef[] = [
     description: "View & change {{agentName}}'s settings",
     category: 'settings',
   },
-  {
-    id: 'autofix',
-    label: '/autofix',
-    description: 'Toggle auto-fix after AI file changes',
-    category: 'settings',
-  },
   { id: 'sounds', label: '/sounds', description: 'Notification sounds', category: 'settings' },
 
   // Support
@@ -216,6 +209,12 @@ export const COMMANDS: readonly CommandDef[] = [
     description: 'Report a bug (alias for /report)',
     category: 'support',
     usage: '/bug [title]',
+  },
+  {
+    id: 'version',
+    label: '/version',
+    description: 'Show the app version',
+    category: 'support',
   },
 ] as const
 

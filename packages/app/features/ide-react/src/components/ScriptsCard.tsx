@@ -172,7 +172,7 @@ export function ScriptsCard({
           type="button"
           data-mol-id="scripts-new-toggle"
           onClick={() => setCreating((v) => !v)}
-          className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+          className={cm.cn(cm.button({ variant: 'outline', size: 'xs' }))}
           style={{ flexShrink: 0 }}
         >
           {creating
@@ -321,7 +321,7 @@ export function ScriptsCard({
                   data-mol-id={`script-run-${script.name}`}
                   onClick={() => void handleRun(script.name)}
                   disabled={run === 'running'}
-                  className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+                  className={cm.cn(cm.button({ variant: 'outline', size: 'xs' }))}
                   style={{ flexShrink: 0, opacity: run === 'running' ? 0.6 : 1 }}
                   title={t('ide.chat.scripts.runTitle', undefined, {
                     defaultValue: 'Run this script in the sandbox',

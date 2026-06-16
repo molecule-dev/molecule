@@ -13,11 +13,12 @@
  * to add/remove a skill from that default set — whose full body the backend then
  * injects into every conversation.
  *
- * It also hosts the skill-authoring affordance (the UI half of `/newskill`): a
- * "New skill" button reveals an inline name form whose submit calls `onCreate`,
- * and the freshly created skill is added to the list immediately. The card can
- * also mount with that form already open (`startCreating`) for a bare
- * `/newskill` command.
+ * It also hosts the skill-authoring affordance: a "New skill" button that, when
+ * clicked, folds an inline name form into the header row (the name input sits
+ * where the button was, with Create/Cancel taking the button's right-edge slot)
+ * whose submit calls `onCreate`, and the freshly created skill is added to the
+ * list immediately. The card can also mount with that form already open
+ * (`startCreating`).
  *
  * Per-control hints surface through the framework's REAL styled {@link Tooltip}
  * (instant, theme-aware, focus/hover-aware) — never the delayed, touch-blind
@@ -86,7 +87,7 @@ function skillBadgeStyle(strong: boolean): CSSProperties {
  * @param root0.onCreate - Creates a new skill from a display name and resolves the created
  *   skill (or `null` on failure). When omitted, the "New skill" affordance is hidden.
  * @param root0.startCreating - When `true`, mount with the inline "New skill" form already
- *   open (used by a bare `/newskill` command).
+ *   open.
  * @param root0.loadedSkillPaths - Paths of skills opened via "Load" this session — each shows
  *   a "Loaded" badge. Defaults to empty.
  * @param root0.defaultSkillPaths - Paths of skills in the persisted per-project default-loaded
@@ -197,7 +198,10 @@ export function SkillsCard({
           marginBottom: 6,
         }}
       >
-        <div className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}>
+        <div
+          className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}
+          style={{ flexShrink: 0 }}
+        >
           {t('ide.chat.skills.heading', undefined, { defaultValue: 'Skills' })}
         </div>
         {onCreate && !creating && (
@@ -211,7 +215,7 @@ export function SkillsCard({
               type="button"
               data-mol-id="skill-new"
               onClick={() => setCreating(true)}
-              className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+              className={cm.cn(cm.button({ variant: 'outline', size: 'xs' }))}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0 }}
             >
               <Icon name="plus" size={12} aria-hidden="true" />
@@ -219,61 +223,62 @@ export function SkillsCard({
             </button>
           </Tooltip>
         )}
+        {/* New skill — inline authoring form folded into the header row: the name
+            input sits on the line where the button was (flex:1), and Create/Cancel
+            occupy the old "New skill" button slot at the right edge. */}
+        {onCreate && creating && (
+          <form
+            data-mol-id="skill-create-form"
+            onSubmit={(e) => {
+              e.preventDefault()
+              void submitNewSkill()
+            }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minWidth: 0 }}
+          >
+            <input
+              autoFocus
+              value={newName}
+              data-mol-id="skill-create-name"
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder={t('ide.chat.skills.newPlaceholder', undefined, {
+                defaultValue: 'New skill name…',
+              })}
+              className={cm.cn(cm.textSize('xs'))}
+              style={{
+                flex: 1,
+                minWidth: 0,
+                padding: '4px 6px',
+                borderRadius: 4,
+                border: `1px solid ${rowBorder}`,
+                background: 'transparent',
+                color: 'inherit',
+                outline: 'none',
+              }}
+            />
+            <button
+              type="submit"
+              data-mol-id="skill-create-submit"
+              disabled={!newName.trim() || busy}
+              className={cm.cn(cm.button({ variant: 'solid', size: 'xs' }))}
+              style={{ flexShrink: 0 }}
+            >
+              {t('ide.chat.skills.create', undefined, { defaultValue: 'Create' })}
+            </button>
+            <button
+              type="button"
+              data-mol-id="skill-create-cancel"
+              onClick={() => {
+                setCreating(false)
+                setNewName('')
+              }}
+              className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+              style={{ flexShrink: 0 }}
+            >
+              {t('ide.chat.skills.cancel', undefined, { defaultValue: 'Cancel' })}
+            </button>
+          </form>
+        )}
       </div>
-
-      {/* New skill — inline authoring form */}
-      {onCreate && creating && (
-        <form
-          data-mol-id="skill-create-form"
-          onSubmit={(e) => {
-            e.preventDefault()
-            void submitNewSkill()
-          }}
-          style={{ display: 'flex', gap: 6, marginBottom: 6 }}
-        >
-          <input
-            autoFocus
-            value={newName}
-            data-mol-id="skill-create-name"
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder={t('ide.chat.skills.newPlaceholder', undefined, {
-              defaultValue: 'New skill name…',
-            })}
-            className={cm.cn(cm.textSize('xs'))}
-            style={{
-              flex: 1,
-              minWidth: 0,
-              padding: '4px 6px',
-              borderRadius: 4,
-              border: `1px solid ${rowBorder}`,
-              background: 'transparent',
-              color: 'inherit',
-              outline: 'none',
-            }}
-          />
-          <button
-            type="submit"
-            data-mol-id="skill-create-submit"
-            disabled={!newName.trim() || busy}
-            className={cm.cn(cm.button({ variant: 'solid', size: 'xs' }))}
-            style={{ flexShrink: 0 }}
-          >
-            {t('ide.chat.skills.create', undefined, { defaultValue: 'Create' })}
-          </button>
-          <button
-            type="button"
-            data-mol-id="skill-create-cancel"
-            onClick={() => {
-              setCreating(false)
-              setNewName('')
-            }}
-            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
-            style={{ flexShrink: 0 }}
-          >
-            {t('ide.chat.skills.cancel', undefined, { defaultValue: 'Cancel' })}
-          </button>
-        </form>
-      )}
 
       {/* Search / filter */}
       <input

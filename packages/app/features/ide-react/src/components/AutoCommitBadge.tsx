@@ -73,14 +73,19 @@ function mutedTint(percent: number): string {
  * @param root0 - Component props.
  * @param root0.state - The current auto-commit countdown state.
  * @param root0.onCancel - Called when the badge is clicked to cancel auto-commit.
+ * @param root0.inline - When true, render as an inline (relative) pill that sits
+ *   in normal flow — e.g. occupying the commit bar's button slot — instead of the
+ *   default floating pill absolutely positioned over the input area.
  * @returns The rendered badge, or `null` when auto-commit is disabled.
  */
 export function AutoCommitBadge({
   state,
   onCancel,
+  inline = false,
 }: {
   state: AutoCommitState
   onCancel: () => void
+  inline?: boolean
 }): JSX.Element | null {
   const cm = getClassMap()
   // Disabled → render nothing. Otherwise the pill is always present: a live
@@ -108,10 +113,11 @@ export function AutoCommitBadge({
       title={cancelLabel}
       className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'), !armed && cm.textMuted)}
       style={{
-        position: 'absolute',
-        top: -10,
-        right: 8,
-        zIndex: 50,
+        // Inline (commit-bar slot) sits in normal flow; the default floats over
+        // the input's top-right so it never blocks typing.
+        ...(inline
+          ? { position: 'relative' }
+          : { position: 'absolute', top: -10, right: 8, zIndex: 50 }),
         display: 'inline-flex',
         alignItems: 'center',
         gap: 4,

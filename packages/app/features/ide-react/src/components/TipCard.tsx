@@ -14,6 +14,8 @@ import type { CSSProperties, JSX, ReactNode } from 'react'
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
+import { Icon } from './Icon.js'
+
 /** Inline monospace code style for command/`@file` tokens in a tip (mvp #10). */
 const TIP_CODE_STYLE: CSSProperties = {
   fontFamily: 'var(--mol-font-mono, monospace)',
@@ -76,11 +78,9 @@ export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => vo
         lineHeight: 1.5,
       }}
     >
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 20 20"
-        fill="currentColor"
+      <Icon
+        name="lightbulb"
+        size={18}
         aria-hidden="true"
         style={{
           flexShrink: 0,
@@ -88,9 +88,7 @@ export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => vo
           opacity: 0.7,
           color: 'var(--mol-color-primary, #6366f1)',
         }}
-      >
-        <path d="M10 2a6 6 0 0 0-3.5 10.9c.3.2.5.6.5 1V15h6v-1.1c0-.4.2-.8.5-1A6 6 0 0 0 10 2zM7 17a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-.5H7V17z" />
-      </svg>
+      />
       <span style={{ flex: 1 }}>{renderTipText(text)}</span>
       <button
         type="button"

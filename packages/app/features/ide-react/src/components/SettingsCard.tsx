@@ -164,27 +164,29 @@ export function SettingsCard({
               })}
             </div>
             {group.commands.map((cmd) => (
+              // Description BENEATH the command (mirrors the Settings section above),
+              // separated by margin/whitespace only — deliberately no border between rows.
               <div
                 key={cmd.id}
                 data-mol-id={`settings-command-${cmd.id}`}
-                style={{ display: 'flex', alignItems: 'baseline', gap: 6, padding: '1px 0' }}
+                style={{ padding: '2px 0', marginBottom: 4 }}
               >
                 <code
                   style={{
-                    flexShrink: 0,
+                    display: 'block',
                     fontFamily: 'var(--mol-font-mono, monospace)',
                     whiteSpace: 'nowrap',
                   }}
                 >
                   {cmd.usage ?? cmd.label}
                 </code>
-                <span className={cm.textMuted} style={{ lineHeight: 1.4 }}>
+                <div className={cm.textMuted} style={{ marginTop: 2, lineHeight: 1.4 }}>
                   {t(
                     `ide.chat.cmd.${cmd.id}.desc`,
                     { agentName },
                     { defaultValue: cmd.description },
                   )}
-                </span>
+                </div>
               </div>
             ))}
           </div>

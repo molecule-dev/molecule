@@ -271,7 +271,9 @@ interface SystemCard {
   query?: string
   /**
    * For the `'skills'` variant: mount the card with its inline "New skill" form
-   * already open (used by a bare `/newskill` command, which has no name yet).
+   * already open. (Reserved — kept for callers that want to open the form
+   * directly; the standalone `/newskill` command was removed in favor of the
+   * `/skills` browser's own "New skill" button.)
    */
   skillsCreate?: boolean
   /**
@@ -1329,8 +1331,8 @@ export function CommitCardItem({
 // ---------------------------------------------------------------------------
 // MoleculeAvatar — the agent's molecule logo, shown beside a message that was
 // sent automatically on the user's behalf (C2), so it's obvious the agent sent
-// it rather than the user. Mirrors UserAvatar's icon-fallback circle, swapping
-// the `user` glyph for the molecule `logo-mark` tinted with the success accent.
+// it rather than the user. Mirrors UserAvatar's icon-fallback rounded square,
+// swapping the `user` glyph for the molecule `logo-mark` tinted with the success accent.
 // ---------------------------------------------------------------------------
 
 /**
@@ -1351,7 +1353,7 @@ function MoleculeAvatar({ size = 20 }: { size?: number }): JSX.Element {
       style={{
         width: size,
         height: size,
-        borderRadius: '50%',
+        borderRadius: 6,
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -2199,7 +2201,8 @@ function ChatInner({
   userAvatar,
   agentName = DEFAULT_AGENT_NAME,
   productName = DEFAULT_PRODUCT_NAME,
-  feedbackUrl,
+  // feedbackUrl: prop kept for back-compat (callers still pass it), but no longer
+  // consumed here — its only use was the command-menu footer link removed in P3-21.
 }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
   const themeMode = useThemeMode()
@@ -3100,6 +3103,8 @@ function ChatInner({
         // Persisted per-project default-loaded skills (P2-06/P2-08).
         const savedDefaultSkills = s?.defaultSkills
         if (Array.isArray(savedDefaultSkills)) {
+          // An explicit saved set wins over the "all initial skills" default (P3-11).
+          defaultSkillsExplicitRef.current = true
           setDefaultSkillPaths(
             new Set(savedDefaultSkills.filter((p): p is string => typeof p === 'string')),
           )
@@ -3544,6 +3549,10 @@ function ChatInner({
   const [defaultSkillPaths, setDefaultSkillPaths] = useState<ReadonlySet<string>>(
     () => new Set<string>(),
   )
+  // P3-11: whether the user has an EXPLICIT saved defaultSkills set. When false
+  // (unset), ALL initial/discovered skills are treated as default (badged here +
+  // injected full-body by the backend) — seeded in the skill-load effect below.
+  const defaultSkillsExplicitRef = useRef(false)
 
   /**
    * Loads a skill from the `/skills` browser (or the proactive suggestion): opens
@@ -3594,8 +3603,8 @@ function ChatInner({
   )
 
   /**
-   * Creates a new project skill (the `/newskill` command + the `/skills`
-   * browser's "New skill" form): writes a starter `.agents/skills/<slug>/SKILL.md`
+   * Creates a new project skill (the `/skills` browser's "New skill" form):
+   * writes a starter `.agents/skills/<slug>/SKILL.md`
    * (name + description frontmatter), opens it in the editor for authoring, and
    * confirms with a system card. Resolves the created skill (so the browser can
    * list it without a re-fetch) or `null` if the write failed.
@@ -3647,7 +3656,6 @@ function ChatInner({
 
   useEffect(() => {
     if (skillsLoadedRef.current) return
-    if (!messages.some((m) => m.role === 'user')) return
     skillsLoadedRef.current = true
     void (async () => {
       try {
@@ -3660,13 +3668,19 @@ function ChatInner({
               .data.content,
         )
         setProjectSkills(loaded)
+        // P3-11: with no explicit saved set, ALL initial/discovered skills are
+        // default — seed the badge set so the /skills browser reflects it (the
+        // backend likewise injects every initial skill when defaultSkills is unset).
+        if (!defaultSkillsExplicitRef.current) {
+          setDefaultSkillPaths(new Set(loaded.map((s) => s.path)))
+        }
       } catch (error) {
-        // Best-effort proactive hint — a failed skills fetch must never disrupt
-        // the chat; we simply skip the suggestion for this conversation.
+        // Best-effort — a failed skills fetch must never disrupt the chat; we
+        // simply skip the suggestion + default-seed for this conversation.
         logger.debug('Skipping relevant-skill suggestion; failed to load project skills', { error })
       }
     })()
-  }, [messages, http, projectId])
+  }, [http, projectId])
 
   const relevantSkill = useMemo<SkillInfo | null>(() => {
     if (projectSkills.length === 0) return null
@@ -3707,6 +3721,9 @@ function ChatInner({
   const toggleDefaultSkill = useCallback(
     (skill: SkillInfo, next: boolean) => {
       if (next === defaultSkillPaths.has(skill.path)) return
+      // Any explicit toggle locks in an explicit set (persisted below), so the
+      // "all initial skills" default no longer re-seeds it (P3-11).
+      defaultSkillsExplicitRef.current = true
       const previous = defaultSkillPaths
       const updated = new Set(previous)
       if (next) updated.add(skill.path)
@@ -4252,12 +4269,6 @@ function ChatInner({
         // Renders the skills browser (see the 'skills' variant branch). A query,
         // if any, is supplied via the /skills <query> path in handleSubmit.
         addSystemCard('', undefined, 'skills')
-      } else if (id === 'newskill') {
-        setInputValue('')
-        // From the command menu there's no name yet — open the skills browser
-        // with its inline "New skill" form expanded (skillsCreate = true). The
-        // /newskill <name> path in handleSubmit creates directly instead.
-        addSystemCard('', undefined, 'skills', '', undefined, undefined, undefined, true)
       } else if (id === 'scripts') {
         setInputValue('')
         // Renders the scripts browser (see the 'scripts' variant branch). A query,
@@ -4270,6 +4281,12 @@ function ChatInner({
       } else if (id === 'report' || id === 'bug') {
         setInputValue('')
         setReportModal({ title: '' })
+      } else if (id === 'version') {
+        setInputValue('')
+        // P3-21: /version replaces the old command-menu footer version line.
+        addSystemCard(
+          t('ide.chat.version', { productName }, { defaultValue: '{{productName}} v0.1.0' }),
+        )
       } else if (id === 'share') {
         setInputValue('')
         setShareModal({ role: DEFAULT_SHARE_ROLE })
@@ -4334,18 +4351,6 @@ function ChatInner({
     if (skillsMatch) {
       setInputValue('')
       addSystemCard('', undefined, 'skills', skillsMatch[1]?.trim() ?? '')
-      return
-    }
-
-    // Handle /newskill [name] command locally — with a name, create the skill
-    // straight away (write + open + confirm); bare, open the skills browser with
-    // its inline "New skill" form expanded so the user can type the name.
-    const newSkillMatch = trimmed.match(/^\/newskill(?:\s+(.*))?$/i)
-    if (newSkillMatch) {
-      setInputValue('')
-      const skillName = newSkillMatch[1]?.trim()
-      if (skillName) void createSkill(skillName)
-      else addSystemCard('', undefined, 'skills', '', undefined, undefined, undefined, true)
       return
     }
 
@@ -5109,7 +5114,11 @@ function ChatInner({
       <div
         ref={messagesContainerRef}
         className={cm.sp('p', 3)}
-        style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'thin', ...cm.sp({ pr: 1 }) }}
+        // Symmetric padding on all four sides; scrollbarGutter:'stable' reserves the
+        // thin scrollbar's gutter whether or not it shows, so the right padding no
+        // longer collapses when there is nothing to scroll (P3-04) — replacing the
+        // old asymmetric pr-1 hack.
+        style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'thin', scrollbarGutter: 'stable' }}
       >
         {timeline.length > maxVisibleItems && (
           <div style={{ textAlign: 'center', padding: '8px 0' }}>
@@ -5616,11 +5625,16 @@ function ChatInner({
 
       {/* ── Input area ── */}
       <div className={cm.shrink0} style={{ position: 'relative' }}>
-        {/* Auto-commit countdown badge — informational, never blocks input. */}
-        <AutoCommitBadge
-          state={autoCommit}
-          onCancel={() => dispatchAutoCommit({ type: 'set', seconds: 0 })}
-        />
+        {/* Auto-commit indicator. When ARMED (counting down) the countdown lives in
+            the commit bar's button slot (P3-15); here we only show the muted
+            "Auto-commit on" pill for the paused state, so the countdown is never
+            shown in two places at once. */}
+        {!isAutoCommitArmed(autoCommit) && (
+          <AutoCommitBadge
+            state={autoCommit}
+            onCancel={() => dispatchAutoCommit({ type: 'set', seconds: 0 })}
+          />
+        )}
 
         {/* Proactive "Relevant skill" suggestion (SYN4) — one-click Load, just
             above the composer; appears only when the relevance pass matches. */}
@@ -5760,12 +5774,22 @@ function ChatInner({
                           // chatModel (which defaults to the free-tier model and
                           // is misleading once a per-mode model is set). Mirrors
                           // the picker header's resolveModeModel logic.
+                          // Always resolve a non-empty current model id so the
+                          // parentheses never render as an empty " ()" before the
+                          // catalog loads (P3-16): fall through plan/execute ->
+                          // chatModel -> the default / free-tier model id (|| so an
+                          // empty string also falls through).
                           const effId =
                             resolveModeModel(
                               { planModel, executeModel, chatModel: currentModel },
                               mode,
-                            ) ?? currentModel
-                          suffix = ` (${AVAILABLE_MODELS.find((m) => m.id === effId)?.label ?? effId})`
+                            ) ||
+                            currentModel ||
+                            DEFAULT_MODEL ||
+                            FREE_TIER_MODEL
+                          const modelLabel =
+                            AVAILABLE_MODELS.find((m) => m.id === effId)?.label ?? effId
+                          suffix = modelLabel ? ` (${modelLabel})` : ''
                         } else if (cmd.id === 'maxloops') suffix = ` (${currentMaxLoops})`
                         else if (cmd.id === 'autofix')
                           suffix = ` (${autoFixEnabled ? 'on' : 'off'})`
@@ -5847,40 +5871,9 @@ function ChatInner({
                     </div>
                   ))}
                 </div>
-                {/* Footer: version + report */}
-                <div
-                  className={cm.textMuted}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '5px 12px',
-                    borderTop: '1px solid rgba(128,128,128,0.12)',
-                    fontSize: '11px',
-                    flexShrink: 0,
-                  }}
-                >
-                  {feedbackUrl ? (
-                    <a
-                      href={feedbackUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: 'inherit', opacity: 0.7, textDecoration: 'underline' }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {t('ide.chat.reportProblem', undefined, { defaultValue: 'Report a problem' })}
-                    </a>
-                  ) : (
-                    <span />
-                  )}
-                  <span style={{ opacity: 0.5 }}>
-                    {t(
-                      'ide.chat.version',
-                      { productName },
-                      { defaultValue: '{{productName}} v0.1.0' },
-                    )}
-                  </span>
-                </div>
+                {/* Footer removed (P3-21): the "Report a problem" link is redundant
+                    with /report (or /bug), and the version text is now surfaced
+                    on demand via the /version command. */}
               </div>
             )
           })()}
@@ -5992,6 +5985,10 @@ function ChatInner({
                         padding: '2px 4px',
                         color: 'inherit',
                         cursor: 'pointer',
+                        // Match the sort <select>'s height exactly (P3-18): stretch to
+                        // the flex row's height instead of sizing to the 12px icon.
+                        alignSelf: 'stretch',
+                        boxSizing: 'border-box',
                       }}
                     >
                       <Icon
@@ -6619,51 +6616,62 @@ function ChatInner({
                         )}
                 </span>
               </div>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleCommit()
-                }}
-                disabled={
-                  commitState?.status === 'committing' || commitState?.status === 'committed'
-                }
-                onMouseEnter={(e) => {
-                  if (
-                    !(commitState?.status === 'committing' || commitState?.status === 'committed')
-                  ) {
-                    e.currentTarget.style.background = 'rgba(64,112,224,0.3)'
-                    e.currentTarget.style.borderColor = 'rgba(64,112,224,0.65)'
-                    e.currentTarget.style.color = '#6090f0'
+              {/* When auto-commit is armed, the green countdown occupies the Commit
+                  button's slot (P3-15); cancelling it (click) falls back to the
+                  manual Commit button. */}
+              {isAutoCommitArmed(autoCommit) ? (
+                <AutoCommitBadge
+                  state={autoCommit}
+                  onCancel={() => dispatchAutoCommit({ type: 'set', seconds: 0 })}
+                  inline
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleCommit()
+                  }}
+                  disabled={
+                    commitState?.status === 'committing' || commitState?.status === 'committed'
                   }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(64,112,224,0.2)'
-                  e.currentTarget.style.borderColor = 'rgba(64,112,224,0.4)'
-                  e.currentTarget.style.color = '#4070e0'
-                }}
-                style={{
-                  fontSize: 12,
-                  padding: '4px 10px',
-                  borderRadius: 6,
-                  border: '1px solid rgba(64,112,224,0.4)',
-                  background: 'rgba(64,112,224,0.2)',
-                  color: '#4070e0',
-                  cursor:
-                    commitState?.status === 'committing' || commitState?.status === 'committed'
-                      ? 'not-allowed'
-                      : 'pointer',
-                  opacity:
-                    commitState?.status === 'committing' || commitState?.status === 'committed'
-                      ? 0.5
-                      : 1,
-                  transition: 'background 100ms, border-color 100ms, color 100ms',
-                }}
-              >
-                {commitState?.status === 'committing'
-                  ? t('ide.chat.committing')
-                  : t('ide.chat.commit')}
-              </button>
+                  onMouseEnter={(e) => {
+                    if (
+                      !(commitState?.status === 'committing' || commitState?.status === 'committed')
+                    ) {
+                      e.currentTarget.style.background = 'rgba(64,112,224,0.3)'
+                      e.currentTarget.style.borderColor = 'rgba(64,112,224,0.65)'
+                      e.currentTarget.style.color = '#6090f0'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(64,112,224,0.2)'
+                    e.currentTarget.style.borderColor = 'rgba(64,112,224,0.4)'
+                    e.currentTarget.style.color = '#4070e0'
+                  }}
+                  style={{
+                    fontSize: 12,
+                    padding: '4px 10px',
+                    borderRadius: 6,
+                    border: '1px solid rgba(64,112,224,0.4)',
+                    background: 'rgba(64,112,224,0.2)',
+                    color: '#4070e0',
+                    cursor:
+                      commitState?.status === 'committing' || commitState?.status === 'committed'
+                        ? 'not-allowed'
+                        : 'pointer',
+                    opacity:
+                      commitState?.status === 'committing' || commitState?.status === 'committed'
+                        ? 0.5
+                        : 1,
+                    transition: 'background 100ms, border-color 100ms, color 100ms',
+                  }}
+                >
+                  {commitState?.status === 'committing'
+                    ? t('ide.chat.committing')
+                    : t('ide.chat.commit')}
+                </button>
+              )}
             </div>
             {commitBarExpanded && (
               <div style={{ marginTop: 4, paddingLeft: 16, maxHeight: 200, overflowY: 'auto' }}>
@@ -6813,11 +6821,23 @@ function ChatInner({
             style={{
               width: '100%',
               display: 'block',
-              padding: 0,
               color: 'inherit',
               resize: 'none',
               outline: 'none',
-              border: 'none',
+              // P3-03/P3-23: in discovery mode the composer reads as a rounded,
+              // bordered input whose border aligns with the surrounding card edge —
+              // the negative margin pulls it out across the container's 8/10px
+              // padding (the preview/code-toggle border principle) and it carries the
+              // same decreased 8px rounding as the container; internal padding keeps
+              // the text off the border. The full-IDE side-panel composer stays flush.
+              ...(discovery
+                ? {
+                    border: '1px solid rgba(128,128,128,0.22)',
+                    borderRadius: 8,
+                    margin: '-8px -10px 0',
+                    padding: '8px 10px',
+                  }
+                : { border: 'none', padding: 0 }),
               background: 'transparent',
               fontFamily: 'inherit',
               overflowY: 'auto',

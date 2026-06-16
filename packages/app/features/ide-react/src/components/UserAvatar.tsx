@@ -61,19 +61,22 @@ export function UserAvatar({ userAvatar, size = 24, onClick }: UserAvatarProps):
       src={src}
       alt={label}
       data-mol-id="chat-user-avatar"
-      // Circle sizing / cropping the ClassMap cannot express.
+      // Rounded-square sizing / cropping the ClassMap cannot express; surfaceSecondary
+      // gives a solid themed backdrop so a transparent PNG (or the pre-load gap) never
+      // shows through (the bg is set by the class, not inline — Rule 12).
+      className={cm.surfaceSecondary}
       style={{
         width: size,
         height: size,
-        borderRadius: '50%',
+        borderRadius: 6,
         objectFit: 'cover',
         flexShrink: 0,
       }}
     />
   ) : (
     <span
-      // surfaceSecondary supplies the circle background; textMuted sets the glyph
-      // color (the icon paints with currentColor) — both via ClassMap, so neither
+      // surfaceSecondary supplies the rounded-square background; textMuted sets the
+      // glyph color (the icon paints with currentColor) — both via ClassMap, so neither
       // is set inline (which would override the themed classes).
       className={cm.cn(cm.surfaceSecondary, cm.textMuted)}
       data-mol-id="chat-user-avatar"
@@ -82,7 +85,7 @@ export function UserAvatar({ userAvatar, size = 24, onClick }: UserAvatarProps):
       style={{
         width: size,
         height: size,
-        borderRadius: '50%',
+        borderRadius: 6,
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -98,7 +101,7 @@ export function UserAvatar({ userAvatar, size = 24, onClick }: UserAvatarProps):
 
   // Interactive — wrap in a real button so it's keyboard-focusable and
   // screen-reader-labelled. The ring is a hover/focus affordance (a property the
-  // ClassMap doesn't manage for this one-off circular control), tinted with the
+  // ClassMap doesn't manage for this one-off rounded-square control), tinted with the
   // primary theme token (no hardcoded hex). Native focus styling is preserved.
   return (
     <button
@@ -115,7 +118,7 @@ export function UserAvatar({ userAvatar, size = 24, onClick }: UserAvatarProps):
         margin: 0,
         border: 'none',
         background: 'transparent',
-        borderRadius: '50%',
+        borderRadius: 6,
         display: 'inline-flex',
         flexShrink: 0,
         cursor: 'pointer',
