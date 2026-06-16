@@ -28,14 +28,16 @@ export async function loadAIModels(
 
 /**
  * Returns the free-tier model from a list, or `undefined` if none is marked.
+ * `disabled` models are ignored — a retired model is never picked as the
+ * free-tier default even if it still carries the flag.
  *
  * @param models - Loaded model catalog.
- * @returns The single model with `freeTier: true`, or `undefined`.
+ * @returns The single non-disabled model with `freeTier: true`, or `undefined`.
  */
 export function pickFreeTierModel(
   models: readonly AppModelDefinition[],
 ): AppModelDefinition | undefined {
-  return models.find((m) => m.freeTier)
+  return models.find((m) => m.freeTier && !m.disabled)
 }
 
 /**
@@ -58,7 +60,9 @@ export function isDeprecated(
 /**
  * Splits a model catalog into current and deprecated entries based on each
  * model's `deprecatedAt` relative to `now`. Order within each partition is
- * preserved.
+ * preserved. `disabled` models are dropped entirely — they belong in neither
+ * partition (the listing already excludes them, and they must not surface in
+ * the picker's current or "Older models" section).
  *
  * @param models - Loaded model catalog.
  * @param now - Today's date as YYYY-MM-DD. Defaults to the current UTC date.
@@ -71,6 +75,7 @@ export function partitionByDeprecation(
   const current: AppModelDefinition[] = []
   const deprecated: AppModelDefinition[] = []
   for (const model of models) {
+    if (model.disabled) continue
     if (isDeprecated(model, now)) deprecated.push(model)
     else current.push(model)
   }

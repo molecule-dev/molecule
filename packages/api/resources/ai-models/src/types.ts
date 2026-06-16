@@ -161,6 +161,22 @@ export interface ModelDefinition {
    * Omit entirely for current models.
    */
   deprecatedAt?: string
+  /**
+   * Whether this model is fully disabled — removed from selection and the
+   * public listing while remaining priceable for historical usage.
+   *
+   * Stronger than {@link deprecatedAt}: a deprecated model is still selectable
+   * (the picker just tucks it into an "Older models" section), whereas a
+   * disabled model vanishes from every *exposure* surface — it is excluded from
+   * `MODEL_IDS`, `getAvailableModels()`, the `GET /ai/models` listing, and the
+   * client-side free-tier / deprecation-partition helpers. Use it for a model
+   * the provider has retired or deprecated (e.g. `grok-code-fast-1`).
+   *
+   * `getModel(id)` STILL returns a disabled entry so a saved selection or a
+   * historical usage row can always be priced — NEVER delete a disabled model,
+   * or its past usage silently meters as free. Omit entirely for active models.
+   */
+  disabled?: boolean
 }
 
 /**

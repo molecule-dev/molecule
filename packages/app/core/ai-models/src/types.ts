@@ -98,6 +98,15 @@ export interface AppModelDefinition {
    * current models.
    */
   deprecatedAt?: string
+  /**
+   * Whether this model is fully disabled — removed from selection and the
+   * listing while remaining priceable for historical usage. Stronger than
+   * {@link deprecatedAt} (which keeps the model selectable in an "Older models"
+   * section): a disabled model is excluded from the free-tier / deprecation
+   * partition helpers and never offered. Kept in sync with the server-side
+   * `ModelDefinition.disabled`. Omit entirely for active models.
+   */
+  disabled?: boolean
 }
 
 /**

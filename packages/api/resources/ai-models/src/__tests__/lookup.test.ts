@@ -157,6 +157,16 @@ describe('getModel', () => {
   it('returns undefined for unknown ID', () => {
     expect(getModel('nonexistent-model')).toBeUndefined()
   })
+
+  it('still returns a disabled model so historical usage stays priceable', () => {
+    // grok-code-fast-1 is retired (disabled) but MUST remain priceable: a saved
+    // selection or a past usage row can still reference it. NEVER delete it.
+    const grokCode = getModel('grok-code-fast-1')
+    expect(grokCode).toBeDefined()
+    expect(grokCode!.disabled).toBe(true)
+    expect(grokCode!.inputPricePerMTok).toBeGreaterThan(0)
+    expect(grokCode!.outputPricePerMTok).toBeGreaterThan(0)
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -164,14 +174,14 @@ describe('getModel', () => {
 // ---------------------------------------------------------------------------
 
 describe('MODEL_IDS', () => {
-  it('contains every model ID from MODELS', () => {
+  it('contains every non-disabled model ID, and excludes disabled ones', () => {
     for (const model of MODELS) {
-      expect(MODEL_IDS.has(model.id)).toBe(true)
+      expect(MODEL_IDS.has(model.id), model.id).toBe(model.disabled !== true)
     }
   })
 
-  it('has the same size as MODELS', () => {
-    expect(MODEL_IDS.size).toBe(MODELS.length)
+  it('has one entry per non-disabled model', () => {
+    expect(MODEL_IDS.size).toBe(MODELS.filter((m) => !m.disabled).length)
   })
 
   it('returns false for unknown IDs', () => {
@@ -321,9 +331,18 @@ describe('getAvailableModels', () => {
     expect(getAvailableModels(new Set())).toEqual([])
   })
 
-  it('returns all models when all providers are available', () => {
+  it('returns all non-disabled models when all providers are available', () => {
     const allProviders = new Set(MODELS.map((m) => m.provider))
-    expect(getAvailableModels(allProviders).length).toBe(MODELS.length)
+    expect(getAvailableModels(allProviders).length).toBe(MODELS.filter((m) => !m.disabled).length)
+  })
+
+  it('excludes disabled models even when their provider is available', () => {
+    const xaiModels = getAvailableModels(['xai'])
+    expect(xaiModels.length).toBeGreaterThan(0)
+    for (const m of xaiModels) {
+      expect(m.disabled, m.id).not.toBe(true)
+    }
+    expect(xaiModels.some((m) => m.id === 'grok-code-fast-1')).toBe(false)
   })
 })
 
@@ -335,7 +354,14 @@ describe('model data integrity', () => {
   it('has exactly one freeTier model', () => {
     const freeTierModels = MODELS.filter((m) => m.freeTier)
     expect(freeTierModels).toHaveLength(1)
-    expect(freeTierModels[0].id).toBe('grok-code-fast-1')
+    expect(freeTierModels[0].id).toBe('deepseek-v4-flash')
+  })
+
+  it('the freeTier model is not disabled', () => {
+    // A disabled free-tier model would leave the IDE with no usable default.
+    const free = MODELS.find((m) => m.freeTier)
+    expect(free).toBeDefined()
+    expect(free!.disabled).not.toBe(true)
   })
 
   it('sets thinkingConfigurable on all models with supportsThinking', () => {
