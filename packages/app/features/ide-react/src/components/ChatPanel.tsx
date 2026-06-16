@@ -2971,6 +2971,72 @@ function ChatInner({
   )
   addSystemCardRef.current = addSystemCard
 
+  // ── Persist system cards across reloads ───────────────────────────────────
+  // The system cards above are frontend state; on their own they vanish on every
+  // reload. These two effects restore them from the conversation on load and save
+  // them back when they change, so a notice like the model-switch message survives a
+  // refresh. Only the serializable card data is sent — the in-session `action`
+  // callback is dropped, so a restored card is informational. Best-effort: a failed
+  // fetch/save just means a card doesn't restore; the in-memory set still drives the
+  // UI. (Requires an existing conversation; cards added before the first message
+  // creates one start persisting once it has an id.)
+  const sysCardsLoadedConvRef = useRef<string | null>(null)
+  const prevSysCardsConvRef = useRef<string | null>(null)
+  useEffect(() => {
+    const prevConv = prevSysCardsConvRef.current
+    prevSysCardsConvRef.current = conversationId
+    sysCardsLoadedConvRef.current = null
+    if (!conversationId) return
+    // Clear only when switching FROM another conversation, so a brand-new
+    // conversation receiving its id keeps the cards already added to it.
+    if (prevConv && prevConv !== conversationId) setSystemCards([])
+    let cancelled = false
+    void http
+      .get<{ systemCards?: SystemCard[] }>(
+        `/projects/${projectId}/conversations/${conversationId}/system-cards`,
+      )
+      .then((res) => {
+        if (cancelled) return
+        const loaded = res.data?.systemCards ?? []
+        // Merge by id so a card added before the fetch resolved is preserved.
+        setSystemCards((prev) => {
+          const byId = new Map<string, SystemCard>()
+          for (const c of loaded) byId.set(c.id, c)
+          for (const c of prev) byId.set(c.id, c)
+          return [...byId.values()].sort((a, b) => a.timestamp - b.timestamp)
+        })
+        sysCardsLoadedConvRef.current = conversationId
+      })
+      .catch(() => {
+        // Best-effort restore; on failure just allow newly-added cards to persist.
+        if (!cancelled) sysCardsLoadedConvRef.current = conversationId
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [conversationId, projectId, http])
+  useEffect(() => {
+    if (!conversationId || sysCardsLoadedConvRef.current !== conversationId) return
+    const serializable = systemCards.map((c) => ({
+      id: c.id,
+      text: c.text,
+      timestamp: c.timestamp,
+      content: c.content,
+      variant: c.variant,
+      query: c.query,
+      skillsCreate: c.skillsCreate,
+      emphasized: c.emphasized,
+      tone: c.tone,
+    }))
+    void http
+      .put(`/projects/${projectId}/conversations/${conversationId}/system-cards`, {
+        systemCards: serializable,
+      })
+      .catch(() => {
+        // Best-effort; the in-memory cards remain the source of truth this session.
+      })
+  }, [systemCards, conversationId, projectId, http])
+
   // ── Activity cards (captured outbound side effects) ───────────────────────
   const [activityCards, setActivityCards] = useState<ActivityCardEntry[]>([])
   const addActivityCard = useCallback((activity: Activity) => {
