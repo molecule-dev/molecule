@@ -29,6 +29,19 @@ export type AIProviderID =
   | 'zhipu'
 
 /**
+ * Abstract effort scale shared across the stack, smallest to largest.
+ *
+ * The `/effort` command, the per-turn reasoning/thinking budget, and the
+ * agent-loop budget are all keyed off these four levels. Kept deliberately
+ * provider-agnostic — provider-native names (`'high'` / `'xhigh'` / `'max'`)
+ * are surfaced only as display labels, never baked into this type. Mirrored by
+ * the client-side `EffortLevel` in `@molecule/app-ai-models`; keep the two in
+ * sync. Re-declared (rather than imported) by the ide-react and molecule-dev
+ * consumers per the cross-stack rule, but this catalog is the canonical home.
+ */
+export type EffortLevel = 'S' | 'M' | 'L' | 'XL'
+
+/**
  * Full server-side metadata for an AI model. Consumed directly by the chat
  * handler, compaction, and any other server-side cost / budget logic.
  */
@@ -54,6 +67,34 @@ export interface ModelDefinition {
    * When false, the model always reasons but does not accept a thinking / reasoning_effort param.
    */
   thinkingConfigurable: boolean
+  /**
+   * Which abstract effort levels (`'S' | 'M' | 'L' | 'XL'`) are meaningful for
+   * THIS model — the subset the `/effort` command should offer and accept.
+   *
+   * Molecule keeps a single abstract effort scale (see {@link EffortLevel});
+   * this field declares which points on that scale actually change the model's
+   * behavior, because models differ in real reasoning capability — some expose
+   * a fully configurable thinking budget, others reason at a fixed budget or
+   * not at all.
+   *
+   * Semantics:
+   * - **Absent** → ALL levels are supported (back-compat default; a model that
+   *   predates this field, or any future/external entry that omits it, keeps
+   *   offering the full scale and nothing breaks).
+   * - **Present** → only the listed levels are offered/accepted; a persisted
+   *   level outside the set should degrade gracefully to the nearest supported
+   *   one (the consumer clamps — see `model-selection.ts`).
+   *
+   * Population rule applied in `models.ts`: a model whose reasoning budget is
+   * fully controllable (`thinkingConfigurable: true`) gets the full set
+   * `['S', 'M', 'L', 'XL']`; a model whose reasoning is fixed
+   * (`thinkingConfigurable: false`, whether it still thinks at a fixed budget
+   * like `grok-code-fast-1` or does not think at all like the DeepSeek
+   * executors) gets just the default level `['M']`. Every set includes the
+   * default level (`'M'`) so the global `DEFAULT_EFFORT_LEVEL` is never outside
+   * a model's supported set. This is curated data the team can tune later.
+   */
+  supportedEffortLevels?: EffortLevel[]
   /** Whether the model supports vision (images, documents, etc.). */
   supportsVision: boolean
   /** Whether the model supports prompt caching. */

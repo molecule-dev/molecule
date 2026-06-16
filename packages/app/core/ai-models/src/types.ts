@@ -27,6 +27,14 @@ export type AIProviderID =
   | 'zhipu'
 
 /**
+ * Abstract effort scale, smallest to largest. Mirrors the server-side
+ * `EffortLevel` in `@molecule/api-resource-ai-models`; keep the two in sync.
+ * Kept provider-agnostic — provider-native level names (`'high'` / `'xhigh'` /
+ * `'max'`) are surfaced only as display labels, never baked into this type.
+ */
+export type EffortLevel = 'S' | 'M' | 'L' | 'XL'
+
+/**
  * Client-visible model metadata. Mirrors every field of the server-side
  * `ModelDefinition`; no field is currently hidden from authenticated clients.
  */
@@ -49,6 +57,15 @@ export interface AppModelDefinition {
   thinkingBudgetTokens: number
   /** Whether the thinking budget can be controlled via API params. */
   thinkingConfigurable: boolean
+  /**
+   * Which abstract effort levels (`'S' | 'M' | 'L' | 'XL'`) the `/effort`
+   * command should offer/accept for THIS model. Absent → all levels are
+   * supported (back-compat). Present → only the listed levels are valid;
+   * consumers clamp a persisted out-of-set level to the nearest supported one.
+   * Populated server-side per each model's real reasoning capability; see the
+   * server-side `ModelDefinition` for the exact population rule.
+   */
+  supportedEffortLevels?: EffortLevel[]
   /** Whether the model supports vision (images, documents, etc.). */
   supportsVision: boolean
   /** Whether the model supports prompt caching. */

@@ -16,6 +16,17 @@ import type { ModelDefinition } from './types.js'
  * To add or remove a model, edit this array. Both the server-side validation
  * and the public discovery endpoint will update automatically.
  *
+ * `supportedEffortLevels` rule (see {@link ModelDefinition.supportedEffortLevels}):
+ * a model with a fully controllable reasoning budget (`thinkingConfigurable:
+ * true`) carries the full abstract scale `['S', 'M', 'L', 'XL']`; a model whose
+ * reasoning is fixed (`thinkingConfigurable: false` — whether it thinks at a
+ * fixed budget like `grok-code-fast-1` or does not think at all like the
+ * DeepSeek executors) carries only the default level `['M']`. Every set
+ * includes the default `'M'` so `DEFAULT_EFFORT_LEVEL` is always in range.
+ * Omitting the field is still valid and means "all levels" — the catalog just
+ * sets it explicitly on every entry so each model's effort capability is
+ * self-evident and tunable.
+ *
  * Sources (verified 2026-03-16):
  * - Anthropic: https://platform.claude.com/docs/en/docs/about-claude/models/all-models
  * - OpenAI: https://developers.openai.com/api/docs/models/gpt-5.4
@@ -42,6 +53,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
+    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -65,6 +77,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 10_000,
     thinkingConfigurable: true,
+    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -88,6 +101,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: true,
+    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -116,6 +130,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
+    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -145,6 +160,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 10_000,
     thinkingConfigurable: true,
+    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -174,6 +190,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
+    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -194,6 +211,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: false,
+    supportedEffortLevels: ['M'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -226,6 +244,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: false,
     thinkingBudgetTokens: 0,
     thinkingConfigurable: false,
+    supportedEffortLevels: ['M'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -248,6 +267,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: false,
     thinkingBudgetTokens: 0,
     thinkingConfigurable: false,
+    supportedEffortLevels: ['M'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -273,6 +293,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: true,
+    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -298,6 +319,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: true,
+    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -324,6 +346,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: true,
+    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -351,6 +374,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: true,
+    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
