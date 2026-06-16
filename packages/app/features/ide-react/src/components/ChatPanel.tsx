@@ -3657,6 +3657,7 @@ function ChatInner({
   useEffect(() => {
     if (skillsLoadedRef.current) return
     skillsLoadedRef.current = true
+    let cancelled = false
     void (async () => {
       try {
         const loaded = await loadProjectSkills(
@@ -3667,6 +3668,9 @@ function ChatInner({
             (await http.get<{ content: string }>(`/projects/${projectId}/files/${relativePath}`))
               .data.content,
         )
+        // Don't setState after unmount — the fetch resolving post-teardown would
+        // otherwise schedule a React commit with no DOM behind it (leaked async).
+        if (cancelled) return
         setProjectSkills(loaded)
         // P3-11: with no explicit saved set, ALL initial/discovered skills are
         // default — seed the badge set so the /skills browser reflects it (the
@@ -3680,6 +3684,9 @@ function ChatInner({
         logger.debug('Skipping relevant-skill suggestion; failed to load project skills', { error })
       }
     })()
+    return () => {
+      cancelled = true
+    }
   }, [http, projectId])
 
   const relevantSkill = useMemo<SkillInfo | null>(() => {

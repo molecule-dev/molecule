@@ -97,6 +97,12 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
     const cm = getClassMap()
 
     const updatePosition = useCallback(() => {
+      // Guard against the effect firing without a DOM — SSR, or after the test
+      // environment / portal root has been torn down while a show timer or a
+      // pending effect was still queued. Accessing window/document then throws a
+      // leaked "window is not defined" async error (the component already guards
+      // `typeof document` at its portal site for the same reason).
+      if (typeof window === 'undefined' || typeof document === 'undefined') return
       if (triggerRef.current && tooltipRef.current) {
         const triggerRect = triggerRef.current.getBoundingClientRect()
         const tooltipRect = tooltipRef.current.getBoundingClientRect()
