@@ -1,18 +1,17 @@
 /**
  * `/help` content model + plain-text generation.
  *
- * The help content is built from the {@link COMMANDS} registry and the
- * structured {@link HELP_MODES} / {@link HELP_TIPS} constants below — never a
- * hand-maintained string — so a newly-added command can never be missing from
- * `/help`, and the rich {@link module:./HelpCard | HelpCard} and this plain-text
- * fallback can never drift (both read the SAME constants). It enumerates every
- * command grouped by category, explains the three conversation modes (discovery
- * / plan / execute), and lists efficiency tips.
+ * The help content is a concise high-level guide built from the structured
+ * {@link HELP_MODES} / {@link HELP_TIPS} constants below — never a
+ * hand-maintained string — so the rich {@link module:./HelpCard | HelpCard} and
+ * this plain-text fallback can never drift (both read the SAME constants). It
+ * explains the three conversation modes (discovery / plan / execute) and lists
+ * efficiency tips. It deliberately does NOT relist the slash commands — typing
+ * `/` opens the command menu, which does that better.
  *
  * `buildHelpText` is the i18n plain-text fallback (used as the system card's
  * copy/screen-reader text and in any non-React consumer); `HelpCard` renders the
- * same model as an interactive card matching the `/models` / `/settings` /
- * `/skills` cards.
+ * same model as a card matching the `/settings` / `/skills` cards.
  *
  * All prose is i18n-ready via `t(key, values, { defaultValue })`.
  *
@@ -21,9 +20,6 @@
 
 import { t } from '@molecule/app-i18n'
 import { type AgentIdentity, DEFAULT_AGENT_IDENTITY } from '@molecule/app-react'
-
-import type { CommandCategory, CommandDef } from './chat-commands.js'
-import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 
 /**
  * The `/help` intro paragraph (i18n key + English default). Shared by the
@@ -105,7 +101,7 @@ export const HELP_TIPS: readonly HelpTip[] = [
   {
     id: 'slash',
     key: 'ide.chat.help.tipSlash',
-    defaultValue: '• Type / to browse every command above.',
+    defaultValue: '• Type / to browse every command.',
   },
   {
     id: 'plan',
@@ -139,25 +135,20 @@ export const HELP_SHORTCUTS = {
 } as const
 
 /**
- * Builds the `/help` body listing every command grouped by category, the
- * conversation modes, and efficiency tips. Generated from the command registry
- * and the shared {@link HELP_MODES} / {@link HELP_TIPS} constants so it stays in
- * sync automatically — and never drifts from the rich `HelpCard`, which renders
- * the same model.
+ * Builds the `/help` body — a concise high-level guide covering the conversation
+ * modes and efficiency tips. It deliberately does NOT relist the slash commands;
+ * typing `/` opens the command menu, which does that better. Generated from the
+ * shared {@link HELP_MODES} / {@link HELP_TIPS} constants so it stays in sync
+ * automatically — and never drifts from the rich `HelpCard`, which renders the
+ * same model.
  *
  * @param identity - Agent/product display identity used to interpolate the
  *   `{{agentName}}` / `{{productName}}` tokens in the help copy (defaults to the
  *   neutral {@link DEFAULT_AGENT_IDENTITY} so the shared package never hardcodes
  *   a product name).
- * @param commands - Command registry to enumerate (defaults to {@link COMMANDS}).
- * @param categories - Ordered categories used as section headings (defaults to {@link COMMAND_CATEGORIES}).
  * @returns The fully-formatted, newline-delimited help text.
  */
-export function buildHelpText(
-  identity: AgentIdentity = DEFAULT_AGENT_IDENTITY,
-  commands: readonly CommandDef[] = COMMANDS,
-  categories: readonly CommandCategory[] = COMMAND_CATEGORIES,
-): string {
+export function buildHelpText(identity: AgentIdentity = DEFAULT_AGENT_IDENTITY): string {
   const { agentName, productName } = identity
   const values = { agentName, productName }
   const lines: string[] = []
@@ -168,27 +159,6 @@ export function buildHelpText(
     t(HELP_INTRO.key, values, { defaultValue: HELP_INTRO.defaultValue }),
     '',
   )
-
-  // ── Commands, grouped by category, generated from the registry ──
-  lines.push(t('ide.chat.help.commandsHeading', undefined, { defaultValue: '── Commands ──' }))
-  for (const category of categories) {
-    const inCategory = commands.filter((c) => c.category === category.key)
-    if (inCategory.length === 0) continue
-    lines.push(
-      t(`ide.chat.help.category.${category.key}`, undefined, { defaultValue: category.label }),
-    )
-    for (const cmd of inCategory) {
-      const description = t(
-        `ide.chat.cmd.${cmd.id}.desc`,
-        { agentName },
-        {
-          defaultValue: cmd.description,
-        },
-      )
-      lines.push(`  ${cmd.label} — ${description}`)
-    }
-    lines.push('')
-  }
 
   // ── Modes ──
   lines.push(t('ide.chat.help.modesHeading', undefined, { defaultValue: '── Modes ──' }))

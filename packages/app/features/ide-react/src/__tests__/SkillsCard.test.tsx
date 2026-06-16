@@ -16,7 +16,7 @@
  * - clicking it opens an inline name form whose submit calls `onCreate`, and the
  *   created skill is added to the list without a re-fetch;
  * - mounting with `startCreating` opens that form immediately (the bare
- *   `/new-skill` path);
+ *   `/newskill` path);
  * - the per-row **Load** action uses the framework's REAL styled `Tooltip`
  *   (a `role="tooltip"` popover on hover), NEVER a native `title`.
  *
@@ -207,7 +207,7 @@ describe('SkillsCard — skill authoring (SYN4)', () => {
     expect(container.querySelector('[data-mol-id="skill-create-form"]')).toBeNull()
   })
 
-  it('mounts with the form already open when startCreating is set (bare /new-skill)', async () => {
+  it('mounts with the form already open when startCreating is set (bare /newskill)', async () => {
     const { container } = render(
       <Wrap>
         <SkillsCard
@@ -255,7 +255,7 @@ describe('SkillsCard — Load action uses the styled Tooltip, not native title (
     fireEvent.mouseEnter(load.parentElement as HTMLElement)
     const tooltip = document.body.querySelector('[role="tooltip"]')
     expect(tooltip, 'the styled Tooltip must mount on hover').not.toBeNull()
-    expect(tooltip?.textContent).toBe('Open in editor and attach as context')
+    expect(tooltip?.textContent).toBe('Open in the editor')
     fireEvent.mouseLeave(load.parentElement as HTMLElement)
 
     // The action still loads the skill.

@@ -1,24 +1,21 @@
 // @vitest-environment jsdom
 
 /**
- * SYN13 — `/help` interactive-card regression guard.
+ * P2-12 — `/help` high-level-guide card regression guard.
  *
- * The MVP intent audit flagged that `/help` was the least-polished surface in
- * the chat: a muted xs monospace ASCII-divider TEXT BLOB rendered through the
- * generic system-card branch, while every sibling command (`/models`,
- * `/settings`, `/skills`, `/scripts`) rendered as a real interactive card — and
- * its listed commands were not clickable.
+ * Per the user, `/help` no longer relists every command (typing `/` opens the
+ * command menu, which does that better). It is now a concise guide: an intro,
+ * the three conversation modes, the efficiency tips, and the host upgrade CTA.
  *
  * This is a real jsdom render of {@link HelpCard} with the REAL
  * `@molecule/app-ui-tailwind` ClassMap, so class/token assertions bite. The icon
- * set is a name-encoding stub: each glyph renders a real `<svg>` whose single
- * `<path d>` equals the requested icon name, letting the test assert the EXACT
- * category glyph without a build dependency on the icon bond.
+ * set is a name-encoding stub (each glyph renders a real `<svg>` whose single
+ * `<path d>` equals the requested name) so the modes render without a build
+ * dependency on the icon bond.
  *
- * It would fail if anyone reverted `/help` to the plain-text blob: the command
- * rows would stop being clickable buttons (no `onRunCommand`), the `──` divider
- * text would reappear, the category headings would lose their SVG glyphs, or the
- * usage syntax would degrade from the framework Tooltip to a native `title`.
+ * It would fail if anyone re-added the command relist (the `help-commands`
+ * container or any `help-command-*` row), reverted `/help` to the plain-text
+ * `──` blob, or dropped the modes/tips/upgrade sections.
  *
  * @module
  */
@@ -33,14 +30,14 @@ import { I18nProvider } from '@molecule/app-react'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-import { COMMAND_CATEGORIES, COMMANDS } from '../components/chat-commands.js'
-import { CATEGORY_ICON, HelpCard } from '../components/HelpCard.js'
+import { COMMANDS } from '../components/chat-commands.js'
+import { HelpCard } from '../components/HelpCard.js'
 
 beforeEach(() => {
   // The REAL themed ClassMap so resolved classes are actual theme tokens.
   setClassMap(classMap)
   // Name-encoding icon set: every glyph renders a real <svg> whose single path
-  // `d` is the requested name, so the test can read which glyph each header got.
+  // `d` is the requested name (the modes section uses real glyphs).
   setIconSet(
     new Proxy(
       {},
@@ -68,34 +65,40 @@ function Wrap({ children }: { children: ReactNode }): ReactElement {
   return <I18nProvider provider={createSimpleI18nProvider('en')}>{children}</I18nProvider>
 }
 
-describe('HelpCard (SYN13 — interactive /help card, not a text blob)', () => {
-  it('renders EVERY registry command as a clickable button that runs/prefills it', () => {
-    const onRunCommand = vi.fn()
+describe('HelpCard (P2-12 — concise high-level guide, no command relist)', () => {
+  it('renders the guide sections (modes + tips), not a command relist', () => {
     const { container } = render(
       <Wrap>
-        <HelpCard onRunCommand={onRunCommand} isLight />
+        <HelpCard isLight />
       </Wrap>,
     )
+    expect(container.querySelector('[data-mol-id="help-card"]')).not.toBeNull()
+    expect(container.querySelector('[data-mol-id="help-modes"]')).not.toBeNull()
+    expect(container.querySelector('[data-mol-id="help-tips"]')).not.toBeNull()
+  })
 
+  it('does NOT relist the slash commands (typing / does that better)', () => {
+    const { container } = render(
+      <Wrap>
+        <HelpCard isLight />
+      </Wrap>,
+    )
+    // The whole Commands block + every per-command button is gone.
+    expect(container.querySelector('[data-mol-id="help-commands"]')).toBeNull()
     for (const cmd of COMMANDS) {
-      const row = container.querySelector(`[data-mol-id="help-command-${cmd.id}"]`)
-      expect(row, `command ${cmd.id} should render a row`).not.toBeNull()
-      // A real interactive control, not a line of text.
-      expect(row?.tagName, `command ${cmd.id} row must be a <button>`).toBe('BUTTON')
-      // Its mono label must be present.
-      expect(row?.textContent).toContain(cmd.label)
+      expect(
+        container.querySelector(`[data-mol-id="help-command-${cmd.id}"]`),
+        `command ${cmd.id} must NOT render a row`,
+      ).toBeNull()
     }
-
-    // Clicking a row runs/prefills exactly that command.
-    const skills = container.querySelector('[data-mol-id="help-command-skills"]') as HTMLElement
-    fireEvent.click(skills)
-    expect(onRunCommand).toHaveBeenCalledWith('skills')
+    // No command-category headings/glyphs either.
+    expect(container.querySelector('[data-mol-id^="help-category-"]')).toBeNull()
   })
 
   it('is NOT the old muted monospace ASCII-divider text blob', () => {
     const { container } = render(
       <Wrap>
-        <HelpCard onRunCommand={vi.fn()} isLight />
+        <HelpCard isLight />
       </Wrap>,
     )
     // The `── … ──` section dividers the plain-text fallback uses must NOT appear
@@ -103,67 +106,20 @@ describe('HelpCard (SYN13 — interactive /help card, not a text blob)', () => {
     expect(container.textContent).not.toContain('──')
   })
 
-  it('heads each command category with a real SVG glyph from the icon set (no emoji)', () => {
+  it('styles via ClassMap tokens, never a hardcoded hex in the mode/tip row inline styles', () => {
     const { container } = render(
       <Wrap>
-        <HelpCard onRunCommand={vi.fn()} isLight />
-      </Wrap>,
-    )
-    for (const category of COMMAND_CATEGORIES) {
-      const hasCommands = COMMANDS.some((c) => c.category === category.key)
-      if (!hasCommands) continue
-      const glyph = container.querySelector(
-        `[data-mol-id="help-category-icon-${category.key}"]`,
-      ) as SVGElement | null
-      expect(glyph, `category ${category.key} must render an icon`).not.toBeNull()
-      expect(glyph?.tagName.toLowerCase(), 'the glyph must be an <svg>, not a text glyph').toBe(
-        'svg',
-      )
-      // The exact icon-set glyph the card maps this category to.
-      expect(glyph?.querySelector('path')?.getAttribute('d')).toBe(CATEGORY_ICON[category.key])
-    }
-    // No emoji crept into the card chrome.
-    expect(container.textContent ?? '').not.toMatch(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u)
-  })
-
-  it('reveals a command argument syntax via the framework Tooltip, never a native title', () => {
-    const { container } = render(
-      <Wrap>
-        <HelpCard onRunCommand={vi.fn()} isLight />
-      </Wrap>,
-    )
-    // /skills takes an optional [query] arg — its usage chip must render.
-    const usage = container.querySelector('[data-mol-id="help-usage-skills"]') as HTMLElement
-    expect(usage, 'a command with usage should show its syntax chip').not.toBeNull()
-    expect(usage.textContent).toContain('/skills [query]')
-
-    // No part of the card uses the delayed, unstyled, touch-blind native title.
-    expect(container.querySelector('[title]')).toBeNull()
-
-    // Hovering the Tooltip trigger (the chip's wrapper) mounts a role="tooltip"
-    // popover in a portal — a native title produces no such element.
-    fireEvent.mouseEnter(usage.parentElement as HTMLElement)
-    const tooltip = document.body.querySelector('[role="tooltip"]')
-    expect(tooltip, 'usage chip must render the styled Tooltip on hover').not.toBeNull()
-    expect(tooltip?.textContent).toContain('/skills [query]')
-    fireEvent.mouseLeave(usage.parentElement as HTMLElement)
-  })
-
-  it('styles via ClassMap tokens, never a hardcoded hex in command-row inline styles', () => {
-    const { container } = render(
-      <Wrap>
-        <HelpCard onRunCommand={vi.fn()} isLight />
+        <HelpCard isLight />
       </Wrap>,
     )
     const card = container.querySelector('[data-mol-id="help-card"]') as HTMLElement
     // The card adopts the same surface token as the sibling cards.
     expect(card.className).toContain(classMap.surfaceSecondary)
-    // No command row hardcodes a hex color inline (theme tokens / classes only).
-    for (const cmd of COMMANDS) {
-      const row = container.querySelector(`[data-mol-id="help-command-${cmd.id}"]`) as HTMLElement
-      expect(row.getAttribute('style') ?? '', `command ${cmd.id}`).not.toMatch(
-        /#[0-9a-fA-F]{3,8}\b/,
-      )
+    // No mode/tip row hardcodes a hex color inline (theme tokens / classes only).
+    for (const row of container.querySelectorAll(
+      '[data-mol-id^="help-mode-"], [data-mol-id^="help-tip-"]',
+    )) {
+      expect((row as HTMLElement).getAttribute('style') ?? '').not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
     }
   })
 
@@ -172,7 +128,6 @@ describe('HelpCard (SYN13 — interactive /help card, not a text blob)', () => {
     const { container } = render(
       <Wrap>
         <HelpCard
-          onRunCommand={vi.fn()}
           isLight
           upgradeLines={['You are on the Free plan.', 'Upgrade for more.']}
           upgradeAction={{ label: 'View plans', onClick }}
@@ -190,7 +145,7 @@ describe('HelpCard (SYN13 — interactive /help card, not a text blob)', () => {
   it('interpolates the host agent/product name and leaves no raw {{tokens}}', () => {
     const { container } = render(
       <Wrap>
-        <HelpCard onRunCommand={vi.fn()} isLight agentName="Fable" productName="Acme Studio" />
+        <HelpCard isLight agentName="Fable" productName="Acme Studio" />
       </Wrap>,
     )
     expect(container.textContent).toContain('Fable')

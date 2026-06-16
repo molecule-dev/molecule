@@ -46,6 +46,7 @@ import {
   useThemeMode,
 } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
+import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
 import type {
   ChatEventCardAction,
@@ -73,7 +74,7 @@ import type { EffortLevel } from './chat-effort-utilities.js'
 import {
   DEFAULT_EFFORT_LEVEL,
   EFFORT_LEVEL_LABELS,
-  EFFORT_LEVELS,
+  effortLevelsForModel,
   isEffortLevel,
   modelsSupportingEffort,
   parseEffortCommand,
@@ -86,6 +87,8 @@ import {
   parseModelModeCommand,
   resolveModeModel,
 } from './chat-model-mode-utilities.js'
+import type { ModelSortColumn, SortDirection } from './chat-models-utilities.js'
+import { sortModels } from './chat-models-utilities.js'
 import type { ReportResult } from './chat-report-utilities.js'
 import { formatReportConfirmation, parseReportCommand } from './chat-report-utilities.js'
 import type { ScriptInfo, ScriptRunResult } from './chat-scripts-utilities.js'
@@ -124,7 +127,6 @@ import {
 import { HelpCard } from './HelpCard.js'
 import { Icon } from './Icon.js'
 import { MarkdownContent } from './MarkdownContent.js'
-import { ModelsTable } from './ModelsTable.js'
 import { RelevantSkillSuggestion } from './RelevantSkillSuggestion.js'
 import { ReportModal } from './ReportModal.js'
 import { ScriptsCard } from './ScriptsCard.js'
@@ -259,18 +261,17 @@ interface SystemCard {
   content?: ChatEventCardSegment[]
   /**
    * Optional rich-content variant rendered in place of the plain text:
-   * `'models'` → the sortable `/models` comparison table; `'settings'` → the
-   * `/settings` view; `'skills'` → the `/skills` browser; `'scripts'` → the
-   * `/scripts` browser; `'help'` → the interactive `/help` card (real category
-   * hierarchy + clickable command rows). Default (undefined) is plain text. For
-   * `'help'`, `text` still carries the {@link buildHelpText} plain-text fallback.
+   * `'settings'` → the `/settings` view; `'skills'` → the `/skills` browser;
+   * `'scripts'` → the `/scripts` browser; `'help'` → the `/help` high-level guide
+   * card. Default (undefined) is plain text. For `'help'`, `text` still carries
+   * the {@link buildHelpText} plain-text fallback.
    */
-  variant?: 'models' | 'settings' | 'skills' | 'scripts' | 'help'
+  variant?: 'settings' | 'skills' | 'scripts' | 'help'
   /** Seed query for the `'skills'`/`'scripts'` variants (from `/skills <query>` or `/scripts <query>`). */
   query?: string
   /**
    * For the `'skills'` variant: mount the card with its inline "New skill" form
-   * already open (used by a bare `/new-skill` command, which has no name yet).
+   * already open (used by a bare `/newskill` command, which has no name yet).
    */
   skillsCreate?: boolean
   /**
@@ -3096,6 +3097,13 @@ function ChatInner({
         if (typeof s?.effortLevel === 'string' && isEffortLevel(s.effortLevel)) {
           setEffortLevel(s.effortLevel)
         }
+        // Persisted per-project default-loaded skills (P2-06/P2-08).
+        const savedDefaultSkills = s?.defaultSkills
+        if (Array.isArray(savedDefaultSkills)) {
+          setDefaultSkillPaths(
+            new Set(savedDefaultSkills.filter((p): p is string => typeof p === 'string')),
+          )
+        }
         if (typeof s?.maxToolLoops === 'number') setCurrentMaxLoops(s.maxToolLoops)
         if (typeof s?.autoFix === 'boolean') setAutoFixEnabled(s.autoFix)
         if (s?.sounds && typeof s.sounds === 'object') {
@@ -3524,13 +3532,36 @@ function ChatInner({
     })
   }, [])
 
+  // "Loaded this session" — the SINGLE source of truth for which skills the user
+  // has opened via Load. Shared by BOTH the proactive suggestion (so a skill stops
+  // being re-nudged once loaded) and the /skills browser's "Loaded" badge (P2-06).
+  const [loadedSkillPaths, setLoadedSkillPaths] = useState<ReadonlySet<string>>(
+    () => new Set<string>(),
+  )
+  // The persisted per-project default-loaded skill set (settings.defaultSkills). A
+  // default skill's full body is injected by the backend into every system prompt;
+  // the /skills browser shows a "Default" badge + a toggle to edit the set (P2-08).
+  const [defaultSkillPaths, setDefaultSkillPaths] = useState<ReadonlySet<string>>(
+    () => new Set<string>(),
+  )
+
   /**
-   * Loads a skill from the `/skills` browser: opens it in the editor and
-   * attaches its content as context for the next message (reusing the same
-   * attachment mechanism as @-mentions), then confirms with a system card.
+   * Loads a skill from the `/skills` browser (or the proactive suggestion): opens
+   * its `SKILL.md` in the editor and marks it loaded for this session, then
+   * confirms with a system card.
+   *
+   * Loading does NOT attach the skill as message context: the agent already sees
+   * every skill's name + description in its system prompt and reads bodies on
+   * demand, and persistent "always-loaded" injection is configured separately via
+   * the default-skills set (the "Default" toggle in the `/skills` browser). So
+   * "Load" simply opens the file and records it in {@link loadedSkillPaths} so the
+   * proactive tip stops re-suggesting it and the browser shows a "Loaded" badge.
    */
   const loadSkill = useCallback(
     (skill: SkillInfo) => {
+      // Record it as loaded-this-session (shared source of truth for the tip + the
+      // /skills "Loaded" badge). Set is treated as immutable so consumers re-render.
+      setLoadedSkillPaths((prev) => (prev.has(skill.path) ? prev : new Set(prev).add(skill.path)))
       // Open the skill in the editor (onFileOpen expects a project-relative path, no
       // leading slash). Loading a skill does NOT attach it as context — it just opens
       // it; the agent reads the skill file on demand, like every other harness.
@@ -3563,7 +3594,7 @@ function ChatInner({
   )
 
   /**
-   * Creates a new project skill (the `/new-skill` command + the `/skills`
+   * Creates a new project skill (the `/newskill` command + the `/skills`
    * browser's "New skill" form): writes a starter `.agents/skills/<slug>/SKILL.md`
    * (name + description frontmatter), opens it in the editor for authoring, and
    * confirms with a system card. Resolves the created skill (so the browser can
@@ -3640,25 +3671,56 @@ function ChatInner({
   const relevantSkill = useMemo<SkillInfo | null>(() => {
     if (projectSkills.length === 0) return null
     const attached = new Set(attachedFiles.map((f) => f.path))
+    // Compute the genuine top match for the CURRENT recent messages, excluding only
+    // dismissed + already-@-attached skills. We deliberately do NOT drop loaded
+    // skills from the candidate pool here; instead, if the top match is one the user
+    // already loaded, we show nothing (below). That way clicking Load does NOT make
+    // the next-best skill immediately pop up — the tip changes only when the recent
+    // messages produce a genuinely different top match, never just because the last
+    // one was loaded. This kills the "suggests a bunch, one after another" parade
+    // the user reported (P2-06).
     const candidates = projectSkills.filter(
       (s) => !dismissedSkillPaths.includes(s.path) && !attached.has('/' + s.path),
     )
     if (candidates.length === 0) return null
-    return suggestRelevantSkills(candidates, recentUserText(messages))[0]?.skill ?? null
-  }, [projectSkills, attachedFiles, dismissedSkillPaths, messages])
+    const top = suggestRelevantSkills(candidates, recentUserText(messages))[0]?.skill ?? null
+    if (!top) return null
+    // The most relevant skill is already loaded this session → nothing to nudge.
+    return loadedSkillPaths.has(top.path) ? null : top
+  }, [projectSkills, attachedFiles, dismissedSkillPaths, loadedSkillPaths, messages])
 
   const dismissRelevantSkill = useCallback((skill: SkillInfo) => {
     setDismissedSkillPaths((prev) => (prev.includes(skill.path) ? prev : [...prev, skill.path]))
   }, [])
 
-  const loadRelevantSkill = useCallback(
-    (skill: SkillInfo) => {
-      loadSkill(skill)
-      // Drop it from the suggestion immediately (loadSkill opens it + confirms with a
-      // card; dismissing here just avoids a one-render flash).
-      dismissRelevantSkill(skill)
+  /**
+   * Toggles a skill's membership in the persisted per-project default-loaded set
+   * (`settings.defaultSkills`) and saves it. Optimistically updates local state,
+   * then PATCHes the project (mirroring the other settings-patch paths); on failure
+   * it rolls back so the badge/toggle reflect the server. The backend injects each
+   * default skill's full body into the system prompt, so "default" means the skill
+   * is always loaded for the agent (P2-06/P2-08).
+   *
+   * @param skill - The skill to toggle.
+   * @param next - `true` to add it to the default set, `false` to remove it.
+   */
+  const toggleDefaultSkill = useCallback(
+    (skill: SkillInfo, next: boolean) => {
+      if (next === defaultSkillPaths.has(skill.path)) return
+      const previous = defaultSkillPaths
+      const updated = new Set(previous)
+      if (next) updated.add(skill.path)
+      else updated.delete(skill.path)
+      setDefaultSkillPaths(updated)
+      http
+        .patch(`/projects/${projectId}`, { settings: { defaultSkills: [...updated] } })
+        .catch((error) => {
+          // Roll back the optimistic toggle so the badge/toggle reflect the server.
+          logger.warn('Failed to persist default skills to server', { error })
+          setDefaultSkillPaths(previous)
+        })
     },
-    [loadSkill, dismissRelevantSkill],
+    [defaultSkillPaths, http, projectId],
   )
 
   // Runs a saved script by name (the /run <name> command). Fetches the script
@@ -3925,18 +3987,6 @@ function ChatInner({
       } else if (id === 'model') {
         setInputAndCursorEnd('/model ')
         setModelPicker({ selectedIdx: -1 })
-      } else if (id === 'models') {
-        setInputValue('')
-        if (AVAILABLE_MODELS.length === 0) {
-          addSystemCard(
-            t('ide.chat.modelsNone', undefined, {
-              defaultValue: 'No models are available yet — ask your admin to wire an AI provider.',
-            }),
-          )
-        } else {
-          // Renders the sortable comparison table (see the 'models' variant branch).
-          addSystemCard('', undefined, 'models')
-        }
       } else if (id === 'maxloops') {
         setInputAndCursorEnd('/maxloops ')
       } else if (id === 'effort') {
@@ -4031,8 +4081,11 @@ function ChatInner({
                 cost: d.estimatedCost.toFixed(4),
               },
               {
+                // The figure is the WHOLE-conversation total across every model used,
+                // not just the model shown (P2-04). Keep this in sync with the reworded
+                // ide.chat.costSummary value in the ide locale bond.
                 defaultValue:
-                  'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
+                  'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens\nTotal cost this conversation (all models): ~${{cost}}',
               },
             ),
           )
@@ -4113,37 +4166,6 @@ function ChatInner({
           logger.warn('Failed to revert file changes for undo', { error })
           addSystemCard(
             t('ide.chat.undoError', undefined, { defaultValue: 'Failed to revert changes.' }),
-          )
-        }
-      } else if (id === 'diff') {
-        setInputValue('')
-        try {
-          const res = await http.get<{
-            files: { path: string; status: string; additions?: number; deletions?: number }[]
-          }>(`/projects/${projectId}/git-status`)
-          const files = res.data.files
-          if (!files.length) {
-            addSystemCard(
-              t('ide.chat.diffNoChanges', undefined, { defaultValue: 'No uncommitted changes.' }),
-            )
-          } else {
-            const lines = files.map((f) => {
-              const adds = f.additions != null ? ` +${f.additions}` : ''
-              const dels = f.deletions != null ? ` -${f.deletions}` : ''
-              return `${f.status.padEnd(10)} ${f.path}${adds}${dels}`
-            })
-            addSystemCard(
-              t(
-                'ide.chat.diffSummary',
-                { count: files.length, files: lines.join('\n') },
-                { defaultValue: '{{count}} changed file(s):\n{{files}}' },
-              ),
-            )
-          }
-        } catch (error) {
-          logger.warn('Failed to fetch git diff/status', { error })
-          addSystemCard(
-            t('ide.chat.diffError', undefined, { defaultValue: 'Failed to fetch changes.' }),
           )
         }
       } else if (id === 'commit') {
@@ -4230,11 +4252,11 @@ function ChatInner({
         // Renders the skills browser (see the 'skills' variant branch). A query,
         // if any, is supplied via the /skills <query> path in handleSubmit.
         addSystemCard('', undefined, 'skills')
-      } else if (id === 'new-skill') {
+      } else if (id === 'newskill') {
         setInputValue('')
         // From the command menu there's no name yet — open the skills browser
         // with its inline "New skill" form expanded (skillsCreate = true). The
-        // /new-skill <name> path in handleSubmit creates directly instead.
+        // /newskill <name> path in handleSubmit creates directly instead.
         addSystemCard('', undefined, 'skills', '', undefined, undefined, undefined, true)
       } else if (id === 'scripts') {
         setInputValue('')
@@ -4266,7 +4288,6 @@ function ChatInner({
       messages,
       sendMessage,
       refreshGitStatus,
-      AVAILABLE_MODELS,
     ],
   )
 
@@ -4316,10 +4337,10 @@ function ChatInner({
       return
     }
 
-    // Handle /new-skill [name] command locally — with a name, create the skill
+    // Handle /newskill [name] command locally — with a name, create the skill
     // straight away (write + open + confirm); bare, open the skills browser with
     // its inline "New skill" form expanded so the user can type the name.
-    const newSkillMatch = trimmed.match(/^\/new-skill(?:\s+(.*))?$/i)
+    const newSkillMatch = trimmed.match(/^\/newskill(?:\s+(.*))?$/i)
     if (newSkillMatch) {
       setInputValue('')
       const skillName = newSkillMatch[1]?.trim()
@@ -4493,6 +4514,15 @@ function ChatInner({
     const effortCmd = parseEffortCommand(trimmed)
     if (effortCmd) {
       setInputValue('')
+      // Resolve the model the ACTIVE conversation mode will actually use, so the
+      // status view and the level validation reflect THIS model's reasoning
+      // capabilities (P2-10) — different models support different effort levels.
+      // Mirrors the /model picker + slash-suffix resolveModeModel logic.
+      const effortModelId =
+        resolveModeModel({ planModel, executeModel, chatModel: currentModel }, mode) ?? currentModel
+      const effortModel = AVAILABLE_MODELS.find((m) => m.id === effortModelId)
+      const allowedLevels = effortLevelsForModel(effortModel)
+      const effortModelLabel = effortModel?.label ?? effortModelId
       if (effortCmd.kind === 'invalid') {
         addSystemCard(
           t('ide.chat.effort.usage', undefined, {
@@ -4508,8 +4538,14 @@ function ChatInner({
             { defaultValue: 'Reasoning effort: {{level}} ({{label}})' },
           ),
           '',
-          t('ide.chat.effort.levelsHeader', undefined, { defaultValue: 'Levels:' }),
-          ...EFFORT_LEVELS.map((lvl) =>
+          // List ONLY the levels the active model actually supports (P2-10), named
+          // by the model so it's obvious why the set may be a subset.
+          t(
+            'ide.chat.effort.currentModelLevels',
+            { model: effortModelLabel, levels: allowedLevels.join(', ') },
+            { defaultValue: 'Effort levels for {{model}}: {{levels}}' },
+          ),
+          ...allowedLevels.map((lvl) =>
             t(
               'ide.chat.effort.levelLine',
               { level: lvl, label: EFFORT_LEVEL_LABELS[lvl] },
@@ -4534,6 +4570,18 @@ function ChatInner({
         addSystemCard(lines.join('\n'))
       } else {
         const level = effortCmd.level
+        if (!allowedLevels.includes(level)) {
+          // The active model doesn't support this level — reject and name what IS
+          // available, rather than silently persisting an unsupported level (P2-10).
+          addSystemCard(
+            t(
+              'ide.chat.effort.notSupportedForModel',
+              { level, model: effortModelLabel, levels: allowedLevels.join(', ') },
+              { defaultValue: "{{level}} isn't available for {{model}}. Available: {{levels}}" },
+            ),
+          )
+          return
+        }
         try {
           await http.patch(`/projects/${projectId}`, { settings: { effortLevel: level } })
           setEffortLevel(level)
@@ -4761,6 +4809,11 @@ function ChatInner({
     [filteredModels],
   )
   const [showDeprecated, setShowDeprecated] = useState(false)
+  // User-chosen sort for the `/model` picker (replaces the removed `/models`
+  // table). Defaults to alphabetical, matching the old table's default sort.
+  const [modelSort, setModelSort] = useState<{ column: ModelSortColumn; direction: SortDirection }>(
+    { column: 'name', direction: 'asc' },
+  )
   useEffect(() => {
     // Auto-expand when the user's saved model is deprecated, or when a search
     // query matched only deprecated entries. The user can still collapse manually.
@@ -4770,10 +4823,15 @@ function ChatInner({
       setShowDeprecated(true)
     }
   }, [deprecatedModels, currentModels, currentModel])
-  const visibleModels = useMemo(
-    () => (showDeprecated ? [...currentModels, ...deprecatedModels] : currentModels),
-    [showDeprecated, currentModels, deprecatedModels],
-  )
+  const visibleModels = useMemo(() => {
+    // Sort WITHIN each partition so the current/deprecated split (and the
+    // `idx >= currentModels.length` divider logic below) is preserved while the
+    // chosen sort orders the rows the user actually sees.
+    const sortedCurrent = sortModels(currentModels, modelSort.column, modelSort.direction)
+    if (!showDeprecated) return sortedCurrent
+    const sortedDeprecated = sortModels(deprecatedModels, modelSort.column, modelSort.direction)
+    return [...sortedCurrent, ...sortedDeprecated]
+  }, [showDeprecated, currentModels, deprecatedModels, modelSort])
 
   const filteredEntries = useMemo(() => {
     if (!filePicker) return []
@@ -5099,16 +5157,6 @@ function ChatInner({
               )
 
             if (item.kind === 'system') {
-              if (item.card.variant === 'models') {
-                return (
-                  <ModelsTable
-                    key={item.card.id}
-                    models={partitionByDeprecation(AVAILABLE_MODELS).current}
-                    currentModelId={currentModel}
-                    isLight={isLight}
-                  />
-                )
-              }
               if (item.card.variant === 'settings') {
                 const soundsSummary = summarizeSounds(soundsConfig)
                 const notSet = t('ide.chat.settings.modelUnset', undefined, {
@@ -5174,6 +5222,9 @@ function ChatInner({
                     onLoad={loadSkill}
                     onCreate={createSkill}
                     startCreating={item.card.skillsCreate}
+                    loadedSkillPaths={loadedSkillPaths}
+                    defaultSkillPaths={defaultSkillPaths}
+                    onToggleDefault={toggleDefaultSkill}
                     isLight={isLight}
                   />
                 )
@@ -5197,7 +5248,6 @@ function ChatInner({
                 return (
                   <HelpCard
                     key={item.card.id}
-                    onRunCommand={(commandId) => void executeCommand(commandId)}
                     isLight={isLight}
                     agentName={agentName}
                     productName={productName}
@@ -5577,7 +5627,7 @@ function ChatInner({
         {relevantSkill && (
           <RelevantSkillSuggestion
             skill={relevantSkill}
-            onLoad={loadRelevantSkill}
+            onLoad={loadSkill}
             onOpen={(s) => onFileOpen?.(s.path, { focus: true })}
             onDismiss={dismissRelevantSkill}
           />
@@ -5704,9 +5754,19 @@ function ChatInner({
                         const thisIdx = flatIdx++
                         // Inline state suffix
                         let suffix = ''
-                        if (cmd.id === 'model')
-                          suffix = ` (${AVAILABLE_MODELS.find((m) => m.id === currentModel)?.label ?? currentModel})`
-                        else if (cmd.id === 'maxloops') suffix = ` (${currentMaxLoops})`
+                        if (cmd.id === 'model') {
+                          // Reflect the model the ACTIVE conversation mode will
+                          // actually use (plan/execute) — NOT the legacy single
+                          // chatModel (which defaults to the free-tier model and
+                          // is misleading once a per-mode model is set). Mirrors
+                          // the picker header's resolveModeModel logic.
+                          const effId =
+                            resolveModeModel(
+                              { planModel, executeModel, chatModel: currentModel },
+                              mode,
+                            ) ?? currentModel
+                          suffix = ` (${AVAILABLE_MODELS.find((m) => m.id === effId)?.label ?? effId})`
+                        } else if (cmd.id === 'maxloops') suffix = ` (${currentMaxLoops})`
                         else if (cmd.id === 'autofix')
                           suffix = ` (${autoFixEnabled ? 'on' : 'off'})`
                         else if (cmd.id === 'sounds') {
@@ -5748,7 +5808,16 @@ function ChatInner({
                           >
                             <span
                               className={cm.fontWeight('medium')}
-                              style={{ fontFamily: 'monospace', opacity: 0.9, flexShrink: 0 }}
+                              style={{
+                                fontFamily: 'monospace',
+                                opacity: 0.9,
+                                flexShrink: 0,
+                                // Fixed label column so every description starts at
+                                // the same x (widest label is '/autocommit' = 11ch).
+                                // ClassMap can't express a fixed column width, so it's
+                                // inline — matching this popup's existing convention.
+                                minWidth: '12ch',
+                              }}
                             >
                               {cmd.label}
                             </span>
@@ -5842,6 +5911,8 @@ function ChatInner({
                   borderBottom: '1px solid rgba(128,128,128,0.12)',
                   display: 'flex',
                   justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: 8,
                   flexShrink: 0,
                 }}
               >
@@ -5856,27 +5927,82 @@ function ChatInner({
                         })
                       : t('ide.chat.selectModel', undefined, { defaultValue: 'Select model' })}
                 </span>
-                {(() => {
-                  // Mode-scoped current model (with back-compat fallback to the
-                  // single chatModel) so the picker always shows the active value.
-                  const effectiveId = modelPicker.mode
-                    ? (resolveModeModel(
-                        { planModel, executeModel, chatModel: currentModel },
-                        modelPicker.mode,
-                      ) ?? currentModel)
-                    : currentModel
-                  const effectiveLabel =
-                    AVAILABLE_MODELS.find((m) => m.id === effectiveId)?.label ?? effectiveId
-                  return (
-                    <span>
-                      {t(
-                        'ide.chat.currentModelLabel',
-                        { model: effectiveLabel },
-                        { defaultValue: `Current: ${effectiveLabel}` },
-                      )}
-                    </span>
-                  )
-                })()}
+                {/*
+                  Sort control (replaces the old "Current: X" text — the active
+                  model is now shown by the right-aligned per-row "current" pill
+                  below). Reuses the removed `/models` table's sortModels helper.
+                */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>{t('ide.chat.modelSortLabel', undefined, { defaultValue: 'Sort' })}</span>
+                  <select
+                    data-mol-id="model-sort-column"
+                    aria-label={t('ide.chat.modelSortLabel', undefined, { defaultValue: 'Sort' })}
+                    value={modelSort.column}
+                    onChange={(e) =>
+                      setModelSort((s) => ({ ...s, column: e.target.value as ModelSortColumn }))
+                    }
+                    className={cm.cn(cm.surfaceSecondary, cm.borderAll, cm.textSize('xs'))}
+                    style={{
+                      borderRadius: 4,
+                      padding: '1px 4px',
+                      color: 'inherit',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <option value="name">
+                      {t('ide.chat.models.colName', undefined, { defaultValue: 'Model' })}
+                    </option>
+                    <option value="context">
+                      {t('ide.chat.models.colContext', undefined, { defaultValue: 'Context' })}
+                    </option>
+                    <option value="cost">
+                      {t('ide.chat.models.colCost', undefined, { defaultValue: 'Cost / 1M' })}
+                    </option>
+                    <option value="cutoff">
+                      {t('ide.chat.models.colCutoff', undefined, { defaultValue: 'Cutoff' })}
+                    </option>
+                    <option value="free">
+                      {t('ide.chat.models.colFree', undefined, { defaultValue: 'Free' })}
+                    </option>
+                  </select>
+                  <Tooltip
+                    content={t('ide.chat.modelSortDirection', undefined, {
+                      defaultValue: 'Toggle sort direction',
+                    })}
+                    placement="top"
+                  >
+                    <button
+                      type="button"
+                      data-mol-id="model-sort-direction"
+                      aria-label={t('ide.chat.modelSortDirection', undefined, {
+                        defaultValue: 'Toggle sort direction',
+                      })}
+                      onClick={() =>
+                        setModelSort((s) => ({
+                          ...s,
+                          direction: s.direction === 'asc' ? 'desc' : 'asc',
+                        }))
+                      }
+                      className={cm.cn(cm.surfaceSecondary, cm.borderAll, cm.textMuted)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: 4,
+                        padding: '2px 4px',
+                        color: 'inherit',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Icon
+                        name={modelSort.direction === 'asc' ? 'chevron-up' : 'chevron-down'}
+                        size={12}
+                        aria-hidden="true"
+                        data-mol-id="model-sort-direction-glyph"
+                      />
+                    </button>
+                  </Tooltip>
+                </div>
               </div>
               {modelsLoading ? (
                 <div className={cm.cn(cm.textSize('sm'), cm.textMuted)} style={{ padding: 12 }}>
@@ -6035,11 +6161,22 @@ function ChatInner({
                             </span>
                             {model.id === currentModel && (
                               <span
+                                data-mol-id={`model-current-${model.id}`}
+                                className={cm.fontWeight('medium')}
                                 style={{
+                                  // Right-aligned + primary-tinted so the active
+                                  // model stands out more than the old flat grey.
+                                  // The hex is only the var() fallback (theme token
+                                  // wins); same color-mix idiom as TipCard/UserAvatar.
+                                  marginLeft: 'auto',
                                   fontSize: '10px',
-                                  background: 'rgba(128,128,128,0.2)',
-                                  padding: '1px 5px',
-                                  borderRadius: '3px',
+                                  color: 'var(--mol-color-primary, #6366f1)',
+                                  background:
+                                    'color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent)',
+                                  border:
+                                    '1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 42%, transparent)',
+                                  padding: '1px 7px',
+                                  borderRadius: '999px',
                                 }}
                               >
                                 {t('ide.chat.currentBadge', undefined, { defaultValue: 'current' })}

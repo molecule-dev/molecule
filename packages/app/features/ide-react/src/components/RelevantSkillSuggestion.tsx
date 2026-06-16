@@ -3,18 +3,23 @@
  *
  * A compact, non-interrupting affordance shown just above the chat composer when
  * a relevance pass over the recent messages ({@link suggestRelevantSkills}) finds
- * a project skill that matches what the user is asking for. It offers a one-click
- * **Load** (opens the skill in the editor — same as the `/skills` browser) and a
- * clickable monospace skill name (also opens it), plus a dismiss control — so the
- * proactive half of `/skills` works without the user having to remember the command.
- * Loading a skill does NOT attach it as context; it just opens it, and the agent
- * reads it on demand.
+ * a project skill that matches what the user is asking for. It shows the SINGLE
+ * best match (never a queue): the caller suppresses it once that skill is loaded
+ * and only surfaces a new one when the recent messages produce a genuinely
+ * different top match — so clicking **Load** does not parade the next-best skill.
+ * It offers a one-click **Load** (opens the skill in the editor — same as the
+ * `/skills` browser) and a clickable monospace skill name (also opens it), plus a
+ * dismiss control — so the proactive half of `/skills` works without the user
+ * having to remember the command. Loading a skill does NOT attach it as context;
+ * it just opens it, and the agent reads it on demand.
  *
  * The skill's description surfaces through the framework's REAL styled
  * {@link Tooltip} (instant, theme-aware, focus/hover-aware) — never the delayed,
- * touch-blind native `title`. The leading glyph is a real SVG from the bonded
- * icon set ({@link Icon}), and the tint comes from ClassMap/theme tokens, never a
- * hardcoded color.
+ * touch-blind native `title`. The label carries a second Tooltip explaining HOW
+ * the skill was detected (a keyword match on recent messages), answering that
+ * question in-product. The leading glyph is a real SVG from the bonded icon set
+ * ({@link Icon}), and the tint comes from ClassMap/theme tokens, never a hardcoded
+ * color.
  *
  * @module
  */
@@ -55,6 +60,12 @@ export function RelevantSkillSuggestion({
   // "open in the editor" hint when a skill ships no description.
   const openHint = t('ide.chat.skills.loadTitle', undefined, { defaultValue: 'Open in the editor' })
   const tooltip = skill.description || openHint
+  // Answer "how was this detected?" in-product: a hint on the label explaining the
+  // suggestion came from a keyword match on the recent messages (not regex/AI) —
+  // the question the user asked directly (P2-06).
+  const matchHint = t('ide.chat.skills.matchHint', undefined, {
+    defaultValue: 'Suggested from keywords in your recent messages',
+  })
   // Skill name — monospace; clickable (opens it in the editor) when onOpen is wired.
   const nameStyle = {
     flex: 1,
@@ -95,9 +106,23 @@ export function RelevantSkillSuggestion({
         />
       </Tooltip>
 
-      <span className={cm.textMuted} style={{ flexShrink: 0 }}>
-        {t('ide.chat.skills.relevant.label', undefined, { defaultValue: 'Relevant skill' })}
-      </span>
+      <Tooltip content={matchHint} placement="top">
+        <span
+          className={cm.textMuted}
+          data-mol-id="relevant-skill-label"
+          style={{
+            flexShrink: 0,
+            // A help cursor + subtle dotted underline signal the label carries the
+            // "why am I seeing this?" hint (the keyword-match explanation).
+            cursor: 'help',
+            textDecoration: 'underline dotted',
+            textUnderlineOffset: 2,
+            textDecorationColor: 'color-mix(in srgb, currentColor 40%, transparent)',
+          }}
+        >
+          {t('ide.chat.skills.relevant.label', undefined, { defaultValue: 'Relevant skill' })}
+        </span>
+      </Tooltip>
 
       {onOpen ? (
         <button

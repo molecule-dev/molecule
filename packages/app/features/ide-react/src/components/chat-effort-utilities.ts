@@ -90,3 +90,26 @@ export function modelsSupportingEffort(
 ): AppModelDefinition[] {
   return models.filter((m) => m.supportsThinking && m.thinkingConfigurable)
 }
+
+/**
+ * The effort levels the `/effort` command should offer and accept for a *specific*
+ * model. Different models support different reasoning levels (e.g. a fully
+ * configurable model exposes the whole `S | M | L | XL` scale, while a
+ * fixed-reasoning model like `grok-code-fast-1` exposes only the default `M`), so
+ * the command must surface and validate only what the active model actually
+ * supports.
+ *
+ * Reads the model's catalog-declared {@link AppModelDefinition.supportedEffortLevels}.
+ * Falls back to the full {@link EFFORT_LEVELS} scale when the field is absent
+ * (back-compat) or empty, or when the model is unknown (`undefined`) — so a
+ * missing/unpriced model never silently forbids every level.
+ *
+ * @param model - The active model to read supported levels from, or `undefined`.
+ * @returns The supported effort levels in ascending order (the full scale when none are declared).
+ */
+export function effortLevelsForModel(
+  model: AppModelDefinition | undefined,
+): readonly EffortLevel[] {
+  const levels = model?.supportedEffortLevels
+  return levels && levels.length > 0 ? levels : EFFORT_LEVELS
+}

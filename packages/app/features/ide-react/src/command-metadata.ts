@@ -95,16 +95,15 @@ export const COMMANDS: readonly CommandDef[] = [
     usage: '/skills [query]',
   },
   {
-    id: 'new-skill',
-    label: '/new-skill',
+    id: 'newskill',
+    label: '/newskill',
     description: 'Create a new project skill',
     category: 'context',
-    usage: '/new-skill [name]',
+    usage: '/newskill [name]',
   },
 
   // Code
   { id: 'commit', label: '/commit', description: 'Commit current changes', category: 'code' },
-  { id: 'diff', label: '/diff', description: 'Show uncommitted changes', category: 'code' },
   {
     id: 'explain',
     label: '/explain',
@@ -170,12 +169,6 @@ export const COMMANDS: readonly CommandDef[] = [
     description: 'Switch model (use --plan / --execute for per-mode models)',
     category: 'model',
     usage: '/model [name | --plan | --execute]',
-  },
-  {
-    id: 'models',
-    label: '/models',
-    description: 'Compare available models in a sortable table',
-    category: 'model',
   },
   { id: 'plan', label: '/plan', description: 'Toggle plan/execute mode', category: 'model' },
   {

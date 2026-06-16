@@ -230,7 +230,6 @@ describe('Synthase chat surface i18n resolves through the locale bond (cross-cut
       'ide.chat.share.heading',
       'ide.chat.skills.heading',
       'ide.activity.defaultSummary',
-      'ide.chat.diffSummary',
     ]) {
       expect(typeof fr[key], `${key} missing from app-locales-ide`).toBe('string')
       expect(fr[key].length, `${key} empty in app-locales-ide`).toBeGreaterThan(0)

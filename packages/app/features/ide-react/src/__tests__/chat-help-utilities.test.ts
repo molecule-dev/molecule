@@ -1,30 +1,23 @@
 /**
- * Tests for the registry-driven `/help` text builder.
+ * Tests for the `/help` high-level-guide text builder.
  *
  * @module
  */
 
 import { describe, expect, it } from 'vitest'
 
-import { DEFAULT_AGENT_IDENTITY } from '@molecule/app-react'
-
-import { COMMAND_CATEGORIES, COMMANDS } from '../components/chat-commands.js'
 import { buildHelpText } from '../components/chat-help-utilities.js'
 
 describe('buildHelpText', () => {
   const help = buildHelpText()
 
-  it('enumerates EVERY command from the registry (no command missing)', () => {
-    for (const cmd of COMMANDS) {
-      expect(help).toContain(cmd.label)
-    }
-  })
-
-  it('lists every command category heading that has commands', () => {
-    for (const category of COMMAND_CATEGORIES) {
-      const hasCommands = COMMANDS.some((c) => c.category === category.key)
-      if (hasCommands) expect(help).toContain(category.label)
-    }
+  it('does NOT relist the slash commands (typing / does that better — P2-12)', () => {
+    // The high-level guide intentionally dropped the per-command relist and the
+    // "── Commands ──" section; commands not referenced by a mode/tip are absent.
+    expect(help).not.toContain('── Commands ──')
+    expect(help).not.toContain('/share')
+    expect(help).not.toContain('/clear')
+    expect(help).not.toContain('/explain')
   })
 
   it('explains the three conversation modes', () => {
@@ -38,19 +31,6 @@ describe('buildHelpText', () => {
     expect(help).toContain('/plan')
     expect(help).toContain('/undo')
     expect(help).toContain('/compact')
-  })
-
-  it('reflects new registry entries automatically (cannot drift)', () => {
-    const custom = buildHelpText(DEFAULT_AGENT_IDENTITY, [
-      {
-        id: 'frobnicate',
-        label: '/frobnicate',
-        description: 'do the thing',
-        category: 'support',
-      },
-    ])
-    expect(custom).toContain('/frobnicate')
-    expect(custom).toContain('do the thing')
   })
 
   // PKG1 (molecule.dev-leaks-in-core): the shared package must NOT hardcode a

@@ -6,16 +6,29 @@
  * 2. "Loading preview" — server was up before but fetch is now failing
  *
  * The iframe is always mounted (behind the overlay) once we have a URL.
- * The overlay hides when the iframe fires `onLoad`.
+ * The overlay hides on the `molecule:ready` handshake (the fast path) OR, if that
+ * handshake is dropped/suppressed/starved, on an `onLoad` grace fallback — so a
+ * working app whose ready message never arrives still surfaces (it never gets
+ * permanently stuck behind the overlay).
  *
  * Recovery features:
- * - Never-give-up polling with exponential backoff (never permanently stuck)
- * - Stuck-load detection: auto-reloads/remounts iframe if molecule:ready never arrives
+ * - Never-give-up polling with exponential backoff, single-chain (epoch-guarded +
+ *   AbortController) so leaked poll chains can't starve the preview's connections
+ * - onLoad grace fallback: clears the overlay when the document loaded but the
+ *   ready handshake never came (and no crash fired)
+ * - Stuck-load detection: gated on the document NOT having loaded (so it never
+ *   interrupts a progressing load), backs off, and is CAPPED — after the cap it
+ *   stops thrashing and shows a themed "Preview can't load here" loop-breaker
+ *   panel (Reload + Open in new tab) instead of remounting forever
+ * - Last-good-frame: stores the sandbox's `molecule:snapshot` data-URL and shows
+ *   it blurred behind the overlay while the app is rebuilding / blank
  * - Pre-render error forwarding: module/import errors sent to the agent for auto-fix
  * - Freeze watchdog: the scaffold heartbeats every ~3s; if its thread locks up the
  *   beats stop, so we surface a reload banner (the IDE stays responsive because the
  *   preview origin is isolated via Origin-Agent-Cluster)
  * - Blank page detection: catches pages that render but show nothing
+ * - Trust boundary: inbound `molecule:*` postMessages are accepted only from the
+ *   preview's own origin (`event.origin` must match)
  *
  * @module
  */
@@ -50,12 +63,43 @@ const POLL_BACKOFF_FACTOR = 2
 
 // --- Stuck-load detection constants ---
 
-/** Time to wait for molecule:ready after iframe src is set before attempting recovery (ms). */
-const STUCK_DETECT_MS = 5_000
-/** Max recovery cycles (reload + remount) before firing onPreviewStuck. */
+/**
+ * Base time to wait for the load to make progress after the iframe src is set
+ * before attempting recovery (ms). Raised from the old 5s — a cold/slow first
+ * Vite load after an idle (or a deps-cache wipe) routinely takes longer than 5s,
+ * and remounting mid-load (with a cache-buster that defeats Vite's transform
+ * cache) only made the next load slower. Recovery now also requires that the
+ * document has NOT loaded (see the stuck-detection effect), so a progressing-but-
+ * slow load is never interrupted.
+ */
+const STUCK_DETECT_MS = 8_000
+/** Exponential back-off applied to STUCK_DETECT_MS between recovery attempts. */
+const STUCK_BACKOFF_FACTOR = 1.6
+/**
+ * Max recovery cycles (reload + remount) before giving up. After this cap the
+ * panel STOPS retrying and shows a themed loop-breaker (Reload + Open in new tab)
+ * instead of remounting indefinitely — the old `longRetry()` looped forever.
+ */
 const MAX_RECOVERY_CYCLES = 3
-/** Interval between recovery attempts after MAX_RECOVERY_CYCLES exhausted (ms). */
-const STUCK_RETRY_INTERVAL_MS = 10_000
+
+// --- onLoad grace fallback ---
+
+/**
+ * After the iframe document fires `onLoad`, how long to wait for `molecule:ready`
+ * before treating the load as good anyway (ms). The handshake is the fast path;
+ * this is the safety net for a working app whose ready was dropped/suppressed.
+ */
+const ONLOAD_GRACE_MS = 2_500
+
+// --- Last-good-frame snapshot (molecule:snapshot trust boundary) ---
+
+/**
+ * Max accepted size of an inbound `molecule:snapshot` data-URL (chars). The
+ * sandbox sender downscales + JPEG-compresses, so a legitimate frame is well
+ * under this; the cap defends the postMessage trust boundary against an oversized
+ * payload bloating React state.
+ */
+const MAX_SNAPSHOT_DATA_URL_LENGTH = 4_000_000
 
 // --- Freeze watchdog constants ---
 
@@ -84,21 +128,31 @@ const TRANSITION_WINDOW_MS = 5000
  * Uses `no-cors` so CORS errors aren't mistaken for network failures.
  * Aborts after 500ms to avoid holding browser connections — hanging polls
  * exhaust the per-origin connection limit and starve the iframe of
- * connections for script/asset requests.
+ * connections for script/asset requests. An optional `externalSignal` lets the
+ * caller abort the in-flight request on cleanup (e.g. when a poll chain is
+ * superseded), so a unmounting/restarting panel never leaves a fetch dangling.
  * @param url - The URL to check.
+ * @param externalSignal - Optional signal; aborting it aborts this probe.
  * @returns Whether the server responded within the timeout.
  */
-async function isServerUp(url: string): Promise<boolean> {
+async function isServerUp(url: string, externalSignal?: AbortSignal): Promise<boolean> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 500)
+  const onExternalAbort = (): void => controller.abort()
+  if (externalSignal) {
+    if (externalSignal.aborted) controller.abort()
+    else externalSignal.addEventListener('abort', onExternalAbort)
+  }
   try {
     await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal })
-    clearTimeout(timeout)
     return true
   } catch (_error) {
-    // Fetch failure means server is not yet up — expected during polling. `false` is the correct result.
-    clearTimeout(timeout)
+    // Fetch failure (or an abort) means the server is not usable right now —
+    // expected during polling / on cancellation. `false` is the correct result.
     return false
+  } finally {
+    clearTimeout(timeout)
+    if (externalSignal) externalSignal.removeEventListener('abort', onExternalAbort)
   }
 }
 
@@ -139,12 +193,21 @@ export function PreviewPanel({
 
   // Has the server ever responded successfully?
   const [everLoaded, setEverLoaded] = useState(false)
+  // Mirror everLoaded to a ref so the message handler (which is NOT re-subscribed
+  // when everLoaded changes) reads the live value, not a stale closure.
+  const everLoadedRef = useRef(everLoaded)
+  everLoadedRef.current = everLoaded
   // Is the iframe content ready to show?
   const [iframeReady, setIframeReady] = useState(false)
   // Fade-out transition in progress
   const [fadingOut, setFadingOut] = useState(false)
 
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Generation token: bumped on every clearPoll so a superseded poll() chain bails
+  // on its next guard instead of re-arming — guarantees only ONE live poll chain.
+  const pollEpochRef = useRef(0)
+  // AbortController for the in-flight server-up probe, so cleanup can cancel it.
+  const pollAbortRef = useRef<AbortController | null>(null)
   const urlRef = useRef(state.url)
   urlRef.current = state.url
   // Tracks the iframe src to force reload when server recovers
@@ -154,9 +217,30 @@ export function PreviewPanel({
   const [stuckRetryCount, setStuckRetryCount] = useState(0)
   const stuckTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [iframeMountKey, setIframeMountKey] = useState(0)
+  // True once the cap of recovery cycles is hit — stops the loop and shows the
+  // themed "Preview can't load here" panel (loop breaker) instead of thrashing.
+  const [previewGaveUp, setPreviewGaveUp] = useState(false)
   // Mirror iframeReady to a ref so timer callbacks read current value
   const iframeReadyRef = useRef(iframeReady)
   iframeReadyRef.current = iframeReady
+  // Whether the CURRENT iframe document has fired `onLoad`. When it has, the load
+  // reached the document and only the handshake is missing — the onLoad grace
+  // fallback (not a remount) clears the overlay, so the stuck-detector stands down.
+  const iframeLoadedRef = useRef(false)
+  // Pending onLoad grace timer (cleared on a new load / unmount).
+  const onLoadGraceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Timestamp of the last crash message — the onLoad fallback refuses to mask a
+  // load that just crashed (a crash within the grace window suppresses it).
+  const lastCrashAtRef = useRef(0)
+
+  // --- Last-good-frame (molecule:snapshot) ---
+  // The most recent rasterized frame the sandbox app posted while it was rendering
+  // fine. Shown BLURRED behind the overlay while the app is rebuilding or blank,
+  // so the user sees the last working UI instead of a white iframe.
+  const [lastGoodFrame, setLastGoodFrame] = useState<string | null>(null)
+  // Forces the overlay (+ blurred last-good frame) when the app reports it rendered
+  // but is blank — molecule:blank does not otherwise toggle the overlay.
+  const [showBlankFallback, setShowBlankFallback] = useState(false)
 
   // --- Heartbeat tracking ---
   const lastHeartbeatRef = useRef<number>(0)
@@ -178,10 +262,19 @@ export function PreviewPanel({
   }, [currentLocation, urlEditing])
 
   // --- Clear poll timer ---
+  // Also invalidates any in-flight poll chain: bumping the epoch makes a poll()
+  // that is mid-await bail on its next guard instead of re-arming a new timer, and
+  // aborting the controller releases the in-flight HEAD probe so it stops holding a
+  // per-origin connection (the leak the file's own comment warns about).
   const clearPoll = useCallback(() => {
     if (pollRef.current) {
       clearTimeout(pollRef.current)
       pollRef.current = null
+    }
+    pollEpochRef.current += 1
+    if (pollAbortRef.current) {
+      pollAbortRef.current.abort()
+      pollAbortRef.current = null
     }
   }, [])
 
@@ -197,15 +290,22 @@ export function PreviewPanel({
   // Uses exponential backoff: POLL_INITIAL_MS → POLL_MAX_MS. Never gives up.
   const startPolling = useCallback(
     (url: string): void => {
+      // clearPoll() bumps the epoch + aborts the prior chain; capture the fresh
+      // epoch + a new AbortController so THIS chain is the only live one. Any older
+      // poll() awaiting a fetch now sees a stale epoch and bails.
       clearPoll()
+      const epoch = pollEpochRef.current
+      const abort = new AbortController()
+      pollAbortRef.current = abort
       setIframeReady(false)
       setFadingOut(false)
+      setPreviewGaveUp(false)
 
       let interval = POLL_INITIAL_MS
       const poll = async (): Promise<void> => {
-        if (urlRef.current !== url) return
-        const up = await isServerUp(url)
-        if (urlRef.current !== url) return
+        if (pollEpochRef.current !== epoch || urlRef.current !== url) return
+        const up = await isServerUp(url, abort.signal)
+        if (pollEpochRef.current !== epoch || urlRef.current !== url) return
 
         if (up) {
           setEverLoaded(true)
@@ -232,12 +332,20 @@ export function PreviewPanel({
       setFadingOut(false)
       setIframeSrc('')
       setStuckRetryCount(0)
+      setPreviewGaveUp(false)
+      setShowBlankFallback(false)
+      setLastGoodFrame(null)
       return
     }
 
     setEverLoaded(false)
     setIframeSrc('')
     setStuckRetryCount(0)
+    setPreviewGaveUp(false)
+    setShowBlankFallback(false)
+    // A brand-new load target is a different app — drop the previous app's frame
+    // so a blank in the NEW app never flashes the OLD app's last-good frame.
+    setLastGoodFrame(null)
     startPolling(state.url)
 
     return () => {
@@ -250,30 +358,62 @@ export function PreviewPanel({
     // reloading here.
   }, [state.url, state.loadNonce, startPolling, clearPoll, clearStuckTimer])
 
+  // --- A new document is loading → reset per-load onLoad tracking ---
+  // Whenever the iframe gets a fresh src or is remounted, the onLoad flag and any
+  // pending grace timer belong to the PREVIOUS load — clear them so the new load's
+  // own onLoad drives the fallback.
+  useEffect(() => {
+    iframeLoadedRef.current = false
+    if (onLoadGraceRef.current) {
+      clearTimeout(onLoadGraceRef.current)
+      onLoadGraceRef.current = null
+    }
+    return () => {
+      if (onLoadGraceRef.current) {
+        clearTimeout(onLoadGraceRef.current)
+        onLoadGraceRef.current = null
+      }
+    }
+  }, [iframeSrc, iframeMountKey])
+
   // --- When iframeReady becomes true, trigger fade-out ---
   useEffect(() => {
-    if (iframeReady) setFadingOut(true)
+    if (iframeReady) {
+      setFadingOut(true)
+      // Content is showing again — tear down the loop-breaker panel and the
+      // blank fallback so a later good render always clears them.
+      setPreviewGaveUp(false)
+      setShowBlankFallback(false)
+    }
   }, [iframeReady])
 
-  // --- Stuck-load detection: auto-recover when molecule:ready never arrives ---
+  // --- Stuck-load detection: recover ONLY when the load is genuinely stuck ---
+  // "Stuck" now means: we have a src, the iframe hasn't reported ready, AND we've
+  // given up (panel shown) is not the case. Critically, recovery is gated on the
+  // document NOT having fired `onLoad` — if the document loaded, the handshake (not
+  // the load) is what's missing and the onLoad grace fallback handles it, so we do
+  // NOT remount (remounting would interrupt a progressing load and bust Vite's
+  // cache). Delays back off, and after MAX_RECOVERY_CYCLES we STOP and show the
+  // themed loop-breaker panel instead of remounting forever.
   useEffect(() => {
-    // Only run when we have a src but iframe hasn't reported ready
-    if (!iframeSrc || iframeReady) {
+    if (!iframeSrc || iframeReady || previewGaveUp) {
       clearStuckTimer()
       return
     }
 
     let cycleCount = 0
-    let stuckFired = false
 
-    const attempt = (): void => {
-      const delay = cycleCount < MAX_RECOVERY_CYCLES ? STUCK_DETECT_MS : STUCK_RETRY_INTERVAL_MS
+    const scheduleNext = (): void => {
+      const delay = STUCK_DETECT_MS * Math.pow(STUCK_BACKOFF_FACTOR, cycleCount)
       stuckTimerRef.current = setTimeout(() => {
         stuckTimerRef.current = null
-        // Check ref, not stale closure
+        // Read refs, not stale closures.
         if (iframeReadyRef.current) return
+        // The document loaded but ready never came → defer to the onLoad grace
+        // fallback; do not interrupt a progressing load with a remount.
+        if (iframeLoadedRef.current) return
 
-        cycleCount++
+        cycleCount += 1
         setStuckRetryCount(cycleCount)
 
         if (cycleCount <= MAX_RECOVERY_CYCLES) {
@@ -284,32 +424,21 @@ export function PreviewPanel({
             // Even cycles: full iframe remount (unmount + remount)
             setIframeMountKey((k) => k + 1)
           }
-          attempt()
+          scheduleNext()
         } else {
-          // Exhausted recovery cycles — fire onPreviewStuck (once)
-          if (!stuckFired) {
-            stuckFired = true
-            onPreviewStuck?.()
-          }
-          // Continue retrying at longer intervals indefinitely
-          const longRetry = (): void => {
-            stuckTimerRef.current = setTimeout(() => {
-              stuckTimerRef.current = null
-              if (iframeReadyRef.current) return
-              setIframeMountKey((k) => k + 1)
-              setStuckRetryCount((n) => n + 1)
-              longRetry()
-            }, STUCK_RETRY_INTERVAL_MS)
-          }
-          longRetry()
+          // Cap reached — HARD STOP. Never loop forever (the old longRetry()
+          // remounted every 10s indefinitely, compounding the thrash). Notify the
+          // host once, then surface the loop-breaker panel (Reload + open in tab).
+          onPreviewStuck?.()
+          setPreviewGaveUp(true)
         }
       }, delay)
     }
 
-    attempt()
+    scheduleNext()
 
     return () => clearStuckTimer()
-  }, [iframeSrc, iframeReady, onPreviewStuck, clearStuckTimer])
+  }, [iframeSrc, iframeReady, previewGaveUp, onPreviewStuck, clearStuckTimer])
 
   // --- Listen for postMessage from scaffold template ---
   // molecule:ready       = #root got children (app rendered)  → hide overlay
@@ -351,6 +480,21 @@ export function PreviewPanel({
     }
 
     const handler = (event: MessageEvent): void => {
+      // Trust boundary: the preview iframe (and anything it might embed) can
+      // postMessage arbitrary data, so act ONLY on messages from the preview's own
+      // origin — never trust event.data without verifying event.origin first. The
+      // load target's origin is the source of truth; client-side navigations stay
+      // same-origin, so this holds across in-app routing.
+      let expectedOrigin: string | null = null
+      try {
+        if (urlRef.current) expectedOrigin = new URL(urlRef.current).origin
+      } catch (_error) {
+        // Malformed preview URL — there is no trustable origin to compare against,
+        // so reject the message rather than act on an unverifiable sender.
+        expectedOrigin = null
+      }
+      if (!expectedOrigin || event.origin !== expectedOrigin) return
+
       if (event.data?.type === 'molecule:ready') {
         const now = Date.now()
 
@@ -385,6 +529,13 @@ export function PreviewPanel({
         setEverLoaded(true)
         setIframeReady(true)
         setStuckRetryCount(0)
+        // Handshake arrived (the fast path) — cancel any pending onLoad grace
+        // fallback and clear the crash marker so a future onLoad isn't suppressed.
+        if (onLoadGraceRef.current) {
+          clearTimeout(onLoadGraceRef.current)
+          onLoadGraceRef.current = null
+        }
+        lastCrashAtRef.current = 0
       } else if (event.data?.type === 'molecule:error' && event.data.crash) {
         const now = Date.now()
 
@@ -418,6 +569,9 @@ export function PreviewPanel({
           pendingMsg = null
           setIframeReady(false)
           setFadingOut(false)
+          // Mark the crash so the onLoad grace fallback won't mask it as a good
+          // load (a crash within the grace window suppresses the fallback).
+          lastCrashAtRef.current = Date.now()
         }, MSG_RATE_LIMIT_MS)
       } else if (event.data?.type === 'molecule:error' && !event.data.crash && event.data.message) {
         // Pre-render error — app failed to mount (e.g., module export missing, import error).
@@ -457,6 +611,28 @@ export function PreviewPanel({
             },
           ])
         }
+        // ...and surface the blurred last-good frame so a blanked app shows the
+        // last working UI instead of an empty white iframe. Gated on everLoaded
+        // (via the ref) so the very first cold load — no frame captured yet — is
+        // unaffected.
+        if (everLoadedRef.current) setShowBlankFallback(true)
+      } else if (event.data?.type === 'molecule:snapshot') {
+        // The sandbox app self-rasterized a stable render and posted it. Validate
+        // defensively (postMessage trust boundary): a data:image/ URL within a sane
+        // size cap. Stored as the blurred last-good placeholder shown during a
+        // rebuild/blank window.
+        const dataUrl: unknown = event.data.dataUrl
+        if (
+          typeof dataUrl === 'string' &&
+          dataUrl.startsWith('data:image/') &&
+          dataUrl.length <= MAX_SNAPSHOT_DATA_URL_LENGTH
+        ) {
+          setLastGoodFrame(dataUrl)
+          // The sandbox only self-captures a stable render with visible content, so
+          // a fresh snapshot means the app is no longer blank — clear the fallback
+          // (a blank has no "un-blank" message of its own to flip it back).
+          setShowBlankFallback(false)
+        }
       }
     }
     window.addEventListener('message', handler)
@@ -474,6 +650,28 @@ export function PreviewPanel({
     setFadingOut(false)
     startPolling(urlRef.current)
   }, [startPolling])
+
+  // --- iframe onLoad: grace fallback when molecule:ready never arrives ---
+  // The document finished loading. `molecule:ready` is the fast path that clears
+  // the overlay immediately; but if that handshake is dropped/suppressed/starved,
+  // a perfectly good app would otherwise stay hidden behind the overlay forever
+  // (the single point of failure that made the preview get permanently stuck). So
+  // after a short grace, if no ready arrived AND no crash just fired, treat the
+  // load as good and clear the overlay anyway.
+  const handleIframeLoad = useCallback(() => {
+    if (!urlRef.current) return
+    iframeLoadedRef.current = true
+    if (onLoadGraceRef.current) clearTimeout(onLoadGraceRef.current)
+    onLoadGraceRef.current = setTimeout(() => {
+      onLoadGraceRef.current = null
+      if (iframeReadyRef.current) return
+      // A crash within the grace window means the load is NOT good — don't mask it.
+      if (Date.now() - lastCrashAtRef.current < ONLOAD_GRACE_MS) return
+      setEverLoaded(true)
+      setIframeReady(true)
+      setStuckRetryCount(0)
+    }, ONLOAD_GRACE_MS)
+  }, [])
 
   // --- Health check: periodically verify server is still up ---
   useEffect(() => {
@@ -561,6 +759,9 @@ export function PreviewPanel({
 
   // --- Manual retry handler ---
   const handleManualRetry = useCallback(() => {
+    // Clear the loop-breaker / blank fallback so a fresh attempt starts clean.
+    setPreviewGaveUp(false)
+    setShowBlankFallback(false)
     setIframeMountKey((k) => k + 1)
     setStuckRetryCount(0)
     if (state.url) {
@@ -610,7 +811,11 @@ export function PreviewPanel({
   // reload-after-every-edit safety net; with that gone, a healthy preview stays
   // visible and HMR updates are seen live, uncovered.
   const building = buildingHint != null
-  const showOverlay = Boolean(state.url) && (!iframeReady || fadingOut)
+  // The overlay shows while loading/fading, OR when the app reported it went blank
+  // (so the blurred last-good frame can stand in for the empty iframe) — but never
+  // once we've hard-stopped (the loop-breaker panel replaces it).
+  const showOverlay =
+    Boolean(state.url) && (!iframeReady || fadingOut || showBlankFallback) && !previewGaveUp
 
   const overlayContent = building ? (
     <DefaultLoadingIndicator
@@ -667,7 +872,7 @@ export function PreviewPanel({
                 name={isSecureLocation ? 'lock' : 'globe'}
                 size={16}
                 data-mol-id="preview-site-info"
-                className={cm.textMuted}
+                className={cm.cn(cm.textMuted, cm.sp('mr', 1))}
                 aria-hidden="true"
               />
             </Tooltip>
@@ -766,6 +971,7 @@ export function PreviewPanel({
               borderRadius: state.device === 'mobile' ? '16px' : '0',
               background: '#fff',
             }}
+            onLoad={handleIframeLoad}
             onError={handleIframeError}
           />
         )}
@@ -790,17 +996,115 @@ export function PreviewPanel({
                 ? 'color-mix(in srgb, var(--mol-color-surface-secondary, #f5f5f5) 78%, transparent)'
                 : 'var(--mol-color-surface-secondary, #f5f5f5)',
               backdropFilter: everLoaded ? 'blur(2px)' : undefined,
-              // A build forces the overlay fully visible (it may have already faded
-              // out from a prior ready state); otherwise honor the fade-out.
-              opacity: building ? 1 : fadingOut ? 0 : 1,
+              // A build (or a blank fallback) forces the overlay fully visible (it
+              // may have already faded out from a prior ready state); otherwise
+              // honor the fade-out.
+              opacity: building || showBlankFallback ? 1 : fadingOut ? 0 : 1,
               transition: 'opacity 0.5s ease-out',
-              pointerEvents: building || !fadingOut ? 'auto' : 'none',
+              pointerEvents: building || showBlankFallback || !fadingOut ? 'auto' : 'none',
             }}
             onTransitionEnd={() => {
               if (fadingOut) setFadingOut(false)
             }}
           >
-            {overlayContent}
+            {/* Last working build, shown BLURRED behind the overlay content while
+                the app is rebuilding or blank — so the user sees the previous good
+                UI instead of a white iframe. Gated on everLoaded so the first cold
+                load (no frame captured yet) is unaffected. */}
+            {everLoaded && lastGoodFrame && (
+              <>
+                <img
+                  src={lastGoodFrame}
+                  data-mol-id="preview-last-frame"
+                  alt={t(
+                    'ide.preview.lastWorkingFrame',
+                    {},
+                    { defaultValue: 'Last working preview' },
+                  )}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'top center',
+                    filter: 'blur(8px)',
+                    zIndex: 0,
+                    pointerEvents: 'none',
+                  }}
+                />
+                {/* Subtle theme-token scrim over the frame so the status card reads
+                    clearly without hiding the last-good UI entirely. */}
+                <div
+                  aria-hidden="true"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 0,
+                    background:
+                      'color-mix(in srgb, var(--mol-color-surface-secondary, #f5f5f5) 55%, transparent)',
+                    pointerEvents: 'none',
+                  }}
+                />
+              </>
+            )}
+            <div style={{ position: 'relative', zIndex: 1 }}>{overlayContent}</div>
+          </div>
+        )}
+
+        {/* Loop breaker — recovery cap reached. Stop thrashing the iframe forever
+            and give the user a deterministic way out: reload, or open the preview
+            URL directly in a new tab (which always works even when framing here
+            fails). Replaces the old indefinite remount loop. */}
+        {previewGaveUp && (
+          <div
+            data-mol-id="preview-load-failed"
+            className={cm.surface}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              zIndex: 2,
+              padding: '24px',
+              textAlign: 'center',
+            }}
+          >
+            <Icon name="x-circle" size={28} className={cm.textMuted} aria-hidden="true" />
+            <div
+              className={cm.cn(cm.textSize('sm'))}
+              style={{ color: 'var(--mol-color-text, #333)', fontWeight: 600 }}
+            >
+              {t('ide.preview.loadFailed', {}, { defaultValue: "Preview can't load here" })}
+            </div>
+            <div className={cm.cn(cm.textSize('xs'), cm.textMuted)} style={{ maxWidth: '320px' }}>
+              {t(
+                'ide.preview.loadFailedHint',
+                {},
+                { defaultValue: 'Try reloading, or open the preview in a new tab.' },
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                data-mol-id="preview-load-failed-reload"
+                onClick={handleManualRetry}
+                className={cm.button({ variant: 'solid', size: 'sm' })}
+              >
+                {t('ide.preview.reloadPreview', {}, { defaultValue: 'Reload preview' })}
+              </button>
+              <button
+                type="button"
+                data-mol-id="preview-load-failed-open"
+                onClick={openExternal}
+                className={cm.button({ variant: 'outline', size: 'sm' })}
+              >
+                {t('ide.preview.openNewTab', {}, { defaultValue: 'Open in new tab' })}
+              </button>
+            </div>
           </div>
         )}
 
@@ -1004,7 +1308,24 @@ function DefaultLoadingIndicator({
   const phrase = PREVIEW_MESSAGES[msgIdx]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+    // A self-contained "card" backdrop on SOLID theme tokens. The overlay scrim is
+    // intentionally semi-transparent (the last UI / blurred last-good frame stays
+    // dimly visible), so the status text used to bleed into a white/light preview
+    // and become unreadable — worst in light theme. A solid surface card guarantees
+    // the dots + status + retry always sit on a known, theme-correct backdrop.
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '16px',
+        background: 'var(--mol-color-surface, #fff)',
+        border: '1px solid var(--mol-color-border, rgba(128,128,128,0.2))',
+        borderRadius: '8px',
+        padding: '16px 24px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+      }}
+    >
       <div style={{ display: 'flex', gap: '8px' }}>
         {[0, 1, 2].map((i) => (
           <span
@@ -1022,7 +1343,10 @@ function DefaultLoadingIndicator({
       <span
         style={{
           fontSize: '13px',
-          color: 'var(--mol-color-text-muted, #888)',
+          // Foreground token (not the low-contrast muted token) so "Updating
+          // <file>" reads with full contrast in BOTH themes — the card backdrop
+          // above guarantees a known surface behind it.
+          color: 'var(--mol-color-text, #333)',
           textAlign: 'center',
         }}
       >

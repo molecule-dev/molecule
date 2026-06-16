@@ -5,14 +5,19 @@
  * under `.agents/skills/` with `name`/`description` frontmatter), discovered
  * via the SAME file-list / file-content API the chat uses for `@`-mentions.
  * A search box filters by name/description/path (seeded from `/skills <query>`),
- * and each row has a "Load" action that opens the skill in the editor and
- * injects its content as context for the next message.
+ * and each row has a "Load" action that simply opens the skill in the editor (it
+ * does NOT attach it as message context — the agent already sees every skill's
+ * name + description and reads bodies on demand). Each row surfaces which skills
+ * are currently loaded this session ("Loaded" badge) and which are in the
+ * persisted per-project default-loaded set ("Default" badge), and offers a toggle
+ * to add/remove a skill from that default set — whose full body the backend then
+ * injects into every conversation.
  *
- * It also hosts the skill-authoring affordance (the UI half of `/new-skill`): a
+ * It also hosts the skill-authoring affordance (the UI half of `/newskill`): a
  * "New skill" button reveals an inline name form whose submit calls `onCreate`,
  * and the freshly created skill is added to the list immediately. The card can
  * also mount with that form already open (`startCreating`) for a bare
- * `/new-skill` command.
+ * `/newskill` command.
  *
  * Per-control hints surface through the framework's REAL styled {@link Tooltip}
  * (instant, theme-aware, focus/hover-aware) — never the delayed, touch-blind
@@ -25,7 +30,7 @@
  * @module
  */
 
-import type { JSX } from 'react'
+import type { CSSProperties, JSX } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
@@ -44,6 +49,34 @@ const logger = getLogger('skills-card')
 type SkillsStatus = 'loading' | 'ready' | 'error'
 
 /**
+ * Inline pill style for the "Loaded"/"Default" row badges. The tint is derived
+ * from the active theme's primary color via `color-mix` (the hex is only the
+ * CSS-var fallback, the established TipCard convention) — never a hardcoded color.
+ * It's an inline style because a tinted pill is layout/tint ClassMap can't express.
+ *
+ * @param strong - When `true` (the persisted "Default" badge) use a stronger fill +
+ *   weight so it stands out more than the lighter session-only "Loaded" badge.
+ * @returns The badge's inline style.
+ */
+function skillBadgeStyle(strong: boolean): CSSProperties {
+  return {
+    flexShrink: 0,
+    padding: '0 6px',
+    borderRadius: 999,
+    fontSize: 10,
+    lineHeight: '15px',
+    fontWeight: strong ? 600 : 500,
+    color: 'var(--mol-color-primary, #6366f1)',
+    border: `1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) ${
+      strong ? 45 : 28
+    }%, transparent)`,
+    background: `color-mix(in srgb, var(--mol-color-primary, #6366f1) ${
+      strong ? 16 : 8
+    }%, transparent)`,
+  }
+}
+
+/**
  * The skills browser shown by `/skills`, with the inline skill-authoring form.
  *
  * @param root0 - Component props.
@@ -53,7 +86,14 @@ type SkillsStatus = 'loading' | 'ready' | 'error'
  * @param root0.onCreate - Creates a new skill from a display name and resolves the created
  *   skill (or `null` on failure). When omitted, the "New skill" affordance is hidden.
  * @param root0.startCreating - When `true`, mount with the inline "New skill" form already
- *   open (used by a bare `/new-skill` command).
+ *   open (used by a bare `/newskill` command).
+ * @param root0.loadedSkillPaths - Paths of skills opened via "Load" this session — each shows
+ *   a "Loaded" badge. Defaults to empty.
+ * @param root0.defaultSkillPaths - Paths of skills in the persisted per-project default-loaded
+ *   set (`settings.defaultSkills`) — each shows a "Default" badge and a filled toggle. Defaults
+ *   to empty.
+ * @param root0.onToggleDefault - Called to add/remove a skill from the default-loaded set; when
+ *   omitted the per-row default toggle is hidden.
  * @param root0.isLight - Whether the current theme is light mode (drives subtle tints).
  * @returns The rendered skills card.
  */
@@ -63,6 +103,9 @@ export function SkillsCard({
   onLoad,
   onCreate,
   startCreating,
+  loadedSkillPaths,
+  defaultSkillPaths,
+  onToggleDefault,
   isLight,
 }: {
   projectId: string
@@ -70,6 +113,9 @@ export function SkillsCard({
   onLoad: (skill: SkillInfo) => void
   onCreate?: (name: string) => Promise<SkillInfo | null>
   startCreating?: boolean
+  loadedSkillPaths?: ReadonlySet<string>
+  defaultSkillPaths?: ReadonlySet<string>
+  onToggleDefault?: (skill: SkillInfo, next: boolean) => void
   isLight: boolean
 }): JSX.Element {
   const cm = getClassMap()
@@ -279,55 +325,117 @@ export function SkillsCard({
       )}
 
       {status === 'ready' &&
-        filtered.map((skill) => (
-          <div
-            key={skill.path}
-            data-mol-id={`skill-row-${skill.name}`}
-            className={cm.borderT}
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: 8,
-              padding: '6px 0',
-              borderColor: rowBorder,
-            }}
-          >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className={cm.fontWeight('medium')}>{skill.name}</div>
-              {skill.description && (
-                <div className={cm.textMuted} style={{ marginTop: 2, lineHeight: 1.4 }}>
-                  {skill.description}
+        filtered.map((skill) => {
+          const isLoaded = loadedSkillPaths?.has(skill.path) ?? false
+          const isDefault = defaultSkillPaths?.has(skill.path) ?? false
+          return (
+            <div
+              key={skill.path}
+              data-mol-id={`skill-row-${skill.name}`}
+              className={cm.borderT}
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 8,
+                padding: '6px 0',
+                borderColor: rowBorder,
+              }}
+            >
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  <span className={cm.fontWeight('medium')}>{skill.name}</span>
+                  {isDefault && (
+                    <span
+                      data-mol-id={`skill-default-badge-${skill.name}`}
+                      style={skillBadgeStyle(true)}
+                    >
+                      {t('ide.chat.skills.defaultBadge', undefined, { defaultValue: 'Default' })}
+                    </span>
+                  )}
+                  {isLoaded && (
+                    <span
+                      data-mol-id={`skill-loaded-badge-${skill.name}`}
+                      style={skillBadgeStyle(false)}
+                    >
+                      {t('ide.chat.skills.loadedBadge', undefined, { defaultValue: 'Loaded' })}
+                    </span>
+                  )}
                 </div>
-              )}
-              <div
-                className={cm.textMuted}
-                style={{
-                  marginTop: 2,
-                  fontSize: 10,
-                  fontFamily: 'var(--mol-font-mono, monospace)',
-                }}
-              >
-                {skill.path}
+                {skill.description && (
+                  <div className={cm.textMuted} style={{ marginTop: 2, lineHeight: 1.4 }}>
+                    {skill.description}
+                  </div>
+                )}
+                <div
+                  className={cm.textMuted}
+                  style={{
+                    marginTop: 2,
+                    fontSize: 10,
+                    fontFamily: 'var(--mol-font-mono, monospace)',
+                  }}
+                >
+                  {skill.path}
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                {onToggleDefault && (
+                  <Tooltip
+                    content={
+                      isDefault
+                        ? t('ide.chat.skills.unsetDefault', undefined, {
+                            defaultValue: 'Stop loading by default',
+                          })
+                        : t('ide.chat.skills.setDefault', undefined, {
+                            defaultValue: 'Load by default',
+                          })
+                    }
+                    placement="top"
+                  >
+                    <button
+                      type="button"
+                      data-mol-id={`skill-default-${skill.name}`}
+                      aria-pressed={isDefault}
+                      onClick={() => onToggleDefault(skill, !isDefault)}
+                      className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+                      style={{
+                        flexShrink: 0,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Icon
+                        name="star"
+                        size={13}
+                        aria-hidden="true"
+                        style={{
+                          color: 'var(--mol-color-primary, #6366f1)',
+                          opacity: isDefault ? 1 : 0.4,
+                        }}
+                      />
+                    </button>
+                  </Tooltip>
+                )}
+                <Tooltip
+                  content={t('ide.chat.skills.loadTitle', undefined, {
+                    defaultValue: 'Open in the editor',
+                  })}
+                  placement="top"
+                >
+                  <button
+                    type="button"
+                    data-mol-id={`skill-load-${skill.name}`}
+                    onClick={() => onLoad(skill)}
+                    className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+                    style={{ flexShrink: 0 }}
+                  >
+                    {t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
+                  </button>
+                </Tooltip>
               </div>
             </div>
-            <Tooltip
-              content={t('ide.chat.skills.loadTitle', undefined, {
-                defaultValue: 'Open in editor and attach as context',
-              })}
-              placement="top"
-            >
-              <button
-                type="button"
-                data-mol-id={`skill-load-${skill.name}`}
-                onClick={() => onLoad(skill)}
-                className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
-                style={{ flexShrink: 0 }}
-              >
-                {t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
-              </button>
-            </Tooltip>
-          </div>
-        ))}
+          )
+        })}
     </div>
   )
 }

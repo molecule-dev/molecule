@@ -73,9 +73,11 @@ describe('ENTRY_TIP (SYN12 — the onboarding entry tip)', () => {
 
 describe('pool growth + loosened gating (SYN12)', () => {
   it('grew the rotation pool beyond the original five tips', () => {
-    expect(CHAT_TIPS.length).toBeGreaterThanOrEqual(9)
+    // /diff and /models were removed as commands (P2-09 / P2-11), so their tips
+    // were dropped too — the pool is still well beyond the original five.
+    expect(CHAT_TIPS.length).toBeGreaterThanOrEqual(7)
     expect(CHAT_TIPS.map((tip) => tip.id)).toEqual(
-      expect.arrayContaining(['commit', 'diff', 'models', 'report']),
+      expect.arrayContaining(['commit', 'plan', 'undo', 'report']),
     )
   })
 

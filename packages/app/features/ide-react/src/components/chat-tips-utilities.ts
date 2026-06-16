@@ -47,7 +47,7 @@ export const ENTRY_TIP: TipDef = {
 /**
  * The idle-rotation tip pool. Each covers a real, shipped slash command or
  * affordance — file mentions, the command menu, plan vs execute, `/undo`,
- * `/compact`, `/commit`, `/diff`, `/models`, and `/report`. Surfaced occasionally
+ * `/compact`, `/commit`, and `/report`. Surfaced occasionally
  * while idle (in no fixed order — {@link pickIdleTip} chooses an unseen one at
  * random), so a longer session keeps learning new features without the timeline
  * filling with hints. The {@link ENTRY_TIP} (`getStarted`) is shown separately at
@@ -60,7 +60,7 @@ export const CHAT_TIPS: readonly TipDef[] = [
   },
   {
     id: 'slash',
-    text: 'Tip: type / to browse every command (commit, diff, model, and more).',
+    text: 'Tip: type / to browse every command (commit, model, and more).',
   },
   {
     id: 'plan',
@@ -77,14 +77,6 @@ export const CHAT_TIPS: readonly TipDef[] = [
   {
     id: 'commit',
     text: 'Tip: use /commit to save your changes as a git commit you can always return to.',
-  },
-  {
-    id: 'diff',
-    text: 'Tip: use /diff to review every uncommitted change before you keep or commit it.',
-  },
-  {
-    id: 'models',
-    text: 'Tip: type /models to compare every available AI model and switch the one running {{agentName}}.',
   },
   {
     id: 'report',
