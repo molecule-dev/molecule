@@ -5121,11 +5121,11 @@ function ChatInner({
       <div
         ref={messagesContainerRef}
         className={cm.sp('p', 3)}
-        // Symmetric padding on all four sides; scrollbarGutter:'stable' reserves the
-        // thin scrollbar's gutter whether or not it shows, so the right padding no
-        // longer collapses when there is nothing to scroll (P3-04) — replacing the
-        // old asymmetric pr-1 hack.
-        style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'thin', scrollbarGutter: 'stable' }}
+        // Symmetric padding on all four sides (P3-04) — the old asymmetric pr-1 hack
+        // is gone. No scrollbar-gutter:stable reservation (it made the right padding
+        // visibly larger than the left); the thin scrollbar just overlays when the
+        // timeline overflows.
+        style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'thin' }}
       >
         {timeline.length > maxVisibleItems && (
           <div style={{ textAlign: 'center', padding: '8px 0' }}>
@@ -6804,13 +6804,12 @@ function ChatInner({
           className={cm.surfaceSecondary}
           style={{
             // Full IDE: flush with the panel's left/right/bottom edges (no rounding).
-            // Discovery: round the TOP corners (8px); the bottom stays square so the
-            // discovery card's own rounded bottom (overflow:hidden) clips it flush —
-            // giving the gradient ring a uniform 8px radius on all four visible
-            // corners with NO gap above the card's bottom edge (P3-23). The ring's
-            // `border-radius: inherit` follows this. The only divider above the
-            // composer otherwise is the commit bar's top border (uncommitted files).
-            ...(discovery ? { borderRadius: '8px 8px 0 0' } : {}),
+            // Discovery: round ALL FOUR corners (8px) so the composer's gradient ring
+            // is rounded uniformly on every corner, flush inside the rounded discovery
+            // card (P3-23). The ring's `border-radius: inherit` follows this; the card
+            // is full-width here (its stray right-divider is suppressed in discovery —
+            // see Workspace.css) so the composer reaches both side edges.
+            ...(discovery ? { borderRadius: 8 } : {}),
             padding: '8px 10px',
             cursor: 'text',
           }}
