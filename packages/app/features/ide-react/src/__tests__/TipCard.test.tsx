@@ -18,7 +18,7 @@
  *    interpolated — proving the strings are in the bond, not English-only inline;
  *  - the card is themed via the `--mol-color-primary` theme token (light/dark +
  *    per-app brand aware), never the old hardcoded indigo `rgba(99,102,241,…)`;
- *  - the tip icon (the bonded `sparkle` glyph) is a real `<svg>`, not an emoji glyph;
+ *  - the tip icon (the bonded `lightbulb` glyph) is a real `<svg>`, not an emoji glyph;
  *  - the dismiss control is an accessible button that fires `onDismiss`.
  *
  * Reverting the theming to a hardcoded hex, the SVG to an emoji, or the locale
@@ -105,11 +105,16 @@ describe('TipCard (SYN12 — themed, accessible, i18n-backed onboarding tip)', (
     expect(icon.style.color).toContain('--mol-color-primary')
   })
 
-  it('renders the tip icon as a real <svg>, not an emoji glyph', () => {
+  it('renders the tip icon as a real <svg> lightbulb, not an emoji glyph', () => {
     const { container } = render(<TipCard text="hello" onDismiss={() => {}} />)
     const card = container.querySelector('[data-mol-id="chat-tip-card"]') as HTMLElement
     // First child is the tip-icon SVG (not a "💡" text node).
-    expect(card.querySelector('svg')).not.toBeNull()
+    const svg = card.querySelector('svg')
+    expect(svg).not.toBeNull()
+    // It is specifically the bonded `lightbulb` glyph — the stub renders the icon
+    // name into the path `d` as `glyph:<name>`, so a regression to a sparkle/other
+    // glyph (or an emoji) fails here.
+    expect(svg?.querySelector('path')?.getAttribute('d')).toBe('glyph:lightbulb')
     // No emoji anywhere in the card's text content.
     expect(card.textContent ?? '').not.toMatch(/\p{Extended_Pictographic}/u)
   })
