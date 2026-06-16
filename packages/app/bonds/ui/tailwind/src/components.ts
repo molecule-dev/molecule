@@ -450,7 +450,7 @@ export const tabsContent =
 
 /** Tooltip content container classes. */
 export const tooltipContent =
-  'z-[1500] overflow-hidden whitespace-nowrap rounded-md border bg-surface px-3 py-1.5 text-sm text-foreground shadow-md animate-in fade-in-0 zoom-in-95'
+  'z-[1500] max-w-[90vw] overflow-hidden whitespace-nowrap rounded-md border bg-surface px-3 py-1.5 text-sm text-foreground shadow-md animate-in fade-in-0 zoom-in-95'
 
 /**
  * Progress component classes.

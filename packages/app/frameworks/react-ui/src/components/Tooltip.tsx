@@ -101,6 +101,21 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
         const triggerRect = triggerRef.current.getBoundingClientRect()
         const tooltipRect = tooltipRef.current.getBoundingClientRect()
         const newPosition = calculatePosition(triggerRect, tooltipRect, placement)
+        // Clamp into the viewport so a wide/edge tooltip never spills off the page
+        // (which would spawn a horizontal scrollbar). Positions are in document
+        // space (they already include scrollX/scrollY); use clientWidth/clientHeight
+        // — NOT innerWidth/innerHeight — so the page scrollbar is excluded. The
+        // Math.max(min, max) guard keeps it on-screen even when the tooltip is wider
+        // than the viewport.
+        const margin = 8
+        const minLeft = window.scrollX + margin
+        const maxLeft =
+          window.scrollX + document.documentElement.clientWidth - tooltipRect.width - margin
+        const minTop = window.scrollY + margin
+        const maxTop =
+          window.scrollY + document.documentElement.clientHeight - tooltipRect.height - margin
+        newPosition.left = Math.min(Math.max(newPosition.left, minLeft), Math.max(minLeft, maxLeft))
+        newPosition.top = Math.min(Math.max(newPosition.top, minTop), Math.max(minTop, maxTop))
         setPosition(newPosition)
       }
     }, [placement])
