@@ -110,10 +110,12 @@ afterEach(() => {
 
 /**
  * Every preview-toolbar control, with the i18n default text its tooltip must show.
- * `preview-device-cycle` lives in DeviceFrameSelector; the rest are BarButtons.
+ * `preview-device-cycle` is the DeviceFrameSelector dropdown trigger; the rest
+ * are BarButtons. (The "Rotate" control only renders for fixed-frame devices —
+ * with the stub state on `none`, it is correctly absent here.)
  */
 const PREVIEW_CONTROLS: ReadonlyArray<{ id: string; tip: string }> = [
-  { id: 'preview-device-cycle', tip: 'Responsive — click for Desktop' },
+  { id: 'preview-device-cycle', tip: 'Device frame' },
   { id: 'preview-back', tip: 'Back' },
   { id: 'preview-forward', tip: 'Forward' },
   { id: 'preview-refresh', tip: 'Reload' },

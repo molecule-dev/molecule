@@ -33,7 +33,7 @@ import { setClassMap, type UIClassMap } from '@molecule/app-ui'
 
 import { AutoCommitBadge } from '../components/AutoCommitBadge.js'
 import type { AutoCommitState } from '../components/chat-autocommit-utilities.js'
-import { DEVICE_META, nextDevice } from '../components/device-cycle.js'
+import { DEVICE_META } from '../components/device-cycle.js'
 import { DeviceFrameSelector } from '../components/DeviceFrameSelector.js'
 import { PreviewPanel } from '../components/PreviewPanel.js'
 import { StreamingIndicator } from '../components/StreamingIndicator.js'
@@ -150,7 +150,7 @@ describe('IDE-shell i18n resolves through the locale bond (cross-cutting-i18n)',
       'ide.preview.back',
       'ide.preview.forward',
       'ide.preview.urlBar',
-      'ide.device.cycleHint',
+      'ide.device.tablet',
     ]) {
       expect(typeof fr[key], `${key} missing from app-locales-ide`).toBe('string')
       expect(fr[key].length, `${key} empty in app-locales-ide`).toBeGreaterThan(0)
@@ -186,26 +186,24 @@ describe('IDE-shell i18n resolves through the locale bond (cross-cutting-i18n)',
     fireEvent.mouseLeave(forward.parentElement as HTMLElement)
   })
 
-  it('renders the device-cycle tooltip interpolated from the bonded template', () => {
+  it('renders the device-frame dropdown labels from the bonded locale, not the English default', () => {
     const current: DeviceFrame = 'desktop'
-    const next = nextDevice(current)
-    const expected = fr['ide.device.cycleHint']
-      .replace('{{current}}', fr[DEVICE_META[current].labelKey])
-      .replace('{{next}}', fr[DEVICE_META[next].labelKey])
-
     const { container } = render(
       <Wrap>
         <DeviceFrameSelector current={current} onChange={() => {}} />
       </Wrap>,
     )
     const button = container.querySelector('[data-mol-id="preview-device-cycle"]') as HTMLElement
-    // Bonded interpolated text shows through the styled Tooltip, not a `title` attr.
+    // The dropdown trigger uses the styled Tooltip, never a native `title` attr.
     expect(button.hasAttribute('title')).toBe(false)
-    fireEvent.mouseEnter(button.parentElement as HTMLElement)
-    const tooltip = document.body.querySelector('[role="tooltip"]')
-    expect(tooltip?.textContent).toBe(expected)
-    // The English default template would have produced "… — click for …".
-    expect(tooltip?.textContent).not.toContain('click for')
+    // Open the menu and check a frame label resolves through the FRENCH bond.
+    fireEvent.click(button)
+    const desktopItem = container.querySelector(
+      '[data-mol-id="preview-device-option-desktop"]',
+    ) as HTMLElement
+    expect(desktopItem.textContent).toContain(fr[DEVICE_META.desktop.labelKey])
+    // The English default ('Desktop') would render if the bond weren't consulted.
+    expect(desktopItem.textContent).not.toContain('Desktop')
   })
 })
 

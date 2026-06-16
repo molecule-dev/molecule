@@ -42,15 +42,9 @@ import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
 import type { PreviewPanelProps } from '../types.js'
+import { type DeviceOrientation, isDeviceRotatable, resolveDeviceSize } from './device-cycle.js'
 import { DeviceFrameSelector } from './DeviceFrameSelector.js'
 import { Icon } from './Icon.js'
-
-const deviceWidths: Record<string, string> = {
-  none: '100%',
-  desktop: '100%',
-  tablet: '768px',
-  mobile: '375px',
-}
 
 // --- Polling constants (exponential backoff, never gives up) ---
 
@@ -180,6 +174,23 @@ export function PreviewPanel({
   const { state, setUrl, refresh, setDevice, openExternal, recordNavigation, back, forward } =
     usePreview()
   const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  // Preview-only iframe orientation (portrait ⇄ landscape) for fixed-frame
+  // devices. This is a purely visual preview concern, so it lives in local
+  // state here — it is deliberately NOT part of the live-preview core state.
+  // Switching device resets to portrait (a fresh frame's natural orientation).
+  const [orientation, setOrientation] = useState<DeviceOrientation>('portrait')
+  const handleDeviceChange = useCallback(
+    (device: typeof state.device) => {
+      setOrientation('portrait')
+      setDevice(device)
+    },
+    [setDevice],
+  )
+  const handleRotate = useCallback(() => {
+    setOrientation((current) => (current === 'portrait' ? 'landscape' : 'portrait'))
+  }, [])
+  const canRotate = isDeviceRotatable(state.device)
 
   // The preview's actual current location (updated by the scaffold's
   // `molecule:navigate` message), falling back to the load target before the
@@ -804,7 +815,10 @@ export function PreviewPanel({
   }, [forward, postNavCommand])
 
   // --- Rendering ---
-  const iframeWidth = deviceWidths[state.device] || '100%'
+  // Device frame sizes the iframe: fluid frames (responsive/desktop) fill the
+  // area; fixed frames (tablet/mobile) get an explicit pixel width AND height,
+  // swapped in landscape so rotation visibly re-proportions the preview.
+  const { width: iframeWidth, height: iframeHeight } = resolveDeviceSize(state.device, orientation)
   // `building` selects the overlay CONTENT ("Updating `X`…") while the overlay
   // is shown for a BROKEN preview during edits — it no longer forces the overlay
   // over a healthy iframe. It existed to mask the white flash of the old
@@ -837,8 +851,8 @@ export function PreviewPanel({
   return (
     <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, className)}>
       {/* Browser-style URL bar: a single rounded, subtly-bordered bar holding
-          the device-cycle, back/forward, refresh, the URL input, and open-in-
-          new-tab \u2014 left \u2192 right, like a real browser toolbar. */}
+          the device-frame dropdown (+ rotate), back/forward, refresh, the URL
+          input, and open-in-new-tab \u2014 left \u2192 right, like a real browser toolbar. */}
       <div className={cm.cn(cm.sp('px', 3), cm.sp('py', 2), cm.shrink0, cm.borderB)}>
         <div className={cm.cn(cm.flex({ direction: 'row', align: 'center', gap: 'xs' }))}>
           <div
@@ -915,7 +929,7 @@ export function PreviewPanel({
             />
           </div>
           {/* All controls grouped on the right: back/forward navigate the preview's own */}
-          {/* history, refresh reloads, the device selector cycles frames, open pops out. */}
+          {/* history, refresh reloads, the device dropdown picks a frame (+ rotate), open pops out. */}
           <BarButton
             icon="arrow-left"
             molId="preview-back"
@@ -936,7 +950,17 @@ export function PreviewPanel({
             onClick={refresh}
             title={t('ide.preview.refresh', {}, { defaultValue: 'Reload' })}
           />
-          <DeviceFrameSelector current={state.device} onChange={setDevice} />
+          <DeviceFrameSelector current={state.device} onChange={handleDeviceChange} />
+          {/* Rotate is shown only "where possible" — fixed-frame devices */}
+          {/* (tablet/mobile). Responsive/desktop are full-width, nothing to rotate. */}
+          {canRotate && (
+            <BarButton
+              icon="rotate"
+              molId="preview-device-rotate"
+              onClick={handleRotate}
+              title={t('ide.device.rotate', {}, { defaultValue: 'Rotate' })}
+            />
+          )}
           <BarButton
             icon="link-external"
             molId="preview-open-external"
@@ -967,7 +991,7 @@ export function PreviewPanel({
             className={cm.cn(state.device !== 'none' && state.device !== 'desktop' && cm.borderAll)}
             style={{
               width: iframeWidth,
-              height: '100%',
+              height: iframeHeight,
               borderRadius: state.device === 'mobile' ? '16px' : '0',
               background: '#fff',
             }}
