@@ -61,24 +61,27 @@ export function UserAvatar({ userAvatar, size = 24, onClick }: UserAvatarProps):
       src={src}
       alt={label}
       data-mol-id="chat-user-avatar"
-      // Rounded-square sizing / cropping the ClassMap cannot express; surfaceSecondary
-      // gives a solid themed backdrop so a transparent PNG (or the pre-load gap) never
-      // shows through (the bg is set by the class, not inline — Rule 12).
-      className={cm.surfaceSecondary}
+      // Rounded-square sizing / cropping the ClassMap cannot express. A solid,
+      // VISIBLE primary-tinted backdrop so a transparent PNG (or the pre-load gap)
+      // shows a real tile — `surfaceSecondary` matched the chat surface exactly and
+      // read as transparent (P3-02). The tint is a one-off color-mix the ClassMap
+      // can't express, so it's inline.
       style={{
         width: size,
         height: size,
         borderRadius: 6,
         objectFit: 'cover',
         flexShrink: 0,
+        background:
+          'color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4))',
       }}
     />
   ) : (
     <span
-      // surfaceSecondary supplies the rounded-square background; textMuted sets the
-      // glyph color (the icon paints with currentColor) — both via ClassMap, so neither
-      // is set inline (which would override the themed classes).
-      className={cm.cn(cm.surfaceSecondary, cm.textMuted)}
+      // A solid, VISIBLE primary-tinted rounded-square tile with the person glyph in
+      // the primary color — `surfaceSecondary` matched the chat surface exactly and
+      // read as transparent (P3-02). The tint can't be a ClassMap class, so bg + glyph
+      // color are inline.
       data-mol-id="chat-user-avatar"
       role="img"
       aria-label={label}
@@ -90,6 +93,9 @@ export function UserAvatar({ userAvatar, size = 24, onClick }: UserAvatarProps):
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
+        background:
+          'color-mix(in srgb, var(--mol-color-primary, #6366f1) 18%, var(--mol-color-surface, #f4f4f4))',
+        color: 'var(--mol-color-primary, #6366f1)',
       }}
     >
       <Icon name="user" size={Math.round(size * 0.6)} aria-hidden="true" />
@@ -116,16 +122,17 @@ export function UserAvatar({ userAvatar, size = 24, onClick }: UserAvatarProps):
       style={{
         padding: 0,
         margin: 0,
-        border: 'none',
         background: 'transparent',
         borderRadius: 6,
         display: 'inline-flex',
         flexShrink: 0,
         cursor: 'pointer',
         lineHeight: 0,
-        boxShadow: hover
-          ? '0 0 0 2px color-mix(in srgb, var(--mol-color-primary, #6366f1) 60%, transparent)'
-          : 'none',
+        boxSizing: 'border-box',
+        // 1px border affordance on hover/focus. A transparent 1px border is always
+        // present so hovering never shifts layout; on hover it takes a clear color
+        // (the primary token, which reads well against the tinted avatar tile).
+        border: hover ? '1px solid var(--mol-color-primary, #6366f1)' : '1px solid transparent',
         transition: 'box-shadow 100ms',
       }}
     >

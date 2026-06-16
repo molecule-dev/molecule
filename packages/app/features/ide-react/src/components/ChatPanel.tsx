@@ -463,6 +463,22 @@ function relativeTime(iso: string): string {
   return `${d}d ago`
 }
 
+/**
+ * Long-form relative time (e.g. "just now", "43 minutes ago", "2 hours ago",
+ * "3 days ago") for the Slack-style message header.
+ * @param ms - Epoch milliseconds of the message.
+ * @returns A human-readable long-form relative time string.
+ */
+function relativeTimeLong(ms: number): string {
+  const min = Math.floor((Date.now() - ms) / 60_000)
+  if (min < 1) return 'just now'
+  if (min < 60) return `${min} minute${min === 1 ? '' : 's'} ago`
+  const h = Math.floor(min / 60)
+  if (h < 24) return `${h} hour${h === 1 ? '' : 's'} ago`
+  const d = Math.floor(h / 24)
+  return `${d} day${d === 1 ? '' : 's'} ago`
+}
+
 /** Maximum file size for attachments (20 MB). */
 const MAX_ATTACHMENT_SIZE = 20 * 1024 * 1024
 
@@ -1471,7 +1487,9 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
           style={{
             display: 'flex',
             alignItems: 'flex-start',
-            gap: '8px',
+            // Consistent spacing all around the avatar — equal gap to the accent
+            // border (paddingLeft), the top (paddingTop) and the text (gap).
+            gap: '10px',
             minWidth: 0,
             borderRadius: '4px',
             // Real user message → blue (primary). Auto-sent on the user's behalf
@@ -1480,9 +1498,9 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
               ? '2px solid var(--mol-color-success, #16a34a)'
               : '2px solid var(--mol-color-primary, #6366f1)',
             paddingLeft: '10px',
-            paddingTop: '6px',
-            paddingBottom: '6px',
-            paddingRight: '8px',
+            paddingTop: '10px',
+            paddingBottom: '10px',
+            paddingRight: '10px',
           }}
           data-mol-id={isAutomatic ? 'chat-automatic-message' : 'chat-user-message'}
         >
@@ -1491,12 +1509,16 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
               profile avatar (SOC1); an auto-sent message shows the molecule logo
               so it's unmistakably from the agent, not the user (C2). */}
           {isAutomatic ? (
-            <MoleculeAvatar size={20} />
+            <MoleculeAvatar size={36} />
           ) : (
-            <UserAvatar userAvatar={userAvatar} size={20} onClick={onAvatarClick} />
+            <UserAvatar
+              userAvatar={msg.author?.avatar ?? userAvatar}
+              size={36}
+              onClick={onAvatarClick}
+            />
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
-            {isAutomatic && (
+            {isAutomatic ? (
               <div
                 className={cm.cn(cm.textSize('xs'))}
                 style={{
@@ -1506,6 +1528,31 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                 }}
               >
                 {t('ide.chat.automatic', undefined, { defaultValue: 'Sent automatically' })}
+              </div>
+            ) : (
+              // Slack-style header: the author's username (bold) with the relative time
+              // (small, lighter) to its right. The username comes from the per-message
+              // `author` (multi-user-ready); a solo conversation falls back to the "You"
+              // label. The header lineHeight is tuned against the 36px avatar so the
+              // username's top aligns with the avatar's top and the first line of the
+              // message beneath aligns with the avatar's bottom.
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  gap: 8,
+                  lineHeight: 1.3,
+                  marginBottom: 1,
+                }}
+              >
+                <span style={{ fontWeight: 600 }}>
+                  {msg.author?.name ?? t('ide.chat.you', undefined, { defaultValue: 'You' })}
+                </span>
+                {typeof msg.timestamp === 'number' && (
+                  <span className={cm.textMuted} style={{ fontSize: 11 }}>
+                    {relativeTimeLong(msg.timestamp)}
+                  </span>
+                )}
               </div>
             )}
             <CollapsibleUserMessage content={msg.content} isLight={isLight} />
@@ -5301,16 +5348,12 @@ function ChatInner({
                       lineHeight: 1.5,
                     }}
                   >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                    <Icon
+                      name="lightbulb"
+                      size={18}
                       aria-hidden="true"
                       style={{ flexShrink: 0, marginTop: 1, opacity: 0.85, color: accent }}
-                    >
-                      <path d="M10 2a6 6 0 0 0-3.5 10.9c.3.2.5.6.5 1V15h6v-1.1c0-.4.2-.8.5-1A6 6 0 0 0 10 2zM7 17a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-.5H7V17z" />
-                    </svg>
+                    />
                     <span style={{ flex: 1 }}>
                       {item.card.content ? (
                         // Composable inline body: render each segment in order — strings as

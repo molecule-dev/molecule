@@ -86,6 +86,25 @@ export interface ChatMessage {
    * avatar + accent border), never styled like a real user message.
    */
   automatic?: boolean
+  /**
+   * Author of this message. Optional + solo-safe: when absent, the UI falls back to
+   * the signed-in user (for `role: 'user'`) or the agent (for `role: 'assistant'`).
+   * Populated per-message once real-time multi-user collaboration lands, so each
+   * message shows WHO sent it (name + avatar) — not just "you" vs the agent.
+   */
+  author?: MessageAuthor
+}
+
+/**
+ * Identity of a message's sender, for (eventually) multi-participant conversations.
+ */
+export interface MessageAuthor {
+  /** Stable sender id — a user id; absent for the AI agent. */
+  id?: string
+  /** Display name for the message header (a teammate's name, or the agent's name). */
+  name?: string
+  /** Avatar value — inline `data:image/*` URI or `http(s)` URL; null/absent → icon fallback. */
+  avatar?: string | null
 }
 
 /**
