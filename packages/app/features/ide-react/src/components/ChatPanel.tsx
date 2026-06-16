@@ -6803,9 +6803,14 @@ function ChatInner({
         <div
           className={cm.surfaceSecondary}
           style={{
-            // Flush with the panel's left/right/bottom edges — no rounded floating card,
-            // no side/bottom/focus border. The only divider above the composer is the
-            // commit bar's own top border, shown when there are uncommitted files.
+            // Full IDE: flush with the panel's left/right/bottom edges (no rounding).
+            // Discovery: round the TOP corners (8px); the bottom stays square so the
+            // discovery card's own rounded bottom (overflow:hidden) clips it flush —
+            // giving the gradient ring a uniform 8px radius on all four visible
+            // corners with NO gap above the card's bottom edge (P3-23). The ring's
+            // `border-radius: inherit` follows this. The only divider above the
+            // composer otherwise is the commit bar's top border (uncommitted files).
+            ...(discovery ? { borderRadius: '8px 8px 0 0' } : {}),
             padding: '8px 10px',
             cursor: 'text',
           }}
