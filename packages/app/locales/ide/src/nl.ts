@@ -93,7 +93,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Sleep bestanden hierheen',
   'ide.chat.showEarlier': 'Eerdere berichten weergeven',
   'ide.chat.autoFixPaused': 'Automatische correctie gepauzeerd',
-  'ide.chat.reportProblem': 'Een probleem melden',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Selecteer model',
   'ide.chat.currentBadge': 'huidig',
@@ -217,7 +216,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Deze app reageert niet meer — een eindeloze lus of een uit de hand gelopen weergave heeft het voorbeeld vastgelopen. De IDE ondervindt hier geen hinder van.',
   'ide.preview.frozenReload': 'App opnieuw laden',
-  'ide.device.cycleHint': '{{current}} — klik hier voor {{next}}',
   'ide.search.results': '{{count}} resulteert in bestanden met de extensie {{files}}',
   'ide.activity.cardAria': 'Geregistreerde activiteiten bekijken',
   'ide.activity.type.email': 'E-mail',
@@ -475,4 +473,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Standaard laden',
   'ide.chat.skills.unsetDefault': 'Standaard laden uitschakelen',
   'ide.chat.skills.matchHint': 'Voorgesteld op basis van trefwoorden in je recente berichten',
+  'ide.device.select': 'Apparaatframe',
+  'ide.device.rotate': 'Draaien',
 }

@@ -63,7 +63,6 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'ประวัติย่อ',
   'ide.chat.autoFixPause': 'หยุดชั่วคราว',
   'ide.chat.autoFixCancel': 'ยกเลิก',
-  'ide.chat.reportProblem': 'รายงานปัญหา',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'เลือกโมเดล',
   'ide.chat.currentBadge': 'ปัจจุบัน',
@@ -216,7 +215,6 @@ export const th: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'แอปนี้หยุดทำงาน - เกิดลูปไม่สิ้นสุดหรือการเรนเดอร์ที่ทำงานผิดปกติทำให้หน้าตัวอย่างค้าง IDE ไม่ได้รับผลกระทบ',
   'ide.preview.frozenReload': 'รีโหลดแอป',
-  'ide.device.cycleHint': '{{current}} — คลิกเพื่อดูเพิ่มเติม {{next}}',
   'ide.search.results': '{{count}} ส่งผลให้ {{files}} ไฟล์',
   'ide.activity.cardAria': 'ดูบันทึกกิจกรรม',
   'ide.activity.type.email': 'อีเมล',
@@ -465,4 +463,6 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

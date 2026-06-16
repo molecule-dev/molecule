@@ -63,7 +63,6 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Ռեզյումե',
   'ide.chat.autoFixPause': 'Դադար',
   'ide.chat.autoFixCancel': 'Չեղարկել',
-  'ide.chat.reportProblem': 'Հաղորդել խնդրի մասին',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Ընտրեք մոդել',
   'ide.chat.currentBadge': 'հոսանք',
@@ -216,7 +215,6 @@ export const hy: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Այս հավելվածը դադարեց արձագանքել՝ անվերջ ցիկլը կամ անկանոն ռենդերինգը սառեցրել է նախադիտումը։ IDE-ն չի տուժել։',
   'ide.preview.frozenReload': 'Վերաբեռնել հավելվածը',
-  'ide.device.cycleHint': '{{current}} — սեղմեք՝ {{next}}',
   'ide.search.results': '{{count}} արդյունքներ {{files}} ֆայլեր',
   'ide.activity.cardAria': 'Դիտել գրանցված գործունեությունը',
   'ide.activity.type.email': 'Էլ․ փոստ',
@@ -466,4 +464,6 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

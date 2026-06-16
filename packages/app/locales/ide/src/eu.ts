@@ -64,7 +64,6 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Curriculuma',
   'ide.chat.autoFixPause': 'Pausatu',
   'ide.chat.autoFixCancel': 'Utzi',
-  'ide.chat.reportProblem': 'Arazo baten berri eman',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Hautatu modeloa',
   'ide.chat.currentBadge': 'uneko',
@@ -217,7 +216,6 @@ export const eu: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Aplikazio honek erantzuteari utzi dio — begizta infinitu edo errendatze iheskor batek aurrebista blokeatu du. IDEak ez du eraginik izan.',
   'ide.preview.frozenReload': 'Aplikazioa berriro kargatu',
-  'ide.device.cycleHint': '{{current}} — egin klik hemen {{next}}',
   'ide.search.results': '{{count}} emaitzak {{files}} fitxategiak',
   'ide.activity.cardAria': 'Ikusi grabatutako jarduera',
   'ide.activity.type.email': 'Posta elektronikoa',
@@ -467,4 +465,6 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

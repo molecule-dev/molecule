@@ -88,7 +88,6 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Plasați fișierele aici',
   'ide.chat.showEarlier': 'Afișează mesajele anterioare',
   'ide.chat.autoFixPaused': 'Corecția automată a fost întreruptă',
-  'ide.chat.reportProblem': 'Raportați o problemă',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Selectați modelul',
   'ide.chat.currentBadge': 'actual',
@@ -217,7 +216,6 @@ export const ro: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Această aplicație nu mai răspunde — o buclă infinită sau o randare scăpată de sub control a blocat previzualizarea. IDE-ul nu este afectat.',
   'ide.preview.frozenReload': 'Reîncarcă aplicația',
-  'ide.device.cycleHint': '{{current}} — faceți clic aici pentru {{next}}',
   'ide.search.results': '{{count}} rezultă în fișiere de tip „{{files}}”',
   'ide.activity.cardAria': 'Vizualizați activitatea înregistrată',
   'ide.activity.type.email': 'E-mail',
@@ -475,4 +473,6 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Încărcare implicită',
   'ide.chat.skills.unsetDefault': 'Oprire încărcare implicită',
   'ide.chat.skills.matchHint': 'Sugestii pe baza cuvintelor-cheie din mesajele tale recente',
+  'ide.device.select': 'Cadrul dispozitivului',
+  'ide.device.rotate': 'Rotire',
 }

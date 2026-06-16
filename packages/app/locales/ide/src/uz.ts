@@ -63,7 +63,6 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Rezyume; qayta boshlash',
   'ide.chat.autoFixPause': "To'xtatib turish",
   'ide.chat.autoFixCancel': 'Bekor qilish',
-  'ide.chat.reportProblem': 'Muammo haqida xabar bering',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Modelni tanlang',
   'ide.chat.currentBadge': 'hozirgi',
@@ -218,7 +217,6 @@ export const uz: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     "Bu ilova javob berishni to'xtatdi — cheksiz sikl yoki qochqinli render oldindan ko'rishni muzlatib qo'ydi. IDE ta'sirlanmagan.",
   'ide.preview.frozenReload': 'Ilovani qayta yuklang',
-  'ide.device.cycleHint': '{{current}} — uchun bosing {{next}}',
   'ide.search.results': '{{count}} natijalar {{files}} fayllar',
   'ide.activity.cardAria': "Yozib olingan harakatni ko'rish",
   'ide.activity.type.email': 'Elektron pochta',
@@ -468,4 +466,6 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

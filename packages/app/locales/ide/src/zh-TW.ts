@@ -61,7 +61,6 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': '恢復',
   'ide.chat.autoFixPause': '暫停',
   'ide.chat.autoFixCancel': '取消',
-  'ide.chat.reportProblem': '報告問題',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': '選擇模型',
   'ide.chat.currentBadge': '目前的',
@@ -212,7 +211,6 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     '此應用程式已停止回應——可能是無限迴圈或渲染失控導致預覽畫面凍結。此情況不會影響 IDE。',
   'ide.preview.frozenReload': '重新載入應用程式',
-  'ide.device.cycleHint': '{{current}} — 點擊前往 {{next}}',
   'ide.search.results': '{{count}} 產生的檔案位於{{files}}目錄中',
   'ide.activity.cardAria': '檢視已記錄的活動',
   'ide.activity.type.email': '電子郵件',
@@ -453,4 +451,6 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': '預設載入',
   'ide.chat.skills.unsetDefault': '預設停止載入',
   'ide.chat.skills.matchHint': '根據您近期訊息中的關鍵字所建議',
+  'ide.device.select': '裝置框架',
+  'ide.device.rotate': '旋轉',
 }

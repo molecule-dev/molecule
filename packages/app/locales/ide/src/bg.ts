@@ -65,7 +65,6 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Автобиография',
   'ide.chat.autoFixPause': 'Пауза',
   'ide.chat.autoFixCancel': 'Отказ',
-  'ide.chat.reportProblem': 'Съобщете за проблем',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Изберете модел',
   'ide.chat.currentBadge': 'текущ',
@@ -218,7 +217,6 @@ export const bg: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Приложението спря да отговаря — безкраен цикъл или извън контрол излизане на рендеринга блокираха предварителния преглед. IDE не е засегната.',
   'ide.preview.frozenReload': 'Презареждане на приложението',
-  'ide.device.cycleHint': '{{current}} — кликнете тук за {{next}}',
   'ide.search.results': '{{count}} резултатите се съхраняват във файловете „{{files}}“',
   'ide.activity.cardAria': 'Преглед на записаната активност',
   'ide.activity.type.email': 'Имейл',
@@ -476,4 +474,6 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.skills.unsetDefault': 'По подразбиране да се спре зареждането',
   'ide.chat.skills.matchHint':
     'Предложено въз основа на ключовите думи във вашите последните съобщения',
+  'ide.device.select': 'Рамка на устройството',
+  'ide.device.rotate': 'Завъртане',
 }

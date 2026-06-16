@@ -63,7 +63,6 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'ប្រវត្តិរូបសង្ខេប',
   'ide.chat.autoFixPause': 'ផ្អាក',
   'ide.chat.autoFixCancel': 'បោះបង់',
-  'ide.chat.reportProblem': 'រាយការណ៍បញ្ហា',
   'ide.chat.version': '{{productName}} កំណែ ០.១.០',
   'ide.chat.selectModel': 'ជ្រើសរើសម៉ូដែល',
   'ide.chat.currentBadge': 'បច្ចុប្បន្ន',
@@ -215,7 +214,6 @@ export const km: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'កម្មវិធីនេះឈប់ឆ្លើយតប — រង្វិលជុំគ្មានកំណត់ ឬការបង្ហាញដែលរត់គេចខ្លួនបានបង្កកការមើលជាមុន។ IDE មិនត្រូវបានប៉ះពាល់ទេ។',
   'ide.preview.frozenReload': 'ផ្ទុកកម្មវិធីឡើងវិញ',
-  'ide.device.cycleHint': '{{current}} - ចុចសម្រាប់ {{next}}',
   'ide.search.results': '{{count}} results in {{files}} files',
   'ide.activity.cardAria': 'មើលសកម្មភាពដែលបានថតទុក',
   'ide.activity.type.email': 'អ៊ីមែល',
@@ -465,4 +463,6 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

@@ -97,7 +97,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'ファイルをここにドロップしてください',
   'ide.chat.showEarlier': '以前のメッセージを表示',
   'ide.chat.autoFixPaused': '自動修復が一時停止されました',
-  'ide.chat.reportProblem': '問題を報告する',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'モデルを選択',
   'ide.chat.currentBadge': '現在',
@@ -216,7 +215,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'このアプリが応答しなくなりました。無限ループか、レンダリングの暴走によりプレビューがフリーズしたようです。IDEには影響はありません。',
   'ide.preview.frozenReload': 'アプリを再読み込み',
-  'ide.device.cycleHint': '{{current}} — こちらをクリックして{{next}}へ',
   'ide.search.results': '{{count}} {{files}}ファイルが生成されます',
   'ide.activity.cardAria': '記録されたアクティビティを表示する',
   'ide.activity.type.email': 'メール',
@@ -474,4 +472,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'デフォルトで読み込む',
   'ide.chat.skills.unsetDefault': 'デフォルトで読み込みを停止する',
   'ide.chat.skills.matchHint': '最近のメッセージに含まれるキーワードから提案されました',
+  'ide.device.select': 'デバイスフレーム',
+  'ide.device.rotate': '回転',
 }

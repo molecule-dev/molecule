@@ -94,7 +94,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Trascina i file qui',
   'ide.chat.showEarlier': 'Mostra i messaggi precedenti',
   'ide.chat.autoFixPaused': 'Correzione automatica sospesa',
-  'ide.chat.reportProblem': 'Segnala un problema',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Seleziona il modello',
   'ide.chat.currentBadge': 'attuale',
@@ -222,7 +221,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     "L'app ha smesso di rispondere: un ciclo infinito o un rendering fuori controllo ha bloccato l'anteprima. L'IDE non è interessato dal problema.",
   'ide.preview.frozenReload': "Aggiorna l'app",
-  'ide.device.cycleHint': '{{current}} — clicca qui per {{next}}',
   'ide.search.results': '{{count}} genera file di tipo "{{files}}"',
   'ide.activity.cardAria': 'Visualizza le attività registrate',
   'ide.activity.type.email': 'E-mail',
@@ -481,4 +479,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.skills.unsetDefault': 'Disattiva il caricamento predefinito',
   'ide.chat.skills.matchHint':
     'Suggerito in base alle parole chiave presenti nei tuoi messaggi recenti',
+  'ide.device.select': 'Telaio del dispositivo',
+  'ide.device.rotate': 'Ruota',
 }

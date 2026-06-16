@@ -96,7 +96,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'قم بإسقاط الملفات هنا',
   'ide.chat.showEarlier': 'عرض الرسائل السابقة',
   'ide.chat.autoFixPaused': 'تم إيقاف التصحيح التلقائي مؤقتًا',
-  'ide.chat.reportProblem': 'الإبلاغ عن مشكلة',
   'ide.chat.version': '{{productName}} الإصدار 0.1.0',
   'ide.chat.selectModel': 'اختر الطراز',
   'ide.chat.currentBadge': 'حاضِر',
@@ -215,7 +214,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'توقف هذا التطبيق عن الاستجابة — تسبب حلقة لا نهائية أو عملية عرض خارجة عن السيطرة في تجميد المعاينة. ولم يتأثر بيئة تطوير التطبيقات (IDE) بذلك.',
   'ide.preview.frozenReload': 'إعادة تحميل التطبيق',
-  'ide.device.cycleHint': '{{current}} — انقر هنا لزيارة موقع {{next}}',
   'ide.search.results': '{{count}} ينتج عنها ملفات {{files}}',
   'ide.activity.cardAria': 'عرض الأنشطة المسجلة',
   'ide.activity.type.email': 'البريد الإلكتروني',
@@ -466,4 +464,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'التحميل بشكل افتراضي',
   'ide.chat.skills.unsetDefault': 'إيقاف التحميل بشكل افتراضي',
   'ide.chat.skills.matchHint': 'اقتراحات بناءً على الكلمات المفتاحية في رسائلك الأخيرة',
+  'ide.device.select': 'إطار الجهاز',
+  'ide.device.rotate': 'تدوير',
 }

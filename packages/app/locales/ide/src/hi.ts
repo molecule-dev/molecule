@@ -98,7 +98,6 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'फ़ाइल यहां छोड़ें',
   'ide.chat.showEarlier': 'पहले के संदेश दिखाएँ',
   'ide.chat.autoFixPaused': 'ऑटो-फिक्स रुका हुआ है',
-  'ide.chat.reportProblem': 'एक समस्या का आख्या',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'मॉडल चुनें',
   'ide.chat.currentBadge': 'मौजूदा',
@@ -215,7 +214,6 @@ export const hi: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'यह ऐप प्रतिक्रिया देना बंद कर दिया है — एक अनंत लूप या अनियंत्रित रेंडरिंग के कारण पूर्वावलोकन रुक गया है। IDE अप्रभावित है।',
   'ide.preview.frozenReload': 'ऐप को पुनः लोड करें',
-  'ide.device.cycleHint': '{{current}} — क्लिक करें {{next}}',
   'ide.search.results': '{{count}} का परिणाम {{files}} फ़ाइलें',
   'ide.activity.cardAria': 'कैप्चर की गई गतिविधि देखें',
   'ide.activity.type.email': 'ईमेल',
@@ -465,4 +463,6 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

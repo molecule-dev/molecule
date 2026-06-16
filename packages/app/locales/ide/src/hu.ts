@@ -87,7 +87,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Húzd ide a fájlokat',
   'ide.chat.showEarlier': 'Korábbi üzenetek megjelenítése',
   'ide.chat.autoFixPaused': 'Automatikus javítás szünetel',
-  'ide.chat.reportProblem': 'Probléma jelentése',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Válasszon modellt',
   'ide.chat.currentBadge': 'jelenlegi',
@@ -214,7 +213,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Az alkalmazás nem reagál – egy végtelen ciklus vagy egy elszabadult renderelés miatt lefagyott az előnézet. Az IDE működése nem érintett.',
   'ide.preview.frozenReload': 'Az alkalmazás újratöltése',
-  'ide.device.cycleHint': '{{current}} — kattintson ide: {{next}}',
   'ide.search.results': '{{count}} {{files}}-fájlokban jelenik meg',
   'ide.activity.cardAria': 'A rögzített tevékenységek megtekintése',
   'ide.activity.type.email': 'E-mail',
@@ -471,4 +469,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Alapértelmezett betöltés',
   'ide.chat.skills.unsetDefault': 'Alapértelmezés szerint ne töltsön be',
   'ide.chat.skills.matchHint': 'A legutóbbi üzeneteidben szereplő kulcsszavak alapján javasolt',
+  'ide.device.select': 'Készülékkeret',
+  'ide.device.rotate': 'Forgatás',
 }

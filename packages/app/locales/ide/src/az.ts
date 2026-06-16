@@ -63,7 +63,6 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'CV',
   'ide.chat.autoFixPause': 'Fasilə',
   'ide.chat.autoFixCancel': 'Ləğv et',
-  'ide.chat.reportProblem': 'Problemi bildirin',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Model seçin',
   'ide.chat.currentBadge': 'cari',
@@ -214,7 +213,6 @@ export const az: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Bu tətbiq cavab verməyi dayandırdı — sonsuz bir döngə və ya qaçaq render önizləməni dondurdu. IDE təsirlənmir.',
   'ide.preview.frozenReload': 'Tətbiqi yenidən yükləyin',
-  'ide.device.cycleHint': '{{current}} — üçün klikləyin {{next}}',
   'ide.search.results': '{{count}} nəticələr {{files}} fayllar',
   'ide.activity.cardAria': 'Çəkilmiş fəaliyyətə baxın',
   'ide.activity.type.email': 'E-poçt',
@@ -463,4 +461,6 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

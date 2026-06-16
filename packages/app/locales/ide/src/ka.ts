@@ -63,7 +63,6 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'რეზიუმე',
   'ide.chat.autoFixPause': 'პაუზა',
   'ide.chat.autoFixCancel': 'გაუქმება',
-  'ide.chat.reportProblem': 'პრობლემის შესახებ შეტყობინება',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'მოდელის არჩევა',
   'ide.chat.currentBadge': 'მიმდინარე',
@@ -215,7 +214,6 @@ export const ka: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'ამ აპლიკაციამ შეწყვიტა რეაგირება — უსასრულო ციკლის ან რენდერის გაშვების გამო წინასწარი გადახედვა გაყინული იყო. IDE-ზე გავლენა არ მოუხდენია.',
   'ide.preview.frozenReload': 'აპლიკაციის გადატვირთვა',
-  'ide.device.cycleHint': '{{current}} — დააწკაპუნეთ {{next}}',
   'ide.search.results': '{{count}} შედეგები {{files}} ფაილები',
   'ide.activity.cardAria': 'დაფიქსირებული აქტივობის ნახვა',
   'ide.activity.type.email': 'ელ. ფოსტა',
@@ -465,4 +463,6 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

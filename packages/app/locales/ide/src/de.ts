@@ -96,7 +96,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Dateien hier ablegen',
   'ide.chat.showEarlier': 'Frühere Nachrichten anzeigen',
   'ide.chat.autoFixPaused': 'Automatische Fehlerbehebung pausiert',
-  'ide.chat.reportProblem': 'Problem melden',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Modell auswählen',
   'ide.chat.currentBadge': 'aktuell',
@@ -218,7 +217,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Diese App reagiert nicht mehr – eine Endlosschleife oder ein außer Kontrolle geratener Rendering-Vorgang hat die Vorschau eingefroren. Die IDE ist davon nicht betroffen.',
   'ide.preview.frozenReload': 'App neu laden',
-  'ide.device.cycleHint': '{{current}} — Hier klicken für „{{next}}“',
   'ide.search.results': '{{count}} führt zu Dateien im Format „{{files}}“',
   'ide.activity.cardAria': 'Aufgezeichnete Aktivitäten anzeigen',
   'ide.activity.type.email': 'E-Mail',
@@ -483,4 +481,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.skills.unsetDefault': 'Standardmäßig das Laden unterbinden',
   'ide.chat.skills.matchHint':
     'Vorschläge basierend auf Stichwörtern in deinen letzten Nachrichten',
+  'ide.device.select': 'Geräterahmen',
+  'ide.device.rotate': 'Drehen',
 }

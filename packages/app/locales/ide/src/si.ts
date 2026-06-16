@@ -63,7 +63,6 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'අරඹන්න',
   'ide.chat.autoFixPause': 'විරාමය',
   'ide.chat.autoFixCancel': 'අවලංගු කරන්න',
-  'ide.chat.reportProblem': 'ගැටලුවක් වාර්තා කරන්න',
   'ide.chat.version': '{{productName}} v0.1.0 විසින් තවත්',
   'ide.chat.selectModel': 'මාදිලිය තෝරන්න',
   'ide.chat.currentBadge': 'වත්මන්',
@@ -215,7 +214,6 @@ export const si: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'මෙම යෙදුම ප්‍රතිචාර දැක්වීම නැවැත්වීය — අනන්ත ලූපයක් හෝ ධාවන විදැහුම්කරණයක් පෙරදසුන නිශ්චල කළේය. IDE බලපෑමට ලක් නොවේ.',
   'ide.preview.frozenReload': 'යෙදුම නැවත පූරණය කරන්න',
-  'ide.device.cycleHint': '{{current}} — සඳහා ක්ලික් කරන්න {{next}}',
   'ide.search.results': '{{count}} ප්‍රතිඵල ලැබෙන්නේ {{files}} ගොනු',
   'ide.activity.cardAria': 'ග්‍රහණය කරගත් ක්‍රියාකාරකම් බලන්න',
   'ide.activity.type.email': 'විද්යුත් තැපෑල',
@@ -465,4 +463,6 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

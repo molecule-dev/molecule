@@ -84,7 +84,6 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Slip filer her',
   'ide.chat.showEarlier': 'Vis tidligere beskeder',
   'ide.chat.autoFixPaused': 'Automatisk rettelse sat på pause',
-  'ide.chat.reportProblem': 'Rapportér et problem',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Vælg model',
   'ide.chat.currentBadge': 'strøm',
@@ -214,7 +213,6 @@ export const da: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     "Denne app reagerer ikke længere — en uendelig løkke eller en renderingsfejl har fået forhåndsvisningen til at fryse. IDE'en er ikke påvirket.",
   'ide.preview.frozenReload': 'Genindlæs appen',
-  'ide.device.cycleHint': '{{current}} — Klik her for at se »{{next}}«',
   'ide.search.results': '{{count}} resulterer i filer i formatet {{files}}',
   'ide.activity.cardAria': 'Vis registrerede aktiviteter',
   'ide.activity.type.email': 'E-mail',
@@ -470,4 +468,6 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Indlæs som standard',
   'ide.chat.skills.unsetDefault': 'Stop indlæsning som standard',
   'ide.chat.skills.matchHint': 'Forslag baseret på søgeord i dine seneste beskeder',
+  'ide.device.select': 'Enhedsramme',
+  'ide.device.rotate': 'Drej',
 }

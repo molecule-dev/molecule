@@ -61,7 +61,6 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'የስራ ልምድ ማስረጃ',
   'ide.chat.autoFixPause': 'ለአፍታ አቁም',
   'ide.chat.autoFixCancel': 'ሰርዝ',
-  'ide.chat.reportProblem': 'ችግር ሪፖርት ያድርጉ',
   'ide.chat.version': 'ሞለኩሌ.ዴቭ v0.1.0',
   'ide.chat.selectModel': 'ሞዴል ይምረጡ',
   'ide.chat.currentBadge': 'የአሁኑ',
@@ -212,7 +211,6 @@ export const am: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'ይህ መተግበሪያ ምላሽ መስጠት አቁሟል - ማለቂያ የሌለው ዑደት ወይም የሸሸ ምስል ቅድመ እይታውን አቁሟል። IDE ምንም ተጽእኖ የለውም።',
   'ide.preview.frozenReload': 'መተግበሪያን እንደገና ጫን',
-  'ide.device.cycleHint': '{{current}} - ጠቅ ያድርጉ ለ {{next}}',
   'ide.search.results': '{{count}} ውጤቱ በ {{files}} ፋይሎች',
   'ide.activity.cardAria': 'የተቀረጸውን እንቅስቃሴ ይመልከቱ',
   'ide.activity.type.email': 'ኢሜይል',
@@ -459,4 +457,6 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

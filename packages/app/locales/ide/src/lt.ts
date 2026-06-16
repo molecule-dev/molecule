@@ -63,7 +63,6 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Gyvenimo aprašymas',
   'ide.chat.autoFixPause': 'Pauzė',
   'ide.chat.autoFixCancel': 'Atšaukti',
-  'ide.chat.reportProblem': 'Pranešti apie problemą',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pasirinkite modelį',
   'ide.chat.currentBadge': 'srovė',
@@ -217,7 +216,6 @@ export const lt: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Ši programa nustojo reaguoti – peržiūra įstrigo dėl begalinės kilpos arba nekontroliuojamo atvaizdavimo. Tai neturi įtakos IDE.',
   'ide.preview.frozenReload': 'Atnaujinti programėlę',
-  'ide.device.cycleHint': '{{current}} — spustelėkite čia, kad peržiūrėtumėte „{{next}}“',
   'ide.search.results': '{{count}} rezultatai pateikiami failuose „{{files}}“',
   'ide.activity.cardAria': 'Peržiūrėti užfiksuotą veiklą',
   'ide.activity.type.email': 'El. paštas',
@@ -474,4 +472,6 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Įkelti pagal numatytuosius nustatymus',
   'ide.chat.skills.unsetDefault': 'Pagal numatytuosius nustatymus sustabdyti įkėlimą',
   'ide.chat.skills.matchHint': 'Rekomenduojama pagal raktažodžius iš jūsų naujausių pranešimų',
+  'ide.device.select': 'Įrenginio rėmas',
+  'ide.device.rotate': 'Pasukti',
 }

@@ -63,7 +63,6 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'CV',
   'ide.chat.autoFixPause': 'Pauze',
   'ide.chat.autoFixCancel': 'Atcelt',
-  'ide.chat.reportProblem': 'Ziņot par problēmu',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Izvēlieties modeli',
   'ide.chat.currentBadge': 'strāva',
@@ -215,7 +214,6 @@ export const lv: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Šī lietotne vairs nereaģē — bezgalīga cilpa vai nekontrolējama renderēšana ir bloķējusi priekšskatījumu. Tas neietekmē IDE.',
   'ide.preview.frozenReload': 'Atjaunot lietotni',
-  'ide.device.cycleHint': '{{current}} — noklikšķiniet šeit, lai apmeklētu vietni „{{next}}“',
   'ide.search.results': '{{count}} rezultāti atrodami failos „{{files}}“',
   'ide.activity.cardAria': 'Skatīt reģistrētās darbības',
   'ide.activity.type.email': 'E-pasts',
@@ -471,4 +469,6 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Ielādēt pēc noklusējuma',
   'ide.chat.skills.unsetDefault': 'Pēc noklusējuma pārtraukt ielādi',
   'ide.chat.skills.matchHint': 'Ieteikumi, pamatojoties uz atslēgvārdiem jūsu pēdējās ziņās',
+  'ide.device.select': 'Ierīces rāmis',
+  'ide.device.rotate': 'Pagriezt',
 }

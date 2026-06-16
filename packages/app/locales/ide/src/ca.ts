@@ -63,7 +63,6 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Currículum vitae',
   'ide.chat.autoFixPause': 'Pausa',
   'ide.chat.autoFixCancel': 'Cancel·la',
-  'ide.chat.reportProblem': "Informar d'un problema",
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Selecciona el model',
   'ide.chat.currentBadge': 'corrent',
@@ -216,7 +215,6 @@ export const ca: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     "Aquesta aplicació ha deixat de respondre: un bucle infinit o un renderitzat descontrolat ha congelat la previsualització. L'IDE no s'ha vist afectat.",
   'ide.preview.frozenReload': "Torna a carregar l'aplicació",
-  'ide.device.cycleHint': '{{current}} — feu clic per a {{next}}',
   'ide.search.results': '{{count}} resultats en {{files}} fitxers',
   'ide.activity.cardAria': "Veure l'activitat capturada",
   'ide.activity.type.email': 'Correu electrònic',
@@ -466,4 +464,6 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

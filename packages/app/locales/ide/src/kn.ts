@@ -63,7 +63,6 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'ಪುನರಾರಂಭ',
   'ide.chat.autoFixPause': 'ವಿರಾಮಗೊಳಿಸಿ',
   'ide.chat.autoFixCancel': 'ರದ್ದುಮಾಡಿ',
-  'ide.chat.reportProblem': 'ಸಮಸ್ಯೆಯನ್ನು ವರದಿ ಮಾಡಿ',
   'ide.chat.version': 'ಮಾಲಿಕ್ಯೂಲ್.ಡೆವ್ v0.1.0',
   'ide.chat.selectModel': 'ಮಾದರಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
   'ide.chat.currentBadge': 'ಪ್ರಸ್ತುತ',
@@ -215,7 +214,6 @@ export const kn: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'ಈ ಅಪ್ಲಿಕೇಶನ್ ಪ್ರತಿಕ್ರಿಯಿಸುವುದನ್ನು ನಿಲ್ಲಿಸಿದೆ - ಅನಂತ ಲೂಪ್ ಅಥವಾ ರನ್‌ಅವೇ ರೆಂಡರ್ ಪೂರ್ವವೀಕ್ಷಣೆಯನ್ನು ಸ್ಥಗಿತಗೊಳಿಸಿದೆ. IDE ಮೇಲೆ ಯಾವುದೇ ಪರಿಣಾಮ ಬೀರುವುದಿಲ್ಲ.',
   'ide.preview.frozenReload': 'ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಮರುಲೋಡ್ ಮಾಡಿ',
-  'ide.device.cycleHint': '{{current}} — ಕ್ಲಿಕ್ ಮಾಡಿ {{next}}',
   'ide.search.results': '{{count}} ಫಲಿತಾಂಶಗಳು {{files}} ಫೈಲ್‌ಗಳು',
   'ide.activity.cardAria': 'ಸೆರೆಹಿಡಿಯಲಾದ ಚಟುವಟಿಕೆಯನ್ನು ವೀಕ್ಷಿಸಿ',
   'ide.activity.type.email': 'ಇಮೇಲ್',
@@ -465,4 +463,6 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

@@ -87,7 +87,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Перетягніть файли сюди',
   'ide.chat.showEarlier': 'Показати попередні повідомлення',
   'ide.chat.autoFixPaused': 'Автоматичне виправлення призупинено',
-  'ide.chat.reportProblem': 'Повідомити про проблему',
   'ide.chat.version': '{{productName}} версії 0.1.0',
   'ide.chat.selectModel': 'Виберіть модель',
   'ide.chat.currentBadge': 'поточний',
@@ -217,7 +216,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Ця програма перестала відповідати — попередній перегляд завис через нескінченний цикл або неконтрольований процес рендерингу. Це не вплинуло на роботу IDE.',
   'ide.preview.frozenReload': 'Оновити додаток',
-  'ide.device.cycleHint': '{{current}} — натисніть тут, щоб перейти на сайт {{next}}',
   'ide.search.results': '{{count}} результати зберігаються у файлах {{files}}',
   'ide.activity.cardAria': 'Переглянути зафіксовані дії',
   'ide.activity.type.email': 'Електронна пошта',
@@ -476,4 +474,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.skills.unsetDefault': 'За замовчуванням зупинити завантаження',
   'ide.chat.skills.matchHint':
     'Рекомендовано на основі ключових слів у ваших останніх повідомленнях',
+  'ide.device.select': 'Рама пристрою',
+  'ide.device.rotate': 'Повернути',
 }

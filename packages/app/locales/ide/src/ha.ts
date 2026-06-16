@@ -198,7 +198,6 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Ci gaba da karatu',
   'ide.chat.autoFixPause': 'Dakatar da',
   'ide.chat.autoFixCancel': 'Soke',
-  'ide.chat.reportProblem': 'Yi rahoton matsala',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.activeFile': 'mai aiki',
   'ide.chat.openTab': 'a buɗe',
@@ -216,7 +215,6 @@ export const ha: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Wannan manhajar ta daina amsawa — wani madauki mara iyaka ko kuma wani abu mai gudu ya danne samfoti. IDE ba shi da tasiri.',
   'ide.preview.frozenReload': 'Sake loda manhaja',
-  'ide.device.cycleHint': '{{current}} - danna don {{next}}',
   'ide.search.results': '{{count}} sakamakon {{files}} fayiloli',
   'ide.activity.cardAria': 'Duba ayyukan da aka kama',
   'ide.activity.type.email': 'Imel',
@@ -466,4 +464,6 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

@@ -64,7 +64,6 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'رزومه',
   'ide.chat.autoFixPause': 'مکث',
   'ide.chat.autoFixCancel': 'لغو',
-  'ide.chat.reportProblem': 'گزارش مشکل',
   'ide.chat.version': '{{productName}} نسخه ۰.۱.۰',
   'ide.chat.selectModel': 'مدل را انتخاب کنید',
   'ide.chat.currentBadge': 'فعلی',
@@ -215,7 +214,6 @@ export const fa: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'این برنامه از کار افتاد - یک حلقه بی‌نهایت یا رندر خارج از کنترل، پیش‌نمایش را متوقف کرد. IDE تحت تأثیر قرار نگرفته است.',
   'ide.preview.frozenReload': 'بارگیری مجدد برنامه',
-  'ide.device.cycleHint': '{{current}} — کلیک کنید برای {{next}}',
   'ide.search.results': '{{count}} نتایج در {{files}} فایل‌ها',
   'ide.activity.cardAria': 'مشاهده فعالیت ثبت شده',
   'ide.activity.type.email': 'ایمیل',
@@ -465,4 +463,6 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

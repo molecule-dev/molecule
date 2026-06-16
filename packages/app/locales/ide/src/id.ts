@@ -93,7 +93,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Seret file ke sini',
   'ide.chat.showEarlier': 'Tampilkan pesan sebelumnya',
   'ide.chat.autoFixPaused': 'Perbaikan otomatis dijeda',
-  'ide.chat.reportProblem': 'Laporkan masalah',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pilih model',
   'ide.chat.currentBadge': 'saat ini',
@@ -216,7 +215,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Aplikasi ini tidak merespons — loop tak berujung atau proses rendering yang tidak terkendali telah membuat tampilan pratinjau macet. IDE tidak terpengaruh.',
   'ide.preview.frozenReload': 'Muat ulang aplikasi',
-  'ide.device.cycleHint': '{{current}} — klik di sini untuk {{next}}',
   'ide.search.results': '{{count}} menghasilkan berkas-berkas di direktori `{{files}}`',
   'ide.activity.cardAria': 'Lihat riwayat aktivitas',
   'ide.activity.type.email': 'Email',
@@ -472,4 +470,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.skills.unsetDefault': 'Hentikan pemuatan secara default',
   'ide.chat.skills.matchHint':
     'Disarankan berdasarkan kata kunci dalam pesan-pesan Anda baru-baru ini',
+  'ide.device.select': 'Rangka perangkat',
+  'ide.device.rotate': 'Putar',
 }

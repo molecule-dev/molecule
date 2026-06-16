@@ -66,7 +66,6 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.autoFixPaused': 'תיקון אוטומטי הושהה',
   'ide.chat.autoFixCountdown': 'קוֹרוֹת חַיִים',
   'ide.chat.autoFixPause': 'הַפסָקָה',
-  'ide.chat.reportProblem': 'דווח על בעיה',
   'ide.chat.version': '{{productName}} גרסה 0.1.0',
   'ide.chat.selectModel': 'בחר דגם',
   'ide.chat.currentBadge': 'נוֹכְחִי',
@@ -213,7 +212,6 @@ export const he: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'אפליקציה זו הפסיקה להגיב - לולאה אינסופית או רינדור רדום קפאו את התצוגה המקדימה. ה-IDE לא הושפע.',
   'ide.preview.frozenReload': 'טען מחדש את האפליקציה',
-  'ide.device.cycleHint': '{{current}} — לחץ עבור {{next}}',
   'ide.search.results': '{{count}} results in {{files}} files',
   'ide.activity.cardAria': 'צפה בפעילות שנקלטה',
   'ide.activity.type.email': 'אֶלֶקטרוֹנִי',
@@ -461,4 +459,6 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

@@ -63,7 +63,6 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Ferilskrá',
   'ide.chat.autoFixPause': 'Gera hlé',
   'ide.chat.autoFixCancel': 'Hætta við',
-  'ide.chat.reportProblem': 'Tilkynna vandamál',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Veldu gerð',
   'ide.chat.currentBadge': 'núverandi',
@@ -214,7 +213,6 @@ export const is: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Þetta forrit hætti að svara — óendanleg lykkja eða óútreiknanlegur flutningur frysti forskoðunina. IDE-ið er óbreytt.',
   'ide.preview.frozenReload': 'Endurnýja appið',
-  'ide.device.cycleHint': '{{current}} — smelltu til að {{next}}',
   'ide.search.results': '{{count}} leiðir til {{files}} skrár',
   'ide.activity.cardAria': 'Skoða skráða virkni',
   'ide.activity.type.email': 'Tölvupóstur',
@@ -464,4 +462,6 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

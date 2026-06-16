@@ -63,7 +63,6 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'জীবনবৃত্তান্ত',
   'ide.chat.autoFixPause': 'বিরতি',
   'ide.chat.autoFixCancel': 'বাতিল করুন',
-  'ide.chat.reportProblem': 'একটি সমস্যা রিপোর্ট করুন',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'মডেল নির্বাচন করুন',
   'ide.chat.currentBadge': 'বর্তমান',
@@ -215,7 +214,6 @@ export const bn: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'এই অ্যাপটি সাড়া দেওয়া বন্ধ করে দিয়েছে — একটি অনন্ত লুপ বা অনিয়ন্ত্রিত রেন্ডারের কারণে প্রিভিউটি আটকে গেছে। IDE-টি প্রভাবিত হয়নি।',
   'ide.preview.frozenReload': 'অ্যাপটি রিলোড করুন',
-  'ide.device.cycleHint': '{{current}} — ক্লিক করুন {{next}}',
   'ide.search.results': '{{count}} ফলাফলে {{files}} ফাইল',
   'ide.activity.cardAria': 'ধারণকৃত কার্যকলাপ দেখুন',
   'ide.activity.type.email': 'ইমেল',
@@ -465,4 +463,6 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

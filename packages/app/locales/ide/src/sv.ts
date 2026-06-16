@@ -93,7 +93,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Släpp filer här',
   'ide.chat.showEarlier': 'Visa tidigare meddelanden',
   'ide.chat.autoFixPaused': 'Autokorrigering pausad',
-  'ide.chat.reportProblem': 'Rapportera ett problem',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Välj modell',
   'ide.chat.currentBadge': 'nuvarande',
@@ -214,7 +213,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Den här appen svarar inte längre – en oändlig loop eller en okontrollerad rendering har fått förhandsvisningen att hänga sig. IDE:n påverkas inte.',
   'ide.preview.frozenReload': 'Uppdatera appen',
-  'ide.device.cycleHint': '{{current}} — Klicka här för {{next}}',
   'ide.search.results': '{{count}} resulterar i filer i formatet {{files}}',
   'ide.activity.cardAria': 'Visa registrerad aktivitet',
   'ide.activity.type.email': 'E-post',
@@ -470,4 +468,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Ladda som standard',
   'ide.chat.skills.unsetDefault': 'Stoppa laddningen som standard',
   'ide.chat.skills.matchHint': 'Förslag baserade på nyckelord i dina senaste meddelanden',
+  'ide.device.select': 'Enhetsram',
+  'ide.device.rotate': 'Rotera',
 }

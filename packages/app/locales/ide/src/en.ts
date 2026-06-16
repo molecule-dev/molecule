@@ -76,7 +76,6 @@ export const en: IdeTranslations = {
   'ide.chat.autoFixCountdown': 'Resume',
   'ide.chat.autoFixPause': 'Pause',
   'ide.chat.autoFixCancel': 'Cancel',
-  'ide.chat.reportProblem': 'Report a problem',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Select model',
   'ide.chat.currentBadge': 'current',
@@ -213,6 +212,8 @@ export const en: IdeTranslations = {
   'ide.device.desktop': 'Desktop',
   'ide.device.tablet': 'Tablet',
   'ide.device.mobile': 'Mobile',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
   'ide.toolCall.running': 'running...',
   'ide.toolCall.input': 'Input',
   'ide.toolCall.output': 'Output',
@@ -242,7 +243,6 @@ export const en: IdeTranslations = {
   'ide.preview.reloadPreview': 'Reload preview',
   'ide.preview.lastWorkingFrame': 'Last working preview',
   // Device-frame cycler tooltip.
-  'ide.device.cycleHint': '{{current}} — click for {{next}}',
   // Search result counts.
   'ide.search.results': '{{count}} results in {{files}} files',
   // Activity panel (captured email/SMS/push/webhook/channel events).

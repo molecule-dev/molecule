@@ -88,7 +88,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Αποθέστε αρχεία εδώ',
   'ide.chat.showEarlier': 'Εμφάνιση προηγούμενων μηνυμάτων',
   'ide.chat.autoFixPaused': 'Η αυτόματη διόρθωση τέθηκε σε παύση',
-  'ide.chat.reportProblem': 'Αναφορά προβλήματος',
   'ide.chat.version': '{{productName}} έκδοση 0.1.0',
   'ide.chat.selectModel': 'Επιλέξτε μοντέλο',
   'ide.chat.currentBadge': 'ρεύμα',
@@ -217,7 +216,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Η εφαρμογή σταμάτησε να ανταποκρίνεται — ένας ατέρμονος βρόχος ή μια ανεξέλεγκτη διαδικασία απόδοσης προκάλεσε το πάγωμα της προεπισκόπησης. Το IDE δεν επηρεάστηκε.',
   'ide.preview.frozenReload': 'Ανανέωση εφαρμογής',
-  'ide.device.cycleHint': '{{current}} — κάντε κλικ εδώ για το {{next}}',
   'ide.search.results': '{{count}} αποθηκεύονται στα αρχεία του φακέλου «{{files}}»',
   'ide.activity.cardAria': 'Προβολή καταγεγραμμένων δραστηριοτήτων',
   'ide.activity.type.email': 'Ηλεκτρονικό ταχυδρομείο',
@@ -479,4 +477,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Προεπιλεγμένη φόρτωση',
   'ide.chat.skills.unsetDefault': 'Προεπιλεγμένη διακοπή φόρτωσης',
   'ide.chat.skills.matchHint': 'Προτάσεις βάσει λέξεων-κλειδιών στα πρόσφατα μηνύματά σας',
+  'ide.device.select': 'Πλαίσιο συσκευής',
+  'ide.device.rotate': 'Περιστροφή',
 }

@@ -88,7 +88,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Pudota tiedostot tähän',
   'ide.chat.showEarlier': 'Näytä aiemmat viestit',
   'ide.chat.autoFixPaused': 'Automaattinen korjaus keskeytetty',
-  'ide.chat.reportProblem': 'Ilmoita ongelmasta',
   'ide.chat.version': 'Molekyyli.dev v0.1.0',
   'ide.chat.selectModel': 'Valitse malli',
   'ide.chat.currentBadge': 'nykyinen',
@@ -215,7 +214,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Sovellus lakkasi vastaamasta — esikatselu jumittui loputtomaan silmukkaan tai hallitsemattomaan renderointiin. Tämä ei vaikuta kehitysympäristöön.',
   'ide.preview.frozenReload': 'Lataa sovellus uudelleen',
-  'ide.device.cycleHint': '{{current}} — klikkaa tästä: {{next}}',
   'ide.search.results': '{{count}} tulemukset tiedostoissa {{files}}',
   'ide.activity.cardAria': 'Tarkastele tallennettua toimintaa',
   'ide.activity.type.email': 'Sähköposti',
@@ -472,4 +470,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Lataa oletuksena',
   'ide.chat.skills.unsetDefault': 'Lataaminen pysähtyy oletuksena',
   'ide.chat.skills.matchHint': 'Ehdotuksia viimeaikaisten viestiesi avainsanojen perusteella',
+  'ide.device.select': 'Laitteen runko',
+  'ide.device.rotate': 'Kierrä',
 }

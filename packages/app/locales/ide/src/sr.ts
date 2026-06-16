@@ -63,7 +63,6 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Резиме',
   'ide.chat.autoFixPause': 'Пауза',
   'ide.chat.autoFixCancel': 'Откажи',
-  'ide.chat.reportProblem': 'Пријави проблем',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Изаберите модел',
   'ide.chat.currentBadge': 'тренутни',
@@ -215,7 +214,6 @@ export const sr: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Ова апликација је престала да реагује — бесконачна петља или неконтролисано рендеровање је замрзнуло преглед. IDE није погођен.',
   'ide.preview.frozenReload': 'Поново учитај апликацију',
-  'ide.device.cycleHint': '{{current}} — кликните за {{next}}',
   'ide.search.results': '{{count}} резултира {{files}} датотеке',
   'ide.activity.cardAria': 'Погледајте забележену активност',
   'ide.activity.type.email': 'Е-пошта',
@@ -465,4 +463,6 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

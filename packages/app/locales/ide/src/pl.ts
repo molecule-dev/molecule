@@ -96,7 +96,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Upuść pliki tutaj',
   'ide.chat.showEarlier': 'Pokaż wcześniejsze wiadomości',
   'ide.chat.autoFixPaused': 'Wstrzymano automatyczną naprawę',
-  'ide.chat.reportProblem': 'Zgłoś problem',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Wybierz model',
   'ide.chat.currentBadge': 'aktualny',
@@ -217,7 +216,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Ta aplikacja przestała odpowiadać — pętla nieskończona lub niekontrolowane renderowanie spowodowały zawieszenie podglądu. Nie ma to wpływu na środowisko IDE.',
   'ide.preview.frozenReload': 'Odśwież aplikację',
-  'ide.device.cycleHint': '{{current}} — kliknij, aby przejść do strony {{next}}',
   'ide.search.results': '{{count}} powoduje utworzenie plików w katalogu `{{files}}`',
   'ide.activity.cardAria': 'Wyświetl zarejestrowaną aktywność',
   'ide.activity.type.email': 'E-mail',
@@ -475,4 +473,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.skills.unsetDefault': 'Domyślnie wstrzymaj ładowanie',
   'ide.chat.skills.matchHint':
     'Propozycje na podstawie słów kluczowych z Twoich ostatnich wiadomości',
+  'ide.device.select': 'Rama urządzenia',
+  'ide.device.rotate': 'Obróć',
 }

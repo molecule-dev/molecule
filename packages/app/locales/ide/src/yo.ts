@@ -233,7 +233,6 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Ìbẹ̀rẹ̀ iṣẹ́-ṣíwájú',
   'ide.chat.autoFixPause': 'Dúró díẹ̀',
   'ide.chat.autoFixCancel': 'Fagilee',
-  'ide.chat.reportProblem': 'Ṣe ijabọ iṣoro kan',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.activeFile': 'ti nṣiṣe lọwọ',
   'ide.chat.openTab': 'ṣii',
@@ -250,7 +249,6 @@ export const yo: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Àpù yìí kò dáhùn mọ́ — ìyípo àìlópin tàbí ìṣàn àtúnṣe tó sá lọ mú kí àwòkọ́ náà di ohun tó ń wò. Kò ní ipa kankan lórí IDE náà.',
   'ide.preview.frozenReload': 'Tún àpù gbé sórí ẹ̀rọ',
-  'ide.device.cycleHint': '{{current}} — tẹ fún {{next}}',
   'ide.search.results': '{{count}} awọn abajade ni {{files}} àwọn fáìlì',
   'ide.activity.cardAria': 'Wo ìgbòkègbodò tí a yàwòrán',
   'ide.activity.type.email': 'Ìmeeli',
@@ -499,4 +497,6 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

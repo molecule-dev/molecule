@@ -63,7 +63,6 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'ကိုယ်ရေးအကျဥ်း',
   'ide.chat.autoFixPause': 'ခေတ္တရပ်ပါ',
   'ide.chat.autoFixCancel': 'ပယ်ဖျက်ရန်',
-  'ide.chat.reportProblem': 'ပြဿနာတစ်ခုကို အစီရင်ခံပါ',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'မော်ဒယ်ကို ရွေးချယ်ပါ',
   'ide.chat.currentBadge': 'လက်ရှိ',
@@ -220,7 +219,6 @@ export const my: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'ဒီအက်ပ်က တုံ့ပြန်မှုရပ်တန့်သွားပါတယ် — အဆုံးမရှိ loop တစ်ခု ဒါမှမဟုတ် runaway render တစ်ခုကြောင့် preview ကို ရပ်တန့်သွားစေခဲ့ပါတယ်။ IDE ကို ထိခိုက်မှုမရှိပါဘူး။',
   'ide.preview.frozenReload': 'အက်ပ်ကို ပြန်လည်စတင်ပါ',
-  'ide.device.cycleHint': '{{current}} — နှိပ်ပါ {{next}}',
   'ide.search.results': '{{count}} ရလဒ်များ {{files}} ဖိုင်များ',
   'ide.activity.cardAria': 'မှတ်တမ်းတင်ထားသော လုပ်ဆောင်ချက်ကို ကြည့်ရှုပါ',
   'ide.activity.type.email': 'အီးမေးလ်',
@@ -470,4 +468,6 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

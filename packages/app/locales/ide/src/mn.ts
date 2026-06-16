@@ -64,7 +64,6 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Анкет',
   'ide.chat.autoFixPause': 'Түр зогсоох',
   'ide.chat.autoFixCancel': 'Цуцлах',
-  'ide.chat.reportProblem': 'Асуудлыг мэдээлэх',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Загвар сонгох',
   'ide.chat.currentBadge': 'одоогийн',
@@ -218,7 +217,6 @@ export const mn: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Энэ апп хариу өгөхөө больсон — хязгааргүй давталт эсвэл алдаатай дүрслэл нь урьдчилж харахыг гацаасан. IDE-д нөлөөлөөгүй.',
   'ide.preview.frozenReload': 'Аппыг дахин ачаалах',
-  'ide.device.cycleHint': '{{current}} — дарж үзнэ үү {{next}}',
   'ide.search.results': '{{count}} үр дүн нь {{files}} файлууд',
   'ide.activity.cardAria': 'Авсан үйл ажиллагааг харах',
   'ide.activity.type.email': 'И-мэйл',
@@ -468,4 +466,6 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

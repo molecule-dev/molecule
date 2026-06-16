@@ -63,7 +63,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'CV',
   'ide.chat.autoFixPause': 'Paus',
   'ide.chat.autoFixCancel': 'Tühista',
-  'ide.chat.reportProblem': 'Teata probleemist',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Valige mudel',
   'ide.chat.currentBadge': 'praegune',
@@ -216,7 +215,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Rakendus ei vasta enam – eelvaade on hangunud lõputu tsükli või kontrolli alt väljunud renderdamise tõttu. See ei mõjuta IDE-d.',
   'ide.preview.frozenReload': 'Laadi rakendus uuesti',
-  'ide.device.cycleHint': '{{current}} — klõpsa siin, et vaadata „{{next}}“',
   'ide.search.results': '{{count}} tulemuseks on failid „{{files}}“',
   'ide.activity.cardAria': 'Vaata salvestatud tegevust',
   'ide.activity.type.email': 'E-post',
@@ -470,4 +468,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Laadi vaikimisi',
   'ide.chat.skills.unsetDefault': 'Lõpeta laadimine vaikimisi',
   'ide.chat.skills.matchHint': 'Soovitatud sinu viimaste sõnumite märksõnade põhjal',
+  'ide.device.select': 'Seadme raam',
+  'ide.device.rotate': 'Pööra',
 }

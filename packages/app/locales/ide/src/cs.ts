@@ -87,7 +87,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Sem přetáhněte soubory',
   'ide.chat.showEarlier': 'Zobrazit starší zprávy',
   'ide.chat.autoFixPaused': 'Automatická oprava pozastavena',
-  'ide.chat.reportProblem': 'Nahlásit problém',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Vyberte model',
   'ide.chat.currentBadge': 'proud',
@@ -213,7 +212,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Tato aplikace přestala reagovat – náhled zamrzl kvůli nekonečné smyčce nebo nekontrolovanému vykreslování. IDE tím není ovlivněno.',
   'ide.preview.frozenReload': 'Obnovit aplikaci',
-  'ide.device.cycleHint': '{{current}} — klikněte zde pro {{next}}',
   'ide.search.results': '{{count}} výsledky jsou uloženy v souborech typu „{{files}}“',
   'ide.activity.cardAria': 'Zobrazit zaznamenanou aktivitu',
   'ide.activity.type.email': 'E-mail',
@@ -470,4 +468,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Načíst jako výchozí',
   'ide.chat.skills.unsetDefault': 'Ve výchozím nastavení zastavit načítání',
   'ide.chat.skills.matchHint': 'Navrženo na základě klíčových slov ve vašich posledních zprávách',
+  'ide.device.select': 'Rám zařízení',
+  'ide.device.rotate': 'Otočit',
 }

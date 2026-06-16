@@ -93,7 +93,6 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Arraste os arquivos para cá.',
   'ide.chat.showEarlier': 'Mostrar mensagens anteriores',
   'ide.chat.autoFixPaused': 'Correção automática pausada',
-  'ide.chat.reportProblem': 'Reportar um problema',
   'ide.chat.version': 'Molécula.dev v0.1.0',
   'ide.chat.selectModel': 'Selecione o modelo',
   'ide.chat.currentBadge': 'atual',
@@ -216,7 +215,6 @@ export const pt: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Este aplicativo parou de responder — um loop infinito ou uma renderização descontrolada congelou a visualização. O IDE não foi afetado.',
   'ide.preview.frozenReload': 'Atualizar o aplicativo',
-  'ide.device.cycleHint': '{{current}} — clique aqui para acessar {{next}}',
   'ide.search.results': '{{count}} gera arquivos no formato `{{files}}`',
   'ide.activity.cardAria': 'Ver atividades registradas',
   'ide.activity.type.email': 'E-mail',
@@ -471,4 +469,6 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Carregar por padrão',
   'ide.chat.skills.unsetDefault': 'Suspender o carregamento por padrão',
   'ide.chat.skills.matchHint': 'Sugerido com base nas palavras-chave das suas mensagens recentes',
+  'ide.device.select': 'Estrutura do dispositivo',
+  'ide.device.rotate': 'Girar',
 }

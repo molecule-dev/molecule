@@ -63,7 +63,6 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Atosú',
   'ide.chat.autoFixPause': 'Sos',
   'ide.chat.autoFixCancel': 'Cealaigh',
-  'ide.chat.reportProblem': 'Tuairiscigh fadhb',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Roghnaigh samhail',
   'ide.chat.currentBadge': 'reatha',
@@ -214,7 +213,6 @@ export const ga: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Stop an aip seo ag freagairt — reo lúb gan teorainn nó rindreáil theithiúil an réamhamharc. Níl aon tionchar ar an IDE.',
   'ide.preview.frozenReload': 'Athlódáil an aip',
-  'ide.device.cycleHint': '{{current}} — cliceáil le haghaidh {{next}}',
   'ide.search.results': '{{count}} mar thoradh air {{files}} comhaid',
   'ide.activity.cardAria': 'Féach ar ghníomhaíocht a gabhadh',
   'ide.activity.type.email': 'Ríomhphost',
@@ -464,4 +462,6 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

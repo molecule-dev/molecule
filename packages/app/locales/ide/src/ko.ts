@@ -97,7 +97,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': '여기에 파일을 드롭하세요',
   'ide.chat.showEarlier': '이전 메시지 보기',
   'ide.chat.autoFixPaused': '자동 수정이 일시 중지되었습니다',
-  'ide.chat.reportProblem': '문제 신고하기',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': '모델을 선택하세요',
   'ide.chat.currentBadge': '현재의',
@@ -214,7 +213,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     '이 앱이 응답하지 않습니다. 무한 루프나 렌더링 오류로 인해 미리 보기가 멈췄습니다. IDE는 정상적으로 작동합니다.',
   'ide.preview.frozenReload': '앱 다시 불러오기',
-  'ide.device.cycleHint': '{{current}} — ‘{{next}}’를 보려면 여기를 클릭하세요',
   'ide.search.results': '{{count}} {{files}} 파일이 생성됩니다',
   'ide.activity.cardAria': '기록된 활동 보기',
   'ide.activity.type.email': '이메일',
@@ -468,4 +466,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': '기본적으로 불러오기',
   'ide.chat.skills.unsetDefault': '기본적으로 로딩 중지',
   'ide.chat.skills.matchHint': '최근 메시지의 키워드를 바탕으로 추천된 내용',
+  'ide.device.select': '장치 프레임',
+  'ide.device.rotate': '회전',
 }

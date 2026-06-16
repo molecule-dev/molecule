@@ -63,7 +63,6 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'CV',
   'ide.chat.autoFixPause': 'Pouseer',
   'ide.chat.autoFixCancel': 'Kanselleer',
-  'ide.chat.reportProblem': "Rapporteer 'n probleem",
   'ide.chat.version': 'Molekule.dev v0.1.0',
   'ide.chat.selectModel': 'Kies model',
   'ide.chat.currentBadge': 'huidige',
@@ -215,7 +214,6 @@ export const af: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     "Hierdie toepassing het opgehou reageer — 'n oneindige lus of weghol-weergawe het die voorskou gevries. Die IDE word nie beïnvloed nie.",
   'ide.preview.frozenReload': 'Herlaai die toepassing',
-  'ide.device.cycleHint': '{{current}} — klik vir {{next}}',
   'ide.search.results': '{{count}} lei tot {{files}} lêers',
   'ide.activity.cardAria': 'Bekyk vasgelegde aktiwiteit',
   'ide.activity.type.email': 'E-pos',
@@ -464,4 +462,6 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

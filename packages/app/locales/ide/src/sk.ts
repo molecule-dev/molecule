@@ -63,7 +63,6 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Životopis',
   'ide.chat.autoFixPause': 'Pozastaviť',
   'ide.chat.autoFixCancel': 'Zrušiť',
-  'ide.chat.reportProblem': 'Nahlásiť problém',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Vyberte model',
   'ide.chat.currentBadge': 'prúd',
@@ -216,7 +215,6 @@ export const sk: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Táto aplikácia prestala reagovať – nekonečná slučka alebo nekontrolovateľné vykresľovanie spôsobili zamrznutie náhľadu. IDE to neovplyvnilo.',
   'ide.preview.frozenReload': 'Obnoviť aplikáciu',
-  'ide.device.cycleHint': '{{current}} — kliknite pre {{next}}',
   'ide.search.results': '{{count}} výsledky sú uložené v súboroch typu „{{files}}“',
   'ide.activity.cardAria': 'Zobraziť zaznamenanú aktivitu',
   'ide.activity.type.email': 'E-mail',
@@ -473,4 +471,6 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Načítať ako predvolené',
   'ide.chat.skills.unsetDefault': 'V predvolenom nastavení zastaviť načítavanie',
   'ide.chat.skills.matchHint': 'Navrhnuté na základe kľúčových slov vo vašich posledných správach',
+  'ide.device.select': 'Rám zariadenia',
+  'ide.device.rotate': 'Otočiť',
 }

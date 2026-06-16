@@ -63,7 +63,6 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Sommarju',
   'ide.chat.autoFixPause': 'Pawża',
   'ide.chat.autoFixCancel': 'Ikkanċella',
-  'ide.chat.reportProblem': 'Irrapporta problema',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Agħżel mudell',
   'ide.chat.currentBadge': 'kurrenti',
@@ -217,7 +216,6 @@ export const mt: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     "Din l-app waqfet tirrispondi — linja infinita jew rendering li ma kienx qed jiġi implimentat b'mod korrett iffriża l-preview. L-IDE mhux affettwat.",
   'ide.preview.frozenReload': "Erġa' ċċarġja l-app",
-  'ide.device.cycleHint': '{{current}} — ikklikkja għal {{next}}',
   'ide.search.results': '{{count}} jirriżulta fi {{files}} fajls',
   'ide.activity.cardAria': 'Ara l-attività maqbuda',
   'ide.activity.type.email': 'Email',
@@ -466,4 +464,6 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

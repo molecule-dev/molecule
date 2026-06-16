@@ -198,7 +198,6 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Рэзюмэ',
   'ide.chat.autoFixPause': 'Паўза',
   'ide.chat.autoFixCancel': 'Адмена',
-  'ide.chat.reportProblem': 'Паведаміць пра праблему',
   'ide.chat.version': '{{productName}} версіі 0.1.0',
   'ide.chat.activeFile': 'актыўны',
   'ide.chat.openTab': 'адкрыты',
@@ -215,7 +214,6 @@ export const be: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Гэта праграма перастала адказваць — бясконцы цыкл або некантраляваны рэндэрынг замарозілі папярэдні прагляд. IDE не змянілася.',
   'ide.preview.frozenReload': 'Перазагрузіць праграму',
-  'ide.device.cycleHint': '{{current}} — націсніце для {{next}}',
   'ide.search.results': '{{count}} вынікі ў {{files}} файлы',
   'ide.activity.cardAria': 'Праглядзець запісаную актыўнасць',
   'ide.activity.type.email': 'Электронная пошта',
@@ -465,4 +463,6 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

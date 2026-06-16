@@ -63,7 +63,6 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Ail-ddechrau',
   'ide.chat.autoFixPause': 'Oedi',
   'ide.chat.autoFixCancel': 'Canslo',
-  'ide.chat.reportProblem': 'Adrodd am broblem',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Dewiswch fodel',
   'ide.chat.currentBadge': 'cyfredol',
@@ -215,7 +214,6 @@ export const cy: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     "Stopiodd yr ap hwn ymateb — rhewodd dolen ddiddiwedd neu rendr rhedegog y rhagolwg. Nid yw'r IDE wedi'i effeithio.",
   'ide.preview.frozenReload': "Ail-lwytho'r ap",
-  'ide.device.cycleHint': '{{current}} — cliciwch am {{next}}',
   'ide.search.results': '{{count}} yn arwain at {{files}} ffeiliau',
   'ide.activity.cardAria': "Gweld gweithgaredd wedi'i gipio",
   'ide.activity.type.email': 'E-bost',
@@ -464,4 +462,6 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

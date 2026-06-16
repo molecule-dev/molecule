@@ -64,7 +64,6 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Currículo',
   'ide.chat.autoFixPause': 'Pausa',
   'ide.chat.autoFixCancel': 'Cancelar',
-  'ide.chat.reportProblem': 'Informar dun problema',
   'ide.chat.version': 'Molécula.dev v0.1.0',
   'ide.chat.selectModel': 'Seleccionar modelo',
   'ide.chat.currentBadge': 'actual',
@@ -218,7 +217,6 @@ export const gl: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Esta aplicación deixou de responder: un bucle infinito ou unha renderización descontrolada conxelou a vista previa. O IDE non se viu afectado.',
   'ide.preview.frozenReload': 'Recargar a aplicación',
-  'ide.device.cycleHint': '{{current}} — fai clic para {{next}}',
   'ide.search.results': '{{count}} resultados en {{files}} ficheiros',
   'ide.activity.cardAria': 'Ver a actividade capturada',
   'ide.activity.type.email': 'Correo electrónico',
@@ -468,4 +466,6 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

@@ -64,7 +64,6 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Wasifu',
   'ide.chat.autoFixPause': 'Sitisha',
   'ide.chat.autoFixCancel': 'Ghairi',
-  'ide.chat.reportProblem': 'Ripoti tatizo',
   'ide.chat.version': 'Molekuli.dev v0.1.0',
   'ide.chat.selectModel': 'Chagua modeli',
   'ide.chat.currentBadge': 'mkondo',
@@ -216,7 +215,6 @@ export const sw: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Programu hii iliacha kujibu — mzunguko usio na kikomo au onyesho lisilo na kikomo lilisimamisha onyesho la awali. IDE haiathiriwi.',
   'ide.preview.frozenReload': 'Pakia upya programu',
-  'ide.device.cycleHint': '{{current}} — bofya kwa {{next}}',
   'ide.search.results': '{{count}} matokeo katika {{files}} faili',
   'ide.activity.cardAria': 'Tazama shughuli iliyonaswa',
   'ide.activity.type.email': 'Barua pepe',
@@ -465,4 +463,6 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

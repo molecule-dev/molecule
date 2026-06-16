@@ -63,7 +63,6 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'പുനരാരംഭിക്കുക',
   'ide.chat.autoFixPause': 'താൽക്കാലികമായി നിർത്തുക',
   'ide.chat.autoFixCancel': 'റദ്ദാക്കുക',
-  'ide.chat.reportProblem': 'ഒരു പ്രശ്നം റിപ്പോർട്ട് ചെയ്യുക',
   'ide.chat.version': 'മോളിക്യൂൾ.ഡെവ് v0.1.0',
   'ide.chat.selectModel': 'മോഡൽ തിരഞ്ഞെടുക്കുക',
   'ide.chat.currentBadge': 'നിലവിലുള്ളത്',
@@ -217,7 +216,6 @@ export const ml: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'ഈ ആപ്പ് പ്രതികരിക്കുന്നത് നിർത്തി — ഒരു ഇൻഫിനിറ്റ് ലൂപ്പ് അല്ലെങ്കിൽ റൺഅവേ റെൻഡർ പ്രിവ്യൂ മരവിപ്പിച്ചു. IDE ബാധിക്കപ്പെട്ടിട്ടില്ല.',
   'ide.preview.frozenReload': 'ആപ്പ് വീണ്ടും ലോഡുചെയ്യുക',
-  'ide.device.cycleHint': '{{current}} — ക്ലിക്ക് ചെയ്യുക {{next}}',
   'ide.search.results': '{{count}} ഫലമായി {{files}} ഫയലുകൾ',
   'ide.activity.cardAria': 'പിടിച്ചെടുത്ത പ്രവർത്തനം കാണുക',
   'ide.activity.type.email': 'ഇമെയിൽ',
@@ -467,4 +465,6 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

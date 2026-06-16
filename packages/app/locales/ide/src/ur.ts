@@ -63,7 +63,6 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'دوبارہ شروع کریں۔',
   'ide.chat.autoFixPause': 'توقف',
   'ide.chat.autoFixCancel': 'منسوخ کریں۔',
-  'ide.chat.reportProblem': 'ایک مسئلہ کی اطلاع دیں۔',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'ماڈل منتخب کریں۔',
   'ide.chat.currentBadge': 'موجودہ',
@@ -216,7 +215,6 @@ export const ur: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'اس ایپ نے جواب دینا بند کر دیا — ایک لامحدود لوپ یا رن وے رینڈر نے پیش منظر کو منجمد کر دیا۔ IDE غیر متاثر ہے۔',
   'ide.preview.frozenReload': 'ایپ کو دوبارہ لوڈ کریں۔',
-  'ide.device.cycleHint': '{{current}} - کے لیے کلک کریں۔ {{next}}',
   'ide.search.results': '{{count}} نتیجہ میں {{files}} فائلیں',
   'ide.activity.cardAria': 'کیپچر کی گئی سرگرمی دیکھیں',
   'ide.activity.type.email': 'ای میل',
@@ -465,4 +463,6 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

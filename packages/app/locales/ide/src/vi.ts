@@ -95,7 +95,6 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Kéo thả tập tin vào đây',
   'ide.chat.showEarlier': 'Hiển thị các tin nhắn trước đó',
   'ide.chat.autoFixPaused': 'Tự động sửa lỗi tạm dừng',
-  'ide.chat.reportProblem': 'Báo cáo sự cố',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Chọn mẫu',
   'ide.chat.currentBadge': 'hiện hành',
@@ -216,7 +215,6 @@ export const vi: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Ứng dụng này ngừng phản hồi — một vòng lặp vô hạn hoặc quá trình hiển thị bị lỗi đã làm đóng băng bản xem trước. Môi trường phát triển tích hợp (IDE) không bị ảnh hưởng.',
   'ide.preview.frozenReload': 'Tải lại ứng dụng',
-  'ide.device.cycleHint': '{{current}} — nhấp chuột để xem {{next}}',
   'ide.search.results': '{{count}} dẫn đến {{files}} tệp',
   'ide.activity.cardAria': 'Xem hoạt động đã ghi lại',
   'ide.activity.type.email': 'E-mail',
@@ -466,4 +464,6 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

@@ -84,7 +84,6 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'I-drop ang mga file dito',
   'ide.chat.showEarlier': 'Ipakita ang mga naunang mensahe',
   'ide.chat.autoFixPaused': 'Na-pause ang awtomatikong pag-aayos',
-  'ide.chat.reportProblem': 'Mag-ulat ng problema',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pumili ng modelo',
   'ide.chat.currentBadge': 'kasalukuyan',
@@ -218,7 +217,6 @@ export const fil: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Huminto sa pagtugon ang app na ito — isang infinite loop o runaway render ang nagpatigil sa preview. Hindi maaapektuhan ang IDE.',
   'ide.preview.frozenReload': 'I-reload ang app',
-  'ide.device.cycleHint': '{{current}} — i-click para sa {{next}}',
   'ide.search.results': '{{count}} nagreresulta sa {{files}} mga file',
   'ide.activity.cardAria': 'Tingnan ang nakunang aktibidad',
   'ide.activity.type.email': 'I-email',
@@ -468,4 +466,6 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

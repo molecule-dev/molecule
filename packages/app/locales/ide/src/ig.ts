@@ -193,7 +193,6 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Ọmụmụ ihe malitegharịa',
   'ide.chat.autoFixPause': 'Kwụsịtụ',
   'ide.chat.autoFixCancel': 'Kagbuo',
-  'ide.chat.reportProblem': 'Kpesa nsogbu',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.activeFile': 'na-arụ ọrụ',
   'ide.chat.openTab': 'meghee',
@@ -213,7 +212,6 @@ export const ig: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Ngwa a kwụsịrị ịzaghachi — okirikiri na-enweghị ngwụcha ma ọ bụ ihe ngosi na-agba ọsọ na-eme ka nlele ahụ sie ike. IDE ahụ enweghị mmetụta ọ bụla.',
   'ide.preview.frozenReload': 'Bugharịa ngwa ahụ ọzọ',
-  'ide.device.cycleHint': '{{current}} — pịa maka {{next}}',
   'ide.search.results': '{{count}} na-ebute {{files}} faịlụ',
   'ide.activity.cardAria': 'Lee ihe omume e sere',
   'ide.activity.type.email': 'ozi-e',
@@ -463,4 +461,6 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

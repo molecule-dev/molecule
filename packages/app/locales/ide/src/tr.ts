@@ -96,7 +96,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Dosyaları buraya sürükleyin',
   'ide.chat.showEarlier': 'Önceki mesajları göster',
   'ide.chat.autoFixPaused': 'Otomatik düzeltme duraklatıldı',
-  'ide.chat.reportProblem': 'Bir sorun bildirin',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Model seçin',
   'ide.chat.currentBadge': 'akım',
@@ -214,7 +213,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Bu uygulama yanıt vermiyor — sonsuz bir döngü ya da kontrolsüz bir render işlemi önizlemeyi dondurdu. IDE bundan etkilenmedi.',
   'ide.preview.frozenReload': 'Uygulamayı yeniden yükle',
-  'ide.device.cycleHint': '{{current}} — {{next}} adresine tıklayın',
   'ide.search.results': '{{count}} {{files}} dosyalarında sonuçlanır',
   'ide.activity.cardAria': 'Kaydedilen etkinlikleri görüntüle',
   'ide.activity.type.email': 'E-posta',
@@ -471,4 +469,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Varsayılan olarak yükle',
   'ide.chat.skills.unsetDefault': 'Varsayılan olarak yüklemeyi durdur',
   'ide.chat.skills.matchHint': 'Son mesajlarınızdaki anahtar kelimelerden önerilenler',
+  'ide.device.select': 'Cihaz çerçevesi',
+  'ide.device.rotate': 'Döndür',
 }

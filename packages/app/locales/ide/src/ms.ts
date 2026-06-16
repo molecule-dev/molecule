@@ -85,7 +85,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': 'Letak fail di sini',
   'ide.chat.showEarlier': 'Tunjukkan mesej terdahulu',
   'ide.chat.autoFixPaused': 'Pembetulan automatik dijeda',
-  'ide.chat.reportProblem': 'Laporkan masalah',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pilih model',
   'ide.chat.currentBadge': 'semasa',
@@ -214,7 +213,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Aplikasi ini berhenti bertindak balas — gelung tanpa henti atau pemaparan yang tidak terkawal telah membekukan pratonton. IDE tidak terjejas.',
   'ide.preview.frozenReload': 'Muat semula aplikasi',
-  'ide.device.cycleHint': '{{current}} — klik untuk {{next}}',
   'ide.search.results': '{{count}} mengakibatkan {{files}} fail',
   'ide.activity.cardAria': 'Lihat aktiviti yang ditangkap',
   'ide.activity.type.email': 'E-mel',
@@ -464,4 +462,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

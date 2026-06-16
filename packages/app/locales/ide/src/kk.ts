@@ -63,7 +63,6 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Түйіндеме',
   'ide.chat.autoFixPause': 'Кідірту',
   'ide.chat.autoFixCancel': 'Бас тарту',
-  'ide.chat.reportProblem': 'Мәселе туралы хабарлау',
   'ide.chat.version': '{{productName}} v0.1.0 нұсқасы',
   'ide.chat.selectModel': 'Модельді таңдаңыз',
   'ide.chat.currentBadge': 'ағымдағы',
@@ -215,7 +214,6 @@ export const kk: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Бұл қолданба жауап беруді тоқтатты — шексіз цикл немесе рендерингтің бұзылуы алдын ала қарауды тоқтатты. IDE әсер етпейді.',
   'ide.preview.frozenReload': 'Қолданбаны қайта жүктеу',
-  'ide.device.cycleHint': '{{current}} — үшін басыңыз {{next}}',
   'ide.search.results': '{{count}} нәтижелер {{files}} файлдар',
   'ide.activity.cardAria': 'Түсірілген әрекетті көру',
   'ide.activity.type.email': 'Электрондық пошта',
@@ -465,4 +463,6 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

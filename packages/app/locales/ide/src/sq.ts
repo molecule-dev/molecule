@@ -64,7 +64,6 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Rezyme',
   'ide.chat.autoFixPause': 'Pauzë',
   'ide.chat.autoFixCancel': 'Anulo',
-  'ide.chat.reportProblem': 'Raporto një problem',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Zgjidh modelin',
   'ide.chat.currentBadge': 'aktuale',
@@ -219,7 +218,6 @@ export const sq: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Ky aplikacion ndaloi së përgjigjuri — një cikël i pafund ose një renderim i pakontrolluar e ngriu pamjen paraprake. IDE-ja nuk ndikohet.',
   'ide.preview.frozenReload': 'Ringarko aplikacionin',
-  'ide.device.cycleHint': '{{current}} — kliko për {{next}}',
   'ide.search.results': '{{count}} rezulton në {{files}} skedarë',
   'ide.activity.cardAria': 'Shiko aktivitetin e kapur',
   'ide.activity.type.email': 'Email',
@@ -469,4 +467,6 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

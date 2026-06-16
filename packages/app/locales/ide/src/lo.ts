@@ -62,7 +62,6 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'ປະຫວັດຫຍໍ້',
   'ide.chat.autoFixPause': 'ຢຸດຊົ່ວຄາວ',
   'ide.chat.autoFixCancel': 'ຍົກເລີກ',
-  'ide.chat.reportProblem': 'ລາຍງານບັນຫາ',
   'ide.chat.version': '{{productName}} ເວີຊັນ 0.1.0',
   'ide.chat.selectModel': 'ເລືອກຮູບແບບ',
   'ide.chat.currentBadge': 'ປັດຈຸບັນ',
@@ -214,7 +213,6 @@ export const lo: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'ແອັບນີ້ຢຸດການຕອບສະໜອງ — ການວົນຊ້ຳທີ່ບໍ່ມີສິ້ນສຸດ ຫຼື ການສະແດງຜົນທີ່ບໍ່ສາມາດຄວບຄຸມໄດ້ເຮັດໃຫ້ການສະແດງຕົວຢ່າງຄ້າງໄວ້. IDE ບໍ່ໄດ້ຮັບຜົນກະທົບ.',
   'ide.preview.frozenReload': 'ໂຫຼດແອັບຄືນໃໝ່',
-  'ide.device.cycleHint': '{{current}} — ຄລິກເພື່ອ {{next}}',
   'ide.search.results': '{{count}} ຜົນໄດ້ຮັບໃນ {{files}} ໄຟລ໌',
   'ide.activity.cardAria': 'ເບິ່ງກິດຈະກຳທີ່ບັນທຶກໄວ້',
   'ide.activity.type.email': 'ອີເມວ',
@@ -463,4 +461,6 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

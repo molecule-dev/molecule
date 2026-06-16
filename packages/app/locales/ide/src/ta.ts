@@ -63,7 +63,6 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'சுயவிவரம்',
   'ide.chat.autoFixPause': 'இடைநிறுத்தம்',
   'ide.chat.autoFixCancel': 'ரத்துசெய்',
-  'ide.chat.reportProblem': 'ஒரு சிக்கலைப் புகாரளிக்கவும்',
   'ide.chat.version': 'மூலக்கூறு.dev பதிப்பு 0.1.0',
   'ide.chat.selectModel': 'மாதிரியைத் தேர்ந்தெடுக்கவும்',
   'ide.chat.currentBadge': 'தற்போதைய',
@@ -218,7 +217,6 @@ export const ta: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'இந்தச் செயலி பதிலளிப்பதை நிறுத்திவிட்டது — ஒரு முடிவற்ற சுழற்சி அல்லது கட்டுப்பாடற்ற ரெண்டரிங் முன்னோட்டத்தை முடக்கிவிட்டது. IDE பாதிக்கப்படவில்லை.',
   'ide.preview.frozenReload': 'செயலியை மீண்டும் ஏற்றவும்',
-  'ide.device.cycleHint': '{{current}} — கிளிக் செய்யவும் {{next}}',
   'ide.search.results': '{{count}} இதன் விளைவாக {{files}} கோப்புகள்',
   'ide.activity.cardAria': 'பதிவுசெய்யப்பட்ட செயல்பாடுகளைக் காண்க',
   'ide.activity.type.email': 'மின்னஞ்சல்',
@@ -468,4 +466,6 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

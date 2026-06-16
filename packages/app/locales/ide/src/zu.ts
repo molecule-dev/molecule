@@ -64,7 +64,6 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Qalisa kabusha',
   'ide.chat.autoFixPause': 'Misa isikhashana',
   'ide.chat.autoFixCancel': 'Khansela',
-  'ide.chat.reportProblem': 'Bika inkinga',
   'ide.chat.version': 'I-{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Khetha imodeli',
   'ide.chat.currentBadge': 'okwamanje',
@@ -220,7 +219,6 @@ export const zu: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Lolu hlelo lokusebenza luyeke ukuphendula — i-loop engapheli noma i-runaway render imise ukubuka kuqala. I-IDE ayithinteki.',
   'ide.preview.frozenReload': 'Layisha kabusha uhlelo lokusebenza',
-  'ide.device.cycleHint': '{{current}} — chofoza ukuze uthole {{next}}',
   'ide.search.results': '{{count}} imiphumela ku- {{files}} amafayela',
   'ide.activity.cardAria': 'Buka umsebenzi othwetshuliwe',
   'ide.activity.type.email': 'I-imeyili',
@@ -470,4 +468,6 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

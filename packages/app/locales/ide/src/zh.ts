@@ -96,7 +96,6 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.dropFilesHere': '文件拖放到这里',
   'ide.chat.showEarlier': '显示更早的消息',
   'ide.chat.autoFixPaused': '自动修复功能已暂停',
-  'ide.chat.reportProblem': '报告问题',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': '选择模型',
   'ide.chat.currentBadge': '当前的',
@@ -212,7 +211,6 @@ export const zh: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     '该应用程序已停止响应——可能是无限循环或渲染失控导致预览界面卡死。IDE 未受影响。',
   'ide.preview.frozenReload': '重新加载应用',
-  'ide.device.cycleHint': '{{current}} — 点击访问 {{next}}',
   'ide.search.results': '{{count}} 生成的文件位于{{files}}目录下',
   'ide.activity.cardAria': '查看已记录的活动',
   'ide.activity.type.email': '电子邮件',
@@ -456,4 +454,6 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': '默认加载',
   'ide.chat.skills.unsetDefault': '默认停止加载',
   'ide.chat.skills.matchHint': '根据您最近消息中的关键词推荐',
+  'ide.device.select': '设备框架',
+  'ide.device.rotate': '旋转',
 }

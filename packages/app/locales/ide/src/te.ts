@@ -63,7 +63,6 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'పునఃప్రారంభం',
   'ide.chat.autoFixPause': 'విరామం',
   'ide.chat.autoFixCancel': 'రద్దు చేయండి',
-  'ide.chat.reportProblem': 'సమస్యను నివేదించండి',
   'ide.chat.version': 'మాలిక్యూల్.దేవ్ v0.1.0',
   'ide.chat.selectModel': 'మోడల్‌ను ఎంచుకోండి',
   'ide.chat.currentBadge': 'ప్రస్తుత',
@@ -215,7 +214,6 @@ export const te: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'ఈ యాప్ స్పందించడం ఆగిపోయింది — అనంతమైన లూప్ లేదా అనియంత్రిత రెండర్ కారణంగా ప్రివ్యూ స్తంభించిపోయింది. IDEకి ఎలాంటి ప్రభావం లేదు.',
   'ide.preview.frozenReload': 'యాప్‌ను రీలోడ్ చేయండి',
-  'ide.device.cycleHint': '{{current}} — క్లిక్ చేయండి {{next}}',
   'ide.search.results': '{{count}} ఫలితాలు {{files}} ఫైళ్లు',
   'ide.activity.cardAria': 'సంగ్రహించిన కార్యాచరణను వీక్షించండి',
   'ide.activity.type.email': 'ఇమెయిల్',
@@ -465,4 +463,6 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }

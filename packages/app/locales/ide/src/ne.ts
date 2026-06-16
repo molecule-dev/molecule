@@ -63,7 +63,6 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'पुनःसुरु गर्नुहोस्',
   'ide.chat.autoFixPause': 'पज गर्नुहोस्',
   'ide.chat.autoFixCancel': 'रद्द गर्नुहोस्',
-  'ide.chat.reportProblem': 'समस्या रिपोर्ट गर्नुहोस्',
   'ide.chat.version': '{{productName}} v0.1.0 का थप वस्तुहरू',
   'ide.chat.selectModel': 'मोडेल चयन गर्नुहोस्',
   'ide.chat.currentBadge': 'वर्तमान',
@@ -214,7 +213,6 @@ export const ne: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'यो एपले प्रतिक्रिया दिन छोड्यो — अनन्त लूप वा रनअवे रेन्डरले पूर्वावलोकनलाई स्थिर बनायो। IDE अप्रभावित छ।',
   'ide.preview.frozenReload': 'एप पुन: लोड गर्नुहोस्',
-  'ide.device.cycleHint': '{{current}} — क्लिक गर्नुहोस् {{next}}',
   'ide.search.results': '{{count}} परिणामस्वरूप {{files}} फाइलहरू',
   'ide.activity.cardAria': 'कैद गरिएका गतिविधि हेर्नुहोस्',
   'ide.activity.type.email': 'इमेल',
@@ -464,4 +462,6 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  'ide.device.select': 'Device frame',
+  'ide.device.rotate': 'Rotate',
 }
