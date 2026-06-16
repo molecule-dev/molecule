@@ -14,6 +14,7 @@ import {
   DEFAULT_EFFORT_LEVEL,
   EFFORT_LEVEL_LABELS,
   EFFORT_LEVELS,
+  effortLevelsForModel,
   isEffortLevel,
   modelsSupportingEffort,
   parseEffortCommand,
@@ -108,6 +109,28 @@ describe('modelsSupportingEffort', () => {
 
   it('returns an empty array when none support it', () => {
     expect(modelsSupportingEffort([model({ id: 'x' })])).toEqual([])
+  })
+})
+
+describe('effortLevelsForModel', () => {
+  it('returns the model-declared supported levels (full scale or a subset)', () => {
+    expect(effortLevelsForModel(model({ supportedEffortLevels: ['S', 'M', 'L', 'XL'] }))).toEqual([
+      'S',
+      'M',
+      'L',
+      'XL',
+    ])
+    // A fixed-reasoning model (e.g. grok-code-fast-1) declares only the default.
+    expect(effortLevelsForModel(model({ supportedEffortLevels: ['M'] }))).toEqual(['M'])
+  })
+
+  it('falls back to the full scale when the field is absent or empty (back-compat)', () => {
+    expect(effortLevelsForModel(model({}))).toEqual(EFFORT_LEVELS)
+    expect(effortLevelsForModel(model({ supportedEffortLevels: [] }))).toEqual(EFFORT_LEVELS)
+  })
+
+  it('falls back to the full scale for an unknown (undefined) model', () => {
+    expect(effortLevelsForModel(undefined)).toEqual(EFFORT_LEVELS)
   })
 })
 
