@@ -6828,23 +6828,14 @@ function ChatInner({
             style={{
               width: '100%',
               display: 'block',
+              padding: 0,
               color: 'inherit',
               resize: 'none',
               outline: 'none',
-              // P3-03/P3-23: in discovery mode the composer reads as a rounded,
-              // bordered input whose border aligns with the surrounding card edge —
-              // the negative margin pulls it out across the container's 8/10px
-              // padding (the preview/code-toggle border principle) and it carries the
-              // same decreased 8px rounding as the container; internal padding keeps
-              // the text off the border. The full-IDE side-panel composer stays flush.
-              ...(discovery
-                ? {
-                    border: '1px solid rgba(128,128,128,0.22)',
-                    borderRadius: 8,
-                    margin: '-8px -10px 0',
-                    padding: '8px 10px',
-                  }
-                : { border: 'none', padding: 0 }),
+              // The <textarea> element fills its wrapper edge-to-edge with no border
+              // or radius of its own — the gradient-bordered composer wrapper is the
+              // visible frame. (P3-03/P3-23 act on that WRAPPER, not this element.)
+              border: 'none',
               background: 'transparent',
               fontFamily: 'inherit',
               overflowY: 'auto',
