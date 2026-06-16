@@ -20,8 +20,6 @@ const TIP_KEYS = [
   'ide.chat.tip.undo',
   'ide.chat.tip.compact',
   'ide.chat.tip.commit',
-  'ide.chat.tip.diff',
-  'ide.chat.tip.models',
   'ide.chat.tip.report',
 ] as const
 // The tips that personalise with the host agent identity, so the {{agentName}}
@@ -31,7 +29,6 @@ const AGENT_NAME_TIP_KEYS = new Set([
   'ide.chat.tip.getStarted',
   'ide.chat.tip.mention',
   'ide.chat.tip.plan',
-  'ide.chat.tip.models',
 ])
 
 describe('ide locale bond', () => {

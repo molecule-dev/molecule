@@ -17,7 +17,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Sambung semula',
   'ide.chat.autoFixPause': 'Jeda',
   'ide.chat.autoFixCancel': 'Batal',
-  'ide.chat.currentModelLabel': 'Memuatkan model…',
   'ide.chat.soundAll': 'Semua',
   'ide.chat.activeFile': 'aktif',
   'ide.contextMenu.rename': 'Namakan semula',
@@ -74,8 +73,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Tidak dapat mengambil data penggunaan.',
   'ide.chat.undoNoChanges': 'Tiada perubahan fail untuk dibuat asal.',
   'ide.chat.undoComplete': 'Gagal membalikkan perubahan.',
-  'ide.chat.diffNoChanges': 'Tiada perubahan yang tidak dijanjikan.',
-  'ide.chat.diffError': 'Gagal mengambil perubahan.',
   'ide.chat.commitNoChanges': 'Tiada perubahan untuk dikomit.',
   'ide.chat.commitError': 'Gagal melakukan perubahan.',
   'ide.chat.autoFixEnabled': 'Pembetulan automatik diaktifkan.',
@@ -261,10 +258,6 @@ export const ms: Partial<IdeTranslations> = {
     'Petua: perbualan panjang? /compact memampatkan konteks supaya anda mempunyai ruang untuk bekerja.',
   'ide.chat.tip.commit':
     'Petua: gunakan /commit untuk menyimpan perubahan anda sebagai git commit yang anda sentiasa boleh kembali.',
-  'ide.chat.tip.diff':
-    'Petua: gunakan /diff untuk menyemak setiap perubahan yang tidak dikomit sebelum anda menyimpan atau mengkomitnya.',
-  'ide.chat.tip.models':
-    'Petua: taip /models untuk membandingkan setiap model AI yang tersedia dan tukar yang sedang berjalan{{agentName}} .',
   'ide.chat.tip.report':
     'Petua: ada sesuatu yang tidak kena? /laporan menghantar pepijat atau maklum balas kepada pasukan dengan sembang terbaru anda dilampirkan.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -307,7 +300,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -458,4 +450,18 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

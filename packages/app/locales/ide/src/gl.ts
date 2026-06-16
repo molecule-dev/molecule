@@ -47,8 +47,6 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Non se puideron obter os datos de uso.',
   'ide.chat.undoNoChanges': 'Non hai cambios de ficheiro para desfacer.',
   'ide.chat.undoComplete': 'Non se puideron reverter os cambios.',
-  'ide.chat.diffNoChanges': 'Sen cambios non confirmados.',
-  'ide.chat.diffError': 'Non se puideron obter os cambios.',
   'ide.chat.commitNoChanges': 'Sen cambios que confirmar.',
   'ide.chat.commitError': 'Non se puideron confirmar os cambios.',
   'ide.chat.autoFixEnabled': 'Corrección automática activada.',
@@ -69,7 +67,6 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Informar dun problema',
   'ide.chat.version': 'Molécula.dev v0.1.0',
   'ide.chat.selectModel': 'Seleccionar modelo',
-  'ide.chat.currentModelLabel': 'Actual:<x> {{nome}}</x>',
   'ide.chat.currentBadge': 'actual',
   'ide.chat.proRequired': 'Profesional',
   'ide.chat.notificationSounds': 'Sons de notificación',
@@ -265,10 +262,6 @@ export const gl: Partial<IdeTranslations> = {
     'Consello: conversa longa? /compact comprime o contexto para que teñas espazo para traballar.',
   'ide.chat.tip.commit':
     'Consello: usa /commit para gardar os cambios como un commit de git ao que sempre podes volver.',
-  'ide.chat.tip.diff':
-    'Consello: usa /diff para revisar cada cambio non confirmado antes de gardalo ou confirmalo.',
-  'ide.chat.tip.models':
-    'Consello: escribe /models para comparar todos os modelos de IA dispoñibles e cambiar o que estea a executarse{{agentName}} .',
   'ide.chat.tip.report':
     'Consello: hai algo raro? /report envía un erro ou comentarios ao equipo co teu chat recente adxunto.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -311,7 +304,6 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -462,4 +454,18 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

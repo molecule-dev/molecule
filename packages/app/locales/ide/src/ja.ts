@@ -18,7 +18,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': '再開',
   'ide.chat.autoFixPause': '一時停止',
   'ide.chat.autoFixCancel': 'キャンセル',
-  'ide.chat.currentModelLabel': 'モデルを読み込み中…',
   'ide.chat.proRequired': 'プロ',
   'ide.chat.soundAll': 'すべて',
   'ide.chat.activeFile': 'アクティブ',
@@ -86,8 +85,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.costError': '使用状況データを取得できませんでした。',
   'ide.chat.undoNoChanges': '取り消すべきファイル変更はありません。',
   'ide.chat.undoComplete': '変更を元に戻すことができませんでした。',
-  'ide.chat.diffNoChanges': '未確定の変更はありません。',
-  'ide.chat.diffError': '変更の取得に失敗しました。',
   'ide.chat.commitNoChanges': '変更事項はありません。',
   'ide.chat.commitError': '変更のコミットに失敗しました。',
   'ide.chat.autoFixEnabled': '自動修正機能が有効になっています。',
@@ -263,10 +260,6 @@ export const ja: Partial<IdeTranslations> = {
     'ヒント：会話が長くなっていませんか？ /compact を使えば、会話の文脈を圧縮して、作業スペースを確保できます。',
   'ide.chat.tip.commit':
     'ヒント：/commit を使用すると、変更内容を Git コミットとして保存でき、いつでもその状態に戻すことができます。',
-  'ide.chat.tip.diff':
-    'ヒント：変更を確定またはコミットする前に、/diff コマンドを使ってコミットされていないすべての変更内容を確認しましょう。',
-  'ide.chat.tip.models':
-    'ヒント：/models と入力すると、利用可能なすべてのAIモデルを比較し、{{agentName}} を実行しているモデルに切り替えることができます。',
   'ide.chat.tip.report':
     'ヒント：何かおかしいですか？ /report と入力すると、最近のチャット履歴を添付して、バグやフィードバックをチームに送信できます。',
   'ide.chat.undoError': '変更の取り消しに失敗しました。',
@@ -307,7 +300,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'プランモードのモデルを選択',
   'ide.chat.executeModelSet': '実行モードのモデルが「{{name}}」に設定されています',
   'ide.chat.planModelSet': 'プランモードのモデル設定を「{{name}}」に設定',
-  'ide.chat.diffSummary': '{{count}} 変更されたファイル：\n{{files}}',
   'ide.chat.costSummary':
     'モデル：{{model}}\n入力：{{input}}トークン\n出力：{{output}}トークン\n費用：約{{cost}}ドル',
   'ide.chat.lintErrorsCount': '{{count}} リンターエラー',
@@ -467,4 +459,19 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'ここではプレビューを表示できません',
+  'ide.preview.loadFailedHint':
+    'ページを再読み込みするか、新しいタブでプレビューを開いてみてください。',
+  'ide.preview.reloadPreview': 'プレビューを更新',
+  'ide.preview.lastWorkingFrame': '最終作業プレビュー',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} {{model}} では利用できません。利用可能：{{levels}}',
+  'ide.chat.effort.currentModelLevels': '『{{model}}』の難易度：{{levels}}',
+  'ide.chat.modelSortLabel': '並べ替え',
+  'ide.chat.modelSortDirection': '並べ替え順を切り替える',
+  'ide.chat.skills.loadedBadge': '読み込み中',
+  'ide.chat.skills.defaultBadge': 'デフォルト',
+  'ide.chat.skills.setDefault': 'デフォルトで読み込む',
+  'ide.chat.skills.unsetDefault': 'デフォルトで読み込みを停止する',
+  'ide.chat.skills.matchHint': '最近のメッセージに含まれるキーワードから提案されました',
 }

@@ -46,8 +46,6 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Nepavyko gauti naudojimo duomenų.',
   'ide.chat.undoNoChanges': 'Nėra failų pakeitimų, kuriuos būtų galima anuliuoti.',
   'ide.chat.undoComplete': 'Nepavyko grąžinti pakeitimų.',
-  'ide.chat.diffNoChanges': 'Jokių neįsipareigotų pakeitimų.',
-  'ide.chat.diffError': 'Nepavyko gauti pakeitimų.',
   'ide.chat.commitNoChanges': 'Nėra pakeitimų, kuriuos reikėtų atlikti.',
   'ide.chat.commitError': 'Nepavyko įrašyti pakeitimų.',
   'ide.chat.autoFixEnabled': 'Automatinis taisymas įjungtas.',
@@ -68,7 +66,6 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Pranešti apie problemą',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pasirinkite modelį',
-  'ide.chat.currentModelLabel': 'Dabartinis:<x> {{vardas}}</x>',
   'ide.chat.currentBadge': 'srovė',
   'ide.chat.proRequired': 'Profesionalas',
   'ide.chat.notificationSounds': 'Pranešimų garsai',
@@ -264,10 +261,6 @@ export const lt: Partial<IdeTranslations> = {
     'Patarimas: ilgas pokalbis? Komanda /compact sutrumpina kontekstą, kad liktų vietos darbui.',
   'ide.chat.tip.commit':
     'Patarimas: naudokite komandą /commit, kad išsaugotumėte pakeitimus kaip „git“ įrašą, prie kurio visada galėsite grįžti.',
-  'ide.chat.tip.diff':
-    'Patarimas: naudokite komandą /diff, kad peržiūrėtumėte visus neįrašytus pakeitimus prieš juos išsaugodami ar įrašydami.',
-  'ide.chat.tip.models':
-    'Patarimas: įveskite komandą /models, kad palygintumėte visus galimus AI modelius ir perjungtumėte į tą, kuris naudoja „{{agentName}}“.',
   'ide.chat.tip.report':
     'Patarimas: kažkas ne taip? /report – šiuo komandu komandai nusiųsite pranešimą apie klaidą arba atsiliepimą, pridėdami paskutinį pokalbio įrašą.',
   'ide.chat.undoError': 'Nepavyko atšaukti pakeitimų.',
@@ -308,7 +301,6 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Pasirinkite planavimo režimo modelį',
   'ide.chat.executeModelSet': 'Vykdymo režimo modelis nustatytas kaip „{{name}}“',
   'ide.chat.planModelSet': 'Planavimo režimo modelis nustatytas į „{{name}}“',
-  'ide.chat.diffSummary': '{{count}} Pakeisti failai:\n{{files}}',
   'ide.chat.costSummary':
     'Modelis:  {{model}}\nĮvestis:  {{input}} žodžių\nIšvestis: {{output}} žodžių\nKaina:   ~{{cost}} USD',
   'ide.chat.lintErrorsCount': '{{count}} „Lint“ klaidos',
@@ -467,4 +459,19 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Čia peržiūros langas neatsidaro',
+  'ide.preview.loadFailedHint':
+    'Pabandykite atnaujinti puslapį arba atidaryti peržiūrą naujame skirtuke.',
+  'ide.preview.reloadPreview': 'Atnaujinti peržiūrą',
+  'ide.preview.lastWorkingFrame': 'Paskutinė darbo versija',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} {{model}} versijoje nėra. Rasti galima: {{levels}}',
+  'ide.chat.effort.currentModelLevels': '„{{model}}“ sunkumo lygiai: {{levels}}',
+  'ide.chat.modelSortLabel': 'Rūšiuoti',
+  'ide.chat.modelSortDirection': 'Pakeisti rūšiavimo kryptį',
+  'ide.chat.skills.loadedBadge': 'Įkelta',
+  'ide.chat.skills.defaultBadge': 'Numatytasis',
+  'ide.chat.skills.setDefault': 'Įkelti pagal numatytuosius nustatymus',
+  'ide.chat.skills.unsetDefault': 'Pagal numatytuosius nustatymus sustabdyti įkėlimą',
+  'ide.chat.skills.matchHint': 'Rekomenduojama pagal raktažodžius iš jūsų naujausių pranešimų',
 }

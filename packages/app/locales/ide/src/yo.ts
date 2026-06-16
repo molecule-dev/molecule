@@ -33,8 +33,6 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.continuePrompt':
     'T\\u1EB9\\u0300s\\u00EDw\\u00E1j\\u00FA \\u00ECm\\u00FAs\\u1EB9\\u0300 l\\u00E1t\\u00EC ibi t\\u00ED o ti d\\u00FAr\\u00F3.',
   'ide.chat.currentBadge': 'l\\u1ECD\\u0301w\\u1ECD\\u0301l\\u1ECD\\u0301w\\u1ECD\\u0301',
-  'ide.chat.currentModelLabel':
-    'L\\u1ECD\\u0301w\\u1ECD\\u0301l\\u1ECD\\u0301w\\u1ECD\\u0301: {{name}}',
   'ide.chat.dropFilesHere': 'Ju f\\u00E1\\u00ECl\\u00EC s\\u00ED ib\\u00EC',
   'ide.chat.fileTooLarge':
     'F\\u00E1\\u00ECl\\u00EC n\\u00E1a t\\u00F3bi j\\u00F9. Iw\\u1ECDn t\\u00F3 p\\u1ECD\\u0300 j\\u00F9l\\u1ECD ni {{maxSize}}MB.',
@@ -228,8 +226,6 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Kò le gba data lilo.',
   'ide.chat.undoNoChanges': 'Kò sí àyípadà fáìlì láti dá a padà.',
   'ide.chat.undoComplete': 'Kò ṣeé ṣe láti dá àwọn àyípadà padà.',
-  'ide.chat.diffNoChanges': 'Ko si awọn iyipada ti ko ni ileri.',
-  'ide.chat.diffError': 'Kò lè mú àwọn àyípadà wá.',
   'ide.chat.commitNoChanges': 'Ko si awọn iyipada lati ṣe.',
   'ide.chat.commitError': 'Kò ṣeé ṣe láti ṣe àwọn àyípadà.',
   'ide.chat.showEarlier': 'Fi awọn ifiranṣẹ ti tẹlẹ han',
@@ -297,10 +293,6 @@ export const yo: Partial<IdeTranslations> = {
     'Ìmọ̀ràn: ìjíròrò gígùn? /ìwọ̀n ìpele máa ń mú kí àyíká ọ̀rọ̀ náà rọ̀pọ̀ kí o lè máa ṣiṣẹ́ dáadáa.',
   'ide.chat.tip.commit':
     'Ìmọ̀ràn: lo /commit láti fi àwọn àtúnṣe rẹ pamọ́ gẹ́gẹ́ bí git commit tí o lè padà sí nígbà gbogbo.',
-  'ide.chat.tip.diff':
-    'Ìmọ̀ràn: lo /diff láti ṣe àtúnyẹ̀wò gbogbo ìyípadà tí a kò ṣe kí o tó pa tàbí kí o ṣe é.',
-  'ide.chat.tip.models':
-    'Ìmọ̀ràn: tẹ/àwọn àwòṣe láti fi wé gbogbo àwòṣe AI tó wà kí o sì yí èyí tó ń ṣiṣẹ́ padà{{agentName}} .',
   'ide.chat.tip.report':
     'Ìmọ̀ràn: nǹkan kan ti bàjẹ́? /ìròyìn fi àṣìṣe tàbí èsì ránṣẹ́ sí ẹgbẹ́ náà pẹ̀lú ìfọ̀rọ̀wérọ̀ tuntun rẹ tí a so mọ́ ọn.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -343,7 +335,6 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -494,4 +485,18 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

@@ -46,8 +46,6 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.costError': 'ಬಳಕೆಯ ಡೇಟಾವನ್ನು ಪಡೆಯಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ.',
   'ide.chat.undoNoChanges': 'ರದ್ದುಗೊಳಿಸಲು ಯಾವುದೇ ಫೈಲ್ ಬದಲಾವಣೆಗಳಿಲ್ಲ.',
   'ide.chat.undoComplete': 'ಬದಲಾವಣೆಗಳನ್ನು ಹಿಂತಿರುಗಿಸಲು ವಿಫಲವಾಗಿದೆ.',
-  'ide.chat.diffNoChanges': 'ಯಾವುದೇ ಬದ್ಧತೆಯಿಲ್ಲದ ಬದಲಾವಣೆಗಳಿಲ್ಲ.',
-  'ide.chat.diffError': 'ಬದಲಾವಣೆಗಳನ್ನು ಪಡೆಯುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ.',
   'ide.chat.commitNoChanges': 'ಯಾವುದೇ ಬದಲಾವಣೆಗಳನ್ನು ಮಾಡಬೇಕಾಗಿಲ್ಲ.',
   'ide.chat.commitError': 'ಬದಲಾವಣೆಗಳನ್ನು ಮಾಡಲು ವಿಫಲವಾಗಿದೆ.',
   'ide.chat.autoFixEnabled': 'ಸ್ವಯಂ-ಸರಿಪಡಿಸುವಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ.',
@@ -68,7 +66,6 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'ಸಮಸ್ಯೆಯನ್ನು ವರದಿ ಮಾಡಿ',
   'ide.chat.version': 'ಮಾಲಿಕ್ಯೂಲ್.ಡೆವ್ v0.1.0',
   'ide.chat.selectModel': 'ಮಾದರಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
-  'ide.chat.currentModelLabel': 'ಪ್ರಸ್ತುತ:<x> {{ಹೆಸರು}}</x>',
   'ide.chat.currentBadge': 'ಪ್ರಸ್ತುತ',
   'ide.chat.proRequired': 'ಪ್ರೊ',
   'ide.chat.notificationSounds': 'ಅಧಿಸೂಚನೆ ಶಬ್ದಗಳು',
@@ -262,10 +259,6 @@ export const kn: Partial<IdeTranslations> = {
     'ಸಲಹೆ: ದೀರ್ಘ ಸಂಭಾಷಣೆ? /ಸಂಕ್ಷೇಪಣವು ಸಂದರ್ಭವನ್ನು ಸಂಕುಚಿತಗೊಳಿಸುತ್ತದೆ ಆದ್ದರಿಂದ ನೀವು ಕೆಲಸ ಮಾಡಲು ಸ್ಥಳಾವಕಾಶವನ್ನು ಉಳಿಸಿಕೊಳ್ಳುತ್ತೀರಿ.',
   'ide.chat.tip.commit':
     'ಸಲಹೆ: ನಿಮ್ಮ ಬದಲಾವಣೆಗಳನ್ನು ನೀವು ಯಾವಾಗಲೂ ಹಿಂತಿರುಗಬಹುದಾದ git ಕಮಿಟ್ ಆಗಿ ಉಳಿಸಲು /commit ಬಳಸಿ.',
-  'ide.chat.tip.diff':
-    'ಸಲಹೆ: ನೀವು ಪ್ರತಿ ಬದ್ಧತೆಯಿಲ್ಲದ ಬದಲಾವಣೆಯನ್ನು ಇರಿಸಿಕೊಳ್ಳುವ ಅಥವಾ ಬದ್ಧಗೊಳಿಸುವ ಮೊದಲು ಪರಿಶೀಲಿಸಲು /diff ಬಳಸಿ.',
-  'ide.chat.tip.models':
-    'ಸಲಹೆ: ಲಭ್ಯವಿರುವ ಪ್ರತಿಯೊಂದು AI ಮಾದರಿಯನ್ನು ಹೋಲಿಸಲು /models ಎಂದು ಟೈಪ್ ಮಾಡಿ ಮತ್ತು ಚಾಲನೆಯಲ್ಲಿರುವ ಒಂದನ್ನು ಬದಲಾಯಿಸಿ.{{agentName}} .',
   'ide.chat.tip.report':
     'ಸಲಹೆ: ಏನಾದರೂ ತಪ್ಪಾಗಿದೆಯೇ? /report ನಿಮ್ಮ ಇತ್ತೀಚಿನ ಚಾಟ್ ಲಗತ್ತಿಸಿ ತಂಡಕ್ಕೆ ದೋಷ ಅಥವಾ ಪ್ರತಿಕ್ರಿಯೆಯನ್ನು ಕಳುಹಿಸುತ್ತದೆ.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -308,7 +301,6 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -459,4 +451,18 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

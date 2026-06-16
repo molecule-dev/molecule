@@ -17,7 +17,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Återuppta',
   'ide.chat.autoFixPause': 'Pausa',
   'ide.chat.autoFixCancel': 'Avbryt',
-  'ide.chat.currentModelLabel': 'Laddar modeller…',
   'ide.chat.soundAll': 'Alla',
   'ide.chat.activeFile': 'aktiv',
   'ide.chat.openTab': 'öppna',
@@ -82,8 +81,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Det gick inte att hämta användningsdata.',
   'ide.chat.undoNoChanges': 'Inga filändringar att ångra.',
   'ide.chat.undoComplete': 'Det gick inte att återställa ändringarna.',
-  'ide.chat.diffNoChanges': 'Inga obestämda ändringar.',
-  'ide.chat.diffError': 'Det gick inte att hämta ändringarna.',
   'ide.chat.commitNoChanges': 'Inga ändringar att genomföra.',
   'ide.chat.commitError': 'Misslyckades med att bekräfta ändringarna.',
   'ide.chat.autoFixEnabled': 'Autokorrigering aktiverad.',
@@ -260,10 +257,6 @@ export const sv: Partial<IdeTranslations> = {
     'Tips: Lång konversation? /compact komprimerar kontexten så att du får mer utrymme att arbeta på.',
   'ide.chat.tip.commit':
     'Tips: Använd /commit för att spara dina ändringar som en Git-commit som du alltid kan återgå till.',
-  'ide.chat.tip.diff':
-    'Tips: Använd /diff för att granska alla ändringar som inte har checkats in innan du behåller eller checkar in dem.',
-  'ide.chat.tip.models':
-    'Tips: Skriv /models för att jämföra alla tillgängliga AI-modeller och byta till den som körs {{agentName}}.',
   'ide.chat.tip.report':
     'Tips: Är något fel? Med /report skickar du en felrapport eller feedback till teamet tillsammans med din senaste chattkonversation.',
   'ide.chat.undoError': 'Det gick inte att återställa ändringarna.',
@@ -304,7 +297,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Välj modell i planläge',
   'ide.chat.executeModelSet': 'Modell i körläge inställd på ”{{name}}”',
   'ide.chat.planModelSet': 'Modell i planeringsläge inställd på ”{{name}}”',
-  'ide.chat.diffSummary': '{{count}} ändrade fil(er):\n{{files}}',
   'ide.chat.costSummary':
     'Modell:  {{model}}\nIndata:  {{input}}-tokens\nUtdata: {{output}}-tokens\nKostnad:   ~{{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint-fel',
@@ -463,4 +455,19 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Förhandsvisningen kan inte laddas här',
+  'ide.preview.loadFailedHint':
+    'Prova att ladda om sidan eller öppna förhandsvisningen i en ny flik.',
+  'ide.preview.reloadPreview': 'Uppdatera förhandsgranskning',
+  'ide.preview.lastWorkingFrame': 'Sista arbetsversionen',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} finns inte tillgänglig på {{model}}. Tillgänglig: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Svårighetsgrader för ”{{model}}”: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sortera',
+  'ide.chat.modelSortDirection': 'Växla sorteringsriktning',
+  'ide.chat.skills.loadedBadge': 'Laddad',
+  'ide.chat.skills.defaultBadge': 'Standard',
+  'ide.chat.skills.setDefault': 'Ladda som standard',
+  'ide.chat.skills.unsetDefault': 'Stoppa laddningen som standard',
+  'ide.chat.skills.matchHint': 'Förslag baserade på nyckelord i dina senaste meddelanden',
 }

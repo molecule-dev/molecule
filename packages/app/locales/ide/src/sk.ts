@@ -46,8 +46,6 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Nepodarilo sa načítať údaje o používaní.',
   'ide.chat.undoNoChanges': 'Žiadne zmeny súboru na vrátenie späť.',
   'ide.chat.undoComplete': 'Zmeny sa nepodarilo vrátiť späť.',
-  'ide.chat.diffNoChanges': 'Žiadne nepotvrdené zmeny.',
-  'ide.chat.diffError': 'Nepodarilo sa načítať zmeny.',
   'ide.chat.commitNoChanges': 'Žiadne zmeny na potvrdenie.',
   'ide.chat.commitError': 'Nepodarilo sa potvrdiť zmeny.',
   'ide.chat.autoFixEnabled': 'Automatická oprava je povolená.',
@@ -68,7 +66,6 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Nahlásiť problém',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Vyberte model',
-  'ide.chat.currentModelLabel': 'Aktuálne:<x> {{name}}</x>',
   'ide.chat.currentBadge': 'prúd',
   'ide.chat.proRequired': 'Profesionál',
   'ide.chat.notificationSounds': 'Zvuky upozornení',
@@ -263,10 +260,6 @@ export const sk: Partial<IdeTranslations> = {
     'Tip: dlhá konverzácia? Príkaz /compact skráti kontext, aby ste mali dostatok miesta na prácu.',
   'ide.chat.tip.commit':
     'Tip: Použite príkaz /commit na uloženie zmien ako git commit, ku ktorému sa môžete kedykoľvek vrátiť.',
-  'ide.chat.tip.diff':
-    'Tip: Použite príkaz /diff na kontrolu všetkých nezaznamenaných zmien, než ich potvrdíte alebo zaznamenáte.',
-  'ide.chat.tip.models':
-    'Tip: Zadajte príkaz /models, aby ste porovnali všetky dostupné modely umelej inteligencie a prepnuli ten, ktorý práve beží, pomocou príkazu {{agentName}}.',
   'ide.chat.tip.report':
     'Tip: Niečo nefunguje? Pomocou príkazu /report môžete tímu nahlásiť chybu alebo poslať spätnú väzbu spolu s priloženým záznamom z posledného chatu.',
   'ide.chat.undoError': 'Zrušenie zmien sa nepodarilo.',
@@ -308,7 +301,6 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Vyberte model v režime plánu',
   'ide.chat.executeModelSet': 'Model v režime vykonávania je nastavený na „{{name}}“',
   'ide.chat.planModelSet': 'Model v režime plánu nastavený na „{{name}}“',
-  'ide.chat.diffSummary': '{{count}} zmenené súbory:\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nVstup:  {{input}} tokenov\nVýstup:{{output}} tokenov\nNáklady:   ~{{cost}} USD',
   'ide.chat.lintErrorsCount': '{{count}} chyby v kóde',
@@ -467,4 +459,18 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Náhľad sa tu nedá načítať',
+  'ide.preview.loadFailedHint': 'Skúste stránku obnoviť alebo otvoriť náhľad v novej karte.',
+  'ide.preview.reloadPreview': 'Obnoviť náhľad',
+  'ide.preview.lastWorkingFrame': 'Posledná pracovná verzia',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} nie je k dispozícii na adrese {{model}}. K dispozícii: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Úrovne náročnosti pre hru „{{model}}“: {{levels}}',
+  'ide.chat.modelSortLabel': 'Triediť',
+  'ide.chat.modelSortDirection': 'Zmeniť smer triedenia',
+  'ide.chat.skills.loadedBadge': 'Načítané',
+  'ide.chat.skills.defaultBadge': 'Predvolené nastavenie',
+  'ide.chat.skills.setDefault': 'Načítať ako predvolené',
+  'ide.chat.skills.unsetDefault': 'V predvolenom nastavení zastaviť načítavanie',
+  'ide.chat.skills.matchHint': 'Navrhnuté na základe kľúčových slov vo vašich posledných správach',
 }

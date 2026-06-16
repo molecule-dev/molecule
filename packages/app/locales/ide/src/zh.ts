@@ -18,7 +18,6 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': '恢复',
   'ide.chat.autoFixPause': '暂停',
   'ide.chat.autoFixCancel': '取消',
-  'ide.chat.currentModelLabel': '正在加载模型……',
   'ide.chat.proRequired': '专业版',
   'ide.chat.soundAll': '全部',
   'ide.chat.activeFile': '活跃',
@@ -85,8 +84,6 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.costError': '无法获取使用情况数据。',
   'ide.chat.undoNoChanges': '没有可撤销的文件更改。',
   'ide.chat.undoComplete': '撤销更改失败。',
-  'ide.chat.diffNoChanges': '没有未提交的更改。',
-  'ide.chat.diffError': '获取更改失败。',
   'ide.chat.commitNoChanges': '无需提交任何更改。',
   'ide.chat.commitError': '提交更改失败。',
   'ide.chat.autoFixEnabled': '已启用自动修复功能。',
@@ -257,9 +254,6 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.tip.compact': '提示：对话太长？使用 /compact 命令可压缩对话内容，为你腾出操作空间。',
   'ide.chat.tip.commit':
     '提示：使用 /commit 命令将更改保存为 Git 提交，这样你随时可以回溯到该提交。',
-  'ide.chat.tip.diff': '提示：在保留或提交更改之前，请使用 /diff 命令查看所有未提交的更改。',
-  'ide.chat.tip.models':
-    '提示：输入 /models 可比较所有可用的 AI 模型，并切换正在运行的模型 {{agentName}}。',
   'ide.chat.tip.report':
     '提示：发现问题？发送 /report 指令，即可将您的近期聊天记录作为附件一并发送给团队，以便反馈问题或提出建议。',
   'ide.chat.undoError': '无法撤销更改。',
@@ -299,7 +293,6 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': '选择平面模式模型',
   'ide.chat.executeModelSet': '执行模式模型设置为{{name}}',
   'ide.chat.planModelSet': '计划模式模型已设置为{{name}}',
-  'ide.chat.diffSummary': '{{count}} 已修改的文件：\n{{files}}',
   'ide.chat.costSummary':
     '模型：{{model}}\n输入：{{input}}个词\n输出：{{output}}个词\n成本：约{{cost}}美元',
   'ide.chat.lintErrorsCount': '{{count}} lint 错误',
@@ -450,4 +443,17 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': '此处无法加载预览',
+  'ide.preview.loadFailedHint': '请尝试刷新页面，或在新的标签页中打开预览。',
+  'ide.preview.reloadPreview': '重新加载预览',
+  'ide.preview.lastWorkingFrame': '最后一个工作预览',
+  'ide.chat.effort.notSupportedForModel': '{{level}} {{model}} 无法访问。可用链接：{{levels}}',
+  'ide.chat.effort.currentModelLevels': '{{model}} 的难度等级：{{levels}}',
+  'ide.chat.modelSortLabel': '排序',
+  'ide.chat.modelSortDirection': '切换排序方向',
+  'ide.chat.skills.loadedBadge': '已加载',
+  'ide.chat.skills.defaultBadge': '默认',
+  'ide.chat.skills.setDefault': '默认加载',
+  'ide.chat.skills.unsetDefault': '默认停止加载',
+  'ide.chat.skills.matchHint': '根据您最近消息中的关键词推荐',
 }

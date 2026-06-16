@@ -46,8 +46,6 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Podatkov o uporabi ni mogoče pridobiti.',
   'ide.chat.undoNoChanges': 'Ni sprememb datotek za razveljavitev.',
   'ide.chat.undoComplete': 'Razveljavitev sprememb ni uspela.',
-  'ide.chat.diffNoChanges': 'Brez nepotrjenih sprememb.',
-  'ide.chat.diffError': 'Sprememb ni bilo mogoče pridobiti.',
   'ide.chat.commitNoChanges': 'Ni sprememb za potrditev.',
   'ide.chat.commitError': 'Sprememb ni bilo mogoče potrditi.',
   'ide.chat.autoFixEnabled': 'Samodejno popravljanje omogočeno.',
@@ -68,7 +66,6 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Prijavi težavo',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Izberite model',
-  'ide.chat.currentModelLabel': 'Trenutno:<x> {{ime}}</x>',
   'ide.chat.currentBadge': 'tok',
   'ide.chat.proRequired': 'Profesionalec',
   'ide.chat.notificationSounds': 'Zvoki obvestil',
@@ -263,10 +260,6 @@ export const sl: Partial<IdeTranslations> = {
     'Nasvet: dolg pogovor? /compact skrajša besedilo, da ti ostane dovolj prostora za delo.',
   'ide.chat.tip.commit':
     'Nasvet: uporabi ukaz /commit, da svoje spremembe shraniš kot git commit, h kateremu se lahko kadarkoli vrneš.',
-  'ide.chat.tip.diff':
-    'Nasvet: uporabi ukaz /diff, da pregledaš vsako spremembo, ki še ni bila potrjena, preden jo shraniš ali potrdiš.',
-  'ide.chat.tip.models':
-    'Nasvet: vpišite /models, da primerjate vse razpoložljive modele umetne inteligence in preklopite na tistega, ki uporablja sistem »{{agentName}}«.',
   'ide.chat.tip.report':
     'Nasvet: nekaj ni v redu? S sporočilom /report lahko ekipi pošlješ poročilo o napaki ali povratne informacije, pri čemer se priloži tvoj zadnji pogovor.',
   'ide.chat.undoError': 'Povrnitev sprememb ni uspela.',
@@ -307,7 +300,6 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Izberite model v načinu načrtovanja',
   'ide.chat.executeModelSet': 'Model v izvedbenem načinu je nastavljen na »{{name}}«',
   'ide.chat.planModelSet': 'Model v načinu načrtovanja je nastavljen na »{{name}}«',
-  'ide.chat.diffSummary': '{{count}} spremenjene datoteke:\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nVhod:  {{input}} žetonov\nIzhod: {{output}} žetonov\nStroški:   ~{{cost}} USD',
   'ide.chat.lintErrorsCount': '{{count}} napake zaradi prahu',
@@ -465,4 +457,19 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Predogled se tukaj ne more naložiti',
+  'ide.preview.loadFailedHint':
+    'Poskusite stran ponovno naložiti ali odprite predogled v novem zavihku.',
+  'ide.preview.reloadPreview': 'Osveži predogled',
+  'ide.preview.lastWorkingFrame': 'Zadnji delovni predogled',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} ni na voljo na naslovu {{model}}. Na voljo: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Stopnje zahtevnosti za »{{model}}«: {{levels}}',
+  'ide.chat.modelSortLabel': 'Razvrsti',
+  'ide.chat.modelSortDirection': 'Preklopi smer razvrščanja',
+  'ide.chat.skills.loadedBadge': 'Naloženo',
+  'ide.chat.skills.defaultBadge': 'Privzeto',
+  'ide.chat.skills.setDefault': 'Prikaži privzeto',
+  'ide.chat.skills.unsetDefault': 'Prenehaj s privzetim nalaganjem',
+  'ide.chat.skills.matchHint': 'Predlogi na podlagi ključnih besed iz vaših zadnjih sporočil',
 }

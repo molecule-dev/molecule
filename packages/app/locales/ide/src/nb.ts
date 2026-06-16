@@ -16,7 +16,6 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Gjenoppta',
   'ide.chat.autoFixPause': 'Sett på pause',
   'ide.chat.autoFixCancel': 'Avbryt',
-  'ide.chat.currentModelLabel': 'Laster modeller…',
   'ide.chat.soundAll': 'Alle',
   'ide.chat.activeFile': 'aktiv',
   'ide.contextMenu.rename': 'Gi nytt navn',
@@ -74,8 +73,6 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Kan ikke hente bruksdata.',
   'ide.chat.undoNoChanges': 'Ingen filendringer å angre.',
   'ide.chat.undoComplete': 'Kunne ikke tilbakestille endringene.',
-  'ide.chat.diffNoChanges': 'Ingen uforpliktede endringer.',
-  'ide.chat.diffError': 'Kunne ikke hente endringer.',
   'ide.chat.commitNoChanges': 'Ingen endringer å forplikte.',
   'ide.chat.commitError': 'Kunne ikke legge inn endringer.',
   'ide.chat.autoFixEnabled': 'Automatisk korrigering aktivert.',
@@ -260,10 +257,6 @@ export const nb: Partial<IdeTranslations> = {
     'Tips: Lang samtale? /compact komprimerer konteksten, slik at du får mer plass til å jobbe.',
   'ide.chat.tip.commit':
     'Tips: Bruk /commit for å lagre endringene dine som en Git-commit du alltid kan gå tilbake til.',
-  'ide.chat.tip.diff':
-    'Tips: Bruk /diff til å gå gjennom alle endringer som ikke er lagt inn, før du beholder eller legger dem inn.',
-  'ide.chat.tip.models':
-    'Tips: Skriv inn /models for å sammenligne alle tilgjengelige AI-modeller og bytte til den som kjører «{{agentName}}».',
   'ide.chat.tip.report':
     'Tips: Er det noe som ikke stemmer? /report sender en feilmelding eller tilbakemelding til teamet, med den siste chat-historikken din vedlagt.',
   'ide.chat.undoError': 'Det lyktes ikke å tilbakestille endringene.',
@@ -304,7 +297,6 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Velg modell i planmodus',
   'ide.chat.executeModelSet': 'Modell i kjøringsmodus satt til «{{name}}»',
   'ide.chat.planModelSet': 'Modell i planmodus er satt til «{{name}}»',
-  'ide.chat.diffSummary': '{{count}} Endrede filer:\n{{files}}',
   'ide.chat.costSummary':
     'Modell:  {{model}}\nInndata:  {{input}} tokens\nUtdata: {{output}} tokens\nKostnad:   ~{{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} feil i lint',
@@ -460,4 +452,19 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Forhåndsvisning kan ikke lastes inn her',
+  'ide.preview.loadFailedHint':
+    'Prøv å oppdatere siden, eller åpne forhåndsvisningen i en ny fane.',
+  'ide.preview.reloadPreview': 'Last inn forhåndsvisning på nytt',
+  'ide.preview.lastWorkingFrame': 'Siste forhåndsvisning',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} er ikke tilgjengelig på {{model}}. Tilgjengelig: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Vanskelighetsgrad for «{{model}}»: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sorter',
+  'ide.chat.modelSortDirection': 'Bytt sorteringsretning',
+  'ide.chat.skills.loadedBadge': 'Lastet',
+  'ide.chat.skills.defaultBadge': 'Standard',
+  'ide.chat.skills.setDefault': 'Last inn som standard',
+  'ide.chat.skills.unsetDefault': 'Stopp innlasting som standard',
+  'ide.chat.skills.matchHint': 'Forslag basert på nøkkelord i dine siste meldinger',
 }

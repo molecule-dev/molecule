@@ -46,8 +46,6 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Անհնար է ստանալ օգտագործման տվյալները։',
   'ide.chat.undoNoChanges': 'Ֆայլի փոփոխություններ չկան հետարկելու համար։',
   'ide.chat.undoComplete': 'Չհաջողվեց չեղարկել փոփոխությունները։',
-  'ide.chat.diffNoChanges': 'Անորոշ փոփոխություններ չկան։',
-  'ide.chat.diffError': 'Չհաջողվեց ստանալ փոփոխությունները։',
   'ide.chat.commitNoChanges': 'Կատարելու փոփոխություններ չկան։',
   'ide.chat.commitError': 'Չհաջողվեց պահպանել փոփոխությունները։',
   'ide.chat.autoFixEnabled': 'Ավտոմատ ուղղումը միացված է։',
@@ -68,7 +66,6 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Հաղորդել խնդրի մասին',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Ընտրեք մոդել',
-  'ide.chat.currentModelLabel': 'Ընթացիկ՝<x> {{անուն}}</x>',
   'ide.chat.currentBadge': 'հոսանք',
   'ide.chat.proRequired': 'Պրոֆեսիոնալ',
   'ide.chat.notificationSounds': 'Ծանուցման ձայներ',
@@ -263,10 +260,6 @@ export const hy: Partial<IdeTranslations> = {
     'Հուշում. երկար զրույց՞ /compact-ը սեղմում է համատեքստը, որպեսզի տեղ մնա աշխատելու համար։',
   'ide.chat.tip.commit':
     'Հուշում. օգտագործեք /commit-ը՝ ձեր փոփոխությունները git commit-ի տեսքով պահպանելու համար, որին միշտ կարող եք վերադառնալ։',
-  'ide.chat.tip.diff':
-    'Հուշում. օգտագործեք /diff-ը՝ բոլոր չհաստատված փոփոխությունները պահպանելուց կամ հաստատելուց առաջ դրանք վերանայելու համար։',
-  'ide.chat.tip.models':
-    'Հուշում. մուտքագրեք /models՝ բոլոր առկա արհեստական բանականության մոդելները համեմատելու և աշխատողը փոխելու համար։{{agentName}} .',
   'ide.chat.tip.report':
     'Հուշում. ինչ-որ բան այն չէ՞: /report-ը թիմին ուղարկում է սխալ կամ արձագանք՝ կցելով ձեր վերջին զրույցը:',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -309,7 +302,6 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -460,4 +452,18 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

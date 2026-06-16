@@ -18,7 +18,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': '재개',
   'ide.chat.autoFixPause': '일시정지',
   'ide.chat.autoFixCancel': '취소',
-  'ide.chat.currentModelLabel': '모델을 불러오는 중…',
   'ide.chat.soundAll': '전체',
   'ide.chat.activeFile': '활성',
   'ide.chat.openTab': '진행 중',
@@ -86,8 +85,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.costError': '사용량 데이터를 가져올 수 없습니다.',
   'ide.chat.undoNoChanges': '되돌릴 파일 변경 사항이 없습니다.',
   'ide.chat.undoComplete': '변경 사항을 되돌리는 데 실패했습니다.',
-  'ide.chat.diffNoChanges': '확정되지 않은 변경 사항이 없습니다.',
-  'ide.chat.diffError': '변경 사항을 가져오는 데 실패했습니다.',
   'ide.chat.commitNoChanges': '커밋할 변경 사항이 없습니다.',
   'ide.chat.commitError': '변경 사항을 커밋하는 데 실패했습니다.',
   'ide.chat.autoFixEnabled': '자동 수정 기능이 활성화되었습니다.',
@@ -261,10 +258,6 @@ export const ko: Partial<IdeTranslations> = {
     '팁: 대화가 길어지나요? /compact 명령어를 사용하면 대화 내용을 압축해 작업 공간을 확보할 수 있습니다.',
   'ide.chat.tip.commit':
     '팁: /commit 명령어를 사용하면 변경 내용을 Git 커밋으로 저장하여 나중에 언제든지 해당 커밋으로 되돌릴 수 있습니다.',
-  'ide.chat.tip.diff':
-    '팁: 변경 내용을 유지하거나 커밋하기 전에 /diff 명령어를 사용하여 커밋되지 않은 모든 변경 사항을 검토하세요.',
-  'ide.chat.tip.models':
-    '팁: /models를 입력하면 사용 가능한 모든 AI 모델을 비교하고, 현재 실행 중인 모델을 다른 모델로 변경할 수 있습니다. {{agentName}}',
   'ide.chat.tip.report':
     '팁: 문제가 있나요? /report 명령어를 입력하면 최근 대화 내역이 첨부된 상태로 버그나 피드백이 팀에 전송됩니다.',
   'ide.chat.undoError': '변경 사항을 되돌리지 못했습니다.',
@@ -305,7 +298,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': '플랜 모드 모델 선택',
   'ide.chat.executeModelSet': '실행 모드 모델이 ‘{{name}}’로 설정됨',
   'ide.chat.planModelSet': '{{name}}로 설정된 플랜 모드 모델',
-  'ide.chat.diffSummary': '{{count}} 변경된 파일:\n{{files}}',
   'ide.chat.costSummary':
     '모델:  {{model}}\n입력:  {{input}} 토큰\n출력: {{output}} 토큰\n비용:   약 {{cost}}달러',
   'ide.chat.lintErrorsCount': '{{count}} 린트 오류',
@@ -462,4 +454,18 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': '여기서는 미리보기를 불러올 수 없습니다',
+  'ide.preview.loadFailedHint': '페이지를 새로 고침하거나 새 탭에서 미리 보기를 열어보세요.',
+  'ide.preview.reloadPreview': '미리보기 새로 고침',
+  'ide.preview.lastWorkingFrame': '최종 작업 미리보기',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} {{model}}에서는 사용할 수 없습니다. 이용 가능: {{levels}}',
+  'ide.chat.effort.currentModelLevels': '{{model}}의 난이도: {{levels}}',
+  'ide.chat.modelSortLabel': '정렬',
+  'ide.chat.modelSortDirection': '정렬 방향 전환',
+  'ide.chat.skills.loadedBadge': '로드됨',
+  'ide.chat.skills.defaultBadge': '기본값',
+  'ide.chat.skills.setDefault': '기본적으로 불러오기',
+  'ide.chat.skills.unsetDefault': '기본적으로 로딩 중지',
+  'ide.chat.skills.matchHint': '최근 메시지의 키워드를 바탕으로 추천된 내용',
 }

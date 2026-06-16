@@ -17,7 +17,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Lanjutkan',
   'ide.chat.autoFixPause': 'Jeda',
   'ide.chat.autoFixCancel': 'Batal',
-  'ide.chat.currentModelLabel': 'Memuat model…',
   'ide.chat.soundAll': 'Semua',
   'ide.chat.activeFile': 'aktif',
   'ide.chat.openTab': 'terbuka',
@@ -82,8 +81,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Tidak dapat mengambil data penggunaan.',
   'ide.chat.undoNoChanges': 'Tidak ada perubahan file yang perlu dibatalkan.',
   'ide.chat.undoComplete': 'Gagal mengembalikan perubahan.',
-  'ide.chat.diffNoChanges': 'Tidak ada perubahan yang belum dikonfirmasi.',
-  'ide.chat.diffError': 'Gagal mengambil perubahan.',
   'ide.chat.commitNoChanges': 'Tidak ada perubahan yang perlu di-commit.',
   'ide.chat.commitError': 'Perubahan gagal disimpan.',
   'ide.chat.autoFixEnabled': 'Perbaikan otomatis diaktifkan.',
@@ -264,10 +261,6 @@ export const id: Partial<IdeTranslations> = {
     'Tips: Percakapan panjang? Perintah /compact akan meringkas konteksnya sehingga Anda tetap punya ruang untuk bekerja.',
   'ide.chat.tip.commit':
     'Tips: gunakan perintah /commit untuk menyimpan perubahan Anda sebagai commit Git yang dapat Anda akses kembali kapan saja.',
-  'ide.chat.tip.diff':
-    'Tips: Gunakan perintah /diff untuk memeriksa setiap perubahan yang belum dikomit sebelum Anda menyimpannya atau mengomitnya.',
-  'ide.chat.tip.models':
-    'Tips: ketik /models untuk membandingkan semua model AI yang tersedia dan mengganti model yang sedang dijalankan dengan model lain {{agentName}}.',
   'ide.chat.tip.report':
     'Tips: Ada yang aneh? /report akan mengirimkan laporan bug atau masukan kepada tim, lengkap dengan riwayat obrolan terbaru Anda.',
   'ide.chat.undoError': 'Gagal mengembalikan perubahan.',
@@ -308,7 +301,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Pilih model mode rencana',
   'ide.chat.executeModelSet': 'Model mode eksekusi diatur ke "{{name}}"',
   'ide.chat.planModelSet': 'Model mode rencana diatur ke "{{name}}"',
-  'ide.chat.diffSummary': '{{count}} Berkas yang diubah:\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nMasukan:  {{input}} token\nHasil:  {{output}} token\nBiaya:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} kesalahan lint',
@@ -465,4 +457,19 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Pratinjau tidak dapat dimuat di sini',
+  'ide.preview.loadFailedHint': 'Coba muat ulang halaman, atau buka pratinjau di tab baru.',
+  'ide.preview.reloadPreview': 'Muat ulang pratinjau',
+  'ide.preview.lastWorkingFrame': 'Pratinjau terakhir',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} tidak tersedia di {{model}}. Tersedia di: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Tingkat kesulitan untuk "{{model}}": {{levels}}',
+  'ide.chat.modelSortLabel': 'Urutkan',
+  'ide.chat.modelSortDirection': 'Ubah arah pengurutan',
+  'ide.chat.skills.loadedBadge': 'Sudah dimuat',
+  'ide.chat.skills.defaultBadge': 'Standar',
+  'ide.chat.skills.setDefault': 'Muat secara default',
+  'ide.chat.skills.unsetDefault': 'Hentikan pemuatan secara default',
+  'ide.chat.skills.matchHint':
+    'Disarankan berdasarkan kata kunci dalam pesan-pesan Anda baru-baru ini',
 }

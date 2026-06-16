@@ -17,7 +17,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Hervatten',
   'ide.chat.autoFixPause': 'Pauzeren',
   'ide.chat.autoFixCancel': 'Annuleren',
-  'ide.chat.currentModelLabel': 'Modellen laden…',
   'ide.chat.soundAll': 'Alle',
   'ide.chat.activeFile': 'actief',
   'ide.chat.attachFile': 'Bestand bijvoegen',
@@ -82,8 +81,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Gebruiksgegevens kunnen niet worden opgehaald.',
   'ide.chat.undoNoChanges': 'Er zijn geen bestandswijzigingen die ongedaan gemaakt kunnen worden.',
   'ide.chat.undoComplete': 'Wijzigingen ongedaan maken is mislukt.',
-  'ide.chat.diffNoChanges': 'Geen onopgeslagen wijzigingen.',
-  'ide.chat.diffError': 'Het ophalen van de wijzigingen is mislukt.',
   'ide.chat.commitNoChanges': 'Geen wijzigingen om door te voeren.',
   'ide.chat.commitError': 'Wijzigingen konden niet worden opgeslagen.',
   'ide.chat.autoFixEnabled': 'Automatische correctie ingeschakeld.',
@@ -263,10 +260,6 @@ export const nl: Partial<IdeTranslations> = {
     'Tip: lang gesprek? /compact vouwt de context samen, zodat je ruimte overhoudt om te werken.',
   'ide.chat.tip.commit':
     'Tip: gebruik /commit om je wijzigingen op te slaan als een Git-commit waarnaar je altijd terug kunt gaan.',
-  'ide.chat.tip.diff':
-    'Tip: gebruik /diff om elke nog niet vastgelegde wijziging te controleren voordat je deze behoudt of vastlegt.',
-  'ide.chat.tip.models':
-    'Tip: typ /models om alle beschikbare AI-modellen te vergelijken en het model te selecteren dat momenteel actief is {{agentName}}.',
   'ide.chat.tip.report':
     'Tip: klopt er iets niet? Met /report stuur je een bugmelding of feedback naar het team, waarbij je recente chatgesprek wordt bijgevoegd.',
   'ide.chat.undoError': 'Het is niet gelukt om de wijzigingen ongedaan te maken.',
@@ -307,7 +300,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Selecteer een model in planmodus',
   'ide.chat.executeModelSet': "Model in uitvoermodus ingesteld op '{{name}}'",
   'ide.chat.planModelSet': "Model in planmodus ingesteld op '{{name}}'",
-  'ide.chat.diffSummary': '{{count}} gewijzigde bestanden:\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInvoer:  {{input}} tokens\nUitvoer: {{output}} tokens\nKosten:   ~$ {{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} fouten in de code',
@@ -468,4 +460,19 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Het voorbeeld kan hier niet worden geladen',
+  'ide.preview.loadFailedHint':
+    'Probeer de pagina opnieuw te laden, of open het voorbeeld in een nieuw tabblad.',
+  'ide.preview.reloadPreview': 'Voorbeeld vernieuwen',
+  'ide.preview.lastWorkingFrame': 'Laatste werkvoorbeeld',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} is niet beschikbaar via {{model}}. Beschikbaar via: {{levels}}',
+  'ide.chat.effort.currentModelLevels': "Inspanningsniveaus voor '{{model}}': {{levels}}",
+  'ide.chat.modelSortLabel': 'Sorteren',
+  'ide.chat.modelSortDirection': 'Sorteerrichting wijzigen',
+  'ide.chat.skills.loadedBadge': 'Geladen',
+  'ide.chat.skills.defaultBadge': 'Standaard',
+  'ide.chat.skills.setDefault': 'Standaard laden',
+  'ide.chat.skills.unsetDefault': 'Standaard laden uitschakelen',
+  'ide.chat.skills.matchHint': 'Voorgesteld op basis van trefwoorden in je recente berichten',
 }

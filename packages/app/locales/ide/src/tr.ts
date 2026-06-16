@@ -18,7 +18,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Devam et',
   'ide.chat.autoFixPause': 'Duraklat',
   'ide.chat.autoFixCancel': 'İptal',
-  'ide.chat.currentModelLabel': 'Modeller yükleniyor…',
   'ide.chat.soundAll': 'Tümü',
   'ide.chat.activeFile': 'aktif',
   'ide.chat.openTab': 'açık',
@@ -85,8 +84,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Kullanım verileri alınamadı.',
   'ide.chat.undoNoChanges': 'Geri alınacak dosya değişikliği yok.',
   'ide.chat.undoComplete': 'Değişiklikler geri alınamadı.',
-  'ide.chat.diffNoChanges': 'Henüz onaylanmamış değişiklik yok.',
-  'ide.chat.diffError': 'Değişiklikler alınamadı.',
   'ide.chat.commitNoChanges': 'Kaydedilecek değişiklik yok.',
   'ide.chat.commitError': 'Değişiklikler kaydedilemedi.',
   'ide.chat.autoFixEnabled': 'Otomatik düzeltme etkinleştirildi.',
@@ -261,10 +258,6 @@ export const tr: Partial<IdeTranslations> = {
     'İpucu: Uzun bir sohbet mi var? /compact komutu, sohbet içeriğini sıkıştırarak size çalışma alanı açar.',
   'ide.chat.tip.commit':
     "İpucu: Değişikliklerinizi, istediğiniz zaman geri dönebileceğiniz bir Git commit'i olarak kaydetmek için /commit komutunu kullanın.",
-  'ide.chat.tip.diff':
-    'İpucu: Herhangi bir değişikliği kaydetmeden veya commit etmeden önce, /diff komutunu kullanarak bu değişiklikleri gözden geçirin.',
-  'ide.chat.tip.models':
-    'İpucu: /models komutunu yazarak mevcut tüm AI modellerini karşılaştırın ve {{agentName}} adresinde çalışan modeli seçin.',
   'ide.chat.tip.report':
     'İpucu: Bir sorun mu var? /report komutunu kullanarak, son sohbet geçmişinizi ekleyerek ekibe bir hata bildirimi veya geri bildirim gönderebilirsiniz.',
   'ide.chat.undoError': 'Değişiklikler geri alınamadı.',
@@ -305,7 +298,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Plan modundaki modeli seçin',
   'ide.chat.executeModelSet': 'Çalıştırma modu modeli "{{name}}" olarak ayarlandı',
   'ide.chat.planModelSet': 'Plan modu, "{{name}}" olarak ayarlandı',
-  'ide.chat.diffSummary': '{{count}} değiştirilen dosya(lar):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nGiriş:  {{input}} token\nÇıkış: {{output}} token\nMaliyet:   ~{{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} tüylü hatalar',
@@ -464,4 +456,19 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Önizleme burada yüklenemiyor',
+  'ide.preview.loadFailedHint':
+    'Sayfayı yeniden yüklemeyi deneyin veya önizlemeyi yeni bir sekmede açın.',
+  'ide.preview.reloadPreview': 'Önizlemeyi yenile',
+  'ide.preview.lastWorkingFrame': 'Son çalışma önizlemesi',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} {{model}} için mevcut değildir. Mevcut: {{levels}}',
+  'ide.chat.effort.currentModelLevels': '{{model}} için zorluk seviyeleri: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sırala',
+  'ide.chat.modelSortDirection': 'Sıralama yönünü değiştir',
+  'ide.chat.skills.loadedBadge': 'Yüklendi',
+  'ide.chat.skills.defaultBadge': 'Varsayılan',
+  'ide.chat.skills.setDefault': 'Varsayılan olarak yükle',
+  'ide.chat.skills.unsetDefault': 'Varsayılan olarak yüklemeyi durdur',
+  'ide.chat.skills.matchHint': 'Son mesajlarınızdaki anahtar kelimelerden önerilenler',
 }

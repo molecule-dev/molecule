@@ -60,8 +60,6 @@ export const en: IdeTranslations = {
   'ide.chat.costError': 'Unable to fetch usage data.',
   'ide.chat.undoNoChanges': 'No file changes to undo.',
   'ide.chat.undoComplete': 'Failed to revert changes.',
-  'ide.chat.diffNoChanges': 'No uncommitted changes.',
-  'ide.chat.diffError': 'Failed to fetch changes.',
   'ide.chat.commitNoChanges': 'No changes to commit.',
   'ide.chat.commitError': 'Failed to commit changes.',
   'ide.chat.autoFixEnabled': 'Auto-fix enabled.',
@@ -81,7 +79,6 @@ export const en: IdeTranslations = {
   'ide.chat.reportProblem': 'Report a problem',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Select model',
-  'ide.chat.currentModelLabel': 'Current: {{name}}',
   'ide.chat.currentBadge': 'current',
   'ide.chat.proRequired': 'Pro',
   'ide.chat.notificationSounds': 'Notification sounds',
@@ -237,6 +234,13 @@ export const en: IdeTranslations = {
   'ide.preview.frozen':
     'This app stopped responding — an infinite loop or runaway render froze the preview. The IDE is unaffected.',
   'ide.preview.frozenReload': 'Reload app',
+  // Preview load failure + last-good frame (P2-15/P2-16) — when the framed app
+  // can't load in-place, show a themed fallback with a reload action; the blurred
+  // last-working frame is shown behind the overlay while the app rebuilds.
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
   // Device-frame cycler tooltip.
   'ide.device.cycleHint': '{{current}} — click for {{next}}',
   // Search result counts.
@@ -281,7 +285,7 @@ export const en: IdeTranslations = {
     'Tip: type / to see every command, or @ a filename to give {{agentName}} a file to work from.',
   'ide.chat.tip.mention':
     'Tip: type @filename to attach a project file as context — {{agentName}} reads it directly.',
-  'ide.chat.tip.slash': 'Tip: type / to browse every command (commit, diff, model, and more).',
+  'ide.chat.tip.slash': 'Tip: type / to browse every command (commit, model, and more).',
   'ide.chat.tip.plan':
     'Tip: use /plan to have {{agentName}} research and propose a plan before it edits any files.',
   'ide.chat.tip.undo':
@@ -290,10 +294,6 @@ export const en: IdeTranslations = {
     'Tip: long conversation? /compact compresses the context so you keep room to work.',
   'ide.chat.tip.commit':
     'Tip: use /commit to save your changes as a git commit you can always return to.',
-  'ide.chat.tip.diff':
-    'Tip: use /diff to review every uncommitted change before you keep or commit it.',
-  'ide.chat.tip.models':
-    'Tip: type /models to compare every available AI model and switch the one running {{agentName}}.',
   'ide.chat.tip.report':
     'Tip: something off? /report sends a bug or feedback to the team with your recent chat attached.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -317,6 +317,11 @@ export const en: IdeTranslations = {
   'ide.chat.effort.supported':
     'Tunes the reasoning budget on: {{models}}. Other models still get the effort applied to the agent loop budget.',
   'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  // Per-model effort availability (P2-10) — only the active mode model's supported
+  // levels are offered; choosing an unsupported one explains what is available.
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
   // Models table + model selection (/model, /models).
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCost': 'Cost / 1M',
@@ -340,11 +345,14 @@ export const en: IdeTranslations = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
+  // Sortable /model list controls (P2-11) — a sort dropdown + direction toggle
+  // above the picker; the per-model detail rendering itself is unchanged.
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
   // Verification counts / summaries (the {{files}}/{{model}}/{{count}} data
   // is supplied by the call site; the bond translates only the surrounding copy).
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
-    'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
+    'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens\nTotal cost this conversation (all models): ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',
@@ -478,6 +486,14 @@ export const en: IdeTranslations = {
   'ide.chat.skills.noMatch': 'No skills match “{{query}}”.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
+  // Loaded/default skill badges + toggles (P2-06/P2-08) — "Loaded" = injected into
+  // context this session; "Default" = persisted to always load. The toggle sets or
+  // unsets a skill as a default; matchHint explains why a skill was suggested.
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
   // Skill authoring (/new-skill + the "New skill" form, SYN4).
   'ide.chat.skills.new': 'New skill',
   'ide.chat.skills.newTitle': 'Create a new project skill',

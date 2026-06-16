@@ -46,8 +46,6 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Не може да се преземат податоци за користење.',
   'ide.chat.undoNoChanges': 'Нема промени во датотеките за враќање.',
   'ide.chat.undoComplete': 'Неуспешно враќање на промените.',
-  'ide.chat.diffNoChanges': 'Без необврзувачки промени.',
-  'ide.chat.diffError': 'Не успеа да се преземат промените.',
   'ide.chat.commitNoChanges': 'Нема промени за извршување.',
   'ide.chat.commitError': 'Неуспешно извршување на промените.',
   'ide.chat.autoFixEnabled': 'Автоматското поправање е овозможено.',
@@ -68,7 +66,6 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Пријави проблем',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Изберете модел',
-  'ide.chat.currentModelLabel': 'Тековно:<x> {{име}}</x>',
   'ide.chat.currentBadge': 'струја',
   'ide.chat.proRequired': 'Професионалец',
   'ide.chat.notificationSounds': 'Звуци за известувања',
@@ -263,10 +260,6 @@ export const mk: Partial<IdeTranslations> = {
     'Совет: долг разговор? /compact го компресира контекстот за да оставите простор за работа.',
   'ide.chat.tip.commit':
     'Совет: користете /commit за да ги зачувате вашите промени како git commit на кој секогаш можете да се вратите.',
-  'ide.chat.tip.diff':
-    'Совет: користете /diff за да ги прегледате сите некомитирани промени пред да ги задржите или комитирате.',
-  'ide.chat.tip.models':
-    'Совет: напишете /models за да ги споредите сите достапни модели на вештачка интелигенција и да го промените оној што работи.{{agentName}} .',
   'ide.chat.tip.report':
     'Совет: нешто не е во ред? /report испраќа грешка или повратни информации до тимот со прикачен вашиот неодамнешен разговор.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -309,7 +302,6 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -460,4 +452,18 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

@@ -46,8 +46,6 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Methu nôl data defnydd.',
   'ide.chat.undoNoChanges': "Dim newidiadau ffeil i'w dadwneud.",
   'ide.chat.undoComplete': "Methwyd gwrthdroi'r newidiadau.",
-  'ide.chat.diffNoChanges': 'Dim newidiadau heb eu hymrwymo.',
-  'ide.chat.diffError': 'Methwyd nôl newidiadau.',
   'ide.chat.commitNoChanges': "Dim newidiadau i'w gwneud.",
   'ide.chat.commitError': 'Methwyd â chyflawni newidiadau.',
   'ide.chat.autoFixEnabled': "Awto-gywiriad wedi'i alluogi.",
@@ -68,7 +66,6 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Adrodd am broblem',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Dewiswch fodel',
-  'ide.chat.currentModelLabel': 'Cyfredol:<x> {{enw}}</x>',
   'ide.chat.currentBadge': 'cyfredol',
   'ide.chat.proRequired': 'Proffesiynol',
   'ide.chat.notificationSounds': 'Seiniau hysbysiadau',
@@ -261,10 +258,6 @@ export const cy: Partial<IdeTranslations> = {
     'Awgrym: sgwrs hir? Mae /compact yn cywasgu&#39;r cyd-destun fel eich bod chi&#39;n cadw lle i weithio.',
   'ide.chat.tip.commit':
     'Awgrym: defnyddiwch /commit i gadw eich newidiadau fel commit git y gallwch chi ddychwelyd ato bob amser.',
-  'ide.chat.tip.diff':
-    'Awgrym: defnyddiwch /diff i adolygu pob newid heb ei ymrwymo cyn i chi ei gadw neu ei ymrwymo.',
-  'ide.chat.tip.models':
-    'Awgrym: teipiwch /models i gymharu pob model AI sydd ar gael a newid yr un sy&#39;n rhedeg{{agentName}} .',
   'ide.chat.tip.report':
     'Awgrym: rhywbeth o&#39;i le? Mae /report yn anfon nam neu adborth at y tîm gyda&#39;ch sgwrs ddiweddar ynghlwm.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -307,7 +300,6 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -458,4 +450,18 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

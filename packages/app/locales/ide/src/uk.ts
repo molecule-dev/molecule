@@ -17,7 +17,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Відновити',
   'ide.chat.autoFixPause': 'Пауза',
   'ide.chat.autoFixCancel': 'Скасувати',
-  'ide.chat.currentModelLabel': 'Завантаження моделей…',
   'ide.chat.soundAll': 'Усі',
   'ide.chat.activeFile': 'активний',
   'ide.contextMenu.rename': 'Перейменувати',
@@ -76,8 +75,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Не вдається отримати дані про використання.',
   'ide.chat.undoNoChanges': 'Немає змін у файлі для скасування.',
   'ide.chat.undoComplete': 'Не вдалося скасувати зміни.',
-  'ide.chat.diffNoChanges': 'Немає незафіксованих змін.',
-  'ide.chat.diffError': 'Не вдалося отримати зміни.',
   'ide.chat.commitNoChanges': 'Немає змін для фіксації.',
   'ide.chat.commitError': 'Не вдалося зберегти зміни.',
   'ide.chat.autoFixEnabled': 'Автоматичне виправлення ввімкнено.',
@@ -264,10 +261,6 @@ export const uk: Partial<IdeTranslations> = {
     'Порада: довга розмова? Команда /compact стискає контекст, щоб у вас залишалося місце для роботи.',
   'ide.chat.tip.commit':
     'Порада: скористайтеся командою /commit, щоб зберегти зміни у вигляді коміту Git, до якого ви завжди зможете повернутися.',
-  'ide.chat.tip.diff':
-    'Порада: скористайтеся командою /diff, щоб переглянути всі зміни, які ще не зафіксовано, перш ніж їх зберегти або зафіксувати.',
-  'ide.chat.tip.models':
-    'Порада: введіть /models, щоб порівняти всі доступні моделі штучного інтелекту та переключити ту, яка працює, за адресою {{agentName}}.',
   'ide.chat.tip.report':
     'Порада: щось не так? Команда отримає повідомлення про помилку або відгук із вашим останнім чатом у вкладенні, якщо ви надішлете команду /report.',
   'ide.chat.undoError': 'Не вдалося скасувати зміни.',
@@ -309,7 +302,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Вибрати модель у режимі планування',
   'ide.chat.executeModelSet': 'Модель режиму виконання встановлено на «{{name}}»',
   'ide.chat.planModelSet': 'Модель у режимі планування налаштована на «{{name}}»',
-  'ide.chat.diffSummary': '{{count}} Змінені файли:\n{{files}}',
   'ide.chat.costSummary':
     'Модель:  {{model}}\nВхідні дані:  {{input}} токенів\nВихідні дані:{{output}} токенів\nВартість:   ~{{cost}} доларів',
   'ide.chat.lintErrorsCount': '{{count}} помилки, пов’язані з пухом',
@@ -468,4 +460,20 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Попередній перегляд не завантажується',
+  'ide.preview.loadFailedHint':
+    'Спробуйте оновити сторінку або відкрити попередній перегляд у новій вкладці.',
+  'ide.preview.reloadPreview': 'Оновити попередній перегляд',
+  'ide.preview.lastWorkingFrame': 'Останній робочий попередній перегляд',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} не доступно за адресою {{model}}. Доступно за адресою: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Рівні складності для «{{model}}»: {{levels}}',
+  'ide.chat.modelSortLabel': 'Сортувати',
+  'ide.chat.modelSortDirection': 'Перемикати напрямок сортування',
+  'ide.chat.skills.loadedBadge': 'Завантажено',
+  'ide.chat.skills.defaultBadge': 'За замовчуванням',
+  'ide.chat.skills.setDefault': 'Завантажити за замовчуванням',
+  'ide.chat.skills.unsetDefault': 'За замовчуванням зупинити завантаження',
+  'ide.chat.skills.matchHint':
+    'Рекомендовано на основі ключових слів у ваших останніх повідомленнях',
 }

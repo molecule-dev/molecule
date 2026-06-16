@@ -46,8 +46,6 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Nevar izgūt lietojuma datus.',
   'ide.chat.undoNoChanges': 'Nav failu izmaiņu, ko atsaukt.',
   'ide.chat.undoComplete': 'Neizdevās atsaukt izmaiņas.',
-  'ide.chat.diffNoChanges': 'Nav neapstiprinātu izmaiņu.',
-  'ide.chat.diffError': 'Neizdevās ielādēt izmaiņas.',
   'ide.chat.commitNoChanges': 'Nav izmaiņu, ko apstiprināt.',
   'ide.chat.commitError': 'Neizdevās saglabāt izmaiņas.',
   'ide.chat.autoFixEnabled': 'Automātiskā labošana ir iespējota.',
@@ -68,7 +66,6 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Ziņot par problēmu',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Izvēlieties modeli',
-  'ide.chat.currentModelLabel': 'Pašreizējā:<x> {{vārds}}</x>',
   'ide.chat.currentBadge': 'strāva',
   'ide.chat.proRequired': 'Profesionālis',
   'ide.chat.notificationSounds': 'Paziņojumu skaņas',
@@ -262,10 +259,6 @@ export const lv: Partial<IdeTranslations> = {
     'Padoms: gara saruna? Komanda /compact saspiež kontekstu, lai tev paliktu vieta darbam.',
   'ide.chat.tip.commit':
     'Padoms: izmanto komandu /commit, lai saglabātu izmaiņas kā Git komitu, uz kuru vienmēr vari atgriezties.',
-  'ide.chat.tip.diff':
-    'Padoms: izmantojiet komandu /diff, lai pārskatītu visas neiesniegtās izmaiņas, pirms tās saglabājat vai iesniedzat.',
-  'ide.chat.tip.models':
-    'Padoms: ievadiet komandu /models, lai salīdzinātu visus pieejamos AI modeļus un pārslēgtos uz to, kas darbojas ar komandu {{agentName}}.',
   'ide.chat.tip.report':
     'Padoms: kaut kas ne kārtībā? /report nosūta komandai ziņojumu par kļūdu vai atsauksmi, pievienojot tavu pēdējo tērzēšanu.',
   'ide.chat.undoError': 'Neizdevās atcelt izmaiņas.',
@@ -307,7 +300,6 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Izvēlieties plāna režīma modeli',
   'ide.chat.executeModelSet': 'Izpildes režīma modelis iestatīts uz „{{name}}“',
   'ide.chat.planModelSet': 'Plāna režīma modelis iestatīts uz „{{name}}“',
-  'ide.chat.diffSummary': '{{count}} izmainītie faili:\n{{files}}',
   'ide.chat.costSummary':
     'Modelis:  {{model}}\nIevade:  {{input}} simboli\nRezultāts: {{output}} simboli\nIzmaksas:   ~{{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} kļūdas saistībā ar lint',
@@ -465,4 +457,18 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Šeit nevar ielādēt priekšskatījumu',
+  'ide.preview.loadFailedHint': 'Mēģiniet atjaunināt lapu vai atvērt priekšskatījumu jaunā cilnē.',
+  'ide.preview.reloadPreview': 'Atjaunot priekšskatījumu',
+  'ide.preview.lastWorkingFrame': 'Pēdējais darba priekšskatījums',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} nav pieejams vietnē {{model}}. Pieejams: {{levels}}',
+  'ide.chat.effort.currentModelLevels': '„{{model}}“ grūtības pakāpes: {{levels}}',
+  'ide.chat.modelSortLabel': 'Šķirot',
+  'ide.chat.modelSortDirection': 'Mainīt šķirošanas virzienu',
+  'ide.chat.skills.loadedBadge': 'Ielādēts',
+  'ide.chat.skills.defaultBadge': 'Noklusējums',
+  'ide.chat.skills.setDefault': 'Ielādēt pēc noklusējuma',
+  'ide.chat.skills.unsetDefault': 'Pēc noklusējuma pārtraukt ielādi',
+  'ide.chat.skills.matchHint': 'Ieteikumi, pamatojoties uz atslēgvārdiem jūsu pēdējās ziņās',
 }

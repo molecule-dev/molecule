@@ -17,7 +17,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Fortsetzen',
   'ide.chat.autoFixPause': 'Pausieren',
   'ide.chat.autoFixCancel': 'Abbrechen',
-  'ide.chat.currentModelLabel': 'Modelle werden geladen…',
   'ide.chat.soundAll': 'Alle',
   'ide.chat.activeFile': 'aktiv',
   'ide.chat.openTab': 'öffnen',
@@ -84,8 +83,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Nutzungsdaten konnten nicht abgerufen werden.',
   'ide.chat.undoNoChanges': 'Keine Dateiänderungen, die rückgängig gemacht werden müssten.',
   'ide.chat.undoComplete': 'Änderungen konnten nicht rückgängig gemacht werden.',
-  'ide.chat.diffNoChanges': 'Keine nicht bestätigten Änderungen.',
-  'ide.chat.diffError': 'Änderungen konnten nicht abgerufen werden.',
   'ide.chat.commitNoChanges': 'Keine Änderungen erforderlich.',
   'ide.chat.commitError': 'Änderungen konnten nicht übernommen werden.',
   'ide.chat.autoFixEnabled': 'Automatische Fehlerbehebung aktiviert.',
@@ -267,10 +264,6 @@ export const de: Partial<IdeTranslations> = {
     'Tipp: Lange Unterhaltung? Mit /compact wird der Chatverlauf komprimiert, damit du genug Platz zum Arbeiten hast.',
   'ide.chat.tip.commit':
     'Tipp: Verwende /commit, um deine Änderungen als Git-Commit zu speichern, auf den du jederzeit zurückgreifen kannst.',
-  'ide.chat.tip.diff':
-    'Tipp: Verwende den Befehl „/diff“, um jede noch nicht festgeschriebene Änderung zu überprüfen, bevor du sie beibehältst oder festschreibst.',
-  'ide.chat.tip.models':
-    'Tipp: Geben Sie „/models“ ein, um alle verfügbaren KI-Modelle zu vergleichen und dasjenige auszuwählen, das „{{agentName}}“ ausführt.',
   'ide.chat.tip.report':
     'Tipp: Stimmt etwas nicht? Mit dem Befehl /report kannst du dem Team einen Fehler oder Feedback senden, wobei dein letzter Chatverlauf angehängt wird.',
   'ide.chat.undoError': 'Die Änderungen konnten nicht rückgängig gemacht werden.',
@@ -311,7 +304,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Modell im Planmodus auswählen',
   'ide.chat.executeModelSet': 'Das Modell im Ausführungsmodus ist auf „{{name}}“ eingestellt',
   'ide.chat.planModelSet': 'Das Modell im Plan-Modus ist auf „{{name}}“ eingestellt',
-  'ide.chat.diffSummary': '{{count}} Geänderte Datei(en):\n{{files}}',
   'ide.chat.costSummary':
     'Modell:  {{model}}\nEingabe:  {{input}} Token\nAusgabe:{{output}} Token\nKosten:   ~{{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} Lint-Fehler',
@@ -475,4 +467,20 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Die Vorschau kann hier nicht geladen werden',
+  'ide.preview.loadFailedHint':
+    'Versuchen Sie es mit einem Neu laden oder öffnen Sie die Vorschau in einem neuen Tab.',
+  'ide.preview.reloadPreview': 'Vorschau neu laden',
+  'ide.preview.lastWorkingFrame': 'Letzte Arbeitsvorschau',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} ist unter {{model}} nicht verfügbar. Verfügbar unter: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Schwierigkeitsgrade für „{{model}}“: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sortieren',
+  'ide.chat.modelSortDirection': 'Sortierrichtung umschalten',
+  'ide.chat.skills.loadedBadge': 'Geladen',
+  'ide.chat.skills.defaultBadge': 'Standard',
+  'ide.chat.skills.setDefault': 'Standardmäßig laden',
+  'ide.chat.skills.unsetDefault': 'Standardmäßig das Laden unterbinden',
+  'ide.chat.skills.matchHint':
+    'Vorschläge basierend auf Stichwörtern in deinen letzten Nachrichten',
 }

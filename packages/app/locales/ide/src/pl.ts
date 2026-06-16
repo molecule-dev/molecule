@@ -17,7 +17,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Wznów',
   'ide.chat.autoFixPause': 'Pauza',
   'ide.chat.autoFixCancel': 'Anuluj',
-  'ide.chat.currentModelLabel': 'Wczytywanie modeli…',
   'ide.chat.soundAll': 'Wszystkie',
   'ide.chat.activeFile': 'aktywne',
   'ide.chat.openTab': 'otwartych',
@@ -85,8 +84,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Nie można pobrać danych o użytkowaniu.',
   'ide.chat.undoNoChanges': 'Brak zmian w pliku do cofnięcia.',
   'ide.chat.undoComplete': 'Nie udało się cofnąć zmian.',
-  'ide.chat.diffNoChanges': 'Żadnych niezatwierdzonych zmian.',
-  'ide.chat.diffError': 'Nie udało się pobrać zmian.',
   'ide.chat.commitNoChanges': 'Nie ma potrzeby wprowadzania zmian.',
   'ide.chat.commitError': 'Nie udało się zatwierdzić zmian.',
   'ide.chat.autoFixEnabled': 'Włączono funkcję automatycznej naprawy.',
@@ -265,10 +262,6 @@ export const pl: Partial<IdeTranslations> = {
     'Wskazówka: długa rozmowa? Polecenie /compact skompresuje kontekst, dzięki czemu zachowasz miejsce do pracy.',
   'ide.chat.tip.commit':
     'Wskazówka: użyj polecenia /commit, aby zapisać zmiany jako commit w systemie Git, do którego zawsze możesz wrócić.',
-  'ide.chat.tip.diff':
-    'Wskazówka: użyj polecenia /diff, aby przejrzeć wszystkie niezapisane zmiany, zanim je zachowasz lub zatwierdzisz.',
-  'ide.chat.tip.models':
-    'Wskazówka: wpisz /models, aby porównać wszystkie dostępne modele AI i przełączyć ten, który obsługuje funkcję „{{agentName}}”.',
   'ide.chat.tip.report':
     'Wskazówka: coś nie gra? Polecenie /report pozwala zgłosić błąd lub opinię zespołowi wraz z załączoną historią ostatniej rozmowy.',
   'ide.chat.undoError': 'Nie udało się cofnąć zmian.',
@@ -309,7 +302,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Wybierz model w trybie planowania',
   'ide.chat.executeModelSet': 'Model trybu wykonywania ustawiony na „{{name}}”',
   'ide.chat.planModelSet': 'Model trybu planowania ustawiony na „{{name}}”',
-  'ide.chat.diffSummary': '{{count}} zmienione pliki:\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nDane wejściowe:  {{input}} tokenów\nDane wyjściowe: {{output}} tokenów\nKoszt:   ~{{cost}} USD',
   'ide.chat.lintErrorsCount': '{{count}} błędy związane z resztkami kodu',
@@ -468,4 +460,19 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'W tym miejscu nie można wyświetlić podglądu',
+  'ide.preview.loadFailedHint': 'Spróbuj odświeżyć stronę lub otwórz podgląd w nowej karcie.',
+  'ide.preview.reloadPreview': 'Odśwież podgląd',
+  'ide.preview.lastWorkingFrame': 'Ostatni podgląd roboczy',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} nie jest dostępny pod adresem {{model}}. Dostępny pod adresem: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Poziomy trudności w grze „{{model}}”: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sortuj',
+  'ide.chat.modelSortDirection': 'Zmień kierunek sortowania',
+  'ide.chat.skills.loadedBadge': 'Załadowano',
+  'ide.chat.skills.defaultBadge': 'Domyślnie',
+  'ide.chat.skills.setDefault': 'Załaduj domyślnie',
+  'ide.chat.skills.unsetDefault': 'Domyślnie wstrzymaj ładowanie',
+  'ide.chat.skills.matchHint':
+    'Propozycje na podstawie słów kluczowych z Twoich ostatnich wiadomości',
 }

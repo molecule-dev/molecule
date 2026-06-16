@@ -17,7 +17,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Jatka',
   'ide.chat.autoFixPause': 'Tauko',
   'ide.chat.autoFixCancel': 'Peruuta',
-  'ide.chat.currentModelLabel': 'Ladataan malleja…',
   'ide.chat.soundAll': 'Kaikki',
   'ide.chat.activeFile': 'aktiivinen',
   'ide.contextMenu.rename': 'Nimeä uudelleen',
@@ -77,8 +76,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Käyttötietojen noutaminen epäonnistui.',
   'ide.chat.undoNoChanges': 'Ei kumoattavia tiedostomuutoksia.',
   'ide.chat.undoComplete': 'Muutosten palauttaminen epäonnistui.',
-  'ide.chat.diffNoChanges': 'Ei sitomattomia muutoksia.',
-  'ide.chat.diffError': 'Muutosten hakeminen epäonnistui.',
   'ide.chat.commitNoChanges': 'Ei muutoksia, joita voisi vahvistaa.',
   'ide.chat.commitError': 'Muutosten tallentaminen epäonnistui.',
   'ide.chat.autoFixEnabled': 'Automaattinen korjaus käytössä.',
@@ -262,10 +259,6 @@ export const fi: Partial<IdeTranslations> = {
     'Vinkki: Pitkä keskustelu? /compact tiivistää keskustelun, jotta sinulle jää tilaa työskennellä.',
   'ide.chat.tip.commit':
     'Vinkki: käytä komentoa /commit tallentaaksesi muutokset Git-komitoksi, johon voit palata milloin tahansa.',
-  'ide.chat.tip.diff':
-    'Vinkki: käytä komentoa /diff tarkistaaksesi kaikki tallentamattomat muutokset ennen kuin hyväksyt tai tallennat ne.',
-  'ide.chat.tip.models':
-    'Vinkki: kirjoita /models, jos haluat vertailla kaikkia käytettävissä olevia tekoälymalleja ja vaihtaa sen, joka on käynnissä osoitteessa {{agentName}}.',
   'ide.chat.tip.report':
     'Vinkki: huomasitko jotain outoa? /report-komennolla voit lähettää tiimille vikailmoituksen tai palautetta, johon liitetään viimeisimmät keskustelusi.',
   'ide.chat.undoError': 'Muutosten palauttaminen epäonnistui.',
@@ -306,7 +299,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Valitse suunnittelutilan malli',
   'ide.chat.executeModelSet': 'Suoritustilan malli asetettu tilaan ”{{name}}”',
   'ide.chat.planModelSet': 'Suunnittelutilan malli asetettu tilaan ”{{name}}”',
-  'ide.chat.diffSummary': '{{count}} muutetut tiedostot:\n{{files}}',
   'ide.chat.costSummary':
     'Malli:  {{model}}\nSyöte:  {{input}} merkkijonoa\nTulos: {{output}} merkkijonoa\nKustannus:   ~{{cost}} dollaria',
   'ide.chat.lintErrorsCount': '{{count}} lint-virheet',
@@ -465,4 +457,19 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Esikatselua ei voi ladata tässä',
+  'ide.preview.loadFailedHint':
+    'Kokeile ladata sivu uudelleen tai avaa esikatselu uudessa välilehdessä.',
+  'ide.preview.reloadPreview': 'Lataa esikatselu uudelleen',
+  'ide.preview.lastWorkingFrame': 'Viimeisin toimiva esikatselu',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} ei ole saatavilla osoitteessa {{model}}. Saatavilla: {{levels}}',
+  'ide.chat.effort.currentModelLevels': '{{model}} -tason vaativuus: {{levels}}',
+  'ide.chat.modelSortLabel': 'Lajittele',
+  'ide.chat.modelSortDirection': 'Vaihda lajittelusuunta',
+  'ide.chat.skills.loadedBadge': 'Ladattu',
+  'ide.chat.skills.defaultBadge': 'Oletus',
+  'ide.chat.skills.setDefault': 'Lataa oletuksena',
+  'ide.chat.skills.unsetDefault': 'Lataaminen pysähtyy oletuksena',
+  'ide.chat.skills.matchHint': 'Ehdotuksia viimeaikaisten viestiesi avainsanojen perusteella',
 }

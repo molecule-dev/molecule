@@ -46,8 +46,6 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Ma tistax tinġabar id-dejta tal-użu.',
   'ide.chat.undoNoChanges': "M'hemm l-ebda tibdil fil-fajl x'jiġi rrevokat.",
   'ide.chat.undoComplete': 'Ma rnexxiex tirrevoka l-bidliet.',
-  'ide.chat.diffNoChanges': 'L-ebda tibdil mhux impenjat.',
-  'ide.chat.diffError': 'Ma rnexxiex inġib il-bidliet.',
   'ide.chat.commitNoChanges': "L-ebda tibdil x'tiġi impenjata.",
   'ide.chat.commitError': 'Ma rnexxiex nimmetti l-bidliet.',
   'ide.chat.autoFixEnabled': 'Tiswija awtomatika attivata.',
@@ -68,7 +66,6 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Irrapporta problema',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Agħżel mudell',
-  'ide.chat.currentModelLabel': 'Kurrenti:<x> {{isem}}</x>',
   'ide.chat.currentBadge': 'kurrenti',
   'ide.chat.proRequired': 'Pro',
   'ide.chat.notificationSounds': "Ħsejjes ta' notifika",
@@ -263,10 +260,6 @@ export const mt: Partial<IdeTranslations> = {
     'Ħjiel: konverżazzjoni twila? /compact jikkompressa l-kuntest sabiex ikollok spazju biex taħdem.',
   'ide.chat.tip.commit':
     'Tip: uża /commit biex issalva l-bidliet tiegħek bħala git commit li dejjem tista&#39; terġa&#39; lura għalih.',
-  'ide.chat.tip.diff':
-    'Tip: uża /diff biex tirrevedi kull bidla mhux impenjata qabel ma żżommha jew timpenjaha.',
-  'ide.chat.tip.models':
-    'Tip: ittajpja /models biex tqabbel kull mudell tal-AI disponibbli u ibdel dak li qed jaħdem{{agentName}} .',
   'ide.chat.tip.report':
     'Ħjiel: xi ħaġa mhux sew? /report jibgħat bug jew feedback lit-tim biċ-chat reċenti tiegħek mehmuża.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -309,7 +302,6 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -460,4 +452,18 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

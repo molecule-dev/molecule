@@ -28,7 +28,6 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Працягнуць',
   'ide.chat.continuePrompt': 'Працягніце рэалізацыю з таго месца, дзе вы спыніліся.',
   'ide.chat.currentBadge': 'бягучы',
-  'ide.chat.currentModelLabel': 'Бягучы: {{name}}',
   'ide.chat.dropFilesHere': 'Перацягніце файлы сюды',
   'ide.chat.fileTooLarge': 'Файл занадта вялікі. Максімальны памер — {{maxSize}}МБ.',
   'ide.chat.increaseLoops': 'Павялічыць максімум цыклаў',
@@ -192,8 +191,6 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Не ўдалося атрымаць даныя аб выкарыстанні.',
   'ide.chat.undoNoChanges': 'Няма змяненняў у файле, якія можна адмяніць.',
   'ide.chat.undoComplete': 'Не атрымалася адмяніць змены.',
-  'ide.chat.diffNoChanges': 'Няма незафіксаваных змен.',
-  'ide.chat.diffError': 'Не атрымалася атрымаць змены.',
   'ide.chat.commitNoChanges': 'Няма змен для фіксацыі.',
   'ide.chat.commitError': 'Не атрымалася захаваць змены.',
   'ide.chat.showEarlier': 'Паказаць папярэднія паведамленні',
@@ -262,10 +259,6 @@ export const be: Partial<IdeTranslations> = {
     'Парада: доўгая размова? /compact сціскае кантэкст, каб вы маглі працаваць.',
   'ide.chat.tip.commit':
     'Парада: выкарыстоўвайце /commit, каб захаваць змены ў выглядзе git-каміта, да якога заўсёды можна вярнуцца.',
-  'ide.chat.tip.diff':
-    'Парада: выкарыстоўвайце /diff для прагляду кожнай незафіксаванай змены, перш чым захаваць або зафіксаваць яе.',
-  'ide.chat.tip.models':
-    'Парада: увядзіце /models, каб параўнаць усе даступныя мадэлі штучнага інтэлекту і пераключыць тую, якая працуе{{agentName}} .',
   'ide.chat.tip.report':
     'Парада: штосьці не так? /report адпраўляе камандзе паведамленне пра памылку або водгук з вашым нядаўнім чатам у далучэнні.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -308,7 +301,6 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -459,4 +451,18 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

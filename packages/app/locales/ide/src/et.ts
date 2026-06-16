@@ -46,8 +46,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Kasutusandmete toomine ebaõnnestus.',
   'ide.chat.undoNoChanges': 'Tagasivõetavaid failimuudatusi pole.',
   'ide.chat.undoComplete': 'Muudatuste tagasivõtmine ebaõnnestus.',
-  'ide.chat.diffNoChanges': 'Kinnitamata muudatusi pole.',
-  'ide.chat.diffError': 'Muudatuste toomine ebaõnnestus.',
   'ide.chat.commitNoChanges': 'Muudatusi, mida kinnitada, pole.',
   'ide.chat.commitError': 'Muudatuste kinnitamine ebaõnnestus.',
   'ide.chat.autoFixEnabled': 'Automaatne parandamine on lubatud.',
@@ -68,7 +66,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Teata probleemist',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Valige mudel',
-  'ide.chat.currentModelLabel': 'Praegune:<x> {{nimi}}</x>',
   'ide.chat.currentBadge': 'praegune',
   'ide.chat.proRequired': 'Professionaal',
   'ide.chat.notificationSounds': 'Teavitushelid',
@@ -262,10 +259,6 @@ export const et: Partial<IdeTranslations> = {
     'Nõuanne: pikk vestlus? /compact tihendab konteksti, et sul jääks ruumi töötamiseks.',
   'ide.chat.tip.commit':
     'Nõuanne: kasuta käsku /commit, et salvestada muudatused Git-i kinnitusena, millele saad alati tagasi pöörduda.',
-  'ide.chat.tip.diff':
-    'Nõuanne: kasuta käsku /diff, et vaadata läbi kõik salvestamata muudatused enne nende säilitamist või salvestamist.',
-  'ide.chat.tip.models':
-    'Nõuanne: kirjuta /models, et võrrelda kõiki saadaval olevaid AI-mudeleid ja vahetada seda, mis hetkel töötab {{agentName}}.',
   'ide.chat.tip.report':
     'Nõuanne: midagi ei klapi? /report saadab meeskonnale veateate või tagasiside koos sinu viimase vestlusega.',
   'ide.chat.undoError': 'Muudatuste taastamine ebaõnnestus.',
@@ -306,7 +299,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Vali plaanirežiimi mudel',
   'ide.chat.executeModelSet': 'Täitmisrežiimi mudel on seatud väärtusele „{{name}}“',
   'ide.chat.planModelSet': 'Planeerimisrežiimi mudel on seatud väärtusele „{{name}}“',
-  'ide.chat.diffSummary': '{{count}} muudetud fail(id):\n{{files}}',
   'ide.chat.costSummary':
     'Mudel:  {{model}}\nSisend:  {{input}} märki\nVäljund: {{output}} märki\nKulu:   ~{{cost}} dollarit',
   'ide.chat.lintErrorsCount': '{{count}} lint-vead',
@@ -464,4 +456,18 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Eelvaadet ei saa siin laadida',
+  'ide.preview.loadFailedHint': 'Proovi lehte uuesti laadida või ava eelvaade uues vahekaardis.',
+  'ide.preview.reloadPreview': 'Laadi eelvaade uuesti',
+  'ide.preview.lastWorkingFrame': 'Viimane töötav eelvaade',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} {{model}}-le pole kättesaadav. Kättesaadav: {{levels}}',
+  'ide.chat.effort.currentModelLevels': '{{model}}i raskusastmed: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sorteeri',
+  'ide.chat.modelSortDirection': 'Vaheta sorteerimissuunda',
+  'ide.chat.skills.loadedBadge': 'Laaditud',
+  'ide.chat.skills.defaultBadge': 'Vaikimisi',
+  'ide.chat.skills.setDefault': 'Laadi vaikimisi',
+  'ide.chat.skills.unsetDefault': 'Lõpeta laadimine vaikimisi',
+  'ide.chat.skills.matchHint': 'Soovitatud sinu viimaste sõnumite märksõnade põhjal',
 }

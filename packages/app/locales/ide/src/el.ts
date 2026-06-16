@@ -17,7 +17,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Συνέχιση',
   'ide.chat.autoFixPause': 'Παύση',
   'ide.chat.autoFixCancel': 'Ακύρωση',
-  'ide.chat.currentModelLabel': 'Φόρτωση μοντέλων…',
   'ide.chat.soundAll': 'Όλα',
   'ide.chat.activeFile': 'ενεργό',
   'ide.contextMenu.rename': 'Μετονομασία',
@@ -77,8 +76,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Δεν είναι δυνατή η ανάκτηση δεδομένων χρήσης.',
   'ide.chat.undoNoChanges': 'Δεν υπάρχουν αλλαγές αρχείου προς αναίρεση.',
   'ide.chat.undoComplete': 'Η επαναφορά των αλλαγών απέτυχε.',
-  'ide.chat.diffNoChanges': 'Καμία μη δεσμευμένη αλλαγή.',
-  'ide.chat.diffError': 'Αποτυχία ανάκτησης αλλαγών.',
   'ide.chat.commitNoChanges': 'Δεν υπάρχουν αλλαγές προς καταχώρηση.',
   'ide.chat.commitError': 'Αποτυχία καταχώρησης αλλαγών.',
   'ide.chat.autoFixEnabled': 'Η αυτόματη διόρθωση είναι ενεργοποιημένη.',
@@ -265,10 +262,6 @@ export const el: Partial<IdeTranslations> = {
     'Συμβουλή: μακρά συζήτηση; Η εντολή /compact συμπιέζει το πλαίσιο, ώστε να διατηρείς χώρο για να εργαστείς.',
   'ide.chat.tip.commit':
     'Συμβουλή: χρησιμοποιήστε την εντολή /commit για να αποθηκεύσετε τις αλλαγές σας ως git commit, στο οποίο μπορείτε πάντα να επιστρέψετε.',
-  'ide.chat.tip.diff':
-    'Συμβουλή: Χρησιμοποιήστε την εντολή /diff για να ελέγξετε κάθε αλλαγή που δεν έχει υποβληθεί πριν την αποθηκεύσετε ή την υποβάλετε.',
-  'ide.chat.tip.models':
-    'Συμβουλή: πληκτρολογήστε /models για να συγκρίνετε όλα τα διαθέσιμα μοντέλα τεχνητής νοημοσύνης και να αλλάξετε αυτό που εκτελείται {{agentName}}.',
   'ide.chat.tip.report':
     'Συμβουλή: κάτι δεν πάει καλά; Με την εντολή /report στέλνεις ένα σφάλμα ή τα σχόλιά σου στην ομάδα, με συνημμένη την πρόσφατη συνομιλία σου.',
   'ide.chat.undoError': 'Δεν κατέστη δυνατή η επαναφορά των αλλαγών.',
@@ -310,7 +303,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Επιλογή μοντέλου σε λειτουργία σχεδίου',
   'ide.chat.executeModelSet': 'Το μοντέλο λειτουργίας εκτέλεσης έχει οριστεί σε «{{name}}»',
   'ide.chat.planModelSet': 'Το μοντέλο λειτουργίας «Plan» έχει ρυθμιστεί στο «{{name}}»',
-  'ide.chat.diffSummary': '{{count}} αρχεία που τροποποιήθηκαν:\n{{files}}',
   'ide.chat.costSummary':
     'Μοντέλο:  {{model}}\nΕισροή:  {{input}} λέξεις-κλειδιά\nΕξροή: {{output}} λέξεις-κλειδιά\nΚόστος:   ~{{cost}} δολάρια',
   'ide.chat.lintErrorsCount': '{{count}} σφάλματα lint',
@@ -472,4 +464,19 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Η προεπισκόπηση δεν μπορεί να φορτωθεί εδώ',
+  'ide.preview.loadFailedHint':
+    'Δοκιμάστε να ανανεώσετε τη σελίδα ή ανοίξτε την προεπισκόπηση σε νέα καρτέλα.',
+  'ide.preview.reloadPreview': 'Ανανέωση προεπισκόπησης',
+  'ide.preview.lastWorkingFrame': 'Τελευταία προεπισκόπηση εργασίας',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} δεν είναι διαθέσιμο στο {{model}}. Διαθέσιμο στο: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Επίπεδα δυσκολίας για το «{{model}}»: {{levels}}',
+  'ide.chat.modelSortLabel': 'Ταξινόμηση',
+  'ide.chat.modelSortDirection': 'Αλλαγή κατεύθυνσης ταξινόμησης',
+  'ide.chat.skills.loadedBadge': 'Φορτωμένο',
+  'ide.chat.skills.defaultBadge': 'Προεπιλογή',
+  'ide.chat.skills.setDefault': 'Προεπιλεγμένη φόρτωση',
+  'ide.chat.skills.unsetDefault': 'Προεπιλεγμένη διακοπή φόρτωσης',
+  'ide.chat.skills.matchHint': 'Προτάσεις βάσει λέξεων-κλειδιών στα πρόσφατα μηνύματά σας',
 }

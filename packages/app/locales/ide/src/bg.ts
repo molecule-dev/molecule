@@ -46,8 +46,6 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Не могат да се извлекат данни за употреба.',
   'ide.chat.undoNoChanges': 'Няма промени във файловете за отмяна.',
   'ide.chat.undoComplete': 'Отмяната на промените не бе успешна.',
-  'ide.chat.diffNoChanges': 'Няма некоммитирани промени.',
-  'ide.chat.diffError': 'Извличането на промените не бе успешно.',
   'ide.chat.commitNoChanges': 'Няма промени за потвърждаване.',
   'ide.chat.commitError': 'Неуспешно запазване на промените.',
   'ide.chat.autoFixEnabled': 'Автоматичното коригиране е активирано.',
@@ -70,7 +68,6 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Съобщете за проблем',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Изберете модел',
-  'ide.chat.currentModelLabel': 'Текущ:<x> {{име}}</x>',
   'ide.chat.currentBadge': 'текущ',
   'ide.chat.proRequired': 'Професионален',
   'ide.chat.notificationSounds': 'Звуци за известия',
@@ -265,10 +262,6 @@ export const bg: Partial<IdeTranslations> = {
     'Съвет: Дълъг разговор? Командата /compact съкращава контекста, за да ви остане място за работа.',
   'ide.chat.tip.commit':
     'Съвет: използвайте /commit, за да запазите промените си като git commit, към който винаги можете да се върнете.',
-  'ide.chat.tip.diff':
-    'Съвет: използвайте командата /diff, за да прегледате всяка промяна, която все още не е потвърдена, преди да я запазите или потвърдите.',
-  'ide.chat.tip.models':
-    'Съвет: въведете /models, за да сравните всички налични модели на изкуствен интелект и да превключите към този, който работи с „{{agentName}}“.',
   'ide.chat.tip.report':
     'Съвет: нещо не е наред? /report изпраща сигнал за грешка или обратна връзка до екипа, като прикачва последния ви чат.',
   'ide.chat.undoError': 'Не успях да върна промените.',
@@ -310,7 +303,6 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Изберете модел в режим на планиране',
   'ide.chat.executeModelSet': 'Моделът в режим на изпълнение е настроен на „{{name}}“',
   'ide.chat.planModelSet': 'Моделът в режим „Plan“ е настроен на „{{name}}“',
-  'ide.chat.diffSummary': '{{count}} променени файлове:\n{{files}}',
   'ide.chat.costSummary':
     'Модел:  {{model}}\nВходни данни:  {{input}} символа\nИзходни данни:{{output}} символа\nЦена:   ~{{cost}} долара',
   'ide.chat.lintErrorsCount': '{{count}} грешки в кода',
@@ -468,4 +460,20 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Предварителният преглед не може да се зареди тук',
+  'ide.preview.loadFailedHint':
+    'Опитайте да обновите страницата или отворете прегледа в нов раздел.',
+  'ide.preview.reloadPreview': 'Презареждане на предварителния преглед',
+  'ide.preview.lastWorkingFrame': 'Последна работна версия',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} не е достъпно на адрес {{model}}. Достъпно на адрес: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Нива на натоварване за „{{model}}“: {{levels}}',
+  'ide.chat.modelSortLabel': 'Сортиране',
+  'ide.chat.modelSortDirection': 'Превключване на посоката на сортиране',
+  'ide.chat.skills.loadedBadge': 'Заредено',
+  'ide.chat.skills.defaultBadge': 'По подразбиране',
+  'ide.chat.skills.setDefault': 'Зареждане по подразбиране',
+  'ide.chat.skills.unsetDefault': 'По подразбиране да се спре зареждането',
+  'ide.chat.skills.matchHint':
+    'Предложено въз основа на ключовите думи във вашите последните съобщения',
 }

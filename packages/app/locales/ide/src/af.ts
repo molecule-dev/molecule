@@ -46,8 +46,6 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Kon nie gebruiksdata haal nie.',
   'ide.chat.undoNoChanges': 'Geen lêerveranderinge om ongedaan te maak nie.',
   'ide.chat.undoComplete': 'Kon nie veranderinge terugdraai nie.',
-  'ide.chat.diffNoChanges': 'Geen onverbonde veranderinge nie.',
-  'ide.chat.diffError': 'Kon nie veranderinge haal nie.',
   'ide.chat.commitNoChanges': 'Geen veranderinge om te verbind nie.',
   'ide.chat.commitError': 'Kon nie veranderinge toepas nie.',
   'ide.chat.autoFixEnabled': 'Outomatiese regstelling geaktiveer.',
@@ -68,7 +66,6 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': "Rapporteer 'n probleem",
   'ide.chat.version': 'Molekule.dev v0.1.0',
   'ide.chat.selectModel': 'Kies model',
-  'ide.chat.currentModelLabel': 'Huidig:<x> {{naam}}</x>',
   'ide.chat.currentBadge': 'huidige',
   'ide.chat.proRequired': 'Pro',
   'ide.chat.notificationSounds': 'Kennisgewingklanke',
@@ -261,10 +258,6 @@ export const af: Partial<IdeTranslations> = {
     'Wenk: lang gesprek? /kompakteer die konteks sodat jy ruimte oorhou om te werk.',
   'ide.chat.tip.commit':
     'Wenk: gebruik /commit om jou veranderinge as &#39;n git commit te stoor waarna jy altyd kan terugkeer.',
-  'ide.chat.tip.diff':
-    'Wenk: gebruik /diff om elke ontoegewyde verandering te hersien voordat jy dit behou of toepas.',
-  'ide.chat.tip.models':
-    'Wenk: tik /models om elke beskikbare KI-model te vergelyk en skakel die een wat loop oor{{agentName}} .',
   'ide.chat.tip.report':
     'Wenk: iets verkeerd? /rapporteer stuur &#39;n fout of terugvoer na die span met jou onlangse klets aangeheg.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -307,7 +300,6 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -458,4 +450,18 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

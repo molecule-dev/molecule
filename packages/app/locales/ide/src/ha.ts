@@ -28,7 +28,6 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Ci gaba',
   'ide.chat.continuePrompt': 'Ci gaba da aiwatarwa daga inda ka tsaya.',
   'ide.chat.currentBadge': 'na yanzu',
-  'ide.chat.currentModelLabel': 'Na yanzu: {{name}}',
   'ide.chat.dropFilesHere': 'Jefa fayiloli a nan',
   'ide.chat.fileTooLarge': 'Fayil ya yi girma. Mafi girman girma shine {{maxSize}}MB.',
   'ide.chat.increaseLoops': 'Ƙara mafi yawan zagayowar',
@@ -192,8 +191,6 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Ba za a iya ɗaukar bayanan amfani ba.',
   'ide.chat.undoNoChanges': 'Babu wani canje-canje da za a yi wa fayil ɗin.',
   'ide.chat.undoComplete': 'An kasa dawo da canje-canje.',
-  'ide.chat.diffNoChanges': 'Babu canje-canje da ba a yi ba tukuna.',
-  'ide.chat.diffError': 'An kasa samo canje-canje.',
   'ide.chat.commitNoChanges': 'Babu canje-canje da za a yi don aiwatarwa.',
   'ide.chat.commitError': 'An kasa aiwatar da canje-canje.',
   'ide.chat.showEarlier': 'Nuna saƙonnin da suka gabata',
@@ -263,10 +260,6 @@ export const ha: Partial<IdeTranslations> = {
     'Shawara: dogon tattaunawa? /compact yana matse mahallin don haka kuna da isasshen sarari don yin aiki.',
   'ide.chat.tip.commit':
     'Shawara: yi amfani da /commit don adana canje-canjenku azaman git commit da zaku iya komawa akai-akai.',
-  'ide.chat.tip.diff':
-    'Shawara: yi amfani da /diff don sake duba kowane canji da ba a yi ba kafin ka ci gaba ko ka aiwatar da shi.',
-  'ide.chat.tip.models':
-    'Shawara: rubuta/samfura don kwatanta kowane samfurin AI da ake da shi kuma canza wanda ke gudana{{agentName}} .',
   'ide.chat.tip.report':
     'Shawara: wani abu ya lalace? /rahoton yana aika kuskure ko ra&#39;ayi ga ƙungiyar tare da an haɗa tattaunawar ku ta baya-bayan nan.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -309,7 +302,6 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -460,4 +452,18 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

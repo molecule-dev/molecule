@@ -17,7 +17,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Folytatás',
   'ide.chat.autoFixPause': 'Szünet',
   'ide.chat.autoFixCancel': 'Mégse',
-  'ide.chat.currentModelLabel': 'Modellek betöltése…',
   'ide.chat.soundAll': 'Összes',
   'ide.chat.activeFile': 'aktív',
   'ide.contextMenu.rename': 'Átnevezés',
@@ -76,8 +75,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Nem sikerült lekérni a használati adatokat.',
   'ide.chat.undoNoChanges': 'Nincsenek visszavonható fájlmódosítások.',
   'ide.chat.undoComplete': 'Nem sikerült visszaállítani a változtatásokat.',
-  'ide.chat.diffNoChanges': 'Nincsenek nem véglegesített változtatások.',
-  'ide.chat.diffError': 'Nem sikerült lekérni a változtatásokat.',
   'ide.chat.commitNoChanges': 'Nincsenek véglegesítendő változtatások.',
   'ide.chat.commitError': 'Nem sikerült véglegesíteni a változtatásokat.',
   'ide.chat.autoFixEnabled': 'Automatikus javítás engedélyezve.',
@@ -261,10 +258,6 @@ export const hu: Partial<IdeTranslations> = {
     'Tipp: Hosszú beszélgetés? A /compact parancs összefoglalja a kontextust, így marad helyed a munkához.',
   'ide.chat.tip.commit':
     'Tipp: Használd a /commit parancsot, hogy a módosításokat git-commitként mentsd el, amelyhez bármikor visszatérhetsz.',
-  'ide.chat.tip.diff':
-    'Tipp: Használd a /diff parancsot, hogy áttekintsd az összes még el nem mentett módosítást, mielőtt megtartanád vagy elküldenéd őket.',
-  'ide.chat.tip.models':
-    'Tipp: Írja be a /models parancsot az összes elérhető AI-modell összehasonlításához, és váltson át az éppen futó modellre a {{agentName}} oldalon.',
   'ide.chat.tip.report':
     'Tipp: Valami nem stimmel? A /report parancs segítségével hibajelentést vagy visszajelzést küldhetsz a csapatnak, a legutóbbi csevegésed mellékletként csatolva.',
   'ide.chat.undoError': 'A módosítások visszaállítása nem sikerült.',
@@ -305,7 +298,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Válasszon tervrajzi modellt',
   'ide.chat.executeModelSet': 'A végrehajtási mód beállítása: „{{name}}”',
   'ide.chat.planModelSet': 'A terv-mód beállítása: „{{name}}”',
-  'ide.chat.diffSummary': '{{count}} Módosított fájl(ok):\n{{files}}',
   'ide.chat.costSummary':
     'Modell:  {{model}}\nBemenet:  {{input}} token\nKimenet: {{output}} token\nKöltség:   ~{{cost}} dollár',
   'ide.chat.lintErrorsCount': '{{count}} szöveghibák',
@@ -464,4 +456,19 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Az előnézet itt nem tölthető be',
+  'ide.preview.loadFailedHint':
+    'Próbáld meg újra betölteni az oldalt, vagy nyisd meg az előnézetet egy új lapon.',
+  'ide.preview.reloadPreview': 'Előnézet frissítése',
+  'ide.preview.lastWorkingFrame': 'Utolsó működő előnézet',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} {{model}}-on nem érhető el. Elérhető: {{levels}}',
+  'ide.chat.effort.currentModelLevels': '{{model}} erőfeszítési szintjei: {{levels}}',
+  'ide.chat.modelSortLabel': 'Rendezés',
+  'ide.chat.modelSortDirection': 'Rendezés irányának váltása',
+  'ide.chat.skills.loadedBadge': 'Betöltve',
+  'ide.chat.skills.defaultBadge': 'Alapértelmezett',
+  'ide.chat.skills.setDefault': 'Alapértelmezett betöltés',
+  'ide.chat.skills.unsetDefault': 'Alapértelmezés szerint ne töltsön be',
+  'ide.chat.skills.matchHint': 'A legutóbbi üzeneteidben szereplő kulcsszavak alapján javasolt',
 }

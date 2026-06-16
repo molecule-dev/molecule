@@ -45,8 +45,6 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.costError': 'የአጠቃቀም ውሂብ ማምጣት አልተቻለም።',
   'ide.chat.undoNoChanges': 'የሚቀለበስ የፋይል ለውጦች የሉም።',
   'ide.chat.undoComplete': 'ለውጦችን መመለስ አልተሳካም።',
-  'ide.chat.diffNoChanges': 'ምንም ያልተገደቡ ለውጦች የሉም።',
-  'ide.chat.diffError': 'ለውጦችን ማምጣት አልተሳካም።',
   'ide.chat.commitNoChanges': 'ምንም አይነት ለውጥ ለማድረግ ምንም አይነት ለውጥ የለም።',
   'ide.chat.commitError': 'ለውጦችን ማድረግ አልተሳካም።',
   'ide.chat.autoFixEnabled': 'ራስ-ሰር ማስተካከያ ነቅቷል።',
@@ -66,7 +64,6 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'ችግር ሪፖርት ያድርጉ',
   'ide.chat.version': 'ሞለኩሌ.ዴቭ v0.1.0',
   'ide.chat.selectModel': 'ሞዴል ይምረጡ',
-  'ide.chat.currentModelLabel': 'የአሁኑ ጊዜ፦<x> {{ስም}}</x>',
   'ide.chat.currentBadge': 'የአሁኑ',
   'ide.chat.proRequired': 'ፕሮ',
   'ide.chat.notificationSounds': 'የማሳወቂያ ድምጾች',
@@ -256,9 +253,6 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.tip.compact': 'ጠቃሚ ምክር፡ ረጅም ውይይት? /ኮምፓክት አውዱን ስለሚያጨምቅ ለስራ ቦታ እንዲኖርዎት ያደርጋል።',
   'ide.chat.tip.commit':
     'ጠቃሚ ምክር፡- ለውጦችንዎን እንደ git commit ለማስቀመጥ /commit ን ይጠቀሙ እና ሁልጊዜም ወደ እሱ መመለስ ይችላሉ።',
-  'ide.chat.tip.diff': 'ጠቃሚ ምክር፡- እያንዳንዱን ያልተገደበ ለውጥ ከመቀጠልዎ ወይም ከማስገባትዎ በፊት ለመገምገም /diff ይጠቀሙ።',
-  'ide.chat.tip.models':
-    'ጠቃሚ ምክር፡ እያንዳንዱን የሚገኝ የAI ሞዴል ለማነፃፀር እና የሚሰራውን ለመቀየር /ሞዴሎችን ይተይቡ{{agentName}} .',
   'ide.chat.tip.report':
     'ጠቃሚ ምክር፡ የሆነ ችግር አለ? /ሪፖርት የቅርብ ጊዜ ውይይትዎ ተያይዟል እና ለቡድኑ ሳንካ ወይም ግብረመልስ ይልካል።',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -301,7 +295,6 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -452,4 +445,18 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

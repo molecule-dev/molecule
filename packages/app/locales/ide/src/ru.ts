@@ -47,8 +47,6 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Не удалось получить данные об использовании.',
   'ide.chat.undoNoChanges': 'Нет изменений в файлах, которые можно было бы отменить.',
   'ide.chat.undoComplete': 'Не удалось отменить изменения.',
-  'ide.chat.diffNoChanges': 'Нет незафиксированных изменений.',
-  'ide.chat.diffError': 'Не удалось получить изменения.',
   'ide.chat.commitNoChanges': 'Изменений для фиксации нет.',
   'ide.chat.commitError': 'Не удалось внести изменения.',
   'ide.chat.autoFixEnabled': 'Автоматическое исправление включено.',
@@ -69,7 +67,6 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Сообщить о проблеме',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Выберите модель',
-  'ide.chat.currentModelLabel': 'Текущий:<x> {{имя}}</x>',
   'ide.chat.currentBadge': 'текущий',
   'ide.chat.proRequired': 'Про',
   'ide.chat.notificationSounds': 'Звуки уведомлений',
@@ -265,10 +262,6 @@ export const ru: Partial<IdeTranslations> = {
     'Совет: длинный разговор? Команда /compact сжимает контекст, чтобы у вас оставалось место для работы.',
   'ide.chat.tip.commit':
     'Совет: используйте команду /commit, чтобы сохранить изменения в виде коммита Git, к которому вы всегда сможете вернуться.',
-  'ide.chat.tip.diff':
-    'Совет: используйте команду /diff, чтобы просматривать все нефиксированные изменения, прежде чем их сохранять или фиксировать.',
-  'ide.chat.tip.models':
-    'Совет: введите команду /models, чтобы сравнить все доступные модели ИИ и выбрать ту, которая использует алгоритм «{{agentName}}».',
   'ide.chat.tip.report':
     'Совет: что-то не так? Команда /report отправляет сообщение о баге или отзыв с приложением вашей недавней переписки.',
   'ide.chat.undoError': 'Не удалось отменить изменения.',
@@ -310,7 +303,6 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Выбрать модель в режиме планирования',
   'ide.chat.executeModelSet': 'Модель режима выполнения установлена на «{{name}}»',
   'ide.chat.planModelSet': 'Модель в режиме планирования с параметром «{{name}}»',
-  'ide.chat.diffSummary': '{{count}} измененные файлы:\n{{files}}',
   'ide.chat.costSummary':
     'Модель:  {{model}}\nВходные данные:  {{input}} токенов\nВыходные данные:  {{output}} токенов\nСтоимость:   ~{{cost}} долларов',
   'ide.chat.lintErrorsCount': '{{count}} ошибки, связанные с линтом',
@@ -468,4 +460,19 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Здесь невозможно загрузить предварительный просмотр',
+  'ide.preview.loadFailedHint':
+    'Попробуйте обновить страницу или открыть предварительный просмотр в новой вкладке.',
+  'ide.preview.reloadPreview': 'Обновить предварительный просмотр',
+  'ide.preview.lastWorkingFrame': 'Последний рабочий вариант',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} не доступно по адресу {{model}}. Доступно по адресу: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Уровни сложности для игры «{{model}}»: {{levels}}',
+  'ide.chat.modelSortLabel': 'Сортировать',
+  'ide.chat.modelSortDirection': 'Переключить направление сортировки',
+  'ide.chat.skills.loadedBadge': 'Загружено',
+  'ide.chat.skills.defaultBadge': 'По умолчанию',
+  'ide.chat.skills.setDefault': 'Загрузить по умолчанию',
+  'ide.chat.skills.unsetDefault': 'По умолчанию остановить загрузку',
+  'ide.chat.skills.matchHint': 'Предложено на основе ключевых слов из ваших последних сообщений',
 }

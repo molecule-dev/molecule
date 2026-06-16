@@ -18,7 +18,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'استئناف',
   'ide.chat.autoFixPause': 'إيقاف مؤقت',
   'ide.chat.autoFixCancel': 'إلغاء',
-  'ide.chat.currentModelLabel': 'جارٍ تحميل النماذج…',
   'ide.chat.soundAll': 'الكل',
   'ide.chat.activeFile': 'نشط',
   'ide.chat.openTab': 'مفتوحة',
@@ -85,8 +84,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.costError': 'تعذر جلب بيانات الاستخدام.',
   'ide.chat.undoNoChanges': 'لا توجد تغييرات في الملفات يمكن التراجع عنها.',
   'ide.chat.undoComplete': 'فشل في التراجع عن التغييرات.',
-  'ide.chat.diffNoChanges': 'لا توجد تغييرات غير ملتزم بها.',
-  'ide.chat.diffError': 'فشل في جلب التغييرات.',
   'ide.chat.commitNoChanges': 'لا توجد تغييرات يجب الالتزام بها.',
   'ide.chat.commitError': 'فشل في حفظ التغييرات.',
   'ide.chat.autoFixEnabled': 'تم تفعيل خاصية الإصلاح التلقائي.',
@@ -261,10 +258,6 @@ export const ar: Partial<IdeTranslations> = {
     'نصيحة: هل المحادثة طويلة؟ /compact يضغط السياق لتبقى لديك مساحة كافية للعمل.',
   'ide.chat.tip.commit':
     'نصيحة: استخدم الأمر /commit لحفظ التغييرات في شكل "التزام" في Git يمكنك الرجوع إليه في أي وقت.',
-  'ide.chat.tip.diff':
-    'نصيحة: استخدم الأمر /diff لمراجعة كل التغييرات التي لم يتم تثبيتها بعد قبل الاحتفاظ بها أو تثبيتها.',
-  'ide.chat.tip.models':
-    'نصيحة: اكتب /models لمقارنة جميع نماذج الذكاء الاصطناعي المتاحة وتبديل النموذج الذي يعمل عليه {{agentName}}.',
   'ide.chat.tip.report':
     'نصيحة: هل هناك خطب ما؟ /report ترسل بلاغًا عن خطأ أو ملاحظة إلى الفريق مع إرفاق محادثةك الأخيرة.',
   'ide.chat.undoError': 'فشل في التراجع عن التغييرات.',
@@ -305,7 +298,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'اختر نموذج وضع التخطيط',
   'ide.chat.executeModelSet': 'تم تعيين نموذج وضع التنفيذ على "{{name}}"',
   'ide.chat.planModelSet': 'تم تعيين نموذج وضع الخطة على "{{name}}"',
-  'ide.chat.diffSummary': '{{count}} الملفات التي تم تغييرها:\n{{files}}',
   'ide.chat.costSummary':
     'النموذج:  {{model}}\nالمدخلات:  {{input}} رمزًا\nالمخرجات:{{output}} رمزًا\nالتكلفة:   ~{{cost}} دولارًا',
   'ide.chat.lintErrorsCount': '{{count}} أخطاء لينت',
@@ -460,4 +452,18 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'لا يمكن تحميل المعاينة هنا',
+  'ide.preview.loadFailedHint': 'حاول إعادة التحميل، أو افتح المعاينة في علامة تبويب جديدة.',
+  'ide.preview.reloadPreview': 'إعادة تحميل المعاينة',
+  'ide.preview.lastWorkingFrame': 'آخر نسخة تجريبية',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} غير متاح على الرابط {{model}}. متاح على الرابط: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'مستويات الصعوبة في لعبة «{{model}}»: {{levels}}',
+  'ide.chat.modelSortLabel': 'فرز',
+  'ide.chat.modelSortDirection': 'تبديل اتجاه الفرز',
+  'ide.chat.skills.loadedBadge': 'تم التحميل',
+  'ide.chat.skills.defaultBadge': 'الافتراضي',
+  'ide.chat.skills.setDefault': 'التحميل بشكل افتراضي',
+  'ide.chat.skills.unsetDefault': 'إيقاف التحميل بشكل افتراضي',
+  'ide.chat.skills.matchHint': 'اقتراحات بناءً على الكلمات المفتاحية في رسائلك الأخيرة',
 }

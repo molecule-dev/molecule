@@ -46,8 +46,6 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Ní féidir sonraí úsáide a fháil.',
   'ide.chat.undoNoChanges': 'Gan aon athruithe ar chomhad le cealú.',
   'ide.chat.undoComplete': 'Theip ar na hathruithe a aisiompú.',
-  'ide.chat.diffNoChanges': 'Gan aon athruithe neamhthiomanta.',
-  'ide.chat.diffError': 'Theip ar athruithe a fháil.',
   'ide.chat.commitNoChanges': 'Gan aon athruithe le gealladh.',
   'ide.chat.commitError': 'Theip ar athruithe a chur i bhfeidhm.',
   'ide.chat.autoFixEnabled': 'Uath-cheartú cumasaithe.',
@@ -68,7 +66,6 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Tuairiscigh fadhb',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Roghnaigh samhail',
-  'ide.chat.currentModelLabel': 'Reatha:<x> {{ainm}}</x>',
   'ide.chat.currentBadge': 'reatha',
   'ide.chat.proRequired': 'Gairmiúil',
   'ide.chat.notificationSounds': 'Fuaimeanna fógra',
@@ -261,10 +258,6 @@ export const ga: Partial<IdeTranslations> = {
     'Leid: comhrá fada? Comhbhrúnn /compact an comhthéacs ionas go mbeidh spás agat le hobair a dhéanamh.',
   'ide.chat.tip.commit':
     'Leid: bain úsáid as /commit chun do chuid athruithe a shábháil mar git commit ar féidir leat filleadh air i gcónaí.',
-  'ide.chat.tip.diff':
-    'Leid: bain úsáid as /diff chun athbhreithniú a dhéanamh ar gach athrú neamhthiomanta sula gcoinníonn tú nó sula ndéanann tú é a thiomnú.',
-  'ide.chat.tip.models':
-    'Leid: clóscríobh /models chun gach samhail AI atá ar fáil a chur i gcomparáid agus an ceann atá ag rith a athrú{{agentName}} .',
   'ide.chat.tip.report':
     'Leid: rud éigin as riocht? Seolann /report fabht nó aiseolas chuig an bhfoireann agus do chomhrá le déanaí ceangailte leis.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -307,7 +300,6 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -458,4 +450,18 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

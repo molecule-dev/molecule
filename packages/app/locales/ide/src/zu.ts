@@ -47,8 +47,6 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Ayikwazi ukulanda idatha yokusetshenziswa.',
   'ide.chat.undoNoChanges': 'Azikho izinguquko zefayela okufanele zihlehliswe.',
   'ide.chat.undoComplete': 'Yehlulekile ukubuyisela izinguquko.',
-  'ide.chat.diffNoChanges': 'Azikho izinguquko ezingazibophezele.',
-  'ide.chat.diffError': 'Yehlulekile ukulanda izinguquko.',
   'ide.chat.commitNoChanges': 'Azikho izinguquko okufanele zenziwe.',
   'ide.chat.commitError': 'Yehlulekile ukwenza izinguquko.',
   'ide.chat.autoFixEnabled': 'Ukulungisa okuzenzakalelayo kuvuliwe.',
@@ -69,7 +67,6 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Bika inkinga',
   'ide.chat.version': 'I-{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Khetha imodeli',
-  'ide.chat.currentModelLabel': 'Okwamanje:<x> {{igama}}</x>',
   'ide.chat.currentBadge': 'okwamanje',
   'ide.chat.proRequired': 'Ingcweti',
   'ide.chat.notificationSounds': 'Imisindo yesaziso',
@@ -267,10 +264,6 @@ export const zu: Partial<IdeTranslations> = {
     'Icebiso: ingxoxo ende? /i-compact icindezela umongo ukuze ugcine isikhala sokusebenza.',
   'ide.chat.tip.commit':
     'Icebiso: sebenzisa i-/commit ukuze ulondoloze izinguquko zakho njenge-git commit ongabuyela kuyo njalo.',
-  'ide.chat.tip.diff':
-    'Icebiso: sebenzisa i-/diff ukuze ubuyekeze yonke inguquko engakaqinisekiswa ngaphambi kokuthi uyigcine noma uyibophezele.',
-  'ide.chat.tip.models':
-    'Icebiso: thayipha /amamodeli ukuze uqhathanise yonke imodeli ye-AI etholakalayo bese ushintsha leyo esebenzayo{{agentName}} .',
   'ide.chat.tip.report':
     'Icebiso: kukhona okungahambi kahle? /umbiko uthumela iphutha noma impendulo eqenjini ngengxoxo yakho yakamuva enamathiselwe.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -313,7 +306,6 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -464,4 +456,18 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

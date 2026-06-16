@@ -47,8 +47,6 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Haiwezi kuleta data ya matumizi.',
   'ide.chat.undoNoChanges': 'Hakuna mabadiliko ya faili ya kutendua.',
   'ide.chat.undoComplete': 'Imeshindwa kurejesha mabadiliko.',
-  'ide.chat.diffNoChanges': 'Hakuna mabadiliko yasiyotarajiwa.',
-  'ide.chat.diffError': 'Imeshindwa kuleta mabadiliko.',
   'ide.chat.commitNoChanges': 'Hakuna mabadiliko ya kufanya.',
   'ide.chat.commitError': 'Imeshindwa kufanya mabadiliko.',
   'ide.chat.autoFixEnabled': 'Urekebishaji kiotomatiki umewezeshwa.',
@@ -69,7 +67,6 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Ripoti tatizo',
   'ide.chat.version': 'Molekuli.dev v0.1.0',
   'ide.chat.selectModel': 'Chagua modeli',
-  'ide.chat.currentModelLabel': 'Ya sasa:<x> {{jina}}</x>',
   'ide.chat.currentBadge': 'mkondo',
   'ide.chat.proRequired': 'Mtaalamu',
   'ide.chat.notificationSounds': 'Sauti za arifa',
@@ -262,10 +259,6 @@ export const sw: Partial<IdeTranslations> = {
     'Ushauri: mazungumzo marefu? /fupi hubana muktadha ili uweze kuweka nafasi ya kufanya kazi.',
   'ide.chat.tip.commit':
     'Ushauri: tumia /commit kuhifadhi mabadiliko yako kama git commit ambayo unaweza kurudia kila wakati.',
-  'ide.chat.tip.diff':
-    'Ushauri: tumia /diff kukagua kila mabadiliko ambayo hayajafanywa kabla ya kuyaweka au kuyaweka.',
-  'ide.chat.tip.models':
-    'Kidokezo: aina /modeli ili kulinganisha kila modeli ya AI inayopatikana na ubadilishe inayofanya kazi{{agentName}} .',
   'ide.chat.tip.report':
     'Ushauri: kuna kitu kibaya? /ripoti hutuma hitilafu au maoni kwa timu ukiwa umeambatanisha gumzo lako la hivi karibuni.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -308,7 +301,6 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -459,4 +451,18 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

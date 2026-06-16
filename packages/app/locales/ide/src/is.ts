@@ -46,8 +46,6 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Ekki tókst að sækja notkunargögn.',
   'ide.chat.undoNoChanges': 'Engar breytingar á skrá til að afturkalla.',
   'ide.chat.undoComplete': 'Mistókst að afturkalla breytingar.',
-  'ide.chat.diffNoChanges': 'Engar óbundnar breytingar.',
-  'ide.chat.diffError': 'Mistókst að sækja breytingar.',
   'ide.chat.commitNoChanges': 'Engar breytingar til að staðfesta.',
   'ide.chat.commitError': 'Mistókst að framfylgja breytingunum.',
   'ide.chat.autoFixEnabled': 'Sjálfvirk leiðrétting virkjuð.',
@@ -68,7 +66,6 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.reportProblem': 'Tilkynna vandamál',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Veldu gerð',
-  'ide.chat.currentModelLabel': 'Núverandi:<x> {{nafn}}</x>',
   'ide.chat.currentBadge': 'núverandi',
   'ide.chat.proRequired': 'Atvinnumaður',
   'ide.chat.notificationSounds': 'Tilkynningarhljóð',
@@ -261,10 +258,6 @@ export const is: Partial<IdeTranslations> = {
     'Ráð: langt samtal? /compact þjappar samhenginu saman svo þú hafir pláss til að vinna.',
   'ide.chat.tip.commit':
     'Ráð: notaðu /commit til að vista breytingarnar þínar sem git commit sem þú getur alltaf farið aftur í.',
-  'ide.chat.tip.diff':
-    'Ráð: notaðu /diff til að yfirfara allar óskráðar breytingar áður en þú geymir þær eða skráir þær.',
-  'ide.chat.tip.models':
-    'Ráð: sláðu inn /models til að bera saman allar tiltækar gervigreindarlíkön og skipta um það sem er í gangi.{{agentName}} .',
   'ide.chat.tip.report':
     'Ábending: Er eitthvað að? /report sendir villu eða ábendingu til teymisins með nýlegu spjalli þínu sem viðhengi.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -307,7 +300,6 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -458,4 +450,18 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

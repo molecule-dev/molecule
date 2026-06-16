@@ -17,7 +17,6 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Reia',
   'ide.chat.autoFixPause': 'Pauză',
   'ide.chat.autoFixCancel': 'Anulați',
-  'ide.chat.currentModelLabel': 'Se încarcă modelele…',
   'ide.chat.soundAll': 'Toate',
   'ide.chat.activeFile': 'activ',
   'ide.contextMenu.rename': 'Redenumește',
@@ -77,8 +76,6 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Nu se pot prelua datele de utilizare.',
   'ide.chat.undoNoChanges': 'Nicio modificare a fișierului de anulat.',
   'ide.chat.undoComplete': 'Nu s-au putut anula modificările.',
-  'ide.chat.diffNoChanges': 'Nicio modificare neconfirmată.',
-  'ide.chat.diffError': 'Nu s-au putut prelua modificările.',
   'ide.chat.commitNoChanges': 'Nicio modificare de confirmat.',
   'ide.chat.commitError': 'Nu s-au putut valida modificările.',
   'ide.chat.autoFixEnabled': 'Corecția automată este activată.',
@@ -264,10 +261,6 @@ export const ro: Partial<IdeTranslations> = {
     'Sfat: ai o conversație lungă? Comanda /compact comprimă contextul, astfel încât să ai spațiu suficient pentru a lucra.',
   'ide.chat.tip.commit':
     'Sfat: folosește comanda /commit pentru a salva modificările sub forma unui commit Git la care poți reveni oricând.',
-  'ide.chat.tip.diff':
-    'Sfat: folosește comanda /diff pentru a verifica fiecare modificare neconfirmată înainte de a o păstra sau de a o confirma.',
-  'ide.chat.tip.models':
-    'Sfat: tastează /models pentru a compara toate modelele de IA disponibile și a-l schimba pe cel care rulează în prezent {{agentName}}.',
   'ide.chat.tip.report':
     'Sfat: ceva nu e în regulă? Comanda /report trimite o sesizare sau un feedback către echipă, împreună cu istoricul conversației tale recente.',
   'ide.chat.undoError': 'Nu s-au putut reveni la modificările anterioare.',
@@ -309,7 +302,6 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Selectați modelul în modul plan',
   'ide.chat.executeModelSet': 'Modelul în modul de execuție este setat pe „{{name}}”',
   'ide.chat.planModelSet': 'Modelul în modul Plan setat la „{{name}}”',
-  'ide.chat.diffSummary': '{{count}} fișiere modificate:\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nDate de intrare:  token-uri {{input}}\nDate de ieșire:  token-uri{{output}}\nCost:   ~{{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} erori de tip „lint”',
@@ -468,4 +460,19 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Previzualizarea nu se poate încărca aici',
+  'ide.preview.loadFailedHint':
+    'Încearcă să reîncarci pagina sau deschide previzualizarea într-un filă nouă.',
+  'ide.preview.reloadPreview': 'Reîncarcă previzualizarea',
+  'ide.preview.lastWorkingFrame': 'Ultima versiune de lucru',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} nu este disponibil la adresa {{model}}. Disponibil la adresa: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Niveluri de efort pentru „{{model}}”: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sortare',
+  'ide.chat.modelSortDirection': 'Comută direcția de sortare',
+  'ide.chat.skills.loadedBadge': 'Încărcat',
+  'ide.chat.skills.defaultBadge': 'Implicit',
+  'ide.chat.skills.setDefault': 'Încărcare implicită',
+  'ide.chat.skills.unsetDefault': 'Oprire încărcare implicită',
+  'ide.chat.skills.matchHint': 'Sugestii pe baza cuvintelor-cheie din mesajele tale recente',
 }

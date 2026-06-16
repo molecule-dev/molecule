@@ -17,7 +17,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Obnovit',
   'ide.chat.autoFixPause': 'Pozastavit',
   'ide.chat.autoFixCancel': 'Zrušit',
-  'ide.chat.currentModelLabel': 'Načítání modelů…',
   'ide.chat.soundAll': 'Vše',
   'ide.chat.activeFile': 'aktivní',
   'ide.contextMenu.rename': 'Přejmenovat',
@@ -76,8 +75,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Nelze načíst data o využití.',
   'ide.chat.undoNoChanges': 'Žádné změny souboru k vrácení zpět.',
   'ide.chat.undoComplete': 'Vrátit změny se nepodařilo.',
-  'ide.chat.diffNoChanges': 'Žádné nepotvrzené změny.',
-  'ide.chat.diffError': 'Nepodařilo se načíst změny.',
   'ide.chat.commitNoChanges': 'Žádné změny k potvrzení.',
   'ide.chat.commitError': 'Nepodařilo se potvrdit změny.',
   'ide.chat.autoFixEnabled': 'Automatická oprava povolena.',
@@ -260,10 +257,6 @@ export const cs: Partial<IdeTranslations> = {
     'Tip: dlouhá konverzace? Příkaz /compact zkrátí kontext, abyste měli dostatek místa na práci.',
   'ide.chat.tip.commit':
     'Tip: Použijte příkaz /commit k uložení změn jako git commit, ke kterému se můžete kdykoli vrátit.',
-  'ide.chat.tip.diff':
-    'Tip: Pomocí příkazu /diff si zkontrolujte všechny nezapsané změny, než je potvrdíte nebo zapíšete.',
-  'ide.chat.tip.models':
-    'Tip: Zadejte příkaz /models, abyste porovnali všechny dostupné modely umělé inteligence a přepnuli ten, který právě běží, n{{agentName}}',
   'ide.chat.tip.report':
     'Tip: Něco nefunguje? Pomocí příkazu /report můžete týmu nahlásit chybu nebo poskytnout zpětnou vazbu spolu s přiloženým záznamem z nedávného chatu.',
   'ide.chat.undoError': 'Vrátit změny se nepodařilo.',
@@ -305,7 +298,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Vyberte model v režimu plánu',
   'ide.chat.executeModelSet': 'Model v režimu provádění nastaven na „{{name}}“',
   'ide.chat.planModelSet': 'Model v režimu plánu nastaven na „{{name}}“',
-  'ide.chat.diffSummary': '{{count}} změněné soubory:\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nVstup:  {{input}} tokenů\nVýstup: {{output}} tokenů\nNáklady:   ~{{cost}} USD',
   'ide.chat.lintErrorsCount': '{{count}} chyby v kódu',
@@ -464,4 +456,18 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': 'Náhled se zde nedá načíst',
+  'ide.preview.loadFailedHint': 'Zkuste stránku znovu načíst nebo otevřít náhled v nové záložce.',
+  'ide.preview.reloadPreview': 'Obnovit náhled',
+  'ide.preview.lastWorkingFrame': 'Poslední funkční náhled',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} není k dispozici na adrese {{model}}. K dispozici: {{levels}}',
+  'ide.chat.effort.currentModelLevels': 'Úrovně obtížnosti pro hru „{{model}}“: {{levels}}',
+  'ide.chat.modelSortLabel': 'Seřadit',
+  'ide.chat.modelSortDirection': 'Přepnout směr řazení',
+  'ide.chat.skills.loadedBadge': 'Načteno',
+  'ide.chat.skills.defaultBadge': 'Výchozí',
+  'ide.chat.skills.setDefault': 'Načíst jako výchozí',
+  'ide.chat.skills.unsetDefault': 'Ve výchozím nastavení zastavit načítání',
+  'ide.chat.skills.matchHint': 'Navrženo na základě klíčových slov ve vašich posledních zprávách',
 }

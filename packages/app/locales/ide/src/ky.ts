@@ -28,7 +28,6 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Улантуу',
   'ide.chat.continuePrompt': 'Токтогон жерден улантуу.',
   'ide.chat.currentBadge': 'учурдагы',
-  'ide.chat.currentModelLabel': 'Учурдагы: {{name}}',
   'ide.chat.dropFilesHere': 'Файлдарды бул жерге таштаңыз',
   'ide.chat.fileTooLarge': 'Файл өтө чоң. Максималдуу өлчөмү {{maxSize}}МБ.',
   'ide.chat.increaseLoops': 'Максималдуу циклдерди көбөйтүү',
@@ -192,8 +191,6 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Колдонуу маалыматтарын алуу мүмкүн эмес.',
   'ide.chat.undoNoChanges': 'Жокко чыгаруу үчүн файл өзгөртүүлөрү жок.',
   'ide.chat.undoComplete': 'Өзгөртүүлөр кайтарылган жок.',
-  'ide.chat.diffNoChanges': 'Милдеттендирилбеген өзгөртүүлөр жок.',
-  'ide.chat.diffError': 'Өзгөртүүлөр алынбай калды.',
   'ide.chat.commitNoChanges': 'Милдеттенмеге өзгөртүүлөр киргизилбейт.',
   'ide.chat.commitError': 'Өзгөртүүлөр киргизилген жок.',
   'ide.chat.showEarlier': 'Мурунку билдирүүлөрдү көрсөтүү',
@@ -262,10 +259,6 @@ export const ky: Partial<IdeTranslations> = {
     'Кеңеш: узак сүйлөшүү? /compact функциясы контекстти кысып, иштөөгө орун калтырат.',
   'ide.chat.tip.commit':
     'Кеңеш: өзгөртүүлөрүңүздү каалаган убакта кайтып келе турган git commit катары сактоо үчүн /commit колдонуңуз.',
-  'ide.chat.tip.diff':
-    'Кеңеш: ар бир милдеттенме алынбаган өзгөртүүнү сактоодон же бекитүүдөн мурун карап чыгуу үчүн /diff колдонуңуз.',
-  'ide.chat.tip.models':
-    'Кеңеш: ар бир жеткиликтүү AI моделин салыштыруу үчүн /models деп терип, иштеп жаткан моделин которуштуруңуз{{agentName}} .',
   'ide.chat.tip.report':
     'Кеңеш: бир нерсе туура эмеспи? /report ката же пикир билдирүүнү командага акыркы баарлашууңуз тиркелген билдирүү менен жөнөтөт.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -308,7 +301,6 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -459,4 +451,18 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }

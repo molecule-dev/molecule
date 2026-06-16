@@ -26,7 +26,6 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.attachFile': 'Tinye faịlụ',
   'ide.chat.changeModel': 'Gbanwee ụdị',
   'ide.chat.currentBadge': 'ugbu a',
-  'ide.chat.currentModelLabel': 'Ugbu a: {{name}}',
   'ide.chat.dropFilesHere': 'Tụsa faịlụ ebe a',
   'ide.chat.fileTooLarge': 'Faịlụ buru ibu. Nha kacha bụ {{maxSize}}MB.',
   'ide.chat.increaseLoops': 'Bulie ogologo kacha elu',
@@ -187,8 +186,6 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.costError': 'Enweghị ike ịchọta data ojiji.',
   'ide.chat.undoNoChanges': 'Enweghị mgbanwe faịlụ iji gbanwee.',
   'ide.chat.undoComplete': 'Emeghị mgbanwe ndị ahụ.',
-  'ide.chat.diffNoChanges': 'Enweghị mgbanwe ọ bụla a na-emebeghị.',
-  'ide.chat.diffError': 'Adịghị enweta mgbanwe ndị ahụ.',
   'ide.chat.commitNoChanges': 'Enweghị mgbanwe ọ bụla iji mee ihe.',
   'ide.chat.commitError': 'Emeghị mgbanwe ndị ahụ.',
   'ide.chat.showEarlier': 'Gosi ozi ndị gara aga',
@@ -260,10 +257,6 @@ export const ig: Partial<IdeTranslations> = {
     'Ndụmọdụ: mkparịta ụka dị ogologo? /kọmpat na-eme ka ihe dị n&#39;ime ya sie ike ka i wee nwee ohere ịrụ ọrụ.',
   'ide.chat.tip.commit':
     'Ndụmọdụ: jiri /commit chekwaa mgbanwe gị dị ka git commit ị nwere ike ịlaghachi na ya mgbe niile.',
-  'ide.chat.tip.diff':
-    'Ndụmọdụ: jiri /diff lelee mgbanwe ọ bụla a na-emebeghị tupu i debe ma ọ bụ mee ya.',
-  'ide.chat.tip.models':
-    'Ndụmọdụ: pịnye/ụdị iji tụnyere ụdị AI ọ bụla dị ma gbanwee nke na-agba ọsọ{{agentName}} .',
   'ide.chat.tip.report':
     'Ndụmọdụ: ihe adịghị mma? /akụkọ na-eziga njehie ma ọ bụ nzaghachi nye ndị otu ahụ yana nkata gị nke dị nso.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -306,7 +299,6 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.diffSummary': '{{count}} changed file(s):\n{{files}}',
   'ide.chat.costSummary':
     'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
@@ -457,4 +449,18 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
+  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
+  'ide.preview.reloadPreview': 'Reload preview',
+  'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
+  'ide.chat.modelSortLabel': 'Sort',
+  'ide.chat.modelSortDirection': 'Toggle sort direction',
+  'ide.chat.skills.loadedBadge': 'Loaded',
+  'ide.chat.skills.defaultBadge': 'Default',
+  'ide.chat.skills.setDefault': 'Load by default',
+  'ide.chat.skills.unsetDefault': 'Stop loading by default',
+  'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
 }
