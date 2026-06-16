@@ -98,7 +98,7 @@ export function RelevantSkillSuggestion({
     >
       <Tooltip content={tooltip} placement="top">
         <Icon
-          name="lightbulb"
+          name="sparkle"
           size={18}
           data-mol-id="relevant-skill-icon"
           aria-hidden="true"

@@ -79,7 +79,7 @@ export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => vo
       }}
     >
       <Icon
-        name="lightbulb"
+        name="sparkle"
         size={18}
         aria-hidden="true"
         style={{
