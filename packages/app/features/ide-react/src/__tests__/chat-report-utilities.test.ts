@@ -5,11 +5,12 @@
  * @module
  */
 
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { COMMANDS } from '../components/chat-commands.js'
 import {
   buildReportPayload,
+  collectClientInfo,
   EMPTY_REPORT_FORM,
   formatReportConfirmation,
   isReportFormValid,
@@ -75,6 +76,84 @@ describe('buildReportPayload', () => {
   it('passes the includeChat flag through verbatim', () => {
     expect(buildReportPayload({ ...baseForm, includeChat: false }).includeChat).toBe(false)
     expect(buildReportPayload({ ...baseForm, includeChat: true }).includeChat).toBe(true)
+  })
+
+  it('attaches clientInfo when provided and non-empty', () => {
+    const payload = buildReportPayload(baseForm, {
+      appVersion: '1.0.0',
+      theme: 'dark',
+      viewport: '1280×720',
+    })
+    expect(payload.clientInfo).toEqual({
+      appVersion: '1.0.0',
+      theme: 'dark',
+      viewport: '1280×720',
+    })
+  })
+
+  it('omits clientInfo when not provided', () => {
+    const payload = buildReportPayload(baseForm)
+    expect('clientInfo' in payload).toBe(false)
+  })
+
+  it('omits clientInfo when an empty diagnostics object is passed', () => {
+    const payload = buildReportPayload(baseForm, {})
+    expect('clientInfo' in payload).toBe(false)
+  })
+})
+
+describe('collectClientInfo', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('populates every field when navigator/window/screen are present', () => {
+    vi.stubGlobal('navigator', {
+      userAgent: 'Mozilla/5.0 (X11; Linux x86_64)',
+      platform: 'Linux x86_64',
+      language: 'en-US',
+    })
+    vi.stubGlobal('window', {
+      innerWidth: 1280,
+      innerHeight: 720,
+      screen: { width: 1920, height: 1080 },
+      location: { href: 'https://app.molecule.dev/ide' },
+    })
+
+    expect(collectClientInfo({ appVersion: '1.2.3', theme: 'dark' })).toEqual({
+      appVersion: '1.2.3',
+      theme: 'dark',
+      userAgent: 'Mozilla/5.0 (X11; Linux x86_64)',
+      platform: 'Linux x86_64',
+      language: 'en-US',
+      viewport: '1280×720',
+      screen: '1920×1080',
+      url: 'https://app.molecule.dev/ide',
+    })
+  })
+
+  it('does not throw and returns only opts when window/navigator are absent', () => {
+    vi.stubGlobal('navigator', undefined)
+    vi.stubGlobal('window', undefined)
+
+    expect(() => collectClientInfo()).not.toThrow()
+    expect(collectClientInfo({ appVersion: '9.9.9' })).toEqual({ appVersion: '9.9.9' })
+    expect(collectClientInfo()).toEqual({})
+  })
+
+  it('includes only the fields it can read in a partial environment', () => {
+    vi.stubGlobal('navigator', { userAgent: 'UA-only' })
+    vi.stubGlobal('window', { innerWidth: 800, innerHeight: 600 })
+
+    const info = collectClientInfo({ theme: 'light' })
+    expect(info).toEqual({
+      theme: 'light',
+      userAgent: 'UA-only',
+      viewport: '800×600',
+    })
+    expect('platform' in info).toBe(false)
+    expect('screen' in info).toBe(false)
+    expect('url' in info).toBe(false)
   })
 })
 

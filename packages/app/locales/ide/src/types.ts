@@ -344,6 +344,7 @@ export type IdeTranslationKey =
   | 'ide.chat.report.stepsLabel'
   | 'ide.chat.report.stepsPlaceholder'
   | 'ide.chat.report.includeChat'
+  | 'ide.chat.report.diagnosticsNote'
   | 'ide.chat.report.submit'
   | 'ide.chat.report.submitting'
   | 'ide.chat.report.error'

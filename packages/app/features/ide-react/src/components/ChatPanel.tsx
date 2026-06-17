@@ -7955,6 +7955,7 @@ function ChatInner({
           conversationId={conversationId}
           initialTitle={reportModal.title}
           productName={productName}
+          appVersion={version || APP_VERSION}
           onClose={() => setReportModal(null)}
           onSubmitted={(result: ReportResult) => {
             setReportModal(null)

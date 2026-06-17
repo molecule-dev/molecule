@@ -402,6 +402,8 @@ export const en: IdeTranslations = {
   'ide.chat.report.stepsLabel': 'Steps to reproduce (optional)',
   'ide.chat.report.stepsPlaceholder': '1. …\n2. …',
   'ide.chat.report.includeChat': 'Include recent chat for context',
+  'ide.chat.report.diagnosticsNote':
+    'Your app version, browser, and screen size are attached to help us debug.',
   'ide.chat.report.submit': 'Submit report',
   'ide.chat.report.submitting': 'Submitting…',
   'ide.chat.report.error': 'Could not submit your report. Please try again.',

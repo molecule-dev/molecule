@@ -26,6 +26,7 @@ import { getClassMap } from '@molecule/app-ui'
 import type { ReportFormState, ReportResult } from './chat-report-utilities.js'
 import {
   buildReportPayload,
+  collectClientInfo,
   EMPTY_REPORT_FORM,
   isReportFormValid,
 } from './chat-report-utilities.js'
@@ -43,6 +44,7 @@ const logger = getLogger('report-modal')
  * @param root0.onClose - Called when the modal is dismissed (Cancel, Escape, backdrop).
  * @param root0.onSubmitted - Called with the server result after a successful POST.
  * @param root0.productName - Display name of the host product, interpolated into the subheading (neutral default: "the IDE").
+ * @param root0.appVersion - Running build version, attached to the report's client diagnostics.
  * @returns The rendered report modal.
  */
 export function ReportModal({
@@ -52,6 +54,7 @@ export function ReportModal({
   onClose,
   onSubmitted,
   productName = DEFAULT_PRODUCT_NAME,
+  appVersion,
 }: {
   projectId: string
   conversationId?: string | null
@@ -59,6 +62,7 @@ export function ReportModal({
   onClose: () => void
   onSubmitted: (result: ReportResult) => void
   productName?: string
+  appVersion?: string
 }): JSX.Element {
   const cm = getClassMap()
   const http = useHttpClient()
@@ -99,7 +103,11 @@ export function ReportModal({
       const url = conversationId
         ? `/projects/${projectId}/report?conversationId=${encodeURIComponent(conversationId)}`
         : `/projects/${projectId}/report`
-      const res = await http.post<ReportResult>(url, buildReportPayload(form))
+      const clientInfo = collectClientInfo({
+        appVersion,
+        theme: isLight ? 'light' : 'dark',
+      })
+      const res = await http.post<ReportResult>(url, buildReportPayload(form, clientInfo))
       onSubmitted(res.data)
     } catch (err) {
       logger.warn('Failed to submit bug report', { error: err })
@@ -110,7 +118,7 @@ export function ReportModal({
       )
       setSubmitting(false)
     }
-  }, [form, submitting, conversationId, projectId, http, onSubmitted])
+  }, [form, submitting, conversationId, projectId, http, onSubmitted, appVersion, isLight])
 
   return (
     <div
@@ -234,6 +242,17 @@ export function ReportModal({
               {error}
             </div>
           )}
+        </div>
+
+        <div
+          data-mol-id="report-diagnostics-note"
+          className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+          style={{ marginTop: 12, lineHeight: 1.4 }}
+        >
+          {t('ide.chat.report.diagnosticsNote', undefined, {
+            defaultValue:
+              'Your app version, browser, and screen size are attached to help us debug.',
+          })}
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
