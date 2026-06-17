@@ -115,4 +115,24 @@ describe('AutoCommitBadge — armed-only green commit button (P4-10/P4-11)', () 
     fireEvent.click(badgeOf(container) as HTMLElement)
     expect(onCancel).toHaveBeenCalledTimes(1)
   })
+
+  it('stops the click from bubbling to the commit-bar toggle (P5-06)', () => {
+    // The badge lives inside the commit-bar header, whose onClick toggles the
+    // uncommitted-files bar. Clicking the countdown must cancel auto-commit
+    // WITHOUT toggling that bar — so the click must not propagate to the parent.
+    const onCancel = vi.fn()
+    const parentClick = vi.fn()
+    const { container } = render(
+      <div onClick={parentClick}>
+        <AutoCommitBadge
+          state={{ intervalSeconds: 30, remaining: 12 }}
+          onCancel={onCancel}
+          inline
+        />
+      </div>,
+    )
+    fireEvent.click(badgeOf(container) as HTMLElement)
+    expect(onCancel).toHaveBeenCalledTimes(1)
+    expect(parentClick, 'click must not bubble to the bar-header toggle').not.toHaveBeenCalled()
+  })
 })

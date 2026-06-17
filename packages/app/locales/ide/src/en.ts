@@ -305,7 +305,7 @@ export const en: IdeTranslations = {
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',
   'ide.chat.autoCommit.cancelled': 'Auto-commit cancelled.',
   'ide.chat.autoCommit.enabled':
-    'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
+    'Auto-commit on: committing {{seconds}}s after the last file change.\nSet to 0 to disable autocommit.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   // Reasoning effort (/effort).

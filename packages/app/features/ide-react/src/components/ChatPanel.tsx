@@ -4663,7 +4663,7 @@ function ChatInner({
             { seconds: autoCommitMatch.seconds },
             {
               defaultValue:
-                'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
+                'Auto-commit on: committing {{seconds}}s after the last file change.\nSet to 0 to disable autocommit.',
             },
           ),
         )
@@ -6847,7 +6847,13 @@ function ChatInner({
           <div
             style={{
               borderTop: '1px solid rgba(128,128,128,0.15)',
-              padding: '5px 10px 8px',
+              // Equal top/right/bottom (8px) so the commit button — flush to the
+              // right edge via the row's space-between — has the same gap on its
+              // top, right, and bottom (P5-05). Left stays 10px so the chevron +
+              // "N uncommitted files" text keep their indent. The green
+              // AutoCommitBadge (inline) shares this slot + box model, so it
+              // inherits the identical margins and sits in the same spot.
+              padding: '8px 8px 8px 10px',
             }}
           >
             <div

@@ -72,7 +72,14 @@ export function AutoCommitBadge({
     <button
       type="button"
       data-mol-id="chat-autocommit-badge"
-      onClick={onCancel}
+      onClick={(e) => {
+        // Stop the click from bubbling to the commit-bar header's toggle
+        // (setCommitBarExpanded) — clicking the countdown should only cancel
+        // auto-commit, not expand/collapse the uncommitted-files bar (P5-06).
+        // Mirrors the manual commit button, which already stops propagation.
+        e.stopPropagation()
+        onCancel()
+      }}
       aria-label={`${armedLabel} — ${cancelLabel}`}
       title={cancelLabel}
       onMouseEnter={(e) => {
