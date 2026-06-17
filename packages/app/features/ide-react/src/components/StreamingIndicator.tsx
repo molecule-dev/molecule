@@ -179,15 +179,23 @@ function MolSpinner({ size = 16 }: { size?: number }): JSX.Element {
 // Rotating status messages
 // ---------------------------------------------------------------------------
 
+// Molecule-themed status phrases. The agent, Synthase, is named after ATP synthase —
+// the enzyme that synthesizes the cell's energy — so the spinner rotates through a
+// biochemical reaction (synthesize → analyze structure → trace pathway → compose →
+// react → catalyze → bond → crystallize) instead of generic "Thinking…/Working…". It
+// reads with personality while still clearly signaling "actively working", and echoes
+// the preview overlay's themed phrases (PreviewPanel). The keys are unchanged so the
+// existing per-locale translations stay valid — the theme is an English flourish in
+// these defaults (the same convention the preview phrases use).
 const MESSAGES: ReadonlyArray<{ key: string; defaultValue: string }> = [
-  { key: 'ide.chat.streaming.thinking', defaultValue: 'Thinking...' },
-  { key: 'ide.chat.streaming.analyzing', defaultValue: 'Analyzing...' },
-  { key: 'ide.chat.streaming.reasoning', defaultValue: 'Reasoning...' },
-  { key: 'ide.chat.streaming.crafting', defaultValue: 'Crafting a response...' },
-  { key: 'ide.chat.streaming.working', defaultValue: 'Working on it...' },
-  { key: 'ide.chat.streaming.processing', defaultValue: 'Processing...' },
-  { key: 'ide.chat.streaming.connecting', defaultValue: 'Connecting the dots...' },
-  { key: 'ide.chat.streaming.almostThere', defaultValue: 'Almost there...' },
+  { key: 'ide.chat.streaming.thinking', defaultValue: 'Synthesizing...' },
+  { key: 'ide.chat.streaming.analyzing', defaultValue: 'Analyzing the structure...' },
+  { key: 'ide.chat.streaming.reasoning', defaultValue: 'Tracing the pathway...' },
+  { key: 'ide.chat.streaming.crafting', defaultValue: 'Composing the response...' },
+  { key: 'ide.chat.streaming.working', defaultValue: 'Reacting to your request...' },
+  { key: 'ide.chat.streaming.processing', defaultValue: 'Catalyzing...' },
+  { key: 'ide.chat.streaming.connecting', defaultValue: 'Bonding the concepts...' },
+  { key: 'ide.chat.streaming.almostThere', defaultValue: 'Crystallizing the answer...' },
 ]
 
 const ROTATE_INTERVAL_MS = 3000

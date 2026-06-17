@@ -310,14 +310,14 @@ describe('IDE chat/activity i18n debt closed (cross-cutting-i18n, final wave)', 
   it('renders the streaming indicator status from the bonded French, not the English default', () => {
     // No `label` and msgIdx starts at 0, so the indicator deterministically shows
     // MESSAGES[0] = `ide.chat.streaming.thinking`. With the key absent from the
-    // bond it would fall back to the English default "Thinking..." — the exact gap.
+    // bond it would fall back to the English default "Synthesizing..." — the exact gap.
     const { container } = render(<StreamingIndicator />)
     const status = container.querySelector('[role="status"]') as HTMLElement
     expect(status, 'streaming indicator did not render').not.toBeNull()
     expect(status.textContent).toBe(fr['ide.chat.streaming.thinking'])
     expect(status.getAttribute('aria-label')).toBe(fr['ide.chat.streaming.thinking'])
-    // The pre-fix bug: with the key absent, the English "Thinking..." rendered.
-    expect(status.textContent).not.toBe('Thinking...')
+    // The pre-fix bug: with the key absent, the English "Synthesizing..." rendered.
+    expect(status.textContent).not.toBe('Synthesizing...')
   })
 
   it('translates the human chat/help/report copy (not stuck on the English default)', () => {

@@ -573,7 +573,7 @@ function streamingActivityLabel(msg: {
   if (!blocks || blocks.length === 0) return undefined
   const last = blocks[blocks.length - 1]
   if (last.type === 'thinking')
-    return t('ide.chat.activity.thinking', undefined, { defaultValue: 'Thinking' })
+    return t('ide.chat.activity.thinking', undefined, { defaultValue: 'Synthesizing' })
   if (last.type !== 'tool_use') return undefined
   const tc = msg.toolCalls?.find((c) => c.id === last.id)
   if (!tc) return undefined
