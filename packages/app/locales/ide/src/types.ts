@@ -424,6 +424,7 @@ export type IdeTranslationKey =
   | 'ide.chat.skills.setDefault'
   | 'ide.chat.skills.unsetDefault'
   | 'ide.chat.skills.matchHint'
+  | 'ide.chat.skills.resetDefaults'
   | 'ide.chat.skills.new'
   | 'ide.chat.skills.newTitle'
   | 'ide.chat.skills.newPlaceholder'

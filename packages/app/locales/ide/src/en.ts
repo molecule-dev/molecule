@@ -496,6 +496,8 @@ export const en: IdeTranslations = {
   'ide.chat.skills.setDefault': 'Load by default',
   'ide.chat.skills.unsetDefault': 'Stop loading by default',
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
+  // Reset the per-project default-skill set back to "all loaded by default" (unset).
+  'ide.chat.skills.resetDefaults': 'Load all by default',
   // Skill authoring (/newskill + the "New skill" form, SYN4).
   'ide.chat.skills.new': 'New skill',
   'ide.chat.skills.newTitle': 'Create a new project skill',

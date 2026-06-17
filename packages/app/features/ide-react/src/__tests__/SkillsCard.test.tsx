@@ -343,3 +343,80 @@ describe('SkillsCard — default toggle: hollow vs filled star, aria-label, no t
     expect(container.querySelector('[data-mol-id="skill-default-badge-auth"]')).not.toBeNull()
   })
 })
+
+describe('SkillsCard — "Load all by default" reset affordance (P3-11)', () => {
+  it('hides the reset control while the default set is implicit (defaultsExplicit false)', async () => {
+    const { container } = render(
+      <Wrap>
+        <SkillsCard
+          projectId={PROJECT_ID}
+          initialQuery=""
+          onLoad={() => {}}
+          onToggleDefault={() => {}}
+          onResetDefault={vi.fn()}
+          isLight={false}
+        />
+      </Wrap>,
+    )
+    // Wait for the list to settle, then confirm the reset control is absent: when
+    // the set is still the implicit unset→all there is nothing to reset.
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="skill-default-auth"]')).not.toBeNull(),
+    )
+    expect(container.querySelector('[data-mol-id="skill-reset-defaults"]')).toBeNull()
+  })
+
+  it('hides the reset control when onResetDefault is not provided (even if explicit)', async () => {
+    const { container } = render(
+      <Wrap>
+        <SkillsCard
+          projectId={PROJECT_ID}
+          initialQuery=""
+          onLoad={() => {}}
+          onToggleDefault={() => {}}
+          defaultsExplicit
+          isLight={false}
+        />
+      </Wrap>,
+    )
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="skill-default-auth"]')).not.toBeNull(),
+    )
+    expect(container.querySelector('[data-mol-id="skill-reset-defaults"]')).toBeNull()
+  })
+
+  it('shows the reset control when the set is explicit, labels it, carries no native title / tooltip, and calls onResetDefault', async () => {
+    const onResetDefault = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <SkillsCard
+          projectId={PROJECT_ID}
+          initialQuery=""
+          onLoad={() => {}}
+          onToggleDefault={() => {}}
+          onResetDefault={onResetDefault}
+          defaultsExplicit
+          isLight={false}
+        />
+      </Wrap>,
+    )
+
+    const reset = (await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="skill-reset-defaults"]')
+      expect(el, 'the reset control must render when the set is explicit').not.toBeNull()
+      return el as HTMLElement
+    })) as HTMLButtonElement
+
+    expect(reset.textContent).toContain('Load all by default')
+    // Consistent with the row actions (P5-09): no delayed, touch-blind native title.
+    expect(reset.hasAttribute('title'), 'the reset control must not use a native title').toBe(false)
+
+    // No styled Tooltip mounts on hover (P5-09 removed row-action tooltips).
+    fireEvent.mouseEnter(reset)
+    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
+    fireEvent.mouseLeave(reset)
+
+    fireEvent.click(reset)
+    expect(onResetDefault).toHaveBeenCalledTimes(1)
+  })
+})

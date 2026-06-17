@@ -11,7 +11,10 @@
  * are currently loaded this session ("Loaded" badge) and which are in the
  * persisted per-project default-loaded set ("Default" badge), and offers a toggle
  * to add/remove a skill from that default set — whose full body the backend then
- * injects into every conversation.
+ * injects into every conversation. When that set has been narrowed to an explicit
+ * subset, a header "Load all by default" control resets it to the implicit
+ * all-skills-default state (the only way back through the one-way door the first
+ * explicit toggle would otherwise be).
  *
  * It also hosts the skill-authoring affordance: a "New skill" button that, when
  * clicked, folds an inline name form into the header row (the name input sits
@@ -101,6 +104,11 @@ function skillBadgeStyle(strong: boolean): CSSProperties {
  *   to empty.
  * @param root0.onToggleDefault - Called to add/remove a skill from the default-loaded set; when
  *   omitted the per-row default toggle is hidden.
+ * @param root0.onResetDefault - Called to reset the default-loaded set back to the IMPLICIT
+ *   "all skills are default" state (P3-11); when omitted the reset affordance is hidden.
+ * @param root0.defaultsExplicit - Whether the default set is currently an EXPLICIT user-built
+ *   set (vs the implicit unset→all). The header reset affordance shows only when this is `true`,
+ *   so there's a visible way back from the otherwise one-way door of the first explicit toggle.
  * @param root0.isLight - Whether the current theme is light mode (drives subtle tints).
  * @returns The rendered skills card.
  */
@@ -113,6 +121,8 @@ export function SkillsCard({
   loadedSkillPaths,
   defaultSkillPaths,
   onToggleDefault,
+  onResetDefault,
+  defaultsExplicit,
   isLight,
 }: {
   projectId: string
@@ -123,6 +133,8 @@ export function SkillsCard({
   loadedSkillPaths?: ReadonlySet<string>
   defaultSkillPaths?: ReadonlySet<string>
   onToggleDefault?: (skill: SkillInfo, next: boolean) => void
+  onResetDefault?: () => void
+  defaultsExplicit?: boolean
   isLight: boolean
 }): JSX.Element {
   const cm = getClassMap()
@@ -204,11 +216,32 @@ export function SkillsCard({
           marginBottom: 6,
         }}
       >
-        <div
-          className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}
-          style={{ flexShrink: 0 }}
-        >
-          {t('ide.chat.skills.heading', undefined, { defaultValue: 'Skills' })}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <div
+            className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}
+            style={{ flexShrink: 0 }}
+          >
+            {t('ide.chat.skills.heading', undefined, { defaultValue: 'Skills' })}
+          </div>
+          {/* P3-11: a visible way back from the one-way door of the first explicit
+              toggle — resets the default-loaded set to the implicit "load ALL by
+              default" state. A consistent ghost `cm.button` (matching the row
+              actions, no hover tooltip — P5-09), shown only when the set is an
+              explicit user-built one (otherwise it's already all-default and
+              there's nothing to reset). */}
+          {onResetDefault && defaultsExplicit && (
+            <button
+              type="button"
+              data-mol-id="skill-reset-defaults"
+              onClick={() => onResetDefault()}
+              className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+              style={{ flexShrink: 0 }}
+            >
+              {t('ide.chat.skills.resetDefaults', undefined, {
+                defaultValue: 'Load all by default',
+              })}
+            </button>
+          )}
         </div>
         {onCreate && !creating && (
           <Tooltip

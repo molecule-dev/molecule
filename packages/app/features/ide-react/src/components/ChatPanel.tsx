@@ -3941,25 +3941,65 @@ function ChatInner({
    */
   const toggleDefaultSkill = useCallback(
     (skill: SkillInfo, next: boolean) => {
-      if (next === defaultSkillPaths.has(skill.path)) return
+      // Skills haven't loaded yet: the seeding effect fills `defaultSkillPaths`
+      // (= every discovered skill) only AFTER `loadProjectSkills` resolves — a
+      // sandbox exec that takes seconds. A toggle before that would read the
+      // empty initial set as the base and persist a bogus 1-element explicit
+      // array (and lock `defaultSkillsExplicitRef`), a one-way door out of the
+      // unset→all default (P3-11). Ignore the click until skills exist.
+      if (projectSkills.length === 0) return
+      // While the set is still IMPLICIT (unset → ALL skills are default), the
+      // effective current default set is EVERY loaded skill — so compute the base
+      // from all skills, not the (possibly still-empty / not-yet-seeded) badge
+      // set. That way toggling one OFF persists "all-minus-one", never the bogus
+      // "[just-this-one]".
+      const base = defaultSkillsExplicitRef.current
+        ? defaultSkillPaths
+        : new Set(projectSkills.map((s) => s.path))
+      if (next === base.has(skill.path)) return
       // Any explicit toggle locks in an explicit set (persisted below), so the
       // "all initial skills" default no longer re-seeds it (P3-11).
-      defaultSkillsExplicitRef.current = true
       const previous = defaultSkillPaths
-      const updated = new Set(previous)
+      const previousExplicit = defaultSkillsExplicitRef.current
+      defaultSkillsExplicitRef.current = true
+      const updated = new Set(base)
       if (next) updated.add(skill.path)
       else updated.delete(skill.path)
       setDefaultSkillPaths(updated)
       http
         .patch(`/projects/${projectId}`, { settings: { defaultSkills: [...updated] } })
         .catch((error) => {
-          // Roll back the optimistic toggle so the badge/toggle reflect the server.
+          // Roll back the optimistic toggle (set + explicit flag) so the
+          // badge/toggle reflect the server.
           logger.warn('Failed to persist default skills to server', { error })
+          defaultSkillsExplicitRef.current = previousExplicit
           setDefaultSkillPaths(previous)
         })
     },
-    [defaultSkillPaths, http, projectId],
+    [defaultSkillPaths, http, projectId, projectSkills],
   )
+
+  /**
+   * Resets the per-project default-loaded skill set back to the IMPLICIT
+   * "ALL skills are default" state (P3-11), undoing any explicit set the user
+   * built via the per-row toggles. Clears the explicit flag, re-seeds the badge
+   * set to every loaded skill, and PATCHes `settings.defaultSkills: null` so the
+   * backend likewise treats it as unset → injects every skill's body. On failure
+   * it rolls back local state (mirroring {@link toggleDefaultSkill}). This is the
+   * only way back through the otherwise one-way door of the first explicit toggle.
+   */
+  const resetDefaultSkills = useCallback(() => {
+    const previous = defaultSkillPaths
+    const previousExplicit = defaultSkillsExplicitRef.current
+    defaultSkillsExplicitRef.current = false
+    setDefaultSkillPaths(new Set(projectSkills.map((s) => s.path)))
+    http.patch(`/projects/${projectId}`, { settings: { defaultSkills: null } }).catch((error) => {
+      // Roll back so the badge/toggle reflect the server.
+      logger.warn('Failed to reset default skills on server', { error })
+      defaultSkillsExplicitRef.current = previousExplicit
+      setDefaultSkillPaths(previous)
+    })
+  }, [defaultSkillPaths, http, projectId, projectSkills])
 
   // Runs a saved script by name (the /run <name> command). Fetches the script
   // list to resolve the (possibly partial) name, runs the match, and reports the
@@ -5461,6 +5501,8 @@ function ChatInner({
                     loadedSkillPaths={loadedSkillPaths}
                     defaultSkillPaths={defaultSkillPaths}
                     onToggleDefault={toggleDefaultSkill}
+                    onResetDefault={resetDefaultSkills}
+                    defaultsExplicit={defaultSkillsExplicitRef.current}
                     isLight={isLight}
                   />
                 )

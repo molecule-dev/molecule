@@ -1,0 +1,378 @@
+// @vitest-environment jsdom
+
+/**
+ * P3-11 — the `/skills` default-loaded set's toggle math + reset are REAL,
+ * end-to-end, through the actual {@link ChatPanel}.
+ *
+ * BACKGROUND: when `settings.defaultSkills` is unset, ALL discovered skills are
+ * default (their bodies injected by the backend). `defaultSkillPaths` is seeded
+ * to every loaded skill only AFTER `loadProjectSkills` resolves. Two bugs lived
+ * in `toggleDefaultSkill`:
+ *
+ *  1. **The toggle race** — a star click BEFORE the load resolved read the empty
+ *     initial set as the base and persisted a bogus 1-element explicit array
+ *     (`defaultSkills: ["…one…"]`) + locked the explicit flag, a one-way door out
+ *     of unset→all. The fix ignores clicks until skills exist AND, while implicit,
+ *     computes the base from EVERY loaded skill — so toggling one OFF persists
+ *     "all-minus-one", never "[just-this-one]".
+ *  2. **The one-way door** — there was no UI back to unset→all. The fix adds a
+ *     reset that PATCHes `defaultSkills: null`.
+ *
+ * This renders the real panel, opens the `/skills` browser, and proves:
+ *  - toggling one default OFF from the implicit all-default state PATCHes the
+ *    OTHER skills (all-minus-one), not a bogus singleton;
+ *  - a click while the panel's skills are still loading persists NOTHING (the
+ *    race guard) — the assertion that distinguishes the fix from the old bug;
+ *  - the "Load all by default" reset PATCHes `defaultSkills: null`.
+ *
+ * @module
+ */
+
+import { fireEvent, render, waitFor } from '@testing-library/react'
+import type { ReactElement } from 'react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { ChatConfig, ChatMessage, ChatProvider } from '@molecule/app-ai-chat'
+import type { HttpClient } from '@molecule/app-http'
+import { createSimpleI18nProvider } from '@molecule/app-i18n'
+import { setIconSet } from '@molecule/app-icons'
+import {
+  ChatProvider as ChatContextProvider,
+  HttpProvider,
+  I18nProvider,
+  resetChatStoresForTests,
+  ThemeProvider,
+} from '@molecule/app-react'
+import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
+import { setClassMap } from '@molecule/app-ui'
+import { classMap } from '@molecule/app-ui-tailwind'
+
+import { ChatPanel } from '../components/ChatPanel.js'
+
+const PROJECT_ID = 'proj-skills'
+
+const SKILL_PATHS = [
+  '.agents/skills/auth/SKILL.md',
+  '.agents/skills/caching/SKILL.md',
+  '.agents/skills/deploy/SKILL.md',
+] as const
+
+/** Frontmatter content for one skill so `parseSkillMeta` yields its name. */
+function skillContent(name: string): string {
+  return ['---', `name: ${name}`, `description: The ${name} skill.`, '---', '', `# ${name}`].join(
+    '\n',
+  )
+}
+
+/** Maps a `/files/<rel>` URL to its skill name (the dir under .agents/skills/). */
+function nameForFilesUrl(url: string): string {
+  const match = url.match(/\.agents\/skills\/([^/]+)\/SKILL\.md$/)
+  return match ? match[1] : 'unknown'
+}
+
+/** A chat provider whose history resolves empty, so the panel mounts with no network. */
+function buildChatProvider(): ChatProvider {
+  return {
+    name: 'stub',
+    sendMessage: async (): Promise<void> => {},
+    abort: (): void => {},
+    clearHistory: async (): Promise<void> => {},
+    loadHistory: async (_config: ChatConfig): Promise<ChatMessage[]> => [],
+  }
+}
+
+/** A typed HTTP success envelope. */
+function ok(data: unknown): unknown {
+  return { data, status: 200, statusText: 'OK', headers: {}, config: {} }
+}
+
+/**
+ * An {@link HttpClient} stub serving the project settings + a fixed skill list.
+ * `filesList` is invoked for each `…/files-list` GET so a test can defer one
+ * caller's resolution (the race), or resolve immediately (the happy path).
+ *
+ * @param settings - The settings the project GET resolves.
+ * @param patchSpy - The PATCH spy.
+ * @param filesList - Returns the file list for a `…/files-list` GET (sync or a
+ *   pending promise the test resolves later).
+ * @returns The stub client.
+ */
+function buildHttpClient(
+  settings: Record<string, unknown>,
+  patchSpy: (url: string, data?: unknown) => Promise<unknown>,
+  filesList: () => Promise<string[]>,
+): HttpClient {
+  const reject = (): Promise<never> => Promise.reject(new Error('http disabled in test'))
+  const get = async (url: string): Promise<unknown> => {
+    if (url === `/projects/${PROJECT_ID}`) return ok({ settings })
+    if (url.endsWith('/files-list')) return ok({ files: await filesList() })
+    if (url.includes('/files/')) return ok({ content: skillContent(nameForFilesUrl(url)) })
+    return reject()
+  }
+  return {
+    baseURL: '',
+    defaultHeaders: {},
+    request: reject,
+    get: get as HttpClient['get'],
+    post: reject,
+    put: reject,
+    patch: patchSpy as unknown as HttpClient['patch'],
+    delete: reject,
+    addRequestInterceptor: () => () => {},
+    addResponseInterceptor: () => () => {},
+    addErrorInterceptor: () => () => {},
+    setAuthToken: () => {},
+    getAuthToken: () => null,
+    onAuthError: () => () => {},
+  }
+}
+
+/** An in-memory {@link Storage} (Node's experimental web-storage shadows jsdom's). */
+function makeStorage(): Storage {
+  const store = new Map<string, string>()
+  return {
+    get length(): number {
+      return store.size
+    },
+    clear: () => store.clear(),
+    getItem: (key: string) => (store.has(key) ? (store.get(key) as string) : null),
+    key: (index: number) => Array.from(store.keys())[index] ?? null,
+    removeItem: (key: string) => store.delete(key) as unknown as void,
+    setItem: (key: string, value: string) => void store.set(key, String(value)),
+  }
+}
+
+/** A minimal light theme so `useThemeMode` resolves. */
+function buildThemeProvider(): ThemeProviderType {
+  const theme: Theme = {
+    name: 'light',
+    mode: 'light',
+    colors: {
+      background: { primary: '#ffffff' },
+      text: { primary: '#000000' },
+      brand: { primary: '#0066cc' },
+      semantic: { success: '#00cc00' },
+      borders: { default: '#cccccc' },
+      overlay: { default: 'rgba(0,0,0,0.5)' },
+      shadow: { default: 'rgba(0,0,0,0.1)' },
+    },
+    breakpoints: {
+      mobileS: '320px',
+      mobileM: '375px',
+      mobileL: '425px',
+      tablet: '768px',
+      laptop: '1024px',
+      laptopL: '1440px',
+      desktop: '2560px',
+    },
+    spacing: {},
+    typography: { fontFamily: {}, fontSize: {}, fontWeight: {}, lineHeight: {} },
+    borderRadius: {},
+    shadows: {},
+    transitions: {},
+    zIndex: {},
+  }
+  return {
+    getTheme: () => theme,
+    getThemeName: () => 'light',
+    getThemes: () => ['light', 'dark'],
+    setTheme: () => {},
+    toggleMode: () => {},
+    onThemeChange: () => () => {},
+  }
+}
+
+/**
+ * Renders {@link ChatPanel} inside every context it needs.
+ *
+ * @param http - The HTTP client stub.
+ * @returns The wrapped element.
+ */
+function renderChatPanel(http: HttpClient): ReactElement {
+  return (
+    <I18nProvider provider={createSimpleI18nProvider('en')}>
+      <ThemeProvider provider={buildThemeProvider()}>
+        <HttpProvider client={http}>
+          <ChatContextProvider provider={buildChatProvider()}>
+            <ChatPanel projectId={PROJECT_ID} />
+          </ChatContextProvider>
+        </HttpProvider>
+      </ThemeProvider>
+    </I18nProvider>
+  )
+}
+
+beforeEach(() => {
+  setClassMap(classMap)
+  setIconSet(new Proxy({}, { get: () => ({ paths: [{ d: 'x' }], viewBox: '0 0 16 16' }) }))
+  resetChatStoresForTests()
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: makeStorage(),
+    configurable: true,
+    writable: true,
+  })
+  Object.defineProperty(globalThis, 'sessionStorage', {
+    value: makeStorage(),
+    configurable: true,
+    writable: true,
+  })
+  Element.prototype.scrollIntoView = (): void => {}
+})
+
+afterEach(() => {
+  document.body.innerHTML = ''
+})
+
+/**
+ * Submits a slash command through the real composer (the space closes the
+ * command menu, so Enter submits the raw text rather than picking a menu item).
+ *
+ * @param container - The rendered ChatPanel container.
+ * @param text - The exact command text to type and submit.
+ */
+function submitCommand(container: HTMLElement, text: string): void {
+  const input = container.querySelector('[data-mol-chat-input]') as HTMLTextAreaElement | null
+  if (!input) throw new Error('composer input not found')
+  fireEvent.change(input, { target: { value: text } })
+  fireEvent.keyDown(input, { key: 'Enter' })
+}
+
+/** Pulls the `defaultSkills` value from the last PATCH that carried one. */
+function lastDefaultSkillsPatch(
+  patchSpy: ReturnType<typeof vi.fn>,
+): unknown[] | null | undefined | 'none' {
+  for (let i = patchSpy.mock.calls.length - 1; i >= 0; i--) {
+    const body = patchSpy.mock.calls[i][1] as { settings?: Record<string, unknown> } | undefined
+    if (body?.settings && 'defaultSkills' in body.settings) {
+      return body.settings.defaultSkills as unknown[] | null
+    }
+  }
+  return 'none'
+}
+
+describe('ChatPanel /skills default set — toggle math + reset (P3-11)', () => {
+  it('toggling one default OFF from the implicit all-default state PATCHes all-minus-one (not a bogus singleton)', async () => {
+    const patchSpy = vi.fn(async () => ({}))
+    const { container } = render(
+      renderChatPanel(buildHttpClient({}, patchSpy, async () => [...SKILL_PATHS])),
+    )
+
+    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+    submitCommand(container, '/skills')
+
+    // The seeded all-default state: every skill shows a "Default" badge with no click.
+    const authToggle = (await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="skill-default-auth"]')
+      expect(el, 'the auth row + default toggle must render').not.toBeNull()
+      expect(
+        container.querySelector('[data-mol-id="skill-default-badge-deploy"]'),
+        'every skill must be a seeded default (unset → all)',
+      ).not.toBeNull()
+      return el as HTMLElement
+    })) as HTMLButtonElement
+    // It reads as a default (filled / pressed) before any interaction.
+    expect(authToggle.getAttribute('aria-pressed')).toBe('true')
+
+    // Turn auth OFF — from the implicit all-default base, this is "all-minus-one".
+    fireEvent.click(authToggle)
+
+    await waitFor(() => {
+      const persisted = lastDefaultSkillsPatch(patchSpy)
+      expect(Array.isArray(persisted), 'a defaultSkills array must be persisted').toBe(true)
+      const arr = persisted as string[]
+      // The corrected math: the OTHER two skills remain, auth is dropped — NOT the
+      // old bug's bogus singleton [".../auth/SKILL.md"].
+      expect(arr).toHaveLength(2)
+      expect(arr).toContain('.agents/skills/caching/SKILL.md')
+      expect(arr).toContain('.agents/skills/deploy/SKILL.md')
+      expect(arr).not.toContain('.agents/skills/auth/SKILL.md')
+    })
+  })
+
+  it('reset ("Load all by default") appears once explicit and PATCHes defaultSkills: null', async () => {
+    const patchSpy = vi.fn(async () => ({}))
+    const { container } = render(
+      renderChatPanel(buildHttpClient({}, patchSpy, async () => [...SKILL_PATHS])),
+    )
+
+    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+    submitCommand(container, '/skills')
+
+    const authToggle = (await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="skill-default-auth"]')
+      expect(el).not.toBeNull()
+      return el as HTMLElement
+    })) as HTMLButtonElement
+
+    // While implicit all-default, there's nothing to reset → no control yet.
+    expect(container.querySelector('[data-mol-id="skill-reset-defaults"]')).toBeNull()
+
+    // Make the set explicit by toggling one off → the reset control appears.
+    fireEvent.click(authToggle)
+    const reset = (await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="skill-reset-defaults"]')
+      expect(el, 'the reset control must appear once the set is explicit').not.toBeNull()
+      return el as HTMLElement
+    })) as HTMLButtonElement
+    expect(reset.textContent).toContain('Load all by default')
+
+    fireEvent.click(reset)
+    await waitFor(() => {
+      // Resetting persists null so the backend treats it as unset → all again.
+      expect(lastDefaultSkillsPatch(patchSpy)).toBeNull()
+    })
+  })
+
+  it('a star click BEFORE the panel finishes loading skills persists NOTHING (the race guard)', async () => {
+    const patchSpy = vi.fn(async () => ({}))
+    // Defer each `…/files-list` GET so the test controls resolution order. The
+    // panel's own skills load fires first (deferred[0]); the /skills card's load
+    // fires second (deferred[1]).
+    const deferred: Array<(files: string[]) => void> = []
+    const filesList = (): Promise<string[]> =>
+      new Promise<string[]>((resolve) => deferred.push(resolve))
+
+    const { container } = render(renderChatPanel(buildHttpClient({}, patchSpy, filesList)))
+
+    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+    submitCommand(container, '/skills')
+
+    // Resolve ONLY the /skills card's list (the 2nd caller), leaving the panel's
+    // own load (the 1st caller) pending → the panel's projectSkills stays empty.
+    await waitFor(() => expect(deferred.length).toBeGreaterThanOrEqual(2))
+    deferred[1]([...SKILL_PATHS])
+
+    // The card renders its rows (its own load resolved), but the panel hasn't
+    // seeded its default set yet, so NO "Default" badge shows.
+    const authToggle = (await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="skill-default-auth"]')
+      expect(el, 'the card row must render from its own load').not.toBeNull()
+      return el as HTMLElement
+    })) as HTMLButtonElement
+    expect(
+      container.querySelector('[data-mol-id="skill-default-badge-auth"]'),
+      'the panel has not seeded defaults yet, so no Default badge',
+    ).toBeNull()
+
+    // Click while the panel is still loading — the guard must drop it (old bug:
+    // this persisted a bogus [".../auth/SKILL.md"] singleton + locked explicit).
+    fireEvent.click(authToggle)
+    await Promise.resolve()
+    expect(lastDefaultSkillsPatch(patchSpy)).toBe('none')
+
+    // Now let the panel's own load resolve → it seeds all-default; the same click
+    // now persists the correct all-minus-one set.
+    deferred[0]([...SKILL_PATHS])
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="skill-default-badge-auth"]')).not.toBeNull(),
+    )
+    fireEvent.click(authToggle)
+    await waitFor(() => {
+      const persisted = lastDefaultSkillsPatch(patchSpy)
+      expect(Array.isArray(persisted)).toBe(true)
+      const arr = persisted as string[]
+      expect(arr).toHaveLength(2)
+      expect(arr).not.toContain('.agents/skills/auth/SKILL.md')
+    })
+  })
+})
