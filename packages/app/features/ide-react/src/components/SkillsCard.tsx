@@ -5,14 +5,16 @@
  * under `.agents/skills/` with `name`/`description` frontmatter), discovered
  * via the SAME file-list / file-content API the chat uses for `@`-mentions.
  * A search box filters by name/description/path (seeded from `/skills <query>`),
- * and each row has a "Load" action that simply opens the skill in the editor (it
- * does NOT attach it as message context — the agent already sees every skill's
- * name + description and reads bodies on demand). A skill that's ALREADY loaded —
- * default-loaded (always-on) or opened this session — shows a disabled "Loaded"
- * button instead of an active "Load". Each row also shows a "Default" badge for
- * skills in the persisted per-project default-loaded set, and offers a toggle to
- * add/remove a skill from that set — whose full body the backend then injects into
- * every conversation. When that set has been narrowed to an explicit
+ * and the skill NAME itself is a clickable link that opens the skill in the editor
+ * (it does NOT attach it as message context — the agent already sees every skill's
+ * name + description and reads bodies on demand). A not-yet-loaded skill also shows
+ * a blue "Load" button (the same open action) in its right-hand action group; a
+ * skill that's ALREADY loaded — default-loaded (always-on) or opened this session —
+ * HIDES that Load button and shows a blue "Loaded" pill next to its name instead.
+ * Each row also shows a green "Default" badge for skills in the persisted
+ * per-project default-loaded set, and offers a star toggle (the rightmost element
+ * of the action group) to add/remove a skill from that set — whose full body the
+ * backend then injects into every conversation. When that set has been narrowed to an explicit
  * subset, a header "Load all by default" control resets it to the implicit
  * all-skills-default state (the only way back through the one-way door the first
  * explicit toggle would otherwise be).
@@ -29,10 +31,10 @@
  * The "New skill" button carries a hint via the framework's REAL styled
  * {@link Tooltip} (instant, theme-aware, focus/hover-aware) — never the delayed,
  * touch-blind native `title`. The per-row actions are self-explanatory and carry
- * NO hover hint: "Load" is a labelled `outline` button (it reads as a real
- * button, not faded text) — disabled and reading "Loaded" once the skill is
- * loaded — and the default toggle is a star {@link Icon} that
- * renders FILLED ({@link Icon} `star`) when the skill is in the default-loaded
+ * NO hover hint: "Load" is a solid blue (`solid`/`primary`) button (shown only
+ * while the skill is NOT yet loaded — once loaded it's hidden in favour of the
+ * blue "Loaded" pill by the name), and the default toggle is a star {@link Icon}
+ * that renders FILLED ({@link Icon} `star`) when the skill is in the default-loaded
  * set and HOLLOW (`star-outline`) when it is not — so seeded defaults read as
  * default on first view, no click required. The icon-only toggle carries an
  * `aria-label` for accessibility. Glyphs are always real SVGs from the bonded
@@ -63,30 +65,28 @@ const logger = getLogger('skills-card')
 type SkillsStatus = 'loading' | 'ready' | 'error'
 
 /**
- * Inline pill style for the "Loaded"/"Default" row badges. The tint is derived
- * from the active theme's primary color via `color-mix` (the hex is only the
- * CSS-var fallback, the established TipCard convention) — never a hardcoded color.
- * It's an inline style because a tinted pill is layout/tint ClassMap can't express.
+ * Inline pill style for the row badges, tinted with the given theme color var via
+ * `color-mix` (the hex in the var is only the CSS-var fallback, the established
+ * TipCard convention) — never a hardcoded color. It's an inline style because a
+ * tinted pill is layout/tint ClassMap can't express. The blue "Loaded" pill passes
+ * `var(--mol-color-primary, …)` and the green "Default" pill passes
+ * `var(--mol-color-success, …)`, so the two badges read as distinct at a glance.
  *
- * @param strong - When `true` (the persisted "Default" badge) use a stronger fill +
- *   weight so it stands out more than the lighter session-only "Loaded" badge.
+ * @param baseColor - The CSS color (a theme var with hex fallback) to tint the pill
+ *   text, border, and background with.
  * @returns The badge's inline style.
  */
-function skillBadgeStyle(strong: boolean): CSSProperties {
+function skillBadgeStyle(baseColor: string): CSSProperties {
   return {
     flexShrink: 0,
     padding: '0 6px',
     borderRadius: 999,
     fontSize: 10,
     lineHeight: '15px',
-    fontWeight: strong ? 600 : 500,
-    color: 'var(--mol-color-primary, #6366f1)',
-    border: `1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) ${
-      strong ? 45 : 28
-    }%, transparent)`,
-    background: `color-mix(in srgb, var(--mol-color-primary, #6366f1) ${
-      strong ? 16 : 8
-    }%, transparent)`,
+    fontWeight: 600,
+    color: baseColor,
+    border: `1px solid color-mix(in srgb, ${baseColor} 45%, transparent)`,
+    background: `color-mix(in srgb, ${baseColor} 16%, transparent)`,
   }
 }
 
@@ -96,16 +96,17 @@ function skillBadgeStyle(strong: boolean): CSSProperties {
  * @param root0 - Component props.
  * @param root0.projectId - The project whose skills to list.
  * @param root0.initialQuery - Seed query from `/skills <query>` (empty for a bare `/skills`).
- * @param root0.onLoad - Called when a skill's "Load" action is clicked.
+ * @param root0.onLoad - Called when a skill's name link OR its "Load" button is clicked (both open the skill in the editor).
  * @param root0.onCreate - Creates a new skill from a display name and resolves the created
  *   skill (or `null` on failure). When omitted, the "New skill" affordance is hidden.
  * @param root0.startCreating - When `true`, mount with the inline "New skill" form already
  *   open.
  * @param root0.loadedSkillPaths - Paths of skills opened via "Load" this session — each then
- *   shows the disabled "Loaded" button (same as a default-loaded skill). Defaults to empty.
+ *   hides its "Load" button and shows the blue "Loaded" pill by its name (same as a
+ *   default-loaded skill). Defaults to empty.
  * @param root0.defaultSkillPaths - Paths of skills in the persisted per-project default-loaded
- *   set (`settings.defaultSkills`) — each shows a "Default" badge and a filled toggle. Defaults
- *   to empty.
+ *   set (`settings.defaultSkills`) — each shows a green "Default" badge and a filled star toggle.
+ *   Defaults to empty.
  * @param root0.onToggleDefault - Called to add/remove a skill from the default-loaded set; when
  *   omitted the per-row default toggle is hidden.
  * @param root0.onResetDefault - Called to reset the default-loaded set back to the IMPLICIT
@@ -410,9 +411,8 @@ export function SkillsCard({
           const isLoaded = loadedSkillPaths?.has(skill.path) ?? false
           const isDefault = defaultSkillPaths?.has(skill.path) ?? false
           // "Loaded" = already in context: either default-loaded (always-on) or opened
-          // this session. Its Load action is done, so the button reads a disabled
-          // "Loaded" instead of an active "Load" (and the separate Loaded badge is
-          // dropped — the button now conveys it).
+          // this session. The Load action is then done, so the right-hand "Load" button
+          // is HIDDEN and a blue "Loaded" pill surfaces next to the name instead.
           const alreadyLoaded = isLoaded || isDefault
           return (
             <div
@@ -429,13 +429,43 @@ export function SkillsCard({
             >
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                  <span className={cm.fontWeight('medium')}>{skill.name}</span>
+                  {/* The skill NAME is the primary clickable affordance: a real button
+                      reset to read as the name text (no box chrome) but tinted with the
+                      theme primary color + a pointer cursor so it clearly reads as a
+                      link that opens the skill in the editor. Keeps the medium weight. */}
+                  <button
+                    type="button"
+                    data-mol-id={`skill-open-${skill.name}`}
+                    onClick={() => onLoad(skill)}
+                    className={cm.fontWeight('medium')}
+                    style={{
+                      padding: 0,
+                      margin: 0,
+                      border: 'none',
+                      background: 'transparent',
+                      font: 'inherit',
+                      fontWeight: 500,
+                      textAlign: 'left',
+                      color: 'var(--mol-color-primary, #6366f1)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {skill.name}
+                  </button>
                   {isDefault && (
                     <span
                       data-mol-id={`skill-default-badge-${skill.name}`}
-                      style={skillBadgeStyle(true)}
+                      style={skillBadgeStyle('var(--mol-color-success, #22c55e)')}
                     >
                       {t('ide.chat.skills.defaultBadge', undefined, { defaultValue: 'Default' })}
+                    </span>
+                  )}
+                  {alreadyLoaded && (
+                    <span
+                      data-mol-id={`skill-loaded-badge-${skill.name}`}
+                      style={skillBadgeStyle('var(--mol-color-primary, #6366f1)')}
+                    >
+                      {t('ide.chat.skills.loadedBadge', undefined, { defaultValue: 'Loaded' })}
                     </span>
                   )}
                 </div>
@@ -444,18 +474,21 @@ export function SkillsCard({
                     {skill.description}
                   </div>
                 )}
-                <div
-                  className={cm.textMuted}
-                  style={{
-                    marginTop: 2,
-                    fontSize: 10,
-                    fontFamily: 'var(--mol-font-mono, monospace)',
-                  }}
-                >
-                  {skill.path}
-                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+              {/* Action group: the blue "Load" button (only when NOT yet loaded), then
+                  the star default-toggle as the RIGHTMOST element. */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                {!alreadyLoaded && (
+                  <button
+                    type="button"
+                    data-mol-id={`skill-load-${skill.name}`}
+                    onClick={() => onLoad(skill)}
+                    className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
+                    style={{ flexShrink: 0 }}
+                  >
+                    {t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
+                  </button>
+                )}
                 {onToggleDefault && (
                   <button
                     type="button"
@@ -487,24 +520,6 @@ export function SkillsCard({
                     />
                   </button>
                 )}
-                <button
-                  type="button"
-                  data-mol-id={`skill-load-${skill.name}`}
-                  onClick={alreadyLoaded ? undefined : () => onLoad(skill)}
-                  disabled={alreadyLoaded}
-                  aria-disabled={alreadyLoaded}
-                  className={cm.cn(
-                    cm.button({ variant: alreadyLoaded ? 'ghost' : 'outline', size: 'xs' }),
-                  )}
-                  style={{
-                    flexShrink: 0,
-                    ...(alreadyLoaded ? { opacity: 0.55, cursor: 'default' } : null),
-                  }}
-                >
-                  {alreadyLoaded
-                    ? t('ide.chat.skills.loadedBadge', undefined, { defaultValue: 'Loaded' })
-                    : t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
-                </button>
               </div>
             </div>
           )

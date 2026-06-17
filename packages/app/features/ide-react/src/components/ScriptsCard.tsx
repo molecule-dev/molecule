@@ -180,18 +180,33 @@ export function ScriptsCard({
       }
     >
       <div
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+          marginBottom: 6,
+        }}
       >
-        {/* The overlay's header bar already shows the "Scripts" title, so the card
-            suppresses its own redundant heading when embedded (single clean title). */}
-        {!embedded && (
-          <div className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}>
-            {t('ide.chat.scripts.heading', undefined, { defaultValue: 'Scripts' })}
-          </div>
-        )}
-        {/* The "New script" button stays "New script" (never toggles into Cancel)
-            and hides while the create form is open — the form owns its own Cancel
-            in its bottom action row (consistent with SkillsCard). */}
+        {/* Left title area — kept as a (possibly empty when embedded) flex child so
+            the primary "New script" action below is ALWAYS pushed to the right, the
+            same header structure as SkillsCard + SettingsCard. The overlay's header
+            bar already shows the "Scripts" title, so the card suppresses its own
+            redundant heading when embedded (single clean title). */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          {!embedded && (
+            <div
+              className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}
+              style={{ flexShrink: 0 }}
+            >
+              {t('ide.chat.scripts.heading', undefined, { defaultValue: 'Scripts' })}
+            </div>
+          )}
+        </div>
+        {/* The "New script" button is RIGHT-aligned (matching SkillsCard's "New
+            skill"), stays "New script" (never toggles into Cancel), and hides while
+            the create form is open — the form owns its own Cancel in its bottom
+            action row (consistent with SkillsCard). */}
         {!creating && (
           <button
             type="button"
@@ -298,7 +313,7 @@ export function ScriptsCard({
           defaultValue: 'Filter scripts…',
         })}
         className={cm.textSize('xs')}
-        style={{ ...fieldStyle, margin: '6px 0' }}
+        style={{ ...fieldStyle, marginBottom: 6 }}
       />
 
       {status === 'loading' && (
@@ -358,14 +373,12 @@ export function ScriptsCard({
                   data-mol-id={`script-run-${script.name}`}
                   onClick={() => void handleRun(script.name)}
                   disabled={run === 'running'}
-                  // Per-row list action → ghost, matching SkillsCard's per-row Load/star
-                  // actions (no more lone `outline` outlier; solid-primary is reserved for
-                  // the prominent header/create-action buttons).
-                  className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+                  // Primary per-row action → solid blue, matching SkillsCard's blue "Load"
+                  // button (a real button, never plain text on transparent). Self-
+                  // explanatory, so no delayed touch-blind native `title` (consistent with
+                  // SkillsCard's row actions which carry no native title — P5-09).
+                  className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
                   style={{ flexShrink: 0, opacity: run === 'running' ? 0.6 : 1 }}
-                  title={t('ide.chat.scripts.runTitle', undefined, {
-                    defaultValue: 'Run this script in the sandbox',
-                  })}
                 >
                   {run === 'running'
                     ? t('ide.chat.scripts.running', undefined, { defaultValue: 'Running…' })

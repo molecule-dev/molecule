@@ -83,14 +83,30 @@ export function SettingsCard({
       }
     >
       {/* ── Section: settings ── */}
-      {/* The overlay's header bar already shows the "Settings" title, so the card
-          suppresses its own redundant section heading when embedded (single clean title). */}
+      {/* Same header structure as SkillsCard + ScriptsCard — a flex row with the
+          title area on the LEFT and room for a primary action on the right. Settings
+          has no header action, so the right side is empty, but keeping the identical
+          shell makes all three overlay cards line up. The overlay's header bar already
+          shows the "Settings" title, so the card suppresses its own redundant section
+          heading when embedded (single clean title). */}
       {!embedded && (
         <div
-          className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}
-          style={{ marginBottom: 6 }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 8,
+            marginBottom: 6,
+          }}
         >
-          {t('ide.chat.settings.heading', undefined, { defaultValue: 'Settings' })}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+            <div
+              className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}
+              style={{ flexShrink: 0 }}
+            >
+              {t('ide.chat.settings.heading', undefined, { defaultValue: 'Settings' })}
+            </div>
+          </div>
         </div>
       )}
       <div data-mol-id="settings-list">

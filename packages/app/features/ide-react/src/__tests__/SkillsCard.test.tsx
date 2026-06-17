@@ -18,8 +18,10 @@
  *   created skill is added to the list without a re-fetch;
  * - mounting with `startCreating` opens that form immediately (the bare
  *   `/newskill` path);
- * - the per-row **Load** action is a real (`outline`, bordered) button — NOT
- *   faded ghost text — with NO hover tooltip and NO native `title`;
+ * - the skill NAME is a clickable link (`skill-open-<name>`) that opens the skill;
+ * - the per-row **Load** action is a real solid-blue (`solid`/`primary`) button —
+ *   NOT faded ghost/outline text — with NO hover tooltip and NO native `title`,
+ *   and is HIDDEN once the skill is loaded (a blue "Loaded" pill replaces it);
  * - the per-row default toggle is a star {@link Icon} that is FILLED (`star`) for
  *   a default skill and HOLLOW (`star-outline`) otherwise, carries an
  *   `aria-label`, and has NO hover tooltip.
@@ -234,8 +236,8 @@ describe('SkillsCard — skill authoring (SYN4)', () => {
   })
 })
 
-describe('SkillsCard — Load action is a real button with no hover tip / native title (P5-09)', () => {
-  it('renders Load as a bordered (outline) button, mounts no tooltip on hover, and never a title', async () => {
+describe('SkillsCard — Load action is a real solid-blue button with no hover tip / native title', () => {
+  it('renders Load as a solid primary (blue) button, mounts no tooltip on hover, and never a title', async () => {
     const onLoad = vi.fn()
     const { container } = render(
       <Wrap>
@@ -251,18 +253,19 @@ describe('SkillsCard — Load action is a real button with no hover tip / native
 
     const load = await waitFor(() => {
       const el = container.querySelector('[data-mol-id="skill-load-auth"]')
-      expect(el, 'the skill row + Load action must render').not.toBeNull()
+      expect(el, 'the skill row + Load action must render (not yet loaded)').not.toBeNull()
       return el as HTMLElement
     })
 
     // The Load button must NOT carry the delayed, touch-blind native title.
     expect(load.hasAttribute('title'), 'Load must not use a native title').toBe(false)
 
-    // It reads as a real button (the `outline` variant resolves to a bordered
-    // class), NOT the borderless `ghost` it used to be (which read as faded text).
-    expect(load.className, 'Load must read as a real (bordered) button').toContain('border')
+    // It reads as a real SOLID BLUE button: the `solid`/`primary` variant resolves
+    // to a filled primary background — NOT the transparent `ghost`/`outline` it
+    // used to be (which read as faded text).
+    expect(load.className, 'Load must be the solid primary (blue) button').toContain('bg-primary')
 
-    // No styled Tooltip mounts on hover anymore (P5-09a removed it).
+    // No styled Tooltip mounts on hover anymore.
     fireEvent.mouseEnter(load.parentElement as HTMLElement)
     expect(
       document.body.querySelector('[role="tooltip"]'),
@@ -272,6 +275,35 @@ describe('SkillsCard — Load action is a real button with no hover tip / native
 
     // The action still loads the skill.
     fireEvent.click(load)
+    expect(onLoad).toHaveBeenCalledTimes(1)
+    expect(onLoad.mock.calls[0][0]).toMatchObject({ path: '.agents/skills/auth/SKILL.md' })
+  })
+
+  it('opens the skill when the clickable NAME link is clicked', async () => {
+    const onLoad = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <SkillsCard
+          projectId={PROJECT_ID}
+          initialQuery=""
+          onLoad={onLoad}
+          onCreate={vi.fn()}
+          isLight={false}
+        />
+      </Wrap>,
+    )
+
+    const nameLink = (await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="skill-open-auth"]')
+      expect(el, 'the skill name must render as a clickable link').not.toBeNull()
+      return el as HTMLElement
+    })) as HTMLButtonElement
+
+    // It is a real <button> reading as the name text (medium weight), not a span.
+    expect(nameLink.tagName).toBe('BUTTON')
+    expect(nameLink.textContent).toBe('auth')
+
+    fireEvent.click(nameLink)
     expect(onLoad).toHaveBeenCalledTimes(1)
     expect(onLoad.mock.calls[0][0]).toMatchObject({ path: '.agents/skills/auth/SKILL.md' })
   })
@@ -343,19 +375,24 @@ describe('SkillsCard — default toggle: hollow vs filled star, aria-label, no t
     expect(container.querySelector('[data-mol-id="skill-default-badge-auth"]')).not.toBeNull()
   })
 
-  it('disables the Load button and labels it "Loaded" when the skill is already loaded (default)', async () => {
+  it('HIDES the Load button and shows the blue "Loaded" pill when the skill is already loaded (default)', async () => {
     const container = renderWithDefaults(new Set([AUTH_PATH]))
-    const load = (await waitFor(() => {
-      const el = container.querySelector('[data-mol-id="skill-load-auth"]')
-      expect(el, 'the Load button must render').not.toBeNull()
-      return el as HTMLButtonElement
-    })) as HTMLButtonElement
-    // Already loaded into context (default-loaded) → the Load action is done: the button
-    // is disabled and reads "Loaded" (not an active "Load"); the separate Loaded badge is
-    // gone (the button now conveys it).
-    expect(load.disabled).toBe(true)
-    expect(load.textContent?.trim()).toBe('Loaded')
-    expect(container.querySelector('[data-mol-id="skill-loaded-badge-auth"]')).toBeNull()
+    // The row must render (wait on the star toggle, which is always present).
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="skill-default-auth"]')).not.toBeNull(),
+    )
+    // Already loaded into context (default-loaded) → the Load action is done: the
+    // right-hand "Load" button is HIDDEN entirely…
+    expect(
+      container.querySelector('[data-mol-id="skill-load-auth"]'),
+      'the Load button must be hidden once the skill is loaded',
+    ).toBeNull()
+    // …and a blue "Loaded" pill surfaces next to the name instead.
+    const loadedPill = container.querySelector('[data-mol-id="skill-loaded-badge-auth"]')
+    expect(loadedPill, 'a blue "Loaded" pill must replace the Load button').not.toBeNull()
+    expect(loadedPill?.textContent?.trim()).toBe('Loaded')
+    // A default+loaded skill ALSO shows the green "Default" pill (both surface together).
+    expect(container.querySelector('[data-mol-id="skill-default-badge-auth"]')).not.toBeNull()
   })
 })
 
