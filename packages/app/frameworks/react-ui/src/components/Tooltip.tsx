@@ -4,7 +4,7 @@
  * @module
  */
 
-import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react'
+import React, { forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import type { TooltipPlacement, TooltipProps } from '@molecule/app-ui'
@@ -14,6 +14,13 @@ interface Position {
   top: number
   left: number
 }
+
+// Position the tooltip in a LAYOUT effect (synchronous, before the browser paints) so
+// it's measured + placed in the same frame it mounts. With a plain useEffect (which
+// runs AFTER paint) the tooltip paints once at the default {0,0} top-left and then jumps
+// to the correct spot — the flicker. Fall back to useEffect on the server (no DOM) to
+// avoid React's SSR useLayoutEffect warning.
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 /**
  * Calculate tooltip position based on trigger element and placement.
@@ -143,7 +150,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
       setIsVisible(false)
     }, [])
 
-    useEffect(() => {
+    useIsomorphicLayoutEffect(() => {
       if (isVisible) {
         updatePosition()
       }

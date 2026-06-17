@@ -99,6 +99,10 @@ export const Tooltip: Component<TooltipProps> = (props) => {
   const cm = getClassMap()
   const [isVisible, setIsVisible] = createSignal(false)
   const [position, setPosition] = createSignal<Position>({ top: 0, left: 0 })
+  // Hidden until positioned: the position is computed in rAF (after the element mounts),
+  // so without this gate the tooltip would paint once at the default {0,0} top-left and
+  // then jump to the correct spot — the flicker. Reveal only once it's placed.
+  const [positioned, setPositioned] = createSignal(false)
   // eslint-disable-next-line no-unassigned-vars -- assigned via SolidJS ref binding
   let triggerRef: HTMLDivElement | undefined
   // eslint-disable-next-line no-unassigned-vars -- assigned via SolidJS ref binding
@@ -114,6 +118,7 @@ export const Tooltip: Component<TooltipProps> = (props) => {
       const tooltipRect = tooltipRef.getBoundingClientRect()
       const newPosition = calculatePosition(triggerRect, tooltipRect, placement())
       setPosition(newPosition)
+      setPositioned(true)
     }
   }
 
@@ -132,6 +137,7 @@ export const Tooltip: Component<TooltipProps> = (props) => {
       clearTimeout(timeoutId)
     }
     setIsVisible(false)
+    setPositioned(false)
   }
 
   createEffect(() => {
@@ -175,6 +181,7 @@ export const Tooltip: Component<TooltipProps> = (props) => {
               position: 'absolute',
               top: `${position().top}px`,
               left: `${position().left}px`,
+              visibility: positioned() ? 'visible' : 'hidden',
               'z-index': 9999,
             }}
             data-testid={local.testId}
