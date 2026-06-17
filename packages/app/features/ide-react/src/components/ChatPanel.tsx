@@ -494,14 +494,18 @@ const USER_ACCENT_STYLE = `
 [data-mol-id="chat-user-message"]::before {
   content: '';
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 2px;
+  inset: 0;
   border-radius: inherit;
+  /* Full-box gradient (NOT a 2px-wide box) so the animated sweep has room to travel
+     and actually reads as motion — a 2px-wide box gave the gradient only ~6px to move
+     (looked static) and clamped the 4px corner to ~1px (looked un-rounded + thin).
+     The gradient is then clipped to a 3px LEFT band that follows the row's rounded
+     corners via border-radius: inherit — the same mask technique as the composer ring. */
   background: var(--mol-accent-gradient, linear-gradient(120deg, var(--mol-color-primary, #6366f1), color-mix(in srgb, var(--mol-color-primary, #6366f1) 55%, #fff), var(--mol-color-primary, #6366f1)));
   background-size: 400% 400%;
   animation: mol-chat-accent-flow 15s ease-in-out infinite;
+  -webkit-mask: linear-gradient(to right, #000 3px, transparent 3px);
+  mask: linear-gradient(to right, #000 3px, transparent 3px);
   pointer-events: none;
 }
 @keyframes mol-chat-accent-flow {
