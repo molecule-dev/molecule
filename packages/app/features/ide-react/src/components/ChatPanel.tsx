@@ -480,14 +480,15 @@ function relativeTimeLong(ms: number): string {
 }
 
 /**
- * User-message accent stripe. The left edge of a real user message draws the
- * molecule brand's animated gradient instead of a flat color — the host exposes it
- * as `--mol-accent-gradient` (molecule.dev's soft pastel ring, the same gradient as
- * the composer); apps that don't define it fall back to a primary-tinted shimmer, so
- * it always recolors with the theme. A `::before` + its keyframe can't be expressed
- * inline (and inline `animation` can't be media-queried), so — like AutoCommitBadge —
- * it is injected once and gated on the existing `data-mol-id`. The auto-sent row has
- * a different id and keeps its solid success accent.
+ * User-message accent stripe. The left edge of a real user message draws an animated
+ * BLUE gradient (the theme primary, light → deep → light) running top-to-bottom and
+ * gently flowing downward, instead of a flat color — so it recolors with the theme.
+ * It's a full-box gradient clipped to a 3px LEFT band: the full box gives the vertical
+ * sweep room to travel (a 2px-wide box looked static) and lets the band follow the
+ * row's rounded corners (border-radius: inherit). A `::before` + its keyframe can't be
+ * expressed inline (and inline `animation` can't be media-queried), so — like
+ * AutoCommitBadge — it is injected once and gated on the existing `data-mol-id`; the
+ * auto-sent row has a different id and keeps its solid success accent.
  */
 const USER_ACCENT_STYLE = `
 [data-mol-id="chat-user-message"] { position: relative; }
@@ -496,21 +497,20 @@ const USER_ACCENT_STYLE = `
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  /* Full-box gradient (NOT a 2px-wide box) so the animated sweep has room to travel
-     and actually reads as motion — a 2px-wide box gave the gradient only ~6px to move
-     (looked static) and clamped the 4px corner to ~1px (looked un-rounded + thin).
-     The gradient is then clipped to a 3px LEFT band that follows the row's rounded
+  /* A blue gradient running top-to-bottom (slightly diagonal), animated so the sheen
+     flows down the stripe. Full-box so the vertical sweep has room to travel (a 2px
+     box looked static); clipped to a 3px LEFT band that follows the row's rounded
      corners via border-radius: inherit — the same mask technique as the composer ring. */
-  background: var(--mol-accent-gradient, linear-gradient(120deg, var(--mol-color-primary, #6366f1), color-mix(in srgb, var(--mol-color-primary, #6366f1) 55%, #fff), var(--mol-color-primary, #6366f1)));
-  background-size: 400% 400%;
-  animation: mol-chat-accent-flow 15s ease-in-out infinite;
+  background: linear-gradient(160deg, var(--mol-color-primary-light, #7ea5ff), var(--mol-color-primary-dark, #3060c0) 50%, var(--mol-color-primary-light, #7ea5ff));
+  background-size: 300% 300%;
+  animation: mol-chat-accent-flow 8s ease-in-out infinite;
   -webkit-mask: linear-gradient(to right, #000 3px, transparent 3px);
   mask: linear-gradient(to right, #000 3px, transparent 3px);
   pointer-events: none;
 }
 @keyframes mol-chat-accent-flow {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%, 100% { background-position: 50% 0%; }
+  50% { background-position: 50% 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   [data-mol-id="chat-user-message"]::before { animation: none; }
