@@ -7,11 +7,12 @@
  * A search box filters by name/description/path (seeded from `/skills <query>`),
  * and each row has a "Load" action that simply opens the skill in the editor (it
  * does NOT attach it as message context — the agent already sees every skill's
- * name + description and reads bodies on demand). Each row surfaces which skills
- * are currently loaded this session ("Loaded" badge) and which are in the
- * persisted per-project default-loaded set ("Default" badge), and offers a toggle
- * to add/remove a skill from that default set — whose full body the backend then
- * injects into every conversation. When that set has been narrowed to an explicit
+ * name + description and reads bodies on demand). A skill that's ALREADY loaded —
+ * default-loaded (always-on) or opened this session — shows a disabled "Loaded"
+ * button instead of an active "Load". Each row also shows a "Default" badge for
+ * skills in the persisted per-project default-loaded set, and offers a toggle to
+ * add/remove a skill from that set — whose full body the backend then injects into
+ * every conversation. When that set has been narrowed to an explicit
  * subset, a header "Load all by default" control resets it to the implicit
  * all-skills-default state (the only way back through the one-way door the first
  * explicit toggle would otherwise be).
@@ -27,7 +28,8 @@
  * {@link Tooltip} (instant, theme-aware, focus/hover-aware) — never the delayed,
  * touch-blind native `title`. The per-row actions are self-explanatory and carry
  * NO hover hint: "Load" is a labelled `outline` button (it reads as a real
- * button, not faded text), and the default toggle is a star {@link Icon} that
+ * button, not faded text) — disabled and reading "Loaded" once the skill is
+ * loaded — and the default toggle is a star {@link Icon} that
  * renders FILLED ({@link Icon} `star`) when the skill is in the default-loaded
  * set and HOLLOW (`star-outline`) when it is not — so seeded defaults read as
  * default on first view, no click required. The icon-only toggle carries an
@@ -97,8 +99,8 @@ function skillBadgeStyle(strong: boolean): CSSProperties {
  *   skill (or `null` on failure). When omitted, the "New skill" affordance is hidden.
  * @param root0.startCreating - When `true`, mount with the inline "New skill" form already
  *   open.
- * @param root0.loadedSkillPaths - Paths of skills opened via "Load" this session — each shows
- *   a "Loaded" badge. Defaults to empty.
+ * @param root0.loadedSkillPaths - Paths of skills opened via "Load" this session — each then
+ *   shows the disabled "Loaded" button (same as a default-loaded skill). Defaults to empty.
  * @param root0.defaultSkillPaths - Paths of skills in the persisted per-project default-loaded
  *   set (`settings.defaultSkills`) — each shows a "Default" badge and a filled toggle. Defaults
  *   to empty.
