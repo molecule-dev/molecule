@@ -155,12 +155,16 @@ export function ScriptsCard({
 
   const filtered = useMemo(() => filterScripts(scripts, query), [scripts, query])
   const rowBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'
+  // A subtle neutral inset so the text inputs/textarea READ as fields on the
+  // clean overlay surface (not just a faint border). Theme-aware, matching the
+  // SettingsCard toggle inset; the SAME value is used in SkillsCard's fields.
+  const fieldBg = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)'
   const fieldStyle = {
     width: '100%',
     padding: '4px 6px',
     borderRadius: 4,
     border: `1px solid ${rowBorder}`,
-    background: 'transparent',
+    background: fieldBg,
     color: 'inherit',
     outline: 'none',
   } as const
@@ -185,26 +189,20 @@ export function ScriptsCard({
             {t('ide.chat.scripts.heading', undefined, { defaultValue: 'Scripts' })}
           </div>
         )}
-        <button
-          type="button"
-          data-mol-id="scripts-new-toggle"
-          onClick={() => setCreating((v) => !v)}
-          // Canonical action-button styling: solid-primary for the create affordance
-          // ("New script"), ghost when it has toggled into its "Cancel" role — matching
-          // SkillsCard's separate New-skill (solid) / Cancel (ghost) buttons.
-          className={cm.cn(
-            cm.button(
-              creating
-                ? { variant: 'ghost', size: 'xs' }
-                : { variant: 'solid', color: 'primary', size: 'xs' },
-            ),
-          )}
-          style={{ flexShrink: 0 }}
-        >
-          {creating
-            ? t('ide.chat.scripts.cancelNew', undefined, { defaultValue: 'Cancel' })
-            : t('ide.chat.scripts.new', undefined, { defaultValue: 'New script' })}
-        </button>
+        {/* The "New script" button stays "New script" (never toggles into Cancel)
+            and hides while the create form is open — the form owns its own Cancel
+            in its bottom action row (consistent with SkillsCard). */}
+        {!creating && (
+          <button
+            type="button"
+            data-mol-id="scripts-new-toggle"
+            onClick={() => setCreating(true)}
+            className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
+            style={{ flexShrink: 0 }}
+          >
+            {t('ide.chat.scripts.new', undefined, { defaultValue: 'New script' })}
+          </button>
+        )}
       </div>
 
       {/* New-script creator */}
@@ -261,7 +259,20 @@ export function ScriptsCard({
               {saveError}
             </div>
           )}
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {/* One right-aligned bottom action row `[Cancel] [Save script]`
+              (consistent with SkillsCard): Cancel first/left, primary action
+              right. Cancel closes the form (the header "New script" button
+              reappears). */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
+            <button
+              type="button"
+              data-mol-id="scripts-cancel"
+              onClick={() => setCreating(false)}
+              className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+              style={{ flexShrink: 0 }}
+            >
+              {t('ide.chat.scripts.cancelNew', undefined, { defaultValue: 'Cancel' })}
+            </button>
             <button
               type="button"
               data-mol-id="scripts-save"

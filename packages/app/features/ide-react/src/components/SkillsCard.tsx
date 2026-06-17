@@ -18,10 +18,12 @@
  * explicit toggle would otherwise be).
  *
  * It also hosts the skill-authoring affordance: a "New skill" button that, when
- * clicked, folds an inline name form into the header row (the name input sits
- * where the button was, with Create/Cancel taking the button's right-edge slot)
- * whose submit calls `onCreate`, and the freshly created skill is added to the
- * list immediately. The card can also mount with that form already open
+ * clicked, opens a create form BELOW the header (the "New skill" button hides
+ * while the form is open) — a column with the name input on its OWN row at full
+ * width, then a right-aligned bottom action row `[Cancel] [Create]` (matching
+ * ScriptsCard's create form for a consistent layout across both overlay cards).
+ * Submit calls `onCreate`, and the freshly created skill is added to the list
+ * immediately. The card can also mount with that form already open
  * (`startCreating`).
  *
  * The "New skill" button carries a hint via the framework's REAL styled
@@ -89,7 +91,7 @@ function skillBadgeStyle(strong: boolean): CSSProperties {
 }
 
 /**
- * The skills browser shown by `/skills`, with the inline skill-authoring form.
+ * The skills browser shown by `/skills`, with the skill-authoring create form.
  *
  * @param root0 - Component props.
  * @param root0.projectId - The project whose skills to list.
@@ -185,6 +187,10 @@ export function SkillsCard({
 
   const filtered = useMemo(() => filterSkills(skills, query), [skills, query])
   const rowBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'
+  // A subtle neutral inset so the text inputs READ as fields on the clean
+  // overlay surface (not just a faint border). Theme-aware, matching the
+  // SettingsCard toggle inset; the SAME value is used in ScriptsCard's fields.
+  const fieldBg = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)'
 
   /**
    * Submits the inline "New skill" form: delegates creation to `onCreate`, and on
@@ -262,6 +268,9 @@ export function SkillsCard({
             </button>
           )}
         </div>
+        {/* The "New skill" button stays "New skill" (never toggles into Cancel)
+            and hides while the create form is open — the form owns its own Cancel
+            in its bottom action row. */}
         {onCreate && !creating && (
           <Tooltip
             content={t('ide.chat.skills.newTitle', undefined, {
@@ -280,47 +289,48 @@ export function SkillsCard({
             </button>
           </Tooltip>
         )}
-        {/* New skill — inline authoring form folded into the header row: the name
-            input sits on the line where the button was (flex:1), and Create/Cancel
-            occupy the old "New skill" button slot at the right edge. */}
-        {onCreate && creating && (
-          <form
-            data-mol-id="skill-create-form"
-            onSubmit={(e) => {
-              e.preventDefault()
-              void submitNewSkill()
+      </div>
+
+      {/* New skill — create form below the header (consistent with ScriptsCard's
+          creator): the name input on its OWN row at full width, then a right-
+          aligned bottom action row `[Cancel] [Create]`. */}
+      {onCreate && creating && (
+        <form
+          data-mol-id="skill-create-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            void submitNewSkill()
+          }}
+          className={cm.borderT}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6,
+            padding: '8px 0',
+            marginTop: 6,
+            borderColor: rowBorder,
+          }}
+        >
+          <input
+            autoFocus
+            value={newName}
+            data-mol-id="skill-create-name"
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder={t('ide.chat.skills.newPlaceholder', undefined, {
+              defaultValue: 'New skill name…',
+            })}
+            className={cm.cn(cm.textSize('xs'))}
+            style={{
+              width: '100%',
+              padding: '4px 6px',
+              borderRadius: 4,
+              border: `1px solid ${rowBorder}`,
+              background: fieldBg,
+              color: 'inherit',
+              outline: 'none',
             }}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minWidth: 0 }}
-          >
-            <input
-              autoFocus
-              value={newName}
-              data-mol-id="skill-create-name"
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder={t('ide.chat.skills.newPlaceholder', undefined, {
-                defaultValue: 'New skill name…',
-              })}
-              className={cm.cn(cm.textSize('xs'))}
-              style={{
-                flex: 1,
-                minWidth: 0,
-                padding: '4px 6px',
-                borderRadius: 4,
-                border: `1px solid ${rowBorder}`,
-                background: 'transparent',
-                color: 'inherit',
-                outline: 'none',
-              }}
-            />
-            <button
-              type="submit"
-              data-mol-id="skill-create-submit"
-              disabled={!newName.trim() || busy}
-              className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
-              style={{ flexShrink: 0 }}
-            >
-              {t('ide.chat.skills.create', undefined, { defaultValue: 'Create' })}
-            </button>
+          />
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
             <button
               type="button"
               data-mol-id="skill-create-cancel"
@@ -333,9 +343,18 @@ export function SkillsCard({
             >
               {t('ide.chat.skills.cancel', undefined, { defaultValue: 'Cancel' })}
             </button>
-          </form>
-        )}
-      </div>
+            <button
+              type="submit"
+              data-mol-id="skill-create-submit"
+              disabled={!newName.trim() || busy}
+              className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
+              style={{ flexShrink: 0 }}
+            >
+              {t('ide.chat.skills.create', undefined, { defaultValue: 'Create' })}
+            </button>
+          </div>
+        </form>
+      )}
 
       {/* Search / filter */}
       <input
@@ -352,7 +371,7 @@ export function SkillsCard({
           marginBottom: 6,
           borderRadius: 4,
           border: `1px solid ${rowBorder}`,
-          background: 'transparent',
+          background: fieldBg,
           color: 'inherit',
           outline: 'none',
         }}
