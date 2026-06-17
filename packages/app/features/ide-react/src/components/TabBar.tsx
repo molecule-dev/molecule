@@ -222,9 +222,15 @@ function TabItem({
         }}
         className={cm.cn(cm.textMuted, cm.textSize('xs'), cm.cursorPointer)}
         style={{
+          // Square button (equal width/height) with the glyph centered on both
+          // axes — no asymmetric padding, so the ✕ sits dead-center in the tab.
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '16px',
+          height: '16px',
           border: 'none',
           background: 'transparent',
-          padding: '1px 3px',
           lineHeight: 1,
           borderRadius: '3px',
           marginLeft: '4px',

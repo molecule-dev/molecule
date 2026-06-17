@@ -1,21 +1,18 @@
 // @vitest-environment jsdom
 
 /**
- * SYN3 — auto-commit status badge: three states + theme-token / reduced-motion
- * quality bar.
+ * Auto-commit countdown badge — render-only-when-armed + green-commit-button look.
  *
- * Before SYN3 the badge rendered ONLY while actively counting down and returned
- * `null` the rest of the time — so once a commit fired (or after a reload, with
- * the cadence restored to the paused state) the user had no signal that
- * auto-commit was still on. This is a real jsdom render of the actual
- * {@link AutoCommitBadge} asserting:
- *   - disabled → nothing;
- *   - enabled-but-paused → a persistent, MUTED "Auto-commit on" pill (the gap);
- *   - armed → the live countdown with the pulse turned on;
- *   - colors come from the theme success token (no hardcoded `rgba(34,197,94,…)`);
- *   - the pulse is gated behind `prefers-reduced-motion` via an attribute
- *     selector in the injected `<style>` (an inline `animation` can't be
- *     media-queried), so reduced-motion users get a static pill.
+ * P4-10 + P4-11 reshaped the badge:
+ *   - P4-11: the static "Auto-commit on" pill is GONE — the badge renders ONLY
+ *     while armed (actively counting down); disabled or paused → nothing.
+ *   - P4-10: the armed countdown is styled EXACTLY like the blue `/commit` button
+ *     but green — same fontSize / padding / 6px radius / translucent bordered look
+ *     / transition, recolored from the theme success token — and the pulse
+ *     animation (keyframes + `data-mol-pulse` + injected `<style>`) is removed.
+ *
+ * This is a real jsdom render of the actual {@link AutoCommitBadge} asserting all
+ * of that.
  *
  * @module
  */
@@ -42,7 +39,7 @@ afterEach(() => {
 const badgeOf = (container: HTMLElement): HTMLElement | null =>
   container.querySelector('[data-mol-id="chat-autocommit-badge"]')
 
-describe('AutoCommitBadge — three states (SYN3)', () => {
+describe('AutoCommitBadge — armed-only green commit button (P4-10/P4-11)', () => {
   it('renders nothing when auto-commit is disabled', () => {
     const { container } = render(
       <AutoCommitBadge state={{ intervalSeconds: 0, remaining: null }} onCancel={() => {}} />,
@@ -50,61 +47,70 @@ describe('AutoCommitBadge — three states (SYN3)', () => {
     expect(badgeOf(container)).toBeNull()
   })
 
-  it('renders a persistent muted "Auto-commit on" pill when enabled but paused (between commits / after reload)', () => {
-    // enabled-but-paused: intervalSeconds > 0, remaining === null. The pre-SYN3
-    // badge returned null here, so the user lost all signal auto-commit was on.
+  it('renders nothing when enabled but paused — the static "Auto-commit on" pill is gone (P4-11)', () => {
+    // enabled-but-paused: intervalSeconds > 0, remaining === null. The pre-P4-11
+    // badge showed a muted "Auto-commit on" pill here; the user removed it.
     const state: AutoCommitState = { intervalSeconds: 30, remaining: null }
     const { container } = render(<AutoCommitBadge state={state} onCancel={() => {}} />)
-    const badge = badgeOf(container)
-    expect(badge, 'the paused "on" pill must render, not null').not.toBeNull()
-    expect(badge?.textContent).toContain('Auto-commit on')
-    // Muted, not the pulsing countdown.
-    expect(badge?.getAttribute('data-mol-pulse')).toBe('false')
-    // No inline color set, so the ClassMap muted color governs (no override).
-    expect((badge as HTMLElement).style.color).toBe('')
-    // The status dot uses the theme success token (an SVG attribute jsdom keeps
-    // verbatim), proving the "on" indicator is themed, never a literal color.
-    expect(badge?.querySelector('svg')?.getAttribute('fill')).toContain('var(--mol-color-success')
+    expect(badgeOf(container), 'the paused "Auto-commit on" pill must NOT render').toBeNull()
+    // The label that backed that pill must be gone entirely.
+    expect(container.textContent).not.toContain('Auto-commit on')
   })
 
-  it('renders the live countdown with the pulse armed when counting down', () => {
+  it('renders the live countdown when armed (counting down)', () => {
     const state: AutoCommitState = { intervalSeconds: 30, remaining: 12 }
     const { container } = render(<AutoCommitBadge state={state} onCancel={() => {}} />)
     const badge = badgeOf(container)
+    expect(badge, 'the armed countdown must render').not.toBeNull()
     expect(badge?.textContent).toContain('12s')
-    expect(badge?.getAttribute('data-mol-pulse')).toBe('true')
   })
 
-  it('derives the armed pill colors from theme tokens, not hardcoded rgba green', () => {
+  it('looks exactly like the blue commit button, but green (P4-10)', () => {
     const { container } = render(
-      <AutoCommitBadge state={{ intervalSeconds: 30, remaining: 12 }} onCancel={() => {}} />,
+      <AutoCommitBadge state={{ intervalSeconds: 30, remaining: 12 }} onCancel={() => {}} inline />,
     )
-    const styleAttr = badgeOf(container)?.getAttribute('style') ?? ''
-    // The old badge hardcoded rgba(34,197,94,…) for background + border; the fix
-    // derives both from the theme success token, so the literal green is gone.
-    // (Whatever jsdom keeps of the color-mix value, it can never be that rgba.)
+    const badge = badgeOf(container) as HTMLElement
+    // Same box model as the blue /commit button.
+    expect(badge.style.fontSize).toBe('12px')
+    expect(badge.style.padding).toBe('4px 10px')
+    // The pill shape became the 6px rounded-rectangle of the commit button.
+    expect(badge.style.borderRadius).toBe('6px')
+    // Same transition as the commit button.
+    expect(badge.style.transition).toContain('background 100ms')
+    expect(badge.style.transition).toContain('border-color 100ms')
+    expect(badge.style.transition).toContain('color 100ms')
+    // Recolored GREEN from the theme success token — not the blue commit button's
+    // color, and not a hardcoded literal green.
+    expect(badge.style.color).toBe('var(--mol-color-success, #16a34a)')
+    expect(badge.style.background).toContain('var(--mol-color-success')
+    expect(badge.style.border).toContain('var(--mol-color-success')
+    expect(badge.style.border).toContain('1px solid')
+    const styleAttr = badge.getAttribute('style') ?? ''
+    // Not the blue commit button's color literally.
+    expect(styleAttr).not.toContain('64, 112, 224')
+    expect(styleAttr).not.toContain('64,112,224')
+    // Not the old hardcoded rgba green either.
     expect(styleAttr).not.toContain('34, 197, 94')
     expect(styleAttr).not.toContain('34,197,94')
   })
 
-  it('guards the pulse behind prefers-reduced-motion (an attribute selector, not an inline animation)', () => {
+  it('has no pulse — no animation, no data-mol-pulse, no injected keyframes (P4-10)', () => {
     const { container } = render(
       <AutoCommitBadge state={{ intervalSeconds: 30, remaining: 12 }} onCancel={() => {}} />,
     )
-    const badge = badgeOf(container)
-    // The animation is NOT inline (an inline animation cannot be media-queried).
-    expect((badge as HTMLElement).style.animation).toBe('')
-    // The injected <style> carries both the keyframes and the reduced-motion off-switch.
-    const style = badge?.querySelector('style')?.textContent ?? ''
-    expect(style).toContain('@keyframes molAutoCommitPulse')
-    expect(style).toContain('prefers-reduced-motion: reduce')
-    expect(style).toContain('animation: none')
+    const badge = badgeOf(container) as HTMLElement
+    // The pulse animation is gone entirely.
+    expect(badge.getAttribute('data-mol-pulse')).toBeNull()
+    expect(badge.style.animation).toBe('')
+    expect(badge.querySelector('style')).toBeNull()
+    expect(container.innerHTML).not.toContain('@keyframes')
+    expect(container.innerHTML).not.toContain('molAutoCommitPulse')
   })
 
-  it('cancels auto-commit when the pill is clicked, in the paused state too', () => {
+  it('cancels auto-commit when the armed countdown button is clicked', () => {
     const onCancel = vi.fn()
     const { container } = render(
-      <AutoCommitBadge state={{ intervalSeconds: 30, remaining: null }} onCancel={onCancel} />,
+      <AutoCommitBadge state={{ intervalSeconds: 30, remaining: 12 }} onCancel={onCancel} />,
     )
     fireEvent.click(badgeOf(container) as HTMLElement)
     expect(onCancel).toHaveBeenCalledTimes(1)

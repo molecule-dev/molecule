@@ -9,14 +9,17 @@
  * and proves the two halves the prompt now relies on:
  *
  *  1. **Hydrate on load** — when the project-settings GET returns a saved
- *     `autoCommitSeconds`, the panel restores it as the persistent (paused)
- *     "Auto-commit on" pill, so a reload genuinely keeps auto-commit on.
- *  2. **Persist on change** — changing the cadence (here: clicking the pill to
- *     cancel) debounce-PATCHes `settings.autoCommitSeconds` back to the server.
+ *     `autoCommitSeconds`, the panel restores the cadence so a reload genuinely
+ *     keeps auto-commit on. Since P4-11 removed the static "Auto-commit on" pill
+ *     (the paused state now shows nothing), hydration is asserted via the
+ *     `/settings` view, which reports the live cadence ("Every 30s").
+ *  2. **Persist on change** — changing the cadence (here: the real `/autocommit`
+ *     command) debounce-PATCHes `settings.autoCommitSeconds` back to the server,
+ *     and arming shows the green countdown badge (P4-10).
  *
  * On the pre-fix code the panel never read or wrote `autoCommitSeconds`, so the
- * pill never appears (1 fails) and no PATCH is sent (2 fails) — exactly the
- * hollow close this re-verify is closing.
+ * cadence never appears in /settings (1 fails) and no PATCH is sent (2 fails) —
+ * exactly the hollow close this re-verify is closing.
  *
  * @module
  */
@@ -191,64 +194,83 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
+/**
+ * Submits a slash command through the real composer (the space closes the
+ * command menu, so Enter submits the raw text rather than picking a menu item).
+ *
+ * @param container - The rendered ChatPanel container.
+ * @param text - The exact command text to type and submit.
+ */
+function submitCommand(container: HTMLElement, text: string): void {
+  const input = container.querySelector('[data-mol-chat-input]') as HTMLTextAreaElement | null
+  if (!input) throw new Error('composer input not found')
+  fireEvent.change(input, { target: { value: text } })
+  fireEvent.keyDown(input, { key: 'Enter' })
+}
+
 describe('ChatPanel auto-commit cadence persistence (SYN3)', () => {
-  it('hydrates the saved cadence into the persistent "Auto-commit on" pill on load', async () => {
+  it('hydrates the saved cadence on load — shown in /settings; no static pill (P4-11)', async () => {
     const patchSpy = vi.fn(async () => ({}))
     const { container } = render(
       renderChatPanel(buildHttpClient({ autoCommitSeconds: 30 }, patchSpy)),
     )
 
-    // The GET returned autoCommitSeconds: 30 → the panel hydrates it as the
-    // paused "on" pill. Pre-fix the panel ignored the field and this never shows.
-    const badge = await waitFor(() => {
-      const el = container.querySelector('[data-mol-id="chat-autocommit-badge"]')
-      expect(el, 'the restored auto-commit pill must render after load').not.toBeNull()
+    // P4-11 removed the paused "Auto-commit on" pill, so the paused state shows
+    // nothing. Open /settings (re-renders with live state) and confirm the cadence
+    // WAS hydrated — pre-fix the panel ignored the field and this stays "Off".
+    const settingsBtn = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="chat-settings-button"]')
+      expect(el, 'the settings button must render').not.toBeNull()
       return el as HTMLElement
     })
-    expect(badge.textContent).toContain('Auto-commit on')
-    // Hydrated as paused (not actively counting down) — re-arms on the next change.
-    expect(badge.getAttribute('data-mol-pulse')).toBe('false')
+    fireEvent.click(settingsBtn)
+
+    await waitFor(() => {
+      const row = container.querySelector('[data-mol-id="setting-row-autoCommit"]')
+      expect(row, 'the /settings auto-commit row must render').not.toBeNull()
+      expect(row?.textContent).toContain('Every 30s')
+    })
+    // No static auto-commit pill in the paused state (P4-11).
+    expect(container.querySelector('[data-mol-id="chat-autocommit-badge"]')).toBeNull()
+    // The hydrated cadence is NOT echoed back as a spurious PATCH (persistedRef set).
+    expect(patchSpy).not.toHaveBeenCalled()
   })
 
-  it('does NOT show the pill when no cadence is saved (off by default)', async () => {
+  it('does NOT show the badge when no cadence is saved (off by default)', async () => {
     const patchSpy = vi.fn(async () => ({}))
     const { container } = render(renderChatPanel(buildHttpClient({}, patchSpy)))
-    // Let the settings GET resolve, then confirm the pill stays absent.
+    // Let the settings GET resolve, then confirm the badge stays absent.
     await waitFor(() => {
       expect(container.querySelector('[data-mol-id="chat-report-button"]')).not.toBeNull()
     })
     expect(container.querySelector('[data-mol-id="chat-autocommit-badge"]')).toBeNull()
   })
 
-  it('debounce-PATCHes settings.autoCommitSeconds when the cadence changes (cancel via the pill)', async () => {
+  it('debounce-PATCHes settings.autoCommitSeconds when the cadence changes (off → /autocommit 30)', async () => {
     const patchSpy = vi.fn(async () => ({}))
-    const { container } = render(
-      renderChatPanel(buildHttpClient({ autoCommitSeconds: 30 }, patchSpy)),
-    )
+    const { container } = render(renderChatPanel(buildHttpClient({}, patchSpy)))
 
-    const badge = await waitFor(() => {
-      const el = container.querySelector('[data-mol-id="chat-autocommit-badge"]')
-      expect(el).not.toBeNull()
-      return el as HTMLElement
+    // Wait for the composer, then confirm there is no badge while off.
+    await waitFor(() => {
+      expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull()
     })
+    expect(container.querySelector('[data-mol-id="chat-autocommit-badge"]')).toBeNull()
 
-    // Click the pill → cancel (set 0). The debounced effect must PATCH the new
-    // cadence back to the server. The just-hydrated value (30) is NOT re-PATCHed.
-    fireEvent.click(badge)
+    // Set a cadence via the REAL /autocommit command — this debounce-PATCHes the
+    // new cadence back to the server. (The armed green countdown badge itself —
+    // which lives in the commit bar's slot, visible only with pending files — is
+    // covered directly in AutoCommitBadge.test.tsx; here we prove persistence.)
+    submitCommand(container, '/autocommit 30')
 
     await waitFor(
       () => {
         expect(patchSpy).toHaveBeenCalledWith(`/projects/${PROJECT_ID}`, {
-          settings: { autoCommitSeconds: 0 },
+          settings: { autoCommitSeconds: 30 },
         })
       },
       { timeout: 2000 },
     )
-    // The hydrated cadence was never echoed back — the only PATCH is the change.
+    // The only PATCH is the change — the off default (0) was never echoed.
     expect(patchSpy).toHaveBeenCalledTimes(1)
-    // …and the pill disappears now that auto-commit is off.
-    await waitFor(() => {
-      expect(container.querySelector('[data-mol-id="chat-autocommit-badge"]')).toBeNull()
-    })
   })
 })
