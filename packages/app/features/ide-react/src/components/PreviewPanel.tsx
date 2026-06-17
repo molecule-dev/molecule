@@ -38,6 +38,7 @@ import { type JSX, useCallback, useEffect, useRef, useState } from 'react'
 import { t } from '@molecule/app-i18n'
 import { withCacheBuster } from '@molecule/app-live-preview'
 import { usePreview } from '@molecule/app-react'
+import { get as storageGet, set as storageSet } from '@molecule/app-storage'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
@@ -45,6 +46,13 @@ import type { PreviewPanelProps } from '../types.js'
 import { type DeviceOrientation, isDeviceRotatable, resolveDeviceSize } from './device-cycle.js'
 import { DeviceFrameSelector } from './DeviceFrameSelector.js'
 import { Icon } from './Icon.js'
+
+/**
+ * Storage key for the persisted preview orientation. The orientation is a global,
+ * cross-device preview preference (it applies to every rotatable device and
+ * survives reloads), persisted via the bonded `@molecule/app-storage` provider.
+ */
+const ORIENTATION_STORAGE_KEY = 'molecule.ide.preview.orientation'
 
 // --- Polling constants (exponential backoff, never gives up) ---
 
@@ -176,20 +184,44 @@ export function PreviewPanel({
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   // Preview-only iframe orientation (portrait ⇄ landscape) for fixed-frame
-  // devices. This is a purely visual preview concern, so it lives in local
-  // state here — it is deliberately NOT part of the live-preview core state.
-  // Switching device resets to portrait (a fresh frame's natural orientation).
+  // devices. A purely visual preview concern, so it lives here rather than in the
+  // live-preview core state — but it is GLOBAL (one orientation for every
+  // rotatable device, never reset on a device switch) and PERSISTED across reloads
+  // via the bonded storage provider, so a chosen landscape carries everywhere.
   const [orientation, setOrientation] = useState<DeviceOrientation>('portrait')
+  // Restore the persisted orientation once on mount. Best-effort: if no storage
+  // provider is bonded (tests / an app that didn't wire one) it just won't persist.
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      try {
+        const stored = await storageGet<DeviceOrientation>(ORIENTATION_STORAGE_KEY)
+        if (mounted && (stored === 'portrait' || stored === 'landscape')) {
+          setOrientation(stored)
+        }
+      } catch (_error) {
+        // No storage provider bonded / read failed — orientation simply won't persist.
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [])
+  // Device switching does NOT reset the orientation — it's a global preference, so
+  // a landscape choice applies to whichever rotatable device is selected next.
   const handleDeviceChange = useCallback(
     (device: typeof state.device) => {
-      setOrientation('portrait')
       setDevice(device)
     },
     [setDevice],
   )
   const handleRotate = useCallback(() => {
-    setOrientation((current) => (current === 'portrait' ? 'landscape' : 'portrait'))
-  }, [])
+    const next: DeviceOrientation = orientation === 'portrait' ? 'landscape' : 'portrait'
+    setOrientation(next)
+    void storageSet(ORIENTATION_STORAGE_KEY, next).catch((_error) => {
+      // Best-effort persist — no storage provider bonded; the in-memory value still applies.
+    })
+  }, [orientation])
   const canRotate = isDeviceRotatable(state.device)
 
   // The preview's actual current location (updated by the scaffold's
@@ -976,6 +1008,7 @@ export function PreviewPanel({
             current={state.device}
             onChange={handleDeviceChange}
             canRotate={canRotate}
+            rotated={orientation === 'landscape'}
             onRotate={handleRotate}
             onOpenExternal={openExternal}
           />

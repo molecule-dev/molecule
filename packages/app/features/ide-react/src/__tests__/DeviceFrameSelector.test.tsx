@@ -261,12 +261,37 @@ describe('DeviceFrameSelector (P4-04 — in-dropdown Rotate + Open in new tab ac
     const menu = getMenu(container) as HTMLElement
     const rotate = menu.querySelector('[data-mol-id="preview-device-rotate"]') as HTMLElement
     expect(rotate, 'a rotatable frame shows the Rotate action').not.toBeNull()
-    expect(rotate.getAttribute('role')).toBe('menuitem')
+    // Rotate is a TOGGLE — a menuitemcheckbox, unchecked here (no `rotated` passed).
+    expect(rotate.getAttribute('role')).toBe('menuitemcheckbox')
+    expect(rotate.getAttribute('aria-checked')).toBe('false')
     expect(rotate.querySelector('svg path')?.getAttribute('d')).toBe('glyph:rotate')
     expect(rotate.textContent).toBe('Rotate')
     fireEvent.click(rotate)
     expect(onRotate).toHaveBeenCalledTimes(1)
     expect(getMenu(container)).toBeNull()
+  })
+
+  it('renders Rotate as a CHECKED toggle (aria-checked + a check glyph) when rotated', () => {
+    const { container } = render(
+      <Wrap>
+        <DeviceFrameSelector
+          current="tablet"
+          onChange={() => {}}
+          canRotate
+          rotated
+          onRotate={() => {}}
+        />
+      </Wrap>,
+    )
+    fireEvent.click(getTrigger(container))
+    const rotate = (getMenu(container) as HTMLElement).querySelector(
+      '[data-mol-id="preview-device-rotate"]',
+    ) as HTMLElement
+    expect(rotate.getAttribute('role')).toBe('menuitemcheckbox')
+    expect(rotate.getAttribute('aria-checked')).toBe('true')
+    // The check glyph (same affordance as the selected device row) marks it "on".
+    const glyphs = [...rotate.querySelectorAll('svg path')].map((p) => p.getAttribute('d'))
+    expect(glyphs).toContain('glyph:check')
   })
 
   it('hides the Rotate action for a non-rotatable frame, keeping Open in new tab', () => {

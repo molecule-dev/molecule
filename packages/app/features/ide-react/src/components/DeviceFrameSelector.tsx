@@ -9,8 +9,10 @@
  *
  * Below the frames (after a divider) the menu also hosts the preview's "Rotate"
  * and "Open in new tab" actions (P4-04) that used to be separate toolbar
- * buttons. "Rotate" is shown only "where relevant" — when the current frame is
- * rotatable (fixed-frame tablet/mobile) and an `onRotate` handler is wired;
+ * buttons. "Rotate" is a TOGGLE — a `menuitemcheckbox` that shows a check when the
+ * preview is rotated to landscape — shown only "where relevant", i.e. when the
+ * current frame is rotatable (fixed-frame tablet/mobile) and an `onRotate` handler
+ * is wired;
  * "Open in new tab" is shown whenever an `onOpenExternal` handler is wired.
  * Both share the frame rows' icon + label styling and the same roving focus.
  *
@@ -47,6 +49,8 @@ import { Icon } from './Icon.js'
 interface DeviceFrameSelectorWithActionsProps extends DeviceFrameSelectorProps {
   /** Whether the current frame can be rotated — gates the Rotate item ("when/where relevant"). */
   canRotate?: boolean
+  /** Whether the preview is currently rotated to landscape — renders Rotate as a CHECKED toggle. */
+  rotated?: boolean
   /** Rotate the current fixed-frame device portrait ⇄ landscape. Omit to hide the Rotate item. */
   onRotate?: () => void
   /** Open the preview URL in a new browser tab. Omit to hide the Open-in-new-tab item. */
@@ -61,6 +65,7 @@ interface DeviceFrameSelectorWithActionsProps extends DeviceFrameSelectorProps {
  * @param root0.onChange - Callback invoked with the chosen frame.
  * @param root0.className - Optional CSS class name for the trigger button.
  * @param root0.canRotate - Whether the current frame is rotatable (gates the Rotate item).
+ * @param root0.rotated - Whether the preview is currently landscape (renders Rotate as a checked toggle).
  * @param root0.onRotate - Rotate the current fixed-frame device; omit to hide the Rotate item.
  * @param root0.onOpenExternal - Open the preview in a new tab; omit to hide the item.
  * @returns The rendered device-frame selector element.
@@ -70,6 +75,7 @@ export function DeviceFrameSelector({
   onChange,
   className,
   canRotate,
+  rotated,
   onRotate,
   onOpenExternal,
 }: DeviceFrameSelectorWithActionsProps): JSX.Element {
@@ -79,7 +85,14 @@ export function DeviceFrameSelector({
   // (only "where relevant" — when the current frame is rotatable AND a handler
   // is wired) and Open in new tab (whenever a handler is wired). Built as data so
   // they share the frame rows' roving-focus model + menu-item styling.
-  const actionItems: ReadonlyArray<{ id: string; icon: string; label: string; run: () => void }> = [
+  const actionItems: ReadonlyArray<{
+    id: string
+    icon: string
+    label: string
+    run: () => void
+    /** When set, the row renders as a `menuitemcheckbox` toggle reflecting this state. */
+    checked?: boolean
+  }> = [
     ...(canRotate && onRotate
       ? [
           {
@@ -87,6 +100,9 @@ export function DeviceFrameSelector({
             icon: 'rotate',
             label: t('ide.device.rotate', {}, { defaultValue: 'Rotate' }),
             run: onRotate,
+            // Rotate is a TOGGLE (portrait ⇄ landscape) — show its on/off state with a
+            // check, so it reads as a toggle rather than a one-shot action.
+            checked: !!rotated,
           },
         ]
       : []),
@@ -324,7 +340,8 @@ export function DeviceFrameSelector({
                   itemRefs.current[index] = node
                 }}
                 type="button"
-                role="menuitem"
+                role={item.checked !== undefined ? 'menuitemcheckbox' : 'menuitem'}
+                aria-checked={item.checked}
                 tabIndex={isActive ? 0 : -1}
                 data-mol-id={item.id}
                 onClick={() => runAction(item.run)}
@@ -350,6 +367,9 @@ export function DeviceFrameSelector({
               >
                 <Icon name={item.icon} size={16} aria-hidden="true" />
                 <span style={{ flex: 1 }}>{item.label}</span>
+                {/* Toggle rows (Rotate) show a check when on — same affordance as the
+                    selected device row, so it reads as a toggle, not a one-shot action. */}
+                {item.checked && <Icon name="check" size={14} aria-hidden="true" />}
               </button>
             )
           })}
