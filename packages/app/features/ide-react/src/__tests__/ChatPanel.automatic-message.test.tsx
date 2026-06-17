@@ -249,7 +249,7 @@ describe('ChatPanel auto-sent + hidden messages (C2 + C3)', () => {
     expect(autoCard!.textContent).toContain('Sent automatically')
   })
 
-  it('renders a real user message with the user avatar + blue accent (not auto-sent)', async () => {
+  it('renders a real user message with the user avatar + animated gradient accent (not auto-sent)', async () => {
     const { container } = render(renderChatPanel())
 
     await waitFor(() => {
@@ -260,7 +260,15 @@ describe('ChatPanel auto-sent + hidden messages (C2 + C3)', () => {
       '[data-mol-id="chat-user-message"]',
     ) as HTMLElement | null
     expect(userCard).not.toBeNull()
-    expect(userCard!.style.borderLeft).toContain('--mol-color-primary')
+    // A real user message no longer carries a flat inline accent — its left edge is
+    // the molecule brand's ANIMATED gradient, drawn by a `::before` whose rule is
+    // injected once and gated on this row's data-mol-id. So it must NOT have the
+    // auto-sent green border, and the gradient rule must be present + wired.
+    expect(userCard!.style.borderLeft).not.toContain('--mol-color-success')
+    const accentStyle = document.getElementById('mol-chat-user-accent-style')
+    expect(accentStyle, 'the user-accent gradient style should be injected').not.toBeNull()
+    expect(accentStyle!.textContent).toContain('[data-mol-id="chat-user-message"]::before')
+    expect(accentStyle!.textContent).toContain('--mol-accent-gradient')
     expect(userCard!.querySelector('[data-mol-id="chat-user-avatar"]')).not.toBeNull()
     expect(userCard!.textContent).not.toContain('Sent automatically')
   })

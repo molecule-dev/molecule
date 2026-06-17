@@ -479,6 +479,39 @@ function relativeTimeLong(ms: number): string {
   return `${d} day${d === 1 ? '' : 's'} ago`
 }
 
+/**
+ * User-message accent stripe. The left edge of a real user message draws the
+ * molecule brand's animated gradient instead of a flat color — the host exposes it
+ * as `--mol-accent-gradient` (molecule.dev's soft pastel ring, the same gradient as
+ * the composer); apps that don't define it fall back to a primary-tinted shimmer, so
+ * it always recolors with the theme. A `::before` + its keyframe can't be expressed
+ * inline (and inline `animation` can't be media-queried), so — like AutoCommitBadge —
+ * it is injected once and gated on the existing `data-mol-id`. The auto-sent row has
+ * a different id and keeps its solid success accent.
+ */
+const USER_ACCENT_STYLE = `
+[data-mol-id="chat-user-message"] { position: relative; }
+[data-mol-id="chat-user-message"]::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: inherit;
+  background: var(--mol-accent-gradient, linear-gradient(120deg, var(--mol-color-primary, #6366f1), color-mix(in srgb, var(--mol-color-primary, #6366f1) 55%, #fff), var(--mol-color-primary, #6366f1)));
+  background-size: 400% 400%;
+  animation: mol-chat-accent-flow 15s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes mol-chat-accent-flow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-mol-id="chat-user-message"]::before { animation: none; }
+}`
+
 /** Maximum file size for attachments (20 MB). */
 const MAX_ATTACHMENT_SIZE = 20 * 1024 * 1024
 
@@ -1492,12 +1525,15 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
             gap: '10px',
             minWidth: 0,
             borderRadius: '4px',
-            // Real user message → blue (primary). Auto-sent on the user's behalf
-            // → green (success), so it's obvious the agent sent it, not the user.
-            borderLeft: isAutomatic
-              ? '2px solid var(--mol-color-success, #16a34a)'
-              : '2px solid var(--mol-color-primary, #6366f1)',
-            paddingLeft: '10px',
+            // Auto-sent on the user's behalf → a solid green (success) left border so
+            // it's obvious the agent sent it, not the user. A real user message gets
+            // the molecule brand's ANIMATED gradient stripe instead — drawn by the
+            // `::before` injected via USER_ACCENT_STYLE, gated on the `data-mol-id`
+            // below — so no inline border here for the user case.
+            ...(isAutomatic ? { borderLeft: '2px solid var(--mol-color-success, #16a34a)' } : {}),
+            // Keep the avatar's gap to the accent equal (10px) on both: the auto-sent
+            // 2px border + 10px padding, vs the user's 2px gradient stripe + 12px.
+            paddingLeft: isAutomatic ? '10px' : '12px',
             paddingTop: '10px',
             paddingBottom: '10px',
             paddingRight: '10px',
@@ -2970,6 +3006,18 @@ function ChatInner({
     [],
   )
   addSystemCardRef.current = addSystemCard
+
+  // Inject the user-message accent-stripe styles once (the gradient `::before` + its
+  // keyframe can't live inline; gated on the row's data-mol-id, so no other row is
+  // touched). Guarded by id so it injects a single time across the app.
+  useEffect(() => {
+    const id = 'mol-chat-user-accent-style'
+    if (typeof document === 'undefined' || document.getElementById(id)) return
+    const el = document.createElement('style')
+    el.id = id
+    el.textContent = USER_ACCENT_STYLE
+    document.head.appendChild(el)
+  }, [])
 
   // ── Persist system cards across reloads ───────────────────────────────────
   // The system cards above are frontend state; on their own they vanish on every
