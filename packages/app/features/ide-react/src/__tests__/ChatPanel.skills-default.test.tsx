@@ -480,7 +480,7 @@ describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" 
     expect(announcedMarkerPatched(patchSpy)).toBe(false)
   })
 
-  it('clicking the "Loaded N skills" card opens the /skills browser', async () => {
+  it('clicking the "Loaded N skills" card opens the /skills browser overlay', async () => {
     const patchSpy = vi.fn(async () => ({}))
     const { container } = render(
       renderChatPanel(buildHttpClient({}, patchSpy, async () => [...SKILL_PATHS])),
@@ -493,14 +493,46 @@ describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" 
       return el as HTMLElement
     })) as HTMLButtonElement
 
-    // The skills browser is not open yet.
+    // Neither the skills browser nor its closeable overlay is open yet.
     expect(container.querySelector('[data-mol-id="skills-card"]')).toBeNull()
+    expect(container.querySelector('[data-mol-id="panel-overlay-close"]')).toBeNull()
 
     fireEvent.click(card)
 
-    // Clicking adds a 'skills'-variant card — the exact same path as typing /skills.
-    await waitFor(() =>
-      expect(container.querySelector('[data-mol-id="skills-card"]')).not.toBeNull(),
+    // Clicking opens the closeable overlay — the exact same path as typing /skills.
+    // The SkillsCard mounts INSIDE the overlay, which carries a ✕ close button.
+    await waitFor(() => {
+      expect(container.querySelector('[data-mol-id="skills-card"]')).not.toBeNull()
+      expect(container.querySelector('[data-mol-id="panel-overlay-close"]')).not.toBeNull()
+    })
+  })
+
+  it('invoking /skills opens the closeable overlay and the ✕ closes it', async () => {
+    const patchSpy = vi.fn(async () => ({}))
+    const { container } = render(
+      renderChatPanel(buildHttpClient({}, patchSpy, async () => [...SKILL_PATHS])),
     )
+
+    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+
+    // Not an inline timeline card — the overlay shell (✕) is what opens.
+    expect(container.querySelector('[data-mol-id="panel-overlay-close"]')).toBeNull()
+
+    submitCommand(container, '/skills')
+
+    // The overlay opens with the SkillsCard mounted inside it + a ✕ close button.
+    const close = (await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="panel-overlay-close"]')
+      expect(el, 'the /skills overlay must open with a ✕ close button').not.toBeNull()
+      expect(container.querySelector('[data-mol-id="skills-card"]')).not.toBeNull()
+      return el as HTMLElement
+    })) as HTMLButtonElement
+
+    // Clicking ✕ closes the overlay — both the shell and the card unmount.
+    fireEvent.click(close)
+    await waitFor(() => {
+      expect(container.querySelector('[data-mol-id="panel-overlay-close"]')).toBeNull()
+      expect(container.querySelector('[data-mol-id="skills-card"]')).toBeNull()
+    })
   })
 })

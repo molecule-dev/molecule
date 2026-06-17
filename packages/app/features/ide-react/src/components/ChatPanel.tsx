@@ -99,6 +99,7 @@ import {
   parseScriptsCommand,
   runSucceeded,
 } from './chat-scripts-utilities.js'
+import type { SettingDescriptor } from './chat-settings-utilities.js'
 import { buildSettingsList, summarizeSounds } from './chat-settings-utilities.js'
 import type { ShareLinkResult, ShareRole } from './chat-share-utilities.js'
 import {
@@ -3261,6 +3262,27 @@ function ChatInner({
   const [soundsPicker, setSoundsPicker] = useState<SoundsPicker | null>(null)
   const [soundsConfig, setSoundsConfig] = useState<SoundsConfig>({ ...DEFAULT_SOUNDS_CONFIG })
 
+  // ── Panel overlay (/skills, /scripts, /settings — closeable popups) ──────────
+  // These three commands open a closeable overlay above the composer (mirrors how
+  // /model and /sounds own this popup region) instead of dropping an inline card
+  // into the timeline. `panelOverlayQuery` seeds the skills/scripts search from a
+  // `/skills <query>` / `/scripts <query>` invocation. Mutually exclusive with the
+  // model + sounds pickers — only one popup owns the region at a time.
+  const [panelOverlay, setPanelOverlay] = useState<'skills' | 'scripts' | 'settings' | null>(null)
+  const [panelOverlayQuery, setPanelOverlayQuery] = useState('')
+  const openPanelOverlay = useCallback(
+    (variant: 'skills' | 'scripts' | 'settings', query = ''): void => {
+      // Close any sibling popup so overlays never stack (matches how the model
+      // picker / sounds picker each own this region exclusively).
+      setModelPicker(null)
+      setSoundsPicker(null)
+      setCommandMenu(null)
+      setPanelOverlayQuery(query)
+      setPanelOverlay(variant)
+    },
+    [],
+  )
+
   // Keep ref in sync so the streaming callback always sees latest config
   useEffect(() => {
     soundsConfigRef.current = soundsConfig
@@ -4340,6 +4362,10 @@ function ChatInner({
   const executeCommand = useCallback(
     async (id: CommandId) => {
       setCommandMenu(null)
+      // Any command closes a stray panel overlay (skills/scripts/settings) so a
+      // sibling popup like /model or /sounds never stacks on top of it. The
+      // skills/scripts/settings branches below re-open it via openPanelOverlay.
+      setPanelOverlay(null)
       if (id === 'clear') {
         setInputValue('')
         await clearHistory()
@@ -4608,18 +4634,18 @@ function ChatInner({
         setSoundsPicker({ selectedIdx: -1 })
       } else if (id === 'settings') {
         setInputValue('')
-        // Renders the settings + command-reference card (see the 'settings' variant branch).
-        addSystemCard('', undefined, 'settings')
+        // Opens the settings + command-reference card in a closeable overlay.
+        openPanelOverlay('settings')
       } else if (id === 'skills') {
         setInputValue('')
-        // Renders the skills browser (see the 'skills' variant branch). A query,
-        // if any, is supplied via the /skills <query> path in handleSubmit.
-        addSystemCard('', undefined, 'skills')
+        // Opens the skills browser in a closeable overlay. A query, if any, is
+        // supplied via the /skills <query> path in handleSubmit.
+        openPanelOverlay('skills')
       } else if (id === 'scripts') {
         setInputValue('')
-        // Renders the scripts browser (see the 'scripts' variant branch). A query,
-        // if any, is supplied via the /scripts <query> path in handleSubmit.
-        addSystemCard('', undefined, 'scripts')
+        // Opens the scripts browser in a closeable overlay. A query, if any, is
+        // supplied via the /scripts <query> path in handleSubmit.
+        openPanelOverlay('scripts')
       } else if (id === 'run') {
         // /run needs a script name — prefill so the user can type it (the run is
         // dispatched from handleSubmit via runSavedScript).
@@ -4658,6 +4684,7 @@ function ChatInner({
       messages,
       sendMessage,
       refreshGitStatus,
+      openPanelOverlay,
     ],
   )
 
@@ -4688,6 +4715,8 @@ function ChatInner({
     // Handle /sounds command locally
     if (/^\/sounds$/i.test(trimmed)) {
       setInputValue('')
+      // Sounds owns the popup region exclusively — close any open panel overlay.
+      setPanelOverlay(null)
       setSoundsPicker({ selectedIdx: -1 })
       return
     }
@@ -4698,21 +4727,21 @@ function ChatInner({
       return
     }
 
-    // Handle /skills [query] command locally — renders the skills browser,
-    // seeded with the query (if any) so the card opens pre-filtered.
+    // Handle /skills [query] command locally — opens the skills browser overlay,
+    // seeded with the query (if any) so it opens pre-filtered.
     const skillsMatch = trimmed.match(/^\/skills(?:\s+(.*))?$/i)
     if (skillsMatch) {
       setInputValue('')
-      addSystemCard('', undefined, 'skills', skillsMatch[1]?.trim() ?? '')
+      openPanelOverlay('skills', skillsMatch[1]?.trim() ?? '')
       return
     }
 
-    // Handle /scripts [query] command locally — renders the scripts browser,
-    // seeded with the query (if any) so the card opens pre-filtered.
+    // Handle /scripts [query] command locally — opens the scripts browser overlay,
+    // seeded with the query (if any) so it opens pre-filtered.
     const scriptsMatch = parseScriptsCommand(trimmed)
     if (scriptsMatch) {
       setInputValue('')
-      addSystemCard('', undefined, 'scripts', scriptsMatch.query)
+      openPanelOverlay('scripts', scriptsMatch.query)
       return
     }
 
@@ -4802,6 +4831,8 @@ function ChatInner({
     const modelModeMatch = parseModelModeCommand(trimmed)
     if (modelModeMatch) {
       setInputValue('')
+      // Model picker owns the popup region exclusively — close any open overlay.
+      setPanelOverlay(null)
       setModelPicker({ selectedIdx: -1, mode: modelModeMatch.mode })
       return
     }
@@ -5254,6 +5285,10 @@ function ChatInner({
         setModelPicker(null)
         return
       }
+      if (panelOverlay) {
+        setPanelOverlay(null)
+        return
+      }
       if (filePicker) {
         setFilePicker(null)
         return
@@ -5414,6 +5449,55 @@ function ChatInner({
     return items
   }, [visibleMessages, commitCards, systemCards, activityCards, tipCards])
 
+  // The live settings list for the /settings card. Shared by the closeable
+  // overlay and the legacy inline 'settings' branch (back-compat for any already
+  // persisted inline card) so the two can never drift. Recomputed each render so
+  // it always reflects the current model/mode/effort/sounds/etc.
+  const computeSettingsList = (): SettingDescriptor[] => {
+    const soundsSummary = summarizeSounds(soundsConfig)
+    const notSet = t('ide.chat.settings.modelUnset', undefined, { defaultValue: 'Not set' })
+    const modelLabel = (id: string): string =>
+      AVAILABLE_MODELS.find((m) => m.id === id)?.label || id
+    // Per-mode models fall back to the default model when unset; show that
+    // explicitly so the panel never understates the config (SYN11).
+    const followsDefault = t('ide.chat.settings.modelFollowsDefault', undefined, {
+      defaultValue: 'Follows default model',
+    })
+    return buildSettingsList({
+      model: currentModel ? modelLabel(currentModel) : notSet,
+      planModel: planModel ? modelLabel(planModel) : followsDefault,
+      executeModel: executeModel ? modelLabel(executeModel) : followsDefault,
+      mode:
+        mode === 'plan'
+          ? t('ide.chat.settings.modePlan', undefined, { defaultValue: 'Plan' })
+          : t('ide.chat.settings.modeExecute', undefined, { defaultValue: 'Execute' }),
+      effort: t(
+        'ide.chat.settings.effortValue',
+        { level: effortLevel, label: EFFORT_LEVEL_LABELS[effortLevel] },
+        { defaultValue: '{{label}} ({{level}})' },
+      ),
+      maxLoops: String(currentMaxLoops),
+      autoFix: autoFixEnabled
+        ? t('ide.chat.settings.on', undefined, { defaultValue: 'On' })
+        : t('ide.chat.settings.off', undefined, { defaultValue: 'Off' }),
+      autoCommit: isAutoCommitEnabled(autoCommit)
+        ? t(
+            'ide.chat.settings.autoCommitEvery',
+            { seconds: autoCommit.intervalSeconds },
+            { defaultValue: 'Every {{seconds}}s' },
+          )
+        : t('ide.chat.settings.off', undefined, { defaultValue: 'Off' }),
+      hooks: t('ide.chat.settings.hooksValue', undefined, {
+        defaultValue: 'In project settings',
+      }),
+      sounds: t(
+        'ide.chat.settings.soundsSummary',
+        { enabled: soundsSummary.enabled, total: soundsSummary.total },
+        { defaultValue: '{{enabled}} of {{total}} events enabled' },
+      ),
+    })
+  }
+
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div
@@ -5519,54 +5603,13 @@ function ChatInner({
 
             if (item.kind === 'system') {
               if (item.card.variant === 'settings') {
-                const soundsSummary = summarizeSounds(soundsConfig)
-                const notSet = t('ide.chat.settings.modelUnset', undefined, {
-                  defaultValue: 'Not set',
-                })
-                const modelLabel = (id: string): string =>
-                  AVAILABLE_MODELS.find((m) => m.id === id)?.label || id
-                // Per-mode models fall back to the default model when unset; show
-                // that explicitly so the panel never understates the config (SYN11).
-                const followsDefault = t('ide.chat.settings.modelFollowsDefault', undefined, {
-                  defaultValue: 'Follows default model',
-                })
-                const settings = buildSettingsList({
-                  model: currentModel ? modelLabel(currentModel) : notSet,
-                  planModel: planModel ? modelLabel(planModel) : followsDefault,
-                  executeModel: executeModel ? modelLabel(executeModel) : followsDefault,
-                  mode:
-                    mode === 'plan'
-                      ? t('ide.chat.settings.modePlan', undefined, { defaultValue: 'Plan' })
-                      : t('ide.chat.settings.modeExecute', undefined, { defaultValue: 'Execute' }),
-                  effort: t(
-                    'ide.chat.settings.effortValue',
-                    { level: effortLevel, label: EFFORT_LEVEL_LABELS[effortLevel] },
-                    { defaultValue: '{{label}} ({{level}})' },
-                  ),
-                  maxLoops: String(currentMaxLoops),
-                  autoFix: autoFixEnabled
-                    ? t('ide.chat.settings.on', undefined, { defaultValue: 'On' })
-                    : t('ide.chat.settings.off', undefined, { defaultValue: 'Off' }),
-                  autoCommit: isAutoCommitEnabled(autoCommit)
-                    ? t(
-                        'ide.chat.settings.autoCommitEvery',
-                        { seconds: autoCommit.intervalSeconds },
-                        { defaultValue: 'Every {{seconds}}s' },
-                      )
-                    : t('ide.chat.settings.off', undefined, { defaultValue: 'Off' }),
-                  hooks: t('ide.chat.settings.hooksValue', undefined, {
-                    defaultValue: 'In project settings',
-                  }),
-                  sounds: t(
-                    'ide.chat.settings.soundsSummary',
-                    { enabled: soundsSummary.enabled, total: soundsSummary.total },
-                    { defaultValue: '{{enabled}} of {{total}} events enabled' },
-                  ),
-                })
+                // Legacy inline branch — kept so any 'settings' card persisted
+                // before /settings became an overlay still renders. New /settings
+                // invocations open the closeable overlay (see panelOverlay below).
                 return (
                   <SettingsCard
                     key={item.card.id}
-                    settings={settings}
+                    settings={computeSettingsList()}
                     onRunCommand={(commandId) => void executeCommand(commandId)}
                     onPrefillInput={(input) => setInputAndCursorEnd(`${input} `)}
                     isLight={isLight}
@@ -5621,11 +5664,11 @@ function ChatInner({
               }
               if (item.card.variant === 'skillsLoaded') {
                 // Compact, clearly-clickable "Loaded {{count}} skills" notice. Its
-                // onClick is CREATED HERE at render time — calling addSystemCard with
-                // the 'skills' variant, the exact same thing typing /skills does — so
-                // it survives the persistence round-trip (which stores only variant +
-                // count + text, never callbacks). Text restores from the persisted
-                // copy; re-derive from `count` if a caller passed none.
+                // onClick is CREATED HERE at render time — opening the /skills browser
+                // overlay, the exact same thing typing /skills does — so it survives the
+                // persistence round-trip (which stores only variant + count + text, never
+                // callbacks). Text restores from the persisted copy; re-derive from
+                // `count` if a caller passed none.
                 const skillsLoadedLabel =
                   item.card.text ||
                   t(
@@ -5641,7 +5684,7 @@ function ChatInner({
                     <button
                       type="button"
                       data-mol-id="chat-skills-loaded"
-                      onClick={() => addSystemCard('', undefined, 'skills')}
+                      onClick={() => openPanelOverlay('skills')}
                       className={cm.cn(
                         cm.surfaceSecondary,
                         cm.borderAll,
@@ -6929,6 +6972,92 @@ function ChatInner({
           </div>
         )}
 
+        {/* Panel overlay popup (/skills, /scripts, /settings) — a closeable popup
+            above the composer, mirroring the model + sounds picker shell. The card
+            inside keeps its own header, so we add only a top-right ✕ (plus Esc). */}
+        {panelOverlay && (
+          <div
+            className={cm.cn(cm.surface, cm.borderAll)}
+            style={{
+              position: 'absolute',
+              bottom: '100%',
+              left: 0,
+              right: 0,
+              marginBottom: 0,
+              borderRadius: '6px 6px 0 0',
+              zIndex: 100,
+              boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              maxHeight: '70vh',
+            }}
+            // Esc closes it even when focus is inside the card's own search input
+            // (the textarea's native keydown listener only fires while it is focused).
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                e.stopPropagation()
+                setPanelOverlay(null)
+              }
+            }}
+          >
+            <button
+              type="button"
+              data-mol-id="panel-overlay-close"
+              aria-label={t('ide.chat.closeOverlay', undefined, { defaultValue: 'Close' })}
+              onClick={() => setPanelOverlay(null)}
+              style={{
+                position: 'absolute',
+                top: 6,
+                right: 8,
+                zIndex: 1,
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'inherit',
+                padding: '0 2px',
+                fontSize: '14px',
+                lineHeight: 1,
+                opacity: 0.6,
+              }}
+            >
+              {'✕'}
+            </button>
+            <div style={{ overflowY: 'auto', flex: 1 }}>
+              {panelOverlay === 'settings' && (
+                <SettingsCard
+                  settings={computeSettingsList()}
+                  onRunCommand={(commandId) => void executeCommand(commandId)}
+                  onPrefillInput={(input) => setInputAndCursorEnd(`${input} `)}
+                  isLight={isLight}
+                  agentName={agentName}
+                />
+              )}
+              {panelOverlay === 'skills' && (
+                <SkillsCard
+                  projectId={projectId}
+                  initialQuery={panelOverlayQuery}
+                  onLoad={loadSkill}
+                  onCreate={createSkill}
+                  loadedSkillPaths={loadedSkillPaths}
+                  defaultSkillPaths={defaultSkillPaths}
+                  onToggleDefault={toggleDefaultSkill}
+                  onResetDefault={resetDefaultSkills}
+                  defaultsExplicit={defaultSkillsExplicitRef.current}
+                  isLight={isLight}
+                />
+              )}
+              {panelOverlay === 'scripts' && (
+                <ScriptsCard
+                  projectId={projectId}
+                  initialQuery={panelOverlayQuery}
+                  isLight={isLight}
+                  agentName={agentName}
+                />
+              )}
+            </div>
+          </div>
+        )}
+
         {/* File picker popup */}
         {filePicker &&
           filteredEntries.length > 0 &&
@@ -7025,244 +7154,255 @@ function ChatInner({
           })()}
 
         {/* Commit bar — anchored above the textarea (hidden when a popup menu is open) */}
-        {pendingFiles != null && pendingFiles.length > 0 && !commandMenu && !modelPicker && (
-          <div
-            style={{
-              borderTop: '1px solid rgba(128,128,128,0.15)',
-              // Equal top/right/bottom (8px) so the commit button — flush to the
-              // right edge via the row's space-between — has the same gap on its
-              // top, right, and bottom (P5-05). Left stays 10px so the chevron +
-              // "N uncommitted files" text keep their indent. The green
-              // AutoCommitBadge (inline) shares this slot + box model, so it
-              // inherits the identical margins and sits in the same spot.
-              padding: '8px 8px 8px 10px',
-            }}
-          >
+        {pendingFiles != null &&
+          pendingFiles.length > 0 &&
+          !commandMenu &&
+          !modelPicker &&
+          !panelOverlay && (
             <div
-              role="button"
-              tabIndex={0}
-              onClick={() => setCommitBarExpanded((v) => !v)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  setCommitBarExpanded((v) => !v)
-                }
-              }}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                cursor: 'pointer',
+                borderTop: '1px solid rgba(128,128,128,0.15)',
+                // Equal top/right/bottom (8px) so the commit button — flush to the
+                // right edge via the row's space-between — has the same gap on its
+                // top, right, and bottom (P5-05). Left stays 10px so the chevron +
+                // "N uncommitted files" text keep their indent. The green
+                // AutoCommitBadge (inline) shares this slot + box model, so it
+                // inherits the identical margins and sits in the same spot.
+                padding: '8px 8px 8px 10px',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  width="12"
-                  height="12"
-                  style={{
-                    transform: commitBarExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                    transition: 'transform 120ms',
-                    opacity: 0.5,
-                  }}
-                >
-                  <path
-                    d="M6 4l4 4-4 4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span className={cm.cn(cm.textMuted, cm.textSize('xs'))}>
-                  {commitState?.status === 'committed'
-                    ? stripCommitCoauthorTrailer(commitState.message ?? '')
-                    : commitState?.status === 'error'
-                      ? t('ide.chat.commitFailed')
-                      : t(
-                          'ide.chat.uncommittedFileCount',
-                          { count: pendingFiles.length },
-                          { defaultValue: '{{count}} uncommitted files' },
-                        )}
-                </span>
-              </div>
-              {/* When auto-commit is armed, the green countdown occupies the Commit
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setCommitBarExpanded((v) => !v)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    setCommitBarExpanded((v) => !v)
+                  }
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16"
+                    width="12"
+                    height="12"
+                    style={{
+                      transform: commitBarExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                      transition: 'transform 120ms',
+                      opacity: 0.5,
+                    }}
+                  >
+                    <path
+                      d="M6 4l4 4-4 4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span className={cm.cn(cm.textMuted, cm.textSize('xs'))}>
+                    {commitState?.status === 'committed'
+                      ? stripCommitCoauthorTrailer(commitState.message ?? '')
+                      : commitState?.status === 'error'
+                        ? t('ide.chat.commitFailed')
+                        : t(
+                            'ide.chat.uncommittedFileCount',
+                            { count: pendingFiles.length },
+                            { defaultValue: '{{count}} uncommitted files' },
+                          )}
+                  </span>
+                </div>
+                {/* When auto-commit is armed, the green countdown occupies the Commit
                   button's slot (P3-15); cancelling it (click) falls back to the
                   manual Commit button. */}
-              {isAutoCommitArmed(autoCommit) ? (
-                <AutoCommitBadge
-                  state={autoCommit}
-                  onCancel={() => dispatchAutoCommit({ type: 'set', seconds: 0 })}
-                  inline
-                />
-              ) : (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleCommit()
-                  }}
-                  disabled={
-                    commitState?.status === 'committing' || commitState?.status === 'committed'
-                  }
-                  onMouseEnter={(e) => {
-                    if (
-                      !(commitState?.status === 'committing' || commitState?.status === 'committed')
-                    ) {
-                      e.currentTarget.style.background = 'rgba(64,112,224,0.3)'
-                      e.currentTarget.style.borderColor = 'rgba(64,112,224,0.65)'
-                      e.currentTarget.style.color = '#6090f0'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(64,112,224,0.2)'
-                    e.currentTarget.style.borderColor = 'rgba(64,112,224,0.4)'
-                    e.currentTarget.style.color = '#4070e0'
-                  }}
-                  style={{
-                    fontSize: 12,
-                    padding: '4px 10px',
-                    borderRadius: 6,
-                    border: '1px solid rgba(64,112,224,0.4)',
-                    background: 'rgba(64,112,224,0.2)',
-                    color: '#4070e0',
-                    cursor:
-                      commitState?.status === 'committing' || commitState?.status === 'committed'
-                        ? 'not-allowed'
-                        : 'pointer',
-                    opacity:
-                      commitState?.status === 'committing' || commitState?.status === 'committed'
-                        ? 0.5
-                        : 1,
-                    transition: 'background 100ms, border-color 100ms, color 100ms',
-                  }}
-                >
-                  {commitState?.status === 'committing'
-                    ? t('ide.chat.committing')
-                    : t('ide.chat.commit')}
-                </button>
-              )}
-            </div>
-            {commitBarExpanded && (
-              <div style={{ marginTop: 4, paddingLeft: 16, maxHeight: 200, overflowY: 'auto' }}>
-                {pendingFiles.map((f) => (
+                {isAutoCommitArmed(autoCommit) ? (
+                  <AutoCommitBadge
+                    state={autoCommit}
+                    onCancel={() => dispatchAutoCommit({ type: 'set', seconds: 0 })}
+                    inline
+                  />
+                ) : (
                   <button
-                    key={f.path}
                     type="button"
-                    onClick={() => onFileDiff?.(f.path)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleCommit()
+                    }}
+                    disabled={
+                      commitState?.status === 'committing' || commitState?.status === 'committed'
+                    }
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.color = '#6090f0'
+                      if (
+                        !(
+                          commitState?.status === 'committing' ||
+                          commitState?.status === 'committed'
+                        )
+                      ) {
+                        e.currentTarget.style.background = 'rgba(64,112,224,0.3)'
+                        e.currentTarget.style.borderColor = 'rgba(64,112,224,0.65)'
+                        e.currentTarget.style.color = '#6090f0'
+                      }
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = ''
+                      e.currentTarget.style.background = 'rgba(64,112,224,0.2)'
+                      e.currentTarget.style.borderColor = 'rgba(64,112,224,0.4)'
+                      e.currentTarget.style.color = '#4070e0'
                     }}
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      background: 'none',
-                      border: 'none',
-                      padding: '1px 0',
-                      cursor: onFileDiff ? 'pointer' : 'default',
-                      fontFamily: "'SF Mono', 'Fira Code', monospace",
-                      fontSize: 11,
-                      color: 'inherit',
-                      opacity: 0.7,
-                      textAlign: 'left',
-                      width: '100%',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
+                      fontSize: 12,
+                      padding: '4px 10px',
+                      borderRadius: 6,
+                      border: '1px solid rgba(64,112,224,0.4)',
+                      background: 'rgba(64,112,224,0.2)',
+                      color: '#4070e0',
+                      cursor:
+                        commitState?.status === 'committing' || commitState?.status === 'committed'
+                          ? 'not-allowed'
+                          : 'pointer',
+                      opacity:
+                        commitState?.status === 'committing' || commitState?.status === 'committed'
+                          ? 0.5
+                          : 1,
+                      transition: 'background 100ms, border-color 100ms, color 100ms',
                     }}
-                    className={cm.textMuted}
                   >
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.path}</span>
-                    {(!!f.additions || !!f.deletions) && (
-                      <span
-                        style={{ marginLeft: 'auto', flexShrink: 0, fontSize: 10, opacity: 0.8 }}
-                      >
-                        {!!f.additions && <span style={{ color: '#3fb950' }}>+{f.additions}</span>}
-                        {!!f.additions && !!f.deletions && ' '}
-                        {!!f.deletions && <span style={{ color: '#f85149' }}>-{f.deletions}</span>}
-                      </span>
-                    )}
-                    {onFileRevert && (
-                      <span
-                        role="button"
-                        tabIndex={0}
-                        title={t('ide.chat.revertFile', undefined, {
-                          defaultValue: 'Revert to last commit',
-                        })}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          // Revert file to last committed state (handles modified, new, and deleted files)
-                          http
-                            .post(`/projects/${projectId}/git-revert`, { path: f.path })
-                            .then(() => {
-                              refreshGitStatus()
-                              // Refresh editor if the file is open — fetch fresh content for modified/restored,
-                              // or close if it was a new file that got deleted
-                              if (f.status === 'untracked' || f.status === 'added') {
-                                onFileDeleted?.(f.path)
-                              } else {
-                                // Re-fetch file content from sandbox to update editor
-                                http
-                                  .get<{ content: string }>(
-                                    `/projects/${projectId}/files/${f.path}`,
-                                  )
-                                  .then((res) => onFileChange?.(f.path, res.data.content))
-                                  .catch(() => {
-                                    /* ignore */
-                                  })
-                              }
-                            })
-                            .catch(() => {
-                              /* ignore */
-                            })
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') e.currentTarget.click()
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
-                          e.currentTarget.style.opacity = '1'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'transparent'
-                          e.currentTarget.style.opacity = '0.5'
-                        }}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: 18,
-                          height: 18,
-                          borderRadius: 3,
-                          flexShrink: 0,
-                          cursor: 'pointer',
-                          opacity: 0.5,
-                          transition: 'opacity 100ms, background 100ms',
-                          ...(!(f.additions || f.deletions) ? { marginLeft: 'auto' } : {}),
-                        }}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 16 16"
-                          width="12"
-                          height="12"
-                          fill="currentColor"
-                        >
-                          <path d="M1.22 6.28a.749.749 0 0 1 0-1.06l3.5-3.5a.749.749 0 1 1 1.06 1.06L3.561 5h7.188l.001.007L10.749 5c.058 0 .116.007.171.019A4.501 4.501 0 0 1 10.5 14H8.796a.75.75 0 0 1 0-1.5H10.5a3 3 0 1 0 0-6H3.561L5.78 8.72a.749.749 0 1 1-1.06 1.06l-3.5-3.5Z" />
-                        </svg>
-                      </span>
-                    )}
+                    {commitState?.status === 'committing'
+                      ? t('ide.chat.committing')
+                      : t('ide.chat.commit')}
                   </button>
-                ))}
+                )}
               </div>
-            )}
-          </div>
-        )}
+              {commitBarExpanded && (
+                <div style={{ marginTop: 4, paddingLeft: 16, maxHeight: 200, overflowY: 'auto' }}>
+                  {pendingFiles.map((f) => (
+                    <button
+                      key={f.path}
+                      type="button"
+                      onClick={() => onFileDiff?.(f.path)}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = '#6090f0'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = ''
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        background: 'none',
+                        border: 'none',
+                        padding: '1px 0',
+                        cursor: onFileDiff ? 'pointer' : 'default',
+                        fontFamily: "'SF Mono', 'Fira Code', monospace",
+                        fontSize: 11,
+                        color: 'inherit',
+                        opacity: 0.7,
+                        textAlign: 'left',
+                        width: '100%',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                      }}
+                      className={cm.textMuted}
+                    >
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.path}</span>
+                      {(!!f.additions || !!f.deletions) && (
+                        <span
+                          style={{ marginLeft: 'auto', flexShrink: 0, fontSize: 10, opacity: 0.8 }}
+                        >
+                          {!!f.additions && (
+                            <span style={{ color: '#3fb950' }}>+{f.additions}</span>
+                          )}
+                          {!!f.additions && !!f.deletions && ' '}
+                          {!!f.deletions && (
+                            <span style={{ color: '#f85149' }}>-{f.deletions}</span>
+                          )}
+                        </span>
+                      )}
+                      {onFileRevert && (
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          title={t('ide.chat.revertFile', undefined, {
+                            defaultValue: 'Revert to last commit',
+                          })}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            // Revert file to last committed state (handles modified, new, and deleted files)
+                            http
+                              .post(`/projects/${projectId}/git-revert`, { path: f.path })
+                              .then(() => {
+                                refreshGitStatus()
+                                // Refresh editor if the file is open — fetch fresh content for modified/restored,
+                                // or close if it was a new file that got deleted
+                                if (f.status === 'untracked' || f.status === 'added') {
+                                  onFileDeleted?.(f.path)
+                                } else {
+                                  // Re-fetch file content from sandbox to update editor
+                                  http
+                                    .get<{ content: string }>(
+                                      `/projects/${projectId}/files/${f.path}`,
+                                    )
+                                    .then((res) => onFileChange?.(f.path, res.data.content))
+                                    .catch(() => {
+                                      /* ignore */
+                                    })
+                                }
+                              })
+                              .catch(() => {
+                                /* ignore */
+                              })
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') e.currentTarget.click()
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
+                            e.currentTarget.style.opacity = '1'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'transparent'
+                            e.currentTarget.style.opacity = '0.5'
+                          }}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 18,
+                            height: 18,
+                            borderRadius: 3,
+                            flexShrink: 0,
+                            cursor: 'pointer',
+                            opacity: 0.5,
+                            transition: 'opacity 100ms, background 100ms',
+                            ...(!(f.additions || f.deletions) ? { marginLeft: 'auto' } : {}),
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 16 16"
+                            width="12"
+                            height="12"
+                            fill="currentColor"
+                          >
+                            <path d="M1.22 6.28a.749.749 0 0 1 0-1.06l3.5-3.5a.749.749 0 1 1 1.06 1.06L3.561 5h7.188l.001.007L10.749 5c.058 0 .116.007.171.019A4.501 4.501 0 0 1 10.5 14H8.796a.75.75 0 0 1 0-1.5H10.5a3 3 0 1 0 0-6H3.561L5.78 8.72a.749.749 0 1 1-1.06 1.06l-3.5-3.5Z" />
+                          </svg>
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
         {/* Input container — matches user message card style */}
         <div
