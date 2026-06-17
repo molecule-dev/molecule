@@ -1128,7 +1128,7 @@ export function PreviewPanel({
                 type="button"
                 data-mol-id="preview-load-failed-reload"
                 onClick={handleManualRetry}
-                className={cm.button({ variant: 'solid', size: 'sm' })}
+                className={cm.button({ variant: 'solid', color: 'primary', size: 'sm' })}
               >
                 {t('ide.preview.reloadPreview', {}, { defaultValue: 'Reload preview' })}
               </button>
@@ -1136,7 +1136,7 @@ export function PreviewPanel({
                 type="button"
                 data-mol-id="preview-load-failed-open"
                 onClick={openExternal}
-                className={cm.button({ variant: 'outline', size: 'sm' })}
+                className={cm.button({ variant: 'ghost', size: 'sm' })}
               >
                 {t('ide.preview.openNewTab', {}, { defaultValue: 'Open in new tab' })}
               </button>

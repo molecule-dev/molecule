@@ -67,7 +67,9 @@ export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => vo
         display: 'flex',
         alignItems: 'flex-start',
         gap: 8,
-        margin: '8px 0 14px',
+        // One chat-timeline rhythm: bottom margin only, never a top margin (matches
+        // ChatPanel's TIMELINE_ITEM_GAP so adjacent items never collide — P4-05).
+        marginBottom: 16,
         padding: '8px 10px',
         borderRadius: 8,
         // Tint follows the active theme's primary color (light/dark + per-app

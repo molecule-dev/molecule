@@ -212,7 +212,7 @@ export function ShareModal({
                   type="button"
                   data-mol-id="share-copy"
                   onClick={handleCopy}
-                  className={cm.cn(cm.button({ variant: 'outline', color: 'primary', size: 'sm' }))}
+                  className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'sm' }))}
                   title={t('ide.chat.share.copy', undefined, { defaultValue: 'Copy link' })}
                   aria-label={t('ide.chat.share.copy', undefined, { defaultValue: 'Copy link' })}
                   style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 6 }}

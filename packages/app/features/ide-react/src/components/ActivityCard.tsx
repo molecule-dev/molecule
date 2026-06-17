@@ -58,7 +58,9 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
         display: 'flex',
         alignItems: 'center',
         gap: 8,
-        margin: '4px 0',
+        // One chat-timeline rhythm: bottom margin only, never a top margin (matches
+        // ChatPanel's TIMELINE_ITEM_GAP so adjacent items never collide — P4-05).
+        marginBottom: 16,
         padding: '6px 10px',
         borderRadius: 6,
         border: '1px solid var(--mol-color-border, rgba(128,128,128,0.2))',

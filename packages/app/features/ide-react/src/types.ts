@@ -229,6 +229,12 @@ export interface ChatPanelProps {
    */
   productName?: string
   /**
+   * The host's current app/build version (e.g. `'0.1.0'`), shown in the `/version`
+   * command's menu description and its output. The shared IDE has no build version
+   * of its own, so when omitted it falls back to the package default constant.
+   */
+  version?: string
+  /**
    * URL the command-menu "Report a problem" link points at (the host's own issue
    * tracker / feedback page). The shared IDE owns no product URLs, so when this
    * is omitted (the default) the link is not rendered. The in-chat `/report`

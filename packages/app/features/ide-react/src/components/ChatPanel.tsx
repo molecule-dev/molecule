@@ -2251,6 +2251,8 @@ interface ChatInnerProps {
   agentName?: string
   /** Display name of the host product / IDE — see {@link ChatPanelProps.productName}. */
   productName?: string
+  /** Host app/build version for /version — see {@link ChatPanelProps.version}. */
+  version?: string
   /** Command-menu "Report a problem" URL — see {@link ChatPanelProps.feedbackUrl}. */
   feedbackUrl?: string
 }
@@ -2332,6 +2334,7 @@ function ChatInner({
   userAvatar,
   agentName = DEFAULT_AGENT_NAME,
   productName = DEFAULT_PRODUCT_NAME,
+  version,
   // feedbackUrl: prop kept for back-compat (callers still pass it), but no longer
   // consumed here — its only use was the command-menu footer link removed in P3-21.
 }: ChatInnerProps): JSX.Element {
@@ -4502,12 +4505,13 @@ function ChatInner({
       } else if (id === 'version') {
         setInputValue('')
         // P3-21: /version replaces the old command-menu footer version line.
-        // Version comes from the single APP_VERSION source of truth (also shown in
-        // the slash-command menu's /version description — P4-08).
+        // Version is the host-supplied `version` prop (the real build version), falling
+        // back to the package APP_VERSION constant; the same value drives the
+        // slash-command menu's /version description (P4-08).
         addSystemCard(
           t(
             'ide.chat.version',
-            { productName, version: APP_VERSION },
+            { productName, version: version ?? APP_VERSION },
             { defaultValue: '{{productName}} v{{version}}' },
           ),
         )
@@ -6073,9 +6077,10 @@ function ChatInner({
                         } else if (cmd.id === 'version') {
                           // Show the app's current version right in the /version
                           // description (P4-08) — same inline-suffix mechanism as the
-                          // live state above. Sourced from APP_VERSION (one source of
-                          // truth, also used by the /version command output).
-                          suffix = ` (v${APP_VERSION})`
+                          // live state above. Uses the host-supplied `version` prop (the
+                          // real build version), falling back to APP_VERSION; the same
+                          // value feeds the /version command output.
+                          suffix = ` (v${version ?? APP_VERSION})`
                         }
                         return (
                           <button
@@ -7722,6 +7727,7 @@ export function ChatPanel({
   userAvatar,
   agentName,
   productName,
+  version,
   feedbackUrl,
   className,
 }: ChatPanelProps): JSX.Element {
@@ -8142,6 +8148,7 @@ export function ChatPanel({
         userAvatar={userAvatar}
         agentName={agentName}
         productName={productName}
+        version={version}
         feedbackUrl={feedbackUrl}
       />
     </div>
