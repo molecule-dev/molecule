@@ -227,9 +227,11 @@ function TabItem({
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
+          flexShrink: 0,
           width: '16px',
           height: '16px',
           border: 'none',
+          padding: 0,
           background: 'transparent',
           lineHeight: 1,
           borderRadius: '3px',
@@ -240,7 +242,16 @@ function TabItem({
         }}
         aria-label={t('ide.tabs.close', { fileName })}
       >
-        {'\u2715'}
+        {/* SVG X (not a text \u2715 glyph, whose font metrics never center cleanly) so the
+            mark sits dead-center in the square button \u2014 matches the tip/skill dismiss X. */}
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="M3 3l10 10M13 3L3 13"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
+        </svg>
       </button>
     </div>
   )
