@@ -160,6 +160,31 @@ describe('PreviewPanel tooltips (IDE1 — real styled Tooltip, not native title)
     }
   })
 
+  it('hides the tooltip when the control is clicked (P5-02)', () => {
+    const { container } = render(
+      <Wrap>
+        <PreviewPanel />
+      </Wrap>,
+    )
+    for (const { id } of PREVIEW_CONTROLS) {
+      const el = container.querySelector(`[data-mol-id="${id}"]`) as HTMLElement
+      const trigger = el.parentElement as HTMLElement
+      // Hover mounts the tooltip…
+      fireEvent.mouseEnter(trigger)
+      expect(
+        document.body.querySelector('[role="tooltip"]'),
+        `${id} tooltip should show on hover`,
+      ).not.toBeNull()
+      // …and clicking the control must hide it again — a click shouldn't leave a
+      // tooltip lingering over the button the user just pressed.
+      fireEvent.click(el)
+      expect(
+        document.body.querySelector('[role="tooltip"]'),
+        `${id} tooltip must be hidden after the control is clicked`,
+      ).toBeNull()
+    }
+  })
+
   it('themes the tooltip via ClassMap tokens, never a hardcoded hex color', () => {
     const { container } = render(
       <Wrap>

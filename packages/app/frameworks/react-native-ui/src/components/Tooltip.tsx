@@ -30,6 +30,10 @@ export const Tooltip: React.FC<TooltipProps> = ({ children, content, className, 
       <Pressable
         className={cm.tooltipTrigger}
         onLongPress={() => setIsVisible(true)}
+        // RN has no onClick; a normal press (the click analog) hides the tooltip —
+        // pressing a tooltip-wrapped control shouldn't leave its long-press tooltip
+        // lingering. `onPressOut` also clears it when the press is released.
+        onPress={() => setIsVisible(false)}
         onPressOut={() => setIsVisible(false)}
       >
         {children as React.ReactNode}

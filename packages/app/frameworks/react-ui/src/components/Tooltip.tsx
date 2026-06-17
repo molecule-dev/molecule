@@ -183,6 +183,11 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
           onMouseLeave={hide}
           onFocus={show}
           onBlur={hide}
+          // Any click on a tooltip-wrapped control hides the tooltip — clicking a
+          // button shouldn't leave its hover/focus tooltip lingering. The wrapper
+          // wraps children directly, so this single handler covers every
+          // button-with-tooltip consumer.
+          onClick={hide}
           className={cm.tooltipTrigger}
         >
           {children as React.ReactNode}

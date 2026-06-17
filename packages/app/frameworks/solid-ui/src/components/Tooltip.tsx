@@ -155,6 +155,11 @@ export const Tooltip: Component<TooltipProps> = (props) => {
         onMouseLeave={hide}
         onFocus={show}
         onBlur={hide}
+        // Any click on a tooltip-wrapped control hides the tooltip — clicking a
+        // button shouldn't leave its hover/focus tooltip lingering. The wrapper
+        // wraps children directly, so this single handler covers every
+        // button-with-tooltip consumer.
+        onClick={hide}
         class={cm.tooltipTrigger}
       >
         {local.children as JSX.Element}

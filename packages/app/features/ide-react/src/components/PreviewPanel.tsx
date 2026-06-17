@@ -984,7 +984,10 @@ export function PreviewPanel({
 
       {/* Preview area */}
       <div
-        className={cm.cn(cm.flex({ direction: 'row', justify: 'center' }), cm.surfaceSecondary)}
+        className={cm.cn(
+          cm.flex({ direction: 'row', justify: 'center', align: 'center' }),
+          cm.surfaceSecondary,
+        )}
         style={{
           flex: 1,
           minHeight: 0,
