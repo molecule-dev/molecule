@@ -263,12 +263,21 @@ interface SystemCard {
    * Optional rich-content variant rendered in place of the plain text:
    * `'settings'` → the `/settings` view; `'skills'` → the `/skills` browser;
    * `'scripts'` → the `/scripts` browser; `'help'` → the `/help` high-level guide
-   * card. Default (undefined) is plain text. For `'help'`, `text` still carries
-   * the {@link buildHelpText} plain-text fallback.
+   * card; `'skillsLoaded'` → the compact, clickable "Loaded {{count}} skills"
+   * notice whose onClick opens the `/skills` browser (re-attached at render time —
+   * see the render switch — since the persisted card drops its callbacks).
+   * Default (undefined) is plain text. For `'help'`, `text` still carries the
+   * {@link buildHelpText} plain-text fallback.
    */
-  variant?: 'settings' | 'skills' | 'scripts' | 'help'
+  variant?: 'settings' | 'skills' | 'scripts' | 'help' | 'skillsLoaded'
   /** Seed query for the `'skills'`/`'scripts'` variants (from `/skills <query>` or `/scripts <query>`). */
   query?: string
+  /**
+   * For the `'skillsLoaded'` variant: how many skills were seeded as default-enabled.
+   * Persisted (the card's onClick is NOT — it's re-attached at render time), so the
+   * "Loaded {{count}} skills" copy restores verbatim across reloads.
+   */
+  count?: number
   /**
    * For the `'skills'` variant: mount the card with its inline "New skill" form
    * already open. (Reserved — kept for callers that want to open the form
@@ -3025,6 +3034,7 @@ function ChatInner({
       tone?: SystemCard['tone'],
       content?: SystemCard['content'],
       skillsCreate?: boolean,
+      count?: number,
     ) => {
       // If a message is actively streaming, place the card just before it so
       // it doesn't get pinned below the growing response.
@@ -3046,6 +3056,7 @@ function ChatInner({
           tone,
           content,
           skillsCreate,
+          count,
         },
       ])
       // Auto-scroll after the card renders so the user sees it immediately
@@ -3126,6 +3137,9 @@ function ChatInner({
       variant: c.variant,
       query: c.query,
       skillsCreate: c.skillsCreate,
+      // Persist the skill count so the 'skillsLoaded' card's "Loaded {{count}} skills"
+      // copy restores; its onClick is re-attached at render time, not persisted.
+      count: c.count,
       emphasized: c.emphasized,
       tone: c.tone,
     }))
@@ -3322,6 +3336,11 @@ function ChatInner({
           setDefaultSkillPaths(
             new Set(savedDefaultSkills.filter((p): p is string => typeof p === 'string')),
           )
+        }
+        // Per-project marker: whether the "Loaded {{count}} skills" card was already
+        // announced for this project. When true, the seed below must NOT re-emit it.
+        if (typeof s?.skillsLoadedAnnounced === 'boolean') {
+          skillsAnnouncedRef.current = s.skillsLoadedAnnounced
         }
         if (typeof s?.maxToolLoops === 'number') setCurrentMaxLoops(s.maxToolLoops)
         if (typeof s?.autoFix === 'boolean') setAutoFixEnabled(s.autoFix)
@@ -3767,6 +3786,11 @@ function ChatInner({
   // (unset), ALL initial/discovered skills are treated as default (badged here +
   // injected full-body by the backend) — seeded in the skill-load effect below.
   const defaultSkillsExplicitRef = useRef(false)
+  // Whether the per-project "Loaded {{count}} skills" card has already been emitted
+  // for this project (persisted as settings.skillsLoadedAnnounced). Hydrated by the
+  // settings GET below and set true after the seed emits, so the announce fires at
+  // most once per project — never re-firing on a reload or in this session.
+  const skillsAnnouncedRef = useRef(false)
 
   /**
    * Loads a skill from the `/skills` browser (or the proactive suggestion): opens
@@ -3869,10 +3893,32 @@ function ChatInner({
   const [dismissedSkillPaths, setDismissedSkillPaths] = useState<readonly string[]>([])
 
   useEffect(() => {
+    // Hardened seed (the real cause of hollow stars): the skill file API can lag at
+    // mount (the sandbox isn't serving `.agents` yet), so the very first
+    // `loadProjectSkills` often resolves EMPTY or throws. We must NOT latch the guard
+    // until a NON-EMPTY load succeeds — otherwise `defaultSkillPaths` stays empty
+    // forever and every /skills star renders hollow even though "unset → all default".
+    // On an empty/failed load we schedule a bounded retry so the seed eventually
+    // captures the scaffolded skills.
     if (skillsLoadedRef.current) return
-    skillsLoadedRef.current = true
     let cancelled = false
-    void (async () => {
+    let attempts = 0
+    let retryTimer: ReturnType<typeof setTimeout> | undefined
+    // A handful of ~1.5s attempts outlasts the file-API warm-up without nagging if
+    // the project genuinely has no skills.
+    const SEED_RETRY_MS = 1500
+    const SEED_MAX_ATTEMPTS = 5
+
+    const scheduleRetry = (): void => {
+      if (cancelled || attempts >= SEED_MAX_ATTEMPTS) return
+      retryTimer = setTimeout(() => {
+        void attempt()
+      }, SEED_RETRY_MS)
+    }
+
+    const attempt = async (): Promise<void> => {
+      if (cancelled || skillsLoadedRef.current) return
+      attempts++
       try {
         const loaded = await loadProjectSkills(
           async () =>
@@ -3885,6 +3931,14 @@ function ChatInner({
         // Don't setState after unmount — the fetch resolving post-teardown would
         // otherwise schedule a React commit with no DOM behind it (leaked async).
         if (cancelled) return
+        if (loaded.length === 0) {
+          // Empty: the file API likely isn't serving `.agents` yet. Retry without
+          // latching so a later attempt can still seed the scaffolded skills.
+          scheduleRetry()
+          return
+        }
+        // Latch ONLY on a successful, non-empty load — a retry can still run before this.
+        skillsLoadedRef.current = true
         setProjectSkills(loaded)
         // P3-11: with no explicit saved set, ALL initial/discovered skills are
         // default — seed the badge set so the /skills browser reflects it (the
@@ -3892,16 +3946,47 @@ function ChatInner({
         if (!defaultSkillsExplicitRef.current) {
           setDefaultSkillPaths(new Set(loaded.map((s) => s.path)))
         }
+        // Announce "Loaded {{count}} skills" exactly once per project: a persisted,
+        // clickable card whose onClick (re-attached at render time) opens /skills.
+        if (!skillsAnnouncedRef.current) {
+          skillsAnnouncedRef.current = true
+          addSystemCard(
+            t(
+              'ide.chat.skills.loadedCount',
+              { count: loaded.length },
+              { defaultValue: 'Loaded {{count}} skills' },
+            ),
+            undefined,
+            'skillsLoaded',
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            loaded.length,
+          )
+          // Persist the per-project marker so the announce never re-fires on reload.
+          // The settings PATCH MERGES server-side, so this won't clobber defaultSkills.
+          void http
+            .patch(`/projects/${projectId}`, { settings: { skillsLoadedAnnounced: true } })
+            .catch((error) => {
+              logger.warn('Failed to persist skillsLoadedAnnounced marker', { error })
+            })
+        }
       } catch (error) {
-        // Best-effort — a failed skills fetch must never disrupt the chat; we
-        // simply skip the suggestion + default-seed for this conversation.
-        logger.debug('Skipping relevant-skill suggestion; failed to load project skills', { error })
+        // Best-effort — a failed skills fetch must never disrupt the chat. Retry a
+        // few times (the file API may be warming up); after the cap, skip silently.
+        logger.debug('Skill seed load failed; will retry if attempts remain', { error })
+        if (!cancelled) scheduleRetry()
       }
-    })()
+    }
+
+    void attempt()
     return () => {
       cancelled = true
+      if (retryTimer) clearTimeout(retryTimer)
     }
-  }, [http, projectId])
+  }, [http, projectId, addSystemCard])
 
   const relevantSkill = useMemo<SkillInfo | null>(() => {
     if (projectSkills.length === 0) return null
@@ -5532,6 +5617,61 @@ function ChatInner({
                     upgradeLines={upgradeSection?.lines}
                     upgradeAction={upgradeSection?.action ?? undefined}
                   />
+                )
+              }
+              if (item.card.variant === 'skillsLoaded') {
+                // Compact, clearly-clickable "Loaded {{count}} skills" notice. Its
+                // onClick is CREATED HERE at render time — calling addSystemCard with
+                // the 'skills' variant, the exact same thing typing /skills does — so
+                // it survives the persistence round-trip (which stores only variant +
+                // count + text, never callbacks). Text restores from the persisted
+                // copy; re-derive from `count` if a caller passed none.
+                const skillsLoadedLabel =
+                  item.card.text ||
+                  t(
+                    'ide.chat.skills.loadedCount',
+                    { count: item.card.count ?? 0 },
+                    { defaultValue: 'Loaded {{count}} skills' },
+                  )
+                return (
+                  <div
+                    key={item.card.id}
+                    style={{ textAlign: 'center', marginBottom: TIMELINE_ITEM_GAP }}
+                  >
+                    <button
+                      type="button"
+                      data-mol-id="chat-skills-loaded"
+                      onClick={() => addSystemCard('', undefined, 'skills')}
+                      className={cm.cn(
+                        cm.surfaceSecondary,
+                        cm.borderAll,
+                        cm.textSize('xs'),
+                        cm.textMuted,
+                      )}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '6px 12px',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        // Hover affordance via opacity — ClassMap owns the background +
+                        // border colors, so we never set those inline (anti-pattern 12).
+                        opacity: 0.85,
+                        transition: 'opacity 100ms',
+                      }}
+                      onMouseEnter={(e) => {
+                        ;(e.currentTarget as HTMLElement).style.opacity = '1'
+                      }}
+                      onMouseLeave={(e) => {
+                        ;(e.currentTarget as HTMLElement).style.opacity = '0.85'
+                      }}
+                    >
+                      <Icon name="sparkle" size={14} aria-hidden="true" />
+                      <span>{skillsLoadedLabel}</span>
+                    </button>
+                  </div>
                 )
               }
               if (item.card.tone) {

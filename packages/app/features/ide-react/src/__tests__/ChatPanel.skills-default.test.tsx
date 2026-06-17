@@ -250,6 +250,34 @@ function lastDefaultSkillsPatch(
   return 'none'
 }
 
+/**
+ * A `filesList` that returns EMPTY on its first invocation and the full skill set
+ * thereafter — models the sandbox file API not serving `.agents` yet at mount
+ * (the real cause of hollow stars the hardened seed must retry through).
+ *
+ * @returns A `filesList` closure with first-call-empty behavior.
+ */
+function emptyThenPopulated(): () => Promise<string[]> {
+  let calls = 0
+  return async () => {
+    calls++
+    return calls === 1 ? [] : [...SKILL_PATHS]
+  }
+}
+
+/**
+ * Whether any PATCH persisted the per-project `settings.skillsLoadedAnnounced` marker.
+ *
+ * @param patchSpy - The PATCH spy.
+ * @returns True if a PATCH carried `settings.skillsLoadedAnnounced === true`.
+ */
+function announcedMarkerPatched(patchSpy: ReturnType<typeof vi.fn>): boolean {
+  return patchSpy.mock.calls.some((call) => {
+    const body = call[1] as { settings?: Record<string, unknown> } | undefined
+    return body?.settings?.skillsLoadedAnnounced === true
+  })
+}
+
 describe('ChatPanel /skills default set — toggle math + reset (P3-11)', () => {
   it('toggling one default OFF from the implicit all-default state PATCHes all-minus-one (not a bogus singleton)', async () => {
     const patchSpy = vi.fn(async () => ({}))
@@ -374,5 +402,105 @@ describe('ChatPanel /skills default set — toggle math + reset (P3-11)', () => 
       expect(arr).toHaveLength(2)
       expect(arr).not.toContain('.agents/skills/auth/SKILL.md')
     })
+  })
+})
+
+describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" card (SYN)', () => {
+  it('empty first load → bounded retry eventually seeds ALL skills as default (no hollow stars)', async () => {
+    const patchSpy = vi.fn(async () => ({}))
+    const { container } = render(
+      renderChatPanel(buildHttpClient({}, patchSpy, emptyThenPopulated())),
+    )
+
+    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+    submitCommand(container, '/skills')
+
+    // The /skills card renders its rows from its OWN (2nd, populated) load, but the
+    // panel's first seed load came back EMPTY — so no Default badge has seeded yet.
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="skill-default-auth"]')).not.toBeNull(),
+    )
+    expect(
+      container.querySelector('[data-mol-id="skill-default-badge-auth"]'),
+      'the empty first load must NOT have latched/seeded defaults yet',
+    ).toBeNull()
+
+    // The hardened seed retries (~1.5s): the retry's non-empty load finally seeds the
+    // full default set, so every star fills — proving the guard was NOT latched on the
+    // empty first load (the old bug latched immediately → defaults stayed empty forever).
+    await waitFor(
+      () => {
+        expect(container.querySelector('[data-mol-id="skill-default-badge-auth"]')).not.toBeNull()
+        expect(container.querySelector('[data-mol-id="skill-default-badge-deploy"]')).not.toBeNull()
+      },
+      { timeout: 4000 },
+    )
+  })
+
+  it('emits "Loaded N skills" once on the first non-empty load + persists the announced marker', async () => {
+    const patchSpy = vi.fn(async () => ({}))
+    const { container } = render(
+      renderChatPanel(buildHttpClient({}, patchSpy, async () => [...SKILL_PATHS])),
+    )
+
+    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+
+    // The seed fires on mount (no /skills needed): the persisted, clickable notice appears.
+    const card = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="chat-skills-loaded"]')
+      expect(
+        el,
+        'the "Loaded N skills" card must be emitted on the first non-empty load',
+      ).not.toBeNull()
+      return el as HTMLElement
+    })
+    expect(card.textContent).toContain('Loaded 3 skills')
+    // Exactly one — never duplicated this session.
+    expect(container.querySelectorAll('[data-mol-id="chat-skills-loaded"]')).toHaveLength(1)
+    // The per-project marker is persisted (merge-safe PATCH) so it can't re-fire on reload.
+    await waitFor(() => expect(announcedMarkerPatched(patchSpy)).toBe(true))
+  })
+
+  it('does NOT re-emit the card when the project is already marked announced', async () => {
+    const patchSpy = vi.fn(async () => ({}))
+    const { container } = render(
+      renderChatPanel(
+        buildHttpClient({ skillsLoadedAnnounced: true }, patchSpy, async () => [...SKILL_PATHS]),
+      ),
+    )
+
+    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+    // Open /skills and wait for the seed to finish (Default badges prove it ran)…
+    submitCommand(container, '/skills')
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="skill-default-badge-auth"]')).not.toBeNull(),
+    )
+    // …yet the announce card never appears, and the marker is not re-patched.
+    expect(container.querySelector('[data-mol-id="chat-skills-loaded"]')).toBeNull()
+    expect(announcedMarkerPatched(patchSpy)).toBe(false)
+  })
+
+  it('clicking the "Loaded N skills" card opens the /skills browser', async () => {
+    const patchSpy = vi.fn(async () => ({}))
+    const { container } = render(
+      renderChatPanel(buildHttpClient({}, patchSpy, async () => [...SKILL_PATHS])),
+    )
+
+    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+    const card = (await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="chat-skills-loaded"]')
+      expect(el).not.toBeNull()
+      return el as HTMLElement
+    })) as HTMLButtonElement
+
+    // The skills browser is not open yet.
+    expect(container.querySelector('[data-mol-id="skills-card"]')).toBeNull()
+
+    fireEvent.click(card)
+
+    // Clicking adds a 'skills'-variant card — the exact same path as typing /skills.
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="skills-card"]')).not.toBeNull(),
+    )
   })
 })

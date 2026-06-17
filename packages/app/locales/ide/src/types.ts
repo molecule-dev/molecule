@@ -411,6 +411,7 @@ export type IdeTranslationKey =
   | 'ide.chat.skills.load'
   | 'ide.chat.skills.loadTitle'
   | 'ide.chat.skills.loaded'
+  | 'ide.chat.skills.loadedCount'
   | 'ide.chat.skills.loadedPrefix'
   | 'ide.chat.skills.loadedSuffix'
   | 'ide.chat.skills.loading'

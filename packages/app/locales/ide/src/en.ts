@@ -478,6 +478,9 @@ export const en: IdeTranslations = {
   'ide.chat.skills.load': 'Load',
   'ide.chat.skills.loadTitle': 'Open in the editor',
   'ide.chat.skills.loaded': 'Loaded {{name}} skill',
+  // Persisted "Loaded N skills" chat card emitted once per project after the
+  // template's scaffolded skills seed as default-enabled; clicking it opens /skills.
+  'ide.chat.skills.loadedCount': 'Loaded {{count}} skills',
   // Composable segments for the "Loaded `<skill>` skill" card — the name renders as a
   // clickable monospace span between these two: "Loaded " + `name` + " skill".
   'ide.chat.skills.loadedPrefix': 'Loaded ',
