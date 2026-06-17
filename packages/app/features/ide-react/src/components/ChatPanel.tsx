@@ -1517,7 +1517,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
               onClick={onAvatarClick}
             />
           )}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ flex: 1, minWidth: 0, marginTop: 1 }}>
             {isAutomatic ? (
               <div
                 className={cm.cn(cm.textSize('xs'))}
