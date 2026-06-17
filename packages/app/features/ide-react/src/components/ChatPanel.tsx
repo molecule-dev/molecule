@@ -480,19 +480,17 @@ function relativeTimeLong(ms: number): string {
 }
 
 /**
- * User-message accent stripe. The left edge of a real user message draws an animated
- * blue sheen — a pale-blue highlight band continuously flowing top-to-bottom over a
- * blue base — instead of a flat color. Both tones are mixed from the theme primary
- * with white (so it recolors with the theme but is NEVER dark: the theme's
- * primary-light/-dark tokens are actually a medium + a dark blue, with no light tone,
- * which read as a static dark stripe). A repeating gradient translated downward keeps
- * the light band always present + visibly moving — a single light→dark→light sweep
- * looked static. Full-box gradient clipped to a 3px LEFT band so it follows the row's
- * rounded corners. A `::before` + its keyframe can't be expressed inline (and inline
- * `animation` can't be media-queried), so — like AutoCommitBadge — it is injected once
- * and gated on the existing `data-mol-id`; the auto-sent row keeps its solid success
- * accent. (A visible diagonal would need a wider band; at 3px it reads as vertical, so
- * the gradient is vertical for a seamless loop.)
+ * User-message accent stripe. The left edge of a real user message draws a vertical,
+ * multi-tone BLUE gradient swept gently up and down (the same smooth single-gradient
+ * technique as the composer ring, but vertical + blue) — NOT a repeating barber-pole,
+ * which read busy + janky. The host supplies the curated blues via
+ * `--mol-chat-accent-gradient`; the fallback is a lightened primary so it stays blue +
+ * never dark in any theme (the theme's primary-light/-dark tokens are actually a medium
+ * + a dark blue with no light tone). It's a full-box gradient (so the sweep has room to
+ * travel) clipped to a 3px LEFT band that follows the row's rounded corners. A
+ * `::before` + its keyframe can't be expressed inline (and inline `animation` can't be
+ * media-queried), so — like AutoCommitBadge — it is injected once and gated on the
+ * existing `data-mol-id`; the auto-sent row keeps its solid success accent.
  */
 const USER_ACCENT_STYLE = `
 [data-mol-id="chat-user-message"] { position: relative; }
@@ -501,19 +499,16 @@ const USER_ACCENT_STYLE = `
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: repeating-linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--mol-color-primary, #3060c0) 72%, #ffffff) 0px,
-    color-mix(in srgb, var(--mol-color-primary, #3060c0) 22%, #ffffff) 18px,
-    color-mix(in srgb, var(--mol-color-primary, #3060c0) 72%, #ffffff) 36px
-  );
-  animation: mol-chat-accent-flow 3s linear infinite;
+  background: var(--mol-chat-accent-gradient, linear-gradient(to bottom, color-mix(in srgb, var(--mol-color-primary, #3060c0) 85%, #fff), color-mix(in srgb, var(--mol-color-primary, #3060c0) 50%, #fff) 50%, color-mix(in srgb, var(--mol-color-primary, #3060c0) 85%, #fff)));
+  background-size: 100% 300%;
+  animation: mol-chat-accent-flow 6s ease-in-out infinite;
   -webkit-mask: linear-gradient(to right, #000 3px, transparent 3px);
   mask: linear-gradient(to right, #000 3px, transparent 3px);
   pointer-events: none;
 }
 @keyframes mol-chat-accent-flow {
-  to { background-position: 0 36px; }
+  0%, 100% { background-position: 50% 0%; }
+  50% { background-position: 50% 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   [data-mol-id="chat-user-message"]::before { animation: none; }
