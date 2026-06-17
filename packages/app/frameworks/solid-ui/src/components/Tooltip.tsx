@@ -140,6 +140,22 @@ export const Tooltip: Component<TooltipProps> = (props) => {
     setPositioned(false)
   }
 
+  // Show on focus ONLY for keyboard focus (:focus-visible). A mouse click or a
+  // programmatic .focus() — e.g. a dropdown/menu returning focus to its trigger
+  // after it closes — must NOT re-show a tooltip the click was meant to dismiss.
+  // Guarded: engines without :focus-visible support throw on the unknown selector —
+  // there we skip the focus-show (hover still works), the safe default.
+  const handleFocus = (event: FocusEvent): void => {
+    const target = event.target as HTMLElement
+    try {
+      if (typeof target.matches === 'function' && target.matches(':focus-visible')) {
+        show()
+      }
+    } catch (_error) {
+      // :focus-visible unsupported here — don't show on focus; hover still applies.
+    }
+  }
+
   createEffect(() => {
     if (isVisible()) {
       // Wait for next frame so tooltip element is rendered
@@ -159,7 +175,7 @@ export const Tooltip: Component<TooltipProps> = (props) => {
         ref={triggerRef}
         onMouseEnter={show}
         onMouseLeave={hide}
-        onFocus={show}
+        onFocus={handleFocus}
         onBlur={hide}
         // Any click on a tooltip-wrapped control hides the tooltip — clicking a
         // button shouldn't leave its hover/focus tooltip lingering. The wrapper
