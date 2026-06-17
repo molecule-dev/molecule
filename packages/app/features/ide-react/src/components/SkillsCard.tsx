@@ -371,6 +371,11 @@ export function SkillsCard({
         filtered.map((skill) => {
           const isLoaded = loadedSkillPaths?.has(skill.path) ?? false
           const isDefault = defaultSkillPaths?.has(skill.path) ?? false
+          // "Loaded" = already in context: either default-loaded (always-on) or opened
+          // this session. Its Load action is done, so the button reads a disabled
+          // "Loaded" instead of an active "Load" (and the separate Loaded badge is
+          // dropped — the button now conveys it).
+          const alreadyLoaded = isLoaded || isDefault
           return (
             <div
               key={skill.path}
@@ -393,14 +398,6 @@ export function SkillsCard({
                       style={skillBadgeStyle(true)}
                     >
                       {t('ide.chat.skills.defaultBadge', undefined, { defaultValue: 'Default' })}
-                    </span>
-                  )}
-                  {isLoaded && (
-                    <span
-                      data-mol-id={`skill-loaded-badge-${skill.name}`}
-                      style={skillBadgeStyle(false)}
-                    >
-                      {t('ide.chat.skills.loadedBadge', undefined, { defaultValue: 'Loaded' })}
                     </span>
                   )}
                 </div>
@@ -455,11 +452,20 @@ export function SkillsCard({
                 <button
                   type="button"
                   data-mol-id={`skill-load-${skill.name}`}
-                  onClick={() => onLoad(skill)}
-                  className={cm.cn(cm.button({ variant: 'outline', size: 'xs' }))}
-                  style={{ flexShrink: 0 }}
+                  onClick={alreadyLoaded ? undefined : () => onLoad(skill)}
+                  disabled={alreadyLoaded}
+                  aria-disabled={alreadyLoaded}
+                  className={cm.cn(
+                    cm.button({ variant: alreadyLoaded ? 'ghost' : 'outline', size: 'xs' }),
+                  )}
+                  style={{
+                    flexShrink: 0,
+                    ...(alreadyLoaded ? { opacity: 0.55, cursor: 'default' } : null),
+                  }}
                 >
-                  {t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
+                  {alreadyLoaded
+                    ? t('ide.chat.skills.loadedBadge', undefined, { defaultValue: 'Loaded' })
+                    : t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
                 </button>
               </div>
             </div>

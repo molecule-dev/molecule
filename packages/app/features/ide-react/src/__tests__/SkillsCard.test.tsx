@@ -342,6 +342,21 @@ describe('SkillsCard — default toggle: hollow vs filled star, aria-label, no t
     // first view without any click.
     expect(container.querySelector('[data-mol-id="skill-default-badge-auth"]')).not.toBeNull()
   })
+
+  it('disables the Load button and labels it "Loaded" when the skill is already loaded (default)', async () => {
+    const container = renderWithDefaults(new Set([AUTH_PATH]))
+    const load = (await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="skill-load-auth"]')
+      expect(el, 'the Load button must render').not.toBeNull()
+      return el as HTMLButtonElement
+    })) as HTMLButtonElement
+    // Already loaded into context (default-loaded) → the Load action is done: the button
+    // is disabled and reads "Loaded" (not an active "Load"); the separate Loaded badge is
+    // gone (the button now conveys it).
+    expect(load.disabled).toBe(true)
+    expect(load.textContent?.trim()).toBe('Loaded')
+    expect(container.querySelector('[data-mol-id="skill-loaded-badge-auth"]')).toBeNull()
+  })
 })
 
 describe('SkillsCard — "Load all by default" reset affordance (P3-11)', () => {
