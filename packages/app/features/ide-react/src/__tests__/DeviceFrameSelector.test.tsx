@@ -219,3 +219,136 @@ describe('DeviceFrameSelector (P3-22 — themed device-frame dropdown)', () => {
     )
   })
 })
+
+describe('DeviceFrameSelector (P4-04 — in-dropdown Rotate + Open in new tab actions)', () => {
+  it('hosts an "Open in new tab" action row in the dropdown when wired', () => {
+    const onOpenExternal = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <DeviceFrameSelector current="none" onChange={() => {}} onOpenExternal={onOpenExternal} />
+      </Wrap>,
+    )
+    fireEvent.click(getTrigger(container))
+    const menu = getMenu(container) as HTMLElement
+    const open = menu.querySelector('[data-mol-id="preview-open-external"]') as HTMLElement
+    expect(open, 'the dropdown lists an Open-in-new-tab action').not.toBeNull()
+    // An action (not a radio frame choice): role=menuitem, no aria-checked.
+    expect(open.getAttribute('role')).toBe('menuitem')
+    expect(open.hasAttribute('aria-checked')).toBe(false)
+    // The link-external glyph + i18n label, matching the frame rows' icon+label style.
+    expect(open.querySelector('svg path')?.getAttribute('d')).toBe('glyph:link-external')
+    expect(open.textContent).toBe('Open in new tab')
+    // Clicking it fires the callback and closes the menu.
+    fireEvent.click(open)
+    expect(onOpenExternal).toHaveBeenCalledTimes(1)
+    expect(getMenu(container), 'menu closes after an action').toBeNull()
+  })
+
+  it('hosts a "Rotate" action only when the current frame is rotatable (when/where relevant)', () => {
+    const onRotate = vi.fn()
+    const { container } = render(
+      <Wrap>
+        <DeviceFrameSelector
+          current="tablet"
+          onChange={() => {}}
+          canRotate
+          onRotate={onRotate}
+          onOpenExternal={() => {}}
+        />
+      </Wrap>,
+    )
+    fireEvent.click(getTrigger(container))
+    const menu = getMenu(container) as HTMLElement
+    const rotate = menu.querySelector('[data-mol-id="preview-device-rotate"]') as HTMLElement
+    expect(rotate, 'a rotatable frame shows the Rotate action').not.toBeNull()
+    expect(rotate.getAttribute('role')).toBe('menuitem')
+    expect(rotate.querySelector('svg path')?.getAttribute('d')).toBe('glyph:rotate')
+    expect(rotate.textContent).toBe('Rotate')
+    fireEvent.click(rotate)
+    expect(onRotate).toHaveBeenCalledTimes(1)
+    expect(getMenu(container)).toBeNull()
+  })
+
+  it('hides the Rotate action for a non-rotatable frame, keeping Open in new tab', () => {
+    const { container } = render(
+      <Wrap>
+        <DeviceFrameSelector
+          current="none"
+          onChange={() => {}}
+          canRotate={false}
+          onRotate={() => {}}
+          onOpenExternal={() => {}}
+        />
+      </Wrap>,
+    )
+    fireEvent.click(getTrigger(container))
+    const menu = getMenu(container) as HTMLElement
+    expect(
+      menu.querySelector('[data-mol-id="preview-device-rotate"]'),
+      'no Rotate on a fluid (non-rotatable) frame',
+    ).toBeNull()
+    expect(
+      menu.querySelector('[data-mol-id="preview-open-external"]'),
+      'Open in new tab is still present',
+    ).not.toBeNull()
+  })
+
+  it('separates the device frames from the action rows with a themed divider', () => {
+    const { container } = render(
+      <Wrap>
+        <DeviceFrameSelector current="none" onChange={() => {}} onOpenExternal={() => {}} />
+      </Wrap>,
+    )
+    fireEvent.click(getTrigger(container))
+    const menu = getMenu(container) as HTMLElement
+    const sep = menu.querySelector('[data-mol-id="preview-device-menu-separator"]') as HTMLElement
+    expect(sep, 'a divider separates frames from actions').not.toBeNull()
+    expect(sep.getAttribute('role')).toBe('separator')
+    // Theme-token color, never a hex (only the var()'s own fallback `#` allowed).
+    expect(sep.style.background).toContain('var(--mol-color-border')
+    expect(sep.style.background.replace(/var\([^)]*\)/g, '')).not.toMatch(/#[0-9a-fA-F]{3,8}/)
+  })
+
+  it('renders NO separator or action rows when no action handlers are wired', () => {
+    const { container } = render(
+      <Wrap>
+        <DeviceFrameSelector current="none" onChange={() => {}} />
+      </Wrap>,
+    )
+    fireEvent.click(getTrigger(container))
+    const menu = getMenu(container) as HTMLElement
+    expect(menu.querySelector('[data-mol-id="preview-device-menu-separator"]')).toBeNull()
+    expect(menu.querySelector('[data-mol-id="preview-open-external"]')).toBeNull()
+    expect(menu.querySelector('[data-mol-id="preview-device-rotate"]')).toBeNull()
+    // The frame radio group is untouched — exactly the device frames, no extra rows.
+    expect(menu.querySelectorAll('[role="menuitemradio"]').length).toBe(DEVICE_FRAMES.length)
+    expect(menu.querySelectorAll('[role="menuitem"]').length).toBe(0)
+  })
+
+  it('extends keyboard roving focus from the last frame into the action rows', () => {
+    const { container } = render(
+      <Wrap>
+        <DeviceFrameSelector
+          current="mobile"
+          onChange={() => {}}
+          canRotate
+          onRotate={() => {}}
+          onOpenExternal={() => {}}
+        />
+      </Wrap>,
+    )
+    // Open at the current frame (mobile = the last device frame).
+    fireEvent.click(getTrigger(container))
+    const menu = getMenu(container) as HTMLElement
+    expect(document.activeElement?.getAttribute('data-mol-id')).toBe('preview-device-option-mobile')
+    // ArrowDown crosses the divider into the first action row (Rotate)…
+    fireEvent.keyDown(menu, { key: 'ArrowDown' })
+    expect(document.activeElement?.getAttribute('data-mol-id')).toBe('preview-device-rotate')
+    // …then to Open in new tab…
+    fireEvent.keyDown(menu, { key: 'ArrowDown' })
+    expect(document.activeElement?.getAttribute('data-mol-id')).toBe('preview-open-external')
+    // …and wrapping past the last action returns to the first frame.
+    fireEvent.keyDown(menu, { key: 'ArrowDown' })
+    expect(document.activeElement?.getAttribute('data-mol-id')).toBe('preview-device-option-none')
+  })
+})

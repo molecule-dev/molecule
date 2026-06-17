@@ -19,9 +19,12 @@
  *  - that glyph is wrapped in the framework's styled `Tooltip` component (a
  *    `role="tooltip"` popover on hover), NOT the delayed native `title` attr,
  *    with i18n text — the same treatment as the toolbar buttons;
- *  - focusing the input lights up the address field's focus ring in the primary
- *    theme TOKEN (`var(--mol-color-primary…)`), never a stripped `outline: none`
- *    with no replacement and never a raw hex literal;
+ *  - the address field has NO resting border (P4-12) yet still lights up a
+ *    primary-token focus RING (`var(--mol-color-primary…)`) on focus — never a
+ *    stripped `outline: none` with no replacement and never a raw hex literal;
+ *  - the input uses a normal (non-monospace) font at 14px, the field stretches to
+ *    the full toolbar-row height, and a full-height divider sits to the left of
+ *    the nav cluster (P4-12);
  *  - focusing the input selects all its text (omnibox select-all-on-focus).
  *
  * `state.url` is left empty so the polling / iframe / freeze effects all
@@ -168,7 +171,7 @@ describe('PreviewPanel URL bar (PV5 — browser-style omnibox)', () => {
     fireEvent.mouseLeave(trigger)
   })
 
-  it('lights up a focus ring in the primary theme token on focus (WCAG 2.4.7)', () => {
+  it('has no resting border, and shows a primary-token focus ring on focus (P4-12 + WCAG 2.4.7)', () => {
     const { container } = render(
       <Wrap currentUrl="https://app.example.com/">
         <PreviewPanel />
@@ -179,20 +182,72 @@ describe('PreviewPanel URL bar (PV5 — browser-style omnibox)', () => {
     expect(input).not.toBeNull()
     expect(field).not.toBeNull()
 
-    // Before focus: the resting border is the muted border token, NOT the
-    // primary focus color.
-    expect(field.style.border).toContain('var(--mol-color-border')
-    expect(field.style.border).not.toContain('--mol-color-primary')
+    // P4-12: the boxed resting border is GONE — the field declares no `border`
+    // shorthand at all (the old `1px solid var(--mol-color-border…)` is removed).
+    expect(field.style.border).toBe('')
+    // At rest there is no focus ring either.
+    expect(field.style.boxShadow).toBe('none')
 
-    // After focus: the address field's border becomes the primary theme TOKEN —
-    // a visible focus indicator driven by a token, never a stripped outline and
-    // never a raw hex literal. This is what makes the WCAG 2.4.7 regression
-    // (bare `outline: none` with no replacement) impossible to reintroduce.
+    // After focus: a primary-token focus RING appears as a box-shadow (NOT a
+    // reintroduced border) — the WCAG 2.4.7 indicator the removed border used to
+    // provide, driven by a theme token. No bare hex literal stands in for the
+    // color (only the var()'s own fallback `#` is allowed). This keeps the
+    // WCAG 2.4.7 regression (bare `outline: none` with no replacement) impossible
+    // to reintroduce while honoring "remove the border".
     fireEvent.focus(input)
-    expect(field.style.border).toContain('var(--mol-color-primary')
-    // The token reference is the color source — no bare hex literal stands in
-    // for the theme color (the only `#` allowed is the var()'s own fallback).
-    expect(field.style.border.replace(/var\([^)]*\)/g, '')).not.toMatch(/#[0-9a-fA-F]{3,8}/)
+    expect(field.style.boxShadow).toContain('var(--mol-color-primary')
+    expect(field.style.boxShadow.replace(/var\([^)]*\)/g, '')).not.toMatch(/#[0-9a-fA-F]{3,8}/)
+    expect(field.style.border, 'the focus indicator must NOT be a reintroduced border').toBe('')
+  })
+
+  it('uses a normal (non-monospace) font at 14px, vertically centered (P4-12)', () => {
+    const { container } = render(
+      <Wrap currentUrl="https://app.example.com/">
+        <PreviewPanel />
+      </Wrap>,
+    )
+    const input = container.querySelector('[data-mol-id="preview-url"]') as HTMLInputElement
+    // Normal font: the monospace family is gone; the input inherits the UI font.
+    expect(input.style.fontFamily).toBe('inherit')
+    expect(input.style.fontFamily).not.toContain('monospace')
+    // 14px via the ClassMap text scale (`text-sm` = 14px), not the old `text-xs` (12px).
+    expect(input.className).toContain('text-sm')
+    expect(input.className).not.toContain('text-xs')
+    // Vertically centered by the field's align-center row.
+    const field = container.querySelector('[data-mol-id="preview-url-field"]') as HTMLElement
+    expect(field.className).toContain('items-center')
+  })
+
+  it('stretches the address field to the full toolbar row height (P4-12)', () => {
+    const { container } = render(
+      <Wrap currentUrl="https://app.example.com/">
+        <PreviewPanel />
+      </Wrap>,
+    )
+    const field = container.querySelector('[data-mol-id="preview-url-field"]') as HTMLElement
+    expect(field.style.alignSelf).toBe('stretch')
+  })
+
+  it('renders a full-height divider to the LEFT of the nav cluster (P4-12)', () => {
+    const { container } = render(
+      <Wrap currentUrl="https://app.example.com/">
+        <PreviewPanel />
+      </Wrap>,
+    )
+    const sep = container.querySelector('[data-mol-id="preview-toolbar-separator"]') as HTMLElement
+    expect(sep, 'a toolbar separator must render').not.toBeNull()
+    // Full height (stretches the row) and a theme-token color, never a hex.
+    expect(sep.style.alignSelf).toBe('stretch')
+    expect(sep.style.background).toContain('var(--mol-color-border')
+    expect(sep.style.background.replace(/var\([^)]*\)/g, '')).not.toMatch(/#[0-9a-fA-F]{3,8}/)
+    // It sits to the LEFT of the nav cluster: the separator precedes the Back
+    // button in DOM order within the toolbar row.
+    const back = container.querySelector('[data-mol-id="preview-back"]') as HTMLElement
+    expect(back, 'the back button must render').not.toBeNull()
+    expect(
+      sep.compareDocumentPosition(back) & Node.DOCUMENT_POSITION_FOLLOWING,
+      'the separator must come before (left of) the back button',
+    ).toBeTruthy()
   })
 
   it('selects all text on focus (omnibox select-all)', () => {

@@ -7,6 +7,13 @@
  * replaced the old single-button "cycle on click" affordance — selecting a
  * frame directly is far less error-prone than blind-cycling through four.
  *
+ * Below the frames (after a divider) the menu also hosts the preview's "Rotate"
+ * and "Open in new tab" actions (P4-04) that used to be separate toolbar
+ * buttons. "Rotate" is shown only "where relevant" — when the current frame is
+ * rotatable (fixed-frame tablet/mobile) and an `onRotate` handler is wired;
+ * "Open in new tab" is shown whenever an `onOpenExternal` handler is wired.
+ * Both share the frame rows' icon + label styling and the same roving focus.
+ *
  * The menu is a minimal, accessible, fully themed popover built from ClassMap
  * tokens + bonded `<Icon>`s (keyboard navigable, outside-click + Escape close,
  * `role="menu"` / `role="menuitemradio"` with roving focus). It deliberately
@@ -32,19 +39,70 @@ import { DEVICE_FRAMES, DEVICE_META } from './device-cycle.js'
 import { Icon } from './Icon.js'
 
 /**
- * A dropdown that selects the preview device frame.
+ * Props for {@link DeviceFrameSelector}, extending the shared
+ * {@link DeviceFrameSelectorProps} with the in-dropdown action callbacks (P4-04):
+ * the device dropdown now also hosts the Rotate and Open-in-new-tab controls that
+ * used to be separate toolbar buttons.
+ */
+interface DeviceFrameSelectorWithActionsProps extends DeviceFrameSelectorProps {
+  /** Whether the current frame can be rotated — gates the Rotate item ("when/where relevant"). */
+  canRotate?: boolean
+  /** Rotate the current fixed-frame device portrait ⇄ landscape. Omit to hide the Rotate item. */
+  onRotate?: () => void
+  /** Open the preview URL in a new browser tab. Omit to hide the Open-in-new-tab item. */
+  onOpenExternal?: () => void
+}
+
+/**
+ * A dropdown that selects the preview device frame and hosts the Rotate +
+ * Open-in-new-tab actions.
  * @param root0 - The component props.
  * @param root0.current - The currently selected device frame.
  * @param root0.onChange - Callback invoked with the chosen frame.
  * @param root0.className - Optional CSS class name for the trigger button.
+ * @param root0.canRotate - Whether the current frame is rotatable (gates the Rotate item).
+ * @param root0.onRotate - Rotate the current fixed-frame device; omit to hide the Rotate item.
+ * @param root0.onOpenExternal - Open the preview in a new tab; omit to hide the item.
  * @returns The rendered device-frame selector element.
  */
 export function DeviceFrameSelector({
   current,
   onChange,
   className,
-}: DeviceFrameSelectorProps): JSX.Element {
+  canRotate,
+  onRotate,
+  onOpenExternal,
+}: DeviceFrameSelectorWithActionsProps): JSX.Element {
   const cm = getClassMap()
+
+  // Action rows shown below the device frames (P4-04), after a divider: Rotate
+  // (only "where relevant" — when the current frame is rotatable AND a handler
+  // is wired) and Open in new tab (whenever a handler is wired). Built as data so
+  // they share the frame rows' roving-focus model + menu-item styling.
+  const actionItems: ReadonlyArray<{ id: string; icon: string; label: string; run: () => void }> = [
+    ...(canRotate && onRotate
+      ? [
+          {
+            id: 'preview-device-rotate',
+            icon: 'rotate',
+            label: t('ide.device.rotate', {}, { defaultValue: 'Rotate' }),
+            run: onRotate,
+          },
+        ]
+      : []),
+    ...(onOpenExternal
+      ? [
+          {
+            id: 'preview-open-external',
+            icon: 'link-external',
+            label: t('ide.preview.openNewTab', {}, { defaultValue: 'Open in new tab' }),
+            run: onOpenExternal,
+          },
+        ]
+      : []),
+  ]
+  // Total roving-focus targets = device frames + the conditional action rows.
+  const itemCount = DEVICE_FRAMES.length + actionItems.length
 
   const [open, setOpen] = useState(false)
   // Index of the menu item with roving focus while the menu is open.
@@ -91,6 +149,15 @@ export function DeviceFrameSelector({
     [onChange, closeMenu],
   )
 
+  // Run an action row (Rotate / Open in new tab) then close the menu.
+  const runAction = useCallback(
+    (run: () => void) => {
+      run()
+      closeMenu()
+    },
+    [closeMenu],
+  )
+
   const onTriggerKeyDown = useCallback(
     (event: KeyboardEvent<HTMLButtonElement>) => {
       if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
@@ -98,10 +165,10 @@ export function DeviceFrameSelector({
         openMenu(currentIndex)
       } else if (event.key === 'ArrowUp') {
         event.preventDefault()
-        openMenu(DEVICE_FRAMES.length - 1)
+        openMenu(itemCount - 1)
       }
     },
-    [openMenu, currentIndex],
+    [openMenu, currentIndex, itemCount],
   )
 
   const onMenuKeyDown = useCallback(
@@ -109,11 +176,11 @@ export function DeviceFrameSelector({
       switch (event.key) {
         case 'ArrowDown':
           event.preventDefault()
-          setActiveIndex((index) => (index + 1) % DEVICE_FRAMES.length)
+          setActiveIndex((index) => (index + 1) % itemCount)
           break
         case 'ArrowUp':
           event.preventDefault()
-          setActiveIndex((index) => (index - 1 + DEVICE_FRAMES.length) % DEVICE_FRAMES.length)
+          setActiveIndex((index) => (index - 1 + itemCount) % itemCount)
           break
         case 'Home':
           event.preventDefault()
@@ -121,7 +188,7 @@ export function DeviceFrameSelector({
           break
         case 'End':
           event.preventDefault()
-          setActiveIndex(DEVICE_FRAMES.length - 1)
+          setActiveIndex(itemCount - 1)
           break
         case 'Escape':
           event.preventDefault()
@@ -135,7 +202,7 @@ export function DeviceFrameSelector({
           break
       }
     },
-    [closeMenu],
+    [closeMenu, itemCount],
   )
 
   const currentLabel = t(
@@ -226,6 +293,63 @@ export function DeviceFrameSelector({
                 <Icon name={DEVICE_META[frame].icon} size={16} aria-hidden="true" />
                 <span style={{ flex: 1 }}>{label}</span>
                 {isCurrent && <Icon name="check" size={14} aria-hidden="true" />}
+              </button>
+            )
+          })}
+
+          {/* Divider between the device frames and the action rows (P4-04). A thin
+              theme-token line, never a hex. */}
+          {actionItems.length > 0 && (
+            <div
+              role="separator"
+              aria-hidden="true"
+              data-mol-id="preview-device-menu-separator"
+              style={{
+                height: 1,
+                margin: '4px 0',
+                background: 'var(--mol-color-border, rgba(128,128,128,0.2))',
+              }}
+            />
+          )}
+
+          {/* Rotate / Open in new tab — same icon + label row styling as the frame
+              options above, but plain `menuitem`s (actions, not radio choices). */}
+          {actionItems.map((item, actionIdx) => {
+            const index = DEVICE_FRAMES.length + actionIdx
+            const isActive = index === activeIndex
+            return (
+              <button
+                key={item.id}
+                ref={(node) => {
+                  itemRefs.current[index] = node
+                }}
+                type="button"
+                role="menuitem"
+                tabIndex={isActive ? 0 : -1}
+                data-mol-id={item.id}
+                onClick={() => runAction(item.run)}
+                onMouseEnter={() => setActiveIndex(index)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: '100%',
+                  padding: '6px 8px',
+                  textAlign: 'left',
+                  border: 'none',
+                  borderRadius: 6,
+                  color: 'inherit',
+                  cursor: 'pointer',
+                  font: 'inherit',
+                  // Highlight (hover + keyboard) via a theme token, never a hex —
+                  // matching the frame rows above.
+                  background: isActive
+                    ? 'var(--mol-color-surface-secondary, transparent)'
+                    : 'transparent',
+                }}
+              >
+                <Icon name={item.icon} size={16} aria-hidden="true" />
+                <span style={{ flex: 1 }}>{item.label}</span>
               </button>
             )
           })}

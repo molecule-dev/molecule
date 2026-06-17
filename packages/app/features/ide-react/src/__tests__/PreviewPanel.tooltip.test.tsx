@@ -109,17 +109,19 @@ afterEach(() => {
 })
 
 /**
- * Every preview-toolbar control, with the i18n default text its tooltip must show.
- * `preview-device-cycle` is the DeviceFrameSelector dropdown trigger; the rest
- * are BarButtons. (The "Rotate" control only renders for fixed-frame devices —
- * with the stub state on `none`, it is correctly absent here.)
+ * Every always-visible preview-toolbar control, with the i18n default text its
+ * tooltip must show. `preview-device-cycle` is the DeviceFrameSelector dropdown
+ * trigger; the rest are BarButtons. The "Rotate" and "Open in new tab" controls
+ * are NOT listed here: they moved INTO the device-frame dropdown (P4-04), where
+ * they render as plain menu-item rows (no Tooltip) — covered by
+ * DeviceFrameSelector.test.tsx. (Rotate also only applies to fixed-frame devices;
+ * the stub state is `none`.)
  */
 const PREVIEW_CONTROLS: ReadonlyArray<{ id: string; tip: string }> = [
   { id: 'preview-device-cycle', tip: 'Device frame' },
   { id: 'preview-back', tip: 'Back' },
   { id: 'preview-forward', tip: 'Forward' },
   { id: 'preview-refresh', tip: 'Reload' },
-  { id: 'preview-open-external', tip: 'Open in new tab' },
 ]
 
 describe('PreviewPanel tooltips (IDE1 — real styled Tooltip, not native title)', () => {

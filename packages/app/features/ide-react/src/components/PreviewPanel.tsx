@@ -850,9 +850,10 @@ export function PreviewPanel({
 
   return (
     <div className={cm.cn(cm.flex({ direction: 'col' }), cm.h('full'), cm.surface, className)}>
-      {/* Browser-style URL bar: a single rounded, subtly-bordered bar holding
-          the device-frame dropdown (+ rotate), back/forward, refresh, the URL
-          input, and open-in-new-tab \u2014 left \u2192 right, like a real browser toolbar. */}
+      {/* Browser-style URL bar: a borderless, full-height address field on the
+          left, then a full-height divider, then the nav cluster (back/forward,
+          refresh) and the device-frame dropdown (which now also holds Rotate +
+          Open in new tab) \u2014 left \u2192 right, like a real browser toolbar. */}
       <div className={cm.cn(cm.sp('px', 3), cm.sp('py', 2), cm.shrink0, cm.borderB)}>
         <div className={cm.cn(cm.flex({ direction: 'row', align: 'center', gap: 'xs' }))}>
           <div
@@ -865,13 +866,16 @@ export function PreviewPanel({
             style={{
               flex: 1,
               minWidth: 0,
+              // Full height (P4-12): the address field stretches to fill the
+              // toolbar row instead of sitting as a short centered box.
+              alignSelf: 'stretch',
               borderRadius: '6px',
-              border: `1px solid ${
-                urlEditing
-                  ? 'var(--mol-color-primary, #6366f1)'
-                  : 'var(--mol-color-border, rgba(128,128,128,0.2))'
-              }`,
-              transition: 'border-color 120ms',
+              // Borderless (P4-12): no resting border. The focus indicator is a
+              // primary-token ring shown only while editing \u2014 it preserves the
+              // WCAG 2.4.7 focus indicator the removed border used to carry,
+              // without a boxed border at rest.
+              boxShadow: urlEditing ? '0 0 0 2px var(--mol-color-primary, #6366f1)' : 'none',
+              transition: 'box-shadow 120ms',
             }}
           >
             <Tooltip
@@ -913,23 +917,39 @@ export function PreviewPanel({
                 }
               }}
               aria-label={t('ide.preview.urlBar', {}, { defaultValue: 'Preview URL' })}
-              className={cm.cn(cm.textSize('xs'), cm.sp('py', 1))}
+              className={cm.cn(cm.textSize('sm'))}
               style={{
                 flex: 1,
                 minWidth: 0,
                 background: 'transparent',
                 border: 'none',
                 color: 'inherit',
+                // Normal (non-monospace) UI font at 14px (cm.textSize('sm')),
+                // vertically centered by the field's align-center row (P4-12).
+                fontFamily: 'inherit',
                 // The wrapping address field carries the visible focus indicator
-                // (border → primary while focused), so the input's own outline is
-                // intentionally suppressed here — matching the chat input.
+                // (a primary-token ring while focused), so the input's own outline
+                // is intentionally suppressed here — matching the chat input.
                 outline: 'none',
-                fontFamily: 'monospace',
               }}
             />
           </div>
-          {/* All controls grouped on the right: back/forward navigate the preview's own */}
-          {/* history, refresh reloads, the device dropdown picks a frame (+ rotate), open pops out. */}
+          {/* Full-height divider to the LEFT of the nav cluster (P4-12): a vertical
+              separator between the address field and the back/forward/etc icons. */}
+          <div
+            aria-hidden="true"
+            data-mol-id="preview-toolbar-separator"
+            style={{
+              alignSelf: 'stretch',
+              width: '1px',
+              flexShrink: 0,
+              margin: '0 4px',
+              background: 'var(--mol-color-border, rgba(128,128,128,0.2))',
+            }}
+          />
+          {/* Nav cluster: back/forward navigate the preview's own history, refresh */}
+          {/* reloads. The device dropdown picks a frame AND hosts Rotate + Open in */}
+          {/* new tab (P4-04) — the rotate/open buttons no longer sit in the toolbar. */}
           <BarButton
             icon="arrow-left"
             molId="preview-back"
@@ -950,22 +970,14 @@ export function PreviewPanel({
             onClick={refresh}
             title={t('ide.preview.refresh', {}, { defaultValue: 'Reload' })}
           />
-          <DeviceFrameSelector current={state.device} onChange={handleDeviceChange} />
-          {/* Rotate is shown only "where possible" — fixed-frame devices */}
-          {/* (tablet/mobile). Responsive/desktop are full-width, nothing to rotate. */}
-          {canRotate && (
-            <BarButton
-              icon="rotate"
-              molId="preview-device-rotate"
-              onClick={handleRotate}
-              title={t('ide.device.rotate', {}, { defaultValue: 'Rotate' })}
-            />
-          )}
-          <BarButton
-            icon="link-external"
-            molId="preview-open-external"
-            onClick={openExternal}
-            title={t('ide.preview.openNewTab', {}, { defaultValue: 'Open in new tab' })}
+          {/* The device-frame dropdown also hosts Rotate (only when the current */}
+          {/* frame is rotatable — "where relevant") and Open in new tab (P4-04). */}
+          <DeviceFrameSelector
+            current={state.device}
+            onChange={handleDeviceChange}
+            canRotate={canRotate}
+            onRotate={handleRotate}
+            onOpenExternal={openExternal}
           />
         </div>
       </div>

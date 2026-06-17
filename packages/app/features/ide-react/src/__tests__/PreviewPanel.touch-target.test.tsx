@@ -3,11 +3,14 @@
 /**
  * IDE11 — mobile/tablet touch-target regression guard.
  *
- * The preview toolbar's controls (device-frame cycle, back, forward, refresh,
- * open-in-new-tab) render as compact `xs` ghost buttons (~26px tall). That is
+ * The preview toolbar's always-visible controls (device-frame cycle, back,
+ * forward, refresh) render as compact `xs` ghost buttons (~26px tall). That is
  * fine for a mouse but below the WCAG 2.5.5 minimum tap target, so on a phone or
  * tablet they were unusably small — the exact gap the MVP audit flagged (the
  * earlier fix punted them as out of scope and only shipped pure-helper tests).
+ *
+ * (Open-in-new-tab moved into the device-frame dropdown as a menu-item row in
+ * P4-04, so it is no longer a toolbar BarButton and is not asserted here.)
  *
  * This is a real jsdom render of {@link PreviewPanel} (not a source grep): it
  * mounts the actual component tree and asserts every preview control composes
@@ -153,13 +156,12 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** The preview controls the audit found stuck at ~26px on touch. */
+/** The always-visible preview toolbar controls the audit found stuck at ~26px on touch. */
 const PREVIEW_CONTROL_IDS = [
   'preview-device-cycle',
   'preview-back',
   'preview-forward',
   'preview-refresh',
-  'preview-open-external',
 ] as const
 
 describe('PreviewPanel touch targets (IDE11)', () => {
