@@ -20,10 +20,16 @@
  * list immediately. The card can also mount with that form already open
  * (`startCreating`).
  *
- * Per-control hints surface through the framework's REAL styled {@link Tooltip}
- * (instant, theme-aware, focus/hover-aware) — never the delayed, touch-blind
- * native `title`. The "New skill" glyph is a real SVG from the bonded icon set
- * ({@link Icon}), never a unicode character.
+ * The "New skill" button carries a hint via the framework's REAL styled
+ * {@link Tooltip} (instant, theme-aware, focus/hover-aware) — never the delayed,
+ * touch-blind native `title`. The per-row actions are self-explanatory and carry
+ * NO hover hint: "Load" is a labelled `outline` button (it reads as a real
+ * button, not faded text), and the default toggle is a star {@link Icon} that
+ * renders FILLED ({@link Icon} `star`) when the skill is in the default-loaded
+ * set and HOLLOW (`star-outline`) when it is not — so seeded defaults read as
+ * default on first view, no click required. The icon-only toggle carries an
+ * `aria-label` for accessibility. Glyphs are always real SVGs from the bonded
+ * icon set, never unicode characters.
  *
  * Styling uses `getClassMap()` (`cm.*`); the only inline styles are layout the
  * ClassMap can't express.
@@ -216,9 +222,8 @@ export function SkillsCard({
               data-mol-id="skill-new"
               onClick={() => setCreating(true)}
               className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0 }}
+              style={{ flexShrink: 0 }}
             >
-              <Icon name="plus" size={12} aria-hidden="true" />
               {t('ide.chat.skills.new', undefined, { defaultValue: 'New skill' })}
             </button>
           </Tooltip>
@@ -384,8 +389,11 @@ export function SkillsCard({
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                 {onToggleDefault && (
-                  <Tooltip
-                    content={
+                  <button
+                    type="button"
+                    data-mol-id={`skill-default-${skill.name}`}
+                    aria-pressed={isDefault}
+                    aria-label={
                       isDefault
                         ? t('ide.chat.skills.unsetDefault', undefined, {
                             defaultValue: 'Stop loading by default',
@@ -394,49 +402,32 @@ export function SkillsCard({
                             defaultValue: 'Load by default',
                           })
                     }
-                    placement="top"
-                  >
-                    <button
-                      type="button"
-                      data-mol-id={`skill-default-${skill.name}`}
-                      aria-pressed={isDefault}
-                      onClick={() => onToggleDefault(skill, !isDefault)}
-                      className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
-                      style={{
-                        flexShrink: 0,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Icon
-                        name="star"
-                        size={13}
-                        aria-hidden="true"
-                        style={{
-                          color: 'var(--mol-color-primary, #6366f1)',
-                          opacity: isDefault ? 1 : 0.4,
-                        }}
-                      />
-                    </button>
-                  </Tooltip>
-                )}
-                <Tooltip
-                  content={t('ide.chat.skills.loadTitle', undefined, {
-                    defaultValue: 'Open in the editor',
-                  })}
-                  placement="top"
-                >
-                  <button
-                    type="button"
-                    data-mol-id={`skill-load-${skill.name}`}
-                    onClick={() => onLoad(skill)}
+                    onClick={() => onToggleDefault(skill, !isDefault)}
                     className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
-                    style={{ flexShrink: 0 }}
+                    style={{
+                      flexShrink: 0,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
                   >
-                    {t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
+                    <Icon
+                      name={isDefault ? 'star' : 'star-outline'}
+                      size={13}
+                      aria-hidden="true"
+                      style={{ color: 'var(--mol-color-primary, #6366f1)' }}
+                    />
                   </button>
-                </Tooltip>
+                )}
+                <button
+                  type="button"
+                  data-mol-id={`skill-load-${skill.name}`}
+                  onClick={() => onLoad(skill)}
+                  className={cm.cn(cm.button({ variant: 'outline', size: 'xs' }))}
+                  style={{ flexShrink: 0 }}
+                >
+                  {t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
+                </button>
               </div>
             </div>
           )

@@ -90,6 +90,7 @@ const ICON_MAP: Record<string, string> = {
   history: 'history',
   tag: 'tag',
   star: 'star-fill',
+  'star-outline': 'star',
   heart: 'heart-fill',
   code: 'code',
   mail: 'mail',
