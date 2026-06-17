@@ -3037,13 +3037,11 @@ function ChatInner({
       skillsCreate?: boolean,
       count?: number,
     ) => {
-      // If a message is actively streaming, place the card just before it so
-      // it doesn't get pinned below the growing response.
-      let ts = Date.now()
-      const streaming = messagesRef.current.find((m) => m.isStreaming)
-      if (streaming && streaming.timestamp <= ts) {
-        ts = streaming.timestamp - 1
-      }
+      // Cards land chronologically — wherever/whenever they occur. A card created
+      // while a response is streaming simply sorts AFTER that response (the response
+      // started earlier); nothing is forced before or after. (A queued USER message
+      // that waits for the active stream to finish is a separate mechanism, not this.)
+      const ts = Date.now()
       setSystemCards((prev) => [
         ...prev,
         {
