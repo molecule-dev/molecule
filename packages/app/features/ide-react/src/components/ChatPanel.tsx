@@ -6973,8 +6973,12 @@ function ChatInner({
         )}
 
         {/* Panel overlay popup (/skills, /scripts, /settings) — a closeable popup
-            above the composer, mirroring the model + sounds picker shell. The card
-            inside keeps its own header, so we add only a top-right ✕ (plus Esc). */}
+            above the composer, mirroring the model + sounds picker shell. A thin
+            header bar carries the title (left) + the ✕ (right) — NOT absolutely
+            positioned over the card, so it never overlaps the card's own top-right
+            actions (New skill / New script). The card mounts `embedded` in the
+            scrollable body below, rendering transparent so the overlay's `cm.surface`
+            is the single clean background (no nested gray panel). Esc also closes. */}
         {panelOverlay && (
           <div
             className={cm.cn(cm.surface, cm.borderAll)}
@@ -7000,28 +7004,46 @@ function ChatInner({
               }
             }}
           >
-            <button
-              type="button"
-              data-mol-id="panel-overlay-close"
-              aria-label={t('ide.chat.closeOverlay', undefined, { defaultValue: 'Close' })}
-              onClick={() => setPanelOverlay(null)}
+            {/* Header bar — title on the left, ✕ on the right (mirrors the /sounds
+                popup header). The title reuses each panel's existing heading key
+                (Skills / Scripts / Settings), so no new i18n key is needed. */}
+            <div
+              className={cm.cn(cm.textSize('xs'), cm.textMuted)}
               style={{
-                position: 'absolute',
-                top: 6,
-                right: 8,
-                zIndex: 1,
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'inherit',
-                padding: '0 2px',
-                fontSize: '14px',
-                lineHeight: 1,
-                opacity: 0.6,
+                padding: '5px 12px',
+                borderBottom: '1px solid rgba(128,128,128,0.12)',
+                flexShrink: 0,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
               }}
             >
-              {'✕'}
-            </button>
+              <span className={cm.fontWeight('medium')}>
+                {panelOverlay === 'skills'
+                  ? t('ide.chat.skills.heading', undefined, { defaultValue: 'Skills' })
+                  : panelOverlay === 'scripts'
+                    ? t('ide.chat.scripts.heading', undefined, { defaultValue: 'Scripts' })
+                    : t('ide.chat.settings.heading', undefined, { defaultValue: 'Settings' })}
+              </span>
+              <button
+                type="button"
+                data-mol-id="panel-overlay-close"
+                aria-label={t('ide.chat.closeOverlay', undefined, { defaultValue: 'Close' })}
+                onClick={() => setPanelOverlay(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  padding: '0 2px',
+                  fontSize: '14px',
+                  lineHeight: 1,
+                  opacity: 0.6,
+                }}
+              >
+                {'✕'}
+              </button>
+            </div>
             <div style={{ overflowY: 'auto', flex: 1 }}>
               {panelOverlay === 'settings' && (
                 <SettingsCard
@@ -7030,6 +7052,7 @@ function ChatInner({
                   onPrefillInput={(input) => setInputAndCursorEnd(`${input} `)}
                   isLight={isLight}
                   agentName={agentName}
+                  embedded
                 />
               )}
               {panelOverlay === 'skills' && (
@@ -7044,6 +7067,7 @@ function ChatInner({
                   onResetDefault={resetDefaultSkills}
                   defaultsExplicit={defaultSkillsExplicitRef.current}
                   isLight={isLight}
+                  embedded
                 />
               )}
               {panelOverlay === 'scripts' && (
@@ -7052,6 +7076,7 @@ function ChatInner({
                   initialQuery={panelOverlayQuery}
                   isLight={isLight}
                   agentName={agentName}
+                  embedded
                 />
               )}
             </div>

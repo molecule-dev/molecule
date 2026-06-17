@@ -112,6 +112,13 @@ function skillBadgeStyle(strong: boolean): CSSProperties {
  *   set (vs the implicit unset→all). The header reset affordance shows only when this is `true`,
  *   so there's a visible way back from the otherwise one-way door of the first explicit toggle.
  * @param root0.isLight - Whether the current theme is light mode (drives subtle tints).
+ * @param root0.embedded - When `true`, the card is mounted INSIDE the closeable panel overlay
+ *   (which already provides the `cm.surface` background + border + a header bar with the title and
+ *   ✕). The card then renders transparent — dropping its own `cm.surfaceSecondary` fill, outer
+ *   margin, border-radius, and its redundant "Skills" heading — so the overlay reads as ONE clean
+ *   surface (like the /sounds popup) instead of a nested gray card. The inner padding is kept so
+ *   content isn't flush to the edge. When `false`/omitted (the inline-timeline render path) the
+ *   card keeps its full card chrome unchanged.
  * @returns The rendered skills card.
  */
 export function SkillsCard({
@@ -126,6 +133,7 @@ export function SkillsCard({
   onResetDefault,
   defaultsExplicit,
   isLight,
+  embedded,
 }: {
   projectId: string
   initialQuery: string
@@ -138,6 +146,7 @@ export function SkillsCard({
   onResetDefault?: () => void
   defaultsExplicit?: boolean
   isLight: boolean
+  embedded?: boolean
 }): JSX.Element {
   const cm = getClassMap()
   const http = useHttpClient()
@@ -206,8 +215,12 @@ export function SkillsCard({
   return (
     <div
       data-mol-id="skills-card"
-      className={cm.cn(cm.surfaceSecondary, cm.textSize('xs'))}
-      style={{ margin: '6px 0', borderRadius: 6, padding: '10px 12px' }}
+      className={cm.cn(!embedded && cm.surfaceSecondary, cm.textSize('xs'))}
+      style={
+        embedded
+          ? { padding: '10px 12px' }
+          : { margin: '6px 0', borderRadius: 6, padding: '10px 12px' }
+      }
     >
       <div
         style={{
@@ -219,12 +232,16 @@ export function SkillsCard({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-          <div
-            className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}
-            style={{ flexShrink: 0 }}
-          >
-            {t('ide.chat.skills.heading', undefined, { defaultValue: 'Skills' })}
-          </div>
+          {/* The overlay's header bar already shows the "Skills" title, so the card
+              suppresses its own redundant heading when embedded (single clean title). */}
+          {!embedded && (
+            <div
+              className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}
+              style={{ flexShrink: 0 }}
+            >
+              {t('ide.chat.skills.heading', undefined, { defaultValue: 'Skills' })}
+            </div>
+          )}
           {/* P3-11: a visible way back from the one-way door of the first explicit
               toggle — resets the default-loaded set to the implicit "load ALL by
               default" state. A consistent ghost `cm.button` (matching the row
@@ -419,7 +436,7 @@ export function SkillsCard({
                   {skill.path}
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
                 {onToggleDefault && (
                   <button
                     type="button"

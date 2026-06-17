@@ -48,6 +48,13 @@ type RunState = 'running' | ScriptRunResult
  * @param root0.initialQuery - Seed query from `/scripts <query>` (empty for a bare `/scripts`).
  * @param root0.isLight - Whether the current theme is light mode (drives subtle tints).
  * @param root0.agentName - Display name of the AI coding agent, interpolated into the empty-state copy (neutral default: "the assistant").
+ * @param root0.embedded - When `true`, the card is mounted INSIDE the closeable panel overlay
+ *   (which already provides the `cm.surface` background + border + a header bar with the title and
+ *   ✕). The card then renders transparent — dropping its own `cm.surfaceSecondary` fill, outer
+ *   margin, border-radius, and its redundant "Scripts" heading — so the overlay reads as ONE clean
+ *   surface (like the /sounds popup) instead of a nested gray card. The inner padding is kept so
+ *   content isn't flush to the edge. When `false`/omitted (the inline-timeline render path) the
+ *   card keeps its full card chrome unchanged.
  * @returns The rendered scripts card.
  */
 export function ScriptsCard({
@@ -55,11 +62,13 @@ export function ScriptsCard({
   initialQuery,
   isLight,
   agentName = DEFAULT_AGENT_NAME,
+  embedded,
 }: {
   projectId: string
   initialQuery: string
   isLight: boolean
   agentName?: string
+  embedded?: boolean
 }): JSX.Element {
   const cm = getClassMap()
   const http = useHttpClient()
@@ -159,15 +168,23 @@ export function ScriptsCard({
   return (
     <div
       data-mol-id="scripts-card"
-      className={cm.cn(cm.surfaceSecondary, cm.textSize('xs'))}
-      style={{ margin: '6px 0', borderRadius: 6, padding: '10px 12px' }}
+      className={cm.cn(!embedded && cm.surfaceSecondary, cm.textSize('xs'))}
+      style={
+        embedded
+          ? { padding: '10px 12px' }
+          : { margin: '6px 0', borderRadius: 6, padding: '10px 12px' }
+      }
     >
       <div
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}
       >
-        <div className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}>
-          {t('ide.chat.scripts.heading', undefined, { defaultValue: 'Scripts' })}
-        </div>
+        {/* The overlay's header bar already shows the "Scripts" title, so the card
+            suppresses its own redundant heading when embedded (single clean title). */}
+        {!embedded && (
+          <div className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}>
+            {t('ide.chat.scripts.heading', undefined, { defaultValue: 'Scripts' })}
+          </div>
+        )}
         <button
           type="button"
           data-mol-id="scripts-new-toggle"

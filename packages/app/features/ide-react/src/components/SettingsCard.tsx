@@ -44,6 +44,13 @@ import type { SettingDescriptor } from './chat-settings-utilities.js'
  * @param root0.onPrefillInput - Prefills an exact slash-command input (e.g. `/model --plan`) for settings whose bare command is not specific enough; falls back to `onRunCommand` when omitted.
  * @param root0.isLight - Whether the current theme is light mode (drives subtle tints).
  * @param root0.agentName - Display name of the AI coding agent, interpolated into the setting/command descriptions (neutral default: "the assistant").
+ * @param root0.embedded - When `true`, the card is mounted INSIDE the closeable panel overlay
+ *   (which already provides the `cm.surface` background + border + a header bar with the title and
+ *   ✕). The card then renders transparent — dropping its own `cm.surfaceSecondary` fill, outer
+ *   margin, border-radius, and its redundant "Settings" section heading — so the overlay reads as
+ *   ONE clean surface (like the /sounds popup) instead of a nested gray card. The inner padding and
+ *   the "Slash commands" sub-heading are kept. When `false`/omitted (the inline-timeline render
+ *   path) the card keeps its full card chrome unchanged.
  * @returns The rendered settings card.
  */
 export function SettingsCard({
@@ -52,12 +59,14 @@ export function SettingsCard({
   onPrefillInput,
   isLight,
   agentName = DEFAULT_AGENT_NAME,
+  embedded,
 }: {
   settings: readonly SettingDescriptor[]
   onRunCommand: (id: CommandId) => void
   onPrefillInput?: (input: string) => void
   isLight: boolean
   agentName?: string
+  embedded?: boolean
 }): JSX.Element {
   const cm = getClassMap()
   const groups = groupCommandsByCategory()
@@ -66,16 +75,24 @@ export function SettingsCard({
   return (
     <div
       data-mol-id="settings-card"
-      className={cm.cn(cm.surfaceSecondary, cm.textSize('xs'))}
-      style={{ margin: '6px 0', borderRadius: 6, padding: '10px 12px' }}
+      className={cm.cn(!embedded && cm.surfaceSecondary, cm.textSize('xs'))}
+      style={
+        embedded
+          ? { padding: '10px 12px' }
+          : { margin: '6px 0', borderRadius: 6, padding: '10px 12px' }
+      }
     >
       {/* ── Section: settings ── */}
-      <div
-        className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}
-        style={{ marginBottom: 6 }}
-      >
-        {t('ide.chat.settings.heading', undefined, { defaultValue: 'Settings' })}
-      </div>
+      {/* The overlay's header bar already shows the "Settings" title, so the card
+          suppresses its own redundant section heading when embedded (single clean title). */}
+      {!embedded && (
+        <div
+          className={cm.cn(cm.fontWeight('medium'), cm.textSize('sm'))}
+          style={{ marginBottom: 6 }}
+        >
+          {t('ide.chat.settings.heading', undefined, { defaultValue: 'Settings' })}
+        </div>
+      )}
       <div data-mol-id="settings-list">
         {settings.map((setting) => (
           <div
