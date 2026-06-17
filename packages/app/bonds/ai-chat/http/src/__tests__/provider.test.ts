@@ -126,11 +126,11 @@ describe('@molecule/app-ai-chat-http', () => {
       expect(onEvent).toHaveBeenCalledWith({ type: 'token', content: 'valid' })
     })
 
-    it('should emit error event for non-ok response', async () => {
+    it('should emit error event for non-ok response, forwarding the HTTP status', async () => {
       mockFetch.mockResolvedValue({
         ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
+        status: 503,
+        statusText: 'Service Unavailable',
         text: vi.fn().mockResolvedValue('Server broke'),
         body: null,
       })
@@ -140,8 +140,12 @@ describe('@molecule/app-ai-chat-http', () => {
 
       await provider.sendMessage('Hi', defaultConfig, onEvent)
 
-      expect(onEvent).toHaveBeenCalledWith({
+      // The status is forwarded so the client can distinguish a retryable 5XX
+      // from a 4XX or a limit/quota gate and back off + auto-resume accordingly.
+      const errorCall = onEvent.mock.calls.find(([e]) => e.type === 'error')?.[0]
+      expect(errorCall).toMatchObject({
         type: 'error',
+        status: 503,
         message: 'HTTP {{status}}: {{text}}',
       })
     })

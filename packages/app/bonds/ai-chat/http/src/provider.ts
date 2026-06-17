@@ -147,6 +147,9 @@ export class HttpChatProvider implements ChatProvider {
         }
         onEvent({
           type: 'error',
+          // Forward the HTTP status so the client can distinguish a retryable
+          // server error (5XX) from a client error (4XX) or a limit/quota gate.
+          status: response!.status,
           message:
             errorMessage ??
             t(

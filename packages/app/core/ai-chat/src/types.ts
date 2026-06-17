@@ -258,7 +258,21 @@ export type ChatStreamEvent =
   // phase vocabulary (same decoupling rule as the `custom` event above).
   | { type: 'status'; label: string | null }
   | { type: 'done'; usage?: { inputTokens: number; outputTokens: number; contextWindow?: number } }
-  | { type: 'error'; message: string; limitType?: string; requiresSignup?: boolean }
+  | {
+      type: 'error'
+      message: string
+      /**
+       * HTTP status code of the failed backend response, when the error
+       * originated from a non-ok HTTP response (e.g. `503`). Absent for
+       * transport/stream errors that never produced a response. Consumers use it
+       * to distinguish a retryable server error (5XX) — which should back off and
+       * auto-resume — from a client error (4XX) or a limit/quota gate, which
+       * should not. Additive + optional, so emitting it is backward-compatible.
+       */
+      status?: number
+      limitType?: string
+      requiresSignup?: boolean
+    }
   // The active model changed (e.g. planner → executor); surfaced in the chat.
   | { type: 'model'; model: string; label?: string; mode?: 'plan' | 'execute' }
   // Post-discovery: the server is selecting a starting point / about to boot.

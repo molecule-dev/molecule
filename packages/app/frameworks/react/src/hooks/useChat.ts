@@ -46,6 +46,18 @@ type QueueEntry = {
 const AUTOFIX_PREFIX = 'Fix these issues:'
 
 /**
+ * Base backoff (in seconds) before the first auto-retry of a turn interrupted by
+ * a 5XX backend error. The wait doubles each attempt → 5s, 10s, 20s.
+ */
+const RETRY_BASE_SECONDS = 5
+
+/**
+ * Maximum number of auto-retry attempts after a 5XX backend error before the
+ * error is surfaced to the user (no more retries).
+ */
+const MAX_RETRY_ATTEMPTS = 3
+
+/**
  * Persist the pending message queue for a project.
  * @param projectId - The project identifier used as the storage key.
  * @param queue - The message queue entries to persist.
@@ -290,6 +302,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
     limitType?: string
     requiresSignup?: boolean
   } | null>(null)
+  // Active 5XX backoff-retry countdown, or null when none is pending. When a
+  // backend error is a server error (HTTP 5XX) the hook does NOT surface a
+  // terminal error — it shows this cancelable countdown and, when it elapses,
+  // auto-resumes the interrupted turn "where the user left off". `secondsRemaining`
+  // ticks down once per second; `attempt` is the 1-based retry number.
+  const [retryCountdown, setRetryCountdown] = useState<{
+    secondsRemaining: number
+    attempt: number
+  } | null>(null)
   const [mode, setMode] = useState<'plan' | 'execute'>('execute')
   // Transient label for a background phase (e.g. the verification pass) surfaced
   // by `status` stream events. Shown in place of the spinner's rotating messages
@@ -482,6 +503,150 @@ export function useChat(options: UseChatOptions): UseChatResult {
     () => Promise.resolve(),
   )
 
+  // ── 5XX backoff auto-retry machinery ──────────────────────────────────────
+  // When a stream `error` event reports an HTTP 5XX status, we don't surface a
+  // terminal error — we show a cancelable, once-per-second countdown and then
+  // resume the turn "where the user left off" via the existing resume path
+  // (provider.sendMessage('', { resume: true })). 4XX, limit/quota, and
+  // signup-required errors never auto-retry. Bounded to MAX_RETRY_ATTEMPTS.
+
+  // Retries already performed for the CURRENT incident. Reset to 0 on a clean
+  // `done`, a new send, an abort, a clearHistory, or a cancel.
+  const retryAttemptRef = useRef(0)
+  // The live countdown interval handle (ticks once/second). Cleared on fire,
+  // cancel, reset, and unmount so no interval ever leaks.
+  const retryIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // Mirror of the countdown value driven by the interval, so the tick can decide
+  // when to fire WITHOUT scheduling a side effect inside a state updater.
+  const retrySecondsRef = useRef(0)
+  // The turn to resume when the countdown elapses (the in-flight assistant
+  // message id + the text streamed so far).
+  const retryTargetRef = useRef<{ id: string; content: string } | null>(null)
+  // The original error message to surface if the user cancels the countdown or
+  // the retry budget is exhausted — so they always see WHY the turn failed.
+  const pendingRetryErrorRef = useRef<string | null>(null)
+
+  /** Stop the countdown interval, if one is running. */
+  const clearRetryTimers = useCallback((): void => {
+    if (retryIntervalRef.current !== null) {
+      clearInterval(retryIntervalRef.current)
+      retryIntervalRef.current = null
+    }
+  }, [])
+
+  /**
+   * Clear any pending retry WITHOUT surfacing the error — used when the user
+   * moves on (sends a new message, aborts, or clears history) so a stale retry
+   * and its interval never leak into the next turn.
+   */
+  const resetRetry = useCallback((): void => {
+    clearRetryTimers()
+    retryAttemptRef.current = 0
+    retryTargetRef.current = null
+    pendingRetryErrorRef.current = null
+    setRetryCountdown(null)
+  }, [clearRetryTimers])
+
+  /**
+   * Fire the scheduled retry: stop the countdown and resume the interrupted turn
+   * "where the user left off" via the existing resume path (resume:true). The
+   * retry budget (retryAttemptRef) is intentionally NOT reset here — a resume
+   * that fails again with a 5XX re-arms the backoff up to the attempt cap.
+   */
+  const fireRetry = useCallback((): void => {
+    clearRetryTimers()
+    setRetryCountdown(null)
+    const target = retryTargetRef.current
+    retryTargetRef.current = null
+    if (target && mountedRef.current) {
+      resumeStreamRef.current(target.id, target.content)
+    }
+  }, [clearRetryTimers])
+
+  /**
+   * Schedule a cancelable, once-per-second countdown that auto-resumes the turn
+   * when it elapses. Backoff curve: 5s, 10s, 20s (exponential, base 5s) for
+   * attempts 1, 2, 3. Returns false (without scheduling) once the attempt cap is
+   * reached, so the caller surfaces the terminal error instead.
+   * @param target - The assistant message id + streamed-so-far content to resume into.
+   * @param message - The error to surface if the user cancels or the budget runs out.
+   * @returns True if a retry was scheduled; false if the budget is exhausted.
+   */
+  const scheduleRetry = useCallback(
+    (target: { id: string; content: string }, message: string): boolean => {
+      if (retryAttemptRef.current >= MAX_RETRY_ATTEMPTS) return false
+      const attempt = retryAttemptRef.current + 1 // 1-based
+      retryAttemptRef.current = attempt
+      retryTargetRef.current = target
+      pendingRetryErrorRef.current = message
+      const waitSeconds = RETRY_BASE_SECONDS * 2 ** (attempt - 1) // 5, 10, 20
+      retrySecondsRef.current = waitSeconds
+      setRetryCountdown({ secondsRemaining: waitSeconds, attempt })
+      clearRetryTimers()
+      retryIntervalRef.current = setInterval(() => {
+        retrySecondsRef.current -= 1
+        if (retrySecondsRef.current <= 0) {
+          fireRetry()
+        } else {
+          setRetryCountdown({ secondsRemaining: retrySecondsRef.current, attempt })
+        }
+      }, 1000)
+      return true
+    },
+    [clearRetryTimers, fireRetry],
+  )
+
+  /**
+   * Decide how to handle a stream `error` event: auto-retry on a 5XX backend
+   * error (start the cancelable countdown + resume the turn), or surface a
+   * terminal error for everything else — a 4XX, a limit/quota gate, a
+   * signup-required error, a transport error (no status), or an exhausted budget.
+   * @param event - The error stream event (carries an optional HTTP `status`).
+   * @param target - The turn to resume if this is a retryable 5XX.
+   */
+  const handleStreamError = useCallback(
+    (
+      event: { message: string; status?: number; limitType?: string; requiresSignup?: boolean },
+      target: { id: string; content: string },
+    ): void => {
+      const isServerError =
+        typeof event.status === 'number' && event.status >= 500 && event.status < 600
+      // Only a 5XX, and never a limit/quota gate or a signup-required error.
+      const retryable = isServerError && !event.limitType && !event.requiresSignup
+      if (retryable && scheduleRetry(target, event.message)) return
+      // Not retryable (or the budget is spent) — surface the terminal error and
+      // reset the budget so a future, independent failure starts fresh.
+      retryAttemptRef.current = 0
+      setError(event.message)
+      setErrorMeta(
+        event.limitType
+          ? { limitType: event.limitType, requiresSignup: event.requiresSignup }
+          : null,
+      )
+    },
+    [scheduleRetry],
+  )
+
+  /**
+   * Cancel a pending auto-retry (user-initiated) and surface the original error
+   * (via `error`) so the user sees why the turn failed.
+   */
+  const cancelRetry = useCallback((): void => {
+    clearRetryTimers()
+    const message = pendingRetryErrorRef.current
+    if (message !== null) {
+      setError(message)
+      setErrorMeta(null)
+    }
+    retryAttemptRef.current = 0
+    retryTargetRef.current = null
+    pendingRetryErrorRef.current = null
+    setRetryCountdown(null)
+  }, [clearRetryTimers])
+
+  // Clear the countdown interval on unmount so no interval ever leaks.
+  useEffect(() => clearRetryTimers, [clearRetryTimers])
+
   // Load history on mount and restore any persisted queue / interrupted stream
   useEffect(() => {
     if (!loadOnMountRef.current) return
@@ -639,6 +804,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
       setIsLoading(true)
       setError(null)
       setErrorMeta(null)
+      // A fresh user-initiated send abandons any pending 5XX auto-retry.
+      resetRetry()
       resetStatusQueue()
       setStreamingFlag(storageKey)
 
@@ -868,17 +1035,17 @@ export function useChat(options: UseChatOptions): UseChatResult {
               break
             case 'done':
               receivedTerminal = true
+              // A clean finish ends the incident — reset the 5XX retry budget.
+              retryAttemptRef.current = 0
               // Flush immediately — commit final state and clear streaming flag
               flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
               break
             case 'error':
               receivedTerminal = true
-              setError(event.message)
-              setErrorMeta(
-                event.limitType
-                  ? { limitType: event.limitType, requiresSignup: event.requiresSignup }
-                  : null,
-              )
+              // A 5XX backend error auto-retries (resume where we left off) behind
+              // a cancelable countdown instead of surfacing a terminal error;
+              // handleStreamError decides. Either way, finalize the partial turn.
+              handleStreamError(event, { id: assistantId, content: assistantText })
               // Flush immediately — commit final state and clear streaming flag
               flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
               break
@@ -1218,16 +1385,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
             scheduleFlush(() => ({ loopLimitReached: event.maxLoops }))
             break
           case 'done':
+            // A clean finish ends the incident — reset the 5XX retry budget.
+            retryAttemptRef.current = 0
             // Flush immediately — commit final state and clear streaming flag
             flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
             break
           case 'error':
-            setError(event.message)
-            setErrorMeta(
-              event.limitType
-                ? { limitType: event.limitType, requiresSignup: event.requiresSignup }
-                : null,
-            )
+            // A 5XX during a resume re-arms the backoff up to the attempt cap;
+            // anything else surfaces. resumeId is the message we resume into.
+            handleStreamError(event, { id: resumeId, content: assistantText })
             // Flush immediately — commit final state and clear streaming flag
             flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
             break
@@ -1309,6 +1475,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
     // Mark this as a user Stop so the in-flight send's reconcile path leaves the
     // locally-finalized streamed content alone (see the reconcile guard above).
     userAbortedRef.current = true
+    // Stop means the user took over — cancel any pending 5XX auto-retry + timers.
+    resetRetry()
     try {
       provider.abort()
     } catch (_error) {
@@ -1338,6 +1506,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
   const clearHistory = useCallback(async () => {
     pendingRef.current.length = 0
+    // Drop any pending 5XX auto-retry — the conversation is being cleared.
+    resetRetry()
     clearStreamingFlag(storageKey)
     persistQueue(storageKey, [])
     await provider.clearHistory(config)
@@ -1409,9 +1579,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
     errorMeta,
     mode,
     streamingStatus,
+    retryCountdown,
     setMode: exposedSetMode,
     sendMessage,
     abort,
+    cancelRetry,
     clearHistory,
     editQueuedMessage,
     deleteQueuedMessage,

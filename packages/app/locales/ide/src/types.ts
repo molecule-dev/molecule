@@ -211,6 +211,7 @@ export type IdeTranslationKey =
   | 'ide.chat.autoFixCountdown'
   | 'ide.chat.autoFixPause'
   | 'ide.chat.autoFixCancel'
+  | 'ide.chat.retryCountdown'
   | 'ide.chat.version'
   | 'ide.chat.activeFile'
   | 'ide.chat.openTab'

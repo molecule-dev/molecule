@@ -77,6 +77,7 @@ export const en: IdeTranslations = {
   'ide.chat.autoFixCountdown': 'Resume',
   'ide.chat.autoFixPause': 'Pause',
   'ide.chat.autoFixCancel': 'Cancel',
+  'ide.chat.retryCountdown': 'Server error — retrying in {{seconds}}s… (attempt {{attempt}})',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Select model',
   'ide.chat.currentBadge': 'current',

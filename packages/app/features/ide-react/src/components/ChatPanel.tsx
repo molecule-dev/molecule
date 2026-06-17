@@ -749,6 +749,52 @@ function ThinkingBlock({
 /** Height threshold (px) above which user messages get collapsed. */
 const USER_MSG_COLLAPSE_HEIGHT = 150
 
+// ---------------------------------------------------------------------------
+// App version (P4-08)
+// ---------------------------------------------------------------------------
+//
+// The single source of truth for the version this IDE reports — used BOTH by the
+// `/version` command output AND by the `/version` entry's description in the
+// slash-command menu (so the menu shows the real number, not a stale literal).
+//
+// This shared package owns no product branding, and there is currently no
+// `version` prop on ChatPanelProps (and `types.ts` is owned elsewhere), so this
+// is the minimal in-package wiring: one constant the menu + the command both
+// read. When the host's real build version becomes available via a prop, point
+// both sites at that prop instead of this fallback — the menu interpolation
+// (`{{version}}`) already flows through, so only the value source changes.
+const APP_VERSION = '0.1.0'
+
+// ---------------------------------------------------------------------------
+// Chat timeline vertical rhythm (P4-05)
+// ---------------------------------------------------------------------------
+//
+// ONE convention for EVERY item rendered into the chat timeline — message rows,
+// the "Now using <model>" / "Switched to <mode>" / "Building your app" system
+// cards, toned-tip + emphasized cards, commit cards, activity cards:
+//
+//   1. Each timeline item owns its spacing as a SINGLE BOTTOM MARGIN only.
+//   2. NO timeline item sets a TOP margin — and NEVER a NEGATIVE one.
+//
+// The gap between any two stacked items is therefore exactly the upper item's
+// bottom margin (no margin-collapsing surprises, no negatives), so adjacent
+// items can never collide. The scale follows the 8px grid (DESIGN.md): 16px is
+// the standard rhythm unit; discovery messages get a roomier 24px (kept
+// intentional, but consistent).
+//
+// Why bottom-margin-only with no negatives: the old code gave a message
+// `marginTop: -12px` whenever it shared a role with the *previous message*
+// (computed from `prevMsg`, which skips intervening cards). In the timeline DOM
+// a system card often sits between two same-role assistant messages, so that
+// -12px yanked the message UP over the card's 10px bottom margin — net -2px,
+// i.e. the message visually ATE the "Now using <model>" card's bottom spacing
+// (the exact collision reported in P4-05). Removing the negative and giving
+// every item the same bottom margin fixes it at the root for ALL item pairs.
+/** Standard bottom margin (px) every chat-timeline item owns. 8px-grid rhythm unit. */
+const TIMELINE_ITEM_GAP = 16
+/** Roomier bottom margin (px) for discovery-phase message cards (intentionally looser). */
+const TIMELINE_ITEM_GAP_DISCOVERY = 24
+
 /**
  * Renders user message content with a max height and a chevron-down expand button
  * when the content overflows. Similar to the compaction summary expand pattern.
@@ -1177,7 +1223,8 @@ export function CommitCardItem({
   )
 
   return (
-    <div style={{ marginBottom: '16px' }}>
+    // One timeline rhythm: bottom margin only (see TIMELINE_ITEM_GAP).
+    <div style={{ marginBottom: TIMELINE_ITEM_GAP }}>
       <div style={{ marginBottom: '4px' }}>
         <button
           type="button"
@@ -1425,7 +1472,6 @@ function MoleculeAvatar({ size = 20 }: { size?: number }): JSX.Element {
 
 interface MessageItemProps {
   msg: ChatMessage
-  prevMsg: ChatMessage | undefined
   editingQueuedId: string | null
   editingQueuedText: string
   setEditingQueuedId: React.Dispatch<React.SetStateAction<string | null>>
@@ -1466,7 +1512,6 @@ interface MessageItemProps {
 const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Element {
   const {
     msg,
-    prevMsg,
     editingQueuedId,
     editingQueuedText,
     setEditingQueuedId,
@@ -1495,7 +1540,6 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
   const isLight = themeMode === 'light'
   const borderClr = isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'
 
-  const sameRoleAsPrev = prevMsg?.role === msg.role
   // A message sent automatically on the user's behalf (e.g. an auto-fix prompt):
   // it has role 'user' but must NOT look like the user typed it (C2).
   const isAutomatic = msg.role === 'user' && !!msg.automatic
@@ -1503,16 +1547,16 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
   // user's own avatar).
   const isUser = msg.role === 'user' && !isAutomatic
 
-  // Spacing. In the discovery phase the timeline is a column of question/answer
-  // cards; collapsing consecutive same-role cards to ~4px crammed them together
-  // (B3), so give discovery roomy, uncollapsed breathing room. Outside discovery,
-  // keep the original behavior: tighten consecutive SAME-ROLE messages (a run of
-  // single-tool-call assistant messages) with a -12px top so they don't sit a
-  // full 16px apart while a multi-tool-card message shows ~4px; role boundaries
-  // (user↔assistant) keep the full 16px.
-  const wrapperSpacing: React.CSSProperties = discovery
-    ? { marginBottom: '24px' }
-    : { marginBottom: '16px', ...(sameRoleAsPrev ? { marginTop: '-12px' } : {}) }
+  // Spacing follows the one timeline convention (see TIMELINE_ITEM_GAP above): a
+  // single bottom margin, no top margin, no negatives — so a message can never
+  // pull itself up over the previous item's spacing. Discovery is roomier but
+  // uses the same bottom-margin-only scheme. The former `sameRoleAsPrev`
+  // `marginTop: -12px` run-tightening is gone on purpose: it keyed on the
+  // previous *message* (skipping intervening system cards) and so ate the
+  // "Now using <model>" card's bottom margin (P4-05).
+  const wrapperSpacing: React.CSSProperties = {
+    marginBottom: `${discovery ? TIMELINE_ITEM_GAP_DISCOVERY : TIMELINE_ITEM_GAP}px`,
+  }
 
   return (
     <div style={wrapperSpacing}>
@@ -1784,7 +1828,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
           </div>
         </div>
       ) : (
-        <div style={{ paddingLeft: sameRoleAsPrev ? '0' : '0' }}>
+        <div>
           {msg.isStreaming &&
             (!msg.blocks || msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
             !msg.content && (
@@ -1832,7 +1876,9 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                       className={cm.textSize('sm')}
                       style={{
                         padding: '10px 16px',
-                        margin: '8px 0 16px',
+                        // Same blue-box treatment as the emphasized system card →
+                        // same timeline rhythm: bottom margin only (TIMELINE_ITEM_GAP).
+                        marginBottom: TIMELINE_ITEM_GAP,
                         background: 'rgba(64,112,224,0.10)',
                         border: '1px solid rgba(64,112,224,0.25)',
                         borderRadius: 8,
@@ -2626,6 +2672,8 @@ function ChatInner({
     editQueuedMessage,
     deleteQueuedMessage,
     clearQueuedForFile,
+    retryCountdown,
+    cancelRetry,
   } = useChat({
     endpoint,
     projectId,
@@ -4454,8 +4502,14 @@ function ChatInner({
       } else if (id === 'version') {
         setInputValue('')
         // P3-21: /version replaces the old command-menu footer version line.
+        // Version comes from the single APP_VERSION source of truth (also shown in
+        // the slash-command menu's /version description — P4-08).
         addSystemCard(
-          t('ide.chat.version', { productName }, { defaultValue: '{{productName}} v0.1.0' }),
+          t(
+            'ide.chat.version',
+            { productName, version: APP_VERSION },
+            { defaultValue: '{{productName}} v{{version}}' },
+          ),
         )
       } else if (id === 'share') {
         setInputValue('')
@@ -5205,20 +5259,19 @@ function ChatInner({
 
   // Never render hidden driver messages (the post-boot kickoff etc.). The server
   // already filters them on read, but guard here too so the client NEVER shows
-  // one — even an optimistic/in-flight hidden message. msgIdx (used for the
-  // same-role spacing's prevMsg lookup) indexes into this filtered list.
+  // one — even an optimistic/in-flight hidden message.
   const visibleMessages = useMemo(() => messages.filter((m) => !m.hidden), [messages])
 
   // Build a unified timeline so commit cards appear at the correct position
   type TimelineItem =
-    | { kind: 'message'; msg: (typeof messages)[number]; msgIdx: number }
+    | { kind: 'message'; msg: (typeof messages)[number] }
     | { kind: 'commit'; card: CommitCard }
     | { kind: 'system'; card: SystemCard }
     | { kind: 'activity'; card: ActivityCardEntry }
     | { kind: 'tip'; card: TipCardEntry }
   const timeline = useMemo<TimelineItem[]>(() => {
     const items: TimelineItem[] = [
-      ...visibleMessages.map((msg, i) => ({ kind: 'message' as const, msg, msgIdx: i })),
+      ...visibleMessages.map((msg) => ({ kind: 'message' as const, msg })),
       ...commitCards.map((card) => ({ kind: 'commit' as const, card })),
       ...systemCards.map((card) => ({ kind: 'system' as const, card })),
       ...activityCards.map((card) => ({ kind: 'activity' as const, card })),
@@ -5456,7 +5509,8 @@ function ChatInner({
                       display: 'flex',
                       alignItems: 'flex-start',
                       gap: 8,
-                      margin: '8px 0 14px',
+                      // One timeline rhythm: bottom margin only (see TIMELINE_ITEM_GAP).
+                      marginBottom: TIMELINE_ITEM_GAP,
                       padding: '8px 10px',
                       borderRadius: 8,
                       border: `1px solid ${border}`,
@@ -5505,7 +5559,8 @@ function ChatInner({
                       ? {
                           textAlign: 'center',
                           padding: '10px 16px',
-                          margin: '8px 0 16px',
+                          // One timeline rhythm: bottom margin only (see TIMELINE_ITEM_GAP).
+                          marginBottom: TIMELINE_ITEM_GAP,
                           background: 'rgba(64,112,224,0.10)',
                           border: '1px solid rgba(64,112,224,0.25)',
                           borderRadius: 8,
@@ -5514,7 +5569,7 @@ function ChatInner({
                       : {
                           textAlign: isMultiLine ? 'left' : 'center',
                           padding: isMultiLine ? '8px 12px' : '6px 0',
-                          marginBottom: 10,
+                          marginBottom: TIMELINE_ITEM_GAP,
                           whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
                           fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
                           lineHeight: isMultiLine ? 1.5 : undefined,
@@ -5599,7 +5654,7 @@ function ChatInner({
               )
             }
 
-            const { msg, msgIdx } = item
+            const { msg } = item
 
             // Persisted commit records render as commit cards
             if (msg.commitRecord) {
@@ -5627,7 +5682,6 @@ function ChatInner({
               <MessageItem
                 key={msg.id}
                 msg={msg}
-                prevMsg={visibleMessages[msgIdx - 1]}
                 editingQueuedId={editingQueuedId}
                 editingQueuedText={editingQueuedText}
                 setEditingQueuedId={setEditingQueuedId}
@@ -5774,6 +5828,59 @@ function ChatInner({
           <button
             type="button"
             onClick={() => setAutoFixCountdown(null)}
+            style={{
+              fontSize: 11,
+              padding: '2px 8px',
+              borderRadius: 4,
+              border: '1px solid rgba(128,128,128,0.3)',
+              background: 'transparent',
+              color: 'inherit',
+              cursor: 'pointer',
+            }}
+          >
+            {t('ide.chat.autoFixCancel', undefined, { defaultValue: 'Cancel' })}
+          </button>
+        </div>
+      )}
+
+      {/* ── 5XX backoff-retry countdown banner (P4-13) ── Mirrors the auto-fix
+          countdown above so the recovery UX reads the same: a cancelable countdown.
+          useChat surfaces `retryCountdown` only while a 5XX auto-retry is pending
+          (the error itself is held back until the retries are exhausted or the user
+          cancels), so this banner and the error message below are never shown at once. */}
+      {retryCountdown && (
+        <div
+          className={cm.cn(cm.shrink0, cm.borderT)}
+          data-mol-id="chat-retry-countdown"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '6px 12px',
+            fontSize: 12,
+            background: 'rgba(234,179,8,0.06)',
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="#d4a017" style={{ flexShrink: 0 }}>
+            <path
+              fillRule="evenodd"
+              d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.168 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 9a1 1 0 100-2 1 1 0 000 2z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span style={{ flex: 1, opacity: 0.85 }}>
+            {t(
+              'ide.chat.retryCountdown',
+              { seconds: retryCountdown.secondsRemaining, attempt: retryCountdown.attempt },
+              {
+                defaultValue: `Server error — retrying in ${retryCountdown.secondsRemaining}s… (attempt ${retryCountdown.attempt})`,
+              },
+            )}
+          </span>
+          <button
+            type="button"
+            data-mol-id="chat-retry-cancel"
+            onClick={cancelRetry}
             style={{
               fontSize: 11,
               padding: '2px 8px',
@@ -5963,6 +6070,12 @@ function ChatInner({
                           const modes = SOUND_EVENTS.map((e) => soundsConfig[e])
                           const allSame = modes.every((m) => m === modes[0])
                           suffix = ` (${allSame ? SOUND_MODE_LABELS[modes[0]] : 'mixed'})`
+                        } else if (cmd.id === 'version') {
+                          // Show the app's current version right in the /version
+                          // description (P4-08) — same inline-suffix mechanism as the
+                          // live state above. Sourced from APP_VERSION (one source of
+                          // truth, also used by the /version command output).
+                          suffix = ` (v${APP_VERSION})`
                         }
                         return (
                           <button

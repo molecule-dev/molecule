@@ -29,7 +29,7 @@ function createMockProvider(): {
   provider: ChatProvider
   deferreds: Deferred[]
   complete: (index: number) => void
-  completeWithError: (index: number, message: string) => void
+  completeWithError: (index: number, message: string, status?: number) => void
   emitText: (index: number, content: string) => void
   emit: (index: number, event: ChatStreamEvent) => void
 } {
@@ -72,10 +72,11 @@ function createMockProvider(): {
      * Emit an `error` event and resolve the i-th sendMessage call.
      * @param index - The zero-based index of the sendMessage call to complete with an error.
      * @param message - The error message to include in the error event.
+     * @param status - Optional HTTP status to include (e.g. 503 to exercise 5XX retry).
      */
-    completeWithError(index: number, message: string) {
+    completeWithError(index: number, message: string, status?: number) {
       const d = deferreds[index]
-      d.onEvent({ type: 'error', message })
+      d.onEvent({ type: 'error', message, ...(status != null ? { status } : {}) })
       d.settled = true
       d.resolve()
     },
@@ -1323,6 +1324,330 @@ describe('useChat', () => {
 
     await act(async () => {
       complete(0)
+    })
+  })
+
+  // ── 5XX backoff auto-retry (P4-13) ─────────────────────────────────────
+
+  describe('5XX backoff auto-retry', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('starts a cancelable countdown on a 5XX error instead of surfacing it', async () => {
+      const { provider, completeWithError } = createMockProvider()
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      await act(async () => {
+        result.current.sendMessage('go')
+      })
+      await act(async () => {
+        completeWithError(0, 'Service Unavailable', 503)
+      })
+
+      // No terminal error — a countdown begins at 5s (attempt 1), not loading.
+      expect(result.current.error).toBeNull()
+      expect(result.current.retryCountdown).toEqual({ secondsRemaining: 5, attempt: 1 })
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    it('surfaces a 4XX error and does NOT start a countdown', async () => {
+      const { provider, completeWithError } = createMockProvider()
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      await act(async () => {
+        result.current.sendMessage('go')
+      })
+      await act(async () => {
+        completeWithError(0, 'Bad request', 400)
+      })
+
+      expect(result.current.error).toBe('Bad request')
+      expect(result.current.retryCountdown).toBeNull()
+    })
+
+    it('surfaces an error with no status (transport error) without retrying', async () => {
+      const { provider, completeWithError } = createMockProvider()
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      await act(async () => {
+        result.current.sendMessage('go')
+      })
+      await act(async () => {
+        completeWithError(0, 'Stream error')
+      })
+
+      expect(result.current.error).toBe('Stream error')
+      expect(result.current.retryCountdown).toBeNull()
+    })
+
+    it('does NOT retry a 5XX that is a limit/quota error', async () => {
+      const { provider, deferreds, emit } = createMockProvider()
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      await act(async () => {
+        result.current.sendMessage('go')
+      })
+      await act(async () => {
+        emit(0, { type: 'error', message: 'Out of quota', status: 503, limitType: 'messages' })
+        deferreds[0].settled = true
+        deferreds[0].resolve()
+      })
+
+      // A limit/quota gate is surfaced even with a 5XX status — never retried.
+      expect(result.current.retryCountdown).toBeNull()
+      expect(result.current.error).toBe('Out of quota')
+      expect(result.current.errorMeta).toEqual({ limitType: 'messages', requiresSignup: undefined })
+    })
+
+    it('does NOT retry a 5XX that requires signup', async () => {
+      const { provider, deferreds, emit } = createMockProvider()
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      await act(async () => {
+        result.current.sendMessage('go')
+      })
+      await act(async () => {
+        emit(0, { type: 'error', message: 'Sign up', status: 503, requiresSignup: true })
+        deferreds[0].settled = true
+        deferreds[0].resolve()
+      })
+
+      expect(result.current.retryCountdown).toBeNull()
+      expect(result.current.error).toBe('Sign up')
+    })
+
+    it('ticks the countdown down once per second', async () => {
+      const { provider, completeWithError } = createMockProvider()
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      await act(async () => {
+        result.current.sendMessage('go')
+      })
+      await act(async () => {
+        completeWithError(0, 'boom', 503)
+      })
+      expect(result.current.retryCountdown?.secondsRemaining).toBe(5)
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1000)
+      })
+      expect(result.current.retryCountdown?.secondsRemaining).toBe(4)
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(2000)
+      })
+      expect(result.current.retryCountdown?.secondsRemaining).toBe(2)
+    })
+
+    it('cancelRetry clears the countdown and surfaces the original error', async () => {
+      const { provider, completeWithError } = createMockProvider()
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      await act(async () => {
+        result.current.sendMessage('go')
+      })
+      await act(async () => {
+        completeWithError(0, 'Service Unavailable', 503)
+      })
+      expect(result.current.retryCountdown).not.toBeNull()
+      expect(result.current.error).toBeNull()
+
+      await act(async () => {
+        result.current.cancelRetry()
+      })
+
+      expect(result.current.retryCountdown).toBeNull()
+      expect(result.current.error).toBe('Service Unavailable')
+    })
+
+    it('a new message clears a pending retry (no surfaced error)', async () => {
+      const { provider, completeWithError } = createMockProvider()
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      await act(async () => {
+        result.current.sendMessage('go')
+      })
+      await act(async () => {
+        completeWithError(0, 'boom', 503)
+      })
+      expect(result.current.retryCountdown).not.toBeNull()
+
+      await act(async () => {
+        result.current.sendMessage('a new message')
+      })
+
+      expect(result.current.retryCountdown).toBeNull()
+      expect(result.current.error).toBeNull()
+    })
+
+    it('abort clears a pending retry without surfacing the error', async () => {
+      const { provider, completeWithError } = createMockProvider()
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      await act(async () => {
+        result.current.sendMessage('go')
+      })
+      await act(async () => {
+        completeWithError(0, 'boom', 503)
+      })
+      expect(result.current.retryCountdown).not.toBeNull()
+
+      await act(async () => {
+        result.current.abort()
+      })
+
+      expect(result.current.retryCountdown).toBeNull()
+      expect(result.current.error).toBeNull()
+    })
+
+    it('clearHistory clears a pending retry', async () => {
+      const { provider, completeWithError } = createMockProvider()
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      await act(async () => {
+        result.current.sendMessage('go')
+      })
+      await act(async () => {
+        completeWithError(0, 'boom', 503)
+      })
+      expect(result.current.retryCountdown).not.toBeNull()
+
+      await act(async () => {
+        await result.current.clearHistory()
+      })
+
+      expect(result.current.retryCountdown).toBeNull()
+    })
+
+    it('auto-resumes the turn via resume:true after the countdown elapses', async () => {
+      const { provider, deferreds, completeWithError } = createMockProvider()
+      const streamingProvider = provider as unknown as { isServerStreaming: boolean }
+      streamingProvider.isServerStreaming = false
+      ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
+        { id: 'h1', role: 'user', content: 'go', timestamp: 1000 },
+        { id: 'h2', role: 'assistant', content: 'partial', timestamp: 1001 },
+      ])
+
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      await act(async () => {
+        result.current.sendMessage('go')
+      })
+      await act(async () => {
+        completeWithError(0, 'Service Unavailable', 503)
+      })
+      expect(result.current.retryCountdown).toEqual({ secondsRemaining: 5, attempt: 1 })
+
+      // Elapse the 5s countdown → fireRetry → resumeStream starts (Phase 1 poll).
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(5000)
+      })
+      expect(result.current.retryCountdown).toBeNull()
+
+      // Phase 1 poll (1s) resolves → isServerStreaming false → Phase 2 resume send.
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1000)
+      })
+
+      expect(deferreds).toHaveLength(2)
+      const resumeCall = (provider.sendMessage as ReturnType<typeof vi.fn>).mock.calls[1]
+      expect(resumeCall[0]).toBe('') // empty message = resume, not a new user turn
+      expect((resumeCall[1] as { resume?: boolean }).resume).toBe(true)
+    })
+
+    it('bounds auto-retry to 3 attempts, then surfaces the original error', async () => {
+      const { provider, deferreds, completeWithError } = createMockProvider()
+      const streamingProvider = provider as unknown as { isServerStreaming: boolean }
+      streamingProvider.isServerStreaming = false
+      ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
+        { id: 'h1', role: 'user', content: 'go', timestamp: 1000 },
+        { id: 'h2', role: 'assistant', content: 'partial', timestamp: 1001 },
+      ])
+
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      await act(async () => {
+        result.current.sendMessage('go')
+      })
+
+      // Original failure → attempt 1, 5s backoff.
+      await act(async () => {
+        completeWithError(0, 'err-1', 503)
+      })
+      expect(result.current.retryCountdown).toEqual({ secondsRemaining: 5, attempt: 1 })
+
+      // Retry 1 fires (5s + 1s poll) → resume deferreds[1]; fails again → attempt 2, 10s.
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(6000)
+      })
+      expect(deferreds).toHaveLength(2)
+      await act(async () => {
+        completeWithError(1, 'err-2', 503)
+      })
+      expect(result.current.retryCountdown).toEqual({ secondsRemaining: 10, attempt: 2 })
+
+      // Retry 2 fires (10s + 1s poll) → resume deferreds[2]; fails → attempt 3, 20s.
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(11000)
+      })
+      expect(deferreds).toHaveLength(3)
+      await act(async () => {
+        completeWithError(2, 'err-3', 503)
+      })
+      expect(result.current.retryCountdown).toEqual({ secondsRemaining: 20, attempt: 3 })
+
+      // Retry 3 fires (20s + 1s poll) → resume deferreds[3]; fails a 4th time → budget
+      // exhausted, surface the original error, no more countdown.
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(21000)
+      })
+      expect(deferreds).toHaveLength(4)
+      await act(async () => {
+        completeWithError(3, 'err-final', 503)
+      })
+
+      expect(result.current.retryCountdown).toBeNull()
+      expect(result.current.error).toBe('err-final')
     })
   })
 })

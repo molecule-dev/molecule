@@ -213,6 +213,10 @@ export const COMMANDS: readonly CommandDef[] = [
   {
     id: 'version',
     label: '/version',
+    // Host-neutral: carries NO version number (the registry is also rendered into
+    // the molecule.dev API system prompt, which can't reach the IDE's version). The
+    // IDE menu appends the live version as an inline suffix at its render site —
+    // same mechanism as /model's `(Claude)` / /maxloops's `(50)`. See ChatPanel.
     description: 'Show the app version',
     category: 'support',
   },

@@ -277,6 +277,15 @@ export interface UseChatResult {
    * when no such phase is active.
    */
   streamingStatus: string | null
+  /**
+   * Active 5XX backoff-retry countdown, or `null` when none is pending. After a
+   * backend server error (HTTP 5XX) the hook does NOT surface a terminal error —
+   * it shows this cancelable countdown and, when it elapses, auto-resumes the
+   * turn where the user left off (`resume:true`). `secondsRemaining` ticks down
+   * once per second; `attempt` is the 1-based retry number (capped at 3). 4XX,
+   * limit/quota, and signup-required errors never auto-retry.
+   */
+  retryCountdown: { secondsRemaining: number; attempt: number } | null
   /** Update the local mode state (for instant mode toggle without an AI turn). */
   setMode: (mode: 'plan' | 'execute') => void
   sendMessage: (
@@ -285,6 +294,11 @@ export interface UseChatResult {
     options?: SendMessageOptions,
   ) => Promise<void>
   abort: () => void
+  /**
+   * Cancel a pending 5XX auto-retry. Clears the countdown and surfaces the
+   * original error (via `error`) so the user sees why the turn failed.
+   */
+  cancelRetry: () => void
   clearHistory: () => Promise<void>
   /** Edit the content of a queued (not yet sent) message. */
   editQueuedMessage: (msgId: string, newContent: string) => void
