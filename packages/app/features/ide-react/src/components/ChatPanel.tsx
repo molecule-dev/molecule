@@ -4662,7 +4662,10 @@ function ChatInner({
         addSystemCard(
           t(
             'ide.chat.version',
-            { productName, version: version ?? APP_VERSION },
+            // `||` (not `??`): the host-supplied version prop can be an EMPTY string
+            // (useVersion before it resolves), which `??` would NOT fall back on —
+            // leaving a bare "v". Fall back to APP_VERSION for empty AND null/undefined.
+            { productName, version: version || APP_VERSION },
             { defaultValue: '{{productName}} v{{version}}' },
           ),
         )
@@ -6305,7 +6308,9 @@ function ChatInner({
                           // live state above. Uses the host-supplied `version` prop (the
                           // real build version), falling back to APP_VERSION; the same
                           // value feeds the /version command output.
-                          suffix = ` (v${version ?? APP_VERSION})`
+                          // `||` not `??`: an empty-string version prop must still fall
+                          // back to APP_VERSION (else the suffix is a bare "v").
+                          suffix = ` (v${version || APP_VERSION})`
                         }
                         return (
                           <button
