@@ -3976,7 +3976,7 @@ function ChatInner({
             t(
               'ide.chat.skills.loadedCount',
               { count: loaded.length },
-              { defaultValue: 'Loaded {{count}} skills' },
+              { defaultValue: '🧠 Loaded {{count}} skills' },
             ),
             undefined,
             'skillsLoaded',
@@ -5666,18 +5666,19 @@ function ChatInner({
                 )
               }
               if (item.card.variant === 'skillsLoaded') {
-                // Compact, clearly-clickable "Loaded {{count}} skills" notice. Its
-                // onClick is CREATED HERE at render time — opening the /skills browser
-                // overlay, the exact same thing typing /skills does — so it survives the
-                // persistence round-trip (which stores only variant + count + text, never
-                // callbacks). Text restores from the persisted copy; re-derive from
-                // `count` if a caller passed none.
+                // "🧠 Loaded {{count}} skills" — styled like the plain "🔨 Building your
+                // app" phase notice (centered, muted, xs, emoji baked into the text), but
+                // CLICKABLE: its onClick is created HERE at render time — opening the
+                // /skills browser overlay, exactly what typing /skills does — so it
+                // survives the persistence round-trip (which stores only variant + count +
+                // text, never callbacks). Text restores from the persisted copy; re-derive
+                // from `count` if a caller passed none.
                 const skillsLoadedLabel =
                   item.card.text ||
                   t(
                     'ide.chat.skills.loadedCount',
                     { count: item.card.count ?? 0 },
-                    { defaultValue: 'Loaded {{count}} skills' },
+                    { defaultValue: '🧠 Loaded {{count}} skills' },
                   )
                 return (
                   <div
@@ -5688,34 +5689,26 @@ function ChatInner({
                       type="button"
                       data-mol-id="chat-skills-loaded"
                       onClick={() => openPanelOverlay('skills')}
-                      className={cm.cn(
-                        cm.surfaceSecondary,
-                        cm.borderAll,
-                        cm.textSize('xs'),
-                        cm.textMuted,
-                      )}
+                      className={cm.cn(cm.textSize('xs'), cm.textMuted)}
                       style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        padding: '6px 12px',
-                        borderRadius: 8,
-                        cursor: 'pointer',
+                        // Plain text like the build-phase notice — no border/fill/pill.
+                        background: 'none',
+                        border: 'none',
+                        margin: 0,
+                        padding: '6px 0',
                         fontFamily: 'inherit',
-                        // Hover affordance via opacity — ClassMap owns the background +
-                        // border colors, so we never set those inline (anti-pattern 12).
-                        opacity: 0.85,
-                        transition: 'opacity 100ms',
+                        cursor: 'pointer',
                       }}
+                      // Underline on hover is the only clickability hint (it otherwise
+                      // reads exactly like the plain phase message).
                       onMouseEnter={(e) => {
-                        ;(e.currentTarget as HTMLElement).style.opacity = '1'
+                        ;(e.currentTarget as HTMLElement).style.textDecoration = 'underline'
                       }}
                       onMouseLeave={(e) => {
-                        ;(e.currentTarget as HTMLElement).style.opacity = '0.85'
+                        ;(e.currentTarget as HTMLElement).style.textDecoration = 'none'
                       }}
                     >
-                      <Icon name="sparkle" size={14} aria-hidden="true" />
-                      <span>{skillsLoadedLabel}</span>
+                      {skillsLoadedLabel}
                     </button>
                   </div>
                 )
