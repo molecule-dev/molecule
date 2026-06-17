@@ -172,7 +172,16 @@ export function ScriptsCard({
           type="button"
           data-mol-id="scripts-new-toggle"
           onClick={() => setCreating((v) => !v)}
-          className={cm.cn(cm.button({ variant: 'outline', size: 'xs' }))}
+          // Canonical action-button styling: solid-primary for the create affordance
+          // ("New script"), ghost when it has toggled into its "Cancel" role — matching
+          // SkillsCard's separate New-skill (solid) / Cancel (ghost) buttons.
+          className={cm.cn(
+            cm.button(
+              creating
+                ? { variant: 'ghost', size: 'xs' }
+                : { variant: 'solid', color: 'primary', size: 'xs' },
+            ),
+          )}
           style={{ flexShrink: 0 }}
         >
           {creating
@@ -321,7 +330,10 @@ export function ScriptsCard({
                   data-mol-id={`script-run-${script.name}`}
                   onClick={() => void handleRun(script.name)}
                   disabled={run === 'running'}
-                  className={cm.cn(cm.button({ variant: 'outline', size: 'xs' }))}
+                  // Per-row list action → ghost, matching SkillsCard's per-row Load/star
+                  // actions (no more lone `outline` outlier; solid-primary is reserved for
+                  // the prominent header/create-action buttons).
+                  className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
                   style={{ flexShrink: 0, opacity: run === 'running' ? 0.6 : 1 }}
                   title={t('ide.chat.scripts.runTitle', undefined, {
                     defaultValue: 'Run this script in the sandbox',

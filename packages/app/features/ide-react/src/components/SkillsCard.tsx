@@ -215,7 +215,7 @@ export function SkillsCard({
               type="button"
               data-mol-id="skill-new"
               onClick={() => setCreating(true)}
-              className={cm.cn(cm.button({ variant: 'outline', size: 'xs' }))}
+              className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0 }}
             >
               <Icon name="plus" size={12} aria-hidden="true" />
@@ -259,7 +259,7 @@ export function SkillsCard({
               type="submit"
               data-mol-id="skill-create-submit"
               disabled={!newName.trim() || busy}
-              className={cm.cn(cm.button({ variant: 'solid', size: 'xs' }))}
+              className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
               style={{ flexShrink: 0 }}
             >
               {t('ide.chat.skills.create', undefined, { defaultValue: 'Create' })}

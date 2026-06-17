@@ -150,17 +150,12 @@ export function RelevantSkillSuggestion({
         type="button"
         data-mol-id="relevant-skill-load"
         onClick={() => onLoad(skill)}
-        className={cm.textSize('xs')}
-        style={{
-          flexShrink: 0,
-          padding: '2px 10px',
-          borderRadius: 5,
-          cursor: 'pointer',
-          color: 'var(--mol-color-primary, #6366f1)',
-          border:
-            '1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 35%, transparent)',
-          background: 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 12%, transparent)',
-        }}
+        // Canonical action-button styling (solid-primary) via ClassMap — consistent with
+        // every other primary create/action button in the chat (New skill, New script,
+        // Create/Save). Replaces the bespoke inline color-mix tint so this Load matches
+        // the rest; only flex layout stays inline.
+        className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
+        style={{ flexShrink: 0 }}
       >
         {t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
       </button>
