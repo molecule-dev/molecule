@@ -2536,19 +2536,36 @@ function ChatInner({
       // their copy/routes stay out of this shared component. `emphasized` lets the
       // app opt a card into the highlighted box style without route-sniffing.
       if (event.type === 'custom') {
-        const card = getCustomEventCardFactory(event.name as string)?.(
-          event.data as Record<string, unknown> | undefined,
-        )
-        if (card) {
-          addSystemCardRef.current(card.text, {
-            action: card.action,
-            emphasized: card.emphasized,
-            tone: card.tone,
-            content: card.content,
-            // Server timestamp (monotonic) so this card sorts on the same clock as the
-            // messages — never skewed below the response on a mis-set client clock.
-            timestamp: typeof event.timestamp === 'number' ? event.timestamp : undefined,
-          })
+        const ts = typeof event.timestamp === 'number' ? event.timestamp : undefined
+        // The skills notice is SHARED conversation context, driven server-side: render the
+        // clickable "skillsLoaded" card from the server's count + monotonic timestamp, so
+        // it's the same for every collaborator (multi-user) and can never be pushed around.
+        // All other custom events go through the generic app-registered card factory.
+        if (event.name === 'skills_loaded') {
+          const count = (event.data as { count?: number } | undefined)?.count ?? 0
+          addSystemCardRef.current(
+            t(
+              'ide.chat.skills.loadedCount',
+              { count },
+              { defaultValue: '🧠 Loaded {{count}} skills' },
+            ),
+            { variant: 'skillsLoaded', count, timestamp: ts },
+          )
+        } else {
+          const card = getCustomEventCardFactory(event.name as string)?.(
+            event.data as Record<string, unknown> | undefined,
+          )
+          if (card) {
+            addSystemCardRef.current(card.text, {
+              action: card.action,
+              emphasized: card.emphasized,
+              tone: card.tone,
+              content: card.content,
+              // Server timestamp (monotonic) so this card sorts on the same clock as the
+              // messages — never skewed below the response on a mis-set client clock.
+              timestamp: ts,
+            })
+          }
         }
       }
       // Captured outbound side effect (email/sms/push/webhook/channel) — push an
@@ -3380,11 +3397,9 @@ function ChatInner({
             new Set(savedDefaultSkills.filter((p): p is string => typeof p === 'string')),
           )
         }
-        // Per-project marker: whether the "Loaded {{count}} skills" card was already
-        // announced for this project. When true, the seed below must NOT re-emit it.
-        if (typeof s?.skillsLoadedAnnounced === 'boolean') {
-          skillsAnnouncedRef.current = s.skillsLoadedAnnounced
-        }
+        // (The "Loaded {{count}} skills" announce marker is now read + maintained
+        // server-side — see the skills_loaded emit in chat-handler — so the client no
+        // longer hydrates it here.)
         if (typeof s?.maxToolLoops === 'number') setCurrentMaxLoops(s.maxToolLoops)
         if (typeof s?.autoFix === 'boolean') setAutoFixEnabled(s.autoFix)
         if (s?.sounds && typeof s.sounds === 'object') {
@@ -3829,11 +3844,6 @@ function ChatInner({
   // (unset), ALL initial/discovered skills are treated as default (badged here +
   // injected full-body by the backend) — seeded in the skill-load effect below.
   const defaultSkillsExplicitRef = useRef(false)
-  // Whether the per-project "Loaded {{count}} skills" card has already been emitted
-  // for this project (persisted as settings.skillsLoadedAnnounced). Hydrated by the
-  // settings GET below and set true after the seed emits, so the announce fires at
-  // most once per project — never re-firing on a reload or in this session.
-  const skillsAnnouncedRef = useRef(false)
 
   /**
    * Loads a skill from the `/skills` browser (or the proactive suggestion): opens
@@ -3986,26 +3996,10 @@ function ChatInner({
         if (!defaultSkillsExplicitRef.current) {
           setDefaultSkillPaths(new Set(loaded.map((s) => s.path)))
         }
-        // Announce "Loaded {{count}} skills" exactly once per project: a persisted,
-        // clickable card whose onClick (re-attached at render time) opens /skills.
-        if (!skillsAnnouncedRef.current) {
-          skillsAnnouncedRef.current = true
-          addSystemCard(
-            t(
-              'ide.chat.skills.loadedCount',
-              { count: loaded.length },
-              { defaultValue: '🧠 Loaded {{count}} skills' },
-            ),
-            { variant: 'skillsLoaded', count: loaded.length },
-          )
-          // Persist the per-project marker so the announce never re-fires on reload.
-          // The settings PATCH MERGES server-side, so this won't clobber defaultSkills.
-          void http
-            .patch(`/projects/${projectId}`, { settings: { skillsLoadedAnnounced: true } })
-            .catch((error) => {
-              logger.warn('Failed to persist skillsLoadedAnnounced marker', { error })
-            })
-        }
+        // NB: the "Loaded {{count}} skills" card is NO LONGER announced here. It is now
+        // emitted server-side (a `skills_loaded` custom event), so it carries the monotonic
+        // server timestamp and is shared across every collaborator on the project. This
+        // effect only seeds the local /skills browser state.
       } catch (error) {
         // Best-effort — a failed skills fetch must never disrupt the chat. Retry a
         // few times (the file API may be warming up); after the cap, skip silently.
@@ -4019,7 +4013,7 @@ function ChatInner({
       cancelled = true
       if (retryTimer) clearTimeout(retryTimer)
     }
-  }, [http, projectId, addSystemCard])
+  }, [http, projectId])
 
   const relevantSkill = useMemo<SkillInfo | null>(() => {
     if (projectSkills.length === 0) return null

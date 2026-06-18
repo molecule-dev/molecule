@@ -32,7 +32,7 @@ import { fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { ChatConfig, ChatMessage, ChatProvider } from '@molecule/app-ai-chat'
+import type { ChatConfig, ChatMessage, ChatProvider, ChatStreamEvent } from '@molecule/app-ai-chat'
 import type { HttpClient } from '@molecule/app-http'
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { setIconSet } from '@molecule/app-icons'
@@ -70,11 +70,23 @@ function nameForFilesUrl(url: string): string {
   return match ? match[1] : 'unknown'
 }
 
-/** A chat provider whose history resolves empty, so the panel mounts with no network. */
-function buildChatProvider(): ChatProvider {
+/**
+ * A chat provider whose history resolves empty, so the panel mounts with no network.
+ * `emit` (optional) lets a test drive server stream events (e.g. a `skills_loaded` custom
+ * event) through the live send path: it's invoked with the onEvent callback when a message
+ * is sent.
+ *
+ * @param emit - Optional: emit stream events on send (receives the onEvent callback).
+ * @returns The stub provider.
+ */
+function buildChatProvider(
+  emit?: (onEvent: (event: ChatStreamEvent) => void) => void,
+): ChatProvider {
   return {
     name: 'stub',
-    sendMessage: async (): Promise<void> => {},
+    sendMessage: async (_message, _config, onEvent): Promise<void> => {
+      emit?.(onEvent)
+    },
     abort: (): void => {},
     clearHistory: async (): Promise<void> => {},
     loadHistory: async (_config: ChatConfig): Promise<ChatMessage[]> => [],
@@ -188,12 +200,15 @@ function buildThemeProvider(): ThemeProviderType {
  * @param http - The HTTP client stub.
  * @returns The wrapped element.
  */
-function renderChatPanel(http: HttpClient): ReactElement {
+function renderChatPanel(
+  http: HttpClient,
+  provider: ChatProvider = buildChatProvider(),
+): ReactElement {
   return (
     <I18nProvider provider={createSimpleI18nProvider('en')}>
       <ThemeProvider provider={buildThemeProvider()}>
         <HttpProvider client={http}>
-          <ChatContextProvider provider={buildChatProvider()}>
+          <ChatContextProvider provider={provider}>
             <ChatPanel projectId={PROJECT_ID} />
           </ChatContextProvider>
         </HttpProvider>
@@ -437,56 +452,78 @@ describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" 
     )
   })
 
-  it('emits "Loaded N skills" once on the first non-empty load + persists the announced marker', async () => {
-    const patchSpy = vi.fn(async () => ({}))
-    const { container } = render(
-      renderChatPanel(buildHttpClient({}, patchSpy, async () => [...SKILL_PATHS])),
-    )
-
-    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
-
-    // The seed fires on mount (no /skills needed): the persisted, clickable notice appears.
-    const card = await waitFor(() => {
-      const el = container.querySelector('[data-mol-id="chat-skills-loaded"]')
-      expect(
-        el,
-        'the "Loaded N skills" card must be emitted on the first non-empty load',
-      ).not.toBeNull()
-      return el as HTMLElement
+  it('renders the "Loaded N skills" card from a server skills_loaded custom event', async () => {
+    // The card is SERVER-driven now (shared conversation context + multi-user): the server
+    // emits a `skills_loaded` event with the count + a monotonic timestamp; the client just
+    // renders it. It is no longer announced from the client-side skill load.
+    const provider = buildChatProvider((onEvent) => {
+      onEvent({ type: 'custom', name: 'skills_loaded', data: { count: 3 }, timestamp: 1000 })
+      onEvent({ type: 'done' })
     })
-    expect(card.textContent).toContain('Loaded 3 skills')
-    // Exactly one — never duplicated this session.
-    expect(container.querySelectorAll('[data-mol-id="chat-skills-loaded"]')).toHaveLength(1)
-    // The per-project marker is persisted (merge-safe PATCH) so it can't re-fire on reload.
-    await waitFor(() => expect(announcedMarkerPatched(patchSpy)).toBe(true))
-  })
-
-  it('does NOT re-emit the card when the project is already marked announced', async () => {
-    const patchSpy = vi.fn(async () => ({}))
     const { container } = render(
       renderChatPanel(
-        buildHttpClient({ skillsLoadedAnnounced: true }, patchSpy, async () => [...SKILL_PATHS]),
+        buildHttpClient(
+          {},
+          vi.fn(async () => ({})),
+          async () => [...SKILL_PATHS],
+        ),
+        provider,
       ),
     )
 
     await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
-    // Open /skills and wait for the seed to finish (Default badges prove it ran)…
-    submitCommand(container, '/skills')
-    await waitFor(() =>
-      expect(container.querySelector('[data-mol-id="skill-default-badge-auth"]')).not.toBeNull(),
-    )
-    // …yet the announce card never appears, and the marker is not re-patched.
-    expect(container.querySelector('[data-mol-id="chat-skills-loaded"]')).toBeNull()
-    expect(announcedMarkerPatched(patchSpy)).toBe(false)
+    // Sending a message drives the server stream, which emits skills_loaded.
+    submitCommand(container, 'build me an app')
+
+    const card = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="chat-skills-loaded"]')
+      expect(
+        el,
+        'the "Loaded N skills" card must render from the skills_loaded event',
+      ).not.toBeNull()
+      return el as HTMLElement
+    })
+    expect(card.textContent).toContain('Loaded 3 skills')
+    // Exactly one — never duplicated.
+    expect(container.querySelectorAll('[data-mol-id="chat-skills-loaded"]')).toHaveLength(1)
   })
 
-  it('clicking the "Loaded N skills" card opens the /skills browser overlay', async () => {
+  it('does NOT announce the skills card client-side (it is server-driven now)', async () => {
     const patchSpy = vi.fn(async () => ({}))
     const { container } = render(
       renderChatPanel(buildHttpClient({}, patchSpy, async () => [...SKILL_PATHS])),
     )
 
     await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+    // Open /skills and wait for the LOCAL seed to finish (Default badges prove it ran)…
+    submitCommand(container, '/skills')
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="skill-default-badge-auth"]')).not.toBeNull(),
+    )
+    // …yet the client never announces the card on its own (no server skills_loaded event was
+    // emitted here), and it no longer PATCHes the per-project marker — the server owns it.
+    expect(container.querySelector('[data-mol-id="chat-skills-loaded"]')).toBeNull()
+    expect(announcedMarkerPatched(patchSpy)).toBe(false)
+  })
+
+  it('clicking the "Loaded N skills" card (from a skills_loaded event) opens the /skills overlay', async () => {
+    const provider = buildChatProvider((onEvent) => {
+      onEvent({ type: 'custom', name: 'skills_loaded', data: { count: 3 }, timestamp: 1000 })
+      onEvent({ type: 'done' })
+    })
+    const { container } = render(
+      renderChatPanel(
+        buildHttpClient(
+          {},
+          vi.fn(async () => ({})),
+          async () => [...SKILL_PATHS],
+        ),
+        provider,
+      ),
+    )
+
+    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+    submitCommand(container, 'build me an app')
     const card = (await waitFor(() => {
       const el = container.querySelector('[data-mol-id="chat-skills-loaded"]')
       expect(el).not.toBeNull()
