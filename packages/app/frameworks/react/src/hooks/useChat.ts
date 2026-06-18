@@ -827,15 +827,22 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
         const { message: currentMsg, attachments: currentAttachments } = current
 
-        // Create a streaming assistant message
-        const assistantId = `assistant-${++idCounterRef.current}`
+        // Create a streaming assistant message. These are `let` (not const) because
+        // the server can split one stream into several persisted assistant messages
+        // (one per agentic-loop iteration) via `message_boundary` events; on each
+        // boundary we finalize the current message and re-point these at a fresh one.
+        let assistantId = `assistant-${++idCounterRef.current}`
         let assistantText = ''
-        const toolCalls: ChatMessage['toolCalls'] = []
-        const blocks: MessageBlock[] = []
+        let toolCalls: ChatMessage['toolCalls'] = []
+        let blocks: MessageBlock[] = []
         let loopLimitReached: number | undefined
         // Flips true on the response's first content block — used to re-stamp the
         // message timestamp to that moment (see the re-stamp in onEvent below).
         let contentStarted = false
+        // Set by a `message_boundary` event: the current message was finalized and the
+        // NEXT content event should begin a fresh message. Deferred (not eager) so a
+        // boundary after the final turn leaves no empty trailing message.
+        let pendingNewMessage = false
 
         const assistantMsg: ChatMessage = {
           id: assistantId,
@@ -852,7 +859,36 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // High-frequency events (text, thinking) call scheduleFlush() which
         // batches into a single setMessages every 50ms. Terminal events
         // (done, error) and file_diff call flushNow() for immediate commit.
-        const { scheduleFlush, flushNow } = createFlushScheduler(assistantId)
+        // `let` so it can be re-pointed at a new message on a `message_boundary`.
+        let { scheduleFlush, flushNow } = createFlushScheduler(assistantId)
+
+        /**
+         * Begin a fresh streaming assistant message if a `message_boundary` finalized
+         * the previous one. Called at the start of every content-initiating event so
+         * the new message is created lazily, only when content actually arrives.
+         */
+        const startNewMessageIfPending = (): void => {
+          if (!pendingNewMessage) return
+          pendingNewMessage = false
+          assistantId = `assistant-${++idCounterRef.current}`
+          assistantText = ''
+          toolCalls = []
+          blocks = []
+          loopLimitReached = undefined
+          contentStarted = false
+          ;({ scheduleFlush, flushNow } = createFlushScheduler(assistantId))
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: assistantId,
+              role: 'assistant',
+              content: '',
+              timestamp: Date.now(),
+              isStreaming: true,
+              blocks: [],
+            },
+          ])
+        }
 
         /**
          * Build the current snapshot of all mutable streaming state.
@@ -900,6 +936,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
           switch (event.type) {
             case 'text': {
+              startNewMessageIfPending()
               assistantText += event.content
               const last = blocks[blocks.length - 1]
               if (last?.type === 'text') {
@@ -911,6 +948,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
               break
             }
             case 'tool_use': {
+              startNewMessageIfPending()
               // tool_use_start may have already created the entry + block — fill
               // in the final input rather than pushing a duplicate.
               const existing = toolCalls!.find((t) => t.id === event.id)
@@ -931,6 +969,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
               break
             }
             case 'tool_use_start': {
+              startNewMessageIfPending()
               // The model has begun a tool call — create its entry + block now so
               // the activity label and tool card appear immediately, before the
               // (possibly large) input finishes streaming.
@@ -1053,6 +1092,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
               flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
               break
             case 'thinking': {
+              startNewMessageIfPending()
               const lastBlock = blocks[blocks.length - 1] as
                 | (MessageBlock & { _startedAt?: number; durationMs?: number })
                 | undefined
@@ -1074,6 +1114,19 @@ export function useChat(options: UseChatOptions): UseChatResult {
             case 'mode':
               setMode(event.mode)
               onModeChange?.(event.mode)
+              break
+            case 'message_boundary':
+              // The server finalized this assistant turn (it persists one message per
+              // agentic iteration). Finalize the current message and defer creating the
+              // next until its first content arrives (startNewMessageIfPending), so a
+              // boundary after the LAST turn leaves no empty trailing message. This
+              // mirrors the persisted structure live, so cards emitted between turns
+              // (phase/model/skills notices) sort between the messages, not after the
+              // whole block. No-op when the current message is still empty.
+              if (assistantText || blocks.length > 0) {
+                flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
+                pendingNewMessage = true
+              }
               break
             case 'status':
               enqueueStatus(event.label)

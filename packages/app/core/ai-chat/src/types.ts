@@ -257,6 +257,17 @@ export type ChatStreamEvent =
   // app supplies the label text, so this core union stays free of any app-specific
   // phase vocabulary (same decoupling rule as the `custom` event above).
   | { type: 'status'; label: string | null }
+  /**
+   * Marks the end of one persisted assistant message within a multi-turn stream.
+   * A backend's agentic loop can produce several assistant messages in a single
+   * stream (one per iteration); it emits this between them so the client can split
+   * its live transcript to mirror the persisted structure — without it, a whole
+   * turn collapses into one block and anything emitted between iterations (e.g.
+   * phase/model notices) sorts after the entire block instead of between them.
+   * Carries no payload; the client finalizes the current message and begins a new
+   * one on the next content event.
+   */
+  | { type: 'message_boundary' }
   | { type: 'done'; usage?: { inputTokens: number; outputTokens: number; contextWindow?: number } }
   | {
       type: 'error'

@@ -189,6 +189,107 @@ describe('useChat', () => {
     })
   })
 
+  it('splits into separate messages on message_boundary, with no content duplication', async () => {
+    const { provider, emitText, emit, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('Build it')
+    })
+    await act(async () => {
+      emitText(0, 'Turn one.')
+    })
+    await waitFor(() => {
+      const a = result.current.messages.filter((m) => m.role === 'assistant')
+      expect(a[0]?.content).toBe('Turn one.')
+    })
+
+    // Each boundary finalizes the current turn; the next content begins a new message.
+    await act(async () => {
+      emit(0, { type: 'message_boundary' })
+    })
+    await act(async () => {
+      emitText(0, 'Turn two.')
+    })
+    await act(async () => {
+      emit(0, { type: 'message_boundary' })
+    })
+    await act(async () => {
+      emitText(0, 'Turn three.')
+    })
+
+    await waitFor(() => {
+      const a = result.current.messages.filter((m) => m.role === 'assistant')
+      expect(a).toHaveLength(3)
+      // No duplication: each turn's content appears exactly once, in order.
+      expect(a.map((m) => m.content)).toEqual(['Turn one.', 'Turn two.', 'Turn three.'])
+    })
+
+    const assistants = result.current.messages.filter((m) => m.role === 'assistant')
+    expect(assistants[0].isStreaming).toBe(false)
+    expect(assistants[1].isStreaming).toBe(false)
+    expect(assistants[2].isStreaming).toBe(true)
+
+    await act(async () => {
+      complete(0)
+    })
+  })
+
+  it('does NOT create an empty trailing message when a boundary follows the last turn', async () => {
+    const { provider, emitText, emit, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('Build it')
+    })
+    await act(async () => {
+      emitText(0, 'Only turn.')
+    })
+    await act(async () => {
+      emit(0, { type: 'message_boundary' }) // boundary, then nothing
+    })
+    await act(async () => {
+      complete(0)
+    })
+
+    const a = result.current.messages.filter((m) => m.role === 'assistant')
+    expect(a).toHaveLength(1)
+    expect(a[0].content).toBe('Only turn.')
+  })
+
+  it('ignores a message_boundary that arrives before any content (no empty leading message)', async () => {
+    const { provider, emitText, emit, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('Build it')
+    })
+    await act(async () => {
+      emit(0, { type: 'message_boundary' }) // boundary first, current message still empty
+    })
+    await act(async () => {
+      emitText(0, 'Content.')
+    })
+    await waitFor(() => {
+      const a = result.current.messages.filter((m) => m.role === 'assistant')
+      expect(a).toHaveLength(1)
+      expect(a[0].content).toBe('Content.')
+    })
+
+    await act(async () => {
+      complete(0)
+    })
+  })
+
   it('handles error events', async () => {
     const { provider, completeWithError } = createMockProvider()
     const { result } = renderHook(
