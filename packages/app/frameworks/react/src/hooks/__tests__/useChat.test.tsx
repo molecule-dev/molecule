@@ -32,6 +32,7 @@ function createMockProvider(): {
   completeWithError: (index: number, message: string, status?: number) => void
   emitText: (index: number, content: string) => void
   emit: (index: number, event: ChatStreamEvent) => void
+  startMessage: (index: number, id?: string, timestamp?: number) => void
 } {
   const deferreds: Deferred[] = []
 
@@ -96,6 +97,16 @@ function createMockProvider(): {
     emit(index: number, event: ChatStreamEvent) {
       deferreds[index].onEvent(event)
     },
+    /**
+     * Open a new assistant message on the i-th stream (the server's `message_start`).
+     * Every assistant turn now begins with this — content events route into it.
+     * @param index - The zero-based index of the sendMessage call.
+     * @param id - The message id (defaults to `asst-<index>`).
+     * @param timestamp - The server timestamp in ms (defaults to a fixed value).
+     */
+    startMessage(index: number, id = `asst-${index}`, timestamp = 1_000) {
+      deferreds[index].onEvent({ type: 'message_start', id, timestamp })
+    },
   }
 }
 
@@ -135,7 +146,7 @@ describe('useChat', () => {
   // ── Basic send ────────────────────────────────────────────────────────
 
   it('sends a message and creates user + assistant messages', async () => {
-    const { provider, deferreds, complete } = createMockProvider()
+    const { provider, deferreds, complete, startMessage, emitText } = createMockProvider()
     const { result } = renderHook(
       () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
       { wrapper: createWrapper(provider) },
@@ -145,14 +156,27 @@ describe('useChat', () => {
       result.current.sendMessage('Hello')
     })
 
-    expect(result.current.messages).toHaveLength(2)
+    // No upfront placeholder — the assistant message appears only on the server's
+    // message_start (the spinner in the gap is driven by isLoading). After send there
+    // is just the user message.
+    expect(result.current.messages).toHaveLength(1)
     expect(result.current.messages[0].role).toBe('user')
     expect(result.current.messages[0].content).toBe('Hello')
-    expect(result.current.messages[1].role).toBe('assistant')
-    expect(result.current.messages[1].isStreaming).toBe(true)
     expect(result.current.isLoading).toBe(true)
     expect(deferreds).toHaveLength(1)
     expect(deferreds[0].message).toBe('Hello')
+
+    // message_start opens the streaming assistant message; content keeps it from being
+    // dropped as an empty turn.
+    await act(async () => {
+      startMessage(0)
+      emitText(0, 'hi')
+    })
+    await waitFor(() => {
+      expect(result.current.messages).toHaveLength(2)
+      expect(result.current.messages[1].role).toBe('assistant')
+      expect(result.current.messages[1].isStreaming).toBe(true)
+    })
 
     await act(async () => {
       complete(0)
@@ -163,7 +187,7 @@ describe('useChat', () => {
   })
 
   it('accumulates text events into assistant content', async () => {
-    const { provider, emitText, complete } = createMockProvider()
+    const { provider, emitText, complete, startMessage } = createMockProvider()
     const { result } = renderHook(
       () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
       { wrapper: createWrapper(provider) },
@@ -174,6 +198,7 @@ describe('useChat', () => {
     })
 
     await act(async () => {
+      startMessage(0)
       emitText(0, 'Hello ')
       emitText(0, 'world')
     })
@@ -190,7 +215,7 @@ describe('useChat', () => {
   })
 
   it('handles error events', async () => {
-    const { provider, completeWithError } = createMockProvider()
+    const { provider, completeWithError, startMessage, emitText } = createMockProvider()
     const { result } = renderHook(
       () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
       { wrapper: createWrapper(provider) },
@@ -200,6 +225,11 @@ describe('useChat', () => {
       result.current.sendMessage('Hi')
     })
 
+    // Open a streaming assistant message + partial content, then the stream errors.
+    await act(async () => {
+      startMessage(0)
+      emitText(0, 'partial')
+    })
     await act(async () => {
       completeWithError(0, 'Server error')
     })
@@ -266,8 +296,8 @@ describe('useChat', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
   })
 
-  it('creates an assistant placeholder for each queued message when it is sent', async () => {
-    const { provider, complete } = createMockProvider()
+  it('creates an assistant message per turn as each queued message is sent', async () => {
+    const { provider, deferreds, complete, startMessage, emitText } = createMockProvider()
     const { result } = renderHook(
       () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
       { wrapper: createWrapper(provider) },
@@ -280,13 +310,26 @@ describe('useChat', () => {
       result.current.sendMessage('B')
     })
 
-    // Only one assistant message exists (for A); B has no placeholder yet
+    // No upfront placeholders — A's assistant message appears on ITS message_start.
     let assistants = result.current.messages.filter((m) => m.role === 'assistant')
-    expect(assistants).toHaveLength(1)
+    expect(assistants).toHaveLength(0)
+    await act(async () => {
+      startMessage(0)
+      emitText(0, 'a')
+    })
+    await waitFor(() => {
+      assistants = result.current.messages.filter((m) => m.role === 'assistant')
+      expect(assistants).toHaveLength(1)
+    })
 
-    // Complete A → B is sent, a new assistant placeholder appears
+    // Complete A → B is sent; B's assistant message appears on its own message_start.
     await act(async () => {
       complete(0)
+    })
+    await waitFor(() => expect(deferreds).toHaveLength(2))
+    await act(async () => {
+      startMessage(1)
+      emitText(1, 'b')
     })
     await waitFor(() => {
       assistants = result.current.messages.filter((m) => m.role === 'assistant')
@@ -497,7 +540,7 @@ describe('useChat', () => {
   // ── Stop keeps streamed content (C4) ───────────────────────────────────
 
   it('keeps streamed content on user abort and does NOT overwrite it with reloaded history (C4)', async () => {
-    const { provider, emitText } = createMockProvider()
+    const { provider, emitText, startMessage } = createMockProvider()
     // A reload here would return STALE history lacking this in-flight turn — the
     // exact race that wiped the chat on Stop. The guard must skip this reload.
     ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
@@ -513,6 +556,7 @@ describe('useChat', () => {
       result.current.sendMessage('go')
     })
     await act(async () => {
+      startMessage(0)
       emitText(0, 'partial streamed answer')
     })
 
@@ -689,7 +733,7 @@ describe('useChat', () => {
   it('waits for server to finish, then sends resume request for real streaming', async () => {
     sessionStorage.setItem(`mol-chat-streaming-${PROJECT_ID}`, '1')
 
-    const { provider, deferreds, emitText, complete } = createMockProvider()
+    const { provider, deferreds, emitText, complete, startMessage } = createMockProvider()
 
     // Phase 1: server is still streaming (polling)
     const streamingProvider = provider as unknown as { isServerStreaming: boolean }
@@ -724,16 +768,20 @@ describe('useChat', () => {
     // Empty message = resume mode
     expect(deferreds[0].message).toBe('')
 
-    // Real streaming works — text events append to the existing message
+    // The resumed (partial) message is left as-is; the server re-enters the agentic
+    // loop and streams its continuation as a NEW message (its own message_start),
+    // appended after the partial one — never appended back into the partial (which is
+    // what duplicated content before).
     await act(async () => {
+      startMessage(0, 'h3')
       emitText(0, ' continued response')
     })
-
-    // Text events are throttle-flushed every 50ms — wait for the update
     await waitFor(() => {
-      const h2 = result.current.messages.find((m) => m.id === 'h2')
-      expect(h2?.content).toBe('partial... continued response')
+      const h3 = result.current.messages.find((m) => m.id === 'h3')
+      expect(h3?.content).toBe(' continued response')
     })
+    // The partial message is unchanged, not appended to.
+    expect(result.current.messages.find((m) => m.id === 'h2')?.content).toBe('partial...')
 
     // No new user message was created
     expect(result.current.messages.filter((m) => m.role === 'user')).toHaveLength(1)
@@ -838,7 +886,7 @@ describe('useChat', () => {
   // ── Stream events ─────────────────────────────────────────────────────
 
   it('handles tool_use and tool_result events', async () => {
-    const { provider, emit, complete } = createMockProvider()
+    const { provider, emit, complete, startMessage } = createMockProvider()
     const { result } = renderHook(
       () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
       { wrapper: createWrapper(provider) },
@@ -849,6 +897,7 @@ describe('useChat', () => {
     })
 
     await act(async () => {
+      startMessage(0)
       emit(0, { type: 'tool_use', id: 'tc1', name: 'write_file', input: { path: '/a.ts' } })
     })
 
@@ -909,7 +958,7 @@ describe('useChat', () => {
   })
 
   it('handles thinking events', async () => {
-    const { provider, emit, complete } = createMockProvider()
+    const { provider, emit, complete, startMessage } = createMockProvider()
     const { result } = renderHook(
       () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
       { wrapper: createWrapper(provider) },
@@ -920,6 +969,7 @@ describe('useChat', () => {
     })
 
     await act(async () => {
+      startMessage(0)
       emit(0, { type: 'thinking', content: 'Let me ' })
       emit(0, { type: 'thinking', content: 'think...' })
     })
@@ -939,7 +989,7 @@ describe('useChat', () => {
 
   it('handles file_diff events with onFileChange callback', async () => {
     const onFileChange = vi.fn()
-    const { provider, emit, complete } = createMockProvider()
+    const { provider, emit, complete, startMessage } = createMockProvider()
     const { result } = renderHook(
       () =>
         useChat({
@@ -956,6 +1006,7 @@ describe('useChat', () => {
     })
 
     await act(async () => {
+      startMessage(0)
       emit(0, { type: 'tool_use', id: 'tc1', name: 'write_file', input: { path: 'app.ts' } })
       emit(0, { type: 'file_diff', path: 'app.ts', oldContent: 'old', newContent: 'new' })
     })
@@ -973,7 +1024,7 @@ describe('useChat', () => {
   })
 
   it('handles commit_suggestion events', async () => {
-    const { provider, emit, complete } = createMockProvider()
+    const { provider, emit, complete, startMessage, emitText } = createMockProvider()
     const { result } = renderHook(
       () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
       { wrapper: createWrapper(provider) },
@@ -984,6 +1035,8 @@ describe('useChat', () => {
     })
 
     await act(async () => {
+      startMessage(0)
+      emitText(0, 'done')
       emit(0, { type: 'commit_suggestion', files: ['a.ts', 'b.ts'] })
     })
 
@@ -999,7 +1052,7 @@ describe('useChat', () => {
   })
 
   it('handles loop_limit_reached events', async () => {
-    const { provider, emit, complete } = createMockProvider()
+    const { provider, emit, complete, startMessage } = createMockProvider()
     const { result } = renderHook(
       () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
       { wrapper: createWrapper(provider) },
@@ -1010,6 +1063,7 @@ describe('useChat', () => {
     })
 
     await act(async () => {
+      startMessage(0)
       emit(0, { type: 'loop_limit_reached', maxLoops: 25 })
     })
 
@@ -1017,6 +1071,108 @@ describe('useChat', () => {
     await waitFor(() => {
       const assistant = result.current.messages.find((m) => m.role === 'assistant')!
       expect(assistant.loopLimitReached).toBe(25)
+    })
+
+    await act(async () => {
+      complete(0)
+    })
+  })
+
+  // ── Per-message structure (message_start) ─────────────────────────────
+
+  it('creates a separate assistant message per message_start within one send', async () => {
+    const { provider, emitText, complete, startMessage } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('build it')
+    })
+
+    // Two server iterations → two message_start → two assistant messages, in order.
+    await act(async () => {
+      startMessage(0, 'm1', 100)
+      emitText(0, 'planning')
+    })
+    await waitFor(() => {
+      expect(result.current.messages.filter((m) => m.role === 'assistant')).toHaveLength(1)
+    })
+    await act(async () => {
+      startMessage(0, 'm2', 200)
+      emitText(0, 'building')
+    })
+
+    await waitFor(() => {
+      const assistants = result.current.messages.filter((m) => m.role === 'assistant')
+      expect(assistants).toHaveLength(2)
+      // The first message's last text is NOT lost at the boundary (the shared-flush-timer
+      // bug); both messages keep their own content, in order.
+      expect(assistants[0].content).toBe('planning')
+      expect(assistants[1].content).toBe('building')
+      // The first is finalized; only the current (second) one streams.
+      expect(assistants[0].isStreaming).toBe(false)
+      expect(assistants[1].isStreaming).toBe(true)
+    })
+
+    await act(async () => {
+      complete(0)
+    })
+    const assistants = result.current.messages.filter((m) => m.role === 'assistant')
+    expect(assistants[1].isStreaming).toBe(false)
+  })
+
+  it('stamps each assistant message with the server timestamp from message_start', async () => {
+    const { provider, emitText, complete, startMessage } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('go')
+    })
+    await act(async () => {
+      startMessage(0, 'm1', 4242)
+      emitText(0, 'hi')
+    })
+
+    await waitFor(() => {
+      const a = result.current.messages.find((m) => m.id === 'm1')
+      expect(a?.timestamp).toBe(4242)
+    })
+
+    await act(async () => {
+      complete(0)
+    })
+  })
+
+  it('drops a truly-empty assistant turn (message_start with no content)', async () => {
+    const { provider, emitText, complete, startMessage } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('go')
+    })
+    // An empty iteration opens a message but streams nothing.
+    await act(async () => {
+      startMessage(0, 'empty', 100)
+    })
+    // The next iteration opens a real message — finalizing the empty one drops it.
+    await act(async () => {
+      startMessage(0, 'real', 200)
+      emitText(0, 'hello')
+    })
+
+    await waitFor(() => {
+      const assistants = result.current.messages.filter((m) => m.role === 'assistant')
+      expect(assistants).toHaveLength(1)
+      expect(assistants[0].id).toBe('real')
+      expect(assistants[0].content).toBe('hello')
     })
 
     await act(async () => {

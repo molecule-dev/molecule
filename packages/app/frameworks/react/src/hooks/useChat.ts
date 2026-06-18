@@ -237,6 +237,49 @@ export function useChatProvider(): ChatProvider {
 }
 
 /**
+ * Mutable per-message streaming context — the live accumulator for ONE assistant
+ * message (one server agentic-loop iteration), created on each `message_start` event.
+ * Replaces the former one-blob-per-send model so the live transcript is the SAME
+ * per-message structure the server persists (live === stored).
+ */
+interface MsgStreamCtx {
+  id: string
+  assistantText: string
+  blocks: MessageBlock[]
+  toolCalls: NonNullable<ChatMessage['toolCalls']>
+  loopLimitReached?: number
+  scheduleFlush: (build: (m: ChatMessage) => Partial<ChatMessage>) => void
+  flushNow: (build?: (m: ChatMessage) => Partial<ChatMessage>) => void
+}
+
+/**
+ * Snapshot a streaming context's mutable state into a message-field update.
+ *
+ * @param ctx - The streaming context to snapshot.
+ * @returns Partial message fields to merge.
+ */
+function buildCtxUpdate(ctx: MsgStreamCtx): Partial<ChatMessage> {
+  return {
+    content: ctx.assistantText,
+    blocks: [...ctx.blocks],
+    toolCalls: [...ctx.toolCalls],
+    ...(ctx.loopLimitReached != null ? { loopLimitReached: ctx.loopLimitReached } : {}),
+  }
+}
+
+/**
+ * Derive a tool call's terminal status from its output. MUST match the http
+ * provider's loadHistory derivation so the live and reloaded tool cards agree
+ * (status is not persisted — both sides derive it from `output`).
+ *
+ * @param output - The tool call's output payload.
+ * @returns 'error' if the output looks like an error object, else 'done'.
+ */
+function deriveToolStatus(output: unknown): 'done' | 'error' {
+  return typeof output === 'object' && output !== null && 'error' in output ? 'error' : 'done'
+}
+
+/**
  * Hook for AI chat with streaming support.
  *
  * Manages message state, sends messages to the backend, and handles
@@ -748,6 +791,244 @@ export function useChat(options: UseChatOptions): UseChatResult {
       })
   }, [endpoint])
 
+  // Build a per-stream event handler that materializes the SAME per-message structure
+  // the server persists: each `message_start` finalizes the previous message and opens a
+  // new one (with the server's id + timestamp); every subsequent stream item routes into
+  // the current message. Shared by sendMessage AND resumeStream so the two paths cannot
+  // diverge (the historical #1 risk). Per-invocation concerns (the stall watchdog, the
+  // terminal-received flag) are injected via `deps`.
+  const createMessageStream = (deps: {
+    resetStall: () => void
+    markTerminal: () => void
+  }): { onEvent: (event: ChatStreamEvent) => void; finalizeCurrent: () => void } => {
+    let currentCtx: MsgStreamCtx | null = null
+
+    const finalizeCurrent = (): void => {
+      const ctx = currentCtx
+      if (!ctx) return
+      currentCtx = null
+      // A truly-empty turn (no text, no blocks, no tool calls, no loop-limit notice) is
+      // a ghost — drop it. The server filters the same empty message from persistence,
+      // so live === stored.
+      if (
+        !ctx.assistantText &&
+        ctx.blocks.length === 0 &&
+        ctx.toolCalls.length === 0 &&
+        ctx.loopLimitReached == null
+      ) {
+        ctx.flushNow() // cancel any pending flush bound to this id
+        setMessages((prev) => prev.filter((m) => m.id !== ctx.id))
+        return
+      }
+      ctx.flushNow(() => ({ ...buildCtxUpdate(ctx), isStreaming: false }))
+    }
+
+    const startMessage = (id: string, timestamp: number): void => {
+      // Flush + finalize the OUTGOING message BEFORE re-pointing the shared flush timer,
+      // so its last batched text isn't overwritten and lost at the boundary (EC-3).
+      finalizeCurrent()
+      const { scheduleFlush, flushNow } = createFlushScheduler(id)
+      currentCtx = { id, assistantText: '', blocks: [], toolCalls: [], scheduleFlush, flushNow }
+      setMessages((prev) => [
+        ...prev,
+        { id, role: 'assistant', content: '', timestamp, isStreaming: true, blocks: [] },
+      ])
+    }
+
+    const onEvent = (event: ChatStreamEvent): void => {
+      deps.resetStall()
+      // Forward EVERY event to the parent (Workspace/ChatPanel) — it derives cards
+      // (model/mode), fires client_action, etc. Not gated on mountedRef: events write to
+      // the conversation store, which must keep filling across a boot→IDE remount.
+      onStreamEvent?.(event)
+
+      // ── Structural / ctx-independent events ──
+      switch (event.type) {
+        case 'message_start':
+          startMessage(event.id, event.timestamp)
+          return
+        case 'mode':
+          setMode(event.mode)
+          onModeChange?.(event.mode)
+          return
+        case 'status':
+          enqueueStatus(event.label)
+          return
+        case 'conversation':
+          onConversationId?.(event.id)
+          return
+        case 'done':
+          deps.markTerminal()
+          // A clean finish ends the incident — reset the 5XX retry budget.
+          retryAttemptRef.current = 0
+          finalizeCurrent()
+          return
+        case 'error':
+          deps.markTerminal()
+          // A 5XX auto-retries (resume) behind a countdown; anything else surfaces.
+          // Either way, finalize the partial current message.
+          handleStreamError(event, {
+            id: currentCtx?.id ?? '',
+            content: currentCtx?.assistantText ?? '',
+          })
+          finalizeCurrent()
+          return
+      }
+
+      // ── Content events — belong to the CURRENT message ──
+      const ctx = currentCtx
+      if (!ctx) return // a content event before any message_start — ignore (shouldn't happen)
+
+      switch (event.type) {
+        case 'text': {
+          ctx.assistantText += event.content
+          const last = ctx.blocks[ctx.blocks.length - 1]
+          if (last?.type === 'text') last.content += event.content
+          else ctx.blocks.push({ type: 'text', content: event.content })
+          ctx.scheduleFlush(() => ({ content: ctx.assistantText, blocks: [...ctx.blocks] }))
+          break
+        }
+        case 'thinking': {
+          const lastBlock = ctx.blocks[ctx.blocks.length - 1] as
+            | (MessageBlock & { _startedAt?: number; durationMs?: number })
+            | undefined
+          if (lastBlock?.type === 'thinking') {
+            lastBlock.content += event.content
+            lastBlock.durationMs = Date.now() - (lastBlock._startedAt ?? Date.now())
+          } else {
+            const now = Date.now()
+            ctx.blocks.push(
+              Object.assign(
+                { type: 'thinking' as const, content: event.content, durationMs: 0 },
+                { _startedAt: now },
+              ),
+            )
+          }
+          ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
+          break
+        }
+        case 'tool_use': {
+          // tool_use_start may have already created the entry + block — fill in the
+          // final input rather than pushing a duplicate.
+          const existing = ctx.toolCalls.find((t) => t.id === event.id)
+          if (existing) {
+            existing.name = event.name
+            existing.input = event.input
+            existing.status = 'running'
+          } else {
+            ctx.toolCalls.push({
+              id: event.id,
+              name: event.name,
+              input: event.input,
+              status: 'running',
+            })
+            ctx.blocks.push({ type: 'tool_call', id: event.id })
+          }
+          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls], blocks: [...ctx.blocks] }))
+          break
+        }
+        case 'tool_use_start': {
+          if (!ctx.toolCalls.some((t) => t.id === event.id)) {
+            ctx.toolCalls.push({
+              id: event.id,
+              name: event.name,
+              input: undefined,
+              status: 'running',
+              streamInputChars: 0,
+            })
+            ctx.blocks.push({ type: 'tool_call', id: event.id })
+          }
+          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls], blocks: [...ctx.blocks] }))
+          break
+        }
+        case 'tool_input_delta': {
+          const tc = ctx.toolCalls.find((t) => t.id === event.id)
+          if (tc) {
+            tc.streamInputChars = (tc.streamInputChars ?? 0) + event.chars
+            if (event.partialInput) {
+              tc.input = {
+                ...(tc.input as Record<string, unknown> | undefined),
+                ...event.partialInput,
+              }
+            }
+          }
+          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls] }))
+          break
+        }
+        case 'tool_result': {
+          const tc = ctx.toolCalls.find((t) => t.id === event.id)
+          if (tc) {
+            tc.output = event.output
+            tc.status = deriveToolStatus(event.output)
+          }
+          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls] }))
+          break
+        }
+        case 'file_diff': {
+          // Attach the diff snapshot to the matching write/edit tool in THIS message.
+          const normalizePath = (p: string): string => p.replace(/^\/workspace\//, '')
+          const match = [...ctx.toolCalls]
+            .reverse()
+            .find(
+              (t) =>
+                (t.name === 'write_file' || t.name === 'edit_file') &&
+                normalizePath((t.input as { path?: string })?.path ?? '') ===
+                  normalizePath(event.path),
+            )
+          if (match) {
+            match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
+            ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls] }))
+          }
+          clearQueuedForFileRef.current(event.path)
+          onFileChange?.(event.path, event.newContent)
+          break
+        }
+        case 'commit_suggestion':
+          ctx.scheduleFlush(() => ({
+            commitSuggestion: { files: event.files, status: 'pending' as const },
+          }))
+          break
+        case 'verification_result':
+          ctx.blocks.push({
+            type: 'verification',
+            status: event.status,
+            ...(event.output ? { output: event.output } : {}),
+            workspaces: event.workspaces,
+            ...(event.categories ? { categories: event.categories } : {}),
+          })
+          ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
+          break
+        case 'resource_limit':
+          ctx.blocks.push({
+            type: 'resource_limit',
+            resource: event.resource,
+            message: event.message,
+          })
+          ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
+          break
+        case 'compaction':
+          ctx.blocks.push({
+            type: 'text',
+            content: `**Context compacted** — ${event.compactedCount} older messages were summarized to free space.\n\n${event.summary}`,
+          })
+          ctx.scheduleFlush(() => ({ content: ctx.assistantText, blocks: [...ctx.blocks] }))
+          break
+        case 'loop_limit_reached':
+          ctx.loopLimitReached = event.maxLoops
+          ctx.scheduleFlush(() => ({ loopLimitReached: event.maxLoops }))
+          break
+        default:
+          break
+      }
+    }
+
+    return { onEvent, finalizeCurrent }
+  }
+  // Latest factory kept in a ref so the memoized sendMessage/resumeStream always use the
+  // current props (matching the sendMessageRef/resumeStreamRef pattern below).
+  const createMessageStreamRef = useRef(createMessageStream)
+  createMessageStreamRef.current = createMessageStream
+
   const sendMessage = useCallback(
     async (message: string, attachments?: ChatAttachment[], options?: SendMessageOptions) => {
       if (!mountedRef.current) return
@@ -827,51 +1108,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
         const { message: currentMsg, attachments: currentAttachments } = current
 
-        // Create a streaming assistant message
-        const assistantId = `assistant-${++idCounterRef.current}`
-        let assistantText = ''
-        const toolCalls: ChatMessage['toolCalls'] = []
-        const blocks: MessageBlock[] = []
-        let loopLimitReached: number | undefined
-        // Flips true on the response's first content block — used to re-stamp the
-        // message timestamp to that moment (see the re-stamp in onEvent below).
-        let contentStarted = false
-
-        const assistantMsg: ChatMessage = {
-          id: assistantId,
-          role: 'assistant',
-          content: '',
-          timestamp: Date.now(),
-          isStreaming: true,
-          blocks: [],
-        }
-
-        setMessages((prev) => [...prev, assistantMsg])
-
-        // Create a throttled flush scheduler for this streaming message.
-        // High-frequency events (text, thinking) call scheduleFlush() which
-        // batches into a single setMessages every 50ms. Terminal events
-        // (done, error) and file_diff call flushNow() for immediate commit.
-        const { scheduleFlush, flushNow } = createFlushScheduler(assistantId)
-
-        /**
-         * Build the current snapshot of all mutable streaming state.
-         * @returns Partial message fields to merge.
-         */
-        const buildFullUpdate = (): Partial<ChatMessage> => ({
-          content: assistantText,
-          blocks: [...blocks],
-          toolCalls: [...toolCalls!],
-          ...(loopLimitReached != null ? { loopLimitReached } : {}),
-        })
-
-        // Liveness watchdog + terminal-event tracking. The server has its own
-        // 120s stream timeout, but if it goes silent WITHOUT closing the
-        // connection (e.g. a hung tool that emits nothing), the client would
-        // spin forever. Reset a generous watchdog on every event; if it fires,
-        // abort so the stream can't hang. `receivedTerminal` lets us detect a
-        // stream that closed without a done/error event (→ finalize + reconcile
-        // instead of an eternal spinner).
+        // Liveness watchdog + terminal tracking — the server has its own stream
+        // timeout, but if it goes silent WITHOUT closing the connection the client
+        // would spin forever. Reset a generous watchdog on every event; if it fires,
+        // abort. `receivedTerminal` distinguishes a clean done/error close from a
+        // dropped stream (→ finalize + reconcile instead of an eternal spinner).
         let receivedTerminal = false
         let stalled = false
         const STALL_MS = 180_000
@@ -883,223 +1124,20 @@ export function useChat(options: UseChatOptions): UseChatResult {
             try {
               provider.abort()
             } catch (_error) {
-              // provider.abort() may throw when no stream is active — safe to ignore in stall watchdog
+              // provider.abort() may throw when no stream is active — safe to ignore
             }
           }, STALL_MS)
         }
 
-        const onEvent = (event: ChatStreamEvent): void => {
-          // NB: intentionally NOT gated on mountedRef. Events write to the
-          // conversation store (setMessages/scheduleFlush), which must keep
-          // filling even if this component unmounted mid-turn (e.g. boot→IDE
-          // swap) — a freshly-mounted ChatPanel subscribes to the same store and
-          // sees the live stream. onStreamEvent targets the parent (Workspace),
-          // which stays mounted across the panel swap.
-          resetStall()
-          onStreamEvent?.(event)
-
-          switch (event.type) {
-            case 'text': {
-              assistantText += event.content
-              const last = blocks[blocks.length - 1]
-              if (last?.type === 'text') {
-                last.content += event.content
-              } else {
-                blocks.push({ type: 'text', content: event.content })
-              }
-              scheduleFlush(() => ({ content: assistantText, blocks: [...blocks] }))
-              break
-            }
-            case 'tool_use': {
-              // tool_use_start may have already created the entry + block — fill
-              // in the final input rather than pushing a duplicate.
-              const existing = toolCalls!.find((t) => t.id === event.id)
-              if (existing) {
-                existing.name = event.name
-                existing.input = event.input
-                existing.status = 'running'
-              } else {
-                toolCalls!.push({
-                  id: event.id,
-                  name: event.name,
-                  input: event.input,
-                  status: 'running',
-                })
-                blocks.push({ type: 'tool_call', id: event.id })
-              }
-              scheduleFlush(() => ({ toolCalls: [...toolCalls!], blocks: [...blocks] }))
-              break
-            }
-            case 'tool_use_start': {
-              // The model has begun a tool call — create its entry + block now so
-              // the activity label and tool card appear immediately, before the
-              // (possibly large) input finishes streaming.
-              if (!toolCalls!.some((t) => t.id === event.id)) {
-                toolCalls!.push({
-                  id: event.id,
-                  name: event.name,
-                  input: undefined,
-                  status: 'running',
-                  streamInputChars: 0,
-                })
-                blocks.push({ type: 'tool_call', id: event.id })
-              }
-              scheduleFlush(() => ({ toolCalls: [...toolCalls!], blocks: [...blocks] }))
-              break
-            }
-            case 'tool_input_delta': {
-              // Grow the live token estimate as the tool input streams in.
-              const tc = toolCalls!.find((t) => t.id === event.id)
-              if (tc) {
-                tc.streamInputChars = (tc.streamInputChars ?? 0) + event.chars
-                // Merge display fields extracted server-side (path/name/…) so the
-                // in-flight card labels with the filename before args finish.
-                if (event.partialInput) {
-                  tc.input = {
-                    ...(tc.input as Record<string, unknown> | undefined),
-                    ...event.partialInput,
-                  }
-                }
-              }
-              scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
-              break
-            }
-            case 'tool_result':
-              if (toolCalls) {
-                const tc = toolCalls.find((t) => t.id === event.id)
-                if (tc) {
-                  tc.output = event.output
-                  tc.status = 'done'
-                }
-              }
-              scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
-              break
-            case 'file_diff': {
-              // Attach snapshot to the matching running tool call (for persistent diff review)
-              // Normalize paths — strip /workspace/ prefix so resolved and raw paths match
-              const normalizePath = (p: string): string => p.replace(/^\/workspace\//, '')
-              const match = [...(toolCalls ?? [])]
-                .reverse()
-                .find(
-                  (t) =>
-                    (t.name === 'write_file' || t.name === 'edit_file') &&
-                    normalizePath((t.input as { path?: string })?.path ?? '') ===
-                      normalizePath(event.path),
-                )
-              if (match) {
-                match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
-                // Schedule (not flushNow) — Monaco updates happen independently
-                // via onFileChange below. Batching here avoids per-file React
-                // re-renders that accumulate during rapid AI file writes.
-                scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
-              }
-              // Auto-delete queued autofix messages that reference this file
-              clearQueuedForFileRef.current(event.path)
-              // Notify host so open editor tabs can be refreshed
-              onFileChange?.(event.path, event.newContent)
-              break
-            }
-            case 'commit_suggestion':
-              scheduleFlush(() => ({
-                commitSuggestion: {
-                  files: event.files,
-                  status: 'pending' as const,
-                },
-              }))
-              break
-            case 'verification_result':
-              blocks.push({
-                type: 'verification',
-                status: event.status,
-                ...(event.output ? { output: event.output } : {}),
-                workspaces: event.workspaces,
-                ...(event.categories ? { categories: event.categories } : {}),
-              })
-              scheduleFlush(() => ({ blocks: [...blocks] }))
-              break
-            case 'resource_limit':
-              blocks.push({
-                type: 'resource_limit',
-                resource: event.resource,
-                message: event.message,
-              })
-              scheduleFlush(() => ({ blocks: [...blocks] }))
-              break
-            case 'compaction':
-              blocks.push({
-                type: 'text',
-                content: `**Context compacted** — ${event.compactedCount} older messages were summarized to free space.\n\n${event.summary}`,
-              })
-              scheduleFlush(() => ({ content: assistantText, blocks: [...blocks] }))
-              break
-            case 'loop_limit_reached':
-              loopLimitReached = event.maxLoops
-              scheduleFlush(() => ({ loopLimitReached: event.maxLoops }))
-              break
-            case 'done':
-              receivedTerminal = true
-              // A clean finish ends the incident — reset the 5XX retry budget.
-              retryAttemptRef.current = 0
-              // Flush immediately — commit final state and clear streaming flag
-              flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
-              break
-            case 'error':
-              receivedTerminal = true
-              // A 5XX backend error auto-retries (resume where we left off) behind
-              // a cancelable countdown instead of surfacing a terminal error;
-              // handleStreamError decides. Either way, finalize the partial turn.
-              handleStreamError(event, { id: assistantId, content: assistantText })
-              // Flush immediately — commit final state and clear streaming flag
-              flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
-              break
-            case 'thinking': {
-              const lastBlock = blocks[blocks.length - 1] as
-                | (MessageBlock & { _startedAt?: number; durationMs?: number })
-                | undefined
-              if (lastBlock?.type === 'thinking') {
-                lastBlock.content += event.content
-                lastBlock.durationMs = Date.now() - (lastBlock._startedAt ?? Date.now())
-              } else {
-                const now = Date.now()
-                blocks.push(
-                  Object.assign(
-                    { type: 'thinking' as const, content: event.content, durationMs: 0 },
-                    { _startedAt: now },
-                  ),
-                )
-              }
-              scheduleFlush(() => ({ blocks: [...blocks] }))
-              break
-            }
-            case 'mode':
-              setMode(event.mode)
-              onModeChange?.(event.mode)
-              break
-            case 'status':
-              enqueueStatus(event.label)
-              break
-            case 'conversation':
-              onConversationId?.(event.id)
-              break
-            default:
-              break
-          }
-
-          // Anchor the message's timeline position to when its CONTENT begins, not to
-          // the empty placeholder created at turn-start (which shares the user
-          // message's timestamp). A turn's preamble cards — "Building your app", the
-          // model / "loaded N skills" notices, the onboarding tip — are all emitted
-          // AFTER the placeholder but BEFORE the response content; re-stamping once
-          // here lets them sort ABOVE the streamed response instead of below the whole
-          // block. While still empty the message already sorts last (see
-          // timelineSortKey), so this re-stamp keeps it last and never reorders.
-          if (!contentStarted && blocks.length > 0) {
-            contentStarted = true
-            setMessages((prev) =>
-              prev.map((m) => (m.id === assistantId ? { ...m, timestamp: Date.now() } : m)),
-            )
-          }
-        }
+        // Per-message stream handler: one message per server `message_start` (no upfront
+        // placeholder); each item routes into the current message, so the live transcript
+        // mirrors the persisted per-message structure exactly. Shared with resumeStream.
+        const { onEvent, finalizeCurrent } = createMessageStreamRef.current!({
+          resetStall,
+          markTerminal: () => {
+            receivedTerminal = true
+          },
+        })
 
         resetStall()
         let resolvedCleanly = false
@@ -1129,8 +1167,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
                 ? err.message
                 : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' })
             setError(msg)
-            // Flush immediately on catch — stream is over
-            flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
+            // Stream is over — finalize the current (partial) message.
+            finalizeCurrent()
           }
         } finally {
           if (stallTimer) clearTimeout(stallTimer)
@@ -1151,7 +1189,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // stale history (C4 — the bug where stopping wiped the chat until a
         // refresh). Trust the local finalization; a later manual reload reconciles.
         if (mountedRef.current && resolvedCleanly && !receivedTerminal && !userAbortedRef.current) {
-          flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
+          finalizeCurrent()
           try {
             const history = await provider.loadHistory(config)
             if (mountedRef.current && history.length > 0) setMessages(history)
@@ -1185,7 +1223,10 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // 1. Poll history until the server finishes the old request (lock clears)
   // 2. Send a resume request that continues the AI response with real streaming
   const resumeStream = useCallback(
-    async (resumeId: string, existingContent: string) => {
+    // `_existingContent` is no longer used (the resume no longer seeds/continues the
+    // partial message — the server streams its continuation as new message(s)); kept in
+    // the signature for the callers + ref type.
+    async (resumeId: string, _existingContent: string) => {
       if (!mountedRef.current || sendingRef.current) return
 
       // Show the spinner on the last assistant message immediately
@@ -1213,14 +1254,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
           const history = await provider.loadHistory(config)
           if (!mountedRef.current) break
 
-          // Update displayed messages while keeping the spinner
+          // Update displayed messages while keeping the spinner on the resumed message.
           if (history.length > 0) {
             setMessages(history.map((m) => (m.id === resumeId ? { ...m, isStreaming: true } : m)))
-            // Track content for phase 2
-            const updated =
-              history.find((m) => m.id === resumeId) ??
-              [...history].reverse().find((m) => m.role === 'assistant')
-            if (updated) existingContent = updated.content
           }
 
           if (streamingProvider.isServerStreaming === false) break
@@ -1239,215 +1275,17 @@ export function useChat(options: UseChatOptions): UseChatResult {
       }
 
       // ── Phase 2: send a resume request with full SSE streaming ────────
-      // Same event handler as sendMessage but targeting the existing message.
-      let assistantText = existingContent
-      const toolCalls: ChatMessage['toolCalls'] = []
-      const blocks: MessageBlock[] = []
-      let loopLimitReached: number | undefined
+      // The resumed (partial) message is already persisted + shown. On resume the server
+      // re-enters the agentic loop and streams its NEW iterations as NEW messages (each
+      // with its own message_start) — so stop the resumed message's spinner and let the
+      // shared per-message handler append the new messages after it. No content seeding
+      // (that duplicated text before); new content becomes a new message.
+      setMessages((prev) => prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: false } : m)))
 
-      // Seed blocks with a text block for the existing content so new text
-      // appends correctly and new tool_use/thinking blocks interleave properly.
-      if (existingContent) {
-        blocks.push({ type: 'text', content: existingContent })
-      }
-
-      // Create a throttled flush scheduler for the resumed streaming message
-      const { scheduleFlush, flushNow } = createFlushScheduler(resumeId)
-
-      /**
-       * Build the current snapshot of all mutable streaming state.
-       * @returns Partial message fields to merge.
-       */
-      const buildFullUpdate = (): Partial<ChatMessage> => ({
-        content: assistantText,
-        blocks: [...blocks],
-        toolCalls: [...toolCalls!],
-        ...(loopLimitReached != null ? { loopLimitReached } : {}),
+      const { onEvent, finalizeCurrent } = createMessageStreamRef.current!({
+        resetStall: () => {},
+        markTerminal: () => {},
       })
-
-      const onEvent = (event: ChatStreamEvent): void => {
-        // Not gated on mountedRef — see the sendMessage onEvent above. The resumed
-        // stream writes to the conversation store and must survive a remount too.
-        // Forward to the parent (like the sendMessage handler) so client_action and
-        // other side-effect events also fire during a resumed/auto-continued turn.
-        onStreamEvent?.(event)
-        switch (event.type) {
-          case 'text': {
-            assistantText += event.content
-            const last = blocks[blocks.length - 1]
-            if (last?.type === 'text') {
-              last.content += event.content
-            } else {
-              blocks.push({ type: 'text', content: event.content })
-            }
-            scheduleFlush(() => ({ content: assistantText, blocks: [...blocks] }))
-            break
-          }
-          case 'tool_use': {
-            // tool_use_start may have already created the entry + block — fill in
-            // the final input rather than pushing a duplicate.
-            const existing = toolCalls!.find((t) => t.id === event.id)
-            if (existing) {
-              existing.name = event.name
-              existing.input = event.input
-              existing.status = 'running'
-            } else {
-              toolCalls!.push({
-                id: event.id,
-                name: event.name,
-                input: event.input,
-                status: 'running',
-              })
-              blocks.push({ type: 'tool_call', id: event.id })
-            }
-            scheduleFlush(() => ({ toolCalls: [...toolCalls!], blocks: [...blocks] }))
-            break
-          }
-          case 'tool_use_start': {
-            // The model has begun a tool call — create its entry + block now so
-            // the activity label and tool card appear immediately.
-            if (!toolCalls!.some((t) => t.id === event.id)) {
-              toolCalls!.push({
-                id: event.id,
-                name: event.name,
-                input: undefined,
-                status: 'running',
-                streamInputChars: 0,
-              })
-              blocks.push({ type: 'tool_call', id: event.id })
-            }
-            scheduleFlush(() => ({ toolCalls: [...toolCalls!], blocks: [...blocks] }))
-            break
-          }
-          case 'tool_input_delta': {
-            // Grow the live token estimate as the tool input streams in.
-            const tc = toolCalls!.find((t) => t.id === event.id)
-            if (tc) {
-              tc.streamInputChars = (tc.streamInputChars ?? 0) + event.chars
-              // Merge display fields extracted server-side (path/name/…) so the
-              // in-flight card labels with the filename before args finish.
-              if (event.partialInput) {
-                tc.input = {
-                  ...(tc.input as Record<string, unknown> | undefined),
-                  ...event.partialInput,
-                }
-              }
-            }
-            scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
-            break
-          }
-          case 'tool_result':
-            if (toolCalls) {
-              const tc = toolCalls.find((t) => t.id === event.id)
-              if (tc) {
-                tc.output = event.output
-                tc.status = 'done'
-              }
-            }
-            scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
-            break
-          case 'file_diff': {
-            const normalizePath = (p: string): string => p.replace(/^\/workspace\//, '')
-            const match = [...(toolCalls ?? [])]
-              .reverse()
-              .find(
-                (t) =>
-                  (t.name === 'write_file' || t.name === 'edit_file') &&
-                  normalizePath((t.input as { path?: string })?.path ?? '') ===
-                    normalizePath(event.path),
-              )
-            if (match) {
-              match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
-              scheduleFlush(() => ({ toolCalls: [...toolCalls!] }))
-            }
-            // Auto-delete queued autofix messages that reference this file
-            clearQueuedForFileRef.current(event.path)
-            onFileChange?.(event.path, event.newContent)
-            break
-          }
-          case 'commit_suggestion':
-            scheduleFlush(() => ({
-              commitSuggestion: {
-                files: event.files,
-                status: 'pending' as const,
-              },
-            }))
-            break
-          case 'verification_result':
-            blocks.push({
-              type: 'verification',
-              status: event.status,
-              ...(event.output ? { output: event.output } : {}),
-              workspaces: event.workspaces,
-              ...(event.categories ? { categories: event.categories } : {}),
-            })
-            scheduleFlush(() => ({ blocks: [...blocks] }))
-            break
-          case 'resource_limit':
-            blocks.push({
-              type: 'resource_limit',
-              resource: event.resource,
-              message: event.message,
-            })
-            scheduleFlush(() => ({ blocks: [...blocks] }))
-            break
-          case 'compaction':
-            blocks.push({
-              type: 'text',
-              content: `> **Context compacted** — ${event.compactedCount} older messages were summarized to free space. The AI retains a summary of the compacted history.`,
-            })
-            scheduleFlush(() => ({ blocks: [...blocks] }))
-            break
-          case 'loop_limit_reached':
-            loopLimitReached = event.maxLoops
-            scheduleFlush(() => ({ loopLimitReached: event.maxLoops }))
-            break
-          case 'done':
-            // A clean finish ends the incident — reset the 5XX retry budget.
-            retryAttemptRef.current = 0
-            // Flush immediately — commit final state and clear streaming flag
-            flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
-            break
-          case 'error':
-            // A 5XX during a resume re-arms the backoff up to the attempt cap;
-            // anything else surfaces. resumeId is the message we resume into.
-            handleStreamError(event, { id: resumeId, content: assistantText })
-            // Flush immediately — commit final state and clear streaming flag
-            flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
-            break
-          case 'thinking': {
-            const lastBlock = blocks[blocks.length - 1] as
-              | (MessageBlock & { _startedAt?: number; durationMs?: number })
-              | undefined
-            if (lastBlock?.type === 'thinking') {
-              lastBlock.content += event.content
-              lastBlock.durationMs = Date.now() - (lastBlock._startedAt ?? Date.now())
-            } else {
-              const now = Date.now()
-              blocks.push(
-                Object.assign(
-                  { type: 'thinking' as const, content: event.content, durationMs: 0 },
-                  { _startedAt: now },
-                ),
-              )
-            }
-            scheduleFlush(() => ({ blocks: [...blocks] }))
-            break
-          }
-          case 'mode':
-            setMode(event.mode)
-            onModeChange?.(event.mode)
-            break
-          case 'status':
-            enqueueStatus(event.label)
-            break
-          case 'conversation':
-            onConversationId?.(event.id)
-            break
-          default:
-            break
-        }
-      }
 
       try {
         await provider.sendMessage('', { ...config, resume: true }, onEvent)
@@ -1458,8 +1296,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
               ? err.message
               : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' })
           setError(msg)
-          // Flush immediately on catch — stream is over
-          flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
+          // Stream is over — finalize the current (partial) message.
+          finalizeCurrent()
         }
       }
 
