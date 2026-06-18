@@ -1854,37 +1854,6 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
             msg.blocks.map((block, bi) => {
               const blockType = (block as { type: string }).type
 
-              // Inline phase/model transition marker, rendered exactly where it
-              // occurred in the turn (a centered muted line, like the other notices).
-              if (blockType === 'phase_marker') {
-                const pm = block as { type: string; mode?: 'plan' | 'execute'; model?: string }
-                const markerText = pm.model
-                  ? t(
-                      'ide.chat.modelInUse',
-                      { model: pm.model },
-                      { defaultValue: 'Now using {{model}}' },
-                    )
-                  : pm.mode === 'execute'
-                    ? t('ide.chat.phaseBuilding', undefined, {
-                        defaultValue: '🔨 Building your app',
-                      })
-                    : ''
-                if (!markerText) return null
-                return (
-                  <div
-                    key={bi}
-                    className={cm.textSize('sm')}
-                    style={{
-                      marginBottom: TIMELINE_ITEM_GAP,
-                      color: 'var(--mol-color-text-secondary, #aaa)',
-                      textAlign: 'center',
-                    }}
-                  >
-                    {markerText}
-                  </div>
-                )
-              }
-
               if (blockType === 'thinking') {
                 const isLastBlock = bi === (msg.blocks?.length ?? 0) - 1
                 return (
@@ -2469,6 +2438,12 @@ function ChatInner({
   // Ref so the stream-event callback can push activity cards without depending
   // on the state setter (mirrors addSystemCardRef).
   const addActivityCardRef = useRef<(activity: Activity) => void>(() => {})
+  // Last model surfaced in the transcript, so we mark a change (planner →
+  // executor) without announcing the same model every turn.
+  const lastShownModelRef = useRef<string | null>(null)
+  // Last phase (mode) surfaced as a transcript card, so phase markers appear on
+  // change only (not every turn). See the 'mode' event handler.
+  const lastShownModeRef = useRef<string | null>(null)
   // Kept current each render so handleStreamEvent (memoized) always calls the latest.
   const onReadyToBuildRef = useRef<(() => void) | undefined>(onReadyToBuild)
   onReadyToBuildRef.current = onReadyToBuild
@@ -2571,12 +2546,32 @@ function ChatInner({
       if (event.type === 'done' || event.type === 'error') {
         onTurnCompleteRef.current?.()
       }
-      // Phase/model markers ("Now using X" / "🔨 Building your app") are NOT added
-      // here as separate timestamp-sorted cards anymore — that put them out of order
-      // in the live stream. They're now appended INLINE as `phase_marker` blocks by
-      // useChat (and reconstructed on reload by loadHistory), so they always render
-      // at the exact point in the turn where the transition happened. Rendered in the
-      // message block switch below.
+      // Model changed (e.g. planner → executor) — drop a marker in the
+      // transcript so it's always clear which model is doing the work. Only on
+      // an actual change, not the same model every turn.
+      if (event.type === 'model' && event.model) {
+        const label = (event.label as string) || (event.model as string)
+        if (lastShownModelRef.current && lastShownModelRef.current !== event.model) {
+          addSystemCardRef.current(
+            t('ide.chat.modelInUse', { model: label }, { defaultValue: 'Now using {{model}}' }),
+          )
+        }
+        lastShownModelRef.current = event.model as string
+      }
+      // Phase marker for the plan→build handoff. We intentionally do NOT add a
+      // "Creating the plan" card: the plan is written as visible streaming text
+      // (so the card is redundant), and the parallel build flow emits a transient
+      // mode:'plan' during the post-boot save+execute turn — that would drop the
+      // card AFTER the plan was already shown, which reads backwards. "Building
+      // your app" stays: it cleanly marks the switch from planning to building.
+      if (event.type === 'mode' && event.mode) {
+        if (lastShownModeRef.current !== event.mode && event.mode === 'execute') {
+          addSystemCardRef.current(
+            t('ide.chat.phaseBuilding', undefined, { defaultValue: '🔨 Building your app' }),
+          )
+        }
+        lastShownModeRef.current = event.mode as string
+      }
       const cfg = soundsConfigRef.current
       const eventType = event.type as SoundEventType
       if (eventType in cfg && shouldPlaySound(cfg[eventType])) {

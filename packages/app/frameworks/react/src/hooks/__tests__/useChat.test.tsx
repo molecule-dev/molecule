@@ -189,69 +189,6 @@ describe('useChat', () => {
     })
   })
 
-  it('appends an inline phase_marker block when entering execute mode', async () => {
-    const { provider, emitText, emit, complete } = createMockProvider()
-    const { result } = renderHook(
-      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
-      { wrapper: createWrapper(provider) },
-    )
-
-    await act(async () => {
-      result.current.sendMessage('Build it')
-    })
-    // Plan content → execute switch → build content, all in one streaming message.
-    await act(async () => {
-      emitText(0, 'planning')
-      emit(0, { type: 'mode', mode: 'execute' })
-      emitText(0, 'building')
-    })
-
-    await waitFor(() => {
-      const a = result.current.messages.find((m) => m.role === 'assistant')
-      const types = (a?.blocks ?? []).map((b) => b.type)
-      // The marker sits INLINE between the plan text and the build text — not after.
-      expect(types).toEqual(['text', 'phase_marker', 'text'])
-    })
-    const a = result.current.messages.find((m) => m.role === 'assistant')
-    const marker = (a?.blocks ?? []).find((b) => b.type === 'phase_marker')
-    expect(marker && 'mode' in marker ? marker.mode : undefined).toBe('execute')
-
-    await act(async () => {
-      complete(0)
-    })
-  })
-
-  it('appends a phase_marker on a model change (not on the first model)', async () => {
-    const { provider, emitText, emit, complete } = createMockProvider()
-    const { result } = renderHook(
-      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
-      { wrapper: createWrapper(provider) },
-    )
-
-    await act(async () => {
-      result.current.sendMessage('Build it')
-    })
-    await act(async () => {
-      emitText(0, 'a')
-      emit(0, { type: 'model', model: 'Claude Sonnet' }) // first model → no marker
-      emit(0, { type: 'model', model: 'DeepSeek V4 Flash' }) // change → marker
-      emitText(0, 'b')
-    })
-
-    await waitFor(() => {
-      const a = result.current.messages.find((m) => m.role === 'assistant')
-      const markers = (a?.blocks ?? []).filter((b) => b.type === 'phase_marker')
-      expect(markers).toHaveLength(1)
-    })
-    const a = result.current.messages.find((m) => m.role === 'assistant')
-    const marker = (a?.blocks ?? []).find((b) => b.type === 'phase_marker')
-    expect(marker && 'model' in marker ? marker.model : undefined).toBe('DeepSeek V4 Flash')
-
-    await act(async () => {
-      complete(0)
-    })
-  })
-
   it('handles error events', async () => {
     const { provider, completeWithError } = createMockProvider()
     const { result } = renderHook(
