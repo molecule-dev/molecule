@@ -81,6 +81,16 @@ export interface ChatEventCard {
    * app opts in; omit for the default muted / emphasized styles.
    */
   tone?: 'info' | 'gold'
+  /**
+   * Positioning hint for cards a backend emits BEFORE the model streams (e.g. a
+   * first-run onboarding / model-intro notice). `'before-response'` makes ChatPanel
+   * render the card just before its turn's assistant response instead of wherever its
+   * arrival timestamp lands — without it the card sorts AFTER the question, because the
+   * streaming assistant placeholder is created at send-time (sharing the user message's
+   * timestamp) while the card arrives a beat later. Generic positioning only; ChatPanel
+   * never infers it from the event name or copy. Omit for normal chronological cards.
+   */
+  placement?: 'before-response'
 }
 
 /**
