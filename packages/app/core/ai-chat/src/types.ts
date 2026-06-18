@@ -214,7 +214,20 @@ export type ChatStreamEvent =
   | { type: 'file_diff'; path: string; oldContent: string | null; newContent: string }
   | { type: 'commit_suggestion'; files: string[] }
   | { type: 'conversation'; id: string }
-  | { type: 'mode'; mode: 'plan' | 'execute' }
+  // The server is opening a new persisted assistant message (one per agentic-loop
+  // iteration). Carries the STABLE id + the server timestamp (ms) the message will be
+  // persisted with, so the live transcript builds the SAME per-message structure the
+  // server stores — every stream item after this belongs to this message until the next
+  // `message_start`. There is NO per-message terminal event: finalization is driven
+  // solely by the next `message_start` (finalize the previous) and the final
+  // `done`/`error` (finalize the last). `timestamp` is ms and equals
+  // `new Date(persistedISO).getTime()` so the live message is byte-identical to history.
+  | { type: 'message_start'; id: string; timestamp: number }
+  // `timestamp` (ms, server clock) is when the transition occurred — set so any card
+  // the app derives from this event sorts on the SAME clock as the messages (which are
+  // server-stamped via `message_start`), instead of a client-receipt time that can skew
+  // the card above/below the response. Optional + additive; consumers fall back to now.
+  | { type: 'mode'; mode: 'plan' | 'execute'; timestamp?: number }
   | { type: 'loop_limit_reached'; maxLoops: number }
   | { type: 'compaction'; compactedCount: number; remainingCount: number; summary: string }
   | {
@@ -274,7 +287,8 @@ export type ChatStreamEvent =
       requiresSignup?: boolean
     }
   // The active model changed (e.g. planner → executor); surfaced in the chat.
-  | { type: 'model'; model: string; label?: string; mode?: 'plan' | 'execute' }
+  // `timestamp` (ms, server clock): see the `mode` event above — same card-clock fix.
+  | { type: 'model'; model: string; label?: string; mode?: 'plan' | 'execute'; timestamp?: number }
   // Post-discovery: the server is selecting a starting point / about to boot.
   | { type: 'designing' }
   // Discovery done + starting point chosen — the client boots the sandbox.
