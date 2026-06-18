@@ -249,11 +249,30 @@ function renderCardSegment(seg: ChatEventCardSegment, key: number): ReactNode {
   )
 }
 
-interface SystemCard {
+/**
+ * `Omit` that distributes over a union, so each member keeps its own remaining keys
+ * (plain `Omit<A | B, K>` collapses to the common keys only).
+ */
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+
+/**
+ * Fields shared by every system card. `action` (an optional CTA button, or array of
+ * them) is common — any card may carry one; its in-session `onClick` is dropped on
+ * persist, so a restored card is informational.
+ */
+interface SystemCardBase {
   id: string
   text: string
   timestamp: number
   action?: ChatEventCardAction | ChatEventCardAction[]
+}
+
+/**
+ * Default card (no `variant`): a plain inline notice, or — with `tone` set — a
+ * dismissable tip box. Owns the body/styling fields the rich variants never use.
+ */
+interface PlainSystemCard extends SystemCardBase {
+  variant?: undefined
   /**
    * Composable inline body for a `tone` (tip) card — an ordered list of segments
    * (plain strings + inline link actions) rendered in sequence, used INSTEAD of
@@ -261,26 +280,6 @@ interface SystemCard {
    * {@link ChatEventCard.content}). `text` stays the plain-text fallback.
    */
   content?: ChatEventCardSegment[]
-  /**
-   * Optional rich-content variant rendered in place of the plain text:
-   * `'settings'` → the `/settings` view; `'skills'` → the `/skills` browser;
-   * `'scripts'` → the `/scripts` browser; `'help'` → the `/help` high-level guide
-   * card; `'skillsLoaded'` → the compact, clickable "Loaded {{count}} skills"
-   * notice whose onClick opens the `/skills` browser (re-attached at render time —
-   * see the render switch — since the persisted card drops its callbacks);
-   * `'skillsCreate'` → the `/skills` browser opened with its "New skill" form already
-   * open (the create-mode counterpart of `'skills'`). Default (undefined) is plain
-   * text. For `'help'`, `text` still carries the {@link buildHelpText} plain-text fallback.
-   */
-  variant?: 'settings' | 'skills' | 'scripts' | 'help' | 'skillsLoaded' | 'skillsCreate'
-  /** Seed query for the `'skills'`/`'scripts'` variants (from `/skills <query>` or `/scripts <query>`). */
-  query?: string
-  /**
-   * For the `'skillsLoaded'` variant: how many skills were seeded as default-enabled.
-   * Persisted (the card's onClick is NOT — it's re-attached at render time), so the
-   * "Loaded {{count}} skills" copy restores verbatim across reloads.
-   */
-  count?: number
   /**
    * When true, render with the emphasized (highlighted box) style instead of the
    * muted inline style — e.g. a host-supplied sign-up / upgrade nudge. The caller
@@ -297,15 +296,65 @@ interface SystemCard {
   tone?: 'info' | 'gold'
 }
 
+/** The `/settings` view. */
+interface SettingsSystemCard extends SystemCardBase {
+  variant: 'settings'
+}
+
 /**
- * Options for {@link addSystemCard} — an options object that replaces the former long
- * tail of optional positional parameters, so callers name only the fields they set
- * instead of padding the gaps with `undefined`s. Derived from {@link SystemCard} (minus
- * the generated `id` and the positional `text`) so the two can never drift: every
- * settable card field is automatically an option. `timestamp` here is the optional
- * SERVER-ms override (see {@link addSystemCard}) — omit it to use the client clock.
+ * The `/skills` browser — `'skills'` opens the browser; `'skillsCreate'` opens it with
+ * the inline "New skill" form already open. `query` seeds the search (`/skills <query>`).
  */
-type AddSystemCardOptions = Partial<Omit<SystemCard, 'id' | 'text'>>
+interface SkillsSystemCard extends SystemCardBase {
+  variant: 'skills' | 'skillsCreate'
+  query?: string
+}
+
+/** The `/scripts` browser. `query` seeds the search (`/scripts <query>`). */
+interface ScriptsSystemCard extends SystemCardBase {
+  variant: 'scripts'
+  query?: string
+}
+
+/** The `/help` high-level guide card. `text` carries the {@link buildHelpText} fallback. */
+interface HelpSystemCard extends SystemCardBase {
+  variant: 'help'
+}
+
+/**
+ * The compact, clickable "Loaded {{count}} skills" notice whose onClick opens the
+ * `/skills` browser (re-attached at render time — the persisted card drops callbacks).
+ * `count` is persisted so the copy restores verbatim across reloads.
+ */
+interface SkillsLoadedSystemCard extends SystemCardBase {
+  variant: 'skillsLoaded'
+  count?: number
+}
+
+/**
+ * A system card — a discriminated union keyed on `variant`, so each card type declares
+ * ONLY its own fields and the compiler enforces validity (e.g. `count` only on the
+ * loaded notice, `query` only on the browsers, `content`/`tone` only on the plain/tip
+ * card). Replaces the former flat shape where every field was optional regardless of
+ * variant. The render switch narrows on `variant`; persistence drops only `action`.
+ */
+type SystemCard =
+  | PlainSystemCard
+  | SettingsSystemCard
+  | SkillsSystemCard
+  | ScriptsSystemCard
+  | HelpSystemCard
+  | SkillsLoadedSystemCard
+
+/**
+ * Options for {@link addSystemCard}: the card's fields minus the generated `id` and the
+ * positional `text`, with `timestamp` made optional (the SERVER-ms override — omit it to
+ * use the client clock). Distributes over the union (see {@link DistributiveOmit}) so a
+ * caller only ever names the fields valid for the variant it sets.
+ */
+type AddSystemCardOptions = DistributiveOmit<SystemCard, 'id' | 'text' | 'timestamp'> & {
+  timestamp?: number
+}
 
 /**
  * Returns the first action carrying an `href` from a single action or an array of
@@ -3023,7 +3072,9 @@ function ChatInner({
   const messagesRef = useRef(messages)
   messagesRef.current = messages
   const addSystemCard = useCallback((text: string, opts: AddSystemCardOptions = {}) => {
-    const { action, variant, query, emphasized, tone, content, count, timestamp } = opts
+    // Split off `timestamp` (handled below) and spread the rest of the variant's own
+    // fields verbatim — no field-by-field copy, so this never drifts from the union.
+    const { timestamp, ...rest } = opts
     // Cards land chronologically — wherever/whenever they occur. A card emitted during
     // a turn's preamble still sorts ABOVE the streamed response: the response message is
     // stamped at its server `message_start` (iteration top — AFTER these preamble
@@ -3033,21 +3084,7 @@ function ChatInner({
     // clock; otherwise fall back to the client clock. (A queued USER message that waits
     // for the active stream is a separate mechanism, not this.)
     const ts = timestamp ?? Date.now()
-    setSystemCards((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        text,
-        timestamp: ts,
-        action,
-        variant,
-        query,
-        emphasized,
-        tone,
-        content,
-        count,
-      },
-    ])
+    setSystemCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: ts, ...rest }])
     // Auto-scroll after the card renders so the user sees it immediately
     if (!userScrolledUpRef.current) {
       setTimeout(() => {
@@ -3118,19 +3155,12 @@ function ChatInner({
   }, [conversationId, projectId, http])
   useEffect(() => {
     if (!conversationId || sysCardsLoadedConvRef.current !== conversationId) return
-    const serializable = systemCards.map((c) => ({
-      id: c.id,
-      text: c.text,
-      timestamp: c.timestamp,
-      content: c.content,
-      variant: c.variant,
-      query: c.query,
-      // Persist the skill count so the 'skillsLoaded' card's "Loaded {{count}} skills"
-      // copy restores; its onClick is re-attached at render time, not persisted.
-      count: c.count,
-      emphasized: c.emphasized,
-      tone: c.tone,
-    }))
+    // Drop `action` (the only non-serializable field — its onClick is a callback,
+    // re-attached at render; a restored card is informational) and persist the rest of
+    // each variant's own fields verbatim. Destructuring the union keeps this in sync with
+    // the card shape: a new persisted field needs no edit here. (The 'skillsLoaded'
+    // count, the browsers' query, etc. all ride along automatically.)
+    const serializable = systemCards.map(({ action: _action, ...rest }) => rest)
     void http
       .put(`/projects/${projectId}/conversations/${conversationId}/system-cards`, {
         systemCards: serializable,
@@ -5693,6 +5723,11 @@ function ChatInner({
                   </div>
                 )
               }
+              // Every rich variant is handled above; what remains is the plain notice /
+              // tip card (no variant). Narrow to PlainSystemCard so the compiler knows
+              // tone/content/emphasized exist here — and render nothing for any future
+              // unhandled variant rather than mis-rendering it as a plain card.
+              if (item.card.variant !== undefined) return null
               if (item.card.tone) {
                 // Tip-style toned card (info=blue / gold): the dismissable tip-box look
                 // with any actions rendered as inline underlined links (not buttons).
