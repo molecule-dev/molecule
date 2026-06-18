@@ -1,90 +1,63 @@
 import { describe, expect, it } from 'vitest'
 
-import { repositionBeforeResponseCards } from '../chatTimelineOrdering.js'
+import { timelineSortKey } from '../chatTimelineOrdering.js'
 
 /** Build a message item. */
-const msg = (role: string, timestamp: number) => ({
-  kind: 'message' as const,
-  msg: { role, timestamp },
-})
-/** Build a card item (flagged 'before-response' by default). */
-const card = (timestamp: number, placement?: string) => ({
-  kind: 'system' as const,
-  card: { timestamp, ...(placement ? { placement } : {}) },
-})
+const msg = (
+  timestamp: number,
+  opts: { isStreaming?: boolean; content?: string; blocks?: unknown[] } = {},
+) => ({ kind: 'message' as const, msg: { timestamp, ...opts } })
+/** Build a card item. */
+const card = (timestamp: number) => ({ kind: 'system' as const, card: { timestamp } })
 
-/** Compact label for a positional assertion. */
-const label = (it: {
-  kind: string
-  msg?: { role: string }
-  card?: { placement?: string }
-}): string =>
-  it.kind === 'message' ? `msg:${it.msg?.role}` : `card${it.card?.placement ? ':flagged' : ''}`
-
-describe('repositionBeforeResponseCards', () => {
-  it('returns the same reference when nothing is flagged', () => {
-    const items = [msg('user', 10), msg('assistant', 10), card(50)]
-    expect(repositionBeforeResponseCards(items)).toBe(items)
+describe('timelineSortKey', () => {
+  it('orders a normal message by its timestamp', () => {
+    expect(timelineSortKey(msg(42))).toBe(42)
   })
 
-  it('moves a flagged card between the user prompt and the assistant response (the reported bug)', () => {
-    // The live scenario: user + streaming assistant placeholder share a send-time
-    // timestamp (34); the onboarding tip arrives ~83ms later (117) and a plain sort
-    // drops it below the question.
-    const items = [msg('user', 34), msg('assistant', 34), card(117, 'before-response')]
-    expect(repositionBeforeResponseCards(items).map(label)).toEqual([
-      'msg:user',
-      'card:flagged',
-      'msg:assistant',
-    ])
+  it('orders a card by its timestamp', () => {
+    expect(timelineSortKey(card(42))).toBe(42)
   })
 
-  it('anchors to the correct turn in a multi-turn transcript (prealpha on turn 2)', () => {
+  it('sorts an empty streaming message LAST (it is the pending response)', () => {
+    expect(timelineSortKey(msg(10, { isStreaming: true }))).toBe(Number.MAX_SAFE_INTEGER)
+  })
+
+  it('orders a streaming message that already has content by its timestamp', () => {
+    // After useChat re-stamps it to first-content time, it sorts by time again.
+    expect(timelineSortKey(msg(20, { isStreaming: true, blocks: [{}] }))).toBe(20)
+    expect(timelineSortKey(msg(20, { isStreaming: true, content: 'hi' }))).toBe(20)
+  })
+
+  it('does NOT special-case a finished (non-streaming) empty message', () => {
+    expect(timelineSortKey(msg(15, { isStreaming: false }))).toBe(15)
+  })
+
+  it('places the turn preamble ABOVE the still-thinking response (the reported bug)', () => {
+    // Live: user + empty streaming placeholder share the send-time ts (34); the
+    // preamble cards arrive a beat later (35..37). The empty response must sort last.
     const items = [
-      msg('user', 10),
-      msg('assistant', 20),
-      msg('user', 30),
-      msg('assistant', 30),
-      card(40, 'before-response'),
+      msg(34), // user prompt
+      msg(34, { isStreaming: true }), // empty streaming assistant placeholder
+      card(35), // "Building your app"
+      card(36), // "now using deepseek"
+      card(37), // "loaded 9 skills"
     ]
-    expect(repositionBeforeResponseCards(items).map(label)).toEqual([
-      'msg:user',
-      'msg:assistant',
-      'msg:user',
-      'card:flagged',
-      'msg:assistant',
-    ])
+    const order = [...items].sort((a, b) => timelineSortKey(a) - timelineSortKey(b))
+    // The empty streaming response is last; the three cards sit above it.
+    expect(order[order.length - 1]).toBe(items[1])
+    expect(order.slice(0, 4)).toEqual([items[0], items[2], items[3], items[4]])
   })
 
-  it('keeps a turn-1 card at turn 1 even after the conversation grows', () => {
-    // models_intro (ts 117, turn 1) must not drift down to a later turn's response.
+  it('keeps the preamble above once the response has content (re-stamped after them)', () => {
     const items = [
-      msg('user', 10),
-      msg('assistant', 200),
-      msg('user', 300),
-      msg('assistant', 500),
-      card(117, 'before-response'),
+      msg(34), // user prompt
+      card(35),
+      card(36),
+      card(37),
+      msg(40, { isStreaming: true, content: 'reading files…' }), // re-stamped to first-content
     ]
-    expect(repositionBeforeResponseCards(items).map(label)).toEqual([
-      'msg:user',
-      'card:flagged',
-      'msg:assistant',
-      'msg:user',
-      'msg:assistant',
-    ])
-  })
-
-  it('falls back to the end when the turn has no assistant response yet', () => {
-    const items = [msg('user', 10), card(20, 'before-response')]
-    expect(repositionBeforeResponseCards(items).map(label)).toEqual(['msg:user', 'card:flagged'])
-  })
-
-  it('leaves an unflagged card ordered purely by timestamp', () => {
-    const items = [msg('user', 10), msg('assistant', 10), card(50)]
-    expect(repositionBeforeResponseCards(items).map(label)).toEqual([
-      'msg:user',
-      'msg:assistant',
-      'card',
-    ])
+    const order = [...items].sort((a, b) => timelineSortKey(a) - timelineSortKey(b))
+    expect(order).toEqual(items) // already in the right order; response stays last
   })
 })

@@ -833,6 +833,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
         const toolCalls: ChatMessage['toolCalls'] = []
         const blocks: MessageBlock[] = []
         let loopLimitReached: number | undefined
+        // Flips true on the response's first content block — used to re-stamp the
+        // message timestamp to that moment (see the re-stamp in onEvent below).
+        let contentStarted = false
 
         const assistantMsg: ChatMessage = {
           id: assistantId,
@@ -1080,6 +1083,21 @@ export function useChat(options: UseChatOptions): UseChatResult {
               break
             default:
               break
+          }
+
+          // Anchor the message's timeline position to when its CONTENT begins, not to
+          // the empty placeholder created at turn-start (which shares the user
+          // message's timestamp). A turn's preamble cards — "Building your app", the
+          // model / "loaded N skills" notices, the onboarding tip — are all emitted
+          // AFTER the placeholder but BEFORE the response content; re-stamping once
+          // here lets them sort ABOVE the streamed response instead of below the whole
+          // block. While still empty the message already sorts last (see
+          // timelineSortKey), so this re-stamp keeps it last and never reorders.
+          if (!contentStarted && blocks.length > 0) {
+            contentStarted = true
+            setMessages((prev) =>
+              prev.map((m) => (m.id === assistantId ? { ...m, timestamp: Date.now() } : m)),
+            )
           }
         }
 

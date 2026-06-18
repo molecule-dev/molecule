@@ -48,7 +48,7 @@ import {
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
-import { repositionBeforeResponseCards } from '../chatTimelineOrdering.js'
+import { timelineSortKey } from '../chatTimelineOrdering.js'
 import type {
   ChatEventCardAction,
   ChatEventCardCode,
@@ -301,16 +301,6 @@ interface SystemCard {
    * with `emphasized` in practice; the caller opts in.
    */
   tone?: 'info' | 'gold'
-  /**
-   * Positioning hint for a card emitted before the turn's response streams (e.g. the
-   * host's onboarding / model-intro notice). `'before-response'` makes the timeline
-   * render it just before its turn's assistant message rather than at its arrival
-   * timestamp (which lands after the send-time assistant placeholder). See
-   * {@link repositionBeforeResponseCards}. Live-session positioning only — it is not
-   * persisted; on reload the assistant message's server timestamp already sorts it
-   * correctly. Generic; never inferred from the card's route or copy.
-   */
-  placement?: 'before-response'
 }
 
 /**
@@ -2443,9 +2433,6 @@ function ChatInner({
       emphasized?: boolean,
       tone?: SystemCard['tone'],
       content?: SystemCard['content'],
-      skillsCreate?: boolean,
-      count?: number,
-      placement?: SystemCard['placement'],
     ) => void
   >(() => {})
   // Ref so the stream-event callback can push activity cards without depending
@@ -2513,14 +2500,11 @@ function ChatInner({
           addSystemCardRef.current(
             card.text,
             card.action,
-            undefined, // variant
-            undefined, // query
+            undefined,
+            undefined,
             card.emphasized,
             card.tone,
             card.content,
-            undefined, // skillsCreate
-            undefined, // count
-            card.placement,
           )
         }
       }
@@ -3053,16 +3037,13 @@ function ChatInner({
       content?: SystemCard['content'],
       skillsCreate?: boolean,
       count?: number,
-      placement?: SystemCard['placement'],
     ) => {
-      // Cards land chronologically — wherever/whenever they occur. A card created
-      // while a response is streaming simply sorts AFTER that response (the response
-      // started earlier); nothing is forced before or after. (A queued USER message
-      // that waits for the active stream to finish is a separate mechanism, not this.)
-      // EXCEPTION: a `placement: 'before-response'` card (e.g. a backend onboarding
-      // notice emitted before the model streams) is repositioned at render time to sit
-      // before its turn's response — see repositionBeforeResponseCards — because its
-      // arrival timestamp lands after the send-time assistant placeholder.
+      // Cards land chronologically — wherever/whenever they occur. A card emitted
+      // during a turn's preamble still sorts ABOVE the streamed response, because an
+      // empty (still-thinking) streaming response sorts last and is re-stamped to its
+      // first-content time once it streams (see timelineSortKey + useChat). Nothing is
+      // forced per-card. (A queued USER message that waits for the active stream is a
+      // separate mechanism, not this.)
       const ts = Date.now()
       setSystemCards((prev) => [
         ...prev,
@@ -3078,7 +3059,6 @@ function ChatInner({
           content,
           skillsCreate,
           count,
-          placement,
         },
       ])
       // Auto-scroll after the card renders so the user sees it immediately
@@ -5465,15 +5445,12 @@ function ChatInner({
       ...activityCards.map((card) => ({ kind: 'activity' as const, card })),
       ...tipCards.map((card) => ({ kind: 'tip' as const, card })),
     ]
-    items.sort((a, b) => {
-      const tA = a.kind === 'message' ? a.msg.timestamp : a.card.timestamp
-      const tB = b.kind === 'message' ? b.msg.timestamp : b.card.timestamp
-      return tA - tB
-    })
-    // A `placement: 'before-response'` card (e.g. the host's onboarding/model-intro
-    // notice, emitted before the model streams) must sit just before its turn's
-    // response, not at its later arrival timestamp — see repositionBeforeResponseCards.
-    return repositionBeforeResponseCards(items)
+    // Order by timestamp, EXCEPT an empty (still-thinking) streaming response sorts
+    // last — so a turn's preamble cards (mode/model/skills notices, onboarding tips),
+    // emitted a beat after the placeholder is created, render ABOVE the response
+    // rather than below the whole streamed block. See timelineSortKey.
+    items.sort((a, b) => timelineSortKey(a) - timelineSortKey(b))
+    return items
   }, [visibleMessages, commitCards, systemCards, activityCards, tipCards])
 
   // The live settings list for the /settings card. Shared by the closeable
