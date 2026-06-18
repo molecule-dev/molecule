@@ -335,6 +335,15 @@ export class HttpChatProvider implements ChatProvider {
         toolCalls,
         commitRecord: m.commitRecord as ChatMessage['commitRecord'],
         attachments: m.attachments as ChatMessage['attachments'],
+        // Carry the persisted message-level flags back so a reloaded transcript matches
+        // the live one (these were silently dropped): `aborted` → the "Response stopped"
+        // badge; `automatic` → the distinct auto-sent style (an auto-fix message must NOT
+        // render as an ordinary user bubble); `author` → who sent it (multi-user);
+        // `loopLimitReached` → the loop-limit recovery card with its action buttons.
+        ...(m.aborted ? { aborted: true } : {}),
+        ...(m.automatic ? { automatic: true } : {}),
+        ...(m.author ? { author: m.author as ChatMessage['author'] } : {}),
+        ...(typeof m.loopLimitReached === 'number' ? { loopLimitReached: m.loopLimitReached } : {}),
       }
     })
   }

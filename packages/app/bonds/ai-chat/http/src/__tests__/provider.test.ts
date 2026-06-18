@@ -268,6 +268,42 @@ describe('@molecule/app-ai-chat-http', () => {
       expect(messages[1].id).toBe('msg-1')
     })
 
+    it('carries back the persisted message-level flags (aborted/automatic/author/loopLimitReached)', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          messages: [
+            {
+              id: 'a1',
+              role: 'assistant',
+              content: 'partial',
+              timestamp: 1,
+              aborted: true,
+              loopLimitReached: 25,
+            },
+            {
+              id: 'u1',
+              role: 'user',
+              content: 'auto-fix',
+              timestamp: 2,
+              automatic: true,
+              author: { id: 'x', name: 'Ada', avatar: null },
+            },
+          ],
+        }),
+      })
+
+      const provider = new HttpChatProvider()
+      const messages = await provider.loadHistory(defaultConfig)
+
+      // The reloaded transcript must NOT strip these (they drive the "stopped" badge, the
+      // auto-sent style, the author identity, and the loop-limit recovery card).
+      expect(messages[0].aborted).toBe(true)
+      expect(messages[0].loopLimitReached).toBe(25)
+      expect(messages[1].automatic).toBe(true)
+      expect(messages[1].author).toEqual({ id: 'x', name: 'Ada', avatar: null })
+    })
+
     it('should return empty array for non-ok response', async () => {
       mockFetch.mockResolvedValue({
         ok: false,
