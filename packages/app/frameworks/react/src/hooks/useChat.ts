@@ -368,6 +368,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
   )
   const mountedRef = useRef(true)
   const idCounterRef = useRef(0)
+  // Last phase/model surfaced as an inline `phase_marker` block, tracked across the
+  // session (not per send) so a transition is detected even across the separate
+  // sendMessage calls of one build — matching how a reloaded transcript derives the
+  // same markers by comparing consecutive persisted messages.
+  const lastPhaseModeRef = useRef<string | null>(null)
+  const lastPhaseModelRef = useRef<string | null>(null)
   // Capture loadOnMount at mount time — prevents mid-session flips
   // (e.g. initialMessage consumed → loadOnMount becomes true → history
   // load overwrites streaming messages).
@@ -1074,7 +1080,30 @@ export function useChat(options: UseChatOptions): UseChatResult {
             case 'mode':
               setMode(event.mode)
               onModeChange?.(event.mode)
+              // Entering execute mode → drop an INLINE "Building your app" marker at
+              // this exact point in the stream (a block, not a floating card), so it
+              // sits between the plan output and the build output.
+              if (event.mode === 'execute' && lastPhaseModeRef.current !== 'execute') {
+                blocks.push({ type: 'phase_marker', mode: 'execute' })
+                scheduleFlush(() => ({ blocks: [...blocks] }))
+              }
+              lastPhaseModeRef.current = event.mode
               break
+            case 'model': {
+              // Model changed (e.g. planner → executor) → inline "Now using X" marker.
+              // Only on an actual change from a previously-seen model (not the first).
+              const modelLabel = event.label || event.model
+              if (
+                modelLabel &&
+                lastPhaseModelRef.current &&
+                lastPhaseModelRef.current !== modelLabel
+              ) {
+                blocks.push({ type: 'phase_marker', model: modelLabel })
+                scheduleFlush(() => ({ blocks: [...blocks] }))
+              }
+              if (modelLabel) lastPhaseModelRef.current = modelLabel
+              break
+            }
             case 'status':
               enqueueStatus(event.label)
               break

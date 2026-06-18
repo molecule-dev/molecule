@@ -20,6 +20,15 @@ export type MessageBlock =
       categories?: string[]
     }
   | { type: 'resource_limit'; resource: string; message: string }
+  /**
+   * A phase/model transition notice that belongs INLINE in the turn's stream (e.g.
+   * "Building your app" when the agent enters execute mode, or "Now using X" when the
+   * model changes). Kept as a block — not a separate timestamp-sorted card — so it
+   * always renders at the exact point it occurred, between the surrounding content.
+   * Exactly one of `mode` / `model` is set per marker. The app supplies the display
+   * text; this stays a generic transition record.
+   */
+  | { type: 'phase_marker'; mode?: 'plan' | 'execute'; model?: string }
 
 /**
  * A file attachment sent with a chat message.
@@ -66,6 +75,18 @@ export interface ChatMessage {
   queued?: boolean
   /** Set when the agentic loop hit its iteration limit before finishing. */
   loopLimitReached?: number
+  /**
+   * The agentic mode this message ran in. Persisted so a reloaded transcript can
+   * derive a `phase_marker` ("Building your app") on the message where the mode
+   * changes from the previous one — the same marker the live stream shows inline.
+   */
+  mode?: 'plan' | 'execute'
+  /**
+   * Display label of the model that produced this message. Persisted so a reloaded
+   * transcript can derive a `phase_marker` ("Now using X") on the message where the
+   * model changes from the previous one.
+   */
+  model?: string
   /** Persisted commit record for display in conversation history. */
   commitRecord?: { message: string; files: string[]; hash?: string }
   commitSuggestion?: CommitSuggestion

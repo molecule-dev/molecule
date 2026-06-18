@@ -297,6 +297,10 @@ export class HttpChatProvider implements ChatProvider {
     }
     this.isServerStreaming = data.streaming ?? false
     this.lastMode = data.mode ?? 'execute'
+    // Track the previous assistant message's mode/model so we can derive the same
+    // inline phase markers the live stream shows, on the message where they change.
+    let prevMode: string | undefined
+    let prevModel: string | undefined
     return (data.messages ?? []).map((m, i) => {
       // Backend stores timestamps as ISO strings; frontend needs numbers
       const raw = m.timestamp
@@ -326,6 +330,24 @@ export class HttpChatProvider implements ChatProvider {
         }
       }
 
+      // Derive inline phase markers where this assistant message's mode/model changed
+      // from the previous one — the same markers the live stream appends as blocks, so
+      // a reloaded transcript shows "Building your app" / "Now using X" in the same spot.
+      if (m.role === 'assistant') {
+        const msgMode = m.mode as string | undefined
+        const msgModel = m.model as string | undefined
+        const markers: NonNullable<ChatMessage['blocks']> = []
+        if (msgMode === 'execute' && prevMode !== 'execute') {
+          markers.push({ type: 'phase_marker', mode: 'execute' })
+        }
+        if (msgModel && prevModel && prevModel !== msgModel) {
+          markers.push({ type: 'phase_marker', model: msgModel })
+        }
+        if (markers.length > 0) blocks = [...markers, ...(blocks ?? [])]
+        if (msgMode) prevMode = msgMode
+        if (msgModel) prevModel = msgModel
+      }
+
       return {
         id: (m.id as string) ?? `msg-${i}`,
         role: m.role as ChatMessage['role'],
@@ -335,6 +357,8 @@ export class HttpChatProvider implements ChatProvider {
         toolCalls,
         commitRecord: m.commitRecord as ChatMessage['commitRecord'],
         attachments: m.attachments as ChatMessage['attachments'],
+        mode: m.mode as ChatMessage['mode'],
+        model: m.model as ChatMessage['model'],
       }
     })
   }
