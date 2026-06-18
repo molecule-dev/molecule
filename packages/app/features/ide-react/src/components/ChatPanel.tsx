@@ -267,11 +267,12 @@ interface SystemCard {
    * `'scripts'` → the `/scripts` browser; `'help'` → the `/help` high-level guide
    * card; `'skillsLoaded'` → the compact, clickable "Loaded {{count}} skills"
    * notice whose onClick opens the `/skills` browser (re-attached at render time —
-   * see the render switch — since the persisted card drops its callbacks).
-   * Default (undefined) is plain text. For `'help'`, `text` still carries the
-   * {@link buildHelpText} plain-text fallback.
+   * see the render switch — since the persisted card drops its callbacks);
+   * `'skillsCreate'` → the `/skills` browser opened with its "New skill" form already
+   * open (the create-mode counterpart of `'skills'`). Default (undefined) is plain
+   * text. For `'help'`, `text` still carries the {@link buildHelpText} plain-text fallback.
    */
-  variant?: 'settings' | 'skills' | 'scripts' | 'help' | 'skillsLoaded'
+  variant?: 'settings' | 'skills' | 'scripts' | 'help' | 'skillsLoaded' | 'skillsCreate'
   /** Seed query for the `'skills'`/`'scripts'` variants (from `/skills <query>` or `/scripts <query>`). */
   query?: string
   /**
@@ -280,13 +281,6 @@ interface SystemCard {
    * "Loaded {{count}} skills" copy restores verbatim across reloads.
    */
   count?: number
-  /**
-   * For the `'skills'` variant: mount the card with its inline "New skill" form
-   * already open. (Reserved — kept for callers that want to open the form
-   * directly; the standalone `/newskill` command was removed in favor of the
-   * `/skills` browser's own "New skill" button.)
-   */
-  skillsCreate?: boolean
   /**
    * When true, render with the emphasized (highlighted box) style instead of the
    * muted inline style — e.g. a host-supplied sign-up / upgrade nudge. The caller
@@ -302,6 +296,16 @@ interface SystemCard {
    */
   tone?: 'info' | 'gold'
 }
+
+/**
+ * Options for {@link addSystemCard} — an options object that replaces the former long
+ * tail of optional positional parameters, so callers name only the fields they set
+ * instead of padding the gaps with `undefined`s. Derived from {@link SystemCard} (minus
+ * the generated `id` and the positional `text`) so the two can never drift: every
+ * settable card field is automatically an option. `timestamp` here is the optional
+ * SERVER-ms override (see {@link addSystemCard}) — omit it to use the client clock.
+ */
+type AddSystemCardOptions = Partial<Omit<SystemCard, 'id' | 'text'>>
 
 /**
  * Returns the first action carrying an `href` from a single action or an array of
@@ -2424,17 +2428,7 @@ function ChatInner({
     [],
   )
 
-  const addSystemCardRef = useRef<
-    (
-      text: string,
-      action?: SystemCard['action'],
-      variant?: SystemCard['variant'],
-      query?: string,
-      emphasized?: boolean,
-      tone?: SystemCard['tone'],
-      content?: SystemCard['content'],
-    ) => void
-  >(() => {})
+  const addSystemCardRef = useRef<(text: string, opts?: AddSystemCardOptions) => void>(() => {})
   // Ref so the stream-event callback can push activity cards without depending
   // on the state setter (mirrors addSystemCardRef).
   const addActivityCardRef = useRef<(activity: Activity) => void>(() => {})
@@ -2497,15 +2491,12 @@ function ChatInner({
           event.data as Record<string, unknown> | undefined,
         )
         if (card) {
-          addSystemCardRef.current(
-            card.text,
-            card.action,
-            undefined,
-            undefined,
-            card.emphasized,
-            card.tone,
-            card.content,
-          )
+          addSystemCardRef.current(card.text, {
+            action: card.action,
+            emphasized: card.emphasized,
+            tone: card.tone,
+            content: card.content,
+          })
         }
       }
       // Captured outbound side effect (email/sms/push/webhook/channel) — push an
@@ -2554,6 +2545,9 @@ function ChatInner({
         if (lastShownModelRef.current && lastShownModelRef.current !== event.model) {
           addSystemCardRef.current(
             t('ide.chat.modelInUse', { model: label }, { defaultValue: 'Now using {{model}}' }),
+            // Server timestamp (iteration-top, before the message) so this card sorts
+            // ABOVE the response on the same clock — never below it on a skewed client.
+            { timestamp: typeof event.timestamp === 'number' ? event.timestamp : undefined },
           )
         }
         lastShownModelRef.current = event.model as string
@@ -2568,6 +2562,8 @@ function ChatInner({
         if (lastShownModeRef.current !== event.mode && event.mode === 'execute') {
           addSystemCardRef.current(
             t('ide.chat.phaseBuilding', undefined, { defaultValue: '🔨 Building your app' }),
+            // Server timestamp so "Building your app" sorts above the build response.
+            { timestamp: typeof event.timestamp === 'number' ? event.timestamp : undefined },
           )
         }
         lastShownModeRef.current = event.mode as string
@@ -3026,51 +3022,40 @@ function ChatInner({
   // every streaming chunk).
   const messagesRef = useRef(messages)
   messagesRef.current = messages
-  const addSystemCard = useCallback(
-    (
-      text: string,
-      action?: SystemCard['action'],
-      variant?: SystemCard['variant'],
-      query?: string,
-      emphasized?: boolean,
-      tone?: SystemCard['tone'],
-      content?: SystemCard['content'],
-      skillsCreate?: boolean,
-      count?: number,
-    ) => {
-      // Cards land chronologically — wherever/whenever they occur. A card emitted
-      // during a turn's preamble still sorts ABOVE the streamed response, because an
-      // empty (still-thinking) streaming response sorts last and is re-stamped to its
-      // first-content time once it streams (see timelineSortKey + useChat). Nothing is
-      // forced per-card. (A queued USER message that waits for the active stream is a
-      // separate mechanism, not this.)
-      const ts = Date.now()
-      setSystemCards((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          text,
-          timestamp: ts,
-          action,
-          variant,
-          query,
-          emphasized,
-          tone,
-          content,
-          skillsCreate,
-          count,
-        },
-      ])
-      // Auto-scroll after the card renders so the user sees it immediately
-      if (!userScrolledUpRef.current) {
-        setTimeout(() => {
-          const el = messagesContainerRef.current
-          if (el) el.scrollTop = el.scrollHeight
-        }, 50)
-      }
-    },
-    [],
-  )
+  const addSystemCard = useCallback((text: string, opts: AddSystemCardOptions = {}) => {
+    const { action, variant, query, emphasized, tone, content, count, timestamp } = opts
+    // Cards land chronologically — wherever/whenever they occur. A card emitted during
+    // a turn's preamble still sorts ABOVE the streamed response: the response message is
+    // stamped at its server `message_start` (iteration top — AFTER these preamble
+    // events), and while still empty it sorts last anyway (see timelineSortKey). Pass an
+    // explicit `timestamp` (a SERVER ms from the originating event, e.g. mode/model) so
+    // the card shares the messages' clock and the order can't skew on a mis-set client
+    // clock; otherwise fall back to the client clock. (A queued USER message that waits
+    // for the active stream is a separate mechanism, not this.)
+    const ts = timestamp ?? Date.now()
+    setSystemCards((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        text,
+        timestamp: ts,
+        action,
+        variant,
+        query,
+        emphasized,
+        tone,
+        content,
+        count,
+      },
+    ])
+    // Auto-scroll after the card renders so the user sees it immediately
+    if (!userScrolledUpRef.current) {
+      setTimeout(() => {
+        const el = messagesContainerRef.current
+        if (el) el.scrollTop = el.scrollHeight
+      }, 50)
+    }
+  }, [])
   addSystemCardRef.current = addSystemCard
 
   // Inject the user-message accent-stripe styles once (the gradient `::before` + its
@@ -3121,8 +3106,10 @@ function ChatInner({
         })
         sysCardsLoadedConvRef.current = conversationId
       })
-      .catch(() => {
-        // Best-effort restore; on failure just allow newly-added cards to persist.
+      .catch((_error) => {
+        // Best-effort restore (intentionally ignored — bound as _error per Rule 14): a
+        // failed system-card fetch is non-critical; just allow newly-added cards to
+        // persist by marking this conversation loaded.
         if (!cancelled) sysCardsLoadedConvRef.current = conversationId
       })
     return () => {
@@ -3138,7 +3125,6 @@ function ChatInner({
       content: c.content,
       variant: c.variant,
       query: c.query,
-      skillsCreate: c.skillsCreate,
       // Persist the skill count so the 'skillsLoaded' card's "Loaded {{count}} skills"
       // copy restores; its onClick is re-attached at render time, not persisted.
       count: c.count,
@@ -3149,8 +3135,9 @@ function ChatInner({
       .put(`/projects/${projectId}/conversations/${conversationId}/system-cards`, {
         systemCards: serializable,
       })
-      .catch(() => {
-        // Best-effort; the in-memory cards remain the source of truth this session.
+      .catch((_error) => {
+        // Best-effort save (intentionally ignored — bound as _error per Rule 14): the
+        // in-memory cards remain the source of truth this session if the PUT fails.
       })
   }, [systemCards, conversationId, projectId, http])
 
@@ -3844,20 +3831,17 @@ function ChatInner({
           { name: skill.name },
           { defaultValue: 'Loaded {{name}} skill' },
         ),
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        [
-          t('ide.chat.skills.loadedPrefix', undefined, { defaultValue: 'Loaded ' }),
-          {
-            label: skill.name,
-            code: true,
-            onClick: () => onFileOpen?.(skill.path, { focus: true }),
-          },
-          t('ide.chat.skills.loadedSuffix', undefined, { defaultValue: ' skill' }),
-        ],
+        {
+          content: [
+            t('ide.chat.skills.loadedPrefix', undefined, { defaultValue: 'Loaded ' }),
+            {
+              label: skill.name,
+              code: true,
+              onClick: () => onFileOpen?.(skill.path, { focus: true }),
+            },
+            t('ide.chat.skills.loadedSuffix', undefined, { defaultValue: ' skill' }),
+          ],
+        },
       )
     },
     [onFileOpen, addSystemCard],
@@ -3979,14 +3963,7 @@ function ChatInner({
               { count: loaded.length },
               { defaultValue: '🧠 Loaded {{count}} skills' },
             ),
-            undefined,
-            'skillsLoaded',
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            loaded.length,
+            { variant: 'skillsLoaded', count: loaded.length },
           )
           // Persist the per-project marker so the announce never re-fires on reload.
           // The settings PATCH MERGES server-side, so this won't clobber defaultSkills.
@@ -4392,7 +4369,7 @@ function ChatInner({
         // host-supplied upgrade blurb at render time. The plain-text buildHelpText()
         // is still computed and stored as the card's `text` so it remains the i18n
         // fallback (and the copy/screen-reader text) if the rich variant is ever off.
-        addSystemCard(buildHelpText({ agentName, productName }), undefined, 'help')
+        addSystemCard(buildHelpText({ agentName, productName }), { variant: 'help' })
       } else if (id === 'compact') {
         setInputValue('')
         addSystemCard(
@@ -4871,7 +4848,7 @@ function ChatInner({
               },
             ),
             // The upgrade/sign-in button(s) are the host's (its own routes/copy).
-            buildUpgradeCta?.({}) ?? undefined,
+            { action: buildUpgradeCta?.({}) ?? undefined },
           )
         } else {
           try {
@@ -5027,7 +5004,7 @@ function ChatInner({
               }),
             // Host owns the upgrade/sign-in button(s); `requiresSignup` is the
             // backend's hint that the user must sign up rather than upgrade.
-            buildUpgradeCta?.({ requiresSignup: data.requiresSignup }) ?? undefined,
+            { action: buildUpgradeCta?.({ requiresSignup: data.requiresSignup }) ?? undefined },
           )
         } else {
           addSystemCard(
@@ -5621,7 +5598,7 @@ function ChatInner({
                   />
                 )
               }
-              if (item.card.variant === 'skills') {
+              if (item.card.variant === 'skills' || item.card.variant === 'skillsCreate') {
                 return (
                   <SkillsCard
                     key={item.card.id}
@@ -5629,7 +5606,9 @@ function ChatInner({
                     initialQuery={item.card.query ?? ''}
                     onLoad={loadSkill}
                     onCreate={createSkill}
-                    startCreating={item.card.skillsCreate}
+                    // The 'skillsCreate' variant opens the card with its "New skill" form
+                    // already open (vs plain 'skills', which opens the browser).
+                    startCreating={item.card.variant === 'skillsCreate'}
                     loadedSkillPaths={loadedSkillPaths}
                     defaultSkillPaths={defaultSkillPaths}
                     onToggleDefault={toggleDefaultSkill}
@@ -6614,7 +6593,7 @@ function ChatInner({
                                   },
                                 ),
                                 // Host owns the upgrade/sign-in button(s) (its routes/copy).
-                                buildUpgradeCta?.({}) ?? undefined,
+                                { action: buildUpgradeCta?.({}) ?? undefined },
                               )
                             } else {
                               void selectModel(model.id, model.label, modelPicker.mode)
@@ -7954,9 +7933,8 @@ function ChatInner({
           onSubmitted={(result: ReportResult) => {
             setReportModal(null)
             const { key, defaultValue } = formatReportConfirmation(result)
-            addSystemCard(
-              t(key, { productName }, { defaultValue }),
-              result.url
+            addSystemCard(t(key, { productName }, { defaultValue }), {
+              action: result.url
                 ? {
                     label: t('ide.chat.report.viewIssue', undefined, {
                       defaultValue: 'View issue',
@@ -7964,7 +7942,7 @@ function ChatInner({
                     href: result.url,
                   }
                 : undefined,
-            )
+            })
           }}
         />
       )}
@@ -7985,11 +7963,13 @@ function ChatInner({
                 { defaultValue: 'Created a {{role}} share link.' },
               ),
               {
-                label: t('ide.chat.share.openLink', undefined, { defaultValue: 'Open link' }),
-                href: buildShareUrl(
-                  result,
-                  typeof window !== 'undefined' ? window.location.origin : '',
-                ),
+                action: {
+                  label: t('ide.chat.share.openLink', undefined, { defaultValue: 'Open link' }),
+                  href: buildShareUrl(
+                    result,
+                    typeof window !== 'undefined' ? window.location.origin : '',
+                  ),
+                },
               },
             )
           }}
