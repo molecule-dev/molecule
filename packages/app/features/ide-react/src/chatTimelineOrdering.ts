@@ -16,14 +16,16 @@ interface OrderableItem {
  * their `timestamp`, with ONE exception: a streaming assistant message that has not
  * yet produced any content sorts LAST.
  *
- * Why: the streaming placeholder is created at turn-start, sharing the user message's
- * timestamp — but a turn's preamble cards ("Building your app", the model / "loaded N
- * skills" notices, the onboarding tip) are emitted a beat later, so a plain timestamp
- * sort would drop every one of them BELOW the whole streamed response. Sorting the
- * still-empty (thinking) response last instead renders it as the bottom of the turn,
- * with the preamble above it. Once content arrives, useChat re-stamps the message to
- * that moment, so it then orders naturally by time — still after the preamble cards,
- * because they were emitted before its content. No card needs to opt in by name.
+ * Why: a turn's preamble cards (the model / "Building your app" notices, the
+ * "models_intro" note, the onboarding tip) are emitted a beat BEFORE the response
+ * content. The server defers each assistant message's `message_start` — and thus its
+ * timestamp — to that message's FIRST content event, so the message is timestamped when
+ * it visually appears, strictly after every preamble item, and orders below them. This
+ * rule only covers the brief window between `message_start` and the first flushed
+ * content: while still empty the message sorts last (bottom of the turn) instead of
+ * leap-frogging the cards on an earlier timestamp; once content lands it orders by its
+ * first-content timestamp, still after the preamble. No card opts in by name, and because
+ * that timestamp is the server's persisted value, live and reload order identically.
  *
  * @param item - A timeline item.
  * @returns The numeric key to sort ascending by.

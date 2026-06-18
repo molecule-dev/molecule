@@ -250,7 +250,10 @@ export type ChatStreamEvent =
   // notice (e.g. molecule.dev's `upgrade_prompt` / `guest_reminder` / `build_degraded`
   // upgrade-and-billing cards) stays OUT of this core union — the app owns its own
   // event names + copy + routes, not this package.
-  | { type: 'custom'; name: string; data?: Record<string, unknown> }
+  // `timestamp` (ms, server clock): when the event was emitted, so a card derived from it
+  // sorts on the SAME monotonic clock as the messages (see the `mode`/`model` events).
+  // Optional + additive; a consumer falls back to the client clock when it's absent.
+  | { type: 'custom'; name: string; data?: Record<string, unknown>; timestamp?: number }
   | {
       type: 'activity'
       activity: {

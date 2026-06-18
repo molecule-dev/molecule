@@ -2545,6 +2545,9 @@ function ChatInner({
             emphasized: card.emphasized,
             tone: card.tone,
             content: card.content,
+            // Server timestamp (monotonic) so this card sorts on the same clock as the
+            // messages — never skewed below the response on a mis-set client clock.
+            timestamp: typeof event.timestamp === 'number' ? event.timestamp : undefined,
           })
         }
       }
