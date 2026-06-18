@@ -827,15 +827,20 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
         const { message: currentMsg, attachments: currentAttachments } = current
 
-        // Create a streaming assistant message
-        const assistantId = `assistant-${++idCounterRef.current}`
+        // Create a streaming assistant message. These are `let` (not const) because a
+        // plan→execute phase switch mid-turn splits into a NEW message — see the
+        // 'mode' case — so they get re-pointed at the fresh message.
+        let assistantId = `assistant-${++idCounterRef.current}`
         let assistantText = ''
-        const toolCalls: ChatMessage['toolCalls'] = []
-        const blocks: MessageBlock[] = []
+        let toolCalls: ChatMessage['toolCalls'] = []
+        let blocks: MessageBlock[] = []
         let loopLimitReached: number | undefined
         // Flips true on the response's first content block — used to re-stamp the
         // message timestamp to that moment (see the re-stamp in onEvent below).
         let contentStarted = false
+        // Last phase (mode) seen on this stream, so a plan→execute switch is detected
+        // exactly once (the server emits `mode` only on real transitions).
+        let streamPhase: string | undefined
 
         const assistantMsg: ChatMessage = {
           id: assistantId,
@@ -852,7 +857,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // High-frequency events (text, thinking) call scheduleFlush() which
         // batches into a single setMessages every 50ms. Terminal events
         // (done, error) and file_diff call flushNow() for immediate commit.
-        const { scheduleFlush, flushNow } = createFlushScheduler(assistantId)
+        // `let` (re-pointed on a plan→execute split — see the 'mode' case).
+        let { scheduleFlush, flushNow } = createFlushScheduler(assistantId)
 
         /**
          * Build the current snapshot of all mutable streaming state.
@@ -1071,10 +1077,42 @@ export function useChat(options: UseChatOptions): UseChatResult {
               scheduleFlush(() => ({ blocks: [...blocks] }))
               break
             }
-            case 'mode':
+            case 'mode': {
               setMode(event.mode)
               onModeChange?.(event.mode)
+              // Plan→execute phase boundary: the current message already holds the
+              // plan-phase output, and the phase-marker cards ("Building your app",
+              // the model switch) are being emitted right now (onStreamEvent above,
+              // before this switch). Finalize this message and start a fresh one for
+              // the execute phase, so those cards sort BETWEEN the two phases —
+              // matching how the server persists one message per phase. Without this
+              // the whole turn is a single atomic block and the cards sort after it
+              // (the live-only glitch that a page refresh "fixes", since reload reads
+              // the server's already-split messages).
+              if (event.mode === 'execute' && streamPhase !== 'execute' && blocks.length > 0) {
+                flushNow(() => ({ ...buildFullUpdate(), isStreaming: false }))
+                assistantId = `assistant-${++idCounterRef.current}`
+                assistantText = ''
+                toolCalls = []
+                blocks = []
+                loopLimitReached = undefined
+                contentStarted = false
+                ;({ scheduleFlush, flushNow } = createFlushScheduler(assistantId))
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    id: assistantId,
+                    role: 'assistant',
+                    content: '',
+                    timestamp: Date.now(),
+                    isStreaming: true,
+                    blocks: [],
+                  },
+                ])
+              }
+              streamPhase = event.mode
               break
+            }
             case 'status':
               enqueueStatus(event.label)
               break
