@@ -206,12 +206,26 @@ describe('@molecule/api-notification-center-database', () => {
   })
 
   describe('markRead', () => {
-    it('updates notification read status', async () => {
-      mockStore.updateById.mockResolvedValueOnce({ data: null, affected: 1 })
+    it('marks read scoped to the owning user, returning true on a match', async () => {
+      mockStore.updateMany.mockResolvedValueOnce({ data: null, affected: 1 })
 
-      await provider.markRead('notif-1')
+      const ok = await provider.markRead('user-1', 'notif-1')
 
-      expect(mockStore.updateById).toHaveBeenCalledWith('notifications', 'notif-1', { read: true })
+      expect(ok).toBe(true)
+      expect(mockStore.updateMany).toHaveBeenCalledWith(
+        'notifications',
+        [
+          { field: 'id', operator: '=', value: 'notif-1' },
+          { field: 'user_id', operator: '=', value: 'user-1' },
+        ],
+        { read: true },
+      )
+    })
+
+    it('returns false when the notification belongs to another user (no cross-user IDOR)', async () => {
+      mockStore.updateMany.mockResolvedValueOnce({ data: null, affected: 0 })
+      const ok = await provider.markRead('attacker', 'victim-notif')
+      expect(ok).toBe(false)
     })
   })
 
@@ -233,12 +247,22 @@ describe('@molecule/api-notification-center-database', () => {
   })
 
   describe('delete', () => {
-    it('deletes a notification by id', async () => {
-      mockStore.deleteById.mockResolvedValueOnce({ data: null, affected: 1 })
+    it("deletes only the owner's notification, returning true on a match", async () => {
+      mockStore.deleteMany.mockResolvedValueOnce({ data: null, affected: 1 })
 
-      await provider.delete('notif-1')
+      const ok = await provider.delete('user-1', 'notif-1')
 
-      expect(mockStore.deleteById).toHaveBeenCalledWith('notifications', 'notif-1')
+      expect(ok).toBe(true)
+      expect(mockStore.deleteMany).toHaveBeenCalledWith('notifications', [
+        { field: 'id', operator: '=', value: 'notif-1' },
+        { field: 'user_id', operator: '=', value: 'user-1' },
+      ])
+    })
+
+    it("returns false when deleting another user's notification (no cross-user IDOR)", async () => {
+      mockStore.deleteMany.mockResolvedValueOnce({ data: null, affected: 0 })
+      const ok = await provider.delete('attacker', 'victim-notif')
+      expect(ok).toBe(false)
     })
   })
 

@@ -160,11 +160,16 @@ export interface NotificationCenterProvider {
   getUnreadCount(userId: string): Promise<number>
 
   /**
-   * Marks a single notification as read.
+   * Marks a single notification as read, scoped to its owner.
    *
+   * Implementations MUST only affect rows where `user_id = userId` so a user
+   * can never mark another user's notification read by id (IDOR).
+   *
+   * @param userId - The owner whose notification should be marked read.
    * @param notificationId - The notification to mark as read.
+   * @returns `true` if a row owned by `userId` was updated, `false` otherwise.
    */
-  markRead(notificationId: string): Promise<void>
+  markRead(userId: string, notificationId: string): Promise<boolean>
 
   /**
    * Marks all notifications for a user as read.
@@ -174,11 +179,16 @@ export interface NotificationCenterProvider {
   markAllRead(userId: string): Promise<void>
 
   /**
-   * Deletes a notification.
+   * Deletes a notification, scoped to its owner.
    *
+   * Implementations MUST only affect rows where `user_id = userId` so a user
+   * can never delete another user's notification by id (IDOR).
+   *
+   * @param userId - The owner whose notification should be deleted.
    * @param notificationId - The notification to delete.
+   * @returns `true` if a row owned by `userId` was deleted, `false` otherwise.
    */
-  delete(notificationId: string): Promise<void>
+  delete(userId: string, notificationId: string): Promise<boolean>
 
   /**
    * Retrieves notification preferences for a user.

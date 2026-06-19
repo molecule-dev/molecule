@@ -22,8 +22,8 @@
  * // List unread notifications
  * const { items } = await getAll('user-123', { read: false })
  *
- * // Mark as read
- * await markRead(notification.id)
+ * // Mark as read (scoped to the owner — only affects this user's row)
+ * await markRead('user-123', notification.id)
  * ```
  */
 

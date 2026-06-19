@@ -154,9 +154,19 @@ export function createProvider(
       ])
     },
 
-    async markRead(notificationId: string): Promise<void> {
+    async markRead(userId: string, notificationId: string): Promise<boolean> {
+      // Scope by user_id so a caller can only mark THEIR OWN notification read
+      // (no cross-user IDOR / id-probing). Returns false when nothing matched.
       const store = getStore()
-      await store.updateById(tableName, notificationId, { read: true })
+      const result = await store.updateMany(
+        tableName,
+        [
+          { field: 'id', operator: '=', value: notificationId },
+          { field: 'user_id', operator: '=', value: userId },
+        ],
+        { read: true },
+      )
+      return result.affected > 0
     },
 
     async markAllRead(userId: string): Promise<void> {
@@ -171,9 +181,14 @@ export function createProvider(
       )
     },
 
-    async delete(notificationId: string): Promise<void> {
+    async delete(userId: string, notificationId: string): Promise<boolean> {
+      // Owner-scoped delete: only the notification's owner may remove it.
       const store = getStore()
-      await store.deleteById(tableName, notificationId)
+      const result = await store.deleteMany(tableName, [
+        { field: 'id', operator: '=', value: notificationId },
+        { field: 'user_id', operator: '=', value: userId },
+      ])
+      return result.affected > 0
     },
 
     async getPreferences(userId: string): Promise<NotificationPreferences> {

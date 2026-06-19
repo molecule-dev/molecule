@@ -144,18 +144,45 @@ describe('@molecule/api-resource-notification handlers', () => {
   })
 
   describe('markReadHandler', () => {
-    it('marks a notification as read', async () => {
+    it('marks the owner’s notification as read', async () => {
       const { markReadHandler } = await import('../handlers/mark-read.js')
-      mockMarkRead.mockResolvedValueOnce(undefined)
+      mockMarkRead.mockResolvedValueOnce(true)
 
       const req = createMockReq({ params: { id: 'notif-1' } })
       const res = createMockRes()
 
       await markReadHandler(req as never, res as never)
 
-      expect(mockMarkRead).toHaveBeenCalledWith('notif-1')
+      expect(mockMarkRead).toHaveBeenCalledWith('user-1', 'notif-1')
       expect(res.statusCode).toBe(204)
       expect(res.ended).toBe(true)
+    })
+
+    it('returns 404 (not 204) when the id is not owned by the user (IDOR)', async () => {
+      const { markReadHandler } = await import('../handlers/mark-read.js')
+      // Provider scopes by user_id, so a cross-user id matches no row -> false.
+      mockMarkRead.mockResolvedValueOnce(false)
+
+      const req = createMockReq({ params: { id: 'someone-elses-notif' } })
+      const res = createMockRes() // session user-1
+
+      await markReadHandler(req as never, res as never)
+
+      expect(mockMarkRead).toHaveBeenCalledWith('user-1', 'someone-elses-notif')
+      expect(res.statusCode).toBe(404)
+      expect(res.ended).toBe(false)
+    })
+
+    it('returns 401 and never calls markRead when unauthenticated', async () => {
+      const { markReadHandler } = await import('../handlers/mark-read.js')
+
+      const req = createMockReq({ params: { id: 'notif-1' } })
+      const res = createMockRes(null) // no res.locals.session
+
+      await markReadHandler(req as never, res as never)
+
+      expect(res.statusCode).toBe(401)
+      expect(mockMarkRead).not.toHaveBeenCalled()
     })
   })
 
@@ -175,17 +202,44 @@ describe('@molecule/api-resource-notification handlers', () => {
   })
 
   describe('del', () => {
-    it('deletes a notification', async () => {
+    it('deletes the owner’s notification', async () => {
       const { del } = await import('../handlers/del.js')
-      mockDeleteNotification.mockResolvedValueOnce(undefined)
+      mockDeleteNotification.mockResolvedValueOnce(true)
 
       const req = createMockReq({ params: { id: 'notif-1' } })
       const res = createMockRes()
 
       await del(req as never, res as never)
 
-      expect(mockDeleteNotification).toHaveBeenCalledWith('notif-1')
+      expect(mockDeleteNotification).toHaveBeenCalledWith('user-1', 'notif-1')
       expect(res.statusCode).toBe(204)
+    })
+
+    it('returns 404 (not 204) when the id is not owned by the user (IDOR)', async () => {
+      const { del } = await import('../handlers/del.js')
+      // Provider scopes by user_id, so a cross-user id matches no row -> false.
+      mockDeleteNotification.mockResolvedValueOnce(false)
+
+      const req = createMockReq({ params: { id: 'someone-elses-notif' } })
+      const res = createMockRes() // session user-1
+
+      await del(req as never, res as never)
+
+      expect(mockDeleteNotification).toHaveBeenCalledWith('user-1', 'someone-elses-notif')
+      expect(res.statusCode).toBe(404)
+      expect(res.ended).toBe(false)
+    })
+
+    it('returns 401 and never calls delete when unauthenticated', async () => {
+      const { del } = await import('../handlers/del.js')
+
+      const req = createMockReq({ params: { id: 'notif-1' } })
+      const res = createMockRes(null) // no res.locals.session
+
+      await del(req as never, res as never)
+
+      expect(res.statusCode).toBe(401)
+      expect(mockDeleteNotification).not.toHaveBeenCalled()
     })
   })
 

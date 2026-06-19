@@ -23,8 +23,8 @@ const notification = await send('user-123', {
 // List unread notifications
 const { items } = await getAll('user-123', { read: false })
 
-// Mark as read
-await markRead(notification.id)
+// Mark as read (scoped to the owner — only affects this user's row)
+await markRead('user-123', notification.id)
 ```
 
 ## Type
@@ -152,11 +152,16 @@ interface NotificationCenterProvider {
   getUnreadCount(userId: string): Promise<number>
 
   /**
-   * Marks a single notification as read.
+   * Marks a single notification as read, scoped to its owner.
    *
+   * Implementations MUST only affect rows where `user_id = userId` so a user
+   * can never mark another user's notification read by id (IDOR).
+   *
+   * @param userId - The owner whose notification should be marked read.
    * @param notificationId - The notification to mark as read.
+   * @returns `true` if a row owned by `userId` was updated, `false` otherwise.
    */
-  markRead(notificationId: string): Promise<void>
+  markRead(userId: string, notificationId: string): Promise<boolean>
 
   /**
    * Marks all notifications for a user as read.
@@ -166,11 +171,16 @@ interface NotificationCenterProvider {
   markAllRead(userId: string): Promise<void>
 
   /**
-   * Deletes a notification.
+   * Deletes a notification, scoped to its owner.
    *
+   * Implementations MUST only affect rows where `user_id = userId` so a user
+   * can never delete another user's notification by id (IDOR).
+   *
+   * @param userId - The owner whose notification should be deleted.
    * @param notificationId - The notification to delete.
+   * @returns `true` if a row owned by `userId` was deleted, `false` otherwise.
    */
-  delete(notificationId: string): Promise<void>
+  delete(userId: string, notificationId: string): Promise<boolean>
 
   /**
    * Retrieves notification preferences for a user.
@@ -252,17 +262,21 @@ interface PaginatedResult<T> {
 
 ### Functions
 
-#### `deleteNotification(notificationId)`
+#### `deleteNotification(userId, notificationId)`
 
-Deletes a notification.
+Deletes a notification, scoped to its owner.
+
+Only deletes the notification when it belongs to `userId`, preventing a user
+from deleting another user's notification by id (IDOR).
 
 ```typescript
-function deleteNotification(notificationId: string): Promise<void>
+function deleteNotification(userId: string, notificationId: string): Promise<boolean>
 ```
 
+- `userId` — The owner whose notification should be deleted.
 - `notificationId` — The notification to delete.
 
-**Returns:** Resolves when the notification has been deleted.
+**Returns:** `true` if a row owned by `userId` was deleted, `false` otherwise.
 
 #### `getAll(userId, options)`
 
@@ -333,17 +347,21 @@ function markAllRead(userId: string): Promise<void>
 
 **Returns:** Resolves when all notifications have been marked read.
 
-#### `markRead(notificationId)`
+#### `markRead(userId, notificationId)`
 
-Marks a single notification as read.
+Marks a single notification as read, scoped to its owner.
+
+Only affects the notification when it belongs to `userId`, preventing a user
+from marking another user's notification read by id (IDOR).
 
 ```typescript
-function markRead(notificationId: string): Promise<void>
+function markRead(userId: string, notificationId: string): Promise<boolean>
 ```
 
+- `userId` — The owner whose notification should be marked read.
 - `notificationId` — The notification to mark as read.
 
-**Returns:** Resolves when the notification has been marked read.
+**Returns:** `true` if a row owned by `userId` was updated, `false` otherwise.
 
 #### `send(userId, notification)`
 
@@ -393,6 +411,12 @@ function setProvider(provider: NotificationCenterProvider): void
 ```
 
 - `provider` — The notification center provider implementation to bond.
+
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Notifications | `@molecule/api-notification-center-database` |
 
 ## Injection Notes
 

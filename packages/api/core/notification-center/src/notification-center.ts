@@ -67,14 +67,18 @@ export const getUnreadCount = async (userId: string): Promise<number> => {
 }
 
 /**
- * Marks a single notification as read.
+ * Marks a single notification as read, scoped to its owner.
  *
+ * Only affects the notification when it belongs to `userId`, preventing a user
+ * from marking another user's notification read by id (IDOR).
+ *
+ * @param userId - The owner whose notification should be marked read.
  * @param notificationId - The notification to mark as read.
- * @returns Resolves when the notification has been marked read.
+ * @returns `true` if a row owned by `userId` was updated, `false` otherwise.
  * @throws {Error} If no notification center provider has been bonded.
  */
-export const markRead = async (notificationId: string): Promise<void> => {
-  return getProvider().markRead(notificationId)
+export const markRead = async (userId: string, notificationId: string): Promise<boolean> => {
+  return getProvider().markRead(userId, notificationId)
 }
 
 /**
@@ -89,14 +93,21 @@ export const markAllRead = async (userId: string): Promise<void> => {
 }
 
 /**
- * Deletes a notification.
+ * Deletes a notification, scoped to its owner.
  *
+ * Only deletes the notification when it belongs to `userId`, preventing a user
+ * from deleting another user's notification by id (IDOR).
+ *
+ * @param userId - The owner whose notification should be deleted.
  * @param notificationId - The notification to delete.
- * @returns Resolves when the notification has been deleted.
+ * @returns `true` if a row owned by `userId` was deleted, `false` otherwise.
  * @throws {Error} If no notification center provider has been bonded.
  */
-export const deleteNotification = async (notificationId: string): Promise<void> => {
-  return getProvider().delete(notificationId)
+export const deleteNotification = async (
+  userId: string,
+  notificationId: string,
+): Promise<boolean> => {
+  return getProvider().delete(userId, notificationId)
 }
 
 /**

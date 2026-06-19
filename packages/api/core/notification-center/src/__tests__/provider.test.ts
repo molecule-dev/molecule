@@ -134,14 +134,24 @@ describe('notification center provider', () => {
   })
 
   describe('markRead', () => {
-    it('should delegate to provider', async () => {
+    it('should delegate to provider with owner scope', async () => {
       const mockProvider = createMockProvider({
-        markRead: vi.fn().mockResolvedValue(undefined),
+        markRead: vi.fn().mockResolvedValue(true),
       })
       setProvider(mockProvider)
 
-      await markRead('notif-1')
-      expect(mockProvider.markRead).toHaveBeenCalledWith('notif-1')
+      const updated = await markRead('user-1', 'notif-1')
+      expect(updated).toBe(true)
+      expect(mockProvider.markRead).toHaveBeenCalledWith('user-1', 'notif-1')
+    })
+
+    it('should return false when nothing was owned/matched', async () => {
+      const mockProvider = createMockProvider({
+        markRead: vi.fn().mockResolvedValue(false),
+      })
+      setProvider(mockProvider)
+
+      expect(await markRead('user-1', 'notif-other')).toBe(false)
     })
   })
 
@@ -158,14 +168,24 @@ describe('notification center provider', () => {
   })
 
   describe('deleteNotification', () => {
-    it('should delegate to provider', async () => {
+    it('should delegate to provider with owner scope', async () => {
       const mockProvider = createMockProvider({
-        delete: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(true),
       })
       setProvider(mockProvider)
 
-      await deleteNotification('notif-1')
-      expect(mockProvider.delete).toHaveBeenCalledWith('notif-1')
+      const deleted = await deleteNotification('user-1', 'notif-1')
+      expect(deleted).toBe(true)
+      expect(mockProvider.delete).toHaveBeenCalledWith('user-1', 'notif-1')
+    })
+
+    it('should return false when nothing was owned/matched', async () => {
+      const mockProvider = createMockProvider({
+        delete: vi.fn().mockResolvedValue(false),
+      })
+      setProvider(mockProvider)
+
+      expect(await deleteNotification('user-1', 'notif-other')).toBe(false)
     })
   })
 
@@ -259,9 +279,9 @@ function createMockProvider(
     sendBulk: vi.fn().mockResolvedValue([]),
     getAll: vi.fn().mockResolvedValue({ items: [], total: 0, offset: 0, limit: 50 }),
     getUnreadCount: vi.fn().mockResolvedValue(0),
-    markRead: vi.fn().mockResolvedValue(undefined),
+    markRead: vi.fn().mockResolvedValue(true),
     markAllRead: vi.fn().mockResolvedValue(undefined),
-    delete: vi.fn().mockResolvedValue(undefined),
+    delete: vi.fn().mockResolvedValue(true),
     getPreferences: vi
       .fn()
       .mockResolvedValue({ email: true, push: true, sms: false, channels: {} }),
