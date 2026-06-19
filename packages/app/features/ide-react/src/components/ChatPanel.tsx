@@ -3231,6 +3231,56 @@ function ChatInner({
   }, [])
   addActivityCardRef.current = addActivityCard
 
+  // Persist + restore the inline activity cards on the conversation (mirrors systemCards) so
+  // the captured side effects the user saw live reappear on reload — live === stored. The
+  // entries are fully serializable (id + activity data + timestamp), so unlike systemCards
+  // there is no in-session callback to strip.
+  const activityCardsLoadedConvRef = useRef<string | null>(null)
+  const prevActivityCardsConvRef = useRef<string | null>(null)
+  useEffect(() => {
+    const prevConv = prevActivityCardsConvRef.current
+    prevActivityCardsConvRef.current = conversationId
+    activityCardsLoadedConvRef.current = null
+    if (!conversationId) return
+    if (prevConv && prevConv !== conversationId) setActivityCards([])
+    let cancelled = false
+    void http
+      .get<{ activityCards?: ActivityCardEntry[] }>(
+        `/projects/${projectId}/conversations/${conversationId}/activity-cards`,
+      )
+      .then((res) => {
+        if (cancelled) return
+        const loaded = res.data?.activityCards ?? []
+        // Merge by id so a card added before the fetch resolved is preserved.
+        setActivityCards((prev) => {
+          const byId = new Map<string, ActivityCardEntry>()
+          for (const c of loaded) byId.set(c.id, c)
+          for (const c of prev) byId.set(c.id, c)
+          return [...byId.values()].sort((a, b) => a.timestamp - b.timestamp)
+        })
+        activityCardsLoadedConvRef.current = conversationId
+      })
+      .catch((_error) => {
+        // Best-effort restore (bound as _error per Rule 14): a failed activity-card fetch is
+        // non-critical; allow newly-added cards to persist by marking this conversation loaded.
+        if (!cancelled) activityCardsLoadedConvRef.current = conversationId
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [conversationId, projectId, http])
+  useEffect(() => {
+    if (!conversationId || activityCardsLoadedConvRef.current !== conversationId) return
+    void http
+      .put(`/projects/${projectId}/conversations/${conversationId}/activity-cards`, {
+        activityCards,
+      })
+      .catch((_error) => {
+        // Best-effort save (bound as _error per Rule 14): the in-memory cards remain the
+        // source of truth this session if the PUT fails.
+      })
+  }, [activityCards, conversationId, projectId, http])
+
   // ── Auto-tips (dismissable onboarding hints) ──────────────────────────────
   // Two surfaces (see chat-tips-utilities): an ENTRY_TIP shown once on a fresh
   // conversation so a brand-new user always sees how to drive the agent, plus an
