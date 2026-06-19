@@ -3,6 +3,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { isRoomTypeAdmin } from '../authorizers/index.js'
 import type { RoomTypeRow, UpdateRoomTypeInput } from '../types.js'
 import { toRoomType } from '../utilities.js'
 
@@ -15,6 +16,11 @@ import { toRoomType } from '../utilities.js'
  * inventory between properties should be handled with a dedicated migration
  * flow.
  *
+ * Admin-only and enforced here (not merely via route middleware): a room type has
+ * no per-user owner column, so a non-admin caller is rejected (401 when
+ * unauthenticated, 403 otherwise) before any price/inventory change — defense-in-
+ * depth that does not depend on the `requireAdmin` route middleware being wired.
+ *
  * @param req - The request with `params.id` and an {@link UpdateRoomTypeInput} body.
  * @param res - The response object.
  */
@@ -24,6 +30,15 @@ export async function update(req: MoleculeRequest, res: MoleculeResponse): Promi
     res.status(401).json({
       error: t('roomType.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
       errorKey: 'roomType.error.unauthorized',
+    })
+    return
+  }
+  if (!(await isRoomTypeAdmin(res))) {
+    res.status(403).json({
+      error: t('roomType.error.forbidden', undefined, {
+        defaultValue: 'Admin access required to manage room types',
+      }),
+      errorKey: 'roomType.error.forbidden',
     })
     return
   }

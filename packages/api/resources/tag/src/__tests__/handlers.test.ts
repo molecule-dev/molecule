@@ -7,6 +7,8 @@ const {
   mockDeleteById,
   mockDeleteMany,
   mockQuery,
+  mockHasProvider,
+  mockCan,
 } = vi.hoisted(() => ({
   mockCreate: vi.fn(),
   mockFindOne: vi.fn(),
@@ -16,6 +18,8 @@ const {
   mockDeleteById: vi.fn(),
   mockDeleteMany: vi.fn(),
   mockQuery: vi.fn(),
+  mockHasProvider: vi.fn(),
+  mockCan: vi.fn(),
 }))
 
 vi.mock('@molecule/api-database', () => ({
@@ -27,6 +31,11 @@ vi.mock('@molecule/api-database', () => ({
   deleteById: mockDeleteById,
   deleteMany: mockDeleteMany,
   query: mockQuery,
+}))
+
+vi.mock('@molecule/api-permissions', () => ({
+  hasProvider: mockHasProvider,
+  can: mockCan,
 }))
 
 vi.mock('@molecule/api-i18n', () => ({
@@ -68,6 +77,9 @@ function mockReq(overrides: Record<string, unknown> = {}): any {
   }
 }
 
+/** Session claim that satisfies the tag admin gate without a permissions provider. */
+const ADMIN_SESSION = { userId: 'admin-1', isAdmin: true }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mockRes(overrides: Record<string, unknown> = {}): any {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,7 +87,9 @@ function mockRes(overrides: Record<string, unknown> = {}): any {
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
     end: vi.fn(),
-    locals: { session: { userId: 'user-1' } },
+    // Default to an admin session so the (now admin-gated) mutation handlers
+    // exercise their happy path; non-admin / anonymous cases override `locals`.
+    locals: { session: { ...ADMIN_SESSION } },
     ...overrides,
   }
   return res
@@ -84,6 +98,9 @@ function mockRes(overrides: Record<string, unknown> = {}): any {
 describe('@molecule/api-resource-tag handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Fail-closed defaults: no permissions provider, deny.
+    mockHasProvider.mockReturnValue(false)
+    mockCan.mockResolvedValue(false)
   })
 
   describe('create', () => {
@@ -253,6 +270,48 @@ describe('@molecule/api-resource-tag handlers', () => {
   })
 
   describe('update', () => {
+    it('should return 401 when there is no session (unauthenticated)', async () => {
+      const req = mockReq({ params: { id: '1' }, body: { name: 'Hacked' } })
+      const res = mockRes({ locals: {} })
+
+      await update(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('should return 403 for an authenticated non-admin user (taxonomy edit blocked)', async () => {
+      const req = mockReq({ params: { id: '1' }, body: { name: 'Hacked' } })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await update(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'tag.error.forbidden' }),
+      )
+      // Fail-closed: no read or write attempted for a non-admin.
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('should allow a non-claim user when the permissions provider grants manage tag', async () => {
+      mockHasProvider.mockReturnValue(true)
+      mockCan.mockResolvedValue(true)
+      mockFindById.mockResolvedValue({ id: '1' })
+      mockUpdateById.mockResolvedValue({ data: { id: '1', name: 'Updated' } })
+
+      const req = mockReq({ params: { id: '1' }, body: { name: 'Updated' } })
+      const res = mockRes({ locals: { session: { userId: 'rbac-user' } } })
+
+      await update(req, res)
+
+      expect(mockCan).toHaveBeenCalledWith('user:rbac-user', 'manage', 'tag')
+      expect(mockUpdateById).toHaveBeenCalled()
+      expect(res.json).toHaveBeenCalledWith({ id: '1', name: 'Updated' })
+    })
+
     it('should return 404 when tag not found', async () => {
       mockFindById.mockResolvedValue(null)
 
@@ -311,6 +370,32 @@ describe('@molecule/api-resource-tag handlers', () => {
   })
 
   describe('del', () => {
+    it('should return 401 when there is no session (unauthenticated)', async () => {
+      const req = mockReq({ params: { id: '1' } })
+      const res = mockRes({ locals: {} })
+
+      await del(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockDeleteById).not.toHaveBeenCalled()
+    })
+
+    it('should return 403 for an authenticated non-admin user (taxonomy delete blocked)', async () => {
+      const req = mockReq({ params: { id: '1' } })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await del(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'tag.error.forbidden' }),
+      )
+      // Fail-closed: no read or delete attempted for a non-admin.
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockDeleteById).not.toHaveBeenCalled()
+    })
+
     it('should return 404 when tag not found', async () => {
       mockFindById.mockResolvedValue(null)
 

@@ -9,6 +9,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { assertInventoryAdmin } from '../authorizers/index.js'
 import type { StockAdjustment, StockMovementRow, StockRow } from '../types.js'
 import { toStockInfo } from '../utilities.js'
 
@@ -21,6 +22,12 @@ const VALID_TYPES = ['add', 'remove', 'set'] as const
  * @param res - The response object.
  */
 export async function updateStock(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  // Admin-only: rewriting stock is a catalog mutation. Fail closed in-handler so
+  // the gate holds even if the route middleware is dropped by the injector.
+  if (!assertInventoryAdmin(res)) {
+    return
+  }
+
   const { productId } = req.params
   const input = req.body as StockAdjustment
 

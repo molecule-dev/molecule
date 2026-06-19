@@ -16,6 +16,10 @@ CREATE TABLE IF NOT EXISTS "inventory_reservations" (
   "variantId" TEXT,
   "quantity" INTEGER NOT NULL,
   "orderId" TEXT NOT NULL,
+  -- The authenticated user who created this reservation. Bound at reserve time
+  -- so release/confirm can verify ownership (owner or admin) — a reservation is
+  -- tied to a caller's cart/order, not the shared catalog.
+  "userId" TEXT,
   "createdAt" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

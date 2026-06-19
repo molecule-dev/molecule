@@ -9,6 +9,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { assertReservationActor } from '../authorizers/index.js'
 import type { ReservationRow, StockMovementRow, StockRow } from '../types.js'
 
 /**
@@ -29,6 +30,11 @@ export async function release(req: MoleculeRequest, res: MoleculeResponse): Prom
         }),
         errorKey: 'inventory.error.reservationNotFound',
       })
+      return
+    }
+
+    // Only the reservation's owner or an inventory admin may release it.
+    if (!assertReservationActor(res, reservation.userId)) {
       return
     }
 

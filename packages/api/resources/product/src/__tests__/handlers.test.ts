@@ -1,9 +1,19 @@
-const { mockCreate, mockFindOne, mockFindMany, mockFindById, mockUpdateById } = vi.hoisted(() => ({
+const {
+  mockCreate,
+  mockFindOne,
+  mockFindMany,
+  mockFindById,
+  mockUpdateById,
+  mockHasProvider,
+  mockCan,
+} = vi.hoisted(() => ({
   mockCreate: vi.fn(),
   mockFindOne: vi.fn(),
   mockFindMany: vi.fn(),
   mockFindById: vi.fn(),
   mockUpdateById: vi.fn(),
+  mockHasProvider: vi.fn(),
+  mockCan: vi.fn(),
 }))
 
 vi.mock('@molecule/api-database', () => ({
@@ -12,6 +22,11 @@ vi.mock('@molecule/api-database', () => ({
   findMany: mockFindMany,
   findById: mockFindById,
   updateById: mockUpdateById,
+}))
+
+vi.mock('@molecule/api-permissions', () => ({
+  hasProvider: mockHasProvider,
+  can: mockCan,
 }))
 
 vi.mock('@molecule/api-i18n', () => ({
@@ -51,14 +66,20 @@ function mockReq(overrides: Record<string, unknown> = {}): any {
   }
 }
 
+/** Session claim that satisfies the product admin gate without a permissions provider. */
+const ADMIN_SESSION = { userId: 'admin-1', isAdmin: true }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mockRes(): any {
+function mockRes(overrides: Record<string, unknown> = {}): any {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res: any = {
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
     end: vi.fn(),
-    locals: { session: { userId: 'user-1' } },
+    // Default to an admin session so the (now admin-gated) mutation handlers
+    // exercise their happy path; non-admin / anonymous cases override `locals`.
+    locals: { session: { ...ADMIN_SESSION } },
+    ...overrides,
   }
   return res
 }
@@ -66,6 +87,9 @@ function mockRes(): any {
 describe('@molecule/api-resource-product handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Fail-closed defaults: no permissions provider, deny.
+    mockHasProvider.mockReturnValue(false)
+    mockCan.mockResolvedValue(false)
   })
 
   describe('create', () => {
@@ -360,6 +384,48 @@ describe('@molecule/api-resource-product handlers', () => {
   })
 
   describe('update', () => {
+    it('should return 401 when there is no session (unauthenticated)', async () => {
+      const req = mockReq({ params: { id: '1' }, body: { price: 1 } })
+      const res = mockRes({ locals: {} })
+
+      await update(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('should return 403 for an authenticated non-admin user (price/stock edit blocked)', async () => {
+      const req = mockReq({ params: { id: '1' }, body: { price: 1, inventory: 9999 } })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await update(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'product.error.forbidden' }),
+      )
+      // Fail-closed: no read or write attempted for a non-admin.
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('should allow a non-claim user when the permissions provider grants manage product', async () => {
+      mockHasProvider.mockReturnValue(true)
+      mockCan.mockResolvedValue(true)
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockUpdateById.mockResolvedValue({ data: { id: '1', price: 500 } })
+
+      const req = mockReq({ params: { id: '1' }, body: { price: 500 } })
+      const res = mockRes({ locals: { session: { userId: 'merchant-1' } } })
+
+      await update(req, res)
+
+      expect(mockCan).toHaveBeenCalledWith('user:merchant-1', 'manage', 'product')
+      expect(mockUpdateById).toHaveBeenCalled()
+      expect(res.json).toHaveBeenCalledWith({ id: '1', price: 500 })
+    })
+
     it('should return 404 when product not found', async () => {
       mockFindById.mockResolvedValue(null)
 
@@ -434,6 +500,32 @@ describe('@molecule/api-resource-product handlers', () => {
   })
 
   describe('del', () => {
+    it('should return 401 when there is no session (unauthenticated)', async () => {
+      const req = mockReq({ params: { id: '1' } })
+      const res = mockRes({ locals: {} })
+
+      await del(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('should return 403 for an authenticated non-admin user (product delete blocked)', async () => {
+      const req = mockReq({ params: { id: '1' } })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await del(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'product.error.forbidden' }),
+      )
+      // Fail-closed: no read or delete attempted for a non-admin.
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
     it('should return 404 when product not found', async () => {
       mockFindById.mockResolvedValue(null)
 
@@ -552,6 +644,32 @@ describe('@molecule/api-resource-product handlers', () => {
   })
 
   describe('createVariant', () => {
+    it('should return 401 when there is no session (unauthenticated)', async () => {
+      const req = mockReq({ params: { id: '1' }, body: { name: 'Small' } })
+      const res = mockRes({ locals: {} })
+
+      await createVariant(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should return 403 for an authenticated non-admin user (variant create blocked)', async () => {
+      const req = mockReq({ params: { id: '1' }, body: { name: 'Small', price: 1 } })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await createVariant(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'product.error.forbidden' }),
+      )
+      // Fail-closed: no read or write attempted for a non-admin.
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
     it('should return 404 when product not found', async () => {
       mockFindById.mockResolvedValue(null)
 

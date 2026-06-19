@@ -9,6 +9,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { getInventorySession } from '../authorizers/index.js'
 import type { ReservationRow, ReserveStockInput, StockMovementRow, StockRow } from '../types.js'
 import { toReservation } from '../utilities.js'
 
@@ -18,6 +19,18 @@ import { toReservation } from '../utilities.js'
  * @param res - The response object.
  */
 export async function reserve(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  // A reservation is tied to the caller's cart/order — require an authenticated
+  // user and bind the reservation to them so release/confirm can verify
+  // ownership. Fail closed in-handler regardless of route middleware.
+  const userId = getInventorySession(res)?.userId
+  if (!userId) {
+    res.status(401).json({
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'resource.error.unauthorized',
+    })
+    return
+  }
+
   const { productId } = req.params
   const input = req.body as ReserveStockInput
   const variantId = (req.query.variantId as string | undefined) ?? null
@@ -77,6 +90,7 @@ export async function reserve(req: MoleculeRequest, res: MoleculeResponse): Prom
       variantId,
       quantity: input.quantity,
       orderId: input.orderId,
+      userId,
     })
 
     // Increase reserved count

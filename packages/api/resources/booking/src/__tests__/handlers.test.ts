@@ -652,6 +652,21 @@ describe('@molecule/api-resource-booking handlers', () => {
       expect(res.status).toHaveBeenCalledWith(404)
     })
 
+    it('should return 403 when user does not own booking', async () => {
+      mockFindById.mockResolvedValueOnce({ ...BOOKING_ROW, userId: 'other-user' })
+
+      const req = mockReq({ params: { id: 'booking-1' } })
+      const res = mockRes()
+
+      await confirm(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'booking.error.forbidden' }),
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
     it('should return 409 when booking cannot be confirmed', async () => {
       mockFindById.mockResolvedValueOnce({ ...BOOKING_ROW, status: 'completed' })
 
@@ -705,6 +720,25 @@ describe('@molecule/api-resource-booking handlers', () => {
       await complete(req, res)
 
       expect(res.status).toHaveBeenCalledWith(404)
+    })
+
+    it('should return 403 when user does not own booking', async () => {
+      mockFindById.mockResolvedValueOnce({
+        ...BOOKING_ROW,
+        status: 'confirmed',
+        userId: 'other-user',
+      })
+
+      const req = mockReq({ params: { id: 'booking-1' } })
+      const res = mockRes()
+
+      await complete(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'booking.error.forbidden' }),
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
     })
 
     it('should return 409 when booking cannot be completed', async () => {

@@ -3,14 +3,40 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { isProductAdmin } from '../authorizers/index.js'
 import type { Product, UpdateProductInput } from '../types.js'
 
 /**
  * Updates a product by ID. Only provided fields are modified.
+ *
+ * Admin-only and enforced here (not merely via route middleware): a product is a
+ * shared catalog entity with no per-user owner, so a non-admin caller is rejected
+ * (401 when unauthenticated, 403 otherwise) before any price/stock change —
+ * defense-in-depth that does not depend on the `requireAdmin` route middleware
+ * being wired.
+ *
  * @param req - The request object with `id` param and {@link UpdateProductInput} body.
  * @param res - The response object.
  */
 export async function update(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  const userId = (res.locals.session as { userId?: string } | undefined)?.userId
+  if (!userId) {
+    res.status(401).json({
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'resource.error.unauthorized',
+    })
+    return
+  }
+  if (!(await isProductAdmin(res))) {
+    res.status(403).json({
+      error: t('product.error.forbidden', undefined, {
+        defaultValue: 'Admin access required to manage products',
+      }),
+      errorKey: 'product.error.forbidden',
+    })
+    return
+  }
+
   const id = req.params.id as string
   const input = req.body as UpdateProductInput
 

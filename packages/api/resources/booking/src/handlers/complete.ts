@@ -8,7 +8,7 @@ import { STATUS_TRANSITIONS } from '../types.js'
 import { toBooking } from '../utilities.js'
 
 /**
- * Marks a confirmed booking as completed.
+ * Marks a confirmed booking as completed. Only the booking owner can complete.
  * @param req - The request with `params.id`.
  * @param res - The response object.
  */
@@ -29,6 +29,16 @@ export async function complete(req: MoleculeRequest, res: MoleculeResponse): Pro
       res.status(404).json({
         error: t('booking.error.notFound', undefined, { defaultValue: 'Booking not found' }),
         errorKey: 'booking.error.notFound',
+      })
+      return
+    }
+
+    if (row.userId !== userId) {
+      res.status(403).json({
+        error: t('booking.error.forbidden', undefined, {
+          defaultValue: 'You do not have access to this booking',
+        }),
+        errorKey: 'booking.error.forbidden',
       })
       return
     }

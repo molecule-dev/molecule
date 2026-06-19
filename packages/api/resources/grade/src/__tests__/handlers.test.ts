@@ -1,12 +1,20 @@
-const { mockCreate, mockFindMany, mockFindById, mockUpdateById, mockDeleteById } = vi.hoisted(
-  () => ({
-    mockCreate: vi.fn(),
-    mockFindMany: vi.fn(),
-    mockFindById: vi.fn(),
-    mockUpdateById: vi.fn(),
-    mockDeleteById: vi.fn(),
-  }),
-)
+const {
+  mockCreate,
+  mockFindMany,
+  mockFindById,
+  mockUpdateById,
+  mockDeleteById,
+  mockHasProvider,
+  mockCan,
+} = vi.hoisted(() => ({
+  mockCreate: vi.fn(),
+  mockFindMany: vi.fn(),
+  mockFindById: vi.fn(),
+  mockUpdateById: vi.fn(),
+  mockDeleteById: vi.fn(),
+  mockHasProvider: vi.fn(),
+  mockCan: vi.fn(),
+}))
 
 vi.mock('@molecule/api-database', () => ({
   create: mockCreate,
@@ -14,6 +22,11 @@ vi.mock('@molecule/api-database', () => ({
   findById: mockFindById,
   updateById: mockUpdateById,
   deleteById: mockDeleteById,
+}))
+
+vi.mock('@molecule/api-permissions', () => ({
+  hasProvider: mockHasProvider,
+  can: mockCan,
 }))
 
 vi.mock('@molecule/api-i18n', () => ({
@@ -54,14 +67,20 @@ function mockReq(overrides: Record<string, unknown> = {}): any {
   }
 }
 
+/** Session claim that satisfies the grade admin gate without a permissions provider. */
+const ADMIN_SESSION = { userId: 'admin-1', isAdmin: true }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mockRes(): any {
+function mockRes(overrides: Record<string, unknown> = {}): any {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res: any = {
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
     end: vi.fn(),
-    locals: { session: { userId: 'user-1' } },
+    // Default to an admin session so the (now admin-gated) mutation handlers
+    // exercise their happy path; non-admin / anonymous cases override `locals`.
+    locals: { session: { ...ADMIN_SESSION } },
+    ...overrides,
   }
   return res
 }
@@ -78,6 +97,9 @@ const validBody = {
 describe('@molecule/api-resource-grade handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Fail-closed defaults: no permissions provider, deny.
+    mockHasProvider.mockReturnValue(false)
+    mockCan.mockResolvedValue(false)
   })
 
   describe('create', () => {
@@ -325,6 +347,49 @@ describe('@molecule/api-resource-grade handlers', () => {
   })
 
   describe('update', () => {
+    it('returns 401 when there is no session (unauthenticated)', async () => {
+      const req = mockReq({ params: { id: 'g1' }, body: { scorePoints: 100 } })
+      const res = mockRes({ locals: {} })
+
+      await update(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('returns 403 for an authenticated non-admin user (student cannot amend grades)', async () => {
+      const req = mockReq({ params: { id: 'g1' }, body: { scorePoints: 100 } })
+      // The row's userId is the student; even that student is not authorized.
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await update(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'grade.error.forbidden' }),
+      )
+      // Fail-closed: no read or write attempted for a non-admin.
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('allows a non-claim user when the permissions provider grants manage grade', async () => {
+      mockHasProvider.mockReturnValue(true)
+      mockCan.mockResolvedValue(true)
+      mockFindById.mockResolvedValue({ id: 'g1', scorePoints: 50, maxPoints: 100 })
+      mockUpdateById.mockResolvedValue({ data: { id: 'g1', scorePoints: 80 } })
+
+      const req = mockReq({ params: { id: 'g1' }, body: { scorePoints: 80 } })
+      const res = mockRes({ locals: { session: { userId: 'instructor-1' } } })
+
+      await update(req, res)
+
+      expect(mockCan).toHaveBeenCalledWith('user:instructor-1', 'manage', 'grade')
+      expect(mockUpdateById).toHaveBeenCalled()
+      expect(res.json).toHaveBeenCalledWith({ id: 'g1', scorePoints: 80 })
+    })
+
     it('returns 404 when grade not found', async () => {
       mockFindById.mockResolvedValue(null)
 
@@ -411,6 +476,30 @@ describe('@molecule/api-resource-grade handlers', () => {
   })
 
   describe('del', () => {
+    it('returns 401 when there is no session (unauthenticated)', async () => {
+      const req = mockReq({ params: { id: 'g1' } })
+      const res = mockRes({ locals: {} })
+
+      await del(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(mockDeleteById).not.toHaveBeenCalled()
+    })
+
+    it('returns 403 for an authenticated non-admin user (grade delete blocked)', async () => {
+      const req = mockReq({ params: { id: 'g1' } })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await del(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'grade.error.forbidden' }),
+      )
+      // Fail-closed: no delete attempted for a non-admin.
+      expect(mockDeleteById).not.toHaveBeenCalled()
+    })
+
     it('returns 404 when grade not found', async () => {
       mockDeleteById.mockResolvedValue({ data: null, affected: 0 })
 

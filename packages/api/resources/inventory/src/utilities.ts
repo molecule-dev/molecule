@@ -47,6 +47,7 @@ export function toReservation(row: ReservationRow): Reservation {
     createdAt: row.createdAt,
   }
   if (row.variantId) reservation.variantId = row.variantId
+  if (row.userId) reservation.userId = row.userId
   return reservation
 }
 

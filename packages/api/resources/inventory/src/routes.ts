@@ -7,7 +7,16 @@
  */
 
 /**
- * Inventory resource routes. All routes require authentication.
+ * Inventory resource routes.
+ *
+ * All routes require authentication. The destructive admin-side mutations
+ * (`updateStock`, `bulkUpdate`) are additionally gated by the
+ * `requireInventoryAdmin` middleware — a real `requestHandlerMap` key (see
+ * {@link requireInventoryAdmin}) so the injector preserves it; the previously
+ * declared bare `'authenticate'` string was silently dropped by the route
+ * scanner, leaving stock open to rewrite by any authenticated user. Each
+ * admin/reservation handler additionally re-checks authorization internally, so
+ * the gate holds even if a consumer wires the routes without these middlewares.
  */
 export const routes = [
   {
@@ -20,7 +29,7 @@ export const routes = [
     method: 'put',
     path: '/inventory/:productId',
     handler: 'updateStock',
-    middlewares: ['authenticate'],
+    middlewares: ['requireInventoryAdmin'],
   },
   {
     method: 'post',
@@ -56,6 +65,6 @@ export const routes = [
     method: 'post',
     path: '/inventory/bulk',
     handler: 'bulkUpdate',
-    middlewares: ['authenticate'],
+    middlewares: ['requireInventoryAdmin'],
   },
 ] as const

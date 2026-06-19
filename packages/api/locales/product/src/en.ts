@@ -7,6 +7,7 @@ export const en: ProductTranslations = {
   'product.error.invalidPrice': 'A valid price is required',
   'product.error.createFailed': 'Failed to create product',
   'product.error.notFound': 'Product not found',
+  'product.error.forbidden': 'Access denied',
   'product.error.readFailed': 'Failed to read product',
   'product.error.listFailed': 'Failed to list products',
   'product.error.updateFailed': 'Failed to update product',

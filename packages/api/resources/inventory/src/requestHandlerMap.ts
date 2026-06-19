@@ -4,6 +4,7 @@
  * @module
  */
 
+import { requireInventoryAdmin } from './authorizers/index.js'
 import { bulkUpdate } from './handlers/bulkUpdate.js'
 import { confirm } from './handlers/confirm.js'
 import { getAlerts } from './handlers/getAlerts.js'
@@ -15,6 +16,12 @@ import { updateStock } from './handlers/updateStock.js'
 
 /**
  * Handler map for the inventory resource routes.
+ *
+ * `requireInventoryAdmin` is the admin authorizer middleware referenced by the
+ * `updateStock`/`bulkUpdate` routes. It must live here (as a real handler-map
+ * key) so the mlcl injector's route scanner preserves it — a bare middleware
+ * string that isn't a handler-map key is silently dropped, which is exactly how
+ * the previous bare `'authenticate'` gate became inert.
  */
 export const requestHandlerMap = {
   getStock,
@@ -25,4 +32,5 @@ export const requestHandlerMap = {
   getAlerts,
   getMovements,
   bulkUpdate,
+  requireInventoryAdmin: requireInventoryAdmin(),
 } as const

@@ -60,14 +60,44 @@ function mockReq(overrides: Record<string, unknown> = {}): any {
   }
 }
 
+/**
+ * Response whose session belongs to a standard, non-admin authenticated user.
+ * Used by the read endpoints and the owner-scoped reservation flow.
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mockRes(): any {
+function mockRes(session: Record<string, unknown> | undefined = { userId: 'user-1' }): any {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res: any = {
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
     end: vi.fn(),
-    locals: { session: { userId: 'user-1' } },
+    locals: { session },
+  }
+  return res
+}
+
+/**
+ * Response whose session carries an admin claim. Used by the admin-only stock
+ * mutations (`updateStock`, `bulkUpdate`) and admin reservation overrides.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mockAdminRes(): any {
+  return mockRes({ userId: 'admin-1', isAdmin: true })
+}
+
+/**
+ * Response with no authenticated session — an anonymous caller. (Passing
+ * `undefined` to {@link mockRes} would trigger its default user session, so an
+ * explicit helper is used for the unauthenticated path.)
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mockAnonRes(): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const res: any = {
+    status: vi.fn().mockReturnThis(),
+    json: vi.fn().mockReturnThis(),
+    end: vi.fn(),
+    locals: { session: undefined },
   }
   return res
 }
@@ -89,6 +119,7 @@ const RESERVATION_ROW = {
   variantId: null,
   quantity: 5,
   orderId: 'order-1',
+  userId: 'user-1',
   createdAt: '2024-01-01T00:00:00Z',
 }
 
@@ -173,7 +204,7 @@ describe('updateStock', () => {
       params: { productId: 'prod-1' },
       body: { quantity: 10, type: 'add', reason: 'restock' },
     })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await updateStock(req, res)
 
@@ -194,7 +225,7 @@ describe('updateStock', () => {
       params: { productId: 'prod-1' },
       body: { quantity: 10, type: 'remove' },
     })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await updateStock(req, res)
 
@@ -212,7 +243,7 @@ describe('updateStock', () => {
       params: { productId: 'prod-1' },
       body: { quantity: 85, type: 'remove' },
     })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await updateStock(req, res)
 
@@ -229,7 +260,7 @@ describe('updateStock', () => {
       params: { productId: 'prod-1' },
       body: { quantity: 50, type: 'set' },
     })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await updateStock(req, res)
 
@@ -243,7 +274,7 @@ describe('updateStock', () => {
       params: { productId: 'prod-1' },
       body: { quantity: 10, type: 'set' },
     })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await updateStock(req, res)
 
@@ -259,7 +290,7 @@ describe('updateStock', () => {
       params: { productId: 'prod-1' },
       body: { quantity: 50, type: 'add' },
     })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await updateStock(req, res)
 
@@ -274,7 +305,7 @@ describe('updateStock', () => {
       params: { productId: 'prod-1' },
       body: { quantity: 10, type: 'invalid' },
     })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await updateStock(req, res)
 
@@ -289,7 +320,7 @@ describe('updateStock', () => {
       params: { productId: 'prod-1' },
       body: { quantity: -5, type: 'add' },
     })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await updateStock(req, res)
 
@@ -306,11 +337,66 @@ describe('updateStock', () => {
       params: { productId: 'prod-1' },
       body: { quantity: 10, type: 'add' },
     })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await updateStock(req, res)
 
     expect(res.status).toHaveBeenCalledWith(500)
+  })
+
+  // ── authorization (P4RES-2) ──────────────────────────────────────────
+
+  it('should reject an unauthenticated caller with 401', async () => {
+    const req = mockReq({
+      params: { productId: 'prod-1' },
+      body: { quantity: 10, type: 'add' },
+    })
+    const res = mockAnonRes() // no session
+
+    await updateStock(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(401)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ errorKey: 'resource.error.unauthorized' }),
+    )
+    expect(mockFindOne).not.toHaveBeenCalled()
+    expect(mockUpdateById).not.toHaveBeenCalled()
+  })
+
+  it('should reject a non-admin authenticated caller with 403', async () => {
+    const req = mockReq({
+      params: { productId: 'prod-1' },
+      body: { quantity: 10, type: 'add' },
+    })
+    const res = mockRes() // authenticated, but not admin
+
+    await updateStock(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(403)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ errorKey: 'inventory.error.forbidden' }),
+    )
+    // Fail closed before touching the data store.
+    expect(mockFindOne).not.toHaveBeenCalled()
+    expect(mockUpdateById).not.toHaveBeenCalled()
+    expect(mockCreate).not.toHaveBeenCalled()
+  })
+
+  it('should allow a caller with a permissions claim', async () => {
+    mockFindOne.mockResolvedValueOnce(STOCK_ROW)
+    mockUpdateById.mockResolvedValueOnce({ data: { ...STOCK_ROW, total: 110 } })
+    mockCreate.mockResolvedValueOnce({ data: {} })
+
+    const req = mockReq({
+      params: { productId: 'prod-1' },
+      body: { quantity: 10, type: 'add' },
+    })
+    const res = mockRes({ userId: 'staff-1', permissions: ['inventory:manage'] })
+
+    await updateStock(req, res)
+
+    expect(res.status).not.toHaveBeenCalledWith(403)
+    expect(mockUpdateById).toHaveBeenCalledWith('inventory_stock', 'stock-1', { total: 110 })
   })
 })
 
@@ -337,6 +423,42 @@ describe('reserve', () => {
     )
     expect(mockUpdateById).toHaveBeenCalledWith('inventory_stock', 'stock-1', { reserved: 25 })
     expect(res.status).toHaveBeenCalledWith(201)
+  })
+
+  it('should bind the reservation to the calling user', async () => {
+    mockFindOne.mockResolvedValueOnce(STOCK_ROW)
+    mockCreate.mockResolvedValueOnce({ data: RESERVATION_ROW })
+    mockUpdateById.mockResolvedValueOnce({})
+    mockCreate.mockResolvedValueOnce({ data: {} })
+
+    const req = mockReq({
+      params: { productId: 'prod-1' },
+      body: { quantity: 5, orderId: 'order-1' },
+    })
+    const res = mockRes({ userId: 'shopper-9' })
+
+    await reserve(req, res)
+
+    expect(mockCreate).toHaveBeenCalledWith(
+      'inventory_reservations',
+      expect.objectContaining({ userId: 'shopper-9' }),
+    )
+  })
+
+  it('should reject an unauthenticated caller with 401', async () => {
+    const req = mockReq({
+      params: { productId: 'prod-1' },
+      body: { quantity: 5, orderId: 'order-1' },
+    })
+    const res = mockAnonRes()
+
+    await reserve(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(401)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ errorKey: 'resource.error.unauthorized' }),
+    )
+    expect(mockCreate).not.toHaveBeenCalled()
   })
 
   it('should reject when insufficient stock available', async () => {
@@ -412,7 +534,7 @@ describe('release', () => {
     mockDeleteById.mockResolvedValueOnce({})
 
     const req = mockReq({ params: { reservationId: 'res-1' } })
-    const res = mockRes()
+    const res = mockRes() // owner: user-1
 
     await release(req, res)
 
@@ -420,6 +542,63 @@ describe('release', () => {
     expect(mockDeleteById).toHaveBeenCalledWith('inventory_reservations', 'res-1')
     expect(res.status).toHaveBeenCalledWith(204)
     expect(res.end).toHaveBeenCalled()
+  })
+
+  it('should allow an admin to release any reservation', async () => {
+    mockFindById.mockResolvedValueOnce({ ...RESERVATION_ROW, userId: 'someone-else' })
+    mockFindOne.mockResolvedValueOnce(STOCK_ROW)
+    mockUpdateById.mockResolvedValueOnce({})
+    mockCreate.mockResolvedValueOnce({ data: {} })
+    mockDeleteById.mockResolvedValueOnce({})
+
+    const req = mockReq({ params: { reservationId: 'res-1' } })
+    const res = mockAdminRes()
+
+    await release(req, res)
+
+    expect(mockDeleteById).toHaveBeenCalledWith('inventory_reservations', 'res-1')
+    expect(res.status).toHaveBeenCalledWith(204)
+  })
+
+  it('should reject a non-owner non-admin with 403', async () => {
+    mockFindById.mockResolvedValueOnce({ ...RESERVATION_ROW, userId: 'someone-else' })
+
+    const req = mockReq({ params: { reservationId: 'res-1' } })
+    const res = mockRes() // user-1, not the owner, not admin
+
+    await release(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(403)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ errorKey: 'inventory.error.reservationForbidden' }),
+    )
+    // Fail closed: no stock mutation or deletion.
+    expect(mockUpdateById).not.toHaveBeenCalled()
+    expect(mockDeleteById).not.toHaveBeenCalled()
+  })
+
+  it('should reject an unauthenticated caller with 401', async () => {
+    mockFindById.mockResolvedValueOnce(RESERVATION_ROW)
+
+    const req = mockReq({ params: { reservationId: 'res-1' } })
+    const res = mockAnonRes()
+
+    await release(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(401)
+    expect(mockDeleteById).not.toHaveBeenCalled()
+  })
+
+  it('should deny a non-admin on a legacy ownerless reservation', async () => {
+    mockFindById.mockResolvedValueOnce({ ...RESERVATION_ROW, userId: null })
+
+    const req = mockReq({ params: { reservationId: 'res-1' } })
+    const res = mockRes()
+
+    await release(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(403)
+    expect(mockDeleteById).not.toHaveBeenCalled()
   })
 
   it('should return 404 when reservation not found', async () => {
@@ -463,7 +642,7 @@ describe('confirm', () => {
     mockDeleteById.mockResolvedValueOnce({})
 
     const req = mockReq({ params: { reservationId: 'res-1' } })
-    const res = mockRes()
+    const res = mockRes() // owner: user-1
 
     await confirm(req, res)
 
@@ -473,6 +652,50 @@ describe('confirm', () => {
     })
     expect(mockDeleteById).toHaveBeenCalledWith('inventory_reservations', 'res-1')
     expect(res.status).toHaveBeenCalledWith(204)
+  })
+
+  it('should allow an admin to confirm any reservation', async () => {
+    mockFindById.mockResolvedValueOnce({ ...RESERVATION_ROW, userId: 'someone-else' })
+    mockFindOne.mockResolvedValueOnce(STOCK_ROW)
+    mockUpdateById.mockResolvedValueOnce({})
+    mockCreate.mockResolvedValueOnce({ data: {} })
+    mockDeleteById.mockResolvedValueOnce({})
+
+    const req = mockReq({ params: { reservationId: 'res-1' } })
+    const res = mockAdminRes()
+
+    await confirm(req, res)
+
+    expect(mockDeleteById).toHaveBeenCalledWith('inventory_reservations', 'res-1')
+    expect(res.status).toHaveBeenCalledWith(204)
+  })
+
+  it('should reject a non-owner non-admin with 403', async () => {
+    mockFindById.mockResolvedValueOnce({ ...RESERVATION_ROW, userId: 'someone-else' })
+
+    const req = mockReq({ params: { reservationId: 'res-1' } })
+    const res = mockRes()
+
+    await confirm(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(403)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ errorKey: 'inventory.error.reservationForbidden' }),
+    )
+    expect(mockUpdateById).not.toHaveBeenCalled()
+    expect(mockDeleteById).not.toHaveBeenCalled()
+  })
+
+  it('should reject an unauthenticated caller with 401', async () => {
+    mockFindById.mockResolvedValueOnce(RESERVATION_ROW)
+
+    const req = mockReq({ params: { reservationId: 'res-1' } })
+    const res = mockAnonRes()
+
+    await confirm(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(401)
+    expect(mockDeleteById).not.toHaveBeenCalled()
   })
 
   it('should return 404 when reservation not found', async () => {
@@ -655,7 +878,7 @@ describe('bulkUpdate', () => {
         ],
       },
     })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await bulkUpdate(req, res)
 
@@ -677,7 +900,7 @@ describe('bulkUpdate', () => {
         ],
       },
     })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await bulkUpdate(req, res)
 
@@ -688,7 +911,7 @@ describe('bulkUpdate', () => {
 
   it('should reject empty adjustments array', async () => {
     const req = mockReq({ body: { adjustments: [] } })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await bulkUpdate(req, res)
 
@@ -700,7 +923,7 @@ describe('bulkUpdate', () => {
 
   it('should reject missing adjustments', async () => {
     const req = mockReq({ body: {} })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await bulkUpdate(req, res)
 
@@ -718,11 +941,45 @@ describe('bulkUpdate', () => {
         adjustments: [{ productId: 'prod-1', quantity: 10, type: 'add' }],
       },
     })
-    const res = mockRes()
+    const res = mockAdminRes()
 
     await bulkUpdate(req, res)
 
     // The inner try-catch catches individual errors, so it should report as a per-item failure
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ failed: 1 }))
+  })
+
+  // ── authorization (P4RES-2) ──────────────────────────────────────────
+
+  it('should reject an unauthenticated caller with 401', async () => {
+    const req = mockReq({
+      body: { adjustments: [{ productId: 'prod-1', quantity: 10, type: 'add' }] },
+    })
+    const res = mockAnonRes()
+
+    await bulkUpdate(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(401)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ errorKey: 'resource.error.unauthorized' }),
+    )
+    expect(mockFindOne).not.toHaveBeenCalled()
+  })
+
+  it('should reject a non-admin authenticated caller with 403', async () => {
+    const req = mockReq({
+      body: { adjustments: [{ productId: 'prod-1', quantity: 10, type: 'add' }] },
+    })
+    const res = mockRes() // authenticated, not admin
+
+    await bulkUpdate(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(403)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ errorKey: 'inventory.error.forbidden' }),
+    )
+    // Fail closed before touching the data store.
+    expect(mockFindOne).not.toHaveBeenCalled()
+    expect(mockCreate).not.toHaveBeenCalled()
   })
 })

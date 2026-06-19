@@ -3,6 +3,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { isGradeAdmin } from '../authorizers/index.js'
 import { resolveLetter, toPercent } from '../scale.js'
 import type { Grade, UpdateGradeInput } from '../types.js'
 
@@ -11,10 +12,35 @@ import type { Grade, UpdateGradeInput } from '../types.js'
  * can be amended. If a `scale` is supplied the letter is recomputed
  * against the new (or existing) score.
  *
+ * Restricted to a grade-management authority (instructor/registrar/admin) and
+ * enforced here (not merely via route middleware): the row's `userId` is the
+ * *student*, never the actor permitted to amend the grade, so a non-admin caller
+ * is rejected (401 when unauthenticated, 403 otherwise) before anything is read
+ * or written — defense-in-depth that does not depend on the `requireAdmin` route
+ * middleware being wired, and that prevents a student editing their own grade.
+ *
  * @param req - The request object with `id` param and {@link UpdateGradeInput} body.
  * @param res - The response object.
  */
 export async function update(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  const userId = (res.locals.session as { userId?: string } | undefined)?.userId
+  if (!userId) {
+    res.status(401).json({
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'resource.error.unauthorized',
+    })
+    return
+  }
+  if (!(await isGradeAdmin(res))) {
+    res.status(403).json({
+      error: t('grade.error.forbidden', undefined, {
+        defaultValue: 'Permission required to manage grades',
+      }),
+      errorKey: 'grade.error.forbidden',
+    })
+    return
+  }
+
   const id = req.params.id as string
   const input = req.body as UpdateGradeInput
 

@@ -1,12 +1,22 @@
-const { mockCreate, mockFindMany, mockFindById, mockUpdateById, mockDeleteById, mockCount } =
-  vi.hoisted(() => ({
-    mockCreate: vi.fn(),
-    mockFindMany: vi.fn(),
-    mockFindById: vi.fn(),
-    mockUpdateById: vi.fn(),
-    mockDeleteById: vi.fn(),
-    mockCount: vi.fn(),
-  }))
+const {
+  mockCreate,
+  mockFindMany,
+  mockFindById,
+  mockUpdateById,
+  mockDeleteById,
+  mockCount,
+  mockHasProvider,
+  mockCan,
+} = vi.hoisted(() => ({
+  mockCreate: vi.fn(),
+  mockFindMany: vi.fn(),
+  mockFindById: vi.fn(),
+  mockUpdateById: vi.fn(),
+  mockDeleteById: vi.fn(),
+  mockCount: vi.fn(),
+  mockHasProvider: vi.fn(),
+  mockCan: vi.fn(),
+}))
 
 vi.mock('@molecule/api-database', () => ({
   create: mockCreate,
@@ -15,6 +25,11 @@ vi.mock('@molecule/api-database', () => ({
   updateById: mockUpdateById,
   deleteById: mockDeleteById,
   count: mockCount,
+}))
+
+vi.mock('@molecule/api-permissions', () => ({
+  hasProvider: mockHasProvider,
+  can: mockCan,
 }))
 
 vi.mock('@molecule/api-i18n', () => ({
@@ -48,6 +63,9 @@ function mockReq(overrides: Record<string, unknown> = {}): any {
   }
 }
 
+/** Session claim that satisfies the room-type admin gate without a permissions provider. */
+const ADMIN_SESSION = { userId: 'admin-1', isAdmin: true }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mockRes(overrides: Record<string, unknown> = {}): any {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,7 +73,9 @@ function mockRes(overrides: Record<string, unknown> = {}): any {
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
     end: vi.fn(),
-    locals: { session: { userId: 'user-1' } },
+    // Default to an admin session so the (now admin-gated) mutation handlers
+    // exercise their happy path; non-admin / anonymous cases override `locals`.
+    locals: { session: { ...ADMIN_SESSION } },
     ...overrides,
   }
   return res
@@ -91,6 +111,9 @@ const VALID_BODY = {
 describe('@molecule/api-resource-room-type handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Fail-closed defaults: no permissions provider, deny.
+    mockHasProvider.mockReturnValue(false)
+    mockCan.mockResolvedValue(false)
   })
 
   describe('create', () => {
@@ -362,6 +385,37 @@ describe('@molecule/api-resource-room-type handlers', () => {
       expect(res.status).toHaveBeenCalledWith(401)
     })
 
+    it('returns 403 for an authenticated non-admin user (price/inventory edit blocked)', async () => {
+      const req = mockReq({ params: { id: 'rt-1' }, body: { baseRateCents: 1 } })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await update(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'roomType.error.forbidden' }),
+      )
+      // Fail-closed: no read or write attempted for a non-admin.
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('allows a non-claim user when the permissions provider grants manage roomType', async () => {
+      mockHasProvider.mockReturnValue(true)
+      mockCan.mockResolvedValue(true)
+      mockFindById.mockResolvedValueOnce(ROOM_TYPE_ROW)
+      mockUpdateById.mockResolvedValueOnce({ data: { ...ROOM_TYPE_ROW, name: 'Renamed' } })
+
+      const req = mockReq({ params: { id: 'rt-1' }, body: { name: 'Renamed' } })
+      const res = mockRes({ locals: { session: { userId: 'rbac-user' } } })
+
+      await update(req, res)
+
+      expect(mockCan).toHaveBeenCalledWith('user:rbac-user', 'manage', 'roomType')
+      expect(mockUpdateById).toHaveBeenCalled()
+      expect(res.json).toHaveBeenCalled()
+    })
+
     it('returns 400 when capacity is invalid', async () => {
       const req = mockReq({ params: { id: 'rt-1' }, body: { capacity: 0 } })
       const res = mockRes()
@@ -480,6 +534,20 @@ describe('@molecule/api-resource-room-type handlers', () => {
       await del(req, res)
 
       expect(res.status).toHaveBeenCalledWith(401)
+    })
+
+    it('returns 403 for an authenticated non-admin user (room-type delete blocked)', async () => {
+      const req = mockReq({ params: { id: 'rt-1' } })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await del(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'roomType.error.forbidden' }),
+      )
+      // Fail-closed: no delete attempted for a non-admin.
+      expect(mockDeleteById).not.toHaveBeenCalled()
     })
 
     it('returns 404 when nothing was deleted', async () => {

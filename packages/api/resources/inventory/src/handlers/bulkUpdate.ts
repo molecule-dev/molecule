@@ -9,6 +9,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { assertInventoryAdmin } from '../authorizers/index.js'
 import type {
   BulkStockAdjustment,
   BulkUpdateItemResult,
@@ -26,6 +27,12 @@ const VALID_TYPES = ['add', 'remove', 'set'] as const
  * @param res - The response object.
  */
 export async function bulkUpdate(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  // Admin-only: bulk-rewriting stock is a catalog mutation. Fail closed
+  // in-handler so the gate holds even if the route middleware is dropped.
+  if (!assertInventoryAdmin(res)) {
+    return
+  }
+
   const { adjustments } = req.body as { adjustments?: BulkStockAdjustment[] }
 
   if (!adjustments || !Array.isArray(adjustments) || adjustments.length === 0) {

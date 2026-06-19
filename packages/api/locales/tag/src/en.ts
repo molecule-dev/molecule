@@ -6,6 +6,7 @@ export const en: TagTranslations = {
   'tag.error.invalidName': 'Tag name is invalid',
   'tag.error.createFailed': 'Failed to create tag',
   'tag.error.notFound': 'Tag not found',
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.readFailed': 'Failed to read tag',
   'tag.error.listFailed': 'Failed to list tags',
   'tag.error.updateFailed': 'Failed to update tag',

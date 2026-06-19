@@ -4,6 +4,7 @@
  * @module
  */
 
+import { requireAdmin } from './authorizers/index.js'
 import { create } from './handlers/create.js'
 import { del } from './handlers/del.js'
 import { list } from './handlers/list.js'
@@ -12,6 +13,11 @@ import { update } from './handlers/update.js'
 
 /**
  * Maps route handler names to their request handler implementations for the room-type resource.
+ *
+ * `requireAdmin` is the admin authorizer middleware referenced by the
+ * `update`/`del` routes. It must live here (as a real handler-map key) so the
+ * mlcl injector's route scanner preserves it — a bare middleware string that
+ * isn't a handler-map key is silently dropped.
  */
 export const requestHandlerMap = {
   create,
@@ -19,4 +25,5 @@ export const requestHandlerMap = {
   read,
   update,
   del,
+  requireAdmin: requireAdmin(),
 } as const

@@ -62,6 +62,8 @@ export interface Reservation {
   quantity: number
   /** The order this reservation belongs to. */
   orderId: string
+  /** The authenticated user who created this reservation, if known. */
+  userId?: string
   /** When the reservation was created. */
   createdAt: string
 }
@@ -220,6 +222,8 @@ export interface ReservationRow {
   quantity: number
   /** The order this reservation belongs to. */
   orderId: string
+  /** The authenticated user who created this reservation (null for legacy rows). */
+  userId: string | null
   /** Creation timestamp. */
   createdAt: string
 }

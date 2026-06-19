@@ -92,6 +92,7 @@ describe('inventory utilities', () => {
         variantId: null,
         quantity: 5,
         orderId: 'order-1',
+        userId: null,
         createdAt: '2024-01-01T00:00:00Z',
       }
 
@@ -105,6 +106,7 @@ describe('inventory utilities', () => {
         createdAt: '2024-01-01T00:00:00Z',
       })
       expect(reservation.variantId).toBeUndefined()
+      expect(reservation.userId).toBeUndefined()
     })
 
     it('should include variantId when present', () => {
@@ -114,12 +116,29 @@ describe('inventory utilities', () => {
         variantId: 'var-1',
         quantity: 3,
         orderId: 'order-1',
+        userId: null,
         createdAt: '2024-01-01T00:00:00Z',
       }
 
       const reservation = toReservation(row)
 
       expect(reservation.variantId).toBe('var-1')
+    })
+
+    it('should include userId when present', () => {
+      const row: ReservationRow = {
+        id: 'r1',
+        productId: 'prod-1',
+        variantId: null,
+        quantity: 3,
+        orderId: 'order-1',
+        userId: 'user-7',
+        createdAt: '2024-01-01T00:00:00Z',
+      }
+
+      const reservation = toReservation(row)
+
+      expect(reservation.userId).toBe('user-7')
     })
   })
 
