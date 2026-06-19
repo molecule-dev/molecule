@@ -153,9 +153,27 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
               },
             }
           }
+
+          // The plan is tied to a payment platform, but the bonded provider has
+          // no in-place `updateSubscription` (e.g. Apple/Google receipt-only
+          // providers). NEVER direct-set a paid planKey without a positive
+          // provider confirmation — activation MUST go through receipt
+          // verification (POST /users/:id/verify-payment/:provider). Falling
+          // through here previously let a user self-grant a paid (Pro) plan with
+          // no payment.
+          return {
+            statusCode: 400,
+            body: {
+              error: t('user.error.subscriptionActivationRequiresVerification', undefined, {
+                defaultValue:
+                  'Subscription activation must go through receipt verification — use POST /users/:id/verify-payment/:provider.',
+              }),
+              errorKey: 'user.error.subscriptionActivationRequiresVerification',
+            },
+          }
         }
 
-        // No platform handler — free plan or direct update.
+        // No platform handler — free-plan downgrade only.
         if (plan.planKey === '') {
           // Switching to free plan. Keep current planKey if subscription hasn't expired yet.
           const now = new Date().getTime()
@@ -176,21 +194,23 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
           })
         }
 
-        analytics
-          .track({
-            name: 'user.plan_updated',
-            userId: id,
-            properties: { previousPlanKey: previousPlan?.planKey, newPlanKey: planKey },
-          })
-          .catch(() => {})
-        return await updateResource({
-          id,
-          props: {
-            planKey,
-            planExpiresAt: undefined,
-            planAutoRenews: false,
+        // A non-free plan with NO payment platform handler cannot be confirmed
+        // by any provider — refuse to grant it. Only the free plan ('') may be
+        // written without provider confirmation (handled above); every paid
+        // planKey must go through a provider `updateSubscription`
+        // (checkout/in-place) or receipt verification
+        // (POST /users/:id/verify-payment/:provider). This closes the
+        // self-grant escalation where a user PATCHed a paid planKey directly.
+        return {
+          statusCode: 400,
+          body: {
+            error: t('user.error.subscriptionActivationRequiresVerification', undefined, {
+              defaultValue:
+                'Subscription activation must go through receipt verification — use POST /users/:id/verify-payment/:provider.',
+            }),
+            errorKey: 'user.error.subscriptionActivationRequiresVerification',
           },
-        })
+        }
       }
 
       // No plans service bonded — only allow downgrade to free plan.

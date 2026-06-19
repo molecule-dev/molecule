@@ -90,12 +90,20 @@ export function mountDefaultUserSecurityRoutes(router: Router, user: UserMap): v
  * Mounts plan/billing routes:
  *
  * - `PATCH /users/:id/plan` (authSelf+updatePlan)
- * - `POST /users/payment-notification/:provider` (handlePaymentNotification, public)
+ * - `POST /users/payment-notification/:provider` (requireWebhookAuthenticity+handlePaymentNotification)
+ *
+ * The notification route is public (providers POST to it), so it is gated by
+ * `requireWebhookAuthenticity`: signature-verifying webhook providers (Stripe)
+ * pass through, while unsigned server-to-server providers (Apple/Google) require
+ * a shared secret — the endpoint is not open by default.
  */
 export function mountDefaultUserBillingRoutes(router: Router, user: UserMap): void {
   router.patch('/users/:id/plan', user.authSelf, user.updatePlan)
   if (user.handlePaymentNotification) {
-    router.post('/users/payment-notification/:provider', user.handlePaymentNotification)
+    const notificationHandlers = user.requireWebhookAuthenticity
+      ? [user.requireWebhookAuthenticity, user.handlePaymentNotification]
+      : [user.handlePaymentNotification]
+    router.post('/users/payment-notification/:provider', ...notificationHandlers)
   }
 }
 
@@ -103,11 +111,14 @@ export function mountDefaultUserBillingRoutes(router: Router, user: UserMap): vo
  * Optional payment-verification routes for apps that support
  * client-driven payment confirmation (Apple/Google receipt verify).
  *
- * - `GET /users/:id/verify-payment/:provider` (verifyPayment)
- * - `POST /users/:id/verify-payment/:provider` (verifyPayment)
+ * - `GET /users/:id/verify-payment/:provider` (verifyPayment) — unauthenticated
+ *   browser redirect target (e.g. Stripe Checkout success_url); ownership is
+ *   enforced inside the handler via the customer/checkout-session binding.
+ * - `POST /users/:id/verify-payment/:provider` (authSelf+verifyPayment) — the
+ *   mobile receipt path credits `:id`, so only that authenticated user may call it.
  */
 export function mountDefaultUserVerifyPaymentRoutes(router: Router, user: UserMap): void {
   if (!user.verifyPayment) return
   router.get('/users/:id/verify-payment/:provider', user.verifyPayment)
-  router.post('/users/:id/verify-payment/:provider', user.verifyPayment)
+  router.post('/users/:id/verify-payment/:provider', user.authSelf, user.verifyPayment)
 }

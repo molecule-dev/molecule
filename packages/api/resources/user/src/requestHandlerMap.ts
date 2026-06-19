@@ -34,6 +34,7 @@ export interface UserRequestHandlerMap {
   updatePlan: MoleculeRequestHandler
   verifyPayment: MoleculeRequestHandler
   handlePaymentNotification: MoleculeRequestHandler
+  requireWebhookAuthenticity: MoleculeRequestHandler
 }
 
 /**
@@ -52,6 +53,8 @@ export const createRequestHandlerMap = (
     // Authorizers
     auth: authorizers.auth(),
     authSelf: authorizers.authSelf(),
+    // Authenticity guard for the public payment-notification (IAP S2S) route.
+    requireWebhookAuthenticity: authorizers.requireWebhookAuthenticity(),
 
     // Core handlers
     create: createRequestHandler(handlers.create(resource)),

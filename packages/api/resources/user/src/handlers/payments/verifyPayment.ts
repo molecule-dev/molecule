@@ -52,10 +52,10 @@ export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
       let receipt: string | undefined
 
       // Dispatch based on verifyFlow (with method-existence fallback).
-      if (
+      const isSubscriptionFlow =
         provider.verifyFlow === 'subscription' ||
-        (!provider.verifyFlow && provider.verifySubscription)
-      ) {
+        (!provider.verifyFlow && !!provider.verifySubscription)
+      if (isSubscriptionFlow) {
         // Stripe-style: subscriptionId in body or query.
         const subscriptionId = (req.body?.subscriptionId ?? req.query?.subscriptionId) as
           | string
@@ -138,6 +138,50 @@ export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
             error: t('user.payment.verificationFailed', { provider: providerName }),
             errorKey: 'user.payment.verificationFailed',
           },
+        }
+      }
+
+      // Subscription-flow ownership binding. The resolved subscription must
+      // belong to THIS user, so a caller cannot upgrade themselves by submitting
+      // a subscription id they merely learned (leaked log / shared success_url /
+      // support channel):
+      //   • If the user already has a stored customer id for this provider, the
+      //     verified subscription's customer MUST match it.
+      //   • Otherwise (no prior record) a grant is only allowed when the
+      //     verification came through the per-user, unguessable checkout-session
+      //     redirect (`viaCheckoutSession`) — never from a bare, caller-supplied
+      //     subscription id.
+      if (isSubscriptionFlow) {
+        const ownerId = req.params.id as string
+        const data = (verified.data ?? {}) as { customerId?: string; viaCheckoutSession?: boolean }
+        const verifiedCustomerId = data.customerId
+        const records = get<PaymentRecordService>('paymentRecords')
+        const existing = records ? await records.findByUserId(ownerId, providerName) : null
+        const storedCustomerId = (existing?.data as { customerId?: string } | undefined)?.customerId
+
+        const ownsByStoredCustomer =
+          !!storedCustomerId && !!verifiedCustomerId && storedCustomerId === verifiedCustomerId
+        const ownsByFreshCheckout = !storedCustomerId && data.viaCheckoutSession === true
+
+        if (!ownsByStoredCustomer && !ownsByFreshCheckout) {
+          analytics
+            .track({
+              name: 'payment.verification_ownership_rejected',
+              userId: ownerId,
+              properties: { provider: providerName },
+            })
+            .catch(() => {})
+          return {
+            statusCode: 403,
+            body: {
+              error: t(
+                'user.payment.subscriptionOwnershipMismatch',
+                { provider: providerName },
+                { defaultValue: 'This subscription does not belong to your account.' },
+              ),
+              errorKey: 'user.payment.subscriptionOwnershipMismatch',
+            },
+          }
         }
       }
 

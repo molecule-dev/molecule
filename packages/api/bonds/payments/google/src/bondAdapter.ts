@@ -163,33 +163,44 @@ export const paymentProvider: PaymentProvider = {
       const type =
         notificationType != null ? (notificationTypeMap[notificationType] ?? 'unknown') : 'unknown'
 
-      const parsed: ParsedNotification = {
-        transactionId: notification.subscriptionId,
-        productId: notification.subscriptionId,
-        type,
+      // AUTHENTICITY: the RTDN body is attacker-forgeable (Pub/Sub push to a
+      // public endpoint), so NOTHING in it is trusted as proof of entitlement.
+      // The `purchaseToken` is the only unforgeable credential — re-verify it
+      // with Google and derive productId / expiry / order id from the VERIFIED
+      // subscription. A forged notification cannot supply a token that verifies.
+      // Reject (return null) when the token is missing or verification fails —
+      // never copy the attacker-supplied subscriptionId into productId.
+      if (!notification.purchaseToken || !notification.subscriptionId) {
+        logger.warn(
+          'Google Play: parseNotification missing purchaseToken/subscriptionId — cannot verify, rejecting',
+        )
+        return null
       }
 
-      // If we have a purchase token, verify the subscription to get expiry details.
-      if (notification.purchaseToken && notification.subscriptionId) {
-        try {
-          const subscription = await verifySubscription(
-            notification.subscriptionId,
-            notification.purchaseToken,
-          )
+      let subscription: Awaited<ReturnType<typeof verifySubscription>>
+      try {
+        subscription = await verifySubscription(
+          notification.subscriptionId,
+          notification.purchaseToken,
+        )
+      } catch (verifyError) {
+        logger.error('Google Play: parseNotification verify error:', verifyError)
+        return null
+      }
 
-          if (subscription) {
-            const lineItem = subscription.lineItems?.[0]
-            parsed.expiresAt = lineItem?.expiryTime ?? undefined
-            parsed.autoRenews = lineItem?.autoRenewingPlan?.autoRenewEnabled ?? undefined
+      if (!subscription) {
+        logger.warn('Google Play: parseNotification subscription verification failed — rejecting')
+        return null
+      }
 
-            if (subscription.latestOrderId) {
-              parsed.transactionId = subscription.latestOrderId
-            }
-          }
-        } catch (verifyError) {
-          // Verification failure is non-fatal; we still return the parsed notification.
-          logger.error('Google Play: parseNotification verify error:', verifyError)
-        }
+      const lineItem = subscription.lineItems?.[0]
+
+      const parsed: ParsedNotification = {
+        transactionId: subscription.latestOrderId ?? notification.subscriptionId,
+        productId: lineItem?.productId ?? notification.subscriptionId,
+        type,
+        expiresAt: lineItem?.expiryTime ?? undefined,
+        autoRenews: lineItem?.autoRenewingPlan?.autoRenewEnabled ?? undefined,
       }
 
       return parsed

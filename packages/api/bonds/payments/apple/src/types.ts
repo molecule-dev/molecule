@@ -39,6 +39,13 @@ export interface VerifyReceiptResponse {
     application_version: string
     in_app?: InAppPurchase[]
   }
+  /**
+   * The base64-encoded latest receipt. Present in `unified_receipt` of Apple
+   * server-to-server (v1) notifications; re-submitted to `verifyReceipt` so the
+   * notification's authenticity is proven against Apple before any entitlement
+   * is granted (never trust the raw notification body).
+   */
+  latest_receipt?: string
   latest_receipt_info?: InAppPurchase[]
   pending_renewal_info?: PendingRenewal[]
 }

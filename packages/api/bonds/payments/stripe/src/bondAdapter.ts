@@ -87,9 +87,17 @@ export const paymentProvider: PaymentProvider = {
    */
   async verifySubscription(subscriptionId: string): Promise<VerifiedSubscription | null> {
     try {
+      // A Checkout Session ID (`cs_...`) only arrives via the per-user
+      // post-checkout redirect (success_url), which is unguessable and bound to
+      // the user who started checkout. A bare `sub_...` id, by contrast, can be
+      // a value the caller merely learned, so the handler requires an ownership
+      // match for it. Surface which path this was so `verifyPayment` can enforce
+      // that distinction.
+      const viaCheckoutSession = subscriptionId.startsWith('cs_')
+
       // If this is a Checkout Session ID (from post-checkout redirect), resolve to subscription
       let resolvedSubscriptionId = subscriptionId
-      if (subscriptionId.startsWith('cs_')) {
+      if (viaCheckoutSession) {
         const session = await getCheckoutSession(subscriptionId)
         if (!session.subscription) {
           logger.error('Stripe checkout session has no subscription', { sessionId: subscriptionId })
@@ -106,6 +114,26 @@ export const paymentProvider: PaymentProvider = {
 
       const normalized = normalizeSubscription(subscription)
 
+      // Gate the grant on subscription status: only an active/trialing
+      // subscription confers entitlement. A past_due/unpaid/canceled/incomplete
+      // subscription must NOT re-grant the plan on demand.
+      if (!normalized.isActive) {
+        logger.info(
+          `Stripe verifySubscription: subscription ${normalized.subscriptionId} is not active (status=${normalized.status}) — rejecting`,
+        )
+        return null
+      }
+
+      // Defense in depth: also reject if the current period has already elapsed
+      // (when known). `isActive` already covers Stripe's authoritative status,
+      // but an out-of-date period end is never a valid grant.
+      if (normalized.currentPeriodEnd && normalized.currentPeriodEnd <= Date.now()) {
+        logger.info(
+          `Stripe verifySubscription: subscription ${normalized.subscriptionId} period has ended — rejecting`,
+        )
+        return null
+      }
+
       return {
         productId: normalized.productId,
         transactionId: normalized.subscriptionId,
@@ -118,6 +146,7 @@ export const paymentProvider: PaymentProvider = {
             typeof (normalized.rawData as Record<string, unknown>)?.customer === 'string'
               ? (normalized.rawData as Record<string, unknown>).customer
               : undefined,
+          viaCheckoutSession,
         },
       }
     } catch (error) {

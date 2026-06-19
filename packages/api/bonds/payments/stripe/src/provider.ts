@@ -60,6 +60,7 @@ const toSubscriptionResult = (sub: Stripe.Subscription): SubscriptionResult => {
   return {
     id: sub.id,
     status: sub.status,
+    customer: typeof sub.customer === 'string' ? sub.customer : sub.customer?.id,
     items: {
       data: sub.items.data.map((item) => ({
         id: item.id,

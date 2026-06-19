@@ -11,14 +11,19 @@ import type { CheckoutSessionResult, SubscriptionResult, WebhookEventResult } fr
 
 // ─── Mock data ───────────────────────────────────────────────────────────────
 
+// Far-future period end (year 2099) so status/period gating treats the default
+// fixture as a live subscription.
+const FUTURE_MS = 4070908800000
+
 const mockSubscriptionResult: SubscriptionResult = {
   id: 'sub_abc123',
   status: 'active',
+  customer: 'cus_customer1',
   items: {
     data: [{ id: 'si_item1', price: { product: 'prod_premium' } }],
   },
   current_period_start: 1700000000,
-  current_period_end: 1702592000,
+  current_period_end: 4070908800,
   cancel_at_period_end: false,
   canceled_at: null,
 }
@@ -84,7 +89,7 @@ describe('Stripe Bond Adapter', () => {
       status: 'active',
       isActive: true,
       currentPeriodStart: 1700000000000,
-      currentPeriodEnd: 1702592000000,
+      currentPeriodEnd: FUTURE_MS,
       willRenew: true,
       canceledAt: undefined,
       rawData: { customer: 'cus_customer1', ...mockSubscriptionResult },
@@ -152,12 +157,59 @@ describe('Stripe Bond Adapter', () => {
       expect(result).toEqual({
         productId: 'prod_premium',
         transactionId: 'sub_abc123',
-        expiresAt: new Date(1702592000000).toISOString(),
+        expiresAt: new Date(FUTURE_MS).toISOString(),
         autoRenews: true,
         data: {
           customerId: 'cus_customer1',
+          viaCheckoutSession: false,
         },
       })
+    })
+
+    it('flags viaCheckoutSession=true when resolving a cs_ checkout session', async () => {
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      const result = await paymentProvider.verifySubscription!('cs_test_session')
+
+      expect((result!.data as { viaCheckoutSession?: boolean }).viaCheckoutSession).toBe(true)
+    })
+
+    it('returns null when the subscription is not active (past_due/canceled)', async () => {
+      mockNormalizeSubscription.mockReturnValue({
+        provider: 'stripe',
+        subscriptionId: 'sub_abc123',
+        productId: 'prod_premium',
+        status: 'past_due',
+        isActive: false,
+        currentPeriodEnd: FUTURE_MS,
+        willRenew: false,
+        rawData: { customer: 'cus_customer1' },
+      })
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      const result = await paymentProvider.verifySubscription!('sub_abc123')
+
+      expect(result).toBeNull()
+    })
+
+    it('returns null when the current period has already ended', async () => {
+      mockNormalizeSubscription.mockReturnValue({
+        provider: 'stripe',
+        subscriptionId: 'sub_abc123',
+        productId: 'prod_premium',
+        status: 'active',
+        isActive: true,
+        currentPeriodEnd: 1000, // long past
+        willRenew: true,
+        rawData: { customer: 'cus_customer1' },
+      })
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      const result = await paymentProvider.verifySubscription!('sub_abc123')
+
+      expect(result).toBeNull()
     })
 
     it('should return null when getSubscription returns null', async () => {
@@ -211,7 +263,7 @@ describe('Stripe Bond Adapter', () => {
         productId: 'prod_premium',
         status: 'active',
         isActive: true,
-        currentPeriodEnd: 1702592000000,
+        currentPeriodEnd: FUTURE_MS,
         willRenew: false,
         rawData: { customer: 'cus_specific_id' },
       })
@@ -220,7 +272,7 @@ describe('Stripe Bond Adapter', () => {
 
       const result = await paymentProvider.verifySubscription!('sub_abc123')
 
-      expect(result!.data).toEqual({ customerId: 'cus_specific_id' })
+      expect(result!.data).toEqual({ customerId: 'cus_specific_id', viaCheckoutSession: false })
     })
 
     it('should set customerId to undefined when rawData.customer is not a string', async () => {
@@ -230,7 +282,7 @@ describe('Stripe Bond Adapter', () => {
         productId: 'prod_premium',
         status: 'active',
         isActive: true,
-        currentPeriodEnd: 1702592000000,
+        currentPeriodEnd: FUTURE_MS,
         willRenew: true,
         rawData: { customer: { id: 'cus_object' } },
       })
@@ -239,7 +291,7 @@ describe('Stripe Bond Adapter', () => {
 
       const result = await paymentProvider.verifySubscription!('sub_abc123')
 
-      expect(result!.data).toEqual({ customerId: undefined })
+      expect(result!.data).toEqual({ customerId: undefined, viaCheckoutSession: false })
     })
   })
 

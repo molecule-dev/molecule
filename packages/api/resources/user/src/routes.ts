@@ -63,19 +63,24 @@ export const routes = [
     handler: 'verifyPayment',
     optional: 'payments',
   },
-  // Payment verification — POST (mobile receipt verification)
+  // Payment verification — POST (mobile receipt verification). Requires the
+  // caller to be the user being credited (authSelf): the plan is granted to
+  // `:id`, so an unauthenticated/cross-user POST must never reach the handler.
   {
     method: 'post' as const,
     path: '/users/:id/verify-payment/:provider',
-    middlewares: [],
+    middlewares: ['authSelf'],
     handler: 'verifyPayment',
     optional: 'payments',
   },
-  // Payment notifications (webhooks, S2S)
+  // Payment notifications (webhooks, S2S). The authenticity guard lets
+  // signature-verifying webhook providers (Stripe) through and requires a shared
+  // secret for unsigned server-to-server providers (Apple/Google) so the public
+  // endpoint is not open by default.
   {
     method: 'post' as const,
     path: '/users/payment-notification/:provider',
-    middlewares: [],
+    middlewares: ['requireWebhookAuthenticity'],
     handler: 'handlePaymentNotification',
     optional: 'payments',
   },

@@ -249,94 +249,38 @@ describe('paymentProvider', () => {
       expect(result).toBeNull()
     })
 
-    it('parses base64-encoded data correctly', async () => {
+    it('REGRESSION: returns null (no grant) when purchaseToken is absent — cannot verify', async () => {
+      // A forged RTDN can supply any subscriptionId but not a valid purchaseToken.
+      // Without the token there is nothing to verify, so we reject instead of
+      // trusting the body-supplied subscriptionId as the product.
       const body = makePubSubBody({
-        subscriptionNotification: {
-          notificationType: 1,
-          subscriptionId: 'sub-123',
-        },
+        subscriptionNotification: { notificationType: 1, subscriptionId: 'sub-premium' },
       })
+
+      const result = await paymentProvider.parseNotification!(body)
+
+      expect(result).toBeNull()
+      expect(mockVerifySubscription).not.toHaveBeenCalled()
+    })
+
+    it('REGRESSION: returns null when subscription verification fails (forged token)', async () => {
       mockVerifySubscription.mockResolvedValue(null)
-
-      const result = await paymentProvider.parseNotification!(body)
-
-      expect(result).not.toBeNull()
-      expect(result!.productId).toBe('sub-123')
-    })
-
-    it('maps notificationType 1 to renewed', async () => {
-      const body = makePubSubBody({
-        subscriptionNotification: { notificationType: 1, subscriptionId: 's' },
-      })
-
-      const result = await paymentProvider.parseNotification!(body)
-
-      expect(result!.type).toBe('renewed')
-    })
-
-    it('maps notificationType 3 to canceled', async () => {
-      const body = makePubSubBody({
-        subscriptionNotification: { notificationType: 3, subscriptionId: 's' },
-      })
-
-      const result = await paymentProvider.parseNotification!(body)
-
-      expect(result!.type).toBe('canceled')
-    })
-
-    it('maps notificationType 13 to expired', async () => {
-      const body = makePubSubBody({
-        subscriptionNotification: { notificationType: 13, subscriptionId: 's' },
-      })
-
-      const result = await paymentProvider.parseNotification!(body)
-
-      expect(result!.type).toBe('expired')
-    })
-
-    it('maps unknown notificationType number to unknown', async () => {
-      const body = makePubSubBody({
-        subscriptionNotification: { notificationType: 999, subscriptionId: 's' },
-      })
-
-      const result = await paymentProvider.parseNotification!(body)
-
-      expect(result!.type).toBe('unknown')
-    })
-
-    it('maps missing notificationType to unknown', async () => {
-      const body = makePubSubBody({
-        subscriptionNotification: { subscriptionId: 's' },
-      })
-
-      const result = await paymentProvider.parseNotification!(body)
-
-      expect(result!.type).toBe('unknown')
-    })
-
-    it('verifies subscription and enriches parsed result when purchaseToken is present', async () => {
-      const sub = makeSubscription()
-      mockVerifySubscription.mockResolvedValue(sub)
-
       const body = makePubSubBody({
         subscriptionNotification: {
           notificationType: 2,
           subscriptionId: 'sub-premium',
-          purchaseToken: 'pt-abc',
+          purchaseToken: 'forged-token',
         },
       })
 
       const result = await paymentProvider.parseNotification!(body)
 
-      expect(mockVerifySubscription).toHaveBeenCalledWith('sub-premium', 'pt-abc')
-      expect(result!.transactionId).toBe('GPA.1234-5678')
-      expect(result!.expiresAt).toBeDefined()
-      expect(result!.autoRenews).toBe(true)
+      expect(mockVerifySubscription).toHaveBeenCalledWith('sub-premium', 'forged-token')
+      expect(result).toBeNull()
     })
 
-    it('handles verify failure gracefully (still returns parsed notification)', async () => {
+    it('returns null when verification throws', async () => {
       mockVerifySubscription.mockRejectedValue(new Error('verify boom'))
-
       const body = makePubSubBody({
         subscriptionNotification: {
           notificationType: 4,
@@ -347,12 +291,59 @@ describe('paymentProvider', () => {
 
       const result = await paymentProvider.parseNotification!(body)
 
-      expect(result).not.toBeNull()
-      expect(result!.type).toBe('renewed')
+      expect(result).toBeNull()
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.stringContaining('verify error'),
         expect.any(Error),
       )
+    })
+
+    it('verifies the token and derives productId/expiry/order id from the VERIFIED subscription', async () => {
+      // The verified subscription's product wins, not the body-supplied subscriptionId.
+      const sub = {
+        latestOrderId: 'GPA.1234-5678',
+        lineItems: [
+          {
+            productId: 'premium_monthly',
+            expiryTime: new Date(Date.now() + 86_400_000).toISOString(),
+            autoRenewingPlan: { autoRenewEnabled: true },
+          },
+        ],
+      }
+      mockVerifySubscription.mockResolvedValue(sub)
+
+      const body = makePubSubBody({
+        subscriptionNotification: {
+          notificationType: 2,
+          subscriptionId: 'sub-product-id',
+          purchaseToken: 'pt-abc',
+        },
+      })
+
+      const result = await paymentProvider.parseNotification!(body)
+
+      expect(mockVerifySubscription).toHaveBeenCalledWith('sub-product-id', 'pt-abc')
+      expect(result).not.toBeNull()
+      expect(result!.type).toBe('renewed')
+      expect(result!.productId).toBe('premium_monthly')
+      expect(result!.transactionId).toBe('GPA.1234-5678')
+      expect(result!.expiresAt).toBeDefined()
+      expect(result!.autoRenews).toBe(true)
+    })
+
+    it('maps notificationType on a verified notification (3 → canceled)', async () => {
+      mockVerifySubscription.mockResolvedValue(makeSubscription())
+      const body = makePubSubBody({
+        subscriptionNotification: {
+          notificationType: 3,
+          subscriptionId: 's',
+          purchaseToken: 'pt',
+        },
+      })
+
+      const result = await paymentProvider.parseNotification!(body)
+
+      expect(result!.type).toBe('canceled')
     })
 
     it('returns null on JSON parse error', async () => {
@@ -379,13 +370,15 @@ describe('paymentProvider', () => {
       )
     })
 
-    it('handles already-parsed data (non-string)', async () => {
+    it('handles already-parsed data (non-string) and still verifies', async () => {
+      mockVerifySubscription.mockResolvedValue(makeSubscription())
       const body = {
         message: {
           data: {
             subscriptionNotification: {
               notificationType: 5,
               subscriptionId: 'sub-hold',
+              purchaseToken: 'pt-hold',
             },
           },
         },
@@ -395,19 +388,7 @@ describe('paymentProvider', () => {
 
       expect(result).not.toBeNull()
       expect(result!.type).toBe('on_hold')
-    })
-
-    it('does not call verifySubscription when purchaseToken is absent', async () => {
-      const body = makePubSubBody({
-        subscriptionNotification: {
-          notificationType: 7,
-          subscriptionId: 'sub-restart',
-        },
-      })
-
-      await paymentProvider.parseNotification!(body)
-
-      expect(mockVerifySubscription).not.toHaveBeenCalled()
+      expect(mockVerifySubscription).toHaveBeenCalledWith('sub-hold', 'pt-hold')
     })
   })
 

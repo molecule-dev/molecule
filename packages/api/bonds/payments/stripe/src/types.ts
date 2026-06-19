@@ -27,6 +27,12 @@ export interface CheckoutSessionResult {
 export interface SubscriptionResult {
   id: string
   status: string
+  /**
+   * The Stripe Customer ID (`cus_...`) that owns this subscription. Used to bind
+   * a verified subscription to the calling user so a foreign subscription id
+   * cannot be claimed (ownership check in `verifyPayment`).
+   */
+  customer?: string
   items: { data: Array<{ id: string; price?: { product?: string } }> }
   current_period_start: number
   current_period_end: number

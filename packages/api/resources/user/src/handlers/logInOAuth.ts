@@ -1,6 +1,9 @@
+import crypto from 'node:crypto'
+
 import { v4 as uuid } from 'uuid'
 
 import { get, getAnalytics, getLogger } from '@molecule/api-bond'
+import { get as getConfig } from '@molecule/api-config'
 import { create as storeCreate, findById, findOne, updateById } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
@@ -12,6 +15,23 @@ import { normalizeEmail } from '../utilities/normalizeEmail.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
+
+/**
+ * Constant-time comparison of two strings. Returns `false` on length mismatch
+ * (lengths are not secret here) and otherwise uses `crypto.timingSafeEqual`, so
+ * the OAuth state ↔ cookie check does not leak via comparison timing.
+ * @param a - First string.
+ * @param b - Second string.
+ * @returns `true` if the strings are equal.
+ */
+const timingSafeEqualString = (a: string, b: string): boolean => {
+  const ab = Buffer.from(a)
+  const bb = Buffer.from(b)
+  if (ab.length !== bb.length) {
+    return false
+  }
+  return crypto.timingSafeEqual(ab, bb)
+}
 
 /** Request body for OAuth login, including the OAuth server name, authorization code, and PKCE verifier. */
 export interface LogInOAuthRequest extends MoleculeRequest {
@@ -52,12 +72,30 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
       }
     }
 
-    // Validate OAuth CSRF state parameter if present in request.
-    // The state cookie is set by GET /users/oauth/:provider and should match.
-    if (body.state) {
+    // Validate the OAuth CSRF state parameter. This is MANDATORY, not gated on
+    // whether the (attacker-controlled) request happened to send a `state` —
+    // otherwise a forged cross-site callback that simply omits `state` would
+    // skip the check entirely (login-CSRF / session fixation: the attacker
+    // plants their own session in the victim's browser). The `oauth_state`
+    // cookie is set by GET /users/oauth/:provider; callback `state` must equal
+    // it. Deployments that genuinely don't wire the state-cookie endpoint can
+    // opt out with OAUTH_REQUIRE_STATE=false, but the secure behavior ships ON
+    // by default and is NEVER relaxed based on request presence.
+    const requireState = getConfig<string>('OAUTH_REQUIRE_STATE', 'true') !== 'false'
+    if (requireState) {
       const cookieState = (req as unknown as { cookies?: Record<string, string> }).cookies
         ?.oauth_state
-      if (!cookieState || cookieState !== body.state) {
+      const expressRes = res as unknown as {
+        clearCookie?(name: string, options?: Record<string, unknown>): void
+      }
+      // The state cookie is one-time use — always clear it, match or not.
+      const clearStateCookie = () => {
+        if (typeof expressRes.clearCookie === 'function') {
+          expressRes.clearCookie('oauth_state', { path: '/' })
+        }
+      }
+      if (!body.state || !cookieState || !timingSafeEqualString(cookieState, body.state)) {
+        clearStateCookie()
         return {
           statusCode: 403,
           body: {
@@ -68,13 +106,7 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
           },
         }
       }
-      // Clear the state cookie after validation (one-time use)
-      const expressRes = res as unknown as {
-        clearCookie?(name: string, options?: Record<string, unknown>): void
-      }
-      if (typeof expressRes.clearCookie === 'function') {
-        expressRes.clearCookie('oauth_state', { path: '/' })
-      }
+      clearStateCookie()
     }
 
     const oauthProvider = get<{

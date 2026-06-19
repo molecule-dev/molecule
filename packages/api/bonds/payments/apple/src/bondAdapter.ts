@@ -129,13 +129,25 @@ export const paymentProvider: PaymentProvider = {
   },
 
   /**
-   * Parses an Apple server-to-server notification into a normalized ParsedNotification.
+   * Parses an Apple server-to-server (v1) notification into a normalized
+   * ParsedNotification.
    *
-   * Handles both v1 (notification_type at top level) and v2 (signedPayload-based)
-   * notification formats, though v2 signed payloads must be decoded upstream.
+   * AUTHENTICITY: the raw notification body is attacker-forgeable, so NOTHING in
+   * it is trusted. The embedded base64 `latest_receipt` is re-submitted to
+   * Apple's `verifyReceipt` (which authenticates it with `APPLE_SHARED_SECRET`),
+   * and every entitlement field (transactionId / productId / expiresAt /
+   * autoRenews) is derived from the VERIFIED receipt — never from the body. A
+   * forged notification cannot supply a receipt that Apple verifies, so this
+   * returns `null` for it.
+   *
+   * v2 (`signedPayload` JWS) notifications are NOT trusted here: without
+   * verifying the JWS x5c certificate chain against Apple's root CA they cannot
+   * be authenticated, so they are rejected (`null`) rather than parsed from an
+   * unverified payload. (v2 was already unsupported — it carries no top-level
+   * `notification_type`.) Proper v2 support requires a vetted JWS/x509 verifier.
    *
    * @param body - The raw notification body from Apple
-   * @returns The parsed notification, or null if the body cannot be parsed
+   * @returns The parsed notification, or null if it cannot be authenticated
    */
   async parseNotification(body: unknown): Promise<ParsedNotification | null> {
     try {
@@ -148,41 +160,52 @@ export const paymentProvider: PaymentProvider = {
       const notificationType = notification.notification_type as string | undefined
 
       if (!notificationType) {
-        logger.warn('Apple parseNotification: missing notification_type')
+        // No top-level notification_type — this is a v2 signedPayload (or junk).
+        // We cannot authenticate a v2 JWS payload here, so reject it rather than
+        // trust unverified data.
+        logger.warn('Apple parseNotification: missing notification_type (v2 unsupported)')
         return null
       }
 
       const type = NOTIFICATION_TYPE_MAP[notificationType] ?? notificationType.toLowerCase()
 
-      // Extract the latest receipt info from the unified_receipt (v1 format)
+      // Pull the base64 receipt out of the notification (v1: in unified_receipt,
+      // or at the body root). This is the ONLY field we use from the body, and
+      // only to re-verify it with Apple — we do not trust its contents.
       const unifiedReceipt = notification.unified_receipt as VerifyReceiptResponse | undefined
-      const latestReceiptInfo =
-        unifiedReceipt?.latest_receipt_info ??
-        (notification.latest_receipt_info as VerifyReceiptResponse['latest_receipt_info'])
+      const latestReceipt =
+        unifiedReceipt?.latest_receipt ?? (notification.latest_receipt as string | undefined)
 
-      // Get the most recent transaction from the receipt info
-      const latestTransaction = latestReceiptInfo?.reduce<
-        (typeof latestReceiptInfo)[number] | null
-      >((latest, current) => {
-        if (!latest) return current
-        const currentMs = parseInt(current.expires_date_ms || '0', 10)
-        const latestMs = parseInt(latest.expires_date_ms || '0', 10)
-        return currentMs > latestMs ? current : latest
-      }, null)
+      if (!latestReceipt) {
+        logger.warn('Apple parseNotification: no latest_receipt to verify — rejecting')
+        return null
+      }
 
-      // Check pending_renewal_info for auto-renew status
-      const pendingRenewalInfo =
-        unifiedReceipt?.pending_renewal_info ??
-        (notification.pending_renewal_info as PendingRenewal[] | undefined)
+      // Re-verify the embedded receipt with Apple. A forged notification cannot
+      // produce a receipt that returns status 0.
+      const verified = await appleVerifyReceipt(latestReceipt)
+      if (verified.status !== 0) {
+        logger.warn(
+          `Apple parseNotification: receipt verification returned status ${verified.status} — rejecting`,
+        )
+        return null
+      }
 
-      const autoRenews = pendingRenewalInfo?.[0]?.auto_renew_status === '1'
+      const subscription = getLatestSubscription(verified)
+      if (!subscription) {
+        logger.info('Apple parseNotification: no subscription in verified receipt — rejecting')
+        return null
+      }
+
+      const autoRenews =
+        getAutoRenewStatus(verified, subscription.original_transaction_id) ??
+        isSubscriptionActive(subscription)
 
       return {
-        transactionId:
-          latestTransaction?.original_transaction_id ?? latestTransaction?.transaction_id,
-        productId: latestTransaction?.product_id ?? pendingRenewalInfo?.[0]?.auto_renew_product_id,
+        transactionId: subscription.original_transaction_id ?? subscription.transaction_id,
+        productId: subscription.product_id,
         type,
-        expiresAt: toISOExpires(latestTransaction?.expires_date_ms),
+        expiresAt: toISOExpires(subscription.expires_date_ms),
         autoRenews,
       }
     } catch (error) {

@@ -116,118 +116,133 @@ describe('paymentProvider.parseNotification', () => {
     expect(await paymentProvider.parseNotification!(42)).toBeNull()
   })
 
-  it('returns null when notification_type is missing', async () => {
+  it('returns null when notification_type is missing (v2 signedPayload unsupported)', async () => {
     expect(await paymentProvider.parseNotification!({})).toBeNull()
+    // A v2 signedPayload body carries no top-level notification_type → rejected.
+    expect(await paymentProvider.parseNotification!({ signedPayload: 'eyJ...' })).toBeNull()
   })
 
-  it('maps DID_RENEW → renewed', async () => {
+  it('returns null when there is no embedded receipt to verify', async () => {
+    // notification_type present but no latest_receipt → cannot authenticate.
     const out = await paymentProvider.parseNotification!({
       notification_type: 'DID_RENEW',
       unified_receipt: {
+        latest_receipt_info: [{ original_transaction_id: 'txn-1', product_id: 'com.app.pro' }],
+      },
+    })
+    expect(out).toBeNull()
+    expect(mockVerifyReceipt).not.toHaveBeenCalled()
+  })
+
+  it('REGRESSION: returns null for a forged notification whose receipt fails Apple verification', async () => {
+    // The attacker supplies a fabricated body + a bogus latest_receipt. Apple
+    // rejects the receipt (status != 0) so NO entitlement is derived.
+    mockVerifyReceipt.mockResolvedValue({ status: 21002 })
+    const out = await paymentProvider.parseNotification!({
+      notification_type: 'DID_RENEW',
+      unified_receipt: {
+        latest_receipt: 'FORGED_BASE64',
         latest_receipt_info: [
           {
-            original_transaction_id: 'txn-1',
-            product_id: 'com.app.pro',
-            expires_date_ms: '1700000000000',
+            original_transaction_id: 'attacker-known-id',
+            product_id: 'com.app.premium',
+            expires_date_ms: '4070908800000',
           },
         ],
       },
     })
-    expect(out?.type).toBe('renewed')
+    expect(mockVerifyReceipt).toHaveBeenCalledWith('FORGED_BASE64')
+    expect(out).toBeNull()
   })
 
-  it('maps CANCEL → canceled', async () => {
-    const out = await paymentProvider.parseNotification!({
-      notification_type: 'CANCEL',
+  it('derives every field from the VERIFIED receipt, never from the notification body', async () => {
+    // Body claims a premium product; the verified receipt says basic. The
+    // verified value must win.
+    mockVerifyReceipt.mockResolvedValue({
+      status: 0,
+      pending_renewal_info: [{ original_transaction_id: 'real-txn', auto_renew_status: '1' }],
     })
-    expect(out?.type).toBe('canceled')
-  })
-
-  it('maps REFUND / CONSUMPTION_REQUEST → refund', async () => {
-    const out1 = await paymentProvider.parseNotification!({ notification_type: 'REFUND' })
-    const out2 = await paymentProvider.parseNotification!({
-      notification_type: 'CONSUMPTION_REQUEST',
+    mockGetLatestSubscription.mockReturnValue({
+      original_transaction_id: 'real-txn',
+      product_id: 'com.app.basic',
+      expires_date_ms: '1700000000000',
     })
-    expect(out1?.type).toBe('refund')
-    expect(out2?.type).toBe('refund')
-  })
 
-  it('maps DID_FAIL_TO_RENEW → expired', async () => {
-    const out = await paymentProvider.parseNotification!({
-      notification_type: 'DID_FAIL_TO_RENEW',
-    })
-    expect(out?.type).toBe('expired')
-  })
-
-  it('lowercases unknown notification_type as a safe default', async () => {
-    const out = await paymentProvider.parseNotification!({
-      notification_type: 'BRAND_NEW_EVENT',
-    })
-    expect(out?.type).toBe('brand_new_event')
-  })
-
-  it('picks the latest (highest expires_date_ms) transaction', async () => {
     const out = await paymentProvider.parseNotification!({
       notification_type: 'DID_RENEW',
       unified_receipt: {
+        latest_receipt: 'REAL_BASE64',
         latest_receipt_info: [
           {
-            original_transaction_id: 'txn-old',
-            product_id: 'com.app.pro',
-            expires_date_ms: '1600000000000',
-          },
-          {
-            original_transaction_id: 'txn-new',
-            product_id: 'com.app.pro',
-            expires_date_ms: '1700000000000',
+            original_transaction_id: 'spoofed-id',
+            product_id: 'com.app.premium',
+            expires_date_ms: '4070908800000',
           },
         ],
       },
     })
-    expect(out?.transactionId).toBe('txn-new')
+
+    expect(mockVerifyReceipt).toHaveBeenCalledWith('REAL_BASE64')
+    expect(out).toEqual({
+      transactionId: 'real-txn',
+      productId: 'com.app.basic',
+      type: 'renewed',
+      expiresAt: new Date(1700000000000).toISOString(),
+      autoRenews: true,
+    })
   })
 
-  it('falls back to latest_receipt_info on the body when no unified_receipt (v1)', async () => {
+  it('reads the base64 receipt from the body root (latest_receipt) when no unified_receipt', async () => {
+    mockVerifyReceipt.mockResolvedValue({ status: 0 })
+    mockGetLatestSubscription.mockReturnValue({
+      original_transaction_id: 'txn-init',
+      product_id: 'com.app.pro',
+      expires_date_ms: '1700000000000',
+    })
+    mockIsSubscriptionActive.mockReturnValue(true)
+
     const out = await paymentProvider.parseNotification!({
       notification_type: 'INITIAL_BUY',
-      latest_receipt_info: [
-        {
-          original_transaction_id: 'txn-init',
-          product_id: 'com.app.pro',
-          expires_date_ms: '1700000000000',
-        },
-      ],
+      latest_receipt: 'ROOT_BASE64',
     })
+
+    expect(mockVerifyReceipt).toHaveBeenCalledWith('ROOT_BASE64')
+    expect(out?.type).toBe('renewed')
     expect(out?.transactionId).toBe('txn-init')
     expect(out?.productId).toBe('com.app.pro')
   })
 
-  it('autoRenews=true when pending_renewal_info[0].auto_renew_status="1"', async () => {
+  it('returns null when the verified receipt has no subscription', async () => {
+    mockVerifyReceipt.mockResolvedValue({ status: 0 })
+    mockGetLatestSubscription.mockReturnValue(null)
     const out = await paymentProvider.parseNotification!({
       notification_type: 'DID_RENEW',
-      unified_receipt: {
-        pending_renewal_info: [{ auto_renew_status: '1' }],
-      },
+      unified_receipt: { latest_receipt: 'B64' },
     })
-    expect(out?.autoRenews).toBe(true)
+    expect(out).toBeNull()
   })
 
-  it('autoRenews=false when pending_renewal_info[0].auto_renew_status="0"', async () => {
-    const out = await paymentProvider.parseNotification!({
-      notification_type: 'DID_RENEW',
-      unified_receipt: {
-        pending_renewal_info: [{ auto_renew_status: '0' }],
-      },
+  it('maps the notification_type on an authenticated notification (CANCEL → canceled)', async () => {
+    mockVerifyReceipt.mockResolvedValue({ status: 0 })
+    mockGetLatestSubscription.mockReturnValue({
+      original_transaction_id: 'txn-1',
+      product_id: 'com.app.pro',
+      expires_date_ms: '1700000000000',
     })
-    expect(out?.autoRenews).toBe(false)
+    mockIsSubscriptionActive.mockReturnValue(false)
+    const out = await paymentProvider.parseNotification!({
+      notification_type: 'CANCEL',
+      unified_receipt: { latest_receipt: 'B64' },
+    })
+    expect(out?.type).toBe('canceled')
   })
 
-  it('falls back to pending_renewal_info on body root (v1 shape)', async () => {
+  it('returns null + logs on thrown error (network/parse failure during verify)', async () => {
+    mockVerifyReceipt.mockRejectedValue(new Error('network down'))
     const out = await paymentProvider.parseNotification!({
       notification_type: 'DID_RENEW',
-      pending_renewal_info: [{ auto_renew_status: '1', auto_renew_product_id: 'com.app.pro' }],
+      unified_receipt: { latest_receipt: 'B64' },
     })
-    expect(out?.autoRenews).toBe(true)
-    expect(out?.productId).toBe('com.app.pro')
+    expect(out).toBeNull()
   })
 })

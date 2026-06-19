@@ -582,7 +582,45 @@ describe('logInOAuth handler — CSRF state validation', () => {
     expect(res.clearCookie).toHaveBeenCalledWith('oauth_state', { path: '/' })
   })
 
-  it('should proceed without state validation when state param is absent', async () => {
+  it('should return 403 when state param is ABSENT — state validation is mandatory (login-CSRF)', async () => {
+    // A forged cross-site callback that simply omits `state` must NOT bypass the
+    // check. This is the login-CSRF / session-fixation regression: previously
+    // `if (body.state)` made validation opt-in for the attacker.
+    const mockOAuthProvider = {
+      verify: vi.fn().mockResolvedValue({
+        oauthServer: 'github',
+        oauthId: 'github-user-456',
+        username: 'githubuser',
+        oauthData: {},
+      }),
+    }
+    mockGet.mockImplementation((category: string) => {
+      if (category === 'oauth') return mockOAuthProvider
+      if (category === 'device') return { createOrUpdate: vi.fn().mockResolvedValue('device-id') }
+      return null
+    })
+
+    const req = makeReq({
+      body: { server: 'github', code: 'auth-code' },
+      cookies: {},
+    })
+    const res = makeRes()
+
+    const result = await handler(req as MoleculeRequest, res as MoleculeResponse)
+
+    expect(result?.statusCode).toBe(403)
+    expect(result?.body?.errorKey).toBe('user.error.oauthStateMismatch')
+    // The attacker's code must never be exchanged when state is missing.
+    expect(mockOAuthProvider.verify).not.toHaveBeenCalled()
+  })
+
+  it('allows opt-out via OAUTH_REQUIRE_STATE=false (state not required)', async () => {
+    mockGetConfig.mockImplementation((key: string) => {
+      if (key === 'OAUTH_REQUIRE_STATE') return 'false'
+      if (key === 'NODE_ENV') return 'production'
+      return undefined
+    })
+
     const mockOAuthProvider = {
       verify: vi.fn().mockResolvedValue({
         oauthServer: 'github',
@@ -614,9 +652,13 @@ describe('logInOAuth handler — CSRF state validation', () => {
 
     const result = await handler(req as MoleculeRequest, res as MoleculeResponse)
 
-    // Should not return 403 — state validation is skipped when no state param.
     expect(result?.statusCode).toBe(200)
-    expect(res.clearCookie).not.toHaveBeenCalled()
+
+    // Restore the default config implementation so the opt-out does not leak
+    // into other tests (clearAllMocks does not reset implementations).
+    mockGetConfig.mockImplementation((key: string) =>
+      key === 'NODE_ENV' ? 'production' : undefined,
+    )
   })
 })
 
@@ -640,6 +682,14 @@ describe('logInOAuth handler — email-collision account-takeover guard', () => 
       if (category === 'device') return { createOrUpdate: vi.fn().mockResolvedValue('device-id') }
       return null
     })
+
+  beforeEach(() => {
+    // These tests exercise post-auth collision logic, not CSRF — opt out of the
+    // mandatory state gate so the requests don't need a state+cookie pair.
+    mockGetConfig.mockImplementation((key: string) =>
+      key === 'OAUTH_REQUIRE_STATE' ? 'false' : key === 'NODE_ENV' ? 'production' : undefined,
+    )
+  })
 
   it('rejects with 409 when the OAuth email already belongs to another account', async () => {
     wireGet(oauthProviderFor('taken@example.com'))
@@ -710,6 +760,11 @@ describe('logInOAuth handler — email verification + verified-trust linking', (
 
   beforeEach(() => {
     vi.spyOn(authorization, 'set').mockImplementation(() => 'mock-jwt-token')
+    // These tests exercise post-auth collision/linking logic, not CSRF — opt out
+    // of the mandatory state gate so the requests don't need a state+cookie pair.
+    mockGetConfig.mockImplementation((key: string) =>
+      key === 'OAUTH_REQUIRE_STATE' ? 'false' : key === 'NODE_ENV' ? 'production' : undefined,
+    )
   })
 
   it('links a provider-VERIFIED email into an existing UNVERIFIED account (anti-squatting)', async () => {
@@ -1205,6 +1260,72 @@ describe('updatePlan handler — privilege escalation prevention', () => {
       expect(result?.body?.errorKey).toBe('user.error.failedToUpdatePlan')
       expect(mockResourceUpdate).not.toHaveBeenCalled()
     }
+  })
+
+  it('rejects self-grant of a paid apple plan when the provider cannot confirm (no direct-set)', async () => {
+    // Regression for C6-1: a free user PATCHing {planKey:'appleMonthly'} must NOT
+    // get the paid plan written to their record. The apple plan has a platformKey
+    // but the bonded provider has no updateSubscription (receipt-only), so the
+    // handler must return an error instead of falling through to a direct set.
+    mockFindById.mockResolvedValue({ id: 'user-free', planKey: '', planExpiresAt: null })
+
+    const plansService = {
+      findPlan: vi.fn((key: string) => {
+        if (key === 'appleMonthly') {
+          return { planKey: 'appleMonthly', platformKey: 'apple', platformProductId: 'com.app.pro' }
+        }
+        if (key === '') return { planKey: '', platformKey: undefined }
+        return null
+      }),
+      findPlanByProductId: vi.fn(),
+      getDefaultPlan: vi.fn(),
+      getAllPlans: vi.fn(),
+    }
+
+    mockGet.mockImplementation((category: string) => {
+      if (category === 'plans') return plansService
+      // Apple provider: receipt-only, NO updateSubscription.
+      if (category === 'payments') return { providerName: 'apple' }
+      return undefined
+    })
+
+    const req = makeReq({ params: { id: 'user-free' }, body: { planKey: 'appleMonthly' } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(400)
+    expect(result?.body?.errorKey).toBe('user.error.subscriptionActivationRequiresVerification')
+    // CRITICAL: the user record must NOT be upgraded to the paid plan.
+    expect(mockResourceUpdate).not.toHaveBeenCalled()
+  })
+
+  it('rejects a paid planKey that has no platform handler at all (no direct-set)', async () => {
+    // A paid plan with no platformKey cannot be confirmed by any provider.
+    mockFindById.mockResolvedValue({ id: 'user-free', planKey: '', planExpiresAt: null })
+
+    const plansService = {
+      findPlan: vi.fn((key: string) => {
+        if (key === 'pro') return { planKey: 'pro', platformKey: undefined }
+        if (key === '') return { planKey: '', platformKey: undefined }
+        return null
+      }),
+      findPlanByProductId: vi.fn(),
+      getDefaultPlan: vi.fn(),
+      getAllPlans: vi.fn(),
+    }
+
+    mockGet.mockImplementation((category: string) => {
+      if (category === 'plans') return plansService
+      return undefined
+    })
+
+    const req = makeReq({ params: { id: 'user-free' }, body: { planKey: 'pro' } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(400)
+    expect(result?.body?.errorKey).toBe('user.error.subscriptionActivationRequiresVerification')
+    expect(mockResourceUpdate).not.toHaveBeenCalled()
   })
 })
 
