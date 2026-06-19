@@ -61,6 +61,12 @@ export interface Template {
  * Filters for listing templates.
  */
 export interface TemplateQuery {
+  /**
+   * ID of the authenticated caller. Scopes the result to the templates this
+   * viewer is allowed to see: public templates plus their OWN private ones.
+   * When omitted, only public templates are returned (fail closed).
+   */
+  viewerId?: string
   /** Limit results to a specific resource type. */
   resourceType?: string
   /** Restrict to public templates only. */

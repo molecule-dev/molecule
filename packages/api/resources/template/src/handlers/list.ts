@@ -44,6 +44,10 @@ export async function list(req: MoleculeRequest, res: MoleculeResponse): Promise
 
   try {
     const result = await listTemplates({
+      // Scope visibility to the authenticated caller (derived from the session,
+      // enforced in-handler — not via a route middleware the scaffolder may strip):
+      // a non-owner never sees another user's private templates.
+      viewerId: userId,
       resourceType,
       publicOnly,
       createdBy,

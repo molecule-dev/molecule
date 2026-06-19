@@ -288,6 +288,85 @@ describe('@molecule/api-resource-template — service', () => {
       )
     })
 
+    it('scopes to viewer: public + own-private, never another user private row', async () => {
+      const rows = [
+        { id: 'pub', isPublic: true, createdBy: 'other', snapshot: { s: 'public-snap' }, tags: [] },
+        {
+          id: 'mine',
+          isPublic: false,
+          createdBy: 'viewer',
+          snapshot: { s: 'mine-private-snap' },
+          tags: [],
+        },
+        {
+          id: 'secret',
+          isPublic: false,
+          createdBy: 'other',
+          snapshot: { s: 'other-private-snap' },
+          tags: [],
+        },
+      ]
+      // Simulate the DataStore: a where with isPublic=true returns public rows;
+      // a where with createdBy=<id> returns that user's rows; an empty where (the
+      // pre-fix unscoped query) returns everything.
+      mockFindMany.mockImplementation((_table, opts) => {
+        const where = (opts?.where ?? []) as Array<{ field: string; value: unknown }>
+        if (where.length === 0) return Promise.resolve(rows)
+        if (where.some((w) => w.field === 'isPublic')) {
+          return Promise.resolve(rows.filter((r) => r.isPublic))
+        }
+        const ownId = where.find((w) => w.field === 'createdBy')?.value
+        return Promise.resolve(rows.filter((r) => r.createdBy === ownId))
+      })
+      mockCount.mockResolvedValue(rows.length)
+
+      const result = await listTemplates({ viewerId: 'viewer' })
+      const ids = result.data.map((r) => r.id)
+
+      expect(ids).toContain('pub')
+      expect(ids).toContain('mine')
+      expect(ids).not.toContain('secret')
+      // The other user's private snapshot must never leak into the response.
+      expect(JSON.stringify(result.data)).not.toContain('other-private-snap')
+    })
+
+    it('createdBy=<other user> surfaces only that user public rows, not their private', async () => {
+      const rows = [
+        {
+          id: 'other-pub',
+          isPublic: true,
+          createdBy: 'other',
+          snapshot: { s: 'other-public-snap' },
+          tags: [],
+        },
+        {
+          id: 'other-secret',
+          isPublic: false,
+          createdBy: 'other',
+          snapshot: { s: 'other-private-snap' },
+          tags: [],
+        },
+      ]
+      mockFindMany.mockImplementation((_table, opts) => {
+        const where = (opts?.where ?? []) as Array<{ field: string; value: unknown }>
+        const hasPublic = where.some((w) => w.field === 'isPublic')
+        const createdBy = where.find((w) => w.field === 'createdBy')?.value
+        return Promise.resolve(
+          rows.filter(
+            (r) =>
+              (createdBy === undefined || r.createdBy === createdBy) && (!hasPublic || r.isPublic),
+          ),
+        )
+      })
+      mockCount.mockResolvedValue(rows.length)
+
+      const result = await listTemplates({ viewerId: 'viewer', createdBy: 'other' })
+      const ids = result.data.map((r) => r.id)
+
+      expect(ids).toEqual(['other-pub'])
+      expect(JSON.stringify(result.data)).not.toContain('other-private-snap')
+    })
+
     it('filters by tag in-memory when tags supplied', async () => {
       mockFindMany.mockResolvedValue([
         { id: 't1', tags: ['featured'] },

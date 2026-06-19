@@ -11,7 +11,6 @@
  */
 
 import {
-  count,
   create as dbCreate,
   deleteMany,
   findMany,
@@ -243,51 +242,91 @@ export async function getTemplateBySlug(
 }
 
 /**
- * Lists templates with optional filtering and pagination. Tag filtering is
- * applied in-memory because the underlying DataStore has no native JSONB
- * `?|` operator — the table is bounded (admin-managed) so this is fine.
+ * Lists templates visible to the caller, with optional filtering and
+ * pagination.
  *
- * @param query - Filters and pagination.
- * @returns Paginated list of templates.
+ * Visibility is scoped to the caller (`query.viewerId`): a viewer sees public
+ * templates PLUS their own private ones — never another user's private rows.
+ * The DataStore's `buildWhere` joins clauses with AND only (there is no OR
+ * group), so the visibility OR is realised as two queries (public rows + the
+ * viewer's own rows) merged + de-duped in memory. Tag filtering is likewise
+ * in-memory (no native JSONB `?|` operator). The table is bounded
+ * (admin/user-managed), so the in-memory merge, sort, and pagination are fine —
+ * the same justification used for the in-memory tag filter.
+ *
+ * Filters compose with the visibility scope:
+ * - `publicOnly=true` restricts to public rows only (drops the viewer's private).
+ * - `createdBy=<X>` is INTERSECTED with the viewer-visible set: a non-owner
+ *   `createdBy` still only surfaces that user's PUBLIC rows — a caller can never
+ *   page another tenant's private rows via `createdBy`.
+ * - When `viewerId` is omitted, only public rows are returned (fail closed).
+ *
+ * @param query - Filters, viewer scope, and pagination.
+ * @returns Paginated list of viewer-visible templates.
  */
 export async function listTemplates(query: TemplateQuery = {}): Promise<PaginatedResult<Template>> {
   const limit = query.limit ?? 50
   const offset = query.offset ?? 0
+  const viewerId = query.viewerId
 
-  const where: Array<{ field: string; operator: '='; value: unknown }> = []
+  // Filters shared by every sub-query.
+  const baseWhere: Array<{ field: string; operator: '='; value: unknown }> = []
   if (query.resourceType) {
-    where.push({ field: 'resourceType', operator: '=', value: query.resourceType })
-  }
-  if (query.publicOnly) {
-    where.push({ field: 'isPublic', operator: '=', value: true })
+    baseWhere.push({ field: 'resourceType', operator: '=', value: query.resourceType })
   }
   if (query.createdBy) {
-    where.push({ field: 'createdBy', operator: '=', value: query.createdBy })
+    baseWhere.push({ field: 'createdBy', operator: '=', value: query.createdBy })
   }
 
+  // The public half of the visibility OR — always part of the result.
+  const publicWhere = [...baseWhere, { field: 'isPublic', operator: '=' as const, value: true }]
+
+  // The viewer's own rows are included only when not restricted to public-only
+  // AND any client-supplied `createdBy` is not pointed at another user — so a
+  // caller cannot page another tenant's private rows via `createdBy=<other>`.
+  const includeOwn =
+    !query.publicOnly &&
+    !!viewerId &&
+    (query.createdBy === undefined || query.createdBy === viewerId)
+
+  // Bounded over-fetch (page math happens in memory after the merge).
+  const fetchOpts = {
+    orderBy: [{ field: 'createdAt', direction: 'desc' as const }],
+    limit: Math.max(limit + offset, 200),
+    offset: 0,
+  }
+
+  const subQueries: Array<Promise<Template[]>> = [
+    findMany<Template>(TABLE, { where: publicWhere, ...fetchOpts }),
+  ]
+  if (includeOwn) {
+    const ownWhere = [...baseWhere, { field: 'createdBy', operator: '=' as const, value: viewerId }]
+    subQueries.push(findMany<Template>(TABLE, { where: ownWhere, ...fetchOpts }))
+  }
+
+  const resultSets = await Promise.all(subQueries)
+
+  // Merge + de-dupe by id (a public row authored by the viewer hits both sets).
+  const byId = new Map<string, Template>()
+  for (const rows of resultSets) {
+    for (const row of rows) byId.set(row.id, row)
+  }
+  let merged = Array.from(byId.values())
+
+  // In-memory tag filter — DataStore has no native JSONB `?|` operator.
   const tagFilter = query.tags && query.tags.length > 0 ? new Set(query.tags) : null
-
-  const [rawData, rawTotal] = await Promise.all([
-    findMany<Template>(TABLE, {
-      where,
-      orderBy: [{ field: 'createdAt', direction: 'desc' }],
-      // When filtering by tags we over-fetch then trim; otherwise honour the page.
-      limit: tagFilter ? Math.max(limit + offset, 200) : limit,
-      offset: tagFilter ? 0 : offset,
-    }),
-    count(TABLE, where),
-  ])
-
-  if (!tagFilter) {
-    return { data: rawData, total: rawTotal, limit, offset }
+  if (tagFilter) {
+    merged = merged.filter((row) =>
+      Array.isArray(row.tags) ? row.tags.some((tag) => tagFilter.has(tag)) : false,
+    )
   }
 
-  const matches = rawData.filter((row) =>
-    Array.isArray(row.tags) ? row.tags.some((tag) => tagFilter.has(tag)) : false,
-  )
+  // Re-sort: the union of two ordered sets is no longer globally ordered.
+  merged.sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0))
+
   return {
-    data: matches.slice(offset, offset + limit),
-    total: matches.length,
+    data: merged.slice(offset, offset + limit),
+    total: merged.length,
     limit,
     offset,
   }
