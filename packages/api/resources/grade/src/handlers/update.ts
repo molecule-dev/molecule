@@ -14,7 +14,7 @@ import type { Grade, UpdateGradeInput } from '../types.js'
  *
  * Restricted to a grade-management authority (instructor/registrar/admin) and
  * enforced here (not merely via route middleware): the row's `userId` is the
- * *student*, never the actor permitted to amend the grade, so a non-admin caller
+ * student*, never the actor permitted to amend the grade, so a non-admin caller
  * is rejected (401 when unauthenticated, 403 otherwise) before anything is read
  * or written — defense-in-depth that does not depend on the `requireAdmin` route
  * middleware being wired, and that prevents a student editing their own grade.

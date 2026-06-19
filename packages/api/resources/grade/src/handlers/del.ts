@@ -10,7 +10,7 @@ import { isGradeAdmin } from '../authorizers/index.js'
  *
  * Restricted to a grade-management authority (instructor/registrar/admin) and
  * enforced here (not merely via route middleware): the row's `userId` is the
- * *student*, never the actor permitted to delete the grade, so a non-admin caller
+ * student*, never the actor permitted to delete the grade, so a non-admin caller
  * is rejected (401 when unauthenticated, 403 otherwise) before anything is
  * deleted — defense-in-depth that does not depend on the `requireAdmin` route
  * middleware being wired.
