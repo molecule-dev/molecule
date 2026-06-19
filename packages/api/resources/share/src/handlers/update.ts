@@ -8,7 +8,8 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import { updateShare } from '../service.js'
+import { canAdministerResource } from '../authorizers/index.js'
+import { getShareById, updateShare } from '../service.js'
 import { updateShareSchema } from '../validation.js'
 
 /**
@@ -40,6 +41,28 @@ export async function update(req: MoleculeRequest, res: MoleculeResponse): Promi
   if (!parsed.success) {
     const errors = parsed.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')
     res.status(400).json({ error: errors, errorKey: 'share.error.validationFailed' })
+    return
+  }
+
+  // Resolve the share first to learn which resource it grants on, then assert
+  // the caller administers THAT resource (default DENY). This blocks an
+  // attacker from escalating/altering someone else's grant by its id.
+  const existing = await getShareById(id)
+  if (!existing) {
+    res.status(404).json({
+      error: t('share.error.notFound', undefined, { defaultValue: 'Share not found' }),
+      errorKey: 'share.error.notFound',
+    })
+    return
+  }
+
+  if (!(await canAdministerResource(existing.resourceType, existing.resourceId, userId))) {
+    res.status(403).json({
+      error: t('share.error.forbidden', undefined, {
+        defaultValue: 'You are not allowed to manage shares on this resource',
+      }),
+      errorKey: 'share.error.forbidden',
+    })
     return
   }
 

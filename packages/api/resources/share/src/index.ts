@@ -32,6 +32,44 @@
  * // Inside another resource's handler:
  * await requireRole('document', docId, 'editor', userId, teamIds)
  * ```
+ *
+ * @remarks
+ * SECURITY — the raw grant/update/revoke routes are secure by default and MUST
+ * be wrapped with a resource-ownership gate; never mount them directly. The
+ * share table has no inherent knowledge of who *owns* an arbitrary
+ * `(resourceType, resourceId)`, so without a gate any authenticated user could
+ * `POST /resource-shares` to grant themselves the highest role on ANY resource
+ * (or revoke/escalate others' grants by id).
+ *
+ * Two things enforce this:
+ *
+ * 1. **`create`/`update`/`del` are NOT in `routes` or `requestHandlerMap`** —
+ *    only the read-only `list`/`read` and the public-link routes auto-mount.
+ *    Mount the mutating handlers explicitly behind your own ownership check,
+ *    with the resource identity fixed by the server (never trusted from the
+ *    request body):
+ *
+ *    ```typescript
+ *    import { create as grantShareHandler } from '@molecule/api-resource-share'
+ *    router.post('/projects/:projectId/shares', async (req, res) => {
+ *      if (!(await assertProjectAccess(req, res))) return // owner/admin gate
+ *      await grantShareHandler(req, res)
+ *    })
+ *    ```
+ *
+ * 2. **Defense in depth: the handlers themselves DENY by default.** They call
+ *    a registerable ownership authorizer before any mutation; until an app
+ *    registers one, every grant/update/revoke returns 403:
+ *
+ *    ```typescript
+ *    import { setShareAdminAuthorizer } from '@molecule/api-resource-share'
+ *    setShareAdminAuthorizer(async (resourceType, resourceId, userId) =>
+ *      resourceType === 'project' && (await userOwnsOrAdminsProject(userId, resourceId)),
+ *    )
+ *    ```
+ *
+ * `update`/`del` resolve the share row first to learn its
+ * `(resourceType, resourceId)` and authorize the caller against THAT resource.
  */
 
 export * from './authorizers/index.js'

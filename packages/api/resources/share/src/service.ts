@@ -114,6 +114,18 @@ export async function grantShare(input: GrantShareInput): Promise<Share> {
 }
 
 /**
+ * Fetches a single share grant by its ID. Used by the update/revoke handlers
+ * to resolve a share's `(resourceType, resourceId)` before authorizing the
+ * caller against THAT resource.
+ *
+ * @param id - The share ID.
+ * @returns The share, or `null` if not found.
+ */
+export async function getShareById(id: string): Promise<Share | null> {
+  return findOne<Share>(SHARES_TABLE, [{ field: 'id', operator: '=', value: id }])
+}
+
+/**
  * Updates the role and/or expiry of an existing share by ID.
  *
  * @param id - The share ID.

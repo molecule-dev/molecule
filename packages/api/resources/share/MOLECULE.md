@@ -188,6 +188,23 @@ Categories of principals that can hold a share grant.
 type PrincipalType = 'user' | 'team' | 'public'
 ```
 
+#### `ShareAdminAuthorizer`
+
+Resource-ownership predicate: returns `true` when `userId` is permitted to
+administer (grant / update / revoke) shares on the given resource. This is
+the gate that decides who may hand out access — it is deliberately distinct
+from {@link resolveRole}, which answers "what can this user already do",
+because the raw share table has no inherent knowledge of which user *owns*
+an arbitrary `(resourceType, resourceId)`. Only the consuming app does.
+
+```typescript
+type ShareAdminAuthorizer = (
+  resourceType: string,
+  resourceId: string,
+  userId: string,
+) => Promise<boolean> | boolean
+```
+
 #### `ShareRole`
 
 A role assigned to a principal on a shared resource.
@@ -214,6 +231,23 @@ function canAccess(resourceType: string, resourceId: string, required: "viewer" 
 - `teamIds` — IDs of teams the user belongs to.
 
 **Returns:** `true` if the effective role satisfies `required`.
+
+#### `canAdministerResource(resourceType, resourceId, userId)`
+
+Default-DENY ownership gate. Returns `true` only when an authorizer has been
+registered via {@link setShareAdminAuthorizer} AND that authorizer allows
+`userId` to administer the resource. When no authorizer is registered, this
+returns `false` — the share grant/update/revoke handlers respond 403.
+
+```typescript
+function canAdministerResource(resourceType: string, resourceId: string, userId: string): Promise<boolean>
+```
+
+- `resourceType` — Resource type.
+- `resourceId` — Resource ID.
+- `userId` — The authenticated user ID.
+
+**Returns:** `true` if the mutation is allowed, otherwise `false`.
 
 #### `compareRoles(a, b)`
 
@@ -316,6 +350,31 @@ function getPrincipalRole(resourceType: string, resourceId: string, principalTyp
 - `principalId` — Principal ID.
 
 **Returns:** The active role, or `null`.
+
+#### `getShareAdminAuthorizer()`
+
+Returns the currently-registered share-admin authorizer, or `null` when
+none has been registered.
+
+```typescript
+function getShareAdminAuthorizer(): ShareAdminAuthorizer | null
+```
+
+**Returns:** The registered authorizer, or `null`.
+
+#### `getShareById(id)`
+
+Fetches a single share grant by its ID. Used by the update/revoke handlers
+to resolve a share's `(resourceType, resourceId)` before authorizing the
+caller against THAT resource.
+
+```typescript
+function getShareById(id: string): Promise<Share | null>
+```
+
+- `id` — The share ID.
+
+**Returns:** The share, or `null` if not found.
 
 #### `grantShare(input)`
 
@@ -537,6 +596,23 @@ function roleSatisfies(role: "viewer" | "commenter" | "editor" | "owner", requir
 
 **Returns:** `true` when `role >= required`.
 
+#### `setShareAdminAuthorizer(authorizer)`
+
+Registers the resource-ownership authorizer consulted by the share
+grant/update/revoke handlers before any mutation. **Until an app registers
+one, every share mutation is DENIED (secure by default)** — the share table
+cannot know who owns an arbitrary resource, so the consuming app MUST supply
+that knowledge (e.g. "is `userId` the owner of / an admin on this project?").
+
+Pass `null` to clear a previously-registered authorizer (restores default
+deny).
+
+```typescript
+function setShareAdminAuthorizer(authorizer: ShareAdminAuthorizer | null): void
+```
+
+- `authorizer` — The ownership predicate, or `null` to clear.
+
 #### `update(req, res)`
 
 Updates an existing share's role and/or expiry.
@@ -581,18 +657,24 @@ const grantShareSchema: z.ZodObject<{ resourceType: z.ZodString; resourceId: z.Z
 
 #### `requestHandlerMap`
 
-Handler map for resource-share routes.
+Handler map for the auto-mountable resource-share routes (see `routes.ts`).
+
+SECURITY: the mutating `create` / `update` / `del` grant handlers are
+deliberately absent — they are NOT part of the auto-mount surface because
+the share table cannot know who owns an arbitrary resource. Import them
+directly from `@molecule/api-resource-share` and mount them behind your own
+resource-ownership gate (plus a `setShareAdminAuthorizer` registration).
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; readonly createLink: typeof createLink; readonly listLinks: typeof listLinks; readonly revokeLink: typeof revokeLink; readonly resolveLink: typeof resolveLink; }
+const requestHandlerMap: { readonly list: typeof list; readonly read: typeof read; readonly createLink: typeof createLink; readonly listLinks: typeof listLinks; readonly revokeLink: typeof revokeLink; readonly resolveLink: typeof resolveLink; }
 ```
 
 #### `routes`
 
-HTTP routes for share grants and public link tokens.
+HTTP routes for share reads and public link tokens.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/resource-shares"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/resource-shares/:resourceType/:resourceId"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/resource-shares/:resourceType/:resourceId/role"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "patch"; readonly path: "/resource-shares/:id"; readonly handler: "update"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/resource-shares/:id"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/resource-share-links"; readonly handler: "createLink"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/resource-share-links/:resourceType/:resourceId"; readonly handler: "listLinks"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/resource-share-links/:id"; readonly handler: "revokeLink"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/resource-share-links/resolve/:slug"; readonly handler: "resolveLink"; }]
+const routes: readonly [{ readonly method: "get"; readonly path: "/resource-shares/:resourceType/:resourceId"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/resource-shares/:resourceType/:resourceId/role"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/resource-share-links/:resourceType/:resourceId"; readonly handler: "listLinks"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/resource-share-links/resolve/:slug"; readonly handler: "resolveLink"; }]
 ```
 
 #### `SHARE_ROLES`
@@ -622,3 +704,40 @@ Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `zod` ^4.0.0
+
+SECURITY — the raw grant/update/revoke routes are secure by default and MUST
+be wrapped with a resource-ownership gate; never mount them directly. The
+share table has no inherent knowledge of who *owns* an arbitrary
+`(resourceType, resourceId)`, so without a gate any authenticated user could
+`POST /resource-shares` to grant themselves the highest role on ANY resource
+(or revoke/escalate others' grants by id).
+
+Two things enforce this:
+
+1. **`create`/`update`/`del` are NOT in `routes` or `requestHandlerMap`** —
+   only the read-only `list`/`read` and the public-link routes auto-mount.
+   Mount the mutating handlers explicitly behind your own ownership check,
+   with the resource identity fixed by the server (never trusted from the
+   request body):
+
+   ```typescript
+   import { create as grantShareHandler } from '@molecule/api-resource-share'
+   router.post('/projects/:projectId/shares', async (req, res) => {
+     if (!(await assertProjectAccess(req, res))) return // owner/admin gate
+     await grantShareHandler(req, res)
+   })
+   ```
+
+2. **Defense in depth: the handlers themselves DENY by default.** They call
+   a registerable ownership authorizer before any mutation; until an app
+   registers one, every grant/update/revoke returns 403:
+
+   ```typescript
+   import { setShareAdminAuthorizer } from '@molecule/api-resource-share'
+   setShareAdminAuthorizer(async (resourceType, resourceId, userId) =>
+     resourceType === 'project' && (await userOwnsOrAdminsProject(userId, resourceId)),
+   )
+   ```
+
+`update`/`del` resolve the share row first to learn its
+`(resourceType, resourceId)` and authorize the caller against THAT resource.

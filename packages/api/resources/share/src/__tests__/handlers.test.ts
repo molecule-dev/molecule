@@ -31,6 +31,7 @@ vi.mock('@molecule/api-logger', () => ({
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { setShareAdminAuthorizer } from '../authorizers/index.js'
 import { create } from '../handlers/create.js'
 import { createLink } from '../handlers/createLink.js'
 import { del } from '../handlers/del.js'
@@ -70,6 +71,9 @@ const validGrantBody = {
 describe('@molecule/api-resource-share — handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Reset the module-level ownership authorizer to its secure default (DENY)
+    // before every test. Tests that exercise the legitimate path register one.
+    setShareAdminAuthorizer(null)
   })
 
   describe('create', () => {
@@ -101,7 +105,32 @@ describe('@molecule/api-resource-share — handlers', () => {
       expect(res.status).toHaveBeenCalledWith(400)
     })
 
-    it('grants a share and returns 201', async () => {
+    it('returns 403 when no ownership authorizer is registered (unauthorized grant)', async () => {
+      // Default-DENY: this is the P3J-1 attack — an authenticated user posting a
+      // grant for a resource they do not own. Without a registered authorizer it
+      // MUST be refused, never reaching the DB.
+      const req = mockReq({ body: { ...validGrantBody, role: 'owner', principalId: 'user-1' } })
+      const res = mockRes()
+      await create(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('returns 403 when the ownership authorizer denies', async () => {
+      setShareAdminAuthorizer(() => false)
+      const req = mockReq({ body: validGrantBody })
+      const res = mockRes()
+      await create(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('grants a share and returns 201 when the authorizer allows (owner flow)', async () => {
+      const seen: Array<[string, string, string]> = []
+      setShareAdminAuthorizer(async (resourceType, resourceId, userId) => {
+        seen.push([resourceType, resourceId, userId])
+        return true
+      })
       mockFindOne.mockResolvedValue(null)
       const created = { id: 's1', ...validGrantBody, grantedBy: 'user-1' }
       mockCreate.mockResolvedValue({ data: created, affected: 1 })
@@ -111,6 +140,8 @@ describe('@molecule/api-resource-share — handlers', () => {
       await create(req, res)
       expect(res.status).toHaveBeenCalledWith(201)
       expect(res.json).toHaveBeenCalledWith(created)
+      // The authorizer is asked about the target resource, with the caller id.
+      expect(seen).toEqual([['doc', 'd1', 'user-1']])
     })
   })
 
@@ -215,14 +246,43 @@ describe('@molecule/api-resource-share — handlers', () => {
     })
 
     it('returns 404 when share not found', async () => {
-      mockUpdateById.mockResolvedValue({ data: null, affected: 0 })
+      setShareAdminAuthorizer(() => true)
+      mockFindOne.mockResolvedValue(null)
       const req = mockReq({ params: { id: 's-missing' }, body: { role: 'owner' } })
       const res = mockRes()
       await update(req, res)
       expect(res.status).toHaveBeenCalledWith(404)
+      expect(mockUpdateById).not.toHaveBeenCalled()
     })
 
-    it('updates a share', async () => {
+    it('returns 403 when no ownership authorizer is registered', async () => {
+      mockFindOne.mockResolvedValue({ id: 's1', resourceType: 'doc', resourceId: 'd1' })
+      const req = mockReq({ params: { id: 's1' }, body: { role: 'owner' } })
+      const res = mockRes()
+      await update(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it("returns 403 when the caller does not administer the share's resource", async () => {
+      const seen: Array<[string, string, string]> = []
+      setShareAdminAuthorizer((resourceType, resourceId, userId) => {
+        seen.push([resourceType, resourceId, userId])
+        return false
+      })
+      mockFindOne.mockResolvedValue({ id: 's1', resourceType: 'doc', resourceId: 'd1' })
+      const req = mockReq({ params: { id: 's1' }, body: { role: 'owner' } })
+      const res = mockRes()
+      await update(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      // Authorized against the share's OWN resource, not anything from the body.
+      expect(seen).toEqual([['doc', 'd1', 'user-1']])
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('updates a share when the authorizer allows', async () => {
+      setShareAdminAuthorizer(() => true)
+      mockFindOne.mockResolvedValue({ id: 's1', resourceType: 'doc', resourceId: 'd1' })
       mockUpdateById.mockResolvedValue({ data: { id: 's1', role: 'owner' }, affected: 1 })
       const req = mockReq({ params: { id: 's1' }, body: { role: 'owner' } })
       const res = mockRes()
@@ -253,7 +313,43 @@ describe('@molecule/api-resource-share — handlers', () => {
       expect(res.status).toHaveBeenCalledWith(400)
     })
 
-    it('revokes and returns 204', async () => {
+    it('returns 404 when share not found', async () => {
+      setShareAdminAuthorizer(() => true)
+      mockFindOne.mockResolvedValue(null)
+      const req = mockReq({ params: { id: 's-missing' } })
+      const res = mockRes()
+      await del(req, res)
+      expect(res.status).toHaveBeenCalledWith(404)
+      expect(mockDeleteMany).not.toHaveBeenCalled()
+    })
+
+    it('returns 403 when no ownership authorizer is registered (unauthorized revoke)', async () => {
+      mockFindOne.mockResolvedValue({ id: 's1', resourceType: 'doc', resourceId: 'd1' })
+      const req = mockReq({ params: { id: 's1' } })
+      const res = mockRes()
+      await del(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(mockDeleteMany).not.toHaveBeenCalled()
+    })
+
+    it("returns 403 when the caller does not administer the share's resource", async () => {
+      const seen: Array<[string, string, string]> = []
+      setShareAdminAuthorizer((resourceType, resourceId, userId) => {
+        seen.push([resourceType, resourceId, userId])
+        return false
+      })
+      mockFindOne.mockResolvedValue({ id: 's1', resourceType: 'doc', resourceId: 'd1' })
+      const req = mockReq({ params: { id: 's1' } })
+      const res = mockRes()
+      await del(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(seen).toEqual([['doc', 'd1', 'user-1']])
+      expect(mockDeleteMany).not.toHaveBeenCalled()
+    })
+
+    it('revokes and returns 204 when the authorizer allows', async () => {
+      setShareAdminAuthorizer(() => true)
+      mockFindOne.mockResolvedValue({ id: 's1', resourceType: 'doc', resourceId: 'd1' })
       mockDeleteMany.mockResolvedValue({ data: null, affected: 1 })
       const req = mockReq({ params: { id: 's1' } })
       const res = mockRes()
