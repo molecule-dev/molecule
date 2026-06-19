@@ -10,7 +10,10 @@ import { getLogger } from '@molecule/api-bond'
 import type { DatabaseConfig, DatabaseConnection, DatabasePool } from '@molecule/api-database'
 
 export * from './migrator.js'
+export * from './ssl.js'
 export * as setup from './setup/index.js'
+
+import { deriveSsl } from './ssl.js'
 
 /**
  * Wraps a `pg.Pool` instance into a `DatabasePool`-compatible interface,
@@ -79,26 +82,6 @@ function wrapPool(pgPool: pg.Pool): DatabasePool {
  * process.env.DATABASE_URL has been populated by resolveAll() first.
  */
 let _pool: DatabasePool | null = null
-/**
- * Returns the lazily-initialized default pool, creating it from
- * `DATABASE_URL` env var on first access.
- *
- * @param url - The PostgreSQL connection URL to check.
- * @returns `true` if the URL points to a local database.
- */
-function isLocalUrl(url: string): boolean {
-  return (
-    // Explicit SSL opt-out via the standard libpq parameter. Lets a caller reach
-    // a no-SSL Postgres over a private/non-localhost address (e.g. a sandbox
-    // reaching the host DB via the docker bridge gateway) without us having to
-    // guess from the host. Production URLs without it still default to SSL.
-    url.includes('sslmode=disable') ||
-    url.includes('localhost') ||
-    url.includes('127.0.0.1') ||
-    url.startsWith('postgres:///') ||
-    url.startsWith('postgresql:///')
-  )
-}
 
 /**
  * Returns the lazily-initialized default pool, creating it from
@@ -108,14 +91,14 @@ function isLocalUrl(url: string): boolean {
 function getPoolInstance(): DatabasePool {
   if (!_pool) {
     const url = process.env.DATABASE_URL
+    // SSL is verify-by-default via the shared `deriveSsl` helper (see ssl.ts):
+    // remote DBs verify the server certificate against the system CA store,
+    // relaxing ONLY on explicit operator opt-out. Keep this in lockstep with the
+    // migrator + scaffolded scripts by reusing the helper rather than inlining.
     const poolConfig: pg.PoolConfig = url
       ? {
           connectionString: url,
-          ssl: isLocalUrl(url)
-            ? false
-            : process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'false'
-              ? { rejectUnauthorized: false }
-              : true,
+          ssl: deriveSsl(url),
         }
       : {}
 

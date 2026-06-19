@@ -17,6 +17,26 @@ import type {
   WhereCondition,
 } from '@molecule/api-database'
 
+/** Validates that an identifier (table/column name) is safe for SQL interpolation. */
+const SAFE_IDENTIFIER = /^[a-zA-Z_][a-zA-Z0-9_]*$/
+
+/**
+ * Validates that a SQL identifier (table or column name) is safe for interpolation.
+ *
+ * Table/column names cannot be bound as `?` placeholders, so they are interpolated
+ * directly into the SQL string. Any value that reaches an interpolation point MUST be
+ * validated here — otherwise a caller passing a user-supplied identifier (e.g. a
+ * `sort_by` column from a query string) opens a SQL-injection hole. The whitelist of
+ * plain `[A-Za-z_][A-Za-z0-9_]*` identifiers makes the `"..."` quoting unbreakable.
+ *
+ * @param name - The identifier string to validate.
+ */
+function assertSafeIdentifier(name: string): void {
+  if (!SAFE_IDENTIFIER.test(name)) {
+    throw new Error(`Invalid SQL identifier: ${name}`)
+  }
+}
+
 /**
  * Builds a SQL WHERE clause from WhereCondition[] using ? placeholders.
  * @param conditions - Array of WhereCondition objects to convert to SQL.
@@ -31,6 +51,7 @@ function buildWhere(conditions: WhereCondition[]): { clause: string; values: unk
   const values: unknown[] = []
 
   for (const cond of conditions) {
+    assertSafeIdentifier(cond.field)
     switch (cond.operator) {
       case '=':
       case '!=':
@@ -78,7 +99,15 @@ function buildWhere(conditions: WhereCondition[]): { clause: string; values: unk
  */
 function buildOrderBy(orderBy?: { field: string; direction: 'asc' | 'desc' }[]): string {
   if (!orderBy || orderBy.length === 0) return ''
-  return `ORDER BY ${orderBy.map((o) => `"${o.field}" ${o.direction.toUpperCase()}`).join(', ')}`
+  return `ORDER BY ${orderBy
+    .map((o) => {
+      assertSafeIdentifier(o.field)
+      // Whitelist the direction to exactly ASC/DESC — never interpolate an
+      // arbitrary `toUpperCase()` of caller input into the SQL string.
+      const dir = o.direction.toLowerCase() === 'desc' ? 'DESC' : 'ASC'
+      return `"${o.field}" ${dir}`
+    })
+    .join(', ')}`
 }
 
 /**
@@ -113,6 +142,7 @@ export function createStore(pool: DatabasePool): DataStore {
       table: string,
       id: string | number,
     ): Promise<T | null> {
+      assertSafeIdentifier(table)
       const result = await pool.query<T>(`SELECT * FROM "${table}" WHERE "id" = ? LIMIT 1`, [id])
       return result.rows[0] ?? null
     },
@@ -121,6 +151,7 @@ export function createStore(pool: DatabasePool): DataStore {
       table: string,
       where: WhereCondition[],
     ): Promise<T | null> {
+      assertSafeIdentifier(table)
       const { clause, values } = buildWhere(where)
       const result = await pool.query<T>(`SELECT * FROM "${table}" ${clause} LIMIT 1`, values)
       return result.rows[0] ?? null
@@ -130,11 +161,28 @@ export function createStore(pool: DatabasePool): DataStore {
       table: string,
       options?: FindManyOptions,
     ): Promise<T[]> {
+      assertSafeIdentifier(table)
       const { clause, values } = buildWhere(options?.where ?? [])
-      const selectFields = options?.select?.map((s) => `"${s}"`).join(', ') ?? '*'
+      const selectFields =
+        options?.select
+          ?.map((s) => {
+            assertSafeIdentifier(s)
+            return `"${s}"`
+          })
+          .join(', ') ?? '*'
       const orderBy = buildOrderBy(options?.orderBy)
-      const limit = options?.limit ? `LIMIT ${options.limit}` : ''
-      const offset = options?.offset ? `OFFSET ${options.offset}` : ''
+      // Safety cap: if caller doesn't specify a limit, apply a default to prevent
+      // unbounded queries from returning millions of rows and exhausting memory.
+      const MAX_DEFAULT_LIMIT = 10_000
+      const effectiveLimit = Math.max(
+        0,
+        Math.min(Number(options?.limit ?? MAX_DEFAULT_LIMIT), MAX_DEFAULT_LIMIT),
+      )
+      const limit = `LIMIT ${effectiveLimit}`
+      // Validate offset as a non-negative integer to prevent SQL injection.
+      const safeOffset =
+        options?.offset != null ? Math.max(0, Math.floor(Number(options.offset))) : 0
+      const offset = safeOffset > 0 ? `OFFSET ${safeOffset}` : ''
 
       const sql =
         `SELECT ${selectFields} FROM "${table}" ${clause} ${orderBy} ${limit} ${offset}`.trim()
@@ -143,6 +191,7 @@ export function createStore(pool: DatabasePool): DataStore {
     },
 
     async count(table: string, where?: WhereCondition[]): Promise<number> {
+      assertSafeIdentifier(table)
       const { clause, values } = buildWhere(where ?? [])
       const result = await pool.query<{ count: number }>(
         `SELECT COUNT(*) AS "count" FROM "${table}" ${clause}`,
@@ -155,6 +204,7 @@ export function createStore(pool: DatabasePool): DataStore {
       table: string,
       data: Record<string, unknown>,
     ): Promise<MutationResult<T>> {
+      assertSafeIdentifier(table)
       // The documented bare-create pattern — create('table', { ...fields }) with no
       // explicit id — relies on the row getting an id. The molecule id convention is a
       // uuid PK, but a hand-written migration may declare `id uuid NOT NULL` with no DB
@@ -166,6 +216,7 @@ export function createStore(pool: DatabasePool): DataStore {
         data = { id: randomUUID(), ...data }
       }
       const keys = Object.keys(data)
+      for (const k of keys) assertSafeIdentifier(k)
       const columns = keys.map((k) => `"${k}"`).join(', ')
       const placeholders = keys.map(() => '?').join(', ')
       const values = keys.map((k) => data[k])
@@ -182,7 +233,9 @@ export function createStore(pool: DatabasePool): DataStore {
       id: string | number,
       data: Record<string, unknown>,
     ): Promise<MutationResult<T>> {
+      assertSafeIdentifier(table)
       const keys = Object.keys(data)
+      for (const k of keys) assertSafeIdentifier(k)
       const setClauses = keys.map((k) => `"${k}" = ?`).join(', ')
       const values = [...keys.map((k) => data[k]), id]
 
@@ -198,7 +251,9 @@ export function createStore(pool: DatabasePool): DataStore {
       where: WhereCondition[],
       data: Record<string, unknown>,
     ): Promise<MutationResult> {
+      assertSafeIdentifier(table)
       const keys = Object.keys(data)
+      for (const k of keys) assertSafeIdentifier(k)
       const setClauses = keys.map((k) => `"${k}" = ?`).join(', ')
       const setValues = keys.map((k) => data[k])
 
@@ -210,11 +265,13 @@ export function createStore(pool: DatabasePool): DataStore {
     },
 
     async deleteById(table: string, id: string | number): Promise<MutationResult> {
+      assertSafeIdentifier(table)
       const result = await pool.query(`DELETE FROM "${table}" WHERE "id" = ?`, [id])
       return { data: null, affected: result.rowCount ?? 0 }
     },
 
     async deleteMany(table: string, where: WhereCondition[]): Promise<MutationResult> {
+      assertSafeIdentifier(table)
       const { clause, values } = buildWhere(where)
       const result = await pool.query(`DELETE FROM "${table}" ${clause}`, values)
       return { data: null, affected: result.rowCount ?? 0 }

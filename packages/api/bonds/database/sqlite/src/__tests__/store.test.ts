@@ -97,13 +97,17 @@ describe('createStore', () => {
   })
 
   describe('findMany', () => {
-    it('should return all rows when no options are provided', async () => {
+    it('should return all rows when no options are provided (default LIMIT cap applied)', async () => {
       const rows = [{ id: '1' }, { id: '2' }]
       mockPool.query.mockResolvedValueOnce({ rows, rowCount: 2 })
 
       const result = await store.findMany('users')
 
-      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM "users"', [])
+      const sql = mockPool.query.mock.calls[0][0] as string
+      expect(sql).toContain('SELECT * FROM "users"')
+      // A default LIMIT 10000 is applied to prevent unbounded scans.
+      expect(sql).toContain('LIMIT 10000')
+      expect(mockPool.query).toHaveBeenCalledWith(sql, [])
       expect(result).toEqual(rows)
     })
 
@@ -573,6 +577,206 @@ describe('createStore', () => {
       expect(sql).toContain('"role" IN (?, ?)')
       expect(sql).toContain('"deleted_at" IS NULL')
       expect(mockPool.query).toHaveBeenCalledWith(sql, [true, 18, 'admin', 'editor'])
+    })
+  })
+
+  describe('SQL identifier validation (assertSafeIdentifier)', () => {
+    // Regression for the SQLite SQL-injection hole: table/column/order-by/select
+    // identifiers are interpolated directly into the SQL string (they cannot be `?`
+    // placeholders), so every interpolated identifier must be whitelist-validated.
+    // The classic exploit is a user-supplied `sort_by` column smuggling a `"`-delimited
+    // ORDER BY subquery for blind exfiltration. Each case below MUST throw before the
+    // query ever reaches the pool.
+    beforeEach(() => {
+      // Default resolve so methods that probe before erroring don't hang on undefined.
+      mockPool.query.mockResolvedValue({ rows: [], rowCount: 0 })
+    })
+
+    describe('valid identifiers should be accepted', () => {
+      it.each(['users', 'created_at', '_private', 'A123'])('accepts "%s"', async (name) => {
+        await expect(store.findById(name, '1')).resolves.not.toThrow()
+      })
+    })
+
+    describe('invalid identifiers should throw', () => {
+      it.each([
+        ['SQL injection', 'users; DROP TABLE'],
+        ['double quote', 'col"name'],
+        ['starts with digit', '123col'],
+        ['empty string', ''],
+        ['contains space', 'col name'],
+        ['backtick', 'col`name'],
+      ])('rejects %s: "%s"', async (_label, name) => {
+        await expect(store.findById(name, '1')).rejects.toThrow('Invalid SQL identifier')
+      })
+    })
+
+    describe('enforced on table names', () => {
+      const bad = 'users; DROP TABLE'
+
+      it('findById rejects unsafe table', async () => {
+        await expect(store.findById(bad, '1')).rejects.toThrow('Invalid SQL identifier')
+      })
+
+      it('findOne rejects unsafe table', async () => {
+        await expect(
+          store.findOne(bad, [{ field: 'id', operator: '=', value: '1' }]),
+        ).rejects.toThrow('Invalid SQL identifier')
+      })
+
+      it('findMany rejects unsafe table', async () => {
+        await expect(store.findMany(bad)).rejects.toThrow('Invalid SQL identifier')
+      })
+
+      it('count rejects unsafe table', async () => {
+        await expect(store.count(bad)).rejects.toThrow('Invalid SQL identifier')
+      })
+
+      it('create rejects unsafe table', async () => {
+        await expect(store.create(bad, { name: 'x' })).rejects.toThrow('Invalid SQL identifier')
+      })
+
+      it('updateById rejects unsafe table', async () => {
+        await expect(store.updateById(bad, '1', { name: 'x' })).rejects.toThrow(
+          'Invalid SQL identifier',
+        )
+      })
+
+      it('updateMany rejects unsafe table', async () => {
+        await expect(
+          store.updateMany(bad, [{ field: 'id', operator: '=', value: '1' }], { name: 'x' }),
+        ).rejects.toThrow('Invalid SQL identifier')
+      })
+
+      it('deleteById rejects unsafe table', async () => {
+        await expect(store.deleteById(bad, '1')).rejects.toThrow('Invalid SQL identifier')
+      })
+
+      it('deleteMany rejects unsafe table', async () => {
+        await expect(
+          store.deleteMany(bad, [{ field: 'id', operator: '=', value: '1' }]),
+        ).rejects.toThrow('Invalid SQL identifier')
+      })
+    })
+
+    describe('enforced on column names in WHERE conditions', () => {
+      it('rejects unsafe field in WHERE', async () => {
+        await expect(
+          store.findOne('users', [{ field: 'col"inject', operator: '=', value: '1' }]),
+        ).rejects.toThrow('Invalid SQL identifier')
+      })
+    })
+
+    describe('enforced on column names in ORDER BY (the sort_by exploit)', () => {
+      it('rejects unsafe field in orderBy', async () => {
+        await expect(
+          store.findMany('users', {
+            orderBy: [
+              {
+                field: 'created_at" , (SELECT password_hash FROM users) --',
+                direction: 'asc',
+              },
+            ],
+          }),
+        ).rejects.toThrow('Invalid SQL identifier')
+      })
+
+      it('rejects a "; DROP-laden orderBy field', async () => {
+        await expect(
+          store.findMany('users', { orderBy: [{ field: 'col; DROP', direction: 'asc' }] }),
+        ).rejects.toThrow('Invalid SQL identifier')
+      })
+    })
+
+    describe('enforced on column names in SELECT', () => {
+      it('rejects unsafe field in select', async () => {
+        await expect(store.findMany('users', { select: ['id', 'col"name'] })).rejects.toThrow(
+          'Invalid SQL identifier',
+        )
+      })
+    })
+
+    describe('enforced on column names in INSERT/UPDATE data keys', () => {
+      it('rejects unsafe key in create data', async () => {
+        await expect(store.create('users', { 'col; DROP': 'value' })).rejects.toThrow(
+          'Invalid SQL identifier',
+        )
+      })
+
+      it('rejects unsafe key in updateById data', async () => {
+        await expect(store.updateById('users', '1', { 'col"name': 'value' })).rejects.toThrow(
+          'Invalid SQL identifier',
+        )
+      })
+
+      it('rejects unsafe key in updateMany data', async () => {
+        await expect(
+          store.updateMany('users', [{ field: 'id', operator: '=', value: '1' }], {
+            'col"name': 'value',
+          }),
+        ).rejects.toThrow('Invalid SQL identifier')
+      })
+    })
+
+    describe('direction is whitelisted, never interpolated', () => {
+      it('coerces an unexpected direction to ASC', async () => {
+        await store.findMany('users', {
+          // Cast to feed a deliberately-invalid direction the type forbids.
+          orderBy: [{ field: 'name', direction: 'desc; DROP TABLE' as 'asc' }],
+        })
+        const sql = mockPool.query.mock.calls[0][0] as string
+        expect(sql).toContain('ORDER BY "name" ASC')
+        expect(sql).not.toContain('DROP')
+      })
+
+      it('honors a legitimate desc direction', async () => {
+        await store.findMany('users', { orderBy: [{ field: 'name', direction: 'desc' }] })
+        const sql = mockPool.query.mock.calls[0][0] as string
+        expect(sql).toContain('ORDER BY "name" DESC')
+      })
+    })
+  })
+
+  describe('default LIMIT cap', () => {
+    beforeEach(() => {
+      mockPool.query.mockResolvedValue({ rows: [], rowCount: 0 })
+    })
+
+    it('applies LIMIT 10000 when no limit specified', async () => {
+      await store.findMany('users')
+      const sql = mockPool.query.mock.calls[0][0] as string
+      expect(sql).toContain('LIMIT 10000')
+    })
+
+    it('caps limit at 10000 when limit exceeds 10000', async () => {
+      await store.findMany('users', { limit: 50000 })
+      const sql = mockPool.query.mock.calls[0][0] as string
+      expect(sql).toContain('LIMIT 10000')
+    })
+
+    it('uses specified limit when under 10000', async () => {
+      await store.findMany('users', { limit: 25 })
+      const sql = mockPool.query.mock.calls[0][0] as string
+      expect(sql).toContain('LIMIT 25')
+    })
+  })
+
+  describe('OFFSET validation', () => {
+    beforeEach(() => {
+      mockPool.query.mockResolvedValue({ rows: [], rowCount: 0 })
+    })
+
+    it('treats negative offset as 0 (no OFFSET clause)', async () => {
+      await store.findMany('users', { offset: -5 })
+      const sql = mockPool.query.mock.calls[0][0] as string
+      expect(sql).not.toContain('OFFSET')
+    })
+
+    it('floors a fractional offset to an integer', async () => {
+      await store.findMany('users', { offset: 10.7 })
+      const sql = mockPool.query.mock.calls[0][0] as string
+      expect(sql).toContain('OFFSET 10')
+      expect(sql).not.toContain('OFFSET 10.7')
     })
   })
 })

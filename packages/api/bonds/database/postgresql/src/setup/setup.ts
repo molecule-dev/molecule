@@ -15,6 +15,8 @@ import { fileURLToPath } from 'url'
 
 import { getLogger } from '@molecule/api-bond'
 
+import { deriveSsl } from '../ssl.js'
+
 const logger = getLogger()
 
 /**
@@ -89,7 +91,10 @@ export const setup = async (
     ? new pg.Client()
     : new pg.Client({
         connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false },
+        // Verify-by-default via the shared helper: a remote DB's server
+        // certificate is checked against the system CA store, relaxing ONLY on
+        // explicit operator opt-out (was an unconditional rejectUnauthorized:false).
+        ssl: deriveSsl(process.env.DATABASE_URL),
       })
 
   await client.connect()

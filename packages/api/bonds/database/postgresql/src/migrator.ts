@@ -19,27 +19,9 @@ import { join } from 'node:path'
 
 import pg from 'pg'
 
-const DEFAULT_DB_NAME = 'myapp'
+import { deriveSsl } from './ssl.js'
 
-/**
- * Derive the `ssl` option for a `pg` connection from a database URL.
- * Local databases connect without SSL; everything else uses SSL with
- * relaxed certificate verification (managed Postgres providers).
- *
- * @param databaseUrl - The Postgres connection URL.
- * @returns The `ssl` value for `pg.ClientConfig` / `pg.PoolConfig`.
- */
-function deriveSsl(databaseUrl: string): pg.ConnectionConfig['ssl'] {
-  const isLocal =
-    // Explicit SSL opt-out via the standard libpq parameter (see isLocalUrl in
-    // index.ts) — keeps the migrator's SSL decision in lockstep with the pool's.
-    databaseUrl.includes('sslmode=disable') ||
-    databaseUrl.includes('localhost') ||
-    databaseUrl.includes('127.0.0.1') ||
-    databaseUrl.startsWith('postgres:///') ||
-    databaseUrl.startsWith('postgresql:///')
-  return isLocal ? false : { rejectUnauthorized: false }
-}
+const DEFAULT_DB_NAME = 'myapp'
 
 /**
  * Extract the target database name from a Postgres connection URL,

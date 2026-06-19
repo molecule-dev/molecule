@@ -54,6 +54,53 @@ function createStore(pool: DatabasePool): DataStore
 
 **Returns:** A `DataStore` that translates CRUD operations to SQL queries.
 
+#### `deriveSsl(databaseUrl)`
+
+Derive the `ssl` option for a `pg` connection from a database URL, **secure
+by default**. The three-way rule (identical everywhere a pg client/pool is
+created so the behaviour cannot drift):
+
+1. **Local / explicit no-SSL** (`isLocalUrl`) → `false` (no TLS).
+2. **Private-CA managed provider** (`PGSSLROOTCERT` set) → verify against
+   that CA bundle (`{ ca, rejectUnauthorized: true }`). Verification stays ON.
+3. **Remote, no explicit opt-out** → `true`: negotiate TLS and **verify the
+   server certificate against the system CA store**. This is the default and
+   closes the MITM hole that a blanket `rejectUnauthorized: false` opened.
+
+Verification is relaxed to `{ rejectUnauthorized: false }` **only** when the
+operator explicitly asks — `DATABASE_SSL_REJECT_UNAUTHORIZED=false` or
+`sslmode=no-verify` in the URL — and a loud warning is logged once, because
+that mode is vulnerable to man-in-the-middle interception of credentials and
+data. Operators behind a private CA should set `PGSSLROOTCERT` instead.
+
+```typescript
+function deriveSsl(databaseUrl: string): boolean | ConnectionOptions | undefined
+```
+
+- `databaseUrl` — The Postgres connection URL.
+
+**Returns:** The `ssl` value for `pg.ClientConfig` / `pg.PoolConfig`.
+
+#### `isLocalUrl(url)`
+
+Returns `true` when the connection URL points at a local / explicitly
+no-SSL Postgres, where TLS verification is neither possible nor meaningful.
+
+Recognizes loopback hosts, unix-socket URLs, and an explicit
+`sslmode=disable` — the standard libpq opt-out. The latter lets a caller
+reach a no-SSL Postgres over a private/non-localhost address (e.g. a sandbox
+reaching the host DB via the docker bridge gateway, or the sandbox Postgres
+at `172.17.0.1` which doesn't speak SSL) without us having to guess from the
+host. Production URLs without it still default to verified SSL.
+
+```typescript
+function isLocalUrl(url: string): boolean
+```
+
+- `url` — The PostgreSQL connection URL.
+
+**Returns:** `true` if the URL points to a local or explicitly no-SSL database.
+
 ### Constants
 
 #### `pool`

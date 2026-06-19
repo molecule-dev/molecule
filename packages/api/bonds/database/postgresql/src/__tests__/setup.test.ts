@@ -203,6 +203,7 @@ describe('@molecule/api-database-postgresql/setup', () => {
     })
 
     it('should use DATABASE_URL when provided', async () => {
+      // Local URL → no TLS (verify-by-default helper returns false for localhost).
       process.env.DATABASE_URL = 'postgres://localhost:5432/test'
       vi.resetModules()
 
@@ -215,7 +216,31 @@ describe('@molecule/api-database-postgresql/setup', () => {
 
       expect(pg.Client).toHaveBeenCalledWith({
         connectionString: 'postgres://localhost:5432/test',
-        ssl: { rejectUnauthorized: false },
+        ssl: false,
+      })
+
+      consoleSpy.mockRestore()
+    })
+
+    it('verifies the server certificate for a remote DATABASE_URL (no blanket rejectUnauthorized:false)', async () => {
+      // Regression: setup.ts used an unconditional { rejectUnauthorized: false },
+      // which silently accepts any TLS cert (MITM-able). A remote DB with no
+      // explicit opt-out must now verify against the system CA store.
+      process.env.DATABASE_URL = 'postgres://user:pw@db.example-cloud.com:5432/test'
+      delete process.env.DATABASE_SSL_REJECT_UNAUTHORIZED
+      delete process.env.PGSSLROOTCERT
+      vi.resetModules()
+
+      const pg = await import('pg')
+      const { setup } = await import('../setup/setup.js')
+
+      const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+
+      await setup()
+
+      expect(pg.Client).toHaveBeenCalledWith({
+        connectionString: 'postgres://user:pw@db.example-cloud.com:5432/test',
+        ssl: true,
       })
 
       consoleSpy.mockRestore()
