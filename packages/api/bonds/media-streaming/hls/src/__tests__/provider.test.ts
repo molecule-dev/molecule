@@ -196,6 +196,85 @@ describe('HLS streaming provider', () => {
     })
   })
 
+  describe('path-component validation (security)', () => {
+    it('should reject a transcode profile name with a traversal sequence', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      await expect(
+        p.transcode('/path/to/video.mp4', [
+          {
+            name: '../../etc',
+            width: 1280,
+            height: 720,
+            videoBitrate: 2_500_000,
+            audioBitrate: 128_000,
+          },
+        ]),
+      ).rejects.toThrow(/Invalid profile name/)
+      expect(mkdir).not.toHaveBeenCalledWith(expect.stringContaining('etc'), expect.anything())
+    })
+
+    it('should reject a transcode profile name with a shell metacharacter', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      await expect(
+        p.transcode('/path/to/video.mp4', [
+          {
+            name: '720p; rm -rf /',
+            width: 1280,
+            height: 720,
+            videoBitrate: 2_500_000,
+            audioBitrate: 128_000,
+          },
+        ]),
+      ).rejects.toThrow(/Invalid profile name/)
+    })
+
+    it('should still transcode with a normal profile name', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      const result = await p.transcode('/path/to/video.mp4', [
+        {
+          name: '720p',
+          width: 1280,
+          height: 720,
+          videoBitrate: 2_500_000,
+          audioBitrate: 128_000,
+        },
+      ])
+      expect(result.variants[0]!.profile).toBe('720p')
+    })
+
+    it('should reject a getSegment streamId with a traversal sequence', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      await expect(p.getSegment('../../../../etc/passwd', 0)).rejects.toThrow(/Invalid stream id/)
+      expect(readFile).not.toHaveBeenCalled()
+    })
+
+    it('should reject a getSegment streamId containing a NUL byte', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      await expect(p.getSegment('good\0id', 0)).rejects.toThrow(/Invalid stream id/)
+      expect(readFile).not.toHaveBeenCalled()
+    })
+
+    it('should reject a getSegment streamId with a path separator', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      await expect(p.getSegment('sub/dir', 0)).rejects.toThrow(/Invalid stream id/)
+      expect(readFile).not.toHaveBeenCalled()
+    })
+
+    it('should reject a negative / non-integer segment index', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      await expect(p.getSegment('stream-1', -1)).rejects.toThrow(/Invalid segment index/)
+      await expect(p.getSegment('stream-1', 1.5)).rejects.toThrow(/Invalid segment index/)
+      expect(readFile).not.toHaveBeenCalled()
+    })
+
+    it('should still read a segment for a normal streamId + index', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      const segment = await p.getSegment('hls-123', 0)
+      expect(readFile).toHaveBeenCalledWith(expect.stringContaining('seg-000.ts'))
+      expect(Buffer.isBuffer(segment)).toBe(true)
+    })
+  })
+
   describe('default provider export', () => {
     it('should expose all StreamingProvider methods', () => {
       expect(provider.createStream).toBeInstanceOf(Function)

@@ -12,7 +12,20 @@ rows are never mutated.
 ## Quick Start
 
 ```typescript
-import { routes, requestHandlerMap, createVersion } from '@molecule/api-resource-version-history'
+import {
+  routes,
+  requestHandlerMap,
+  createVersion,
+  registerOwnershipResolver,
+} from '@molecule/api-resource-version-history'
+
+// REQUIRED before mounting the routes: tell version-history how to check
+// parent-resource ownership for each resource type you version. Without this
+// every read/list/diff/restore fails closed (404) — the routes are never open.
+registerOwnershipResolver('document', async ({ resourceId, userId }) => {
+  const doc = await findById('documents', resourceId)
+  return doc?.userId === userId
+})
 
 // Wire routes via mlcl inject:
 //   POST   /:resourceType/:resourceId/versions
@@ -153,6 +166,23 @@ interface VersionFieldChange {
 }
 ```
 
+#### `VersionOwnershipContext`
+
+The context an ownership resolver receives to decide access. `userId` is the
+authenticated caller (re-derived from `res.locals.session.userId`, never
+client-supplied).
+
+```typescript
+interface VersionOwnershipContext {
+  /** The parent resource type (e.g. `'document'`, `'project'`). */
+  resourceType: string
+  /** The parent resource id whose versions are being accessed. */
+  resourceId: string
+  /** The authenticated caller's user id. */
+  userId: string
+}
+```
+
 ### Types
 
 #### `JSONValue`
@@ -178,18 +208,43 @@ Shallow per-field diff between two snapshots, keyed by field name.
 type VersionChanges = Record<string, VersionFieldChange>
 ```
 
+#### `VersionOwnershipResolver`
+
+Resolves whether the authenticated caller may read/restore versions of a
+given parent resource. Return `true` to allow, `false` to deny. May be
+async (e.g. it can look the parent resource up in the database).
+
+```typescript
+type VersionOwnershipResolver = (
+  context: VersionOwnershipContext,
+) => boolean | Promise<boolean>
+```
+
 ### Functions
+
+#### `clearOwnershipResolvers()`
+
+Clears all registered ownership resolvers. Primarily useful in tests.
+
+```typescript
+function clearOwnershipResolvers(): void
+```
 
 #### `create(req, res)`
 
 Captures a new version of a resource.
+
+Secure by default: returns 401 with no session, and 404 (no existence leak)
+when the caller is not authorized for the parent resource — a caller can only
+capture versions of a resource they own, never inject snapshots into another
+tenant's resource.
 
 ```typescript
 function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
 - `req` — The request with `resourceType` / `resourceId` params and a snapshot body.
-- `res` — The response object.
+- `res` — The response object (reads `locals.session`/`locals.versionHistoryAdmin`).
 
 #### `createVersion(input)`
 
@@ -226,12 +281,17 @@ function deleteVersionsForResource(resourceType: string, resourceId: string): Pr
 
 Returns the shallow diff between two versions of the same resource.
 
+Secure by default: returns 401 with no session, and 404 (no existence leak)
+when either version is missing OR the caller is not authorized for the parent
+resource the two versions share. An opt-in {@link versionHistoryAdmin} may
+diff any versions.
+
 ```typescript
 function diff(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
 - `req` — The request with `fromVersionId` and `toVersionId` params.
-- `res` — The response object.
+- `res` — The response object (reads `locals.session`/`locals.versionHistoryAdmin`).
 
 #### `diffSnapshots(before, after)`
 
@@ -281,6 +341,19 @@ function getLatestVersion(resourceType: string, resourceId: string): Promise<Ver
 - `resourceId` — The resource ID.
 
 **Returns:** The latest version, or `null`.
+
+#### `getOwnershipResolver(resourceType)`
+
+Returns the ownership resolver registered for a resource type, or
+`undefined` if none has been registered.
+
+```typescript
+function getOwnershipResolver(resourceType: string): VersionOwnershipResolver | undefined
+```
+
+- `resourceType` — The resource type to look up.
+
+**Returns:** The resolver, or `undefined`.
 
 #### `getVersionById(versionId)`
 
@@ -335,6 +408,41 @@ function getVersionsForResource(resourceType: string, resourceId: string, option
 
 **Returns:** A paginated result of versions.
 
+#### `isVersionAuthorized(res, context)`
+
+Authorizes whether the authenticated caller may access versions of a parent
+resource. Admins widened by {@link versionHistoryAdmin} are always allowed;
+otherwise the app-registered {@link VersionOwnershipResolver} for the parent
+`resourceType` decides. **Fail-closed:** when no resolver is registered the
+caller is denied, so the polymorphic version store never leaks a snapshot it
+cannot prove the caller owns.
+
+```typescript
+function isVersionAuthorized(res: MoleculeResponse, context: VersionOwnershipContext): Promise<boolean>
+```
+
+- `res` — The response whose `locals.session`/`locals.versionHistoryAdmin`
+- `context` — The {@link VersionOwnershipContext} (parent resource + caller).
+
+**Returns:** `true` when the caller may access the parent resource's versions.
+
+#### `isVersionHistoryAdmin(res)`
+
+Resolves whether the current request's session belongs to an actor
+authorized to administer version history (read/restore any user's versions).
+Fail-closed: returns `false` when there is no authenticated session, and
+otherwise only `true` when the session carries an admin claim — `isAdmin ===
+true`, `role === 'admin'`, `roles` containing `'admin'`, or `permissions`
+containing `'admin'` / `'versionHistory:manage'`.
+
+```typescript
+function isVersionHistoryAdmin(res: MoleculeResponse): boolean
+```
+
+- `res` — The response whose `locals.session` is inspected.
+
+**Returns:** `true` when the session is an authorized version-history admin.
+
 #### `jsonEqual(a, b)`
 
 Returns `true` if `a` and `b` are deeply equal as JSON values.
@@ -352,46 +460,78 @@ function jsonEqual(a: JSONValue | undefined, b: JSONValue | undefined): boolean
 
 Lists paginated versions for a resource, newest version first.
 
+Secure by default: returns 401 with no session, and 404 (no existence leak)
+when the caller is not authorized for the parent resource — only the parent
+resource's owner (or an opt-in {@link versionHistoryAdmin}) sees its versions.
+
 ```typescript
 function list(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
 - `req` — The request with `resourceType` and `resourceId` params.
-- `res` — The response object.
+- `res` — The response object (reads `locals.session`/`locals.versionHistoryAdmin`).
 
 #### `read(req, res)`
 
 Reads a single version by ID.
+
+Secure by default: returns 401 with no session, and 404 (no existence leak)
+when the version is missing OR the caller is not authorized for its parent
+resource — a non-owner cannot tell the two apart, so another tenant's
+snapshot is never disclosed. An opt-in {@link versionHistoryAdmin} may read
+any version.
 
 ```typescript
 function read(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
 - `req` — The request with `versionId` param.
-- `res` — The response object.
+- `res` — The response object (reads `locals.session`/`locals.versionHistoryAdmin`).
 
 #### `readByNumber(req, res)`
 
 Reads a single version of a resource by 1-based version number.
+
+Secure by default: returns 401 with no session, and 404 (no existence leak)
+when the caller is not authorized for the parent resource.
 
 ```typescript
 function readByNumber(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
 - `req` — The request with `resourceType`, `resourceId`, and `version` params.
-- `res` — The response object.
+- `res` — The response object (reads `locals.session`/`locals.versionHistoryAdmin`).
+
+#### `registerOwnershipResolver(resourceType, resolver)`
+
+Registers an ownership resolver for a parent resource type.
+
+Subsequent calls with the same `resourceType` overwrite the previous
+registration.
+
+```typescript
+function registerOwnershipResolver(resourceType: string, resolver: VersionOwnershipResolver): void
+```
+
+- `resourceType` — The parent resource type the resolver authorizes.
+- `resolver` — The resolver to invoke when authorizing access to versions
 
 #### `restore(req, res)`
 
 Restores a prior version by appending a new version whose snapshot
 matches it. Append-only — the existing rows are never mutated.
 
+Secure by default: returns 401 with no session, and 404 (no existence leak)
+when the version is missing OR the caller is not authorized for its parent
+resource — a non-owner can neither restore another tenant's version nor learn
+that it exists. An opt-in {@link versionHistoryAdmin} may restore any version.
+
 ```typescript
 function restore(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
 - `req` — The request with `versionId` param.
-- `res` — The response object.
+- `res` — The response object (reads `locals.session`/`locals.versionHistoryAdmin`).
 
 #### `restoreVersion(versionId, userId, reason)`
 
@@ -411,16 +551,47 @@ function restoreVersion(versionId: string, userId: string | null, reason?: strin
 
 **Returns:** The newly-appended version, or `null` if `versionId` was not found.
 
+#### `unregisterOwnershipResolver(resourceType)`
+
+Removes any registered ownership resolver for the given resource type.
+
+```typescript
+function unregisterOwnershipResolver(resourceType: string): boolean
+```
+
+- `resourceType` — The resource type whose resolver should be removed.
+
+**Returns:** `true` if a resolver was removed.
+
 #### `versionCount(req, res)`
 
 Returns the total number of versions for a resource.
+
+Secure by default: returns 401 with no session, and 404 (no existence leak)
+when the caller is not authorized for the parent resource.
 
 ```typescript
 function versionCount(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
 - `req` — The request with `resourceType` and `resourceId` params.
-- `res` — The response object.
+- `res` — The response object (reads `locals.session`/`locals.versionHistoryAdmin`).
+
+#### `versionHistoryAdmin()`
+
+Opt-in route middleware that *widens* an authenticated admin to cross-tenant
+version access by setting `res.locals.versionHistoryAdmin = true`. It never
+blocks: a non-admin (or anonymous) caller passes through unchanged and
+remains subject to the ownership resolver in the handlers, so composing this
+onto a route can only widen for admins, never open the endpoint. Wire it onto
+a dedicated admin route when a support/compliance console needs to read or
+restore every user's versions.
+
+```typescript
+function versionHistoryAdmin(): MoleculeRequestHandler
+```
+
+**Returns:** An Express-compatible middleware function.
 
 ### Constants
 
@@ -451,10 +622,40 @@ const restoreVersionSchema: z.ZodObject<{ reason: z.ZodOptional<z.ZodNullable<z.
 
 #### `routes`
 
-Routes for the version-history resource.
+Routes for the version-history resource. All routes require `authenticate`;
+the handlers additionally authorize every read/mutation against the caller's
+ownership of the parent resource.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/:resourceType/:resourceId/versions"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/:resourceType/:resourceId/versions"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/:resourceType/:resourceId/versions/count"; readonly handler: "versionCount"; }, { readonly method: "get"; readonly path: "/:resourceType/:resourceId/versions/:version"; readonly handler: "readByNumber"; }, { readonly method: "get"; readonly path: "/versions/:versionId"; readonly handler: "read"; }, { readonly method: "post"; readonly path: "/versions/:versionId/restore"; readonly handler: "restore"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/versions/:fromVersionId/diff/:toVersionId"; readonly handler: "diff"; }]
+const routes: readonly [{ readonly method: "post"; readonly path: "/:resourceType/:resourceId/versions"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/:resourceType/:resourceId/versions"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/:resourceType/:resourceId/versions/count"; readonly handler: "versionCount"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/:resourceType/:resourceId/versions/:version"; readonly handler: "readByNumber"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/versions/:versionId"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/versions/:versionId/restore"; readonly handler: "restore"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/versions/:fromVersionId/diff/:toVersionId"; readonly handler: "diff"; readonly middlewares: readonly ["authenticate"]; }]
+```
+
+#### `VERSION_HISTORY_ADMIN_PERMISSION`
+
+Session-claim permission string (`'versionHistory:manage'`) that, when
+present in a session's `permissions` array, marks the caller as a
+version-history admin.
+
+```typescript
+const VERSION_HISTORY_ADMIN_PERMISSION: "versionHistory:manage"
+```
+
+#### `VERSION_HISTORY_PERMISSION_ACTION`
+
+Permission action describing version-history administration, e.g. for an
+app's own `@molecule/api-permissions` wiring.
+
+```typescript
+const VERSION_HISTORY_PERMISSION_ACTION: "manage"
+```
+
+#### `VERSION_HISTORY_PERMISSION_RESOURCE`
+
+Permission resource describing version-history administration, e.g. for an
+app's own `@molecule/api-permissions` wiring.
+
+```typescript
+const VERSION_HISTORY_PERMISSION_RESOURCE: "versionHistory"
 ```
 
 ## Injection Notes
@@ -467,6 +668,19 @@ Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `zod` ^4.0.0
+
+**Security — the raw routes are NOT open.** Snapshots can contain any
+tenant's data, so every route requires an authenticated session AND each
+handler re-derives the caller from `res.locals.session.userId` and authorizes
+access to the *parent* resource via {@link isVersionAuthorized}. Access is
+**fail-closed and pluggable**: because the store is polymorphic it cannot
+know who owns an arbitrary `(resourceType, resourceId)`, so an app mounting
+these routes MUST register a {@link VersionOwnershipResolver} per resource
+type at startup via {@link registerOwnershipResolver} — until it does, every
+read/list/diff/restore returns 404 (no existence leak) rather than exposing
+another tenant's snapshots. Cross-tenant admin access is opt-in via the
+{@link versionHistoryAdmin} middleware. Do NOT mount the raw routes without
+either a registered resolver or your own resource-ownership gate.
 
 ## Translations
 

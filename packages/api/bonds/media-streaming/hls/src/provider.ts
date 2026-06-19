@@ -26,6 +26,7 @@ import type {
 
 import { generateMasterPlaylist, generateMediaPlaylist } from './m3u8.js'
 import type { HlsConfig } from './types.js'
+import { assertSafePathComponent, assertSegmentIndex, resolveWithinBase } from './validate.js'
 
 const execFileAsync = promisify(execFile)
 
@@ -154,7 +155,10 @@ export const createProvider = (config: HlsConfig = {}): StreamingProvider => {
       const variants: TranscodeVariant[] = []
 
       for (const profile of profiles) {
-        const profileDir = join(outputDir, profile.name)
+        // Reject untrusted profile names that could escape the output dir or
+        // inject ffmpeg args; the validated name is safe for fs paths + URIs.
+        assertSafePathComponent(profile.name, 'profile name')
+        const profileDir = resolveWithinBase(outputDir, profile.name)
         await mkdir(profileDir, { recursive: true })
 
         const codec = profile.codec ?? 'h264'
@@ -214,11 +218,17 @@ export const createProvider = (config: HlsConfig = {}): StreamingProvider => {
     },
 
     async getSegment(streamId: string, segmentIndex: number): Promise<Buffer> {
+      // Validate caller-supplied lookup values before any fs access — an
+      // unvalidated streamId ('../…') would escape the output base on the
+      // disk-fallback path below.
+      assertSafePathComponent(streamId, 'stream id')
+      assertSegmentIndex(segmentIndex)
+
       const key = `${streamId}:${segmentIndex}`
       const data = segmentStore.get(key)
       if (!data) {
         // Fall back to reading from disk
-        const segmentPath = join(
+        const segmentPath = resolveWithinBase(
           outputBasePath,
           streamId,
           `seg-${String(segmentIndex).padStart(3, '0')}.ts`,

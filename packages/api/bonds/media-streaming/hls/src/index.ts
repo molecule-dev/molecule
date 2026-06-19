@@ -25,3 +25,4 @@
 export * from './m3u8.js'
 export * from './provider.js'
 export * from './types.js'
+export * from './validate.js'
