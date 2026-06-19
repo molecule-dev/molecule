@@ -45,7 +45,11 @@ export async function restore(req: MoleculeRequest, res: MoleculeResponse): Prom
   }
 
   const target = await getTrashedItemById(trashId)
-  if (!target) {
+  // Treat "not found" and "owned by someone else" identically so a non-owner
+  // can neither restore another user's row nor learn that it exists. Admins
+  // (opt-in widening via the `trashAdmin` middleware) may restore any row.
+  const isAdmin = res.locals.trashAdmin === true
+  if (!target || (!isAdmin && target.userId !== userId)) {
     res.status(404).json({
       error: t('trash.error.notFound', undefined, { defaultValue: 'Trashed item not found' }),
       errorKey: 'trash.error.notFound',

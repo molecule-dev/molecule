@@ -8,7 +8,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import { purgeItem } from '../service.js'
+import { getTrashedItemById, purgeItem } from '../service.js'
 
 /**
  * Permanently purges a trash row by stamping `purgedAt`. Snapshot is
@@ -40,6 +40,21 @@ export async function purge(req: MoleculeRequest, res: MoleculeResponse): Promis
   }
 
   try {
+    const target = await getTrashedItemById(trashId)
+    // Treat "not found" and "owned by someone else" identically so a non-owner
+    // can neither purge another user's row nor learn that it exists. Admins
+    // (opt-in widening via the `trashAdmin` middleware) may purge any row.
+    const isAdmin = res.locals.trashAdmin === true
+    if (!target || (!isAdmin && target.userId !== userId)) {
+      res.status(404).json({
+        error: t('trash.error.notFound', undefined, {
+          defaultValue: 'Trashed item not found',
+        }),
+        errorKey: 'trash.error.notFound',
+      })
+      return
+    }
+
     const purged = await purgeItem(trashId)
     if (!purged) {
       res.status(404).json({
