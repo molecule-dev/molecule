@@ -330,6 +330,21 @@ describe('@molecule/api-resource-order handlers', () => {
       expect(res.status).toHaveBeenCalledWith(404)
     })
 
+    it('should return 403 when order belongs to another user', async () => {
+      mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, userId: 'other-user' })
+
+      const req = mockReq({ params: { id: 'order-1' }, body: { status: 'confirmed' } })
+      const res = mockRes()
+
+      await updateStatus(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.forbidden' }),
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
     it('should return 409 for invalid transition', async () => {
       mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, status: 'delivered' })
 
@@ -443,6 +458,25 @@ describe('@molecule/api-resource-order handlers', () => {
       await refund(req, res)
 
       expect(res.status).toHaveBeenCalledWith(404)
+    })
+
+    it('should return 403 when order belongs to another user', async () => {
+      mockFindById.mockResolvedValueOnce({
+        ...ORDER_ROW,
+        status: 'delivered',
+        userId: 'other-user',
+      })
+
+      const req = mockReq({ params: { id: 'order-1' }, body: { amount: 27 } })
+      const res = mockRes()
+
+      await refund(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.forbidden' }),
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
     })
 
     it('should return 409 when order cannot be refunded', async () => {

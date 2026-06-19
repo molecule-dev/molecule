@@ -4,4 +4,4 @@
  * @module
  */
 
-// TODO: Add authorization logic
+export * from './authUser.js'

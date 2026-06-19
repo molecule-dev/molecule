@@ -8,13 +8,20 @@
  * tokens are returned exactly once on creation and are never exposed via the
  * public listing/read endpoints.
  *
+ * The `list`, `read`, and `del` routes are **admin-only** — always apply their
+ * declared `middlewares` (the `requireAdmin` authorizer) when wiring, as shown
+ * below. Each handler also re-checks admin authorization internally, so the gate
+ * holds even if the middlewares are omitted; "admin" resolves via an admin
+ * session claim or an `@molecule/api-permissions` grant, fail-closed otherwise.
+ *
  * @module
  * @example
  * ```typescript
  * import { routes, requestHandlerMap } from '@molecule/api-resource-subscriber'
  *
  * for (const route of routes) {
- *   app[route.method](route.path, requestHandlerMap[route.handler])
+ *   const middlewares = (route.middlewares ?? []).map((name) => requestHandlerMap[name])
+ *   app[route.method](route.path, ...middlewares, requestHandlerMap[route.handler])
  * }
  * ```
  */

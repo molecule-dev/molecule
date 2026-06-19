@@ -16,7 +16,12 @@ import type { Project } from '../types.js'
 export async function del(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
   const id = req.params.id as string
 
-  const project = await findById<Project>('projects', id)
+  // Prefer the owner-scoped row the `authUser` route middleware already loaded
+  // (see `routes.ts`); fall back to a direct lookup for consumers that gate the
+  // route with their own access middleware (e.g. owner-or-team) before calling
+  // this handler. The caller is authorized upstream either way.
+  const preloaded = res.locals.project as Project | undefined
+  const project = preloaded?.id === id ? preloaded : await findById<Project>('projects', id)
   if (!project) {
     res.status(404).json({ error: t('project.error.notFound'), errorKey: 'project.error.notFound' })
     return

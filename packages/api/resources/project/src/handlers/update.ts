@@ -46,7 +46,13 @@ export async function update(req: MoleculeRequest, res: MoleculeResponse): Promi
   const id = req.params.id as string
   const input = req.body as UpdateProjectInput
 
-  const project = await findById<Project>('projects', id)
+  // Prefer the owner-scoped row the `authUser` route middleware already loaded
+  // (see `routes.ts`); fall back to a direct lookup for consumers that gate the
+  // route with their own access middleware (e.g. owner-or-team) before calling
+  // this handler. Either way the caller is authorized upstream — this handler
+  // does not re-derive ownership, so it does not narrow a team-member grant.
+  const preloaded = res.locals.project as Project | undefined
+  const project = preloaded?.id === id ? preloaded : await findById<Project>('projects', id)
   if (!project) {
     res.status(404).json({ error: t('project.error.notFound'), errorKey: 'project.error.notFound' })
     return

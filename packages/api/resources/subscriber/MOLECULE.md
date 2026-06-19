@@ -9,13 +9,20 @@ one-time token; opt-out is one-click via a separate unsubscribe token. Both
 tokens are returned exactly once on creation and are never exposed via the
 public listing/read endpoints.
 
+The `list`, `read`, and `del` routes are **admin-only** — always apply their
+declared `middlewares` (the `requireAdmin` authorizer) when wiring, as shown
+below. Each handler also re-checks admin authorization internally, so the gate
+holds even if the middlewares are omitted; "admin" resolves via an admin
+session claim or an `@molecule/api-permissions` grant, fail-closed otherwise.
+
 ## Quick Start
 
 ```typescript
 import { routes, requestHandlerMap } from '@molecule/api-resource-subscriber'
 
 for (const route of routes) {
-  app[route.method](route.path, requestHandlerMap[route.handler])
+  const middlewares = (route.middlewares ?? []).map((name) => requestHandlerMap[name])
+  app[route.method](route.path, ...middlewares, requestHandlerMap[route.handler])
 }
 ```
 
@@ -235,6 +242,25 @@ function generateToken(byteLength?: number): string
 
 **Returns:** A URL-safe random token.
 
+#### `isSubscriberAdmin(res)`
+
+Resolves whether the current request's session belongs to an actor authorized
+to administer subscribers (list/read/delete PII). Fail-closed: returns `false`
+when there is no authenticated session, and otherwise only `true` when the
+session carries an admin claim or a bonded permissions provider grants the
+`manage subscriber` permission.
+
+Use this for in-handler defense-in-depth (it does not depend on the route
+middleware being preserved by the injector).
+
+```typescript
+function isSubscriberAdmin(res: MoleculeResponse): Promise<boolean>
+```
+
+- `res` — The response whose `locals.session` is inspected.
+
+**Returns:** `true` when the session is an authorized subscriber admin.
+
 #### `isSubscriberChannel(value)`
 
 Type guard for {@link SubscriberChannel}.
@@ -306,6 +332,22 @@ function read(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `req` — Request with `:id` path parameter.
 - `res` — Response.
 
+#### `requireAdmin()`
+
+Route middleware that gates the admin-only subscriber routes (`list`, `read`,
+`del`). Calls `next()` only for an authenticated admin; otherwise forwards an
+error to the framework error handler — `Unauthorized` when no session is
+present, `Forbidden` when the session is authenticated but not an admin.
+
+Exposed as a `requestHandlerMap` key so the injector's route scanner keeps it
+(unlike the inert global `'authenticate'` string, which is dropped).
+
+```typescript
+function requireAdmin(): MoleculeRequestHandler
+```
+
+**Returns:** An Express-compatible middleware function.
+
 #### `subscribe(req, res)`
 
 Creates a new pending subscriber. Re-issuing a subscription against an
@@ -357,19 +399,41 @@ const i18nRegistered: true
 
 Handler map for subscriber resource routes.
 
+`requireAdmin` is the admin authorizer middleware referenced by the
+`list`/`read`/`del` routes. It must live here (as a real handler-map key) so
+the mlcl injector's route scanner preserves it — a bare middleware string that
+isn't a handler-map key is silently dropped.
+
 ```typescript
-const requestHandlerMap: { readonly subscribe: typeof subscribe; readonly confirm: typeof confirm; readonly unsubscribe: typeof unsubscribe; readonly list: typeof list; readonly read: typeof read; readonly del: typeof del; }
+const requestHandlerMap: { readonly subscribe: typeof subscribe; readonly confirm: typeof confirm; readonly unsubscribe: typeof unsubscribe; readonly list: typeof list; readonly read: typeof read; readonly del: typeof del; readonly requireAdmin: MoleculeRequestHandler; }
 ```
 
 #### `routes`
 
 Routes for the subscriber resource. Public endpoints (`subscribe`, `confirm`,
-`unsubscribe`) intentionally have no `authenticate` middleware so anonymous
-visitors of a status page or newsletter form can use them. Listing and admin
-deletion are gated behind `authenticate`.
+`unsubscribe`) intentionally have no middleware so anonymous visitors of a
+status page or newsletter form can use them.
+
+Listing, reading, and deletion expose / mutate subscriber PII and are gated
+**admin-only** by the `requireAdmin` middleware (a real `requestHandlerMap`
+key — see {@link requireAdmin} — so the injector preserves it; the previously
+declared global `'authenticate'` string was silently dropped by the route
+scanner, leaving these routes open to any authenticated user). Each handler
+additionally re-checks admin authorization internally, so the gate holds even
+if a consumer wires the routes without applying these middlewares.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/subscribers"; readonly handler: "subscribe"; }, { readonly method: "get"; readonly path: "/subscribers/confirm/:token"; readonly handler: "confirm"; }, { readonly method: "post"; readonly path: "/subscribers/unsubscribe/:token"; readonly handler: "unsubscribe"; }, { readonly method: "get"; readonly path: "/subscribers"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/subscribers/:id"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/subscribers/:id"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [{ readonly method: "post"; readonly path: "/subscribers"; readonly handler: "subscribe"; }, { readonly method: "get"; readonly path: "/subscribers/confirm/:token"; readonly handler: "confirm"; }, { readonly method: "post"; readonly path: "/subscribers/unsubscribe/:token"; readonly handler: "unsubscribe"; }, { readonly method: "get"; readonly path: "/subscribers"; readonly handler: "list"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/subscribers/:id"; readonly handler: "read"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "delete"; readonly path: "/subscribers/:id"; readonly handler: "del"; readonly middlewares: readonly ["requireAdmin"]; }]
+```
+
+#### `SUBSCRIBER_ADMIN_PERMISSION`
+
+Session-claim permission string (`'subscriber:manage'`) that, when present in a
+session's `permissions` array, grants subscriber administration without a bonded
+permissions provider.
+
+```typescript
+const SUBSCRIBER_ADMIN_PERMISSION: "subscriber:manage"
 ```
 
 #### `SUBSCRIBER_CHANNELS`
@@ -378,6 +442,24 @@ All valid subscriber channels.
 
 ```typescript
 const SUBSCRIBER_CHANNELS: readonly SubscriberChannel[]
+```
+
+#### `SUBSCRIBER_PERMISSION_ACTION`
+
+Permission action checked against `@molecule/api-permissions` for subscriber
+administration.
+
+```typescript
+const SUBSCRIBER_PERMISSION_ACTION: "manage"
+```
+
+#### `SUBSCRIBER_PERMISSION_RESOURCE`
+
+Permission resource checked against `@molecule/api-permissions` for subscriber
+administration.
+
+```typescript
+const SUBSCRIBER_PERMISSION_RESOURCE: "subscriber"
 ```
 
 #### `SUBSCRIBER_STATUSES`
@@ -396,4 +478,5 @@ Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
+- `@molecule/api-permissions` ^1.0.0
 - `@molecule/api-resource` ^1.0.0

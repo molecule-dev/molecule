@@ -6,6 +6,8 @@ const {
   mockUpdateById,
   mockDeleteById,
   mockCount,
+  mockHasProvider,
+  mockCan,
 } = vi.hoisted(() => ({
   mockCreate: vi.fn(),
   mockFindOne: vi.fn(),
@@ -14,6 +16,8 @@ const {
   mockUpdateById: vi.fn(),
   mockDeleteById: vi.fn(),
   mockCount: vi.fn(),
+  mockHasProvider: vi.fn(),
+  mockCan: vi.fn(),
 }))
 
 vi.mock('@molecule/api-database', () => ({
@@ -24,6 +28,11 @@ vi.mock('@molecule/api-database', () => ({
   updateById: mockUpdateById,
   deleteById: mockDeleteById,
   count: mockCount,
+}))
+
+vi.mock('@molecule/api-permissions', () => ({
+  hasProvider: mockHasProvider,
+  can: mockCan,
 }))
 
 vi.mock('@molecule/api-i18n', () => ({
@@ -64,7 +73,7 @@ function mockReq(overrides: Record<string, unknown> = {}): any {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mockRes(): any {
+function mockRes(locals: Record<string, unknown> = {}): any {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res: any = {
     status: vi.fn().mockReturnThis(),
@@ -75,9 +84,18 @@ function mockRes(): any {
     setHeader: vi.fn(),
     cookie: vi.fn(),
     write: vi.fn(),
-    locals: {},
+    locals,
   }
   return res
+}
+
+/** Session claim that satisfies the subscriber admin gate without a permissions provider. */
+const ADMIN_SESSION = { userId: 'admin-1', isAdmin: true }
+
+/** Response carrying an authenticated admin session. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mockAdminRes(): any {
+  return mockRes({ session: ADMIN_SESSION })
 }
 
 const SUBSCRIBER_ROW = {
@@ -98,6 +116,9 @@ const SUBSCRIBER_ROW = {
 describe('@molecule/api-resource-subscriber handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Fail-closed defaults for the admin gate: no bonded provider, deny.
+    mockHasProvider.mockReturnValue(false)
+    mockCan.mockResolvedValue(false)
   })
 
   describe('subscribe', () => {
@@ -358,12 +379,55 @@ describe('@molecule/api-resource-subscriber handlers', () => {
   })
 
   describe('list', () => {
-    it('returns paginated subscribers', async () => {
+    it('returns 401 when no session is present (PII enumeration blocked)', async () => {
+      const req = mockReq({ query: { limit: '100', page: '1' } })
+      const res = mockRes() // no session
+
+      await list(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'resource.error.unauthorized' }),
+      )
+      // Must not touch the data store before the gate.
+      expect(mockCount).not.toHaveBeenCalled()
+      expect(mockFindMany).not.toHaveBeenCalled()
+    })
+
+    it('returns 403 for an authenticated non-admin user (PII enumeration blocked)', async () => {
+      const req = mockReq({ query: { limit: '100', page: '1' } })
+      const res = mockRes({ session: { userId: 'ordinary-user' } })
+
+      await list(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'subscriber.error.forbidden' }),
+      )
+      expect(mockFindMany).not.toHaveBeenCalled()
+    })
+
+    it('allows a non-claim user when the permissions provider grants manage subscriber', async () => {
+      mockHasProvider.mockReturnValue(true)
+      mockCan.mockResolvedValue(true)
       mockCount.mockResolvedValueOnce(1)
       mockFindMany.mockResolvedValueOnce([SUBSCRIBER_ROW])
 
       const req = mockReq()
-      const res = mockRes()
+      const res = mockRes({ session: { userId: 'rbac-admin' } })
+
+      await list(req, res)
+
+      expect(mockCan).toHaveBeenCalledWith('user:rbac-admin', 'manage', 'subscriber')
+      expect(res.status).toHaveBeenCalledWith(200)
+    })
+
+    it('returns paginated subscribers for an admin', async () => {
+      mockCount.mockResolvedValueOnce(1)
+      mockFindMany.mockResolvedValueOnce([SUBSCRIBER_ROW])
+
+      const req = mockReq()
+      const res = mockAdminRes()
 
       await list(req, res)
 
@@ -383,7 +447,7 @@ describe('@molecule/api-resource-subscriber handlers', () => {
 
     it('rejects invalid channel filter', async () => {
       const req = mockReq({ query: { channel: 'push' } })
-      const res = mockRes()
+      const res = mockAdminRes()
 
       await list(req, res)
 
@@ -392,7 +456,7 @@ describe('@molecule/api-resource-subscriber handlers', () => {
 
     it('rejects invalid status filter', async () => {
       const req = mockReq({ query: { status: 'archived' } })
-      const res = mockRes()
+      const res = mockAdminRes()
 
       await list(req, res)
 
@@ -412,7 +476,7 @@ describe('@molecule/api-resource-subscriber handlers', () => {
           limit: '5',
         },
       })
-      const res = mockRes()
+      const res = mockAdminRes()
 
       await list(req, res)
 
@@ -435,7 +499,7 @@ describe('@molecule/api-resource-subscriber handlers', () => {
       mockFindMany.mockResolvedValueOnce([])
 
       const req = mockReq({ query: { limit: '5000' } })
-      const res = mockRes()
+      const res = mockAdminRes()
 
       await list(req, res)
 
@@ -449,7 +513,7 @@ describe('@molecule/api-resource-subscriber handlers', () => {
       mockCount.mockRejectedValueOnce(new Error('db down'))
 
       const req = mockReq()
-      const res = mockRes()
+      const res = mockAdminRes()
 
       await list(req, res)
 
@@ -458,11 +522,37 @@ describe('@molecule/api-resource-subscriber handlers', () => {
   })
 
   describe('read', () => {
+    it('returns 401 when no session is present (PII read blocked)', async () => {
+      const req = mockReq({ params: { id: 'sub-1' } })
+      const res = mockRes() // no session
+
+      await read(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'resource.error.unauthorized' }),
+      )
+      expect(mockFindById).not.toHaveBeenCalled()
+    })
+
+    it('returns 403 for an authenticated non-admin user (PII read blocked)', async () => {
+      const req = mockReq({ params: { id: 'sub-1' } })
+      const res = mockRes({ session: { userId: 'ordinary-user' } })
+
+      await read(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'subscriber.error.forbidden' }),
+      )
+      expect(mockFindById).not.toHaveBeenCalled()
+    })
+
     it('returns 404 for unknown id', async () => {
       mockFindById.mockResolvedValueOnce(null)
 
       const req = mockReq({ params: { id: 'missing' } })
-      const res = mockRes()
+      const res = mockAdminRes()
 
       await read(req, res)
 
@@ -473,7 +563,7 @@ describe('@molecule/api-resource-subscriber handlers', () => {
       mockFindById.mockResolvedValueOnce(SUBSCRIBER_ROW)
 
       const req = mockReq({ params: { id: 'sub-1' } })
-      const res = mockRes()
+      const res = mockAdminRes()
 
       await read(req, res)
 
@@ -485,11 +575,37 @@ describe('@molecule/api-resource-subscriber handlers', () => {
   })
 
   describe('del', () => {
+    it('returns 401 when no session is present (deletion blocked)', async () => {
+      const req = mockReq({ params: { id: 'sub-1' } })
+      const res = mockRes() // no session
+
+      await del(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'resource.error.unauthorized' }),
+      )
+      expect(mockDeleteById).not.toHaveBeenCalled()
+    })
+
+    it('returns 403 for an authenticated non-admin user (deletion blocked)', async () => {
+      const req = mockReq({ params: { id: 'sub-1' } })
+      const res = mockRes({ session: { userId: 'ordinary-user' } })
+
+      await del(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'subscriber.error.forbidden' }),
+      )
+      expect(mockDeleteById).not.toHaveBeenCalled()
+    })
+
     it('returns 404 when no row matched', async () => {
       mockDeleteById.mockResolvedValueOnce({ data: null, affected: 0 })
 
       const req = mockReq({ params: { id: 'missing' } })
-      const res = mockRes()
+      const res = mockAdminRes()
 
       await del(req, res)
 
@@ -500,7 +616,7 @@ describe('@molecule/api-resource-subscriber handlers', () => {
       mockDeleteById.mockResolvedValueOnce({ data: null, affected: 1 })
 
       const req = mockReq({ params: { id: 'sub-1' } })
-      const res = mockRes()
+      const res = mockAdminRes()
 
       await del(req, res)
 
@@ -513,7 +629,7 @@ describe('@molecule/api-resource-subscriber handlers', () => {
       mockDeleteById.mockRejectedValueOnce(new Error('db down'))
 
       const req = mockReq({ params: { id: 'sub-1' } })
-      const res = mockRes()
+      const res = mockAdminRes()
 
       await del(req, res)
 

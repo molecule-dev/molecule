@@ -32,6 +32,7 @@
     "@molecule/api-database": "1.0.0",
     "@molecule/api-i18n": "1.0.0",
     "@molecule/api-logger": "1.0.0",
+    "@molecule/api-permissions": "1.0.0",
     "@molecule/api-resource": "1.0.0",
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
@@ -41,6 +42,7 @@
     "@molecule/api-database": "^1.0.0",
     "@molecule/api-i18n": "^1.0.0",
     "@molecule/api-logger": "^1.0.0",
+    "@molecule/api-permissions": "^1.0.0",
     "@molecule/api-resource": "^1.0.0"
   },
   "peerDependenciesMeta": {
@@ -51,6 +53,9 @@
       "optional": true
     },
     "@molecule/api-logger": {
+      "optional": true
+    },
+    "@molecule/api-permissions": {
       "optional": true
     },
     "@molecule/api-resource": {

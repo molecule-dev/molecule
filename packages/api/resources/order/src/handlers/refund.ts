@@ -34,6 +34,16 @@ export async function refund(req: MoleculeRequest, res: MoleculeResponse): Promi
       return
     }
 
+    if (orderRow.userId !== userId) {
+      res.status(403).json({
+        error: t('order.error.forbidden', undefined, {
+          defaultValue: 'You do not have access to this order',
+        }),
+        errorKey: 'order.error.forbidden',
+      })
+      return
+    }
+
     const allowedTransitions = STATUS_TRANSITIONS[orderRow.status as OrderStatus]
     if (!allowedTransitions || !allowedTransitions.includes('refunded')) {
       res.status(409).json({

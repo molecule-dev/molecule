@@ -39,6 +39,7 @@ vi.mock('@molecule/api-bond', () => ({
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { authUser } from '../authorizers/authUser.js'
 import { create } from '../handlers/create.js'
 import { del } from '../handlers/del.js'
 import { list } from '../handlers/list.js'
@@ -224,7 +225,7 @@ describe('@molecule/api-resource-project handlers', () => {
   })
 
   describe('list', () => {
-    it('should return all projects ordered by updatedAt', async () => {
+    it('should return only the caller projects, scoped by session userId, newest first', async () => {
       const projects = [
         { id: '1', name: 'A' },
         { id: '2', name: 'B' },
@@ -232,32 +233,88 @@ describe('@molecule/api-resource-project handlers', () => {
       mockFindMany.mockResolvedValue(projects)
 
       const req = mockReq()
-      const res = mockRes()
+      const res = mockRes() // default session userId: 'user-1'
 
       await list(req, res)
 
+      // Scoped to the caller's userId — never an unscoped full-tenant dump.
       expect(mockFindMany).toHaveBeenCalledWith('projects', {
+        where: [{ field: 'userId', operator: '=', value: 'user-1' }],
         orderBy: [{ field: 'updatedAt', direction: 'desc' }],
       })
       expect(res.json).toHaveBeenCalledWith(projects)
     })
+
+    it('should scope to the calling session, not another tenant (M6-3 regression)', async () => {
+      mockFindMany.mockResolvedValue([])
+
+      const req = mockReq()
+      const res = mockRes({ locals: { session: { userId: 'attacker' } } })
+
+      await list(req, res)
+
+      // The where-clause userId is taken from the session, so a caller can only
+      // ever query their own rows — they cannot enumerate another tenant's.
+      const [, options] = mockFindMany.mock.calls[0] as [string, { where: unknown[] }]
+      expect(options.where).toEqual([{ field: 'userId', operator: '=', value: 'attacker' }])
+    })
+
+    it('should return 401 when there is no authenticated session', async () => {
+      const req = mockReq()
+      const res = mockRes({ locals: {} })
+
+      await list(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(mockFindMany).not.toHaveBeenCalled()
+    })
   })
 
   describe('read', () => {
-    it('should return project by id', async () => {
-      const project = { id: '1', name: 'Test' }
-      mockFindById.mockResolvedValue(project)
+    it('should return a project the caller owns (owner-scoped lookup)', async () => {
+      const project = { id: '1', userId: 'user-1', name: 'Test' }
+      mockFindOne.mockResolvedValue(project)
 
       const req = mockReq({ params: { id: '1' } })
       const res = mockRes()
 
       await read(req, res)
 
+      // Lookup is scoped to BOTH the id and the session userId.
+      expect(mockFindOne).toHaveBeenCalledWith('projects', [
+        { field: 'id', operator: '=', value: '1' },
+        { field: 'userId', operator: '=', value: 'user-1' },
+      ])
       expect(res.json).toHaveBeenCalledWith(project)
     })
 
+    it('should reuse the authUser-preloaded row without a second query', async () => {
+      const project = { id: '1', userId: 'user-1', name: 'Test' }
+
+      const req = mockReq({ params: { id: '1' } })
+      const res = mockRes({ locals: { session: { userId: 'user-1' }, project } })
+
+      await read(req, res)
+
+      expect(mockFindOne).not.toHaveBeenCalled()
+      expect(res.json).toHaveBeenCalledWith(project)
+    })
+
+    it('should return 404 for a project owned by a different user (M6-3 regression)', async () => {
+      // Owner-scoped findOne returns nothing for a non-owner — existence is not leaked.
+      mockFindOne.mockResolvedValue(null)
+
+      const req = mockReq({ params: { id: 'other-users-project' } })
+      const res = mockRes({ locals: { session: { userId: 'attacker' } } })
+
+      await read(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(404)
+      expect(res.json).not.toHaveBeenCalledWith(expect.objectContaining({ userId: 'victim' }))
+    })
+
     it('should return 404 when project not found', async () => {
-      mockFindById.mockResolvedValue(null)
+      mockFindOne.mockResolvedValue(null)
 
       const req = mockReq({ params: { id: 'missing' } })
       const res = mockRes()
@@ -265,6 +322,81 @@ describe('@molecule/api-resource-project handlers', () => {
       await read(req, res)
 
       expect(res.status).toHaveBeenCalledWith(404)
+    })
+
+    it('should return 401 when there is no authenticated session', async () => {
+      const req = mockReq({ params: { id: '1' } })
+      const res = mockRes({ locals: {} })
+
+      await read(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(mockFindOne).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('authUser (object-level authorization)', () => {
+    it('should call next and stash the owned row on res.locals.project', async () => {
+      const project = { id: '1', userId: 'user-1', name: 'Mine' }
+      mockFindOne.mockResolvedValue(project)
+
+      const req = mockReq({ params: { id: '1' } })
+      const res = mockRes()
+      const next = vi.fn()
+
+      await authUser(req, res, next)
+
+      expect(mockFindOne).toHaveBeenCalledWith('projects', [
+        { field: 'id', operator: '=', value: '1' },
+        { field: 'userId', operator: '=', value: 'user-1' },
+      ])
+      expect(res.locals.project).toEqual(project)
+      expect(next).toHaveBeenCalledWith()
+      expect(res.status).not.toHaveBeenCalled()
+    })
+
+    it('should 403 for a project owned by a different user (M6-3 regression)', async () => {
+      // The owner-scoped lookup returns nothing because the project belongs to
+      // someone else; the request is rejected and never reaches the handler.
+      mockFindOne.mockResolvedValue(null)
+
+      const req = mockReq({ params: { id: 'victim-project' } })
+      const res = mockRes({ locals: { session: { userId: 'attacker' } } })
+      const next = vi.fn()
+
+      await authUser(req, res, next)
+
+      expect(next).not.toHaveBeenCalled()
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'project.error.forbidden' }),
+      )
+      expect(res.locals.project).toBeUndefined()
+    })
+
+    it('should 401 when there is no authenticated session', async () => {
+      const req = mockReq({ params: { id: '1' } })
+      const res = mockRes({ locals: {} })
+      const next = vi.fn()
+
+      await authUser(req, res, next)
+
+      expect(next).not.toHaveBeenCalled()
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(mockFindOne).not.toHaveBeenCalled()
+    })
+
+    it('should fail closed (403) when the lookup throws', async () => {
+      mockFindOne.mockRejectedValue(new Error('DB down'))
+
+      const req = mockReq({ params: { id: '1' } })
+      const res = mockRes()
+      const next = vi.fn()
+
+      await authUser(req, res, next)
+
+      expect(next).not.toHaveBeenCalled()
+      expect(res.status).toHaveBeenCalledWith(403)
     })
   })
 

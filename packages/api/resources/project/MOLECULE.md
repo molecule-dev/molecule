@@ -104,6 +104,30 @@ type UpdateProjectInput = Partial<
 
 ### Functions
 
+#### `authUser(req, res, next)`
+
+Object-level authorization middleware for a single project (`:id`).
+
+Fails closed: looks up the project scoped to BOTH the `:id` route param and the
+authenticated `session.userId`, so a row is returned only when the caller owns
+it. On success the owned row is stashed in `res.locals.project` for the
+downstream handler (avoiding a second query); otherwise the request is rejected
+with `401` (no session) or `403` (project missing or owned by someone else — the
+two are deliberately indistinguishable so existence is not leaked).
+
+This is the shipped default for the read/update/delete routes (see `routes.ts`),
+mirroring `@molecule/api-resource-device`'s `authUser`. A consumer with a richer
+access model (e.g. owner-or-team) may gate the route with its own middleware
+instead and set `res.locals.project` to the pre-authorized row.
+
+```typescript
+function authUser(req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction): Promise<void>
+```
+
+- `req` — The request object (uses `params.id`).
+- `res` — The response object (reads `locals.session`, writes `locals.project`).
+- `next` — Passes control to the next handler on success.
+
 #### `create(req, res)`
 
 Creates a new project with a unique slug derived from the project name. Requires `name` and
@@ -130,25 +154,33 @@ function del(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 
 #### `list(_req, res)`
 
-List.
+Lists the authenticated caller's projects, newest first. Scoped to
+`session.userId` so a generated app never returns another tenant's rows —
+an unscoped list is a one-request full-tenant data dump. Returns 401 when
+there is no authenticated session.
 
 ```typescript
 function list(_req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
 - `_req` — The request object.
-- `res` — The response object.
+- `res` — The response object (reads `locals.session`).
 
 #### `read(req, res)`
 
-Read.
+Reads a single project the caller owns. The `authUser` route middleware
+already loads the owner-scoped row into `res.locals.project`; this handler
+reuses it when present and otherwise falls back to its own owner-scoped
+lookup, so it fails closed even if mounted without that middleware. Returns
+401 with no session and 404 when no project owned by the caller matches the
+id (existence is not leaked to non-owners).
 
 ```typescript
 function read(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
-- `req` — The request object.
-- `res` — The response object.
+- `req` — The request object (uses `params.id`).
+- `res` — The response object (reads `locals.session`/`locals.project`).
 
 #### `update(req, res)`
 
@@ -173,18 +205,27 @@ const i18nRegistered: true
 
 #### `requestHandlerMap`
 
-Map of request handler.
+Map of request handler names to implementations. `authUser` is the
+object-level authorization middleware referenced by `routes.ts` for the
+`read`/`update`/`del` routes.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; }
+const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; readonly authUser: typeof authUser; }
 ```
 
 #### `routes`
 
 Route array for project CRUD: POST create, GET list, GET/:id read, PATCH/:id update, DELETE/:id del.
 
+`create`/`list` only need an authenticated session (`authenticate`); the `list`
+handler itself scopes results to the caller's `userId`. The object-level
+routes (`read`/`update`/`del`) are gated by `authUser`, which fails closed —
+it loads the project scoped to the caller's `userId` and 401/403s otherwise —
+so generated apps that wire this resource do NOT expose other tenants' projects
+by default. Mirrors `@molecule/api-resource-device`.
+
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/projects"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/projects"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/projects/:id"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "patch"; readonly path: "/projects/:id"; readonly handler: "update"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/projects/:id"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [{ readonly method: "post"; readonly path: "/projects"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/projects"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/projects/:id"; readonly handler: "read"; readonly middlewares: readonly ["authUser"]; }, { readonly method: "patch"; readonly path: "/projects/:id"; readonly handler: "update"; readonly middlewares: readonly ["authUser"]; }, { readonly method: "delete"; readonly path: "/projects/:id"; readonly handler: "del"; readonly middlewares: readonly ["authUser"]; }]
 ```
 
 ## Injection Notes
@@ -198,3 +239,14 @@ Peer dependencies:
 - `@molecule/api-locales-project` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+The shipped routes are owner-scoped and **fail closed** — they do not expose
+other tenants' projects by default. `GET /projects` (`list`) returns only the
+authenticated caller's rows (scoped to `session.userId`), and the object-level
+routes `GET/PATCH/DELETE /projects/:id` are gated by the `authUser` authorizer,
+which loads the project scoped to the caller's `userId`, stashes it on
+`res.locals.project`, and responds `401` (no session) / `403` (not the owner)
+otherwise. This mirrors `@molecule/api-resource-device`. A consumer that needs
+a richer access model (e.g. owner-or-team) can gate the route with its own
+middleware and set `res.locals.project` to the pre-authorized row — `read`,
+`update`, and `del` reuse it instead of re-deriving ownership.
