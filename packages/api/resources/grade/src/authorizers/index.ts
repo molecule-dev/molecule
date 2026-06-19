@@ -5,7 +5,7 @@
  * the actor allowed to mutate the grade (see `__setup__/grades.sql`). Letting the
  * row's `userId` edit it would let students change their own grades — a worse
  * vulnerability than the open default. There is no grader/teacher column, so the
- * secure-by-default model is a **role gate**: amending/deleting a grade is
+ * secure-by-default model is a **role gate**: posting/amending/deleting a grade is
  * restricted to a grade-management authority (instructor / registrar / admin).
  * The gate is enforced in two independent layers so it can never silently
  * regress:
@@ -137,7 +137,7 @@ async function permissionAllows(userId: string): Promise<boolean> {
 
 /**
  * Resolves whether the current request's session belongs to an actor authorized
- * to administer grades (amend/delete). Fail-closed: returns `false` when there is
+ * to administer grades (post/amend/delete). Fail-closed: returns `false` when there is
  * no authenticated session, and otherwise only `true` when the session carries an
  * admin claim or a bonded permissions provider grants the `manage grade`
  * permission.
@@ -161,8 +161,8 @@ export async function isGradeAdmin(res: MoleculeResponse): Promise<boolean> {
 }
 
 /**
- * Route middleware that gates the admin-only grade mutation routes (`update`,
- * `del`). Calls `next()` only for an authenticated grade admin; otherwise
+ * Route middleware that gates the admin-only grade mutation routes (`create`,
+ * `update`, `del`). Calls `next()` only for an authenticated grade admin; otherwise
  * forwards an error to the framework error handler — `Unauthorized` when no
  * session is present, `Forbidden` when the session is authenticated but not
  * authorized to manage grades.

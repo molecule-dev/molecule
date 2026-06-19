@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Urdu. */
 export const ur: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ٹیگ کا نام ضروری ہے',
   'tag.error.invalidName': 'ٹیگ کا نام غلط ہے',
   'tag.error.createFailed': 'ٹیگ بنانے میں ناکامی',

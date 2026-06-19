@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Serbian. */
 export const sr: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Назив ознаке је обавезан',
   'tag.error.invalidName': 'Назив ознаке је неважећи',
   'tag.error.createFailed': 'Креирање ознаке није успело',

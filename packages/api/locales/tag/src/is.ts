@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Icelandic. */
 export const is: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Merkimiðanafn er nauðsynlegt',
   'tag.error.invalidName': 'Merkimiðanafn er ógilt',
   'tag.error.createFailed': 'Ekki tókst að búa til merkimiða',

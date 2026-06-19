@@ -2,6 +2,7 @@ import type { GradeTranslations } from './types.js'
 
 /** Grade translations for Khmer. */
 export const km: GradeTranslations = {
+  'grade.error.forbidden': 'Access denied',
   'grade.error.foreignKeysRequired':
     'enrollmentId, assignmentId, userId, and courseId are required',
   'grade.error.scoreNumeric': 'scorePoints and maxPoints must be numbers',

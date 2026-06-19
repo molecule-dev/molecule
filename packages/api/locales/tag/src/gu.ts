@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Gujarati. */
 export const gu: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ટેગ નામ જરૂરી છે',
   'tag.error.invalidName': 'ટેગ નામ અમાન્ય છે',
   'tag.error.createFailed': 'ટેગ બનાવવામાં નિષ્ફળ',

@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Hindi. */
 export const hi: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'टैग नाम आवश्यक है',
   'tag.error.invalidName': 'टैग नाम अमान्य है',
   'tag.error.createFailed': 'टैग बनाने में विफल',

@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Turkish. */
 export const tr: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Etiket adı gereklidir',
   'tag.error.invalidName': 'Etiket adı geçersiz',
   'tag.error.createFailed': 'Etiket oluşturulamadı',

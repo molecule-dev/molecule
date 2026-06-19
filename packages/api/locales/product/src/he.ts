@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Hebrew. */
 export const he: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'שם המוצר נדרש',
   'product.error.invalidName': 'שם המוצר אינו תקין',
   'product.error.invalidPrice': 'נדרש מחיר תקין',

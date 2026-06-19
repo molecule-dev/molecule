@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Kazakh. */
 export const kk: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Тег атауы міндетті',
   'tag.error.invalidName': 'Тег атауы жарамсыз',
   'tag.error.createFailed': 'Тегті жасау сәтсіз аяқталды',

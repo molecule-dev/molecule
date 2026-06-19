@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Sinhala. */
 export const si: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'නිෂ්පාදන නාමය අවශ්‍යයි',
   'product.error.invalidName': 'නිෂ්පාදන නාමය අවලංගුයි',
   'product.error.invalidPrice': 'වලංගු මිලක් අවශ්‍යයි',

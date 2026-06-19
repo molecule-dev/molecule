@@ -103,6 +103,47 @@ describe('@molecule/api-resource-grade handlers', () => {
   })
 
   describe('create', () => {
+    it('returns 401 when there is no session (unauthenticated)', async () => {
+      const req = mockReq({ body: validBody })
+      const res = mockRes({ locals: {} })
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      // Fail-closed: no grade row inserted for an anonymous caller.
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('returns 403 for an authenticated non-admin user (student cannot post arbitrary scores)', async () => {
+      // The row's userId is the student; even that student is not authorized to post.
+      const req = mockReq({ body: validBody })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'grade.error.forbidden' }),
+      )
+      // Fail-closed: no write attempted for a non-admin.
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('posts a grade for a non-claim user when the permissions provider grants manage grade', async () => {
+      mockHasProvider.mockReturnValue(true)
+      mockCan.mockResolvedValue(true)
+      mockCreate.mockResolvedValue({ data: { id: 'g1' } })
+
+      const req = mockReq({ body: validBody })
+      const res = mockRes({ locals: { session: { userId: 'instructor-1' } } })
+
+      await create(req, res)
+
+      expect(mockCan).toHaveBeenCalledWith('user:instructor-1', 'manage', 'grade')
+      expect(mockCreate).toHaveBeenCalled()
+      expect(res.status).toHaveBeenCalledWith(201)
+    })
+
     it('returns 400 when foreign keys are missing', async () => {
       const req = mockReq({ body: { scorePoints: 80, maxPoints: 100 } })
       const res = mockRes()

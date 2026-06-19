@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Russian. */
 export const ru: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Название тега обязательно',
   'tag.error.invalidName': 'Название тега недопустимо',
   'tag.error.createFailed': 'Не удалось создать тег',

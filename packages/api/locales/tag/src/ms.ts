@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Malay. */
 export const ms: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Nama tag diperlukan',
   'tag.error.invalidName': 'Nama tag tidak sah',
   'tag.error.createFailed': 'Gagal mencipta tag',

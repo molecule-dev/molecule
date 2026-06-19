@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Hausa. */
 export const ha: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Sunan tag yana da mahimmanci',
   'tag.error.invalidName': 'Sunan tag ba daidai ba ne',
   'tag.error.createFailed': 'An kasa ƙirƙirar tag',

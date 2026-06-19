@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Hebrew. */
 export const he: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'שם התגית נדרש',
   'tag.error.invalidName': 'שם התגית אינו תקין',
   'tag.error.createFailed': 'יצירת התגית נכשלה',

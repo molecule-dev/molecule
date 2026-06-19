@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Norwegian Bokmål. */
 export const nb: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Produktnavn er påkrevd',
   'product.error.invalidName': 'Produktnavnet er ugyldig',
   'product.error.invalidPrice': 'En gyldig pris er påkrevd',

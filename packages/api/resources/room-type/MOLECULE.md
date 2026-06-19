@@ -204,9 +204,13 @@ interface UpdateRoomTypeInput {
 Creates a new room type for a property.
 
 Validates the request body and inserts a row in the `room_types` table.
-The caller's authentication is enforced upstream by the `authenticate`
-middleware on the route definition; finer-grained authorization (e.g.
-"must own the property") belongs in a downstream authorizer.
+
+Admin-only and enforced here (not merely via route middleware): a room type has
+no per-user owner column, so a non-admin caller is rejected (401 when
+unauthenticated, 403 otherwise) before any inventory/pricing row is inserted —
+defense-in-depth that does not depend on the `requireAdmin` route middleware
+being wired. An app that models per-property ownership can grant the
+`manage roomType` permission (see `authorizers/index.ts`).
 
 ```typescript
 function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
@@ -223,12 +227,36 @@ Hard-deletes the row. Callers that need soft-delete semantics (preserving
 historical bookings that reference the type) should set `active = false`
 via {@link update} instead.
 
+Admin-only and enforced here (not merely via route middleware): a room type has
+no per-user owner column, so a non-admin caller is rejected (401 when
+unauthenticated, 403 otherwise) before anything is deleted — defense-in-depth
+that does not depend on the `requireAdmin` route middleware being wired.
+
 ```typescript
 function del(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
 - `req` — The request with `params.id`.
 - `res` — The response object.
+
+#### `isRoomTypeAdmin(res)`
+
+Resolves whether the current request's session belongs to an actor authorized
+to administer room types (create/update/delete inventory + pricing). Fail-closed:
+returns `false` when there is no authenticated session, and otherwise only
+`true` when the session carries an admin claim or a bonded permissions provider
+grants the `manage roomType` permission.
+
+Use this for in-handler defense-in-depth (it does not depend on the route
+middleware being preserved by the injector).
+
+```typescript
+function isRoomTypeAdmin(res: MoleculeResponse): Promise<boolean>
+```
+
+- `res` — The response whose `locals.session` is inspected.
+
+**Returns:** `true` when the session is an authorized room-type admin.
 
 #### `list(req, res)`
 
@@ -287,6 +315,23 @@ function read(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `req` — The request with `params.id`.
 - `res` — The response object.
 
+#### `requireAdmin()`
+
+Route middleware that gates the admin-only room-type mutation routes
+(`create`, `update`, `del`). Calls `next()` only for an authenticated admin; otherwise
+forwards an error to the framework error handler — `Unauthorized` when no
+session is present, `Forbidden` when the session is authenticated but not an
+admin.
+
+Exposed as a `requestHandlerMap` key so the injector's route scanner keeps it
+(unlike the inert global `'authenticate'` string, which is dropped).
+
+```typescript
+function requireAdmin(): MoleculeRequestHandler
+```
+
+**Returns:** An Express-compatible middleware function.
+
 #### `toRoomType(row)`
 
 Convert a database row into a typed {@link RoomType}.
@@ -308,6 +353,11 @@ persists fields that are explicitly provided, leaving the rest untouched.
 `propertyId` cannot be changed once a room type is created — moving
 inventory between properties should be handled with a dedicated migration
 flow.
+
+Admin-only and enforced here (not merely via route middleware): a room type has
+no per-user owner column, so a non-admin caller is rejected (401 when
+unauthenticated, 403 otherwise) before any price/inventory change — defense-in-
+depth that does not depend on the `requireAdmin` route middleware being wired.
 
 ```typescript
 function update(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
@@ -344,8 +394,41 @@ const i18nRegistered: true
 
 Maps route handler names to their request handler implementations for the room-type resource.
 
+`requireAdmin` is the admin authorizer middleware referenced by the
+`update`/`del` routes. It must live here (as a real handler-map key) so the
+mlcl injector's route scanner preserves it — a bare middleware string that
+isn't a handler-map key is silently dropped.
+
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; }
+const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; readonly requireAdmin: MoleculeRequestHandler; }
+```
+
+#### `ROOM_TYPE_ADMIN_PERMISSION`
+
+Session-claim permission string (`'roomType:manage'`) that, when present in a
+session's `permissions` array, grants room-type administration without a bonded
+permissions provider.
+
+```typescript
+const ROOM_TYPE_ADMIN_PERMISSION: "roomType:manage"
+```
+
+#### `ROOM_TYPE_PERMISSION_ACTION`
+
+Permission action checked against `@molecule/api-permissions` for room-type
+administration.
+
+```typescript
+const ROOM_TYPE_PERMISSION_ACTION: "manage"
+```
+
+#### `ROOM_TYPE_PERMISSION_RESOURCE`
+
+Permission resource checked against `@molecule/api-permissions` for room-type
+administration.
+
+```typescript
+const ROOM_TYPE_PERMISSION_RESOURCE: "roomType"
 ```
 
 #### `routes`
@@ -353,7 +436,7 @@ const requestHandlerMap: { readonly create: typeof create; readonly list: typeof
 Room-type resource routes.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/room-types"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/room-types"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/room-types/:id"; readonly handler: "read"; }, { readonly method: "patch"; readonly path: "/room-types/:id"; readonly handler: "update"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/room-types/:id"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [{ readonly method: "post"; readonly path: "/room-types"; readonly handler: "create"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/room-types"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/room-types/:id"; readonly handler: "read"; }, { readonly method: "patch"; readonly path: "/room-types/:id"; readonly handler: "update"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "delete"; readonly path: "/room-types/:id"; readonly handler: "del"; readonly middlewares: readonly ["requireAdmin"]; }]
 ```
 
 ## Injection Notes
@@ -364,5 +447,6 @@ Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
+- `@molecule/api-permissions` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `@molecule/api-resource-property` ^1.0.0

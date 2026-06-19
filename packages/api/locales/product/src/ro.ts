@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Romanian. */
 export const ro: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Numele produsului este obligatoriu',
   'product.error.invalidName': 'Numele produsului este invalid',
   'product.error.invalidPrice': 'Este necesar un preț valid',

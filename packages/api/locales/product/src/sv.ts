@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Swedish. */
 export const sv: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Produktnamn krävs',
   'product.error.invalidName': 'Produktnamnet är ogiltigt',
   'product.error.invalidPrice': 'Ett giltigt pris krävs',

@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Bulgarian. */
 export const bg: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Името на етикета е задължително',
   'tag.error.invalidName': 'Името на етикета е невалидно',
   'tag.error.createFailed': 'Неуспешно създаване на етикет',

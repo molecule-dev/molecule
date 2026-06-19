@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Belarusian. */
 export const be: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Назва прадукту абавязковая',
   'product.error.invalidName': 'Назва прадукту несапраўдная',
   'product.error.invalidPrice': 'Патрабуецца сапраўдны кошт',

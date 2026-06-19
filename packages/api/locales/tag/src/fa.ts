@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Persian. */
 export const fa: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'نام برچسب الزامی است',
   'tag.error.invalidName': 'نام برچسب نامعتبر است',
   'tag.error.createFailed': 'ایجاد برچسب ناموفق بود',

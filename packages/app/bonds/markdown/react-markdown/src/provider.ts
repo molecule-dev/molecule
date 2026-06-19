@@ -42,19 +42,39 @@ const ALLOWED_URL_SCHEMES = ['http', 'https', 'mailto']
  * whole source is escaped up front in sanitize mode), so this only rejects
  * dangerous schemes — it does not re-escape (which would double-encode).
  *
+ * Browsers ignore embedded ASCII whitespace and control characters inside a URL
+ * scheme — `java\tscript:`, `java\nscript:`, or a leading-control-char
+ * `\x01data:` URL all parse and execute as `javascript:`/`data:` despite a naive
+ * scheme regex matching nothing (or the wrong scheme). So the allow-list is run
+ * against a *probe* copy with every ASCII whitespace/control char stripped and
+ * lower-cased, and those same characters are stripped from the value actually
+ * emitted — closing the de-whitespacing bypass at both ends.
+ *
  * @param url - The (already attribute-escaped) URL to validate.
- * @returns The URL if its scheme is allowed (or it is schemeless/relative),
- *   otherwise an empty string so the link/image renders inert.
+ * @returns The de-whitespaced URL if its (normalized) scheme is allowed (or it
+ *   is schemeless/relative), otherwise an empty string so the link/image renders
+ *   inert.
  */
 function sanitizeUrl(url: string): string {
   const trimmed = url.trim()
-  const schemeMatch = /^([a-z][a-z0-9+.-]*):/i.exec(trimmed)
 
-  if (schemeMatch && !ALLOWED_URL_SCHEMES.includes(schemeMatch[1].toLowerCase())) {
+  // Strip ALL ASCII whitespace + control chars so an obfuscated scheme
+  // (`java\tscript:`, `\x01data:`) is normalized before the allow-list check.
+  // The control-char class IS the fix (browsers ignore these inside a scheme), so
+  // the no-control-regex rule is intentionally disabled here (same as the API
+  // stripControlChars helper). Disabling it would defeat the security check.
+  // eslint-disable-next-line no-control-regex
+  const stripped = trimmed.replace(/[\x00-\x20]+/g, '')
+  const probe = stripped.toLowerCase()
+  const schemeMatch = /^([a-z][a-z0-9+.-]*):/.exec(probe)
+
+  if (schemeMatch && !ALLOWED_URL_SCHEMES.includes(schemeMatch[1])) {
     return ''
   }
 
-  return trimmed
+  // Emit the de-whitespaced value so no hidden control char survives into the
+  // rendered attribute (where the browser would re-interpret the scheme).
+  return stripped
 }
 
 /**
@@ -126,10 +146,10 @@ function markdownToHtml(markdown: string, options?: MarkdownOptions): string {
   // Content is already escaped up front in sanitize mode; otherwise (raw
   // passthrough) preserve the original behavior of escaping only heading/code
   // text so those literal regions still render as text.
-  const escText = sanitize ? (text: string) => text : escapeHtml
+  const escText = sanitize ? (text: string): string => text : escapeHtml
 
   // Apply the scheme allow-list to a URL only when sanitizing.
-  const safeUrl = (url: string) => (sanitize ? sanitizeUrl(url) : url)
+  const safeUrl = (url: string): string => (sanitize ? sanitizeUrl(url) : url)
 
   // Headings
   html = html.replace(/^######\s+(.+)$/gm, (_m, text) => {

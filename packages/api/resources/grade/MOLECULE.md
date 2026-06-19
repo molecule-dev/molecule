@@ -252,6 +252,14 @@ Validates that all foreign keys are present and that scoring is sane
 (`scorePoints >= 0`, `maxPoints > 0`, `scorePoints <= maxPoints`).
 If a `scale` is supplied on the input the resolved letter is stored.
 
+Restricted to a grade-management authority (instructor/registrar/admin) and
+enforced here (not merely via route middleware): the row's `userId` is the
+student being graded — never the actor permitted to post the grade — so a
+non-admin caller is rejected (401 when unauthenticated, 403 otherwise) before
+any grade row is inserted — defense-in-depth that does not depend on the
+`requireAdmin` route middleware being wired, and that prevents a student
+posting arbitrary scores for any user.
+
 ```typescript
 function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
@@ -262,6 +270,13 @@ function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 #### `del(req, res)`
 
 Deletes a grade by ID.
+
+Restricted to a grade-management authority (instructor/registrar/admin) and
+enforced here (not merely via route middleware): the row's `userId` is the
+*student*, never the actor permitted to delete the grade, so a non-admin caller
+is rejected (401 when unauthenticated, 403 otherwise) before anything is
+deleted — defense-in-depth that does not depend on the `requireAdmin` route
+middleware being wired.
 
 ```typescript
 function del(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
@@ -334,6 +349,25 @@ function gpa(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `req` — The request with `userId` param.
 - `res` — The response object.
 
+#### `isGradeAdmin(res)`
+
+Resolves whether the current request's session belongs to an actor authorized
+to administer grades (post/amend/delete). Fail-closed: returns `false` when there is
+no authenticated session, and otherwise only `true` when the session carries an
+admin claim or a bonded permissions provider grants the `manage grade`
+permission.
+
+Use this for in-handler defense-in-depth (it does not depend on the route
+middleware being preserved by the injector).
+
+```typescript
+function isGradeAdmin(res: MoleculeResponse): Promise<boolean>
+```
+
+- `res` — The response whose `locals.session` is inspected.
+
+**Returns:** `true` when the session is an authorized grade admin.
+
 #### `list(req, res)`
 
 Lists grades with pagination and optional `enrollmentId`, `userId`,
@@ -356,6 +390,23 @@ function read(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 
 - `req` — The request object with `id` param.
 - `res` — The response object.
+
+#### `requireAdmin()`
+
+Route middleware that gates the admin-only grade mutation routes (`create`,
+`update`, `del`). Calls `next()` only for an authenticated grade admin; otherwise
+forwards an error to the framework error handler — `Unauthorized` when no
+session is present, `Forbidden` when the session is authenticated but not
+authorized to manage grades.
+
+Exposed as a `requestHandlerMap` key so the injector's route scanner keeps it
+(unlike the inert global `'authenticate'` string, which is dropped).
+
+```typescript
+function requireAdmin(): MoleculeRequestHandler
+```
+
+**Returns:** An Express-compatible middleware function.
 
 #### `resolveLetter(percent, scale)`
 
@@ -417,6 +468,13 @@ Updates a grade by ID. Only `scorePoints`, `maxPoints`, and `comment`
 can be amended. If a `scale` is supplied the letter is recomputed
 against the new (or existing) score.
 
+Restricted to a grade-management authority (instructor/registrar/admin) and
+enforced here (not merely via route middleware): the row's `userId` is the
+*student*, never the actor permitted to amend the grade, so a non-admin caller
+is rejected (401 when unauthenticated, 403 otherwise) before anything is read
+or written — defense-in-depth that does not depend on the `requireAdmin` route
+middleware being wired, and that prevents a student editing their own grade.
+
 ```typescript
 function update(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
@@ -438,6 +496,34 @@ inclusive thresholds. Rungs are listed highest-first for clarity but
 const defaultGradeScale: GradeScale
 ```
 
+#### `GRADE_ADMIN_PERMISSION`
+
+Session-claim permission string (`'grade:manage'`) that, when present in a
+session's `permissions` array, grants grade administration without a bonded
+permissions provider.
+
+```typescript
+const GRADE_ADMIN_PERMISSION: "grade:manage"
+```
+
+#### `GRADE_PERMISSION_ACTION`
+
+Permission action checked against `@molecule/api-permissions` for grade
+administration.
+
+```typescript
+const GRADE_PERMISSION_ACTION: "manage"
+```
+
+#### `GRADE_PERMISSION_RESOURCE`
+
+Permission resource checked against `@molecule/api-permissions` for grade
+administration.
+
+```typescript
+const GRADE_PERMISSION_RESOURCE: "grade"
+```
+
 #### `i18nRegistered`
 
 Whether i18n registration has completed.
@@ -450,8 +536,13 @@ const i18nRegistered: true
 
 Handler map keyed by route handler name.
 
+`requireAdmin` is the grade-management authorizer middleware referenced by the
+`update`/`del` routes. It must live here (as a real handler-map key) so the
+mlcl injector's route scanner preserves it — a bare middleware string that
+isn't a handler-map key is silently dropped.
+
 ```typescript
-const requestHandlerMap: { readonly courseAverage: typeof courseAverage; readonly create: typeof create; readonly del: typeof del; readonly gpa: typeof gpa; readonly list: typeof list; readonly read: typeof read; readonly transcript: typeof transcript; readonly update: typeof update; }
+const requestHandlerMap: { readonly courseAverage: typeof courseAverage; readonly create: typeof create; readonly del: typeof del; readonly gpa: typeof gpa; readonly list: typeof list; readonly read: typeof read; readonly transcript: typeof transcript; readonly update: typeof update; readonly requireAdmin: MoleculeRequestHandler; }
 ```
 
 #### `routes`
@@ -459,7 +550,7 @@ const requestHandlerMap: { readonly courseAverage: typeof courseAverage; readonl
 Route array for grade CRUD plus aggregate endpoints (course average, GPA, transcript).
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/grades"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/grades"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/grades/:id"; readonly handler: "read"; }, { readonly method: "patch"; readonly path: "/grades/:id"; readonly handler: "update"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/grades/:id"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/enrollments/:enrollmentId/grade-average"; readonly handler: "courseAverage"; }, { readonly method: "get"; readonly path: "/users/:userId/gpa"; readonly handler: "gpa"; }, { readonly method: "get"; readonly path: "/users/:userId/transcript"; readonly handler: "transcript"; }]
+const routes: readonly [{ readonly method: "post"; readonly path: "/grades"; readonly handler: "create"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/grades"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/grades/:id"; readonly handler: "read"; }, { readonly method: "patch"; readonly path: "/grades/:id"; readonly handler: "update"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "delete"; readonly path: "/grades/:id"; readonly handler: "del"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/enrollments/:enrollmentId/grade-average"; readonly handler: "courseAverage"; }, { readonly method: "get"; readonly path: "/users/:userId/gpa"; readonly handler: "gpa"; }, { readonly method: "get"; readonly path: "/users/:userId/transcript"; readonly handler: "transcript"; }]
 ```
 
 ## Injection Notes
@@ -471,6 +562,7 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-resource-grade` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
+- `@molecule/api-permissions` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 
 ## Translations

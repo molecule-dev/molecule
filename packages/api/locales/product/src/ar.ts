@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Arabic. */
 export const ar: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'اسم المنتج مطلوب',
   'product.error.invalidName': 'اسم المنتج غير صالح',
   'product.error.invalidPrice': 'السعر الصالح مطلوب',

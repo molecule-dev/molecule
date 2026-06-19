@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Catalan. */
 export const ca: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': "El nom de l'etiqueta és obligatori",
   'tag.error.invalidName': "El nom de l'etiqueta no és vàlid",
   'tag.error.createFailed': "No s'ha pogut crear l'etiqueta",

@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Burmese. */
 export const my: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'တဂ်အမည်လိုအပ်ပါသည်',
   'tag.error.invalidName': 'တဂ်အမည်မမှန်ကန်ပါ',
   'tag.error.createFailed': 'တဂ်ဖန်တီးခြင်းမအောင်မြင်ပါ',

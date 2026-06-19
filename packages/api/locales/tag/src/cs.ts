@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Czech. */
 export const cs: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Název štítku je povinný',
   'tag.error.invalidName': 'Název štítku je neplatný',
   'tag.error.createFailed': 'Nepodařilo se vytvořit štítek',

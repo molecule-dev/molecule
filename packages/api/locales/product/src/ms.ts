@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Malay. */
 export const ms: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Nama produk diperlukan',
   'product.error.invalidName': 'Nama produk tidak sah',
   'product.error.invalidPrice': 'Harga yang sah diperlukan',

@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Swahili. */
 export const sw: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Jina la lebo linahitajika',
   'tag.error.invalidName': 'Jina la lebo si sahihi',
   'tag.error.createFailed': 'Imeshindwa kuunda lebo',

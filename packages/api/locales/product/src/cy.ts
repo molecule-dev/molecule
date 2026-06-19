@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Welsh. */
 export const cy: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': "Mae angen enw'r cynnyrch",
   'product.error.invalidName': "Mae enw'r cynnyrch yn annilys",
   'product.error.invalidPrice': 'Mae angen pris dilys',

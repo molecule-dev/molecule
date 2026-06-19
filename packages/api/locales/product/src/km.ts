@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Khmer. */
 export const km: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ឈ្មោះផលិតផលត្រូវបានទាមទារ',
   'product.error.invalidName': 'ឈ្មោះផលិតផលមិនត្រឹមត្រូវ',
   'product.error.invalidPrice': 'តម្លៃត្រឹមត្រូវត្រូវបានទាមទារ',

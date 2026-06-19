@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Dutch. */
 export const nl: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Tagnaam is verplicht',
   'tag.error.invalidName': 'Tagnaam is ongeldig',
   'tag.error.createFailed': 'Tag aanmaken mislukt',

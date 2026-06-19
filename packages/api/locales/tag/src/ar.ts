@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Arabic. */
 export const ar: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'اسم الوسم مطلوب',
   'tag.error.invalidName': 'اسم الوسم غير صالح',
   'tag.error.createFailed': 'فشل في إنشاء الوسم',

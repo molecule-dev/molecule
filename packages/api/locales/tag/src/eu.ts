@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Basque. */
 export const eu: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Etiketaren izena beharrezkoa da',
   'tag.error.invalidName': 'Etiketaren izena baliogabea da',
   'tag.error.createFailed': 'Ezin izan da etiketa sortu',

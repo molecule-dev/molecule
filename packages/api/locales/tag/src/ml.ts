@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Malayalam. */
 export const ml: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ടാഗ് പേര് ആവശ്യമാണ്',
   'tag.error.invalidName': 'ടാഗ് പേര് അസാധുവാണ്',
   'tag.error.createFailed': 'ടാഗ് സൃഷ്ടിക്കുന്നതിൽ പരാജയപ്പെട്ടു',

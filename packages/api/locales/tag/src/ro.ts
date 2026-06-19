@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Romanian. */
 export const ro: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Numele etichetei este obligatoriu',
   'tag.error.invalidName': 'Numele etichetei este invalid',
   'tag.error.createFailed': 'Crearea etichetei a eșuat',

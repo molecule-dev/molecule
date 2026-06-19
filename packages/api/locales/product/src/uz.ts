@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Uzbek. */
 export const uz: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Mahsulot nomi talab qilinadi',
   'product.error.invalidName': "Mahsulot nomi noto'g'ri",
   'product.error.invalidPrice': "To'g'ri narx talab qilinadi",

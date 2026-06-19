@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Korean. */
 export const ko: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': '상품명은 필수입니다',
   'product.error.invalidName': '상품명이 유효하지 않습니다',
   'product.error.invalidPrice': '유효한 가격이 필요합니다',

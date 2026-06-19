@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Uzbek. */
 export const uz: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Teg nomi talab qilinadi',
   'tag.error.invalidName': "Teg nomi noto'g'ri",
   'tag.error.createFailed': "Teg yaratib bo'lmadi",

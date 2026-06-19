@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Kyrgyz. */
 export const ky: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Тег аталышы талап кылынат',
   'tag.error.invalidName': 'Тег аталышы жараксыз',
   'tag.error.createFailed': 'Тег түзүү ишке ашпады',

@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Nepali. */
 export const ne: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'उत्पादनको नाम आवश्यक छ',
   'product.error.invalidName': 'उत्पादनको नाम अमान्य छ',
   'product.error.invalidPrice': 'मान्य मूल्य आवश्यक छ',

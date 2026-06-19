@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Bengali. */
 export const bn: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ট্যাগের নাম আবশ্যক',
   'tag.error.invalidName': 'ট্যাগের নাম অবৈধ',
   'tag.error.createFailed': 'ট্যাগ তৈরি করতে ব্যর্থ',

@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Danish. */
 export const da: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Tagnavn er påkrævet',
   'tag.error.invalidName': 'Tagnavn er ugyldigt',
   'tag.error.createFailed': 'Kunne ikke oprette tag',

@@ -6,6 +6,7 @@ export type GradeTranslationKey =
   | 'grade.error.scoreOutOfRange'
   | 'grade.error.createFailed'
   | 'grade.error.notFound'
+  | 'grade.error.forbidden'
   | 'grade.error.readFailed'
   | 'grade.error.listFailed'
   | 'grade.error.updateFailed'

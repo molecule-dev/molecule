@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Ukrainian. */
 export const uk: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': "Назва продукту є обов'язковою",
   'product.error.invalidName': 'Назва продукту є недійсною',
   'product.error.invalidPrice': 'Потрібна дійсна ціна',

@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Georgian. */
 export const ka: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'პროდუქტის სახელი აუცილებელია',
   'product.error.invalidName': 'პროდუქტის სახელი არასწორია',
   'product.error.invalidPrice': 'საჭიროა სწორი ფასი',

@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Estonian. */
 export const et: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Toote nimi on kohustuslik',
   'product.error.invalidName': 'Toote nimi on kehtetu',
   'product.error.invalidPrice': 'Kehtiv hind on kohustuslik',

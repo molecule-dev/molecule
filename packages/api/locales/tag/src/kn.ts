@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Kannada. */
 export const kn: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ಟ್ಯಾಗ್ ಹೆಸರು ಅಗತ್ಯ',
   'tag.error.invalidName': 'ಟ್ಯಾಗ್ ಹೆಸರು ಅಮಾನ್ಯ',
   'tag.error.createFailed': 'ಟ್ಯಾಗ್ ರಚಿಸಲು ವಿಫಲ',

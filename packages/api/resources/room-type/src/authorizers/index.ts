@@ -4,7 +4,7 @@
  * A room type has no per-user owner column (see `__setup__/room-types.sql` — it
  * carries a `propertyId`, not a `userId`), and verifying property ownership would
  * require coupling this resource to a property bond. So mutating inventory/pricing
- * — `update`/`del` — is **admin-only** (a property manager / operator role). The
+ * — `create`/`update`/`del` — is **admin-only** (a property manager / operator role). The
  * gate is enforced in two independent layers so it can never silently regress:
  *
  * 1. {@link requireAdmin} — a route middleware referenced from `routes.ts`. It is
@@ -136,7 +136,7 @@ async function permissionAllows(userId: string): Promise<boolean> {
 
 /**
  * Resolves whether the current request's session belongs to an actor authorized
- * to administer room types (update/delete inventory + pricing). Fail-closed:
+ * to administer room types (create/update/delete inventory + pricing). Fail-closed:
  * returns `false` when there is no authenticated session, and otherwise only
  * `true` when the session carries an admin claim or a bonded permissions provider
  * grants the `manage roomType` permission.
@@ -161,7 +161,7 @@ export async function isRoomTypeAdmin(res: MoleculeResponse): Promise<boolean> {
 
 /**
  * Route middleware that gates the admin-only room-type mutation routes
- * (`update`, `del`). Calls `next()` only for an authenticated admin; otherwise
+ * (`create`, `update`, `del`). Calls `next()` only for an authenticated admin; otherwise
  * forwards an error to the framework error handler — `Unauthorized` when no
  * session is present, `Forbidden` when the session is authenticated but not an
  * admin.

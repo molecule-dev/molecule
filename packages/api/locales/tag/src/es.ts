@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Spanish. */
 export const es: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'El nombre del tag es obligatorio',
   'tag.error.invalidName': 'El nombre del tag no es válido',
   'tag.error.createFailed': 'No se pudo crear el tag',

@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Filipino. */
 export const fil: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Kinakailangan ang pangalan ng tag',
   'tag.error.invalidName': 'Hindi wasto ang pangalan ng tag',
   'tag.error.createFailed': 'Hindi matagumpay na nalikha ang tag',

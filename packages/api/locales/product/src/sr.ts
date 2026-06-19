@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Serbian. */
 export const sr: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Назив производа је обавезан',
   'product.error.invalidName': 'Назив производа није важећи',
   'product.error.invalidPrice': 'Потребна је важећа цена',

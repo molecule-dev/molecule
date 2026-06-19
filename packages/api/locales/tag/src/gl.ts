@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Galician. */
 export const gl: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'O nome da etiqueta é obrigatorio',
   'tag.error.invalidName': 'O nome da etiqueta non é válido',
   'tag.error.createFailed': 'Non se puido crear a etiqueta',

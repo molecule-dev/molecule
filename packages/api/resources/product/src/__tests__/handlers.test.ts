@@ -93,6 +93,49 @@ describe('@molecule/api-resource-product handlers', () => {
   })
 
   describe('create', () => {
+    it('should return 401 when there is no session (unauthenticated)', async () => {
+      const req = mockReq({ body: { name: 'Widget', price: 1000 } })
+      const res = mockRes({ locals: {} })
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      // Fail-closed: no catalog row inserted for an anonymous caller.
+      expect(mockFindOne).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should return 403 for an authenticated non-admin user (catalog injection blocked)', async () => {
+      const req = mockReq({ body: { name: 'Widget', price: 1000 } })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'product.error.forbidden' }),
+      )
+      // Fail-closed: no read or write attempted for a non-admin.
+      expect(mockFindOne).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should create a product for an admin via the permissions provider', async () => {
+      mockHasProvider.mockReturnValue(true)
+      mockCan.mockResolvedValue(true)
+      mockFindOne.mockResolvedValue(null)
+      mockCreate.mockResolvedValue({ data: { id: '1', slug: 'widget' } })
+
+      const req = mockReq({ body: { name: 'Widget', price: 1000 } })
+      const res = mockRes({ locals: { session: { userId: 'merchant-1' } } })
+
+      await create(req, res)
+
+      expect(mockCan).toHaveBeenCalledWith('user:merchant-1', 'manage', 'product')
+      expect(mockCreate).toHaveBeenCalled()
+      expect(res.status).toHaveBeenCalledWith(201)
+    })
+
     it('should return 400 when name is missing', async () => {
       const req = mockReq({ body: { price: 1000 } })
       const res = mockRes()

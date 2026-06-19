@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Swahili. */
 export const sw: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Jina la bidhaa linahitajika',
   'product.error.invalidName': 'Jina la bidhaa si sahihi',
   'product.error.invalidPrice': 'Bei sahihi inahitajika',

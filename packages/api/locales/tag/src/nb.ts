@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Norwegian Bokmål. */
 export const nb: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Tagnavn er påkrevd',
   'tag.error.invalidName': 'Tagnavn er ugyldig',
   'tag.error.createFailed': 'Kunne ikke opprette tag',

@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Lithuanian. */
 export const lt: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Žymos pavadinimas yra privalomas',
   'tag.error.invalidName': 'Žymos pavadinimas yra neteisingas',
   'tag.error.createFailed': 'Nepavyko sukurti žymos',

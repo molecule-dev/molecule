@@ -149,6 +149,12 @@ type UpdateProductInput = Partial<CreateProductInput>
 
 Creates a new product with a unique slug derived from the name.
 
+Admin-only and enforced here (not merely via route middleware): a product is a
+shared catalog entity with no per-user owner, so a non-admin caller is rejected
+(401 when unauthenticated, 403 otherwise) before any catalog row is inserted —
+defense-in-depth that does not depend on the `requireAdmin` route middleware
+being wired.
+
 ```typescript
 function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
@@ -159,6 +165,12 @@ function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 #### `createVariant(req, res)`
 
 Creates a variant for a given product.
+
+Admin-only and enforced here (not merely via route middleware): a product is a
+shared catalog entity with no per-user owner, so a non-admin caller is rejected
+(401 when unauthenticated, 403 otherwise) before a variant (price/stock) is
+added — defense-in-depth that does not depend on the `requireAdmin` route
+middleware being wired.
 
 ```typescript
 function createVariant(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
@@ -171,12 +183,37 @@ function createVariant(req: MoleculeRequest, res: MoleculeResponse): Promise<voi
 
 Soft-deletes a product by setting its `deletedAt` timestamp.
 
+Admin-only and enforced here (not merely via route middleware): a product is a
+shared catalog entity with no per-user owner, so a non-admin caller is rejected
+(401 when unauthenticated, 403 otherwise) before anything is deleted —
+defense-in-depth that does not depend on the `requireAdmin` route middleware
+being wired.
+
 ```typescript
 function del(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
 - `req` — The request object with `id` param.
 - `res` — The response object.
+
+#### `isProductAdmin(res)`
+
+Resolves whether the current request's session belongs to an actor authorized
+to administer products (create/update/delete/create variants). Fail-closed: returns
+`false` when there is no authenticated session, and otherwise only `true` when
+the session carries an admin claim or a bonded permissions provider grants the
+`manage product` permission.
+
+Use this for in-handler defense-in-depth (it does not depend on the route
+middleware being preserved by the injector).
+
+```typescript
+function isProductAdmin(res: MoleculeResponse): Promise<boolean>
+```
+
+- `res` — The response whose `locals.session` is inspected.
+
+**Returns:** `true` when the session is an authorized product admin.
 
 #### `list(req, res)`
 
@@ -211,9 +248,32 @@ function read(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `req` — The request object with `id` param.
 - `res` — The response object.
 
+#### `requireAdmin()`
+
+Route middleware that gates the admin-only product mutation routes (`create`,
+`update`, `del`, `createVariant`). Calls `next()` only for an authenticated admin;
+otherwise forwards an error to the framework error handler — `Unauthorized`
+when no session is present, `Forbidden` when the session is authenticated but
+not an admin.
+
+Exposed as a `requestHandlerMap` key so the injector's route scanner keeps it
+(unlike the inert global `'authenticate'` string, which is dropped).
+
+```typescript
+function requireAdmin(): MoleculeRequestHandler
+```
+
+**Returns:** An Express-compatible middleware function.
+
 #### `update(req, res)`
 
 Updates a product by ID. Only provided fields are modified.
+
+Admin-only and enforced here (not merely via route middleware): a product is a
+shared catalog entity with no per-user owner, so a non-admin caller is rejected
+(401 when unauthenticated, 403 otherwise) before any price/stock change —
+defense-in-depth that does not depend on the `requireAdmin` route middleware
+being wired.
 
 ```typescript
 function update(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
@@ -232,12 +292,45 @@ Whether i18n registration has completed.
 const i18nRegistered: true
 ```
 
+#### `PRODUCT_ADMIN_PERMISSION`
+
+Session-claim permission string (`'product:manage'`) that, when present in a
+session's `permissions` array, grants product administration without a bonded
+permissions provider.
+
+```typescript
+const PRODUCT_ADMIN_PERMISSION: "product:manage"
+```
+
+#### `PRODUCT_PERMISSION_ACTION`
+
+Permission action checked against `@molecule/api-permissions` for product
+administration.
+
+```typescript
+const PRODUCT_PERMISSION_ACTION: "manage"
+```
+
+#### `PRODUCT_PERMISSION_RESOURCE`
+
+Permission resource checked against `@molecule/api-permissions` for product
+administration.
+
+```typescript
+const PRODUCT_PERMISSION_RESOURCE: "product"
+```
+
 #### `requestHandlerMap`
 
 Handler map keyed by route handler name.
 
+`requireAdmin` is the admin authorizer middleware referenced by the
+`update`/`del`/`createVariant` routes. It must live here (as a real handler-map
+key) so the mlcl injector's route scanner preserves it — a bare middleware
+string that isn't a handler-map key is silently dropped.
+
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly createVariant: typeof createVariant; readonly list: typeof list; readonly listVariants: typeof listVariants; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; }
+const requestHandlerMap: { readonly create: typeof create; readonly createVariant: typeof createVariant; readonly list: typeof list; readonly listVariants: typeof listVariants; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; readonly requireAdmin: MoleculeRequestHandler; }
 ```
 
 #### `routes`
@@ -245,7 +338,7 @@ const requestHandlerMap: { readonly create: typeof create; readonly createVarian
 Route array for product CRUD plus variant sub-resource.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/products"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/products"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/products/:id"; readonly handler: "read"; }, { readonly method: "patch"; readonly path: "/products/:id"; readonly handler: "update"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/products/:id"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/products/:id/variants"; readonly handler: "listVariants"; }, { readonly method: "post"; readonly path: "/products/:id/variants"; readonly handler: "createVariant"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [{ readonly method: "post"; readonly path: "/products"; readonly handler: "create"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/products"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/products/:id"; readonly handler: "read"; }, { readonly method: "patch"; readonly path: "/products/:id"; readonly handler: "update"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "delete"; readonly path: "/products/:id"; readonly handler: "del"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/products/:id/variants"; readonly handler: "listVariants"; }, { readonly method: "post"; readonly path: "/products/:id/variants"; readonly handler: "createVariant"; readonly middlewares: readonly ["requireAdmin"]; }]
 ```
 
 ## Injection Notes
@@ -257,4 +350,5 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-product` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
+- `@molecule/api-permissions` ^1.0.0
 - `@molecule/api-resource` ^1.0.0

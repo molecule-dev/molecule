@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Bulgarian. */
 export const bg: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Името на продукта е задължително',
   'product.error.invalidName': 'Името на продукта е невалидно',
   'product.error.invalidPrice': 'Изисква се валидна цена',

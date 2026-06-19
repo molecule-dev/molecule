@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Albanian. */
 export const sq: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Emri i produktit është i detyrueshëm',
   'product.error.invalidName': 'Emri i produktit është i pavlefshëm',
   'product.error.invalidPrice': 'Kërkohet një çmim i vlefshëm',

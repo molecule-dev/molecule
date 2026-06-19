@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Afrikaans. */
 export const af: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Produknaam is verpligtend',
   'product.error.invalidName': 'Produknaam is ongeldig',
   'product.error.invalidPrice': "'n Geldige prys is verpligtend",

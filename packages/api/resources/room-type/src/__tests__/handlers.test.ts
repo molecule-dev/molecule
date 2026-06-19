@@ -124,6 +124,37 @@ describe('@molecule/api-resource-room-type handlers', () => {
       await create(req, res)
 
       expect(res.status).toHaveBeenCalledWith(401)
+      // Fail-closed: no inventory row inserted for an anonymous caller.
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('returns 403 for an authenticated non-admin user (catalog injection blocked)', async () => {
+      const req = mockReq({ body: VALID_BODY })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'roomType.error.forbidden' }),
+      )
+      // Fail-closed: no write attempted for a non-admin.
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('creates a room type for a non-claim user when the permissions provider grants manage roomType', async () => {
+      mockHasProvider.mockReturnValue(true)
+      mockCan.mockResolvedValue(true)
+      mockCreate.mockResolvedValueOnce({ data: ROOM_TYPE_ROW })
+
+      const req = mockReq({ body: VALID_BODY })
+      const res = mockRes({ locals: { session: { userId: 'manager-1' } } })
+
+      await create(req, res)
+
+      expect(mockCan).toHaveBeenCalledWith('user:manager-1', 'manage', 'roomType')
+      expect(mockCreate).toHaveBeenCalled()
+      expect(res.status).toHaveBeenCalledWith(201)
     })
 
     it('returns 400 when required fields are missing', async () => {

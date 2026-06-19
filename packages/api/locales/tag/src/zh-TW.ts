@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Chinese Traditional. */
 export const zhTW: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': '標籤名稱為必填項',
   'tag.error.invalidName': '標籤名稱無效',
   'tag.error.createFailed': '建立標籤失敗',

@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Marathi. */
 export const mr: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'उत्पादनाचे नाव आवश्यक आहे',
   'product.error.invalidName': 'उत्पादनाचे नाव अवैध आहे',
   'product.error.invalidPrice': 'वैध किंमत आवश्यक आहे',

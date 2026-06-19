@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Mongolian. */
 export const mn: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Бүтээгдэхүүний нэр шаардлагатай',
   'product.error.invalidName': 'Бүтээгдэхүүний нэр буруу байна',
   'product.error.invalidPrice': 'Зөв үнэ шаардлагатай',

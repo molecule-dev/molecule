@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Filipino. */
 export const fil: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Kinakailangan ang pangalan ng produkto',
   'product.error.invalidName': 'Hindi wasto ang pangalan ng produkto',
   'product.error.invalidPrice': 'Kinakailangan ang wastong presyo',

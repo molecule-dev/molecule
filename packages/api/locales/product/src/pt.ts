@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Portuguese. */
 export const pt: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'O nome do produto é obrigatório',
   'product.error.invalidName': 'O nome do produto é inválido',
   'product.error.invalidPrice': 'Um preço válido é obrigatório',

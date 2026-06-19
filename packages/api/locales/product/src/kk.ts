@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Kazakh. */
 export const kk: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Өнім атауы міндетті',
   'product.error.invalidName': 'Өнім атауы жарамсыз',
   'product.error.invalidPrice': 'Жарамды баға қажет',

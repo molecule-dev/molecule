@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Vietnamese. */
 export const vi: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Tên thẻ là bắt buộc',
   'tag.error.invalidName': 'Tên thẻ không hợp lệ',
   'tag.error.createFailed': 'Không thể tạo thẻ',

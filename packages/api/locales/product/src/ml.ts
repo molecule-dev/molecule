@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Malayalam. */
 export const ml: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ഉൽപ്പന്ന നാമം ആവശ്യമാണ്',
   'product.error.invalidName': 'ഉൽപ്പന്ന നാമം അസാധുവാണ്',
   'product.error.invalidPrice': 'സാധുവായ വില ആവശ്യമാണ്',

@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Russian. */
 export const ru: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Название продукта обязательно',
   'product.error.invalidName': 'Название продукта недопустимо',
   'product.error.invalidPrice': 'Требуется допустимая цена',

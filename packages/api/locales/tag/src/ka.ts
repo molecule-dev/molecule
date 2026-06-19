@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Georgian. */
 export const ka: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ტეგის სახელი აუცილებელია',
   'tag.error.invalidName': 'ტეგის სახელი არასწორია',
   'tag.error.createFailed': 'ტეგის შექმნა ვერ მოხერხდა',

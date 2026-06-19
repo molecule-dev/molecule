@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Lithuanian. */
 export const lt: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Prekės pavadinimas yra privalomas',
   'product.error.invalidName': 'Prekės pavadinimas yra neteisingas',
   'product.error.invalidPrice': 'Reikalinga tinkama kaina',

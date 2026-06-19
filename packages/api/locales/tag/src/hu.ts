@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Hungarian. */
 export const hu: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'A címke neve kötelező',
   'tag.error.invalidName': 'A címke neve érvénytelen',
   'tag.error.createFailed': 'A címke létrehozása sikertelen',

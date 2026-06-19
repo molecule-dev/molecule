@@ -4,7 +4,7 @@
  * A product is a **shared catalog entity** with no per-user owner/store column
  * (see `__setup__/products.sql`), so the owner-scoped model used by owned
  * resources (e.g. `@molecule/api-resource-project`'s `authUser`) does not apply.
- * Instead, mutating the catalog — `update` (price/stock), `del`, and
+ * Instead, mutating the catalog — `create`, `update` (price/stock), `del`, and
  * `createVariant` — is **admin-only** (a merchant / catalog-manager role). The
  * gate is enforced in two independent layers so it can never silently regress:
  *
@@ -137,7 +137,7 @@ async function permissionAllows(userId: string): Promise<boolean> {
 
 /**
  * Resolves whether the current request's session belongs to an actor authorized
- * to administer products (update/delete/create variants). Fail-closed: returns
+ * to administer products (create/update/delete/create variants). Fail-closed: returns
  * `false` when there is no authenticated session, and otherwise only `true` when
  * the session carries an admin claim or a bonded permissions provider grants the
  * `manage product` permission.
@@ -161,8 +161,8 @@ export async function isProductAdmin(res: MoleculeResponse): Promise<boolean> {
 }
 
 /**
- * Route middleware that gates the admin-only product mutation routes (`update`,
- * `del`, `createVariant`). Calls `next()` only for an authenticated admin;
+ * Route middleware that gates the admin-only product mutation routes (`create`,
+ * `update`, `del`, `createVariant`). Calls `next()` only for an authenticated admin;
  * otherwise forwards an error to the framework error handler — `Unauthorized`
  * when no session is present, `Forbidden` when the session is authenticated but
  * not an admin.

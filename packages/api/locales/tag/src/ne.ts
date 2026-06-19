@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Nepali. */
 export const ne: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ट्याग नाम आवश्यक छ',
   'tag.error.invalidName': 'ट्याग नाम अमान्य छ',
   'tag.error.createFailed': 'ट्याग बनाउन असफल',

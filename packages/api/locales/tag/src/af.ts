@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Afrikaans. */
 export const af: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Etiketnaam is verpligtend',
   'tag.error.invalidName': 'Etiketnaam is ongeldig',
   'tag.error.createFailed': 'Kon nie etiket skep nie',

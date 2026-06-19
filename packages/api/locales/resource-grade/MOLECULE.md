@@ -4,7 +4,7 @@ Translations for @molecule/api-resource-grade in 79 languages.
 
 ## Purpose
 
-Provides translations for the `@molecule/api-resource-grade` package which has 14 translation keys.
+Provides translations for the `@molecule/api-resource-grade` package which has 15 translation keys.
 
 ## Languages
 
@@ -27,6 +27,7 @@ import type { GradeTranslationKey, GradeTranslations } from '@molecule/api-local
 | `grade.error.scoreOutOfRange` | scorePoints must be between 0 and maxPoints |
 | `grade.error.createFailed` | Failed to post grade |
 | `grade.error.notFound` | Grade not found |
+| `grade.error.forbidden` | Access denied |
 | `grade.error.readFailed` | Failed to read grade |
 | `grade.error.listFailed` | Failed to list grades |
 | `grade.error.updateFailed` | Failed to update grade |

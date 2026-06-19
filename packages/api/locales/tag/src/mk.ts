@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Macedonian. */
 export const mk: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Името на ознаката е задолжително',
   'tag.error.invalidName': 'Името на ознаката е невалидно',
   'tag.error.createFailed': 'Неуспешно создавање на ознака',

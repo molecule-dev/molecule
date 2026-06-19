@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Icelandic. */
 export const is: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Heiti vöru er nauðsynlegt',
   'product.error.invalidName': 'Heiti vöru er ógilt',
   'product.error.invalidPrice': 'Gilt verð er nauðsynlegt',

@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Hausa. */
 export const ha: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Ana buƙatar sunan kayan',
   'product.error.invalidName': 'Sunan kayan ba daidai ba ne',
   'product.error.invalidPrice': 'Ana buƙatar farashi mai inganci',

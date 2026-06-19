@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Mongolian. */
 export const mn: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Тегийн нэр шаардлагатай',
   'tag.error.invalidName': 'Тегийн нэр буруу байна',
   'tag.error.createFailed': 'Тег үүсгэж чадсангүй',

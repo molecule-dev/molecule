@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Chinese (Traditional). */
 export const zhTW: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': '產品名稱為必填項',
   'product.error.invalidName': '產品名稱無效',
   'product.error.invalidPrice': '需要有效的價格',

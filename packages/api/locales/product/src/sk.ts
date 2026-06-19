@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Slovak. */
 export const sk: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Názov produktu je povinný',
   'product.error.invalidName': 'Názov produktu je neplatný',
   'product.error.invalidPrice': 'Je potrebná platná cena',

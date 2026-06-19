@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Khmer. */
 export const km: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ត្រូវការឈ្មោះស្លាក',
   'tag.error.invalidName': 'ឈ្មោះស្លាកមិនត្រឹមត្រូវ',
   'tag.error.createFailed': 'បរាជ័យក្នុងការបង្កើតស្លាក',

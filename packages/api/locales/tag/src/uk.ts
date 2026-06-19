@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Ukrainian. */
 export const uk: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': "Назва тегу обов'язкова",
   'tag.error.invalidName': 'Назва тегу недійсна',
   'tag.error.createFailed': 'Не вдалося створити тег',

@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Gujarati. */
 export const gu: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ઉત્પાદનનું નામ જરૂરી છે',
   'product.error.invalidName': 'ઉત્પાદનનું નામ અમાન્ય છે',
   'product.error.invalidPrice': 'માન્ય કિંમત જરૂરી છે',

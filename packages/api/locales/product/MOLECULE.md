@@ -4,7 +4,7 @@ Product resource translations for 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/api-product` package which has 12 translation keys.
+Provides translations for the `@molecule/api-product` package which has 13 translation keys.
 
 ## Languages
 
@@ -26,6 +26,7 @@ import type { ProductTranslationKey, ProductTranslations } from '@molecule/api-l
 | `product.error.invalidPrice` | A valid price is required |
 | `product.error.createFailed` | Failed to create product |
 | `product.error.notFound` | Product not found |
+| `product.error.forbidden` | Access denied |
 | `product.error.readFailed` | Failed to read product |
 | `product.error.listFailed` | Failed to list products |
 | `product.error.updateFailed` | Failed to update product |

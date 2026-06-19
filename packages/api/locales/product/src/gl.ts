@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Galician. */
 export const gl: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'O nome do produto é obrigatorio',
   'product.error.invalidName': 'O nome do produto non é válido',
   'product.error.invalidPrice': 'Requírese un prezo válido',

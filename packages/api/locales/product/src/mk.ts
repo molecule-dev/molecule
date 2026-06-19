@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Macedonian. */
 export const mk: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Името на производот е задолжително',
   'product.error.invalidName': 'Името на производот е невалидно',
   'product.error.invalidPrice': 'Потребна е валидна цена',

@@ -4,6 +4,7 @@ export type TagTranslationKey =
   | 'tag.error.invalidName'
   | 'tag.error.createFailed'
   | 'tag.error.notFound'
+  | 'tag.error.forbidden'
   | 'tag.error.readFailed'
   | 'tag.error.listFailed'
   | 'tag.error.updateFailed'

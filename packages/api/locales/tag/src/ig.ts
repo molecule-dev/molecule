@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Igbo. */
 export const ig: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'A chọrọ aha tag',
   'tag.error.invalidName': 'Aha tag ezighi ezi',
   'tag.error.createFailed': 'Enweghị ike ịmepụta tag',

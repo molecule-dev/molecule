@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Japanese. */
 export const ja: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': '商品名は必須です',
   'product.error.invalidName': '商品名が無効です',
   'product.error.invalidPrice': '有効な価格が必要です',

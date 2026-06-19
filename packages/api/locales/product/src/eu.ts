@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Basque. */
 export const eu: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Produktuaren izena beharrezkoa da',
   'product.error.invalidName': 'Produktuaren izena baliogabea da',
   'product.error.invalidPrice': 'Prezio baliozkoa beharrezkoa da',

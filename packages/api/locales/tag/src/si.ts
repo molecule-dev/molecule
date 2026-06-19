@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Sinhala. */
 export const si: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ටැග් නම අවශ්‍යයි',
   'tag.error.invalidName': 'ටැග් නම වලංගු නැත',
   'tag.error.createFailed': 'ටැග් සෑදීම අසාර්ථකයි',

@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Korean. */
 export const ko: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': '태그 이름은 필수입니다',
   'tag.error.invalidName': '태그 이름이 유효하지 않습니다',
   'tag.error.createFailed': '태그 생성에 실패했습니다',

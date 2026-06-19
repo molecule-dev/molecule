@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Lao. */
 export const lo: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ຕ້ອງການຊື່ຜະລິດຕະພັນ',
   'product.error.invalidName': 'ຊື່ຜະລິດຕະພັນບໍ່ຖືກຕ້ອງ',
   'product.error.invalidPrice': 'ຕ້ອງການລາຄາທີ່ຖືກຕ້ອງ',

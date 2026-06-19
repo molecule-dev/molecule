@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Burmese. */
 export const my: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ကုန်ပစ္စည်းအမည် လိုအပ်ပါသည်',
   'product.error.invalidName': 'ကုန်ပစ္စည်းအမည် မမှန်ကန်ပါ',
   'product.error.invalidPrice': 'မှန်ကန်သောစျေးနှုန်း လိုအပ်ပါသည်',

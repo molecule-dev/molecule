@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Slovak. */
 export const sk: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Názov štítka je povinný',
   'tag.error.invalidName': 'Názov štítka je neplatný',
   'tag.error.createFailed': 'Nepodarilo sa vytvoriť štítok',

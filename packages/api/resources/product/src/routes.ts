@@ -4,8 +4,8 @@
  * Declarative routing — mlcl inject reads these to generate the Express router.
  *
  * A product is a shared catalog entity with no per-user owner column, so the
- * mutation routes `update` (price/stock), `del`, and `createVariant` are gated
- * **admin-only** by the `requireAdmin` middleware (a real `requestHandlerMap`
+ * mutation routes `create`, `update` (price/stock), `del`, and `createVariant`
+ * are gated **admin-only** by the `requireAdmin` middleware (a real `requestHandlerMap`
  * key — see `authorizers/index.ts` — so the injector preserves it; the
  * previously declared global `'authenticate'` string was silently dropped by the
  * route scanner, leaving these routes open to any authenticated user). Each
@@ -17,7 +17,7 @@
 
 /** Route array for product CRUD plus variant sub-resource. */
 export const routes = [
-  { method: 'post', path: '/products', handler: 'create', middlewares: ['authenticate'] },
+  { method: 'post', path: '/products', handler: 'create', middlewares: ['requireAdmin'] },
   { method: 'get', path: '/products', handler: 'list' },
   { method: 'get', path: '/products/:id', handler: 'read' },
   { method: 'patch', path: '/products/:id', handler: 'update', middlewares: ['requireAdmin'] },

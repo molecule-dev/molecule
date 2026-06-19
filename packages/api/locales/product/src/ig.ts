@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Igbo. */
 export const ig: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'A chọrọ aha ngwaahịa',
   'product.error.invalidName': 'Aha ngwaahịa adịghị mma',
   'product.error.invalidPrice': 'A chọrọ ọnụahịa ziri ezi',

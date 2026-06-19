@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Kyrgyz. */
 export const ky: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Продукциянын аталышы милдеттүү',
   'product.error.invalidName': 'Продукциянын аталышы жараксыз',
   'product.error.invalidPrice': 'Жарактуу баа талап кылынат',

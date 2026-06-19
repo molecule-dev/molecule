@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Tamil. */
 export const ta: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'தயாரிப்பு பெயர் தேவை',
   'product.error.invalidName': 'தயாரிப்பு பெயர் தவறானது',
   'product.error.invalidPrice': 'சரியான விலை தேவை',

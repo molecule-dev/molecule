@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Zulu. */
 export const zu: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Igama lomkhiqizo liyadingeka',
   'product.error.invalidName': 'Igama lomkhiqizo alivumelekile',
   'product.error.invalidPrice': 'Kudingeka intengo evumelekile',

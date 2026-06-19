@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Greek. */
 export const el: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Το όνομα ετικέτας είναι υποχρεωτικό',
   'tag.error.invalidName': 'Το όνομα ετικέτας δεν είναι έγκυρο',
   'tag.error.createFailed': 'Αποτυχία δημιουργίας ετικέτας',

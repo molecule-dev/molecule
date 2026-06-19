@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Czech. */
 export const cs: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Název produktu je povinný',
   'product.error.invalidName': 'Název produktu je neplatný',
   'product.error.invalidPrice': 'Je vyžadována platná cena',

@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Zulu. */
 export const zu: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Igama le-tag liyadingeka',
   'tag.error.invalidName': 'Igama le-tag alivumelekile',
   'tag.error.createFailed': 'Yehlulekile ukwenza i-tag',

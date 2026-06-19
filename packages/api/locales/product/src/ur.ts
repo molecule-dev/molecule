@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Urdu. */
 export const ur: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'مصنوعات کا نام ضروری ہے',
   'product.error.invalidName': 'مصنوعات کا نام غلط ہے',
   'product.error.invalidPrice': 'ایک درست قیمت ضروری ہے',

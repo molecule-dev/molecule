@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Yoruba. */
 export const yo: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Orúkọ ọjà jẹ́ dandan',
   'product.error.invalidName': 'Orúkọ ọjà kò wúlò',
   'product.error.invalidPrice': 'Iye owó tó wúlò ni a nílò',

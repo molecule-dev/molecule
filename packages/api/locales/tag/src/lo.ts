@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Lao. */
 export const lo: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ຕ້ອງການຊື່ແທັກ',
   'tag.error.invalidName': 'ຊື່ແທັກບໍ່ຖືກຕ້ອງ',
   'tag.error.createFailed': 'ການສ້າງແທັກລົ້ມເຫລວ',

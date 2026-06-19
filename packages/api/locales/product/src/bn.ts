@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Bengali. */
 export const bn: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'পণ্যের নাম আবশ্যক',
   'product.error.invalidName': 'পণ্যের নাম অবৈধ',
   'product.error.invalidPrice': 'একটি বৈধ মূল্য আবশ্যক',

@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Turkish. */
 export const tr: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Ürün adı gereklidir',
   'product.error.invalidName': 'Ürün adı geçersiz',
   'product.error.invalidPrice': 'Geçerli bir fiyat gereklidir',

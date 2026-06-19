@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Belarusian. */
 export const be: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Назва тэга абавязковая',
   'tag.error.invalidName': 'Назва тэга несапраўдная',
   'tag.error.createFailed': 'Не ўдалося стварыць тэг',

@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Indonesian. */
 export const id: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Nama tag wajib diisi',
   'tag.error.invalidName': 'Nama tag tidak valid',
   'tag.error.createFailed': 'Gagal membuat tag',

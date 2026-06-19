@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Finnish. */
 export const fi: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Tagin nimi on pakollinen',
   'tag.error.invalidName': 'Tagin nimi on virheellinen',
   'tag.error.createFailed': 'Tagin luonti epäonnistui',

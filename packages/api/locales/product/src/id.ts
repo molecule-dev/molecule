@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Indonesian. */
 export const id: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Nama produk wajib diisi',
   'product.error.invalidName': 'Nama produk tidak valid',
   'product.error.invalidPrice': 'Harga yang valid wajib diisi',

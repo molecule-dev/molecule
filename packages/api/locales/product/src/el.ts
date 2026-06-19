@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Greek. */
 export const el: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'Το όνομα προϊόντος είναι υποχρεωτικό',
   'product.error.invalidName': 'Το όνομα προϊόντος δεν είναι έγκυρο',
   'product.error.invalidPrice': 'Απαιτείται έγκυρη τιμή',

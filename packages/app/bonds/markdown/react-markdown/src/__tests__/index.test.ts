@@ -132,6 +132,36 @@ describe('@molecule/app-markdown-react-markdown', () => {
       expect(result.html).toContain('<img src=""')
     })
 
+    it('should neutralize a tab-obfuscated javascript: scheme', () => {
+      const result = provider.render('[x](java\tscript:alert(1))')
+      expect(result.html.toLowerCase()).not.toContain('javascript:')
+      expect(result.html).toContain('href=""')
+    })
+
+    it('should neutralize a newline-obfuscated javascript: scheme', () => {
+      const result = provider.render('[x](java\nscript:alert(1))')
+      expect(result.html.toLowerCase()).not.toContain('javascript:')
+      expect(result.html).toContain('href=""')
+    })
+
+    it('should neutralize a leading-whitespace javascript: scheme', () => {
+      const result = provider.render('[x](  javascript:alert(1))')
+      expect(result.html.toLowerCase()).not.toContain('javascript:')
+      expect(result.html).toContain('href=""')
+    })
+
+    it('should neutralize a mixed-case JaVaScript: scheme', () => {
+      const result = provider.render('[x](JaVaScript:alert(1))')
+      expect(result.html.toLowerCase()).not.toContain('javascript:')
+      expect(result.html).toContain('href=""')
+    })
+
+    it('should neutralize a leading-control-char data: URL', () => {
+      const result = provider.render('![x](\x01data:text/html,<script>alert(1)</script>)')
+      expect(result.html.toLowerCase()).not.toContain('data:')
+      expect(result.html).toContain('<img src=""')
+    })
+
     it('should keep legitimate http/https/mailto/relative URLs', () => {
       expect(provider.render('[a](https://example.com)').html).toContain(
         'href="https://example.com"',

@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Punjabi. */
 export const pa: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ਉਤਪਾਦ ਦਾ ਨਾਮ ਲੋੜੀਂਦਾ ਹੈ',
   'product.error.invalidName': 'ਉਤਪਾਦ ਦਾ ਨਾਮ ਅਵੈਧ ਹੈ',
   'product.error.invalidPrice': 'ਇੱਕ ਵੈਧ ਕੀਮਤ ਲੋੜੀਂਦੀ ਹੈ',

@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Maltese. */
 export const mt: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'L-isem tat-tag huwa meħtieġ',
   'tag.error.invalidName': 'L-isem tat-tag mhuwiex validu',
   'tag.error.createFailed': 'Naqas milli noħloq it-tag',

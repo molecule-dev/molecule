@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Punjabi. */
 export const pa: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ਟੈਗ ਨਾਮ ਲੋੜੀਂਦਾ ਹੈ',
   'tag.error.invalidName': 'ਟੈਗ ਨਾਮ ਅਵੈਧ ਹੈ',
   'tag.error.createFailed': 'ਟੈਗ ਬਣਾਉਣ ਵਿੱਚ ਅਸਫਲ',

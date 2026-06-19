@@ -5,6 +5,7 @@ export type ProductTranslationKey =
   | 'product.error.invalidPrice'
   | 'product.error.createFailed'
   | 'product.error.notFound'
+  | 'product.error.forbidden'
   | 'product.error.readFailed'
   | 'product.error.listFailed'
   | 'product.error.updateFailed'

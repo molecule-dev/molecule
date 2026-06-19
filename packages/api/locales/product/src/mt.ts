@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Maltese. */
 export const mt: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'L-isem tal-prodott huwa meħtieġ',
   'product.error.invalidName': 'L-isem tal-prodott mhuwiex validu',
   'product.error.invalidPrice': 'Huwa meħtieġ prezz validu',

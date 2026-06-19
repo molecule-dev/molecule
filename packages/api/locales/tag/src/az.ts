@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Azerbaijani. */
 export const az: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'Etiket adı tələb olunur',
   'tag.error.invalidName': 'Etiket adı yanlışdır',
   'tag.error.createFailed': 'Etiket yaradıla bilmədi',

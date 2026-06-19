@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Amharic. */
 export const am: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'የምርት ስም ያስፈልጋል',
   'product.error.invalidName': 'የምርት ስም ልክ አይደለም',
   'product.error.invalidPrice': 'ትክክለኛ ዋጋ ያስፈልጋል',

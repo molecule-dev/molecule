@@ -2,6 +2,7 @@ import type { ProductTranslations } from './types.js'
 
 /** Product translations for Telugu. */
 export const te: ProductTranslations = {
+  'product.error.forbidden': 'Access denied',
   'product.error.nameRequired': 'ఉత్పత్తి పేరు అవసరం',
   'product.error.invalidName': 'ఉత్పత్తి పేరు చెల్లదు',
   'product.error.invalidPrice': 'చెల్లుబాటు అయ్యే ధర అవసరం',

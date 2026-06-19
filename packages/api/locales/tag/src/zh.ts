@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Chinese Simplified. */
 export const zh: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': '标签名称为必填项',
   'tag.error.invalidName': '标签名称无效',
   'tag.error.createFailed': '创建标签失败',

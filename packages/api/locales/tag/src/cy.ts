@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Welsh. */
 export const cy: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': "Mae angen enw'r tag",
   'tag.error.invalidName': "Mae enw'r tag yn annilys",
   'tag.error.createFailed': 'Methwyd â chreu tag',

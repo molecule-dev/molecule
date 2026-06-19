@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Telugu. */
 export const te: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'ట్యాగ్ పేరు అవసరం',
   'tag.error.invalidName': 'ట్యాగ్ పేరు చెల్లదు',
   'tag.error.createFailed': 'ట్యాగ్ సృష్టించడంలో విఫలం',

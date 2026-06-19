@@ -2,6 +2,7 @@ import type { TagTranslations } from './types.js'
 
 /** Tag translations for Japanese. */
 export const ja: TagTranslations = {
+  'tag.error.forbidden': 'Forbidden',
   'tag.error.nameRequired': 'タグ名は必須です',
   'tag.error.invalidName': 'タグ名が無効です',
   'tag.error.createFailed': 'タグの作成に失敗しました',
