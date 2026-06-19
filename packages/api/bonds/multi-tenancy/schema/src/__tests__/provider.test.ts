@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { TenancyProvider } from '@molecule/api-multi-tenancy'
 
-import { createProvider } from '../provider.js'
+import { createProvider, runWithTenant } from '../provider.js'
 
 describe('schema-based multi-tenancy provider', () => {
   let provider: TenancyProvider
@@ -11,22 +11,36 @@ describe('schema-based multi-tenancy provider', () => {
     provider = createProvider()
   })
 
-  describe('setTenant / getTenant', () => {
-    it('should return null when no tenant is set', () => {
+  describe('setTenant / getTenant (request-scoped)', () => {
+    it('should return null when no tenant scope is active', () => {
       expect(provider.getTenant()).toBeNull()
     })
 
-    it('should set and get the current tenant', () => {
-      provider.setTenant('tenant-1')
-
-      expect(provider.getTenant()).toBe('tenant-1')
+    it('should set and get the current tenant within a scope', () => {
+      runWithTenant('placeholder', () => {
+        provider.setTenant('tenant-1')
+        expect(provider.getTenant()).toBe('tenant-1')
+      })
     })
 
-    it('should overwrite the current tenant', () => {
-      provider.setTenant('tenant-1')
-      provider.setTenant('tenant-2')
+    it('should overwrite the current tenant within a scope', () => {
+      runWithTenant('placeholder', () => {
+        provider.setTenant('tenant-1')
+        provider.setTenant('tenant-2')
+        expect(provider.getTenant()).toBe('tenant-2')
+      })
+    })
 
-      expect(provider.getTenant()).toBe('tenant-2')
+    it('should throw when setTenant is called outside a request scope', () => {
+      expect(() => provider.setTenant('tenant-1')).toThrow(/outside of a tenant request scope/)
+    })
+
+    it('should not leak tenant context outside the scope', () => {
+      runWithTenant('placeholder', () => {
+        provider.setTenant('tenant-1')
+      })
+
+      expect(provider.getTenant()).toBeNull()
     })
   })
 
@@ -86,21 +100,21 @@ describe('schema-based multi-tenancy provider', () => {
 
     it('should clear current tenant if the deleted tenant was active', async () => {
       const tenant = await provider.createTenant({ name: 'Acme Corp' })
-      provider.setTenant(tenant.id)
 
-      await provider.deleteTenant(tenant.id)
-
-      expect(provider.getTenant()).toBeNull()
+      await runWithTenant(tenant.id, async () => {
+        await provider.deleteTenant(tenant.id)
+        expect(provider.getTenant()).toBeNull()
+      })
     })
 
     it('should not clear current tenant if a different tenant was deleted', async () => {
       const t1 = await provider.createTenant({ name: 'Tenant A' })
       const t2 = await provider.createTenant({ name: 'Tenant B' })
-      provider.setTenant(t1.id)
 
-      await provider.deleteTenant(t2.id)
-
-      expect(provider.getTenant()).toBe(t1.id)
+      await runWithTenant(t1.id, async () => {
+        await provider.deleteTenant(t2.id)
+        expect(provider.getTenant()).toBe(t1.id)
+      })
     })
   })
 
@@ -134,25 +148,29 @@ describe('schema-based multi-tenancy provider', () => {
       return res as { status: ReturnType<typeof vi.fn>; json: ReturnType<typeof vi.fn> }
     }
 
-    it('should set tenant from default header', () => {
+    it('should scope the request to a known, active tenant from the default header', async () => {
+      const tenant = await provider.createTenant({ name: 'Acme Corp' })
       const middleware = provider.getTenantMiddleware()
-      const next = vi.fn()
-      const req = { headers: { 'x-tenant-id': 'tenant-1' } }
+      let seen: string | null = null
+      const next = vi.fn(() => {
+        seen = provider.getTenant()
+      })
+      const req = { headers: { 'x-tenant-id': tenant.id } }
       const res = mockRes()
 
-      middleware(req, res as never, next)
+      await middleware(req, res as never, next)
 
-      expect(provider.getTenant()).toBe('tenant-1')
+      expect(seen).toBe(tenant.id)
       expect(next).toHaveBeenCalled()
     })
 
-    it('should return 400 when tenant header is missing', () => {
+    it('should return 400 when tenant header is missing', async () => {
       const middleware = provider.getTenantMiddleware()
       const next = vi.fn()
       const req = { headers: {} }
       const res = mockRes()
 
-      middleware(req, res as never, next)
+      await middleware(req, res as never, next)
 
       expect(res.status).toHaveBeenCalledWith(400)
       expect(res.json).toHaveBeenCalledWith({
@@ -161,42 +179,184 @@ describe('schema-based multi-tenancy provider', () => {
       expect(next).not.toHaveBeenCalled()
     })
 
-    it('should use default tenant ID when header is missing and default is configured', () => {
+    it('should return 404 when the header tenant does not exist', async () => {
+      const middleware = provider.getTenantMiddleware()
+      const next = vi.fn()
+      const req = { headers: { 'x-tenant-id': 'ghost-tenant' } }
+      const res = mockRes()
+
+      await middleware(req, res as never, next)
+
+      expect(res.status).toHaveBeenCalledWith(404)
+      expect(res.json).toHaveBeenCalledWith({ error: 'Tenant not found: ghost-tenant' })
+      expect(next).not.toHaveBeenCalled()
+    })
+
+    it('should use the (trusted) default tenant ID when header is missing', async () => {
       const customProvider = createProvider({ defaultTenantId: 'default-tenant' })
       const middleware = customProvider.getTenantMiddleware()
-      const next = vi.fn()
+      let seen: string | null = null
+      const next = vi.fn(() => {
+        seen = customProvider.getTenant()
+      })
       const req = { headers: {} }
       const res = mockRes()
 
-      middleware(req, res as never, next)
+      await middleware(req, res as never, next)
 
-      expect(customProvider.getTenant()).toBe('default-tenant')
+      expect(seen).toBe('default-tenant')
       expect(next).toHaveBeenCalled()
     })
 
-    it('should use custom header name', () => {
+    it('should use a custom header name', async () => {
       const customProvider = createProvider({ tenantHeader: 'x-org-id' })
+      const org = await customProvider.createTenant({ name: 'Org 42' })
       const middleware = customProvider.getTenantMiddleware()
-      const next = vi.fn()
-      const req = { headers: { 'x-org-id': 'org-42' } }
+      let seen: string | null = null
+      const next = vi.fn(() => {
+        seen = customProvider.getTenant()
+      })
+      const req = { headers: { 'x-org-id': org.id } }
       const res = mockRes()
 
-      middleware(req, res as never, next)
+      await middleware(req, res as never, next)
 
-      expect(customProvider.getTenant()).toBe('org-42')
+      expect(seen).toBe(org.id)
       expect(next).toHaveBeenCalled()
     })
 
-    it('should handle array header values (first value)', () => {
+    it('should handle array header values (first value)', async () => {
+      const tenant = await provider.createTenant({ name: 'Acme Corp' })
       const middleware = provider.getTenantMiddleware()
-      const next = vi.fn()
-      const req = { headers: { 'x-tenant-id': ['tenant-1', 'tenant-2'] } }
+      let seen: string | null = null
+      const next = vi.fn(() => {
+        seen = provider.getTenant()
+      })
+      const req = { headers: { 'x-tenant-id': [tenant.id, 'tenant-2'] } }
       const res = mockRes()
 
-      middleware(req, res as never, next)
+      await middleware(req, res as never, next)
 
-      expect(provider.getTenant()).toBe('tenant-1')
+      expect(seen).toBe(tenant.id)
       expect(next).toHaveBeenCalled()
+    })
+  })
+
+  describe('header authorization (anti-spoofing)', () => {
+    const mockRes = () => {
+      const res: Record<string, unknown> = {}
+      res['status'] = vi.fn().mockReturnValue(res)
+      res['json'] = vi.fn().mockReturnValue(res)
+      return res as { status: ReturnType<typeof vi.fn>; json: ReturnType<typeof vi.fn> }
+    }
+
+    it('should reject (403) a header tenant the authenticated principal is NOT a member of', async () => {
+      const secureProvider = createProvider({
+        resolveAuthorizedTenantIds: (req) => {
+          const user = req.user as { tenantIds?: string[] } | undefined
+          return user?.tenantIds ?? []
+        },
+      })
+      const victim = await secureProvider.createTenant({ name: 'Victim Inc' })
+      const attacker = await secureProvider.createTenant({ name: 'Attacker LLC' })
+      const middleware = secureProvider.getTenantMiddleware()
+      const next = vi.fn()
+      // Attacker is a member of their own tenant but spoofs the victim's header.
+      const req = {
+        headers: { 'x-tenant-id': victim.id },
+        user: { tenantIds: [attacker.id] },
+      }
+      const res = mockRes()
+
+      await middleware(req, res as never, next)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith({ error: `Not authorized for tenant: ${victim.id}` })
+      expect(next).not.toHaveBeenCalled()
+    })
+
+    it('should allow a header tenant the authenticated principal IS a member of', async () => {
+      const secureProvider = createProvider({
+        resolveAuthorizedTenantIds: (req) => {
+          const user = req.user as { tenantIds?: string[] } | undefined
+          return user?.tenantIds ?? []
+        },
+      })
+      const tenant = await secureProvider.createTenant({ name: 'Acme Corp' })
+      const middleware = secureProvider.getTenantMiddleware()
+      let seen: string | null = null
+      const next = vi.fn(() => {
+        seen = secureProvider.getTenant()
+      })
+      const req = {
+        headers: { 'x-tenant-id': tenant.id },
+        user: { tenantIds: [tenant.id] },
+      }
+      const res = mockRes()
+
+      await middleware(req, res as never, next)
+
+      expect(seen).toBe(tenant.id)
+      expect(next).toHaveBeenCalled()
+    })
+
+    it('should fail closed (call next with error) when the resolver throws', async () => {
+      const boom = new Error('auth lookup failed')
+      const secureProvider = createProvider({
+        resolveAuthorizedTenantIds: () => {
+          throw boom
+        },
+      })
+      const tenant = await secureProvider.createTenant({ name: 'Acme Corp' })
+      const middleware = secureProvider.getTenantMiddleware()
+      const next = vi.fn()
+      const req = { headers: { 'x-tenant-id': tenant.id } }
+      const res = mockRes()
+
+      await middleware(req, res as never, next)
+
+      expect(next).toHaveBeenCalledWith(boom)
+      expect(res.status).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('cross-request isolation (no tenant bleed under concurrency)', () => {
+    it('keeps each in-flight request scoped to its own tenant across awaits', async () => {
+      const provider = createProvider()
+      const a = await provider.createTenant({ name: 'Tenant A' })
+      const b = await provider.createTenant({ name: 'Tenant B' })
+
+      const mockRes = () => {
+        const res: Record<string, unknown> = {}
+        res['status'] = vi.fn().mockReturnValue(res)
+        res['json'] = vi.fn().mockReturnValue(res)
+        return res as never
+      }
+
+      const seen: Record<string, string | null> = {}
+
+      // Drive a request whose handler awaits a "DB round-trip" during which the
+      // other request's middleware runs. With a shared module global, B would
+      // overwrite A's tenant before A resumes; with AsyncLocalStorage it cannot.
+      const driveRequest = (label: 'A' | 'B', tenantId: string, delayMs: number) =>
+        new Promise<void>((resolve, reject) => {
+          const middleware = provider.getTenantMiddleware()
+          const req = { headers: { 'x-tenant-id': tenantId } }
+          middleware(req, mockRes(), async () => {
+            try {
+              await new Promise((r) => setTimeout(r, delayMs))
+              seen[label] = provider.getTenant()
+              resolve()
+            } catch (error) {
+              reject(error)
+            }
+          })
+        })
+
+      await Promise.all([driveRequest('A', a.id, 25), driveRequest('B', b.id, 5)])
+
+      expect(seen['A']).toBe(a.id)
+      expect(seen['B']).toBe(b.id)
     })
   })
 
