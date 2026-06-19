@@ -29,6 +29,35 @@ function escapeHtml(text: string): string {
 }
 
 /**
+ * URL schemes permitted in sanitized `href`/`src` attributes. Everything else
+ * (notably `javascript:`, `data:`, `vbscript:`) is dropped. Schemeless URLs
+ * (relative paths, `#anchors`, `mailto:`-less hosts) have no scheme and pass.
+ */
+const ALLOWED_URL_SCHEMES = ['http', 'https', 'mailto']
+
+/**
+ * Enforces the scheme allow-list on a URL destined for an `href`/`src`.
+ *
+ * The value is assumed to already be HTML-attribute-escaped by the caller (the
+ * whole source is escaped up front in sanitize mode), so this only rejects
+ * dangerous schemes — it does not re-escape (which would double-encode).
+ *
+ * @param url - The (already attribute-escaped) URL to validate.
+ * @returns The URL if its scheme is allowed (or it is schemeless/relative),
+ *   otherwise an empty string so the link/image renders inert.
+ */
+function sanitizeUrl(url: string): string {
+  const trimmed = url.trim()
+  const schemeMatch = /^([a-z][a-z0-9+.-]*):/i.exec(trimmed)
+
+  if (schemeMatch && !ALLOWED_URL_SCHEMES.includes(schemeMatch[1].toLowerCase())) {
+    return ''
+  }
+
+  return trimmed
+}
+
+/**
  * Generates a URL-friendly slug from heading text.
  *
  * @param text - Heading text to slugify.
@@ -69,51 +98,76 @@ function extractToc(markdown: string): TocEntry[] {
 /**
  * Converts markdown text to HTML using regex-based parsing.
  *
+ * When `options.sanitize` is `true` (the default), the renderer is
+ * secure-by-default: the entire source is HTML-escaped up front, so any raw
+ * HTML the author wrote (`<script>`, attribute breakouts, leading-`<` lines)
+ * becomes inert text and every value later interpolated into an `href`/`src`
+ * attribute is already attribute-escaped. The markdown transforms below then
+ * only ADD trusted tags. A scheme allow-list additionally drops dangerous
+ * `href`/`src` schemes (`javascript:`, `data:`, …). Set `sanitize: false` to
+ * opt out and pass raw HTML through unchanged.
+ *
  * @param markdown - Raw markdown string.
  * @param options - Rendering options.
  * @returns HTML string.
  */
 function markdownToHtml(markdown: string, options?: MarkdownOptions): string {
+  const sanitize = options?.sanitize ?? true
   const linkTarget = options?.linkTarget ?? '_self'
-  let html = markdown
+
+  // Secure-by-default: escape every HTML metacharacter in the source before any
+  // transform runs. This neutralizes raw HTML and attribute-breakout payloads,
+  // and makes all subsequently-interpolated text/URLs attribute-safe.
+  let html = sanitize ? escapeHtml(markdown) : markdown
+
+  // In sanitize mode the blockquote marker `>` was escaped to `&gt;`.
+  const quoteMarker = sanitize ? '&gt;' : '>'
+
+  // Content is already escaped up front in sanitize mode; otherwise (raw
+  // passthrough) preserve the original behavior of escaping only heading/code
+  // text so those literal regions still render as text.
+  const escText = sanitize ? (text: string) => text : escapeHtml
+
+  // Apply the scheme allow-list to a URL only when sanitizing.
+  const safeUrl = (url: string) => (sanitize ? sanitizeUrl(url) : url)
 
   // Headings
   html = html.replace(/^######\s+(.+)$/gm, (_m, text) => {
     const id = slugify(text)
-    return `<h6 id="${id}">${escapeHtml(text)}</h6>`
+    return `<h6 id="${id}">${escText(text)}</h6>`
   })
   html = html.replace(/^#####\s+(.+)$/gm, (_m, text) => {
     const id = slugify(text)
-    return `<h5 id="${id}">${escapeHtml(text)}</h5>`
+    return `<h5 id="${id}">${escText(text)}</h5>`
   })
   html = html.replace(/^####\s+(.+)$/gm, (_m, text) => {
     const id = slugify(text)
-    return `<h4 id="${id}">${escapeHtml(text)}</h4>`
+    return `<h4 id="${id}">${escText(text)}</h4>`
   })
   html = html.replace(/^###\s+(.+)$/gm, (_m, text) => {
     const id = slugify(text)
-    return `<h3 id="${id}">${escapeHtml(text)}</h3>`
+    return `<h3 id="${id}">${escText(text)}</h3>`
   })
   html = html.replace(/^##\s+(.+)$/gm, (_m, text) => {
     const id = slugify(text)
-    return `<h2 id="${id}">${escapeHtml(text)}</h2>`
+    return `<h2 id="${id}">${escText(text)}</h2>`
   })
   html = html.replace(/^#\s+(.+)$/gm, (_m, text) => {
     const id = slugify(text)
-    return `<h1 id="${id}">${escapeHtml(text)}</h1>`
+    return `<h1 id="${id}">${escText(text)}</h1>`
   })
 
   // Code blocks (fenced)
   html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_m, lang, code) => {
-    const langAttr = lang ? ` class="language-${escapeHtml(lang)}"` : ''
-    return `<pre><code${langAttr}>${escapeHtml(code.trimEnd())}</code></pre>`
+    const langAttr = lang ? ` class="language-${escText(lang)}"` : ''
+    return `<pre><code${langAttr}>${escText(code.trimEnd())}</code></pre>`
   })
 
   // Inline code
-  html = html.replace(/`([^`]+)`/g, (_m, code) => `<code>${escapeHtml(code)}</code>`)
+  html = html.replace(/`([^`]+)`/g, (_m, code) => `<code>${escText(code)}</code>`)
 
   // Blockquotes
-  html = html.replace(/^>\s+(.+)$/gm, '<blockquote>$1</blockquote>')
+  html = html.replace(new RegExp(`^${quoteMarker}\\s+(.+)$`, 'gm'), '<blockquote>$1</blockquote>')
 
   // Bold
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
@@ -122,10 +176,16 @@ function markdownToHtml(markdown: string, options?: MarkdownOptions): string {
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
 
   // Images (must come before links to avoid matching `![...]` as `[...]`)
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />')
+  html = html.replace(
+    /!\[([^\]]*)\]\(([^)]+)\)/g,
+    (_m, alt, url) => `<img src="${safeUrl(url)}" alt="${alt}" />`,
+  )
 
   // Links
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, `<a href="$2" target="${linkTarget}">$1</a>`)
+  html = html.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    (_m, text, url) => `<a href="${safeUrl(url)}" target="${linkTarget}">${text}</a>`,
+  )
 
   // Horizontal rules
   html = html.replace(/^---$/gm, '<hr />')

@@ -26,6 +26,22 @@ import type {
 
 import type { PgvectorConfig } from './types.js'
 
+/**
+ * Sanitizes an identifier (collection name, metadata field) for safe inline use
+ * in SQL. Collection names flow into quoted table identifiers and metadata field
+ * names flow into a single-quoted `metadata->>'<field>'` JSON path — neither can
+ * be parameterized, so any character outside `[A-Za-z0-9_]` (quotes, semicolons,
+ * dashes, etc.) is replaced with `_` to neutralize injection. Mirrors the
+ * `sanitizeIdentifier` defense in the sibling `@molecule/api-search` (postgres)
+ * and `@molecule/api-reporting` (database) bonds.
+ *
+ * @param name - The raw identifier to sanitize.
+ * @returns The sanitized identifier, safe to interpolate into SQL.
+ */
+function sanitizeIdentifier(name: string): string {
+  return name.replace(/[^a-zA-Z0-9_]/g, '_')
+}
+
 /** Metadata row shape returned by the collections registry table. */
 interface CollectionRow {
   name: string
@@ -186,7 +202,7 @@ class PgvectorProvider implements AIVectorStoreProvider {
    * @returns Qualified table name.
    */
   private collectionTable(collection: string): string {
-    return `"${this.schema}"."${this.tablePrefix}${collection}"`
+    return `"${this.schema}"."${this.tablePrefix}${sanitizeIdentifier(collection)}"`
   }
 
   /**
@@ -364,7 +380,7 @@ class PgvectorProvider implements AIVectorStoreProvider {
 
     if (params.filter) {
       for (const f of params.filter) {
-        const fieldPath = `metadata->>'${f.field}'`
+        const fieldPath = `metadata->>'${sanitizeIdentifier(f.field)}'`
         switch (f.operator) {
           case 'eq':
             conditions.push(`${fieldPath} = $${paramIdx}`)

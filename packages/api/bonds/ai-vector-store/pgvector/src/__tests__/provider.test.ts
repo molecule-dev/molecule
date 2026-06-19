@@ -580,6 +580,72 @@ describe('PgvectorProvider', () => {
   // Custom configuration
   // =========================================================================
 
+  // =========================================================================
+  // SQL injection hardening (P3C-1 / P3C-2)
+  // =========================================================================
+
+  describe('identifier sanitization (SQL injection defense)', () => {
+    it('sanitizes a malicious collection name before interpolating it as a table identifier', async () => {
+      const provider = createProvider({ connectionString: 'postgresql://localhost/test' })
+      mockClient.query.mockResolvedValue({ rows: [] })
+
+      const malicious = 'docs"; DROP TABLE users;--'
+      await provider.createCollection({ name: malicious, dimension: 8 })
+
+      const ddl = mockClient.query.mock.calls
+        .map((c: unknown[]) => c[0] as string)
+        .filter((c) => typeof c === 'string' && c.includes('mol_vectors_'))
+
+      // The raw injection must never reach an SQL string verbatim.
+      for (const sql of ddl) {
+        expect(sql).not.toContain('"; DROP TABLE users')
+        expect(sql).not.toContain('DROP TABLE users;')
+      }
+
+      // The CREATE TABLE statement must reference the SANITIZED identifier.
+      const createTable = mockClient.query.mock.calls.find(
+        (c: unknown[]) => typeof c[0] === 'string' && (c[0] as string).includes('vector(8)'),
+      )
+      expect(createTable).toBeDefined()
+      expect(createTable![0] as string).toContain('"mol_vectors_docs___DROP_TABLE_users___"')
+
+      // The registry name stays the raw value but is passed as a bound parameter ($1), never inlined.
+      const registryInsert = mockClient.query.mock.calls.find(
+        (c: unknown[]) =>
+          typeof c[0] === 'string' &&
+          (c[0] as string).includes('INSERT INTO') &&
+          (c[0] as string).includes('mol_vectors_collections'),
+      )
+      expect(registryInsert![0] as string).not.toContain(malicious)
+      expect(registryInsert![1][0]).toBe(malicious)
+    })
+
+    it('sanitizes a malicious metadata filter field before interpolating it into the JSON path', async () => {
+      const provider = createProvider({ connectionString: 'postgresql://localhost/test' })
+      mockClient.query.mockResolvedValue({ rows: [] })
+
+      mockPool.query
+        .mockResolvedValueOnce({
+          rows: [{ name: 'docs', dimension: 2, metric: 'cosine' }],
+        })
+        .mockResolvedValueOnce({ rows: [] })
+
+      await provider.query({
+        collection: 'docs',
+        embedding: [0.1, 0.2],
+        filter: [{ field: "source'; DROP TABLE secrets;--", operator: 'eq', value: 'web' }],
+      })
+
+      const sql = mockPool.query.mock.calls[1][0] as string
+      // The single-quote break-out + injected statement must be neutralized.
+      expect(sql).not.toContain("'; DROP TABLE secrets")
+      expect(sql).not.toContain('DROP TABLE secrets')
+      expect(sql).toContain("metadata->>'source___DROP_TABLE_secrets___'")
+      // The compared value is still a bound parameter.
+      expect(mockPool.query.mock.calls[1][1]).toContain('web')
+    })
+  })
+
   describe('custom table prefix and schema', () => {
     it('uses custom schema and prefix', async () => {
       const provider = createProvider({

@@ -116,4 +116,71 @@ describe('@molecule/app-markdown-react-markdown', () => {
       expect(result.html).toContain('<img src="image.png" alt="Alt text"')
     })
   })
+
+  describe('sanitization (secure-by-default)', () => {
+    it('should drop a javascript: link scheme', () => {
+      const result = provider.render('[click me](javascript:alert(1))')
+      // Link text still renders, but the dangerous scheme is gone.
+      expect(result.html).not.toContain('javascript:')
+      expect(result.html).toContain('href=""')
+      expect(result.html).toContain('click me</a>')
+    })
+
+    it('should drop a data: image scheme', () => {
+      const result = provider.render('![x](data:text/html,<script>alert(1)</script>)')
+      expect(result.html).not.toContain('data:')
+      expect(result.html).toContain('<img src=""')
+    })
+
+    it('should keep legitimate http/https/mailto/relative URLs', () => {
+      expect(provider.render('[a](https://example.com)').html).toContain(
+        'href="https://example.com"',
+      )
+      expect(provider.render('[a](http://example.com)').html).toContain('href="http://example.com"')
+      expect(provider.render('[a](mailto:me@example.com)').html).toContain(
+        'href="mailto:me@example.com"',
+      )
+      expect(provider.render('[a](/relative/path)').html).toContain('href="/relative/path"')
+      expect(provider.render('[a](#anchor)').html).toContain('href="#anchor"')
+    })
+
+    it('should prevent attribute breakout from a link URL', () => {
+      const result = provider.render('[x](https://e.com" onmouseover="alert(1))')
+      // The injected quote is escaped, so no new attribute can be created.
+      expect(result.html).not.toContain('onmouseover="')
+      expect(result.html).toContain('&quot;')
+    })
+
+    it('should escape a script tag embedded in text', () => {
+      const result = provider.render('Hello <script>alert(1)</script> world')
+      expect(result.html).not.toContain('<script>')
+      expect(result.html).toContain('&lt;script&gt;')
+    })
+
+    it('should escape a raw less-than-leading line instead of passing it through', () => {
+      const result = provider.render('<script>alert(1)</script>')
+      expect(result.html).not.toContain('<script>')
+      expect(result.html).toContain('&lt;script&gt;')
+    })
+
+    it('should escape inline HTML in bold/italic/blockquote/list content', () => {
+      expect(provider.render('**<b>x</b>**').html).toContain(
+        '<strong>&lt;b&gt;x&lt;/b&gt;</strong>',
+      )
+      expect(provider.render('> <i>q</i>').html).toContain(
+        '<blockquote>&lt;i&gt;q&lt;/i&gt;</blockquote>',
+      )
+      expect(provider.render('- <em>item</em>').html).toContain(
+        '<li>&lt;em&gt;item&lt;/em&gt;</li>',
+      )
+    })
+
+    it('should pass raw HTML through when sanitize is disabled (opt-out)', () => {
+      const raw = createProvider({ sanitize: false })
+      const result = raw.render('[click](javascript:alert(1))\n<b>bold</b>')
+      // Opt-out preserves raw passthrough — the swap/decoupling contract.
+      expect(result.html).toContain('javascript:')
+      expect(result.html).toContain('<b>bold</b>')
+    })
+  })
 })
