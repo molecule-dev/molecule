@@ -8,10 +8,13 @@ import { z } from 'zod'
 
 /**
  * Schema for validating activity creation input.
+ *
+ * Note: `actorId` is intentionally absent — the actor is always derived from the
+ * authenticated session in the handler (`actor = caller`), never accepted from the
+ * client body. Adding it here would let any user forge feed entries impersonating
+ * another user (broken access control). Mirror the comment/review/thread pattern.
  */
 export const createActivitySchema = z.object({
-  /** The ID of the user who performed the action. */
-  actorId: z.string().min(1).max(255),
   /** The action that was performed (e.g. 'created', 'updated'). */
   action: z.string().min(1).max(255),
   /** The type of resource the action was performed on. */

@@ -30,10 +30,13 @@ export interface Activity {
 
 /**
  * Input for logging a new activity.
+ *
+ * Note: this is the *client-supplied* payload — it deliberately omits `actorId`.
+ * The actor is derived from the authenticated session in the service/handler
+ * (`actor = caller`), never trusted from the request body, to prevent a user from
+ * forging activities that impersonate another user.
  */
 export interface CreateActivityInput {
-  /** The ID of the user who performed the action. */
-  actorId: string
   /** The action that was performed. */
   action: string
   /** The type of resource the action was performed on. */

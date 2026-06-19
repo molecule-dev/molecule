@@ -35,7 +35,10 @@ export async function log(req: MoleculeRequest, res: MoleculeResponse): Promise<
   }
 
   try {
-    const activity = await logActivity(parsed.data)
+    // The actor is always the authenticated caller — never trust a client-supplied
+    // actorId (createActivitySchema strips it). This prevents feed-entry forgery /
+    // impersonation. Mirrors the comment/review/thread create pattern.
+    const activity = await logActivity(userId, parsed.data)
     res.status(201).json(activity)
   } catch (error) {
     logger.error('Failed to log activity', { userId, error })

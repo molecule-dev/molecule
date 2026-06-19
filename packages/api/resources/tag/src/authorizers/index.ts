@@ -4,8 +4,9 @@
  * Tags are a **shared, global taxonomy** with no per-row owner column (see
  * `__setup__/tags.sql`), so the owner-scoped model used by owned resources
  * (e.g. `@molecule/api-resource-project`'s `authUser`) does not apply. Instead,
- * mutating the taxonomy itself — `update`/`del` — is **admin-only**. That intent
- * is enforced in two independent layers so it can never silently regress:
+ * mutating the taxonomy itself — `create`/`update`/`del` — is **admin-only**.
+ * That intent is enforced in two independent layers so it can never silently
+ * regress:
  *
  * 1. {@link requireAdmin} — a route middleware referenced from `routes.ts`. It is
  *    a key in `requestHandlerMap`, so the mlcl injector's route scanner preserves
@@ -16,9 +17,12 @@
  *    holds even when the resource is wired via the middleware-less module
  *    `@example` (`requestHandlerMap[route.handler]` only). Fail-closed.
  *
- * Resource↔tag *associations* (`addTag`/`removeTag`) are intentionally NOT gated
- * here: attaching/detaching a tag to a project/product is governed by the owner
- * of *that* resource (which this package cannot see), not by tag administration.
+ * Resource↔tag *associations* (`addTag`/`removeTag`) are intentionally NOT
+ * admin-gated here: attaching/detaching a tag to a project/product is governed by
+ * the owner of *that* resource (which this package cannot see), not by tag
+ * administration. Those handlers instead fail-closed require an authenticated
+ * session, and per-resource owner authorization is the responsibility of the
+ * resource that mounts the route.
  *
  * "Admin" is resolved fail-closed via {@link isTagAdmin}: an explicit admin claim
  * on the session, **or** an `@molecule/api-permissions` grant. With neither,

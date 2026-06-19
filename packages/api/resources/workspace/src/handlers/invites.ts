@@ -50,14 +50,23 @@ export async function invite(req: MoleculeRequest, res: MoleculeResponse): Promi
   }
 
   try {
-    await assertMember(id, userId, 'admin')
-    const result = await inviteMember(id, parsed.data.email, parsed.data.role)
+    const caller = await assertMember(id, userId, 'admin')
+    const result = await inviteMember(id, parsed.data.email, caller.role, parsed.data.role)
     res.status(201).json(result)
   } catch (error) {
     const code = (error as { code?: string }).code
     if (code === 'workspace.error.notAMember' || code === 'workspace.error.insufficientRole') {
       res.status(403).json({
         error: t(code, undefined, { defaultValue: 'Insufficient role to invite members' }),
+        errorKey: code,
+      })
+      return
+    }
+    if (code === 'workspace.error.cannotGrantHigherRole') {
+      res.status(403).json({
+        error: t(code, undefined, {
+          defaultValue: 'Cannot invite with a role higher than your own',
+        }),
         errorKey: code,
       })
       return

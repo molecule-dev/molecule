@@ -111,14 +111,14 @@ describe('@molecule/api-resource-workspace service', () => {
       )
     })
 
-    it('passes when role meets minRole', async () => {
+    it('passes and returns the membership when role meets minRole', async () => {
       mockFindOne.mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u1', role: 'owner' })
-      await expect(assertMember('w1', 'u1', 'admin')).resolves.toBeUndefined()
+      await expect(assertMember('w1', 'u1', 'admin')).resolves.toMatchObject({ role: 'owner' })
     })
 
-    it('defaults minRole to member', async () => {
+    it('defaults minRole to member and returns the membership', async () => {
       mockFindOne.mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u1', role: 'member' })
-      await expect(assertMember('w1', 'u1')).resolves.toBeUndefined()
+      await expect(assertMember('w1', 'u1')).resolves.toMatchObject({ role: 'member' })
     })
   })
 
@@ -135,7 +135,7 @@ describe('@molecule/api-resource-workspace service', () => {
       }
       mockFindOne.mockResolvedValueOnce(existing)
 
-      const result = await inviteMember('w1', 'a@b.com')
+      const result = await inviteMember('w1', 'a@b.com', 'admin')
       expect(result).toEqual(existing)
       expect(mockCreate).not.toHaveBeenCalled()
     })
@@ -153,7 +153,7 @@ describe('@molecule/api-resource-workspace service', () => {
       }
       mockCreate.mockResolvedValueOnce({ data: created })
 
-      const result = await inviteMember('w1', 'a@b.com', 'admin')
+      const result = await inviteMember('w1', 'a@b.com', 'owner', 'admin')
       expect(result).toEqual(created)
       expect(mockCreate).toHaveBeenCalledWith(
         'workspace_invites',
@@ -174,8 +174,29 @@ describe('@molecule/api-resource-workspace service', () => {
       })
       mockCreate.mockResolvedValueOnce({ data: { id: 'i2' } })
 
-      await inviteMember('w1', 'a@b.com')
+      await inviteMember('w1', 'a@b.com', 'admin')
       expect(mockCreate).toHaveBeenCalled()
+    })
+
+    it('rejects an admin granting owner via invite (escalation guard)', async () => {
+      await expect(inviteMember('w1', 'a@b.com', 'admin', 'owner')).rejects.toThrow(
+        'workspace.error.cannotGrantHigherRole',
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('allows an owner to invite an owner', async () => {
+      mockFindOne.mockResolvedValueOnce(null)
+      mockCreate.mockResolvedValueOnce({ data: { id: 'i3', role: 'owner' } })
+      const result = await inviteMember('w1', 'a@b.com', 'owner', 'owner')
+      expect(result).toEqual({ id: 'i3', role: 'owner' })
+    })
+
+    it('allows an admin to invite an admin', async () => {
+      mockFindOne.mockResolvedValueOnce(null)
+      mockCreate.mockResolvedValueOnce({ data: { id: 'i4', role: 'admin' } })
+      const result = await inviteMember('w1', 'a@b.com', 'admin', 'admin')
+      expect(result).toEqual({ id: 'i4', role: 'admin' })
     })
   })
 
@@ -317,7 +338,7 @@ describe('@molecule/api-resource-workspace service', () => {
       })
       mockFindMany.mockResolvedValueOnce([{ workspaceId: 'w1', userId: 'u1', role: 'owner' }])
 
-      await expect(updateMemberRole('w1', 'u1', 'admin')).rejects.toThrow(
+      await expect(updateMemberRole('w1', 'u1', 'admin', 'owner')).rejects.toThrow(
         'workspace.error.lastOwner',
       )
     })
@@ -337,15 +358,43 @@ describe('@molecule/api-resource-workspace service', () => {
         data: { workspaceId: 'w1', userId: 'u1', role: 'admin' },
       })
 
-      const result = await updateMemberRole('w1', 'u1', 'admin')
+      const result = await updateMemberRole('w1', 'u1', 'admin', 'owner')
       expect(result.role).toBe('admin')
     })
 
     it('throws when the user is not a member', async () => {
       mockFindOne.mockResolvedValueOnce(null)
-      await expect(updateMemberRole('w1', 'u1', 'admin')).rejects.toThrow(
+      await expect(updateMemberRole('w1', 'u1', 'admin', 'owner')).rejects.toThrow(
         'workspace.error.notAMember',
       )
+    })
+
+    it('rejects an admin assigning owner (escalation guard) before any DB call', async () => {
+      await expect(updateMemberRole('w1', 'u2', 'owner', 'admin')).rejects.toThrow(
+        'workspace.error.cannotGrantHigherRole',
+      )
+      // Fails closed: the guard runs before the membership lookup.
+      expect(mockFindOne).not.toHaveBeenCalled()
+      expect(mockDeleteMany).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('allows an owner to assign owner', async () => {
+      mockFindOne.mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u2', role: 'member' })
+      mockDeleteMany.mockResolvedValueOnce({ affected: 1 })
+      mockCreate.mockResolvedValueOnce({ data: { workspaceId: 'w1', userId: 'u2', role: 'owner' } })
+
+      const result = await updateMemberRole('w1', 'u2', 'owner', 'owner')
+      expect(result.role).toBe('owner')
+    })
+
+    it('allows an admin to assign admin or member', async () => {
+      mockFindOne.mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u2', role: 'member' })
+      mockDeleteMany.mockResolvedValueOnce({ affected: 1 })
+      mockCreate.mockResolvedValueOnce({ data: { workspaceId: 'w1', userId: 'u2', role: 'admin' } })
+
+      const result = await updateMemberRole('w1', 'u2', 'admin', 'admin')
+      expect(result.role).toBe('admin')
     })
   })
 

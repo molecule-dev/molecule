@@ -104,6 +104,52 @@ describe('@molecule/api-resource-tag handlers', () => {
   })
 
   describe('create', () => {
+    it('should return 401 when there is no session (unauthenticated)', async () => {
+      const req = mockReq({ body: { name: 'Sneaky' } })
+      const res = mockRes({ locals: {} })
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'resource.error.unauthorized' }),
+      )
+      // Fail-closed: no slug lookup or insert attempted for an anonymous caller.
+      expect(mockFindOne).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should return 403 for an authenticated non-admin user (taxonomy create blocked)', async () => {
+      const req = mockReq({ body: { name: 'Sneaky' } })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'tag.error.forbidden' }),
+      )
+      // Fail-closed: no slug lookup or insert attempted for a non-admin.
+      expect(mockFindOne).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should allow a non-claim user when the permissions provider grants manage tag', async () => {
+      mockHasProvider.mockReturnValue(true)
+      mockCan.mockResolvedValue(true)
+      mockFindOne.mockResolvedValue(null)
+      mockCreate.mockResolvedValue({ data: { id: '1', name: 'My Tag', slug: 'my-tag' } })
+
+      const req = mockReq({ body: { name: 'My Tag' } })
+      const res = mockRes({ locals: { session: { userId: 'rbac-user' } } })
+
+      await create(req, res)
+
+      expect(mockCan).toHaveBeenCalledWith('user:rbac-user', 'manage', 'tag')
+      expect(mockCreate).toHaveBeenCalled()
+      expect(res.status).toHaveBeenCalledWith(201)
+    })
+
     it('should return 400 when name is missing', async () => {
       const req = mockReq({ body: {} })
       const res = mockRes()
@@ -489,6 +535,24 @@ describe('@molecule/api-resource-tag handlers', () => {
   })
 
   describe('addTag', () => {
+    it('should return 401 when there is no session (unauthenticated)', async () => {
+      const req = mockReq({
+        params: { resourceType: 'project', resourceId: 'p1' },
+        body: { tagId: 't1' },
+      })
+      const res = mockRes({ locals: {} })
+
+      await addTag(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'resource.error.unauthorized' }),
+      )
+      // Fail-closed: no tag lookup or association insert for an anonymous caller.
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
     it('should return 400 when tagId is missing', async () => {
       const req = mockReq({
         params: { resourceType: 'project', resourceId: 'p1' },
@@ -568,6 +632,22 @@ describe('@molecule/api-resource-tag handlers', () => {
   })
 
   describe('removeTag', () => {
+    it('should return 401 when there is no session (unauthenticated)', async () => {
+      const req = mockReq({
+        params: { resourceType: 'project', resourceId: 'p1', tagId: 't1' },
+      })
+      const res = mockRes({ locals: {} })
+
+      await removeTag(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'resource.error.unauthorized' }),
+      )
+      // Fail-closed: no association delete attempted for an anonymous caller.
+      expect(mockDeleteMany).not.toHaveBeenCalled()
+    })
+
     it('should return 404 when association not found', async () => {
       mockDeleteMany.mockResolvedValue({ affected: 0 })
 

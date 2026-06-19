@@ -24,12 +24,17 @@ const SEEN_STATUS_TABLE = 'activity_seen_status'
 /**
  * Logs a new activity to the feed.
  *
- * @param data - The activity creation input.
+ * The actor is supplied explicitly by the caller (derived from the authenticated
+ * session in the handler), never read from the client-supplied `data`, so a user
+ * cannot forge activities impersonating another user.
+ *
+ * @param actorId - The ID of the authenticated user who performed the action.
+ * @param data - The activity creation input (client-supplied, never includes the actor).
  * @returns The created activity.
  */
-export async function logActivity(data: CreateActivityInput): Promise<Activity> {
+export async function logActivity(actorId: string, data: CreateActivityInput): Promise<Activity> {
   const result = await dbCreate<Activity>(ACTIVITIES_TABLE, {
-    actorId: data.actorId,
+    actorId,
     action: data.action,
     resourceType: data.resourceType,
     resourceId: data.resourceId,

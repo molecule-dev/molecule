@@ -233,6 +233,33 @@ describe('@molecule/api-resource-workspace handlers', () => {
 
       expect(res.status).toHaveBeenCalledWith(201)
     })
+
+    it('returns 403 when an admin invites with the owner role (escalation)', async () => {
+      // caller resolves as admin; no further DB calls should run.
+      mockFindOne.mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u1', role: 'admin' })
+
+      const req = mockReq({ params: { id: 'w1' }, body: { email: 'a@b.com', role: 'owner' } })
+      const res = mockRes()
+      await invite(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('lets an owner invite with the owner role', async () => {
+      mockFindOne
+        .mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u1', role: 'owner' })
+        .mockResolvedValueOnce(null) // no existing pending invite
+      mockCreate.mockResolvedValueOnce({
+        data: { id: 'i9', workspaceId: 'w1', email: 'a@b.com', role: 'owner', token: 'tok' },
+      })
+
+      const req = mockReq({ params: { id: 'w1' }, body: { email: 'a@b.com', role: 'owner' } })
+      const res = mockRes()
+      await invite(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(201)
+    })
   })
 
   describe('accept', () => {
@@ -294,6 +321,63 @@ describe('@molecule/api-resource-workspace handlers', () => {
       await updateRole(req, res)
 
       expect(res.status).toHaveBeenCalledWith(409)
+    })
+
+    it('returns 403 when an admin tries to assign the owner role (escalation)', async () => {
+      // assertMember admin check resolves the caller as an admin.
+      mockFindOne.mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u1', role: 'admin' })
+
+      const req = mockReq({ params: { id: 'w1', userId: 'u2' }, body: { role: 'owner' } })
+      const res = mockRes()
+      await updateRole(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      // The escalation guard fires before the membership mutation runs.
+      expect(mockDeleteMany).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('lets an owner assign the owner role', async () => {
+      // caller = owner
+      mockFindOne.mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u1', role: 'owner' })
+      // service.updateMemberRole target lookup (target is a plain member)
+      mockFindOne.mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u2', role: 'member' })
+      mockDeleteMany.mockResolvedValueOnce({ affected: 1 })
+      mockCreate.mockResolvedValueOnce({ data: { workspaceId: 'w1', userId: 'u2', role: 'owner' } })
+
+      const req = mockReq({ params: { id: 'w1', userId: 'u2' }, body: { role: 'owner' } })
+      const res = mockRes()
+      await updateRole(req, res)
+
+      expect(res.json).toHaveBeenCalledWith({ workspaceId: 'w1', userId: 'u2', role: 'owner' })
+    })
+
+    it('lets an admin assign the admin role', async () => {
+      mockFindOne.mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u1', role: 'admin' })
+      mockFindOne.mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u2', role: 'member' })
+      mockDeleteMany.mockResolvedValueOnce({ affected: 1 })
+      mockCreate.mockResolvedValueOnce({ data: { workspaceId: 'w1', userId: 'u2', role: 'admin' } })
+
+      const req = mockReq({ params: { id: 'w1', userId: 'u2' }, body: { role: 'admin' } })
+      const res = mockRes()
+      await updateRole(req, res)
+
+      expect(res.json).toHaveBeenCalledWith({ workspaceId: 'w1', userId: 'u2', role: 'admin' })
+    })
+
+    it('lets an admin assign the member role', async () => {
+      mockFindOne.mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u1', role: 'admin' })
+      mockFindOne.mockResolvedValueOnce({ workspaceId: 'w1', userId: 'u2', role: 'admin' })
+      mockDeleteMany.mockResolvedValueOnce({ affected: 1 })
+      mockCreate.mockResolvedValueOnce({
+        data: { workspaceId: 'w1', userId: 'u2', role: 'member' },
+      })
+
+      const req = mockReq({ params: { id: 'w1', userId: 'u2' }, body: { role: 'member' } })
+      const res = mockRes()
+      await updateRole(req, res)
+
+      expect(res.json).toHaveBeenCalledWith({ workspaceId: 'w1', userId: 'u2', role: 'member' })
     })
   })
 

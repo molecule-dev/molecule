@@ -3,6 +3,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { isTagAdmin } from '../authorizers/index.js'
 import type { CreateTagInput, Tag } from '../types.js'
 
 /**
@@ -19,10 +20,37 @@ function slugify(name: string): string {
 
 /**
  * Creates a new tag with a unique slug derived from the name.
+ *
+ * Admin-only and enforced here (not merely via route middleware): tags are a
+ * shared global taxonomy with no per-row owner, so creating a new taxonomy entry
+ * is the same class of mutation as update/del. A non-admin caller is rejected
+ * (401 when unauthenticated, 403 otherwise) before any tag row is inserted —
+ * defense-in-depth that does not depend on the `requireAdmin` route middleware
+ * being wired. (Attaching an *existing* tag to a resource is a different, owner-
+ * governed operation — see `addTag`/`removeTag`.)
+ *
  * @param req - The incoming request with `CreateTagInput` body.
  * @param res - The response object.
  */
 export async function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  const userId = (res.locals.session as { userId?: string } | undefined)?.userId
+  if (!userId) {
+    res.status(401).json({
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'resource.error.unauthorized',
+    })
+    return
+  }
+  if (!(await isTagAdmin(res))) {
+    res.status(403).json({
+      error: t('tag.error.forbidden', undefined, {
+        defaultValue: 'Admin access required to manage tags',
+      }),
+      errorKey: 'tag.error.forbidden',
+    })
+    return
+  }
+
   const input = req.body as CreateTagInput
 
   if (!input.name?.trim()) {

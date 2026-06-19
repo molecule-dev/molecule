@@ -92,14 +92,23 @@ export async function updateRole(req: MoleculeRequest, res: MoleculeResponse): P
   }
 
   try {
-    await assertMember(id, callerId, 'admin')
-    const member = await updateMemberRole(id, userId, parsed.data.role)
+    const caller = await assertMember(id, callerId, 'admin')
+    const member = await updateMemberRole(id, userId, parsed.data.role, caller.role)
     res.json(member)
   } catch (error) {
     const code = (error as { code?: string }).code
     if (code === 'workspace.error.notAMember' || code === 'workspace.error.insufficientRole') {
       res.status(403).json({
         error: t(code, undefined, { defaultValue: 'Insufficient role for this workspace' }),
+        errorKey: code,
+      })
+      return
+    }
+    if (code === 'workspace.error.cannotGrantHigherRole') {
+      res.status(403).json({
+        error: t(code, undefined, {
+          defaultValue: 'Cannot assign a role higher than your own',
+        }),
         errorKey: code,
       })
       return

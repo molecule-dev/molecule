@@ -83,17 +83,6 @@ describe('@molecule/api-resource-activity-feed handlers', () => {
       expect(res.status).toHaveBeenCalledWith(400)
     })
 
-    it('should return 400 when actorId is empty', async () => {
-      const req = mockReq({
-        body: { actorId: '', action: 'created', resourceType: 'post', resourceId: 'p1' },
-      })
-      const res = mockRes()
-
-      await log(req, res)
-
-      expect(res.status).toHaveBeenCalledWith(400)
-    })
-
     it('should create an activity', async () => {
       const activity = {
         id: 'a1',
@@ -106,7 +95,7 @@ describe('@molecule/api-resource-activity-feed handlers', () => {
       mockCreate.mockResolvedValue({ data: activity })
 
       const req = mockReq({
-        body: { actorId: 'user-1', action: 'created', resourceType: 'post', resourceId: 'p1' },
+        body: { action: 'created', resourceType: 'post', resourceId: 'p1' },
       })
       const res = mockRes()
 
@@ -114,6 +103,35 @@ describe('@molecule/api-resource-activity-feed handlers', () => {
 
       expect(res.status).toHaveBeenCalledWith(201)
       expect(res.json).toHaveBeenCalledWith(activity)
+    })
+
+    it('should ignore a client-supplied actorId and use the session user (no impersonation)', async () => {
+      mockCreate.mockResolvedValue({ data: { id: 'a1', actorId: 'user-1' } })
+
+      // The attacker forges actorId in the body to impersonate 'victim-user',
+      // but the session belongs to 'user-1'.
+      const req = mockReq({
+        body: {
+          actorId: 'victim-user',
+          action: 'created',
+          resourceType: 'post',
+          resourceId: 'p1',
+        },
+      })
+      const res = mockRes({ locals: { session: { userId: 'user-1' } } })
+
+      await log(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(201)
+      // The persisted row's actorId is the session user, never the forged body value.
+      expect(mockCreate).toHaveBeenCalledWith(
+        'activities',
+        expect.objectContaining({ actorId: 'user-1' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalledWith(
+        'activities',
+        expect.objectContaining({ actorId: 'victim-user' }),
+      )
     })
 
     it('should return 500 on database error', async () => {

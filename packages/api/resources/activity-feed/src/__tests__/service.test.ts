@@ -35,8 +35,7 @@ describe('@molecule/api-resource-activity-feed service', () => {
       }
       mockCreate.mockResolvedValue({ data: activity })
 
-      const result = await logActivity({
-        actorId: 'user-1',
+      const result = await logActivity('user-1', {
         action: 'created',
         resourceType: 'post',
         resourceId: 'p1',
@@ -52,6 +51,29 @@ describe('@molecule/api-resource-activity-feed service', () => {
       expect(result).toEqual(activity)
     })
 
+    it('should use the supplied actor, never a client-supplied actorId', async () => {
+      mockCreate.mockResolvedValue({ data: { id: 'a9', actorId: 'session-user' } })
+
+      // A forged actorId smuggled into the input object must be ignored — the
+      // actor persisted is the one the caller (handler/session) passes explicitly.
+      await logActivity('session-user', {
+        action: 'created',
+        resourceType: 'post',
+        resourceId: 'p1',
+        // @ts-expect-error actorId is not part of CreateActivityInput; it must not be honored
+        actorId: 'victim-user',
+      })
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        'activities',
+        expect.objectContaining({ actorId: 'session-user' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalledWith(
+        'activities',
+        expect.objectContaining({ actorId: 'victim-user' }),
+      )
+    })
+
     it('should create an activity with metadata', async () => {
       const activity = {
         id: 'a2',
@@ -63,8 +85,7 @@ describe('@molecule/api-resource-activity-feed service', () => {
       }
       mockCreate.mockResolvedValue({ data: activity })
 
-      const result = await logActivity({
-        actorId: 'user-1',
+      const result = await logActivity('user-1', {
         action: 'commented',
         resourceType: 'post',
         resourceId: 'p1',

@@ -202,17 +202,20 @@ export async function listMembers(workspaceId: string): Promise<WorkspaceMember[
 
 /**
  * Asserts that `userId` is a member of `workspaceId` with at least `minRole`.
- * Throws when the user is not a member or has insufficient role.
+ * Throws when the user is not a member or has insufficient role. Returns the
+ * caller's membership row so callers can authorize against the caller's own
+ * role (e.g. to block granting a role higher than their own).
  *
  * @param workspaceId - Workspace to check membership in.
  * @param userId - User whose membership to check.
  * @param minRole - Minimum role required (defaults to `member`).
+ * @returns The caller's membership row.
  */
 export async function assertMember(
   workspaceId: string,
   userId: string,
   minRole: WorkspaceRole = 'member',
-): Promise<void> {
+): Promise<WorkspaceMember> {
   const membership = await getMembership(workspaceId, userId)
   if (!membership) {
     const err = new Error('workspace.error.notAMember')
@@ -224,21 +227,46 @@ export async function assertMember(
     ;(err as Error & { code?: string }).code = 'workspace.error.insufficientRole'
     throw err
   }
+  return membership
 }
 
 /**
- * Updates a member's role. The sole `owner` cannot be demoted.
+ * Asserts the caller may grant `targetRole`. A member may never grant a role
+ * strictly higher than their own — an admin may grant up to `admin`, and only
+ * an owner may grant `owner`. Throws `workspace.error.cannotGrantHigherRole`
+ * otherwise. Fails closed: the caller's authority is derived from `callerRole`,
+ * never from the requested role.
+ *
+ * @param callerRole - The granting caller's own role.
+ * @param targetRole - The role the caller is attempting to assign.
+ */
+export function assertCanGrantRole(callerRole: WorkspaceRole, targetRole: WorkspaceRole): void {
+  if (!roleAtLeast(callerRole, targetRole)) {
+    const err = new Error('workspace.error.cannotGrantHigherRole')
+    ;(err as Error & { code?: string }).code = 'workspace.error.cannotGrantHigherRole'
+    throw err
+  }
+}
+
+/**
+ * Updates a member's role. The sole `owner` cannot be demoted. The caller may
+ * not assign a role strictly higher than their own `callerRole` — an admin can
+ * grant up to `admin`; only an owner can grant `owner`.
  *
  * @param workspaceId - Workspace.
  * @param userId - Member to update.
  * @param role - New role.
+ * @param callerRole - The acting caller's own role (for escalation guard).
  * @returns The updated membership.
  */
 export async function updateMemberRole(
   workspaceId: string,
   userId: string,
   role: WorkspaceRole,
+  callerRole: WorkspaceRole,
 ): Promise<WorkspaceMember> {
+  assertCanGrantRole(callerRole, role)
+
   const membership = await getMembership(workspaceId, userId)
   if (!membership) {
     const err = new Error('workspace.error.notAMember')
@@ -319,6 +347,7 @@ export function generateInviteToken(): string {
  *
  * @param workspaceId - The workspace to invite into.
  * @param email - The invitee's email.
+ * @param callerRole - The inviting caller's own role (for escalation guard).
  * @param role - The role to grant on accept (defaults to `member`).
  * @param ttlMs - Override the default 7-day expiry (in milliseconds).
  * @returns The pending invite record.
@@ -326,9 +355,12 @@ export function generateInviteToken(): string {
 export async function inviteMember(
   workspaceId: string,
   email: string,
+  callerRole: WorkspaceRole,
   role: WorkspaceRole = 'member',
   ttlMs: number = DEFAULT_INVITE_TTL_MS,
 ): Promise<WorkspaceInvite> {
+  assertCanGrantRole(callerRole, role)
+
   const existing = await findOne<WorkspaceInvite>(INVITES, [
     { field: 'workspaceId', operator: '=', value: workspaceId },
     { field: 'email', operator: '=', value: email },

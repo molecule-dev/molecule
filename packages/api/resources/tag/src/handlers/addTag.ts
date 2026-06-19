@@ -7,10 +7,29 @@ import type { ResourceTag, Tag } from '../types.js'
 
 /**
  * Adds a tag to a resource. Expects `tagId` in request body.
+ *
+ * Requires an authenticated session and rejects an unauthenticated caller (401)
+ * before reading or mutating `resource_tags` — fail-closed defense-in-depth that
+ * does not depend on the `authenticate` route middleware being wired. Attaching a
+ * tag is governed by the owner of the *target* resource, but that ownership lives
+ * in the resource's own package (project/product/…) and is not visible here — this
+ * package has no generic cross-resource ownership check — so the gate enforced in
+ * this handler is "must be authenticated"; per-resource owner authorization is the
+ * responsibility of the resource that mounts this route.
+ *
  * @param req - The request with `resourceType` and `resourceId` params, `tagId` in body.
  * @param res - The response object.
  */
 export async function addTag(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  const userId = (res.locals.session as { userId?: string } | undefined)?.userId
+  if (!userId) {
+    res.status(401).json({
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'resource.error.unauthorized',
+    })
+    return
+  }
+
   const { resourceType, resourceId } = req.params
   const { tagId } = req.body as { tagId?: string }
 
