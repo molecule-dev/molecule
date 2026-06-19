@@ -265,6 +265,17 @@ interface SystemCardBase {
   text: string
   timestamp: number
   action?: ChatEventCardAction | ChatEventCardAction[]
+  /**
+   * Marks a card as THIS client's own per-user UI ephemera — a command browser
+   * (`/help`, `/settings`, `/scripts`) or transient command output — that is irrelevant
+   * to the shared conversation and must NOT be persisted: it stays in this session's
+   * timeline but is never written to the conversation, so it can't leak onto a reload or
+   * to other collaborators (multi-user). Cards WITHOUT this flag are conversation content
+   * (the server-driven model/mode/skills/build notices, a created skill, a share link, …)
+   * and persist as before — the default is "persist", so nothing silently loses its
+   * history; only the explicitly-ephemeral cards opt out.
+   */
+  clientOnly?: boolean
 }
 
 /**
@@ -3175,12 +3186,16 @@ function ChatInner({
   }, [conversationId, projectId, http])
   useEffect(() => {
     if (!conversationId || sysCardsLoadedConvRef.current !== conversationId) return
-    // Drop `action` (the only non-serializable field — its onClick is a callback,
-    // re-attached at render; a restored card is informational) and persist the rest of
-    // each variant's own fields verbatim. Destructuring the union keeps this in sync with
-    // the card shape: a new persisted field needs no edit here. (The 'skillsLoaded'
-    // count, the browsers' query, etc. all ride along automatically.)
-    const serializable = systemCards.map(({ action: _action, ...rest }) => rest)
+    // Persist conversation content, but NOT a user's own per-user UI ephemera (a /help,
+    // /settings, /scripts browser — `clientOnly`), which must stay local and never leak
+    // onto a reload or to other collaborators. Default is persist, so nothing silently
+    // loses its history. Drop `action` (the only non-serializable field — its onClick is a
+    // callback, re-attached at render; a restored card is informational) and persist the
+    // rest of each variant's fields verbatim (destructuring the union keeps this in sync —
+    // a new persisted field needs no edit here).
+    const serializable = systemCards
+      .filter((c) => !c.clientOnly)
+      .map(({ action: _action, ...rest }) => rest)
     void http
       .put(`/projects/${projectId}/conversations/${conversationId}/system-cards`, {
         systemCards: serializable,
@@ -4396,7 +4411,13 @@ function ChatInner({
         // host-supplied upgrade blurb at render time. The plain-text buildHelpText()
         // is still computed and stored as the card's `text` so it remains the i18n
         // fallback (and the copy/screen-reader text) if the rich variant is ever off.
-        addSystemCard(buildHelpText({ agentName, productName }), { variant: 'help' })
+        // Per-user UI — the /help browser is this client's own command output, never
+        // shared conversation context, so it must not persist onto a reload or to other
+        // collaborators.
+        addSystemCard(buildHelpText({ agentName, productName }), {
+          variant: 'help',
+          clientOnly: true,
+        })
       } else if (id === 'compact') {
         setInputValue('')
         addSystemCard(
