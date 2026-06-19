@@ -1918,16 +1918,6 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
         </div>
       ) : (
         <div>
-          {msg.isStreaming &&
-            (!msg.blocks || msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
-            !msg.content && (
-              <StreamingIndicator
-                label={streamingStatus ?? streamingActivityLabel(msg)}
-                tokens={estimateStreamTokens(msg)}
-                startedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
-              />
-            )}
-
           {msg.blocks && msg.blocks.length > 0 ? (
             msg.blocks.map((block, bi) => {
               const blockType = (block as { type: string }).type
@@ -2145,6 +2135,21 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                 onAskUserResponse={handleAskUserResponse}
               />
             ))}
+
+          {/* Streaming indicator ALWAYS at the BOTTOM of the message — after every block +
+              tool card — so it can never wedge above the (expandable) thinking block. Shown
+              only when no visible text has streamed yet (nothing, only collapsed thinking, or
+              legacy tool-calls-without-blocks); a text block carries its own inline status,
+              and a tool block its own trailing indicator. */}
+          {msg.isStreaming &&
+            (!msg.blocks || msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
+            !msg.content && (
+              <StreamingIndicator
+                label={streamingStatus ?? streamingActivityLabel(msg)}
+                tokens={estimateStreamTokens(msg)}
+                startedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
+              />
+            )}
 
           {msg.aborted && (
             <span
