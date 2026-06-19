@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Danish. */
 export const da: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Tjeneste ikke fundet.',
   'status.error.incidentNotFound': 'Hændelse ikke fundet.',
   'status.error.validationFailed': 'Validering fejlede: {{errors}}',

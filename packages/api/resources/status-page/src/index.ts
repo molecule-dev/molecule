@@ -4,6 +4,7 @@
  * @module
  */
 
+export * from './authorizers/index.js'
 export * as handlers from './handlers/index.js'
 export * from './i18n.js'
 export * from './requestHandlerMap.js'

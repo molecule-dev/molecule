@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Burmese. */
 export const my: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'ဝန်ဆောင်မှု မတွေ့ပါ။',
   'status.error.incidentNotFound': 'ဖြစ်ရပ် မတွေ့ပါ။',
   'status.error.validationFailed': 'အတည်ပြုခြင်း မအောင်မြင်ပါ: {{errors}}',

@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Serbian. */
 export const sr: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Сервис није пронађен.',
   'status.error.incidentNotFound': 'Инцидент није пронађен.',
   'status.error.validationFailed': 'Валидација неуспешна: {{errors}}',

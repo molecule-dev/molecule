@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Romanian. */
 export const ro: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Serviciul nu a fost găsit.',
   'status.error.incidentNotFound': 'Incidentul nu a fost găsit.',
   'status.error.validationFailed': 'Validarea a eșuat: {{errors}}',

@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Marathi. */
 export const mr: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'सेवा आढळली नाही.',
   'status.error.incidentNotFound': 'घटना आढळली नाही.',
   'status.error.validationFailed': 'प्रमाणीकरण अयशस्वी: {{errors}}',

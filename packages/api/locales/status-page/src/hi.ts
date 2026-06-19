@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Hindi. */
 export const hi: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'सेवा नहीं मिली।',
   'status.error.incidentNotFound': 'घटना नहीं मिली।',
   'status.error.validationFailed': 'सत्यापन विफल: {{errors}}',

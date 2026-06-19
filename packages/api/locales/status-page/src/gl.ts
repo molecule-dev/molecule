@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Galician. */
 export const gl: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Servizo non atopado.',
   'status.error.incidentNotFound': 'Incidente non atopado.',
   'status.error.validationFailed': 'Validación fallida: {{errors}}',

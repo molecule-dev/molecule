@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Czech. */
 export const cs: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Služba nenalezena.',
   'status.error.incidentNotFound': 'Incident nenalezen.',
   'status.error.validationFailed': 'Ověření selhalo: {{errors}}',

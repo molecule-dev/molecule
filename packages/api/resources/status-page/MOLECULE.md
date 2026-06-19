@@ -85,6 +85,14 @@ type UptimeWindowProps = z.infer<typeof uptimeWindowPropsSchema>
 Creates the full request handler map for the Status resource. Maps handler names
 (matching route definitions) to Express middleware via `createRequestHandler`.
 
+`requireAdmin` is the status-management authorizer middleware referenced by the
+mutating routes (`createService`/`updateService`/`deleteService`/`createIncident`/
+`updateIncident`). It must live here as a real handler-map key so the mlcl
+injector's route scanner preserves it — a bare middleware string that isn't a
+handler-map key is silently dropped (which is why the previous `'auth'` gate was
+inert and the mutating routes shipped public). It is already an Express
+middleware, so it is NOT wrapped in `createRequestHandler`.
+
 ```typescript
 function createRequestHandlerMap(createRequestHandler: (handler: Handler) => (req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction) => Promise<void>): Record<string, MoleculeRequestHandler>
 ```
@@ -102,6 +110,42 @@ function createResource(): types.Resource<unknown>
 ```
 
 **Returns:** The status resource descriptor with name, tableName, and schema.
+
+#### `isStatusAdmin(res)`
+
+Resolves whether the current request's session belongs to an actor authorized
+to administer the status page (create/update/delete services + incidents).
+Fail-closed: returns `false` when there is no authenticated session, and
+otherwise only `true` when the session carries an admin claim or a bonded
+permissions provider grants the `manage status` permission.
+
+Use this for in-handler defense-in-depth (it does not depend on the route
+middleware being preserved by the injector).
+
+```typescript
+function isStatusAdmin(res: MoleculeResponse): Promise<boolean>
+```
+
+- `res` — The response whose `locals.session` is inspected.
+
+**Returns:** `true` when the session is an authorized status page admin.
+
+#### `requireAdmin()`
+
+Route middleware that gates the admin-only status page mutation routes. Calls
+`next()` only for an authenticated status page admin; otherwise forwards an
+error to the framework error handler — `Unauthorized` when no session is
+present, `Forbidden` when the session is authenticated but not authorized to
+manage the status page.
+
+Exposed as a request-handler-map key so the injector's route scanner keeps it
+(unlike the inert global `'auth'` string, which is dropped).
+
+```typescript
+function requireAdmin(): MoleculeRequestHandler
+```
+
+**Returns:** An Express-compatible middleware function.
 
 ### Constants
 
@@ -163,7 +207,7 @@ const resource: types.Resource<unknown>
 
 #### `routes`
 
-Route array for status page endpoints: public read routes and authenticated admin routes.
+Route array for status page endpoints: public read routes and admin-gated mutation routes.
 
 ```typescript
 const routes: ({ method: "get"; path: string; middlewares: never[]; handler: string; } | { method: "post"; path: string; middlewares: string[]; handler: string; } | { method: "patch"; path: string; middlewares: string[]; handler: string; } | { method: "delete"; path: string; middlewares: string[]; handler: string; })[]
@@ -175,6 +219,34 @@ Full schema for a monitored service.
 
 ```typescript
 const servicePropsSchema: z.ZodObject<{ id: z.ZodString; createdAt: z.ZodString; updatedAt: z.ZodString; name: z.ZodString; url: z.ZodString; method: z.ZodDefault<z.ZodEnum<{ GET: "GET"; HEAD: "HEAD"; POST: "POST"; }>>; expectedStatus: z.ZodDefault<z.ZodNumber>; timeoutMs: z.ZodDefault<z.ZodNumber>; intervalMs: z.ZodDefault<z.ZodNumber>; groupName: z.ZodOptional<z.ZodString>; enabled: z.ZodDefault<z.ZodBoolean>; }, z.core.$strip>
+```
+
+#### `STATUS_ADMIN_PERMISSION`
+
+Session-claim permission string (`'status:manage'`) that, when present in a
+session's `permissions` array, grants status page administration without a
+bonded permissions provider.
+
+```typescript
+const STATUS_ADMIN_PERMISSION: "status:manage"
+```
+
+#### `STATUS_PERMISSION_ACTION`
+
+Permission action checked against `@molecule/api-permissions` for status page
+administration.
+
+```typescript
+const STATUS_PERMISSION_ACTION: "manage"
+```
+
+#### `STATUS_PERMISSION_RESOURCE`
+
+Permission resource checked against `@molecule/api-permissions` for status page
+administration.
+
+```typescript
+const STATUS_PERMISSION_RESOURCE: "status"
 ```
 
 #### `updateIncidentPropsSchema`
@@ -219,6 +291,7 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-monitoring` ^1.0.0
 - `@molecule/api-notifications` ^1.0.0
+- `@molecule/api-permissions` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `@molecule/api-scheduler` ^1.0.0
 - `@molecule/api-locales-status-page` ^1.0.0

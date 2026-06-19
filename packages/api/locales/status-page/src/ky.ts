@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Kyrgyz. */
 export const ky: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Кызмат табылган жок.',
   'status.error.incidentNotFound': 'Окуя табылган жок.',
   'status.error.validationFailed': 'Текшерүү ийгиликсиз: {{errors}}',

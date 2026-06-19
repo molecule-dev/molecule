@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Bengali. */
 export const bn: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'সেবা পাওয়া যায়নি।',
   'status.error.incidentNotFound': 'ঘটনা পাওয়া যায়নি।',
   'status.error.validationFailed': 'যাচাইকরণ ব্যর্থ: {{errors}}',

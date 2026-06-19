@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Malayalam. */
 export const ml: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'സേവനം കണ്ടെത്തിയില്ല.',
   'status.error.incidentNotFound': 'സംഭവം കണ്ടെത്തിയില്ല.',
   'status.error.validationFailed': 'മൂല്യനിർണ്ണയം പരാജയപ്പെട്ടു: {{errors}}',

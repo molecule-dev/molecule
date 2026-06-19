@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Mongolian. */
 export const mn: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Үйлчилгээ олдсонгүй.',
   'status.error.incidentNotFound': 'Тохиолдол олдсонгүй.',
   'status.error.validationFailed': 'Баталгаажуулалт амжилтгүй: {{errors}}',

@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Kazakh. */
 export const kk: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Қызмет табылмады.',
   'status.error.incidentNotFound': 'Оқиға табылмады.',
   'status.error.validationFailed': 'Тексеру сәтсіз: {{errors}}',

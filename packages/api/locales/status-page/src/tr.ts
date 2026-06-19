@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Turkish. */
 export const tr: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Hizmet bulunamadı.',
   'status.error.incidentNotFound': 'Olay bulunamadı.',
   'status.error.validationFailed': 'Doğrulama başarısız: {{errors}}',

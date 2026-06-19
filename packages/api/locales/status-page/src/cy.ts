@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Welsh. */
 export const cy: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Gwasanaeth heb ei ganfod.',
   'status.error.incidentNotFound': 'Digwyddiad heb ei ganfod.',
   'status.error.validationFailed': 'Dilysu wedi methu: {{errors}}',

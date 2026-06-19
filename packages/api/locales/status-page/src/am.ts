@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Amharic. */
 export const am: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'አገልግሎት አልተገኘም።',
   'status.error.incidentNotFound': 'ክስተት አልተገኘም።',
   'status.error.validationFailed': 'ማረጋገጫ አልተሳካም: {{errors}}',

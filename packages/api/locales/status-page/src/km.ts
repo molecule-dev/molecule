@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Khmer. */
 export const km: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'រកមិនឃើញសេវាកម្ម។',
   'status.error.incidentNotFound': 'រកមិនឃើញឧប្បត្តិហេតុ។',
   'status.error.validationFailed': 'ការផ្ទៀងផ្ទាត់បរាជ័យ: {{errors}}',

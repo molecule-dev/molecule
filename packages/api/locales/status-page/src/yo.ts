@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Yoruba. */
 export const yo: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'A kò rí iṣẹ́ náà.',
   'status.error.incidentNotFound': 'A kò rí ìṣẹ̀lẹ̀ náà.',
   'status.error.validationFailed': 'Ìfọwọ́sí kùnà: {{errors}}',

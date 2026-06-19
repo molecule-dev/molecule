@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Punjabi. */
 export const pa: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'ਸੇਵਾ ਨਹੀਂ ਮਿਲੀ।',
   'status.error.incidentNotFound': 'ਘਟਨਾ ਨਹੀਂ ਮਿਲੀ।',
   'status.error.validationFailed': 'ਪ੍ਰਮਾਣਿਕਤਾ ਅਸਫਲ: {{errors}}',

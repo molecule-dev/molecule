@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Chinese (Traditional). */
 export const zhTW: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': '服務未找到。',
   'status.error.incidentNotFound': '事件未找到。',
   'status.error.validationFailed': '驗證失敗：{{errors}}',

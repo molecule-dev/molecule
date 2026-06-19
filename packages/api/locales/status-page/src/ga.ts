@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Irish. */
 export const ga: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Seirbhís gan aimsiú.',
   'status.error.incidentNotFound': 'Eachtra gan aimsiú.',
   'status.error.validationFailed': 'Theip ar bhailíochtú: {{errors}}',

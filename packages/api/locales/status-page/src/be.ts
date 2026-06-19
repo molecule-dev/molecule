@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Belarusian. */
 export const be: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Сэрвіс не знойдзены.',
   'status.error.incidentNotFound': 'Інцыдэнт не знойдзены.',
   'status.error.validationFailed': 'Праверка не атрымалася: {{errors}}',

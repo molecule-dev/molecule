@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Korean. */
 export const ko: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': '서비스를 찾을 수 없습니다.',
   'status.error.incidentNotFound': '인시던트를 찾을 수 없습니다.',
   'status.error.validationFailed': '유효성 검사 실패: {{errors}}',

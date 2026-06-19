@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Uzbek. */
 export const uz: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Xizmat topilmadi.',
   'status.error.incidentNotFound': 'Hodisa topilmadi.',
   'status.error.validationFailed': 'Tekshirish muvaffaqiyatsiz: {{errors}}',

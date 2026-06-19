@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Hungarian. */
 export const hu: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Szolgáltatás nem található.',
   'status.error.incidentNotFound': 'Incidens nem található.',
   'status.error.validationFailed': 'Érvényesítés sikertelen: {{errors}}',

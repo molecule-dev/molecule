@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Arabic. */
 export const ar: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'الخدمة غير موجودة.',
   'status.error.incidentNotFound': 'الحادثة غير موجودة.',
   'status.error.validationFailed': 'فشل التحقق: {{errors}}',

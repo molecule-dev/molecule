@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Dutch. */
 export const nl: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Service niet gevonden.',
   'status.error.incidentNotFound': 'Incident niet gevonden.',
   'status.error.validationFailed': 'Validatie mislukt: {{errors}}',

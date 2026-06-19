@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Azerbaijani. */
 export const az: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Xidmət tapılmadı.',
   'status.error.incidentNotFound': 'Hadisə tapılmadı.',
   'status.error.validationFailed': 'Doğrulama uğursuz oldu: {{errors}}',

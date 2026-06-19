@@ -1,5 +1,6 @@
 /** Translation keys for the status locale package. */
 export type StatusTranslationKey =
+  | 'status.error.forbidden'
   | 'status.error.serviceNotFound'
   | 'status.error.incidentNotFound'
   | 'status.error.validationFailed'

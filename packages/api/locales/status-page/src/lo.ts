@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Lao. */
 export const lo: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'ບໍ່ພົບບໍລິການ.',
   'status.error.incidentNotFound': 'ບໍ່ພົບເຫດການ.',
   'status.error.validationFailed': 'ການກວດສອບລົ້ມເຫລວ: {{errors}}',

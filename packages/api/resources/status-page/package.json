@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",
+    "@molecule/api-permissions": "1.0.0",
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
     "vitest": "4.1.8",
@@ -43,6 +44,7 @@
     "@molecule/api-i18n": "^1.0.0",
     "@molecule/api-monitoring": "^1.0.0",
     "@molecule/api-notifications": "^1.0.0",
+    "@molecule/api-permissions": "^1.0.0",
     "@molecule/api-resource": "^1.0.0",
     "@molecule/api-scheduler": "^1.0.0",
     "@molecule/api-locales-status-page": "^1.0.0"
@@ -52,6 +54,9 @@
       "optional": true
     },
     "@molecule/api-notifications": {
+      "optional": true
+    },
+    "@molecule/api-permissions": {
       "optional": true
     },
     "@molecule/api-scheduler": {

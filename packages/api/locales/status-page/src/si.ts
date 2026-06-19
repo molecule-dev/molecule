@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Sinhala. */
 export const si: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'සේවාව හමු නොවීය.',
   'status.error.incidentNotFound': 'සිද්ධිය හමු නොවීය.',
   'status.error.validationFailed': 'වලංගුකරණය අසාර්ථකයි: {{errors}}',

@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Norwegian Bokmål. */
 export const nb: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Tjeneste ikke funnet.',
   'status.error.incidentNotFound': 'Hendelse ikke funnet.',
   'status.error.validationFailed': 'Validering mislyktes: {{errors}}',

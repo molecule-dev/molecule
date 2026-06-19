@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Igbo. */
 export const ig: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Ahụghị ọrụ ahụ.',
   'status.error.incidentNotFound': 'Ahụghị ihe mere.',
   'status.error.validationFailed': 'Nkwenye agaghị: {{errors}}',

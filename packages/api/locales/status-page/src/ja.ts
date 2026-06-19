@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Japanese. */
 export const ja: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'サービスが見つかりません。',
   'status.error.incidentNotFound': 'インシデントが見つかりません。',
   'status.error.validationFailed': 'バリデーションに失敗しました: {{errors}}',

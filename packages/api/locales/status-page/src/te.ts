@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Telugu. */
 export const te: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'సేవ కనుగొనబడలేదు.',
   'status.error.incidentNotFound': 'సంఘటన కనుగొనబడలేదు.',
   'status.error.validationFailed': 'ధృవీకరణ విఫలమైంది: {{errors}}',

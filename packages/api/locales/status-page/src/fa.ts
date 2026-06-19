@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Persian. */
 export const fa: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'سرویس یافت نشد.',
   'status.error.incidentNotFound': 'رویداد یافت نشد.',
   'status.error.validationFailed': 'اعتبارسنجی ناموفق: {{errors}}',

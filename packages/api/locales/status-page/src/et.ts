@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Estonian. */
 export const et: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Teenust ei leitud.',
   'status.error.incidentNotFound': 'Intsidenti ei leitud.',
   'status.error.validationFailed': 'Valideerimine ebaõnnestus: {{errors}}',

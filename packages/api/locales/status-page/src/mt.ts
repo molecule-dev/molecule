@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Maltese. */
 export const mt: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Servizz ma nstabx.',
   'status.error.incidentNotFound': 'Inċident ma nstabx.',
   'status.error.validationFailed': 'Validazzjoni falliet: {{errors}}',

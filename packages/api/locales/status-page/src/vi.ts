@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Vietnamese. */
 export const vi: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Không tìm thấy dịch vụ.',
   'status.error.incidentNotFound': 'Không tìm thấy sự cố.',
   'status.error.validationFailed': 'Xác thực thất bại: {{errors}}',

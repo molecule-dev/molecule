@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Lithuanian. */
 export const lt: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Paslauga nerasta.',
   'status.error.incidentNotFound': 'Incidentas nerastas.',
   'status.error.validationFailed': 'Patvirtinimas nepavyko: {{errors}}',

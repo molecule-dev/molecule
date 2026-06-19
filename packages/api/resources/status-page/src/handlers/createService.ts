@@ -7,8 +7,9 @@
 import { getAnalytics, getLogger } from '@molecule/api-bond'
 import { create } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
-import type { MoleculeRequest } from '@molecule/api-resource'
+import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { isStatusAdmin } from '../authorizers/index.js'
 import { createServicePropsSchema } from '../schema.js'
 import type * as types from '../types.js'
 
@@ -24,7 +25,22 @@ const analytics = getAnalytics()
  * @returns A request handler that creates a service and responds with the created record.
  */
 export const createService = ({ tableName }: { tableName: string }) => {
-  return async (req: MoleculeRequest) => {
+  return async (req: MoleculeRequest, res: MoleculeResponse) => {
+    // Defense-in-depth: deny anyone who isn't a status page admin, even if the
+    // `requireAdmin` route middleware was stripped/omitted by the injector. The
+    // status page is a public surface; an open create route lets anyone deface it.
+    if (!(await isStatusAdmin(res))) {
+      return {
+        statusCode: 403,
+        body: {
+          error: t('status.error.forbidden', undefined, {
+            defaultValue: 'Permission required to manage the status page',
+          }),
+          errorKey: 'status.error.forbidden',
+        },
+      }
+    }
+
     try {
       const parsed = createServicePropsSchema.safeParse(req.body)
 

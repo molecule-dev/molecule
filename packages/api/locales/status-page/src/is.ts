@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Icelandic. */
 export const is: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Þjónusta fannst ekki.',
   'status.error.incidentNotFound': 'Atvik fannst ekki.',
   'status.error.validationFailed': 'Staðfesting mistókst: {{errors}}',

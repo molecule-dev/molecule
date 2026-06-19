@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Finnish. */
 export const fi: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Palvelua ei löytynyt.',
   'status.error.incidentNotFound': 'Tapahtumaa ei löytynyt.',
   'status.error.validationFailed': 'Validointi epäonnistui: {{errors}}',

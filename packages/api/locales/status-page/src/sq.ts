@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Albanian. */
 export const sq: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Shërbimi nuk u gjet.',
   'status.error.incidentNotFound': 'Incidenti nuk u gjet.',
   'status.error.validationFailed': 'Vërtetimi dështoi: {{errors}}',

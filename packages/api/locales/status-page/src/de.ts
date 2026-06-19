@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for German. */
 export const de: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Dienst nicht gefunden.',
   'status.error.incidentNotFound': 'Vorfall nicht gefunden.',
   'status.error.validationFailed': 'Validierung fehlgeschlagen: {{errors}}',

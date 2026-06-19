@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Nepali. */
 export const ne: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'सेवा फेला परेन।',
   'status.error.incidentNotFound': 'घटना फेला परेन।',
   'status.error.validationFailed': 'प्रमाणीकरण असफल: {{errors}}',

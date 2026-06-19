@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Tamil. */
 export const ta: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'சேவை கிடைக்கவில்லை.',
   'status.error.incidentNotFound': 'சம்பவம் கிடைக்கவில்லை.',
   'status.error.validationFailed': 'சரிபார்ப்பு தோல்வியடைந்தது: {{errors}}',

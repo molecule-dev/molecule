@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Indonesian. */
 export const id: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Layanan tidak ditemukan.',
   'status.error.incidentNotFound': 'Insiden tidak ditemukan.',
   'status.error.validationFailed': 'Validasi gagal: {{errors}}',

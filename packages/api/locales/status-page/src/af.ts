@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Afrikaans. */
 export const af: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Diens nie gevind nie.',
   'status.error.incidentNotFound': 'Voorval nie gevind nie.',
   'status.error.validationFailed': 'Validering misluk: {{errors}}',

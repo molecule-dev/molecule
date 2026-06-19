@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Hebrew. */
 export const he: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'שירות לא נמצא.',
   'status.error.incidentNotFound': 'אירוע לא נמצא.',
   'status.error.validationFailed': 'אימות נכשל: {{errors}}',

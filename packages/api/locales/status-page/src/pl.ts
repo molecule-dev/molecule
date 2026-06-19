@@ -2,6 +2,7 @@ import type { StatusTranslations } from './types.js'
 
 /** Status translations for Polish. */
 export const pl: StatusTranslations = {
+  'status.error.forbidden': 'Forbidden',
   'status.error.serviceNotFound': 'Usługa nie znaleziona.',
   'status.error.incidentNotFound': 'Incydent nie znaleziony.',
   'status.error.validationFailed': 'Walidacja nieudana: {{errors}}',
