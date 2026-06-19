@@ -8,6 +8,7 @@ import { logger } from '@molecule/api-logger'
 const analytics = getAnalytics()
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { ensureProjectAccess } from '../authorizers/authUser.js'
 import type { ChatAttachment, ChatMessage, Conversation, SendMessageInput } from '../types.js'
 
 /**
@@ -16,6 +17,13 @@ import type { ChatAttachment, ChatMessage, Conversation, SendMessageInput } from
  * @param res - The response object.
  */
 export async function chat(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  // Defense-in-depth: fail closed even if the route's `authUser` middleware was
+  // dropped — no authenticated owner, no AI call (cost abuse) and no IDOR. Runs
+  // before any SSE headers are written, so a plain JSON 401/403 is still valid.
+  if (!(await ensureProjectAccess(req, res))) {
+    return
+  }
+
   const projectId = req.params.projectId as string
   const input = req.body as SendMessageInput
 

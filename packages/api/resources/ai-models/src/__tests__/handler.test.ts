@@ -1,9 +1,12 @@
-const { mockGetAll } = vi.hoisted(() => ({
+const { mockGetAll, mockGet } = vi.hoisted(() => ({
   mockGetAll: vi.fn(),
+  mockGet: vi.fn(),
 }))
 
 vi.mock('@molecule/api-bond', () => ({
   getAll: mockGetAll,
+  // `t()` (api-i18n) resolves the i18n provider via `get`; undefined → defaultValue fallback.
+  get: mockGet,
 }))
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -17,7 +20,7 @@ function mockReq(): any {
   return { params: {}, body: {}, query: {} }
 }
 
-function mockRes(): {
+function mockRes(overrides: Record<string, unknown> = {}): {
   status: ReturnType<typeof vi.fn>
   json: ReturnType<typeof vi.fn>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,6 +29,9 @@ function mockRes(): {
   const res: any = {
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
+    // Authenticated by default — the catalog endpoint fails closed without a session.
+    locals: { session: { userId: 'user-1' } },
+    ...overrides,
   }
   return res
 }
@@ -43,6 +49,20 @@ function lastJsonBody(res: ReturnType<typeof mockRes>): ListModelsResponse {
 describe('list handler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+  })
+
+  it('fails closed with 401 when there is no authenticated session', async () => {
+    mockGetAll.mockReturnValue(bondedMap('anthropic'))
+
+    // No `locals.session` — simulates the route middleware having been dropped.
+    const res = mockRes({ locals: {} })
+    await list(mockReq(), res)
+
+    expect(res.status).toHaveBeenCalledWith(401)
+    const calls = (res.json as ReturnType<typeof vi.fn>).mock.calls
+    expect(calls[calls.length - 1][0]).toMatchObject({ errorKey: 'resource.error.unauthorized' })
+    // The model catalog must never reach an unauthenticated caller.
+    expect(calls[calls.length - 1][0]).not.toHaveProperty('models')
   })
 
   it('returns empty array when no AI providers are bonded', async () => {

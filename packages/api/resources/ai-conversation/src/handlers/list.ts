@@ -3,6 +3,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { ensureProjectAccess } from '../authorizers/authUser.js'
 import type { Conversation } from '../types.js'
 
 /**
@@ -11,6 +12,12 @@ import type { Conversation } from '../types.js'
  * @param res - The response object.
  */
 export async function history(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  // Defense-in-depth: fail closed even if the route middleware was dropped, so a
+  // non-owner can never read another tenant's conversation history (IDOR).
+  if (!(await ensureProjectAccess(req, res))) {
+    return
+  }
+
   const projectId = req.params.projectId as string
 
   try {

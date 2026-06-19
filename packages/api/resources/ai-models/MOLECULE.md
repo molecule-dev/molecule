@@ -2,10 +2,13 @@
 
 AI model catalog resource.
 
-Server-side source of truth for available AI models plus a public discovery
-endpoint (`GET /ai/models`). Server consumers (chat handler, compaction)
-import `MODELS` / `getModel` / `MODEL_IDS` directly; clients fetch the
-filtered public projection over HTTP.
+Server-side source of truth for available AI models plus an
+authentication-gated discovery endpoint (`GET /ai/models`). Server consumers
+(chat handler, compaction) import `MODELS` / `getModel` / `MODEL_IDS`
+directly; authenticated clients fetch the filtered projection over HTTP. The
+`list` handler enforces the session check itself and fails closed with `401`,
+so the configured-model catalog is never disclosed to an unauthenticated
+caller even if the route's `'authenticate'` middleware is stripped by codegen.
 
 ## Type
 `resource`
@@ -261,6 +264,10 @@ Returns models whose `provider` has a bond registered under the `'ai'`
 category. When no AI providers are bonded the response is `{ models: [] }`,
 which signals a misconfigured server rather than masking the issue.
 
+Fails closed with `401` when there is no authenticated session, so the model
+catalog is never disclosed to an unauthenticated caller even if the route's
+`'authenticate'` middleware is dropped by codegen.
+
 ```typescript
 function list(_req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
@@ -350,4 +357,5 @@ const routes: readonly [{ readonly method: "get"; readonly path: "/ai/models"; r
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+- `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-resource` ^1.0.0

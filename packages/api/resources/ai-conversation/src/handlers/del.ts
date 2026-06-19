@@ -4,6 +4,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { ensureProjectAccess } from '../authorizers/authUser.js'
 import type { Conversation } from '../types.js'
 
 const analytics = getAnalytics()
@@ -14,6 +15,12 @@ const analytics = getAnalytics()
  * @param res - The response object.
  */
 export async function clear(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  // Defense-in-depth: fail closed even if the route middleware was dropped, so a
+  // non-owner can never clear another tenant's conversation (IDOR).
+  if (!(await ensureProjectAccess(req, res))) {
+    return
+  }
+
   const projectId = req.params.projectId as string
 
   try {
