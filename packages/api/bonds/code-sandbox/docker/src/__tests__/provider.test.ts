@@ -524,10 +524,13 @@ describe('DockerSandboxProvider', () => {
       expect(hostConfig.CapDrop).toEqual(['ALL'])
     })
 
-    it('should set CapAdd: ["CHOWN", "SETGID", "SETUID", "NET_ADMIN"]', async () => {
+    it('should set CapAdd: ["CHOWN", "SETGID", "SETUID"] and NOT grant NET_ADMIN', async () => {
       const body = await getCreateBody()
       const hostConfig = body.HostConfig as Record<string, unknown>
-      expect(hostConfig.CapAdd).toEqual(['CHOWN', 'SETGID', 'SETUID', 'NET_ADMIN'])
+      // NET_ADMIN was dropped: it let a tenant flush in-container egress rules and
+      // enabled bridge ARP/promiscuous tricks. Egress filtering is host-side now.
+      expect(hostConfig.CapAdd).toEqual(['CHOWN', 'SETGID', 'SETUID'])
+      expect(hostConfig.CapAdd).not.toContain('NET_ADMIN')
     })
 
     it('should set SecurityOpt: ["no-new-privileges"]', async () => {

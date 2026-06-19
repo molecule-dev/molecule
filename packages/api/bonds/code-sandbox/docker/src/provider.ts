@@ -225,7 +225,12 @@ class DockerSandboxProvider implements SandboxProvider {
       PidsLimit: 512,
       SecurityOpt: ['no-new-privileges'],
       CapDrop: ['ALL'],
-      CapAdd: ['CHOWN', 'SETGID', 'SETUID', 'NET_ADMIN'],
+      // Minimal caps for the dev toolchain (file ownership + tini privilege drop).
+      // NET_ADMIN is deliberately NOT granted: it let a tenant flush in-container
+      // egress (SMTP) rules and enabled promiscuous-mode/ARP tricks on the shared
+      // bridge. Egress filtering must be enforced host-side, not in a tenant-rooted
+      // container.
+      CapAdd: ['CHOWN', 'SETGID', 'SETUID'],
       // Bind ports to localhost only — prevents external access
       PortBindings: {
         '4000/tcp': [{ HostIp: '127.0.0.1', HostPort: '' }],
