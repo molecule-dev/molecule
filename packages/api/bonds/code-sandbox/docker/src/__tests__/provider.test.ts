@@ -539,6 +539,28 @@ describe('DockerSandboxProvider', () => {
       expect(hostConfig.SecurityOpt).toEqual(['no-new-privileges'])
     })
 
+    it('defaults NetworkMode to "bridge" and maps host.docker.internal', async () => {
+      const body = await getCreateBody()
+      const hostConfig = body.HostConfig as Record<string, unknown>
+      expect(hostConfig.NetworkMode).toBe('bridge')
+      expect(hostConfig.ExtraHosts).toEqual(['host.docker.internal:host-gateway'])
+    })
+
+    it('uses SANDBOX_DOCKER_NETWORK when set (per-tenant network isolation, C1-1)', async () => {
+      const prev = process.env.SANDBOX_DOCKER_NETWORK
+      process.env.SANDBOX_DOCKER_NETWORK = 'molecule-sandbox'
+      try {
+        const body = await getCreateBody()
+        const hostConfig = body.HostConfig as Record<string, unknown>
+        expect(hostConfig.NetworkMode).toBe('molecule-sandbox')
+        // host-gateway mapping still present so the sandbox reaches its own DB.
+        expect(hostConfig.ExtraHosts).toEqual(['host.docker.internal:host-gateway'])
+      } finally {
+        if (prev === undefined) delete process.env.SANDBOX_DOCKER_NETWORK
+        else process.env.SANDBOX_DOCKER_NETWORK = prev
+      }
+    })
+
     it('should set PidsLimit: 512', async () => {
       const body = await getCreateBody()
       const hostConfig = body.HostConfig as Record<string, unknown>

@@ -257,9 +257,15 @@ class DockerSandboxProvider implements SandboxProvider {
       ],
     }
 
-    // All containers run on the default bridge network (internet access).
-    // SMTP ports are blocked via iptables after container start to prevent spam abuse.
-    hostConfig.NetworkMode = 'bridge'
+    // Network: default to the shared `bridge` (internet egress). Operators can set
+    // SANDBOX_DOCKER_NETWORK to a dedicated user-defined network (created with
+    // inter-container communication disabled) to isolate each tenant from every
+    // other tenant's containers; pair it with host.docker.internal (below) +
+    // SANDBOX_DB_HOST=host.docker.internal so the sandbox still reaches its own DB.
+    hostConfig.NetworkMode = process.env.SANDBOX_DOCKER_NETWORK || 'bridge'
+    // Map host.docker.internal → host gateway on all networks (not added
+    // automatically on user-defined bridges). Harmless on the default bridge.
+    hostConfig.ExtraHosts = ['host.docker.internal:host-gateway']
 
     // Mount a named Docker volume at /workspace for persistent storage.
     // Docker copies image contents (molecule/, node_modules/) into empty volumes.
