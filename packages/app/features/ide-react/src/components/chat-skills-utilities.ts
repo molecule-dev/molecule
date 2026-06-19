@@ -388,3 +388,45 @@ export function suggestRelevantSkills(
     .sort((a, b) => b.score - a.score || a.skill.name.localeCompare(b.skill.name))
     .slice(0, max)
 }
+
+/**
+ * The single skill to NUDGE the user to load for the current conversation, or null when there's
+ * nothing useful to suggest. Picks the genuine top match for `recentText` (via
+ * {@link suggestRelevantSkills}) from the candidate pool — all skills minus the ones the user
+ * dismissed or already @-attached — then returns null if that top match is ALREADY LOADED:
+ * either @-loaded this session (`loaded`) OR default-loaded (`defaultLoaded`, its full body
+ * always-on in the system prompt). Suggesting an already-loaded skill just points at context
+ * the agent already has, so we never do it; for a fresh project where every skill is
+ * default-loaded the tip simply never fires. We null the top match (rather than dropping loaded
+ * skills from the pool) so the next-best doesn't immediately pop up — the tip changes only when
+ * the conversation produces a genuinely different top match, never just because the last one got
+ * loaded (the "suggests one after another" parade the user reported).
+ *
+ * @param skills - All discovered project skills.
+ * @param recentText - Recent user text to match against.
+ * @param sets - Exclusion sets, all keyed by skill `path`.
+ * @param sets.dismissed - Skills the user dismissed.
+ * @param sets.attachedPaths - Already-@-attached file paths (leading-slash form, matched against `'/' + skill.path`).
+ * @param sets.loaded - Skills @-loaded this session.
+ * @param sets.defaultLoaded - Default-loaded skills (always-on in the prompt).
+ * @returns The skill to suggest, or null.
+ */
+export function pickRelevantSkill(
+  skills: readonly SkillInfo[],
+  recentText: string,
+  sets: {
+    dismissed: ReadonlySet<string>
+    attachedPaths: ReadonlySet<string>
+    loaded: ReadonlySet<string>
+    defaultLoaded: ReadonlySet<string>
+  },
+): SkillInfo | null {
+  if (skills.length === 0) return null
+  const candidates = skills.filter(
+    (s) => !sets.dismissed.has(s.path) && !sets.attachedPaths.has('/' + s.path),
+  )
+  if (candidates.length === 0) return null
+  const top = suggestRelevantSkills(candidates, recentText)[0]?.skill ?? null
+  if (!top) return null
+  return sets.loaded.has(top.path) || sets.defaultLoaded.has(top.path) ? null : top
+}

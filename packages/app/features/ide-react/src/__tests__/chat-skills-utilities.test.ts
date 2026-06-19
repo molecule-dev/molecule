@@ -14,6 +14,7 @@ import {
   loadProjectSkills,
   newSkillPath,
   parseSkillMeta,
+  pickRelevantSkill,
   recentUserText,
   type SkillInfo,
   slugifySkillName,
@@ -283,5 +284,95 @@ describe('suggestRelevantSkills', () => {
     expect(out).toHaveLength(2)
     expect(out[0].skill.name).toBe('auth')
     expect(out.map((s) => s.skill.name)).not.toContain('styling') // tie lost to 'database' by name
+  })
+})
+
+describe('pickRelevantSkill', () => {
+  const skills: SkillInfo[] = [
+    {
+      path: '.agents/skills/auth/SKILL.md',
+      name: 'auth',
+      description: 'Authentication, login, OAuth and sessions.',
+    },
+    {
+      path: '.agents/skills/styling/SKILL.md',
+      name: 'styling',
+      description: 'ClassMap styling and theme tokens.',
+    },
+    {
+      path: '.agents/skills/database/SKILL.md',
+      name: 'database',
+      description: 'DataStore CRUD and migrations.',
+    },
+  ]
+  const AUTH = '.agents/skills/auth/SKILL.md'
+  const empty: ReadonlySet<string> = new Set()
+  /** Build the exclusion sets with only the overrides a test cares about. */
+  const sets = (
+    over: Partial<{
+      dismissed: ReadonlySet<string>
+      attachedPaths: ReadonlySet<string>
+      loaded: ReadonlySet<string>
+      defaultLoaded: ReadonlySet<string>
+    }> = {},
+  ) => ({ dismissed: empty, attachedPaths: empty, loaded: empty, defaultLoaded: empty, ...over })
+
+  // The auth skill is the genuine top match for this question.
+  const AUTH_TEXT = 'How do I add a login page with OAuth sessions?'
+  // Both auth (login/oauth/sessions) and styling (classmap/theme) clear the threshold here,
+  // auth scoring higher — used to prove load vs dismiss behave differently on the next-best.
+  const AUTH_THEN_STYLING = 'login oauth sessions classmap theme'
+
+  it('suggests the top match when it is not already loaded', () => {
+    expect(pickRelevantSkill(skills, AUTH_TEXT, sets())?.name).toBe('auth')
+  })
+
+  it('suggests NOTHING when the top match is default-loaded (always-on in the prompt) — the reported bug', () => {
+    expect(
+      pickRelevantSkill(skills, AUTH_TEXT, sets({ defaultLoaded: new Set([AUTH]) })),
+    ).toBeNull()
+  })
+
+  it('suggests NOTHING when the top match was @-loaded this session', () => {
+    expect(pickRelevantSkill(skills, AUTH_TEXT, sets({ loaded: new Set([AUTH]) }))).toBeNull()
+  })
+
+  it('never fires for a fresh project where every skill is default-loaded', () => {
+    const allDefault = new Set(skills.map((s) => s.path))
+    for (const text of [
+      AUTH_TEXT,
+      'fix the styling',
+      'login oauth classmap theme crud migrations',
+    ]) {
+      expect(pickRelevantSkill(skills, text, sets({ defaultLoaded: allDefault }))).toBeNull()
+    }
+  })
+
+  it('does NOT promote the next-best just because the top is already loaded (no parade)', () => {
+    // auth is the top AND default-loaded; styling also scores — we must show NOTHING here,
+    // never silently fall through to styling just because auth got loaded.
+    expect(
+      pickRelevantSkill(skills, AUTH_THEN_STYLING, sets({ defaultLoaded: new Set([AUTH]) })),
+    ).toBeNull()
+  })
+
+  it('DOES surface the next-best when the top is dismissed (dismiss leaves the candidate pool)', () => {
+    // Dismissing differs from loading: the dismissed skill is removed from candidates, so the
+    // next genuine match is shown.
+    expect(
+      pickRelevantSkill(skills, AUTH_THEN_STYLING, sets({ dismissed: new Set([AUTH]) }))?.name,
+    ).toBe('styling')
+  })
+
+  it('excludes an @-attached skill from the pool (matched by leading-slash path)', () => {
+    expect(
+      pickRelevantSkill(skills, AUTH_THEN_STYLING, sets({ attachedPaths: new Set(['/' + AUTH]) }))
+        ?.name,
+    ).toBe('styling')
+  })
+
+  it('returns null when there are no skills or nothing clears the match threshold', () => {
+    expect(pickRelevantSkill([], AUTH_TEXT, sets())).toBeNull()
+    expect(pickRelevantSkill(skills, 'deploy to production tomorrow', sets())).toBeNull()
   })
 })

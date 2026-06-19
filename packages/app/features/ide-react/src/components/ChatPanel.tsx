@@ -115,8 +115,8 @@ import {
   loadProjectSkills,
   newSkillPath,
   parseSkillMeta,
+  pickRelevantSkill,
   recentUserText,
-  suggestRelevantSkills,
 } from './chat-skills-utilities.js'
 import { estimateStreamTokens } from './chat-stream-utilities.js'
 import {
@@ -4160,26 +4160,28 @@ function ChatInner({
     }
   }, [http, projectId])
 
-  const relevantSkill = useMemo<SkillInfo | null>(() => {
-    if (projectSkills.length === 0) return null
-    const attached = new Set(attachedFiles.map((f) => f.path))
-    // Compute the genuine top match for the CURRENT recent messages, excluding only
-    // dismissed + already-@-attached skills. We deliberately do NOT drop loaded
-    // skills from the candidate pool here; instead, if the top match is one the user
-    // already loaded, we show nothing (below). That way clicking Load does NOT make
-    // the next-best skill immediately pop up — the tip changes only when the recent
-    // messages produce a genuinely different top match, never just because the last
-    // one was loaded. This kills the "suggests a bunch, one after another" parade
-    // the user reported (P2-06).
-    const candidates = projectSkills.filter(
-      (s) => !dismissedSkillPaths.includes(s.path) && !attached.has('/' + s.path),
-    )
-    if (candidates.length === 0) return null
-    const top = suggestRelevantSkills(candidates, recentUserText(messages))[0]?.skill ?? null
-    if (!top) return null
-    // The most relevant skill is already loaded this session → nothing to nudge.
-    return loadedSkillPaths.has(top.path) ? null : top
-  }, [projectSkills, attachedFiles, dismissedSkillPaths, loadedSkillPaths, messages])
+  // The top-matching skill to nudge the user to load — null if it's already loaded (@-loaded
+  // this session OR default-loaded / always-on in the prompt) so we never suggest context the
+  // agent already has. See pickRelevantSkill for the no-parade + already-loaded rationale.
+  const relevantSkill = useMemo<SkillInfo | null>(
+    () =>
+      pickRelevantSkill(projectSkills, recentUserText(messages), {
+        dismissed: new Set(dismissedSkillPaths),
+        attachedPaths: new Set(
+          attachedFiles.map((f) => f.path).filter((p): p is string => p !== undefined),
+        ),
+        loaded: loadedSkillPaths,
+        defaultLoaded: defaultSkillPaths,
+      }),
+    [
+      projectSkills,
+      attachedFiles,
+      dismissedSkillPaths,
+      loadedSkillPaths,
+      defaultSkillPaths,
+      messages,
+    ],
+  )
 
   const dismissRelevantSkill = useCallback((skill: SkillInfo) => {
     setDismissedSkillPaths((prev) => (prev.includes(skill.path) ? prev : [...prev, skill.path]))
