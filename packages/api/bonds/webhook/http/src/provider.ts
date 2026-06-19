@@ -19,6 +19,7 @@ import type {
   WebhookRegistration,
 } from '@molecule/api-webhook'
 
+import { assertPublicWebhookUrl } from './ssrf.js'
 import type { HttpWebhookConfig } from './types.js'
 
 /**
@@ -96,16 +97,20 @@ export function createProvider(config: HttpWebhookConfig = {}): WebhookProvider 
     let success: boolean
 
     try {
+      // SSRF: refuse to deliver to internal/private/metadata targets (resolves DNS).
+      await assertPublicWebhookUrl(registration.url)
       const response = await fetch(registration.url, {
         method: 'POST',
         headers,
         body,
+        // Don't auto-follow a redirect to an internal host after the guard passed.
+        redirect: 'manual',
         signal: AbortSignal.timeout(timeout),
       })
       status = response.status
       success = response.ok
     } catch (error) {
-      logger.warn('Webhook delivery failed (network/timeout)', { error })
+      logger.warn('Webhook delivery failed (blocked, network, or timeout)', { error })
       status = 0
       success = false
     }

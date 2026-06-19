@@ -56,6 +56,19 @@ interface HttpWebhookConfig {
 
 ### Functions
 
+#### `assertPublicWebhookUrl(raw)`
+
+Validate a webhook URL is safe to call: http(s) only, and every IP the host
+resolves to is public. Throws on any violation.
+
+```typescript
+function assertPublicWebhookUrl(raw: string): Promise<URL>
+```
+
+- `raw` — The registered webhook URL.
+
+**Returns:** The parsed URL when it is safe to deliver to.
+
 #### `createProvider(config)`
 
 Creates an HTTP-backed {@link WebhookProvider}.

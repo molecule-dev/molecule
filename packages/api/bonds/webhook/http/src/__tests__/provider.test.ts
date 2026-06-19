@@ -2,6 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { WebhookProvider } from '@molecule/api-webhook'
 
+// deliver() now SSRF-guards the URL via node:dns/promises lookup; mock it so the
+// test hosts (example.com/a.com/b.com) resolve to a public IP and the guard passes
+// (without real network). See ../ssrf.ts.
+vi.mock('node:dns/promises', () => ({
+  lookup: vi.fn(async () => [{ address: '93.184.216.34', family: 4 }]),
+}))
+
 import { createProvider } from '../provider.js'
 
 /* ------------------------------------------------------------------ */
