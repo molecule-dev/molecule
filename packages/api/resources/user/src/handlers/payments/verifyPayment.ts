@@ -183,6 +183,59 @@ export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
             },
           }
         }
+      } else {
+        // Receipt-flow (Apple/Google) ownership/replay binding (R2-1), mirroring
+        // the subscription block above. A single purchased receipt must bind to
+        // exactly ONE account (first-claim-wins) so it cannot be replayed to
+        // upgrade many accounts. The atomic, race-safe backstop is the
+        // insert-before-grant below; this is the fast, fail-closed pre-check.
+        const ownerId = req.params.id as string
+
+        // A receipt with no transaction id cannot be bound to a single account
+        // and therefore cannot be protected from replay — fail closed rather
+        // than grant an unbounded entitlement. (Google `latestOrderId` can be
+        // missing.)
+        if (!verified.transactionId) {
+          analytics
+            .track({
+              name: 'payment.verification_failed',
+              userId: ownerId,
+              properties: { provider: providerName, reason: 'missing_transaction_id' },
+            })
+            .catch(() => {})
+          return {
+            statusCode: 400,
+            body: {
+              error: t('user.payment.verificationFailed', { provider: providerName }),
+              errorKey: 'user.payment.verificationFailed',
+            },
+          }
+        }
+
+        const records = get<PaymentRecordService>('paymentRecords')
+        const existing = records
+          ? await records.findByTransaction(providerName, verified.transactionId)
+          : null
+        if (existing && existing.userId !== ownerId) {
+          analytics
+            .track({
+              name: 'payment.verification_ownership_rejected',
+              userId: ownerId,
+              properties: { provider: providerName },
+            })
+            .catch(() => {})
+          return {
+            statusCode: 403,
+            body: {
+              error: t(
+                'user.payment.transactionAlreadyClaimed',
+                { provider: providerName },
+                { defaultValue: 'This purchase is already associated with another account.' },
+              ),
+              errorKey: 'user.payment.transactionAlreadyClaimed',
+            },
+          }
+        }
       }
 
       // Find matching plan from verified product.
@@ -197,8 +250,58 @@ export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
         }
       }
 
-      // Update user's plan.
       const id = req.params.id as string
+      const records = get<PaymentRecordService>('paymentRecords')
+
+      // For the receipt (Apple/Google) flow, bind the transaction to THIS user
+      // BEFORE granting the plan — fail-closed, first-claim-wins. The
+      // UNIQUE(platformKey, transactionId) index makes a second account's insert
+      // fail; `store()` surfaces that conflict (rather than swallowing it) so a
+      // replayed receipt is rejected here instead of being granted (R2-1). The
+      // subscription flow keeps its existing post-grant store (its ownership was
+      // already enforced above).
+      if (!isSubscriptionFlow && records && verified.transactionId) {
+        try {
+          await records.store({
+            userId: id,
+            platformKey: providerName,
+            transactionId: verified.transactionId,
+            productId: verified.productId,
+            data: verified.data || {},
+            ...(receipt ? { receipt } : {}),
+          })
+        } catch (error) {
+          // Conflict: the transaction is already bound. Determine the owner —
+          // if it belongs to another account, reject WITHOUT granting; if it is
+          // this user re-verifying their own receipt, fall through to an
+          // idempotent re-grant.
+          const owner = await records.findByTransaction(providerName, verified.transactionId)
+          if (!owner || owner.userId !== id) {
+            analytics
+              .track({
+                name: 'payment.verification_ownership_rejected',
+                userId: id,
+                properties: { provider: providerName },
+              })
+              .catch(() => {})
+            return {
+              statusCode: 403,
+              body: {
+                error: t(
+                  'user.payment.transactionAlreadyClaimed',
+                  { provider: providerName },
+                  { defaultValue: 'This purchase is already associated with another account.' },
+                ),
+                errorKey: 'user.payment.transactionAlreadyClaimed',
+              },
+            }
+          }
+          // Same user re-verifying their own receipt → idempotent re-grant.
+          logger.warn('Receipt already recorded for this user; re-granting idempotently', { error })
+        }
+      }
+
+      // Update user's plan.
       const updateUser = resourceUpdate<types.UpdatePlanProps>({
         name,
         tableName,
@@ -226,9 +329,9 @@ export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
         })
         .catch(() => {})
 
-      // Store payment record via bond.
-      const records = get<PaymentRecordService>('paymentRecords')
-      if (records && verified.transactionId) {
+      // Store payment record via bond (subscription flow only — the receipt flow
+      // already bound its record above, before granting).
+      if (isSubscriptionFlow && records && verified.transactionId) {
         await records
           .store({
             userId: id,

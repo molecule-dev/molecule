@@ -44,13 +44,30 @@ export const create = ({ name, tableName, schema }: types.Resource) => {
     let props!: types.CreateProps
 
     try {
-      const { password, deviceName, ...createProps } = req.body
+      const { password, deviceName } = req.body
       body = { password, deviceName }
-      props = createProps
 
-      if (props.username) {
+      // SECURITY (P2E-1): build an explicit allow-list of client-writable signup
+      // fields. NEVER spread `req.body` into props — that mass-assigns privileged
+      // columns. planKey/planExpiresAt/planAutoRenews/emailVerified/oauthServer/
+      // oauthId/oauthData/twoFactorEnabled MUST NOT be settable from a signup
+      // body (free paid-tier access + email-confirmation bypass + OAuth
+      // account-takeover). Those columns are writable only through their
+      // dedicated verified flows: updatePlan -> provider confirmation,
+      // verifyPayment, the email-confirmation flow, and logInOAuth (which
+      // hand-builds its props from the verified provider, not from req.body).
+      // Mirrors update.ts, which likewise constructs props field-by-field.
+      props = {}
+
+      if (req.body.username !== undefined) {
         // Limit username to 255 alphanumeric characters.
-        props.username = props.username.replace(/[^a-zA-Z0-9]/g, '').substring(0, 255)
+        props.username = String(req.body.username)
+          .replace(/[^a-zA-Z0-9]/g, '')
+          .substring(0, 255)
+      }
+
+      if (req.body.name !== undefined) {
+        props.name = String(req.body.name).substring(0, 255)
       }
 
       if (!body.password) {
@@ -87,22 +104,24 @@ export const create = ({ name, tableName, schema }: types.Resource) => {
         }
       }
 
-      if (props.email) {
-        // Normalize (trim + lowercase) BEFORE validation/storage so case and
-        // whitespace variants of the same mailbox can't bypass the `email`
-        // UNIQUE constraint or the OAuth collision lookup (which also
-        // normalizes). Keep the existing length cap.
-        const normalizedEmail = normalizeEmail(props.email)?.substring(0, 1023)
-        props.email = (normalizedEmail ?? null) as unknown as string
-        // Basic email validation
-        if (props.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.email)) {
-          return {
-            statusCode: 400,
-            body: { error: t('user.error.emailInvalid'), errorKey: 'user.error.emailInvalid' },
+      if (req.body.email !== undefined) {
+        if (req.body.email === '' || req.body.email === null) {
+          props.email = null
+        } else {
+          // Normalize (trim + lowercase) BEFORE validation/storage so case and
+          // whitespace variants of the same mailbox can't bypass the `email`
+          // UNIQUE constraint or the OAuth collision lookup (which also
+          // normalizes). Keep the existing length cap.
+          const normalizedEmail = normalizeEmail(String(req.body.email))?.substring(0, 1023)
+          props.email = normalizedEmail ?? null
+          // Basic email validation
+          if (props.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.email)) {
+            return {
+              statusCode: 400,
+              body: { error: t('user.error.emailInvalid'), errorKey: 'user.error.emailInvalid' },
+            }
           }
         }
-      } else if (props.email === '') {
-        props.email = null as unknown as string
       }
     } catch (err) {
       logger.warn('Failed to parse user create request body', { error: err })

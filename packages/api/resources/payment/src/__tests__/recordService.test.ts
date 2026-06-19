@@ -41,7 +41,7 @@ vi.mock('@molecule/api-bond', () => ({
   getAll: vi.fn(),
 }))
 
-import { paymentRecordService } from '../recordService.js'
+import { PaymentRecordConflictError, paymentRecordService } from '../recordService.js'
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -75,14 +75,27 @@ describe('paymentRecordService.store', () => {
     })
   })
 
-  it('should handle duplicate records via try/catch', async () => {
-    mockCreate.mockRejectedValueOnce(new Error('duplicate key'))
+  it('REGRESSION (R2-1): rethrows a duplicate-key conflict so callers can enforce first-claim-wins', async () => {
+    mockCreate.mockRejectedValueOnce(
+      new Error('duplicate key value violates unique constraint "payments_..._unique"'),
+    )
 
-    await paymentRecordService.store(record)
-
-    expect(mockLogger.error).toHaveBeenCalledWith(
+    await expect(paymentRecordService.store(record)).rejects.toBeInstanceOf(
+      PaymentRecordConflictError,
+    )
+    // A conflict is NOT swallowed via the generic failure log path.
+    expect(mockLogger.error).not.toHaveBeenCalledWith(
       'Failed to store payment record:',
-      expect.any(Error),
+      expect.anything(),
+    )
+  })
+
+  it('rethrows a Postgres 23505 conflict (by error code) as PaymentRecordConflictError', async () => {
+    const pgErr = Object.assign(new Error('insert failed'), { code: '23505' })
+    mockCreate.mockRejectedValueOnce(pgErr)
+
+    await expect(paymentRecordService.store(record)).rejects.toBeInstanceOf(
+      PaymentRecordConflictError,
     )
   })
 

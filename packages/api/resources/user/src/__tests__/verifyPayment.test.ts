@@ -117,6 +117,155 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
+/**
+ * Wire an Apple/Google receipt-flow provider + plan service + records bond.
+ * `records` is returned so tests can program `findByTransaction`/`store` per case.
+ */
+const wireReceipt = (opts: { transactionId?: string | undefined } = {}) => {
+  const transactionId = 'transactionId' in opts ? opts.transactionId : 'txn_shared'
+  const provider = {
+    providerName: 'apple',
+    verifyFlow: 'receipt' as const,
+    verifyReceipt: vi.fn().mockResolvedValue({
+      productId: 'com.app.pro',
+      transactionId,
+      expiresAt: new Date(4070908800000).toISOString(),
+      autoRenews: true,
+      data: {},
+    }),
+  }
+  const plans = {
+    findPlan: vi.fn(() => ({
+      planKey: 'pro',
+      platformKey: 'apple',
+      platformProductId: 'com.app.pro',
+    })),
+    findPlanByProductId: vi.fn(() => ({ planKey: 'pro', platformKey: 'apple' })),
+    getDefaultPlan: vi.fn(),
+    getAllPlans: vi.fn(),
+  }
+  const records = {
+    findByUserId: vi.fn().mockResolvedValue(null),
+    store: vi.fn().mockResolvedValue(undefined),
+    findByTransaction: vi.fn().mockResolvedValue(null),
+    findByCustomerData: vi.fn(),
+    deleteByUserId: vi.fn(),
+  }
+  mockRequire.mockImplementation((category: string) => {
+    if (category === 'payments') return provider
+    if (category === 'plans') return plans
+    return undefined
+  })
+  mockGet.mockImplementation((category: string) =>
+    category === 'paymentRecords' ? records : undefined,
+  )
+  return { provider, plans, records }
+}
+
+describe('verifyPayment — Apple/Google receipt ownership binding (R2-1)', () => {
+  it('REGRESSION: rejects a second account replaying a receipt already bound to another user', async () => {
+    const { records } = wireReceipt()
+    // The transaction is already bound to a different account.
+    records.findByTransaction.mockResolvedValue({ userId: 'owner' })
+
+    const req = makeReq({
+      params: { id: 'attacker', provider: 'apple' },
+      body: { receipt: 'base64-receipt', planKey: 'pro' },
+    })
+
+    const result = await handler(req)
+
+    expect(result?.statusCode).toBe(403)
+    expect((result?.body as { errorKey?: string })?.errorKey).toBe(
+      'user.payment.transactionAlreadyClaimed',
+    )
+    // Plan must NOT be granted and the record must NOT be (re)written for the attacker.
+    expect(mockUpdateFn).not.toHaveBeenCalled()
+    expect(records.store).not.toHaveBeenCalled()
+  })
+
+  it('allows the first account to claim an unbound receipt (binds before granting)', async () => {
+    const { records } = wireReceipt()
+    // Unbound: no existing record, store succeeds.
+    records.findByTransaction.mockResolvedValue(null)
+
+    const req = makeReq({
+      params: { id: 'owner', provider: 'apple' },
+      body: { receipt: 'base64-receipt', planKey: 'pro' },
+    })
+
+    const result = await handler(req)
+
+    expect(result?.statusCode).toBe(200)
+    // Record bound BEFORE the grant.
+    expect(records.store).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'owner',
+        platformKey: 'apple',
+        transactionId: 'txn_shared',
+      }),
+    )
+    expect(mockUpdateFn).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'owner', props: expect.objectContaining({ planKey: 'pro' }) }),
+    )
+  })
+
+  it('allows the original owner to re-verify their own receipt (idempotent re-grant on conflict)', async () => {
+    const { records } = wireReceipt()
+    // Pre-check sees no other owner; the insert hits the UNIQUE constraint, and
+    // the re-query shows the SAME user owns it → idempotent re-grant.
+    records.findByTransaction.mockResolvedValueOnce(null).mockResolvedValueOnce({ userId: 'owner' })
+    records.store.mockRejectedValueOnce(new Error('duplicate key value violates unique constraint'))
+
+    const req = makeReq({
+      params: { id: 'owner', provider: 'apple' },
+      body: { receipt: 'base64-receipt', planKey: 'pro' },
+    })
+
+    const result = await handler(req)
+
+    expect(result?.statusCode).toBe(200)
+    expect(mockUpdateFn).toHaveBeenCalled()
+  })
+
+  it('REGRESSION: loses the race when a concurrent insert binds the receipt to another account', async () => {
+    const { records } = wireReceipt()
+    // Pre-check passes (null), but the insert conflicts and the re-query shows a
+    // DIFFERENT owner won the race → reject without granting.
+    records.findByTransaction
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ userId: 'winner' })
+    records.store.mockRejectedValueOnce(new Error('duplicate key value violates unique constraint'))
+
+    const req = makeReq({
+      params: { id: 'loser', provider: 'apple' },
+      body: { receipt: 'base64-receipt', planKey: 'pro' },
+    })
+
+    const result = await handler(req)
+
+    expect(result?.statusCode).toBe(403)
+    expect((result?.body as { errorKey?: string })?.errorKey).toBe(
+      'user.payment.transactionAlreadyClaimed',
+    )
+    expect(mockUpdateFn).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when the verified receipt has no transaction id (unbindable)', async () => {
+    wireReceipt({ transactionId: undefined })
+
+    const req = makeReq({
+      params: { id: 'owner', provider: 'apple' },
+      body: { receipt: 'base64-receipt', planKey: 'pro' },
+    })
+
+    const result = await handler(req)
+
+    expect(result?.statusCode).toBe(400)
+    expect(mockUpdateFn).not.toHaveBeenCalled()
+  })
+})
+
 describe('verifyPayment — Stripe subscription ownership binding (M3-2)', () => {
   it('REGRESSION: rejects a free user claiming a foreign subscription id (no record, bare sub_)', async () => {
     wire({ verifiedCustomerId: 'cus_victim', viaCheckoutSession: false, storedCustomerId: null })

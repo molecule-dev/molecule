@@ -12,6 +12,11 @@ CREATE TABLE IF NOT EXISTS "payments" (
 CREATE INDEX IF NOT EXISTS "payments_createdAt_index" ON "payments" ("createdAt");
 CREATE INDEX IF NOT EXISTS "payments_updatedAt_index" ON "payments" ("updatedAt");
 CREATE INDEX IF NOT EXISTS "payments_userId_index" ON "payments" ("userId");
-CREATE INDEX IF NOT EXISTS "payments_transactionId_index" ON "payments" ("transactionId");
+-- A platform transaction must bind to exactly ONE account (first-claim-wins).
+-- This UNIQUE index is the race-safe backstop for receipt/subscription replay
+-- (R2-1): a second account inserting the same (platformKey, transactionId)
+-- fails, so it can never be granted the plan. Also serves the transactionId
+-- lookup the plain index used to. NULL transactionIds are allowed/non-unique.
+CREATE UNIQUE INDEX IF NOT EXISTS "payments_platformKey_transactionId_unique" ON "payments" ("platformKey", "transactionId");
 CREATE INDEX IF NOT EXISTS "payments_productId_index" ON "payments" ("productId");
 CREATE INDEX IF NOT EXISTS "payments_platformKey_index" ON "payments" ("platformKey");

@@ -243,6 +243,64 @@ describe('create handler — password validation', () => {
   })
 })
 
+// ===== 1b. Privileged-field mass-assignment prevention (create.ts) =========
+
+describe('create handler — privileged field mass-assignment prevention (P2E-1)', () => {
+  const handler = create(testResource)
+
+  it('ignores planKey/planExpiresAt/planAutoRenews/emailVerified/oauth*/twoFactorEnabled from the signup body', async () => {
+    mockFindOne.mockResolvedValue(null)
+    mockHash.mockResolvedValue('hashed-password')
+    mockStoreCreate.mockResolvedValue({ affected: 1 })
+    mockResourceCreate.mockResolvedValue({
+      statusCode: 201,
+      body: { props: { id: '00000000-0000-0000-0000-000000000001', username: 'attacker' } },
+    })
+    mockGet.mockReturnValue({ createOrUpdate: vi.fn().mockResolvedValue('device-id') })
+
+    const req = makeReq({
+      body: {
+        username: 'attacker',
+        password: 'password123',
+        email: 'attacker@example.com',
+        // Privileged columns an attacker would attempt to inject:
+        planKey: 'pro',
+        planExpiresAt: '2099-01-01T00:00:00.000Z',
+        planAutoRenews: true,
+        emailVerified: true,
+        oauthServer: 'google',
+        oauthId: 'victim-google-sub',
+        oauthData: { sub: 'victim-google-sub' },
+        twoFactorEnabled: true,
+      },
+    })
+    const res = makeRes()
+
+    const result = await handler(req as MoleculeRequest, res as MoleculeResponse)
+
+    expect(result?.statusCode).toBe(201)
+    expect(mockResourceCreate).toHaveBeenCalledTimes(1)
+    const passedProps = (
+      mockResourceCreate.mock.calls[0]?.[0] as { props: Record<string, unknown> }
+    ).props
+    // Allow-listed signup fields survive.
+    expect(passedProps).toMatchObject({ username: 'attacker', email: 'attacker@example.com' })
+    // Privileged fields must NOT be writable from a signup body.
+    for (const key of [
+      'planKey',
+      'planExpiresAt',
+      'planAutoRenews',
+      'emailVerified',
+      'oauthServer',
+      'oauthId',
+      'oauthData',
+      'twoFactorEnabled',
+    ]) {
+      expect(passedProps).not.toHaveProperty(key)
+    }
+  })
+})
+
 // ===== 2. Password length validation (updatePassword.ts) ===================
 
 describe('updatePassword handler — password validation', () => {
