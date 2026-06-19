@@ -12,7 +12,8 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import { instantiateById } from '../service.js'
+import { canViewTemplate } from '../authorizers/index.js'
+import { getTemplate, instantiateTemplate } from '../service.js'
 import { instantiateSchema } from '../validation.js'
 
 /**
@@ -49,14 +50,18 @@ export async function instantiate(req: MoleculeRequest, res: MoleculeResponse): 
   }
 
   try {
-    const result = await instantiateById(id, parsed.data.variables ?? {})
-    if (!result) {
+    const tpl = await getTemplate(id)
+    // Ownership/visibility is enforced HERE: instantiating a private template would
+    // leak its snapshot to a non-owner. Fail closed with the same 404 as a missing
+    // row so a non-owner cannot probe for the template's existence.
+    if (!tpl || !canViewTemplate(tpl, userId)) {
       res.status(404).json({
         error: t('template.error.notFound', undefined, { defaultValue: 'Template not found' }),
         errorKey: 'template.error.notFound',
       })
       return
     }
+    const result = instantiateTemplate(tpl, parsed.data.variables ?? {})
     res.json(result)
   } catch (error) {
     logger.error('Failed to instantiate template', { userId, id, error })

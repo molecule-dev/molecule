@@ -8,6 +8,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { canViewTemplate } from '../authorizers/index.js'
 import { getTemplate } from '../service.js'
 
 /**
@@ -37,7 +38,10 @@ export async function read(req: MoleculeRequest, res: MoleculeResponse): Promise
 
   try {
     const tpl = await getTemplate(id)
-    if (!tpl) {
+    // Ownership/visibility is enforced HERE (not via route middleware the scaffolder
+    // may strip): a private template is invisible to non-owners. Fail closed with the
+    // same 404 as a missing row so a non-owner cannot probe for the template's existence.
+    if (!tpl || !canViewTemplate(tpl, userId)) {
       res.status(404).json({
         error: t('template.error.notFound', undefined, { defaultValue: 'Template not found' }),
         errorKey: 'template.error.notFound',

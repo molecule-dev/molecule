@@ -8,7 +8,8 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import { updateTemplate } from '../service.js'
+import { canEditTemplate } from '../authorizers/index.js'
+import { getTemplate, updateTemplate } from '../service.js'
 import { updateTemplateSchema } from '../validation.js'
 
 /**
@@ -44,6 +45,26 @@ export async function update(req: MoleculeRequest, res: MoleculeResponse): Promi
   }
 
   try {
+    const existing = await getTemplate(id)
+    if (!existing) {
+      res.status(404).json({
+        error: t('template.error.notFound', undefined, { defaultValue: 'Template not found' }),
+        errorKey: 'template.error.notFound',
+      })
+      return
+    }
+    // Ownership is enforced HERE (not via route middleware the scaffolder may strip):
+    // only the template's creator may edit it. Defense-in-depth fail-closed gate.
+    if (!canEditTemplate(existing, userId)) {
+      res.status(403).json({
+        error: t('template.error.forbidden', undefined, {
+          defaultValue: 'You do not have permission to modify this template',
+        }),
+        errorKey: 'template.error.forbidden',
+      })
+      return
+    }
+
     const tpl = await updateTemplate(id, parsed.data)
     if (!tpl) {
       res.status(404).json({
