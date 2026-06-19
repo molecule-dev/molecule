@@ -125,7 +125,18 @@ const parseRows = (text: string, delimiter: string): string[][] => {
  */
 const escapeField = (value: unknown, delimiter: string): string => {
   if (value === null || value === undefined) return ''
-  const str = String(value)
+  let str = String(value)
+  // CSV/formula injection (CWE-1236): a cell beginning with = + - @ (or a leading
+  // tab/CR) is executed as a formula by Excel/Sheets/LibreOffice when the exported
+  // file is opened, so untrusted free-text from the DataStore (e.g. a user-submitted
+  // name) like `=HYPERLINK(...)` or `=cmd|...` would run. Prefix a single quote so the
+  // spreadsheet treats it as literal text. Genuine numbers (typeof number, or a plain
+  // numeric string) are left untouched so negative values aren't mangled.
+  const isNumber =
+    typeof value === 'number' || (typeof value === 'string' && /^-?\d+(\.\d+)?$/.test(str))
+  if (!isNumber && /^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`
+  }
   if (str.includes(delimiter) || str.includes('"') || str.includes('\n') || str.includes('\r')) {
     return `"${str.replace(/"/g, '""')}"`
   }

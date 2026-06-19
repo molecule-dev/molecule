@@ -92,6 +92,28 @@ describe('formatCSV', () => {
     expect(formatCSV([])).toBe('')
   })
 
+  it('neutralizes formula-injection cells (CWE-1236) with a leading quote', () => {
+    const rows = [
+      { a: '=HYPERLINK("http://evil","x")' },
+      { a: '+1+2' },
+      { a: '@SUM(A1)' },
+      { a: '-1+1' },
+      { a: '\tcmd' },
+    ]
+    const csv = formatCSV(rows)
+    // every formula trigger is prefixed with ' so spreadsheets treat it as text
+    expect(csv).toContain(`"'=HYPERLINK`)
+    expect(csv).toContain(`'+1+2`)
+    expect(csv).toContain(`'@SUM(A1)`)
+    expect(csv).toContain(`'-1+1`)
+    expect(csv).not.toMatch(/(^|\n)=HYPERLINK/)
+  })
+
+  it('does NOT mangle genuine numbers (incl. negatives)', () => {
+    const csv = formatCSV([{ n: -5, s: '-42', big: 3.14 }])
+    expect(csv).toBe('n,s,big\n-5,-42,3.14')
+  })
+
   it('should use specified columns', () => {
     const rows = [{ a: 1, b: 2, c: 3 }]
     const csv = formatCSV(rows, ['c', 'a'])
