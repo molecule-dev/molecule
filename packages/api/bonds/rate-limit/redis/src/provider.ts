@@ -6,6 +6,12 @@
  * entries are pruned on every operation. This is more accurate than a
  * fixed-window approach and suitable for distributed/multi-instance deployments.
  *
+ * `consume()` is **atomic**: the prune → count → limit-check → conditional
+ * insert all run inside a single server-side Lua script (`EVAL`), so concurrent
+ * requests against the same key cannot overshoot the limit (no check-then-act
+ * race). `check()`/`getRemaining()` are read-only estimates and intentionally
+ * non-mutating.
+ *
  * @module
  */
 
@@ -14,6 +20,51 @@ import { Redis } from 'ioredis'
 import type { RateLimitOptions, RateLimitProvider, RateLimitResult } from '@molecule/api-rate-limit'
 
 import type { RedisRateLimitOptions } from './types.js'
+
+/**
+ * Atomic sliding-window consume script.
+ *
+ * Runs entirely server-side in one round trip so the count-and-increment is a
+ * single atomic operation (no check-then-act race across separate awaits):
+ *
+ * 1. `ZREMRANGEBYSCORE` — prune entries older than the window.
+ * 2. `ZCARD` — count entries currently in the window.
+ * 3. Compare `count + cost` against `max`; if it would exceed, reject without
+ *    mutating (return `{0, count}`).
+ * 4. Otherwise `ZADD` one member per unit of cost and `PEXPIRE` the key to the
+ *    window length, returning `{1, count + cost}`.
+ *
+ * KEYS[1]  = the sorted-set key.
+ * ARGV[1]  = window-start score (entries with score <= this are pruned).
+ * ARGV[2]  = `now` score applied to inserted members.
+ * ARGV[3]  = max requests allowed in the window.
+ * ARGV[4]  = cost (number of members to insert).
+ * ARGV[5]  = window length in ms (PEXPIRE TTL).
+ * ARGV[6.] = the unique members to insert (one per unit of cost).
+ *
+ * Returns `{ allowed (1|0), resultingCount }`.
+ */
+const CONSUME_SCRIPT = `
+local windowStart = tonumber(ARGV[1])
+local now = ARGV[2]
+local max = tonumber(ARGV[3])
+local cost = tonumber(ARGV[4])
+local windowMs = tonumber(ARGV[5])
+
+redis.call('ZREMRANGEBYSCORE', KEYS[1], 0, windowStart)
+local count = redis.call('ZCARD', KEYS[1])
+
+if count + cost > max then
+  return { 0, count }
+end
+
+for i = 6, #ARGV do
+  redis.call('ZADD', KEYS[1], now, ARGV[i])
+end
+redis.call('PEXPIRE', KEYS[1], windowMs)
+
+return { 1, count + cost }
+`
 
 /** Default window: 60 seconds. */
 const DEFAULT_WINDOW_MS = 60_000
@@ -67,7 +118,11 @@ export const createProvider = (redisOptions?: RedisRateLimitOptions): RateLimitP
 
   /**
    * Counts current requests in the sliding window and prunes expired entries.
-   * Uses a Redis pipeline for atomicity.
+   * Batches the prune + count into a single Redis pipeline (one round trip).
+   * NOTE: a pipeline only batches commands — it is **not** atomic, so this is a
+   * point-in-time estimate suitable for the read-only `check()`/`getRemaining()`
+   * paths. The mutating `consume()` path must not rely on a separate read here;
+   * it uses the atomic {@link CONSUME_SCRIPT} (`EVAL`) instead.
    *
    * @param fullKey - The resolved Redis key.
    * @param now - Current timestamp in milliseconds.
@@ -123,24 +178,40 @@ export const createProvider = (redisOptions?: RedisRateLimitOptions): RateLimitP
     async consume(key: string, cost = 1): Promise<RateLimitResult> {
       const fullKey = resolveKey(key)
       const now = Date.now()
-      const count = await countInWindow(fullKey, now)
+      const windowStart = now - config.windowMs
 
-      if (count + cost > config.max) {
-        return buildResult(count, false, now)
-      }
-
-      // Add entries to the sorted set (one per unit of cost)
-      const pipeline = client.pipeline()
+      // Generate one unique member per unit of cost (timestamp + random suffix).
+      const members: string[] = []
       for (let i = 0; i < cost; i++) {
-        // Use timestamp + random suffix to ensure unique members
-        const member = `${now}:${Math.random().toString(36).slice(2, 8)}:${i}`
-        pipeline.zadd(fullKey, String(now), member)
+        members.push(`${now}:${Math.random().toString(36).slice(2, 8)}:${i}`)
       }
-      // Set TTL on the key to auto-expire after the window
-      pipeline.pexpire(fullKey, config.windowMs)
-      await pipeline.exec()
 
-      return buildResult(count + cost, true, now)
+      // Atomically prune → count → check → conditionally insert in a single
+      // server-side Lua script. This eliminates the check-then-act race that a
+      // separate read (countInWindow) + write (pipeline) suffered under
+      // concurrency, which let N concurrent requests all read count=0 and pass.
+      const reply = await client.eval(
+        CONSUME_SCRIPT,
+        1,
+        fullKey,
+        String(windowStart),
+        String(now),
+        String(config.max),
+        String(cost),
+        String(config.windowMs),
+        ...members,
+      )
+
+      // Reply shape: [allowed (1|0), resultingCount]. Parse defensively — a Redis
+      // reply is untyped, and a connection/script error should fail open (allow)
+      // to match the read-paths' resilience rather than hard-blocking traffic.
+      if (!Array.isArray(reply)) {
+        return buildResult(cost, true, now)
+      }
+      const allowed = Number(reply[0]) === 1
+      const count = Number(reply[1] ?? 0)
+
+      return buildResult(count, allowed, now)
     },
 
     async reset(key: string): Promise<void> {

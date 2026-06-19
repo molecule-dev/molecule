@@ -9,6 +9,7 @@ const mockZadd = vi.fn()
 const mockPexpire = vi.fn()
 const mockDel = vi.fn()
 const mockOn = vi.fn()
+const mockEval = vi.fn()
 
 const mockPipelineInstance = {
   zremrangebyscore: vi.fn().mockReturnThis(),
@@ -32,6 +33,7 @@ vi.mock('ioredis', () => {
       pexpire: mockPexpire,
       del: mockDel,
       on: mockOn,
+      eval: mockEval,
       pipeline: mockPipeline,
     }
   })
@@ -54,6 +56,9 @@ describe('@molecule/api-rate-limit-redis', () => {
       [null, 0], // zremrangebyscore
       [null, 0], // zcard — 0 entries in window
     ])
+
+    // Default eval reply: allowed, resulting count of 1.
+    mockEval.mockResolvedValue([1, 1])
   })
 
   afterEach(() => {
@@ -204,14 +209,8 @@ describe('@molecule/api-rate-limit-redis', () => {
       const provider = createProvider()
       provider.configure({ windowMs: 60_000, max: 10 })
 
-      // Count pipeline: 0 entries
-      mockPipelineInstance.exec
-        .mockResolvedValueOnce([
-          [null, 0],
-          [null, 0],
-        ])
-        // Add pipeline
-        .mockResolvedValueOnce([])
+      // Atomic script reply: allowed, resulting count of 1.
+      mockEval.mockResolvedValueOnce([1, 1])
 
       const result = await provider.consume('test-key')
 
@@ -220,16 +219,38 @@ describe('@molecule/api-rate-limit-redis', () => {
       expect(result.total).toBe(10)
     })
 
+    it('uses a single atomic EVAL (no separate read-then-write round trips)', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider()
+      provider.configure({ windowMs: 60_000, max: 10 })
+
+      mockEval.mockResolvedValueOnce([1, 1])
+
+      await provider.consume('test-key')
+
+      // Exactly one server-side script invocation — and it never falls back to
+      // the non-atomic check-then-act pipeline path for the mutating operation.
+      expect(mockEval).toHaveBeenCalledTimes(1)
+      expect(mockPipeline).not.toHaveBeenCalled()
+
+      const [script, numkeys, key] = mockEval.mock.calls[0]
+      expect(typeof script).toBe('string')
+      // The script must prune, count, and conditionally insert all in one place.
+      expect(script).toContain('ZREMRANGEBYSCORE')
+      expect(script).toContain('ZCARD')
+      expect(script).toContain('ZADD')
+      expect(script).toContain('PEXPIRE')
+      expect(numkeys).toBe(1)
+      expect(key).toBe('test-key')
+    })
+
     it('rejects when consuming would exceed the limit', async () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider()
       provider.configure({ windowMs: 60_000, max: 10 })
 
-      // 10 entries already in window
-      mockPipelineInstance.exec.mockResolvedValueOnce([
-        [null, 0],
-        [null, 10],
-      ])
+      // Script rejects without mutating: not allowed, current count 10.
+      mockEval.mockResolvedValueOnce([0, 10])
 
       const result = await provider.consume('test-key')
 
@@ -243,18 +264,19 @@ describe('@molecule/api-rate-limit-redis', () => {
       const provider = createProvider()
       provider.configure({ windowMs: 60_000, max: 10 })
 
-      // 0 entries in window
-      mockPipelineInstance.exec
-        .mockResolvedValueOnce([
-          [null, 0],
-          [null, 0],
-        ])
-        .mockResolvedValueOnce([])
+      // Allowed, resulting count of 5 (cost 5 from empty window).
+      mockEval.mockResolvedValueOnce([1, 5])
 
       const result = await provider.consume('test-key', 5)
 
       expect(result.allowed).toBe(true)
       expect(result.remaining).toBe(5)
+
+      // One member per unit of cost must be passed as trailing ARGV.
+      const args = mockEval.mock.calls[0]
+      // [script, numkeys, key, windowStart, now, max, cost, windowMs, ...members]
+      expect(args[6]).toBe('5') // cost arg
+      expect(args.length).toBe(8 + 5) // 5 unique members appended
     })
 
     it('rejects when cost exceeds remaining', async () => {
@@ -262,11 +284,8 @@ describe('@molecule/api-rate-limit-redis', () => {
       const provider = createProvider()
       provider.configure({ windowMs: 60_000, max: 10 })
 
-      // 8 entries already
-      mockPipelineInstance.exec.mockResolvedValueOnce([
-        [null, 0],
-        [null, 8],
-      ])
+      // Script rejects: not allowed, current count 8 (8 + 5 > 10).
+      mockEval.mockResolvedValueOnce([0, 8])
 
       const result = await provider.consume('test-key', 5)
 
@@ -274,21 +293,81 @@ describe('@molecule/api-rate-limit-redis', () => {
       expect(result.remaining).toBe(2)
     })
 
-    it('sets pexpire on the sorted set key', async () => {
+    it('passes the window length to the script for PEXPIRE', async () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider()
       provider.configure({ windowMs: 60_000, max: 10 })
 
-      mockPipelineInstance.exec
-        .mockResolvedValueOnce([
-          [null, 0],
-          [null, 0],
-        ])
-        .mockResolvedValueOnce([])
+      mockEval.mockResolvedValueOnce([1, 1])
 
       await provider.consume('test-key')
 
-      expect(mockPipelineInstance.pexpire).toHaveBeenCalledWith('test-key', 60_000)
+      // windowMs is ARGV[5] (index 7 in the eval call args).
+      const args = mockEval.mock.calls[0]
+      expect(args[7]).toBe('60000')
+    })
+
+    it('fails open when the script reply is malformed', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider()
+      provider.configure({ windowMs: 60_000, max: 10 })
+
+      mockEval.mockResolvedValueOnce(null)
+
+      const result = await provider.consume('test-key')
+
+      // Consistent with the read paths' resilience: allow rather than hard-block.
+      expect(result.allowed).toBe(true)
+    })
+
+    it('does not overshoot the limit under concurrent requests (atomicity)', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider()
+      const max = 5
+      provider.configure({ windowMs: 60_000, max })
+
+      // Model a real Redis sorted set whose prune/count/insert run atomically
+      // inside a single EVAL invocation — exactly the server-side guarantee the
+      // Lua script provides. The OLD check-then-act implementation read count
+      // via one round trip and inserted via another, so N concurrent calls all
+      // observed count=0 and were admitted, overshooting `max`.
+      const store = new Map<string, number>()
+      mockEval.mockImplementation(
+        async (
+          _script: string,
+          _numkeys: number,
+          _key: string,
+          windowStart: string,
+          now: string,
+          maxArg: string,
+          cost: string,
+          _windowMs: string,
+          ...members: string[]
+        ) => {
+          const ws = Number(windowStart)
+          for (const [member, score] of store) {
+            if (score <= ws) store.delete(member)
+          }
+          const count = store.size
+          const c = Number(cost)
+          if (count + c > Number(maxArg)) {
+            return [0, count]
+          }
+          for (const member of members) {
+            store.set(member, Number(now))
+          }
+          return [1, count + c]
+        },
+      )
+
+      const attempts = max + 7
+      const results = await Promise.all(
+        Array.from({ length: attempts }, () => provider.consume('login:1.2.3.4')),
+      )
+
+      const allowedCount = results.filter((r) => r.allowed).length
+      expect(allowedCount).toBe(max)
+      expect(store.size).toBe(max)
     })
   })
 
