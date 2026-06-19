@@ -28,7 +28,7 @@ import {
   useState,
 } from 'react'
 
-import type { ChatMessage } from '@molecule/app-ai-chat'
+import type { ChatMessage, ChatStreamEvent } from '@molecule/app-ai-chat'
 import {
   formatTokenCount,
   isDeprecated,
@@ -276,6 +276,13 @@ interface SystemCardBase {
    * history; only the explicitly-ephemeral cards opt out.
    */
   clientOnly?: boolean
+  /**
+   * Set when this card was applied from a teammate's broadcast (the chat push channel),
+   * not this client's own stream. Rendered but NEVER persisted — the originating member
+   * already persisted it; if every viewer re-PUT, members would race on the conversation
+   * row.
+   */
+  received?: boolean
 }
 
 /**
@@ -396,6 +403,13 @@ interface ActivityCardEntry {
   activity: Activity
   /** Numeric timestamp for timeline ordering (derived from the activity's ISO timestamp). */
   timestamp: number
+  /**
+   * Set when this card was applied from a teammate's broadcast (the chat push channel),
+   * not this client's own stream. Rendered but NEVER persisted — the originating member
+   * already persisted it; if every viewer re-PUT, members would race on the conversation
+   * row.
+   */
+  received?: boolean
 }
 
 interface ModelPicker {
@@ -2300,6 +2314,8 @@ interface ChatInnerProps {
   onClientAction?: (action: IdeClientAction) => void
   /** Called on each stream done/error — host keeps the boot view up until the during-boot plan stream completes. */
   onTurnComplete?: () => void
+  /** Registers the broadcast-chat-event handler with the host — see {@link ChatPanelProps.onRegisterPushHandler}. */
+  onRegisterPushHandler?: ChatPanelProps['onRegisterPushHandler']
   /** Changing this value submits the current input draft (used by the prompt→chat morph). */
   autoSubmitSignal?: number
   /** Changing this value opens the `/settings` view (used by the header gear button). */
@@ -2356,6 +2372,7 @@ interface ChatInnerProps {
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
  * @param root0.onClientAction - Callback fired on the client_action stream event (reload/navigate preview, open file).
  * @param root0.onTurnComplete - Callback fired on each stream done/error; host uses it to keep the boot view up until the during-boot plan stream completes.
+ * @param root0.onRegisterPushHandler - Registers the broadcast-chat-event handler with the host (the chat push channel); called with null on unmount.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.openSettingsSignal - Changing this opens the /settings view (header gear button).
  * @param root0.openReportSignal - Changing this opens the /report bug-report modal (header bug button).
@@ -2394,6 +2411,7 @@ function ChatInner({
   awaitingSandboxBoot,
   onClientAction,
   onTurnComplete,
+  onRegisterPushHandler,
   autoSubmitSignal,
   openSettingsSignal,
   openReportSignal,
@@ -2433,6 +2451,12 @@ function ChatInner({
   // re-sending the initial prompt instead of restoring the existing conversation.
   const hasConversation = endpoint.includes('conversationId=')
   const conversationId = endpoint.match(/conversationId=([^&]+)/)?.[1] ?? null
+  // Kept in sync with `conversationId` so the (memoized) pushed-event handler reads the
+  // current conversation without becoming a stale closure — see applyPushedStreamEvent.
+  const conversationIdRef = useRef(conversationId)
+  useEffect(() => {
+    conversationIdRef.current = conversationId
+  }, [conversationId])
   // Ref for sounds config so the onStreamEvent callback always reads the latest value.
   const soundsConfigRef = useRef<SoundsConfig>({ ...DEFAULT_SOUNDS_CONFIG })
 
@@ -3102,10 +3126,20 @@ function ChatInner({
   // every streaming chunk).
   const messagesRef = useRef(messages)
   messagesRef.current = messages
+  // True only while applying a teammate's broadcast through handleStreamEvent (see
+  // applyPushedStreamEvent). addSystemCard/addActivityCard read it to mark the cards
+  // they produce as `received` so this viewer renders but never re-persists them.
+  const applyingPushedRef = useRef(false)
   const addSystemCard = useCallback((text: string, opts: AddSystemCardOptions = {}) => {
     // Split off `timestamp` (handled below) and spread the rest of the variant's own
     // fields verbatim — no field-by-field copy, so this never drifts from the union.
     const { timestamp, ...rest } = opts
+    // Capture the pushed-event flag NOW, synchronously while this call runs inside
+    // applyPushedStreamEvent (the ref is true only for that window). It must NOT be read
+    // inside the setState updater below: React invokes that updater during reconciliation,
+    // after applyPushedStreamEvent's `finally` has already reset the ref — which would
+    // leave a teammate's card unflagged and let this viewer wrongly persist it.
+    const received = applyingPushedRef.current || undefined
     // Cards land chronologically — wherever/whenever they occur. A card emitted during
     // a turn's preamble still sorts ABOVE the streamed response: the response message is
     // stamped at its server `message_start` (iteration top — AFTER these preamble
@@ -3115,7 +3149,10 @@ function ChatInner({
     // clock; otherwise fall back to the client clock. (A queued USER message that waits
     // for the active stream is a separate mechanism, not this.)
     const ts = timestamp ?? Date.now()
-    setSystemCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: ts, ...rest }])
+    setSystemCards((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), text, timestamp: ts, ...rest, received },
+    ])
     // Auto-scroll after the card renders so the user sees it immediately
     if (!userScrolledUpRef.current) {
       setTimeout(() => {
@@ -3125,6 +3162,35 @@ function ChatInner({
     }
   }, [])
   addSystemCardRef.current = addSystemCard
+
+  // Apply a chat event broadcast by another project member (the chat push channel).
+  // The originating member already streamed + PERSISTED these cards; this viewer renders
+  // them live but must never re-persist them (every viewer re-PUTting would race on the
+  // conversation row), so each card produced here is flagged `received` and excluded from
+  // the persist effects above.
+  const applyPushedStreamEvent = useCallback(
+    (frameConversationId: string, event: ChatStreamEvent) => {
+      // Only apply broadcasts for the conversation this panel has open.
+      if (frameConversationId !== conversationIdRef.current) return
+      // Mark every card produced by this event as `received` so it renders but is
+      // never re-persisted by this viewer (the originator persisted it). handleStreamEvent
+      // is synchronous, so the flag is set for exactly this event's card-adds.
+      applyingPushedRef.current = true
+      try {
+        handleStreamEvent(event)
+      } finally {
+        applyingPushedRef.current = false
+      }
+    },
+    [handleStreamEvent],
+  )
+
+  // Register the pushed-event handler with the parent (Workspace) so it can deliver
+  // broadcast chat events from other project members; deregister on unmount.
+  useEffect(() => {
+    onRegisterPushHandler?.(applyPushedStreamEvent)
+    return () => onRegisterPushHandler?.(null)
+  }, [onRegisterPushHandler, applyPushedStreamEvent])
 
   // Inject the user-message accent-stripe styles once (the gradient `::before` + its
   // keyframe can't live inline; gated on the row's data-mol-id, so no other row is
@@ -3194,7 +3260,7 @@ function ChatInner({
     // rest of each variant's fields verbatim (destructuring the union keeps this in sync —
     // a new persisted field needs no edit here).
     const serializable = systemCards
-      .filter((c) => !c.clientOnly)
+      .filter((c) => !c.clientOnly && !c.received)
       .map(({ action: _action, ...rest }) => rest)
     void http
       .put(`/projects/${projectId}/conversations/${conversationId}/system-cards`, {
@@ -3209,6 +3275,10 @@ function ChatInner({
   // ── Activity cards (captured outbound side effects) ───────────────────────
   const [activityCards, setActivityCards] = useState<ActivityCardEntry[]>([])
   const addActivityCard = useCallback((activity: Activity) => {
+    // Captured synchronously here (NOT inside the setState updater, which React invokes
+    // during reconciliation after applyPushedStreamEvent has reset the ref) so a pushed
+    // card is reliably flagged received and excluded from this viewer's persist PUT.
+    const received = applyingPushedRef.current || undefined
     // Place just before an actively-streaming message so the card isn't pinned
     // below the growing response (same heuristic as addSystemCard).
     let ts = new Date(activity.timestamp).getTime()
@@ -3220,7 +3290,7 @@ function ChatInner({
     setActivityCards((prev) =>
       prev.some((c) => c.id === activity.id)
         ? prev
-        : [...prev, { id: activity.id, activity, timestamp: ts }],
+        : [...prev, { id: activity.id, activity, timestamp: ts, received }],
     )
     if (!userScrolledUpRef.current) {
       setTimeout(() => {
@@ -3273,7 +3343,7 @@ function ChatInner({
     if (!conversationId || activityCardsLoadedConvRef.current !== conversationId) return
     void http
       .put(`/projects/${projectId}/conversations/${conversationId}/activity-cards`, {
-        activityCards,
+        activityCards: activityCards.filter((c) => !c.received),
       })
       .catch((_error) => {
         // Best-effort save (bound as _error per Rule 14): the in-memory cards remain the
@@ -8106,6 +8176,7 @@ function ChatInner({
  * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
  * @param root0.onClientAction - Callback fired on the client_action stream event (reload/navigate preview, open file).
  * @param root0.onTurnComplete - Callback fired on each stream done/error; host uses it to keep the boot view up until the during-boot plan stream completes.
+ * @param root0.onRegisterPushHandler - Registers the broadcast-chat-event handler with the host (the chat push channel); called with null on unmount.
  * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
  * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
  * @param root0.hideConversationMenu - Hide the conversation-selector header (e.g. during discovery).
@@ -8141,6 +8212,7 @@ export function ChatPanel({
   awaitingSandboxBoot,
   onClientAction,
   onTurnComplete,
+  onRegisterPushHandler,
   autoSubmitSignal,
   initialInputValue,
   hideConversationMenu,
@@ -8569,6 +8641,7 @@ export function ChatPanel({
         awaitingSandboxBoot={awaitingSandboxBoot}
         onClientAction={onClientAction}
         onTurnComplete={onTurnComplete}
+        onRegisterPushHandler={onRegisterPushHandler}
         autoSubmitSignal={autoSubmitSignal}
         openSettingsSignal={effectiveSettingsSignal}
         openReportSignal={effectiveReportSignal}

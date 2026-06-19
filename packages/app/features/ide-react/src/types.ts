@@ -6,7 +6,7 @@
 
 import type { ReactNode } from 'react'
 
-import type { ChatMessage } from '@molecule/app-ai-chat'
+import type { ChatMessage, ChatStreamEvent } from '@molecule/app-ai-chat'
 import type { EditorTab, FixWithAIRequest } from '@molecule/app-code-editor'
 import type { DeviceFrame } from '@molecule/app-live-preview'
 
@@ -98,6 +98,13 @@ export interface ChatPanelProps {
   onClientAction?: (action: IdeClientAction) => void
   /** Called on each stream `done` — host uses it to keep the boot view up until the parallel during-boot plan stream finishes. */
   onTurnComplete?: () => void
+  /**
+   * Called on mount with a handler the parent invokes to deliver a broadcast chat event
+   * from another project member (the push channel); called with null on unmount.
+   */
+  onRegisterPushHandler?: (
+    handler: ((conversationId: string, event: ChatStreamEvent) => void) | null,
+  ) => void
   /** Changing this value submits the current input draft — used to send a prefilled prompt after the prompt→chat morph docks. */
   autoSubmitSignal?: number
   /** Seeds the input with this text on mount (prompt→chat morph), so the chat input shows the prompt before it is sent. */
