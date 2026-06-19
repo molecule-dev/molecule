@@ -3149,10 +3149,15 @@ function ChatInner({
     // clock; otherwise fall back to the client clock. (A queued USER message that waits
     // for the active stream is a separate mechanism, not this.)
     const ts = timestamp ?? Date.now()
-    setSystemCards((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), text, timestamp: ts, ...rest, received },
-    ])
+    setSystemCards((prev) => {
+      // De-dupe a SERVER-stamped card by its unique, monotonic server timestamp: a client
+      // that receives its OWN broadcast echo (e.g. a second tab of the same user viewing the
+      // project) must not double-add a card it already has from its SSE stream — in either
+      // arrival order. Client-stamped cards (no server `timestamp` — a /help, a tip) are
+      // NEVER de-duped this way, since their Date.now() could coincide with a server ms.
+      if (timestamp !== undefined && prev.some((c) => c.timestamp === ts)) return prev
+      return [...prev, { id: crypto.randomUUID(), text, timestamp: ts, ...rest, received }]
+    })
     // Auto-scroll after the card renders so the user sees it immediately
     if (!userScrolledUpRef.current) {
       setTimeout(() => {
