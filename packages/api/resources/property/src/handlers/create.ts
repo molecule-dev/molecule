@@ -23,6 +23,15 @@ function slugify(name: string): string {
  * @param res - The response object.
  */
 export async function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  const userId = (res.locals.session as { userId?: string } | undefined)?.userId
+  if (!userId) {
+    res.status(401).json({
+      error: t('property.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'property.error.unauthorized',
+    })
+    return
+  }
+
   const input = req.body as CreatePropertyInput
 
   if (!input.name?.trim()) {
@@ -63,6 +72,7 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
 
   try {
     const result = await dbCreate<Property>('properties', {
+      ownerId: userId,
       name: input.name.trim(),
       slug,
       description: input.description ?? null,

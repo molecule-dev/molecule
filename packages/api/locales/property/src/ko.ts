@@ -2,6 +2,8 @@ import type { PropertyTranslations } from './types.js'
 
 /** Property translations for Korean. */
 export const ko: PropertyTranslations = {
+  'property.error.unauthorized': '인증되지 않았습니다.',
+  'property.error.forbidden': 'You do not have access to this property',
   'property.error.nameRequired': '부동산 이름은 필수입니다',
   'property.error.invalidName': '부동산 이름이 유효하지 않습니다',
   'property.error.addressRequired': '주소, 도시, 국가 코드는 필수입니다',

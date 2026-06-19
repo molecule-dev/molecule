@@ -2,6 +2,8 @@ import type { PropertyTranslations } from './types.js'
 
 /** Property translations for Burmese. */
 export const my: PropertyTranslations = {
+  'property.error.unauthorized': 'ခွင့်ပြုချက်မရှိပါ။',
+  'property.error.forbidden': 'You do not have access to this property',
   'property.error.nameRequired': 'Property name is required',
   'property.error.invalidName': 'Property name is invalid',
   'property.error.addressRequired': 'Address line 1, city, and country code are required',

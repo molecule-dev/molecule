@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS "properties" (
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "ownerId" TEXT,
   "name" VARCHAR(255) NOT NULL,
   "slug" VARCHAR(255) NOT NULL UNIQUE,
   "description" TEXT,
@@ -20,6 +21,11 @@ CREATE TABLE IF NOT EXISTS "properties" (
   "deletedAt" TIMESTAMPTZ
 );
 
+-- Tenant-scoping: associate each property with the user who created it.
+-- Added via ALTER for databases whose "properties" table predates this column.
+ALTER TABLE "properties" ADD COLUMN IF NOT EXISTS "ownerId" TEXT;
+
+CREATE INDEX IF NOT EXISTS "idx_properties_ownerId" ON "properties" ("ownerId");
 CREATE INDEX IF NOT EXISTS "idx_properties_slug" ON "properties" ("slug");
 CREATE INDEX IF NOT EXISTS "idx_properties_status" ON "properties" ("status") WHERE "deletedAt" IS NULL;
 CREATE INDEX IF NOT EXISTS "idx_properties_type" ON "properties" ("type") WHERE "deletedAt" IS NULL;

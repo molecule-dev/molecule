@@ -2,6 +2,8 @@ import type { PropertyTranslations } from './types.js'
 
 /** Property translations for Chinese (Simplified). */
 export const zh: PropertyTranslations = {
+  'property.error.unauthorized': '未授权。',
+  'property.error.forbidden': 'You do not have access to this property',
   'property.error.nameRequired': '物业名称为必填项',
   'property.error.invalidName': '物业名称无效',
   'property.error.addressRequired': '地址、城市和国家代码为必填项',

@@ -11,6 +11,15 @@ import type { CreatePhotoInput, Property, PropertyPhoto } from '../types.js'
  * @param res - The response object.
  */
 export async function createPhoto(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  const userId = (res.locals.session as { userId?: string } | undefined)?.userId
+  if (!userId) {
+    res.status(401).json({
+      error: t('property.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'property.error.unauthorized',
+    })
+    return
+  }
+
   const propertyId = req.params.id as string
   const input = req.body as CreatePhotoInput
 
@@ -20,6 +29,16 @@ export async function createPhoto(req: MoleculeRequest, res: MoleculeResponse): 
       res.status(404).json({
         error: t('property.error.notFound', undefined, { defaultValue: 'Property not found' }),
         errorKey: 'property.error.notFound',
+      })
+      return
+    }
+
+    if (property.ownerId !== userId) {
+      res.status(403).json({
+        error: t('property.error.forbidden', undefined, {
+          defaultValue: 'You do not have access to this property',
+        }),
+        errorKey: 'property.error.forbidden',
       })
       return
     }

@@ -2,6 +2,8 @@ import type { PropertyTranslations } from './types.js'
 
 /** Property translations for Hausa. */
 export const ha: PropertyTranslations = {
+  'property.error.unauthorized': 'Ba a ba da izini ba.',
+  'property.error.forbidden': 'You do not have access to this property',
   'property.error.nameRequired': 'Property name is required',
   'property.error.invalidName': 'Property name is invalid',
   'property.error.addressRequired': 'Address line 1, city, and country code are required',

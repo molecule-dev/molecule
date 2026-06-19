@@ -2,6 +2,8 @@ import type { PropertyTranslations } from './types.js'
 
 /** Property translations for Arabic. */
 export const ar: PropertyTranslations = {
+  'property.error.unauthorized': 'غير مصرح.',
+  'property.error.forbidden': 'You do not have access to this property',
   'property.error.nameRequired': 'اسم العقار مطلوب',
   'property.error.invalidName': 'اسم العقار غير صالح',
   'property.error.addressRequired': 'العنوان والمدينة ورمز البلد مطلوبة',

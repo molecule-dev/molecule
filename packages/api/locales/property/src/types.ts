@@ -1,5 +1,7 @@
 /** Translation keys for the property locale package. */
 export type PropertyTranslationKey =
+  | 'property.error.unauthorized'
+  | 'property.error.forbidden'
   | 'property.error.nameRequired'
   | 'property.error.invalidName'
   | 'property.error.addressRequired'

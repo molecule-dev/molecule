@@ -2,6 +2,8 @@ import type { PropertyTranslations } from './types.js'
 
 /** Property translations for Dutch. */
 export const nl: PropertyTranslations = {
+  'property.error.unauthorized': 'Niet geautoriseerd.',
+  'property.error.forbidden': 'You do not have access to this property',
   'property.error.nameRequired': 'Naam van het pand is vereist',
   'property.error.invalidName': 'Naam van het pand is ongeldig',
   'property.error.addressRequired': 'Adres, stad en landcode zijn vereist',

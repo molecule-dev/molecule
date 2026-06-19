@@ -59,13 +59,26 @@ function mockReq(overrides: Record<string, unknown> = {}): any {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mockRes(): any {
+function mockRes(userId = 'user-1'): any {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res: any = {
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
     end: vi.fn(),
-    locals: { session: { userId: 'user-1' } },
+    locals: { session: { userId } },
+  }
+  return res
+}
+
+/** Response with no authenticated session — mirrors a request from an anonymous caller. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mockAnonRes(): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const res: any = {
+    status: vi.fn().mockReturnThis(),
+    json: vi.fn().mockReturnThis(),
+    end: vi.fn(),
+    locals: {},
   }
   return res
 }
@@ -397,7 +410,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('updates only provided fields', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       mockUpdateById.mockResolvedValue({ data: { id: '1', name: 'Updated' } })
 
       const req = mockReq({ params: { id: '1' }, body: { name: 'Updated' } })
@@ -413,7 +426,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('uppercases countryCode on update', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       mockUpdateById.mockResolvedValue({ data: { id: '1' } })
 
       const req = mockReq({ params: { id: '1' }, body: { countryCode: 'fr' } })
@@ -426,7 +439,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('updates multiple fields', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       mockUpdateById.mockResolvedValue({ data: { id: '1' } })
 
       const req = mockReq({
@@ -445,7 +458,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('returns 500 on database error', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       mockUpdateById.mockRejectedValue(new Error('DB error'))
 
       const req = mockReq({ params: { id: '1' }, body: { name: 'Test' } })
@@ -484,7 +497,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('soft-deletes property and returns 204', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       mockUpdateById.mockResolvedValue({ data: { id: '1' } })
 
       const req = mockReq({ params: { id: '1' } })
@@ -505,7 +518,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('returns 500 on database error', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       mockUpdateById.mockRejectedValue(new Error('DB error'))
 
       const req = mockReq({ params: { id: '1' } })
@@ -544,7 +557,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('returns units for a valid property', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       const units = [
         { id: 'u1', propertyId: '1', name: '101' },
         { id: 'u2', propertyId: '1', name: '102' },
@@ -591,7 +604,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('returns 400 when unit name is missing', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
 
       const req = mockReq({ params: { id: '1' }, body: {} })
       const res = mockRes()
@@ -605,7 +618,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('creates unit, recounts unitCount, and updates property', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       mockCreate.mockResolvedValue({ data: { id: 'u1', propertyId: '1', name: '101' } })
       mockCount.mockResolvedValue(7)
       mockUpdateById.mockResolvedValue({ data: { id: '1', unitCount: 7 } })
@@ -641,7 +654,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('returns 500 on database error', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       mockCreate.mockRejectedValue(new Error('DB error'))
 
       const req = mockReq({ params: { id: '1' }, body: { name: '101' } })
@@ -669,7 +682,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('returns photos ordered by position then createdAt', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       const photos = [{ id: 'p1', propertyId: '1', url: 'https://example.com/a.jpg', position: 0 }]
       mockFindMany.mockResolvedValue(photos)
 
@@ -719,7 +732,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('returns 400 when photo url is missing', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
 
       const req = mockReq({ params: { id: '1' }, body: {} })
       const res = mockRes()
@@ -733,7 +746,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('creates photo with defaults', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       const created = { id: 'p1', propertyId: '1', url: 'https://example.com/a.jpg', position: 0 }
       mockCreate.mockResolvedValue({ data: created })
 
@@ -756,7 +769,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('returns 500 on database error', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       mockCreate.mockRejectedValue(new Error('DB error'))
 
       const req = mockReq({
@@ -787,7 +800,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('returns amenities ordered by code', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       const amenities = [{ id: 'a1', propertyId: '1', code: 'pool', label: 'Pool' }]
       mockFindMany.mockResolvedValue(amenities)
 
@@ -820,7 +833,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('returns 400 when fields are missing', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
 
       const req = mockReq({ params: { id: '1' }, body: { code: 'pool' } })
       const res = mockRes()
@@ -834,7 +847,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('returns 409 when amenity code already exists for property', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       mockFindOne.mockResolvedValue({ id: 'a1', code: 'pool' })
 
       const req = mockReq({
@@ -852,7 +865,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('lowercases code and creates amenity', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       mockFindOne.mockResolvedValue(null)
       const created = { id: 'a1', propertyId: '1', code: 'pool', label: 'Pool' }
       mockCreate.mockResolvedValue({ data: created })
@@ -875,7 +888,7 @@ describe('@molecule/api-resource-property handlers', () => {
     })
 
     it('returns 500 on database error', async () => {
-      mockFindById.mockResolvedValue({ id: '1', deletedAt: null })
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
       mockFindOne.mockResolvedValue(null)
       mockCreate.mockRejectedValue(new Error('DB error'))
 
@@ -891,6 +904,207 @@ describe('@molecule/api-resource-property handlers', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({ errorKey: 'property.error.createAmenityFailed' }),
       )
+    })
+  })
+
+  // Regression coverage for PASS-5 AUTHCLASS-01: the six mutating handlers must
+  // fail closed on their own (no reliance on a route middleware the scaffolder
+  // strips). Anonymous callers get 401; authenticated non-owners get 403; the
+  // owner succeeds. Read routes stay public (covered by the suites above).
+  describe('access control (AUTHCLASS-01)', () => {
+    it('create rejects anonymous callers with 401', async () => {
+      const req = mockReq({ body: { name: 'Sunset', ...validAddress } })
+      const res = mockAnonRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'property.error.unauthorized' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('create stamps the property with the session userId as ownerId', async () => {
+      mockFindOne.mockResolvedValue(null)
+      mockCreate.mockResolvedValue({ data: { id: '1' } })
+
+      const req = mockReq({ body: { name: 'Sunset', ...validAddress } })
+      const res = mockRes('owner-42')
+
+      await create(req, res)
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        'properties',
+        expect.objectContaining({ ownerId: 'owner-42' }),
+      )
+      expect(res.status).toHaveBeenCalledWith(201)
+    })
+
+    it('update rejects anonymous callers with 401 before any DB read', async () => {
+      const req = mockReq({ params: { id: '1' }, body: { name: 'New' } })
+      const res = mockAnonRes()
+
+      await update(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'property.error.unauthorized' }),
+      )
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('update rejects non-owners with 403 and does not mutate', async () => {
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'someone-else' })
+
+      const req = mockReq({ params: { id: '1' }, body: { name: 'Hijacked' } })
+      const res = mockRes('user-1')
+
+      await update(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'property.error.forbidden' }),
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('update succeeds for the owner', async () => {
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
+      mockUpdateById.mockResolvedValue({ data: { id: '1', name: 'Renamed' } })
+
+      const req = mockReq({ params: { id: '1' }, body: { name: 'Renamed' } })
+      const res = mockRes('user-1')
+
+      await update(req, res)
+
+      expect(mockUpdateById).toHaveBeenCalled()
+      expect(res.json).toHaveBeenCalledWith({ id: '1', name: 'Renamed' })
+    })
+
+    it('del rejects anonymous callers with 401', async () => {
+      const req = mockReq({ params: { id: '1' } })
+      const res = mockAnonRes()
+
+      await del(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'property.error.unauthorized' }),
+      )
+      expect(mockFindById).not.toHaveBeenCalled()
+    })
+
+    it('del rejects non-owners with 403 and does not soft-delete', async () => {
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'someone-else' })
+
+      const req = mockReq({ params: { id: '1' } })
+      const res = mockRes('user-1')
+
+      await del(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'property.error.forbidden' }),
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('del succeeds for the owner', async () => {
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'user-1' })
+      mockUpdateById.mockResolvedValue({ data: { id: '1' } })
+
+      const req = mockReq({ params: { id: '1' } })
+      const res = mockRes('user-1')
+
+      await del(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(204)
+    })
+
+    it('createUnit rejects anonymous callers with 401', async () => {
+      const req = mockReq({ params: { id: '1' }, body: { name: '101' } })
+      const res = mockAnonRes()
+
+      await createUnit(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'property.error.unauthorized' }),
+      )
+      expect(mockFindById).not.toHaveBeenCalled()
+    })
+
+    it('createUnit rejects non-owners with 403', async () => {
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'someone-else' })
+
+      const req = mockReq({ params: { id: '1' }, body: { name: '101' } })
+      const res = mockRes('user-1')
+
+      await createUnit(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'property.error.forbidden' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('createPhoto rejects anonymous callers with 401', async () => {
+      const req = mockReq({ params: { id: '1' }, body: { url: 'https://example.com/a.jpg' } })
+      const res = mockAnonRes()
+
+      await createPhoto(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'property.error.unauthorized' }),
+      )
+      expect(mockFindById).not.toHaveBeenCalled()
+    })
+
+    it('createPhoto rejects non-owners with 403', async () => {
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'someone-else' })
+
+      const req = mockReq({ params: { id: '1' }, body: { url: 'https://example.com/a.jpg' } })
+      const res = mockRes('user-1')
+
+      await createPhoto(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'property.error.forbidden' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('createAmenity rejects anonymous callers with 401', async () => {
+      const req = mockReq({ params: { id: '1' }, body: { code: 'pool', label: 'Pool' } })
+      const res = mockAnonRes()
+
+      await createAmenity(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'property.error.unauthorized' }),
+      )
+      expect(mockFindById).not.toHaveBeenCalled()
+    })
+
+    it('createAmenity rejects non-owners with 403', async () => {
+      mockFindById.mockResolvedValue({ id: '1', deletedAt: null, ownerId: 'someone-else' })
+
+      const req = mockReq({ params: { id: '1' }, body: { code: 'pool', label: 'Pool' } })
+      const res = mockRes('user-1')
+
+      await createAmenity(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'property.error.forbidden' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
     })
   })
 })

@@ -2,6 +2,8 @@ import type { PropertyTranslations } from './types.js'
 
 /** Property translations for French. */
 export const fr: PropertyTranslations = {
+  'property.error.unauthorized': 'Non autorisé.',
+  'property.error.forbidden': 'You do not have access to this property',
   'property.error.nameRequired': 'Le nom de la propriété est requis',
   'property.error.invalidName': 'Le nom de la propriété est invalide',
   'property.error.addressRequired': "L'adresse, la ville et le code pays sont requis",

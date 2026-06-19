@@ -120,6 +120,8 @@ A property record (apartment building, house, hotel, etc.).
 interface Property {
   /** Unique identifier. */
   id: string
+  /** ID of the user who owns this property. Null for legacy rows created before ownership tracking. */
+  ownerId: string | null
   /** Display name. */
   name: string
   /** URL-friendly slug derived from name. */

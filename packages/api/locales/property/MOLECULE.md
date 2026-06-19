@@ -4,7 +4,7 @@ Translations for @molecule/api-resource-property in 79 languages.
 
 ## Purpose
 
-Provides translations for the `@molecule/api-property` package which has 19 translation keys.
+Provides translations for the `@molecule/api-property` package which has 21 translation keys.
 
 ## Languages
 
@@ -21,6 +21,8 @@ import type { PropertyTranslationKey, PropertyTranslations } from '@molecule/api
 
 | Key | English |
 |-----|---------|
+| `property.error.unauthorized` | Unauthorized |
+| `property.error.forbidden` | You do not have access to this property |
 | `property.error.nameRequired` | Property name is required |
 | `property.error.invalidName` | Property name is invalid |
 | `property.error.addressRequired` | Address line 1, city, and country code are required |

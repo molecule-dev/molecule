@@ -2,6 +2,8 @@ import type { PropertyTranslations } from './types.js'
 
 /** Property translations for Russian. */
 export const ru: PropertyTranslations = {
+  'property.error.unauthorized': 'Не авторизован.',
+  'property.error.forbidden': 'You do not have access to this property',
   'property.error.nameRequired': 'Название объекта обязательно',
   'property.error.invalidName': 'Название объекта недействительно',
   'property.error.addressRequired': 'Требуются адрес, город и код страны',

@@ -2,6 +2,8 @@ import type { PropertyTranslations } from './types.js'
 
 /** Property translations for Sinhala. */
 export const si: PropertyTranslations = {
+  'property.error.unauthorized': 'අනවසර.',
+  'property.error.forbidden': 'You do not have access to this property',
   'property.error.nameRequired': 'Property name is required',
   'property.error.invalidName': 'Property name is invalid',
   'property.error.addressRequired': 'Address line 1, city, and country code are required',
