@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS "usersSecrets" (
   "passwordResetToken" text,
   "passwordResetTokenAt" timestamptz,
   "pendingTwoFactorSecret" text,
-  "twoFactorSecret" text
+  "twoFactorSecret" text,
+  "lastTwoFactorTimeStep" integer
 );

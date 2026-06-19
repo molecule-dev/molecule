@@ -140,12 +140,14 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
 
         try {
           const twoFactor = await import('@molecule/api-two-factor')
-          const isValid = await twoFactor.verify({
+          const verifyResult = await twoFactor.verify({
             secret: secrets.twoFactorSecret,
             token: body.twoFactorToken,
+            // Reject a code whose time step was already consumed (replay protection).
+            afterTimeStep: secrets.lastTwoFactorTimeStep,
           })
 
-          if (!isValid) {
+          if (!verifyResult.valid) {
             analytics.track({ name: 'user.two_factor_failed', userId: user.id }).catch(() => {})
             return {
               statusCode: 403,
@@ -154,6 +156,14 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
                 errorKey: 'user.error.invalidTwoFactorToken',
               },
             }
+          }
+
+          // Persist the consumed time step so the same code cannot be replayed
+          // on another session/endpoint within its validity window.
+          if (verifyResult.timeStep !== undefined) {
+            await updateById(`${tableName}Secrets`, user.id, {
+              lastTwoFactorTimeStep: verifyResult.timeStep,
+            })
           }
         } catch (error) {
           logger.error('2FA verification failed:', error)

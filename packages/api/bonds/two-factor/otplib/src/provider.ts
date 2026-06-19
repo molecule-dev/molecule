@@ -15,6 +15,7 @@ import type {
   TwoFactorUrlParams,
   TwoFactorUrls,
   TwoFactorVerifyParams,
+  TwoFactorVerifyResult,
 } from '@molecule/api-two-factor'
 
 /**
@@ -32,9 +33,20 @@ export const provider: TwoFactorProvider = {
     return { keyUrl, QRImageUrl }
   },
 
-  async verify(params: TwoFactorVerifyParams): Promise<boolean> {
-    const { secret, token } = params
-    // Allow ±30 seconds tolerance for clock skew between server and mobile devices
-    return verifySync({ secret, token, epochTolerance: 30 }).valid
+  async verify(params: TwoFactorVerifyParams): Promise<TwoFactorVerifyResult> {
+    const { secret, token, afterTimeStep } = params
+    // Past-only tolerance `[past, future] = [30, 0]`: accept up to 30s of client
+    // clock skew in the PAST but never a future step. Per RFC 6238 this halves
+    // the acceptance window vs. a symmetric ±30s while preserving skew tolerance.
+    // `afterTimeStep` makes otplib reject any token whose time step is
+    // `<= afterTimeStep`, enforcing single-use of a code (replay protection).
+    const result = verifySync({ secret, token, epochTolerance: [30, 0], afterTimeStep })
+    if (!result.valid) {
+      return { valid: false }
+    }
+    // Surface the matched TOTP time step so the caller can persist it and reject
+    // reuse. (`verifySync` returns a TOTP|HOTP union; only the TOTP result carries
+    // `timeStep` — narrow rather than assume, since this provider is TOTP-only.)
+    return { valid: true, timeStep: 'timeStep' in result ? result.timeStep : undefined }
   },
 }

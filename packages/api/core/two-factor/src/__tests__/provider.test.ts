@@ -44,7 +44,7 @@ const urls: TwoFactorUrls = {
 const createMockProvider = (overrides: Partial<TwoFactorProvider> = {}): TwoFactorProvider => ({
   generateSecret: vi.fn().mockReturnValue('JBSWY3DPEHPK3PXP'),
   getUrls: vi.fn().mockResolvedValue(urls),
-  verify: vi.fn().mockResolvedValue(true),
+  verify: vi.fn().mockResolvedValue({ valid: true, timeStep: 57600000 }),
   ...overrides,
 })
 
@@ -155,21 +155,33 @@ describe('two-factor provider', () => {
       await expect(async () => verify(params)).rejects.toThrow(/two-factor/)
     })
 
-    it('delegates and returns true on match', async () => {
+    it('delegates and returns the result (valid + timeStep) on match', async () => {
       const provider = createMockProvider()
       setProvider(provider)
 
-      expect(await verify(params)).toBe(true)
+      expect(await verify(params)).toEqual({ valid: true, timeStep: 57600000 })
       expect(provider.verify).toHaveBeenCalledWith(params)
     })
 
-    it('returns false when provider rejects the token', async () => {
+    it('returns { valid: false } when provider rejects the token', async () => {
       const provider = createMockProvider({
-        verify: vi.fn().mockResolvedValue(false),
+        verify: vi.fn().mockResolvedValue({ valid: false }),
       })
       setProvider(provider)
 
-      expect(await verify({ secret: 's', token: '000000' })).toBe(false)
+      expect(await verify({ secret: 's', token: '000000' })).toEqual({ valid: false })
+    })
+
+    it('forwards afterTimeStep (replay protection) to the provider', async () => {
+      const provider = createMockProvider()
+      setProvider(provider)
+
+      await verify({ secret: 's', token: '123456', afterTimeStep: 57600000 })
+      expect(provider.verify).toHaveBeenCalledWith({
+        secret: 's',
+        token: '123456',
+        afterTimeStep: 57600000,
+      })
     })
 
     it('passes provider rejection through unchanged', async () => {

@@ -145,6 +145,13 @@ export const secretPropsSchema = z.object({
    * Active two-factor secret.
    */
   twoFactorSecret: z.string().optional(),
+  /**
+   * The last successfully-consumed TOTP time step (RFC 6238 time step counter).
+   * Persisted after each successful 2FA verification and passed back as
+   * `afterTimeStep` so the same (or an earlier) code is rejected within its
+   * validity window — single-use / replay protection.
+   */
+  lastTwoFactorTimeStep: z.number().int().optional(),
 })
 
 /**

@@ -15,6 +15,7 @@ import type {
   TwoFactorUrlParams,
   TwoFactorUrls,
   TwoFactorVerifyParams,
+  TwoFactorVerifyResult,
 } from './types.js'
 
 const BOND_TYPE = 'two-factor'
@@ -69,8 +70,10 @@ export const getUrls = (params: TwoFactorUrlParams): Promise<TwoFactorUrls> =>
 /**
  * Verifies a TOTP token against a secret using the bonded provider.
  *
- * @param params - The verification parameters containing the secret and token.
- * @returns `true` if the token is valid for the given secret.
+ * @param params - The verification parameters (secret, token, and optional
+ *   `afterTimeStep` for single-use replay protection).
+ * @returns A result indicating whether the token is `valid` and, on success,
+ *   the matched `timeStep` to persist for replay protection.
  */
-export const verify = (params: TwoFactorVerifyParams): Promise<boolean> =>
+export const verify = (params: TwoFactorVerifyParams): Promise<TwoFactorVerifyResult> =>
   getProvider().verify(params)

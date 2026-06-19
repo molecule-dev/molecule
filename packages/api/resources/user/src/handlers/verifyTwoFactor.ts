@@ -93,22 +93,28 @@ export const verifyTwoFactor = ({ name: _name, tableName, schema: _schema }: typ
         }
 
         // Verify the token against the pending secret.
-        const isValid = await twoFactor.verify({
+        const verifyResult = await twoFactor.verify({
           secret: secrets.pendingTwoFactorSecret,
           token,
+          // Reject a code whose time step was already consumed (replay protection).
+          afterTimeStep: secrets.lastTwoFactorTimeStep,
         })
 
-        if (!isValid) {
+        if (!verifyResult.valid) {
           return {
             statusCode: 403,
             body: { error: t('user.error.invalidToken'), errorKey: 'user.error.invalidToken' },
           }
         }
 
-        // Move pending secret to active and enable 2FA.
+        // Move pending secret to active and enable 2FA. Persist the consumed
+        // time step so the enabling code can't be replayed (single-use).
         await updateById(`${tableName}Secrets`, id, {
           twoFactorSecret: secrets.pendingTwoFactorSecret,
           pendingTwoFactorSecret: null,
+          ...(verifyResult.timeStep !== undefined
+            ? { lastTwoFactorTimeStep: verifyResult.timeStep }
+            : {}),
         })
 
         await updateById(tableName, id, {
@@ -140,22 +146,28 @@ export const verifyTwoFactor = ({ name: _name, tableName, schema: _schema }: typ
         }
 
         // Verify the token against the current secret.
-        const isValid = await twoFactor.verify({
+        const verifyResult = await twoFactor.verify({
           secret: secrets.twoFactorSecret,
           token,
+          // Reject a code whose time step was already consumed (replay protection).
+          afterTimeStep: secrets.lastTwoFactorTimeStep,
         })
 
-        if (!isValid) {
+        if (!verifyResult.valid) {
           return {
             statusCode: 403,
             body: { error: t('user.error.invalidToken'), errorKey: 'user.error.invalidToken' },
           }
         }
 
-        // Disable 2FA.
+        // Disable 2FA. Persist the consumed time step so the disabling code
+        // can't be replayed (single-use) within its validity window.
         await updateById(`${tableName}Secrets`, id, {
           twoFactorSecret: null,
           pendingTwoFactorSecret: null,
+          ...(verifyResult.timeStep !== undefined
+            ? { lastTwoFactorTimeStep: verifyResult.timeStep }
+            : {}),
         })
 
         await updateById(tableName, id, {

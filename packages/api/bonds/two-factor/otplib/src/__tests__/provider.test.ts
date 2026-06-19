@@ -81,25 +81,50 @@ describe('@molecule/api-two-factor-otplib', () => {
   })
 
   describe('verify', () => {
-    it('should return true for valid token', async () => {
-      mockVerifySync.mockReturnValue({ valid: true })
+    it('should return valid + the matched timeStep for a valid token', async () => {
+      mockVerifySync.mockReturnValue({ valid: true, timeStep: 57600000, delta: 0, epoch: 0 })
 
       const result = await provider.verify({ secret: 'JBSWY3DPEHPK3PXP', token: '123456' })
 
+      // Past-only tolerance [30, 0] halves the acceptance window (no future step);
+      // afterTimeStep is threaded through (undefined when the caller has no prior step).
       expect(mockVerifySync).toHaveBeenCalledWith({
         secret: 'JBSWY3DPEHPK3PXP',
         token: '123456',
-        epochTolerance: 30,
+        epochTolerance: [30, 0],
+        afterTimeStep: undefined,
       })
-      expect(result).toBe(true)
+      // The matched time step is surfaced so the caller can persist it for replay protection.
+      expect(result).toEqual({ valid: true, timeStep: 57600000 })
     })
 
-    it('should return false for invalid token', async () => {
+    it('should return { valid: false } for invalid token', async () => {
       mockVerifySync.mockReturnValue({ valid: false })
 
       const result = await provider.verify({ secret: 'JBSWY3DPEHPK3PXP', token: '000000' })
 
-      expect(result).toBe(false)
+      expect(result).toEqual({ valid: false })
+    })
+
+    it('REGRESSION (P2F-03): forwards afterTimeStep so an already-consumed code is rejected', async () => {
+      // otplib rejects any token whose timeStep <= afterTimeStep. The provider
+      // MUST forward the caller's last-consumed step (and use past-only tolerance)
+      // — before the fix it passed neither, so a code was replayable in-window.
+      mockVerifySync.mockReturnValue({ valid: false })
+
+      const result = await provider.verify({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        afterTimeStep: 57600000,
+      })
+
+      expect(mockVerifySync).toHaveBeenCalledWith({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        epochTolerance: [30, 0],
+        afterTimeStep: 57600000,
+      })
+      expect(result).toEqual({ valid: false })
     })
   })
 })
