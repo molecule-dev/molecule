@@ -20,7 +20,11 @@ import type * as types from '../types.js'
  */
 const extendedUpdatePropsSchema = updatePropsSchema.extend({
   oauthData: propsSchema.shape.oauthData,
-  twoFactorEnabled: propsSchema.shape.twoFactorEnabled,
+  // [M6-1] twoFactorEnabled is deliberately NOT writable here. The generic profile update is
+  // gated only by authSelf (no TOTP step-up), so allowing it would let a caller PATCH 2FA off
+  // without the current second factor — defeating verifyTwoFactor's disable step-up. ALL 2FA
+  // state transitions must go through verifyTwoFactor (enable/disable), which verifies the
+  // live TOTP token and updates the secret atomically.
 })
 
 /**
@@ -164,9 +168,8 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
         }
       }
 
-      if (req.body.twoFactorEnabled !== undefined) {
-        props.twoFactorEnabled = Boolean(req.body.twoFactorEnabled)
-      }
+      // [M6-1] twoFactorEnabled is intentionally NOT copied from the request body — see the
+      // extendedUpdatePropsSchema note above. 2FA toggles go through verifyTwoFactor only.
 
       if (req.body.oauthData !== undefined) {
         if (req.body.oauthData === null || typeof req.body.oauthData !== 'object') {

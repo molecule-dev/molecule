@@ -1574,6 +1574,22 @@ describe('update handler — avatar + bio profile fields', () => {
     )
   })
 
+  it('does NOT let twoFactorEnabled ride the generic update — 2FA step-up bypass [M6-1]', async () => {
+    const req = makeReq({
+      params: { id: 'user-1' },
+      body: { name: 'Renamed', twoFactorEnabled: false },
+    })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(200)
+    expect(mockResourceUpdate).toHaveBeenCalled()
+    // The disable of 2FA must go through verifyTwoFactor (TOTP step-up), never the generic
+    // authSelf-only update — so the persisted props must NOT carry twoFactorEnabled.
+    const passedProps = mockResourceUpdate.mock.calls[0]?.[0]?.props ?? {}
+    expect(passedProps).not.toHaveProperty('twoFactorEnabled')
+  })
+
   it('should reject an avatar larger than the cap (and not persist)', async () => {
     const req = makeReq({
       params: { id: 'user-1' },
