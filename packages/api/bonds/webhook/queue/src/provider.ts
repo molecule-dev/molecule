@@ -20,6 +20,7 @@ import type {
   WebhookRegistration,
 } from '@molecule/api-webhook'
 
+import { safeFetch } from './safe-fetch.js'
 import type { JobStatus, QueueWebhookConfig } from './types.js'
 
 /**
@@ -146,7 +147,7 @@ export function createProvider(config: QueueWebhookConfig = {}): WebhookProvider
     let success: boolean
 
     try {
-      const response = await fetch(registration.url, {
+      const response = await safeFetch(registration.url, {
         method: 'POST',
         headers,
         body,

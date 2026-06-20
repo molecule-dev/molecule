@@ -84,6 +84,47 @@ function createProvider(config?: QueueWebhookConfig): WebhookProvider
 
 **Returns:** A fully initialised `WebhookProvider` with queue-based delivery.
 
+#### `isPrivateAddress(ip)`
+
+True if `ip` (a literal IPv4/IPv6 string) is private/internal/metadata.
+
+```typescript
+function isPrivateAddress(ip: string): boolean
+```
+
+#### `isPrivateIPv4(ip)`
+
+True for an IPv4 address in any private/loopback/link-local/CGNAT/reserved range.
+
+```typescript
+function isPrivateIPv4(ip: string): boolean
+```
+
+#### `isPrivateIPv6(ip)`
+
+True for an IPv6 loopback/unspecified/unique-local/link-local (or mapped-private v4).
+
+```typescript
+function isPrivateIPv6(ip: string): boolean
+```
+
+#### `safeFetch(rawUrl, init)`
+
+SSRF-safe replacement for `fetch` when the URL is (or derives from) untrusted input.
+Only http(s) is allowed; the connection is pinned away from private/internal/metadata
+addresses (both IP-literal hosts — checked synchronously since they skip DNS — and
+hostnames — validated inside the connect lookup). Redirects are not auto-followed so
+a 3xx cannot rebind to an internal host.
+
+```typescript
+function safeFetch(rawUrl: string, init?: RequestInit): Promise<Response>
+```
+
+- `rawUrl` — The (untrusted) URL to fetch.
+- `init` — Standard fetch init.
+
+**Returns:** The fetch Response.
+
 ## Core Interface
 Implements `@molecule/api-webhook` interface.
 

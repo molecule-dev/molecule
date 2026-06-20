@@ -2,13 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { WebhookProvider } from '@molecule/api-webhook'
 
-// deliver() now SSRF-guards the URL via node:dns/promises lookup; mock it so the
-// test hosts (example.com/a.com/b.com) resolve to a public IP and the guard passes
-// (without real network). See ../ssrf.ts.
-vi.mock('node:dns/promises', () => ({
-  lookup: vi.fn(async () => [{ address: '93.184.216.34', family: 4 }]),
-}))
-
+// deliver() now SSRF-guards via safeFetch, which pins the connection inside the
+// undici connect.lookup (no separate pre-fetch DNS call). The test hosts
+// (example.com/a.com/b.com) are not IP-literals, so the sync guard passes and the
+// stubbed global fetch below intercepts before any real network/DNS. See ../safe-fetch.ts.
 import { createProvider } from '../provider.js'
 
 /* ------------------------------------------------------------------ */

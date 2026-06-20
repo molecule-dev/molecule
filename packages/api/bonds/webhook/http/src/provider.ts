@@ -19,7 +19,7 @@ import type {
   WebhookRegistration,
 } from '@molecule/api-webhook'
 
-import { assertPublicWebhookUrl } from './ssrf.js'
+import { safeFetch } from './safe-fetch.js'
 import type { HttpWebhookConfig } from './types.js'
 
 /**
@@ -97,14 +97,13 @@ export function createProvider(config: HttpWebhookConfig = {}): WebhookProvider 
     let success: boolean
 
     try {
-      // SSRF: refuse to deliver to internal/private/metadata targets (resolves DNS).
-      await assertPublicWebhookUrl(registration.url)
-      const response = await fetch(registration.url, {
+      // SSRF: safeFetch pins the connection away from private/internal/metadata
+      // addresses inside the SAME DNS resolution undici uses to connect, so there
+      // is no validate-then-fetch rebinding window.
+      const response = await safeFetch(registration.url, {
         method: 'POST',
         headers,
         body,
-        // Don't auto-follow a redirect to an internal host after the guard passed.
-        redirect: 'manual',
         signal: AbortSignal.timeout(timeout),
       })
       status = response.status

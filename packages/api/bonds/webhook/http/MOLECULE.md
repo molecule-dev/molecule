@@ -56,19 +56,6 @@ interface HttpWebhookConfig {
 
 ### Functions
 
-#### `assertPublicWebhookUrl(raw)`
-
-Validate a webhook URL is safe to call: http(s) only, and every IP the host
-resolves to is public. Throws on any violation.
-
-```typescript
-function assertPublicWebhookUrl(raw: string): Promise<URL>
-```
-
-- `raw` — The registered webhook URL.
-
-**Returns:** The parsed URL when it is safe to deliver to.
-
 #### `createProvider(config)`
 
 Creates an HTTP-backed {@link WebhookProvider}.
@@ -83,6 +70,47 @@ function createProvider(config?: HttpWebhookConfig): WebhookProvider
 - `config` — HTTP webhook provider configuration.
 
 **Returns:** A fully initialised `WebhookProvider` backed by direct HTTP delivery.
+
+#### `isPrivateAddress(ip)`
+
+True if `ip` (a literal IPv4/IPv6 string) is private/internal/metadata.
+
+```typescript
+function isPrivateAddress(ip: string): boolean
+```
+
+#### `isPrivateIPv4(ip)`
+
+True for an IPv4 address in any private/loopback/link-local/CGNAT/reserved range.
+
+```typescript
+function isPrivateIPv4(ip: string): boolean
+```
+
+#### `isPrivateIPv6(ip)`
+
+True for an IPv6 loopback/unspecified/unique-local/link-local (or mapped-private v4).
+
+```typescript
+function isPrivateIPv6(ip: string): boolean
+```
+
+#### `safeFetch(rawUrl, init)`
+
+SSRF-safe replacement for `fetch` when the URL is (or derives from) untrusted input.
+Only http(s) is allowed; the connection is pinned away from private/internal/metadata
+addresses (both IP-literal hosts — checked synchronously since they skip DNS — and
+hostnames — validated inside the connect lookup). Redirects are not auto-followed so
+a 3xx cannot rebind to an internal host.
+
+```typescript
+function safeFetch(rawUrl: string, init?: RequestInit): Promise<Response>
+```
+
+- `rawUrl` — The (untrusted) URL to fetch.
+- `init` — Standard fetch init.
+
+**Returns:** The fetch Response.
 
 ## Core Interface
 Implements `@molecule/api-webhook` interface.
