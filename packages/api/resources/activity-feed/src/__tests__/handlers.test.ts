@@ -209,6 +209,15 @@ describe('@molecule/api-resource-activity-feed handlers', () => {
   })
 
   describe('timeline', () => {
+    it('should return 401 when no session (no anonymous activity-log read) [M6-1]', async () => {
+      const req = mockReq({ params: { resourceType: 'project', resourceId: 'p1' } })
+      const res = mockRes({ locals: {} })
+
+      await timeline(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+    })
+
     it('should return 400 when params missing', async () => {
       const req = mockReq({ params: {} })
       const res = mockRes()

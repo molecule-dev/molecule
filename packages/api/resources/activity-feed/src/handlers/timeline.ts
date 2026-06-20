@@ -17,6 +17,18 @@ import { getTimeline } from '../service.js'
  * @param res - The response object.
  */
 export async function timeline(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  // [M6-1] The route declares `authenticate`, but the scaffolder strips bare middleware
+  // that isn't a handler-map key, so this handler must fail closed in-handler like its
+  // siblings — otherwise an anonymous caller can read any resource's activity log.
+  const userId = (res.locals.session as { userId?: string } | undefined)?.userId
+  if (!userId) {
+    res.status(401).json({
+      error: t('auth.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'auth.unauthorized',
+    })
+    return
+  }
+
   const { resourceType, resourceId } = req.params
   if (!resourceType || !resourceId) {
     res.status(400).json({
