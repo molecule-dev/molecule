@@ -1,86 +1,9 @@
+// @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Mock DOM environment for Node
-const createMockElement = (tagName = 'div'): Record<string, unknown> => {
-  const children: Record<string, unknown>[] = []
-  const listeners = new Map<string, Set<(...args: unknown[]) => void>>()
-  let _innerHTML = ''
-
-  return {
-    tagName: tagName.toUpperCase(),
-    nodeName: tagName.toUpperCase(),
-    id: '',
-    className: '',
-    style: {},
-    children,
-    childNodes: children,
-    parentNode: null,
-    get innerHTML() {
-      return _innerHTML
-    },
-    set innerHTML(value: string) {
-      _innerHTML = value
-      children.length = 0
-    },
-    get textContent() {
-      return _innerHTML.replace(/<[^>]*>/g, '')
-    },
-    set textContent(value: string) {
-      _innerHTML = value
-    },
-    appendChild: (child: Record<string, unknown>) => {
-      child.parentNode = this
-      children.push(child)
-      return child
-    },
-    removeChild: (child: Record<string, unknown>) => {
-      const idx = children.indexOf(child)
-      if (idx >= 0) children.splice(idx, 1)
-      return child
-    },
-    remove: () => {},
-    addEventListener: (event: string, handler: (...args: unknown[]) => void) => {
-      if (!listeners.has(event)) listeners.set(event, new Set())
-      listeners.get(event)!.add(handler)
-    },
-    removeEventListener: (event: string, handler: (...args: unknown[]) => void) => {
-      listeners.get(event)?.delete(handler)
-    },
-    dispatchEvent: (event: { type: string }) => {
-      listeners.get(event.type)?.forEach((h) => h(event))
-      return true
-    },
-    querySelector: () => null,
-    querySelectorAll: () => [],
-    getAttribute: () => null,
-    setAttribute: () => {},
-    hasAttribute: () => false,
-    removeAttribute: () => {},
-    cloneNode: () => createMockElement(tagName),
-  }
-}
-
-const mockBody = createMockElement('body')
-const mockDocument = {
-  body: mockBody,
-  createElement: vi.fn((tagName: string) => createMockElement(tagName)),
-  createTextNode: vi.fn((text: string) => ({ nodeType: 3, textContent: text })),
-  getElementById: vi.fn(() => null),
-  querySelector: vi.fn(() => null),
-  querySelectorAll: vi.fn(() => []),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  documentElement: createMockElement('html'),
-}
-
-// Set up global mocks
-vi.stubGlobal('document', mockDocument)
-vi.stubGlobal('window', {
-  document: mockDocument,
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  getComputedStyle: vi.fn(() => ({})),
-})
+// Real DOM (happy-dom, see @vitest-environment above) provides document + window so
+// DOMPurify and real HTML parsing work; only Quill itself is mocked (below). The prior
+// hand-rolled node DOM mock was removed — it couldn't back DOMPurify's HTML parsing.
 
 // Use vi.hoisted to create shared mock instances
 const { mockQuillInstance, MockQuill } = vi.hoisted(() => {
@@ -194,6 +117,16 @@ describe('Quill Rich Text Provider', () => {
       expect(value.html).toBe(html)
       expect(value.text).toBe('Hello World')
       expect(value.delta).toBeUndefined()
+    })
+
+    it('htmlToValue sanitizes stored XSS (no innerHTML execution) [P5FE-30]', () => {
+      const provider = createQuillProvider()
+      const value = provider.htmlToValue(
+        '<img src=x onerror="alert(1)"><svg onload="alert(2)"></svg><script>alert(3)</script><p>ok</p>',
+      )
+      // returns sanitized html (event handlers / scripts stripped), text preserved
+      expect(value.html).not.toMatch(/onerror|onload|<script/i)
+      expect(value.text).toContain('ok')
     })
 
     it('should convert text to value', () => {

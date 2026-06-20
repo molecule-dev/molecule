@@ -4,6 +4,7 @@
  * @module
  */
 
+import DOMPurify from 'dompurify'
 import Quill from 'quill'
 import type Delta from 'quill-delta'
 
@@ -38,12 +39,16 @@ export const createQuillProvider = (defaultOptions?: Partial<QuillOptions>): Ric
     }),
 
     htmlToValue: (html: string): RichTextValue => {
-      // Create a temporary element to extract text
+      // Sanitize BEFORE innerHTML: even on a detached element, innerHTML fires
+      // resource-load handlers (<img src=x onerror>, <svg onload>), so raw untrusted
+      // HTML here is a stored-XSS sink. Mirror the simple provider's P5FE-10 fix and
+      // return the sanitized html so downstream renders are safe too. [P5FE-30]
+      const clean = DOMPurify.sanitize(html)
       const div = document.createElement('div')
-      div.innerHTML = html
+      div.innerHTML = clean
       return {
         text: div.textContent || '',
-        html,
+        html: clean,
         delta: undefined, // Would need a Quill instance to convert
       }
     },
