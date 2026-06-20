@@ -8,7 +8,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import { addMessage, getMessages } from '../service.js'
+import { addMessage, getMessages, getThreadById } from '../service.js'
 import { createMessageSchema } from '../validation.js'
 
 /**
@@ -18,6 +18,16 @@ import { createMessageSchema } from '../validation.js'
  * @param res - The response object.
  */
 export async function listMessages(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  // [M6-1] Private thread — fail closed in-handler (route `authenticate` is scanner-stripped),
+  // else an anonymous caller reads any thread's full message history.
+  const userId = (res.locals.session as { userId?: string } | undefined)?.userId
+  if (!userId) {
+    res.status(401).json({
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'resource.error.unauthorized',
+    })
+    return
+  }
   const { threadId } = req.params
   if (!threadId) {
     res.status(400).json({
@@ -31,6 +41,14 @@ export async function listMessages(req: MoleculeRequest, res: MoleculeResponse):
   const offset = parseInt(req.query.offset as string, 10) || 0
 
   try {
+    const thread = await getThreadById(threadId)
+    if (!thread || thread.creatorId !== userId) {
+      res.status(404).json({
+        error: t('resource.error.notFound', undefined, { defaultValue: 'Not found' }),
+        errorKey: 'resource.error.notFound',
+      })
+      return
+    }
     const result = await getMessages(threadId, { limit, offset })
     res.json(result)
   } catch (error) {

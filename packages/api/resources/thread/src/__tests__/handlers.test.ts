@@ -165,8 +165,8 @@ describe('@molecule/api-resource-thread handlers', () => {
       expect(res.status).toHaveBeenCalledWith(404)
     })
 
-    it('should return thread by ID', async () => {
-      const thread = { id: 't1', title: 'Discussion' }
+    it('should return thread by ID for its owner', async () => {
+      const thread = { id: 't1', title: 'Discussion', creatorId: 'user-1' }
       mockFindById.mockResolvedValue(thread)
 
       const req = mockReq({ params: { threadId: 't1' } })
@@ -175,6 +175,27 @@ describe('@molecule/api-resource-thread handlers', () => {
       await read(req, res)
 
       expect(res.json).toHaveBeenCalledWith(thread)
+    })
+
+    it('returns 404 for a non-owner — no IDOR on private threads [M6-1]', async () => {
+      mockFindById.mockResolvedValue({ id: 't1', title: 'Discussion', creatorId: 'someone-else' })
+
+      const req = mockReq({ params: { threadId: 't1' } })
+      const res = mockRes() // session userId = 'user-1'
+
+      await read(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(404)
+    })
+
+    it('returns 401 for an anonymous reader [M6-1]', async () => {
+      mockFindById.mockResolvedValue({ id: 't1', creatorId: 'user-1' })
+      const req = mockReq({ params: { threadId: 't1' } })
+      const res = mockRes({ locals: {} })
+
+      await read(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(401)
     })
   })
 
@@ -354,7 +375,7 @@ describe('@molecule/api-resource-thread handlers', () => {
     })
 
     it('should create a message', async () => {
-      mockFindById.mockResolvedValue({ id: 't1', closed: false })
+      mockFindById.mockResolvedValue({ id: 't1', closed: false, creatorId: 'user-1' })
       const msg = { id: 'm1', threadId: 't1', userId: 'user-1', body: 'Hello' }
       mockCreate.mockResolvedValue({ data: msg })
       mockUpdateById.mockResolvedValue({ data: {} })

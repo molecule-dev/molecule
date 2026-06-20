@@ -207,7 +207,7 @@ describe('@molecule/api-resource-thread service', () => {
 
   describe('addMessage', () => {
     it('should add a message to an open thread', async () => {
-      mockFindById.mockResolvedValue({ id: 't1', closed: false })
+      mockFindById.mockResolvedValue({ id: 't1', closed: false, creatorId: 'user-1' })
       const msg = { id: 'm1', threadId: 't1', userId: 'user-1', body: 'Hello' }
       mockCreate.mockResolvedValue({ data: msg })
       mockUpdateById.mockResolvedValue({ data: {} })
@@ -237,7 +237,7 @@ describe('@molecule/api-resource-thread service', () => {
     })
 
     it('should update thread updatedAt after adding message', async () => {
-      mockFindById.mockResolvedValue({ id: 't1', closed: false })
+      mockFindById.mockResolvedValue({ id: 't1', closed: false, creatorId: 'user-1' })
       mockCreate.mockResolvedValue({ data: { id: 'm1' } })
       mockUpdateById.mockResolvedValue({ data: {} })
 

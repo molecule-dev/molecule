@@ -154,7 +154,9 @@ export async function addMessage(
   data: CreateMessageInput,
 ): Promise<ThreadMessage | null> {
   const thread = await findById<Thread>(THREADS_TABLE, threadId)
-  if (!thread || thread.closed) return null
+  // [M6-1] Only the thread owner may post — without this any authenticated user could inject
+  // messages into another tenant's thread. (404/null is surfaced as not-found by the handler.)
+  if (!thread || thread.closed || thread.creatorId !== userId) return null
 
   const result = await dbCreate<ThreadMessage>(MESSAGES_TABLE, {
     threadId,
