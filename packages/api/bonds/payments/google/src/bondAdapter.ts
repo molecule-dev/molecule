@@ -101,6 +101,28 @@ export const paymentProvider: PaymentProvider = {
         return null
       }
 
+      // [M3-1] Reject non-entitled subscription states (sibling of the Apple gate). The
+      // verify path previously gated only on product match + expiry, so a PENDING (deferred
+      // payment not yet cleared), ON_HOLD/PAUSED (payment failed/suspended), or REVOKED/EXPIRED
+      // token could still be verified into a grant — entitlement without a confirmed payment.
+      // Unlike Apple, Google's CANCELED merely turns off auto-renew and the user stays entitled
+      // until expiryTime, so deny only the never-paid / no-longer-entitled states and let the
+      // expiry check below bound CANCELED/ACTIVE.
+      const NON_ENTITLED_STATES = new Set([
+        'SUBSCRIPTION_STATE_PENDING',
+        'SUBSCRIPTION_STATE_ON_HOLD',
+        'SUBSCRIPTION_STATE_PAUSED',
+        'SUBSCRIPTION_STATE_REVOKED',
+        'SUBSCRIPTION_STATE_EXPIRED',
+      ])
+      if (NON_ENTITLED_STATES.has(subscription.subscriptionState || '')) {
+        logger.warn('Google Play: subscription not entitled (payment not confirmed) — rejecting', {
+          productId,
+          subscriptionState: subscription.subscriptionState,
+        })
+        return null
+      }
+
       // Reject expired subscriptions — prevent replay of old purchase tokens
       if (lineItem?.expiryTime) {
         const expiresMs = new Date(lineItem.expiryTime).getTime()

@@ -77,6 +77,32 @@ describe('paymentProvider', () => {
       expect(result).toBeNull()
     })
 
+    it.each([
+      'SUBSCRIPTION_STATE_PENDING',
+      'SUBSCRIPTION_STATE_ON_HOLD',
+      'SUBSCRIPTION_STATE_PAUSED',
+      'SUBSCRIPTION_STATE_REVOKED',
+      'SUBSCRIPTION_STATE_EXPIRED',
+    ])('returns null for non-entitled state %s (payment not confirmed) [M3-1]', async (state) => {
+      // future expiry + product match — only the state gate should reject these.
+      mockVerifySubscription.mockResolvedValue(makeSubscription({ subscriptionState: state }))
+
+      const result = await paymentProvider.verifyPurchase('token-abc', 'premium_monthly')
+
+      expect(result).toBeNull()
+    })
+
+    it('still grants a CANCELED subscription that is paid through its expiry (Google nuance) [M3-1]', async () => {
+      mockVerifySubscription.mockResolvedValue(
+        makeSubscription({ subscriptionState: 'SUBSCRIPTION_STATE_CANCELED' }),
+      )
+      mockAcknowledgeSubscription.mockResolvedValue(undefined)
+
+      const result = await paymentProvider.verifyPurchase('token-abc', 'premium_monthly')
+
+      expect(result).not.toBeNull()
+    })
+
     it('returns null when verifySubscription throws', async () => {
       mockVerifySubscription.mockRejectedValue(new Error('network error'))
 
