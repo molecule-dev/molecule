@@ -160,7 +160,35 @@ describe('@molecule/api-resource-share — handlers', () => {
       expect(res.status).toHaveBeenCalledWith(400)
     })
 
-    it('returns paginated list', async () => {
+    it('returns 403 when no ownership authorizer is registered (M6-2 ACL disclosure)', async () => {
+      // Default-DENY: an authenticated user must NOT be able to enumerate the
+      // full ACL (every principal id + role) of an arbitrary resource. Without a
+      // registered authorizer the listing MUST be refused, never hitting the DB.
+      const req = mockReq({ params: { resourceType: 'doc', resourceId: 'd1' } })
+      const res = mockRes()
+      await list(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(mockFindMany).not.toHaveBeenCalled()
+      expect(mockCount).not.toHaveBeenCalled()
+    })
+
+    it('returns 403 when the caller does not administer the resource (M6-2)', async () => {
+      const seen: Array<[string, string, string]> = []
+      setShareAdminAuthorizer((resourceType, resourceId, userId) => {
+        seen.push([resourceType, resourceId, userId])
+        return false
+      })
+      const req = mockReq({ params: { resourceType: 'doc', resourceId: 'd1' } })
+      const res = mockRes()
+      await list(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      // Authorized against the requested resource, with the caller id.
+      expect(seen).toEqual([['doc', 'd1', 'user-1']])
+      expect(mockFindMany).not.toHaveBeenCalled()
+    })
+
+    it('returns paginated list when the authorizer allows (manager flow)', async () => {
+      setShareAdminAuthorizer(() => true)
       mockFindMany.mockResolvedValue([{ id: 's1' }])
       mockCount.mockResolvedValue(1)
       const req = mockReq({ params: { resourceType: 'doc', resourceId: 'd1' } })
@@ -175,6 +203,7 @@ describe('@molecule/api-resource-share — handlers', () => {
     })
 
     it('honours principalType filter', async () => {
+      setShareAdminAuthorizer(() => true)
       mockFindMany.mockResolvedValue([])
       mockCount.mockResolvedValue(0)
       const req = mockReq({
@@ -190,6 +219,7 @@ describe('@molecule/api-resource-share — handlers', () => {
     })
 
     it('ignores invalid principalType filter values', async () => {
+      setShareAdminAuthorizer(() => true)
       mockFindMany.mockResolvedValue([])
       mockCount.mockResolvedValue(0)
       const req = mockReq({
@@ -402,7 +432,33 @@ describe('@molecule/api-resource-share — handlers', () => {
       expect(res.status).toHaveBeenCalledWith(400)
     })
 
-    it('returns links wrapped under data', async () => {
+    it('returns 403 when no ownership authorizer is registered (M6-2 slug disclosure)', async () => {
+      // Default-DENY: listing share-link records discloses their slugs (each a
+      // bearer credential). An authenticated user must not enumerate links on an
+      // arbitrary resource without administering it.
+      const req = mockReq({ params: { resourceType: 'doc', resourceId: 'd1' } })
+      const res = mockRes()
+      await listLinks(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(mockFindMany).not.toHaveBeenCalled()
+    })
+
+    it('returns 403 when the caller does not administer the resource (M6-2)', async () => {
+      const seen: Array<[string, string, string]> = []
+      setShareAdminAuthorizer((resourceType, resourceId, userId) => {
+        seen.push([resourceType, resourceId, userId])
+        return false
+      })
+      const req = mockReq({ params: { resourceType: 'doc', resourceId: 'd1' } })
+      const res = mockRes()
+      await listLinks(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(seen).toEqual([['doc', 'd1', 'user-1']])
+      expect(mockFindMany).not.toHaveBeenCalled()
+    })
+
+    it('returns links wrapped under data when the authorizer allows', async () => {
+      setShareAdminAuthorizer(() => true)
       mockFindMany.mockResolvedValue([{ id: 'l1' }])
       const req = mockReq({ params: { resourceType: 'doc', resourceId: 'd1' } })
       const res = mockRes()

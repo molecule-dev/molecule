@@ -8,6 +8,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { canAdministerResource } from '../authorizers/index.js'
 import { listShareLinks } from '../service.js'
 
 /**
@@ -33,6 +34,21 @@ export async function listLinks(req: MoleculeRequest, res: MoleculeResponse): Pr
         defaultValue: 'Resource type and ID are required',
       }),
       errorKey: 'share.error.missingResource',
+    })
+    return
+  }
+
+  // Listing every share link of a resource discloses its slugs (each slug is a
+  // bearer credential granting access) plus the full link graph. Like `list`,
+  // this is a manage-level operation: gate it behind the same default-DENY
+  // resource-ownership authorizer so an authenticated user can only enumerate
+  // links on resources they administer, never on an arbitrary resource id.
+  if (!(await canAdministerResource(resourceType, resourceId, userId))) {
+    res.status(403).json({
+      error: t('share.error.forbidden', undefined, {
+        defaultValue: 'You are not allowed to manage shares on this resource',
+      }),
+      errorKey: 'share.error.forbidden',
     })
     return
   }

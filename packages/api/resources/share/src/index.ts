@@ -44,8 +44,13 @@
  * Two things enforce this:
  *
  * 1. **`create`/`update`/`del` are NOT in `routes` or `requestHandlerMap`** —
- *    only the read-only `list`/`read` and the public-link routes auto-mount.
- *    Mount the mutating handlers explicitly behind your own ownership check,
+ *    only the read-only `list`/`read`/`listLinks` and the public-link routes
+ *    auto-mount. Note `list` (full ACL) and `listLinks` (share-link slugs)
+ *    disclose manage-level data, so even though they auto-mount they self-enforce
+ *    the SAME default-DENY ownership gate (`canAdministerResource`) as the
+ *    mutating handlers — only `read` (the caller's OWN effective role) is an
+ *    ungated read primitive. Mount the mutating handlers explicitly behind your
+ *    own ownership check,
  *    with the resource identity fixed by the server (never trusted from the
  *    request body):
  *

@@ -5,10 +5,23 @@
  *
  * @see https://developer.apple.com/documentation/storekit/in-app_purchase
  *
+ * @remarks
+ * **Sandbox receipts are rejected by default (fail-closed).** Accepting an Apple
+ * *sandbox* receipt grants a real entitlement, so it is a money-affecting
+ * decision. Sandbox receipts are freely obtainable by any Apple sandbox tester,
+ * so a production deploy that accepts them lets an authenticated user claim the
+ * premium plan without paying. Acceptance is therefore gated on an explicit,
+ * default-`false` flag — `APPLE_ALLOW_SANDBOX_RECEIPTS=true` (read via
+ * `@molecule/api-config`) — NOT on `NODE_ENV`. Gating on `NODE_ENV` failed open
+ * whenever a deploy forgot to set it (the scaffold ships `NODE_ENV=development`),
+ * mirroring why `PAYMENT_NOTIFICATION_REQUIRE_SECRET` defaults to secure-ON.
+ * Enable the flag only for local/CI sandbox testing.
+ *
  * @module
  */
 
 import { getLogger } from '@molecule/api-bond'
+import { get as getConfig } from '@molecule/api-config'
 import { post } from '@molecule/api-http'
 const logger = getLogger()
 import type { NormalizedSubscription } from '@molecule/api-payments'
@@ -25,8 +38,9 @@ const VERIFY_RECEIPT_URL = {
  * Verifies an App Store receipt.
  *
  * @param receiptData - Base64-encoded receipt data from the App Store client.
- * @param useSandbox - When `true`, sends directly to the sandbox endpoint. Automatically retries against sandbox if production returns status 21007.
+ * @param useSandbox - When `true`, sends directly to the sandbox endpoint. When the production endpoint returns status 21007 (a sandbox receipt), it retries against sandbox ONLY if `APPLE_ALLOW_SANDBOX_RECEIPTS=true`; otherwise the sandbox receipt is rejected (fail-closed default).
  * @returns The parsed receipt verification response from Apple.
+ * @throws {Error} When a sandbox receipt (status 21007) is presented but `APPLE_ALLOW_SANDBOX_RECEIPTS` is not explicitly enabled.
  */
 export const verifyReceipt = async (
   receiptData: string,
@@ -42,12 +56,19 @@ export const verifyReceipt = async (
     })
 
     // Status 21007 means the receipt is from the sandbox environment.
-    // In production, reject sandbox receipts to prevent fraud.
-    // Only auto-retry with sandbox in non-production environments.
+    // Accepting a sandbox receipt grants a real entitlement, so it is a
+    // money-affecting decision and is fail-closed: sandbox receipts are rejected
+    // unless an operator explicitly opts in via APPLE_ALLOW_SANDBOX_RECEIPTS=true
+    // (for local/CI testing). This is NOT gated on NODE_ENV — doing so failed
+    // open whenever a deploy forgot to set it (the scaffold ships
+    // NODE_ENV=development), letting an attacker claim premium with a free
+    // sandbox receipt. Mirrors PAYMENT_NOTIFICATION_REQUIRE_SECRET's secure-ON
+    // default.
     if (response.data.status === 21007 && !useSandbox) {
-      if (process.env.NODE_ENV === 'production') {
-        logger.warn('Rejecting sandbox receipt in production')
-        throw new Error('Sandbox receipts are not accepted in production.')
+      const allowSandbox = getConfig<string>('APPLE_ALLOW_SANDBOX_RECEIPTS', 'false') === 'true'
+      if (!allowSandbox) {
+        logger.warn('Rejecting Apple sandbox receipt (APPLE_ALLOW_SANDBOX_RECEIPTS is not enabled)')
+        throw new Error('Sandbox receipts are not accepted.')
       }
       return verifyReceipt(receiptData, true)
     }

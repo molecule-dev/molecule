@@ -39,6 +39,7 @@
     "check:feature-jsdocs": "node scripts/check-feature-jsdocs.mjs --check",
     "check:security-workflow": "node scripts/check-security-workflow.js",
     "check:i18n-parity": "node scripts/check-i18n-parity.js --check",
+    "check:ws-floor": "node scripts/check-ws-floor.mjs",
     "sync:lockfile": "node scripts/sync-lockfile.js",
     "release": "npm run build && changeset publish",
     "prepare": "husky"
@@ -67,6 +68,9 @@
     "typescript": "6.0.3",
     "typescript-eslint": "8.60.1",
     "vitest": "4.1.8"
+  },
+  "overrides": {
+    "ws": "8.21.0"
   },
   "license": "Apache-2.0"
 }

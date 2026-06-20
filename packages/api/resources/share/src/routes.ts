@@ -14,7 +14,12 @@
  * handlers explicitly behind a resource-ownership gate (and a
  * `setShareAdminAuthorizer` registration) — see the `@remarks` in `index.ts`. The
  * read-only `list`/`read`/`listLinks` routes and the public `resolveLink`
- * (slug-is-the-credential) route remain auto-mountable.
+ * (slug-is-the-credential) route remain auto-mountable. NOTE: `list` (full ACL)
+ * and `listLinks` (share-link slugs) disclose manage-level data, so although
+ * they are auto-mounted they self-enforce the SAME default-DENY ownership gate
+ * (`canAdministerResource`) as the mutating handlers: an authenticated caller
+ * can only enumerate shares/links on resources they administer. Only `read`
+ * (the caller's OWN effective role) is an ungated read primitive.
  *
  * @module
  */

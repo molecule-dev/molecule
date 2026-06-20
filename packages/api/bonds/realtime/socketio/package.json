@@ -28,7 +28,9 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "socket.io": "4.8.3"
+    "socket.io": "4.8.3",
+    "engine.io": "6.6.9",
+    "socket.io-adapter": "2.5.8"
   },
   "peerDependencies": {
     "@molecule/api-realtime": "^1.0.0"

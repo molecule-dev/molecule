@@ -13,9 +13,19 @@ vi.mock('@molecule/api-http', () => ({
   post: vi.fn(),
 }))
 
+// Mock @molecule/api-config so the sandbox-acceptance flag is controllable.
+// Default implementation returns the provided default value (fail-closed:
+// APPLE_ALLOW_SANDBOX_RECEIPTS defaults to 'false'), mirroring an env with the
+// flag unset.
+const { mockGetConfig } = vi.hoisted(() => ({ mockGetConfig: vi.fn() }))
+vi.mock('@molecule/api-config', () => ({
+  get: mockGetConfig,
+}))
+
 describe('Apple Provider', () => {
   beforeEach(() => {
     vi.stubEnv('APPLE_SHARED_SECRET', 'test_shared_secret')
+    mockGetConfig.mockImplementation((_key: string, defaultValue?: unknown) => defaultValue)
     vi.resetModules()
   })
 
@@ -67,8 +77,11 @@ describe('Apple Provider', () => {
       })
     })
 
-    it('should retry with sandbox when production returns 21007 in non-production env', async () => {
-      vi.stubEnv('NODE_ENV', 'development')
+    it('should retry with sandbox on status 21007 ONLY when APPLE_ALLOW_SANDBOX_RECEIPTS=true', async () => {
+      // Explicit opt-in flag enabled (for local/CI sandbox testing).
+      mockGetConfig.mockImplementation((key: string, defaultValue?: unknown) =>
+        key === 'APPLE_ALLOW_SANDBOX_RECEIPTS' ? 'true' : defaultValue,
+      )
       const { post } = await import('@molecule/api-http')
 
       const sandboxResponse: VerifyReceiptResponse = {
@@ -95,7 +108,32 @@ describe('Apple Provider', () => {
       )
     })
 
-    it('should reject sandbox receipt (status 21007) in production environment', async () => {
+    it('REGRESSION: rejects a sandbox receipt (status 21007) by default — independent of NODE_ENV', async () => {
+      // The fix no longer gates this money-affecting decision on NODE_ENV. Even
+      // with NODE_ENV unset/non-production (the scaffold default), a freely
+      // obtainable sandbox receipt must be rejected because
+      // APPLE_ALLOW_SANDBOX_RECEIPTS is not enabled (fail-closed default).
+      vi.stubEnv('NODE_ENV', 'development')
+      const { post } = await import('@molecule/api-http')
+
+      vi.mocked(post).mockResolvedValueOnce({ data: { status: 21007 } })
+
+      const { verifyReceipt } = await import('../provider.js')
+
+      await expect(verifyReceipt('base64_receipt_data')).rejects.toThrow(
+        'Sandbox receipts are not accepted.',
+      )
+      // No retry against the sandbox endpoint — only the production call happened.
+      expect(post).toHaveBeenCalledTimes(1)
+      expect(post).toHaveBeenCalledWith(
+        'https://buy.itunes.apple.com/verifyReceipt',
+        expect.any(Object),
+      )
+      expect(mockGetConfig).toHaveBeenCalledWith('APPLE_ALLOW_SANDBOX_RECEIPTS', 'false')
+    })
+
+    it('rejects a sandbox receipt (status 21007) in production when the flag is unset', async () => {
+      // Defense-in-depth: production deploys are likewise rejected by default.
       vi.stubEnv('NODE_ENV', 'production')
       const { post } = await import('@molecule/api-http')
 
@@ -104,7 +142,7 @@ describe('Apple Provider', () => {
       const { verifyReceipt } = await import('../provider.js')
 
       await expect(verifyReceipt('base64_receipt_data')).rejects.toThrow(
-        'Sandbox receipts are not accepted in production.',
+        'Sandbox receipts are not accepted.',
       )
       expect(post).toHaveBeenCalledTimes(1)
       expect(post).toHaveBeenCalledWith(

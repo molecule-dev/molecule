@@ -52,6 +52,72 @@ export function classifyTaggedError(error: unknown): TaggedError | null {
   return null
 }
 
+/**
+ * Terminal Express error middleware for the canonical molecule fleet server.
+ *
+ * Resolves a thrown value to exactly one of three sanitized responses and NEVER
+ * delegates to Express's built-in `finalhandler`:
+ *
+ * 1. Bare-string `Unauthorized` / `Unauthorized.` → `401` with the string body
+ *    (so authSelf-style middleware routes to 401 instead of a 500 page).
+ * 2. A deliberately-tagged molecule error ({@link classifyTaggedError}) → its real
+ *    `statusCode` + `{ error, errorKey }` JSON (expected, user-actionable config
+ *    conditions, e.g. a missing `STRIPE_SECRET_KEY` → 503 `config.notConfigured`).
+ * 3. EVERYTHING else (untagged library throws, null derefs, driver errors) → a
+ *    generic `500 { error: 'Internal Server Error' }`, logged server-side.
+ *
+ * Case 3 is the security-critical branch: it is safe-by-construction and does NOT
+ * depend on `NODE_ENV`. Calling `next(error)` here would fall through to Express's
+ * `finalhandler`, which embeds `err.stack` in the HTTP response body whenever
+ * `app.get('env') !== 'production'` (the default when `NODE_ENV` is unset or
+ * `development`), disclosing absolute server paths, module layout, dependency
+ * versions, and query/data fragments. Returning the opaque 500 unconditionally
+ * removes that leak for every flagship app regardless of how it is deployed.
+ *
+ * @param error - The thrown value caught by Express.
+ * @param _req - The request (unused).
+ * @param res - The response to write the sanitized error to.
+ * @param _next - The next function (intentionally never called for untagged errors).
+ */
+export const errorMiddleware: express.ErrorRequestHandler = (error, _req, res, _next) => {
+  // Match both the bare `Unauthorized` string and the i18n-resolved
+  // `Unauthorized.` (with trailing period from the resource locale
+  // bond) so authSelf-style middleware reliably routes to 401 instead
+  // of the default Express 500 error page.
+  if (typeof error === 'string' && /^Unauthorized\.?$/.test(error)) {
+    if (!res.headersSent) {
+      res.status(401)
+      res.send(error)
+    }
+    return
+  }
+  // Deliberately-tagged molecule errors (e.g. a provider config-missing throw:
+  // 503 + 'config.notConfigured') are expected, user-actionable conditions — not
+  // internal bugs. Surface the real status + errorKey so the app/IDE can render a
+  // clean "configure X to enable this feature" instead of an opaque 500.
+  const tagged = classifyTaggedError(error)
+  if (tagged) {
+    // 5xx here means a dependency/config isn't ready, not a server fault — warn,
+    // don't error (an error-level log would falsely read as an app defect).
+    if (tagged.statusCode >= 500) {
+      logger.warn(tagged.message, { errorKey: tagged.errorKey })
+    }
+    if (!res.headersSent) {
+      res.status(tagged.statusCode).json({ error: tagged.message, errorKey: tagged.errorKey })
+    }
+    return
+  }
+  // Untagged error: a real internal fault. Log the full detail SERVER-SIDE only,
+  // then respond with a generic 500. We deliberately do NOT call `next(error)` —
+  // that would hand control to Express's finalhandler, which leaks `err.stack`
+  // into the response body unless NODE_ENV is exactly 'production'. Safe-by-
+  // construction: no stack, no paths, no NODE_ENV dependency.
+  logger.error(error)
+  if (!res.headersSent) {
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+
 /** Options for `createServerFactory`. */
 export interface CreateServerOptions {
   /** App-specific bond wiring (resolves secrets + wires providers). */
@@ -182,33 +248,9 @@ export function createServerFactory(
       res.json({ status: 'ok', timestamp: new Date().toISOString() })
     })
 
-    app.use(((error, _req, res, next) => {
-      // Match both the bare `Unauthorized` string and the i18n-resolved
-      // `Unauthorized.` (with trailing period from the resource locale
-      // bond) so authSelf-style middleware reliably routes to 401 instead
-      // of the default Express 500 error page.
-      if (typeof error === 'string' && /^Unauthorized\.?$/.test(error)) {
-        res.status(401)
-        res.send(error)
-        return
-      }
-      // Deliberately-tagged molecule errors (e.g. a provider config-missing throw:
-      // 503 + 'config.notConfigured') are expected, user-actionable conditions — not
-      // internal bugs. Surface the real status + errorKey so the app/IDE can render a
-      // clean "configure X to enable this feature" instead of an opaque 500.
-      const tagged = classifyTaggedError(error)
-      if (tagged) {
-        // 5xx here means a dependency/config isn't ready, not a server fault — warn,
-        // don't error (an error-level log would falsely read as an app defect).
-        if (tagged.statusCode >= 500) {
-          logger.warn(tagged.message, { errorKey: tagged.errorKey })
-        }
-        res.status(tagged.statusCode).json({ error: tagged.message, errorKey: tagged.errorKey })
-        return
-      }
-      logger.error(error)
-      return next(error)
-    }) as express.ErrorRequestHandler)
+    // Terminal sanitizing error handler — safe-by-construction. Untagged errors
+    // get a generic 500 here and never reach Express's stack-leaking finalhandler.
+    app.use(errorMiddleware)
 
     let server: express.Express | https.Server = app
     if (process.env.HTTPS) {

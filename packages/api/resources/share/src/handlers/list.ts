@@ -8,6 +8,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { canAdministerResource } from '../authorizers/index.js'
 import { listShares } from '../service.js'
 import type { PrincipalType } from '../types.js'
 
@@ -39,6 +40,23 @@ export async function list(req: MoleculeRequest, res: MoleculeResponse): Promise
         defaultValue: 'Resource type and ID are required',
       }),
       errorKey: 'share.error.missingResource',
+    })
+    return
+  }
+
+  // Listing the full ACL of a resource (every principal id + role + grantedBy)
+  // is a manage-level operation: it discloses the entire sharing graph. Gate it
+  // behind the same default-DENY resource-ownership authorizer the mutating
+  // grant/update/revoke handlers use, so an authenticated user can only enumerate
+  // shares on resources they administer — never on an arbitrary resource id. The
+  // privacy-preserving primitive for non-managers remains the `read` handler,
+  // which returns only the caller's OWN effective role.
+  if (!(await canAdministerResource(resourceType, resourceId, userId))) {
+    res.status(403).json({
+      error: t('share.error.forbidden', undefined, {
+        defaultValue: 'You are not allowed to manage shares on this resource',
+      }),
+      errorKey: 'share.error.forbidden',
     })
     return
   }
