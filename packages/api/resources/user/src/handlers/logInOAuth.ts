@@ -89,7 +89,7 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         clearCookie?(name: string, options?: Record<string, unknown>): void
       }
       // The state cookie is one-time use — always clear it, match or not.
-      const clearStateCookie = () => {
+      const clearStateCookie = (): void => {
         if (typeof expressRes.clearCookie === 'function') {
           expressRes.clearCookie('oauth_state', { path: '/' })
         }

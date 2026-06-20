@@ -7,26 +7,19 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const {
-  mockGet,
-  mockRequire,
-  mockGetAnalytics,
-  mockGetLogger,
-  mockT,
-  mockResourceUpdate,
-  mockUpdateFn,
-} = vi.hoisted(() => ({
-  mockGet: vi.fn(),
-  mockRequire: vi.fn(),
-  mockGetAnalytics: vi.fn(() => ({
-    track: vi.fn(() => ({ catch: vi.fn() })),
-    identify: vi.fn(() => ({ catch: vi.fn() })),
-  })),
-  mockGetLogger: vi.fn(() => ({ error: vi.fn(), warn: vi.fn(), info: vi.fn() })),
-  mockT: vi.fn((key: string) => key),
-  mockResourceUpdate: vi.fn(),
-  mockUpdateFn: vi.fn(),
-}))
+const { mockGet, mockRequire, mockGetAnalytics, mockGetLogger, mockT, mockUpdateFn } = vi.hoisted(
+  () => ({
+    mockGet: vi.fn(),
+    mockRequire: vi.fn(),
+    mockGetAnalytics: vi.fn(() => ({
+      track: vi.fn(() => ({ catch: vi.fn() })),
+      identify: vi.fn(() => ({ catch: vi.fn() })),
+    })),
+    mockGetLogger: vi.fn(() => ({ error: vi.fn(), warn: vi.fn(), info: vi.fn() })),
+    mockT: vi.fn((key: string) => key),
+    mockUpdateFn: vi.fn(),
+  }),
+)
 
 vi.mock('@molecule/api-bond', () => ({
   get: mockGet,
