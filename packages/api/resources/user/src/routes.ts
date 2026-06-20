@@ -60,11 +60,15 @@ export const routes = [
     handler: 'updatePlan',
   },
 
-  // Payment verification — GET (redirect callbacks, e.g. Stripe Checkout)
+  // Payment verification — GET (redirect callbacks, e.g. Stripe Checkout). [M3-1]
+  // authSelf like the POST + molecule-dev's router: the plan is granted to `:id` and the
+  // handler echoes the user row, so an unauthenticated/cross-user GET must not reach it.
+  // The Stripe success_url is a top-level browser navigation carrying the session cookie,
+  // so authSelf does not break the legitimate redirect callback.
   {
     method: 'get' as const,
     path: '/users/:id/verify-payment/:provider',
-    middlewares: [],
+    middlewares: ['authSelf'],
     handler: 'verifyPayment',
     optional: 'payments',
   },
