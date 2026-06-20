@@ -88,6 +88,19 @@ export const paymentProvider: PaymentProvider = {
 
       const lineItem = subscription.lineItems?.[0]
 
+      // SECURITY [M3-1]: trust the product from the VERIFIED subscription, never the
+      // caller-supplied productId — otherwise a user buys the cheap tier and passes a
+      // premium productId to be granted premium. Mirror Apple's product-match (and the
+      // sibling notification path below, which already derives productId from lineItem).
+      const verifiedProductId = lineItem?.productId
+      if (verifiedProductId && verifiedProductId !== productId) {
+        logger.warn('Google Play: product mismatch — rejecting', {
+          expected: productId,
+          got: verifiedProductId,
+        })
+        return null
+      }
+
       // Reject expired subscriptions — prevent replay of old purchase tokens
       if (lineItem?.expiryTime) {
         const expiresMs = new Date(lineItem.expiryTime).getTime()
@@ -101,7 +114,7 @@ export const paymentProvider: PaymentProvider = {
       }
 
       const verified: VerifiedSubscription = {
-        productId,
+        productId: verifiedProductId ?? productId,
         transactionId: subscription.latestOrderId ?? undefined,
         expiresAt: lineItem?.expiryTime ?? undefined,
         autoRenews: lineItem?.autoRenewingPlan?.autoRenewEnabled ?? undefined,
