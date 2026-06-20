@@ -245,7 +245,8 @@ describe('@molecule/api-resource-property handlers', () => {
 
   describe('read', () => {
     it('returns property by id', async () => {
-      const property = { id: '1', name: 'House', deletedAt: null }
+      // status 'active' = published/public so a non-owner read returns it (P5RES-1).
+      const property = { id: '1', name: 'House', status: 'active', deletedAt: null }
       mockFindById.mockResolvedValue(property)
 
       const req = mockReq({ params: { id: '1' } })
@@ -309,8 +310,12 @@ describe('@molecule/api-resource-property handlers', () => {
 
       await list(req, res)
 
+      // Public list is scoped to published ('active') listings (P5RES-1).
       expect(mockFindMany).toHaveBeenCalledWith('properties', {
-        where: [{ field: 'deletedAt', operator: 'is_null' }],
+        where: [
+          { field: 'deletedAt', operator: 'is_null' },
+          { field: 'status', operator: '=', value: 'active' },
+        ],
         orderBy: [{ field: 'createdAt', direction: 'desc' }],
         limit: 20,
         offset: 0,
@@ -327,7 +332,10 @@ describe('@molecule/api-resource-property handlers', () => {
       await list(req, res)
 
       expect(mockFindMany).toHaveBeenCalledWith('properties', {
-        where: [{ field: 'deletedAt', operator: 'is_null' }],
+        where: [
+          { field: 'deletedAt', operator: 'is_null' },
+          { field: 'status', operator: '=', value: 'active' },
+        ],
         orderBy: [{ field: 'createdAt', direction: 'desc' }],
         limit: 10,
         offset: 20,
@@ -1106,5 +1114,63 @@ describe('@molecule/api-resource-property handlers', () => {
       )
       expect(mockCreate).not.toHaveBeenCalled()
     })
+  })
+})
+
+describe('read-path visibility (P5RES-1)', () => {
+  it('list: anonymous caller is forced to status=active (ignores ?status=draft)', async () => {
+    mockFindMany.mockResolvedValue([])
+    await list(mockReq({ query: { status: 'draft' } }), mockAnonRes())
+    const where = (
+      mockFindMany.mock.calls.at(-1)![1] as { where: Array<{ field: string; value: unknown }> }
+    ).where
+    expect(where).toContainEqual({ field: 'status', operator: '=', value: 'active' })
+    expect(where).not.toContainEqual({ field: 'status', operator: '=', value: 'draft' })
+  })
+
+  it('list: authenticated owner may filter their own drafts (scoped to ownerId)', async () => {
+    mockFindMany.mockResolvedValue([])
+    await list(mockReq({ query: { status: 'draft' } }), mockRes('owner-9'))
+    const where = (
+      mockFindMany.mock.calls.at(-1)![1] as { where: Array<{ field: string; value: unknown }> }
+    ).where
+    expect(where).toContainEqual({ field: 'status', operator: '=', value: 'draft' })
+    expect(where).toContainEqual({ field: 'ownerId', operator: '=', value: 'owner-9' })
+  })
+
+  it('read: a draft property is 404 for an anonymous / non-owner caller', async () => {
+    mockFindById.mockResolvedValue({
+      id: 'p1',
+      status: 'draft',
+      ownerId: 'owner-9',
+      deletedAt: null,
+    })
+    const res = mockAnonRes()
+    await read(mockReq({ params: { id: 'p1' } }), res)
+    expect(res.status).toHaveBeenCalledWith(404)
+  })
+
+  it('read: the owner can see their own draft property', async () => {
+    mockFindById.mockResolvedValue({
+      id: 'p1',
+      status: 'draft',
+      ownerId: 'owner-9',
+      deletedAt: null,
+    })
+    const res = mockRes('owner-9')
+    await read(mockReq({ params: { id: 'p1' } }), res)
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1', status: 'draft' }))
+  })
+
+  it('read: an active property is public (200 for anonymous)', async () => {
+    mockFindById.mockResolvedValue({
+      id: 'p2',
+      status: 'active',
+      ownerId: 'owner-9',
+      deletedAt: null,
+    })
+    const res = mockAnonRes()
+    await read(mockReq({ params: { id: 'p2' } }), res)
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ id: 'p2' }))
   })
 })

@@ -15,7 +15,14 @@ export async function read(req: MoleculeRequest, res: MoleculeResponse): Promise
 
   try {
     const property = await findById<Property>('properties', id)
-    if (!property || property.deletedAt) {
+    const userId = (res.locals.session as { userId?: string } | undefined)?.userId
+    // Visibility (P5RES-1): a non-active (draft/inactive/archived) property is visible
+    // only to its owner; 404 (not 403) for others so its existence isn't leaked.
+    if (
+      !property ||
+      property.deletedAt ||
+      (property.status !== 'active' && property.ownerId !== userId)
+    ) {
       res.status(404).json({
         error: t('property.error.notFound', undefined, { defaultValue: 'Property not found' }),
         errorKey: 'property.error.notFound',

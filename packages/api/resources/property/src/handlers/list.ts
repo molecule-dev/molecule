@@ -19,11 +19,20 @@ export async function list(req: MoleculeRequest, res: MoleculeResponse): Promise
   const status = req.query.status as string | undefined
   const type = req.query.type as string | undefined
   const city = req.query.city as string | undefined
+  const userId = (res.locals.session as { userId?: string } | undefined)?.userId
 
   const where: WhereCondition[] = [{ field: 'deletedAt', operator: 'is_null' }]
 
-  if (status) {
+  // Visibility (P5RES-1): `status` is a visibility control and properties default to
+  // 'draft'. Only 'active' (published) listings are public; a non-active status filter
+  // is honored ONLY for the authenticated owner's OWN listings, so anonymous/cross-owner
+  // callers can never enumerate another tenant's unpublished (draft/inactive/archived)
+  // properties. An attacker-supplied `?status=draft` is ignored for non-owners.
+  if (userId && status && status !== 'active') {
     where.push({ field: 'status', operator: '=', value: status })
+    where.push({ field: 'ownerId', operator: '=', value: userId })
+  } else {
+    where.push({ field: 'status', operator: '=', value: 'active' })
   }
   if (type) {
     where.push({ field: 'type', operator: '=', value: type })

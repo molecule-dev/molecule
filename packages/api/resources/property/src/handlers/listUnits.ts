@@ -15,7 +15,13 @@ export async function listUnits(req: MoleculeRequest, res: MoleculeResponse): Pr
 
   try {
     const property = await findById<Property>('properties', propertyId)
-    if (!property || property.deletedAt) {
+    const userId = (res.locals.session as { userId?: string } | undefined)?.userId
+    // Visibility (P5RES-1): sub-resources of a non-active property are owner-only.
+    if (
+      !property ||
+      property.deletedAt ||
+      (property.status !== 'active' && property.ownerId !== userId)
+    ) {
       res.status(404).json({
         error: t('property.error.notFound', undefined, { defaultValue: 'Property not found' }),
         errorKey: 'property.error.notFound',
