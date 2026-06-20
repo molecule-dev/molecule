@@ -47,5 +47,8 @@
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "dompurify": "3.2.7"
   }
 }

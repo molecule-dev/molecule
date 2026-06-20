@@ -277,6 +277,30 @@ describe('@molecule/app-rich-text', () => {
       expect(provider).toBeDefined()
     })
 
+    describe('HTML sanitization (P5FE-10 — stored XSS)', () => {
+      const XSS =
+        '<img src=x onerror="alert(1)"><svg onload="alert(2)"></svg><script>alert(3)</script><p>ok</p>'
+
+      it('htmlToValue strips event handlers / scripts', () => {
+        const v = provider.htmlToValue(XSS)
+        expect(v.html).not.toMatch(/onerror|onload|<script/i)
+        expect(v.html).toContain('ok')
+      })
+
+      it('createEditor neutralizes stored XSS in the initial value', () => {
+        const container = document.createElement('div')
+        const editor = provider.createEditor({ container, value: { text: '', html: XSS } })
+        expect(editor.getHTML()).not.toMatch(/onerror|onload|<script/i)
+      })
+
+      it('setValue neutralizes stored XSS', () => {
+        const container = document.createElement('div')
+        const editor = provider.createEditor({ container })
+        editor.setValue({ text: '', html: XSS })
+        expect(editor.getHTML()).not.toMatch(/onerror|onload|<script/i)
+      })
+    })
+
     describe('getName()', () => {
       it('should return "simple"', () => {
         expect(provider.getName()).toBe('simple')

@@ -4,6 +4,8 @@
  * @module
  */
 
+import DOMPurify from 'dompurify'
+
 import type {
   EditorEvent,
   EditorEventHandler,
@@ -15,6 +17,17 @@ import type {
   TextChangeData,
 } from './types.js'
 import { defaultToolbars } from './utilities.js'
+
+/**
+ * Sanitize untrusted HTML before assigning it to an element's `innerHTML`. This is the
+ * SILENT DEFAULT rich-text provider (auto-bonded when no provider is wired), so its
+ * content-load path must be safe-by-default — otherwise a generated forum/comments/notes
+ * app rendering another user's stored HTML would execute `<img onerror>`/`<svg onload>`
+ * payloads (stored XSS). DOMPurify strips scripts, event-handler attributes, and
+ * `javascript:`/`data:` URLs via an allowlist while preserving rich-text formatting.
+ * [P5FE-10 secure-by-default]
+ */
+const sanitizeHtml = (html: string): string => DOMPurify.sanitize(html)
 
 /**
  * Create a simple contentEditable-based rich text provider. This is a basic
@@ -34,11 +47,12 @@ export const createSimpleRichTextProvider = (): RichTextProvider => {
     }),
 
     htmlToValue: (html: string) => {
+      const clean = sanitizeHtml(html)
       const div = document.createElement('div')
-      div.innerHTML = html
+      div.innerHTML = clean
       return {
         text: div.textContent || '',
-        html,
+        html: clean,
       }
     },
 
@@ -53,7 +67,7 @@ export const createSimpleRichTextProvider = (): RichTextProvider => {
       // Create content-editable div
       const editorEl = document.createElement('div')
       editorEl.contentEditable = readOnly ? 'false' : 'true'
-      editorEl.innerHTML = value?.html || ''
+      editorEl.innerHTML = sanitizeHtml(value?.html || '')
       editorEl.setAttribute('data-placeholder', placeholder || '')
       editorEl.style.minHeight = '100px'
       editorEl.style.padding = '8px'
@@ -94,10 +108,11 @@ export const createSimpleRichTextProvider = (): RichTextProvider => {
 
         setValue: (newValue: RichTextValue) => {
           const prev = getValue()
-          editorEl.innerHTML = newValue.html
-          previousValue = newValue
+          editorEl.innerHTML = sanitizeHtml(newValue.html)
+          // Re-read from the sanitized DOM so getValue()/events round-trip clean HTML.
+          previousValue = getValue()
           emit<TextChangeData>('text-change', {
-            value: newValue,
+            value: previousValue,
             previousValue: prev,
             source: 'api',
           })
@@ -112,7 +127,7 @@ export const createSimpleRichTextProvider = (): RichTextProvider => {
         },
 
         insertHTML: (html: string) => {
-          document.execCommand('insertHTML', false, html)
+          document.execCommand('insertHTML', false, sanitizeHtml(html))
         },
 
         insertEmbed: (type: string, embedValue: unknown) => {
