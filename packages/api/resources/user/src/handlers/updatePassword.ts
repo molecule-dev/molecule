@@ -4,6 +4,7 @@ import { t } from '@molecule/api-i18n'
 import { compare, hash } from '@molecule/api-password'
 import type { MoleculeRequest } from '@molecule/api-resource'
 
+import { invalidateAllDeviceExistsCache } from '../authorization.js'
 import type * as types from '../types.js'
 
 const analytics = getAnalytics()
@@ -107,6 +108,9 @@ export const updatePassword = ({ name: _name, tableName, schema: _schema }: type
       // from persisting after a password change.
       try {
         await get<{ deleteByUserId(userId: string): Promise<void> }>('device')?.deleteByUserId(id)
+        // Evict this process's positive device-exists cache so no just-deleted
+        // device keeps authenticating for the cache TTL — immediate revocation.
+        invalidateAllDeviceExistsCache()
       } catch (error) {
         // Non-critical — password was already changed successfully
         logger.warn('Failed to invalidate sessions after password change', { error, userId: id })

@@ -253,6 +253,10 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
                 await get<{ deleteByUserId(userId: string): Promise<void> }>(
                   'device',
                 )?.deleteByUserId(existingByEmail.id)
+                // Evict this process's positive device-exists cache so any live
+                // session the squatter holds is rejected on its next request,
+                // not after the cache TTL — immediate in-process revocation.
+                authorization.invalidateAllDeviceExistsCache()
               } catch (err) {
                 logger.warn('Failed to revoke prior sessions while claiming squatted account', {
                   userId: existingByEmail.id,

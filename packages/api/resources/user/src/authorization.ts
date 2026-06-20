@@ -88,13 +88,56 @@ const readAuthCookie = (cookies: Record<string, unknown> | undefined, base: stri
  * Short-TTL positive cache for "device still exists" lookups, to bound the
  * per-request DB cost of server-side session-revocation enforcement.
  *
- * IMPORTANT: only POSITIVE results (device exists) are cached. A "device not
- * found" result is NEVER cached, so logout / remote device revocation /
- * password-reset invalidation take effect immediately for every copy of the
- * token rather than lingering for the TTL.
+ * Caching model and its honest revocation guarantee:
+ * - Only POSITIVE results (device exists) are cached; a definitive "device not
+ *   found" result is NEVER cached, and a found row drops any stale entry. So a
+ *   revoked device is rejected as soon as the cache misses or expires.
+ * - Revocations performed IN THIS PROCESS (logout, remote device removal,
+ *   password change/reset, account deletion — the user-resource handlers that
+ *   wipe device rows) are made effective IMMEDIATELY by actively evicting the
+ *   cache via {@link invalidateDeviceExistsCache} / {@link invalidateAllDeviceExistsCache}
+ *   at the revocation call site. The very next request re-checks the DB and is
+ *   rejected — there is no residual window for in-process revocation.
+ * - Revocations performed by ANOTHER process (a different API instance in a
+ *   multi-instance deployment, or a direct DB delete) cannot evict THIS
+ *   process's in-memory cache, so a token whose positive entry was warmed here
+ *   within the last `deviceExistsCacheTtlMs` may keep authenticating on THIS
+ *   instance for up to that window (≤10s) before the entry expires and the DB
+ *   is consulted again. This is the deliberate eventual-consistency tradeoff of
+ *   a per-process cache; lower the TTL or back the cache with a shared
+ *   pub/sub store to shrink it further.
  */
 const deviceExistsCacheTtlMs = 10_000
 const deviceExistsCache = new Map<string, number>()
+
+/**
+ * Evict a single device's positive entry from the device-exists cache so the
+ * next authorization check for that device re-consults the database.
+ *
+ * Call this from any in-process revocation path that deletes a specific device
+ * row (e.g. a logout handler that knows the `deviceId`) so the revocation is
+ * effective immediately on this instance rather than after the cache TTL.
+ *
+ * @param deviceId - The device id whose cached "exists" result should be dropped.
+ */
+export const invalidateDeviceExistsCache = (deviceId: string): void => {
+  deviceExistsCache.delete(deviceId)
+}
+
+/**
+ * Evict ALL positive entries from the device-exists cache.
+ *
+ * Call this from in-process bulk revocation paths that delete every device for
+ * a user (password change/reset, account deletion, OAuth account-claim) where
+ * the affected device ids are not enumerated — the cache is keyed by deviceId,
+ * not userId, so a full clear is the correct way to guarantee none of the
+ * just-deleted devices keep authenticating on this instance. The normal-path
+ * per-request DB-cost reduction is preserved: the cache simply repopulates on
+ * subsequent requests; only these rare revocation events pay a brief re-check.
+ */
+export const invalidateAllDeviceExistsCache = (): void => {
+  deviceExistsCache.clear()
+}
 
 /**
  * Determine whether a session's device is still active (i.e. has not been

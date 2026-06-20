@@ -4,6 +4,7 @@ import { t } from '@molecule/api-i18n'
 import type { PaymentRecordService } from '@molecule/api-payments'
 import type { MoleculeRequest } from '@molecule/api-resource'
 
+import { invalidateAllDeviceExistsCache } from '../authorization.js'
 import type * as types from '../types.js'
 
 const analytics = getAnalytics()
@@ -29,8 +30,11 @@ export const del = ({ name: _name, tableName, schema: _schema }: types.Resource)
         logger.warn('Failed to delete user secrets', { userId: id, error: err })
       })
 
-      // Delete devices via bond.
+      // Delete devices via bond, then evict this process's positive
+      // device-exists cache so any in-flight token for a just-deleted device is
+      // rejected on its very next request (immediate in-process revocation).
       await get<{ deleteByUserId(userId: string): Promise<void> }>('device')?.deleteByUserId(id)
+      invalidateAllDeviceExistsCache()
 
       // Delete payments via bond.
       await get<PaymentRecordService>('paymentRecords')?.deleteByUserId(id)

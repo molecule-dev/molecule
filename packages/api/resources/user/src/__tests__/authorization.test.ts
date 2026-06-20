@@ -38,7 +38,13 @@ vi.mock('uuid', () => ({
 }))
 
 // Import after mocks are set up.
-const { set, verifyMiddleware, getAuthCookieName } = await import('../authorization.js')
+const {
+  set,
+  verifyMiddleware,
+  getAuthCookieName,
+  invalidateDeviceExistsCache,
+  invalidateAllDeviceExistsCache,
+} = await import('../authorization.js')
 
 /** Helper to build a mock request. */
 function makeReq(overrides: Record<string, unknown> = {}): Record<string, unknown> {
@@ -530,6 +536,157 @@ describe('authorization', () => {
 
       expect(res.locals.session).toBe(session)
       expect(next).toHaveBeenCalled()
+    })
+
+    // ---------------------------------------------------------------
+    // C4-1: device-exists cache eviction — in-process revocation must be
+    // IMMEDIATE (no ≤10s residual window), while the per-request DB-cost
+    // reduction (positive cache) is preserved for the normal path.
+    // ---------------------------------------------------------------
+    describe('device-exists cache eviction', () => {
+      beforeEach(() => {
+        // Start each test from a clean module-level cache so warmed entries
+        // from earlier tests cannot leak in.
+        invalidateAllDeviceExistsCache()
+      })
+
+      it('serves a warmed positive entry from cache without re-querying the DB (cost reduction preserved)', async () => {
+        const session = { userId: 'u1', deviceId: 'd-cache-warm' }
+        mockVerify.mockReturnValue(session)
+        mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+        const mockExists = vi.fn().mockResolvedValue(true)
+        mockGet.mockReturnValue({ exists: mockExists })
+        const next = vi.fn()
+
+        const res1 = makeRes()
+        await middleware(
+          makeReq({ headers: { authorization: 'Bearer t' } }) as never,
+          res1 as never,
+          next,
+        )
+        expect(res1.locals.session).toBe(session)
+        expect(mockExists).toHaveBeenCalledTimes(1)
+
+        // A second request within the TTL is served from cache — no extra DB hit.
+        const res2 = makeRes()
+        await middleware(
+          makeReq({ headers: { authorization: 'Bearer t' } }) as never,
+          res2 as never,
+          next,
+        )
+        expect(res2.locals.session).toBe(session)
+        expect(mockExists).toHaveBeenCalledTimes(1)
+      })
+
+      it('without eviction a warmed entry keeps authenticating within the TTL (the external-delete window this documents)', async () => {
+        // EXTERNAL (other-process) deletes cannot evict THIS process's cache, so
+        // a positive entry warmed here keeps authenticating until the TTL. This
+        // is the honest ≤10s window; in-process paths MUST evict (next test).
+        const session = { userId: 'u1', deviceId: 'd-window' }
+        mockVerify.mockReturnValue(session)
+        mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+        const mockExists = vi.fn().mockResolvedValue(true)
+        mockGet.mockReturnValue({ exists: mockExists })
+        const next = vi.fn()
+
+        const res1 = makeRes()
+        await middleware(
+          makeReq({ headers: { authorization: 'Bearer t' } }) as never,
+          res1 as never,
+          next,
+        )
+        expect(res1.locals.session).toBe(session)
+
+        // Device deleted by another process; cache NOT evicted here.
+        mockExists.mockResolvedValue(false)
+        const res2 = makeRes()
+        await middleware(
+          makeReq({ headers: { authorization: 'Bearer t' } }) as never,
+          res2 as never,
+          next,
+        )
+        // Still served from the warm cache; DB not re-consulted within the TTL.
+        expect(res2.locals.session).toBe(session)
+        expect(mockExists).toHaveBeenCalledTimes(1)
+      })
+
+      it('invalidateDeviceExistsCache makes a single-device revocation effective on the very next request', async () => {
+        const session = { userId: 'u1', deviceId: 'd-single-rev' }
+        mockVerify.mockReturnValue(session)
+        mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+        const mockExists = vi.fn().mockResolvedValue(true)
+        mockGet.mockReturnValue({ exists: mockExists })
+        const next = vi.fn()
+
+        // Warm the positive cache (a request the legitimate user made earlier).
+        const res1 = makeRes()
+        await middleware(
+          makeReq({ headers: { authorization: 'Bearer t' } }) as never,
+          res1 as never,
+          next,
+        )
+        expect(res1.locals.session).toBe(session)
+
+        // Device row deleted (e.g. logout) AND the in-process cache evicted.
+        mockExists.mockResolvedValue(false)
+        invalidateDeviceExistsCache('d-single-rev')
+
+        // The next request re-checks the DB and is rejected immediately.
+        const res2 = makeRes()
+        await middleware(
+          makeReq({ headers: { authorization: 'Bearer t' } }) as never,
+          res2 as never,
+          next,
+        )
+        expect(mockExists).toHaveBeenLastCalledWith('d-single-rev')
+        expect(res2.locals.session).toBeUndefined()
+      })
+
+      it('invalidateAllDeviceExistsCache makes a bulk revocation (password change/reset, account delete) effective immediately', async () => {
+        const sessionA = { userId: 'u1', deviceId: 'd-bulk-a' }
+        const sessionB = { userId: 'u1', deviceId: 'd-bulk-b' }
+        mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+        const mockExists = vi.fn().mockResolvedValue(true)
+        mockGet.mockReturnValue({ exists: mockExists })
+        const next = vi.fn()
+
+        // Warm both of the user's devices.
+        mockVerify.mockReturnValue(sessionA)
+        await middleware(
+          makeReq({ headers: { authorization: 'Bearer a' } }) as never,
+          makeRes() as never,
+          next,
+        )
+        mockVerify.mockReturnValue(sessionB)
+        await middleware(
+          makeReq({ headers: { authorization: 'Bearer b' } }) as never,
+          makeRes() as never,
+          next,
+        )
+
+        // Bulk delete (deleteByUserId) wipes the rows; the handler clears the cache.
+        mockExists.mockResolvedValue(false)
+        invalidateAllDeviceExistsCache()
+
+        // Both copies of the token are now rejected on their next request.
+        mockVerify.mockReturnValue(sessionA)
+        const resA = makeRes()
+        await middleware(
+          makeReq({ headers: { authorization: 'Bearer a' } }) as never,
+          resA as never,
+          next,
+        )
+        expect(resA.locals.session).toBeUndefined()
+
+        mockVerify.mockReturnValue(sessionB)
+        const resB = makeRes()
+        await middleware(
+          makeReq({ headers: { authorization: 'Bearer b' } }) as never,
+          resB as never,
+          next,
+        )
+        expect(resB.locals.session).toBeUndefined()
+      })
     })
   })
 })
