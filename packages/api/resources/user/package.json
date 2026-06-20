@@ -37,6 +37,7 @@
     "@molecule/api-locales-user-payments": "1.0.0",
     "@molecule/api-payments": "1.0.0",
     "@molecule/api-push-notifications": "1.0.0",
+    "@molecule/api-rate-limit": "1.0.0",
     "@molecule/api-two-factor": "1.0.0",
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
@@ -53,6 +54,7 @@
     "@molecule/api-password": "^1.0.0",
     "@molecule/api-payments": "^1.0.0",
     "@molecule/api-push-notifications": "^1.0.0",
+    "@molecule/api-rate-limit": "^1.0.0",
     "@molecule/api-resource": "^1.0.0",
     "@molecule/api-resource-device": "^1.0.0",
     "@molecule/api-two-factor": "^1.0.0"

@@ -7,24 +7,29 @@
 export const routes = [
   // Auth
   { method: 'post' as const, path: '/users', middlewares: [], handler: 'create' },
-  { method: 'post' as const, path: '/users/log-in', middlewares: [], handler: 'logIn' },
+  {
+    method: 'post' as const,
+    path: '/users/log-in',
+    middlewares: ['rateLimitAuth'],
+    handler: 'logIn',
+  },
   {
     method: 'post' as const,
     path: '/users/log-in/oauth',
-    middlewares: [],
+    middlewares: ['rateLimitAuth'],
     handler: 'logInOAuth',
     optional: 'oauth',
   },
   {
     method: 'post' as const,
     path: '/users/forgot-password',
-    middlewares: [],
+    middlewares: ['rateLimitAuth'],
     handler: 'forgotPassword',
   },
   {
     method: 'post' as const,
     path: '/users/reset-password',
-    middlewares: [],
+    middlewares: ['rateLimitAuth'],
     handler: 'resetPassword',
   },
 
@@ -43,7 +48,7 @@ export const routes = [
   {
     method: 'post' as const,
     path: '/users/:id/verify-two-factor',
-    middlewares: ['authSelf'],
+    middlewares: ['authSelf', 'rateLimitTwoFactor'],
     handler: 'verifyTwoFactor',
   },
 

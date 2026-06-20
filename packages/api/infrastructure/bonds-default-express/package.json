@@ -78,6 +78,8 @@
     "@molecule/api-permissions-custom": "1.0.0",
     "@molecule/api-push-notifications": "1.0.0",
     "@molecule/api-push-notifications-web-push": "1.0.0",
+    "@molecule/api-rate-limit": "1.0.0",
+    "@molecule/api-rate-limit-memory": "1.0.0",
     "@molecule/api-realtime": "1.0.0",
     "@molecule/api-realtime-socketio": "1.0.0",
     "@molecule/api-reporting": "1.0.0",
@@ -159,6 +161,8 @@
     "@molecule/api-permissions-custom": "^1.0.0",
     "@molecule/api-push-notifications": "^1.0.0",
     "@molecule/api-push-notifications-web-push": "^1.0.0",
+    "@molecule/api-rate-limit": "^1.0.0",
+    "@molecule/api-rate-limit-memory": "^1.0.0",
     "@molecule/api-realtime": "^1.0.0",
     "@molecule/api-realtime-socketio": "^1.0.0",
     "@molecule/api-reporting": "^1.0.0",
@@ -225,6 +229,12 @@
       "optional": true
     },
     "@molecule/api-push-notifications-web-push": {
+      "optional": true
+    },
+    "@molecule/api-rate-limit": {
+      "optional": true
+    },
+    "@molecule/api-rate-limit-memory": {
       "optional": true
     },
     "@molecule/api-realtime": {

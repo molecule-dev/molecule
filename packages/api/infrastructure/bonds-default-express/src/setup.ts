@@ -377,3 +377,18 @@ export async function setupMediaStreamingHls(): Promise<void> {
   ])
   setMedia(provider)
 }
+
+/**
+ * Wires `@molecule/api-rate-limit-memory` to `@molecule/api-rate-limit`.
+ *
+ * This is the default brute-force-protection backend for `mlcl`-generated apps
+ * (single-instance). Multi-instance deployments should swap in
+ * `@molecule/api-rate-limit-redis` so the throttle is shared across replicas.
+ */
+export async function setupRateLimitMemory(): Promise<void> {
+  const [{ setProvider: setRateLimit }, { provider }] = await Promise.all([
+    import('@molecule/api-rate-limit'),
+    import('@molecule/api-rate-limit-memory'),
+  ])
+  setRateLimit(provider)
+}

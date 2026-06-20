@@ -40,23 +40,38 @@ export function mountDefaultDeviceRoutes(router: Router, device: DeviceMap): voi
  * Mounts the public auth endpoints:
  *
  * - `POST /users` (create)
- * - `POST /users/log-in` (logIn)
- * - `POST /users/forgot-password` (forgotPassword)
+ * - `POST /users/log-in` (rateLimitAuth + logIn)
+ * - `POST /users/forgot-password` (rateLimitAuth + forgotPassword)
+ *
+ * The credential-bearing routes are fronted by `user.rateLimitAuth` — the
+ * default IP+account brute-force throttle from `@molecule/api-resource-user` —
+ * so generated apps are not left with unthrottled password / TOTP-via-login
+ * guessing. The limiter degrades open (logs a warning) when no rate-limit
+ * provider is bonded, so apps that opt out still boot.
  */
 export function mountDefaultUserAuthRoutes(router: Router, user: UserMap): void {
   router.post('/users', user.create)
-  router.post('/users/log-in', user.logIn)
-  router.post('/users/forgot-password', user.forgotPassword)
+  router.post('/users/log-in', user.rateLimitAuth, user.logIn)
+  router.post('/users/forgot-password', user.rateLimitAuth, user.forgotPassword)
 }
 
 /**
- * Optional reset-password route: `POST /users/reset-password`.
- * Only mount when the app uses the pkg's resetPassword handler
+ * Optional OAuth login route: `POST /users/log-in/oauth` (rateLimitAuth +
+ * logInOAuth). Only mount when the app uses the pkg's logInOAuth handler.
+ */
+export function mountDefaultUserOAuthLoginRoute(router: Router, user: UserMap): void {
+  if (!user.logInOAuth) return
+  router.post('/users/log-in/oauth', user.rateLimitAuth, user.logInOAuth)
+}
+
+/**
+ * Optional reset-password route: `POST /users/reset-password` (rateLimitAuth +
+ * resetPassword). Only mount when the app uses the pkg's resetPassword handler
  * rather than a custom local handler.
  */
 export function mountDefaultUserResetPasswordRoute(router: Router, user: UserMap): void {
   if (!user.resetPassword) return
-  router.post('/users/reset-password', user.resetPassword)
+  router.post('/users/reset-password', user.rateLimitAuth, user.resetPassword)
 }
 
 /**
@@ -76,14 +91,22 @@ export function mountDefaultUserCrudRoutes(router: Router, user: UserMap): void 
  * Mounts password + 2FA security routes:
  *
  * - `PATCH /users/:id/password` (authSelf+updatePassword)
- * - `POST /users/:id/verify-two-factor` (authSelf+verifyTwoFactor)
+ * - `POST /users/:id/verify-two-factor` (authSelf + rateLimitTwoFactor + verifyTwoFactor)
+ *
+ * The 2FA verification route carries a stricter limiter (`user.rateLimitTwoFactor`)
+ * that temp-locks the second factor per account after consecutive misses.
  */
 export function mountDefaultUserSecurityRoutes(router: Router, user: UserMap): void {
   router.patch('/users/:id/password', user.authSelf, user.updatePassword)
   // POST alias for clients that use the auth-client `changePassword` flow,
   // which historically dispatches POST. Same handler; both verbs accepted.
   router.post('/users/:id/password', user.authSelf, user.updatePassword)
-  router.post('/users/:id/verify-two-factor', user.authSelf, user.verifyTwoFactor)
+  router.post(
+    '/users/:id/verify-two-factor',
+    user.authSelf,
+    user.rateLimitTwoFactor,
+    user.verifyTwoFactor,
+  )
 }
 
 /**

@@ -21,6 +21,8 @@ type RequestHandlerCreator = typeof CreateRequestHandler
 export interface UserRequestHandlerMap {
   auth: MoleculeRequestHandler
   authSelf: MoleculeRequestHandler
+  rateLimitAuth: MoleculeRequestHandler
+  rateLimitTwoFactor: MoleculeRequestHandler
   create: MoleculeRequestHandler
   logIn: MoleculeRequestHandler
   logInOAuth: MoleculeRequestHandler
@@ -53,6 +55,21 @@ export const createRequestHandlerMap = (
     // Authorizers
     auth: authorizers.auth(),
     authSelf: authorizers.authSelf(),
+    // Default brute-force protection for the public/credential-bearing auth
+    // endpoints (login, oauth, forgot/reset-password). Keyed by IP and by the
+    // submitted account, with a low ceiling. No-ops (logs a warning) if no
+    // rate-limit provider is bonded, so apps that opt out still boot.
+    rateLimitAuth: authorizers.rateLimit({
+      scope: 'auth',
+      accountFrom: [authorizers.loginAccountKey, authorizers.emailAccountKey],
+    }),
+    // Stricter limiter for the authSelf-gated 2FA verification route — temp-locks
+    // the second factor per account after consecutive misses.
+    rateLimitTwoFactor: authorizers.rateLimit({
+      scope: '2fa',
+      max: 5,
+      accountFrom: [authorizers.paramIdAccountKey],
+    }),
     // Authenticity guard for the public payment-notification (IAP S2S) route.
     requireWebhookAuthenticity: authorizers.requireWebhookAuthenticity(),
 
