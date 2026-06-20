@@ -220,6 +220,26 @@ type UpdateGradeInput = Partial<
 
 ### Functions
 
+#### `authenticate()`
+
+Route middleware that requires *any* authenticated session before a read route
+runs (`list`, `read`, `courseAverage`). It does NOT itself scope to a user — the
+handler performs the per-row / per-resource ownership scoping (a student sees
+only their own grades; an admin sees all). Forwards `Unauthorized` to the error
+handler when there is no session.
+
+Academic records are sensitive PII (e.g. FERPA-protected), so the read side is
+gated exactly like the write side — never left open. Exposed as a
+`requestHandlerMap` key so the injector's route scanner preserves it (a bare
+`'authenticate'` middleware string that isn't a handler-map key is silently
+dropped — the same trap that once left these routes fully unauthenticated).
+
+```typescript
+function authenticate(): MoleculeRequestHandler
+```
+
+**Returns:** An Express-compatible middleware function.
+
 #### `bucketByKey(grades, keyOf)`
 
 Aggregate grades by an arbitrary key, summing points and counting rows.
@@ -236,6 +256,12 @@ Returns the course average for a single enrollment.
 404 if the enrollment has no grades. The default 4.0 plus/minus
 scale is used unless `?scale=raw` is passed (which suppresses the
 letter).
+
+Fail-closed authorization (defense-in-depth, independent of the route
+middleware): rejects an anonymous caller (401). The enrollment's owning student
+is resolved from the aggregated grades; a non-admin caller is only served when
+that owner is themselves (`average.userId === session.userId`), otherwise 403.
+A grade admin (instructor/registrar) sees any enrollment's average.
 
 ```typescript
 function courseAverage(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
@@ -273,7 +299,7 @@ Deletes a grade by ID.
 
 Restricted to a grade-management authority (instructor/registrar/admin) and
 enforced here (not merely via route middleware): the row's `userId` is the
-*student*, never the actor permitted to delete the grade, so a non-admin caller
+student*, never the actor permitted to delete the grade, so a non-admin caller
 is rejected (401 when unauthenticated, 403 otherwise) before anything is
 deleted — defense-in-depth that does not depend on the `requireAdmin` route
 middleware being wired.
@@ -342,6 +368,11 @@ Returns a student's GPA on the default 4.0 plus/minus scale.
 
 404 if the student has no graded courses.
 
+Fail-closed authorization (defense-in-depth, independent of the route
+middleware): rejects an anonymous caller (401) and only allows the request when
+the caller is the student themselves (`req.params.userId === session.userId`)
+or a grade admin; otherwise 403. One student can never read another's GPA.
+
 ```typescript
 function gpa(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
@@ -373,6 +404,14 @@ function isGradeAdmin(res: MoleculeResponse): Promise<boolean>
 Lists grades with pagination and optional `enrollmentId`, `userId`,
 `courseId`, or `assignmentId` filters.
 
+Fail-closed authorization (defense-in-depth, independent of the route
+middleware): rejects an anonymous caller (401). A non-admin caller is force-
+scoped to their OWN grades — the `userId` filter is overridden with the
+caller's session id, so an attacker-supplied `?userId=` can never widen the
+result to another student (and the un-filtered "dump every grade" case is
+impossible for non-admins). A grade admin (instructor/registrar) may filter
+freely, including by an arbitrary `userId`.
+
 ```typescript
 function list(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
@@ -383,6 +422,13 @@ function list(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 #### `read(req, res)`
 
 Reads a single grade by ID. Returns 404 if not found.
+
+Fail-closed authorization (defense-in-depth, independent of the route
+middleware): rejects an anonymous caller (401) and, for a non-admin, only
+returns the grade when it belongs to the caller (`grade.userId === userId`);
+otherwise 403. A grade admin (instructor/registrar) sees any grade. This keeps
+one student from reading another student's grade by id even if the resource is
+wired without the `authenticate` route middleware.
 
 ```typescript
 function read(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
@@ -404,6 +450,24 @@ Exposed as a `requestHandlerMap` key so the injector's route scanner keeps it
 
 ```typescript
 function requireAdmin(): MoleculeRequestHandler
+```
+
+**Returns:** An Express-compatible middleware function.
+
+#### `requireSelfOrAdmin()`
+
+Route middleware for the per-student aggregate routes (`/users/:userId/gpa`,
+`/users/:userId/transcript`). Calls `next()` only when the caller is the
+student themselves (`session.userId === req.params.userId`) OR an authorized
+grade admin (instructor/registrar). Otherwise forwards `Unauthorized` (no
+session) or `Forbidden` (authenticated but neither owner nor admin) — so one
+student can never read another student's GPA or transcript.
+
+Exposed as a `requestHandlerMap` key so the injector's route scanner preserves
+it.
+
+```typescript
+function requireSelfOrAdmin(): MoleculeRequestHandler
 ```
 
 **Returns:** An Express-compatible middleware function.
@@ -455,6 +519,12 @@ and overall GPA.
 404 if the student has no grades. Pass `?scale=raw` to suppress
 letter / GPA computation.
 
+Fail-closed authorization (defense-in-depth, independent of the route
+middleware): rejects an anonymous caller (401) and only allows the request when
+the caller is the student themselves (`req.params.userId === session.userId`)
+or a grade admin; otherwise 403. One student can never read another's
+transcript.
+
 ```typescript
 function transcript(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
@@ -470,7 +540,7 @@ against the new (or existing) score.
 
 Restricted to a grade-management authority (instructor/registrar/admin) and
 enforced here (not merely via route middleware): the row's `userId` is the
-*student*, never the actor permitted to amend the grade, so a non-admin caller
+student*, never the actor permitted to amend the grade, so a non-admin caller
 is rejected (401 when unauthenticated, 403 otherwise) before anything is read
 or written — defense-in-depth that does not depend on the `requireAdmin` route
 middleware being wired, and that prevents a student editing their own grade.
@@ -536,13 +606,15 @@ const i18nRegistered: true
 
 Handler map keyed by route handler name.
 
-`requireAdmin` is the grade-management authorizer middleware referenced by the
-`update`/`del` routes. It must live here (as a real handler-map key) so the
-mlcl injector's route scanner preserves it — a bare middleware string that
-isn't a handler-map key is silently dropped.
+`requireAdmin` (write routes), `authenticate` (read routes: `list`/`read`/
+`courseAverage`), and `requireSelfOrAdmin` (per-student `gpa`/`transcript`) are
+the authorizer middlewares referenced by `routes.ts`. They must live here (as
+real handler-map keys) so the mlcl injector's route scanner preserves them — a
+bare middleware string that isn't a handler-map key is silently dropped, which
+is exactly what once left the entire read side unauthenticated.
 
 ```typescript
-const requestHandlerMap: { readonly courseAverage: typeof courseAverage; readonly create: typeof create; readonly del: typeof del; readonly gpa: typeof gpa; readonly list: typeof list; readonly read: typeof read; readonly transcript: typeof transcript; readonly update: typeof update; readonly requireAdmin: MoleculeRequestHandler; }
+const requestHandlerMap: { readonly courseAverage: typeof courseAverage; readonly create: typeof create; readonly del: typeof del; readonly gpa: typeof gpa; readonly list: typeof list; readonly read: typeof read; readonly transcript: typeof transcript; readonly update: typeof update; readonly authenticate: MoleculeRequestHandler; readonly requireAdmin: MoleculeRequestHandler; readonly requireSelfOrAdmin: MoleculeRequestHandler; }
 ```
 
 #### `routes`
@@ -550,7 +622,7 @@ const requestHandlerMap: { readonly courseAverage: typeof courseAverage; readonl
 Route array for grade CRUD plus aggregate endpoints (course average, GPA, transcript).
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/grades"; readonly handler: "create"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/grades"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/grades/:id"; readonly handler: "read"; }, { readonly method: "patch"; readonly path: "/grades/:id"; readonly handler: "update"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "delete"; readonly path: "/grades/:id"; readonly handler: "del"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/enrollments/:enrollmentId/grade-average"; readonly handler: "courseAverage"; }, { readonly method: "get"; readonly path: "/users/:userId/gpa"; readonly handler: "gpa"; }, { readonly method: "get"; readonly path: "/users/:userId/transcript"; readonly handler: "transcript"; }]
+const routes: readonly [{ readonly method: "post"; readonly path: "/grades"; readonly handler: "create"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/grades"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/grades/:id"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "patch"; readonly path: "/grades/:id"; readonly handler: "update"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "delete"; readonly path: "/grades/:id"; readonly handler: "del"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/enrollments/:enrollmentId/grade-average"; readonly handler: "courseAverage"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/users/:userId/gpa"; readonly handler: "gpa"; readonly middlewares: readonly ["requireSelfOrAdmin"]; }, { readonly method: "get"; readonly path: "/users/:userId/transcript"; readonly handler: "transcript"; readonly middlewares: readonly ["requireSelfOrAdmin"]; }]
 ```
 
 ## Injection Notes

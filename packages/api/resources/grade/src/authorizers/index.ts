@@ -188,3 +188,58 @@ export const requireAdmin =
       }),
     )
   }
+
+/**
+ * Route middleware that requires *any* authenticated session before a read route
+ * runs (`list`, `read`, `courseAverage`). It does NOT itself scope to a user — the
+ * handler performs the per-row / per-resource ownership scoping (a student sees
+ * only their own grades; an admin sees all). Forwards `Unauthorized` to the error
+ * handler when there is no session.
+ *
+ * Academic records are sensitive PII (e.g. FERPA-protected), so the read side is
+ * gated exactly like the write side — never left open. Exposed as a
+ * `requestHandlerMap` key so the injector's route scanner preserves it (a bare
+ * `'authenticate'` middleware string that isn't a handler-map key is silently
+ * dropped — the same trap that once left these routes fully unauthenticated).
+ *
+ * @returns An Express-compatible middleware function.
+ */
+export const authenticate =
+  (): MoleculeRequestHandler =>
+  async (_req, res, next): Promise<void> => {
+    const session = res.locals.session as GradeSession | undefined
+    if (!session?.userId) {
+      return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }))
+    }
+    return next()
+  }
+
+/**
+ * Route middleware for the per-student aggregate routes (`/users/:userId/gpa`,
+ * `/users/:userId/transcript`). Calls `next()` only when the caller is the
+ * student themselves (`session.userId === req.params.userId`) OR an authorized
+ * grade admin (instructor/registrar). Otherwise forwards `Unauthorized` (no
+ * session) or `Forbidden` (authenticated but neither owner nor admin) — so one
+ * student can never read another student's GPA or transcript.
+ *
+ * Exposed as a `requestHandlerMap` key so the injector's route scanner preserves
+ * it.
+ *
+ * @returns An Express-compatible middleware function.
+ */
+export const requireSelfOrAdmin =
+  (): MoleculeRequestHandler =>
+  async (req, res, next): Promise<void> => {
+    const session = res.locals.session as GradeSession | undefined
+    if (!session?.userId) {
+      return next(t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }))
+    }
+    if (session.userId === req.params.userId || (await isGradeAdmin(res))) {
+      return next()
+    }
+    return next(
+      t('grade.error.forbidden', undefined, {
+        defaultValue: 'You do not have access to these grades',
+      }),
+    )
+  }

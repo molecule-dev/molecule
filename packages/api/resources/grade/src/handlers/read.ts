@@ -3,14 +3,32 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { isGradeAdmin } from '../authorizers/index.js'
 import type { Grade } from '../types.js'
 
 /**
  * Reads a single grade by ID. Returns 404 if not found.
+ *
+ * Fail-closed authorization (defense-in-depth, independent of the route
+ * middleware): rejects an anonymous caller (401) and, for a non-admin, only
+ * returns the grade when it belongs to the caller (`grade.userId === userId`);
+ * otherwise 403. A grade admin (instructor/registrar) sees any grade. This keeps
+ * one student from reading another student's grade by id even if the resource is
+ * wired without the `authenticate` route middleware.
+ *
  * @param req - The request object with `id` param.
  * @param res - The response object.
  */
 export async function read(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  const userId = (res.locals.session as { userId?: string } | undefined)?.userId
+  if (!userId) {
+    res.status(401).json({
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'resource.error.unauthorized',
+    })
+    return
+  }
+
   const id = req.params.id as string
 
   try {
@@ -19,6 +37,16 @@ export async function read(req: MoleculeRequest, res: MoleculeResponse): Promise
       res.status(404).json({
         error: t('grade.error.notFound', undefined, { defaultValue: 'Grade not found' }),
         errorKey: 'grade.error.notFound',
+      })
+      return
+    }
+
+    if (grade.userId !== userId && !(await isGradeAdmin(res))) {
+      res.status(403).json({
+        error: t('grade.error.forbidden', undefined, {
+          defaultValue: 'You do not have access to this grade',
+        }),
+        errorKey: 'grade.error.forbidden',
       })
       return
     }

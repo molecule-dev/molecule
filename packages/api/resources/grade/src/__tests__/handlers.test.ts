@@ -48,6 +48,7 @@ vi.mock('@molecule/api-locales-resource-grade', () => ({}))
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { authenticate, requireSelfOrAdmin } from '../authorizers/index.js'
 import { courseAverage } from '../handlers/courseAverage.js'
 import { create } from '../handlers/create.js'
 import { del } from '../handlers/del.js'
@@ -827,4 +828,326 @@ describe('@molecule/api-resource-grade handlers', () => {
       )
     })
   })
+
+  // ---------------------------------------------------------------------------
+  // Read-side authorization (M6-1): the read endpoints were fully unauthenticated,
+  // allowing anonymous IDOR exfiltration of any student's grades/GPA/transcript.
+  // Each read handler must now reject anonymous callers (401) and scope non-admins
+  // to their own records (403/own-only), while admins retain full visibility.
+  // ---------------------------------------------------------------------------
+  describe('read authorization (IDOR)', () => {
+    /** A plain student session — no admin claim, no permissions grant. */
+    const studentRes = (userId: string): ReturnType<typeof mockRes> =>
+      mockRes({ locals: { session: { userId } } })
+
+    describe('read', () => {
+      it('returns 401 for an anonymous caller and never touches the DB', async () => {
+        const req = mockReq({ params: { id: 'g1' } })
+        const res = mockRes({ locals: {} })
+
+        await read(req, res)
+
+        expect(res.status).toHaveBeenCalledWith(401)
+        expect(res.json).toHaveBeenCalledWith(
+          expect.objectContaining({ errorKey: 'resource.error.unauthorized' }),
+        )
+        expect(mockFindById).not.toHaveBeenCalled()
+      })
+
+      it('returns 403 when a student reads another student grade (cross-user IDOR)', async () => {
+        mockFindById.mockResolvedValue({
+          id: 'g1',
+          userId: 'victim',
+          scorePoints: 90,
+          maxPoints: 100,
+        })
+
+        const req = mockReq({ params: { id: 'g1' } })
+        const res = studentRes('attacker')
+
+        await read(req, res)
+
+        expect(res.status).toHaveBeenCalledWith(403)
+        expect(res.json).toHaveBeenCalledWith(
+          expect.objectContaining({ errorKey: 'grade.error.forbidden' }),
+        )
+      })
+
+      it('returns a student own grade (legitimate self-read)', async () => {
+        const grade = { id: 'g1', userId: 'student-1', scorePoints: 90, maxPoints: 100 }
+        mockFindById.mockResolvedValue(grade)
+
+        const req = mockReq({ params: { id: 'g1' } })
+        const res = studentRes('student-1')
+
+        await read(req, res)
+
+        expect(res.json).toHaveBeenCalledWith(grade)
+      })
+
+      it('lets a grade admin read any student grade', async () => {
+        const grade = { id: 'g1', userId: 'someone-else', scorePoints: 90, maxPoints: 100 }
+        mockFindById.mockResolvedValue(grade)
+
+        const req = mockReq({ params: { id: 'g1' } })
+        const res = mockRes() // default ADMIN_SESSION
+
+        await read(req, res)
+
+        expect(res.json).toHaveBeenCalledWith(grade)
+      })
+    })
+
+    describe('list', () => {
+      it('returns 401 for an anonymous caller and never touches the DB', async () => {
+        const req = mockReq()
+        const res = mockRes({ locals: {} })
+
+        await list(req, res)
+
+        expect(res.status).toHaveBeenCalledWith(401)
+        expect(mockFindMany).not.toHaveBeenCalled()
+      })
+
+      it('force-scopes a non-admin to their own grades, overriding an attacker userId filter', async () => {
+        mockFindMany.mockResolvedValue([])
+
+        // Attacker (student "attacker") tries to dump victim's grades.
+        const req = mockReq({ query: { userId: 'victim' } })
+        const res = studentRes('attacker')
+
+        await list(req, res)
+
+        const passedWhere = mockFindMany.mock.calls[0][1].where as Array<{
+          field: string
+          value: string
+        }>
+        const userIdConds = passedWhere.filter((c) => c.field === 'userId')
+        // Exactly one userId condition, pinned to the caller — never the victim.
+        expect(userIdConds).toEqual([{ field: 'userId', operator: '=', value: 'attacker' }])
+        expect(userIdConds.some((c) => c.value === 'victim')).toBe(false)
+      })
+
+      it('lets a grade admin filter by an arbitrary userId (full visibility)', async () => {
+        mockFindMany.mockResolvedValue([])
+
+        const req = mockReq({ query: { userId: 'any-student' } })
+        const res = mockRes() // default ADMIN_SESSION
+
+        await list(req, res)
+
+        const passedWhere = mockFindMany.mock.calls[0][1].where as Array<{
+          field: string
+          value: string
+        }>
+        expect(passedWhere).toContainEqual({ field: 'userId', operator: '=', value: 'any-student' })
+      })
+    })
+
+    describe('gpa', () => {
+      it('returns 401 for an anonymous caller and never touches the DB', async () => {
+        const req = mockReq({ params: { userId: 'victim' } })
+        const res = mockRes({ locals: {} })
+
+        await gpa(req, res)
+
+        expect(res.status).toHaveBeenCalledWith(401)
+        expect(mockFindMany).not.toHaveBeenCalled()
+      })
+
+      it('returns 403 when a student requests another student GPA (cross-user IDOR)', async () => {
+        const req = mockReq({ params: { userId: 'victim' } })
+        const res = studentRes('attacker')
+
+        await gpa(req, res)
+
+        expect(res.status).toHaveBeenCalledWith(403)
+        expect(res.json).toHaveBeenCalledWith(
+          expect.objectContaining({ errorKey: 'grade.error.forbidden' }),
+        )
+        expect(mockFindMany).not.toHaveBeenCalled()
+      })
+
+      it('lets a student fetch their own GPA (legitimate self-read)', async () => {
+        mockFindMany.mockResolvedValue([
+          {
+            id: 'g1',
+            enrollmentId: 'e1',
+            userId: 'me',
+            courseId: 'c1',
+            scorePoints: 95,
+            maxPoints: 100,
+          },
+        ])
+
+        const req = mockReq({ params: { userId: 'me' } })
+        const res = studentRes('me')
+
+        await gpa(req, res)
+
+        const payload = res.json.mock.calls[0][0] as Record<string, unknown>
+        expect(payload.userId).toBe('me')
+        expect(payload.gpa).toBeCloseTo(4.0, 5)
+      })
+    })
+
+    describe('transcript', () => {
+      it('returns 401 for an anonymous caller and never touches the DB', async () => {
+        const req = mockReq({ params: { userId: 'victim' } })
+        const res = mockRes({ locals: {} })
+
+        await transcript(req, res)
+
+        expect(res.status).toHaveBeenCalledWith(401)
+        expect(mockFindMany).not.toHaveBeenCalled()
+      })
+
+      it('returns 403 when a student requests another student transcript (cross-user IDOR)', async () => {
+        const req = mockReq({ params: { userId: 'victim' } })
+        const res = studentRes('attacker')
+
+        await transcript(req, res)
+
+        expect(res.status).toHaveBeenCalledWith(403)
+        expect(res.json).toHaveBeenCalledWith(
+          expect.objectContaining({ errorKey: 'grade.error.forbidden' }),
+        )
+        expect(mockFindMany).not.toHaveBeenCalled()
+      })
+
+      it('lets a student fetch their own transcript, and an admin fetch anyone', async () => {
+        mockFindMany.mockResolvedValue([
+          {
+            id: 'g1',
+            enrollmentId: 'e1',
+            userId: 'me',
+            courseId: 'c1',
+            scorePoints: 95,
+            maxPoints: 100,
+            postedAt: '2026-01-01T00:00:00Z',
+          },
+        ])
+
+        const selfReq = mockReq({ params: { userId: 'me' } })
+        const selfRes = studentRes('me')
+        await transcript(selfReq, selfRes)
+        expect((selfRes.json.mock.calls[0][0] as { userId: string }).userId).toBe('me')
+
+        const adminReq = mockReq({ params: { userId: 'me' } })
+        const adminRes = mockRes() // default ADMIN_SESSION
+        await transcript(adminReq, adminRes)
+        expect((adminRes.json.mock.calls[0][0] as { userId: string }).userId).toBe('me')
+      })
+    })
+
+    describe('courseAverage', () => {
+      it('returns 401 for an anonymous caller and never touches the DB', async () => {
+        const req = mockReq({ params: { enrollmentId: 'enr-1' } })
+        const res = mockRes({ locals: {} })
+
+        await courseAverage(req, res)
+
+        expect(res.status).toHaveBeenCalledWith(401)
+        expect(mockFindMany).not.toHaveBeenCalled()
+      })
+
+      it('returns 403 when a student requests an enrollment owned by another student', async () => {
+        mockFindMany.mockResolvedValue([
+          {
+            id: 'g1',
+            enrollmentId: 'enr-1',
+            userId: 'victim',
+            courseId: 'c',
+            scorePoints: 90,
+            maxPoints: 100,
+          },
+        ])
+
+        const req = mockReq({ params: { enrollmentId: 'enr-1' } })
+        const res = studentRes('attacker')
+
+        await courseAverage(req, res)
+
+        expect(res.status).toHaveBeenCalledWith(403)
+        expect(res.json).toHaveBeenCalledWith(
+          expect.objectContaining({ errorKey: 'grade.error.forbidden' }),
+        )
+      })
+
+      it('returns the average for the enrollment owner (legitimate self-read)', async () => {
+        mockFindMany.mockResolvedValue([
+          {
+            id: 'g1',
+            enrollmentId: 'enr-1',
+            userId: 'me',
+            courseId: 'c',
+            scorePoints: 90,
+            maxPoints: 100,
+          },
+        ])
+
+        const req = mockReq({ params: { enrollmentId: 'enr-1' } })
+        const res = studentRes('me')
+
+        await courseAverage(req, res)
+
+        const payload = res.json.mock.calls[0][0] as Record<string, unknown>
+        expect(payload.averagePercent).toBe(90)
+        expect(payload.userId).toBe('me')
+      })
+    })
+  })
+
+  // ---------------------------------------------------------------------------
+  // Route-middleware gates (preserved as requestHandlerMap keys so the injector's
+  // route scanner keeps them — a bare middleware string would be silently dropped).
+  // ---------------------------------------------------------------------------
+  describe('read route middlewares', () => {
+    it('authenticate() forwards Unauthorized for an anonymous caller and calls next() for a session', async () => {
+      const mw = authenticate()
+
+      const next1 = vi.fn()
+      await mw(mockReq(), mockRes({ locals: {} }), next1)
+      expect(next1).toHaveBeenCalledWith(expect.anything())
+
+      const next2 = vi.fn()
+      await mw(mockReq(), studentResLike('u'), next2)
+      expect(next2).toHaveBeenCalledWith()
+    })
+
+    it('requireSelfOrAdmin() allows the owner, allows an admin, and rejects a cross-user caller', async () => {
+      const mw = requireSelfOrAdmin()
+
+      // Owner.
+      const ownerNext = vi.fn()
+      await mw(mockReq({ params: { userId: 'u' } }), studentResLike('u'), ownerNext)
+      expect(ownerNext).toHaveBeenCalledWith()
+
+      // Admin reading someone else.
+      const adminNext = vi.fn()
+      await mw(mockReq({ params: { userId: 'someone' } }), mockRes(), adminNext)
+      expect(adminNext).toHaveBeenCalledWith()
+
+      // Cross-user student -> Forbidden (error forwarded).
+      const crossNext = vi.fn()
+      await mw(mockReq({ params: { userId: 'victim' } }), studentResLike('attacker'), crossNext)
+      expect(crossNext).toHaveBeenCalledWith(expect.anything())
+
+      // Anonymous -> Unauthorized (error forwarded).
+      const anonNext = vi.fn()
+      await mw(mockReq({ params: { userId: 'victim' } }), mockRes({ locals: {} }), anonNext)
+      expect(anonNext).toHaveBeenCalledWith(expect.anything())
+    })
+  })
 })
+
+/** A student (non-admin) response whose session carries only a userId. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function studentResLike(userId: string): any {
+  return {
+    status: vi.fn().mockReturnThis(),
+    json: vi.fn().mockReturnThis(),
+    end: vi.fn(),
+    locals: { session: { userId } },
+  }
+}
