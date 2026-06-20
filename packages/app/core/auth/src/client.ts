@@ -152,6 +152,10 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
 
     getAccessToken: () => tokenStorage.getAccessToken(),
 
+    setAccessToken: (token: string | null) => {
+      tokenStorage.setAccessToken(token)
+    },
+
     getRefreshToken: () => tokenStorage.getRefreshToken(),
 
     async login(credentials: LoginCredentials): Promise<AuthResult<T>> {

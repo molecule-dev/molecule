@@ -39,6 +39,7 @@ function createMockAuthClient(): AuthClient<{ id: string; email: string }> {
     isAuthenticated: () => authenticated,
     getUser: () => currentUser,
     getAccessToken: () => (authenticated ? 'mock-access-token' : null),
+    setAccessToken: vi.fn(),
     getRefreshToken: () => (authenticated ? 'mock-refresh-token' : null),
     login: vi.fn().mockImplementation(async () => {
       currentUser = { id: '1', email: 'test@example.com' }
@@ -518,6 +519,30 @@ describe('useOAuth callback detection', () => {
         body: expect.stringContaining('"code":"abc123"'),
       }),
     )
+  })
+
+  it('routes the OAuth token through setAccessToken, NOT localStorage [P5FE-31]', async () => {
+    setLocationWithSearch('?code=abc123&state=xyz789')
+    sessionStorage.setItem('oauth_provider', 'github')
+    fetchSpy.mockResolvedValueOnce(
+      new Response(JSON.stringify({ user: { id: '1' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', authorization: 'Bearer the-token-123' },
+      }),
+    )
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem')
+
+    renderHook(() => useOAuth({ baseURL: 'https://api.example.com', oauthProviders: ['github'] }), {
+      wrapper: createWrapper(client),
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+    })
+
+    // Token goes to the in-memory adapter via the client, never to localStorage.
+    expect(client.setAccessToken).toHaveBeenCalledWith('the-token-123')
+    expect(setItemSpy).not.toHaveBeenCalledWith('molecule:auth:accessToken', expect.anything())
+    setItemSpy.mockRestore()
   })
 
   it('should clean URL after processing callback', async () => {

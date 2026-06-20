@@ -57,7 +57,7 @@ export function useOAuth(config?: {
   onSuccess?: () => void
   onError?: (error: string) => void
 }): UseOAuthReturn {
-  useAuthClient()
+  const authClient = useAuthClient()
 
   const providers = useMemo(() => config?.oauthProviders ?? [], [config?.oauthProviders])
   const baseURL = config?.baseURL ?? ''
@@ -139,11 +139,11 @@ export function useOAuth(config?: {
           response.headers.get('authorization') || response.headers.get('set-authorization')
         if (authHeader) {
           const token = authHeader.replace('Bearer ', '')
-          try {
-            localStorage.setItem('molecule:auth:accessToken', token)
-          } catch (_error) {
-            /* SSR-safe — localStorage is unavailable in SSR/sandboxed environments */
-          }
+          // Seed the token via the auth client's configured token storage adapter
+          // (in-memory by default) — NOT localStorage directly. Writing the bearer
+          // token to localStorage violates the in-memory-default storage contract and
+          // makes it JS-readable (XSS-exfiltratable). [P5FE-31 secure-by-default]
+          authClient.setAccessToken(token)
         }
 
         config?.onSuccess?.()
