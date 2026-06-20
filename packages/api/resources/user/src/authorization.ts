@@ -64,17 +64,25 @@ export const getAuthCookieName = (base: string): string =>
   isProduction() ? `__Host-${base}` : base
 
 /**
- * Read an auth cookie by its base name, accepting BOTH the `__Host-`-prefixed
- * production name and the plain name. Reading both keeps existing sessions
- * working across a deploy that flips the prefix on, and keeps the dev/prod
- * read paths identical.
+ * Read an auth cookie by its base name. In production the cookie is `__Host-`-
+ * prefixed (untossable: browsers reject `__Host-` cookies carrying a Domain), so
+ * we read ONLY that name and do NOT fall back to the plain name. [C4-1] Accepting
+ * the plain name in production re-opens cookie-tossing session fixation: a tenant
+ * on a sibling `*.molecule.dev` preview can write a `.molecule.dev`-scoped plain
+ * cookie that a plain-name fallback would honor. The `__Host-`-prefixed name is the
+ * only legitimate production cookie; sessions still carrying a plain cookie simply
+ * re-authenticate on the deploy that flips the prefix on. In dev there is no prefix,
+ * so the (plain) name returned by getAuthCookieName is the real cookie.
  *
  * @param cookies - The request cookies map.
  * @param base - The base cookie name.
- * @returns The cookie value, or `undefined` if neither name is present.
+ * @returns The cookie value, or `undefined` if absent.
  */
-const readAuthCookie = (cookies: Record<string, unknown> | undefined, base: string): unknown =>
-  cookies?.[getAuthCookieName(base)] ?? cookies?.[base]
+const readAuthCookie = (cookies: Record<string, unknown> | undefined, base: string): unknown => {
+  const primary = cookies?.[getAuthCookieName(base)]
+  if (isProduction()) return primary
+  return primary ?? cookies?.[base]
+}
 
 /**
  * Short-TTL positive cache for "device still exists" lookups, to bound the
