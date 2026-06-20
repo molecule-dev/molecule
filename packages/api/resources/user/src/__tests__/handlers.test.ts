@@ -967,6 +967,126 @@ describe('logInOAuth handler — email verification + verified-trust linking', (
   })
 })
 
+// ===== 5d. Pre-account-hijacking defense on verified-OAuth claim (M1-1) =====
+
+describe('logInOAuth handler — pre-account-hijacking defense (M1-1)', () => {
+  const oauthHandler = logInOAuth(testResource)
+  const loginHandler = logIn(testResource)
+
+  // Generic in-memory row matcher for findOne's condition array.
+  const matches = (
+    row: Record<string, unknown> | undefined,
+    conditions: Array<{ field: string; value: unknown }>,
+  ) => conditions.every((c) => row?.[c.field] === c.value)
+
+  beforeEach(() => {
+    vi.spyOn(authorization, 'set').mockImplementation(() => 'mock-jwt-token')
+    // Exercise the post-auth claim logic, not CSRF — opt out of the state gate.
+    mockGetConfig.mockImplementation((key: string) =>
+      key === 'OAUTH_REQUIRE_STATE' ? 'false' : key === 'NODE_ENV' ? 'production' : undefined,
+    )
+  })
+
+  it('wipes the squatter password + revokes sessions so the old password is rejected after a verified OAuth claim, while OAuth login succeeds', async () => {
+    // The attacker pre-registered the victim's email with a password THEY control,
+    // creating an unverified local account (emailVerified defaults to false).
+    const usersTable = new Map<string, Record<string, unknown>>([
+      [
+        'squatter-id',
+        {
+          id: 'squatter-id',
+          username: 'victim',
+          email: 'victim@example.com',
+          emailVerified: false,
+          twoFactorEnabled: true,
+        },
+      ],
+    ])
+    const secretsTable = new Map<string, Record<string, unknown>>([
+      [
+        'squatter-id',
+        {
+          id: 'squatter-id',
+          passwordHash: 'attacker-known-hash',
+          twoFactorSecret: 'attacker-2fa-secret',
+        },
+      ],
+    ])
+    const tableFor = (table: string) => (table === 'users' ? usersTable : secretsTable)
+
+    mockFindOne.mockImplementation(
+      async (table: string, conditions: Array<{ field: string; value: unknown }>) => {
+        for (const row of tableFor(table).values()) {
+          if (matches(row, conditions)) return row
+        }
+        return null
+      },
+    )
+    mockFindById.mockImplementation(
+      async (table: string, id: string) => tableFor(table).get(id) ?? null,
+    )
+    mockUpdateById.mockImplementation(
+      async (table: string, id: string, patch: Record<string, unknown>) => {
+        const row = tableFor(table).get(id)
+        if (row) Object.assign(row, patch)
+        return { affected: 1 }
+      },
+    )
+
+    const deleteByUserId = vi.fn().mockResolvedValue(undefined)
+    mockGet.mockImplementation((category: string) => {
+      if (category === 'oauth') {
+        return {
+          verify: vi.fn().mockResolvedValue({
+            oauthServer: 'google',
+            oauthId: 'victim-google-sub',
+            username: 'victimg',
+            name: 'Victim',
+            email: 'victim@example.com',
+            emailVerified: true,
+            oauthData: { sub: 'victim-google-sub' },
+          }),
+        }
+      }
+      if (category === 'device') {
+        return { createOrUpdate: vi.fn().mockResolvedValue('fresh-device-id'), deleteByUserId }
+      }
+      return null
+    })
+
+    // 1) The victim signs in via Google (provider-VERIFIED email) — claims the row.
+    const oauthResult = await oauthHandler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    // Legitimate behavior preserved: the verified owner is logged in.
+    expect(oauthResult?.statusCode).toBe(200)
+    // The account is claimed by the OAuth identity and marked verified.
+    expect(usersTable.get('squatter-id')?.emailVerified).toBe(true)
+    expect(usersTable.get('squatter-id')?.oauthId).toBe('victim-google-sub')
+    // The squatter's credentials are now untrusted: password + 2FA secrets wiped...
+    expect(secretsTable.get('squatter-id')?.passwordHash).toBeNull()
+    expect(secretsTable.get('squatter-id')?.twoFactorSecret).toBeNull()
+    expect(usersTable.get('squatter-id')?.twoFactorEnabled).toBe(false)
+    // ...and every prior device/session revoked.
+    expect(deleteByUserId).toHaveBeenCalledWith('squatter-id')
+
+    // 2) The attacker tries to keep using the original password → MUST be rejected,
+    //    because the password secret no longer exists on the now-verified account.
+    mockCompare.mockResolvedValue(true) // even if compare were reached, it'd "match".
+    const loginResult = await loginHandler(
+      makeReq({ body: { username: 'victim', password: 'attacker-password' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(loginResult?.statusCode).toBe(403)
+    expect(loginResult?.body?.errorKey).toBe('user.error.invalidCredentials')
+    // The wiped hash means compare is never even consulted for a password match.
+    expect(mockCompare).not.toHaveBeenCalled()
+  })
+})
+
 // ===== 6. Session invalidation on password change (updatePassword.ts) ======
 
 describe('updatePassword handler — session invalidation', () => {

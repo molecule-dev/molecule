@@ -200,14 +200,47 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
             if (oauthEmailVerified && !existingVerified) {
               // Trust the provider-verified owner: link this OAuth identity
               // into the existing (unverified) account and mark it verified.
+              // Also reset twoFactorEnabled — the squatter's prior 2FA state must
+              // not carry over onto an account a different verified human now owns.
               await updateById(tableName, existingByEmail.id, {
                 oauthServer: oauthProps.oauthServer,
                 oauthId: oauthProps.oauthId,
                 oauthData: JSON.stringify(oauthProps.oauthData),
                 emailVerified: true,
                 email,
+                twoFactorEnabled: false,
                 updatedAt: new Date().toISOString(),
               })
+
+              // PRE-ACCOUNT-HIJACKING DEFENSE. The pre-existing unverified row
+              // could be a squatter who registered the victim's email with a
+              // password (and 2FA) THEY control — and may already hold a live
+              // session. Now that a provider-verified human owns this email,
+              // every prior credential on the row is untrusted: wipe the
+              // password / reset-token / 2FA secrets so the squatter's password
+              // can no longer authenticate via POST /users/log-in, and revoke
+              // all existing devices/sessions so any session the squatter
+              // already holds is killed. A fresh session for the verified owner
+              // is issued below (device.createOrUpdate → authorization.set).
+              await updateById(`${tableName}Secrets`, existingByEmail.id, {
+                passwordHash: null,
+                passwordResetToken: null,
+                passwordResetTokenAt: null,
+                pendingTwoFactorSecret: null,
+                twoFactorSecret: null,
+                lastTwoFactorTimeStep: null,
+              })
+
+              try {
+                await get<{ deleteByUserId(userId: string): Promise<void> }>(
+                  'device',
+                )?.deleteByUserId(existingByEmail.id)
+              } catch (err) {
+                logger.warn('Failed to revoke prior sessions while claiming squatted account', {
+                  userId: existingByEmail.id,
+                  error: err,
+                })
+              }
 
               analytics
                 .track({
