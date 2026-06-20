@@ -46,6 +46,11 @@ const busboy = connectBusboy({
   limits: { fields: 100, fieldSize: 1024 * 1024, files: 0, fileSize: 1024, parts: 110 },
 })
 
+// Overall cumulative cap on buffered multipart FIELD bytes, matching the 2mb JSON limit.
+// Without this, busboy's per-field `fieldSize` (1mb) × `fields` (100) allowed ~100mb of
+// buffered field data per request — a memory-exhaustion DoS that bypassed the JSON cap. [C9-1]
+const MULTIPART_MAX_TOTAL_BYTES = 2 * 1024 * 1024
+
 // Same as busboy's content type checker.
 const shouldUseBusboy = (contentType?: string): boolean =>
   /^(?:multipart\/.+)|(?:application\/x-www-form-urlencoded)$/i.test(contentType || ``)
@@ -59,7 +64,24 @@ const shouldUseBusboy = (contentType?: string): boolean =>
  */
 const handleMultipart = (req: express.Request): Promise<void> =>
   new Promise<void>((resolve, reject) => {
+    let totalBytes = 0
+    let aborted = false
     req.busboy.on(`field`, (key, value) => {
+      if (aborted) return
+      // Enforce the cumulative byte ceiling on the ORIGINAL field bytes (before JSON
+      // parsing) so a flood of large fields can't exhaust memory. [C9-1]
+      totalBytes += Buffer.byteLength(key) + Buffer.byteLength(value)
+      if (totalBytes > MULTIPART_MAX_TOTAL_BYTES) {
+        aborted = true
+        req.unpipe(req.busboy)
+        const error = new Error(`Request body exceeds the maximum allowed size.`) as Error & {
+          statusCode?: number
+        }
+        error.statusCode = 413
+        reject(error)
+        return
+      }
+
       try {
         // Attempt to parse field value as JSON
         value = JSON.parse(value)
