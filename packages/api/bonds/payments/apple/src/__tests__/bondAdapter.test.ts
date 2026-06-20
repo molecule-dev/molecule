@@ -66,6 +66,7 @@ describe('paymentProvider.verifyReceipt', () => {
       original_transaction_id: 'txn-1',
       expires_date_ms: '1700000000000',
     })
+    mockIsSubscriptionActive.mockReturnValue(true) // [M3-1] active sub passes the reject gate
     const out = await paymentProvider.verifyReceipt!('receipt', 'com.app.pro')
     expect(out).toEqual({
       productId: 'com.app.pro',
@@ -74,6 +75,22 @@ describe('paymentProvider.verifyReceipt', () => {
       autoRenews: true,
       data: expect.objectContaining({ product_id: 'com.app.pro' }),
     })
+  })
+
+  it('returns null for a REFUNDED/revoked subscription (not active) [M3-1]', async () => {
+    mockVerifyReceipt.mockResolvedValue({
+      status: 0,
+      pending_renewal_info: [{ original_transaction_id: 'txn-1', auto_renew_status: '1' }],
+    })
+    mockGetLatestSubscription.mockReturnValue({
+      product_id: 'com.app.pro',
+      original_transaction_id: 'txn-1',
+      expires_date_ms: '4070908800000', // future period end…
+      cancellation_date: '2024-01-01', // …but Apple refunded it
+    })
+    mockIsSubscriptionActive.mockReturnValue(false) // refund → not active
+    const out = await paymentProvider.verifyReceipt!('receipt', 'com.app.pro')
+    expect(out).toBeNull()
   })
 
   it('autoRenews falls back to isSubscriptionActive when no pending_renewal_info match', async () => {
@@ -98,6 +115,7 @@ describe('paymentProvider.verifyReceipt', () => {
       original_transaction_id: 'txn-1',
       expires_date_ms: '1700000000000',
     })
+    mockIsSubscriptionActive.mockReturnValue(true) // [M3-1] active sub passes the reject gate
     const out = await paymentProvider.verifyReceipt!('receipt', 'com.app.pro')
     expect(out?.autoRenews).toBe(false)
   })

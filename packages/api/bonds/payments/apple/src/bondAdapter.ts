@@ -111,6 +111,20 @@ export const paymentProvider: PaymentProvider = {
         return null
       }
 
+      // [M3-1] Reject refunded/revoked/expired subscriptions, mirroring Stripe's isActive
+      // gate. Apple keeps returning a refunded receipt with status 0 + a future paid-period
+      // expires_date_ms but sets cancellation_date; without this gate a refunded user could
+      // re-POST the same receipt to re-grant the plan until the original period end (refund
+      // bypass). isSubscriptionActive() is false when cancellation_date is set or expiry has
+      // passed; turning off auto-renew mid-period does NOT set cancellation_date, so legit
+      // still-paid subscriptions are unaffected.
+      if (!isSubscriptionActive(subscription)) {
+        logger.info(
+          'Apple receipt verification: subscription not active (refunded/revoked/expired) — rejecting',
+        )
+        return null
+      }
+
       const autoRenews =
         getAutoRenewStatus(response, subscription.original_transaction_id) ??
         isSubscriptionActive(subscription)
