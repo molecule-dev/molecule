@@ -19,6 +19,46 @@ const logger = getLogger()
 export const serverName = `apple` as const
 
 /**
+ * Strip client secrets and authorization codes from an error before logging
+ * or rethrowing, so a failed token exchange never emits the OAuth `code` (or,
+ * via the request body redaction in `@molecule/api-http`, the generated
+ * client-secret JWT) to logs (CWE-532). Returns a new, redacted error carrying
+ * only the (scrubbed) message and the response status.
+ *
+ * @param error - The original error.
+ * @param secrets - Sensitive strings to redact (`undefined` entries ignored).
+ * @returns A sanitized error suitable for logging or surfacing.
+ */
+const sanitizeError = (error: unknown, secrets: Array<string | undefined>): Error => {
+  // Only redact strings of meaningful length — short values would otherwise
+  // scrub legitimate prose out of the message.
+  const MIN_SECRET_LEN = 8
+  const filtered = secrets.filter(
+    (s): s is string => typeof s === 'string' && s.length >= MIN_SECRET_LEN,
+  )
+  const redact = (input: string): string => {
+    let out = input
+    for (const secret of filtered) {
+      while (out.includes(secret)) {
+        out = out.replace(secret, '[REDACTED]')
+      }
+    }
+    return out
+  }
+
+  const baseMessage = error instanceof Error ? error.message : String(error)
+  const sanitized = new Error(redact(baseMessage))
+  sanitized.name = error instanceof Error ? error.name : 'Error'
+  if (error && typeof error === 'object') {
+    const maybeResponse = (error as { response?: { status?: number } }).response
+    if (maybeResponse && typeof maybeResponse.status === 'number') {
+      ;(sanitized as Error & { status?: number }).status = maybeResponse.status
+    }
+  }
+  return sanitized
+}
+
+/**
  * Apple does not expose a userinfo endpoint — the ID token *is* the user
  * info. This helper takes an Apple-issued ID token, verifies its
  * signature/issuer/audience/expiry, and returns the decoded claims.
@@ -76,7 +116,8 @@ export const verify: OAuthVerifier = async (
       },
     }
   } catch (error) {
-    logger.error(`Apple OAuth verify error:`, error)
-    throw error
+    const safe = sanitizeError(error, [code])
+    logger.error(`Apple OAuth verify error:`, safe.message)
+    throw safe
   }
 }

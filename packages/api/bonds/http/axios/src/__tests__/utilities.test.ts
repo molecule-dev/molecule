@@ -1,7 +1,7 @@
 import type { AxiosError, AxiosHeaderValue, AxiosResponse } from 'axios'
 import { describe, expect, it } from 'vitest'
 
-import { toHttpError, toHttpResponse } from '../utilities.js'
+import { sanitizeRequestOptions, toHttpError, toHttpResponse } from '../utilities.js'
 
 function makeAxiosResponse<T>(
   status: number,
@@ -132,5 +132,78 @@ describe('toHttpError', () => {
   it('leaves response undefined when there is no error.response (network failure)', () => {
     const out = toHttpError(makeAxiosError({ code: 'ENOTFOUND' }), REQUEST_OPTIONS)
     expect(out.response).toBeUndefined()
+  })
+
+  it('redacts the request body and authorization header on the attached request (CWE-532)', () => {
+    const secretRequest = {
+      url: 'https://github.com/login/oauth/access_token',
+      method: 'POST' as const,
+      body: { client_secret: 'SUPER_SECRET_VALUE', code: 'auth-code-123' },
+      headers: {
+        accept: 'application/json',
+        authorization: 'Basic dXNlcjpTVVBFUl9TRUNSRVQ=',
+      },
+    }
+    const out = toHttpError(
+      makeAxiosError({
+        message: 'Request failed with status code 400',
+        response: makeAxiosResponse(400, { error: 'invalid_grant' }),
+      } as Partial<AxiosError>),
+      secretRequest,
+    )
+
+    // Body is masked, authorization header is masked, non-secret fields kept.
+    expect(out.request.body).toBe('[REDACTED]')
+    expect(out.request.headers?.authorization).toBe('[REDACTED]')
+    expect(out.request.headers?.accept).toBe('application/json')
+    expect(out.request.url).toBe(secretRequest.url)
+    expect(out.request.method).toBe('POST')
+
+    // The nested response.request must be redacted too.
+    expect(out.response?.request.body).toBe('[REDACTED]')
+    expect(out.response?.request.headers?.authorization).toBe('[REDACTED]')
+
+    // No secret may appear anywhere in the serialized error (util.inspect would
+    // walk these own-enumerable props when the error is logged).
+    const serialized = JSON.stringify({
+      message: out.message,
+      request: out.request,
+      response: out.response,
+    })
+    expect(serialized).not.toContain('SUPER_SECRET_VALUE')
+    expect(serialized).not.toContain('dXNlcjpTVVBFUl9TRUNSRVQ=')
+
+    // The original caller object must NOT be mutated (defensive copy).
+    expect(secretRequest.body).toEqual({
+      client_secret: 'SUPER_SECRET_VALUE',
+      code: 'auth-code-123',
+    })
+    expect(secretRequest.headers.authorization).toBe('Basic dXNlcjpTVVBFUl9TRUNSRVQ=')
+  })
+
+  it('masks an uppercase Authorization header too (Twitter Basic auth)', () => {
+    const out = toHttpError(makeAxiosError(), {
+      url: 'https://api.twitter.com/2/oauth2/token',
+      method: 'POST',
+      headers: { Authorization: 'Basic abc123', accept: 'application/json' },
+    })
+    expect(out.request.headers?.Authorization).toBe('[REDACTED]')
+    expect(out.request.headers?.accept).toBe('application/json')
+  })
+})
+
+describe('sanitizeRequestOptions', () => {
+  it('returns an equivalent copy when there is nothing sensitive to redact', () => {
+    const input = { url: '/api/x', method: 'GET' as const, params: { page: 1 } }
+    const out = sanitizeRequestOptions(input)
+    expect(out).toEqual(input)
+    expect(out).not.toBe(input)
+  })
+
+  it('leaves a body-less request unchanged', () => {
+    const input = { url: '/api/x', method: 'GET' as const, headers: { accept: 'application/json' } }
+    const out = sanitizeRequestOptions(input)
+    expect(out.headers?.accept).toBe('application/json')
+    expect('body' in out).toBe(false)
   })
 })

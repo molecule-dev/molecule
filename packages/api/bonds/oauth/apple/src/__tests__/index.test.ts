@@ -16,6 +16,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockGet = vi.fn()
 const mockPost = vi.fn()
+const mockLoggerError = vi.fn()
 
 vi.mock('@molecule/api-http', () => ({
   get: mockGet,
@@ -27,7 +28,7 @@ vi.mock('@molecule/api-bond', () => ({
     debug: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
-    error: vi.fn(),
+    error: mockLoggerError,
   }),
 }))
 
@@ -456,6 +457,51 @@ describe('Apple OAuth Provider', () => {
       mockPost.mockRejectedValue(new Error('invalid_grant'))
       const { verify } = await import('../verify.js')
       await expect(verify('bad-code')).rejects.toThrow('invalid_grant')
+    })
+
+    it('does not leak the auth code or token body to logs / the rethrown error (CWE-532)', async () => {
+      const loggedStrings = (): string[] =>
+        mockLoggerError.mock.calls.flat().map((arg) => {
+          if (typeof arg === 'string') return arg
+          if (arg instanceof Error) return `${arg.message} ${JSON.stringify(arg)}`
+          return JSON.stringify(arg)
+        })
+
+      // The HttpError that @molecule/api-http throws attaches the token POST
+      // body (which contains the generated client-secret JWT) and echoes the
+      // auth code in its message.
+      const leak = Object.assign(new Error('token exchange failed for code=attacker-code-1234'), {
+        request: {
+          url: 'https://appleid.apple.com/auth/token',
+          method: 'POST',
+          body: 'client_secret=SECRET_CLIENT_JWT_VALUE&code=attacker-code-1234',
+          headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        },
+        response: { status: 400, data: { error: 'invalid_grant' } },
+      })
+      mockPost.mockRejectedValue(leak)
+
+      const { verify } = await import('../verify.js')
+
+      let thrown: unknown
+      await expect(
+        verify('attacker-code-1234').catch((error: unknown) => {
+          thrown = error
+          throw error
+        }),
+      ).rejects.toBeDefined()
+
+      for (const s of loggedStrings()) {
+        expect(s).not.toContain('attacker-code-1234')
+        expect(s).not.toContain('SECRET_CLIENT_JWT_VALUE')
+      }
+      expect(loggedStrings().some((s) => s.includes('Apple OAuth verify error'))).toBe(true)
+
+      // The rethrown error must be the scrubbed copy — no request body retained.
+      expect((thrown as { request?: unknown }).request).toBeUndefined()
+      const serialized = `${(thrown as Error).message} ${JSON.stringify(thrown)}`
+      expect(serialized).not.toContain('attacker-code-1234')
+      expect(serialized).not.toContain('SECRET_CLIENT_JWT_VALUE')
     })
 
     it('propagates id-token verification failures', async () => {

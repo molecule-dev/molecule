@@ -9,10 +9,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock @molecule/api-http before importing the module
 const mockPost = vi.fn()
 const mockGet = vi.fn()
+const mockLoggerError = vi.fn()
 
 vi.mock('@molecule/api-http', () => ({
   post: mockPost,
   get: mockGet,
+}))
+
+vi.mock('@molecule/api-bond', () => ({
+  getLogger: () => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: mockLoggerError,
+  }),
 }))
 
 vi.mock('@molecule/api-oauth', () => ({
@@ -276,6 +286,73 @@ describe('GitHub OAuth Provider', () => {
           headers: expect.objectContaining({ authorization: 'Bearer mock-token' }),
         }),
       )
+    })
+  })
+
+  describe('verify error logging (CWE-532 — no secret leak)', () => {
+    /** Collect every string surfaced through logger.error / thrown error. */
+    const loggedStrings = (): string[] =>
+      mockLoggerError.mock.calls.flat().map((arg) => {
+        if (typeof arg === 'string') return arg
+        if (arg instanceof Error) return `${arg.message} ${JSON.stringify(arg)}`
+        return JSON.stringify(arg)
+      })
+
+    it('redacts client_secret from logged output and the rethrown error on token-exchange failure', async () => {
+      // Simulate the HttpError @molecule/api-http throws: its message carries
+      // the secret, and the token POST body / auth header are attached.
+      const leak = Object.assign(
+        new Error('token exchange failed for client_secret=test-github-client-secret'),
+        {
+          request: {
+            url: 'https://github.com/login/oauth/access_token',
+            method: 'POST',
+            body: { client_secret: 'test-github-client-secret', code: 'attacker-code' },
+            headers: { authorization: 'Basic dGVzdA==' },
+          },
+          response: { status: 400, data: { error: 'invalid_grant' } },
+        },
+      )
+      mockPost.mockRejectedValue(leak)
+
+      const { verify } = await import('../provider.js')
+
+      let thrown: unknown
+      await expect(
+        verify('attacker-code').catch((error: unknown) => {
+          thrown = error
+          throw error
+        }),
+      ).rejects.toBeDefined()
+
+      // Nothing handed to logger.error may contain the secret.
+      for (const s of loggedStrings()) {
+        expect(s).not.toContain('test-github-client-secret')
+      }
+      // The prefix is still logged so failures remain diagnosable.
+      expect(loggedStrings().some((s) => s.includes('GitHub OAuth verify error'))).toBe(true)
+
+      // The rethrown error must be the scrubbed copy: no attached request body
+      // and no secret anywhere in its serialization.
+      expect((thrown as { request?: unknown }).request).toBeUndefined()
+      expect(`${(thrown as Error).message} ${JSON.stringify(thrown)}`).not.toContain(
+        'test-github-client-secret',
+      )
+    })
+
+    it('still resolves a legitimate verify without logging an error', async () => {
+      mockPost.mockResolvedValue({
+        data: { access_token: 'tok', token_type: 'bearer', scope: 'user' },
+      })
+      mockGet.mockResolvedValue({
+        data: { id: 7, login: 'legit', email: 'legit@example.com' },
+      })
+
+      const { verify } = await import('../provider.js')
+      const result = await verify('good-code')
+
+      expect(result.username).toBe('legit@github')
+      expect(mockLoggerError).not.toHaveBeenCalled()
     })
   })
 

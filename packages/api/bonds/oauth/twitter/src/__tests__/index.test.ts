@@ -9,10 +9,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock @molecule/api-http before importing the module
 const mockPost = vi.fn()
 const mockGet = vi.fn()
+const mockLoggerError = vi.fn()
 
 vi.mock('@molecule/api-http', () => ({
   post: mockPost,
   get: mockGet,
+}))
+
+vi.mock('@molecule/api-bond', () => ({
+  getLogger: () => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: mockLoggerError,
+  }),
 }))
 
 vi.mock('@molecule/api-oauth', () => ({
@@ -376,6 +386,71 @@ describe('Twitter OAuth Provider', () => {
         }),
         expect.anything(),
       )
+    })
+  })
+
+  describe('verify error logging (CWE-532 — no secret leak)', () => {
+    const loggedStrings = (): string[] =>
+      mockLoggerError.mock.calls.flat().map((arg) => {
+        if (typeof arg === 'string') return arg
+        if (arg instanceof Error) return `${arg.message} ${JSON.stringify(arg)}`
+        return JSON.stringify(arg)
+      })
+
+    it('redacts client_secret from logged output and the rethrown error on token-exchange failure', async () => {
+      // For Twitter the secret rides in the Basic Authorization header; the
+      // HttpError attaches that header and, here, echoes the secret in the
+      // message too.
+      const leak = Object.assign(
+        new Error('token exchange failed for client_secret=test-twitter-client-secret'),
+        {
+          request: {
+            url: 'https://api.twitter.com/2/oauth2/token',
+            method: 'POST',
+            body: { code: 'attacker-code', grant_type: 'authorization_code' },
+            headers: {
+              Authorization: `Basic ${Buffer.from('id:test-twitter-client-secret').toString('base64')}`,
+            },
+          },
+          response: { status: 400, data: { error: 'invalid_request' } },
+        },
+      )
+      mockPost.mockRejectedValue(leak)
+
+      const { verify } = await import('../verify.js')
+
+      let thrown: unknown
+      await expect(
+        verify('attacker-code').catch((error: unknown) => {
+          thrown = error
+          throw error
+        }),
+      ).rejects.toBeDefined()
+
+      for (const s of loggedStrings()) {
+        expect(s).not.toContain('test-twitter-client-secret')
+      }
+      expect(loggedStrings().some((s) => s.includes('Twitter OAuth verify error'))).toBe(true)
+
+      expect((thrown as { request?: unknown }).request).toBeUndefined()
+      expect(`${(thrown as Error).message} ${JSON.stringify(thrown)}`).not.toContain(
+        'test-twitter-client-secret',
+      )
+    })
+
+    it('still resolves a legitimate verify without logging an error', async () => {
+      mockPost.mockResolvedValue({
+        data: { access_token: 'tok', token_type: 'bearer', scope: 'users.read' },
+      })
+      mockGet.mockResolvedValue({
+        data: { data: { id: '7', username: 'legit' } },
+      })
+
+      const { verify } = await import('../verify.js')
+      const result = await verify('good-code')
+
+      expect(result.username).toBe('legit@twitter')
+      expect(mockLoggerError).not.toHaveBeenCalled()
     })
   })
 

@@ -394,8 +394,18 @@ describe('updatePassword handler — password validation', () => {
 describe('logIn handler — timing attack prevention', () => {
   const handler = logIn(testResource)
 
-  it('should call compare() with a dummy hash when user is not found (password provided)', async () => {
+  // A real, structurally valid cost-12 bcrypt hash: exactly 53 chars after the
+  // `$2b$12$` cost prefix (22-char salt + 31-char digest). The bond's hash() is
+  // mocked to return this; the not-found path must forward THIS to compare(), not
+  // a hardcoded/off-by-one literal that would make compare() short-circuit.
+  const VALID_DUMMY_HASH = '$2b$12$abcdefghijklmnopqrstuuMxsML64WyMyU3hT9b1lYBVi8r4sZ5Hi'
+  // The exact malformed literal the broken implementation used (54 zeros after the
+  // cost prefix) — compare() returns false in ~0ms against it, no KDF run.
+  const MALFORMED_LITERAL = '$2b$12$000000000000000000000000000000000000000000000000000000'
+
+  it('should run the real KDF via the bond (hash + compare) when user is not found, NOT a malformed literal', async () => {
     mockFindOne.mockResolvedValue(null)
+    mockHash.mockResolvedValue(VALID_DUMMY_HASH)
     mockCompare.mockResolvedValue(false)
 
     const req = makeReq({
@@ -406,9 +416,17 @@ describe('logIn handler — timing attack prevention', () => {
     const result = await handler(req as MoleculeRequest, res as MoleculeResponse)
 
     expect(result?.statusCode).toBe(403)
-    // The dummy bcrypt compare must have been called to burn time.
+    // The dummy hash must be derived from the bond's hash() (honoring SALT_ROUNDS),
+    // so it is a real, correctly-costed hash — not a hardcoded off-by-one literal.
+    expect(mockHash).toHaveBeenCalled()
+    // The KDF must actually run: compare() is invoked with the bond-produced hash.
     expect(mockCompare).toHaveBeenCalledTimes(1)
-    expect(mockCompare).toHaveBeenCalledWith('somepassword', expect.stringContaining('$2b$12$'))
+    expect(mockCompare).toHaveBeenCalledWith('somepassword', VALID_DUMMY_HASH)
+    // Regression guard: never the malformed 54-char literal that short-circuits.
+    expect(mockCompare).not.toHaveBeenCalledWith('somepassword', MALFORMED_LITERAL)
+    // The forwarded hash is structurally valid: exactly 53 chars after `$2b$12$`.
+    const [, forwardedHash] = mockCompare.mock.calls[0] as [string, string]
+    expect(forwardedHash.slice('$2b$12$'.length)).toHaveLength(53)
   })
 
   it('should NOT call compare() when user is not found and no password provided', async () => {
@@ -1175,8 +1193,10 @@ describe('authorization.set — cookie security', () => {
 
     authorization.set(req as MoleculeRequest, res as MoleculeResponse, session)
 
+    // In production the auth cookies are `__Host-` prefixed (C2-1) so a sibling
+    // subdomain cannot shadow them.
     expect(res.cookie).toHaveBeenCalledWith(
-      'sessionId',
+      '__Host-sessionId',
       expect.any(String),
       expect.objectContaining({
         sameSite: 'lax',
@@ -1211,7 +1231,7 @@ describe('authorization.set — cookie security', () => {
     const sevenDaysMs = 1000 * 60 * 60 * 24 * 7
 
     expect(res.cookie).toHaveBeenCalledWith(
-      'sessionId',
+      '__Host-sessionId',
       expect.any(String),
       expect.objectContaining({
         maxAge: sevenDaysMs,
@@ -1240,7 +1260,7 @@ describe('authorization.set — cookie security', () => {
     authorization.set(req as MoleculeRequest, res as MoleculeResponse, session)
 
     expect(res.cookie).toHaveBeenCalledWith(
-      'sessionId',
+      '__Host-sessionId',
       expect.any(String),
       expect.objectContaining({
         httpOnly: true,
@@ -1261,7 +1281,7 @@ describe('authorization.set — cookie security', () => {
     authorization.set(req as MoleculeRequest, res as MoleculeResponse, session)
 
     expect(res.cookie).toHaveBeenCalledWith(
-      'sessionId',
+      '__Host-sessionId',
       expect.any(String),
       expect.objectContaining({
         secure: true,

@@ -1,6 +1,8 @@
 const {
   mockCreate,
+  mockDeleteById,
   mockDeleteMany,
+  mockFindById,
   mockFindMany,
   mockFindOne,
   mockUpdateById,
@@ -13,7 +15,9 @@ const {
   const track = vi.fn().mockResolvedValue(undefined)
   return {
     mockCreate: vi.fn(),
+    mockDeleteById: vi.fn(),
     mockDeleteMany: vi.fn(),
+    mockFindById: vi.fn(),
     mockFindMany: vi.fn(),
     mockFindOne: vi.fn(),
     mockUpdateById: vi.fn(),
@@ -26,7 +30,9 @@ const {
 
 vi.mock('@molecule/api-database', () => ({
   create: mockCreate,
+  deleteById: mockDeleteById,
   deleteMany: mockDeleteMany,
+  findById: mockFindById,
   findMany: mockFindMany,
   findOne: mockFindOne,
   updateById: mockUpdateById,
@@ -51,7 +57,9 @@ beforeEach(() => {
   // module captured logger + analytics at import time, so wiping their
   // implementations between tests would break it.
   mockCreate.mockReset()
+  mockDeleteById.mockReset()
   mockDeleteMany.mockReset()
+  mockFindById.mockReset()
   mockFindMany.mockReset()
   mockFindOne.mockReset()
   mockUpdateById.mockReset()
@@ -146,6 +154,38 @@ describe('deleteByUserId', () => {
   it('swallows DB errors (logs only)', async () => {
     mockDeleteMany.mockRejectedValue(new Error('db down'))
     await expect(deviceService.deleteByUserId('user-1')).resolves.toBeUndefined()
+    expect(mockLoggerError).toHaveBeenCalled()
+  })
+})
+
+describe('exists', () => {
+  it('returns true when the device row is found', async () => {
+    mockFindById.mockResolvedValue({ id: 'dev-1' })
+    await expect(deviceService.exists('dev-1')).resolves.toBe(true)
+    expect(mockFindById).toHaveBeenCalledWith('devices', 'dev-1')
+  })
+
+  it('returns false when the device row is gone (revoked/logged out)', async () => {
+    mockFindById.mockResolvedValue(null)
+    await expect(deviceService.exists('dev-1')).resolves.toBe(false)
+  })
+
+  it('re-throws on DB failure so the caller can fail-open on infra errors', async () => {
+    mockFindById.mockRejectedValue(new Error('db down'))
+    await expect(deviceService.exists('dev-1')).rejects.toThrow('db down')
+  })
+})
+
+describe('delete', () => {
+  it('issues deleteById for the device id', async () => {
+    mockDeleteById.mockResolvedValue({ affected: 1 })
+    await deviceService.delete('dev-1')
+    expect(mockDeleteById).toHaveBeenCalledWith('devices', 'dev-1')
+  })
+
+  it('swallows DB errors (logs only)', async () => {
+    mockDeleteById.mockRejectedValue(new Error('db down'))
+    await expect(deviceService.delete('dev-1')).resolves.toBeUndefined()
     expect(mockLoggerError).toHaveBeenCalled()
   })
 })

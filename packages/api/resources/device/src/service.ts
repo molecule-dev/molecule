@@ -1,7 +1,15 @@
 import { v4 as uuid } from 'uuid'
 
 import { getAnalytics, getLogger } from '@molecule/api-bond'
-import { create, deleteMany, findMany, findOne, updateById } from '@molecule/api-database'
+import {
+  create,
+  deleteById,
+  deleteMany,
+  findById,
+  findMany,
+  findOne,
+  updateById,
+} from '@molecule/api-database'
 const logger = getLogger()
 const analytics = getAnalytics()
 import { resource } from './resource.js'
@@ -53,6 +61,22 @@ export const deviceService: DeviceService = {
   async updateLastSeen(deviceId: string): Promise<void> {
     try {
       await updateById(tableName, deviceId, { updatedAt: new Date().toISOString() })
+    } catch (error) {
+      logger.error(error)
+    }
+  },
+
+  async exists(deviceId: string): Promise<boolean> {
+    // Re-throw on infra failure so the caller (session authorization) can
+    // distinguish a transient DB error (fail-open) from a definitive "device
+    // was revoked" (a row that genuinely isn't there → returns false).
+    const device = await findById<{ id: string }>(tableName, deviceId)
+    return Boolean(device)
+  },
+
+  async delete(deviceId: string): Promise<void> {
+    try {
+      await deleteById(tableName, deviceId)
     } catch (error) {
       logger.error(error)
     }

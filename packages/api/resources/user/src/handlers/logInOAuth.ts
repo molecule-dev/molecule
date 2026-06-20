@@ -83,14 +83,24 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
     // by default and is NEVER relaxed based on request presence.
     const requireState = getConfig<string>('OAUTH_REQUIRE_STATE', 'true') !== 'false'
     if (requireState) {
-      const cookieState = (req as unknown as { cookies?: Record<string, string> }).cookies
-        ?.oauth_state
+      // In production the state cookie is `__Host-`-prefixed (unshadowable by a
+      // sibling subdomain); accept both the prefixed and plain names so OAuth
+      // login works across the deploy that flips the prefix on, and in dev.
+      const stateCookies = (req as unknown as { cookies?: Record<string, string> }).cookies
+      const cookieState =
+        stateCookies?.[authorization.getAuthCookieName('oauth_state')] ?? stateCookies?.oauth_state
       const expressRes = res as unknown as {
         clearCookie?(name: string, options?: Record<string, unknown>): void
       }
-      // The state cookie is one-time use — always clear it, match or not.
+      // The state cookie is one-time use — always clear it, match or not. Clear
+      // BOTH names so a leftover plain/prefixed copy can't linger. A `__Host-`
+      // cookie must be cleared with Secure + Path=/ to match how it was set.
       const clearStateCookie = (): void => {
         if (typeof expressRes.clearCookie === 'function') {
+          expressRes.clearCookie(authorization.getAuthCookieName('oauth_state'), {
+            path: '/',
+            secure: getConfig('NODE_ENV') === 'production',
+          })
           expressRes.clearCookie('oauth_state', { path: '/' })
         }
       }
@@ -425,7 +435,11 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
 
       return { statusCode: 200, body: { props: user } }
     } catch (error) {
-      logger.error(error)
+      // Never log the raw error here: an OAuth verify failure rethrows an
+      // error whose attached request/response could carry the token-exchange
+      // body (client_secret, code) or an Authorization header. Log only the
+      // message (CWE-532).
+      logger.error('OAuth login failed:', error instanceof Error ? error.message : String(error))
       return {
         statusCode: 500,
         body: { error: t('user.error.oauthLoginFailed'), errorKey: 'user.error.oauthLoginFailed' },

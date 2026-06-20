@@ -13,6 +13,45 @@ const logger = getLogger()
 /** The OAuth server identifier for Google. */
 export const serverName = `google` as const
 
+/**
+ * Strip client secrets and authorization codes from an error before logging
+ * or rethrowing, so a failed token/user-info exchange never emits the OAuth
+ * `client_secret` (or `code`) to logs (CWE-532). Returns a new, redacted error
+ * carrying only the (scrubbed) message and the response status.
+ *
+ * @param error - The original error.
+ * @param secrets - Sensitive strings to redact (`undefined` entries ignored).
+ * @returns A sanitized error suitable for logging or surfacing.
+ */
+const sanitizeError = (error: unknown, secrets: Array<string | undefined>): Error => {
+  // Only redact strings of meaningful length — short values would otherwise
+  // scrub legitimate prose out of the message.
+  const MIN_SECRET_LEN = 8
+  const filtered = secrets.filter(
+    (s): s is string => typeof s === 'string' && s.length >= MIN_SECRET_LEN,
+  )
+  const redact = (input: string): string => {
+    let out = input
+    for (const secret of filtered) {
+      while (out.includes(secret)) {
+        out = out.replace(secret, '[REDACTED]')
+      }
+    }
+    return out
+  }
+
+  const baseMessage = error instanceof Error ? error.message : String(error)
+  const sanitized = new Error(redact(baseMessage))
+  sanitized.name = error instanceof Error ? error.name : 'Error'
+  if (error && typeof error === 'object') {
+    const maybeResponse = (error as { response?: { status?: number } }).response
+    if (maybeResponse && typeof maybeResponse.status === 'number') {
+      ;(sanitized as Error & { status?: number }).status = maybeResponse.status
+    }
+  }
+  return sanitized
+}
+
 /** Default Google access-token endpoint. Overridable via `OAUTH_GOOGLE_TOKEN_URL`. */
 const DEFAULT_TOKEN_URL = `https://www.googleapis.com/oauth2/v4/token`
 /** Default Google userinfo endpoint. Overridable via `OAUTH_GOOGLE_USER_URL`. */
@@ -87,7 +126,8 @@ export const verify: OAuthVerifier = async (
       oauthData,
     }
   } catch (error) {
-    logger.error('Google OAuth verify error:', error)
-    throw error
+    const safe = sanitizeError(error, [process.env.OAUTH_GOOGLE_CLIENT_SECRET, code])
+    logger.error('Google OAuth verify error:', safe.message)
+    throw safe
   }
 }

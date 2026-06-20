@@ -9,10 +9,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock @molecule/api-http before importing the module
 const mockPost = vi.fn()
 const mockGet = vi.fn()
+const mockLoggerError = vi.fn()
 
 vi.mock('@molecule/api-http', () => ({
   post: mockPost,
   get: mockGet,
+}))
+
+vi.mock('@molecule/api-bond', () => ({
+  getLogger: () => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: mockLoggerError,
+  }),
 }))
 
 vi.mock('@molecule/api-oauth', () => ({
@@ -332,6 +342,66 @@ describe('GitLab OAuth Provider', () => {
         }),
         expect.anything(),
       )
+    })
+  })
+
+  describe('verify error logging (CWE-532 — no secret leak)', () => {
+    const loggedStrings = (): string[] =>
+      mockLoggerError.mock.calls.flat().map((arg) => {
+        if (typeof arg === 'string') return arg
+        if (arg instanceof Error) return `${arg.message} ${JSON.stringify(arg)}`
+        return JSON.stringify(arg)
+      })
+
+    it('redacts client_secret from logged output and the rethrown error on token-exchange failure', async () => {
+      const leak = Object.assign(
+        new Error('token exchange failed for client_secret=test-gitlab-client-secret'),
+        {
+          request: {
+            url: 'https://gitlab.com/oauth/token',
+            method: 'POST',
+            body: { client_secret: 'test-gitlab-client-secret', code: 'attacker-code' },
+            headers: { authorization: 'Basic dGVzdA==' },
+          },
+          response: { status: 400, data: { error: 'invalid_grant' } },
+        },
+      )
+      mockPost.mockRejectedValue(leak)
+
+      const { verify } = await import('../provider.js')
+
+      let thrown: unknown
+      await expect(
+        verify('attacker-code').catch((error: unknown) => {
+          thrown = error
+          throw error
+        }),
+      ).rejects.toBeDefined()
+
+      for (const s of loggedStrings()) {
+        expect(s).not.toContain('test-gitlab-client-secret')
+      }
+      expect(loggedStrings().some((s) => s.includes('GitLab OAuth verify error'))).toBe(true)
+
+      expect((thrown as { request?: unknown }).request).toBeUndefined()
+      expect(`${(thrown as Error).message} ${JSON.stringify(thrown)}`).not.toContain(
+        'test-gitlab-client-secret',
+      )
+    })
+
+    it('still resolves a legitimate verify without logging an error', async () => {
+      mockPost.mockResolvedValue({
+        data: { access_token: 'tok', token_type: 'bearer', scope: 'read_user' },
+      })
+      mockGet.mockResolvedValue({
+        data: { id: 7, username: 'legit', email: 'legit@example.com', confirmed_at: '2020-01-01' },
+      })
+
+      const { verify } = await import('../provider.js')
+      const result = await verify('good-code')
+
+      expect(result.username).toBe('legit@gitlab')
+      expect(mockLoggerError).not.toHaveBeenCalled()
     })
   })
 
