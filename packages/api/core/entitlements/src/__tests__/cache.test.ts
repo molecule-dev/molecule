@@ -64,6 +64,30 @@ describe('plan cache', () => {
     expect(result).toBeNull()
   })
 
+  it('demotes exactly at planExpiresAt, not a full TTL later [C6-1]', async () => {
+    vi.useFakeTimers()
+    try {
+      const start = new Date('2099-06-01T00:00:00Z').getTime()
+      vi.setSystemTime(start)
+      // Paid plan lapses 1 min from now — well inside the 5-min cache TTL.
+      const expiresAt = new Date(start + 60_000).toISOString()
+      setUser({ planKey: 'pro', planExpiresAt: expiresAt })
+
+      expect(await cacheModule.getCachedPlanKey('user-clamp')).toBe('pro') // warms the cache
+      expect(findByIdMock).toHaveBeenCalledTimes(1)
+
+      // Advance past plan expiry but still inside the TTL window.
+      vi.setSystemTime(start + 61_000)
+      // Pre-fix: the entry's TTL (start+300k) is still warm → stale 'pro' returned, no
+      // re-query. Post-fix: the entry was clamped to planExpiresAt → cache miss → re-resolve
+      // → lapsed plan demotes to null.
+      expect(await cacheModule.getCachedPlanKey('user-clamp')).toBeNull()
+      expect(findByIdMock).toHaveBeenCalledTimes(2)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('returns null for users with no plan', async () => {
     setUser({})
 

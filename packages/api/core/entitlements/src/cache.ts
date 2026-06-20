@@ -106,7 +106,20 @@ export const getCachedPlanKey = async (userId: string): Promise<string | null> =
     const firstKey = cache.keys().next().value
     if (firstKey != null) cache.delete(firstKey)
   }
-  cache.set(userId, { planKey, expiresAt: now + ttlMs })
+  // [C6-1] Cap the cache entry at the plan's actual expiry, not just the flat TTL: without
+  // this, a paid plan that lapses inside a warm window keeps returning the elevated planKey
+  // (and its higher tier limits) for up to a full TTL after the subscription ended — there
+  // is no event-based invalidation at the expiry instant. A finite future planExpiresAt is a
+  // deterministic demotion time; clamp to it so the cache demotes exactly when the plan
+  // lapses. (Lapsed plans already resolved to null above; anonymous/no-expiry keep the TTL.)
+  let expiresAt = now + ttlMs
+  if (planKey && planKey !== 'anonymous' && user?.planExpiresAt) {
+    const planExpiry = new Date(user.planExpiresAt).getTime()
+    if (Number.isFinite(planExpiry) && planExpiry > now) {
+      expiresAt = Math.min(expiresAt, planExpiry)
+    }
+  }
+  cache.set(userId, { planKey, expiresAt })
 
   return planKey
 }
