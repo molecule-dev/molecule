@@ -106,6 +106,10 @@ export const createProvider = (config: HlsConfig = {}): StreamingProvider => {
       const inputPath = await prepareInput(input, outputDir)
 
       await execFileAsync(ffmpegPath, [
+        // Restrict ffmpeg to safe protocols so a string input can't abuse dangerous
+        // ones (concat/gopher/ftp/subfile/unix) for LFI/SSRF escalation. [P5BONDS DiD]
+        '-protocol_whitelist',
+        'file,crypto,data,http,https,tcp,tls',
         '-i',
         inputPath,
         '-codec',
@@ -163,6 +167,9 @@ export const createProvider = (config: HlsConfig = {}): StreamingProvider => {
 
         const codec = profile.codec ?? 'h264'
         const args: string[] = [
+          // Restrict ffmpeg to safe protocols (no concat/gopher/ftp/subfile). [P5BONDS DiD]
+          '-protocol_whitelist',
+          'file,crypto,data,http,https,tcp,tls',
           '-i',
           inputPath,
           '-c:v',
