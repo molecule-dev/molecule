@@ -96,7 +96,9 @@ export const createQuillProvider = (defaultOptions?: Partial<QuillOptions>): Ric
         if (value.delta) {
           quill.setContents(value.delta as Delta, 'silent')
         } else if (value.html) {
-          quill.root.innerHTML = value.html
+          // Load stored HTML through Quill's clipboard allowlist (not raw innerHTML)
+          // so persisted content can't carry <script>/onerror XSS. [P5FE-01 secure-by-default]
+          quill.clipboard.dangerouslyPasteHTML(value.html, 'silent')
         } else if (value.text) {
           quill.setText(value.text, 'silent')
         }

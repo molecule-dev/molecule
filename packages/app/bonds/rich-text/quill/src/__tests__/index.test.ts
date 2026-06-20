@@ -224,6 +224,27 @@ describe('Quill Rich Text Provider', () => {
       expect(MockQuill).toHaveBeenCalledTimes(1)
     })
 
+    it('loads stored HTML via the sanitizing clipboard path, NOT raw innerHTML [P5FE-01]', () => {
+      const provider = createQuillProvider()
+      const editor = provider.createEditor({ container })
+      const dirty = '<img src=x onerror=alert(1)><p>hi</p>'
+      mockQuillInstance.clipboard.dangerouslyPasteHTML.mockClear()
+      editor.setValue({ html: dirty } as never)
+      // setValue routes HTML through Quill's clipboard allowlist (which strips
+      // scripts/event handlers), not a raw innerHTML assignment.
+      expect(mockQuillInstance.clipboard.dangerouslyPasteHTML).toHaveBeenCalledWith(dirty, 'api')
+    })
+
+    it('initial HTML value also loads via the sanitizing clipboard path [P5FE-01]', () => {
+      const provider = createQuillProvider()
+      mockQuillInstance.clipboard.dangerouslyPasteHTML.mockClear()
+      provider.createEditor({ container, value: { html: '<script>x</script><p>ok</p>' } } as never)
+      expect(mockQuillInstance.clipboard.dangerouslyPasteHTML).toHaveBeenCalledWith(
+        '<script>x</script><p>ok</p>',
+        'silent',
+      )
+    })
+
     it('should create editor with snow theme by default', () => {
       const provider = createQuillProvider()
       provider.createEditor({ container })

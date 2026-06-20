@@ -78,7 +78,11 @@ export const createQuillEditor = (quill: Quill, container: HTMLElement): RichTex
       if (value.delta) {
         quill.setContents(value.delta as Delta, 'api')
       } else if (value.html) {
-        quill.root.innerHTML = value.html
+        // Load stored HTML through Quill's clipboard allowlist (the same safe path
+        // insertHTML uses) rather than raw innerHTML, so persisted content can't carry
+        // <script>/onerror/javascript: XSS when re-displayed. [P5FE-01 secure-by-default]
+        quill.setText('', 'api')
+        quill.clipboard.dangerouslyPasteHTML(value.html, 'api')
       } else {
         quill.setText(value.text, 'api')
       }
