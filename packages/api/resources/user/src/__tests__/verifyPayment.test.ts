@@ -333,3 +333,136 @@ describe('verifyPayment — Stripe subscription ownership binding (M3-2)', () =>
     expect(mockUpdateFn).toHaveBeenCalled()
   })
 })
+
+describe('verifyPayment — Stripe subscription replay defense (M3-1)', () => {
+  it('REGRESSION: rejects a second fresh account replaying a checkout-session id already bound to another account', async () => {
+    const { records } = wire({
+      verifiedCustomerId: 'cus_a1',
+      viaCheckoutSession: true,
+      storedCustomerId: null,
+    })
+    // The subscription (transaction) is already bound to the account that first
+    // completed the paid checkout (A1). A2 is fresh, so it passes
+    // `ownsByFreshCheckout`, but the first-claim-wins pre-check must reject it.
+    records.findByTransaction.mockResolvedValue({ userId: 'a1' })
+
+    const req = makeReq({
+      params: { id: 'a2', provider: 'stripe' },
+      query: { subscriptionId: 'cs_shared_session' },
+    })
+
+    const result = await handler(req)
+
+    expect(result?.statusCode).toBe(403)
+    expect((result?.body as { errorKey?: string })?.errorKey).toBe(
+      'user.payment.transactionAlreadyClaimed',
+    )
+    // Premium must NOT be granted to A2 and no record written for A2.
+    expect(mockUpdateFn).not.toHaveBeenCalled()
+    expect(records.store).not.toHaveBeenCalled()
+  })
+
+  it('REGRESSION: loses the race when a concurrent insert binds the subscription to another account', async () => {
+    const { records } = wire({
+      verifiedCustomerId: 'cus_a1',
+      viaCheckoutSession: true,
+      storedCustomerId: null,
+    })
+    // Pre-check passes (null), but the insert conflicts and the re-query shows a
+    // DIFFERENT owner won the race → reject without granting (no swallowed
+    // conflict-after-grant).
+    records.findByTransaction
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ userId: 'winner' })
+    records.store.mockRejectedValueOnce(new Error('duplicate key value violates unique constraint'))
+
+    const req = makeReq({
+      params: { id: 'loser', provider: 'stripe' },
+      query: { subscriptionId: 'cs_shared_session' },
+    })
+
+    const result = await handler(req)
+
+    expect(result?.statusCode).toBe(403)
+    expect((result?.body as { errorKey?: string })?.errorKey).toBe(
+      'user.payment.transactionAlreadyClaimed',
+    )
+    expect(mockUpdateFn).not.toHaveBeenCalled()
+  })
+
+  it('binds the subscription record BEFORE granting on a legitimate first-time checkout', async () => {
+    const { records } = wire({
+      verifiedCustomerId: 'cus_me',
+      viaCheckoutSession: true,
+      storedCustomerId: null,
+    })
+    records.findByTransaction.mockResolvedValue(null)
+
+    const req = makeReq({
+      params: { id: 'me', provider: 'stripe' },
+      query: { subscriptionId: 'cs_my_session' },
+    })
+
+    const result = await handler(req)
+
+    expect(result?.statusCode).toBe(200)
+    // Record bound (store called) before the grant, keyed to this user + the
+    // verified subscription id.
+    expect(records.store).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'me',
+        platformKey: 'stripe',
+        transactionId: 'sub_abc',
+      }),
+    )
+    expect(mockUpdateFn).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'me', props: expect.objectContaining({ planKey: 'premium' }) }),
+    )
+  })
+
+  it('allows the original owner to re-verify their own subscription (idempotent re-grant on conflict)', async () => {
+    const { records } = wire({
+      verifiedCustomerId: 'cus_me',
+      viaCheckoutSession: false,
+      storedCustomerId: 'cus_me',
+    })
+    // Pre-check sees no other owner; the insert hits the UNIQUE constraint, and
+    // the re-query shows the SAME user owns it → idempotent re-grant.
+    records.findByTransaction.mockResolvedValueOnce(null).mockResolvedValueOnce({ userId: 'me' })
+    records.store.mockRejectedValueOnce(new Error('duplicate key value violates unique constraint'))
+
+    const req = makeReq({
+      params: { id: 'me', provider: 'stripe' },
+      body: { subscriptionId: 'sub_me' },
+    })
+
+    const result = await handler(req)
+
+    expect(result?.statusCode).toBe(200)
+    expect(mockUpdateFn).toHaveBeenCalled()
+  })
+
+  it('fails closed when the verified subscription has no transaction id (unbindable)', async () => {
+    const { provider } = wire({
+      verifiedCustomerId: 'cus_me',
+      viaCheckoutSession: true,
+      storedCustomerId: null,
+    })
+    provider.verifySubscription.mockResolvedValue({
+      productId: 'prod_premium',
+      expiresAt: new Date(4070908800000).toISOString(),
+      autoRenews: true,
+      data: { customerId: 'cus_me', viaCheckoutSession: true },
+    })
+
+    const req = makeReq({
+      params: { id: 'me', provider: 'stripe' },
+      query: { subscriptionId: 'cs_my_session' },
+    })
+
+    const result = await handler(req)
+
+    expect(result?.statusCode).toBe(400)
+    expect(mockUpdateFn).not.toHaveBeenCalled()
+  })
+})

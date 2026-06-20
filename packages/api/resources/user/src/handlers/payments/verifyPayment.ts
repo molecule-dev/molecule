@@ -183,6 +183,60 @@ export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
             },
           }
         }
+
+        // First-claim-wins replay defense (M3-1), mirroring the receipt branch.
+        // The ownership check above proves the caller MAY claim the subscription;
+        // this proves the subscription has not ALREADY been claimed by another
+        // account. A `cs_` checkout-session id is reusable by whoever obtained it
+        // (e.g. the attacker, from their own legitimate checkout redirect), so
+        // without this a single paid session could be replayed to grant premium
+        // to unlimited fresh accounts — each would pass `ownsByFreshCheckout`.
+        // The atomic, race-safe backstop is the insert-before-grant below; this
+        // is the fast, fail-closed pre-check.
+        //
+        // A subscription with no transaction id cannot be bound to a single
+        // account and therefore cannot be protected from replay — fail closed
+        // rather than grant an unbounded entitlement.
+        if (!verified.transactionId) {
+          analytics
+            .track({
+              name: 'payment.verification_failed',
+              userId: ownerId,
+              properties: { provider: providerName, reason: 'missing_transaction_id' },
+            })
+            .catch(() => {})
+          return {
+            statusCode: 400,
+            body: {
+              error: t('user.payment.verificationFailed', { provider: providerName }),
+              errorKey: 'user.payment.verificationFailed',
+            },
+          }
+        }
+
+        const existingTransaction = records
+          ? await records.findByTransaction(providerName, verified.transactionId)
+          : null
+        if (existingTransaction && existingTransaction.userId !== ownerId) {
+          analytics
+            .track({
+              name: 'payment.verification_ownership_rejected',
+              userId: ownerId,
+              properties: { provider: providerName },
+            })
+            .catch(() => {})
+          return {
+            statusCode: 403,
+            body: {
+              error: t(
+                'user.payment.transactionAlreadyClaimed',
+                { provider: providerName },
+                { defaultValue: 'This purchase is already associated with another account.' },
+              ),
+              errorKey: 'user.payment.transactionAlreadyClaimed',
+            },
+          }
+        }
       } else {
         // Receipt-flow (Apple/Google) ownership/replay binding (R2-1), mirroring
         // the subscription block above. A single purchased receipt must bind to
@@ -253,14 +307,15 @@ export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
       const id = req.params.id as string
       const records = get<PaymentRecordService>('paymentRecords')
 
-      // For the receipt (Apple/Google) flow, bind the transaction to THIS user
-      // BEFORE granting the plan — fail-closed, first-claim-wins. The
-      // UNIQUE(platformKey, transactionId) index makes a second account's insert
-      // fail; `store()` surfaces that conflict (rather than swallowing it) so a
-      // replayed receipt is rejected here instead of being granted (R2-1). The
-      // subscription flow keeps its existing post-grant store (its ownership was
-      // already enforced above).
-      if (!isSubscriptionFlow && records && verified.transactionId) {
+      // Bind the transaction to THIS user BEFORE granting the plan —
+      // fail-closed, first-claim-wins — for BOTH the receipt (Apple/Google, R2-1)
+      // and subscription (Stripe, M3-1) flows. The UNIQUE(platformKey,
+      // transactionId) index makes a second account's insert fail; `store()`
+      // surfaces that conflict (rather than swallowing it) so a replayed receipt
+      // OR a replayed checkout-session id is rejected here instead of being
+      // granted. Never grant the plan before the transaction is bound, and never
+      // swallow the store conflict in a path that has already granted.
+      if (records && verified.transactionId) {
         try {
           await records.store({
             userId: id,
@@ -329,20 +384,9 @@ export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
         })
         .catch(() => {})
 
-      // Store payment record via bond (subscription flow only — the receipt flow
-      // already bound its record above, before granting).
-      if (isSubscriptionFlow && records && verified.transactionId) {
-        await records
-          .store({
-            userId: id,
-            platformKey: providerName,
-            transactionId: verified.transactionId,
-            productId: verified.productId,
-            data: verified.data || {},
-            ...(receipt ? { receipt } : {}),
-          })
-          .catch((error) => logger.error('Failed to store payment:', error))
-      }
+      // Both flows now bind their payment record BEFORE granting (above), so
+      // there is no post-grant store here — a swallowed conflict after a grant
+      // is exactly the replay hole this closes (M3-1 / R2-1).
 
       return result
     } catch (error) {
