@@ -647,15 +647,34 @@ describe('logInOAuth handler — CSRF state validation', () => {
 
     const req = makeReq({
       body: { server: 'google', code: 'auth-code', state: stateValue },
-      cookies: { oauth_state: stateValue },
+      // In production (mocked NODE_ENV) the state cookie is `__Host-`-prefixed and the
+      // plain name is NOT accepted (C4-1 — no toss fallback), so the legit cookie must
+      // be under the prefixed name.
+      cookies: { '__Host-oauth_state': stateValue },
     })
     const res = makeRes()
 
     const result = await handler(req as MoleculeRequest, res as MoleculeResponse)
 
     expect(result?.statusCode).toBe(200)
-    // Verify that clearCookie was called for the state cookie.
+    // Verify that clearCookie was called for the state cookie (both names are cleared).
     expect(res.clearCookie).toHaveBeenCalledWith('oauth_state', { path: '/' })
+  })
+
+  it('rejects a TOSSED plain oauth_state cookie in production — no plain fallback [C4-1]', async () => {
+    // A sibling *.molecule.dev preview can toss a `.molecule.dev`-scoped PLAIN
+    // oauth_state cookie; the attacker controls both it and body.state. In prod the
+    // verifier must read ONLY `__Host-oauth_state` (untossable), so this must 403.
+    const tossed = 'attacker-tossed-state'
+    const req = makeReq({
+      body: { server: 'google', code: 'auth-code', state: tossed },
+      cookies: { oauth_state: tossed },
+    })
+    const res = makeRes()
+
+    const result = await handler(req as MoleculeRequest, res as MoleculeResponse)
+
+    expect(result?.statusCode).toBe(403)
   })
 
   it('should return 403 when state param is ABSENT — state validation is mandatory (login-CSRF)', async () => {

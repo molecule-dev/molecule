@@ -84,11 +84,19 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
     const requireState = getConfig<string>('OAUTH_REQUIRE_STATE', 'true') !== 'false'
     if (requireState) {
       // In production the state cookie is `__Host-`-prefixed (unshadowable by a
-      // sibling subdomain); accept both the prefixed and plain names so OAuth
-      // login works across the deploy that flips the prefix on, and in dev.
+      // sibling subdomain). [C4-1] We must NOT accept the plain name in production:
+      // a tenant on a sibling `*.molecule.dev` preview can toss a `.molecule.dev`
+      // plain `oauth_state` cookie, and a plain-name fallback would let that tossed
+      // value satisfy the CSRF check (login-CSRF / session fixation). `__Host-`
+      // cookies cannot carry a Domain, so they can't be tossed. oauth_state has a
+      // 5-min TTL, so there is no legacy plain cookie to support — drop the fallback
+      // in production. In dev (no `__Host-`) the plain name is the real cookie.
       const stateCookies = (req as unknown as { cookies?: Record<string, string> }).cookies
       const cookieState =
-        stateCookies?.[authorization.getAuthCookieName('oauth_state')] ?? stateCookies?.oauth_state
+        getConfig<string>('NODE_ENV') === 'production'
+          ? stateCookies?.[authorization.getAuthCookieName('oauth_state')]
+          : (stateCookies?.[authorization.getAuthCookieName('oauth_state')] ??
+            stateCookies?.oauth_state)
       const expressRes = res as unknown as {
         clearCookie?(name: string, options?: Record<string, unknown>): void
       }
