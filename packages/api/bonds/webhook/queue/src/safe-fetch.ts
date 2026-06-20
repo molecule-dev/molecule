@@ -25,8 +25,26 @@ export function isPrivateIPv6(ip: string): boolean {
   const s = ip.toLowerCase()
   if (s === '::1' || s === '::') return true
   if (s.startsWith('fc') || s.startsWith('fd') || s.startsWith('fe80')) return true
-  const mapped = s.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/)
-  if (mapped) return isPrivateIPv4(mapped[1] as string)
+  // IPv4-mapped / IPv4-embedded IPv6 must be decoded to its embedded v4 and run
+  // through isPrivateIPv4 — otherwise an attacker reaches loopback/metadata via a
+  // mapped literal (the kernel routes ::ffff:7f00:1 → 127.0.0.1).
+  //
+  // CRITICAL: the WHATWG URL parser NEVER emits the dotted form. It normalizes
+  // `[::ffff:169.254.169.254]` to the *hex* form `::ffff:a9fe:a9fe`, so the dotted
+  // branch alone is dead on the real safeFetch() path. We decode BOTH the dotted
+  // and the hex representations (incl. the `::ffff:0:HHHH:HHHH` SIIT variant), and
+  // fail CLOSED — treat as private — on any v4-mapped form we cannot parse, so a
+  // malformed/edge mapped literal can never slip through as "public".
+  const dotted = s.match(/^::(?:ffff:)?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/)
+  if (dotted) return isPrivateIPv4(dotted[1] as string)
+  const hex = s.match(/^::(?:ffff:)?(?:0:)?([0-9a-f]{1,4}):([0-9a-f]{1,4})$/)
+  if (hex) {
+    const hi = parseInt(hex[1] as string, 16)
+    const lo = parseInt(hex[2] as string, 16)
+    return isPrivateIPv4(`${hi >> 8}.${hi & 255}.${lo >> 8}.${lo & 255}`)
+  }
+  // Any other IPv4-mapped (`::ffff:…`) literal we could not decode → fail closed.
+  if (s.startsWith('::ffff:')) return true
   return false
 }
 
