@@ -81,6 +81,38 @@ function createProvider(config?: DockerConfig): SandboxProvider
 
 **Returns:** A `SandboxProvider` that manages Docker containers as sandboxes.
 
+#### `withTransientRetry(op, opts, opts, opts, opts, opts, opts)`
+
+Retry a Docker API operation that failed with a TRANSIENT fault — a request
+timeout or a connection-level reset, i.e. the daemon was momentarily overwhelmed,
+not the request malformed. This is the fix for the observed "first cold boot of a
+concurrent batch dies on `Docker API timeout: POST /containers/create`" failure:
+a single 30 s create timeout under daemon load currently kills the whole boot.
+
+HTTP error responses (4xx/5xx) are deliberately NOT retried — those are real
+answers (no-such-image, name conflict), not transient network faults. Bounded
+attempts with linear backoff.
+
+`onRetry` is the idempotency guard: a create that TIMED OUT client-side may have
+still succeeded server-side, so before re-issuing it the caller can adopt the
+already-created resource (looked up by a unique label) instead of leaking a
+duplicate container. If `onRetry` returns non-null, that value is used and the
+operation is not re-issued.
+
+```typescript
+function withTransientRetry(op: () => Promise<T>, opts: { label: string; attempts?: number; onRetry?: () => Promise<T | null>; delayMs?: (attempt: number) => number; log?: { warn: (message: string, meta?: unknown) => void; }; }): Promise<T>
+```
+
+- `op` — the operation to attempt.
+- `opts` — tuning + the optional adopt-on-retry guard.
+- `opts` — .label - short operation name for log lines.
+- `opts` — .attempts - max attempts (default 3).
+- `opts` — .onRetry - adopt-an-existing-resource guard, run before each retry.
+- `opts` — .delayMs - backoff for attempt N (default `400 * N` ms).
+- `opts` — .log - optional logger for retry warnings.
+
+**Returns:** the operation's result, or an adopted result from `onRetry`.
+
 ### Constants
 
 #### `provider`
@@ -115,6 +147,15 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-code-sandbox` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+**Tenant network isolation (secure default).** Each sandbox is placed on a dedicated
+user-defined Docker network created with inter-container communication DISABLED
+(`com.docker.network.bridge.enable_icc=false`), so one tenant's sandbox cannot reach another
+tenant's Vite/API dev-server ports by IP. Do NOT set `SANDBOX_DOCKER_NETWORK="bridge"` — the
+shared docker bridge has ICC enabled (no cross-tenant isolation) and is REFUSED in production.
+Override `SANDBOX_DOCKER_NETWORK` only to point at another dedicated ICC-off network. This is
+an L2 isolation control; pair it with host-layer default-deny egress filtering (operator-
+provisioned) for full isolation. [C1-1]
 
 ## Translations
 

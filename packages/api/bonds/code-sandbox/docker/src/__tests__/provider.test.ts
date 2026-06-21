@@ -94,6 +94,41 @@ function enqueueJson(statusCode: number, data: unknown): void {
   enqueueResponse(statusCode, JSON.stringify(data))
 }
 
+/**
+ * [C1-1] `create()` now issues a leading `POST /networks/create` (to ensure the
+ * dedicated ICC-off isolated network) as its FIRST Docker call, before
+ * `/containers/create`. Any create-based test must therefore enqueue this success
+ * response FIRST so the container-create still receives its own intended
+ * (next-enqueued) response. `ensureSandboxNetwork` treats 201/409 as success and
+ * ignores other statuses non-fatally, so a 201 here is the natural "created" reply.
+ */
+function enqueueNetworkCreate(): void {
+  enqueueJson(201, { Id: 'net-test' })
+}
+
+/**
+ * Find the first recorded http.request whose path contains `pathFragment`. Lets
+ * assertions target a specific Docker call by path instead of a brittle numeric
+ * index, which is now offset by the leading `/networks/create` call (C1-1).
+ */
+function findCall(pathFragment: string): (typeof httpRequestCalls)[number] {
+  const call = httpRequestCalls.find((c) => String(c.opts.path).includes(pathFragment))
+  if (!call) throw new Error(`no http.request matching path "${pathFragment}" was made`)
+  return call
+}
+
+/** The `POST /containers/create` request (the container-create call). */
+function containerCreateCall(): (typeof httpRequestCalls)[number] {
+  return findCall('/containers/create')
+}
+
+/** The `POST /containers/<id>/exec` request (the exec-create call). */
+function execCreateCall(): (typeof httpRequestCalls)[number] {
+  const call = httpRequestCalls.find((c) => String(c.opts.path).endsWith('/exec'))
+  if (!call) throw new Error('no exec-create (POST /containers/<id>/exec) request was made')
+  return call
+}
+
 // ─── Test setup ───────────────────────────────────────────────────────────────
 
 beforeEach(() => {
@@ -173,7 +208,8 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
-      // Create container
+      // Create container (preceded by the C1-1 leading /networks/create call)
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-sq' })
       const sandbox = await provider.create({ projectId: 'test-sq' })
 
@@ -186,8 +222,8 @@ describe('DockerSandboxProvider', () => {
 
       await sandbox.readFile(filePath)
 
-      // The exec create call is the second request (index 1)
-      const execCall = httpRequestCalls[1]
+      // Locate the exec-create call by path (robust to the leading network call).
+      const execCall = execCreateCall()
       const body = JSON.parse(execCall.body!)
       // The command is: sh -c 'cat <shellQuoted(path)>'
       return body.Cmd.join(' ')
@@ -236,6 +272,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-wf' })
       const sandbox = await provider.create({ projectId: 'test-wf' })
 
@@ -245,7 +282,7 @@ describe('DockerSandboxProvider', () => {
 
       await sandbox.writeFile("file'name.txt", 'content')
 
-      const execCall = httpRequestCalls[1]
+      const execCall = execCreateCall()
       const body = JSON.parse(execCall.body!)
       const cmd = body.Cmd.join(' ')
       // Both the base64 content and path should be single-quoted
@@ -256,6 +293,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-df' })
       const sandbox = await provider.create({ projectId: 'test-df' })
 
@@ -265,7 +303,7 @@ describe('DockerSandboxProvider', () => {
 
       await sandbox.deleteFile("path'with'quotes")
 
-      const execCall = httpRequestCalls[1]
+      const execCall = execCreateCall()
       const body = JSON.parse(execCall.body!)
       const cmd = body.Cmd.join(' ')
       expect(cmd).toContain("rm -rf 'path'\\''with'\\''quotes'")
@@ -275,6 +313,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-to' })
       const sandbox = await provider.create({ projectId: 'test-to' })
 
@@ -284,7 +323,7 @@ describe('DockerSandboxProvider', () => {
 
       await sandbox.exec("echo 'hello'", { timeout: 5000 })
 
-      const execCall = httpRequestCalls[1]
+      const execCall = execCreateCall()
       const body = JSON.parse(execCall.body!)
       const cmd = body.Cmd.join(' ')
       // With timeout, the command should be wrapped:
@@ -319,6 +358,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-mux1' })
       const sandbox = await provider.create({ projectId: 'test-mux1' })
 
@@ -341,6 +381,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-mux2' })
       const sandbox = await provider.create({ projectId: 'test-mux2' })
 
@@ -360,6 +401,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-mux3' })
       const sandbox = await provider.create({ projectId: 'test-mux3' })
 
@@ -383,6 +425,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-mux4' })
       const sandbox = await provider.create({ projectId: 'test-mux4' })
 
@@ -400,6 +443,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-mux5' })
       const sandbox = await provider.create({ projectId: 'test-mux5' })
 
@@ -428,6 +472,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-max' })
       const sandbox = await provider.create({ projectId: 'test-max' })
 
@@ -505,6 +550,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-sec' })
 
       const config: SandboxConfig = {
@@ -514,7 +560,7 @@ describe('DockerSandboxProvider', () => {
 
       await provider.create(config)
 
-      const createCall = httpRequestCalls[0]
+      const createCall = containerCreateCall()
       return JSON.parse(createCall.body!)
     }
 
@@ -539,10 +585,13 @@ describe('DockerSandboxProvider', () => {
       expect(hostConfig.SecurityOpt).toEqual(['no-new-privileges'])
     })
 
-    it('defaults NetworkMode to "bridge" and maps host.docker.internal', async () => {
+    it('defaults NetworkMode to the ICC-off isolated sandbox network and maps host.docker.internal', async () => {
       const body = await getCreateBody()
       const hostConfig = body.HostConfig as Record<string, unknown>
-      expect(hostConfig.NetworkMode).toBe('bridge')
+      // [C1-1] Default is the dedicated ICC-off network (DEFAULT_SANDBOX_NETWORK),
+      // NOT the shared `bridge` — the bridge's inter-container communication lets one
+      // tenant reach another's dev-server ports by IP.
+      expect(hostConfig.NetworkMode).toBe('molecule-sandbox')
       expect(hostConfig.ExtraHosts).toEqual(['host.docker.internal:host-gateway'])
     })
 
@@ -561,18 +610,39 @@ describe('DockerSandboxProvider', () => {
       }
     })
 
+    it('ensures an ICC-disabled bridge network as the FIRST create() call (C1-1)', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock' })
+
+      enqueueNetworkCreate()
+      enqueueJson(201, { Id: 'container-net' })
+      await provider.create({ projectId: 'test-net' })
+
+      // The network ensure must be the FIRST Docker call, before /containers/create.
+      expect(httpRequestCalls[0].opts.path).toContain('/networks/create')
+
+      const netCall = findCall('/networks/create')
+      expect(netCall.opts.method).toBe('POST')
+      const netBody = JSON.parse(netCall.body!)
+      expect(netBody.Driver).toBe('bridge')
+      // Inter-container communication DISABLED → tenants are L2-isolated by default.
+      expect(netBody.Options['com.docker.network.bridge.enable_icc']).toBe('false')
+    })
+
     it('should set PidsLimit: 512', async () => {
       const body = await getCreateBody()
       const hostConfig = body.HostConfig as Record<string, unknown>
       expect(hostConfig.PidsLimit).toBe(512)
     })
 
-    it('should set MemorySwap to -1 (unlimited swap)', async () => {
+    it('should bound MemorySwap to 2x memory (no unlimited swap) [C1-2]', async () => {
       const body = await getCreateBody()
       const hostConfig = body.HostConfig as Record<string, unknown>
       const expectedBytes = 512 * 1024 * 1024
       expect(hostConfig.Memory).toBe(expectedBytes)
-      expect(hostConfig.MemorySwap).toBe(-1)
+      // [C1-2] Bounded swap (2x memory), NOT -1/unlimited — an unlimited swap let a sandbox
+      // exhaust host swap. The source sets MemorySwap = memoryBytes * 2.
+      expect(hostConfig.MemorySwap).toBe(expectedBytes * 2)
     })
 
     it('should set Init: true for zombie process reaping', async () => {
@@ -595,14 +665,16 @@ describe('DockerSandboxProvider', () => {
         defaultMemoryMB: 1024,
       })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-def' })
       await provider.create({ projectId: 'test-defaults' })
 
-      const body = JSON.parse(httpRequestCalls[0].body!)
+      const body = JSON.parse(containerCreateCall().body!)
       const hostConfig = body.HostConfig as Record<string, unknown>
       expect(hostConfig.NanoCPUs).toBe(1e9)
       expect(hostConfig.Memory).toBe(1024 * 1024 * 1024)
-      expect(hostConfig.MemorySwap).toBe(-1)
+      // [C1-2] Bounded swap (2x memory), not unlimited.
+      expect(hostConfig.MemorySwap).toBe(1024 * 1024 * 1024 * 2)
     })
 
     it('should set explicit PortBindings instead of PublishAllPorts', async () => {
@@ -616,10 +688,11 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-vol' })
       await provider.create({ projectId: 'test-vol', volumeName: 'my-volume' })
 
-      const body = JSON.parse(httpRequestCalls[0].body!)
+      const body = JSON.parse(containerCreateCall().body!)
       const hostConfig = body.HostConfig as Record<string, unknown>
       expect(hostConfig.Binds).toEqual(['my-volume:/workspace'])
     })
@@ -632,10 +705,11 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-lbl0' })
       await provider.create({ projectId: 'proj-lbl0' })
 
-      const body = JSON.parse(httpRequestCalls[0].body!)
+      const body = JSON.parse(containerCreateCall().body!)
       const labels = body.Labels as Record<string, string>
       expect(labels['molecule-sandbox.projectId']).toBe('proj-lbl0')
       expect(labels['molecule-sandbox.managed']).toBe('true')
@@ -647,13 +721,14 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-lbl1' })
       await provider.create({
         projectId: 'proj-lbl1',
         labels: { 'molecule.production': 'proj-lbl1' },
       })
 
-      const body = JSON.parse(httpRequestCalls[0].body!)
+      const body = JSON.parse(containerCreateCall().body!)
       const labels = body.Labels as Record<string, string>
       // Custom label applied alongside the provider's managed labels.
       expect(labels['molecule.production']).toBe('proj-lbl1')
@@ -665,6 +740,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-lbl2' })
       await provider.create({
         projectId: 'real-project',
@@ -674,7 +750,7 @@ describe('DockerSandboxProvider', () => {
         },
       })
 
-      const body = JSON.parse(httpRequestCalls[0].body!)
+      const body = JSON.parse(containerCreateCall().body!)
       const labels = body.Labels as Record<string, string>
       expect(labels['molecule-sandbox.projectId']).toBe('real-project')
       expect(labels['molecule-sandbox.managed']).toBe('true')
@@ -688,6 +764,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-st' })
       const sandbox = await provider.create({ projectId: 'test-st' })
 
@@ -741,6 +818,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-st2' })
       const sandbox = await provider.create({ projectId: 'test-st2' })
 
@@ -801,11 +879,12 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-timeout' })
       await provider.create({ projectId: 'test-timeout' })
 
-      // The create call uses dockerApi (regular API)
-      const createReq = httpRequestCalls[0].req
+      // The container-create call uses dockerApi (regular API)
+      const createReq = containerCreateCall().req
       expect(createReq.setTimeout).toHaveBeenCalledWith(30_000, expect.any(Function))
     })
 
@@ -813,6 +892,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-exec-to' })
       const sandbox = await provider.create({ projectId: 'test-exec-to' })
 
@@ -825,16 +905,18 @@ describe('DockerSandboxProvider', () => {
 
       await sandbox.exec('ls')
 
-      // httpRequestCalls[0] = create container (dockerApi, 30s)
-      // httpRequestCalls[1] = exec create (dockerApi, 30s)
-      // httpRequestCalls[2] = exec start (dockerApiRaw, 600s)
-      // httpRequestCalls[3] = exec inspect (dockerApi, 30s)
-
-      const execStartReq = httpRequestCalls[2].req
+      // Requests now (C1-1 adds a leading /networks/create):
+      //   /networks/create (dockerApi, 30s)  — ensure network
+      //   /containers/create (dockerApi, 30s)
+      //   /containers/<id>/exec (exec create, dockerApi, 30s)
+      //   /exec/<id>/start (exec start, dockerApiRaw, 600s)
+      //   /exec/<id>/json (exec inspect, dockerApi, 30s)
+      // Locate by path so the leading network call can't offset the assertion.
+      const execStartReq = findCall('/start').req
       expect(execStartReq.setTimeout).toHaveBeenCalledWith(600_000, expect.any(Function))
 
-      // Verify regular calls get 30s
-      const execCreateReq = httpRequestCalls[1].req
+      // Verify regular (exec-create) calls get 30s
+      const execCreateReq = execCreateCall().req
       expect(execCreateReq.setTimeout).toHaveBeenCalledWith(30_000, expect.any(Function))
     })
 
@@ -842,12 +924,14 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
-      // Don't enqueue a response — let the timeout fire
+      // Don't enqueue a response — both the leading /networks/create and the
+      // /containers/create fall through to the default 200 mock and resolve; we
+      // then manually fire the container-create request's timeout handler.
       void provider.create({ projectId: 'test-timeout-fire' })
 
-      // Get the request and fire the timeout callback
+      // Get the container-create request and fire the timeout callback
       await new Promise((r) => setTimeout(r, 10))
-      const req = httpRequestCalls[0].req
+      const req = containerCreateCall().req
       const timeoutCall = req.setTimeout.mock.calls[0]
       expect(timeoutCall[0]).toBe(30_000)
 
@@ -870,24 +954,33 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
-      // Override the entire http.request mock for full control of all calls
-      let callCount = 0
+      // Override the entire http.request mock for full control of all calls.
+      // Dispatch by path (not call order) so the C1-1 leading /networks/create
+      // call is handled without offsetting the container/exec branches.
       vi.mocked(http.request).mockImplementation(
         (
           opts: string | URL | http.RequestOptions,
           cbOrOpts?: RequestCallback | http.RequestOptions,
           maybeCb?: RequestCallback,
         ) => {
-          callCount++
           const callback = typeof cbOrOpts === 'function' ? cbOrOpts : maybeCb
           const requestOpts = (
             typeof opts === 'object' && !(opts instanceof URL) ? opts : {}
           ) as http.RequestOptions
-          const path = requestOpts.path ?? ''
+          const path = String(requestOpts.path ?? '')
 
           const req = buildMockRequest(new EventEmitter())
 
-          if (callCount === 1) {
+          if (path.includes('/networks/create')) {
+            // [C1-1] Leading network ensure
+            const res = buildMockResponse(201, JSON.stringify({ Id: 'net-cap' }))
+            req.end.mockImplementation(() => {
+              process.nextTick(() => callback?.(res))
+            })
+            return req as unknown as http.ClientRequest
+          }
+
+          if (path.includes('/containers/create')) {
             // Container create
             const res = buildMockResponse(200, JSON.stringify({ Id: 'container-cap' }))
             req.end.mockImplementation(() => {
@@ -896,7 +989,7 @@ describe('DockerSandboxProvider', () => {
             return req as unknown as http.ClientRequest
           }
 
-          if (callCount === 2) {
+          if (path.endsWith('/exec')) {
             // Exec create
             const res = buildMockResponse(200, JSON.stringify({ Id: 'exec-cap' }))
             req.end.mockImplementation(() => {
@@ -1021,10 +1114,11 @@ describe('DockerSandboxProvider', () => {
         baseImage: 'node:20-alpine',
       })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-img' })
       await provider.create({ projectId: 'test-img' })
 
-      const body = JSON.parse(httpRequestCalls[0].body!)
+      const body = JSON.parse(containerCreateCall().body!)
       expect(body.Image).toBe('node:20-alpine')
     })
 
@@ -1035,10 +1129,11 @@ describe('DockerSandboxProvider', () => {
         baseImage: 'node:20-alpine',
       })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-override' })
       await provider.create({ projectId: 'test-override', image: 'custom:latest' })
 
-      const body = JSON.parse(httpRequestCalls[0].body!)
+      const body = JSON.parse(containerCreateCall().body!)
       expect(body.Image).toBe('custom:latest')
     })
 
@@ -1046,13 +1141,14 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-env' })
       await provider.create({
         projectId: 'test-env',
         env: { NODE_ENV: 'production', API_KEY: 'secret123' },
       })
 
-      const body = JSON.parse(httpRequestCalls[0].body!)
+      const body = JSON.parse(containerCreateCall().body!)
       expect(body.Env).toEqual(['NODE_ENV=production', 'API_KEY=secret123'])
     })
 
@@ -1060,10 +1156,11 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-ports' })
       await provider.create({ projectId: 'test-ports' })
 
-      const body = JSON.parse(httpRequestCalls[0].body!)
+      const body = JSON.parse(containerCreateCall().body!)
       expect(body.ExposedPorts).toEqual({
         '4000/tcp': {},
         '5173/tcp': {},
@@ -1078,6 +1175,7 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-life' })
       const sandbox = await provider.create({ projectId: 'test-life' })
 
@@ -1087,14 +1185,16 @@ describe('DockerSandboxProvider', () => {
       await sandbox.start()
 
       expect(sandbox.status).toBe('running')
-      expect(httpRequestCalls[1].opts.path).toContain('/containers/container-life/start')
-      expect(httpRequestCalls[1].opts.method).toBe('POST')
+      const startCall = findCall('/containers/container-life/start')
+      expect(startCall.opts.path).toContain('/containers/container-life/start')
+      expect(startCall.opts.method).toBe('POST')
     })
 
     it('should stop a container', async () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-stop' })
       const sandbox = await provider.create({ projectId: 'test-stop' })
 
@@ -1111,6 +1211,7 @@ describe('DockerSandboxProvider', () => {
         previewUrlTemplate: 'http://preview.local:{port}',
       })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-url' })
       const sandbox = await provider.create({ projectId: 'test-url' })
 
@@ -1127,20 +1228,22 @@ describe('DockerSandboxProvider', () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-ver' })
       await provider.create({ projectId: 'test-ver' })
 
-      expect(httpRequestCalls[0].opts.path).toBe('/v1.44/containers/create')
+      expect(containerCreateCall().opts.path).toBe('/v1.44/containers/create')
     })
 
     it('should use the configured socketPath', async () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/custom/path.sock' })
 
+      enqueueNetworkCreate()
       enqueueJson(201, { Id: 'container-sock' })
       await provider.create({ projectId: 'test-sock' })
 
-      expect(httpRequestCalls[0].opts.socketPath).toBe('/custom/path.sock')
+      expect(containerCreateCall().opts.socketPath).toBe('/custom/path.sock')
     })
   })
 

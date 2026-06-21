@@ -42,6 +42,18 @@ function shellQuote(s: string): string {
 const LABEL_PREFIX = 'molecule-sandbox'
 
 /**
+ * [C1-1] Default sandbox network. The shared docker `bridge` has inter-container communication
+ * ENABLED, so two tenants' sandboxes can reach each other's Vite/API dev-server ports by IP —
+ * a cross-tenant info-disclosure gap for any multi-tenant app that runs untrusted code in these
+ * sandboxes. We default to a dedicated user-defined network created with ICC DISABLED
+ * (`com.docker.network.bridge.enable_icc=false`) so each tenant is isolated at L2 out of the
+ * box. Operators can override with `SANDBOX_DOCKER_NETWORK`; setting it to `bridge` is refused
+ * in production (see {@link DockerSandboxProvider.ensureSandboxNetwork}). Host-layer
+ * default-deny egress filtering remains a separate, operator-provisioned control.
+ */
+const DEFAULT_SANDBOX_NETWORK = 'molecule-sandbox'
+
+/**
  * Parses Docker's multiplexed binary stream from a raw socket.
  * Each frame: 8-byte header [streamType(1), 0, 0, 0, size(4 BE uint32)] + payload.
  * Buffers partial frames across data events.
@@ -177,6 +189,8 @@ class DockerSandboxProvider implements SandboxProvider {
   private previewUrlTemplate: string
   private defaultCpu: number
   private defaultMemoryMB: number
+  /** [C1-1] Memoize the one-time ICC-off network ensure so create() pays it only once. */
+  private networkEnsured = false
 
   constructor(config: DockerConfig = {}) {
     this.socketPath = config.socketPath ?? process.env.DOCKER_SOCKET_PATH ?? '/var/run/docker.sock'
@@ -188,12 +202,62 @@ class DockerSandboxProvider implements SandboxProvider {
   }
 
   /**
+   * [C1-1] Idempotently ensure the sandbox network exists with inter-container communication
+   * DISABLED, so tenants can't reach each other's containers over a shared bridge. Resolves the
+   * network from `SANDBOX_DOCKER_NETWORK` (default {@link DEFAULT_SANDBOX_NETWORK}). The shared
+   * `bridge` has ICC enabled and gives NO isolation, so it is refused in production and only
+   * warned about elsewhere. Memoized; tolerant of "already exists" (409); non-fatal on other
+   * errors (container create surfaces a clear error if the network is genuinely missing).
+   */
+  private async ensureSandboxNetwork(): Promise<void> {
+    if (this.networkEnsured) return
+    const network = process.env.SANDBOX_DOCKER_NETWORK || DEFAULT_SANDBOX_NETWORK
+    if (network === 'bridge') {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error(
+          'SANDBOX_DOCKER_NETWORK="bridge" is forbidden in production: the shared docker bridge ' +
+            "has inter-container communication enabled, so one tenant can reach another tenant's " +
+            'sandbox dev-server ports by IP (C1-1). Unset SANDBOX_DOCKER_NETWORK to use the ' +
+            `isolated default ("${DEFAULT_SANDBOX_NETWORK}"), or set a dedicated ICC-off network.`,
+        )
+      }
+      logger.warn(
+        'Sandbox network is the shared docker "bridge" — NO cross-tenant isolation (C1-1). ' +
+          'Unset SANDBOX_DOCKER_NETWORK to use the isolated default network.',
+      )
+      this.networkEnsured = true
+      return
+    }
+    this.networkEnsured = true
+    try {
+      await this.dockerApi('/networks/create', 'POST', {
+        Name: network,
+        Driver: 'bridge',
+        CheckDuplicate: true,
+        Options: { 'com.docker.network.bridge.enable_icc': 'false' },
+      })
+      logger.info('Sandbox network ready', { network })
+    } catch (error) {
+      // dockerApi rejects on 409 (already exists) — that is success for our purposes.
+      const msg = error instanceof Error ? error.message : String(error)
+      if (msg.includes('409') || /already exists/i.test(msg)) {
+        logger.debug('Sandbox network already exists', { network })
+      } else {
+        // Non-fatal: container create surfaces a clear error if the network is truly missing.
+        logger.warn('Failed to ensure sandbox network', { network, error })
+      }
+    }
+  }
+
+  /**
    * Creates a new Docker container as a sandbox with the specified resource limits,
    * environment variables, and exposed ports (4000 for API, 5173 for Vite preview).
    * @param config - The sandbox configuration including project ID, image, env vars, and resource limits.
    * @returns A `Sandbox` object wrapping the created container.
    */
   async create(config: SandboxConfig): Promise<Sandbox> {
+    // [C1-1] Ensure the ICC-off isolated network exists before placing the container on it.
+    await this.ensureSandboxNetwork()
     const cpu = config.resources?.cpu ?? this.defaultCpu
     const memoryMB = config.resources?.memoryMB ?? this.defaultMemoryMB
     const image = config.image ?? this.baseImage
@@ -260,12 +324,13 @@ class DockerSandboxProvider implements SandboxProvider {
       ],
     }
 
-    // Network: default to the shared `bridge` (internet egress). Operators can set
-    // SANDBOX_DOCKER_NETWORK to a dedicated user-defined network (created with
-    // inter-container communication disabled) to isolate each tenant from every
-    // other tenant's containers; pair it with host.docker.internal (below) +
-    // SANDBOX_DB_HOST=host.docker.internal so the sandbox still reaches its own DB.
-    hostConfig.NetworkMode = process.env.SANDBOX_DOCKER_NETWORK || 'bridge'
+    // [C1-1] Network: default to the dedicated ICC-OFF network (ensured above) so tenants are
+    // L2-isolated out of the box — NOT the shared `bridge`, whose inter-container communication
+    // lets one tenant reach another's dev-server ports by IP. Operators can override with
+    // SANDBOX_DOCKER_NETWORK (a `bridge` value is refused in production); pair it with
+    // host.docker.internal (below) + SANDBOX_DB_HOST=host.docker.internal so the sandbox still
+    // reaches its own DB.
+    hostConfig.NetworkMode = process.env.SANDBOX_DOCKER_NETWORK || DEFAULT_SANDBOX_NETWORK
     // Map host.docker.internal → host gateway on all networks (not added
     // automatically on user-defined bridges). Harmless on the default bridge.
     hostConfig.ExtraHosts = ['host.docker.internal:host-gateway']
