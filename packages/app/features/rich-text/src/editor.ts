@@ -4,7 +4,7 @@
  * @module
  */
 
-import DOMPurify from 'dompurify'
+import createDOMPurify from 'dompurify'
 
 import type {
   EditorEvent,
@@ -26,8 +26,24 @@ import { defaultToolbars } from './utilities.js'
  * payloads (stored XSS). DOMPurify strips scripts, event-handler attributes, and
  * `javascript:`/`data:` URLs via an allowlist while preserving rich-text formatting.
  * [P5FE-10 secure-by-default]
+ *
+ * [X1-2] DOMPurify only sanitizes when bound to a live `window`/DOM; bound to none it returns
+ * its input UNCHANGED — a SILENT no-op that would let stored XSS pass straight through. Since
+ * DOMPurify 3.3+ no longer reliably binds to the global window at module-eval time under some
+ * module-graph / test-env load orderings, bind LAZILY to the live window on first use (and
+ * re-bind if an unbound instance is ever observed). At call time `window` always exists in the
+ * browser where this frontend code runs (and in the jsdom/happy-dom test env), so this is
+ * correct everywhere — and it fails LOUD via tests if the sanitizer ever regresses to a no-op.
  */
-const sanitizeHtml = (html: string): string => DOMPurify.sanitize(html)
+let purifier: ReturnType<typeof createDOMPurify> | null = null
+const getPurifier = (): ReturnType<typeof createDOMPurify> => {
+  if (!purifier || !purifier.isSupported) {
+    purifier = createDOMPurify(window)
+  }
+  return purifier
+}
+
+const sanitizeHtml = (html: string): string => getPurifier().sanitize(html)
 
 /**
  * Create a simple contentEditable-based rich text provider. This is a basic

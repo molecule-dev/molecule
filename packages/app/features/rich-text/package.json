@@ -49,6 +49,6 @@
     "access": "public"
   },
   "dependencies": {
-    "dompurify": "3.2.7"
+    "dompurify": "3.4.11"
   }
 }

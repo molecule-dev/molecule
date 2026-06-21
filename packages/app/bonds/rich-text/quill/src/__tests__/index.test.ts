@@ -1,9 +1,12 @@
-// @vitest-environment happy-dom
+// @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Real DOM (happy-dom, see @vitest-environment above) provides document + window so
-// DOMPurify and real HTML parsing work; only Quill itself is mocked (below). The prior
-// hand-rolled node DOM mock was removed — it couldn't back DOMPurify's HTML parsing.
+// [X1-2] jsdom (not happy-dom) for this suite: it exercises the DOMPurify HTML sanitizer
+// (provider.htmlToValue), and happy-dom's HTML parser mis-parses edge markup — it drops block
+// tags like <p> and fails to neutralize `<svg onload>`/`<script>` sequences — so a real XSS
+// payload appears to survive and clean HTML appears mangled even though the sanitizer is
+// correct. jsdom is spec-accurate (matches the production browser DOM), so these security /
+// round-trip assertions validate real behavior. Only Quill itself is mocked (below).
 
 // Use vi.hoisted to create shared mock instances
 const { mockQuillInstance, MockQuill } = vi.hoisted(() => {

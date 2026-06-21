@@ -1,4 +1,8 @@
-// @vitest-environment happy-dom
+// @vitest-environment jsdom
+// [X1-2] jsdom (not happy-dom) for this suite: it exercises the DOMPurify HTML sanitizer, and
+// happy-dom's HTML parser mis-parses edge markup (e.g. `<svg></svg><script>`) so a real
+// XSS payload appears to survive even though the sanitizer is correct. jsdom is spec-accurate
+// (matches the production browser DOM), so these security assertions validate real behavior.
 /**
  * Comprehensive tests for `@molecule/app-rich-text` module.
  *
@@ -437,7 +441,10 @@ describe('@molecule/app-rich-text', () => {
       it('should append editor element to container', () => {
         editor = provider.createEditor({ container })
         expect(container.children.length).toBe(1)
-        expect(container.children[0].getAttribute('contenteditable')).toBe('true')
+        // The source sets the `contentEditable` IDL property; assert on the property (the real
+        // editable state) rather than getAttribute — jsdom (spec-accurate) doesn't mirror the
+        // IDL property to the `contenteditable` content attribute the way happy-dom does.
+        expect((container.children[0] as HTMLElement).contentEditable).toBe('true')
       })
 
       it('should set initial value', () => {
@@ -462,7 +469,8 @@ describe('@molecule/app-rich-text', () => {
         editor = provider.createEditor({ container, readOnly: true })
 
         const editorEl = container.children[0] as HTMLElement
-        expect(editorEl.getAttribute('contenteditable')).toBe('false')
+        // Assert the `contentEditable` IDL property (see note above re: jsdom attribute reflection).
+        expect(editorEl.contentEditable).toBe('false')
         expect(editor.isEnabled()).toBe(false)
       })
 
@@ -472,7 +480,11 @@ describe('@molecule/app-rich-text', () => {
         const editorEl = container.children[0] as HTMLElement
         expect(editorEl.style.minHeight).toBe('100px')
         expect(editorEl.style.padding).toBe('8px')
-        expect(editorEl.style.border).toBe('1px solid #ccc')
+        // Spec-accurate DOM (jsdom, like a real browser) serializes the `border` shorthand with
+        // the color normalized to rgb(), so assert the sub-properties rather than the raw `#ccc`.
+        expect(editorEl.style.borderWidth).toBe('1px')
+        expect(editorEl.style.borderStyle).toBe('solid')
+        expect(editorEl.style.borderColor).toBe('rgb(204, 204, 204)')
       })
     })
   })
