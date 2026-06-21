@@ -48,6 +48,19 @@ vi.mock('../provider.js', () => ({
   getCheckoutSession: (...args: unknown[]) => mockGetCheckoutSession(...(args as [])),
   getSubscription: (...args: unknown[]) => mockGetSubscription(...(args as [])),
   normalizeSubscription: (...args: unknown[]) => mockNormalizeSubscription(...(args as [])),
+  normalizeSubscriptionStatus: (rawStatus: string | undefined) => {
+    const statusMap: Record<string, string> = {
+      active: 'active',
+      canceled: 'canceled',
+      incomplete: 'pending',
+      incomplete_expired: 'expired',
+      past_due: 'past_due',
+      paused: 'paused',
+      trialing: 'trialing',
+      unpaid: 'past_due',
+    }
+    return (rawStatus && statusMap[rawStatus]) || 'unknown'
+  },
   updateSubscription: (...args: unknown[]) => mockStripeUpdateSubscription(...(args as [])),
   verifyWebhookSignature: (...args: unknown[]) => mockVerifyWebhookSignature(...(args as [])),
 }))
@@ -557,6 +570,7 @@ describe('Stripe Bond Adapter', () => {
         data: {
           object: {
             customer: 'cus_webhook_customer',
+            status: 'active',
             items: {
               data: [{ price: { product: 'prod_webhook' }, current_period_end: 1702592000 }],
             },
@@ -578,7 +592,94 @@ describe('Stripe Bond Adapter', () => {
         productId: 'prod_webhook',
         expiresAt: new Date(1702592000 * 1000).toISOString(),
         autoRenews: true,
+        status: 'active',
+        isActive: true,
       })
+    })
+
+    it('surfaces isActive=false and the normalized status for a past_due renewal-failure event', async () => {
+      // A renewal payment failed: Stripe fires a signed customer.subscription.updated
+      // with status=past_due and an advanced current_period_end. The webhook path must
+      // surface isActive=false so the notification handler does NOT extend entitlement.
+      mockVerifyWebhookSignature.mockReturnValue({
+        type: 'customer.subscription.updated',
+        data: {
+          object: {
+            customer: 'cus_pastdue',
+            status: 'past_due',
+            items: {
+              data: [{ price: { product: 'prod_123' }, current_period_end: 1702592000 }],
+            },
+            canceled_at: null,
+            cancel_at_period_end: false,
+          },
+        },
+      })
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      const result = await paymentProvider.handleWebhookEvent!({
+        body: '{}',
+        headers: { 'stripe-signature': 'sig_valid' },
+      })
+
+      expect(result!.type).toBe('renewed')
+      expect(result!.subscription!.isActive).toBe(false)
+      expect(result!.subscription!.status).toBe('past_due')
+    })
+
+    it('surfaces isActive=false for an incomplete (unsettled) created subscription', async () => {
+      mockVerifyWebhookSignature.mockReturnValue({
+        type: 'customer.subscription.created',
+        data: {
+          object: {
+            customer: 'cus_incomplete',
+            status: 'incomplete',
+            items: {
+              data: [{ price: { product: 'prod_123' }, current_period_end: 1702592000 }],
+            },
+            canceled_at: null,
+            cancel_at_period_end: false,
+          },
+        },
+      })
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      const result = await paymentProvider.handleWebhookEvent!({
+        body: '{}',
+        headers: { 'stripe-signature': 'sig_valid' },
+      })
+
+      expect(result!.subscription!.isActive).toBe(false)
+      expect(result!.subscription!.status).toBe('pending')
+    })
+
+    it('surfaces isActive=true and status active for a settled active subscription', async () => {
+      mockVerifyWebhookSignature.mockReturnValue({
+        type: 'customer.subscription.updated',
+        data: {
+          object: {
+            customer: 'cus_active',
+            status: 'active',
+            items: {
+              data: [{ price: { product: 'prod_123' }, current_period_end: 1702592000 }],
+            },
+            canceled_at: null,
+            cancel_at_period_end: false,
+          },
+        },
+      })
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      const result = await paymentProvider.handleWebhookEvent!({
+        body: '{}',
+        headers: { 'stripe-signature': 'sig_valid' },
+      })
+
+      expect(result!.subscription!.isActive).toBe(true)
+      expect(result!.subscription!.status).toBe('active')
     })
 
     it('should set autoRenews to false when subscription is deleted', async () => {

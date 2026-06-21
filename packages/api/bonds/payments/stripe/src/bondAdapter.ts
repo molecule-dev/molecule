@@ -30,6 +30,7 @@ import {
   getCheckoutSession,
   getSubscription,
   normalizeSubscription,
+  normalizeSubscriptionStatus,
   retrievePaymentMethod as stripeRetrievePaymentMethod,
   updateSubscription as stripeUpdateSubscription,
   verifyWebhookSignature,
@@ -209,6 +210,17 @@ export const paymentProvider: PaymentProvider = {
         !subscriptionData.canceled_at &&
         !subscriptionData.cancel_at_period_end
 
+      // Surface the subscription status so the notification handler can enforce
+      // the SAME entitlement gate as `verifySubscription`. `isActive` is derived
+      // with the identical rule used by `normalizeSubscription` (active/trialing
+      // only). Without this, a renewal-payment failure (Stripe fires a signed
+      // `customer.subscription.updated` with status=past_due and an advanced
+      // current_period_end) would extend premium for an unpaid cycle.
+      const rawStatus =
+        typeof subscriptionData.status === 'string' ? subscriptionData.status : undefined
+      const status = normalizeSubscriptionStatus(rawStatus)
+      const isActive = rawStatus === 'active' || rawStatus === 'trialing'
+
       return {
         type: mapStripeEventType(event.type),
         subscription: {
@@ -216,6 +228,8 @@ export const paymentProvider: PaymentProvider = {
           productId,
           expiresAt,
           autoRenews,
+          status,
+          isActive,
         },
       }
     } catch (error) {

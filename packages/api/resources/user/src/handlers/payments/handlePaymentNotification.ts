@@ -1,5 +1,10 @@
 import { get, getAnalytics, getLogger } from '@molecule/api-bond'
-import type { PaymentProvider, PaymentRecordService, PlanService } from '@molecule/api-payments'
+import type {
+  PaymentProvider,
+  PaymentRecordService,
+  PlanService,
+  WebhookEvent,
+} from '@molecule/api-payments'
 import type { MoleculeRequest } from '@molecule/api-resource'
 import { update as resourceUpdate } from '@molecule/api-resource'
 
@@ -8,6 +13,29 @@ import type * as types from '../../types.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
+
+/**
+ * Whether a parsed webhook subscription is in a state that should grant/extend
+ * the user's plan.
+ *
+ * Mirrors the verify path (`verifySubscription`): only an active/trialing
+ * subscription confers entitlement. A subscription surfaced as inactive
+ * (`isActive === false`) or with a non-granting status (past_due/unpaid/
+ * incomplete/incomplete_expired) must NOT advance `planExpiresAt` — this blocks
+ * a renewal-payment failure from extending premium for an unpaid cycle. When a
+ * provider surfaces no status at all, prior grant behavior is preserved.
+ * @param subscription - The parsed webhook subscription details.
+ * @returns `true` when the subscription is active/trialing (or status-unknown).
+ */
+const webhookSubscriptionGrantsEntitlement = (
+  subscription: NonNullable<WebhookEvent['subscription']>,
+): boolean => {
+  if (subscription.isActive === false) return false
+  if (subscription.status !== undefined) {
+    return subscription.status === 'active' || subscription.status === 'trialing'
+  }
+  return true
+}
 
 /**
  * Generic payment notification handler that works with any bonded PaymentProvider. Reads the
@@ -108,7 +136,7 @@ export const handlePaymentNotification = ({ name, tableName, schema: _schema }: 
               properties: { provider: providerName, type: event.type },
             })
             .catch(() => {})
-        } else if (plan) {
+        } else if (plan && webhookSubscriptionGrantsEntitlement(subscription)) {
           await updateUser({
             id: payment.userId,
             props: {
@@ -124,6 +152,16 @@ export const handlePaymentNotification = ({ name, tableName, schema: _schema }: 
               properties: { provider: providerName, planKey: plan.planKey },
             })
             .catch(() => {})
+        } else if (plan) {
+          // A plan exists but the subscription is not in a granting state
+          // (past_due/unpaid/incomplete/incomplete_expired) — e.g. a renewal
+          // payment failed. Mirror `verifySubscription`: do NOT advance
+          // planExpiresAt; leave the existing entitlement to lapse naturally.
+          // Cancellation events are handled by the cancelTypes branch above.
+          logger.info(
+            `${providerName} webhook: subscription for user ${payment.userId} is not active ` +
+              `(status=${subscription.status ?? 'unknown'}) — not extending entitlement`,
+          )
         }
 
         return okResponse

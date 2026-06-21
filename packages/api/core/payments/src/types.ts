@@ -167,6 +167,22 @@ export interface WebhookEvent {
     productId?: string
     expiresAt?: string
     autoRenews?: boolean
+    /**
+     * Normalized subscription status at the time of the event.
+     *
+     * Surfaced so the notification handler can apply the SAME entitlement gate
+     * the verify path uses: only an active/trialing subscription confers the
+     * plan. A past_due/unpaid/incomplete subscription (e.g. a renewal-payment
+     * failure that still advances the period end) must NOT extend entitlement.
+     */
+    status?: SubscriptionStatus
+    /**
+     * Whether the subscription is currently active (status active/trialing).
+     *
+     * Mirrors {@link NormalizedSubscription.isActive}. When `false`, the
+     * notification handler must not grant/extend the plan.
+     */
+    isActive?: boolean
   }
 }
 

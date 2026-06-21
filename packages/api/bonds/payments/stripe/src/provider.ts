@@ -389,13 +389,15 @@ export const reportUsageOverage = async (options: {
 }
 
 /**
- * Normalizes a Stripe-specific `SubscriptionResult` to the common
- * `NormalizedSubscription` interface used across all payment providers.
+ * Maps a raw Stripe subscription status string (e.g. `past_due`, `incomplete`)
+ * to the provider-agnostic `SubscriptionStatus`.
  *
- * @param subscription - The Stripe subscription result to normalize.
- * @returns A `NormalizedSubscription` with provider-agnostic fields.
+ * Shared between `normalizeSubscription` (verify path) and the webhook adapter so
+ * both paths derive status identically.
+ * @param rawStatus - The raw Stripe `status` string, or `undefined` if absent.
+ * @returns The normalized `SubscriptionStatus` (`'unknown'` for unrecognized/missing).
  */
-export const normalizeSubscription = (subscription: SubscriptionResult): NormalizedSubscription => {
+export const normalizeSubscriptionStatus = (rawStatus: string | undefined): SubscriptionStatus => {
   const statusMap: Record<string, SubscriptionStatus> = {
     active: 'active',
     canceled: 'canceled',
@@ -407,11 +409,22 @@ export const normalizeSubscription = (subscription: SubscriptionResult): Normali
     unpaid: 'past_due',
   }
 
+  return (rawStatus && statusMap[rawStatus]) || 'unknown'
+}
+
+/**
+ * Normalizes a Stripe-specific `SubscriptionResult` to the common
+ * `NormalizedSubscription` interface used across all payment providers.
+ *
+ * @param subscription - The Stripe subscription result to normalize.
+ * @returns A `NormalizedSubscription` with provider-agnostic fields.
+ */
+export const normalizeSubscription = (subscription: SubscriptionResult): NormalizedSubscription => {
   return {
     provider: 'stripe',
     subscriptionId: subscription.id,
     productId: (subscription.items.data[0]?.price?.product as string) || '',
-    status: statusMap[subscription.status] || 'unknown',
+    status: normalizeSubscriptionStatus(subscription.status),
     isActive: subscription.status === 'active' || subscription.status === 'trialing',
     currentPeriodStart: subscription.current_period_start * 1000,
     currentPeriodEnd: subscription.current_period_end * 1000,
