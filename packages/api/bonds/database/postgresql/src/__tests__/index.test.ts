@@ -426,6 +426,23 @@ describe('@molecule/api-database-postgresql', () => {
       expect(callArgs[1]).toContain('a\\_b')
     })
 
+    it('whitelists ORDER BY direction — never interpolates raw caller input [M7-1]', async () => {
+      // Cast bypasses the 'asc'|'desc' type to simulate hand-written/AI-generated code that
+      // routes unvalidated input into direction. The bond must coerce to ASC, not interpolate.
+      await store.findMany('users', {
+        orderBy: [{ field: 'name', direction: 'desc); DROP TABLE users; --' as 'asc' | 'desc' }],
+      })
+      const sql = mockQuery.mock.calls[mockQuery.mock.calls.length - 1][0] as string
+      expect(sql).toContain('ORDER BY "name" ASC') // unrecognized direction → ASC
+      expect(sql).not.toContain('DROP TABLE')
+    })
+
+    it('emits DESC only for a literal desc direction [M7-1]', async () => {
+      await store.findMany('users', { orderBy: [{ field: 'name', direction: 'desc' }] })
+      const sql = mockQuery.mock.calls[mockQuery.mock.calls.length - 1][0] as string
+      expect(sql).toContain('ORDER BY "name" DESC')
+    })
+
     it('escapes \\ to \\\\', async () => {
       await store.findMany('users', { where: [{ field: 'name', operator: 'like', value: 'a\\b' }] })
       const callArgs = mockQuery.mock.calls[mockQuery.mock.calls.length - 1]

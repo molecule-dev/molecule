@@ -113,7 +113,11 @@ function buildOrderBy(orderBy?: { field: string; direction: 'asc' | 'desc' }[]):
   return `ORDER BY ${orderBy
     .map((o) => {
       assertSafeIdentifier(o.field)
-      return `"${o.field}" ${o.direction.toUpperCase()}`
+      // Whitelist the direction to exactly ASC/DESC — never interpolate an
+      // arbitrary `toUpperCase()` of caller input into the SQL string (parity
+      // with the sqlite bond; closes the ORDER BY interpolation sink).
+      const dir = o.direction.toLowerCase() === 'desc' ? 'DESC' : 'ASC'
+      return `"${o.field}" ${dir}`
     })
     .join(', ')}`
 }
