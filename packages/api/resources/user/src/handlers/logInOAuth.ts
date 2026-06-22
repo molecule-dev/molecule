@@ -127,6 +127,32 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
       clearStateCookie()
     }
 
+    // [M1-1] Read the PKCE code_verifier from the httpOnly cookie set by the OAuth
+    // initiation endpoint — SERVER-SIDE, never trusting a client-supplied body value.
+    // The verifier is the per-session secret that binds the authorization code to THIS
+    // session (S256). Trusting `body.codeVerifier` would let an attacker replay a
+    // victim's intercepted code with their own verifier (authorization-code injection,
+    // RFC 9700 §2.1). One-time use: cleared whether or not verification succeeds. The
+    // body fallback is only for legacy consumers that never set the cookie — the random
+    // S256 challenge issued at initiation is the actual injection guard either way.
+    const verifierCookies = (req as unknown as { cookies?: Record<string, string> }).cookies
+    const cookieVerifier =
+      getConfig<string>('NODE_ENV') === 'production'
+        ? verifierCookies?.[authorization.getAuthCookieName('oauth_verifier')]
+        : (verifierCookies?.[authorization.getAuthCookieName('oauth_verifier')] ??
+          verifierCookies?.oauth_verifier)
+    const expressResVerifier = res as unknown as {
+      clearCookie?(name: string, options?: Record<string, unknown>): void
+    }
+    if (typeof expressResVerifier.clearCookie === 'function') {
+      expressResVerifier.clearCookie(authorization.getAuthCookieName('oauth_verifier'), {
+        path: '/',
+        secure: getConfig('NODE_ENV') === 'production',
+      })
+      expressResVerifier.clearCookie('oauth_verifier', { path: '/' })
+    }
+    const codeVerifier = cookieVerifier ?? body.codeVerifier
+
     const oauthProvider = get<{
       verify(
         code: string,
@@ -159,7 +185,7 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
 
     try {
       // Verify the OAuth code with the bonded provider.
-      const oauthProps = await oauthProvider.verify(body.code, body.codeVerifier, body.redirect_uri)
+      const oauthProps = await oauthProvider.verify(body.code, codeVerifier, body.redirect_uri)
 
       if (!oauthProps?.oauthId || !oauthProps?.oauthServer) {
         analytics

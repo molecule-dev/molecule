@@ -661,6 +661,57 @@ describe('logInOAuth handler — CSRF state validation', () => {
     expect(res.clearCookie).toHaveBeenCalledWith('oauth_state', { path: '/' })
   })
 
+  it('uses the PKCE verifier from the httpOnly cookie, NEVER the request body, and clears it [M1-1]', async () => {
+    // Authorization-code-injection guard: the per-session code_verifier lives in an
+    // httpOnly cookie set at OAuth initiation. logInOAuth must redeem the code with the
+    // COOKIE verifier (bound to the session that started the flow), never an attacker-
+    // supplied body.codeVerifier. With a real per-session S256 challenge, an injected
+    // victim code can't be redeemed because the attacker can't produce the matching verifier.
+    const stateValue = 'matching-state-value'
+    const sessionVerifier = 'session-secret-verifier-from-cookie'
+    const mockOAuthProvider = {
+      verify: vi.fn().mockResolvedValue({
+        oauthServer: 'google',
+        oauthId: 'google-user-123',
+        username: 'googleuser',
+        email: 'google@example.com',
+        oauthData: {},
+      }),
+    }
+    mockGet.mockImplementation((category: string) => {
+      if (category === 'oauth') return mockOAuthProvider
+      if (category === 'device') return { createOrUpdate: vi.fn().mockResolvedValue('device-id') }
+      return null
+    })
+    mockFindOne.mockResolvedValue({
+      id: 'existing-user-id',
+      username: 'googleuser',
+      oauthServer: 'google',
+      oauthId: 'google-user-123',
+    })
+    mockUpdateById.mockResolvedValue({ affected: 1 })
+    vi.spyOn(authorization, 'set').mockImplementation((_req, _res, _session) => {})
+
+    const req = makeReq({
+      body: {
+        server: 'google',
+        code: 'auth-code',
+        state: stateValue,
+        codeVerifier: 'attacker-body-value', // must be IGNORED in favor of the cookie
+      },
+      cookies: { '__Host-oauth_state': stateValue, '__Host-oauth_verifier': sessionVerifier },
+    })
+    const res = makeRes()
+
+    await handler(req as MoleculeRequest, res as MoleculeResponse)
+
+    expect(mockOAuthProvider.verify).toHaveBeenCalledTimes(1)
+    const callArgs = mockOAuthProvider.verify.mock.calls[0]
+    expect(callArgs[0]).toBe('auth-code')
+    expect(callArgs[1]).toBe(sessionVerifier) // cookie verifier, NOT 'attacker-body-value'
+    expect(res.clearCookie).toHaveBeenCalledWith('oauth_verifier', { path: '/' }) // one-time use
+  })
+
   it('rejects a TOSSED plain oauth_state cookie in production — no plain fallback [C4-1]', async () => {
     // A sibling *.molecule.dev preview can toss a `.molecule.dev`-scoped PLAIN
     // oauth_state cookie; the attacker controls both it and body.state. In prod the
