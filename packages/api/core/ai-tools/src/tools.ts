@@ -486,6 +486,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // Try direct path first (if name looks like a path)
       if (name.includes('/')) {
         const path = resolve(name)
+        // Same workspace-confinement guard every other file-read tool enforces: a planted
+        // symlink must not let load_skill read outside the workspace (no-op unless symlinkGuards).
+        const symlinkErr = await checkSymlink(path)
+        if (symlinkErr) return { error: symlinkErr }
         try {
           const content = await backend.readFile(path)
           return { name, path, content: sanitizeOutput(content) }
@@ -499,6 +503,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const searchDirs = ['.agents/skills', '.claude/skills']
       for (const dir of searchDirs) {
         const skillPath = `${root}/${dir}/${name}/SKILL.md`
+        // Skip (treat as not-found) any candidate whose realpath escapes the workspace via a
+        // symlink — never read an out-of-workspace target.
+        if (await checkSymlink(skillPath)) continue
         try {
           const content = await backend.readFile(skillPath)
           return { name, path: `${dir}/${name}/SKILL.md`, content: sanitizeOutput(content) }

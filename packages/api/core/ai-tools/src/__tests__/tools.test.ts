@@ -145,6 +145,25 @@ describe('buildTools', () => {
     expect(tools.find((t) => t.name === 'read_file')).toBeDefined()
   })
 
+  it('load_skill enforces the symlink guard like every other read tool [C3-2]', async () => {
+    const backend = mockBackend()
+    // readlink -f resolves the (planted-symlink) candidate to a path OUTSIDE the workspace root.
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: '/etc/mol/env',
+      stderr: '',
+      exitCode: 0,
+    })
+    const tools = buildTools(backend, { symlinkGuards: true })
+    const loadSkill = tools.find((t) => t.name === 'load_skill')!
+    const result = (await loadSkill.execute({ name: 'evil/SKILL.md' })) as {
+      error?: string
+      content?: string
+    }
+    expect(result.error).toMatch(/resolves outside the project workspace/)
+    expect(result.content).toBeUndefined()
+    expect(backend.readFile).not.toHaveBeenCalled() // never read the out-of-workspace target
+  })
+
   it('read_file returns structured result', async () => {
     const backend = mockBackend()
     const tools = buildTools(backend)
