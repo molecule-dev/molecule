@@ -7,6 +7,11 @@
 
 set -e
 
+# Fast secret scan — blocks a commit that introduces a high-confidence secret
+# (staged added lines only). Runs first so a leaked key fails before the slower
+# format/lint pass. Bypass a reviewed false positive with: git commit --no-verify
+node scripts/precommit-secret-scan.mjs
+
 STAGED=$(git diff --cached --name-only --diff-filter=AM)
 if [ -z "$STAGED" ]; then
   exit 0
