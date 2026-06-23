@@ -23,7 +23,37 @@ const DEFAULT_MAX_ENTRIES = 50_000
 let ttlMs = DEFAULT_TTL_MS
 let maxEntries = DEFAULT_MAX_ENTRIES
 
+/**
+ * Optional app-specific demotion applied to the freshly-resolved
+ * `(planKey, planExpiresAt)` on a cache MISS, before the result is cached.
+ * Defaults to identity (no demotion). See {@link EffectivePlanKeyResolver} and
+ * {@link configurePlanCache}.
+ */
+let resolveEffective: EffectivePlanKeyResolver = (planKey) => planKey
+
 const cache = new Map<string, PlanCacheEntry>()
+
+/**
+ * App-specific hook that maps a stored `(planKey, planExpiresAt)` pair to the
+ * EFFECTIVE plan key — applied by {@link getCachedPlanKey} on every cache miss
+ * before the value is cached, so the cached (hot-path) result already reflects
+ * the app's plan-key semantics.
+ *
+ * The cache itself only knows the generic expiry rule (a past `planExpiresAt`
+ * demotes to default). Conventions like "an in-app-purchase key with no expiry
+ * is unverified → demote to free" are APP-specific (the `apple*`/`google*`
+ * prefix set is defined by the app, not this package). Apps inject that rule
+ * here so the hot path and the app's own `resolveEffectivePlanKey` cannot
+ * diverge — there is one demotion implementation, reused.
+ *
+ * @param planKey - The user's stored plan key (or `null` when unset).
+ * @param planExpiresAt - The user's stored plan expiry, or `null`.
+ * @returns The effective plan key (possibly demoted), or `null` for default tier.
+ */
+export type EffectivePlanKeyResolver = (
+  planKey: string | null,
+  planExpiresAt: string | null | undefined,
+) => string | null
 
 /** Configuration options for the plan cache. */
 export interface PlanCacheOptions {
@@ -35,17 +65,30 @@ export interface PlanCacheOptions {
    * entry is evicted on the next write. Defaults to 50,000.
    */
   maxEntries?: number
+
+  /**
+   * App-specific effective-plan-key demotion (see
+   * {@link EffectivePlanKeyResolver}). Applied on every cache MISS so the cached
+   * hot-path result already reflects the app's plan-key semantics — e.g. an
+   * in-app-purchase key with no expiry demoting to free. Defaults to identity.
+   * Pass `null` to clear a previously-set resolver back to identity.
+   */
+  effectivePlanKeyResolver?: EffectivePlanKeyResolver | null
 }
 
 /**
  * Reconfigures the plan cache. Existing entries remain; only future
  * insertions and TTL checks observe the new settings.
  *
- * @param options - Optional overrides for TTL and maxEntries.
+ * @param options - Optional overrides for TTL, maxEntries, and the
+ *   effective-plan-key resolver.
  */
 export const configurePlanCache = (options: PlanCacheOptions = {}): void => {
   if (options.ttlMs != null) ttlMs = options.ttlMs
   if (options.maxEntries != null) maxEntries = options.maxEntries
+  if (options.effectivePlanKeyResolver !== undefined) {
+    resolveEffective = options.effectivePlanKeyResolver ?? ((planKey) => planKey)
+  }
 }
 
 /**
@@ -100,6 +143,12 @@ export const getCachedPlanKey = async (userId: string): Promise<string | null> =
         planKey = null
       }
     }
+    // Apply the app-specific effective-plan-key demotion (identity by default).
+    // Reuses the app's own `resolveEffectivePlanKey` so the hot path and the
+    // app cannot diverge — e.g. an `apple*`/`google*` IAP key with NO expiry is
+    // unverified and demotes to free here, exactly as it does off the hot path.
+    // (Anonymous keeps its 'anonymous' key — the resolver only sees real plans.)
+    planKey = resolveEffective(planKey, user?.planExpiresAt ?? null)
   }
 
   if (cache.size >= maxEntries) {

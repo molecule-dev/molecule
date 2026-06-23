@@ -202,6 +202,15 @@ interface PlanCacheOptions {
    * entry is evicted on the next write. Defaults to 50,000.
    */
   maxEntries?: number
+
+  /**
+   * App-specific effective-plan-key demotion (see
+   * {@link EffectivePlanKeyResolver}). Applied on every cache MISS so the cached
+   * hot-path result already reflects the app's plan-key semantics — e.g. an
+   * in-app-purchase key with no expiry demoting to free. Defaults to identity.
+   * Pass `null` to clear a previously-set resolver back to identity.
+   */
+  effectivePlanKeyResolver?: EffectivePlanKeyResolver | null
 }
 ```
 
@@ -312,6 +321,27 @@ interface UserPlanFields {
 
 ### Types
 
+#### `EffectivePlanKeyResolver`
+
+App-specific hook that maps a stored `(planKey, planExpiresAt)` pair to the
+EFFECTIVE plan key — applied by {@link getCachedPlanKey} on every cache miss
+before the value is cached, so the cached (hot-path) result already reflects
+the app's plan-key semantics.
+
+The cache itself only knows the generic expiry rule (a past `planExpiresAt`
+demotes to default). Conventions like "an in-app-purchase key with no expiry
+is unverified → demote to free" are APP-specific (the `apple*`/`google*`
+prefix set is defined by the app, not this package). Apps inject that rule
+here so the hot path and the app's own `resolveEffectivePlanKey` cannot
+diverge — there is one demotion implementation, reused.
+
+```typescript
+type EffectivePlanKeyResolver = (
+  planKey: string | null,
+  planExpiresAt: string | null | undefined,
+) => string | null
+```
+
 #### `LimitType`
 
 Identifies the kind of limit that triggered a 429-style entitlement error.
@@ -370,7 +400,7 @@ insertions and TTL checks observe the new settings.
 function configurePlanCache(options?: PlanCacheOptions): void
 ```
 
-- `options` — Optional overrides for TTL and maxEntries.
+- `options` — Optional overrides for TTL, maxEntries, and the
 
 #### `defineTiers(options)`
 

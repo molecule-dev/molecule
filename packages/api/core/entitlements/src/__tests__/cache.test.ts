@@ -140,4 +140,51 @@ describe('plan cache', () => {
     await cacheModule.getCachedPlanKey('d')
     expect(cacheModule.planCacheSize()).toBe(3)
   })
+
+  describe('app-specific effectivePlanKeyResolver hook [C6-1]', () => {
+    // The cache only knows the generic expiry rule; app-specific demotions
+    // (e.g. an in-app-purchase key with no expiry → free) are injected via the
+    // resolver so the hot path and the app's own resolver cannot diverge.
+    const demoteIapNoExpiry = (
+      planKey: string | null,
+      planExpiresAt: string | null | undefined,
+    ): string | null => {
+      if (!planKey) return null
+      if ((planKey.startsWith('apple') || planKey.startsWith('google')) && planExpiresAt == null) {
+        return null
+      }
+      return planKey
+    }
+
+    it('demotes an apple/google key with NO expiry to null on the hot path (cache miss + hit)', async () => {
+      cacheModule.configurePlanCache({ effectivePlanKeyResolver: demoteIapNoExpiry })
+      setUser({ planKey: 'appleMonthly', planExpiresAt: null })
+
+      // Cache miss → resolver demotes the unverified IAP key.
+      expect(await cacheModule.getCachedPlanKey('iap-1')).toBeNull()
+      // The DEMOTED value is what's cached — a warm hit stays demoted, no re-query.
+      expect(await cacheModule.getCachedPlanKey('iap-1')).toBeNull()
+      expect(findByIdMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('leaves an apple/google key WITH a future expiry intact (verified IAP)', async () => {
+      cacheModule.configurePlanCache({ effectivePlanKeyResolver: demoteIapNoExpiry })
+      setUser({ planKey: 'googleYearly', planExpiresAt: '2099-01-01T00:00:00Z' })
+
+      expect(await cacheModule.getCachedPlanKey('iap-2')).toBe('googleYearly')
+    })
+
+    it('defaults to identity (no demotion) when no resolver is configured', async () => {
+      // No configurePlanCache call → an IAP-no-expiry key passes through unchanged.
+      setUser({ planKey: 'appleMonthly', planExpiresAt: null })
+      expect(await cacheModule.getCachedPlanKey('iap-3')).toBe('appleMonthly')
+    })
+
+    it('passing null clears a previously-set resolver back to identity', async () => {
+      cacheModule.configurePlanCache({ effectivePlanKeyResolver: demoteIapNoExpiry })
+      cacheModule.configurePlanCache({ effectivePlanKeyResolver: null })
+      setUser({ planKey: 'appleMonthly', planExpiresAt: null })
+      expect(await cacheModule.getCachedPlanKey('iap-4')).toBe('appleMonthly')
+    })
+  })
 })
