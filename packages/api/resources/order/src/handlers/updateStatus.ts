@@ -3,8 +3,9 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { canDriveOrderLifecycle } from '../authorizers/index.js'
 import type { OrderItemRow, OrderRow, OrderStatus, UpdateOrderStatusInput } from '../types.js'
-import { ORDER_STATUSES, STATUS_TRANSITIONS } from '../types.js'
+import { BUYER_ALLOWED_TRANSITIONS, ORDER_STATUSES, STATUS_TRANSITIONS } from '../types.js'
 import { assembleOrder } from '../utilities.js'
 
 /**
@@ -43,14 +44,34 @@ export async function updateStatus(req: MoleculeRequest, res: MoleculeResponse):
       return
     }
 
-    if (orderRow.userId !== userId) {
-      res.status(403).json({
-        error: t('order.error.forbidden', undefined, {
-          defaultValue: 'You do not have access to this order',
-        }),
-        errorKey: 'order.error.forbidden',
-      })
-      return
+    // A transition INTO a merchant state (confirmed/processing/shipped/delivered/
+    // refunded) is merchant-only; only the buyer-reachable transitions (a pending
+    // order's owner cancelling) stay owner-gated.
+    const buyerAllowed = BUYER_ALLOWED_TRANSITIONS[orderRow.status as OrderStatus]?.includes(
+      input.status,
+    )
+    if (buyerAllowed) {
+      if (orderRow.userId !== userId) {
+        res.status(403).json({
+          error: t('order.error.forbidden', undefined, {
+            defaultValue: 'You do not have access to this order',
+          }),
+          errorKey: 'order.error.forbidden',
+        })
+        return
+      }
+    } else {
+      // Merchant-state transition — fail-closed: require a registered merchant
+      // authorizer that approves the caller (403 when none is set).
+      if (!(await canDriveOrderLifecycle(orderRow, userId, req))) {
+        res.status(403).json({
+          error: t('order.error.merchantForbidden', undefined, {
+            defaultValue: 'Merchant authorization is required to manage this order',
+          }),
+          errorKey: 'order.error.merchantForbidden',
+        })
+        return
+      }
     }
 
     const allowedTransitions = STATUS_TRANSITIONS[orderRow.status as OrderStatus]

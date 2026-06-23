@@ -3,6 +3,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { canDriveOrderLifecycle } from '../authorizers/index.js'
 import type { OrderRow, OrderStatus, RefundOrderInput } from '../types.js'
 import { STATUS_TRANSITIONS } from '../types.js'
 
@@ -34,12 +35,15 @@ export async function refund(req: MoleculeRequest, res: MoleculeResponse): Promi
       return
     }
 
-    if (orderRow.userId !== userId) {
+    // Refund is a MERCHANT-ONLY lifecycle op — the order owner is the BUYER, so
+    // the owner check is NOT sufficient here. Fail-closed: require a registered
+    // merchant authorizer that approves the caller (403 when none is set).
+    if (!(await canDriveOrderLifecycle(orderRow, userId, req))) {
       res.status(403).json({
-        error: t('order.error.forbidden', undefined, {
-          defaultValue: 'You do not have access to this order',
+        error: t('order.error.merchantForbidden', undefined, {
+          defaultValue: 'Merchant authorization is required to manage this order',
         }),
-        errorKey: 'order.error.forbidden',
+        errorKey: 'order.error.merchantForbidden',
       })
       return
     }

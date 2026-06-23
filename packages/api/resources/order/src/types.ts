@@ -311,3 +311,34 @@ export const STATUS_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
   cancelled: [],
   refunded: [],
 }
+
+/**
+ * Statuses that represent a MERCHANT-driven lifecycle stage. Transitioning an
+ * order INTO any of these is a merchant-only operation: it requires the
+ * merchant authorizer (see `setOrderMerchantAuthorizer`) and is never something
+ * the buyer (order owner) may self-service.
+ */
+export const MERCHANT_STATES: readonly OrderStatus[] = [
+  'confirmed',
+  'processing',
+  'shipped',
+  'delivered',
+  'refunded',
+] as const
+
+/**
+ * Buyer-reachable status transitions: maps current status to the set of next
+ * statuses an ORDER OWNER (buyer) may drive themselves. A buyer may only cancel
+ * an order while it is still `pending`; every other lifecycle transition is
+ * merchant-only. Any transition NOT listed here requires the merchant
+ * authorizer (see `setOrderMerchantAuthorizer`).
+ */
+export const BUYER_ALLOWED_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
+  pending: ['cancelled'],
+  confirmed: [],
+  processing: [],
+  shipped: [],
+  delivered: [],
+  cancelled: [],
+  refunded: [],
+}

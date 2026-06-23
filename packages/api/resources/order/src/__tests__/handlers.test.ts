@@ -32,6 +32,11 @@ vi.mock('@molecule/api-logger', () => ({
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import {
+  canDriveOrderLifecycle,
+  getOrderMerchantAuthorizer,
+  setOrderMerchantAuthorizer,
+} from '../authorizers/index.js'
 import { cancel } from '../handlers/cancel.js'
 import { create } from '../handlers/create.js'
 import { getHistory } from '../handlers/getHistory.js'
@@ -94,6 +99,8 @@ const ITEM_ROW = {
 describe('@molecule/api-resource-order handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Default-DENY: every test starts with no merchant authorizer registered.
+    setOrderMerchantAuthorizer(null)
   })
 
   describe('create', () => {
@@ -330,8 +337,9 @@ describe('@molecule/api-resource-order handlers', () => {
       expect(res.status).toHaveBeenCalledWith(404)
     })
 
-    it('should return 403 when order belongs to another user', async () => {
-      mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, userId: 'other-user' })
+    it('should 403 the buyer-owner on a merchant-state transition when no authorizer is registered', async () => {
+      // Default DENY — owning the order (the buyer) must NOT let you confirm it.
+      mockFindById.mockResolvedValueOnce(ORDER_ROW) // userId === 'user-1' (the caller)
 
       const req = mockReq({ params: { id: 'order-1' }, body: { status: 'confirmed' } })
       const res = mockRes()
@@ -340,12 +348,29 @@ describe('@molecule/api-resource-order handlers', () => {
 
       expect(res.status).toHaveBeenCalledWith(403)
       expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ errorKey: 'order.error.forbidden' }),
+        expect.objectContaining({ errorKey: 'order.error.merchantForbidden' }),
       )
       expect(mockUpdateById).not.toHaveBeenCalled()
     })
 
-    it('should return 409 for invalid transition', async () => {
+    it('should 403 the buyer-owner on a merchant-state transition when the authorizer denies', async () => {
+      setOrderMerchantAuthorizer(() => false)
+      mockFindById.mockResolvedValueOnce(ORDER_ROW)
+
+      const req = mockReq({ params: { id: 'order-1' }, body: { status: 'confirmed' } })
+      const res = mockRes()
+
+      await updateStatus(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.merchantForbidden' }),
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('should return 409 for invalid transition (merchant authorized)', async () => {
+      setOrderMerchantAuthorizer(() => true)
       mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, status: 'delivered' })
 
       const req = mockReq({ params: { id: 'order-1' }, body: { status: 'pending' } })
@@ -356,7 +381,12 @@ describe('@molecule/api-resource-order handlers', () => {
       expect(res.status).toHaveBeenCalledWith(409)
     })
 
-    it('should update status with valid transition', async () => {
+    it('should update status to a merchant state with a passing authorizer', async () => {
+      const calls: Array<{ orderId: string; userId: string }> = []
+      setOrderMerchantAuthorizer((orderRow, userId) => {
+        calls.push({ orderId: orderRow.id, userId })
+        return true
+      })
       mockFindById.mockResolvedValueOnce(ORDER_ROW) // pending -> confirmed is valid
       mockUpdateById.mockResolvedValueOnce({})
       mockCreate.mockResolvedValueOnce({ data: { id: 'event-1' } })
@@ -367,6 +397,7 @@ describe('@molecule/api-resource-order handlers', () => {
 
       await updateStatus(req, res)
 
+      expect(calls).toEqual([{ orderId: 'order-1', userId: 'user-1' }])
       expect(mockUpdateById).toHaveBeenCalledWith(
         'orders',
         'order-1',
@@ -397,7 +428,8 @@ describe('@molecule/api-resource-order handlers', () => {
       expect(res.status).toHaveBeenCalledWith(404)
     })
 
-    it('should return 403 when order belongs to another user', async () => {
+    it('should return 403 (owner check) when a pending order belongs to another user', async () => {
+      // pending is buyer-cancellable, so this is the OWNER gate, not the merchant gate.
       mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, userId: 'other-user' })
 
       const req = mockReq({ params: { id: 'order-1' } })
@@ -406,9 +438,50 @@ describe('@molecule/api-resource-order handlers', () => {
       await cancel(req, res)
 
       expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.forbidden' }),
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
     })
 
-    it('should return 409 when order cannot be cancelled', async () => {
+    it('should 403 the buyer-owner cancelling an already-progressed order with no authorizer', async () => {
+      // confirmed has progressed beyond pending — merchant-only, default DENY.
+      mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, status: 'confirmed' })
+
+      const req = mockReq({ params: { id: 'order-1' } })
+      const res = mockRes()
+
+      await cancel(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.merchantForbidden' }),
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('should let a merchant cancel an already-progressed order (passing authorizer)', async () => {
+      setOrderMerchantAuthorizer(() => true)
+      mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, status: 'confirmed' }) // confirmed -> cancelled is valid
+      mockUpdateById.mockResolvedValueOnce({})
+      mockCreate.mockResolvedValueOnce({ data: { id: 'event-1' } })
+      mockFindMany.mockResolvedValueOnce([ITEM_ROW])
+
+      const req = mockReq({ params: { id: 'order-1' } })
+      const res = mockRes()
+
+      await cancel(req, res)
+
+      expect(mockUpdateById).toHaveBeenCalledWith(
+        'orders',
+        'order-1',
+        expect.objectContaining({ status: 'cancelled' }),
+      )
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ status: 'cancelled' }))
+    })
+
+    it('should return 409 when an authorized merchant cannot cancel (terminal state)', async () => {
+      setOrderMerchantAuthorizer(() => true)
       mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, status: 'delivered' })
 
       const req = mockReq({ params: { id: 'order-1' } })
@@ -419,8 +492,8 @@ describe('@molecule/api-resource-order handlers', () => {
       expect(res.status).toHaveBeenCalledWith(409)
     })
 
-    it('should cancel a pending order', async () => {
-      mockFindById.mockResolvedValueOnce(ORDER_ROW) // pending -> cancelled is valid
+    it('should let the owner cancel a pending order', async () => {
+      mockFindById.mockResolvedValueOnce(ORDER_ROW) // pending -> cancelled is valid, owner === caller
       mockUpdateById.mockResolvedValueOnce({})
       mockCreate.mockResolvedValueOnce({ data: { id: 'event-1' } })
       mockFindMany.mockResolvedValueOnce([ITEM_ROW])
@@ -460,7 +533,40 @@ describe('@molecule/api-resource-order handlers', () => {
       expect(res.status).toHaveBeenCalledWith(404)
     })
 
-    it('should return 403 when order belongs to another user', async () => {
+    it('should 403 the buyer-owner refunding their own order when no authorizer is registered', async () => {
+      // Refund is merchant-only. ORDER_ROW.userId === 'user-1' (the caller) — owning
+      // the order must NOT grant refund. Default DENY.
+      mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, status: 'delivered' })
+
+      const req = mockReq({ params: { id: 'order-1' }, body: { amount: 27 } })
+      const res = mockRes()
+
+      await refund(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.merchantForbidden' }),
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('should 403 the buyer-owner refunding when the authorizer denies', async () => {
+      setOrderMerchantAuthorizer(() => false)
+      mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, status: 'delivered' })
+
+      const req = mockReq({ params: { id: 'order-1' }, body: { amount: 27 } })
+      const res = mockRes()
+
+      await refund(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.merchantForbidden' }),
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('should 403 a non-owner with no authorizer', async () => {
       mockFindById.mockResolvedValueOnce({
         ...ORDER_ROW,
         status: 'delivered',
@@ -474,12 +580,13 @@ describe('@molecule/api-resource-order handlers', () => {
 
       expect(res.status).toHaveBeenCalledWith(403)
       expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ errorKey: 'order.error.forbidden' }),
+        expect.objectContaining({ errorKey: 'order.error.merchantForbidden' }),
       )
       expect(mockUpdateById).not.toHaveBeenCalled()
     })
 
-    it('should return 409 when order cannot be refunded', async () => {
+    it('should return 409 when order cannot be refunded (merchant authorized)', async () => {
+      setOrderMerchantAuthorizer(() => true)
       mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, status: 'pending' })
 
       const req = mockReq({ params: { id: 'order-1' } })
@@ -490,7 +597,8 @@ describe('@molecule/api-resource-order handlers', () => {
       expect(res.status).toHaveBeenCalledWith(409)
     })
 
-    it('should return 400 for invalid refund amount', async () => {
+    it('should return 400 for invalid refund amount (merchant authorized)', async () => {
+      setOrderMerchantAuthorizer(() => true)
       mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, status: 'delivered' })
 
       const req = mockReq({ params: { id: 'order-1' }, body: { amount: 999 } })
@@ -501,7 +609,12 @@ describe('@molecule/api-resource-order handlers', () => {
       expect(res.status).toHaveBeenCalledWith(400)
     })
 
-    it('should issue a full refund', async () => {
+    it('should issue a full refund with a passing authorizer', async () => {
+      const calls: Array<{ orderId: string; userId: string }> = []
+      setOrderMerchantAuthorizer((orderRow, userId) => {
+        calls.push({ orderId: orderRow.id, userId })
+        return true
+      })
       mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, status: 'delivered' })
       mockUpdateById.mockResolvedValueOnce({})
       mockCreate.mockResolvedValueOnce({ data: { id: 'event-1' } })
@@ -511,6 +624,7 @@ describe('@molecule/api-resource-order handlers', () => {
 
       await refund(req, res)
 
+      expect(calls).toEqual([{ orderId: 'order-1', userId: 'user-1' }])
       expect(mockUpdateById).toHaveBeenCalledWith(
         'orders',
         'order-1',
@@ -525,7 +639,8 @@ describe('@molecule/api-resource-order handlers', () => {
       )
     })
 
-    it('should issue a partial refund', async () => {
+    it('should issue a partial refund with a passing authorizer', async () => {
+      setOrderMerchantAuthorizer(async () => true)
       mockFindById.mockResolvedValueOnce({ ...ORDER_ROW, status: 'delivered' })
       mockUpdateById.mockResolvedValueOnce({})
       mockCreate.mockResolvedValueOnce({ data: { id: 'event-1' } })
@@ -545,6 +660,42 @@ describe('@molecule/api-resource-order handlers', () => {
           status: 'refunded',
         }),
       )
+    })
+  })
+
+  describe('merchant authorizer (default DENY)', () => {
+    const ROW = ORDER_ROW as unknown as Parameters<typeof canDriveOrderLifecycle>[0]
+
+    it('denies when no authorizer is registered', async () => {
+      expect(getOrderMerchantAuthorizer()).toBeNull()
+      expect(await canDriveOrderLifecycle(ROW, 'user-1')).toBe(false)
+    })
+
+    it('delegates to a registered authorizer and passes through its decision', async () => {
+      const calls: Array<{ orderId: string; userId: string }> = []
+      setOrderMerchantAuthorizer((orderRow, userId) => {
+        calls.push({ orderId: orderRow.id, userId })
+        return userId === 'merchant-1'
+      })
+      expect(getOrderMerchantAuthorizer()).not.toBeNull()
+      expect(await canDriveOrderLifecycle(ROW, 'merchant-1')).toBe(true)
+      expect(await canDriveOrderLifecycle(ROW, 'user-1')).toBe(false)
+      expect(calls).toEqual([
+        { orderId: 'order-1', userId: 'merchant-1' },
+        { orderId: 'order-1', userId: 'user-1' },
+      ])
+    })
+
+    it('awaits async authorizers', async () => {
+      setOrderMerchantAuthorizer(async () => true)
+      expect(await canDriveOrderLifecycle(ROW, 'user-1')).toBe(true)
+    })
+
+    it('clears back to default DENY when set to null', async () => {
+      setOrderMerchantAuthorizer(() => true)
+      expect(await canDriveOrderLifecycle(ROW, 'user-1')).toBe(true)
+      setOrderMerchantAuthorizer(null)
+      expect(await canDriveOrderLifecycle(ROW, 'user-1')).toBe(false)
     })
   })
 

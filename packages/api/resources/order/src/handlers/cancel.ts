@@ -3,8 +3,9 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { canDriveOrderLifecycle } from '../authorizers/index.js'
 import type { CancelOrderInput, OrderItemRow, OrderRow, OrderStatus } from '../types.js'
-import { STATUS_TRANSITIONS } from '../types.js'
+import { BUYER_ALLOWED_TRANSITIONS, STATUS_TRANSITIONS } from '../types.js'
 import { assembleOrder } from '../utilities.js'
 
 /**
@@ -35,14 +36,32 @@ export async function cancel(req: MoleculeRequest, res: MoleculeResponse): Promi
       return
     }
 
-    if (orderRow.userId !== userId) {
-      res.status(403).json({
-        error: t('order.error.forbidden', undefined, {
-          defaultValue: 'You do not have access to this order',
-        }),
-        errorKey: 'order.error.forbidden',
-      })
-      return
+    // A BUYER (order owner) may cancel only while the order is still pending;
+    // cancelling an already-progressed order is a merchant-only op.
+    const buyerMayCancel =
+      BUYER_ALLOWED_TRANSITIONS[orderRow.status as OrderStatus]?.includes('cancelled')
+    if (buyerMayCancel) {
+      if (orderRow.userId !== userId) {
+        res.status(403).json({
+          error: t('order.error.forbidden', undefined, {
+            defaultValue: 'You do not have access to this order',
+          }),
+          errorKey: 'order.error.forbidden',
+        })
+        return
+      }
+    } else {
+      // Progressed order — fail-closed: require a registered merchant authorizer
+      // that approves the caller (403 when none is set).
+      if (!(await canDriveOrderLifecycle(orderRow, userId, req))) {
+        res.status(403).json({
+          error: t('order.error.merchantForbidden', undefined, {
+            defaultValue: 'Merchant authorization is required to manage this order',
+          }),
+          errorKey: 'order.error.merchantForbidden',
+        })
+        return
+      }
     }
 
     const allowedTransitions = STATUS_TRANSITIONS[orderRow.status as OrderStatus]
