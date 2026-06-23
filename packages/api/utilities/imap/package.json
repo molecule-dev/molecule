@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "imapflow": "1.3.6"
+    "imapflow": "1.4.2"
   },
   "devDependencies": {
     "@types/node": "25.9.2",

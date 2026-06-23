@@ -30,7 +30,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "mailparser": "3.9.9"
+    "mailparser": "3.9.11"
   },
   "devDependencies": {
     "@molecule/api-emails": "1.0.0",
