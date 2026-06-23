@@ -1,9 +1,16 @@
 /**
  * Casbin-based implementation of the permissions provider.
  *
- * Uses Casbin's RBAC model to provide role-based and attribute-based access
- * control. Supports custom model definitions, policy files, and external
- * adapters for persistent storage.
+ * Uses Casbin's RBAC model for role-based access control: custom model
+ * definitions, policy files, and external adapters for persistent storage.
+ *
+ * @remarks
+ * This bond is RBAC-only — it does NOT evaluate the `Permission.conditions`
+ * (ABAC) the {@link PermissionsProvider} contract carries; the `custom` bond
+ * does. To avoid a silent fail-open on a provider swap (a conditional grant
+ * becoming an unconditional Casbin policy → privilege escalation), this bond
+ * REJECTS conditional permissions at registration ({@link assertNoAbacConditions}).
+ * Apps needing attribute-based conditions must bond `@molecule/api-permissions-custom`.
  *
  * @module
  */
@@ -14,6 +21,27 @@ import { newEnforcer, newModel } from 'casbin'
 import type { CreateRole, Permission, PermissionsProvider, Role } from '@molecule/api-permissions'
 
 import type { CasbinPermissionsOptions } from './types.js'
+
+/**
+ * [M5-1] Reject a permission carrying ABAC `conditions`. The Casbin bond enforces
+ * only RBAC (subject, action, resource) and cannot evaluate conditions, so silently
+ * registering a conditional permission would grant it UNCONDITIONALLY — a fail-open
+ * that turns a "delete only your own record" grant into "delete any record" on a
+ * `custom`→`casbin` swap. Fail loud here so the divergence can never become a silent
+ * privilege escalation; use `@molecule/api-permissions-custom` for conditional perms.
+ *
+ * @param perm - The permission being registered.
+ * @throws When `perm.conditions` is a non-empty object.
+ */
+function assertNoAbacConditions(perm: Permission): void {
+  if (perm.conditions && Object.keys(perm.conditions).length > 0) {
+    throw new Error(
+      `The casbin permissions bond is RBAC-only and does not enforce ABAC conditions on ` +
+        `'${perm.action}'/'${perm.resource}'; registering it would grant the permission ` +
+        `unconditionally. Use @molecule/api-permissions-custom for conditional permissions.`,
+    )
+  }
+}
 
 /** Default RBAC model definition for Casbin. */
 const DEFAULT_MODEL = `
@@ -174,8 +202,9 @@ export const createProvider = (options?: CasbinPermissionsOptions): PermissionsP
         id: p.id || generatePermissionId(),
       }))
 
-      // Add policies for each permission
+      // Add policies for each permission ([M5-1] reject ABAC conditions this bond can't enforce).
       for (const perm of permissions) {
+        assertNoAbacConditions(perm)
         await e.addPolicy(role.name, perm.action, perm.resource)
       }
 
@@ -223,6 +252,7 @@ export const createProvider = (options?: CasbinPermissionsOptions): PermissionsP
     },
 
     async addPermission(role: string, permission: Permission): Promise<void> {
+      assertNoAbacConditions(permission) // [M5-1] no silent fail-open on a conditional perm
       const e = await getEnforcer()
       await e.addPolicy(role, permission.action, permission.resource)
 

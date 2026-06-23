@@ -365,6 +365,48 @@ describe('@molecule/api-permissions-casbin', () => {
     })
   })
 
+  describe('ABAC conditions rejection (M5-1)', () => {
+    it('createRole rejects a conditional permission (no silent fail-open)', async () => {
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider()
+      await expect(
+        p.createRole({
+          name: 'member',
+          permissions: [
+            { id: '', action: 'delete', resource: 'document', conditions: { ownerId: 'self' } },
+          ],
+        }),
+      ).rejects.toThrow(/ABAC conditions|api-permissions-custom/)
+    })
+
+    it('addPermission rejects a conditional permission', async () => {
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider()
+      await p.createRole({ name: 'member', permissions: [] })
+      await expect(
+        p.addPermission('member', {
+          id: '',
+          action: 'delete',
+          resource: 'document',
+          conditions: { tenantId: 'x' },
+        }),
+      ).rejects.toThrow(/ABAC conditions|api-permissions-custom/)
+    })
+
+    it('still accepts an unconditional permission (empty/absent conditions)', async () => {
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider()
+      const role = await p.createRole({
+        name: 'reader',
+        permissions: [
+          { id: '', action: 'read', resource: 'docs' },
+          { id: '', action: 'list', resource: 'docs', conditions: {} },
+        ],
+      })
+      expect(role.name).toBe('reader')
+    })
+  })
+
   describe('getPermissions()', () => {
     it('returns permissions from the metadata store', async () => {
       const { createProvider } = await import('../provider.js')

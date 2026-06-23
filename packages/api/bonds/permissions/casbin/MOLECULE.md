@@ -2,9 +2,8 @@
 
 Casbin-based permissions provider for molecule.dev.
 
-Provides role-based and attribute-based access control (RBAC/ABAC)
-using Casbin. Supports custom model definitions, policy files,
-and external adapters for persistent storage.
+Provides role-based access control (RBAC) using Casbin: custom model
+definitions, policy files, and external adapters for persistent storage.
 
 ## Quick Start
 
@@ -244,3 +243,11 @@ export function setupPermissionsCasbin(): void {
 
 Peer dependencies:
 - `@molecule/api-permissions` ^1.0.0
+
+RBAC-only. This bond does NOT evaluate the `Permission.conditions` (ABAC)
+the shared permissions contract carries — the `custom` bond does. To prevent
+a silent fail-open on a provider swap (a conditional grant like "delete only
+your own record" becoming an unconditional Casbin policy = privilege
+escalation), it REJECTS (throws on) conditional permissions at `createRole`/
+`addPermission`. Use `@molecule/api-permissions-custom` for attribute-based
+(conditional) permissions.
