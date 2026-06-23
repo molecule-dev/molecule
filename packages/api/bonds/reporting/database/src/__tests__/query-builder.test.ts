@@ -383,6 +383,20 @@ describe('query-builder', () => {
       }
     })
 
+    it('[M7-1] rejects an interval outside the allowed set (SQL-injection guard)', () => {
+      // TimeInterval is compile-time-only; simulate an untrusted caller forwarding
+      // req.query.interval (cast past the type, as the runtime would actually receive).
+      const inject = `day', "created_at") AS d, (SELECT current_setting('is_superuser')) --`
+      expect(() =>
+        buildTimeSeriesSQL({
+          table: 'orders',
+          dateField: 'created_at',
+          interval: inject as never,
+          measures: [{ field: '*', function: 'count' }],
+        }),
+      ).toThrow(/Invalid time-series interval/)
+    })
+
     it('should include date range filters', () => {
       const start = new Date('2024-01-01')
       const end = new Date('2024-12-31')

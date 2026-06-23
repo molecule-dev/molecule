@@ -2,7 +2,8 @@
  * SQL query builder for aggregate and time-series reporting queries.
  *
  * Generates parameterized SQL from the abstract reporting query types,
- * preventing SQL injection via identifier sanitization and `$N` placeholders.
+ * preventing SQL injection via identifier sanitization, time-interval
+ * allow-listing ([M7-1]), and `$N` placeholders.
  *
  * @module
  */
@@ -29,6 +30,37 @@ export interface BuiltQuery {
  */
 export const sanitizeIdentifier = (name: string): string => {
   return name.replace(/[^a-zA-Z0-9_]/g, '_')
+}
+
+/**
+ * [M7-1] Allowed time-series bucket intervals. `TimeInterval` is a compile-time-only union
+ * (erased at runtime), so the value MUST be validated before it is interpolated into the
+ * `date_trunc('<interval>', …)` literal — the one field this builder interpolates rather than
+ * binds. Without this, a caller forwarding an untrusted `interval` (the type gives no runtime
+ * guarantee) could break out of the literal into arbitrary SQL.
+ */
+const ALLOWED_TIME_INTERVALS: ReadonlySet<string> = new Set([
+  'hour',
+  'day',
+  'week',
+  'month',
+  'year',
+])
+
+/**
+ * Assert a time-series interval is one of the allowed buckets, throwing otherwise. An explicit
+ * allow-list (not {@link sanitizeIdentifier}, which silently rewrites bad chars and would
+ * corrupt the keyword) — used before interpolating `interval` into `date_trunc()`.
+ *
+ * @param interval - The caller-supplied interval.
+ * @returns The validated interval, unchanged.
+ * @throws When `interval` is not an allowed bucket.
+ */
+export const assertSafeInterval = (interval: string): string => {
+  if (!ALLOWED_TIME_INTERVALS.has(interval)) {
+    throw new Error(`Invalid time-series interval: ${JSON.stringify(interval)}`)
+  }
+  return interval
 }
 
 /**
@@ -320,7 +352,7 @@ export const buildTimeSeriesSQL = (q: TimeSeriesQuery): BuiltQuery => {
   const params: unknown[] = []
   let paramIdx = 1
 
-  const dateExpr = `date_trunc('${q.interval}', "${dateField}")`
+  const dateExpr = `date_trunc('${assertSafeInterval(q.interval)}', "${dateField}")`
   const selectParts: string[] = [`${dateExpr} AS "date"`]
   for (const measure of q.measures) {
     selectParts.push(buildMeasureExpression(measure))
