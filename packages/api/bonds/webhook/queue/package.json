@@ -26,7 +26,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "undici": "7.27.2"
+    "undici": "7.28.0"
   },
   "peerDependencies": {
     "@molecule/api-webhook": "1.0.0"

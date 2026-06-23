@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "nodemailer": "8.0.10"
+    "nodemailer": "9.0.1"
   },
   "devDependencies": {
     "@types/node": "25.9.2",
