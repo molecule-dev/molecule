@@ -23,9 +23,11 @@
  * middleware therefore (1) authorizes a header tenant against the authenticated
  * principal via `config.resolveAuthorizedTenantIds` (403 on mismatch), and
  * (2) validates the header tenant exists and is `active` (404/403 otherwise)
- * before activating it. When `resolveAuthorizedTenantIds` is **not** configured
- * the raw-header middleware is *unauthenticated* and MUST be mounted strictly
- * behind your own auth + tenant-membership gate. The server-configured
+ * before activating it. **Secure by default ([M5-2]):** when
+ * `resolveAuthorizedTenantIds` is **not** configured the middleware REFUSES (403)
+ * to honor a header-named tenant at all — set `allowUnauthorizedTenantHeader: true`
+ * to opt into the raw-header path, which then MUST be mounted strictly behind your
+ * own auth + tenant-membership gate. The server-configured
  * `defaultTenantId` (used only when no header is present) is trusted config and
  * bypasses these checks.
  *
@@ -107,6 +109,7 @@ export const createProvider = (config: SchemaConfig = {}): TenancyProvider => {
     tenantHeader = DEFAULT_TENANT_HEADER,
     defaultTenantId,
     resolveAuthorizedTenantIds,
+    allowUnauthorizedTenantHeader = false,
   } = config
 
   /** In-memory tenant storage. */
@@ -175,6 +178,18 @@ export const createProvider = (config: SchemaConfig = {}): TenancyProvider => {
 
           res.status(400).json({
             error: `Missing required header: ${tenantHeader}`,
+          })
+          return
+        }
+
+        // [M5-2] Secure by default: the tenant header is attacker-controlled. Without a
+        // resolver to authorize it (and absent the explicit allowUnauthorizedTenantHeader
+        // opt-in for integrators who gate membership upstream), refuse to activate a
+        // header-named tenant — otherwise any caller could send `x-tenant-id: <victim>` and
+        // read/write another tenant's data (cross-tenant IDOR).
+        if (!resolveAuthorizedTenantIds && !allowUnauthorizedTenantHeader) {
+          res.status(403).json({
+            error: `Tenant header '${tenantHeader}' cannot be honored: no tenant authorization is configured.`,
           })
           return
         }

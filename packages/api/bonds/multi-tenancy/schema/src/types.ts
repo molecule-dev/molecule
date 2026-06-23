@@ -62,4 +62,15 @@ export interface SchemaConfig {
    * behind your own auth + tenant-membership gate (see the module `@remarks`).
    */
   resolveAuthorizedTenantIds?: AuthorizedTenantResolver
+
+  /**
+   * [M5-2] Opt-in to honor the raw (attacker-controlled) tenant header WITHOUT a
+   * `resolveAuthorizedTenantIds` resolver. Default `false` (secure by default): when no
+   * resolver is configured the middleware refuses (403) to activate a header-named tenant,
+   * because trusting the bare header lets any caller send `x-tenant-id: <victim-tenant>`
+   * and read/write another tenant's data (cross-tenant IDOR). Set to `true` ONLY when the
+   * middleware is mounted strictly behind your own auth + tenant-membership gate that has
+   * already validated the header — an explicit, audited choice, not the default.
+   */
+  allowUnauthorizedTenantHeader?: boolean
 }

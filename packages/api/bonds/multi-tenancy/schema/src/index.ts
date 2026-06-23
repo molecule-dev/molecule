@@ -14,14 +14,16 @@
  *    across `await`s under concurrency — no cross-request tenant bleed.
  *    `setTenant()` throws outside a request scope; use `runWithTenant()` for
  *    background jobs.
- * 2. **The tenant header is attacker-controlled.** Any caller can send
- *    `x-tenant-id: <victim-tenant>`. The raw-header middleware on its own is
- *    *unauthenticated*. ALWAYS either pass `resolveAuthorizedTenantIds` (so the
- *    middleware rejects 403 when the header tenant is not one the authenticated
- *    principal is a member of) **or** mount the middleware strictly behind your
- *    own auth + tenant-membership gate. The middleware additionally validates
- *    the header tenant exists and is `active` (404/403 otherwise) before
- *    activating it.
+ * 2. **The tenant header is attacker-controlled — secure by default ([M5-2]).**
+ *    Any caller can send `x-tenant-id: <victim-tenant>`. Without a
+ *    `resolveAuthorizedTenantIds` resolver the middleware REFUSES (403) to honor
+ *    the header at all — so the default never grants cross-tenant access. To
+ *    authorize the header, pass `resolveAuthorizedTenantIds` (rejects 403 when the
+ *    header tenant is not one the authenticated principal is a member of); or, if
+ *    you gate membership upstream, set `allowUnauthorizedTenantHeader: true` to opt
+ *    into the raw-header path and mount the middleware strictly behind that gate.
+ *    Either way the middleware also validates the header tenant exists and is
+ *    `active` (404/403 otherwise) before activating it.
  *
  * @module
  * @example

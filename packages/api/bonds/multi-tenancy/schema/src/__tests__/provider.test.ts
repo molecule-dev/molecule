@@ -8,7 +8,9 @@ describe('schema-based multi-tenancy provider', () => {
   let provider: TenancyProvider
 
   beforeEach(() => {
-    provider = createProvider()
+    // [M5-2] These suites exercise raw-header scoping mechanics; opt into honoring the
+    // header (the secure default refuses it without a resolver — covered by its own suite).
+    provider = createProvider({ allowUnauthorizedTenantHeader: true })
   })
 
   describe('setTenant / getTenant (request-scoped)', () => {
@@ -209,7 +211,10 @@ describe('schema-based multi-tenancy provider', () => {
     })
 
     it('should use a custom header name', async () => {
-      const customProvider = createProvider({ tenantHeader: 'x-org-id' })
+      const customProvider = createProvider({
+        tenantHeader: 'x-org-id',
+        allowUnauthorizedTenantHeader: true,
+      })
       const org = await customProvider.createTenant({ name: 'Org 42' })
       const middleware = customProvider.getTenantMiddleware()
       let seen: string | null = null
@@ -318,11 +323,42 @@ describe('schema-based multi-tenancy provider', () => {
       expect(next).toHaveBeenCalledWith(boom)
       expect(res.status).not.toHaveBeenCalled()
     })
+
+    it('[M5-2] refuses a header tenant by default (no resolver, no opt-in) — 403, never scopes', async () => {
+      const strict = createProvider() // secure default: no resolver, no opt-in
+      const victim = await strict.createTenant({ name: 'Victim Tenant' })
+      const middleware = strict.getTenantMiddleware()
+      const next = vi.fn()
+      const req = { headers: { 'x-tenant-id': victim.id } }
+      const res = mockRes()
+
+      await middleware(req, res as never, next)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(next).not.toHaveBeenCalled()
+    })
+
+    it('[M5-2] honors the header only with the explicit allowUnauthorizedTenantHeader opt-in', async () => {
+      const opted = createProvider({ allowUnauthorizedTenantHeader: true })
+      const t = await opted.createTenant({ name: 'Acme' })
+      const middleware = opted.getTenantMiddleware()
+      let seen: string | null = null
+      const next = vi.fn(() => {
+        seen = opted.getTenant()
+      })
+      const req = { headers: { 'x-tenant-id': t.id } }
+      const res = mockRes()
+
+      await middleware(req, res as never, next)
+
+      expect(seen).toBe(t.id)
+      expect(next).toHaveBeenCalled()
+    })
   })
 
   describe('cross-request isolation (no tenant bleed under concurrency)', () => {
     it('keeps each in-flight request scoped to its own tenant across awaits', async () => {
-      const provider = createProvider()
+      const provider = createProvider({ allowUnauthorizedTenantHeader: true })
       const a = await provider.createTenant({ name: 'Tenant A' })
       const b = await provider.createTenant({ name: 'Tenant B' })
 

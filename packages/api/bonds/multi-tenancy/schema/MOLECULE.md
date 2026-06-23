@@ -87,6 +87,17 @@ interface SchemaConfig {
    * behind your own auth + tenant-membership gate (see the module `@remarks`).
    */
   resolveAuthorizedTenantIds?: AuthorizedTenantResolver
+
+  /**
+   * [M5-2] Opt-in to honor the raw (attacker-controlled) tenant header WITHOUT a
+   * `resolveAuthorizedTenantIds` resolver. Default `false` (secure by default): when no
+   * resolver is configured the middleware refuses (403) to activate a header-named tenant,
+   * because trusting the bare header lets any caller send `x-tenant-id: <victim-tenant>`
+   * and read/write another tenant's data (cross-tenant IDOR). Set to `true` ONLY when the
+   * middleware is mounted strictly behind your own auth + tenant-membership gate that has
+   * already validated the header — an explicit, audited choice, not the default.
+   */
+  allowUnauthorizedTenantHeader?: boolean
 }
 ```
 
@@ -101,12 +112,7 @@ request (e.g. `req.user.tenantIds`), never from the client-supplied header.
 ```typescript
 type AuthorizedTenantResolver = (
   req: TenancyRequest,
-) =>
-  | string
-  | string[]
-  | null
-  | undefined
-  | Promise<string | string[] | null | undefined>
+) => string | string[] | null | undefined | Promise<string | string[] | null | undefined>
 ```
 
 ### Functions
@@ -180,11 +186,13 @@ Peer dependencies:
    across `await`s under concurrency — no cross-request tenant bleed.
    `setTenant()` throws outside a request scope; use `runWithTenant()` for
    background jobs.
-2. **The tenant header is attacker-controlled.** Any caller can send
-   `x-tenant-id: <victim-tenant>`. The raw-header middleware on its own is
-   *unauthenticated*. ALWAYS either pass `resolveAuthorizedTenantIds` (so the
-   middleware rejects 403 when the header tenant is not one the authenticated
-   principal is a member of) **or** mount the middleware strictly behind your
-   own auth + tenant-membership gate. The middleware additionally validates
-   the header tenant exists and is `active` (404/403 otherwise) before
-   activating it.
+2. **The tenant header is attacker-controlled — secure by default ([M5-2]).**
+   Any caller can send `x-tenant-id: <victim-tenant>`. Without a
+   `resolveAuthorizedTenantIds` resolver the middleware REFUSES (403) to honor
+   the header at all — so the default never grants cross-tenant access. To
+   authorize the header, pass `resolveAuthorizedTenantIds` (rejects 403 when the
+   header tenant is not one the authenticated principal is a member of); or, if
+   you gate membership upstream, set `allowUnauthorizedTenantHeader: true` to opt
+   into the raw-header path and mount the middleware strictly behind that gate.
+   Either way the middleware also validates the header tenant exists and is
+   `active` (404/403 otherwise) before activating it.
