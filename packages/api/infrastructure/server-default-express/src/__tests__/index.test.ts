@@ -1,7 +1,16 @@
-import type express from 'express'
-import { describe, expect, it, vi } from 'vitest'
+import http from 'node:http'
+import type { AddressInfo } from 'node:net'
 
-import { classifyTaggedError, createServerFactory, errorMiddleware } from '../index.js'
+import expressLib from 'express'
+import type express from 'express'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import {
+  classifyTaggedError,
+  createServerFactory,
+  errorMiddleware,
+  securityHeadersMiddleware,
+} from '../index.js'
 
 /** Minimal Express `res` test double that records what the handler wrote. */
 function makeRes() {
@@ -38,6 +47,117 @@ describe('@molecule/api-server-default-express', () => {
       getRouter: async () => ({ router: {} as never }),
     })
     expect(typeof create).toBe('function')
+  })
+})
+
+describe('securityHeadersMiddleware (L1-1 — browser-security baseline)', () => {
+  /** `res` double that records every `setHeader` so we can assert the baseline. */
+  function makeHeaderRes() {
+    const headers: Record<string, string> = {}
+    return {
+      headers,
+      setHeader(name: string, value: string) {
+        headers[name] = value
+      },
+    }
+  }
+
+  it('sets the anti-clickjacking + nosniff + referrer baseline on every response', () => {
+    const res = makeHeaderRes()
+    const next = vi.fn()
+
+    securityHeadersMiddleware(
+      {} as express.Request,
+      res as unknown as express.Response,
+      next as unknown as express.NextFunction,
+    )
+
+    expect(res.headers['X-Content-Type-Options']).toBe('nosniff')
+    expect(res.headers['X-Frame-Options']).toBe('DENY')
+    expect(res.headers['Content-Security-Policy']).toBe("frame-ancestors 'none'")
+    expect(res.headers['Referrer-Policy']).toBe('strict-origin-when-cross-origin')
+    expect(res.headers['X-XSS-Protection']).toBe('0')
+    expect(next).toHaveBeenCalledOnce()
+  })
+
+  it('gates HSTS to production so local plain-HTTP dev is not force-upgraded', () => {
+    const prev = process.env.NODE_ENV
+
+    process.env.NODE_ENV = 'development'
+    const devRes = makeHeaderRes()
+    securityHeadersMiddleware(
+      {} as express.Request,
+      devRes as unknown as express.Response,
+      vi.fn() as unknown as express.NextFunction,
+    )
+    expect(devRes.headers['Strict-Transport-Security']).toBeUndefined()
+
+    process.env.NODE_ENV = 'production'
+    const prodRes = makeHeaderRes()
+    securityHeadersMiddleware(
+      {} as express.Request,
+      prodRes as unknown as express.Response,
+      vi.fn() as unknown as express.NextFunction,
+    )
+    expect(prodRes.headers['Strict-Transport-Security']).toBe(
+      'max-age=31536000; includeSubDomains; preload',
+    )
+
+    process.env.NODE_ENV = prev
+  })
+})
+
+describe('createServerFactory server (L1-1 — real /health response carries the headers)', () => {
+  const servers: http.Server[] = []
+
+  afterEach(() => {
+    for (const s of servers.splice(0)) s.close()
+    vi.restoreAllMocks()
+  })
+
+  it("a real /health response from the factory's server carries the security headers", async () => {
+    // The factory builds an http.Server internally and starts listening on it,
+    // but does NOT return it. Spy on http.createServer to capture that exact
+    // server so we hit the real listener (not a re-wrapped copy) and can close
+    // it afterward — no leaked listener.
+    const realCreateServer = http.createServer.bind(http)
+    const createSpy = vi
+      .spyOn(http, 'createServer')
+      .mockImplementation((...args: Parameters<typeof http.createServer>) => {
+        const s = realCreateServer(...(args as Parameters<typeof realCreateServer>))
+        servers.push(s)
+        return s
+      })
+
+    const create = createServerFactory({
+      setupBonds: async () => {},
+      runMigrations: async () => {},
+      // Empty router — /health is mounted by the factory itself.
+      getRouter: async () => ({ router: expressLib.Router() }),
+    })
+
+    // Pass 0 for an ephemeral port; the factory listens on the captured server.
+    await create(0)
+    expect(createSpy).toHaveBeenCalled()
+    const server = servers[0]
+    // Wait until the captured server is actually listening, then read its port.
+    if (!server.listening) {
+      await new Promise<void>((resolve) => server.once('listening', () => resolve()))
+    }
+    const { port } = server.address() as AddressInfo
+
+    const headers = await new Promise<http.IncomingHttpHeaders>((resolve, reject) => {
+      http
+        .get({ host: '127.0.0.1', port, path: '/health' }, (res) => {
+          res.resume()
+          res.on('end', () => resolve(res.headers))
+        })
+        .on('error', reject)
+    })
+
+    expect(headers['x-content-type-options']).toBe('nosniff')
+    expect(headers['x-frame-options']).toBe('DENY')
+    expect(headers['content-security-policy']).toBe("frame-ancestors 'none'")
   })
 })
 

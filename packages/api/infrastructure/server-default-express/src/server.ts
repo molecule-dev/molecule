@@ -184,6 +184,41 @@ async function runServerCreatedHooks(server: http.Server | https.Server): Promis
   for (const hook of hooks) await hook(server)
 }
 
+/**
+ * Global browser-security headers applied to EVERY response (mounted before the
+ * routers in `createServerFactory`, mirroring the molecule.dev platform server).
+ *
+ * Defaults are conservative and framework-agnostic — no app-specific CSP source
+ * lists, just the clickjacking / MIME-sniffing / referrer baseline a JSON API
+ * should always ship:
+ *
+ * - `X-Content-Type-Options: nosniff` — stop MIME-type sniffing.
+ * - `X-Frame-Options: DENY` + `Content-Security-Policy: frame-ancestors 'none'`
+ *   — anti-clickjacking. A generated app that intends to be embedded (iframe)
+ *   can override these in its own middleware.
+ * - `X-XSS-Protection: 0` — disable the legacy, buggy XSS auditor (modern
+ *   correct value; CSP is the real defense).
+ * - `Referrer-Policy: strict-origin-when-cross-origin` — don't leak full URLs
+ *   cross-origin.
+ * - `Strict-Transport-Security` — production only (mirrors the platform server's
+ *   `NODE_ENV` check) so local plain-HTTP dev isn't force-upgraded to HTTPS.
+ *
+ * @param _req - The request (unused).
+ * @param res - The response to set headers on.
+ * @param next - Express next.
+ */
+export const securityHeadersMiddleware: express.RequestHandler = (_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('X-XSS-Protection', '0')
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'none'")
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
+  }
+  next()
+}
+
 let processHandlersRegistered = false
 
 /**
@@ -192,6 +227,8 @@ let processHandlersRegistered = false
  * builds the canonical molecule fleet server:
  *
  * - Migrations run first, then bonds, then router import.
+ * - Global browser-security headers ({@link securityHeadersMiddleware})
+ *   applied before any router (anti-clickjacking + nosniff + referrer baseline).
  * - `bodyParser` / `cookieParser` / `cors` middleware applied.
  * - Router mounted at `/api`.
  * - `/health` endpoint with `{ status: 'ok', timestamp }`.
@@ -224,6 +261,11 @@ export function createServerFactory(
 
     const app = express()
     app.disable('x-powered-by')
+
+    // Browser-security headers on every response — mounted before any router so
+    // /api, /health and error responses all carry them (mirrors the platform
+    // server). Anti-clickjacking + nosniff + referrer baseline; HSTS in prod only.
+    app.use(securityHeadersMiddleware)
 
     if (opts.preBodyParser) {
       // Custom-ordering path: mount cors+cookie before custom hooks
