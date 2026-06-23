@@ -340,6 +340,23 @@ interface UpdateOrderStatusInput {
 
 ### Types
 
+#### `OrderMerchantAuthorizer`
+
+Merchant-ownership predicate: returns `true` when `userId` is a merchant /
+seller / admin entitled to drive the given order's lifecycle (confirm,
+process, ship, deliver, refund, or cancel an already-progressed order). It is
+deliberately distinct from the buyer ownership check (`orderRow.userId ===
+userId`): the order row records only the BUYER, so it has no inherent
+knowledge of who the seller is — only the consuming app does.
+
+```typescript
+type OrderMerchantAuthorizer = (
+  orderRow: OrderRow,
+  userId: string,
+  req?: MoleculeRequest,
+) => Promise<boolean> | boolean
+```
+
 #### `OrderStatus`
 
 Possible states of an order throughout its lifecycle.
@@ -381,6 +398,23 @@ function cancel(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `req` — The request with `params.id` and optional {@link CancelOrderInput} body.
 - `res` — The response object.
 
+#### `canDriveOrderLifecycle(orderRow, userId, req)`
+
+Default-DENY merchant gate. Returns `true` only when an authorizer has been
+registered via {@link setOrderMerchantAuthorizer} AND that authorizer allows
+`userId` to drive this order's lifecycle. When no authorizer is registered,
+this returns `false` — the merchant-only handlers respond 403.
+
+```typescript
+function canDriveOrderLifecycle(orderRow: OrderRow, userId: string, req?: MoleculeRequest): Promise<boolean>
+```
+
+- `orderRow` — The order being acted on.
+- `userId` — The authenticated user ID.
+- `req` — The originating request (optional).
+
+**Returns:** `true` if the merchant op is allowed, otherwise `false`.
+
 #### `computeSubtotal(items)`
 
 Computes the subtotal from a list of order items (price × quantity).
@@ -396,6 +430,28 @@ function computeSubtotal(items: { price: number; quantity: number; }[]): number
 #### `create(req, res)`
 
 Creates a new order from the request body.
+
+⚠️ CLIENT-PRICE TRUST BOUNDARY — READ BEFORE WIRING TO PAYMENTS ⚠️
+
+This handler TRUSTS the client-supplied money fields verbatim:
+`items[].price`, `items[].quantity`, `discount`, `tax`, and `shipping` all
+come straight from the request body, and the order `total` is computed from
+them (`subtotal − discount + tax + shipping`). This resource is GENERIC — it
+owns no product/catalog table — so it CANNOT and DOES NOT verify a client
+price against a real unit price. The validation below only rejects malformed
+money (negative amounts, non-integer/zero quantities); it does NOT establish
+that the prices are correct.
+
+Therefore `create()` MUST NOT be wired directly to a payment-charging path.
+A caller that charges off this order's `total` lets a malicious client set
+their own prices (e.g. `price: 0` or a negative `discount` that zeroes the
+total). Charging code MUST resolve each unit price SERVER-SIDE from the
+product/menu table (keyed by `productId`/`variantId`), ignore the client's
+`price`, and recompute `subtotal`/`tax`/`shipping`/`total` from those
+trusted values — exactly as every flagship checkout flow does. Use this
+handler only for non-charging flows (drafts, internal/admin order entry,
+an already-server-priced order), or replace it with an app-specific create
+that does the server-side price lookup.
 
 ```typescript
 function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
@@ -414,6 +470,17 @@ function getHistory(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 
 - `req` — The request with `params.id`.
 - `res` — The response object.
+
+#### `getOrderMerchantAuthorizer()`
+
+Returns the currently-registered merchant authorizer, or `null` when none
+has been registered.
+
+```typescript
+function getOrderMerchantAuthorizer(): OrderMerchantAuthorizer | null
+```
+
+**Returns:** The registered authorizer, or `null`.
 
 #### `list(req, res)`
 
@@ -447,6 +514,24 @@ function refund(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 
 - `req` — The request with `params.id` and optional {@link RefundOrderInput} body.
 - `res` — The response object.
+
+#### `setOrderMerchantAuthorizer(authorizer)`
+
+Registers the merchant authorizer consulted by the order lifecycle handlers
+(`refund`, a merchant-state `updateStatus`, and cancellation of an
+already-progressed order) before any mutation. **Until an app registers one,
+every merchant op is DENIED (secure by default)** — the order row records
+only the buyer, so the consuming app MUST supply who is entitled to act as
+the seller/merchant on an order.
+
+Pass `null` to clear a previously-registered authorizer (restores default
+deny).
+
+```typescript
+function setOrderMerchantAuthorizer(authorizer: OrderMerchantAuthorizer | null): void
+```
+
+- `authorizer` — The merchant predicate, or `null` to clear.
 
 #### `toOrderEvent(row)`
 
@@ -485,12 +570,35 @@ function updateStatus(req: MoleculeRequest, res: MoleculeResponse): Promise<void
 
 ### Constants
 
+#### `BUYER_ALLOWED_TRANSITIONS`
+
+Buyer-reachable status transitions: maps current status to the set of next
+statuses an ORDER OWNER (buyer) may drive themselves. A buyer may only cancel
+an order while it is still `pending`; every other lifecycle transition is
+merchant-only. Any transition NOT listed here requires the merchant
+authorizer (see `setOrderMerchantAuthorizer`).
+
+```typescript
+const BUYER_ALLOWED_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]>
+```
+
 #### `i18nRegistered`
 
 Whether i18n registration has been attempted.
 
 ```typescript
 const i18nRegistered: true
+```
+
+#### `MERCHANT_STATES`
+
+Statuses that represent a MERCHANT-driven lifecycle stage. Transitioning an
+order INTO any of these is a merchant-only operation: it requires the
+merchant authorizer (see `setOrderMerchantAuthorizer`) and is never something
+the buyer (order owner) may self-service.
+
+```typescript
+const MERCHANT_STATES: readonly OrderStatus[]
 ```
 
 #### `ORDER_STATUSES`
@@ -511,7 +619,9 @@ const requestHandlerMap: { readonly create: typeof create; readonly list: typeof
 
 #### `routes`
 
-Order resource routes. All routes require authentication.
+Order resource routes. All routes require authentication. The lifecycle
+mutations (updateStatus/refund/cancel) additionally gate merchant-only
+operations behind `setOrderMerchantAuthorizer` (see the module SECURITY note).
 
 ```typescript
 const routes: readonly [{ readonly method: "post"; readonly path: "/orders"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/orders"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/orders/:id"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "put"; readonly path: "/orders/:id/status"; readonly handler: "updateStatus"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/orders/:id/cancel"; readonly handler: "cancel"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/orders/:id/refund"; readonly handler: "refund"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/orders/:id/history"; readonly handler: "getHistory"; readonly middlewares: readonly ["authenticate"]; }]
@@ -534,3 +644,23 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+**SECURITY — `create()` TRUSTS client-supplied prices; do NOT wire it to a
+payment-charging path.** This resource is GENERIC: it owns no product/catalog
+table, so it CANNOT verify a price. `create()` builds the order — and its
+`total` (`subtotal − discount + tax + shipping`) — from the request body's
+`items[].price`, `quantity`, `discount`, `tax`, and `shipping`. Input
+validation rejects malformed money (negative `price`/`discount`/`tax`/
+`shipping`, non-integer or `< 1` `quantity`) but does NOT establish that the
+prices are CORRECT. A client can therefore submit `price: 0` (or otherwise
+understate the total). Any code that CHARGES off an order MUST resolve each
+unit price SERVER-SIDE from the product/menu table (keyed by `productId`/
+`variantId`), ignore the client's `price`, and recompute the totals from
+those trusted values — as every flagship checkout flow does. Use the stock
+`create()` only for non-charging flows (drafts, internal/admin order entry,
+an order that was already server-priced upstream).
+
+Lifecycle ops (confirm/process/ship/deliver/refund, and cancelling an
+already-progressed order) are MERCHANT-ONLY and DENY by default until an app
+registers a merchant authorizer via `setOrderMerchantAuthorizer` — the order
+row records only the BUYER (`userId`), so it cannot know who the seller is.

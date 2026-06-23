@@ -24,10 +24,15 @@ export async function updateQuantity(req: MoleculeRequest, res: MoleculeResponse
   const itemId = req.params.itemId as string
   const input = req.body as UpdateCartItemInput
 
-  if (input.quantity == null || input.quantity < 1) {
+  if (
+    input.quantity == null ||
+    typeof input.quantity !== 'number' ||
+    !Number.isInteger(input.quantity) ||
+    input.quantity < 1
+  ) {
     res.status(400).json({
       error: t('cart.error.invalidQuantity', undefined, {
-        defaultValue: 'Quantity must be at least 1',
+        defaultValue: 'Quantity must be an integer of at least 1',
       }),
       errorKey: 'cart.error.invalidQuantity',
     })

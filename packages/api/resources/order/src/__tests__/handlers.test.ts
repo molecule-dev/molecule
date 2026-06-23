@@ -148,6 +148,149 @@ describe('@molecule/api-resource-order handlers', () => {
       )
     })
 
+    it('should return 400 (invalidItem) when an item price is negative', async () => {
+      const req = mockReq({
+        body: { items: [{ productId: 'p1', name: 'X', price: -5, quantity: 1 }] },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.invalidItem' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should return 400 (invalidItem) when an item quantity is non-integer', async () => {
+      const req = mockReq({
+        body: { items: [{ productId: 'p1', name: 'X', price: 5, quantity: 1.5 }] },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.invalidItem' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should return 400 (invalidItem) when an item quantity is zero', async () => {
+      const req = mockReq({
+        body: { items: [{ productId: 'p1', name: 'X', price: 5, quantity: 0 }] },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.invalidItem' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should allow an item price of 0 (free item is valid, non-negative)', async () => {
+      mockCreate
+        .mockResolvedValueOnce({ data: { ...ORDER_ROW, subtotal: 0, total: 0 } })
+        .mockResolvedValueOnce({ data: { ...ITEM_ROW, price: 0 } })
+        .mockResolvedValueOnce({ data: { id: 'event-1' } })
+
+      const req = mockReq({
+        body: { items: [{ productId: 'prod-1', name: 'Freebie', price: 0, quantity: 1 }] },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(201)
+    })
+
+    it('should return 400 (invalidAmounts) when discount is negative', async () => {
+      const req = mockReq({
+        body: {
+          items: [{ productId: 'p1', name: 'X', price: 10, quantity: 1 }],
+          discount: -100,
+        },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.invalidAmounts' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should return 400 (invalidAmounts) when tax is negative', async () => {
+      const req = mockReq({
+        body: {
+          items: [{ productId: 'p1', name: 'X', price: 10, quantity: 1 }],
+          tax: -1,
+        },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.invalidAmounts' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should return 400 (invalidAmounts) when shipping is negative', async () => {
+      const req = mockReq({
+        body: {
+          items: [{ productId: 'p1', name: 'X', price: 10, quantity: 1 }],
+          shipping: -1,
+        },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.invalidAmounts' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should compute the order total from the validated inputs', async () => {
+      mockCreate
+        .mockResolvedValueOnce({ data: ORDER_ROW })
+        .mockResolvedValueOnce({ data: ITEM_ROW })
+        .mockResolvedValueOnce({ data: { id: 'event-1' } })
+
+      // subtotal = 10*2 + 5*3 = 35; total = 35 - 5 (discount) + 2 (tax) + 4 (shipping) = 36
+      const req = mockReq({
+        body: {
+          items: [
+            { productId: 'prod-1', name: 'Widget', price: 10, quantity: 2 },
+            { productId: 'prod-2', name: 'Gadget', price: 5, quantity: 3 },
+          ],
+          discount: 5,
+          tax: 2,
+          shipping: 4,
+        },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        'orders',
+        expect.objectContaining({ subtotal: 35, discount: 5, tax: 2, shipping: 4, total: 36 }),
+      )
+    })
+
     it('should create an order with items', async () => {
       mockCreate
         .mockResolvedValueOnce({ data: ORDER_ROW }) // create order

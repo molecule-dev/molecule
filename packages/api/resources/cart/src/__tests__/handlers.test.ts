@@ -198,6 +198,59 @@ describe('@molecule/api-resource-cart handlers', () => {
       )
     })
 
+    it('should return 400 (invalidQuantity) when quantity is non-integer', async () => {
+      const req = mockReq({
+        body: { productId: 'p1', name: 'X', price: 5, quantity: 1.5 },
+      })
+      const res = mockRes()
+
+      await addItem(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'cart.error.invalidQuantity' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should return 400 (invalidPrice) when price is negative', async () => {
+      const req = mockReq({
+        body: { productId: 'p1', name: 'X', price: -5, quantity: 1 },
+      })
+      const res = mockRes()
+
+      await addItem(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'cart.error.invalidPrice' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('should allow a price of 0 (free item is valid, non-negative)', async () => {
+      mockFindOne
+        .mockResolvedValueOnce(CART_ROW) // find cart
+        .mockResolvedValueOnce(null) // no existing item
+        .mockResolvedValueOnce(CART_ROW) // re-read cart
+      mockCreate.mockResolvedValueOnce({ data: { id: 'item-free' } })
+      mockUpdateById.mockResolvedValueOnce({})
+      mockFindMany.mockResolvedValueOnce([{ ...ITEM_ROW, price: 0 }])
+
+      const req = mockReq({
+        body: { productId: 'p-free', name: 'Freebie', price: 0, quantity: 1 },
+      })
+      const res = mockRes()
+
+      await addItem(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(201)
+      expect(mockCreate).toHaveBeenCalledWith(
+        'cart_items',
+        expect.objectContaining({ productId: 'p-free', price: 0 }),
+      )
+    })
+
     it('should add a new item to the cart', async () => {
       mockFindOne
         .mockResolvedValueOnce(CART_ROW) // find cart
@@ -273,6 +326,29 @@ describe('@molecule/api-resource-cart handlers', () => {
       await updateQuantity(req, res)
 
       expect(res.status).toHaveBeenCalledWith(400)
+    })
+
+    it('should return 400 (invalidQuantity) when quantity is non-integer', async () => {
+      const req = mockReq({ params: { itemId: 'item-1' }, body: { quantity: 2.5 } })
+      const res = mockRes()
+
+      await updateQuantity(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'cart.error.invalidQuantity' }),
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('should return 400 (invalidQuantity) when quantity is negative', async () => {
+      const req = mockReq({ params: { itemId: 'item-1' }, body: { quantity: -3 } })
+      const res = mockRes()
+
+      await updateQuantity(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(mockUpdateById).not.toHaveBeenCalled()
     })
 
     it('should return 404 when cart not found', async () => {
