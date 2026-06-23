@@ -66,6 +66,7 @@ import { popular } from '../handlers/popular.js'
 import { read } from '../handlers/read.js'
 import { removeTag } from '../handlers/removeTag.js'
 import { update } from '../handlers/update.js'
+import { clearTagOwnershipResolvers, registerTagOwnershipResolver } from '../registry.js'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mockReq(overrides: Record<string, unknown> = {}): any {
@@ -101,6 +102,10 @@ describe('@molecule/api-resource-tag handlers', () => {
     // Fail-closed defaults: no permissions provider, deny.
     mockHasProvider.mockReturnValue(false)
     mockCan.mockResolvedValue(false)
+    // [M6-1] No tag ownership resolver registered by default → cross-resource
+    // tag writes fail closed. Per-describe beforeEach registers one for the
+    // positive paths; fail-closed tests assert the unregistered/denying behavior.
+    clearTagOwnershipResolvers()
   })
 
   describe('create', () => {
@@ -535,6 +540,39 @@ describe('@molecule/api-resource-tag handlers', () => {
   })
 
   describe('addTag', () => {
+    // [M6-1] register a permissive owner resolver so the positive paths exercise
+    // the real handler; individual fail-closed tests override it.
+    beforeEach(() => registerTagOwnershipResolver('project', () => true))
+
+    it('fails closed with 404 (no insert) when no ownership resolver is registered [M6-1]', async () => {
+      clearTagOwnershipResolvers() // override the permissive describe default
+      const req = mockReq({
+        params: { resourceType: 'project', resourceId: 'p1' },
+        body: { tagId: 't1' },
+      })
+      const res = mockRes()
+      await addTag(req, res)
+      expect(res.status).toHaveBeenCalledWith(404)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'tag.error.notFound' }),
+      )
+      expect(mockFindById).not.toHaveBeenCalled() // denied before any lookup — no existence leak
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('returns 404 with no insert when the resolver denies (cross-tenant write) [M6-1]', async () => {
+      registerTagOwnershipResolver('project', () => false) // caller does not own the resource
+      const req = mockReq({
+        params: { resourceType: 'project', resourceId: 'victim' },
+        body: { tagId: 't1' },
+      })
+      const res = mockRes()
+      await addTag(req, res)
+      expect(res.status).toHaveBeenCalledWith(404)
+      expect(mockFindById).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
     it('should return 401 when there is no session (unauthenticated)', async () => {
       const req = mockReq({
         params: { resourceType: 'project', resourceId: 'p1' },
@@ -632,6 +670,34 @@ describe('@molecule/api-resource-tag handlers', () => {
   })
 
   describe('removeTag', () => {
+    // [M6-1] permissive resolver for the positive paths; fail-closed tests override.
+    beforeEach(() => registerTagOwnershipResolver('project', () => true))
+
+    it('fails closed with 404 (no delete) when no ownership resolver is registered [M6-1]', async () => {
+      clearTagOwnershipResolvers()
+      const req = mockReq({
+        params: { resourceType: 'project', resourceId: 'p1', tagId: 't1' },
+      })
+      const res = mockRes()
+      await removeTag(req, res)
+      expect(res.status).toHaveBeenCalledWith(404)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'tag.error.notFound' }),
+      )
+      expect(mockDeleteMany).not.toHaveBeenCalled() // no cross-tenant strip + no 204/404 oracle
+    })
+
+    it('returns 404 with no delete when the resolver denies (cross-tenant strip) [M6-1]', async () => {
+      registerTagOwnershipResolver('project', () => false)
+      const req = mockReq({
+        params: { resourceType: 'project', resourceId: 'victim', tagId: 't1' },
+      })
+      const res = mockRes()
+      await removeTag(req, res)
+      expect(res.status).toHaveBeenCalledWith(404)
+      expect(mockDeleteMany).not.toHaveBeenCalled()
+    })
+
     it('should return 401 when there is no session (unauthenticated)', async () => {
       const req = mockReq({
         params: { resourceType: 'project', resourceId: 'p1', tagId: 't1' },

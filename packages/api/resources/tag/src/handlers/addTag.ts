@@ -3,6 +3,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { isTagWriteAuthorized } from '../registry.js'
 import type { ResourceTag, Tag } from '../types.js'
 
 /**
@@ -31,6 +32,22 @@ export async function addTag(req: MoleculeRequest, res: MoleculeResponse): Promi
   }
 
   const { resourceType, resourceId } = req.params
+
+  // [M6-1] Fail-closed cross-resource ownership gate: deny (404, no existence
+  // leak) unless the parent resource registered an ownership resolver that
+  // authorizes this caller. Without this, auto-mounting addTag behind only
+  // `authenticate` is a cross-tenant IDOR (any user could tag another tenant's
+  // resource). Runs before any DB lookup so it leaks nothing about the target.
+  if (!(await isTagWriteAuthorized({ resourceType, resourceId, userId }))) {
+    // Reuse the generic 'tag.error.notFound' (uniform 404) so the denial is
+    // indistinguishable from a real not-found — no existence leak about the target.
+    res.status(404).json({
+      error: t('tag.error.notFound', undefined, { defaultValue: 'Tag not found' }),
+      errorKey: 'tag.error.notFound',
+    })
+    return
+  }
+
   const { tagId } = req.body as { tagId?: string }
 
   if (!tagId) {

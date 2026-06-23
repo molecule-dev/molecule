@@ -3,6 +3,8 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { isTagWriteAuthorized } from '../registry.js'
+
 /**
  * Removes a tag from a resource.
  *
@@ -29,6 +31,21 @@ export async function removeTag(req: MoleculeRequest, res: MoleculeResponse): Pr
   }
 
   const { resourceType, resourceId, tagId } = req.params
+
+  // [M6-1] Fail-closed cross-resource ownership gate: deny (404, no existence
+  // leak) unless the parent resource registered an ownership resolver authorizing
+  // this caller. Without this, removeTag behind only `authenticate` is a
+  // cross-tenant IDOR (strip another tenant's tags) plus a 204/404 existence
+  // oracle. Runs before the delete so the uniform 404 reveals nothing.
+  if (!(await isTagWriteAuthorized({ resourceType, resourceId, userId }))) {
+    // Reuse the generic 'tag.error.notFound' (uniform 404) so the denial leaks
+    // nothing — and closes the prior 204/404 association-existence oracle.
+    res.status(404).json({
+      error: t('tag.error.notFound', undefined, { defaultValue: 'Tag not found' }),
+      errorKey: 'tag.error.notFound',
+    })
+    return
+  }
 
   try {
     const result = await deleteMany('resource_tags', [

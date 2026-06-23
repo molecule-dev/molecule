@@ -69,6 +69,21 @@ interface Tag {
 }
 ```
 
+#### `TagOwnershipContext`
+
+Inputs a {@link TagOwnershipResolver} receives to authorize a tag write.
+
+```typescript
+interface TagOwnershipContext {
+  /** The parent resource type from the URL (e.g. `'posts'`, `'products'`). */
+  resourceType: string
+  /** The parent resource id from the URL. */
+  resourceId: string
+  /** The authenticated caller's user id. */
+  userId: string
+}
+```
+
 ### Types
 
 #### `CreateTagInput`
@@ -82,6 +97,15 @@ type CreateTagInput = Pick<Tag, 'name'> & {
   /** Optional description. */
   description?: string | null
 }
+```
+
+#### `TagOwnershipResolver`
+
+Answers "may this caller write tags on `(resourceType, resourceId)`?". Return
+`true` to allow; anything else (or a throw) denies. Registered per resourceType.
+
+```typescript
+type TagOwnershipResolver = (context: TagOwnershipContext) => boolean | Promise<boolean>
 ```
 
 #### `UpdateTagInput`
@@ -113,6 +137,14 @@ function addTag(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 
 - `req` — The request with `resourceType` and `resourceId` params, `tagId` in body.
 - `res` — The response object.
+
+#### `clearTagOwnershipResolvers()`
+
+Clear all registered resolvers (test isolation).
+
+```typescript
+function clearTagOwnershipResolvers(): void
+```
 
 #### `create(req, res)`
 
@@ -162,6 +194,18 @@ function getBySlug(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `req` — The request with `slug` param and optional `resourceType` query.
 - `res` — The response object.
 
+#### `getTagOwnershipResolver(resourceType)`
+
+Get the registered resolver for a `resourceType`, or `undefined`.
+
+```typescript
+function getTagOwnershipResolver(resourceType: string): TagOwnershipResolver | undefined
+```
+
+- `resourceType` — The parent resource type.
+
+**Returns:** The resolver, or `undefined` when none is registered.
+
 #### `isTagAdmin(res)`
 
 Resolves whether the current request's session belongs to an actor authorized
@@ -180,6 +224,19 @@ function isTagAdmin(res: MoleculeResponse): Promise<boolean>
 - `res` — The response whose `locals.session` is inspected.
 
 **Returns:** `true` when the session is an authorized tag admin.
+
+#### `isTagWriteAuthorized(context)`
+
+Fail-closed authorization for a cross-resource tag write. Denies (`false`)
+when no resolver is registered for the `resourceType` or the resolver throws.
+
+```typescript
+function isTagWriteAuthorized(context: TagOwnershipContext): Promise<boolean>
+```
+
+- `context` — The resource + caller to authorize.
+
+**Returns:** Whether the caller may write tags on the resource.
 
 #### `list(_req, res)`
 
@@ -213,6 +270,18 @@ function read(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 
 - `req` — The request object with `id` param.
 - `res` — The response object.
+
+#### `registerTagOwnershipResolver(resourceType, resolver)`
+
+Register the ownership resolver for a parent `resourceType`. Call once at
+startup for every resource type whose rows may be tagged.
+
+```typescript
+function registerTagOwnershipResolver(resourceType: string, resolver: TagOwnershipResolver): void
+```
+
+- `resourceType` — The parent resource type (matches the route param).
+- `resolver` — Authorizes a tag write for that resource type.
 
 #### `removeTag(req, res)`
 
@@ -249,6 +318,18 @@ function requireAdmin(): MoleculeRequestHandler
 ```
 
 **Returns:** An Express-compatible middleware function.
+
+#### `unregisterTagOwnershipResolver(resourceType)`
+
+Remove the resolver for a `resourceType` (returns whether one existed).
+
+```typescript
+function unregisterTagOwnershipResolver(resourceType: string): boolean
+```
+
+- `resourceType` — The parent resource type.
+
+**Returns:** `true` if a resolver was registered and removed.
 
 #### `update(req, res)`
 
@@ -337,3 +418,20 @@ Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-permissions` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+The cross-resource tag routes (`POST /:resourceType/:resourceId/tags`,
+`DELETE /:resourceType/:resourceId/tags/:tagId`) are **fail-closed**: they
+return 404 until you register an ownership resolver for each taggable resource
+type. Skipping this leaves the routes denying ALL tag writes (it never opens a
+cross-tenant hole, but real tagging won't work). Wire it at startup:
+
+```typescript
+import { registerTagOwnershipResolver } from '@molecule/api-resource-tag'
+import { findById } from '@molecule/api-database'
+
+// Allow tag writes only by the owner of the parent resource.
+registerTagOwnershipResolver('posts', async ({ resourceId, userId }) => {
+  const post = await findById('posts', resourceId)
+  return post?.userId === userId
+})
+```
