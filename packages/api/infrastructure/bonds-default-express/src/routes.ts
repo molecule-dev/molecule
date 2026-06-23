@@ -134,14 +134,22 @@ export function mountDefaultUserBillingRoutes(router: Router, user: UserMap): vo
  * Optional payment-verification routes for apps that support
  * client-driven payment confirmation (Apple/Google receipt verify).
  *
- * - `GET /users/:id/verify-payment/:provider` (verifyPayment) — unauthenticated
- *   browser redirect target (e.g. Stripe Checkout success_url); ownership is
- *   enforced inside the handler via the customer/checkout-session binding.
- * - `POST /users/:id/verify-payment/:provider` (authSelf+verifyPayment) — the
- *   mobile receipt path credits `:id`, so only that authenticated user may call it.
+ * Both verbs require `authSelf` ([M3-1]): the handler mutates and returns the
+ * `:id` user, so an unauthenticated / cross-user call must not reach it. The
+ * permissive global `verifyMiddleware()` never blocks, so per-route `authSelf`
+ * is the gate. `authSelf` does NOT break the Stripe Checkout `success_url`
+ * callback — that is a top-level browser navigation which carries the
+ * `sameSite:'lax'` session cookie — and in-handler customer/checkout-session
+ * binding remains as defense-in-depth. This mirrors the hardened declarative
+ * route table (`resources/user/src/routes.ts`) and molecule-dev's live router;
+ * the fix had not been propagated to this mounter, which the generated-app
+ * fleet uses.
+ *
+ * - `GET /users/:id/verify-payment/:provider` (authSelf+verifyPayment)
+ * - `POST /users/:id/verify-payment/:provider` (authSelf+verifyPayment)
  */
 export function mountDefaultUserVerifyPaymentRoutes(router: Router, user: UserMap): void {
   if (!user.verifyPayment) return
-  router.get('/users/:id/verify-payment/:provider', user.verifyPayment)
+  router.get('/users/:id/verify-payment/:provider', user.authSelf, user.verifyPayment)
   router.post('/users/:id/verify-payment/:provider', user.authSelf, user.verifyPayment)
 }
