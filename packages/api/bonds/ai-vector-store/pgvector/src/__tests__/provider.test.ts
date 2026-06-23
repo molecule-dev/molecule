@@ -36,7 +36,7 @@ vi.mock('pgvector/pg', () => ({
   toSql: vi.fn((arr: number[]) => `[${arr.join(',')}]`),
 }))
 
-import { createProvider } from '../provider.js'
+import { clampTopK, createProvider } from '../provider.js'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -61,6 +61,18 @@ describe('PgvectorProvider', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+  })
+
+  describe('clampTopK (M7-2 — LIMIT is interpolated, not bound)', () => {
+    it('coerces topK to a bounded positive integer', () => {
+      expect(clampTopK(5)).toBe(5)
+      expect(clampTopK(undefined)).toBe(10) // default
+      expect(clampTopK(0)).toBe(10) // < 1 → default
+      expect(clampTopK(-3)).toBe(10)
+      expect(clampTopK(7.9)).toBe(7) // floored
+      expect(clampTopK(99999)).toBe(10_000) // capped
+      expect(clampTopK('5; DROP TABLE x')).toBe(10) // non-numeric → default (injection guard)
+    })
   })
 
   // =========================================================================

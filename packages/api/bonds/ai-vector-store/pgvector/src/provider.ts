@@ -91,6 +91,21 @@ function distanceOperator(metric: DistanceMetric): string {
 }
 
 /**
+ * [M7-2] Coerce a requested `topK` into a bounded positive integer for SAFE interpolation into
+ * the `LIMIT` clause (it is not a bound `$N` parameter). `topK` is typed `number`, but a caller
+ * forwarding an untrusted value (e.g. `req.body.topK` cast to `any`) could otherwise inject SQL
+ * or request an unbounded scan. Non-finite / `< 1` falls back to the default 10; capped at 10_000.
+ *
+ * @param value - The caller-supplied `topK` (untyped at runtime).
+ * @returns A safe integer in `[1, 10000]`.
+ */
+export function clampTopK(value: unknown): number {
+  const n = Math.floor(Number(value))
+  if (!Number.isFinite(n) || n < 1) return 10
+  return Math.min(n, 10_000)
+}
+
+/**
  * Returns the pgvector index access method for a given distance metric.
  *
  * @param metric - The distance metric.
@@ -371,7 +386,7 @@ class PgvectorProvider implements AIVectorStoreProvider {
     const metric = meta.metric as DistanceMetric
     const operator = distanceOperator(metric)
     const table = this.collectionTable(params.collection)
-    const topK = params.topK ?? 10
+    const topK = clampTopK(params.topK) // [M7-2] bounded positive int — LIMIT is interpolated, not bound
 
     // Build WHERE clause from filters
     const conditions: string[] = []
