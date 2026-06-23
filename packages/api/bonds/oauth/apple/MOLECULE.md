@@ -183,6 +183,22 @@ interface OAuthUserProps {
      */
     email?: string;
     /**
+     * Whether the OAuth provider has affirmatively verified that the user
+     * controls this `email` mailbox.
+     *
+     * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
+     * `email_verified`, Apple's `email_verified` ID-token claim). When the
+     * provider exposes no trustworthy verification signal in the profile data
+     * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
+     * `true`) — consumers treat only an explicit `true` as verified.
+     *
+     * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
+     * decide whether a provider-supplied email may be trusted over an existing,
+     * unverified local account — preventing an unverified squatter from blocking
+     * the verified mailbox owner.
+     */
+    emailVerified?: boolean;
+    /**
      * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
      */
     oauthServer: string;
@@ -336,7 +352,7 @@ callback (not in the ID token), so callers wanting display-name capture
 must persist that value separately at the redirect-handler layer.
 
 ```typescript
-function verify(code: string, _codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; oauthServer: "apple"; oauthId: string; oauthData: { access_token: string; id_token: string; refresh_token: string | undefined; token_type: string; expires_in: number; iss: string; aud: string; sub: string; iat: number; exp: number; nonce?: string; nonce_supported?: boolean; email?: string; email_verified?: boolean | string; is_private_email?: boolean | string; real_user_status?: number; }; }>
+function verify(code: string, _codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: boolean; oauthServer: "apple"; oauthId: string; oauthData: { [key: string]: unknown; iss: string; aud: string; sub: string; iat: number; exp: number; nonce?: string; nonce_supported?: boolean; email?: string; email_verified?: boolean | string; is_private_email?: boolean | string; real_user_status?: number; }; }>
 ```
 
 - `code` — The authorization code from the OAuth callback.

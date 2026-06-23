@@ -422,8 +422,46 @@ describe('Apple OAuth Provider', () => {
       expect(result.emailVerified).toBe(true)
       expect(result.oauthServer).toBe('apple')
       expect(result.oauthId).toBe('001234.apple.user')
-      expect(result.oauthData.access_token).toBe('at')
-      expect(result.oauthData.refresh_token).toBe('rt')
+      // The verified identity/profile claims ARE retained in oauthData...
+      expect(result.oauthData.sub).toBe('001234.apple.user')
+      expect(result.oauthData.email).toBe('tester@privaterelay.appleid.com')
+      // ...but the access/refresh/id tokens are NEVER persisted there.
+      // oauthData is part of the user's READABLE props (GET /api/users/:id),
+      // so leaking bearer credentials into it would expose them to the
+      // browser. Apple now matches its sibling bonds (profile-only oauthData).
+      expect(result.oauthData.access_token).toBeUndefined()
+      expect(result.oauthData.refresh_token).toBeUndefined()
+      expect(result.oauthData.id_token).toBeUndefined()
+      expect(result.oauthData.token_type).toBeUndefined()
+      expect(result.oauthData.expires_in).toBeUndefined()
+    })
+
+    it('never persists access/refresh/id tokens into the readable oauthData prop', async () => {
+      mockJwksOk()
+      const idToken = signAppleIdToken()
+      mockPost.mockResolvedValue({
+        data: {
+          access_token: 'super-secret-access-token',
+          expires_in: 3600,
+          id_token: idToken,
+          refresh_token: 'super-secret-refresh-token',
+          token_type: 'Bearer',
+        },
+      })
+
+      const { verify } = await import('../verify.js')
+      const result = await verify('the-code', undefined, 'https://app.example.com/cb')
+
+      // No token value (access/refresh/id) may appear anywhere in the
+      // serialized oauthData bag that is returned to the browser.
+      const serialized = JSON.stringify(result.oauthData)
+      expect(serialized).not.toContain('super-secret-access-token')
+      expect(serialized).not.toContain('super-secret-refresh-token')
+      expect(serialized).not.toContain(idToken)
+      // None of the OAuth token-envelope keys should exist on oauthData.
+      for (const key of ['access_token', 'refresh_token', 'id_token', 'token_type', 'expires_in']) {
+        expect(Object.prototype.hasOwnProperty.call(result.oauthData, key)).toBe(false)
+      }
     })
 
     it('reports emailVerified=false when Apple marks the email unverified', async () => {

@@ -287,6 +287,22 @@ interface OAuthUserProps {
      */
     email?: string;
     /**
+     * Whether the OAuth provider has affirmatively verified that the user
+     * controls this `email` mailbox.
+     *
+     * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
+     * `email_verified`, Apple's `email_verified` ID-token claim). When the
+     * provider exposes no trustworthy verification signal in the profile data
+     * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
+     * `true`) — consumers treat only an explicit `true` as verified.
+     *
+     * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
+     * decide whether a provider-supplied email may be trusted over an existing,
+     * unverified local account — preventing an unverified squatter from blocking
+     * the verified mailbox owner.
+     */
+    emailVerified?: boolean;
+    /**
      * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
      */
     oauthServer: string;
@@ -320,10 +336,23 @@ type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string)
 
 Acceptable issuer URLs for a given Microsoft tenant.
 
-Microsoft's v2.0 issuer for `common` is the templated form
-`https://login.microsoftonline.com/{tid}/v2.0` — the `{tid}` is filled
-in with the actual tenant id from the token, so we accept either the
-exact tenant or a templated `common`/`organizations` issuer.
+The configured `tenantId` decides whether the token's own `tid` may
+resolve the accepted issuer:
+
+- **Single-tenant pin** (a concrete tenant GUID): the issuer is fixed to
+  that exact tenant. The token's `tid` is NEVER used to widen the accepted
+  issuer set — Microsoft's public-cloud signing keys are shared across all
+  tenants, so a validly-signed token from a *different* tenant would
+  otherwise pass a single-tenant pin (a cross-tenant authentication
+  bypass). The caller's separate `tid`-vs-config check (see
+  `verifyMicrosoftIdToken`) is what enforces the tenant; this function does
+  not silently trust an attacker-supplied `tid`.
+- **Multi-tenant authority** (`common` / `organizations` / `consumers`):
+  Microsoft's v2.0 issuer is the templated form
+  `https://login.microsoftonline.com/{tid}/v2.0`, where `{tid}` is the
+  signing tenant. Here accepting the token's `tid`-derived issuer IS the
+  documented contract (the app intentionally allows any directory), so it
+  is permitted.
 
 ```typescript
 function allowedIssuers(tenantId: string, tokenTid?: string): string[]
@@ -417,7 +446,7 @@ Verifies a Microsoft OAuth code and responds with normalized
 Microsoft Graph, and shapes the result.
 
 ```typescript
-function verify(code: string, _codeVerifier?: string, redirectUri?: string): Promise<{ username: string; name: string | undefined; email: string | undefined; oauthServer: "microsoft"; oauthId: string; oauthData: Record<string, unknown>; }>
+function verify(code: string, _codeVerifier?: string, redirectUri?: string): Promise<{ username: string; name: string | undefined; email: string | undefined; emailVerified: false; oauthServer: "microsoft"; oauthId: string; oauthData: Record<string, unknown>; }>
 ```
 
 - `code` — The authorization code from the OAuth callback.
@@ -522,3 +551,25 @@ Peer dependencies:
 - `OAUTH_MICROSOFT_CLIENT_ID` *(required)*
 - `OAUTH_MICROSOFT_CLIENT_SECRET` *(required)*
 - `OAUTH_MICROSOFT_TENANT_ID` *(optional)*
+
+**ID-token issuer / tenant validation contract.** `verifyMicrosoftIdToken`
+(and `provider.verifyIdToken`) validate `iss` against the issuer(s) implied
+by the *configured* tenant (`OAUTH_MICROSOFT_TENANT_ID` / `config.tenantId`)
+— never against the token's own `tid`. This matters because Microsoft's
+public-cloud signing keys are **shared across every tenant**, so a
+validly-signed token issued for a *different* directory would otherwise
+satisfy a single-tenant configuration (a cross-tenant authentication
+bypass). The rule:
+
+- **Concrete tenant GUID configured (single-tenant pin):** the accepted
+  issuer is fixed to that exact tenant, and the token's `tid` must equal the
+  configured tenant. A token's self-asserted `tid` can NOT widen the
+  accepted issuer set.
+- **`common` / `organizations` / `consumers` (multi-tenant):** any
+  directory's users may sign in by design, so the token's `tid`-derived
+  `https://login.microsoftonline.com/{tid}/v2.0` issuer IS accepted — this
+  is the documented multi-tenant contract, not a widening of a pin.
+
+Pin to a single tenant by setting `OAUTH_MICROSOFT_TENANT_ID` to the
+directory GUID; leave it `common` only when multi-tenant sign-in is
+intended.

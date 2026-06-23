@@ -132,12 +132,34 @@ export const verifyRs256Signature = (
 }
 
 /**
+ * Microsoft's reserved *multi-tenant* / consumer authority segments. These
+ * are the only configured `tenantId` values for which a token may legitimately
+ * carry its own concrete tenant `tid` in the issuer (the multi-tenant contract
+ * — any directory's users may sign in). A configured concrete tenant GUID is
+ * the opposite: a single-tenant pin that must NOT be widened.
+ */
+const MULTI_TENANT_AUTHORITIES = new Set(['common', 'organizations', 'consumers'])
+
+/**
  * Acceptable issuer URLs for a given Microsoft tenant.
  *
- * Microsoft's v2.0 issuer for `common` is the templated form
- * `https://login.microsoftonline.com/{tid}/v2.0` — the `{tid}` is filled
- * in with the actual tenant id from the token, so we accept either the
- * exact tenant or a templated `common`/`organizations` issuer.
+ * The configured `tenantId` decides whether the token's own `tid` may
+ * resolve the accepted issuer:
+ *
+ * - **Single-tenant pin** (a concrete tenant GUID): the issuer is fixed to
+ *   that exact tenant. The token's `tid` is NEVER used to widen the accepted
+ *   issuer set — Microsoft's public-cloud signing keys are shared across all
+ *   tenants, so a validly-signed token from a *different* tenant would
+ *   otherwise pass a single-tenant pin (a cross-tenant authentication
+ *   bypass). The caller's separate `tid`-vs-config check (see
+ *   `verifyMicrosoftIdToken`) is what enforces the tenant; this function does
+ *   not silently trust an attacker-supplied `tid`.
+ * - **Multi-tenant authority** (`common` / `organizations` / `consumers`):
+ *   Microsoft's v2.0 issuer is the templated form
+ *   `https://login.microsoftonline.com/{tid}/v2.0`, where `{tid}` is the
+ *   signing tenant. Here accepting the token's `tid`-derived issuer IS the
+ *   documented contract (the app intentionally allows any directory), so it
+ *   is permitted.
  *
  * @param tenantId - The configured tenant id (`"common"` by default).
  * @param tokenTid - The `tid` claim from the token, when present.
@@ -147,7 +169,10 @@ export const allowedIssuers = (tenantId: string, tokenTid?: string): string[] =>
   const issuers = new Set<string>()
   issuers.add(`https://login.microsoftonline.com/${tenantId}/v2.0`)
   issuers.add(`https://sts.windows.net/${tenantId}/`)
-  if (tokenTid) {
+  // Only a multi-tenant authority may resolve its issuer from the token's
+  // own `tid`. A concrete configured tenant is a single-tenant pin and must
+  // never be widened to "whatever tid the token claims".
+  if (tokenTid && MULTI_TENANT_AUTHORITIES.has(tenantId.toLowerCase())) {
     issuers.add(`https://login.microsoftonline.com/${tokenTid}/v2.0`)
     issuers.add(`https://sts.windows.net/${tokenTid}/`)
   }
@@ -226,6 +251,15 @@ export const verifyMicrosoftIdToken = async (
   }
   if (!allowedIssuers(config.tenantId, tid).includes(iss)) {
     throw new Error('ID token issuer mismatch')
+  }
+  // Single-tenant pin: when a concrete tenant GUID is configured, the
+  // token's own `tid` MUST equal it. Microsoft's public-cloud signing keys
+  // are shared across every tenant, so a validly-signed token from another
+  // directory must not satisfy a single-tenant configuration. Multi-tenant
+  // authorities (`common` / `organizations` / `consumers`) intentionally
+  // accept any directory's `tid` and are exempt from this gate.
+  if (!MULTI_TENANT_AUTHORITIES.has(config.tenantId.toLowerCase()) && tid !== config.tenantId) {
+    throw new Error('ID token tenant mismatch')
   }
 
   return {

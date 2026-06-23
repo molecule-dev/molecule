@@ -106,14 +106,15 @@ export const verify: OAuthVerifier = async (
       emailVerified,
       oauthServer: serverName,
       oauthId,
-      oauthData: {
-        ...claims,
-        access_token: tokens.access_token,
-        id_token: tokens.id_token,
-        refresh_token: tokens.refresh_token,
-        token_type: tokens.token_type,
-        expires_in: tokens.expires_in,
-      },
+      // Store ONLY the verified identity/profile claims from the ID token —
+      // NEVER the access/refresh/id tokens. `oauthData` is part of the
+      // user's READABLE props (returned by `GET /api/users/:id`), so
+      // persisting bearer credentials here would leak them to the browser.
+      // The tokens are used transiently above (the `id_token` is verified)
+      // and deliberately dropped. This matches the sibling OAuth bonds
+      // (google/github/gitlab/twitter/microsoft), which all store only the
+      // profile/userinfo response in `oauthData`.
+      oauthData: { ...claims },
     }
   } catch (error) {
     const safe = sanitizeError(error, [code])

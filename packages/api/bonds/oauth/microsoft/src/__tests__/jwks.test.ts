@@ -293,6 +293,101 @@ describe('JWKS cache + ID-token verification', () => {
     expect(claims.tid).toBe(tokenTid)
   })
 
+  it('rejects a cross-tenant token whose iss matches its own tid when a concrete tenant is configured', async () => {
+    // The vulnerability: Microsoft public-cloud signing keys are shared
+    // across tenants, so a validly-signed token from a DIFFERENT tenant
+    // would pass signature verification. If the accepted issuer is derived
+    // from the token's own `tid`, that cross-tenant token also passes the
+    // issuer gate — defeating a configured single-tenant pin.
+    mockGet.mockResolvedValue({
+      data: { keys: [jwkFor(keyA.publicKey, 'kid-A')] },
+    })
+    const { verifyMicrosoftIdToken, clearJwksCache } = await import('../jwks.js')
+    clearJwksCache()
+    const configuredTenant = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+    const attackerTenant = '11111111-2222-3333-4444-555555555555'
+    // Token's iss is built from its OWN tid (the attacker's tenant), not the
+    // configured tenant — and it is genuinely signed by a shared MS key.
+    const token = signRs256({
+      privateKey: keyA.privateKey,
+      kid: 'kid-A',
+      payload: {
+        iss: `https://login.microsoftonline.com/${attackerTenant}/v2.0`,
+        aud: audience,
+        sub: 'oid-cross',
+        exp: nowSec + 600,
+        iat: nowSec - 60,
+        tid: attackerTenant,
+      },
+    })
+    await expect(
+      verifyMicrosoftIdToken(
+        token,
+        { tenantId: configuredTenant, audience },
+        { now: () => nowSec },
+      ),
+    ).rejects.toThrow(/issuer/i)
+  })
+
+  it('rejects a token whose tid differs from a configured concrete tenant even if iss is spoofed to the configured tenant', async () => {
+    mockGet.mockResolvedValue({
+      data: { keys: [jwkFor(keyA.publicKey, 'kid-A')] },
+    })
+    const { verifyMicrosoftIdToken, clearJwksCache } = await import('../jwks.js')
+    clearJwksCache()
+    const configuredTenant = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+    const attackerTenant = '11111111-2222-3333-4444-555555555555'
+    // iss claims the configured tenant, but tid betrays the real (other)
+    // signing tenant. The tenant gate must reject it.
+    const token = signRs256({
+      privateKey: keyA.privateKey,
+      kid: 'kid-A',
+      payload: {
+        iss: `https://login.microsoftonline.com/${configuredTenant}/v2.0`,
+        aud: audience,
+        sub: 'oid-cross-2',
+        exp: nowSec + 600,
+        iat: nowSec - 60,
+        tid: attackerTenant,
+      },
+    })
+    await expect(
+      verifyMicrosoftIdToken(
+        token,
+        { tenantId: configuredTenant, audience },
+        { now: () => nowSec },
+      ),
+    ).rejects.toThrow(/tenant/i)
+  })
+
+  it('accepts a single-tenant token whose iss and tid match the configured concrete tenant', async () => {
+    mockGet.mockResolvedValue({
+      data: { keys: [jwkFor(keyA.publicKey, 'kid-A')] },
+    })
+    const { verifyMicrosoftIdToken, clearJwksCache } = await import('../jwks.js')
+    clearJwksCache()
+    const configuredTenant = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+    const token = signRs256({
+      privateKey: keyA.privateKey,
+      kid: 'kid-A',
+      payload: {
+        iss: `https://login.microsoftonline.com/${configuredTenant}/v2.0`,
+        aud: audience,
+        sub: 'oid-same',
+        exp: nowSec + 600,
+        iat: nowSec - 60,
+        tid: configuredTenant,
+      },
+    })
+    const claims = await verifyMicrosoftIdToken(
+      token,
+      { tenantId: configuredTenant, audience },
+      { now: () => nowSec },
+    )
+    expect(claims.sub).toBe('oid-same')
+    expect(claims.tid).toBe(configuredTenant)
+  })
+
   it('rejects a token with a non-RS256 alg (e.g., none)', async () => {
     mockGet.mockResolvedValue({ data: { keys: [] } })
     const { verifyMicrosoftIdToken, clearJwksCache } = await import('../jwks.js')

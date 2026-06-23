@@ -47,6 +47,29 @@
  *
  * > **Your users should now be able to log in via Microsoft!**
  *
+ * @remarks
+ * **ID-token issuer / tenant validation contract.** `verifyMicrosoftIdToken`
+ * (and `provider.verifyIdToken`) validate `iss` against the issuer(s) implied
+ * by the *configured* tenant (`OAUTH_MICROSOFT_TENANT_ID` / `config.tenantId`)
+ * — never against the token's own `tid`. This matters because Microsoft's
+ * public-cloud signing keys are **shared across every tenant**, so a
+ * validly-signed token issued for a *different* directory would otherwise
+ * satisfy a single-tenant configuration (a cross-tenant authentication
+ * bypass). The rule:
+ *
+ * - **Concrete tenant GUID configured (single-tenant pin):** the accepted
+ *   issuer is fixed to that exact tenant, and the token's `tid` must equal the
+ *   configured tenant. A token's self-asserted `tid` can NOT widen the
+ *   accepted issuer set.
+ * - **`common` / `organizations` / `consumers` (multi-tenant):** any
+ *   directory's users may sign in by design, so the token's `tid`-derived
+ *   `https://login.microsoftonline.com/{tid}/v2.0` issuer IS accepted — this
+ *   is the documented multi-tenant contract, not a widening of a pin.
+ *
+ * Pin to a single tenant by setting `OAUTH_MICROSOFT_TENANT_ID` to the
+ * directory GUID; leave it `common` only when multi-tenant sign-in is
+ * intended.
+ *
  * @example
  * ```ts
  * import { bond } from '@molecule/api-bond'
