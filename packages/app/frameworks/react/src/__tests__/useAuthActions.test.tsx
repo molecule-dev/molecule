@@ -40,6 +40,9 @@ function createMockAuthClient(): AuthClient<{ id: string; email: string }> {
     getUser: () => currentUser,
     getAccessToken: () => (authenticated ? 'mock-access-token' : null),
     setAccessToken: vi.fn(),
+    setUser: vi.fn().mockImplementation((user: User | null) => {
+      currentUser = user
+    }),
     getRefreshToken: () => (authenticated ? 'mock-refresh-token' : null),
     login: vi.fn().mockImplementation(async () => {
       currentUser = { id: '1', email: 'test@example.com' }
@@ -691,5 +694,50 @@ describe('useOAuth callback detection', () => {
     })
 
     expect(sessionStorage.getItem('oauth_provider')).toBeNull()
+  })
+
+  it('establishes the authenticated session (setUser + initialize) after a successful exchange', async () => {
+    // Without this the client only has the access token: `authenticated` stays
+    // false and route guards bounce the user to /login despite a valid session.
+    setLocationWithSearch('?code=good_code&state=xyz789')
+    sessionStorage.setItem('oauth_provider', 'github')
+    fetchSpy.mockResolvedValueOnce(
+      new Response(JSON.stringify({ user: { id: '7', email: 'gh@example.com' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', authorization: 'Bearer tok-7' },
+      }),
+    )
+
+    renderHook(() => useOAuth({ baseURL: 'https://api.example.com', oauthProviders: ['github'] }), {
+      wrapper: createWrapper(client),
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+    })
+
+    expect(client.setAccessToken).toHaveBeenCalledWith('tok-7')
+    expect(client.setUser).toHaveBeenCalledWith({ id: '7', email: 'gh@example.com' })
+    expect(client.initialize).toHaveBeenCalled()
+  })
+
+  it('reads the user from `props` (molecule resource convention)', async () => {
+    setLocationWithSearch('?code=good_code&state=xyz789')
+    sessionStorage.setItem('oauth_provider', 'github')
+    fetchSpy.mockResolvedValueOnce(
+      new Response(JSON.stringify({ props: { id: '42', email: 'p@example.com' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+
+    renderHook(() => useOAuth({ baseURL: 'https://api.example.com', oauthProviders: ['github'] }), {
+      wrapper: createWrapper(client),
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+    })
+
+    expect(client.setUser).toHaveBeenCalledWith({ id: '42', email: 'p@example.com' })
+    expect(client.initialize).toHaveBeenCalled()
   })
 })

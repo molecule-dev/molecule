@@ -133,7 +133,7 @@ export function useOAuth(config?: {
           return
         }
 
-        await response.json()
+        const data: unknown = await response.json().catch(() => null)
         // Store the token from the response
         const authHeader =
           response.headers.get('authorization') || response.headers.get('set-authorization')
@@ -144,6 +144,25 @@ export function useOAuth(config?: {
           // token to localStorage violates the in-memory-default storage contract and
           // makes it JS-readable (XSS-exfiltratable). [P5FE-31 secure-by-default]
           authClient.setAccessToken(token)
+        }
+
+        // Establish the authenticated session so route guards recognize the user
+        // immediately — mirrors what authClient.login() does for password login.
+        // The exchange above only seeds the access token; without also seeding the
+        // user and flipping `authenticated`, the client stays logged-out and route
+        // guards bounce to /login even though the session cookie is valid. OAuth
+        // issues no refresh token, so we seed the user from the login response and
+        // let initialize() authenticate from the now-present token + user. The user
+        // is `props` (molecule resource convention) or `user` (generic AuthResult).
+        const user =
+          data && typeof data === 'object'
+            ? ((data as { props?: unknown; user?: unknown }).props ??
+              (data as { props?: unknown; user?: unknown }).user ??
+              null)
+            : null
+        if (user && typeof user === 'object') {
+          authClient.setUser(user)
+          await authClient.initialize()
         }
 
         config?.onSuccess?.()
