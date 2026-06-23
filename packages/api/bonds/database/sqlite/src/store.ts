@@ -251,6 +251,13 @@ export function createStore(pool: DatabasePool): DataStore {
       where: WhereCondition[],
       data: Record<string, unknown>,
     ): Promise<MutationResult> {
+      // [M7-3] Refuse an empty WHERE — parity with the postgres bond. buildWhere([]) emits an
+      // empty clause, so without this an empty `where` becomes an UNSCOPED full-table UPDATE.
+      if (where.length === 0) {
+        throw new Error(
+          'updateMany requires at least one WHERE condition to prevent accidental full-table updates',
+        )
+      }
       assertSafeIdentifier(table)
       const keys = Object.keys(data)
       for (const k of keys) assertSafeIdentifier(k)
@@ -271,6 +278,13 @@ export function createStore(pool: DatabasePool): DataStore {
     },
 
     async deleteMany(table: string, where: WhereCondition[]): Promise<MutationResult> {
+      // [M7-3] Refuse an empty WHERE — parity with the postgres bond (else an empty `where`
+      // becomes an UNSCOPED full-table DELETE).
+      if (where.length === 0) {
+        throw new Error(
+          'deleteMany requires at least one WHERE condition to prevent accidental full-table deletes',
+        )
+      }
       assertSafeIdentifier(table)
       const { clause, values } = buildWhere(where)
       const result = await pool.query(`DELETE FROM "${table}" ${clause}`, values)

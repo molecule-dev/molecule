@@ -657,6 +657,16 @@ describe('createStore', () => {
           store.deleteMany(bad, [{ field: 'id', operator: '=', value: '1' }]),
         ).rejects.toThrow('Invalid SQL identifier')
       })
+
+      it('[M7-3] updateMany rejects an empty WHERE (no accidental full-table update)', async () => {
+        await expect(store.updateMany('users', [], { name: 'x' })).rejects.toThrow(
+          /at least one WHERE condition/,
+        )
+      })
+
+      it('[M7-3] deleteMany rejects an empty WHERE (no accidental full-table delete)', async () => {
+        await expect(store.deleteMany('users', [])).rejects.toThrow(/at least one WHERE condition/)
+      })
     })
 
     describe('enforced on column names in WHERE conditions', () => {
