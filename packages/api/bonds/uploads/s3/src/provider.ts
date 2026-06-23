@@ -79,7 +79,9 @@ export const upload = (
   const encoding = info.encoding.substring(0, 1023)
   const mimetype = info.mimeType.substring(0, 255)
 
-  // Block dangerous MIME types that could enable XSS if served directly
+  // Block dangerous MIME types that could enable XSS if served directly.
+  // [M4-1] Keep this set in lockstep with bonds/uploads/filesystem/src/provider.ts so the
+  // two swappable providers enforce an identical contract.
   const BLOCKED_MIME_TYPES = new Set([
     'text/html',
     'application/xhtml+xml',

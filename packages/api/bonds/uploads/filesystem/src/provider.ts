@@ -54,6 +54,27 @@ export const upload = (
   const encoding = info.encoding.substring(0, 1023)
   const mimetype = info.mimeType.substring(0, 255)
 
+  // [M4-1] Block dangerous MIME types that could enable stored XSS if served inline — PARITY
+  // with the S3 bond (keep this set in lockstep with bonds/uploads/s3/src/provider.ts), so
+  // swapping S3↔filesystem never silently drops this protection (the decoupling principle:
+  // the security contract must not depend on which provider is wired). Keyed on the
+  // client-declared mimetype, so it is defense-in-depth: any inline-serving route must ALSO
+  // send X-Content-Type-Options: nosniff + a server-derived (not client-declared) Content-Type.
+  const BLOCKED_MIME_TYPES = new Set([
+    'text/html',
+    'application/xhtml+xml',
+    'application/javascript',
+    'text/javascript',
+    'application/x-javascript',
+    'image/svg+xml',
+    'text/xml',
+    'application/xml',
+  ])
+  if (BLOCKED_MIME_TYPES.has(mimetype.toLowerCase())) {
+    onError(new Error(`File type ${mimetype} is not allowed for upload`))
+    return { id, fieldname, filename, encoding, mimetype, size: 0, uploaded: false } as File
+  }
+
   const uploadStream = fs.createWriteStream(path.join(uploadPath, id))
 
   const uploadPromise = new Promise<void>((resolve, reject) => {

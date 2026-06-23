@@ -139,6 +139,25 @@ describe('Filesystem Provider', () => {
       expect(file.upload).toBeDefined()
     })
 
+    it('[M4-1] rejects dangerous MIME types (stored-XSS parity with the S3 bond)', async () => {
+      mockExistsSync.mockReturnValue(true)
+      const { upload } = await import('../provider.js')
+      for (const mimeType of ['text/html', 'image/svg+xml', 'application/javascript']) {
+        const onError = vi.fn()
+        const file = upload(
+          'file',
+          new PassThrough(),
+          { filename: 'x', encoding: '7bit', mimeType },
+          onError,
+        )
+        expect(file.uploaded).toBe(false)
+        expect(file.uploadPromise).toBeUndefined()
+        expect(onError).toHaveBeenCalledWith(
+          expect.objectContaining({ message: expect.stringContaining(mimeType) }),
+        )
+      }
+    })
+
     it('should truncate long filenames to 1023 characters', async () => {
       mockExistsSync.mockReturnValue(true)
       const { upload } = await import('../provider.js')
