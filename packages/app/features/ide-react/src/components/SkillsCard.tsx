@@ -56,13 +56,17 @@ import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
 import type { SkillInfo } from './chat-skills-utilities.js'
-import { filterSkills, loadProjectSkills } from './chat-skills-utilities.js'
+import { filterSkills, loadProjectSkillsResilient } from './chat-skills-utilities.js'
 import { Icon } from './Icon.js'
 
 const logger = getLogger('skills-card')
 
-/** Discovery status for the skills list. */
-type SkillsStatus = 'loading' | 'ready' | 'error'
+/**
+ * Discovery status for the skills list. `'waiting'` is the boot-window state: the
+ * file-list call answered but the sandbox hasn't materialized `.agents/skills/`
+ * yet, so we keep retrying rather than showing a false "No skills found".
+ */
+type SkillsStatus = 'loading' | 'waiting' | 'ready' | 'error'
 
 /**
  * Inline pill style for the row badges, tinted with the given theme color var via
@@ -165,17 +169,28 @@ export function SkillsCard({
     setStatus('loading')
     void (async () => {
       try {
-        const loaded = await loadProjectSkills(
+        const { skills: loaded, stillBooting } = await loadProjectSkillsResilient(
           async () =>
             (await http.get<{ files: string[] }>(`/projects/${projectId}/files-list`)).data.files ??
             [],
           async (relativePath) =>
             (await http.get<{ content: string }>(`/projects/${projectId}/files/${relativePath}`))
               .data.content,
+          {
+            isCancelled: () => cancelled,
+            // First empty/failed try → flip to the honest "waiting for the sandbox"
+            // state while we keep retrying, instead of a misleading "No skills found".
+            onRetry: () => {
+              if (!cancelled) setStatus('waiting')
+            },
+          },
         )
         if (cancelled) return
         setSkills(loaded)
-        setStatus('ready')
+        // A bounded retry that still came back empty means the sandbox never
+        // finished scaffolding skills in our window — keep the "waiting" state so
+        // the user sees an honest "still starting" message, not "no skills found".
+        setStatus(loaded.length === 0 && stillBooting ? 'waiting' : 'ready')
       } catch (error) {
         logger.warn('Failed to load project skills', { error })
         if (!cancelled) setStatus('error')
@@ -381,6 +396,14 @@ export function SkillsCard({
       {status === 'loading' && (
         <div className={cm.textMuted} style={{ padding: '6px 0' }}>
           {t('ide.chat.skills.loading', undefined, { defaultValue: 'Loading skills…' })}
+        </div>
+      )}
+
+      {status === 'waiting' && (
+        <div className={cm.textMuted} style={{ padding: '6px 0' }}>
+          {t('ide.chat.skills.waitingForSandbox', undefined, {
+            defaultValue: 'Waiting for the sandbox to finish starting…',
+          })}
         </div>
       )}
 

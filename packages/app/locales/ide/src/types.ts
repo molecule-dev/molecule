@@ -417,6 +417,7 @@ export type IdeTranslationKey =
   | 'ide.chat.skills.loadedPrefix'
   | 'ide.chat.skills.loadedSuffix'
   | 'ide.chat.skills.loading'
+  | 'ide.chat.skills.waitingForSandbox'
   | 'ide.chat.skills.error'
   | 'ide.chat.skills.empty'
   | 'ide.chat.skills.noMatch'

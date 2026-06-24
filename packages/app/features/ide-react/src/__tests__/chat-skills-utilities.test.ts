@@ -12,6 +12,7 @@ import {
   filterSkills,
   isSkillFile,
   loadProjectSkills,
+  loadProjectSkillsResilient,
   newSkillPath,
   parseSkillMeta,
   pickRelevantSkill,
@@ -216,6 +217,108 @@ describe('loadProjectSkills', () => {
     expect(skills).toHaveLength(1)
     expect(skills[0].name).toBe('styling')
     expect(skills[0].description).toBe('')
+  })
+})
+
+describe('loadProjectSkillsResilient (sandbox-boot retry)', () => {
+  const SKILL = '.agents/skills/auth/SKILL.md'
+  const content = '---\nname: auth\ndescription: Auth.\n---\n'
+  // A synchronous fake sleep keeps the bounded-retry tests instant.
+  const noSleep = async (): Promise<void> => {}
+
+  it('returns immediately when the first attempt finds skills (no retry/sleep)', async () => {
+    let lists = 0
+    let sleeps = 0
+    const result = await loadProjectSkillsResilient(
+      async () => {
+        lists++
+        return [`/workspace/${SKILL}`]
+      },
+      async () => content,
+      { sleep: async () => void sleeps++ },
+    )
+    expect(result.skills.map((s) => s.name)).toEqual(['auth'])
+    expect(result.stillBooting).toBe(false)
+    expect(lists).toBe(1)
+    expect(sleeps).toBe(0)
+  })
+
+  it('retries while the sandbox returns no skill files, then succeeds once .agents materializes', async () => {
+    // The reported bug: the sandbox answers the file-list call (so no error) but
+    // .agents/skills/ is not scaffolded yet — empty for the first two tries.
+    let attempt = 0
+    let retries = 0
+    const result = await loadProjectSkillsResilient(
+      async () => {
+        attempt++
+        return attempt >= 3 ? [`/workspace/${SKILL}`] : ['/workspace/src/index.ts']
+      },
+      async () => content,
+      { sleep: noSleep, onRetry: () => retries++ },
+    )
+    expect(result.skills.map((s) => s.name)).toEqual(['auth'])
+    expect(result.stillBooting).toBe(false)
+    expect(attempt).toBe(3)
+    expect(retries).toBe(2)
+  })
+
+  it('settles as stillBooting (NOT a false "no skills") when every bounded attempt is empty', async () => {
+    let attempt = 0
+    const result = await loadProjectSkillsResilient(
+      async () => {
+        attempt++
+        return ['/workspace/src/index.ts']
+      },
+      async () => content,
+      { attempts: 4, sleep: noSleep },
+    )
+    expect(result.skills).toEqual([])
+    expect(result.stillBooting).toBe(true)
+    expect(attempt).toBe(4)
+  })
+
+  it('retries through a transient fetch error (sandbox 404/503 while booting) then succeeds', async () => {
+    let attempt = 0
+    const result = await loadProjectSkillsResilient(
+      async () => {
+        attempt++
+        if (attempt === 1) throw new Error('sandbox not found')
+        return [`/workspace/${SKILL}`]
+      },
+      async () => content,
+      { sleep: noSleep },
+    )
+    expect(result.skills.map((s) => s.name)).toEqual(['auth'])
+    expect(attempt).toBe(2)
+  })
+
+  it('surfaces the error (rejects) only after every attempt fails', async () => {
+    let attempt = 0
+    await expect(
+      loadProjectSkillsResilient(
+        async () => {
+          attempt++
+          throw new Error('sandbox down')
+        },
+        async () => content,
+        { attempts: 3, sleep: noSleep },
+      ),
+    ).rejects.toThrow('sandbox down')
+    expect(attempt).toBe(3)
+  })
+
+  it('bails out immediately when cancelled (card closed) — no fetch, no retry', async () => {
+    let lists = 0
+    const result = await loadProjectSkillsResilient(
+      async () => {
+        lists++
+        return []
+      },
+      async () => content,
+      { sleep: noSleep, isCancelled: () => true },
+    )
+    expect(result).toEqual({ skills: [], stillBooting: false })
+    expect(lists).toBe(0)
   })
 })
 

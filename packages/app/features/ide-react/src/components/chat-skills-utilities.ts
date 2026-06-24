@@ -259,6 +259,82 @@ export async function loadProjectSkills(
   return skills.sort((a, b) => a.name.localeCompare(b.name))
 }
 
+/** Outcome of one {@link loadProjectSkillsResilient} attempt, used to drive the UI. */
+export interface ResilientSkillsLoad {
+  /** The discovered skills (possibly empty if the sandbox is genuinely skill-less). */
+  skills: SkillInfo[]
+  /**
+   * `true` when every attempt came back with zero skill files (the sandbox is
+   * almost certainly still scaffolding `.agents/skills/`), so the UI should show
+   * a "waiting for the sandbox" state rather than a definitive "no skills" one.
+   */
+  stillBooting: boolean
+}
+
+/**
+ * Loads project skills with bounded retry, for the window where a sandbox has
+ * booted far enough to answer the file-list call but has NOT yet materialized
+ * its `.agents/skills/` tree.
+ *
+ * The server announces "Loaded N skills" from a static, always-available source
+ * (its baked-in built-in skill set); the `/skills` browser reads the LIVE
+ * sandbox file list, which is empty until scaffolding finishes. Clicking the
+ * announce card during that gap previously hit a
+ * permanent "No skills found" dead-end. Because a ready sandbox effectively
+ * always has the built-in skills scaffolded, "zero skill files" (or a transient
+ * fetch error) is treated as "still booting" and retried a bounded number of
+ * times before settling — so the skills appear on their own once ready, with an
+ * honest waiting state in between instead of a misleading empty one.
+ *
+ * @param fetchList - Returns all project file paths.
+ * @param fetchContent - Returns the content of one skill file by relative path.
+ * @param options - Retry tuning + injectables for cancellation and tests.
+ * @param options.attempts - Total tries before settling. Defaults to 10.
+ * @param options.delayMs - Delay between tries, in ms. Defaults to 2000.
+ * @param options.sleep - Awaitable delay (injected in tests). Defaults to `setTimeout`.
+ * @param options.isCancelled - Bail-out predicate (e.g. the card was closed).
+ * @param options.onRetry - Invoked before each retry sleep (e.g. to show "waiting").
+ * @returns The discovered skills plus whether the sandbox still looks like it's booting.
+ */
+export async function loadProjectSkillsResilient(
+  fetchList: () => Promise<string[]>,
+  fetchContent: (relativePath: string) => Promise<string>,
+  options?: {
+    attempts?: number
+    delayMs?: number
+    sleep?: (ms: number) => Promise<void>
+    isCancelled?: () => boolean
+    onRetry?: () => void
+  },
+): Promise<ResilientSkillsLoad> {
+  const attempts = options?.attempts ?? 10
+  const delayMs = options?.delayMs ?? 2000
+  const sleep = options?.sleep ?? ((ms) => new Promise<void>((resolve) => setTimeout(resolve, ms)))
+  const isCancelled = options?.isCancelled ?? (() => false)
+
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    if (isCancelled()) return { skills: [], stillBooting: false }
+    const isLast = attempt === attempts - 1
+    try {
+      const skills = await loadProjectSkills(fetchList, fetchContent)
+      // Found skills → ready. Still empty after the last attempt → a ready sandbox
+      // effectively always has the built-in skills scaffolded, so report it as
+      // still-booting (the caller keeps an honest "waiting", not a false "no skills").
+      if (skills.length > 0) return { skills, stillBooting: false }
+      if (isLast) return { skills, stillBooting: true }
+    } catch (error) {
+      // A transient error (sandbox 404/503 while booting) is retried; only the
+      // last failed attempt surfaces, letting the caller show its error state.
+      if (isLast) throw error
+    }
+    if (isCancelled()) return { skills: [], stillBooting: false }
+    options?.onRetry?.()
+    await sleep(delayMs)
+  }
+  // Unreachable: the final iteration always returns or throws. Satisfies the type checker.
+  return { skills: [], stillBooting: true }
+}
+
 /** A skill the relevance pass judged relevant to the recent conversation. */
 export interface SkillSuggestion {
   /** The relevant skill. */

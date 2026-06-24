@@ -489,6 +489,7 @@ export const en: IdeTranslations = {
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.skills.loading': 'Loading skills…',
+  'ide.chat.skills.waitingForSandbox': 'Waiting for the sandbox to finish starting…',
   'ide.chat.skills.error': 'Could not load skills for this project.',
   'ide.chat.skills.empty': 'No skills found in .agents/skills/ for this project.',
   'ide.chat.skills.noMatch': 'No skills match “{{query}}”.',
