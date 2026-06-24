@@ -185,7 +185,13 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
 
     try {
       // Verify the OAuth code with the bonded provider.
-      const oauthProps = await oauthProvider.verify(body.code, codeVerifier, body.redirect_uri)
+      // SECURITY: do NOT pass the client-supplied `body.redirect_uri` — it is a value
+      // the browser controls, but the token-exchange redirect_uri MUST equal the one
+      // used to build the authorization request (the server's APP_ORIGIN). Passing
+      // undefined makes each provider bond use its own `process.env.APP_ORIGIN` (a
+      // server constant) — keeping redirect_uri off the client trust boundary AND
+      // fixing the handshake whenever the app origin differs from APP_ORIGIN.
+      const oauthProps = await oauthProvider.verify(body.code, codeVerifier, undefined)
 
       if (!oauthProps?.oauthId || !oauthProps?.oauthServer) {
         analytics
