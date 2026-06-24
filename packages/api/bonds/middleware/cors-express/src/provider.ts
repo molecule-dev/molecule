@@ -20,7 +20,12 @@ import type { CorsOptions, Middleware } from '@molecule/api-middleware-cors'
  * - Custom `APP_URL_SCHEME` for mobile apps
  * - `null` and `undefined` for certain mobile apps
  *
- * Exposes the 'Set-Authorization' header for JWT auth.
+ * Exposes the auth token response headers for JWT auth — `authorization` (the
+ * header the API actually sets the bearer token on) plus the legacy
+ * `set-authorization`. Without `authorization` exposed, a cross-origin app/API
+ * deployment cannot read the OAuth-exchange token (the in-memory bearer path).
+ * Safe: the origin list above is a strict allowlist (never `*`), so only trusted
+ * origins can make the credentialed request and read the exposed header.
  *
  * Lazily initialized so that secrets are resolved before reading env vars.
  */
@@ -46,7 +51,7 @@ function getLazyCors(): ReturnType<typeof createCors> {
     _cors = createCors({
       origin: origins,
       credentials: true,
-      exposedHeaders: `set-authorization`,
+      exposedHeaders: `authorization, set-authorization`,
     } as createCors.CorsOptions)
   }
   return _cors
