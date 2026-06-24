@@ -244,6 +244,22 @@ export const set = (
         // Path=/ is required for the `__Host-` prefix to be accepted.
         path: '/',
       })
+      // [M1-1] Non-httpOnly session-PRESENCE hint (carries no token — just "1").
+      // The bearer token is in-memory + the httpOnly `token` cookie (both
+      // JS-unreadable), so on a fresh load the app can't tell "logged in" from
+      // "anonymous" without probing the server. This readable hint lets the auth
+      // client's initialize() probe the cookie-restore endpoint ONLY when a
+      // session plausibly exists — so anonymous/public page loads make ZERO API
+      // calls (no /users/me, no 401). A tossed/forged hint only costs one
+      // harmless 401 probe; it grants nothing (the real credential stays
+      // httpOnly). Cleared by logout alongside the credential cookies.
+      res.cookie('mol_auth', '1', {
+        httpOnly: false,
+        secure,
+        sameSite: 'lax',
+        maxAge,
+        path: '/',
+      })
 
       return token
     }

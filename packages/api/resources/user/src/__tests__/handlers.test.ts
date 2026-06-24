@@ -106,6 +106,7 @@ import * as authorization from '../authorization.js'
 import { create } from '../handlers/create.js'
 import { logIn } from '../handlers/logIn.js'
 import { logInOAuth } from '../handlers/logInOAuth.js'
+import { logout } from '../handlers/logout.js'
 import { readSelf } from '../handlers/readSelf.js'
 import { update } from '../handlers/update.js'
 import { updatePassword } from '../handlers/updatePassword.js'
@@ -1777,5 +1778,48 @@ describe('readSelf (GET /users/me — cookie session restore)', () => {
     const result = await readSelf(resource)(req, res)
 
     expect(result.statusCode).toBe(401)
+  })
+})
+
+describe('logout (POST /users/logout — revoke device + clear cookies)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('revokes the session device and clears the credential + hint cookies', async () => {
+    const deleteDevice = vi.fn().mockResolvedValue(undefined)
+    mockGet.mockImplementation((cat: string) =>
+      cat === 'device' ? { delete: deleteDevice } : undefined,
+    )
+    const cleared: string[] = []
+    const res = {
+      locals: { session: { userId: 'u1', deviceId: 'd1' } },
+      clearCookie: (name: string) => cleared.push(name),
+      removeHeader: vi.fn(),
+    } as unknown as MoleculeResponse
+
+    const result = await logout()({} as unknown as MoleculeRequest, res)
+
+    expect(result.statusCode).toBe(200)
+    expect((result.body as { success: boolean }).success).toBe(true)
+    // Device revoked so the JWT is rejected server-side on its next use.
+    expect(deleteDevice).toHaveBeenCalledWith('d1')
+    // Credential cookies + the non-httpOnly presence hint are all cleared.
+    expect(cleared).toContain('token')
+    expect(cleared).toContain('sessionId')
+    expect(cleared).toContain('mol_auth')
+  })
+
+  it('still clears cookies (200) when there is no device on the session', async () => {
+    const res = {
+      locals: { session: { userId: 'u1' } },
+      clearCookie: vi.fn(),
+      removeHeader: vi.fn(),
+    } as unknown as MoleculeResponse
+
+    const result = await logout()({} as unknown as MoleculeRequest, res)
+
+    expect(result.statusCode).toBe(200)
+    expect(res.clearCookie).toHaveBeenCalled()
   })
 })

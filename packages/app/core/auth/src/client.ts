@@ -39,7 +39,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
   const {
     baseURL = '',
     loginEndpoint = '/auth/login',
-    logoutEndpoint = '/auth/logout',
+    logoutEndpoint = '/users/logout',
     registerEndpoint = '/auth/register',
     refreshEndpoint = '/auth/refresh',
     profileEndpoint = '/auth/profile',
@@ -208,6 +208,12 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
         }
 
         tokenStorage.clear()
+        // [M1-1] Drop the non-httpOnly session-presence hint so initialize()
+        // won't probe for cookie-restore on the next load even if the server
+        // logout call didn't complete (the server clears it too, on success).
+        if (typeof document !== 'undefined') {
+          document.cookie = 'mol_auth=; Max-Age=0; path=/'
+        }
         setState({
           loading: false,
           authenticated: false,
@@ -350,8 +356,19 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
       // credentials; if the cookie is still valid the server returns the user,
       // and we re-establish the authenticated session WITHOUT the token ever
       // being exposed to JavaScript. This is what keeps a refresh / deep-link
-      // logged in under the in-memory-token model. No-ops (stays logged out) if
-      // the cookie is absent/expired or the app exposes no current-user endpoint.
+      // logged in under the in-memory-token model.
+      //
+      // GATE on the non-httpOnly `mol_auth` presence hint (set by the server
+      // alongside the httpOnly token): only probe when a session plausibly
+      // exists. Without this gate, EVERY page load — including anonymous/public
+      // pages — would fire a guaranteed-401 /users/me request (extra API call +
+      // console error). A forged hint only costs one harmless 401.
+      const hasSessionHint =
+        typeof document !== 'undefined' && /(?:^|;\s*)mol_auth=1(?:;|$)/.test(document.cookie)
+      if (!hasSessionHint) {
+        setState({ initialized: true })
+        return
+      }
       try {
         const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, {
           method: 'GET',

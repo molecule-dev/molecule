@@ -691,7 +691,7 @@ describe('JWT Auth Client', () => {
       await client.logout()
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.example.com/auth/logout',
+        'https://api.example.com/users/logout',
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
@@ -1187,31 +1187,56 @@ describe('JWT Auth Client', () => {
       expect(client.isAuthenticated()).toBe(false)
     })
 
-    it('[M1-1] restores the session from the httpOnly cookie when no stored token', async () => {
+    it('[M1-1] restores the session from the httpOnly cookie when the presence hint is set', async () => {
       // After a full page load the in-memory bearer token is gone, but the
-      // httpOnly session cookie persists: initialize() probes the current-user
-      // endpoint with credentials and re-establishes the session from it — the
-      // only way to stay logged in across reloads under the in-memory-token model.
+      // httpOnly session cookie persists. The non-httpOnly `mol_auth` hint tells
+      // initialize() a session plausibly exists, so it probes the current-user
+      // endpoint with credentials and re-establishes the session from the cookie.
+      // Test env is `node` (no document) — mock the presence hint the client reads.
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      mockFetch.mockImplementation(() => createMockResponse({ user: mockUser }))
+      const client = createJWTAuthClient({ autoRefresh: false })
+      try {
+        await client.initialize()
+
+        expect(client.getState().initialized).toBe(true)
+        expect(client.isAuthenticated()).toBe(true)
+        expect(client.getUser()).toEqual(mockUser)
+        // The restore call hits the current-user endpoint with credentials.
+        const call = mockFetch.mock.calls.find((c) => String(c[0]).includes('/users/me'))
+        expect(call, 'initialize() should GET the current-user endpoint').toBeTruthy()
+        expect((call?.[1] as RequestInit | undefined)?.credentials).toBe('include')
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
+    })
+
+    it('[M1-1] does NOT probe for restore when the session hint is absent (anonymous load)', async () => {
+      // No `mol_auth` hint (no document in node env) → an anonymous/public page
+      // load. initialize() must make ZERO API calls (no guaranteed-401
+      // /users/me, no console error).
+      delete (globalThis as { document?: unknown }).document
       mockFetch.mockImplementation(() => createMockResponse({ user: mockUser }))
       const client = createJWTAuthClient({ autoRefresh: false })
       await client.initialize()
 
       expect(client.getState().initialized).toBe(true)
-      expect(client.isAuthenticated()).toBe(true)
-      expect(client.getUser()).toEqual(mockUser)
-      // The restore call hits the current-user endpoint with credentials.
-      const call = mockFetch.mock.calls.find((c) => String(c[0]).includes('/users/me'))
-      expect(call, 'initialize() should GET the current-user endpoint').toBeTruthy()
-      expect((call?.[1] as RequestInit | undefined)?.credentials).toBe('include')
+      expect(client.isAuthenticated()).toBe(false)
+      expect(mockFetch).not.toHaveBeenCalled()
     })
 
-    it('[M1-1] remains unauthenticated if cookie-restore returns 401', async () => {
+    it('[M1-1] remains unauthenticated if cookie-restore returns 401 (stale hint)', async () => {
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
       mockFetch.mockImplementation(() => createMockResponse({ error: 'Unauthorized' }, 401))
       const client = createJWTAuthClient({ autoRefresh: false })
-      await client.initialize()
+      try {
+        await client.initialize()
 
-      expect(client.getState().initialized).toBe(true)
-      expect(client.isAuthenticated()).toBe(false)
+        expect(client.getState().initialized).toBe(true)
+        expect(client.isAuthenticated()).toBe(false)
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
     })
   })
 

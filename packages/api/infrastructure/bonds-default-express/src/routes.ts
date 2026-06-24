@@ -52,6 +52,12 @@ export function mountDefaultDeviceRoutes(router: Router, device: DeviceMap): voi
 export function mountDefaultUserAuthRoutes(router: Router, user: UserMap): void {
   router.post('/users', user.create)
   router.post('/users/log-in', user.rateLimitAuth, user.logIn)
+  // Logout — cookie-authed device revocation + credential-cookie clearing.
+  // [M1-1] required so logout clears the httpOnly cookie (else the cookie-based
+  // session restore re-logs-in on the next load).
+  if (user.logout) {
+    router.post('/users/logout', user.auth, user.logout)
+  }
   router.post('/users/forgot-password', user.rateLimitAuth, user.forgotPassword)
 }
 

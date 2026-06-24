@@ -20,6 +20,11 @@ export const routes = [
     handler: 'logInOAuth',
     optional: 'oauth',
   },
+  // Logout — revoke the device + clear the credential cookies (token, sessionId,
+  // mol_auth hint). Cookie-authed (`auth`) — the session identifies the user; no
+  // `:id`. [M1-1] under the in-memory-token model logout MUST clear the httpOnly
+  // cookie, else cookie-restore re-logs-in on the next load.
+  { method: 'post' as const, path: '/users/logout', middlewares: ['auth'], handler: 'logout' },
   {
     method: 'post' as const,
     path: '/users/forgot-password',
