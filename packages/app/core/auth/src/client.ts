@@ -195,11 +195,22 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
       setState({ loading: true })
 
       try {
+        // [M1-1] The persistent credential is the httpOnly session cookie, not
+        // the in-memory bearer token. The bearer does not survive a page reload
+        // (after a reload `initialize()` restores `authenticated` from the cookie
+        // but cannot repopulate the in-memory token), so guarding the server
+        // logout on `token` alone meant a reloaded session could never log out
+        // server-side and the httpOnly cookie lived on. Call the endpoint
+        // whenever we believe a session exists — token OR restored-authenticated —
+        // and send `credentials` so the cookie authenticates the device
+        // revocation and the server clears the httpOnly cookie.
         const token = tokenStorage.getAccessToken()
-        if (token && logoutEndpoint) {
-          await fetchAPI(logoutEndpoint, { method: 'POST' }).catch((err) => {
-            logger.debug('Logout endpoint call failed (non-critical)', err)
-          })
+        if (logoutEndpoint && (token || state.authenticated)) {
+          await fetchAPI(logoutEndpoint, { method: 'POST', credentials: 'include' }).catch(
+            (err) => {
+              logger.debug('Logout endpoint call failed (non-critical)', err)
+            },
+          )
         }
       } finally {
         if (refreshTimer) {

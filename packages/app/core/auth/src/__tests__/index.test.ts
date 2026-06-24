@@ -701,6 +701,54 @@ describe('JWT Auth Client', () => {
       )
     })
 
+    it('[M1-1] calls the logout endpoint with credentials so the httpOnly cookie is cleared', async () => {
+      const accessToken = createMockJWT({
+        sub: mockUser.id,
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      })
+      mockFetch.mockImplementation(() => createMockResponse({ user: mockUser, accessToken }))
+      const client = createJWTAuthClient({ baseURL: 'https://api.example.com' })
+      await client.login({ email: 'test@example.com', password: 'password' })
+      mockFetch.mockReset()
+      mockFetch.mockImplementation(() => createMockResponse({}))
+
+      await client.logout()
+
+      const call = mockFetch.mock.calls.find((c) => String(c[0]).includes('/users/logout'))
+      expect(call, 'logout() should POST the logout endpoint').toBeTruthy()
+      expect((call?.[1] as RequestInit | undefined)?.credentials).toBe('include')
+    })
+
+    it('[M1-1] logs out server-side after a cookie-restored session (no in-memory token)', async () => {
+      // Regression: after a reload the in-memory bearer token is gone but the
+      // session is restored from the httpOnly cookie (authenticated, no token).
+      // logout() must STILL hit the server — guarding on the in-memory token
+      // alone left the httpOnly cookie alive, so a reloaded user could never
+      // actually sign out (every "logged out" assertion failed thereafter).
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      mockFetch.mockImplementation(() => createMockResponse({ user: mockUser }))
+      const client = createJWTAuthClient({
+        baseURL: 'https://api.example.com',
+        autoRefresh: false,
+      })
+      try {
+        await client.initialize()
+        expect(client.isAuthenticated()).toBe(true)
+        expect(client.getAccessToken()).toBeNull() // restored from cookie, no bearer
+
+        mockFetch.mockClear()
+        mockFetch.mockImplementation(() => createMockResponse({}))
+        await client.logout()
+
+        const call = mockFetch.mock.calls.find((c) => String(c[0]).includes('/users/logout'))
+        expect(call, 'logout() must POST the logout endpoint to clear the cookie').toBeTruthy()
+        expect((call?.[1] as RequestInit | undefined)?.credentials).toBe('include')
+        expect(client.isAuthenticated()).toBe(false)
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
+    })
+
     it('should emit logout event', async () => {
       mockFetch.mockImplementation(() =>
         createMockResponse({
