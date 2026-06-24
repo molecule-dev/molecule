@@ -77,11 +77,19 @@ export function mountDefaultUserResetPasswordRoute(router: Router, user: UserMap
 /**
  * Mounts the authed-self user CRUD routes:
  *
+ * - `GET /users/me` (auth+readSelf) — session restore; MUST precede `/users/:id`
  * - `GET /users/:id` (authSelf+read)
  * - `PATCH /users/:id` (authSelf+update)
  * - `DELETE /users/:id` (authSelf+del)
  */
 export function mountDefaultUserCrudRoutes(router: Router, user: UserMap): void {
+  // Current user — cookie-authed session restore. Registered before `/users/:id`
+  // so Express doesn't capture `me` as an `:id`. [M1-1] the app's auth client
+  // calls this on init to restore the session from the httpOnly cookie after a
+  // full page load (the in-memory bearer token does not survive a reload).
+  if (user.readSelf) {
+    router.get('/users/me', user.auth, user.readSelf)
+  }
   router.get('/users/:id', user.authSelf, user.read)
   router.patch('/users/:id', user.authSelf, user.update)
   router.delete('/users/:id', user.authSelf, user.del)

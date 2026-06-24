@@ -344,6 +344,15 @@ export interface AuthClientConfig {
   profileEndpoint?: string
 
   /**
+   * Current-user endpoint for session restore (default `/users/me`). Called by
+   * `initialize()` with credentials to re-establish the session from the
+   * httpOnly cookie after a full page load — the only way to stay logged in when
+   * the bearer token is held in memory (the secure default; a localStorage copy
+   * is XSS-exfiltratable). Must return the user (as `user` or `props`).
+   */
+  currentUserEndpoint?: string
+
+  /**
    * Storage key prefix.
    */
   storagePrefix?: string

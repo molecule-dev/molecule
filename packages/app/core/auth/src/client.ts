@@ -46,6 +46,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     forgotPasswordEndpoint = '/auth/password/reset',
     resetPasswordEndpoint = '/auth/password/reset/confirm',
     changePasswordEndpoint = '/auth/password/change',
+    currentUserEndpoint = '/users/me',
     storagePrefix = 'molecule:auth:',
     storage = 'memory',
     autoRefresh = true,
@@ -340,6 +341,31 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
             tokenStorage.clear()
           }
         }
+      }
+
+      // [M1-1] Session restore from the httpOnly cookie. The bearer token is
+      // held in memory (a localStorage copy is XSS-exfiltratable, so it is
+      // forbidden) and is therefore lost on a full page load — but the httpOnly
+      // session cookie persists. Probe the current-user endpoint with
+      // credentials; if the cookie is still valid the server returns the user,
+      // and we re-establish the authenticated session WITHOUT the token ever
+      // being exposed to JavaScript. This is what keeps a refresh / deep-link
+      // logged in under the in-memory-token model. No-ops (stays logged out) if
+      // the cookie is absent/expired or the app exposes no current-user endpoint.
+      try {
+        const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, {
+          method: 'GET',
+          credentials: 'include',
+        })
+        const restoredUser = (result?.user ?? null) as T | null
+        if (restoredUser) {
+          tokenStorage.setUser(restoredUser)
+          setState({ initialized: true, authenticated: true, user: restoredUser })
+          return
+        }
+      } catch (_error) {
+        // No valid session cookie (401) or no current-user endpoint — remain
+        // logged out. This is an expected path for anonymous visitors.
       }
 
       setState({ initialized: true })

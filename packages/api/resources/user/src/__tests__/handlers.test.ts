@@ -106,6 +106,7 @@ import * as authorization from '../authorization.js'
 import { create } from '../handlers/create.js'
 import { logIn } from '../handlers/logIn.js'
 import { logInOAuth } from '../handlers/logInOAuth.js'
+import { readSelf } from '../handlers/readSelf.js'
 import { update } from '../handlers/update.js'
 import { updatePassword } from '../handlers/updatePassword.js'
 import { updatePlan } from '../handlers/updatePlan.js'
@@ -1730,5 +1731,51 @@ describe('update handler — avatar + bio profile fields', () => {
     expect(mockResourceUpdate).toHaveBeenCalledWith(
       expect.objectContaining({ props: expect.objectContaining({ bio: null }) }),
     )
+  })
+})
+
+describe('readSelf (GET /users/me — cookie session restore)', () => {
+  const resource = { name: 'user', tableName: 'users', schema: propsSchema }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('returns the authenticated user from res.locals.session (no :id param)', async () => {
+    mockFindById.mockImplementation((table: string) =>
+      table === 'users'
+        ? { id: 'u1', email: 'me@example.com', twoFactorEnabled: false }
+        : table === 'usersSecrets'
+          ? { id: 'u1', pendingTwoFactorSecret: null }
+          : null,
+    )
+    const req = { params: {} } as unknown as MoleculeRequest
+    const res = { locals: { session: { userId: 'u1' } } } as unknown as MoleculeResponse
+
+    const result = await readSelf(resource)(req, res)
+
+    expect(result.statusCode).toBe(200)
+    expect((result.body as { props: { id: string } }).props.id).toBe('u1')
+    // Keyed off the session, never a client-supplied :id.
+    expect(mockFindById).toHaveBeenCalledWith('users', 'u1')
+  })
+
+  it('401 when there is no session (unauthenticated cookie probe)', async () => {
+    const req = { params: {} } as unknown as MoleculeRequest
+    const res = { locals: {} } as unknown as MoleculeResponse
+
+    const result = await readSelf(resource)(req, res)
+
+    expect(result.statusCode).toBe(401)
+  })
+
+  it('401 when the session references a deleted user', async () => {
+    mockFindById.mockResolvedValue(null)
+    const req = { params: {} } as unknown as MoleculeRequest
+    const res = { locals: { session: { userId: 'gone' } } } as unknown as MoleculeResponse
+
+    const result = await readSelf(resource)(req, res)
+
+    expect(result.statusCode).toBe(401)
   })
 })

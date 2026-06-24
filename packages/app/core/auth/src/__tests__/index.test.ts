@@ -1177,7 +1177,37 @@ describe('JWT Auth Client', () => {
     })
 
     it('should initialize as unauthenticated when no stored tokens', async () => {
+      // No stored token AND the cookie-restore probe fails (no valid session
+      // cookie) → stays unauthenticated.
+      mockFetch.mockImplementation(() => createMockResponse({ error: 'Unauthorized' }, 401))
       const client = createJWTAuthClient()
+      await client.initialize()
+
+      expect(client.getState().initialized).toBe(true)
+      expect(client.isAuthenticated()).toBe(false)
+    })
+
+    it('[M1-1] restores the session from the httpOnly cookie when no stored token', async () => {
+      // After a full page load the in-memory bearer token is gone, but the
+      // httpOnly session cookie persists: initialize() probes the current-user
+      // endpoint with credentials and re-establishes the session from it — the
+      // only way to stay logged in across reloads under the in-memory-token model.
+      mockFetch.mockImplementation(() => createMockResponse({ user: mockUser }))
+      const client = createJWTAuthClient({ autoRefresh: false })
+      await client.initialize()
+
+      expect(client.getState().initialized).toBe(true)
+      expect(client.isAuthenticated()).toBe(true)
+      expect(client.getUser()).toEqual(mockUser)
+      // The restore call hits the current-user endpoint with credentials.
+      const call = mockFetch.mock.calls.find((c) => String(c[0]).includes('/users/me'))
+      expect(call, 'initialize() should GET the current-user endpoint').toBeTruthy()
+      expect((call?.[1] as RequestInit | undefined)?.credentials).toBe('include')
+    })
+
+    it('[M1-1] remains unauthenticated if cookie-restore returns 401', async () => {
+      mockFetch.mockImplementation(() => createMockResponse({ error: 'Unauthorized' }, 401))
+      const client = createJWTAuthClient({ autoRefresh: false })
       await client.initialize()
 
       expect(client.getState().initialized).toBe(true)

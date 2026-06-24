@@ -27,6 +27,7 @@ export interface UserRequestHandlerMap {
   logIn: MoleculeRequestHandler
   logInOAuth: MoleculeRequestHandler
   read: MoleculeRequestHandler
+  readSelf: MoleculeRequestHandler
   update: MoleculeRequestHandler
   del: MoleculeRequestHandler
   updatePassword: MoleculeRequestHandler
@@ -77,6 +78,7 @@ export const createRequestHandlerMap = (
     create: createRequestHandler(handlers.create(resource)),
     logIn: createRequestHandler(handlers.logIn(resource)),
     read: createRequestHandler(handlers.read(resource)),
+    readSelf: createRequestHandler(handlers.readSelf(resource)),
     update: createRequestHandler(handlers.update(resource)),
     del: createRequestHandler(handlers.del(resource)),
     updatePassword: createRequestHandler(handlers.updatePassword(resource)),

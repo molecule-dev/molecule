@@ -33,6 +33,13 @@ export const routes = [
     handler: 'resetPassword',
   },
 
+  // Current user — session restore. MUST precede `/users/:id` so `me` isn't
+  // matched as an `:id`. Cookie-authed (`auth`, not `authSelf` — there is no
+  // `:id` to match); the app calls this on init to restore the session from the
+  // httpOnly cookie after a full page load ([M1-1] the bearer token is in-memory
+  // and lost on reload).
+  { method: 'get' as const, path: '/users/me', middlewares: ['auth'], handler: 'readSelf' },
+
   // User CRUD (requires auth)
   { method: 'get' as const, path: '/users/:id', middlewares: ['authSelf'], handler: 'read' },
   { method: 'patch' as const, path: '/users/:id', middlewares: ['authSelf'], handler: 'update' },
