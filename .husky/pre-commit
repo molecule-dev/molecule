@@ -37,3 +37,21 @@ npm run check:peer-deps
 # weeks later. (Whole-tree, not staged-only: a key added in package A must be
 # checked against its owning locale bond in package B.)
 npm run check:i18n-parity
+
+# Registry export-drift gate (same spirit as i18n-parity, but cross-REPO). A
+# package's public exports are the source of truth, yet they are recorded in
+# mlcl/registry.json — a SEPARATE repo whose CI never checks this one out, so a
+# changed export drifts the registry silently until a manual sync (that is how
+# 815 packages' exports went stale once). Catch it here, at the commit that
+# changes the exports, scoped to only the staged packages so it stays fast under
+# parallel agents. Skips (does not block) when mlcl is a non-sibling or unbuilt —
+# e.g. a standalone molecule clone — where the registry simply isn't reachable.
+PKG_SRC=$(echo "$STAGED" | grep -E '^packages/.+/src/' || true)
+if [ -n "$PKG_SRC" ]; then
+  PKG_DIRS=$(echo "$PKG_SRC" | while IFS= read -r f; do echo "${f%%/src/*}"; done | sort -u)
+  if [ -f ../mlcl/dist/lib/scanner.js ]; then
+    ( cd ../mlcl && node scripts/check-registry-exports.mjs $PKG_DIRS )
+  else
+    echo "ℹ registry-export check skipped: ../mlcl not built — run 'npm run build' in mlcl, then 'npm run verify:registry-exports' to verify"
+  fi
+fi
