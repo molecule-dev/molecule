@@ -245,6 +245,9 @@ export const en: IdeTranslations = {
   'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
   'ide.preview.reloadPreview': 'Reload preview',
   'ide.preview.lastWorkingFrame': 'Last working preview',
+  'ide.preview.blankTitle': 'The preview is blank',
+  'ide.preview.blankHint':
+    'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
   // Device-frame cycler tooltip.
   // Search result counts.
   'ide.search.results': '{{count}} results in {{files}} files',

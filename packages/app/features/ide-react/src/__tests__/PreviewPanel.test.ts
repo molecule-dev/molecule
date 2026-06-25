@@ -120,7 +120,9 @@ describe('PreviewPanel freeze watchdog', () => {
 
   it('renders a reload banner with an i18n message and a reload action', async () => {
     const source = await readSource()
-    expect(source).toContain('previewFrozen && iframeReady')
+    // The freeze banner is gated on confirmedContent (only "this app stopped responding" once
+    // it was actually showing content — a never-rendered/blank app is covered by the overlay).
+    expect(source).toContain('previewFrozen && confirmedContent')
     expect(source).toContain("'ide.preview.frozen'")
     expect(source).toContain("'ide.preview.frozenReload'")
     expect(source).toContain('onClick={handleReloadFrozen}')

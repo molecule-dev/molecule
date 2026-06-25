@@ -2319,6 +2319,8 @@ interface ChatInnerProps {
   onClientAction?: (action: IdeClientAction) => void
   /** Called on each stream done/error — host keeps the boot view up until the during-boot plan stream completes. */
   onTurnComplete?: () => void
+  /** Called when the chat's loading state changes — see {@link ChatPanelProps.onLoadingChange}. */
+  onLoadingChange?: (loading: boolean) => void
   /** Registers the broadcast-chat-event handler with the host — see {@link ChatPanelProps.onRegisterPushHandler}. */
   onRegisterPushHandler?: ChatPanelProps['onRegisterPushHandler']
   /** Changing this value submits the current input draft (used by the prompt→chat morph). */
@@ -2416,6 +2418,7 @@ function ChatInner({
   awaitingSandboxBoot,
   onClientAction,
   onTurnComplete,
+  onLoadingChange,
   onRegisterPushHandler,
   autoSubmitSignal,
   openSettingsSignal,
@@ -2533,6 +2536,8 @@ function ChatInner({
   onClientActionRef.current = onClientAction
   const onTurnCompleteRef = useRef<(() => void) | undefined>(onTurnComplete)
   onTurnCompleteRef.current = onTurnComplete
+  const onLoadingChangeRef = useRef<((loading: boolean) => void) | undefined>(onLoadingChange)
+  onLoadingChangeRef.current = onLoadingChange
 
   const handleStreamEvent = useCallback(
     (event: {
@@ -2764,6 +2769,13 @@ function ChatInner({
   // Keep the card-append ref current so handleStreamEvent (memoized) can append a teammate's
   // broadcast `card` event to the message store.
   appendCardMessageRef.current = appendCardMessage
+
+  // Surface the chat's loading state to the host (the authoritative "agent is actively
+  // building" signal). The host drives the preview's "Building your app…" overlay from this,
+  // so a half-built / blank preview during a long build shows progress, not a white screen.
+  useEffect(() => {
+    onLoadingChangeRef.current?.(isLoading)
+  }, [isLoading])
 
   // Ref-stable callback for ToolCallCard's onAskUserResponse — avoids breaking
   // React.memo when sendMessage's identity changes (provider/endpoint deps).
@@ -8205,6 +8217,7 @@ export function ChatPanel({
   awaitingSandboxBoot,
   onClientAction,
   onTurnComplete,
+  onLoadingChange,
   onRegisterPushHandler,
   autoSubmitSignal,
   initialInputValue,
@@ -8634,6 +8647,7 @@ export function ChatPanel({
         awaitingSandboxBoot={awaitingSandboxBoot}
         onClientAction={onClientAction}
         onTurnComplete={onTurnComplete}
+        onLoadingChange={onLoadingChange}
         onRegisterPushHandler={onRegisterPushHandler}
         autoSubmitSignal={autoSubmitSignal}
         openSettingsSignal={effectiveSettingsSignal}

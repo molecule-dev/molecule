@@ -99,6 +99,13 @@ export interface ChatPanelProps {
   /** Called on each stream `done` — host uses it to keep the boot view up until the parallel during-boot plan stream finishes. */
   onTurnComplete?: () => void
   /**
+   * Called whenever the chat's loading state changes — true when a turn (plan or build) is in
+   * progress, false when idle. The host uses this as the authoritative "the agent is actively
+   * building" signal to drive the preview's "Building your app…" overlay, so a half-built /
+   * blank preview during a long build always shows progress instead of a bare white screen.
+   */
+  onLoadingChange?: (loading: boolean) => void
+  /**
    * Called on mount with a handler the parent invokes to deliver a broadcast chat event
    * from another project member (the push channel); called with null on unmount.
    */
@@ -299,6 +306,15 @@ export interface PreviewPanelProps {
    * the user sees what's being worked on. Null when no build edit is in flight.
    */
   buildingHint?: string | null
+  /**
+   * Whether the AI agent is actively building right now (a chat turn is in progress).
+   * The host derives this from the chat's loading state. While true, the preview keeps a
+   * "Building your app…" status overlay up whenever the app has NOT confirmed it rendered
+   * content (no `molecule:ready`) — so a half-built / blank / white iframe during a long
+   * build always shows progress instead of a bare white screen. A confirmed render still
+   * reveals the live app (HMR updates stay visible), so this never hides a working preview.
+   */
+  isBuilding?: boolean
   /** Called when the preview fails to load after multiple recovery attempts. */
   onPreviewStuck?: () => void
   className?: string

@@ -232,6 +232,8 @@ export type IdeTranslationKey =
   | 'ide.preview.loadFailedHint'
   | 'ide.preview.reloadPreview'
   | 'ide.preview.lastWorkingFrame'
+  | 'ide.preview.blankTitle'
+  | 'ide.preview.blankHint'
   | 'ide.search.results'
   | 'ide.activity.cardAria'
   | 'ide.activity.type.email'
