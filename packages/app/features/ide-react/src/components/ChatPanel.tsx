@@ -118,7 +118,7 @@ import {
   pickRelevantSkill,
   recentUserText,
 } from './chat-skills-utilities.js'
-import { estimateStreamTokens } from './chat-stream-utilities.js'
+import { estimateTurnTokens } from './chat-stream-utilities.js'
 import {
   ENTRY_TIP,
   pickIdleTip,
@@ -729,9 +729,10 @@ function streamingActivityLabel(msg: {
   }
 }
 
-// estimateStreamTokens lives in ./chat-stream-utilities.js — it runs on every
-// stream flush, so its per-tool-input length is cached there to stay O(1) per call
-// (re-stringifying every write_file's full content per flush was an O(n²) freeze).
+// estimateTurnTokens (and the per-message estimateStreamTokens it sums) live in
+// ./chat-stream-utilities.js — they run on every stream flush, so each tool-input's
+// length is cached there to stay O(1) per call (re-stringifying every write_file's
+// full content per flush was an O(n²) freeze).
 
 /**
  * Collapsible block for displaying AI thinking/reasoning content.
@@ -6155,6 +6156,10 @@ function ChatInner({
               break
             }
           }
+          // Token count is summed across the SAME whole turn (see estimateTurnTokens), so it
+          // matches the elapsed timer's span: it climbs monotonically and only plateaus during
+          // tool-execution gaps, rather than vanishing/restarting at each new assistant message.
+          const turnTokens = estimateTurnTokens(messages)
           const label = isLoading
             ? (streamingStatus ?? (streamingMsg ? streamingActivityLabel(streamingMsg) : undefined))
             : t('ide.chat.awaitingSandbox', undefined, {
@@ -6174,7 +6179,7 @@ function ChatInner({
               {showActivity && (
                 <StreamingIndicator
                   label={label}
-                  tokens={streamingMsg ? estimateStreamTokens(streamingMsg) : undefined}
+                  tokens={isLoading ? turnTokens : undefined}
                   startedAt={isLoading ? turnStartedAt : undefined}
                 />
               )}

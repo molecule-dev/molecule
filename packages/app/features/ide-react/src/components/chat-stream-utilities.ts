@@ -75,3 +75,38 @@ export function estimateStreamTokens(msg: {
   }
   return Math.round(chars / 4)
 }
+
+/** A chat message as seen by the turn-token estimator: role + the fields it sums. */
+interface TurnTokenMessage {
+  role: string
+  hidden?: boolean
+  content?: string
+  blocks?: Array<{ type: string; content?: string }>
+  toolCalls?: Array<{ input?: unknown; streamInputChars?: number }>
+}
+
+/**
+ * Estimated tokens generated across the WHOLE current turn — the sum of every
+ * assistant message back to (but excluding) the last genuine user message. This is
+ * what the live activity counter should show: it must span the same turn as the
+ * elapsed timer, so it climbs monotonically and merely PLATEAUS during tool-execution
+ * gaps (when no message is streaming) instead of vanishing and restarting from ~0 at
+ * each new assistant message — the cause of the "counter stops while the timer keeps
+ * going" mismatch.
+ *
+ * The turn boundary is the last NON-hidden user message, so auto-continue rounds
+ * (whose injected user messages are hidden) correctly count as part of the same turn.
+ * Cost stays O(blocks + toolCalls across the turn) — `estimateStreamTokens` reads
+ * O(1) string lengths and WeakMap-cached tool inputs — not O(total content).
+ * @param messages - The full ordered message list (newest last).
+ * @returns The estimated token count for the in-progress turn.
+ */
+export function estimateTurnTokens(messages: ReadonlyArray<TurnTokenMessage>): number {
+  let total = 0
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i]
+    if (m.role === 'user' && !m.hidden) break
+    if (m.role === 'assistant') total += estimateStreamTokens(m)
+  }
+  return total
+}
