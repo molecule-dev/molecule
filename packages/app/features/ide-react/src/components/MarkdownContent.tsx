@@ -388,6 +388,14 @@ interface MarkdownContentProps {
    * app's pages as one-click links.
    */
   onNavigatePreview?: (path: string) => void
+  /**
+   * Suppress this component's OWN trailing streaming indicators (the inline end-of-text cursor
+   * and the labeled verification block). The chat owns a single, persistent activity indicator
+   * for the whole turn, so the per-message ones here would just duplicate it AND flicker on/off
+   * as each message finalizes (the cause of the jumpy scroll). `isStreaming` is still honored
+   * for the live throttled parse — only the spinner is hidden.
+   */
+  hideStreamingIndicator?: boolean
 }
 
 /**
@@ -407,6 +415,7 @@ export const MarkdownContent = memo(function MarkdownContent({
   statusLabel,
   statusStartedAt,
   onNavigatePreview,
+  hideStreamingIndicator,
 }: MarkdownContentProps): JSX.Element {
   // Markdown is parsed + rendered LIVE while streaming (not deferred until the
   // stream finalizes). The page freezes that originally motivated deferring it
@@ -452,7 +461,7 @@ export const MarkdownContent = memo(function MarkdownContent({
   if (!text) {
     return (
       <>
-        {isStreaming && (
+        {isStreaming && !hideStreamingIndicator && (
           <StreamingIndicator
             label={hasStatus ? statusLabel! : undefined}
             startedAt={statusStartedAt}
@@ -486,10 +495,13 @@ export const MarkdownContent = memo(function MarkdownContent({
           {/* Bare end-of-text cursor only while the MODEL is still generating
               tokens (no status label yet). Once the text is done and the server
               is verifying, `statusLabel` is set and we show the labeled block
-              below instead — never an unlabeled spinner. */}
-          {!hasStatus && <StreamingIndicator inline />}
+              below instead — never an unlabeled spinner. Suppressed when the host
+              owns a single turn-level indicator (hideStreamingIndicator). */}
+          {!hideStreamingIndicator && !hasStatus && <StreamingIndicator inline />}
         </div>
-        {hasStatus && <StreamingIndicator label={statusLabel!} startedAt={statusStartedAt} />}
+        {!hideStreamingIndicator && hasStatus && (
+          <StreamingIndicator label={statusLabel!} startedAt={statusStartedAt} />
+        )}
       </>
     )
   }

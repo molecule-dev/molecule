@@ -29,7 +29,7 @@
  */
 
 import { fireEvent, render, waitFor } from '@testing-library/react'
-import type { ReactElement } from 'react'
+import type { ComponentProps, ReactElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatConfig, ChatMessage, ChatProvider, ChatStreamEvent } from '@molecule/app-ai-chat'
@@ -203,13 +203,14 @@ function buildThemeProvider(): ThemeProviderType {
 function renderChatPanel(
   http: HttpClient,
   provider: ChatProvider = buildChatProvider(),
+  extraProps: Partial<ComponentProps<typeof ChatPanel>> = {},
 ): ReactElement {
   return (
     <I18nProvider provider={createSimpleI18nProvider('en')}>
       <ThemeProvider provider={buildThemeProvider()}>
         <HttpProvider client={http}>
           <ChatContextProvider provider={provider}>
-            <ChatPanel projectId={PROJECT_ID} />
+            <ChatPanel projectId={PROJECT_ID} {...extraProps} />
           </ChatContextProvider>
         </HttpProvider>
       </ThemeProvider>
@@ -582,5 +583,38 @@ describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" 
       expect(container.querySelector('[data-mol-id="panel-overlay-close"]')).toBeNull()
       expect(container.querySelector('[data-mol-id="skills-card"]')).toBeNull()
     })
+  })
+})
+
+describe('ChatPanel activity slot — always reserved, opacity-toggled (no jump, no gaps)', () => {
+  const http = (): HttpClient =>
+    buildHttpClient(
+      {},
+      vi.fn(async () => ({})),
+      async () => [...SKILL_PATHS],
+    )
+
+  it('keeps the activity slot in the layout but invisible when idle', async () => {
+    const { container } = render(renderChatPanel(http()))
+    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+    const slot = container.querySelector('[data-mol-id="chat-activity-slot"]') as HTMLElement | null
+    // Reserved in the layout (so showing/hiding the indicator never shifts the list height)…
+    expect(slot).not.toBeNull()
+    // …but invisible + inert while idle.
+    expect(slot!.style.opacity).toBe('0')
+    expect(slot!.getAttribute('aria-hidden')).toBe('true')
+  })
+
+  it('shows the SAME slot (opacity 1) while waiting for the sandbox to boot', async () => {
+    const { container } = render(
+      renderChatPanel(http(), buildChatProvider(), { awaitingSandboxBoot: true }),
+    )
+    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+    const slot = container.querySelector('[data-mol-id="chat-activity-slot"]') as HTMLElement | null
+    expect(slot).not.toBeNull()
+    expect(slot!.style.opacity).toBe('1')
+    expect(slot!.getAttribute('aria-hidden')).toBe('false')
+    // The labeled wait copy renders inside the same reserved slot.
+    expect(slot!.textContent).toContain('development environment')
   })
 })

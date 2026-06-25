@@ -90,3 +90,33 @@ describe('MarkdownContent links', () => {
     expect(container.querySelector('a[href="/home"]')).toBeNull()
   })
 })
+
+describe('MarkdownContent streaming indicator', () => {
+  it('shows its own inline spinner while streaming by default', () => {
+    const { container } = render(<MarkdownContent text="working on it" isStreaming />)
+    // The MolSpinner renders an <svg>; it is the only svg this component emits.
+    expect(container.querySelector('svg')).not.toBeNull()
+  })
+
+  it('suppresses its own spinner when hideStreamingIndicator is set (host owns the indicator)', () => {
+    const { container } = render(
+      <MarkdownContent text="working on it" isStreaming hideStreamingIndicator />,
+    )
+    expect(container.querySelector('svg')).toBeNull()
+    // The text still renders live — only the per-message spinner is hidden.
+    expect(container.textContent).toContain('working on it')
+  })
+
+  it('suppresses the labeled (verification) block too when hidden', () => {
+    const { container } = render(
+      <MarkdownContent
+        text="done editing"
+        isStreaming
+        statusLabel="Type-checking the app"
+        hideStreamingIndicator
+      />,
+    )
+    expect(container.querySelector('svg')).toBeNull()
+    expect(container.textContent).not.toContain('Type-checking the app')
+  })
+})

@@ -2045,6 +2045,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     statusLabel={isLast && msg.isStreaming ? streamingStatus : undefined}
                     statusStartedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
                     onNavigatePreview={onNavigatePreview}
+                    hideStreamingIndicator
                   />
                 )
               }
@@ -2099,13 +2100,6 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     onFileRevert={handleFileRevert}
                     onAskUserResponse={handleAskUserResponse}
                   />
-                  {isLast && msg.isStreaming && (
-                    <StreamingIndicator
-                      label={streamingStatus ?? streamingActivityLabel(msg)}
-                      tokens={estimateStreamTokens(msg)}
-                      startedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
-                    />
-                  )}
                 </div>
               )
             })
@@ -2116,6 +2110,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
               statusLabel={msg.isStreaming ? streamingStatus : undefined}
               statusStartedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
               onNavigatePreview={onNavigatePreview}
+              hideStreamingIndicator
             />
           ) : null}
 
@@ -2140,21 +2135,6 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                 onAskUserResponse={handleAskUserResponse}
               />
             ))}
-
-          {/* Streaming indicator ALWAYS at the BOTTOM of the message — after every block +
-              tool card — so it can never wedge above the (expandable) thinking block. Shown
-              only when no visible text has streamed yet (nothing, only collapsed thinking, or
-              legacy tool-calls-without-blocks); a text block carries its own inline status,
-              and a tool block its own trailing indicator. */}
-          {msg.isStreaming &&
-            (!msg.blocks || msg.blocks.every((b) => (b as { type: string }).type === 'thinking')) &&
-            !msg.content && (
-              <StreamingIndicator
-                label={streamingStatus ?? streamingActivityLabel(msg)}
-                tokens={estimateStreamTokens(msg)}
-                startedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
-              />
-            )}
 
           {msg.aborted && (
             <span
@@ -6131,18 +6111,58 @@ function ChatInner({
             </div>
           ))}
 
-        {/* The plan finished streaming but the sandbox is still booting (after
-            ready_to_build, before the post-boot build kickoff). The turn has
-            ended so nothing is streaming — without this the chat looks stalled.
-            Show a labeled waiting indicator until the kickoff request starts
-            (isLoading flips true) or the host clears awaitingSandboxBoot. */}
-        {awaitingSandboxBoot && !isLoading && (
-          <StreamingIndicator
-            label={t('ide.chat.awaitingSandbox', undefined, {
-              defaultValue: 'Waiting for the development environment to finish starting…',
-            })}
-          />
-        )}
+        {/* Persistent activity slot — the ONE indicator for everything the agent does.
+            It is ALWAYS in the layout (a reserved min-height even when idle) and toggled by
+            OPACITY, never mounted/unmounted, so it can never change the list height — a
+            scrolled conversation no longer jumps as the spinner comes and goes. And it is a
+            SINGLE slot for the whole turn (driven by isLoading), so it also never flickers as
+            individual messages start + finalize (the per-message indicators that used to do
+            that are gone). It shows the real current activity when known — the post-response
+            verification status, or the streaming message's tool/thinking activity ("Reading
+            X", "Writing the plan") — and otherwise rotates generic phrases, so the user ALWAYS
+            sees that *something* is happening, with how long it's taken. It also covers the
+            plan→build sandbox-boot wait (awaitingSandboxBoot), where no turn is streaming. */}
+        {(() => {
+          const showActivity = isLoading || awaitingSandboxBoot
+          const streamingMsg = isLoading
+            ? [...visibleMessages].reverse().find((m) => m.isStreaming)
+            : undefined
+          // Turn start = the last genuine user message, so the elapsed timer counts up across
+          // the WHOLE turn instead of resetting at each new assistant message.
+          let turnStartedAt: number | undefined
+          for (let i = messages.length - 1; i >= 0; i--) {
+            const m = messages[i]
+            if (m.role === 'user' && !m.hidden) {
+              turnStartedAt = typeof m.timestamp === 'number' ? m.timestamp : undefined
+              break
+            }
+          }
+          const label = isLoading
+            ? (streamingStatus ?? (streamingMsg ? streamingActivityLabel(streamingMsg) : undefined))
+            : t('ide.chat.awaitingSandbox', undefined, {
+                defaultValue: 'Waiting for the development environment to finish starting…',
+              })
+          return (
+            <div
+              data-mol-id="chat-activity-slot"
+              aria-hidden={!showActivity}
+              style={{
+                minHeight: '28px',
+                opacity: showActivity ? 1 : 0,
+                pointerEvents: showActivity ? 'auto' : 'none',
+                transition: 'opacity 0.18s ease-out',
+              }}
+            >
+              {showActivity && (
+                <StreamingIndicator
+                  label={label}
+                  tokens={streamingMsg ? estimateStreamTokens(streamingMsg) : undefined}
+                  startedAt={isLoading ? turnStartedAt : undefined}
+                />
+              )}
+            </div>
+          )
+        })()}
 
         <div ref={messagesEndRef} />
       </div>
