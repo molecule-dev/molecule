@@ -11,9 +11,71 @@
 import type { JSX, ReactNode } from 'react'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 
+import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
 import { StreamingIndicator } from './StreamingIndicator.js'
+
+/**
+ * Renders a single markdown link `[label](href)`. A ROUTE link (href starting with `/`) is a
+ * page in the live preview: when an `onNavigatePreview` handler is wired (the chat context),
+ * it renders as a button that navigates the PREVIEW to that route on click — so the agent's
+ * "your app is ready" handoff can list clickable pages the user jumps straight to. An external
+ * `http(s)` link opens in a new tab. A route link with no handler (e.g. a help card) renders as
+ * plain text rather than navigating the IDE itself.
+ *
+ * @param root0 - Component props.
+ * @param root0.label - The link's visible text.
+ * @param root0.href - The link target (`/route` for a preview page, or an absolute URL).
+ * @param root0.onNavigatePreview - Navigates the preview to a route path; enables route links.
+ * @returns The rendered link node.
+ */
+function LinkToken({
+  label,
+  href,
+  onNavigatePreview,
+}: {
+  label: string
+  href: string
+  onNavigatePreview?: (path: string) => void
+}): JSX.Element {
+  const linkStyle = {
+    color: 'var(--mol-color-primary, #4070e0)',
+    textDecoration: 'underline',
+    textUnderlineOffset: '2px',
+  } as const
+
+  if (href.startsWith('/')) {
+    if (!onNavigatePreview) return <>{label}</>
+    return (
+      <button
+        type="button"
+        data-mol-id="chat-preview-link"
+        onClick={() => onNavigatePreview(href)}
+        title={t(
+          'ide.chat.previewLinkTitle',
+          { path: href },
+          { defaultValue: 'Open {{path}} in the preview' },
+        )}
+        style={{
+          ...linkStyle,
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          font: 'inherit',
+          cursor: 'pointer',
+        }}
+      >
+        {label}
+      </button>
+    )
+  }
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" style={linkStyle}>
+      {label}
+    </a>
+  )
+}
 
 // ---------------------------------------------------------------------------
 // Segmentation — split on fenced code blocks first
@@ -46,14 +108,17 @@ function splitSegments(text: string): Segment[] {
 // Inline rendering — bold, italic, inline code
 // ---------------------------------------------------------------------------
 
-const INLINE_RE = /(`[^`\n]+`|\*\*(?:[^*]|\*(?!\*))+\*\*|\*[^*\n]+\*)/g
+// Order matters: link `[text](url)` is matched before bold/italic so a label/url containing
+// `*` isn't mis-split. The url stops at whitespace or the closing paren.
+const INLINE_RE = /(`[^`\n]+`|\[[^\]\n]+\]\([^)\s]+\)|\*\*(?:[^*]|\*(?!\*))+\*\*|\*[^*\n]+\*)/g
 
 /**
- * Renders inline markdown formatting (bold, italic, inline code) as React nodes.
+ * Renders inline markdown formatting (bold, italic, inline code, links) as React nodes.
  * @param text - The text containing inline markdown tokens.
+ * @param onNavigatePreview - Optional handler so a `[label](/route)` link navigates the preview.
  * @returns A ReactNode with formatted inline elements.
  */
-function renderInline(text: string): ReactNode {
+function renderInline(text: string, onNavigatePreview?: (path: string) => void): ReactNode {
   const parts: ReactNode[] = []
   let last = 0
   let k = 0
@@ -76,6 +141,16 @@ function renderInline(text: string): ReactNode {
           {tok.slice(1, -1)}
         </code>,
       )
+    } else if (tok[0] === '[') {
+      // [label](href)
+      const lm = tok.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/)
+      if (lm) {
+        parts.push(
+          <LinkToken key={k++} label={lm[1]} href={lm[2]} onNavigatePreview={onNavigatePreview} />,
+        )
+      } else {
+        parts.push(tok)
+      }
     } else if (tok.startsWith('**')) {
       parts.push(<strong key={k++}>{tok.slice(2, -2)}</strong>)
     } else {
@@ -101,7 +176,15 @@ function renderInline(text: string): ReactNode {
  * @param root0.segIdx - The segment index used for generating stable React keys.
  * @returns The rendered prose block element.
  */
-function Prose({ content, segIdx }: { content: string; segIdx: number }): JSX.Element {
+function Prose({
+  content,
+  segIdx,
+  onNavigatePreview,
+}: {
+  content: string
+  segIdx: number
+  onNavigatePreview?: (path: string) => void
+}): JSX.Element {
   const lines = content.split('\n')
   const els: JSX.Element[] = []
   let k = segIdx * 10000
@@ -130,7 +213,7 @@ function Prose({ content, segIdx }: { content: string; segIdx: number }): JSX.El
             marginTop: i > 0 ? '10px' : 0,
           }}
         >
-          {renderInline(hm[2])}
+          {renderInline(hm[2], onNavigatePreview)}
         </p>,
       )
       i++
@@ -141,7 +224,9 @@ function Prose({ content, segIdx }: { content: string; segIdx: number }): JSX.El
     if (/^[-*] /.test(line)) {
       const items: JSX.Element[] = []
       while (i < lines.length && /^[-*] /.test(lines[i])) {
-        items.push(<li key={i}>{renderInline(lines[i].replace(/^[-*] /, ''))}</li>)
+        items.push(
+          <li key={i}>{renderInline(lines[i].replace(/^[-*] /, ''), onNavigatePreview)}</li>,
+        )
         i++
       }
       els.push(
@@ -156,7 +241,9 @@ function Prose({ content, segIdx }: { content: string; segIdx: number }): JSX.El
     if (/^\d+\. /.test(line)) {
       const items: JSX.Element[] = []
       while (i < lines.length && /^\d+\. /.test(lines[i])) {
-        items.push(<li key={i}>{renderInline(lines[i].replace(/^\d+\. /, ''))}</li>)
+        items.push(
+          <li key={i}>{renderInline(lines[i].replace(/^\d+\. /, ''), onNavigatePreview)}</li>,
+        )
         i++
       }
       els.push(
@@ -185,7 +272,7 @@ function Prose({ content, segIdx }: { content: string; segIdx: number }): JSX.El
     if (para.length) {
       els.push(
         <p key={k++} style={{ whiteSpace: 'pre-wrap', marginBottom: '6px' }}>
-          {renderInline(para.join('\n'))}
+          {renderInline(para.join('\n'), onNavigatePreview)}
         </p>,
       )
     }
@@ -294,6 +381,13 @@ interface MarkdownContentProps {
   statusLabel?: string | null
   /** Turn start (ms) for the labeled indicator's elapsed timer. */
   statusStartedAt?: number
+  /**
+   * Navigates the live preview to a route path. When provided, a `[label](/route)` markdown
+   * link renders as a clickable button that jumps the preview to that page (instead of opening
+   * a new tab or navigating the IDE) — so the agent's "your app is ready" handoff can list the
+   * app's pages as one-click links.
+   */
+  onNavigatePreview?: (path: string) => void
 }
 
 /**
@@ -312,6 +406,7 @@ export const MarkdownContent = memo(function MarkdownContent({
   isStreaming,
   statusLabel,
   statusStartedAt,
+  onNavigatePreview,
 }: MarkdownContentProps): JSX.Element {
   // Markdown is parsed + rendered LIVE while streaming (not deferred until the
   // stream finalizes). The page freezes that originally motivated deferring it
@@ -380,7 +475,12 @@ export const MarkdownContent = memo(function MarkdownContent({
             seg.type === 'code' ? (
               <CodeBlock key={i} lang={seg.lang} content={seg.content} />
             ) : (
-              <Prose key={i} content={seg.content} segIdx={i} />
+              <Prose
+                key={i}
+                content={seg.content}
+                segIdx={i}
+                onNavigatePreview={onNavigatePreview}
+              />
             ),
           )}
           {/* Bare end-of-text cursor only while the MODEL is still generating
@@ -400,7 +500,7 @@ export const MarkdownContent = memo(function MarkdownContent({
         seg.type === 'code' ? (
           <CodeBlock key={i} lang={seg.lang} content={seg.content} />
         ) : (
-          <Prose key={i} content={seg.content} segIdx={i} />
+          <Prose key={i} content={seg.content} segIdx={i} onNavigatePreview={onNavigatePreview} />
         ),
       )}
     </div>

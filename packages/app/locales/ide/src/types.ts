@@ -300,6 +300,7 @@ export type IdeTranslationKey =
   | 'ide.chat.modelsLoading'
   | 'ide.chat.modelsNone'
   | 'ide.chat.modelInUse'
+  | 'ide.chat.previewLinkTitle'
   | 'ide.chat.modelRemoved'
   | 'ide.chat.modelRemovedNoFallback'
   | 'ide.chat.olderModelsCollapse'

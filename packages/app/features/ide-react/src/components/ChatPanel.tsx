@@ -1575,6 +1575,8 @@ interface MessageItemProps {
    * streaming spinner in place of the generic rotating messages; null when idle.
    */
   streamingStatus: string | null
+  /** Navigates the preview to a route path when a `[label](/route)` link in a message is clicked. */
+  onNavigatePreview?: (path: string) => void
   undoneTcIds: Set<string>
   handleUndoToggle: (tcId: string, undone: boolean) => void
   onFileOpen?: (path: string) => void
@@ -1611,6 +1613,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     handleAskUserResponse,
     isLoading,
     streamingStatus,
+    onNavigatePreview,
     undoneTcIds,
     handleUndoToggle,
     onFileOpen,
@@ -2041,6 +2044,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     isStreaming={isLast && msg.isStreaming}
                     statusLabel={isLast && msg.isStreaming ? streamingStatus : undefined}
                     statusStartedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
+                    onNavigatePreview={onNavigatePreview}
                   />
                 )
               }
@@ -2111,6 +2115,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
               isStreaming={msg.isStreaming}
               statusLabel={msg.isStreaming ? streamingStatus : undefined}
               statusStartedAt={typeof msg.timestamp === 'number' ? msg.timestamp : undefined}
+              onNavigatePreview={onNavigatePreview}
             />
           ) : null}
 
@@ -2321,6 +2326,8 @@ interface ChatInnerProps {
   onTurnComplete?: () => void
   /** Called when the chat's loading state changes — see {@link ChatPanelProps.onLoadingChange}. */
   onLoadingChange?: (loading: boolean) => void
+  /** Navigates the preview to a route path on a chat link click — see {@link ChatPanelProps.onNavigatePreview}. */
+  onNavigatePreview?: (path: string) => void
   /** Registers the broadcast-chat-event handler with the host — see {@link ChatPanelProps.onRegisterPushHandler}. */
   onRegisterPushHandler?: ChatPanelProps['onRegisterPushHandler']
   /** Changing this value submits the current input draft (used by the prompt→chat morph). */
@@ -2419,6 +2426,7 @@ function ChatInner({
   onClientAction,
   onTurnComplete,
   onLoadingChange,
+  onNavigatePreview,
   onRegisterPushHandler,
   autoSubmitSignal,
   openSettingsSignal,
@@ -6075,6 +6083,7 @@ function ChatInner({
                 handleAskUserResponse={handleAskUserResponse}
                 isLoading={isLoading}
                 streamingStatus={streamingStatus}
+                onNavigatePreview={onNavigatePreview}
                 undoneTcIds={undoneTcIds}
                 handleUndoToggle={handleUndoToggle}
                 onFileOpen={onFileOpen}
@@ -8218,6 +8227,7 @@ export function ChatPanel({
   onClientAction,
   onTurnComplete,
   onLoadingChange,
+  onNavigatePreview,
   onRegisterPushHandler,
   autoSubmitSignal,
   initialInputValue,
@@ -8648,6 +8658,7 @@ export function ChatPanel({
         onClientAction={onClientAction}
         onTurnComplete={onTurnComplete}
         onLoadingChange={onLoadingChange}
+        onNavigatePreview={onNavigatePreview}
         onRegisterPushHandler={onRegisterPushHandler}
         autoSubmitSignal={autoSubmitSignal}
         openSettingsSignal={effectiveSettingsSignal}

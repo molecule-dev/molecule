@@ -106,6 +106,13 @@ export interface ChatPanelProps {
    */
   onLoadingChange?: (loading: boolean) => void
   /**
+   * Navigates the live preview to a route path. Wired so a `[label](/route)` markdown link in
+   * an assistant message (e.g. the agent's "your app is ready" handoff) jumps the preview to
+   * that page on click. User-initiated, so the host should navigate unconditionally (it is not
+   * the rate-limited agent `navigate_preview` action).
+   */
+  onNavigatePreview?: (path: string) => void
+  /**
    * Called on mount with a handler the parent invokes to deliver a broadcast chat event
    * from another project member (the push channel); called with null on unmount.
    */

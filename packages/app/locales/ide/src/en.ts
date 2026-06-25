@@ -341,6 +341,7 @@ export const en: IdeTranslations = {
   'ide.chat.modelsLoading': 'Loading models…',
   'ide.chat.modelsNone': 'No models are available yet — ask your admin to wire an AI provider.',
   'ide.chat.modelInUse': 'Now using {{model}}',
+  'ide.chat.previewLinkTitle': 'Open {{path}} in the preview',
   'ide.chat.modelRemoved':
     'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
   'ide.chat.modelRemovedNoFallback':
