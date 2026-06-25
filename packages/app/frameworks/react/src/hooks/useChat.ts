@@ -1067,6 +1067,34 @@ export function useChat(options: UseChatOptions): UseChatResult {
       // typed user message.
       const automatic = options?.automatic === true
 
+      // Resolve the pending ask_user card IN THE STORE: set the most-recent unanswered
+      // ask_user tool call's output to this answer. The chosen option's checked state is
+      // derived from a string `output`, so persisting it here keeps it checked across the
+      // discovery→IDE remount (it previously lived only in the card's local React state and
+      // vanished on remount). Idempotent; gated on the explicit askUserAnswer flag so the
+      // suppressed post-boot kickoff never resolves a stale ask_user with its own text.
+      if (options?.askUserAnswer) {
+        setMessages((prev) => {
+          for (let i = prev.length - 1; i >= 0; i--) {
+            const tcs = prev[i].toolCalls
+            if (!tcs?.some((tc) => tc.name === 'ask_user' && typeof tc.output !== 'string')) {
+              continue
+            }
+            const copy = [...prev]
+            copy[i] = {
+              ...prev[i],
+              toolCalls: tcs.map((tc) =>
+                tc.name === 'ask_user' && typeof tc.output !== 'string'
+                  ? { ...tc, output: message, status: 'done' as const }
+                  : tc,
+              ),
+            }
+            return copy
+          }
+          return prev
+        })
+      }
+
       const userMsg: ChatMessage = {
         id: `user-${++idCounterRef.current}`,
         role: 'user',

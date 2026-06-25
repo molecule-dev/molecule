@@ -257,6 +257,16 @@ export interface SendMessageOptions {
    * (agent avatar + accent border) instead of looking like the user typed it.
    */
   automatic?: boolean
+  /**
+   * Mark this send as the answer to the pending `ask_user` question. The most
+   * recent unanswered `ask_user` tool call in the store is resolved in place —
+   * its `output` is set to this answer — so the chosen option stays checked
+   * across remounts (e.g. the discovery→IDE transition) instead of relying on
+   * ephemeral component state that the answer's selection would otherwise lose.
+   * Distinct from {@link suppressUserMessage} (which the post-boot kickoff also
+   * sets) so resolving never misfires on a non-ask_user suppressed send.
+   */
+  askUserAnswer?: boolean
 }
 
 /**

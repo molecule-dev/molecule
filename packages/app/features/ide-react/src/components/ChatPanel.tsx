@@ -2658,7 +2658,7 @@ function ChatInner({
     (
       msg: string,
       attachments?: undefined,
-      options?: { suppressUserMessage?: boolean; automatic?: boolean },
+      options?: { suppressUserMessage?: boolean; automatic?: boolean; askUserAnswer?: boolean },
     ) => void
   >(() => {})
   useEffect(() => {
@@ -2775,7 +2775,13 @@ function ChatInner({
   // card itself (a checkmark on the chosen option, or the custom text shown
   // in-card) rather than echoed as a separate message below it.
   const handleAskUserResponse = useCallback((response: string) => {
-    sendMessageRef.current(response, undefined, { suppressUserMessage: true })
+    // `askUserAnswer` resolves the pending ask_user card in the store (sets its output to
+    // the answer) so the chosen option STAYS checked across the discovery→IDE remount —
+    // the live selection used to live only in ephemeral component state and vanished.
+    sendMessageRef.current(response, undefined, {
+      suppressUserMessage: true,
+      askUserAnswer: true,
+    })
   }, [])
 
   // ── Commit ─────────────────────────────────────────────────────────────────
