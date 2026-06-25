@@ -30,6 +30,8 @@
  */
 
 export * from './ContentPageShell.js'
+export * from './LegalContentPage.js'
+export * from './LegalModalLinks.js'
 export * from './LegalPageLayout.js'
 export * from './LegalPageSection.js'
 export * from './PlanUpdatedPage.js'

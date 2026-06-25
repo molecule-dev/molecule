@@ -74,6 +74,93 @@ interface ContentPageShellProps {
 }
 ```
 
+#### `LegalContentPageProps`
+
+Props for {@link LegalContentPage}.
+
+```typescript
+interface LegalContentPageProps {
+  /** Which legal document to render. */
+  kind: LegalKind
+  /** App name interpolated into the policy body (privacy uses `{{appName}}`). */
+  appName?: string
+  /**
+   * Lazy-loader for the legal HTML (pass `loadContent` from the app's
+   * `src/config.ts`, which re-exports it from
+   * `@molecule/app-locales-legal-default`). Called once on mount so the
+   * standalone page shows the **same** bonded content as the footer modal.
+   */
+  loadContent?: (key: 'privacyPolicy' | 'termsOfService') => Promise<void> | void
+  /** App-specific top navigation, rendered above the hero. */
+  header?: ReactNode
+  /** App-specific footer, rendered below the content. */
+  footer?: ReactNode
+  /** i18n key for the small uppercase eyebrow. Defaults to `nav.legal`. */
+  eyebrowKey?: string
+  /** Default eyebrow text. Defaults to `Legal`. */
+  eyebrowDefault?: string
+}
+```
+
+#### `LegalModalLinksProps`
+
+Props for {@link LegalModalLinks}.
+
+```typescript
+interface LegalModalLinksProps extends UseLegalModalsOptions {
+  /** className applied to each trigger `<button>` (match the footer's link style). */
+  linkClassName?: string
+  /** Which links to render. Defaults to `'both'`. */
+  show?: 'both' | 'privacy' | 'terms'
+  /** Override the Privacy label (defaults to i18n `footer.privacyPolicy`). */
+  privacyLabel?: ReactNode
+  /** Override the Terms label (defaults to i18n `footer.termsOfService`). */
+  termsLabel?: ReactNode
+}
+```
+
+#### `LegalModalsApi`
+
+Imperative API returned by {@link useLegalModals}.
+
+```typescript
+interface LegalModalsApi {
+  /** Open the Privacy Policy modal (loads content first). */
+  openPrivacy: () => Promise<void>
+  /** Open the Terms of Service modal (loads content first). */
+  openTerms: () => Promise<void>
+  /** The two `<Modal>` elements — render once anywhere in the tree. */
+  modals: JSX.Element
+}
+```
+
+#### `UseLegalModalsOptions`
+
+Shared options for the legal-modal hook + component.
+
+```typescript
+interface UseLegalModalsOptions {
+  /** App name interpolated into the privacy body (`{{appName}}`). */
+  appName?: string
+  /**
+   * Lazy-loader for the legal HTML — pass `loadContent` from the app's
+   * `src/config.ts`. Called right before a modal opens so the bonded
+   * content is present on first render.
+   */
+  loadContent?: (key: 'privacyPolicy' | 'termsOfService') => Promise<void> | void
+}
+```
+
+### Types
+
+#### `LegalKind`
+
+Which legal document a {@link LegalContentPage} renders.
+
+```typescript
+type LegalKind = 'privacy' | 'terms'
+```
+
 ### Functions
 
 #### `ContentPageShell(props)`
@@ -105,6 +192,59 @@ function ContentPageShell({
 - `props` — See {@link ContentPageShellProps}.
 
 **Returns:** The rendered content-page shell.
+
+#### `LegalContentPage(props)`
+
+Standalone Privacy / Terms page that renders the **same** bonded legal
+HTML the footer modal shows (`content.privacyPolicy` /
+`content.termsOfService` from `@molecule/app-locales-legal-default`),
+wrapped in the branded {@link ContentPageShell}.
+
+This keeps the in-place footer modal and the standalone `/privacy`,
+`/terms` routes perfectly in sync — one source of legal copy, two
+surfaces. Drop one of these into each app's `pages/Privacy.tsx` /
+`pages/Terms.tsx`, passing the app's own header/footer chrome.
+
+```typescript
+function LegalContentPage({
+  kind,
+  appName,
+  loadContent,
+  header,
+  footer,
+  eyebrowKey = 'nav.legal',
+  eyebrowDefault = 'Legal',
+}: LegalContentPageProps): JSX.Element
+```
+
+- `props` — See {@link LegalContentPageProps}.
+
+**Returns:** The rendered legal content page.
+
+#### `LegalModalLinks(props)`
+
+Drop-in Privacy/Terms links that open IN-PLACE modals instead of
+navigating — for bespoke footers and signup pages. Replace
+`<Link to="/privacy">Privacy</Link>` / `<Link to="/terms">Terms</Link>`
+with `<LegalModalLinks linkClassName={...} appName={APP_NAME} loadContent={loadContent} />`.
+
+Renders the trigger button(s) + the modals together, so it suits the
+common case where the two legal links are adjacent. For separated
+triggers, use {@link useLegalModals} directly.
+
+```typescript
+function LegalModalLinks({
+  linkClassName,
+  show = 'both',
+  privacyLabel,
+  termsLabel,
+  ...opts
+}: LegalModalLinksProps): JSX.Element
+```
+
+- `props` — See {@link LegalModalLinksProps}.
+
+**Returns:** The trigger button(s) and their modals.
 
 #### `LegalPageLayout(root0, root0, root0, root0, root0, root0, root0, root0)`
 
@@ -238,6 +378,25 @@ function TermsPage({
 - `root0` — .introDefault
 - `root0` — .children
 - `root0` — .stackGap
+
+#### `useLegalModals(options)`
+
+Headless hook powering in-place Privacy/Terms modals. Use it when the
+triggers live in different parts of a bespoke footer (or a signup
+page); place `{modals}` once and wire `openPrivacy`/`openTerms` to your
+own links/buttons.
+
+The modal body is the SAME bonded HTML the {@link LegalContentPage}
+standalone routes render (`content.privacyPolicy` /
+`content.termsOfService`), so every legal surface stays in sync.
+
+```typescript
+function useLegalModals({ appName, loadContent }?: UseLegalModalsOptions): LegalModalsApi
+```
+
+- `options` — See {@link UseLegalModalsOptions}.
+
+**Returns:** Imperative {@link LegalModalsApi}.
 
 ## Injection Notes
 
