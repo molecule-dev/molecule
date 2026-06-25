@@ -336,6 +336,23 @@ export function useChat(options: UseChatOptions): UseChatResult {
       setStoreMessages(storageKey, updater),
     [storageKey],
   )
+  // Append an inline transcript CARD (model / mode / skills / custom notice) as a complete
+  // `role:'system'` card-message in the ONE message store — the same store as every other
+  // message, so cards interleave by timestamp and there is no separate card array. Used for
+  // BOTH this client's own `card` stream events (createMessageStream) AND a teammate's
+  // broadcast `card` (ChatPanel's pushed-event path, via the exposed handle). De-duped by the
+  // server-assigned id so an echo (own broadcast in a second tab) or a reload-then-broadcast
+  // race never doubles a card. A card is a finished item — no streaming/finalize.
+  const appendCardMessage = useCallback(
+    (id: string, timestamp: number, card: NonNullable<ChatMessage['cardEvent']>) => {
+      setMessages((prev) =>
+        prev.some((m) => m.id === id)
+          ? prev
+          : [...prev, { id, role: 'system' as const, content: '', timestamp, cardEvent: card }],
+      )
+    },
+    [setMessages],
+  )
   const setIsLoading = useCallback(
     (streaming: boolean) => setStoreStreaming(storageKey, streaming),
     [storageKey],
@@ -846,6 +863,13 @@ export function useChat(options: UseChatOptions): UseChatResult {
       switch (event.type) {
         case 'message_start':
           startMessage(event.id, event.timestamp)
+          return
+        case 'card':
+          // A complete inline card (model / mode / skills / custom) — append it to the ONE
+          // message store as a card-message; it does NOT belong to the current streaming
+          // message (it interleaves by its own server timestamp). Recorded + persisted
+          // server-side, so this is byte-identical to what loadHistory returns on reload.
+          appendCardMessage(event.id, event.timestamp, event.card)
           return
         case 'mode':
           setMode(event.mode)
@@ -1444,5 +1468,6 @@ export function useChat(options: UseChatOptions): UseChatResult {
     editQueuedMessage,
     deleteQueuedMessage,
     clearQueuedForFile,
+    appendCardMessage,
   }
 }

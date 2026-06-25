@@ -186,6 +186,56 @@ describe('useChat', () => {
     expect(result.current.messages[1].isStreaming).toBe(false)
   })
 
+  it('appends a `card` event as a role:system card-message in the ONE store (de-duped by id)', async () => {
+    const { provider, emit, complete, startMessage, emitText } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('build it')
+    })
+    // A model-switch card arrives mid-stream (it interleaves by its own server timestamp; it
+    // does NOT belong to the streaming assistant message).
+    await act(async () => {
+      startMessage(0)
+      emitText(0, 'working')
+      emit(0, {
+        type: 'card',
+        id: 'card-model-1',
+        timestamp: 999,
+        card: { kind: 'model', model: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
+      })
+    })
+
+    await waitFor(() => {
+      const card = result.current.messages.find((m) => m.id === 'card-model-1')
+      expect(card).toBeDefined()
+      expect(card!.role).toBe('system')
+      expect(card!.cardEvent).toEqual({
+        kind: 'model',
+        model: 'deepseek-v4-flash',
+        label: 'DeepSeek V4 Flash',
+      })
+      expect(card!.timestamp).toBe(999)
+    })
+
+    // The same card id arriving again (own broadcast echo) must NOT double-add.
+    await act(async () => {
+      emit(0, {
+        type: 'card',
+        id: 'card-model-1',
+        timestamp: 999,
+        card: { kind: 'model', model: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
+      })
+      complete(0)
+    })
+    expect(result.current.messages.filter((m) => m.id === 'card-model-1')).toHaveLength(1)
+    // The card-message is distinct from the streaming assistant message (not merged into it).
+    expect(result.current.messages.find((m) => m.role === 'assistant')?.content).toBe('working')
+  })
+
   it('accumulates text events into assistant content', async () => {
     const { provider, emitText, complete, startMessage } = createMockProvider()
     const { result } = renderHook(

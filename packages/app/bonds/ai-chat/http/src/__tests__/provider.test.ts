@@ -304,6 +304,47 @@ describe('@molecule/app-ai-chat-http', () => {
       expect(messages[1].author).toEqual({ id: 'x', name: 'Ada', avatar: null })
     })
 
+    it('carries back persisted card-messages with their cardEvent intact (live === stored)', async () => {
+      // Inline transcript cards (model / mode / skills / custom) persist as role:'system'
+      // messages carrying the raw CardEvent. loadHistory MUST pass cardEvent through so a
+      // reloaded transcript renders the SAME cards the live stream did.
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          messages: [
+            { id: 'u1', role: 'user', content: 'build it', timestamp: 1 },
+            {
+              id: 'card-model',
+              role: 'system',
+              content: '',
+              timestamp: 2,
+              cardEvent: { kind: 'model', model: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
+            },
+            {
+              id: 'card-skills',
+              role: 'system',
+              content: '',
+              timestamp: 3,
+              cardEvent: { kind: 'skills', count: 5 },
+            },
+          ],
+        }),
+      })
+
+      const provider = new HttpChatProvider()
+      const messages = await provider.loadHistory(defaultConfig)
+
+      expect(messages[1].role).toBe('system')
+      expect(messages[1].cardEvent).toEqual({
+        kind: 'model',
+        model: 'deepseek-v4-flash',
+        label: 'DeepSeek V4 Flash',
+      })
+      expect(messages[2].cardEvent).toEqual({ kind: 'skills', count: 5 })
+      // An ordinary message carries no cardEvent.
+      expect(messages[0].cardEvent).toBeUndefined()
+    })
+
     it('should return empty array for non-ok response', async () => {
       mockFetch.mockResolvedValue({
         ok: false,

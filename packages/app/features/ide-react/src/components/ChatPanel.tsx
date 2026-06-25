@@ -28,7 +28,7 @@ import {
   useState,
 } from 'react'
 
-import type { ChatMessage, ChatStreamEvent } from '@molecule/app-ai-chat'
+import type { CardEvent, ChatMessage, ChatStreamEvent } from '@molecule/app-ai-chat'
 import {
   formatTokenCount,
   isDeprecated,
@@ -2517,16 +2517,15 @@ function ChatInner({
     [],
   )
 
-  const addSystemCardRef = useRef<(text: string, opts?: AddSystemCardOptions) => void>(() => {})
   // Ref so the stream-event callback can push activity cards without depending
-  // on the state setter (mirrors addSystemCardRef).
+  // on the state setter (mirrors appendCardMessageRef).
   const addActivityCardRef = useRef<(activity: Activity) => void>(() => {})
-  // Last model surfaced in the transcript, so we mark a change (planner →
-  // executor) without announcing the same model every turn.
-  const lastShownModelRef = useRef<string | null>(null)
-  // Last phase (mode) surfaced as a transcript card, so phase markers appear on
-  // change only (not every turn). See the 'mode' event handler.
-  const lastShownModeRef = useRef<string | null>(null)
+  // Ref to useChat's appendCardMessage, so the broadcast path (a teammate's `card` event,
+  // applied through handleStreamEvent) can append a card-message to the ONE message store.
+  // This client's OWN `card` events are appended internally by useChat's stream handler.
+  const appendCardMessageRef = useRef<
+    (id: string, timestamp: number, card: NonNullable<ChatMessage['cardEvent']>) => void
+  >(() => {})
   // Kept current each render so handleStreamEvent (memoized) always calls the latest.
   const onReadyToBuildRef = useRef<(() => void) | undefined>(onReadyToBuild)
   onReadyToBuildRef.current = onReadyToBuild
@@ -2568,45 +2567,18 @@ function ChatInner({
       if (event.type === 'verification_result' && event.status === 'ok') {
         pendingVerificationRef.current = null
       }
-      // App-specific custom event: look up a renderer the host app registered via
-      // registerCustomEventCard and surface it as a system card. This is how host
-      // apps deliver their OWN notices (e.g. the host app's upgrade_prompt /
-      // guest_reminder / build_degraded cards) — including the periodic sign-up
-      // reminder, now emitted by the host's backend rather than counted here — so
-      // their copy/routes stay out of this shared component. `emphasized` lets the
-      // app opt a card into the highlighted box style without route-sniffing.
-      if (event.type === 'custom') {
-        const ts = typeof event.timestamp === 'number' ? event.timestamp : undefined
-        // The skills notice is SHARED conversation context, driven server-side: render the
-        // clickable "skillsLoaded" card from the server's count + monotonic timestamp, so
-        // it's the same for every collaborator (multi-user) and can never be pushed around.
-        // All other custom events go through the generic app-registered card factory.
-        if (event.name === 'skills_loaded') {
-          const count = (event.data as { count?: number } | undefined)?.count ?? 0
-          addSystemCardRef.current(
-            t(
-              'ide.chat.skills.loadedCount',
-              { count },
-              { defaultValue: '🧠 Loaded {{count}} skills' },
-            ),
-            { variant: 'skillsLoaded', count, timestamp: ts },
-          )
-        } else {
-          const card = getCustomEventCardFactory(event.name as string)?.(
-            event.data as Record<string, unknown> | undefined,
-          )
-          if (card) {
-            addSystemCardRef.current(card.text, {
-              action: card.action,
-              emphasized: card.emphasized,
-              tone: card.tone,
-              content: card.content,
-              // Server timestamp (monotonic) so this card sorts on the same clock as the
-              // messages — never skewed below the response on a mis-set client clock.
-              timestamp: ts,
-            })
-          }
-        }
+      // Inline transcript CARD (model / mode / skills / custom notice). The server records it
+      // into the ONE message transcript and emits it here; this client's OWN stream appends
+      // the card-message via useChat (case 'card'). Here we ONLY handle a TEAMMATE's broadcast
+      // (applied through applyPushedStreamEvent → handleStreamEvent): append it to the local
+      // store so it shows live for the collaborator too (de-duped by id; never re-persisted —
+      // the originating server already persisted it, and on reload it loads with the messages).
+      if (event.type === 'card' && applyingPushedRef.current) {
+        appendCardMessageRef.current(
+          event.id as string,
+          event.timestamp as number,
+          event.card as NonNullable<ChatMessage['cardEvent']>,
+        )
       }
       // Captured outbound side effect (email/sms/push/webhook/channel) — push an
       // inline activity card into the timeline. Non-text card, mirroring how
@@ -2646,37 +2618,12 @@ function ChatInner({
       if (event.type === 'done' || event.type === 'error') {
         onTurnCompleteRef.current?.()
       }
-      // Model changed (e.g. planner → executor) — drop a marker in the
-      // transcript so it's always clear which model is doing the work. Only on
-      // an actual change, not the same model every turn.
-      if (event.type === 'model' && event.model) {
-        const label = (event.label as string) || (event.model as string)
-        if (lastShownModelRef.current && lastShownModelRef.current !== event.model) {
-          addSystemCardRef.current(
-            t('ide.chat.modelInUse', { model: label }, { defaultValue: 'Now using {{model}}' }),
-            // Server timestamp (iteration-top, before the message) so this card sorts
-            // ABOVE the response on the same clock — never below it on a skewed client.
-            { timestamp: typeof event.timestamp === 'number' ? event.timestamp : undefined },
-          )
-        }
-        lastShownModelRef.current = event.model as string
-      }
-      // Phase marker for the plan→build handoff. We intentionally do NOT add a
-      // "Creating the plan" card: the plan is written as visible streaming text
-      // (so the card is redundant), and the parallel build flow emits a transient
-      // mode:'plan' during the post-boot save+execute turn — that would drop the
-      // card AFTER the plan was already shown, which reads backwards. "Building
-      // your app" stays: it cleanly marks the switch from planning to building.
-      if (event.type === 'mode' && event.mode) {
-        if (lastShownModeRef.current !== event.mode && event.mode === 'execute') {
-          addSystemCardRef.current(
-            t('ide.chat.phaseBuilding', undefined, { defaultValue: '🔨 Building your app' }),
-            // Server timestamp so "Building your app" sorts above the build response.
-            { timestamp: typeof event.timestamp === 'number' ? event.timestamp : undefined },
-          )
-        }
-        lastShownModeRef.current = event.mode as string
-      }
+      // NOTE: the `model` (planner→executor) + `mode` ("Building your app") transcript markers
+      // are no longer derived here. The server now RECORDS them (and the skills + custom
+      // notices) as card-messages in the ONE transcript via recordCard, emitted as `card`
+      // events and rendered from `cardEvent` (see cardEventToSystemCard) — so they persist and
+      // reload identically, with no client-side "last shown" heuristic. The raw `mode` event
+      // still drives the phase STATE (useChat's setMode); it just no longer spawns a card.
       const cfg = soundsConfigRef.current
       const eventType = event.type as SoundEventType
       if (eventType in cfg && shouldPlaySound(cfg[eventType])) {
@@ -2791,6 +2738,7 @@ function ChatInner({
     editQueuedMessage,
     deleteQueuedMessage,
     clearQueuedForFile,
+    appendCardMessage,
     retryCountdown,
     cancelRetry,
   } = useChat({
@@ -2813,6 +2761,9 @@ function ChatInner({
 
   // Keep sendMessageRef in sync so the countdown effect can call the latest sendMessage
   sendMessageRef.current = sendMessage
+  // Keep the card-append ref current so handleStreamEvent (memoized) can append a teammate's
+  // broadcast `card` event to the message store.
+  appendCardMessageRef.current = appendCardMessage
 
   // Ref-stable callback for ToolCallCard's onAskUserResponse — avoids breaking
   // React.memo when sendMessage's identity changes (provider/endpoint deps).
@@ -3132,9 +3083,19 @@ function ChatInner({
   const messagesRef = useRef(messages)
   messagesRef.current = messages
   // True only while applying a teammate's broadcast through handleStreamEvent (see
-  // applyPushedStreamEvent). addSystemCard/addActivityCard read it to mark the cards
-  // they produce as `received` so this viewer renders but never re-persists them.
+  // applyPushedStreamEvent). addActivityCard reads it to mark a pushed activity card
+  // `received` so this viewer renders but never re-persists it (activity cards keep their
+  // own persisted store). Transcript cards (model/mode/skills/custom) are server-recorded
+  // card-messages: a pushed one is appended ephemerally (never persisted by the client), so
+  // it needs no `received` flag.
   const applyingPushedRef = useRef(false)
+  // addSystemCard now serves ONLY this session's LOCAL command cards — the `/help`,
+  // `/settings`, `/scripts` browsers and command output (all `clientOnly`). These are
+  // ephemeral chrome: never persisted, never broadcast. The server-driven transcript notices
+  // (model / mode / skills / custom) no longer come through here — they are card-messages in
+  // the ONE transcript (recordCard → cardEventToSystemCard). The `received` + timestamp-dedup
+  // paths below are inert for local cards (they carry no server timestamp and never broadcast)
+  // but kept harmless for any caller that does pass a server timestamp.
   const addSystemCard = useCallback((text: string, opts: AddSystemCardOptions = {}) => {
     // Split off `timestamp` (handled below) and spread the rest of the variant's own
     // fields verbatim — no field-by-field copy, so this never drifts from the union.
@@ -3171,20 +3132,19 @@ function ChatInner({
       }, 50)
     }
   }, [])
-  addSystemCardRef.current = addSystemCard
 
-  // Apply a chat event broadcast by another project member (the chat push channel).
-  // The originating member already streamed + PERSISTED these cards; this viewer renders
-  // them live but must never re-persist them (every viewer re-PUTting would race on the
-  // conversation row), so each card produced here is flagged `received` and excluded from
-  // the persist effects above.
+  // Apply a chat event broadcast by another project member (the chat push channel). The
+  // originating member's SERVER already persisted everything (the transcript card-messages and
+  // the activity cards); this viewer only renders the broadcast live and gets the durable copy
+  // on reload. A pushed `card` event appends an ephemeral card-message (never persisted by this
+  // viewer); a pushed `activity` is flagged `received` so it renders but is not re-PUT.
   const applyPushedStreamEvent = useCallback(
     (frameConversationId: string, event: ChatStreamEvent) => {
       // Only apply broadcasts for the conversation this panel has open.
       if (frameConversationId !== conversationIdRef.current) return
-      // Mark every card produced by this event as `received` so it renders but is
-      // never re-persisted by this viewer (the originator persisted it). handleStreamEvent
-      // is synchronous, so the flag is set for exactly this event's card-adds.
+      // Flag the window so a pushed activity card is marked `received` (rendered, not re-PUT);
+      // a pushed card-message is appended ephemerally. handleStreamEvent is synchronous, so the
+      // flag is set for exactly this event's handling.
       applyingPushedRef.current = true
       try {
         handleStreamEvent(event)
@@ -3214,73 +3174,16 @@ function ChatInner({
     document.head.appendChild(el)
   }, [])
 
-  // ── Persist system cards across reloads ───────────────────────────────────
-  // The system cards above are frontend state; on their own they vanish on every
-  // reload. These two effects restore them from the conversation on load and save
-  // them back when they change, so a notice like the model-switch message survives a
-  // refresh. Only the serializable card data is sent — the in-session `action`
-  // callback is dropped, so a restored card is informational. Best-effort: a failed
-  // fetch/save just means a card doesn't restore; the in-memory set still drives the
-  // UI. (Requires an existing conversation; cards added before the first message
-  // creates one start persisting once it has an id.)
-  const sysCardsLoadedConvRef = useRef<string | null>(null)
-  const prevSysCardsConvRef = useRef<string | null>(null)
-  useEffect(() => {
-    const prevConv = prevSysCardsConvRef.current
-    prevSysCardsConvRef.current = conversationId
-    sysCardsLoadedConvRef.current = null
-    if (!conversationId) return
-    // Clear only when switching FROM another conversation, so a brand-new
-    // conversation receiving its id keeps the cards already added to it.
-    if (prevConv && prevConv !== conversationId) setSystemCards([])
-    let cancelled = false
-    void http
-      .get<{ systemCards?: SystemCard[] }>(
-        `/projects/${projectId}/conversations/${conversationId}/system-cards`,
-      )
-      .then((res) => {
-        if (cancelled) return
-        const loaded = res.data?.systemCards ?? []
-        // Merge by id so a card added before the fetch resolved is preserved.
-        setSystemCards((prev) => {
-          const byId = new Map<string, SystemCard>()
-          for (const c of loaded) byId.set(c.id, c)
-          for (const c of prev) byId.set(c.id, c)
-          return [...byId.values()].sort((a, b) => a.timestamp - b.timestamp)
-        })
-        sysCardsLoadedConvRef.current = conversationId
-      })
-      .catch((_error) => {
-        // Best-effort restore (intentionally ignored — bound as _error per Rule 14): a
-        // failed system-card fetch is non-critical; just allow newly-added cards to
-        // persist by marking this conversation loaded.
-        if (!cancelled) sysCardsLoadedConvRef.current = conversationId
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [conversationId, projectId, http])
-  useEffect(() => {
-    if (!conversationId || sysCardsLoadedConvRef.current !== conversationId) return
-    // Persist conversation content, but NOT a user's own per-user UI ephemera (a /help,
-    // /settings, /scripts browser — `clientOnly`), which must stay local and never leak
-    // onto a reload or to other collaborators. Default is persist, so nothing silently
-    // loses its history. Drop `action` (the only non-serializable field — its onClick is a
-    // callback, re-attached at render; a restored card is informational) and persist the
-    // rest of each variant's fields verbatim (destructuring the union keeps this in sync —
-    // a new persisted field needs no edit here).
-    const serializable = systemCards
-      .filter((c) => !c.clientOnly && !c.received)
-      .map(({ action: _action, ...rest }) => rest)
-    void http
-      .put(`/projects/${projectId}/conversations/${conversationId}/system-cards`, {
-        systemCards: serializable,
-      })
-      .catch((_error) => {
-        // Best-effort save (intentionally ignored — bound as _error per Rule 14): the
-        // in-memory cards remain the source of truth this session if the PUT fails.
-      })
-  }, [systemCards, conversationId, projectId, http])
+  // ── System cards are now SESSION-EPHEMERAL ────────────────────────────────
+  // The persisted, server-driven inline notices (model switch, "Building your app", "Loaded
+  // N skills", the app's custom upgrade/guest/build cards) are no longer stored here — the
+  // server RECORDS them as card-messages in the ONE message transcript (recordCard), and they
+  // render from `cardEvent` via the timeline below (cardEventToSystemCard), so they survive a
+  // reload as part of `messages` with no separate store, no client PUT, and no divergence.
+  // The `systemCards` state that remains holds ONLY this session's local command cards (the
+  // `/help` / `/settings` / `/scripts` browsers, command output) — transient, re-runnable
+  // chrome that is intentionally NOT persisted (like terminal output) and never leaked to a
+  // collaborator. The former load/PUT effects (and their `/system-cards` endpoint) are gone.
 
   // ── Activity cards (captured outbound side effects) ───────────────────────
   const [activityCards, setActivityCards] = useState<ActivityCardEntry[]>([])
@@ -5587,6 +5490,71 @@ function ChatInner({
   // one — even an optimistic/in-flight hidden message.
   const visibleMessages = useMemo(() => messages.filter((m) => !m.hidden), [messages])
 
+  // Build a renderable SystemCard from a card-message's raw CardEvent. This is the ONE
+  // construction, used IDENTICALLY for a live `card` event (now a card-message in `messages`)
+  // and for a card-message loaded on refresh — so the rendered card is the same in both, with
+  // no separate store and no client-side "should I show this" decision. App-specific copy /
+  // actions stay client-side (the server records only the raw data); returns null for an
+  // unrenderable card (a custom event with no registered factory, or a non-execute mode) so
+  // the timeline simply omits it.
+  const cardEventToSystemCard = useCallback(
+    (cardEvent: CardEvent, id: string, timestamp: number): SystemCard | null => {
+      switch (cardEvent.kind) {
+        case 'model': {
+          const label = cardEvent.label || cardEvent.model
+          return {
+            id,
+            text: t(
+              'ide.chat.modelInUse',
+              { model: label },
+              { defaultValue: 'Now using {{model}}' },
+            ),
+            timestamp,
+          }
+        }
+        case 'mode':
+          // Only the plan→build handoff renders a card; the server records a mode card solely
+          // for 'execute' ("🔨 Building your app"). Anything else renders nothing.
+          if (cardEvent.mode !== 'execute') return null
+          return {
+            id,
+            text: t('ide.chat.phaseBuilding', undefined, { defaultValue: '🔨 Building your app' }),
+            timestamp,
+          }
+        case 'skills':
+          return {
+            id,
+            variant: 'skillsLoaded',
+            count: cardEvent.count,
+            text: t(
+              'ide.chat.skills.loadedCount',
+              { count: cardEvent.count },
+              { defaultValue: '🧠 Loaded {{count}} skills' },
+            ),
+            timestamp,
+          }
+        case 'custom': {
+          // App-registered renderer (registerCustomEventCard) builds the copy/actions/tone
+          // from the raw data — keeping app-specific text out of this shared package.
+          const card = getCustomEventCardFactory(cardEvent.name)?.(cardEvent.data)
+          if (!card) return null
+          return {
+            id,
+            text: card.text,
+            ...(card.action ? { action: card.action } : {}),
+            ...(card.emphasized ? { emphasized: card.emphasized } : {}),
+            ...(card.tone ? { tone: card.tone } : {}),
+            ...(card.content ? { content: card.content } : {}),
+            timestamp,
+          }
+        }
+        default:
+          return null
+      }
+    },
+    [t],
+  )
+
   // Build a unified timeline so commit cards appear at the correct position
   type TimelineItem =
     | { kind: 'message'; msg: (typeof messages)[number] }
@@ -5595,20 +5563,33 @@ function ChatInner({
     | { kind: 'activity'; card: ActivityCardEntry }
     | { kind: 'tip'; card: TipCardEntry }
   const timeline = useMemo<TimelineItem[]>(() => {
-    const items: TimelineItem[] = [
-      ...visibleMessages.map((msg) => ({ kind: 'message' as const, msg })),
+    const items: TimelineItem[] = []
+    // A card-message (role:'system' carrying a cardEvent) renders as a SYSTEM CARD, not a chat
+    // bubble — split it out here so it flows through the same card render path as before, now
+    // sourced from the ONE transcript instead of a separate array. Every other message renders
+    // as a message.
+    for (const msg of visibleMessages) {
+      if (msg.cardEvent) {
+        const card = cardEventToSystemCard(msg.cardEvent, msg.id, msg.timestamp)
+        if (card) items.push({ kind: 'system', card })
+      } else {
+        items.push({ kind: 'message', msg })
+      }
+    }
+    // systemCards now holds ONLY this session's local command cards (ephemeral, see above).
+    items.push(
       ...commitCards.map((card) => ({ kind: 'commit' as const, card })),
       ...systemCards.map((card) => ({ kind: 'system' as const, card })),
       ...activityCards.map((card) => ({ kind: 'activity' as const, card })),
       ...tipCards.map((card) => ({ kind: 'tip' as const, card })),
-    ]
+    )
     // Order by timestamp, EXCEPT an empty (still-thinking) streaming response sorts
     // last — so a turn's preamble cards (mode/model/skills notices, onboarding tips),
     // emitted a beat after the placeholder is created, render ABOVE the response
     // rather than below the whole streamed block. See timelineSortKey.
     items.sort((a, b) => timelineSortKey(a) - timelineSortKey(b))
     return items
-  }, [visibleMessages, commitCards, systemCards, activityCards, tipCards])
+  }, [visibleMessages, cardEventToSystemCard, commitCards, systemCards, activityCards, tipCards])
 
   // The live settings list for the /settings card. Shared by the closeable
   // overlay and the legacy inline 'settings' branch (back-compat for any already

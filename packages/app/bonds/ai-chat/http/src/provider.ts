@@ -333,6 +333,11 @@ export class HttpChatProvider implements ChatProvider {
         timestamp,
         blocks,
         toolCalls,
+        // Inline transcript cards (model / mode / skills / custom notices) are persisted as
+        // `role:'system'` messages carrying the raw CardEvent — pass it through so a reloaded
+        // transcript renders the SAME cards the live stream did (live === stored). The app
+        // (ChatPanel) builds the card's copy/actions from `cardEvent` at render time.
+        ...(m.cardEvent ? { cardEvent: m.cardEvent as ChatMessage['cardEvent'] } : {}),
         commitRecord: m.commitRecord as ChatMessage['commitRecord'],
         attachments: m.attachments as ChatMessage['attachments'],
         // Carry the persisted message-level flags back so a reloaded transcript matches

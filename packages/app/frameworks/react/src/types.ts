@@ -306,6 +306,17 @@ export interface UseChatResult {
   deleteQueuedMessage: (msgId: string) => void
   /** Remove queued auto-fix messages whose content references the given file path. */
   clearQueuedForFile: (filePath: string) => void
+  /**
+   * Append an inline transcript card (model / mode / skills / custom notice) as a
+   * `role:'system'` card-message in the ONE message store. Used by the host (ChatPanel)
+   * to render a TEAMMATE's broadcast `card` event live — this client's OWN cards arrive
+   * through the stream and are appended internally. De-duped by the server-assigned id.
+   */
+  appendCardMessage: (
+    id: string,
+    timestamp: number,
+    card: NonNullable<ChatMessage['cardEvent']>,
+  ) => void
 }
 
 /**

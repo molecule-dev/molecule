@@ -452,12 +452,18 @@ describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" 
     )
   })
 
-  it('renders the "Loaded N skills" card from a server skills_loaded custom event', async () => {
-    // The card is SERVER-driven now (shared conversation context + multi-user): the server
-    // emits a `skills_loaded` event with the count + a monotonic timestamp; the client just
-    // renders it. It is no longer announced from the client-side skill load.
+  it('renders the "Loaded N skills" card from a server card event (kind:skills)', async () => {
+    // The card is SERVER-driven now (recorded into the ONE transcript via recordCard): the
+    // server emits a `card` event carrying { kind:'skills', count } with a monotonic id +
+    // timestamp; useChat appends it as a card-message and the timeline renders it from
+    // `cardEvent`. It is no longer announced from the client-side skill load.
     const provider = buildChatProvider((onEvent) => {
-      onEvent({ type: 'custom', name: 'skills_loaded', data: { count: 3 }, timestamp: 1000 })
+      onEvent({
+        type: 'card',
+        id: 'card-skills-1',
+        timestamp: 1000,
+        card: { kind: 'skills', count: 3 },
+      })
       onEvent({ type: 'done' })
     })
     const { container } = render(
@@ -508,7 +514,12 @@ describe('ChatPanel /skills default seed — hardened retry + "Loaded N skills" 
 
   it('clicking the "Loaded N skills" card (from a skills_loaded event) opens the /skills overlay', async () => {
     const provider = buildChatProvider((onEvent) => {
-      onEvent({ type: 'custom', name: 'skills_loaded', data: { count: 3 }, timestamp: 1000 })
+      onEvent({
+        type: 'card',
+        id: 'card-skills-1',
+        timestamp: 1000,
+        card: { kind: 'skills', count: 3 },
+      })
       onEvent({ type: 'done' })
     })
     const { container } = render(
