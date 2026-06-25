@@ -2738,15 +2738,19 @@ function ChatInner({
     endpoint,
     projectId,
     agentName,
-    // Skip the on-mount history load when this panel will auto-send a fresh
-    // message — either the `initialMessage` prop or a seeded `initialInputValue`
-    // (the prompt→chat morph). The server creates the conversation with the user
-    // message persisted up front and emits its id mid-stream; that id flips the
-    // endpoint, which would otherwise re-fire loadHistory and overwrite the
-    // still-streaming assistant placeholder with the (assistant-less) history.
-    // loadOnMount is captured once at mount, so a false here stays false even
-    // after the endpoint changes. Existing conversations still load normally.
-    loadOnMount: hasConversation || (!initialMessage && !initialInputValue),
+    // ALWAYS load history on mount. A persisted conversation MUST restore on refresh,
+    // even when an initialMessage / initialInputValue is also present. The old condition
+    // suppressed the load whenever a fresh message was about to be auto-sent — but on a
+    // refresh, a stale `mol_initial_prompt` resurrected from localStorage seeds
+    // initialInputValue, and with the conversation id absent from the endpoint that made
+    // this `false`, leaving the ENTIRE conversation unloaded ("everything gone but a card
+    // or two"). Suppressing the load was never necessary: useChat.loadHistory refuses to
+    // overwrite a non-empty message store (it returns early when the store already holds
+    // the in-flight streaming placeholder, and merely adopts the server-assigned id
+    // without clobbering it), so the endpoint-flip re-fire during a fresh-prompt stream is
+    // already safe. For a brand-new chat the load is a cheap no-op (empty history). So
+    // always load — the existing conversation can never be silently dropped again.
+    loadOnMount: true,
     onFileChange: onFileChangeWrapped,
     onConversationId,
     onStreamEvent: handleStreamEvent,
