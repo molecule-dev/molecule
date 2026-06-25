@@ -155,4 +155,28 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     postFromPreview({ type: 'molecule:ready' })
     await waitFor(() => expect(q(container, 'preview-blank-notice')).toBeNull(), { timeout: 4000 })
   }, 18000)
+
+  it('re-covers the preview when an edit reloads a previously-working app to blank', async () => {
+    const { container, iframe } = await mountWithIframe(false)
+    // The app loads and CONFIRMS it rendered → no blank accusation.
+    fireEvent.load(iframe)
+    postFromPreview({ type: 'molecule:ready' })
+    postFromPreview({ type: 'molecule:heartbeat' })
+    // Wait past READY_FRESH_MS so the NEXT load is evaluated as a fresh document, not a
+    // continuation of the just-confirmed one.
+    await new Promise((r) => setTimeout(r, 2500))
+    expect(q(container, 'preview-blank-notice')).toBeNull()
+
+    // An edit triggers a Vite full-reload, but the app now renders nothing: a fresh onLoad
+    // with NO molecule:ready (the reloaded document is white), bridge still alive.
+    fireEvent.load(iframe)
+    postFromPreview({ type: 'molecule:heartbeat' })
+
+    // confirmedContent must DROP — the stale "it rendered" state can't keep masking a now-blank
+    // reload — so the actionable notice appears instead of a bare white screen. (Without the
+    // onLoad reconfirm, confirmedContent stayed true and the user was left staring at white.)
+    await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
+      timeout: 12000,
+    })
+  }, 18000)
 })

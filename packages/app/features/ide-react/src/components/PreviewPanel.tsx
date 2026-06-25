@@ -93,6 +93,15 @@ const MAX_RECOVERY_CYCLES = 3
  */
 const ONLOAD_GRACE_MS = 2_500
 
+/**
+ * When a new document fires `onLoad`, how recently a `molecule:ready` must have arrived for the
+ * load to count as already-confirmed-rendered (ms). A working full-reload mounts React (→ ready)
+ * just before the load event, so its ready lands inside this window and confirmedContent is kept
+ * (no overlay flash). A reload that produced a blank app sends no ready, so the last ready is
+ * older than this → confirmedContent drops and the overlay re-covers the white iframe.
+ */
+const READY_FRESH_MS = 1_500
+
 // --- Last-good-frame snapshot (molecule:snapshot trust boundary) ---
 
 /**
@@ -305,6 +314,12 @@ export function PreviewPanel({
   const [confirmedContent, setConfirmedContent] = useState(false)
   const confirmedContentRef = useRef(false)
   confirmedContentRef.current = confirmedContent
+  // Timestamp of the last molecule:ready. When a NEW document loads (initial load, or a Vite
+  // full-reload that an edit triggers), we keep confirmedContent only if a ready landed in the
+  // moment before — otherwise the (re)loaded document has NOT shown content for THIS load and
+  // confirmedContent is dropped so the overlay re-covers a blank reload. This is what catches
+  // "the app rendered, then a reload left it blank."
+  const lastReadyAtRef = useRef(0)
   // The preview's bridge is alive (a heartbeat arrived recently). Used to gate the
   // post-build "blank" notice: only claim "the app rendered nothing" when its bridge is
   // demonstrably running (so an app whose bridge is missing entirely is never wrongly
@@ -623,6 +638,7 @@ export function PreviewPanel({
         // status overlay (vs. the onLoad grace which only reveals the iframe). Also tears down
         // any post-build "blank" notice: a real render means it isn't blank anymore.
         setConfirmedContent(true)
+        lastReadyAtRef.current = now
         setBlankPostBuild(false)
         // Handshake arrived (the fast path) — cancel any pending onLoad grace
         // fallback and clear the crash marker so a future onLoad isn't suppressed.
@@ -765,6 +781,21 @@ export function PreviewPanel({
   const handleIframeLoad = useCallback(() => {
     if (!urlRef.current) return
     iframeLoadedRef.current = true
+    // A NEW document is now displayed — the initial load OR a Vite full-reload that an edit
+    // (Synthase's or the user's) triggered, which reloads the SAME iframe src without remounting
+    // it or changing state.url, so no other reset path runs. If this load did NOT just confirm a
+    // render (no molecule:ready landed in the moment before — i.e. the reloaded app rendered
+    // nothing), drop confirmedContent so the overlay re-covers the now-blank iframe instead of
+    // leaving the stale "it rendered" state masking a white screen. A working full-reload mounts
+    // React (→ molecule:ready) just before the load event, so its ready is fresh and
+    // confirmedContent is KEPT (no flash); a slow/async render re-confirms via the ready that
+    // follows (the bridge re-sends ready ~every 4s while content is visible).
+    if (Date.now() - lastReadyAtRef.current > READY_FRESH_MS) {
+      setConfirmedContent(false)
+      // Bring the overlay back SOLID over the blank reload — not mid-fade from the previous
+      // app's confirmation (whose fade-out may still be in flight).
+      setFadingOut(false)
+    }
     if (onLoadGraceRef.current) clearTimeout(onLoadGraceRef.current)
     onLoadGraceRef.current = setTimeout(() => {
       onLoadGraceRef.current = null
