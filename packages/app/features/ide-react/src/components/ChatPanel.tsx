@@ -5863,9 +5863,14 @@ function ChatInner({
                 // Tip-style toned card (info=blue / gold): the dismissable tip-box look
                 // with any actions rendered as inline underlined links (not buttons).
                 const gold = item.card.tone === 'gold'
-                const accent = gold ? '#d4a017' : 'var(--mol-color-primary, #6366f1)'
-                const border = gold ? 'rgba(234,179,8,0.30)' : 'rgba(99,102,241,0.25)'
-                const bg = gold ? 'rgba(234,179,8,0.08)' : 'rgba(99,102,241,0.08)'
+                // Eye-catching tip treatment. The old gold was a dull, easily-missed wash
+                // (8%/30% on tiny muted text); intensify it so the card actually draws the
+                // eye: a richer fill + bolder border, a solid 3px LEFT ACCENT BAR (the classic
+                // callout cue), a warm soft glow, a full-opacity glyph, and un-muted text.
+                const accent = gold ? '#e0a100' : 'var(--mol-color-primary, #6366f1)'
+                const border = gold ? 'rgba(234,179,8,0.55)' : 'rgba(99,102,241,0.50)'
+                const bg = gold ? 'rgba(234,179,8,0.16)' : 'rgba(99,102,241,0.14)'
+                const glow = gold ? 'rgba(202,138,4,0.22)' : 'rgba(99,102,241,0.20)'
                 const toneActions = item.card.action
                   ? Array.isArray(item.card.action)
                     ? item.card.action
@@ -5875,17 +5880,20 @@ function ChatInner({
                   <div
                     key={item.card.id}
                     data-mol-id="chat-tone-card"
-                    className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+                    className={cm.textSize('xs')}
                     style={{
                       display: 'flex',
                       alignItems: 'flex-start',
-                      gap: 8,
+                      gap: 10,
                       // One timeline rhythm: bottom margin only (see TIMELINE_ITEM_GAP).
                       marginBottom: TIMELINE_ITEM_GAP,
-                      padding: '8px 10px',
+                      padding: '10px 12px',
                       borderRadius: 8,
                       border: `1px solid ${border}`,
+                      // Solid left accent bar — the cue that pulls the eye to the callout.
+                      borderLeft: `3px solid ${accent}`,
                       background: bg,
+                      boxShadow: `0 1px 4px ${glow}`,
                       lineHeight: 1.5,
                     }}
                   >
@@ -5893,7 +5901,7 @@ function ChatInner({
                       name="lightbulb"
                       size={18}
                       aria-hidden="true"
-                      style={{ flexShrink: 0, marginTop: 1, opacity: 0.85, color: accent }}
+                      style={{ flexShrink: 0, marginTop: 1, opacity: 1, color: accent }}
                     />
                     <span style={{ flex: 1 }}>
                       {item.card.content ? (
