@@ -4,10 +4,14 @@
  * Markdown links in chat messages — the agent's "your app is ready" handoff lists the app's
  * pages as `[Label](/route)` links, and clicking one navigates the LIVE PREVIEW to that page.
  *
- * - A route link (`/path`) with an `onNavigatePreview` handler renders as a button that calls
- *   the handler (the host navigates the preview); it must NOT navigate the IDE itself.
- * - An external `http(s)` link opens in a new tab.
- * - A route link with no handler (e.g. a help card) renders as plain text, never an IDE nav.
+ * - A concrete route link with an `onNavigatePreview` handler renders as a button that calls the
+ *   handler (the host navigates the preview); it must NOT navigate the IDE itself. This holds
+ *   whether the route is slash-prefixed (`/path`) or BARE (`path`, `instructor/courses`) — the
+ *   agent emits both, and a bare route must never open a new tab. The path is normalized to `/`.
+ * - Only a genuinely external link — a URL scheme (`http(s):`, `mailto:`) or protocol-relative
+ *   (`//host`) — opens in a new tab.
+ * - A route link with no handler (e.g. a help card), or a PARAMETERIZED route (`/courses/:id`)
+ *   that addresses no concrete page, renders as plain text — never a broken/IDE-navigating link.
  *
  * @module
  */
@@ -63,6 +67,67 @@ describe('MarkdownContent links', () => {
     expect(links).toHaveLength(2)
     fireEvent.click(links[1] as HTMLElement)
     expect(onNavigatePreview).toHaveBeenCalledWith('/settings')
+  })
+
+  it('navigates the preview for a BARE route (no leading slash) instead of opening a new tab', () => {
+    // The agent often emits routes without a leading slash (e.g. `[Courses](courses)`). These
+    // used to fall through to a `target="_blank"` anchor — the "opens a new tab" bug. They must
+    // navigate the preview, with the path normalized to a leading `/`.
+    const onNavigatePreview = vi.fn()
+    const { container } = render(
+      <MarkdownContent
+        text="Open [Courses](courses) to begin."
+        onNavigatePreview={onNavigatePreview}
+      />,
+    )
+    const link = container.querySelector('[data-mol-id="chat-preview-link"]') as HTMLElement | null
+    expect(link).not.toBeNull()
+    expect(link!.textContent).toBe('Courses')
+    expect(container.querySelector('a[target="_blank"]')).toBeNull()
+    fireEvent.click(link!)
+    expect(onNavigatePreview).toHaveBeenCalledWith('/courses')
+  })
+
+  it('navigates the preview for a bare nested (non-param) route', () => {
+    const onNavigatePreview = vi.fn()
+    const { container } = render(
+      <MarkdownContent
+        text="See [instructor courses](instructor/courses)."
+        onNavigatePreview={onNavigatePreview}
+      />,
+    )
+    const link = container.querySelector('[data-mol-id="chat-preview-link"]') as HTMLElement | null
+    expect(link).not.toBeNull()
+    fireEvent.click(link!)
+    expect(onNavigatePreview).toHaveBeenCalledWith('/instructor/courses')
+  })
+
+  it('renders a PARAMETERIZED route (/courses/:id) as plain text, never a clickable link', () => {
+    // A `:id`/`*` route points at no concrete page — navigating the preview to a literal `:id`
+    // just 404s, so it does not help the user get started. It must NOT be a clickable link.
+    const onNavigatePreview = vi.fn()
+    const { container } = render(
+      <MarkdownContent
+        text="See [a lesson](courses/:id/lessons/:lessonId)."
+        onNavigatePreview={onNavigatePreview}
+      />,
+    )
+    expect(container.querySelector('[data-mol-id="chat-preview-link"]')).toBeNull()
+    expect(container.querySelector('a')).toBeNull()
+    expect(container.textContent).toContain('a lesson')
+    expect(onNavigatePreview).not.toHaveBeenCalled()
+  })
+
+  it('treats a protocol-relative URL (//host) as external, not a preview route', () => {
+    const onNavigatePreview = vi.fn()
+    const { container } = render(
+      <MarkdownContent text="See [site](//example.com/x)." onNavigatePreview={onNavigatePreview} />,
+    )
+    expect(container.querySelector('[data-mol-id="chat-preview-link"]')).toBeNull()
+    const anchor = container.querySelector('a[target="_blank"]') as HTMLAnchorElement | null
+    expect(anchor).not.toBeNull()
+    expect(anchor!.getAttribute('href')).toBe('//example.com/x')
+    expect(onNavigatePreview).not.toHaveBeenCalled()
   })
 
   it('renders an external link as a new-tab anchor (not a preview nav)', () => {

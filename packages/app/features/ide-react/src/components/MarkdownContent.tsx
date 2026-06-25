@@ -17,16 +17,20 @@ import { getClassMap } from '@molecule/app-ui'
 import { StreamingIndicator } from './StreamingIndicator.js'
 
 /**
- * Renders a single markdown link `[label](href)`. A ROUTE link (href starting with `/`) is a
- * page in the live preview: when an `onNavigatePreview` handler is wired (the chat context),
- * it renders as a button that navigates the PREVIEW to that route on click — so the agent's
- * "your app is ready" handoff can list clickable pages the user jumps straight to. An external
- * `http(s)` link opens in a new tab. A route link with no handler (e.g. a help card) renders as
- * plain text rather than navigating the IDE itself.
+ * Renders a single markdown link `[label](href)`. A ROUTE link — any app-internal path, whether
+ * written with a leading slash (`/transactions`) or without (`transactions`, `courses/:id`) — is a
+ * page in the live preview: when an `onNavigatePreview` handler is wired (the chat context), it
+ * renders as a button that navigates the PREVIEW to that route on click (the path is normalized to
+ * a leading `/`), so the agent's "your app is ready" handoff can list clickable pages the user
+ * jumps straight to. Only a genuinely EXTERNAL link — one with a URL scheme (`http(s):`, `mailto:`)
+ * or protocol-relative (`//host`) — opens in a new tab; a bare route must never open a new tab. A
+ * route link with no handler (e.g. a help card), or a parameterized route (`/courses/:id`) that has
+ * no concrete destination, renders as plain text rather than a broken/IDE-navigating link. A
+ * `#anchor` can't address a preview page, so it stays an inert anchor.
  *
  * @param root0 - Component props.
  * @param root0.label - The link's visible text.
- * @param root0.href - The link target (`/route` for a preview page, or an absolute URL).
+ * @param root0.href - The link target (an app route — slash-prefixed or bare — or an absolute URL).
  * @param root0.onNavigatePreview - Navigates the preview to a route path; enables route links.
  * @returns The rendered link node.
  */
@@ -45,16 +49,30 @@ function LinkToken({
     textUnderlineOffset: '2px',
   } as const
 
-  if (href.startsWith('/')) {
-    if (!onNavigatePreview) return <>{label}</>
+  // External = a URL scheme (http:, https:, mailto:, tel:, …) or protocol-relative (//host).
+  // Everything else is an app route for the preview — INCLUDING bare paths the agent emits
+  // WITHOUT a leading slash (`courses/:id`), which used to fall through to a new-tab anchor (the
+  // "opens a new tab instead of the preview" bug). A `#anchor` can't address a preview page.
+  const isExternal = /^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith('//')
+  const isAnchor = href.startsWith('#')
+
+  if (!isExternal && !isAnchor) {
+    // Normalize to a root-relative path so the handler always receives a clean `/route`.
+    const path = href.startsWith('/') ? href : `/${href}`
+    // A parameterized route (`/courses/:id`, a `*` splat) has no concrete destination — navigating
+    // the preview to a literal `:id` just 404s, so it's a useless "get started" link. Render the
+    // label as plain text instead. (The handoff prompt also tells the agent to list concrete,
+    // parameter-free landing pages — this is the renderer-side safety net.)
+    const isParameterized = path.split('/').some((seg) => seg.startsWith(':') || seg === '*')
+    if (isParameterized || !onNavigatePreview) return <>{label}</>
     return (
       <button
         type="button"
         data-mol-id="chat-preview-link"
-        onClick={() => onNavigatePreview(href)}
+        onClick={() => onNavigatePreview(path)}
         title={t(
           'ide.chat.previewLinkTitle',
-          { path: href },
+          { path },
           { defaultValue: 'Open {{path}} in the preview' },
         )}
         style={{
