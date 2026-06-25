@@ -130,6 +130,23 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     expect(q(container, 'preview-blank-open')).not.toBeNull()
   }, 15000)
 
+  it('covers a broken page that never ran its bridge (no heartbeat at all) — the worst case', async () => {
+    const { container, iframe } = await mountWithIframe(false)
+    // The document loads but the page is broken/blank and its bridge NEVER runs, so there is NO
+    // molecule:ready AND NO molecule:heartbeat — the iframe just sits there (e.g. a broken-image
+    // / error response). The overlay must STILL cover it and the blank notice must STILL appear.
+    // (The earlier bridgeAlive gate required a heartbeat, which left exactly this case a bare,
+    // feedback-less broken preview.)
+    fireEvent.load(iframe)
+    // Deliberately post NOTHING — no ready, no heartbeat.
+
+    await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
+      timeout: 10000,
+    })
+    // …and the overlay covered the iframe the whole time (never a bare broken page).
+    expect(q(container, 'preview-overlay')).not.toBeNull()
+  }, 14000)
+
   it('never accuses the app of being blank while a build is still in progress', async () => {
     const { container, iframe } = await mountWithIframe(true)
     fireEvent.load(iframe)

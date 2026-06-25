@@ -125,13 +125,14 @@ const FREEZE_THRESHOLD_MS = 8_000
 const FREEZE_CHECK_INTERVAL_MS = 2_000
 
 /**
- * How long the preview must stay revealed-but-unconfirmed (document loaded, bridge alive,
- * but no `molecule:ready`) AFTER a build finishes before it is declared blank and an
- * actionable "preview is blank — reload" notice is shown (ms). Longer than the healthy app's
- * ~4s `molecule:ready` re-send interval, so an app whose first ready was merely delayed
- * re-confirms in time and never trips the notice — only a genuinely empty app does.
+ * How long the preview must stay loaded-but-unconfirmed (document loaded, no `molecule:ready`)
+ * while NOT building before the overlay's copy switches from the generic spinner to the
+ * actionable "preview is blank — reload" notice (ms). The overlay itself already covers the
+ * preview the whole time (it never shows a bare blank/broken iframe) — this is only how long to
+ * wait before ACCUSING it of being blank, so a working app that renders a beat after the build
+ * ends re-confirms first and the user briefly sees a spinner instead of a false "blank".
  */
-const BLANK_CONFIRM_MS = 6_000
+const BLANK_CONFIRM_MS = 2_500
 
 // --- Rate-limiting constants ---
 
@@ -300,9 +301,6 @@ export function PreviewPanel({
   // fine. Shown BLURRED behind the overlay while the app is rebuilding or blank,
   // so the user sees the last working UI instead of a white iframe.
   const [lastGoodFrame, setLastGoodFrame] = useState<string | null>(null)
-  // Forces the overlay (+ blurred last-good frame) when the app reports it rendered
-  // but is blank — molecule:blank does not otherwise toggle the overlay.
-  const [showBlankFallback, setShowBlankFallback] = useState(false)
 
   // --- Content confirmation ---
   // `iframeReady` only means the iframe was REVEALED (handshake OR the onLoad grace
@@ -320,14 +318,9 @@ export function PreviewPanel({
   // confirmedContent is dropped so the overlay re-covers a blank reload. This is what catches
   // "the app rendered, then a reload left it blank."
   const lastReadyAtRef = useRef(0)
-  // The preview's bridge is alive (a heartbeat arrived recently). Used to gate the
-  // post-build "blank" notice: only claim "the app rendered nothing" when its bridge is
-  // demonstrably running (so an app whose bridge is missing entirely is never wrongly
-  // accused — there we fall back to the optimistic onLoad-grace reveal).
-  const [bridgeAlive, setBridgeAlive] = useState(false)
-  // Settle-gated post-build blank: the build finished, the document loaded, the bridge is
-  // alive, yet no content was ever confirmed — the app rendered nothing. Shown as an
-  // ACTIONABLE notice (reload / open in tab), not the reassuring building spinner.
+  // Settle-gated post-build blank: the build is not running, the document loaded, yet no content
+  // was ever confirmed — the app rendered nothing. Switches the overlay's copy to an ACTIONABLE
+  // notice (reload / open in tab) instead of the generic spinner.
   const [blankPostBuild, setBlankPostBuild] = useState(false)
   // Mirror isBuilding into a ref so timers/handlers read the current value.
   const isBuildingRef = useRef(isBuilding)
@@ -427,10 +420,8 @@ export function PreviewPanel({
       setIframeSrc('')
       setStuckRetryCount(0)
       setPreviewGaveUp(false)
-      setShowBlankFallback(false)
       setLastGoodFrame(null)
       setConfirmedContent(false)
-      setBridgeAlive(false)
       setBlankPostBuild(false)
       return
     }
@@ -439,10 +430,8 @@ export function PreviewPanel({
     setIframeSrc('')
     setStuckRetryCount(0)
     setPreviewGaveUp(false)
-    setShowBlankFallback(false)
-    // A new load target hasn't confirmed content yet, and its bridge hasn't checked in.
+    // A new load target hasn't confirmed content yet.
     setConfirmedContent(false)
-    setBridgeAlive(false)
     setBlankPostBuild(false)
     // A brand-new load target is a different app — drop the previous app's frame
     // so a blank in the NEW app never flashes the OLD app's last-good frame.
@@ -485,10 +474,9 @@ export function PreviewPanel({
   useEffect(() => {
     if (iframeReady && confirmedContent) {
       setFadingOut(true)
-      // Content is showing again — tear down the loop-breaker panel and the
-      // blank fallback so a later good render always clears them.
+      // Content is showing again — tear down the loop-breaker panel so a later good render
+      // always clears it.
       setPreviewGaveUp(false)
-      setShowBlankFallback(false)
     }
   }, [iframeReady, confirmedContent])
 
@@ -705,10 +693,6 @@ export function PreviewPanel({
         })
       } else if (event.data?.type === 'molecule:heartbeat') {
         lastHeartbeatRef.current = Date.now()
-        // The bridge is alive — gates the post-build "blank" notice (we only claim the app
-        // rendered nothing when its bridge is demonstrably running). React bails on an
-        // identical value, so re-setting true every beat is free.
-        setBridgeAlive(true)
       } else if (event.data?.type === 'molecule:navigate') {
         // The preview reported a client-side navigation (see the scaffold-injected
         // sender). recordNavigation validates the URL and updates the URL bar
@@ -731,11 +715,9 @@ export function PreviewPanel({
             },
           ])
         }
-        // ...and surface the blurred last-good frame so a blanked app shows the
-        // last working UI instead of an empty white iframe. Gated on everLoaded
-        // (via the ref) so the very first cold load — no frame captured yet — is
-        // unaffected.
-        if (everLoadedRef.current) setShowBlankFallback(true)
+        // Marking content unconfirmed (above) already raises the overlay, and the blurred
+        // last-good frame stands in behind it (it renders whenever a frame was captured) — so
+        // a blanked app shows the last working UI instead of an empty white iframe.
       } else if (event.data?.type === 'molecule:snapshot') {
         // The sandbox app self-rasterized a stable render and posted it. Validate
         // defensively (postMessage trust boundary): a data:image/ URL within a sane
@@ -748,10 +730,6 @@ export function PreviewPanel({
           dataUrl.length <= MAX_SNAPSHOT_DATA_URL_LENGTH
         ) {
           setLastGoodFrame(dataUrl)
-          // The sandbox only self-captures a stable render with visible content, so
-          // a fresh snapshot means the app is no longer blank — clear the fallback
-          // (a blank has no "un-blank" message of its own to flip it back).
-          setShowBlankFallback(false)
         }
       }
     }
@@ -866,38 +844,29 @@ export function PreviewPanel({
     // Baseline so a stale value from a prior load can't trip us immediately.
     lastHeartbeatRef.current = Date.now()
     const timer = setInterval(() => {
-      const stale = Date.now() - lastHeartbeatRef.current > FREEZE_THRESHOLD_MS
-      setPreviewFrozen(stale)
-      // Decay bridgeAlive when beats stop. DECAY-ONLY (never promote here): promotion happens
-      // strictly on a real `molecule:heartbeat` message, so an app whose bridge never checks in
-      // is never wrongly marked alive by this baseline (which would mis-fire the blank notice).
-      setBridgeAlive((alive) => alive && !stale)
+      setPreviewFrozen(Date.now() - lastHeartbeatRef.current > FREEZE_THRESHOLD_MS)
     }, FREEZE_CHECK_INTERVAL_MS)
     return () => clearInterval(timer)
   }, [iframeReady, fadingOut, state.url])
 
   // --- Post-build blank detection (settle-gated) ---
-  // The build finished (isBuilding false), the document loaded, and the bridge is alive — yet
-  // the app NEVER confirmed it rendered content (no molecule:ready). That's a genuinely blank
-  // app: surface an actionable notice instead of a bare white iframe. Settle-gated by
-  // BLANK_CONFIRM_MS (> the healthy ~4s ready re-send) so a working app whose first ready was
-  // merely delayed re-confirms in time and never trips this. Any change to the inputs (content
-  // confirmed, a build starts, a new load) cancels + clears it.
+  // The build is NOT running (isBuilding false), the document loaded, yet the app has NEVER
+  // confirmed it rendered content (no molecule:ready). That's a genuinely blank/broken app:
+  // switch the overlay's copy from the generic spinner to an ACTIONABLE notice (reload / open in
+  // tab). NO heartbeat/bridge gate — a broken page that never ran its bridge (so it sends no
+  // heartbeat) is exactly when the user most needs this. Settle-gated by BLANK_CONFIRM_MS so a
+  // working app that renders a beat after the build ends re-confirms first and never trips it
+  // (the overlay still covers it meanwhile, just as a spinner). Any input change cancels + clears.
   useEffect(() => {
     const candidate =
-      Boolean(state.url) &&
-      iframeReady &&
-      !confirmedContent &&
-      !isBuilding &&
-      bridgeAlive &&
-      !fadingOut
+      Boolean(state.url) && iframeReady && !confirmedContent && !isBuilding && !fadingOut
     if (!candidate) {
       setBlankPostBuild(false)
       return
     }
     const timer = setTimeout(() => setBlankPostBuild(true), BLANK_CONFIRM_MS)
     return () => clearTimeout(timer)
-  }, [state.url, iframeReady, confirmedContent, isBuilding, bridgeAlive, fadingOut])
+  }, [state.url, iframeReady, confirmedContent, isBuilding, fadingOut])
 
   // --- Auto-reload when AI edits files — ONLY while the preview is broken ---
   // A healthy preview needs nothing from us: Vite HMR applies every edit live,
@@ -922,9 +891,8 @@ export function PreviewPanel({
 
   // --- Manual retry handler ---
   const handleManualRetry = useCallback(() => {
-    // Clear the loop-breaker / blank fallback so a fresh attempt starts clean.
+    // Clear the loop-breaker so a fresh attempt starts clean.
     setPreviewGaveUp(false)
-    setShowBlankFallback(false)
     setIframeMountKey((k) => k + 1)
     setStuckRetryCount(0)
     if (state.url) {
@@ -981,23 +949,23 @@ export function PreviewPanel({
   // molecule:ready). The iframe may have "loaded" into a half-built/blank/white state — keep
   // the reassuring "Building your app…" overlay up over it instead of a bare white screen.
   // A confirmed render clears it, so a working preview stays visible (HMR updates uncovered).
-  const buildingUnconfirmed = Boolean(isBuilding) && !confirmedContent
-  // The overlay shows while loading/fading, when the app reported it went blank (so the
-  // blurred last-good frame stands in for the empty iframe), while the agent is building an
-  // unconfirmed app, or when a finished build left the app blank — but never once we've
-  // hard-stopped (the loop-breaker panel replaces it).
-  const showOverlay =
-    Boolean(state.url) &&
-    (!iframeReady || fadingOut || showBlankFallback || buildingUnconfirmed || blankPostBuild) &&
-    !previewGaveUp
-  // Force the overlay fully opaque + interactive whenever it's standing in for missing content
-  // (a fade-out from a prior ready state must not bleed a white iframe through).
-  const overlaySolid = building || showBlankFallback || buildingUnconfirmed || blankPostBuild
+  // THE invariant: the overlay shows WHENEVER the preview has not CONFIRMED it is showing real
+  // content (no molecule:ready) — loading, building, a half-built/blank/white app, a reload that
+  // rendered nothing, OR a totally broken page (a broken-image / error response with no bridge at
+  // all). A confirmed render is the ONLY thing that uncovers it, so a working preview stays
+  // visible (HMR updates uncovered) and the user is NEVER left staring at a bare blank/broken
+  // iframe with no status. No `bridgeAlive`/heartbeat gate — that left the worst case (a broken
+  // page whose bridge never ran, so it sends no heartbeat) completely uncovered. `fadingOut`
+  // keeps the overlay through its fade-out after a render finally confirms.
+  const showOverlay = Boolean(state.url) && !previewGaveUp && (!confirmedContent || fadingOut)
+  // Fully opaque + interactive whenever it is standing in for missing content (only a genuine
+  // confirmed-then-fading-out state animates).
+  const overlaySolid = !confirmedContent
 
   const overlayContent = blankPostBuild ? (
     // Build finished but the app rendered nothing — actionable, not a spinner.
     <PreviewBlankNotice onReload={handleManualRetry} onOpenExternal={openExternal} />
-  ) : building || buildingUnconfirmed ? (
+  ) : isBuilding || building ? (
     <DefaultLoadingIndicator
       hint={buildingHint}
       retryCount={stuckRetryCount}
