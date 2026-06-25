@@ -22,6 +22,21 @@ export type MessageBlock =
   | { type: 'resource_limit'; resource: string; message: string }
 
 /**
+ * The RAW payload of an inline transcript card (model-switch notice, "Building your
+ * app" phase marker, "Loaded N skills", and app-specific custom cards). A card is
+ * persisted as a `role: 'system'` {@link ChatMessage} carrying this in `cardEvent`,
+ * so it lives in the ONE message transcript (live === stored) instead of a separate
+ * store. The card's user-facing copy/actions/tone are built from this payload at
+ * RENDER time — identically live and on reload — keeping app-specific text out of the
+ * shared packages (the server records the data; the app renders it).
+ */
+export type CardEvent =
+  | { kind: 'model'; model: string; label?: string; mode?: 'plan' | 'execute' }
+  | { kind: 'mode'; mode: 'plan' | 'execute' }
+  | { kind: 'skills'; count: number }
+  | { kind: 'custom'; name: string; data?: Record<string, unknown> }
+
+/**
  * A file attachment sent with a chat message.
  */
 export interface ChatAttachment {
@@ -58,6 +73,14 @@ export interface ChatMessage {
   timestamp: number
   /** Ordered sequence of text and tool-call blocks, preserving interleaved order. */
   blocks?: MessageBlock[]
+  /**
+   * Present when this message IS an inline transcript card (not a dialogue turn) —
+   * a model-switch / phase / skills / custom notice. Carries the raw {@link CardEvent}
+   * the UI renders the card from. Such a message has `role: 'system'`, is shown +
+   * persisted in the same transcript as every other message (so live === stored), and
+   * is excluded from the model request server-side. Render by `cardEvent`, not `content`.
+   */
+  cardEvent?: CardEvent
   toolCalls?: ToolCall[]
   isStreaming?: boolean
   /** Set when the user aborted the response mid-stream. */
@@ -223,6 +246,12 @@ export type ChatStreamEvent =
   // `done`/`error` (finalize the last). `timestamp` is ms and equals
   // `new Date(persistedISO).getTime()` so the live message is byte-identical to history.
   | { type: 'message_start'; id: string; timestamp: number }
+  // An inline transcript CARD (model-switch / phase / skills / custom notice), recorded
+  // by the server as a `role:'system'` message in the ONE transcript and emitted live with
+  // the SAME `id` + `timestamp` it is persisted with — so the card the client renders live
+  // is byte-identical to the one it loads on refresh (no separate card store, no client
+  // decision). The app builds the card's copy/actions from `card` at render time.
+  | { type: 'card'; id: string; timestamp: number; card: CardEvent }
   // `timestamp` (ms, server clock) is when the transition occurred — set so any card
   // the app derives from this event sorts on the SAME clock as the messages (which are
   // server-stamped via `message_start`), instead of a client-receipt time that can skew
