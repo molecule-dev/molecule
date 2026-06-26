@@ -13,11 +13,16 @@ interface ApiUserResponse {
 }
 
 /**
- * Email-editing section. Fetches `/users/me` on mount to refresh the
- * current user record (and write it back to the auth cache so
- * subsequent reloads see the latest data). On blur of the email
- * field, PATCHes `/api/users/:id` with the new email; reverts + shows
- * an inline error if the request fails.
+ * Account section — edits the user's display name + email. Fetches
+ * `/users/me` on mount to refresh the current user record (and write it
+ * back to the auth cache so subsequent reloads see the latest data). On
+ * blur of either field, PATCHes `/api/users/:id` with the changed field;
+ * reverts + shows an inline error if the request fails.
+ *
+ * The user resource's update handler accepts `name`, `username`, and
+ * `email`; this surfaces `name` + `email` (the universally-present
+ * profile fields). Apps that use a public `username` handle can extend
+ * this with a username field the same way.
  */
 export function AccountSection(): JSX.Element {
   const cm = getClassMap()
@@ -27,13 +32,13 @@ export function AccountSection(): JSX.Element {
 
   const cachedUser = authClient.getState().user
   const [email, setEmail] = useState(cachedUser?.email || '')
+  const [name, setName] = useState(cachedUser?.name || '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  // Refresh the current user via the canonical `/users/me` endpoint
-  // on mount and push the result into the auth cache so reloads pick
-  // up fresh data. Failures are silent — cached profile is the
-  // fallback.
+  // Refresh the current user via the canonical `/users/me` endpoint on
+  // mount and push the result into the auth cache so reloads pick up
+  // fresh data. Failures are silent — the cached profile is the fallback.
   useEffect(() => {
     let cancelled = false
     http
@@ -47,6 +52,9 @@ export function AccountSection(): JSX.Element {
           setEmail((curr) =>
             curr === (cachedUser?.email || '') ? (next.email as string | undefined) || curr : curr,
           )
+          setName((curr) =>
+            curr === (cachedUser?.name || '') ? (next.name as string | undefined) || curr : curr,
+          )
         }
       })
       .catch(() => {
@@ -55,20 +63,28 @@ export function AccountSection(): JSX.Element {
     return () => {
       cancelled = true
     }
-  }, [http, authClient, cachedUser?.email])
+  }, [http, authClient, cachedUser?.email, cachedUser?.name])
 
-  const handleBlur = async (): Promise<void> => {
+  const saveField = async (field: 'email' | 'name', value: string): Promise<void> => {
     const currentUser = authClient.getState().user
-    if (email === currentUser?.email || !email) return
+    if (value === (currentUser?.[field] || '')) return
+    if (field === 'email' && !value) return
     setSaving(true)
     setError('')
     try {
-      await http.patch(`/api/users/${currentUser?.id}`, { email })
-      // Update the auth cache so a reload reflects the new email.
-      if (currentUser) authClient.setUser({ ...currentUser, email })
+      await http.patch(`/api/users/${currentUser?.id}`, { [field]: value })
+      // Update the auth cache so a reload reflects the new value.
+      if (currentUser) authClient.setUser({ ...currentUser, [field]: value })
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('settings.failedToUpdateEmail'))
-      setEmail(currentUser?.email || '')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('settings.failedToUpdateProfile', undefined, {
+              defaultValue: 'Failed to update profile',
+            }),
+      )
+      if (field === 'email') setEmail(currentUser?.email || '')
+      else setName(currentUser?.name || '')
     } finally {
       setSaving(false)
     }
@@ -80,19 +96,38 @@ export function AccountSection(): JSX.Element {
         <h3 className={cm.sectionHeading}>{t('settings.account')}</h3>
         {saving && <Spinner size="xs" />}
       </Flex>
-      <div>
-        <label htmlFor="settings-email" className={cm.formLabelSmall}>
-          {t('settings.email')}
-        </label>
-        <Input
-          id="settings-email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
-          onBlur={handleBlur}
-          size="sm"
-        />
-        {error && <p className={cm.cn(cm.textSize('xs'), cm.textError, cm.sp('mt', 1))}>{error}</p>}
+      <div className={cm.stack(3)}>
+        <div>
+          <label htmlFor="settings-name" className={cm.formLabelSmall}>
+            {t('settings.name', undefined, { defaultValue: 'Name' })}
+          </label>
+          <Input
+            id="settings-name"
+            type="text"
+            value={name}
+            onChange={(e) => setName((e.target as HTMLInputElement).value)}
+            onBlur={() => saveField('name', name)}
+            autoComplete="name"
+            size="sm"
+          />
+        </div>
+        <div>
+          <label htmlFor="settings-email" className={cm.formLabelSmall}>
+            {t('settings.email')}
+          </label>
+          <Input
+            id="settings-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
+            onBlur={() => saveField('email', email)}
+            autoComplete="email"
+            size="sm"
+          />
+          {error && (
+            <p className={cm.cn(cm.textSize('xs'), cm.textError, cm.sp('mt', 1))}>{error}</p>
+          )}
+        </div>
       </div>
     </section>
   )
