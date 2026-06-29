@@ -122,3 +122,28 @@ describe('PreviewPanel — absolute readiness ceiling', () => {
     expect(q(container, 'preview-load-failed')).toBeNull()
   })
 })
+
+describe('PreviewPanel — stale-document auto-recovery', () => {
+  it('auto-reloads a loaded-but-never-rendered document once the server is up', async () => {
+    const { container, iframe } = await mount(false)
+    // The document loads but the app NEVER confirms a render — e.g. a Vite server restart
+    // dropped the HMR connection mid-load, leaving a stale, disconnected iframe.
+    fireEvent.load(iframe)
+    const srcBefore = iframe.src
+    // Past LOAD_RECOVER_AFTER_MS the single server-up check passes → the iframe reloads
+    // (cache-busted) to reconnect, instead of needing a manual reload.
+    await vi.advanceTimersByTimeAsync(13_000)
+    const after = container.querySelector('iframe') as HTMLIFrameElement
+    expect(after.src).not.toBe(srcBefore)
+  })
+
+  it('does NOT reload once the app has confirmed a render', async () => {
+    const { container, iframe } = await mount(false)
+    fireEvent.load(iframe)
+    postFromPreview({ type: 'molecule:ready' })
+    const srcBefore = (container.querySelector('iframe') as HTMLIFrameElement).src
+    await vi.advanceTimersByTimeAsync(13_000)
+    const after = container.querySelector('iframe') as HTMLIFrameElement
+    expect(after.src).toBe(srcBefore)
+  })
+})

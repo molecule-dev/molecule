@@ -98,6 +98,18 @@ const MAX_RECOVERY_CYCLES = 3
  */
 const ABSOLUTE_STUCK_MS = 30_000
 
+/**
+ * How long a document may stay LOADED (onLoad fired) without confirming a render before
+ * we attempt a single auto-reload (ms). Targets the stale-document case: a Vite "server
+ * restarted" (or any dev-server bounce) drops every client's HMR connection mid-load, so
+ * an iframe that loaded just before the restart is left disconnected and never renders —
+ * recovered today only by a MANUAL reload. The post-ready health check never runs here
+ * (it requires a render first), and stuck-detection stands down once onLoad fired.
+ */
+const LOAD_RECOVER_AFTER_MS = 12_000
+/** Max auto-reloads of a loaded-but-unrendered document per load (then defer to the ceiling). */
+const MAX_LOAD_RECOVERS = 2
+
 // --- onLoad grace fallback ---
 
 /**
@@ -294,6 +306,9 @@ export function PreviewPanel({
   const [stuckRetryCount, setStuckRetryCount] = useState(0)
   const stuckTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [iframeMountKey, setIframeMountKey] = useState(0)
+  // Auto-reloads attempted for a loaded-but-unrendered document THIS load (stale-document
+  // recovery, e.g. after a Vite server restart) — bounded by MAX_LOAD_RECOVERS, reset per load.
+  const loadRecoverCountRef = useRef(0)
   // True once the cap of recovery cycles is hit — stops the loop and shows the
   // themed "Preview can't load here" panel (loop breaker) instead of thrashing.
   const [previewGaveUp, setPreviewGaveUp] = useState(false)
@@ -449,6 +464,7 @@ export function PreviewPanel({
     setIframeSrc('')
     setStuckRetryCount(0)
     setPreviewGaveUp(false)
+    loadRecoverCountRef.current = 0 // fresh stale-document recovery budget for this load
     // A new load target hasn't confirmed content yet.
     setConfirmedContent(false)
     setBlankPostBuild(false)
@@ -572,6 +588,33 @@ export function PreviewPanel({
     // Re-armed per load (url change or refresh/back-forward via loadNonce); a successful
     // render before the ceiling is honored by the live-ref check in the callback.
   }, [state.url, state.loadNonce, onPreviewStuck])
+
+  // --- Stale-document auto-recovery (loaded but never rendered → reload once) ---
+  // The post-ready health check (below) only recovers a server drop AFTER a render; a Vite
+  // "server restarted" mid-load drops the HMR connection and leaves the just-loaded iframe
+  // disconnected, so it never renders and nothing reloads it (today only a MANUAL reload
+  // recovers — the "loads in a new tab, then works on reload" symptom). Here: once the
+  // document has fired onLoad (so it's a stale/blank LOADED doc, NOT a still-optimizing
+  // pre-onLoad load we'd interrupt) and still hasn't confirmed a render, do a SINGLE
+  // server-up check (not continuous polling — that competes for the load's connections) and,
+  // if the server is up, reload ONCE. Bounded by MAX_LOAD_RECOVERS; defers to the ceiling.
+  useEffect(() => {
+    if (!iframeSrc || iframeReady || confirmedContent || previewGaveUp) return
+    if (loadRecoverCountRef.current >= MAX_LOAD_RECOVERS) return
+    const timer = setTimeout(() => {
+      void (async () => {
+        // Re-check live state — a render/build/give-up since scheduling cancels recovery.
+        if (iframeReadyRef.current || confirmedContentRef.current || isBuildingRef.current) return
+        // Only act on a LOADED document; a still-loading one is progressing (slow optimize).
+        if (!iframeLoadedRef.current) return
+        const up = await isServerUp(urlRef.current)
+        if (!up || iframeReadyRef.current || confirmedContentRef.current) return
+        loadRecoverCountRef.current += 1
+        setIframeSrc(withCacheBuster(urlRef.current))
+      })()
+    }, LOAD_RECOVER_AFTER_MS)
+    return () => clearTimeout(timer)
+  }, [iframeSrc, iframeReady, confirmedContent, previewGaveUp, iframeMountKey])
 
   // --- Listen for postMessage from scaffold template ---
   // molecule:ready       = #root got children (app rendered)  → hide overlay
