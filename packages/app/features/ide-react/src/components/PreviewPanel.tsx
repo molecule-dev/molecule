@@ -84,6 +84,20 @@ const STUCK_BACKOFF_FACTOR = 1.6
  */
 const MAX_RECOVERY_CYCLES = 3
 
+/**
+ * Absolute upper bound (ms) on how long the preview may sit on the loading overlay
+ * without ever CONFIRMING a render (`molecule:ready`), while not mid-build. A pure
+ * BACKSTOP: the targeted paths (onLoad grace, stuck-detection, blank-post-build) each
+ * resolve a specific failure faster, but a *combination* can still leave the overlay up
+ * forever — e.g. the document fired `onLoad` (so stuck-detection stands down) yet a
+ * crash/HMR-error storm keeps suppressing the onLoad grace, so `iframeReady` never flips
+ * and blank-post-build (which requires it) never fires. Past this ceiling the panel gives
+ * up to the actionable loop-breaker (Reload / open in tab) so the preview can NEVER be
+ * stuck on a spinner indefinitely. Self-correcting: a real render that lands later clears
+ * the loop-breaker (see the confirm effect), so an over-eager trip is harmless.
+ */
+const ABSOLUTE_STUCK_MS = 30_000
+
 // --- onLoad grace fallback ---
 
 /**
@@ -322,6 +336,11 @@ export function PreviewPanel({
   // was ever confirmed — the app rendered nothing. Switches the overlay's copy to an ACTIONABLE
   // notice (reload / open in tab) instead of the generic spinner.
   const [blankPostBuild, setBlankPostBuild] = useState(false)
+  // Mirror blankPostBuild to a ref so the absolute-ceiling timer can tell "still on a
+  // bare spinner" (fire) from "already showing the actionable blank notice" (a way out
+  // exists — stand down).
+  const blankPostBuildRef = useRef(blankPostBuild)
+  blankPostBuildRef.current = blankPostBuild
   // Mirror isBuilding into a ref so timers/handlers read the current value.
   const isBuildingRef = useRef(isBuilding)
   isBuildingRef.current = isBuilding
@@ -532,6 +551,27 @@ export function PreviewPanel({
 
     return () => clearStuckTimer()
   }, [iframeSrc, iframeReady, previewGaveUp, onPreviewStuck, clearStuckTimer])
+
+  // --- Absolute readiness ceiling (backstop: never stuck on the overlay forever) ---
+  // Independent of every intermediate flag (onLoad / iframeReady / stuck cycles): anchored
+  // to the load, it fires ONCE after ABSOLUTE_STUCK_MS and — if the app still hasn't
+  // confirmed a render and a build isn't running — surfaces the actionable loop-breaker
+  // panel. This is the guarantee that no combination of failed sub-paths can leave the
+  // preview spinning forever. Read live refs (not stale closures); a `molecule:ready` that
+  // lands later clears `previewGaveUp` via the confirm effect, so an early trip is harmless.
+  useEffect(() => {
+    if (!state.url) return
+    const timer = setTimeout(() => {
+      // Fire ONLY when still on a bare spinner: a confirmed render, an active build, or
+      // the actionable blank notice already showing all mean the user is not stuck.
+      if (confirmedContentRef.current || isBuildingRef.current || blankPostBuildRef.current) return
+      onPreviewStuck?.()
+      setPreviewGaveUp(true)
+    }, ABSOLUTE_STUCK_MS)
+    return () => clearTimeout(timer)
+    // Re-armed per load (url change or refresh/back-forward via loadNonce); a successful
+    // render before the ceiling is honored by the live-ref check in the callback.
+  }, [state.url, state.loadNonce, onPreviewStuck])
 
   // --- Listen for postMessage from scaffold template ---
   // molecule:ready       = #root got children (app rendered)  → hide overlay
