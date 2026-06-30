@@ -55,6 +55,16 @@ export class IframePreviewProvider implements PreviewProvider {
    */
   private history: string[] = []
   private historyIndex = -1
+  /**
+   * The url from the most recent EXPLICIT `setUrl` call, distinct from
+   * `state.url` (which the constructor also pre-populates from `defaultUrl`).
+   * `null` until the first `setUrl` call, so seeding the provider with
+   * `createProvider({ defaultUrl })` followed by an immediate
+   * `setUrl(defaultUrl)` — the standard "first load" pattern — is never
+   * mistaken for a redundant repeat just because it happens to match the
+   * constructor's default.
+   */
+  private lastSetUrl: string | null = null
 
   constructor(config: IframePreviewConfig = {}) {
     this.state = {
@@ -134,9 +144,24 @@ export class IframePreviewProvider implements PreviewProvider {
    * optimistically updates {@link PreviewState.currentUrl} to the new URL; the
    * preview will confirm (or correct, e.g. on a redirect) the actual location
    * via {@link IframePreviewProvider.recordNavigation}.
+   *
+   * No-ops when `url` repeats the PREVIOUS explicit `setUrl` call: callers
+   * (e.g. a sandbox-boot host reporting its preview URL from several code
+   * paths — an SSE event, a status-poll fallback, a mount-time check) may
+   * legitimately call this more than once with the same value. Without this
+   * guard every redundant call still bumped `loadNonce` and notified, which
+   * could re-trigger the consuming component's load effect while the FIRST
+   * load is still in flight — restarting/aborting that load and risking the
+   * host re-creating the iframe before the prior attempt ever resolved. To
+   * force a reload of the SAME url, use {@link IframePreviewProvider.refresh}
+   * instead. Compared against `lastSetUrl`, NOT `state.url`, so the very
+   * first call is never skipped just because it happens to match a
+   * `defaultUrl` the constructor already pre-populated `state.url` with.
    * @param url - The new URL to load in the preview iframe.
    */
   setUrl(url: string): void {
+    if (url === this.lastSetUrl) return
+    this.lastSetUrl = url
     this.pushHistory(url)
     this.state = {
       ...this.state,

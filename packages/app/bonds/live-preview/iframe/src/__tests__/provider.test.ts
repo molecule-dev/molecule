@@ -42,6 +42,50 @@ describe('@molecule/app-live-preview-iframe', () => {
     })
   })
 
+  describe('setUrl idempotency (no-op on an unchanged url)', () => {
+    // A sandbox-boot host may legitimately report the same preview url from more
+    // than one code path (an SSE event, a status-poll fallback, a mount-time
+    // check). Without this guard every redundant call still bumped loadNonce and
+    // notified, which could re-trigger the consuming component's load effect
+    // while the FIRST load was still in flight.
+    it('does not bump loadNonce or notify when the url is unchanged', () => {
+      const provider = new IframePreviewProvider()
+      provider.setUrl('http://localhost:5173/')
+      const nonceAfterFirst = provider.getState().loadNonce
+
+      const callback = vi.fn()
+      provider.subscribe(callback)
+      provider.setUrl('http://localhost:5173/')
+
+      expect(provider.getState().loadNonce).toBe(nonceAfterFirst)
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('still bumps loadNonce and notifies for a genuinely different url', () => {
+      const provider = new IframePreviewProvider()
+      provider.setUrl('http://localhost:5173/')
+      const nonceAfterFirst = provider.getState().loadNonce
+
+      const callback = vi.fn()
+      provider.subscribe(callback)
+      provider.setUrl('http://localhost:5173/other')
+
+      expect(provider.getState().loadNonce).toBeGreaterThan(nonceAfterFirst)
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('forcing a reload of the SAME url still works via refresh(), unaffected by the guard', () => {
+      const provider = new IframePreviewProvider()
+      provider.setUrl('http://localhost:5173/')
+      const nonceAfterFirst = provider.getState().loadNonce
+
+      provider.refresh()
+
+      expect(provider.getState().loadNonce).toBeGreaterThan(nonceAfterFirst)
+      expect(provider.getState().url).toBe('http://localhost:5173/')
+    })
+  })
+
   describe('getUrl', () => {
     it('should return current URL', () => {
       const provider = new IframePreviewProvider({ defaultUrl: 'http://localhost:3000' })

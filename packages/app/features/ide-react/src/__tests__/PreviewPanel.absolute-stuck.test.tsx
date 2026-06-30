@@ -181,6 +181,74 @@ describe('PreviewPanel — navigation atomic remount (no live-OOPIF teardown)', 
   })
 })
 
+describe('PreviewPanel — cold-load redundant setUrl (host reports the boot url more than once)', () => {
+  it('does not restart the in-flight poll chain when setUrl repeats the SAME url before the server answers', async () => {
+    // A sandbox-boot host (e.g. Workspace.tsx) can legitimately report its preview
+    // url from more than one code path for a single boot (an SSE `done` event, a
+    // status-poll fallback, a mount-time check). Before the provider-level
+    // idempotency guard, every one of those calls bumped loadNonce regardless of
+    // whether the url actually changed, re-triggering this cold-load effect mid-
+    // poll: clearPoll() tore down the in-flight chain and started a fresh one —
+    // the same two-phase teardown/rebuild shape already proven (via the
+    // navigation fix above) to wedge a cross-origin OOPIF at the browser level.
+    const fetchSpy = vi.fn(() => Promise.resolve({ ok: true } as Response))
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const provider = providerAtUrl()
+    const { container } = render(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={false} />
+      </Wrap>,
+    )
+
+    // A second code path reports the identical boot url before the first
+    // server-up poll has resolved.
+    act(() => {
+      provider.setUrl(PREVIEW_URL)
+    })
+
+    for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
+      await vi.advanceTimersByTimeAsync(50)
+    }
+
+    const iframe = container.querySelector('iframe') as HTMLIFrameElement
+    expect(iframe).not.toBeNull()
+    expect(iframe.src).toBe(PREVIEW_URL)
+    // Exactly one poll round ran — the redundant setUrl was a no-op, so no
+    // second chain (and no second teardown of the iframe being created) occurred.
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('settles on exactly one iframe pointed at the LATEST url when setUrl targets change before the server answers', async () => {
+    const fetchSpy = vi.fn(() => Promise.resolve({ ok: true } as Response))
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const provider = providerAtUrl()
+    const { container } = render(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={false} />
+      </Wrap>,
+    )
+
+    // A genuinely different target supersedes the in-flight cold poll (still
+    // before everLoaded flips true) — the effect legitimately re-enters the cold
+    // branch. The atomic mount-key bump on poll success must still resolve to a
+    // single, correctly-targeted iframe rather than a stale or duplicate one.
+    const target = PREVIEW_URL + 'workspace'
+    act(() => {
+      provider.setUrl(target)
+    })
+
+    for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
+      await vi.advanceTimersByTimeAsync(50)
+    }
+
+    const iframes = container.querySelectorAll('iframe')
+    expect(iframes).toHaveLength(1)
+    expect((iframes[0] as HTMLIFrameElement).src).toBe(target)
+  })
+})
+
 describe('PreviewPanel — runtime-error de-dup (one fault, one report)', () => {
   it('forwards an identical runtime-error signature only once within the window', async () => {
     const onPreviewError = vi.fn()

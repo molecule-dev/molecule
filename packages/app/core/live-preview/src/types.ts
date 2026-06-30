@@ -48,9 +48,11 @@ export interface PreviewState {
   canGoForward: boolean
   /**
    * Monotonically increasing counter bumped whenever the preview should
-   * (re)load its current {@link PreviewState.url} — `setUrl`, `navigateTo`, and
-   * `refresh` bump it. A renderer keys its iframe (re)load off this so a
-   * `refresh` (or a `setUrl` to the SAME url string) still reloads.
+   * (re)load its current {@link PreviewState.url} — `navigateTo` and `refresh`
+   * always bump it; `setUrl` bumps it ONLY when `url` differs from the current
+   * load target (a repeated `setUrl` call with an UNCHANGED url is a no-op — see
+   * {@link PreviewProvider.setUrl}). A renderer keys its iframe (re)load off
+   * this. To force a reload of the SAME url, call `refresh()`, not `setUrl`.
    * {@link PreviewProvider.recordNavigation}, {@link PreviewProvider.back}, and
    * {@link PreviewProvider.forward} do NOT bump it: a reported in-app navigation
    * already happened, and Back/Forward are client-side history moves driven by a
@@ -79,6 +81,13 @@ export interface PreviewState {
  */
 export interface PreviewProvider {
   readonly name: string
+  /**
+   * Sets the preview's load target and bumps {@link PreviewState.loadNonce} so
+   * the renderer (re)loads it. No-ops when `url` repeats the previous `setUrl`
+   * call — to force a reload of the SAME url, call {@link PreviewProvider.refresh}
+   * instead.
+   * @param url - The new URL to load in the preview.
+   */
   setUrl(url: string): void
   getUrl(): string
   refresh(): void

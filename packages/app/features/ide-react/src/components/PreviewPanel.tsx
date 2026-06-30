@@ -452,6 +452,15 @@ export function PreviewPanel({
 
         if (up) {
           setEverLoaded(true)
+          // Atomic remount (fresh <iframe> element + src in one commit), like the
+          // proven manual-reload/navigation paths: if `setUrl` was called more than
+          // once for this load target before the server came up (e.g. a sandbox-boot
+          // host reporting its preview URL from more than one code path), an earlier
+          // poll chain may already have raced partway through mounting an iframe for
+          // this exact url before being superseded — bumping the mount key here
+          // guarantees this success always creates a genuinely fresh OOPIF rather
+          // than reusing/navigating one a superseded chain may have touched.
+          setIframeMountKey((k) => k + 1)
           setIframeSrc(url)
           pollRef.current = null
         } else {
