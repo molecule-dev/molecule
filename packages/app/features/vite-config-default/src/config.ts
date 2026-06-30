@@ -164,6 +164,13 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       host: process.env.VITE_HOST || '0.0.0.0',
       allowedHosts: true,
       open: process.env.VITE_OPEN !== 'false' && process.env.BROWSER !== 'none',
+      // Origin-isolate this app so a buggy/looping build can't freeze the IDE that
+      // previews it. The IDE and this dev server are the same site (localhost/
+      // 127.0.0.1), which by default puts them in the same browser renderer
+      // process — `Origin-Agent-Cluster: ?1` gives this origin its own agent
+      // cluster (separate event loop), isolating the app's main thread from the
+      // IDE's. Harmless when the app runs standalone.
+      headers: { 'Origin-Agent-Cluster': '?1' },
       fs: { strict: false },
       proxy: {
         '/api': {

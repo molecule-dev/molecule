@@ -25,4 +25,19 @@ describe('@molecule/app-vite-config-default', () => {
     expect(cfg.build?.outDir).toBe('dist')
     expect(cfg.envPrefix).toBe('VITE_')
   })
+
+  it('origin-isolates the dev server so a stuck/looping build cannot freeze the IDE that previews it', () => {
+    // Every scaffolded app shares this origin's "site" (localhost/127.0.0.1) with
+    // the IDE that frames it as a cross-origin iframe. Without Origin-Agent-Cluster,
+    // the renderer can reuse a single process for both, so a hung/looping app build
+    // can take the host IDE down with it. Regression guard: this header was present
+    // in an unused legacy template but missing here — the generator every scaffolded
+    // app actually uses — so no real app ever got the isolation.
+    const cfg = createDefaultViteConfig({
+      APP_NAME: 'TestApp',
+      APP_DESCRIPTION: 'A test app',
+      BRAND_COLOR: '#ff0000',
+    })
+    expect(cfg.server?.headers).toMatchObject({ 'Origin-Agent-Cluster': '?1' })
+  })
 })
