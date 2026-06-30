@@ -323,6 +323,19 @@ export interface PreviewStuckReport {
 }
 
 /**
+ * The preview's live render verdict, derived from the iframe bridges — the one preview
+ * fact the server can't observe itself (it has no browser). The host forwards it to the
+ * server so the post-loop verification won't pass a build while the app isn't actually
+ * rendering ("compiles + serves" ≠ "renders").
+ *
+ * - `rendered` — the app drew content (`molecule:ready`).
+ * - `blank` — loaded but showed nothing (gave up / `#root` empty after settling).
+ * - `frozen` — rendered then locked up (heartbeats stopped).
+ * - `loading` — still loading / not yet determined.
+ */
+export type PreviewRenderState = 'rendered' | 'blank' | 'frozen' | 'loading'
+
+/**
  * Properties for preview panel.
  */
 export interface PreviewPanelProps {
@@ -360,6 +373,13 @@ export interface PreviewPanelProps {
    * fix request. The argument is optional for backward compatibility with no-arg callers.
    */
   onPreviewStuck?: (report?: PreviewStuckReport) => void
+  /**
+   * Called when the preview's render verdict changes ({@link PreviewRenderState}) — and
+   * with the current location so the host can report WHERE. The host forwards this to the
+   * server so Synthase's post-loop verification can confirm the app actually rendered (not
+   * just that it compiled + served) before calling a build done.
+   */
+  onRenderState?: (state: PreviewRenderState, url?: string) => void
   className?: string
 }
 

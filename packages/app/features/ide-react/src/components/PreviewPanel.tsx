@@ -42,7 +42,7 @@ import { get as storageGet, set as storageSet } from '@molecule/app-storage'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
-import type { PreviewPanelProps } from '../types.js'
+import type { PreviewPanelProps, PreviewRenderState } from '../types.js'
 import { type DeviceOrientation, isDeviceRotatable, resolveDeviceSize } from './device-cycle.js'
 import { DeviceFrameSelector } from './DeviceFrameSelector.js'
 import { Icon } from './Icon.js'
@@ -229,6 +229,7 @@ export function PreviewPanel({
   className,
   onPreviewError,
   onPreviewStuck,
+  onRenderState,
   fileChangeTick,
   buildingHint,
   isBuilding,
@@ -1003,6 +1004,26 @@ export function PreviewPanel({
       frozenReportedRef.current = false
     }
   }, [previewFrozen, onPreviewStuck])
+
+  // --- Render verdict → host (→ server) ---
+  // Collapse the panel's internal flags into the single render verdict the server needs:
+  // did the app actually draw content, or is it blank/frozen/still loading? The host
+  // forwards it so Synthase's post-loop verification can confirm a REAL render (not just
+  // that the bundle compiled + served). Emit only on change, with the live route.
+  const renderState: PreviewRenderState = previewFrozen
+    ? 'frozen'
+    : previewGaveUp || blankPostBuild
+      ? 'blank'
+      : confirmedContent
+        ? 'rendered'
+        : 'loading'
+  const lastRenderStateRef = useRef<PreviewRenderState | null>(null)
+  useEffect(() => {
+    if (!state.url) return
+    if (lastRenderStateRef.current === renderState) return
+    lastRenderStateRef.current = renderState
+    onRenderState?.(renderState, currentLocationRef.current)
+  }, [renderState, state.url, onRenderState])
 
   // --- Post-build blank detection (settle-gated) ---
   // The build is NOT running (isBuilding false), the document loaded, yet the app has NEVER
