@@ -172,9 +172,12 @@ describe('PreviewPanel — navigation atomic remount (no live-OOPIF teardown)', 
       provider.setUrl(target)
     })
     const after = container.querySelector('iframe') as HTMLIFrameElement
-    // The iframe is present with the new src immediately — no probe needed, no teardown gap.
+    // The iframe is present with the new route immediately — no probe needed, no teardown
+    // gap — and carries the `_r` cache-buster so the cross-origin frame actually reloads
+    // (a bare same-as-current URL is a no-op; that's what hung chat-link navigations).
     expect(after).not.toBeNull()
-    expect(after.src).toBe(target)
+    expect(after.src.startsWith(target)).toBe(true)
+    expect(after.src).toContain('_r=')
   })
 })
 

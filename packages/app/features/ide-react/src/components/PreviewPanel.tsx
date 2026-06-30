@@ -494,20 +494,23 @@ export function PreviewPanel({
 
     if (everLoadedRef.current) {
       // NAVIGATION / refresh of an already-running preview (a chat-link route, the URL
-      // bar, Back/Forward, or a loadNonce refresh). The dev server is already up, so do
-      // an ATOMIC remount to the new target — bump the mount key (fresh <iframe> element)
-      // and set the src in ONE commit — exactly like the manual-reload path
-      // (handleManualRetry), which is known to work.
+      // bar, Back/Forward, or a loadNonce refresh). The dev server is already up, so do an
+      // ATOMIC remount to the new target — bump the mount key (fresh <iframe> element) and
+      // set the src in ONE commit — EXACTLY like the manual-reload path (handleManualRetry),
+      // which is known to work. The OLD path blanked the live iframe (setIframeSrc('')) then
+      // re-added it after an async probe; that two-phase teardown→rebuild wedged the live
+      // sandboxed cross-origin (OOPIF) frame so the route "navigated but never loaded".
       //
-      // The OLD path instead blanked the live iframe (setIframeSrc('')) and only re-added
-      // it after an async server-up probe. That two-phase teardown→rebuild of a live,
-      // sandboxed, cross-origin (OOPIF) frame wedged the new document at the browser level
-      // — its renderer never created a JS execution context, so the route "navigated but
-      // never loaded" (yet the same URL rendered fine in a fresh tab, and a manual reload
-      // recovered it). A single atomic element swap avoids tearing the OOPIF down early.
+      // CRUCIALLY use the cache-buster, like refresh does: navigating a cross-origin iframe
+      // to a URL it already treats as its CURRENT location (the app's own client-side router
+      // may have moved the iframe's location to this route already, or a bfcache entry
+      // exists) is a same-document no-op that never reloads — which is why a chat-link nav
+      // hung while the refresh button (cache-busted) worked. The `_r=<ts>` makes every nav a
+      // novel URL that forces a real document load; recordNavigation strips `_r` so the URL
+      // bar stays clean.
       clearPoll()
       setIframeMountKey((k) => k + 1)
-      setIframeSrc(state.url)
+      setIframeSrc(withCacheBuster(state.url))
     } else {
       // COLD / first load: the dev server may still be starting, so keep the empty state
       // and poll until it answers, then mount.
