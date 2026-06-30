@@ -1418,7 +1418,17 @@ export function PreviewPanel({
               background: everLoaded
                 ? 'color-mix(in srgb, var(--mol-color-surface-secondary, #f5f5f5) 78%, transparent)'
                 : 'var(--mol-color-surface-secondary, #f5f5f5)',
-              backdropFilter: everLoaded ? 'blur(2px)' : undefined,
+              // DO NOT add `backdrop-filter` here. This overlay sits ON TOP of the live
+              // cross-origin preview <iframe> (an out-of-process iframe). backdrop-filter must
+              // SAMPLE its backdrop — i.e. read the OOPIF's compositor surface across processes
+              // every frame. Under software / GPU-less compositing (this VM runs
+              // --disable-gpu-compositing) that cross-process surface read DEADLOCKS the host
+              // renderer's main thread → the whole IDE tab freezes on every reload of a
+              // once-loaded preview. A `backdrop-filter: blur(2px)` here was the CONFIRMED cause
+              // of exactly that freeze (verified by elimination: removing only the backdrop-filter,
+              // overlay still opaque + occluding, un-froze the foregrounded tab). The blurred
+              // "last working UI" is provided SAFELY by the last-good-frame <img> below — it
+              // blurs its OWN pixels (a same-origin snapshot), never the live OOPIF backdrop.
               // Anything standing in for missing content (a build, a blank fallback, an
               // unconfirmed building app, or a post-build blank) forces the overlay fully
               // visible (it may have already faded out from a prior ready state); otherwise
