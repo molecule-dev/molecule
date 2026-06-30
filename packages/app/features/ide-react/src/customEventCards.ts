@@ -67,20 +67,32 @@ export interface ChatEventCard {
    */
   content?: ChatEventCardSegment[]
   /**
-   * When true, ChatPanel renders the card in its emphasized (highlighted box) style
-   * instead of the muted inline style — e.g. a sign-up / upgrade nudge the app wants
-   * to stand out. The app opts in; the shared package never infers emphasis from a
-   * card's route or copy.
+   * When true, ChatPanel renders the card as a stand-out tip box rather than muted inline
+   * text. Prefer setting {@link ChatEventCard.tone} (which implies emphasis AND picks the
+   * accent colour + icon); `emphasized` without a `tone` falls back to the neutral `info`
+   * tone. The app opts in; the shared package never infers emphasis from a card's copy.
    */
   emphasized?: boolean
   /**
-   * Optional tip-style tone: `'info'` (blue) or `'gold'`. When set, ChatPanel renders
-   * the card in the dismissable tip-box style (rounded, tinted, with a lightbulb glyph)
-   * in that tone, and renders any `action`(s) as inline underlined links rather than
-   * buttons — for low-key, honest notices (e.g. a "what powers this" model note). The
-   * app opts in; omit for the default muted / emphasized styles.
+   * The card's tip TONE — picks its accent colour + default icon so every notice card
+   * shares ONE consistent box (icon + accent bar + tinted body + actions), differing only
+   * by colour/icon per kind:
+   * - `info` — blue, info glyph (neutral notice)
+   * - `gold` — amber, lightbulb (an honest tip / onboarding note)
+   * - `upgrade` — amber, sparkle (a plan/upgrade nudge)
+   * - `success` — green, check (a completed action, e.g. a saved script)
+   * - `signup` — primary, sign-in (an auth nudge)
+   *
+   * Setting `tone` implies emphasis. Cards that supply composable {@link ChatEventCard.content}
+   * render their inline links in the box; cards that supply `action`(s) render them as a
+   * consistent row of accent buttons. Omit `tone` (and `emphasized`) for a plain muted line.
    */
-  tone?: 'info' | 'gold'
+  tone?: 'info' | 'gold' | 'upgrade' | 'success' | 'signup'
+  /**
+   * Optional icon-name override (a `@molecule/app-icons` glyph) — defaults to the tone's
+   * icon. Use only a name that exists in the bonded set (`getIcon` throws otherwise).
+   */
+  icon?: string
 }
 
 /**

@@ -305,13 +305,15 @@ interface PlainSystemCard extends SystemCardBase {
    */
   emphasized?: boolean
   /**
-   * Optional tip-style tone: `'info'` (blue) or `'gold'`. When set, the card renders
-   * in the dismissable tip-box style (rounded, tinted, with a lightbulb glyph) in that
-   * tone, and any actions render as inline underlined links rather than buttons — for
-   * low-key, honest notices (e.g. a "what powers this" model note). Mutually exclusive
-   * with `emphasized` in practice; the caller opts in.
+   * Tip TONE — picks the card's accent colour + default icon so every notice card shares
+   * ONE consistent box, differing only by colour/icon: `info` (blue), `gold` (amber tip),
+   * `upgrade` (amber sparkle), `success` (green check), `signup` (primary sign-in). Setting
+   * a tone implies emphasis; `emphasized` without a tone falls back to `info`. See
+   * {@link ChatEventCard.tone}.
    */
-  tone?: 'info' | 'gold'
+  tone?: 'info' | 'gold' | 'upgrade' | 'success' | 'signup'
+  /** Icon-name override (a `@molecule/app-icons` glyph); defaults to the tone's icon. */
+  icon?: string
 }
 
 /** The `/settings` view. */
@@ -5564,6 +5566,7 @@ function ChatInner({
             ...(card.action ? { action: card.action } : {}),
             ...(card.emphasized ? { emphasized: card.emphasized } : {}),
             ...(card.tone ? { tone: card.tone } : {}),
+            ...(card.icon ? { icon: card.icon } : {}),
             ...(card.content ? { content: card.content } : {}),
             timestamp,
           }
@@ -5879,27 +5882,52 @@ function ChatInner({
               // tone/content/emphasized exist here — and render nothing for any future
               // unhandled variant rather than mis-rendering it as a plain card.
               if (item.card.variant !== undefined) return null
-              if (item.card.tone) {
-                // Tip-style toned card (info=blue / gold): the dismissable tip-box look
-                // with any actions rendered as inline underlined links (not buttons).
-                const gold = item.card.tone === 'gold'
-                // Eye-catching tip treatment. The old gold was a dull, easily-missed wash
-                // (8%/30% on tiny muted text); intensify it so the card actually draws the
-                // eye: a richer fill + bolder border, a solid 3px LEFT ACCENT BAR (the classic
-                // callout cue), a warm soft glow, a full-opacity glyph, and un-muted text.
-                const accent = gold ? '#e0a100' : 'var(--mol-color-primary, #6366f1)'
-                const border = gold ? 'rgba(234,179,8,0.55)' : 'rgba(99,102,241,0.50)'
-                const bg = gold ? 'rgba(234,179,8,0.16)' : 'rgba(99,102,241,0.14)'
-                const glow = gold ? 'rgba(202,138,4,0.22)' : 'rgba(99,102,241,0.20)'
-                const toneActions = item.card.action
+
+              // ── Unified tip / notice card ────────────────────────────────────────────
+              // EVERY host notice (upgrade, sign-up, model-intro, pre-alpha, saved-script,
+              // build-degraded) renders through ONE structure so they look consistent: an
+              // icon, a 3px left accent bar, a tinted body, and — for action cards — a row of
+              // accent buttons. Only the ACCENT COLOUR + ICON change, by `tone`. Picking a
+              // tone (or `emphasized`, or merely having an action) opts a card in; a card with
+              // none of those stays a plain muted inline line (e.g. a "Now using <model>"
+              // notice). `emphasized` without a tone → the neutral `info` tone.
+              const tipTone: 'info' | 'gold' | 'upgrade' | 'success' | 'signup' | null =
+                item.card.tone ?? (item.card.emphasized || item.card.action ? 'info' : null)
+
+              if (tipTone) {
+                // One value (the accent) drives the whole treatment — border/bg/glow derive
+                // from it via color-mix (works with a CSS var OR a hex), so tones stay in
+                // lockstep and a new tone is just one row. Icon defaults per tone; a card may
+                // override it (`icon`).
+                const TONE: Record<string, { accent: string; icon: string }> = {
+                  info: { accent: 'var(--mol-color-primary, #6366f1)', icon: 'info-circle' },
+                  gold: { accent: '#e0a100', icon: 'lightbulb' },
+                  upgrade: { accent: '#e0a100', icon: 'sparkle' },
+                  success: { accent: '#3fb950', icon: 'check-circle' },
+                  signup: { accent: 'var(--mol-color-primary, #6366f1)', icon: 'sign-in' },
+                }
+                const { accent, icon: defaultIcon } = TONE[tipTone]
+                const icon = item.card.icon ?? defaultIcon
+                const border = `color-mix(in srgb, ${accent} 50%, transparent)`
+                const bg = `color-mix(in srgb, ${accent} 13%, transparent)`
+                const glow = `color-mix(in srgb, ${accent} 20%, transparent)`
+                const actions = item.card.action
                   ? Array.isArray(item.card.action)
                     ? item.card.action
                     : [item.card.action]
                   : []
+                const multiLine = item.card.text.includes('\n')
+                const onEnter = (e: React.MouseEvent<HTMLElement>): void => {
+                  ;(e.currentTarget as HTMLElement).style.background = bg
+                }
+                const onLeave = (e: React.MouseEvent<HTMLElement>): void => {
+                  ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                }
                 return (
                   <div
                     key={item.card.id}
-                    data-mol-id="chat-tone-card"
+                    data-mol-id="chat-notice-card"
+                    data-tone={tipTone}
                     className={cm.textSize('xs')}
                     style={{
                       display: 'flex',
@@ -5918,96 +5946,42 @@ function ChatInner({
                     }}
                   >
                     <Icon
-                      name="lightbulb"
+                      name={icon}
                       size={18}
                       aria-hidden="true"
-                      style={{ flexShrink: 0, marginTop: 1, opacity: 1, color: accent }}
+                      style={{ flexShrink: 0, marginTop: 1, color: accent }}
                     />
-                    <span style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       {item.card.content ? (
-                        // Composable inline body: render each segment in order — strings as
-                        // text, monospace code spans, actions as inline links — so prose, code,
-                        // links + trailing punctuation flow naturally.
+                        // Composable inline body: prose / monospace code / inline links in
+                        // order — used by the onboarding cards so a link sits mid-sentence.
                         item.card.content.map((seg, i) => renderCardSegment(seg, i))
                       ) : (
-                        <>
+                        <span style={multiLine ? { whiteSpace: 'pre-wrap' } : undefined}>
                           {item.card.text}
-                          {toneActions.map((act, i) => (
-                            <span key={i}> {renderCardSegment(act, i)}</span>
-                          ))}
-                        </>
+                        </span>
                       )}
-                    </span>
-                  </div>
-                )
-              }
-              const isMultiLine = item.card.text.includes('\n')
-              // The card opts into the emphasized (highlighted box) style explicitly
-              // via `emphasized` — never inferred from its route/copy (those are the
-              // host's, not this shared package's). See SystemCard.emphasized.
-              const isEmphasized = item.card.emphasized ?? false
-              return (
-                <div
-                  key={item.card.id}
-                  className={cm.cn(
-                    cm.textSize(isEmphasized ? 'sm' : 'xs'),
-                    isEmphasized ? undefined : cm.textMuted,
-                  )}
-                  style={
-                    isEmphasized
-                      ? {
-                          textAlign: 'center',
-                          padding: '10px 16px',
-                          // One timeline rhythm: bottom margin only (see TIMELINE_ITEM_GAP).
-                          marginBottom: TIMELINE_ITEM_GAP,
-                          background: 'rgba(64,112,224,0.10)',
-                          border: '1px solid rgba(64,112,224,0.25)',
-                          borderRadius: 8,
-                          color: 'var(--mol-color-text-secondary, #aaa)',
-                        }
-                      : {
-                          textAlign: isMultiLine ? 'left' : 'center',
-                          padding: isMultiLine ? '8px 12px' : '6px 0',
-                          marginBottom: TIMELINE_ITEM_GAP,
-                          whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
-                          fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
-                          lineHeight: isMultiLine ? 1.5 : undefined,
-                        }
-                  }
-                >
-                  {item.card.content
-                    ? item.card.content.map((seg, i) => renderCardSegment(seg, i))
-                    : item.card.text}
-                  {item.card.action &&
-                    (() => {
-                      const btnStyle: React.CSSProperties = {
-                        display: 'inline-block',
-                        fontSize: 12,
-                        fontWeight: 600,
-                        padding: '5px 14px',
-                        borderRadius: 6,
-                        cursor: 'pointer',
-                        textDecoration: 'none',
-                        transition: 'opacity 100ms',
-                        fontFamily: 'inherit',
-                        border: 'none',
-                        color: '#fff',
-                        background: 'var(--color-primary)',
-                      }
-                      const actions = Array.isArray(item.card.action)
-                        ? item.card.action
-                        : [item.card.action!]
-                      return (
-                        <div
-                          style={{
-                            marginTop: '10px',
-                            display: 'flex',
-                            gap: '8px',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          {actions.map((act, i) =>
-                            act.href ? (
+                      {/* Action cards (no inline `content`) get a consistent, left-aligned row
+                          of accent "ghost" buttons — never the old centered filled buttons. */}
+                      {!item.card.content && actions.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+                          {actions.map((act, i) => {
+                            const style: React.CSSProperties = {
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              fontSize: 12,
+                              fontWeight: 600,
+                              padding: '4px 10px',
+                              borderRadius: 6,
+                              cursor: 'pointer',
+                              textDecoration: 'none',
+                              fontFamily: act.code ? 'var(--mol-font-mono, monospace)' : 'inherit',
+                              border: `1px solid ${border}`,
+                              color: accent,
+                              background: 'transparent',
+                              transition: 'background 100ms',
+                            }
+                            return act.href ? (
                               <a
                                 key={i}
                                 href={act.href}
@@ -6015,15 +5989,9 @@ function ChatInner({
                                 rel={
                                   act.href.startsWith('http') ? 'noopener noreferrer' : undefined
                                 }
-                                style={btnStyle}
-                                onMouseEnter={(e) => {
-                                  ;(e.currentTarget as HTMLElement).style.background =
-                                    'var(--color-primary-hover)'
-                                }}
-                                onMouseLeave={(e) => {
-                                  ;(e.currentTarget as HTMLElement).style.background =
-                                    'var(--color-primary)'
-                                }}
+                                style={style}
+                                onMouseEnter={onEnter}
+                                onMouseLeave={onLeave}
                               >
                                 {act.label}
                               </a>
@@ -6032,23 +6000,41 @@ function ChatInner({
                                 key={i}
                                 type="button"
                                 onClick={act.onClick}
-                                style={btnStyle}
-                                onMouseEnter={(e) => {
-                                  ;(e.currentTarget as HTMLElement).style.background =
-                                    'var(--color-primary-hover)'
-                                }}
-                                onMouseLeave={(e) => {
-                                  ;(e.currentTarget as HTMLElement).style.background =
-                                    'var(--color-primary)'
-                                }}
+                                style={style}
+                                onMouseEnter={onEnter}
+                                onMouseLeave={onLeave}
                               >
                                 {act.label}
                               </button>
-                            ),
-                          )}
+                            )
+                          })}
                         </div>
-                      )
-                    })()}
+                      )}
+                    </div>
+                  </div>
+                )
+              }
+
+              // Plain muted inline notice (no tone / not emphasized / no action) — e.g. a
+              // "Now using <model>" line. Centered for one-liners; left-aligned mono for
+              // multi-line.
+              const isMultiLine = item.card.text.includes('\n')
+              return (
+                <div
+                  key={item.card.id}
+                  className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+                  style={{
+                    textAlign: isMultiLine ? 'left' : 'center',
+                    padding: isMultiLine ? '8px 12px' : '6px 0',
+                    marginBottom: TIMELINE_ITEM_GAP,
+                    whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
+                    fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
+                    lineHeight: isMultiLine ? 1.5 : undefined,
+                  }}
+                >
+                  {item.card.content
+                    ? item.card.content.map((seg, i) => renderCardSegment(seg, i))
+                    : item.card.text}
                 </div>
               )
             }
