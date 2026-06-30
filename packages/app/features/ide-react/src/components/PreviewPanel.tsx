@@ -5,11 +5,16 @@
  * 1. "Loading preview" — polling until the first successful fetch
  * 2. "Loading preview" — server was up before but fetch is now failing
  *
- * The iframe is always mounted (behind the overlay) once we have a URL.
- * The overlay hides on the `molecule:ready` handshake (the fast path) OR, if that
- * handshake is dropped/suppressed/starved, on an `onLoad` grace fallback — so a
- * working app whose ready message never arrives still surfaces (it never gets
- * permanently stuck behind the overlay).
+ * The iframe is always mounted (behind the overlay) once we have a URL. The overlay
+ * REVEAL is driven by the iframe's own `onLoad` (+ a short grace), with the
+ * `molecule:ready` handshake as a faster, flash-free path — NEVER by `molecule:ready`
+ * alone. That handshake is posted from inside the preview's `requestAnimationFrame`,
+ * which the browser FREEZES while the overlay occludes the cross-origin iframe, so
+ * gating the reveal on it self-deadlocks (overlay covers iframe → iframe rAF frozen →
+ * ready never posts → overlay never lifts → ceiling shows "can't load" over a working
+ * app). `onLoad` fires in the host and can't be starved by the iframe, so a working app
+ * always surfaces; an explicitly blank/crashed app is RE-COVERED via `molecule:blank`/
+ * crash (which lower `iframeReady`), never by withholding the reveal.
  *
  * Recovery features:
  * - Never-give-up polling with exponential backoff, single-chain (epoch-guarded +
@@ -28,7 +33,9 @@
  *   preview origin is isolated via Origin-Agent-Cluster)
  * - Blank page detection: catches pages that render but show nothing
  * - Trust boundary: inbound `molecule:*` postMessages are accepted only from the
- *   preview's own origin (`event.origin` must match)
+ *   preview iframe's own window (`event.source === iframe.contentWindow`) — a window-
+ *   identity check, robust to origin-string divergence (Origin-Agent-Cluster, IP host,
+ *   cache-buster, redirect) and unforgeable by any other window
  *
  * @module
  */
@@ -168,6 +175,15 @@ const ERROR_DEDUP_WINDOW_MS = 4_000
  * ends re-confirms first and the user briefly sees a spinner instead of a false "blank".
  */
 const BLANK_CONFIRM_MS = 2_500
+
+/**
+ * Duration of the overlay fade-out (ms) — kept in sync with the overlay's `transition:
+ * opacity` below. `fadingOut` is cleared on `onTransitionEnd`, but a timer matched to this
+ * is the robust fallback for when that event never fires (the overlay unmounts mid-fade,
+ * `prefers-reduced-motion` disables the transition, or a non-rendering env): a stuck
+ * `fadingOut` would pin the overlay at opacity 0 and block the post-build blank re-cover.
+ */
+const OVERLAY_FADE_MS = 500
 
 // --- Rate-limiting constants ---
 
@@ -556,19 +572,35 @@ export function PreviewPanel({
     }
   }, [iframeSrc, iframeMountKey])
 
-  // --- When the app CONFIRMS content, trigger fade-out ---
-  // Gated on confirmedContent (a real molecule:ready), NOT bare iframeReady: the onLoad
-  // grace path sets iframeReady=true even for a blank/white app, and that must NOT fade the
-  // status overlay away to reveal a white screen. A confirmed render is the only thing that
-  // genuinely uncovers the preview.
+  // --- When the preview is ready to SHOW, trigger fade-out ---
+  // Reveal is driven by `iframeReady`, set by EITHER the `molecule:ready` handshake (the
+  // fast, flash-free path) OR the `onLoad` grace backstop — NOT by `confirmedContent`
+  // (molecule:ready) alone. That distinction is the whole fix for the "preview never loads /
+  // can't load here" deadlock: `molecule:ready` is posted from inside the preview's
+  // `requestAnimationFrame`, and the browser SUSPENDS rAF in a cross-origin iframe while it is
+  // fully occluded — and the status overlay occludes it. So a confirmedContent-only reveal
+  // self-deadlocks (overlay covers iframe → iframe rAF frozen → ready never posts → overlay
+  // never lifts). `onLoad` fires in the HOST and can never be starved by the iframe's state,
+  // so it is the robust reveal. A genuinely blank/crashed app is RE-COVERED by the explicit
+  // `molecule:blank`/crash handlers (which lower `iframeReady`), never by withholding the
+  // reveal. `confirmedContent` stays a diagnostic (non-blank render confirmed) for the
+  // render-verdict, not a reveal gate.
   useEffect(() => {
-    if (iframeReady && confirmedContent) {
+    if (iframeReady) {
       setFadingOut(true)
       // Content is showing again — tear down the loop-breaker panel so a later good render
       // always clears it.
       setPreviewGaveUp(false)
+      // Clear fadingOut when the fade finishes. The overlay's onTransitionEnd is the primary
+      // trigger, but it never fires if the overlay unmounts mid-fade, the transition is disabled
+      // (prefers-reduced-motion), or in a non-rendering env — so a timer matched to the fade is
+      // the robust fallback. A stuck fadingOut pins the overlay at opacity 0 AND blocks the
+      // post-build blank re-cover (which is gated on !fadingOut).
+      const t = setTimeout(() => setFadingOut(false), OVERLAY_FADE_MS + 50)
+      return () => clearTimeout(t)
     }
-  }, [iframeReady, confirmedContent])
+    return undefined
+  }, [iframeReady])
 
   // --- Stuck-load detection: recover ONLY when the load is genuinely stuck ---
   // "Stuck" now means: we have a src, the iframe hasn't reported ready, AND we've
@@ -633,9 +665,17 @@ export function PreviewPanel({
   useEffect(() => {
     if (!state.url) return
     const timer = setTimeout(() => {
-      // Fire ONLY when still on a bare spinner: a confirmed render, an active build, or
-      // the actionable blank notice already showing all mean the user is not stuck.
-      if (confirmedContentRef.current || isBuildingRef.current || blankPostBuildRef.current) return
+      // Fire ONLY when still on a bare spinner. iframeReady is the key addition: the onLoad
+      // grace already revealed a loaded document, so the give-up panel must never cover it —
+      // the panel is reserved for a preview that genuinely never loaded (onLoad never fired).
+      // A confirmed render, an active build, or the actionable blank notice also mean not-stuck.
+      if (
+        confirmedContentRef.current ||
+        iframeReadyRef.current ||
+        isBuildingRef.current ||
+        blankPostBuildRef.current
+      )
+        return
       onPreviewStuck?.({ reason: 'load-timeout', url: currentLocationRef.current })
       setPreviewGaveUp(true)
     }, ABSOLUTE_STUCK_MS)
@@ -725,20 +765,19 @@ export function PreviewPanel({
     }
 
     const handler = (event: MessageEvent): void => {
-      // Trust boundary: the preview iframe (and anything it might embed) can
-      // postMessage arbitrary data, so act ONLY on messages from the preview's own
-      // origin — never trust event.data without verifying event.origin first. The
-      // load target's origin is the source of truth; client-side navigations stay
-      // same-origin, so this holds across in-app routing.
-      let expectedOrigin: string | null = null
-      try {
-        if (urlRef.current) expectedOrigin = new URL(urlRef.current).origin
-      } catch (_error) {
-        // Malformed preview URL — there is no trustable origin to compare against,
-        // so reject the message rather than act on an unverifiable sender.
-        expectedOrigin = null
-      }
-      if (!expectedOrigin || event.origin !== expectedOrigin) return
+      // Trust boundary: accept molecule:* messages ONLY from the preview iframe's OWN window.
+      // We compare the SOURCE WINDOW IDENTITY (event.source === the iframe's contentWindow), NOT
+      // a fragile origin STRING match. event.origin can legitimately fail to byte-equal
+      // new URL(state.url).origin — Origin-Agent-Cluster isolation, a host:port vs 127.0.0.1 vs
+      // IP-literal preview URL, the load's cache-buster, or a redirect-on-load all diverge the
+      // strings — and an origin-only gate then silently DROPS the real handshake (the
+      // molecule:ready that lifts the overlay) and every nav/error report. Window identity is
+      // both more robust AND strictly more secure: no other window (a malicious sub-iframe the
+      // preview embeds, another tab/opener) can forge the source reference, and it needs no
+      // cross-origin read. The iframe is always mounted before it can post, so contentWindow is
+      // set by the time any message arrives.
+      const previewWindow = iframeRef.current?.contentWindow
+      if (!previewWindow || event.source !== previewWindow) return
 
       if (event.data?.type === 'molecule:ready') {
         const now = Date.now()
@@ -854,8 +893,13 @@ export function PreviewPanel({
         if (typeof event.data.url === 'string')
           recordNavigation(event.data.url, event.data.isReplace === true)
       } else if (event.data?.type === 'molecule:blank') {
-        // Page rendered but appears blank — it is not showing confirmed content.
+        // Page rendered but appears blank — re-cover it. Reveal is gated on `iframeReady`, so
+        // dropping `confirmedContent` alone no longer re-covers; lower `iframeReady` too. The
+        // onLoad grace already fired and won't re-arm, so the overlay stays (showing the
+        // last-good frame) until a real `molecule:ready` re-reveals a non-blank render.
         setConfirmedContent(false)
+        setIframeReady(false)
+        setFadingOut(false)
         // Notify the agent
         if (onPreviewError) {
           onPreviewError([
@@ -922,6 +966,12 @@ export function PreviewPanel({
     // follows (the bridge re-sends ready ~every 4s while content is visible).
     if (Date.now() - lastReadyAtRef.current > READY_FRESH_MS) {
       setConfirmedContent(false)
+      // Re-cover the freshly (re)loaded document until ITS OWN onLoad grace re-reveals it (or a
+      // fresh molecule:ready confirms sooner). Reveal is gated on `iframeReady`, so a full-reload
+      // that an edit triggers must lower it — otherwise the previous load's reveal leaks through
+      // and flashes the new, possibly-blank document uncovered. The grace timer armed just below
+      // re-reveals it.
+      setIframeReady(false)
       // Bring the overlay back SOLID over the blank reload — not mid-fade from the previous
       // app's confirmation (whose fade-out may still be in flight).
       setFadingOut(false)
@@ -1137,18 +1187,28 @@ export function PreviewPanel({
   // molecule:ready). The iframe may have "loaded" into a half-built/blank/white state — keep
   // the reassuring "Building your app…" overlay up over it instead of a bare white screen.
   // A confirmed render clears it, so a working preview stays visible (HMR updates uncovered).
-  // THE invariant: the overlay shows WHENEVER the preview has not CONFIRMED it is showing real
-  // content (no molecule:ready) — loading, building, a half-built/blank/white app, a reload that
-  // rendered nothing, OR a totally broken page (a broken-image / error response with no bridge at
-  // all). A confirmed render is the ONLY thing that uncovers it, so a working preview stays
-  // visible (HMR updates uncovered) and the user is NEVER left staring at a bare blank/broken
-  // iframe with no status. No `bridgeAlive`/heartbeat gate — that left the worst case (a broken
-  // page whose bridge never ran, so it sends no heartbeat) completely uncovered. `fadingOut`
-  // keeps the overlay through its fade-out after a render finally confirms.
-  const showOverlay = Boolean(state.url) && !previewGaveUp && (!confirmedContent || fadingOut)
-  // Fully opaque + interactive whenever it is standing in for missing content (only a genuine
-  // confirmed-then-fading-out state animates).
-  const overlaySolid = !confirmedContent
+  // THE invariant: the overlay shows until the preview is READY TO SHOW — i.e. until the iframe
+  // has loaded (its own `onLoad` + a short grace) or a `molecule:ready` confirmed a render
+  // sooner. It must NEVER gate the reveal on `molecule:ready` ALONE: that handshake is posted
+  // from the preview's `requestAnimationFrame`, which the browser freezes while the overlay
+  // occludes the cross-origin iframe — so a confirmedContent-only gate deadlocks (see the
+  // fade-out effect above). Reveal on `iframeReady` (host-side onLoad, never starvable) and let
+  // the explicit `molecule:blank`/crash signals RE-COVER a blank/broken app by lowering
+  // `iframeReady` — so a working preview always surfaces and the user is never left staring at a
+  // bare iframe OR stuck behind a status that can't lift. `fadingOut` keeps the overlay through
+  // its fade-out; `blankPostBuild` re-asserts it for a post-build blank.
+  // An active build keeps the reassuring status overlay up ONLY while the preview is
+  // unconfirmed — a confirmed-healthy preview stays uncovered so the user sees HMR edits live
+  // (the "theme updated, no reload flash" behavior). So `(isBuilding || building) &&
+  // !confirmedContent` re-asserts the overlay during a build, but never over a working app.
+  const buildingUnconfirmed = (isBuilding || building) && !confirmedContent
+  const showOverlay =
+    Boolean(state.url) &&
+    !previewGaveUp &&
+    (!iframeReady || fadingOut || blankPostBuild || buildingUnconfirmed)
+  // Fully opaque + interactive whenever it is standing in for missing content (only the
+  // ready-then-fading-out state animates to transparent).
+  const overlaySolid = !iframeReady || blankPostBuild || buildingUnconfirmed
 
   const overlayContent = blankPostBuild ? (
     // Build finished but the app rendered nothing — actionable, not a spinner.

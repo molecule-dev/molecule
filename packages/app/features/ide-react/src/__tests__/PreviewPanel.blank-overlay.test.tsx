@@ -69,7 +69,11 @@ function providerAtUrl(): ReturnType<typeof createProvider> {
 
 /** Simulate an inbound bridge message from the preview iframe (same-origin). */
 function postFromPreview(data: Record<string, unknown>): void {
-  window.dispatchEvent(new MessageEvent('message', { data, origin: PREVIEW_ORIGIN }))
+  // The panel's trust gate accepts molecule:* ONLY from the preview iframe's own window
+  // (event.source === iframe.contentWindow), so simulate a genuine message from it. The panel
+  // renders exactly one iframe; its contentWindow is a real (jsdom) Window once mounted.
+  const source = document.querySelector('iframe')?.contentWindow ?? null
+  window.dispatchEvent(new MessageEvent('message', { data, origin: PREVIEW_ORIGIN, source }))
 }
 
 const q = (container: HTMLElement, molId: string): Element | null =>
