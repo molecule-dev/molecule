@@ -200,4 +200,22 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
       timeout: 12000,
     })
   }, 18000)
+
+  it('the overlay carries NO backdrop-filter (sampling the cross-origin OOPIF backdrop deadlocks the host renderer under software compositing — the whole-tab freeze)', async () => {
+    // Reproduce the exact state the freeze needed: the status overlay shown over a once-loaded
+    // preview (everLoaded true → the old code set `backdrop-filter: blur(2px)` HERE). The overlay
+    // sits directly on top of the live cross-origin preview <iframe> (an out-of-process iframe);
+    // a backdrop-filter must read that OOPIF's compositor surface across processes every frame,
+    // which deadlocks the host main thread under GPU-less software compositing. isBuilding keeps
+    // the overlay up over the unconfirmed app so we can inspect it after onLoad flips everLoaded.
+    const { container, iframe } = await mountWithIframe(true)
+    fireEvent.load(iframe) // onLoad grace flips everLoaded → the state that used to add the blur
+    await new Promise((r) => setTimeout(r, 3200)) // past ONLOAD_GRACE_MS
+    const overlay = q(container, 'preview-overlay') as HTMLElement | null
+    expect(overlay).not.toBeNull()
+    const style = (overlay?.getAttribute('style') ?? '').toLowerCase()
+    expect(style).not.toContain('backdrop-filter')
+    expect(style).not.toContain('backdropfilter')
+    expect(overlay?.style.backdropFilter ?? '').toBe('')
+  }, 8000)
 })
