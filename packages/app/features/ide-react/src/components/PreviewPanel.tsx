@@ -481,8 +481,6 @@ export function PreviewPanel({
       return
     }
 
-    setEverLoaded(false)
-    setIframeSrc('')
     setStuckRetryCount(0)
     setPreviewGaveUp(false)
     loadRecoverCountRef.current = 0 // fresh stale-document recovery budget for this load
@@ -492,7 +490,30 @@ export function PreviewPanel({
     // A brand-new load target is a different app — drop the previous app's frame
     // so a blank in the NEW app never flashes the OLD app's last-good frame.
     setLastGoodFrame(null)
-    startPolling(state.url)
+
+    if (everLoadedRef.current) {
+      // NAVIGATION / refresh of an already-running preview (a chat-link route, the URL
+      // bar, Back/Forward, or a loadNonce refresh). The dev server is already up, so do
+      // an ATOMIC remount to the new target — bump the mount key (fresh <iframe> element)
+      // and set the src in ONE commit — exactly like the manual-reload path
+      // (handleManualRetry), which is known to work.
+      //
+      // The OLD path instead blanked the live iframe (setIframeSrc('')) and only re-added
+      // it after an async server-up probe. That two-phase teardown→rebuild of a live,
+      // sandboxed, cross-origin (OOPIF) frame wedged the new document at the browser level
+      // — its renderer never created a JS execution context, so the route "navigated but
+      // never loaded" (yet the same URL rendered fine in a fresh tab, and a manual reload
+      // recovered it). A single atomic element swap avoids tearing the OOPIF down early.
+      clearPoll()
+      setIframeMountKey((k) => k + 1)
+      setIframeSrc(state.url)
+    } else {
+      // COLD / first load: the dev server may still be starting, so keep the empty state
+      // and poll until it answers, then mount.
+      setEverLoaded(false)
+      setIframeSrc('')
+      startPolling(state.url)
+    }
 
     return () => {
       clearPoll()

@@ -15,7 +15,7 @@
  * @module
  */
 
-import { cleanup, fireEvent, render } from '@testing-library/react'
+import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -138,6 +138,43 @@ describe('PreviewPanel — structured stuck reports (host → agent signal)', ()
     await vi.advanceTimersByTimeAsync(31_000)
     expect(onPreviewStuck).toHaveBeenCalled()
     expect(onPreviewStuck.mock.calls[0][0]).toMatchObject({ reason: 'load-timeout' })
+  })
+})
+
+describe('PreviewPanel — navigation atomic remount (no live-OOPIF teardown)', () => {
+  it('mounts the new route atomically on navigation, NOT via the server-up probe', async () => {
+    const provider = providerAtUrl()
+    const { container } = render(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={false} />
+      </Wrap>,
+    )
+    // Cold first load mounts the iframe via the poll path.
+    for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
+      await vi.advanceTimersByTimeAsync(50)
+    }
+    const iframe = container.querySelector('iframe') as HTMLIFrameElement
+    // Confirm a render so the preview counts as "running" (everLoaded → true).
+    fireEvent.load(iframe)
+    postFromPreview({ type: 'molecule:ready' })
+    await vi.advanceTimersByTimeAsync(10)
+
+    // Now make the server-up probe HANG. A navigation of a running preview must do an
+    // ATOMIC remount to the new route (like the manual reload) and must NOT depend on the
+    // probe — the old two-phase teardown (blank the live iframe, re-add only after the
+    // async probe) wedged the sandboxed cross-origin OOPIF so the route never rendered.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => new Promise(() => {})), // never resolves
+    )
+    const target = PREVIEW_URL + 'my-learning'
+    act(() => {
+      provider.setUrl(target)
+    })
+    const after = container.querySelector('iframe') as HTMLIFrameElement
+    // The iframe is present with the new src immediately — no probe needed, no teardown gap.
+    expect(after).not.toBeNull()
+    expect(after.src).toBe(target)
   })
 })
 
