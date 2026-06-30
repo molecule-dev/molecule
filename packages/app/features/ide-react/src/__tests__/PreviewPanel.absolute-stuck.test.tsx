@@ -123,6 +123,71 @@ describe('PreviewPanel — absolute readiness ceiling', () => {
   })
 })
 
+describe('PreviewPanel — structured stuck reports (host → agent signal)', () => {
+  it('reports the absolute ceiling as reason: load-timeout when no render is ever confirmed', async () => {
+    const onPreviewStuck = vi.fn()
+    const provider = providerAtUrl()
+    const { container } = render(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={false} onPreviewStuck={onPreviewStuck} />
+      </Wrap>,
+    )
+    for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
+      await vi.advanceTimersByTimeAsync(50)
+    }
+    await vi.advanceTimersByTimeAsync(31_000)
+    expect(onPreviewStuck).toHaveBeenCalled()
+    expect(onPreviewStuck.mock.calls[0][0]).toMatchObject({ reason: 'load-timeout' })
+  })
+})
+
+describe('PreviewPanel — runtime-error de-dup (one fault, one report)', () => {
+  it('forwards an identical runtime-error signature only once within the window', async () => {
+    const onPreviewError = vi.fn()
+    const provider = providerAtUrl()
+    const { container } = render(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={false} onPreviewError={onPreviewError} />
+      </Wrap>,
+    )
+    for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
+      await vi.advanceTimersByTimeAsync(50)
+    }
+    // The SAME uncaught error reported twice — the centralized runtime bridge AND a
+    // template's baked sender both fire it. The agent must hear it once, not twice.
+    const err = {
+      type: 'molecule:runtime-error',
+      message: 'x is not defined',
+      source: 'http://localhost:5173/src/main.tsx',
+      line: 12,
+      column: 3,
+    }
+    postFromPreview(err)
+    postFromPreview(err)
+    await vi.advanceTimersByTimeAsync(2_500) // flush the error debounce
+    expect(onPreviewError).toHaveBeenCalledTimes(1)
+    expect(onPreviewError.mock.calls[0][0]).toHaveLength(1)
+  })
+
+  it('forwards DISTINCT runtime errors separately (de-dup is per-signature)', async () => {
+    const onPreviewError = vi.fn()
+    const provider = providerAtUrl()
+    const { container } = render(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={false} onPreviewError={onPreviewError} />
+      </Wrap>,
+    )
+    for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
+      await vi.advanceTimersByTimeAsync(50)
+    }
+    postFromPreview({ type: 'molecule:runtime-error', message: 'first failure' })
+    postFromPreview({ type: 'molecule:runtime-error', message: 'second failure' })
+    await vi.advanceTimersByTimeAsync(2_500)
+    expect(onPreviewError).toHaveBeenCalledTimes(1)
+    expect(onPreviewError.mock.calls[0][0]).toHaveLength(2)
+  })
+})
+
 describe('PreviewPanel — stale-document auto-recovery', () => {
   it('auto-reloads a loaded-but-never-rendered document once the server is up', async () => {
     const { container, iframe } = await mount(false)

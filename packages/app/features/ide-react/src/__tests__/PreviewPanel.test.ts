@@ -135,6 +135,56 @@ describe('PreviewPanel freeze watchdog', () => {
       /handleReloadFrozen = useCallback\(\(\) => \{[\s\S]*?setPreviewFrozen\(false\)[\s\S]*?handleManualRetry\(\)/,
     )
   })
+
+  it('reports the freeze to the host (not just a banner) on the false→true transition', async () => {
+    const source = await readSource()
+    // The banner alone leaves the agent blind — a locked thread can post nothing, so the
+    // host watchdog is the ONLY detector. On the freeze transition it must call
+    // onPreviewStuck with a `frozen` report carrying the route, exactly once per episode.
+    expect(source).toMatch(
+      /if \(previewFrozen && !frozenReportedRef\.current\) \{\s*frozenReportedRef\.current = true\s*onPreviewStuck\?\.\(\{ reason: 'frozen', url: currentLocationRef\.current \}\)/,
+    )
+    // Re-arms when heartbeats resume so a later freeze re-reports.
+    expect(source).toMatch(/else if \(!previewFrozen\) \{\s*frozenReportedRef\.current = false/)
+  })
+})
+
+/**
+ * Structured stuck reports: every give-up path hands the host a failure CLASS + route so
+ * it can compose an actionable, agent-fixable request (vs. a bare "preview is stuck").
+ * The behavioral load-timeout path is covered in PreviewPanel.absolute-stuck.test.tsx;
+ * these source-assert the per-path reason strings (the freeze + loop-breaker paths are
+ * impractical to drive deterministically in node/jsdom — see that file).
+ */
+describe('PreviewPanel structured stuck reasons', () => {
+  async function readSource(): Promise<string> {
+    const fs = await import('node:fs/promises')
+    return fs.readFile(new URL('../components/PreviewPanel.tsx', import.meta.url), 'utf-8')
+  }
+
+  it('tags the loop-breaker (exhausted reloads) as reason: load-failed', async () => {
+    const source = await readSource()
+    expect(source).toContain(
+      "onPreviewStuck?.({ reason: 'load-failed', url: currentLocationRef.current })",
+    )
+  })
+
+  it('tags the absolute readiness ceiling as reason: load-timeout', async () => {
+    const source = await readSource()
+    expect(source).toContain(
+      "onPreviewStuck?.({ reason: 'load-timeout', url: currentLocationRef.current })",
+    )
+  })
+
+  it('de-dups runtime errors by signature before forwarding (one fault, one report)', async () => {
+    const source = await readSource()
+    // The baked sender + the centralized bridge can both report the SAME error, and a
+    // render loop re-throws it endlessly — the agent must hear each signature once.
+    expect(source).toMatch(
+      /const signature = `\$\{err\.message\}\|\$\{err\.source \?\? ''\}\|\$\{err\.line \?\? ''\}\|\$\{err\.column \?\? ''\}`/,
+    )
+    expect(source).toMatch(/now - lastSeen < ERROR_DEDUP_WINDOW_MS\) return/)
+  })
 })
 
 /**

@@ -293,6 +293,36 @@ export interface EditorPanelProps {
 }
 
 /**
+ * Why the preview could not show the running app — the failure CLASS the host hands
+ * to its AI agent so a fix can be targeted (and so the agent isn't told "it's broken"
+ * with no hint of how). Distinct from a JS error (`onPreviewError`): these are states
+ * the iframe itself can't report once it's in them.
+ */
+export type PreviewStuckReason =
+  // Heartbeats stopped after a render — the app's main thread is locked (an infinite
+  // loop / runaway render). The iframe can post nothing else once frozen, so only the
+  // host's heartbeat-silence watchdog can detect it.
+  | 'frozen'
+  // Repeated reload/remount cycles never produced a confirmed render — the document
+  // loads but the app never mounts (e.g. a route that throws on every attempt).
+  | 'load-failed'
+  // The absolute readiness ceiling elapsed with no confirmed render and no active
+  // build — a catch-all backstop so the preview can never spin forever.
+  | 'load-timeout'
+
+/**
+ * Structured report passed to {@link PreviewPanelProps.onPreviewStuck} when the preview
+ * gives up. Carries the failure class + the route it happened on so the host can compose
+ * an actionable, agent-fixable message instead of a bare "preview is stuck".
+ */
+export interface PreviewStuckReport {
+  /** The failure class — what left the preview unable to show the running app. */
+  reason: PreviewStuckReason
+  /** The preview's current location (route) when the failure was detected, if known. */
+  url?: string
+}
+
+/**
  * Properties for preview panel.
  */
 export interface PreviewPanelProps {
@@ -322,8 +352,14 @@ export interface PreviewPanelProps {
    * reveals the live app (HMR updates stay visible), so this never hides a working preview.
    */
   isBuilding?: boolean
-  /** Called when the preview fails to load after multiple recovery attempts. */
-  onPreviewStuck?: () => void
+  /**
+   * Called when the preview gives up showing the running app — after exhausting reload
+   * recovery, at the absolute readiness ceiling, OR when the heartbeat watchdog detects a
+   * frozen (locked-thread) app. Receives a {@link PreviewStuckReport} (failure class +
+   * route) so the host can drive recovery UI AND hand the agent an actionable, targeted
+   * fix request. The argument is optional for backward compatibility with no-arg callers.
+   */
+  onPreviewStuck?: (report?: PreviewStuckReport) => void
   className?: string
 }
 

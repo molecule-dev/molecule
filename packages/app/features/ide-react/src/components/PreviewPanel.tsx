@@ -151,6 +151,15 @@ const FREEZE_THRESHOLD_MS = 8_000
 const FREEZE_CHECK_INTERVAL_MS = 2_000
 
 /**
+ * Window within which an identical runtime-error signature (message+source+line+column)
+ * is treated as a duplicate and dropped before forwarding (ms). Both the centralized
+ * runtime bridge AND a template's baked sender can report the SAME uncaught error, and
+ * a render-looping app re-throws it continuously — de-duping by signature keeps one
+ * fault from flooding the agent with the same message over and over.
+ */
+const ERROR_DEDUP_WINDOW_MS = 4_000
+
+/**
  * How long the preview must stay loaded-but-unconfirmed (document loaded, no `molecule:ready`)
  * while NOT building before the overlay's copy switches from the generic spinner to the
  * actionable "preview is blank — reload" notice (ms). The overlay itself already covers the
@@ -299,6 +308,15 @@ export function PreviewPanel({
   const pollAbortRef = useRef<AbortController | null>(null)
   const urlRef = useRef(state.url)
   urlRef.current = state.url
+  // The preview's live location (client-side route included), read by the stuck/freeze
+  // callbacks so a failure report names the route the user is actually on, not the
+  // initial load target.
+  const currentLocationRef = useRef(currentLocation)
+  currentLocationRef.current = currentLocation
+  // De-dup ledger for forwarded runtime errors: signature → last-forwarded timestamp.
+  // Persists across message-handler re-subscriptions so a duplicate from the baked +
+  // centralized senders (or a re-throwing render loop) is dropped within the window.
+  const recentErrorSigRef = useRef<Map<string, number>>(new Map())
   // Tracks the iframe src to force reload when server recovers
   const [iframeSrc, setIframeSrc] = useState('')
 
@@ -364,6 +382,9 @@ export function PreviewPanel({
   const lastHeartbeatRef = useRef<number>(0)
   // True when heartbeats have stopped for FREEZE_THRESHOLD_MS while the app is up.
   const [previewFrozen, setPreviewFrozen] = useState(false)
+  // Guards the freeze report so a single freeze episode notifies the host ONCE, not on
+  // every watchdog tick; reset when heartbeats resume so a later freeze re-reports.
+  const frozenReportedRef = useRef(false)
 
   // --- Cycle detection: catch rapid ready↔error oscillations ---
   const transitionTimesRef = useRef<number[]>([])
@@ -557,7 +578,7 @@ export function PreviewPanel({
           // Cap reached — HARD STOP. Never loop forever (the old longRetry()
           // remounted every 10s indefinitely, compounding the thrash). Notify the
           // host once, then surface the loop-breaker panel (Reload + open in tab).
-          onPreviewStuck?.()
+          onPreviewStuck?.({ reason: 'load-failed', url: currentLocationRef.current })
           setPreviewGaveUp(true)
         }
       }, delay)
@@ -581,7 +602,7 @@ export function PreviewPanel({
       // Fire ONLY when still on a bare spinner: a confirmed render, an active build, or
       // the actionable blank notice already showing all mean the user is not stuck.
       if (confirmedContentRef.current || isBuildingRef.current || blankPostBuildRef.current) return
-      onPreviewStuck?.()
+      onPreviewStuck?.({ reason: 'load-timeout', url: currentLocationRef.current })
       setPreviewGaveUp(true)
     }, ABSOLUTE_STUCK_MS)
     return () => clearTimeout(timer)
@@ -648,6 +669,20 @@ export function PreviewPanel({
       line?: number
       column?: number
     }): void => {
+      // Drop a signature already forwarded within the window — the baked sender and the
+      // centralized runtime bridge can each report the SAME uncaught error, and a
+      // render-looping app re-throws it endlessly; either way the agent needs it once.
+      const signature = `${err.message}|${err.source ?? ''}|${err.line ?? ''}|${err.column ?? ''}`
+      const now = Date.now()
+      const ledger = recentErrorSigRef.current
+      const lastSeen = ledger.get(signature)
+      if (lastSeen !== undefined && now - lastSeen < ERROR_DEDUP_WINDOW_MS) return
+      ledger.set(signature, now)
+      // Bound the ledger: evict entries older than the window so it can't grow unbounded
+      // over a long session (a steady stream of distinct errors would otherwise leak).
+      for (const [sig, ts] of ledger) {
+        if (now - ts >= ERROR_DEDUP_WINDOW_MS) ledger.delete(sig)
+      }
       if (errorBatch.length < MAX_ERRORS_PER_BATCH) {
         errorBatch.push(err)
       }
@@ -931,6 +966,22 @@ export function PreviewPanel({
     }, FREEZE_CHECK_INTERVAL_MS)
     return () => clearInterval(timer)
   }, [iframeReady, fadingOut, state.url])
+
+  // --- Freeze → host report ---
+  // A frozen preview is the worst case the iframe CANNOT self-report (its thread is
+  // locked, so no molecule:error/runtime-error can ever be posted) — the banner alone
+  // gives the user a reload but never tells the agent. Bridge that gap: on the
+  // false→true freeze transition, hand the host a structured `frozen` report (with the
+  // route) so it can, gated on the autofix setting, ask the agent to find and fix the
+  // infinite loop / runaway render. Fires once per episode; re-arms when beats resume.
+  useEffect(() => {
+    if (previewFrozen && !frozenReportedRef.current) {
+      frozenReportedRef.current = true
+      onPreviewStuck?.({ reason: 'frozen', url: currentLocationRef.current })
+    } else if (!previewFrozen) {
+      frozenReportedRef.current = false
+    }
+  }, [previewFrozen, onPreviewStuck])
 
   // --- Post-build blank detection (settle-gated) ---
   // The build is NOT running (isBuilding false), the document loaded, yet the app has NEVER
