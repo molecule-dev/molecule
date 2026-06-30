@@ -286,3 +286,61 @@ describe('ChatPanel auto-sent + hidden messages (C2 + C3)', () => {
     expect(container.textContent).not.toContain('ACTIVE again')
   })
 })
+
+describe('ChatPanel pending auto-sent messages render as Synthase, not the user', () => {
+  /**
+   * Render ChatPanel, then DISPATCH a pending (system-composed) message by bumping
+   * pendingMessageKey 0 → 1 — exactly how the Workspace dispatches an auto-fix / preview-
+   * failure message (the send effect fires on the key CHANGE, not the initial value).
+   */
+  function dispatchPending(props: {
+    pendingMessage: string
+    pendingMessageSuppressUser?: boolean
+  }): HTMLElement {
+    const tree = (key: number, withMsg: boolean): ReactElement => (
+      <I18nProvider provider={createSimpleI18nProvider('en')}>
+        <ThemeProvider provider={buildThemeProvider()}>
+          <HttpProvider client={buildHttpClient()}>
+            <ChatContextProvider provider={buildChatProvider([])}>
+              <ChatPanel
+                projectId="proj-pending"
+                userAvatar={null}
+                pendingMessageKey={key}
+                {...(withMsg ? props : {})}
+              />
+            </ChatContextProvider>
+          </HttpProvider>
+        </ThemeProvider>
+      </I18nProvider>
+    )
+    const { container, rerender } = render(tree(0, false))
+    rerender(tree(1, true))
+    return container
+  }
+
+  it('renders a non-suppressed pending message as a "Sent automatically" bubble, never a user bubble', async () => {
+    // This is the preview-failure / Fix-with-AI path: the message is composed by the
+    // system and sent on the user's behalf — it must be flagged `automatic` so it does
+    // NOT look like the user typed it.
+    const container = dispatchPending({ pendingMessage: 'Investigate the broken preview' })
+    await waitFor(() => {
+      expect(container.querySelector('[data-mol-id="chat-automatic-message"]')).not.toBeNull()
+    })
+    const auto = container.querySelector('[data-mol-id="chat-automatic-message"]')!
+    expect(auto.textContent).toContain('Investigate the broken preview')
+    expect(auto.textContent).toContain('Sent automatically')
+    // It must NOT render as a real (typed-by-the-user) message.
+    expect(container.querySelector('[data-mol-id="chat-user-message"]')).toBeNull()
+  })
+
+  it('still hides a SUPPRESSED pending message entirely (build kickoff)', async () => {
+    const container = dispatchPending({
+      pendingMessage: 'hidden build kickoff prompt',
+      pendingMessageSuppressUser: true,
+    })
+    // Let the send effect run; a suppressed message must never surface as any bubble.
+    await new Promise((r) => setTimeout(r, 200))
+    expect(container.textContent).not.toContain('hidden build kickoff prompt')
+    expect(container.querySelector('[data-mol-id="chat-automatic-message"]')).toBeNull()
+  })
+})

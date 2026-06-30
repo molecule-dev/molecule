@@ -3700,7 +3700,14 @@ function ChatInner({
       pendingMessageKey !== lastPendingKeyRef.current
     ) {
       lastPendingKeyRef.current = pendingMessageKey
-      const sendOpts = pendingMessageSuppressUser ? { suppressUserMessage: true } : undefined
+      // A pending message is ALWAYS system-composed (an auto-fix prompt, a preview-failure
+      // report, a "Fix with AI" request) — never text the user typed. So it must NEVER
+      // render as a normal user bubble: either it's suppressed entirely (hidden build
+      // kickoff) or it stays visible but flagged `automatic` so the chat shows it as sent
+      // by Synthase on the user's behalf (distinct avatar + accent), not typed by the user.
+      const sendOpts = pendingMessageSuppressUser
+        ? { suppressUserMessage: true }
+        : { automatic: true }
       if (isLoading) {
         // AI is busy — defer until streaming ends
         deferredPendingRef.current = pendingMessage
@@ -3719,7 +3726,9 @@ function ChatInner({
       const suppress = deferredPendingSuppressRef.current
       deferredPendingRef.current = null
       deferredPendingSuppressRef.current = false
-      sendMessage(msg, undefined, suppress ? { suppressUserMessage: true } : undefined)
+      // Same rule as the immediate path: a deferred pending message is system-composed, so
+      // it's either suppressed or flagged `automatic` — never a plain user bubble.
+      sendMessage(msg, undefined, suppress ? { suppressUserMessage: true } : { automatic: true })
     }
   }, [isLoading, sendMessage])
 
