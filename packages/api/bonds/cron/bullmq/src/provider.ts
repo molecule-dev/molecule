@@ -172,5 +172,12 @@ export const createProvider = (config: BullMQCronConfig): CronProvider => {
       record.lastRun = new Date()
       await record.handler()
     },
+
+    async close(): Promise<void> {
+      // Close the worker first so no job starts mid-shutdown, then the queue —
+      // both hold Redis connections that otherwise keep the process alive.
+      await worker.close()
+      await queue.close()
+    },
   }
 }

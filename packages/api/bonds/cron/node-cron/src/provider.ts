@@ -177,6 +177,14 @@ export const createProvider = (config: NodeCronConfig = {}): CronProvider => {
       record.lastRun = new Date()
       await record.handler()
     },
+
+    async close(): Promise<void> {
+      // Stop every scheduled task so no timers keep the process alive.
+      for (const record of jobs.values()) {
+        record.task.stop()
+      }
+      jobs.clear()
+    },
   }
 }
 

@@ -112,6 +112,13 @@ export interface CronProvider {
    * @param jobId - The job identifier.
    */
   runNow(jobId: string): Promise<void>
+
+  /**
+   * Releases the provider's resources (timers, queue/worker connections) so
+   * the process can exit cleanly — required for graceful shutdown and tests.
+   * Optional: in-process providers with no persistent resources may omit it.
+   */
+  close?(): Promise<void>
 }
 
 /**
