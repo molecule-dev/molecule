@@ -298,6 +298,18 @@ function createPool(config?: DatabaseConfig): DatabasePool
 
 **Returns:** A `DatabasePool` backed by a MySQL connection pool.
 
+#### `createStore(pool)`
+
+Creates a DataStore backed by a MySQL DatabasePool.
+
+```typescript
+function createStore(pool: DatabasePool): DataStore
+```
+
+- `pool` — The MySQL DatabasePool to use for queries.
+
+**Returns:** A DataStore that translates CRUD operations to MySQL-compatible SQL.
+
 ### Constants
 
 #### `pool`
@@ -306,6 +318,17 @@ The default MySQL pool instance, created with env-based configuration.
 
 ```typescript
 const pool: DatabasePool
+```
+
+#### `store`
+
+The MySQL-backed DataStore singleton over the default pool. Wired at startup
+via `setStore(store)` from `@molecule/api-database`, mirroring the
+postgresql/sqlite bonds so the injector's setter/provider pairing
+(`setStore` → `store`) finds it.
+
+```typescript
+const store: DataStore
 ```
 
 ## Core Interface
@@ -317,10 +340,11 @@ Setup function to register this provider with the core interface:
 
 ```typescript
 import { setPool, setStore } from '@molecule/api-database'
-import { pool } from '@molecule/api-database-mysql'
+import { pool, store } from '@molecule/api-database-mysql'
 
 export function setupDatabaseMysql(): void {
   setPool(pool)
+  setStore(store)
 }
 ```
 
