@@ -795,13 +795,15 @@ describe('JWT Auth Client', () => {
       expect(client.isAuthenticated()).toBe(false)
     })
 
-    it('clears the mol_auth hint with Secure + SameSite=None + Partitioned in a non-production build', async () => {
+    it('clears the mol_auth hint with Secure + SameSite=None + Partitioned when embedded in a cross-site iframe', async () => {
       // In the cross-site live-preview iframe the server issues `mol_auth` as a
-      // Partitioned cookie; a Partitioned cookie can only be deleted by a
-      // Set-Cookie that ALSO carries Partitioned. In tests import.meta.env.PROD is
-      // false (a non-production build), so the deletion must append those attrs —
-      // otherwise the stale hint survives and initialize() keeps probing/restoring.
+      // Partitioned cookie; a Partitioned cookie can only be deleted by a write
+      // that ALSO carries Partitioned. The client detects the iframe via
+      // window.self !== window.top and appends those attrs — otherwise the stale
+      // hint survives and initialize() keeps probing/restoring.
+      const topWindow = {}
       ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      ;(globalThis as { window?: unknown }).window = { self: {}, top: topWindow } // self !== top
       try {
         mockFetch.mockImplementation(() =>
           createMockResponse({
@@ -827,6 +829,42 @@ describe('JWT Auth Client', () => {
         expect(cookie).toMatch(/;\s*Partitioned/)
       } finally {
         delete (globalThis as { document?: unknown }).document
+        delete (globalThis as { window?: unknown }).window
+      }
+    })
+
+    it('clears the mol_auth hint WITHOUT cross-site attrs at top level (plain Lax hint)', async () => {
+      // The molecule.dev IDE itself and a normally-deployed app are top-level
+      // (window.self === window.top): the hint is a plain Lax cookie the bare
+      // deletion already matches, so appending Partitioned would target the wrong
+      // jar and miss it.
+      const shared = {}
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      ;(globalThis as { window?: unknown }).window = { self: shared, top: shared } // self === top
+      try {
+        mockFetch.mockImplementation(() =>
+          createMockResponse({
+            user: mockUser,
+            accessToken: createMockJWT({
+              sub: mockUser.id,
+              exp: Math.floor(Date.now() / 1000) + 3600,
+            }),
+          }),
+        )
+        const client = createJWTAuthClient()
+        await client.login({ email: 'test@example.com', password: 'password' })
+
+        mockFetch.mockImplementation(() => createMockResponse({}))
+        await client.logout()
+
+        const cookie = (globalThis as { document?: { cookie: string } }).document?.cookie ?? ''
+        expect(cookie).toContain('mol_auth=')
+        expect(cookie).toContain('Max-Age=0')
+        expect(cookie).not.toMatch(/Partitioned/)
+        expect(cookie).not.toMatch(/SameSite=None/)
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+        delete (globalThis as { window?: unknown }).window
       }
     })
   })

@@ -25,17 +25,31 @@ import type {
 } from './types.js'
 
 /**
- * Whether this bundle was built for production (`vite build`) versus served in
- * dev / the sandbox live-preview (`vite dev`). Vite statically replaces
- * `import.meta.env.PROD`; the cast keeps it typechecking under this package's
- * node-only tsc lib set (no `vite/client` ambient types). Any non-Vite runtime
- * (plain ESM, some test envs) yields `undefined` → treated as non-production,
- * which is the safe default for the cookie-deletion attributes below.
+ * Whether this app is running inside a CROSS-SITE iframe — i.e. the molecule.dev
+ * live preview (the app at `127.0.0.1:<port>` embedded in the `localhost:3000`
+ * IDE). This mirrors the server's cross-site-preview decision (see
+ * `@molecule/api-resource-user` `getAuthCookieOptions`): in that case the server
+ * issues the `mol_auth` hint as `Secure; SameSite=None; Partitioned`, and a
+ * Partitioned cookie can only be deleted by a Set-Cookie / `document.cookie`
+ * write that ALSO carries Partitioned. A top-level document (the IDE itself, a
+ * normally-deployed app, or local `vite dev`) sets a plain `Lax` hint that the
+ * bare deletion already matches — so we must NOT append the cross-site attrs
+ * there (they would target the wrong cookie jar and miss the real cookie).
  *
- * @returns `true` in a production build, `false` in dev / preview / unknown.
+ * Comparing `window.self !== window.top` is reference-only, so it never throws
+ * on a cross-origin embed.
+ *
+ * @returns `true` when embedded in a (cross-site) iframe, `false` at top level.
  */
-const isProductionBuild = (): boolean =>
-  (import.meta as unknown as { env?: { PROD?: boolean } }).env?.PROD === true
+const isCrossSitePreviewFrame = (): boolean => {
+  try {
+    return typeof window !== 'undefined' && window.self !== window.top
+  } catch (_error) {
+    // A cross-origin frame can, in rare engines, throw on `window.top` access —
+    // if we can't tell, assume top-level (the safe default matching a Lax hint).
+    return false
+  }
+}
 
 /**
  * Creates a simple JWT-based auth client.
@@ -236,14 +250,15 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
         // won't probe for cookie-restore on the next load even if the server
         // logout call didn't complete (the server clears it too, on success).
         // The deletion must MATCH the attributes the server SET the hint with, or
-        // it targets the wrong cookie jar and the stale hint survives. In the
-        // cross-site live-preview iframe the server issues `mol_auth` as
-        // `Secure; SameSite=None; Partitioned` (a Partitioned cookie can only be
-        // deleted by a Set-Cookie that ALSO carries Partitioned), so append those
-        // in a non-production build; production sets a plain `Lax` hint that the
-        // bare deletion already matches.
+        // it targets the wrong cookie jar and the stale hint survives. Only the
+        // cross-site live-preview iframe issues `mol_auth` as `Secure;
+        // SameSite=None; Partitioned` (a Partitioned cookie can only be deleted by
+        // a write that ALSO carries Partitioned); a top-level document sets a plain
+        // `Lax` hint the bare deletion already matches.
         if (typeof document !== 'undefined') {
-          const previewAttrs = isProductionBuild() ? '' : '; Secure; SameSite=None; Partitioned'
+          const previewAttrs = isCrossSitePreviewFrame()
+            ? '; Secure; SameSite=None; Partitioned'
+            : ''
           document.cookie = `mol_auth=; Max-Age=0; path=/${previewAttrs}`
         }
         setState({

@@ -122,13 +122,16 @@ describe('authorization', () => {
       }
     })
 
-    it('preview/dev: sets every cookie SameSite=None + Secure + Partitioned so the cross-site preview iframe keeps them', () => {
+    it('cross-site preview (MOL_CROSS_SITE_COOKIES=1): every cookie is SameSite=None + Secure + Partitioned', () => {
       // The molecule.dev live preview renders the app in a cross-site iframe
       // (127.0.0.1 inside localhost:3000); a Lax cookie is neither stored nor sent
       // there, so the session vanished on every reload. None + Secure + Partitioned
-      // (CHIPS) is what keeps it alive without weakening production.
+      // (CHIPS) is what keeps it alive. Gated on the platform-set preview flag —
+      // NOT on NODE_ENV — so it never touches top-level (IDE / local) sessions.
       mockSign.mockReturnValue('jwt-token-xyz')
-      mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'development' : ''))
+      mockGetConfig.mockImplementation((key: string) =>
+        key === 'MOL_CROSS_SITE_COOKIES' ? '1' : key === 'NODE_ENV' ? 'development' : '',
+      )
       const res = makeRes()
 
       set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
@@ -139,6 +142,26 @@ describe('authorization', () => {
         expect(opts.sameSite).toBe('none')
         expect(opts.secure).toBe(true) // SameSite=None REQUIRES Secure
         expect(opts.partitioned).toBe(true)
+        expect(opts.path).toBe('/')
+      }
+    })
+
+    it('dev top-level (no preview flag): plain Lax, NOT Secure, NOT Partitioned — the original dev posture', () => {
+      // The molecule.dev IDE itself and a locally-run app are top-level docs, so
+      // they must stay Lax. Forcing None/Partitioned here is what duplicated the
+      // browser's existing Lax cookie into a second jar and broke auth.
+      mockSign.mockReturnValue('jwt-token-xyz')
+      mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'development' : ''))
+      const res = makeRes()
+
+      set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
+
+      expect(res.cookie).toHaveBeenCalled()
+      for (const call of res.cookie.mock.calls) {
+        const opts = call[2] as Record<string, unknown>
+        expect(opts.sameSite).toBe('lax')
+        expect(opts.secure).toBe(false)
+        expect(opts.partitioned).toBeUndefined()
         expect(opts.path).toBe('/')
       }
     })
@@ -165,12 +188,24 @@ describe('authorization', () => {
       expect(cookieOptions.secure).toBe(true)
     })
 
-    it('sets cookie secure to true even outside production (SameSite=None requires Secure)', () => {
-      // Non-production now uses SameSite=None (for the cross-site preview iframe),
-      // which browsers only accept with Secure. Secure over http is permitted on
-      // the potentially-trustworthy localhost / 127.0.0.1 preview origins.
+    it('sets cookie secure to false when NODE_ENV is not production (top-level dev)', () => {
       mockSign.mockReturnValue('jwt-token-xyz')
       mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'development' : ''))
+      const res = makeRes()
+
+      set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
+
+      const cookieOptions = res.cookie.mock.calls[0]?.[2] as Record<string, unknown>
+      expect(cookieOptions.secure).toBe(false)
+    })
+
+    it('cross-site preview forces Secure even outside production (SameSite=None requires it)', () => {
+      // Secure over http is permitted on the potentially-trustworthy localhost /
+      // 127.0.0.1 preview origins, so None+Secure is valid in the dev preview.
+      mockSign.mockReturnValue('jwt-token-xyz')
+      mockGetConfig.mockImplementation((key: string) =>
+        key === 'MOL_CROSS_SITE_COOKIES' ? '1' : key === 'NODE_ENV' ? 'development' : '',
+      )
       const res = makeRes()
 
       set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
@@ -259,19 +294,38 @@ describe('authorization', () => {
   // getAuthCookieOptions (single source of truth for set + clear)
   // ---------------------------------------------------------------
   describe('getAuthCookieOptions', () => {
-    it('production: Secure + SameSite=Lax + Path=/, no Partitioned', () => {
-      mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'production' : ''))
-      expect(getAuthCookieOptions()).toEqual({ secure: true, sameSite: 'lax', path: '/' })
-    })
-
-    it('non-production: Secure + SameSite=None + Partitioned + Path=/ (cross-site preview iframe)', () => {
-      mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'development' : ''))
+    it('cross-site preview (MOL_CROSS_SITE_COOKIES=1): Secure + SameSite=None + Partitioned + Path=/', () => {
+      mockGetConfig.mockImplementation((key: string) =>
+        key === 'MOL_CROSS_SITE_COOKIES' ? '1' : key === 'NODE_ENV' ? 'development' : '',
+      )
       expect(getAuthCookieOptions()).toEqual({
         secure: true,
         sameSite: 'none',
         partitioned: true,
         path: '/',
       })
+    })
+
+    it('cross-site preview wins even in production (the preview app is cross-site either way)', () => {
+      mockGetConfig.mockImplementation((key: string) =>
+        key === 'MOL_CROSS_SITE_COOKIES' ? '1' : key === 'NODE_ENV' ? 'production' : '',
+      )
+      expect(getAuthCookieOptions()).toEqual({
+        secure: true,
+        sameSite: 'none',
+        partitioned: true,
+        path: '/',
+      })
+    })
+
+    it('production, top-level: Secure + SameSite=Lax + Path=/, no Partitioned', () => {
+      mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'production' : ''))
+      expect(getAuthCookieOptions()).toEqual({ secure: true, sameSite: 'lax', path: '/' })
+    })
+
+    it('development, top-level: NOT Secure + SameSite=Lax + Path=/ (original dev posture)', () => {
+      mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'development' : ''))
+      expect(getAuthCookieOptions()).toEqual({ secure: false, sameSite: 'lax', path: '/' })
     })
   })
 

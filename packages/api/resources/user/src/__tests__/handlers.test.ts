@@ -1306,8 +1306,9 @@ describe('authorization.set — cookie security', () => {
     expect(cookieOptions.partitioned).toBeUndefined()
   })
 
-  it('non-production: uses SameSite=None + Secure + Partitioned (cross-site preview iframe)', () => {
+  it('cross-site preview (MOL_CROSS_SITE_COOKIES=1): uses SameSite=None + Secure + Partitioned', () => {
     mockGetConfig.mockImplementation((key: string) => {
+      if (key === 'MOL_CROSS_SITE_COOKIES') return '1'
       if (key === 'NODE_ENV') return 'development'
       return undefined
     })
@@ -1324,6 +1325,27 @@ describe('authorization.set — cookie security', () => {
       expect(opts.sameSite).toBe('none')
       expect(opts.secure).toBe(true)
       expect(opts.partitioned).toBe(true)
+    }
+  })
+
+  it('dev top-level (no preview flag): plain Lax, NOT Secure, NOT Partitioned', () => {
+    mockGetConfig.mockImplementation((key: string) => {
+      if (key === 'NODE_ENV') return 'development'
+      return undefined
+    })
+
+    const req = makeReq()
+    const res = makeRes()
+    const session = { userId: 'user-1', deviceId: 'device-1' }
+
+    authorization.set(req as MoleculeRequest, res as MoleculeResponse, session)
+
+    expect(res.cookie).toHaveBeenCalled()
+    for (const call of res.cookie.mock.calls) {
+      const opts = call[2] as Record<string, unknown>
+      expect(opts.sameSite).toBe('lax')
+      expect(opts.secure).toBe(false)
+      expect(opts.partitioned).toBeUndefined()
     }
   })
 
@@ -1404,12 +1426,32 @@ describe('authorization.set — cookie security', () => {
     )
   })
 
-  it('should set secure to true in non-production too (SameSite=None requires Secure)', () => {
-    // The plain (un-prefixed) name is still used outside production, but the
-    // cookie must be Secure now because it is SameSite=None for the cross-site
-    // preview iframe (browsers reject None without Secure; Secure over http is
-    // permitted on the trustworthy localhost / 127.0.0.1 preview origins).
+  it('should set secure to false in non-production top-level (no preview flag)', () => {
     mockGetConfig.mockImplementation((key: string) => {
+      if (key === 'NODE_ENV') return 'development'
+      return undefined
+    })
+
+    const req = makeReq()
+    const res = makeRes()
+    const session = { userId: 'user-1', deviceId: 'device-1' }
+
+    authorization.set(req as MoleculeRequest, res as MoleculeResponse, session)
+
+    expect(res.cookie).toHaveBeenCalledWith(
+      'sessionId',
+      expect.any(String),
+      expect.objectContaining({
+        secure: false,
+      }),
+    )
+  })
+
+  it('cross-site preview forces Secure even in non-production (SameSite=None requires it)', () => {
+    // Browsers reject None without Secure; Secure over http is permitted on the
+    // trustworthy localhost / 127.0.0.1 preview origins.
+    mockGetConfig.mockImplementation((key: string) => {
+      if (key === 'MOL_CROSS_SITE_COOKIES') return '1'
       if (key === 'NODE_ENV') return 'development'
       return undefined
     })
@@ -1857,10 +1899,12 @@ describe('logout (POST /users/logout — revoke device + clear cookies)', () => 
     expect(cleared).toContain('mol_auth')
   })
 
-  it('non-production: clears with SameSite=None + Secure + Partitioned so the deletion matches the preview cookie jar', async () => {
+  it('cross-site preview: clears with SameSite=None + Secure + Partitioned so the deletion matches the preview cookie jar', async () => {
     // A Partitioned cookie can only be deleted by a Set-Cookie that ALSO carries
     // Partitioned; a mismatched clear leaves the credential alive (cosmetic logout).
-    mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'development' : ''))
+    mockGetConfig.mockImplementation((key: string) =>
+      key === 'MOL_CROSS_SITE_COOKIES' ? '1' : key === 'NODE_ENV' ? 'development' : '',
+    )
     const clears: Array<{ name: string; options?: Record<string, unknown> }> = []
     const res = {
       locals: { session: { userId: 'u1', deviceId: 'd1' } },

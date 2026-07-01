@@ -64,25 +64,56 @@ export const getAuthCookieName = (base: string): string =>
   isProduction() ? `__Host-${base}` : base
 
 /**
+ * Whether this API serves an app embedded in a CROSS-SITE iframe — i.e. the
+ * molecule.dev live preview, where the app renders at `127.0.0.1:<port>` inside
+ * the `localhost:3000` (prod: `*.preview.molecule.dev` inside `molecule.dev`)
+ * IDE. The platform sets `MOL_CROSS_SITE_COOKIES=1` in the sandbox container's
+ * env for exactly this case; a normally-deployed or locally-run app (which is a
+ * TOP-LEVEL document) never sets it.
+ *
+ * This is deliberately NOT derived from `NODE_ENV`: the molecule.dev IDE itself
+ * and a developer running their generated app locally are BOTH non-production
+ * AND top-level, so keying cross-site cookies off `NODE_ENV` wrongly forced
+ * `SameSite=None; Partitioned` onto those top-level sessions — which then
+ * coexisted with the browser's pre-existing `Lax` cookie of the same name in a
+ * SEPARATE jar, sending a duplicate `token` header and breaking auth.
+ *
+ * @returns `true` only when the app is served cross-site in the preview iframe.
+ */
+const isCrossSitePreview = (): boolean => {
+  try {
+    return getConfig('MOL_CROSS_SITE_COOKIES') === '1'
+  } catch (_error) {
+    // Config read is optional — absence means "not the preview" (top-level).
+    return false
+  }
+}
+
+/**
  * Base cookie attributes shared by EVERY auth cookie this resource sets and
  * clears — the single source of truth so a SET and its matching CLEAR always
  * agree (a mismatched attribute leaves an undeletable cookie) and every auth
- * cookie gets identical cross-site behaviour.
+ * cookie gets identical behaviour.
  *
- * - **Production** → `{ secure: true, sameSite: 'lax', path: '/' }`. The app is a
- *   top-level document in production, so `Lax` is the correct, stricter default
- *   and pairs with the `__Host-` prefix (see {@link getAuthCookieName}). This is
- *   the CSRF-hardened posture — NEVER weaken it.
- * - **Non-production (sandbox live-preview / dev)** → `{ secure: true, sameSite:
- *   'none', partitioned: true, path: '/' }`. The molecule.dev live preview renders
- *   the app in a CROSS-SITE iframe (`127.0.0.1:<port>` inside `localhost:3000`);
- *   browsers evaluate SameSite against the TOP-LEVEL site, so a `Lax`/`Strict`
- *   cookie is neither stored nor sent on ANY preview request — the httpOnly
- *   session cookie vanishes on every iframe reload and the user is logged out of
- *   their own app. `SameSite=None` makes it cross-site-sendable (which REQUIRES
- *   `Secure` — permitted over http on the potentially-trustworthy `localhost` /
- *   `127.0.0.1` origins), and `Partitioned` (CHIPS) keeps it working when
- *   third-party cookies are blocked (Brave/Chrome), which `None` alone does not.
+ * - **Cross-site preview** (see {@link isCrossSitePreview}) → `{ secure: true,
+ *   sameSite: 'none', partitioned: true, path: '/' }`. The molecule.dev live
+ *   preview renders the app in a CROSS-SITE iframe; browsers evaluate SameSite
+ *   against the TOP-LEVEL site, so a `Lax`/`Strict` cookie is neither stored nor
+ *   sent on ANY preview request — the httpOnly session cookie vanishes on every
+ *   iframe reload and the user is logged out of their own app. `SameSite=None`
+ *   makes it cross-site-sendable (which REQUIRES `Secure` — permitted over http
+ *   on the potentially-trustworthy `localhost` / `127.0.0.1` origins), and
+ *   `Partitioned` (CHIPS) keeps it working when third-party cookies are blocked
+ *   (Brave/Chrome), which `None` alone does not. Applies whether the platform is
+ *   dev or prod, because the preview app is cross-site either way.
+ * - **Production, top-level** → `{ secure: true, sameSite: 'lax', path: '/' }`.
+ *   The correct, CSRF-hardened default; pairs with the `__Host-` prefix (see
+ *   {@link getAuthCookieName}). NEVER weaken it.
+ * - **Development, top-level** → `{ secure: false, sameSite: 'lax', path: '/' }`.
+ *   The original dev posture (plain http, not `Secure`) — used by the molecule.dev
+ *   IDE and by a developer running their generated app locally. Both are top-level
+ *   documents, so `Lax` is correct and `Secure`/`None`/`Partitioned` would be both
+ *   unnecessary and (as above) actively harmful.
  *
  * `httpOnly` and `maxAge` are intentionally omitted: the SET call adds those per
  * cookie, and the CLEAR call spreads these attributes verbatim so the deletion
@@ -95,10 +126,14 @@ export const getAuthCookieOptions = (): {
   sameSite: 'lax' | 'none'
   partitioned?: boolean
   path: string
-} =>
-  isProduction()
+} => {
+  if (isCrossSitePreview()) {
+    return { secure: true, sameSite: 'none', partitioned: true, path: '/' }
+  }
+  return isProduction()
     ? { secure: true, sameSite: 'lax', path: '/' }
-    : { secure: true, sameSite: 'none', partitioned: true, path: '/' }
+    : { secure: false, sameSite: 'lax', path: '/' }
+}
 
 /**
  * Read an auth cookie by its base name. In production the cookie is `__Host-`-
