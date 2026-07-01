@@ -8,7 +8,7 @@
 
 import { DeleteObjectCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
-import type { Readable } from 'stream'
+import { PassThrough } from 'stream'
 import { v4 as uuid } from 'uuid'
 
 import { getLogger } from '@molecule/api-bond'
@@ -98,12 +98,21 @@ export const upload = (
     return { id, fieldname, filename, encoding, mimetype, size: 0, uploaded: false } as File
   }
 
+  // Pipe through a PassThrough the bond controls: `@aws-sdk/lib-storage`
+  // consumes its Body without emitting `data` events on the source, so
+  // counting bytes directly on `stream` never fired and `file.size` stayed 0
+  // (caught by the capability contract tests). Piping puts the source in
+  // flowing mode — its `data` listeners (size accounting below) now fire —
+  // while the SDK reads from the PassThrough.
+  const body = new PassThrough()
+  stream.pipe(body)
+
   const s3Upload = new Upload({
     client: getS3Client(),
     params: {
       Bucket: getBucketName(),
       Key: id,
-      Body: stream as Readable,
+      Body: body,
       ContentType: mimetype,
       ContentDisposition: 'attachment',
     },
@@ -149,7 +158,11 @@ export const upload = (
   })
 
   stream.on(`error`, (err) => {
-    onError(err instanceof Error ? err : new Error(String(err)))
+    const error = err instanceof Error ? err : new Error(String(err))
+    // Tear down the piped body too, or the SDK upload would wait forever on a
+    // stream that will never end.
+    body.destroy(error)
+    onError(error)
   })
 
   stream.on(`limit`, () => {
