@@ -42,6 +42,7 @@ const {
   set,
   verifyMiddleware,
   getAuthCookieName,
+  getAuthCookieOptions,
   invalidateDeviceExistsCache,
   invalidateAllDeviceExistsCache,
 } = await import('../authorization.js')
@@ -104,15 +105,42 @@ describe('authorization', () => {
       )
     })
 
-    it('sets cookie sameSite to lax (not none)', () => {
+    it('production: sets every cookie SameSite=Lax + Secure, no Partitioned (top-level default)', () => {
       mockSign.mockReturnValue('jwt-token-xyz')
-      mockGetConfig.mockReturnValue('test')
+      mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'production' : ''))
       const res = makeRes()
 
       set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
 
-      const cookieOptions = res.cookie.mock.calls[0]?.[2] as Record<string, unknown>
-      expect(cookieOptions.sameSite).toBe('lax')
+      expect(res.cookie).toHaveBeenCalled()
+      for (const call of res.cookie.mock.calls) {
+        const opts = call[2] as Record<string, unknown>
+        expect(opts.sameSite).toBe('lax')
+        expect(opts.secure).toBe(true)
+        expect(opts.partitioned).toBeUndefined()
+        expect(opts.path).toBe('/')
+      }
+    })
+
+    it('preview/dev: sets every cookie SameSite=None + Secure + Partitioned so the cross-site preview iframe keeps them', () => {
+      // The molecule.dev live preview renders the app in a cross-site iframe
+      // (127.0.0.1 inside localhost:3000); a Lax cookie is neither stored nor sent
+      // there, so the session vanished on every reload. None + Secure + Partitioned
+      // (CHIPS) is what keeps it alive without weakening production.
+      mockSign.mockReturnValue('jwt-token-xyz')
+      mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'development' : ''))
+      const res = makeRes()
+
+      set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
+
+      expect(res.cookie).toHaveBeenCalled()
+      for (const call of res.cookie.mock.calls) {
+        const opts = call[2] as Record<string, unknown>
+        expect(opts.sameSite).toBe('none')
+        expect(opts.secure).toBe(true) // SameSite=None REQUIRES Secure
+        expect(opts.partitioned).toBe(true)
+        expect(opts.path).toBe('/')
+      }
     })
 
     it('sets cookie maxAge to 7 days (604800000ms)', () => {
@@ -137,7 +165,10 @@ describe('authorization', () => {
       expect(cookieOptions.secure).toBe(true)
     })
 
-    it('sets cookie secure to false when NODE_ENV is not production', () => {
+    it('sets cookie secure to true even outside production (SameSite=None requires Secure)', () => {
+      // Non-production now uses SameSite=None (for the cross-site preview iframe),
+      // which browsers only accept with Secure. Secure over http is permitted on
+      // the potentially-trustworthy localhost / 127.0.0.1 preview origins.
       mockSign.mockReturnValue('jwt-token-xyz')
       mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'development' : ''))
       const res = makeRes()
@@ -145,7 +176,7 @@ describe('authorization', () => {
       set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
 
       const cookieOptions = res.cookie.mock.calls[0]?.[2] as Record<string, unknown>
-      expect(cookieOptions.secure).toBe(false)
+      expect(cookieOptions.secure).toBe(true)
     })
 
     it('generates session.id if missing', () => {
@@ -221,6 +252,26 @@ describe('authorization', () => {
     it('returns the plain name outside production', () => {
       mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'development' : ''))
       expect(getAuthCookieName('token')).toBe('token')
+    })
+  })
+
+  // ---------------------------------------------------------------
+  // getAuthCookieOptions (single source of truth for set + clear)
+  // ---------------------------------------------------------------
+  describe('getAuthCookieOptions', () => {
+    it('production: Secure + SameSite=Lax + Path=/, no Partitioned', () => {
+      mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'production' : ''))
+      expect(getAuthCookieOptions()).toEqual({ secure: true, sameSite: 'lax', path: '/' })
+    })
+
+    it('non-production: Secure + SameSite=None + Partitioned + Path=/ (cross-site preview iframe)', () => {
+      mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'development' : ''))
+      expect(getAuthCookieOptions()).toEqual({
+        secure: true,
+        sameSite: 'none',
+        partitioned: true,
+        path: '/',
+      })
     })
   })
 

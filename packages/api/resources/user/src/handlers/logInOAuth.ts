@@ -101,13 +101,15 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         clearCookie?(name: string, options?: Record<string, unknown>): void
       }
       // The state cookie is one-time use — always clear it, match or not. Clear
-      // BOTH names so a leftover plain/prefixed copy can't linger. A `__Host-`
-      // cookie must be cleared with Secure + Path=/ to match how it was set.
+      // BOTH names so a leftover plain/prefixed copy can't linger. The CLEAR must
+      // carry the SAME attributes the initiation endpoint SET it with
+      // (getAuthCookieOptions: Secure + Path=/ in prod; + SameSite=None +
+      // Partitioned in the sandbox live-preview) or the browser won't match &
+      // delete the (partitioned) cookie.
       const clearStateCookie = (): void => {
         if (typeof expressRes.clearCookie === 'function') {
           expressRes.clearCookie(authorization.getAuthCookieName('oauth_state'), {
-            path: '/',
-            secure: getConfig('NODE_ENV') === 'production',
+            ...authorization.getAuthCookieOptions(),
           })
           expressRes.clearCookie('oauth_state', { path: '/' })
         }
@@ -145,9 +147,11 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
       clearCookie?(name: string, options?: Record<string, unknown>): void
     }
     if (typeof expressResVerifier.clearCookie === 'function') {
+      // Same one-time-use clear as oauth_state: match the SET attributes
+      // (Partitioned + SameSite=None + Secure in the live-preview) so the
+      // deletion hits the right cookie jar.
       expressResVerifier.clearCookie(authorization.getAuthCookieName('oauth_verifier'), {
-        path: '/',
-        secure: getConfig('NODE_ENV') === 'production',
+        ...authorization.getAuthCookieOptions(),
       })
       expressResVerifier.clearCookie('oauth_verifier', { path: '/' })
     }

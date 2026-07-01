@@ -661,6 +661,12 @@ describe('logInOAuth handler — CSRF state validation', () => {
     expect(result?.statusCode).toBe(200)
     // Verify that clearCookie was called for the state cookie (both names are cleared).
     expect(res.clearCookie).toHaveBeenCalledWith('oauth_state', { path: '/' })
+    // The `__Host-` clear now routes through getAuthCookieOptions() so it matches
+    // the SET (prod: Secure + Lax + Path=/; preview: + None + Partitioned).
+    expect(res.clearCookie).toHaveBeenCalledWith(
+      '__Host-oauth_state',
+      expect.objectContaining({ secure: true, sameSite: 'lax', path: '/' }),
+    )
   })
 
   it('uses the PKCE verifier from the httpOnly cookie, NEVER the request body, and clears it [M1-1]', async () => {
@@ -712,6 +718,12 @@ describe('logInOAuth handler — CSRF state validation', () => {
     expect(callArgs[0]).toBe('auth-code')
     expect(callArgs[1]).toBe(sessionVerifier) // cookie verifier, NOT 'attacker-body-value'
     expect(res.clearCookie).toHaveBeenCalledWith('oauth_verifier', { path: '/' }) // one-time use
+    // Prefixed clear matches the SET attributes (getAuthCookieOptions) so the
+    // deletion still hits the (possibly Partitioned) cookie jar.
+    expect(res.clearCookie).toHaveBeenCalledWith(
+      '__Host-oauth_verifier',
+      expect.objectContaining({ secure: true, sameSite: 'lax', path: '/' }),
+    )
   })
 
   it('rejects a TOSSED plain oauth_state cookie in production — no plain fallback [C4-1]', async () => {
@@ -1276,7 +1288,7 @@ describe('authorization.set — cookie security', () => {
     )
   })
 
-  it('should NOT use sameSite none', () => {
+  it('production: does NOT use sameSite none (top-level Lax default)', () => {
     mockGetConfig.mockImplementation((key: string) => {
       if (key === 'NODE_ENV') return 'production'
       return undefined
@@ -1291,9 +1303,36 @@ describe('authorization.set — cookie security', () => {
     const cookieCall = res.cookie.mock.calls[0]
     const cookieOptions = cookieCall?.[2] as Record<string, unknown>
     expect(cookieOptions.sameSite).not.toBe('none')
+    expect(cookieOptions.partitioned).toBeUndefined()
+  })
+
+  it('non-production: uses SameSite=None + Secure + Partitioned (cross-site preview iframe)', () => {
+    mockGetConfig.mockImplementation((key: string) => {
+      if (key === 'NODE_ENV') return 'development'
+      return undefined
+    })
+
+    const req = makeReq()
+    const res = makeRes()
+    const session = { userId: 'user-1', deviceId: 'device-1' }
+
+    authorization.set(req as MoleculeRequest, res as MoleculeResponse, session)
+
+    expect(res.cookie).toHaveBeenCalled()
+    for (const call of res.cookie.mock.calls) {
+      const opts = call[2] as Record<string, unknown>
+      expect(opts.sameSite).toBe('none')
+      expect(opts.secure).toBe(true)
+      expect(opts.partitioned).toBe(true)
+    }
   })
 
   it('should set maxAge to 7 days (604800000 ms)', () => {
+    // Explicit production mock — the `__Host-` name assertion below requires it,
+    // and this describe has no beforeEach reset (don't rely on leaked state).
+    mockGetConfig.mockImplementation((key: string) =>
+      key === 'NODE_ENV' ? 'production' : undefined,
+    )
     const req = makeReq()
     const res = makeRes()
     const session = { userId: 'user-1', deviceId: 'device-1' }
@@ -1325,6 +1364,10 @@ describe('authorization.set — cookie security', () => {
   })
 
   it('should set httpOnly to true', () => {
+    // Explicit production mock for the `__Host-` name assertion (no beforeEach reset).
+    mockGetConfig.mockImplementation((key: string) =>
+      key === 'NODE_ENV' ? 'production' : undefined,
+    )
     const req = makeReq()
     const res = makeRes()
     const session = { userId: 'user-1', deviceId: 'device-1' }
@@ -1361,7 +1404,11 @@ describe('authorization.set — cookie security', () => {
     )
   })
 
-  it('should set secure to false in non-production', () => {
+  it('should set secure to true in non-production too (SameSite=None requires Secure)', () => {
+    // The plain (un-prefixed) name is still used outside production, but the
+    // cookie must be Secure now because it is SameSite=None for the cross-site
+    // preview iframe (browsers reject None without Secure; Secure over http is
+    // permitted on the trustworthy localhost / 127.0.0.1 preview origins).
     mockGetConfig.mockImplementation((key: string) => {
       if (key === 'NODE_ENV') return 'development'
       return undefined
@@ -1377,7 +1424,7 @@ describe('authorization.set — cookie security', () => {
       'sessionId',
       expect.any(String),
       expect.objectContaining({
-        secure: false,
+        secure: true,
       }),
     )
   })
@@ -1808,6 +1855,54 @@ describe('logout (POST /users/logout — revoke device + clear cookies)', () => 
     expect(cleared).toContain('token')
     expect(cleared).toContain('sessionId')
     expect(cleared).toContain('mol_auth')
+  })
+
+  it('non-production: clears with SameSite=None + Secure + Partitioned so the deletion matches the preview cookie jar', async () => {
+    // A Partitioned cookie can only be deleted by a Set-Cookie that ALSO carries
+    // Partitioned; a mismatched clear leaves the credential alive (cosmetic logout).
+    mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'development' : ''))
+    const clears: Array<{ name: string; options?: Record<string, unknown> }> = []
+    const res = {
+      locals: { session: { userId: 'u1', deviceId: 'd1' } },
+      clearCookie: (name: string, options?: Record<string, unknown>) =>
+        clears.push({ name, options }),
+      removeHeader: vi.fn(),
+    } as unknown as MoleculeResponse
+
+    await logout()({} as unknown as MoleculeRequest, res)
+
+    // The current-name clears (token/sessionId/mol_auth) carry the None + Secure +
+    // Partitioned attributes; the legacy plain-name fallback stays a bare path clear.
+    for (const base of ['token', 'sessionId', 'mol_auth']) {
+      const match = clears.find(
+        (c) => c.name === base && (c.options as Record<string, unknown>)?.partitioned === true,
+      )
+      expect(match, `${base} must be cleared with Partitioned`).toBeTruthy()
+      expect(match?.options?.sameSite).toBe('none')
+      expect(match?.options?.secure).toBe(true)
+      expect(match?.options?.path).toBe('/')
+    }
+  })
+
+  it('production: clears with SameSite=Lax + Secure (no Partitioned) — matches the __Host- set', async () => {
+    mockGetConfig.mockImplementation((key: string) => (key === 'NODE_ENV' ? 'production' : ''))
+    const clears: Array<{ name: string; options?: Record<string, unknown> }> = []
+    const res = {
+      locals: { session: { userId: 'u1', deviceId: 'd1' } },
+      clearCookie: (name: string, options?: Record<string, unknown>) =>
+        clears.push({ name, options }),
+      removeHeader: vi.fn(),
+    } as unknown as MoleculeResponse
+
+    await logout()({} as unknown as MoleculeRequest, res)
+
+    // Prod clears the `__Host-` names with Lax + Secure + Path=/, no Partitioned.
+    const hostToken = clears.find((c) => c.name === '__Host-token')
+    expect(hostToken, '__Host-token must be cleared').toBeTruthy()
+    expect(hostToken?.options?.sameSite).toBe('lax')
+    expect(hostToken?.options?.secure).toBe(true)
+    expect(hostToken?.options?.partitioned).toBeUndefined()
+    expect(hostToken?.options?.path).toBe('/')
   })
 
   it('still clears cookies (200) when there is no device on the session', async () => {

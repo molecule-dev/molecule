@@ -794,6 +794,41 @@ describe('JWT Auth Client', () => {
       // Should still be logged out locally
       expect(client.isAuthenticated()).toBe(false)
     })
+
+    it('clears the mol_auth hint with Secure + SameSite=None + Partitioned in a non-production build', async () => {
+      // In the cross-site live-preview iframe the server issues `mol_auth` as a
+      // Partitioned cookie; a Partitioned cookie can only be deleted by a
+      // Set-Cookie that ALSO carries Partitioned. In tests import.meta.env.PROD is
+      // false (a non-production build), so the deletion must append those attrs —
+      // otherwise the stale hint survives and initialize() keeps probing/restoring.
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      try {
+        mockFetch.mockImplementation(() =>
+          createMockResponse({
+            user: mockUser,
+            accessToken: createMockJWT({
+              sub: mockUser.id,
+              exp: Math.floor(Date.now() / 1000) + 3600,
+            }),
+          }),
+        )
+        const client = createJWTAuthClient()
+        await client.login({ email: 'test@example.com', password: 'password' })
+
+        mockFetch.mockImplementation(() => createMockResponse({}))
+        await client.logout()
+
+        const cookie = (globalThis as { document?: { cookie: string } }).document?.cookie ?? ''
+        expect(cookie).toContain('mol_auth=')
+        expect(cookie).toContain('Max-Age=0')
+        expect(cookie).toContain('path=/')
+        expect(cookie).toMatch(/;\s*Secure/)
+        expect(cookie).toMatch(/;\s*SameSite=None/)
+        expect(cookie).toMatch(/;\s*Partitioned/)
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
+    })
   })
 
   describe('register', () => {

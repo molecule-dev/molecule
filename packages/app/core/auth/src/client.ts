@@ -25,6 +25,19 @@ import type {
 } from './types.js'
 
 /**
+ * Whether this bundle was built for production (`vite build`) versus served in
+ * dev / the sandbox live-preview (`vite dev`). Vite statically replaces
+ * `import.meta.env.PROD`; the cast keeps it typechecking under this package's
+ * node-only tsc lib set (no `vite/client` ambient types). Any non-Vite runtime
+ * (plain ESM, some test envs) yields `undefined` → treated as non-production,
+ * which is the safe default for the cookie-deletion attributes below.
+ *
+ * @returns `true` in a production build, `false` in dev / preview / unknown.
+ */
+const isProductionBuild = (): boolean =>
+  (import.meta as unknown as { env?: { PROD?: boolean } }).env?.PROD === true
+
+/**
  * Creates a simple JWT-based auth client.
  *
  * This is a basic implementation that can be extended or replaced
@@ -222,8 +235,16 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
         // [M1-1] Drop the non-httpOnly session-presence hint so initialize()
         // won't probe for cookie-restore on the next load even if the server
         // logout call didn't complete (the server clears it too, on success).
+        // The deletion must MATCH the attributes the server SET the hint with, or
+        // it targets the wrong cookie jar and the stale hint survives. In the
+        // cross-site live-preview iframe the server issues `mol_auth` as
+        // `Secure; SameSite=None; Partitioned` (a Partitioned cookie can only be
+        // deleted by a Set-Cookie that ALSO carries Partitioned), so append those
+        // in a non-production build; production sets a plain `Lax` hint that the
+        // bare deletion already matches.
         if (typeof document !== 'undefined') {
-          document.cookie = 'mol_auth=; Max-Age=0; path=/'
+          const previewAttrs = isProductionBuild() ? '' : '; Secure; SameSite=None; Partitioned'
+          document.cookie = `mol_auth=; Max-Age=0; path=/${previewAttrs}`
         }
         setState({
           loading: false,

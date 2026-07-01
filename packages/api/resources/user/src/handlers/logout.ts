@@ -1,8 +1,7 @@
 import { get, getLogger } from '@molecule/api-bond'
-import { get as getConfig } from '@molecule/api-config'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import { getAuthCookieName } from '../authorization.js'
+import { getAuthCookieName, getAuthCookieOptions } from '../authorization.js'
 
 const logger = getLogger()
 
@@ -38,17 +37,23 @@ export const logout = () => {
       removeHeader?(name: string): void
     }
     if (typeof expressRes.clearCookie === 'function') {
-      const secure = getConfig<string>('NODE_ENV') === 'production'
-      // Clear by BOTH the prod `__Host-` name and the plain name; a `__Host-`
-      // cookie must be cleared with Secure + Path=/ to match how it was set.
+      // The CLEAR must carry the SAME attributes the cookie was SET with
+      // (getAuthCookieOptions: Secure + Path=/ in prod; + SameSite=None +
+      // Partitioned in the sandbox live-preview) or the browser won't match &
+      // delete it — a mismatched clear leaves a stale (partitioned) credential
+      // cookie alive, so logout would be cosmetic. Single source of truth.
+      const cookieOptions = getAuthCookieOptions()
+      // Clear by BOTH the current name (prod `__Host-`) and the legacy plain name
+      // so a pre-rollout copy can't linger.
       const clear = (base: string): void => {
-        expressRes.clearCookie!(getAuthCookieName(base), { path: '/', secure })
+        expressRes.clearCookie!(getAuthCookieName(base), { ...cookieOptions })
         expressRes.clearCookie!(base, { path: '/' })
       }
       clear('token')
       clear('sessionId')
-      // The session-presence hint is a plain (non-`__Host-`) cookie.
-      expressRes.clearCookie!('mol_auth', { path: '/', secure })
+      // The session-presence hint is a plain (non-`__Host-`) cookie set with the
+      // same per-environment attributes, so clear it with them too.
+      expressRes.clearCookie!('mol_auth', { ...cookieOptions })
     }
     // Drop any Authorization header so a same-response refresh can't hand a
     // fresh credential back to a client that just logged out.

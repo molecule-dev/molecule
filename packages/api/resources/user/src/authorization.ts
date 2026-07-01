@@ -64,6 +64,43 @@ export const getAuthCookieName = (base: string): string =>
   isProduction() ? `__Host-${base}` : base
 
 /**
+ * Base cookie attributes shared by EVERY auth cookie this resource sets and
+ * clears — the single source of truth so a SET and its matching CLEAR always
+ * agree (a mismatched attribute leaves an undeletable cookie) and every auth
+ * cookie gets identical cross-site behaviour.
+ *
+ * - **Production** → `{ secure: true, sameSite: 'lax', path: '/' }`. The app is a
+ *   top-level document in production, so `Lax` is the correct, stricter default
+ *   and pairs with the `__Host-` prefix (see {@link getAuthCookieName}). This is
+ *   the CSRF-hardened posture — NEVER weaken it.
+ * - **Non-production (sandbox live-preview / dev)** → `{ secure: true, sameSite:
+ *   'none', partitioned: true, path: '/' }`. The molecule.dev live preview renders
+ *   the app in a CROSS-SITE iframe (`127.0.0.1:<port>` inside `localhost:3000`);
+ *   browsers evaluate SameSite against the TOP-LEVEL site, so a `Lax`/`Strict`
+ *   cookie is neither stored nor sent on ANY preview request — the httpOnly
+ *   session cookie vanishes on every iframe reload and the user is logged out of
+ *   their own app. `SameSite=None` makes it cross-site-sendable (which REQUIRES
+ *   `Secure` — permitted over http on the potentially-trustworthy `localhost` /
+ *   `127.0.0.1` origins), and `Partitioned` (CHIPS) keeps it working when
+ *   third-party cookies are blocked (Brave/Chrome), which `None` alone does not.
+ *
+ * `httpOnly` and `maxAge` are intentionally omitted: the SET call adds those per
+ * cookie, and the CLEAR call spreads these attributes verbatim so the deletion
+ * targets the exact same (possibly Partitioned) cookie jar.
+ *
+ * @returns The environment-appropriate base cookie options.
+ */
+export const getAuthCookieOptions = (): {
+  secure: boolean
+  sameSite: 'lax' | 'none'
+  partitioned?: boolean
+  path: string
+} =>
+  isProduction()
+    ? { secure: true, sameSite: 'lax', path: '/' }
+    : { secure: true, sameSite: 'none', partitioned: true, path: '/' }
+
+/**
  * Read an auth cookie by its base name. In production the cookie is `__Host-`-
  * prefixed (untossable: browsers reject `__Host-` cookies carrying a Domain), so
  * we read ONLY that name and do NOT fall back to the plain name. [C4-1] Accepting
@@ -225,24 +262,22 @@ export const set = (
 
       // Set as cookies for web browser clients.
       // In production the names are `__Host-`-prefixed (see getAuthCookieName),
-      // which REQUIRES Secure + Path=/ + NO Domain — all satisfied below — and
-      // makes the cookies unshadowable by a sibling subdomain.
-      const secure = isProduction()
+      // which REQUIRES Secure + Path=/ + NO Domain — all satisfied by
+      // getAuthCookieOptions() — and makes the cookies unshadowable by a sibling
+      // subdomain. In the sandbox live-preview iframe those same options switch to
+      // SameSite=None + Secure + Partitioned so the cross-site iframe actually
+      // keeps them (otherwise the session vanishes on every reload).
+      const cookieOptions = getAuthCookieOptions()
       const maxAge = 1000 * 60 * 60 * 24 * 7 // 7 days (match JWT expiry)
       res.cookie(getAuthCookieName('token'), token, {
+        ...cookieOptions,
         httpOnly: true,
-        secure,
-        sameSite: 'lax',
         maxAge,
-        path: '/',
       })
       res.cookie(getAuthCookieName('sessionId'), session.id, {
+        ...cookieOptions,
         httpOnly: true,
-        secure,
-        sameSite: 'lax',
         maxAge,
-        // Path=/ is required for the `__Host-` prefix to be accepted.
-        path: '/',
       })
       // [M1-1] Non-httpOnly session-PRESENCE hint (carries no token — just "1").
       // The bearer token is in-memory + the httpOnly `token` cookie (both
@@ -254,11 +289,9 @@ export const set = (
       // harmless 401 probe; it grants nothing (the real credential stays
       // httpOnly). Cleared by logout alongside the credential cookies.
       res.cookie('mol_auth', '1', {
+        ...cookieOptions,
         httpOnly: false,
-        secure,
-        sameSite: 'lax',
         maxAge,
-        path: '/',
       })
 
       return token
