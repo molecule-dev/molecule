@@ -209,12 +209,17 @@ export const createProvider = (options?: MeilisearchOptions): SearchProvider => 
         const { id: _id, ...rest } = doc as Record<string, unknown>
         return rest
       } catch (error: unknown) {
-        if (
-          error &&
-          typeof error === 'object' &&
-          'code' in error &&
-          (error as { code: string }).code === 'document_not_found'
-        ) {
+        // meilisearch-js < 0.36 exposed the API error body on `error.code`;
+        // newer clients (0.58+) nest it under `error.cause.code`. Check both —
+        // the old-only check silently regressed getDocument() to THROWING on a
+        // missing document instead of returning null (caught by the capability
+        // contract tests).
+        const code =
+          error && typeof error === 'object'
+            ? ((error as { code?: string }).code ??
+              (error as { cause?: { code?: string } }).cause?.code)
+            : undefined
+        if (code === 'document_not_found') {
           return null
         }
         throw error
