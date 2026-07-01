@@ -1,17 +1,22 @@
 // @vitest-environment jsdom
 
 /**
- * The preview must NEVER leave the user staring at a bare white iframe with no feedback.
+ * The preview must NEVER leave the user staring at a bare white iframe with no feedback — AND it
+ * must never FALSELY accuse a still-starting app of being "blank"/"unable to load".
  *
- * The iframe "loading" (its document fired `onLoad`) does NOT mean the app rendered — a
- * never-mounting white app loads fine and reports nothing but heartbeats. So the overlay now
- * stays up until the app CONFIRMS it rendered content (`molecule:ready`), with honest copy:
- *  - while a build is in progress (`isBuilding`) → a reassuring "Building your app…" overlay,
- *    never a bare white screen and never an alarming "blank" accusation;
- *  - once a build has FINISHED but the app still rendered nothing (document loaded + bridge
- *    alive via heartbeats, yet no `molecule:ready`) → an ACTIONABLE "preview is blank — reload"
- *    notice, after a settle window so a merely-slow first render doesn't trip it;
- *  - a confirmed render (`molecule:ready`) clears both.
+ * The iframe "loading" (its document fired `onLoad`) does NOT mean the app rendered — a fresh
+ * project's COLD Vite server can take many seconds to compile the app before React mounts, during
+ * which the inline bridge heartbeats (alive) but posts no `molecule:ready` yet. So the overlay
+ * stays up until the app CONFIRMS it rendered content (`molecule:ready`), and the actionable
+ * "preview is blank — reload / open in new tab" notice is raised ONLY on a real signal — never on
+ * a naive "hasn't rendered in N seconds" timer that false-fired over a cold boot. Honest copy:
+ *  - while a build is in progress (`isBuilding`) → a reassuring "Building your app…" overlay;
+ *  - a first cold boot that is ALIVE (heartbeating) but hasn't confirmed a render → keep the
+ *    honest "Starting…" status; do NOT accuse it of being blank (that was the fresh-project bug);
+ *  - a document that never even ran its inline bridge (NO heartbeat at all ⇒ broken/error page),
+ *    an app that RENDERED-then-reloaded-blank, or an explicit `molecule:blank` → the ACTIONABLE
+ *    notice, after a short settle;
+ *  - a confirmed render (`molecule:ready`) clears everything.
  *
  * This is a real jsdom render of {@link PreviewPanel} driving a real iframe preview provider.
  * `fetch` is stubbed so the server-up poll succeeds and the iframe mounts; inbound bridge
@@ -118,21 +123,71 @@ async function mountWithIframe(isBuilding: boolean): Promise<{
 }
 
 describe('PreviewPanel — no bare white screen (blank/building overlay)', () => {
-  it('shows an actionable "preview is blank" notice when a finished build rendered nothing', async () => {
+  it('does NOT falsely accuse a still-starting (alive, cold-booting) app of being blank', async () => {
     const { container, iframe } = await mountWithIframe(false)
-    // The document loads, and the bridge is alive (heartbeats) — but the app NEVER confirms it
-    // rendered (no molecule:ready). That's a genuinely blank app.
+    // A fresh project's COLD Vite dev server legitimately takes many seconds to pre-bundle deps +
+    // compile the just-written app before React mounts. Throughout, the scaffold's INLINE bridge
+    // heartbeats (the app is alive) but posts no molecule:ready yet. This must NOT be accused of
+    // being "blank" — that false accusation (with its "Open in new tab" button) is the whole
+    // "fresh project preview won't load until I open a new tab and refresh the IDE" bug. The
+    // honest status overlay stays up; the actionable blank notice must NOT appear.
     fireEvent.load(iframe)
-    postFromPreview({ type: 'molecule:heartbeat' })
+    const beat = setInterval(() => postFromPreview({ type: 'molecule:heartbeat' }), 1000)
+    try {
+      await new Promise((r) => setTimeout(r, 8000))
+      expect(q(container, 'preview-blank-notice')).toBeNull()
+      // …and the overlay (honest "starting" status) still covers the not-yet-rendered app, so the
+      // user always has feedback — never a bare white iframe AND never a false failure.
+      expect(q(container, 'preview-overlay')).not.toBeNull()
+    } finally {
+      clearInterval(beat)
+    }
+  }, 14000)
 
-    // After the onLoad-grace reveal + the blank settle window, the actionable notice appears
-    // instead of a bare white iframe — with reload + open-in-tab actions.
-    await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
-      timeout: 12000,
-    })
-    expect(q(container, 'preview-blank-reload')).not.toBeNull()
-    expect(q(container, 'preview-blank-open')).not.toBeNull()
-  }, 15000)
+  it('fresh project: AI stops building while cold Vite is still compiling → honest status, never a false blank, then reveals on ready', async () => {
+    // The exact reported bug. A brand-new project: the AI writes files (isBuilding true), then
+    // FINISHES (isBuilding flips false) while the cold Vite dev server is still pre-bundling/
+    // compiling the just-written app. The iframe's shell HTML fires onLoad early; the inline bridge
+    // heartbeats (alive) but React has not mounted yet (no molecule:ready for several seconds).
+    // The panel MUST keep an honest "Starting…" status — never the false "preview is blank / open
+    // in new tab" (or "can't load here") that forced the user to open a new tab + refresh — and
+    // then reveal the app the instant the cold compile finishes and molecule:ready arrives.
+    const provider = providerAtUrl()
+    const { container, rerender } = render(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={true} />
+      </Wrap>,
+    )
+    const iframe = await waitFor(
+      () => {
+        const el = container.querySelector('iframe')
+        expect(el).not.toBeNull()
+        return el as HTMLIFrameElement
+      },
+      { timeout: 4000 },
+    )
+    fireEvent.load(iframe) // shell HTML loaded; modules still compiling
+    const beat = setInterval(() => postFromPreview({ type: 'molecule:heartbeat' }), 800)
+    try {
+      // AI finishes — isBuilding flips false while the app has NOT rendered yet.
+      rerender(
+        <Wrap provider={provider}>
+          <PreviewPanel isBuilding={false} />
+        </Wrap>,
+      )
+      // For several seconds the app is alive (heartbeats) but unmounted: honest overlay, and
+      // NEITHER the false "blank" notice NOR the "can't load here" give-up panel.
+      await new Promise((r) => setTimeout(r, 6000))
+      expect(q(container, 'preview-blank-notice')).toBeNull()
+      expect(q(container, 'preview-load-failed')).toBeNull()
+      expect(q(container, 'preview-overlay')).not.toBeNull()
+      // Cold compile finishes, React mounts → molecule:ready → the overlay reveals the app.
+      postFromPreview({ type: 'molecule:ready' })
+      await waitFor(() => expect(q(container, 'preview-overlay')).toBeNull(), { timeout: 4000 })
+    } finally {
+      clearInterval(beat)
+    }
+  }, 18000)
 
   it('covers a broken page that never ran its bridge (no heartbeat at all) — the worst case', async () => {
     const { container, iframe } = await mountWithIframe(false)
@@ -166,16 +221,17 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
 
   it('clears the blank notice once the app confirms it rendered (molecule:ready)', async () => {
     const { container, iframe } = await mountWithIframe(false)
+    // Drive the genuine-failure path: the document loads but its inline bridge NEVER runs (no
+    // heartbeat at all ⇒ a broken/error page), so the actionable notice appears.
     fireEvent.load(iframe)
-    postFromPreview({ type: 'molecule:heartbeat' })
     await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
-      timeout: 12000,
+      timeout: 9000,
     })
 
     // A real render confirmation tears the notice down — the app is showing content now.
     postFromPreview({ type: 'molecule:ready' })
     await waitFor(() => expect(q(container, 'preview-blank-notice')).toBeNull(), { timeout: 4000 })
-  }, 18000)
+  }, 16000)
 
   it('re-covers the preview when an edit reloads a previously-working app to blank', async () => {
     const { container, iframe } = await mountWithIframe(false)

@@ -5,16 +5,24 @@
  * 1. "Loading preview" — polling until the first successful fetch
  * 2. "Loading preview" — server was up before but fetch is now failing
  *
- * The iframe is always mounted (behind the overlay) once we have a URL. The overlay
- * REVEAL is driven by the iframe's own `onLoad` (+ a short grace), with the
- * `molecule:ready` handshake as a faster, flash-free path — NEVER by `molecule:ready`
- * alone. That handshake is posted from inside the preview's `requestAnimationFrame`,
- * which the browser FREEZES while the overlay occludes the cross-origin iframe, so
- * gating the reveal on it self-deadlocks (overlay covers iframe → iframe rAF frozen →
- * ready never posts → overlay never lifts → ceiling shows "can't load" over a working
- * app). `onLoad` fires in the host and can't be starved by the iframe, so a working app
- * always surfaces; an explicitly blank/crashed app is RE-COVERED via `molecule:blank`/
- * crash (which lower `iframeReady`), never by withholding the reveal.
+ * The iframe is always mounted (behind the overlay) once we have a URL. The overlay REVEAL is
+ * driven by TWO regimes, keyed on whether this load target has rendered before this session
+ * (`hasEverRendered`):
+ *  - FIRST cold boot (never rendered yet): reveal ONLY on the `molecule:ready` handshake. A fresh
+ *    project's cold Vite server can take many seconds to pre-bundle deps + compile the app before
+ *    React mounts; `onLoad` fires on the shell HTML long BEFORE that, so revealing on `onLoad`
+ *    here would flash a white, still-compiling iframe and then let a naive timer falsely accuse it
+ *    of being "blank"/"unable to load" (with an "Open in new tab" button) — the exact reason a
+ *    fresh preview "wouldn't load until I opened it in a new tab and refreshed the IDE". Instead we
+ *    keep an honest "Starting your app…" overlay until the scaffold's inline bridge posts
+ *    `molecule:ready` the instant #root mounts (reliable — verified to fire even while the overlay
+ *    occludes the cross-origin iframe; the old "rAF frozen under occlusion" deadlock was actually
+ *    the overlay's `backdrop-filter` freezing the whole renderer, since removed).
+ *  - RELOAD of an app that already rendered (`hasEverRendered`): reveal on `onLoad` (+ a short
+ *    grace) as a flash-free fast path, with `molecule:ready` faster still.
+ * A genuinely blank/broken app is surfaced by the app's OWN signals — an explicit `molecule:blank`,
+ * a crash, a dead (no-heartbeat) document, or an alive-but-never-mounts backstop — never by a
+ * timer that can't tell "still cold-compiling" from "rendered nothing".
  *
  * Recovery features:
  * - Never-give-up polling with exponential backoff, single-chain (epoch-guarded +
@@ -167,14 +175,38 @@ const FREEZE_CHECK_INTERVAL_MS = 2_000
 const ERROR_DEDUP_WINDOW_MS = 4_000
 
 /**
- * How long the preview must stay loaded-but-unconfirmed (document loaded, no `molecule:ready`)
- * while NOT building before the overlay's copy switches from the generic spinner to the
- * actionable "preview is blank — reload" notice (ms). The overlay itself already covers the
- * preview the whole time (it never shows a bare blank/broken iframe) — this is only how long to
- * wait before ACCUSING it of being blank, so a working app that renders a beat after the build
- * ends re-confirms first and the user briefly sees a spinner instead of a false "blank".
+ * How long an ALREADY-rendered app that RELOADED to blank may stay loaded-but-unconfirmed
+ * (document loaded, no fresh `molecule:ready`) before the overlay's copy switches to the
+ * actionable "preview is blank — reload" notice (ms). This short window is ONLY used once the
+ * app has rendered at least once this session (`hasEverRendered`) — i.e. it WAS working and an
+ * edit reloaded it to blank — so a real regression surfaces quickly. It is NEVER used to accuse
+ * a first-cold-boot app that simply hasn't finished starting (see COLD_BOOT_PATIENCE_MS).
  */
 const BLANK_CONFIRM_MS = 2_500
+
+/**
+ * For a NEVER-yet-rendered document, how long with NO liveness (no `molecule:heartbeat` for
+ * FREEZE_THRESHOLD_MS) before surfacing the actionable notice (ms). The scaffold's preview
+ * bridge is an INLINE script in `index.html`, so it runs (and starts heartbeating) the moment
+ * the HTML parses — even before the app's modules compile. So a loaded document that is NOT
+ * heartbeating at all means its inline bridge never ran: a broken/error page (or JS disabled),
+ * i.e. a genuine failure, not a cold boot in progress. The settle lets the first ~3s heartbeat
+ * arrive before we judge liveness.
+ */
+const BLANK_DEAD_MS = 4_000
+
+/**
+ * Absolute patience (ms) for a first-cold-boot app that IS alive (heartbeating) but has not yet
+ * confirmed a render (`molecule:ready`). A cold Vite dev server on a fresh project legitimately
+ * takes many seconds to pre-bundle deps + compile the app before React mounts; during that whole
+ * window the honest "Starting your app…" overlay stays up and we must NOT accuse it of being
+ * blank or "unable to load" — that false accusation (with its "Open in new tab" button) was the
+ * whole "fresh project preview won't load until I open it in a new tab and refresh the IDE" bug.
+ * Only after this generous ceiling — alive the entire time yet still never mounted — do we treat
+ * it as genuinely stuck and surface the reload/open-in-tab notice. The scaffold's `molecule:ready`
+ * (reliable, fired the instant #root mounts) clears everything long before this on any real boot.
+ */
+const COLD_BOOT_PATIENCE_MS = 60_000
 
 /**
  * Duration of the overlay fade-out (ms) — kept in sync with the overlay's `transition:
@@ -395,6 +427,22 @@ export function PreviewPanel({
   const isBuildingRef = useRef(isBuilding)
   isBuildingRef.current = isBuilding
 
+  // Has the app at the CURRENT load target confirmed a render (`molecule:ready`) at least once
+  // this session? Set on the first ready, reset only on a genuinely NEW load target (url /
+  // loadNonce change), NOT on a plain Vite HMR full-reload of the same src. It is the switch
+  // between two regimes: a NEVER-yet-rendered app is treated as a patient cold boot (reveal only
+  // on ready, honest "Starting…" status, no false "blank"/"can't load"); an app that HAS rendered
+  // and then reloaded blank is a real regression (short blank-confirm window, fast onLoad-grace
+  // reveal). Conflating the two is what surfaced a false "blank" over a still-compiling fresh app.
+  const hasEverRenderedRef = useRef(false)
+  // Timestamp of the current document's last `onLoad` (0 = not loaded this target). Drives the
+  // elapsed-since-load math in the cold-boot evaluator without racing a stale closure.
+  const lastLoadAtRef = useRef(0)
+  // Bumped on every iframe `onLoad` so the cold-boot evaluator effect re-runs when a fresh
+  // document loads (the reveal no longer flips `iframeReady` on the grace during a cold boot, so
+  // that flag can't be the trigger anymore).
+  const [docLoadedTick, setDocLoadedTick] = useState(0)
+
   // --- Heartbeat tracking ---
   const lastHeartbeatRef = useRef<number>(0)
   // True when heartbeats have stopped for FREEZE_THRESHOLD_MS while the app is up.
@@ -504,12 +552,18 @@ export function PreviewPanel({
       setLastGoodFrame(null)
       setConfirmedContent(false)
       setBlankPostBuild(false)
+      hasEverRenderedRef.current = false
+      lastLoadAtRef.current = 0
       return
     }
 
     setStuckRetryCount(0)
     setPreviewGaveUp(false)
     loadRecoverCountRef.current = 0 // fresh stale-document recovery budget for this load
+    // A brand-new load target starts a fresh cold-boot regime: it has not rendered yet, so treat
+    // it patiently (reveal on ready, no premature blank/give-up) until ITS first molecule:ready.
+    hasEverRenderedRef.current = false
+    lastLoadAtRef.current = 0
     // A new load target hasn't confirmed content yet.
     setConfirmedContent(false)
     setBlankPostBuild(false)
@@ -573,18 +627,18 @@ export function PreviewPanel({
   }, [iframeSrc, iframeMountKey])
 
   // --- When the preview is ready to SHOW, trigger fade-out ---
-  // Reveal is driven by `iframeReady`, set by EITHER the `molecule:ready` handshake (the
-  // fast, flash-free path) OR the `onLoad` grace backstop — NOT by `confirmedContent`
-  // (molecule:ready) alone. That distinction is the whole fix for the "preview never loads /
-  // can't load here" deadlock: `molecule:ready` is posted from inside the preview's
-  // `requestAnimationFrame`, and the browser SUSPENDS rAF in a cross-origin iframe while it is
-  // fully occluded — and the status overlay occludes it. So a confirmedContent-only reveal
-  // self-deadlocks (overlay covers iframe → iframe rAF frozen → ready never posts → overlay
-  // never lifts). `onLoad` fires in the HOST and can never be starved by the iframe's state,
-  // so it is the robust reveal. A genuinely blank/crashed app is RE-COVERED by the explicit
-  // `molecule:blank`/crash handlers (which lower `iframeReady`), never by withholding the
-  // reveal. `confirmedContent` stays a diagnostic (non-blank render confirmed) for the
-  // render-verdict, not a reveal gate.
+  // Reveal is driven by `iframeReady`, set by the `molecule:ready` handshake (always) OR the
+  // `onLoad` grace — but the grace flips it ONLY for a RELOAD of an app that already rendered
+  // (`hasEverRendered`), NOT on a first cold boot (see handleIframeLoad). So:
+  //   • first cold boot → reveal only on `molecule:ready` (the honest "Starting…" overlay stays
+  //     up over the still-compiling app; no white flash, no false "blank"). The bridge reliably
+  //     posts ready the instant #root mounts — verified to fire even under occlusion, so this
+  //     does NOT deadlock (the old "overlay covers iframe → rAF frozen → ready never posts" stall
+  //     was actually the overlay's `backdrop-filter` freezing the whole renderer, since removed).
+  //   • reload of an already-rendered app → reveal on the onLoad grace (fast, flash-free), with
+  //     ready faster still.
+  // A genuinely blank/crashed app is RE-COVERED by the explicit `molecule:blank`/crash handlers
+  // (which lower `iframeReady`). `confirmedContent` stays the diagnostic render-verdict signal.
   useEffect(() => {
     if (iframeReady) {
       setFadingOut(true)
@@ -673,7 +727,11 @@ export function PreviewPanel({
         confirmedContentRef.current ||
         iframeReadyRef.current ||
         isBuildingRef.current ||
-        blankPostBuildRef.current
+        blankPostBuildRef.current ||
+        // The app is ALIVE (heartbeating) — a cold boot in progress, not a stuck load. Never show
+        // "Preview can't load here" over an app that's still starting; the cold-boot evaluator
+        // surfaces an honest notice only if it stays alive-but-unmounted past COLD_BOOT_PATIENCE_MS.
+        Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS
       )
         return
       onPreviewStuck?.({ reason: 'load-timeout', url: currentLocationRef.current })
@@ -702,6 +760,12 @@ export function PreviewPanel({
         if (iframeReadyRef.current || confirmedContentRef.current || isBuildingRef.current) return
         // Only act on a LOADED document; a still-loading one is progressing (slow optimize).
         if (!iframeLoadedRef.current) return
+        // A heartbeating document is ALIVE and still coming up on a cold boot — reloading it only
+        // restarts the load and thrashes Vite's cold optimize (making the fresh-project first load
+        // WORSE). Only recover a genuinely STALE doc — no heartbeat for FREEZE_THRESHOLD_MS, i.e.
+        // its bridge is dead (a Vite "server restarted" dropped it mid-load) — the exact case this
+        // recovery exists for.
+        if (Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS) return
         const up = await isServerUp(urlRef.current)
         if (!up || iframeReadyRef.current || confirmedContentRef.current) return
         loadRecoverCountRef.current += 1
@@ -817,6 +881,9 @@ export function PreviewPanel({
         // status overlay (vs. the onLoad grace which only reveals the iframe). Also tears down
         // any post-build "blank" notice: a real render means it isn't blank anymore.
         setConfirmedContent(true)
+        // This load target has now rendered at least once — leave cold-boot patience mode. A
+        // subsequent reload that goes blank is a real regression handled by the short window.
+        hasEverRenderedRef.current = true
         lastReadyAtRef.current = now
         setBlankPostBuild(false)
         // Handshake arrived (the fast path) — cancel any pending onLoad grace
@@ -955,6 +1022,10 @@ export function PreviewPanel({
   const handleIframeLoad = useCallback(() => {
     if (!urlRef.current) return
     iframeLoadedRef.current = true
+    lastLoadAtRef.current = Date.now()
+    // Re-trigger the cold-boot evaluator effect: during a first cold boot the reveal no longer
+    // flips `iframeReady` on the grace, so this document-load tick is the effect's trigger.
+    setDocLoadedTick((k) => k + 1)
     // A NEW document is now displayed — the initial load OR a Vite full-reload that an edit
     // (Synthase's or the user's) triggered, which reloads the SAME iframe src without remounting
     // it or changing state.url, so no other reset path runs. If this load did NOT just confirm a
@@ -982,6 +1053,14 @@ export function PreviewPanel({
       if (iframeReadyRef.current) return
       // A crash within the grace window means the load is NOT good — don't mask it.
       if (Date.now() - lastCrashAtRef.current < ONLOAD_GRACE_MS) return
+      // FIRST cold boot (this target has NEVER rendered): do NOT reveal on the grace. The
+      // scaffold's inline bridge posts `molecule:ready` the instant #root mounts (reliable), so
+      // we keep the honest "Starting your app…" overlay up until that REAL signal instead of
+      // flashing a white, still-compiling iframe and then falsely accusing it of being blank —
+      // the fresh-project "won't load until I open a new tab" bug. The grace reveal is purely a
+      // flash-avoidance shortcut for RELOADS of an app that already rendered once; a genuinely
+      // never-mounting app is surfaced honestly by the cold-boot evaluator (dead / 60s ceiling).
+      if (!hasEverRenderedRef.current) return
       setEverLoaded(true)
       setIframeReady(true)
       setStuckRetryCount(0)
@@ -1087,24 +1166,51 @@ export function PreviewPanel({
     onRenderState?.(renderState, currentLocationRef.current)
   }, [renderState, state.url, onRenderState])
 
-  // --- Post-build blank detection (settle-gated) ---
-  // The build is NOT running (isBuilding false), the document loaded, yet the app has NEVER
-  // confirmed it rendered content (no molecule:ready). That's a genuinely blank/broken app:
-  // switch the overlay's copy from the generic spinner to an ACTIONABLE notice (reload / open in
-  // tab). NO heartbeat/bridge gate — a broken page that never ran its bridge (so it sends no
-  // heartbeat) is exactly when the user most needs this. Settle-gated by BLANK_CONFIRM_MS so a
-  // working app that renders a beat after the build ends re-confirms first and never trips it
-  // (the overlay still covers it meanwhile, just as a spinner). Any input change cancels + clears.
+  // --- "Preview is in trouble" detection (signal-driven, NOT a naive timer) ---
+  // Decides whether to swap the honest "Starting/Building…" status for the ACTIONABLE
+  // "preview is blank — reload / open in new tab" notice. Driven by the scaffold bridge's OWN
+  // signals — `molecule:ready` (rendered), `molecule:heartbeat` (alive) — instead of the old
+  // "loaded + 2.5s + no ready ⇒ blank" guess, which FALSE-fired over a fresh project whose cold
+  // Vite server was still pre-bundling/compiling the just-written app (the app WAS coming up and
+  // would render seconds later). The regimes:
+  //   • confirmed / actively building / mid-fade / no document yet → never a problem.
+  //   • already rendered once, then reloaded blank (`hasEverRendered`) → real regression, surface
+  //     after the short BLANK_CONFIRM_MS.
+  //   • never rendered yet AND not alive (no heartbeat for FREEZE_THRESHOLD_MS after a settle) →
+  //     the inline bridge never ran ⇒ broken/error page ⇒ surface after BLANK_DEAD_MS.
+  //   • never rendered yet BUT alive (heartbeating) → a cold boot in progress → keep the honest
+  //     "Starting…" overlay; only surface after the generous COLD_BOOT_PATIENCE_MS ceiling
+  //     (alive the whole time yet never mounted ⇒ genuinely stuck).
+  // Re-evaluated on an interval because liveness + elapsed-since-load change over time. An
+  // explicit `molecule:blank` also raises the notice directly via its handler (setBlankPostBuild).
   useEffect(() => {
-    const candidate =
-      Boolean(state.url) && iframeReady && !confirmedContent && !isBuilding && !fadingOut
-    if (!candidate) {
+    if (!state.url || !iframeLoadedRef.current || confirmedContent || isBuilding || fadingOut) {
       setBlankPostBuild(false)
       return
     }
-    const timer = setTimeout(() => setBlankPostBuild(true), BLANK_CONFIRM_MS)
-    return () => clearTimeout(timer)
-  }, [state.url, iframeReady, confirmedContent, isBuilding, fadingOut])
+    const evaluate = (): boolean => {
+      if (confirmedContentRef.current || isBuildingRef.current) {
+        setBlankPostBuild(false)
+        return true
+      }
+      const now = Date.now()
+      const sinceLoad = now - (lastLoadAtRef.current || now)
+      const aliveRecently = now - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS
+      const introuble = hasEverRenderedRef.current
+        ? sinceLoad >= BLANK_CONFIRM_MS
+        : (!aliveRecently && sinceLoad >= BLANK_DEAD_MS) || sinceLoad >= COLD_BOOT_PATIENCE_MS
+      setBlankPostBuild(introuble)
+      return introuble
+    }
+    if (evaluate()) return
+    const id = setInterval(() => {
+      if (evaluate()) clearInterval(id)
+    }, 500)
+    return () => clearInterval(id)
+    // docLoadedTick re-arms this when a fresh document loads (iframeReady no longer flips on the
+    // cold-boot grace, so it can't be the trigger). iframeReady is still a dep so a real reveal
+    // re-evaluates (and clears) immediately.
+  }, [state.url, docLoadedTick, iframeReady, confirmedContent, isBuilding, fadingOut])
 
   // --- Auto-reload when AI edits files — ONLY while the preview is broken ---
   // A healthy preview needs nothing from us: Vite HMR applies every edit live,
@@ -1187,16 +1293,15 @@ export function PreviewPanel({
   // molecule:ready). The iframe may have "loaded" into a half-built/blank/white state — keep
   // the reassuring "Building your app…" overlay up over it instead of a bare white screen.
   // A confirmed render clears it, so a working preview stays visible (HMR updates uncovered).
-  // THE invariant: the overlay shows until the preview is READY TO SHOW — i.e. until the iframe
-  // has loaded (its own `onLoad` + a short grace) or a `molecule:ready` confirmed a render
-  // sooner. It must NEVER gate the reveal on `molecule:ready` ALONE: that handshake is posted
-  // from the preview's `requestAnimationFrame`, which the browser freezes while the overlay
-  // occludes the cross-origin iframe — so a confirmedContent-only gate deadlocks (see the
-  // fade-out effect above). Reveal on `iframeReady` (host-side onLoad, never starvable) and let
-  // the explicit `molecule:blank`/crash signals RE-COVER a blank/broken app by lowering
-  // `iframeReady` — so a working preview always surfaces and the user is never left staring at a
-  // bare iframe OR stuck behind a status that can't lift. `fadingOut` keeps the overlay through
-  // its fade-out; `blankPostBuild` re-asserts it for a post-build blank.
+  // THE invariant: the overlay shows until the preview is READY TO SHOW. On a first cold boot that
+  // means until `molecule:ready` confirms a render (the honest "Starting…" status stays up over
+  // the still-compiling app — no white flash, no false "blank"); on a reload of an already-rendered
+  // app the onLoad grace reveals it fast. `iframeReady` is that reveal flag (set by ready always,
+  // by the grace only when `hasEverRendered` — see handleIframeLoad + the fade-out effect). Explicit
+  // `molecule:blank`/crash signals RE-COVER a blank/broken app by lowering `iframeReady`, so a
+  // working preview always surfaces and the user is never left staring at a bare iframe OR stuck
+  // behind a status that can't lift. `fadingOut` keeps the overlay through its fade-out;
+  // `blankPostBuild` re-asserts it (as the actionable notice) for a real blank/dead/stuck app.
   // An active build keeps the reassuring status overlay up ONLY while the preview is
   // unconfirmed — a confirmed-healthy preview stays uncovered so the user sees HMR edits live
   // (the "theme updated, no reload flash" behavior). So `(isBuilding || building) &&
@@ -1415,9 +1520,14 @@ export function PreviewPanel({
               // the rotating status — the user keeps "something to look at" instead
               // of a blank wall on every build-triggered reload. The very first load
               // (nothing rendered yet) stays fully opaque.
-              background: everLoaded
-                ? 'color-mix(in srgb, var(--mol-color-surface-secondary, #f5f5f5) 78%, transparent)'
-                : 'var(--mol-color-surface-secondary, #f5f5f5)',
+              // Semi-transparent (so the dim last-good UI shows through) ONLY when there is
+              // actually a last-good frame to reveal — a restart of an app that rendered before.
+              // A first cold boot has no frame yet, so stay fully opaque instead of bleeding the
+              // still-white, mid-compile iframe through a 78% tint.
+              background:
+                everLoaded && lastGoodFrame
+                  ? 'color-mix(in srgb, var(--mol-color-surface-secondary, #f5f5f5) 78%, transparent)'
+                  : 'var(--mol-color-surface-secondary, #f5f5f5)',
               // DO NOT add `backdrop-filter` here. This overlay sits ON TOP of the live
               // cross-origin preview <iframe> (an out-of-process iframe). backdrop-filter must
               // SAMPLE its backdrop — i.e. read the OOPIF's compositor surface across processes
