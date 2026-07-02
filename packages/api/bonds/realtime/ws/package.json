@@ -31,6 +31,7 @@
     "ws": "8.21.0"
   },
   "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
     "@molecule/api-realtime": "^1.0.0"
   },
   "devDependencies": {

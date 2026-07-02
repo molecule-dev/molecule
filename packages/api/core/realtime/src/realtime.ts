@@ -8,11 +8,13 @@ import {
   getProvider,
   registerConnection,
   registerDisconnection,
+  registerJoinGuard,
   registerMessage,
 } from './provider.js'
 import type {
   ConnectionHandler,
   DisconnectionHandler,
+  JoinGuard,
   MessageHandler,
   PresenceInfo,
   Room,
@@ -112,6 +114,23 @@ export const onConnection = (handler: ConnectionHandler): void => {
  */
 export const onDisconnection = (handler: DisconnectionHandler): void => {
   registerDisconnection(handler)
+}
+
+/**
+ * Registers an authorization guard for the client-initiated room-join
+ * protocol (`molecule:join`). Buffered + flushed on setProvider if no
+ * provider is bonded yet, so it is safe to call before the realtime bond
+ * binds at server-creation (e.g. in postBondsSetup).
+ *
+ * Guard semantics: no guards registered → every join is allowed; multiple
+ * guards → ALL must return `true` (AND); a guard that throws → the join is
+ * denied (the bond logs the error). The guard receives the client id, the
+ * requested room NAME, and the client's handshake auth payload.
+ *
+ * @param guard - The join guard callback.
+ */
+export const onJoinRequest = (guard: JoinGuard): void => {
+  registerJoinGuard(guard)
 }
 
 /**

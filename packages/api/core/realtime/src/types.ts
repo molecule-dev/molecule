@@ -70,6 +70,47 @@ export type MessageHandler = (
 ) => void
 
 /**
+ * A client's request to join a room by name via the client-initiated
+ * room-join protocol (the reserved `molecule:join` event).
+ */
+export interface JoinRequest {
+  /** The connected client's identifier (e.g. the Socket.io socket id). */
+  clientId: string
+
+  /** The room NAME the client wants to join (arbitrary string, e.g. `channel:<uuid>`). */
+  room: string
+
+  /**
+   * The client's handshake auth payload. Socket.io: `socket.handshake.auth`;
+   * ws/SSE: the connection URL's query params. `{}` when the transport
+   * carries no auth.
+   */
+  auth: Record<string, unknown>
+
+  /**
+   * The HTTP headers of the transport request that established the
+   * connection (Socket.io handshake / ws upgrade / SSE subscribe), when the
+   * transport exposes them. Apps whose sessions live in an httpOnly cookie
+   * (browser JS never sees the token, so it can't be sent in `auth`)
+   * authenticate joins from `headers.cookie` — the browser attaches the
+   * session cookie to the same-origin handshake request automatically.
+   */
+  headers?: Record<string, string | string[] | undefined>
+}
+
+/**
+ * Authorization guard for client-initiated room joins.
+ *
+ * Semantics: no guards registered → every join is allowed; multiple guards →
+ * ALL must return `true` (AND); a guard that throws → the join is denied
+ * (bonds log the error — never silently).
+ *
+ * @param request - The join request (client, room name, handshake auth).
+ * @returns `true` to allow the join, `false` to deny.
+ */
+export type JoinGuard = (request: JoinRequest) => boolean | Promise<boolean>
+
+/**
  * Handler invoked when a client connects.
  *
  * @param clientId - The connected client's identifier.
@@ -155,6 +196,18 @@ export interface RealtimeProvider {
    * @param handler - The disconnection handler callback.
    */
   onDisconnection(handler: DisconnectionHandler): void
+
+  /**
+   * Optionally registers an authorization guard for the client-initiated
+   * room-join protocol (`molecule:join`). Providers that implement the
+   * protocol evaluate every registered guard for each join request: with no
+   * guards every join is allowed; with multiple guards ALL must return `true`;
+   * a guard that throws denies the join. Providers whose transport has no
+   * client-initiated join path may leave this undefined.
+   *
+   * @param guard - The join guard to register.
+   */
+  onJoinRequest?(guard: JoinGuard): void
 
   /**
    * Returns presence information for all clients in a room.

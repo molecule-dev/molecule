@@ -28,6 +28,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
+    "@molecule/api-bond": "^1.0.0",
     "@molecule/api-realtime": "^1.0.0"
   },
   "devDependencies": {

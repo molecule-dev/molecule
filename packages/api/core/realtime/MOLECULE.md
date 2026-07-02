@@ -3,21 +3,50 @@
 Realtime core interface for molecule.dev.
 
 Defines the standard interface for real-time communication providers
-(WebSocket, SSE, Socket.io, etc.).
+(WebSocket, SSE, Socket.io, etc.), including the client-initiated room-join
+protocol with pluggable authorization.
+
+## Client-initiated room-join protocol
+
+Connected clients join rooms **by name** (any string, e.g.
+`channel:<uuid>`) with the reserved `molecule:join` event
+(payload `{ room }`). The server replies `molecule:joined` `{ room }` on
+success or `molecule:join-denied` `{ room, reason? }` on rejection, sends
+`molecule:leave` acks as `molecule:left` `{ room }`, and emits
+`molecule:presence` `{ room, presence: [{ clientId }] }` to the room on
+every join/leave/disconnect. Clients send app messages into a joined room
+with `molecule:room-send` `{ room, event, data }`, which dispatches to
+server `onMessage` handlers. Protocol room names live in the same
+namespace `broadcast(roomId, ...)` uses, so server code pushes to a
+protocol room by its name. The managed `createRoom()`/`joinRoom()` API
+(server-driven, `room_N` ids) is unchanged and coexists.
+
+Authorization is pluggable via {@link onJoinRequest} guards: no guards →
+every join is allowed; multiple guards → ALL must return `true` (AND); a
+guard that throws → the join is denied (the bond logs the error).
 
 ## Quick Start
 
 ```typescript
-import { setProvider, createRoom, broadcast, onMessage } from '@molecule/api-realtime'
+import { setProvider, createRoom, broadcast, onMessage, onJoinRequest } from '@molecule/api-realtime'
 
 // Bond a provider at startup
 setProvider(socketioProvider)
 
-// Create a room and broadcast messages
+// Authorize client-initiated joins (REQUIRED for apps with private rooms)
+onJoinRequest(async ({ clientId, room, auth }) => {
+  const userId = await verifyToken(auth.token)
+  return userId !== undefined && (await canAccessRoom(userId, room))
+})
+
+// Push to a client-joined room by NAME
+await broadcast('channel:general', 'message', { text: 'Hello!' })
+
+// Managed (server-driven) rooms still work unchanged
 const room = await createRoom('chat')
 await broadcast(room.id, 'message', { text: 'Hello!' })
 
-// Listen for incoming messages
+// Listen for incoming messages (including molecule:room-send dispatches)
 onMessage((roomId, clientId, event, data) => {
   console.log(`${clientId} sent ${event} in ${roomId}:`, data)
 })
@@ -34,6 +63,38 @@ npm install @molecule/api-realtime
 ## API
 
 ### Interfaces
+
+#### `JoinRequest`
+
+A client's request to join a room by name via the client-initiated
+room-join protocol (the reserved `molecule:join` event).
+
+```typescript
+interface JoinRequest {
+  /** The connected client's identifier (e.g. the Socket.io socket id). */
+  clientId: string
+
+  /** The room NAME the client wants to join (arbitrary string, e.g. `channel:<uuid>`). */
+  room: string
+
+  /**
+   * The client's handshake auth payload. Socket.io: `socket.handshake.auth`;
+   * ws/SSE: the connection URL's query params. `{}` when the transport
+   * carries no auth.
+   */
+  auth: Record<string, unknown>
+
+  /**
+   * The HTTP headers of the transport request that established the
+   * connection (Socket.io handshake / ws upgrade / SSE subscribe), when the
+   * transport exposes them. Apps whose sessions live in an httpOnly cookie
+   * (browser JS never sees the token, so it can't be sent in `auth`)
+   * authenticate joins from `headers.cookie` — the browser attaches the
+   * session cookie to the same-origin handshake request automatically.
+   */
+  headers?: Record<string, string | string[] | undefined>
+}
+```
 
 #### `PresenceInfo`
 
@@ -126,6 +187,18 @@ interface RealtimeProvider {
   onDisconnection(handler: DisconnectionHandler): void
 
   /**
+   * Optionally registers an authorization guard for the client-initiated
+   * room-join protocol (`molecule:join`). Providers that implement the
+   * protocol evaluate every registered guard for each join request: with no
+   * guards every join is allowed; with multiple guards ALL must return `true`;
+   * a guard that throws denies the join. Providers whose transport has no
+   * client-initiated join path may leave this undefined.
+   *
+   * @param guard - The join guard to register.
+   */
+  onJoinRequest?(guard: JoinGuard): void
+
+  /**
    * Returns presence information for all clients in a room.
    *
    * @param roomId - The room to query.
@@ -212,6 +285,18 @@ Handler invoked when a client disconnects.
 
 ```typescript
 type DisconnectionHandler = (clientId: string, reason: string) => void
+```
+
+#### `JoinGuard`
+
+Authorization guard for client-initiated room joins.
+
+Semantics: no guards registered → every join is allowed; multiple guards →
+ALL must return `true` (AND); a guard that throws → the join is denied
+(bonds log the error — never silently).
+
+```typescript
+type JoinGuard = (request: JoinRequest) => boolean | Promise<boolean>
 ```
 
 #### `MessageHandler`
@@ -336,7 +421,9 @@ function leaveRoom(roomId: string, clientId: string): Promise<void>
 
 #### `onConnection(handler)`
 
-Registers a handler for client connections via the bonded realtime provider.
+Registers a handler for client connections. Buffered + flushed on setProvider
+if no provider is bonded yet, so it is safe to call before the realtime bond
+binds at server-creation (e.g. presence handlers in postBondsSetup).
 
 ```typescript
 function onConnection(handler: ConnectionHandler): void
@@ -346,7 +433,9 @@ function onConnection(handler: ConnectionHandler): void
 
 #### `onDisconnection(handler)`
 
-Registers a handler for client disconnections via the bonded realtime provider.
+Registers a handler for client disconnections. Buffered + flushed on
+setProvider if no provider is bonded yet, so it is safe to call before the
+realtime bond binds at server-creation (e.g. in postBondsSetup).
 
 ```typescript
 function onDisconnection(handler: DisconnectionHandler): void
@@ -354,15 +443,79 @@ function onDisconnection(handler: DisconnectionHandler): void
 
 - `handler` — The disconnection handler callback.
 
+#### `onJoinRequest(guard)`
+
+Registers an authorization guard for the client-initiated room-join
+protocol (`molecule:join`). Buffered + flushed on setProvider if no
+provider is bonded yet, so it is safe to call before the realtime bond
+binds at server-creation (e.g. in postBondsSetup).
+
+Guard semantics: no guards registered → every join is allowed; multiple
+guards → ALL must return `true` (AND); a guard that throws → the join is
+denied (the bond logs the error). The guard receives the client id, the
+requested room NAME, and the client's handshake auth payload.
+
+```typescript
+function onJoinRequest(guard: JoinGuard): void
+```
+
+- `guard` — The join guard callback.
+
 #### `onMessage(handler)`
 
-Registers a handler for incoming messages via the bonded realtime provider.
+Registers a handler for incoming messages. Buffered + flushed on setProvider
+if no provider is bonded yet, so it is safe to call before the realtime bond
+binds at server-creation (e.g. in postBondsSetup).
 
 ```typescript
 function onMessage(handler: MessageHandler): void
 ```
 
 - `handler` — The message handler callback.
+
+#### `registerConnection(handler)`
+
+Register a connection handler now if a provider is bonded, else buffer it for
+flush on the next setProvider(). Order-independent (see the buffer comment).
+
+```typescript
+function registerConnection(handler: ConnectionHandler): void
+```
+
+- `handler` — The connection handler to register or buffer.
+
+#### `registerDisconnection(handler)`
+
+Register a disconnection handler now if bonded, else buffer it.
+
+```typescript
+function registerDisconnection(handler: DisconnectionHandler): void
+```
+
+- `handler` — The disconnection handler to register or buffer.
+
+#### `registerJoinGuard(guard)`
+
+Register a join guard now if bonded, else buffer it for flush on the next
+setProvider(). Order-independent (see the buffer comment), so apps can
+register room authorization in postBondsSetup before the realtime bond
+binds at server-creation.
+
+```typescript
+function registerJoinGuard(guard: JoinGuard): void
+```
+
+- `guard` — The join guard to register or buffer.
+
+#### `registerMessage(handler)`
+
+Register a message handler now if bonded, else buffer it.
+
+```typescript
+function registerMessage(handler: MessageHandler): void
+```
+
+- `handler` — The message handler to register or buffer.
 
 #### `sendTo(clientId, event, data)`
 
@@ -381,7 +534,8 @@ function sendTo(clientId: string, event: string, data: unknown): Promise<void>
 #### `setProvider(provider)`
 
 Registers a realtime provider as the active singleton. Called by bond
-packages during application startup.
+packages during application startup. Flushes any connection/disconnection/
+message handlers that were registered before the provider was bonded.
 
 ```typescript
 function setProvider(provider: RealtimeProvider): void
@@ -405,3 +559,20 @@ function setProvider(provider: RealtimeProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+- **Without a registered join guard ANY connected client may join ANY room
+  by name** — apps with private rooms MUST register `onJoinRequest` and
+  validate the request's `auth` payload (e.g. verify a token grants access
+  to `request.room`). `auth` is the client's handshake auth (Socket.io:
+  `socket.handshake.auth`; ws/SSE: connection query params).
+- `onJoinRequest` (like `onMessage`/`onConnection`) is buffered when called
+  before a provider is bonded and flushed on `setProvider()` — safe to call
+  in postBondsSetup.
+- `molecule:room-send` only dispatches to server `onMessage` handlers —
+  there is NO automatic relay to the room. Server code decides what (if
+  anything) to `broadcast` back.
+- Reserved `molecule:*` events are never dispatched to `onMessage`.
+- `RealtimeProvider.onJoinRequest` is optional: providers whose transport
+  has no client-initiated join path (e.g. the yjs bond with its injected
+  transport) leave it undefined, and guards registered against them are
+  logged as unenforceable rather than silently dropped.

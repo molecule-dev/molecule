@@ -5,6 +5,8 @@ import type * as RealtimeModule from '../realtime.js'
 import type {
   ConnectionHandler,
   DisconnectionHandler,
+  JoinGuard,
+  JoinRequest,
   MessageHandler,
   PresenceInfo,
   RealtimeProvider,
@@ -15,6 +17,7 @@ import type {
 let setProvider: typeof ProviderModule.setProvider
 let getProvider: typeof ProviderModule.getProvider
 let hasProvider: typeof ProviderModule.hasProvider
+let registerJoinGuard: typeof ProviderModule.registerJoinGuard
 let createRoom: typeof RealtimeModule.createRoom
 let joinRoom: typeof RealtimeModule.joinRoom
 let leaveRoom: typeof RealtimeModule.leaveRoom
@@ -23,6 +26,7 @@ let sendTo: typeof RealtimeModule.sendTo
 let onMessage: typeof RealtimeModule.onMessage
 let onConnection: typeof RealtimeModule.onConnection
 let onDisconnection: typeof RealtimeModule.onDisconnection
+let onJoinRequest: typeof RealtimeModule.onJoinRequest
 let getPresence: typeof RealtimeModule.getPresence
 let getRooms: typeof RealtimeModule.getRooms
 let close: typeof RealtimeModule.close
@@ -35,6 +39,7 @@ describe('realtime provider', () => {
     setProvider = providerModule.setProvider
     getProvider = providerModule.getProvider
     hasProvider = providerModule.hasProvider
+    registerJoinGuard = providerModule.registerJoinGuard
     createRoom = realtimeModule.createRoom
     joinRoom = realtimeModule.joinRoom
     leaveRoom = realtimeModule.leaveRoom
@@ -43,6 +48,7 @@ describe('realtime provider', () => {
     onMessage = realtimeModule.onMessage
     onConnection = realtimeModule.onConnection
     onDisconnection = realtimeModule.onDisconnection
+    onJoinRequest = realtimeModule.onJoinRequest
     getPresence = realtimeModule.getPresence
     getRooms = realtimeModule.getRooms
     close = realtimeModule.close
@@ -185,6 +191,57 @@ describe('realtime provider', () => {
     })
   })
 
+  describe('onJoinRequest', () => {
+    it('should delegate to provider.onJoinRequest when bonded', () => {
+      const mockProvider = createMockProvider({ onJoinRequest: vi.fn() })
+      setProvider(mockProvider)
+
+      const guard: JoinGuard = vi.fn().mockReturnValue(true)
+      onJoinRequest(guard)
+      expect(mockProvider.onJoinRequest).toHaveBeenCalledWith(guard)
+    })
+
+    it('buffers a guard registered BEFORE setProvider and flushes it on setProvider', () => {
+      // Same order-independence contract as onMessage/onConnection: the bond
+      // binds its provider at server-creation, AFTER postBondsSetup where apps
+      // naturally register room authorization. Registration must not throw
+      // pre-bond and must reach the provider once it is bonded.
+      const guard: JoinGuard = vi.fn().mockReturnValue(true)
+      expect(() => onJoinRequest(guard)).not.toThrow() // no provider bonded yet
+      const mockProvider = createMockProvider({ onJoinRequest: vi.fn() })
+      setProvider(mockProvider)
+      expect(mockProvider.onJoinRequest).toHaveBeenCalledWith(guard)
+    })
+
+    it('flushes multiple buffered guards in registration order', () => {
+      const guardA: JoinGuard = vi.fn().mockReturnValue(true)
+      const guardB: JoinGuard = vi.fn().mockReturnValue(false)
+      registerJoinGuard(guardA)
+      registerJoinGuard(guardB)
+      const mockProvider = createMockProvider({ onJoinRequest: vi.fn() })
+      setProvider(mockProvider)
+      expect(mockProvider.onJoinRequest).toHaveBeenNthCalledWith(1, guardA)
+      expect(mockProvider.onJoinRequest).toHaveBeenNthCalledWith(2, guardB)
+    })
+
+    it('warns (does not throw or silently drop) when the provider lacks onJoinRequest', () => {
+      // A registered guard the transport cannot enforce is a security-relevant
+      // mismatch — it must be surfaced, not swallowed.
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+      try {
+        const guard: JoinGuard = vi.fn().mockReturnValue(true)
+        onJoinRequest(guard)
+        const { onJoinRequest: _omitted, ...withoutJoinSupport } = createMockProvider()
+        expect(() => setProvider(withoutJoinSupport)).not.toThrow()
+        expect(warnSpy).toHaveBeenCalledWith(
+          expect.stringContaining('does not implement onJoinRequest'),
+        )
+      } finally {
+        warnSpy.mockRestore()
+      }
+    })
+  })
+
   describe('getPresence', () => {
     it('should delegate to provider', async () => {
       const presence: PresenceInfo[] = [
@@ -276,6 +333,21 @@ describe('realtime types', () => {
     expect(typeof provider.getPresence).toBe('function')
     expect(typeof provider.getRooms).toBe('function')
     expect(typeof provider.close).toBe('function')
+    expect(typeof provider.onJoinRequest).toBe('function')
+  })
+
+  it('should export JoinRequest and JoinGuard types', async () => {
+    const request: JoinRequest = {
+      clientId: 'client-1',
+      room: 'channel:general',
+      auth: { token: 'sesame' },
+    }
+    expect(request.room).toBe('channel:general')
+
+    const syncGuard: JoinGuard = (r) => r.auth.token === 'sesame'
+    const asyncGuard: JoinGuard = async (r) => r.room.startsWith('channel:')
+    expect(syncGuard(request)).toBe(true)
+    await expect(asyncGuard(request)).resolves.toBe(true)
   })
 })
 
@@ -289,6 +361,7 @@ function createMockProvider(overrides?: Partial<RealtimeProvider>): RealtimeProv
     onMessage: vi.fn(),
     onConnection: vi.fn(),
     onDisconnection: vi.fn(),
+    onJoinRequest: vi.fn(),
     getPresence: vi.fn().mockResolvedValue([]),
     getRooms: vi.fn().mockResolvedValue([]),
     close: vi.fn().mockResolvedValue(undefined),

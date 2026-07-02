@@ -2,25 +2,71 @@
  * Realtime core interface for molecule.dev.
  *
  * Defines the standard interface for real-time communication providers
- * (WebSocket, SSE, Socket.io, etc.).
+ * (WebSocket, SSE, Socket.io, etc.), including the client-initiated room-join
+ * protocol with pluggable authorization.
+ *
+ * ## Client-initiated room-join protocol
+ *
+ * Connected clients join rooms **by name** (any string, e.g.
+ * `channel:<uuid>`) with the reserved `molecule:join` event
+ * (payload `{ room }`). The server replies `molecule:joined` `{ room }` on
+ * success or `molecule:join-denied` `{ room, reason? }` on rejection, sends
+ * `molecule:leave` acks as `molecule:left` `{ room }`, and emits
+ * `molecule:presence` `{ room, presence: [{ clientId }] }` to the room on
+ * every join/leave/disconnect. Clients send app messages into a joined room
+ * with `molecule:room-send` `{ room, event, data }`, which dispatches to
+ * server `onMessage` handlers. Protocol room names live in the same
+ * namespace `broadcast(roomId, ...)` uses, so server code pushes to a
+ * protocol room by its name. The managed `createRoom()`/`joinRoom()` API
+ * (server-driven, `room_N` ids) is unchanged and coexists.
+ *
+ * Authorization is pluggable via {@link onJoinRequest} guards: no guards →
+ * every join is allowed; multiple guards → ALL must return `true` (AND); a
+ * guard that throws → the join is denied (the bond logs the error).
  *
  * @module
  * @example
  * ```typescript
- * import { setProvider, createRoom, broadcast, onMessage } from '@molecule/api-realtime'
+ * import { setProvider, createRoom, broadcast, onMessage, onJoinRequest } from '@molecule/api-realtime'
  *
  * // Bond a provider at startup
  * setProvider(socketioProvider)
  *
- * // Create a room and broadcast messages
+ * // Authorize client-initiated joins (REQUIRED for apps with private rooms)
+ * onJoinRequest(async ({ clientId, room, auth }) => {
+ *   const userId = await verifyToken(auth.token)
+ *   return userId !== undefined && (await canAccessRoom(userId, room))
+ * })
+ *
+ * // Push to a client-joined room by NAME
+ * await broadcast('channel:general', 'message', { text: 'Hello!' })
+ *
+ * // Managed (server-driven) rooms still work unchanged
  * const room = await createRoom('chat')
  * await broadcast(room.id, 'message', { text: 'Hello!' })
  *
- * // Listen for incoming messages
+ * // Listen for incoming messages (including molecule:room-send dispatches)
  * onMessage((roomId, clientId, event, data) => {
  *   console.log(`${clientId} sent ${event} in ${roomId}:`, data)
  * })
  * ```
+ * @remarks
+ * - **Without a registered join guard ANY connected client may join ANY room
+ *   by name** — apps with private rooms MUST register `onJoinRequest` and
+ *   validate the request's `auth` payload (e.g. verify a token grants access
+ *   to `request.room`). `auth` is the client's handshake auth (Socket.io:
+ *   `socket.handshake.auth`; ws/SSE: connection query params).
+ * - `onJoinRequest` (like `onMessage`/`onConnection`) is buffered when called
+ *   before a provider is bonded and flushed on `setProvider()` — safe to call
+ *   in postBondsSetup.
+ * - `molecule:room-send` only dispatches to server `onMessage` handlers —
+ *   there is NO automatic relay to the room. Server code decides what (if
+ *   anything) to `broadcast` back.
+ * - Reserved `molecule:*` events are never dispatched to `onMessage`.
+ * - `RealtimeProvider.onJoinRequest` is optional: providers whose transport
+ *   has no client-initiated join path (e.g. the yjs bond with its injected
+ *   transport) leave it undefined, and guards registered against them are
+ *   logged as unenforceable rather than silently dropped.
  */
 
 export * from './provider.js'
