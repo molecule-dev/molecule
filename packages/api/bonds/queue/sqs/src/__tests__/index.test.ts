@@ -462,13 +462,36 @@ describe('@molecule/api-queue-sqs', () => {
       )
     })
 
-    it('should send a message with custom ID', async () => {
+    it('should NOT auto-set MessageDeduplicationId on a standard queue', async () => {
+      // SQS rejects MessageDeduplicationId on non-FIFO queues
+      // (InvalidParameterValue) — auto-deriving it from the message id broke
+      // every send to a standard queue (caught by the capability contract
+      // suite against LocalStack).
       const providerInstance = createProvider()
       const queue = providerInstance.queue('custom-id-queue')
 
       const message: QueueMessage<{ data: string }> = {
         body: { data: 'test' },
         id: 'custom-message-id',
+      }
+
+      await queue.send(message)
+
+      const command = mockSend.mock.calls
+        .map((call) => call[0] as MockCommand)
+        .find((c) => c._type === 'SendMessageCommand')
+      expect(command).toBeDefined()
+      expect(command!.input.MessageDeduplicationId).toBeUndefined()
+    })
+
+    it('should auto-derive MessageDeduplicationId from the message ID on a FIFO queue', async () => {
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('auto-dedup-queue.fifo')
+
+      const message: QueueMessage<{ data: string }> = {
+        body: { data: 'test' },
+        id: 'custom-message-id',
+        groupId: 'group-1',
       }
 
       await queue.send(message)

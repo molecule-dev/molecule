@@ -35,6 +35,13 @@ import type {
 export const createQueue = (client: SQSClient, queueName: string, queueUrl: string): Queue => {
   const subscribers: Map<string, { active: boolean }> = new Map()
 
+  // SQS rejects MessageDeduplicationId on standard (non-FIFO) queues with
+  // InvalidParameterValue, so the message-id fallback may only be applied to
+  // FIFO queues (where a deduplication id is required unless content-based
+  // deduplication is enabled). Explicit caller-provided ids always pass
+  // through untouched.
+  const isFifo = queueUrl.endsWith('.fifo')
+
   return {
     name: queueName,
 
@@ -57,7 +64,7 @@ export const createQueue = (client: SQSClient, queueName: string, queueUrl: stri
           : undefined,
         DelaySeconds: message.delaySeconds,
         MessageGroupId: message.groupId,
-        MessageDeduplicationId: message.deduplicationId ?? id,
+        MessageDeduplicationId: message.deduplicationId ?? (isFifo ? id : undefined),
       })
 
       const result = await client.send(command)
@@ -83,7 +90,7 @@ export const createQueue = (client: SQSClient, queueName: string, queueUrl: stri
             : undefined,
           DelaySeconds: message.delaySeconds,
           MessageGroupId: message.groupId,
-          MessageDeduplicationId: message.deduplicationId ?? id,
+          MessageDeduplicationId: message.deduplicationId ?? (isFifo ? id : undefined),
         }
       })
 

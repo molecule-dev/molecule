@@ -285,7 +285,17 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `AWS_REGION` *(required)* — default: `us-east-1`
-- `AWS_ACCESS_KEY_ID` *(required)*
-- `AWS_SECRET_ACCESS_KEY` *(required)*
-- `SQS_QUEUE_URL` *(required)*
+- `AWS_REGION` *(required)* — AWS region — default: `us-east-1`
+  - Setup: The AWS region your resources live in.
+  - Example: `us-east-1`
+- `AWS_ACCESS_KEY_ID` *(required)* — AWS access key ID
+  - Setup: Create an IAM user with the needed policy (SES/S3/SQS) and create an access key under Security credentials.
+  - Get it here: [https://console.aws.amazon.com/iam/](https://console.aws.amazon.com/iam/)
+  - Example: `AKIA...`
+- `AWS_SECRET_ACCESS_KEY` *(required)* — AWS secret access key
+  - Setup: Shown once when creating the IAM access key — store it immediately.
+  - Get it here: [https://console.aws.amazon.com/iam/](https://console.aws.amazon.com/iam/)
+- `SQS_QUEUE_URL` *(required)* — SQS queue URL
+  - Setup: Create a queue in the SQS console and copy its URL.
+  - Get it here: [https://console.aws.amazon.com/sqs/](https://console.aws.amazon.com/sqs/)
+  - Example: `https://sqs.us-east-1.amazonaws.com/123456789012/my-queue`
