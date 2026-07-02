@@ -65,7 +65,13 @@ const toSubscriptionResult = (sub: Stripe.Subscription): SubscriptionResult => {
       data: sub.items.data.map((item) => ({
         id: item.id,
         price: item.price
-          ? { product: typeof item.price.product === 'string' ? item.price.product : undefined }
+          ? {
+              // The PRICE id is load-bearing for plan resolution: apps
+              // register their catalogue by the env-configured price ids,
+              // while `product` is the parent product — keep both.
+              id: item.price.id,
+              product: typeof item.price.product === 'string' ? item.price.product : undefined,
+            }
           : undefined,
       })),
     },

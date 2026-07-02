@@ -33,7 +33,7 @@ export interface SubscriptionResult {
    * cannot be claimed (ownership check in `verifyPayment`).
    */
   customer?: string
-  items: { data: Array<{ id: string; price?: { product?: string } }> }
+  items: { data: Array<{ id: string; price?: { id?: string; product?: string } }> }
   current_period_start: number
   current_period_end: number
   cancel_at_period_end: boolean

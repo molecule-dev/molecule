@@ -63,6 +63,14 @@ export interface Plan {
   planKey: string
   platformKey: PlatformKey
   platformProductId: string
+  /**
+   * The platform's PRICE identifiers that grant this plan (e.g. Stripe
+   * `price_…` ids). Apps configure prices — not products — in their env
+   * (`STRIPE_<APP>_PRO_MONTHLY` etc.), so plan resolution matches an
+   * incoming platform identifier against `platformProductId` OR membership
+   * in this list.
+   */
+  platformPriceIds?: string[]
   alias: PlanAlias
   period: PlanPeriod
   price: string

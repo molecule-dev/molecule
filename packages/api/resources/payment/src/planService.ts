@@ -14,7 +14,14 @@ export const planService: PlanService = {
   },
 
   findPlanByProductId(productId: string) {
-    return Object.values(plans).find((p) => p.platformProductId === productId) ?? null
+    if (!productId) return null
+    return (
+      Object.values(plans).find(
+        (p) =>
+          (p.platformProductId !== '' && p.platformProductId === productId) ||
+          (p.platformPriceIds?.includes(productId) ?? false),
+      ) ?? null
+    )
   },
 
   getDefaultPlan() {

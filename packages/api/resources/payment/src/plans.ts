@@ -152,3 +152,26 @@ export const plans: Record<string, Plan> = {
   googleMonthly,
   googleYearly,
 }
+
+/**
+ * Registers (or replaces) plans in the shared registry consumed by
+ * `planService` — keyed by `planKey`, merged into the defaults above.
+ *
+ * The built-in entries carry PLACEHOLDER platform product ids
+ * (`price_test_id` / `price_prod_id`), so `findPlanByProductId` can never
+ * match a real platform identifier until the app registers its own catalogue
+ * — typically derived from its pricing tiers with the real Stripe price ids
+ * from env (`@molecule/api-bonds-default-express`'s `createBillingRouter`
+ * does this automatically). Without registration, payment verification and
+ * webhook plan grants fail with "unknown plan" even though the charge
+ * succeeded.
+ *
+ * Idempotent: re-registering the same `planKey` overwrites that entry.
+ *
+ * @param customPlans - Plans to merge into the registry, keyed by `planKey`.
+ */
+export const registerPlans = (customPlans: Record<string, Plan>): void => {
+  for (const [planKey, plan] of Object.entries(customPlans)) {
+    plans[planKey] = plan
+  }
+}

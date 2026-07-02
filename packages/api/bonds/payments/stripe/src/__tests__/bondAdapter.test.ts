@@ -385,6 +385,42 @@ describe('Stripe Bond Adapter', () => {
       expect(result!.type).toBe('created')
     })
 
+    it('should surface BOTH the product and price ids from the subscription item', async () => {
+      // Apps register plans by PRICE id (env-configured STRIPE_<APP>_* values),
+      // while Stripe reports the parent product id — plan resolution needs both.
+      mockVerifyWebhookSignature.mockReturnValue({
+        type: 'customer.subscription.created',
+        data: {
+          object: {
+            customer: 'cus_123',
+            status: 'active',
+            items: {
+              data: [
+                {
+                  price: { product: 'prod_123', id: 'price_456' },
+                  current_period_end: 1702592000,
+                },
+              ],
+            },
+            canceled_at: null,
+            cancel_at_period_end: false,
+          },
+        },
+      })
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      const result = await paymentProvider.handleWebhookEvent!({
+        body: '{}',
+        headers: { 'stripe-signature': 'sig_valid' },
+      })
+
+      expect(result!.subscription).toMatchObject({
+        productId: 'prod_123',
+        priceId: 'price_456',
+      })
+    })
+
     it('should map customer.subscription.updated to "renewed"', async () => {
       mockVerifyWebhookSignature.mockReturnValue({
         type: 'customer.subscription.updated',

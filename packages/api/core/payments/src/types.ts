@@ -151,6 +151,17 @@ export interface PurchaseVerifier {
  */
 export interface VerifiedSubscription {
   productId: string
+  /**
+   * The provider's PRICE identifier for the purchased plan (e.g. a Stripe
+   * `price_…` id), when the provider distinguishes prices from products.
+   *
+   * Apps typically configure their plan catalogue with price ids (that is
+   * what checkout is started with and what env vars like
+   * `STRIPE_<APP>_PRO_MONTHLY` hold), while providers report the parent
+   * product id on subscriptions — so plan resolution should try BOTH
+   * `productId` and `priceId` against the registered plans.
+   */
+  priceId?: string
   transactionId?: string
   expiresAt?: string
   autoRenews?: boolean
@@ -165,6 +176,13 @@ export interface WebhookEvent {
   subscription?: {
     customerId?: string
     productId?: string
+    /**
+     * The provider's PRICE identifier for the subscribed plan (e.g. a Stripe
+     * `price_…` id). Apps register their plan catalogue with price ids (see
+     * {@link VerifiedSubscription.priceId}), so plan resolution should try
+     * BOTH `productId` and `priceId`.
+     */
+    priceId?: string
     expiresAt?: string
     autoRenews?: boolean
     /**
@@ -361,6 +379,13 @@ export interface Plan {
   planKey: string
   platformKey: string
   platformProductId: string
+  /**
+   * The platform's PRICE identifiers that grant this plan (e.g. Stripe
+   * `price_…` ids). Apps configure prices — not products — in their env,
+   * so implementations should match an incoming platform identifier against
+   * `platformProductId` OR membership in this list.
+   */
+  platformPriceIds?: string[]
   alias: string
   period: string
   price: string
@@ -377,6 +402,11 @@ export interface Plan {
  */
 export interface PlanService {
   findPlan(planKey: string): Plan | null
+  /**
+   * Finds the plan granted by a platform identifier — the platform's product
+   * id OR one of the plan's {@link Plan.platformPriceIds}. Callers should try
+   * every identifier the platform surfaced (product id, price id).
+   */
   findPlanByProductId(productId: string): Plan | null
   getDefaultPlan(): Plan | null
   getAllPlans(): Plan[]

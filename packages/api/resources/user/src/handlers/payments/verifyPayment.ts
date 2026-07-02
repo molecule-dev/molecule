@@ -4,7 +4,9 @@ import type { PaymentProvider, PaymentRecordService, PlanService } from '@molecu
 import type { MoleculeRequest } from '@molecule/api-resource'
 import { update as resourceUpdate } from '@molecule/api-resource'
 
+import { updatePlanPropsSchema } from '../../schema.js'
 import type * as types from '../../types.js'
+import { invalidateEntitlementsCacheSafe } from '../../utilities/invalidateEntitlements.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -24,7 +26,7 @@ const logger = getLogger()
  * @param resource.schema - The validation schema for user properties.
  * @returns A request handler for payment verification.
  */
-export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
+export const verifyPayment = ({ name, tableName, schema: _schema }: types.Resource) => {
   return async (req: MoleculeRequest) => {
     const providerName = req.params.provider as string
 
@@ -44,6 +46,7 @@ export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
 
       let verified: {
         productId: string
+        priceId?: string
         transactionId?: string
         expiresAt?: string
         autoRenews?: boolean
@@ -292,8 +295,13 @@ export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
         }
       }
 
-      // Find matching plan from verified product.
-      const plan = plans.findPlanByProductId(verified.productId)
+      // Find matching plan from the verified platform identifiers. Providers
+      // report the parent PRODUCT id on subscriptions, but apps register
+      // their catalogue with the PRICE ids checkout was started with — try
+      // both before rejecting.
+      const plan =
+        plans.findPlanByProductId(verified.productId) ??
+        (verified.priceId ? plans.findPlanByProductId(verified.priceId) : null)
       if (!plan) {
         return {
           statusCode: 400,
@@ -356,11 +364,15 @@ export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
         }
       }
 
-      // Update user's plan.
+      // Update user's plan. Use the partial plan-props schema, NOT the full
+      // user `schema` — the resource's full schema makes `id`/`createdAt`/
+      // `updatedAt` required and rejects the partial
+      // `{ planKey, planExpiresAt, planAutoRenews }` payload applied here
+      // (same fix as handlePaymentNotification).
       const updateUser = resourceUpdate<types.UpdatePlanProps>({
         name,
         tableName,
-        schema,
+        schema: updatePlanPropsSchema,
       } as unknown as Parameters<typeof resourceUpdate<types.UpdatePlanProps>>[0])
 
       const result = await updateUser({
@@ -371,6 +383,10 @@ export const verifyPayment = ({ name, tableName, schema }: types.Resource) => {
           planAutoRenews: verified.autoRenews,
         },
       })
+
+      // The entitlements hot-path caches the plan key (default 5-min TTL) —
+      // drop it so the user who just paid sees their new tier immediately.
+      invalidateEntitlementsCacheSafe(id)
 
       analytics
         .track({

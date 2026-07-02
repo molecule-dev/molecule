@@ -10,6 +10,7 @@ import {
   googleMonthly,
   googleYearly,
   plans,
+  registerPlans,
   stripeMonthly,
   stripeYearly,
 } from '../plans.js'
@@ -112,12 +113,39 @@ describe('planService.findPlanByProductId', () => {
   })
 
   it('should return null for an empty string productId', () => {
-    // The default plan has platformProductId '' but it matches first
-    // This test verifies finding by empty productId matches the default plan
+    // The default (free) plan's platformProductId is '' — but an EMPTY
+    // platform identifier from a provider must never resolve to a plan
+    // grant. Matching '' against the free plan was an accident of the old
+    // `===` comparison; findPlanByProductId now explicitly rejects empty
+    // input and empty platformProductId values.
     const result = planService.findPlanByProductId('')
-    // The default plan has platformProductId '' so it should match
+    expect(result).toBeNull()
+  })
+
+  it('should find a plan by a registered platform PRICE id', () => {
+    registerPlans({
+      customPro: {
+        planKey: 'customPro',
+        platformKey: 'stripe',
+        platformProductId: '',
+        platformPriceIds: ['price_custom_pro_monthly'],
+        alias: 'monthly',
+        period: 'month',
+        price: '$12',
+        autoRenews: true,
+        title: 'Pro',
+        titleKey: '',
+        description: 'Pro',
+        descriptionKey: '',
+        capabilities: { premium: true },
+      },
+    })
+    const result = planService.findPlanByProductId('price_custom_pro_monthly')
     expect(result).not.toBeNull()
-    expect(result!.planKey).toBe('')
+    expect(result!.planKey).toBe('customPro')
+    // An empty platformProductId on the registered plan must not match ''.
+    expect(planService.findPlanByProductId('')).toBeNull()
+    delete plans.customPro
   })
 })
 

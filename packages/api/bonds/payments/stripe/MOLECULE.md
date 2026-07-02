@@ -326,7 +326,13 @@ Normalized subscription data from Stripe.
 interface SubscriptionResult {
   id: string
   status: string
-  items: { data: Array<{ id: string; price?: { product?: string } }> }
+  /**
+   * The Stripe Customer ID (`cus_...`) that owns this subscription. Used to bind
+   * a verified subscription to the calling user so a foreign subscription id
+   * cannot be claimed (ownership check in `verifyPayment`).
+   */
+  customer?: string
+  items: { data: Array<{ id: string; price?: { id?: string; product?: string } }> }
   current_period_start: number
   current_period_end: number
   cancel_at_period_end: boolean
@@ -585,6 +591,22 @@ function normalizeSubscription(subscription: SubscriptionResult): NormalizedSubs
 - `subscription` — The Stripe subscription result to normalize.
 
 **Returns:** A `NormalizedSubscription` with provider-agnostic fields.
+
+#### `normalizeSubscriptionStatus(rawStatus)`
+
+Maps a raw Stripe subscription status string (e.g. `past_due`, `incomplete`)
+to the provider-agnostic `SubscriptionStatus`.
+
+Shared between `normalizeSubscription` (verify path) and the webhook adapter so
+both paths derive status identically.
+
+```typescript
+function normalizeSubscriptionStatus(rawStatus: string | undefined): SubscriptionStatus
+```
+
+- `rawStatus` — The raw Stripe `status` string, or `undefined` if absent.
+
+**Returns:** The normalized `SubscriptionStatus` (`'unknown'` for unrecognized/missing).
 
 #### `processConnectWebhook(headers, body)`
 

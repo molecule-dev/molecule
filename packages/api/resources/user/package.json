@@ -47,6 +47,7 @@
     "@molecule/api-bond": "^1.0.0",
     "@molecule/api-config": "^1.0.0",
     "@molecule/api-database": "^1.0.0",
+    "@molecule/api-entitlements": "^1.0.0",
     "@molecule/api-i18n": "^1.0.0",
     "@molecule/api-jwt": "^1.0.0",
     "@molecule/api-locales-user": "^1.0.0",
@@ -60,6 +61,9 @@
     "@molecule/api-two-factor": "^1.0.0"
   },
   "peerDependenciesMeta": {
+    "@molecule/api-entitlements": {
+      "optional": true
+    },
     "@molecule/api-two-factor": {
       "optional": true
     },

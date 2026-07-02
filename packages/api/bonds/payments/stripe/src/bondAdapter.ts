@@ -135,8 +135,18 @@ export const paymentProvider: PaymentProvider = {
         return null
       }
 
+      // Apps register their plan catalogue with PRICE ids (the env-configured
+      // `STRIPE_<APP>_…` values checkout is started with), while the
+      // subscription reports the parent PRODUCT id — surface both so plan
+      // resolution can match either.
+      const rawItems = (normalized.rawData as Record<string, unknown>)?.items as
+        | { data?: Array<{ price?: { id?: string } }> }
+        | undefined
+      const verifiedPriceId = rawItems?.data?.[0]?.price?.id
+
       return {
         productId: normalized.productId,
+        priceId: verifiedPriceId ? String(verifiedPriceId) : undefined,
         transactionId: normalized.subscriptionId,
         expiresAt: normalized.currentPeriodEnd
           ? new Date(normalized.currentPeriodEnd).toISOString()
@@ -194,11 +204,16 @@ export const paymentProvider: PaymentProvider = {
 
       const subscriptionData = event.data.object as Record<string, unknown>
 
-      // Extract the product ID from the subscription items.
-      const items = subscriptionData.items as { data?: Array<{ price?: { product?: string } }> }
+      // Extract the product AND price IDs from the subscription items — apps
+      // register plans by PRICE id (env-configured), so plan resolution needs
+      // both candidates.
+      const items = subscriptionData.items as {
+        data?: Array<{ price?: { product?: string; id?: string } }>
+      }
       const productId = items?.data?.[0]?.price?.product
         ? String(items.data[0].price.product)
         : undefined
+      const priceId = items?.data?.[0]?.price?.id ? String(items.data[0].price.id) : undefined
 
       // Get period end from the subscription item (Stripe API v2022+).
       const subscriptionItem = (items?.data?.[0] ?? {}) as Record<string, unknown>
@@ -226,6 +241,7 @@ export const paymentProvider: PaymentProvider = {
         subscription: {
           customerId: subscriptionData.customer ? String(subscriptionData.customer) : undefined,
           productId,
+          priceId,
           expiresAt,
           autoRenews,
           status,

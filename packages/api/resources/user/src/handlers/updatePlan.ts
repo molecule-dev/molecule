@@ -7,6 +7,7 @@ import { update as resourceUpdate } from '@molecule/api-resource'
 
 import { updatePlanPropsSchema } from '../schema.js'
 import type * as types from '../types.js'
+import { invalidateEntitlementsCacheSafe } from '../utilities/invalidateEntitlements.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -124,7 +125,7 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
                   },
                 })
                 .catch(() => {})
-              return await updateResource({
+              const updated = await updateResource({
                 id,
                 props: {
                   planKey: plan.planKey,
@@ -132,6 +133,10 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
                   planAutoRenews: result.subscription?.autoRenews,
                 },
               })
+              // Drop the cached plan key so the plan change takes effect
+              // immediately, not after the entitlements cache TTL.
+              invalidateEntitlementsCacheSafe(id)
+              return updated
             }
 
             analytics
@@ -185,13 +190,17 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
               properties: { previousPlanKey: previousPlan?.planKey, newPlanKey: '' },
             })
             .catch(() => {})
-          return await updateResource({
+          const downgraded = await updateResource({
             id,
             props: {
               planKey: now > expires ? plan.planKey : (user.planKey ?? plan.planKey),
               planAutoRenews: false,
             },
           })
+          // Drop the cached plan key so the downgrade takes effect
+          // immediately, not after the entitlements cache TTL.
+          invalidateEntitlementsCacheSafe(id)
+          return downgraded
         }
 
         // A non-free plan with NO payment platform handler cannot be confirmed
@@ -232,7 +241,11 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
           properties: { newPlanKey: planKey },
         })
         .catch(() => {})
-      return await updateResource({ id, props: { planKey, planAutoRenews: false } })
+      const result = await updateResource({ id, props: { planKey, planAutoRenews: false } })
+      // Drop the cached plan key so the downgrade takes effect immediately,
+      // not after the entitlements cache TTL.
+      invalidateEntitlementsCacheSafe(id)
+      return result
     } catch (error) {
       logger.error(error)
       return {

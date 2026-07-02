@@ -252,6 +252,13 @@ interface Plan {
   planKey: string
   platformKey: string
   platformProductId: string
+  /**
+   * The platform's PRICE identifiers that grant this plan (e.g. Stripe
+   * `price_…` ids). Apps configure prices — not products — in their env,
+   * so implementations should match an incoming platform identifier against
+   * `platformProductId` OR membership in this list.
+   */
+  platformPriceIds?: string[]
   alias: string
   period: string
   price: string
@@ -271,6 +278,11 @@ Plan service interface for subscription plan lookups.
 ```typescript
 interface PlanService {
   findPlan(planKey: string): Plan | null
+  /**
+   * Finds the plan granted by a platform identifier — the platform's product
+   * id OR one of the plan's {@link Plan.platformPriceIds}. Callers should try
+   * every identifier the platform surfaced (product id, price id).
+   */
   findPlanByProductId(productId: string): Plan | null
   getDefaultPlan(): Plan | null
   getAllPlans(): Plan[]
@@ -371,6 +383,17 @@ Result of verifying a subscription or receipt.
 ```typescript
 interface VerifiedSubscription {
   productId: string
+  /**
+   * The provider's PRICE identifier for the purchased plan (e.g. a Stripe
+   * `price_…` id), when the provider distinguishes prices from products.
+   *
+   * Apps typically configure their plan catalogue with price ids (that is
+   * what checkout is started with and what env vars like
+   * `STRIPE_<APP>_PRO_MONTHLY` hold), while providers report the parent
+   * product id on subscriptions — so plan resolution should try BOTH
+   * `productId` and `priceId` against the registered plans.
+   */
+  priceId?: string
   transactionId?: string
   expiresAt?: string
   autoRenews?: boolean
@@ -388,8 +411,31 @@ interface WebhookEvent {
   subscription?: {
     customerId?: string
     productId?: string
+    /**
+     * The provider's PRICE identifier for the subscribed plan (e.g. a Stripe
+     * `price_…` id). Apps register their plan catalogue with price ids (see
+     * {@link VerifiedSubscription.priceId}), so plan resolution should try
+     * BOTH `productId` and `priceId`.
+     */
+    priceId?: string
     expiresAt?: string
     autoRenews?: boolean
+    /**
+     * Normalized subscription status at the time of the event.
+     *
+     * Surfaced so the notification handler can apply the SAME entitlement gate
+     * the verify path uses: only an active/trialing subscription confers the
+     * plan. A past_due/unpaid/incomplete subscription (e.g. a renewal-payment
+     * failure that still advances the period end) must NOT extend entitlement.
+     */
+    status?: SubscriptionStatus
+    /**
+     * Whether the subscription is currently active (status active/trialing).
+     *
+     * Mirrors {@link NormalizedSubscription.isActive}. When `false`, the
+     * notification handler must not grant/extend the plan.
+     */
+    isActive?: boolean
   }
 }
 ```

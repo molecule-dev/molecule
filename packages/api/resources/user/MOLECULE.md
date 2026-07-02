@@ -26,10 +26,14 @@ can type their parameter precisely instead of widening to
 interface UserRequestHandlerMap {
   auth: MoleculeRequestHandler
   authSelf: MoleculeRequestHandler
+  rateLimitAuth: MoleculeRequestHandler
+  rateLimitTwoFactor: MoleculeRequestHandler
   create: MoleculeRequestHandler
   logIn: MoleculeRequestHandler
   logInOAuth: MoleculeRequestHandler
+  logout: MoleculeRequestHandler
   read: MoleculeRequestHandler
+  readSelf: MoleculeRequestHandler
   update: MoleculeRequestHandler
   del: MoleculeRequestHandler
   updatePassword: MoleculeRequestHandler
@@ -39,6 +43,7 @@ interface UserRequestHandlerMap {
   updatePlan: MoleculeRequestHandler
   verifyPayment: MoleculeRequestHandler
   handlePaymentNotification: MoleculeRequestHandler
+  requireWebhookAuthenticity: MoleculeRequestHandler
 }
 ```
 
@@ -256,7 +261,7 @@ Routes marked optional require additional packages to be installed.
 Declarative route definitions used by the injection engine.
 
 ```typescript
-const routes: ({ method: "post"; path: string; middlewares: never[]; handler: string; optional: string; } | { method: "get"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "patch"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "delete"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "post"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "get"; path: string; middlewares: never[]; handler: string; optional: string; })[]
+const routes: ({ method: "post"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "post"; path: string; middlewares: string[]; handler: string; optional: string; } | { method: "get"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "patch"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "delete"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "get"; path: string; middlewares: string[]; handler: string; optional: string; })[]
 ```
 
 #### `secretPropsSchema`
@@ -264,7 +269,7 @@ const routes: ({ method: "post"; path: string; middlewares: never[]; handler: st
 Secret properties stored in a separate table.
 
 ```typescript
-const secretPropsSchema: z.ZodObject<{ id: z.ZodString; passwordHash: z.ZodOptional<z.ZodString>; passwordResetToken: z.ZodOptional<z.ZodString>; passwordResetTokenAt: z.ZodOptional<z.ZodString>; pendingTwoFactorSecret: z.ZodOptional<z.ZodString>; twoFactorSecret: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const secretPropsSchema: z.ZodObject<{ id: z.ZodString; passwordHash: z.ZodOptional<z.ZodString>; passwordResetToken: z.ZodOptional<z.ZodString>; passwordResetTokenAt: z.ZodOptional<z.ZodString>; pendingTwoFactorSecret: z.ZodOptional<z.ZodString>; twoFactorSecret: z.ZodOptional<z.ZodString>; lastTwoFactorTimeStep: z.ZodOptional<z.ZodNumber>; }, z.core.$strip>
 ```
 
 #### `sessionSchema`
@@ -337,6 +342,7 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-config` ^1.0.0
 - `@molecule/api-database` ^1.0.0
+- `@molecule/api-entitlements` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-jwt` ^1.0.0
 - `@molecule/api-locales-user` ^1.0.0
@@ -344,6 +350,7 @@ Peer dependencies:
 - `@molecule/api-password` ^1.0.0
 - `@molecule/api-payments` ^1.0.0
 - `@molecule/api-push-notifications` ^1.0.0
+- `@molecule/api-rate-limit` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `@molecule/api-resource-device` ^1.0.0
 - `@molecule/api-two-factor` ^1.0.0

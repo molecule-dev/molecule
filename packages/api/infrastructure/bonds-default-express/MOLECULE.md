@@ -107,8 +107,14 @@ function mountDefaultDeviceRoutes(router: Router, device: DeviceRequestHandlerMa
 Mounts the public auth endpoints:
 
 - `POST /users` (create)
-- `POST /users/log-in` (logIn)
-- `POST /users/forgot-password` (forgotPassword)
+- `POST /users/log-in` (rateLimitAuth + logIn)
+- `POST /users/forgot-password` (rateLimitAuth + forgotPassword)
+
+The credential-bearing routes are fronted by `user.rateLimitAuth` — the
+default IP+account brute-force throttle from `@molecule/api-resource-user` —
+so generated apps are not left with unthrottled password / TOTP-via-login
+guessing. The limiter degrades open (logs a warning) when no rate-limit
+provider is bonded, so apps that opt out still boot.
 
 ```typescript
 function mountDefaultUserAuthRoutes(router: Router, user: UserRequestHandlerMap): void
@@ -119,7 +125,12 @@ function mountDefaultUserAuthRoutes(router: Router, user: UserRequestHandlerMap)
 Mounts plan/billing routes:
 
 - `PATCH /users/:id/plan` (authSelf+updatePlan)
-- `POST /users/payment-notification/:provider` (handlePaymentNotification, public)
+- `POST /users/payment-notification/:provider` (requireWebhookAuthenticity+handlePaymentNotification)
+
+The notification route is public (providers POST to it), so it is gated by
+`requireWebhookAuthenticity`: signature-verifying webhook providers (Stripe)
+pass through, while unsigned server-to-server providers (Apple/Google) require
+a shared secret — the endpoint is not open by default.
 
 ```typescript
 function mountDefaultUserBillingRoutes(router: Router, user: UserRequestHandlerMap): void
@@ -129,6 +140,7 @@ function mountDefaultUserBillingRoutes(router: Router, user: UserRequestHandlerM
 
 Mounts the authed-self user CRUD routes:
 
+- `GET /users/me` (auth+readSelf) — session restore; MUST precede `/users/:id`
 - `GET /users/:id` (authSelf+read)
 - `PATCH /users/:id` (authSelf+update)
 - `DELETE /users/:id` (authSelf+del)
@@ -137,10 +149,19 @@ Mounts the authed-self user CRUD routes:
 function mountDefaultUserCrudRoutes(router: Router, user: UserRequestHandlerMap): void
 ```
 
+#### `mountDefaultUserOAuthLoginRoute(router, user)`
+
+Optional OAuth login route: `POST /users/log-in/oauth` (rateLimitAuth +
+logInOAuth). Only mount when the app uses the pkg's logInOAuth handler.
+
+```typescript
+function mountDefaultUserOAuthLoginRoute(router: Router, user: UserRequestHandlerMap): void
+```
+
 #### `mountDefaultUserResetPasswordRoute(router, user)`
 
-Optional reset-password route: `POST /users/reset-password`.
-Only mount when the app uses the pkg's resetPassword handler
+Optional reset-password route: `POST /users/reset-password` (rateLimitAuth +
+resetPassword). Only mount when the app uses the pkg's resetPassword handler
 rather than a custom local handler.
 
 ```typescript
@@ -152,7 +173,10 @@ function mountDefaultUserResetPasswordRoute(router: Router, user: UserRequestHan
 Mounts password + 2FA security routes:
 
 - `PATCH /users/:id/password` (authSelf+updatePassword)
-- `POST /users/:id/verify-two-factor` (authSelf+verifyTwoFactor)
+- `POST /users/:id/verify-two-factor` (authSelf + rateLimitTwoFactor + verifyTwoFactor)
+
+The 2FA verification route carries a stricter limiter (`user.rateLimitTwoFactor`)
+that temp-locks the second factor per account after consecutive misses.
 
 ```typescript
 function mountDefaultUserSecurityRoutes(router: Router, user: UserRequestHandlerMap): void
@@ -163,8 +187,19 @@ function mountDefaultUserSecurityRoutes(router: Router, user: UserRequestHandler
 Optional payment-verification routes for apps that support
 client-driven payment confirmation (Apple/Google receipt verify).
 
-- `GET /users/:id/verify-payment/:provider` (verifyPayment)
-- `POST /users/:id/verify-payment/:provider` (verifyPayment)
+Both verbs require `authSelf` ([M3-1]): the handler mutates and returns the
+`:id` user, so an unauthenticated / cross-user call must not reach it. The
+permissive global `verifyMiddleware()` never blocks, so per-route `authSelf`
+is the gate. `authSelf` does NOT break the Stripe Checkout `success_url`
+callback — that is a top-level browser navigation which carries the
+`sameSite:'lax'` session cookie — and in-handler customer/checkout-session
+binding remains as defense-in-depth. This mirrors the hardened declarative
+route table (`resources/user/src/routes.ts`) and molecule-dev's live router;
+the fix had not been propagated to this mounter, which the generated-app
+fleet uses.
+
+- `GET /users/:id/verify-payment/:provider` (authSelf+verifyPayment)
+- `POST /users/:id/verify-payment/:provider` (authSelf+verifyPayment)
 
 ```typescript
 function mountDefaultUserVerifyPaymentRoutes(router: Router, user: UserRequestHandlerMap): void
@@ -444,6 +479,18 @@ Wires `@molecule/api-push-notifications-web-push` to `@molecule/api-push-notific
 function setupPushNotificationsWebPush(): Promise<void>
 ```
 
+#### `setupRateLimitMemory()`
+
+Wires `@molecule/api-rate-limit-memory` to `@molecule/api-rate-limit`.
+
+This is the default brute-force-protection backend for `mlcl`-generated apps
+(single-instance). Multi-instance deployments should swap in
+`@molecule/api-rate-limit-redis` so the throttle is shared across replicas.
+
+```typescript
+function setupRateLimitMemory(): Promise<void>
+```
+
 #### `setupRealtimeSocketio()`
 
 Wires `@molecule/api-realtime-socketio` to `@molecule/api-realtime`.
@@ -650,6 +697,8 @@ Peer dependencies:
 - `@molecule/api-permissions-custom` ^1.0.0
 - `@molecule/api-push-notifications` ^1.0.0
 - `@molecule/api-push-notifications-web-push` ^1.0.0
+- `@molecule/api-rate-limit` ^1.0.0
+- `@molecule/api-rate-limit-memory` ^1.0.0
 - `@molecule/api-realtime` ^1.0.0
 - `@molecule/api-realtime-socketio` ^1.0.0
 - `@molecule/api-reporting` ^1.0.0

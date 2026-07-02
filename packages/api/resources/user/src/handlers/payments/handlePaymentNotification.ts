@@ -10,6 +10,7 @@ import { update as resourceUpdate } from '@molecule/api-resource'
 
 import { updatePlanPropsSchema } from '../../schema.js'
 import type * as types from '../../types.js'
+import { invalidateEntitlementsCacheSafe } from '../../utilities/invalidateEntitlements.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -109,9 +110,11 @@ export const handlePaymentNotification = ({ name, tableName, schema: _schema }: 
           return okResponse
         }
 
-        const plan = subscription.productId
-          ? plans.findPlanByProductId(subscription.productId)
-          : null
+        // Providers report the parent PRODUCT id on subscriptions, but apps
+        // register their catalogue with PRICE ids — try both.
+        const plan =
+          (subscription.productId ? plans.findPlanByProductId(subscription.productId) : null) ??
+          (subscription.priceId ? plans.findPlanByProductId(subscription.priceId) : null)
 
         analytics
           .track({
@@ -129,6 +132,9 @@ export const handlePaymentNotification = ({ name, tableName, schema: _schema }: 
               planAutoRenews: false,
             },
           })
+          // Drop the cached plan key so the revocation takes effect
+          // immediately, not after the entitlements cache TTL.
+          invalidateEntitlementsCacheSafe(payment.userId)
           analytics
             .track({
               name: 'payment.subscription_canceled',
@@ -145,6 +151,9 @@ export const handlePaymentNotification = ({ name, tableName, schema: _schema }: 
               planAutoRenews: subscription.autoRenews,
             },
           })
+          // Drop the cached plan key so the grant/renewal takes effect
+          // immediately, not after the entitlements cache TTL.
+          invalidateEntitlementsCacheSafe(payment.userId)
           analytics
             .track({
               name: 'payment.subscription_renewed',
@@ -198,6 +207,9 @@ export const handlePaymentNotification = ({ name, tableName, schema: _schema }: 
             planAutoRenews: false,
           },
         })
+        // Drop the cached plan key so the revocation takes effect
+        // immediately, not after the entitlements cache TTL.
+        invalidateEntitlementsCacheSafe(existingPayment.userId)
         analytics
           .track({
             name: 'payment.subscription_canceled',
@@ -214,6 +226,9 @@ export const handlePaymentNotification = ({ name, tableName, schema: _schema }: 
             planAutoRenews: notification.autoRenews ?? true,
           },
         })
+        // Drop the cached plan key so the grant/renewal takes effect
+        // immediately, not after the entitlements cache TTL.
+        invalidateEntitlementsCacheSafe(existingPayment.userId)
         analytics
           .track({
             name: 'payment.subscription_renewed',

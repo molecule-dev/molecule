@@ -38,6 +38,18 @@ Updatable payment record fields (data and receipt).
 type UpdateProps = z.infer<typeof updatePropsSchema>
 ```
 
+### Classes
+
+#### `PaymentRecordConflictError`
+
+Error thrown by {@link paymentRecordService.store} when inserting a payment
+record violates the `UNIQUE(platformKey, transactionId)` constraint — i.e. the
+transaction is already bound to an account.
+
+This is surfaced (not swallowed) so callers such as the user resource's
+`verifyPayment` handler can enforce first-claim-wins ownership and reject a
+replayed receipt instead of silently granting the plan to a second account.
+
 ### Functions
 
 #### `getPeriodTime(period)`
@@ -51,6 +63,28 @@ function getPeriodTime(period: PlanPeriod): number
 - `period` — The billing period ('month' or 'year').
 
 **Returns:** The period duration in milliseconds.
+
+#### `registerPlans(customPlans)`
+
+Registers (or replaces) plans in the shared registry consumed by
+`planService` — keyed by `planKey`, merged into the defaults above.
+
+The built-in entries carry PLACEHOLDER platform product ids
+(`price_test_id` / `price_prod_id`), so `findPlanByProductId` can never
+match a real platform identifier until the app registers its own catalogue
+— typically derived from its pricing tiers with the real Stripe price ids
+from env (`@molecule/api-bonds-default-express`'s `createBillingRouter`
+does this automatically). Without registration, payment verification and
+webhook plan grants fail with "unknown plan" even though the charge
+succeeded.
+
+Idempotent: re-registering the same `planKey` overwrites that entry.
+
+```typescript
+function registerPlans(customPlans: Record<string, Plan>): void
+```
+
+- `customPlans` — Plans to merge into the registry, keyed by `planKey`.
 
 ### Constants
 
