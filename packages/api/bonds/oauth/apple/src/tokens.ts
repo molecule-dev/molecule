@@ -5,6 +5,11 @@
  * @module
  */
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when tokens.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
+
 import { post } from '@molecule/api-http'
 
 import { createAppleClientSecret } from './client-secret.js'

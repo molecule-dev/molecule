@@ -302,6 +302,15 @@ describe('@molecule/api-database-postgresql', () => {
     })
   })
 
+  describe('secret definitions', () => {
+    it('registers DATABASE_URL in the @molecule/api-secrets registry when the barrel is imported', async () => {
+      vi.resetModules()
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('DATABASE_URL')).toBeDefined()
+    })
+  })
+
   describe('SQL identifier validation (assertSafeIdentifier)', () => {
     let store: Store
 

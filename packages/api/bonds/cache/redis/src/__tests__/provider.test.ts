@@ -596,3 +596,11 @@ describe('@molecule/api-cache-redis', () => {
     })
   })
 })
+
+describe('secret registration', () => {
+  it('registers REDIS_URL in the @molecule/api-secrets registry', async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('REDIS_URL')).toBeDefined()
+  })
+})

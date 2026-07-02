@@ -8,6 +8,11 @@
  * @module
  */
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
+
 import type {
   CreateMeetingTokenOptions,
   CreateRoomOptions,
@@ -19,11 +24,6 @@ import type {
 } from '@molecule/api-video-rooms'
 
 import type { DailyCoVideoRoomsConfig } from './types.js'
-
-// Side-effect import: registers this bond's secret definitions so the
-// runtime registry is populated even when provider.js is imported directly
-// (not through the package barrel).
-import './secrets.js'
 
 const DEFAULT_BASE_URL = 'https://api.daily.co/v1'
 

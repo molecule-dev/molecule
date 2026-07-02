@@ -38,6 +38,7 @@
 export * from './authorize.js'
 export * from './client-secret.js'
 export * from './jwks.js'
+export * from './secrets.js'
 export * from './tokens.js'
 export * from './types.js'
 export * from './verify.js'

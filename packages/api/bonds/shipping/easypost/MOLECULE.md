@@ -354,6 +354,14 @@ The EasyPost shipping provider implementing the `ShippingProvider` interface.
 const provider: ShippingProvider
 ```
 
+#### `shippingEasypostSecretDefinitions`
+
+Secret definitions required by the EasyPost shipping bond.
+
+```typescript
+const shippingEasypostSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-shipping` interface.
 
@@ -376,6 +384,7 @@ export function setupShippingEasypost(): void {
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 - `@molecule/api-shipping` ^1.0.0
 
 ### Environment Variables

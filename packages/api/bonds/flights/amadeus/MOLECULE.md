@@ -143,6 +143,14 @@ function createProvider(config?: AmadeusFlightsConfig): FlightsProvider
 
 ### Constants
 
+#### `flightsAmadeusSecretDefinitions`
+
+Secret definitions required by the Amadeus flights bond.
+
+```typescript
+const flightsAmadeusSecretDefinitions: SecretDefinition[]
+```
+
 #### `MISSING_CREDENTIALS`
 
 Stable error code emitted by the Amadeus provider when neither
@@ -220,6 +228,7 @@ export function setupFlightsAmadeus(): void {
 
 Peer dependencies:
 - `@molecule/api-flights` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

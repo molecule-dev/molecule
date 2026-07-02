@@ -292,6 +292,14 @@ function createProvider(config?: TelegramConfig): TelegramChannelProvider
 
 ### Constants
 
+#### `channelTelegramSecretDefinitions`
+
+Secret definitions required by the Telegram channel bond.
+
+```typescript
+const channelTelegramSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 Lazily-instantiated singleton instance for app-startup wiring. Reads
@@ -310,6 +318,7 @@ Implements `@molecule/api-channel` interface.
 
 Peer dependencies:
 - `@molecule/api-channel` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

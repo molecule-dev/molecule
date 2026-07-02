@@ -82,6 +82,14 @@ Default Doppler provider instance, created with options from environment variabl
 const provider: SecretsProvider
 ```
 
+#### `secretsDopplerSecretDefinitions`
+
+Secret definitions required by the Doppler secrets bond.
+
+```typescript
+const secretsDopplerSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-secrets` interface.
 

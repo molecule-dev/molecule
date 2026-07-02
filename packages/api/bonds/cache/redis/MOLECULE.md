@@ -156,6 +156,14 @@ function createProvider(options?: RedisOptions): CacheProvider
 
 ### Constants
 
+#### `cacheRedisSecretDefinitions`
+
+Secret definitions required by the Redis cache bond.
+
+```typescript
+const cacheRedisSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation.
@@ -187,6 +195,7 @@ export function setupCacheRedis(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-cache` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

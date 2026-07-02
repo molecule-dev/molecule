@@ -94,6 +94,14 @@ function sanitizeUrl(url: string): string
 
 ### Constants
 
+#### `equityPricesAlphaVantageSecretDefinitions`
+
+Secret definitions required by the Alpha Vantage equity-prices bond.
+
+```typescript
+const equityPricesAlphaVantageSecretDefinitions: SecretDefinition[]
+```
+
 #### `MISSING_API_KEY`
 
 Error code raised when the Alpha Vantage API key is missing (neither the
@@ -158,6 +166,7 @@ export function setupEquityPricesAlphaVantage(): void {
 
 Peer dependencies:
 - `@molecule/api-equity-prices` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

@@ -537,5 +537,11 @@ describe('@molecule/api-secrets-molecule', () => {
       expect(indexModule.getProvider).toBeUndefined()
       expect(indexModule.hasProvider).toBeUndefined()
     })
+
+    it('registers its secret definitions at import time', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('MOLECULE_VAULT_TOKEN')).toBeDefined()
+    })
   })
 })

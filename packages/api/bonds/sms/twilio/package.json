@@ -29,6 +29,7 @@
     "twilio": "6.0.2"
   },
   "peerDependencies": {
+    "@molecule/api-secrets": "^1.0.0",
     "@molecule/api-sms": "1.0.0"
   },
   "devDependencies": {

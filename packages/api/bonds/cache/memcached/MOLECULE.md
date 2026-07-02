@@ -142,6 +142,14 @@ function createProvider(options?: MemcachedOptions): CacheProvider
 
 ### Constants
 
+#### `cacheMemcachedSecretDefinitions`
+
+Secret definitions required by the Memcached cache bond.
+
+```typescript
+const cacheMemcachedSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation.
@@ -173,6 +181,7 @@ export function setupCacheMemcached(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-cache` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

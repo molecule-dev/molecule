@@ -210,6 +210,14 @@ PaymentProvider-compatible object for Google Play purchases.
 const paymentProvider: PaymentProviderInterface
 ```
 
+#### `paymentsGoogleSecretDefinitions`
+
+Secret definitions required by the Google Play payments bond.
+
+```typescript
+const paymentsGoogleSecretDefinitions: SecretDefinition[]
+```
+
 ### Namespaces
 
 #### `androidpublisher_v3`
@@ -238,13 +246,17 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-payments` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `GOOGLE_SERVICE_ACCOUNT_KEY` *(required)* — Google service account key (JSON)
+- `GOOGLE_API_SERVICE_KEY_OBJECT` *(required)* — Google service account key (JSON)
   - Setup: Create a service account with Android Publisher access in Google Cloud Console, create a JSON key, and paste the full JSON.
   - Get it here: [https://console.cloud.google.com/iam-admin/serviceaccounts](https://console.cloud.google.com/iam-admin/serviceaccounts)
   - Example: `{"type":"service_account",...}`
+- `GOOGLE_PLAY_PACKAGE_NAME` *(required)* — Google Play package name
+  - Setup: Your Android application ID as published on Google Play (used to verify purchases).
+  - Example: `com.example.app`
 
 ## Translations
 

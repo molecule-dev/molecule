@@ -136,6 +136,14 @@ Raw nodemailer transport alias.
 const email: nodemailer.Transporter<SentMessageInfo, Options>
 ```
 
+#### `emailsSesSecretDefinitions`
+
+Secret definitions required by the AWS SES email bond.
+
+```typescript
+const emailsSesSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The SES email provider implementing the `EmailTransport` interface.
@@ -146,13 +154,18 @@ const provider: EmailTransport
 
 #### `ses`
 
-The AWS SES client instance, configured from `AWS_SES_REGION`. An optional
+The AWS SESv2 client instance, configured from `AWS_SES_REGION`. An optional
 `AWS_SES_ENDPOINT` overrides the service endpoint (for a credential broker or
 a self-hosted / SES-compatible service). When unset, the SDK resolves the
 default regional endpoint, so behaviour is unchanged.
 
+nodemailer 7 requires the SESv2 client + SendEmailCommand pair — the old
+`{ ses, aws }` (@aws-sdk/client-ses) shape made `createTransport` THROW at
+import time ("legacy SES configuration"), breaking every real consumer of
+this bond.
+
 ```typescript
-const ses: aws.SESClient
+const ses: SESv2Client
 ```
 
 #### `transport` *(deprecated)*
@@ -186,6 +199,7 @@ export function setupEmailsSes(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-emails` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

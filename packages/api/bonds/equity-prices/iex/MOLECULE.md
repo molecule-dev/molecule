@@ -95,6 +95,14 @@ function sanitizeUrl(url: string): string
 
 ### Constants
 
+#### `equityPricesIexSecretDefinitions`
+
+Secret definitions required by the IEX Cloud equity-prices bond.
+
+```typescript
+const equityPricesIexSecretDefinitions: SecretDefinition[]
+```
+
 #### `MISSING_API_KEY`
 
 Error code raised when the IEX Cloud API key is missing (neither the
@@ -159,6 +167,7 @@ export function setupEquityPricesIex(): void {
 
 Peer dependencies:
 - `@molecule/api-equity-prices` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

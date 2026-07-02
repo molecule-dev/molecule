@@ -456,5 +456,11 @@ describe('EasyPost Shipping Provider', () => {
       expect(exports.voidLabel).toBeDefined()
       expect(exports.trackPackage).toBeDefined()
     })
+
+    it('registers its secret definitions at import time', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('EASYPOST_API_KEY')).toBeDefined()
+    })
   })
 })

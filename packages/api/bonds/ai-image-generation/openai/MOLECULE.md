@@ -47,6 +47,16 @@ function createProvider(config?: OpenaiImageGenerationConfig): AIImageGeneration
 
 **Returns:** An `AIImageGenerationProvider` backed by the OpenAI Images API.
 
+### Constants
+
+#### `aiImageGenerationOpenaiSecretDefinitions`
+
+Secret definitions required by the OpenAI image generation bond.
+
+```typescript
+const aiImageGenerationOpenaiSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-ai-image-generation` interface.
 
@@ -56,6 +66,7 @@ Implements `@molecule/api-ai-image-generation` interface.
 
 Peer dependencies:
 - `@molecule/api-ai-image-generation` >=1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

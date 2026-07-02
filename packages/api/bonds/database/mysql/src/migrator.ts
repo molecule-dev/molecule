@@ -14,6 +14,10 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when migrator.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
 import mysql from 'mysql2/promise'
 
 import { translateDdlToMysql } from './utilities.js'

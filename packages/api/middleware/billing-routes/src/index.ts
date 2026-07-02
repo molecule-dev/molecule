@@ -33,5 +33,6 @@
  */
 
 export * from './routes.js'
+export * from './secrets.js'
 export * from './tiers.js'
 export * from './types.js'

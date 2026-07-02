@@ -18,3 +18,11 @@ describe('createProvider (google scaffold)', () => {
     expect(createProvider({ apiKey: 'k', baseUrl: 'https://x.test' }).name).toBe('google')
   })
 })
+
+describe('secret registration', () => {
+  it('registers GOOGLE_AI_API_KEY in the @molecule/api-secrets registry', async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('GOOGLE_AI_API_KEY')).toBeDefined()
+  })
+})

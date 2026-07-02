@@ -54,5 +54,6 @@
  * @module
  */
 
+export * from './secrets.js'
 export * from './types.js'
 export * from './verify.js'

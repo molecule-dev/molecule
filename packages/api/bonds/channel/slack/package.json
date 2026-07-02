@@ -30,7 +30,8 @@
     "@slack/web-api": "7.16.0"
   },
   "peerDependencies": {
-    "@molecule/api-channel": "^1.0.0"
+    "@molecule/api-channel": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-channel": "1.0.0",

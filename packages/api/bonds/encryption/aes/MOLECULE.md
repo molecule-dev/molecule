@@ -68,6 +68,14 @@ function createProvider(config: AesConfig): EncryptionProvider
 
 ### Constants
 
+#### `encryptionAesSecretDefinitions`
+
+Secret definitions required by the AES encryption bond.
+
+```typescript
+const encryptionAesSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 Default AES-256-GCM encryption provider instance.
@@ -101,6 +109,7 @@ export function setupEncryptionAes(): void {
 
 Peer dependencies:
 - `@molecule/api-encryption` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

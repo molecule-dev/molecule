@@ -31,7 +31,8 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@molecule/api-equity-prices": "^1.0.0"
+    "@molecule/api-equity-prices": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-equity-prices": "1.0.0",

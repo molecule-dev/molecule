@@ -29,7 +29,8 @@
     "meilisearch": "0.58.0"
   },
   "peerDependencies": {
-    "@molecule/api-search": "^1.0.0"
+    "@molecule/api-search": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-search": "1.0.0",

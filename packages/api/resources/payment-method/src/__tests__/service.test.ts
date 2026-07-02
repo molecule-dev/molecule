@@ -18,6 +18,12 @@ vi.mock('@molecule/api-database', () => ({
 
 vi.mock('@molecule/api-bond', () => ({
   get: mockGet,
+  getLogger: () => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  }),
 }))
 
 vi.mock('@molecule/api-logger', () => ({
@@ -68,6 +74,16 @@ function mockProvider(overrides: Record<string, unknown> = {}) {
 describe('@molecule/api-resource-payment-method service', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+  })
+
+  describe('secret registration', () => {
+    // The barrel is a heavy import under the monorepo-root runner's
+    // shared workers; give it real headroom.
+    it('registers its secret definitions at import time', { timeout: 30_000 }, async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('STRIPE_SECRET_KEY')).toBeDefined()
+    })
   })
 
   describe('createSetupIntent', () => {

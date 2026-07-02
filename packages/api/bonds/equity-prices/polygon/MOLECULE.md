@@ -99,6 +99,14 @@ function sanitizeUrl(url: string): string
 
 ### Constants
 
+#### `equityPricesPolygonSecretDefinitions`
+
+Secret definitions required by the Polygon.io equity-prices bond.
+
+```typescript
+const equityPricesPolygonSecretDefinitions: SecretDefinition[]
+```
+
 #### `MISSING_API_KEY`
 
 Error code raised when the Polygon.io API key is missing (neither the
@@ -165,6 +173,7 @@ export function setupEquityPricesPolygon(): void {
 
 Peer dependencies:
 - `@molecule/api-equity-prices` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

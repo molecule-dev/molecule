@@ -7,7 +7,11 @@
  * @module
  */
 
-import * as aws from '@aws-sdk/client-ses'
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
+import { SendEmailCommand, SESv2Client } from '@aws-sdk/client-sesv2'
 import { defaultProvider } from '@aws-sdk/credential-provider-node'
 import nodemailer from 'nodemailer'
 
@@ -17,24 +21,29 @@ import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/ap
 const logger = getLogger()
 
 /**
- * The AWS SES client instance, configured from `AWS_SES_REGION`. An optional
+ * The AWS SESv2 client instance, configured from `AWS_SES_REGION`. An optional
  * `AWS_SES_ENDPOINT` overrides the service endpoint (for a credential broker or
  * a self-hosted / SES-compatible service). When unset, the SDK resolves the
  * default regional endpoint, so behaviour is unchanged.
+ *
+ * nodemailer 7 requires the SESv2 client + SendEmailCommand pair — the old
+ * `{ ses, aws }` (@aws-sdk/client-ses) shape made `createTransport` THROW at
+ * import time ("legacy SES configuration"), breaking every real consumer of
+ * this bond.
  */
-export const ses = new aws.SESClient({
+export const ses = new SESv2Client({
   region: process.env.AWS_SES_REGION || 'us-east-1',
   credentialDefaultProvider: defaultProvider,
   ...(process.env.AWS_SES_ENDPOINT ? { endpoint: process.env.AWS_SES_ENDPOINT } : {}),
 })
 
 /**
- * The underlying nodemailer transport.
+ * The underlying nodemailer transport (nodemailer 7 SESv2 shape).
  *
  * @see https://www.npmjs.com/package/nodemailer
  */
 const nodemailerTransport = nodemailer.createTransport({
-  SES: { ses, aws },
+  SES: { sesClient: ses, SendEmailCommand },
 } as Parameters<typeof nodemailer.createTransport>[0])
 
 /**

@@ -20,13 +20,15 @@ const mockIndex = vi.fn().mockReturnValue({
   updateSortableAttributes: mockUpdateSortable,
 })
 
-vi.mock('meilisearch', () => ({
-  MeiliSearch: class MockMeiliSearch {
+vi.mock('meilisearch', () => {
+  class MockMeilisearch {
     index = mockIndex
     createIndex = vi.fn().mockReturnValue({ waitTask: vi.fn().mockResolvedValue({}) })
     deleteIndex = vi.fn().mockReturnValue({ waitTask: vi.fn().mockResolvedValue({}) })
-  },
-}))
+  }
+  // The real `meilisearch` package exports the client under both casings.
+  return { Meilisearch: MockMeilisearch, MeiliSearch: MockMeilisearch }
+})
 
 let createProvider: (options?: Record<string, unknown>) => SearchProvider
 
@@ -43,6 +45,12 @@ describe('meilisearch search provider', () => {
       const p = createProvider()
       expect(p).toBeDefined()
       expect(typeof p.search).toBe('function')
+    })
+
+    it('registers its secret definitions at import time', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('MEILISEARCH_URL')).toBeDefined()
     })
   })
 
@@ -73,7 +81,9 @@ describe('meilisearch search provider', () => {
       const p = createProvider()
       await p.index('products', '1', { name: 'Widget', price: 9.99 })
 
-      expect(mockAddDocuments).toHaveBeenCalledWith([{ id: '1', name: 'Widget', price: 9.99 }])
+      expect(mockAddDocuments).toHaveBeenCalledWith([{ id: '1', name: 'Widget', price: 9.99 }], {
+        primaryKey: 'id',
+      })
     })
   })
 

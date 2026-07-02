@@ -37,6 +37,14 @@ Created on first property access via a `Proxy` so no work is done at import time
 const provider: PushNotificationProvider
 ```
 
+#### `pushNotificationsWebPushSecretDefinitions`
+
+Secret definitions required by the Web Push notifications bond.
+
+```typescript
+const pushNotificationsWebPushSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-push-notifications` interface.
 
@@ -60,6 +68,7 @@ export function setupPushNotificationsWebPush(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-push-notifications` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

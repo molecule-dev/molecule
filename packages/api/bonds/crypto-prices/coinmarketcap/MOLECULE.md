@@ -87,6 +87,14 @@ function createProvider(config?: CoinMarketCapCryptoPricesConfig): CryptoPricesP
 
 ### Constants
 
+#### `cryptoPricesCoinmarketcapSecretDefinitions`
+
+Secret definitions required by the CoinMarketCap crypto-prices bond.
+
+```typescript
+const cryptoPricesCoinmarketcapSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation, lazily initialized on first use.
@@ -134,6 +142,7 @@ export function setupCryptoPricesCoinmarketcap(): void {
 
 Peer dependencies:
 - `@molecule/api-crypto-prices` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

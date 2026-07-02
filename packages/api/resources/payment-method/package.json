@@ -45,7 +45,8 @@
     "@molecule/api-i18n": "^1.0.0",
     "@molecule/api-logger": "^1.0.0",
     "@molecule/api-payments": "^1.0.0",
-    "@molecule/api-resource": "^1.0.0"
+    "@molecule/api-resource": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "peerDependenciesMeta": {
     "@molecule/api-database": {

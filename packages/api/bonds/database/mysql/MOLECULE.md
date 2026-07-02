@@ -312,6 +312,14 @@ function createStore(pool: DatabasePool): DataStore
 
 ### Constants
 
+#### `databaseMysqlSecretDefinitions`
+
+Secret definitions required by the MySQL database bond.
+
+```typescript
+const databaseMysqlSecretDefinitions: SecretDefinition[]
+```
+
 #### `pool`
 
 The default MySQL pool instance, created with env-based configuration.
@@ -355,6 +363,7 @@ export function setupDatabaseMysql(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

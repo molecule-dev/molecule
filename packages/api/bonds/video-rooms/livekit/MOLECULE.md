@@ -231,6 +231,16 @@ function createProvider(config?: LiveKitVideoRoomsConfig): VideoRoomsProvider
 
 **Returns:** A fully initialised `VideoRoomsProvider` backed by LiveKit.
 
+### Constants
+
+#### `videoRoomsLivekitSecretDefinitions`
+
+Secret definitions required by the LiveKit video-rooms bond.
+
+```typescript
+const videoRoomsLivekitSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-video-rooms` interface.
 
@@ -239,6 +249,7 @@ Implements `@molecule/api-video-rooms` interface.
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-secrets` ^1.0.0
 - `@molecule/api-video-rooms` 1.0.0
 
 ### Environment Variables

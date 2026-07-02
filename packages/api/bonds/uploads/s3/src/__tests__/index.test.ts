@@ -93,6 +93,12 @@ describe('S3 Module Exports', () => {
       const indexModule = await import('../index.js')
       expect((indexModule as Record<string, unknown>).bucketName).toBeUndefined()
     })
+
+    it('registers its secret definitions at import time', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('AWS_ACCESS_KEY_ID')).toBeDefined()
+    })
   })
 
   describe('type exports verification', () => {

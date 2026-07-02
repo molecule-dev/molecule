@@ -32,7 +32,8 @@
     "vitest": "4.1.8"
   },
   "peerDependencies": {
-    "@molecule/api-channel": "^1.0.0"
+    "@molecule/api-channel": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "peerDependenciesMeta": {
     "@molecule/api-channel": {

@@ -15,6 +15,10 @@
  * @module
  */
 
+// Side-effect import: registers this package's secret definitions so the
+// runtime registry is populated even when routes.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
 import { type Request, type Response, type Router as ExpressRouter, Router } from 'express'
 
 import { get as bondGet } from '@molecule/api-bond'

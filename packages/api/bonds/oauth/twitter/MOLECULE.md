@@ -144,6 +144,14 @@ function verify(code: string, codeVerifier?: string, redirectUri?: string): Prom
 
 ### Constants
 
+#### `oauthTwitterSecretDefinitions`
+
+Secret definitions required by the X (Twitter) OAuth bond.
+
+```typescript
+const oauthTwitterSecretDefinitions: SecretDefinition[]
+```
+
 #### `serverName`
 
 The OAuth server identifier for Twitter.
@@ -176,6 +184,7 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-oauth` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

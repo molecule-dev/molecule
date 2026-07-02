@@ -83,4 +83,5 @@
 
 export * from './jwks.js'
 export * from './provider.js'
+export * from './secrets.js'
 export * from './types.js'

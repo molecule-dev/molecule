@@ -9,6 +9,10 @@
 
 import { Buffer } from 'node:buffer'
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when utilities.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
 import { simpleParser } from 'mailparser'
 
 import type { InboundEmail, InboundEmailAttachment } from '@molecule/api-emails-inbound'

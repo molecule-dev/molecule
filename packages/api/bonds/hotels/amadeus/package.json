@@ -28,7 +28,8 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@molecule/api-hotels": "^1.0.0"
+    "@molecule/api-hotels": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-hotels": "1.0.0",

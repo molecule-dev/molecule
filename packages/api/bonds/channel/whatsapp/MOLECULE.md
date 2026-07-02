@@ -375,6 +375,14 @@ function createProvider(config?: WhatsAppConfig): WhatsAppChannelProvider
 
 ### Constants
 
+#### `channelWhatsappSecretDefinitions`
+
+Secret definitions required by the WhatsApp channel bond.
+
+```typescript
+const channelWhatsappSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 Lazily-instantiated singleton instance for app-startup wiring. Reads
@@ -393,6 +401,7 @@ Implements `@molecule/api-channel` interface.
 
 Peer dependencies:
 - `@molecule/api-channel` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

@@ -233,5 +233,11 @@ describe('SendGrid Email Provider', () => {
       expect(exports.provider).toBeDefined()
       expect(exports.sgClient).toBeDefined()
     })
+
+    it('registers SENDGRID_API_KEY in the @molecule/api-secrets registry when the barrel is imported', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('SENDGRID_API_KEY')).toBeDefined()
+    })
   })
 })

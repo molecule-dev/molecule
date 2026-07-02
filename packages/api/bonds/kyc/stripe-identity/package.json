@@ -29,7 +29,8 @@
   "license": "MIT",
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
-    "@molecule/api-kyc": "^1.0.0"
+    "@molecule/api-kyc": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",

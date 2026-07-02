@@ -327,6 +327,14 @@ function verifyStripeSignature(payload: string | Buffer<ArrayBufferLike>, signat
 
 ### Constants
 
+#### `kycStripeIdentitySecretDefinitions`
+
+Secret definitions required by the Stripe Identity KYC bond.
+
+```typescript
+const kycStripeIdentitySecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The Stripe Identity provider. Lazily initialized on first use so that
@@ -359,6 +367,7 @@ export function setupKycStripeIdentity(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-kyc` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

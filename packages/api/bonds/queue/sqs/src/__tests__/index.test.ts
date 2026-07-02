@@ -154,6 +154,12 @@ describe('@molecule/api-queue-sqs', () => {
       expect(typeof providerInstance.close).toBe('function')
     })
 
+    it('registers its secret definitions at import time', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('AWS_REGION')).toBeDefined()
+    })
+
     it('should create a provider with custom region', () => {
       const providerInstance = createProvider({ region: 'eu-west-1' })
 

@@ -29,7 +29,8 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@molecule/api-flights": "^1.0.0"
+    "@molecule/api-flights": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-flights": "1.0.0",

@@ -353,6 +353,14 @@ function createProvider(options?: GoogleCalendarProviderOptions): CalendarProvid
 
 ### Constants
 
+#### `calendarGoogleSecretDefinitions`
+
+Secret definitions required by the Google calendar bond.
+
+```typescript
+const calendarGoogleSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The Google Calendar provider. Lazily initialized on first use so that
@@ -386,6 +394,7 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-calendar` ^1.0.0
 - `@molecule/api-http` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

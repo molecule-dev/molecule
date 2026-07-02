@@ -52,6 +52,12 @@ describe('@molecule/api-sms-twilio', () => {
       expect(MockTwilio).toHaveBeenCalledWith('ACtest123', 'token123')
     })
 
+    it('registers its secret definitions at import time', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('TWILIO_ACCOUNT_SID')).toBeDefined()
+    })
+
     it('accepts explicit config over env vars', async () => {
       vi.clearAllMocks()
       const { createProvider } = await import('../provider.js')

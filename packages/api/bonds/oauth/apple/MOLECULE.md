@@ -442,6 +442,14 @@ TTL for the cached JWKS, in milliseconds (1 hour).
 const JWKS_CACHE_TTL_MS: number
 ```
 
+#### `oauthAppleSecretDefinitions`
+
+Secret definitions required by the Sign in with Apple OAuth bond.
+
+```typescript
+const oauthAppleSecretDefinitions: SecretDefinition[]
+```
+
 #### `serverName`
 
 The OAuth server identifier for Apple.
@@ -474,6 +482,7 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-oauth` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

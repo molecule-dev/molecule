@@ -6,6 +6,10 @@
  * @module
  */
 
+// Side-effect import: registers this resource's secret definitions so the
+// runtime registry is populated even when authorization.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
 import { v4 as uuid } from 'uuid'
 
 import { get, getLogger } from '@molecule/api-bond'

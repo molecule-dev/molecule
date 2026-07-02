@@ -642,3 +642,11 @@ describe('StabilityAIProvider', () => {
     })
   })
 })
+
+describe('secret registration', () => {
+  it('registers STABILITY_API_KEY in the @molecule/api-secrets registry', async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('STABILITY_API_KEY')).toBeDefined()
+  })
+})

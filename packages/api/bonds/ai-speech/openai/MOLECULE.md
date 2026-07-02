@@ -51,6 +51,16 @@ function createProvider(config?: OpenaiSpeechConfig): AISpeechProvider
 
 **Returns:** An `AISpeechProvider` backed by OpenAI TTS and Whisper APIs.
 
+### Constants
+
+#### `aiSpeechOpenaiSecretDefinitions`
+
+Secret definitions required by the OpenAI speech bond.
+
+```typescript
+const aiSpeechOpenaiSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-ai-speech` interface.
 
@@ -60,6 +70,7 @@ Implements `@molecule/api-ai-speech` interface.
 
 Peer dependencies:
 - `@molecule/api-ai-speech` >=1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

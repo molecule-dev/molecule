@@ -480,3 +480,11 @@ describe('Type exports', () => {
     expect(types.mixpanel).toBeDefined()
   })
 })
+
+describe('secret registration', () => {
+  it('registers MIXPANEL_TOKEN in the @molecule/api-secrets registry', async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('MIXPANEL_TOKEN')).toBeDefined()
+  })
+})

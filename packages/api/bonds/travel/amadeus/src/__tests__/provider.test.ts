@@ -132,6 +132,12 @@ describe('amadeus travel provider', () => {
       expect(provider.searchCars).toBeInstanceOf(Function)
     })
 
+    it('registers its secret definitions at import time', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('AMADEUS_CLIENT_ID')).toBeDefined()
+    })
+
     it('should default to the test sandbox base URL', async () => {
       const calls: string[] = []
       vi.stubGlobal(

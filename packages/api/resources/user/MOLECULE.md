@@ -253,6 +253,14 @@ Default user resource definition.
 const resource: types.Resource<unknown>
 ```
 
+#### `resourceUserSecretDefinitions`
+
+Secret definitions required by the user resource.
+
+```typescript
+const resourceUserSecretDefinitions: SecretDefinition[]
+```
+
 #### `routes`
 
 Route definitions for the User resource.
@@ -353,6 +361,7 @@ Peer dependencies:
 - `@molecule/api-rate-limit` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `@molecule/api-resource-device` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 - `@molecule/api-two-factor` ^1.0.0
 
 ### Environment Variables

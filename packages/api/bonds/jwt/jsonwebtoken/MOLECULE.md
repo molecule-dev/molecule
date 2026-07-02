@@ -14,6 +14,14 @@ npm install @molecule/api-jwt-jsonwebtoken
 
 ### Constants
 
+#### `jwtJsonwebtokenSecretDefinitions`
+
+Secret definitions required by the jsonwebtoken JWT bond.
+
+```typescript
+const jwtJsonwebtokenSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 JWT provider backed by the jsonwebtoken library.
@@ -44,6 +52,7 @@ export function setupJwtJsonwebtoken(): void {
 
 Peer dependencies:
 - `@molecule/api-jwt` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

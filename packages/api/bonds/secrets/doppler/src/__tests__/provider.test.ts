@@ -481,5 +481,11 @@ describe('@molecule/api-secrets-doppler', () => {
       expect(indexModule.getProvider).toBeUndefined()
       expect(indexModule.hasProvider).toBeUndefined()
     })
+
+    it('registers its secret definitions at import time', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('DOPPLER_TOKEN')).toBeDefined()
+    })
   })
 })

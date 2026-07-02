@@ -643,3 +643,11 @@ describe('OpenaiSpeechProvider', () => {
     })
   })
 })
+
+describe('secret registration', () => {
+  it('registers OPENAI_API_KEY in the @molecule/api-secrets registry', async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('OPENAI_API_KEY')).toBeDefined()
+  })
+})

@@ -149,6 +149,14 @@ function verify(code: string, codeVerifier?: string, redirectUri?: string): Prom
 
 ### Constants
 
+#### `oauthGoogleSecretDefinitions`
+
+Secret definitions required by the Google OAuth bond.
+
+```typescript
+const oauthGoogleSecretDefinitions: SecretDefinition[]
+```
+
 #### `serverName`
 
 The OAuth server identifier for Google.
@@ -181,6 +189,7 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-oauth` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

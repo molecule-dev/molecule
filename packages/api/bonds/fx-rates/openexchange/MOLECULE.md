@@ -149,6 +149,14 @@ function snapshotFromBody(body: LatestResponseBody): OpenExchangeSnapshot
 
 ### Constants
 
+#### `fxRatesOpenexchangeSecretDefinitions`
+
+Secret definitions required by the Open Exchange Rates FX-rates bond.
+
+```typescript
+const fxRatesOpenexchangeSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 Default OpenExchangeRates FX-rates provider, lazily constructed on first
@@ -185,6 +193,7 @@ export function setupFxRatesOpenexchange(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-fx-rates` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

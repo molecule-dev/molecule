@@ -259,6 +259,14 @@ Lazily-initialized SQS queue provider proxy that creates the provider on first a
 const provider: QueueProvider
 ```
 
+#### `queueSqsSecretDefinitions`
+
+Secret definitions required by the SQS queue bond.
+
+```typescript
+const queueSqsSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-queue` interface.
 
@@ -282,6 +290,7 @@ export function setupQueueSqs(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-queue` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

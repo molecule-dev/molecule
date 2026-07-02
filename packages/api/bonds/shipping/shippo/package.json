@@ -37,6 +37,7 @@
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0",
     "@molecule/api-shipping": "^1.0.0"
   },
   "repository": {

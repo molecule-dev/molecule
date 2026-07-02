@@ -118,6 +118,16 @@ function createProvider(config?: ZoomVideoMeetingsConfig): VideoMeetingsProvider
 
 **Returns:** A fully initialised `VideoMeetingsProvider` backed by Zoom.
 
+### Constants
+
+#### `videoMeetingsZoomSecretDefinitions`
+
+Secret definitions required by the Zoom video-meetings bond.
+
+```typescript
+const videoMeetingsZoomSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-video-meetings` interface.
 
@@ -126,6 +136,7 @@ Implements `@molecule/api-video-meetings` interface.
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-secrets` ^1.0.0
 - `@molecule/api-video-meetings` 1.0.0
 
 ### Environment Variables

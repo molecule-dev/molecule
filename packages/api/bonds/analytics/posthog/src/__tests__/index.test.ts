@@ -927,3 +927,11 @@ describe('@molecule/api-analytics-posthog', () => {
     })
   })
 })
+
+describe('secret registration', () => {
+  it('registers POSTHOG_API_KEY in the @molecule/api-secrets registry', async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('POSTHOG_API_KEY')).toBeDefined()
+  })
+})

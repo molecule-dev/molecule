@@ -100,6 +100,14 @@ function verify(code: string, codeVerifier?: string): Promise<{ username: string
 
 ### Constants
 
+#### `oauthGithubSecretDefinitions`
+
+Secret definitions required by the GitHub OAuth bond.
+
+```typescript
+const oauthGithubSecretDefinitions: SecretDefinition[]
+```
+
 #### `serverName`
 
 The OAuth server identifier for GitHub.
@@ -132,6 +140,7 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-oauth` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

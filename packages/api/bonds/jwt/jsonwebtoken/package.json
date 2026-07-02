@@ -30,7 +30,8 @@
     "jsonwebtoken": "9.0.3"
   },
   "peerDependencies": {
-    "@molecule/api-jwt": "^1.0.0"
+    "@molecule/api-jwt": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-jwt": "1.0.0",

@@ -12,8 +12,8 @@
  * @module
  */
 
-import { registerSecrets } from '@molecule/api-secrets'
 import type { SecretDefinition } from '@molecule/api-secrets'
+import { registerSecrets } from '@molecule/api-secrets'
 
 /** Secret definitions required by the Mailgun inbound-email bond. */
 export const mailgunInboundSecretDefinitions: SecretDefinition[] = [

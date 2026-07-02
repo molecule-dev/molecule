@@ -217,6 +217,16 @@ function defineTiers(tiers: readonly TierDef<TLimits>[]): TierAccessors<TLimits>
 
 **Returns:** Read-only accessors keyed off the supplied tier ids.
 
+### Constants
+
+#### `billingRoutesSecretDefinitions`
+
+Secret definitions required by the billing routes middleware.
+
+```typescript
+const billingRoutesSecretDefinitions: SecretDefinition[]
+```
+
 ## Injection Notes
 
 ### Requirements
@@ -224,6 +234,7 @@ function defineTiers(tiers: readonly TierDef<TLimits>[]): TierAccessors<TLimits>
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-payments` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 - `express` ^4.0.0 || ^5.0.0
 
 ### Environment Variables

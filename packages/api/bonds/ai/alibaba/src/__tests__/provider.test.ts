@@ -242,3 +242,11 @@ describe('chat()', () => {
     expect(err.message).not.toContain('dashscope-secret-2026')
   })
 })
+
+describe('secret registration', () => {
+  it('registers DASHSCOPE_API_KEY in the @molecule/api-secrets registry', async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('DASHSCOPE_API_KEY')).toBeDefined()
+  })
+})

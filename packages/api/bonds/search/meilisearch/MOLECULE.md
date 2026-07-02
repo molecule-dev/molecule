@@ -399,6 +399,14 @@ Uses environment variables for configuration.
 const provider: SearchProvider
 ```
 
+#### `searchMeilisearchSecretDefinitions`
+
+Secret definitions required by the Meilisearch search bond.
+
+```typescript
+const searchMeilisearchSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-search` interface.
 
@@ -421,6 +429,7 @@ export function setupSearchMeilisearch(): void {
 
 Peer dependencies:
 - `@molecule/api-search` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

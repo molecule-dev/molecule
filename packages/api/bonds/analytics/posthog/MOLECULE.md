@@ -190,6 +190,14 @@ function shutdown(): Promise<void>
 
 ### Constants
 
+#### `analyticsPosthogSecretDefinitions`
+
+Secret definitions required by the PostHog analytics bond.
+
+```typescript
+const analyticsPosthogSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation.
@@ -220,6 +228,7 @@ export function setupAnalyticsPosthog(): void {
 
 Peer dependencies:
 - `@molecule/api-analytics` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

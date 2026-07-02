@@ -66,6 +66,14 @@ function createProvider(config: MapboxGeolocationConfig): GeolocationProvider
 
 ### Constants
 
+#### `geolocationMapboxSecretDefinitions`
+
+Secret definitions required by the Mapbox geolocation bond.
+
+```typescript
+const geolocationMapboxSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation, lazily initialized with access token from
@@ -98,6 +106,7 @@ export function setupGeolocationMapbox(): void {
 
 Peer dependencies:
 - `@molecule/api-geolocation` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

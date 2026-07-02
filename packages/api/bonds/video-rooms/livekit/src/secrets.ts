@@ -11,8 +11,8 @@
  * @module
  */
 
-import { registerSecrets } from '@molecule/api-secrets'
 import type { SecretDefinition } from '@molecule/api-secrets'
+import { registerSecrets } from '@molecule/api-secrets'
 
 /** Secret definitions required by the LiveKit video-rooms bond. */
 export const videoRoomsLivekitSecretDefinitions: SecretDefinition[] = [

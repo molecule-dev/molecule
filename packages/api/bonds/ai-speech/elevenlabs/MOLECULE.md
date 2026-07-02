@@ -92,6 +92,14 @@ function createProvider(config?: ElevenlabsConfig): AISpeechProvider
 
 ### Constants
 
+#### `aiSpeechElevenlabsSecretDefinitions`
+
+Secret definitions required by the ElevenLabs speech bond.
+
+```typescript
+const aiSpeechElevenlabsSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation.
@@ -122,6 +130,7 @@ export function setupAiSpeechElevenlabs(): void {
 
 Peer dependencies:
 - `@molecule/api-ai-speech` >=1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

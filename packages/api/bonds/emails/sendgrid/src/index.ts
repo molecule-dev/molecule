@@ -7,6 +7,7 @@
  */
 
 export * from './provider.js'
+export * from './secrets.js'
 export * from './sendMail.js'
 export * from './transport.js'
 export * from './types.js'

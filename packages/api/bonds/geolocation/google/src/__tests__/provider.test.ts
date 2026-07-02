@@ -447,3 +447,11 @@ describe('google geolocation lazy provider (env)', () => {
     expect(calledUrl.startsWith('https://maps.googleapis.com/')).toBe(true)
   })
 })
+
+describe('secret definitions', () => {
+  it('registers secret definitions in @molecule/api-secrets on import', async () => {
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    await import('../index.js')
+    expect(getSecretDefinition('GOOGLE_MAPS_API_KEY')).toBeDefined()
+  })
+})

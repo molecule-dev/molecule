@@ -18,10 +18,11 @@ vi.mock('nodemailer', () => ({
   },
 }))
 
-// Mock AWS SDK
+// Mock AWS SDK (nodemailer 7 requires the SESv2 client + SendEmailCommand pair)
 const mockSESClient = vi.fn()
-vi.mock('@aws-sdk/client-ses', () => ({
-  SESClient: mockSESClient,
+vi.mock('@aws-sdk/client-sesv2', () => ({
+  SESv2Client: mockSESClient,
+  SendEmailCommand: vi.fn(),
 }))
 
 vi.mock('@aws-sdk/credential-provider-node', () => ({
@@ -269,6 +270,12 @@ describe('AWS SES Email Provider', () => {
       expect(exports.provider).toBeDefined()
       expect(exports.transport).toBeDefined()
       expect(exports.email).toBeDefined()
+    })
+
+    it('registers AWS_ACCESS_KEY_ID in the @molecule/api-secrets registry when the barrel is imported', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('AWS_ACCESS_KEY_ID')).toBeDefined()
     })
   })
 })

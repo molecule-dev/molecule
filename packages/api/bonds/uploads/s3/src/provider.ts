@@ -14,6 +14,11 @@ import { v4 as uuid } from 'uuid'
 import { getLogger } from '@molecule/api-bond'
 import type { FileInfo, UploadProvider } from '@molecule/api-uploads'
 const logger = getLogger()
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
+
 import { t } from '@molecule/api-i18n'
 
 import type { File } from './types.js'
@@ -160,7 +165,13 @@ export const upload = (
   stream.on(`error`, (err) => {
     const error = err instanceof Error ? err : new Error(String(err))
     // Tear down the piped body too, or the SDK upload would wait forever on a
-    // stream that will never end.
+    // stream that will never end. `destroy(error)` re-emits the error on
+    // `body`; if the SDK hasn't attached its own error listener yet, an
+    // unlistened `error` event would crash the process — so handle it here.
+    body.once(`error`, (_error) => {
+      // Intentionally ignored: this is the same error we just passed to
+      // destroy() and already surface via onError(error) below.
+    })
     body.destroy(error)
     onError(error)
   })

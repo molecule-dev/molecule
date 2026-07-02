@@ -26,6 +26,11 @@
 
 import { randomBytes as nodeRandomBytes } from 'node:crypto'
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
+
 import { getLogger } from '@molecule/api-bond'
 import type { HttpError, HttpRequestOptions, HttpResponse } from '@molecule/api-http'
 import { get, post } from '@molecule/api-http'
@@ -44,11 +49,6 @@ import type {
 } from '@molecule/api-wearable'
 
 import type { OuraAuthorizeStart, OuraProvider, OuraProviderOptions } from './types.js'
-
-// Side-effect import: registers this bond's secret definitions so the
-// runtime registry is populated even when provider.js is imported directly
-// (not through the package barrel).
-import './secrets.js'
 
 /** Stable provider key used in the credentials store and bond name. */
 export const PROVIDER_NAME = 'oura'

@@ -45,10 +45,25 @@ function createProvider(config?: GoogleConfig): GoogleAIProvider
 
 **Returns:** A Google-backed provider instance.
 
+### Constants
+
+#### `aiGoogleSecretDefinitions`
+
+Secret definitions required by the Google AI bond.
+
+```typescript
+const aiGoogleSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-ai` interface.
 
 ## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

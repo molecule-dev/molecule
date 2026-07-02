@@ -257,6 +257,14 @@ Handler map for the payment-method resource routes.
 const requestHandlerMap: { readonly createSetupIntent: typeof createSetupIntent; readonly listPaymentMethods: typeof listPaymentMethods; readonly setDefaultPaymentMethod: typeof setDefaultPaymentMethod; readonly deletePaymentMethod: typeof deletePaymentMethod; }
 ```
 
+#### `resourcePaymentMethodSecretDefinitions`
+
+Secret definitions required by the payment-method resource.
+
+```typescript
+const resourcePaymentMethodSecretDefinitions: SecretDefinition[]
+```
+
 #### `routes`
 
 Saved payment-method routes.
@@ -284,6 +292,7 @@ Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-payments` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

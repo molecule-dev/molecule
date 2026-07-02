@@ -51,6 +51,12 @@ describe('typesense search provider', () => {
       expect(p).toBeDefined()
       expect(typeof p.search).toBe('function')
     })
+
+    it('registers its secret definitions at import time', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('TYPESENSE_HOST')).toBeDefined()
+    })
   })
 
   describe('createIndex', () => {

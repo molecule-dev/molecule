@@ -143,6 +143,9 @@ export const COMMON_SECRETS: Record<string, SecretDefinition> = {
     key: 'APP_URL',
     description: 'Public URL of the application',
     example: 'https://myapp.com',
+    // Optional: most apps run fine without it (dev/preview); marking it
+    // required would warn on every fresh scaffold's boot report.
+    required: false,
   },
 }
 

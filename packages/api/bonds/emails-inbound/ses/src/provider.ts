@@ -21,6 +21,11 @@
 import { Buffer } from 'node:buffer'
 import { createPublicKey, createVerify } from 'node:crypto'
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
+
 import { sendMail } from '@molecule/api-emails'
 import type {
   InboundEmail,

@@ -27,7 +27,8 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@molecule/api-ai-speech": ">=1.0.0"
+    "@molecule/api-ai-speech": ">=1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-ai-speech": "1.0.0",

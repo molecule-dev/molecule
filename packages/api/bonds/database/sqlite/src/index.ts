@@ -23,6 +23,7 @@
 
 export * from './migrator.js'
 export * from './pool.js'
+export * from './secrets.js'
 export * from './store.js'
 export * from './types.js'
 export * from './utilities.js'

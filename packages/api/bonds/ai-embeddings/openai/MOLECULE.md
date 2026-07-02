@@ -49,6 +49,14 @@ function createProvider(config?: OpenaiEmbeddingsConfig): AIEmbeddingsProvider
 
 ### Constants
 
+#### `aiEmbeddingsOpenaiSecretDefinitions`
+
+Secret definitions required by the OpenAI embeddings bond.
+
+```typescript
+const aiEmbeddingsOpenaiSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation.
@@ -79,6 +87,7 @@ export function setupAiEmbeddingsOpenai(): void {
 
 Peer dependencies:
 - `@molecule/api-ai-embeddings` >=1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

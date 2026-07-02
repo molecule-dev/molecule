@@ -277,6 +277,14 @@ function processWebhook(_headers: Record<string, string | string[] | undefined>,
 
 ### Constants
 
+#### `esignHellosignSecretDefinitions`
+
+Secret definitions required by the Dropbox Sign (HelloSign) e-signature bond.
+
+```typescript
+const esignHellosignSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The HelloSign provider implementing the `EsignProvider` interface.
@@ -308,6 +316,7 @@ export function setupEsignHellosign(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-esign` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

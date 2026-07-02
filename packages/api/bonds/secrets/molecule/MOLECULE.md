@@ -96,6 +96,14 @@ Default provider instance, created from `MOLECULE_*` environment variables.
 const provider: SecretsProvider
 ```
 
+#### `secretsMoleculeSecretDefinitions`
+
+Secret definitions required by the molecule.dev vault secrets bond.
+
+```typescript
+const secretsMoleculeSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-secrets` interface.
 
@@ -125,10 +133,7 @@ Peer dependencies:
 
 - `MOLECULE_VAULT_TOKEN` *(required)* — molecule.dev vault token
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
-  - Setup: Provisioned automatically by the molecule.dev platform — no manual setup.
 - `MOLECULE_APP_ID` *(required)* — molecule.dev app ID
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
-  - Setup: Provisioned automatically by the molecule.dev platform — no manual setup.
 - `MOLECULE_VAULT_URL` *(optional)* — molecule.dev vault URL — default: `https://api.molecule.dev/v1/vault`
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
-  - Setup: Provisioned automatically by the molecule.dev platform — no manual setup.

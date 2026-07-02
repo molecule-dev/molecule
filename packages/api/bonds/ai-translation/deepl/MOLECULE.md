@@ -49,6 +49,16 @@ function createProvider(config?: DeeplConfig): AITranslationProvider
 
 **Returns:** An `AITranslationProvider` backed by the DeepL REST API.
 
+### Constants
+
+#### `aiTranslationDeeplSecretDefinitions`
+
+Secret definitions required by the DeepL translation bond.
+
+```typescript
+const aiTranslationDeeplSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-ai-translation` interface.
 
@@ -58,6 +68,7 @@ Implements `@molecule/api-ai-translation` interface.
 
 Peer dependencies:
 - `@molecule/api-ai-translation` >=1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

@@ -646,3 +646,11 @@ describe('DeeplTranslationProvider', () => {
     })
   })
 })
+
+describe('secret registration', () => {
+  it('registers DEEPL_API_KEY in the @molecule/api-secrets registry', async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('DEEPL_API_KEY')).toBeDefined()
+  })
+})

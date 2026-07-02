@@ -937,3 +937,13 @@ describe('schema field constraints', () => {
     })
   })
 })
+
+describe('secret registration', () => {
+  // The barrel pulls the full handler tree — a heavy import under the
+  // monorepo-root runner's shared workers; give it real headroom.
+  it('registers its secret definitions after importing the barrel', { timeout: 30_000 }, async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('JWT_PRIVATE_KEY')).toBeDefined()
+  })
+})

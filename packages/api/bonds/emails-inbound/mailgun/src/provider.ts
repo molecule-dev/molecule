@@ -17,13 +17,12 @@
 import { Buffer } from 'node:buffer'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
-import { sendMail } from '@molecule/api-emails'
-import { configNotConfiguredError } from '@molecule/api-secrets'
-
 // Side-effect import: registers this bond's secret definitions so the
 // runtime registry is populated even when provider.js is imported directly
 // (not through the package barrel).
 import './secrets.js'
+
+import { sendMail } from '@molecule/api-emails'
 import type {
   InboundEmail,
   InboundEmailAttachment,
@@ -31,6 +30,7 @@ import type {
   InboundEmailReply,
   InboundEmailReplyResult,
 } from '@molecule/api-emails-inbound'
+import { configNotConfiguredError } from '@molecule/api-secrets'
 
 import {
   DEFAULT_REPLAY_WINDOW_SECONDS,

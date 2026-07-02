@@ -132,3 +132,11 @@ describe('http activity sink', () => {
     expect(warn).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('secret registration', () => {
+  it('registers MOLECULE_ACTIVITY_URL in the @molecule/api-secrets registry', async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('MOLECULE_ACTIVITY_URL')).toBeDefined()
+  })
+})

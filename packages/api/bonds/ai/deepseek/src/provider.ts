@@ -22,6 +22,11 @@ import { t } from '@molecule/api-i18n'
 
 const logger = getLogger()
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
+
 import type { DeepseekConfig } from './types.js'
 
 /** Mutable token usage counters shared across SSE line-processing calls. */

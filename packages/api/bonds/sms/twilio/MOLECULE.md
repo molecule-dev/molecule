@@ -64,6 +64,16 @@ function createProvider(config?: TwilioSMSConfig): SMSProvider
 
 **Returns:** A fully initialised `SMSProvider` backed by Twilio.
 
+### Constants
+
+#### `smsTwilioSecretDefinitions`
+
+Secret definitions required by the Twilio SMS bond.
+
+```typescript
+const smsTwilioSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-sms` interface.
 
@@ -72,6 +82,7 @@ Implements `@molecule/api-sms` interface.
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-secrets` ^1.0.0
 - `@molecule/api-sms` 1.0.0
 
 ### Environment Variables

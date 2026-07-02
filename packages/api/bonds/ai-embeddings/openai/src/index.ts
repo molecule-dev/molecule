@@ -5,6 +5,7 @@
  */
 
 export * from './provider.js'
+export * from './secrets.js'
 export * from './types.js'
 
 import type { AIEmbeddingsProvider } from '@molecule/api-ai-embeddings'

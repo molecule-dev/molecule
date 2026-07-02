@@ -444,3 +444,11 @@ describe('createBillingRoutes', () => {
     })
   })
 })
+
+describe('secret registration', () => {
+  it('registers STRIPE_SECRET_KEY in the @molecule/api-secrets registry', async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('STRIPE_SECRET_KEY')).toBeDefined()
+  })
+})

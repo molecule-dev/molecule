@@ -35,7 +35,8 @@
     "vitest": "4.1.8"
   },
   "peerDependencies": {
-    "@molecule/api-analytics": "^1.0.0"
+    "@molecule/api-analytics": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "repository": {
     "type": "git",

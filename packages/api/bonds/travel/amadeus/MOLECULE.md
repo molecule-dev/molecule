@@ -166,6 +166,14 @@ OAuth2 token-mint call fails.
 const TOKEN_MINT_FAILED: "TOKEN_MINT_FAILED"
 ```
 
+#### `travelAmadeusSecretDefinitions`
+
+Secret definitions required by the Amadeus travel bond.
+
+```typescript
+const travelAmadeusSecretDefinitions: SecretDefinition[]
+```
+
 #### `UPSTREAM_ERROR`
 
 Stable error code emitted by the Amadeus travel provider for any
@@ -196,6 +204,7 @@ export function setupTravelAmadeus(): void {
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-secrets` ^1.0.0
 - `@molecule/api-travel` ^1.0.0
 
 ### Environment Variables

@@ -57,6 +57,14 @@ function createProvider(config?: AlibabaConfig): AIProvider
 
 ### Constants
 
+#### `aiAlibabaSecretDefinitions`
+
+Secret definitions required by the Alibaba DashScope AI bond.
+
+```typescript
+const aiAlibabaSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation.
@@ -76,6 +84,7 @@ Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

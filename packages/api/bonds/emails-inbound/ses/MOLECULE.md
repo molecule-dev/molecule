@@ -607,6 +607,14 @@ function verifySignature(_headers: Record<string, string | string[] | undefined>
 
 ### Constants
 
+#### `emailsInboundSesSecretDefinitions`
+
+Secret definitions required by the AWS SES inbound-email bond.
+
+```typescript
+const emailsInboundSesSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The AWS SES inbound-email provider implementing the
@@ -652,6 +660,7 @@ export function setupEmailsInboundSes(): void {
 Peer dependencies:
 - `@molecule/api-emails` ^1.0.0
 - `@molecule/api-emails-inbound` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
@@ -669,6 +678,6 @@ Peer dependencies:
   - Setup: ARN of the SNS topic your SES receipt rule publishes inbound mail to.
   - Get it here: [https://console.aws.amazon.com/ses/](https://console.aws.amazon.com/ses/)
   - Example: `arn:aws:sns:us-east-1:123456789012:ses-inbound`
-- `AWS_SNS_SIGNING_CERT_HOSTNAME_SUFFIXES` *(optional)* — SNS signing-cert hostname allowlist
+- `AWS_SNS_SIGNING_CERT_HOSTNAME_SUFFIXES` *(optional)* — SNS signing-cert hostname allowlist — default: `.amazonaws.com`
   - Setup: Comma-separated hostname suffixes allowed for SNS signature certificates; the default (.amazonaws.com) is fine.
   - Example: `.amazonaws.com`

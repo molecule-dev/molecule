@@ -87,6 +87,12 @@ describe('@molecule/api-queue-redis', () => {
       expect(typeof providerInstance.close).toBe('function')
     })
 
+    it('registers its secret definitions at import time', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('REDIS_URL')).toBeDefined()
+    })
+
     it('should create a provider with custom URL option', () => {
       const providerInstance = createProvider({
         url: 'redis://custom-host:6380',

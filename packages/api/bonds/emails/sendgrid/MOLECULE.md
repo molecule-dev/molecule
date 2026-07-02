@@ -128,6 +128,14 @@ function sendMail(message: EmailMessage): Promise<EmailSendResult>
 
 ### Constants
 
+#### `emailsSendgridSecretDefinitions`
+
+Secret definitions required by the SendGrid email bond.
+
+```typescript
+const emailsSendgridSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The SendGrid email provider implementing the standard interface.
@@ -167,6 +175,7 @@ export function setupEmailsSendgrid(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-emails` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

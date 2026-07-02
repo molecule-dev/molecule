@@ -59,6 +59,14 @@ function createProvider(config?: DeepseekConfig): AIProvider
 
 ### Constants
 
+#### `aiDeepseekSecretDefinitions`
+
+Secret definitions required by the DeepSeek AI bond.
+
+```typescript
+const aiDeepseekSecretDefinitions: SecretDefinition[]
+```
+
 #### `DeepseekAIProvider`
 
 Back-compat alias for the provider class (the scaffold exported this name).
@@ -86,6 +94,7 @@ Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

@@ -66,6 +66,14 @@ function createProvider(config: GoogleGeolocationConfig): GeolocationProvider
 
 ### Constants
 
+#### `geolocationGoogleSecretDefinitions`
+
+Secret definitions required by the Google geolocation bond.
+
+```typescript
+const geolocationGoogleSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation, lazily initialized with API key from
@@ -99,6 +107,7 @@ export function setupGeolocationGoogle(): void {
 
 Peer dependencies:
 - `@molecule/api-geolocation` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

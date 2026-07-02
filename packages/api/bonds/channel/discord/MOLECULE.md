@@ -158,6 +158,14 @@ function createProvider(config?: DiscordConfig): DiscordChannelProvider
 
 ### Constants
 
+#### `channelDiscordSecretDefinitions`
+
+Secret definitions required by the Discord channel bond.
+
+```typescript
+const channelDiscordSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 Lazily-instantiated, default-configured Discord channel provider.
@@ -179,6 +187,7 @@ Implements `@molecule/api-channel` interface.
 Peer dependencies:
 - `@molecule/api-channel` ^1.0.0
 - `discord.js` ^14.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

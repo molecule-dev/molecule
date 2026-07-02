@@ -12,6 +12,11 @@ import {
 
 import { getLogger } from '@molecule/api-bond'
 const logger = getLogger()
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when auth.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
+
 import { t } from '@molecule/api-i18n'
 
 /**

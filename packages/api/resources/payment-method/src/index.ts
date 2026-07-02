@@ -23,6 +23,7 @@
 export * from './i18n.js'
 export * from './requestHandlerMap.js'
 export * from './routes.js'
+export * from './secrets.js'
 export * from './service.js'
 export * from './types.js'
 export * from './utilities.js'

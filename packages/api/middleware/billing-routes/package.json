@@ -36,6 +36,7 @@
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
     "@molecule/api-payments": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0",
     "express": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {

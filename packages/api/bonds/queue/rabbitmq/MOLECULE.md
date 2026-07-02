@@ -271,6 +271,14 @@ Queue operations issued before the connection is ready are deferred automaticall
 const provider: QueueProvider
 ```
 
+#### `queueRabbitmqSecretDefinitions`
+
+Secret definitions required by the RabbitMQ queue bond.
+
+```typescript
+const queueRabbitmqSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-queue` interface.
 
@@ -295,6 +303,7 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-queue` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

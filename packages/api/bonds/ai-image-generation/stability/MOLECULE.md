@@ -56,6 +56,14 @@ function createProvider(config?: StabilityConfig): StabilityAIProvider
 
 ### Constants
 
+#### `aiImageGenerationStabilitySecretDefinitions`
+
+Secret definitions required by the Stability AI image generation bond.
+
+```typescript
+const aiImageGenerationStabilitySecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation.
@@ -86,6 +94,7 @@ export function setupAiImageGenerationStability(): void {
 
 Peer dependencies:
 - `@molecule/api-ai-image-generation` >=1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

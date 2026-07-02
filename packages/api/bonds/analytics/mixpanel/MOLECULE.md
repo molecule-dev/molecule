@@ -164,6 +164,14 @@ function createProvider(options?: MixpanelOptions): AnalyticsProvider
 
 ### Constants
 
+#### `analyticsMixpanelSecretDefinitions`
+
+Secret definitions required by the Mixpanel analytics bond.
+
+```typescript
+const analyticsMixpanelSecretDefinitions: SecretDefinition[]
+```
+
 #### `mixpanel` *(deprecated)*
 
 Legacy export - the raw Mixpanel instance.
@@ -202,6 +210,7 @@ export function setupAnalyticsMixpanel(): void {
 
 Peer dependencies:
 - `@molecule/api-analytics` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

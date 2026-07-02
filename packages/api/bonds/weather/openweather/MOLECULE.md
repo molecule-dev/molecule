@@ -135,6 +135,14 @@ developer at the missing variable.
 const provider: WeatherProvider
 ```
 
+#### `weatherOpenweatherSecretDefinitions`
+
+Secret definitions required by the OpenWeather weather bond.
+
+```typescript
+const weatherOpenweatherSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-weather` interface.
 
@@ -156,6 +164,7 @@ export function setupWeatherOpenweather(): void {
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-secrets` ^1.0.0
 - `@molecule/api-weather` ^1.0.0
 
 ### Environment Variables

@@ -34,6 +34,11 @@
  * @module
  */
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
+
 import type {
   ActivityOffer,
   CarOffer,

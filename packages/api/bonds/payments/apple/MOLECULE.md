@@ -253,6 +253,14 @@ Implements `verifyReceipt` and `parseNotification` from the PaymentProvider inte
 const paymentProvider: PaymentProviderInterface
 ```
 
+#### `paymentsAppleSecretDefinitions`
+
+Secret definitions required by the Apple payments bond.
+
+```typescript
+const paymentsAppleSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-payments` interface.
 
@@ -278,6 +286,7 @@ Peer dependencies:
 - `@molecule/api-config` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-payments` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

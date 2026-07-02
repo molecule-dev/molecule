@@ -64,6 +64,14 @@ function createProvider(config?: SlackConfig): NotificationsProvider
 
 ### Constants
 
+#### `notificationsSlackSecretDefinitions`
+
+Secret definitions required by the Slack notifications bond.
+
+```typescript
+const notificationsSlackSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation.
@@ -81,10 +89,11 @@ Implements `@molecule/api-notifications` interface.
 
 Peer dependencies:
 - `@molecule/api-notifications` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `SLACK_WEBHOOK_URL` *(required)* — Slack incoming webhook URL
+- `NOTIFICATIONS_SLACK_WEBHOOK_URL` *(required)* — Slack incoming webhook URL
   - Setup: Create a Slack app → Incoming Webhooks → Add New Webhook to Workspace, then copy the URL.
   - Get it here: [https://api.slack.com/apps](https://api.slack.com/apps)
   - Example: `https://hooks.slack.com/services/T00000000/B00000000/XXXX`

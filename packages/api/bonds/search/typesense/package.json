@@ -29,7 +29,8 @@
     "typesense": "3.0.6"
   },
   "peerDependencies": {
-    "@molecule/api-search": "^1.0.0"
+    "@molecule/api-search": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-search": "1.0.0",

@@ -7,7 +7,7 @@
  *
  * @remarks
  * **Sandbox receipts are rejected by default (fail-closed).** Accepting an Apple
- * *sandbox* receipt grants a real entitlement, so it is a money-affecting
+ * sandbox* receipt grants a real entitlement, so it is a money-affecting
  * decision. Sandbox receipts are freely obtainable by any Apple sandbox tester,
  * so a production deploy that accepts them lets an authenticated user claim the
  * premium plan without paying. Acceptance is therefore gated on an explicit,
@@ -24,6 +24,11 @@ import { getLogger } from '@molecule/api-bond'
 import { get as getConfig } from '@molecule/api-config'
 import { post } from '@molecule/api-http'
 const logger = getLogger()
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
+
 import type { NormalizedSubscription } from '@molecule/api-payments'
 
 import type { InAppPurchase, VerifyReceiptResponse } from './types.js'

@@ -15,3 +15,4 @@
  */
 
 export * from './provider.js'
+export * from './secrets.js'

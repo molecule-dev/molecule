@@ -139,6 +139,14 @@ instead.
 const BOOKING_NOT_SUPPORTED: "BOOKING_NOT_SUPPORTED"
 ```
 
+#### `hotelsAmadeusSecretDefinitions`
+
+Secret definitions required by the Amadeus hotels bond.
+
+```typescript
+const hotelsAmadeusSecretDefinitions: SecretDefinition[]
+```
+
 #### `MISSING_CREDENTIALS`
 
 Error code raised when a hotels-provider call is attempted with no
@@ -203,6 +211,7 @@ export function setupHotelsAmadeus(): void {
 
 Peer dependencies:
 - `@molecule/api-hotels` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

@@ -124,3 +124,11 @@ describe('@molecule/api-jwt-jsonwebtoken', () => {
     })
   })
 })
+
+describe('secret definitions', () => {
+  it('registers secret definitions in @molecule/api-secrets on import', async () => {
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    await import('../index.js')
+    expect(getSecretDefinition('JWT_PRIVATE_KEY')).toBeDefined()
+  })
+})

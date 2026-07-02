@@ -14,6 +14,10 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when migrator.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
 import Database from 'better-sqlite3'
 
 import { translateDdlToSqlite } from './utilities.js'

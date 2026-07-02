@@ -540,5 +540,11 @@ describe('HelloSign provider', () => {
       expect(exports.getSignedDocument).toBeDefined()
       expect(exports.processWebhook).toBeDefined()
     })
+
+    it('registers HELLOSIGN_API_KEY in the @molecule/api-secrets registry when the barrel is imported', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('HELLOSIGN_API_KEY')).toBeDefined()
+    })
   })
 })

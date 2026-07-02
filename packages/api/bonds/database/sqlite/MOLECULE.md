@@ -193,6 +193,14 @@ function translateDdlToSqlite(sql: string): string
 
 ### Constants
 
+#### `databaseSqliteSecretDefinitions`
+
+Secret definitions required by the SQLite database bond.
+
+```typescript
+const databaseSqliteSecretDefinitions: SecretDefinition[]
+```
+
 #### `pool`
 
 The SQLite connection pool instance.
@@ -233,6 +241,7 @@ export function setupDatabaseSqlite(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

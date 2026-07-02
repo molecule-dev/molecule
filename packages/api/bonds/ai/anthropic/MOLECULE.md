@@ -59,6 +59,14 @@ function createProvider(config?: AnthropicConfig): AIProvider
 
 ### Constants
 
+#### `aiAnthropicSecretDefinitions`
+
+Secret definitions required by the Anthropic AI bond.
+
+```typescript
+const aiAnthropicSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation.
@@ -78,6 +86,7 @@ Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

@@ -461,3 +461,11 @@ interface LatLng {
   lat: number
   lng: number
 }
+
+describe('secret definitions', () => {
+  it('registers secret definitions in @molecule/api-secrets on import', async () => {
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    await import('../index.js')
+    expect(getSecretDefinition('MAPBOX_ACCESS_TOKEN')).toBeDefined()
+  })
+})

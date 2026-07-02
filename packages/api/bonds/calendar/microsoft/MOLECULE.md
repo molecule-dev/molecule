@@ -364,6 +364,14 @@ function createProvider(options?: MicrosoftCalendarProviderOptions): CalendarPro
 
 ### Constants
 
+#### `calendarMicrosoftSecretDefinitions`
+
+Secret definitions required by the Microsoft calendar bond.
+
+```typescript
+const calendarMicrosoftSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The Microsoft Calendar provider. Lazily initialized on first use so that
@@ -397,6 +405,7 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-calendar` ^1.0.0
 - `@molecule/api-http` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

@@ -413,6 +413,14 @@ Uses environment variables for configuration.
 const provider: SearchProvider
 ```
 
+#### `searchTypesenseSecretDefinitions`
+
+Secret definitions required by the Typesense search bond.
+
+```typescript
+const searchTypesenseSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-search` interface.
 
@@ -435,6 +443,7 @@ export function setupSearchTypesense(): void {
 
 Peer dependencies:
 - `@molecule/api-search` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

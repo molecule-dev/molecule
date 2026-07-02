@@ -172,6 +172,14 @@ Lazily-initialized S3 client proxy. Property access is forwarded to the real cli
 const s3Client: S3Client
 ```
 
+#### `uploadsS3SecretDefinitions`
+
+Secret definitions required by the S3 uploads bond.
+
+```typescript
+const uploadsS3SecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-uploads` interface.
 
@@ -195,6 +203,7 @@ export function setupUploadsS3(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 - `@molecule/api-uploads` ^1.0.0
 
 ### Environment Variables

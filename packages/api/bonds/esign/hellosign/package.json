@@ -36,7 +36,8 @@
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
-    "@molecule/api-esign": "^1.0.0"
+    "@molecule/api-esign": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "repository": {
     "type": "git",

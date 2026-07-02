@@ -403,3 +403,11 @@ describe('Stripe Identity provider', () => {
     })
   })
 })
+
+describe('secret definitions', () => {
+  it('registers secret definitions in @molecule/api-secrets on import', async () => {
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    await import('../index.js')
+    expect(getSecretDefinition('STRIPE_SECRET_KEY')).toBeDefined()
+  })
+})

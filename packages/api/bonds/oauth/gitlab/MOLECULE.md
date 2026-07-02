@@ -96,6 +96,14 @@ function verify(code: string, codeVerifier?: string, redirectUri?: string): Prom
 
 ### Constants
 
+#### `oauthGitlabSecretDefinitions`
+
+Secret definitions required by the GitLab OAuth bond.
+
+```typescript
+const oauthGitlabSecretDefinitions: SecretDefinition[]
+```
+
 #### `serverName`
 
 The OAuth server identifier for GitLab.
@@ -128,6 +136,7 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-oauth` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

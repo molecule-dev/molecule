@@ -272,3 +272,11 @@ describe('chat()', () => {
     expect(err.message).not.toContain('zhipu-secret-7777')
   })
 })
+
+describe('secret registration', () => {
+  it('registers ZHIPU_API_KEY in the @molecule/api-secrets registry', async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('ZHIPU_API_KEY')).toBeDefined()
+  })
+})

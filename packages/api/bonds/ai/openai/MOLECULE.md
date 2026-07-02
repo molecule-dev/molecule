@@ -53,6 +53,14 @@ function createProvider(config?: OpenaiConfig): AIProvider
 
 ### Constants
 
+#### `aiOpenaiSecretDefinitions`
+
+Secret definitions required by the OpenAI AI bond.
+
+```typescript
+const aiOpenaiSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation.
@@ -71,6 +79,7 @@ Implements `@molecule/api-ai` interface.
 Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

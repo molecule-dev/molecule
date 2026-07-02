@@ -7,6 +7,10 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when pool.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
 import Database from 'better-sqlite3'
 
 import { getLogger } from '@molecule/api-bond'

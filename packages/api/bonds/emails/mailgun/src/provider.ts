@@ -7,17 +7,16 @@
  * @module
  */
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
 import nodemailer from 'nodemailer'
 import mailgun from 'nodemailer-mailgun-transport'
 
 import { getLogger } from '@molecule/api-bond'
 import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/api-emails'
 import { configNotConfiguredError } from '@molecule/api-secrets'
-
-// Side-effect import: registers this bond's secret definitions so the
-// runtime registry is populated even when provider.js is imported directly
-// (not through the package barrel).
-import './secrets.js'
 
 const logger = getLogger()
 

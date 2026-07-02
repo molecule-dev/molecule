@@ -76,6 +76,14 @@ function createHttpSink(options?: HttpActivitySinkOptions): ActivitySink
 
 ### Constants
 
+#### `activityHttpSecretDefinitions`
+
+Secret definitions required by the HTTP activity sink bond.
+
+```typescript
+const activityHttpSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 Default HTTP activity sink instance, configured from environment variables.
@@ -107,9 +115,10 @@ export function setupActivityHttp(): void {
 Peer dependencies:
 - `@molecule/api-activity` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
 - `MOLECULE_ACTIVITY_URL` *(optional)* — molecule.dev activity capture URL
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
-  - Setup: Endpoint for captured side effects (emails/SMS/webhooks) in molecule.dev sandboxes — provisioned automatically.
+  - Setup: Endpoint for captured side effects (emails/SMS/webhooks) in molecule.dev sandboxes.

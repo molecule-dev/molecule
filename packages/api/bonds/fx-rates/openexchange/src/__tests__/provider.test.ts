@@ -415,3 +415,11 @@ describe('openexchange fx-rates provider', () => {
     })
   })
 })
+
+describe('secret definitions', () => {
+  it('registers secret definitions in @molecule/api-secrets on import', async () => {
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    await import('../index.js')
+    expect(getSecretDefinition('OPENEXCHANGE_APP_ID')).toBeDefined()
+  })
+})

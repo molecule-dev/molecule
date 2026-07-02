@@ -502,6 +502,14 @@ Microsoft Graph endpoint for the signed-in user.
 const GRAPH_ME_URL: "https://graph.microsoft.com/v1.0/me"
 ```
 
+#### `oauthMicrosoftSecretDefinitions`
+
+Secret definitions required by the Microsoft OAuth bond.
+
+```typescript
+const oauthMicrosoftSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 Default Microsoft OAuth provider, configured from environment.
@@ -545,6 +553,7 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-oauth` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

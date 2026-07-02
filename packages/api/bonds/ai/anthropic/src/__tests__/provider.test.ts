@@ -613,3 +613,11 @@ describe('AnthropicAIProvider — tool-input streaming events', () => {
     expect(events.some((e) => e.type === 'keep_alive')).toBe(false)
   })
 })
+
+describe('secret registration', () => {
+  it('registers ANTHROPIC_API_KEY in the @molecule/api-secrets registry', async () => {
+    await import('../index.js')
+    const { getSecretDefinition } = await import('@molecule/api-secrets')
+    expect(getSecretDefinition('ANTHROPIC_API_KEY')).toBeDefined()
+  })
+})

@@ -259,6 +259,14 @@ Lazily-initialized Redis/BullMQ queue provider proxy that creates the provider o
 const provider: QueueProvider
 ```
 
+#### `queueRedisSecretDefinitions`
+
+Secret definitions required by the Redis queue bond.
+
+```typescript
+const queueRedisSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-queue` interface.
 
@@ -282,6 +290,7 @@ export function setupQueueRedis(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-queue` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

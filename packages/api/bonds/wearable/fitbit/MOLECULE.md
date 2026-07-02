@@ -642,6 +642,14 @@ Stable provider key used in the credentials store and bond name.
 const PROVIDER_NAME: "fitbit"
 ```
 
+#### `wearableFitbitSecretDefinitions`
+
+Secret definitions required by the Fitbit wearable bond.
+
+```typescript
+const wearableFitbitSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-wearable` interface.
 
@@ -652,6 +660,7 @@ Implements `@molecule/api-wearable` interface.
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-http` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 - `@molecule/api-wearable` ^1.0.0
 
 ### Environment Variables

@@ -103,6 +103,14 @@ function isLocalUrl(url: string): boolean
 
 ### Constants
 
+#### `databasePostgresqlSecretDefinitions`
+
+Secret definitions required by the PostgreSQL database bond.
+
+```typescript
+const databasePostgresqlSecretDefinitions: SecretDefinition[]
+```
+
 #### `pool`
 
 The PostgreSQL connection pool instance.
@@ -160,12 +168,13 @@ export function setupDatabasePostgresql(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
 - `DATABASE_URL` *(required)* — PostgreSQL connection URL — default: `postgres://molecule:molecule@127.0.0.1:5432/myapp`
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
-  - Setup: Postgres connection string. Provisioned automatically in molecule.dev sandboxes; locally, use the Docker Compose default.
+  - Setup: Postgres connection string; locally, use the Docker Compose default.
   - Example: `postgres://user:pass@localhost:5432/myapp`
 
 ### Runtime Dependencies

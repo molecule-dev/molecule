@@ -277,6 +277,14 @@ function createProvider(config?: MessengerConfig): MessengerChannelProvider
 
 ### Constants
 
+#### `channelMessengerSecretDefinitions`
+
+Secret definitions required by the Messenger channel bond.
+
+```typescript
+const channelMessengerSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 Lazily-instantiated singleton instance for app-startup wiring. Reads
@@ -295,6 +303,7 @@ Implements `@molecule/api-channel` interface.
 
 Peer dependencies:
 - `@molecule/api-channel` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

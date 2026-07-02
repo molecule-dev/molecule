@@ -692,4 +692,12 @@ describe('@molecule/api-database-mysql index exports', () => {
       conn2.release()
     })
   })
+
+  describe('secret definitions', () => {
+    it('registers MYSQL_URL in the @molecule/api-secrets registry when the barrel is imported', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('MYSQL_URL')).toBeDefined()
+    })
+  })
 })

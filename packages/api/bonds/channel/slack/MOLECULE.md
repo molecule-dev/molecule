@@ -189,6 +189,14 @@ function createProvider(config?: SlackChannelConfig): ChannelProvider
 
 ### Constants
 
+#### `channelSlackSecretDefinitions`
+
+Secret definitions required by the Slack channel bond.
+
+```typescript
+const channelSlackSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 Default Slack channel provider — pre-bound to env vars at import time.
@@ -210,6 +218,7 @@ Implements `@molecule/api-channel` interface.
 
 Peer dependencies:
 - `@molecule/api-channel` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 

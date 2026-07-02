@@ -26,7 +26,8 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@molecule/api-notifications": "^1.0.0"
+    "@molecule/api-notifications": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-notifications": "1.0.0",

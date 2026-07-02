@@ -67,6 +67,14 @@ function createProvider(config?: WebhookConfig): NotificationsProvider
 
 ### Constants
 
+#### `notificationsWebhookSecretDefinitions`
+
+Secret definitions required by the webhook notifications bond.
+
+```typescript
+const notificationsWebhookSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The provider implementation.
@@ -84,11 +92,12 @@ Implements `@molecule/api-notifications` interface.
 
 Peer dependencies:
 - `@molecule/api-notifications` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `WEBHOOK_URL` *(required)* — Notification webhook URL
+- `NOTIFICATIONS_WEBHOOK_URL` *(required)* — Notification webhook URL
   - Setup: HTTPS endpoint that receives notification POSTs from your app.
   - Example: `https://example.com/hooks/notify`
-- `WEBHOOK_SECRET` *(optional)* — Notification webhook signing secret
+- `NOTIFICATIONS_WEBHOOK_SECRET` *(optional)* — Notification webhook signing secret
   - **Auto-generated at scaffold — no manual setup.**

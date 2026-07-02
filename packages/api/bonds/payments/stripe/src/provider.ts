@@ -10,13 +10,13 @@ import Stripe from 'stripe'
 
 import { getLogger } from '@molecule/api-bond'
 const logger = getLogger()
-import type { NormalizedSubscription, SubscriptionStatus } from '@molecule/api-payments'
-import { configNotConfiguredError } from '@molecule/api-secrets'
-
 // Side-effect import: registers this bond's secret definitions so the
 // runtime registry is populated even when provider.js is imported directly
 // (not through the package barrel).
 import './secrets.js'
+
+import type { NormalizedSubscription, SubscriptionStatus } from '@molecule/api-payments'
+import { configNotConfiguredError } from '@molecule/api-secrets'
 
 import type {
   CheckoutSessionResult,

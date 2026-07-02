@@ -30,7 +30,8 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@molecule/api-crypto-prices": "^1.0.0"
+    "@molecule/api-crypto-prices": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-crypto-prices": "1.0.0",

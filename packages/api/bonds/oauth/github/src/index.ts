@@ -5,4 +5,5 @@
  */
 
 export * from './provider.js'
+export * from './secrets.js'
 export * from './types.js'
