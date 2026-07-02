@@ -51,7 +51,7 @@ Replaces the 20-line per-app `src/main.tsx` that 97 fleet apps shipped
 byte-identically.
 
 ```typescript
-function bootstrapApp(opts: { App: ComponentType; authClient: { initialize: () => Promise<void>; }; setupProviders: () => void; registerPWA?: () => void; }): void
+function bootstrapApp(opts: { App: ComponentType; authClient: { initialize: () => Promise<void>; }; setupProviders: () => void | Promise<void>; registerPWA?: () => void; }): void
 ```
 
 #### `createDefaultAuthClient(authConfig)`
