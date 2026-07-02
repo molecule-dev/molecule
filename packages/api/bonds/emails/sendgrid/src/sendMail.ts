@@ -83,6 +83,16 @@ function toSgAttachments(attachments: EmailAttachment[]): {
 }
 
 /**
+ * Whether sends should run in SendGrid's sandbox mode: the API validates and
+ * accepts the message (auth, payload shape, response headers all exercised
+ * for real) but nothing is delivered. Mirrors the Mailgun bond's
+ * `MAILGUN_TEST_MODE` escape hatch — the semantic test environments want.
+ *
+ * @returns `true` when `SENDGRID_TEST_MODE` is `'true'`.
+ */
+const isTestMode = (): boolean => process.env.SENDGRID_TEST_MODE === 'true'
+
+/**
  * Sends an email through the SendGrid API.
  *
  * @param message - The email message (to, from, subject, text/html, attachments).
@@ -102,6 +112,7 @@ export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> 
     if (message.bcc) msg.bcc = toSgRecipients(message.bcc)
     if (message.replyTo) msg.replyTo = toSgAddress(message.replyTo)
     if (message.attachments?.length) msg.attachments = toSgAttachments(message.attachments)
+    if (isTestMode()) msg.mailSettings = { sandboxMode: { enable: true } }
 
     const [response] = await sgClient.send(msg as unknown as Parameters<typeof sgClient.send>[0])
 
