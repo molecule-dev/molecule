@@ -2,17 +2,46 @@
 
 Socket.io realtime client provider for molecule.dev.
 
-Provides a headless Socket.io-style state manager for realtime connections,
-with rooms, presence, event buffering, and reconnection support. Bond this
-provider at startup, then use the core `@molecule/app-realtime` API anywhere.
+A real socket.io-client transport implementing `RealtimeClientProvider`
+from `@molecule/app-realtime`: rooms, presence, event buffering, and
+reconnect-rejoin over a live Socket.io connection. The matching server
+bond (`@molecule/api-realtime-socketio`) attaches a Socket.io Server to
+the API's HTTP server at `/socket.io`, so client and server share one
+port.
+
+URL convention: `connect('')` or `connect('/')` connects same-origin
+(`io()` with no URL — in dev, Vite proxies `/socket.io` to the API); an
+absolute URL connects directly to that server. `ConnectionOptions.auth`
+is passed through as the socket.io handshake `auth` payload, which the
+server evaluates in its room join guards.
+
+Reserved protocol events (client → server `molecule:join` /
+`molecule:leave` / `molecule:room-send`, server → client
+`molecule:joined` / `molecule:left` / `molecule:join-denied` /
+`molecule:presence`) are handled internally and never dispatched to
+app-level `on()` handlers. Rooms are keyed by name (arbitrary string,
+e.g. `'channel:<uuid>'`).
 
 ## Quick Start
 
 ```typescript
-import { setProvider } from '@molecule/app-realtime'
+import { setProvider, getProvider } from '@molecule/app-realtime'
 import { provider } from '@molecule/app-realtime-socketio'
 
 setProvider(provider)
+
+// connect() resolves immediately (state 'connecting') — never blocks the UI.
+const connection = await getProvider().connect('/', {
+  auth: { token: authToken },
+})
+
+// Resolves when the server confirms; rejects with the reason if denied.
+await connection.joinRoom('channel:general')
+
+connection.on('message:created', (data) => {
+  console.log('new message', data)
+})
+connection.sendTo('channel:general', 'message:created', { body: 'hi' })
 
 // Or with custom configuration:
 import { createSocketioProvider } from '@molecule/app-realtime-socketio'
@@ -39,7 +68,8 @@ npm install @molecule/app-realtime-socketio
 #### `BufferedEvent`
 
 An event that was sent while disconnected and is queued for delivery
-upon reconnection (when `bufferEvents` is enabled).
+upon (re)connection (when `bufferEvents` is enabled). The provider
+flushes the queue over the socket, in order, on every `connect`.
 
 ```typescript
 interface BufferedEvent {
@@ -59,12 +89,15 @@ Socket.io-specific configuration for the realtime provider.
 ```typescript
 interface SocketioConfig {
   /**
-   * Socket.io transport preferences. Defaults to `['websocket', 'polling']`.
+   * Socket.io transport preferences, passed through as the socket.io-client
+   * `transports` option. Defaults to `['websocket', 'polling']`.
    */
   transports?: Array<'websocket' | 'polling'>
 
   /**
-   * Path for the socket.io endpoint. Defaults to `'/socket.io'`.
+   * Path for the socket.io endpoint, passed through as the socket.io-client
+   * `path` option. Defaults to `'/socket.io'` — the path
+   * `@molecule/api-realtime-socketio` attaches to on the API's HTTP server.
    */
   path?: string
 
@@ -84,10 +117,13 @@ interface SocketioConfig {
 
 #### `SocketioConnection`
 
-Extended connection instance exposing internal methods for framework bindings.
+Extended connection instance exposing internal methods.
 
-Framework bindings (React, Vue, etc.) use these `_`-prefixed methods to wire
-actual Socket.io client events into the provider's state manager.
+The provider itself owns the real socket.io-client Socket — transport,
+protocol events, reconnect-rejoin, and buffering are all handled
+internally. These `_`-prefixed methods exist for introspection (tests,
+devtools) and for simulating transitions without a live server; they are
+NOT required to wire the connection (that was the pre-transport design).
 
 ```typescript
 interface SocketioConnection extends RealtimeConnection {
@@ -113,9 +149,12 @@ interface SocketioConnection extends RealtimeConnection {
   _getConfig(): SocketioConfig
 
   /**
-   * Returns the set of room IDs currently joined.
+   * Returns the tracked (desired) rooms — every room requested via
+   * `joinRoom()` (or confirmed by the server) and not yet left. This is the
+   * set re-joined on reconnect; server confirmation status is tracked
+   * separately via the pending join promises.
    *
-   * @returns A copy of the joined rooms set.
+   * @returns A copy of the tracked rooms set.
    */
   _getJoinedRooms(): Set<string>
 
@@ -127,8 +166,11 @@ interface SocketioConnection extends RealtimeConnection {
   _getBufferedEvents(): BufferedEvent[]
 
   /**
-   * Dispatches an incoming event to all registered handlers.
-   * Called by framework bindings when actual socket data arrives.
+   * Routes an event through the same pipeline as a real incoming socket
+   * event: reserved `molecule:*` protocol events are consumed internally
+   * (presence/join/leave state updates) and never reach app-level handlers;
+   * everything else is dispatched to handlers registered via `on()`.
+   * Useful for simulating server events in tests.
    *
    * @param event - The event name.
    * @param data - The event payload.
@@ -136,8 +178,8 @@ interface SocketioConnection extends RealtimeConnection {
   _triggerEvent(event: string, data: unknown): void
 
   /**
-   * Updates the presence list for a room and notifies presence change handlers.
-   * Called by framework bindings when presence data is received.
+   * Updates the presence list for a room and notifies presence change
+   * handlers — the same handler the reserved `molecule:presence` event runs.
    *
    * @param roomId - The room whose presence changed.
    * @param presence - The updated presence list.
@@ -145,46 +187,52 @@ interface SocketioConnection extends RealtimeConnection {
   _setPresence(roomId: string, presence: PresenceInfo[]): void
 
   /**
-   * Updates the connection state and notifies state change handlers.
-   * Called by framework bindings when the underlying socket state changes.
+   * Overrides the local connection-state machine and notifies state change
+   * handlers. Does NOT touch the underlying socket — the real state is
+   * normally driven by the socket's own lifecycle events. Useful for
+   * simulating transitions in tests.
    *
    * @param state - The new connection state.
    */
   _setState(state: ConnectionState): void
 
   /**
-   * Fires all registered reconnect handlers.
-   * Called by framework bindings after a successful reconnection.
+   * Simulates a reconnect notification: sets the state to `'connected'` and
+   * fires all reconnect handlers. The REAL reconnect path (the socket's
+   * `connect` event after a drop) additionally re-joins all tracked rooms
+   * and flushes the send buffer.
    */
   _triggerReconnect(): void
 
   /**
-   * Flushes all buffered events and returns them so the framework binding
-   * can emit them over the real socket. Clears the internal buffer.
+   * Drains the buffered events queue WITHOUT emitting them — the provider
+   * itself flushes the buffer over the socket on every (re)connect, so this
+   * exists only for callers that want to take over delivery or
+   * inspect-and-clear in tests.
    *
-   * @returns The array of buffered events to send.
+   * @returns The array of drained buffered events.
    */
   _flushBuffer(): BufferedEvent[]
 
   /**
-   * Marks a room as joined in internal state.
-   * Called by framework bindings after the server confirms the join.
+   * Marks a room as joined — the same handler the reserved
+   * `molecule:joined` event runs: tracks the room and resolves any pending
+   * `joinRoom()` promise for it.
    *
-   * @param roomId - The room ID.
+   * @param roomId - The room name.
    */
   _confirmJoin(roomId: string): void
 
   /**
-   * Marks a room as left in internal state.
-   * Called by framework bindings after the server confirms the leave.
+   * Marks a room as left — the same handler the reserved `molecule:left`
+   * event runs: untracks the room and clears its local presence.
    *
-   * @param roomId - The room ID.
+   * @param roomId - The room name.
    */
   _confirmLeave(roomId: string): void
 
   /**
    * Returns all registered event handler entries.
-   * Used by framework bindings to wire listeners to the real socket.
    *
    * @returns A map of event names to handler sets.
    */
@@ -217,7 +265,12 @@ interface SocketioConnection extends RealtimeConnection {
 
 #### `createSocketioProvider(config)`
 
-Creates a Socket.io-based realtime client provider.
+Creates a Socket.io-based realtime client provider backed by
+socket.io-client.
+
+`connect()` resolves immediately with the connection object in the
+`'connecting'` state — the UI is never blocked on server availability; use
+`onStateChange()` to observe the transition to `'connected'`.
 
 ```typescript
 function createSocketioProvider(config?: SocketioConfig): RealtimeClientProvider
@@ -225,7 +278,7 @@ function createSocketioProvider(config?: SocketioConfig): RealtimeClientProvider
 
 - `config` — Optional Socket.io-specific configuration.
 
-**Returns:** A `RealtimeClientProvider` backed by Socket.io-style state management.
+**Returns:** A `RealtimeClientProvider` backed by a real Socket.io transport.
 
 ### Constants
 
@@ -259,3 +312,21 @@ export function setupRealtimeSocketio(): void {
 
 Peer dependencies:
 - `@molecule/app-realtime` >=1.0.0
+
+- `joinRoom()` promises are deferred while disconnected: the join is
+  emitted on (re)connect and the promise stays pending until the server
+  confirms with `molecule:joined` (or rejects it via
+  `molecule:join-denied`). Don't `await` a join as a startup gate if the
+  server may be unreachable.
+- `sendTo(room, ...)` only reaches other clients if THIS client has
+  protocol-joined the room (`joinRoom()` confirmed) — the server drops
+  room sends from non-members.
+- Vite dev servers need a `/socket.io` websocket proxy to the API —
+  `@molecule/app-vite-config-default` provides it; without it, same-origin
+  (`'/'`) connections fail in dev.
+- Events sent while disconnected are buffered (default 100 max) and
+  flushed in order on (re)connect; beyond the cap (or with
+  `bufferEvents: false`) they are silently dropped.
+- `disconnect()` is terminal for the connection object: it tears down the
+  socket and rejects pending joins. Create a new connection via the
+  provider to reconnect.

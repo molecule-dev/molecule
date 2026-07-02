@@ -1,6 +1,10 @@
 /**
  * Socket.io realtime provider configuration and extended types.
  *
+ * The provider owns a real socket.io-client Socket; the `_`-prefixed
+ * internals on {@link SocketioConnection} are introspection and simulation
+ * hooks (used by tests and framework bindings), not the wiring surface.
+ *
  * @module
  */
 
@@ -23,12 +27,15 @@ import type {
  */
 export interface SocketioConfig {
   /**
-   * Socket.io transport preferences. Defaults to `['websocket', 'polling']`.
+   * Socket.io transport preferences, passed through as the socket.io-client
+   * `transports` option. Defaults to `['websocket', 'polling']`.
    */
   transports?: Array<'websocket' | 'polling'>
 
   /**
-   * Path for the socket.io endpoint. Defaults to `'/socket.io'`.
+   * Path for the socket.io endpoint, passed through as the socket.io-client
+   * `path` option. Defaults to `'/socket.io'` — the path
+   * `@molecule/api-realtime-socketio` attaches to on the API's HTTP server.
    */
   path?: string
 
@@ -51,7 +58,8 @@ export interface SocketioConfig {
 
 /**
  * An event that was sent while disconnected and is queued for delivery
- * upon reconnection (when `bufferEvents` is enabled).
+ * upon (re)connection (when `bufferEvents` is enabled). The provider
+ * flushes the queue over the socket, in order, on every `connect`.
  */
 export interface BufferedEvent {
   /** The target room, or `undefined` for broadcast events. */
@@ -63,14 +71,17 @@ export interface BufferedEvent {
 }
 
 // ---------------------------------------------------------------------------
-// Extended connection (framework-binding internals)
+// Extended connection (introspection / simulation internals)
 // ---------------------------------------------------------------------------
 
 /**
- * Extended connection instance exposing internal methods for framework bindings.
+ * Extended connection instance exposing internal methods.
  *
- * Framework bindings (React, Vue, etc.) use these `_`-prefixed methods to wire
- * actual Socket.io client events into the provider's state manager.
+ * The provider itself owns the real socket.io-client Socket — transport,
+ * protocol events, reconnect-rejoin, and buffering are all handled
+ * internally. These `_`-prefixed methods exist for introspection (tests,
+ * devtools) and for simulating transitions without a live server; they are
+ * NOT required to wire the connection (that was the pre-transport design).
  */
 export interface SocketioConnection extends RealtimeConnection {
   /**
@@ -95,9 +106,12 @@ export interface SocketioConnection extends RealtimeConnection {
   _getConfig(): SocketioConfig
 
   /**
-   * Returns the set of room IDs currently joined.
+   * Returns the tracked (desired) rooms — every room requested via
+   * `joinRoom()` (or confirmed by the server) and not yet left. This is the
+   * set re-joined on reconnect; server confirmation status is tracked
+   * separately via the pending join promises.
    *
-   * @returns A copy of the joined rooms set.
+   * @returns A copy of the tracked rooms set.
    */
   _getJoinedRooms(): Set<string>
 
@@ -109,8 +123,11 @@ export interface SocketioConnection extends RealtimeConnection {
   _getBufferedEvents(): BufferedEvent[]
 
   /**
-   * Dispatches an incoming event to all registered handlers.
-   * Called by framework bindings when actual socket data arrives.
+   * Routes an event through the same pipeline as a real incoming socket
+   * event: reserved `molecule:*` protocol events are consumed internally
+   * (presence/join/leave state updates) and never reach app-level handlers;
+   * everything else is dispatched to handlers registered via `on()`.
+   * Useful for simulating server events in tests.
    *
    * @param event - The event name.
    * @param data - The event payload.
@@ -118,8 +135,8 @@ export interface SocketioConnection extends RealtimeConnection {
   _triggerEvent(event: string, data: unknown): void
 
   /**
-   * Updates the presence list for a room and notifies presence change handlers.
-   * Called by framework bindings when presence data is received.
+   * Updates the presence list for a room and notifies presence change
+   * handlers — the same handler the reserved `molecule:presence` event runs.
    *
    * @param roomId - The room whose presence changed.
    * @param presence - The updated presence list.
@@ -127,46 +144,52 @@ export interface SocketioConnection extends RealtimeConnection {
   _setPresence(roomId: string, presence: PresenceInfo[]): void
 
   /**
-   * Updates the connection state and notifies state change handlers.
-   * Called by framework bindings when the underlying socket state changes.
+   * Overrides the local connection-state machine and notifies state change
+   * handlers. Does NOT touch the underlying socket — the real state is
+   * normally driven by the socket's own lifecycle events. Useful for
+   * simulating transitions in tests.
    *
    * @param state - The new connection state.
    */
   _setState(state: ConnectionState): void
 
   /**
-   * Fires all registered reconnect handlers.
-   * Called by framework bindings after a successful reconnection.
+   * Simulates a reconnect notification: sets the state to `'connected'` and
+   * fires all reconnect handlers. The REAL reconnect path (the socket's
+   * `connect` event after a drop) additionally re-joins all tracked rooms
+   * and flushes the send buffer.
    */
   _triggerReconnect(): void
 
   /**
-   * Flushes all buffered events and returns them so the framework binding
-   * can emit them over the real socket. Clears the internal buffer.
+   * Drains the buffered events queue WITHOUT emitting them — the provider
+   * itself flushes the buffer over the socket on every (re)connect, so this
+   * exists only for callers that want to take over delivery or
+   * inspect-and-clear in tests.
    *
-   * @returns The array of buffered events to send.
+   * @returns The array of drained buffered events.
    */
   _flushBuffer(): BufferedEvent[]
 
   /**
-   * Marks a room as joined in internal state.
-   * Called by framework bindings after the server confirms the join.
+   * Marks a room as joined — the same handler the reserved
+   * `molecule:joined` event runs: tracks the room and resolves any pending
+   * `joinRoom()` promise for it.
    *
-   * @param roomId - The room ID.
+   * @param roomId - The room name.
    */
   _confirmJoin(roomId: string): void
 
   /**
-   * Marks a room as left in internal state.
-   * Called by framework bindings after the server confirms the leave.
+   * Marks a room as left — the same handler the reserved `molecule:left`
+   * event runs: untracks the room and clears its local presence.
    *
-   * @param roomId - The room ID.
+   * @param roomId - The room name.
    */
   _confirmLeave(roomId: string): void
 
   /**
    * Returns all registered event handler entries.
-   * Used by framework bindings to wire listeners to the real socket.
    *
    * @returns A map of event names to handler sets.
    */
