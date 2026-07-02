@@ -83,6 +83,22 @@ interface OAuthUserProps {
      */
     email?: string;
     /**
+     * Whether the OAuth provider has affirmatively verified that the user
+     * controls this `email` mailbox.
+     *
+     * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
+     * `email_verified`, Apple's `email_verified` ID-token claim). When the
+     * provider exposes no trustworthy verification signal in the profile data
+     * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
+     * `true`) — consumers treat only an explicit `true` as verified.
+     *
+     * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
+     * decide whether a provider-supplied email may be trusted over an existing,
+     * unverified local account — preventing an unverified squatter from blocking
+     * the verified mailbox owner.
+     */
+    emailVerified?: boolean;
+    /**
      * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
      */
     oauthServer: string;
@@ -117,7 +133,7 @@ type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string)
 Verifies a Twitter OAuth code and responds with OAuth-related user props.
 
 ```typescript
-function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; oauthServer: "twitter"; oauthId: string; oauthData: Record<string, unknown>; }>
+function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: false; oauthServer: "twitter"; oauthId: string; oauthData: Record<string, unknown>; }>
 ```
 
 - `code` — The authorization code from the OAuth callback.
@@ -163,5 +179,9 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_TWITTER_CLIENT_ID` *(required)*
-- `OAUTH_TWITTER_CLIENT_SECRET` *(required)*
+- `OAUTH_TWITTER_CLIENT_ID` *(required)* — X (Twitter) OAuth client ID
+  - Setup: Create a project + app in the X developer portal, enable OAuth 2.0, and copy the client ID.
+  - Get it here: [https://developer.x.com/en/portal/dashboard](https://developer.x.com/en/portal/dashboard)
+- `OAUTH_TWITTER_CLIENT_SECRET` *(required)* — X (Twitter) OAuth client secret
+  - Setup: Shown when enabling OAuth 2.0 for your app in the X developer portal.
+  - Get it here: [https://developer.x.com/en/portal/dashboard](https://developer.x.com/en/portal/dashboard)

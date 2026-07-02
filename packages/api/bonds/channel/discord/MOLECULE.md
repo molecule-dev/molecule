@@ -182,5 +182,9 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `CHANNEL_DISCORD_BOT_TOKEN` *(required)*
-- `CHANNEL_DISCORD_PUBLIC_KEY` *(required)*
+- `CHANNEL_DISCORD_BOT_TOKEN` *(required)* — Discord bot token
+  - Setup: Create an application → Bot → Reset Token, then copy the bot token.
+  - Get it here: [https://discord.com/developers/applications](https://discord.com/developers/applications)
+- `CHANNEL_DISCORD_PUBLIC_KEY` *(required)* — Discord public key
+  - Setup: Your application → General Information → Public Key (verifies interaction signatures).
+  - Get it here: [https://discord.com/developers/applications](https://discord.com/developers/applications)

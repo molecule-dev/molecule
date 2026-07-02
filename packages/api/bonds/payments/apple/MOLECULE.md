@@ -155,6 +155,13 @@ interface VerifyReceiptResponse {
     application_version: string
     in_app?: InAppPurchase[]
   }
+  /**
+   * The base64-encoded latest receipt. Present in `unified_receipt` of Apple
+   * server-to-server (v1) notifications; re-submitted to `verifyReceipt` so the
+   * notification's authenticity is proven against Apple before any entitlement
+   * is granted (never trust the raw notification body).
+   */
+  latest_receipt?: string
   latest_receipt_info?: InAppPurchase[]
   pending_renewal_info?: PendingRenewal[]
 }
@@ -230,7 +237,7 @@ function verifyReceipt(receiptData: string, useSandbox?: boolean): Promise<Verif
 ```
 
 - `receiptData` — Base64-encoded receipt data from the App Store client.
-- `useSandbox` — When `true`, sends directly to the sandbox endpoint. Automatically retries against sandbox if production returns status 21007.
+- `useSandbox` — When `true`, sends directly to the sandbox endpoint. When the production endpoint returns status 21007 (a sandbox receipt), it retries against sandbox ONLY if `APPLE_ALLOW_SANDBOX_RECEIPTS=true`; otherwise the sandbox receipt is rejected (fail-closed default).
 
 **Returns:** The parsed receipt verification response from Apple.
 
@@ -268,9 +275,12 @@ export function setupPaymentsApple(): void {
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+- `@molecule/api-config` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-payments` ^1.0.0
 
 ### Environment Variables
 
-- `APPLE_SHARED_SECRET` *(required)*
+- `APPLE_SHARED_SECRET` *(required)* — Apple app-specific shared secret
+  - Setup: App Store Connect → your app → App Information → App-Specific Shared Secret (for receipt validation).
+  - Get it here: [https://appstoreconnect.apple.com/](https://appstoreconnect.apple.com/)

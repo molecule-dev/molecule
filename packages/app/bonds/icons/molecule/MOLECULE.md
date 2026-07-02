@@ -50,10 +50,40 @@ const bell: IconData
 const bookmark: IconData
 ```
 
+#### `browser`
+
+Browser window — used by the IDE preview device-frame cycle to represent the
+"responsive" (no fixed device frame, full-width) state.
+
+```typescript
+const browser: IconData
+```
+
+#### `bug`
+
+Bug / report glyph — used for "report a bug" affordances (e.g. the IDE chat
+header's report button). A real beetle silhouette, not a warning triangle.
+
+```typescript
+const bug: IconData
+```
+
 #### `calendar`
 
 ```typescript
 const calendar: IconData
+```
+
+#### `chat`
+
+Speech-bubble glyph (authentic GitHub Octicons 16px `comment`). The themed
+channel icon for SMS/message activity in `@molecule/app-ide-react`'s Activity
+card + panel — the SVG counterpart to the old `💬` emoji. Filled with
+`currentColor` so it follows the surrounding theme token like the rest of the
+set.
+
+```typescript
+const chat: IconData
 ```
 
 #### `check`
@@ -102,6 +132,18 @@ SVG path data for the chevrons right icon.
 const chevronsRight: IconData
 ```
 
+#### `chevronsUpDown`
+
+SVG path data for the chevrons up-down icon — the universal neutral "this
+column is sortable but not currently sorted" glyph. Composed from the same
+`chevron-up` and `chevron-down` shapes (translated into the top and bottom
+halves) so it reads as one consistent family with the active asc/desc
+indicators.
+
+```typescript
+const chevronsUpDown: IconData
+```
+
 #### `chevronUp`
 
 ```typescript
@@ -124,6 +166,33 @@ const code: IconData
 
 ```typescript
 const copy: IconData
+```
+
+#### `deviceDesktop`
+
+Monitor / desktop display — used by the IDE preview device-frame cycle.
+
+```typescript
+const deviceDesktop: IconData
+```
+
+#### `deviceMobile`
+
+Smartphone / mobile device — used by the IDE preview device-frame cycle.
+
+```typescript
+const deviceMobile: IconData
+```
+
+#### `deviceTablet`
+
+Tablet device (landscape slab with a home indicator) — used by the IDE
+preview device-frame cycle. Octicons has no tablet glyph, so this is drawn
+in the same 16px filled style: an outer rounded body, an inset screen cut
+out via the `evenodd` rule, and a home dot inside the screen.
+
+```typescript
+const deviceTablet: IconData
 ```
 
 #### `download`
@@ -208,6 +277,18 @@ SVG path data for the google icon.
 
 ```typescript
 const google: IconData
+```
+
+#### `hash`
+
+Hash/number-sign glyph (a hand-built `#` — four bars in the 16px box). The
+themed channel icon for chat-channel activity in `@molecule/app-ide-react`'s
+Activity card + panel — the SVG counterpart to the old literal `#` text glyph.
+Filled with `currentColor` so it follows the surrounding theme token like the
+rest of the set.
+
+```typescript
+const hash: IconData
 ```
 
 #### `heart`
@@ -393,6 +474,23 @@ const question: IconData
 const reply: IconData
 ```
 
+#### `rotate`
+
+Screen / device rotation (portrait ⇄ landscape) — used by the IDE preview
+panel's "Rotate" control to swap a fixed-frame device (tablet / mobile)
+between portrait and landscape.
+
+Octicons has no screen-rotation glyph, so this is the canonical Material
+Design `screen_rotation` mark (a tilted device with the two curved
+re-orientation arrows) — instantly recognizable as "rotate the screen" and
+clearly distinct from the neighbouring two-arrow `sync`/refresh glyph. It is
+drawn on Material's native 24×24 grid; the renderer scales it to the
+requested pixel size like any other glyph.
+
+```typescript
+const rotate: IconData
+```
+
 #### `search`
 
 ```typescript
@@ -429,10 +527,27 @@ const sortAsc: IconData
 const sortDesc: IconData
 ```
 
+#### `sparkle`
+
+A four-point sparkle (✦) — the "smart tip / suggestion" glyph used for the
+proactive relevant-skill hint and the onboarding tip card. Reads as a tip far
+better than the generic lightbulb it replaces (P3-01). Each of the four edges is
+a quadratic curve that bows toward the centre, forming the concave points.
+
+```typescript
+const sparkle: IconData
+```
+
 #### `star`
 
 ```typescript
 const star: IconData
+```
+
+#### `starOutline`
+
+```typescript
+const starOutline: IconData
 ```
 
 #### `sun`

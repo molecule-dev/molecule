@@ -228,7 +228,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `STRIPE_SECRET_KEY` *(required)*
+- `STRIPE_SECRET_KEY` *(required)* — Stripe secret key
+  - Setup: Stripe Dashboard → Developers → API keys; use the sk_test_ key in test mode, sk_live_ in production.
+  - Get it here: [https://dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys)
+  - Example: `sk_test_...`
 
 ### Runtime Dependencies
 

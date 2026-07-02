@@ -176,5 +176,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `POSTHOG_API_KEY` *(required)*
-- `POSTHOG_HOST` *(optional)* — default: `https://app.posthog.com`
+- `POSTHOG_API_KEY` *(required)* — PostHog project API key
+  - Setup: Copy the Project API key from PostHog → Project settings.
+  - Get it here: [https://app.posthog.com/settings/project](https://app.posthog.com/settings/project)
+  - Example: `phc_...`
+- `POSTHOG_HOST` *(optional)* — PostHog host — default: `https://app.posthog.com`
+  - Setup: Origin of your PostHog instance (US cloud, EU cloud, or self-hosted).
+  - Example: `https://us.i.posthog.com`

@@ -89,4 +89,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `STABILITY_API_KEY` *(required)*
+- `STABILITY_API_KEY` *(required)* — Stability AI API key
+  - Setup: Create an API key under Account → API keys on the Stability platform.
+  - Get it here: [https://platform.stability.ai/account/keys](https://platform.stability.ai/account/keys)
+  - Example: `sk-...`

@@ -199,7 +199,17 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `AWS_ACCESS_KEY_ID` *(required)*
-- `AWS_SECRET_ACCESS_KEY` *(required)*
-- `AWS_S3_BUCKET` *(required)*
-- `AWS_S3_REGION` *(optional)* — default: `us-east-1`
+- `AWS_ACCESS_KEY_ID` *(required)* — AWS access key ID
+  - Setup: Create an IAM user with the needed policy (SES/S3/SQS) and create an access key under Security credentials.
+  - Get it here: [https://console.aws.amazon.com/iam/](https://console.aws.amazon.com/iam/)
+  - Example: `AKIA...`
+- `AWS_SECRET_ACCESS_KEY` *(required)* — AWS secret access key
+  - Setup: Shown once when creating the IAM access key — store it immediately.
+  - Get it here: [https://console.aws.amazon.com/iam/](https://console.aws.amazon.com/iam/)
+- `AWS_S3_BUCKET` *(required)* — S3 bucket name
+  - Setup: Name of the S3 bucket to store uploads in (create one in the S3 console).
+  - Get it here: [https://console.aws.amazon.com/s3/](https://console.aws.amazon.com/s3/)
+  - Example: `my-app-uploads`
+- `AWS_S3_REGION` *(optional)* — S3 bucket region — default: `us-east-1`
+  - Setup: The AWS region of your uploads bucket.
+  - Example: `us-east-1`

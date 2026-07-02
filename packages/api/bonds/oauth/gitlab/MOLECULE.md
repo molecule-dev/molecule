@@ -35,6 +35,22 @@ interface OAuthUserProps {
      */
     email?: string;
     /**
+     * Whether the OAuth provider has affirmatively verified that the user
+     * controls this `email` mailbox.
+     *
+     * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
+     * `email_verified`, Apple's `email_verified` ID-token claim). When the
+     * provider exposes no trustworthy verification signal in the profile data
+     * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
+     * `true`) — consumers treat only an explicit `true` as verified.
+     *
+     * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
+     * decide whether a provider-supplied email may be trusted over an existing,
+     * unverified local account — preventing an unverified squatter from blocking
+     * the verified mailbox owner.
+     */
+    emailVerified?: boolean;
+    /**
      * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
      */
     oauthServer: string;
@@ -69,7 +85,7 @@ type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string)
 Verifies a GitLab OAuth code and responds with OAuth-related user props.
 
 ```typescript
-function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; oauthServer: "gitlab"; oauthId: string; oauthData: Record<string, unknown>; }>
+function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: boolean; oauthServer: "gitlab"; oauthId: string; oauthData: Record<string, unknown>; }>
 ```
 
 - `code` — The authorization code from the OAuth callback.
@@ -115,5 +131,9 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_GITLAB_CLIENT_ID` *(required)*
-- `OAUTH_GITLAB_CLIENT_SECRET` *(required)*
+- `OAUTH_GITLAB_CLIENT_ID` *(required)* — GitLab OAuth application ID
+  - Setup: GitLab → User settings → Applications → Add new application with the {apiUrl}/api/users/log-in/oauth redirect URI.
+  - Get it here: [https://gitlab.com/-/user_settings/applications](https://gitlab.com/-/user_settings/applications)
+- `OAUTH_GITLAB_CLIENT_SECRET` *(required)* — GitLab OAuth secret
+  - Setup: Shown when creating the application in GitLab.
+  - Get it here: [https://gitlab.com/-/user_settings/applications](https://gitlab.com/-/user_settings/applications)

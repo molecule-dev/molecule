@@ -241,7 +241,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `GOOGLE_SERVICE_ACCOUNT_KEY` *(required)*
+- `GOOGLE_SERVICE_ACCOUNT_KEY` *(required)* — Google service account key (JSON)
+  - Setup: Create a service account with Android Publisher access in Google Cloud Console, create a JSON key, and paste the full JSON.
+  - Get it here: [https://console.cloud.google.com/iam-admin/serviceaccounts](https://console.cloud.google.com/iam-admin/serviceaccounts)
+  - Example: `{"type":"service_account",...}`
 
 ## Translations
 

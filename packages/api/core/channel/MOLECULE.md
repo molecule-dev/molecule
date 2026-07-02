@@ -426,12 +426,12 @@ function setProvider(provider: ChannelProvider): void
 
 | Provider | Package |
 |----------|---------|
+| Capture | `@molecule/api-channel-capture` |
 | Discord | `@molecule/api-channel-discord` |
 | Facebook Messenger | `@molecule/api-channel-messenger` |
 | Slack | `@molecule/api-channel-slack` |
 | Telegram | `@molecule/api-channel-telegram` |
 | WhatsApp | `@molecule/api-channel-whatsapp` |
-| Capture | `@molecule/api-channel-capture` |
 
 ## Injection Notes
 

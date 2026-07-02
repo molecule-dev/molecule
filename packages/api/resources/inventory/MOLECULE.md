@@ -78,6 +78,28 @@ interface BulkUpdateResult {
 }
 ```
 
+#### `InventorySession`
+
+Structural view of the fields on `res.locals.session` this resource inspects to
+decide authorization. All fields are optional — a standard molecule session
+carries only `userId`; apps that model roles may also set `isAdmin`/`role`/
+`roles`/`permissions` claims, which are honored here.
+
+```typescript
+interface InventorySession {
+  /** Authenticated user id (set by the global auth middleware). */
+  userId?: string
+  /** Optional boolean admin claim. */
+  isAdmin?: boolean
+  /** Optional single-role claim. */
+  role?: string
+  /** Optional multi-role claim. */
+  roles?: string[]
+  /** Optional permission strings claim. */
+  permissions?: string[]
+}
+```
+
 #### `LowStockAlert`
 
 A low-stock alert entry.
@@ -141,6 +163,8 @@ interface Reservation {
   quantity: number
   /** The order this reservation belongs to. */
   orderId: string
+  /** The authenticated user who created this reservation, if known. */
+  userId?: string
   /** When the reservation was created. */
   createdAt: string
 }
@@ -162,6 +186,8 @@ interface ReservationRow {
   quantity: number
   /** The order this reservation belongs to. */
   orderId: string
+  /** The authenticated user who created this reservation (null for legacy rows). */
+  userId: string | null
   /** Creation timestamp. */
   createdAt: string
 }
@@ -315,6 +341,45 @@ type StockMovementType = 'adjustment' | 'reservation' | 'release' | 'confirmatio
 
 ### Functions
 
+#### `assertInventoryAdmin(res)`
+
+In-handler admin guard for the admin-only inventory mutations. Writes the
+appropriate JSON error and returns `false` when the caller is not an
+authorized admin — `401` when unauthenticated, `403` when authenticated but
+not an admin. Returns `true` (and writes nothing) when the caller is an admin.
+
+Call this at the top of every admin handler so protection holds independently
+of the route middleware (defense-in-depth, fail-closed).
+
+```typescript
+function assertInventoryAdmin(res: MoleculeResponse): boolean
+```
+
+- `res` — The response, whose `locals.session` is inspected and onto which
+
+**Returns:** `true` when the caller is an authorized admin, otherwise `false`.
+
+#### `assertReservationActor(res, reservationUserId)`
+
+In-handler guard for reservation-lifecycle mutations (`release`, `confirm`).
+A reservation is owned by the user who created it; only that owner — or an
+inventory admin — may release or confirm it. Writes the appropriate JSON
+error and returns `false` when access is denied (`401` when unauthenticated,
+`403` when authenticated but neither the owner nor an admin); returns `true`
+(writing nothing) when the caller may act.
+
+Fail-closed: a reservation with no recorded owner (`null` — e.g. a legacy row
+created before ownership binding) is accessible only to admins.
+
+```typescript
+function assertReservationActor(res: MoleculeResponse, reservationUserId: string | null): boolean
+```
+
+- `res` — The response, whose `locals.session` is inspected and onto which
+- `reservationUserId` — The `userId` recorded on the reservation, or `null`.
+
+**Returns:** `true` when the caller is the owner or an admin, otherwise `false`.
+
 #### `bulkUpdate(req, res)`
 
 Processes multiple stock adjustments in a single request.
@@ -349,6 +414,18 @@ function getAlerts(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `req` — The request with optional `threshold` query parameter.
 - `res` — The response object.
 
+#### `getInventorySession(res)`
+
+Reads the structural session off `res.locals`.
+
+```typescript
+function getInventorySession(res: MoleculeResponse): InventorySession | undefined
+```
+
+- `res` — The response whose `locals.session` is inspected.
+
+**Returns:** The session, or `undefined` when unauthenticated.
+
 #### `getMovements(req, res)`
 
 Returns paginated stock movement history for the given product.
@@ -371,6 +448,26 @@ function getStock(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `req` — The request with `productId` param and optional `variantId` query.
 - `res` — The response object.
 
+#### `isInventoryAdmin(res)`
+
+Resolves whether the current request's session belongs to an actor authorized
+to administer inventory (rewrite/bulk-update stock, release/confirm any
+reservation). Fail-closed: returns `false` when there is no authenticated
+session, and otherwise only `true` when the session carries an admin claim —
+`isAdmin === true`, `role === 'admin'`, `roles` containing `'admin'`, or
+`permissions` containing `'admin'` / `'inventory:manage'`.
+
+Use this for in-handler defense-in-depth (it does not depend on the route
+middleware being preserved by the injector).
+
+```typescript
+function isInventoryAdmin(res: MoleculeResponse): boolean
+```
+
+- `res` — The response whose `locals.session` is inspected.
+
+**Returns:** `true` when the session is an authorized inventory admin.
+
 #### `release(req, res)`
 
 Releases a stock reservation, returning the reserved quantity to available stock.
@@ -381,6 +478,23 @@ function release(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 
 - `req` — The request with `reservationId` param.
 - `res` — The response object.
+
+#### `requireInventoryAdmin()`
+
+Route middleware that gates the admin-only inventory routes (`updateStock`,
+`bulkUpdate`). Calls `next()` only for an authenticated admin; otherwise
+forwards an error to the framework error handler — `Unauthorized` when no
+session is present, `Forbidden` when the session is authenticated but not an
+admin.
+
+Exposed as a `requestHandlerMap` key so the injector's route scanner keeps it
+(unlike the inert global `'authenticate'` string, which is dropped).
+
+```typescript
+function requireInventoryAdmin(): MoleculeRequestHandler
+```
+
+**Returns:** An Express-compatible middleware function.
 
 #### `reserve(req, res)`
 
@@ -462,20 +576,62 @@ Whether i18n registration has been attempted.
 const i18nRegistered: true
 ```
 
+#### `INVENTORY_ADMIN_PERMISSION`
+
+Session-claim permission string (`'inventory:manage'`) that, when present in a
+session's `permissions` array, grants inventory administration.
+
+```typescript
+const INVENTORY_ADMIN_PERMISSION: "inventory:manage"
+```
+
+#### `INVENTORY_PERMISSION_ACTION`
+
+Permission action describing inventory administration, e.g. for an app's own
+`@molecule/api-permissions` wiring.
+
+```typescript
+const INVENTORY_PERMISSION_ACTION: "manage"
+```
+
+#### `INVENTORY_PERMISSION_RESOURCE`
+
+Permission resource describing inventory administration, e.g. for an app's own
+`@molecule/api-permissions` wiring.
+
+```typescript
+const INVENTORY_PERMISSION_RESOURCE: "inventory"
+```
+
 #### `requestHandlerMap`
 
 Handler map for the inventory resource routes.
 
+`requireInventoryAdmin` is the admin authorizer middleware referenced by the
+`updateStock`/`bulkUpdate` routes. It must live here (as a real handler-map
+key) so the mlcl injector's route scanner preserves it — a bare middleware
+string that isn't a handler-map key is silently dropped, which is exactly how
+the previous bare `'authenticate'` gate became inert.
+
 ```typescript
-const requestHandlerMap: { readonly getStock: typeof getStock; readonly updateStock: typeof updateStock; readonly reserve: typeof reserve; readonly release: typeof release; readonly confirm: typeof confirm; readonly getAlerts: typeof getAlerts; readonly getMovements: typeof getMovements; readonly bulkUpdate: typeof bulkUpdate; }
+const requestHandlerMap: { readonly getStock: typeof getStock; readonly updateStock: typeof updateStock; readonly reserve: typeof reserve; readonly release: typeof release; readonly confirm: typeof confirm; readonly getAlerts: typeof getAlerts; readonly getMovements: typeof getMovements; readonly bulkUpdate: typeof bulkUpdate; readonly requireInventoryAdmin: MoleculeRequestHandler; }
 ```
 
 #### `routes`
 
-Inventory resource routes. All routes require authentication.
+Inventory resource routes.
+
+All routes require authentication. The destructive admin-side mutations
+(`updateStock`, `bulkUpdate`) are additionally gated by the
+`requireInventoryAdmin` middleware — a real `requestHandlerMap` key (see
+{@link requireInventoryAdmin}) so the injector preserves it; the previously
+declared bare `'authenticate'` string was silently dropped by the route
+scanner, leaving stock open to rewrite by any authenticated user. Each
+admin/reservation handler additionally re-checks authorization internally, so
+the gate holds even if a consumer wires the routes without these middlewares.
 
 ```typescript
-const routes: readonly [{ readonly method: "get"; readonly path: "/inventory/:productId"; readonly handler: "getStock"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "put"; readonly path: "/inventory/:productId"; readonly handler: "updateStock"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/inventory/:productId/reserve"; readonly handler: "reserve"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/inventory/reservations/:reservationId"; readonly handler: "release"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/inventory/reservations/:reservationId/confirm"; readonly handler: "confirm"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/inventory/alerts"; readonly handler: "getAlerts"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/inventory/:productId/movements"; readonly handler: "getMovements"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/inventory/bulk"; readonly handler: "bulkUpdate"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [{ readonly method: "get"; readonly path: "/inventory/:productId"; readonly handler: "getStock"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "put"; readonly path: "/inventory/:productId"; readonly handler: "updateStock"; readonly middlewares: readonly ["requireInventoryAdmin"]; }, { readonly method: "post"; readonly path: "/inventory/:productId/reserve"; readonly handler: "reserve"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/inventory/reservations/:reservationId"; readonly handler: "release"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/inventory/reservations/:reservationId/confirm"; readonly handler: "confirm"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/inventory/alerts"; readonly handler: "getAlerts"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/inventory/:productId/movements"; readonly handler: "getMovements"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/inventory/bulk"; readonly handler: "bulkUpdate"; readonly middlewares: readonly ["requireInventoryAdmin"]; }]
 ```
 
 ## Injection Notes

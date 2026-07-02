@@ -63,6 +63,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `VAPID_PUBLIC_KEY` *(required)*
-- `VAPID_PRIVATE_KEY` *(required)*
-- `VAPID_EMAIL` *(required)*
+- `VAPID_PUBLIC_KEY` *(required)* — Web Push VAPID public key
+  - **Auto-generated at scaffold — no manual setup.**
+- `VAPID_PRIVATE_KEY` *(required)* — Web Push VAPID private key
+  - **Auto-generated at scaffold — no manual setup.**
+- `VAPID_EMAIL` *(required)* — Web Push contact email
+  - Setup: Contact address sent to push services with each request (mailto: form).
+  - Example: `mailto:you@example.com`

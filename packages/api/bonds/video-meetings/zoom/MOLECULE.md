@@ -130,6 +130,12 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `ZOOM_ACCOUNT_ID` *(required)*
-- `ZOOM_CLIENT_ID` *(required)*
-- `ZOOM_CLIENT_SECRET` *(required)*
+- `ZOOM_ACCOUNT_ID` *(required)* — Zoom account ID
+  - Setup: Create a Server-to-Server OAuth app in the Zoom App Marketplace; copy the Account ID.
+  - Get it here: [https://marketplace.zoom.us/](https://marketplace.zoom.us/)
+- `ZOOM_CLIENT_ID` *(required)* — Zoom client ID
+  - Setup: From your Server-to-Server OAuth app credentials.
+  - Get it here: [https://marketplace.zoom.us/](https://marketplace.zoom.us/)
+- `ZOOM_CLIENT_SECRET` *(required)* — Zoom client secret
+  - Setup: From your Server-to-Server OAuth app credentials.
+  - Get it here: [https://marketplace.zoom.us/](https://marketplace.zoom.us/)

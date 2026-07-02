@@ -8,12 +8,30 @@ Apps pass per-app `decoration` (orbs, gradient backdrop) and
 layout, the glass card, heading/subheading, body slot, footer,
 and the "Back to home" link.
 
+The shell also wraps its content in an `<AuthFormStateProvider>`, so
+any form rendered inside inherits cross-view email persistence — the
+email typed on one auth view (Login/Signup/Forgot/Reset) is carried to
+the next and cleared on successful auth. Forms read it via
+`useAuthFormStateContext()`; the underlying `useAuthFormState` hook is
+also exported for standalone use. Persistence flows through the
+`@molecule/app-storage` `StorageProvider` abstraction (never raw
+`sessionStorage`), defaulting to a process-shared in-memory store.
+
 ## Quick Start
 
 ```tsx
-import { AuthShell } from '@molecule/app-auth-shell-react'
+import { AuthShell, useAuthFormStateContext } from '@molecule/app-auth-shell-react'
+import { createSessionStorageProvider } from '@molecule/app-storage-localstorage'
 import { AuthBrandHeader } from './AuthBrandHeader.js'
 import { Orbs } from './Orbs.js'
+
+const sessionStore = createSessionStorageProvider({ prefix: 'auth_' })
+
+function LoginForm() {
+  const { fields, setField, clear } = useAuthFormStateContext()
+  // bind <input value={fields.email} onChange={(e) => setField('email', e.target.value)} />
+  // call clear() after a successful sign-in
+}
 
 export function Login() {
   return (
@@ -22,6 +40,7 @@ export function Login() {
       subheading="Welcome back."
       brand={<AuthBrandHeader />}
       decoration={<Orbs />}
+      formStateStorage={sessionStore}
       footer={<p>No account? <Link to="/signup">Sign up</Link></p>}
     >
       <LoginForm />
@@ -41,6 +60,63 @@ npm install @molecule/app-auth-shell-react
 ## API
 
 ### Interfaces
+
+#### `AuthFormFields`
+
+Shared auth form field values. `email` is the canonical cross-view
+field; additional string fields (e.g. a name carried from Signup) may
+be stored alongside it.
+
+```typescript
+interface AuthFormFields {
+  /** Email address, shared across all auth views. */
+  email?: string
+  /** Any other shared string field (e.g. `name`). */
+  [field: string]: string | undefined
+}
+```
+
+#### `AuthFormState`
+
+The value returned by {@link useAuthFormState} (and provided through
+the AuthShell form-state context).
+
+```typescript
+interface AuthFormState {
+  /** Current field values (email + any shared fields). */
+  fields: AuthFormFields
+  /**
+   * `true` once the initial read from storage has completed. Useful for
+   * deferring autofocus/validation until persisted values are loaded.
+   */
+  hydrated: boolean
+  /** Sets a single field and persists the new state. */
+  setField: (name: string, value: string) => void
+  /** Merges a patch of fields and persists the new state. */
+  setFields: (patch: AuthFormFields) => void
+  /**
+   * Clears all persisted auth form state and removes the storage key.
+   * Call this from the successful-auth handler.
+   */
+  clear: () => void
+}
+```
+
+#### `AuthFormStateProviderProps`
+
+Props for {@link AuthFormStateProvider}.
+
+```typescript
+interface AuthFormStateProviderProps {
+  children: ReactNode
+  /** Storage provider backing persistence (defaults to a shared in-memory provider). */
+  storage?: StorageProvider
+  /** Storage key for the persisted fields. */
+  storageKey?: string
+  /** Seed values used before hydration / when storage is empty. */
+  initialFields?: AuthFormFields
+}
+```
 
 #### `AuthShellBackLinkProps`
 
@@ -176,6 +252,18 @@ interface AuthShellProps {
   decoration?: ReactNode
   backTo?: string
   showBackLink?: boolean
+  /**
+   * Storage provider backing the cross-view auth form persistence
+   * (email shared across Login/Signup/Forgot/Reset, cleared on success).
+   * Defaults to a process-shared in-memory store; inject
+   * `createSessionStorageProvider()` from
+   * `@molecule/app-storage-localstorage` for tab-scoped persistence. The
+   * shell renders an `<AuthFormStateProvider>`, so forms inside read it
+   * via `useAuthFormStateContext()`.
+   */
+  formStateStorage?: StorageProvider
+  /** Storage key for the persisted auth form state. */
+  formStateKey?: string
 }
 ```
 
@@ -225,7 +313,47 @@ interface AuthShellSplitRowProps extends HTMLAttributes<HTMLElement> {
 }
 ```
 
+#### `UseAuthFormStateOptions`
+
+Options for {@link useAuthFormState}.
+
+```typescript
+interface UseAuthFormStateOptions {
+  /**
+   * Storage provider backing persistence. Defaults to a process-shared
+   * in-memory provider (per the no-raw-storage rule), which still gives
+   * cross-view persistence within a single SPA session. Inject
+   * `createSessionStorageProvider()` from
+   * `@molecule/app-storage-localstorage` for tab-scoped persistence that
+   * also survives a full reload.
+   */
+  storage?: StorageProvider
+  /** Storage key for the persisted fields. Defaults to `molecule.auth.form-state`. */
+  storageKey?: string
+  /** Seed values used before hydration completes / when storage is empty. */
+  initialFields?: AuthFormFields
+}
+```
+
 ### Functions
+
+#### `AuthFormStateProvider(props)`
+
+Provides a single {@link useAuthFormState} instance to all descendants
+via React context, so sibling/child auth forms share the same email.
+
+```typescript
+function AuthFormStateProvider({
+  children,
+  storage,
+  storageKey,
+  initialFields,
+}: AuthFormStateProviderProps): JSX.Element
+```
+
+- `props` — Children plus optional storage provider, key, and seed fields.
+
+**Returns:** The provider element.
 
 #### `AuthShell({
   heading,
@@ -236,9 +364,15 @@ interface AuthShellSplitRowProps extends HTMLAttributes<HTMLElement> {
   decoration,
   backTo = '/',
   showBackLink = true,
+  formStateStorage,
+  formStateKey,
 })`
 
 Convenience preset composing container, decoration, card, heading, footer, and back-link into a single component.
+
+Wraps its content in an `<AuthFormStateProvider>` so every form
+rendered inside inherits cross-view email persistence via
+`useAuthFormStateContext()`.
 
 ```typescript
 function AuthShell({
@@ -250,6 +384,8 @@ function AuthShell({
   decoration,
   backTo = '/',
   showBackLink = true,
+  formStateStorage,
+  formStateKey,
 }: AuthShellProps): JSX.Element
 ```
 
@@ -389,12 +525,49 @@ function AuthShellSplitRow({
 }: AuthShellSplitRowProps): JSX.Element
 ```
 
+#### `useAuthFormState(options)`
+
+React hook holding email + shared auth fields, persisted across auth
+views via an injectable `StorageProvider` and cleared on successful
+auth.
+
+```typescript
+function useAuthFormState(options?: UseAuthFormStateOptions): AuthFormState
+```
+
+- `options` — Optional storage provider, storage key, and seed fields.
+
+**Returns:** The current fields plus `setField`/`setFields`/`clear` and a `hydrated` flag.
+
+#### `useAuthFormStateContext()`
+
+Reads the shared auth form state from the nearest
+{@link AuthFormStateProvider} (which `<AuthShell>` renders by default).
+
+```typescript
+function useAuthFormStateContext(): AuthFormState
+```
+
+**Returns:** The shared {@link AuthFormState}.
+
+### Constants
+
+#### `DEFAULT_AUTH_FORM_STATE_KEY`
+
+Default storage key for persisted auth form fields.
+
+```typescript
+const DEFAULT_AUTH_FORM_STATE_KEY: "molecule.auth.form-state"
+```
+
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+- `@molecule/app-logger` ^1.0.0
 - `@molecule/app-react` ^1.0.0
+- `@molecule/app-storage` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-router-dom` ^6.0.0 || ^7.0.0

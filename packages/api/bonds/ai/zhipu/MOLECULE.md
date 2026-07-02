@@ -81,4 +81,6 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `ZHIPU_API_KEY` *(required)*
+- `ZHIPU_API_KEY` *(required)* — Zhipu AI API key
+  - Setup: Create an API key in the Zhipu AI (BigModel) user center.
+  - Get it here: [https://open.bigmodel.cn/usercenter/apikeys](https://open.bigmodel.cn/usercenter/apikeys)

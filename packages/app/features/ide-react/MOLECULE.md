@@ -91,20 +91,32 @@ interface ChatEventCard {
    */
   content?: ChatEventCardSegment[]
   /**
-   * When true, ChatPanel renders the card in its emphasized (highlighted box) style
-   * instead of the muted inline style — e.g. a sign-up / upgrade nudge the app wants
-   * to stand out. The app opts in; the shared package never infers emphasis from a
-   * card's route or copy.
+   * When true, ChatPanel renders the card as a stand-out tip box rather than muted inline
+   * text. Prefer setting {@link ChatEventCard.tone} (which implies emphasis AND picks the
+   * accent colour + icon); `emphasized` without a `tone` falls back to the neutral `info`
+   * tone. The app opts in; the shared package never infers emphasis from a card's copy.
    */
   emphasized?: boolean
   /**
-   * Optional tip-style tone: `'info'` (blue) or `'gold'`. When set, ChatPanel renders
-   * the card in the dismissable tip-box style (rounded, tinted, with a lightbulb glyph)
-   * in that tone, and renders any `action`(s) as inline underlined links rather than
-   * buttons — for low-key, honest notices (e.g. a "what powers this" model note). The
-   * app opts in; omit for the default muted / emphasized styles.
+   * The card's tip TONE — picks its accent colour + default icon so every notice card
+   * shares ONE consistent box (icon + accent bar + tinted body + actions), differing only
+   * by colour/icon per kind:
+   * - `info` — blue, info glyph (neutral notice)
+   * - `gold` — amber, lightbulb (an honest tip / onboarding note)
+   * - `upgrade` — amber, sparkle (a plan/upgrade nudge)
+   * - `success` — green, check (a completed action, e.g. a saved script)
+   * - `signup` — primary, sign-in (an auth nudge)
+   *
+   * Setting `tone` implies emphasis. Cards that supply composable {@link ChatEventCard.content}
+   * render their inline links in the box; cards that supply `action`(s) render them as a
+   * consistent row of accent buttons. Omit `tone` (and `emphasized`) for a plain muted line.
    */
-  tone?: 'info' | 'gold'
+  tone?: 'info' | 'gold' | 'upgrade' | 'success' | 'signup'
+  /**
+   * Optional icon-name override (a `@molecule/app-icons` glyph) — defaults to the tone's
+   * icon. Use only a name that exists in the bonded set (`getIcon` throws otherwise).
+   */
+  icon?: string
 }
 ```
 
@@ -121,6 +133,24 @@ interface ChatEventCardAction {
   href?: string
   /** Click handler (alternative to, or alongside, `href`). */
   onClick?: () => void
+  /**
+   * Render the action's label as inline monospace code — a command/identifier like
+   * `/report` or a skill name — so it stands out from prose while staying clickable.
+   */
+  code?: boolean
+}
+```
+
+#### `ChatEventCardCode`
+
+A non-interactive inline monospace code span in a card body — a command or identifier
+the prose refers to (`/report`, a skill name) that should read as code but isn't
+clickable. For a *clickable* command, use {@link ChatEventCardAction} with `code: true`.
+
+```typescript
+interface ChatEventCardCode {
+  /** The code text, rendered monospaced/tinted. */
+  code: string
 }
 ```
 
@@ -165,6 +195,14 @@ interface ChatPanelProps {
   onCommit?: () => void
   /** Called when an inline activity card is clicked — should open the Activity panel filtered to this activity. */
   onActivityClick?: (activity: ActivityFromCard) => void
+  /**
+   * Called when a user avatar in the chat timeline is clicked — the host opens
+   * that user's profile (e.g. molecule.dev's profile modal). Receives the clicked
+   * user's {@link ChatUserIdentity}. Omit it (the default) to render the avatars
+   * non-interactive (static image/icon, exactly as before). Only real user
+   * avatars are clickable — the molecule glyph on auto-sent messages is not.
+   */
+  onProfileClick?: (user: ChatUserIdentity) => void
   /** Called when the server signals (via the `ready_to_build` stream event) that discovery is complete and the sandbox should boot. */
   onReadyToBuild?: () => void
   /**
@@ -178,12 +216,71 @@ interface ChatPanelProps {
   onClientAction?: (action: IdeClientAction) => void
   /** Called on each stream `done` — host uses it to keep the boot view up until the parallel during-boot plan stream finishes. */
   onTurnComplete?: () => void
+  /**
+   * Called whenever the chat's loading state changes — true when a turn (plan or build) is in
+   * progress, false when idle. The host uses this as the authoritative "the agent is actively
+   * building" signal to drive the preview's "Building your app…" overlay, so a half-built /
+   * blank preview during a long build always shows progress instead of a bare white screen.
+   */
+  onLoadingChange?: (loading: boolean) => void
+  /**
+   * Navigates the live preview to a route path. Wired so a `[label](/route)` markdown link in
+   * an assistant message (e.g. the agent's "your app is ready" handoff) jumps the preview to
+   * that page on click. User-initiated, so the host should navigate unconditionally (it is not
+   * the rate-limited agent `navigate_preview` action).
+   */
+  onNavigatePreview?: (path: string) => void
+  /**
+   * Called on mount with a handler the parent invokes to deliver a broadcast chat event
+   * from another project member (the push channel); called with null on unmount.
+   */
+  onRegisterPushHandler?: (
+    handler: ((conversationId: string, event: ChatStreamEvent) => void) | null,
+  ) => void
   /** Changing this value submits the current input draft — used to send a prefilled prompt after the prompt→chat morph docks. */
   autoSubmitSignal?: number
   /** Seeds the input with this text on mount (prompt→chat morph), so the chat input shows the prompt before it is sent. */
   initialInputValue?: string
   /** Hide the conversation-selector header (e.g. during discovery, before any history is worth showing). */
   hideConversationMenu?: boolean
+  /**
+   * Whether to render the built-in conversation header (the picker + searchable
+   * history dropdown, the share / bug-report / settings buttons, and the
+   * new-chat "+"). Defaults to `true` (the package owns that chrome). Pass
+   * `false` to operate **headless** — the host renders those controls itself
+   * (e.g. molecule.dev's Workspace top bar) and drives the chat through the
+   * controlled props below: {@link ChatPanelProps.conversationId} /
+   * {@link ChatPanelProps.chatKey} / {@link ChatPanelProps.onConversationId} for
+   * the conversation, and {@link ChatPanelProps.openShareSignal} /
+   * {@link ChatPanelProps.openReportSignal} to open the in-chat modals.
+   */
+  renderConversationHeader?: boolean
+  /**
+   * Host-controlled active conversation id (headless mode). Drives the chat
+   * endpoint's `?conversationId=`. When `undefined` (the default) the panel owns
+   * the active conversation internally (localStorage-backed). `null` is a valid
+   * controlled value meaning "no conversation yet".
+   */
+  conversationId?: string | null
+  /**
+   * Host-controlled remount key for the inner chat (headless mode). Changing it
+   * remounts the conversation timeline (a new chat or a switch); the backend
+   * assigning an id mid-stream must NOT change it (that would drop in-flight
+   * messages). Falls back to the internal key when omitted.
+   */
+  chatKey?: string
+  /**
+   * Called whenever the active conversation id changes — the backend assigns one
+   * mid-stream and the host needs it to keep its own picker in sync WITHOUT
+   * remounting (do not change {@link ChatPanelProps.chatKey} in response).
+   */
+  onConversationId?: (id: string | null) => void
+  /** Changing this opens the in-chat `/share` modal (host-driven, e.g. a top-bar share button). Overrides the built-in header's share button signal. */
+  openShareSignal?: number
+  /** Changing this opens the in-chat `/report` modal (host-driven). Overrides the built-in header's bug-report button signal. */
+  openReportSignal?: number
+  /** Changing this opens the in-chat `/settings` view (host-driven). Overrides the built-in header's settings button signal. */
+  openSettingsSignal?: number
   /** Spinner/busy indicator node to show for in-chat loading states (e.g. the "designing" indicator). Falls back to a built-in dots animation. */
   spinner?: ReactNode
   /** Path of the currently focused file in the editor (shown first in @ picker). */
@@ -271,6 +368,12 @@ interface ChatPanelProps {
    */
   productName?: string
   /**
+   * The host's current app/build version (e.g. `'0.1.0'`), shown in the `/version`
+   * command's menu description and its output. The shared IDE has no build version
+   * of its own, so when omitted it falls back to the package default constant.
+   */
+  version?: string
+  /**
    * URL the command-menu "Report a problem" link points at (the host's own issue
    * tracker / feedback page). The shared IDE owns no product URLs, so when this
    * is omitted (the default) the link is not rendered. The in-chat `/report`
@@ -278,6 +381,23 @@ interface ChatPanelProps {
    */
   feedbackUrl?: string
   className?: string
+}
+```
+
+#### `ChatUserIdentity`
+
+Identity of the user whose avatar was clicked in the chat timeline, passed to
+{@link ChatPanelProps.onProfileClick} so the host can open that user's profile.
+
+Today the chat is solo — the only avatar shown is the signed-in user's own —
+so the only known field is the avatar value. The interface is intentionally
+forward-compatible: collaborator fields (id, name) can be added here when
+multi-user chat lands, without changing the callback signature.
+
+```typescript
+interface ChatUserIdentity {
+  /** The clicked user's avatar value (data-URI / URL), if any. */
+  avatar?: string | null
 }
 ```
 
@@ -364,6 +484,24 @@ interface CommandPaletteProps {
   commands: Command[]
   /** Called when the palette is dismissed. */
   onDismiss: () => void
+}
+```
+
+#### `DeviceDimensions`
+
+Per-frame iframe sizing. `width`/`height` are the PORTRAIT CSS sizes; a
+fixed-frame (`rotatable`) device swaps them in landscape. `'100%'` width with
+a `null` height means "fluid" — fill the available preview area (responsive /
+desktop have no fixed frame to rotate).
+
+```typescript
+interface DeviceDimensions {
+  /** Portrait CSS width (e.g. `'768px'`, or `'100%'` for a fluid frame). */
+  readonly width: string
+  /** Portrait CSS height in px (e.g. `'1024px'`), or `null` to fill the area. */
+  readonly height: string | null
+  /** Whether the frame has a fixed size that can be rotated portrait ⇄ landscape. */
+  readonly rotatable: boolean
 }
 ```
 
@@ -549,9 +687,46 @@ interface PreviewPanelProps {
    * the user sees what's being worked on. Null when no build edit is in flight.
    */
   buildingHint?: string | null
-  /** Called when the preview fails to load after multiple recovery attempts. */
-  onPreviewStuck?: () => void
+  /**
+   * Whether the AI agent is actively building right now (a chat turn is in progress).
+   * The host derives this from the chat's loading state. While true, the preview keeps a
+   * "Building your app…" status overlay up whenever the app has NOT confirmed it rendered
+   * content (no `molecule:ready`) — so a half-built / blank / white iframe during a long
+   * build always shows progress instead of a bare white screen. A confirmed render still
+   * reveals the live app (HMR updates stay visible), so this never hides a working preview.
+   */
+  isBuilding?: boolean
+  /**
+   * Called when the preview gives up showing the running app — after exhausting reload
+   * recovery, at the absolute readiness ceiling, OR when the heartbeat watchdog detects a
+   * frozen (locked-thread) app. Receives a {@link PreviewStuckReport} (failure class +
+   * route) so the host can drive recovery UI AND hand the agent an actionable, targeted
+   * fix request. The argument is optional for backward compatibility with no-arg callers.
+   */
+  onPreviewStuck?: (report?: PreviewStuckReport) => void
+  /**
+   * Called when the preview's render verdict changes ({@link PreviewRenderState}) — and
+   * with the current location so the host can report WHERE. The host forwards this to the
+   * server so Synthase's post-loop verification can confirm the app actually rendered (not
+   * just that it compiled + served) before calling a build done.
+   */
+  onRenderState?: (state: PreviewRenderState, url?: string) => void
   className?: string
+}
+```
+
+#### `PreviewStuckReport`
+
+Structured report passed to {@link PreviewPanelProps.onPreviewStuck} when the preview
+gives up. Carries the failure class + the route it happened on so the host can compose
+an actionable, agent-fixable message instead of a bare "preview is stuck".
+
+```typescript
+interface PreviewStuckReport {
+  /** The failure class — what left the preview unable to show the running app. */
+  reason: PreviewStuckReason
+  /** The preview's current location (route) when the failure was detected, if known. */
+  url?: string
 }
 ```
 
@@ -665,6 +840,39 @@ interface SearchResult {
 }
 ```
 
+#### `SettingMeta`
+
+Canonical, value-free metadata for a single user-controllable setting.
+
+```typescript
+interface SettingMeta {
+  /** Stable id (also the i18n key suffix, e.g. `'effort'`). */
+  id: SettingKey
+  /** Human-readable label (English default; wrapped in `t()` at render). */
+  label: string
+  /**
+   * One-line explanation of what the setting does (English default). May
+   * contain the `{{agentName}}` interpolation token, filled in at render from
+   * the host's agent identity (neutral default: "the assistant").
+   */
+  description: string
+  /**
+   * The slash command that edits this setting client-side. Drives the inline
+   * "Edit" affordance and cross-links the setting to its command. Omitted only
+   * for read-only settings.
+   */
+  editCommand?: CommandId
+  /**
+   * The exact slash-command input to prefill when editing, for settings whose
+   * bare {@link SettingMeta.editCommand} is not specific enough — e.g. the
+   * per-mode model rows both run the `model` command but must scope it to a
+   * mode (`/model --plan`, `/model --execute`). Omit when running the bare
+   * command suffices.
+   */
+  editInput?: string
+}
+```
+
 #### `ShortcutEntry`
 
 A shortcut entry for display in the keyboard shortcuts panel.
@@ -760,6 +968,14 @@ interface UserAvatarProps {
   userAvatar?: string | null
   /** Diameter of the avatar in pixels. Defaults to 24. */
   size?: number
+  /**
+   * Optional click handler. When supplied, the avatar becomes an interactive
+   * button (pointer cursor, hover/focus ring, keyboard- and screen-reader
+   * accessible) that opens the user's profile — the host decides what to show.
+   * When omitted (the default) the avatar renders exactly as before: a static,
+   * non-interactive image/icon, so existing call sites are unaffected.
+   */
+  onClick?: () => void
 }
 ```
 
@@ -805,11 +1021,12 @@ type ChatEventCardFactory = (
 
 #### `ChatEventCardSegment`
 
-One inline segment of a toned tip card's composable body: either literal text, or a
-labelled link/action ({@link ChatEventCardAction}). See {@link ChatEventCard.content}.
+One inline segment of a card's composable body: literal text, an inline monospace
+{@link ChatEventCardCode} span, or a labelled link/action ({@link ChatEventCardAction}).
+See {@link ChatEventCard.content}.
 
 ```typescript
-type ChatEventCardSegment = string | ChatEventCardAction
+type ChatEventCardSegment = string | ChatEventCardCode | ChatEventCardAction
 ```
 
 #### `CommandCategoryKey`
@@ -832,6 +1049,72 @@ Union of all command ids (loosely `string`, since {@link CommandDef.id} is a str
 
 ```typescript
 type CommandId = CommandDef['id']
+```
+
+#### `DeviceOrientation`
+
+Preview-only iframe orientation. Portrait is the natural orientation of a
+fixed-frame device; landscape swaps its width/height. This is a visual
+preview concern that lives in {@link PreviewPanel}'s local state — it is NOT
+part of the live-preview core state.
+
+```typescript
+type DeviceOrientation = 'portrait' | 'landscape'
+```
+
+#### `PreviewRenderState`
+
+The preview's live render verdict, derived from the iframe bridges — the one preview
+fact the server can't observe itself (it has no browser). The host forwards it to the
+server so the post-loop verification won't pass a build while the app isn't actually
+rendering ("compiles + serves" ≠ "renders").
+
+- `rendered` — the app drew content (`molecule:ready`).
+- `blank` — loaded but showed nothing (gave up / `#root` empty after settling).
+- `frozen` — rendered then locked up (heartbeats stopped).
+- `loading` — still loading / not yet determined.
+
+```typescript
+type PreviewRenderState = 'rendered' | 'blank' | 'frozen' | 'loading'
+```
+
+#### `PreviewStuckReason`
+
+Why the preview could not show the running app — the failure CLASS the host hands
+to its AI agent so a fix can be targeted (and so the agent isn't told "it's broken"
+with no hint of how). Distinct from a JS error (`onPreviewError`): these are states
+the iframe itself can't report once it's in them.
+
+```typescript
+type PreviewStuckReason =
+  // Heartbeats stopped after a render — the app's main thread is locked (an infinite
+  // loop / runaway render). The iframe can post nothing else once frozen, so only the
+  // host's heartbeat-silence watchdog can detect it.
+  | 'frozen'
+  // Repeated reload/remount cycles never produced a confirmed render — the document
+  // loads but the app never mounts (e.g. a route that throws on every attempt).
+  | 'load-failed'
+  // The absolute readiness ceiling elapsed with no confirmed render and no active
+  // build — a catch-all backstop so the preview can never spin forever.
+  | 'load-timeout'
+```
+
+#### `SettingKey`
+
+Stable ids for each user-controllable setting (also the i18n key suffix).
+
+```typescript
+type SettingKey =
+  | 'model'
+  | 'planModel'
+  | 'executeModel'
+  | 'mode'
+  | 'effort'
+  | 'maxLoops'
+  | 'autoFix'
+  | 'autoCommit'
+  | 'hooks'
+  | 'sounds'
 ```
 
 ### Functions
@@ -938,7 +1221,7 @@ function activityTypeLabel(type: ActivityType): string
 
 **Returns:** The translated channel label.
 
-#### `ChatPanel(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `ChatPanel(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
 
 AI chat panel with conversation history dropdown and Claude Code-style tool display.
 
@@ -958,13 +1241,24 @@ function ChatPanel({
   onFileDeleted,
   onCommit,
   onActivityClick,
+  onProfileClick,
   onReadyToBuild,
   awaitingSandboxBoot,
   onClientAction,
   onTurnComplete,
+  onLoadingChange,
+  onNavigatePreview,
+  onRegisterPushHandler,
   autoSubmitSignal,
   initialInputValue,
   hideConversationMenu,
+  renderConversationHeader = true,
+  conversationId: controlledConversationId,
+  chatKey: controlledChatKey,
+  onConversationId: controlledOnConversationId,
+  openShareSignal: controlledShareSignal,
+  openReportSignal: controlledReportSignal,
+  openSettingsSignal: controlledSettingsSignal,
   gitStatusTick,
   pendingMessage,
   pendingMessageKey,
@@ -977,6 +1271,7 @@ function ChatPanel({
   userAvatar,
   agentName,
   productName,
+  version,
   feedbackUrl,
   className,
 }: ChatPanelProps): JSX.Element
@@ -1000,6 +1295,7 @@ function ChatPanel({
 - `root0` — .onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
 - `root0` — .onClientAction - Callback fired on the client_action stream event (reload/navigate preview, open file).
 - `root0` — .onTurnComplete - Callback fired on each stream done/error; host uses it to keep the boot view up until the during-boot plan stream completes.
+- `root0` — .onRegisterPushHandler - Registers the broadcast-chat-event handler with the host (the chat push channel); called with null on unmount.
 - `root0` — .autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
 - `root0` — .initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
 - `root0` — .hideConversationMenu - Hide the conversation-selector header (e.g. during discovery).
@@ -1046,24 +1342,33 @@ function CommandPalette({ commands, onDismiss }: CommandPaletteProps): JSX.Eleme
 
 **Returns:** The command palette element.
 
-#### `DeviceFrameSelector(root0, root0, root0, root0)`
+#### `DeviceFrameSelector(root0, root0, root0, root0, root0, root0, root0, root0)`
 
-A single button that cycles the preview device frame on click.
+A dropdown that selects the preview device frame and hosts the Rotate +
+Open-in-new-tab actions.
 
 ```typescript
 function DeviceFrameSelector({
   current,
   onChange,
   className,
-}: DeviceFrameSelectorProps): JSX.Element
+  canRotate,
+  rotated,
+  onRotate,
+  onOpenExternal,
+}: DeviceFrameSelectorWithActionsProps): JSX.Element
 ```
 
 - `root0` — The component props.
 - `root0` — .current - The currently selected device frame.
-- `root0` — .onChange - Callback invoked with the next frame when clicked.
-- `root0` — .className - Optional CSS class name for the button.
+- `root0` — .onChange - Callback invoked with the chosen frame.
+- `root0` — .className - Optional CSS class name for the trigger button.
+- `root0` — .canRotate - Whether the current frame is rotatable (gates the Rotate item).
+- `root0` — .rotated - Whether the preview is currently landscape (renders Rotate as a checked toggle).
+- `root0` — .onRotate - Rotate the current fixed-frame device; omit to hide the Rotate item.
+- `root0` — .onOpenExternal - Open the preview in a new tab; omit to hide the item.
 
-**Returns:** The rendered device-cycle button element.
+**Returns:** The rendered device-frame selector element.
 
 #### `deviceIconName(device)`
 
@@ -1221,6 +1526,20 @@ function Icon({ name, size = 16, className, ...rest }: IconProps): JSX.Element
 
 **Returns:** An `<svg>` element rendering the named glyph.
 
+#### `isDeviceRotatable(device)`
+
+Whether a device frame can be rotated (true only for fixed-frame devices —
+tablet and mobile). Responsive and desktop are full-width with nothing to
+rotate, so the "Rotate" control is enabled only "where possible".
+
+```typescript
+function isDeviceRotatable(device: DeviceFrame): boolean
+```
+
+- `device` — The device frame.
+
+**Returns:** `true` if the frame has a fixed size that can be rotated.
+
 #### `isInputFocused(e)`
 
 Returns true when the event target is an interactive input element
@@ -1279,19 +1598,6 @@ function livePanelSize(layout: WorkspaceLayout, panelConfigs: PanelConfig[], ind
 
 **Returns:** The panel size as a percentage.
 
-#### `nextDevice(current)`
-
-Returns the next device frame in the cycle, wrapping at the end. An unknown
-frame falls back to the first entry so a click always advances.
-
-```typescript
-function nextDevice(current: DeviceFrame): DeviceFrame
-```
-
-- `current` — The currently selected device frame.
-
-**Returns:** The next device frame in {@link DEVICE_CYCLE}.
-
 #### `normalizeKeys(keys)`
 
 Normalize a shortcut definition string into the same format produced by
@@ -1316,8 +1622,10 @@ function PreviewPanel({
   className,
   onPreviewError,
   onPreviewStuck,
+  onRenderState,
   fileChangeTick,
   buildingHint,
+  isBuilding,
 }: PreviewPanelProps): JSX.Element
 ```
 
@@ -1389,7 +1697,11 @@ function registerCustomEventCard(name: string, factory: ChatEventCardFactory): v
 
 #### `ResizeHandle(root0, root0, root0, root0)`
 
-Draggable handle for resizing adjacent panels.
+Draggable handle for resizing adjacent panels. Uses Pointer Events so it works
+with mouse, touch, and pen (an iPad drag resizes just like a desktop drag); a
+wide invisible grab zone wraps a thin visible line that brightens to the
+primary color on hover/drag for a clear affordance. Arrow keys nudge the split
+for keyboard users.
 
 ```typescript
 function ResizeHandle({
@@ -1405,6 +1717,22 @@ function ResizeHandle({
 - `root0` — .className - Optional CSS class name for the handle.
 
 **Returns:** The rendered resize handle element.
+
+#### `resolveDeviceSize(device, orientation)`
+
+Resolves the concrete iframe `width`/`height` for a device frame at a given
+orientation. Fluid frames (responsive/desktop) ignore orientation and fill
+the preview area (`width` from dims, `height: '100%'`). Fixed frames render
+at their pixel size in portrait and at the swapped size in landscape.
+
+```typescript
+function resolveDeviceSize(device: DeviceFrame, orientation: DeviceOrientation): { width: string; height: string; }
+```
+
+- `device` — The device frame.
+- `orientation` — The preview orientation.
+
+**Returns:** The CSS `width` and `height` to apply to the preview iframe.
 
 #### `resolveUserAvatar(avatar)`
 
@@ -1514,15 +1842,17 @@ function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]): void
 #### `UserAvatar(props)`
 
 Renders the user's avatar image, or the generic `user` icon when there is no
-safe, renderable avatar.
+safe, renderable avatar. When {@link UserAvatarProps.onClick} is provided the
+visual is wrapped in an accessible button so the avatar can open the user's
+profile.
 
 ```typescript
-function UserAvatar({ userAvatar, size = 24 }: UserAvatarProps): JSX.Element
+function UserAvatar({ userAvatar, size = 24, onClick }: UserAvatarProps): JSX.Element
 ```
 
 - `props` — {@link UserAvatarProps}.
 
-**Returns:** The avatar image or icon fallback.
+**Returns:** The avatar image or icon fallback, optionally wrapped in a button.
 
 #### `WorkspaceLayout(root0, root0, root0)`
 
@@ -1568,19 +1898,30 @@ authoritative list — the menu, key handling, `/help`, AND the system prompt's
 const COMMANDS: readonly CommandDef[]
 ```
 
-#### `DEVICE_CYCLE`
+#### `DEVICE_DIMENSIONS`
 
-The order the device-cycle button advances through on each click, wrapping
-back to the start. `none` = responsive (no fixed frame, full width).
+The fixed pixel frame each device renders the preview iframe at. `none`
+(responsive) and `desktop` are fluid — full width, full height, nothing to
+rotate. `tablet` (768×1024) and `mobile` (375×667) are fixed frames that can
+be rotated to landscape (swapping width/height).
 
 ```typescript
-const DEVICE_CYCLE: readonly DeviceFrame[]
+const DEVICE_DIMENSIONS: Record<DeviceFrame, DeviceDimensions>
+```
+
+#### `DEVICE_FRAMES`
+
+The device frames the selector dropdown lists, in display order.
+`none` = responsive (no fixed frame, full width).
+
+```typescript
+const DEVICE_FRAMES: readonly DeviceFrame[]
 ```
 
 #### `DEVICE_META`
 
 Per-frame display metadata: the icon-set glyph name and the i18n label
-(key + English default) shown in the button tooltip.
+(key + English default) shown in the dropdown trigger + menu items.
 
 ```typescript
 const DEVICE_META: Record<DeviceFrame, { readonly icon: string; readonly labelKey: string; readonly label: string; }>
@@ -1618,6 +1959,21 @@ Smallest a panel may shrink to, as a percentage of the container.
 const MIN_PANEL_PERCENT: 10
 ```
 
+#### `SETTINGS`
+
+Every user-controllable setting, in display order. The authoritative list —
+the `/settings` view (via `buildSettingsList`) and the system prompt both read
+from it, so they cannot drift. The default `model` and the per-mode
+`planModel` / `executeModel` rows are kept distinct (rather than collapsed
+into one "Model" row); `effort`, `autoCommit`, and `hooks` are each listed
+alongside (or in `hooks`' case, instead of) the command the panel references —
+so a user's actual configuration is never understated and the panel never
+shows a command for a setting it hides.
+
+```typescript
+const SETTINGS: readonly SettingMeta[]
+```
+
 #### `ToolCallCard`
 
 Compact tool-call row with status dot, label, summary, and expandable detail pane.
@@ -1640,6 +1996,7 @@ Peer dependencies:
 - `@molecule/app-live-preview` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-react` ^1.0.0
+- `@molecule/app-storage` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

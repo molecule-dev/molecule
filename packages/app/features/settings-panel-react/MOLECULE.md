@@ -64,6 +64,8 @@ interface Device {
   name: string
   platform: string
   lastSeen?: string
+  /** `true` for the device making the current request (the API marks it). */
+  isCurrent?: boolean
 }
 ```
 
@@ -85,11 +87,16 @@ interface SettingsPanelContextValue {
 
 #### `AccountSection()`
 
-Email-editing section. Fetches `/users/me` on mount to refresh the
-current user record (and write it back to the auth cache so
-subsequent reloads see the latest data). On blur of the email
-field, PATCHes `/api/users/:id` with the new email; reverts + shows
-an inline error if the request fails.
+Account section — edits the user's display name + email. Fetches
+`/users/me` on mount to refresh the current user record (and write it
+back to the auth cache so subsequent reloads see the latest data). On
+blur of either field, PATCHes `/api/users/:id` with the changed field;
+reverts + shows an inline error if the request fails.
+
+The user resource's update handler accepts `name`, `username`, and
+`email`; this surfaces `name` + `email` (the universally-present
+profile fields). Apps that use a public `username` handle can extend
+this with a username field the same way.
 
 ```typescript
 function AccountSection(): JSX.Element
@@ -109,10 +116,20 @@ function AppearanceSection(): JSX.Element
 
 #### `AuthSection()`
 
-Authentication section — change password (modal) + toggle two-factor.
+Authentication section — change password (modal) + two-factor (TOTP) setup.
+
+Two-factor uses the real enrollment flow against the user resource's
+`POST /users/:id/verify-two-factor` endpoint (`@molecule/api-two-factor`):
+- Enable → `{action:'setup'}` returns a QR code + secret to scan into an
+  authenticator app → user enters the 6-digit code → `{action:'enable', token}`.
+- Disable → user enters a current code → `{action:'disable', token}`.
+The current status is read from `/users/me`. (This replaces the previous
+boolean toggle, which PATCHed `twoFactorEnabled` — a field the update
+handler deliberately ignores — so it never actually enrolled 2FA.)
 
 Auto-hides for OAuth-only users (`user.oauthServer` truthy) since
-password / 2FA wouldn't apply.
+password / 2FA wouldn't apply. If the app's API has no two-factor
+provider bonded, setup fails gracefully with an inline message.
 
 ```typescript
 function AuthSection(): JSX.Element | null
@@ -146,11 +163,20 @@ function BillingSection({
   renderRowIcon,
 }?)`
 
-Devices section — lists the user's registered devices.
+Devices section — lists the user's registered devices and lets them
+revoke (sign out) any device other than the one they're currently using.
 
-Each row renders a chevron-right icon by default (matching the
-canonical fleet pattern). Apps that want a different icon can pass
-a `renderRowIcon` callback; pass `() => null` to suppress entirely.
+Revoking deletes the device row (`DELETE /api/devices/:id`). The API's
+authorization layer enforces server-side revocation: it rejects that
+device's session the next time it makes a request (within the
+device-exists cache TTL), so the removed device is actually signed out —
+not just hidden from the list. The current device is labelled
+"This device" and is not revocable here (use Sign out for the current
+session). Recreates molecule v1's device-revocation behaviour.
+
+Apps that want a different trailing element per row can pass a
+`renderRowIcon` callback (which then replaces the built-in revoke
+control); pass `() => null` to suppress it entirely.
 
 ```typescript
 function DevicesSection({

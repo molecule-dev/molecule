@@ -238,6 +238,25 @@ function createClient(options?: AxiosClientOptions): HttpClient
 
 **Returns:** An `HttpClient` backed by Axios.
 
+#### `sanitizeRequestOptions(requestOptions)`
+
+Returns a shallow copy of request options with secret-bearing fields
+redacted. The request `body` (which for an OAuth token exchange contains
+`client_secret`/`code`/`refresh_token`) is replaced with a placeholder, and
+any `authorization` header (Basic client_secret or Bearer access token) is
+masked. This is applied before attaching the request to an `HttpError` so a
+caught/logged error can never emit a credential to logs (CWE-532). The
+success path (`toHttpResponse` from `client.request`) is unaffected, so
+legitimate consumers of `response.request` still see the full options.
+
+```typescript
+function sanitizeRequestOptions(requestOptions: HttpRequestOptions & { url: string; }): HttpRequestOptions & { url: string; }
+```
+
+- `requestOptions` — The original request options.
+
+**Returns:** A redacted copy safe to attach to an error destined for logs.
+
 #### `toHttpError(error, requestOptions)`
 
 Converts axios error to HttpError.

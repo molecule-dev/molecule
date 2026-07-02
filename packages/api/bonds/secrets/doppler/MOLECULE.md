@@ -109,7 +109,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `DOPPLER_TOKEN` *(required)*
+- `DOPPLER_TOKEN` *(required)* — Doppler service token
+  - Setup: Create a service token for your project config (Project → Access → Service Tokens).
+  - Get it here: [https://dashboard.doppler.com/](https://dashboard.doppler.com/)
+  - Example: `dp.st....`
 
 ## Translations
 

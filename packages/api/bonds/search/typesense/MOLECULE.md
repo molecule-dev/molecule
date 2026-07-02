@@ -438,5 +438,8 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `TYPESENSE_HOST` *(required)*
-- `TYPESENSE_API_KEY` *(required)*
+- `TYPESENSE_HOST` *(required)* — Typesense host
+  - Setup: Hostname of your Typesense node (Typesense Cloud or self-hosted).
+  - Example: `localhost`
+- `TYPESENSE_API_KEY` *(required)* — Typesense API key
+  - Setup: The API key you configured when launching Typesense (or from Typesense Cloud).

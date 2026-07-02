@@ -358,7 +358,9 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `MYSQL_URL` *(required)*
+- `MYSQL_URL` *(required)* — MySQL connection URL
+  - Setup: MySQL connection string for your database instance.
+  - Example: `mysql://user:pass@localhost:3306/myapp`
 
 ### Runtime Dependencies
 

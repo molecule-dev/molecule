@@ -162,4 +162,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `IEX_API_KEY` *(required)*
+- `IEX_API_KEY` *(required)* — IEX Cloud API token
+  - Setup: Copy an API token from the IEX Cloud console (service availability may vary).
+  - Get it here: [https://iexcloud.io/](https://iexcloud.io/)
+  - Example: `pk_...`

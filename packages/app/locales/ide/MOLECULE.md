@@ -4,7 +4,7 @@ Translations for molecule IDE components in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-ide` package which has 220 translation keys.
+Provides translations for the `@molecule/app-ide` package which has 436 translation keys.
 
 ## Languages
 
@@ -22,6 +22,18 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | Key | English |
 |-----|---------|
 | `ide.chat.thoughtBriefly` | Thought briefly |
+| `ide.chat.thoughtForSecond` | Thought for 1 second |
+| `ide.chat.thoughtForSeconds` | Thought for {{count}} seconds |
+| `ide.chat.thoughtForMinute` | Thought for 1 minute |
+| `ide.chat.thoughtForMinutes` | Thought for {{count}} minutes |
+| `ide.chat.streaming.thinking` | Synthesizing... |
+| `ide.chat.streaming.analyzing` | Analyzing the structure... |
+| `ide.chat.streaming.reasoning` | Tracing the pathway... |
+| `ide.chat.streaming.crafting` | Composing the response... |
+| `ide.chat.streaming.working` | Reacting to your request... |
+| `ide.chat.streaming.processing` | Catalyzing... |
+| `ide.chat.streaming.connecting` | Bonding the concepts... |
+| `ide.chat.streaming.almostThere` | Crystallizing the answer... |
 | `ide.chat.thinking` | Thinking |
 | `ide.chat.verificationPassed` | Checks passed |
 | `ide.chat.typeErrorCount` | 1 type error |
@@ -62,8 +74,6 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.chat.costError` | Unable to fetch usage data. |
 | `ide.chat.undoNoChanges` | No file changes to undo. |
 | `ide.chat.undoComplete` | Failed to revert changes. |
-| `ide.chat.diffNoChanges` | No uncommitted changes. |
-| `ide.chat.diffError` | Failed to fetch changes. |
 | `ide.chat.commitNoChanges` | No changes to commit. |
 | `ide.chat.commitError` | Failed to commit changes. |
 | `ide.chat.autoFixEnabled` | Auto-fix enabled. |
@@ -79,10 +89,10 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.chat.autoFixCountdown` | Resume |
 | `ide.chat.autoFixPause` | Pause |
 | `ide.chat.autoFixCancel` | Cancel |
-| `ide.chat.reportProblem` | Report a problem |
-| `ide.chat.version` | Molecule.dev v0.1.0 |
+| `ide.chat.closeOverlay` | Close |
+| `ide.chat.retryCountdown` | Server error — retrying in {{seconds}}s… (attempt {{attempt}}) |
+| `ide.chat.version` | {{productName}} v0.1.0 |
 | `ide.chat.selectModel` | Select model |
-| `ide.chat.currentModelLabel` | Current: {{name}} |
 | `ide.chat.currentBadge` | current |
 | `ide.chat.proRequired` | Pro |
 | `ide.chat.notificationSounds` | Notification sounds |
@@ -165,9 +175,13 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.chat.placeholder` | Send a message... |
 | `ide.chat.emptyState` | Describe what you want to build... |
 | `ide.chat.you` | You |
+| `ide.chat.viewProfile` | View profile |
 | `ide.chat.molecule` | Molecule |
+| `ide.chat.automatic` | Sent automatically |
 | `ide.chat.stop` | Stop |
 | `ide.chat.send` | Send |
+| `ide.chat.mention` | Reference a file |
+| `ide.chat.slashCommands` | Slash commands |
 | `ide.chat.commit` | Commit |
 | `ide.chat.committed` | Committed |
 | `ide.chat.retryCommit` | Retry |
@@ -191,11 +205,11 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.chat.soundEvent.loop_limit_reached` | Loop limit reached |
 | `ide.chat.soundEvent.verification_result` | Verification result |
 | `ide.chat.soundEvent.preview_error` | Preview error |
-| `ide.chat.soundEventDesc.done` | Synthase finished responding |
+| `ide.chat.soundEventDesc.done` | {{agentName}} finished responding |
 | `ide.chat.soundEventDesc.error` | Something went wrong during a response |
 | `ide.chat.soundEventDesc.tool_result` | A tool call (file read, command, etc.) completed |
 | `ide.chat.soundEventDesc.file_diff` | A file was created or modified |
-| `ide.chat.soundEventDesc.commit_suggestion` | Synthase is suggesting files to commit |
+| `ide.chat.soundEventDesc.commit_suggestion` | {{agentName}} is suggesting files to commit |
 | `ide.chat.soundEventDesc.mode` | Switched between plan mode and execute mode |
 | `ide.chat.soundEventDesc.loop_limit_reached` | Hit the max tool iterations limit |
 | `ide.chat.soundEventDesc.verification_result` | Lint or type-check finished running |
@@ -213,6 +227,8 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.device.desktop` | Desktop |
 | `ide.device.tablet` | Tablet |
 | `ide.device.mobile` | Mobile |
+| `ide.device.select` | Device frame |
+| `ide.device.rotate` | Rotate |
 | `ide.toolCall.running` | running... |
 | `ide.toolCall.input` | Input |
 | `ide.toolCall.output` | Output |
@@ -226,10 +242,17 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.preview.back` | Back |
 | `ide.preview.forward` | Forward |
 | `ide.preview.urlBar` | Preview URL |
+| `ide.preview.secure` | Secure (HTTPS) |
+| `ide.preview.address` | Preview address |
 | `ide.preview.updating` | Updating |
 | `ide.preview.frozen` | This app stopped responding — an infinite loop or runaway render froze the preview. The IDE is unaffected. |
 | `ide.preview.frozenReload` | Reload app |
-| `ide.device.cycleHint` | {{current}} — click for {{next}} |
+| `ide.preview.loadFailed` | Preview can |
+| `ide.preview.loadFailedHint` | Try reloading, or open the preview in a new tab. |
+| `ide.preview.reloadPreview` | Reload preview |
+| `ide.preview.lastWorkingFrame` | Last working preview |
+| `ide.preview.blankTitle` | The preview is blank |
+| `ide.preview.blankHint` | The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab. |
 | `ide.search.results` | {{count}} results in {{files}} files |
 | `ide.activity.cardAria` | View captured activity |
 | `ide.activity.type.email` | Email |
@@ -241,6 +264,199 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.activity.status.sent` | Sent |
 | `ide.activity.status.delivered` | Delivered |
 | `ide.activity.status.failed` | Failed |
+| `ide.chat.activity.editing` | Editing |
+| `ide.chat.activity.exploring` | Exploring files |
+| `ide.chat.activity.fetching` | Fetching |
+| `ide.chat.activity.reading` | Reading |
+| `ide.chat.activity.running` | Running |
+| `ide.chat.activity.searching` | Searching |
+| `ide.chat.activity.switching` | Switching mode |
+| `ide.chat.activity.thinking` | Synthesizing |
+| `ide.chat.activity.writing` | Writing |
+| `ide.chat.activity.writingPlan` | Writing the plan |
+| `ide.activity.defaultSummary` | {{type}} captured |
+| `ide.chat.askUserPlaceholderEmpty` | Type your answer… |
+| `ide.chat.awaitingSandbox` | Waiting for the development environment to finish starting… |
+| `ide.chat.compactNotNeeded` | Context usage is low — no compaction needed. |
+| `ide.chat.phaseBuilding` | 🔨 Building your app |
+| `ide.chat.autoFixResume` | Resume |
+| `ide.chat.openSettings` | Settings |
+| `ide.chat.tip.dismiss` | Dismiss tip |
+| `ide.chat.tip.getStarted` | Tip: type / to see every command, or @ a filename to give {{agentName}} a file to work from. |
+| `ide.chat.tip.mention` | Tip: type @filename to attach a project file as context — {{agentName}} reads it directly. |
+| `ide.chat.tip.slash` | Tip: type / to browse every command (commit, model, and more). |
+| `ide.chat.tip.plan` | Tip: use /plan to have {{agentName}} research and propose a plan before it edits any files. |
+| `ide.chat.tip.undo` | Tip: use /undo to instantly revert the last AI turn |
+| `ide.chat.tip.compact` | Tip: long conversation? /compact compresses the context so you keep room to work. |
+| `ide.chat.tip.commit` | Tip: use /commit to save your changes as a git commit you can always return to. |
+| `ide.chat.tip.report` | Tip: something off? /report sends a bug or feedback to the team with your recent chat attached. |
+| `ide.chat.undoError` | Failed to revert changes. |
+| `ide.chat.autoCommit.badge` | Auto-commit in {{countdown}} |
+| `ide.chat.autoCommit.on` | Auto-commit on |
+| `ide.chat.autoCommit.cancel` | Cancel auto-commit |
+| `ide.chat.autoCommit.cancelled` | Auto-commit cancelled. |
+| `ide.chat.autoCommit.enabled` | Auto-commit on: committing {{seconds}}s after the last file change.\nSet to 0 to disable autocommit. |
+| `ide.chat.autoCommit.usage` | Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels. |
+| `ide.chat.effort.current` | Reasoning effort: {{level}} ({{label}}) |
+| `ide.chat.effort.error` | Failed to update reasoning effort. |
+| `ide.chat.effort.levelLine` |   {{level}} — {{label}} |
+| `ide.chat.effort.levelsHeader` | Levels: |
+| `ide.chat.effort.noneSupported` | No bonded model exposes a configurable reasoning budget — effort still scales the agent loop budget. |
+| `ide.chat.effort.set` | Reasoning effort set to {{level}} ({{label}}). |
+| `ide.chat.effort.supported` | Tunes the reasoning budget on: {{models}}. Other models still get the effort applied to the agent loop budget. |
+| `ide.chat.effort.usage` | Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level. |
+| `ide.chat.effort.notSupportedForModel` | {{level}} isn |
+| `ide.chat.effort.currentModelLevels` | Effort levels for {{model}}: {{levels}} |
+| `ide.chat.models.colContext` | Context |
+| `ide.chat.models.colCost` | Cost / 1M |
+| `ide.chat.models.colCutoff` | Cutoff |
+| `ide.chat.models.colFree` | Free |
+| `ide.chat.models.colName` | Model |
+| `ide.chat.models.costBreakdown` | Input ${{input}} + output ${{output}} per 1M tokens |
+| `ide.chat.models.freeNo` | — |
+| `ide.chat.models.freeYes` | ✓ Free |
+| `ide.chat.models.sortBy` | Sort by {{column}} |
+| `ide.chat.modelsLoading` | Loading models… |
+| `ide.chat.modelsNone` | No models are available yet — ask your admin to wire an AI provider. |
+| `ide.chat.modelInUse` | Now using {{model}} |
+| `ide.chat.previewLinkTitle` | Open {{path}} in the preview |
+| `ide.chat.modelRemoved` | Your selected model  |
+| `ide.chat.modelRemovedNoFallback` | Your selected model  |
+| `ide.chat.olderModelsCollapse` | Older models ⌃ ({{count}}) |
+| `ide.chat.olderModelsExpand` | Older models ⌄ ({{count}}) |
+| `ide.chat.selectExecuteModel` | Select execute-mode model |
+| `ide.chat.selectPlanModel` | Select plan-mode model |
+| `ide.chat.executeModelSet` | Execute-mode model set to {{name}} |
+| `ide.chat.planModelSet` | Plan-mode model set to {{name}} |
+| `ide.chat.modelSortLabel` | Sort |
+| `ide.chat.modelSortDirection` | Toggle sort direction |
+| `ide.chat.costSummary` | Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens\nTotal cost this conversation (all models): ~${{cost}} |
+| `ide.chat.lintErrorsCount` | {{count}} lint errors |
+| `ide.chat.lintWarningsCount` | {{count}} warnings |
+| `ide.chat.typeErrorsCount` | {{count}} type errors |
+| `ide.chat.help.commandsHeading` | ── Commands ── |
+| `ide.chat.help.intro` | {{agentName}} is {{productName}} |
+| `ide.chat.help.introHeading` | ── Getting Started ── |
+| `ide.chat.help.modeDiscovery` | Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code. |
+| `ide.chat.help.modeExecute` | Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them. |
+| `ide.chat.help.modePlan` | Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes. |
+| `ide.chat.help.modesHeading` | ── Modes ── |
+| `ide.chat.help.shortcuts` | Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts. |
+| `ide.chat.help.tipCompact` | • Use /compact to compress context when the conversation gets long. |
+| `ide.chat.help.tipMention` | • Type @filename to attach a project file as context (or drag & drop any file). |
+| `ide.chat.help.tipPlan` | • Use /plan to have {{agentName}} research before making changes. |
+| `ide.chat.help.tipSlash` | • Type / to browse every command above. |
+| `ide.chat.help.tipSpecific` | • Be specific —  |
+| `ide.chat.help.tipUndo` | • Use /undo to revert the last AI turn |
+| `ide.chat.help.tipsHeading` | ── Tips ── |
+| `ide.chat.help.card.heading` | Help |
+| `ide.chat.help.card.commandsTitle` | Commands |
+| `ide.chat.help.card.modesTitle` | Modes |
+| `ide.chat.help.card.tipsTitle` | Tips |
+| `ide.chat.help.card.usageHint` | Usage: {{usage}}  ([…] optional, <…> required) |
+| `ide.chat.report.heading` | Report a bug |
+| `ide.chat.report.openReport` | Report a bug |
+| `ide.chat.report.subheading` | Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team. |
+| `ide.chat.report.titleLabel` | Title |
+| `ide.chat.report.titlePlaceholder` | Brief summary |
+| `ide.chat.report.descriptionLabel` | Description |
+| `ide.chat.report.descriptionPlaceholder` | What happened? What did you expect? |
+| `ide.chat.report.stepsLabel` | Steps to reproduce (optional) |
+| `ide.chat.report.stepsPlaceholder` | 1. …\n2. … |
+| `ide.chat.report.includeChat` | Include recent chat for context |
+| `ide.chat.report.diagnosticsNote` | Your app version, browser, and screen size are attached to help us debug. |
+| `ide.chat.report.submit` | Submit report |
+| `ide.chat.report.submitting` | Submitting… |
+| `ide.chat.report.error` | Could not submit your report. Please try again. |
+| `ide.chat.report.viewIssue` | View issue |
+| `ide.chat.report.failed` | Could not submit your report. Please try again. |
+| `ide.chat.report.submitted` | Thanks! Your report was submitted to {{productName}} |
+| `ide.chat.report.submittedWithLink` | Thanks! Your report was submitted — track it on the linked issue. |
+| `ide.chat.scripts.heading` | Scripts |
+| `ide.chat.scripts.new` | New script |
+| `ide.chat.scripts.cancelNew` | Cancel |
+| `ide.chat.scripts.namePlaceholder` | Script name (e.g. run-tests) |
+| `ide.chat.scripts.descriptionPlaceholder` | What does it do? |
+| `ide.chat.scripts.bodyPlaceholder` | #!/bin/sh\nnpm test |
+| `ide.chat.scripts.searchPlaceholder` | Filter scripts… |
+| `ide.chat.scripts.save` | Save script |
+| `ide.chat.scripts.saving` | Saving… |
+| `ide.chat.scripts.saveError` | Could not save the script. Please try again. |
+| `ide.chat.scripts.invalid` | A script needs a name and a non-empty body. |
+| `ide.chat.scripts.empty` | No saved scripts yet. Create one above, or ask {{agentName}} to write and save one. |
+| `ide.chat.scripts.loading` | Loading scripts… |
+| `ide.chat.scripts.error` | Could not load scripts for this project. |
+| `ide.chat.scripts.noMatch` | No scripts match “{{query}}”. |
+| `ide.chat.scripts.run` | Run |
+| `ide.chat.scripts.runTitle` | Run this script in the sandbox |
+| `ide.chat.scripts.running` | Running… |
+| `ide.chat.scripts.runError` | Failed to run the script. |
+| `ide.chat.scripts.runNone` | No saved scripts yet. Open /scripts to create one. |
+| `ide.chat.scripts.runNotFound` | No script named “{{name}}”. Available: {{names}} |
+| `ide.chat.scripts.runUsage` | Usage: /run <name> — run a saved script. Use /scripts to see them. |
+| `ide.chat.scripts.cmdExitOk` | {{name}} exited 0 |
+| `ide.chat.scripts.cmdExitFail` | {{name}} exited with code {{code}} |
+| `ide.chat.scripts.exitOk` | Exited 0 |
+| `ide.chat.scripts.exitFail` | Exited {{code}} |
+| `ide.chat.scripts.noOutput` | (no output) |
+| `ide.chat.settings.heading` | Settings |
+| `ide.chat.settings.commandsHeading` | Slash commands |
+| `ide.chat.settings.edit` | Edit |
+| `ide.chat.settings.editVia` | Edit via {{command}} |
+| `ide.chat.settings.modeExecute` | Execute |
+| `ide.chat.settings.modePlan` | Plan |
+| `ide.chat.settings.modelUnset` | Not set |
+| `ide.chat.settings.off` | Off |
+| `ide.chat.settings.on` | On |
+| `ide.chat.settings.soundsSummary` | {{enabled}} of {{total}} events enabled |
+| `ide.chat.settings.modelFollowsDefault` | Follows default model |
+| `ide.chat.settings.effortValue` | {{label}} ({{level}}) |
+| `ide.chat.settings.autoCommitEvery` | Every {{seconds}}s |
+| `ide.chat.settings.hooksValue` | In project settings |
+| `ide.chat.share.heading` | Share project |
+| `ide.chat.share.openShare` | Share project |
+| `ide.chat.share.subheading` | Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only. |
+| `ide.chat.share.roleLabel` | Role |
+| `ide.chat.share.create` | Create link |
+| `ide.chat.share.creating` | Creating… |
+| `ide.chat.share.created` | Created a {{role}} share link. |
+| `ide.chat.share.createAnother` | Create new link |
+| `ide.chat.share.linkLabel` | Public link |
+| `ide.chat.share.copy` | Copy link |
+| `ide.chat.share.copyShort` | Copy |
+| `ide.chat.share.copied` | Copied |
+| `ide.chat.share.openLink` | Open link |
+| `ide.chat.share.error` | Could not create a share link. Please try again. |
+| `ide.chat.share.usage` | Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer). |
+| `ide.chat.skills.heading` | Skills |
+| `ide.chat.skills.searchPlaceholder` | Filter skills… |
+| `ide.chat.skills.load` | Load |
+| `ide.chat.skills.loadTitle` | Open in the editor |
+| `ide.chat.skills.loaded` | Loaded {{name}} skill |
+| `ide.chat.skills.loadedCount` | 🧠 Loaded {{count}} skills |
+| `ide.chat.skills.loadedPrefix` | Loaded  |
+| `ide.chat.skills.loadedSuffix` |  skill |
+| `ide.chat.skills.loading` | Loading skills… |
+| `ide.chat.skills.waitingForSandbox` | Waiting for the sandbox to finish starting… |
+| `ide.chat.skills.error` | Could not load skills for this project. |
+| `ide.chat.skills.empty` | No skills found in .agents/skills/ for this project. |
+| `ide.chat.skills.noMatch` | No skills match “{{query}}”. |
+| `ide.chat.skills.relevant.label` | Relevant skill |
+| `ide.chat.skills.relevant.dismiss` | Dismiss suggestion |
+| `ide.chat.skills.loadedBadge` | Loaded |
+| `ide.chat.skills.defaultBadge` | Default |
+| `ide.chat.skills.setDefault` | Load by default |
+| `ide.chat.skills.unsetDefault` | Stop loading by default |
+| `ide.chat.skills.matchHint` | Suggested from keywords in your recent messages |
+| `ide.chat.skills.resetDefaults` | Load all by default |
+| `ide.chat.skills.new` | New skill |
+| `ide.chat.skills.newTitle` | Create a new project skill |
+| `ide.chat.skills.newPlaceholder` | New skill name… |
+| `ide.chat.skills.create` | Create |
+| `ide.chat.skills.cancel` | Cancel |
+| `ide.chat.skills.createError` | Could not create the skill — please try again. |
+| `ide.chat.skills.created` | Created skill “{{name}}” — opened in the editor. Fill in its description and steps. |
+| `ide.resizeHandle.label` | Resize panels |
 
 ## Metadata
 

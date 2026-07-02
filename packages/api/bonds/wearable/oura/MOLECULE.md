@@ -608,5 +608,9 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_OURA_CLIENT_ID` *(required)*
-- `OAUTH_OURA_CLIENT_SECRET` *(required)*
+- `OAUTH_OURA_CLIENT_ID` *(required)* — Oura OAuth client ID
+  - Setup: Create an OAuth application in the Oura Cloud developer portal.
+  - Get it here: [https://cloud.ouraring.com/oauth/applications](https://cloud.ouraring.com/oauth/applications)
+- `OAUTH_OURA_CLIENT_SECRET` *(required)* — Oura client secret
+  - Setup: Shown when creating the OAuth application in Oura Cloud.
+  - Get it here: [https://cloud.ouraring.com/oauth/applications](https://cloud.ouraring.com/oauth/applications)

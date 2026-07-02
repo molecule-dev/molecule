@@ -72,10 +72,13 @@ interface ActivitySeenStatus {
 
 Input for logging a new activity.
 
+Note: this is the *client-supplied* payload — it deliberately omits `actorId`.
+The actor is derived from the authenticated session in the service/handler
+(`actor = caller`), never trusted from the request body, to prevent a user from
+forging activities that impersonate another user.
+
 ```typescript
 interface CreateActivityInput {
-  /** The ID of the user who performed the action. */
-  actorId: string
   /** The action that was performed. */
   action: string
   /** The type of resource the action was performed on. */
@@ -196,15 +199,20 @@ function log(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `req` — The request with activity creation body.
 - `res` — The response object.
 
-#### `logActivity(data)`
+#### `logActivity(actorId, data)`
 
 Logs a new activity to the feed.
 
+The actor is supplied explicitly by the caller (derived from the authenticated
+session in the handler), never read from the client-supplied `data`, so a user
+cannot forge activities impersonating another user.
+
 ```typescript
-function logActivity(data: CreateActivityInput): Promise<Activity>
+function logActivity(actorId: string, data: CreateActivityInput): Promise<Activity>
 ```
 
-- `data` — The activity creation input.
+- `actorId` — The ID of the authenticated user who performed the action.
+- `data` — The activity creation input (client-supplied, never includes the actor).
 
 **Returns:** The created activity.
 
@@ -258,8 +266,13 @@ function unseen(_req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 
 Schema for validating activity creation input.
 
+Note: `actorId` is intentionally absent — the actor is always derived from the
+authenticated session in the handler (`actor = caller`), never accepted from the
+client body. Adding it here would let any user forge feed entries impersonating
+another user (broken access control). Mirror the comment/review/thread pattern.
+
 ```typescript
-const createActivitySchema: z.ZodObject<{ actorId: z.ZodString; action: z.ZodString; resourceType: z.ZodString; resourceId: z.ZodString; metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; }, z.core.$strip>
+const createActivitySchema: z.ZodObject<{ action: z.ZodString; resourceType: z.ZodString; resourceId: z.ZodString; metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; }, z.core.$strip>
 ```
 
 #### `markSeenSchema`

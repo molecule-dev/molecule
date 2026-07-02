@@ -160,4 +160,6 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OPENWEATHER_API_KEY` *(required)*
+- `OPENWEATHER_API_KEY` *(required)* — OpenWeather API key
+  - Setup: Sign up at OpenWeatherMap (free tier available) and copy your API key.
+  - Get it here: [https://home.openweathermap.org/api_keys](https://home.openweathermap.org/api_keys)

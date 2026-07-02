@@ -163,7 +163,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `DATABASE_URL` *(required)* — default: `postgres://molecule:molecule@127.0.0.1:5432/myapp`
+- `DATABASE_URL` *(required)* — PostgreSQL connection URL — default: `postgres://molecule:molecule@127.0.0.1:5432/myapp`
+  - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
+  - Setup: Postgres connection string. Provisioned automatically in molecule.dev sandboxes; locally, use the Docker Compose default.
+  - Example: `postgres://user:pass@localhost:5432/myapp`
 
 ### Runtime Dependencies
 

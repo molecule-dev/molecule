@@ -2322,6 +2322,19 @@ interface UIClassMap {
   /** Prevent flex shrinking. */
   shrink0: string
 
+  // ---- Touch / pointer utilities ----
+
+  /**
+   * Minimum interactive hit-area for touch (coarse-pointer) devices — WCAG 2.5.5
+   * "Target Size". Resolves to a `>=44x44px` minimum that applies ONLY on
+   * coarse-pointer devices, so fine-pointer (mouse) layouts keep their compact
+   * control sizing. Compose onto small icon buttons/controls that would otherwise
+   * be too small to tap reliably on phones/tablets (e.g. the preview toolbar's
+   * back/forward/refresh/open and device-frame buttons). On React Native (touch
+   * by definition) the bond applies the minimum unconditionally.
+   */
+  touchTarget: string
+
   // ---- Position utilities ----
 
   // ---- Display utilities ----

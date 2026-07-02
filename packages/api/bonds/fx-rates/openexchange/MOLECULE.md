@@ -188,4 +188,6 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OPENEXCHANGE_APP_ID` *(required)*
+- `OPENEXCHANGE_APP_ID` *(required)* — Open Exchange Rates app ID
+  - Setup: Sign up (free tier available) and copy your App ID.
+  - Get it here: [https://openexchangerates.org/account/app-ids](https://openexchangerates.org/account/app-ids)

@@ -54,6 +54,15 @@ interface AuthClient<T = UserProfile> {
   getAccessToken(): string | null
 
   /**
+   * Stores the access token in the configured token storage adapter (in-memory
+   * by default). Use this to seed the token after an out-of-band exchange (e.g.
+   * the OAuth code→token redirect) instead of writing to `localStorage` directly,
+   * which would violate the in-memory-default storage contract and make the bearer
+   * token JS-readable (XSS-exfiltratable). Pass `null` to clear it.
+   */
+  setAccessToken(token: string | null): void
+
+  /**
    * Gets the refresh token.
    */
   getRefreshToken(): string | null
@@ -166,6 +175,15 @@ interface AuthClientConfig {
    * User profile endpoint.
    */
   profileEndpoint?: string
+
+  /**
+   * Current-user endpoint for session restore (default `/users/me`). Called by
+   * `initialize()` with credentials to re-establish the session from the
+   * httpOnly cookie after a full page load — the only way to stay logged in when
+   * the bearer token is held in memory (the secure default; a localStorage copy
+   * is XSS-exfiltratable). Must return the user (as `user` or `props`).
+   */
+  currentUserEndpoint?: string
 
   /**
    * Storage key prefix.

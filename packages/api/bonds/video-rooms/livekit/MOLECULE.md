@@ -243,6 +243,13 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `LIVEKIT_URL` *(required)*
-- `LIVEKIT_API_KEY` *(required)*
-- `LIVEKIT_API_SECRET` *(required)*
+- `LIVEKIT_URL` *(required)* — LiveKit server URL
+  - Setup: Your LiveKit Cloud project URL (or self-hosted wss:// URL).
+  - Get it here: [https://cloud.livekit.io/](https://cloud.livekit.io/)
+  - Example: `wss://your-app.livekit.cloud`
+- `LIVEKIT_API_KEY` *(required)* — LiveKit API key
+  - Setup: LiveKit Cloud → project → Settings → Keys.
+  - Get it here: [https://cloud.livekit.io/](https://cloud.livekit.io/)
+- `LIVEKIT_API_SECRET` *(required)* — LiveKit API secret
+  - Setup: Shown when creating the key in LiveKit Cloud.
+  - Get it here: [https://cloud.livekit.io/](https://cloud.livekit.io/)

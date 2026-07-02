@@ -81,7 +81,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `ANTHROPIC_API_KEY` *(required)*
+- `ANTHROPIC_API_KEY` *(required)* — Anthropic API key
+  - Setup: Create a key in the Anthropic Console under Settings → API keys.
+  - Get it here: [https://console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
+  - Example: `sk-ant-api03-...`
 
 ## Translations
 

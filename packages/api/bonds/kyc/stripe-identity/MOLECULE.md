@@ -362,5 +362,11 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `STRIPE_SECRET_KEY` *(required)*
-- `STRIPE_IDENTITY_WEBHOOK_SECRET` *(required)*
+- `STRIPE_SECRET_KEY` *(required)* — Stripe secret key
+  - Setup: Stripe Dashboard → Developers → API keys; use the sk_test_ key in test mode, sk_live_ in production.
+  - Get it here: [https://dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys)
+  - Example: `sk_test_...`
+- `STRIPE_IDENTITY_WEBHOOK_SECRET` *(required)* — Stripe Identity webhook signing secret
+  - Setup: Add a webhook endpoint for Identity events in the Stripe Dashboard and copy its signing secret.
+  - Get it here: [https://dashboard.stripe.com/webhooks](https://dashboard.stripe.com/webhooks)
+  - Example: `whsec_...`

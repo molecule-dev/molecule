@@ -43,6 +43,15 @@ interface AppModelDefinition {
   thinkingBudgetTokens: number
   /** Whether the thinking budget can be controlled via API params. */
   thinkingConfigurable: boolean
+  /**
+   * Which abstract effort levels (`'S' | 'M' | 'L' | 'XL'`) the `/effort`
+   * command should offer/accept for THIS model. Absent → all levels are
+   * supported (back-compat). Present → only the listed levels are valid;
+   * consumers clamp a persisted out-of-set level to the nearest supported one.
+   * Populated server-side per each model's real reasoning capability; see the
+   * server-side `ModelDefinition` for the exact population rule.
+   */
+  supportedEffortLevels?: EffortLevel[]
   /** Whether the model supports vision (images, documents, etc.). */
   supportsVision: boolean
   /** Whether the model supports prompt caching. */
@@ -57,10 +66,14 @@ interface AppModelDefinition {
   webFetchToolType?: string
   /** Whether this model is available on the free tier. */
   freeTier?: boolean
-  /** Input price per million tokens in USD. */
+  /** Input price per million *uncached* (fresh) input tokens in USD. */
   inputPricePerMTok: number
   /** Output price per million tokens in USD. */
   outputPricePerMTok: number
+  /** Price per million prompt-cache *read* (cache-hit) input tokens in USD. */
+  cacheReadPricePerMTok: number
+  /** Price per million prompt-cache *write* (cache-creation) input tokens in USD. */
+  cacheWritePricePerMTok: number
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
   /**
@@ -71,6 +84,15 @@ interface AppModelDefinition {
    * current models.
    */
   deprecatedAt?: string
+  /**
+   * Whether this model is fully disabled — removed from selection and the
+   * listing while remaining priceable for historical usage. Stronger than
+   * {@link deprecatedAt} (which keeps the model selectable in an "Older models"
+   * section): a disabled model is excluded from the free-tier / deprecation
+   * partition helpers and never offered. Kept in sync with the server-side
+   * `ModelDefinition.disabled`. Omit entirely for active models.
+   */
+  disabled?: boolean
 }
 ```
 
@@ -104,6 +126,17 @@ type AIProviderID =
   | 'minimax'
   | 'alibaba'
   | 'zhipu'
+```
+
+#### `EffortLevel`
+
+Abstract effort scale, smallest to largest. Mirrors the server-side
+`EffortLevel` in `@molecule/api-resource-ai-models`; keep the two in sync.
+Kept provider-agnostic — provider-native level names (`'high'` / `'xhigh'` /
+`'max'`) are surfaced only as display labels, never baked into this type.
+
+```typescript
+type EffortLevel = 'S' | 'M' | 'L' | 'XL'
 ```
 
 ### Functions
@@ -153,7 +186,9 @@ function loadAIModels(http: HttpClient, path?: string): Promise<AppModelDefiniti
 
 Splits a model catalog into current and deprecated entries based on each
 model's `deprecatedAt` relative to `now`. Order within each partition is
-preserved.
+preserved. `disabled` models are dropped entirely — they belong in neither
+partition (the listing already excludes them, and they must not surface in
+the picker's current or "Older models" section).
 
 ```typescript
 function partitionByDeprecation(models: readonly AppModelDefinition[], now?: string): { current: AppModelDefinition[]; deprecated: AppModelDefinition[]; }
@@ -167,6 +202,8 @@ function partitionByDeprecation(models: readonly AppModelDefinition[], now?: str
 #### `pickFreeTierModel(models)`
 
 Returns the free-tier model from a list, or `undefined` if none is marked.
+`disabled` models are ignored — a retired model is never picked as the
+free-tier default even if it still carries the flag.
 
 ```typescript
 function pickFreeTierModel(models: readonly AppModelDefinition[]): AppModelDefinition | undefined
@@ -174,7 +211,7 @@ function pickFreeTierModel(models: readonly AppModelDefinition[]): AppModelDefin
 
 - `models` — Loaded model catalog.
 
-**Returns:** The single model with `freeTier: true`, or `undefined`.
+**Returns:** The single non-disabled model with `freeTier: true`, or `undefined`.
 
 ### Constants
 

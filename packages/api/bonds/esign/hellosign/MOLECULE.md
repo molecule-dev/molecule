@@ -311,4 +311,6 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `HELLOSIGN_API_KEY` *(required)*
+- `HELLOSIGN_API_KEY` *(required)* — Dropbox Sign (HelloSign) API key
+  - Setup: Generate an API key in Dropbox Sign → Account settings → API.
+  - Get it here: [https://app.hellosign.com/home/myAccount#api](https://app.hellosign.com/home/myAccount#api)

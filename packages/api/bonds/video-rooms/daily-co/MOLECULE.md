@@ -79,4 +79,6 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `DAILY_CO_API_KEY` *(required)*
+- `DAILY_CO_API_KEY` *(required)* — Daily.co API key
+  - Setup: Copy the API key from the Daily dashboard → Developers.
+  - Get it here: [https://dashboard.daily.co/developers](https://dashboard.daily.co/developers)

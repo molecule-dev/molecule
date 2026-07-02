@@ -260,6 +260,22 @@ function createSandboxBackend(sandbox: SandboxLike, projectRoot?: string): Execu
 
 **Returns:** A backend that proxies all filesystem calls into the sandbox.
 
+#### `directoryReadHint(message, path)`
+
+Detect a "read/edit targeted a directory, not a file" failure from a backend
+error message (local fs `EISDIR` or the sandbox's `cat: X: Is a directory`),
+and return an actionable message steering the model to `list_files`. Returns
+null when the error is not a directory error.
+
+```typescript
+function directoryReadHint(message: string, path: string): string | null
+```
+
+- `message` — The backend error message.
+- `path` — The resolved path that was targeted.
+
+**Returns:** An actionable directory-error string, or null.
+
 #### `discoverSkills(backend)`
 
 Discover skills from a project directory.
@@ -287,6 +303,23 @@ function isValidGlob(pattern: string): boolean
 - `pattern` — User-supplied glob fragment for search/list operations.
 
 **Returns:** `true` when the pattern contains only allowed characters.
+
+#### `pathArgError(path, tool)`
+
+Validate a file tool's `path` argument is a non-empty string. A weak model
+sometimes omits it or passes a non-string, which would otherwise crash
+`resolvePath` (`path.replace` on undefined) with the cryptic, unactionable
+"Cannot read properties of undefined (reading 'replace')" — wasting executor
+turns. Returns an actionable message, or null when the path is usable.
+
+```typescript
+function pathArgError(path: unknown, tool: string): string | null
+```
+
+- `path` — The raw `path` argument from the tool input.
+- `tool` — The tool name, for the error message (e.g. 'read_file').
+
+**Returns:** An actionable error string, or null when `path` is a non-empty string.
 
 #### `redactSecrets(s)`
 

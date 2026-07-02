@@ -150,6 +150,12 @@ Filters for listing templates.
 
 ```typescript
 interface TemplateQuery {
+  /**
+   * ID of the authenticated caller. Scopes the result to the templates this
+   * viewer is allowed to see: public templates plus their OWN private ones.
+   * When omitted, only public templates are returned (fail closed).
+   */
+  viewerId?: string
   /** Limit results to a specific resource type. */
   resourceType?: string
   /** Restrict to public templates only. */
@@ -375,17 +381,32 @@ function list(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 
 #### `listTemplates(query)`
 
-Lists templates with optional filtering and pagination. Tag filtering is
-applied in-memory because the underlying DataStore has no native JSONB
-`?|` operator — the table is bounded (admin-managed) so this is fine.
+Lists templates visible to the caller, with optional filtering and
+pagination.
+
+Visibility is scoped to the caller (`query.viewerId`): a viewer sees public
+templates PLUS their own private ones — never another user's private rows.
+The DataStore's `buildWhere` joins clauses with AND only (there is no OR
+group), so the visibility OR is realised as two queries (public rows + the
+viewer's own rows) merged + de-duped in memory. Tag filtering is likewise
+in-memory (no native JSONB `?|` operator). The table is bounded
+(admin/user-managed), so the in-memory merge, sort, and pagination are fine —
+the same justification used for the in-memory tag filter.
+
+Filters compose with the visibility scope:
+- `publicOnly=true` restricts to public rows only (drops the viewer's private).
+- `createdBy=<X>` is INTERSECTED with the viewer-visible set: a non-owner
+  `createdBy` still only surfaces that user's PUBLIC rows — a caller can never
+  page another tenant's private rows via `createdBy`.
+- When `viewerId` is omitted, only public rows are returned (fail closed).
 
 ```typescript
 function listTemplates(query?: TemplateQuery): Promise<PaginatedResult<Template>>
 ```
 
-- `query` — Filters and pagination.
+- `query` — Filters, viewer scope, and pagination.
 
-**Returns:** Paginated list of templates.
+**Returns:** Paginated list of viewer-visible templates.
 
 #### `mergeVariableValues(declared, supplied)`
 

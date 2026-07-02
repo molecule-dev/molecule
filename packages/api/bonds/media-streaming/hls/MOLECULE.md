@@ -78,6 +78,35 @@ interface M3u8PlaylistOptions {
 
 ### Functions
 
+#### `assertSafePathComponent(value, label)`
+
+Asserts that a caller-supplied value is a safe single path component.
+
+Rejects empty strings, the relative segments `.` and `..`, anything
+containing a path separator or NUL byte, and anything outside the
+`[A-Za-z0-9._-]` allow-list (which also rejects shell metacharacters).
+
+```typescript
+function assertSafePathComponent(value: string, label: string): string
+```
+
+- `value` — The caller-supplied component (e.g. a stream id or profile name).
+- `label` — Human-readable name of the field, used in the error message.
+
+**Returns:** The validated component, unchanged.
+
+#### `assertSegmentIndex(index)`
+
+Asserts that a caller-supplied segment index is a non-negative integer.
+
+```typescript
+function assertSegmentIndex(index: number): number
+```
+
+- `index` — The caller-supplied segment index.
+
+**Returns:** The validated index, unchanged.
+
 #### `createProvider(config)`
 
 Creates an HLS streaming provider.
@@ -114,6 +143,23 @@ function generateMediaPlaylist(segments: StreamSegment[], options?: M3u8Playlist
 - `options` — Playlist generation options.
 
 **Returns:** The M3U8 playlist content as a string.
+
+#### `resolveWithinBase(base, parts)`
+
+Resolves `parts` against `base` and asserts the result stays within `base`.
+
+Defense-in-depth on top of {@link assertSafePathComponent}: even if a
+component slipped through, the resolved absolute path is rejected unless it
+is `base` itself or a descendant of it.
+
+```typescript
+function resolveWithinBase(base: string, parts?: string[]): string
+```
+
+- `base` — The intended base directory.
+- `parts` — Path segments to append.
+
+**Returns:** The resolved absolute path, guaranteed to be inside `base`.
 
 ### Constants
 

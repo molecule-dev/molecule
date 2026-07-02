@@ -236,7 +236,9 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `SQLITE_PATH` *(optional)* — default: `./data/app.db`
+- `SQLITE_PATH` *(optional)* — SQLite database path — default: `./data/app.db`
+  - Setup: Filesystem path of the SQLite database file (created on first run).
+  - Example: `./data/app.db`
 
 ### Runtime Dependencies
 

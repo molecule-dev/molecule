@@ -125,4 +125,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `ELEVENLABS_API_KEY` *(required)*
+- `ELEVENLABS_API_KEY` *(required)* — ElevenLabs API key
+  - Setup: Create an API key in ElevenLabs under Settings → API keys.
+  - Get it here: [https://elevenlabs.io/app/settings/api-keys](https://elevenlabs.io/app/settings/api-keys)
+  - Example: `sk_...`

@@ -389,5 +389,11 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_GOOGLE_CLIENT_ID` *(required)*
-- `OAUTH_GOOGLE_CLIENT_SECRET` *(required)*
+- `OAUTH_GOOGLE_CLIENT_ID` *(required)* — Google OAuth client ID
+  - Setup: Google Cloud Console → APIs & Services → Credentials → Create OAuth 2.0 Client ID (Web application); add your app origin and {apiUrl}/api/users/log-in/oauth as an authorized redirect URI.
+  - Get it here: [https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
+  - Example: `1234567890-abc.apps.googleusercontent.com`
+- `OAUTH_GOOGLE_CLIENT_SECRET` *(required)* — Google OAuth client secret
+  - Setup: Shown when creating the OAuth 2.0 Client ID in Google Cloud Console.
+  - Get it here: [https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
+  - Example: `GOCSPX-...`

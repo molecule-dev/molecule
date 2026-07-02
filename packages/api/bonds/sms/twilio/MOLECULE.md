@@ -76,6 +76,14 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `TWILIO_ACCOUNT_SID` *(required)*
-- `TWILIO_AUTH_TOKEN` *(required)*
-- `TWILIO_FROM_NUMBER` *(required)*
+- `TWILIO_ACCOUNT_SID` *(required)* — Twilio account SID
+  - Setup: Copy the Account SID from the Twilio Console dashboard.
+  - Get it here: [https://console.twilio.com/](https://console.twilio.com/)
+  - Example: `AC...`
+- `TWILIO_AUTH_TOKEN` *(required)* — Twilio auth token
+  - Setup: Copy the Auth Token from the Twilio Console dashboard.
+  - Get it here: [https://console.twilio.com/](https://console.twilio.com/)
+- `TWILIO_FROM_NUMBER` *(required)* — Twilio from number
+  - Setup: Buy or verify a phone number in Twilio and use it in E.164 format.
+  - Get it here: [https://console.twilio.com/us1/develop/phone-numbers/manage/incoming](https://console.twilio.com/us1/develop/phone-numbers/manage/incoming)
+  - Example: `+15551234567`

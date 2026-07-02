@@ -313,5 +313,9 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `CHANNEL_TELEGRAM_BOT_TOKEN` *(required)*
-- `CHANNEL_TELEGRAM_WEBHOOK_SECRET` *(optional)*
+- `CHANNEL_TELEGRAM_BOT_TOKEN` *(required)* — Telegram bot token
+  - Setup: Create a bot with @BotFather in Telegram (/newbot) and copy the token.
+  - Get it here: [https://t.me/BotFather](https://t.me/BotFather)
+  - Example: `123456789:ABC-DEF...`
+- `CHANNEL_TELEGRAM_WEBHOOK_SECRET` *(optional)* — Telegram webhook secret
+  - **Auto-generated at scaffold — no manual setup.**

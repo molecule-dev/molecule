@@ -175,4 +175,6 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `MIXPANEL_TOKEN` *(required)*
+- `MIXPANEL_TOKEN` *(required)* — Mixpanel project token
+  - Setup: Copy the Project Token from Mixpanel → Project Settings → Access Keys.
+  - Get it here: [https://mixpanel.com/settings/project](https://mixpanel.com/settings/project)

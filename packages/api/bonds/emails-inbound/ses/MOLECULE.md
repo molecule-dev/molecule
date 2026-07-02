@@ -655,8 +655,20 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `AWS_ACCESS_KEY_ID` *(required)*
-- `AWS_SECRET_ACCESS_KEY` *(required)*
-- `AWS_SES_REGION` *(required)*
-- `AWS_SES_INBOUND_TOPIC_ARN` *(optional)*
-- `AWS_SNS_SIGNING_CERT_HOSTNAME_SUFFIXES` *(optional)*
+- `AWS_ACCESS_KEY_ID` *(required)* — AWS access key ID
+  - Setup: Create an IAM user with the needed policy (SES/S3/SQS) and create an access key under Security credentials.
+  - Get it here: [https://console.aws.amazon.com/iam/](https://console.aws.amazon.com/iam/)
+  - Example: `AKIA...`
+- `AWS_SECRET_ACCESS_KEY` *(required)* — AWS secret access key
+  - Setup: Shown once when creating the IAM access key — store it immediately.
+  - Get it here: [https://console.aws.amazon.com/iam/](https://console.aws.amazon.com/iam/)
+- `AWS_SES_REGION` *(required)* — AWS SES region
+  - Setup: The AWS region where SES is set up (and out of sandbox for production sending).
+  - Example: `us-east-1`
+- `AWS_SES_INBOUND_TOPIC_ARN` *(optional)* — SES inbound SNS topic ARN
+  - Setup: ARN of the SNS topic your SES receipt rule publishes inbound mail to.
+  - Get it here: [https://console.aws.amazon.com/ses/](https://console.aws.amazon.com/ses/)
+  - Example: `arn:aws:sns:us-east-1:123456789012:ses-inbound`
+- `AWS_SNS_SIGNING_CERT_HOSTNAME_SUFFIXES` *(optional)* — SNS signing-cert hostname allowlist
+  - Setup: Comma-separated hostname suffixes allowed for SNS signature certificates; the default (.amazonaws.com) is fine.
+  - Example: `.amazonaws.com`

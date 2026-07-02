@@ -85,6 +85,22 @@ interface OAuthUserProps {
      */
     email?: string;
     /**
+     * Whether the OAuth provider has affirmatively verified that the user
+     * controls this `email` mailbox.
+     *
+     * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
+     * `email_verified`, Apple's `email_verified` ID-token claim). When the
+     * provider exposes no trustworthy verification signal in the profile data
+     * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
+     * `true`) — consumers treat only an explicit `true` as verified.
+     *
+     * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
+     * decide whether a provider-supplied email may be trusted over an existing,
+     * unverified local account — preventing an unverified squatter from blocking
+     * the verified mailbox owner.
+     */
+    emailVerified?: boolean;
+    /**
      * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
      */
     oauthServer: string;
@@ -122,7 +138,7 @@ Endpoints can be overridden via `OAUTH_GOOGLE_TOKEN_URL` and
 `OAUTH_GOOGLE_USER_URL` for testing (E2E mocks) or proxy deployments.
 
 ```typescript
-function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; oauthServer: "google"; oauthId: string; oauthData: Record<string, unknown>; }>
+function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: boolean; oauthServer: "google"; oauthId: string; oauthData: Record<string, unknown>; }>
 ```
 
 - `code` — The authorization code from the OAuth callback.
@@ -168,5 +184,11 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_GOOGLE_CLIENT_ID` *(required)*
-- `OAUTH_GOOGLE_CLIENT_SECRET` *(required)*
+- `OAUTH_GOOGLE_CLIENT_ID` *(required)* — Google OAuth client ID
+  - Setup: Google Cloud Console → APIs & Services → Credentials → Create OAuth 2.0 Client ID (Web application); add your app origin and {apiUrl}/api/users/log-in/oauth as an authorized redirect URI.
+  - Get it here: [https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
+  - Example: `1234567890-abc.apps.googleusercontent.com`
+- `OAUTH_GOOGLE_CLIENT_SECRET` *(required)* — Google OAuth client secret
+  - Setup: Shown when creating the OAuth 2.0 Client ID in Google Cloud Console.
+  - Get it here: [https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
+  - Example: `GOCSPX-...`

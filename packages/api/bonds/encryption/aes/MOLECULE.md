@@ -104,4 +104,5 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `ENCRYPTION_KEY` *(required)*
+- `ENCRYPTION_KEY` *(required)* — AES-256 encryption key
+  - **Auto-generated at scaffold — no manual setup.**

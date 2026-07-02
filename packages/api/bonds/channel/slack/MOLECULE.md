@@ -213,8 +213,13 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `SLACK_BOT_TOKEN` *(required)*
-- `SLACK_SIGNING_SECRET` *(required)*
+- `SLACK_BOT_TOKEN` *(required)* — Slack bot token
+  - Setup: Create a Slack app, add bot scopes under OAuth & Permissions, install to your workspace, and copy the Bot User OAuth Token.
+  - Get it here: [https://api.slack.com/apps](https://api.slack.com/apps)
+  - Example: `xoxb-...`
+- `SLACK_SIGNING_SECRET` *(required)* — Slack signing secret
+  - Setup: Your Slack app → Basic Information → App Credentials → Signing Secret.
+  - Get it here: [https://api.slack.com/apps](https://api.slack.com/apps)
 
 Tokens are deliberately scrubbed from any error this provider raises;
 upstream stack traces that contain a token are still possible if a

@@ -282,16 +282,41 @@ function getTrashedItemById(trashId: string): Promise<TrashedItem | null>
 
 **Returns:** The trash row, or `null` if not found.
 
+#### `isTrashAdmin(res)`
+
+Resolves whether the current request's session belongs to an actor
+authorized to administer trash (inspect/restore/purge any user's rows).
+Fail-closed: returns `false` when there is no authenticated session, and
+otherwise only `true` when the session carries an admin claim — `isAdmin ===
+true`, `role === 'admin'`, `roles` containing `'admin'`, or `permissions`
+containing `'admin'` / `'trash:manage'`.
+
+```typescript
+function isTrashAdmin(res: MoleculeResponse): boolean
+```
+
+- `res` — The response whose `locals.session` is inspected.
+
+**Returns:** `true` when the session is an authorized trash admin.
+
 #### `list(req, res)`
 
 Lists paginated trash rows, defaulting to active-only and newest-first.
+
+Owner-scoped: the owner is derived from `res.locals.session.userId` and any
+client-supplied `req.query.userId` is IGNORED — trash rows capture snapshots
+of deleted records, so an unscoped list keyed off a client `userId` would be
+a one-request cross-tenant dump. Returns 401 when there is no authenticated
+session. When the opt-in {@link trashAdmin} middleware has set
+`res.locals.trashAdmin`, an admin may instead filter by any `req.query.userId`
+(or omit it to inspect every user's rows).
 
 ```typescript
 function list(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
-- `req` — The request, with optional `resourceType`, `userId`,
-- `res` — The response object.
+- `req` — The request, with optional `resourceType`, `limit`, `offset`,
+- `res` — The response object (reads `locals.session`/`locals.trashAdmin`).
 
 #### `listTrashedItems(options)`
 
@@ -362,12 +387,18 @@ function purgeItemHard(trashId: string): Promise<boolean>
 
 Reads a single trash row by ID.
 
+Owner-scoped: returns 401 with no session, and 404 when the row is missing
+OR owned by a different user — a non-owner cannot tell the two apart, so the
+existence of another user's deleted-record snapshot is never leaked. When the
+opt-in {@link trashAdmin} middleware has set `res.locals.trashAdmin`, an admin
+may read any user's row.
+
 ```typescript
 function read(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
 - `req` — The request with `trashId` param.
-- `res` — The response object.
+- `res` — The response object (reads `locals.session`/`locals.trashAdmin`).
 
 #### `registerRestoreCallback(resourceType, callback)`
 
@@ -425,16 +456,37 @@ function trash(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `req` — The request with `resourceType` / `resourceId` params and a snapshot body.
 - `res` — The response object.
 
+#### `trashAdmin()`
+
+Opt-in route middleware that *widens* an authenticated admin to cross-user
+trash inspection by setting `res.locals.trashAdmin = true`. It never blocks:
+a non-admin (or anonymous) caller passes through unchanged and remains
+owner-scoped in the handlers, so composing this onto a route can only widen
+for admins, never open the endpoint. Wire it onto a dedicated admin trash
+route when a support/compliance console needs to see every user's rows.
+
+```typescript
+function trashAdmin(): MoleculeRequestHandler
+```
+
+**Returns:** An Express-compatible middleware function.
+
 #### `trashCount(req, res)`
 
 Returns the count of active trash rows matching the optional filters.
+
+Owner-scoped: the owner is derived from `res.locals.session.userId` and any
+client-supplied `req.query.userId` is IGNORED, so a caller can only count
+their own trash. Returns 401 when there is no authenticated session. When the
+opt-in {@link trashAdmin} middleware has set `res.locals.trashAdmin`, an admin
+may instead count by any `req.query.userId` (or omit it to count all users').
 
 ```typescript
 function trashCount(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
-- `req` — The request, with optional `resourceType` and `userId`
-- `res` — The response object.
+- `req` — The request, with optional `resourceType` and `includeInactive`
+- `res` — The response object (reads `locals.session`/`locals.trashAdmin`).
 
 #### `trashItem(input)`
 
@@ -481,10 +533,38 @@ const restoreFromTrashSchema: z.ZodObject<{ reason: z.ZodOptional<z.ZodNullable<
 
 #### `routes`
 
-Routes for the trash helper.
+Routes for the trash helper. All routes require `authenticate`; the
+handlers additionally scope every read/mutation to the caller's `userId`.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/:resourceType/:resourceId/trash"; readonly handler: "trash"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/trash"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/trash/count"; readonly handler: "trashCount"; }, { readonly method: "get"; readonly path: "/trash/:trashId"; readonly handler: "read"; }, { readonly method: "post"; readonly path: "/trash/:trashId/restore"; readonly handler: "restore"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/trash/:trashId/purge"; readonly handler: "purge"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [{ readonly method: "post"; readonly path: "/:resourceType/:resourceId/trash"; readonly handler: "trash"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/trash"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/trash/count"; readonly handler: "trashCount"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/trash/:trashId"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/trash/:trashId/restore"; readonly handler: "restore"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/trash/:trashId/purge"; readonly handler: "purge"; readonly middlewares: readonly ["authenticate"]; }]
+```
+
+#### `TRASH_ADMIN_PERMISSION`
+
+Session-claim permission string (`'trash:manage'`) that, when present in a
+session's `permissions` array, marks the caller as a trash admin.
+
+```typescript
+const TRASH_ADMIN_PERMISSION: "trash:manage"
+```
+
+#### `TRASH_PERMISSION_ACTION`
+
+Permission action describing trash administration, e.g. for an app's own
+`@molecule/api-permissions` wiring.
+
+```typescript
+const TRASH_PERMISSION_ACTION: "manage"
+```
+
+#### `TRASH_PERMISSION_RESOURCE`
+
+Permission resource describing trash administration, e.g. for an app's own
+`@molecule/api-permissions` wiring.
+
+```typescript
+const TRASH_PERMISSION_RESOURCE: "trash"
 ```
 
 #### `trashItemSchema`

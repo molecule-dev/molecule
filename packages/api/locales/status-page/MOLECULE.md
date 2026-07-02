@@ -4,7 +4,7 @@ Translations for molecule status resource in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/api-status-page` package which has 13 translation keys.
+Provides translations for the `@molecule/api-status-page` package which has 14 translation keys.
 
 ## Languages
 
@@ -21,6 +21,7 @@ import type { StatusTranslationKey, StatusTranslations } from '@molecule/api-loc
 
 | Key | English |
 |-----|---------|
+| `status.error.forbidden` | Forbidden |
 | `status.error.serviceNotFound` | Service not found. |
 | `status.error.incidentNotFound` | Incident not found. |
 | `status.error.validationFailed` | Validation failed: {{errors}} |

@@ -52,4 +52,7 @@ Implements `@molecule/api-ai` interface.
 
 ### Environment Variables
 
-- `GOOGLE_AI_API_KEY` *(required)*
+- `GOOGLE_AI_API_KEY` *(required)* — Google AI (Gemini) API key
+  - Setup: Create a Gemini API key in Google AI Studio.
+  - Get it here: [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+  - Example: `AIza...`

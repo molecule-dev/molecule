@@ -656,5 +656,9 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_FITBIT_CLIENT_ID` *(required)*
-- `OAUTH_FITBIT_CLIENT_SECRET` *(optional)*
+- `OAUTH_FITBIT_CLIENT_ID` *(required)* — Fitbit OAuth client ID
+  - Setup: Register an application at dev.fitbit.com and copy the OAuth 2.0 Client ID.
+  - Get it here: [https://dev.fitbit.com/apps](https://dev.fitbit.com/apps)
+- `OAUTH_FITBIT_CLIENT_SECRET` *(optional)* — Fitbit client secret
+  - Setup: Shown on your registered Fitbit application page.
+  - Get it here: [https://dev.fitbit.com/apps](https://dev.fitbit.com/apps)

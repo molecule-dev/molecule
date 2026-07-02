@@ -73,6 +73,12 @@ interface MoleculeRequest {
   query: Record<string, any>
   headers: Record<string, string | string[] | undefined>
   cookies?: Record<string, string>
+  /**
+   * Client IP address. Populated by Express (honoring `trust proxy`) and other
+   * frameworks; optional because it isn't guaranteed in every adapter. Used for
+   * IP-keyed rate limiting on auth endpoints.
+   */
+  ip?: string
   on?(event: string, listener: (...args: unknown[]) => void): void
 }
 ```

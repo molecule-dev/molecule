@@ -137,4 +137,6 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `COINMARKETCAP_API_KEY` *(required)*
+- `COINMARKETCAP_API_KEY` *(required)* — CoinMarketCap API key
+  - Setup: Sign up for the CoinMarketCap API (free tier available) and copy your key.
+  - Get it here: [https://pro.coinmarketcap.com/account](https://pro.coinmarketcap.com/account)

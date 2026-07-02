@@ -298,5 +298,9 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `CHANNEL_MESSENGER_PAGE_ACCESS_TOKEN` *(required)*
-- `CHANNEL_MESSENGER_APP_SECRET` *(required)*
+- `CHANNEL_MESSENGER_PAGE_ACCESS_TOKEN` *(required)* — Messenger page access token
+  - Setup: Create a Meta app with the Messenger product and generate a Page access token for your page.
+  - Get it here: [https://developers.facebook.com/apps](https://developers.facebook.com/apps)
+- `CHANNEL_MESSENGER_APP_SECRET` *(required)* — Meta app secret
+  - Setup: Your Meta app → App settings → Basic → App secret.
+  - Get it here: [https://developers.facebook.com/apps](https://developers.facebook.com/apps)

@@ -199,18 +199,37 @@ function acceptInvite(token: string, userId: string): Promise<WorkspaceMember>
 
 **Returns:** The new (or existing) membership row.
 
+#### `assertCanGrantRole(callerRole, targetRole)`
+
+Asserts the caller may grant `targetRole`. A member may never grant a role
+strictly higher than their own — an admin may grant up to `admin`, and only
+an owner may grant `owner`. Throws `workspace.error.cannotGrantHigherRole`
+otherwise. Fails closed: the caller's authority is derived from `callerRole`,
+never from the requested role.
+
+```typescript
+function assertCanGrantRole(callerRole: "member" | "admin" | "owner", targetRole: "member" | "admin" | "owner"): void
+```
+
+- `callerRole` — The granting caller's own role.
+- `targetRole` — The role the caller is attempting to assign.
+
 #### `assertMember(workspaceId, userId, minRole)`
 
 Asserts that `userId` is a member of `workspaceId` with at least `minRole`.
-Throws when the user is not a member or has insufficient role.
+Throws when the user is not a member or has insufficient role. Returns the
+caller's membership row so callers can authorize against the caller's own
+role (e.g. to block granting a role higher than their own).
 
 ```typescript
-function assertMember(workspaceId: string, userId: string, minRole?: "member" | "admin" | "owner"): Promise<void>
+function assertMember(workspaceId: string, userId: string, minRole?: "member" | "admin" | "owner"): Promise<WorkspaceMember>
 ```
 
 - `workspaceId` — Workspace to check membership in.
 - `userId` — User whose membership to check.
 - `minRole` — Minimum role required (defaults to `member`).
+
+**Returns:** The caller's membership row.
 
 #### `create(req, res)`
 
@@ -315,17 +334,18 @@ function invite(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `req` — The request with `:id` (workspace id) param and body `{ email, role? }`.
 - `res` — The response object.
 
-#### `inviteMember(workspaceId, email, role, ttlMs)`
+#### `inviteMember(workspaceId, email, callerRole, role, ttlMs)`
 
 Creates an invite record for an email. Idempotent on (workspace, email)
 pending invites — returns the existing pending invite if one exists.
 
 ```typescript
-function inviteMember(workspaceId: string, email: string, role?: "member" | "admin" | "owner", ttlMs?: number): Promise<WorkspaceInvite>
+function inviteMember(workspaceId: string, email: string, callerRole: "member" | "admin" | "owner", role?: "member" | "admin" | "owner", ttlMs?: number): Promise<WorkspaceInvite>
 ```
 
 - `workspaceId` — The workspace to invite into.
 - `email` — The invitee's email.
+- `callerRole` — The inviting caller's own role (for escalation guard).
 - `role` — The role to grant on accept (defaults to `member`).
 - `ttlMs` — Override the default 7-day expiry (in milliseconds).
 
@@ -495,17 +515,20 @@ function update(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `req` — The request with `:id` param and patch body.
 - `res` — The response object.
 
-#### `updateMemberRole(workspaceId, userId, role)`
+#### `updateMemberRole(workspaceId, userId, role, callerRole)`
 
-Updates a member's role. The sole `owner` cannot be demoted.
+Updates a member's role. The sole `owner` cannot be demoted. The caller may
+not assign a role strictly higher than their own `callerRole` — an admin can
+grant up to `admin`; only an owner can grant `owner`.
 
 ```typescript
-function updateMemberRole(workspaceId: string, userId: string, role: "member" | "admin" | "owner"): Promise<WorkspaceMember>
+function updateMemberRole(workspaceId: string, userId: string, role: "member" | "admin" | "owner", callerRole: "member" | "admin" | "owner"): Promise<WorkspaceMember>
 ```
 
 - `workspaceId` — Workspace.
 - `userId` — Member to update.
 - `role` — New role.
+- `callerRole` — The acting caller's own role (for escalation guard).
 
 **Returns:** The updated membership.
 

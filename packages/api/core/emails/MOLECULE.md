@@ -202,11 +202,11 @@ function setTransport(transport: EmailTransport): void
 
 | Provider | Package |
 |----------|---------|
+| Capture | `@molecule/api-emails-capture` |
 | Mailgun | `@molecule/api-emails-mailgun` |
 | SendGrid | `@molecule/api-emails-sendgrid` |
 | Sendmail | `@molecule/api-emails-sendmail` |
 | AWS SES | `@molecule/api-emails-ses` |
-| Capture | `@molecule/api-emails-capture` |
 
 ## Injection Notes
 

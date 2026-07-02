@@ -110,4 +110,6 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `MOLECULE_ACTIVITY_URL` *(optional)*
+- `MOLECULE_ACTIVITY_URL` *(optional)* — molecule.dev activity capture URL
+  - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
+  - Setup: Endpoint for captured side effects (emails/SMS/webhooks) in molecule.dev sandboxes — provisioned automatically.

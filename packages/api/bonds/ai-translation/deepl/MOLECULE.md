@@ -61,4 +61,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `DEEPL_API_KEY` *(required)*
+- `DEEPL_API_KEY` *(required)* — DeepL API key
+  - Setup: Copy the authentication key from your DeepL account (free keys end with ":fx").
+  - Get it here: [https://www.deepl.com/en/your-account/keys](https://www.deepl.com/en/your-account/keys)
+  - Example: `279a2e9d-...:fx`

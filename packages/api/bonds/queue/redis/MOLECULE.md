@@ -285,4 +285,6 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `REDIS_URL` *(required)* — default: `redis://localhost:6379`
+- `REDIS_URL` *(required)* — Redis connection URL — default: `redis://localhost:6379`
+  - Setup: Connection URL of your Redis instance (redis:// or rediss:// for TLS).
+  - Example: `redis://localhost:6379`

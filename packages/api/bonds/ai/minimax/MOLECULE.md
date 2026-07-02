@@ -81,4 +81,6 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `MINIMAX_API_KEY` *(required)*
+- `MINIMAX_API_KEY` *(required)* — MiniMax API key
+  - Setup: Create an interface key in the MiniMax platform user center.
+  - Get it here: [https://platform.minimax.io/](https://platform.minimax.io/)

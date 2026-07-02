@@ -247,8 +247,8 @@ function setProvider(provider: PushNotificationProvider): void
 
 | Provider | Package |
 |----------|---------|
-| Web Push (VAPID) | `@molecule/api-push-notifications-web-push` |
 | Capture | `@molecule/api-push-capture` |
+| Web Push (VAPID) | `@molecule/api-push-notifications-web-push` |
 
 ## Injection Notes
 

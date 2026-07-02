@@ -223,5 +223,9 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `AMADEUS_CLIENT_ID` *(required)*
-- `AMADEUS_CLIENT_SECRET` *(required)*
+- `AMADEUS_CLIENT_ID` *(required)* — Amadeus API key
+  - Setup: Create an app in Amadeus for Developers (Self-Service) and copy the API Key.
+  - Get it here: [https://developers.amadeus.com/my-apps](https://developers.amadeus.com/my-apps)
+- `AMADEUS_CLIENT_SECRET` *(required)* — Amadeus API secret
+  - Setup: Copy the API Secret from your Amadeus app page.
+  - Get it here: [https://developers.amadeus.com/my-apps](https://developers.amadeus.com/my-apps)

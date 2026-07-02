@@ -1844,7 +1844,7 @@ const toastViewport: "fixed top-0 z-[1600] flex max-h-screen w-full flex-col-rev
 Tooltip content container classes.
 
 ```typescript
-const tooltipContent: "z-[1500] overflow-hidden rounded-md border bg-surface px-3 py-1.5 text-sm text-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+const tooltipContent: "z-[1500] max-w-[90vw] overflow-hidden whitespace-nowrap rounded-md border bg-surface px-3 py-1.5 text-sm text-foreground shadow-md animate-in fade-in-0 zoom-in-95"
 ```
 
 #### `tooltipTrigger`

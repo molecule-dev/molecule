@@ -298,7 +298,9 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `RABBITMQ_URL` *(required)* — default: `amqp://localhost`
+- `RABBITMQ_URL` *(required)* — RabbitMQ connection URL — default: `amqp://localhost`
+  - Setup: AMQP connection URL of your RabbitMQ instance.
+  - Example: `amqp://guest:guest@localhost:5672`
 
 ## Translations
 

@@ -100,6 +100,14 @@ interface AuthClient<T = UserProfile> {
      */
     getAccessToken(): string | null;
     /**
+     * Stores the access token in the configured token storage adapter (in-memory
+     * by default). Use this to seed the token after an out-of-band exchange (e.g.
+     * the OAuth code→token redirect) instead of writing to `localStorage` directly,
+     * which would violate the in-memory-default storage contract and make the bearer
+     * token JS-readable (XSS-exfiltratable). Pass `null` to clear it.
+     */
+    setAccessToken(token: string | null): void;
+    /**
      * Gets the refresh token.
      */
     getRefreshToken(): string | null;

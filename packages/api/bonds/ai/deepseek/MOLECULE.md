@@ -89,4 +89,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `DEEPSEEK_API_KEY` *(required)*
+- `DEEPSEEK_API_KEY` *(required)* — DeepSeek API key
+  - Setup: Create an API key on the DeepSeek open platform.
+  - Get it here: [https://platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys)
+  - Example: `sk-...`

@@ -424,5 +424,8 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `MEILISEARCH_URL` *(required)*
-- `MEILISEARCH_API_KEY` *(required)*
+- `MEILISEARCH_URL` *(required)* — Meilisearch URL
+  - Setup: Origin of your Meilisearch instance.
+  - Example: `http://localhost:7700`
+- `MEILISEARCH_API_KEY` *(required)* — Meilisearch API key
+  - Setup: The master key (or a scoped API key) you configured when launching Meilisearch (--master-key / MEILI_MASTER_KEY).

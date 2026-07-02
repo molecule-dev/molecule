@@ -79,4 +79,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `DASHSCOPE_API_KEY` *(required)*
+- `DASHSCOPE_API_KEY` *(required)* — Alibaba DashScope API key
+  - Setup: Create an API key in Alibaba Cloud Model Studio (DashScope).
+  - Get it here: [https://www.alibabacloud.com/help/en/model-studio/get-api-key](https://www.alibabacloud.com/help/en/model-studio/get-api-key)
+  - Example: `sk-...`

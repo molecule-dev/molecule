@@ -380,7 +380,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `EASYPOST_API_KEY` *(required)*
+- `EASYPOST_API_KEY` *(required)* — EasyPost API key
+  - Setup: Copy the test or production API key from EasyPost → Account → API Keys.
+  - Get it here: [https://app.easypost.com/account/api-keys](https://app.easypost.com/account/api-keys)
+  - Example: `EZAK...`
 
 Requires `EASYPOST_API_KEY` in the environment. Optionally
 `EASYPOST_API_URL` to override the base URL (sandbox / proxy).

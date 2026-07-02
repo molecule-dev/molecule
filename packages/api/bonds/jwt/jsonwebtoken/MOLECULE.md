@@ -47,5 +47,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `JWT_PRIVATE_KEY` *(required)*
-- `JWT_PUBLIC_KEY` *(required)*
+- `JWT_PRIVATE_KEY` *(required)* — JWT signing key (RSA private)
+  - **Auto-generated at scaffold — no manual setup.**
+- `JWT_PUBLIC_KEY` *(required)* — JWT verification key (RSA public)
+  - **Auto-generated at scaffold — no manual setup.**

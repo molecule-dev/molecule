@@ -377,7 +377,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `SHIPPO_API_KEY` *(required)*
+- `SHIPPO_API_KEY` *(required)* — Shippo API token
+  - Setup: Copy the test or live token from Shippo → Settings → API.
+  - Get it here: [https://apps.goshippo.com/settings/api](https://apps.goshippo.com/settings/api)
+  - Example: `shippo_test_...`
 
 Requires `SHIPPO_API_KEY` in the environment (test or live token).
 Optionally `SHIPPO_API_URL` to override the base URL (sandbox / proxy).

@@ -87,5 +87,8 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `WEBHOOK_URL` *(required)*
-- `WEBHOOK_SECRET` *(optional)*
+- `WEBHOOK_URL` *(required)* — Notification webhook URL
+  - Setup: HTTPS endpoint that receives notification POSTs from your app.
+  - Example: `https://example.com/hooks/notify`
+- `WEBHOOK_SECRET` *(optional)* — Notification webhook signing secret
+  - **Auto-generated at scaffold — no manual setup.**

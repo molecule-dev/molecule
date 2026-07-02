@@ -391,7 +391,10 @@ standalone routes render (`content.privacyPolicy` /
 `content.termsOfService`), so every legal surface stays in sync.
 
 ```typescript
-function useLegalModals({ appName, loadContent }?: UseLegalModalsOptions): LegalModalsApi
+function useLegalModals({
+  appName,
+  loadContent,
+}?: UseLegalModalsOptions): LegalModalsApi
 ```
 
 - `options` — See {@link UseLegalModalsOptions}.

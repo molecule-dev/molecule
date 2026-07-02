@@ -101,4 +101,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `MAPBOX_ACCESS_TOKEN` *(required)*
+- `MAPBOX_ACCESS_TOKEN` *(required)* — Mapbox access token
+  - Setup: Copy the default public token (or create a scoped one) from your Mapbox account.
+  - Get it here: [https://account.mapbox.com/access-tokens/](https://account.mapbox.com/access-tokens/)
+  - Example: `pk.ey...`

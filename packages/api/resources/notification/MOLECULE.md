@@ -141,6 +141,10 @@ interface PaginatedResult<T> {
 
 Handles DELETE /notifications/:id requests.
 
+Requires an authenticated session and only deletes the requester's own
+notification — a notification belonging to another user (or a non-existent
+id) yields a 404, never deleting someone else's row (IDOR).
+
 ```typescript
 function del(req: Request<{ id: string; }, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
 ```
@@ -153,11 +157,32 @@ function del(req: Request<{ id: string; }, any, any, ParsedQs, Record<string, an
 Handles GET /notifications/preferences requests.
 
 ```typescript
-function getPreferencesHandler(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
+function getPreferencesHandler(_req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
 ```
 
 - `req` — Express request with authenticated user.
 - `res` — Express response.
+
+#### `getSessionUserId(res)`
+
+Read the authenticated user's id off `res.locals.session` — the molecule JWT
+session convention (the same value `getUserId(res)` from the default Express
+bonds returns). Returns null when unauthenticated.
+
+The resource reads the session directly rather than importing the framework's
+`getUserId`, because `@molecule/api-bonds-default-express` depends on resources
+(incl. this one's siblings), so importing it here would invert the dependency
+direction. The handlers previously read `req.user.id`, which NOTHING populates
+in a molecule app — so every user-scoped notification endpoint 500'd at runtime
+("Cannot read properties of undefined (reading 'id')").
+
+```typescript
+function getSessionUserId(res: Response<any, Record<string, any>>): string | null
+```
+
+- `res` — The Express response carrying `res.locals.session`.
+
+**Returns:** The authenticated user's id, or null if there is no session.
 
 #### `list(req, res)`
 
@@ -175,7 +200,7 @@ function list(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, 
 Handles POST /notifications/read-all requests.
 
 ```typescript
-function markAllReadHandler(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
+function markAllReadHandler(_req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
 ```
 
 - `req` — Express request with authenticated user.
@@ -184,6 +209,10 @@ function markAllReadHandler(req: Request<ParamsDictionary, any, any, ParsedQs, R
 #### `markReadHandler(req, res)`
 
 Handles POST /notifications/:id/read requests.
+
+Requires an authenticated session and only affects the requester's own
+notification — a notification belonging to another user (or a non-existent
+id) yields a 404, never silently mutating someone else's row (IDOR).
 
 ```typescript
 function markReadHandler(req: Request<{ id: string; }, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
@@ -197,7 +226,7 @@ function markReadHandler(req: Request<{ id: string; }, any, any, ParsedQs, Recor
 Handles GET /notifications/unread-count requests.
 
 ```typescript
-function unreadCount(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
+function unreadCount(_req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
 ```
 
 - `req` — Express request with authenticated user.

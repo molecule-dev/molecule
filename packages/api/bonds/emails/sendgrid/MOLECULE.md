@@ -170,4 +170,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `SENDGRID_API_KEY` *(required)*
+- `SENDGRID_API_KEY` *(required)* — SendGrid API key
+  - Setup: SendGrid → Settings → API Keys → Create API Key with Mail Send permission.
+  - Get it here: [https://app.sendgrid.com/settings/api_keys](https://app.sendgrid.com/settings/api_keys)
+  - Example: `SG....`

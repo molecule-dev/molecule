@@ -59,4 +59,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OPENAI_API_KEY` *(required)*
+- `OPENAI_API_KEY` *(required)* — OpenAI API key
+  - Setup: Create a secret key on the OpenAI platform (API keys page).
+  - Get it here: [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+  - Example: `sk-proj-...`

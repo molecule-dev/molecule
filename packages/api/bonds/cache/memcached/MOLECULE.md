@@ -176,4 +176,6 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `MEMCACHED_SERVERS` *(required)* — default: `localhost:11211`
+- `MEMCACHED_SERVERS` *(required)* — Memcached servers — default: `localhost:11211`
+  - Setup: Comma-separated host:port list of memcached servers.
+  - Example: `localhost:11211`

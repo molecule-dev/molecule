@@ -17,6 +17,22 @@ npm install @molecule/app-react-native
 
 ### Interfaces
 
+#### `AgentIdentity`
+
+Display identity for the AI coding agent and the host product, used to
+interpolate the `{{agentName}}` / `{{productName}}` tokens in shared chat/IDE
+copy. A consuming app sets these to its own agent + product brand names; the
+shared packages fall back to {@link DEFAULT_AGENT_IDENTITY} when it does not.
+
+```typescript
+interface AgentIdentity {
+    /** Display name of the AI coding agent. Defaults to {@link DEFAULT_AGENT_NAME}. */
+    agentName: string;
+    /** Display name of the host product / IDE. Defaults to {@link DEFAULT_PRODUCT_NAME}. */
+    productName: string;
+}
+```
+
 #### `AuthClient`
 
 Auth client interface that all auth bond packages must implement.
@@ -48,6 +64,14 @@ interface AuthClient<T = UserProfile> {
      * Gets the current access token.
      */
     getAccessToken(): string | null;
+    /**
+     * Stores the access token in the configured token storage adapter (in-memory
+     * by default). Use this to seed the token after an out-of-band exchange (e.g.
+     * the OAuth code→token redirect) instead of writing to `localStorage` directly,
+     * which would violate the in-memory-default storage contract and make the bearer
+     * token JS-readable (XSS-exfiltratable). Pass `null` to clear it.
+     */
+    setAccessToken(token: string | null): void;
     /**
      * Gets the refresh token.
      */
@@ -579,6 +603,23 @@ interface SendMessageOptions {
      * shown in-card) rather than echoed as a separate message below it.
      */
     suppressUserMessage?: boolean;
+    /**
+     * Mark this send as issued automatically on the user's behalf (e.g. an
+     * auto-fix prompt). The optimistic local bubble and the persisted message are
+     * flagged `automatic` so the chat renders it in the distinct auto-sent style
+     * (agent avatar + accent border) instead of looking like the user typed it.
+     */
+    automatic?: boolean;
+    /**
+     * Mark this send as the answer to the pending `ask_user` question. The most
+     * recent unanswered `ask_user` tool call in the store is resolved in place —
+     * its `output` is set to this answer — so the chosen option stays checked
+     * across remounts (e.g. the discovery→IDE transition) instead of relying on
+     * ephemeral component state that the answer's selection would otherwise lose.
+     * Distinct from {@link suppressUserMessage} (which the post-boot kickoff also
+     * sets) so resolving never misfires on a non-ask_user suppressed send.
+     */
+    askUserAnswer?: boolean;
 }
 ```
 
@@ -776,6 +817,13 @@ interface UseChatOptions {
     endpoint: string;
     /** Project ID for context. */
     projectId?: string;
+    /**
+     * Display name of the AI coding agent, interpolated into user-facing chat
+     * copy (e.g. the stalled-stream notice). The host passes its own agent brand
+     * name; defaults to the neutral `DEFAULT_AGENT_NAME` so the shared hook never
+     * names a specific product.
+     */
+    agentName?: string;
     /** Load history on mount. */
     loadOnMount?: boolean;
     /** Called when a file is created or modified by a tool call (path + new content). */
@@ -805,10 +853,34 @@ interface UseChatResult {
     } | null;
     /** Current agent mode — plan (read-only research) or execute (full access). */
     mode: 'plan' | 'execute';
+    /**
+     * Transient label for a background phase (e.g. the post-response verification
+     * pass — "Type-checking the API", "Linting"), set by `status` stream events.
+     * The UI shows it in place of the spinner's generic rotating messages; `null`
+     * when no such phase is active.
+     */
+    streamingStatus: string | null;
+    /**
+     * Active 5XX backoff-retry countdown, or `null` when none is pending. After a
+     * backend server error (HTTP 5XX) the hook does NOT surface a terminal error —
+     * it shows this cancelable countdown and, when it elapses, auto-resumes the
+     * turn where the user left off (`resume:true`). `secondsRemaining` ticks down
+     * once per second; `attempt` is the 1-based retry number (capped at 3). 4XX,
+     * limit/quota, and signup-required errors never auto-retry.
+     */
+    retryCountdown: {
+        secondsRemaining: number;
+        attempt: number;
+    } | null;
     /** Update the local mode state (for instant mode toggle without an AI turn). */
     setMode: (mode: 'plan' | 'execute') => void;
     sendMessage: (message: string, attachments?: ChatAttachment[], options?: SendMessageOptions) => Promise<void>;
     abort: () => void;
+    /**
+     * Cancel a pending 5XX auto-retry. Clears the countdown and surfaces the
+     * original error (via `error`) so the user sees why the turn failed.
+     */
+    cancelRetry: () => void;
     clearHistory: () => Promise<void>;
     /** Edit the content of a queued (not yet sent) message. */
     editQueuedMessage: (msgId: string, newContent: string) => void;
@@ -816,6 +888,13 @@ interface UseChatResult {
     deleteQueuedMessage: (msgId: string) => void;
     /** Remove queued auto-fix messages whose content references the given file path. */
     clearQueuedForFile: (filePath: string) => void;
+    /**
+     * Append an inline transcript card (model / mode / skills / custom notice) as a
+     * `role:'system'` card-message in the ONE message store. Used by the host (ChatPanel)
+     * to render a TEAMMATE's broadcast `card` event live — this client's OWN cards arrive
+     * through the stream and are appended internally. De-duped by the server-assigned id.
+     */
+    appendCardMessage: (id: string, timestamp: number, card: NonNullable<ChatMessage['cardEvent']>) => void;
 }
 ```
 
@@ -975,7 +1054,15 @@ Return type for useOAuth hook.
 interface UseOAuthReturn {
     providers: string[];
     getOAuthUrl: (provider: string) => string;
+    /** Full-page redirect to the provider (default). The opener page navigates away. */
     redirect: (provider: string) => void;
+    /**
+     * Open the provider in a popup so the opener page does NOT navigate. On success
+     * the session is established in the opener in place and `config.onSuccess` fires;
+     * on failure `config.onError` fires. Falls back to a full-page {@link redirect}
+     * when the popup is blocked.
+     */
+    loginViaPopup: (provider: string) => void;
 }
 ```
 
@@ -1023,6 +1110,18 @@ interface UsePreviewResult {
     refresh: () => void;
     setDevice: (device: DeviceFrame) => void;
     openExternal: () => void;
+    /**
+     * Records a navigation the running preview reported via its `molecule:navigate`
+     * message — updates the displayed current location without reloading the iframe.
+     * Pass `isReplace` when the preview REPLACED its current history entry (a
+     * `replaceState` redirect/canonicalization) so the forward stack is preserved
+     * instead of truncated (a `pushState`, the default, truncates forward).
+     */
+    recordNavigation: (url: string, isReplace?: boolean) => void;
+    /** Navigates the preview to the previous navigation-history entry (Back). */
+    back: () => void;
+    /** Navigates the preview to the next navigation-history entry (Forward). */
+    forward: () => void;
 }
 ```
 
@@ -1838,9 +1937,10 @@ function useNavigate(): (path: string, options?: NavigateOptions) => void
 Hook for OAuth authentication.
 
 Reads OAuth configuration from the provided config and provides
-helpers to build OAuth URLs and redirect to providers.
+helpers to build OAuth URLs and start a login (full-page or popup).
 Automatically handles OAuth callbacks by detecting `code` and `state`
-URL parameters and exchanging them for a session.
+URL parameters and exchanging them for a session — and, when the callback is
+running inside a popup we opened, relaying the result to the opener instead.
 
 ```typescript
 function useOAuth(config?: { baseURL?: string; oauthProviders?: string[]; oauthEndpoint?: string; loginEndpoint?: string; onSuccess?: () => void; onError?: (error: string) => void; }): UseOAuthReturn
@@ -1854,7 +1954,7 @@ function useOAuth(config?: { baseURL?: string; oauthProviders?: string[]; oauthE
 - `config` — .onSuccess - Callback after successful OAuth login.
 - `config` — .onError - Callback on OAuth login failure.
 
-**Returns:** OAuth helpers: available providers list, getOAuthUrl builder, and redirect function.
+**Returns:** OAuth helpers: providers, getOAuthUrl, redirect, and loginViaPopup.
 
 #### `useParams()`
 
@@ -2253,6 +2353,32 @@ Context for AI chat provider.
 
 ```typescript
 const ChatContext: Context<ChatProvider | null>
+```
+
+#### `DEFAULT_AGENT_IDENTITY`
+
+The neutral default identity ({@link DEFAULT_AGENT_NAME} +
+{@link DEFAULT_PRODUCT_NAME}) the shared packages use until a consuming app
+passes its own.
+
+```typescript
+const DEFAULT_AGENT_IDENTITY: AgentIdentity
+```
+
+#### `DEFAULT_AGENT_NAME`
+
+Neutral, product-agnostic agent name used when the host supplies none.
+
+```typescript
+const DEFAULT_AGENT_NAME: "the assistant"
+```
+
+#### `DEFAULT_PRODUCT_NAME`
+
+Neutral, product-agnostic product/IDE name used when the host supplies none.
+
+```typescript
+const DEFAULT_PRODUCT_NAME: "the IDE"
 ```
 
 #### `EditorContext`

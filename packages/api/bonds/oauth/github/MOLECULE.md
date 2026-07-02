@@ -35,6 +35,22 @@ interface OAuthUserProps {
      */
     email?: string;
     /**
+     * Whether the OAuth provider has affirmatively verified that the user
+     * controls this `email` mailbox.
+     *
+     * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
+     * `email_verified`, Apple's `email_verified` ID-token claim). When the
+     * provider exposes no trustworthy verification signal in the profile data
+     * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
+     * `true`) — consumers treat only an explicit `true` as verified.
+     *
+     * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
+     * decide whether a provider-supplied email may be trusted over an existing,
+     * unverified local account — preventing an unverified squatter from blocking
+     * the verified mailbox owner.
+     */
+    emailVerified?: boolean;
+    /**
      * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
      */
     oauthServer: string;
@@ -74,7 +90,7 @@ via `OAUTH_GITHUB_TOKEN_URL` and `OAUTH_GITHUB_USER_URL` for GitHub
 Enterprise deployments or E2E mock servers.
 
 ```typescript
-function verify(code: string, codeVerifier?: string): Promise<{ username: string; email: string | undefined; oauthServer: "github"; oauthId: string; oauthData: Record<string, unknown>; }>
+function verify(code: string, codeVerifier?: string): Promise<{ username: string; email: string | undefined; emailVerified: boolean; oauthServer: "github"; oauthId: string; oauthData: Record<string, unknown>; }>
 ```
 
 - `code` — The authorization code from the OAuth callback.
@@ -119,5 +135,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_GITHUB_CLIENT_ID` *(required)*
-- `OAUTH_GITHUB_CLIENT_SECRET` *(required)*
+- `OAUTH_GITHUB_CLIENT_ID` *(required)* — GitHub OAuth client ID
+  - Setup: GitHub → Settings → Developer settings → OAuth Apps → New OAuth App; set the callback URL to {apiUrl}/api/users/log-in/oauth.
+  - Get it here: [https://github.com/settings/developers](https://github.com/settings/developers)
+  - Example: `Iv1.abc123...`
+- `OAUTH_GITHUB_CLIENT_SECRET` *(required)* — GitHub OAuth client secret
+  - Setup: Generate a client secret on your GitHub OAuth App page.
+  - Get it here: [https://github.com/settings/developers](https://github.com/settings/developers)

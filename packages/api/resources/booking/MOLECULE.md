@@ -234,7 +234,7 @@ function checkAvailability(req: MoleculeRequest, res: MoleculeResponse): Promise
 
 #### `complete(req, res)`
 
-Marks a confirmed booking as completed.
+Marks a confirmed booking as completed. Only the booking owner can complete.
 
 ```typescript
 function complete(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
@@ -258,7 +258,7 @@ function computeEndTime(startTime: string, durationMinutes: number): string
 
 #### `confirm(req, res)`
 
-Confirms a pending booking.
+Confirms a pending booking. Only the booking owner can confirm.
 
 ```typescript
 function confirm(req: MoleculeRequest, res: MoleculeResponse): Promise<void>

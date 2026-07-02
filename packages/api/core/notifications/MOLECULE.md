@@ -147,7 +147,6 @@ function setProvider(name: string, provider: NotificationsProvider): void
 
 | Provider | Package |
 |----------|---------|
-| Notifications | `@molecule/api-notification-center-database` |
 | Slack | `@molecule/api-notifications-slack` |
 | Webhook | `@molecule/api-notifications-webhook` |
 

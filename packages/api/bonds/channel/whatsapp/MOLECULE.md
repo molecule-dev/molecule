@@ -396,9 +396,15 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `CHANNEL_WHATSAPP_ACCESS_TOKEN` *(required)*
-- `CHANNEL_WHATSAPP_PHONE_NUMBER_ID` *(required)*
-- `CHANNEL_WHATSAPP_APP_SECRET` *(required)*
+- `CHANNEL_WHATSAPP_ACCESS_TOKEN` *(required)* — WhatsApp access token
+  - Setup: Create a Meta app with the WhatsApp product and generate a permanent access token (System User).
+  - Get it here: [https://developers.facebook.com/apps](https://developers.facebook.com/apps)
+- `CHANNEL_WHATSAPP_PHONE_NUMBER_ID` *(required)* — WhatsApp phone number ID
+  - Setup: WhatsApp → API Setup → Phone number ID (not the phone number itself).
+  - Get it here: [https://developers.facebook.com/apps](https://developers.facebook.com/apps)
+- `CHANNEL_WHATSAPP_APP_SECRET` *(required)* — Meta app secret (WhatsApp)
+  - Setup: Your Meta app → App settings → Basic → App secret (verifies webhook signatures).
+  - Get it here: [https://developers.facebook.com/apps](https://developers.facebook.com/apps)
 
 Outbound messages outside the WhatsApp 24-hour customer-service window
 MUST be sent as approved templates. The provider exposes
