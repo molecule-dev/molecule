@@ -477,7 +477,18 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_APPLE_CLIENT_ID` *(required)*
-- `OAUTH_APPLE_TEAM_ID` *(required)*
-- `OAUTH_APPLE_KEY_ID` *(required)*
-- `OAUTH_APPLE_PRIVATE_KEY` *(required)*
+- `OAUTH_APPLE_CLIENT_ID` *(required)* — Apple Services ID
+  - Setup: Apple Developer → Identifiers → create a Services ID with "Sign in with Apple" enabled.
+  - Get it here: [https://developer.apple.com/account/resources/identifiers/list/serviceId](https://developer.apple.com/account/resources/identifiers/list/serviceId)
+  - Example: `com.example.app.signin`
+- `OAUTH_APPLE_TEAM_ID` *(required)* — Apple Team ID
+  - Setup: The 10-character Team ID from your Apple Developer membership details.
+  - Get it here: [https://developer.apple.com/account](https://developer.apple.com/account)
+  - Example: `A1B2C3D4E5`
+- `OAUTH_APPLE_KEY_ID` *(required)* — Apple key ID
+  - Setup: Create a "Sign in with Apple" key under Certificates, Identifiers & Profiles → Keys.
+  - Get it here: [https://developer.apple.com/account/resources/authkeys/list](https://developer.apple.com/account/resources/authkeys/list)
+- `OAUTH_APPLE_PRIVATE_KEY` *(required)* — Apple private key (.p8)
+  - Setup: Download the .p8 file when creating the key (one-time download) and paste its PEM contents.
+  - Get it here: [https://developer.apple.com/account/resources/authkeys/list](https://developer.apple.com/account/resources/authkeys/list)
+  - Example: `contents of AuthKey_ABC123DEF4.p8`

@@ -414,4 +414,78 @@ describe('JWKS cache + ID-token verification', () => {
       verifyMicrosoftIdToken('not-a-jwt', { tenantId: tenant, audience }),
     ).rejects.toThrow(/three segments/)
   })
+
+  it('returns an empty key set when the JWKS response is malformed', async () => {
+    mockGet.mockResolvedValue({ data: {} })
+    const { getJwks, clearJwksCache } = await import('../jwks.js')
+    clearJwksCache()
+    await expect(getJwks(tenant)).resolves.toEqual([])
+  })
+
+  it('rejects a token missing the kid header', async () => {
+    mockGet.mockResolvedValue({ data: { keys: [jwkFor(keyA.publicKey, 'kid-A')] } })
+    const { verifyMicrosoftIdToken, clearJwksCache } = await import('../jwks.js')
+    clearJwksCache()
+    const header = base64Url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }))
+    const body = base64Url(
+      JSON.stringify({
+        iss: validIss,
+        aud: audience,
+        sub: 's',
+        exp: nowSec + 600,
+        iat: nowSec - 60,
+      }),
+    )
+    // Signature content is irrelevant — the kid check fires before key lookup.
+    const token = `${header}.${body}.${base64Url('sig')}`
+    await expect(
+      verifyMicrosoftIdToken(token, { tenantId: tenant, audience }, { now: () => nowSec }),
+    ).rejects.toThrow(/kid/)
+  })
+
+  it('rejects a validly-signed token missing required claims', async () => {
+    mockGet.mockResolvedValue({ data: { keys: [jwkFor(keyA.publicKey, 'kid-A')] } })
+    const { verifyMicrosoftIdToken, clearJwksCache } = await import('../jwks.js')
+    clearJwksCache()
+    const token = signRs256({
+      privateKey: keyA.privateKey,
+      kid: 'kid-A',
+      // No `sub` — the claims gate must reject even a valid signature.
+      payload: { iss: validIss, aud: audience, exp: nowSec + 600, iat: nowSec - 60 },
+    })
+    await expect(
+      verifyMicrosoftIdToken(token, { tenantId: tenant, audience }, { now: () => nowSec }),
+    ).rejects.toThrow(/required claims/i)
+  })
+
+  it('verifyRs256Signature returns false for non-RSA keys', async () => {
+    const { verifyRs256Signature } = await import('../jwks.js')
+    expect(
+      verifyRs256Signature(
+        { kty: 'EC', kid: 'k', n: '', e: '' },
+        'header.payload',
+        base64Url('sig'),
+      ),
+    ).toBe(false)
+  })
+
+  describe('allowedIssuers', () => {
+    it('widens issuers from the token tid for multi-tenant authorities', async () => {
+      const { allowedIssuers } = await import('../jwks.js')
+      const tid = '11111111-2222-3333-4444-555555555555'
+      const widened = allowedIssuers('common', tid)
+      expect(widened).toContain(`https://login.microsoftonline.com/${tid}/v2.0`)
+      expect(widened).toContain(`https://sts.windows.net/${tid}/`)
+    })
+
+    it('never widens a concrete single-tenant pin from the token tid', async () => {
+      const { allowedIssuers } = await import('../jwks.js')
+      const configured = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+      const attacker = '11111111-2222-3333-4444-555555555555'
+      expect(allowedIssuers(configured, attacker)).toEqual([
+        `https://login.microsoftonline.com/${configured}/v2.0`,
+        `https://sts.windows.net/${configured}/`,
+      ])
+    })
+  })
 })

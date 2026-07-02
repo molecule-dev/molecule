@@ -396,6 +396,26 @@ describe('Apple OAuth Provider', () => {
       await expect(verifyIdToken('')).rejects.toThrow()
       await expect(verifyIdToken('not.a.jwt.really')).rejects.toThrow()
     })
+
+    it('rejects tokens signed with a non-RS256 algorithm (alg confusion)', async () => {
+      mockJwksOk()
+      // Classic JWS alg-confusion attack: the attacker signs with HS256 and
+      // hopes the verifier feeds the RSA public key in as an HMAC secret.
+      // The bond's explicit alg guard must reject before any key handling.
+      const forged = jwt.sign(
+        {
+          iss: 'https://appleid.apple.com',
+          aud: CLIENT_ID,
+          sub: '001234.apple.user',
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + 600,
+        },
+        'attacker-shared-secret',
+        { algorithm: 'HS256', keyid: APPLE_KID },
+      )
+      const { verifyIdToken } = await import('../verify-id-token.js')
+      await expect(verifyIdToken(forged)).rejects.toThrow(/alg/)
+    })
   })
 
   describe('verify (OAuthVerifier contract)', () => {

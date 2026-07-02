@@ -548,9 +548,16 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_MICROSOFT_CLIENT_ID` *(required)*
-- `OAUTH_MICROSOFT_CLIENT_SECRET` *(required)*
-- `OAUTH_MICROSOFT_TENANT_ID` *(optional)*
+- `OAUTH_MICROSOFT_CLIENT_ID` *(required)* — Microsoft application (client) ID
+  - Setup: Microsoft Entra ID → App registrations → New registration; copy the Application (client) ID.
+  - Get it here: [https://entra.microsoft.com/](https://entra.microsoft.com/)
+- `OAUTH_MICROSOFT_CLIENT_SECRET` *(required)* — Microsoft client secret
+  - Setup: App registration → Certificates & secrets → New client secret; copy the Value.
+  - Get it here: [https://entra.microsoft.com/](https://entra.microsoft.com/)
+- `OAUTH_MICROSOFT_TENANT_ID` *(optional)* — Microsoft directory (tenant) ID
+  - Setup: Copy the Directory (tenant) ID from the app registration overview, or use "common" for multi-tenant.
+  - Get it here: [https://entra.microsoft.com/](https://entra.microsoft.com/)
+  - Example: `common`
 
 **ID-token issuer / tenant validation contract.** `verifyMicrosoftIdToken`
 (and `provider.verifyIdToken`) validate `iss` against the issuer(s) implied

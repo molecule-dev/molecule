@@ -4,6 +4,8 @@
  * @module
  */
 
+import { createSign, generateKeyPairSync, type KeyObject } from 'node:crypto'
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockPost = vi.fn()
@@ -26,6 +28,35 @@ vi.mock('@molecule/api-bond', () => ({
     debug: vi.fn(),
   }),
 }))
+
+const base64Url = (input: string | Buffer): string => {
+  const b = Buffer.isBuffer(input) ? input : Buffer.from(input)
+  return b.toString('base64').replace(/=+$/g, '').replace(/\+/g, '-').replace(/\//g, '_')
+}
+
+interface JwkRsa {
+  kty: string
+  n?: string
+  e?: string
+}
+
+// One RSA keypair for the whole file — key generation is the slow part.
+const rsa = generateKeyPairSync('rsa', { modulusLength: 2048 })
+
+const jwkForKid = (key: KeyObject, kid: string): Record<string, string> => {
+  const jwk = key.export({ format: 'jwk' }) as JwkRsa
+  return { kty: jwk.kty, kid, n: jwk.n!, e: jwk.e!, alg: 'RS256', use: 'sig' }
+}
+
+const signRs256 = (kid: string, payload: Record<string, unknown>): string => {
+  const header = base64Url(JSON.stringify({ alg: 'RS256', kid, typ: 'JWT' }))
+  const body = base64Url(JSON.stringify(payload))
+  const signingInput = `${header}.${body}`
+  const signer = createSign('RSA-SHA256')
+  signer.update(signingInput)
+  signer.end()
+  return `${signingInput}.${base64Url(signer.sign(rsa.privateKey))}`
+}
 
 describe('Microsoft OAuth provider', () => {
   const originalEnv = process.env
@@ -266,6 +297,115 @@ describe('Microsoft OAuth provider', () => {
         expect(e.message).toContain('[REDACTED]')
       }
     })
+
+    it('normalizes a malformed Graph /me response to an empty id', async () => {
+      mockGet.mockResolvedValue({ data: {} })
+      const { provider } = await import('../provider.js')
+      const info = await provider.getUserInfo('t')
+      expect(info).toEqual({ id: '', email: undefined, name: undefined, picture: undefined })
+    })
+  })
+
+  describe('verifyIdToken (provider method)', () => {
+    const nowSec = (): number => Math.floor(Date.now() / 1000)
+    const commonIss = 'https://login.microsoftonline.com/common/v2.0'
+
+    const jwksOk = (): void => {
+      mockGet.mockResolvedValue({
+        data: { keys: [jwkForKid(rsa.publicKey, 'kid-provider')] },
+      })
+    }
+
+    it('verifies a valid RS256 id token, fetching JWKS from the configured tenant', async () => {
+      jwksOk()
+      const { provider } = await import('../provider.js')
+      const token = signRs256('kid-provider', {
+        iss: commonIss,
+        aud: 'test-ms-client-id',
+        sub: 'oid-provider-1',
+        exp: nowSec() + 600,
+        iat: nowSec() - 60,
+        email: 'dana@contoso.com',
+        tid: 'common',
+      })
+      const claims = await provider.verifyIdToken(token)
+      expect(claims.sub).toBe('oid-provider-1')
+      expect(claims.email).toBe('dana@contoso.com')
+      expect(claims.aud).toBe('test-ms-client-id')
+      expect(mockGet).toHaveBeenCalledWith(
+        'https://login.microsoftonline.com/common/discovery/v2.0/keys',
+        expect.anything(),
+      )
+    })
+
+    it('plumbs a tenantId override into the JWKS discovery endpoint', async () => {
+      jwksOk()
+      const { createMicrosoftProvider } = await import('../provider.js')
+      const custom = createMicrosoftProvider({ tenantId: 'organizations' })
+      const tokenTid = '11111111-2222-3333-4444-555555555555'
+      const token = signRs256('kid-provider', {
+        iss: `https://login.microsoftonline.com/${tokenTid}/v2.0`,
+        aud: 'test-ms-client-id',
+        sub: 'oid-provider-2',
+        exp: nowSec() + 600,
+        iat: nowSec() - 60,
+        tid: tokenTid,
+      })
+      const claims = await custom.verifyIdToken(token)
+      expect(claims.tid).toBe(tokenTid)
+      expect(mockGet).toHaveBeenCalledWith(
+        'https://login.microsoftonline.com/organizations/discovery/v2.0/keys',
+        expect.anything(),
+      )
+    })
+
+    it('rejects a token whose audience is not the configured client id', async () => {
+      jwksOk()
+      const { provider } = await import('../provider.js')
+      const token = signRs256('kid-provider', {
+        iss: commonIss,
+        aud: 'someone-else',
+        sub: 'oid-provider-3',
+        exp: nowSec() + 600,
+        iat: nowSec() - 60,
+      })
+      await expect(provider.verifyIdToken(token)).rejects.toThrow(/audience/i)
+    })
+
+    it('rejects an expired token', async () => {
+      jwksOk()
+      const { provider } = await import('../provider.js')
+      const token = signRs256('kid-provider', {
+        iss: commonIss,
+        aud: 'test-ms-client-id',
+        sub: 'oid-provider-4',
+        exp: nowSec() - 10,
+        iat: nowSec() - 600,
+      })
+      await expect(provider.verifyIdToken(token)).rejects.toThrow(/expired/i)
+    })
+
+    it('redacts the client secret from verification errors', async () => {
+      mockGet.mockRejectedValue(
+        new Error('JWKS fetch failed; sent client_secret=super-secret-shhh'),
+      )
+      const { provider } = await import('../provider.js')
+      const token = signRs256('kid-provider', {
+        iss: commonIss,
+        aud: 'test-ms-client-id',
+        sub: 'oid-provider-5',
+        exp: nowSec() + 600,
+        iat: nowSec() - 60,
+      })
+      try {
+        await provider.verifyIdToken(token)
+        throw new Error('should have thrown')
+      } catch (err) {
+        const e = err as Error
+        expect(e.message).not.toContain('super-secret-shhh')
+        expect(e.message).toContain('[REDACTED]')
+      }
+    })
   })
 
   describe('verify (OAuthVerifier compat)', () => {
@@ -306,6 +446,75 @@ describe('Microsoft OAuth provider', () => {
       await verify('code-1')
       const body = mockPost.mock.calls[0]?.[1] as string
       expect(new URLSearchParams(body).get('redirect_uri')).toBe('http://localhost:3000')
+    })
+  })
+
+  describe('resolveConfig', () => {
+    it('defaults tenantId to "common" and scope to DEFAULT_SCOPE from env-only config', async () => {
+      const { resolveConfig, DEFAULT_SCOPE } = await import('../provider.js')
+      expect(resolveConfig()).toEqual({
+        tenantId: 'common',
+        clientId: 'test-ms-client-id',
+        clientSecret: 'super-secret-shhh',
+        defaultScope: DEFAULT_SCOPE,
+      })
+    })
+
+    it('falls back to empty credentials when neither overrides nor env are set', async () => {
+      delete process.env.OAUTH_MICROSOFT_CLIENT_ID
+      delete process.env.OAUTH_MICROSOFT_CLIENT_SECRET
+      const { resolveConfig } = await import('../provider.js')
+      const cfg = resolveConfig()
+      expect(cfg.clientId).toBe('')
+      expect(cfg.clientSecret).toBe('')
+      expect(cfg.tenantId).toBe('common')
+    })
+
+    it('prefers explicit overrides over environment values', async () => {
+      const { resolveConfig } = await import('../provider.js')
+      expect(
+        resolveConfig({
+          tenantId: 'org-guid',
+          clientId: 'override-client',
+          clientSecret: 'override-secret',
+          defaultScope: 'openid offline_access',
+        }),
+      ).toEqual({
+        tenantId: 'org-guid',
+        clientId: 'override-client',
+        clientSecret: 'override-secret',
+        defaultScope: 'openid offline_access',
+      })
+    })
+  })
+
+  describe('sanitizeError', () => {
+    it('redacts every occurrence of long secrets but leaves short strings alone', async () => {
+      const { sanitizeError } = await import('../provider.js')
+      const err = new Error('secret=super-secret-shhh again super-secret-shhh code=ab')
+      const safe = sanitizeError(err, ['super-secret-shhh', 'ab'])
+      expect(safe.message).toBe('secret=[REDACTED] again [REDACTED] code=ab')
+    })
+
+    it('carries over the response status without the body', async () => {
+      const { sanitizeError } = await import('../provider.js')
+      const upstream = Object.assign(new Error('boom'), {
+        response: { status: 401, data: { echo: 'super-secret-shhh' } },
+      })
+      const safe = sanitizeError(upstream, ['super-secret-shhh']) as Error & {
+        status?: number
+        response?: unknown
+      }
+      expect(safe.status).toBe(401)
+      expect(safe.response).toBeUndefined()
+      expect(JSON.stringify(safe)).not.toContain('super-secret-shhh')
+    })
+
+    it('stringifies non-Error inputs', async () => {
+      const { sanitizeError } = await import('../provider.js')
+      const safe = sanitizeError('plain failure super-secret-shhh', ['super-secret-shhh'])
+      expect(safe).toBeInstanceOf(Error)
+      expect(safe.message).toBe('plain failure [REDACTED]')
     })
   })
 })
