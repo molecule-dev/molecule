@@ -22,6 +22,11 @@ import type {
 
 import type { ZoomVideoMeetingsConfig } from './types.js'
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
+
 const DEFAULT_BASE_URL = 'https://api.zoom.us/v2'
 const DEFAULT_OAUTH_URL = 'https://zoom.us/oauth/token'
 

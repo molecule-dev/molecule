@@ -21,6 +21,11 @@ import type {
 
 import type { OpenWeatherConfig } from './types.js'
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
+
 /** Default OpenWeather One Call 3.0 endpoint base URL. */
 const DEFAULT_BASE_URL = 'https://api.openweathermap.org/data/3.0'
 

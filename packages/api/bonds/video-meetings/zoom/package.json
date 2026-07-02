@@ -29,6 +29,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
+    "@molecule/api-secrets": "^1.0.0",
     "@molecule/api-video-meetings": "1.0.0"
   },
   "devDependencies": {
