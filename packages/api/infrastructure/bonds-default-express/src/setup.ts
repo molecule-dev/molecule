@@ -11,12 +11,13 @@
  * @module
  */
 
-import { bond } from '@molecule/api-bond'
+import { bond, getLogger } from '@molecule/api-bond'
 import { setProvider as setConfig } from '@molecule/api-config'
 import { provider as configProvider } from '@molecule/api-config-env'
 import { setPool, setStore } from '@molecule/api-database'
 import { pool as dbPool, store as dbStore } from '@molecule/api-database-postgresql'
 import { setTransport as setEmails } from '@molecule/api-emails'
+import { provider as emailsCaptureProvider } from '@molecule/api-emails-capture'
 import { provider as emailsMailgunProvider } from '@molecule/api-emails-mailgun'
 import { setProvider as setJwt } from '@molecule/api-jwt'
 import { provider as jwtProvider } from '@molecule/api-jwt-jsonwebtoken'
@@ -39,12 +40,42 @@ import { deviceService } from '@molecule/api-resource-device'
 import { paymentRecordService, planService } from '@molecule/api-resource-payment'
 import { setProvider as setSearch } from '@molecule/api-search'
 import { provider as searchMeilisearchProvider } from '@molecule/api-search-meilisearch'
+import { provider as searchPostgresProvider } from '@molecule/api-search-postgres'
 import { setProvider as setSecrets } from '@molecule/api-secrets'
 import { provider as secretsProvider } from '@molecule/api-secrets-env'
 import { setProvider as setTwoFactor } from '@molecule/api-two-factor'
 import { provider as twoFactorProvider } from '@molecule/api-two-factor-otplib'
 import { setProvider as setUploads } from '@molecule/api-uploads'
+import { provider as uploadsFilesystemProvider } from '@molecule/api-uploads-filesystem'
 import { provider as uploadsS3Provider } from '@molecule/api-uploads-s3'
+
+const logger = getLogger()
+
+/**
+ * Whether a credentialed provider whose required env is absent should fall
+ * back to its zero-credential development sibling. In production the
+ * credentialed provider is wired regardless — its actionable
+ * `config.notConfigured` 503s (and the boot config report) are the correct
+ * loud failure; silently swapping providers in production would hide a
+ * misconfiguration.
+ *
+ * @returns `true` outside production.
+ */
+const devFallbackAllowed = (): boolean => process.env.NODE_ENV !== 'production'
+
+/**
+ * Logs a development-fallback decision (once per call site) so the swap is
+ * always visible next to the boot config report.
+ *
+ * @param category - The bond category being wired.
+ * @param missing - The missing env keys that triggered the fallback.
+ * @param fallback - The zero-credential package wired instead.
+ */
+const logDevFallback = (category: string, missing: string, fallback: string): void => {
+  logger.info(
+    `bonds: ${missing} not set — wiring ${fallback} for ${category} (zero-credential development default; the boot config report lists what production needs)`,
+  )
+}
 
 /** Wires `@molecule/api-config-env` to `@molecule/api-config`. */
 export function setupConfigEnv(): void {
@@ -102,6 +133,11 @@ export function setupTwoFactorOtplib(): void {
 
 /** Wires `@molecule/api-emails-mailgun` to `@molecule/api-emails`. */
 export function setupEmailsMailgun(): void {
+  if (devFallbackAllowed() && (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN)) {
+    logDevFallback('emails', 'MAILGUN_API_KEY/MAILGUN_DOMAIN', '@molecule/api-emails-capture')
+    setEmails(emailsCaptureProvider)
+    return
+  }
   setEmails(emailsMailgunProvider)
 }
 
@@ -118,11 +154,26 @@ export function setupServicePayment(): void {
 
 /** Wires `@molecule/api-search-meilisearch` to `@molecule/api-search`. */
 export function setupSearchMeilisearch(): void {
+  if (devFallbackAllowed() && !process.env.MEILISEARCH_URL) {
+    logDevFallback('search', 'MEILISEARCH_URL', '@molecule/api-search-postgres')
+    setSearch(searchPostgresProvider)
+    return
+  }
   setSearch(searchMeilisearchProvider)
 }
 
 /** Wires `@molecule/api-uploads-s3` to `@molecule/api-uploads`. */
 export function setupUploadsS3(): void {
+  if (
+    devFallbackAllowed() &&
+    (!process.env.AWS_ACCESS_KEY_ID ||
+      !process.env.AWS_SECRET_ACCESS_KEY ||
+      !process.env.AWS_S3_BUCKET)
+  ) {
+    logDevFallback('uploads', 'AWS_* / AWS_S3_BUCKET', '@molecule/api-uploads-filesystem')
+    setUploads(uploadsFilesystemProvider)
+    return
+  }
   setUploads(uploadsS3Provider)
 }
 
@@ -191,6 +242,15 @@ export async function setupEncryptionAes(): Promise<void> {
 
 /** Wires `@molecule/api-push-notifications-web-push` to `@molecule/api-push-notifications`. */
 export async function setupPushNotificationsWebPush(): Promise<void> {
+  if (devFallbackAllowed() && (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY)) {
+    logDevFallback('push-notifications', 'VAPID_*', '@molecule/api-push-capture')
+    const [{ setProvider: setPush }, { provider }] = await Promise.all([
+      import('@molecule/api-push-notifications'),
+      import('@molecule/api-push-capture'),
+    ])
+    setPush(provider)
+    return
+  }
   const [{ setProvider: setPush }, { provider }] = await Promise.all([
     import('@molecule/api-push-notifications'),
     import('@molecule/api-push-notifications-web-push'),
@@ -243,6 +303,15 @@ export async function setupApiAnalyticsDefault(): Promise<void> {
 
 /** Wires `@molecule/api-geolocation-mapbox` to `@molecule/api-geolocation`. */
 export async function setupGeolocationMapbox(): Promise<void> {
+  if (devFallbackAllowed() && !process.env.MAPBOX_ACCESS_TOKEN) {
+    logDevFallback('geolocation', 'MAPBOX_ACCESS_TOKEN', '@molecule/api-geolocation-nominatim')
+    const [{ setProvider: setGeo }, { provider }] = await Promise.all([
+      import('@molecule/api-geolocation'),
+      import('@molecule/api-geolocation-nominatim'),
+    ])
+    setGeo(provider)
+    return
+  }
   const [{ setProvider: setGeo }, { provider }] = await Promise.all([
     import('@molecule/api-geolocation'),
     import('@molecule/api-geolocation-mapbox'),
@@ -281,11 +350,33 @@ export async function setupErrorTrackingConsole(): Promise<void> {
 
 /** Wires `@molecule/api-cache-redis` to `@molecule/api-cache`. */
 export async function setupCacheRedis(): Promise<void> {
+  if (devFallbackAllowed() && !process.env.REDIS_URL) {
+    logDevFallback('cache', 'REDIS_URL', '@molecule/api-cache-memory')
+    const [{ setProvider: setCache }, { provider }] = await Promise.all([
+      import('@molecule/api-cache'),
+      import('@molecule/api-cache-memory'),
+    ])
+    setCache(provider)
+    return
+  }
   const [{ setProvider: setCache }, { provider }] = await Promise.all([
     import('@molecule/api-cache'),
     import('@molecule/api-cache-redis'),
   ])
   setCache(provider)
+}
+
+/**
+ * Wires `@molecule/api-queue-memory` to `@molecule/api-queue` — the
+ * zero-credential in-process queue (single-process/dev; swap to
+ * redis/rabbitmq/sqs for multi-instance production).
+ */
+export async function setupQueueMemory(): Promise<void> {
+  const [{ setProvider: setQueue }, { provider }] = await Promise.all([
+    import('@molecule/api-queue'),
+    import('@molecule/api-queue-memory'),
+  ])
+  setQueue(provider)
 }
 
 /**
@@ -391,6 +482,15 @@ export async function setupNotificationsWebhook(): Promise<void> {
 
 /** Wires `@molecule/api-geolocation-google` to `@molecule/api-geolocation`. */
 export async function setupGeolocationGoogle(): Promise<void> {
+  if (devFallbackAllowed() && !process.env.GOOGLE_MAPS_API_KEY) {
+    logDevFallback('geolocation', 'GOOGLE_MAPS_API_KEY', '@molecule/api-geolocation-nominatim')
+    const [{ setProvider: setGeo }, { provider }] = await Promise.all([
+      import('@molecule/api-geolocation'),
+      import('@molecule/api-geolocation-nominatim'),
+    ])
+    setGeo(provider)
+    return
+  }
   const [{ setProvider: setGeo }, { provider }] = await Promise.all([
     import('@molecule/api-geolocation'),
     import('@molecule/api-geolocation-google'),
