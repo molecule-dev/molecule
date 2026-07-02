@@ -55,6 +55,36 @@ export interface SecretValidation {
 }
 
 /**
+ * One secret's line in a boot-time configuration report.
+ */
+export interface ConfigReportEntry {
+  /** The secret key. */
+  key: string
+  /** `set` (value present), `default` (unset but a default applies), or `missing`. */
+  status: 'set' | 'default' | 'missing'
+  /** Whether the secret is required (SecretDefinition.required, default true). */
+  required: boolean
+  /** Human-readable description from the registered definition. */
+  description?: string
+  /** Setup URL from the registered definition — where to obtain the value. */
+  helpUrl?: string
+}
+
+/**
+ * Structured boot-time configuration report (see `buildConfigReport`).
+ */
+export interface ConfigReport {
+  /** `true` when no REQUIRED secret is missing. */
+  ok: boolean
+  /** Every reported secret. */
+  entries: ConfigReportEntry[]
+  /** Missing secrets that are required — the app is degraded until set. */
+  missingRequired: ConfigReportEntry[]
+  /** Missing secrets that are optional. */
+  missingOptional: ConfigReportEntry[]
+}
+
+/**
  * Health check result for a service connection.
  */
 export interface HealthCheckResult {

@@ -718,6 +718,14 @@ webhook handling, plan upgrades/downgrades, and cancellation.
 const paymentProvider: PaymentProviderInterface
 ```
 
+#### `stripeSecretDefinitions`
+
+Secret definitions required by the Stripe payments bond.
+
+```typescript
+const stripeSecretDefinitions: SecretDefinition[]
+```
+
 ## Core Interface
 Implements `@molecule/api-payments` interface.
 
@@ -743,11 +751,18 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-payments` ^1.0.0
 - `@molecule/api-jwt` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `STRIPE_SECRET_KEY` *(required)*
-- `STRIPE_WEBHOOK_SECRET` *(required)*
+- `STRIPE_SECRET_KEY` *(required)* — Stripe secret key
+  - Setup: Stripe Dashboard → Developers → API keys; use the sk_test_ key in test mode, sk_live_ in production.
+  - Get it here: [https://dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys)
+  - Example: `sk_test_...`
+- `STRIPE_WEBHOOK_SECRET` *(required)* — Stripe webhook signing secret
+  - Setup: Stripe Dashboard → Developers → Webhooks → Add endpoint pointing at {apiUrl}/api/users/payment-notification/stripe, then copy its signing secret.
+  - Get it here: [https://dashboard.stripe.com/webhooks](https://dashboard.stripe.com/webhooks)
+  - Example: `whsec_...`
 
 ### Runtime Dependencies
 

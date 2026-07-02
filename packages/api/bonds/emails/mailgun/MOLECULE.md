@@ -136,6 +136,14 @@ Raw nodemailer transport alias.
 const email: { sendMail: (msg: nodemailer.SendMailOptions) => Promise<any>; }
 ```
 
+#### `mailgunSecretDefinitions`
+
+Secret definitions required by the Mailgun email bond.
+
+```typescript
+const mailgunSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The Mailgun email provider implementing the `EmailTransport` interface.
@@ -175,8 +183,14 @@ export function setupEmailsMailgun(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-emails` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `MAILGUN_API_KEY` *(required)*
-- `MAILGUN_DOMAIN` *(required)*
+- `MAILGUN_API_KEY` *(required)* — Mailgun API key
+  - Setup: Mailgun dashboard → Settings → API Security → create/copy a sending API key.
+  - Get it here: [https://app.mailgun.com/settings/api_security](https://app.mailgun.com/settings/api_security)
+- `MAILGUN_DOMAIN` *(required)* — Mailgun sending domain
+  - Setup: Add and verify a sending domain in Mailgun (sandbox domains work for testing to authorized recipients).
+  - Get it here: [https://app.mailgun.com/mg/sending/domains](https://app.mailgun.com/mg/sending/domains)
+  - Example: `mg.example.com`

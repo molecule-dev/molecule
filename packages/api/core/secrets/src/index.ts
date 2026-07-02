@@ -35,3 +35,6 @@ export * from './provider.js'
 
 // Registry
 export * from './registry.js'
+
+// Boot-time configuration report + actionable config errors
+export * from './report.js'

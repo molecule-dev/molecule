@@ -11,6 +11,12 @@ import Stripe from 'stripe'
 import { getLogger } from '@molecule/api-bond'
 const logger = getLogger()
 import type { NormalizedSubscription, SubscriptionStatus } from '@molecule/api-payments'
+import { configNotConfiguredError } from '@molecule/api-secrets'
+
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
 
 import type {
   CheckoutSessionResult,
@@ -36,13 +42,11 @@ export const getClient = (): Stripe => {
     const key = process.env.STRIPE_SECRET_KEY
     if (!key) {
       // Tag as a config-missing condition (not an internal error): the API error
-      // middleware maps `statusCode` + `errorKey` to a clean 503 so the user sees
-      // "add STRIPE_SECRET_KEY to enable payments" instead of an opaque 500 — the
-      // exact moment they're trying to upgrade to a paid plan.
-      throw Object.assign(new Error('STRIPE_SECRET_KEY is not set.'), {
-        statusCode: 503,
-        errorKey: 'config.notConfigured',
-      })
+      // middleware maps `statusCode` + `errorKey` to a clean 503, and the message
+      // carries the registered definition's description + setup URL — the user
+      // sees exactly which key to set and where to get it, at the exact moment
+      // they're trying to upgrade to a paid plan.
+      throw configNotConfiguredError('STRIPE_SECRET_KEY', 'payments')
     }
     _client = new Stripe(key)
   }

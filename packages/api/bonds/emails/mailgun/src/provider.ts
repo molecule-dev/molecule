@@ -12,6 +12,12 @@ import mailgun from 'nodemailer-mailgun-transport'
 
 import { getLogger } from '@molecule/api-bond'
 import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/api-emails'
+import { configNotConfiguredError } from '@molecule/api-secrets'
+
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
 
 const logger = getLogger()
 
@@ -32,18 +38,13 @@ function getTransport(): nodemailer.Transporter {
     const apiKey = process.env.MAILGUN_API_KEY
     if (!apiKey) {
       // Tagged config-missing error → the API middleware returns a clean 503 +
-      // 'config.notConfigured' instead of an opaque 500 (see classifyTaggedError).
-      throw Object.assign(new Error('MAILGUN_API_KEY is not set. Email sending will not work.'), {
-        statusCode: 503,
-        errorKey: 'config.notConfigured',
-      })
+      // 'config.notConfigured', and the message carries the registered
+      // definition's description + setup URL (see classifyTaggedError).
+      throw configNotConfiguredError('MAILGUN_API_KEY', 'email sending')
     }
     const domain = process.env.MAILGUN_DOMAIN
     if (!domain) {
-      throw Object.assign(new Error('MAILGUN_DOMAIN is not set. Email sending will not work.'), {
-        statusCode: 503,
-        errorKey: 'config.notConfigured',
-      })
+      throw configNotConfiguredError('MAILGUN_DOMAIN', 'email sending')
     }
     // Optional API host override (e.g. EU region `api.eu.mailgun.net`, or a
     // self-hosted / credential-broker endpoint). When unset, nodemailer-mailgun-transport

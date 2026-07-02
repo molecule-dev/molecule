@@ -746,13 +746,25 @@ describe('Stripe Provider', () => {
       expect(client.webhooks).toBeDefined()
     })
 
-    it('should throw if STRIPE_SECRET_KEY is not set', async () => {
+    it('should throw an actionable config error if STRIPE_SECRET_KEY is not set', async () => {
       vi.stubEnv('STRIPE_SECRET_KEY', '')
       vi.resetModules()
 
       const { getClient } = await import('../provider.js')
 
-      expect(() => getClient()).toThrow('STRIPE_SECRET_KEY is not set.')
+      // The error must be ACTIONABLE: tagged 503/config.notConfigured with the
+      // registered definition's description + setup URL — not an opaque line.
+      let thrown: (Error & { statusCode?: number; errorKey?: string }) | undefined
+      try {
+        getClient()
+      } catch (error) {
+        thrown = error as Error & { statusCode?: number; errorKey?: string }
+      }
+      expect(thrown).toBeDefined()
+      expect(thrown!.statusCode).toBe(503)
+      expect(thrown!.errorKey).toBe('config.notConfigured')
+      expect(thrown!.message).toContain('STRIPE_SECRET_KEY is not set — payments is disabled.')
+      expect(thrown!.message).toContain('https://dashboard.stripe.com/apikeys')
     })
   })
 })

@@ -8,6 +8,7 @@ import { logger } from '@molecule/api-logger'
 import { bodyParser as bodyParserMiddleware } from '@molecule/api-middleware-body-parser'
 import { cookieParser as cookieParserMiddleware } from '@molecule/api-middleware-cookie-parser'
 import { cors as corsMiddleware } from '@molecule/api-middleware-cors'
+import { buildConfigReport, logConfigReport } from '@molecule/api-secrets'
 
 /** A deliberately-tagged molecule error mapped to a real HTTP status by the API. */
 export interface TaggedError {
@@ -329,6 +330,17 @@ export function createServerFactory(
       logger.info(
         `Started ${process.env.NODE_ENV} ${process.env.HTTPS ? 'HTTPS' : 'HTTP'} server on port ${port}.`,
       )
+      // Boot-time configuration report: bonds self-register their secret
+      // definitions at import; log which are configured vs missing (each
+      // missing REQUIRED key warns with its description + setup URL) so a
+      // degraded integration is loud and actionable at startup — instead of
+      // surfacing later as a lazy 503 on the first request that needs it.
+      // Fire-and-forget: reporting must never delay or fail the boot.
+      buildConfigReport()
+        .then(logConfigReport)
+        .catch((error: unknown) => {
+          logger.debug('boot config report failed', { error })
+        })
     })
 
     return server

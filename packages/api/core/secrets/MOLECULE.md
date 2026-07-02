@@ -38,6 +38,42 @@ npm install @molecule/api-secrets
 
 ### Interfaces
 
+#### `ConfigReport`
+
+Structured boot-time configuration report (see `buildConfigReport`).
+
+```typescript
+interface ConfigReport {
+  /** `true` when no REQUIRED secret is missing. */
+  ok: boolean
+  /** Every reported secret. */
+  entries: ConfigReportEntry[]
+  /** Missing secrets that are required — the app is degraded until set. */
+  missingRequired: ConfigReportEntry[]
+  /** Missing secrets that are optional. */
+  missingOptional: ConfigReportEntry[]
+}
+```
+
+#### `ConfigReportEntry`
+
+One secret's line in a boot-time configuration report.
+
+```typescript
+interface ConfigReportEntry {
+  /** The secret key. */
+  key: string
+  /** `set` (value present), `default` (unset but a default applies), or `missing`. */
+  status: 'set' | 'default' | 'missing'
+  /** Whether the secret is required (SecretDefinition.required, default true). */
+  required: boolean
+  /** Human-readable description from the registered definition. */
+  description?: string
+  /** Setup URL from the registered definition — where to obtain the value. */
+  helpUrl?: string
+}
+```
+
 #### `HealthCheckResult`
 
 Health check result for a service connection.
@@ -240,6 +276,39 @@ interface ServiceProvisioner {
 
 ### Functions
 
+#### `buildConfigReport(keys)`
+
+Builds a structured configuration report for the given secret keys
+(default: every registered definition). Each entry reports whether the
+secret is `set`, satisfied by a `default`, or `missing` — with the
+definition's description and setup URL attached so a missing entry is
+directly actionable.
+
+```typescript
+function buildConfigReport(keys?: string[]): Promise<ConfigReport>
+```
+
+- `keys` — Secret keys to report on. Defaults to all registered definitions.
+
+**Returns:** The report; `ok` is `false` when any REQUIRED secret is missing.
+
+#### `configNotConfiguredError(key, capability)`
+
+Builds the tagged error a bond should throw when a request needs a
+secret that is not configured. The API error middleware maps
+`statusCode` + `errorKey` to a clean 503, and the message carries the
+secret's description and setup URL from the registry — so the user sees
+exactly which key to set and where to get it, not an opaque failure.
+
+```typescript
+function configNotConfiguredError(key: string, capability?: string): Error & { statusCode: number; errorKey: string; }
+```
+
+- `key` — The missing secret's key (e.g. `'STRIPE_SECRET_KEY'`).
+- `capability` — Optional human label for what is disabled (e.g. `'payments'`).
+
+**Returns:** An Error tagged with `statusCode: 503` and `errorKey: 'config.notConfigured'`.
+
 #### `get(key)`
 
 Retrieves a single secret value. Delegates to the bonded provider if
@@ -380,6 +449,23 @@ function isConfigured(definitions: SecretDefinition[]): Promise<boolean>
 - `definitions` — The secret definitions to check.
 
 **Returns:** `true` if every definition passes validation.
+
+#### `logConfigReport(report)`
+
+Logs a configuration report: one warning per missing REQUIRED secret
+(with its description + setup URL — the integration is degraded until it
+is set), a compact info line for missing optional secrets, and a summary.
+Never throws — booting with missing credentials is allowed; the point is
+that the gap is loud and actionable instead of surfacing later as an
+opaque 503.
+
+```typescript
+function logConfigReport(report: ConfigReport): ConfigReport
+```
+
+- `report` — A report from {@link buildConfigReport}.
+
+**Returns:** The same report, for chaining.
 
 #### `registerProvisioner(provisioner)`
 

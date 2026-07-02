@@ -18,6 +18,12 @@ import { Buffer } from 'node:buffer'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
 import { sendMail } from '@molecule/api-emails'
+import { configNotConfiguredError } from '@molecule/api-secrets'
+
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
 import type {
   InboundEmail,
   InboundEmailAttachment,
@@ -44,11 +50,9 @@ import {
 const getApiKey = (): string => {
   const apiKey = process.env.MAILGUN_API_KEY
   if (!apiKey) {
-    // Tagged config-missing error → clean 503 + 'config.notConfigured' (see classifyTaggedError).
-    throw Object.assign(
-      new Error('MAILGUN_API_KEY is not set. Inbound webhook verification will not work.'),
-      { statusCode: 503, errorKey: 'config.notConfigured' },
-    )
+    // Tagged config-missing error → clean 503 + 'config.notConfigured', with the
+    // registered definition's description + setup URL (see classifyTaggedError).
+    throw configNotConfiguredError('MAILGUN_API_KEY', 'inbound email')
   }
   return apiKey
 }

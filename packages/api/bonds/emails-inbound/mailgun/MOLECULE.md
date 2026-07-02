@@ -343,6 +343,14 @@ function verifySignature(_headers: Record<string, string | string[] | undefined>
 
 ### Constants
 
+#### `mailgunInboundSecretDefinitions`
+
+Secret definitions required by the Mailgun inbound-email bond.
+
+```typescript
+const mailgunInboundSecretDefinitions: SecretDefinition[]
+```
+
 #### `provider`
 
 The Mailgun Routes inbound-email provider implementing the
@@ -375,9 +383,17 @@ export function setupEmailsInboundMailgun(): void {
 Peer dependencies:
 - `@molecule/api-emails` ^1.0.0
 - `@molecule/api-emails-inbound` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `MAILGUN_API_KEY` *(required)*
-- `MAILGUN_DOMAIN` *(required)*
-- `MAILGUN_INBOUND_REPLAY_WINDOW_SECONDS` *(optional)*
+- `MAILGUN_API_KEY` *(required)* — Mailgun API key
+  - Setup: Mailgun dashboard → Settings → API Security → create/copy a sending API key.
+  - Get it here: [https://app.mailgun.com/settings/api_security](https://app.mailgun.com/settings/api_security)
+- `MAILGUN_DOMAIN` *(required)* — Mailgun sending domain
+  - Setup: Add and verify a sending domain in Mailgun (sandbox domains work for testing to authorized recipients).
+  - Get it here: [https://app.mailgun.com/mg/sending/domains](https://app.mailgun.com/mg/sending/domains)
+  - Example: `mg.example.com`
+- `MAILGUN_INBOUND_REPLAY_WINDOW_SECONDS` *(optional)* — Mailgun inbound replay window
+  - Setup: Max age (seconds) of accepted inbound webhook signatures — replay protection; the default is fine.
+  - Example: `300`
