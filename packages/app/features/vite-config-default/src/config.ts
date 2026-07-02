@@ -125,6 +125,11 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
 
   return {
     plugins: [react(), tailwindcss(), VitePWA(pwaOptions)],
+    // Vite's default cacheDir (node_modules/.vite) resolves THROUGH a
+    // workspace-symlinked node_modules to a cache shared by every app on the
+    // machine — concurrent dev servers with different optimizeDeps configs
+    // thrash/corrupt it. VITE_CACHE_DIR gives each app/test run its own.
+    ...(process.env.VITE_CACHE_DIR ? { cacheDir: process.env.VITE_CACHE_DIR } : {}),
     resolve: {
       preserveSymlinks: true,
       dedupe: ['react', 'react-dom', 'react-router-dom', 'react-router'],
