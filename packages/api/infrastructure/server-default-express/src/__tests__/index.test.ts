@@ -1,9 +1,9 @@
 import http from 'node:http'
 import type { AddressInfo } from 'node:net'
 
-import expressLib from 'express'
 import type express from 'express'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import expressLib from 'express'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   classifyTaggedError,
@@ -273,5 +273,72 @@ describe('errorMiddleware (terminal sanitizing handler — L1-1 stack-leak fix)'
     expect(res.statusCode).toBeUndefined()
     expect(res.body).toBeUndefined()
     expect(next).not.toHaveBeenCalled()
+  })
+})
+
+describe('errorMiddleware error tracking capture (untagged-only skip rules)', () => {
+  const trackedReq = { method: 'POST', originalUrl: '/api/orders?draft=true' } as express.Request
+
+  const mockTracker = {
+    captureException: vi.fn().mockReturnValue('event-1'),
+    captureMessage: vi.fn(),
+  }
+
+  beforeEach(async () => {
+    mockTracker.captureException.mockClear()
+    const { setProvider } = await import('@molecule/api-error-tracking')
+    setProvider(mockTracker)
+  })
+
+  afterEach(async () => {
+    const { unbond } = await import('@molecule/api-bond')
+    unbond('error-tracking')
+  })
+
+  it('CAPTURED: an untagged error reaches the bonded tracker with request context', () => {
+    const error = new Error('boom')
+    errorMiddleware(error, trackedReq, makeRes() as unknown as express.Response, vi.fn())
+
+    expect(mockTracker.captureException).toHaveBeenCalledWith(error, {
+      tags: { source: 'express' },
+      request: { method: 'POST', url: '/api/orders?draft=true' },
+    })
+  })
+
+  it('SKIPPED: a tagged config-missing 503 is NOT captured (expected, user-actionable)', () => {
+    const tagged = Object.assign(new Error('STRIPE_SECRET_KEY is not set.'), {
+      statusCode: 503,
+      errorKey: 'config.notConfigured',
+    })
+    errorMiddleware(tagged, trackedReq, makeRes() as unknown as express.Response, vi.fn())
+
+    expect(mockTracker.captureException).not.toHaveBeenCalled()
+  })
+
+  it('SKIPPED: a tagged 4xx is NOT captured', () => {
+    const tagged = Object.assign(new Error('Plan limit reached.'), {
+      statusCode: 402,
+      errorKey: 'billing.limitReached',
+    })
+    errorMiddleware(tagged, trackedReq, makeRes() as unknown as express.Response, vi.fn())
+
+    expect(mockTracker.captureException).not.toHaveBeenCalled()
+  })
+
+  it('SKIPPED: a bare "Unauthorized" string is NOT captured', () => {
+    errorMiddleware('Unauthorized', trackedReq, makeRes() as unknown as express.Response, vi.fn())
+
+    expect(mockTracker.captureException).not.toHaveBeenCalled()
+  })
+
+  it('never throws out of the terminal handler when no tracker is bonded (no-op contract)', async () => {
+    const { unbond } = await import('@molecule/api-bond')
+    unbond('error-tracking')
+    const res = makeRes()
+
+    expect(() =>
+      errorMiddleware(new Error('boom'), trackedReq, res as unknown as express.Response, vi.fn()),
+    ).not.toThrow()
+    expect(res.statusCode).toBe(500)
   })
 })

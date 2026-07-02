@@ -351,6 +351,29 @@ Wires `@molecule/api-encryption-aes` to `@molecule/api-encryption`.
 function setupEncryptionAes(): Promise<void>
 ```
 
+#### `setupErrorTrackingConsole()`
+
+Wires `@molecule/api-error-tracking-console` to `@molecule/api-error-tracking`.
+
+Zero-credential development default: captures are logged as structured
+lines through the bonded logger instead of being sent to a remote service.
+
+```typescript
+function setupErrorTrackingConsole(): Promise<void>
+```
+
+#### `setupErrorTrackingSentry()`
+
+Wires `@molecule/api-error-tracking-sentry` to `@molecule/api-error-tracking`.
+
+Safe to wire unconditionally: without `SENTRY_DSN` the Sentry provider is a
+documented no-op (the boot config report flags the missing key), so an app
+that hasn't configured Sentry yet boots and runs untouched.
+
+```typescript
+function setupErrorTrackingSentry(): Promise<void>
+```
+
 #### `setupGeolocationGoogle()`
 
 Wires `@molecule/api-geolocation-google` to `@molecule/api-geolocation`.
@@ -689,6 +712,9 @@ Peer dependencies:
 - `@molecule/api-cron-node-cron` ^1.0.0
 - `@molecule/api-encryption` ^1.0.0
 - `@molecule/api-encryption-aes` ^1.0.0
+- `@molecule/api-error-tracking` ^1.0.0
+- `@molecule/api-error-tracking-console` ^1.0.0
+- `@molecule/api-error-tracking-sentry` ^1.0.0
 - `@molecule/api-image` ^1.0.0
 - `@molecule/api-image-sharp` ^1.0.0
 - `@molecule/api-import-export` ^1.0.0

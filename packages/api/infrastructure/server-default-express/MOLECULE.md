@@ -139,7 +139,7 @@ builds the canonical molecule fleet server:
 function createServerFactory(opts: CreateServerOptions): (port?: number) => Promise<express.Express | https.Server>
 ```
 
-#### `errorMiddleware(error, _req, res, _next)`
+#### `errorMiddleware(error, req, res, _next)`
 
 Terminal Express error middleware for the canonical molecule fleet server.
 
@@ -152,7 +152,13 @@ delegates to Express's built-in `finalhandler`:
    `statusCode` + `{ error, errorKey }` JSON (expected, user-actionable config
    conditions, e.g. a missing `STRIPE_SECRET_KEY` → 503 `config.notConfigured`).
 3. EVERYTHING else (untagged library throws, null derefs, driver errors) → a
-   generic `500 { error: 'Internal Server Error' }`, logged server-side.
+   generic `500 { error: 'Internal Server Error' }`, logged server-side AND
+   reported to the bonded error tracker (`@molecule/api-error-tracking`'s
+   `captureException`, a documented no-op when no tracker is bonded).
+
+Only case 3 is captured: cases 1–2 (401s, tagged config-missing 503s, and any
+other tagged 4xx/5xx) are expected, user-actionable conditions — not defects —
+so reporting them would drown real faults in noise.
 
 Case 3 is the security-critical branch: it is safe-by-construction and does NOT
 depend on `NODE_ENV`. Calling `next(error)` here would fall through to Express's
@@ -163,11 +169,11 @@ versions, and query/data fragments. Returning the opaque 500 unconditionally
 removes that leak for every flagship app regardless of how it is deployed.
 
 ```typescript
-function errorMiddleware(error: any, _req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>, number>, _next: NextFunction): void
+function errorMiddleware(error: any, req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>, number>, _next: NextFunction): void
 ```
 
 - `error` — The thrown value caught by Express.
-- `_req` — The request (unused).
+- `req` — The request (used only as capture context for error tracking).
 - `res` — The response to write the sanitized error to.
 - `_next` — The next function (intentionally never called for untagged errors).
 
@@ -216,6 +222,7 @@ function securityHeadersMiddleware(_req: Request<ParamsDictionary, any, any, Par
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-error-tracking` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-middleware-body-parser` ^1.0.0
 - `@molecule/api-middleware-cookie-parser` ^1.0.0

@@ -70,6 +70,9 @@
     "@molecule/api-cron-node-cron": "1.0.0",
     "@molecule/api-encryption": "1.0.0",
     "@molecule/api-encryption-aes": "1.0.0",
+    "@molecule/api-error-tracking": "1.0.0",
+    "@molecule/api-error-tracking-console": "1.0.0",
+    "@molecule/api-error-tracking-sentry": "1.0.0",
     "@molecule/api-image": "1.0.0",
     "@molecule/api-image-sharp": "1.0.0",
     "@molecule/api-import-export": "1.0.0",
@@ -153,6 +156,9 @@
     "@molecule/api-cron-node-cron": "^1.0.0",
     "@molecule/api-encryption": "^1.0.0",
     "@molecule/api-encryption-aes": "^1.0.0",
+    "@molecule/api-error-tracking": "^1.0.0",
+    "@molecule/api-error-tracking-console": "^1.0.0",
+    "@molecule/api-error-tracking-sentry": "^1.0.0",
     "@molecule/api-image": "^1.0.0",
     "@molecule/api-image-sharp": "^1.0.0",
     "@molecule/api-import-export": "^1.0.0",
@@ -205,6 +211,15 @@
       "optional": true
     },
     "@molecule/api-encryption-aes": {
+      "optional": true
+    },
+    "@molecule/api-error-tracking": {
+      "optional": true
+    },
+    "@molecule/api-error-tracking-console": {
+      "optional": true
+    },
+    "@molecule/api-error-tracking-sentry": {
       "optional": true
     },
     "@molecule/api-image": {

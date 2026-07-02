@@ -4,6 +4,7 @@ import process from 'node:process'
 
 import express from 'express'
 
+import { captureException } from '@molecule/api-error-tracking'
 import { logger } from '@molecule/api-logger'
 import { bodyParser as bodyParserMiddleware } from '@molecule/api-middleware-body-parser'
 import { cookieParser as cookieParserMiddleware } from '@molecule/api-middleware-cookie-parser'
@@ -65,7 +66,13 @@ export function classifyTaggedError(error: unknown): TaggedError | null {
  *    `statusCode` + `{ error, errorKey }` JSON (expected, user-actionable config
  *    conditions, e.g. a missing `STRIPE_SECRET_KEY` → 503 `config.notConfigured`).
  * 3. EVERYTHING else (untagged library throws, null derefs, driver errors) → a
- *    generic `500 { error: 'Internal Server Error' }`, logged server-side.
+ *    generic `500 { error: 'Internal Server Error' }`, logged server-side AND
+ *    reported to the bonded error tracker (`@molecule/api-error-tracking`'s
+ *    `captureException`, a documented no-op when no tracker is bonded).
+ *
+ * Only case 3 is captured: cases 1–2 (401s, tagged config-missing 503s, and any
+ * other tagged 4xx/5xx) are expected, user-actionable conditions — not defects —
+ * so reporting them would drown real faults in noise.
  *
  * Case 3 is the security-critical branch: it is safe-by-construction and does NOT
  * depend on `NODE_ENV`. Calling `next(error)` here would fall through to Express's
@@ -76,11 +83,11 @@ export function classifyTaggedError(error: unknown): TaggedError | null {
  * removes that leak for every flagship app regardless of how it is deployed.
  *
  * @param error - The thrown value caught by Express.
- * @param _req - The request (unused).
+ * @param req - The request (used only as capture context for error tracking).
  * @param res - The response to write the sanitized error to.
  * @param _next - The next function (intentionally never called for untagged errors).
  */
-export const errorMiddleware: express.ErrorRequestHandler = (error, _req, res, _next) => {
+export const errorMiddleware: express.ErrorRequestHandler = (error, req, res, _next) => {
   // Match both the bare `Unauthorized` string and the i18n-resolved
   // `Unauthorized.` (with trailing period from the resource locale
   // bond) so authSelf-style middleware reliably routes to 401 instead
@@ -114,6 +121,14 @@ export const errorMiddleware: express.ErrorRequestHandler = (error, _req, res, _
   // into the response body unless NODE_ENV is exactly 'production'. Safe-by-
   // construction: no stack, no paths, no NODE_ENV dependency.
   logger.error(error)
+  // Report the genuine unexpected error to the bonded error tracker. A no-op
+  // when no tracker is bonded, and never throws — safe inside this terminal
+  // handler. The 401/tagged branches above are deliberately NOT captured.
+  // Method/URL only: headers and bodies can carry credentials.
+  captureException(error, {
+    tags: { source: 'express' },
+    request: { method: req.method, url: req.originalUrl },
+  })
   if (!res.headersSent) {
     res.status(500).json({ error: 'Internal Server Error' })
   }
@@ -247,8 +262,16 @@ export function createServerFactory(
   ): Promise<express.Express | https.Server> => {
     if (!processHandlersRegistered) {
       processHandlersRegistered = true
-      process.on('uncaughtException', (error) => logger.error(error))
-      process.on('unhandledRejection', (error) => logger.error(error))
+      // Genuine unexpected errors — log AND report to the bonded error tracker
+      // (captureException no-ops when no tracker is bonded and never throws).
+      process.on('uncaughtException', (error) => {
+        logger.error(error)
+        captureException(error, { tags: { source: 'uncaughtException' } })
+      })
+      process.on('unhandledRejection', (error) => {
+        logger.error(error)
+        captureException(error, { tags: { source: 'unhandledRejection' } })
+      })
     }
 
     await opts.runMigrations()

@@ -250,6 +250,35 @@ export async function setupGeolocationMapbox(): Promise<void> {
   setGeo(provider)
 }
 
+/**
+ * Wires `@molecule/api-error-tracking-sentry` to `@molecule/api-error-tracking`.
+ *
+ * Safe to wire unconditionally: without `SENTRY_DSN` the Sentry provider is a
+ * documented no-op (the boot config report flags the missing key), so an app
+ * that hasn't configured Sentry yet boots and runs untouched.
+ */
+export async function setupErrorTrackingSentry(): Promise<void> {
+  const [{ setProvider: setErrorTracking }, { provider }] = await Promise.all([
+    import('@molecule/api-error-tracking'),
+    import('@molecule/api-error-tracking-sentry'),
+  ])
+  setErrorTracking(provider)
+}
+
+/**
+ * Wires `@molecule/api-error-tracking-console` to `@molecule/api-error-tracking`.
+ *
+ * Zero-credential development default: captures are logged as structured
+ * lines through the bonded logger instead of being sent to a remote service.
+ */
+export async function setupErrorTrackingConsole(): Promise<void> {
+  const [{ setProvider: setErrorTracking }, { provider }] = await Promise.all([
+    import('@molecule/api-error-tracking'),
+    import('@molecule/api-error-tracking-console'),
+  ])
+  setErrorTracking(provider)
+}
+
 /** Wires `@molecule/api-cache-redis` to `@molecule/api-cache`. */
 export async function setupCacheRedis(): Promise<void> {
   const [{ setProvider: setCache }, { provider }] = await Promise.all([
