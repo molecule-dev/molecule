@@ -3,6 +3,11 @@
  * runtime secrets registry (`@molecule/api-secrets`) can drive boot-time
  * configuration reports and actionable "not configured" errors.
  *
+ * Content is derived MECHANICALLY from this package's mlcl registry secrets
+ * entry (label/instructions/setupUrl/example) via the fleet formula, so
+ * packages sharing a key register byte-identical definitions and
+ * registration order never matters.
+ *
  * @module
  */
 
@@ -14,7 +19,7 @@ export const stripeSecretDefinitions: SecretDefinition[] = [
   {
     key: 'STRIPE_SECRET_KEY',
     description:
-      'Stripe secret API key (sk_test_… / sk_live_…) — powers checkout, subscriptions, and billing.',
+      'Stripe secret key — Stripe Dashboard → Developers → API keys; use the sk_test_ key in test mode, sk_live_ in production.',
     helpUrl: 'https://dashboard.stripe.com/apikeys',
     required: true,
     example: 'sk_test_...',
@@ -22,7 +27,7 @@ export const stripeSecretDefinitions: SecretDefinition[] = [
   {
     key: 'STRIPE_WEBHOOK_SECRET',
     description:
-      'Stripe webhook signing secret (whsec_…) — verifies payment notification signatures; without it subscription renewals/cancellations cannot be processed.',
+      'Stripe webhook signing secret — Stripe Dashboard → Developers → Webhooks → Add endpoint pointing at {apiUrl}/api/users/payment-notification/stripe, then copy its signing secret.',
     helpUrl: 'https://dashboard.stripe.com/webhooks',
     required: true,
     example: 'whsec_...',
