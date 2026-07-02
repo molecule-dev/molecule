@@ -475,4 +475,13 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Предложено на основе ключевых слов из ваших последних сообщений',
   'ide.device.select': 'Рама устройства',
   'ide.device.rotate': 'Повернуть',
+  'ide.chat.closeOverlay': 'Закрыть',
+  'ide.chat.retryCountdown': 'Ошибка сервера — повторная попытка через {{seconds}} с… (попытка {{attempt}})',
+  'ide.preview.blankTitle': 'Предварительный просмотр пуст',
+  'ide.preview.blankHint': 'Приложение загрузилось, но ничего не отобразилось — возможно, произошла ошибка. Об этом сообщено в Synthase. Вы можете перезагрузить страницу или открыть предварительный просмотр в новой вкладке.',
+  'ide.chat.previewLinkTitle': 'Откройте файл «{{path}}» в окне предварительного просмотра',
+  'ide.chat.report.diagnosticsNote': 'В приложении указаны версия вашего приложения, браузер и размер экрана — эта информация поможет нам устранить неполадки.',
+  'ide.chat.skills.loadedCount': '🧠 Обширные навыки в области «{{count}}»',
+  'ide.chat.skills.waitingForSandbox': 'Ожидание завершения запуска песочницы…',
+  'ide.chat.skills.resetDefaults': 'Загрузить всё по умолчанию',
 }

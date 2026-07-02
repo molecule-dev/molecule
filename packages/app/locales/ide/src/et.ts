@@ -470,4 +470,13 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Soovitatud sinu viimaste sõnumite märksõnade põhjal',
   'ide.device.select': 'Seadme raam',
   'ide.device.rotate': 'Pööra',
+  'ide.chat.closeOverlay': 'Sulge',
+  'ide.chat.retryCountdown': 'Serveriviga — proovin uuesti {{seconds}} s… (katse {{attempt}})',
+  'ide.preview.blankTitle': 'Eelvaade on tühi',
+  'ide.preview.blankHint': 'Rakendus laaditi küll, kuid midagi ei kuvatud — võib-olla on tegemist veaga. Synthase’ile on sellest teatatud. Võid lehe uuesti laadida või avada eelvaate uues vahekaardis.',
+  'ide.chat.previewLinkTitle': 'Ava fail „{{path}}“ eelvaates',
+  'ide.chat.report.diagnosticsNote': 'Oleme lisanud teie rakenduse versiooni, brauseri ja ekraani suuruse, et aidata meil vigu kõrvaldada.',
+  'ide.chat.skills.loadedCount': '🧠 Omandanud „{{count}}“ oskused',
+  'ide.chat.skills.waitingForSandbox': 'Oodatakse, kuni liivakasti käivitamine lõpeb…',
+  'ide.chat.skills.resetDefaults': 'Laadi vaikimisi kõik',
 }

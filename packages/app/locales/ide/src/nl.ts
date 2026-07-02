@@ -475,4 +475,13 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Voorgesteld op basis van trefwoorden in je recente berichten',
   'ide.device.select': 'Apparaatframe',
   'ide.device.rotate': 'Draaien',
+  'ide.chat.closeOverlay': 'Sluiten',
+  'ide.chat.retryCountdown': 'Serverfout — wordt opnieuw geprobeerd over {{seconds}} s… (poging {{attempt}})',
+  'ide.preview.blankTitle': 'Het voorbeeld is leeg',
+  'ide.preview.blankHint': 'De app is geladen, maar er wordt niets weergegeven — er is mogelijk een fout opgetreden. Synthase is hiervan op de hoogte gesteld. Je kunt de pagina opnieuw laden of het voorbeeld in een nieuw tabblad openen.',
+  'ide.chat.previewLinkTitle': 'Open {{path}} in het voorbeeldvenster',
+  'ide.chat.report.diagnosticsNote': 'De versie van je app, je browser en je schermgrootte zijn bijgevoegd om ons te helpen bij het opsporen van fouten.',
+  'ide.chat.skills.loadedCount': '🧠 Uitgebreide kennis v{{count}}',
+  'ide.chat.skills.waitingForSandbox': 'Wachten tot de sandbox is opgestart…',
+  'ide.chat.skills.resetDefaults': 'Standaard alles laden',
 }

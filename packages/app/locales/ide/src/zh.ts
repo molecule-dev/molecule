@@ -456,4 +456,13 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': '根据您最近消息中的关键词推荐',
   'ide.device.select': '设备框架',
   'ide.device.rotate': '旋转',
+  'ide.chat.closeOverlay': '关闭',
+  'ide.chat.retryCountdown': '服务器错误——将在 {{seconds}} 秒后重试……（尝试 {{attempt}}）',
+  'ide.preview.blankTitle': '预览内容为空',
+  'ide.preview.blankHint': '该应用已加载，但未显示任何内容——可能出现了错误。Synthase 已收到通知。您可以重新加载页面，或在新的标签页中打开预览。',
+  'ide.chat.previewLinkTitle': '在预览中打开 {{path}}',
+  'ide.chat.report.diagnosticsNote': '已附上您的应用版本、浏览器和屏幕尺寸，以帮助我们进行调试。',
+  'ide.chat.skills.loadedCount': '🧠 掌握了{{count}}的各项技能',
+  'ide.chat.skills.waitingForSandbox': '正在等待沙盒启动完成……',
+  'ide.chat.skills.resetDefaults': '默认加载全部',
 }

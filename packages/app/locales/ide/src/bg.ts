@@ -476,4 +476,13 @@ export const bg: Partial<IdeTranslations> = {
     'Предложено въз основа на ключовите думи във вашите последните съобщения',
   'ide.device.select': 'Рамка на устройството',
   'ide.device.rotate': 'Завъртане',
+  'ide.chat.closeOverlay': 'Затвори',
+  'ide.chat.retryCountdown': 'Сървърна грешка — повторен опит след {{seconds}} секунди… (опит {{attempt}})',
+  'ide.preview.blankTitle': 'Предварителният преглед е празен',
+  'ide.preview.blankHint': 'Приложението се зареди, но не се визуализира нищо — вероятно има грешка. Synthase е уведомен. Можете да презаредите страницата или да отворите предварителния преглед в нов раздел.',
+  'ide.chat.previewLinkTitle': 'Отворете {{path}} в прозореца за преглед',
+  'ide.chat.report.diagnosticsNote': 'Прилагаме информацията за версията на приложението ви, браузъра и размера на екрана, за да ни помогнете при отстраняването на грешките.',
+  'ide.chat.skills.loadedCount': '🧠 Разширени умения в „{{count}}“',
+  'ide.chat.skills.waitingForSandbox': 'Изчакване на завършването на стартирането на пясъчника…',
+  'ide.chat.skills.resetDefaults': 'По подразбиране да се заредят всички',
 }

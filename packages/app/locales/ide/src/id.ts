@@ -472,4 +472,13 @@ export const id: Partial<IdeTranslations> = {
     'Disarankan berdasarkan kata kunci dalam pesan-pesan Anda baru-baru ini',
   'ide.device.select': 'Rangka perangkat',
   'ide.device.rotate': 'Putar',
+  'ide.chat.closeOverlay': 'Tutup',
+  'ide.chat.retryCountdown': 'Kesalahan server — sedang mencoba kembali dalam {{seconds}} s… (upaya {{attempt}})',
+  'ide.preview.blankTitle': 'Tampilan pratinjau kosong',
+  'ide.preview.blankHint': 'Aplikasi tersebut sudah dimuat tetapi tidak menampilkan apa pun — mungkin ada kesalahan. Synthase sudah diberi tahu. Anda bisa memuat ulang halaman, atau membuka pratinjau di tab baru.',
+  'ide.chat.previewLinkTitle': 'Buka {{path}} di jendela pratinjau',
+  'ide.chat.report.diagnosticsNote': 'Versi aplikasi, browser, dan ukuran layar Anda telah dilampirkan untuk membantu kami melakukan debugging.',
+  'ide.chat.skills.loadedCount': '🧠 Menguasai keterampilan {{count}}',
+  'ide.chat.skills.waitingForSandbox': 'Menunggu proses penyiapan sandbox selesai…',
+  'ide.chat.skills.resetDefaults': 'Muat semuanya secara default',
 }

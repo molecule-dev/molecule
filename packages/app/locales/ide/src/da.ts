@@ -470,4 +470,13 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Forslag baseret på søgeord i dine seneste beskeder',
   'ide.device.select': 'Enhedsramme',
   'ide.device.rotate': 'Drej',
+  'ide.chat.closeOverlay': 'Luk',
+  'ide.chat.retryCountdown': 'Serverfejl — forsøger igen om {{seconds}} s… (forsøg {{attempt}})',
+  'ide.preview.blankTitle': 'Forhåndsvisningen er tom',
+  'ide.preview.blankHint': 'Appen blev indlæst, men der blev ikke vist noget — der er muligvis opstået en fejl. Synthase er blevet underrettet. Du kan indlæse siden igen eller åbne forhåndsvisningen i en ny fane.',
+  'ide.chat.previewLinkTitle': 'Åbn {{path}} i forhåndsvisningen',
+  'ide.chat.report.diagnosticsNote': 'Din app-version, browser og skærmstørrelse er vedhæftet for at hjælpe os med fejlfinding.',
+  'ide.chat.skills.loadedCount': '🧠 Omfattende viden om »{{count}}«',
+  'ide.chat.skills.waitingForSandbox': 'Venter på, at sandkassen er færdig med at starte op…',
+  'ide.chat.skills.resetDefaults': 'Indlæs alt som standard',
 }

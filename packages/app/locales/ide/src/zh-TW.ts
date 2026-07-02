@@ -453,4 +453,13 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': '根據您近期訊息中的關鍵字所建議',
   'ide.device.select': '裝置框架',
   'ide.device.rotate': '旋轉',
+  'ide.chat.closeOverlay': '關閉',
+  'ide.chat.retryCountdown': '伺服器錯誤 — 將於 {{seconds}} 秒後重試……（嘗試 {{attempt}}）',
+  'ide.preview.blankTitle': '預覽內容為空白',
+  'ide.preview.blankHint': '應用程式已載入，但未顯示任何內容——可能發生了錯誤。Synthase 已收到通知。您可以重新載入頁面，或在新的分頁中開啟預覽。',
+  'ide.chat.previewLinkTitle': '在「預覽」中開啟 {{path}}',
+  'ide.chat.report.diagnosticsNote': '已附上您的應用程式版本、瀏覽器及螢幕尺寸，以協助我們進行除錯。',
+  'ide.chat.skills.loadedCount': '🧠 精通{{count}}技能',
+  'ide.chat.skills.waitingForSandbox': '正在等待沙盒完成啟動……',
+  'ide.chat.skills.resetDefaults': '預設載入所有內容',
 }

@@ -480,4 +480,13 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Suggestions basées sur les mots-clés de vos messages récents',
   'ide.device.select': "Châssis de l'appareil",
   'ide.device.rotate': 'Pivoter',
+  'ide.chat.closeOverlay': 'Fermer',
+  'ide.chat.retryCountdown': 'Erreur de serveur — nouvelle tentative dans {{seconds}} s… (tentative {{attempt}})',
+  'ide.preview.blankTitle': "L'aperçu est vide",
+  'ide.preview.blankHint': "L'application s'est chargée mais n'affiche rien — il s'agit peut-être d'une erreur. Synthase en a été informé. Vous pouvez actualiser la page ou ouvrir l'aperçu dans un nouvel onglet.",
+  'ide.chat.previewLinkTitle': "Ouvrir {{path}} dans l'aperçu",
+  'ide.chat.report.diagnosticsNote': 'La version de votre application, votre navigateur et la taille de votre écran sont indiqués ci-dessous pour nous aider à résoudre le problème.',
+  'ide.chat.skills.loadedCount': '🧠 Compétences approfondies en {{count}}',
+  'ide.chat.skills.waitingForSandbox': 'En attente de la fin du démarrage du bac à sable…',
+  'ide.chat.skills.resetDefaults': 'Charger tout par défaut',
 }

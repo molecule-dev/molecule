@@ -472,4 +472,13 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Predlogi na podlagi ključnih besed iz vaših zadnjih sporočil',
   'ide.device.select': 'Okvir naprave',
   'ide.device.rotate': 'Obrni',
+  'ide.chat.closeOverlay': 'Zapri',
+  'ide.chat.retryCountdown': 'Napaka strežnika — ponovni poskus čez {{seconds}} s… (poskus {{attempt}})',
+  'ide.preview.blankTitle': 'Predogled je prazen',
+  'ide.preview.blankHint': 'Aplikacija se je naložila, vendar ni prikazala ničesar – morda je prišlo do napake. Synthase je bil o tem obveščen. Stran lahko osvežite ali pa predogled odprete v novem zavihku.',
+  'ide.chat.previewLinkTitle': 'Odpri {{path}} v predogledu',
+  'ide.chat.report.diagnosticsNote': 'Priloženi so podatki o različici vaše aplikacije, brskalniku in velikosti zaslona, ki nam bodo v pomoč pri odpravljanju napak.',
+  'ide.chat.skills.loadedCount': '🧠 Obsežno znanje o »{{count}}«',
+  'ide.chat.skills.waitingForSandbox': 'Čakam, da se peskovnik v celoti zažene…',
+  'ide.chat.skills.resetDefaults': 'Prikaži vse po privzetku',
 }

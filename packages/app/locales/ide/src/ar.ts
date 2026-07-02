@@ -466,4 +466,13 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'اقتراحات بناءً على الكلمات المفتاحية في رسائلك الأخيرة',
   'ide.device.select': 'إطار الجهاز',
   'ide.device.rotate': 'تدوير',
+  'ide.chat.closeOverlay': 'إغلاق',
+  'ide.chat.retryCountdown': 'خطأ في الخادم — إعادة المحاولة خلال {{seconds}} ثانية… (المحاولة {{attempt}})',
+  'ide.preview.blankTitle': 'المعاينة فارغة',
+  'ide.preview.blankHint': 'تم تحميل التطبيق ولكنه لم يعرض أي شيء — ربما يكون هناك خطأ ما. تم إخطار Synthase بذلك. يمكنك إعادة التحميل، أو فتح المعاينة في علامة تبويب جديدة.',
+  'ide.chat.previewLinkTitle': 'افتح ملف «{{path}}» في «المعاينة»',
+  'ide.chat.report.diagnosticsNote': 'تم إرفاق إصدار التطبيق والمتصفح وحجم الشاشة لمساعدتنا في تصحيح الأخطاء.',
+  'ide.chat.skills.loadedCount': '🧠 مهارات متقدمة في استخدام برنامج «{{count}}»',
+  'ide.chat.skills.waitingForSandbox': 'في انتظار انتهاء عملية تشغيل بيئة الاختبار...',
+  'ide.chat.skills.resetDefaults': 'تحميل الكل بشكل افتراضي',
 }

@@ -475,4 +475,13 @@ export const pl: Partial<IdeTranslations> = {
     'Propozycje na podstawie słów kluczowych z Twoich ostatnich wiadomości',
   'ide.device.select': 'Rama urządzenia',
   'ide.device.rotate': 'Obróć',
+  'ide.chat.closeOverlay': 'Zamknij',
+  'ide.chat.retryCountdown': 'Błąd serwera — ponowna próba za {{seconds}} s… (próba {{attempt}})',
+  'ide.preview.blankTitle': 'Podgląd jest pusty',
+  'ide.preview.blankHint': 'Aplikacja załadowała się, ale nic nie wyświetliła — prawdopodobnie wystąpił błąd. Powiadomiono Synthase. Możesz odświeżyć stronę lub otworzyć podgląd w nowej karcie.',
+  'ide.chat.previewLinkTitle': 'Otwórz plik „{{path}}” w podglądzie',
+  'ide.chat.report.diagnosticsNote': 'Załączamy informacje o wersji Twojej aplikacji, przeglądarce i rozmiarze ekranu, aby pomóc nam w usuwaniu błędów.',
+  'ide.chat.skills.loadedCount': '🧠 Bogaty zestaw umiejętności w zakresie „{{count}}”',
+  'ide.chat.skills.waitingForSandbox': 'Oczekiwanie na zakończenie uruchamiania środowiska testowego…',
+  'ide.chat.skills.resetDefaults': 'Domyślnie załaduj wszystko',
 }

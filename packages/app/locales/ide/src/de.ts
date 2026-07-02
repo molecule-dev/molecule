@@ -483,4 +483,13 @@ export const de: Partial<IdeTranslations> = {
     'Vorschläge basierend auf Stichwörtern in deinen letzten Nachrichten',
   'ide.device.select': 'Geräterahmen',
   'ide.device.rotate': 'Drehen',
+  'ide.chat.closeOverlay': 'Schließen',
+  'ide.chat.retryCountdown': 'Serverfehler – erneuter Versuch in {{seconds}} s… (Versuch {{attempt}})',
+  'ide.preview.blankTitle': 'Die Vorschau ist leer',
+  'ide.preview.blankHint': 'Die App wurde geladen, hat aber nichts angezeigt – möglicherweise liegt ein Fehler vor. Synthase wurde benachrichtigt. Sie können die Seite neu laden oder die Vorschau in einem neuen Tab öffnen.',
+  'ide.chat.previewLinkTitle': '„{{path}}“ in der Vorschau öffnen',
+  'ide.chat.report.diagnosticsNote': 'Die Version Ihrer App, Ihr Browser und Ihre Bildschirmgröße sind beigefügt, um uns bei der Fehlerbehebung zu helfen.',
+  'ide.chat.skills.loadedCount': '🧠 Umfassende Kenntnisse im Bereich „{{count}}“',
+  'ide.chat.skills.waitingForSandbox': 'Warten auf den Abschluss des Startvorgangs der Sandbox…',
+  'ide.chat.skills.resetDefaults': 'Standardmäßig alles laden',
 }

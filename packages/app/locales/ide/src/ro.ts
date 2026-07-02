@@ -475,4 +475,13 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Sugestii pe baza cuvintelor-cheie din mesajele tale recente',
   'ide.device.select': 'Cadrul dispozitivului',
   'ide.device.rotate': 'Rotire',
+  'ide.chat.closeOverlay': 'Închide',
+  'ide.chat.retryCountdown': 'Eroare de server — se încearcă din nou în {{seconds}} s… (încercare {{attempt}})',
+  'ide.preview.blankTitle': 'Previzualizarea este goală',
+  'ide.preview.blankHint': 'Aplicația s-a încărcat, dar nu a afișat nimic — este posibil să existe o eroare. Synthase a fost notificată. Poți reîncărca pagina sau deschide previzualizarea într-un filă nouă.',
+  'ide.chat.previewLinkTitle': 'Deschideți {{path}} în previzualizare',
+  'ide.chat.report.diagnosticsNote': 'Versiunea aplicației, browserul și dimensiunea ecranului sunt atașate pentru a ne ajuta la depanare.',
+  'ide.chat.skills.loadedCount': '🧠 Abilități avansate în „{{count}}”',
+  'ide.chat.skills.waitingForSandbox': 'Se așteaptă finalizarea pornirii mediului de testare…',
+  'ide.chat.skills.resetDefaults': 'Încărcare implicită a tuturor elementelor',
 }

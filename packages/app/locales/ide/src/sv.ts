@@ -470,4 +470,13 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Förslag baserade på nyckelord i dina senaste meddelanden',
   'ide.device.select': 'Enhetsram',
   'ide.device.rotate': 'Rotera',
+  'ide.chat.closeOverlay': 'Stäng',
+  'ide.chat.retryCountdown': 'Serverfel — försöker igen om {{seconds}} sekunder… (försök {{attempt}})',
+  'ide.preview.blankTitle': 'Förhandsvisningen är tom',
+  'ide.preview.blankHint': 'Appen laddades men visade ingenting – det kan ha uppstått ett fel. Synthase har underrättats. Du kan ladda om sidan eller öppna förhandsvisningen i en ny flik.',
+  'ide.chat.previewLinkTitle': 'Öppna {{path}} i förhandsvisningen',
+  'ide.chat.report.diagnosticsNote': 'Din appversion, webbläsare och skärmstorlek bifogas för att hjälpa oss med felsökningen.',
+  'ide.chat.skills.loadedCount': '🧠 Avancerade kunskaper inom{{count}}',
+  'ide.chat.skills.waitingForSandbox': 'Väntar på att sandlådan ska starta klart…',
+  'ide.chat.skills.resetDefaults': 'Ladda alla som standard',
 }

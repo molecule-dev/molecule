@@ -465,4 +465,13 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Suggested from keywords in your recent messages',
   'ide.device.select': 'Device frame',
   'ide.device.rotate': 'Rotate',
+  'ide.chat.closeOverlay': 'Close',
+  'ide.chat.retryCountdown': 'Server error — retrying in {{seconds}}s… (attempt {{attempt}})',
+  'ide.preview.blankTitle': 'The preview is blank',
+  'ide.preview.blankHint': 'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
+  'ide.chat.previewLinkTitle': 'Open {{path}} in the preview',
+  'ide.chat.report.diagnosticsNote': 'Your app version, browser, and screen size are attached to help us debug.',
+  'ide.chat.skills.loadedCount': '🧠 Loaded {{count}} skills',
+  'ide.chat.skills.waitingForSandbox': 'Waiting for the sandbox to finish starting…',
+  'ide.chat.skills.resetDefaults': 'Load all by default',
 }

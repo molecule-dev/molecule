@@ -474,4 +474,13 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Rekomenduojama pagal raktažodžius iš jūsų naujausių pranešimų',
   'ide.device.select': 'Įrenginio rėmas',
   'ide.device.rotate': 'Pasukti',
+  'ide.chat.closeOverlay': 'Uždaryti',
+  'ide.chat.retryCountdown': 'Serverio klaida — bandoma pakartoti po {{seconds}} s… (bandoma {{attempt}})',
+  'ide.preview.blankTitle': 'Peržiūra yra tuščia',
+  'ide.preview.blankHint': 'Programėlė įkeliama, bet nieko nerodo — galbūt įvyko klaida. Apie tai pranešta „Synthase“. Galite atnaujinti puslapį arba atidaryti peržiūrą naujame skirtuke.',
+  'ide.chat.previewLinkTitle': 'Atidarykite „{{path}}“ peržiūros lange',
+  'ide.chat.report.diagnosticsNote': 'Pridedame jūsų programėlės versiją, naršyklę ir ekrano dydį, kad galėtume ištaisyti klaidas.',
+  'ide.chat.skills.loadedCount': '🧠 Įgijau „{{count}}“ įgūdžių',
+  'ide.chat.skills.waitingForSandbox': 'Laukiama, kol baigsis „sandbox“ paleidimas…',
+  'ide.chat.skills.resetDefaults': 'Pagal numatytuosius nustatymus įkelti viską',
 }

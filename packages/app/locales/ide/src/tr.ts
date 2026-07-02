@@ -471,4 +471,13 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Son mesajlarınızdaki anahtar kelimelerden önerilenler',
   'ide.device.select': 'Cihaz çerçevesi',
   'ide.device.rotate': 'Döndür',
+  'ide.chat.closeOverlay': 'Kapat',
+  'ide.chat.retryCountdown': 'Sunucu hatası — {{seconds}} adresinde yeniden deneme… ({{attempt}} adresinde deneme)',
+  'ide.preview.blankTitle': 'Önizleme boş',
+  'ide.preview.blankHint': "Uygulama yüklendi ancak hiçbir şey görüntülenmedi — bir hata olabilir. Synthase'e bildirim gönderildi. Sayfayı yeniden yükleyebilir veya önizlemeyi yeni bir sekmede açabilirsiniz.",
+  'ide.chat.previewLinkTitle': "{{path}}'i önizlemede aç",
+  'ide.chat.report.diagnosticsNote': 'Hata giderme çalışmalarımıza yardımcı olması amacıyla uygulamanızın sürümü, tarayıcınız ve ekran boyutunuz ekte yer almaktadır.',
+  'ide.chat.skills.loadedCount': '🧠 Gelişmiş {{count}} becerileri',
+  'ide.chat.skills.waitingForSandbox': "Sandbox'ın başlatılmasının tamamlanmasını bekliyorum…",
+  'ide.chat.skills.resetDefaults': 'Varsayılan olarak hepsini yükle',
 }

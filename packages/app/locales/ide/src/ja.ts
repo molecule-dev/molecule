@@ -474,4 +474,13 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': '最近のメッセージに含まれるキーワードから提案されました',
   'ide.device.select': 'デバイスフレーム',
   'ide.device.rotate': '回転',
+  'ide.chat.closeOverlay': '閉じる',
+  'ide.chat.retryCountdown': 'サーバーエラー — {{seconds}} 秒後に再試行します… ({{attempt}} を試行中)',
+  'ide.preview.blankTitle': 'プレビューが空白です',
+  'ide.preview.blankHint': 'アプリは読み込まれましたが、何も表示されませんでした。エラーが発生している可能性があります。Synthaseにはすでに報告済みです。ページを再読み込みするか、新しいタブでプレビューを開いてください。',
+  'ide.chat.previewLinkTitle': 'プレビューで「{{path}}」を開く',
+  'ide.chat.report.diagnosticsNote': 'デバッグの参考となるよう、お使いのアプリのバージョン、ブラウザ、画面サイズを添付しました。',
+  'ide.chat.skills.loadedCount': '🧠 {{count}}のスキルを習得',
+  'ide.chat.skills.waitingForSandbox': 'サンドボックスの起動が完了するのを待っています…',
+  'ide.chat.skills.resetDefaults': 'デフォルトですべてを読み込む',
 }

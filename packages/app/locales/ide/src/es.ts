@@ -477,4 +477,13 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Sugerido a partir de las palabras clave de tus mensajes recientes',
   'ide.device.select': 'Estructura del dispositivo',
   'ide.device.rotate': 'Girar',
+  'ide.chat.closeOverlay': 'Cerrar',
+  'ide.chat.retryCountdown': 'Error del servidor: se volverá a intentar en {{seconds}} s… (intento {{attempt}})',
+  'ide.preview.blankTitle': 'La vista previa está en blanco',
+  'ide.preview.blankHint': 'La aplicación se ha cargado, pero no se muestra nada; es posible que haya un error. Se ha notificado a Synthase. Puedes volver a cargar la página o abrir la vista previa en una nueva pestaña.',
+  'ide.chat.previewLinkTitle': 'Abre {{path}} en la vista previa',
+  'ide.chat.report.diagnosticsNote': 'Te adjuntamos la versión de tu aplicación, el navegador y el tamaño de la pantalla para ayudarnos a solucionar el problema.',
+  'ide.chat.skills.loadedCount': '🧠 Amplios conocimientos de{{count}}',
+  'ide.chat.skills.waitingForSandbox': 'Esperando a que termine de iniciarse el entorno de pruebas…',
+  'ide.chat.skills.resetDefaults': 'Cargar todo por defecto',
 }

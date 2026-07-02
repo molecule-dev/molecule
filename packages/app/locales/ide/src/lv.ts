@@ -471,4 +471,13 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Ieteikumi, pamatojoties uz atslēgvārdiem jūsu pēdējās ziņās',
   'ide.device.select': 'Ierīces rāmis',
   'ide.device.rotate': 'Pagriezt',
+  'ide.chat.closeOverlay': 'Aizvērt',
+  'ide.chat.retryCountdown': 'Servera kļūda — atkārtoju mēģinājumu pēc {{seconds}} sekundēm… (mēģinājums {{attempt}})',
+  'ide.preview.blankTitle': 'Priekšskatījums ir tukšs',
+  'ide.preview.blankHint': 'Lietotne tika ielādēta, bet nekas netika parādīts — iespējams, ir radusies kļūda. Par to ir paziņots „Synthase“. Jūs varat atkārtoti ielādēt lapu vai atvērt priekšskatījumu jaunā cilnē.',
+  'ide.chat.previewLinkTitle': 'Atveriet failu „{{path}}” priekšskatījumā',
+  'ide.chat.report.diagnosticsNote': 'Lai palīdzētu mums novērst kļūdas, esam pievienojuši informāciju par jūsu lietotnes versiju, pārlūku un ekrāna izmēru.',
+  'ide.chat.skills.loadedCount': '🧠 Apgūtas „{{count}}“ prasmes',
+  'ide.chat.skills.waitingForSandbox': 'Gaidu, kamēr smilšu kaste pabeigs palaišanos…',
+  'ide.chat.skills.resetDefaults': 'Pēc noklusējuma ielādēt visu',
 }

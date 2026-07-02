@@ -467,4 +467,13 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Forslag basert på nøkkelord i dine siste meldinger',
   'ide.device.select': 'Enhetsramme',
   'ide.device.rotate': 'Roter',
+  'ide.chat.closeOverlay': 'Lukk',
+  'ide.chat.retryCountdown': 'Serverfeil — prøver på nytt om {{seconds}} s… (forsøk {{attempt}})',
+  'ide.preview.blankTitle': 'Forhåndsvisningen er tom',
+  'ide.preview.blankHint': 'Appen ble lastet inn, men det ble ikke vist noe — det kan være en feil. Synthase har blitt varslet. Du kan laste inn siden på nytt eller åpne forhåndsvisningen i en ny fane.',
+  'ide.chat.previewLinkTitle': 'Åpne {{path}} i forhåndsvisningen',
+  'ide.chat.report.diagnosticsNote': 'Appversjonen din, nettleseren din og skjermstørrelsen er vedlagt for å hjelpe oss med feilsøkingen.',
+  'ide.chat.skills.loadedCount': '🧠 Har omfattende kunnskap om «{{count}}»',
+  'ide.chat.skills.waitingForSandbox': 'Venter på at sandkassen skal fullføre oppstarten…',
+  'ide.chat.skills.resetDefaults': 'Last inn alt som standard',
 }

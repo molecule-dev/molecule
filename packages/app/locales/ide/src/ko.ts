@@ -468,4 +468,13 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': '최근 메시지의 키워드를 바탕으로 추천된 내용',
   'ide.device.select': '장치 프레임',
   'ide.device.rotate': '회전',
+  'ide.chat.closeOverlay': '닫기',
+  'ide.chat.retryCountdown': '서버 오류 — {{seconds}} 초 후에 재시도 중… ({{attempt}} 시도 중)',
+  'ide.preview.blankTitle': '미리보기가 비어 있습니다',
+  'ide.preview.blankHint': '앱이 로드되었지만 아무것도 표시되지 않았습니다. 오류가 발생한 것일 수 있습니다. Synthase 측에 해당 사항이 전달되었습니다. 페이지를 다시 로드하거나 새 탭에서 미리보기를 열어보세요.',
+  'ide.chat.previewLinkTitle': '{{path}}를 미리보기에서 열기',
+  'ide.chat.report.diagnosticsNote': '디버깅에 도움이 되도록 귀하의 앱 버전, 브라우저 및 화면 크기를 첨부했습니다.',
+  'ide.chat.skills.loadedCount': '🧠{{count}} 관련 전문 기술 보유',
+  'ide.chat.skills.waitingForSandbox': '샌드박스 시작이 완료되기를 기다리고 있습니다…',
+  'ide.chat.skills.resetDefaults': '기본적으로 모두 불러오기',
 }

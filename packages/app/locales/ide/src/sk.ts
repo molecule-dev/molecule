@@ -473,4 +473,13 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Navrhnuté na základe kľúčových slov vo vašich posledných správach',
   'ide.device.select': 'Rám zariadenia',
   'ide.device.rotate': 'Otočiť',
+  'ide.chat.closeOverlay': 'Zatvoriť',
+  'ide.chat.retryCountdown': 'Chyba servera — opakujem pokus za {{seconds}} s… ({{attempt}})',
+  'ide.preview.blankTitle': 'Náhľad je prázdny',
+  'ide.preview.blankHint': 'Aplikácia sa načítala, ale nič sa nezobrazilo — pravdepodobne došlo k chybe. Spoločnosť Synthase bola o tom informovaná. Môžete stránku znovu načítať alebo otvoriť náhľad v novej karte.',
+  'ide.chat.previewLinkTitle': 'Otvorte súbor {{path}} v náhľade',
+  'ide.chat.report.diagnosticsNote': 'Prikladáme informácie o verzii vašej aplikácie, prehliadači a veľkosti obrazovky, ktoré nám pomôžu pri odstraňovaní chýb.',
+  'ide.chat.skills.loadedCount': '🧠 Rozvinuté zručnosti v oblasti „{{count}}“',
+  'ide.chat.skills.waitingForSandbox': 'Čakám, kým sa spustí sandbox…',
+  'ide.chat.skills.resetDefaults': 'V predvolenom nastavení načítať všetko',
 }

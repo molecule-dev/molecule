@@ -472,4 +472,13 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Ehdotuksia viimeaikaisten viestiesi avainsanojen perusteella',
   'ide.device.select': 'Laitteen runko',
   'ide.device.rotate': 'Kierrä',
+  'ide.chat.closeOverlay': 'Sulje',
+  'ide.chat.retryCountdown': 'Palvelinvirhe — yritetään uudelleen {{seconds}} sekunnin kuluttua… (yritys {{attempt}})',
+  'ide.preview.blankTitle': 'Esikatselu on tyhjä',
+  'ide.preview.blankHint': 'Sovellus latautui, mutta ei näyttänyt mitään — siinä saattaa olla virhe. Asiasta on ilmoitettu Synthaselle. Voit ladata sivun uudelleen tai avata esikatselun uudessa välilehdessä.',
+  'ide.chat.previewLinkTitle': 'Avaa tiedosto {{path}} esikatselussa',
+  'ide.chat.report.diagnosticsNote': 'Sovelluksesi versio, selain ja näytön koko on liitetty mukaan, jotta voimme selvittää vian.',
+  'ide.chat.skills.loadedCount': '🧠 Laaja-alaiset taidot aiheesta ”{{count}}”',
+  'ide.chat.skills.waitingForSandbox': 'Odotetaan, että hiekkalaatikon käynnistyminen päättyy…',
+  'ide.chat.skills.resetDefaults': 'Lataa oletuksena kaikki',
 }

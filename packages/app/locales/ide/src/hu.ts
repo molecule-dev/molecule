@@ -471,4 +471,13 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'A legutóbbi üzeneteidben szereplő kulcsszavak alapján javasolt',
   'ide.device.select': 'Készülékkeret',
   'ide.device.rotate': 'Forgatás',
+  'ide.chat.closeOverlay': 'Bezárás',
+  'ide.chat.retryCountdown': 'Szerverhiba — újrakísérlet {{seconds}} másodperc múlva… ({{attempt}})',
+  'ide.preview.blankTitle': 'Az előnézet üres',
+  'ide.preview.blankHint': 'Az alkalmazás betöltődött, de nem jelenített meg semmit — valószínűleg hiba történt. A Synthase-t már értesítettük. Újratöltheted az oldalt, vagy megnyithatod az előnézetet egy új lapon.',
+  'ide.chat.previewLinkTitle': 'Nyissa meg a „{{path}}” fájlt az előnézetben',
+  'ide.chat.report.diagnosticsNote': 'Az alkalmazás verzióját, a böngészőt és a képernyő méretét csatoltuk, hogy segítsen nekünk a hibaelhárításban.',
+  'ide.chat.skills.loadedCount': '🧠 Kiterjedt ismeretek a „{{count}}” témakörében',
+  'ide.chat.skills.waitingForSandbox': 'Várom, amíg a sandbox befejezi az indítást…',
+  'ide.chat.skills.resetDefaults': 'Alapértelmezés szerint mindet betölteni',
 }

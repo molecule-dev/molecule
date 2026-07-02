@@ -470,4 +470,13 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Navrženo na základě klíčových slov ve vašich posledních zprávách',
   'ide.device.select': 'Rám zařízení',
   'ide.device.rotate': 'Otočit',
+  'ide.chat.closeOverlay': 'Zavřít',
+  'ide.chat.retryCountdown': 'Chyba serveru — opakuji pokus za {{seconds}} s… (pokus {{attempt}})',
+  'ide.preview.blankTitle': 'Náhled je prázdný',
+  'ide.preview.blankHint': 'Aplikace se načítala, ale nic se nezobrazilo – možná došlo k chybě. Synthase již byla informována. Můžete stránku znovu načíst nebo otevřít náhled v nové záložce.',
+  'ide.chat.previewLinkTitle': 'Otevřít soubor „{{path}}“ v náhledu',
+  'ide.chat.report.diagnosticsNote': 'Pro usnadnění ladění přikládáme informace o verzi vaší aplikace, prohlížeči a velikosti obrazovky.',
+  'ide.chat.skills.loadedCount': '🧠 Rozvinuté dovednosti v oblasti „{{count}}“',
+  'ide.chat.skills.waitingForSandbox': 'Čekám, až se spustí pískoviště…',
+  'ide.chat.skills.resetDefaults': 'Ve výchozím nastavení načíst vše',
 }

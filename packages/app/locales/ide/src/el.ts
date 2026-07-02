@@ -479,4 +479,13 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.skills.matchHint': 'Προτάσεις βάσει λέξεων-κλειδιών στα πρόσφατα μηνύματά σας',
   'ide.device.select': 'Πλαίσιο συσκευής',
   'ide.device.rotate': 'Περιστροφή',
+  'ide.chat.closeOverlay': 'Κλείσιμο',
+  'ide.chat.retryCountdown': 'Σφάλμα διακομιστή — επανάληψη προσπάθειας σε {{seconds}} s… (προσπάθεια {{attempt}})',
+  'ide.preview.blankTitle': 'Η προεπισκόπηση είναι κενή',
+  'ide.preview.blankHint': 'Η εφαρμογή φορτώθηκε, αλλά δεν εμφανίστηκε τίποτα — πιθανόν να υπάρχει κάποιο σφάλμα. Η Synthase έχει ενημερωθεί. Μπορείτε να ανανεώσετε τη σελίδα ή να ανοίξετε την προεπισκόπηση σε νέα καρτέλα.',
+  'ide.chat.previewLinkTitle': 'Άνοιξε το αρχείο «{{path}}» στην προεπισκόπηση',
+  'ide.chat.report.diagnosticsNote': 'Συνημμένα θα βρείτε την έκδοση της εφαρμογής σας, το πρόγραμμα περιήγησης και το μέγεθος της οθόνης σας, ώστε να μας βοηθήσετε στον εντοπισμό σφαλμάτων.',
+  'ide.chat.skills.loadedCount': '🧠 Διαθέτω εκτεταμένες δεξιότητες στο{{count}}',
+  'ide.chat.skills.waitingForSandbox': 'Αναμονή μέχρι να ολοκληρωθεί η εκκίνηση του sandbox…',
+  'ide.chat.skills.resetDefaults': 'Προεπιλεγμένη φόρτωση όλων',
 }

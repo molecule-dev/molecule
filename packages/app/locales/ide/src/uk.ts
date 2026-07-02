@@ -476,4 +476,13 @@ export const uk: Partial<IdeTranslations> = {
     'Рекомендовано на основі ключових слів у ваших останніх повідомленнях',
   'ide.device.select': 'Рама пристрою',
   'ide.device.rotate': 'Повернути',
+  'ide.chat.closeOverlay': 'Закрити',
+  'ide.chat.retryCountdown': 'Помилка сервера — повторюю спробу через {{seconds}} секунд… (спроба {{attempt}})',
+  'ide.preview.blankTitle': 'Попередній перегляд порожній',
+  'ide.preview.blankHint': 'Додаток завантажився, але нічого не відобразилося — можливо, сталася помилка. Про це повідомлено Synthase. Ви можете перезавантажити сторінку або відкрити попередній перегляд у новій вкладці.',
+  'ide.chat.previewLinkTitle': 'Відкрити файл «{{path}}» у попередньому перегляді',
+  'ide.chat.report.diagnosticsNote': 'Для полегшення налагодження ми додали інформацію про версію вашого додатка, браузер та розмір екрана.',
+  'ide.chat.skills.loadedCount': '🧠 Володію навичками роботи з {{count}}',
+  'ide.chat.skills.waitingForSandbox': 'Очікування завершення запуску пісочниці…',
+  'ide.chat.skills.resetDefaults': 'Завантажити все за замовчуванням',
 }
