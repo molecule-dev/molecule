@@ -22,8 +22,27 @@ describe('@molecule/app-vite-config-default', () => {
     expect(cfg.optimizeDeps).toBeDefined()
     expect(cfg.server?.proxy).toHaveProperty('/api')
     expect(cfg.server?.proxy).toHaveProperty('/health')
+    expect(cfg.server?.proxy).toHaveProperty('/socket.io')
     expect(cfg.build?.outDir).toBe('dist')
     expect(cfg.envPrefix).toBe('VITE_')
+  })
+
+  it('proxies /socket.io with websocket upgrade to the same API target as /api', () => {
+    // Realtime (@molecule/api-realtime-socketio) attaches its socket.io
+    // server to the API's HTTP server, so the dev proxy must forward the
+    // websocket upgrade to the same target /api uses — without ws: true,
+    // same-origin realtime connections fail in dev.
+    const cfg = createDefaultViteConfig({
+      APP_NAME: 'TestApp',
+      APP_DESCRIPTION: 'A test app',
+      BRAND_COLOR: '#ff0000',
+    })
+    const proxy = cfg.server?.proxy as Record<
+      string,
+      { target?: unknown; ws?: boolean; changeOrigin?: boolean }
+    >
+    expect(proxy['/socket.io']).toMatchObject({ ws: true, changeOrigin: true })
+    expect(proxy['/socket.io'].target).toBe(proxy['/api'].target)
   })
 
   it('origin-isolates the dev server so a stuck/looping build cannot freeze the IDE that previews it', () => {

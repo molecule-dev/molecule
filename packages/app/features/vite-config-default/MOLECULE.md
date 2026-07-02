@@ -4,8 +4,8 @@
 
 `createDefaultViteConfig({ APP_NAME, APP_DESCRIPTION, BRAND_COLOR })`
 returns the canonical fleet vite config (react + tailwind + VitePWA,
-molecule-package pre-bundle exclusion, /api + /health proxy, etc.)
-Per-app `vite.config.ts` shrinks from 105 lines to 5.
+molecule-package pre-bundle exclusion, /api + /health + /socket.io (ws)
+proxy, etc.) Per-app `vite.config.ts` shrinks from 105 lines to 5.
 
 ## Quick Start
 
@@ -47,8 +47,8 @@ interface DefaultViteConfigBranding {
 
 Returns the canonical Vite config used by every fleet app — react +
 tailwind + VitePWA plugins, molecule-package pre-bundle exclusion,
-dev server proxy for `/api` + `/health`, and the standard env
-conventions.
+dev server proxy for `/api` + `/health` + `/socket.io` (ws), and the
+standard env conventions.
 
 Replaces the 105-line per-app `vite.config.ts` shipped by 110 fleet
 apps. Per-app vite.config.ts shrinks to:
