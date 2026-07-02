@@ -40,7 +40,17 @@ export const provider: TwoFactorProvider = {
     // the acceptance window vs. a symmetric ±30s while preserving skew tolerance.
     // `afterTimeStep` makes otplib reject any token whose time step is
     // `<= afterTimeStep`, enforcing single-use of a code (replay protection).
-    const result = verifySync({ secret, token, epochTolerance: [30, 0], afterTimeStep })
+    // Pass it ONLY when it is a real integer: otplib 13 throws
+    // AfterTimeStepNotIntegerError on any other value, and a first-time setup
+    // reads `lastTwoFactorTimeStep` as NULL from the database — which made
+    // enabling 2FA impossible for every user (caught by the e2e capability
+    // matrix; unit tests passed `undefined`, which otplib tolerates).
+    const result = verifySync({
+      secret,
+      token,
+      epochTolerance: [30, 0],
+      ...(Number.isInteger(afterTimeStep) ? { afterTimeStep } : {}),
+    })
     if (!result.valid) {
       return { valid: false }
     }

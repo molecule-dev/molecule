@@ -87,15 +87,36 @@ describe('@molecule/api-two-factor-otplib', () => {
       const result = await provider.verify({ secret: 'JBSWY3DPEHPK3PXP', token: '123456' })
 
       // Past-only tolerance [30, 0] halves the acceptance window (no future step);
-      // afterTimeStep is threaded through (undefined when the caller has no prior step).
+      // afterTimeStep is OMITTED when the caller has no prior step — otplib 13
+      // throws AfterTimeStepNotIntegerError on any non-integer value.
       expect(mockVerifySync).toHaveBeenCalledWith({
         secret: 'JBSWY3DPEHPK3PXP',
         token: '123456',
         epochTolerance: [30, 0],
-        afterTimeStep: undefined,
       })
       // The matched time step is surfaced so the caller can persist it for replay protection.
       expect(result).toEqual({ valid: true, timeStep: 57600000 })
+    })
+
+    it('REGRESSION: a NULL afterTimeStep (fresh 2FA setup row) must not reach otplib', async () => {
+      // First-time setup reads lastTwoFactorTimeStep as NULL from the database;
+      // otplib 13 throws AfterTimeStepNotIntegerError on null, which made
+      // enabling 2FA impossible for every user (caught by the e2e capability
+      // matrix). Non-integer values are dropped at this boundary.
+      mockVerifySync.mockReturnValue({ valid: true, timeStep: 57600001, delta: 0, epoch: 0 })
+
+      const result = await provider.verify({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        afterTimeStep: null as unknown as number,
+      })
+
+      expect(mockVerifySync).toHaveBeenCalledWith({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        epochTolerance: [30, 0],
+      })
+      expect(result).toEqual({ valid: true, timeStep: 57600001 })
     })
 
     it('should return { valid: false } for invalid token', async () => {
