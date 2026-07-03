@@ -139,10 +139,20 @@ let _instance: PushNotificationProvider | undefined
 /**
  * Lazily-initialized push notification provider using the `web-push` library.
  * Created on first property access via a `Proxy` so no work is done at import time.
+ *
+ * The `set` trap is REQUIRED, not defensive: methods reached through the proxy
+ * run with `this` bound to the proxy, so an instance-state write like
+ * `this.configured = true` would otherwise land on the dummy `{}` target while
+ * every read passes through to the real instance — `configure()` could then
+ * never take effect and every send would throw "not configured".
  */
 export const provider: PushNotificationProvider = new Proxy({} as PushNotificationProvider, {
   get(_, prop, receiver) {
     if (!_instance) _instance = createProvider()
     return Reflect.get(_instance, prop, receiver)
+  },
+  set(_, prop, value) {
+    if (!_instance) _instance = createProvider()
+    return Reflect.set(_instance, prop, value)
   },
 })

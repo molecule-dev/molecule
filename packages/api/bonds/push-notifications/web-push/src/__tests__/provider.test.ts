@@ -230,3 +230,49 @@ describe('secret definitions', () => {
     expect(getSecretDefinition('VAPID_PUBLIC_KEY')).toBeDefined()
   })
 })
+
+describe('lazy provider proxy (the export apps actually use)', () => {
+  // Regression: the proxy had a get trap but no set trap, so configure()'s
+  // `this.configured = true` (with `this` bound to the proxy) landed on the
+  // dummy target while send() read `configured` from the real instance —
+  // every send through the proxy threw "not configured" even with full VAPID
+  // env. Exercise the EXPORTED proxy, not createProvider().
+  it('send() through the exported proxy works once env is configured', async () => {
+    const orig = {
+      VAPID_EMAIL: process.env.VAPID_EMAIL,
+      VAPID_PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY,
+      VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY,
+    }
+    process.env.VAPID_EMAIL = 'proxy@test.com'
+    process.env.VAPID_PUBLIC_KEY = 'proxy-pub'
+    process.env.VAPID_PRIVATE_KEY = 'proxy-priv'
+    mockSendNotification.mockResolvedValue({ statusCode: 201, headers: {}, body: '' })
+
+    try {
+      const { provider } = await import('../provider.js')
+      const result = await provider.send(
+        { endpoint: 'https://push.example/x', keys: { p256dh: 'p', auth: 'a' } },
+        { title: 'hi' },
+      )
+      expect(result.statusCode).toBe(201)
+      expect(mockSetVapidDetails).toHaveBeenCalledWith(
+        'mailto:proxy@test.com',
+        'proxy-pub',
+        'proxy-priv',
+      )
+      // The configured flag must PERSIST through the proxy: a second send
+      // must not re-run configure.
+      mockSetVapidDetails.mockClear()
+      await provider.send(
+        { endpoint: 'https://push.example/x', keys: { p256dh: 'p', auth: 'a' } },
+        { title: 'again' },
+      )
+      expect(mockSetVapidDetails).not.toHaveBeenCalled()
+    } finally {
+      for (const [key, value] of Object.entries(orig)) {
+        if (value === undefined) delete process.env[key]
+        else process.env[key] = value
+      }
+    }
+  })
+})
