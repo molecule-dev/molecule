@@ -59,6 +59,30 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
     return null
   }
   const moleculeDir = findMoleculeDir()
+
+  // EXCEPTION to the exclusion: locale bond packages ARE pre-bundled. They
+  // are pure data (translation dictionaries — no bond singletons, so the
+  // duplicate-instance concern does not apply), and each one eagerly
+  // re-exports ~81 language modules. Served unbundled, a dev-mode first load
+  // fans out into thousands of individual module requests (~2,400 for a
+  // typical fleet app) — slow everywhere, and inside the molecule.dev
+  // preview iframe (which loads alongside the IDE's own module traffic) it
+  // can exhaust the browser's request budget
+  // (net::ERR_INSUFFICIENT_RESOURCES), permanently failing the app's ES
+  // module graph. Pre-bundling collapses each locale package to one chunk.
+  // Only the consuming app's DECLARED locale dependencies are included so
+  // Vite never optimizes packages the app doesn't use.
+  const isLocaleBondPackage = (name: string): boolean => name.startsWith('@molecule/app-locales-')
+  let localePackages: string[] = []
+  try {
+    const appPkg = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as {
+      dependencies?: Record<string, string>
+    }
+    localePackages = Object.keys(appPkg.dependencies ?? {}).filter(isLocaleBondPackage)
+  } catch (_error) {
+    /* no readable package.json in cwd — keep every @molecule package excluded */
+  }
+
   // Collect per-package `molecule.viteOptimizeInclude` declarations from
   // every installed @molecule/* package.json. Each package that depends
   // on a CJS-shim library (one whose dist uses `module.exports.default =
@@ -135,13 +159,17 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       dedupe: ['react', 'react-dom', 'react-router-dom', 'react-router'],
     },
     optimizeDeps: {
-      exclude: moleculePackages,
+      // Locale bond packages are pre-bundled (see above) — exclude wins over
+      // include in Vite, so they are filtered OUT of the exclusion list.
+      exclude: moleculePackages.filter((name) => !isLocaleBondPackage(name)),
       // CJS-only transitive deps that ESM importers (i18next, etc.) pull
       // in. Vite's auto-discovery sometimes misses these inside excluded
       // workspace packages, surfacing as "does not provide an export
       // named 'default'" runtime errors. Force-include them so vite
       // pre-bundles with proper CJS→ESM interop.
       include: [
+        // The app's declared pure-data locale bond packages (see above).
+        ...localePackages,
         // react / react-dom are CJS proxy modules (`module.exports =
         // require('./cjs/...')`); vite 8's optimizer needs them listed
         // explicitly to expose named exports like `createRoot` to the
