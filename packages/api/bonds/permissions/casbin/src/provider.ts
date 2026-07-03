@@ -31,7 +31,7 @@ import type { CasbinPermissionsOptions } from './types.js'
  * privilege escalation; use `@molecule/api-permissions-custom` for conditional perms.
  *
  * @param perm - The permission being registered.
- * @throws When `perm.conditions` is a non-empty object.
+ * @throws {Error} When `perm.conditions` is a non-empty object.
  */
 function assertNoAbacConditions(perm: Permission): void {
   if (perm.conditions && Object.keys(perm.conditions).length > 0) {

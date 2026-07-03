@@ -11,8 +11,8 @@ import type { DatabaseConfig, DatabaseConnection, DatabasePool } from '@molecule
 
 export * from './migrator.js'
 export * from './secrets.js'
-export * from './ssl.js'
 export * as setup from './setup/index.js'
+export * from './ssl.js'
 
 import { deriveSsl } from './ssl.js'
 
