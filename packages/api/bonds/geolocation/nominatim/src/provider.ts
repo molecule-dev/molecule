@@ -347,4 +347,16 @@ export const provider: GeolocationProvider = new Proxy({} as GeolocationProvider
     }
     return Reflect.get(_provider, prop, receiver)
   },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_provider) {
+      const userAgent = process.env['NOMINATIM_USER_AGENT'] ?? 'molecule-app'
+      _provider = createProvider({
+        userAgent,
+        baseUrl: process.env['NOMINATIM_BASE_URL'],
+        email: process.env['NOMINATIM_EMAIL'],
+      })
+    }
+    return Reflect.set(_provider, prop, value)
+  },
 })

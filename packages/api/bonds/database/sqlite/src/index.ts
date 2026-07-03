@@ -56,6 +56,10 @@ export const pool: DatabasePool = new Proxy({} as DatabasePool, {
   get(_, prop, receiver) {
     return Reflect.get(getPoolInstance(), prop, receiver)
   },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    return Reflect.set(getPoolInstance(), prop, value)
+  },
 })
 
 /**
@@ -70,5 +74,10 @@ export const store = new Proxy({} as ReturnType<typeof createStore>, {
   get(_, prop, receiver) {
     if (!_store) _store = createStore(getPoolInstance())
     return Reflect.get(_store, prop, receiver)
+  },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_store) _store = createStore(getPoolInstance())
+    return Reflect.set(_store, prop, value)
   },
 })

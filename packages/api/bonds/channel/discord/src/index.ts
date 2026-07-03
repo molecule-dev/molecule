@@ -38,4 +38,9 @@ export const provider: ChannelProvider = new Proxy({} as ChannelProvider, {
     if (!_provider) _provider = createProvider()
     return Reflect.get(_provider, prop, receiver)
   },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_target, prop, value) {
+    if (!_provider) _provider = createProvider()
+    return Reflect.set(_provider, prop, value)
+  },
 })

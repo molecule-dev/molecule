@@ -364,4 +364,17 @@ export const provider: GeolocationProvider = new Proxy({} as GeolocationProvider
     }
     return Reflect.get(_provider, prop, receiver)
   },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_provider) {
+      const apiKey = process.env['GOOGLE_MAPS_API_KEY']
+      if (!apiKey) {
+        throw new Error(
+          'GOOGLE_MAPS_API_KEY environment variable is required for the Google geolocation provider.',
+        )
+      }
+      _provider = createProvider({ apiKey, baseUrl: process.env['GOOGLE_MAPS_BASE_URL'] })
+    }
+    return Reflect.set(_provider, prop, value)
+  },
 })

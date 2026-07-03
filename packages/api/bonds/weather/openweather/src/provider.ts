@@ -677,4 +677,15 @@ export const provider: WeatherProvider = new Proxy({} as WeatherProvider, {
     }
     return Reflect.get(_provider, prop, receiver)
   },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_provider) {
+      _provider = createProvider({
+        ...(process.env['OPENWEATHER_BASE_URL']
+          ? { baseUrl: process.env['OPENWEATHER_BASE_URL'] }
+          : {}),
+      })
+    }
+    return Reflect.set(_provider, prop, value)
+  },
 })

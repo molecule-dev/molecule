@@ -705,4 +705,18 @@ export const provider: FlightsProvider = new Proxy({} as FlightsProvider, {
     }
     return Reflect.get(_provider, prop, receiver)
   },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_provider) {
+      _provider = createProvider({
+        ...(process.env['AMADEUS_CLIENT_ID'] ? { clientId: process.env['AMADEUS_CLIENT_ID'] } : {}),
+        ...(process.env['AMADEUS_CLIENT_SECRET']
+          ? { clientSecret: process.env['AMADEUS_CLIENT_SECRET'] }
+          : {}),
+        ...(process.env['AMADEUS_USE_PRODUCTION'] === 'true' ? { useProduction: true } : {}),
+        ...(process.env['AMADEUS_BASE_URL'] ? { baseUrl: process.env['AMADEUS_BASE_URL'] } : {}),
+      })
+    }
+    return Reflect.set(_provider, prop, value)
+  },
 })

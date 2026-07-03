@@ -450,4 +450,14 @@ export const provider: EquityPricesProvider = new Proxy({} as EquityPricesProvid
     }
     return Reflect.get(_provider, prop, receiver)
   },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_provider) {
+      _provider = createProvider({
+        ...(process.env['IEX_BASE_URL'] ? { baseUrl: process.env['IEX_BASE_URL'] } : {}),
+        ...(process.env['IEX_API_KEY'] ? { apiKey: process.env['IEX_API_KEY'] } : {}),
+      })
+    }
+    return Reflect.set(_provider, prop, value)
+  },
 })

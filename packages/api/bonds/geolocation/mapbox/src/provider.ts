@@ -334,4 +334,17 @@ export const provider: GeolocationProvider = new Proxy({} as GeolocationProvider
     }
     return Reflect.get(_provider, prop, receiver)
   },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_provider) {
+      const accessToken = process.env['MAPBOX_ACCESS_TOKEN']
+      if (!accessToken) {
+        throw new Error(
+          'MAPBOX_ACCESS_TOKEN environment variable is required for the Mapbox geolocation provider.',
+        )
+      }
+      _provider = createProvider({ accessToken, baseUrl: process.env['MAPBOX_BASE_URL'] })
+    }
+    return Reflect.set(_provider, prop, value)
+  },
 })

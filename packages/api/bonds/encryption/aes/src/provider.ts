@@ -137,4 +137,17 @@ export const provider: EncryptionProvider = new Proxy({} as EncryptionProvider, 
     }
     return Reflect.get(_provider, prop, receiver)
   },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_provider) {
+      const key = process.env['ENCRYPTION_KEY']
+      if (!key) {
+        throw new Error(
+          'ENCRYPTION_KEY environment variable is required for AES encryption provider',
+        )
+      }
+      _provider = createProvider({ key })
+    }
+    return Reflect.set(_provider, prop, value)
+  },
 })

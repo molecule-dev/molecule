@@ -538,4 +538,18 @@ export const provider: NutritionDatabaseProvider = new Proxy({} as NutritionData
     }
     return Reflect.get(_provider, prop, receiver)
   },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_provider) {
+      _provider = createProvider({
+        ...(process.env['OPEN_FOOD_FACTS_BASE_URL']
+          ? { baseUrl: process.env['OPEN_FOOD_FACTS_BASE_URL'] }
+          : {}),
+        ...(process.env['OPEN_FOOD_FACTS_USER_AGENT']
+          ? { userAgent: process.env['OPEN_FOOD_FACTS_USER_AGENT'] }
+          : {}),
+      })
+    }
+    return Reflect.set(_provider, prop, value)
+  },
 })

@@ -335,4 +335,9 @@ export const store: DataStore = new Proxy({} as DataStore, {
     _store ??= createStore(defaultPool)
     return _store[prop as keyof DataStore]
   },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_target, prop, value) {
+    _store ??= createStore(defaultPool)
+    return Reflect.set(_store, prop, value)
+  },
 })

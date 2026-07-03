@@ -53,6 +53,10 @@ export const s3Client: S3Client = new Proxy({} as S3Client, {
   get(_, prop, receiver) {
     return Reflect.get(getS3Client(), prop, receiver)
   },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    return Reflect.set(getS3Client(), prop, value)
+  },
 })
 
 /**
