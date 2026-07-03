@@ -60,6 +60,7 @@ vi.mock('@molecule/api-queue', () => ({
   setProvider: (p: unknown) => wired.queue.push(p),
 }))
 vi.mock('@molecule/api-queue-memory', () => ({ provider: { kind: 'queue-memory' } }))
+vi.mock('@molecule/api-queue-redis', () => ({ provider: { kind: 'queue-redis' } }))
 
 // The setup module pulls in many other providers at import time; stub the
 // remainder wholesale so this suite stays focused on the fallback logic.
@@ -222,5 +223,21 @@ describe('zero-credential dev fallbacks', () => {
   it('queue: setupQueueMemory wires the in-process provider', async () => {
     await setup.setupQueueMemory()
     expect(kind(wired.queue)).toBe('queue-memory')
+  })
+
+  it('queue: memory without REDIS_URL; redis when set; redis in production', async () => {
+    await setup.setupQueueRedis()
+    expect(kind(wired.queue)).toBe('queue-memory')
+
+    wired.queue.length = 0
+    process.env.REDIS_URL = 'redis://localhost:6379'
+    await setup.setupQueueRedis()
+    expect(kind(wired.queue)).toBe('queue-redis')
+
+    wired.queue.length = 0
+    delete process.env.REDIS_URL
+    process.env.NODE_ENV = 'production'
+    await setup.setupQueueRedis()
+    expect(kind(wired.queue)).toBe('queue-redis')
   })
 })

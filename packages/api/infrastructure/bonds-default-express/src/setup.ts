@@ -380,6 +380,26 @@ export async function setupQueueMemory(): Promise<void> {
 }
 
 /**
+ * Wires `@molecule/api-queue-redis` to `@molecule/api-queue`. Outside
+ * production, when `REDIS_URL` is absent, falls back to
+ * `@molecule/api-queue-memory` — the zero-credential in-process queue — so
+ * queue-backed features (background jobs, async delivery workers) run out of
+ * the box, mirroring `setupCacheRedis`.
+ */
+export async function setupQueueRedis(): Promise<void> {
+  if (devFallbackAllowed() && !process.env.REDIS_URL) {
+    logDevFallback('queue', 'REDIS_URL', '@molecule/api-queue-memory')
+    await setupQueueMemory()
+    return
+  }
+  const [{ setProvider: setQueue }, { provider }] = await Promise.all([
+    import('@molecule/api-queue'),
+    import('@molecule/api-queue-redis'),
+  ])
+  setQueue(provider)
+}
+
+/**
  * Returns the model to default to for the given OpenAI bond category.
  * Explicit env var wins (escape hatch for debugging at a different
  * tier). Otherwise, non-production defaults to the cheapest model in

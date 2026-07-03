@@ -94,6 +94,7 @@
     "@molecule/api-push-notifications-web-push": "1.0.0",
     "@molecule/api-queue": "1.0.0",
     "@molecule/api-queue-memory": "1.0.0",
+    "@molecule/api-queue-redis": "1.0.0",
     "@molecule/api-rate-limit": "1.0.0",
     "@molecule/api-rate-limit-memory": "1.0.0",
     "@molecule/api-realtime": "1.0.0",
@@ -191,6 +192,7 @@
     "@molecule/api-push-notifications-web-push": "^1.0.0",
     "@molecule/api-queue": "^1.0.0",
     "@molecule/api-queue-memory": "^1.0.0",
+    "@molecule/api-queue-redis": "^1.0.0",
     "@molecule/api-rate-limit": "^1.0.0",
     "@molecule/api-rate-limit-memory": "^1.0.0",
     "@molecule/api-realtime": "^1.0.0",
@@ -305,6 +307,9 @@
       "optional": true
     },
     "@molecule/api-cache-redis": {
+      "optional": true
+    },
+    "@molecule/api-queue-redis": {
       "optional": true
     },
     "@molecule/api-ai-openai": {

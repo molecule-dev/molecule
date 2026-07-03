@@ -512,6 +512,18 @@ redis/rabbitmq/sqs for multi-instance production).
 function setupQueueMemory(): Promise<void>
 ```
 
+#### `setupQueueRedis()`
+
+Wires `@molecule/api-queue-redis` to `@molecule/api-queue`. Outside
+production, when `REDIS_URL` is absent, falls back to
+`@molecule/api-queue-memory` — the zero-credential in-process queue — so
+queue-backed features (background jobs, async delivery workers) run out of
+the box, mirroring `setupCacheRedis`.
+
+```typescript
+function setupQueueRedis(): Promise<void>
+```
+
 #### `setupRateLimitMemory()`
 
 Wires `@molecule/api-rate-limit-memory` to `@molecule/api-rate-limit`.
@@ -749,6 +761,7 @@ Peer dependencies:
 - `@molecule/api-push-notifications-web-push` ^1.0.0
 - `@molecule/api-queue` ^1.0.0
 - `@molecule/api-queue-memory` ^1.0.0
+- `@molecule/api-queue-redis` ^1.0.0
 - `@molecule/api-rate-limit` ^1.0.0
 - `@molecule/api-rate-limit-memory` ^1.0.0
 - `@molecule/api-realtime` ^1.0.0
