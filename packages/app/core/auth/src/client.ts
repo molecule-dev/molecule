@@ -143,7 +143,14 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
       headers['Authorization'] = `Bearer ${token}`
     }
 
+    // 'include' so httpOnly session cookies flow when the API is on another
+    // origin (fetch defaults to 'same-origin', which silently DROPS the login
+    // Set-Cookie cross-origin and breaks session restore). Safe both ways:
+    // same-origin behaves identically, and the fleet CORS bond pairs a strict
+    // origin allowlist with credentials:true. True cross-SITE deployments
+    // additionally need SameSite=None cookies — a server deployment concern.
     const response = await fetch(url, {
+      credentials: 'include',
       ...options,
       headers,
     })
