@@ -2,6 +2,21 @@
 
 PostHog analytics provider for molecule.dev frontend.
 
+## Quick Start
+
+```typescript
+import { setProvider } from '@molecule/app-analytics'
+import { createProvider } from '@molecule/app-analytics-posthog'
+
+// Canonical wiring: read the browser-side key from Vite env and pass it
+// through options. Without a key, skip bonding — analytics calls no-op.
+const apiKey = import.meta.env?.VITE_POSTHOG_KEY as string | undefined
+const host = import.meta.env?.VITE_POSTHOG_HOST as string | undefined
+if (apiKey) {
+  setProvider(createProvider({ apiKey, ...(host ? { host } : {}) }))
+}
+```
+
 ## Type
 `provider`
 
@@ -176,10 +191,20 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `POSTHOG_API_KEY` *(required)* — PostHog project API key
-  - Setup: Copy the Project API key from PostHog → Project settings.
+- `VITE_POSTHOG_KEY` *(required)* — PostHog project API key
+  - Setup: Copy the Project API key from PostHog → Project settings. This is a public browser-side key — Vite embeds it into the client bundle (VITE_ prefix required).
   - Get it here: [https://app.posthog.com/settings/project](https://app.posthog.com/settings/project)
   - Example: `phc_...`
-- `POSTHOG_HOST` *(optional)* — PostHog host — default: `https://app.posthog.com`
-  - Setup: Origin of your PostHog instance (US cloud, EU cloud, or self-hosted).
+- `VITE_POSTHOG_HOST` *(optional)* — PostHog host — default: `https://app.posthog.com`
+  - Setup: Origin of your PostHog instance (US cloud, EU cloud, or self-hosted). Browser-side (VITE_ prefix required).
   - Example: `https://us.i.posthog.com`
+
+The provider does NOT read env itself — configuration flows in through
+`createProvider(options)`. The canonical env names are `VITE_POSTHOG_KEY`
+and `VITE_POSTHOG_HOST` (the `VITE_` prefix is required: Vite only embeds
+`VITE_`-prefixed vars into the client bundle, and molecule's scaffolded app
+`.env` only includes `VITE_*` secrets). Do NOT use the API-side twin names
+(`POSTHOG_API_KEY`/`POSTHOG_HOST`) in frontend code — those belong to
+`@molecule/api-analytics-posthog` and never reach the browser. The PostHog
+project API key (`phc_...`) is a public browser-side credential, safe to
+embed client-side.

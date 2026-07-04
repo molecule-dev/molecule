@@ -2,6 +2,20 @@
 
 Mixpanel analytics provider for molecule.dev frontend.
 
+## Quick Start
+
+```typescript
+import { setProvider } from '@molecule/app-analytics'
+import { createProvider } from '@molecule/app-analytics-mixpanel'
+
+// Canonical wiring: read the browser-side token from Vite env and pass it
+// through options. Without a token, skip bonding — analytics calls no-op.
+const token = import.meta.env?.VITE_MIXPANEL_TOKEN as string | undefined
+if (token) {
+  setProvider(createProvider({ token }))
+}
+```
+
 ## Type
 `provider`
 
@@ -175,6 +189,15 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `MIXPANEL_TOKEN` *(required)* — Mixpanel project token
-  - Setup: Copy the Project Token from Mixpanel → Project Settings → Access Keys.
+- `VITE_MIXPANEL_TOKEN` *(required)* — Mixpanel project token
+  - Setup: Copy the Project Token from Mixpanel → Project Settings → Access Keys. This is a public browser-side token — Vite embeds it into the client bundle (VITE_ prefix required).
   - Get it here: [https://mixpanel.com/settings/project](https://mixpanel.com/settings/project)
+
+The provider does NOT read env itself — configuration flows in through
+`createProvider(options)`. The canonical env name is `VITE_MIXPANEL_TOKEN`
+(the `VITE_` prefix is required: Vite only embeds `VITE_`-prefixed vars
+into the client bundle, and molecule's scaffolded app `.env` only includes
+`VITE_*` secrets). Do NOT use the API-side twin name (`MIXPANEL_TOKEN`) in
+frontend code — that belongs to `@molecule/api-analytics-mixpanel` and
+never reaches the browser. The Mixpanel project token is a public
+browser-side credential, safe to embed client-side.
